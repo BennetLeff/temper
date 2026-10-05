@@ -1,0 +1,44 @@
+{
+  "mesher": "power-stage-120v/validation-results/01-switching-parasitics/round17/scripts/mesh25d_hybrid.py",
+  "leg_regions_mm": {
+    "A": [
+      105.865,
+      -15.785,
+      184.6,
+      61.125
+    ],
+    "B": [
+      68.4,
+      -15.785,
+      147.135,
+      61.125
+    ]
+  },
+  "proposed_envelopes_mm": {
+    "module": [
+      -120,
+      10,
+      -10,
+      90
+    ],
+    "wire_and_PE_corridor": [
+      -10,
+      -10,
+      60,
+      90
+    ]
+  },
+  "intersection_area_mm2": {
+    "module": {
+      "A": 0.0,
+      "B": 0.0
+    },
+    "wire_and_PE_corridor": {
+      "A": 0.0,
+      "B": 0.0
+    }
+  },
+  "rightmost_new_conductor_x_mm": 60,
+  "nearest_region_left_x_mm": 68.4,
+  "condition": "reservation only; keep all new metal/wiring within these boxes and keep original leg copper/stackup/mounting unchanged"
+}

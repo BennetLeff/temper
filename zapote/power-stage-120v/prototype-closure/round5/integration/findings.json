@@ -1,0 +1,108 @@
+{
+  "schema": 1,
+  "status": "IN_PROGRESS",
+  "findings": [
+    {
+      "id": "R5I-001",
+      "priority": "P2",
+      "status": "OPEN_PENDING_OWNER",
+      "artifact": "round4/supervisor/generated/pins.tsv",
+      "net": "CTRL_HEARTBEAT_OK",
+      "observed": "MCU PD4 and two permissive gate inputs have no external fail-low bias.",
+      "failure": "A Hi-Z or open MCU output can leave the hardware permissive floating. Boolean false-injection tests do not establish the real open-circuit voltage.",
+      "correction": "Add a receiver-side pulldown sized for input leakage and driven-state loading; verify it in final circuit and board exports.",
+      "evidence_class": "observed_connectivity",
+      "owner": "supervisor_layout"
+    },
+    {
+      "id": "R5I-002",
+      "priority": "P1",
+      "status": "OPEN_PENDING_OWNER",
+      "artifact": "round5/firmware/common/acquisition.c:post_record_accept",
+      "observed": "Initial POST API accepts one scalar resistance, while protection/interface.json requires isolated per-branch measurements with uncertainty intervals.",
+      "failure": "A whole-pair or scalar check can authorize an attempt without proving both adopted25ohm resistors meet their individual limits.",
+      "correction": "Join two branch-specific measurements and uncertainty bounds to the boot/attempt-scoped POST. Align cold-admission and one-attempt policy with protection interface.",
+      "evidence_class": "observed_interface_mismatch",
+      "owner": "target_firmware",
+      "observed_source_sha256": "d5467b4e7e04deaa66267faf6e993d728a7dc8f6302df2a359f52e71974325bf"
+    },
+    {
+      "id": "R5I-003",
+      "priority": "P1",
+      "status": "CORRECTED_IN_WORKING_SOURCE_FINAL_PIN_PENDING",
+      "artifact": "round5/firmware/common/acquisition.c:ads_command",
+      "observed": "TX command CRC is appended atbytes27/28 and computed over27bytes, copying the DOUT conversion-frame structure.",
+      "failure": "Once RX_CRC_EN is set, simplecommands expect CRC inword2; a single-registerWREG expectsCRC inword3. Current builder produces CRCerrors and rejected commands. WREG can execute despite CRCerror.",
+      "correction": "Separate simplecommand andWREG encoding; computeCRC over actual padded command/registerwords and putit immediately afterward, retaining full30byte clocks forconversionreadout. Add independent datasheet-vector tests.",
+      "source": "https://www.ti.com/lit/ds/symlink/ads131m08.pdf",
+      "source_sections": [
+        "8.5.1.7",
+        "Figure8-18",
+        "8.5.1.10.8",
+        "Figure8-25"
+      ],
+      "evidence_class": "observed_source_vs_manufacturer_protocol",
+      "owner": "target_firmware",
+      "observed_source_sha256": "d5467b4e7e04deaa66267faf6e993d728a7dc8f6302df2a359f52e71974325bf",
+      "independent_verification": "check_adc_command.c compiled against current acquisition.c:3 DIN vectors pass; samefixture rejected all3 earlier frames.",
+      "corrected_source_sha256": "77cac4da01bbbe3d90d5af6b54b83e16d67f93ade24ec2c3b1b825f0cf644973"
+    },
+    {
+      "id": "R5I-004",
+      "priority": "P2",
+      "status": "OPEN_PENDING_OWNER",
+      "artifact": "round5/firmware/stm32/platform.c",
+      "observed": "PD4 is configured and read as an input, but the circuit net CTRL_HEARTBEAT_OK is a supervisor-generated hardware permissive. PD3 receives the actual controller heartbeat.",
+      "failure": "The target cannot establish the hardware heartbeat qualification through the assigned pin. With no bias, the permissive can float.",
+      "correction": "Qualify fresh heartbeat edges on PD3; configure and drive PD4 as a fail-low output, including safe_outputs.",
+      "evidence_class": "observed_interface_direction_mismatch",
+      "owner": "target_firmware"
+    },
+    {
+      "id": "R5I-005",
+      "priority": "P2",
+      "status": "OPEN_PENDING_OWNER",
+      "artifact": "round5/firmware/stm32/platform.c:adc_init",
+      "observed": "After a2ms acquisition pause, startup reads one frame before enabling DRDY interrupt handling. The ADC has a two-slot FIFO.",
+      "failure": "Unread stale data and the narrow DRDY pulse can misalign first acquisition timestamps or prevent predictable startup.",
+      "correction": "Use the documented SYNC sequence or two immediate frame reads after the pause; accept freshness only from post-synchronization conversions.",
+      "source": "https://www.ti.com/lit/ds/symlink/ads131m08.pdf",
+      "source_sections": [
+        "8.5.1.9",
+        "Figures8-20/8-21"
+      ],
+      "evidence_class": "observed_source_vs_manufacturer_protocol",
+      "owner": "target_firmware"
+    },
+    {
+      "id": "R5I-006",
+      "priority": "P1",
+      "status": "OPEN_PENDING_OWNER",
+      "artifact": "round5/firmware/esp32/mcpwm_target.c:inhibit",
+      "observed": "Complementary low-side outputs use the dead-time inverter, but inhibit forces generator outputs to zero upstream of that inverter.",
+      "failure": "The forced zero can become a high low-side pad level. Therefore forcing all generators low does not establish four low external gate inputs, even in the disabled bench image.",
+      "correction": "Implement a checked shutdown downstream of inversion, or use a waveform topology with independently controllable safe pad levels. Preserve request-low first and cover initialization/partial initialization/fault paths.",
+      "source": "https://docs.espressif.com/projects/esp-idf/en/v5.2/esp32s3/api-reference/peripherals/mcpwm.html",
+      "source_sections": [
+        "mcpwm_generator_set_force_level API warning",
+        "Dead Time"
+      ],
+      "evidence_class": "observed_source_vs_manufacturer_API_semantics",
+      "owner": "target_firmware"
+    },
+    {
+      "id": "R5I-007",
+      "priority": "P2",
+      "status": "OPEN_PENDING_OWNER",
+      "artifact": "round5/protection/build_hardware.py:HS400 mounting holes",
+      "observed": "Manufacturer top-view drawing dimensions2.png specifies45mm transverse hole-center pitch. Authored holes at z+5.4 and z+50.1 have44.7mm pitch. The5.4mm annotation is slot width/hole diameter, not edge offset.",
+      "failure": "The drilled hot plate and supplier flange do not share the specified mounting pattern; available clearance must not silently absorb a copied-dimension error.",
+      "correction": "Use the supplier45mm hole-center pitch and a declared mounting datum; keep8mm slot direction and5.4mm diameter distinct, then regenerate STEP, drilling coordinates and manifest.",
+      "source": "https://www.ohmite.com/assets/images/content/screenshot-172.png",
+      "source_sha256": "6f36590f6b5fc5460763d91bfe83e18e19eb14de1ff7253b0fe746ea4283b4b7",
+      "evidence_class": "visually_verified_manufacturer_drawing_vs_authored_geometry",
+      "owner": "protection_hardware"
+    }
+  ],
+  "release": "NOT_RELEASED"
+}

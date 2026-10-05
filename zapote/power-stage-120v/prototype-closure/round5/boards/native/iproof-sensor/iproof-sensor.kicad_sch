@@ -1,0 +1,653 @@
+(kicad_sch(version 20250114)(generator "temper")(uuid "87cbb16f-2949-5eb7-8dc0-5963b66a2a8e")(paper "A4")(title_block(title "Temper iproof permanent burden card")(date "2026-10-05")(rev "R5 candidate"))(lib_symbols (symbol "Current:R_Small_US"
+		(pin_numbers
+			(hide yes)
+		)
+		(pin_names
+			(offset 0.254)
+			(hide yes)
+		)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "R"
+			(at 0.762 0.508 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "R_Small_US"
+			(at 0.762 -1.016 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor, small US symbol"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_keywords" "r resistor"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_fp_filters" "R_*"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(symbol "R_Small_US_1_1"
+			(polyline
+				(pts
+					(xy 0 1.524) (xy 1.016 1.143) (xy 0 0.762) (xy -1.016 0.381) (xy 0 0)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0 0) (xy 1.016 -0.381) (xy 0 -0.762) (xy -1.016 -1.143) (xy 0 -1.524)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(pin passive line
+				(at 0 2.54 270)
+				(length 1.016)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 0 -2.54 90)
+				(length 1.016)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)(symbol "Current:D_TVS"
+		(pin_numbers
+			(hide yes)
+		)
+		(pin_names
+			(offset 1.016)
+			(hide yes)
+		)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "D"
+			(at 0 2.54 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "D_TVS"
+			(at 0 -2.54 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Bidirectional transient-voltage-suppression diode"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_keywords" "diode TVS thyrector"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_fp_filters" "TO-???* *_Diode_* *SingleDiode* D_*"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(symbol "D_TVS_0_1"
+			(polyline
+				(pts
+					(xy -2.54 1.27) (xy -2.54 -1.27) (xy 2.54 1.27) (xy 2.54 -1.27) (xy -2.54 1.27)
+				)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0.508 1.27) (xy 0 1.27) (xy 0 -1.27) (xy -0.508 -1.27)
+				)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 1.27 0) (xy -1.27 0)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+		)
+		(symbol "D_TVS_1_1"
+			(pin passive line
+				(at -3.81 0 0)
+				(length 2.54)
+				(name "A1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 3.81 0 180)
+				(length 2.54)
+				(name "A2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)(symbol "Current:Conn_01x02"
+		(pin_names
+			(offset 1.016)
+			(hide yes)
+		)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "J"
+			(at 0 2.54 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Conn_01x02"
+			(at 0 -5.08 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_keywords" "connector"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_fp_filters" "Connector*:*_1x??_*"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(symbol "Conn_01x02_1_1"
+			(rectangle
+				(start -1.27 1.27)
+				(end 1.27 -3.81)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type background)
+				)
+			)
+			(rectangle
+				(start -1.27 0.127)
+				(end 0 -0.127)
+				(stroke
+					(width 0.1524)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(rectangle
+				(start -1.27 -2.413)
+				(end 0 -2.667)
+				(stroke
+					(width 0.1524)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(pin passive line
+				(at -5.08 0 0)
+				(length 3.81)
+				(name "Pin_1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at -5.08 -2.54 0)
+				(length 3.81)
+				(name "Pin_2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)(symbol "Current:CT"
+		(pin_numbers
+			(hide yes)
+		)
+		(pin_names
+			(offset 1.016)
+			(hide yes)
+		)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "CT"
+			(at -1.27 0 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "CT"
+			(at 1.905 0 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Inductor"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_keywords" "inductor choke coil reactor magnetic"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_fp_filters" "Choke_* *Coil* Inductor_* L_*"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(symbol "CT_0_1"
+			(arc
+				(start 0 2.54)
+				(mid 0.6323 1.905)
+				(end 0 1.27)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(arc
+				(start 0 1.27)
+				(mid 0.6323 0.635)
+				(end 0 0)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(arc
+				(start 0 0)
+				(mid 0.6323 -0.635)
+				(end 0 -1.27)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(arc
+				(start 0 -1.27)
+				(mid 0.6323 -1.905)
+				(end 0 -2.54)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+		)
+		(symbol "CT_1_1"
+			(pin passive line
+				(at 0 3.81 270)
+				(length 1.27)
+				(name "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 0 -3.81 90)
+				(length 1.27)
+				(name "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	(symbol "CT_1_1" (pin no_connect line(at 7.62 0 180)(length 2.54)(name "SUPPORT"(effects(font(size 1 1))))(number "3"(effects(font(size 1 1))))))))(symbol(lib_id "Current:CT")(at 60.96 71.12 0)(unit 1)(in_bom yes)(on_board yes)(dnp no)(uuid "04554083-5136-594f-9b2e-db61cff81038")(property "Reference" "T1"(at 66.04 66.04 0)(effects(font(size 1.27 1.27))))(property "Value" "AC1005"(at 66.04 78.74000000000001 0)(effects(font(size 1.27 1.27))))(property "Footprint" "Round5:Talema_AC1005_AC1020"(at 60.96 71.12 0)(effects(font(size 1 1)) hide))(property "MPN" "AC1005"(at 60.96 71.12 0)(effects(font(size 1 1)) hide))(pin "1"(uuid "d4e1aa77-37b6-5531-b79d-0ae9a5eed650"))(pin "2"(uuid "f45b2e5c-fd24-522b-87a3-32bc9620729e"))(pin "3"(uuid "be1f55e2-3926-5a53-95e9-1191b97d2714"))(instances(project "iproof-sensor"(path "/87cbb16f-2949-5eb7-8dc0-5963b66a2a8e"(reference "T1")(unit 1)))))(wire(pts(xy 60.96 67.31)(xy 60.96 57.150000000000006))(stroke(width 0)(type default))(uuid "463b7e99-450b-5f86-adcd-16fdbb9edfb5"))(global_label "IPROOF_RAW"(shape bidirectional)(at 60.96 57.150000000000006 0)(effects(font(size 1.27 1.27))(justify left))(uuid "f06e0c93-5357-5d04-a3fc-3c2cb06b5f76"))(wire(pts(xy 60.96 74.93)(xy 60.96 85.09))(stroke(width 0)(type default))(uuid "87a4c9f8-6ef7-50bb-879f-f0343a118751"))(global_label "REF_1V25"(shape bidirectional)(at 60.96 85.09 0)(effects(font(size 1.27 1.27))(justify left))(uuid "3d7cf890-d378-5627-a50e-561b2e0713c6"))(no_connect(at 68.58 71.12)(uuid "a0a2d2f2-82ed-5249-9fb4-79ca379dfbb8"))(symbol(lib_id "Current:R_Small_US")(at 101.6 71.12 0)(unit 1)(in_bom yes)(on_board yes)(dnp no)(uuid "9a18f40f-c996-5810-8453-1ac35d108c48")(property "Reference" "R1"(at 106.67999999999999 66.04 0)(effects(font(size 1.27 1.27))))(property "Value" "200R"(at 106.67999999999999 78.74000000000001 0)(effects(font(size 1.27 1.27))))(property "Footprint" "Resistor_SMD:R_1206_3216Metric"(at 101.6 71.12 0)(effects(font(size 1 1)) hide))(property "MPN" "200R CRCW1206200RFKEA"(at 101.6 71.12 0)(effects(font(size 1 1)) hide))(pin "1"(uuid "90c6f5d8-61bc-5923-bad2-ad7f6c7e7317"))(pin "2"(uuid "ddcdce03-2685-5274-a71d-92f4226464b9"))(instances(project "iproof-sensor"(path "/87cbb16f-2949-5eb7-8dc0-5963b66a2a8e"(reference "R1")(unit 1)))))(wire(pts(xy 101.6 68.58)(xy 101.6 58.42))(stroke(width 0)(type default))(uuid "04b078b6-749a-59aa-ae72-2d06f0d9c02b"))(global_label "IPROOF_RAW"(shape bidirectional)(at 101.6 58.42 0)(effects(font(size 1.27 1.27))(justify left))(uuid "3306188a-d861-5d83-a79a-4b3b7b413680"))(wire(pts(xy 101.6 73.66000000000001)(xy 101.6 83.82000000000001))(stroke(width 0)(type default))(uuid "60ac6021-81a5-5a20-bb05-1116ed298835"))(global_label "REF_1V25"(shape bidirectional)(at 101.6 83.82000000000001 0)(effects(font(size 1.27 1.27))(justify left))(uuid "4cb609ac-1b1d-5fb7-8c10-621ccb67035f"))(symbol(lib_id "Current:R_Small_US")(at 127 71.12 0)(unit 1)(in_bom yes)(on_board yes)(dnp no)(uuid "f4c09c2c-0a0e-5b54-b31c-6fcd65fe7188")(property "Reference" "R2"(at 132.08 66.04 0)(effects(font(size 1.27 1.27))))(property "Value" "200R"(at 132.08 78.74000000000001 0)(effects(font(size 1.27 1.27))))(property "Footprint" "Resistor_SMD:R_1206_3216Metric"(at 127 71.12 0)(effects(font(size 1 1)) hide))(property "MPN" "200R CRCW1206200RFKEA"(at 127 71.12 0)(effects(font(size 1 1)) hide))(pin "1"(uuid "e729b7c2-6f8f-5b71-a270-7dd61706496c"))(pin "2"(uuid "979ca681-5318-529b-a1c9-ae7bfd48d332"))(instances(project "iproof-sensor"(path "/87cbb16f-2949-5eb7-8dc0-5963b66a2a8e"(reference "R2")(unit 1)))))(wire(pts(xy 127.0 68.58)(xy 127.0 58.42))(stroke(width 0)(type default))(uuid "e7ac972e-8a88-5279-a12e-c2941224938a"))(global_label "IPROOF_RAW"(shape bidirectional)(at 127.0 58.42 0)(effects(font(size 1.27 1.27))(justify left))(uuid "63edcea7-a424-5c60-b550-7be4047dc918"))(wire(pts(xy 127.0 73.66000000000001)(xy 127.0 83.82000000000001))(stroke(width 0)(type default))(uuid "2d549418-1bdd-5959-804a-886bacfe72d8"))(global_label "REF_1V25"(shape bidirectional)(at 127.0 83.82000000000001 0)(effects(font(size 1.27 1.27))(justify left))(uuid "ce48d2c5-0445-5b18-81aa-3454811b05aa"))(symbol(lib_id "Current:D_TVS")(at 152.4 71.12 0)(unit 1)(in_bom yes)(on_board yes)(dnp no)(uuid "8e5db931-557b-52ab-947a-5aa1d5ccad03")(property "Reference" "D1"(at 157.48000000000002 66.04 0)(effects(font(size 1.27 1.27))))(property "Value" "SMCJ5.0CA-E3/57T"(at 157.48000000000002 78.74000000000001 0)(effects(font(size 1.27 1.27))))(property "Footprint" "Diode_SMD:D_SMC"(at 152.4 71.12 0)(effects(font(size 1 1)) hide))(property "MPN" "SMCJ5.0CA-E3/57T"(at 152.4 71.12 0)(effects(font(size 1 1)) hide))(pin "1"(uuid "49b663f0-62ea-5d60-95ab-110a44315d1d"))(pin "2"(uuid "8dd82f38-733c-5d28-839b-5b78862cd4f5"))(instances(project "iproof-sensor"(path "/87cbb16f-2949-5eb7-8dc0-5963b66a2a8e"(reference "D1")(unit 1)))))(wire(pts(xy 148.59 71.12)(xy 148.59 60.96000000000001))(stroke(width 0)(type default))(uuid "7f0097ed-86e0-5e9d-811c-088ef270996b"))(global_label "IPROOF_RAW"(shape bidirectional)(at 148.59 60.96000000000001 0)(effects(font(size 1.27 1.27))(justify left))(uuid "0e82d417-2221-5e95-a7f9-51c275a82700"))(wire(pts(xy 156.21 71.12)(xy 156.21 81.28))(stroke(width 0)(type default))(uuid "f5fd9303-129d-5462-a9c3-e98e5db0385f"))(global_label "REF_1V25"(shape bidirectional)(at 156.21 81.28 0)(effects(font(size 1.27 1.27))(justify left))(uuid "204204b7-97d0-5cd1-8d1b-f37d75531aa9"))(symbol(lib_id "Current:Conn_01x02")(at 195.58 71.12 0)(unit 1)(in_bom yes)(on_board yes)(dnp no)(uuid "0f24b56f-a1e8-5592-877c-8453fa2744f7")(property "Reference" "J1"(at 200.66000000000003 66.04 0)(effects(font(size 1.27 1.27))))(property "Value" "B2B-XH-A"(at 200.66000000000003 78.74000000000001 0)(effects(font(size 1.27 1.27))))(property "Footprint" "Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical"(at 195.58 71.12 0)(effects(font(size 1 1)) hide))(property "MPN" "B2B-XH-A(LF)(SN)"(at 195.58 71.12 0)(effects(font(size 1 1)) hide))(pin "1"(uuid "064b76ee-428f-5427-bf71-b68133524f8e"))(pin "2"(uuid "8bf2c076-b610-57ab-af2c-00454ec795a9"))(instances(project "iproof-sensor"(path "/87cbb16f-2949-5eb7-8dc0-5963b66a2a8e"(reference "J1")(unit 1)))))(wire(pts(xy 190.5 71.12)(xy 190.5 60.96000000000001))(stroke(width 0)(type default))(uuid "55e4812b-55db-5735-88b9-b9bf73628d6e"))(global_label "IPROOF_RAW"(shape bidirectional)(at 190.5 60.96000000000001 0)(effects(font(size 1.27 1.27))(justify left))(uuid "30faa4c3-ac6b-509e-a8a5-cbe830ee1005"))(wire(pts(xy 190.5 73.66000000000001)(xy 190.5 83.82000000000001))(stroke(width 0)(type default))(uuid "e06c5ab1-7a03-596d-a25d-68142f34a3e4"))(global_label "REF_1V25"(shape bidirectional)(at 190.5 83.82000000000001 0)(effects(font(size 1.27 1.27))(justify left))(uuid "2e680a0e-9707-5430-975c-5b2585cb7849"))(text "Permanent parallel burdens and bidirectional TVS stay with CT when J1 disconnects."(at 140 110.0 0)(effects(font(size 1.27 1.27)))(uuid "414cd602-f8d8-5145-b45c-f4c4f0c30d06"))(text "CT is 50/60 Hz only. Insulated one-turn primary passes through aperture; never a PCB terminal."(at 140 120.16 0)(effects(font(size 1.27 1.27)))(uuid "fe3bd1e7-13f0-59b8-a84e-80f5a9d6a02c"))(text "Pin 3 is mechanical support only. 4 kVrms datasheet test does not qualify the product insulation."(at 140 130.32 0)(effects(font(size 1.27 1.27)))(uuid "ac828960-cd5a-5ec3-bf23-1e651d215387"))(text "Candidate 45 x 35 mm. Primary wire insulation, retention and enclosure mounting remain held."(at 140 140.48 0)(effects(font(size 1.27 1.27)))(uuid "960e7b1d-babd-579d-9f1f-065d99a73223"))(sheet_instances(path "/"(page "1"))))

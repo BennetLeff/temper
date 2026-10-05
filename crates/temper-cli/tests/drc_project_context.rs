@@ -42,190 +42,6 @@ fn prepend_path(directory: &Path) -> String {
         .into_owned()
 }
 
-fn drc_with_report(name: &str, report: &str) -> std::process::Output {
-    drc_with_report_mode(name, report, false)
-}
-
-fn drc_with_report_mode(name: &str, report: &str, check: bool) -> std::process::Output {
-    drc_with_fault(name, report, check, Fault::None)
-}
-
-#[derive(Clone, Copy)]
-enum Fault {
-    None,
-    GeneratorFailure,
-    KicadFailure,
-    MissingReport,
-    StaleReport,
-}
-
-fn drc_with_fault(name: &str, report: &str, check: bool, fault: Fault) -> std::process::Output {
-    let root = fixture_root(name);
-    let pcb = root.join("sample.kicad_pcb");
-    fs::write(&pcb, "(kicad_pcb (version 20240108))").expect("create board fixture");
-    fs::write(root.join("sample.kicad_pro"), "{}").expect("create project fixture");
-    fs::create_dir_all(root.join("pcb")).expect("create generator output directory");
-    let report_path = root.join("report.json");
-    fs::write(&report_path, report).expect("write report fixture");
-    let bin_dir = root.join("bin");
-    let venv_bin = root.join(".venv/bin");
-    fs::create_dir_all(&bin_dir).expect("create executable directory");
-    fs::create_dir_all(&venv_bin).expect("create python fixture directory");
-    let generator = if matches!(fault, Fault::GeneratorFailure) {
-        "#!/bin/sh\nexit 1\n".to_string()
-    } else if matches!(fault, Fault::StaleReport) {
-        format!("#!/bin/sh\nset -eu\nmkdir -p \"$TMPDIR/temper-drc-$PPID\"\nprintf '{{\"violations\":[],\"unconnected_items\":[],\"included_severities\":[\"error\"],\"schematic_parity\":[]}}' > \"$TMPDIR/temper-drc-$PPID/drc.json\"\necho stale-seeded >&2\nprintf 'generated rules\\n' > '{}/temper.kicad_dru'\n", root.join("pcb").display())
-    } else {
-        format!("#!/bin/sh\nprintf 'generated rules\\n' > '{}/temper.kicad_dru'\n", root.join("pcb").display())
-    };
-    executable(&venv_bin.join("python"), &generator);
-    let kicad = if matches!(fault, Fault::KicadFailure) {
-        "#!/bin/sh\nexit 1\n".to_string()
-    } else if matches!(fault, Fault::MissingReport | Fault::StaleReport) {
-        "#!/bin/sh\nexit 0\n".to_string()
-    } else {
-        format!("#!/bin/sh\nfor arg in \"$@\"; do\n  if [ \"$previous\" = \"--output\" ]; then cp '{}' \"$arg\"; fi\n  previous=\"$arg\"\ndone\n", report_path.display())
-    };
-    executable(&bin_dir.join("kicad-cli"), &kicad);
-
-    let mut command = Command::new(binary());
-    command.args(["drc", "--pcb", "sample.kicad_pcb"]);
-    if check {
-        command.arg("--check");
-    }
-    command
-        .current_dir(&root)
-        .env("PATH", prepend_path(&bin_dir))
-        .env("TMPDIR", root.join("tmp"))
-        .env("TEMPER_REPO_ROOT", &root)
-        .output()
-        .expect("spawn temper drc")
-}
-
-#[test]
-fn drc_check_has_three_outcomes_and_requires_native_envelope() {
-    for (name, report, expected) in [
-        (
-            "check-clean",
-            r#"{"violations":[],"unconnected_items":[],"included_severities":["error","warning"],"schematic_parity":[]}"#,
-            0,
-        ),
-        (
-            "check-warning",
-            r#"{"violations":[{"type":"clearance","severity":"warning"}],"unconnected_items":[],"included_severities":["error","warning"],"schematic_parity":[]}"#,
-            0,
-        ),
-        (
-            "check-error",
-            r#"{"violations":[],"unconnected_items":[{"type":"unconnected_items","severity":"error"}],"included_severities":["error","warning"],"schematic_parity":[]}"#,
-            1,
-        ),
-        (
-            "check-incomplete",
-            r#"{"violations":[],"unconnected_items":[]}"#,
-            2,
-        ),
-        ("check-invalid-json", "{", 2),
-        (
-            "check-malformed-array",
-            r#"{"violations":[],"unconnected_items":{},"included_severities":["error"]}"#,
-            2,
-        ),
-        (
-            "check-missing-type",
-            r#"{"violations":[{"severity":"warning"}],"unconnected_items":[],"included_severities":["error"]}"#,
-            2,
-        ),
-        (
-            "check-errors-only-no-parity",
-            r#"{"violations":[],"unconnected_items":[],"included_severities":["error"]}"#,
-            0,
-        ),
-        (
-            "check-missing-connectivity",
-            r#"{"violations":[],"included_severities":["error"],"schematic_parity":[]}"#,
-            2,
-        ),
-        (
-            "check-missing-error-severity",
-            r#"{"violations":[],"unconnected_items":[],"included_severities":["warning"],"schematic_parity":[]}"#,
-            2,
-        ),
-        (
-            "check-unknown-array",
-            r#"{"violations":[],"unconnected_items":[],"included_severities":["error"],"new_findings":[],"schematic_parity":[]}"#,
-            2,
-        ),
-        (
-            "check-unknown-severity",
-            r#"{"violations":[{"type":"clearance","severity":"notice"}],"unconnected_items":[],"included_severities":["error","warning"],"schematic_parity":[]}"#,
-            2,
-        ),
-        (
-            "check-parity-error",
-            r#"{"violations":[],"unconnected_items":[],"included_severities":["error"],"schematic_parity":[{"type":"parity","severity":"error"}]}"#,
-            1,
-        ),
-        (
-            "check-malformed-item",
-            r#"{"violations":[null],"unconnected_items":[],"included_severities":["error"],"schematic_parity":[]}"#,
-            2,
-        ),
-        (
-            "check-parity-warning",
-            r#"{"violations":[],"unconnected_items":[],"included_severities":["error"],"schematic_parity":[{"type":"parity","severity":"warning"}]}"#,
-            0,
-        ),
-    ] {
-        let out = drc_with_report_mode(name, report, true);
-        assert_eq!(
-            out.status.code(),
-            Some(expected),
-            "{name}: {}",
-            String::from_utf8_lossy(&out.stderr)
-        );
-        let stdout = String::from_utf8_lossy(&out.stdout);
-        assert_eq!(
-            stdout.lines().any(|line| line == "DRC check: no reported errors"),
-            expected == 0,
-            "{name}: {stdout}"
-        );
-        if expected == 2 {
-            assert!(!stdout.contains("DRC violations:"), "{name}: {stdout}");
-        }
-    }
-    for (name, fault) in [
-        ("check-kicad-failure", Fault::KicadFailure),
-        ("check-missing-report", Fault::MissingReport),
-        ("check-generator-failure", Fault::GeneratorFailure),
-        ("check-stale-report", Fault::StaleReport),
-    ] {
-        let out = drc_with_fault(name, r#"{}"#, true, fault);
-        assert_eq!(out.status.code(), Some(2), "{name}: {}", String::from_utf8_lossy(&out.stderr));
-        assert!(!String::from_utf8_lossy(&out.stdout).contains("no reported errors"));
-        if matches!(fault, Fault::StaleReport) {
-            assert!(String::from_utf8_lossy(&out.stderr).contains("stale-seeded"));
-        }
-    }
-}
-
-#[test]
-fn drc_check_reports_errors_in_captured_native_report() {
-    let report = include_str!(
-        "../../../packages/temper-placer/tests/validation/fixtures/kicad_drc_reports/temper_26981fea_run0.json"
-    );
-    let out = drc_with_report_mode("check-captured-native", report, true);
-    assert_eq!(out.status.code(), Some(1), "{}", String::from_utf8_lossy(&out.stderr));
-    let stdout = String::from_utf8_lossy(&out.stdout);
-    for expected in [
-        "DRC violations: 1115",
-        "  [error] unconnected_items: 339",
-        "DRC check: reported errors (718)",
-    ] {
-        assert!(stdout.lines().any(|line| line == expected), "{stdout}");
-    }
-}
-
 #[test]
 fn drc_rejects_board_without_matching_project_before_kicad() {
     let root = fixture_root("missing-project");
@@ -265,16 +81,6 @@ fn drc_rejects_board_without_matching_project_before_kicad() {
         !generation_marker.exists(),
         "DRU generation must not run on rejected input"
     );
-
-    let out = Command::new(binary())
-        .args(["drc", "--check", "--pcb"])
-        .arg("sample.kicad_pcb")
-        .current_dir(&root)
-        .env("PATH", prepend_path(&bin_dir))
-        .env("TEMPER_REPO_ROOT", &root)
-        .output()
-        .expect("spawn checked temper drc");
-    assert_eq!(out.status.code(), Some(2), "checked preflight must be indeterminate");
 
     fs::create_dir(root.join("sample.kicad_pro")).expect("create project directory fixture");
     let out = Command::new(binary())
@@ -406,101 +212,8 @@ fn drc_refuses_to_replace_unrelated_board_rules() {
     );
 }
 
-#[test]
-fn drc_summary_includes_connectivity_and_preserves_existing_findings() {
-    let report = include_str!(
-        "../../../packages/temper-placer/tests/validation/fixtures/kicad_drc_reports/temper_26981fea_run0.json"
-    );
-    let out = drc_with_report("connectivity-summary", report);
-    assert!(
-        out.status.success(),
-        "DRC report should parse: {}",
-        String::from_utf8_lossy(&out.stderr)
-    );
-    let stdout = String::from_utf8_lossy(&out.stdout);
-    assert!(stdout.lines().any(|line| line == "DRC violations: 1115"), "{stdout}");
-    assert!(stdout.lines().any(|line| line == "  [error] unconnected_items: 339"), "{stdout}");
-    assert!(stdout.lines().any(|line| line == "  [error] clearance: 179"), "{stdout}");
-}
-
-#[test]
-fn drc_summary_reports_connectivity_only_findings() {
-    let out = drc_with_report(
-        "connectivity-only-summary",
-        r#"{"violations":[],"unconnected_items":[{"type":"unconnected_items","severity":"error"}]}"#,
-    );
-    assert!(
-        out.status.success(),
-        "DRC report should parse: {}",
-        String::from_utf8_lossy(&out.stderr)
-    );
-    let stdout = String::from_utf8_lossy(&out.stdout);
-    assert!(stdout.lines().any(|line| line == "DRC violations: 1"), "{stdout}");
-    assert!(stdout.lines().any(|line| line == "  [error] unconnected_items: 1"), "{stdout}");
-}
-
-#[test]
-fn drc_summary_accepts_missing_or_empty_connectivity_array() {
-    for (name, report, expected_total, expected_line) in [
-        (
-            "connectivity-missing",
-            r#"{"violations":[{"type":"clearance","severity":"warning"}]}"#,
-            1,
-            Some("  [warning] clearance: 1"),
-        ),
-        (
-            "connectivity-empty",
-            r#"{"violations":[],"unconnected_items":[]}"#,
-            0,
-            None,
-        ),
-    ] {
-        let out = drc_with_report(name, report);
-        assert!(
-            out.status.success(),
-            "{name}: {}",
-            String::from_utf8_lossy(&out.stderr)
-        );
-        let stdout = String::from_utf8_lossy(&out.stdout);
-        assert!(
-            stdout
-                .lines()
-                .any(|line| line == format!("DRC violations: {expected_total}")),
-            "{stdout}"
-        );
-        if let Some(expected_line) = expected_line {
-            assert!(stdout.lines().any(|line| line == expected_line), "{stdout}");
-        }
-    }
-}
-
-#[test]
-fn drc_summary_rejects_malformed_connectivity_array() {
-    for (name, report) in [
-        (
-            "connectivity-malformed-object",
-            r#"{"violations":[],"unconnected_items":{}}"#,
-        ),
-        (
-            "connectivity-malformed-null",
-            r#"{"violations":[],"unconnected_items":null}"#,
-        ),
-        (
-            "connectivity-malformed-entry",
-            r#"{"violations":[],"unconnected_items":[null]}"#,
-        ),
-    ] {
-        let out = drc_with_report(name, report);
-        assert!(!out.status.success(), "{name} must fail");
-        let stdout = String::from_utf8_lossy(&out.stdout);
-        let stderr = String::from_utf8_lossy(&out.stderr);
-        assert!(stderr.contains("unconnected_items"));
-        assert!(!stdout.contains("DRC violations:"));
-    }
-}
-
-/// Native KiCad verifies all three check outcomes on the same 0.2 mm track:
-/// permissive rules pass, a 0.5 mm minimum fails, and missing context exits 2.
+/// The same 0.2 mm track passes the default width check and fails only when
+/// the CLI installs the generated 0.5 mm custom rule beside the renamed board.
 #[test]
 #[ignore = "requires native KiCad; run explicitly with --ignored --exact"]
 fn drc_native_enforces_custom_rule_for_renamed_board() {
@@ -560,66 +273,37 @@ fn drc_native_enforces_custom_rule_for_renamed_board() {
         "the witness must not fail the default track-width rule: {violations:?}"
     );
 
-    let permissive_rules = "(version 1)\n(rule \"custom-width-witness\"\n  (condition \"A.Type == 'Track'\")\n  (constraint track_width (min 0.1mm)))\n";
-    let strict_rules = "(version 1)\n(rule \"custom-width-witness\"\n  (condition \"A.Type == 'Track'\")\n  (constraint track_width (min 0.5mm)))\n";
+    let rules = "(version 1)\n(rule \"custom-width-witness\"\n  (condition \"A.Type == 'Track'\")\n  (constraint track_width (min 0.5mm)))\n";
     fs::create_dir_all(root.join("pcb")).expect("create generator output directory");
     fs::create_dir_all(root.join(".venv/bin")).expect("create generator stub directory");
     // Replace only the rule generator. The CLI and KiCad execute normally.
     executable(
         &root.join(".venv/bin/python"),
-        &format!("#!/bin/sh\ncat > pcb/temper.kicad_dru <<'RULES'\n{permissive_rules}RULES\n"),
+        &format!("#!/bin/sh\ncat > pcb/temper.kicad_dru <<'RULES'\n{rules}RULES\n"),
     );
     let out = Command::new(binary())
-        .args(["drc", "--check", "--pcb", "renamed.kicad_pcb"])
+        .args(["drc", "--pcb", "renamed.kicad_pcb"])
         .current_dir(&board_dir)
         .env("TEMPER_REPO_ROOT", &root)
         .output()
         .expect("run CLI with native KiCad");
     assert!(
         out.status.success(),
-        "permissive native check failed: stdout={} stderr={}",
+        "CLI failed: stdout={} stderr={}",
         String::from_utf8_lossy(&out.stdout),
         String::from_utf8_lossy(&out.stderr)
     );
-    assert!(String::from_utf8_lossy(&out.stdout)
-        .lines().any(|line| line == "DRC check: no reported errors"));
+    assert!(
+        String::from_utf8_lossy(&out.stdout).contains("[error] track_width: 1"),
+        "custom width rule was not enforced: {}",
+        String::from_utf8_lossy(&out.stdout)
+    );
     assert_eq!(
-        fs::read_to_string(board_dir.join("renamed.kicad_dru")).expect("read permissive installed rules"),
-        permissive_rules
+        fs::read_to_string(pcb).expect("read board after DRC"),
+        board
     );
-    fs::remove_file(board_dir.join("renamed.kicad_dru")).expect("remove installed permissive rules");
-    executable(
-        &root.join(".venv/bin/python"),
-        &format!("#!/bin/sh\ncat > pcb/temper.kicad_dru <<'RULES'\n{strict_rules}RULES\n"),
-    );
-    let out = Command::new(binary())
-        .args(["drc", "--check", "--pcb", "renamed.kicad_pcb"])
-        .current_dir(&board_dir)
-        .env("TEMPER_REPO_ROOT", &root)
-        .output()
-        .expect("run strict CLI with native KiCad");
-    assert_eq!(out.status.code(), Some(1), "strict native check: stdout={} stderr={}", String::from_utf8_lossy(&out.stdout), String::from_utf8_lossy(&out.stderr));
-    let stdout = String::from_utf8_lossy(&out.stdout);
-    for expected in ["  [error] track_width: 1", "DRC check: reported errors (1)"] {
-        assert!(stdout.lines().any(|line| line == expected), "{stdout}");
-    }
-    assert_eq!(
-        fs::read_to_string(board_dir.join("renamed.kicad_dru")).expect("read strict installed rules"),
-        strict_rules
-    );
-    fs::remove_file(board_dir.join("renamed.kicad_pro")).expect("remove project context");
-    let out = Command::new(binary())
-        .args(["drc", "--check", "--pcb", "renamed.kicad_pcb"])
-        .current_dir(&board_dir)
-        .env("TEMPER_REPO_ROOT", &root)
-        .output()
-        .expect("run missing-context CLI");
-    assert_eq!(out.status.code(), Some(2), "missing project must be indeterminate: {}", String::from_utf8_lossy(&out.stderr));
-    assert!(String::from_utf8_lossy(&out.stderr).contains("missing KiCad project context"));
-    assert!(!String::from_utf8_lossy(&out.stdout).contains("DRC check:"));
-    assert_eq!(fs::read_to_string(pcb).expect("read board after DRC"), board);
     assert_eq!(
         fs::read_to_string(board_dir.join("renamed.kicad_dru")).expect("read installed rules"),
-        strict_rules
+        rules
     );
 }

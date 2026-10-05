@@ -5,7 +5,7 @@ results land. The round folders are the lab notebook behind it
 ([ROUNDS.md](ROUNDS.md)); open findings and risks are in
 [FINDINGS.md](FINDINGS.md). Last updated 2026-10-03.
 
-Board: `native-17/section.kicad_pcb`. Leg A (Q2 high / Q3 low, driver U1)
+Board: extraction on `native-17` copper; **native-18** (R9/R17 value only, identical copper) and **native-19** (R5 rework; leg A re-checked, no verdict change, FINDINGS M10) are covered. Leg A (Q2 high / Q3 low, driver U1)
 is extracted and simulated; leg B is queued. Evidence class: simulation and
 model-based throughout. **No physical qualification is claimed.**
 
@@ -13,13 +13,13 @@ model-based throughout. **No physical qualification is claimed.**
 
 | Question | Current answer | Confidence |
 | --- | --- | --- |
-| Board loop inductances (leg A) | Extracted by FEM as a 4-port matrix (C38 loop, C39 loop, two gate loops); **best matrix** = fine parabola through 1/2/3 mm + coarse low-height correction + crop correction | model result; mesh not fully converged (M1); 0.5 mm curvature transferred from the coarse mesh (M2) |
+| Board loop inductances (leg A) | Extracted by FEM as a 4-port matrix (C38 loop, C39 loop, two gate loops); **best matrix** = fine parabola through 1/2/3 mm + coarse low-height correction + crop correction | model result; self-L mesh error bounded, no verdict effect (M1); 0.5 mm curvature transferred from the coarse mesh (M2) |
 | Nominal operation (S1, 170–280 V, 37 A, 348 ns dead time) | **passes the 25 °C criterion** (best matrix, ESL 1.06–20 nH: off-gate 2.08–2.59 V < 3.0 V, die VDS ≤ 385 V, ZVS in all 24) but **fails D-6's provisional hot screen** (< 1.9 V) at 348 ns; passes it at ≥ 391 ns | **open**: the 3.0 V criterion is optimistic at hot junction (FINDINGS F5) |
 | Dead-time margin | off-gate limit crossed **between 307 and 348 ns**; 307 ns fails every nominal case (3.45–4.01 V) | **open risk**: D-5 found the firmware does not establish ≥ 500 ns at the gates; keep 307 ns (F1) |
 | Hard turn-on (S4, −20 A) | **fails at every dead time**: die VDS up to 543 V (> 520 V), off-gate up to 5.1 V | **open risk**: hinges on the body-diode recovery model (D-3, D-8) |
 | Overcurrent (S2, 280 V / 61–71 A) | passes at ≥ 391 ns; 2 marginal fails at 348 ns (3.12–3.14 V) | model result |
 | Light load (S3, 2–10 A) | passes at ≥ 348 ns; 12 fails at 307 ns | model result |
-| Hot-screen remedy | **Decided (F7, for native-18):** R9/R17 → 49.9 kΩ ±0.1 % (≈ 397–488 ns). All nominal and overcurrent cases pass the 1.9 V hot screen with ZVS across that band and at 27/100/150 °C; ≈ +0.1 W per switch | DECISIONS.md 2026-10-03; implementation D-16; timing to confirm at bring-up |
+| Hot-screen remedy | **Decided and implemented in native-18 (F7):** R9/R17 → 49.9 kΩ ±0.1 % (≈ 397–488 ns). All nominal and overcurrent cases pass the 1.9 V hot screen with ZVS across that band and at 27/100/150 °C; ≈ +0.1 W per switch | DECISIONS.md 2026-10-03; implementation D-16; timing to confirm at bring-up |
 | Negative-bias remedy (F6) | passes everything incl. S4 at 27/100 °C; 150 °C indeterminate (placeholder Schottky model); needs an isolated negative supply and a layout change | **kept in reserve** for S4 if the bench shows the snap-off is real (FINDINGS F6) |
 
 Verdict definitions, criteria and all cases: [round17/d2/README.md](round17/d2/README.md).
@@ -59,8 +59,9 @@ defeaturing (−0.7 %). Crop margin: converged by 20 mm, corrected per entry,
 no verdict changes.
 
 Known limits, each tracked in [FINDINGS.md](FINDINGS.md):
-- **Mesh:** P1 is not yet mesh-converged (31.84 / 32.27 / 33.05 nH at
-  1.0 / 0.7 / 0.35 mm edges).
+- **Mesh:** self-inductances are not mesh-converged (+1.2–1.7 % per
+  refinement); mutuals are. A pessimistic +4–6 % on self-L changes no
+  native-18 verdict (FINDINGS M1).
 - **Extrapolation to zero closure height:** curved near zero. A 0.5 mm test
   raises power-to-gate coupling 7–16 % and off-gate by 0.04–0.19 V; no
   verdict changes (FINDINGS M2).
@@ -74,13 +75,18 @@ Known limits, each tracked in [FINDINGS.md](FINDINGS.md):
 
 | Work | Where | State |
 | --- | --- | --- |
-| Mesh convergence point (fine, 0.5 mm edges, h = 1 mm) | remote box | running |
 | Leg B matrix | remote box | **paused** until the enclosure layout settles (restart note in the remote's `r17/chain_legB.out`) |
 | D-5, D-6, D-8, D-9, D-10 | delegated ([reports](round17/delegation/README.md)) | **done, merged** (#1629–#1633); D-9's six tooling findings fixed (FINDINGS S8–S13) |
 | D-12 … D-15 | delegated | **done, merged** (#1636–#1639): remedy build comparison, hot transients, solver robustness, losses vs dead time |
-| D-16 native-18 (R9/R17 value change) | delegated | brief written |
+| D-16 native-18 (R9/R17 value change) | delegated | **done, merged** (#1640): native-18 board diff is only R9/R17 Value/MPN; copper identical; no FEM rerun; D4 carry-over conditions met |
 | D-17 protection gate-off (task 02 on the FEM matrix) | delegated | brief written |
-| D-18 loss/thermal (heatsink, airflow), D-19 conducted EMI, D-20 controller requirements, D-21 firmware dead-time fix | delegated | briefs written |
+| D-18 loss/thermal | delegated | **done, merged** (#1641): sink ≤ 0.15 °C/W, ≥ 20 CFM, interface ≤ 1.0 °C/W, coil→mains airflow; decided 2026-10-03 (DECISIONS.md) |
+| D-19 conducted EMI | delegated | **merged, partial** (#1644): conditional −24.2 dB AV at 210 kHz; most periodic cases aborted. Follow-up D-22 (filter sizing) brief written |
+| D-22 EMI inlet filter | delegated | **done, merged** (#1645): all 16 cases converge; a 20 A DM+CM inlet module (110 × 80 × 50 mm, 8 W) gives ≥ 8.3 dB modelled margin; reserved in the enclosure (DECISIONS.md 2026-10-05) |
+| D-20 controller requirements | delegated | **done, merged** (#1642): 54 requirements; O05/O06/O07/O13 decided 2026-10-03 (200 ns controller gap) |
+| D-21 firmware dead-time fix | delegated | **draft** (#1643): force polarity confirmed (D-25); must be amended so failure cleanup re-asserts PWM pins low (FINDINGS F8) |
+| D-23 / D-24 / D-25 | delegated | **merged** (#1649/#1650/#1648): D-23 indeterminate (TI proxy model does not converge); D-24 answer (c): S4 needs one commutation measurement; D-25 found the failed-init GPIO defect |
+| D-26 parametric driver model | delegated | brief written |
 | D-7 capacitor ESL | delegated | **done, merged** (#1634): C38–C41 1.06 nH, C5/C6 19.2 nH typical-model values; grid now sweeps 1.06–20 nH |
 | D-11 bus-sense range (task 06) | delegated | **done, merged** (#1635); targets, ADC1 allocation and the 1.210 V over-range latch decided 2026-10-03 (DECISIONS.md) |
 | Diode-recovery data, TI timing limits at 39 kΩ, deployed four-PWM controller and harness, mounted C38 ESL (lead length) | outside input / owner | open |

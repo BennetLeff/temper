@@ -1,0 +1,34 @@
+{
+  "pre_refill_board_sha256": {
+    "before": "bd045b3074e7a2497ac4c4f6233dcbf54e63505f451c738ac84a9da24bbc0867",
+    "after": "bd045b3074e7a2497ac4c4f6233dcbf54e63505f451c738ac84a9da24bbc0867"
+  },
+  "identical": true,
+  "saved_final_board_unchanged": "3557aa444873fa8b45eb7e0ae8ec3a4bc2b5cd526826b338b58d50e57747430b",
+  "scope": "Read-only reviewed checkout; each real builder executed in a separate disposable copy; no fill/extraction/physical qualification.",
+  "review_run_id": "temper-prototype-20261004-132238",
+  "findings_applied_inline": [
+    1,
+    2,
+    3
+  ],
+  "findings_skipped": [],
+  "unresolved_actionable_findings": [],
+  "guard_test_methods": 4,
+  "negative_cases": 13,
+  "guard_test_status": "PASS",
+  "guard_test_command": "KiCad Python prototype-closure/pcb/test_replay_guards.py <pinned native18 board>",
+  "guard_test_runtime": "KiCad pcbnew Python3.9 plus host Python3.10+ for schematic as documented",
+  "guards": [
+    "Both builders reject all three mismatched source exports before any design write",
+    "Both builders reject all three missing native exports before any design write",
+    "Missing local shunt footprint is rejected before any design write",
+    "Every loaded footprint is local; replay attempts to copy a replacement are rejected; library hashes remain identical"
+  ],
+  "schematic_reproduced_byte_identically": true,
+  "old_builder_sha256": "06ad83db0e96b6b80cf13a5d166d9d9ccefa03af65f5f88b2f14b99049ef1556",
+  "new_builder_sha256": "e11605777827cf5d73167320207d17f49c19ed1f8f43ada175bb83dd8c64e09c",
+  "source_guard_sha256": "adc100a5df39475a43ccf054b8a99ccb14a86060b0d3e06008d68eb39997d906",
+  "test_sha256": "5f0e2de182d80e11023bb896cb407186eefb7c23ddcab1dd37ccb5b65684dd64",
+  "scope_limitation": "Targeted reproduction-guard fixes only. Saved native board, schematic and STEP unchanged. No new extraction or physical qualification. KiCad API emitted wxApp/image-handler diagnostics while operations completed successfully."
+}

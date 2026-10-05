@@ -1,0 +1,23 @@
+{
+  "status": "HOST_IMPLEMENTATION_PASS_TARGET_UNBOUND",
+  "native19_changed": false,
+  "commissioning_default_enabled": false,
+  "new_assertion_groups": 10,
+  "full_cycle_waveform_sweeps": 606,
+  "esp_platform_no_burst_test": "PASS",
+  "legacy_regression_tests": 114,
+  "ctest_executables_passed": 5,
+  "asan_ubsan": "PASS",
+  "conductance_csv_rows": 453,
+  "conductance_csv_byte_replay": "PASS",
+  "conductance_feedback_input": "Assumed zero, below target; open-loop command stimulus",
+  "generated_config_or_transition_changed": false,
+  "idf_target_build": "NOT_RUN_TOOLCHAIN_UNAVAILABLE",
+  "physical_waveform_captures": "NOT_PERFORMED",
+  "remaining_digital": [
+    "Reviewed ESP32 pin allocation and atomic shared-timer/capture/transport binding",
+    "STM32 supervisor ADC/output/watchdog/POST-lifetime target integration",
+    "Calibrated pan-to-phase/current map and nonburst pan detection",
+    "Joined sampled-current feedback and target timing model correlation"
+  ]
+}

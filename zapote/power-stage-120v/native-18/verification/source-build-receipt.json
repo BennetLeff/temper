@@ -1,0 +1,13 @@
+{
+  "adapter_sha256": "acfec8a49657cd85de90dadcb75571f9240e7168a0d545c0d7fbfb9b217c96be",
+  "build_report_failed": false,
+  "entry": "elec/src/power_stage_120v.ato:PowerStage120V",
+  "export_sha256": "6c389531d7516090f74108771cc907edacf9aa796c5275d958d4a2900a7e58a5",
+  "returncode": 0,
+  "schema": "temper.power-stage-120v.source-build.v1",
+  "source_hashes": {
+    "elec/src/parts.ato": "44f3f32770d1cd2c50da5985d82c5836b5a9ad237d1c6585cb6066097a1a7472",
+    "elec/src/power_stage_120v.ato": "de5424925fb034b5f699670d6522176696d1006ffa7dcb5c7a734a1d8cb2049b"
+  },
+  "status": "compiled-and-exported"
+}

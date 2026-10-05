@@ -68,16 +68,26 @@ const FREQ_EXP: f64 = 0.5; // R_pan ∝ f^0.5 (ASSUMED skin-effect scaling)
 
 // ---------- design constraints ----------
 const PHASE_MIN_DEG: f64 = 20.0; // ZVS margin at the operating point
-const I_PK_MAX: f64 = 85.0; // below the 90–110 A OCP band
-const VC_PK_MAX: f64 = 650.0; // resonant-cap screen (942C12 is 1,200 Vdc)
+// Historical comparative allocation, not an operating limit. The broader
+// protection calculation gives shunt 38.44–85.55 A and CT 50.56–60.01 A
+// static bands; 45 A overlaps the shunt band. See readiness/power/README.md.
+const I_PK_MAX: f64 = 45.0;
+// Comparison knob only. 942C's 1,200 Vdc and 430 Vac at 60 Hz do not establish
+// an allowable 30–50 kHz voltage at temperature for the selected bank.
+const COMPARATIVE_VC_PK: f64 = 650.0;
 const F_MIN: f64 = 20e3; // audible limit
 const F_MAX: f64 = 60e3;
 const PF: f64 = 0.95;
 const I_LINE_MAX: f64 = 15.0;
 // Losses outside the tank: diode bridge (~29 W at 15 A) + 9.8 W allowance.
 const FRONT_LOSS: f64 = 39.0;
-// 2 × IPW60R018CFD7 per position, hot conservative 35 mΩ each.
-const R_ON_POS: f64 = 0.035 / 2.0;
+// Selected full bridge: four single IPW65R018CFD7, one per position.
+// Historical half-bridge comparison: two paralleled 600 V CFD7 per position
+// (also four devices total). Both use an inherited 35 mΩ hot/device proxy;
+// neither hot value nor switching loss is selected-part qualification.
+fn r_on_position(topo: Topo) -> f64 {
+    if topo == Topo::Full { 0.035 } else { 0.035 / 2.0 }
+}
 
 #[derive(Clone, Copy, PartialEq)]
 enum Topo {
@@ -85,6 +95,7 @@ enum Topo {
     Full,
 }
 
+#[derive(Clone, Copy)]
 struct Design {
     name: &'static str,
     topo: Topo,
@@ -108,6 +119,19 @@ struct Outcome {
     f_op: f64,
     p_min_60k: f64,
     p_max: f64, // max tank power within limits (W)
+    vc_crest: f64,
+    vc_line_rms: f64,
+}
+
+// The first harmonic has a switching-frequency sine whose envelope follows
+// the rectified mains sine. Its line-cycle RMS is crest / 2. For the
+// half-bridge's split-cap comparison, remove the bus/2 DC term first.
+fn cap_line_rms(topo: Topo, vc_crest: f64, line_vrms: f64) -> f64 {
+    let ac_crest = match topo {
+        Topo::Full => vc_crest,
+        Topo::Half => vc_crest - line_vrms * 2f64.sqrt() / 2.0,
+    };
+    ac_crest / 2.0
 }
 
 /// Line-averaged tank quantities for an unfiltered bus at frequency f.
@@ -151,16 +175,16 @@ fn evaluate(d: &Design, s: &Sample, vrms: f64) -> Outcome {
     let p_in = I_LINE_MAX * vrms * PF;
     let in_path = if d.topo == Topo::Half { 1.0 } else { 2.0 };
     let q = |f: f64| tank_at(d.topo, vrms, l_loaded, s.c, r_at(f), f);
-    let fail = |reason| Outcome { pass: false, reason, eff: 0.0, f_op: 0.0, p_min_60k: 0.0, p_max: 0.0 };
+    let fail = |reason| Outcome { pass: false, reason, eff: 0.0, f_op: 0.0, p_min_60k: 0.0, p_max: 0.0, vc_crest: 0.0, vc_line_rms: 0.0 };
     // Each limit separately, so the binding one can be named.
     let fp = lowest_ok(&|f| q(f).3 >= PHASE_MIN_DEG);
     // Current and capacitor voltage peak at resonance, so each is only
     // monotonic above it: search them together with "inductive" (phase >= 0).
     let fi = lowest_ok(&|f| q(f).3 >= 0.0 && q(f).1 <= I_PK_MAX);
-    let fv = lowest_ok(&|f| q(f).3 >= 0.0 && q(f).2 <= VC_PK_MAX);
+    let fv = lowest_ok(&|f| q(f).3 >= 0.0 && q(f).2 <= COMPARATIVE_VC_PK);
     let (fp, fi, fv) = match (fp, fi, fv) {
         (Some(a), Some(b), Some(c)) => (a, b, c),
-        _ => return fail("unsafe: a limit is violated even at f_max"),
+        _ => return fail("screen-unreachable: a provisional constraint fails at f_max"),
     };
     let f_floor = fp.max(fi).max(fv);
     let binding = if f_floor == F_MIN {
@@ -181,7 +205,7 @@ fn evaluate(d: &Design, s: &Sample, vrms: f64) -> Outcome {
             let mut o = fail(match binding {
                 "phase margin" => "power-limited: phase margin (impedance too high)",
                 "peak current" => "power-limited: peak current",
-                "capacitor voltage" => "power-limited: capacitor voltage",
+                "capacitor voltage" => "power-limited: comparative capacitor screen",
                 _ => "power-limited: audible floor",
             });
             o.p_max = p_max;
@@ -195,11 +219,12 @@ fn evaluate(d: &Design, s: &Sample, vrms: f64) -> Outcome {
         }
         f_op = 0.5 * (a + b);
         let i2 = q(f_op).0 / r_at(f_op);
-        p_need = p_in - FRONT_LOSS - i2 * in_path * R_ON_POS;
+        p_need = p_in - FRONT_LOSS - i2 * in_path * r_on_position(d.topo);
     }
-    let p = q(f_op).0;
+    let (p, _, vc_crest, _) = q(f_op);
     let pan = p * r_pan_at(f_op) / r_at(f_op);
-    Outcome { pass: true, reason: "", eff: pan / p_in, f_op, p_min_60k: p60, p_max }
+    Outcome { pass: true, reason: "", eff: pan / p_in, f_op, p_min_60k: p60, p_max,
+        vc_crest, vc_line_rms: cap_line_rms(d.topo, vc_crest, vrms) }
 }
 
 fn draw(rng: &mut Rng, d: &Design) -> Sample {
@@ -236,35 +261,39 @@ fn pct(v: &[f64], p: f64) -> f64 {
     v[((v.len() - 1) as f64 * p).round() as usize]
 }
 
-/// Pans the product must drive at full power. The others must only run
-/// safely (limits respected) at whatever power they can take.
+/// Pans for the comparative full-power ranking. No part qualification follows.
 const INTENDED: [usize; 3] = [0, 1, 2];
 
 struct Summary {
     pass_intended: f64,
-    unsafe_any: f64,
+    screen_unreachable: f64,
     eff_p05: f64,
     eff_p50: f64,
+    vc_crest_p95: f64,
+    vc_rms_p95: f64,
     detail: Vec<String>,
 }
 
 fn run(d: &Design, n: usize, seed: u64, vrms: f64, verbose: bool) -> Summary {
     let mut rng = Rng(seed);
     let p_need = I_LINE_MAX * vrms * PF - FRONT_LOSS;
-    let (mut n_int, mut pass_int, mut unsafe_n) = (0usize, 0usize, 0usize);
+    let (mut n_int, mut pass_int, mut unreachable_n) = (0usize, 0usize, 0usize);
     let mut by_pan = vec![(0usize, 0usize); PANS.len()];
     let mut derate: Vec<Vec<f64>> = vec![Vec::new(); PANS.len()];
     let (mut effs, mut fops, mut p60s) = (Vec::new(), Vec::new(), Vec::new());
+    let (mut cap_crest, mut cap_rms) = (Vec::new(), Vec::new());
     let mut reasons: Vec<(&str, usize)> = Vec::new();
     let mut sens = [[(0usize, 0usize); 2]; 4]; // intended cookware only
     for _ in 0..n {
         let s = draw(&mut rng, d);
         let o = evaluate(d, &s, vrms);
-        if o.reason.starts_with("unsafe") {
-            unsafe_n += 1;
+        if o.reason.starts_with("screen-unreachable") {
+            unreachable_n += 1;
         }
         by_pan[s.pan].1 += 1;
         if o.pass {
+            cap_crest.push(o.vc_crest);
+            cap_rms.push(o.vc_line_rms);
             by_pan[s.pan].0 += 1;
         }
         derate[s.pan].push((o.p_max / p_need).min(1.0));
@@ -322,29 +351,74 @@ fn run(d: &Design, n: usize, seed: u64, vrms: f64, verbose: bool) -> Summary {
     }
     Summary {
         pass_intended: 100.0 * pass_int as f64 / n_int.max(1) as f64,
-        unsafe_any: 100.0 * unsafe_n as f64 / n as f64,
+        screen_unreachable: 100.0 * unreachable_n as f64 / n as f64,
         eff_p05: 100.0 * pct(&effs, 0.05),
         eff_p50: 100.0 * pct(&effs, 0.5),
+        vc_crest_p95: pct(&cap_crest, 0.95),
+        vc_rms_p95: pct(&cap_rms, 0.95),
         detail,
     }
 }
 
 fn print_row(d: &Design, v: f64, s: &Summary) {
     println!(
-        "{},{},{:.0},{:.1},{:.0},{:.1},{:.1},{:.1},{:.1}",
+        "{},{},{:.0},{:.1},{:.0},{:.1},{:.1},{:.1},{:.1},{:.0},{:.0}",
         d.name,
         if d.topo == Topo::Half { "half" } else { "full" },
         d.l0_uh,
         d.f_ref / 1e3,
         v,
         s.pass_intended,
-        s.unsafe_any,
+        s.screen_unreachable,
         s.eff_p05,
-        s.eff_p50
+        s.eff_p50,
+        s.vc_crest_p95,
+        s.vc_rms_p95
     );
     for l in &s.detail {
         println!("{}", l);
     }
+}
+
+fn selected_cap_reference_frequency() -> f64 {
+    1.0 / (2.0 * PI * (70e-6 * 0.69 * 0.54e-6f64).sqrt())
+}
+
+// Deliberately enumerate simultaneous endpoint combinations. These are
+// design probes, not probabilities or a physical worst-case certificate.
+fn print_selected_corners(d: &Design, vrms: f64) {
+    let mut n = 0;
+    let mut full_power = 0;
+    let mut unreachable = 0;
+    let mut vc_max: f64 = 0.0;
+    let mut vac_rms_max: f64 = 0.0;
+    let mut vc_60k_max: f64 = 0.0;
+    for (pan, pc) in PANS.iter().enumerate() {
+        for l_factor in [0.90, 1.10] {
+            for kl in [pc.kl.0, pc.kl.1] {
+                for r40 in [pc.r40.0, pc.r40.1] {
+                    for q in [COIL_Q.0, COIL_Q.1] {
+                        for c_factor in [0.90, 1.10] {
+                            let s = Sample { pan, l0: d.l0_uh * l_factor, kl, r40, q,
+                                c: 0.54e-6 * c_factor };
+                            let o = evaluate(d, &s, vrms);
+                            let l = s.l0 * 1e-6 * s.kl;
+                            let r = s.q * s.l0 + s.r40 * s.l0 * (F_MAX / 40e3).powf(FREQ_EXP);
+                            vc_60k_max = vc_60k_max.max(tank_at(d.topo, vrms, l, s.c, r, F_MAX).2);
+                            n += 1;
+                            full_power += usize::from(o.pass);
+                            unreachable += usize::from(o.reason.starts_with("screen-unreachable"));
+                            if o.pass {
+                                vc_max = vc_max.max(o.vc_crest);
+                                vac_rms_max = vac_rms_max.max(o.vc_line_rms);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    println!("{vrms:.0},{n},{full_power},{unreachable},{vc_max:.0},{vac_rms_max:.0},{vc_60k_max:.0}");
 }
 
 fn main() {
@@ -352,10 +426,16 @@ fn main() {
     let n: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(20000);
     let seed: u64 = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(20260925);
     println!("# Coil/pan Monte Carlo, seed={}", seed);
-    println!("# priors ASSUMED (see header). Full power required on intended cookware (cast iron, carbon/430 steel, clad);");
-    println!("# other pans must only stay within limits. Limits: phase>={}deg, Ipk<={}A, Vc<={}V, {}-{} kHz, 15 A line, PF {}",
-             PHASE_MIN_DEG, I_PK_MAX, VC_PK_MAX, F_MIN / 1e3, F_MAX / 1e3, PF);
-    let header = "design,topology,L0_uH,f_ref_kHz,line_V,intended_full_power_pct,unsafe_any_pan_pct,eff_p05_pct,eff_p50_pct";
+    println!("# ASSUMED priors; percentages rank alternatives, not a cookware population or component safety.");
+    println!("# Comparative screens: phase>={}deg, Ipk<={}A, Vc_crest<={}V (UNQUALIFIED), {}-{} kHz, 15 A line, PF {}",
+             PHASE_MIN_DEG, I_PK_MAX, COMPARATIVE_VC_PK, F_MIN / 1e3, F_MAX / 1e3, PF);
+    println!("# Selected bank 942C12P22K-F x2 + 942C12P1K-F: 1200 Vdc, 430 Vac at 60 Hz catalog; 30-50 kHz hot waveform envelope NOT ESTABLISHED.");
+    println!("# Cap RMS estimate is first-harmonic switching-ripple line-cycle RMS, not an actual waveform, AC-frequency rating or safe margin. P95 only among modeled full-power draws; half-bridge low-frequency/DC voltage is excluded.");
+    println!("# CURRENT ENVELOPE UNRELEASED: 45 A is a historical comparative screen, not a normal-operation command or an implementable full-power claim.");
+    println!("# Independent detectors: shunt static 38.44–85.55 A (+85 C board, assumed +50 C R5 rise); CT static 50.56–60.01 A (temperature/tolerance model). 45 A overlaps the shunt band; the older CT-only 50.93–59.51 A model does not resolve it.");
+    println!("# model_full_power fields use the historical comparative screens only. Shunt dynamics, control error/overshoot, fault-to-current-extinction and selected capacitor limits are NOT qualified; do not use these rows to release firmware or hardware.");
+    println!("# Loss proxy: full bridge four single 650 V IPW65R018CFD7 (35 mohm/position); half bridge four parallel-paired historical 600 V CFD7 (17.5 mohm/position); hot/switching loss unverified.");
+    let header = "design,topology,L0_uH,f_ref_kHz,line_V,model_full_power_pct,screen_unreachable_pct,eff_p05_pct,eff_p50_pct,cap_crest_p95_V,cap_line_rms_p95_V";
 
     // 1. Grid search over the free design choices at 114 V (US low line).
     let n_grid = (n / 5).max(1000);
@@ -390,6 +470,8 @@ fn main() {
     let best_f = grid.iter().find(|g| g.0.topo == Topo::Full).map(|g| (g.0.l0_uh, g.0.f_ref)).unwrap();
 
     // 2. Full-size runs: grid optima, the earlier hand design, and stock coils.
+    let selected = Design { name: "FB_selected_70uH_0p54uF", topo: Topo::Full, l0_uh: 70.0,
+        f_ref: selected_cap_reference_frequency() };
     let designs = [
         Design { name: "HB_grid_best", topo: Topo::Half, l0_uh: best_h.0, f_ref: best_h.1 },
         Design { name: "HB_33uH_hand_design", topo: Topo::Half, l0_uh: 33.0, f_ref: 35e3 },
@@ -397,6 +479,7 @@ fn main() {
         Design { name: "FB_grid_best", topo: Topo::Full, l0_uh: best_f.0, f_ref: best_f.1 },
         Design { name: "FB_stock_87uH", topo: Topo::Full, l0_uh: 87.0, f_ref: 35e3 },
         Design { name: "FB_stock_123uH", topo: Topo::Full, l0_uh: 123.0, f_ref: 35e3 },
+        selected,
     ];
     for &v in &[114.0, 127.0] {
         println!();
@@ -406,6 +489,14 @@ fn main() {
             let s = run(d, n, seed, v, true);
             print_row(d, v, &s);
         }
+    }
+    println!();
+    println!("## Selected 70 uH / 0.54 uF deterministic endpoint probes (all 5 assumed pan classes)");
+    println!("# Per pan: L0 +/-10%, kL endpoints, Rpan endpoints, coil-R endpoints, C +/-10%; 160 combinations per line. Counts are neither population percentages nor product qualification.");
+    println!("# Crest/RMS at modeled full-power operating points are conditional on the arbitrary 650 V screen; 60 kHz crest includes every corner whether screened reachable or not.");
+    println!("line_V,corners,model_full_power,screen_unreachable,max_cap_crest_full_power_V,max_cap_line_rms_full_power_V,max_cap_crest_at_60k_V");
+    for vrms in [108.0, 114.0, 127.0, 140.0] {
+        print_selected_corners(&selected, vrms);
     }
 }
 
@@ -459,14 +550,63 @@ mod tests {
     }
 
     #[test]
-    fn hopeless_coil_fails_and_nominal_passes() {
+    fn current_hardware_screen_rejects_old_half_bridge_and_accepts_cast_iron_case() {
         let d = Design { name: "t", topo: Topo::Half, l0_uh: 33.0, f_ref: 35e3 };
         let c = 1.0 / ((2.0 * PI * 35e3f64).powi(2) * 33e-6 * 0.69);
         let good = Sample { pan: 1, l0: 33.0, kl: 0.69, r40: 0.0334, q: 0.0039, c };
-        assert!(evaluate(&d, &good, 120.0).pass);
+        // The historical half bridge needed the obsolete 85 A screen.
+        assert!(!evaluate(&d, &good, 120.0).pass);
+        let selected = Design { name: "selected", topo: Topo::Full, l0_uh: 70.0,
+            f_ref: selected_cap_reference_frequency() };
+        let cast_iron = Sample { pan: 0, l0: 70.0, kl: 0.80, r40: 0.052,
+            q: 0.0039, c: 0.54e-6 };
+        assert!(evaluate(&selected, &cast_iron, 120.0).pass);
         let d87 = Design { name: "t", topo: Topo::Half, l0_uh: 87.0, f_ref: 35e3 };
         let c87 = 1.0 / ((2.0 * PI * 35e3f64).powi(2) * 87e-6 * 0.69);
         let bad = Sample { pan: 1, l0: 87.0, kl: 0.69, r40: 0.0334, q: 0.0039, c: c87 };
         assert!(!evaluate(&d87, &bad, 114.0).pass);
+    }
+
+    #[test]
+    fn full_bridge_cap_line_rms_is_half_crest_for_unfiltered_bus() {
+        assert!((cap_line_rms(Topo::Full, 600.0, 120.0) - 300.0).abs() < 1e-12);
+    }
+
+    #[test]
+    fn selected_reference_tuning_yields_selected_capacitance() {
+        let f = selected_cap_reference_frequency();
+        let c = 1.0 / ((2.0 * PI * f).powi(2) * 70e-6 * 0.69);
+        assert!((c - 0.54e-6).abs() < 1e-15);
+    }
+
+    #[test]
+    fn selected_full_bridge_uses_single_device_per_position() {
+        // Pin the declared proxies independently: a shared accidental scale
+        // change could preserve the topology ratio while corrupting loss.
+        assert!((r_on_position(Topo::Full) - 0.035).abs() < 1e-12);
+        assert!((r_on_position(Topo::Half) - 0.0175).abs() < 1e-12);
+        assert!((r_on_position(Topo::Full) / r_on_position(Topo::Half) - 2.0).abs() < 1e-12);
+    }
+
+    #[test]
+    fn half_bridge_cap_rms_excludes_bus_bias() {
+        let vrms = 120.0;
+        let bus_crest = vrms * 2.0_f64.sqrt();
+        // A 100 V carrier crest with a rectified-sine line envelope gives
+        // 100 / sqrt(2) / sqrt(2) = 50 V RMS, excluding the bus bias.
+        let cap_crest = bus_crest / 2.0 + 100.0;
+        assert!((cap_line_rms(Topo::Half, cap_crest, vrms) - 50.0).abs() < 1e-12);
+    }
+
+    #[test]
+    fn selected_carbon_pan_at_high_line_cannot_claim_full_power_above_ct_trip() {
+        // The former 85 A screen accepted this case at 61.64 A, above even
+        // the broader CT static model's 60.01 A maximum. Rejecting it does
+        // not qualify the remaining 45 A-screen cases against the shunt.
+        let design = Design { name: "selected", topo: Topo::Full, l0_uh: 70.0,
+            f_ref: selected_cap_reference_frequency() };
+        let pan = Sample { pan: 1, l0: 70.0, kl: 0.80, r40: 0.029,
+            q: 0.0015, c: 0.54e-6 };
+        assert!(!evaluate(&design, &pan, 140.0).pass);
     }
 }

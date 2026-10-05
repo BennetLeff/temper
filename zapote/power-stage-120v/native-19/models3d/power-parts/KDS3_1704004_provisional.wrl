@@ -1,0 +1,9 @@
+#VRML V2.0 utf8
+# Provisional Phoenix KDS 3 1704004 visualization. Terminal cavity and screw are visually approximate.
+# Coordinates in mm; set KiCad model scale to 0.3937008 on all axes.
+WorldInfo { title "Phoenix KDS 3 1704004 (provisional)" }
+Transform { translation 0 -9.4 12.5 children [ Shape { appearance Appearance { material Material { diffuseColor 0.1 0.42 0.18 } } geometry Box { size 5.08 27 25 } } ] }
+Transform { translation 0 3 12.7 children [ Shape { appearance Appearance { material Material { diffuseColor 0.17 0.19 0.2 } } geometry Box { size 3.6 1 5 } } ] }
+Transform { translation 0 -9.4 25.25 rotation 1 0 0 1.5707963 children [ Shape { appearance Appearance { material Material { diffuseColor 0.68 0.69 0.7 } } geometry Cylinder { radius 1.35 height 0.5 } } ] }
+Transform { translation 0 0 -1.75 children [ Shape { appearance Appearance { material Material { diffuseColor 0.68 0.69 0.7 } } geometry Box { size 1.1 0.8 3.5 } } ] }
+Transform { translation 0 -15.24 -1.75 children [ Shape { appearance Appearance { material Material { diffuseColor 0.68 0.69 0.7 } } geometry Box { size 1.1 0.8 3.5 } } ] }

@@ -1,0 +1,431 @@
+{
+  "status": "DESIGN_PROPOSAL_COLD_ONLY_NOT_FABRICATION_OR_POWERED_RELEASE",
+  "units": "mm",
+  "source_step": {
+    "path": "output/temper-prototype-closure/round2/cooling/native19-r4-round2-cold.step",
+    "sha256": "8102ce63dbf9cad08b30b24fafba7527bb6616d36dadd479a71d8b2313fe50cd",
+    "solids": 565
+  },
+  "decision": "External upright guarded precharge/interruption pod; D22 filter remains in R4; fixed interconnect; no native19 edits",
+  "pod": {
+    "outside_size_xyz": [
+      500,
+      220,
+      500
+    ],
+    "axes": "X horizontal; Y front-to-back; Z upward; door Y=0; back Y=220",
+    "case_material": "1.5 mm folded steel proposal, bonded; no enclosure rating claimed",
+    "backplate": {
+      "min": [
+        20,
+        200,
+        20
+      ],
+      "size": [
+        460,
+        3,
+        460
+      ]
+    },
+    "hot_plate": {
+      "min": [
+        20,
+        194,
+        265
+      ],
+      "size": [
+        340,
+        6,
+        210
+      ]
+    },
+    "hot_plate_material": "Machined aluminium candidate, bare contact lands; not an approved 200 W heatsink",
+    "parts": [
+      {
+        "id": "K1",
+        "mpn": "Schneider LC1D18BD",
+        "min": [
+          50,
+          99,
+          100
+        ],
+        "size": [
+          45,
+          101,
+          85
+        ],
+        "basis": "Conservative body reservation; final supplier mount/terminal drawing required"
+      },
+      {
+        "id": "K2",
+        "mpn": "Schneider LC1D18BD",
+        "min": [
+          120,
+          99,
+          100
+        ],
+        "size": [
+          45,
+          101,
+          85
+        ],
+        "basis": "Conservative body reservation"
+      },
+      {
+        "id": "KB",
+        "mpn": "Schneider LC1D18BD",
+        "min": [
+          190,
+          99,
+          100
+        ],
+        "size": [
+          45,
+          101,
+          85
+        ],
+        "basis": "Conservative body reservation"
+      },
+      {
+        "id": "AUX",
+        "mpn": "Mean Well HDR-60-24",
+        "min": [
+          385,
+          145.5,
+          75
+        ],
+        "size": [
+          52.5,
+          54.5,
+          90
+        ],
+        "basis": "Manufacturer dimensions; upright; keep 5 mm each side, 40 above, 20 below"
+      },
+      {
+        "id": "FUSE_SERVICE_RESERVATION",
+        "mpn": "Three Littelfuse LPSC0001Z: F0 KLDR015.TXP, F2 KLDR002.TXP, FT KLDR001.TXP",
+        "min": [
+          265,
+          100,
+          100
+        ],
+        "size": [
+          70,
+          100,
+          90
+        ],
+        "basis": "Three17.78mmholders plus nominal3mmseparator gaps; oversize combined reservation, exact rail/door datum pending"
+      },
+      {
+        "id": "RPRE1",
+        "mpn": "Ohmite HS200 22R F",
+        "min": [
+          30,
+          148.5,
+          365
+        ],
+        "size": [
+          145.7,
+          45.5,
+          72.5
+        ],
+        "basis": "B x max(C,D) x A conservative envelope from primary dimensional table"
+      },
+      {
+        "id": "RPRE2",
+        "mpn": "Ohmite HS200 22R F",
+        "min": [
+          195,
+          148.5,
+          365
+        ],
+        "size": [
+          145.7,
+          45.5,
+          72.5
+        ],
+        "basis": "B x max(C,D) x A conservative envelope"
+      },
+      {
+        "id": "RTEST",
+        "mpn": "Ohmite HS100 220R F",
+        "min": [
+          35,
+          166.7,
+          285
+        ],
+        "size": [
+          88,
+          27.3,
+          47.5
+        ],
+        "basis": "B x max(C,D) x A conservative envelope"
+      },
+      {
+        "id": "CONTROL_ISOLATED_BOARD",
+        "mpn": null,
+        "min": [
+          345,
+          155,
+          270
+        ],
+        "size": [
+          115,
+          45,
+          100
+        ],
+        "basis": "Reserved new board/carrier; not an existing circuit"
+      },
+      {
+        "id": "TCO1_CLAMP_AND_SLEEVE",
+        "mpn": "SDF DF128S candidate; assembly unselected",
+        "min": [
+          70,
+          136.5,
+          385
+        ],
+        "size": [
+          30,
+          12,
+          12
+        ],
+        "basis": "Assembly reservation touching resistor front face; dielectric sleeve and clamp process unqualified"
+      },
+      {
+        "id": "TCO2_CLAMP_AND_SLEEVE",
+        "mpn": "SDF DF128S candidate; assembly unselected",
+        "min": [
+          235,
+          136.5,
+          385
+        ],
+        "size": [
+          30,
+          12,
+          12
+        ],
+        "basis": "Assembly reservation"
+      }
+    ],
+    "service": {
+      "door_removal_front_depth": 300,
+      "fuse_open_min": [
+        260,
+        20,
+        95
+      ],
+      "fuse_open_size": [
+        80,
+        180,
+        100
+      ],
+      "contactor_tool_corridor_min": [
+        40,
+        15,
+        85
+      ],
+      "contactor_tool_corridor_size": [
+        205,
+        84,
+        120
+      ],
+      "thermal_zone_guard_min": [
+        15,
+        120,
+        255
+      ],
+      "thermal_zone_guard_size": [
+        350,
+        1.5,
+        225
+      ],
+      "status": "Tool-only access after isolation and discharge; no live service claim"
+    },
+    "entry_centres_bottom_xy": {
+      "input_L_N_PE": [
+        45,
+        160
+      ],
+      "output_L_N_PE": [
+        290,
+        160
+      ],
+      "control_and_feedback": [
+        440,
+        160
+      ]
+    },
+    "gland_candidate": "LAPP SKINTOP ST-M 20x1.5 53111020, 6\u201313 mm cord OD, 9 mm thread; exact cord and retention qualification open",
+    "earthing": "Dedicated M4 stud at [25,190,35]; separate case, door, backplate and hot-plate bonds; never use DIN clips/hinges as sole bonds",
+    "cord_candidate": {
+      "mpn": "Southwire 55808799",
+      "construction": "12AWG 3/C 65/30 SJOOW, 300V 90C, nominalOD10.92mm",
+      "normal_120V_plug": "Hubbell HBL5266C 15A125V candidate only; not a140Vlabconnector",
+      "qualification": "Bendradius, exactcutlength, ambientampacity, strandtermination, glandpull/twist andsourceconnector unresolved"
+    }
+  },
+  "r4": {
+    "cover": {
+      "min_xy": [
+        -125,
+        154
+      ],
+      "size_xy": [
+        267.5,
+        173
+      ],
+      "roof_z": [
+        82,
+        83.5
+      ],
+      "left_wall_x": [
+        -125,
+        -123.5
+      ],
+      "right_wall_x": [
+        141,
+        142
+      ],
+      "rear_wall_y": [
+        325.5,
+        327
+      ],
+      "front_wall_y": [
+        154,
+        155.5
+      ],
+      "bottom_z": 10,
+      "sensor_well_outer_min": [
+        -25,
+        235,
+        60
+      ],
+      "sensor_well_outer_size": [
+        50,
+        52,
+        22
+      ],
+      "sensor_cable_aperture": {
+        "min": [
+          -5,
+          256,
+          59
+        ],
+        "size": [
+          10,
+          10,
+          5
+        ]
+      },
+      "material": "1.5 mm machined glass-laminate prototype barrier candidate; exact grade/CTI/temperature/flame/insulation construction unselected",
+      "joint_status": "Front profile mates to existing sink/cradle/duct; small PE passages need closed boots. Nominal solid subtraction is not a qualified seal/insulation joint. No production gap claimed safe."
+    },
+    "mains_adapter": {
+      "opening_centre_xz": [
+        135,
+        34
+      ],
+      "panel_y": 438,
+      "plate_min": [
+        100,
+        436.5,
+        18
+      ],
+      "plate_size": [
+        70,
+        1.5,
+        30
+      ],
+      "gland_cutout_nominal_diameter": 20.2,
+      "gland": "53111020 + matching locknut, proposed; panel thread stack <9 mm minus engaged-nut requirement",
+      "mounting_hole_centres_xz": [
+        [
+          106,
+          34
+        ],
+        [
+          164,
+          34
+        ]
+      ]
+    },
+    "mains_jacket_clamp": {
+      "centre": [
+        135,
+        418,
+        34
+      ],
+      "reservation": [
+        25,
+        20,
+        25
+      ]
+    },
+    "unfiltered_wire_channel": {
+      "min": [
+        -140,
+        416,
+        22
+      ],
+      "size": [
+        282,
+        16,
+        20
+      ],
+      "status": "L/N route proposal after jacket clamp; terminate at D22 input rear edge; conductor bend radius and sleeves not yet qualified"
+    },
+    "pe_route": "Incoming PE first to existing dedicated [10,415] stud, independent longer conductor; retain sink bond; tie-cover bonds separately if metal used",
+    "catch_conditional_reservation": {
+      "min": [
+        -14,
+        334,
+        12
+      ],
+      "size": [
+        80,
+        60,
+        60
+      ],
+      "status": "EMPTY SPACE ONLY. US141 selectedholder26.5x107x76.5closed mm does not fit orthogonally in this80x60x60 allocation. Requiresseparateholderbay/enlargedcarrier andnewfitcheck. No completecatchmodule fitcredit; busroute150\u2013220mm needs extraction."
+    },
+    "removed_for_proposal": [
+      "R2_LPSC0001Z_CLOSED_BODY_ENVELOPE",
+      "R2_DIN35_7P5_RAIL_ENVELOPE",
+      "R2_SCHURTER_4435_BODY_ENVELOPE",
+      "R2_SCHURTER_4435_TAB_ENVELOPE",
+      "R2_SCHURTER_4435_BEZEL_ENVELOPE",
+      "R2_SCHURTER_4435_ACTUATOR_ENVELOPE",
+      "R2_CORD_PORT_BLANK_ADAPTER",
+      "R4_mains_adapter_M3x8_106",
+      "R4_mains_adapter_M3_nut_106",
+      "R4_mains_adapter_M3x8_164",
+      "R4_mains_adapter_M3_nut_164"
+    ],
+    "status": "These are proposed removals only; baseline round2 STEP unchanged; exact source names resolved and reported by builder",
+    "rocker_blank": {
+      "min": [
+        45,
+        440.1,
+        35
+      ],
+      "size": [
+        50,
+        1.5,
+        40
+      ],
+      "note": "External rear service blank with0.1mm compressed gasket allocation; fasteners and gasket process unqualified; adds1.6mm rear projection"
+    },
+    "catch_holder_drawing": {
+      "mpn": "Mersen US141 Z331153",
+      "closed_dimensions_width_height_depth": [
+        26.5,
+        107,
+        76.5
+      ],
+      "open_projection_depth": 94,
+      "source_url": "https://www.mersen.com/sites/default/files/medias/PIM/files/DS-Semiconductor-Modular-Fuse-Holders-UltraSafe-US14-EN.pdf",
+      "source_page": 4,
+      "source_pdf_sha256": "776c47a6781b1d82d762a827d2ceed9d7e17b15439217b9fb5dc259aa9884562"
+    }
+  }
+}

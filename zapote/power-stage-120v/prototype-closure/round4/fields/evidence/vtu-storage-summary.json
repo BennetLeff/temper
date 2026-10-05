@@ -1,0 +1,131 @@
+{
+  "classification": "lossless local storage/restoration evidence",
+  "runs": [
+    {
+      "path": "output/temper-prototype-closure/round4/fields/A-e2-h1-selected-p10/vtu-archive.json",
+      "sha256": "654377621ef6002ba01c134831161ba7db67a2c6d02f328baa0b27a31dcd29d7",
+      "files": 4,
+      "raw_bytes": 279629643,
+      "gzip_bytes": 90814527,
+      "restored_raw_paths_present": true,
+      "decompression_previously_verified": true
+    },
+    {
+      "path": "output/temper-prototype-closure/round4/fields/A-e4-h1-P1/vtu-archive.json",
+      "sha256": "e4eabc720428f29e65032cc9659837933393053b8ddae136bad88df44c6fd4fc",
+      "files": 1,
+      "raw_bytes": 217876202,
+      "gzip_bytes": 69451536,
+      "restored_raw_paths_present": true,
+      "decompression_previously_verified": true
+    },
+    {
+      "path": "output/temper-prototype-closure/round4/fields/A-e4-h1-elemental-p10/vtu-archive.json",
+      "sha256": "e5db2356a3684f72219f285e29297ec55278d2f364b1b536434e0619b6f12f69",
+      "files": 4,
+      "raw_bytes": 217879159,
+      "gzip_bytes": 67409208,
+      "restored_raw_paths_present": true,
+      "decompression_previously_verified": true
+    },
+    {
+      "path": "output/temper-prototype-closure/round4/fields/A-e4-h1-np4-p10/vtu-archive.json",
+      "sha256": "f2f7a9ca745e680ef000f57a69cc36c954a7e2b19ec6ec0fb9f1d234ccce0aa1",
+      "files": 4,
+      "raw_bytes": 217879159,
+      "gzip_bytes": 67409224,
+      "restored_raw_paths_present": true,
+      "decompression_previously_verified": true
+    },
+    {
+      "path": "output/temper-prototype-closure/round4/fields/A-e4-h1-np4-p11/vtu-archive.json",
+      "sha256": "a5e9c205e2d58067ddff3951ad6f2522dec823537710765561c3a2d8b01b073a",
+      "files": 4,
+      "raw_bytes": 217879159,
+      "gzip_bytes": 67397779,
+      "restored_raw_paths_present": true,
+      "decompression_previously_verified": true
+    },
+    {
+      "path": "output/temper-prototype-closure/round4/fields/A-e4-h1-np4-p12/vtu-archive.json",
+      "sha256": "9eccbfca17cbf395af9401982c4bf77540c0c4f1e68d2e6006275c8b88ab30c1",
+      "files": 4,
+      "raw_bytes": 217879159,
+      "gzip_bytes": 67358207,
+      "restored_raw_paths_present": true,
+      "decompression_previously_verified": true
+    },
+    {
+      "path": "output/temper-prototype-closure/round4/fields/A-e4-h1-np4-p13/vtu-archive.json",
+      "sha256": "2be6107f9d96ca2ab7b874dc0f18db33278e9cac0fd7ebb8fb978ce75991cb8b",
+      "files": 4,
+      "raw_bytes": 217879159,
+      "gzip_bytes": 67369541,
+      "restored_raw_paths_present": true,
+      "decompression_previously_verified": true
+    },
+    {
+      "path": "output/temper-prototype-closure/round4/fields/A-pair-10-12/vtu-archive.json",
+      "sha256": "6fcada602cc9e11ab1d7573fea5ca99927b20318f3ffb1aec46df6068a9c4411",
+      "files": 4,
+      "raw_bytes": 217879159,
+      "gzip_bytes": 67418006,
+      "restored_raw_paths_present": true,
+      "decompression_previously_verified": true
+    },
+    {
+      "path": "output/temper-prototype-closure/round4/fields/A5-e4-f4-h1-selected-p10/vtu-archive.json",
+      "sha256": "9e83b4f1c0ceec66914f3080ea10694be599b849acc9862ecb8433f2d1c83786",
+      "files": 4,
+      "raw_bytes": 218111920,
+      "gzip_bytes": 67724391,
+      "restored_raw_paths_present": true,
+      "decompression_previously_verified": true
+    },
+    {
+      "path": "output/temper-prototype-closure/round4/fields/A5-e4-f4-h1-selected-p14/vtu-archive.json",
+      "sha256": "6200ccdc5be4737b8f23d374e092718d4a0da2c781ab7b685ec9cf0fe5dbd244",
+      "files": 4,
+      "raw_bytes": 218111920,
+      "gzip_bytes": 67712361,
+      "restored_raw_paths_present": true,
+      "decompression_previously_verified": true
+    },
+    {
+      "path": "output/temper-prototype-closure/round4/fields/B-e4-f4-h1-np4-p10/vtu-archive.json",
+      "sha256": "1d50651839846412c796774fb810f8219118b84039cde5598b0215a301872d4c",
+      "files": 4,
+      "raw_bytes": 299541183,
+      "gzip_bytes": 93566889,
+      "restored_raw_paths_present": true,
+      "decompression_previously_verified": true
+    },
+    {
+      "path": "output/temper-prototype-closure/round4/fields/B-e4-f4-h1-np4-p11/vtu-archive.json",
+      "sha256": "a0ef457b69e591c0107fcbafdd7a333d728ac2a6152c18bb1506fb2a5ff48126",
+      "files": 4,
+      "raw_bytes": 299541183,
+      "gzip_bytes": 93584942,
+      "restored_raw_paths_present": true,
+      "decompression_previously_verified": true
+    },
+    {
+      "path": "output/temper-prototype-closure/round4/fields/B-e4-f4-h1-np4-p12-r10/vtu-archive.json",
+      "sha256": "35caa8db13ffb5d097157387daf05b168ae1ffe84ae298aa01bb3095e08681b0",
+      "files": 4,
+      "raw_bytes": 299541183,
+      "gzip_bytes": 93552607,
+      "restored_raw_paths_present": true,
+      "decompression_previously_verified": true
+    },
+    {
+      "path": "output/temper-prototype-closure/round4/fields/B-e4-f4-h1-np4-p13-r10/vtu-archive.json",
+      "sha256": "bd451f9dfcac3c27c56fbc9eb8b6e7ad21dcd320c6f0352cdcc628e925aa3f64",
+      "files": 4,
+      "raw_bytes": 299541183,
+      "gzip_bytes": 93556930,
+      "restored_raw_paths_present": true,
+      "decompression_previously_verified": true
+    }
+  ]
+}

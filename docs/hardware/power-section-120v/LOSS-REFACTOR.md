@@ -8,10 +8,12 @@ baseline: POWER-SECTION.md
 
 # Loss budget and low-loss refactor
 
-> **Update 2026-09-25:** the selected part is the 650 V IPW65R018CFD7 (same
-> 18 mΩ class, 234 nC gate charge) for surge margin, in a full bridge
-> (row B1). The 600 V figures below remain the analysis basis; the source is
-> `zapote/power-stage-120v`.
+> **Model correction:** the selected part is the 650 V IPW65R018CFD7, four
+> single devices in a full bridge (B1). The 600 V alternatives remain
+> historical comparisons. B1 now names its selected topology explicitly,
+> but its 35 mΩ hot/device and ideal switching are inherited proxies, **not**
+> checked hot or dynamic limits of the selected part. The current source is
+> `zapote/power-stage-120v`; no physical losses have been measured.
 
 All rows use the same conditions: 120 V line, 15 A input limit, PF 0.95,
 1,710 W input, and the same pan-reflected resistance. Each row changes one
@@ -43,7 +45,7 @@ more than about 45 W, but the coil alone holds about 170 W.
 | A5 | A4 + coil 7 % | 22.5 | 24.8 | 116 | 173 | 1,537 | 89.9 % |
 | **A6** | **A4 + coil 5 %** | 22.5 | 25.4 | 83 | **140** | **1,570** | **91.8 %** |
 | A7 | A6 + full synchronous rectifier | 15.8 | 25.5 | 83 | 134 | 1,576 | 92.2 % |
-| B1 | Full bridge, 4 × CFD7, coil 5 % | 22.5 | 25.4 | 83 | 140 | 1,570 | 91.8 % |
+| B1 | Full bridge, 4 single IPW65R018CFD7, proxy loss | 22.5 | 25.4 | 83 | 140 | 1,570 | 91.8 % |
 | B2 | Full bridge, 4 × IGBT, coil 10.5 % | 29.3 | 46.7 | 170 | 256 | 1,454 | 85.0 % |
 | C1 | Coil 5 % only, IGBTs kept | 29.3 | 62.9 | 80 | 182 | 1,528 | 89.3 % |
 
@@ -56,8 +58,11 @@ What the comparison shows:
    I² × R_on. Two CFD7s in parallel (23.8 W) beat one SiC device (40.0 W). SiC's
    hot-resistance advantage is real, but its 4.7 V body-diode drop during dead
    time and its preference for a −4 V gate hold it back here.
-3. **A full bridge doesn't reduce MOSFET loss for the same silicon.** B1
-   equals A6: half the current through twice the devices in series. It helps
+3. **The modeled B1 and A6 switch losses coincide under the inherited hot
+   resistance proxy.** B1 uses four single selected 650 V devices; A6 is an
+   older half bridge with two parallel 600 V devices per position. The
+   nominal equality is a topology comparison, not evidence their actual
+   conduction or switching losses match. The full bridge helps
    the IGBT case only through lower turn-off current (B2), and it halves
    current in the capacitors, current transformer and wiring. That's a
    construction benefit, not an efficiency one.

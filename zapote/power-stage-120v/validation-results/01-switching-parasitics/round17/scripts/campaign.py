@@ -166,9 +166,14 @@ def main() -> None:
     ap.add_argument("--leg", choices=("A", "B", "A5"), default="A")
     ap.add_argument("--margin", type=float, default=10.0, help="crop margin around the leg (mm)")
     ap.add_argument("--air", type=float, default=10.0, help="air box beyond the crop (mm)")
+    ap.add_argument("--export", default=None, help="copper export (default: the committed native-17 export)")
+    ap.add_argument("--closures", default=None, help="closures JSON (default: closures-leg<LEG>.json)")
+    ap.add_argument("--tag-suffix", default="", help="appended to every tag, e.g. -n19 for another board revision")
     ap.add_argument("--tol", type=float, default=1e-8)
     ap.add_argument("--maxit", type=int, default=40000)
     a = ap.parse_args()
+    export = Path(a.export).resolve() if a.export else EXPORT.resolve()
+    closures = Path(a.closures).resolve() if a.closures else ROOT / f"closures-leg{a.leg}.json"
     work = Path(a.work)
     work.mkdir(parents=True, exist_ok=True)
     py = sys.executable
@@ -178,7 +183,7 @@ def main() -> None:
     manifest = {f.name: hashlib.sha256(f.read_bytes()).hexdigest() for f in
                 (HERE / "mesh25d_hybrid.py", HERE / "run_elmer.py", HERE / "inductance_matrix.py",
                  HERE / "pec_columns.py", HERE / "port_loops.py",          # mesh gates are reused too (D-9)
-                 ROOT / f"closures-leg{a.leg}.json", EXPORT.resolve())}
+                 closures, export)}
     mfile = work / f"manifest-leg{a.leg}.json"
     if mfile.exists():
         old = json.loads(mfile.read_text())
@@ -200,10 +205,11 @@ def main() -> None:
         tag = f"leg{a.leg}-h{h.replace('.', 'p')}-e{e.replace('.', 'p')}"
         if a.margin != 10.0 or a.air != 10.0:
             tag += f"-m{a.margin:g}-a{a.air:g}"
+        tag += a.tag_suffix
         msh, mlog = work / f"{tag}.msh", work / f"{tag}.log"
         if not msh.exists():
-            rc = run([py, str(HERE / "mesh25d_hybrid.py"), str(EXPORT), str(msh), "--leg", a.leg,
-                      "--closures", str(ROOT / f"closures-leg{a.leg}.json"), "--arch-h", h, "--h-edge", e,
+            rc = run([py, str(HERE / "mesh25d_hybrid.py"), str(export), str(msh), "--leg", a.leg,
+                      "--closures", str(closures), "--arch-h", h, "--h-edge", e,
                       "--h-far", "4", "--dz-max", "0.45", "--simplify", "0.05",
                       "--margin", str(a.margin), "--air", str(a.air)], mlog)
             if rc:
@@ -214,7 +220,7 @@ def main() -> None:
         gates = {}
         for name, cmd in (("columns", [py, str(HERE / "pec_columns.py"), str(msh)]),
                           ("loops", [py, str(HERE / "port_loops.py"), str(msh), str(mlog),
-                                     "--closures", str(ROOT / f"closures-leg{a.leg}.json")])):
+                                     "--closures", str(closures)])):
             g = work / f"{tag}.{name}.txt"
             if not g.exists():
                 run(cmd, g)

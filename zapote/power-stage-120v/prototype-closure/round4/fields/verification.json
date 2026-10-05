@@ -1,0 +1,17 @@
+{
+  "native_board_sha256": "3557aa444873fa8b45eb7e0ae8ec3a4bc2b5cd526826b338b58d50e57747430b",
+  "upstream_source_hashes_verified": 21,
+  "python_syntax": "PASS",
+  "shell_syntax": "PASS",
+  "json_parse": "PASS",
+  "accepted_matrix_receipts_present_and_hash_matched": true,
+  "accepted_matrix_energy_and_passivity": "PASS",
+  "fine_follow_on_32GiB_refusal": "PASS",
+  "storage_restoration_runs": 14,
+  "all_raw_vtu_paths_restored": true,
+  "hardware_measurements": "NONE",
+  "physical_release": "HOLD",
+  "runtime_binary_hashes_rechecked": 7,
+  "atomic_archive_roundtrip": "PASS",
+  "elmer_mpi_process_check": "No workers found after campaign termination"
+}

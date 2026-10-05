@@ -1,0 +1,382 @@
+{
+  "date": "2026-10-04",
+  "evidence_class": "source identity check and recomputation of existing conditional static analysis; no physical measurement",
+  "ps_oracle_commit": "fda5ab9ece24ef1ee6f2317604c5ca73367d5201",
+  "candidate_start_commit": "dea4649ff466cf36b49a0523d8232c94c317b163",
+  "input_checks": {
+    "native18_source": {
+      "bom_mpn_checks": 24,
+      "net_endpoint_groups": 12
+    },
+    "hot5_candidate": {
+      "bom_mpn_checks": 24,
+      "net_endpoint_groups": 12
+    }
+  },
+  "recomputed_matches_saved_temperature_corners": true,
+  "independent_kcl_shunt_85C_A": {
+    "min": 38.43818403436644,
+    "max": 85.5510328644967
+  },
+  "assumptions": [
+    "R5 is 50 C above board ambient, ASSUMED pending A6",
+    "reference and comparator Gaussian 3 sigma at datasheet limits, clipped",
+    "resistor initial tolerance and signed TCR uniform and independent",
+    "CT 80 nA clamp leakage represented as signed 80 uV at R42=1k; datasheet limit is at 150 C, 75 V pulsed",
+    "CT static threshold uses ideal 1:100 burden gain; C42 frequency transfer is in SPICE timing, not these static bands",
+    "\u00b11 mV LM4040 load-regulation allowance from REFERENCE-BIAS.md included",
+    "TLV3201 \u00b15 nA input bias on each input included via source Thevenin resistance",
+    "CT rail v3v3 is sampled/limited to 3.135\u20133.465 V per FAULT-INTERFACE.md",
+    "The -10 C corner is outside MC78L05AC's 0..125 C specified range; conditional extrapolation only"
+  ],
+  "temperature_corners": {
+    "-10": {
+      "shunt_a": {
+        "min": 42.42358899295679,
+        "min_corner": {
+          "resistor_high_bits": {
+            "R5": 1,
+            "R32": 1,
+            "R33": 0,
+            "R34": 0,
+            "R35": 1
+          },
+          "ref_v": 2.48,
+          "v3v3_v": 3.3,
+          "vos_v": 0.004,
+          "input_bias_v": 5.0610793683644535e-05,
+          "clamp_v": 0.0
+        },
+        "max": 80.26059481682485,
+        "max_corner": {
+          "resistor_high_bits": {
+            "R5": 0,
+            "R32": 0,
+            "R33": 1,
+            "R34": 1,
+            "R35": 0
+          },
+          "ref_v": 2.52,
+          "v3v3_v": 3.3,
+          "vos_v": -0.004,
+          "input_bias_v": -5.060845133613384e-05,
+          "clamp_v": 0.0
+        }
+      },
+      "ct_pos_a": {
+        "min": 50.92177307030784,
+        "min_corner": {
+          "resistor_high_bits": {
+            "R39": 1,
+            "R40": 0,
+            "R41": 1,
+            "R43": 1,
+            "R44": 0
+          },
+          "ref_v": 2.5,
+          "v3v3_v": 3.135,
+          "vos_v": -0.004,
+          "input_bias_v": -1.7481787211476155e-05,
+          "clamp_v": -8e-05
+        },
+        "max": 59.58384795063994,
+        "max_corner": {
+          "resistor_high_bits": {
+            "R39": 0,
+            "R40": 1,
+            "R41": 0,
+            "R43": 0,
+            "R44": 1
+          },
+          "ref_v": 2.5,
+          "v3v3_v": 3.465,
+          "vos_v": 0.004,
+          "input_bias_v": 1.7458094984509744e-05,
+          "clamp_v": 8e-05
+        }
+      },
+      "ct_neg_a": {
+        "min": 50.921773070307815,
+        "min_corner": {
+          "resistor_high_bits": {
+            "R39": 1,
+            "R40": 1,
+            "R41": 0,
+            "R45": 0,
+            "R46": 1
+          },
+          "ref_v": 2.5,
+          "v3v3_v": 3.135,
+          "vos_v": -0.004,
+          "input_bias_v": -1.7481787211476155e-05,
+          "clamp_v": -8e-05
+        },
+        "max": 59.583847950639935,
+        "max_corner": {
+          "resistor_high_bits": {
+            "R39": 0,
+            "R40": 0,
+            "R41": 1,
+            "R45": 1,
+            "R46": 0
+          },
+          "ref_v": 2.5,
+          "v3v3_v": 3.465,
+          "vos_v": 0.004,
+          "input_bias_v": 1.7458094984509744e-05,
+          "clamp_v": 8e-05
+        }
+      },
+      "ovp_v": {
+        "min": 272.95754049676793,
+        "min_corner": {
+          "resistor_high_bits": {
+            "R26": 0,
+            "R27": 0,
+            "R28": 0,
+            "R29": 0,
+            "R30": 1,
+            "R36": 1,
+            "R37": 0
+          },
+          "ref_v": 2.48,
+          "v3v3_v": 3.3,
+          "vos_v": 0.004,
+          "input_bias_v": 0.00012522088545895217,
+          "clamp_v": 0.0
+        },
+        "max": 287.10471198104665,
+        "max_corner": {
+          "resistor_high_bits": {
+            "R26": 1,
+            "R27": 1,
+            "R28": 1,
+            "R29": 1,
+            "R30": 0,
+            "R36": 0,
+            "R37": 1
+          },
+          "ref_v": 2.52,
+          "v3v3_v": 3.3,
+          "vos_v": -0.004,
+          "input_bias_v": -0.00012479551782230213,
+          "clamp_v": 0.0
+        }
+      }
+    },
+    "85": {
+      "shunt_a": {
+        "min": 38.438184034366216,
+        "min_corner": {
+          "resistor_high_bits": {
+            "R5": 1,
+            "R32": 1,
+            "R33": 0,
+            "R34": 0,
+            "R35": 1
+          },
+          "ref_v": 2.48,
+          "v3v3_v": 3.3,
+          "vos_v": 0.004,
+          "input_bias_v": 5.061107735765074e-05,
+          "clamp_v": 0.0
+        },
+        "max": 85.55103286449716,
+        "max_corner": {
+          "resistor_high_bits": {
+            "R5": 0,
+            "R32": 0,
+            "R33": 1,
+            "R34": 1,
+            "R35": 0
+          },
+          "ref_v": 2.52,
+          "v3v3_v": 3.3,
+          "vos_v": -0.004,
+          "input_bias_v": -5.060795423617119e-05,
+          "clamp_v": 0.0
+        }
+      },
+      "ct_pos_a": {
+        "min": 50.55835103731706,
+        "min_corner": {
+          "resistor_high_bits": {
+            "R39": 1,
+            "R40": 0,
+            "R41": 1,
+            "R43": 1,
+            "R44": 0
+          },
+          "ref_v": 2.5,
+          "v3v3_v": 3.135,
+          "vos_v": -0.004,
+          "input_bias_v": -1.7485713541486072e-05,
+          "clamp_v": -8e-05
+        },
+        "max": 60.01430697046711,
+        "max_corner": {
+          "resistor_high_bits": {
+            "R39": 0,
+            "R40": 1,
+            "R41": 0,
+            "R43": 0,
+            "R44": 1
+          },
+          "ref_v": 2.5,
+          "v3v3_v": 3.465,
+          "vos_v": 0.004,
+          "input_bias_v": 1.745413396948856e-05,
+          "clamp_v": 8e-05
+        }
+      },
+      "ct_neg_a": {
+        "min": 50.558351037317024,
+        "min_corner": {
+          "resistor_high_bits": {
+            "R39": 1,
+            "R40": 1,
+            "R41": 0,
+            "R45": 0,
+            "R46": 1
+          },
+          "ref_v": 2.5,
+          "v3v3_v": 3.135,
+          "vos_v": -0.004,
+          "input_bias_v": -1.7485713541486072e-05,
+          "clamp_v": -8e-05
+        },
+        "max": 60.014306970467096,
+        "max_corner": {
+          "resistor_high_bits": {
+            "R39": 0,
+            "R40": 0,
+            "R41": 1,
+            "R45": 1,
+            "R46": 0
+          },
+          "ref_v": 2.5,
+          "v3v3_v": 3.465,
+          "vos_v": 0.004,
+          "input_bias_v": 1.745413396948856e-05,
+          "clamp_v": 8e-05
+        }
+      },
+      "ovp_v": {
+        "min": 272.08725056508,
+        "min_corner": {
+          "resistor_high_bits": {
+            "R26": 0,
+            "R27": 0,
+            "R28": 0,
+            "R29": 0,
+            "R30": 1,
+            "R36": 1,
+            "R37": 0
+          },
+          "ref_v": 2.48,
+          "v3v3_v": 3.3,
+          "vos_v": 0.004,
+          "input_bias_v": 0.000125293079275895,
+          "clamp_v": 0.0
+        },
+        "max": 288.0166299667094,
+        "max_corner": {
+          "resistor_high_bits": {
+            "R26": 1,
+            "R27": 1,
+            "R28": 1,
+            "R29": 1,
+            "R30": 0,
+            "R36": 0,
+            "R37": 1
+          },
+          "ref_v": 2.52,
+          "v3v3_v": 3.3,
+          "vos_v": -0.004,
+          "input_bias_v": -0.0001247233114766213,
+          "clamp_v": 0.0
+        }
+      }
+    }
+  },
+  "D17_result_directory_present": false,
+  "files": [
+    {
+      "checkout": "ps-oracle",
+      "path": "zapote/power-stage-120v/DECISIONS.md",
+      "sha256": "a39a9016ab80e4cbbd46c6095621f3e7c3f809d6cf4142ee20a3b7d1860b758a"
+    },
+    {
+      "checkout": "ps-oracle",
+      "path": "zapote/power-stage-120v/elec/src/power_stage_120v.ato",
+      "sha256": "de5424925fb034b5f699670d6522176696d1006ffa7dcb5c7a734a1d8cb2049b"
+    },
+    {
+      "checkout": "ps-oracle",
+      "path": "zapote/power-stage-120v/frozen/default.net",
+      "sha256": "32f40a8f08f04278619300b9e1df985d378008c3ce18b13626c91e57d606df5f"
+    },
+    {
+      "checkout": "ps-oracle",
+      "path": "zapote/power-stage-120v/frozen/default.csv",
+      "sha256": "08708ee5d1e7d66789f5b168dc018306bc972f8865a8afd7d33e3269120bed67"
+    },
+    {
+      "checkout": "ps-oracle",
+      "path": "zapote/power-stage-120v/native-18/section.kicad_pcb",
+      "sha256": "fb113d95819f1ea7cd8c27f929f7e88308eff44b663af85f71cd6f2bca5a0002"
+    },
+    {
+      "checkout": "ps-oracle",
+      "path": "zapote/power-stage-120v/validation-results/02-protection-timing/round3/thresholds.py",
+      "sha256": "ac77313a55432b35697f693e180a0e5527a000cfe860971cf957bb4e11422988"
+    },
+    {
+      "checkout": "ps-oracle",
+      "path": "zapote/power-stage-120v/validation-results/02-protection-timing/round3/outputs/thresholds.json",
+      "sha256": "ae11cac0cc3abb2f5d85bfe07a80fd7b2eaf8f4a1bc1d914ac54806610291195"
+    },
+    {
+      "checkout": "ps-oracle",
+      "path": "zapote/power-stage-120v/validation-results/05-resonant-tank-envelope/round4/a-derated/README.md",
+      "sha256": "e03564d3c38778cff6373e9a0ad71fdc583b72a7e8454bba9eb2b2eae9f54c17"
+    },
+    {
+      "checkout": "ps-oracle",
+      "path": "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/D17-protection-gate-off.md",
+      "sha256": "20f923597ba23c4623b1fa0ae9b9320fedcd1fafb1f6cef5443b32d536b964dd"
+    },
+    {
+      "checkout": "mit-product-guidance",
+      "path": "zapote/power-stage-120v/build-receipt.json",
+      "sha256": "2afd0b55bc930b4bce6c5254528c546c88ad28894fd176156fea853bcae805d5"
+    },
+    {
+      "checkout": "mit-product-guidance",
+      "path": "zapote/power-stage-120v/frozen/default.net",
+      "sha256": "26f95d5aa092d3aba2890421204d53aab16ce332c2e81d22990de64fb30ddb02"
+    },
+    {
+      "checkout": "mit-product-guidance",
+      "path": "zapote/power-stage-120v/frozen/default.csv",
+      "sha256": "6cdae33f6ef49ba9c6a95df2cd07ec72b82070e4acaae1deab394c7f54d8262b"
+    },
+    {
+      "checkout": "ps-oracle",
+      "path": "zapote/power-stage-120v/validation-results/05-resonant-tank-envelope/sources/942C.pdf",
+      "sha256": "f99395446ba25a0adcef85862ff9eaee90bac68fae6664decccab1ebea3e4310",
+      "origin_url": "https://www.cde.com/resources/catalogs/942C.pdf",
+      "fresh_fetch_status": "HTTP403 on2026-10-04; inspected saved manufacturer PDF"
+    }
+  ],
+  "coil_output_regression": {
+    "before_matches_committed_output": true,
+    "all_noncomment_rows_byte_identical": true,
+    "prior_output_omits_unreleased_and_shunt_warning": true,
+    "corrected_output_includes_unreleased_and_both_detectors_warning": true,
+    "noncomment_rows_sha256": "e0d9b51c6424f62a4d182d3eb4c132743a997c1ae42d348ff7d388494bd098fa",
+    "before_stdout_sha256": "acbab931805be978df3070e85b5ac66a909d8716d017e00afdcf41a365ab6d8d",
+    "after_stdout_sha256": "76b1ee733d5f4030d17f7c8f0fbb3d518f39e64d39423a6bfc6b2f533eda3ad8",
+    "rust_unit_tests_passed": 11
+  }
+}

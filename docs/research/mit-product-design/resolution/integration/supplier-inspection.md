@@ -1,0 +1,29 @@
+# Draft supplier drawing and incoming-inspection brief
+
+**Purpose:** obtain process capability and actual mating data for a learning pilot. This is a request-for-review packet, not an RFQ, cutting approval, or claim that any supplier was contacted. Attach a revision-controlled STEP, drawing and change register only after the R4 correction and native-18 integration are reconciled. Quote/prototype volume and intended production volume separately.
+
+## Drawing cover sheet for each part
+
+Include part ID/revision, model/drawing SHA-256, nominal units, material/alloy/temper/grade, finish and surface preparation, inspection datums, critical dimensions with *agreed* tolerances, process route, quantity, lot/trace mark, packaging/handling, accepted substitute criteria, and an exception box. No CAD default tolerance or example MIT lecture number is a supplier acceptance limit. Mark the current R4 `DXF/*-PROVISIONAL.dxf` as reference-only until the shop accepts material, K-factor, flat pattern, corner/web capability and finish sequence.
+
+| Part/process | Exact current geometry or part identity | Supplier question and first-article inspection |
+| --- | --- | --- |
+| Formed cover/front | Single 2 mm sheet with shared cut/bend source, 108.8 × 38.8 mm R4.4 lens opening, three flush-button holes and continuous bridge | Choose alloy/temper and finish; bend coupon across grain/finish options; measure bend angle/radius, aperture distortion, front flatness and cosmetic witness after forming. Establish actual K-factor by coupon. |
+| Flush lens | 108 × 38 × 2 mm, R4 corners, nominal 0.4 mm edge joint | Glass grade/edge finish/strengthening/flatness/lot data; inspect actual edge and shape; thermal shock/impact and cleaner compatibility on assembled coupons. |
+| Lens ring and bond | 118 × 48 × 1.2 mm rear ring, 100 × 30 mm opening, nominal 0.3 mm bondline | Select ring stock, primer, adhesive, application/cure and minimum bond area; measure cured bondline/voids and flushness in exterior-datum jig. Demonstrate outward glass retention after hot/oil/humidity/cleaning/thermal-cycle exposure; ring alone resists only inward load. |
+| Front membrane/buttons | Three tops nominal flush; one continuous membrane in 2.5 mm clamp gap from 3.125 mm free-height allocation; nominal 0.2 mm actuator rest gap | Choose compound/process/switch; measure compression, force/stroke and maximum safe overtravel at cold/hot/wet/aged corners; test leak and return after assembly and reassembly. Current CAD is a rigid shape allocation. |
+| Concealed carrier studs | Six bonded pads, nominal 10 mm bases, 0.3 mm adhesive, 1.7 mm base and 0.5 mm spacer allocations | Supplier selects stud/pad bond and surface preparation; inspect location and shear/peel/creep after hot/cyclic load and carrier service; compare welded trial only if front cosmetic marking is controlled. |
+| Control carrier/display | Removable carrier; Newhaven NHD-3.12-25664UCW2 candidate, 83.2 × 38 mm hole pitch, 89.2 × 44 × 1 mm PCB | Obtain physical display, connector and cable bend envelope; inspect carrier material, insert/thread engagement, tool access, optical alignment and temperature under closed assembly. |
+| Protective compartment | R4 nominal collision corrected with shallow roof; native-18 board is 240 × 160 mm and not yet integrated | Produce native-18 populated assembly with selected standoffs, terminal covers and lid; inspect mechanical fit and creepage-relevant surfaces under safety team's construction drawing. Historical PCB import is not acceptance evidence. |
+| Cooling system | Shared PE-bonded sink, insulated MOSFET/bridge; ≥20 CFM delivered, ≤0.15 °C/W sink at operating point | Supplier returns selected fan/sink/guard/duct drawing, pressure-flow curve and mount/contact span; first article measures installed flow, bond continuity and per-device thermal interface. |
+| Mains/coil/PE hardware | J1 L/N, J6 PE branch, J2/J5 coil terminals; cord PE direct to chassis stud | Select exact inlet, strain relief, conductors, lugs, fastening/locking and PE stud process; inspect tooling access, pull/torque and continuity after repeated service and corrosion exposure. |
+
+## Assembly and quality route
+
+1. Inspect incoming material/flat blanks and first bend coupons before committing apertures or finish. Retain coupon measurements and lot IDs.
+2. Form/finish the front; measure datum and opening before bonding. Prepare surfaces with recorded method and cure trace. Bond lens/ring in a flushness jig, then apply the perimeter seal. Inspect bead wetting and voids before carrier hides access.
+3. Bond stud pads and prove their actual location/retention. Install membrane, carrier, display and hardware; confirm compression, rest gap, press/overtravel and cable route. Remove/reinstall the carrier once to verify service access without disturbing lens bond.
+4. Assemble protected power compartment, selected sink and PE bond, harnesses and fans; capture torque/locking, wire routing, protective barriers and inspections before closing the cover.
+5. Record board revision, individual critical component lot, enclosure/coupon lot, adhesive batch/cure, fan and sink IDs, measured bond continuity and functional screen in a single build traveler. Production screens detect assembly defects; qualification across process/age/stress establishes design robustness.
+
+For each critical feature, the quality owner fills `requirement source → instrument/fixture calibration → sampling stage → measured value/uncertainty → pass rule → disposition` before pilot use. Engineering may use 100% inspection on first articles; statistically justified production sampling and process capability come only after actual stable-run data. A shift from hand bond/laser cut to tooling or a different supplier triggers renewed fit, seal, bond, thermal and visual qualification.

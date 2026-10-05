@@ -1,0 +1,353 @@
+{
+    "$schema": "https://schemas.kicad.org/erc.v1.json",
+    "coordinate_units": "mm",
+    "date": "2026-10-04T12:13:19",
+    "ignored_checks": [
+        {
+            "description": "Global label only appears once in the schematic",
+            "key": "single_global_label"
+        },
+        {
+            "description": "Four connection points are joined together",
+            "key": "four_way_junction"
+        },
+        {
+            "description": "SPICE model issue",
+            "key": "simulation_model_issue"
+        },
+        {
+            "description": "Assigned footprint doesn't match footprint filters",
+            "key": "footprint_filter"
+        }
+    ],
+    "included_severities": [
+        "error",
+        "warning",
+        "exclusion"
+    ],
+    "kicad_version": "10.0.4",
+    "sheets": [
+        {
+            "path": "/",
+            "uuid_path": "/14a21bb2-536d-5be1-855e-2e61584431c0",
+            "violations": [
+                {
+                    "description": "Input Power pin not driven by any Output Power pins",
+                    "items": [
+                        {
+                            "description": "Symbol U1 Pin 3 [VCCI_1, Power input, Line]",
+                            "pos": {
+                                "x": 0.4826,
+                                "y": 1.9812
+                            },
+                            "uuid": "e02a74ae-7852-5a5b-922b-9de32f7ca403"
+                        }
+                    ],
+                    "severity": "error",
+                    "type": "power_pin_not_driven"
+                },
+                {
+                    "description": "Input Power pin not driven by any Output Power pins",
+                    "items": [
+                        {
+                            "description": "Symbol U1 Pin 14 [VSSA, Power input, Line]",
+                            "pos": {
+                                "x": 0.7874,
+                                "y": 2.0828
+                            },
+                            "uuid": "8d206b15-3053-5afa-b7c5-13c229011ffe"
+                        }
+                    ],
+                    "severity": "error",
+                    "type": "power_pin_not_driven"
+                },
+                {
+                    "description": "Input Power pin not driven by any Output Power pins",
+                    "items": [
+                        {
+                            "description": "Symbol U1 Pin 16 [VDDA, Power input, Line]",
+                            "pos": {
+                                "x": 0.7874,
+                                "y": 2.1844
+                            },
+                            "uuid": "13193142-1db8-54bf-a909-38c1aa041bc2"
+                        }
+                    ],
+                    "severity": "error",
+                    "type": "power_pin_not_driven"
+                },
+                {
+                    "description": "Input Power pin not driven by any Output Power pins",
+                    "items": [
+                        {
+                            "description": "Symbol U2 Pin 14 [VSSA, Power input, Line]",
+                            "pos": {
+                                "x": 1.9304,
+                                "y": 2.0828
+                            },
+                            "uuid": "358c3ebe-f45d-593b-a318-09b7e56c95d1"
+                        }
+                    ],
+                    "severity": "error",
+                    "type": "power_pin_not_driven"
+                },
+                {
+                    "description": "Input Power pin not driven by any Output Power pins",
+                    "items": [
+                        {
+                            "description": "Symbol U2 Pin 16 [VDDA, Power input, Line]",
+                            "pos": {
+                                "x": 1.9304,
+                                "y": 2.1844
+                            },
+                            "uuid": "2411f07c-ae8e-5165-8e57-127b7c07f119"
+                        }
+                    ],
+                    "severity": "error",
+                    "type": "power_pin_not_driven"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Label 'leg_a.driver-nc_7'",
+                            "pos": {
+                                "x": 0.4826,
+                                "y": 2.1844
+                            },
+                            "uuid": "c4011606-1acc-588f-afe6-7b148e73e792"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Label 'leg_b.driver-nc_7'",
+                            "pos": {
+                                "x": 1.6256,
+                                "y": 2.1844
+                            },
+                            "uuid": "ddd53c7f-e52a-5e31-8a99-31f1ccfd0986"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Label 'outb'",
+                            "pos": {
+                                "x": 1.9304,
+                                "y": 7.1628
+                            },
+                            "uuid": "d3999c4f-e5bc-5dfb-bad5-eb00d47714a2"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Pin GND1 not connected to ground net",
+                    "items": [
+                        {
+                            "description": "Symbol U4 Pin 4 [GND1, Power input, Line]",
+                            "pos": {
+                                "x": 2.7686,
+                                "y": 6.6802
+                            },
+                            "uuid": "ad359e1e-d3f9-5fcc-8c77-90861ad4dea2"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "ground_pin_not_ground"
+                },
+                {
+                    "description": "Pin GND1 not connected to ground net",
+                    "items": [
+                        {
+                            "description": "Symbol U9 Pin 1 [GND1, Power input, Line]",
+                            "pos": {
+                                "x": 2.7686,
+                                "y": 6.9342
+                            },
+                            "uuid": "9cca8bca-22b9-52af-bc0d-6558a51df9ee"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "ground_pin_not_ground"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Label 'nc2'",
+                            "pos": {
+                                "x": 2.7686,
+                                "y": 6.985
+                            },
+                            "uuid": "061d81aa-f5a9-5466-98d7-443333a5f77a"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Label 'nc5'",
+                            "pos": {
+                                "x": 2.7686,
+                                "y": 7.1374
+                            },
+                            "uuid": "89a3dd4f-c25c-5a88-b7e3-dcf7f4dc1ca0"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Label 'nc6'",
+                            "pos": {
+                                "x": 2.7686,
+                                "y": 7.1882
+                            },
+                            "uuid": "979d6366-b8b8-54bf-8632-e5ef264a5c5f"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Pin GND1B not connected to ground net",
+                    "items": [
+                        {
+                            "description": "Symbol U9 Pin 7 [GND1B, Power input, Line]",
+                            "pos": {
+                                "x": 2.7686,
+                                "y": 7.239
+                            },
+                            "uuid": "cf73efe7-beb6-5103-adeb-eac0f8ec0b27"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "ground_pin_not_ground"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Label 'nc8'",
+                            "pos": {
+                                "x": 2.7686,
+                                "y": 7.2898
+                            },
+                            "uuid": "a1229ec6-c7f2-599b-bcc3-64f9e231d7a7"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Label 'nc10'",
+                            "pos": {
+                                "x": 3.0734,
+                                "y": 6.985
+                            },
+                            "uuid": "3c562cea-d6a1-5e9f-a211-96e9c555e890"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Label 'nc11'",
+                            "pos": {
+                                "x": 3.0734,
+                                "y": 7.0358
+                            },
+                            "uuid": "d95b782f-44d2-54e8-9ff5-ed936513ddea"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Label 'nc12'",
+                            "pos": {
+                                "x": 3.0734,
+                                "y": 7.0866
+                            },
+                            "uuid": "19461db1-a565-58e9-9ab8-c705ab128f75"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Label 'nc15'",
+                            "pos": {
+                                "x": 3.0734,
+                                "y": 7.239
+                            },
+                            "uuid": "6649906f-e94e-5f79-9627-e3dc57428502"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Label 'u_hot5_schmitt-nc'",
+                            "pos": {
+                                "x": 9.6266,
+                                "y": 6.5532
+                            },
+                            "uuid": "f3564706-be9a-55b9-bd55-53c1169792d9"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Label 'u_ref-nc'",
+                            "pos": {
+                                "x": 9.9314,
+                                "y": 3.048
+                            },
+                            "uuid": "148da570-e728-5392-b51a-52f394c2400f"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                }
+            ]
+        }
+    ],
+    "source": "section.kicad_sch"
+}

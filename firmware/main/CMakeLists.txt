@@ -15,6 +15,7 @@ idf_component_register(
     REQUIRES
         driver
         hal
+        power
         nvs_flash
         esp_timer
 )

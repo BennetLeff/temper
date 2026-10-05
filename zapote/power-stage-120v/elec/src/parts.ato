@@ -160,11 +160,13 @@ component R220k1206:
     signal p2 ~ pin 2
 
 component Shunt1m:
-    """Vishay WSK2512R0010FEA 1 mOhm 4-terminal. Pads 1/4 current, 2/3 sense."""
+    """Vishay WSK25121L000FEA 1 mOhm 4-terminal. KiCad pads 1/4 current I1/I2, 2/3 sense E1/E2.
+    Vishay doc 30108: 1 mOhm uses T=2.21 mm and low-ohm L marking.
+    Same-end terminal relationships are internal to the part, not PCB joins."""
     designator_prefix = "R"
-    mpn = "WSK2512R0010FEA"
+    mpn = "WSK25121L000FEA"
     manufacturer = "Vishay Dale"
-    footprint = "Resistor_SMD:R_Shunt_Vishay_WSK2512_6332Metric_T1.19mm"
+    footprint = "Resistor_SMD:R_Shunt_Vishay_WSK2512_6332Metric_T2.21mm"
     signal I1 ~ pin 1
     signal S1 ~ pin 2
     signal S2 ~ pin 3
@@ -241,9 +243,9 @@ component R3R9Gate:
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
-component R39kDt:
+component R49k9Dt:
     designator_prefix = "R"
-    mpn = "RC0603FR-0739KL"
+    mpn = "RT0603BRD0749K9L"
     manufacturer = "Yageo"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
@@ -490,18 +492,53 @@ component R140kThin:
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
-component Nand2Lvc1g00:
-    """TI SN74LVC1G00DBVR single 2-input NAND. DBV: 1 A, 2 B, 3 GND, 4 Y,
-    5 VCC (SCES212AC, Pin Functions table)."""
+component Nand3Lvc1g10:
+    """TI SN74LVC1G10DBVR; DBV pins A1, GND2, B3, Y4, VCC5, C6."""
     designator_prefix = "U"
-    mpn = "SN74LVC1G00DBVR"
+    mpn = "SN74LVC1G10DBVR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_TO_SOT_SMD:SOT-23-6"
+    signal A ~ pin 1
+    signal GND ~ pin 2
+    signal B ~ pin 3
+    signal Y ~ pin 4
+    signal VCC ~ pin 5
+    signal C ~ pin 6
+
+component Hot5Supervisor:
+    """TI TPS3700DDCR; V15-powered HOT5 undervoltage detector. DDC SOT-6."""
+    designator_prefix = "U"
+    mpn = "TPS3700DDCR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_TO_SOT_SMD:SOT-23-6"
+    signal OUTA ~ pin 1
+    signal GND ~ pin 2
+    signal INA ~ pin 3
+    signal INB ~ pin 4
+    signal VDD ~ pin 5
+    signal OUTB ~ pin 6
+
+component Hot5SchmittBuffer:
+    """TI SN74LVC1G17DBVR; DBV pins NC1, A2, GND3, Y4, VCC5."""
+    designator_prefix = "U"
+    mpn = "SN74LVC1G17DBVR"
     manufacturer = "Texas Instruments"
     footprint = "Package_TO_SOT_SMD:SOT-23-5"
-    signal A ~ pin 1
-    signal B ~ pin 2
+    signal NC ~ pin 1
+    signal A ~ pin 2
     signal GND ~ pin 3
     signal Y ~ pin 4
     signal VCC ~ pin 5
+
+component R105kThin:
+    """Yageo RT0603BRD07105KL, 105 kΩ 0.1% 25 ppm/K divider upper leg."""
+    designator_prefix = "R"
+    mpn = "RT0603BRD07105KL"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
 
 component R5k6Bias:
     """LM4040 bias, including the OCP and OVP divider loads. Worst-case

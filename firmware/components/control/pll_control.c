@@ -26,6 +26,7 @@
 /* ESP-IDF includes (available when building with ESP-IDF) */
 #ifdef ESP_PLATFORM
 #include "driver/mcpwm_prelude.h"
+#include "../power/include/power_service.h"
 #include "esp_timer.h"
 #include "esp_log.h"
 static const char *TAG = "pll_control";
@@ -341,8 +342,7 @@ void pll_update_loop(float measured_lag_us, float dt_sec) {
         if (pll_timer != NULL) {
             /* Calculate timer period from frequency */
             /* Period = clock_freq / switching_freq */
-            uint32_t period = 160000000 / (uint32_t)new_freq;  /* 160MHz MCPWM clock */
-            mcpwm_timer_set_period(pll_timer, period);
+            if (!power_service_frequency((uint32_t)new_freq)) return;
         }
 #endif
         pll_ctx.current_freq = new_freq;
@@ -460,8 +460,7 @@ void pll_reset(void) {
     
 #ifdef ESP_PLATFORM
     if (pll_timer != NULL) {
-        uint32_t period = 160000000 / PLL_DEFAULT_FREQ_HZ;
-        mcpwm_timer_set_period(pll_timer, period);
+        (void)power_service_frequency(PLL_DEFAULT_FREQ_HZ);
     }
     ESP_LOGI(TAG, "PLL reset to default frequency %dHz", PLL_DEFAULT_FREQ_HZ);
 #endif

@@ -1,0 +1,17 @@
+{"port": "P1_C38", "pec_components_touched": 1, "closed_loop": true, "components": [{"nodes": 62338, "farfield": false, "bbox": [[105.87, -53.5, -0.07], [184.6, -0.6, 3.86]]}]}
+{"port": "P2_C39", "pec_components_touched": 1, "closed_loop": true, "components": [{"nodes": 62338, "farfield": false, "bbox": [[105.87, -53.5, -0.07], [184.6, -0.6, 3.86]]}]}
+{"port": "P3_gate_high", "pec_components_touched": 1, "closed_loop": true, "components": [{"nodes": 62338, "farfield": false, "bbox": [[105.87, -53.5, -0.07], [184.6, -0.6, 3.86]]}]}
+{"port": "P4_gate_low", "pec_components_touched": 1, "closed_loop": true, "components": [{"nodes": 62338, "farfield": false, "bbox": [[105.87, -53.5, -0.07], [184.6, -0.6, 3.86]]}]}
+{"closure": "P1_C38", "kind": "port", "a_body": [0], "b_body": [0]}
+{"closure": "P2_C39", "kind": "port", "a_body": [0], "b_body": [0]}
+{"closure": "P3_gate_high", "kind": "port", "a_body": [0], "b_body": [0]}
+{"closure": "P4_gate_low", "kind": "port", "a_body": [0], "b_body": [0]}
+{"closure": "Q2_DS", "kind": "bridge", "a_body": [0], "b_body": [0]}
+{"closure": "Q3_DS", "kind": "bridge", "a_body": [0], "b_body": [0]}
+{"closure": "R5_1_4", "kind": "bridge", "a_body": [0], "b_body": [0]}
+{"closure": "R10", "kind": "bridge", "a_body": [0], "b_body": [0]}
+{"closure": "R12", "kind": "bridge", "a_body": [0], "b_body": [0]}
+{"closure": "Q2_GS", "kind": "bridge", "a_body": [0], "b_body": [0]}
+{"closure": "Q3_GS", "kind": "bridge", "a_body": [0], "b_body": [0]}
+{"body_sizes": {"0": 62338, "1": 19129, "2": 954, "3": 938, "4": 50}}
+RESULT {"pec_components": 5, "ports": [{"port": "P1_C38", "pec_components_touched": 1, "closed_loop": true, "components": [{"nodes": 62338, "farfield": false, "bbox": [[105.87, -53.5, -0.07], [184.6, -0.6, 3.86]]}]}, {"port": "P2_C39", "pec_components_touched": 1, "closed_loop": true, "components": [{"nodes": 62338, "farfield": false, "bbox": [[105.87, -53.5, -0.07], [184.6, -0.6, 3.86]]}]}, {"port": "P3_gate_high", "pec_components_touched": 1, "closed_loop": true, "components": [{"nodes": 62338, "farfield": false, "bbox": [[105.87, -53.5, -0.07], [184.6, -0.6, 3.86]]}]}, {"port": "P4_gate_low", "pec_components_touched": 1, "closed_loop": true, "components": [{"nodes": 62338, "farfield": false, "bbox": [[105.87, -53.5, -0.07], [184.6, -0.6, 3.86]]}]}], "closure_ends": [{"closure": "P1_C38", "kind": "port", "a_body": [0], "b_body": [0]}, {"closure": "P2_C39", "kind": "port", "a_body": [0], "b_body": [0]}, {"closure": "P3_gate_high", "kind": "port", "a_body": [0], "b_body": [0]}, {"closure": "P4_gate_low", "kind": "port", "a_body": [0], "b_body": [0]}, {"closure": "Q2_DS", "kind": "bridge", "a_body": [0], "b_body": [0]}, {"closure": "Q3_DS", "kind": "bridge", "a_body": [0], "b_body": [0]}, {"closure": "R5_1_4", "kind": "bridge", "a_body": [0], "b_body": [0]}, {"closure": "R10", "kind": "bridge", "a_body": [0], "b_body": [0]}, {"closure": "R12", "kind": "bridge", "a_body": [0], "b_body": [0]}, {"closure": "Q2_GS", "kind": "bridge", "a_body": [0], "b_body": [0]}, {"closure": "Q3_GS", "kind": "bridge", "a_body": [0], "b_body": [0]}]}

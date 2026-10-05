@@ -16,6 +16,7 @@
 static const char *TAG = "hal_pwm";
 typedef struct {
     bool initialized;
+    bool has_config;
     bool timer_enabled;
     bool timer_started;
     mcpwm_timer_handle_t timer;
@@ -43,24 +44,25 @@ static bool valid_timing(uint32_t hz, float duty, bool complementary, uint16_t n
 static esp_err_t low_pin(hal_pin_t pin) {
     esp_err_t result = ESP_OK;
     if (pin == HAL_PIN_INVALID) return result;
-    /* Disconnect peripheral routing; local board pull-down covers the input
-     * interval. An API failure remains an error, not a physical-off guarantee. */
+    /* Disconnect peripheral routing; an external pull-down is required during
+     * the input interval. An API failure remains an error, not a physical-off guarantee. */
     if (gpio_set_level(pin, 0) != ESP_OK) result = ESP_FAIL;
     if (gpio_reset_pin(pin) != ESP_OK) result = ESP_FAIL;
     if (gpio_set_level(pin, 0) != ESP_OK) result = ESP_FAIL;
+    if (gpio_pullup_dis(pin) != ESP_OK) result = ESP_FAIL;
+    if (gpio_pulldown_en(pin) != ESP_OK) result = ESP_FAIL;
     if (gpio_set_direction(pin, GPIO_MODE_OUTPUT) != ESP_OK) result = ESP_FAIL;
     if (gpio_hold_dis(pin) != ESP_OK) result = ESP_FAIL;
     return result;
 }
-static hal_status_t invalidate(pwm_channel_t *ch) {
-    ch->initialized = false;
-    ch->state.configured = false;
-    ch->state.running = false;
-    /* Independent fallback does not rely on the partially configured inverter. */
+static hal_status_t ground_outputs(pwm_channel_t *ch) {
     esp_err_t a = low_pin(ch->config.pin_high);
     esp_err_t b = low_pin(ch->config.complementary ? ch->config.pin_low : HAL_PIN_INVALID);
-    if (a != ESP_OK || b != ESP_OK) ESP_LOGE(TAG, "GPIO shutdown failed; hardware interlock required");
-    return HAL_ERROR;
+    if (a != ESP_OK || b != ESP_OK) {
+        ESP_LOGE(TAG, "GPIO shutdown failed; hardware interlock required");
+        return HAL_ERROR;
+    }
+    return HAL_OK;
 }
 static hal_status_t release_resources(pwm_channel_t *ch) {
     hal_status_t result = HAL_OK;
@@ -79,8 +81,22 @@ static hal_status_t release_resources(pwm_channel_t *ch) {
     if (!ch->gen_low && !ch->gen_high && !ch->cmpr) DELETE(oper, mcpwm_del_operator);
     if (!ch->oper && !ch->timer_enabled) DELETE(timer, mcpwm_del_timer);
 #undef DELETE
+    /* Generator deletion resets its GPIO to disabled output with pull-up.
+     * Restore both pins LAST, even after a failed/partial resource release. */
+    if (ground_outputs(ch) != HAL_OK) result = HAL_ERROR;
     return result;
 }
+static hal_status_t invalidate(pwm_channel_t *ch) {
+    ch->initialized = false;
+    ch->state.configured = false;
+    ch->state.running = false;
+    /* Disconnect first; release_resources reasserts GPIO state after deletion. */
+    ground_outputs(ch);
+    if (release_resources(ch) != HAL_OK) ESP_LOGE(TAG, "PWM cleanup failed; deinit required");
+    else ch->has_config = false; /* Fully released: a fresh init may retry. */
+    return HAL_ERROR;
+}
+
 static esp_err_t program_delay(pwm_channel_t *ch, uint16_t ns) {
     mcpwm_dead_time_config_t rise = {.posedge_delay_ticks = ticks(ns)};
     mcpwm_dead_time_config_t fall = {.negedge_delay_ticks = ticks(ns), .flags.invert_output = true};
@@ -101,14 +117,17 @@ static esp_err_t force_off(pwm_channel_t *ch) {
     return result;
 }
 static hal_status_t esp32_pwm_init(hal_pwm_channel_t channel, const hal_pwm_config_t *config) {
+    /* Native19 gate drive belongs to the synchronized four-output service. */
+    if (channel == HAL_PWM_CHANNEL_GATE) return HAL_ERROR_NOT_READY;
     if (!valid_channel(channel) || !config) return HAL_ERROR_INVALID_ARG;
     pwm_channel_t *ch = &channels[channel];
-    if (ch->initialized || ch->timer || ch->oper) return HAL_ERROR_BUSY;
+    if (ch->has_config || ch->initialized || ch->timer || ch->oper) return HAL_ERROR_BUSY;
     if (!GPIO_IS_VALID_OUTPUT_GPIO(config->pin_high) ||
         (config->complementary && (!GPIO_IS_VALID_OUTPUT_GPIO(config->pin_low) || config->pin_low == config->pin_high)) ||
         !valid_timing(config->frequency_hz, config->duty_percent, config->complementary, config->dead_time_ns)) return HAL_ERROR_INVALID_ARG;
     memset(ch, 0, sizeof(*ch));
     ch->config = *config;
+    ch->has_config = true;
 #define TRY(call) do { if ((call) != ESP_OK) goto fail; } while (0)
     /* Hold both pads low while routing, forcing and inversion are configured. */
     TRY(low_pin(config->pin_high));
@@ -154,9 +173,7 @@ static hal_status_t esp32_pwm_init(hal_pwm_channel_t channel, const hal_pwm_conf
     ch->initialized = true;
     return HAL_OK;
 fail:
-    invalidate(ch);
-    if (release_resources(ch) != HAL_OK) ESP_LOGE(TAG, "PWM cleanup failed; deinit required");
-    return HAL_ERROR;
+    return invalidate(ch);
 #undef TRY
 }
 static hal_status_t esp32_pwm_set_frequency(hal_pwm_channel_t channel, uint32_t hz) {
@@ -235,10 +252,8 @@ static hal_status_t esp32_pwm_get_state(hal_pwm_channel_t channel, hal_pwm_state
 static hal_status_t esp32_pwm_deinit(hal_pwm_channel_t channel) {
     if (!valid_channel(channel)) return HAL_ERROR_INVALID_ARG;
     pwm_channel_t *ch=&channels[channel];
-    if (!ch->initialized && !ch->timer && !ch->oper) return HAL_OK;
-    hal_status_t result=HAL_OK;
-    if (low_pin(ch->config.pin_high)!=ESP_OK) result=HAL_ERROR;
-    if (ch->config.complementary && low_pin(ch->config.pin_low)!=ESP_OK) result=HAL_ERROR;
+    if (!ch->has_config && !ch->timer && !ch->oper) return HAL_OK;
+    hal_status_t result=ground_outputs(ch);
     ch->initialized=false; ch->state.configured=false; ch->state.running=false;
     if (release_resources(ch)!=HAL_OK) result=HAL_ERROR;
     if (result==HAL_OK) memset(ch,0,sizeof(*ch));

@@ -209,6 +209,12 @@ def main() -> None:
     ap.add_argument("--set", action="append", default=[], metavar="PARAM=VALUE",
                     help="deck parameter override applied after the matrix, e.g. K35=0 (recorded in the identity)")
     a = ap.parse_args()
+    vendor = run_d2.KIT / "models" / "vendor" / "IFX_CFD7_650V.lib"
+    if not vendor.is_file():
+        # Without the (git-ignored, licensed) library every case "aborts";
+        # fail before writing anything. Restore it with
+        # validation-plan/sim-kit/models/fetch_models.sh (hash-checked).
+        raise SystemExit(f"vendor model missing: {vendor}; run sim-kit/models/fetch_models.sh first")
     overrides = dict(kv.split("=", 1) for kv in a.set)
     bad = sorted(k for k in overrides if k.upper() in SCENARIO_KEYS)
     if bad:
