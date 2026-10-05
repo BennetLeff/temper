@@ -284,6 +284,9 @@ const IDENTITY: &[(&str, &str)] = &[
     ("br1", "GBJ2510-F"),
     ("tvs_bus", "MRT130KP295CV"),
     ("r_shunt", "WSK25121L000FEA"),
+    // DECISIONS.md 2026-10-03: dead-time resistors (native-18 onward).
+    ("leg_a.r_dt", "RT0603BRD0749K9L"),
+    ("leg_b.r_dt", "RT0603BRD0749K9L"),
     ("leg_a.q_high", "IPW65R018CFD7"),
     ("leg_a.q_low", "IPW65R018CFD7"),
     ("leg_b.q_high", "IPW65R018CFD7"),
@@ -375,6 +378,28 @@ fn min_reference_cathode_current_ua(bias_ohm: f64) -> f64 {
     let ocp_threshold_load = ref_max / (20_500.0 * 0.999);
     let ovp_threshold_load = ref_max / (150_000.0 * 0.999);
     (bias_current - ocp_offset_load - ocp_threshold_load - ovp_threshold_load) * 1e6
+}
+
+// Dead-time window (validation task 01, round 17, FINDINGS F7). The D2
+// switching grid passes the hot off-gate screen with ZVS for every nominal
+// and overcurrent case only for driver dead times in [391, 498] ns
+// (`grid-best-longdt`). TI SLUSE89C gives DT only at 20 and 50 kOhm; D-1/D-12
+// interpolate the min and max columns linearly and stack resistor tolerance
+// and TCR over -40..150 C (|dT| = 125 K). An estimate, not a TI guarantee.
+const DT_WINDOW_NS: (f64, f64) = (391.0, 498.0);
+const DT_RESISTORS: &[(&str, f64, f64, f64)] = &[
+    // (MPN, kOhm, tolerance, TCR ppm/K) from the Yageo datasheets (out-D12/SOURCES.md)
+    ("RC0603FR-0739KL", 39.0, 0.01, 100.0),
+    ("RC0603FR-0749K9L", 49.9, 0.01, 100.0),
+    ("RT0603BRD0749K9L", 49.9, 0.001, 25.0),
+];
+
+/// (min, max) estimated driver dead time in ns for a DT resistor (D-12 `estimate`).
+fn dead_time_window_ns(r_kohm: f64, tol: f64, tcr_ppm: f64) -> (f64, f64) {
+    let drift = tcr_ppm * 1e-6 * 125.0;
+    let rmin = r_kohm * (1.0 - tol) * (1.0 - drift);
+    let rmax = r_kohm * (1.0 + tol) * (1.0 + drift);
+    (167.0 + (rmin - 20.0) * (399.0 - 167.0) / 30.0, 203.0 + (rmax - 20.0) * (487.0 - 203.0) / 30.0)
 }
 
 fn audit(m: &Model) -> Vec<String> {
@@ -864,6 +889,30 @@ fn audit(m: &Model) -> Vec<String> {
         let w: BTreeSet<(String, String)> = want.iter().map(|(a, b)| (a.to_string(), b.to_string())).collect();
         if members(m, net) != w {
             e.push(format!("{net} has unexpected loads: {:?}", members(m, net)));
+        }
+    }
+
+    // 12. Dead-time window: each leg's DT resistor must keep the estimated
+    //     driver dead time inside the simulated window (FINDINGS F7).
+    for leg in ["leg_a", "leg_b"] {
+        let path = format!("{leg}.r_dt");
+        let Some(mpn) = m.resolved.get(&path) else {
+            e.push(format!("{path}: no resolved part"));
+            continue;
+        };
+        match DT_RESISTORS.iter().find(|(p, ..)| p == mpn) {
+            None => e.push(format!(
+                "{path}: dead-time resistor {mpn} has no tolerance/TCR data; add it to DT_RESISTORS with a datasheet citation"
+            )),
+            Some(&(_, r, tol, tcr)) => {
+                let (lo, hi) = dead_time_window_ns(r, tol, tcr);
+                if lo < DT_WINDOW_NS.0 || hi > DT_WINDOW_NS.1 {
+                    e.push(format!(
+                        "{path}: {mpn} gives estimated dead time {lo:.1}-{hi:.1} ns, outside the simulated window {}-{} ns",
+                        DT_WINDOW_NS.0, DT_WINDOW_NS.1
+                    ));
+                }
+            }
         }
     }
     e
@@ -1412,5 +1461,35 @@ mod tests {
         m.rewire("leg_a.d_boot", "2", "leg_a-boot");
         m.rewire("leg_a.d_boot", "1", "v15_ls");
         fails(&m, "leg_a.d_boot.2");
+    }
+
+    #[test]
+    fn dead_time_window_matches_d12() {
+        let (lo, hi) = dead_time_window_ns(49.9, 0.001, 25.0);
+        assert!((lo - 396.636).abs() < 0.01 && (hi - 488.003).abs() < 0.01, "{lo} {hi}");
+        let (lo, _) = dead_time_window_ns(39.0, 0.01, 100.0);
+        assert!((lo - 307.2).abs() < 0.1, "{lo}");
+    }
+
+    #[test]
+    fn old_39k_dead_time_resistor_fails_window() {
+        let mut m = built();
+        m.resolved.insert("leg_a.r_dt".into(), "RC0603FR-0739KL".into());
+        fails(&m, "leg_a.r_dt: RC0603FR-0739KL gives estimated dead time");
+    }
+
+    #[test]
+    fn standard_tolerance_49k9_fails_window() {
+        // the +-1 % 49.9 kOhm part reaches 389.6 ns: below 391 ns (D-12)
+        let mut m = built();
+        m.resolved.insert("leg_b.r_dt".into(), "RC0603FR-0749K9L".into());
+        fails(&m, "leg_b.r_dt: RC0603FR-0749K9L gives estimated dead time");
+    }
+
+    #[test]
+    fn unknown_dead_time_resistor_fails() {
+        let mut m = built();
+        m.resolved.insert("leg_a.r_dt".into(), "RC0603FR-0751KL".into());
+        fails(&m, "has no tolerance/TCR data");
     }
 }
