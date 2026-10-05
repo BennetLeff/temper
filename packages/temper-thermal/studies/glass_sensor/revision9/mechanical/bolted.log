@@ -1,0 +1,5 @@
+/private/tmp/temper-center-sensor-env/lib/python3.11/site-packages/cadquery/utils.py:39: FutureWarning: save will be removed in the next release.
+  warn(f"{f.__name__} will be removed in the next release.", FutureWarning)
+rest 0 {'island_to_bracket': 0, 'bracket_to_head': 3, 'nut_to_carrier': 6}
+combined 0 {'island_to_bracket': 3, 'bracket_to_head': 3, 'nut_to_carrier': 6}
+housing-capture 0 {'island_to_bracket': 3, 'bracket_to_head': 3, 'nut_to_carrier': 6}

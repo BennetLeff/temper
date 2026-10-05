@@ -1,0 +1,5 @@
+probe,exit_code,new_physics_csv,stale_success_receipt_removed
+bad_source_hash,1,false,true
+bad_geometry_hash,1,false,true
+injected_test_failure,101,false,true
+corrupt_consumed_snapshot,1,false,true

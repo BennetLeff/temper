@@ -1,0 +1,366 @@
+{
+  "status": "PASS_MINIMUM_FASTENER_ACCESS_GEOMETRY",
+  "physical_result": "NOT_RUN",
+  "source_sha256": {
+    "revision7/mechanical/build.py": "1c9451a3af11f7025e4abd8d1f91d9c17d09c9c710d0de2b454e595dca6f2281",
+    "revision5/mechanical/build.py": "f4507ebc3f8c7bf82c19c5b38b9099dbd6c7af1d3190635577c72ec466c7feca",
+    "revision2/mechanical/build.py": "3057c0ede6adeeed338d0dc554b63100dfe5040e9bef562fb622199807f6499d",
+    "revision7/mechanical/thermal_geometry.csv": "72c6da410ee03d91aeee04386fba74b70ce14e504348abbb4515f3b8241a5343"
+  },
+  "scope": "Housing, glass and seal envelopes absent. Conservative screw and rotating-nut swept outer envelopes; minimum hex-key shaft only. No chosen wrench/driver handle, torque stroke, thread manufacturing, preload or operator access qualification.",
+  "checks": [
+    {
+      "joint": 1,
+      "check": "screw_8mm_approach",
+      "hits": []
+    },
+    {
+      "joint": 1,
+      "check": "nut_rotation_and_4mm_approach",
+      "hits": []
+    },
+    {
+      "joint": 1,
+      "check": "minimum_1p5AF_key_shaft",
+      "hits": []
+    },
+    {
+      "joint": 2,
+      "check": "screw_8mm_approach",
+      "hits": []
+    },
+    {
+      "joint": 2,
+      "check": "nut_rotation_and_4mm_approach",
+      "hits": []
+    },
+    {
+      "joint": 2,
+      "check": "minimum_1p5AF_key_shaft",
+      "hits": []
+    },
+    {
+      "joint": 3,
+      "check": "screw_8mm_approach",
+      "hits": []
+    },
+    {
+      "joint": 3,
+      "check": "nut_rotation_and_4mm_approach",
+      "hits": []
+    },
+    {
+      "joint": 3,
+      "check": "minimum_1p5AF_key_shaft",
+      "hits": []
+    }
+  ],
+  "sequential_bracket_with_other_fasteners": [
+    {
+      "moving_bracket": 1,
+      "radial_offset_mm": 4.0,
+      "omitted_own_not_yet_installed": [
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_1",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_1"
+      ],
+      "installed_other_fasteners": [
+        "C9_316L_catch_bracket_2",
+        "C9_316L_catch_bracket_3",
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_2",
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_3",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_2",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_3"
+      ],
+      "hits": []
+    },
+    {
+      "moving_bracket": 1,
+      "radial_offset_mm": 3.0,
+      "omitted_own_not_yet_installed": [
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_1",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_1"
+      ],
+      "installed_other_fasteners": [
+        "C9_316L_catch_bracket_2",
+        "C9_316L_catch_bracket_3",
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_2",
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_3",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_2",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_3"
+      ],
+      "hits": []
+    },
+    {
+      "moving_bracket": 1,
+      "radial_offset_mm": 2.0,
+      "omitted_own_not_yet_installed": [
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_1",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_1"
+      ],
+      "installed_other_fasteners": [
+        "C9_316L_catch_bracket_2",
+        "C9_316L_catch_bracket_3",
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_2",
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_3",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_2",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_3"
+      ],
+      "hits": []
+    },
+    {
+      "moving_bracket": 1,
+      "radial_offset_mm": 1.0,
+      "omitted_own_not_yet_installed": [
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_1",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_1"
+      ],
+      "installed_other_fasteners": [
+        "C9_316L_catch_bracket_2",
+        "C9_316L_catch_bracket_3",
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_2",
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_3",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_2",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_3"
+      ],
+      "hits": []
+    },
+    {
+      "moving_bracket": 1,
+      "radial_offset_mm": 0.5,
+      "omitted_own_not_yet_installed": [
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_1",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_1"
+      ],
+      "installed_other_fasteners": [
+        "C9_316L_catch_bracket_2",
+        "C9_316L_catch_bracket_3",
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_2",
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_3",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_2",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_3"
+      ],
+      "hits": []
+    },
+    {
+      "moving_bracket": 1,
+      "radial_offset_mm": 0.0,
+      "omitted_own_not_yet_installed": [
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_1",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_1"
+      ],
+      "installed_other_fasteners": [
+        "C9_316L_catch_bracket_2",
+        "C9_316L_catch_bracket_3",
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_2",
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_3",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_2",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_3"
+      ],
+      "hits": []
+    },
+    {
+      "moving_bracket": 2,
+      "radial_offset_mm": 4.0,
+      "omitted_own_not_yet_installed": [
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_2",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_2"
+      ],
+      "installed_other_fasteners": [
+        "C9_316L_catch_bracket_1",
+        "C9_316L_catch_bracket_3",
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_1",
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_3",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_1",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_3"
+      ],
+      "hits": []
+    },
+    {
+      "moving_bracket": 2,
+      "radial_offset_mm": 3.0,
+      "omitted_own_not_yet_installed": [
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_2",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_2"
+      ],
+      "installed_other_fasteners": [
+        "C9_316L_catch_bracket_1",
+        "C9_316L_catch_bracket_3",
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_1",
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_3",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_1",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_3"
+      ],
+      "hits": []
+    },
+    {
+      "moving_bracket": 2,
+      "radial_offset_mm": 2.0,
+      "omitted_own_not_yet_installed": [
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_2",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_2"
+      ],
+      "installed_other_fasteners": [
+        "C9_316L_catch_bracket_1",
+        "C9_316L_catch_bracket_3",
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_1",
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_3",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_1",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_3"
+      ],
+      "hits": []
+    },
+    {
+      "moving_bracket": 2,
+      "radial_offset_mm": 1.0,
+      "omitted_own_not_yet_installed": [
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_2",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_2"
+      ],
+      "installed_other_fasteners": [
+        "C9_316L_catch_bracket_1",
+        "C9_316L_catch_bracket_3",
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_1",
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_3",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_1",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_3"
+      ],
+      "hits": []
+    },
+    {
+      "moving_bracket": 2,
+      "radial_offset_mm": 0.5,
+      "omitted_own_not_yet_installed": [
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_2",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_2"
+      ],
+      "installed_other_fasteners": [
+        "C9_316L_catch_bracket_1",
+        "C9_316L_catch_bracket_3",
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_1",
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_3",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_1",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_3"
+      ],
+      "hits": []
+    },
+    {
+      "moving_bracket": 2,
+      "radial_offset_mm": 0.0,
+      "omitted_own_not_yet_installed": [
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_2",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_2"
+      ],
+      "installed_other_fasteners": [
+        "C9_316L_catch_bracket_1",
+        "C9_316L_catch_bracket_3",
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_1",
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_3",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_1",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_3"
+      ],
+      "hits": []
+    },
+    {
+      "moving_bracket": 3,
+      "radial_offset_mm": 4.0,
+      "omitted_own_not_yet_installed": [
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_3",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_3"
+      ],
+      "installed_other_fasteners": [
+        "C9_316L_catch_bracket_1",
+        "C9_316L_catch_bracket_2",
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_1",
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_2",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_1",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_2"
+      ],
+      "hits": []
+    },
+    {
+      "moving_bracket": 3,
+      "radial_offset_mm": 3.0,
+      "omitted_own_not_yet_installed": [
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_3",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_3"
+      ],
+      "installed_other_fasteners": [
+        "C9_316L_catch_bracket_1",
+        "C9_316L_catch_bracket_2",
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_1",
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_2",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_1",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_2"
+      ],
+      "hits": []
+    },
+    {
+      "moving_bracket": 3,
+      "radial_offset_mm": 2.0,
+      "omitted_own_not_yet_installed": [
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_3",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_3"
+      ],
+      "installed_other_fasteners": [
+        "C9_316L_catch_bracket_1",
+        "C9_316L_catch_bracket_2",
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_1",
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_2",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_1",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_2"
+      ],
+      "hits": []
+    },
+    {
+      "moving_bracket": 3,
+      "radial_offset_mm": 1.0,
+      "omitted_own_not_yet_installed": [
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_3",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_3"
+      ],
+      "installed_other_fasteners": [
+        "C9_316L_catch_bracket_1",
+        "C9_316L_catch_bracket_2",
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_1",
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_2",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_1",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_2"
+      ],
+      "hits": []
+    },
+    {
+      "moving_bracket": 3,
+      "radial_offset_mm": 0.5,
+      "omitted_own_not_yet_installed": [
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_3",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_3"
+      ],
+      "installed_other_fasteners": [
+        "C9_316L_catch_bracket_1",
+        "C9_316L_catch_bracket_2",
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_1",
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_2",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_1",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_2"
+      ],
+      "hits": []
+    },
+    {
+      "moving_bracket": 3,
+      "radial_offset_mm": 0.0,
+      "omitted_own_not_yet_installed": [
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_3",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_3"
+      ],
+      "installed_other_fasteners": [
+        "C9_316L_catch_bracket_1",
+        "C9_316L_catch_bracket_2",
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_1",
+        "C9_A4_M1p6_nut_THREAD_ENVELOPE_2",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_1",
+        "C9_A4_M1p6x4_screw_THREAD_ENVELOPE_2"
+      ],
+      "hits": []
+    }
+  ]
+}

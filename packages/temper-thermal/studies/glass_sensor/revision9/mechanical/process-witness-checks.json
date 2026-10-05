@@ -1,0 +1,40 @@
+{
+  "status": "PASS_NOMINAL_PROCESS_WITNESS_GEOMETRY",
+  "physical_result": "NOT_RUN",
+  "material_properties": "UNKNOWN: no thermal prediction for 569",
+  "scope": "Open cap/bond/bare-alumina witness only. No RTD, native leads, covers, seal, cartridge, permanent spacer or external holding fixture included. Nominal CAD gap is not cured process capability.",
+  "source_sha256": {
+    "revision7/mechanical/build.py": "1c9451a3af11f7025e4abd8d1f91d9c17d09c9c710d0de2b454e595dca6f2281",
+    "revision5/mechanical/build.py": "f4507ebc3f8c7bf82c19c5b38b9099dbd6c7af1d3190635577c72ec466c7feca",
+    "revision2/mechanical/build.py": "3057c0ede6adeeed338d0dc554b63100dfe5040e9bef562fb622199807f6499d",
+    "revision7/mechanical/thermal_geometry.csv": "72c6da410ee03d91aeee04386fba74b70ce14e504348abbb4515f3b8241a5343"
+  },
+  "witnesses": [
+    {
+      "id": "P9-569-OPEN-100",
+      "step": "P9-569-OPEN-100.step",
+      "sha256": "33d6f8232e6b56480f6d7cb42135f468733d6c1a8219180f45f22633c4933429",
+      "bond_gap_mm": 0.1,
+      "step_measured_gap_mm": 0.10000000000000003,
+      "bond_volume_mm3": 0.6749999999999998,
+      "tile_volume_mm3": 1.2075,
+      "cap_volume_mm3": 6.250400082346603,
+      "cap_contact_mm2": 6.75,
+      "tile_contact_mm2": 4.829999999999999,
+      "valid_breps_and_step": true
+    },
+    {
+      "id": "P9-569-OPEN-150",
+      "step": "P9-569-OPEN-150.step",
+      "sha256": "d96afbefe8754a7f6cfbc9e761108ac7b4a1003b45ac9a7c26344f40c55e5d59",
+      "bond_gap_mm": 0.15,
+      "step_measured_gap_mm": 0.15000000000000002,
+      "bond_volume_mm3": 1.0125,
+      "tile_volume_mm3": 1.2075,
+      "cap_volume_mm3": 6.250400082346603,
+      "cap_contact_mm2": 6.75,
+      "tile_contact_mm2": 4.829999999999999,
+      "valid_breps_and_step": true
+    }
+  ]
+}

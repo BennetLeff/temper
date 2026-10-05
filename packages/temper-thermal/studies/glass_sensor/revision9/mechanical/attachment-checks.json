@@ -1,0 +1,238 @@
+{
+  "status": "OPEN_UPWARD_TENSION_JOINT",
+  "physical_result": "NOT_RUN",
+  "source_sha256": {
+    "revision7/mechanical/build.py": "1c9451a3af11f7025e4abd8d1f91d9c17d09c9c710d0de2b454e595dca6f2281",
+    "revision5/mechanical/build.py": "f4507ebc3f8c7bf82c19c5b38b9099dbd6c7af1d3190635577c72ec466c7feca",
+    "revision2/mechanical/build.py": "3057c0ede6adeeed338d0dc554b63100dfe5040e9bef562fb622199807f6499d",
+    "revision7/mechanical/thermal_geometry.csv": "72c6da410ee03d91aeee04386fba74b70ce14e504348abbb4515f3b8241a5343"
+  },
+  "finding": "The separate capture fingers sit on the carrier. This butt seating contact cannot alone transfer the upward island reaction into the carrier. No interlocking upward bearing surface or modeled attachment joint is present at this interface. A bonded/fastened joint would need explicit design and evidence; the outer clamp/housing stop does not repair this missing force transfer.",
+  "checks": [
+    {
+      "variant": "M222_control_010",
+      "finger": "ceramic_upper_capture_finger_1",
+      "carrier_upward_face_against_finger_bottom": [
+        {
+          "area_mm2": 0.4000000000000002,
+          "centroid_mm": [
+            2.1500000000000004,
+            3.723909236273086,
+            -8.0
+          ],
+          "bounds_mm": [
+            1.6785898384862248,
+            2.6214101615137757,
+            3.307402885326976,
+            4.140415587219196,
+            -8.0,
+            -8.0
+          ]
+        }
+      ],
+      "finger_upward_face_against_carrier": [],
+      "overlap_mm3": 0.0,
+      "separate_solids": true
+    },
+    {
+      "variant": "M222_control_010",
+      "finger": "ceramic_upper_capture_finger_2",
+      "carrier_upward_face_against_finger_bottom": [
+        {
+          "area_mm2": 0.39999999999999997,
+          "centroid_mm": [
+            -4.3,
+            5.325601071248798e-16,
+            -8.0
+          ],
+          "bounds_mm": [
+            -4.55,
+            -4.05,
+            -0.3999999999999995,
+            0.4000000000000006,
+            -8.0,
+            -8.0
+          ]
+        }
+      ],
+      "finger_upward_face_against_carrier": [],
+      "overlap_mm3": 0.0,
+      "separate_solids": true
+    },
+    {
+      "variant": "M222_control_010",
+      "finger": "ceramic_upper_capture_finger_3",
+      "carrier_upward_face_against_finger_bottom": [
+        {
+          "area_mm2": 0.40000000000000024,
+          "centroid_mm": [
+            2.1500000000000004,
+            -3.723909236273086,
+            -8.0
+          ],
+          "bounds_mm": [
+            1.678589838486225,
+            2.6214101615137757,
+            -4.140415587219196,
+            -3.307402885326976,
+            -8.0,
+            -8.0
+          ]
+        }
+      ],
+      "finger_upward_face_against_carrier": [],
+      "overlap_mm3": 0.0,
+      "separate_solids": true
+    },
+    {
+      "variant": "M222_thin_0075",
+      "finger": "ceramic_upper_capture_finger_1",
+      "carrier_upward_face_against_finger_bottom": [
+        {
+          "area_mm2": 0.4000000000000002,
+          "centroid_mm": [
+            2.1500000000000004,
+            3.723909236273086,
+            -8.0
+          ],
+          "bounds_mm": [
+            1.6785898384862248,
+            2.6214101615137757,
+            3.307402885326976,
+            4.140415587219196,
+            -8.0,
+            -8.0
+          ]
+        }
+      ],
+      "finger_upward_face_against_carrier": [],
+      "overlap_mm3": 0.0,
+      "separate_solids": true
+    },
+    {
+      "variant": "M222_thin_0075",
+      "finger": "ceramic_upper_capture_finger_2",
+      "carrier_upward_face_against_finger_bottom": [
+        {
+          "area_mm2": 0.39999999999999997,
+          "centroid_mm": [
+            -4.3,
+            5.325601071248798e-16,
+            -8.0
+          ],
+          "bounds_mm": [
+            -4.55,
+            -4.05,
+            -0.3999999999999995,
+            0.4000000000000006,
+            -8.0,
+            -8.0
+          ]
+        }
+      ],
+      "finger_upward_face_against_carrier": [],
+      "overlap_mm3": 0.0,
+      "separate_solids": true
+    },
+    {
+      "variant": "M222_thin_0075",
+      "finger": "ceramic_upper_capture_finger_3",
+      "carrier_upward_face_against_finger_bottom": [
+        {
+          "area_mm2": 0.40000000000000024,
+          "centroid_mm": [
+            2.1500000000000004,
+            -3.723909236273086,
+            -8.0
+          ],
+          "bounds_mm": [
+            1.678589838486225,
+            2.6214101615137757,
+            -4.140415587219196,
+            -3.307402885326976,
+            -8.0,
+            -8.0
+          ]
+        }
+      ],
+      "finger_upward_face_against_carrier": [],
+      "overlap_mm3": 0.0,
+      "separate_solids": true
+    },
+    {
+      "variant": "IST308_thin_0075",
+      "finger": "ceramic_upper_capture_finger_1",
+      "carrier_upward_face_against_finger_bottom": [
+        {
+          "area_mm2": 0.4000000000000002,
+          "centroid_mm": [
+            2.1500000000000004,
+            3.723909236273086,
+            -8.0
+          ],
+          "bounds_mm": [
+            1.6785898384862248,
+            2.6214101615137757,
+            3.307402885326976,
+            4.140415587219196,
+            -8.0,
+            -8.0
+          ]
+        }
+      ],
+      "finger_upward_face_against_carrier": [],
+      "overlap_mm3": 0.0,
+      "separate_solids": true
+    },
+    {
+      "variant": "IST308_thin_0075",
+      "finger": "ceramic_upper_capture_finger_2",
+      "carrier_upward_face_against_finger_bottom": [
+        {
+          "area_mm2": 0.39999999999999997,
+          "centroid_mm": [
+            -4.3,
+            5.325601071248798e-16,
+            -8.0
+          ],
+          "bounds_mm": [
+            -4.55,
+            -4.05,
+            -0.3999999999999995,
+            0.4000000000000006,
+            -8.0,
+            -8.0
+          ]
+        }
+      ],
+      "finger_upward_face_against_carrier": [],
+      "overlap_mm3": 0.0,
+      "separate_solids": true
+    },
+    {
+      "variant": "IST308_thin_0075",
+      "finger": "ceramic_upper_capture_finger_3",
+      "carrier_upward_face_against_finger_bottom": [
+        {
+          "area_mm2": 0.40000000000000024,
+          "centroid_mm": [
+            2.1500000000000004,
+            -3.723909236273086,
+            -8.0
+          ],
+          "bounds_mm": [
+            1.678589838486225,
+            2.6214101615137757,
+            -4.140415587219196,
+            -3.307402885326976,
+            -8.0,
+            -8.0
+          ]
+        }
+      ],
+      "finger_upward_face_against_carrier": [],
+      "overlap_mm3": 0.0,
+      "separate_solids": true
+    }
+  ]
+}
