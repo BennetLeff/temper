@@ -1,0 +1,105 @@
+{
+  "method": "Read-only intersection of actual imported STEP upward toe faces and downward ceramic spider faces at z=-2.25mm; geometry at cap_capture (cap+0.2, island unchanged). No stress or new physics model.",
+  "step_file": "R7-M222_control_010-cap_capture.step",
+  "step_sha256": "4cd1919171ff3a2cc2ebdf5dc0e74a4a54e3a12fc69b1e790e21e01cbc30e050",
+  "geometry_json_sha256": "ee1a8ca694c2db9aa9f61864af99d1808d32bbdfe615b0c325f2070240237581",
+  "cap_part": "cap_316L_D6",
+  "spider_part": "ceramic_island_puck_stalk_and_posts",
+  "contacts": [
+    {
+      "area_mm2": 0.2400000000000002,
+      "centroid_mm": [
+        3.4499999999999997,
+        8.67361737988403e-18,
+        -2.25
+      ],
+      "bounds_mm": [
+        3.3,
+        3.6,
+        -0.4,
+        0.4,
+        -2.25,
+        -2.25
+      ]
+    },
+    {
+      "area_mm2": 0.23999999999988708,
+      "centroid_mm": [
+        -1.725000000000143,
+        -2.9877876430566483,
+        -2.25
+      ],
+      "bounds_mm": [
+        -2.146410161514,
+        -1.303589838486,
+        -3.3176914536243465,
+        -2.657883832489,
+        -2.25,
+        -2.25
+      ]
+    },
+    {
+      "area_mm2": 0.23999999999988708,
+      "centroid_mm": [
+        -1.7249999999999432,
+        2.9877876430563024,
+        -2.25
+      ],
+      "bounds_mm": [
+        -2.1464101615139133,
+        -1.303589838486,
+        2.6578838324886536,
+        3.31769145362405,
+        -2.25,
+        -2.25
+      ]
+    }
+  ],
+  "total_bearing_area_mm2": 0.7199999999997744,
+  "physical_result": "NOT_RUN",
+  "H1_upright_inner_root_face": {
+    "bounds_mm": [
+      3.9,
+      3.9,
+      -0.4,
+      0.4,
+      -2.25,
+      0.5
+    ]
+  },
+  "three_effective_post_cylinders": [
+    {
+      "bounds_mm": [
+        1.4000000000000001,
+        1.7,
+        2.534678751732,
+        2.834678751732,
+        -1.55,
+        0.30000000000000004
+      ],
+      "effective_height_mm": 1.85
+    },
+    {
+      "bounds_mm": [
+        1.4000000000000001,
+        1.7,
+        -2.834678751732,
+        -2.534678751732,
+        -1.55,
+        0.30000000000000004
+      ],
+      "effective_height_mm": 1.85
+    },
+    {
+      "bounds_mm": [
+        -3.25,
+        -2.95,
+        -0.1499999999999996,
+        0.15000000000000038,
+        -1.55,
+        0.30000000000000004
+      ],
+      "effective_height_mm": 1.85
+    }
+  ]
+}

@@ -1,0 +1,137 @@
+# R8 retention and induction readiness — physical NOT_RUN
+
+The next stage is a controlled engineering-prototype campaign. This review closes documentation and test-definition gaps; it does not qualify retention, hot materials, induction immunity, insulation or endurance. No new numerical model or FEA was run, no hardware was operated, and no compliance force, voltage or lifetime was assigned.
+
+The principal finding is that **the historical R4 retention numbers cannot be used as current cap-strength evidence**. Its 0.30 mm toe lever is not the current CAD bearing centroid lever, and its small-post bending calculation represents a different load path. R7’s nominal four-pose collision checks also do not test combined upward capture or establish the final carrier-to-housing retention path.
+
+## Evidence identity and transfer
+
+Reviewed checkout: commit `fd618613c9db374560ba4aba0a6faf5413109f1f`. R7 scalar geometry SHA-256 is `72c6da410ee03d91aeee04386fba74b70ce14e504348abbb4515f3b8241a5343`; R7 mechanical builder is `1c9451a3af11f7025e4abd8d1f91d9c17d09c9c710d0de2b454e595dca6f2281`. The companion `retention-induction-evidence/local-inputs.sha256` records full hashes for the exact builders, geometry, old screens, fixture integration and procedures reviewed. Paths below are relative to `packages/temper-thermal/studies/glass_sensor`.
+
+| Inherited item | What can be retained | What does not transfer |
+|---|---|---|
+| R7 three D6 coupon assemblies | Nominal Ø6 × 0.15 mm roof, three separate hooks, six recessed ears, complete modeled covers/joins/routes; measured scalar identity above | Boolean union does not specify the formed/welded cap process. Four collision poses are not force, temperature, tolerance or fatigue evidence |
+| R4 `results/retention_screen.csv` | The warning that one active hook can carry the whole applied pull; transparent beam-formula ancestry | No strength pass. Its 0.30 mm moment arm, 2 mm post length, ideal load sharing and unspecified hot material allowables do not qualify current D6 retention |
+| R5 validation V05/V07/V09/V10 | Separate retention, harness, induction and post-stress methods; explicit NOT_RUN gates | Example 1 N/2 N pulls, force allocations and synthetic thresholds are not product limits |
+| R2 induction topology study | Closed conductive loops can change coupling; an actual conductor inventory is required | Its D8 geometry, 1.512 mm³ extra hook metal and PR1-to-PR2 percentage are not R7 whole-cartridge results. R7 hook volume is 1.566 mm³ and its D6 cap includes 0.44325 mm³ recessed ears |
+| R5 roof-only induction screen | Radius/thickness-based D6 roof sensitivity remains geometrically relevant because the roof dimensions are unchanged | It excludes the connected ears/hooks, welds, native leads, revised IST harness, fixtures, shields, magnetic state and actual coil/pan field |
+| `induction_validation` paired/endurance tools | Existing raw-hash, provenance, missing-data and synthetic-versus-measured separation | Old skirt heating and axisymmetric synthetic hotspot numbers are not current R7 forecasts; no new importer or inherited fixture limit is needed |
+
+For scale only, the already recorded R5 D6 row at **40 kHz, imposed axial 1 mT RMS, resistivity 0.75 µΩm** gives **0.000401841 W roof-only loss**, thickness/skin-depth 0.068829 and reaction parameter 0.189496. This is an imposed-field sensitivity, not a measured field, bound on total heating, or validated FEA result. The heuristic small-parameter result does not cover the assembled article. The legacy closed-skirt “3.50× roof” warning describes an older cap that R7 no longer has.
+
+## Actual retention geometry and load paths
+
+The coordinate deductions below are from the current dependency chain, not reconstructed from a report illustration. They were also checked directly against the imported `R7-M222_control_010-cap_capture.step` (SHA-256 `4cd1919171ff3a2cc2ebdf5dc0e74a4a54e3a12fc69b1e790e21e01cbc30e050`). Face-to-face intersection finds three 0.24 mm² toe/spider bearing patches, total 0.72 mm². The first patch spans x=3.30…3.60, y=−0.40…0.40 at z=−2.25, with centroid x=3.45. Its actual upright inner face is x=3.90. Three actual post cylindrical faces run z=−1.55…+0.30, confirming 1.85 mm height. The machine-readable evidence is `retention-induction-evidence/actual-step-capture-contact.json`; this is read-only CAD geometry inspection, not stress or physical evidence. The other variants retain these cap/spider constructions, but this specific face-inspection record is for the named M222 control STEP.
+
+| Feature | Exact source and cold nominal construction | Consequence |
+|---|---|---|
+| Three capture hooks | `revision5/mechanical/build.py:34–44`: at 0°, 120°, 240°. Toe box 0.75 × 0.8 × 0.15 mm centered at local x=3.675, z=−2.525; upright 0.15 × 0.8 × 3.05 centered x=3.975, z=−1.075 | Toe spans x=3.30…4.05 and top z=−2.45; upright inner face is x=3.90 |
+| Ceramic capture bearing | `revision2/mechanical/build.py:69–80`: optimized spider bottom z=0.45−2.0−0.7=−2.25. At the hook angles, the arm spans x=1.30…3.60 and width 0.8 | Toe/spider radial overlap is x=3.30…3.60: **0.30 mm overlap**, 0.24 mm² nominal area per hook. Cold cap-to-island capture gap is **0.20 mm**, consistent with R7 scalar `gap_mm` |
+| Toe bending moment | Same two geometric constructions | Uniform bearing over that overlap has centroid x=3.45; from upright inner face x=3.90 its lever is **0.45 mm**. A resultant anywhere in that patch gives a lever of **0.30…0.60 mm** before deformation. The 0.45 mm centroid is a uniform-bearing assumption, not the worst case. Overlap width and moment arm are different quantities |
+| Downward support posts | R2 builder `:82–94`: three Ø0.30 mm posts at r=3.1 and 60°, 180°, 300°. R5 builder `:170–177` removes the top 0.15 mm beneath the D6 ears | Current effective post length is **1.85 mm**, as exported. These posts are at different angles and carry downward cap support; they are not the upward toe/spider retention reaction |
+| Island upward catch | R2 builder `:122–128`: lower island flange top z=−6.08; upper-capture toe underside z=−5.98 | A distinct **0.10 mm island-to-carrier upward gap** follows cap capture. It must be tested separately and in combination |
+| Downward overload stop | R2 builder `:122–124` | The 0.25 mm local downward stop is not an upward retention catch |
+| Housing interface | R2 builder `:52–67`; R7 fixture README/integration | The moving main carrier and fixed housing are separate. A collision-free fit and the fixture’s uncompressed Ø28.2 bore around Ø28 housing do not establish the final structural attachment or a defined upward carrier stop |
+
+The upward chain is **loaded cap face → recessed cap attachment/neck and hook upright → toe bearing against ceramic spider arm → island/stalk/base → upper capture fingers → main carrier → defined carrier/housing restraint → product mounting**. The last structural restraint and the actual formed/welded attachment specification remain unresolved. Do not silently use fixture friction or an unspecified spring attachment to complete this chain.
+
+The downward chain is **pan/cap → the other three support ears → small ceramic posts → island/flexures, then local overload stops → carrier**. A post-side-load test is useful for lateral/tilting cookware forces, but it is not a substitute for testing upward cap capture.
+
+R7 `cap_capture` translates the cap +0.20 mm with local and common travel held at zero. It checks the first toe engagement only. R7 does not include the inherited R5 `upper_capture` pose or a combined cap-lift + island-upward-catch pose. Approximately 0.20 + 0.10 mm is the nominal sequential cap-to-carrier lost motion before both catches engage, assuming rigid parts and no carrier movement; it is **not** a verified travel margin or a current combined-pose result.
+
+### Correct use of the historical arithmetic
+
+R4 `main.rs:442–453` uses `σ = 6 F_hook e / (w t²)`, `w=0.8 mm`, `t=0.15 mm`, `e=0.30 mm`. It divides total force by either one or three effective hooks. Replacing only the lever with the current uniform-bearing centroid gives:
+
+`σ_nominal = 6 × F_hook × 0.45 / (0.8 × 0.15²) = 150 × F_hook MPa`, with force in newtons.
+
+| Historical characterization force, not an acceptance limit | Three equal hooks, F_hook=F_total/3 | One hook, F_hook=F_total |
+|---|---:|---:|
+| 1 N total | 50 MPa nominal root bending | 150 MPa nominal root bending |
+| 2 N total | 100 MPa nominal root bending | 300 MPa nominal root bending |
+
+The earlier values were 33.3/100 MPa at 1 N and 66.7/200 MPa at 2 N. This **corrected illustration is not a strength screen**: real contact may be an edge, the upright/roof joint and bend root are not ideal clamps, local thickness and residual stress are unknown, ceramic edge strength is unqualified, and no formed-part hot allowable has been established. If the resultant moves to x=3.30, the same idealization uses e=0.60 and becomes 200×F_hook MPa. For the equivalent point-load cantilever surrogate, stress scales as e/t² and deflection as e³/(E t³); increasing e from 0.30 to 0.45 multiplies that surrogate deflection by 3.375. This is transparent beam arithmetic only, not a new simulation.
+
+## Variation, hot growth and unequal engagement
+
+Use the glass plane and fixed housing axis as assembly datums; inspect the cap/island relative features in their own local coordinates before installation. Permanently identify hook positions in the record, without adding unreviewed engraving to a thin stressed part. Record each toe top, spider underside, radial overlap, upright thickness, bend radius, roof flatness, ear elevation and capture-finger underside. Preserve individual values; an average of three gaps hides the first-loaded hook.
+
+Budget each cold gap plus its **signed** change from cap/spider/carrier temperature fields, dimensional tolerances, angular tilt, fixture or mounting distortion, load deflection, wear and reassembly. Use `ΔL = ∫ α(T) dT × L` for each material path, with the appropriate datum and measured temperature; sum the signed path changes to obtain gap and overlap. Ceramic grade, cap forming condition, temperature gradients and mounting compliance are still missing. A uniform 250°C CAD scaling or room-temperature clearance check cannot close the budget.
+
+A useful authority check: Outokumpu lists Supra 316L/4404 physical properties at specified temperatures, including **16.0×10⁻⁶/K expansion over 20–100°C**, and distinguishes mechanical values by product form and standard. That interval is not a validated coefficient or formed-hook allowable at 250°C. Obtain the exact foil condition, forming/joining procedure and hot stress–strain/relaxation evidence; do not compare the illustrative toe stress with an unrelated room-temperature bar or annealed-sheet number. [Outokumpu Supra range, Tables 5–7 and fabrication discussion](https://www.outokumpu.com/en/products/product-ranges/-/media/files/products/supra/outokumpu-supra-range-datasheet.pdf?modified=20251117111951&revision=7a909396-d1f3-4d36-9c1c-99606be41fd2).
+
+The required challenges are:
+
+- **One hook first:** deliberately realize a measured gap mismatch while the other hooks stay clear over the declared test displacement. Repeat for each hook; record when another hook actually engages. Never label the whole trace “one hook” after load sharing begins.
+- **Unequal or edge bearing:** combine measured angular misalignment with the minimum allowed radial overlap; watch ceramic chipping and toe rotation rather than infer equal force from three nominally identical parts.
+- **Combined uplift and drag:** load at a declared eccentric point/direction on the face; the roof, ear neck, upright, toe, ceramic arm and housing restraint all see different moments. Do not apply the pull directly to a toe and thereby bypass the cap attachment.
+- **Hot differential state:** cap, ceramic island and carrier may be at different temperatures. Repeat the geometry and release/return observations at the relevant measured state, then after cooling. A retained hot part can still acquire permanent set or a stuck healthy-contact indication.
+- **Assembled versus reassembled:** inspect hidden welds/formed roots, ceramic edges, join covers and wire slack after opening/reclosing. Relieved R7 covers and changed IST routes must not become unintended mechanical retainers.
+
+## Fixtures that exercise the intended catch
+
+The existing R7 Ø6 force puck pushes the cap down. Its load train is explicitly removed for the cap-capture pose. **It is not an upward retention fixture**, and the Ø36 accessory can load the glass rather than the sensor.
+
+| Test | Load application and reaction | What must be proven before use |
+|---|---|---|
+| Cap-to-island capture | Pull through a nonpenetrating attachment confined to the cap face, with no adhesive/fixture bridge to ears, hooks, ceramic, covers or glass. React on the robust lower island flange using a split collar whose reacting face opposes upward motion; slot for actual blade pads, witness and lead routes. Do not clamp the spider bearing arms beside the toes | New fixture CAD/access check, attachment strength and thermal suitability, fixture compliance/tare, and evidence that the face attachment does not mask the roof failure mode. If adhesive attachment fails, report attachment failure, not a retention pass. This is a cap/island subassembly characterization, not the whole product |
+| Island-to-carrier upper capture | Use a loading fixture attached to the island that does not pull on witness rods; react on the main carrier. Observe the lower flange contacting the actual upper fingers | Exclude a reaction against the downward overload pads or an unintended clamp/cover. Record the separate 0.10 mm nominal take-up and the real individual engagement sequence |
+| Complete assembled retention | Pull through the cap face; react through the intended fixed housing/product mount, with the real main-carrier restraint installed. Measure cap, island, carrier and housing displacement independently | Define and inspect the presently unresolved carrier-to-housing upward load path. A friction-only laboratory clamp cannot stand in for a product attachment. Test clamp slip as a separate failure, not sensor travel |
+| Unequal-hook and eccentric load | Position the face loading line and measured angular setting to activate one hook/edge at a time; independently image or measure all three gaps | Fixture contact must not directly touch the toes/support posts. Any sacrificial shim or adjusted specimen must be identified as a challenge specimen and its effect on bearing geometry recorded |
+
+These are concrete fixture requirements, not newly released fixture geometry. The hot nonpenetrating cap attachment and split-collar access remain design/procurement tasks. A mechanically modified cap with a pull lug is a different specimen and cannot by itself qualify the unmodified 0.15 mm roof.
+
+Load in instrumented increments under a predeclared mechanical laboratory procedure, unloading to inspect residual set and return between characterization stages. The requested product use envelope must supply axial pull, lateral drag, eccentricity, impact/energy, hot dwell and allowable deformation/release criteria. Historical 0.2/1/2 N values may be labeled proposed characterization points only; they are neither proof loads nor sufficient survival requirements. No cycle count is assigned here.
+
+## Induction separation protocol
+
+First freeze the as-built power stage, coil/ferrite, operating envelope, converter/reference resistor/filter configuration, firmware and interlock path. The older plan names a MAX31865 and a particular PERMIT connector; verify those identities against the article instead of assuming the old plan is current wiring authority. Retain the existing paired/endurance evaluators and record approved budgets in metadata; synthetic example thresholds never become acceptance criteria.
+
+| Order | Controlled comparison | Independent observations and inference |
+|---|---|---|
+| 0. Cold and heated coil-off baseline | Installed real RTD and calibrated resistive dummy, actual harness and mounting. Calibrate reference channels and clocks without switching | Determine reference lag/position uncertainty, electronic bias, thermal drift and attachment loading before interpreting field-on differences |
+| 1. Electronics susceptibility | Put a characterized stable resistor at the actual sensor-end termination and use the complete native/extension topology or explicitly identify the substituted terminal section. Reproduce the article’s actual switching modes with normal required load/pan conditions | Monitor dummy temperature independently; measure raw resistance, DRDY, faults, supplies and contact channels. Changing resistance under switching can be electrical or dummy heating—do not assume a precision resistor is field-immune |
+| 2. Real cartridge, matched thermal state | Off→on→off brackets, then reversed/randomized ABBA blocks with the same pan, force, offset, harness, approximate pan/cap/body temperatures and heating slopes | Use local pan reference and a separate cap reference. A fast correlated reading change is a hypothesis for EMI, not sufficient proof; converter filtering can make EMI slow and real heating can be rapid |
+| 3. Cap self-heating discrimination | Repeat real cartridge field-off/on at matched boundary conditions after a coil-off heat-path calibration; vary actual measured field/frequency within the approved envelope | Real independent cap temperature rising relative to the local pan is evidence for added thermal input, subject to reference loading and spatial uncertainty. Keep it in the error budget; never subtract it as “noise” |
+| 4. Pan hotspot separation | Map actual pan center, around the probe/aperture and the measured heating annulus with sufficient azimuthal coverage; repeat pan offset/rotation and representative pan constructions | Track spatial peak minus local pan reference separately from local pan minus cap/RTD. Map both relevant surfaces or justify their difference. Center calibration cannot certify an off-axis maximum |
+| 5. Full fault path | During the relevant switching/thermal states, introduce independently confirmed contact loss, channel freezing/sticking and electrical faults allowed by the lab plan | Record ground-truth separation/force, both detector channels, fault/latch/permit transitions and actual current extinction, including stored-energy decay. No software “off” timestamp substitutes for extinguished heating |
+| 6. Repeat after stresses and reassembly | Repeat the discriminating baseline and worst-state cases with retained controls | Decide drift, changed susceptibility and altered force/return with the same article identity and measurement uncertainty, not a fresh calibration that hides damage |
+
+Use complete fresh settled conversions in each analysis window. Bracket drift with both off windows and retain failed/dropout/fault samples. Predeclare a curvature/thermal-state mismatch criterion; unmatched heating trajectories cannot support simple subtraction. A few repeated windows characterize repeatability, not cookware or lifecycle coverage.
+
+### Reference and common-cause controls
+
+- Place a calibrated fiber-optic local pan reference near the cap contact without placing it between pan and cap. Record its exact 3D location and distance; characterize the local gradient using adjacent positions. A pan-top sensor is not automatically a pan-bottom reference.
+- Place a separate fiber reference on the cap underside or equivalent accessible location only after measuring its attachment heat shunt and added mass. A metal thermocouple, metal sheath or conductive coating can itself heat or couple to the field. A single extra probe can also move the cap or rock the pan; record force/displacement before and after installing it.
+- Use a dissimilar second reference with independent acquisition where practical. Demonstrate its behavior on a controlled reference artifact under coil switching, and compare with/without each reference/attachment. Agreement between two channels sharing the same ground, supply, calibration bath error or optical emissivity assumption is not independent evidence.
+- Verify clock alignment from actual events; retain latency/jitter bounds. Shared packet timestamps do not prove synchronized physical sampling. Filtering/blanking changes require response and fault-latency rechecks, not just quieter charts.
+- Record the actual loop geometry at terminal fanouts, Kelvin split, connector, shield termination and return path. The four visible CAD routes do not specify residual electrical loop area or common-mode coupling. Do not add an unreviewed closed metal shield to cure EMI.
+- Monitor contact detector and ground-truth force/stroke independently of RTD acquisition. A common supply collapse, reset, stale timestamp or pressure-biased stuck mechanism can leave several channels coherently wrong.
+- Record probe/target presence as an experimental factor. Changing coatings, adding holes, removing a pan to insert a field probe or moving ferrite changes the electromagnetic/thermal system. No-pan field is not a guaranteed bound on loaded-pan field; quantify probe spatial averaging and perturbation.
+
+Outokumpu notes that solution-annealed austenitic grades are generally nonmagnetic, while cold work can introduce magnetism in some grades. Therefore the model’s μr≈1 assumption must be checked on the **formed/joined finished cap**, including hooks and heat-affected zones, rather than inferred from the label 316L. This is an engineering inference from the manufacturer’s processing guidance. [Outokumpu austenitic stainless steels](https://www.outokumpu.com/en/products/stainless-steel-types/austenitic-stainless-steel).
+
+The legacy R5 loop example at 40 kHz/1 mT and assumed 1 mm² residual area produces 0.251327 mV RMS, equivalent to 2.278188°C at the study’s illustrative 0.3 mA and PT100 slope at 200°C. It is **unfiltered pickup scale**, not converter error. Revised IST routing invalidates any previous assumption that a harness geometry or fanout has already been tested.
+
+OMEGA describes single-strand copper sensor wire with 3 mil PFA insulation and a stated upper temperature of 260°C. This supports a candidate insulation family, not a qualified R7 wire, 0.5/2 mm bend life, stripped termination, weld process or appliance dielectric barrier. Confirm exact purchased construction, temperature/duty limits, jacket tolerance, plating, forming and flex data; keep termination insulation and post-cleaning leakage as separate gates. No test voltage or life is inferred from the temperature rating. [OMEGA sensor/transducer wire](https://sea.omega.com/ph/pptst/PX_WIRE.html).
+
+## Endurance trace, stops and retest
+
+Give each specimen an immutable serial and revision record: CAD and thermal-geometry hashes; BOM and material heat/lot; foil condition/thickness/finish; forming tool and springback inspection; cap joint process/filler/operator; ceramic grade/lot; sensor and wire lots; installed native length/form; Kelvin split; bond batch/cure/thickness/void evidence; covers/anchor; seal compound/gland/process; coil/power/AFE/firmware identities; and all relevant photographs. Every disassembly, replacement, repair or recalibration creates a child event with before/after identities. Do not pool repaired data with the original baseline.
+
+The reliability owner must supply use temperatures including overshoot, dwell/ramp, hot/cold motion counts, cookware adhesion/drag/impact, spill head/media/exposure, cleaning chemistry/concentration/temperature, rinse/dry sequence and target life. Select process/tolerance corners and independent lots from that envelope. Preserve fresh controls and metrology checks. Combining hot spill, dry residue, thermal expansion, motion and cleaning matters; a collection of separate nominal tests does not establish their combined effect.
+
+Before each stress block and after each planned inspection/reassembly, repeat the same dimensional/force/return/contact/thermal/electrical baseline. Inspect individual hook gaps and bearing edges, roof/ear/upright roots, ceramic chips, cover movement, lead strain and insulation; retain the failed parts. Record ingress detection limits, blank evaporation/capillary controls, inspection magnification and locations. “Zero leakage” or “no corrosion” without a method and detection threshold is not an observation adequate for acceptance.
+
+**Stop and quarantine the article** on uncommanded heating or failure to inhibit; lost independent reference or timing; housing/fixture slip; new crack/chip, unexplained permanent set or seized return; exposed or pinched conductor; unexpected ingress; reference disagreement beyond its declared uncertainty; or departure from the approved electrical/thermal/mechanical operating boundary. Do not retry until the cause, article identity and affected gates are reviewed. These are qualitative stop triggers, not invented numerical compliance limits.
+
+A change to cap material, forming, joining, finish or heat treatment requires retention plus magnetic/self-heating rechecks. Changes to roof/ears/hooks/catches require geometry, engagement and thermal/induction rechecks. Lead routing, shields, connectors, filter or AFE changes require pickup and contact-to-extinction rechecks. Bond/cover/anchor changes require force, thermal and insulation rechecks. Seal/gland changes require hot force, pressure, ingress and contact challenges. Reassembly requires datum/clearance inspection and a repeat baseline before previous evidence can be resumed.
+
+## Concrete next actions
+
+1. **Mechanical owner:** issue a retention drawing with three individually toleranced toe gaps/overlaps, bend roots and attachment process; define the complete carrier-to-housing load path. Add the combined upward-capture state to the future CAD check. Preserve R4 as historical and mark its numerical retention screen non-applicable without correction.
+2. **Manufacturing/material owner:** obtain exact foil/ceramic/wire specifications and finished-part hot/formed/joined evidence. Verify received dimensions and process coupons before calling a completed article representative.
+3. **Test-fixture owner:** design and inspect the face-pull attachment, island reaction collar and actual product-mount reaction. Demonstrate that no tool contacts the toes/posts or bridges the cap, and that hot attachment/fixture drift is controlled.
+4. **Product/reliability owner:** define handling loads, temperatures/overshoot/duty, displacement/deformation acceptance, spill/cleaning/service profiles and lifetime before selecting proof or qualification levels. The current development thermal targets and 3/4 mN force allocations do not supply these limits.
+5. **Electrical/lab owner:** freeze the actual power/AFE/contact-to-inhibit topology; select/validate independent references and instrument limits; prepare the ordered dummy/real-cap/spatial/fault pairs. Apply approved electrical safety test methods without borrowing synthetic voltages or thresholds.
+6. **Campaign owner:** create specimen/lot/reassembly records, predeclare holdouts and uncertainty, and reserve fresh controls. Execute nothing from this document until the hardware and approved lab procedures exist. All current physical rows remain **NOT_RUN**.
