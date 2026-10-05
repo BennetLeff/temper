@@ -1,0 +1,66 @@
+{
+  "schema": "temper-glass-bond-leads-article-v1",
+  "status": "NOT_RUN",
+  "article_id": "",
+  "article_type": "",
+  "allowed_article_types": ["P9-569-OPEN-100", "P9-569-OPEN-150", "M222-FULL-LEAD-OPEN", "UNTOUCHED-M222"],
+  "build_id": "",
+  "operator": "",
+  "reviewer": "",
+  "source_identity": {
+    "r9_step_file": "",
+    "r9_step_sha256": "",
+    "traveler_revision_sha256": "",
+    "received_instruction_file": "",
+    "received_instruction_revision": ""
+  },
+  "materials": {
+    "cap_id_alloy_finish_lot": "",
+    "tile_id_grade_lot": "",
+    "sensor_mpn_serial_lot": "",
+    "sensor_body_and_lead_photo_ids": [],
+    "adhesive_exact_grade_lot_expiry_storage": "",
+    "surface_preparation_record_id": ""
+  },
+  "fixtures_and_metrology": {
+    "gap_fixture_id_revision": "",
+    "gap_instrument_id_calibration": "",
+    "temperature_instrument_id_calibration": "",
+    "resistance_instrument_id_calibration": "",
+    "section_imaging_id_resolution": "",
+    "instrument_capability_review": ""
+  },
+  "geometry_and_process": {
+    "target_cured_gap_mm": null,
+    "actual_cured_gap_map_file": "",
+    "cap_roof_map_file": "",
+    "tile_or_sensor_face_disposition_ref": "",
+    "bond_perimeter_images": [],
+    "cure_time_temperature_file": "",
+    "optional_hot_exposure_definition_ref": "",
+    "section_map_file": ""
+  },
+  "electrical": {
+    "bond_face_permission_ref": "",
+    "voltage_contact_A_mm_from_body": null,
+    "voltage_contact_B_mm_from_body": null,
+    "current_contact_A_mm_from_body": null,
+    "current_contact_B_mm_from_body": null,
+    "contact_photo_ids": [],
+    "measurement_datum": "",
+    "allowed_measurement_datums": ["CATALOG_8MM", "ASSEMBLY_DATUM", "NOT_APPLICABLE"],
+    "same_lot_untouched_control_article_id": "",
+    "raw_resistance_files": [],
+    "cap_leakage_criterion_requirement_id": ""
+  },
+  "requirements_and_disposition": {
+    "requirement_record_id": "",
+    "predeclared_acceptance_rule_ref": "",
+    "observations_csv": "",
+    "deviations": [],
+    "review_status": "",
+    "allowed_review_statuses": ["CHARACTERIZATION_ONLY", "HOLD_PENDING_REQUIREMENT", "HOLD_DATA_INVALID", "PROCESS_CANDIDATE_FOR_NEXT_STAGE", "REJECTED_WITH_CAUSE"],
+    "review_reason_and_evidence": "",
+    "review_signature_date": ""
+  }
+}

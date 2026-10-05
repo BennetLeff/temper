@@ -1,0 +1,11 @@
+
+running 6 tests
+test tests::annulus_matches_recorded_step_bearing_area ... ok
+test tests::invalid_areas_and_fractions_are_rejected ... ok
+test tests::supplier_smaller_head_reduces_bearing_area ... ok
+test tests::one_loaded_hook_has_three_times_equal_sharing_pressure ... ok
+test tests::tiny_area_overflow_is_rejected ... ok
+test tests::zero_load_has_zero_pressure ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
