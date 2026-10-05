@@ -1,0 +1,270 @@
+{
+  "schema_version": 1,
+  "prepared_date": "2026-10-04",
+  "baseline_commit": "80e716110",
+  "purpose": "First engineering unit intake and purchasing/test holds; NOT a matched design or build release",
+  "physical_status": "NOT_RUN",
+  "build_serial": null,
+  "operator": null,
+  "actual_board_serial": null,
+  "actual_coil_serial": null,
+  "firmware_binary_sha256": null,
+  "inputs": [
+    {
+      "role": "power_source",
+      "path": "zapote/power-stage-120v/elec/src/power_stage_120v.ato",
+      "status": "PRESENT_CURRENT_CANDIDATE_UNRELEASED",
+      "sha256": "5af1c357dbb3da65aa878f581e4ab4fc98f67b9ab981375e2ddca8a97fd642e8"
+    },
+    {
+      "role": "parts_source",
+      "path": "zapote/power-stage-120v/elec/src/parts.ato",
+      "status": "PRESENT_CURRENT_CANDIDATE_UNRELEASED",
+      "sha256": "c30406aee3061249b44fa15de2bc3c98a3b28953cbbcc557982692eb2c373e63"
+    },
+    {
+      "role": "frozen_netlist",
+      "path": "zapote/power-stage-120v/frozen/default.net",
+      "status": "PRESENT_CURRENT_CANDIDATE_UNRELEASED",
+      "sha256": "ab1fdc00d5a4c6eec097220a328fb361f176cdf49b5ec6a1a1888d4c97972ff8"
+    },
+    {
+      "role": "frozen_bom",
+      "path": "zapote/power-stage-120v/frozen/default.csv",
+      "status": "PRESENT_CURRENT_CANDIDATE_UNRELEASED",
+      "sha256": "f9f8beb617460134d2fa67bd11dcbb2396972c1cf76e0b1b8299880fe5452257"
+    },
+    {
+      "role": "resolved_components",
+      "path": "zapote/power-stage-120v/frozen/resolved-components.json",
+      "status": "PRESENT_CURRENT_CANDIDATE_UNRELEASED",
+      "sha256": "0c789399ee6180ade023f5e468fa2ec887d3265d20adff4712e4041e093cc6e3"
+    },
+    {
+      "role": "power_build_receipt",
+      "path": "zapote/power-stage-120v/build-receipt.json",
+      "status": "PRESENT_CURRENT_CANDIDATE_UNRELEASED",
+      "sha256": "f144864ef9cfe8fceb324225f196a76000b1c197adc0d5939c7c15c0498e1d93"
+    },
+    {
+      "role": "pcb_readiness_evidence",
+      "path": "docs/research/mit-product-design/readiness/pcb/evidence/verification.json",
+      "status": "PRESENT_CURRENT_CANDIDATE_UNRELEASED",
+      "sha256": "53803ca64abe1b750d2355eab97eda6e53f40d12e7d7668235865cad024876d1"
+    },
+    {
+      "role": "r4_assembly",
+      "path": "output/temper-flush-front-r4/STEP/assembly.step",
+      "status": "PRESENT_CURRENT_CANDIDATE_UNRELEASED",
+      "sha256": "2e89923f65e466831395a10a2ac7e307ded48fbb8b49e5c19e87b4da1df21291"
+    },
+    {
+      "role": "r4_assembly_source",
+      "path": "output/temper-flush-front-r4/src/assembly.py",
+      "status": "PRESENT_CURRENT_CANDIDATE_UNRELEASED",
+      "sha256": "e12d154ed1041ea6537e144a25a87d15ad348999b59ad9af25d874af6d708494"
+    },
+    {
+      "role": "firmware_ui",
+      "path": "firmware/main/ui.c",
+      "status": "PRESENT_CURRENT_CANDIDATE_UNRELEASED",
+      "sha256": "fac0b82712847ef652119a6c6ca7ed2900e6a2a9dd5c56b5c399a5d25bf6bb7f"
+    },
+    {
+      "role": "firmware_config",
+      "path": "firmware/config.yaml",
+      "status": "PRESENT_CURRENT_CANDIDATE_UNRELEASED",
+      "sha256": "27b948327244b7dcab23264d37e5484e8b892954cc2718dfc39560237abc4055"
+    },
+    {
+      "role": "coil_run_template",
+      "path": "docs/research/mit-product-design/readiness/power/coil-runs.csv",
+      "status": "PRESENT_CURRENT_CANDIDATE_UNRELEASED",
+      "sha256": "6ca74842aabb17ac295903f6fc46bc3194e7122e25c7dd4ea1ab96060366caee"
+    },
+    {
+      "role": "coil_point_template",
+      "path": "docs/research/mit-product-design/readiness/power/coil-points.csv",
+      "status": "PRESENT_CURRENT_CANDIDATE_UNRELEASED",
+      "sha256": "72e6632ffc5d2c066ba9767a57ba80443c933564479d1c793518ba724da6070a"
+    }
+  ],
+  "native_board": {
+    "location": "zapote/power-stage-120v/native-19/section.kicad_pcb",
+    "sha256": "3557aa444873fa8b45eb7e0ae8ec3a4bc2b5cd526826b338b58d50e57747430b",
+    "source_components": 142,
+    "source_nets": 89,
+    "included_in_this_package": true,
+    "HOT5_integrated": true,
+    "status": "DIGITAL_CANDIDATE_NOT_FABRICATION_RELEASED"
+  },
+  "source_candidate": {
+    "components": 142,
+    "nets": 89,
+    "layout_match_released": false,
+    "note": "Native19 has source/net parity; manufacturing release remains held for power, coupled geometry and qualification."
+  },
+  "holds": [
+    {
+      "id": "H01",
+      "status": "HOLD",
+      "reviewer": null,
+      "evidence": null
+    },
+    {
+      "id": "H02",
+      "status": "HOLD",
+      "reviewer": null,
+      "evidence": null
+    },
+    {
+      "id": "H03",
+      "status": "HOLD",
+      "reviewer": null,
+      "evidence": null
+    },
+    {
+      "id": "H04",
+      "status": "HOLD",
+      "reviewer": null,
+      "evidence": null
+    },
+    {
+      "id": "H05",
+      "status": "HOLD",
+      "reviewer": null,
+      "evidence": null
+    },
+    {
+      "id": "H06",
+      "status": "HOLD",
+      "reviewer": null,
+      "evidence": null
+    },
+    {
+      "id": "H07",
+      "status": "HOLD",
+      "reviewer": null,
+      "evidence": null
+    },
+    {
+      "id": "H08",
+      "status": "HOLD",
+      "reviewer": null,
+      "evidence": null
+    },
+    {
+      "id": "H09",
+      "status": "HOLD",
+      "reviewer": null,
+      "evidence": null
+    }
+  ],
+  "unresolved_release_inputs": [
+    "Native19 candidate release review, updated extraction/simulation applicability, manufacturing outputs and warning dispositions",
+    "Actual board retention and cooling/contact/harness assembly",
+    "Reconciled hardware trips and controlled operating envelope",
+    "Exact CDE waveform application limits",
+    "Controller pin contract and three-button event/STOP implementation",
+    "Supplier material/process limits and accepted coupons",
+    "Qualified station plus measured protection/extinction evidence"
+  ],
+  "refresh_rule": "Recompute changed input hashes and engineering hold disposition before build; do not mark physical tests pass from preflight.",
+  "initial_intake": {
+    "baseline_commit": "80e716110",
+    "inputs": [
+      {
+        "role": "power_source",
+        "path": "zapote/power-stage-120v/elec/src/power_stage_120v.ato",
+        "status": "PRESENT_INTAKE_ONLY",
+        "sha256": "0bdb5a33c357d5704e0c8a0a300790f7fea64466f57d9f728ded4ad28c1dd4de"
+      },
+      {
+        "role": "parts_source",
+        "path": "zapote/power-stage-120v/elec/src/parts.ato",
+        "status": "PRESENT_INTAKE_ONLY",
+        "sha256": "2bfc94ad2b7f0f4cac85797cd5fa902ce21eb6d2b8bb09a9b03b481c093118e2"
+      },
+      {
+        "role": "frozen_netlist",
+        "path": "zapote/power-stage-120v/frozen/default.net",
+        "status": "PRESENT_INTAKE_ONLY",
+        "sha256": "26f95d5aa092d3aba2890421204d53aab16ce332c2e81d22990de64fb30ddb02"
+      },
+      {
+        "role": "frozen_bom",
+        "path": "zapote/power-stage-120v/frozen/default.csv",
+        "status": "PRESENT_INTAKE_ONLY",
+        "sha256": "6cdae33f6ef49ba9c6a95df2cd07ec72b82070e4acaae1deab394c7f54d8262b"
+      },
+      {
+        "role": "resolved_components",
+        "path": "zapote/power-stage-120v/frozen/resolved-components.json",
+        "status": "PRESENT_INTAKE_ONLY",
+        "sha256": "400057b89d41f743c16d993d2e15ea6255a11e1f263d5d25fedf75c0430204da"
+      },
+      {
+        "role": "power_build_receipt",
+        "path": "zapote/power-stage-120v/build-receipt.json",
+        "status": "PRESENT_INTAKE_ONLY",
+        "sha256": "2afd0b55bc930b4bce6c5254528c546c88ad28894fd176156fea853bcae805d5"
+      },
+      {
+        "role": "pcb_readiness_evidence",
+        "path": "docs/research/mit-product-design/readiness/pcb/evidence/verification.json",
+        "status": "PRESENT_INTAKE_ONLY",
+        "sha256": "53803ca64abe1b750d2355eab97eda6e53f40d12e7d7668235865cad024876d1"
+      },
+      {
+        "role": "r4_assembly",
+        "path": "output/temper-flush-front-r4/STEP/assembly.step",
+        "status": "PRESENT_INTAKE_ONLY",
+        "sha256": "2e89923f65e466831395a10a2ac7e307ded48fbb8b49e5c19e87b4da1df21291"
+      },
+      {
+        "role": "r4_assembly_source",
+        "path": "output/temper-flush-front-r4/src/assembly.py",
+        "status": "PRESENT_INTAKE_ONLY",
+        "sha256": "e12d154ed1041ea6537e144a25a87d15ad348999b59ad9af25d874af6d708494"
+      },
+      {
+        "role": "firmware_ui",
+        "path": "firmware/main/ui.c",
+        "status": "PRESENT_INTAKE_ONLY",
+        "sha256": "fac0b82712847ef652119a6c6ca7ed2900e6a2a9dd5c56b5c399a5d25bf6bb7f"
+      },
+      {
+        "role": "firmware_config",
+        "path": "firmware/config.yaml",
+        "status": "PRESENT_INTAKE_ONLY",
+        "sha256": "27b948327244b7dcab23264d37e5484e8b892954cc2718dfc39560237abc4055"
+      },
+      {
+        "role": "coil_run_template",
+        "path": "docs/research/mit-product-design/readiness/power/coil-runs.csv",
+        "status": "PRESENT_INTAKE_ONLY",
+        "sha256": "6ca74842aabb17ac295903f6fc46bc3194e7122e25c7dd4ea1ab96060366caee"
+      },
+      {
+        "role": "coil_point_template",
+        "path": "docs/research/mit-product-design/readiness/power/coil-points.csv",
+        "status": "PRESENT_INTAKE_ONLY",
+        "sha256": "72e6632ffc5d2c066ba9767a57ba80443c933564479d1c793518ba724da6070a"
+      }
+    ],
+    "native_board": {
+      "location": "external read-only worktrees/ps-oracle native-18; see pcb readiness evidence",
+      "sha256": "fb113d95819f1ea7cd8c27f929f7e88308eff44b663af85f71cd6f2bca5a0002",
+      "source_components": 135,
+      "source_nets": 83,
+      "included_in_this_package": false,
+      "HOT5_integrated": false
+    },
+    "source_candidate": {
+      "components": 142,
+      "nets": 88,
+      "layout_match_released": false
+    },
+    "note": "Historical preparation snapshot retained; current input hashes below supersede it for identification only."
+  }
+}

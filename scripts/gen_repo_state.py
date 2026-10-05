@@ -58,6 +58,7 @@ DIRECTORY_PURPOSE: dict[str, str] = {
     "harness-lab": "Retained KiCad native-bridge adapters used by zapote unit tools",
     "max31865": "KiCad library for the MAX31865 RTD front-end (predates components/)",
     "metrics": "Recorded routing/placement metric snapshots (JSON)",
+    "output": "Revisioned mechanical sources, historical geometry inputs, and validation receipts",
     "output_gerbers": "Exported Gerber/drill artifacts from a past routed revision",
     "packages": "Python and Rust workspace members -- placer, DRC, geometry, router",
     "crates": "Rust-only crates -- no pyproject.toml, outside the uv workspace. Where code lives once it no longer needs an interpreter: the temper binary and the CP-SAT FFI",
@@ -65,8 +66,9 @@ DIRECTORY_PURPOSE: dict[str, str] = {
     "power_pcb_dataset": "Regression corpus, baselines, and DRC ceilings",
     "scripts": "CI gates, generators, and one-off analysis tooling",
     "simulation": "ngspice models and protection-gate simulation harnesses",
+    "skills": "Source-grounded agent skills for product, mechanical, PCB, and manufacturing reviews",
     "tools": "Developer utilities not wired into CI gates",
-    "zapote": "Standalone PCB units (Atopile source, exact-pin Rust audits, frozen builds) -- starting with the 120 V full-bridge power stage",
+    "zapote": "Isolated circuit source candidates, compiled exports, and connectivity audits",
 }
 
 MARKER_BEGIN = (

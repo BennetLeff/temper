@@ -1,0 +1,41 @@
+# Cooling parts, evidence and remaining selection work
+
+The prototype architecture is a vertical shared sink, isolated device backs, independent spring clamps, a right-end push fan, a dedicated supply, and a sealed sink duct. The following are **specific sourcing candidates**, not a purchase release or qualified assembly BOM.
+
+| Item | Candidate | What supports it / what remains |
+| --- | --- | --- |
+| Sink | Wakefield custom skived 200 × 60 mm base, 8 mm thick, 60 mm fins; installed on its side | Manufacturer catalog pp4–5 provides custom sizing capability. Our base relief, raised BR1 land and mounting are bespoke. Vendor must accept machinability and provide a five-source thermal/pressure-drop curve. The 153 mm SFA2P1S catalog value of 0.118°C/W and 305 mm SFA2B1L value of 0.094°C/W do **not** transfer to this custom part. |
+| Fan | Wakefield DC0602512W2B-BT0, one initially; retain space for its guard and bracket in final drawing | Catalog specifies 60 × 60 × 25 mm, 12 V, 0.95 A / 11.4 W, four wires. 55.5 CFM and 1.17 inH₂O are free-air and shutoff endpoints. No retrieved installed P–Q operating point supports 20 CFM. Confirm exact vendor revision because distributor power values differ. |
+| MOS insulator | INNOVACERA custom AlN, two 38 × 26 × 1 mm pair tiles, unmetalized, plus compound on both faces | Manufacturer offers TO-247 AlN pads and custom shapes. Dimensions are our RFQ drawing, not a stock MPN. Common pair tiles avoid overlapping 20 mm-wide stock washers on 18 mm device pitch. Supplier must accept flatness, edge finish, handling and dielectric construction; approve creepage between neighboring exposed device backs. Thermal bulk conductivity is not a contact-resistance measurement. |
+| BR1 insulator | Separate custom 38 × 26 × 1 mm unmetalized AlN tile | Current GBJ geometry is provisional. Confirm real rear thermal face and mounting method; the 0.45°C/W interface allocation remains unmeasured. Do not infer a thermally exposed metal face from the package box. |
+| MOS clamp | Boyd Max03NG candidate; four independent clamps, manufacturer-matched anchor rail | Manufacturer clip index lists TO-247, normal 30–50 N class. Its anchor geometry and deflection at our ceramic thickness are not supplied by the mockup. The 8 mm forward projection CAD boxes are **space limits**, not Max03NG models. Request the mating rail profile and loaded/unloaded travel drawing; load-test each sample in the real stack. |
+| BR1 clamp | Bespoke spring clip or manufacturer-approved mounting screw | Only 3.2 mm modeled forward gap exists to C2; current envelope permits 2 mm projection. A spring design and pressure-distribution validation are still required. Never transfer TO-247 pressure/torque to the bridge. |
+| Fan supply for bench characterization | Mean Well GST36B12-P1J, external 12 V / 3 A adapter, operated at ambient within its derating curve | Specific manufacturer supply gives enough rated steady power for the one-fan candidate; fan startup/stall, protection and cable connection still need measurement. It stays external in the cold/bench study. An integrated supply with mechanical/thermal allocation is still required before a self-contained unit. Do not use PS1/J4.1. |
+
+## Clamp decision and contact acceptance
+
+Clip mounting avoids piercing the ceramic with a live-tab-to-ground fastener. The selected *class* uses independent compliance, not a rigid common bar that forces every device into one plane and bends soldered leads. Anchor loads close through the sink; device leads are not structural retainers. Assemble the package/ceramic/sink stack before soldering device leads, using a board-height fixture. Then solder without forcing pin displacement. The supplier must approve the stack thickness and center-of-die load location.
+
+Infineon's TO package assembly note gives PG-TO247 typical/max screw torque 0.5/0.7 Nm with M3/M4 and describes 15–50 N saddle/U clips. Those are package guidance, **not authorization to apply that torque to this ceramic, bushing or custom sink**. If Max03NG's real profile cannot fit, evaluate a low-profile M3 screw, rectangular load washer and full isolating bushing against actual hole dimensions. Specify shoulder engagement through the live metal region, non-bottoming thread engagement, a compliant preload element and creepage around the fastener. A short TO-220 bushing or grease's “electrically nonconductive” label does not qualify this path. Do not drill/tap the current allocation from inferred hole centers.
+
+For a cold sample, record the contact witness footprint and load at nominal/low/high stack heights. Reject rocking, cracked ceramic, point loading or device movement while tightening. Then use a heater/package coupon to measure each **whole** case-to-sink interface against ≤1.0°C/W for MOS devices and the separate bridge budget. Include both compound films, pressure, aging, flatness and reassembly. A thickness/conductivity calculation omits most of these terms and cannot close the test.
+
+## Flow and thermal closure
+
+Hold the existing requirements: inlet 50°C, ≥20 CFM **delivered through the fin channels**, RθSA≤0.15°C/W at the hottest mounting site and the existing interface allocations. Request a fan P–Q curve and sink/duct pressure drop at that temperature, the actual filter/guard restriction, and the five-source heat map from D18. Locate their intersection; do not linearly interpolate two fan endpoints. A longer sink may increase area and pressure drop together.
+
+The open space ahead of the shifted board supports contact geometry, but the final inlet/exhaust route to R4's rear openings is unresolved. Neither the top duct plate nor a fan box proves that air reaches those openings. Right-side structural legs at X≈157, Y190/330 obstruct a simple straight side duct. Keep exhaust out of the EMI module (≤60°C local target), controller and inlet. A removable duct insert and gasket should be tested for bypass/leakage and pressure drop in a full-size cold mockup before enclosure release. Fan failure, blocked inlet and degraded flow are subsequent electrical/thermal tests, not completed by this CAD.
+
+Run the first powered thermal test on one instrumented unit with inlet-air temperature, differential pressure, calibrated delivered flow, each case/local sink temperature, shunt local ambient, fan voltage/current/tach and actual operating current/frequency logged. Use the newly approved current envelope, not the old 45 A assumption. Maintain the D18 unknown-loss list; the simulated 105.59°C point is conditional and does not certify the custom assembly.
+
+## Primary sources inspected
+
+- [Wakefield 2026 rev1.0 skived assembly catalog, pp3–5](https://wakefieldthermal.com/content/catalogs/Catalog-SkivedFinHeatsinkAssembly.pdf): fan identities, stock simulated fully ducted values and custom capability.
+- [Boyd Max Clip packet, pp18–19](https://info.boydcorp.com/hubfs/Thermal/Air-Cooling/Boyd-Max-Clip-Datasheet-and-Standard-Part-Numbering-Packet.pdf): exact clip family and force class, not our custom rail fit.
+- [INNOVACERA TO-247 AlN product page](https://www.innovacera.com/video/to-247-aluminum-nitride-ceramic-thermal-pads-for-power-electronics): custom pad capability. The linked older price-list PDF returned 404; no thickness tolerance or thermal guarantee was invented from it.
+- [Infineon IPW65R018CFD7 Rev2.0, p12](https://www.infineon.com/assets/row/public/documents/24/49/infineon-ipw65r018cfd7-datasheet-en.pdf): exact package outline, distinct from generic KiCad STEP.
+- [Infineon assembly note, pp7,18,20–21](https://www.infineon.com/assets/row/public/documents/24/42/infineon-applicationnote-package-recommendations-assembly-topackages-applicationnotes-en.pdf): contact, screw and clip methods; excessive force can worsen contact or damage the package.
+- [Diodes GBJ2510 DS21221 Rev11-2, pp2,4](https://www.diodes.com/datasheet/download/GBJ2510.pdf): thermal test basis and package outline, not our 0.685 mm mating offset.
+- [Mean Well GST36B specification](https://www.meanwell.com/Upload/PDF/GST36B/GST36B-SPEC.PDF): external supply ratings, dimensions and derating conditions.
+
+Retrieved 2026-10-04. No supplier contact, order, assembly or physical measurement was performed.

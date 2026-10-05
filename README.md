@@ -28,74 +28,6 @@ firmware monitoring.
 > An earlier version of this paragraph asserted that all safety gates were
 > hardware-latched and monitored, which was not true when written.
 
-## The direction now: from brittle automation to grounded co-design
-
-Temper has gone through several automation experiments. Keeping the failures
-visible is part of the project: they show which claims the current workflow
-must earn.
-
-| Approach | What we learned |
-|---|---|
-| **JAX placement** | The early gradient-based path was ambitious, but it coupled optimization, geometry, and state too tightly. NaN/Inf failure modes and the cost of keeping the whole descent stack coherent made it difficult to trust and maintain. The JAX retirement is documented in the [umbrella report](docs/reports/2026-07-06-umbrella-final-report.md). |
-| **SAT / CP-SAT placement** | A feasibility-first solver gave us a better foundation, but a solver result is not a finished board. The first CP-SAT workflow did not close the full placement-to-routing-to-DRC loop, so parity and feasibility checks had to become explicit gates instead of assumptions. See the [CP-SAT implementation report](docs/reports/2026-07-03-cp-sat-feasibility-first-placer-implementation-report.md). |
-| **The first auto-router** | Early routing attempts produced blocked nets, unusable topology, and large DRC failures. Those runs were useful because they exposed the limits of treating routing as a generic black box; the [routing analysis](docs/reports/ROUTING_ANALYSIS_REPORT.md) and [fanout results](docs/router/fanout_pass_results.md) preserve the evidence. |
-| **Astra-assisted design** | The current workflow starts from circuit intent, carries constraints into the Rust-owned geometry and DRC layers, and uses rendered boards plus explicit checks to guide each iteration. It is already producing much more coherent voltage-sense, thermal-sense, safety-interlock, and active-PFC work. Astra is helping us navigate the design space; the repository’s sources, tests, and verification gates remain the authority. |
-
-This is a change in working method, not a claim that the product is finished. The
-goal is to make every promising render lead to a reproducible source change,
-and every source change lead to a checkable electrical or physical result.
-
-## What is working now
-
-- Circuit intent is being split into understandable subsystems instead of being
-  forced through one monolithic placement or routing pass.
-- Rust-owned geometry, DRC, and data-model code gives the workflow a stable
-  implementation boundary while Python remains an orchestration layer where it
-  is useful.
-- Board renders make layout and enclosure decisions reviewable before hardware
-  exists.
-- Failed solver and router attempts are treated as evidence and regression
-  material, rather than hidden noise.
-- The active PFC power-entry direction is now visible as a concrete board
-  concept, while simulation and hardware-validation limits remain explicit in
-  the project documents.
-
-## Project gallery
-
-These images are representative design snapshots from the current exploration.
-They are visual context, not manufacturing or hardware-validation evidence.
-
-<details>
-<summary>Voltage sense / Rev A</summary>
-
-<p><img src="docs/images/project-gallery/voltage-sense-rev-a-layout.png" alt="Voltage sense Rev A board layout" width="900"></p>
-<p><img src="docs/images/project-gallery/voltage-sense-rev-a-3d.png" alt="Voltage sense Rev A 3D render" width="900"></p>
-</details>
-
-<details>
-<summary>Thermal sense / Rev A and Rev B</summary>
-
-<p><img src="docs/images/project-gallery/thermal-sense-rev-a-layout.png" alt="Thermal sense Rev A board layout" width="900"></p>
-<p><img src="docs/images/project-gallery/thermal-sense-rev-a-3d.png" alt="Thermal sense Rev A 3D render" width="900"></p>
-<p><img src="docs/images/project-gallery/thermal-sense-rev-b-layout.png" alt="Thermal sense Rev B routed layout" width="900"></p>
-<p><img src="docs/images/project-gallery/thermal-sense-rev-b-3d-dark.png" alt="Thermal sense Rev B dark 3D render" width="900"></p>
-<p><img src="docs/images/project-gallery/thermal-sense-rev-b-3d.png" alt="Thermal sense Rev B 3D render" width="900"></p>
-</details>
-
-<details>
-<summary>Safety interlock / Rev A</summary>
-
-<p><img src="docs/images/project-gallery/safety-interlock-rev-a-layout.png" alt="Safety interlock Rev A layout" width="900"></p>
-<p><img src="docs/images/project-gallery/safety-interlock-rev-a-3d.png" alt="Safety interlock Rev A 3D render" width="900"></p>
-<p><img src="docs/images/project-gallery/safety-interlock-rev-a-angled.png" alt="Safety interlock Rev A angled 3D render" width="900"></p>
-</details>
-
-<details>
-<summary>Active PFC power entry</summary>
-
-<p><img src="docs/images/project-gallery/active-pfc-power-entry.png" alt="Active PFC power-entry board concept" width="900"></p>
-</details>
-
 ```mermaid
 graph TD
   subgraph Firmware ["Firmware (ESP32-S3, C)"]
@@ -181,7 +113,7 @@ For contributors working on architecture, verification, or toolchain internals:
 
 <!-- BEGIN GENERATED: repo-map -- edits here are overwritten by scripts/gen_repo_state.py -->
 
-*All 23 tracked top-level directories. Generated -- a new directory without a description fails CI.*
+*All 25 tracked top-level directories. Generated -- a new directory without a description fails CI.*
 
 | Directory | Purpose |
 |---|---|
@@ -200,14 +132,16 @@ For contributors working on architecture, verification, or toolchain internals:
 | `harness-lab/` | Retained KiCad native-bridge adapters used by zapote unit tools |
 | `max31865/` | KiCad library for the MAX31865 RTD front-end (predates components/) |
 | `metrics/` | Recorded routing/placement metric snapshots (JSON) |
+| `output/` | Revisioned mechanical sources, historical geometry inputs, and validation receipts |
 | `output_gerbers/` | Exported Gerber/drill artifacts from a past routed revision |
 | `packages/` | Python and Rust workspace members -- placer, DRC, geometry, router |
 | `pcb/` | KiCad project: schematics, board, and project settings |
 | `power_pcb_dataset/` | Regression corpus, baselines, and DRC ceilings |
 | `scripts/` | CI gates, generators, and one-off analysis tooling |
 | `simulation/` | ngspice models and protection-gate simulation harnesses |
+| `skills/` | Source-grounded agent skills for product, mechanical, PCB, and manufacturing reviews |
 | `tools/` | Developer utilities not wired into CI gates |
-| `zapote/` | Standalone PCB units (Atopile source, exact-pin Rust audits, frozen builds) -- starting with the 120 V full-bridge power stage |
+| `zapote/` | Isolated circuit source candidates, compiled exports, and connectivity audits |
 
 <!-- END GENERATED: repo-map -->
 

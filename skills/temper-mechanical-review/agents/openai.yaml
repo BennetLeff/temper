@@ -1,0 +1,4 @@
+interface:
+  display_name: "Temper Mechanical Review"
+  short_description: "Review datums, tolerances, loads, seals, and service"
+  default_prompt: "Use $temper-mechanical-review to review the current Temper design and identify the next evidence needed."

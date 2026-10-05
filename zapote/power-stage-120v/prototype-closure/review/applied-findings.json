@@ -1,0 +1,14 @@
+{
+  "review_status": "complete",
+  "review_verdict_before_fixes": "Ready with fixes",
+  "run_id": "temper-prototype-20261004-132238",
+  "applied_inline": [
+    1,
+    2,
+    3
+  ],
+  "skipped": [],
+  "unresolved": [],
+  "verification": "../../native-19/verification/review-fix-verification.json",
+  "scope": "Code review and reproduction fixes; not a manufacturing release"
+}

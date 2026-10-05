@@ -365,6 +365,10 @@ fn loss_refactor(base: &Tank) {
     //    conservative; VSD 4.7 V @ -4 V gate (use 4.7).
     let cfd7 = Dev::Mosfet { r_hot: 0.035, vsd: 1.0, n_par: 1.0 };
     let cfd7x2 = Dev::Mosfet { r_hot: 0.035, vsd: 1.0, n_par: 2.0 };
+    // Selected IPW65R018CFD7, four singles on the current full bridge. This
+    // 35 mΩ hot proxy is carried from the older 600 V CFD7 comparison; it is
+    // not a verified selected-part hot resistance or a thermal qualification.
+    let selected_650v_proxy = cfd7;
     let sic = Dev::Mosfet { r_hot: 0.028, vsd: 4.7, n_par: 1.0 };
     let rect_m = 0.035; // CFD7-class rectifier MOSFET, hot
     let k0 = 0.34 / 3.25; // kit chart-derived coil fraction (10.5%)
@@ -377,12 +381,13 @@ fn loss_refactor(base: &Tank) {
         Config { name: "A5_A4_plus_coil_7pct", dev: cfd7x2, topo: Topo::Half, rect: Rect::LowSideSync(rect_m), coil_fraction: 0.07 },
         Config { name: "A6_A4_plus_coil_5pct", dev: cfd7x2, topo: Topo::Half, rect: Rect::LowSideSync(rect_m), coil_fraction: 0.05 },
         Config { name: "A7_A6_plus_full_sync_rect", dev: cfd7x2, topo: Topo::Half, rect: Rect::FullSync(rect_m), coil_fraction: 0.05 },
-        Config { name: "B1_CFD7_full_bridge_coil_5pct", dev: cfd7, topo: Topo::Full, rect: Rect::LowSideSync(rect_m), coil_fraction: 0.05 },
+        Config { name: "B1_selected_650V_FB_loss_proxy", dev: selected_650v_proxy, topo: Topo::Full, rect: Rect::LowSideSync(rect_m), coil_fraction: 0.05 },
         Config { name: "B2_IGBT_full_bridge_coil_10pct", dev: Dev::Igbt, topo: Topo::Full, rect: Rect::Diode, coil_fraction: k0 },
         Config { name: "C1_coil_5pct_only_IGBT", dev: Dev::Igbt, topo: Topo::Half, rect: Rect::Diode, coil_fraction: 0.05 },
     ];
     println!();
     println!("## Loss refactor comparison at 120 V, 15 A input limit, PF 0.95");
+    println!("# B1 is four single IPW65R018CFD7 with an inherited 35 mohm hot proxy; switching and actual selected-part hot loss are unverified.");
     println!("# fixed allowance {:.1} W (EMI, cap ESR, wiring, aux); dead time {:.0} ns", FIXED_LOSS, DEAD_TIME * 1e9);
     println!("config,p_in_W,f_kHz,rectifier_W,switches_W,coil_W,fixed_W,total_loss_W,pan_W,eff_pct,tank_I_avg_A");
     for c in &cfgs {
@@ -469,7 +474,8 @@ fn main() {
     }
 
     println!();
-    println!("## Passive sizing checks");
+    println!("## Historical half-bridge passive sizing examples");
+    println!("# These inherited examples do not select or qualify the current full-bridge parts, CT burden, gate supply, fuse or discharge limits. Use the compiled circuit and its qualification records.");
     let c_bus: f64 = 5e-6;
     let vpk_hi: f64 = 140.0 * 2f64.sqrt();
     println!("bus film cap energy at 140 V line peak: {:.3} J", 0.5 * c_bus * vpk_hi * vpk_hi);

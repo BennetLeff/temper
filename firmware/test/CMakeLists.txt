@@ -477,3 +477,21 @@ add_test(NAME sil_fault_tests
     COMMAND test_sil_fault_injection
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
+
+# Native19 energy supervisor and synchronized bridge contract, independent of IDF.
+add_executable(test_power_adapter_only
+    test_power_adapter.c
+    ../components/power/energy_supervisor.c
+    ../components/power/fullbridge_adapter.c
+    ../components/power/energy_link.c
+    ../components/power/power_service.c)
+target_include_directories(test_power_adapter_only PRIVATE ../components/power/include)
+target_link_libraries(test_power_adapter_only m)
+# Assertions are the oracle, including Release builds.
+target_compile_options(test_power_adapter_only PRIVATE -UNDEBUG -Wall -Wextra -Werror)
+add_test(NAME power_adapter_tests COMMAND test_power_adapter_only)
+add_executable(test_power_no_burst_only test_power_no_burst.c ../components/control/low_temp_control.c)
+target_include_directories(test_power_no_burst_only PRIVATE ../components/control)
+target_compile_definitions(test_power_no_burst_only PRIVATE ESP_PLATFORM=1)
+target_compile_options(test_power_no_burst_only PRIVATE -UNDEBUG -Wall -Wextra -Werror)
+add_test(NAME power_no_burst_tests COMMAND test_power_no_burst_only)

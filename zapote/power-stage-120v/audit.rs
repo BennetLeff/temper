@@ -117,6 +117,7 @@ fn atom_arg(s: &Sexp, name: &str) -> Option<String> {
 #[derive(Debug, Clone)]
 struct Comp {
     path: String, // instance path below PowerStage120V, e.g. "leg_a.q_low"
+    footprint: String,
     #[allow(dead_code)]
     part: String, // netlist libsource part: footprint-aliased, diagnostic only
 }
@@ -177,7 +178,8 @@ fn load(net_text: &str, csv_text: &str, resolved_json: &str) -> Result<Model, St
                 .and_then(|s| atom_arg(s, "names"))
                 .and_then(|n| n.split("PowerStage120V::").nth(1).map(str::to_string))
                 .ok_or(format!("{r}: no instance path"))?;
-            m.comps.insert(r, Comp { path, part });
+            let footprint = atom_arg(c, "footprint").unwrap_or_default();
+            m.comps.insert(r, Comp { path, part, footprint });
         }
     }
     for nets in children(&root, "nets") {
@@ -281,7 +283,7 @@ const IDENTITY: &[(&str, &str)] = &[
     ("rv1", "TMOV20RP175E"),
     ("br1", "GBJ2510-F"),
     ("tvs_bus", "MRT130KP295CV"),
-    ("r_shunt", "WSK2512R0010FEA"),
+    ("r_shunt", "WSK25121L000FEA"),
     ("leg_a.q_high", "IPW65R018CFD7"),
     ("leg_a.q_low", "IPW65R018CFD7"),
     ("leg_b.q_high", "IPW65R018CFD7"),
@@ -289,7 +291,12 @@ const IDENTITY: &[(&str, &str)] = &[
     ("u_iso", "ISO7710DWR"),
     ("u_ocp", "TLV3201AIDBVR"),
     ("u_ovp", "TLV3201AIDBVR"),
-    ("u_nand", "SN74LVC1G00DBVR"),
+    ("u_nand", "SN74LVC1G10DBVR"),
+    ("u_hot5_uv", "TPS3700DDCR"),
+    ("u_hot5_schmitt", "SN74LVC1G17DBVR"),
+    ("r_hot5_uv_top", "RT0603BRD07105KL"),
+    ("r_hot5_uv_bot", "RT0603BRD0710KL"),
+    ("r_hot5_uv_pull", "RT0603BRD0710KL"),
     ("r_fe", "RC0603JR-070RL"),
     ("u_ref", "LM4040A25IDBZR"),
     ("u_ldo", "MC78L05ACHT1G"),
@@ -496,7 +503,7 @@ fn audit(m: &Model) -> Vec<String> {
     expect(&mut e, m, "link_neg.terminal_bus", "1", "hv_ret");
     // Shoot-through shunt: every low-side source returns via LEG_RET.
     expect(&mut e, m, "r_shunt", "1", "leg_ret");
-    expect(&mut e, m, "r_shunt", "2", "leg_ret");
+    expect(&mut e, m, "r_shunt", "2", "ocp_kelvin_p");
     expect(&mut e, m, "r_shunt", "3", "ocp_kelvin_n");
     expect(&mut e, m, "r_shunt", "4", "hv_ret");
     for leg in ["leg_a", "leg_b"] {
@@ -528,6 +535,57 @@ fn audit(m: &Model) -> Vec<String> {
     ].iter().map(|(a, b)| (a.to_string(), b.to_string())).collect();
     if hv != want {
         e.push(format!("hv_ret has unexpected or missing members, possibly bypassing the shunt: {hv:?}"));
+    }
+
+    // The 1 mOhm body uses Vishay's longer low-resistance terminal geometry.
+    if let Some(reference) = m.reff("r_shunt") {
+        if m.comps[reference].footprint != "Resistor_SMD:R_Shunt_Vishay_WSK2512_6332Metric_T2.21mm" {
+            e.push("r_shunt footprint must be the 1mOhm T2.21mm variant".into());
+        }
+    }
+    expect(&mut e, m, "c_v15", "2", "leg_ret");
+    // Gate recharge must not use the sense terminal. All analog returns
+    // are a separate loaded Kelvin island; its finite error needs testing.
+    for (path, pin) in members(m, "ocp_kelvin_p") {
+        if path.starts_with("leg_") || path == "ps_gate" || path == "c_v15" {
+            e.push(format!("gate recharge return {path}.{pin} must not load ocp_kelvin_p"));
+        }
+    }
+
+    let expected_kelvin: BTreeSet<(String, String)> = [
+        ("c_div", "2"),
+        ("c_hot5_schmitt", "2"),
+        ("c_hot5_uv", "2"),
+        ("c_iso1", "2"),
+        ("c_ldo_in", "2"),
+        ("c_ldo_out", "2"),
+        ("c_nand_vcc", "2"),
+        ("c_ocp_node", "2"),
+        ("c_ocp_vcc", "2"),
+        ("c_ovp_th", "2"),
+        ("c_ovp_vcc", "2"),
+        ("c_th", "2"),
+        ("c_vs1", "2"),
+        ("r_div_bot", "2"),
+        ("r_hot5_uv_bot", "2"),
+        ("r_ovp_bot", "2"),
+        ("r_shunt", "2"),
+        ("r_th_bot", "2"),
+        ("u_hot5_schmitt", "3"),
+        ("u_hot5_uv", "2"),
+        ("u_hot5_uv", "4"),
+        ("u_iso", "1"),
+        ("u_iso", "7"),
+        ("u_ldo", "2"),
+        ("u_nand", "2"),
+        ("u_ocp", "2"),
+        ("u_ovp", "2"),
+        ("u_ref", "2"),
+        ("u_vsense", "3"),
+        ("u_vsense", "4"),
+    ].iter().map(|(path, pin)| (path.to_string(), pin.to_string())).collect();
+    if members(m, "ocp_kelvin_p") != expected_kelvin {
+        e.push("ocp_kelvin_p exact analog-return membership differs".into());
     }
 
     // 5. Legs: fail-safe DIS, dead time, bootstrap and gate hold-offs.
@@ -580,7 +638,8 @@ fn audit(m: &Model) -> Vec<String> {
     expect(&mut e, m, "u_ldo", "1", "hot5");
 
     // 7. OCP and OVP: node = offset + shunt Kelvin; bus-sense node vs the
-    //    OVP threshold; both OK-high comparators NANDed into the default-high
+    //    OVP threshold; both OK-high comparators and V15-powered HOT5 monitor
+    //    NANDed into the default-high
     //    isolator, isolator output on header pin 10.
     expect(&mut e, m, "r_ref_bias", "1", "hot5");
     expect(&mut e, m, "r_ref_bias", "2", "ref25");
@@ -613,24 +672,54 @@ fn audit(m: &Model) -> Vec<String> {
     expect(&mut e, m, "u_ocp", "3", "ocp_node");
     expect(&mut e, m, "u_ocp", "4", "ocp_thresh");
     expect(&mut e, m, "u_ocp", "1", "ocp_ok_hot");
-    expect(&mut e, m, "u_ocp", "2", "leg_ret");
+    expect(&mut e, m, "u_ocp", "2", "ocp_kelvin_p");
     expect(&mut e, m, "u_ovp", "3", "ovp_thresh");
     expect(&mut e, m, "u_ovp", "4", "vsense_in");
     expect(&mut e, m, "u_ovp", "1", "ovp_ok_hot");
-    expect(&mut e, m, "u_ovp", "2", "leg_ret");
+    expect(&mut e, m, "u_ovp", "2", "ocp_kelvin_p");
     expect(&mut e, m, "u_ovp", "5", "hot5");
     expect(&mut e, m, "r_ovp_top", "1", "ref25");
     expect(&mut e, m, "r_ovp_top", "2", "ovp_thresh");
     expect(&mut e, m, "r_ovp_bot", "1", "ovp_thresh");
-    expect(&mut e, m, "r_ovp_bot", "2", "leg_ret");
+    expect(&mut e, m, "r_ovp_bot", "2", "ocp_kelvin_p");
     expect(&mut e, m, "r_th_top", "1", "ref25");
     expect(&mut e, m, "r_th_top", "2", "ocp_thresh");
     expect(&mut e, m, "r_th_bot", "1", "ocp_thresh");
-    expect(&mut e, m, "r_th_bot", "2", "leg_ret");
+    expect(&mut e, m, "r_th_bot", "2", "ocp_kelvin_p");
+    expect(&mut e, m, "u_hot5_uv", "5", "v15_ls");
+    expect(&mut e, m, "u_hot5_uv", "2", "ocp_kelvin_p");
+    expect(&mut e, m, "u_hot5_uv", "3", "hot5_uv_sense");
+    expect(&mut e, m, "u_hot5_uv", "4", "ocp_kelvin_p");
+    expect(&mut e, m, "u_hot5_uv", "1", "hot5_uv_raw");
+    expect(&mut e, m, "r_hot5_uv_top", "1", "hot5");
+    expect(&mut e, m, "r_hot5_uv_top", "2", "hot5_uv_sense");
+    expect(&mut e, m, "r_hot5_uv_bot", "1", "hot5_uv_sense");
+    expect(&mut e, m, "r_hot5_uv_bot", "2", "ocp_kelvin_p");
+    expect(&mut e, m, "r_hot5_uv_pull", "1", "hot5");
+    expect(&mut e, m, "r_hot5_uv_pull", "2", "hot5_uv_raw");
+    expect(&mut e, m, "u_hot5_schmitt", "2", "hot5_uv_raw");
+    expect(&mut e, m, "u_hot5_schmitt", "3", "ocp_kelvin_p");
+    expect(&mut e, m, "u_hot5_schmitt", "4", "hot5_ok_hot");
+    expect(&mut e, m, "u_hot5_schmitt", "5", "hot5");
+    expect(&mut e, m, "c_hot5_uv", "1", "v15_ls");
+    expect(&mut e, m, "c_hot5_uv", "2", "ocp_kelvin_p");
+    expect(&mut e, m, "c_hot5_schmitt", "1", "hot5");
+    expect(&mut e, m, "c_hot5_schmitt", "2", "ocp_kelvin_p");
+    for (net, wanted) in [
+        ("hot5_uv_sense", vec![("u_hot5_uv", "3"), ("r_hot5_uv_top", "2"), ("r_hot5_uv_bot", "1")]),
+        ("hot5_uv_raw", vec![("u_hot5_uv", "1"), ("r_hot5_uv_pull", "2"), ("u_hot5_schmitt", "2")]),
+        ("hot5_ok_hot", vec![("u_hot5_schmitt", "4"), ("u_nand", "6")]),
+    ] {
+        let want: BTreeSet<(String, String)> = wanted.iter().map(|(a, b)| (a.to_string(), b.to_string())).collect();
+        if members(m, net) != want {
+            e.push(format!("{net} has unexpected loads: {:?}", members(m, net)));
+        }
+    }
     expect(&mut e, m, "u_nand", "1", "ocp_ok_hot");
-    expect(&mut e, m, "u_nand", "2", "ovp_ok_hot");
+    expect(&mut e, m, "u_nand", "3", "ovp_ok_hot");
+    expect(&mut e, m, "u_nand", "6", "hot5_ok_hot");
     expect(&mut e, m, "u_nand", "4", "bus_fault_hot");
-    expect(&mut e, m, "u_nand", "3", "leg_ret");
+    expect(&mut e, m, "u_nand", "2", "ocp_kelvin_p");
     expect(&mut e, m, "u_nand", "5", "hot5");
     expect(&mut e, m, "u_iso", "4", "bus_fault_hot");
     let bus_fault: BTreeSet<(String, String)> = members(m, "bus_fault_hot");
@@ -657,7 +746,7 @@ fn audit(m: &Model) -> Vec<String> {
     }
     expect(&mut e, m, "u_iso", "3", "hot5");
     expect(&mut e, m, "u_ref", "1", "ref25");
-    expect(&mut e, m, "u_ref", "2", "leg_ret");
+    expect(&mut e, m, "u_ref", "2", "ocp_kelvin_p");
 
     // 8. Tank: SW_A -> CT primary -> coil terminal -> C_res bank -> SW_B.
     //    The CT primary must sit on the switch node, not the resonant node.
@@ -692,7 +781,7 @@ fn audit(m: &Model) -> Vec<String> {
         expect(&mut e, m, path, "2", divider[i + 1]);
     }
     expect(&mut e, m, "r_div_bot", "1", "vsense_in");
-    expect(&mut e, m, "r_div_bot", "2", "leg_ret");
+    expect(&mut e, m, "r_div_bot", "2", "ocp_kelvin_p");
     let sense_members: BTreeSet<(String, String)> = [
         ("r_div4", "2"), ("r_div_bot", "1"), ("c_div", "1"),
         ("u_vsense", "2"), ("u_ovp", "4"),
@@ -701,7 +790,7 @@ fn audit(m: &Model) -> Vec<String> {
         e.push("vsense_in has unexpected loads or missing endpoints".into());
     }
     expect(&mut e, m, "u_vsense", "2", "vsense_in");
-    expect(&mut e, m, "u_vsense", "3", "leg_ret"); // SHTDN low = enabled
+    expect(&mut e, m, "u_vsense", "3", "ocp_kelvin_p"); // SHTDN low = enabled
     expect(&mut e, m, "u_vsense", "7", "vbus_p");
     expect(&mut e, m, "u_vsense", "6", "vbus_n");
 
@@ -827,6 +916,40 @@ mod tests {
     }
 
     #[test]
+    fn analog_reference_returns_cannot_move_to_power_island() {
+        for (path, pin) in [("u_ldo", "2"), ("u_iso", "1"), ("c_ldo_in", "2")] {
+            let mut m = built();
+            m.rewire(path, pin, "leg_ret");
+            fails(&m, "ocp_kelvin_p exact analog-return membership");
+        }
+    }
+
+    #[test]
+    fn wrong_low_ohm_shunt_footprint_fails() {
+        let mut m = built();
+        let reference = m.reff("r_shunt").unwrap().to_string();
+        m.comps.get_mut(&reference).unwrap().footprint = "Resistor_SMD:R_Shunt_Vishay_WSK2512_6332Metric_T1.19mm".into();
+        fails(&m, "r_shunt footprint");
+    }
+
+    #[test]
+    fn kelvin_positive_must_not_be_copper_joined_to_power_return() {
+        let mut m = built();
+        m.rewire("r_shunt", "2", "leg_ret");
+        fails(&m, "r_shunt.2");
+    }
+
+    #[test]
+    fn supply_recharge_cannot_return_through_sense_terminal() {
+        for path in ["ps_gate", "c_v15"] {
+            let mut m = built();
+            let pin = if path == "ps_gate" { "3" } else { "2" };
+            m.rewire(path, pin, "ocp_kelvin_p");
+            fails(&m, "gate recharge return");
+        }
+    }
+
+    #[test]
     fn low_side_source_bypassing_shunt_fails() {
         let mut m = built();
         m.rewire("leg_b.q_low", "3", "hv_ret");
@@ -936,6 +1059,45 @@ mod tests {
     }
 
     #[test]
+    fn missing_hot5_supervisor_fails() {
+        let mut m = built();
+        let r = m.reff("u_hot5_uv").unwrap().to_string();
+        m.comps.remove(&r);
+        m.bom.remove(&r);
+        m.resolved.remove("u_hot5_uv");
+        for nodes in m.nets.values_mut() { nodes.retain(|(rr, _)| rr != &r); }
+        fails(&m, "u_hot5_uv missing");
+    }
+
+    #[test]
+    fn hot5_supervisor_must_use_independent_v15() {
+        let mut m = built();
+        m.rewire("u_hot5_uv", "5", "hot5");
+        fails(&m, "u_hot5_uv.5");
+    }
+
+    #[test]
+    fn hot5_supervisor_cannot_bypass_fault_gate() {
+        let mut m = built();
+        m.rewire("u_nand", "6", "hot5");
+        fails(&m, "u_nand.6");
+    }
+
+    #[test]
+    fn hot5_slow_open_drain_cannot_feed_nand_directly() {
+        let mut m = built();
+        m.rewire("u_nand", "6", "hot5_uv_raw");
+        fails(&m, "u_nand.6");
+    }
+
+    #[test]
+    fn hot5_supervisor_cannot_pull_pushpull_ocp() {
+        let mut m = built();
+        m.rewire("u_hot5_uv", "1", "ocp_ok_hot");
+        fails(&m, "u_hot5_uv.1");
+    }
+
+    #[test]
     fn fault_header_disconnected_from_isolator_fails() {
         let mut m = built();
         m.rewire("j_selv", "10", "floating");
@@ -948,7 +1110,7 @@ mod tests {
             let mut m = built();
             let path = "r_fault_load";
             let mpn = "RC0603JR-070RL";
-            m.comps.insert("R999".into(), Comp { path: path.into(), part: mpn.into() });
+            m.comps.insert("R999".into(), Comp { path: path.into(), part: mpn.into(), footprint: String::new() });
             m.resolved.insert(path.into(), mpn.into());
             m.bom.insert("R999".into(), mpn.into());
             m.nets.get_mut("bus_fault").unwrap().insert(("R999".into(), "1".into()));
@@ -1151,7 +1313,7 @@ mod tests {
             let mut m = built();
             let path = "jumper_bypass";
             let mpn = "RC1206FR-070RL";
-            m.comps.insert("R999".into(), Comp { path: path.into(), part: mpn.into() });
+            m.comps.insert("R999".into(), Comp { path: path.into(), part: mpn.into(), footprint: String::new() });
             m.resolved.insert(path.into(), mpn.into());
             m.bom.insert("R999".into(), mpn.into());
             m.nets.get_mut(rect).unwrap().insert(("R999".into(), "1".into()));
@@ -1175,7 +1337,7 @@ mod tests {
         let mut m = built();
         let path = "shunt_bypass";
         let mpn = "RC1206FR-070RL";
-        m.comps.insert("R999".into(), Comp { path: path.into(), part: mpn.into() });
+        m.comps.insert("R999".into(), Comp { path: path.into(), part: mpn.into(), footprint: String::new() });
         m.resolved.insert(path.into(), mpn.into());
         m.bom.insert("R999".into(), mpn.into());
         m.nets.get_mut("hv_ret").unwrap().insert(("R999".into(), "1".into()));
@@ -1234,7 +1396,7 @@ mod tests {
         let mut m = built();
         let r = m.reff("leg_a.r_dt").unwrap().to_string();
         m.bom.insert(r, "RC0603FR-0710KL".into());
-        fails(&m, "resolved Some(\"RC0603FR-0739KL\") vs BOM");
+        fails(&m, "resolved Some(\"RT0603BRD0749K9L\") vs BOM");
     }
 
     #[test]

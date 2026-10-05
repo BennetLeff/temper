@@ -1,0 +1,64 @@
+* D22 round2 nonlinear DM engineering screen; NOT RF EMI or released controller.
+* Replacements below supplied by runner.rs, units SI.
+.param VRMS=@VRMS@ FLINE=@FREQ@ PHASE=@PHASE@ RSOURCE=@RSOURCE@ LSOURCE=@LSOURCE@
+.param LDM=@LDM@ RDAMP=@RDAMP@ RBLEED=@RBLEED@ POWER=@POWER@
+.param CPL=@CPL@ BURST=@BURST@ MAXSTEP=@STEP@ CAPMULT=@CAPMULT@
+.param PRECHARGE=@PRECHARGE@
+* Source makes an assumed 10us connection ramp, with discharged capacitors.
+* Total differential source R/L: both conductors folded into one series path.
+Bline source 0 V=sqrt(2)*VRMS*sin(2*pi*FLINE*time+PHASE*pi/180)*min(time/10u,1)
+Rsource source pre {RSOURCE}
+* Exploratory precharge resistance bypassed at20ms; not a selected relay circuit.
+Rpre pre sr R=PRECHARGE*(time<20m)+1u
+Lsource sr lin {LSOURCE}
+* 2.2u added input X; ESR assumed 35mOhm for each film branch.
+Rxin lin xi 35m
+Cxin xi 0 {2.2u*CAPMULT}
+* Differential equivalent of coupled choke, LOOP leakage=2*L*(1-k)=LDM.
+Rnew lin nl 9m
+Lnew nl mid {LDM}
+Rxo mid xo 35m
+Cxo xo 0 {4.7u*CAPMULT}
+Rdamp mid da {RDAMP}
+Cdamp da 0 {4.7u*CAPMULT}
+Rbleed mid 0 {RBLEED}
+* Native19 C1, L1, C2 differential path (Y/PE absent from this DM screen).
+Rx1 mid x1 35m
+Cx1 x1 0 {1u*CAPMULT}
+Rold mid ol 9m
+Lold ol rect {LDM}
+Rx2 rect x2 35m
+Cx2 x2 0 {1u*CAPMULT}
+Roldbleed mid 0 240k
+* Four nonlinear junctions. Generic forward fit, not GBJ vendor/recovery model.
+D1 rect bp DFIT
+D2 0 bp DFIT
+D3 bn rect DFIT
+D4 bn 0 DFIT
+.model DFIT D(Is=1n N=1.5 Rs=5m Cjo=85p BV=1000)
+Rbulk bp cb 20m
+Cbulk cb bn {5.4u*CAPMULT}
+Rlocal bp cl 10m
+Clocal cl bn 400n
+Rdcbleed bp bn 440k
+Rfloat bn 0 1g
+* Averaged converter: constant conductance OR regularized CPL, starts40ms.
+* CPL=P*V/max(V^2,60^2); clips to30A; zero/negative bus cannot source power.
+* 50Hz,50% burst is a diagnostic command, not deployed firmware behavior.
+Bcommand cmd 0 V=(time>40m)*(1-BURST+BURST*(sin(2*pi*50*(time-40m))>0))
+Bload bp bn I=v(cmd)*min(30,max(0,(1-CPL)*POWER*v(bp,bn)/(VRMS*VRMS)+CPL*POWER*v(bp,bn)/max(v(bp,bn)*v(bp,bn),3600)))
+.options reltol=1e-5 abstol=1e-8 vntol=1e-6 method=trap
+.control
+set noaskquit
+set wr_singlescale
+set wr_vecnames
+set numdgt=15
+tran 2u 300m 0 @STEP@ uic
+let bus=v(bp)-v(bn)
+let damper=(v(mid)-v(da))/@RDAMP@
+let xout=(v(mid)-v(xo))/.035
+let iload=v(cmd)*min(30,max(0,(1-@CPL@)*@POWER@*bus/(@VRMS@*@VRMS@)+@CPL@*@POWER@*bus/max(bus*bus,3600)))
+wrdata waves.txt v(source) i(Lsource) bus damper xout iload v(mid)
+quit
+.endc
+.end

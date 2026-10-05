@@ -1,0 +1,594 @@
+{
+  "status": "COLD_MOCKUP_CANDIDATE_NOT_THERMALLY_OR_ELECTRICALLY_QUALIFIED",
+  "units": "mm",
+  "native18_board_sha256": "fb113d95819f1ea7cd8c27f929f7e88308eff44b663af85f71cd6f2bca5a0002",
+  "r4_assembly_sha256": "2e89923f65e466831395a10a2ac7e307ded48fbb8b49e5c19e87b4da1df21291",
+  "board_origin_xy": [
+    -110.5,
+    162.0
+  ],
+  "board_top_z": 32.0,
+  "board_thickness": 1.653,
+  "sink_min": [
+    -112.0,
+    94.515,
+    12.0
+  ],
+  "sink_size": [
+    200.0,
+    68.0,
+    60.0
+  ],
+  "sink_base_thickness": 8.0,
+  "sink_front_contact_plane_y": 162.515,
+  "ceramic_thickness": 1.0,
+  "mos_contact_plane_y": 163.515,
+  "bridge_provisional_contact_plane_y": 164.2,
+  "bridge_land_step": 0.685,
+  "thermal_allocation": {
+    "sink_degC_per_W_max": 0.15,
+    "mos_interface_degC_per_W_max": 1.0,
+    "bridge_interface_degC_per_W_assumed": 0.45,
+    "inlet_degC": 50,
+    "delivered_CFM_min": 20
+  },
+  "omitted_r4_prefixes": [
+    "pcb_export_",
+    "PS1_datasheet_body_envelope",
+    "Sunon_",
+    "fan_hub_envelope",
+    "compact_sink_candidate_",
+    "separate_rear_cooling_duct",
+    "covered_PCB_tray_allocation",
+    "PCB_chamber_lid_allocation"
+  ],
+  "allocations": [
+    {
+      "name": "DC0602512W2B-BT0_FAN_ENVELOPE",
+      "min": [
+        88,
+        94.515,
+        12
+      ],
+      "size": [
+        25,
+        60,
+        60
+      ]
+    },
+    {
+      "name": "CUSTOM_BR1_MACHINED_LAND_PROVISIONAL",
+      "min": [
+        -100,
+        162.515,
+        34
+      ],
+      "size": [
+        38,
+        0.685,
+        26
+      ]
+    },
+    {
+      "name": "CUSTOM_ALN_BR1_38x26x1",
+      "min": [
+        -100,
+        163.2,
+        34
+      ],
+      "size": [
+        38,
+        1,
+        26
+      ]
+    },
+    {
+      "name": "CUSTOM_ALN_Q5_Q6_38x26x1",
+      "min": [
+        -22.5,
+        162.515,
+        34
+      ],
+      "size": [
+        38,
+        1,
+        26
+      ]
+    },
+    {
+      "name": "CUSTOM_ALN_Q3_Q2_38x26x1",
+      "min": [
+        17.5,
+        162.515,
+        34
+      ],
+      "size": [
+        38,
+        1,
+        26
+      ]
+    },
+    {
+      "name": "CUSTOM_CLIP_ANCHOR_RAIL_ENVELOPE",
+      "min": [
+        -108,
+        160.515,
+        64
+      ],
+      "size": [
+        192,
+        12,
+        6
+      ]
+    },
+    {
+      "name": "Q5_Max03NG_CLIP_INSTALLATION_ALLOCATION",
+      "min": [
+        -16.5,
+        168.545,
+        38
+      ],
+      "size": [
+        8,
+        8,
+        26
+      ]
+    },
+    {
+      "name": "Q6_Max03NG_CLIP_INSTALLATION_ALLOCATION",
+      "min": [
+        1.5,
+        168.545,
+        38
+      ],
+      "size": [
+        8,
+        8,
+        26
+      ]
+    },
+    {
+      "name": "Q3_Max03NG_CLIP_INSTALLATION_ALLOCATION",
+      "min": [
+        23.5,
+        168.545,
+        38
+      ],
+      "size": [
+        8,
+        8,
+        26
+      ]
+    },
+    {
+      "name": "Q2_Max03NG_CLIP_INSTALLATION_ALLOCATION",
+      "min": [
+        41.5,
+        168.545,
+        38
+      ],
+      "size": [
+        8,
+        8,
+        26
+      ]
+    },
+    {
+      "name": "BR1_CUSTOM_SPRING_CLAMP_ALLOCATION",
+      "min": [
+        -88,
+        169,
+        37
+      ],
+      "size": [
+        13,
+        2,
+        27
+      ]
+    },
+    {
+      "name": "EMI_D22_110x80x50_BODY_ALLOCATION",
+      "min": [
+        -140,
+        335,
+        12
+      ],
+      "size": [
+        110,
+        80,
+        50
+      ]
+    },
+    {
+      "name": "CARRIER_RAIL_-122p5",
+      "min": [
+        -122.5,
+        162,
+        10
+      ],
+      "size": [
+        12,
+        160,
+        6
+      ]
+    },
+    {
+      "name": "CARRIER_RAIL_128p5",
+      "min": [
+        128.5,
+        162,
+        10
+      ],
+      "size": [
+        12,
+        160,
+        6
+      ]
+    },
+    {
+      "name": "L20_PEEK_POST",
+      "min": [
+        -120.5,
+        179,
+        16
+      ],
+      "size": [
+        10,
+        6,
+        16.1
+      ],
+      "vertical_hole": {
+        "center_xy": [
+          -115.5,
+          182
+        ],
+        "radius": 1.7
+      }
+    },
+    {
+      "name": "L20_PEEK_UNDERSIDE_LIP",
+      "min": [
+        -110.5,
+        179,
+        28.347
+      ],
+      "size": [
+        3,
+        6,
+        2
+      ]
+    },
+    {
+      "name": "L20_PEEK_TOP_CAPTURE",
+      "min": [
+        -120.5,
+        179,
+        32.1
+      ],
+      "size": [
+        13,
+        6,
+        2
+      ],
+      "vertical_hole": {
+        "center_xy": [
+          -115.5,
+          182
+        ],
+        "radius": 1.7
+      }
+    },
+    {
+      "name": "L140_PEEK_POST",
+      "min": [
+        -120.5,
+        299,
+        16
+      ],
+      "size": [
+        10,
+        6,
+        16.1
+      ],
+      "vertical_hole": {
+        "center_xy": [
+          -115.5,
+          302
+        ],
+        "radius": 1.7
+      }
+    },
+    {
+      "name": "L140_PEEK_UNDERSIDE_LIP",
+      "min": [
+        -110.5,
+        299,
+        28.347
+      ],
+      "size": [
+        3,
+        6,
+        2
+      ]
+    },
+    {
+      "name": "L140_PEEK_TOP_CAPTURE",
+      "min": [
+        -120.5,
+        299,
+        32.1
+      ],
+      "size": [
+        13,
+        6,
+        2
+      ],
+      "vertical_hole": {
+        "center_xy": [
+          -115.5,
+          302
+        ],
+        "radius": 1.7
+      }
+    },
+    {
+      "name": "R20_PEEK_POST",
+      "min": [
+        130.5,
+        179,
+        16
+      ],
+      "size": [
+        10,
+        6,
+        16.1
+      ],
+      "vertical_hole": {
+        "center_xy": [
+          135.5,
+          182
+        ],
+        "radius": 1.7
+      }
+    },
+    {
+      "name": "R20_PEEK_UNDERSIDE_LIP",
+      "min": [
+        126.5,
+        179,
+        28.347
+      ],
+      "size": [
+        4,
+        6,
+        2
+      ]
+    },
+    {
+      "name": "R20_PEEK_TOP_CAPTURE",
+      "min": [
+        126.5,
+        179,
+        32.1
+      ],
+      "size": [
+        14,
+        6,
+        2
+      ],
+      "vertical_hole": {
+        "center_xy": [
+          135.5,
+          182
+        ],
+        "radius": 1.7
+      }
+    },
+    {
+      "name": "R80_PEEK_POST",
+      "min": [
+        130.5,
+        239,
+        16
+      ],
+      "size": [
+        10,
+        6,
+        16.1
+      ],
+      "vertical_hole": {
+        "center_xy": [
+          135.5,
+          242
+        ],
+        "radius": 1.7
+      }
+    },
+    {
+      "name": "R80_PEEK_UNDERSIDE_LIP",
+      "min": [
+        126.5,
+        239,
+        28.347
+      ],
+      "size": [
+        4,
+        6,
+        2
+      ]
+    },
+    {
+      "name": "R80_PEEK_TOP_CAPTURE",
+      "min": [
+        126.5,
+        239,
+        32.1
+      ],
+      "size": [
+        14,
+        6,
+        2
+      ],
+      "vertical_hole": {
+        "center_xy": [
+          135.5,
+          242
+        ],
+        "radius": 1.7
+      }
+    },
+    {
+      "name": "L20_PEEK_DATUM_ARM",
+      "min": [
+        -120.5,
+        161,
+        28.347
+      ],
+      "size": [
+        9.5,
+        21,
+        2
+      ]
+    },
+    {
+      "name": "L20_PEEK_EDGE_STOP",
+      "min": [
+        -111,
+        161,
+        28.347
+      ],
+      "size": [
+        3.5,
+        1,
+        3.653
+      ]
+    },
+    {
+      "name": "L140_PEEK_DATUM_ARM",
+      "min": [
+        -120.5,
+        302,
+        28.347
+      ],
+      "size": [
+        9.5,
+        22,
+        2
+      ]
+    },
+    {
+      "name": "L140_PEEK_EDGE_STOP",
+      "min": [
+        -111,
+        323,
+        28.347
+      ],
+      "size": [
+        3.5,
+        1,
+        3.653
+      ]
+    }
+  ],
+  "not_modeled": [
+    "complete inlet/exhaust duct turns and rear-vent coupling",
+    "fan guards and supplier mounting brackets",
+    "new PCB electrical barrier chamber",
+    "exact clamp spring profile and force",
+    "harness bend radii and separation",
+    "controller PCB",
+    "native19 HOT5 additions",
+    "manufacturer-verified device rear metallization and lead trim",
+    "new coil/sink/chassis capacitive or magnetic coupling; unchanged board copper does not preserve environmental EMI qualification",
+    "manufacturer-approved thermal metal faces; library face normal is geometric evidence only",
+    "cold carrier chassis attachment, PEEK grade, load verification and qualified electrical distances"
+  ],
+  "sink_board_relief": {
+    "min": [
+      -112,
+      160.5,
+      28
+    ],
+    "size": [
+      200,
+      2.015,
+      6
+    ],
+    "purpose": "Rear-face recess at board height leaves 5.985mm continuous base; 1.5mm nominal board gap and .5mm front-stop gap are not qualified electrical distances"
+  },
+  "retention": {
+    "status": "NOMINAL_COLD_CARRIER_PENDING_FINAL_NATIVE19_REFILL_AND_INSULATION_LOAD_REVIEW",
+    "contact_windows_board_xy": [
+      [
+        0,
+        17,
+        3,
+        23
+      ],
+      [
+        0,
+        137,
+        3,
+        143
+      ],
+      [
+        237,
+        17,
+        240,
+        23
+      ],
+      [
+        237,
+        77,
+        240,
+        83
+      ]
+    ],
+    "shoe_material": "Machined PEEK candidate; exact grade/insulation qualification open",
+    "vertical_capture_clearance_mm": 0.1,
+    "fastener": "M3x25 with 1.5mm external spacer; outside board; torque not set",
+    "frame_attachment": "6mm carrier rails stand on R4 floor Z10; chassis attachment holes not cut in R4",
+    "fastener_centres_world_xy": [
+      [
+        -115.5,
+        182
+      ],
+      [
+        -115.5,
+        302
+      ],
+      [
+        135.5,
+        182
+      ],
+      [
+        135.5,
+        242
+      ]
+    ],
+    "datums": {
+      "vertical": "four underside lips at Z30.347; removable caps at Z32.1",
+      "lateral_X": "two left shoe posts locate left edge; right posts have 1mm nominal clearance",
+      "longitudinal_Y": "front left stop at Y162; rear left stop at Y323 gives 1mm nominal float"
+    },
+    "nominal_in_plane_float_mm": {
+      "positive_X": 1.0,
+      "positive_Y": 1.0
+    },
+    "corner_stop_screen_board_xy": [
+      [
+        0,
+        0,
+        3,
+        1
+      ],
+      [
+        0,
+        159,
+        3,
+        160
+      ]
+    ],
+    "growth_acceptance": "positive differential PCB-frame growth + worst-case location/size tolerances + service deflection <= minimum available float; vertical board warp/thickness stack separately bounded"
+  }
+}

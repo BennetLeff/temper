@@ -2,10 +2,21 @@
 title: Coil/pan Monte Carlo — design robustness and what to measure
 date: 2026-09-25
 status: design screen over ASSUMED priors (no coil measured yet)
-calculation: coil_mc.rs → coil-mc-output.txt (6/6 self-tests, seed 20260925, 20,000 samples per detailed run)
+calculation: coil_mc.rs → coil-mc-output.txt (11/11 self-tests, seed 20260925, 20,000 samples per detailed run)
 ---
 
 # Coil/pan Monte Carlo
+
+**2026-10-04 current-envelope correction:** the 45 A value below remains a
+historical comparative screen, not a released normal-operation allocation.
+The independent shunt detector has a conditional static band of
+**38.44–85.55 A** at +85 °C board with an assumed +50 °C R5 rise; the broader
+CT temperature/tolerance calculation gives **50.56–60.01 A**. The older
+50.93–59.51 A CT-only result does not supersede the shunt constraint.
+The threshold parts and relevant net endpoints are unchanged on native-18
+and the HOT5 candidate. All full-power percentages below omit shunt dynamic
+behavior and therefore cannot demonstrate implementable power. No new
+current limit is selected. See the [reconciliation and next-build gates](../../research/mit-product-design/readiness/power/README.md).
 
 ## What this can and cannot tell us
 
@@ -13,8 +24,10 @@ It **can** rank coil targets and topologies across a plausible spread of
 coils and pans, and name the uncertain input that drives failures, which
 is the one worth measuring first. It **cannot** certify parts. The
 priors are engineering assumptions anchored on four published points. They
-are not an observed pan population, and "100 % pass" means "robust under these
-assumptions". Worst-case corners still size the switches and capacitors.
+are not an observed pan population. The output's `model_full_power_pct` is a
+comparative ranking under assumed phase, current and capacitor screens, not a
+pass rate for a selected part or cookware population. Deterministic endpoint
+probes below expose some missed combinations; measured corners must size the parts.
 
 ## Model
 
@@ -36,62 +49,77 @@ Priors are turns-independent ratios, so one measured coil informs every turn cou
 **Requirement.** Full 15 A input power on intended cookware (cast iron, steel, clad).
 Other pans only need to stay within limits at reduced power, as commercial cookers do.
 
-**Limits.**
+**Comparative screens, not qualified limits.**
 - phase ≥ 20° (ZVS margin)
-- tank peak ≤ 85 A (below the OCP band)
-- resonant capacitor ≤ 650 V peak
+- tank peak ≤ 45 A, retained solely for comparison with the prior model correction. The old 85 A screen exceeded the tank-CT band, but 45 A still overlaps the independent shunt's conditional static trip band. This is not an implemented firmware regulator or a guaranteed dynamic trip margin.
+- resonant capacitor ≤ 650 V line-crest peak (**assumed ranking knob**; the
+  selected 942C12P22K-F / 942C12P1K-F bank has no verified hot 30–50 kHz
+  continuous voltage/current envelope)
 - 20–60 kHz
 
 **Search.** A grid search over the free choices (coil L_no-pan and the capacitor's
 reference resonance, 22–52 kHz) runs at 114 V, followed by detailed runs at 114 V and 127 V.
 
-## Results
+The selected full bridge has four **single** IPW65R018CFD7 switches. The
+model now uses 35 mΩ hot **per position** as a provisional 650 V CFD7-class
+loss proxy. The previous model mistakenly used 17.5 mΩ per full-bridge
+position (the two-parallel 600 V half-bridge comparison), understating bridge
+loss. The half-bridge comparison retains two parallel 600 V devices per
+position so both topologies use four switches. The selected-part hot
+resistance and switching loss still need datasheet and bench closure.
+
+## Comparative results
 
 | Design | Intended cookware at full power, 114 V / 127 V | Median efficiency | What fails |
 | --- | ---: | ---: | --- |
-| **Full bridge, ~45–90 µH plateau** (e.g. 70 µH, capacitor tuned to 32 kHz) | **100 % / 99.6 %** | 87.9 % | Rare capacitor-voltage limit |
-| Full bridge, best-ranked point 45 µH / 42 kHz | 100 % / 99.3 % | 88.5 % | — but its lowest continuous power at 60 kHz is 395 W (median) vs 148 W at 70 µH |
-| Full bridge, kit-like stock coil 87 µH, 35 kHz | 88 % / 83 % | 88.8 % | Capacitor voltage, on low-R clad pans |
-| Full bridge, stock coil 123 µH | 23 % / 15 % | 89.5 % | Capacitor voltage and impedance |
-| Half bridge, best grid point 36 µH / 22 kHz | 73 % / 65 % | 86.8 % | Peak current (clad) and phase margin (cast iron); runs at 22 kHz, next to the audible range |
-| Half bridge, earlier hand design 33 µH / 35 kHz (POWER-SECTION.md) | 69 % / 72 % | 88.1 % | Cast iron: impedance too high; clad: peak current |
+| **Selected full bridge, 70 µH / 0.54 µF** | **14.8 % / 4.3 %** | 88.7 % / 88.2 % | Predominantly current-limited. Voltage rating remains unqualified. At 114 V, conditional p95 cap crest is 401 V and estimated switching-ripple line-cycle RMS is 200 V. |
+| Full bridge, best sampled grid point 140 µH / 22 kHz | 82.0 % / 75.4 % | 86.6 % / 87.1 % | Comparative alternative only; this is not approval to change the coil or bank. |
+| Full bridge, kit-like stock coil 87 µH, 35 kHz | 54.8 % / 38.0 % | 88.8 % / 89.1 % | Current and comparative capacitor screen. |
+| Full bridge, stock coil 123 µH | 23.1 % / 15.3 % | 88.9 % / 89.4 % | Comparative capacitor screen and impedance. |
+| Half bridge, sampled grid and earlier 33 µH / 35 kHz design | 0 % / 0 % | — | No modeled full-power points under the same 45 A current screen; historical 85 A comparisons do not transfer. |
 | Half bridge, stock 87 µH | 0 % | — | Impedance far too high |
 
-No design put any pan outside the limits ("unsafe" 0 % everywhere).
-Failures show up as reduced power, not as over-stress.
+The old `unsafe_any_pan_pct = 0` field has been removed. A model that
+limits its own voltage by moving frequency cannot conclude zero over-stress,
+especially when its limit has no selected-part justification.
+
+### Selected-bank endpoint probes
+
+The source now enumerates 160 simultaneous endpoint combinations per input
+line: five assumed pan classes, coil inductance ±10%, class coupling and pan
+resistance endpoints, winding resistance endpoints, and capacitance ±10%.
+These are deliberately adversarial inputs, not probabilities or validated
+physical extremes.
+
+| Line RMS | Modeled full power / 160 | Max cap crest among full-power cases | Estimated max line-cycle RMS | Max modeled crest at 60 kHz, all 160 |
+| --- | ---: | ---: | ---: | ---: |
+| 108 V | 25 | 431 V | 216 V | 125 V |
+| 114 V | 20 | 416 V | 208 V | 132 V |
+| 127 V | 12 | 428 V | 214 V | 147 V |
+| 140 V | 5 | 423 V | 211 V | 162 V |
+
+The maxima at full-power points are conditional on the **arbitrary** 650 V
+screen. They do not bound startup, detuning, pan removal, a control fault,
+switching harmonics, or transient energy. The 60 kHz column is a controlled
+frequency probe, not a worst-case voltage claim.
 
 ### Findings
 
-1. **The half-bridge recommendation in POWER-SECTION.md is not robust.** A 120 V half bridge is
-   squeezed from both sides:
-   - high-resistance pans (cast iron) need more drive voltage than it has
-   - low-resistance pans (clad) need more current than the 85 A limit allows
-
-   No coil/capacitor choice escapes this; the best is about 73 %.
-2. **A full bridge removes the squeeze.** Twice the drive voltage lets the coil have four times the
-   impedance at half the current. Robust designs then form a broad
-   plateau (about 45–90 µH) instead of a knife-edge.
-   - Per LOSS-REFACTOR.md (B1 = A6), four single CFD7s in a full bridge lose the same as four paralleled
-     CFD7s in a half bridge. **Same switch count, same loss.**
-   - The extra cost is one more gate-drive channel (a second UCC21550 board).
-   - Tank, current-transformer and capacitor currents halve.
-3. **Within the full-bridge plateau, prefer the upper-middle (about 65–80 µH).** Lower inductance buys
-   about 0.5 % efficiency but raises the lowest continuous power (the burst
-   handoff) from about 150 W to about 400 W. Coarser bursts work against
-   room-temperature holding.
-4. **What drives failure is pan resistance and coupling, not coil tolerance.**
-   Coil L and coil resistance halves change the pass rate by a few points. Pan resistance and
-   coupling change it by 10–20 points, most of all for clad pans, which have **no
-   measured anchor**. Winding resistance mainly sets efficiency, not feasibility.
+1. **The former near-100% claim cannot justify the selected coil.** Its 85 A screen was incompatible with the later protection design. A reproduced 140 V carbon/steel case was accepted at 61.64 A, above even the 59.51 A high end of the CT's modeled DC trip range. A regression test now rejects that full-power claim.
+2. **Most assumed pans need reduced power under the current allocation.** This is a model/requirements mismatch, not a measured cooker failure. Do not raise the protection threshold to force the old ranking to pass. Measure coil/pan impedance and decide permitted power before changing the coil, capacitor bank, current transformer or protection.
+3. **The best grid point is a hypothesis, not a selected replacement.** The 140 µH/22 kHz result depends on inherited pan ratios, guessed clad data and unqualified capacitor/loss screens. Lower continuous-power behavior, acoustics, ZVS, thermal and transient stress still matter.
+4. **Reported efficiency and capacitor percentiles are conditional on modeled full power.** Most draws now fail that condition. Those statistics do not describe the excluded reduced-power points. `NaN` means no qualifying samples, not zero stress or loss.
 
 ## What to measure first (ranked by how much it moves the decision)
 
 1. **Your actual cookware on one coil:** R_pan and L_loaded for each pan, especially
-   tri-ply/clad, which has no anchor now. These pan ratios transfer to any coil
-   turn count.
+   tri-ply/clad, which has no anchor now. These ratios can inform a turn-count
+   hypothesis, but a changed winding, ferrite, diameter or gap needs its own
+   measurement; they do not qualify an arbitrary replacement coil.
 2. **Coil winding resistance with no pan:** sets efficiency (LOSS-REFACTOR.md), not feasibility.
-3. **Resonant capacitor AC rating at 30–50 kHz**, the binding limit in most
-   remaining full-bridge failures (the 650 V screen is itself an assumption).
+3. **Resonant capacitor AC rating at 30–50 kHz**, including 942C bank-element
+   sharing, ripple current, case temperature and transient duty. The 650 V
+   screen is an assumption and cannot be used to release the selected bank.
 
 ## RCA RC-12A3 teardown
 
@@ -125,9 +153,15 @@ new "measured" pan class) and rerun. The plateau either holds or moves.
 
 - First harmonic only, ignoring bus-capacitor filtering near zero crossings; turn-off losses and
   dead-time effects on phase are not modeled here.
-- The capacitor limit is a single 650 V peak screen for both topologies. The half
-  bridge includes the Vbus/2 DC bias on its split capacitors; the full-bridge
-  series capacitor carries pure AC.
+- The capacitor limit is an unqualified 650 V line-crest peak comparison. The
+  selected 942C 1200 Vdc parts are cataloged at 430 Vac **at 60 Hz**; the
+  catalog's 25 °C frequency curves do not directly qualify the exact 0.1 and
+  0.22 µF elements under this assembled bank's hot 30–50 kHz waveform. At a
+  650 V crest the carrier sine would have 459.6 V RMS at the line crest, while
+  the idealized full-line waveform has 325 V RMS. Neither value is a rating
+  margin without waveform, frequency and temperature data. The half bridge
+  includes bus/2 DC bias on its split capacitors; its reported RMS strips
+  this bias and is therefore an AC-component estimate only.
 - Pan classes are independent draws. Temperature dependence of pan
   resistivity and permeability (and Curie effects near 700 °C+, not reached in
   cooking) is ignored.

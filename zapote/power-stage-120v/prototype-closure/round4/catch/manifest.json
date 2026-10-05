@@ -1,0 +1,209 @@
+{
+  "status": "REVIEWABLE_ENGINEERING_DESIGN_NOT_RELEASED",
+  "inputs_and_outputs": [
+    {
+      "path": "output/temper-prototype-closure/round4/catch/bleed-front.svg",
+      "sha256": "f31168a5e2a9617514da34b96a626602e2d1a8d9257f9889c2ba5ad4326c9e5a",
+      "bytes": 34322
+    },
+    {
+      "path": "output/temper-prototype-closure/round4/catch/bleed-netlist.xml",
+      "sha256": "c0e5d409d16c166e62506f4adb0a891096e9e9594068802c07633bf9be522714",
+      "bytes": 15762
+    },
+    {
+      "path": "output/temper-prototype-closure/round4/catch/bleed-verification.json",
+      "sha256": "3c4c5afec9c2d45275de456eca3f2083866178a19e561d53ec0cc39206f9fbbd",
+      "bytes": 1053
+    },
+    {
+      "path": "output/temper-prototype-closure/round4/catch/carrier-checks.json",
+      "sha256": "35cd1d5e89c0f9c008e891843237efb42f41c997708eb6242495364ad6abbf85",
+      "bytes": 121854
+    },
+    {
+      "path": "output/temper-prototype-closure/round4/catch/catch-dimensioned-review.svg",
+      "sha256": "f008b444af2c321a1f91637b42c9274941cf4c567eb3df4803daee9dc8f4b172",
+      "bytes": 21318
+    },
+    {
+      "path": "output/temper-prototype-closure/round4/catch/drc-1.json",
+      "sha256": "11f94dc5a640a6f6961c4963a1871118fcdf58f12a31dad03e9b894a370a923c",
+      "bytes": 918
+    },
+    {
+      "path": "output/temper-prototype-closure/round4/catch/drc-2.json",
+      "sha256": "87efc8c6e2d058938334998049911470a02de3ccd8486d859b7a2faa6e44f6da",
+      "bytes": 918
+    },
+    {
+      "path": "output/temper-prototype-closure/round4/catch/drc-3.json",
+      "sha256": "26cb099a00c29d59211321ebefb0d6b737037cf96b360b30e7185b7af75076fb",
+      "bytes": 918
+    },
+    {
+      "path": "output/temper-prototype-closure/round4/catch/electrical-screen-tests.txt",
+      "sha256": "5358d66d21275b3413883593d154b735af348af7d44bc1d1f569305f1c7bf813",
+      "bytes": 407
+    },
+    {
+      "path": "output/temper-prototype-closure/round4/catch/electrical-screen.json",
+      "sha256": "eb55714ea58311665e7ff1e18cf26269dd4604d54e14c2830807cc3b4e9bce05",
+      "bytes": 702
+    },
+    {
+      "path": "output/temper-prototype-closure/round4/catch/erc.json",
+      "sha256": "0d5c5e8a1e7827a6deed3c40cd0bfb9926a852b4dcfaa4e4037293b5eac6a0d4",
+      "bytes": 984
+    },
+    {
+      "path": "output/temper-prototype-closure/round4/catch/internal-checks.json",
+      "sha256": "a3502e4d0fd77809a48bfc6af8f61d25f20ec2e56a2e4972d42025ad185fd87d",
+      "bytes": 8241
+    },
+    {
+      "path": "output/temper-prototype-closure/round4/catch/r4-catch-carrier-routed-design.step",
+      "sha256": "d5d39fd6f371de6f3ce679a3c9815fbcbf7604849f19e685ba676446d94026a8",
+      "bytes": 40206779
+    },
+    {
+      "path": "output/temper-prototype-closure/round4/catch/route-geometry.json",
+      "sha256": "ca2ffe8c19211270628400cf46b124257f8f7fe7a02ed101748b6580c650149f",
+      "bytes": 120517
+    },
+    {
+      "path": "output/temper-prototype-closure/round4/catch/route-lengths.csv",
+      "sha256": "1153eb95f34d32a34fcde07a14b881ca6326b4191452d9a87566059f1ee5872a",
+      "bytes": 96
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round4/catch/README.md",
+      "sha256": "3beb64328258f10311cde0f7d8a54ee28ed21dfbcaf09a1655c302056017a34b",
+      "bytes": 12293
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round4/catch/bom.csv",
+      "sha256": "638d350feddf5031e4a14574d4f3a855d3b4c4e911531b2d68ca2d3560d281d0",
+      "bytes": 1670
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round4/catch/build_bleed.py",
+      "sha256": "4b51cb56e8ef9b0e36b910f8ef8ebaeef98835adc1b38e11a38a07bbeed9b78e",
+      "bytes": 10370
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round4/catch/build_carrier.py",
+      "sha256": "0125894591942692e349c6cd71c349b6f4f395db182e34278163031e90b34206",
+      "bytes": 18184
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round4/catch/check_assembly.py",
+      "sha256": "2d6087c2ddf3cf7cf80063a57ed38ee157fc04b3c3e63549209d47e3617681d4",
+      "bytes": 3305
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round4/catch/connectivity.json",
+      "sha256": "66237e37f4fcd88d52d966a5eddd2f675d716741f0f2aabfc7cd53f0f4d59a68",
+      "bytes": 547
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round4/catch/draw_review.py",
+      "sha256": "bde6a9596ddb59e18dc68b879d6036940745aca959eb4fe93d1306ca4ce5f7e8",
+      "bytes": 4891
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round4/catch/electrical_screen.rs",
+      "sha256": "ffd1e63ed88ac5ca241af50023288688ff60a2e2400d9142a382cc7ff3a74895",
+      "bytes": 3765
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round4/catch/freeze_evidence.py",
+      "sha256": "04a329bdd438fe04b80bdd02123ab6b01d13db452b84b5290c2bbf60718e9002",
+      "bytes": 5973
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round4/catch/interface.json",
+      "sha256": "53814176778f1b0d8f4d309d058225cb88eb924a7c34accde0aa4744892a61d8",
+      "bytes": 3797
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round4/catch/native/Catch.pretty/VR37_P15.kicad_mod",
+      "sha256": "e417ca00783c62031cfbeb2e61f1da863ec8eea764fc2e48643cdf62c1616190",
+      "bytes": 841
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round4/catch/native/Catch.pretty/WirePad.kicad_mod",
+      "sha256": "86bb288dfdf255e4c4e8c7a6edcb6cb6850f0a08b8409969bd776ada88857f5d",
+      "bytes": 413
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round4/catch/native/catch-bleed.kicad_dru",
+      "sha256": "5f0f0ca4bcbfb856191c3f9d736f3b20f5d43d3102c7b1531241399f9c08fd18",
+      "bytes": 92
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round4/catch/native/catch-bleed.kicad_pcb",
+      "sha256": "24944374ba1ef8c22e47ee20345f5e21c7711e082d88380e4f3145f12145a2ba",
+      "bytes": 27757
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round4/catch/native/catch-bleed.kicad_prl",
+      "sha256": "c5e2fb2fb8719968336200c8750a1a842a28b93efc25a6fd98ab03d6a8ec50a3",
+      "bytes": 2298
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round4/catch/native/catch-bleed.kicad_pro",
+      "sha256": "000c2964981d87fdab2f34380f900f45d51f0bdb5f8ffbde75ff3faf4fa0b482",
+      "bytes": 420
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round4/catch/native/catch-bleed.kicad_sch",
+      "sha256": "832ba04770ef2f437d15d7195456c196b73a605bceef48cc4d43fceb9c1af16d",
+      "bytes": 17972
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round4/catch/native/catch.kicad_sym",
+      "sha256": "169b9cfc480f8758af938f2d038ba62f68e336ed065999165ae4b1cfe6dcb1d8",
+      "bytes": 7026
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round4/catch/native/fp-lib-table",
+      "sha256": "617dce894528b70dce279d42c480f07a3219e7f10f31c0d84f12cc9b2cff7b0b",
+      "bytes": 152
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round4/catch/native/sym-lib-table",
+      "sha256": "a7ee005533d8740eecf95d35e7ee979b7cd2fe8da1b5e00bfdd244cecc27a4ba",
+      "bytes": 142
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round4/catch/replay.sh",
+      "sha256": "66ee9f4cfc507ba2ba81f0bbf51c49795b25ad3bdda42ff0d5cd2f4fe4d32958",
+      "bytes": 1628
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round4/catch/verify_bleed.py",
+      "sha256": "bdab5312abdb831c497d0ba722f3beb3caeb8a7066d14b16ed93a5ecbed1e7d2",
+      "bytes": 3591
+    }
+  ],
+  "verified": {
+    "native_bleed_erc": 0,
+    "native_bleed_drc_samples": 3,
+    "native_bleed_drc_violations_each": 0,
+    "connectivity_negative_controls": 3,
+    "rust_tests": 4,
+    "step_valid_solids": 663,
+    "internal_unique_pair_tests": 5151,
+    "unclassified_internal_intersections": 0
+  },
+  "unreleased": [
+    "Actual US141 terminal positions/sideways mounting/hinge sweep",
+    "Lug-insulation tolerance and crimp tool/height",
+    "Native diode power copper / clamp / thermal joint",
+    "Native AMC3330 sensor board layout / mating harness",
+    "Laminate/PEEK/PTFE insulation and thermal material qualification",
+    "Full-loop field extraction including actual terminal and native-board closure",
+    "DC fuse arc/protection coordination and hardware hot-pulse / discharge / thermal tests"
+  ]
+}

@@ -1,0 +1,37 @@
+{
+ "label": "two-port",
+ "mesh": "output/temper-prototype-closure/round4/fields/two-port.msh",
+ "exit_code": 0,
+ "mesh_sha256": "2de52d4eda6168a19c9b4f0db32bdf27648195d28d8d12161d7cedca570f9d96",
+ "sif_sha256": "4fa442136a72e7a795b8012c0e4b26ab166d3b43a6832cf2c4713beacb421d93",
+ "elmer_solver_sha256": "b60ae75db18b3c1102ee4f2155dcff7f26310ede453697215360f08a4b50b7ed",
+ "maxit": 5000,
+ "all_done": true,
+ "energy_J": 1.570796e-09,
+ "inductance_nH": 3.1415919999999997,
+ "peak_memory_GB": 0.005227264,
+ "max_rss_GB": 0.031342592,
+ "wall_s": 1.49,
+ "np": 4,
+ "solver": "iterative Hypre GMRES(100) + AMS",
+ "tol": 1e-10,
+ "solver_lines": [
+  "HYPRE GmRes Dimension = Integer 200"
+ ],
+ "tree_gauge": false,
+ "last_iteration": 26,
+ "last_residual": 2.44649e-11,
+ "converged": true,
+ "k_A_per_m": [
+  0.0,
+  0.0,
+  100.0
+ ],
+ "pec": [
+  2
+ ],
+ "port": 4,
+ "port2": null,
+ "k2_A_per_m": null,
+ "scale_m": 0.001
+}

@@ -1,0 +1,73 @@
+{
+  "board_sha256": "3557aa444873fa8b45eb7e0ae8ec3a4bc2b5cd526826b338b58d50e57747430b",
+  "method": "KiCad effective pad shape; conservative track bounding box; whole saved filled copper polygon vs rectangle; both outer layers. Zero added clearance.",
+  "windows": [
+    {
+      "name": "L20",
+      "rectangle_mm": [
+        0,
+        17,
+        3,
+        6
+      ],
+      "copper_hits": [],
+      "nominal_outer_copper_clear": true
+    },
+    {
+      "name": "L140",
+      "rectangle_mm": [
+        0,
+        137,
+        3,
+        6
+      ],
+      "copper_hits": [],
+      "nominal_outer_copper_clear": true
+    },
+    {
+      "name": "R20",
+      "rectangle_mm": [
+        237,
+        17,
+        3,
+        6
+      ],
+      "copper_hits": [],
+      "nominal_outer_copper_clear": true
+    },
+    {
+      "name": "R80",
+      "rectangle_mm": [
+        237,
+        77,
+        3,
+        6
+      ],
+      "copper_hits": [],
+      "nominal_outer_copper_clear": true
+    },
+    {
+      "name": "front_stop",
+      "rectangle_mm": [
+        0,
+        0,
+        3,
+        1
+      ],
+      "copper_hits": [],
+      "nominal_outer_copper_clear": true
+    },
+    {
+      "name": "rear_stop",
+      "rectangle_mm": [
+        0,
+        159,
+        3,
+        1
+      ],
+      "copper_hits": [],
+      "nominal_outer_copper_clear": true
+    }
+  ],
+  "limitation": "Contact geometry only. Does not qualify insulation, creepage, tolerances, loading or energized operation."
+}

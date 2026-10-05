@@ -1,0 +1,18 @@
+reference,quantity,manufacturer,mpn_or_definition,status
+RP1 RP2,2,Ohmite ARCOL,HS400 25R J,Selected digital candidate12.5ohm parallel cold singleattempt only
+TF1 TF2,2,Sensience MICROTEMP,G4A01128C,Selected secondary candidate; coupling overshoot and pulse qualification required
+Hot plate,1,Custom aluminium,Existing340x210x6 with8drawing-derived5.4mmholes,RevisedSTEP; flatness TIM torque and PE details unreleased
+DC1,1,Infineon,IDW40G65C5,Retained; actual thermal joint and pulse survival unresolved
+FC1,1,Eaton Bussmann,FWP-10A14F,700VDC50kA device rating; application DCcoordination unresolved
+FC1 holder,1,Mersen,US141 Z331153,Retained; exact terminal torque and rotatedservice unresolved
+CC1,1,TDK,B32778H8476K000,Retained47uF700V; installed pulse/fault containment notqualified
+Power lug,Asrequired,TE Connectivity,32994 SOLISTRAND M4,Replaces160163-2; uninsulated separate guardedrestraint required
+Crimp tool,1process,TE Connectivity,49935 position3,Family-supported12-10AWG; exact instruction setup and process test required
+Power wire,3routes,Alpha Wire,3080 12AWG,Updatedanoderoute; complete harness cut/strip/crimp drawing outstanding
+Anode copper,1,Custom C110 tinned,1mm with2mmlead hole4.3mmM4landing,STEPcopper geometry; plating/solder/clearanceunreleased
+Cathode copper,1,Custom C110 tinned,Onepiece machinedsteppedlink,Replacesoverlappingformedlink; process andgapruleunreleased
+Power carrier,1,Custom insulatinglaminate,32x17x1.6mm unplated,Material anddielectricqualificationopen
+Catch sensor,1,Round5boards owner,AMC3330 native60x35mm,Boardownercontrols release; currentassemblyretainsenvelope
+Sensor header,1,JST,B6B-XH-A,SELVonly; boardownerfootprint
+Sensor housing,1,JST,XHP-6,Pincontractunchanged
+Sensor contacts,6,JST,SXH-001T-P0.6,Wire/crimpsetupownedbyharnessintegration

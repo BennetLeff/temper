@@ -65,6 +65,9 @@ static uint32_t duty_to_compare(uint32_t period_ticks, float duty_percent)
 
 static hal_status_t esp32_pwm_init(hal_pwm_channel_t channel, const hal_pwm_config_t *config)
 {
+    /* The legacy half-bridge cannot drive native19. Gate requests belong to
+     * the synchronized four-output power service; fan operation stays here. */
+    if (channel == HAL_PWM_CHANNEL_GATE) return HAL_ERROR_NOT_READY;
     if (channel < 0 || channel >= MAX_PWM_CHANNELS || !config) {
         return HAL_ERROR_INVALID_ARG;
     }
