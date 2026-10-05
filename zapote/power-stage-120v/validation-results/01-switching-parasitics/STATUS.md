@@ -82,6 +82,7 @@ Known limits, each tracked in [FINDINGS.md](FINDINGS.md):
 | D-17 protection gate-off (task 02 on the FEM matrix) | delegated | brief written |
 | D-18 loss/thermal | delegated | **done, merged** (#1641): sink ≤ 0.15 °C/W, ≥ 20 CFM, interface ≤ 1.0 °C/W, coil→mains airflow; decided 2026-10-03 (DECISIONS.md) |
 | D-19 conducted EMI | delegated | **merged, partial** (#1644): conditional −24.2 dB AV at 210 kHz; most periodic cases aborted. Follow-up D-22 (filter sizing) brief written |
+| D-22 EMI inlet filter | delegated | **done, merged** (#1645): all 16 cases converge; a 20 A DM+CM inlet module (110 × 80 × 50 mm, 8 W) gives ≥ 8.3 dB modelled margin; reserved in the enclosure (DECISIONS.md 2026-10-05) |
 | D-20 controller requirements | delegated | **done, merged** (#1642): 54 requirements; O05/O06/O07/O13 decided 2026-10-03 (200 ns controller gap) |
 | D-21 firmware dead-time fix | delegated | **draft** (#1643): reviewed; blocking item: verify the forced safe state drives both gates low on target |
 | D-7 capacitor ESL | delegated | **done, merged** (#1634): C38–C41 1.06 nH, C5/C6 19.2 nH typical-model values; grid now sweeps 1.06–20 nH |
