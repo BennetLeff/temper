@@ -1,0 +1,27 @@
+{
+  "date": "2026-10-05",
+  "model": "GPT-6",
+  "base_commit": "c09244caa7588bb72d786a8b1b884390003a5caf",
+  "branch": "codex/ps-r17-d25-safe-state",
+  "base_assertion": "scripts/assert-base.sh c09244caa7588bb72d786a8b1b884390003a5caf -> exit 0",
+  "initial_git_status": "clean",
+  "d21_commit": "9cddf149a1500896a7cf8fbca78ee2cc901f04ba",
+  "esp_idf_tag": "v5.3",
+  "esp_idf_commit": "e0991facf5ecb362af6aac1fae972139eb38d2e4",
+  "trm_version": "1.8",
+  "qemu_commit": "febae182e132e4055529be423a818225ebddaa3a",
+  "qemu_docs_commit": "cdee381dce7b88b5207ec48c72984ca31d495dd3",
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "python": "3.14.7",
+  "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)\nTarget: arm64-apple-darwin25.6.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin",
+  "hardware_test": "NOT RUN",
+  "emulation": "NOT RUN: no adequate MCPWM/GPIO matrix model",
+  "firmware_patch": "WITHHELD: stop/report on SDK-vs-D21-stub cleanup contradiction",
+  "source_manifest": "sources.json",
+  "outputs": [
+    "register_check.txt",
+    "cleanup_probe.txt",
+    "qemu-capability.txt"
+  ],
+  "first_probe_attempt": "INDETERMINATE SIGABRT; retained in attempts/; evidence-only bit transcription corrected before second attempt"
+}
