@@ -1,0 +1,16 @@
+
+running 11 tests
+test tests::ambient_loss_defeats_unlimited_length_benefit ... ok
+test tests::common_stubs_reduce_parallel_thermal_conductance ... ok
+test tests::constantan_low_heat_is_not_low_resistance ... ok
+test tests::current_square_scales_heat ... ok
+test tests::extra_plate_requires_two_bonds ... ok
+test tests::fin_zero_h_recovers_conduction ... ok
+test tests::four_wire_thermal_paths_are_counted ... ok
+test tests::rtd_reference_at100 ... ok
+test tests::steady_no_loss_returns_pan ... ok
+test tests::wire_r_doubles_with_length ... ok
+test tests::time_refinement ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

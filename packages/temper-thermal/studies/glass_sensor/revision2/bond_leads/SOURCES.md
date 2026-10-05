@@ -1,0 +1,19 @@
+# Primary input ledger — checked 2026-10-04
+
+These are source facts, not purchased-lot or process verification. No stock/price guarantee or supplier contact is claimed. Numerical properties outside supplier conditions remain sensitivity inputs.
+
+| ID | Primary source | Facts used / limitation |
+|---|---|---|
+| S01 | [YAGEO M222](https://yageogroup.com/content/datasheet/asset/file/YAGEO_Nexensos_M222_Datasheet_EN) | 32208550; nominal2.3×2.1×0.9mm, max2.5×2.3×1.2; Pt-cladNiØ0.2±0.02×10±1mm; ClassA−50..300°C;0.3–1mA; calibration contact8mm frombody. |
+| S02 | [IST individual 154366 sheet](https://www.ist-ag.com/sites/default/files/downloads/P0K1.161.6W.A.010_154366.pdf) | HeaderA, order rowB conflict recorded; substrate1.6×1.2×0.25,totalheight0.6; L/W±0.2,H±0.1,H2±0.3;Ni/Pt leadsØ0.2×10mm. |
+| S03 | [IST600°Cseries](https://www.ist-ag.com/sites/default/files/downloads/DTP600_E.pdf) and [IST applicationnote](https://www.ist-ag.com/sites/default/files/downloads/ATP_E.pdf) | Series maps154366=A,154367=B; general classA−30..300°C; meander is glass-covered on ceramic, fixdrop separate; contact reference5mm fromwireend. Casting chemistry and mechanical stress require application testing. |
+| S04 | [Cotronics property table](https://www.cotronics.com/vo/cotr/pdf/900x.pdf) | Resbond908 k15BTU·in/(h·ft²·°F)=2.163418635W/mK;CTE4.5ppm/°F=8.1ppm/K. Film thickness, conductivity vsT, porosity and thermal fatigue unspecified. |
+| S05 | [Cotronics catalog](https://www.cotronics.com/vo/cotr/pdf/A_2020_Catalog-NP.pdf) | Resbond908-1 kit identifier; existingPR1 selection retained. Follow supplied batch instructions; this package does not invent cure acceptance. |
+| S06 | [Omega fine-wire sheet](https://assets.dwyeromega.com/spec/OE_DS-TFIR-CH-CI-CC-CY-AL.pdf) | TFCP003 copperØ0.08 andTFCC005 constantanØ0.13;0.076mmPFAwall;standard spool suffix100ft. TFCY is CHROMEGA, **not copper**. |
+| S07 | [Omega copper sensorwire](https://mx.omega.com/pptst_eng/PX_WIRE.html) | TFCP00310040AWG;PFA range to260°C. That is a wirematerial rating, not joined-cartridge lifetime. |
+| S08 | [Goodfellow nickel](https://www.goodfellow.com/usa/nickel-spooled-wire-group), [copper](https://www.goodfellow.com/uk/copper-spooled-wire-group), [constantan](https://www.goodfellow.com/uk/constantan-spooled-wire-group) | Ni99.98%Ø0.1SKU1000047402. Room/moderate-temperature proxy(k,rho):Ni90.9W/mK,6.9e−8Ωm;Cu401,1.69e−8;constantan19.5,4.9e−7. Purematerial values approximate plated/thermocouplegrade conductors, not verified hotcurve. |
+| S09 | [CoorsTek material table](https://www2.coorstek.com/media/4202/flat-panel-display.pdf) | AD96 k24.7W/mK at20°C,CTE8.2ppm/K over25–1000°C. Plate drawing is customRFQ; using thisgrade doesnot qualify assembleddielectric. |
+| S10 | [CeramTec substrates](https://www.ceramtec-industrial.com/en/products-applications/substrates) | AlunitAlN family provides substrate alternative; model170W/mK,4.7ppm/K,2.4MJ/m³K remain explicit representative sensitivity assumptions pending exactgrade and hotdata. |
+| S11 | [Aremco ceramic adhesives](https://www.aremco.com/wp-content/uploads/2025/08/A0-Catalog-25F.pdf) | Ceramabond865 AlN-filledsensorbond and571 MgO sensorbond are supplier alternatives. No hotthin-film k/dielectric/process was verified, so neither replaces908 in numerical baseline. |
+
+316L k15W/mK,Cv4MJ/m³K,CTE16ppm/K are inheritedPR1 nominal proxies attributed to Outokumpu's [Supra range](https://www.outokumpu.com/-/media/files/products/supra/outokumpu-supra-range-datasheet.pdf); revisedcap drawing is owned by the mechanical workstream. Cv for chips/bond, PFAk0.25, h5–15 and Ni resistivityTfactor1+0.006(T−20) are **assumptions**, not newly verified vendor curves. The sharedstub table explicitly marks the Ni factor as assumed. No measured uncertainty bounds are claimed.
