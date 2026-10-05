@@ -1,0 +1,19 @@
+
+running 10 tests
+test tests::calibrated_budget_has_two_positive_margins ... ok
+test tests::fresh_frozen_sensor_is_not_magically_diagnosed ... ok
+test tests::guide_jam_unloads_the_local_island ... ok
+test tests::insulating_debris_is_not_thermal_contact ... ok
+test tests::island_jam_remains_a_false_positive ... ok
+test tests::overload_must_not_report_normal_contact ... ok
+test tests::preload_and_local_compliance_are_coupled ... ok
+test tests::small_motion_occurs_before_main_stop_releases ... ok
+test tests::stale_and_blocked_are_unavailable ... ok
+test tests::unqualified_budget_cannot_separate ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+3600 fault cases; 605 interval-budget cases; 36 series-force cases; 45 release-dynamics cases.
+Also 972 bounded fault cases and 40 heat-pulse identifiability cases.
+Results are hypothesis sweeps.
+ Seizure/contamination false positives intentionally remain.

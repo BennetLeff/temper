@@ -1,0 +1,22 @@
+mechanical-geometry.snapshot.json: OK
+
+running 16 tests
+test tests::developed_strip_preserves_cad_hook_volume ... ok
+test tests::ceramic_does_not_hide_retainer_loss ... ok
+test tests::diameter_reduction_respects_fourth_power ... ok
+test tests::field_quadratic ... ok
+test tests::independent_beam_field_enters_quadratically ... ok
+test tests::head_and_skirt_reproduce_prior_formula ... ok
+test tests::full_volume_is_not_roof_only ... ok
+test tests::full_cad_hook_volume_is_included ... ok
+test tests::invalid_geometry_rejected ... ok
+test tests::larger_retainer_radius_increases_loss ... ok
+test tests::nonfinite_geometry_rejected ... ok
+test tests::removed_skirt_does_not_remove_disk_loss ... ok
+test tests::small_parameter_screen_detects_full_skirt ... ok
+test tests::strip_width_scaling_is_cubic ... ok
+test tests::unit_conversion_resistivity_cm_to_m ... ok
+test tests::zero_field_zero_power ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

@@ -1,0 +1,13 @@
+HTML local links: 19 valid; whole-page browser rendering NOT_RUN (file preview policy)
+SVG XML: 3 parsed
+Thermal CSV schemas and row counts: 1191 rows valid
+CAD recorded states: 5 valid, round-trip valid, 29 parts, no rigid intersections
+Induction snapshot keys: ['revision', 'status', 'cap', 'support']
+Induction cap volume matches final mechanical geometry
+Full-page layout not inspected; scientific chart directly inspected with image tool
+thermal: 8 CSV files byte-for-byte identical on replay
+contact: 7 CSV files byte-for-byte identical on replay
+bond_leads: 5 CSV files byte-for-byte identical on replay
+induction: 5 CSV files byte-for-byte identical on replay
+Replayed CAD geometry JSON equals delivered geometry JSON exactly
+Historical PR1 manifest: 146 full hashes unchanged
