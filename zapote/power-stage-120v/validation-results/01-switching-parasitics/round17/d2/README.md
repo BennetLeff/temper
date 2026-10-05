@@ -303,3 +303,23 @@ rerun with D-14's `.options itl4=100000` it converges at 1.569 V (passes,
 ZVS), and the same option reproduces the best-matrix result for that case to
 every printed digit (1.588991 V, 335.2273 V) — further evidence that the
 option does not change physics.
+
+## Native-19 carry-over, leg A (`results/native19-carryover/`)
+
+Native-19 (other session, integrated in #1647) reworked R5 (WSK2512 T2.21 mm
+footprint, larger current pads, Kelvin pad R5.2 on `ocp_kelvin_p`) and the
+In1 return plane around it, and rerouted U8: both legs' FEM regions changed
+(`leg_region_diff.py`). Leg A re-extracted on native-19 copper at the coarse
+reference (h = 1 mm, 1.0 mm edges, 10 mm crop; closures identical except the
+R5 bridge on the new pad centres, `closures-legA-n19.json`; export by
+`04-…/reextract-b3/extract_geometry.py`, which reproduces the committed
+native-17 export exactly): `../results/matrices/legA-h1-e1p0-m10-n19.matrix.txt`.
+Change vs native-17 at the same reference: power loops −1.08 / −1.19 %,
+M12 −1.80 %, power-to-gate mutuals −0.10 … +0.68 %, gate loops ≤ 0.16 %.
+
+`legA-h0-best-n19.matrix.txt` = best + that per-entry change (SPD, min eig
+8.89 nH). Native-18/19 decision cases (S1/S2/S4 at 391 / 443 / 498 ns, 443 ns
+nominal, ESL 1.06 and 10 nH, 96 cases) against `grid-best-longdt`: **no verdict
+changes, no aborts**; off-gate −0.016 … +0.025 V, die VDS −3.3 … +1.2 V; S1/S2
+off-gate ≤ 1.742 V (1.9 V hot screen), ZVS 12/12 at 443 ns. Round 17's leg-A
+conclusions carry to native-19. Leg B: native-17 vs native-19 pair running.

@@ -5,7 +5,7 @@ results land. The round folders are the lab notebook behind it
 ([ROUNDS.md](ROUNDS.md)); open findings and risks are in
 [FINDINGS.md](FINDINGS.md). Last updated 2026-10-03.
 
-Board: `native-17/section.kicad_pcb`. Leg A (Q2 high / Q3 low, driver U1)
+Board: extraction on `native-17` copper; **native-18** (R9/R17 value only, identical copper) and **native-19** (R5 rework; leg A re-checked, no verdict change, FINDINGS M10) are covered. Leg A (Q2 high / Q3 low, driver U1)
 is extracted and simulated; leg B is queued. Evidence class: simulation and
 model-based throughout. **No physical qualification is claimed.**
 
