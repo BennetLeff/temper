@@ -1,0 +1,920 @@
+{
+ "old": "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/native-18/section.kicad_pcb",
+ "new": "zapote/power-stage-120v/native-19/section.kicad_pcb",
+ "margin_mm": 20.0,
+ "stackup_changed": false,
+ "fet_flags": [],
+ "legs": {
+  "A": {
+   "region_mm": [
+    105.865,
+    -15.785,
+    184.6,
+    61.125
+   ],
+   "verdict": "CHANGED",
+   "differences": {
+    "footprints": {
+     "only_old": 5,
+     "only_new": 5,
+     "examples_old": [
+      {
+       "lib": "Resistor_SMD:R_Shunt_Vishay_WSK2512_6332Metric_T1.19mm",
+       "models": [
+        [
+         "${KIPRJMOD}/../models3d/linked-parts/WSK2512R0010FEA-envelope.step",
+         [
+          0.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          0.0
+         ]
+        ]
+       ],
+       "ref": "R5",
+       "rot": 270.0,
+       "side": "F.Cu",
+       "x": 126.5,
+       "y": 12.6
+      },
+      {
+       "lib": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+       "models": [
+        [
+         "${KIPRJMOD}/../models3d/capacitors/TDK_B32652A0104K000.step",
+         [
+          0.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          0.0
+         ]
+        ]
+       ],
+       "ref": "C38",
+       "rot": 180.0,
+       "side": "F.Cu",
+       "x": 144.0,
+       "y": 22.0
+      },
+      {
+       "lib": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+       "models": [
+        [
+         "${KIPRJMOD}/../models3d/capacitors/TDK_B32652A0104K000.step",
+         [
+          0.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          0.0
+         ]
+        ]
+       ],
+       "ref": "C39",
+       "rot": 180.0,
+       "side": "F.Cu",
+       "x": 164.6,
+       "y": 22.0
+      }
+     ],
+     "examples_new": [
+      {
+       "lib": "Resistor_SMD:R_Shunt_Vishay_WSK2512_6332Metric_T2.21mm",
+       "models": [
+        [
+         "${KIPRJMOD}/models3d/linked-parts/WSK25121L000FEA-envelope.step",
+         [
+          0.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          0.0
+         ]
+        ]
+       ],
+       "ref": "R5",
+       "rot": 270.0,
+       "side": "F.Cu",
+       "x": 126.5,
+       "y": 12.6
+      },
+      {
+       "lib": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+       "models": [
+        [
+         "${KIPRJMOD}/models3d/capacitors/TDK_B32652A0104K000.step",
+         [
+          0.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          0.0
+         ]
+        ]
+       ],
+       "ref": "C38",
+       "rot": 180.0,
+       "side": "F.Cu",
+       "x": 144.0,
+       "y": 22.0
+      },
+      {
+       "lib": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+       "models": [
+        [
+         "${KIPRJMOD}/models3d/capacitors/TDK_B32652A0104K000.step",
+         [
+          0.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          0.0
+         ]
+        ]
+       ],
+       "ref": "C39",
+       "rot": 180.0,
+       "side": "F.Cu",
+       "x": 164.6,
+       "y": 22.0
+      }
+     ]
+    },
+    "pads": {
+     "only_old": 3,
+     "only_new": 3,
+     "examples_old": [
+      {
+       "drill": [],
+       "layers": [
+        "F.Cu",
+        "F.Mask",
+        "F.Paste"
+       ],
+       "net": "hv_ret",
+       "pad": "4",
+       "ref": "R5",
+       "rot": 270.0,
+       "shape": "roundrect",
+       "size": [
+        2.29,
+        2.03
+       ],
+       "type": "smd",
+       "x": 125.865,
+       "y": 15.585
+      },
+      {
+       "drill": [],
+       "layers": [
+        "F.Cu",
+        "F.Mask",
+        "F.Paste"
+       ],
+       "net": "leg_ret",
+       "pad": "1",
+       "ref": "R5",
+       "rot": 270.0,
+       "shape": "roundrect",
+       "size": [
+        2.29,
+        2.03
+       ],
+       "type": "smd",
+       "x": 127.135,
+       "y": 9.615
+      },
+      {
+       "drill": [],
+       "layers": [
+        "F.Cu",
+        "F.Mask",
+        "F.Paste"
+       ],
+       "net": "leg_ret",
+       "pad": "2",
+       "ref": "R5",
+       "rot": 270.0,
+       "shape": "roundrect",
+       "size": [
+        1.4,
+        0.76
+       ],
+       "type": "smd",
+       "x": 125.23,
+       "y": 9.17
+      }
+     ],
+     "examples_new": [
+      {
+       "drill": [],
+       "layers": [
+        "F.Cu",
+        "F.Mask",
+        "F.Paste"
+       ],
+       "net": "hv_ret",
+       "pad": "4",
+       "ref": "R5",
+       "rot": 270.0,
+       "shape": "roundrect",
+       "size": [
+        3.3,
+        2.03
+       ],
+       "type": "smd",
+       "x": 125.865,
+       "y": 15.08
+      },
+      {
+       "drill": [],
+       "layers": [
+        "F.Cu",
+        "F.Mask",
+        "F.Paste"
+       ],
+       "net": "leg_ret",
+       "pad": "1",
+       "ref": "R5",
+       "rot": 270.0,
+       "shape": "roundrect",
+       "size": [
+        3.3,
+        2.03
+       ],
+       "type": "smd",
+       "x": 127.135,
+       "y": 10.12
+      },
+      {
+       "drill": [],
+       "layers": [
+        "F.Cu",
+        "F.Mask",
+        "F.Paste"
+       ],
+       "net": "ocp_kelvin_p",
+       "pad": "2",
+       "ref": "R5",
+       "rot": 270.0,
+       "shape": "roundrect",
+       "size": [
+        1.4,
+        0.76
+       ],
+       "type": "smd",
+       "x": 125.23,
+       "y": 9.17
+      }
+     ]
+    },
+    "tracks": {
+     "only_old": 6,
+     "only_new": 8,
+     "examples_old": [
+      {
+       "end": [
+        113.5,
+        16.8
+       ],
+       "kind": "segment",
+       "layer": "In1.Cu",
+       "mid": null,
+       "net": "leg_ret",
+       "start": [
+        113.5,
+        20.5
+       ],
+       "width": 0.3
+      },
+      {
+       "end": [
+        113.5,
+        20.5
+       ],
+       "kind": "segment",
+       "layer": "In1.Cu",
+       "mid": null,
+       "net": "leg_ret",
+       "start": [
+        119.6,
+        20.5
+       ],
+       "width": 0.3
+      },
+      {
+       "end": [
+        119.6,
+        15.0
+       ],
+       "kind": "segment",
+       "layer": "F.Cu",
+       "mid": null,
+       "net": "leg_ret",
+       "start": [
+        121.5,
+        12.4
+       ],
+       "width": 0.3
+      }
+     ],
+     "examples_new": [
+      {
+       "end": [
+        107.6,
+        10.2
+       ],
+       "kind": "segment",
+       "layer": "In1.Cu",
+       "mid": null,
+       "net": "leg_ret",
+       "start": [
+        107.6,
+        15.0
+       ],
+       "width": 0.25
+      },
+      {
+       "end": [
+        107.6,
+        15.0
+       ],
+       "kind": "segment",
+       "layer": "In1.Cu",
+       "mid": null,
+       "net": "leg_ret",
+       "start": [
+        66.5,
+        15.0
+       ],
+       "width": 0.25
+      },
+      {
+       "end": [
+        113.5,
+        16.8
+       ],
+       "kind": "segment",
+       "layer": "In1.Cu",
+       "mid": null,
+       "net": "ocp_kelvin_p",
+       "start": [
+        113.5,
+        20.5
+       ],
+       "width": 0.3
+      }
+     ]
+    },
+    "vias": {
+     "only_old": 1,
+     "only_new": 1,
+     "examples_old": [
+      {
+       "at": [
+        119.6,
+        20.5
+       ],
+       "drill": 0.3,
+       "layers": [
+        "B.Cu",
+        "F.Cu"
+       ],
+       "net": "leg_ret",
+       "size": 0.85
+      }
+     ],
+     "examples_new": [
+      {
+       "at": [
+        119.6,
+        20.5
+       ],
+       "drill": 0.3,
+       "layers": [
+        "B.Cu",
+        "F.Cu"
+       ],
+       "net": "ocp_kelvin_p",
+       "size": 0.85
+      }
+     ]
+    },
+    "zone_fills": [
+     {
+      "net": "",
+      "layer": "In1.Cu",
+      "changed_area_mm2": 32.097
+     }
+    ]
+   }
+  },
+  "B": {
+   "region_mm": [
+    68.4,
+    -15.785,
+    147.135,
+    61.125
+   ],
+   "verdict": "CHANGED",
+   "differences": {
+    "footprints": {
+     "only_old": 5,
+     "only_new": 5,
+     "examples_old": [
+      {
+       "lib": "Package_TO_SOT_SMD:SOT-23-5",
+       "models": [
+        [
+         "${KICAD10_3DMODEL_DIR}/Package_TO_SOT_SMD.3dshapes/SOT-23-5.step",
+         [
+          0.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          0.0
+         ]
+        ]
+       ],
+       "ref": "U8",
+       "rot": 0.0,
+       "side": "F.Cu",
+       "x": 74.8,
+       "y": 38.8
+      },
+      {
+       "lib": "Resistor_SMD:R_Shunt_Vishay_WSK2512_6332Metric_T1.19mm",
+       "models": [
+        [
+         "${KIPRJMOD}/../models3d/linked-parts/WSK2512R0010FEA-envelope.step",
+         [
+          0.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          0.0
+         ]
+        ]
+       ],
+       "ref": "R5",
+       "rot": 270.0,
+       "side": "F.Cu",
+       "x": 126.5,
+       "y": 12.6
+      },
+      {
+       "lib": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+       "models": [
+        [
+         "${KIPRJMOD}/../models3d/capacitors/TDK_B32652A0104K000.step",
+         [
+          0.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          0.0
+         ]
+        ]
+       ],
+       "ref": "C38",
+       "rot": 180.0,
+       "side": "F.Cu",
+       "x": 144.0,
+       "y": 22.0
+      }
+     ],
+     "examples_new": [
+      {
+       "lib": "Package_TO_SOT_SMD:SOT-23-6",
+       "models": [
+        [
+         "${KICAD10_3DMODEL_DIR}/Package_TO_SOT_SMD.3dshapes/SOT-23-6.step",
+         [
+          0.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          0.0
+         ]
+        ]
+       ],
+       "ref": "U8",
+       "rot": 0.0,
+       "side": "F.Cu",
+       "x": 74.8,
+       "y": 38.8
+      },
+      {
+       "lib": "Resistor_SMD:R_Shunt_Vishay_WSK2512_6332Metric_T2.21mm",
+       "models": [
+        [
+         "${KIPRJMOD}/models3d/linked-parts/WSK25121L000FEA-envelope.step",
+         [
+          0.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          0.0
+         ]
+        ]
+       ],
+       "ref": "R5",
+       "rot": 270.0,
+       "side": "F.Cu",
+       "x": 126.5,
+       "y": 12.6
+      },
+      {
+       "lib": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+       "models": [
+        [
+         "${KIPRJMOD}/models3d/capacitors/TDK_B32652A0104K000.step",
+         [
+          0.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          0.0
+         ]
+        ]
+       ],
+       "ref": "C38",
+       "rot": 180.0,
+       "side": "F.Cu",
+       "x": 144.0,
+       "y": 22.0
+      }
+     ]
+    },
+    "pads": {
+     "only_old": 17,
+     "only_new": 18,
+     "examples_old": [
+      {
+       "drill": [],
+       "layers": [
+        "F.Cu",
+        "F.Mask",
+        "F.Paste"
+       ],
+       "net": "hot5",
+       "pad": "5",
+       "ref": "U8",
+       "rot": 0.0,
+       "shape": "roundrect",
+       "size": [
+        1.325,
+        0.6
+       ],
+       "type": "smd",
+       "x": 75.938,
+       "y": 37.85
+      },
+      {
+       "drill": [],
+       "layers": [
+        "F.Cu",
+        "F.Mask",
+        "F.Paste"
+       ],
+       "net": "hv_ret",
+       "pad": "4",
+       "ref": "R5",
+       "rot": 270.0,
+       "shape": "roundrect",
+       "size": [
+        2.29,
+        2.03
+       ],
+       "type": "smd",
+       "x": 125.865,
+       "y": 15.585
+      },
+      {
+       "drill": [],
+       "layers": [
+        "F.Cu",
+        "F.Mask",
+        "F.Paste"
+       ],
+       "net": "leg_ret",
+       "pad": "1",
+       "ref": "R5",
+       "rot": 270.0,
+       "shape": "roundrect",
+       "size": [
+        2.29,
+        2.03
+       ],
+       "type": "smd",
+       "x": 127.135,
+       "y": 9.615
+      }
+     ],
+     "examples_new": [
+      {
+       "drill": [],
+       "layers": [
+        "F.Cu",
+        "F.Mask",
+        "F.Paste"
+       ],
+       "net": "hot5",
+       "pad": "5",
+       "ref": "U8",
+       "rot": 0.0,
+       "shape": "roundrect",
+       "size": [
+        1.325,
+        0.6
+       ],
+       "type": "smd",
+       "x": 75.938,
+       "y": 38.8
+      },
+      {
+       "drill": [],
+       "layers": [
+        "F.Cu",
+        "F.Mask",
+        "F.Paste"
+       ],
+       "net": "hot5_ok_hot",
+       "pad": "6",
+       "ref": "U8",
+       "rot": 0.0,
+       "shape": "roundrect",
+       "size": [
+        1.325,
+        0.6
+       ],
+       "type": "smd",
+       "x": 75.938,
+       "y": 37.85
+      },
+      {
+       "drill": [],
+       "layers": [
+        "F.Cu",
+        "F.Mask",
+        "F.Paste"
+       ],
+       "net": "hv_ret",
+       "pad": "4",
+       "ref": "R5",
+       "rot": 270.0,
+       "shape": "roundrect",
+       "size": [
+        3.3,
+        2.03
+       ],
+       "type": "smd",
+       "x": 125.865,
+       "y": 15.08
+      }
+     ]
+    },
+    "tracks": {
+     "only_old": 43,
+     "only_new": 56,
+     "examples_old": [
+      {
+       "end": [
+        113.5,
+        16.8
+       ],
+       "kind": "segment",
+       "layer": "In1.Cu",
+       "mid": null,
+       "net": "leg_ret",
+       "start": [
+        113.5,
+        20.5
+       ],
+       "width": 0.3
+      },
+      {
+       "end": [
+        113.5,
+        20.5
+       ],
+       "kind": "segment",
+       "layer": "In1.Cu",
+       "mid": null,
+       "net": "leg_ret",
+       "start": [
+        119.6,
+        20.5
+       ],
+       "width": 0.3
+      },
+      {
+       "end": [
+        119.6,
+        15.0
+       ],
+       "kind": "segment",
+       "layer": "F.Cu",
+       "mid": null,
+       "net": "leg_ret",
+       "start": [
+        121.5,
+        12.4
+       ],
+       "width": 0.3
+      }
+     ],
+     "examples_new": [
+      {
+       "end": [
+        107.6,
+        10.2
+       ],
+       "kind": "segment",
+       "layer": "In1.Cu",
+       "mid": null,
+       "net": "leg_ret",
+       "start": [
+        107.6,
+        15.0
+       ],
+       "width": 0.25
+      },
+      {
+       "end": [
+        107.6,
+        15.0
+       ],
+       "kind": "segment",
+       "layer": "In1.Cu",
+       "mid": null,
+       "net": "leg_ret",
+       "start": [
+        66.5,
+        15.0
+       ],
+       "width": 0.25
+      },
+      {
+       "end": [
+        113.5,
+        16.8
+       ],
+       "kind": "segment",
+       "layer": "In1.Cu",
+       "mid": null,
+       "net": "ocp_kelvin_p",
+       "start": [
+        113.5,
+        20.5
+       ],
+       "width": 0.3
+      }
+     ]
+    },
+    "vias": {
+     "only_old": 11,
+     "only_new": 13,
+     "examples_old": [
+      {
+       "at": [
+        119.6,
+        20.5
+       ],
+       "drill": 0.3,
+       "layers": [
+        "B.Cu",
+        "F.Cu"
+       ],
+       "net": "leg_ret",
+       "size": 0.85
+      },
+      {
+       "at": [
+        68.5,
+        17.0
+       ],
+       "drill": 0.3,
+       "layers": [
+        "B.Cu",
+        "F.Cu"
+       ],
+       "net": "leg_ret",
+       "size": 0.85
+      },
+      {
+       "at": [
+        72.5,
+        36.0
+       ],
+       "drill": 0.3,
+       "layers": [
+        "B.Cu",
+        "F.Cu"
+       ],
+       "net": "ocp_ok_hot",
+       "size": 0.85
+      }
+     ],
+     "examples_new": [
+      {
+       "at": [
+        119.6,
+        20.5
+       ],
+       "drill": 0.3,
+       "layers": [
+        "B.Cu",
+        "F.Cu"
+       ],
+       "net": "ocp_kelvin_p",
+       "size": 0.85
+      },
+      {
+       "at": [
+        68.5,
+        17.0
+       ],
+       "drill": 0.3,
+       "layers": [
+        "B.Cu",
+        "F.Cu"
+       ],
+       "net": "ocp_kelvin_p",
+       "size": 0.85
+      },
+      {
+       "at": [
+        71.8,
+        39.2
+       ],
+       "drill": 0.3,
+       "layers": [
+        "B.Cu",
+        "F.Cu"
+       ],
+       "net": "ovp_ok_hot",
+       "size": 0.55
+      }
+     ]
+    },
+    "zone_fills": [
+     {
+      "net": "",
+      "layer": "B.Cu",
+      "changed_area_mm2": 2.197
+     },
+     {
+      "net": "",
+      "layer": "In1.Cu",
+      "changed_area_mm2": 77.133
+     },
+     {
+      "net": "",
+      "layer": "In2.Cu",
+      "changed_area_mm2": 0.406
+     }
+    ]
+   }
+  }
+ },
+ "rerun_needed": true
+}

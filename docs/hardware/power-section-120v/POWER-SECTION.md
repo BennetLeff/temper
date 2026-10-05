@@ -1,7 +1,7 @@
 ---
 title: 120 V power section — schematic and justified BOM (full bridge)
 date: 2026-09-25
-status: approved source revision in progress; refreshed native shelf and physical qualification open
+status: design source revision; selected capacitor and physical qualification open
 decision: docs/adr/2026-09-25-front-end-architecture-brief.md
 calculations: power_section.rs (loss comparison), coil_mc.rs (coil/pan robustness)
 source: zapote/power-stage-120v/elec/src/power_stage_120v.ato (build-receipt.json pins hashes)
@@ -9,10 +9,19 @@ source: zapote/power-stage-120v/elec/src/power_stage_120v.ato (build-receipt.jso
 
 # 120 V power section: schematic and justified BOM
 
+**2026-10-04 readiness correction:** there is no released normal operating
+current envelope. The 45 A comparative coil model overlaps the independent
+shunt detector's conditional 38.44–85.55 A static band (+85 °C board,
+assumed +50 °C R5 rise); the broader CT band is 50.56–60.01 A. Native-18's
+dead-time resistor change and the HOT5 addition do not retune either
+threshold network. Shunt retuning remains on hold pending complete fault
+timing and device-survival evidence. See the [power readiness record](../../research/mit-product-design/readiness/power/README.md).
+
+This design narrative was imported from `ps-oracle` at `fda5ab9ece24ef1ee6f2317604c5ca73367d5201`. The [source candidate](../../../zapote/power-stage-120v/build-receipt.json) now includes the HOT5 monitor and has **142 components / 88 nets**; the existing native-18 board has **135 / 83** and does not include that change. The abbreviated BOM below is not a fabrication BOM. Use the frozen resolved export for all component identities and the [resolution record](../../research/mit-product-design/resolution/README.md) for open qualification work.
+
 Targets: 120 V (US) and 127 V (Mexico), 60 Hz, 15 A input limit, holding from room
 temperature upward. Revision history:
-- An earlier half-bridge draft was replaced after COIL-MC.md showed it reached full power on only
-  ~69–73 % of intended cookware.
+- An earlier half-bridge draft was replaced on the basis of a historical cookware model. Its former yield estimate used an obsolete 85 A current screen and is withdrawn by the corrected COIL-MC.md results.
 - Four safety changes from the pre-schematic review are included:
   - DC-bus shoot-through OCP
   - thermal cutoffs in the gate supply
@@ -23,11 +32,11 @@ temperature upward. Revision history:
 
 | Decision | Chosen | Why, and what was rejected |
 | --- | --- | --- |
-| Front end | Bridge rectifier + 5.8 µF nominal film bus, no PFC | C5/C6 supply 5.4 µF; four local capacitors supply 0.4 µF. The ADR's PFC comparison used the earlier 5.0 µF bus and is historical. The [capacitor screen](../../../zapote/power-stage-120v/BUS-CAP-SCREEN.md) does not calculate power factor. |
-| Inverter | **Full bridge**, series resonant capacitor | Twice the drive voltage lets the coil have 4× impedance at half the current. Robust across cast iron to clad pans (COIL-MC.md: ~100 % of intended cookware at 114 V and 127 V vs ≤ 73 % for any half bridge). Same switch count and loss as the paralleled half bridge (LOSS-REFACTOR.md, B1 = A6). Cost: one more gate driver. |
-| Switch | 4 × Infineon **IPW65R018CFD7** (650 V, 18 mΩ, fast body diode) | ZVS resonant use. The MOV's quoted 455 V pulse clamp does not bound returned tank energy or voltage at the MOSFETs; D3 and physical overshoot tests carry the open 650 V margin check. Paralleled superjunction beats single SiC here; IGBT tail loss is avoided. The controller needs a phase inhibit to avoid capacitive operation and body-diode hard recovery. |
-| Gate drive | 2 × UCC21550B, per-leg bootstrap, fail-safe DIS | Circuit reused from the repo's verified gate-drive unit, moved onto the power board so the gate loops stay short. |
-| Bus current and voltage | 1 mΩ Kelvin shunt in the leg return + TLV3201; bus OVP TLV3201; NAND; ISO7710 | Shoot-through never passes the tank CT. The ~61 A trip and the ~280 V bus OVP reach the SELV latch on one default-high isolated fault line. |
+| Front end | Bridge rectifier + 5.8 µF nominal film bus, no PFC | C5/C6 supply 5.4 µF; four local capacitors supply 0.4 µF. The ADR's PFC comparison used the earlier 5.0 µF bus and is historical. The [capacitor screen](power-section-output.txt) does not calculate power factor. |
+| Inverter | **Full bridge**, series resonant capacitor | The topology is retained, but the former near-100% coil claim is withdrawn: it used an 85 A screen incompatible with current protection. With the historical comparative 45 A screen, the selected 70 µH / 0.54 µF model reports full power on 14.8% / 4.3% of assumed intended-pan draws at 114/127 V; those rows omit shunt dynamics and do not establish implementable power. Real coil/pan data and the permitted power envelope must be reconciled before freezing this bank. |
+| Switch | 4 × Infineon **IPW65R018CFD7** (650 V, 18 mΩ, fast body diode) | ZVS resonant use. The MOV's quoted 455 V pulse clamp does not bound returned tank energy or voltage at the MOSFETs; D3 and physical overshoot tests carry the open 650 V margin check. One device per switch position. The controller needs a phase inhibit to avoid capacitive operation and body-diode hard recovery. |
+| Gate drive | 2 × UCC21550B, per-leg bootstrap, active-high DIS | Circuit reused from the repo's gate-drive unit with checked source connectivity, moved onto the power board so the gate loops stay short. Physical sequencing and fault extinction remain unqualified. |
+| Bus current and voltage | 1 mΩ Kelvin shunt in the leg return + TLV3201; bus OVP TLV3201; NAND; ISO7710 | Leg shoot-through bypasses the tank CT. Shunt trip is ~61 A nominal, with a conditional static 38.44–85.55 A band at +85 °C board / assumed +50 °C R5 rise; OVP is ~280 V nominal (272.09–288.02 V conditional static band). Both feed the isolated fault line; complete current-extinction timing remains unqualified. |
 | Thermal backstop | Heatsink and under-glass Microtemp cutoffs in series with the gate-supply input | A non-electronic stop that removes all gate drive, so firmware is not relied on for over-temperature (IEC 60335-1 cl. 19 / Annex R burden). |
 | Supplies | IRM-20-15 (SELV) + IRM-05-15 (gate/HOT 5 V) | Certified modules (IEC/UL 62368-1, IEC 61558, 4.2 kVac I/O). HOT loads stay off the SELV supply. |
 
@@ -36,12 +45,12 @@ temperature upward. Revision history:
 | Quantity | Value | Source |
 | --- | --- | --- |
 | Tank current | ~18.7 A rms (line-average), ~37 A peak | power_section.rs B1 |
-| MOSFET loss (4 devices) | ~25 W | power_section.rs B1 |
+| MOSFET loss (4 devices) | ~25 W **proxy**, not selected-part hot/switching validation | power_section.rs B1 assumes 35 mΩ hot per single IPW65R018CFD7 and idealized switching |
 | Bridge rectifier loss | ~29 W (diodes) | power_section.rs |
 | Coil loss | ~83 W at a 5 % coil-loss target; ~170 W at the kit-derived 10.5 % | LOSS-REFACTOR.md |
-| Efficiency | ~90–92 % at the 5 % coil target | LOSS-REFACTOR.md |
-| Operating frequency | ~33–39 kHz full power (p05–p95 over pans) | coil_mc.rs |
-| Lowest continuous power at 60 kHz | ~150 W median; phase-shift control and line-synchronous bursts go lower | coil_mc.rs |
+| Efficiency | ~91.8 % on the fixed reference-loss proxy; 88.7% median at 114 V only among the 14.8% of intended-pan draws attaining modeled full power | LOSS-REFACTOR.md B1 and COIL-MC.md use different assumed coil/pan inputs; neither is measured or the D18 cooling basis |
+| Operating frequency | 31.9–36.4 kHz sampled p05–p95 at 114 V, among modeled full-power cases only | coil_mc.rs selected 70 µH / 0.54 µF row |
+| Lowest continuous power at 60 kHz | 162 W median at 114 V among full-power-feasible draws; excluded draws and burst/phase-shift behavior need separate analysis | coil_mc.rs selected row |
 | Stored bus energy at 140 V RMS line crest | 0.114 J in nominal 5.8 µF bank | BUS-CAP-SCREEN.md; excludes returned tank energy |
 
 ## 3. Schematic
@@ -76,15 +85,18 @@ bypass R5 during shoot-through. Gate loops use U1/U2, 3.9 Ω gate resistors,
 Tank: SW_A → T1 CST3015 primary → COIL_FEED → J2 M4 stud
       → external coil → J5 M4 stud → RES_A → C21∥C22∥C23 (CDE 942C, 0.54 µF) → SW_B
       R22–R25: 4 × 470 kΩ bleed across RES_A and SW_B (τ ≈ 1 s)
-      T1 secondary → J4.13/14 → current-sense board
+      T1 secondary → on-board CT detector; J4.13/14 carry CT_ZC/CT_MON
 
 Gate auxiliary: L_FILT → J3 thermal cutoff loop → PS2 IRM-05-15
                 → V15_LS/LEG_RET → U3 78L05 → HOT5
 Controller supply: L_FILT/N_FILT → PS1 IRM-20-15 → V15_SELV/SELV_GND
 Bus sense: BUS_P → R26–R29 (4 × 470 kΩ) → VSENSE_IN → R30 15.8 kΩ → LEG_RET
            U4 AMC1311 isolated output → J4.11/12 VBUS_P/N
-Fault: U5 LM4040 REF25 (5.6 kΩ bias); U6 OCP ≈ 61 A;
-       U7 OVP ≈ 280 V; U8 LVC1G00 NAND → U9 ISO7710DWR → U13 LVC1G332 OR → J4.10 BUS_FAULT
+Fault: U5 LM4040 REF25 (5.6 kΩ bias); U6 OCP ≈ 61 A nominal;
+       conditional static OCP 38.44–85.55 A at +85 C board / R5 +50 C;
+       U7 OVP ≈ 280 V; OCP_OK + OVP_OK + HOT5_OK → U8 LVC1G10 NAND
+       V15-powered TPS3700 HOT5 detector → LVC1G17 Schmitt → HOT5_OK
+       U8 → U9 ISO7710DWR → U13 LVC1G332 OR → J4.10 BUS_FAULT
 Tank CT: T1 secondary terminated at the CT (1.5 Ω floating burden, 1.65 V bias);
        U10/U11 TLV3201 bipolar trip ≈55 A → U13; U12 zero cross → J4.13 CT_ZC;
        biased waveform → J4.14 CT_MON
@@ -114,11 +126,11 @@ Status: **V** = the rating that decides the choice was checked against the datas
 | U1,U2 | 2 | UCC21550BDWKR | Reinforced 5 kVrms dual driver, 4 A/6 A, UVLO outputs low; repo-verified DWK pin map | V |
 | D1,D2 | 2 | UF4007-E3/54 | Bootstrap, 1000 V, same as gate-drive unit | V |
 | R10,R12,R18,R20 | 4 | RC1206FR-073R9L | Gate series 3.9 Ω (bench-tune) | V |
-| Q1,Q4 / R6,R14 / R7,R15 / R8,R16 | 2 each | AO3400A / 1k / 100k / 10k | Fail-safe DIS: PERMIT low, floating or unpowered = disabled | V |
-| R9,R17 | 2 | RC0603FR-0739KL | Dead time ≈ 8.6 × 39 + 13 ≈ 348 ns (nominal) | V |
+| Q1,Q4 / R6,R14 / R7,R15 / R8,R16 | 2 each | AO3400A / 100Ω / 100k / 1k | Current native-18 PERMIT gate resistor and DIS pullup; full shutdown timing remains qualification work | V (source values) |
+| R9,R17 | 2 | RT0603BRD0749K9L | 49.9 kΩ ±0.1%; native-18 allocation estimates 396.6–488 ns; device-pin timing must be measured | V (source identity); C (assembled timing) |
 | R11,R13,R19,R21 | 4 | RC0603FR-0710KL | Gate-source hold-off | V |
 | C12,C13,C19,C20 | 4 | GRM31A5C3A102JW01D | 1 nF 1 kV C0G drain-source snubbers | C |
-| C21,C22 / C23 | 2 / 1 | 942C12P22K-F / 942C12P1K-F | 0.54 µF series resonant bank for 70 µH / 32 kHz; 10.3 + 10.3 + 9.2 A vs ~18.7 A | V (current); C (AC V vs f); F |
+| C21,C22 / C23 | 2 / 1 | 942C12P22K-F / 942C12P1K-F | 0.54 µF series resonant bank; **1200 Vdc / 430 Vac at 60 Hz are catalog conditions**, not a qualified hot 30–50 kHz limit. Voltage, ripple current and sharing of each element require CDE confirmation and measurement. The prior 650 V peak model value is now labeled an unqualified comparative screen. | C (operating envelope); F |
 | R22–R25 | 4 | RC1206FR-07470KL | Resonant-bank bleed: an OCP trip can leave ~250 V on C_res; 1.88 MΩ, τ ≈ 1 s. Check each resistor's voltage and heating over the actual tank waveform | V (part); C (waveform stress) |
 | T1 | 1 | CST3015-100ED | 1:100, 88 A, 5 kVrms reinforced; ~37 A peak tank | V |
 | C5,C6 | 2 | B32656G0275J000 | 2 × 2.7 µF/1000 V four-pin TDK radial film bus, 5.4 µF nominal; confirm electrode pairing on received parts and assembly retention | V (catalog ratings); C (assembled stress) |
@@ -127,9 +139,9 @@ Status: **V** = the rating that decides the choice was checked against the datas
 | R3,R4 | 2 | RC1206FR-07220KL | 440 kΩ bus bleed, nominal τ ≈ 2.55 s at the new 5.8 µF total | V (part); C (actual discharge) |
 | R5 | 1 | WSK2512R0010FEA | 1 mΩ 4-terminal shunt, ~0.35 W | C (power at temperature) |
 | U6 / U5 / R31 | 1 each | TLV3201AIDBVR / LM4040A25IDBZR / RC0603FR-075K6L (5.6k) | 40 ns comparator; 2.5 V reference, 120.8 µA cathode current at the checked DC corner (REFERENCE-BIAS.md); complete shutdown latency unqualified | V (selected ratings and DC corner) |
-| R32,R33 / R34 / R35 | 2 / 1 / 1 | RT0603BRD0710KL / 10K5 / 10K (0.1 %) | Offset and threshold network, trip ≈ 61 A (TLV3201 ±5 mV → ±10 A, before other tolerances). Lowered from 91 A as risk reduction; returned tank energy remains unbounded: ORACLE-REVIEW.md | V (nominal network); C (fault response) |
+| R32,R33 / R34 / R35 | 2 / 1 / 1 | RT0603BRD0710KL / 10K5 / 10K (0.1 %) | Trip ≈ 61 A nominal; 38.44–85.55 A conditional static band at +85 °C board / assumed +50 °C R5 rise, including reference, resistor/TCR, ±4 mV comparator offset and bias. Retuning remains on hold pending fault survival; returned tank energy is not bounded by this nominal threshold. | V (nominal network); C (fault response) |
 | U7 / R36 / R37 / C33 | 1 each | TLV3201AIDBVR / RT0603BRD0710KL / RT0603BRD07140KL / 1 nF C0G | Bus OVP ≈ 280 V from the VSENSE_IN tap; hardware restart inhibit | V |
-| U8 | 1 | SN74LVC1G00DBVR | NANDs OCP-OK and OVP-OK into U9; either fault drives BUS_FAULT high | V |
+| U8 | 1 | SN74LVC1G10DBVR | NANDs OCP-OK, OVP-OK and HOT5-OK into U9; any low input drives BUS_FAULT high | V (source identity); C (physical fault chain) |
 | C30 / C31 | 1 / 1 | 100 pF / 1 nF C0G | ~0.5 µs node filter; threshold decoupling | V |
 | U9 | 1 | ISO7710DWR | Reinforced 5 kVrms; **non-F = output high if side 1 unpowered and side 2 powered**. TI DW0016B HV land pattern, 8.1 mm across the barrier | V |
 | U4 / R26–R29 / R30 / C27 | 1 / 4 / 1 / 1 | AMC1311BDWVR / 470k 1206 / 15.8k 0.1 % / 1 nF | Bus sense 1/120 (198 V → 1.65 V of 2 V range); ≤ 50 V per 1206 | V |
@@ -154,10 +166,10 @@ and one under the glass (rating after thermal measurement; up to 257 °C availab
 
 ## 6. Verification so far
 
-- The prior 104-part source/native revision passed its audit, parity and
-  connectivity checks. The approved capacitor and terminal changes form a
-  newer source revision; consult its refreshed build and verification receipts
-  after regeneration before quoting current counts or test results.
+- The current source candidate compiles to 142 parts / 88 nets and passes
+  its connectivity audit and 58 tests. Its seven HOT5 additions preserve
+  all 135 existing component designators. The native-18 PCB remains at
+  135 parts / 83 nets and does not include these additions.
 - The Rust audit checks part identity against the resolved export
   (Atopile's netlist part field is aliased), HOT/controller barrier sides,
   shunt orientation, the two open rectifier/bus links, the capacitor returns,

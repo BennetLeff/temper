@@ -1,0 +1,69 @@
+{
+  "date": "2026-10-04",
+  "status": "integration-preparation-only; not fabrication or powered-operation release",
+  "native_checkout_commit": "fda5ab9ece24ef1ee6f2317604c5ca73367d5201",
+  "corrected_source_checkout_commit": "dea4649ff466cf36b49a0523d8232c94c317b163",
+  "board_sha256": "fb113d95819f1ea7cd8c27f929f7e88308eff44b663af85f71cd6f2bca5a0002",
+  "scratch_board_unchanged": true,
+  "native_inputs_sha256": {
+    "section.kicad_pcb": "fb113d95819f1ea7cd8c27f929f7e88308eff44b663af85f71cd6f2bca5a0002",
+    "section.kicad_sch": "cd149e68f14f6a312a7f288cf45ec46f51f08ea54e823c734fa280b649d2c967",
+    "section.kicad_dru": "6f94bc737b62b2e8f12043628b8a55046630906080f922905dc66d58eadc1a5b",
+    "section.kicad_pro": "60ab56ec85a2eda4f31accf0181430332dff9113fa21f46e478a0a3d2ddab2b3",
+    "fp-lib-table": "ac59eca45543a25f5dfbda5fe8da4806b45997b84b650bf3a1624fa74309585d",
+    "source-manifest.json": "c15d7dbf4441e972c7b2568ce1e5610b27ca0641f2efe7ff74c704770ec3b4b8",
+    "stackup.json": "4022df3f3b96530ece8727e96e523691352234c4ed0de00f0cb93227cc89a37d",
+    "frozen/default.net": "db15fd819a6d0c7a2818a12806175a517131bd97149f04409ac599a84f520fbc",
+    "frozen/default.csv": "ff81f288e3cac42ac1e0451790267ef255d184bf01399c8bfbfc37c9b95f04ee",
+    "frozen/resolved-components.json": "6c389531d7516090f74108771cc907edacf9aa796c5275d958d4a2900a7e58a5"
+  },
+  "drc": {
+    "kicad": "10.0.4",
+    "fresh_samples": 1,
+    "violations": {
+      "lib_footprint_mismatch": 36,
+      "silk_overlap": 3
+    },
+    "unconnected_errors": 1,
+    "schematic_parity_findings": 0,
+    "exact_violation_list_matches_historical_refill": true,
+    "flags": [
+      "--severity-all",
+      "--all-track-errors",
+      "--schematic-parity",
+      "--format",
+      "json",
+      "--refill-zones"
+    ],
+    "saved_board": false,
+    "runtime": "sandboxed attempts failed with Swift/SwiftNativeNSArray.swift array index out of range; unrestricted read-only scratch check completed"
+  },
+  "erc": {
+    "errors": 0,
+    "warnings_by_type": {
+      "endpoint_off_grid": 134,
+      "lib_symbol_issues": 135,
+      "isolated_pin_label": 11
+    },
+    "electrical_pin_types": {
+      "bidirectional": 139
+    },
+    "limitation": "All embedded pins are bidirectional, so zero errors is not a meaningful electrical power/output compatibility pass; missing symbol-library identities are representation/configuration warnings."
+  },
+  "parity_validator_binary": {
+    "path": "/Users/bennet/Desktop/temper/target-shared/debug/zapote-power-native-parity",
+    "sha256": "65087ed2c5cb5e76b41d20a38333ea109e80f98d868de11ee705843c0f2f6312",
+    "result": "PASS, reused executable, no build"
+  },
+  "artifacts_sha256": {
+    "erc-live.json": "17914d54172a132fb2fc859c5c2c3b494e989a149157f20d852653fc56edcef6",
+    "drc-live-1.json": "b07dbe9f034ac44a8f5985ce504871cff1ba6515b48677e4902ce879181cb8d7",
+    "native18-parity-recheck.json": "7e3c4a1098470d30793a6cb8618d48d91402c997c57149fd8bc123d6cc7492e0",
+    "native18-identity-recheck.json": "9cbcf815c7131eef5e78e76f5e1c2164826e15b3c345c650249e1294b701595b",
+    "hot5-integration-map.json": "a1e4f55e2e615de529a20206a3e39b3a762f57fabc42599bf7b0dbc573567f14"
+  },
+  "geometry_inventory_sha256": "ec751555cd08a24e58657f9ed1a4099f4ef8f2cf00661ab8f378fc01f0254b68",
+  "new_native_files": false,
+  "new_manufacturing_exports": false,
+  "physical_tests": "NOT_RUN"
+}

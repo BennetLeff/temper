@@ -1,0 +1,144 @@
+{
+  "scope": "Nominal saved geometry only; envelopes are included in interference checks. No leak, thermal, strength, button actuation or life proof.",
+  "checks": [
+    {
+      "id": "saved-panel-solids",
+      "status": "PASS_COMPUTED",
+      "count": 72
+    },
+    {
+      "id": "source-saved-volume",
+      "status": "PASS_COMPUTED",
+      "max_delta_mm3": 2.561137080192566e-09
+    },
+    {
+      "id": "all-panel-parts-including-envelopes",
+      "status": "PASS_COMPUTED",
+      "hits": [],
+      "threshold_mm3": 0.0001
+    },
+    {
+      "id": "historical-PCB-placement-correspondence",
+      "status": "PASS_COMPUTED",
+      "source_solids": 149,
+      "catalog_solids": 149,
+      "max_bbox_delta_mm": 0.04652542934550752,
+      "tolerance_mm": 0.1,
+      "scope": "R4 inherited PCB only; current native full-bridge outline is separate."
+    },
+    {
+      "id": "panel-vs-complete-cooker",
+      "status": "PASS_COMPUTED",
+      "hits": [],
+      "obstacles": 186,
+      "includes": "Packaging allocations, actual PCB export, formed shell, knob, glass, supports"
+    },
+    {
+      "id": "panel-vs-historical-PCB",
+      "status": "PASS_COMPUTED",
+      "hits": [],
+      "minimum_nominal_distance_mm": 21.65419918734857,
+      "limit": "Mechanical distance to historical imported geometry only; current full-bridge PCB and electrical insulation unverified."
+    },
+    {
+      "id": "flush-exterior-datum",
+      "status": "PASS_COMPUTED",
+      "lens_front_z_mm": 4.876099524153688e-13,
+      "button_tops_z_mm": 2.1258240115825742e-13,
+      "aluminum_front_z_mm": 0,
+      "limit": "Nominal CAD only; glass/sheet/bond tolerances and assembly jig must establish real flushness."
+    },
+    {
+      "id": "lens-perimeter-gap",
+      "status": "PASS_COMPUTED",
+      "minimum_nominal_mm": 0.3999999999999866,
+      "limit": "Gap for a flush-filled flexible joint; material and thermal expansion unqualified."
+    },
+    {
+      "id": "continuous-sheet-bridge",
+      "status": "PASS_COMPUTED",
+      "measured_mm3": 399.9999999999999,
+      "expected_mm3": 400
+    },
+    {
+      "id": "no-visible-cassette-bezel",
+      "status": "PASS_COMPUTED"
+    },
+    {
+      "id": "rear-support-bond-stack",
+      "status": "PASS_COMPUTED",
+      "support_thickness_mm": 1.2000000000022522,
+      "bond_mm": 0.30000000000228333,
+      "limit": "Contact path only. Outward lens retention and carrier-pad attachment require qualified adhesion."
+    },
+    {
+      "id": "carrier-clears-fixed-lens-ring",
+      "status": "PASS_COMPUTED",
+      "nominal_clearance_mm": 0.9999999999983409
+    },
+    {
+      "id": "negative-control-raised-lens",
+      "status": "PASS_COMPUTED",
+      "detected_projection_mm": 0.1000000000004877
+    },
+    {
+      "id": "negative-control-too-small-window",
+      "status": "PASS_COMPUTED",
+      "penetration_mm3": 13.857654095545634,
+      "deliberate_shift_mm": 0.6
+    },
+    {
+      "id": "OLED-drawing-hole-pattern",
+      "status": "PASS_COMPUTED",
+      "holes_xy_mm": [
+        [
+          -76.6,
+          45.0
+        ],
+        [
+          -76.6,
+          83.0
+        ],
+        [
+          6.6,
+          45.0
+        ],
+        [
+          6.6,
+          83.0
+        ]
+      ],
+      "pitch_mm": [
+        83.2,
+        38
+      ],
+      "source": "Newhaven rev7 dimension drawing; envelope thickness subdivisions remain assumptions."
+    },
+    {
+      "id": "OLED-glass-airgap",
+      "status": "PASS_COMPUTED",
+      "nominal_mm": 3.999999999997986,
+      "limit": "Air gap is a clearance, not a thermal guarantee."
+    },
+    {
+      "id": "button-rest-allocation",
+      "status": "PASS_COMPUTED",
+      "gaps_mm": {
+        "front_switch_BACK_ENVELOPE": 0.2000000000000446,
+        "front_switch_SELECT_START_ENVELOPE": 0.2000000000000446,
+        "front_switch_STOP_ENVELOPE": 0.2000000000000446
+      },
+      "limit": "No chosen switch, compliant stroke or overtravel validation. This does not establish working buttons."
+    },
+    {
+      "id": "old-controls-removed",
+      "status": "PASS_COMPUTED"
+    },
+    {
+      "id": "lid-removal-in-isolated-cassette",
+      "status": "PASS_COMPUTED",
+      "hits": [],
+      "limit": "Cassette removed from cooker; screwdriver access and complete cooker service procedure not validated."
+    }
+  ]
+}

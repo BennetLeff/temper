@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "models": [
+    {
+      "references": [
+        "PS2"
+      ],
+      "footprint": "Converter_ACDC:Converter_ACDC_MeanWell_IRM-05-xx_THT",
+      "path": "${KIPRJMOD}/../models3d/linked-parts/IRM-05-15-envelope.step",
+      "sha256": "6b9167e1109fca0a82a12bf52ed665884b2d6820122d2cb5081caf152d258c06",
+      "offset_mm": [
+        0,
+        0,
+        0
+      ],
+      "rotation_deg": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "status": "provisional-dimensioned",
+      "body_mm": [
+        45.7,
+        25.4,
+        21.5
+      ],
+      "source_urls": [
+        "https://www.meanwell.com/Upload/PDF/IRM-05/IRM-05-SPEC.pdf"
+      ],
+      "limits": "Case envelope and nominal pin positions only; corner radii, pin details and standoff are simplified."
+    },
+    {
+      "references": [
+        "J4"
+      ],
+      "footprint": "Connector_Molex:Molex_Micro-Fit_3.0_43045-1612_2x08_P3.00mm_Vertical",
+      "path": "${KIPRJMOD}/../models3d/linked-parts/Molex-43045-1612-envelope.step",
+      "sha256": "4048fa66b0abb6810fb9dcc2bf22a380c677a95610be67d21a2e0b47b00d4aba",
+      "offset_mm": [
+        0,
+        0,
+        0
+      ],
+      "rotation_deg": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "status": "provisional-dimensioned",
+      "body_mm": [
+        28.14,
+        7.37,
+        9.91
+      ],
+      "source_urls": [
+        "https://www.molex.com/en-us/products/part-detail/430451612",
+        "https://www.molex.com/content/dam/molex/molex-dot-com/products/automated/en-us/salesdrawingpdf/430/43045/430450415_sd.pdf"
+      ],
+      "limits": "Housing and mating mouth envelope only; latch, keying and contact geometry are not qualified."
+    },
+    {
+      "references": [
+        "R5"
+      ],
+      "footprint": "Resistor_SMD:R_Shunt_Vishay_WSK2512_6332Metric_T1.19mm",
+      "path": "${KIPRJMOD}/../models3d/linked-parts/WSK2512R0010FEA-envelope.step",
+      "sha256": "ae5fdb65474a380fdb14a67e7f201c4c1d96ce231df15ca17aee39cbe83b2cfd",
+      "offset_mm": [
+        0,
+        0,
+        0
+      ],
+      "rotation_deg": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "status": "provisional-dimensioned",
+      "body_mm": [
+        6.35,
+        3.18,
+        0.635
+      ],
+      "source_urls": [
+        "https://www.vishay.com/docs/30108/wsk2512.pdf",
+        "https://www.vishay.com/docs/30323/_wsk2512_3dmodel.zip"
+      ],
+      "limits": "Nominal resistor body envelope. Vishay distributes a detailed model for the 0.001-0.0049 ohm range; its ownership notice does not grant redistribution, so that model is not in this repository."
+    },
+    {
+      "references": [
+        "J3"
+      ],
+      "footprint": "Connector_JST:JST_VH_B2P-VH_1x02_P3.96mm_Vertical",
+      "path": "${KIPRJMOD}/../models3d/linked-parts/JST-B2P-VH-envelope.step",
+      "sha256": "4d1d8273f9cb82ba83090cca1d426a910e0c08b05d4ef83742ae02c1dc32febe",
+      "offset_mm": [
+        0,
+        0,
+        0
+      ],
+      "rotation_deg": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "status": "provisional-dimensioned",
+      "body_mm": [
+        7.86,
+        8.5,
+        10.9
+      ],
+      "source_urls": [
+        "https://www.jst-mfg.com/product/pdf/eng/eVH.pdf",
+        "https://www.jst-mfg.com/product/index.php?lang=2&series=262"
+      ],
+      "limits": "Nominal header envelope. The detailed JST STEP download expressly disallows third-party redistribution and is not included; measured sample and mating-harness fit remain open."
+    },
+    {
+      "references": [
+        "F1"
+      ],
+      "footprint": "Fuse:Fuseholder_Clip-6.3x32mm_Littelfuse_102071_Inline_P34.70x7.60mm_D2.00mm_Horizontal",
+      "path": "${KIPRJMOD}/../models3d/linked-parts/Littelfuse-102071-pair-envelope.step",
+      "sha256": "1e9b32ef23e93a40e702b88e65de34e6a3e7eb1837483689f5e2c7bc999b301a",
+      "offset_mm": [
+        0,
+        0,
+        0
+      ],
+      "rotation_deg": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "status": "provisional-dimensioned",
+      "source_urls": [
+        "https://www.mouser.com/datasheet/2/240/102071_519_LF_050809-50156.pdf"
+      ],
+      "limits": "Illustrative clip pair and 6.3 x 32 mm fuse. Spring shape, installed fuse height, and current rating require physical confirmation."
+    }
+  ]
+}

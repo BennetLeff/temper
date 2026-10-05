@@ -1,0 +1,17 @@
+{
+  "classification": "storage controller test on small completed nonuniform fixture",
+  "raw_sha256_before": {
+    "output/temper-prototype-closure/round4/fields/elemental-floating-p4/mesh/case_4np1_t0001.vtu": "4fe327b9eacd3505b9bbaa44e5f31a28084d4877b2db3fd28265513b63b431e1",
+    "output/temper-prototype-closure/round4/fields/elemental-floating-p4/mesh/case_4np2_t0001.vtu": "6fbcd27bb6159097267c3ee705e24c203b9c03860fbcd26b33f276820dadc840",
+    "output/temper-prototype-closure/round4/fields/elemental-floating-p4/mesh/case_4np3_t0001.vtu": "62665553882e6f49ef79f51b32f237b4e88f37a409f134eb21d0bb3796da078f",
+    "output/temper-prototype-closure/round4/fields/elemental-floating-p4/mesh/case_4np4_t0001.vtu": "5b1ce4b4cfe93d0b86ac14801d8a895257dee4be1681063a2b90fef409a6ac73"
+  },
+  "raw_sha256_after": {
+    "output/temper-prototype-closure/round4/fields/elemental-floating-p4/mesh/case_4np1_t0001.vtu": "4fe327b9eacd3505b9bbaa44e5f31a28084d4877b2db3fd28265513b63b431e1",
+    "output/temper-prototype-closure/round4/fields/elemental-floating-p4/mesh/case_4np2_t0001.vtu": "6fbcd27bb6159097267c3ee705e24c203b9c03860fbcd26b33f276820dadc840",
+    "output/temper-prototype-closure/round4/fields/elemental-floating-p4/mesh/case_4np3_t0001.vtu": "62665553882e6f49ef79f51b32f237b4e88f37a409f134eb21d0bb3796da078f",
+    "output/temper-prototype-closure/round4/fields/elemental-floating-p4/mesh/case_4np4_t0001.vtu": "5b1ce4b4cfe93d0b86ac14801d8a895257dee4be1681063a2b90fef409a6ac73"
+  },
+  "byte_identical": true,
+  "atomic_manifest_json_valid": true
+}

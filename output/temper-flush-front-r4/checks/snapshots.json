@@ -1,0 +1,59 @@
+{
+  "jobs": [
+    {
+      "input": "STEP/front_panel.step",
+      "mode": "view",
+      "outputs": [
+        {
+          "path": "renders/front_panel.png",
+          "camera": "-45:45"
+        }
+      ],
+      "output": {
+        "sizeProfile": "simple"
+      }
+    },
+    {
+      "input": "STEP/front_panel_exploded.step",
+      "mode": "view",
+      "outputs": [
+        {
+          "path": "renders/front_panel_exploded.png",
+          "camera": "-60:30"
+        }
+      ],
+      "output": {
+        "sizeProfile": "simple"
+      }
+    },
+    {
+      "input": "STEP/assembly.step",
+      "mode": "view",
+      "outputs": [
+        {
+          "path": "renders/assembly.png",
+          "camera": "-55:25"
+        }
+      ],
+      "output": {
+        "sizeProfile": "simple"
+      }
+    },
+    {
+      "input": "STEP/front_panel.step",
+      "mode": "section",
+      "section": {
+        "plane": "XZ",
+        "offset": 64
+      },
+      "outputs": [
+        {
+          "path": "renders/front_panel-section.png"
+        }
+      ],
+      "output": {
+        "sizeProfile": "simple"
+      }
+    }
+  ]
+}

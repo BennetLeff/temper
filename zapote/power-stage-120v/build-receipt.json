@@ -4,20 +4,27 @@
   "atopile": "0.2.69 (uv tool run --offline)",
   "rustc": "rustc 1.92.0 (ded5c06cf 2025-12-08)",
   "status": "compiled-and-exported",
-  "components": 135,
-  "nets": 83,
-  "audit": "PASS on frozen/; 53 passed audit tests (2026-09-27: C1/C2 KEMET R463N410000N1M X2, 22.5 mm pitch; C1/C2 added to identity)",
-  "reproducibility": "Rebuilt 2026-09-27 via tools/build_source.py into source-build-01 (worktree ps-oracle); frozen/ copies that build.",
+  "components": 142,
+  "nets": 89,
+  "audit": "PASS:62 source audit tests, including wrong-footprint, Kelvin short, gate-recharge and analog-return membership mutations (2026-10-04)",
+  "reproducibility": "Compiled with pinned offline Atopile0.2.69 in mit-product-guidance.142 reference designators retained. Native19 HOT5 plus exact1mOhm shunt footprint/MPN correction and distinct OCP_KELVIN_P. Native proof in native-19/verification. Physical NOT_RUN.",
   "identity_authority": "frozen/resolved-components.json + frozen/default.csv (default.net libsource is footprint-aliased)",
   "sha256": {
     "ato.yaml": "ccb72f82cfe51d8002ba3333bce202f587971ea7eb439ec18d1693371139dd80",
-    "elec/src/parts.ato": "fbd826ca405cf57d5fcb59e9bced369153080e5880685feb184cbc2ede9ed076",
-    "elec/src/power_stage_120v.ato": "03f157fc83cad18daaa392ca3a85ec3202a3d0c89c60b4566ab9248d1cfc7112",
-    "audit.rs": "04b6ea9ccd357a7b47b800ab859f64f3a05171af160dbc6190091e317f8054a9",
+    "elec/src/parts.ato": "c30406aee3061249b44fa15de2bc3c98a3b28953cbbcc557982692eb2c373e63",
+    "elec/src/power_stage_120v.ato": "67dca81b67ec8a56d040a68f331de07a2cffc691b3f87fcda1db0c9b878cb498",
+    "audit.rs": "6613a3749373183ac954f68aecadf5c6ef9ca7a3f303cee632aa28b535fde503",
     "tools/circuit_export.py": "9068441892e2df3424a383c3682bdf5971527f9d4afa1812ce5171ddf8e36159",
-    "frozen/default.net": "32f40a8f08f04278619300b9e1df985d378008c3ce18b13626c91e57d606df5f",
-    "frozen/default.csv": "08708ee5d1e7d66789f5b168dc018306bc972f8865a8afd7d33e3269120bed67",
-    "frozen/resolved-components.json": "839dadb30b1a0e4ea144a3d60d7417544d5b7a61e6032b6703b828324c882193"
+    "frozen/default.net": "ab1fdc00d5a4c6eec097220a328fb361f176cdf49b5ec6a1a1888d4c97972ff8",
+    "frozen/default.csv": "f9f8beb617460134d2fa67bd11dcbb2396972c1cf76e0b1b8299880fe5452257",
+    "frozen/resolved-components.json": "0c789399ee6180ade023f5e468fa2ec887d3265d20adff4712e4041e093cc6e3"
+  },
+  "source_comment_update": {
+    "receipt": "prototype-closure/round2/integration/source-comment-verification.json",
+    "native19_frozen_outputs_preserved": true,
+    "circuit_exports_byte_identical": ["default.net", "default.csv"],
+    "resolved_component_identities_unchanged": true,
+    "historical_frozen_projection_metadata_unchanged": true
   },
   "physical": "NOT RUN"
 }

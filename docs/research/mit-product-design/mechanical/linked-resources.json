@@ -1,0 +1,971 @@
+{
+  "scope": "File links enumerated from selected 2.70 directory listings; names and URLs only, not reviewed",
+  "resources": [
+    {
+      "id": "MECH-I001",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/Axis_Error_apportionment_Sum_RSS.xls",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I002",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/Axis_Error_apportionment_Sum_RSS_RMS.xls",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I003",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/Beam_curved.xls",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I004",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/Bearing%20load%20and%20stiffness%20selection.xlsx",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I005",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/Bearings_cartwheel_flexure.xls",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I006",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/Bi_material_beam_mm.xls",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I007",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/Bolt_force.xls",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I008",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/CLD%20design.xlsx",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I009",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/Compensating%20curvature%20and%20screw%20thermal%20stretch.xlsx",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I010",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/Constrained_Layer_Damper_Design.xls",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I011",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/Error_Budget_Cartesian_Axis%20brute%20force%20two%20axis.xlsx",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I012",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/Error_Budget_Spreadsheet%20V21%204%20CS%203%20axis%20example%202022.06.23.xlsx",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I013",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/Error_Budget_Spreadsheet%20V21%20test%202022.06.23.xlsx",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I014",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/Externally%20pressureized%20bearing%201st%20order%20performance.xlsx",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I015",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/Flexture_4_bar.xls",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I016",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/Flextures_Hourglass_Partial_arc.xlsx",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I017",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/Flextures_hourglass_pivot.xls",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I018",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/Flextures_hourglass_pivot_whiffle_tree.xls",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I019",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/Gothic%20arch%20linear%20guide%20load%20and%20stiffness.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I020",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/Hertz_contact_line.XLS",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I021",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/Hertz_contact_point.XLS",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I022",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/Hertz_contact_point_Traction_Drive.xls",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I023",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/Hourglass_flexures_cylindrical.xlsx",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I024",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/How%20to%20use%20Error%20budget%20spreadsheet.docx",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I025",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/Interference_fit.xls",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I026",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/Kinematic_Coupling_3Groove_Design_2023.08.07.xls",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I027",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/Linear_Motion_Guide_Life.xlsx",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I028",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/Round_V_Square%20Tube.xlsx",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I029",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/Simple_systems_error_budget_example.xlsx",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I030",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/Thermal%20errors%20fourier%20V2.xlsx",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I031",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/Thermerr_gradient_2020.10.11.xls",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I032",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/bolt_calculator_v1-1.xlsx",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I033",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/circular%20arch%20linear%20guide%20load%20and%20stiffness.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I034",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/dowell%20pin%20elastic%20connection.xls",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I035",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/folded_flexure.xls.xls",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I036",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/leadscrew_design.xls",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I037",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/lotta_slot_alignment_design.xlsx",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I038",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/motor_Leadscrew_estimator.xls",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I039",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/motor_leadscrew_size_estimator.xls",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I040",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/motor_screw_system.xlsx",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I041",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/motor_size_estimator.xls",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I042",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/pitch%20error%20simple%20example.xlsx",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I043",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/round_diamond_dowel_pin_errors_V2.xlsx",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I044",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/round_square_tube_compare.xlsx",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I045",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/round%20v%20square%20tube.xlsx",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I046",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/slips_and_fits_v1-1.xlsx",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I047",
+      "url": "https://web.mit.edu/2.70/Design/Spreadsheets/wind%20power%20calcs%20V3.xlsx",
+      "listed_in": "https://web.mit.edu/2.70/Design/Spreadsheets/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I048",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2001/Case%20Study%201%20fat%20food%20energy.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2001/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I049",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2001/Case%20Study%202%20Renewable%20energy%20choices.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2001/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I050",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2001/Case%20Study%202%20Replacing%20oil%20heat%20with%20geothermal%20heat%20pump%20dollars%20and%20kgCO2%20assessment.xlsx",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2001/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I051",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2001/Topic%201%20Deterministic%20Design%20Process.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2001/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I052",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2002/Case%20Study%203%20OMAX%20waterjet.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2002/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I053",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2002/Omax_micro%20waterjet.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2002/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I054",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2002/Topic%202%20Fundamental%20Principles.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2002/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I055",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2002/US5472367%20OMAX%20machine%20patent.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2002/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I056",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2002/round%20v%20square%20tube.xlsx",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2002/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I057",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2003/2.70%202017%20lecture%203.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2003/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I058",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2003/Axis_error_apportionment_estimator_2014.04.09.xls",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2003/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I059",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2003/Error%20budget%20how%20to%20use%20spreadsheet.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2003/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I060",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2003/Optics%20manufacturing%20guest%20speaker.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2003/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I061",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2003/PMD%20Topic%209a%20Structural%20design%201.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2003/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I062",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2003/PMD%20Topic%209b%20Structural%20design%202.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2003/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I063",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2003/PMD%20Topic%2010%20Modal%20analysis.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2003/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I064",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2003/PMD%20Topic%2011%20Damping.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2003/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I065",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2003/error_budget_spreadsheet_2016.10.20.xlsx",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2003/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I066",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2004/2.70%202017%20lecture%204.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2004/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I067",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2004/PMD%20Error%20Budget%20Spreadsheets%202016.05.23.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2004/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I068",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2004/PMD%20Error%20Modeling%202016.05.23.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2004/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I069",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2004/PMD%20Topic%2014%20Sliding%20bearings.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2004/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I070",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2004/PMD%20Topic%2015%20Rolling%20rotary.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2004/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I071",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2004/PMD%20Topic%2016%20Rolling%20linear.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2004/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I072",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2004/PMD%20Topic%2017%20Flexures%20.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2004/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I073",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2005/2.70%202017%20lecture%205.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2005/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I074",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2005/PMD%20Topic%2019%20Power%20trans%20req..pdf",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2005/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I075",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2005/PMD%20Topic%2020%20Rotary%20power%20trans.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2005/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I076",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2005/PMD%20Topic%2021a%20Linear%20power%20trans%201.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2005/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I077",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2005/PMD%20Topic%2021b%20Linear%20power%20trans%202.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2005/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I078",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2005/PMD%20Topic%2021c%20Linear%20power%20trans%203.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2005/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I079",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2005/Simple_systems_error_budget_example.xlsx",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2005/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I080",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2005/error_budget_spreadsheet_2016.10.20.xlsx",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2005/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I081",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2006/2.70%202017%20lecture%206.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2006/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I082",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2006/Error_Budget_Spreadsheet_two_axis_example.xlsx",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2006/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I083",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2006/PMD%20Topic%2012%20Hertz%20contact%20&%20Kin%20c.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2006/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I084",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2006/PMD%20Topic%2013%20Joint%20design.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2006/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I085",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2006/precision%20machine%20design%20process.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2006/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I086",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2007/PMD%20Topic%206%20Intro%20to%20servos.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2007/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I087",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2007/PMD%20Topic%207%20Mapping%20errors.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2007/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I088",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2007/PMD%20Topic%208%20Sensors.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2007/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I089",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2009/desk%20detail%20engineering.xlsx",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2009/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I090",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2014/2.70-Mon-Review.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2014/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I091",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2014/2.70-Mon-Review.pptx",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2014/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I092",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2014/Board01.jpg",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2014/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I093",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2014/Board02.jpg",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2014/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I094",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2014/Board03.jpg",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2014/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I095",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2014/Board04.jpg",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2014/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I096",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2014/Board05.jpg",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2014/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I097",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2014/Board06.jpg",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2014/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I098",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2014/Board07.jpg",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2014/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I099",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2014/Board08.jpg",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2014/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I100",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2014/Board09.jpg",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2014/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I101",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2014/Board10.jpg",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2014/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I102",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2014/Board11.jpg",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2014/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I103",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2014/Board12.jpg",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2014/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I104",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2014/Board13.jpg",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2014/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I105",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2014/Board14.jpg",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2014/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I106",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2014/Board15.jpg",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2014/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I107",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2014/Board16.jpg",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2014/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I108",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2014/Board17.jpg",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2014/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I109",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2014/Coalvoluion%20v7%20DRAFT%20for%202.70.pptx",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2014/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I110",
+      "url": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2014/energy%20CO2%20ash%20cement%20metals_v5.xlsx",
+      "listed_in": "https://web.mit.edu/2.70/Lecture%20Materials/Documents/Week%2014/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I111",
+      "url": "https://web.mit.edu/2.70/Reading%20Materials/2.75%20spline%20paper%20elastic%20average%20teeth.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Reading%20Materials/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I112",
+      "url": "https://web.mit.edu/2.70/Reading%20Materials/APCOM%202023%20Deterministic%20Design%20Slocum%202023.08.02%20upload.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Reading%20Materials/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I113",
+      "url": "https://web.mit.edu/2.70/Reading%20Materials/Bolted%20joint%20pitch%20stiffness.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Reading%20Materials/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I114",
+      "url": "https://web.mit.edu/2.70/Reading%20Materials/Design_of_Three-groove_kinematic_couplings.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Reading%20Materials/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I115",
+      "url": "https://web.mit.edu/2.70/Reading%20Materials/Elastic%20averaging%20paper%202018.03.19.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Reading%20Materials/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I116",
+      "url": "https://web.mit.edu/2.70/Reading%20Materials/Electrify%20Book.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Reading%20Materials/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I117",
+      "url": "https://web.mit.edu/2.70/Reading%20Materials/Electrify%20Book%20compressed.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Reading%20Materials/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I118",
+      "url": "https://web.mit.edu/2.70/Reading%20Materials/FACT%20flexure%20design%20Hopkings,%20Culpepper.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Reading%20Materials/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I119",
+      "url": "https://web.mit.edu/2.70/Reading%20Materials/Fiskers%20Shears%20Exercise.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Reading%20Materials/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I120",
+      "url": "https://web.mit.edu/2.70/Reading%20Materials/Fiskers%20Shears%20patent%20US5570510.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Reading%20Materials/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I121",
+      "url": "https://web.mit.edu/2.70/Reading%20Materials/Hose%20coupler%20deepwater%20horizon.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Reading%20Materials/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I122",
+      "url": "https://web.mit.edu/2.70/Reading%20Materials/JMDEDB%20PREP.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Reading%20Materials/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I123",
+      "url": "https://web.mit.edu/2.70/Reading%20Materials/Kinematic%20coupling%20review%20article.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Reading%20Materials/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I124",
+      "url": "https://web.mit.edu/2.70/Reading%20Materials/Kinematic%20mouse%20head%20mount.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Reading%20Materials/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I125",
+      "url": "https://web.mit.edu/2.70/Reading%20Materials/Nasa%20rolling%20bearing%20life%20prediction.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Reading%20Materials/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I126",
+      "url": "https://web.mit.edu/2.70/Reading%20Materials/OMAX%20US5472367.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Reading%20Materials/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I127",
+      "url": "https://web.mit.edu/2.70/Reading%20Materials/PMD%20Ten%20Step%20Precision%20Process.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Reading%20Materials/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I128",
+      "url": "https://web.mit.edu/2.70/Reading%20Materials/Porous%20air%20bearing%20testing%20of%20soft%20tissue.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Reading%20Materials/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I129",
+      "url": "https://web.mit.edu/2.70/Reading%20Materials/SKF-bearing-maintenance-handbook.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Reading%20Materials/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I130",
+      "url": "https://web.mit.edu/2.70/Reading%20Materials/SpaceX%20Dragon%20capsule%20ICES-2020-333.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Reading%20Materials/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I131",
+      "url": "https://web.mit.edu/2.70/Reading%20Materials/SpaceX%20Falcon-users-guide-2021-09.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Reading%20Materials/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I132",
+      "url": "https://web.mit.edu/2.70/Reading%20Materials/SpaceX%20%20Starship_users_guide_v1.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Reading%20Materials/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I133",
+      "url": "https://web.mit.edu/2.70/Reading%20Materials/Steel%20Wool%20Spring%20article.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Reading%20Materials/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I134",
+      "url": "https://web.mit.edu/2.70/Reading%20Materials/Transmission_ratio_based_analysis_and_ro.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Reading%20Materials/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I135",
+      "url": "https://web.mit.edu/2.70/Reading%20Materials/Weibull%20handbook%20%20Chpt1.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Reading%20Materials/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I136",
+      "url": "https://web.mit.edu/2.70/Reading%20Materials/Wind%20Energy%20-%202011%20-%20Stander%20-%20Review%20of%20direct_drive%20radial%20flux%20wind%20turbine%20generator%20mechanical%20design.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Reading%20Materials/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I137",
+      "url": "https://web.mit.edu/2.70/Reading%20Materials/pnas.1810141115.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Reading%20Materials/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    },
+    {
+      "id": "MECH-I138",
+      "url": "https://web.mit.edu/2.70/Reading%20Materials/solar%20irradiance%20for%20US%20.pdf",
+      "listed_in": "https://web.mit.edu/2.70/Reading%20Materials/",
+      "retrieved": "2026-10-03",
+      "status": "index-only"
+    }
+  ]
+}

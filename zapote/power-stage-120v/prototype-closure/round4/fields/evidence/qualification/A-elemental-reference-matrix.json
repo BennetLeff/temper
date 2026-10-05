@@ -1,0 +1,43 @@
+{
+  "ports": [
+    "10"
+  ],
+  "port_identity": [
+    {
+      "physical": 10,
+      "name": "P1_C38",
+      "k_A_per_m": [
+        -2500.0,
+        -0.0,
+        0.0
+      ],
+      "sif_sha256": "2a20bc063a696fe79d1e4bfa45db525e3ef65fe64899c00af37580f478f5861b"
+    }
+  ],
+  "mesh_sha256": "a4973703e4371f8bef15d0260301fa17ea24545ed6360d1db97cf7ea3074b274",
+  "legacy_runs_without_receipt": [],
+  "L_nH": [
+    [
+      27.818028
+    ]
+  ],
+  "tets": 990341,
+  "partitions": 4,
+  "max_within_tet_spread": 9.134281356077292e-16,
+  "diagonal_vs_energy": [
+    {
+      "port": "10",
+      "L_from_B_nH": 27.818028,
+      "L_energy_nH": 27.81802,
+      "rel_diff": 2.856986673069511e-07
+    }
+  ],
+  "minimum_eigenvalue_nH": 27.818028,
+  "converged_run_receipts": [
+    {
+      "path": "output/temper-prototype-closure/round4/fields/A-e4-h1-elemental-p10/result.json",
+      "sha256": "20a2b65579e67e72cba40446710fac7061cd27196aaa2a75792128d244b66805"
+    }
+  ],
+  "classification": "simulated magnetostatic finite-closure matrix; no physical qualification"
+}

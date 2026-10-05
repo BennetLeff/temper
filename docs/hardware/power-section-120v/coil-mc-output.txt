@@ -1,84 +1,109 @@
 # Coil/pan Monte Carlo, seed=20260925
-# priors ASSUMED (see header). Full power required on intended cookware (cast iron, carbon/430 steel, clad);
-# other pans must only stay within limits. Limits: phase>=20deg, Ipk<=85A, Vc<=650V, 20-60 kHz, 15 A line, PF 0.95
+# ASSUMED priors; percentages rank alternatives, not a cookware population or component safety.
+# Comparative screens: phase>=20deg, Ipk<=45A, Vc_crest<=650V (UNQUALIFIED), 20-60 kHz, 15 A line, PF 0.95
+# Selected bank 942C12P22K-F x2 + 942C12P1K-F: 1200 Vdc, 430 Vac at 60 Hz catalog; 30-50 kHz hot waveform envelope NOT ESTABLISHED.
+# Cap RMS estimate is first-harmonic switching-ripple line-cycle RMS, not an actual waveform, AC-frequency rating or safe margin. P95 only among modeled full-power draws; half-bridge low-frequency/DC voltage is excluded.
+# CURRENT ENVELOPE UNRELEASED: 45 A is a historical comparative screen, not a normal-operation command or an implementable full-power claim.
+# Independent detectors: shunt static 38.44–85.55 A (+85 C board, assumed +50 C R5 rise); CT static 50.56–60.01 A (temperature/tolerance model). 45 A overlaps the shunt band; the older CT-only 50.93–59.51 A model does not resolve it.
+# model_full_power fields use the historical comparative screens only. Shunt dynamics, control error/overshoot, fault-to-current-extinction and selected capacitor limits are NOT qualified; do not use these rows to release firmware or hardware.
+# Loss proxy: full bridge four single 650 V IPW65R018CFD7 (35 mohm/position); half bridge four parallel-paired historical 600 V CFD7 (17.5 mohm/position); hot/switching loss unverified.
 
 ## Grid search at 114 V, n=4000 per point: top 6 per topology
-design,topology,L0_uH,f_ref_kHz,line_V,intended_full_power_pct,unsafe_any_pan_pct,eff_p05_pct,eff_p50_pct
-grid,half,36,22.0,114,73.2,0.0,78.4,86.9
-grid,half,34,26.0,114,72.8,0.0,79.5,87.5
-grid,half,34,24.0,114,72.6,0.0,79.2,87.3
-grid,half,36,24.0,114,72.6,0.0,78.6,87.1
-grid,half,32,28.0,114,72.6,0.0,80.2,87.8
-grid,half,38,22.0,114,72.5,0.0,77.7,86.6
-grid,full,45,42.0,114,100.0,0.0,80.7,88.5
-grid,full,50,40.0,114,100.0,0.0,80.5,88.4
-grid,full,55,38.0,114,100.0,0.0,80.3,88.3
-grid,full,45,40.0,114,100.0,0.0,80.4,88.3
-grid,full,50,38.0,114,100.0,0.0,80.2,88.2
-grid,full,55,36.0,114,100.0,0.0,80.0,88.1
+design,topology,L0_uH,f_ref_kHz,line_V,model_full_power_pct,screen_unreachable_pct,eff_p05_pct,eff_p50_pct,cap_crest_p95_V,cap_line_rms_p95_V
+grid,half,18,22.0,114,0.0,0.0,NaN,NaN,NaN,NaN
+grid,half,18,24.0,114,0.0,0.0,NaN,NaN,NaN,NaN
+grid,half,18,26.0,114,0.0,0.0,NaN,NaN,NaN,NaN
+grid,half,18,28.0,114,0.0,0.0,NaN,NaN,NaN,NaN
+grid,half,18,30.0,114,0.0,0.0,NaN,NaN,NaN,NaN
+grid,half,18,32.0,114,0.0,0.0,NaN,NaN,NaN,NaN
+grid,full,140,22.0,114,82.0,0.0,77.4,86.7,537,269
+grid,full,145,22.0,114,81.9,0.0,77.1,86.6,558,279
+grid,full,135,24.0,114,81.8,0.0,78.1,87.0,568,284
+grid,full,140,24.0,114,81.6,0.0,77.7,86.9,589,294
+grid,full,130,26.0,114,81.2,0.0,78.8,87.4,594,297
+grid,full,150,22.0,114,81.0,0.0,76.9,86.4,578,289
 
 ## Detailed runs at 114 V, n=20000
-design,topology,L0_uH,f_ref_kHz,line_V,intended_full_power_pct,unsafe_any_pan_pct,eff_p05_pct,eff_p50_pct
-HB_grid_best,half,36,22.0,114,73.3,0.0,78.5,86.8
-  f_op p05-p95 21.5-25.5 kHz; tank power at 60 kHz p50 55 W, p95 72 W (burst handoff)
-  by pan: cast_iron full-power 88% (median 100% of full); carbon_or_430_steel full-power 98% (median 100% of full); triply_clad_GUESS full-power 33% (median 93% of full); low_R_silargan_like full-power 34% (median 95% of full); offset_or_small_pan full-power 0% (median 66% of full)
-  intended-cookware pass by input half: coil L0 low-half 72% vs high-half 74%; pan coupling low-half 74% vs high-half 73%; pan resistance low-half 66% vs high-half 80%; coil resistance low-half 72% vs high-half 75%
-  intended-cookware failures: power-limited: peak current (3438); power-limited: phase margin (impedance too high) (569); power-limited: audible floor (9)
-HB_33uH_hand_design,half,33,35.0,114,69.1,0.0,80.4,88.1
-  f_op p05-p95 33.4-39.1 kHz; tank power at 60 kHz p50 92 W, p95 132 W (burst handoff)
-  by pan: cast_iron full-power 55% (median 100% of full); carbon_or_430_steel full-power 98% (median 100% of full); triply_clad_GUESS full-power 54% (median 100% of full); low_R_silargan_like full-power 63% (median 100% of full); offset_or_small_pan full-power 0% (median 71% of full)
-  intended-cookware pass by input half: coil L0 low-half 70% vs high-half 68%; pan coupling low-half 69% vs high-half 69%; pan resistance low-half 69% vs high-half 70%; coil resistance low-half 70% vs high-half 68%
-  intended-cookware failures: power-limited: phase margin (impedance too high) (2354); power-limited: peak current (2296)
-HB_stock_87uH,half,87,35.0,114,0.0,0.0,NaN,NaN
+design,topology,L0_uH,f_ref_kHz,line_V,model_full_power_pct,screen_unreachable_pct,eff_p05_pct,eff_p50_pct,cap_crest_p95_V,cap_line_rms_p95_V
+HB_grid_best,half,18,22.0,114,0.0,0.0,NaN,NaN,NaN,NaN
   f_op p05-p95 NaN-NaN kHz; tank power at 60 kHz p50 NaN W, p95 NaN W (burst handoff)
-  by pan: cast_iron full-power 0% (median 39% of full); carbon_or_430_steel full-power 0% (median 46% of full); triply_clad_GUESS full-power 0% (median 58% of full); low_R_silargan_like full-power 0% (median 62% of full); offset_or_small_pan full-power 0% (median 44% of full)
+  by pan: cast_iron full-power 0% (median 26% of full); carbon_or_430_steel full-power 0% (median 22% of full); triply_clad_GUESS full-power 0% (median 16% of full); low_R_silargan_like full-power 0% (median 17% of full); offset_or_small_pan full-power 0% (median 11% of full)
   intended-cookware pass by input half: coil L0 low-half 0% vs high-half 0%; pan coupling low-half 0% vs high-half 0%; pan resistance low-half 0% vs high-half 0%; coil resistance low-half 0% vs high-half 0%
-  intended-cookware failures: power-limited: phase margin (impedance too high) (12839); power-limited: capacitor voltage (2196)
-FB_grid_best,full,45,42.0,114,100.0,0.0,80.7,88.5
-  f_op p05-p95 44.2-51.8 kHz; tank power at 60 kHz p50 395 W, p95 618 W (burst handoff)
-  by pan: cast_iron full-power 100% (median 100% of full); carbon_or_430_steel full-power 100% (median 100% of full); triply_clad_GUESS full-power 100% (median 100% of full); low_R_silargan_like full-power 100% (median 100% of full); offset_or_small_pan full-power 44% (median 97% of full)
-  intended-cookware pass by input half: coil L0 low-half 100% vs high-half 100%; pan coupling low-half 100% vs high-half 100%; pan resistance low-half 100% vs high-half 100%; coil resistance low-half 100% vs high-half 100%
-  intended-cookware failures: power-limited: capacitor voltage (1)
-FB_stock_87uH,full,87,35.0,114,88.1,0.0,81.1,88.8
-  f_op p05-p95 34.8-41.0 kHz; tank power at 60 kHz p50 141 W, p95 198 W (burst handoff)
-  by pan: cast_iron full-power 100% (median 100% of full); carbon_or_430_steel full-power 100% (median 100% of full); triply_clad_GUESS full-power 64% (median 100% of full); low_R_silargan_like full-power 98% (median 100% of full); offset_or_small_pan full-power 0% (median 67% of full)
-  intended-cookware pass by input half: coil L0 low-half 89% vs high-half 87%; pan coupling low-half 92% vs high-half 84%; pan resistance low-half 78% vs high-half 98%; coil resistance low-half 86% vs high-half 91%
-  intended-cookware failures: power-limited: capacitor voltage (1786)
-FB_stock_123uH,full,123,35.0,114,23.1,0.0,83.6,89.5
+  intended-cookware failures: power-limited: peak current (15035)
+HB_33uH_hand_design,half,33,35.0,114,0.0,0.0,NaN,NaN,NaN,NaN
+  f_op p05-p95 NaN-NaN kHz; tank power at 60 kHz p50 NaN W, p95 NaN W (burst handoff)
+  by pan: cast_iron full-power 0% (median 49% of full); carbon_or_430_steel full-power 0% (median 41% of full); triply_clad_GUESS full-power 0% (median 30% of full); low_R_silargan_like full-power 0% (median 31% of full); offset_or_small_pan full-power 0% (median 21% of full)
+  intended-cookware pass by input half: coil L0 low-half 0% vs high-half 0%; pan coupling low-half 0% vs high-half 0%; pan resistance low-half 0% vs high-half 0%; coil resistance low-half 0% vs high-half 0%
+  intended-cookware failures: power-limited: peak current (15035)
+HB_stock_87uH,half,87,35.0,114,0.0,0.0,NaN,NaN,NaN,NaN
+  f_op p05-p95 NaN-NaN kHz; tank power at 60 kHz p50 NaN W, p95 NaN W (burst handoff)
+  by pan: cast_iron full-power 0% (median 39% of full); carbon_or_430_steel full-power 0% (median 46% of full); triply_clad_GUESS full-power 0% (median 58% of full); low_R_silargan_like full-power 0% (median 61% of full); offset_or_small_pan full-power 0% (median 44% of full)
+  intended-cookware pass by input half: coil L0 low-half 0% vs high-half 0%; pan coupling low-half 0% vs high-half 0%; pan resistance low-half 0% vs high-half 0%; coil resistance low-half 0% vs high-half 0%
+  intended-cookware failures: power-limited: phase margin (impedance too high) (12810); power-limited: comparative capacitor screen (1741); power-limited: peak current (484)
+FB_grid_best,full,140,22.0,114,82.0,0.0,77.7,86.6,536,268
+  f_op p05-p95 21.6-25.6 kHz; tank power at 60 kHz p50 56 W, p95 73 W (burst handoff)
+  by pan: cast_iron full-power 94% (median 100% of full); carbon_or_430_steel full-power 100% (median 100% of full); triply_clad_GUESS full-power 52% (median 100% of full); low_R_silargan_like full-power 61% (median 100% of full); offset_or_small_pan full-power 0% (median 72% of full)
+  intended-cookware pass by input half: coil L0 low-half 81% vs high-half 83%; pan coupling low-half 82% vs high-half 82%; pan resistance low-half 71% vs high-half 92%; coil resistance low-half 80% vs high-half 84%
+  intended-cookware failures: power-limited: peak current (2402); power-limited: phase margin (impedance too high) (296); power-limited: audible floor (6)
+FB_stock_87uH,full,87,35.0,114,54.8,0.0,82.9,88.8,554,277
+  f_op p05-p95 34.6-40.6 kHz; tank power at 60 kHz p50 147 W, p95 204 W (burst handoff)
+  by pan: cast_iron full-power 98% (median 100% of full); carbon_or_430_steel full-power 64% (median 100% of full); triply_clad_GUESS full-power 2% (median 77% of full); low_R_silargan_like full-power 1% (median 80% of full); offset_or_small_pan full-power 0% (median 54% of full)
+  intended-cookware pass by input half: coil L0 low-half 51% vs high-half 59%; pan coupling low-half 56% vs high-half 54%; pan resistance low-half 43% vs high-half 67%; coil resistance low-half 50% vs high-half 59%
+  intended-cookware failures: power-limited: peak current (6789)
+FB_stock_123uH,full,123,35.0,114,23.1,0.0,83.1,88.9,642,321
   f_op p05-p95 33.9-39.7 kHz; tank power at 60 kHz p50 119 W, p95 156 W (burst handoff)
   by pan: cast_iron full-power 32% (median 97% of full); carbon_or_430_steel full-power 36% (median 97% of full); triply_clad_GUESS full-power 1% (median 75% of full); low_R_silargan_like full-power 10% (median 89% of full); offset_or_small_pan full-power 0% (median 47% of full)
   intended-cookware pass by input half: coil L0 low-half 29% vs high-half 17%; pan coupling low-half 35% vs high-half 12%; pan resistance low-half 13% vs high-half 33%; coil resistance low-half 20% vs high-half 26%
-  intended-cookware failures: power-limited: capacitor voltage (10394); power-limited: phase margin (impedance too high) (1170)
+  intended-cookware failures: power-limited: comparative capacitor screen (10394); power-limited: phase margin (impedance too high) (1170)
+FB_selected_70uH_0p54uF,full,70,31.2,114,14.8,0.0,84.2,88.7,401,200
+  f_op p05-p95 31.9-36.4 kHz; tank power at 60 kHz p50 162 W, p95 204 W (burst handoff)
+  by pan: cast_iron full-power 43% (median 98% of full); carbon_or_430_steel full-power 1% (median 82% of full); triply_clad_GUESS full-power 0% (median 61% of full); low_R_silargan_like full-power 0% (median 63% of full); offset_or_small_pan full-power 0% (median 42% of full)
+  intended-cookware pass by input half: coil L0 low-half 12% vs high-half 18%; pan coupling low-half 16% vs high-half 14%; pan resistance low-half 2% vs high-half 27%; coil resistance low-half 11% vs high-half 18%
+  intended-cookware failures: power-limited: peak current (12815)
 
 ## Detailed runs at 127 V, n=20000
-design,topology,L0_uH,f_ref_kHz,line_V,intended_full_power_pct,unsafe_any_pan_pct,eff_p05_pct,eff_p50_pct
-HB_grid_best,half,36,22.0,127,64.9,0.0,79.7,87.3
-  f_op p05-p95 21.7-25.8 kHz; tank power at 60 kHz p50 70 W, p95 90 W (burst handoff)
-  by pan: cast_iron full-power 99% (median 100% of full); carbon_or_430_steel full-power 83% (median 100% of full); triply_clad_GUESS full-power 11% (median 84% of full); low_R_silargan_like full-power 6% (median 86% of full); offset_or_small_pan full-power 0% (median 59% of full)
-  intended-cookware pass by input half: coil L0 low-half 61% vs high-half 69%; pan coupling low-half 66% vs high-half 64%; pan resistance low-half 56% vs high-half 74%; coil resistance low-half 59% vs high-half 71%
-  intended-cookware failures: power-limited: peak current (5257); power-limited: phase margin (impedance too high) (23); power-limited: audible floor (1)
-HB_33uH_hand_design,half,33,35.0,127,71.9,0.0,81.9,88.9
-  f_op p05-p95 33.4-39.4 kHz; tank power at 60 kHz p50 117 W, p95 165 W (burst handoff)
-  by pan: cast_iron full-power 85% (median 100% of full); carbon_or_430_steel full-power 98% (median 100% of full); triply_clad_GUESS full-power 32% (median 92% of full); low_R_silargan_like full-power 31% (median 94% of full); offset_or_small_pan full-power 0% (median 64% of full)
-  intended-cookware pass by input half: coil L0 low-half 71% vs high-half 73%; pan coupling low-half 72% vs high-half 72%; pan resistance low-half 66% vs high-half 77%; coil resistance low-half 71% vs high-half 73%
-  intended-cookware failures: power-limited: peak current (3486); power-limited: phase margin (impedance too high) (742)
-HB_stock_87uH,half,87,35.0,127,0.0,0.0,NaN,NaN
+design,topology,L0_uH,f_ref_kHz,line_V,model_full_power_pct,screen_unreachable_pct,eff_p05_pct,eff_p50_pct,cap_crest_p95_V,cap_line_rms_p95_V
+HB_grid_best,half,18,22.0,127,0.0,0.0,NaN,NaN,NaN,NaN
   f_op p05-p95 NaN-NaN kHz; tank power at 60 kHz p50 NaN W, p95 NaN W (burst handoff)
-  by pan: cast_iron full-power 0% (median 43% of full); carbon_or_430_steel full-power 0% (median 52% of full); triply_clad_GUESS full-power 0% (median 58% of full); low_R_silargan_like full-power 0% (median 65% of full); offset_or_small_pan full-power 0% (median 39% of full)
+  by pan: cast_iron full-power 0% (median 24% of full); carbon_or_430_steel full-power 0% (median 20% of full); triply_clad_GUESS full-power 0% (median 15% of full); low_R_silargan_like full-power 0% (median 15% of full); offset_or_small_pan full-power 0% (median 10% of full)
   intended-cookware pass by input half: coil L0 low-half 0% vs high-half 0%; pan coupling low-half 0% vs high-half 0%; pan resistance low-half 0% vs high-half 0%; coil resistance low-half 0% vs high-half 0%
-  intended-cookware failures: power-limited: capacitor voltage (3569); power-limited: phase margin (impedance too high) (11466)
-FB_grid_best,full,45,42.0,127,99.3,0.0,80.9,88.8
-  f_op p05-p95 44.8-52.6 kHz; tank power at 60 kHz p50 492 W, p95 768 W (burst handoff)
-  by pan: cast_iron full-power 100% (median 100% of full); carbon_or_430_steel full-power 100% (median 100% of full); triply_clad_GUESS full-power 98% (median 100% of full); low_R_silargan_like full-power 100% (median 100% of full); offset_or_small_pan full-power 27% (median 90% of full)
-  intended-cookware pass by input half: coil L0 low-half 99% vs high-half 100%; pan coupling low-half 100% vs high-half 99%; pan resistance low-half 99% vs high-half 100%; coil resistance low-half 99% vs high-half 100%
-  intended-cookware failures: power-limited: peak current (81); power-limited: capacitor voltage (23)
-FB_stock_87uH,full,87,35.0,127,82.7,0.0,82.0,89.3
-  f_op p05-p95 35.3-41.5 kHz; tank power at 60 kHz p50 177 W, p95 248 W (burst handoff)
-  by pan: cast_iron full-power 100% (median 100% of full); carbon_or_430_steel full-power 100% (median 100% of full); triply_clad_GUESS full-power 48% (median 99% of full); low_R_silargan_like full-power 92% (median 100% of full); offset_or_small_pan full-power 0% (median 62% of full)
-  intended-cookware pass by input half: coil L0 low-half 83% vs high-half 82%; pan coupling low-half 87% vs high-half 78%; pan resistance low-half 71% vs high-half 94%; coil resistance low-half 80% vs high-half 85%
-  intended-cookware failures: power-limited: capacitor voltage (2598)
-FB_stock_123uH,full,123,35.0,127,15.3,0.0,84.8,89.9
+  intended-cookware failures: power-limited: peak current (15035)
+HB_33uH_hand_design,half,33,35.0,127,0.0,0.0,NaN,NaN,NaN,NaN
+  f_op p05-p95 NaN-NaN kHz; tank power at 60 kHz p50 NaN W, p95 NaN W (burst handoff)
+  by pan: cast_iron full-power 0% (median 44% of full); carbon_or_430_steel full-power 0% (median 37% of full); triply_clad_GUESS full-power 0% (median 27% of full); low_R_silargan_like full-power 0% (median 28% of full); offset_or_small_pan full-power 0% (median 19% of full)
+  intended-cookware pass by input half: coil L0 low-half 0% vs high-half 0%; pan coupling low-half 0% vs high-half 0%; pan resistance low-half 0% vs high-half 0%; coil resistance low-half 0% vs high-half 0%
+  intended-cookware failures: power-limited: peak current (15035)
+HB_stock_87uH,half,87,35.0,127,0.0,0.0,NaN,NaN,NaN,NaN
+  f_op p05-p95 NaN-NaN kHz; tank power at 60 kHz p50 NaN W, p95 NaN W (burst handoff)
+  by pan: cast_iron full-power 0% (median 43% of full); carbon_or_430_steel full-power 0% (median 52% of full); triply_clad_GUESS full-power 0% (median 58% of full); low_R_silargan_like full-power 0% (median 63% of full); offset_or_small_pan full-power 0% (median 39% of full)
+  intended-cookware pass by input half: coil L0 low-half 0% vs high-half 0%; pan coupling low-half 0% vs high-half 0%; pan resistance low-half 0% vs high-half 0%; coil resistance low-half 0% vs high-half 0%
+  intended-cookware failures: power-limited: comparative capacitor screen (2957); power-limited: phase margin (impedance too high) (11446); power-limited: peak current (632)
+FB_grid_best,full,140,22.0,127,75.4,0.0,79.0,87.1,538,269
+  f_op p05-p95 21.9-26.0 kHz; tank power at 60 kHz p50 71 W, p95 92 W (burst handoff)
+  by pan: cast_iron full-power 100% (median 100% of full); carbon_or_430_steel full-power 97% (median 100% of full); triply_clad_GUESS full-power 29% (median 91% of full); low_R_silargan_like full-power 28% (median 94% of full); offset_or_small_pan full-power 0% (median 65% of full)
+  intended-cookware pass by input half: coil L0 low-half 72% vs high-half 79%; pan coupling low-half 76% vs high-half 74%; pan resistance low-half 65% vs high-half 85%; coil resistance low-half 71% vs high-half 80%
+  intended-cookware failures: power-limited: peak current (3688); power-limited: phase margin (impedance too high) (6); power-limited: audible floor (1)
+FB_stock_87uH,full,87,35.0,127,38.0,0.0,83.8,89.1,564,282
+  f_op p05-p95 34.9-40.6 kHz; tank power at 60 kHz p50 185 W, p95 252 W (burst handoff)
+  by pan: cast_iron full-power 84% (median 100% of full); carbon_or_430_steel full-power 30% (median 94% of full); triply_clad_GUESS full-power 0% (median 70% of full); low_R_silargan_like full-power 0% (median 72% of full); offset_or_small_pan full-power 0% (median 49% of full)
+  intended-cookware pass by input half: coil L0 low-half 32% vs high-half 44%; pan coupling low-half 39% vs high-half 37%; pan resistance low-half 23% vs high-half 52%; coil resistance low-half 32% vs high-half 44%
+  intended-cookware failures: power-limited: peak current (9324)
+FB_stock_123uH,full,123,35.0,127,15.3,0.0,84.2,89.4,643,321
   f_op p05-p95 34.0-40.1 kHz; tank power at 60 kHz p50 156 W, p95 198 W (burst handoff)
   by pan: cast_iron full-power 29% (median 96% of full); carbon_or_430_steel full-power 17% (median 91% of full); triply_clad_GUESS full-power 0% (median 70% of full); low_R_silargan_like full-power 2% (median 83% of full); offset_or_small_pan full-power 0% (median 44% of full)
   intended-cookware pass by input half: coil L0 low-half 19% vs high-half 11%; pan coupling low-half 25% vs high-half 6%; pan resistance low-half 3% vs high-half 27%; coil resistance low-half 12% vs high-half 19%
-  intended-cookware failures: power-limited: capacitor voltage (12615); power-limited: phase margin (impedance too high) (116)
+  intended-cookware failures: power-limited: comparative capacitor screen (12615); power-limited: phase margin (impedance too high) (116)
+FB_selected_70uH_0p54uF,full,70,31.2,127,4.3,0.0,85.1,88.2,400,200
+  f_op p05-p95 32.2-36.5 kHz; tank power at 60 kHz p50 207 W, p95 253 W (burst handoff)
+  by pan: cast_iron full-power 13% (median 89% of full); carbon_or_430_steel full-power 0% (median 75% of full); triply_clad_GUESS full-power 0% (median 55% of full); low_R_silargan_like full-power 0% (median 57% of full); offset_or_small_pan full-power 0% (median 38% of full)
+  intended-cookware pass by input half: coil L0 low-half 2% vs high-half 7%; pan coupling low-half 5% vs high-half 3%; pan resistance low-half 0% vs high-half 8%; coil resistance low-half 2% vs high-half 6%
+  intended-cookware failures: power-limited: peak current (14392)
+
+## Selected 70 uH / 0.54 uF deterministic endpoint probes (all 5 assumed pan classes)
+# Per pan: L0 +/-10%, kL endpoints, Rpan endpoints, coil-R endpoints, C +/-10%; 160 combinations per line. Counts are neither population percentages nor product qualification.
+# Crest/RMS at modeled full-power operating points are conditional on the arbitrary 650 V screen; 60 kHz crest includes every corner whether screened reachable or not.
+line_V,corners,model_full_power,screen_unreachable,max_cap_crest_full_power_V,max_cap_line_rms_full_power_V,max_cap_crest_at_60k_V
+108,160,25,0,431,216,125
+114,160,20,0,416,208,132
+127,160,12,0,428,214,147
+140,160,5,0,423,211,162

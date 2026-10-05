@@ -1,0 +1,4 @@
+interface:
+  display_name: "Temper Manufacturing Review"
+  short_description: "Review fabrication, assembly, inspection, and release"
+  default_prompt: "Use $temper-manufacturing-review to review the current Temper design and identify the next evidence needed."

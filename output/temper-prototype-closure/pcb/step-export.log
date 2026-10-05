@@ -1,0 +1,4 @@
+2026-10-04 13:16:26.219 kicad-cli[24676:40172671] Error retrieving source file attributes: Error Domain=NSCocoaErrorDomain Code=260 "The file “temper-power-native19-candidate.step” couldn’t be opened because there is no such file." UserInfo={NSFilePath=output/temper-prototype-closure/pcb/temper-power-native19-candidate.step, NSURL=output/temper-prototype-closure/pcb/temper-power-native19-candidate.step -- file:///Users/bennet/Desktop/temper/worktrees/mit-product-guidance/output/temper-prototype-closure/pcb/, NSUnderlyingError=0x75500c390 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
+STEP file 'output/temper-prototype-closure/pcb/temper-power-native19-candidate.step' created.
+
+Export time 1.086 s

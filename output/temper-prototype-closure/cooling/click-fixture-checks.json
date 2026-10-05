@@ -1,0 +1,57 @@
+{
+  "status": "UNPOWERED_HOLDING_FIXTURE_ONLY",
+  "size_mm": [
+    40,
+    30,
+    5
+  ],
+  "through_holes": {
+    "diameter_mm": 3.4,
+    "centres_mm": [
+      [
+        -15,
+        -10
+      ],
+      [
+        -15,
+        10
+      ],
+      [
+        15,
+        -10
+      ],
+      [
+        15,
+        10
+      ]
+    ]
+  },
+  "blind_thread_pilots": {
+    "diameter_mm": 1.1,
+    "depth_mm": 3,
+    "finish": "M1.4x0.3 hand tap; machine shop confirm drill",
+    "centres_mm": [
+      [
+        -4.8,
+        0
+      ],
+      [
+        4.8,
+        0
+      ]
+    ]
+  },
+  "cartridge": "R4 12 x 8 x 0.6 mm seat, two 1.7 mm holes on 9.6 mm pitch; real switch PCB and wiring required",
+  "valid_reimport": true,
+  "solid_count": 1,
+  "volume_mm3": 5812.71395395624,
+  "source_sha256": "8415b50fe16ff36dee184404055b09881b0a66189c205a9453dd71cc4aca996c",
+  "step_sha256": "860ef46fb092429721e29a371b8782d0dbe5bb592559f4225838b9fc0fa3fdc6",
+  "exclusions": [
+    "force/displacement test stand",
+    "adjustable ram stop",
+    "switch travel or force qualification",
+    "product tolerances",
+    "electrical PCB design"
+  ]
+}

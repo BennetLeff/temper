@@ -1,0 +1,11 @@
+{
+  "status": "REJECTED_NO_COMPLETED_FIELD_RESULT",
+  "last_linear_residual": 9.955756e-08,
+  "linear_iterations": 4315,
+  "reason": "global paging guard triggered during CalcFields postprocessing",
+  "new_swapout_bytes": 504954880,
+  "peak_sampled_tree_rss_gib": 10.639114379882812,
+  "resource_limit_note": "sampled RSS does not bound transient allocation/compression or establish whole-workflow memory feasibility",
+  "causal_limit": "system-wide paging detected at this phase; not a unique attribution of all paging to this process",
+  "finer_B_status": "NOT_LAUNCHED; prepared queue withheld after A postprocessing resource stop"
+}

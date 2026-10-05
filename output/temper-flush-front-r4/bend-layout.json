@@ -1,0 +1,27 @@
+{
+  "cover": {
+    "width": 370,
+    "length": 583.3915555407207,
+    "bends": [
+      {
+        "angle_deg": 55.0,
+        "flat_center": 36.32321430415109,
+        "allowance": 3.6861353802120242
+      },
+      {
+        "angle_deg": 34.99999999999999,
+        "flat_center": 135.26333033288304,
+        "allowance": 2.345722514680378
+      },
+      {
+        "angle_deg": 90.0,
+        "flat_center": 490.8756265932745,
+        "allowance": 6.031857894892402
+      }
+    ]
+  },
+  "sheet_mm": 2,
+  "inside_radius_mm": 3,
+  "K_assumed": 0.42,
+  "status": "PROVISIONAL; actual shop bend coupon/sequence not verified"
+}

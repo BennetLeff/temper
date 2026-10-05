@@ -1,0 +1,20 @@
+{
+  "board": {
+    "design_settings": {
+      "rules": {
+        "min_clearance": 8,
+        "min_copper_edge_clearance": 1,
+        "min_hole_clearance": 0.25
+      },
+      "rule_severities": {
+        "courtyards_overlap": "warning",
+        "lib_footprint_issues": "warning",
+        "footprint_type_mismatch": "warning"
+      }
+    }
+  },
+  "meta": {
+    "filename": "catch-bleed.kicad_pro",
+    "version": 1
+  }
+}
