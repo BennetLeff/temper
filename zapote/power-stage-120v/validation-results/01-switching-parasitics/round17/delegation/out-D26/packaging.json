@@ -1,0 +1,11 @@
+{
+  "interrupted_diagnostics_missing_stdout": [
+    "interrupted-stress-S1-v170-i37-d0-e10-dtc-1-sk6.5-pwd5",
+    "interrupted-model-S1-v170-i37-d0-e10-max"
+  ],
+  "largest_evidence_file_bytes": 986506,
+  "no_file_over_100MB": true,
+  "library_files_outside_ignored_vendor": [
+    "ucc21550_parametric.lib"
+  ]
+}
