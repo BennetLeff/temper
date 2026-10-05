@@ -31,8 +31,9 @@ only your brief.
 | [D-23 driver vendor model](D23-driver-vendor-model.md) | TI UCC21550 model in place of the 5 Ω/0.55 Ω approximation: real gate timing, DT pin and longer-of rule, decision cases rerun | medium |
 | [D-24 S4 recovery sweep](D24-s4-recovery-sweep.md) | Sweep body-diode recovery over its evidenced plausible range: does S4 need a remedy regardless of the bench? | medium |
 | [D-25 firmware safe state](D25-firmware-safe-state.md) | Settle D-21's blocker from the ESP32-S3 TRM, ESP-IDF source and (if possible) QEMU: does the forced safe state drive both gates low? | small |
+| [D-26 parametric driver model](D26-driver-parametric-model.md) | Datasheet-parametric UCC21550 model (min/typ/max timing, DT pin, longer-of rule): bound gate dead time and rerun decision cases on native-19 | medium |
 
-D-1..D-22 are complete (`out-D*`); D-21 is a draft PR. D-5..D-10 are independent of
+D-1..D-25 are complete (`out-D*`; D-23 indeterminate, D-24 answer c); D-21 is a draft PR awaiting the D-25 cleanup fix. D-5..D-10 are independent of
 each other except D-8 (cite D-5/D-6 if done first) and D-10's dead-time check (cite D-5).
 
 **Paths:** `round17/...` means
