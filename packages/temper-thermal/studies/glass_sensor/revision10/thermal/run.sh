@@ -43,7 +43,7 @@ rustc --edition=2021 -O -D warnings "$RUN/revision5/thermal/main.rs" -o "$RUN/st
 }
 shasum -a 256 -c "$RUN/unit-inputs.sha256" >/dev/null
 cp "$RUN/revision5/thermal/results/c9_conductance_sensitivity.csv" results/
-cp "$RUN/results/tests.txt" results/
+sed '/^$/d' "$RUN/results/tests.txt" > results/tests.txt
 { rustc --version; rustfmt --version; } > results/toolchain.txt
 RECEIPT=$(mktemp "$UNIT/results/.run-inputs.XXXXXX")
 {

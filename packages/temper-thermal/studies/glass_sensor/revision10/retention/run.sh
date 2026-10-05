@@ -14,7 +14,7 @@ rustc --edition=2021 -D warnings --test "$run/budget.rs" -o "$run/tests"
 "$run/tests" > "$run/tests.txt"
 rustc --edition=2021 -D warnings "$run/budget.rs" -o "$run/budget"
 "$run/budget" > "$run/budget.csv"
-cp "$run/tests.txt" "$unit/tests.txt"
+sed '/^$/d' "$run/tests.txt" > "$unit/tests.txt"
 cp "$run/budget.csv" "$unit/budget.csv"
 cat "$run/unit-inputs.sha256" > "$run/receipt"
 (cd "$unit" && shasum -a 256 budget.csv tests.txt >> "$run/receipt")

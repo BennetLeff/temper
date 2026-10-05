@@ -6,6 +6,7 @@ Base: `e3000ccd4ccc406797a1af1a3966dc371538a2d6` on the existing `codex/glass-se
 
 - Thermal: 54 Rust tests pass, including inherited checks, and the runner produces 27 conditional scenarios. The complete test result is in `thermal/results/tests.txt`. It reuses the pinned R5–R9 model and adds a conditional conductance sensitivity. Snapshotted inherited and unit source identities are checked; the result receipt records the consumed copies. Incorrect inherited pins and deliberately corrupted consumed snapshots fail and remove the old success receipt without replacing the physics CSV.
 - Retention: six focused Rust tests pass, including recorded CAD contact-area agreement, unequal load sharing, input validation and extreme-area overflow rejection. A bad inherited pin fails, removes the seeded old success receipt and produces no new CSV. Rust formatting and warning-denied compilation pass. No strength allowable or factor of safety is computed.
+- Test logs omit blank lines before hashing; test names and results are preserved.
 - The thermal output is a conditional network exercise, not a complete C9 simulation. Its reproduction of R7 with the extra path disabled is by construction. Bracket/carrier heat capacity changes, gas/radiation through the open gap, pressure-dependent contact, actual carrier temperature, geometry tolerances and induction self-heating are not validated by it.
 
 ## Findings resolved during main-agent review
