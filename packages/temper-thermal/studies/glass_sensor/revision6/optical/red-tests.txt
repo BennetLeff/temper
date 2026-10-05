@@ -1,0 +1,43 @@
+
+running 8 tests
+test tests::equal_temperatures_have_zero_net_flux ... ok
+test tests::transparent_blackbody_matches_band_difference ... ok
+test tests::opaque_glass_hides_pan ... ok
+test tests::pan_signal_monotonic_and_quadrature_converges ... FAILED
+test tests::gray_filter_halves_pan_sensitivity ... FAILED
+test tests::unknown_emissivity_produces_large_error ... ok
+test tests::integrated_planck_matches_stefan_boltzmann ... FAILED
+test tests::inversion_recovers_known_parameters_but_rejects_outside_range ... FAILED
+
+failures:
+
+---- tests::pan_signal_monotonic_and_quadrature_converges stdout ----
+
+thread 'tests::pan_signal_monotonic_and_quadrature_converges' (40848805) panicked at /private/tmp/temper-r6/optical/main.rs:97:9:
+assertion failed: signal(State { pan: 201., ..s }, Filter::Shaped, 400) >
+    signal(s, Filter::Shaped, 400)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- tests::gray_filter_halves_pan_sensitivity stdout ----
+
+thread 'tests::gray_filter_halves_pan_sensitivity' (40848801) panicked at /private/tmp/temper-r6/optical/main.rs:114:9:
+assertion failed: (filtered / plain - 0.5).abs() < 1e-10
+
+---- tests::integrated_planck_matches_stefan_boltzmann stdout ----
+
+thread 'tests::integrated_planck_matches_stefan_boltzmann' (40848802) panicked at /private/tmp/temper-r6/optical/main.rs:81:9:
+assertion failed: (radiance * PI / (5.670374419e-8 * t.powi(4)) - 1.).abs() < 1e-6
+
+---- tests::inversion_recovers_known_parameters_but_rejects_outside_range stdout ----
+
+thread 'tests::inversion_recovers_known_parameters_but_rejects_outside_range' (40848803) panicked at /private/tmp/temper-r6/optical/main.rs:102:36:
+assertion failed: (invert(signal(s, f, 400), s, f).unwrap() - s.pan).abs() < 1e-8
+
+
+failures:
+    tests::gray_filter_halves_pan_sensitivity
+    tests::integrated_planck_matches_stefan_boltzmann
+    tests::inversion_recovers_known_parameters_but_rejects_outside_range
+    tests::pan_signal_monotonic_and_quadrature_converges
+
+test result: FAILED. 4 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

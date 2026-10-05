@@ -1,0 +1,59 @@
+{
+  "status": "independent_manual_review_complete",
+  "not_a_ce_full_spine_receipt": true,
+  "reviewed_baseline": "9d301c17678aee3ec5e2928db3ca317375a0eb7b",
+  "reviewed_source_sha256": {
+    "contact/adapter.rs": "7a71c813055b2e6605e94fe5129b2e5fd6ffd426e12f93dcdd294f7ef62ec7a5",
+    "observer/main.rs": "9245eafa0d07fbdfb82019c578fa38ccb8de211b53179a467375b28e94bf3499",
+    "optical/main.rs": "6e9b2474e36b2e925d323f1d3570e2c490ef1e712e05230fcc52a3e3439de3a6",
+    "seal/main.rs": "bc5c2aeebbf6168413a8f39b2231a8b033d878eda87bb84f65f94f29517f605b",
+    "contact/run.sh": "f58a88257c618128d47d075e3d55d7dcc2552ac14e2b9b041acbd8930856f7c4",
+    "observer/run.sh": "37c836c66f45da4d8fa4b2b7dde4ee194bc3287d5b3dac0458b663e3d6362cb3",
+    "optical/run.sh": "52edf0f511674f06b6b26207d7f7c8d7763de705f6c4e7baf1ae1a8f3339b6ca",
+    "seal/run.sh": "8d591ca8994d1a7696b41688acb4450094714022c257b11066f36d23422807dc",
+    "README.md": "4cb638693b26d868606ff84057b9144bdc70befad8bb4ea6e783b54dbd84e22f",
+    "WORK_PLAN.md": "494566c9e37dd05c14df96e0129ca204460e33e4b87bd5c20c0c0869a713f5d7",
+    "build_report.py": "2eb6d5ac99ca9ccdca3b01d699f5437154c5e4da5672ba98d8d05f743316fc35",
+    "provenance.py": "166875c9932ebc41311cade51aaec9270b8749280c5c495cc05bf368e6f9eeab",
+    "run.sh": "f2bbc9dd5079e6abf1bc004d5efb7e5ae7fbef83324faa6c76c28504d7515339",
+    "report.html": "d878a6b022cd732453315ac1471dd6504cc1200225a32c9dfc798ff5b635edd7"
+  },
+  "resolved_findings": [
+    {
+      "title": "Invalidate previous success manifests before runner checks",
+      "files": [
+        "observer/run.sh",
+        "optical/run.sh",
+        "seal/run.sh"
+      ],
+      "verification": "Canonical runners copied to isolated scratch with stale receipts and invalid Rust. Each exited1 and removed receipt; canonical data untouched."
+    },
+    {
+      "title": "Propagate final buffered output failures",
+      "file": "observer/main.rs",
+      "lines": [
+        412,
+        413,
+        414
+      ],
+      "verification": "Canonical source explicitly flushes all three BufWriters with error propagation."
+    }
+  ],
+  "remaining_substantive_findings": [],
+  "housekeeping": "Diff check flagged trailing blank lines in7 captured test logs; root informed.",
+  "physics_findings": "No additional blocking equation, unit, comparison or numerical error within declared assumptions. Contact preserves R5 baseline; observer is separate synthetic plant; optical is hypothetical nonreflecting radiance; seal is analytical force allocation.",
+  "evidence_checked": [
+    "Three inherited contact input hashes match actual files",
+    "Baseline CSV2.94s/2.474231C",
+    "Mesh/time refinement CSV",
+    "Stored test logs34+11+8+6",
+    "Independent stale-receipt failure probes",
+    "README/report numbers and limitation claims versus CSV/model"
+  ],
+  "coverage_limits": [
+    "Reviewer did not rerun canonical full suite; root does final rerun",
+    "No hardware or fresh external-source validation",
+    "Final provenance snapshot and root VERIFICATION.md not present during review",
+    "No full CE persona/peer/merge-leaf pipeline"
+  ]
+}

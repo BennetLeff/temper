@@ -1,0 +1,17 @@
+
+running 1 test
+test tests::warm_detach_remains_blind_if_gate_lies ... FAILED
+
+failures:
+
+---- tests::warm_detach_remains_blind_if_gate_lies stdout ----
+
+thread 'tests::warm_detach_remains_blind_if_gate_lies' (40891744) panicked at /private/tmp/temper-r6-observer-mutation.dmbBoe/detach.rs:499:9:
+assertion failed: m.iter().all(|x| x.authorized_n == x.n && x.authorized_abs > 50.0)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    tests::warm_detach_remains_blind_if_gate_lies
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.00s

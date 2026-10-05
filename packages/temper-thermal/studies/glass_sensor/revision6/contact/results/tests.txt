@@ -1,0 +1,38 @@
+
+running 34 tests
+test r5::kernel::tests::hard_stop_lifts_pan ... ok
+test r5::kernel::tests::eccentric_load_reduces_available_force ... ok
+test r5::kernel::tests::light_flat_pan_compresses_soft_probe ... ok
+test r5::kernel::tests::proposed_flat_pan_force_envelope_stays_below_tipping_limit ... ok
+test r5::kernel::tests::hot_contact_loss_can_be_thermally_invisible ... ok
+test r5::kernel::tests::recess_outside_reach_has_no_contact ... ok
+test r5::kernel::tests::radial_uniform_boundary_stays_uniform ... ok
+test r5::kernel::tests::seal_can_prevent_return ... ok
+test r5::kernel::tests::steady_probe_matches_resistor_reduction ... ok
+test r5::kernel::tests::radial_power_is_exactly_500_watts ... ok
+test r5::r6_tests::bond_resistance_matches_si_slab_formula ... ok
+test r5::r6_tests::capacity_brackets_bound_all_candidate_material_proxy_volumes ... ok
+test r5::r6_tests::smaller_area_increases_bond_resistance ... ok
+test r5::kernel::tests::backward_euler_matches_analytic_rc ... ok
+test r5::kernel::tests::closed_network_conserves_energy ... ok
+test r5::r6_tests::no_change_adapter_preserves_every_network_coefficient ... ok
+test r5::kernel::tests::step_time_converges ... ok
+test r5::tests::cad_disc_volume_matches_independent_cylinder ... ok
+test r5::kernel::tests::step_response_is_monotone_and_bounded ... ok
+test r5::tests::contact_area_is_preserved ... ok
+test r5::tests::all_equal_boundaries_stay_equal ... ok
+test r5::tests::complete_copper_and_pfa_length_preserves_mass ... ok
+test r5::r6_tests::unchanged_support_cover_and_complete_wire_capacities_are_retained ... ok
+test r5::tests::cylinder_resistance_matches_analytic ... ok
+test r5::tests::one_step_conserves_energy ... ok
+test r5::tests::infinite_radial_conductivity_matches_independent_node_collapse ... ok
+test r5::tests::series_spring_respects_upper_stop ... ok
+test r5::tests::wire_conduction_limit_matches_analytic ... ok
+test r5::tests::whole_wire_axial_path_includes_anchored_segment ... ok
+test r5::r6_tests::all_equal_boundaries_preserved_for_each_package ... ok
+test r5::r6_tests::baseline_reproduces_r5_pan_response_and_bias ... ok
+test r5::r6_tests::thinner_bond_reduces_step_delay_without_changing_external_contact ... ok
+test r5::tests::numerical_refinement_converges ... ok
+test r5::r6_tests::candidate_spatial_and_temporal_refinement_stays_within_screening_resolution ... ok
+
+test result: ok. 34 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.40s

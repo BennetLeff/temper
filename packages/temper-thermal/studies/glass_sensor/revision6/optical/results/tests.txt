@@ -1,0 +1,12 @@
+
+running 8 tests
+test tests::equal_temperatures_have_zero_net_flux ... ok
+test tests::gray_filter_halves_pan_sensitivity ... ok
+test tests::transparent_blackbody_matches_band_difference ... ok
+test tests::opaque_glass_hides_pan ... ok
+test tests::pan_signal_monotonic_and_quadrature_converges ... ok
+test tests::integrated_planck_matches_stefan_boltzmann ... ok
+test tests::unknown_emissivity_produces_large_error ... ok
+test tests::inversion_recovers_known_parameters_but_rejects_outside_range ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

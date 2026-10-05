@@ -1,0 +1,10 @@
+
+running 6 tests
+test tests::r5_pressure_allocation_recovered ... ok
+test tests::diameter_squared_scaling_and_signed_pressure ... ok
+test tests::no_pressure_gives_budget_over_travel ... ok
+test tests::pressure_exhaustion_is_not_zero_stiffness_pass ... ok
+test tests::opposing_parasitics_cannot_cancel_in_worst_case_budget ... ok
+test tests::pressure_area_dimension_check ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

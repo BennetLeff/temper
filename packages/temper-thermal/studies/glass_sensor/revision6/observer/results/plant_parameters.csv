@@ -1,0 +1,10 @@
+scenario,pan_capacity_j_per_k,cap_capacity_j_per_k,rtd_capacity_j_per_k,support_capacity_j_per_k,contact_w_per_k,bond_w_per_k,cap_support_w_per_k,rtd_support_w_per_k,support_body_w_per_k,cap_glass_w_per_k,pan_air_w_per_k,noise_amplitude_c
+nominal_pulses,400,0.045,0.015,0.15,0.08,0.1,0.0007,0.0005,0.02,0.0003,0.5,0
+heldout_light_pan,275,0.052,0.018,0.15,0.057,0.077,0.0007,0.0005,0.02,0.0003,0.5,0
+heldout_heavy_pan_noise,735,0.039,0.015,0.23,0.123,0.1,0.0011,0.0005,0.02,0.0003,0.5,0.15
+contact_degrades,400,0.045,0.015,0.15,0.08,0.1,0.0007,0.0005,0.02,0.0003,0.5,0.03
+hot_restart,400,0.045,0.015,0.15,0.08,0.1,0.0007,0.0005,0.02,0.0003,0.5,0.05
+body_glass_change,400,0.045,0.015,0.15,0.08,0.1,0.0007,0.0005,0.008,0.0003,0.5,0.03
+stale_timestamp,400,0.045,0.015,0.15,0.08,0.1,0.0007,0.0005,0.02,0.0003,0.5,0
+fresh_frozen_sensor,400,0.045,0.015,0.15,0.08,0.1,0.0007,0.0005,0.02,0.0003,0.5,0
+warm_detach_false_contact_gate,400,0.045,0.015,0.15,0.08,0.1,0.0007,0.0005,0.02,0.0003,0.5,0

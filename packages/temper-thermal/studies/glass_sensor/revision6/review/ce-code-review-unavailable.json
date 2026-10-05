@@ -1,0 +1,6 @@
+{
+  "status": "failed",
+  "reason": "Actual scope helper requires full spine (1702 executable non-test lines, large, hard_block_full=true). Latest user AGENTS mapping requires sequential main-context work and reviewer was instructed not to dispatch further agents. CE full spine requires independent reviewer and merge/report leaves and forbids synthesis in dispatch context. No completed CE receipt is claimed.",
+  "scope_base": "9d301c17678aee3ec5e2928db3ca317375a0eb7b",
+  "scope_helper": "scope.json"
+}

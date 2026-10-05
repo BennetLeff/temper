@@ -1,0 +1,15 @@
+
+running 11 tests
+test tests::equal_temperatures_have_zero_flux ... ok
+test tests::explicit_step_conserves_discrete_energy ... ok
+test tests::all_physical_capacities_and_conductances_positive ... ok
+test tests::stale_and_invalid_contact_rejected ... ok
+test tests::unknown_contact_is_not_identifiable_from_local_rate ... ok
+test tests::internal_heat_cancels_exactly ... ok
+test tests::reduced_steady_correction_inverts_declared_network ... ok
+test tests::stale_trace_stops_authorization ... ok
+test tests::warm_detach_remains_blind_if_gate_lies ... ok
+test tests::fresh_frozen_is_not_claimed_detected ... ok
+test tests::refinement_changes_rmse_by_less_than_point_zero_two_c ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
