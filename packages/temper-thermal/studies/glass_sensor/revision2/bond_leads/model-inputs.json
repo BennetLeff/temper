@@ -1,0 +1,9 @@
+{
+  "status": "SIMULATION_INPUTS_NOT_MEASURED",
+  "M222": {"part": "32208550", "envelope_mm": [2.3,2.1,0.9], "max_envelope_mm": [2.5,2.3,1.2], "cv_proxy_j_m3k": [2700000,3120000,3800000], "warning":"whole-envelope solid proxy; film and fixdrop distribution unknown"},
+  "IST161": {"part":"P0K1.161.6W.A.010","order_code":154366,"substrate_mm":[1.6,1.2,0.25],"max_substrate_mm":[1.8,1.4,0.35],"total_height_mm":0.6,"max_total_height_mm":0.9,"cv_proxy_j_m3k":[2700000,3120000,3800000],"fixdrop_volume_mm3_assumed":[0.1,0.3,0.7],"fixdrop_cv_j_m3k_assumed":[2000000,2500000,3000000],"sourcing_caveat":"single-part PDF header says A but order table says B; series table associates154366withA"},
+  "bond": {"part":"Resbond908-1","thickness_mm_process_candidates":[0.075,0.10,0.15],"k_nominal_w_mk":2.163418635,"k_temperature_and_process_factor_sensitivity":[0.5,1.0,1.5],"cv_j_m3k_assumed":2000000,"cte_ppm_k_catalog":8.1},
+  "wire": {"part":"TFCP-003-100","quantity":4,"metal_diameter_mm_nominal":0.08,"insulation_wall_mm_nominal":0.076,"insulation_max_c_supplier":260,"developed_length_mm":60,"native_shared_ni_stubs_quantity":2,"native_stub_length_mm_process_candidate":1.0,"native_stub_diameter_mm":0.2,"conduction_only_g_w_k":0.000131287,"fin_g_w_k_at_h5_10_15":[0.000326786,0.000446492,0.000536219],"fin_assumptions":"all ambient and anchor60C;PFAk0.25W/mK;h is assumed combined distributed loss; actual route profile unknown"},
+  "excitation_ma":0.3,
+  "scope":"isolated two-node comparison; parent revision2 assembled support model is authoritative"
+}

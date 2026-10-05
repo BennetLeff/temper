@@ -1,0 +1,8 @@
+status=SIMULATION_AND_TEST_PREPARATION
+physical_results=NOT_RUN
+base_commit=470ac33eced8a46791eff201efc2a8a57d0ee0c9
+rustc 1.92.0 (ded5c06cf 2025-12-08)
+0b04d27b2e4be519c7eefe183bab89b456498e5052b3aa3863229f45207ee8ad  model.rs
+3ddfe83b6a0c310110867e8a31bbf7645b845246bfeb7cbaa12fb0434cf6330a  model-inputs.json
+59a0ca6dccaeebcc2f1a3a0f59879b752901a4bc686081876d6b330323570b86  BOM.csv
+ea8faafa1e524d4c7fc38842147cb91499cbbae9a054b4a51ae16e14dfad767d  SOURCES.md
