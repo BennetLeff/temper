@@ -28,8 +28,11 @@ only your brief.
 | [D-20 controller requirements](D20-controller-requirements.md) | One testable requirements document for the controller (J4, PWM/dead-time ownership, protection, bus sense) from D-5/D-10/D-11 and decisions | medium |
 | [D-21 firmware dead time](D21-firmware-dead-time.md) | **Firmware change (draft PR):** fix MCPWM dead-time configuration, error propagation and readback found by D-5, with host tests | medium |
 | [D-22 EMI filter](D22-emi-filter.md) | Converge D-19's periodic EMI source over the envelope and size an additional damped DM stage for ≥ 6 dB margin, with parts, volume and placement | medium |
+| [D-23 driver vendor model](D23-driver-vendor-model.md) | TI UCC21550 model in place of the 5 Ω/0.55 Ω approximation: real gate timing, DT pin and longer-of rule, decision cases rerun | medium |
+| [D-24 S4 recovery sweep](D24-s4-recovery-sweep.md) | Sweep body-diode recovery over its evidenced plausible range: does S4 need a remedy regardless of the bench? | medium |
+| [D-25 firmware safe state](D25-firmware-safe-state.md) | Settle D-21's blocker from the ESP32-S3 TRM, ESP-IDF source and (if possible) QEMU: does the forced safe state drive both gates low? | small |
 
-D-1..D-20 are complete (`out-D*`; D-19 partial); D-21 is a draft PR. D-5..D-10 are independent of
+D-1..D-22 are complete (`out-D*`); D-21 is a draft PR. D-5..D-10 are independent of
 each other except D-8 (cite D-5/D-6 if done first) and D-10's dead-time check (cite D-5).
 
 **Paths:** `round17/...` means
