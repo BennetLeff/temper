@@ -1,0 +1,38 @@
+{
+  "status": "SIMULATION_AND_TEST_PREPARATION; PHYSICAL_NOT_RUN",
+  "date": "2026-10-04",
+  "baseline_commit": "47b0bfd532572c6a8add1bd83e468377dd78eda4",
+  "identity": "Full SHA-256 relative to repository; this manifest excluded; physics is uncalibrated.",
+  "inherited_files": {
+    "packages/temper-thermal/studies/glass_sensor/model.rs": "c29c3a9603228ac05817c71f37464900916069453dd504d7c7fbbc1ecc025369",
+    "packages/temper-thermal/studies/glass_sensor/revision3/source-provenance.json": "4014229fc50c45792834b8560e88b256057392db160982816e048e53dbd2ec74",
+    "packages/temper-thermal/studies/glass_sensor/revision3/thermal/main.rs": "53c7e22998e3e5d7c930e33d82f0a5185f0e75ddacc485f3ba8219aeb1e7fb84",
+    "packages/temper-thermal/studies/glass_sensor/revision3/thermal/results/comparison.csv": "19ee7b56c43d2fb43bae82625d8ecd65f576ef7997645d94a06f1aa35adfdcc5",
+    "packages/temper-thermal/studies/glass_sensor/revision3/mechanical/thermal_geometry.csv": "560b7a281773e51f54dec7d5891728dd3fdb95753244d01ba55a3f1802fd903f",
+    "packages/temper-thermal/studies/glass_sensor/revision2/contact/README.md": "f7da702ebb5b4f1bbb180fe7d9f6e8347d14d2203ac711fe9954ffc8c243744b",
+    "packages/temper-thermal/studies/glass_sensor/revision2/mechanical/README.md": "b1c463b7277f5202f7729503dc1289b259a1d9544f5cf4bf3081f35d7c1c507a",
+    "packages/temper-thermal/studies/glass_sensor/revision2/bond_leads/ASSEMBLY.md": "81f0b46566d4cf6dde9449cc9f9285bd87e327ef407c840704c3166eb64641f9"
+  },
+  "files": {
+    "packages/temper-thermal/studies/glass_sensor/revision4/CLOSURE.md": "f8a6f61cded45ef662529242e0e66919ca72e260335bc55d12154dc78f63e865",
+    "packages/temper-thermal/studies/glass_sensor/revision4/README.md": "1d1834bda0b4a006bb418099669ed5f4c2a5ad5f20dd4778d157b5e317085e0f",
+    "packages/temper-thermal/studies/glass_sensor/revision4/SOURCES.md": "09b677f65109da1f448c33dd15a14391833f9806f31996772c12978918190f56",
+    "packages/temper-thermal/studies/glass_sensor/revision4/artifact-checks.txt": "0a43002e7e01d5c3026a01368678fecf5d328bf65d9e05131d9181c6019fc32f",
+    "packages/temper-thermal/studies/glass_sensor/revision4/build_report.py": "da83e84c61969660fcdfdd2cd07b73a590ee7f638b3feb3aa466066999a0899f",
+    "packages/temper-thermal/studies/glass_sensor/revision4/comparison.png": "8172d4fa50c45b5dff3a8971b9342f74378681566285de9aabe49cf0874c6fb6",
+    "packages/temper-thermal/studies/glass_sensor/revision4/inputs.sha256": "e41dc7be970851419379aa5e7ece4f700b4bf379392f0b515f30e62e935b613d",
+    "packages/temper-thermal/studies/glass_sensor/revision4/main.rs": "d45c7499ae56e0c402f52dcaa70bf9b4e44ba4634335cabee945e94668611476",
+    "packages/temper-thermal/studies/glass_sensor/revision4/report.html": "22a97091383f84ee6ded0fb2adb79c42c57648ff684694768eced9f3e53b5164",
+    "packages/temper-thermal/studies/glass_sensor/revision4/results/bond.csv": "adc41d48e1283db9951c47cde2b471a7d235db2002901439ad835dd27ef1d6a2",
+    "packages/temper-thermal/studies/glass_sensor/revision4/results/closure_gates.csv": "72350776b1ee42b01eb84f1bd704992870239934bd79a93741bdc61e27f7f954",
+    "packages/temper-thermal/studies/glass_sensor/revision4/results/convergence.csv": "44edcb4bd79347d4c0adbc1ead47c874e2f0f8abd70eb7efcd7dab86cfef0aaf",
+    "packages/temper-thermal/studies/glass_sensor/revision4/results/requirements.csv": "4f3416537fa5cc11405754d781cf34a3ccac4ffcd7632cafa93184c0845037cb",
+    "packages/temper-thermal/studies/glass_sensor/revision4/results/retention_screen.csv": "c17cfe611610ce7fa02d9e3bdbda941086bf4f5835d389551872bc2c43537938",
+    "packages/temper-thermal/studies/glass_sensor/revision4/results/seal_capacity.csv": "42f05bcad71a3d360ed9c6b7c37f86506d5d37f1e845819cb8736c2fd85f7878",
+    "packages/temper-thermal/studies/glass_sensor/revision4/results/sealed_pressure.csv": "bd07c266a7f844d49bed82cbfc192b03096442293a89d9eacbe381ad3dceabb1",
+    "packages/temper-thermal/studies/glass_sensor/revision4/results/spatial.csv": "bfc851e8137982bcab3d46caf5ad998e9f00dc2382d483718f06b2b461f7d758",
+    "packages/temper-thermal/studies/glass_sensor/revision4/results/tests.txt": "26c3d6f12f213cb57fb419c0a428ccd26834302c53f652e686b2bd5068283bf0",
+    "packages/temper-thermal/studies/glass_sensor/revision4/run.sh": "8cc24bd28974e666671cddff4591f63a9d8d9eacb2d7b8950fe05feda185ca51",
+    "packages/temper-thermal/studies/glass_sensor/revision4/verification.md": "a6d09cab650c001b8576c4d7a7eb900814d2b94bcab040fb8cfb7c7d57c85b88"
+  }
+}
