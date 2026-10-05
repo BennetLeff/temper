@@ -1,0 +1,9 @@
+item,identity,quantity,status,source,qualification_dependency
+cap,TEMPER-GS2-CAP8-015-316L,1,custom prototype candidate,https://www.outokumpu.com/-/media/files/products/supra/outokumpu-supra-range-datasheet.pdf,Roof flatness and three discrete hook welds/forming/dent load
+support,TEMPER-GS2-SPIDER-CIMZRO2,1,custom Morgan CIM Zirconia RFQ,https://www.morganthermalceramics.com/media/00td54fl/cim-zirconia.pdf,Micro-post root geometry and hot side-load flaw strength
+local blade,TEMPER-GS2-BLADE-X750-008,3,custom cut/heat-treated X750 strip,https://www.elgiloy.com/strip-inconel-alloy-x750,Temper/heat treatment and edge quality/free length/fatigue
+rolling membrane,TEMPER-GS2-DIAPHRAGM-6375,1,custom Kalrez6375 RFQ,https://www.dupont.com/content/dam/dupont/amer/us/en/kalrez/public/documents/en/KZE-H82112-00-F0719_Kalrez_Spectrum_6375.pdf,0.3mm molding feasibility and hot force/relaxation/cycle life
+static gasket,TEMPER-GS2-GASKET-6375-18p6x24x1,1,custom Kalrez6375 RFQ,https://www.dupont.com/content/dam/dupont/amer/us/en/kalrez/public/documents/en/KZE-H82112-00-F0719_Kalrez_Spectrum_6375.pdf,Compression/clamp force and glass strain/extrusion/cleaning compatibility
+RTD,YAGEO Nexensos32208550,1,retained PR1 selected candidate,https://yageogroup.com/content/datasheet/asset/file/YAGEO_Nexensos_M222_Datasheet_EN,See sibling bond_leads validation plan
+bond,Cotronics Resbond908-1,as process controlled,retained coupon candidate,https://www.cotronics.com/vo/cotr/pdf/A_2020_Catalog-NP.pdf,Particle size thin bond and moisture dielectric/CTE cycle data
+wires,Omega TFCP-003-100,4 conductors,sibling lead candidate,https://www.omega.com,See sibling exact supplier references/coupon fixture;0.30mm individual envelope
