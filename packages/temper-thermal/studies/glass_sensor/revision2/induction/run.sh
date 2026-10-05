@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$(dirname "$0")"
+shasum -a 256 -c geometry-source.sha256
 build_dir=$(mktemp -d /tmp/temper-induction-pr2.XXXXXX)
 trap 'rm -rf "$build_dir"' EXIT
 rustfmt --check topology.rs

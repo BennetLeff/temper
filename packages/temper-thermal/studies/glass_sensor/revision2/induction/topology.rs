@@ -1,6 +1,14 @@
 //! Topology-dependent induction screening; no measured field or hardware verdict.
 use std::{error::Error, f64::consts::PI, fmt::Write, fs};
 const MU0: f64 = 4e-7 * PI;
+// Mechanical CAD snapshot, verified by geometry-source.sha256 before each run.
+const FULL_CAP_VOLUME_M3: f64 = 9.05182236861571e-9;
+fn hook_volume() -> f64 {
+    FULL_CAP_VOLUME_M3 - ring(4., 0., 0.15, 0.75e-6).volume()
+}
+fn hook_volume_equivalent_length() -> f64 {
+    hook_volume() / (3. * 0.8e-3 * 0.15e-3)
+}
 #[derive(Clone, Copy)]
 struct Annulus {
     outer: f64,
@@ -176,7 +184,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             .retainer
             .ok_or("baseline skirt absent")?
             .power(40000., 0.001);
-    let mut s=String::from("evidence,candidate,hz,B_rms_mT,head_mass_g,metal_retainer_mass_g,head_C_J_K,retainer_C_J_K,head_R_vertical_over6mm2_K_W,head_loss_unshielded_W,retainer_loss_unshielded_W,total_loss_unshielded_W,ratio_to_PR1_same_field,max_wall_over_skin,max_reaction_parameter,regime,topology\n");
+    let mut s=String::from("evidence,candidate,hz,B_rms_mT,head_mass_g,metal_retainer_mass_g,head_C_J_K,retainer_C_J_K,head_R_over_M222_4p83mm2_K_W,head_R_over_IST_1p92mm2_K_W,head_loss_unshielded_W,retainer_loss_unshielded_W,total_loss_unshielded_W,ratio_to_PR1_same_field,max_wall_over_skin,max_reaction_parameter,regime,topology\n");
     for c in candidates() {
         for hz in [5000., 10000., 20000., 33000., 40000., 60000.] {
             for b in [0.1e-3, 1e-3, 10e-3] {
@@ -190,7 +198,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     valid &= v;
                 }
                 let rm = c.retainer.map_or(0., |r| r.volume() * 8000.);
-                writeln!(s,"SIMULATED,{},{hz},{},{:.9},{:.9},{:.9},{:.9},{:.9},{hp:.12},{rp:.12},{:.12},{:.6},{sk:.6},{re:.6},{},{}",c.name,b*1000.,c.head.volume()*c.rho*1000.,rm*1000.,c.head.volume()*c.rho*c.cp,rm*500.,c.head.height/(6e-6*c.k),hp+rp,(hp+rp)/(baseline*(hz/40000.).powi(2)*(b/0.001).powi(2)),if valid{"SMALL_PARAMETER_SCREEN_NOT_VALIDATED"}else{"OUTSIDE_SMALL_PARAMETER_REGIME"},c.topology)?;
+                writeln!(s,"SIMULATED,{},{hz},{},{:.9},{:.9},{:.9},{:.9},{:.9},{:.9},{hp:.12},{rp:.12},{:.12},{:.6},{sk:.6},{re:.6},{},{}",c.name,b*1000.,c.head.volume()*c.rho*1000.,rm*1000.,c.head.volume()*c.rho*c.cp,rm*500.,c.head.height/(4.83e-6*c.k),c.head.height/(1.92e-6*c.k),hp+rp,(hp+rp)/(baseline*(hz/40000.).powi(2)*(b/0.001).powi(2)),if valid{"SMALL_PARAMETER_SCREEN_NOT_VALIDATED"}else{"OUTSIDE_SMALL_PARAMETER_REGIME"},c.topology)?;
             }
         }
     }
@@ -230,10 +238,18 @@ fn main() -> Result<(), Box<dyn Error>> {
         for b in [0.1e-3, 1e-3, 10e-3] {
             for field_ratio in [0.1, 0.3, 1.] {
                 let head = ring(4., 0., 0.15, 0.75e-6).power(hz, b);
-                let tabs = 3. * isolated_strip_power(hz, b, 2.2e-3, 0.8e-3, 0.15e-3, 0.75e-6);
+                let tabs = 3.
+                    * isolated_strip_power(
+                        hz,
+                        b,
+                        hook_volume_equivalent_length(),
+                        0.8e-3,
+                        0.15e-3,
+                        0.75e-6,
+                    );
                 let beams =
                     3. * isolated_strip_power(hz, b * field_ratio, 7e-3, 2.1e-3, 0.08e-3, 1.22e-6);
-                let tab_mass = 3. * 2.2e-3 * 0.8e-3 * 0.15e-3 * 8000.;
+                let tab_mass = hook_volume() * 8000.;
                 let beam_mass = 3. * 7e-3 * 2.1e-3 * 0.08e-3 * 8280.;
                 let beam_g = 3. * 12. * 2.1e-3 * 0.08e-3 / 7e-3;
                 writeln!(s,"SIMULATED,{hz},{},{field_ratio},{head:.12},{tabs:.12},{beams:.12},{:.12},{:.12},{:.9},{:.9},{:.9},{:.9},{beam_g:.9},OUTSIDE_LONG_STRIP_ASPECT_REGIME_NO_HARDWARE_PREDICTION",b*1000.,head+tabs+beams,tabs+beams,tab_mass*1000.,beam_mass*1000.,tab_mass*500.,beam_mass*431.)?;
@@ -241,6 +257,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     }
     fs::write("results/PR2_suspension_sensitivity.csv", s)?;
+    fs::write("results/actual_cap_geometry.csv",format!("evidence,full_cap_volume_mm3,disc_volume_mm3,hook_volume_mm3,full_cap_mass_g,full_cap_capacity_J_K,hook_mass_g,hook_capacity_J_K,hook_volume_equivalent_straight_length_each_mm,status\nCAD_CALCULATED,{:.12},{:.12},{:.12},{:.12},{:.12},{:.12},{:.12},{:.12},BENT_HOOK_EDDY_LOSS_UNRESOLVED\n",FULL_CAP_VOLUME_M3*1e9,ring(4.,0.,0.15,0.75e-6).volume()*1e9,hook_volume()*1e9,FULL_CAP_VOLUME_M3*8000.*1000.,FULL_CAP_VOLUME_M3*8000.*500.,hook_volume()*8000.*1000.,hook_volume()*8000.*500.,hook_volume_equivalent_length()*1000.))?;
     Ok(())
 }
 #[cfg(test)]
@@ -333,6 +350,16 @@ mod tests {
                 - 0.09)
                 .abs()
                 < 1e-12
+        );
+    }
+    #[test]
+    fn full_cad_hook_volume_is_included() {
+        assert!((hook_volume() * 1e9 - 1.512).abs() < 1e-10);
+    }
+    #[test]
+    fn developed_strip_preserves_cad_hook_volume() {
+        assert!(
+            (3. * hook_volume_equivalent_length() * 0.8e-3 * 0.15e-3 - hook_volume()).abs() < 1e-20
         );
     }
 }
