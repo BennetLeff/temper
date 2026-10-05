@@ -1,0 +1,25 @@
+/private/tmp/temper-baseline-test-profiles.c:24:5: error: incompatible pointer to integer conversion passing 'const cooking_profile_t *' (aka 'const struct cooking_profile_t *') to parameter of type 'int' [-Wint-conversion]
+   24 |     TEST_ASSERT_EQUAL(simmer, status.active_profile);
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+firmware/test/unity/unity.h:224:58: note: expanded from macro 'TEST_ASSERT_EQUAL'
+  224 | #define TEST_ASSERT_EQUAL(expected, actual)              TEST_ASSERT_EQUAL_INT((expected), (actual))
+      |                                                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+firmware/test/unity/unity.h:222:78: note: expanded from macro 'TEST_ASSERT_EQUAL_INT'
+  222 | #define TEST_ASSERT_EQUAL_INT(expected, actual)          UnityAssertEqualInt((expected), (actual), NULL, __LINE__)
+      |                                                                              ^~~~~~~~~~
+firmware/test/unity/unity.h:106:36: note: passing argument to parameter 'expected' here
+  106 | void UnityAssertEqualInt(const int expected,
+      |                                    ^
+/private/tmp/temper-baseline-test-profiles.c:24:5: error: incompatible pointer to integer conversion passing 'const cooking_profile_t *' (aka 'const struct cooking_profile_t *') to parameter of type 'int' [-Wint-conversion]
+   24 |     TEST_ASSERT_EQUAL(simmer, status.active_profile);
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+firmware/test/unity/unity.h:224:58: note: expanded from macro 'TEST_ASSERT_EQUAL'
+  224 | #define TEST_ASSERT_EQUAL(expected, actual)              TEST_ASSERT_EQUAL_INT((expected), (actual))
+      |                                                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+firmware/test/unity/unity.h:222:90: note: expanded from macro 'TEST_ASSERT_EQUAL_INT'
+  222 | #define TEST_ASSERT_EQUAL_INT(expected, actual)          UnityAssertEqualInt((expected), (actual), NULL, __LINE__)
+      |                                                                                          ^~~~~~~~
+firmware/test/unity/unity.h:107:36: note: passing argument to parameter 'actual' here
+  107 |                          const int actual,
+      |                                    ^
+2 errors generated.

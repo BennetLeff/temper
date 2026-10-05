@@ -319,7 +319,9 @@
     },
     "perturbation": {
       "at_tick": 0,
-      "sensors": []
+      "sensors": [
+
+      ]
     },
     "expected": {
       "final_state": "FAULT",
@@ -675,6 +677,81 @@
       "final_state": "PREHEAT",
       "fault_code": "FAULT_NONE",
       "max_latency_ticks": 2
+    }
+  },
+  {
+    "name": "SIL: Probe Contact Fault (PAN_DET)",
+    "description": "Independent contact loss with electrically healthy RTD cuts before state output commands; real acquisition/freshness exercised by test_contact_interlock.",
+    "origin_state": "PAN_DET",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "timing": {
+      "advance_ms": 10,
+      "contact_loss": 1
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_PROBE_CONTACT",
+      "max_latency_ticks": 1,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_PROBE_CONTACT"
+        }
+      ]
+    }
+  },
+  {
+    "name": "SIL: Probe Contact Fault (PREHEAT)",
+    "description": "Independent contact loss with electrically healthy RTD cuts before state output commands; real acquisition/freshness exercised by test_contact_interlock.",
+    "origin_state": "PREHEAT",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "timing": {
+      "advance_ms": 10,
+      "contact_loss": 1
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_PROBE_CONTACT",
+      "max_latency_ticks": 1,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_PROBE_CONTACT"
+        }
+      ]
+    }
+  },
+  {
+    "name": "SIL: Probe Contact Fault (HEATING)",
+    "description": "Independent contact loss with electrically healthy RTD cuts before state output commands; real acquisition/freshness exercised by test_contact_interlock.",
+    "origin_state": "HEATING",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "timing": {
+      "advance_ms": 10,
+      "contact_loss": 1
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_PROBE_CONTACT",
+      "max_latency_ticks": 1,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_PROBE_CONTACT"
+        }
+      ]
     }
   }
 ]

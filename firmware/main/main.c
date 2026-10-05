@@ -65,7 +65,14 @@ static void control_task(void *arg) {
          * state changes in this task so it is the sole state-machine owner. */
         rtd_service_control_tick();
 
+        /* No contact detector is fitted/qualified in this board definition.
+         * The guard remains unavailable and blocks ALL excitation. A future
+         * passive detector driver must submit independent, timestamped evidence
+         * here in the control task before state_machine_update(); never infer
+         * contact from RTD health, temperature, or induction pan detection. */
+
         /* Update state machine (handles PID, PLL internally) */
+
         state_machine_update();
         
         /* Wait for next period */

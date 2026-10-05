@@ -63,6 +63,13 @@ TRANSITION_TABLE_PATH = REPO_ROOT / "firmware" / "transition_table.yaml"
 # (fault_code, origin_state) pairs, each with the call site that makes it
 # "designed" rather than incidental.
 SUPPLEMENTAL_PAIRS = {
+    ("FAULT_PROBE_CONTACT", "PAN_DET"):
+        "contact guard before handlers in state_machine_update/transition_to",
+    ("FAULT_PROBE_CONTACT", "PREHEAT"):
+        "contact guard before handlers in state_machine_update/transition_to",
+    ("FAULT_PROBE_CONTACT", "HEATING"):
+        "contact guard before handlers in state_machine_update/transition_to",
+
     ("FAULT_IGBT_SHORT", "PREHEAT"):
         "check_safety_interlocks() <- state_preheat_update() (state_handlers.c)",
     ("FAULT_IGBT_SHORT", "HEATING"):

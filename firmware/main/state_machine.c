@@ -8,6 +8,7 @@
 
 #include "state_machine.h"
 #include "state_handlers.h"
+#include "contact_guard.h"
 #include "config.h"
 #include <stddef.h>
 #include <math.h>
@@ -120,6 +121,7 @@ static void assert_hardware_fault_cut(void) {
  * Keep this separate from self-test/configuration faults, which occur before
  * the power stage is enabled. */
 void enter_hardware_latched_fault(fault_code_t fault) {
+    sm_ctx.message_pending = false; /* A queued UI transition cannot escape a fault. */
     sm_ctx.fault_code = fault;
     assert_hardware_fault_cut();
     transition_to(STATE_FAULT);
@@ -152,6 +154,7 @@ extern bool test_eeprom_read(void);
  * ============================================================================ */
 
 void state_machine_init(void) {
+    contact_guard_reset();
     /* Reset all state machine context to defaults */
     sm_ctx.current_state = STATE_INIT;
     sm_ctx.previous_state = STATE_INIT;
@@ -224,6 +227,16 @@ void state_machine_update(void) {
      * events preempt all normal operation. */
     check_runaway_boundary();
     
+    /* Contact is independent of induction pan presence and RTD health.
+     * Check before message waits and before any state handler can command heat. */
+    if ((sm_ctx.current_state == STATE_PAN_DET ||
+         sm_ctx.current_state == STATE_PREHEAT ||
+         sm_ctx.current_state == STATE_HEATING) &&
+        !contact_guard_valid(now)) {
+        enter_hardware_latched_fault(FAULT_PROBE_CONTACT);
+        return;
+    }
+
     /* Handle non-blocking message display */
     if (sm_ctx.message_pending) {
         if ((now - sm_ctx.message_start_time) >= MESSAGE_DISPLAY_TIME_MS) {
@@ -346,6 +359,18 @@ void transition_to(system_state_t new_state) {
     /* Runaway interlock: block all transitions once latched */
     if (sm_ctx.runaway_latched && new_state != STATE_RUNAWAY_FAULT) {
         return;
+    }
+
+    /* Gate ENTRY too: PAN_DET commands 5% power and PREHEAT enables the stage.
+     * The detector is passive, so requiring it before excitation is not circular.
+     * Contact recovery never clears the fault or resumes a queued cooking state. */
+    if (new_state == STATE_PAN_DET || new_state == STATE_PREHEAT ||
+        new_state == STATE_HEATING) {
+        if (sm_ctx.fault_code == FAULT_PROBE_CONTACT) return;
+        if (!contact_guard_valid(get_time_ms())) {
+            enter_hardware_latched_fault(FAULT_PROBE_CONTACT);
+            return;
+        }
     }
 
     /* Stop low-temperature control if transitioning out of heating state */
