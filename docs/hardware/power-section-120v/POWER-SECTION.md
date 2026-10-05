@@ -73,7 +73,7 @@ BR1− → RECT_N → J9 ── external removable jumper ── J10 → HV_RET
                 C38–C41 (4 × 0.1 µF TDK, two per bridge leg),
                 D3 MRT130KP295CV TVS, R3+R4 bus bleed
  HV_RET → R5 1 mΩ Kelvin shunt → LEG_RET
- (R5 pad 1 power LEG_RET, pad 2 sense LEG_RET, pad 3 OCP_KELVIN_N,
+ (R5 pad 1 power LEG_RET, pad 2 sense OCP_KELVIN_P, pad 3 OCP_KELVIN_N,
   pad 4 power HV_RET; keep Kelvin copper out of the power path)
 
 LEG A: Q2 high drain BUS_P, source SW_A; Q3 low drain SW_A, source LEG_RET
@@ -137,7 +137,7 @@ Status: **V** = the rating that decides the choice was checked against the datas
 | C38–C41 | 4 | B32652A0104K000 | 100 nF/1000 V, two per leg, BUS_P to HV_RET through the shunt power path | V (catalog ratings); C (assembled ripple and heat) |
 | D3 | 1 | MRT130KP295CV | DC-link TVS at C5/C6; actual terminal clamp and pulse energy need transient measurement | V (datasheet pulse); C (assembled surge) |
 | R3,R4 | 2 | RC1206FR-07220KL | 440 kΩ bus bleed, nominal τ ≈ 2.55 s at the new 5.8 µF total | V (part); C (actual discharge) |
-| R5 | 1 | WSK2512R0010FEA | 1 mΩ 4-terminal shunt, ~0.35 W | C (power at temperature) |
+| R5 | 1 | WSK25121L000FEA | 1 mΩ 4-terminal shunt, 1 W at 70 °C, ~0.35 W; native-19 T2.21 mm footprint | C (power at temperature) |
 | U6 / U5 / R31 | 1 each | TLV3201AIDBVR / LM4040A25IDBZR / RC0603FR-075K6L (5.6k) | 40 ns comparator; 2.5 V reference, 120.8 µA cathode current at the checked DC corner (REFERENCE-BIAS.md); complete shutdown latency unqualified | V (selected ratings and DC corner) |
 | R32,R33 / R34 / R35 | 2 / 1 / 1 | RT0603BRD0710KL / 10K5 / 10K (0.1 %) | Trip ≈ 61 A nominal; 38.44–85.55 A conditional static band at +85 °C board / assumed +50 °C R5 rise, including reference, resistor/TCR, ±4 mV comparator offset and bias. Retuning remains on hold pending fault survival; returned tank energy is not bounded by this nominal threshold. | V (nominal network); C (fault response) |
 | U7 / R36 / R37 / C33 | 1 each | TLV3201AIDBVR / RT0603BRD0710KL / RT0603BRD07140KL / 1 nF C0G | Bus OVP ≈ 280 V from the VSENSE_IN tap; hardware restart inhibit | V |

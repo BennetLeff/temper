@@ -33,8 +33,10 @@ only your brief.
 | [D-25 firmware safe state](D25-firmware-safe-state.md) | Settle D-21's blocker from the ESP32-S3 TRM, ESP-IDF source and (if possible) QEMU: does the forced safe state drive both gates low? | small |
 | [D-26 parametric driver model](D26-driver-parametric-model.md) | Datasheet-parametric UCC21550 model (min/typ/max timing, DT pin, longer-of rule): bound gate dead time and rerun decision cases on native-19 | medium |
 | [D-27 prototype reconciliation](D27-prototype-reconciliation.md) | Check every prototype-closure choice against DECISIONS.md and round-17 findings (agree / contradict / one-sided / supersedes); nominal enclosure fit of the D-18 and D-22 allocations | medium |
+| [D-28 phase-shift validation](D28-phase-shift-validation.md) | Validate fixed-frequency phase shift (gated low-power mode): per-leg commutation current, ZVS, off-gate, losses vs phase; CT inhibit | medium |
+| [D-29 prototype firmware conformance](D29-prototype-firmware-conformance.md) | **Firmware change (draft PR):** prototype ESP32 PWM safe state on every failure path, 180° phase cap, fault-injection tests | small |
 
-D-1..D-25 are complete (`out-D*`; D-23 indeterminate, D-24 answer c); D-21 is a draft PR awaiting the D-25 cleanup fix. D-5..D-10 are independent of
+D-1..D-27 are complete (`out-D*`; D-23 and D-26 indeterminate, D-24 answer c); D-21 is a draft PR awaiting the D-25 cleanup fix. D-5..D-10 are independent of
 each other except D-8 (cite D-5/D-6 if done first) and D-10's dead-time check (cite D-5).
 
 **Paths:** `round17/...` means
