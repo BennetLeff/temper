@@ -6,9 +6,10 @@ only constructs CAD, checks intersections and writes CAD/geometry outputs.
 from __future__ import annotations
 
 import json
-from pathlib import Path
 import sys
+from pathlib import Path
 from types import ModuleType
+
 import cadquery as cq
 
 OUT = Path(__file__).resolve().parent

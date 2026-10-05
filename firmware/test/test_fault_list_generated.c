@@ -106,7 +106,6 @@ static void test_persisted_fault_ids(void) {
     TEST_ASSERT_EQUAL(14,FAULT_PROBE_CONTACT);
 }
 int main(void)
-
 {
     UnityBegin("test_fault_list_generated.c");
 
@@ -117,5 +116,5 @@ int main(void)
     RUN_TEST(test_fault_name_table_complete);
     RUN_TEST(test_fault_labels_preserved);
 
-    return 0;
+    return UnityEnd();
 }

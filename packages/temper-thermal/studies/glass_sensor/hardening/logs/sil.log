@@ -1,0 +1,28 @@
+=== SIL fault-class x origin-state coverage ===
+Manifest:          firmware/test/traces/manifest.json
+Transition table:  firmware/transition_table.yaml
+
+fault class                 COOLDOWN  HEATING   INIT      PAN_DET   PREHEAT
+------------------------------------------------------------------------------
+FAULT_ADC_STUCK             .         OK(1)     .         .         OK(1)
+FAULT_COOLDOWN_OVERHEAT     OK(2)     .         .         .         .
+FAULT_FAN_FAILURE           .         OK(1)     .         .         OK(1)
+FAULT_IGBT_SHORT            .         OK(1)     .         .         OK(1)
+FAULT_OVER_CURRENT          .         OK(1)     .         .         OK(1)
+FAULT_OVER_TEMP             .         OK(1)     .         .         OK(1)
+FAULT_PROBE_CONTACT         .         OK(1)     .         OK(1)     OK(1)
+FAULT_PROBE_OPEN            .         OK(1)     .         .         OK(1)
+FAULT_PROBE_SHORT           .         OK(1)     .         .         OK(1)
+FAULT_RUNAWAY_BOUNDARY      .         OK(1)     .         .         OK(1)
+FAULT_SELF_TEST_FAILED      .         .         OK(1)     .         .
+FAULT_THERMAL_RUNAWAY       .         OK(1)     .         .         OK(1)
+
+Designed pairs: 23
+Covered pairs:  23
+Missing pairs:  0
+
+Fault classes with no manifest path (excluded from matrix, not missed):
+  - FAULT_PAN_DETECT_HW: no transition_table.yaml row or C call site as of this audit (2026-08-02-031); legacy fault_list_supplemental.yaml entry
+  - FAULT_WATCHDOG_RESET: no transition_table.yaml row or C call site as of this audit (2026-08-02-031); legacy fault_list_supplemental.yaml entry
+
+PASS

@@ -1,0 +1,7 @@
+-- Configuring done (0.1s)
+-- Generating done (0.1s)
+-- Build files have been written to: /private/tmp/temper-glass-integrated-build
+[ 33%] Built target gen_fault_list
+[ 66%] Building C object CMakeFiles/test_fault_list_only.dir/test_fault_list_generated.c.o
+[ 66%] Linking C executable test_fault_list_only
+[100%] Built target test_fault_list_only

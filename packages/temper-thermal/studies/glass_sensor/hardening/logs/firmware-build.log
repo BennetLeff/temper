@@ -1,0 +1,292 @@
+-- The C compiler identification is AppleClang 21.0.0.21000101
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Configuring done (0.4s)
+-- Generating done (0.1s)
+-- Build files have been written to: /private/tmp/temper-glass-integrated-build
+[ 22%] Building C object CMakeFiles/test_runner.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/hal/mock/mock_gpio.c.o
+[ 22%] Building C object CMakeFiles/test_runner.dir/unity/unity.c.o
+[ 22%] Building C object CMakeFiles/test_runner.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/hal/mock/hal_init_mock.c.o
+[ 22%] Building C object CMakeFiles/test_runner.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/hal/mock/mock_adc.c.o
+[ 33%] Building C object CMakeFiles/test_runner.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/hal/mock/mock_pwm.c.o
+[ 33%] Building C object CMakeFiles/test_runner.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/hal/mock/mock_spi.c.o
+[ 44%] Building C object CMakeFiles/test_runner.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/hal/mock/mock_timer.c.o
+[ 55%] Building C object CMakeFiles/test_runner.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/pid_control.c.o
+[ 55%] Building C object CMakeFiles/test_runner.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/low_temp_control.c.o
+[ 66%] Building C object CMakeFiles/test_runner.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/zvs_monitor.c.o
+[ 66%] Building C object CMakeFiles/test_runner.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/pll_control.c.o
+[ 77%] Building C object CMakeFiles/test_runner.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/safety/safety.c.o
+/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/pll_control.c:356:11: warning: unused variable 'abs_error' [-Wunused-variable]
+  356 |     float abs_error = fabsf(error);
+      |           ^~~~~~~~~
+/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/pll_control.c:499:17: warning: unused variable 'sim_freq_safe' [-Wunused-variable]
+  499 |     static bool sim_freq_safe = true;
+      |                 ^~~~~~~~~~~~~
+/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/pll_control.c:178:17: warning: unused variable 'last_update_time_us' [-Wunused-variable]
+  178 | static uint64_t last_update_time_us = 0;
+      |                 ^~~~~~~~~~~~~~~~~~~
+3 warnings generated.
+[ 77%] Building C object CMakeFiles/test_runner.dir/test_main.c.o
+[ 88%] Building C object CMakeFiles/test_runner.dir/test_pid_control.c.o
+[ 88%] Building C object CMakeFiles/test_runner.dir/test_low_temp_control.c.o
+[100%] Building C object CMakeFiles/test_runner.dir/test_safety.c.o
+/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/test/test_low_temp_control.c:23:33: warning: unused parameter 'duty' [-Wunused-parameter]
+   23 | void pwm_set_duty_cycle(uint8_t duty) {
+      |                                 ^
+/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/test/test_low_temp_control.c:37:13: warning: unused function 'low_temp_test_teardown' [-Wunused-function]
+   37 | static void low_temp_test_teardown(void) {
+      |             ^~~~~~~~~~~~~~~~~~~~~~
+/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/test/test_pid_control.c:167:11: warning: unused variable 'output1' [-Wunused-variable]
+  167 |     float output1 = pid_compute(&pid, 100.0f, 100.0f, dt);
+      |           ^~~~~~~
+/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/test/test_pid_control.c:22:13: warning: unused function 'pid_test_setup' [-Wunused-function]
+   22 | static void pid_test_setup(void) {
+      |             ^~~~~~~~~~~~~~
+2 warnings generated.
+2 warnings generated.
+[100%] Linking C executable test_runner
+[100%] Built target test_runner
+[  0%] Built target gen_config
+[  0%] Regenerating firmware/main/transition_table.h from transition_table.yaml
+[ 14%] Built target gen_fault_list
+transition_table.h up to date
+[ 14%] Built target gen_transition_table
+[ 14%] Building C object CMakeFiles/test_state_machine_only.dir/unity/unity.c.o
+[ 42%] Building C object CMakeFiles/test_state_machine_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/main/state_handlers.c.o
+[ 42%] Building C object CMakeFiles/test_state_machine_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/main/state_machine.c.o
+[ 42%] Building C object CMakeFiles/test_state_machine_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/low_temp_control.c.o
+/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/main/state_handlers.c:207:10: warning: unused variable 'estimation_complete' [-Wunused-variable]
+  207 |     bool estimation_complete = thermal_mass_update(&sm_get_context()->thermal_mass, current_temp, current_time);
+      |          ^~~~~~~~~~~~~~~~~~~
+1 warning generated.
+[ 57%] Building C object CMakeFiles/test_state_machine_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/pid_control.c.o
+[ 71%] Building C object CMakeFiles/test_state_machine_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/thermal_mass.c.o
+[ 71%] Building C object CMakeFiles/test_state_machine_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/profiles.c.o
+[ 71%] Building C object CMakeFiles/test_state_machine_only.dir/state_machine_stubs.c.o
+/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/profiles.c:21:53: warning: unused parameter 'current_temp' [-Wunused-parameter]
+   21 | bool profile_update(profile_status_t *status, float current_temp, uint32_t now_ms) {
+      |                                                     ^
+1 warning generated.
+[ 85%] Building C object CMakeFiles/test_state_machine_only.dir/test_state_machine.c.o
+[ 85%] Building C object CMakeFiles/test_state_machine_only.dir/test_transition_table_generated.c.o
+[100%] Building C object CMakeFiles/test_state_machine_only.dir/test_main_state_machine.c.o
+/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/test/test_transition_table_generated.c:220:13: warning: enumeration values 'STATE_RUNAWAY_FAULT' and 'STATE_COUNT' not handled in switch [-Wswitch]
+  220 |     switch (row->from) {
+      |             ^~~~~~~~~
+/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/test/test_transition_table_generated.c:220:13: note: add missing switch cases
+  220 |     switch (row->from) {
+      |             ^
+1 warning generated.
+[100%] Linking C executable test_state_machine_only
+[100%] Built target test_state_machine_only
+[  0%] Regenerating firmware/main/transition_table.h from transition_table.yaml
+[  8%] Built target gen_fault_list
+[  8%] Built target gen_config
+transition_table.h up to date
+[  8%] Built target gen_transition_table
+[ 16%] Building C object CMakeFiles/test_max31865_only.dir/unity/unity.c.o
+[ 16%] Building C object CMakeFiles/test_max31865_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/hal/mock/mock_adc.c.o
+[ 16%] Building C object CMakeFiles/test_max31865_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/hal/mock/hal_init_mock.c.o
+[ 25%] Building C object CMakeFiles/test_max31865_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/hal/mock/mock_gpio.c.o
+[ 41%] Building C object CMakeFiles/test_max31865_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/hal/mock/mock_spi.c.o
+[ 41%] Building C object CMakeFiles/test_max31865_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/hal/mock/mock_pwm.c.o
+[ 41%] Building C object CMakeFiles/test_max31865_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/hal/mock/mock_timer.c.o
+[ 50%] Building C object CMakeFiles/test_max31865_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/sensors/max31865.c.o
+[ 50%] Building C object CMakeFiles/test_max31865_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/sensors/rtd_service.c.o
+[ 50%] Building C object CMakeFiles/test_max31865_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/main/state_handlers.c.o
+[ 66%] Building C object CMakeFiles/test_max31865_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/main/state_machine.c.o
+[ 66%] Building C object CMakeFiles/test_max31865_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/low_temp_control.c.o
+/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/main/state_handlers.c:207:10: warning: unused variable 'estimation_complete' [-Wunused-variable]
+  207 |     bool estimation_complete = thermal_mass_update(&sm_get_context()->thermal_mass, current_temp, current_time);
+      |          ^~~~~~~~~~~~~~~~~~~
+1 warning generated.
+[ 75%] Building C object CMakeFiles/test_max31865_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/pid_control.c.o
+[ 75%] Building C object CMakeFiles/test_max31865_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/thermal_mass.c.o
+[ 83%] Building C object CMakeFiles/test_max31865_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/profiles.c.o
+[ 83%] Building C object CMakeFiles/test_max31865_only.dir/state_machine_stubs.c.o
+/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/profiles.c:21:53: warning: unused parameter 'current_temp' [-Wunused-parameter]
+   21 | bool profile_update(profile_status_t *status, float current_temp, uint32_t now_ms) {
+      |                                                     ^
+1 warning generated.
+[ 91%] Building C object CMakeFiles/test_max31865_only.dir/test_max31865.c.o
+[ 91%] Building C object CMakeFiles/test_max31865_only.dir/test_main_max31865.c.o
+[100%] Linking C executable test_max31865_only
+[100%] Built target test_max31865_only
+[  0%] Building C object CMakeFiles/test_pid_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/pid_control.c.o
+[  0%] Building C object CMakeFiles/test_pid_only.dir/test_main_pid.c.o
+[ 66%] Building C object CMakeFiles/test_pid_only.dir/test_pid_control.c.o
+[ 66%] Building C object CMakeFiles/test_pid_only.dir/unity/unity.c.o
+/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/test/test_pid_control.c:167:11: warning: unused variable 'output1' [-Wunused-variable]
+  167 |     float output1 = pid_compute(&pid, 100.0f, 100.0f, dt);
+      |           ^~~~~~~
+/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/test/test_pid_control.c:22:13: warning: unused function 'pid_test_setup' [-Wunused-function]
+   22 | static void pid_test_setup(void) {
+      |             ^~~~~~~~~~~~~~
+2 warnings generated.
+[100%] Linking C executable test_pid_only
+[100%] Built target test_pid_only
+[ 33%] Building C object CMakeFiles/test_cascade_pid_only.dir/unity/unity.c.o
+[ 33%] Building C object CMakeFiles/test_cascade_pid_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/cascade_pid.c.o
+[ 33%] Building C object CMakeFiles/test_cascade_pid_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/pid_control.c.o
+[ 66%] Building C object CMakeFiles/test_cascade_pid_only.dir/test_cascade_pid.c.o
+/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/test/test_cascade_pid.c:91:11: warning: unused variable 'output' [-Wunused-variable]
+   91 |     float output = cascade_pid_update(&cascade, 100.0f, 50.0f, 25.0f, dt);
+      |           ^~~~~~
+/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/test/test_cascade_pid.c:24:13: warning: unused function 'cascade_test_setup' [-Wunused-function]
+   24 | static void cascade_test_setup(void) {
+      |             ^~~~~~~~~~~~~~~~~~
+2 warnings generated.
+[ 66%] Building C object CMakeFiles/test_cascade_pid_only.dir/test_main_cascade_pid.c.o
+[100%] Linking C executable test_cascade_pid_only
+[100%] Built target test_cascade_pid_only
+[ 25%] Building C object CMakeFiles/test_cascade_pid_integration_only.dir/unity/unity.c.o
+[ 50%] Building C object CMakeFiles/test_cascade_pid_integration_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/pid_control.c.o
+[ 50%] Building C object CMakeFiles/test_cascade_pid_integration_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/cascade_pid.c.o
+[ 75%] Building C object CMakeFiles/test_cascade_pid_integration_only.dir/test_integration_cascade_pid.c.o
+[ 75%] Building C object CMakeFiles/test_cascade_pid_integration_only.dir/test_main_integration_cascade_pid.c.o
+[100%] Linking C executable test_cascade_pid_integration_only
+[100%] Built target test_cascade_pid_integration_only
+[ 25%] Building C object CMakeFiles/test_thermal_mass_only.dir/unity/unity.c.o
+[ 50%] Building C object CMakeFiles/test_thermal_mass_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/pid_control.c.o
+[ 50%] Building C object CMakeFiles/test_thermal_mass_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/thermal_mass.c.o
+[ 75%] Building C object CMakeFiles/test_thermal_mass_only.dir/test_thermal_mass.c.o
+[ 75%] Building C object CMakeFiles/test_thermal_mass_only.dir/test_main_thermal_mass.c.o
+[100%] Linking C executable test_thermal_mass_only
+[100%] Built target test_thermal_mass_only
+[ 33%] Building C object CMakeFiles/test_low_temp_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/pid_control.c.o
+[ 33%] Building C object CMakeFiles/test_low_temp_only.dir/test_low_temp_control.c.o
+[ 33%] Building C object CMakeFiles/test_low_temp_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/low_temp_control.c.o
+[ 66%] Building C object CMakeFiles/test_low_temp_only.dir/unity/unity.c.o
+/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/test/test_low_temp_control.c:23:33: warning: unused parameter 'duty' [-Wunused-parameter]
+   23 | void pwm_set_duty_cycle(uint8_t duty) {
+      |                                 ^
+/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/test/test_low_temp_control.c:37:13: warning: unused function 'low_temp_test_teardown' [-Wunused-function]
+   37 | static void low_temp_test_teardown(void) {
+      |             ^~~~~~~~~~~~~~~~~~~~~~
+2 warnings generated.
+[100%] Building C object CMakeFiles/test_low_temp_only.dir/test_main_low_temp.c.o
+[100%] Linking C executable test_low_temp_only
+[100%] Built target test_low_temp_only
+[ 14%] Building C object CMakeFiles/test_safety_only.dir/unity/unity.c.o
+[ 28%] Building C object CMakeFiles/test_safety_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/hal/mock/hal_init_mock.c.o
+[ 28%] Building C object CMakeFiles/test_safety_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/hal/mock/mock_gpio.c.o
+[ 42%] Building C object CMakeFiles/test_safety_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/hal/mock/mock_adc.c.o
+[ 42%] Building C object CMakeFiles/test_safety_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/hal/mock/mock_pwm.c.o
+[ 57%] Building C object CMakeFiles/test_safety_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/hal/mock/mock_spi.c.o
+[ 57%] Building C object CMakeFiles/test_safety_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/hal/mock/mock_timer.c.o
+[ 71%] Building C object CMakeFiles/test_safety_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/pll_control.c.o
+/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/pll_control.c:356:11: warning: unused variable 'abs_error' [-Wunused-variable]
+  356 |     float abs_error = fabsf(error);
+      |           ^~~~~~~~~
+/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/pll_control.c:499:17: warning: unused variable 'sim_freq_safe' [-Wunused-variable]
+  499 |     static bool sim_freq_safe = true;
+      |                 ^~~~~~~~~~~~~
+/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/pll_control.c:178:17: warning: unused variable 'last_update_time_us' [-Wunused-variable]
+  178 | static uint64_t last_update_time_us = 0;
+      |                 ^~~~~~~~~~~~~~~~~~~
+3 warnings generated.
+[ 71%] Building C object CMakeFiles/test_safety_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/zvs_monitor.c.o
+[ 71%] Building C object CMakeFiles/test_safety_only.dir/test_safety.c.o
+[ 85%] Building C object CMakeFiles/test_safety_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/safety/safety.c.o
+[100%] Building C object CMakeFiles/test_safety_only.dir/test_main_safety.c.o
+[100%] Linking C executable test_safety_only
+[100%] Built target test_safety_only
+[100%] Building C object CMakeFiles/test_pan_detection_only.dir/pan_detect_logic.c.o
+[100%] Building C object CMakeFiles/test_pan_detection_only.dir/unity/unity.c.o
+[100%] Building C object CMakeFiles/test_pan_detection_only.dir/test_main_pan_detection.c.o
+[100%] Building C object CMakeFiles/test_pan_detection_only.dir/test_pan_detection.c.o
+[100%] Linking C executable test_pan_detection_only
+[100%] Built target test_pan_detection_only
+[ 50%] Building C object CMakeFiles/test_pll_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/pll_control.c.o
+[ 50%] Building C object CMakeFiles/test_pll_only.dir/test_pll_control.c.o
+[ 50%] Building C object CMakeFiles/test_pll_only.dir/unity/unity.c.o
+[100%] Building C object CMakeFiles/test_pll_only.dir/test_main_pll.c.o
+/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/pll_control.c:356:11: warning: unused variable 'abs_error' [-Wunused-variable]
+  356 |     float abs_error = fabsf(error);
+      |           ^~~~~~~~~
+/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/pll_control.c:499:17: warning: unused variable 'sim_freq_safe' [-Wunused-variable]
+  499 |     static bool sim_freq_safe = true;
+      |                 ^~~~~~~~~~~~~
+/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/pll_control.c:178:17: warning: unused variable 'last_update_time_us' [-Wunused-variable]
+  178 | static uint64_t last_update_time_us = 0;
+      |                 ^~~~~~~~~~~~~~~~~~~
+3 warnings generated.
+[100%] Linking C executable test_pll_only
+[100%] Built target test_pll_only
+[  0%] Regenerating firmware/main/transition_table.h from transition_table.yaml
+[  0%] Built target gen_config
+[ 14%] Built target gen_fault_list
+transition_table.h up to date
+[ 14%] Built target gen_transition_table
+[ 28%] Building C object CMakeFiles/test_integration_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/low_temp_control.c.o
+[ 42%] Building C object CMakeFiles/test_integration_only.dir/unity/unity.c.o
+[ 42%] Building C object CMakeFiles/test_integration_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/main/state_handlers.c.o
+[ 42%] Building C object CMakeFiles/test_integration_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/main/state_machine.c.o
+/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/main/state_handlers.c:207:10: warning: unused variable 'estimation_complete' [-Wunused-variable]
+  207 |     bool estimation_complete = thermal_mass_update(&sm_get_context()->thermal_mass, current_temp, current_time);
+      |          ^~~~~~~~~~~~~~~~~~~
+1 warning generated.
+[ 57%] Building C object CMakeFiles/test_integration_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/pid_control.c.o
+[ 57%] Building C object CMakeFiles/test_integration_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/thermal_mass.c.o
+[ 71%] Building C object CMakeFiles/test_integration_only.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/profiles.c.o
+[ 71%] Building C object CMakeFiles/test_integration_only.dir/state_machine_stubs.c.o
+/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/profiles.c:21:53: warning: unused parameter 'current_temp' [-Wunused-parameter]
+   21 | bool profile_update(profile_status_t *status, float current_temp, uint32_t now_ms) {
+      |                                                     ^
+1 warning generated.
+[ 85%] Building C object CMakeFiles/test_integration_only.dir/test_integration.c.o
+[ 85%] Building C object CMakeFiles/test_integration_only.dir/test_main_integration.c.o
+[100%] Linking C executable test_integration_only
+[100%] Built target test_integration_only
+[ 16%] Building C object CMakeFiles/test_sil_fault_injection.dir/unity/unity.c.o
+[ 33%] Building C object CMakeFiles/test_sil_fault_injection.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/main/state_handlers.c.o
+[ 50%] Building C object CMakeFiles/test_sil_fault_injection.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/low_temp_control.c.o
+[ 50%] Building C object CMakeFiles/test_sil_fault_injection.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/main/state_machine.c.o
+/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/main/state_handlers.c:207:10: warning: unused variable 'estimation_complete' [-Wunused-variable]
+  207 |     bool estimation_complete = thermal_mass_update(&sm_get_context()->thermal_mass, current_temp, current_time);
+      |          ^~~~~~~~~~~~~~~~~~~
+1 warning generated.
+[ 50%] Building C object CMakeFiles/test_sil_fault_injection.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/pid_control.c.o
+[ 66%] Building C object CMakeFiles/test_sil_fault_injection.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/thermal_mass.c.o
+[ 66%] Building C object CMakeFiles/test_sil_fault_injection.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/profiles.c.o
+[ 83%] Building C object CMakeFiles/test_sil_fault_injection.dir/state_machine_stubs.c.o
+/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/profiles.c:21:53: warning: unused parameter 'current_temp' [-Wunused-parameter]
+   21 | bool profile_update(profile_status_t *status, float current_temp, uint32_t now_ms) {
+      |                                                     ^
+1 warning generated.
+[ 83%] Building C object CMakeFiles/test_sil_fault_injection.dir/test_sil_fault_injection.c.o
+[100%] Linking C executable test_sil_fault_injection
+[100%] Built target test_sil_fault_injection
+[  0%] Regenerating firmware/main/transition_table.h from transition_table.yaml
+[  0%] Built target gen_config
+[ 14%] Built target gen_fault_list
+transition_table.h up to date
+[ 14%] Built target gen_transition_table
+[ 28%] Building C object CMakeFiles/test_contact_interlock.dir/unity/unity.c.o
+[ 28%] Building C object CMakeFiles/test_contact_interlock.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/main/state_machine.c.o
+[ 42%] Building C object CMakeFiles/test_contact_interlock.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/main/contact_guard.c.o
+[ 42%] Building C object CMakeFiles/test_contact_interlock.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/main/state_handlers.c.o
+/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/main/state_handlers.c:207:10: warning: unused variable 'estimation_complete' [-Wunused-variable]
+  207 |     bool estimation_complete = thermal_mass_update(&sm_get_context()->thermal_mass, current_temp, current_time);
+      |          ^~~~~~~~~~~~~~~~~~~
+1 warning generated.
+[ 42%] Building C object CMakeFiles/test_contact_interlock.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/low_temp_control.c.o
+[ 57%] Building C object CMakeFiles/test_contact_interlock.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/pid_control.c.o
+[ 71%] Building C object CMakeFiles/test_contact_interlock.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/thermal_mass.c.o
+[ 71%] Building C object CMakeFiles/test_contact_interlock.dir/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/profiles.c.o
+/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/firmware/components/control/profiles.c:21:53: warning: unused parameter 'current_temp' [-Wunused-parameter]
+   21 | bool profile_update(profile_status_t *status, float current_temp, uint32_t now_ms) {
+      |                                                     ^
+[ 85%] Building C object CMakeFiles/test_contact_interlock.dir/state_machine_stubs.c.o
+1 warning generated.
+[ 85%] Building C object CMakeFiles/test_contact_interlock.dir/test_contact_interlock.c.o
+[100%] Linking C executable test_contact_interlock
+[100%] Built target test_contact_interlock
+[ 33%] Built target gen_fault_list
+[ 66%] Building C object CMakeFiles/test_fault_list_only.dir/test_fault_list_generated.c.o
+[100%] Building C object CMakeFiles/test_fault_list_only.dir/unity/unity.c.o
+[100%] Linking C executable test_fault_list_only
+[100%] Built target test_fault_list_only

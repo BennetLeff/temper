@@ -1,0 +1,9 @@
+test_fault_list_generated.c:112:test_persisted_fault_ids:PASS
+test_fault_list_generated.c:113:test_fault_igbt_short_exists:PASS
+test_fault_list_generated.c:114:test_fault_adc_stuck_exists:PASS
+test_fault_list_generated.c:115:test_fault_count_expected:PASS
+test_fault_list_generated.c:116:test_fault_name_table_complete:PASS
+test_fault_list_generated.c:117:test_fault_labels_preserved:PASS
+-----------------------
+6 Tests 0 Failures 0 Ignored
+OK

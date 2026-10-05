@@ -1,0 +1,58 @@
+
+running 17 tests
+test tests::incomplete_metadata_rejected ... ok
+test tests::correlated_budget_does_not_get_false_sqrt_reduction ... ok
+test tests::missing_budget_is_not_zero_uncertainty ... ok
+test tests::rejects_header_only ... ok
+test tests::rejects_nan ... ok
+test tests::mechanics_finds_hysteresis_and_sticking ... ok
+test tests::distinguishes_biased_fast_final_from_unreachable_pan_step ... ok
+test tests::cooling_t90_supported ... ok
+test tests::holdout_constant_temperature_is_not_dynamic_evidence ... ok
+test tests::gap_is_rejected ... ok
+test tests::thermal_continuity_rejects_loss ... ok
+test tests::t90_matches_external_analytic_first_order ... ok
+test tests::small_overall_rmse_does_not_hide_bad_transient ... ok
+test tests::settled_return_survives_bounce_before_final_settle ... ok
+test tests::rejects_no_excitation ... ok
+test tests::recovers_known_effective_parameters ... ok
+test tests::transfer_detects_weaker_contact ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s
+
+schema=temper-bench-v1
+evidence_kind=SYNTHETIC
+run_id=SYNTHETIC-fit
+raw_sha256=50687ed9a8f0b8be1af85d32b1d15c4c930653885619495be058e26773dcb3ef
+metadata_sha256=ee0f3b23c1c9bea0a52a52c69b5a61821e81be1fe4d2472374a587c5f92041c9
+physical_validation=NOT_RUN
+model=effective_first_order_not_physical_component_identification
+tau_s=1.503062
+pan_gain=0.979819
+offset_c=0.015001
+fit_rmse_c=0.007845
+fit_at_search_boundary=false
+holdout_rmse_c=0.051904
+holdout_dynamic_rmse_c=0.108035
+holdout_dynamic_max_c=0.221940
+holdout_screen=SURROGATE_WITHIN_DECLARED_UNCERTAINTY
+holdout_raw_sha256=73b5ab1a584e5c97c273db72dc90557dc4e6fe0f20fa2d857d55cf347c6efbd1
+holdout_metadata_sha256=58dd588d6fa46ad0a1acc86b52307c440bb303c3a7b2a4b36430d4929836724f
+schema=temper-bench-v1
+evidence_kind=SYNTHETIC
+run_id=SYNTHETIC-fit
+raw_sha256=50687ed9a8f0b8be1af85d32b1d15c4c930653885619495be058e26773dcb3ef
+metadata_sha256=ee0f3b23c1c9bea0a52a52c69b5a61821e81be1fe4d2472374a587c5f92041c9
+physical_validation=NOT_RUN
+model=effective_first_order_not_physical_component_identification
+tau_s=1.503062
+pan_gain=0.979819
+offset_c=0.015001
+fit_rmse_c=0.007845
+fit_at_search_boundary=false
+holdout_rmse_c=25.739253
+holdout_dynamic_rmse_c=50.340307
+holdout_dynamic_max_c=59.719140
+holdout_screen=REJECT_TRANSFER
+holdout_raw_sha256=d7b349c1c4bdf312dd148d2f4dfc5ecf0a4be16bc45e6f2cc2d5a7dc3afe6f4d
+holdout_metadata_sha256=20de1f082ffbf5f1d277c7421a2d7dbfaedcea178bc9be5b6140d864e676b89d

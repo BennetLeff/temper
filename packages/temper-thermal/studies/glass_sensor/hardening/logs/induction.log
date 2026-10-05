@@ -1,0 +1,26 @@
+
+running 22 tests
+test tests::frequency_range_outside_small_parameter_regime_is_flagged ... ok
+test tests::empty_measurement_is_rejected ... ok
+test tests::low_frequency_screen_can_be_valid ... ok
+test tests::magnetic_candidate_is_flagged ... ok
+test tests::negative_uncertainty_is_rejected ... ok
+test tests::power_is_quadratic_in_field ... ok
+test tests::nonfinite_is_rejected ... ok
+test tests::paired_linear_drift_cancels ... ok
+test tests::skirt_cannot_be_omitted ... ok
+test tests::failing_limit_is_preserved_in_synthetic_screen ... ok
+test tests::zero_field_has_zero_power ... ok
+test tests::unbracketed_on_is_rejected ... ok
+test tests::invalid_acquisition_is_rejected ... ok
+test tests::missing_phase_is_rejected ... ok
+test tests::reversed_time_is_rejected ... ok
+test tests::missing_required_check_is_rejected ... ok
+test tests::roof_matches_ring_integration ... ok
+test tests::wrong_units_are_rejected ... ok
+test tests::synthetic_results_never_claim_hardware_pass ... ok
+test tests::unperformed_endurance_is_rejected ... ok
+test tests::reference_interference_is_rejected ... ok
+test tests::digest_mismatch_is_rejected ... ok
+
+test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
