@@ -1,0 +1,1374 @@
+{
+  "version": "R5-boards-1",
+  "authority": "Actual source-derived pin tables; board viewpoints, not mating-face drawings",
+  "connectors": {
+    "central": [
+      {
+        "connector": "J1",
+        "source_ref": "J_START",
+        "pin": "1",
+        "net": "POD_3V3",
+        "domain": "AUX",
+        "direction_from_board": "power_out",
+        "mpn": "1725669 Phoenix MKDS1/2-3.81"
+      },
+      {
+        "connector": "J1",
+        "source_ref": "J_START",
+        "pin": "2",
+        "net": "POD_START_RAW",
+        "domain": "AUX",
+        "direction_from_board": "input",
+        "mpn": "1725669 Phoenix MKDS1/2-3.81"
+      },
+      {
+        "connector": "J2",
+        "source_ref": "J_RESET",
+        "pin": "1",
+        "net": "POD_3V3",
+        "domain": "AUX",
+        "direction_from_board": "power_out",
+        "mpn": "1725669 Phoenix MKDS1/2-3.81"
+      },
+      {
+        "connector": "J2",
+        "source_ref": "J_RESET",
+        "pin": "2",
+        "net": "POD_RESET_RAW",
+        "domain": "AUX",
+        "direction_from_board": "input",
+        "mpn": "1725669 Phoenix MKDS1/2-3.81"
+      },
+      {
+        "connector": "J3",
+        "source_ref": "J_STOP",
+        "pin": "1",
+        "net": "POD_3V3",
+        "domain": "AUX",
+        "direction_from_board": "power_out",
+        "mpn": "1725669 Phoenix MKDS1/2-3.81"
+      },
+      {
+        "connector": "J3",
+        "source_ref": "J_STOP",
+        "pin": "2",
+        "net": "POD_STOP_RAW",
+        "domain": "AUX",
+        "direction_from_board": "input",
+        "mpn": "1725669 Phoenix MKDS1/2-3.81"
+      },
+      {
+        "connector": "J4",
+        "source_ref": "J_CATCH_POD",
+        "pin": "1",
+        "net": "POD_3V3",
+        "domain": "AUX",
+        "direction_from_board": "power_out",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J4",
+        "source_ref": "J_CATCH_POD",
+        "pin": "2",
+        "net": "AUX_0V",
+        "domain": "AUX",
+        "direction_from_board": "return",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J4",
+        "source_ref": "J_CATCH_POD",
+        "pin": "3",
+        "net": "VCATCH_P",
+        "domain": "AUX",
+        "direction_from_board": "input",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J4",
+        "source_ref": "J_CATCH_POD",
+        "pin": "4",
+        "net": "VCATCH_N",
+        "domain": "AUX",
+        "direction_from_board": "input",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J4",
+        "source_ref": "J_CATCH_POD",
+        "pin": "5",
+        "net": "VCATCH_DIAG_N",
+        "domain": "AUX",
+        "direction_from_board": "input",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J4",
+        "source_ref": "J_CATCH_POD",
+        "pin": "6",
+        "net": "AUX_0V",
+        "domain": "AUX",
+        "direction_from_board": "return",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J5",
+        "source_ref": "J_TEMP1",
+        "pin": "1",
+        "net": "RP1_TEMP",
+        "domain": "AUX",
+        "direction_from_board": "input",
+        "mpn": "1725669 Phoenix MKDS1/2-3.81"
+      },
+      {
+        "connector": "J5",
+        "source_ref": "J_TEMP1",
+        "pin": "2",
+        "net": "AUX_0V",
+        "domain": "AUX",
+        "direction_from_board": "return",
+        "mpn": "1725669 Phoenix MKDS1/2-3.81"
+      },
+      {
+        "connector": "J6",
+        "source_ref": "J_TEMP2",
+        "pin": "1",
+        "net": "RP2_TEMP",
+        "domain": "AUX",
+        "direction_from_board": "input",
+        "mpn": "1725669 Phoenix MKDS1/2-3.81"
+      },
+      {
+        "connector": "J6",
+        "source_ref": "J_TEMP2",
+        "pin": "2",
+        "net": "AUX_0V",
+        "domain": "AUX",
+        "direction_from_board": "return",
+        "mpn": "1725669 Phoenix MKDS1/2-3.81"
+      },
+      {
+        "connector": "J7",
+        "source_ref": "J_CLK",
+        "pin": "1",
+        "net": "POD_3V3",
+        "domain": "AUX",
+        "direction_from_board": "power_out",
+        "mpn": "B3B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J7",
+        "source_ref": "J_CLK",
+        "pin": "2",
+        "net": "AUX_0V",
+        "domain": "AUX",
+        "direction_from_board": "return",
+        "mpn": "B3B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J7",
+        "source_ref": "J_CLK",
+        "pin": "3",
+        "net": "ADC_CLKIN",
+        "domain": "AUX",
+        "direction_from_board": "input",
+        "mpn": "B3B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J8",
+        "source_ref": "J_ANALOG_GUARD",
+        "pin": "1",
+        "net": "POD_3V3",
+        "domain": "AUX",
+        "direction_from_board": "power_out",
+        "mpn": "B8B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J8",
+        "source_ref": "J_ANALOG_GUARD",
+        "pin": "2",
+        "net": "AUX_0V",
+        "domain": "AUX",
+        "direction_from_board": "return",
+        "mpn": "B8B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J8",
+        "source_ref": "J_ANALOG_GUARD",
+        "pin": "3",
+        "net": "BUS_LIMIT_OK",
+        "domain": "AUX",
+        "direction_from_board": "output",
+        "mpn": "B8B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J8",
+        "source_ref": "J_ANALOG_GUARD",
+        "pin": "4",
+        "net": "CATCH_LIMIT_OK",
+        "domain": "AUX",
+        "direction_from_board": "output",
+        "mpn": "B8B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J8",
+        "source_ref": "J_ANALOG_GUARD",
+        "pin": "5",
+        "net": "TANK_LIMIT_OK",
+        "domain": "AUX",
+        "direction_from_board": "output",
+        "mpn": "B8B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J8",
+        "source_ref": "J_ANALOG_GUARD",
+        "pin": "6",
+        "net": "ILINE_LIMIT_OK",
+        "domain": "AUX",
+        "direction_from_board": "output",
+        "mpn": "B8B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J8",
+        "source_ref": "J_ANALOG_GUARD",
+        "pin": "7",
+        "net": "RP_TEMP_OK",
+        "domain": "AUX",
+        "direction_from_board": "output",
+        "mpn": "B8B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J8",
+        "source_ref": "J_ANALOG_GUARD",
+        "pin": "8",
+        "net": "RAIL24_OK",
+        "domain": "AUX",
+        "direction_from_board": "output",
+        "mpn": "B8B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J9",
+        "source_ref": "JCTRL",
+        "pin": "1",
+        "net": "CTRL_3V3",
+        "domain": "CTRL",
+        "direction_from_board": "power_in",
+        "mpn": "B10B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J9",
+        "source_ref": "JCTRL",
+        "pin": "2",
+        "net": "CTRL_GND",
+        "domain": "CTRL",
+        "direction_from_board": "return",
+        "mpn": "B10B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J9",
+        "source_ref": "JCTRL",
+        "pin": "3",
+        "net": "SUP_RUN_OK",
+        "domain": "CTRL",
+        "direction_from_board": "output",
+        "mpn": "B10B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J9",
+        "source_ref": "JCTRL",
+        "pin": "4",
+        "net": "CTRL_PWM_REQUEST",
+        "domain": "CTRL",
+        "direction_from_board": "input",
+        "mpn": "B10B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J9",
+        "source_ref": "JCTRL",
+        "pin": "5",
+        "net": "CTRL_HEARTBEAT",
+        "domain": "CTRL",
+        "direction_from_board": "input",
+        "mpn": "B10B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J9",
+        "source_ref": "JCTRL",
+        "pin": "6",
+        "net": "CTRL_FAULT_HIGH",
+        "domain": "CTRL",
+        "direction_from_board": "input",
+        "mpn": "B10B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J9",
+        "source_ref": "JCTRL",
+        "pin": "7",
+        "net": "CTRL_TX",
+        "domain": "CTRL",
+        "direction_from_board": "input",
+        "mpn": "B10B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J9",
+        "source_ref": "JCTRL",
+        "pin": "8",
+        "net": "CTRL_RX",
+        "domain": "CTRL",
+        "direction_from_board": "output",
+        "mpn": "B10B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J9",
+        "source_ref": "JCTRL",
+        "pin": "9",
+        "net": "CTRL_RAIL_OK",
+        "domain": "CTRL",
+        "direction_from_board": "input",
+        "mpn": "B10B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J9",
+        "source_ref": "JCTRL",
+        "pin": "10",
+        "net": "CTRL_INTERLOCK_OK",
+        "domain": "CTRL",
+        "direction_from_board": "input",
+        "mpn": "B10B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J10",
+        "source_ref": "J_PERMIT",
+        "pin": "1",
+        "net": "NATIVE_PERMIT",
+        "domain": "CTRL",
+        "direction_from_board": "output",
+        "mpn": "B2B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J10",
+        "source_ref": "J_PERMIT",
+        "pin": "2",
+        "net": "CTRL_GND",
+        "domain": "CTRL",
+        "direction_from_board": "return",
+        "mpn": "B2B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J11",
+        "source_ref": "J_SWD",
+        "pin": "1",
+        "net": "POD_3V3",
+        "domain": "AUX",
+        "direction_from_board": "power_out",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J11",
+        "source_ref": "J_SWD",
+        "pin": "2",
+        "net": "SWDIO",
+        "domain": "AUX",
+        "direction_from_board": "bidirectional",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J11",
+        "source_ref": "J_SWD",
+        "pin": "3",
+        "net": "AUX_0V",
+        "domain": "AUX",
+        "direction_from_board": "return",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J11",
+        "source_ref": "J_SWD",
+        "pin": "4",
+        "net": "SWCLK",
+        "domain": "AUX",
+        "direction_from_board": "input",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J11",
+        "source_ref": "J_SWD",
+        "pin": "5",
+        "net": "WD_RESET_N",
+        "domain": "AUX",
+        "direction_from_board": "input",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J11",
+        "source_ref": "J_SWD",
+        "pin": "6",
+        "net": "NC",
+        "domain": "AUX",
+        "direction_from_board": "no_connect",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J12",
+        "source_ref": "J_AUX24",
+        "pin": "1",
+        "net": "AUX_24V",
+        "domain": "AUX",
+        "direction_from_board": "power_in",
+        "mpn": "B2B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J12",
+        "source_ref": "J_AUX24",
+        "pin": "2",
+        "net": "AUX_0V",
+        "domain": "AUX",
+        "direction_from_board": "return",
+        "mpn": "B2B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J13",
+        "source_ref": "J_REG5",
+        "pin": "1",
+        "net": "AUX_24V",
+        "domain": "AUX",
+        "direction_from_board": "power_out",
+        "mpn": "B3B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J13",
+        "source_ref": "J_REG5",
+        "pin": "2",
+        "net": "AUX_0V",
+        "domain": "AUX",
+        "direction_from_board": "return",
+        "mpn": "B3B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J13",
+        "source_ref": "J_REG5",
+        "pin": "3",
+        "net": "POD_5V",
+        "domain": "AUX",
+        "direction_from_board": "power_in",
+        "mpn": "B3B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J14",
+        "source_ref": "J_K1",
+        "pin": "1",
+        "net": "K1_COIL_HIGH",
+        "domain": "AUX",
+        "direction_from_board": "output",
+        "mpn": "B4B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J14",
+        "source_ref": "J_K1",
+        "pin": "2",
+        "net": "K1_COIL_LOW",
+        "domain": "AUX",
+        "direction_from_board": "output",
+        "mpn": "B4B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J14",
+        "source_ref": "J_K1",
+        "pin": "3",
+        "net": "K1_FB_EXC",
+        "domain": "AUX",
+        "direction_from_board": "output",
+        "mpn": "B4B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J14",
+        "source_ref": "J_K1",
+        "pin": "4",
+        "net": "K1_MIRROR_RAW",
+        "domain": "AUX",
+        "direction_from_board": "input",
+        "mpn": "B4B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J15",
+        "source_ref": "J_K2",
+        "pin": "1",
+        "net": "K2_COIL_HIGH",
+        "domain": "AUX",
+        "direction_from_board": "output",
+        "mpn": "B4B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J15",
+        "source_ref": "J_K2",
+        "pin": "2",
+        "net": "K2_COIL_LOW",
+        "domain": "AUX",
+        "direction_from_board": "output",
+        "mpn": "B4B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J15",
+        "source_ref": "J_K2",
+        "pin": "3",
+        "net": "K2_FB_EXC",
+        "domain": "AUX",
+        "direction_from_board": "output",
+        "mpn": "B4B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J15",
+        "source_ref": "J_K2",
+        "pin": "4",
+        "net": "K2_MIRROR_RAW",
+        "domain": "AUX",
+        "direction_from_board": "input",
+        "mpn": "B4B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J16",
+        "source_ref": "J_KB",
+        "pin": "1",
+        "net": "KB_COIL_HIGH",
+        "domain": "AUX",
+        "direction_from_board": "output",
+        "mpn": "B4B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J16",
+        "source_ref": "J_KB",
+        "pin": "2",
+        "net": "KB_COIL_LOW",
+        "domain": "AUX",
+        "direction_from_board": "output",
+        "mpn": "B4B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J16",
+        "source_ref": "J_KB",
+        "pin": "3",
+        "net": "KB_FB_EXC",
+        "domain": "AUX",
+        "direction_from_board": "output",
+        "mpn": "B4B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J16",
+        "source_ref": "J_KB",
+        "pin": "4",
+        "net": "KB_MIRROR_RAW",
+        "domain": "AUX",
+        "direction_from_board": "input",
+        "mpn": "B4B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J17",
+        "source_ref": "J_KT",
+        "pin": "1",
+        "net": "POD_24V_ACT",
+        "domain": "AUX",
+        "direction_from_board": "power_out",
+        "mpn": "B2B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J17",
+        "source_ref": "J_KT",
+        "pin": "2",
+        "net": "KT_COIL_LOW",
+        "domain": "AUX",
+        "direction_from_board": "output",
+        "mpn": "B2B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J18",
+        "source_ref": "J_VLINE_POD",
+        "pin": "1",
+        "net": "POD_3V3",
+        "domain": "AUX",
+        "direction_from_board": "power_out",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J18",
+        "source_ref": "J_VLINE_POD",
+        "pin": "2",
+        "net": "AUX_0V",
+        "domain": "AUX",
+        "direction_from_board": "return",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J18",
+        "source_ref": "J_VLINE_POD",
+        "pin": "3",
+        "net": "VLINE_P",
+        "domain": "AUX",
+        "direction_from_board": "input",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J18",
+        "source_ref": "J_VLINE_POD",
+        "pin": "4",
+        "net": "VLINE_N",
+        "domain": "AUX",
+        "direction_from_board": "input",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J18",
+        "source_ref": "J_VLINE_POD",
+        "pin": "5",
+        "net": "VLINE_DIAG_N",
+        "domain": "AUX",
+        "direction_from_board": "input",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J18",
+        "source_ref": "J_VLINE_POD",
+        "pin": "6",
+        "net": "AUX_0V",
+        "domain": "AUX",
+        "direction_from_board": "return",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J19",
+        "source_ref": "J_VPRE_POD",
+        "pin": "1",
+        "net": "POD_3V3",
+        "domain": "AUX",
+        "direction_from_board": "power_out",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J19",
+        "source_ref": "J_VPRE_POD",
+        "pin": "2",
+        "net": "AUX_0V",
+        "domain": "AUX",
+        "direction_from_board": "return",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J19",
+        "source_ref": "J_VPRE_POD",
+        "pin": "3",
+        "net": "VPRE_P",
+        "domain": "AUX",
+        "direction_from_board": "input",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J19",
+        "source_ref": "J_VPRE_POD",
+        "pin": "4",
+        "net": "VPRE_N",
+        "domain": "AUX",
+        "direction_from_board": "input",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J19",
+        "source_ref": "J_VPRE_POD",
+        "pin": "5",
+        "net": "VPRE_DIAG_N",
+        "domain": "AUX",
+        "direction_from_board": "input",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J19",
+        "source_ref": "J_VPRE_POD",
+        "pin": "6",
+        "net": "AUX_0V",
+        "domain": "AUX",
+        "direction_from_board": "return",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J20",
+        "source_ref": "J_VOUT_POD",
+        "pin": "1",
+        "net": "POD_3V3",
+        "domain": "AUX",
+        "direction_from_board": "power_out",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J20",
+        "source_ref": "J_VOUT_POD",
+        "pin": "2",
+        "net": "AUX_0V",
+        "domain": "AUX",
+        "direction_from_board": "return",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J20",
+        "source_ref": "J_VOUT_POD",
+        "pin": "3",
+        "net": "VOUT_P",
+        "domain": "AUX",
+        "direction_from_board": "input",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J20",
+        "source_ref": "J_VOUT_POD",
+        "pin": "4",
+        "net": "VOUT_N",
+        "domain": "AUX",
+        "direction_from_board": "input",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J20",
+        "source_ref": "J_VOUT_POD",
+        "pin": "5",
+        "net": "VOUT_DIAG_N",
+        "domain": "AUX",
+        "direction_from_board": "input",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J20",
+        "source_ref": "J_VOUT_POD",
+        "pin": "6",
+        "net": "AUX_0V",
+        "domain": "AUX",
+        "direction_from_board": "return",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J21",
+        "source_ref": "J_VBUS_POD",
+        "pin": "1",
+        "net": "POD_3V3",
+        "domain": "AUX",
+        "direction_from_board": "power_out",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J21",
+        "source_ref": "J_VBUS_POD",
+        "pin": "2",
+        "net": "AUX_0V",
+        "domain": "AUX",
+        "direction_from_board": "return",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J21",
+        "source_ref": "J_VBUS_POD",
+        "pin": "3",
+        "net": "VBUS_P",
+        "domain": "AUX",
+        "direction_from_board": "input",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J21",
+        "source_ref": "J_VBUS_POD",
+        "pin": "4",
+        "net": "VBUS_N",
+        "domain": "AUX",
+        "direction_from_board": "input",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J21",
+        "source_ref": "J_VBUS_POD",
+        "pin": "5",
+        "net": "VBUS_DIAG_N",
+        "domain": "AUX",
+        "direction_from_board": "input",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J21",
+        "source_ref": "J_VBUS_POD",
+        "pin": "6",
+        "net": "AUX_0V",
+        "domain": "AUX",
+        "direction_from_board": "return",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J22",
+        "source_ref": "J_VTANK_POD",
+        "pin": "1",
+        "net": "POD_3V3",
+        "domain": "AUX",
+        "direction_from_board": "power_out",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J22",
+        "source_ref": "J_VTANK_POD",
+        "pin": "2",
+        "net": "AUX_0V",
+        "domain": "AUX",
+        "direction_from_board": "return",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J22",
+        "source_ref": "J_VTANK_POD",
+        "pin": "3",
+        "net": "VTANK_P",
+        "domain": "AUX",
+        "direction_from_board": "input",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J22",
+        "source_ref": "J_VTANK_POD",
+        "pin": "4",
+        "net": "VTANK_N",
+        "domain": "AUX",
+        "direction_from_board": "input",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J22",
+        "source_ref": "J_VTANK_POD",
+        "pin": "5",
+        "net": "VTANK_DIAG_N",
+        "domain": "AUX",
+        "direction_from_board": "input",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J22",
+        "source_ref": "J_VTANK_POD",
+        "pin": "6",
+        "net": "AUX_0V",
+        "domain": "AUX",
+        "direction_from_board": "return",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J23",
+        "source_ref": "J_IPROOF_BURDEN",
+        "pin": "1",
+        "net": "IPROOF_RAW",
+        "domain": "AUX",
+        "direction_from_board": "input",
+        "mpn": "B2B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J23",
+        "source_ref": "J_IPROOF_BURDEN",
+        "pin": "2",
+        "net": "REF_1V25",
+        "domain": "AUX",
+        "direction_from_board": "analog_reference_out",
+        "mpn": "B2B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J24",
+        "source_ref": "J_ILINE_BURDEN",
+        "pin": "1",
+        "net": "ILINE_RAW",
+        "domain": "AUX",
+        "direction_from_board": "input",
+        "mpn": "B2B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J24",
+        "source_ref": "J_ILINE_BURDEN",
+        "pin": "2",
+        "net": "REF_1V25",
+        "domain": "AUX",
+        "direction_from_board": "analog_reference_out",
+        "mpn": "B2B-XH-A(LF)(SN)"
+      }
+    ],
+    "catch": [
+      {
+        "connector": "J1",
+        "source_ref": "J1",
+        "pin": "1",
+        "net": "CATCH_P",
+        "domain": "HV_INPUT",
+        "direction_from_board": "input",
+        "mpn": "22AWG_1000V_SOLDER_LEADS_WITH_EXTERNAL_STRAIN_RELIEF"
+      },
+      {
+        "connector": "J1",
+        "source_ref": "J1",
+        "pin": "2",
+        "net": "HV_RET",
+        "domain": "HV_INPUT",
+        "direction_from_board": "input",
+        "mpn": "22AWG_1000V_SOLDER_LEADS_WITH_EXTERNAL_STRAIN_RELIEF"
+      },
+      {
+        "connector": "J2",
+        "source_ref": "J2",
+        "pin": "1",
+        "net": "POD_3V3",
+        "domain": "AUX",
+        "direction_from_board": "power_in",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J2",
+        "source_ref": "J2",
+        "pin": "2",
+        "net": "AUX_0V",
+        "domain": "AUX",
+        "direction_from_board": "return",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J2",
+        "source_ref": "J2",
+        "pin": "3",
+        "net": "VCATCH_P",
+        "domain": "AUX",
+        "direction_from_board": "output",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J2",
+        "source_ref": "J2",
+        "pin": "4",
+        "net": "VCATCH_N",
+        "domain": "AUX",
+        "direction_from_board": "output",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J2",
+        "source_ref": "J2",
+        "pin": "5",
+        "net": "VCATCH_DIAG_N",
+        "domain": "AUX",
+        "direction_from_board": "output",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J2",
+        "source_ref": "J2",
+        "pin": "6",
+        "net": "AUX_0V",
+        "domain": "AUX",
+        "direction_from_board": "return",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      }
+    ],
+    "bus": [
+      {
+        "connector": "J1",
+        "source_ref": "J1",
+        "pin": "1",
+        "net": "BUS_P",
+        "domain": "HV_INPUT",
+        "direction_from_board": "input",
+        "mpn": "HV_SOLDER_LEADS_WITH_EXTERNAL_STRAIN_RELIEF"
+      },
+      {
+        "connector": "J1",
+        "source_ref": "J1",
+        "pin": "2",
+        "net": "HV_RET",
+        "domain": "HV_INPUT",
+        "direction_from_board": "input",
+        "mpn": "HV_SOLDER_LEADS_WITH_EXTERNAL_STRAIN_RELIEF"
+      },
+      {
+        "connector": "J2",
+        "source_ref": "J2",
+        "pin": "1",
+        "net": "POD_3V3",
+        "domain": "AUX",
+        "direction_from_board": "power_in",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J2",
+        "source_ref": "J2",
+        "pin": "2",
+        "net": "AUX_0V",
+        "domain": "AUX",
+        "direction_from_board": "return",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J2",
+        "source_ref": "J2",
+        "pin": "3",
+        "net": "VBUS_P",
+        "domain": "AUX",
+        "direction_from_board": "output",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J2",
+        "source_ref": "J2",
+        "pin": "4",
+        "net": "VBUS_N",
+        "domain": "AUX",
+        "direction_from_board": "output",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J2",
+        "source_ref": "J2",
+        "pin": "5",
+        "net": "VBUS_DIAG_N",
+        "domain": "AUX",
+        "direction_from_board": "output",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J2",
+        "source_ref": "J2",
+        "pin": "6",
+        "net": "AUX_0V",
+        "domain": "AUX",
+        "direction_from_board": "return",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      }
+    ],
+    "line": [
+      {
+        "connector": "J1",
+        "source_ref": "J1",
+        "pin": "1",
+        "net": "L_AUX",
+        "domain": "HV_INPUT",
+        "direction_from_board": "input",
+        "mpn": "HV_SOLDER_LEADS_WITH_EXTERNAL_STRAIN_RELIEF"
+      },
+      {
+        "connector": "J1",
+        "source_ref": "J1",
+        "pin": "2",
+        "net": "N_AUX",
+        "domain": "HV_INPUT",
+        "direction_from_board": "input",
+        "mpn": "HV_SOLDER_LEADS_WITH_EXTERNAL_STRAIN_RELIEF"
+      },
+      {
+        "connector": "J2",
+        "source_ref": "J2",
+        "pin": "1",
+        "net": "POD_3V3",
+        "domain": "AUX",
+        "direction_from_board": "power_in",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J2",
+        "source_ref": "J2",
+        "pin": "2",
+        "net": "AUX_0V",
+        "domain": "AUX",
+        "direction_from_board": "return",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J2",
+        "source_ref": "J2",
+        "pin": "3",
+        "net": "VLINE_P",
+        "domain": "AUX",
+        "direction_from_board": "output",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J2",
+        "source_ref": "J2",
+        "pin": "4",
+        "net": "VLINE_N",
+        "domain": "AUX",
+        "direction_from_board": "output",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J2",
+        "source_ref": "J2",
+        "pin": "5",
+        "net": "VLINE_DIAG_N",
+        "domain": "AUX",
+        "direction_from_board": "output",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J2",
+        "source_ref": "J2",
+        "pin": "6",
+        "net": "AUX_0V",
+        "domain": "AUX",
+        "direction_from_board": "return",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      }
+    ],
+    "pre": [
+      {
+        "connector": "J1",
+        "source_ref": "J1",
+        "pin": "1",
+        "net": "L_SER",
+        "domain": "HV_INPUT",
+        "direction_from_board": "input",
+        "mpn": "HV_SOLDER_LEADS_WITH_EXTERNAL_STRAIN_RELIEF"
+      },
+      {
+        "connector": "J1",
+        "source_ref": "J1",
+        "pin": "2",
+        "net": "L_PRE",
+        "domain": "HV_INPUT",
+        "direction_from_board": "input",
+        "mpn": "HV_SOLDER_LEADS_WITH_EXTERNAL_STRAIN_RELIEF"
+      },
+      {
+        "connector": "J2",
+        "source_ref": "J2",
+        "pin": "1",
+        "net": "POD_3V3",
+        "domain": "AUX",
+        "direction_from_board": "power_in",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J2",
+        "source_ref": "J2",
+        "pin": "2",
+        "net": "AUX_0V",
+        "domain": "AUX",
+        "direction_from_board": "return",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J2",
+        "source_ref": "J2",
+        "pin": "3",
+        "net": "VPRE_P",
+        "domain": "AUX",
+        "direction_from_board": "output",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J2",
+        "source_ref": "J2",
+        "pin": "4",
+        "net": "VPRE_N",
+        "domain": "AUX",
+        "direction_from_board": "output",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J2",
+        "source_ref": "J2",
+        "pin": "5",
+        "net": "VPRE_DIAG_N",
+        "domain": "AUX",
+        "direction_from_board": "output",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J2",
+        "source_ref": "J2",
+        "pin": "6",
+        "net": "AUX_0V",
+        "domain": "AUX",
+        "direction_from_board": "return",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      }
+    ],
+    "out": [
+      {
+        "connector": "J1",
+        "source_ref": "J1",
+        "pin": "1",
+        "net": "L_PRE",
+        "domain": "HV_INPUT",
+        "direction_from_board": "input",
+        "mpn": "HV_SOLDER_LEADS_WITH_EXTERNAL_STRAIN_RELIEF"
+      },
+      {
+        "connector": "J1",
+        "source_ref": "J1",
+        "pin": "2",
+        "net": "N_PRE",
+        "domain": "HV_INPUT",
+        "direction_from_board": "input",
+        "mpn": "HV_SOLDER_LEADS_WITH_EXTERNAL_STRAIN_RELIEF"
+      },
+      {
+        "connector": "J2",
+        "source_ref": "J2",
+        "pin": "1",
+        "net": "POD_3V3",
+        "domain": "AUX",
+        "direction_from_board": "power_in",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J2",
+        "source_ref": "J2",
+        "pin": "2",
+        "net": "AUX_0V",
+        "domain": "AUX",
+        "direction_from_board": "return",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J2",
+        "source_ref": "J2",
+        "pin": "3",
+        "net": "VOUT_P",
+        "domain": "AUX",
+        "direction_from_board": "output",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J2",
+        "source_ref": "J2",
+        "pin": "4",
+        "net": "VOUT_N",
+        "domain": "AUX",
+        "direction_from_board": "output",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J2",
+        "source_ref": "J2",
+        "pin": "5",
+        "net": "VOUT_DIAG_N",
+        "domain": "AUX",
+        "direction_from_board": "output",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J2",
+        "source_ref": "J2",
+        "pin": "6",
+        "net": "AUX_0V",
+        "domain": "AUX",
+        "direction_from_board": "return",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      }
+    ],
+    "tank": [
+      {
+        "connector": "J1",
+        "source_ref": "J1",
+        "pin": "1",
+        "net": "RES_A",
+        "domain": "HV_INPUT",
+        "direction_from_board": "input",
+        "mpn": "HV_SOLDER_LEADS_WITH_EXTERNAL_STRAIN_RELIEF"
+      },
+      {
+        "connector": "J1",
+        "source_ref": "J1",
+        "pin": "2",
+        "net": "SW_B",
+        "domain": "HV_INPUT",
+        "direction_from_board": "input",
+        "mpn": "HV_SOLDER_LEADS_WITH_EXTERNAL_STRAIN_RELIEF"
+      },
+      {
+        "connector": "J2",
+        "source_ref": "J2",
+        "pin": "1",
+        "net": "POD_3V3",
+        "domain": "AUX",
+        "direction_from_board": "power_in",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J2",
+        "source_ref": "J2",
+        "pin": "2",
+        "net": "AUX_0V",
+        "domain": "AUX",
+        "direction_from_board": "return",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J2",
+        "source_ref": "J2",
+        "pin": "3",
+        "net": "VTANK_P",
+        "domain": "AUX",
+        "direction_from_board": "output",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J2",
+        "source_ref": "J2",
+        "pin": "4",
+        "net": "VTANK_N",
+        "domain": "AUX",
+        "direction_from_board": "output",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J2",
+        "source_ref": "J2",
+        "pin": "5",
+        "net": "VTANK_DIAG_N",
+        "domain": "AUX",
+        "direction_from_board": "output",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J2",
+        "source_ref": "J2",
+        "pin": "6",
+        "net": "AUX_0V",
+        "domain": "AUX",
+        "direction_from_board": "return",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      }
+    ],
+    "iproof": [
+      {
+        "connector": "J1",
+        "source_ref": "J_IPROOF_SIGNAL",
+        "pin": "1",
+        "net": "IPROOF_RAW",
+        "domain": "AUX",
+        "direction_from_board": "output",
+        "mpn": "B2B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J1",
+        "source_ref": "J_IPROOF_SIGNAL",
+        "pin": "2",
+        "net": "REF_1V25",
+        "domain": "AUX",
+        "direction_from_board": "analog_reference",
+        "mpn": "B2B-XH-A(LF)(SN)"
+      }
+    ],
+    "iline": [
+      {
+        "connector": "J1",
+        "source_ref": "J_ILINE_SIGNAL",
+        "pin": "1",
+        "net": "ILINE_RAW",
+        "domain": "AUX",
+        "direction_from_board": "output",
+        "mpn": "B2B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J1",
+        "source_ref": "J_ILINE_SIGNAL",
+        "pin": "2",
+        "net": "REF_1V25",
+        "domain": "AUX",
+        "direction_from_board": "analog_reference",
+        "mpn": "B2B-XH-A(LF)(SN)"
+      }
+    ]
+  }
+}

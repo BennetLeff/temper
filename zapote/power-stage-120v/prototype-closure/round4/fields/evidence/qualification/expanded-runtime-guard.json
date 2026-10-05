@@ -1,0 +1,5 @@
+{
+  "claim": "all seven runtime hashes passed, then existing-work rejection prevented a new solver launch",
+  "exit_code": 1,
+  "stderr": "Work directory already exists; refusing reuse\n"
+}

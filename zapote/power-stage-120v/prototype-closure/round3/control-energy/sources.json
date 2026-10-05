@@ -1,0 +1,13 @@
+{
+  "checked_on": "2026-10-04",
+  "method": "Official manufacturer pages/PDFs inspected with web tools. No vendor PDFs redistributed. Shell PDF download was unavailable; no local PDF hashes are claimed.",
+  "sources": [
+    {"id":"microchip-tvs","url":"https://ww1.microchip.com/downloads/aemDocuments/documents/HRDS/ProductDocuments/DataSheets/130-kW-Transient-Voltage-Suppressor-TVS-Device-00005551.pdf","document":"DS00005551B","pages":[3,5,6,7,9],"supports":"Existing MRT130KP295CV 295V stand-off, 410V at282A/6.4-69us25C; duty/temperature/pulse-shape/lead-inductance restrictions; no unconditional hot clamp bound."},
+    {"id":"tdk-catch","url":"https://www.tdk-electronics.tdk.com/inf/20/20/ds/MKP_B32774H_778H.pdf","document":"B3277*H 6/26","pages":[15,18,19],"supports":"B32778H8476K00047uF±10%,700V85C,30x45x57.5mm,52.5mmleadpitch;ESR5.4mOhm/ESL14nHtypical;700V52.5mmpulse15V/us;hotvoltagederating."},
+    {"id":"infineon-diode","url":"https://www.infineon.com/assets/row/public/documents/non-assigned/49/infineon-idw40g65c5-datasheet-en.pdf","document":"IDW40G65C5 Rev2.2","pages":[4],"supports":"650V40A;nonrepetitive10mshalf-sine182A25C/153A150C,I2t166/118A2s;conditions cannot be replaced by generic pulse current."},
+    {"id":"infineon-opn","url":"https://www.infineon.com/part/IDW40G65C5","supports":"Exact OPN IDW40G65C5XKSA1,PG-TO247-3,statusactivepreferred."},
+    {"id":"eaton-fuse","url":"https://www.eaton.com/ca/en-gb/skuPage.FWP-10A14F.html","supports":"FWP-10A14F10A700VDC14x51mmaaR,4A2spre-arcing;fullDCcoordinationnotestablished."},
+    {"id":"vishay-bleed","url":"https://www.vishay.com/docs/28907/vr25vr37vr68.pdf","document":"28907 Rev03-Jun-2025","pages":[1],"supports":"VR37family0.5W70C,3500V,100kohmavailable,±200ppm/K;exact proposedordering-codeprocurementverificationpending."},
+    {"id":"ti-bus-monitor","url":"https://www.ti.com/lit/ds/symlink/amc1311.pdf","document":"AMC1311 RevC","pages":[6,10],"supports":"0..2Vlinearrange;native19nominaldivider119.987:1limitslinearrangeto239.975V;integrationpeerindependentlychecked."}
+  ]
+}

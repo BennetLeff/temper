@@ -1,0 +1,66 @@
+* Conditional full-bridge finite-energy shutdown; NOT a measured coil or SOA model.
+* All four body-diode paths remain after a delayed active diagonal turns off.
+.param VB=@VB@ IL=@IL@ VC=@VC@ LCOIL=@L@ RTANK=@R@ TD=@TD@ STEP=@STEP@
+.param CTANK=0.54u CBUS=5.8u CC=42.3u LCATCH=@CL@ SHORT=@SHORT@
+Rfuse bus df .002
+Vcatch df sense_catch 0
+Dcatch sense_catch cd DPOWER
+Lcatch cd cf {LCATCH} IC=0
+Rcatch cf catch .08
+Ccatch catch 0 {CC} IC={VB}
+Rcatchleak catch 0 200k
+Bshort catch 0 I=v(catch)*SHORT/.01*min(1,max(0,(time-50u)/1u))
+Bcatchabs icatch_abs 0 V=sqrt(i(Lcatch)^2+.0001)
+Bcatchi2 icatch2 0 V=i(Lcatch)^2
+.model DPOWER D(Is=1n N=1 Rs=.02)
+.options method=gear reltol=1e-5 abstol=1e-10 vntol=1e-7 itl4=1000
+Cbus bus 0 {CBUS} IC={VB}
+Rbusleak bus 0 1e9
+Raleak a 0 1e6
+Rbleak b 0 1e6
+Cah bus a 1n IC=0
+Cal a 0 1n IC={VB}
+Cbh bus b 1n IC={VB}
+Cbl b 0 1n IC=0
+Va ctrl 0 PULSE(1 0 {TD} 1n 1n 1m 2m)
+Voff off 0 0
+BSAH bus a I={v(bus,a)*(1e-12+v(ctrl)/0.018)}
+BSAL a 0 I={v(a,0)*(1e-12+v(off)/0.018)}
+BSBH bus b I={v(bus,b)*(1e-12+v(off)/0.018)}
+BSBL b 0 I={v(b,0)*(1e-12+v(ctrl)/0.018)}
+* Ideal voltage-controlled conductances, finite 1 ns turnoff slope.
+VDAH a sense_DAH 0
+DDAH sense_DAH bus DPOWER
+VDAL 0 sense_DAL 0
+DDAL sense_DAL a DPOWER
+VDBH b sense_DBH 0
+DDBH sense_DBH bus DPOWER
+VDBL 0 sense_DBL 0
+DDBL sense_DBL b DPOWER
+* Passive smooth ideal diode conductances (0.1V regularization): forward differential R=.02 ohm, no Qrr/Coss/Vf model.
+* Lumped resistive coil/pan loss; no saturation, skin effect or changing pan.
+Lcoil a lr {LCOIL} IC={IL}
+Rtank lr cr {RTANK}
+Ctank cr b {CTANK} IC={VC}
+Rbleed cr b 1.88meg
+Babs abs_i 0 V=sqrt(i(Lcoil)^2+.0001)
+Bloss losses 0 V={i(Vcatch)*v(df,cd)+.082*i(Lcatch)^2+v(catch)^2/200e3+i(Bshort)*v(catch)+RTANK*i(Lcoil)^2+(v(a)^2+v(b)^2)/1e6+v(bus)^2/1e9+v(cr,b)^2/1.88e6+i(VDAH)*v(a,bus)+i(VDAL)*v(0,a)+i(VDBH)*v(b,bus)+i(VDBL)*v(0,b)+i(BSAH)*v(bus,a)+i(BSAL)*v(a)+i(BSBH)*v(bus,b)+i(BSBL)*v(b)}
+.ic V(df)={VB} V(sense_catch)={VB} V(sense_DAH)={VB} V(sense_DAL)=0 V(sense_DBH)=0 V(sense_DBL)=0 V(catch)={VB} V(cf)={VB} V(cd)={VB} V(bus)={VB} V(a)={VB} V(b)=0 V(cr)={VC}
+.tran {STEP} 200u 0 {STEP} UIC
+.meas tran catch_pk MAX v(catch)
+.meas tran catch_current_pk MAX v(icatch_abs)
+.meas tran catch_i2t INTEG v(icatch2) FROM=0 TO=200u
+.meas tran catch_end FIND v(catch) AT=200u
+.meas tran catch_i_end FIND i(Lcatch) AT=200u
+.meas tran vbus_pk MAX v(bus)
+.meas tran current_pk MAX v(abs_i)
+.meas tran vcap_pk MAX par('abs(v(cr,b))')
+.meas tran current_end FIND v(abs_i) AT=200u
+.meas tran vbus_end FIND v(bus) AT=200u
+.meas tran vcap_end FIND par('v(cr,b)') AT=200u
+.meas tran esnub_end FIND par('0.5e-9*(v(bus,a)^2+v(a)^2+v(bus,b)^2+v(b)^2)') AT=200u
+.meas tran loss_j INTEG v(losses) FROM=0 TO=200u
+.meas tran e_initial PARAM='0.5*(CBUS+CC+2n)*VB^2+0.5*LCOIL*IL^2+0.5*CTANK*VC^2'
+.meas tran e_final PARAM='0.5*LCATCH*catch_i_end^2+0.5*CC*catch_end^2+esnub_end+0.5*CBUS*vbus_end^2+0.5*LCOIL*current_end^2+0.5*CTANK*vcap_end^2'
+.meas tran energy_residual PARAM='(e_final+loss_j-e_initial)/e_initial'
+.end

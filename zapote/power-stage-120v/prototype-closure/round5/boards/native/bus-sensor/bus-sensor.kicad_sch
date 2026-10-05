@@ -1,0 +1,1552 @@
+(kicad_sch(version 20250114)(generator "temper")(uuid "47b3a776-e02d-5678-a8eb-a3a37bb5f2d2")(paper "A3")(title_block(title "Temper isolated bus voltage sensor")(date "2026-10-05")(rev "R5 candidate"))(lib_symbols (symbol "Sensor:R_Small_US"
+		(pin_numbers
+			(hide yes)
+		)
+		(pin_names
+			(offset 0.254)
+			(hide yes)
+		)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "R"
+			(at 0.762 0.508 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "R_Small_US"
+			(at 0.762 -1.016 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor, small US symbol"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_keywords" "r resistor"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_fp_filters" "R_*"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(symbol "R_Small_US_1_1"
+			(polyline
+				(pts
+					(xy 0 1.524) (xy 1.016 1.143) (xy 0 0.762) (xy -1.016 0.381) (xy 0 0)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0 0) (xy 1.016 -0.381) (xy 0 -0.762) (xy -1.016 -1.143) (xy 0 -1.524)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(pin passive line
+				(at 0 2.54 270)
+				(length 1.016)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 0 -2.54 90)
+				(length 1.016)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)
+(symbol "Sensor:C"
+		(pin_numbers
+			(hide yes)
+		)
+		(pin_names
+			(offset 0.254)
+		)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "C"
+			(at 0.635 2.54 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "C"
+			(at 0.635 -2.54 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 0.9652 -3.81 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Unpolarized capacitor"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_keywords" "cap capacitor"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_fp_filters" "C_*"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(symbol "C_0_1"
+			(polyline
+				(pts
+					(xy -2.032 0.762) (xy 2.032 0.762)
+				)
+				(stroke
+					(width 0.508)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy -2.032 -0.762) (xy 2.032 -0.762)
+				)
+				(stroke
+					(width 0.508)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+		)
+		(symbol "C_1_1"
+			(pin passive line
+				(at 0 3.81 270)
+				(length 2.794)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 0 -3.81 90)
+				(length 2.794)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)
+(symbol "Sensor:AMC3330"
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "U"
+			(at -1.27 22.86 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "AMC3330"
+			(at 0 20.32 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Package_SO:SOIC-16W_7.5x10.3mm_P1.27mm"
+			(at 31.75 41.91 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/amc3330.pdf"
+			(at 33.02 39.37 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Reinforced Isolated Amplifier With Integrated DC/DC Converter, SOIC-16W"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_keywords" "isolated analog amplifier integrated power supply"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_fp_filters" "SOIC*7.5x10.3mm*P1.27mm*"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(symbol "AMC3330_0_1"
+			(rectangle
+				(start -15.24 15.24)
+				(end 15.24 -15.24)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type background)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0 15.24) (xy 0 13.97)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0 13.462) (xy 0 12.192)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0 11.684) (xy 0 10.414)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0 9.906) (xy 0 8.636)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0 8.128) (xy 0 6.858)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0 6.35) (xy 0 5.08)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0 4.572) (xy 0 3.302)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0 2.794) (xy 0 1.524)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0 1.016) (xy 0 -0.254)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0 -0.762) (xy 0 -2.032)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0 -2.54) (xy 0 -3.81)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0 -4.318) (xy 0 -5.588)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0 -6.096) (xy 0 -7.366)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0 -7.874) (xy 0 -9.144)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0 -9.652) (xy 0 -10.922)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0 -11.43) (xy 0 -12.7)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0 -13.208) (xy 0 -14.478)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+		)
+		(symbol "AMC3330_1_1"
+			(pin power_out line
+				(at -17.78 12.7 0)
+				(length 2.54)
+				(name "DCDC_OUT"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_out line
+				(at -17.78 7.62 0)
+				(length 2.54)
+				(name "DCDC_HGND"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at -17.78 2.54 0)
+				(length 2.54)
+				(name "HLDO_IN"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "3"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin no_connect line
+				(at -7.62 -15.24 90)
+				(length 2.54)
+				(hide yes)
+				(name "NC"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "4"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_out line
+				(at -17.78 0 0)
+				(length 2.54)
+				(name "HLDO_OUT"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "5"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -17.78 -5.08 0)
+				(length 2.54)
+				(name "INP"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "6"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -17.78 -12.7 0)
+				(length 2.54)
+				(name "INN"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "7"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at -5.08 -17.78 90)
+				(length 2.54)
+				(name "HGND"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "8"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at 5.08 -17.78 90)
+				(length 2.54)
+				(name "GND"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "9"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin output line
+				(at 17.78 -12.7 180)
+				(length 2.54)
+				(name "OUTN"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "10"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin output line
+				(at 17.78 -5.08 180)
+				(length 2.54)
+				(name "OUTP"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "11"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at 5.08 17.78 270)
+				(length 2.54)
+				(name "VDD"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "12"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_out line
+				(at 17.78 12.7 180)
+				(length 2.54)
+				(name "LDO_OUT"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "13"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin open_collector line
+				(at 17.78 0 180)
+				(length 2.54)
+				(name "DIAG"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "14"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at 17.78 5.08 180)
+				(length 2.54)
+				(name "DCDC_GND"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "15"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at 17.78 10.16 180)
+				(length 2.54)
+				(name "DCDC_IN"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "16"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)
+(symbol "Sensor:Conn_01x02"
+		(pin_names
+			(offset 1.016)
+			(hide yes)
+		)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "J"
+			(at 0 2.54 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Conn_01x02"
+			(at 0 -5.08 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_keywords" "connector"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_fp_filters" "Connector*:*_1x??_*"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(symbol "Conn_01x02_1_1"
+			(rectangle
+				(start -1.27 1.27)
+				(end 1.27 -3.81)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type background)
+				)
+			)
+			(rectangle
+				(start -1.27 0.127)
+				(end 0 -0.127)
+				(stroke
+					(width 0.1524)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(rectangle
+				(start -1.27 -2.413)
+				(end 0 -2.667)
+				(stroke
+					(width 0.1524)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(pin passive line
+				(at -5.08 0 0)
+				(length 3.81)
+				(name "Pin_1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at -5.08 -2.54 0)
+				(length 3.81)
+				(name "Pin_2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)
+(symbol "Sensor:Conn_01x06"
+		(pin_names
+			(offset 1.016)
+			(hide yes)
+		)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "J"
+			(at 0 7.62 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Conn_01x06"
+			(at 0 -10.16 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Generic connector, single row, 01x06, script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_keywords" "connector"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_fp_filters" "Connector*:*_1x??_*"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(symbol "Conn_01x06_1_1"
+			(rectangle
+				(start -1.27 6.35)
+				(end 1.27 -8.89)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type background)
+				)
+			)
+			(rectangle
+				(start -1.27 5.207)
+				(end 0 4.953)
+				(stroke
+					(width 0.1524)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(rectangle
+				(start -1.27 2.667)
+				(end 0 2.413)
+				(stroke
+					(width 0.1524)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(rectangle
+				(start -1.27 0.127)
+				(end 0 -0.127)
+				(stroke
+					(width 0.1524)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(rectangle
+				(start -1.27 -2.413)
+				(end 0 -2.667)
+				(stroke
+					(width 0.1524)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(rectangle
+				(start -1.27 -4.953)
+				(end 0 -5.207)
+				(stroke
+					(width 0.1524)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(rectangle
+				(start -1.27 -7.493)
+				(end 0 -7.747)
+				(stroke
+					(width 0.1524)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(pin passive line
+				(at -5.08 5.08 0)
+				(length 3.81)
+				(name "Pin_1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at -5.08 2.54 0)
+				(length 3.81)
+				(name "Pin_2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at -5.08 0 0)
+				(length 3.81)
+				(name "Pin_3"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "3"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at -5.08 -2.54 0)
+				(length 3.81)
+				(name "Pin_4"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "4"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at -5.08 -5.08 0)
+				(length 3.81)
+				(name "Pin_5"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "5"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at -5.08 -7.62 0)
+				(length 3.81)
+				(name "Pin_6"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "6"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)
+(symbol "Sensor:PWR_FLAG"
+		(power global)
+		(pin_numbers
+			(hide yes)
+		)
+		(pin_names
+			(offset 0)
+			(hide yes)
+		)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "#FLG"
+			(at 0 1.905 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "PWR_FLAG"
+			(at 0 3.81 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Special symbol for telling ERC where power comes from"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_keywords" "flag power"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(symbol "PWR_FLAG_0_0"
+			(pin power_out line
+				(at 0 0 90)
+				(length 0)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(symbol "PWR_FLAG_0_1"
+			(polyline
+				(pts
+					(xy 0 0) (xy 0 1.27) (xy -1.016 1.905) (xy 0 2.54) (xy 1.016 1.905) (xy 0 1.27)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+		)
+		(embedded_fonts no)
+	))(symbol(lib_id "Sensor:R_Small_US")(at 30.48 86.36 90)(unit 1)(in_bom yes)(on_board yes)(dnp no)(uuid "ac6b1c1b-df65-5c6f-8977-f397b136175d")
+(property "Reference" "R1"(at 30.48 81.28 90)(effects(font(size 1.016 1.016))))
+(property "Value" "249kR 0.1%"(at 30.48 91.44 90)(effects(font(size 1.016 1.016))))
+(property "MPN" "TNPW1206249KBEEA 249kR 0.1%"(at 30.48 86.36 0)(effects(font(size 1 1)) hide))
+(property "Footprint" "Resistor_SMD:R_1206_3216Metric"(at 30.48 86.36 0)(effects(font(size 1 1)) hide))
+(pin "1"(uuid "db414905-335f-5573-b553-799628ba4d6a")) (pin "2"(uuid "13c2dbe6-3038-581b-b928-1ecdc511f7a4"))(instances(project "bus-sensor"(path "/47b3a776-e02d-5678-a8eb-a3a37bb5f2d2"(reference "R1")(unit 1)))))(symbol(lib_id "Sensor:R_Small_US")(at 48.260000000000005 86.36 90)(unit 1)(in_bom yes)(on_board yes)(dnp no)(uuid "9bed3105-87c0-508a-9917-76d4abf2acf2")
+(property "Reference" "R2"(at 48.260000000000005 81.28 90)(effects(font(size 1.016 1.016))))
+(property "Value" "249kR 0.1%"(at 48.260000000000005 91.44 90)(effects(font(size 1.016 1.016))))
+(property "MPN" "TNPW1206249KBEEA 249kR 0.1%"(at 48.260000000000005 86.36 0)(effects(font(size 1 1)) hide))
+(property "Footprint" "Resistor_SMD:R_1206_3216Metric"(at 48.260000000000005 86.36 0)(effects(font(size 1 1)) hide))
+(pin "1"(uuid "752d462d-31e7-5da5-93df-17204a504880")) (pin "2"(uuid "3cf9b43d-ae41-5e64-a0e6-b5c77f2ec2db"))(instances(project "bus-sensor"(path "/47b3a776-e02d-5678-a8eb-a3a37bb5f2d2"(reference "R2")(unit 1)))))(symbol(lib_id "Sensor:R_Small_US")(at 66.04 86.36 90)(unit 1)(in_bom yes)(on_board yes)(dnp no)(uuid "ebdae881-7964-5cdf-a24d-8f67d7998f8d")
+(property "Reference" "R3"(at 66.04 81.28 90)(effects(font(size 1.016 1.016))))
+(property "Value" "249kR 0.1%"(at 66.04 91.44 90)(effects(font(size 1.016 1.016))))
+(property "MPN" "TNPW1206249KBEEA 249kR 0.1%"(at 66.04 86.36 0)(effects(font(size 1 1)) hide))
+(property "Footprint" "Resistor_SMD:R_1206_3216Metric"(at 66.04 86.36 0)(effects(font(size 1 1)) hide))
+(pin "1"(uuid "0bf0aa37-622a-5807-bf10-49b51f0b6bc5")) (pin "2"(uuid "8c08c475-332a-557a-9033-534f76b7d527"))(instances(project "bus-sensor"(path "/47b3a776-e02d-5678-a8eb-a3a37bb5f2d2"(reference "R3")(unit 1)))))(symbol(lib_id "Sensor:R_Small_US")(at 83.82000000000001 86.36 90)(unit 1)(in_bom yes)(on_board yes)(dnp no)(uuid "821767ba-1f6b-557b-a47b-175695a02b29")
+(property "Reference" "R4"(at 83.82000000000001 81.28 90)(effects(font(size 1.016 1.016))))
+(property "Value" "249kR 0.1%"(at 83.82000000000001 91.44 90)(effects(font(size 1.016 1.016))))
+(property "MPN" "TNPW1206249KBEEA 249kR 0.1%"(at 83.82000000000001 86.36 0)(effects(font(size 1 1)) hide))
+(property "Footprint" "Resistor_SMD:R_1206_3216Metric"(at 83.82000000000001 86.36 0)(effects(font(size 1 1)) hide))
+(pin "1"(uuid "ee4e08f2-0a32-5204-be24-54b438f4f14e")) (pin "2"(uuid "5ed8196d-0676-54b1-bb57-5428abe0ff79"))(instances(project "bus-sensor"(path "/47b3a776-e02d-5678-a8eb-a3a37bb5f2d2"(reference "R4")(unit 1)))))(symbol(lib_id "Sensor:R_Small_US")(at 101.60000000000001 86.36 90)(unit 1)(in_bom yes)(on_board yes)(dnp no)(uuid "ddd9adbb-5108-501b-9d8f-2c0b6a316e7a")
+(property "Reference" "R5"(at 101.60000000000001 81.28 90)(effects(font(size 1.016 1.016))))
+(property "Value" "249kR 0.1%"(at 101.60000000000001 91.44 90)(effects(font(size 1.016 1.016))))
+(property "MPN" "TNPW1206249KBEEA 249kR 0.1%"(at 101.60000000000001 86.36 0)(effects(font(size 1 1)) hide))
+(property "Footprint" "Resistor_SMD:R_1206_3216Metric"(at 101.60000000000001 86.36 0)(effects(font(size 1 1)) hide))
+(pin "1"(uuid "2015c301-3131-5962-9dc0-23bd31386513")) (pin "2"(uuid "2eb4fd4f-b3e4-5f7a-bb26-7e5d8291817c"))(instances(project "bus-sensor"(path "/47b3a776-e02d-5678-a8eb-a3a37bb5f2d2"(reference "R5")(unit 1)))))(symbol(lib_id "Sensor:R_Small_US")(at 119.38000000000001 86.36 90)(unit 1)(in_bom yes)(on_board yes)(dnp no)(uuid "36469331-fa63-59b5-9d42-cc51f00501f9")
+(property "Reference" "R6"(at 119.38000000000001 81.28 90)(effects(font(size 1.016 1.016))))
+(property "Value" "249kR 0.1%"(at 119.38000000000001 91.44 90)(effects(font(size 1.016 1.016))))
+(property "MPN" "TNPW1206249KBEEA 249kR 0.1%"(at 119.38000000000001 86.36 0)(effects(font(size 1 1)) hide))
+(property "Footprint" "Resistor_SMD:R_1206_3216Metric"(at 119.38000000000001 86.36 0)(effects(font(size 1 1)) hide))
+(pin "1"(uuid "94650938-68d6-5488-8cb5-f8162050c1d9")) (pin "2"(uuid "9bc3a333-5f78-59a9-bcd3-736259fabe13"))(instances(project "bus-sensor"(path "/47b3a776-e02d-5678-a8eb-a3a37bb5f2d2"(reference "R6")(unit 1)))))(symbol(lib_id "Sensor:R_Small_US")(at 137.16 86.36 90)(unit 1)(in_bom yes)(on_board yes)(dnp no)(uuid "32cbd2d4-a303-5616-9771-6090ac8a2d96")
+(property "Reference" "R7"(at 137.16 81.28 90)(effects(font(size 1.016 1.016))))
+(property "Value" "249kR 0.1%"(at 137.16 91.44 90)(effects(font(size 1.016 1.016))))
+(property "MPN" "TNPW1206249KBEEA 249kR 0.1%"(at 137.16 86.36 0)(effects(font(size 1 1)) hide))
+(property "Footprint" "Resistor_SMD:R_1206_3216Metric"(at 137.16 86.36 0)(effects(font(size 1 1)) hide))
+(pin "1"(uuid "e2e9adee-23c3-5556-897e-09404cff5e88")) (pin "2"(uuid "a002e480-c7a9-5f51-a3f2-b74913adcc4a"))(instances(project "bus-sensor"(path "/47b3a776-e02d-5678-a8eb-a3a37bb5f2d2"(reference "R7")(unit 1)))))(symbol(lib_id "Sensor:R_Small_US")(at 154.94 86.36 90)(unit 1)(in_bom yes)(on_board yes)(dnp no)(uuid "13b758db-abc2-5d2c-888c-e159305bb473")
+(property "Reference" "R8"(at 154.94 81.28 90)(effects(font(size 1.016 1.016))))
+(property "Value" "249kR 0.1%"(at 154.94 91.44 90)(effects(font(size 1.016 1.016))))
+(property "MPN" "TNPW1206249KBEEA 249kR 0.1%"(at 154.94 86.36 0)(effects(font(size 1 1)) hide))
+(property "Footprint" "Resistor_SMD:R_1206_3216Metric"(at 154.94 86.36 0)(effects(font(size 1 1)) hide))
+(pin "1"(uuid "e2f2b207-d26a-5d2a-a8f0-ba5069918b32")) (pin "2"(uuid "9ed86c24-3f92-5a66-957e-ba850a46bdfd"))(instances(project "bus-sensor"(path "/47b3a776-e02d-5678-a8eb-a3a37bb5f2d2"(reference "R8")(unit 1)))))(symbol(lib_id "Sensor:R_Small_US")(at 185.42 105.41 0)(unit 1)(in_bom yes)(on_board yes)(dnp no)(uuid "c5d5f5ee-a6f6-58ab-9274-0d1bc00de223")
+(property "Reference" "R9"(at 190.5 104.14 0)(effects(font(size 1.016 1.016))))
+(property "Value" "2.49kR 0.1%"(at 193.04 107.95 0)(effects(font(size 1.016 1.016))))
+(property "MPN" "TNPW12062K49BEEA 2.49kR 0.1%"(at 185.42 105.41 0)(effects(font(size 1 1)) hide))
+(property "Footprint" "Resistor_SMD:R_1206_3216Metric"(at 185.42 105.41 0)(effects(font(size 1 1)) hide))
+(pin "1"(uuid "55bc5628-d0f1-5e3a-b73a-0044e353e9b2")) (pin "2"(uuid "f58a8b85-50e3-5ca1-9241-65e02671e8d5"))(instances(project "bus-sensor"(path "/47b3a776-e02d-5678-a8eb-a3a37bb5f2d2"(reference "R9")(unit 1)))))(symbol(lib_id "Sensor:C")(at 198.12 105.41 0)(unit 1)(in_bom yes)(on_board yes)(dnp no)(uuid "994c38a2-131b-56fe-a0e2-bdd88a75c22a")
+(property "Reference" "C1"(at 203.20000000000002 104.14 0)(effects(font(size 1.016 1.016))))
+(property "Value" "1nF"(at 205.74 107.95 0)(effects(font(size 1.016 1.016))))
+(property "MPN" "1nF C0603C102J5GACTU"(at 198.12 105.41 0)(effects(font(size 1 1)) hide))
+(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"(at 198.12 105.41 0)(effects(font(size 1 1)) hide))
+(pin "1"(uuid "03eae043-e0d4-57dc-b33c-8301e9c05969")) (pin "2"(uuid "82364c52-fdfe-5cc7-98a1-844895cab75c"))(instances(project "bus-sensor"(path "/47b3a776-e02d-5678-a8eb-a3a37bb5f2d2"(reference "C1")(unit 1)))))(symbol(lib_id "Sensor:AMC3330")(at 226.06 81.28 0)(unit 1)(in_bom yes)(on_board yes)(dnp no)(uuid "3a46f9c3-2cb9-594d-a776-1bcafea55755")
+(property "Reference" "U1"(at 226.06 58.42 0)(effects(font(size 1.016 1.016))))
+(property "Value" "AMC3330DWE"(at 226.06 60.96 0)(effects(font(size 1.016 1.016))))
+(property "MPN" "AMC3330DWE"(at 226.06 81.28 0)(effects(font(size 1 1)) hide))
+(property "Footprint" "Round5:AMC3330_DWE_HV"(at 226.06 81.28 0)(effects(font(size 1 1)) hide))
+(pin "1"(uuid "471995b3-413d-52f4-8aa9-5701f02802ab")) (pin "2"(uuid "53b28131-4700-5628-9aa3-0b1c61bb30b5")) (pin "3"(uuid "d7689cc5-8640-5587-8fd8-502303f42a1e")) (pin "4"(uuid "462c4d15-e9f9-53fb-bf95-9a6fd6209082")) (pin "5"(uuid "2c988834-22f7-5a4f-8562-139bcfaf712e")) (pin "6"(uuid "4751fb3a-9975-5883-9067-28026b0c326b")) (pin "7"(uuid "7ad77ab6-65e2-54f7-b5fa-f96db2d5ae1f")) (pin "8"(uuid "02197afe-8832-5a7e-b6ce-fd00328ba5ed")) (pin "9"(uuid "2d6aa977-beb9-59c3-8aa9-5f5228b7ec16")) (pin "10"(uuid "b350766f-59d7-5c3e-a324-d45bdd37f35c")) (pin "11"(uuid "5154112e-c6dc-5322-92e8-851cb0513a52")) (pin "12"(uuid "dd2b526f-0597-5d14-b016-2c2836d24d1a")) (pin "13"(uuid "ba7dd6ef-57ad-5de3-a6ff-0b3dbc04884e")) (pin "14"(uuid "59e63574-d071-55c9-86a2-8827637b227a")) (pin "15"(uuid "efe87638-7f04-5830-8f8e-b4cff74374bf")) (pin "16"(uuid "1deec9d6-b1ac-54c9-93df-a1168a37395d"))(instances(project "bus-sensor"(path "/47b3a776-e02d-5678-a8eb-a3a37bb5f2d2"(reference "U1")(unit 1)))))(symbol(lib_id "Sensor:C")(at 292.1 137.16 0)(unit 1)(in_bom yes)(on_board yes)(dnp no)(uuid "44029fa7-5687-56e5-b2ab-0fdeaf6bd980")
+(property "Reference" "C2"(at 297.18 135.89 0)(effects(font(size 1.016 1.016))))
+(property "Value" "1nF"(at 299.72 139.7 0)(effects(font(size 1.016 1.016))))
+(property "MPN" "1nF 12065C102KAT2A"(at 292.1 137.16 0)(effects(font(size 1 1)) hide))
+(property "Footprint" "Capacitor_SMD:C_1206_3216Metric"(at 292.1 137.16 0)(effects(font(size 1 1)) hide))
+(pin "1"(uuid "2c275453-0d0b-5827-9009-0f8d32ced1df")) (pin "2"(uuid "eacf0adc-7254-572a-943b-658df6928061"))(instances(project "bus-sensor"(path "/47b3a776-e02d-5678-a8eb-a3a37bb5f2d2"(reference "C2")(unit 1)))))(symbol(lib_id "Sensor:C")(at 309.88 137.16 0)(unit 1)(in_bom yes)(on_board yes)(dnp no)(uuid "daab7971-2cf2-5d01-bcb6-ccdee8456495")
+(property "Reference" "C3"(at 314.96 135.89 0)(effects(font(size 1.016 1.016))))
+(property "Value" "1uF"(at 317.5 139.7 0)(effects(font(size 1.016 1.016))))
+(property "MPN" "1uF 12063C105KAT2A"(at 309.88 137.16 0)(effects(font(size 1 1)) hide))
+(property "Footprint" "Capacitor_SMD:C_1206_3216Metric"(at 309.88 137.16 0)(effects(font(size 1 1)) hide))
+(pin "1"(uuid "8e7d9a89-cd22-5ebc-8b99-269439c5e3d6")) (pin "2"(uuid "7803e296-283f-539b-bfc1-4cfd2c2203df"))(instances(project "bus-sensor"(path "/47b3a776-e02d-5678-a8eb-a3a37bb5f2d2"(reference "C3")(unit 1)))))(symbol(lib_id "Sensor:C")(at 109.22 137.16 0)(unit 1)(in_bom yes)(on_board yes)(dnp no)(uuid "254820b3-58a7-5386-bd34-f1b30ea95a25")
+(property "Reference" "C4"(at 114.3 135.89 0)(effects(font(size 1.016 1.016))))
+(property "Value" "1uF"(at 116.84 139.7 0)(effects(font(size 1.016 1.016))))
+(property "MPN" "1uF CGA3E1X7R1E105K080AC"(at 109.22 137.16 0)(effects(font(size 1 1)) hide))
+(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"(at 109.22 137.16 0)(effects(font(size 1 1)) hide))
+(pin "1"(uuid "30dbe069-b5f5-5546-9ac1-4233d0495999")) (pin "2"(uuid "d551675a-80e3-5cfc-bde3-f7b3e62d1dcd"))(instances(project "bus-sensor"(path "/47b3a776-e02d-5678-a8eb-a3a37bb5f2d2"(reference "C4")(unit 1)))))(symbol(lib_id "Sensor:C")(at 127 137.16 0)(unit 1)(in_bom yes)(on_board yes)(dnp no)(uuid "514c75f8-9900-5a48-90af-6b1c5e4833d3")
+(property "Reference" "C5"(at 132.08 135.89 0)(effects(font(size 1.016 1.016))))
+(property "Value" "1nF"(at 134.62 139.7 0)(effects(font(size 1.016 1.016))))
+(property "MPN" "1nF C0603C102K5RACTU"(at 127 137.16 0)(effects(font(size 1 1)) hide))
+(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"(at 127 137.16 0)(effects(font(size 1 1)) hide))
+(pin "1"(uuid "6a21ee44-1e95-5dc4-8524-b04d9a680305")) (pin "2"(uuid "6d7b33b7-5c77-5113-8a8b-95f6aa90122d"))(instances(project "bus-sensor"(path "/47b3a776-e02d-5678-a8eb-a3a37bb5f2d2"(reference "C5")(unit 1)))))(symbol(lib_id "Sensor:C")(at 345.44 137.16 0)(unit 1)(in_bom yes)(on_board yes)(dnp no)(uuid "0f7b3e9f-abbe-535d-bed4-b4287b106b19")
+(property "Reference" "C6"(at 350.52 135.89 0)(effects(font(size 1.016 1.016))))
+(property "Value" "100nF"(at 353.06 139.7 0)(effects(font(size 1.016 1.016))))
+(property "MPN" "100nF C0603C104K5RACAUTO"(at 345.44 137.16 0)(effects(font(size 1 1)) hide))
+(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"(at 345.44 137.16 0)(effects(font(size 1 1)) hide))
+(pin "1"(uuid "443e33b0-f7ac-530c-9b11-157afbcf5d85")) (pin "2"(uuid "59c6f338-e0dc-563c-94a5-65328770fa45"))(instances(project "bus-sensor"(path "/47b3a776-e02d-5678-a8eb-a3a37bb5f2d2"(reference "C6")(unit 1)))))(symbol(lib_id "Sensor:C")(at 180.34 137.16 0)(unit 1)(in_bom yes)(on_board yes)(dnp no)(uuid "ae788076-a8ed-5bab-9f98-ee8fc820b7ab")
+(property "Reference" "C7"(at 185.42000000000002 135.89 0)(effects(font(size 1.016 1.016))))
+(property "Value" "100nF"(at 187.96 139.7 0)(effects(font(size 1.016 1.016))))
+(property "MPN" "100nF C0603C104K5RACAUTO"(at 180.34 137.16 0)(effects(font(size 1 1)) hide))
+(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"(at 180.34 137.16 0)(effects(font(size 1 1)) hide))
+(pin "1"(uuid "0601e7e5-5ebb-5583-85fc-dd041c0f409f")) (pin "2"(uuid "c67d0053-bd76-5830-b0ef-d41b7b034f72"))(instances(project "bus-sensor"(path "/47b3a776-e02d-5678-a8eb-a3a37bb5f2d2"(reference "C7")(unit 1)))))(symbol(lib_id "Sensor:C")(at 198.12 137.16 0)(unit 1)(in_bom yes)(on_board yes)(dnp no)(uuid "62a80081-7d4d-5088-97eb-6c5006fff5b0")
+(property "Reference" "C8"(at 203.20000000000002 135.89 0)(effects(font(size 1.016 1.016))))
+(property "Value" "1nF"(at 205.74 139.7 0)(effects(font(size 1.016 1.016))))
+(property "MPN" "1nF C0603C102K5RACTU"(at 198.12 137.16 0)(effects(font(size 1 1)) hide))
+(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"(at 198.12 137.16 0)(effects(font(size 1 1)) hide))
+(pin "1"(uuid "81c7f104-cfea-5d14-8859-82bd6c9a5d53")) (pin "2"(uuid "d4df4746-03c6-52be-ac5f-0948c3975656"))(instances(project "bus-sensor"(path "/47b3a776-e02d-5678-a8eb-a3a37bb5f2d2"(reference "C8")(unit 1)))))(symbol(lib_id "Sensor:R_Small_US")(at 289.56 69.85 0)(unit 1)(in_bom yes)(on_board yes)(dnp no)(uuid "00f1e218-eef2-55a3-8836-fc1a6e5f4638")
+(property "Reference" "R10"(at 294.64 68.58 0)(effects(font(size 1.016 1.016))))
+(property "Value" "10kR"(at 297.18 72.39 0)(effects(font(size 1.016 1.016))))
+(property "MPN" "10kR CRCW060310K0FKEA"(at 289.56 69.85 0)(effects(font(size 1 1)) hide))
+(property "Footprint" "Resistor_SMD:R_0603_1608Metric"(at 289.56 69.85 0)(effects(font(size 1 1)) hide))
+(pin "1"(uuid "7ffc42b5-e135-5dca-8592-8afaa95c329c")) (pin "2"(uuid "21cf0fd7-b89c-541b-8961-91bd8d38e27a"))(instances(project "bus-sensor"(path "/47b3a776-e02d-5678-a8eb-a3a37bb5f2d2"(reference "R10")(unit 1)))))(symbol(lib_id "Sensor:Conn_01x02")(at 30.48 45.72 0)(unit 1)(in_bom yes)(on_board yes)(dnp no)(uuid "ba5a18bc-619c-5882-87c7-960d7fca3fce")
+(property "Reference" "J1"(at 30.48 40.64 0)(effects(font(size 1.016 1.016))))
+(property "Value" "HV leads"(at 30.48 50.8 0)(effects(font(size 1.016 1.016))))
+(property "MPN" "HV_SOLDER_LEADS_WITH_EXTERNAL_STRAIN_RELIEF"(at 30.48 45.72 0)(effects(font(size 1 1)) hide))
+(property "Footprint" "Round5:HV_WirePair_P25"(at 30.48 45.72 0)(effects(font(size 1 1)) hide))
+(pin "1"(uuid "91fe4a2b-70c6-53b3-8245-ac1ef8abe035")) (pin "2"(uuid "42e76247-f92e-58f9-8777-48676a4fd7ec"))(instances(project "bus-sensor"(path "/47b3a776-e02d-5678-a8eb-a3a37bb5f2d2"(reference "J1")(unit 1)))))(symbol(lib_id "Sensor:Conn_01x06")(at 340.36 83.82 0)(unit 1)(in_bom yes)(on_board yes)(dnp no)(uuid "03ec1254-a7fe-5642-be64-db50555d05f1")
+(property "Reference" "J2"(at 340.36 78.74 0)(effects(font(size 1.016 1.016))))
+(property "Value" "B6B-XH-A"(at 340.36 106.67999999999999 0)(effects(font(size 1.016 1.016))))
+(property "MPN" "B6B-XH-A(LF)(SN)"(at 340.36 83.82 0)(effects(font(size 1 1)) hide))
+(property "Footprint" "Connector_JST:JST_XH_B6B-XH-A_1x06_P2.50mm_Vertical"(at 340.36 83.82 0)(effects(font(size 1 1)) hide))
+(pin "1"(uuid "1c43c390-3d18-5b2b-9ca1-2552183e0350")) (pin "2"(uuid "e0567d0f-a849-5d6c-8a62-bbd44dd2a7ad")) (pin "3"(uuid "cb54bdb4-8cd2-5230-baaa-8d42b43f712f")) (pin "4"(uuid "015fd79c-449e-5102-9323-e9cc0d3604dc")) (pin "5"(uuid "e7fa6b63-300d-56fb-813f-46c2905a0736")) (pin "6"(uuid "db15af42-0361-5bf1-b79e-6f23c471aa8d"))(instances(project "bus-sensor"(path "/47b3a776-e02d-5678-a8eb-a3a37bb5f2d2"(reference "J2")(unit 1)))))(wire(pts(xy 33.02 86.36)(xy 45.72 86.36))(stroke(width 0)(type default))(uuid "8dda4986-47ed-5cd8-bfa7-92b7d5d307f9"))(wire(pts(xy 50.8 86.36)(xy 63.5 86.36))(stroke(width 0)(type default))(uuid "f9712aea-4574-5eb7-b9d2-2d907d9c70d7"))(wire(pts(xy 68.58 86.36)(xy 81.28 86.36))(stroke(width 0)(type default))(uuid "c187ea60-84ca-5f37-8310-99f2d80a5cd6"))(wire(pts(xy 86.36 86.36)(xy 99.06 86.36))(stroke(width 0)(type default))(uuid "8140bfe5-93e3-5e00-9948-108d753b5f55"))(wire(pts(xy 104.14 86.36)(xy 116.84 86.36))(stroke(width 0)(type default))(uuid "be6cac61-a1a2-5113-be7d-826c40526228"))(wire(pts(xy 121.92 86.36)(xy 134.62 86.36))(stroke(width 0)(type default))(uuid "1cb1bc14-c3b2-59ce-a000-7ab4658d6f93"))(wire(pts(xy 139.7 86.36)(xy 152.4 86.36))(stroke(width 0)(type default))(uuid "18bf277f-c225-5578-a141-b0cccdae3566"))(wire(pts(xy 157.48 86.36)(xy 185.42 86.36))(stroke(width 0)(type default))(uuid "06b243d6-d9c4-5918-908f-7bd3d70fc272"))(wire(pts(xy 185.42 86.36)(xy 208.28 86.36))(stroke(width 0)(type default))(uuid "42bb5643-44b1-5e94-a763-e6ba9ecde9aa"))(wire(pts(xy 185.42 102.87)(xy 185.42 86.36))(stroke(width 0)(type default))(uuid "97ce242e-1158-5e16-971d-7a4c913bfceb"))(wire(pts(xy 198.12 101.6)(xy 198.12 86.36))(stroke(width 0)(type default))(uuid "9896cf9b-e68b-55c4-9267-882accc78b68"))(junction(at 185.42 86.36)(diameter 0)(color 0 0 0 0)(uuid "4e98c58b-4f7a-554d-9a84-27fdc9c58c45"))(junction(at 198.12 86.36)(diameter 0)(color 0 0 0 0)(uuid "3c9dc69f-be48-5779-8621-11b06b5ba2f2"))(wire(pts(xy 27.94 86.36)(xy 17.78 86.36))(stroke(width 0)(type default))(uuid "0dc875e2-0b9a-5c66-a059-edc93cc57e0c"))(global_label "BUS_P"(shape bidirectional)(at 17.78 86.36 0)(effects(font(size 1.016 1.016))(justify left))(uuid "e6fa155d-766c-564c-bc03-5096c113d11b"))(global_label "VBUS_DIV0"(shape bidirectional)(at 33.02 86.36 90)(effects(font(size 1.016 1.016))(justify left))(uuid "71a679ac-b029-5e3c-903c-82aedb61db41"))(global_label "VBUS_DIV1"(shape bidirectional)(at 50.8 86.36 90)(effects(font(size 1.016 1.016))(justify left))(uuid "2916d629-69cd-565a-a81f-43d95002e0dd"))(global_label "VBUS_DIV2"(shape bidirectional)(at 68.58 86.36 90)(effects(font(size 1.016 1.016))(justify left))(uuid "5737cc5e-2623-5775-9d9e-60273f0f3aa0"))(global_label "VBUS_DIV3"(shape bidirectional)(at 86.36 86.36 90)(effects(font(size 1.016 1.016))(justify left))(uuid "8c8f673f-d491-5312-88a1-d853dabb1825"))(global_label "VBUS_DIV4"(shape bidirectional)(at 104.14 86.36 90)(effects(font(size 1.016 1.016))(justify left))(uuid "48786de7-33a9-5359-9b58-547b4e21fa65"))(global_label "VBUS_DIV5"(shape bidirectional)(at 121.92 86.36 90)(effects(font(size 1.016 1.016))(justify left))(uuid "edc0bff0-77fc-5293-ab41-a3757ea7aa9c"))(global_label "VBUS_DIV6"(shape bidirectional)(at 139.7 86.36 90)(effects(font(size 1.016 1.016))(justify left))(uuid "9148bd86-00b7-57c9-88e0-0b27aa068037"))(global_label "VBUS_TAP"(shape bidirectional)(at 157.48 86.36 90)(effects(font(size 1.016 1.016))(justify left))(uuid "c1f457e2-0c37-5da9-95b6-1fc7c6f5d39f"))(wire(pts(xy 185.42 107.95)(xy 185.42 115.57000000000001))(stroke(width 0)(type default))(uuid "b0ced9ca-5867-5cf6-8418-e330a5c45a96"))(global_label "HV_RET"(shape bidirectional)(at 185.42 115.57000000000001 0)(effects(font(size 1.016 1.016))(justify left))(uuid "d9ece4d1-4bee-5c82-82a2-5cade206339c"))(wire(pts(xy 198.12 109.22)(xy 198.12 116.84))(stroke(width 0)(type default))(uuid "8c2e9f60-7c5e-5708-b185-8e1b48a0cbdb"))(global_label "HV_RET"(shape bidirectional)(at 198.12 116.84 0)(effects(font(size 1.016 1.016))(justify left))(uuid "6eb0f3a1-1f10-5b97-a8cd-d78fbeb4c7c6"))(wire(pts(xy 208.28 68.58)(xy 195.58 68.58))(stroke(width 0)(type default))(uuid "9150a909-49fa-58af-8927-cea2549efc35"))(global_label "VBUS_DCDC_H"(shape bidirectional)(at 195.58 68.58 0)(effects(font(size 1.016 1.016))(justify left))(uuid "bc1ec4df-01e6-5609-99ad-b62a969fb277"))(wire(pts(xy 208.28 73.66)(xy 195.58 73.66))(stroke(width 0)(type default))(uuid "fda85740-e692-59ab-b804-af6c76528774"))(global_label "HV_RET"(shape bidirectional)(at 195.58 73.66 0)(effects(font(size 1.016 1.016))(justify left))(uuid "cf6114ff-435f-5c78-b4bf-9855aad49ba9"))(wire(pts(xy 208.28 78.74)(xy 195.58 78.74))(stroke(width 0)(type default))(uuid "c8ba4cdf-8372-52c4-9e64-3b4ff09d6184"))(global_label "VBUS_DCDC_H"(shape bidirectional)(at 195.58 78.74 0)(effects(font(size 1.016 1.016))(justify left))(uuid "b317383e-8b23-5906-8df1-616ec306acb7"))(no_connect(at 218.44 96.52)(uuid "54399d37-7cad-5b0e-99f1-2843e734a72a"))(wire(pts(xy 208.28 81.28)(xy 195.58 81.28))(stroke(width 0)(type default))(uuid "f9ecec43-671f-52fe-9c8f-0d1010d22268"))(global_label "VBUS_HLDO"(shape bidirectional)(at 195.58 81.28 0)(effects(font(size 1.016 1.016))(justify left))(uuid "f4f2b153-9107-58d9-8ed8-d1f0f8666e49"))(wire(pts(xy 208.28 93.98)(xy 195.58 93.98))(stroke(width 0)(type default))(uuid "f32680ce-70f7-595c-8b56-80377a3e1f51"))(global_label "HV_RET"(shape bidirectional)(at 195.58 93.98 0)(effects(font(size 1.016 1.016))(justify left))(uuid "06d25e4e-3d2d-52d6-8131-77fa766c1268"))(wire(pts(xy 220.98 99.06)(xy 220.98 106.68))(stroke(width 0)(type default))(uuid "a010da5a-d66d-572f-82fc-b00d5c4db002"))(global_label "HV_RET"(shape bidirectional)(at 220.98 106.68 0)(effects(font(size 1.016 1.016))(justify left))(uuid "3e5ed20d-6c49-51fa-972d-6f2fe2b64be8"))(wire(pts(xy 231.14 99.06)(xy 231.14 106.68))(stroke(width 0)(type default))(uuid "014e7b78-fdff-5698-b5b7-8b95672193fd"))(global_label "AUX_0V"(shape bidirectional)(at 231.14 106.68 0)(effects(font(size 1.016 1.016))(justify left))(uuid "298faa27-ab76-5b89-9f4f-62d4fc30d887"))(wire(pts(xy 243.84 93.98)(xy 256.54 93.98))(stroke(width 0)(type default))(uuid "9a36a8e5-a849-59c0-a72e-b9d686e4dfc6"))(global_label "VBUS_N"(shape bidirectional)(at 256.54 93.98 0)(effects(font(size 1.016 1.016))(justify left))(uuid "707fd462-04cc-5fa6-a092-b373e615a7ad"))(wire(pts(xy 243.84 86.36)(xy 256.54 86.36))(stroke(width 0)(type default))(uuid "c9fbf54e-76a4-526a-a314-24927e2b1268"))(global_label "VBUS_P"(shape bidirectional)(at 256.54 86.36 0)(effects(font(size 1.016 1.016))(justify left))(uuid "fef302aa-0602-5ff9-b6c4-b21e8b7871a2"))(wire(pts(xy 231.14 63.5)(xy 231.14 55.88))(stroke(width 0)(type default))(uuid "b73e5c6a-6a51-596b-9d9d-1016e4e8cb6b"))(global_label "POD_3V3"(shape bidirectional)(at 231.14 55.88 0)(effects(font(size 1.016 1.016))(justify left))(uuid "8f46feb8-4d1c-50ce-ab0f-73606f47b258"))(wire(pts(xy 243.84 68.58)(xy 256.54 68.58))(stroke(width 0)(type default))(uuid "33c32b7c-a457-5bec-8010-d109f813d1ba"))(global_label "VBUS_DCDC_L"(shape bidirectional)(at 256.54 68.58 0)(effects(font(size 1.016 1.016))(justify left))(uuid "52aba745-5b07-5bee-8843-aa2b30bdfe49"))(wire(pts(xy 243.84 81.28)(xy 256.54 81.28))(stroke(width 0)(type default))(uuid "c2d595a9-e360-50e7-80ff-cb3ce25422f1"))(global_label "VBUS_DIAG_N"(shape bidirectional)(at 256.54 81.28 0)(effects(font(size 1.016 1.016))(justify left))(uuid "f1dcc24a-8e7c-5837-a7cb-c965e14017fe"))(wire(pts(xy 243.84 76.2)(xy 256.54 76.2))(stroke(width 0)(type default))(uuid "8c391bb7-2cdf-5502-a61a-ea62c918033d"))(global_label "AUX_0V"(shape bidirectional)(at 256.54 76.2 0)(effects(font(size 1.016 1.016))(justify left))(uuid "f15ea87f-ff0e-52e3-b736-2cbbd5dae1a5"))(wire(pts(xy 243.84 71.12)(xy 256.54 71.12))(stroke(width 0)(type default))(uuid "0b10bb95-5a13-541b-a895-49e2dc18f9e9"))(global_label "VBUS_DCDC_L"(shape bidirectional)(at 256.54 71.12 0)(effects(font(size 1.016 1.016))(justify left))(uuid "377b8042-b2c6-53f8-85f9-dc94ddfbbe5f"))(wire(pts(xy 292.1 133.35)(xy 292.1 125.72999999999999))(stroke(width 0)(type default))(uuid "7dcfb63b-266e-562c-91de-bbb3564ed80f"))(global_label "POD_3V3"(shape bidirectional)(at 292.1 125.72999999999999 0)(effects(font(size 1.016 1.016))(justify left))(uuid "221a7f76-5631-5136-8de3-d6638576f8d1"))(wire(pts(xy 292.1 140.97)(xy 292.1 148.59))(stroke(width 0)(type default))(uuid "befd32e1-9429-5472-aaee-925777633741"))(global_label "AUX_0V"(shape bidirectional)(at 292.1 148.59 0)(effects(font(size 1.016 1.016))(justify left))(uuid "d74a72d4-2236-5c12-99b1-055cc6e5d633"))(wire(pts(xy 309.88 133.35)(xy 309.88 125.72999999999999))(stroke(width 0)(type default))(uuid "034a08f5-5968-5268-8176-fbf99355cc8a"))(global_label "POD_3V3"(shape bidirectional)(at 309.88 125.72999999999999 0)(effects(font(size 1.016 1.016))(justify left))(uuid "8a05b731-7008-5f79-8eec-155ef3d68eed"))(wire(pts(xy 309.88 140.97)(xy 309.88 148.59))(stroke(width 0)(type default))(uuid "ddd7caa4-2129-5ef9-8fdd-2700610dafc1"))(global_label "AUX_0V"(shape bidirectional)(at 309.88 148.59 0)(effects(font(size 1.016 1.016))(justify left))(uuid "ffbdc335-1552-5a75-9164-2da24443fb38"))(wire(pts(xy 109.22 133.35)(xy 109.22 125.72999999999999))(stroke(width 0)(type default))(uuid "f317b1b3-b4a2-5ce3-9040-6d1924cbb4c3"))(global_label "VBUS_DCDC_H"(shape bidirectional)(at 109.22 125.72999999999999 0)(effects(font(size 1.016 1.016))(justify left))(uuid "4e04c0cc-a619-5dee-b106-b3732614766c"))(wire(pts(xy 109.22 140.97)(xy 109.22 148.59))(stroke(width 0)(type default))(uuid "8fac3981-2b24-5530-a255-08199d74a64a"))(global_label "HV_RET"(shape bidirectional)(at 109.22 148.59 0)(effects(font(size 1.016 1.016))(justify left))(uuid "2fe7603a-b465-5377-9ab0-01d48a83fdd4"))(wire(pts(xy 127.0 133.35)(xy 127.0 125.72999999999999))(stroke(width 0)(type default))(uuid "002c311a-6bd9-5295-ad94-f9e71326cadb"))(global_label "VBUS_DCDC_H"(shape bidirectional)(at 127.0 125.72999999999999 0)(effects(font(size 1.016 1.016))(justify left))(uuid "d10e1e62-11ef-56c4-8520-7d0f4f808ba6"))(wire(pts(xy 127.0 140.97)(xy 127.0 148.59))(stroke(width 0)(type default))(uuid "aaff094c-90ab-5a5c-b50f-73879e95e5ea"))(global_label "HV_RET"(shape bidirectional)(at 127.0 148.59 0)(effects(font(size 1.016 1.016))(justify left))(uuid "6a3ebdb3-8316-57b1-bf87-564b207c7ba5"))(wire(pts(xy 345.44 133.35)(xy 345.44 125.72999999999999))(stroke(width 0)(type default))(uuid "f186e5eb-dd46-504c-93e3-e6d19e621eca"))(global_label "VBUS_DCDC_L"(shape bidirectional)(at 345.44 125.72999999999999 0)(effects(font(size 1.016 1.016))(justify left))(uuid "28775950-a2f2-58d9-9896-b9d948bc6565"))(wire(pts(xy 345.44 140.97)(xy 345.44 148.59))(stroke(width 0)(type default))(uuid "844c2fa6-a06b-5aab-ba21-1a75e62b813a"))(global_label "AUX_0V"(shape bidirectional)(at 345.44 148.59 0)(effects(font(size 1.016 1.016))(justify left))(uuid "1d2d6bae-4e77-503b-b4d0-ac3feb3c1278"))(wire(pts(xy 180.34 133.35)(xy 180.34 125.72999999999999))(stroke(width 0)(type default))(uuid "fa6b66e5-3fab-5999-9ee4-44d43cbf349d"))(global_label "VBUS_HLDO"(shape bidirectional)(at 180.34 125.72999999999999 0)(effects(font(size 1.016 1.016))(justify left))(uuid "41708305-59a3-5bce-abbb-b807d2250ba1"))(wire(pts(xy 180.34 140.97)(xy 180.34 148.59))(stroke(width 0)(type default))(uuid "bc7196f1-d8c4-5bf5-8b3e-934c105597f4"))(global_label "HV_RET"(shape bidirectional)(at 180.34 148.59 0)(effects(font(size 1.016 1.016))(justify left))(uuid "4f7334b7-67f2-5b20-82cc-e37a425f6ae5"))(wire(pts(xy 198.12 133.35)(xy 198.12 125.72999999999999))(stroke(width 0)(type default))(uuid "948f3319-ac55-5ab3-8e46-bfee9263ac36"))(global_label "VBUS_HLDO"(shape bidirectional)(at 198.12 125.72999999999999 0)(effects(font(size 1.016 1.016))(justify left))(uuid "8ab08283-6a9f-5577-9504-3735ea79820f"))(wire(pts(xy 198.12 140.97)(xy 198.12 148.59))(stroke(width 0)(type default))(uuid "709f9ffd-dcd2-56f5-be0f-7f1a61237258"))(global_label "HV_RET"(shape bidirectional)(at 198.12 148.59 0)(effects(font(size 1.016 1.016))(justify left))(uuid "4bee674d-a1af-507f-a6bc-cb273c90deb3"))(wire(pts(xy 289.56 67.31)(xy 289.56 59.690000000000005))(stroke(width 0)(type default))(uuid "798b7067-ba3f-5014-a350-654ab7275ece"))(global_label "POD_3V3"(shape bidirectional)(at 289.56 59.690000000000005 0)(effects(font(size 1.016 1.016))(justify left))(uuid "e2b7e295-e26d-5d76-adbe-19b2924c1f94"))(wire(pts(xy 289.56 72.39)(xy 289.56 80.01))(stroke(width 0)(type default))(uuid "d85800f4-619c-5de3-a229-fb788a27bdcf"))(global_label "VBUS_DIAG_N"(shape bidirectional)(at 289.56 80.01 0)(effects(font(size 1.016 1.016))(justify left))(uuid "5ed6c20f-93a4-5dba-943f-13390b81fdd2"))(wire(pts(xy 25.4 45.72)(xy 15.239999999999998 45.72))(stroke(width 0)(type default))(uuid "adf16266-149e-55b4-9484-82cb9c270c71"))(global_label "BUS_P"(shape bidirectional)(at 15.239999999999998 45.72 180)(effects(font(size 1.016 1.016))(justify left))(uuid "39bd12da-3a5c-5d8a-9504-8472132715eb"))(wire(pts(xy 25.4 48.26)(xy 15.239999999999998 48.26))(stroke(width 0)(type default))(uuid "470da944-add7-5fa5-88f8-4b788b2c1f33"))(global_label "HV_RET"(shape bidirectional)(at 15.239999999999998 48.26 180)(effects(font(size 1.016 1.016))(justify left))(uuid "e2685007-1aca-5d2e-8a57-bc375f8e3c69"))(wire(pts(xy 335.28 78.74)(xy 325.11999999999995 78.74))(stroke(width 0)(type default))(uuid "5d274e9e-862e-5022-8785-6a8f55367bdb"))(global_label "POD_3V3"(shape bidirectional)(at 325.11999999999995 78.74 180)(effects(font(size 1.016 1.016))(justify left))(uuid "d6301bc1-9a37-5ea5-bfd8-a4e69ac87b30"))(wire(pts(xy 335.28 81.28)(xy 325.11999999999995 81.28))(stroke(width 0)(type default))(uuid "d3b0c963-7b25-5325-a31b-3bb47d1595e1"))(global_label "AUX_0V"(shape bidirectional)(at 325.11999999999995 81.28 180)(effects(font(size 1.016 1.016))(justify left))(uuid "bd5a819f-9513-5374-a9e5-55c6f80d7932"))(wire(pts(xy 335.28 83.82)(xy 325.11999999999995 83.82))(stroke(width 0)(type default))(uuid "abb42505-5bdc-5373-9581-1e20b0b66903"))(global_label "VBUS_P"(shape bidirectional)(at 325.11999999999995 83.82 180)(effects(font(size 1.016 1.016))(justify left))(uuid "107d175f-7048-5007-8a00-f0acea9870ab"))(wire(pts(xy 335.28 86.36)(xy 325.11999999999995 86.36))(stroke(width 0)(type default))(uuid "2aab77ff-5ed2-5d64-bd57-1ac243c3fa6a"))(global_label "VBUS_N"(shape bidirectional)(at 325.11999999999995 86.36 180)(effects(font(size 1.016 1.016))(justify left))(uuid "76946a49-9707-5298-a107-82f37d0ca293"))(wire(pts(xy 335.28 88.9)(xy 325.11999999999995 88.9))(stroke(width 0)(type default))(uuid "438234e8-eb72-533d-9fd2-fc2f50df0874"))(global_label "VBUS_DIAG_N"(shape bidirectional)(at 325.11999999999995 88.9 180)(effects(font(size 1.016 1.016))(justify left))(uuid "e0d1ba73-dea1-5828-bb7a-a4f562309a38"))(wire(pts(xy 335.28 91.44)(xy 325.11999999999995 91.44))(stroke(width 0)(type default))(uuid "616c58f8-64c7-529c-bc24-a04daef6484c"))(global_label "AUX_0V"(shape bidirectional)(at 325.11999999999995 91.44 180)(effects(font(size 1.016 1.016))(justify left))(uuid "956a78e6-125b-5b46-91e9-3b08a2c055c7"))(text "VBUS source-defined divider; conditional input range"(at 95 65 0)(effects(font(size 1.27 1.27)))(uuid "7c1760bd-29e6-59f0-861d-faba545a325e"))(text "Isolated VBUS measurement; see input rating hold"(at 210 26 0)(effects(font(size 1.27 1.27)))(uuid "62b5a6e0-e45f-522e-812d-ca2470912f3b"))(text "8.1 mm TI HV land pattern; PCB insulation rule remains provisional"(at 210 165 0)(effects(font(size 1.27 1.27)))(uuid "c0b9ee4c-d414-56d6-8abd-6a0dea4c5aa2"))(text "High-side DC/DC bypass"(at 120 118 0)(effects(font(size 1.27 1.27)))(uuid "f5b788fe-56fa-580c-9ce4-38bd7608ca87"))(text "High-side LDO bypass"(at 190 118 0)(effects(font(size 1.27 1.27)))(uuid "cd3c7190-1e0d-52d5-97bc-caeb200f6256"))(text "Low-side supply / DC/DC"(at 310 118 0)(effects(font(size 1.27 1.27)))(uuid "a67d6ff8-9e88-5947-9016-0868b5ee9377"))(text "NOT FABRICATION OR POWERED TEST RELEASE"(at 210 178 0)(effects(font(size 1.27 1.27)))(uuid "a4262bb7-4193-5999-aaa1-172422bc272a"))(global_label "POD_3V3"(shape bidirectional)(at 330.2 45.72 0)(effects(font(size 1.016 1.016))(justify left))(uuid "756c5a16-9f43-5406-afa8-fa670e63961e"))(symbol(lib_id "Sensor:PWR_FLAG")(at 330.2 45.72 0)(unit 1)(in_bom no)(on_board no)(dnp no)(uuid "cc52e79f-93f2-560f-83d6-a84b9003606e")(property "Reference" "#FLG01"(at 330.2 45.72 0)(effects(font(size 1 1)) hide))(property "Value" "PWR_FLAG"(at 330.2 40.64 0)(effects(font(size 1 1))))(pin "1"(uuid "7200f250-8664-5506-9e20-f274d2c02656"))(instances(project "bus-sensor"(path "/47b3a776-e02d-5678-a8eb-a3a37bb5f2d2"(reference "#FLG01")(unit 1)))))(global_label "AUX_0V"(shape bidirectional)(at 355.6 45.72 0)(effects(font(size 1.016 1.016))(justify left))(uuid "3685614f-84a6-5765-8cff-af08192de927"))(symbol(lib_id "Sensor:PWR_FLAG")(at 355.6 45.72 0)(unit 1)(in_bom no)(on_board no)(dnp no)(uuid "fbee7819-26f0-594a-9fcb-735328273db9")(property "Reference" "#FLG02"(at 355.6 45.72 0)(effects(font(size 1 1)) hide))(property "Value" "PWR_FLAG"(at 355.6 40.64 0)(effects(font(size 1 1))))(pin "1"(uuid "db603827-d259-565b-b52d-e0d0e43bda58"))(instances(project "bus-sensor"(path "/47b3a776-e02d-5678-a8eb-a3a37bb5f2d2"(reference "#FLG02")(unit 1)))))(sheet_instances(path "/"(page "1"))))

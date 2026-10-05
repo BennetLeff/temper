@@ -1,0 +1,16 @@
+Reference,Quantity,Manufacturer,Part or definition,Status
+CC1,1,TDK,B32778H8476K000,47uF700V candidate; hot pulse and mounting process unqualified
+DC1,1,Infineon,IDW40G65C5,Pin1 NC pin2 cathode/case pin3 anode; clamp and copper layout open
+FC1,1,Eaton Bussmann,FWP-10A14F,DC clearing and coordination unqualified
+FC1 holder,1,Mersen,US141 Z331153,Terminal positions and sideways operation unresolved
+R1-R8,8,Vishay,VR37000001003JA100,100k5pct; native80x34mm bleed PCB
+Native bleed PCB,1,Custom,80x34x1.6mm 35um Cu,KiCad routed; laminate and fabrication process release pending
+CC1 terminal straps,2,Custom copper,8x1x28mm drilled2.8mm pins and4.3mm M4,Large-hole solder joints need process coupon
+CC1 pin carrier,1,Custom insulating laminate,65x36x1.6mm,Material machining and dielectric process open
+Harness power wire,3 lengths,Alpha Wire,3080 12AWG65/30,842.186mm modeled total; add assembly-specific termination allowances
+J8/J10 lug candidates,2,TE Connectivity,160163-2,Catalog insulation minimum3.81 exceeds wire minimum3.7338; resolve before harness release
+Carrier/cradle/guard,1 assembly,Custom,Dimensioned STEP proposal,Material load thermal dielectric and matching chassis holes open
+Cable collars,Per STEP,Custom PTFE,7mmOD4.2mmID proposal,Retention and manufacturing tolerances open
+VCATCH sensor,1,Supervisor owner,AMC3330DWE divider card,60x35 allocation only; native layout not completed
+VCATCH SELV connectors,2,Amphenol candidate,20021121-00006T4LF,Mating cable and footprint review pending
+Diode local copper/spreader,1 assembly,Custom,5x1 nominal formed copper link and floating spreader,Native power copper and hot pulse/thermal qualification open

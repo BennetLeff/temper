@@ -1,0 +1,13 @@
+{
+  "status": "REJECTED_NO_COMPLETED_FIELD_RESULT",
+  "linear_iterations": 4315,
+  "last_linear_residual": 9.955756e-08,
+  "postprocessor_profile": "elemental_B_only_no_nodal_projection",
+  "reason": "paging guard at CalcFields before field output completed",
+  "elapsed_s": 1198.69974775007,
+  "peak_sampled_tree_rss_gib": 12.894012451171875,
+  "new_swapout_bytes": 921108480,
+  "peak_net_used_swap_growth_bytes": 585493381,
+  "resource_limit_note": "system-wide counters; sampled RSS is not a bound on transient allocation or compressed memory",
+  "finer_B_and_remaining_modes": "NOT_LAUNCHED; sequential campaign stopped on first rejection"
+}

@@ -79,8 +79,9 @@ module BridgeLeg:
 
     # DIS is active-high. PERMIT high turns the FET on and pulls DIS low.
     permit_fet = new PermitFet
-    # 100 ohm gate drive and a 1 k DIS pullup keep PERMIT -> DIS near 0.35 us
-    # worst case (was ~3.5 us with 1 k / 10 k): validation-results/02.
+    # 100 ohm PERMIT gate resistor, 100 k pulldown, and 1 k DIS pullup.
+    # Loaded PERMIT-to-DIS delay needs qualification; the earlier ~0.35 us
+    # estimate is not a worst-case bound (prototype-closure/round2/d17/ECO.md).
     r_permit = new R100R0603
     r_permit.value = 100ohm
     r_permit_pd = new R100k0603

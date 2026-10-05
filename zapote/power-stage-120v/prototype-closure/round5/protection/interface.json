@@ -1,0 +1,83 @@
+{
+  "version": "PC125-CATCH-R5-2",
+  "status": "DIGITAL_DESIGN_CANDIDATE_NO_POWER_RELEASE",
+  "precharge": {
+    "resistor_mpn": "HS400 25R J",
+    "manufacturer": "Ohmite / ARCOL",
+    "quantity": 2,
+    "connection": "parallel; individual series TF1/TF2 Sensience G4A01128C candidates",
+    "each_ohm_25c": 25.0,
+    "each_tolerance_fraction": 0.05,
+    "nominal_parallel_ohm": 12.5,
+    "parallel_ohm_25c_bounds": [
+      11.875,
+      13.125
+    ],
+    "cold_case_true_max_c": 25,
+    "ntc_measured_max_c": 20,
+    "ntc_total_error_allocation_c": 5,
+    "cold_admission_requires_error_and_lag_qualified": true,
+    "each_four_wire_post_ohm_bounds": [
+      23.75,
+      26.25
+    ],
+    "post_rule": "Measured resistance uncertainty interval must lie entirely inside each component range; disconnect the other branch and bypass for each measurement. Whole-pair resistance alone cannot detect all single-element changes.",
+    "maximum_attempt_source_present_s": 0.5,
+    "model_total_timeout_s": 0.446458,
+    "model_contactor_open_allocation_s": 0.024,
+    "remaining_timing_allocation_s": 0.029542,
+    "timing_status": "ALLOCATIONS_NOT_PROVEN_TOTAL_CHAIN",
+    "single_pulse_graph_conservative_floor_j_each": 2000,
+    "graph_floor_status": "Visually inspected blue HS400 curve over 23.75-26.25 ohm lies above2000J; not a manufacturer tabulated limit or hot/repetitive rating",
+    "single_pulse_overload_w_each": 4000,
+    "single_pulse_overload_duration_s": 5,
+    "repetition": "One attempt from documented cold equilibrium; a fault requires manual inspection and new isolated POST. No timed automatic restart; case temperature alone immediately after a pulse cannot prove winding temperature.",
+    "tco_mpn": "Sensience MICROTEMP G4A01128C",
+    "tco_credit": "Secondary sustained-heat candidate only; no sub500ms credit. Retain no release until installed coupling, pulse duty, post-opening overshoot and insulation proven.",
+    "source_rms_design_max_v": 140,
+    "continuous_short_operating_permission": false,
+    "tco_electrical_ratings": {
+      "resistive_a_at_250vac": 10,
+      "inductive_a_at_250vac": 8,
+      "tf_c": 128,
+      "tf_tolerance_c": [
+        -5,
+        0
+      ],
+      "th_c": 113,
+      "tm_conservative_c": 205,
+      "tm_note": "2022 catalogue205C conflicts2023product350C; conservatively205 pending exact suffix/lot confirmation"
+    },
+    "replaced_tco": "Cantherm DF128S removed from round5 selection because heater-connection caution was unresolved"
+  },
+  "catch": {
+    "fuse_mpn": "Eaton FWP-10A14F",
+    "holder_mpn": "Mersen US141 Z331153",
+    "diode_mpn": "Infineon IDW40G65C5",
+    "capacitor_mpn": "TDK B32778H8476K000",
+    "capacitor_nominal_f": 4.7e-05,
+    "capacitor_max_f": 5.17e-05,
+    "voltage_guard_allocation_v": 250,
+    "fuse_dc_rating_v": 700,
+    "fuse_dc_interrupt_rating_a": 50000,
+    "fuse_prearc_catalog_a2s": 4,
+    "fuse_clearing_700vac_catalog_a2s": 22,
+    "dc_total_clearing_a2s": null,
+    "fuse_arc_model": null,
+    "dc_coordination_status": "UNRESOLVED_DO_NOT_USE_AC22_AS_DC_CLEARING",
+    "local_cap_short_bypasses_fuse": true,
+    "wire_mpn": "Alpha3080 12AWG",
+    "stud_lug_mpn": "TE32994 SOLISTRAND uninsulated M4",
+    "stud_lug_status": "Drawing-backed uninsulated terminal selected; TE49935 tool position3 family supported; actual strip/crimp inspection and pull qualification remain",
+    "sensor_bounds_world_mm": [
+      103,
+      348,
+      43,
+      117,
+      408,
+      78
+    ],
+    "sensor_connector": "JST B6B-XH-A / XHP-6 / SXH-001T-P0.6; SELV pins unchanged; sensor owner controls footprint",
+    "hv_sense_connections": "Independent leads from CC1 positive/negative straps, no bleed intermediate taps"
+  }
+}
