@@ -1,0 +1,11 @@
+running 9 tests
+test tests::actuator_not_moving_is_rejected ... ok
+test tests::all_hot_sealed_matches_ideal_gas ... ok
+test tests::rigid_seizure_challenge_rejected ... ok
+test tests::diameter_doubling_reduces_resistance_sixteenfold ... ok
+test tests::trapped_cold_reservoir_does_not_remove_hot_pressure ... ok
+test tests::elastic_jam_is_counterexample_not_claimed_covered ... ok
+test tests::gas_time_constant_has_analytic_fraction ... ok
+test tests::sealed_isothermal_no_motion_has_zero_pressure ... ok
+test tests::thermal_pulse_cannot_identify_path_destination ... ok
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

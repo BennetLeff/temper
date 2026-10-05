@@ -1,0 +1,16 @@
+{
+  "status": "REFERENCE_ONLY_UNCONNECTED_DRY_APPARATUS",
+  "cold_chamber_cavity_volume_mm3": 9999.999999999998,
+  "cold_chamber_cavity_volume_ml": 9.999999999999998,
+  "tube_inner_diameter_mm": 1.5,
+  "tube_outer_diameter_mm": 3,
+  "tube_developed_length_mm": 100,
+  "tube_bore_volume_mm3": 176.71458676442586,
+  "open_dry_reference_port_diameter_mm": 2,
+  "solid_valid": true,
+  "step_roundtrip_valid": true,
+  "tube_shell_overlap_mm3": 0.0,
+  "cartridge_connection": "UNCONNECTED; placement and enclosure clearance not designed",
+  "hot_cavity_volume": "NOT CAD ESTABLISHED; 1mL remains pressure-model assumption",
+  "liquid_boundary": "NONE; dry reference port is open; not a selected or qualified liquid seal"
+}

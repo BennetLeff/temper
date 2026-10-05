@@ -1,0 +1,21 @@
+{
+  "checks": [
+    {
+      "variant": "D8",
+      "step_contact_face_area_mm2": 50.265482457436676,
+      "modeled_contact_face_area_mm2": 50.26548245743669,
+      "step_cap_volume_mm3": 9.105822368620078,
+      "modeled_cap_volume_mm3": 9.105822368615739,
+      "status": "EXPORTED_STEP_SCALAR_PARITY"
+    },
+    {
+      "variant": "D6",
+      "step_contact_face_area_mm2": 28.274333882308138,
+      "modeled_contact_face_area_mm2": 28.274333882308138,
+      "step_cap_volume_mm3": 6.250400082347788,
+      "modeled_cap_volume_mm3": 6.250400082346603,
+      "status": "EXPORTED_STEP_SCALAR_PARITY"
+    }
+  ],
+  "scope": "Independent STEP reimport and face/volume extraction; does not verify physical properties or contact behavior."
+}

@@ -1,0 +1,7 @@
+R3 and R4 full historical file/inherited-file manifests: PASS
+JSON parsing, CSV rectangularity and unique headers, SVG XML parsing: PASS
+15 STEP files; 12 nominal witness-clearance poses: PASS
+45 Rust tests recorded passing; 784 thermal rows: PASS
+All 9 gap physical_result fields remain NOT_RUN: PASS
+HTML local references checked: 24 (provenance created last)
+Direct CAD and thermal PNG visual review: PASS; HTML browser rendering: NOT_RUN

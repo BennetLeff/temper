@@ -1,0 +1,65 @@
+{
+  "checks": [
+    {
+      "variant": "D8",
+      "pose": "rest",
+      "intersections": []
+    },
+    {
+      "variant": "D8",
+      "pose": "loaded",
+      "intersections": []
+    },
+    {
+      "variant": "D8",
+      "pose": "local_stop",
+      "intersections": []
+    },
+    {
+      "variant": "D8",
+      "pose": "full_stroke",
+      "intersections": []
+    },
+    {
+      "variant": "D8",
+      "pose": "upper_capture",
+      "intersections": []
+    },
+    {
+      "variant": "D8",
+      "pose": "cap_capture",
+      "intersections": []
+    },
+    {
+      "variant": "D6",
+      "pose": "rest",
+      "intersections": []
+    },
+    {
+      "variant": "D6",
+      "pose": "loaded",
+      "intersections": []
+    },
+    {
+      "variant": "D6",
+      "pose": "local_stop",
+      "intersections": []
+    },
+    {
+      "variant": "D6",
+      "pose": "full_stroke",
+      "intersections": []
+    },
+    {
+      "variant": "D6",
+      "pose": "upper_capture",
+      "intersections": []
+    },
+    {
+      "variant": "D6",
+      "pose": "cap_capture",
+      "intersections": []
+    }
+  ],
+  "scope": "Nominal geometry only; optical line of sight, rod deflection and thermal growth not established."
+}

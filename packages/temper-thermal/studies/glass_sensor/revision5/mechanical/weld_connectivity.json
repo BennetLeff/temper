@@ -1,0 +1,30 @@
+[
+  {
+    "wire": 0,
+    "terminal": 0,
+    "bead_wire_overlap_mm3": 0.00037583136544214863,
+    "bead_terminal_overlap_mm3": 0.0012124232957125326,
+    "wrong_terminal_overlap_mm3": 0.0
+  },
+  {
+    "wire": 1,
+    "terminal": 0,
+    "bead_wire_overlap_mm3": 0.0005270728917861957,
+    "bead_terminal_overlap_mm3": 0.0012124334670980796,
+    "wrong_terminal_overlap_mm3": 0.0
+  },
+  {
+    "wire": 2,
+    "terminal": 1,
+    "bead_wire_overlap_mm3": 0.0005270706123773119,
+    "bead_terminal_overlap_mm3": 0.0012124232957125415,
+    "wrong_terminal_overlap_mm3": 0.0
+  },
+  {
+    "wire": 3,
+    "terminal": 1,
+    "bead_wire_overlap_mm3": 0.00037583133542553574,
+    "bead_terminal_overlap_mm3": 0.0012124334670981088,
+    "wrong_terminal_overlap_mm3": 0.0
+  }
+]

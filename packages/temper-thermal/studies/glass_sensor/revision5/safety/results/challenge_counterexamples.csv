@@ -1,0 +1,8 @@
+state,initial_um,retracted_um,returned_um,encoder_stroke_mm,passes_challenge,actual_local_contact
+pan_present_free,100,0,100,0.4,true,true
+rigid_island_seizure,100,100,100,0.4,false,false
+rigid_witness_seizure,100,100,100,0.4,false,false
+constant_fresh_data,100,100,100,0.4,false,false
+elastic_jam_no_pan,100,0,100,0.4,true,false
+force_carrying_insulator,100,0,100,0.4,true,false
+command_correlated_fake_data,100,0,100,0.4,true,false

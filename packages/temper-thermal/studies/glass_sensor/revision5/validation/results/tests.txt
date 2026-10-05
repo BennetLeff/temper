@@ -1,0 +1,13 @@
+running 11 tests
+test tests::empty_current_thermal_is_rejected ... ok
+test tests::known_bias_is_not_rss_reduced ... ok
+test tests::power_frequency_squared ... ok
+test tests::opposite_signed_terms_do_not_cancel_unknown_bounds ... ok
+test tests::pickup_matches_faraday_one_loop ... ok
+test tests::power_radius_fourth_scaling ... ok
+test tests::rms_field_zero_has_zero_power ... ok
+test tests::ramp_scale_uses_natural_log_ten ... ok
+test tests::missing_response_threshold_never_passes_joint_screen ... ok
+test tests::near_two_degree_thermal_result_fails_full_budget ... ok
+test tests::roof_loss_matches_independent_ring_quadrature ... ok
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

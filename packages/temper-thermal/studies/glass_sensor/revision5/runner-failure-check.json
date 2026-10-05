@@ -1,0 +1,19 @@
+{
+  "checks": [
+    {
+      "runner": "thermal",
+      "injected_test_exit": 7,
+      "observed_runner_exit": 7,
+      "physics_csvs_emitted": 0,
+      "receipt_emitted": false
+    },
+    {
+      "runner": "safety",
+      "injected_test_exit": 7,
+      "observed_runner_exit": 7,
+      "physics_csvs_emitted": 0,
+      "receipt_emitted": false
+    }
+  ],
+  "method": "Isolated copied runner with test compiler output replaced by an executable that exits 7; production source unchanged."
+}

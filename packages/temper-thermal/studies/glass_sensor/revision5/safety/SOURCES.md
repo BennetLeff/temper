@@ -1,0 +1,9 @@
+# Primary sources checked 2026-10-04
+
+- DuPont, [Kalrez Spectrum6375 technical sheet](https://www.dupont.com/content/dam/dupont/amer/us/en/kalrez/public/documents/en/KZE-H82112-00-F0719_Kalrez_Spectrum_6375.pdf):275°C maximum service temperature, typical material properties, application dependence. Does not select or qualify a custom rolling membrane.
+- DuPont, [CPI product selector](https://www.dupont.com/content/dam/dupont/amer/us/en/kalrez/public/documents/en/DuPont%E2%84%A2%20Kalrez%C2%AE%20Parts%20in%20Chemical%20Process%20Industry%20-%20Product%20Selector%20Guide.pdf): compound comparison, seal-design caveat. No food-contact or lifetime inference.
+- Gore, [Tube-mount protective vents](https://www.gore.com/products/tube-mount-vents-electronics-gearbox):cited product family−40 to125°C. A remote cold vent is an option to qualify, not a250°C assembly qualification.
+- Keysight, [E4980AL official product page](https://www.keysight.com/us/en/product/E4980AL/precision-lcr-meter-20-hz-300-khz-500-khz-1-mhz.html):20Hz upward, adjustable signal, open/short/load fixture measurements supported in linked fact sheet; product discontinued/currently supported. Bench impedance feasibility reference only; no purchased part, isolation rating or induction compatibility inferred.
+- [R2 contact study](../../revision2/contact/README.md) and [R4 closure contract](../../revision4/CLOSURE.md): inherited1.6–2.4N/mm,15µm and10mN allocations, known blind faults. Relative links assume final revision5/safety location.
+
+Ideal-gas conservation, circular-capillary Poiseuille resistance, small-signal gas compliance and parallel-RC impedance are standard analytic engineering screens. The input gas viscosity3e-5Pa·s, metal resistivity7e-7Ωm, metal thermal conductivity15W/mK, liquid conductivity0.1S/m and liquid thermal conductivity0.6W/mK are illustrative assumptions. They are not new vendor measurements.
