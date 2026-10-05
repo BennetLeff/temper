@@ -1,0 +1,445 @@
+{
+  "origin": "glass top center; z up; mm",
+  "parts": [
+    {
+      "name": "body_with_independent_flange",
+      "color": [
+        0.66,
+        0.72,
+        0.72
+      ],
+      "moving": false,
+      "envelope": false,
+      "step": "parts/body_with_independent_flange.step",
+      "valid": true,
+      "bbox": [
+        -16.0,
+        -16.0,
+        -29.0,
+        16.0,
+        16.0,
+        -0.7999999999999998
+      ]
+    },
+    {
+      "name": "insulating_guide",
+      "color": [
+        0.85,
+        0.79,
+        0.66
+      ],
+      "moving": false,
+      "envelope": false,
+      "step": "parts/insulating_guide.step",
+      "valid": true,
+      "bbox": [
+        -6.6,
+        -6.6,
+        -14.0,
+        6.6,
+        6.6,
+        -3.1999999999999993
+      ]
+    },
+    {
+      "name": "M14_retainer_thread_envelope",
+      "color": [
+        0.25,
+        0.34,
+        0.32
+      ],
+      "moving": false,
+      "envelope": false,
+      "step": "parts/M14_retainer_thread_envelope.step",
+      "valid": true,
+      "bbox": [
+        -7.0,
+        -7.0,
+        -3.2,
+        7.0,
+        7.0,
+        -2.6
+      ]
+    },
+    {
+      "name": "PR1_plunger_lower_stem3p6",
+      "color": [
+        0.85,
+        0.79,
+        0.66
+      ],
+      "moving": true,
+      "envelope": false,
+      "step": "parts/PR1_plunger_lower_stem3p6.step",
+      "valid": true,
+      "bbox": [
+        -4.8,
+        -4.8,
+        -19.0,
+        4.8,
+        4.8,
+        -1.3999999999999986
+      ]
+    },
+    {
+      "name": "upper_capture_clip_geometry_candidate",
+      "color": [
+        0.25,
+        0.34,
+        0.32
+      ],
+      "moving": true,
+      "envelope": false,
+      "step": "parts/upper_capture_clip_geometry_candidate.step",
+      "valid": true,
+      "bbox": [
+        -4.900000000000001,
+        -4.576843890717708,
+        -14.600000000000001,
+        4.900000000000001,
+        4.9,
+        -14.0
+      ]
+    },
+    {
+      "name": "PR1_custom_316L_cap",
+      "color": [
+        0.66,
+        0.72,
+        0.72
+      ],
+      "moving": true,
+      "envelope": false,
+      "step": "parts/PR1_custom_316L_cap.step",
+      "valid": true,
+      "bbox": [
+        -5.0,
+        -5.0,
+        -1.4,
+        5.0,
+        5.0,
+        0.6000000000000001
+      ]
+    },
+    {
+      "name": "PR1_Resbond908_bond_process_candidate",
+      "color": [
+        0.91,
+        0.77,
+        0.46
+      ],
+      "moving": true,
+      "envelope": false,
+      "step": "parts/PR1_Resbond908_bond_process_candidate.step",
+      "valid": true,
+      "bbox": [
+        -1.35,
+        -1.25,
+        0.35,
+        1.35,
+        1.25,
+        0.44999999999999996
+      ]
+    },
+    {
+      "name": "Yageo_M222_32208550_body",
+      "color": [
+        0.78,
+        0.32,
+        0.25
+      ],
+      "moving": true,
+      "envelope": false,
+      "step": "parts/Yageo_M222_32208550_body.step",
+      "valid": true,
+      "bbox": [
+        -1.15,
+        -1.05,
+        -0.55,
+        1.15,
+        1.05,
+        0.35
+      ]
+    },
+    {
+      "name": "outer_seal_clamp",
+      "color": [
+        0.66,
+        0.72,
+        0.72
+      ],
+      "moving": false,
+      "envelope": false,
+      "step": "parts/outer_seal_clamp.step",
+      "valid": true,
+      "bbox": [
+        -8.5,
+        -8.5,
+        -0.6,
+        8.5,
+        8.5,
+        -0.25
+      ]
+    },
+    {
+      "name": "static_glass_aperture_seal_ENVELOPE",
+      "color": [
+        0.79,
+        0.48,
+        0.25
+      ],
+      "moving": false,
+      "envelope": true,
+      "step": "parts/static_glass_aperture_seal_ENVELOPE.step",
+      "valid": true,
+      "bbox": [
+        -9.0,
+        -9.0,
+        -4.0,
+        9.0,
+        9.0,
+        -0.25
+      ]
+    },
+    {
+      "name": "flex_diaphragm_ENVELOPE",
+      "color": [
+        0.79,
+        0.48,
+        0.25
+      ],
+      "moving": false,
+      "envelope": true,
+      "step": "parts/flex_diaphragm_ENVELOPE.step",
+      "valid": true,
+      "bbox": [
+        -8.5,
+        -8.5,
+        -1.5999999999999999,
+        8.5,
+        8.5,
+        -0.5
+      ]
+    },
+    {
+      "name": "PR1_lower_cap_spring_seat_z_minus28p45",
+      "color": [
+        0.66,
+        0.72,
+        0.72
+      ],
+      "moving": false,
+      "envelope": false,
+      "step": "parts/PR1_lower_cap_spring_seat_z_minus28p45.step",
+      "valid": true,
+      "bbox": [
+        -13.0,
+        -13.0,
+        -33.0,
+        13.0,
+        13.0,
+        -28.450000000000003
+      ]
+    },
+    {
+      "name": "lower_M2p5x8_screw_1_thread_envelope",
+      "color": [
+        0.25,
+        0.34,
+        0.32
+      ],
+      "moving": false,
+      "envelope": false,
+      "step": "parts/lower_M2p5x8_screw_1_thread_envelope.step",
+      "valid": true,
+      "bbox": [
+        2.8500000000000005,
+        6.583459118601272,
+        -35.5,
+        7.3500000000000005,
+        11.083459118601272,
+        -25.0
+      ]
+    },
+    {
+      "name": "lower_M2p5x8_screw_2_thread_envelope",
+      "color": [
+        0.25,
+        0.34,
+        0.32
+      ],
+      "moving": false,
+      "envelope": false,
+      "step": "parts/lower_M2p5x8_screw_2_thread_envelope.step",
+      "valid": true,
+      "bbox": [
+        -12.45,
+        -2.2499999999999987,
+        -35.5,
+        -7.949999999999999,
+        2.2500000000000013,
+        -25.0
+      ]
+    },
+    {
+      "name": "lower_M2p5x8_screw_3_thread_envelope",
+      "color": [
+        0.25,
+        0.34,
+        0.32
+      ],
+      "moving": false,
+      "envelope": false,
+      "step": "parts/lower_M2p5x8_screw_3_thread_envelope.step",
+      "valid": true,
+      "bbox": [
+        2.8500000000000005,
+        -11.083459118601272,
+        -35.5,
+        7.3500000000000005,
+        -6.583459118601272,
+        -25.0
+      ]
+    },
+    {
+      "name": "mount_M2p5x8_screw_1_thread_envelope",
+      "color": [
+        0.25,
+        0.34,
+        0.32
+      ],
+      "moving": false,
+      "envelope": false,
+      "step": "parts/mount_M2p5x8_screw_1_thread_envelope.step",
+      "valid": true,
+      "bbox": [
+        10.25,
+        -2.25,
+        -24.5,
+        14.75,
+        2.25,
+        -14.0
+      ]
+    },
+    {
+      "name": "mount_M2p5x8_screw_2_thread_envelope",
+      "color": [
+        0.25,
+        0.34,
+        0.32
+      ],
+      "moving": false,
+      "envelope": false,
+      "step": "parts/mount_M2p5x8_screw_2_thread_envelope.step",
+      "valid": true,
+      "bbox": [
+        -8.499999999999998,
+        8.575317547305485,
+        -24.5,
+        -3.9999999999999982,
+        13.075317547305485,
+        -14.0
+      ]
+    },
+    {
+      "name": "mount_M2p5x8_screw_3_thread_envelope",
+      "color": [
+        0.25,
+        0.34,
+        0.32
+      ],
+      "moving": false,
+      "envelope": false,
+      "step": "parts/mount_M2p5x8_screw_3_thread_envelope.step",
+      "valid": true,
+      "bbox": [
+        -8.500000000000005,
+        -13.07531754730548,
+        -24.5,
+        -4.000000000000005,
+        -8.57531754730548,
+        -14.0
+      ]
+    },
+    {
+      "name": "M6_gland_body_thread_envelope",
+      "color": [
+        0.25,
+        0.34,
+        0.32
+      ],
+      "moving": false,
+      "envelope": false,
+      "step": "parts/M6_gland_body_thread_envelope.step",
+      "valid": true,
+      "bbox": [
+        -4.0,
+        -3.464101615137756,
+        -39.0,
+        4.0,
+        3.464101615137755,
+        -31.0
+      ]
+    },
+    {
+      "name": "compression_bushing_ENVELOPE",
+      "color": [
+        0.79,
+        0.48,
+        0.25
+      ],
+      "moving": false,
+      "envelope": true,
+      "step": "parts/compression_bushing_ENVELOPE.step",
+      "valid": true,
+      "bbox": [
+        -1.5,
+        -1.5,
+        -39.0,
+        1.5,
+        1.5,
+        -33.0
+      ]
+    },
+    {
+      "name": "C01800120560X_INSTALLED_ENVELOPE_not_wire",
+      "color": [
+        0.25,
+        0.34,
+        0.32
+      ],
+      "moving": false,
+      "envelope": true,
+      "step": "parts/C01800120560X_INSTALLED_ENVELOPE_not_wire.step",
+      "valid": true,
+      "bbox": [
+        -2.3,
+        -2.3,
+        -28.45,
+        2.3,
+        2.3,
+        -15.0
+      ]
+    },
+    {
+      "name": "PR1_four_wire_slack_ENVELOPE_1mm_bundle",
+      "color": [
+        0.67,
+        0.34,
+        0.26
+      ],
+      "moving": false,
+      "envelope": true,
+      "step": "parts/PR1_four_wire_slack_ENVELOPE_1mm_bundle.step",
+      "valid": true,
+      "bbox": [
+        -1.2650320956055008,
+        -0.5123804312770196,
+        -49.0000001,
+        1.266671106226064,
+        0.512380431277019,
+        -1.1999999999999993
+      ]
+    }
+  ]
+}

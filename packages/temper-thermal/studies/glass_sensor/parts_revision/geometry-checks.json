@@ -1,0 +1,65 @@
+{
+  "status": "nominal fit and selected chip maximum only; custom seal not qualified",
+  "states": {
+    "rest": {
+      "parts": 22,
+      "all_valid": true,
+      "roundtrip_solids": 22,
+      "roundtrip_all_valid": true,
+      "rigid_overlaps": [],
+      "cap_volume_mm3": 34.09884666206364,
+      "spring_wire_overlap_mm3": 0.0,
+      "spring_stem_overlap_mm3": 0.0
+    },
+    "flat_pan": {
+      "parts": 22,
+      "all_valid": true,
+      "roundtrip_solids": 22,
+      "roundtrip_all_valid": true,
+      "rigid_overlaps": [],
+      "cap_volume_mm3": 34.09884666206362,
+      "spring_wire_overlap_mm3": 0.0,
+      "spring_stem_overlap_mm3": 0.0
+    },
+    "full_stroke": {
+      "parts": 22,
+      "all_valid": true,
+      "roundtrip_solids": 22,
+      "roundtrip_all_valid": true,
+      "rigid_overlaps": [],
+      "cap_volume_mm3": 34.09884666206367,
+      "spring_wire_overlap_mm3": 0.0,
+      "spring_stem_overlap_mm3": 0.0
+    },
+    "max_chip_full_stroke": {
+      "parts": 22,
+      "all_valid": true,
+      "roundtrip_solids": 22,
+      "roundtrip_all_valid": true,
+      "rigid_overlaps": [],
+      "cap_volume_mm3": 37.422651689561654,
+      "spring_wire_overlap_mm3": 0.0,
+      "spring_stem_overlap_mm3": 0.0
+    }
+  },
+  "spring_seat_z_mm": [
+    -28.45,
+    -15.0
+  ],
+  "spring_installed_mm": 13.45,
+  "maximum_chip_body_mm": [
+    2.5,
+    2.3,
+    1.2
+  ],
+  "spring_wire_geometry": "manufacturer envelope only; supplier turns/end geometry not available",
+  "lead_routing": "reserved envelope only; M222 lead forming/welding procedure unqualified",
+  "detector": "no selected detector added; lower spring seat optional FORCE CHARACTERIZATION fixture only; jam can spoof contact",
+  "section": {
+    "parts": 19,
+    "all_valid": true,
+    "roundtrip_solids": 19,
+    "roundtrip_all_valid": true,
+    "rigid_overlaps": []
+  }
+}

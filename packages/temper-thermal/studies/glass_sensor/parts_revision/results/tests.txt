@@ -1,0 +1,24 @@
+
+running 20 tests
+test model::tests::eccentric_load_reduces_available_force ... ok
+test model::tests::hard_stop_lifts_pan ... ok
+test model::tests::light_flat_pan_compresses_soft_probe ... ok
+test model::tests::hot_contact_loss_can_be_thermally_invisible ... ok
+test model::tests::proposed_flat_pan_force_envelope_stays_below_tipping_limit ... ok
+test model::tests::recess_outside_reach_has_no_contact ... ok
+test model::tests::steady_probe_matches_resistor_reduction ... ok
+test model::tests::seal_can_prevent_return ... ok
+test tests::no_loss_steady_state_reaches_pan ... ok
+test tests::spring_cannot_go_solid_before_stop ... ok
+test tests::chip_capacity_uses_full_real_m222_geometry ... ok
+test model::tests::radial_power_is_exactly_500_watts ... ok
+test tests::supplier_conductivity_unit_conversion ... ok
+test model::tests::closed_network_conserves_energy ... ok
+test model::tests::radial_uniform_boundary_stays_uniform ... ok
+test model::tests::backward_euler_matches_analytic_rc ... ok
+test model::tests::step_time_converges ... ok
+test tests::refined_step_is_stable ... ok
+test tests::contact_quality_can_break_three_second_screen ... ok
+test model::tests::step_response_is_monotone_and_bounded ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

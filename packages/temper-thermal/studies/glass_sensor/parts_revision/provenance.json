@@ -1,0 +1,36 @@
+{
+  "base_commit": "767f2fbae7a842e58afb288c5966453f10ab3d7a",
+  "revision": "PR1",
+  "date": "2026-10-04",
+  "status": "simulation and test preparation only",
+  "source_authority": {
+    "physical_measurements": false,
+    "contact_conductance": "unmeasured sensitivity",
+    "seal_stiffness": "unmeasured sensitivity",
+    "spring_rate": "supplier rounded nominal; inspect force at working length",
+    "rtd_heat_capacity": "unmeasured ceramic proxy",
+    "bond_heat_capacity": "unmeasured sensitivity",
+    "cad": "nominal prototype geometry only"
+  },
+  "source_inputs": {
+    "../model.rs": "c29c3a9603228ac05817c71f37464900916069453dd504d7c7fbbc1ecc025369",
+    "../inputs/mechanism.py.txt": "878a0e708f0754efa2b7ea3dc338dee7bc0376475258e1d3bf8427e5058f9dca"
+  },
+  "supplier_pdf_download": {
+    "url": "https://www.cotronics.com/vo/cotr/pdf/A_2020_Catalog-NP.pdf",
+    "sha256": "5fce723a3c3deba37c695e192f8e401d3d5bf70c53d64b8189c8591bc037a343",
+    "pages_used": [
+      24,
+      26
+    ],
+    "pdf_not_redistributed": true
+  },
+  "expected_counts": {
+    "rust_tests": 20,
+    "mechanical_cases": 21870,
+    "thermal_cases": 5832,
+    "material_sensitivity_cases": 486,
+    "cad_assembly_states": 4,
+    "solids_per_state": 22
+  }
+}

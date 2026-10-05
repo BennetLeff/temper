@@ -1,0 +1,10 @@
+mechanics_cases=21870
+mechanics_lifted=282
+mechanics_not_guaranteed_return=4860
+thermal_cases=5832
+thermal_joint_screen_passes=387
+middle: t90_final=6.4600s t90_pan=7.9800s error200=-5.9239C
+favorable: t90_final=2.1850s t90_pan=2.2250s error200=-0.6399C
+weak_partial: t90_final=16.7750s t90_pan=NaNs error200=-14.7119C
+spring_gross_preload_nominal=0.15000000000000002N
+minimum_spring_solid_margin_at_1p35=9.899999999999999mm
