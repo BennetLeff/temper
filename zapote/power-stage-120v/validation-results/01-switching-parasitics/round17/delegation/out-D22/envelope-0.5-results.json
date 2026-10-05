@@ -1,0 +1,786 @@
+[
+  {
+    "label": "envelope-v170-f35000-r2-e1.06-s0.5",
+    "identity": {
+      "config": {
+        "bus": 170,
+        "freq": 35000,
+        "resistance": 2,
+        "esl": 1.06,
+        "step": 0.5,
+        "cycles": 24,
+        "timeout": 2400,
+        "options": ""
+      },
+      "deck_sha256": "ed533e89139f29463998a026f8bddf91838ae5566f21ba47727aeba480075a34",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "common_options_sha256": "ae752d460d50fdbbcaaf03b29871b3b039cf27f018707efe4aa50d0fc3529330",
+      "simulator_sha256": "08c2c84bb215c54b8ba7ea030df71a2dc8fc33504a03180ea56f247d9f693560",
+      "params": {
+        "LP1": "24.5969n",
+        "LP2": "23.8522n",
+        "LP3": "24.2606n",
+        "LP4": "35.6765n",
+        "K12": "0.632482752",
+        "K13": "0.165300953",
+        "K14": "0.185415768",
+        "K23": "0.160678209",
+        "K24": "0.196916347",
+        "K34": "-0.00889872432",
+        "VBUS": "170",
+        "RTANK": "2",
+        "FREQ": "35000",
+        "DT": "443n",
+        "LESL": "1.06n",
+        "TRMAX": "0.5n",
+        "CYCLES": "24"
+      }
+    },
+    "status": "complete",
+    "returncode": 0,
+    "cycle_relative_RMS_change": {
+      "v(swa)": 9.358027401597908e-06,
+      "v(swb)": 7.945015277901754e-06,
+      "bus_current_A": 9.958298182381536e-05
+    },
+    "end_time_s": 0.0006877142857142856,
+    "points": 114581,
+    "input_power_estimate_W": 912.5548124492807,
+    "elapsed_seconds": 730.546736832941
+  },
+  {
+    "label": "envelope-v170-f35000-r2-e10-s0.5",
+    "identity": {
+      "config": {
+        "bus": 170,
+        "freq": 35000,
+        "resistance": 2,
+        "esl": 10,
+        "step": 0.5,
+        "cycles": 24,
+        "timeout": 2400,
+        "options": ""
+      },
+      "deck_sha256": "ed533e89139f29463998a026f8bddf91838ae5566f21ba47727aeba480075a34",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "common_options_sha256": "ae752d460d50fdbbcaaf03b29871b3b039cf27f018707efe4aa50d0fc3529330",
+      "simulator_sha256": "08c2c84bb215c54b8ba7ea030df71a2dc8fc33504a03180ea56f247d9f693560",
+      "params": {
+        "LP1": "24.5969n",
+        "LP2": "23.8522n",
+        "LP3": "24.2606n",
+        "LP4": "35.6765n",
+        "K12": "0.632482752",
+        "K13": "0.165300953",
+        "K14": "0.185415768",
+        "K23": "0.160678209",
+        "K24": "0.196916347",
+        "K34": "-0.00889872432",
+        "VBUS": "170",
+        "RTANK": "2",
+        "FREQ": "35000",
+        "DT": "443n",
+        "LESL": "10n",
+        "TRMAX": "0.5n",
+        "CYCLES": "24"
+      }
+    },
+    "status": "complete",
+    "returncode": 0,
+    "cycle_relative_RMS_change": {
+      "v(swa)": 9.934503646222572e-06,
+      "v(swb)": 9.00105828984849e-06,
+      "bus_current_A": 9.993782772890697e-05
+    },
+    "end_time_s": 0.0006877142857142856,
+    "points": 114543,
+    "input_power_estimate_W": 912.3883734655482,
+    "elapsed_seconds": 669.9983589169569
+  },
+  {
+    "label": "envelope-v170-f35000-r100-e1.06-s0.5",
+    "identity": {
+      "config": {
+        "bus": 170,
+        "freq": 35000,
+        "resistance": 100,
+        "esl": 1.06,
+        "step": 0.5,
+        "cycles": 24,
+        "timeout": 2400,
+        "options": ""
+      },
+      "deck_sha256": "ed533e89139f29463998a026f8bddf91838ae5566f21ba47727aeba480075a34",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "common_options_sha256": "ae752d460d50fdbbcaaf03b29871b3b039cf27f018707efe4aa50d0fc3529330",
+      "simulator_sha256": "08c2c84bb215c54b8ba7ea030df71a2dc8fc33504a03180ea56f247d9f693560",
+      "params": {
+        "LP1": "24.5969n",
+        "LP2": "23.8522n",
+        "LP3": "24.2606n",
+        "LP4": "35.6765n",
+        "K12": "0.632482752",
+        "K13": "0.165300953",
+        "K14": "0.185415768",
+        "K23": "0.160678209",
+        "K24": "0.196916347",
+        "K34": "-0.00889872432",
+        "VBUS": "170",
+        "RTANK": "100",
+        "FREQ": "35000",
+        "DT": "443n",
+        "LESL": "1.06n",
+        "TRMAX": "0.5n",
+        "CYCLES": "24"
+      }
+    },
+    "status": "complete",
+    "returncode": 0,
+    "cycle_relative_RMS_change": {
+      "v(swa)": 3.072924645366711e-05,
+      "v(swb)": 3.2526062164709923e-05,
+      "bus_current_A": 0.00030048429304291324
+    },
+    "end_time_s": 0.0006877142857142856,
+    "points": 116275,
+    "input_power_estimate_W": 295.593656273938,
+    "elapsed_seconds": 763.170690207975
+  },
+  {
+    "label": "envelope-v170-f35000-r100-e10-s0.5",
+    "identity": {
+      "config": {
+        "bus": 170,
+        "freq": 35000,
+        "resistance": 100,
+        "esl": 10,
+        "step": 0.5,
+        "cycles": 24,
+        "timeout": 2400,
+        "options": ""
+      },
+      "deck_sha256": "ed533e89139f29463998a026f8bddf91838ae5566f21ba47727aeba480075a34",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "common_options_sha256": "ae752d460d50fdbbcaaf03b29871b3b039cf27f018707efe4aa50d0fc3529330",
+      "simulator_sha256": "08c2c84bb215c54b8ba7ea030df71a2dc8fc33504a03180ea56f247d9f693560",
+      "params": {
+        "LP1": "24.5969n",
+        "LP2": "23.8522n",
+        "LP3": "24.2606n",
+        "LP4": "35.6765n",
+        "K12": "0.632482752",
+        "K13": "0.165300953",
+        "K14": "0.185415768",
+        "K23": "0.160678209",
+        "K24": "0.196916347",
+        "K34": "-0.00889872432",
+        "VBUS": "170",
+        "RTANK": "100",
+        "FREQ": "35000",
+        "DT": "443n",
+        "LESL": "10n",
+        "TRMAX": "0.5n",
+        "CYCLES": "24"
+      }
+    },
+    "status": "complete",
+    "returncode": 0,
+    "cycle_relative_RMS_change": {
+      "v(swa)": 3.19485944613162e-05,
+      "v(swb)": 3.1237076562059094e-05,
+      "bus_current_A": 0.00027931877038763235
+    },
+    "end_time_s": 0.0006877142857142856,
+    "points": 116493,
+    "input_power_estimate_W": 295.6238979652503,
+    "elapsed_seconds": 702.1479739171918
+  },
+  {
+    "label": "envelope-v170-f60000-r2-e1.06-s0.5",
+    "identity": {
+      "config": {
+        "bus": 170,
+        "freq": 60000,
+        "resistance": 2,
+        "esl": 1.06,
+        "step": 0.5,
+        "cycles": 48,
+        "timeout": 2400,
+        "options": ""
+      },
+      "deck_sha256": "ed533e89139f29463998a026f8bddf91838ae5566f21ba47727aeba480075a34",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "common_options_sha256": "ae752d460d50fdbbcaaf03b29871b3b039cf27f018707efe4aa50d0fc3529330",
+      "simulator_sha256": "08c2c84bb215c54b8ba7ea030df71a2dc8fc33504a03180ea56f247d9f693560",
+      "params": {
+        "LP1": "24.5969n",
+        "LP2": "23.8522n",
+        "LP3": "24.2606n",
+        "LP4": "35.6765n",
+        "K12": "0.632482752",
+        "K13": "0.165300953",
+        "K14": "0.185415768",
+        "K23": "0.160678209",
+        "K24": "0.196916347",
+        "K34": "-0.00889872432",
+        "VBUS": "170",
+        "RTANK": "2",
+        "FREQ": "60000",
+        "DT": "443n",
+        "LESL": "1.06n",
+        "TRMAX": "0.5n",
+        "CYCLES": "48"
+      }
+    },
+    "status": "complete",
+    "returncode": 0,
+    "cycle_relative_RMS_change": {
+      "v(swa)": 1.9569697317774454e-06,
+      "v(swb)": 2.3660051297855127e-06,
+      "bus_current_A": 2.2963930971039063e-05
+    },
+    "end_time_s": 0.0008020000000000001,
+    "points": 66902,
+    "input_power_estimate_W": 104.67760562042,
+    "elapsed_seconds": 838.3554554579314
+  },
+  {
+    "label": "envelope-v170-f60000-r2-e10-s0.5",
+    "identity": {
+      "config": {
+        "bus": 170,
+        "freq": 60000,
+        "resistance": 2,
+        "esl": 10,
+        "step": 0.5,
+        "cycles": 48,
+        "timeout": 2400,
+        "options": ""
+      },
+      "deck_sha256": "ed533e89139f29463998a026f8bddf91838ae5566f21ba47727aeba480075a34",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "common_options_sha256": "ae752d460d50fdbbcaaf03b29871b3b039cf27f018707efe4aa50d0fc3529330",
+      "simulator_sha256": "08c2c84bb215c54b8ba7ea030df71a2dc8fc33504a03180ea56f247d9f693560",
+      "params": {
+        "LP1": "24.5969n",
+        "LP2": "23.8522n",
+        "LP3": "24.2606n",
+        "LP4": "35.6765n",
+        "K12": "0.632482752",
+        "K13": "0.165300953",
+        "K14": "0.185415768",
+        "K23": "0.160678209",
+        "K24": "0.196916347",
+        "K34": "-0.00889872432",
+        "VBUS": "170",
+        "RTANK": "2",
+        "FREQ": "60000",
+        "DT": "443n",
+        "LESL": "10n",
+        "TRMAX": "0.5n",
+        "CYCLES": "48"
+      }
+    },
+    "status": "complete",
+    "returncode": 0,
+    "cycle_relative_RMS_change": {
+      "v(swa)": 3.1351886872047103e-06,
+      "v(swb)": 1.2963956220400464e-06,
+      "bus_current_A": 2.653200616891149e-05
+    },
+    "end_time_s": 0.0008020000000000001,
+    "points": 66971,
+    "input_power_estimate_W": 104.38875161165039,
+    "elapsed_seconds": 829.0134767079726
+  },
+  {
+    "label": "envelope-v170-f60000-r100-e1.06-s0.5",
+    "identity": {
+      "config": {
+        "bus": 170,
+        "freq": 60000,
+        "resistance": 100,
+        "esl": 1.06,
+        "step": 0.5,
+        "cycles": 48,
+        "timeout": 2400,
+        "options": ""
+      },
+      "deck_sha256": "ed533e89139f29463998a026f8bddf91838ae5566f21ba47727aeba480075a34",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "common_options_sha256": "ae752d460d50fdbbcaaf03b29871b3b039cf27f018707efe4aa50d0fc3529330",
+      "simulator_sha256": "08c2c84bb215c54b8ba7ea030df71a2dc8fc33504a03180ea56f247d9f693560",
+      "params": {
+        "LP1": "24.5969n",
+        "LP2": "23.8522n",
+        "LP3": "24.2606n",
+        "LP4": "35.6765n",
+        "K12": "0.632482752",
+        "K13": "0.165300953",
+        "K14": "0.185415768",
+        "K23": "0.160678209",
+        "K24": "0.196916347",
+        "K34": "-0.00889872432",
+        "VBUS": "170",
+        "RTANK": "100",
+        "FREQ": "60000",
+        "DT": "443n",
+        "LESL": "1.06n",
+        "TRMAX": "0.5n",
+        "CYCLES": "48"
+      }
+    },
+    "status": "complete",
+    "returncode": 0,
+    "cycle_relative_RMS_change": {
+      "v(swa)": 3.369897226193402e-05,
+      "v(swb)": 3.845142979637267e-05,
+      "bus_current_A": 0.0002856395334308877
+    },
+    "end_time_s": 0.0008020000000000001,
+    "points": 68753,
+    "input_power_estimate_W": 295.8361703773769,
+    "elapsed_seconds": 880.9847908329684
+  },
+  {
+    "label": "envelope-v170-f60000-r100-e10-s0.5",
+    "identity": {
+      "config": {
+        "bus": 170,
+        "freq": 60000,
+        "resistance": 100,
+        "esl": 10,
+        "step": 0.5,
+        "cycles": 48,
+        "timeout": 2400,
+        "options": ""
+      },
+      "deck_sha256": "ed533e89139f29463998a026f8bddf91838ae5566f21ba47727aeba480075a34",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "common_options_sha256": "ae752d460d50fdbbcaaf03b29871b3b039cf27f018707efe4aa50d0fc3529330",
+      "simulator_sha256": "08c2c84bb215c54b8ba7ea030df71a2dc8fc33504a03180ea56f247d9f693560",
+      "params": {
+        "LP1": "24.5969n",
+        "LP2": "23.8522n",
+        "LP3": "24.2606n",
+        "LP4": "35.6765n",
+        "K12": "0.632482752",
+        "K13": "0.165300953",
+        "K14": "0.185415768",
+        "K23": "0.160678209",
+        "K24": "0.196916347",
+        "K34": "-0.00889872432",
+        "VBUS": "170",
+        "RTANK": "100",
+        "FREQ": "60000",
+        "DT": "443n",
+        "LESL": "10n",
+        "TRMAX": "0.5n",
+        "CYCLES": "48"
+      }
+    },
+    "status": "complete",
+    "returncode": 0,
+    "cycle_relative_RMS_change": {
+      "v(swa)": 3.228201942060091e-05,
+      "v(swb)": 3.510470925611008e-05,
+      "bus_current_A": 0.00028703880388669526
+    },
+    "end_time_s": 0.0008020000000000001,
+    "points": 68864,
+    "input_power_estimate_W": 295.8824994068356,
+    "elapsed_seconds": 900.7179591250606
+  },
+  {
+    "label": "envelope-v198-f35000-r2-e1.06-s0.5",
+    "identity": {
+      "config": {
+        "bus": 198,
+        "freq": 35000,
+        "resistance": 2,
+        "esl": 1.06,
+        "step": 0.5,
+        "cycles": 24,
+        "timeout": 2400,
+        "options": ""
+      },
+      "deck_sha256": "ed533e89139f29463998a026f8bddf91838ae5566f21ba47727aeba480075a34",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "common_options_sha256": "ae752d460d50fdbbcaaf03b29871b3b039cf27f018707efe4aa50d0fc3529330",
+      "simulator_sha256": "08c2c84bb215c54b8ba7ea030df71a2dc8fc33504a03180ea56f247d9f693560",
+      "params": {
+        "LP1": "24.5969n",
+        "LP2": "23.8522n",
+        "LP3": "24.2606n",
+        "LP4": "35.6765n",
+        "K12": "0.632482752",
+        "K13": "0.165300953",
+        "K14": "0.185415768",
+        "K23": "0.160678209",
+        "K24": "0.196916347",
+        "K34": "-0.00889872432",
+        "VBUS": "198",
+        "RTANK": "2",
+        "FREQ": "35000",
+        "DT": "443n",
+        "LESL": "1.06n",
+        "TRMAX": "0.5n",
+        "CYCLES": "24"
+      }
+    },
+    "status": "complete",
+    "returncode": 0,
+    "cycle_relative_RMS_change": {
+      "v(swa)": 1.9578056089578353e-05,
+      "v(swb)": 2.012762397582854e-05,
+      "bus_current_A": 0.00011554431193458091
+    },
+    "end_time_s": 0.0006877142857142856,
+    "points": 114551,
+    "input_power_estimate_W": 1241.2770264532207,
+    "elapsed_seconds": 653.3647507498972
+  },
+  {
+    "label": "envelope-v198-f35000-r2-e10-s0.5",
+    "identity": {
+      "config": {
+        "bus": 198,
+        "freq": 35000,
+        "resistance": 2,
+        "esl": 10,
+        "step": 0.5,
+        "cycles": 24,
+        "timeout": 2400,
+        "options": ""
+      },
+      "deck_sha256": "ed533e89139f29463998a026f8bddf91838ae5566f21ba47727aeba480075a34",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "common_options_sha256": "ae752d460d50fdbbcaaf03b29871b3b039cf27f018707efe4aa50d0fc3529330",
+      "simulator_sha256": "08c2c84bb215c54b8ba7ea030df71a2dc8fc33504a03180ea56f247d9f693560",
+      "params": {
+        "LP1": "24.5969n",
+        "LP2": "23.8522n",
+        "LP3": "24.2606n",
+        "LP4": "35.6765n",
+        "K12": "0.632482752",
+        "K13": "0.165300953",
+        "K14": "0.185415768",
+        "K23": "0.160678209",
+        "K24": "0.196916347",
+        "K34": "-0.00889872432",
+        "VBUS": "198",
+        "RTANK": "2",
+        "FREQ": "35000",
+        "DT": "443n",
+        "LESL": "10n",
+        "TRMAX": "0.5n",
+        "CYCLES": "24"
+      }
+    },
+    "status": "complete",
+    "returncode": 0,
+    "cycle_relative_RMS_change": {
+      "v(swa)": 1.3560456233498243e-05,
+      "v(swb)": 1.4462938745338311e-05,
+      "bus_current_A": 0.0001079219340302027
+    },
+    "end_time_s": 0.0006877142857142856,
+    "points": 114562,
+    "input_power_estimate_W": 1240.8449491802387,
+    "elapsed_seconds": 653.6672399169765
+  },
+  {
+    "label": "envelope-v198-f35000-r100-e1.06-s0.5",
+    "identity": {
+      "config": {
+        "bus": 198,
+        "freq": 35000,
+        "resistance": 100,
+        "esl": 1.06,
+        "step": 0.5,
+        "cycles": 24,
+        "timeout": 2400,
+        "options": ""
+      },
+      "deck_sha256": "ed533e89139f29463998a026f8bddf91838ae5566f21ba47727aeba480075a34",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "common_options_sha256": "ae752d460d50fdbbcaaf03b29871b3b039cf27f018707efe4aa50d0fc3529330",
+      "simulator_sha256": "08c2c84bb215c54b8ba7ea030df71a2dc8fc33504a03180ea56f247d9f693560",
+      "params": {
+        "LP1": "24.5969n",
+        "LP2": "23.8522n",
+        "LP3": "24.2606n",
+        "LP4": "35.6765n",
+        "K12": "0.632482752",
+        "K13": "0.165300953",
+        "K14": "0.185415768",
+        "K23": "0.160678209",
+        "K24": "0.196916347",
+        "K34": "-0.00889872432",
+        "VBUS": "198",
+        "RTANK": "100",
+        "FREQ": "35000",
+        "DT": "443n",
+        "LESL": "1.06n",
+        "TRMAX": "0.5n",
+        "CYCLES": "24"
+      }
+    },
+    "status": "complete",
+    "returncode": 0,
+    "cycle_relative_RMS_change": {
+      "v(swa)": 1.625876475886232e-05,
+      "v(swb)": 1.601808855138803e-05,
+      "bus_current_A": 0.00028271987074310567
+    },
+    "end_time_s": 0.0006877142857142856,
+    "points": 116341,
+    "input_power_estimate_W": 393.54086822847376,
+    "elapsed_seconds": 679.2259314579424
+  },
+  {
+    "label": "envelope-v198-f35000-r100-e10-s0.5",
+    "identity": {
+      "config": {
+        "bus": 198,
+        "freq": 35000,
+        "resistance": 100,
+        "esl": 10,
+        "step": 0.5,
+        "cycles": 24,
+        "timeout": 2400,
+        "options": ""
+      },
+      "deck_sha256": "ed533e89139f29463998a026f8bddf91838ae5566f21ba47727aeba480075a34",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "common_options_sha256": "ae752d460d50fdbbcaaf03b29871b3b039cf27f018707efe4aa50d0fc3529330",
+      "simulator_sha256": "08c2c84bb215c54b8ba7ea030df71a2dc8fc33504a03180ea56f247d9f693560",
+      "params": {
+        "LP1": "24.5969n",
+        "LP2": "23.8522n",
+        "LP3": "24.2606n",
+        "LP4": "35.6765n",
+        "K12": "0.632482752",
+        "K13": "0.165300953",
+        "K14": "0.185415768",
+        "K23": "0.160678209",
+        "K24": "0.196916347",
+        "K34": "-0.00889872432",
+        "VBUS": "198",
+        "RTANK": "100",
+        "FREQ": "35000",
+        "DT": "443n",
+        "LESL": "10n",
+        "TRMAX": "0.5n",
+        "CYCLES": "24"
+      }
+    },
+    "status": "complete",
+    "returncode": 0,
+    "cycle_relative_RMS_change": {
+      "v(swa)": 2.0911250073349778e-05,
+      "v(swb)": 2.144109996702889e-05,
+      "bus_current_A": 0.0003062913211413825
+    },
+    "end_time_s": 0.0006877142857142856,
+    "points": 116381,
+    "input_power_estimate_W": 393.5767241716091,
+    "elapsed_seconds": 819.1187179589178
+  },
+  {
+    "label": "envelope-v198-f60000-r2-e1.06-s0.5",
+    "identity": {
+      "config": {
+        "bus": 198,
+        "freq": 60000,
+        "resistance": 2,
+        "esl": 1.06,
+        "step": 0.5,
+        "cycles": 48,
+        "timeout": 2400,
+        "options": ""
+      },
+      "deck_sha256": "ed533e89139f29463998a026f8bddf91838ae5566f21ba47727aeba480075a34",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "common_options_sha256": "ae752d460d50fdbbcaaf03b29871b3b039cf27f018707efe4aa50d0fc3529330",
+      "simulator_sha256": "08c2c84bb215c54b8ba7ea030df71a2dc8fc33504a03180ea56f247d9f693560",
+      "params": {
+        "LP1": "24.5969n",
+        "LP2": "23.8522n",
+        "LP3": "24.2606n",
+        "LP4": "35.6765n",
+        "K12": "0.632482752",
+        "K13": "0.165300953",
+        "K14": "0.185415768",
+        "K23": "0.160678209",
+        "K24": "0.196916347",
+        "K34": "-0.00889872432",
+        "VBUS": "198",
+        "RTANK": "2",
+        "FREQ": "60000",
+        "DT": "443n",
+        "LESL": "1.06n",
+        "TRMAX": "0.5n",
+        "CYCLES": "48"
+      }
+    },
+    "status": "complete",
+    "returncode": 0,
+    "cycle_relative_RMS_change": {
+      "v(swa)": 1.2735334843684075e-06,
+      "v(swb)": 1.0282183020997386e-06,
+      "bus_current_A": 1.1401210386191278e-05
+    },
+    "end_time_s": 0.0008020000000000001,
+    "points": 66889,
+    "input_power_estimate_W": 142.05753568621094,
+    "elapsed_seconds": 1276.7420279579237
+  },
+  {
+    "label": "envelope-v198-f60000-r2-e10-s0.5",
+    "identity": {
+      "config": {
+        "bus": 198,
+        "freq": 60000,
+        "resistance": 2,
+        "esl": 10,
+        "step": 0.5,
+        "cycles": 48,
+        "timeout": 2400,
+        "options": ""
+      },
+      "deck_sha256": "ed533e89139f29463998a026f8bddf91838ae5566f21ba47727aeba480075a34",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "common_options_sha256": "ae752d460d50fdbbcaaf03b29871b3b039cf27f018707efe4aa50d0fc3529330",
+      "simulator_sha256": "08c2c84bb215c54b8ba7ea030df71a2dc8fc33504a03180ea56f247d9f693560",
+      "params": {
+        "LP1": "24.5969n",
+        "LP2": "23.8522n",
+        "LP3": "24.2606n",
+        "LP4": "35.6765n",
+        "K12": "0.632482752",
+        "K13": "0.165300953",
+        "K14": "0.185415768",
+        "K23": "0.160678209",
+        "K24": "0.196916347",
+        "K34": "-0.00889872432",
+        "VBUS": "198",
+        "RTANK": "2",
+        "FREQ": "60000",
+        "DT": "443n",
+        "LESL": "10n",
+        "TRMAX": "0.5n",
+        "CYCLES": "48"
+      }
+    },
+    "status": "complete",
+    "returncode": 0,
+    "cycle_relative_RMS_change": {
+      "v(swa)": 9.27640735915608e-06,
+      "v(swb)": 1.298250491706634e-05,
+      "bus_current_A": 0.00010132519673834593
+    },
+    "end_time_s": 0.0008020000000000001,
+    "points": 66985,
+    "input_power_estimate_W": 141.65575541144605,
+    "elapsed_seconds": 1317.6648118330631
+  },
+  {
+    "label": "envelope-v198-f60000-r100-e1.06-s0.5",
+    "identity": {
+      "config": {
+        "bus": 198,
+        "freq": 60000,
+        "resistance": 100,
+        "esl": 1.06,
+        "step": 0.5,
+        "cycles": 48,
+        "timeout": 2400,
+        "options": ""
+      },
+      "deck_sha256": "ed533e89139f29463998a026f8bddf91838ae5566f21ba47727aeba480075a34",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "common_options_sha256": "ae752d460d50fdbbcaaf03b29871b3b039cf27f018707efe4aa50d0fc3529330",
+      "simulator_sha256": "08c2c84bb215c54b8ba7ea030df71a2dc8fc33504a03180ea56f247d9f693560",
+      "params": {
+        "LP1": "24.5969n",
+        "LP2": "23.8522n",
+        "LP3": "24.2606n",
+        "LP4": "35.6765n",
+        "K12": "0.632482752",
+        "K13": "0.165300953",
+        "K14": "0.185415768",
+        "K23": "0.160678209",
+        "K24": "0.196916347",
+        "K34": "-0.00889872432",
+        "VBUS": "198",
+        "RTANK": "100",
+        "FREQ": "60000",
+        "DT": "443n",
+        "LESL": "1.06n",
+        "TRMAX": "0.5n",
+        "CYCLES": "48"
+      }
+    },
+    "status": "complete",
+    "returncode": 0,
+    "cycle_relative_RMS_change": {
+      "v(swa)": 2.402783225766494e-05,
+      "v(swb)": 2.116534626924765e-05,
+      "bus_current_A": 0.00029205975483526504
+    },
+    "end_time_s": 0.0008020000000000001,
+    "points": 68715,
+    "input_power_estimate_W": 388.57018444912654,
+    "elapsed_seconds": 1442.7385961669497
+  },
+  {
+    "label": "envelope-v198-f60000-r100-e10-s0.5",
+    "identity": {
+      "config": {
+        "bus": 198,
+        "freq": 60000,
+        "resistance": 100,
+        "esl": 10,
+        "step": 0.5,
+        "cycles": 48,
+        "timeout": 2400,
+        "options": ""
+      },
+      "deck_sha256": "ed533e89139f29463998a026f8bddf91838ae5566f21ba47727aeba480075a34",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "common_options_sha256": "ae752d460d50fdbbcaaf03b29871b3b039cf27f018707efe4aa50d0fc3529330",
+      "simulator_sha256": "08c2c84bb215c54b8ba7ea030df71a2dc8fc33504a03180ea56f247d9f693560",
+      "params": {
+        "LP1": "24.5969n",
+        "LP2": "23.8522n",
+        "LP3": "24.2606n",
+        "LP4": "35.6765n",
+        "K12": "0.632482752",
+        "K13": "0.165300953",
+        "K14": "0.185415768",
+        "K23": "0.160678209",
+        "K24": "0.196916347",
+        "K34": "-0.00889872432",
+        "VBUS": "198",
+        "RTANK": "100",
+        "FREQ": "60000",
+        "DT": "443n",
+        "LESL": "10n",
+        "TRMAX": "0.5n",
+        "CYCLES": "48"
+      }
+    },
+    "status": "complete",
+    "returncode": 0,
+    "cycle_relative_RMS_change": {
+      "v(swa)": 2.514299253196412e-05,
+      "v(swb)": 2.569714010345127e-05,
+      "bus_current_A": 0.0002883506898827972
+    },
+    "end_time_s": 0.0008020000000000001,
+    "points": 68700,
+    "input_power_estimate_W": 388.61739174565264,
+    "elapsed_seconds": 1438.186658832943
+  }
+]

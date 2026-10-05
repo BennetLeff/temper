@@ -1,0 +1,154 @@
+[
+  {
+    "label": "envelope-v170-f35000-r2-e1.06-c32-s0.0625",
+    "config": {
+      "bus": 170,
+      "freq": 35000,
+      "resistance": 2,
+      "esl": 1.06,
+      "step": 0.0625,
+      "cycles": 32,
+      "timeout": 12000,
+      "reference_label": "envelope-v170-f35000-r2-e1.06-c32-s0.125"
+    }
+  },
+  {
+    "label": "envelope-v170-f35000-r2-e10-c32-s0.0625",
+    "config": {
+      "bus": 170,
+      "freq": 35000,
+      "resistance": 2,
+      "esl": 10,
+      "step": 0.0625,
+      "cycles": 32,
+      "timeout": 12000,
+      "reference_label": "envelope-v170-f35000-r2-e10-c32-s0.1"
+    }
+  },
+  {
+    "label": "envelope-v170-f35000-r2-e10-c32-s0.1",
+    "config": {
+      "bus": 170,
+      "freq": 35000,
+      "resistance": 2,
+      "esl": 10,
+      "step": 0.1,
+      "cycles": 32,
+      "timeout": 9000
+    }
+  },
+  {
+    "label": "envelope-v170-f35000-r2-e1.06-c32-s0.125",
+    "config": {
+      "bus": 170,
+      "freq": 35000,
+      "resistance": 2,
+      "esl": 1.06,
+      "step": 0.125,
+      "cycles": 32,
+      "timeout": 9000
+    }
+  },
+  {
+    "label": "envelope-v198-f35000-r2-e1.06-c32-s0.125",
+    "config": {
+      "bus": 198,
+      "freq": 35000,
+      "resistance": 2,
+      "esl": 1.06,
+      "step": 0.125,
+      "cycles": 32,
+      "timeout": 9000,
+      "reference_label": "envelope-v198-f35000-r2-e1.06-c32-s0.25"
+    }
+  },
+  {
+    "label": "envelope-v198-f35000-r2-e10-c32-s0.125",
+    "config": {
+      "bus": 198,
+      "freq": 35000,
+      "resistance": 2,
+      "esl": 10,
+      "step": 0.125,
+      "cycles": 32,
+      "timeout": 9000,
+      "reference_label": "envelope-v198-f35000-r2-e10-c32-s0.25"
+    }
+  },
+  {
+    "label": "envelope-v198-f35000-r2-e1.06-c32-s0.25",
+    "config": {
+      "bus": 198,
+      "freq": 35000,
+      "resistance": 2,
+      "esl": 1.06,
+      "step": 0.25,
+      "cycles": 32,
+      "timeout": 9000
+    }
+  },
+  {
+    "label": "envelope-v198-f35000-r2-e10-c32-s0.25",
+    "config": {
+      "bus": 198,
+      "freq": 35000,
+      "resistance": 2,
+      "esl": 10,
+      "step": 0.25,
+      "cycles": 32,
+      "timeout": 9000
+    }
+  },
+  {
+    "label": "envelope-v170-f35000-r100-e1.06-s0.1",
+    "config": {
+      "bus": 170,
+      "freq": 35000,
+      "resistance": 100,
+      "esl": 1.06,
+      "step": 0.1,
+      "cycles": 24,
+      "timeout": 9000,
+      "reference_label": "envelope-v170-f35000-r100-e1.06-s0.25"
+    }
+  },
+  {
+    "label": "envelope-v198-f35000-r100-e10-s0.1",
+    "config": {
+      "bus": 198,
+      "freq": 35000,
+      "resistance": 100,
+      "esl": 10,
+      "step": 0.1,
+      "cycles": 24,
+      "timeout": 9000,
+      "reference_label": "envelope-v198-f35000-r100-e10-s0.25"
+    }
+  },
+  {
+    "label": "envelope-v170-f60000-r2-e10-s0.1",
+    "config": {
+      "bus": 170,
+      "freq": 60000,
+      "resistance": 2,
+      "esl": 10,
+      "step": 0.1,
+      "cycles": 48,
+      "timeout": 9000,
+      "reference_label": "envelope-v170-f60000-r2-e10-s0.25"
+    }
+  },
+  {
+    "label": "envelope-v198-f60000-r100-e1.06-s0.1",
+    "config": {
+      "bus": 198,
+      "freq": 60000,
+      "resistance": 100,
+      "esl": 1.06,
+      "step": 0.1,
+      "cycles": 48,
+      "timeout": 9000,
+      "reference_label": "envelope-v198-f60000-r100-e1.06-s0.25"
+    }
+  }
+]
