@@ -1,0 +1,14 @@
+hardening 146 historical hashes unchanged
+revision2 77 historical hashes unchanged
+anchor_conductance_bounds.csv 12 rows; identical replay and valid CSV field count
+anchor_sensitivity.csv 48 rows; identical replay and valid CSV field count
+comparison.csv 27 rows; identical replay and valid CSV field count
+contact_requirements.csv 90 rows; identical replay and valid CSV field count
+electrical_offset_budget.csv 60 rows; identical replay and valid CSV field count
+macro_gap_screen.csv 60 rows; identical replay and valid CSV field count
+seal_wire_budget.csv 360 rows; identical replay and valid CSV field count
+wire_properties.csv 8 rows; identical replay and valid CSV field count
+CAD: 6 states,34 valid parts each,valid STEP roundtrip,no checked rigid overlaps
+SVG XML parsed
+Local report links: 12 valid
+Chart directly image-inspected; whole-page browser rendering not performed under existing file-preview policy

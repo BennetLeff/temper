@@ -1,0 +1,32 @@
+
+running 28 tests
+test kernel::tests::light_flat_pan_compresses_soft_probe ... ok
+test kernel::tests::hard_stop_lifts_pan ... ok
+test kernel::tests::proposed_flat_pan_force_envelope_stays_below_tipping_limit ... ok
+test kernel::tests::recess_outside_reach_has_no_contact ... ok
+test kernel::tests::seal_can_prevent_return ... ok
+test kernel::tests::hot_contact_loss_can_be_thermally_invisible ... ok
+test kernel::tests::eccentric_load_reduces_available_force ... ok
+test kernel::tests::steady_probe_matches_resistor_reduction ... ok
+test kernel::tests::radial_power_is_exactly_500_watts ... ok
+test kernel::tests::radial_uniform_boundary_stays_uniform ... ok
+test kernel::tests::step_time_converges ... ok
+test kernel::tests::closed_network_conserves_energy ... ok
+test tests::added_seal_loss_increases_underread ... ok
+test tests::anchored_wire_uniform_boundary_is_isothermal ... ok
+test tests::cad_facing_area_matches_independent_rectangle_overlap ... ok
+test tests::copper_fin_matches_prior_record ... ok
+test kernel::tests::backward_euler_matches_analytic_rc ... ok
+test tests::finite_hook_dc_matches_series_resistor ... ok
+test tests::flat_gas_film_has_exact_conductance ... ok
+test tests::frozen_r2_dc_limit_is_reproduced ... ok
+test tests::crown_is_not_universal_contact_improvement ... ok
+test tests::reverse_current_cancels_static_emf ... ok
+test tests::hot_anchor_reduces_sensor_to_cap_gradient ... ok
+test kernel::tests::step_response_is_monotone_and_bounded ... ok
+test tests::zero_fin_loss_matches_series_conduction ... ok
+test tests::gap_clearance_reduces_retention_heat_bridge ... ok
+test tests::geometry_quadrature_refines ... ok
+test tests::step_refinement_is_small ... ok
+
+test result: ok. 28 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s

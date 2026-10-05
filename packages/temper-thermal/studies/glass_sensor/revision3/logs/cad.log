@@ -1,0 +1,78 @@
+{
+  "caps": [
+    {
+      "gap_mm": 0.05,
+      "cap_volume_mm3": 9.05182236861571,
+      "disc_volume_mm3": 7.539822368615503,
+      "opposing_hook_area_mm2": 0.719999999999986,
+      "anchor_pad_volume_mm3": 0.5653603755197742
+    },
+    {
+      "gap_mm": 0.1,
+      "cap_volume_mm3": 9.06982236861573,
+      "disc_volume_mm3": 7.539822368615503,
+      "opposing_hook_area_mm2": 0.719999999999986,
+      "anchor_pad_volume_mm3": 0.5653603755197742
+    },
+    {
+      "gap_mm": 0.15,
+      "cap_volume_mm3": 9.087822368615713,
+      "disc_volume_mm3": 7.539822368615503,
+      "opposing_hook_area_mm2": 0.7199999999999857,
+      "anchor_pad_volume_mm3": 0.5653603755197742
+    },
+    {
+      "gap_mm": 0.2,
+      "cap_volume_mm3": 9.105822368615739,
+      "disc_volume_mm3": 7.539822368615503,
+      "opposing_hook_area_mm2": 0.719999999999986,
+      "anchor_pad_volume_mm3": 0.5653603755197742
+    },
+    {
+      "gap_mm": 0.25,
+      "cap_volume_mm3": 9.123822368615734,
+      "disc_volume_mm3": 7.539822368615503,
+      "opposing_hook_area_mm2": 0.7199999999999862,
+      "anchor_pad_volume_mm3": 0.5653603755197742
+    },
+    {
+      "gap_mm": 0.3,
+      "cap_volume_mm3": 9.14182236861574,
+      "disc_volume_mm3": 7.539822368615503,
+      "opposing_hook_area_mm2": 0.719999999999986,
+      "anchor_pad_volume_mm3": 0.5653603755197742
+    }
+  ],
+  "states": {
+    "rest": {
+      "valid": true,
+      "intersections": [],
+      "step_roundtrip_valid": true
+    },
+    "loaded": {
+      "valid": true,
+      "intersections": [],
+      "step_roundtrip_valid": true
+    },
+    "local_stop": {
+      "valid": true,
+      "intersections": [],
+      "step_roundtrip_valid": true
+    },
+    "full_stroke": {
+      "valid": true,
+      "intersections": [],
+      "step_roundtrip_valid": true
+    },
+    "upper_capture": {
+      "valid": true,
+      "intersections": [],
+      "step_roundtrip_valid": true
+    },
+    "cap_capture": {
+      "valid": true,
+      "intersections": [],
+      "step_roundtrip_valid": true
+    }
+  }
+}
