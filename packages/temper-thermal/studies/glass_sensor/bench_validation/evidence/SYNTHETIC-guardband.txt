@@ -1,0 +1,14 @@
+schema=temper-bench-v1
+evidence_kind=SYNTHETIC
+run_id=SYNTHETIC-fit
+raw_sha256=50687ed9a8f0b8be1af85d32b1d15c4c930653885619495be058e26773dcb3ef
+metadata_sha256=0f8ac8362cd3ebd4ba9ce33afa98261102ad8a2202a865df73fc6861bd86145a
+physical_validation=NOT_RUN
+plateau_stable=true
+local_error_c=-1.500000
+expanded_error_c=0.800000
+error_screen=INDETERMINATE
+t90_relative_final_s=3.453938
+t90_imposed_pan_step_s=3.758405
+fast_reference_step=true
+response_screen=PROPOSED_SCREEN_FAIL

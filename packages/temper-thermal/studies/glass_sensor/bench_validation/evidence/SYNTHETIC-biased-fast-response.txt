@@ -1,0 +1,14 @@
+schema=temper-bench-v1
+evidence_kind=SYNTHETIC
+run_id=SYNTHETIC-biased_fast
+raw_sha256=0f988aea480ff84b5b09837ca1266bb24dec2527b8622193f7b543b2ae0ed8be
+metadata_sha256=695805ad7b01b4a7456ffd77f073ae5390210de96a6ca98630aaad5a088569c0
+physical_validation=NOT_RUN
+plateau_stable=true
+local_error_c=-15.000000
+expanded_error_c=0.400000
+error_screen=PROPOSED_SCREEN_FAIL
+t90_relative_final_s=1.382034
+t90_imposed_pan_step_s=NOT_REACHED
+fast_reference_step=true
+response_screen=INDETERMINATE

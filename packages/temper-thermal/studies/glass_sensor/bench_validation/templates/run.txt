@@ -1,0 +1,27 @@
+# All fields are intentionally NOT_RUN. Template must fail import.
+schema=temper-bench-v1
+run_id=NOT_RUN
+evidence_kind=NOT_RUN
+role=NOT_RUN
+cartridge_id=NOT_RUN
+pan_id=NOT_RUN
+firmware_commit=NOT_RUN
+calibration_ids=NOT_RUN
+reference_id=NOT_RUN
+reference_calibration_id=NOT_RUN
+clock_source=NOT_RUN
+contact_reference_method=NOT_RUN
+acquisition_valid=NOT_RUN
+operator=NOT_RUN
+acquired_utc=NOT_RUN
+max_gap_s=NOT_RUN
+u_error_c=NOT_RUN
+u_time_s=NOT_RUN
+u_force_n=NOT_RUN
+u_stroke_mm=NOT_RUN
+plateau_start_s=NOT_RUN
+step_time_s=NOT_RUN
+reference_transition_s=NOT_RUN
+reference_lag_bound_s=NOT_RUN
+approved_temperature_max_c=NOT_RUN
+raw_origin=NOT_RUN

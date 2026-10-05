@@ -1,0 +1,22 @@
+item,quantity,specification,status,restriction
+base,1,240x220x6 machined plate per STEP; candidate6061,QUOTE_SPEC,not for energized induction field
+frame,1,220x200x6 with140x120 aperture per STEP; candidate6061,QUOTE_SPEC,glass support and load review before use
+posts,4,20x20x68; M6 tapped ends15mm minimum; Ø5 envelope shown,QUOTE_SPEC,confirm engagement and material
+glass_coupon,1,160x140x4 cooktop glass ceramic with supplier preparedØ18 aperture,SUPPLIER_REVIEW,edge finishing and allowable load unqualified
+mica_strips,4,two160x10x0.5 plus two120x10x0.5,CANDIDATE_MATERIAL,review binder thermal and glass compatibility
+fine_studs,3,M4x0.5 length84mm; deburred ends,QUOTE_SPEC,verify actual nut travel
+fine_nuts,12,M4x0.5 approximately7mmAFx3.2high,QUOTE_SPEC,match thread pitch
+carrier_washers,6,Ø9xØ4.3x0.8,QUOTE_SPEC,actual thickness measured
+carrier,1,5mm triangular plate per STEP,COLD_PRINT_OR_MACHINED,printed version ambient tests only
+retainer_tabs,2,10x8x2 withØ3.4 bore per STEP,COLD_PRINT_OR_MACHINED,printed version ambient tests only
+retainer_spacers,2,6x8x2 withØ3.4 bore per STEP,COLD_PRINT_OR_MACHINED,printed version ambient tests only
+retainer_bolts,2,M3x16 socket head generic,QUOTE_SPEC_NOT_MODELED,verify supplier dimensions
+retainer_nuts,2,M3 matching generic,QUOTE_SPEC_NOT_MODELED,verify stack engagement
+retainer_washers,4,M3 generic approx0.5thick,QUOTE_SPEC_NOT_MODELED,remeasure stack
+top_frame_bolts,4,M6x16 socket head generic,QUOTE_SPEC_NOT_MODELED,with1mmwasher gives9mm nominal post engagement
+bottom_post_bolts,4,M6x30 socket head generic,QUOTE_SPEC_NOT_MODELED,head+washer in foot counterbore; approx13mm post engagement
+M6_washers,8,M6 generic1mmthick,QUOTE_SPEC_NOT_MODELED,verify counterbore head and washer fit
+feet,4,24x24x18 withØ6.6through andØ14counterbore8deep per STEP,COLD_PRINT,replace and review for thermal tests
+edge_guides,4,per STEP with1mm nominal coupon clearance,COLD_PRINT,temporary cold attachment unmodeled; guides prevent drift not lift
+sensor_cartridge,1,priorØ26flange directcontactPT100 concept,UNQUALIFIED_DESIGN,seal retention spring materials and wiring unresolved
+trial_springs_and_shims,assortment,selected to achieve measured total tipforce0.2/0.4/0.6N,MEASUREMENT_DEPENDENT,no orderable spring part specified

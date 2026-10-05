@@ -1,0 +1,6 @@
+evidence_kind=SYNTHETIC
+physical_validation=NOT_RUN
+rustc 1.92.0 (ded5c06cf 2025-12-08)
+62d608b6bfc386f0b8ead0ee50cc899c6cad8ea66a539c513cbc8e1a5eb41977  bench.rs
+8603ad7bca73abd6241309e765c029733020eea51250d0b6b2ea374d9d78e077  synthetic.rs
+b7da38c740e6275e05d8091bc89ef3db1c979ea72163c1a4f823cc9af6899149  run.sh

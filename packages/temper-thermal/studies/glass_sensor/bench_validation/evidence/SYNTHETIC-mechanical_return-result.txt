@@ -1,0 +1,13 @@
+schema=temper-bench-v1
+evidence_kind=SYNTHETIC
+run_id=SYNTHETIC-mechanical_return
+raw_sha256=19f84e46962d2c772a30c7e196852ca6a4748d6445e07f19b2c5715c6893e5df
+metadata_sha256=f7bf1d4ee9de6368762e5ac57480964f0a0f073b5fb8b8bc5ff88b1f2b05956c
+physical_validation=NOT_RUN
+max_total_tip_force_n=0.844000
+max_stroke_mm=0.600000
+max_hysteresis_n=0.100000
+residual_stroke_mm=0.000000
+rocking_differential_peak_mm=0.060000
+return_to_0p02mm_s=0.110000
+mechanical_acceptance=CHARACTERIZATION_ONLY
