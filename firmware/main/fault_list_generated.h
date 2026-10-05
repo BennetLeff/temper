@@ -9,8 +9,9 @@
  * Entries are derived from:
  *   1. firmware/test/traces/manifest.json (SIL fault-injection scenarios)
  *   2. firmware/tools/fault_list_supplemental.yaml (legacy entries without SIL scenarios)
+ *   3. firmware/tools/fault_ids.yaml (append-only persistent numeric IDs)
  *
- * Add a fault:
+ * Add a fault: append its next ID to fault_ids.yaml, then:
  *   - With SIL scenario: add an entry to firmware/test/traces/manifest.json
  *   - Without SIL scenario: add to firmware/tools/fault_list_supplemental.yaml
  *
@@ -32,7 +33,8 @@
     X(FAULT_PROBE_SHORT, "PROBE SHORT") \
     X(FAULT_RUNAWAY_BOUNDARY, "RUNAWAY BOUNDARY") \
     X(FAULT_SELF_TEST_FAILED, "SELF TEST FAIL") \
-    X(FAULT_THERMAL_RUNAWAY, "THERMAL RUNAWAY") 
+    X(FAULT_THERMAL_RUNAWAY, "THERMAL RUNAWAY") \
+    X(FAULT_PROBE_CONTACT, "PROBE CONTACT")
 
 /* FAULT_COUNT is derived from the above list — see state_machine.h.
-   After regeneration:  11 manifest + 3 supplemental = 14 total entries. */
+   After regeneration:  12 manifest + 3 supplemental = 15 total entries. */

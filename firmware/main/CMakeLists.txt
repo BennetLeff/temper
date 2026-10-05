@@ -5,6 +5,7 @@ idf_component_register(
     SRCS 
         "main.c"
         "state_machine.c"
+        "contact_guard.c"
         "state_handlers.c"
         "../components/sensors/max31865.c"
         "../components/sensors/rtd_service.c"

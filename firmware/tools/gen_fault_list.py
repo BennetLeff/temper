@@ -140,9 +140,25 @@ def main():
     supplemental_entries = extract_supplemental_faults(supplemental_path)
     check_collisions(manifest_entries, supplemental_entries)
 
+    # EEPROM consumes enum integers; alphabetical insertion must never renumber
+    # existing faults. The append-only ID registry is the ordering authority.
+    ids_path = Path(__file__).resolve().parent / "fault_ids.yaml"
+    with ids_path.open() as ids_file:
+        fault_ids = yaml.safe_load(ids_file)
+    entries = supplemental_entries + manifest_entries
+    if (
+        not isinstance(fault_ids, dict)
+        or set(fault_ids) != {entry["name"] for entry in entries}
+        or any(type(value) is not int for value in fault_ids.values())
+        or sorted(fault_ids.values()) != list(range(len(entries)))
+    ):
+        raise ValueError("fault_ids.yaml must assign each fault one contiguous stable ID")
+    ordered_entries = sorted(entries, key=lambda entry: fault_ids[entry["name"]])
+
     env = Environment(loader=FileSystemLoader(template_path.parent))
     template = env.get_template(template_path.name)
     rendered = template.render(
+        ordered_entries=ordered_entries,
         manifest_entries=manifest_entries,
         supplemental_entries=supplemental_entries,
     )

@@ -1,0 +1,20 @@
+{
+  "status": "simulation-and-test-preparation-only",
+  "hardware_validated": false,
+  "production_detector_backend": "absent; unavailable by default",
+  "base_commit": "767f2fbae7a842e58afb288c5966453f10ab3d7a",
+  "contact_tests_passed": 18,
+  "loss_timing_combinations": 300,
+  "registered_ctest_suites_passed": 14,
+  "sil_designed_pairs_covered": 23,
+  "sil_designed_pairs_total": 23,
+  "fault_id_regression_tests_passed": 6,
+  "gate_removal_mutant_failures": 13,
+  "all_target_build": "blocked by unchanged test_profiles.c pointer-to-integer assertions",
+  "hardware_blockers": [
+    "Spring-seat force and position both remain loaded under post-acquisition stem jam",
+    "Qualified force path above guide, seal and stop reactions not designed or validated",
+    "Insulating debris can transmit load without reliable thermal contact",
+    "Force/position thresholds, temperature drift, EMC and cut latency unmeasured"
+  ]
+}

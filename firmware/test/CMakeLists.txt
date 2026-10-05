@@ -117,6 +117,9 @@ add_custom_command(
     OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/../main/fault_list_generated.h
     MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/traces/manifest.json
     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/../tools/fault_list_supplemental.yaml
+            ${CMAKE_CURRENT_SOURCE_DIR}/../tools/fault_ids.yaml
+            ${CMAKE_CURRENT_SOURCE_DIR}/../tools/gen_fault_list.py
+            ${CMAKE_CURRENT_SOURCE_DIR}/../tools/fault_list.h.j2
     COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/../tools/gen_fault_list.py
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
     COMMENT "Regenerating firmware/main/fault_list_generated.h from manifest.json"
@@ -477,3 +480,22 @@ add_test(NAME sil_fault_tests
     COMMAND test_sil_fault_injection
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
+
+# Real guard -> real state machine/handlers -> mocked electrical outputs.
+add_executable(test_contact_interlock
+    ${UNITY_SOURCES}
+    ../main/contact_guard.c
+    ../main/state_machine.c
+    ../main/state_handlers.c
+    ../components/control/low_temp_control.c
+    ../components/control/pid_control.c
+    ../components/control/thermal_mass.c
+    ../components/control/profiles.c
+    state_machine_stubs.c
+    test_contact_interlock.c
+)
+target_compile_definitions(test_contact_interlock PRIVATE TEST_REAL_CONTACT_GUARD)
+target_include_directories(test_contact_interlock PRIVATE ${INCLUDE_DIRS})
+target_link_libraries(test_contact_interlock m)
+add_dependencies(test_contact_interlock gen_config gen_fault_list gen_transition_table)
+add_test(NAME contact_interlock_tests COMMAND test_contact_interlock)

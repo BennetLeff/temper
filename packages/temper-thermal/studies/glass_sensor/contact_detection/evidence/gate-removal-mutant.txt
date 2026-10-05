@@ -1,0 +1,21 @@
+test_contact_interlock.c:56:all_loss_phases_meet_software_deadline:FAIL: Expected 7 Was 2
+test_contact_interlock.c:55:same_timestamp_contradiction_revokes:FAIL: Expected 3 Was 4
+test_contact_interlock.c:55:reversed_clock_revokes:FAIL: Expected 3 Was 4
+test_contact_interlock.c:55:stale_boundary_and_replay:FAIL: Expected 4 Was 5
+test_contact_interlock.c:55:active_entries_cannot_bypass:FAIL: Expected 0 Was 1
+test_contact_interlock.c:193:runaway_wins_over_contact_loss:PASS
+test_contact_interlock.c:55:low_temperature_branch_loss_cuts:FAIL: Expected 4 Was 5
+test_contact_interlock.c:55:absent_backend_blocks_start:FAIL: Expected 0 Was 1
+test_contact_interlock.c:197:requires_release_and_continuous_acquisition:PASS
+test_contact_interlock.c:55:lost_contact_with_pan_present_cuts_before_preheat:FAIL: Expected 3 Was 4
+test_contact_interlock.c:56:lost_contact_in_heating_preempts_ui_delay:FAIL: Expected 7 Was 4
+test_contact_interlock.c:56:loss_in_pan_detection_cuts:FAIL: Expected 7 Was 2
+test_contact_interlock.c:55:stale_input_cuts_at_deadline:FAIL: Expected 3 Was 4
+test_contact_interlock.c:202:future_or_replayed_sample_cannot_refresh:PASS
+test_contact_interlock.c:55:fault_never_auto_resumes_or_button_resets:FAIL: Expected 3 Was 4
+test_contact_interlock.c:204:unavailable_and_invalid_inputs_drop_validity:PASS
+test_contact_interlock.c:205:wraparound_preserves_bounded_age:PASS
+test_contact_interlock.c:55:no_pan_resume_cannot_bypass_contact:FAIL: Expected 3 Was 4
+-----------------------
+18 Tests 13 Failures 0 Ignored
+FAIL

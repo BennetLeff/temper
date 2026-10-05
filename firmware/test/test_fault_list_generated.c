@@ -4,7 +4,7 @@
  *
  * Tests:
  * - FAULT_IGBT_SHORT and FAULT_ADC_STUCK exist in the enum
- * - FAULT_COUNT matches expected total (14: 9 manifest + 5 supplemental)
+ * - FAULT_COUNT matches expected total (15: 12 manifest + 3 supplemental)
  * - String table is complete and non-empty for all fault codes
  * - Known labels preserved (backward compatibility with EEPROM logs)
  */
@@ -43,8 +43,8 @@ void test_fault_adc_stuck_exists(void)
 
 void test_fault_count_expected(void)
 {
-    /* 9 manifest-derived + 5 supplemental = 14 total */
-    TEST_ASSERT_EQUAL(14, FAULT_COUNT);
+    /* 12 manifest-derived + 3 supplemental = 15 total */
+    TEST_ASSERT_EQUAL(15, FAULT_COUNT);
 }
 
 /* ---------------------------------------------------------------------------
@@ -88,10 +88,29 @@ void test_fault_labels_preserved(void)
  * Test runner
  * --------------------------------------------------------------------------- */
 
+static void test_persisted_fault_ids(void) {
+    TEST_ASSERT_EQUAL(0,FAULT_NONE);
+    TEST_ASSERT_EQUAL(1,FAULT_WATCHDOG_RESET);
+    TEST_ASSERT_EQUAL(2,FAULT_PAN_DETECT_HW);
+    TEST_ASSERT_EQUAL(3,FAULT_ADC_STUCK);
+    TEST_ASSERT_EQUAL(4,FAULT_COOLDOWN_OVERHEAT);
+    TEST_ASSERT_EQUAL(5,FAULT_FAN_FAILURE);
+    TEST_ASSERT_EQUAL(6,FAULT_IGBT_SHORT);
+    TEST_ASSERT_EQUAL(7,FAULT_OVER_CURRENT);
+    TEST_ASSERT_EQUAL(8,FAULT_OVER_TEMP);
+    TEST_ASSERT_EQUAL(9,FAULT_PROBE_OPEN);
+    TEST_ASSERT_EQUAL(10,FAULT_PROBE_SHORT);
+    TEST_ASSERT_EQUAL(11,FAULT_RUNAWAY_BOUNDARY);
+    TEST_ASSERT_EQUAL(12,FAULT_SELF_TEST_FAILED);
+    TEST_ASSERT_EQUAL(13,FAULT_THERMAL_RUNAWAY);
+    TEST_ASSERT_EQUAL(14,FAULT_PROBE_CONTACT);
+}
 int main(void)
+
 {
     UnityBegin("test_fault_list_generated.c");
 
+    RUN_TEST(test_persisted_fault_ids);
     RUN_TEST(test_fault_igbt_short_exists);
     RUN_TEST(test_fault_adc_stuck_exists);
     RUN_TEST(test_fault_count_expected);

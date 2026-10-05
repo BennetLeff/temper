@@ -56,7 +56,8 @@ static const state_name_entry_t state_name_table[] = {
  * @brief Fault codes — generated from firmware/test/traces/manifest.json
  *        and firmware/tools/fault_list_supplemental.yaml.
  *
- * To add a fault:
+ * To add a fault, append its next persistent ID to firmware/tools/fault_ids.yaml:
+ * Existing EEPROM IDs must never be reordered or reused.
  *   - With SIL scenario: add to firmware/test/traces/manifest.json
  *   - Without SIL scenario: add to firmware/tools/fault_list_supplemental.yaml
  *

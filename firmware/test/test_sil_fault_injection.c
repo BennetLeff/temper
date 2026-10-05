@@ -88,6 +88,7 @@ static fault_code_t parse_fault_code(const char *str) {
     if (!strcmp(str, "FAULT_OVER_CURRENT"))            return FAULT_OVER_CURRENT;
     if (!strcmp(str, "FAULT_RUNAWAY_BOUNDARY"))         return FAULT_RUNAWAY_BOUNDARY;
     if (!strcmp(str, "FAULT_FAN_FAILURE"))             return FAULT_FAN_FAILURE;
+    if (!strcmp(str, "FAULT_PROBE_CONTACT"))           return FAULT_PROBE_CONTACT;
     if (!strcmp(str, "FAULT_PROBE_OPEN"))              return FAULT_PROBE_OPEN;
     if (!strcmp(str, "FAULT_PROBE_SHORT"))             return FAULT_PROBE_SHORT;
     if (!strcmp(str, "FAULT_IGBT_SHORT"))              return FAULT_IGBT_SHORT;
@@ -218,6 +219,7 @@ typedef struct {
      * replaying a CSV trace. */
     bool is_timing_scenario;
     long timing_advance_ms;
+    bool contact_loss;
     system_state_t expected_state;
     fault_code_t   expected_fault;
     int  max_latency_ticks;
@@ -326,6 +328,8 @@ static int parse_manifest(manifest_entry_t *entries, int max_entries) {
                         if (*p == ':') p++;
                         if (!strcmp(tk, "advance_ms")) {
                             e->timing_advance_ms = (long)extract_int(&p);
+                        } else if (!strcmp(tk, "contact_loss")) {
+                            e->contact_loss = extract_int(&p) != 0;
                         } else {
                             skip_value(&p);
                         }
@@ -761,6 +765,10 @@ static void run_sil_timing_test(const manifest_entry_t *entry) {
     /* Single large jump across the timeout boundary; the check fires on the
      * state's own next update() (state_duration is measured from
      * state_entry_time, not accumulated per-tick). */
+    if (entry->contact_loss) {
+        extern void mock_sm_set_contact_valid(bool);
+        mock_sm_set_contact_valid(false);
+    }
     mock_sm_advance_time((uint32_t)entry->timing_advance_ms);
     state_machine_update();
 

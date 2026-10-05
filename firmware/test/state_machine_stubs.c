@@ -17,6 +17,7 @@
 #include <string.h>
 #include "../main/state_machine.h"
 #include "../main/state_handlers.h"
+#include "../main/contact_guard.h"
 #include "../config.h"
 
 /* Pan detection result type (matches state_machine.c local typedef) */
@@ -67,6 +68,7 @@ static struct {
     
     /* Call counters for verification */
     uint32_t power_set_level_calls;
+    uint32_t positive_power_commands;
     uint32_t pwm_disable_calls;
     uint32_t watchdog_feed_calls;
     uint32_t watchdog_hw_feed_calls;
@@ -124,7 +126,17 @@ static struct {
  * Mock Control Functions (called from tests)
  * ============================================================================ */
 
+/* Legacy suites isolate the state machine from its sensor dependencies.
+ * test_contact_interlock instead links the REAL guard (no valid-by-default input). */
+#ifndef TEST_REAL_CONTACT_GUARD
+static bool mock_contact_valid = true;
+void contact_guard_reset(void) { mock_contact_valid = true; }
+bool contact_guard_valid(uint32_t now_ms) { (void)now_ms; return mock_contact_valid; }
+void mock_sm_set_contact_valid(bool valid) { mock_contact_valid = valid; }
+#endif
+
 void mock_sm_reset(void) {
+
     memset(&mock_sm_state, 0, sizeof(mock_sm_state));
     mock_sm_state.pan_temperature = 25.0f;
     mock_sm_state.heatsink_temperature = 25.0f;
@@ -333,11 +345,15 @@ void pwm_disable_all(void) {
 /* Power */
 void power_set_level(uint8_t level) {
     mock_sm_state.power_set_level_calls++;
+    if (level > 0) mock_sm_state.positive_power_commands++;
     mock_sm_state.power_level = level;
 }
 
 void power_enable(void) {
-    /* No-op */
+    mock_sm_state.positive_power_commands++;
+}
+uint32_t mock_sm_get_positive_power_count(void) {
+    return mock_sm_state.positive_power_commands;
 }
 
 /* Fan */

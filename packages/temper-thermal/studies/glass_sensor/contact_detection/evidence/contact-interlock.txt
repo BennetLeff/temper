@@ -1,0 +1,21 @@
+test_contact_interlock.c:188:all_loss_phases_meet_software_deadline:PASS
+test_contact_interlock.c:189:same_timestamp_contradiction_revokes:PASS
+test_contact_interlock.c:190:reversed_clock_revokes:PASS
+test_contact_interlock.c:191:stale_boundary_and_replay:PASS
+test_contact_interlock.c:192:active_entries_cannot_bypass:PASS
+test_contact_interlock.c:193:runaway_wins_over_contact_loss:PASS
+test_contact_interlock.c:194:low_temperature_branch_loss_cuts:PASS
+test_contact_interlock.c:195:absent_backend_blocks_start:PASS
+test_contact_interlock.c:197:requires_release_and_continuous_acquisition:PASS
+test_contact_interlock.c:198:lost_contact_with_pan_present_cuts_before_preheat:PASS
+test_contact_interlock.c:199:lost_contact_in_heating_preempts_ui_delay:PASS
+test_contact_interlock.c:200:loss_in_pan_detection_cuts:PASS
+test_contact_interlock.c:201:stale_input_cuts_at_deadline:PASS
+test_contact_interlock.c:202:future_or_replayed_sample_cannot_refresh:PASS
+test_contact_interlock.c:203:fault_never_auto_resumes_or_button_resets:PASS
+test_contact_interlock.c:204:unavailable_and_invalid_inputs_drop_validity:PASS
+test_contact_interlock.c:205:wraparound_preserves_bounded_age:PASS
+test_contact_interlock.c:206:no_pan_resume_cannot_bypass_contact:PASS
+-----------------------
+18 Tests 0 Failures 0 Ignored
+OK

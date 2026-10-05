@@ -9,8 +9,9 @@
  * Entries are derived from:
  *   1. firmware/test/traces/manifest.json (SIL fault-injection scenarios)
  *   2. firmware/tools/fault_list_supplemental.yaml (legacy entries without SIL scenarios)
+ *   3. firmware/tools/fault_ids.yaml (append-only persistent numeric IDs)
  *
- * Add a fault:
+ * Add a fault: append its next ID to fault_ids.yaml, then:
  *   - With SIL scenario: add an entry to firmware/test/traces/manifest.json
  *   - Without SIL scenario: add to firmware/tools/fault_list_supplemental.yaml
  *
@@ -22,11 +23,8 @@
 {%- set supplemental_entries = supplemental_entries | default([]) %}
 
 #define FAULT_LIST(X) \
-{%- for entry in supplemental_entries %}
-    X({{ entry.name }}, "{{ entry.label }}") \
-{%- endfor %}
-{%- for entry in manifest_entries %}
-    X({{ entry.name }}, "{{ entry.label }}") {% if not loop.last %}\{% endif %}
+{%- for entry in ordered_entries %}
+    X({{ entry.name }}, "{{ entry.label }}"){% if not loop.last %} \{% endif %}
 {%- endfor %}
 
 /* FAULT_COUNT is derived from the above list — see state_machine.h.
