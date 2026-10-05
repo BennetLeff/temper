@@ -1,0 +1,1166 @@
+[
+  {
+    "id": "R01",
+    "topic": "Board outline",
+    "classification": "AGREES",
+    "finding": "Current cooling imports native19; its 240 \u00d7 160 mm allocation matches the revised D1 outline. This is an envelope match, not a fabrication release.",
+    "prototype": [
+      "CI:43-53",
+      "C:3"
+    ],
+    "decisions": [
+      "D:11",
+      "D:3-7"
+    ]
+  },
+  {
+    "id": "R02",
+    "topic": "Layer/fabricator basis",
+    "classification": "ONE-SIDED",
+    "finding": "D3 specifies the native power-board JLC041622-7628 stackup, copper and CTI verification. The prototype manufacturing hold does not requalify it; round5\u2019s new four-layer supervisor is a different board.",
+    "prototype": [
+      "MFG:12",
+      "BOARD:7-13"
+    ],
+    "decisions": [
+      "D:13"
+    ]
+  },
+  {
+    "id": "R03",
+    "topic": "Mains/coil orientation",
+    "classification": "AGREES",
+    "finding": "Cooling\u2019s right intake and left outlet preserve D6\u2019s coil-right/mains-left ordering. Coordinate directions are the component-side convention, not the rear-panel view.",
+    "prototype": [
+      "C:11",
+      "CI:663-715"
+    ],
+    "decisions": [
+      "D:12",
+      "D:16",
+      "D18:59"
+    ]
+  },
+  {
+    "id": "R04",
+    "topic": "Shared sink and PE",
+    "classification": "AGREES",
+    "finding": "Separate main/sink PE studs and insulated live device interfaces implement the shared PE-bonded sink architecture; removable mechanical fasteners are not its sole bond.",
+    "prototype": [
+      "C:7-14"
+    ],
+    "decisions": [
+      "D:12",
+      "D:49-51"
+    ]
+  },
+  {
+    "id": "R05",
+    "topic": "MOS interface and insulator",
+    "classification": "AGREES",
+    "finding": "Ceramic/shim/compound candidates preserve \u22641 \u00b0C/W and electrical isolation as requirements; they do not revive rejected K-10/400 or claim qualified contact resistance.",
+    "prototype": [
+      "C:7-10",
+      "C:18-24",
+      "C:36"
+    ],
+    "decisions": [
+      "D:66",
+      "D:15"
+    ]
+  },
+  {
+    "id": "R06",
+    "topic": "Cooling thermal allocation",
+    "classification": "AGREES",
+    "finding": "Prototype repeats \u22640.15 \u00b0C/W sink, \u226520 CFM and 50 \u00b0C fin inlet. D18\u2019s bridge/interface loss assumptions remain conditional.",
+    "prototype": [
+      "C:36"
+    ],
+    "decisions": [
+      "D:66",
+      "D18:75-77",
+      "S:83"
+    ]
+  },
+  {
+    "id": "R07",
+    "topic": "Duct direction and isolation",
+    "classification": "AGREES",
+    "finding": "Closed right-push/left-pull routing follows D18; actual sealing, recirculation and exclusion of coil/controller air remain assembly tests.",
+    "prototype": [
+      "C:11",
+      "C:38"
+    ],
+    "decisions": [
+      "D:66",
+      "D18:59"
+    ]
+  },
+  {
+    "id": "R08",
+    "topic": "Fan identity and supply rating",
+    "classification": "ONE-SIDED",
+    "finding": "Both use DC0602512W2B-BT0. Prototype records an unresolved manufacturer-page 6.48 W versus catalog 11.4 W discrepancy and retains 22.8 W/two-fan planning. Do not silently treat either as a reconciled ordered-part rating.",
+    "prototype": [
+      "C:36"
+    ],
+    "decisions": [
+      "D18:83",
+      "D:66"
+    ]
+  },
+  {
+    "id": "R09",
+    "topic": "Dedicated fan power",
+    "classification": "AGREES",
+    "finding": "Dedicated fan supply required; PS1/J4.1 cannot supply the two catalog fans plus controller. The prototype instruction is not a selected/verified 12 V supply design.",
+    "prototype": [
+      "C:36"
+    ],
+    "decisions": [
+      "D:66",
+      "D18:83"
+    ]
+  },
+  {
+    "id": "R10",
+    "topic": "Sink selection and size",
+    "classification": "ONE-SIDED",
+    "finding": "Prototype allocates a custom 200 mm sink. D18 provides catalog examples, not a selected cut-down assembly. No curve establishes the custom sink\u2019s thermal target; the geometric results below cannot supply one.",
+    "prototype": [
+      "C:11",
+      "C:36",
+      "CI:61-88"
+    ],
+    "decisions": [
+      "D:66",
+      "D18:81-87"
+    ]
+  },
+  {
+    "id": "R11",
+    "topic": "Pressure, exhaust fan temperature and mounting",
+    "classification": "ONE-SIDED",
+    "finding": "Prototype adds leg sleeves, narrow bypasses, pressure-loss and pull-fan ambient screens. These refine packaging without proving D18\u2019s delivered-flow or mounting-temperature acceptance.",
+    "prototype": [
+      "C:36-38"
+    ],
+    "decisions": [
+      "D18:77",
+      "D18:87"
+    ]
+  },
+  {
+    "id": "R12",
+    "topic": "R5 orderable identity and Kelvin-positive net",
+    "classification": "SUPERSEDES",
+    "finding": "The corrected WSK25121L000FEA / T2.21 / ocp_kelvin_p native19 record supersedes the hardware overview\u2019s old WSK2512R0010FEA and pad-2 LEG_RET wording. Refresh that prose/BOM handoff before procurement; this report makes no edit.",
+    "prototype": [
+      "H:75-77",
+      "H:140",
+      "T:11-27"
+    ],
+    "decisions": [
+      "D:66",
+      "F:35"
+    ]
+  },
+  {
+    "id": "R13",
+    "topic": "R5 sustained rating and local ambient",
+    "classification": "ONE-SIDED",
+    "finding": "D18/decision retain 1 m\u03a9, 1 W only with the conditional sustained envelope and \u2264100 \u00b0C local ambient; \u22652 W needs review above that. Prototype cold packaging and current-retune hold do not demonstrate this local ambient.",
+    "prototype": [
+      "C:36-38",
+      "H:140-142",
+      "MFG:11"
+    ],
+    "decisions": [
+      "D:66",
+      "D18:89-93"
+    ]
+  },
+  {
+    "id": "R14",
+    "topic": "Native19 copper versus native18 carry-over",
+    "classification": "SUPERSEDES",
+    "finding": "Native19 R5/Kelvin copper changes supersede the native18-only identical-copper inference. Round17 already records changed A/B regions and an A verdict carry-over; do not transfer D4\u2019s native18 approval mechanically to new copper.",
+    "prototype": [
+      "T:11-27",
+      "P:15-20"
+    ],
+    "decisions": [
+      "D:64",
+      "D:66",
+      "F:35"
+    ]
+  },
+  {
+    "id": "R15",
+    "topic": "R9/R17 selected parts",
+    "classification": "AGREES",
+    "finding": "49.9 k\u03a9 \u00b10.1% remains selected. The prototype\u2019s historical 348 ns reproduction is explicitly an instrument check, not permission to restore 39 k\u03a9.",
+    "prototype": [
+      "H:130",
+      "OLD:7"
+    ],
+    "decisions": [
+      "D:27",
+      "D:60",
+      "F:21",
+      "S:81",
+      "F:15"
+    ]
+  },
+  {
+    "id": "R16",
+    "topic": "Dead-time reference planes",
+    "classification": "AGREES",
+    "finding": "Conditional all-off delay is not complementary dead time; 391\u2013498 ns command-gap results cannot be compared as if they were die-VGS or loaded driver crossings. D26\u2019s gate-crossing result is not a reversal of F7.",
+    "prototype": [
+      "OLD:9-12",
+      "FW:83-86"
+    ],
+    "decisions": [
+      "D:74",
+      "D20:71",
+      "D20:76"
+    ]
+  },
+  {
+    "id": "R17",
+    "topic": "Hot off-gate threshold",
+    "classification": "AGREES",
+    "finding": "The conditional turnoff experiment uses 1.9 V and reports rebound/exceedance without claiming population-hot or survival qualification.",
+    "prototype": [
+      "OLD:19-29"
+    ],
+    "decisions": [
+      "F:19",
+      "S:26",
+      "S:27-29"
+    ]
+  },
+  {
+    "id": "R18",
+    "topic": "S4 recovery remains unresolved",
+    "classification": "ONE-SIDED",
+    "finding": "Prototype joined/catch models omit or simplify the recovery physics and cannot close D24\u2019s named waveform measurement. Carry the <1.9 V off-gate and \u2264520 V die-VDS S4 gate into the prototype test plan.",
+    "prototype": [
+      "JOIN:23",
+      "MODEL:56-60"
+    ],
+    "decisions": [
+      "D:72",
+      "F:16",
+      "S:70",
+      "F:61"
+    ]
+  },
+  {
+    "id": "R19",
+    "topic": "Negative-bias reserve",
+    "classification": "ONE-SIDED",
+    "finding": "Prototype native19/catch work does not implement F6. Returned-energy capture cannot substitute for its local gate-drive remedy; F6 remains conditional on the S4 measurement, including its unresolved hot model.",
+    "prototype": [
+      "P:15-20",
+      "CE:13"
+    ],
+    "decisions": [
+      "F:20",
+      "D:72",
+      "S:80",
+      "F:64"
+    ]
+  },
+  {
+    "id": "R20",
+    "topic": "Driver approximation",
+    "classification": "AGREES",
+    "finding": "Prototype\u2019s forced-current work explicitly inherits the typical-resistance driver. D23/D26 do not qualify a replacement; retain model limitations and the prescribed physical timing measurements.",
+    "prototype": [
+      "OLD:9",
+      "OLD:29"
+    ],
+    "decisions": [
+      "D:74",
+      "F:32",
+      "F:33",
+      "S:88-89"
+    ]
+  },
+  {
+    "id": "R21",
+    "topic": "Controller complementary gap",
+    "classification": "ONE-SIDED",
+    "finding": "Decision selects 200 ns/16 ticks. Prototype\u2019s 125 ns/50 kHz setup is explicitly inhibited test stimulus, not a conflicting released value. The target must gain an approved production configuration before commissioning.",
+    "prototype": [
+      "FW:81-86",
+      "PWM:88",
+      "R5FW:57"
+    ],
+    "decisions": [
+      "D:68",
+      "D20:72"
+    ]
+  },
+  {
+    "id": "R22",
+    "topic": "Shared timer and four outputs",
+    "classification": "AGREES",
+    "finding": "One timer, one operator per leg and four complementary pins match the structural allocation. Pin assignment and an inhibited build do not prove physical waveforms.",
+    "prototype": [
+      "PWM:89-114",
+      "PINS:6-9",
+      "R5FW:51"
+    ],
+    "decisions": [
+      "D:68",
+      "D20:67"
+    ]
+  },
+  {
+    "id": "R23",
+    "topic": "Inter-leg modulation policy",
+    "classification": "CONTRADICTS",
+    "finding": "Decision fixes legs 180\u00b0 apart at 50% duty; prototype\u2019s intended fixed-frequency control varies phase over 0..half a period. These are different operating policies. Resolution C1 below requires an explicit owner choice and revalidation.",
+    "prototype": [
+      "FW:56-73",
+      "PWM:48-54"
+    ],
+    "decisions": [
+      "D:68",
+      "D20:67-69"
+    ]
+  },
+  {
+    "id": "R24",
+    "topic": "Live frequency/phase updates",
+    "classification": "ONE-SIDED",
+    "finding": "Decision requires timer-zero shadow updates. Prototype target changes comparator settings only after inhibit/stop and rejects period/deadtime changes; its own README leaves live atomic control unimplemented. A disabled setup is not evidence of the required live update path.",
+    "prototype": [
+      "PWM:49-78",
+      "R5FW:60-65"
+    ],
+    "decisions": [
+      "D:68",
+      "D20:73-75"
+    ]
+  },
+  {
+    "id": "R25",
+    "topic": "Inductive-side CT phase inhibit",
+    "classification": "ONE-SIDED",
+    "finding": "D20/decision require tank-current phase qualification. Prototype\u2019s hypothetical pan map/fast-capture proposal and incomplete target do not supply a measured phase margin or end-to-end CT_ZC inhibit.",
+    "prototype": [
+      "FW:153-166",
+      "R5FW:103-116"
+    ],
+    "decisions": [
+      "D:68",
+      "D20:69",
+      "D20:99"
+    ]
+  },
+  {
+    "id": "R26",
+    "topic": "Burst start/stop",
+    "classification": "ONE-SIDED",
+    "finding": "Prototype deliberately defers/inhibits burst. Decision requires both legs off at each boundary when implemented; disabled burst is neither that acceptance test nor authorization to remove the requirement.",
+    "prototype": [
+      "CE:11",
+      "FW:70-73"
+    ],
+    "decisions": [
+      "D:68",
+      "D20:68"
+    ]
+  },
+  {
+    "id": "R27",
+    "topic": "PWM failure and pull state",
+    "classification": "CONTRADICTS",
+    "finding": "Prototype inhibit resets then drives each GPIO but never disables pull-up/enables pull-down; early init failures return without invoking it. This misses D25\u2019s all-path final pin state. Resolution C2 below covers this separate implementation, not just draft #1643.",
+    "prototype": [
+      "PWM:21-34",
+      "PWM:82-120"
+    ],
+    "decisions": [
+      "D:72",
+      "F:22",
+      "S:87"
+    ]
+  },
+  {
+    "id": "R28",
+    "topic": "External PWM pull-downs",
+    "classification": "ONE-SIDED",
+    "finding": "Decision adds \u226410 k\u03a9 external pull-down per controller PWM. The prototype ESP32 carrier/pin proposal supplies no accepted schematic/BOM evidence for those four resistors; gate-source 10 k\u03a9 on the power board is not this requirement.",
+    "prototype": [
+      "R5FW:45-49",
+      "PINS:6-9",
+      "H:81-83"
+    ],
+    "decisions": [
+      "D:72",
+      "D20:65",
+      "D20:75"
+    ]
+  },
+  {
+    "id": "R29",
+    "topic": "PERMIT ownership and failure interlock",
+    "classification": "AGREES",
+    "finding": "Prototype suppresses requests by default and requires a hardware permission chain; J4.9 must have one producer. The proposed intercept explicitly requires disconnecting the old producer, not paralleling push-pull outputs.",
+    "prototype": [
+      "PWM:35-40",
+      "SUP:35",
+      "FW:90-95"
+    ],
+    "decisions": [
+      "D:72",
+      "D20:55",
+      "D20:79"
+    ]
+  },
+  {
+    "id": "R30",
+    "topic": "STM32 versus ESP32",
+    "classification": "ONE-SIDED",
+    "finding": "Prototype adds an upstream STM32 electrical supervisor; ESP32 remains the bridge/cooking target. This is a new supervisory partition, not evidence that D20\u2019s ESP32 controller requirements vanished.",
+    "prototype": [
+      "SUP:15",
+      "R5FW:3-10"
+    ],
+    "decisions": [
+      "D:68",
+      "S:86",
+      "D20:101"
+    ]
+  },
+  {
+    "id": "R31",
+    "topic": "J4 bus receiver/ADC identity",
+    "classification": "ONE-SIDED",
+    "finding": "Decision requires OPA2388 differential receiver on unshared GPIO2/ADC1_CH1. Prototype\u2019s separate AMC3330/ADS supervisor channel and ESP pin contract do not implement or expressly supersede that receiver. Keep the D11 requirement open.",
+    "prototype": [
+      "SUP:11",
+      "SUP:59",
+      "R5FW:17-18",
+      "PINS:1-22"
+    ],
+    "decisions": [
+      "D:62",
+      "D20:84-87",
+      "S:92"
+    ]
+  },
+  {
+    "id": "R32",
+    "topic": "Bus sample rate and freshness",
+    "classification": "ONE-SIDED",
+    "finding": "Native J4 receiver needs 20 ksample/s and 150 \u00b5s stale deadline. Supervisor ADS at 3906.25 sample/s and fast-capture 500 \u00b5s-age proposal concern different channels; neither closes the native bus acquisition deadline.",
+    "prototype": [
+      "R5FW:17-18",
+      "R5FW:77-85"
+    ],
+    "decisions": [
+      "D:62",
+      "D:68",
+      "D20:88",
+      "D20:90"
+    ]
+  },
+  {
+    "id": "R33",
+    "topic": "Bus calibrated thresholds and recovery",
+    "classification": "ONE-SIDED",
+    "finding": "D11\u2019s 1.210 V latch, <100 mV invalid and 1.100 V manual re-arm remain native receiver requirements. Prototype bus/catch analog guards and supervisory reset sequence use other reference planes; no demonstrated substitution exists.",
+    "prototype": [
+      "SUP:59-67",
+      "FW:20-55"
+    ],
+    "decisions": [
+      "D:62",
+      "D:68",
+      "D20:89-94"
+    ]
+  },
+  {
+    "id": "R34",
+    "topic": "Independent wide-range bus sensing",
+    "classification": "ONE-SIDED",
+    "finding": "Prototype adds AUX-powered wide-range sensing for discharge/catch qualification because the J4 AMC1311 becomes nonlinear near 240 V and loses HOT5 power. This complements, rather than extends, D11\u2019s specified linear range.",
+    "prototype": [
+      "AUD:24-36",
+      "SUP:59"
+    ],
+    "decisions": [
+      "D:62",
+      "D20:83"
+    ]
+  },
+  {
+    "id": "R35",
+    "topic": "Independent native U7 OVP",
+    "classification": "AGREES",
+    "finding": "Native 280 V OVP remains. The proposed 230 V bus / 250 V catch guards are additional study protection, not a retune of U7 or a claim of linear J4 sensing to 280 V.",
+    "prototype": [
+      "AUD:33-36",
+      "SUP:63",
+      "H:39"
+    ],
+    "decisions": [
+      "D:62",
+      "D20:94-95"
+    ]
+  },
+  {
+    "id": "R36",
+    "topic": "J4 power direction and backfeed",
+    "classification": "AGREES",
+    "finding": "J4.1 is native PS1 output; upstream AUX must not be paralleled onto it. Separate supervisor/controller rails and named interface returns require their own power budget.",
+    "prototype": [
+      "AUD:11-14",
+      "FW:90-95"
+    ],
+    "decisions": [
+      "D20:47-50",
+      "D20:64"
+    ]
+  },
+  {
+    "id": "R37",
+    "topic": "Tank CT local burden/clamps",
+    "classification": "AGREES",
+    "finding": "Hardware overview retains local CT termination and SELV CT_ZC/CT_MON; new line/proof CT cards operate at line frequency and must not replace the tank CT capture path.",
+    "prototype": [
+      "H:85-88",
+      "H:99-105",
+      "BOARD:38"
+    ],
+    "decisions": [
+      "D:19",
+      "D:21",
+      "D20:96-99"
+    ]
+  },
+  {
+    "id": "R38",
+    "topic": "CT_MON receiver and digital capture",
+    "classification": "ONE-SIDED",
+    "finding": "Prototype fast-capture FPGA/AD7380 is a proposed implementation, not the qualified high-impedance CT_MON receiver, wiring and CT_ZC behavior required by D20.",
+    "prototype": [
+      "R5FW:97-116"
+    ],
+    "decisions": [
+      "D20:97-99"
+    ]
+  },
+  {
+    "id": "R39",
+    "topic": "Physical timing evidence",
+    "classification": "AGREES",
+    "finding": "Inhibited builds, host tests and source capture contracts do not prove driver/gate timing. Both lines retain hardware waveform and fault-chain validation.",
+    "prototype": [
+      "R5FW:160-182",
+      "MFG:14-16"
+    ],
+    "decisions": [
+      "D:74",
+      "D20:76",
+      "D20:101",
+      "S:71",
+      "F:63"
+    ]
+  },
+  {
+    "id": "R40",
+    "topic": "D22 filter allocation and topology",
+    "classification": "AGREES",
+    "finding": "Prototype carries D22\u2019s separate damped DM+CM module ahead of native filtering and preserves the 110 \u00d7 80 \u00d7 50 mm body allocation. Fuse/disconnect/precharge are outside that volume.",
+    "prototype": [
+      "C:13",
+      "E:25",
+      "IN:31-46",
+      "PK:12"
+    ],
+    "decisions": [
+      "D:70"
+    ]
+  },
+  {
+    "id": "R41",
+    "topic": "EMI margin transfer to installed system",
+    "classification": "SUPERSEDES",
+    "finding": "Prototype\u2019s long PE route/new assembly invalidates inheritance of the old coupling assumptions. D22\u2019s converged 9.28 dB model result is historical conditional evidence, not an installed margin; rerun coupled CM/DM with actual wiring.",
+    "prototype": [
+      "C:14",
+      "E:3",
+      "E:29"
+    ],
+    "decisions": [
+      "D:70",
+      "S:85",
+      "S:84"
+    ]
+  },
+  {
+    "id": "R42",
+    "topic": "D22 heat and inlet load law",
+    "classification": "SUPERSEDES",
+    "finding": "Round2 tests expose startup/damper-open peaks and a constant-power diagnostic that exceeds the 8 W/15 A screens. This adds coupled-system limits beyond D22\u2019s periodic RF study; it does not refute the original calculation under its own assumptions.",
+    "prototype": [
+      "E:15-19",
+      "E:33-41"
+    ],
+    "decisions": [
+      "D:70"
+    ]
+  },
+  {
+    "id": "R43",
+    "topic": "D22 placement outside exhaust/FEM",
+    "classification": "AGREES",
+    "finding": "The declared module pose implements the exclusion requirement. D27\u2019s new nominal fit receipt below finds no intersection, but the 0.20 mm duct-wall gap has no tolerance or insulation allowance.",
+    "prototype": [
+      "CI:620-630",
+      "C:13"
+    ],
+    "decisions": [
+      "D:70",
+      "S:97-111",
+      "S:112"
+    ]
+  },
+  {
+    "id": "R44",
+    "topic": "Filter wire corridor and installed coupling",
+    "classification": "ONE-SIDED",
+    "finding": "Decision also excludes the module wiring corridor from both leg regions. Cold allocation omits final wire bends/terminations; module-only separation cannot close wiring or installed field coupling.",
+    "prototype": [
+      "C:30",
+      "C:38"
+    ],
+    "decisions": [
+      "D:70",
+      "S:97-111"
+    ]
+  },
+  {
+    "id": "R45",
+    "topic": "PE functional versus protective bonds",
+    "classification": "AGREES",
+    "finding": "Native R38\u2019s single functional bond and direct chassis PE plus separate PCB/sink branches have different roles. Prototype calls for explicit harness/bond review; extra instrument or AUX bonds cannot be assumed harmless.",
+    "prototype": [
+      "H:67-68",
+      "C:14",
+      "PK:28"
+    ],
+    "decisions": [
+      "D:15",
+      "D:49-51",
+      "D20:66"
+    ]
+  },
+  {
+    "id": "R46",
+    "topic": "Control load law for D22",
+    "classification": "ONE-SIDED",
+    "finding": "Prototype introduces completed-line-cycle conductance control with inlet current limiting; the joined model\u2019s RMS surrogate is not executable closed-loop firmware. Round17\u2019s filter allocation does not choose this law or its pan map.",
+    "prototype": [
+      "FW:62-66",
+      "JOIN:25"
+    ],
+    "decisions": [
+      "D:70",
+      "D20:68",
+      "S:85"
+    ]
+  },
+  {
+    "id": "R47",
+    "topic": "Precharge and external inlet pod",
+    "classification": "ONE-SIDED",
+    "finding": "Independent AUX, redundant source contacts, bypass/proof and manual restart are new prototype hardware. Round17 D17 remains a fault-chain hold; the original filter envelope never reserved this hardware.",
+    "prototype": [
+      "IN:3-10",
+      "IN:31-46",
+      "PK:11-24"
+    ],
+    "decisions": [
+      "S:82",
+      "D20:80",
+      "D:70"
+    ]
+  },
+  {
+    "id": "R48",
+    "topic": "Precharge resistor revision",
+    "classification": "ONE-SIDED",
+    "finding": "Prototype round5 PC125 selects two HS40025RJ branches and their cutoffs, superseding its own older 11 \u03a9 study. No DECISIONS/round17 row adopts or qualifies this external circuit; do not copy older round3 values into a build.",
+    "prototype": [
+      "PROT:9-16",
+      "SUP:55"
+    ],
+    "decisions": [
+      "S:82",
+      "D20:80"
+    ]
+  },
+  {
+    "id": "R49",
+    "topic": "Source opening versus gate shutdown",
+    "classification": "AGREES",
+    "finding": "Mechanical opening stops new line energy after a delay; it cannot establish semiconductor survival or eliminate already stored tank/catch energy. Prototype and D20 keep the complete fault-to-gate chain open.",
+    "prototype": [
+      "SUP:10",
+      "JOIN:27-31",
+      "PROT:125-150"
+    ],
+    "decisions": [
+      "D20:80",
+      "S:82"
+    ]
+  },
+  {
+    "id": "R50",
+    "topic": "Catch accessory and return node",
+    "classification": "ONE-SIDED",
+    "finding": "Prototype adds diode-isolated catch storage on J8/J10, retaining D3. DECISIONS approves the original TVS/bulk/link topology, not the accessory\u2019s new fuse, diode, cable inductance or fault-energy rating.",
+    "prototype": [
+      "CE:13-14",
+      "AUD:15",
+      "PROT:83-101"
+    ],
+    "decisions": [
+      "D:38-52",
+      "S:82"
+    ]
+  },
+  {
+    "id": "R51",
+    "topic": "Finite stored energy and reachability",
+    "classification": "SUPERSEDES",
+    "finding": "Prototype finite-energy and coupled models extend earlier stiff-source/all-off experiments, but keep initial states, source arc, delay and catcher inductance conditional. They do not turn D17 into a survival bound.",
+    "prototype": [
+      "T:39-68",
+      "MODEL:17-18",
+      "MODEL:29-60"
+    ],
+    "decisions": [
+      "S:82",
+      "D20:80"
+    ]
+  },
+  {
+    "id": "R52",
+    "topic": "OCP current and retune hold",
+    "classification": "AGREES",
+    "finding": "45 A is not an approved operating limit; shunt/CT threshold intervals and dynamic gate-off remain open. Prototype does not silently raise the native trip by treating a diagnostic peak as allowable.",
+    "prototype": [
+      "H:12-18",
+      "T:72-89",
+      "OLD:29",
+      "COIL:10-19"
+    ],
+    "decisions": [
+      "D:14",
+      "D:19",
+      "S:82",
+      "D20:80"
+    ]
+  },
+  {
+    "id": "R53",
+    "topic": "Both leg field solutions",
+    "classification": "SUPERSEDES",
+    "finding": "Prototype has finite-height native19 A and B four-port solutions with independent pair evidence. This advances the blanket \u201cleg B queued\u201d progress statement; it does not supply the outstanding native17\u219219 B carry-over or full best-matrix verdict campaign.",
+    "prototype": [
+      "FIELD:3",
+      "FIELD:22-55"
+    ],
+    "decisions": [
+      "S:8-10",
+      "S:78",
+      "F:35"
+    ]
+  },
+  {
+    "id": "R54",
+    "topic": "Matrix fidelity and reference geometry",
+    "classification": "AGREES",
+    "finding": "Prototype finite-height/coarse solutions are not substitutes for round17\u2019s best reference-geometry extrapolation. Bulk/local partial matrices cannot be spliced into a qualified full coupled matrix; mesh/self-L limits remain.",
+    "prototype": [
+      "FIELD:67-109",
+      "MODEL:56-60"
+    ],
+    "decisions": [
+      "S:35",
+      "F:17",
+      "F:28-30",
+      "F:34",
+      "S:16",
+      "S:36-38",
+      "S:42-49",
+      "S:62-69"
+    ]
+  },
+  {
+    "id": "R55",
+    "topic": "Capacitor ESL stale finding",
+    "classification": "SUPERSEDES",
+    "finding": "Prototype already uses the D7-backed 1.06 nH local value with sensitivity; current STATUS records verified local/bulk values. FINDINGS M4\u2019s licence/unknown-value wording is stale. Value availability does not remove installed package/routing uncertainty.",
+    "prototype": [
+      "OLD:7",
+      "OLD:15"
+    ],
+    "decisions": [
+      "F:31",
+      "S:91",
+      "S:39",
+      "S:72",
+      "F:65"
+    ]
+  },
+  {
+    "id": "R56",
+    "topic": "Aborts and incomplete simulations",
+    "classification": "AGREES",
+    "finding": "Prototype keeps incomplete batches and failed refinement separate from completed diagnostic rows. Round17\u2019s solver fixes and D23/D26 limits likewise cannot convert an aborted case into a pass.",
+    "prototype": [
+      "JOIN:17-19",
+      "MODEL:5",
+      "FIELD:3"
+    ],
+    "decisions": [
+      "F:20",
+      "F:36",
+      "D:74",
+      "S:40"
+    ]
+  },
+  {
+    "id": "R57",
+    "topic": "Joined model versus device-qualified simulation",
+    "classification": "ONE-SIDED",
+    "finding": "Prototype joins inlet, precharge, energy and control through reduced models; D2\u2019s local transistor/matrix verdicts cannot validate the omitted global physics. Neither line supplies the complete executable-firmware, nonlinear, cross-leg installed model.",
+    "prototype": [
+      "JOIN:21-31",
+      "MODEL:47-60"
+    ],
+    "decisions": [
+      "F:17",
+      "F:32",
+      "F:35",
+      "S:82"
+    ]
+  },
+  {
+    "id": "R58",
+    "topic": "Coil/pan and current envelope",
+    "classification": "ONE-SIDED",
+    "finding": "Prototype explicitly retains measured coil/pan characterization and approved current limits as holds. Round17\u2019s selected transient currents are scenarios, not a replacement measured cooking map.",
+    "prototype": [
+      "MFG:9-16",
+      "COIL:106-120"
+    ],
+    "decisions": [
+      "S:17-26",
+      "D20:68"
+    ]
+  },
+  {
+    "id": "R59",
+    "topic": "Original TVS and bulk/local capacitors",
+    "classification": "AGREES",
+    "finding": "Hardware overview preserves MRT130KP295CV, TDK bulk/local parts and HV_RET returns through R5 current pads. The added catch does not approve moving those returns onto LEG_RET.",
+    "prototype": [
+      "H:75-83",
+      "H:136-139",
+      "CE:13"
+    ],
+    "decisions": [
+      "D:38-40",
+      "D:14"
+    ]
+  },
+  {
+    "id": "R60",
+    "topic": "Resonant capacitor bank",
+    "classification": "AGREES",
+    "finding": "Retained CDE bank is still not high-frequency/hot/pulse qualified by these records. Prototype\u2019s diagnostic tank and model limits do not select a replacement bank.",
+    "prototype": [
+      "H:85-88",
+      "H:133",
+      "MODEL:5"
+    ],
+    "decisions": [
+      "D:41",
+      "D20:101"
+    ]
+  },
+  {
+    "id": "R61",
+    "topic": "Both bring-up links and terminals",
+    "classification": "AGREES",
+    "finding": "Both rectifier rails are removable; rectifier-side studs remain live with mains present. Catch/accessory return belongs to HV_RET, not a Kelvin node. PE and coil terminals retain separate functions.",
+    "prototype": [
+      "H:63-77",
+      "H:158-159",
+      "AUD:15"
+    ],
+    "decisions": [
+      "D:42-52"
+    ]
+  },
+  {
+    "id": "R62",
+    "topic": "Protection diode/resistor revision",
+    "classification": "ONE-SIDED",
+    "finding": "Decision explicitly adopts BAS116H and faster PERMIT/DIS resistors. Prototype native19 import/loaded-interlock model is related evidence, not a new authorized value change or proof of end-to-end delay.",
+    "prototype": [
+      "P:15-20",
+      "T:72-89"
+    ],
+    "decisions": [
+      "D:21",
+      "D20:80"
+    ]
+  },
+  {
+    "id": "R63",
+    "topic": "C1/C2 physical part correction",
+    "classification": "AGREES",
+    "finding": "Hardware overview names R463N410000N1M; decision records the corrected pitch and retained placement. Added filter geometry must not revive the old wider-pitch part.",
+    "prototype": [
+      "H:152"
+    ],
+    "decisions": [
+      "D:23"
+    ]
+  },
+  {
+    "id": "R64",
+    "topic": "PTH land policy and fabrication hold",
+    "classification": "ONE-SIDED",
+    "finding": "Native17\u2019s outer-land correction/neutral narrowing remain decision-controlled manufacturing facts. Prototype imported native19 and retained fab hold; it does not demonstrate a new independent remeasurement of those screens.",
+    "prototype": [
+      "MFG:12",
+      "P:54-58"
+    ],
+    "decisions": [
+      "D:25",
+      "D:14"
+    ]
+  },
+  {
+    "id": "R65",
+    "topic": "Insulation and nominal gaps",
+    "classification": "AGREES",
+    "finding": "Prototype ceramic overhangs, bare nominal spacing and board DRC are not insulation approval. The 8 mm/group-IIIa placement basis and unresolved package/high-frequency rules still apply; no automatic waiver follows from a collision-free STEP.",
+    "prototype": [
+      "C:22",
+      "BOARD:34",
+      "BOARD:46-50"
+    ],
+    "decisions": [
+      "D:15",
+      "D:50-51"
+    ]
+  },
+  {
+    "id": "R66",
+    "topic": "Additional supervisor boards and pod fit",
+    "classification": "ONE-SIDED",
+    "finding": "New nine-board supervision adds a 275 \u00d7 240 mm central board, explicitly not a drop-in fit for the older 115 \u00d7 100 mm control reservation. This new packaging work has no matching DECISIONS adoption; R4 filter fit cannot close it.",
+    "prototype": [
+      "BOARD:3-13",
+      "PK:22"
+    ],
+    "decisions": [
+      "D:70",
+      "D20:101"
+    ]
+  },
+  {
+    "id": "R67",
+    "topic": "Bring-up conditions and release authority",
+    "classification": "AGREES",
+    "finding": "D4 asks for loaded OCP-node and all-four-VGS measurements before increasing current. Prototype manufacturing/electrical holds retain those measurements and do not convert source integration into build permission.",
+    "prototype": [
+      "MFG:11-17",
+      "P:54-74"
+    ],
+    "decisions": [
+      "D:14",
+      "D:19",
+      "D20:101",
+      "D:29-34",
+      "D:54-58"
+    ]
+  },
+  {
+    "id": "R68",
+    "topic": "Historical loss estimates",
+    "classification": "SUPERSEDES",
+    "finding": "Hardware/LOSS comparison explicitly labels inherited resistance/switching proxies. D18\u2019s round17-based conditional loss allocation is the cooling comparison basis; historical efficiency/loss tables do not qualify the new sink.",
+    "prototype": [
+      "LOSS:11-16",
+      "H:47-53"
+    ],
+    "decisions": [
+      "D:66",
+      "D18:101"
+    ]
+  },
+  {
+    "id": "R69",
+    "topic": "Common-clock capture versus software state",
+    "classification": "AGREES",
+    "finding": "Prototype rejects missing/stale captures and admits that its physical capture hardware/target path is incomplete. D20 forbids using requested/cached timing as hardware proof.",
+    "prototype": [
+      "FW:56-61",
+      "R5FW:160-182"
+    ],
+    "decisions": [
+      "D20:75-76",
+      "F:15"
+    ]
+  },
+  {
+    "id": "R70",
+    "topic": "Round17 test/cache identity defects",
+    "classification": "ONE-SIDED",
+    "finding": "Closed grid/cache/port/crop bugs describe round17\u2019s particular harness. Prototype has its own hash, finite-data and incomplete-run checks; those do not prove immunity to every listed historical defect. No design choice is reversed by these software rows.",
+    "prototype": [
+      "JOIN:15-19",
+      "FIELD:49-55"
+    ],
+    "decisions": [
+      "F:43-55",
+      "S:79",
+      "S:116-122"
+    ]
+  },
+  {
+    "id": "R71",
+    "topic": "Signed mutual verification",
+    "classification": "AGREES",
+    "finding": "Prototype\u2019s independent pair solve is the appropriate type of external excitation check, consistent with round17\u2019s signed-mutual requirement. It validates the named pair/case only.",
+    "prototype": [
+      "FIELD:49-55"
+    ],
+    "decisions": [
+      "F:37",
+      "F:54",
+      "S:53-59"
+    ]
+  },
+  {
+    "id": "R72",
+    "topic": "Legacy status/board-count prose",
+    "classification": "SUPERSEDES",
+    "finding": "Prototype\u2019s current native19 inventory is 142/89; old native18 135/83 and historical packet counts in overview tables are provenance, not the current assembly census. Refresh source-pinned handoffs, not historical receipts.",
+    "prototype": [
+      "P:15-20",
+      "P:34-46",
+      "H:20",
+      "H:169-172"
+    ],
+    "decisions": [
+      "D:66",
+      "F:35"
+    ]
+  },
+  {
+    "id": "R73",
+    "topic": "S1/S2/S3 evidence scope",
+    "classification": "AGREES",
+    "finding": "Prototype distinguishes conditional all-off/energy experiments from repetitive commutation/ZVS tests. Nominal F7 S1/S2 passes and light-load ZVS failures cannot be generalized to its variable-phase pan/control envelope.",
+    "prototype": [
+      "OLD:7-12",
+      "JOIN:23-25"
+    ],
+    "decisions": [
+      "S:17-21",
+      "F:18",
+      "F:21"
+    ]
+  },
+  {
+    "id": "R74",
+    "topic": "Fault latches, restart and independent timers",
+    "classification": "ONE-SIDED",
+    "finding": "Prototype chooses START/RESET/STOP, discharge admission, watchdog and independent precharge/proof timeouts. D20\u2019s independent hardware inhibit and reset requirements constrain this design but do not approve those particular thresholds or budgets.",
+    "prototype": [
+      "FW:20-55",
+      "SUP:43-51"
+    ],
+    "decisions": [
+      "D20:65",
+      "D20:79-80"
+    ]
+  },
+  {
+    "id": "R75",
+    "topic": "Native bus accuracy and harness qualification",
+    "classification": "ONE-SIDED",
+    "finding": "D11\u2019s \u00b16%, \u00b15 V, \u00b1250 \u00b5s and receiver/harness/calibration acceptance remain outstanding for the native bus pair. AMC3330 card capacitance statements apply to a different interface and cannot satisfy AMC1311/OPA2388 acceptance by analogy.",
+    "prototype": [
+      "BOARD:36",
+      "SUP:59",
+      "R5FW:77-85"
+    ],
+    "decisions": [
+      "D:62",
+      "D20:82-95"
+    ]
+  },
+  {
+    "id": "R76",
+    "topic": "Remaining J4 harness/supply/thermal interfaces",
+    "classification": "ONE-SIDED",
+    "finding": "Prototype adds an isolated JCTRL and candidate carrier but does not supply a released D20 mating-face harness, total startup/rail budget, instrument-bond inventory, RTD and interlock acceptance packet. Separate sensor-card progress cannot close these controller requirements.",
+    "prototype": [
+      "FW:88-95",
+      "R5FW:45-49",
+      "BOARD:46-50"
+    ],
+    "decisions": [
+      "D20:47-66",
+      "D20:100-101"
+    ]
+  },
+  {
+    "id": "R77",
+    "topic": "Superseded 39 k\u03a9 external timing request",
+    "classification": "SUPERSEDES",
+    "finding": "FINDINGS/STATUS still request TI limits at the fitted 39 k\u03a9. Prototype and the accepted native18/19 identity use precision 49.9 k\u03a9. Refresh the external request to the selected part/reference planes; physical timing remains required.",
+    "prototype": [
+      "H:130",
+      "OLD:7"
+    ],
+    "decisions": [
+      "F:62",
+      "S:93",
+      "D:60",
+      "D:74"
+    ]
+  },
+  {
+    "id": "R78",
+    "topic": "Extrapolation progress wording",
+    "classification": "SUPERSEDES",
+    "finding": "FINDINGS M2 still asks for the fine 1/2/3 mm parabola, while STATUS already names that corrected best matrix. Prototype coarse/finite-height results do not supply an excuse to replace it; reconcile the stale progress text with the current matrix provenance.",
+    "prototype": [
+      "FIELD:67-74"
+    ],
+    "decisions": [
+      "F:29",
+      "S:16",
+      "S:35-37"
+    ]
+  }
+]
