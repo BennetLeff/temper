@@ -1,0 +1,30 @@
+
+Note: Compatibility modes selected: ps a
+
+
+Circuit: * d23: unmodified ti slum881 ucc21550b-q1 proxy characterization
+
+Warning: Model issue on line 353 :
+  .model xdrv.x_s_uvlo_a:_s_uvlo_a sw roff=1e6 ron=1e-3 vh=1 vt=5 td=0 ...
+unrecognized parameter (td) - ignored
+
+Warning: Model issue on line 359 :
+  .model xdrv.x_s_uvlo_b:_s_uvlo_b sw roff=1e6 ron=1e-3 vh=1 vt=5 td=0 ...
+unrecognized parameter (td) - ignored
+
+Warning: Model issue on line 365 :
+  .model xdrv.x_s_uvlo_vca:_s_uvlo_vca sw roff=1e6 ron=1e-3 vh=3.7 vt=5.3  ...
+unrecognized parameter (td) - ignored
+
+Warning: Model issue on line 371 :
+  .model xdrv.x_s_uvlo_vcb:_s_uvlo_vcb sw roff=1e6 ron=1e-3 vh=3.7 vt=5.3  ...
+unrecognized parameter (td) - ignored
+
+Note: v.xdrv.x_u1.vcs1: has no value, DC 0 assumed
+Note: Starting dynamic gmin stepping
+Warning: Dynamic gmin stepping failed
+Note: Starting true gmin stepping
+Warning: True gmin stepping failed
+Note: Starting source stepping
+Warning: source stepping failed
+Note: Transient op started
