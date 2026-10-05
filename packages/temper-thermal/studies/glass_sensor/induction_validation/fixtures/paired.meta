@@ -1,0 +1,11 @@
+evidence=SYNTHETIC
+run_id=synthetic-paired-001
+assembly_revision=candidate-316L-PREPARATION
+instrument_calibration=SYNTHETIC_NONE
+requirement_source=SYNTHETIC_SOFTWARE_CHECK_ONLY
+reference_agreement_uncertainty_c=0.1
+reference_agreement_budget_c=0.5
+paired_expanded_uncertainty_c=0.2
+paired_budget_c=0.75
+max_bracket_s=2.5
+raw_sha256=c10b220699adab9b31a05a7c4fc8ecc2c6a16e1652246b711a1aeb3d66d057a2

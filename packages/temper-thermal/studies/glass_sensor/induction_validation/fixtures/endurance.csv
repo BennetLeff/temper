@@ -1,0 +1,9 @@
+check,unit,value,expanded_uncertainty,limit,direction,requirement_source,performed,record_id
+touch_current,mA,0.02,0.005,0.05,max,SYNTHETIC_EXAMPLE_NOT_PRODUCT_LIMIT,1,syn-01
+insulation_resistance,Mohm,200,10,100,min,SYNTHETIC_EXAMPLE_NOT_PRODUCT_LIMIT,1,syn-02
+water_ingress,mg,0,1,2,max,SYNTHETIC_EXAMPLE_NOT_PRODUCT_LIMIT,1,syn-03
+thermal_cycles,cycles,1000,0,1000,min,SYNTHETIC_EXAMPLE_NOT_PRODUCT_LIMIT,1,syn-04
+cleaning_cycles,cycles,500,0,500,min,SYNTHETIC_EXAMPLE_NOT_PRODUCT_LIMIT,1,syn-05
+return_force_after,N,0.12,0.01,0.09,min,SYNTHETIC_EXAMPLE_NOT_PRODUCT_LIMIT,1,syn-06
+drift_after,degC_abs,0.3,0.2,1,max,SYNTHETIC_EXAMPLE_NOT_PRODUCT_LIMIT,1,syn-07
+corrosion_after,defects,0,0,0,max,SYNTHETIC_EXAMPLE_NOT_PRODUCT_LIMIT,1,syn-08

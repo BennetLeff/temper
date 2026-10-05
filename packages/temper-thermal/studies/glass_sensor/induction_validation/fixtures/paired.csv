@@ -1,0 +1,10 @@
+pair_id,phase,time_s,pan_ref_c,sensor_c,ref2_c,coil_current_a,drive_hz,acquisition_valid
+p1,off_before,0,100,101,100.05,0,0,1
+p1,on,1,102,103.25,102.05,18.7,40000,1
+p1,off_after,2,104,105,104.05,0,0,1
+p2,off_before,3,106,107,106.05,0,0,1
+p2,on,4,108,109.30,108.05,18.7,40000,1
+p2,off_after,5,110,111,110.05,0,0,1
+p3,off_before,6,112,113,112.05,0,0,1
+p3,on,7,114,115.20,114.05,18.7,40000,1
+p3,off_after,8,116,117,116.05,0,0,1
