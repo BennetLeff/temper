@@ -1,0 +1,238 @@
+{
+  "status": "complete",
+  "verdict": "Ready to merge",
+  "verdict_reason": "No remaining actionable findings in the experimental R7 software/CAD scope. Physical validation remains NOT_RUN. Import this receipt and refresh/verify provenance after that final document update.",
+  "scope": {
+    "base": "fa31c1021",
+    "branch": "codex/glass-sensor-simulation",
+    "head_sha": "fa31c10216bbb1133581be04e315299abbe8e529",
+    "pr_url": null,
+    "files_changed": 110,
+    "mode": "local-aligned",
+    "restriction": "revision7 plus CURRENT.md/current-cad.json; current-source follow-ups included"
+  },
+  "intent": "Provide three complete experimental in-glass RTD coupon assemblies and CAD-coupled thermal comparison, plus independent contact/pressure fixtures and strict calibration/holdout preparation. Preserve R5/R6 history and source identity; fail closed on invalid geometry or verification; physical claims remain NOT_RUN. This is not hardware release or heating enablement.",
+  "intent_confidence": "explicit",
+  "reviewers": [
+    "correctness",
+    "testing",
+    "project-standards",
+    "maintainability",
+    "reliability",
+    "adversarial",
+    "learnings-researcher"
+  ],
+  "findings": [],
+  "actionable_findings": [],
+  "triage_groups": [],
+  "pre_existing_findings": [],
+  "requirements_completeness": {
+    "plan": "/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/packages/temper-thermal/studies/glass_sensor/revision7/WORK_PLAN.md",
+    "source": "explicit",
+    "requirements": [
+      {
+        "id": "R1",
+        "status": "met",
+        "evidence": "Three complete coupon variants; 12 nominal poses, 3 maximum-package envelopes and 15 STEP exports; dimensional qualifications retained."
+      },
+      {
+        "id": "R2",
+        "status": "met",
+        "evidence": "CAD scalar export feeds the pinned thermal network; control, capacity ledger, sensitivity and convergence outputs present."
+      },
+      {
+        "id": "R3",
+        "status": "met",
+        "evidence": "Independent force/displacement and connected pressure fixtures include datums, load paths and uncertainty; no cartridge seal claim."
+      },
+      {
+        "id": "R4",
+        "status": "met",
+        "evidence": "Existing evaluator reused with independent pan/configuration and acquisition guards; passing and rejection synthetic cases; physical NOT_RUN."
+      },
+      {
+        "id": "R5",
+        "status": "met",
+        "evidence": "Report, current indexes, archived prior index and source identities present; independent review completed by this receipt. Current provenance verification passes."
+      }
+    ],
+    "implementation_units": [
+      {
+        "unit": "mechanical",
+        "status": "met"
+      },
+      {
+        "unit": "thermal",
+        "status": "met"
+      },
+      {
+        "unit": "calibration",
+        "status": "met"
+      },
+      {
+        "unit": "fixture",
+        "status": "met"
+      },
+      {
+        "unit": "contact_model",
+        "status": "met"
+      },
+      {
+        "unit": "pressure_model",
+        "status": "met"
+      },
+      {
+        "unit": "integration",
+        "status": "met"
+      },
+      {
+        "unit": "report/provenance/current pointers",
+        "status": "met"
+      }
+    ],
+    "unrequested_behavior_rules": []
+  },
+  "learnings": [
+    {
+      "type": "known_pattern",
+      "title": "A measurement carries its commit",
+      "citation": "/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/docs/solutions/best-practices/a-measurement-carries-its-commit-2026-07-26.md",
+      "note": "Bind every comparison to exact source and artifact identities."
+    },
+    {
+      "type": "known_pattern",
+      "title": "Measurement conventions must be stated",
+      "citation": "/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/docs/solutions/best-practices/measurement-convention-must-be-stated-2026-07-28.md",
+      "note": "Check physical meaning and units across the CAD-to-thermal boundary."
+    },
+    {
+      "type": "known_pattern",
+      "title": "Gate subset blindness",
+      "citation": "/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/docs/solutions/best-practices/gate-subset-blindness-2026-07-27.md",
+      "note": "Compare checked poses and exports against the complete generated universe."
+    },
+    {
+      "type": "known_pattern",
+      "title": "Falsify the fix before believing it",
+      "citation": "/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/docs/solutions/best-practices/falsify-the-fix-before-believing-it-2026-07-29.md",
+      "note": "Negative entrypoint checks establish that guards reject their intended defects."
+    },
+    {
+      "type": "known_pattern",
+      "title": "Thermal boundary convergence",
+      "citation": "/Users/bennet/.codex/worktrees/glass-sensor-simulation/temper/docs/solutions/logic-errors/thermal-fdm-cell-centre-dirichlet-first-order-2026-07-09.md",
+      "note": "Interpret convergence against the actual numerical method; the historical FDM defect is not an R7 finding."
+    }
+  ],
+  "agent_native_gaps": [],
+  "deployment_notes": [],
+  "residual_risks": [
+    "All physical cartridge and induction tests remain NOT_RUN. Nominal CAD and simulation do not establish tolerance robustness, hot friction, leakage, insulation, joint strength, endurance or control safety.",
+    "Contact conductance and package/film properties remain model assumptions. Metrology capability and product acceptance loads remain unselected."
+  ],
+  "testing_gaps": [
+    "HTML report browser rendering was not verified."
+  ],
+  "coverage": {
+    "depth": "full",
+    "mode": "agent report-only",
+    "reviewer_selection": [
+      {
+        "reviewer": "correctness",
+        "tier": "session",
+        "reason": "Always-on behavioral correctness"
+      },
+      {
+        "reviewer": "testing",
+        "tier": "mid-tier",
+        "reason": "New tests and guarded validation paths"
+      },
+      {
+        "reviewer": "project-standards",
+        "tier": "mid-tier",
+        "reason": "Applicable root AGENTS.md/CLAUDE.md fallback"
+      },
+      {
+        "reviewer": "maintainability",
+        "tier": "mid-tier",
+        "reason": "New structural adapters and source contracts"
+      },
+      {
+        "reviewer": "reliability",
+        "tier": "mid-tier",
+        "reason": "Failure propagation and stale success receipt rejection"
+      },
+      {
+        "reviewer": "adversarial",
+        "tier": "session",
+        "reason": "Large diff with silent-pass verification gates"
+      },
+      {
+        "reviewer": "learnings-researcher",
+        "tier": "mid-tier",
+        "reason": "Relevant institutional measurement/thermal/gate lessons"
+      }
+    ],
+    "scope_basis": "2405 executable non-test lines plus generated CAD artifacts; generators/manifests and representative outputs reviewed. File count is the dispatch inventory; later review-driven outputs were checked against the final 114-artifact manifest.",
+    "standards": "Root AGENTS.md and CLAUDE.md fallback; no applicable CODING_STANDARDS.md found.",
+    "suppressed_by_confidence": {},
+    "first_evidence_backfilled": 0,
+    "quote_gate_demotions": 0,
+    "mode_aware_demotions": 0,
+    "settlement_conflict_suppressions": 0,
+    "resolved_before_validation": [
+      {
+        "title": "Test the guarded screen's passing outcome",
+        "resolution": "Resolved in current source and recorded synthetic evidence before synthesis."
+      },
+      {
+        "title": "Exercise independent acquisition guards through R7 entry point",
+        "resolution": "Resolved in current source and recorded negative-case evidence before synthesis."
+      },
+      {
+        "title": "Information Leakage: baseline overwrite hides CAD changes",
+        "resolution": "Resolved in current source and regenerated audit evidence before synthesis."
+      }
+    ],
+    "validator": {
+      "outcome": "verdicts",
+      "selected": 1,
+      "confirmed": 0,
+      "rejected": 1,
+      "unresolved": 0,
+      "malformed": 0,
+      "failed": 0,
+      "shortcut_skipped": 0,
+      "bound_exceeded": false,
+      "protected_subject_reclassifications": [],
+      "degraded_blockers": [],
+      "verdicts": [
+        {
+          "#": 1,
+          "status": "rejected",
+          "protected_subject": null,
+          "reason": "The stale-manifest precondition no longer holds in the current worktree based on fa31c10216bbb1133581be04e315299abbe8e529: independent Python 3.14.7 read-only execution of revision7/provenance.py verify exits 0 with PASS, and a separate SHA256 census verifies all 114 recorded artifacts, both current indexes and both historical manifest identities with zero mismatches, including VERIFICATION.md now matching source-provenance.json:8 at 3268612b92a92f03040d1107adb32f9741d295045544b65bc38ca24462718484."
+        }
+      ]
+    },
+    "report_verification": "Report leaf independently reran python3 -B revision7/provenance.py verify: exit 0, PASS. source-provenance.json:8 matches the validator citation.",
+    "executed_checks": "Author full runner completed with 78 Rust tests and 12 imported-STEP integration poses. Merge leaf inspected passing-screen, acquisition-reuse and undeclared-CAD-scalar rejection fixes. Independent validator checked all 114 artifact hashes, both current indexes and both historical manifest identities with zero mismatches.",
+    "correctness_followup": "Final native lead diameter and enlarged swept-volume oracle checked for all three variants; no actionable finding. Thermal geometry pin remains 72c6da410ee03d91aeee04386fba74b70ce14e504348abbb4515f3b8241a5343.",
+    "cross_model_outcome": "in-process-fallback",
+    "cross_model_coverage": "Automatic approval review rejected the external Claude route because transmission of private repository contents was not authorized by the user\u2019s Astra-subagent request. No peer job started; the in-process adversarial reviewer completed. Cross-model independence is unavailable.",
+    "failed_reviewers": [],
+    "timed_out_reviewers": [],
+    "compound_packs": {
+      "roots": [],
+      "errors": [],
+      "warnings": []
+    },
+    "not_assessed": [
+      "Dedicated agent-native and deployment-verification lenses were not selected.",
+      "Repository-wide firmware, PCB DRC, shared extension and import-boundary checks were not run; the reviewed study uses standalone runners."
+    ],
+    "closure": "Earlier pending-provenance notes describe superseded snapshots. Receipt import and subsequent provenance refresh/verification are final artifact closure, not an unresolved source defect. No repository edits were made by this report leaf."
+  },
+  "artifact_path": "/private/tmp/temper-r7-review/ce-code-review/r7-final",
+  "run_id": "r7-final"
+}

@@ -1,0 +1,25 @@
+{
+  "reviewer": "maintainability",
+  "findings": [
+    {
+      "title": "Information Leakage: baseline overwrite hides CAD changes",
+      "severity": "P2",
+      "file": "packages/temper-thermal/studies/glass_sensor/revision7/mechanical/build.py",
+      "line": 349,
+      "why_it_matters": "The exporter calculates R7 geometry scalars and then replaces every original R5 field outside a short exception list. If a future M222 CAD edit changes an inherited wire length, native lead length, or bond footprint, the thermal CSV can continue to report the R5 value and the CAD-coupled comparison becomes stale without an error.",
+      "autofix_class": "gated_auto",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "confidence": 75,
+      "evidence": [
+        "packages/temper-thermal/studies/glass_sensor/revision7/mechanical/build.py:349:         if not variant.name.startswith(\"IST\"):",
+        "packages/temper-thermal/studies/glass_sensor/revision7/mechanical/build.py:350-360: The loop copies original[key] into row[key] for every R5 field outside seven exceptions, after CAD-derived row.update calls at lines 310-337.",
+        "packages/temper-thermal/studies/glass_sensor/revision7/mechanical/README.md:33: The scalar contract is described as actual rest-pose geometry, with unchanged dimensions inherited and modified volumes derived from R7 solids."
+      ],
+      "pre_existing": false,
+      "suggested_fix": "For each inherited R5 scalar that is also measured from R7 solids, assert agreement with the CAD-derived value before carrying forward the baseline text. Keep the explicit seven changed fields as CAD values, and fail when a newly changed M222 field has not been declared as such."
+    }
+  ],
+  "residual_risks": [],
+  "testing_gaps": []
+}

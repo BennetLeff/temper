@@ -1,0 +1,31 @@
+
+running 27 tests
+test bench::r7_tests::guarded_screen_accepts_strictly_inside_bound ... ok
+test bench::r7_tests::gross_error_fails_even_with_uncertainty ... ok
+test bench::r7_tests::unknown_uncertainty_rejects_pass ... ok
+test bench::r7_tests::uncertainty_cannot_manufacture_pass ... ok
+test bench::r7_tests::strict_limit_equality_does_not_pass ... ok
+test bench::tests::correlated_budget_does_not_get_false_sqrt_reduction ... ok
+test bench::r7_tests::rejects_short_identity ... ok
+test bench::r7_tests::rejects_process_change ... ok
+test bench::r7_tests::rejects_same_pan_even_for_distinct_run ... ok
+test bench::r7_tests::rejects_geometry_change ... ok
+test bench::r7_tests::accepts_separate_pans_same_configuration ... ok
+test bench::tests::incomplete_metadata_rejected ... ok
+test bench::tests::missing_budget_is_not_zero_uncertainty ... ok
+test bench::tests::rejects_header_only ... ok
+test bench::tests::rejects_nan ... ok
+test bench::tests::cooling_t90_supported ... ok
+test bench::tests::gap_is_rejected ... ok
+test bench::tests::distinguishes_biased_fast_final_from_unreachable_pan_step ... ok
+test bench::tests::holdout_constant_temperature_is_not_dynamic_evidence ... ok
+test bench::tests::mechanics_finds_hysteresis_and_sticking ... ok
+test bench::tests::rejects_no_excitation ... ok
+test bench::tests::settled_return_survives_bounce_before_final_settle ... ok
+test bench::tests::t90_matches_external_analytic_first_order ... ok
+test bench::tests::thermal_continuity_rejects_loss ... ok
+test bench::tests::small_overall_rmse_does_not_hide_bad_transient ... ok
+test bench::tests::transfer_detects_weaker_contact ... ok
+test bench::tests::recovers_known_effective_parameters ... ok
+
+test result: ok. 27 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s

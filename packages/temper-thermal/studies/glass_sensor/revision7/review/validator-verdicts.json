@@ -1,0 +1,10 @@
+{
+  "verdicts": [
+    {
+      "#": 1,
+      "status": "rejected",
+      "protected_subject": null,
+      "reason": "The stale-manifest precondition no longer holds in the current worktree based on fa31c10216bbb1133581be04e315299abbe8e529: independent Python 3.14.7 read-only execution of revision7/provenance.py verify exits 0 with PASS, and a separate SHA256 census verifies all 114 recorded artifacts, both current indexes and both historical manifest identities with zero mismatches, including VERIFICATION.md now matching source-provenance.json:8 at 3268612b92a92f03040d1107adb32f9741d295045544b65bc38ca24462718484."
+    }
+  ]
+}

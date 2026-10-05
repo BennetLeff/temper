@@ -1,0 +1,60 @@
+{
+  "dimensional_checks": [
+    {
+      "variant": "M222_control_010",
+      "native_volume_expected_mm3": 0.06283185307179587,
+      "native_volume_cad_mm3": 0.06283185307179587,
+      "four_60mm_wire_volumes": "PASS"
+    },
+    {
+      "variant": "M222_thin_0075",
+      "native_volume_expected_mm3": 0.06283185307179587,
+      "native_volume_cad_mm3": 0.06283185307179587,
+      "four_60mm_wire_volumes": "PASS"
+    },
+    {
+      "variant": "IST308_thin_0075",
+      "native_volume_expected_mm3": 0.0285086042024416,
+      "native_volume_cad_mm3": 0.02850860420244159,
+      "four_60mm_wire_volumes": "PASS"
+    }
+  ],
+  "tolerance_envelopes": [
+    {
+      "variant": "M222_control_010",
+      "maximum_package_mm": [
+        2.5,
+        2.3,
+        1.2
+      ],
+      "intersections": [],
+      "result": "PASS_GEOMETRY_ONLY",
+      "physical_result": "NOT_RUN"
+    },
+    {
+      "variant": "M222_thin_0075",
+      "maximum_package_mm": [
+        2.5,
+        2.3,
+        1.2
+      ],
+      "intersections": [],
+      "result": "PASS_GEOMETRY_ONLY",
+      "physical_result": "NOT_RUN"
+    },
+    {
+      "variant": "IST308_thin_0075",
+      "maximum_package_mm": [
+        1.0,
+        3.2,
+        0.9
+      ],
+      "intersections": [],
+      "result": "PASS_GEOMETRY_ONLY",
+      "physical_result": "NOT_RUN"
+    }
+  ],
+  "negative_test": "PASS_REJECTED_DISCONNECTED_WELD",
+  "envelope_negative_test": "PASS_REJECTED_MAXIMUM_ENVELOPE_COLLISION",
+  "scalar_negative_test": "PASS_REJECTED_UNDECLARED_CAD_SCALAR_CHANGE"
+}

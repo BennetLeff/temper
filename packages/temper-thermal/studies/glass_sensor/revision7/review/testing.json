@@ -1,0 +1,44 @@
+{
+  "reviewer": "testing",
+  "findings": [
+    {
+      "title": "Test the guarded screen's passing outcome",
+      "severity": "P2",
+      "file": "packages/temper-thermal/studies/glass_sensor/revision7/calibration/adapter.rs",
+      "line": 43,
+      "why_it_matters": "The new <2°C/<2 s screen can fail to ever report a valid passing coupon while the full R7 test runner remains green. The unit cases exercise indeterminate and outside outcomes; the committed synthetic evaluations also all produce OUTSIDE or INDETERMINATE, so none checks the passing branch or its end-to-end reporting.",
+      "autofix_class": "gated_auto",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "confidence": 75,
+      "evidence": [
+        "packages/temper-thermal/studies/glass_sensor/revision7/calibration/adapter.rs:43:     if error.abs() + expanded < limit {",
+        "packages/temper-thermal/studies/glass_sensor/revision7/calibration/adapter.rs:44:         \"WITHIN_PROPOSED_SCREEN\"",
+        "packages/temper-thermal/studies/glass_sensor/revision7/calibration/adapter.rs:167-181: r7_guarded tests assert only INDETERMINATE and OUTSIDE_PROPOSED_SCREEN.",
+        "packages/temper-thermal/studies/glass_sensor/revision7/calibration/results/SYNTHETIC-holdout.txt:19-23: r7_error_screen and r7_response_screen are both OUTSIDE_PROPOSED_SCREEN."
+      ],
+      "pre_existing": false,
+      "suggested_fix": "Add a direct r7_guarded case where error plus expanded uncertainty is strictly below 2, and a valid synthetic evaluation whose output asserts both r7_error_screen=WITHIN_PROPOSED_SCREEN and r7_response_screen=WITHIN_PROPOSED_SCREEN."
+    },
+    {
+      "title": "Exercise independent acquisition guards through R7 entry point",
+      "severity": "P2",
+      "file": "packages/temper-thermal/studies/glass_sensor/revision7/calibration/adapter.rs",
+      "line": 92,
+      "why_it_matters": "The required fit/holdout isolation can regress without a failing R7 test. The only scripted rejection changes the pan ID, so r7_identity_pair rejects before the new run ID, raw origin, and identical raw-byte checks execute; the unit tests likewise call only r7_identity_pair.",
+      "autofix_class": "gated_auto",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "confidence": 75,
+      "evidence": [
+        "packages/temper-thermal/studies/glass_sensor/revision7/calibration/adapter.rs:92:     if m[\"run_id\"] == hm[\"run_id\"] || m[\"raw_origin\"] == hm[\"raw_origin\"] || fit_hash == hold_hash {",
+        "packages/temper-thermal/studies/glass_sensor/revision7/calibration/run.sh:42-46: the sole scripted lineage rejection changes pan_id and checks for the earlier whole-pan holdout error.",
+        "packages/temper-thermal/studies/glass_sensor/revision7/calibration/adapter.rs:117-181: R7 unit tests exercise identity_pair and guarded arithmetic, but never run_r7's acquisition guard."
+      ],
+      "pre_existing": false,
+      "suggested_fix": "Extend calibration/run.sh with three otherwise valid fit/holdout pairs that separately reuse run_id, reuse raw_origin, and reuse identical CSV bytes while keeping pan and configuration identities distinct; assert each exits nonzero with the independent-acquisition error."
+    }
+  ],
+  "residual_risks": [],
+  "testing_gaps": []
+}

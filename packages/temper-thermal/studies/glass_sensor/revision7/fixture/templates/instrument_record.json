@@ -1,0 +1,9 @@
+{
+  "physical_result": "NOT_RUN",
+  "force_instrument": {"manufacturer_part": null, "serial": null, "range_N": null, "calibration_reference": null, "calibration_date": null, "worst_case_bound_N": null},
+  "displacement_instrument": {"manufacturer_part": null, "serial": null, "paired_registration_bound_mm": null, "reference_targets": null},
+  "pressure_instrument": {"manufacturer_part": null, "serial": null, "range_Pa": null, "worst_case_bound_Pa": null},
+  "fixture": {"build_revision": null, "material_and_temperature_rating": null, "pressure_rating_Pa": null, "load_rating_N": null, "guide_clamp_and_retention_adapter_release": null},
+  "approved_use_envelope": {"temperature_duty_and_overshoot": null, "pressure_limit_Pa": null, "retention_load_N": null, "cycle_count": null, "leak_limit": null, "media": null, "inhibition_latency_ms": null},
+  "blocking_fields_must_not_default_to_zero": true
+}

@@ -1,0 +1,297 @@
+{
+  "status": "DRY_BENCH_PREPARATION_NOT_A_RELEASED_SEAL",
+  "frame": {
+    "parts": {
+      "base_plate_120x100x10": {
+        "volume_mm3": 120000.0,
+        "bounds_mm": [
+          -60.0,
+          60.0,
+          -50.0,
+          50.0,
+          -65.0,
+          -55.0
+        ],
+        "valid": true
+      },
+      "left_upright": {
+        "volume_mm3": 123999.99999999997,
+        "bounds_mm": [
+          -55.0,
+          -45.0,
+          -40.0,
+          40.0,
+          -55.0,
+          100.0
+        ],
+        "valid": true
+      },
+      "right_upright": {
+        "volume_mm3": 123999.99999999997,
+        "bounds_mm": [
+          45.0,
+          55.0,
+          -40.0,
+          40.0,
+          -55.0,
+          100.0
+        ],
+        "valid": true
+      },
+      "crossbeam": {
+        "volume_mm3": 44000.0,
+        "bounds_mm": [
+          -55.0,
+          55.0,
+          -20.0,
+          20.0,
+          100.0,
+          110.0
+        ],
+        "valid": true
+      },
+      "translation_stage_ENVELOPE_UNSELECTED": {
+        "volume_mm3": 19200.0,
+        "bounds_mm": [
+          -16.0,
+          16.0,
+          -15.0,
+          15.0,
+          80.0,
+          100.0
+        ],
+        "valid": true
+      },
+      "force_transducer_ENVELOPE_UNSELECTED": {
+        "volume_mm3": 6000.0,
+        "bounds_mm": [
+          -10.0,
+          10.0,
+          -10.0,
+          10.0,
+          65.0,
+          80.0
+        ],
+        "valid": true
+      },
+      "thermal_standoff_D4": {
+        "volume_mm3": 771.5751557216531,
+        "bounds_mm": [
+          -2.0,
+          2.0,
+          -2.0,
+          2.0,
+          3.6,
+          65.0
+        ],
+        "valid": true
+      },
+      "cap_force_coupon_D6x3": {
+        "volume_mm3": 84.82300164692442,
+        "bounds_mm": [
+          -3.0,
+          3.0,
+          -3.0,
+          3.0,
+          0.6,
+          3.6
+        ],
+        "valid": true
+      },
+      "mock_glass_D50_hole18": {
+        "volume_mm3": 6836.105614211389,
+        "bounds_mm": [
+          -25.0,
+          25.0,
+          -25.0,
+          25.0,
+          -4.0,
+          0.0
+        ],
+        "valid": true
+      },
+      "datum_plate_D30_clearance": {
+        "volume_mm3": 51945.13322353836,
+        "bounds_mm": [
+          -45.0,
+          45.0,
+          -40.0,
+          40.0,
+          -12.0,
+          -4.0
+        ],
+        "valid": true
+      },
+      "split_housing_clamp_D28p2_UNQUALIFIED": {
+        "volume_mm3": 35263.33936495884,
+        "bounds_mm": [
+          -35.0,
+          35.00000000000009,
+          -30.0,
+          30.0,
+          -22.0,
+          -12.0
+        ],
+        "valid": true
+      },
+      "support_post_-35_-30": {
+        "volume_mm3": 1215.7963569392493,
+        "bounds_mm": [
+          -38.0,
+          -32.0,
+          -33.0,
+          -27.0,
+          -55.0,
+          -12.0
+        ],
+        "valid": true
+      },
+      "support_post_-35_30": {
+        "volume_mm3": 1215.7963569392493,
+        "bounds_mm": [
+          -38.0,
+          -32.0,
+          27.0,
+          33.0,
+          -55.0,
+          -12.0
+        ],
+        "valid": true
+      },
+      "support_post_35_-30": {
+        "volume_mm3": 1215.7963569392496,
+        "bounds_mm": [
+          32.0,
+          38.0,
+          -33.0,
+          -27.0,
+          -55.0,
+          -12.0
+        ],
+        "valid": true
+      },
+      "support_post_35_30": {
+        "volume_mm3": 1215.7963569392496,
+        "bounds_mm": [
+          32.0,
+          38.0,
+          27.0,
+          33.0,
+          -55.0,
+          -12.0
+        ],
+        "valid": true
+      }
+    },
+    "step_roundtrip_valid": true,
+    "all_pair_solid_intersections_over_1e_minus6_mm3": []
+  },
+  "pan_accessory": {
+    "parts": {
+      "pan_coupon_D36x3_SEPARATE_NOT_FORCE_SWEEP": {
+        "volume_mm3": 3053.628059289279,
+        "bounds_mm": [
+          -18.0,
+          18.0,
+          -18.0,
+          18.0,
+          0.6,
+          3.6
+        ],
+        "valid": true
+      }
+    },
+    "step_roundtrip_valid": true,
+    "all_pair_solid_intersections_over_1e_minus6_mm3": []
+  },
+  "pressure_cell": {
+    "parts": {
+      "connected_pressure_shell_GEOMETRY_ONLY": {
+        "volume_mm3": 10361.293560047543,
+        "bounds_mm": [
+          -25.0000001,
+          132.0000001,
+          -12.0000001,
+          12.0000001,
+          -23.915494409189535,
+          26.0
+        ],
+        "valid": true
+      },
+      "flat_test_membrane_ENVELOPE_UNQUALIFIED": {
+        "volume_mm3": 31.415926535897935,
+        "bounds_mm": [
+          -10.0,
+          10.0,
+          -10.0,
+          10.0,
+          0.0,
+          0.1
+        ],
+        "valid": true
+      },
+      "membrane_clamp_ring_D8_aperture": {
+        "volume_mm3": 791.6813487046278,
+        "bounds_mm": [
+          -10.0,
+          10.0,
+          -10.0,
+          10.0,
+          0.1,
+          3.1
+        ],
+        "valid": true
+      },
+      "membrane_load_button_D6": {
+        "volume_mm3": 113.09733552923254,
+        "bounds_mm": [
+          -3.0,
+          3.0,
+          -3.0,
+          3.0,
+          0.1,
+          4.1
+        ],
+        "valid": true
+      }
+    },
+    "step_roundtrip_valid": true,
+    "all_pair_solid_intersections_over_1e_minus6_mm3": []
+  },
+  "pressure_geometry": {
+    "connected_fluid_solids": 1,
+    "fluid_roundtrip_valid": true,
+    "total_fluid_volume_mm3": 11293.914740606093,
+    "main_nominal_void_mm3": 999.9999999999999,
+    "remote_plenum_void_mm3": 10000,
+    "pressure_path_ID_mm": 1.5,
+    "path_main_to_plenum_centers_mm": 120,
+    "tube_uniform_span_between_chamber_walls_mm": 104,
+    "pressure_tap_x_mm": 20,
+    "pressure_tap_closed_instrument_envelope": true,
+    "reference_vent_x_mm": 120,
+    "reference_vent_ID_mm": 2,
+    "reference_vent_top_z_mm": 20,
+    "generator_port_open_interface_x_mm": -25,
+    "diaphragm_aperture_mm": 8,
+    "effective_area_status": "NOT_MEASURED_APERTURE_NOT_EFFECTIVE_AREA",
+    "physical_result": "NOT_RUN"
+  },
+  "frame_interfaces": {
+    "glass_top_z_mm": 0,
+    "glass_thickness_mm": 4,
+    "glass_aperture_mm": 18,
+    "housing_OD_mm": 28,
+    "clamp_bore_mm": 28.2,
+    "clamp_z_mm": [
+      -22,
+      -12
+    ],
+    "datum_plate_aperture_mm": 30,
+    "expected_lowest_wire_endpoint_z_mm": -47,
+    "base_top_z_mm": -55,
+    "nominal_wire_endpoint_clearance_mm": 8,
+    "cartridge_included": false,
+    "fasteners_guides_and_clamp_stress": "NOT_ENGINEERED"
+  }
+}

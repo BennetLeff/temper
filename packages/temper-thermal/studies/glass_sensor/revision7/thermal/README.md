@@ -1,0 +1,36 @@
+# R7 CAD-coupled thermal comparison
+
+This adapter consumes the three R7 coupon geometry rows, including the complete installed chip envelope, bond pad, native leads, covers, welds, retention, support/witness, and four 60 mm extension wires. It imports the pinned R5 network and R6 contact adapter verbatim into a temporary build. No second permanent copy of their physics is introduced.
+
+The three candidate IDs are `M222_control_010`, `M222_thin_0075`, and `IST308_thin_0075`. Geometry is linked to newly generated CAD hypotheses; material properties, contact conductance, bond quality, film location and seal behavior remain assumptions. These are simulation results, not physical validation or a released cartridge design.
+
+## Run
+
+Run `./run.sh` here in the integrated study. For the scratch package, set `TEMPER_GLASS_STUDY_ROOT` to the repository's `packages/temper-thermal/studies/glass_sensor` and `TEMPER_R7_GEOMETRY` to the mechanical agent's `thermal_geometry.csv`. The source hashes and complete geometry hash must match the committed pins. `./check_runner.sh` exercises bad source and geometry pins and an injected failing Rust test; each must return failure, produce no new physics CSV and remove a seeded stale success receipt.
+
+The runner removes its receipt before resolving inputs, verifies all inherited source identities, compiles and executes tests before running the model, checks formatting and Clippy, then builds the optimized standalone Rust executable. CSV writes explicitly flush. Only a fully successful run creates `results/run-inputs.sha256`. Older CSVs may remain after a failed rerun and must not be treated as current without this receipt. No Cargo, shared extension build or firmware code is involved.
+
+## Outputs and definitions
+
+- `baseline.csv`: pinned R5 D6 reference. R5 must reproduce 2.94 s pan-relative t90 and 2.474231°C underread.
+- `comparison.csv`: 54 CAD-coupled candidate/contact/loss cases. Uniform, center and rim contact; empirical reference h values 1,000/2,000/4,000 W/m²K; nominal and elevated loss assumptions.
+- `uncertainty.csv`: 27 nominal-contact combinations of chip heat-capacity and film-path assumptions. These are scenario bounds, not a statistical confidence interval.
+- `capacity_ledger.csv`: every network capacity grouped and summed. Seal capacity is independently marked as the inherited 0.01 J/K hypothesis, not CAD-derived material evidence.
+- `convergence.csv`: nominal/rim contact at 24 cap rings, 12 cold-wire cells and 10 ms steps versus 48 rings, 24 cells and 5 ms steps. The hot wire uses a third as many cells, minimum two.
+- `tests.txt` and `runner-negative.csv`: mathematical, geometry-contract, parity, discretization and failure-propagation checks.
+
+`t90_own_s` is time after the pan steps from 25°C to 100°C for the sensor to reach 90% of its own final rise. `t90_pan_s` is time to 92.5°C, 90% of the actual pan rise. Glass/body stay at 25°C during the step. A missing threshold crossing within 60 s is NaN, never an invented response value. `underread200_C` is 200°C minus the steady sensor value with pan/glass/body 200/80/60°C. The ramp is a finite 35 s, 5°C/s ramp from 25°C to 200°C with glass/body still at 25°C; its final error includes temperature-dependent boundary contrast and dynamic lag. It is not the steady 200°C error or the R5 asymptotic additional-ramp-lag metric.
+
+## CAD-to-network contract
+
+All R5 geometry columns are required, with additional package length/width/height, actual chip-envelope volume, film path assumption, native diameter and actual native-lead volume. The adapter validates finite nonnegative geometry, package/bond/lead volume identities and full extension length. The R7 M222 control is a **clearance-corrected control**: both M222 A/B coupons share the same enlarged cover pocket to accept the documented maximum chip envelope. Its cover heat capacity intentionally differs from R5. A specific mapping test checks the changed cover/anchor mass and cover-bond conductance while proving unchanged cap radial conduction, pan contact and cap boundary terms. Frozen R5 parity is checked separately; it is not used to force the corrected R7 control to match the old result.
+
+Bond heat capacity uses the **complete overhanging CAD pad volume**; bond conduction uses the chip footprint area and thickness. Chip capacity uses the complete CAD envelope with an effective 3.12 MJ/m³K ceramic proxy. Native-lead heat capacity uses CAD volume with 3.95 MJ/m³K and its axial conductance uses nickel k = 90.9 W/mK. The actual lead metallurgy and package fill are not supplier-verified by this model. Other properties remain the pinned R5 hypotheses; the ledger does not imply that mass can be summed into one thermal time constant.
+
+M222 capacity is swept at 0.5, 1, and the maximum-to-nominal envelope-volume ratio (2.5×2.3×1.2 / 2.3×2.1×0.9 ≈ 1.5873) times the nominal proxy. IST308 uses 0.25/0.6, 1 and the maximum-to-nominal envelope-volume ratio (1×3.2×0.9 / 0.8×3×0.6 = 2) times that proxy: the lower value corresponds to treating only its nominal 0.25 mm substrate as ceramic while neglecting unknown protective-envelope heat capacity. It is an optimistic proxy, not measured specific heat. Film-to-bond paths are swept at half the nominal assumption, nominal, and full maximum package height. Maximum-mass stress cases retain nominal chip contact area; they do not claim to simulate every changed dimension or exact internal fill of a maximum-size package. Nominal M222/IST308 paths of 0.45/0.125 mm are **not verified film orientations**; Full maximum-envelope paths are 1.2 mm for M222 and 0.9 mm for IST308; these deliberately conservative path cases capture unresolved internal orientation and dimensional tolerance.
+
+## Limits that still need evidence
+
+The cap is axisymmetric radial rings and the chip footprint is an equal-area disk. A 3×0.8 mm rectangle is not physically a disk: rotation, corner spreading and bond voids are unresolved. The installed CAD native-lead length changes thermal mass and axial resistance, but native leads are lumped at RTD temperature rather than spatially distributed. Lead emission/convection and distributed native-lead thermal gradients are omitted; longer stock leads cannot be assumed equivalent to the trimmed CAD route. The four extension-wire routes are represented by their CAD mean hot/cold/anchored lengths and one equivalent parallel conductance; unequal individual routes are not four separate networks. Anchor-bond mass and attachment retain the R5 1.25–2.75 mm radial annulus allocation even when the IST clearance pocket changes the actual pad shape. Weld covers retain their complete CAD mass with lumped attachment conductance. The pan is a prescribed thermal boundary, not an induction-heated cookware/food PDE.
+
+Contact-force-to-conductance is an empirical hypothesis. No thermal residual establishes mechanical contact. Bond k, insulation strength, thermal cycling, lead metallurgy, actual film location, trimming/calibration, retention and 250°C dynamic seal qualification remain open. Cap self-heating under induction is not assessed here. Do not use these offline outputs to enable heating or bypass the independent contact interlock. All physical results remain `NOT_RUN`.

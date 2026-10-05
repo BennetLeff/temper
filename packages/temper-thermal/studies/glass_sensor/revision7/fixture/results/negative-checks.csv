@@ -1,0 +1,3 @@
+case,observed_exit,expected_result,analytical_status,physical_result
+failed_test,101,nonzero_no_receipt_no_csv,VERIFIED,NOT_RUN
+output_write_error,1,nonzero,VERIFIED,NOT_RUN

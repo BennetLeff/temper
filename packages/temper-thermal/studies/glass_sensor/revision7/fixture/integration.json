@@ -1,0 +1,1322 @@
+{
+  "status": "NOMINAL_GEOMETRY_CLEAR",
+  "physical_result": "NOT_RUN",
+  "method": "Imported actual STEP solids; matched fixture part labels by unique volume+bbox against export metadata. Checked every cartridge solid, including fixed parts, moving parts and all four full60mm wire solids; bounding-box rejection then solid Boolean volume. No regenerated cartridge geometry used.",
+  "inputs_sha256": {
+    "fixture/force-displacement-frame.step": "ef8d2b1d12d1a1b3277f1fc7afdab22432f265c2d107036986e5060e92d65f4e",
+    "fixture/geometry.json": "5ccb4c3663dde84bb97a1a4236a70229e882409d3e7914abc7c7a046b8488c60",
+    "fixture/pan-coupon-accessory.step": "d1e9fe5b691f60231e6ce25de38e0682ff24af9885107208fb2453d845fbcf0a",
+    "mechanical/geometry.json": "ee1a8ca694c2db9aa9f61864af99d1808d32bbdfe615b0c325f2070240237581",
+    "mechanical/R7-M222_control_010-rest.step": "2e3d1d80a7d32492f63739f386347bc6708f968f4301096a0328ce7da0abef11",
+    "mechanical/R7-M222_control_010-loaded.step": "a4910b72bb5b28f36a7b578f08a8a7216a066ba80fb27f388fa9cb45fc1a0b13",
+    "mechanical/R7-M222_control_010-full_stroke.step": "10bcd068a187673894d2f05b9f2d6f597b4319f96b9c93457cac6c823ba6fe5a",
+    "mechanical/R7-M222_control_010-cap_capture.step": "4cd1919171ff3a2cc2ebdf5dc0e74a4a54e3a12fc69b1e790e21e01cbc30e050",
+    "mechanical/R7-M222_thin_0075-rest.step": "a54cadfee564ed7844837259f41c908e131afd4cf9ab5f473c78c94c13b8ffbd",
+    "mechanical/R7-M222_thin_0075-loaded.step": "10c46e463a230bef26f05cee1b0c44323df072afbd86543cc303daf4d720675e",
+    "mechanical/R7-M222_thin_0075-full_stroke.step": "eabb1a5caa77bf081da8bcb110c1c4de3093bca625640190ee5c4a95ca4266d2",
+    "mechanical/R7-M222_thin_0075-cap_capture.step": "13979cf1400506da30d2e1fece5190050f1da3da2bfeada93d97d68668fa08d3",
+    "mechanical/R7-IST308_thin_0075-rest.step": "6d16c5316c0ea45120f4f1ed93a8971d761a258ce5c0cf8f143e96a361bd381e",
+    "mechanical/R7-IST308_thin_0075-loaded.step": "03cb4c2b4ddefffcd27158d5d1133587e8f363bacafe1f8c8808c9c4e32bab63",
+    "mechanical/R7-IST308_thin_0075-full_stroke.step": "c7a732f8885f18ed511c65697ff4d128bf7a29f1ed7369587c87c409865ba096",
+    "mechanical/R7-IST308_thin_0075-cap_capture.step": "44ece855209829a00bc43023b7292569e369b015ee38d8a0e95f704f1752284a"
+  },
+  "excluded_fixture_parts": {
+    "mock_glass_D50_hole18": "Same physical mock glass is already included in each cartridge STEP; duplicate fixture glass excluded. Cartridge glass remains checked against every fixed fixture component and positioned load train.",
+    "three_loadtrain_parts": "Handled separately at measured cap surface offsets; absent for retention pose."
+  },
+  "housing_clamp_interface": "Not excluded from collision checks: uncompressed28.2mm bore around28mm housing is clear. Actual tightening/deformation/fasteners are unengineered and not proven by this clearance.",
+  "optical_access": "UNVERIFIED: no optical instruments/ray paths/targets integrated",
+  "frames_checked": [
+    {
+      "variant": "M222_control_010",
+      "pose": "rest",
+      "actual_STEP_solids": 43,
+      "cartridge_bounds_mm": [
+        -25.0,
+        25.0,
+        -25.0,
+        25.0,
+        -47.06918819069113,
+        0.6
+      ],
+      "fixed_fixture_all_solids": {
+        "all_pairs": 473,
+        "bbox_overlap_pairs_checked_by_boolean": 33,
+        "intersections_above_1e_minus6_mm3": []
+      },
+      "wire_bounds_mm": [
+        {
+          "actual_step_id": "actual_step_solid_31",
+          "bounds_mm": [
+            -2.0660000999999997,
+            -0.3039999,
+            -3.616,
+            4.885252389534,
+            -47.06370087450385,
+            0.2660001
+          ],
+          "volume_mm3": 2.517772883550044
+        },
+        {
+          "actual_step_id": "actual_step_solid_33",
+          "bounds_mm": [
+            -1.6660001000000002,
+            -0.02399989999999991,
+            -3.6160001,
+            5.415575318160001,
+            -47.06918819069113,
+            -0.033999899999999986
+          ],
+          "volume_mm3": 2.517772883550925
+        },
+        {
+          "actual_step_id": "actual_step_solid_35",
+          "bounds_mm": [
+            0.023999900000000008,
+            1.6660000000000001,
+            -3.616,
+            5.121663658738,
+            -47.066220992501144,
+            0.2660001
+          ],
+          "volume_mm3": 2.5177728835533895
+        },
+        {
+          "actual_step_id": "actual_step_solid_37",
+          "bounds_mm": [
+            0.3039999,
+            2.066,
+            -3.6160001,
+            5.190734152743,
+            -47.066934693703615,
+            -0.033999899999999986
+          ],
+          "volume_mm3": 2.5177728835453435
+        }
+      ],
+      "complete_four_wire_vs_fixed_fixture": {
+        "all_pairs": 44,
+        "bbox_overlap_pairs_checked_by_boolean": 8,
+        "intersections_above_1e_minus6_mm3": []
+      },
+      "loadtrain": {
+        "status": "SEPARATELY_POSITIONED_CAP_FORCE_COUPON",
+        "z_translation_mm": 0.0,
+        "bounds_mm": {
+          "force_transducer_ENVELOPE_UNSELECTED": [
+            -10.0,
+            10.0,
+            -10.0,
+            10.0,
+            65.0,
+            80.0
+          ],
+          "thermal_standoff_D4": [
+            -2.0,
+            2.0,
+            -2.0,
+            2.0,
+            3.6,
+            65.0
+          ],
+          "cap_force_coupon_D6x3": [
+            -3.0,
+            3.0,
+            -3.0,
+            3.0,
+            0.6,
+            3.6
+          ]
+        },
+        "vs_cartridge": {
+          "all_pairs": 129,
+          "bbox_overlap_pairs_checked_by_boolean": 0,
+          "intersections_above_1e_minus6_mm3": []
+        },
+        "vs_fixed_fixture": {
+          "all_pairs": 33,
+          "bbox_overlap_pairs_checked_by_boolean": 0,
+          "intersections_above_1e_minus6_mm3": []
+        },
+        "limitations": "Stage transmission/guide travel and loadcell attachment are unengineered; no actuator kinematic or strength qualification."
+      }
+    },
+    {
+      "variant": "M222_control_010",
+      "pose": "loaded",
+      "actual_STEP_solids": 43,
+      "cartridge_bounds_mm": [
+        -25.0,
+        25.0,
+        -25.0,
+        25.0,
+        -47.07386376028617,
+        0.0
+      ],
+      "fixed_fixture_all_solids": {
+        "all_pairs": 473,
+        "bbox_overlap_pairs_checked_by_boolean": 33,
+        "intersections_above_1e_minus6_mm3": []
+      },
+      "wire_bounds_mm": [
+        {
+          "actual_step_id": "actual_step_solid_31",
+          "bounds_mm": [
+            -2.066,
+            -0.3039999,
+            -3.616,
+            5.414594495979,
+            -47.06939100666594,
+            -0.3339999
+          ],
+          "volume_mm3": 2.517772883559918
+        },
+        {
+          "actual_step_id": "actual_step_solid_33",
+          "bounds_mm": [
+            -1.6660001000000002,
+            -0.023999900000000008,
+            -3.6160001,
+            5.893824153889001,
+            -47.07386376028617,
+            -0.6339999000000001
+          ],
+          "volume_mm3": 2.5177728835549376
+        },
+        {
+          "actual_step_id": "actual_step_solid_35",
+          "bounds_mm": [
+            0.02399989999999991,
+            1.6660001000000002,
+            -3.616,
+            5.626955085643,
+            -47.07143088477386,
+            -0.3339999
+          ],
+          "volume_mm3": 2.517772883544778
+        },
+        {
+          "actual_step_id": "actual_step_solid_37",
+          "bounds_mm": [
+            0.3039999,
+            2.066,
+            -3.6160001,
+            5.689401361695,
+            -47.07201305669919,
+            -0.6339999000000001
+          ],
+          "volume_mm3": 2.5177728835619075
+        }
+      ],
+      "complete_four_wire_vs_fixed_fixture": {
+        "all_pairs": 44,
+        "bbox_overlap_pairs_checked_by_boolean": 8,
+        "intersections_above_1e_minus6_mm3": []
+      },
+      "loadtrain": {
+        "status": "SEPARATELY_POSITIONED_CAP_FORCE_COUPON",
+        "z_translation_mm": -0.6,
+        "bounds_mm": {
+          "force_transducer_ENVELOPE_UNSELECTED": [
+            -10.0,
+            10.0,
+            -10.0,
+            10.0,
+            64.4,
+            79.4
+          ],
+          "thermal_standoff_D4": [
+            -2.0,
+            2.0,
+            -2.0,
+            2.0,
+            3.0,
+            64.4
+          ],
+          "cap_force_coupon_D6x3": [
+            -3.0,
+            3.0,
+            -3.0,
+            3.0,
+            0.0,
+            3.0
+          ]
+        },
+        "vs_cartridge": {
+          "all_pairs": 129,
+          "bbox_overlap_pairs_checked_by_boolean": 0,
+          "intersections_above_1e_minus6_mm3": []
+        },
+        "vs_fixed_fixture": {
+          "all_pairs": 33,
+          "bbox_overlap_pairs_checked_by_boolean": 0,
+          "intersections_above_1e_minus6_mm3": []
+        },
+        "limitations": "Stage transmission/guide travel and loadcell attachment are unengineered; no actuator kinematic or strength qualification."
+      }
+    },
+    {
+      "variant": "M222_control_010",
+      "pose": "full_stroke",
+      "actual_STEP_solids": 43,
+      "cartridge_bounds_mm": [
+        -25.0,
+        25.0,
+        -25.0,
+        25.0,
+        -47.079113473716646,
+        0.0
+      ],
+      "fixed_fixture_all_solids": {
+        "all_pairs": 473,
+        "bbox_overlap_pairs_checked_by_boolean": 34,
+        "intersections_above_1e_minus6_mm3": []
+      },
+      "wire_bounds_mm": [
+        {
+          "actual_step_id": "actual_step_solid_31",
+          "bounds_mm": [
+            -2.0660000999999997,
+            -0.3039999,
+            -3.616,
+            6.050578626882001,
+            -47.07561049722848,
+            -1.1839998999999999
+          ],
+          "volume_mm3": 2.5177728835498483
+        },
+        {
+          "actual_step_id": "actual_step_solid_33",
+          "bounds_mm": [
+            -1.6660001000000002,
+            -0.02399989999999991,
+            -3.6160001,
+            6.4792539596830006,
+            -47.079113473716646,
+            -1.4839999
+          ],
+          "volume_mm3": 2.51777288354267
+        },
+        {
+          "actual_step_id": "actual_step_solid_35",
+          "bounds_mm": [
+            0.023999900000000008,
+            1.6660000000000001,
+            -3.616,
+            6.239526882351,
+            -47.077197511028416,
+            -1.1839998999999999
+          ],
+          "volume_mm3": 2.517772883555713
+        },
+        {
+          "actual_step_id": "actual_step_solid_37",
+          "bounds_mm": [
+            0.3039999,
+            2.066,
+            -3.6160001,
+            6.295404409067001,
+            -47.077653717730605,
+            -1.4839999
+          ],
+          "volume_mm3": 2.5177728835551445
+        }
+      ],
+      "complete_four_wire_vs_fixed_fixture": {
+        "all_pairs": 44,
+        "bbox_overlap_pairs_checked_by_boolean": 8,
+        "intersections_above_1e_minus6_mm3": []
+      },
+      "loadtrain": {
+        "status": "SEPARATELY_POSITIONED_CAP_FORCE_COUPON",
+        "z_translation_mm": -1.45,
+        "bounds_mm": {
+          "force_transducer_ENVELOPE_UNSELECTED": [
+            -10.0,
+            10.0,
+            -10.0,
+            10.0,
+            63.55,
+            78.55
+          ],
+          "thermal_standoff_D4": [
+            -2.0,
+            2.0,
+            -2.0,
+            2.0,
+            2.1500000000000004,
+            63.55
+          ],
+          "cap_force_coupon_D6x3": [
+            -3.0,
+            3.0,
+            -3.0,
+            3.0,
+            -0.85,
+            2.1500000000000004
+          ]
+        },
+        "vs_cartridge": {
+          "all_pairs": 129,
+          "bbox_overlap_pairs_checked_by_boolean": 3,
+          "intersections_above_1e_minus6_mm3": []
+        },
+        "vs_fixed_fixture": {
+          "all_pairs": 33,
+          "bbox_overlap_pairs_checked_by_boolean": 0,
+          "intersections_above_1e_minus6_mm3": []
+        },
+        "limitations": "Stage transmission/guide travel and loadcell attachment are unengineered; no actuator kinematic or strength qualification."
+      },
+      "negative_large_pan_control": {
+        "all_pairs": 1,
+        "bbox_overlap_pairs_checked_by_boolean": 1,
+        "intersections_above_1e_minus6_mm3": [
+          {
+            "left": "UNSUITABLE_D36_PAN_FULL_STROKE",
+            "right": "actual_step_solid_0",
+            "overlap_mm3": 648.895962598986
+          }
+        ]
+      }
+    },
+    {
+      "variant": "M222_control_010",
+      "pose": "cap_capture",
+      "actual_STEP_solids": 43,
+      "cartridge_bounds_mm": [
+        -25.0,
+        25.0,
+        -25.0,
+        25.0,
+        -47.067389066139086,
+        0.8
+      ],
+      "fixed_fixture_all_solids": {
+        "all_pairs": 473,
+        "bbox_overlap_pairs_checked_by_boolean": 33,
+        "intersections_above_1e_minus6_mm3": []
+      },
+      "wire_bounds_mm": [
+        {
+          "actual_step_id": "actual_step_solid_31",
+          "bounds_mm": [
+            -2.066,
+            -0.30399989999999993,
+            -3.616,
+            4.6895761192380006,
+            -47.061468243276025,
+            0.4660001
+          ],
+          "volume_mm3": 2.5177728835468844
+        },
+        {
+          "actual_step_id": "actual_step_solid_33",
+          "bounds_mm": [
+            -1.6660001000000002,
+            -0.02399989999999991,
+            -3.6160001,
+            5.241438587566001,
+            -47.067389066139086,
+            0.1660001
+          ],
+          "volume_mm3": 2.5177728835504913
+        },
+        {
+          "actual_step_id": "actual_step_solid_35",
+          "bounds_mm": [
+            0.023999900000000008,
+            1.6660000000000001,
+            -3.616,
+            4.936255744876001,
+            -47.06419571080963,
+            0.4660001
+          ],
+          "volume_mm3": 2.5177728835472255
+        },
+        {
+          "actual_step_id": "actual_step_solid_37",
+          "bounds_mm": [
+            0.30399989999999993,
+            2.0660000999999997,
+            -3.6160001,
+            5.008113105981001,
+            -47.06496551334999,
+            0.1660001
+          ],
+          "volume_mm3": 2.5177728835614674
+        }
+      ],
+      "complete_four_wire_vs_fixed_fixture": {
+        "all_pairs": 44,
+        "bbox_overlap_pairs_checked_by_boolean": 8,
+        "intersections_above_1e_minus6_mm3": []
+      },
+      "loadtrain": {
+        "status": "REMOVED_FOR_RETENTION_POSE",
+        "reason": "Pan/force train is absent during cap-lift retention; no fixed pan clash is hidden as a pass."
+      }
+    },
+    {
+      "variant": "M222_thin_0075",
+      "pose": "rest",
+      "actual_STEP_solids": 43,
+      "cartridge_bounds_mm": [
+        -25.0,
+        25.0,
+        -25.0,
+        25.0,
+        -47.06918819069113,
+        0.6
+      ],
+      "fixed_fixture_all_solids": {
+        "all_pairs": 473,
+        "bbox_overlap_pairs_checked_by_boolean": 33,
+        "intersections_above_1e_minus6_mm3": []
+      },
+      "wire_bounds_mm": [
+        {
+          "actual_step_id": "actual_step_solid_31",
+          "bounds_mm": [
+            -2.0660000999999997,
+            -0.3039999,
+            -3.616,
+            4.885252389534,
+            -47.06370087450385,
+            0.2660001
+          ],
+          "volume_mm3": 2.517772883550044
+        },
+        {
+          "actual_step_id": "actual_step_solid_33",
+          "bounds_mm": [
+            -1.6660001000000002,
+            -0.02399989999999991,
+            -3.6160001,
+            5.415575318160001,
+            -47.06918819069113,
+            -0.033999899999999986
+          ],
+          "volume_mm3": 2.517772883550925
+        },
+        {
+          "actual_step_id": "actual_step_solid_35",
+          "bounds_mm": [
+            0.023999900000000008,
+            1.6660000000000001,
+            -3.616,
+            5.121663658738,
+            -47.066220992501144,
+            0.2660001
+          ],
+          "volume_mm3": 2.5177728835533895
+        },
+        {
+          "actual_step_id": "actual_step_solid_37",
+          "bounds_mm": [
+            0.3039999,
+            2.066,
+            -3.6160001,
+            5.190734152743,
+            -47.066934693703615,
+            -0.033999899999999986
+          ],
+          "volume_mm3": 2.5177728835453435
+        }
+      ],
+      "complete_four_wire_vs_fixed_fixture": {
+        "all_pairs": 44,
+        "bbox_overlap_pairs_checked_by_boolean": 8,
+        "intersections_above_1e_minus6_mm3": []
+      },
+      "loadtrain": {
+        "status": "SEPARATELY_POSITIONED_CAP_FORCE_COUPON",
+        "z_translation_mm": 0.0,
+        "bounds_mm": {
+          "force_transducer_ENVELOPE_UNSELECTED": [
+            -10.0,
+            10.0,
+            -10.0,
+            10.0,
+            65.0,
+            80.0
+          ],
+          "thermal_standoff_D4": [
+            -2.0,
+            2.0,
+            -2.0,
+            2.0,
+            3.6,
+            65.0
+          ],
+          "cap_force_coupon_D6x3": [
+            -3.0,
+            3.0,
+            -3.0,
+            3.0,
+            0.6,
+            3.6
+          ]
+        },
+        "vs_cartridge": {
+          "all_pairs": 129,
+          "bbox_overlap_pairs_checked_by_boolean": 0,
+          "intersections_above_1e_minus6_mm3": []
+        },
+        "vs_fixed_fixture": {
+          "all_pairs": 33,
+          "bbox_overlap_pairs_checked_by_boolean": 0,
+          "intersections_above_1e_minus6_mm3": []
+        },
+        "limitations": "Stage transmission/guide travel and loadcell attachment are unengineered; no actuator kinematic or strength qualification."
+      }
+    },
+    {
+      "variant": "M222_thin_0075",
+      "pose": "loaded",
+      "actual_STEP_solids": 43,
+      "cartridge_bounds_mm": [
+        -25.0,
+        25.0,
+        -25.0,
+        25.0,
+        -47.07386376028617,
+        0.0
+      ],
+      "fixed_fixture_all_solids": {
+        "all_pairs": 473,
+        "bbox_overlap_pairs_checked_by_boolean": 33,
+        "intersections_above_1e_minus6_mm3": []
+      },
+      "wire_bounds_mm": [
+        {
+          "actual_step_id": "actual_step_solid_31",
+          "bounds_mm": [
+            -2.066,
+            -0.3039999,
+            -3.616,
+            5.414594495979,
+            -47.06939100666594,
+            -0.3339999
+          ],
+          "volume_mm3": 2.517772883559918
+        },
+        {
+          "actual_step_id": "actual_step_solid_33",
+          "bounds_mm": [
+            -1.6660001000000002,
+            -0.023999900000000008,
+            -3.6160001,
+            5.893824153889001,
+            -47.07386376028617,
+            -0.6339999000000001
+          ],
+          "volume_mm3": 2.5177728835549376
+        },
+        {
+          "actual_step_id": "actual_step_solid_35",
+          "bounds_mm": [
+            0.02399989999999991,
+            1.6660001000000002,
+            -3.616,
+            5.626955085643,
+            -47.07143088477386,
+            -0.3339999
+          ],
+          "volume_mm3": 2.517772883544778
+        },
+        {
+          "actual_step_id": "actual_step_solid_37",
+          "bounds_mm": [
+            0.3039999,
+            2.066,
+            -3.6160001,
+            5.689401361695,
+            -47.07201305669919,
+            -0.6339999000000001
+          ],
+          "volume_mm3": 2.5177728835619075
+        }
+      ],
+      "complete_four_wire_vs_fixed_fixture": {
+        "all_pairs": 44,
+        "bbox_overlap_pairs_checked_by_boolean": 8,
+        "intersections_above_1e_minus6_mm3": []
+      },
+      "loadtrain": {
+        "status": "SEPARATELY_POSITIONED_CAP_FORCE_COUPON",
+        "z_translation_mm": -0.6,
+        "bounds_mm": {
+          "force_transducer_ENVELOPE_UNSELECTED": [
+            -10.0,
+            10.0,
+            -10.0,
+            10.0,
+            64.4,
+            79.4
+          ],
+          "thermal_standoff_D4": [
+            -2.0,
+            2.0,
+            -2.0,
+            2.0,
+            3.0,
+            64.4
+          ],
+          "cap_force_coupon_D6x3": [
+            -3.0,
+            3.0,
+            -3.0,
+            3.0,
+            0.0,
+            3.0
+          ]
+        },
+        "vs_cartridge": {
+          "all_pairs": 129,
+          "bbox_overlap_pairs_checked_by_boolean": 0,
+          "intersections_above_1e_minus6_mm3": []
+        },
+        "vs_fixed_fixture": {
+          "all_pairs": 33,
+          "bbox_overlap_pairs_checked_by_boolean": 0,
+          "intersections_above_1e_minus6_mm3": []
+        },
+        "limitations": "Stage transmission/guide travel and loadcell attachment are unengineered; no actuator kinematic or strength qualification."
+      }
+    },
+    {
+      "variant": "M222_thin_0075",
+      "pose": "full_stroke",
+      "actual_STEP_solids": 43,
+      "cartridge_bounds_mm": [
+        -25.0,
+        25.0,
+        -25.0,
+        25.0,
+        -47.079113473716646,
+        0.0
+      ],
+      "fixed_fixture_all_solids": {
+        "all_pairs": 473,
+        "bbox_overlap_pairs_checked_by_boolean": 34,
+        "intersections_above_1e_minus6_mm3": []
+      },
+      "wire_bounds_mm": [
+        {
+          "actual_step_id": "actual_step_solid_31",
+          "bounds_mm": [
+            -2.0660000999999997,
+            -0.3039999,
+            -3.616,
+            6.050578626882001,
+            -47.07561049722848,
+            -1.1839998999999999
+          ],
+          "volume_mm3": 2.5177728835498483
+        },
+        {
+          "actual_step_id": "actual_step_solid_33",
+          "bounds_mm": [
+            -1.6660001000000002,
+            -0.02399989999999991,
+            -3.6160001,
+            6.4792539596830006,
+            -47.079113473716646,
+            -1.4839999
+          ],
+          "volume_mm3": 2.51777288354267
+        },
+        {
+          "actual_step_id": "actual_step_solid_35",
+          "bounds_mm": [
+            0.023999900000000008,
+            1.6660000000000001,
+            -3.616,
+            6.239526882351,
+            -47.077197511028416,
+            -1.1839998999999999
+          ],
+          "volume_mm3": 2.517772883555713
+        },
+        {
+          "actual_step_id": "actual_step_solid_37",
+          "bounds_mm": [
+            0.3039999,
+            2.066,
+            -3.6160001,
+            6.295404409067001,
+            -47.077653717730605,
+            -1.4839999
+          ],
+          "volume_mm3": 2.5177728835551445
+        }
+      ],
+      "complete_four_wire_vs_fixed_fixture": {
+        "all_pairs": 44,
+        "bbox_overlap_pairs_checked_by_boolean": 8,
+        "intersections_above_1e_minus6_mm3": []
+      },
+      "loadtrain": {
+        "status": "SEPARATELY_POSITIONED_CAP_FORCE_COUPON",
+        "z_translation_mm": -1.45,
+        "bounds_mm": {
+          "force_transducer_ENVELOPE_UNSELECTED": [
+            -10.0,
+            10.0,
+            -10.0,
+            10.0,
+            63.55,
+            78.55
+          ],
+          "thermal_standoff_D4": [
+            -2.0,
+            2.0,
+            -2.0,
+            2.0,
+            2.1500000000000004,
+            63.55
+          ],
+          "cap_force_coupon_D6x3": [
+            -3.0,
+            3.0,
+            -3.0,
+            3.0,
+            -0.85,
+            2.1500000000000004
+          ]
+        },
+        "vs_cartridge": {
+          "all_pairs": 129,
+          "bbox_overlap_pairs_checked_by_boolean": 3,
+          "intersections_above_1e_minus6_mm3": []
+        },
+        "vs_fixed_fixture": {
+          "all_pairs": 33,
+          "bbox_overlap_pairs_checked_by_boolean": 0,
+          "intersections_above_1e_minus6_mm3": []
+        },
+        "limitations": "Stage transmission/guide travel and loadcell attachment are unengineered; no actuator kinematic or strength qualification."
+      },
+      "negative_large_pan_control": {
+        "all_pairs": 1,
+        "bbox_overlap_pairs_checked_by_boolean": 1,
+        "intersections_above_1e_minus6_mm3": [
+          {
+            "left": "UNSUITABLE_D36_PAN_FULL_STROKE",
+            "right": "actual_step_solid_0",
+            "overlap_mm3": 648.895962598986
+          }
+        ]
+      }
+    },
+    {
+      "variant": "M222_thin_0075",
+      "pose": "cap_capture",
+      "actual_STEP_solids": 43,
+      "cartridge_bounds_mm": [
+        -25.0,
+        25.0,
+        -25.0,
+        25.0,
+        -47.067389066139086,
+        0.8
+      ],
+      "fixed_fixture_all_solids": {
+        "all_pairs": 473,
+        "bbox_overlap_pairs_checked_by_boolean": 33,
+        "intersections_above_1e_minus6_mm3": []
+      },
+      "wire_bounds_mm": [
+        {
+          "actual_step_id": "actual_step_solid_31",
+          "bounds_mm": [
+            -2.066,
+            -0.30399989999999993,
+            -3.616,
+            4.6895761192380006,
+            -47.061468243276025,
+            0.4660001
+          ],
+          "volume_mm3": 2.5177728835468844
+        },
+        {
+          "actual_step_id": "actual_step_solid_33",
+          "bounds_mm": [
+            -1.6660001000000002,
+            -0.02399989999999991,
+            -3.6160001,
+            5.241438587566001,
+            -47.067389066139086,
+            0.1660001
+          ],
+          "volume_mm3": 2.5177728835504913
+        },
+        {
+          "actual_step_id": "actual_step_solid_35",
+          "bounds_mm": [
+            0.023999900000000008,
+            1.6660000000000001,
+            -3.616,
+            4.936255744876001,
+            -47.06419571080963,
+            0.4660001
+          ],
+          "volume_mm3": 2.5177728835472255
+        },
+        {
+          "actual_step_id": "actual_step_solid_37",
+          "bounds_mm": [
+            0.30399989999999993,
+            2.0660000999999997,
+            -3.6160001,
+            5.008113105981001,
+            -47.06496551334999,
+            0.1660001
+          ],
+          "volume_mm3": 2.5177728835614674
+        }
+      ],
+      "complete_four_wire_vs_fixed_fixture": {
+        "all_pairs": 44,
+        "bbox_overlap_pairs_checked_by_boolean": 8,
+        "intersections_above_1e_minus6_mm3": []
+      },
+      "loadtrain": {
+        "status": "REMOVED_FOR_RETENTION_POSE",
+        "reason": "Pan/force train is absent during cap-lift retention; no fixed pan clash is hidden as a pass."
+      }
+    },
+    {
+      "variant": "IST308_thin_0075",
+      "pose": "rest",
+      "actual_STEP_solids": 43,
+      "cartridge_bounds_mm": [
+        -25.0,
+        25.0,
+        -25.0,
+        25.0,
+        -47.06955930710604,
+        0.6
+      ],
+      "fixed_fixture_all_solids": {
+        "all_pairs": 473,
+        "bbox_overlap_pairs_checked_by_boolean": 33,
+        "intersections_above_1e_minus6_mm3": []
+      },
+      "wire_bounds_mm": [
+        {
+          "actual_step_id": "actual_step_solid_31",
+          "bounds_mm": [
+            -2.066,
+            -0.3039999,
+            -3.616,
+            4.936692148771001,
+            -47.064259455566514,
+            0.2660001
+          ],
+          "volume_mm3": 2.517772883544536
+        },
+        {
+          "actual_step_id": "actual_step_solid_33",
+          "bounds_mm": [
+            -1.6660001000000002,
+            -0.023999900000000008,
+            -3.6160001,
+            5.453647053649001,
+            -47.06955930710604,
+            -0.033999899999999986
+          ],
+          "volume_mm3": 2.5177728835563067
+        },
+        {
+          "actual_step_id": "actual_step_solid_35",
+          "bounds_mm": [
+            0.023999900000000008,
+            1.6660001,
+            -3.616,
+            5.161564629423,
+            -47.0666345244438,
+            0.2660001
+          ],
+          "volume_mm3": 2.517772883548229
+        },
+        {
+          "actual_step_id": "actual_step_solid_37",
+          "bounds_mm": [
+            0.3039999,
+            2.066,
+            -3.6160001,
+            5.239544748389,
+            -47.067432944808935,
+            -0.033999899999999986
+          ],
+          "volume_mm3": 2.517772883555693
+        }
+      ],
+      "complete_four_wire_vs_fixed_fixture": {
+        "all_pairs": 44,
+        "bbox_overlap_pairs_checked_by_boolean": 8,
+        "intersections_above_1e_minus6_mm3": []
+      },
+      "loadtrain": {
+        "status": "SEPARATELY_POSITIONED_CAP_FORCE_COUPON",
+        "z_translation_mm": 0.0,
+        "bounds_mm": {
+          "force_transducer_ENVELOPE_UNSELECTED": [
+            -10.0,
+            10.0,
+            -10.0,
+            10.0,
+            65.0,
+            80.0
+          ],
+          "thermal_standoff_D4": [
+            -2.0,
+            2.0,
+            -2.0,
+            2.0,
+            3.6,
+            65.0
+          ],
+          "cap_force_coupon_D6x3": [
+            -3.0,
+            3.0,
+            -3.0,
+            3.0,
+            0.6,
+            3.6
+          ]
+        },
+        "vs_cartridge": {
+          "all_pairs": 129,
+          "bbox_overlap_pairs_checked_by_boolean": 0,
+          "intersections_above_1e_minus6_mm3": []
+        },
+        "vs_fixed_fixture": {
+          "all_pairs": 33,
+          "bbox_overlap_pairs_checked_by_boolean": 0,
+          "intersections_above_1e_minus6_mm3": []
+        },
+        "limitations": "Stage transmission/guide travel and loadcell attachment are unengineered; no actuator kinematic or strength qualification."
+      }
+    },
+    {
+      "variant": "IST308_thin_0075",
+      "pose": "loaded",
+      "actual_STEP_solids": 43,
+      "cartridge_bounds_mm": [
+        -25.0,
+        25.0,
+        -25.0,
+        25.0,
+        -47.074170327603724,
+        0.0
+      ],
+      "fixed_fixture_all_solids": {
+        "all_pairs": 473,
+        "bbox_overlap_pairs_checked_by_boolean": 33,
+        "intersections_above_1e_minus6_mm3": []
+      },
+      "wire_bounds_mm": [
+        {
+          "actual_step_id": "actual_step_solid_31",
+          "bounds_mm": [
+            -2.066,
+            -0.3039999,
+            -3.616,
+            5.460611031390001,
+            -47.06984097922074,
+            -0.3339999
+          ],
+          "volume_mm3": 2.5177728835475923
+        },
+        {
+          "actual_step_id": "actual_step_solid_33",
+          "bounds_mm": [
+            -1.6660001000000002,
+            -0.023999900000000008,
+            -3.6160001,
+            5.92860199609,
+            -47.074170327603724,
+            -0.6339999000000001
+          ],
+          "volume_mm3": 2.517772883548198
+        },
+        {
+          "actual_step_id": "actual_step_solid_35",
+          "bounds_mm": [
+            0.023999900000000008,
+            1.6660001000000002,
+            -3.616,
+            5.6630082504570005,
+            -47.0717679701926,
+            -0.3339999
+          ],
+          "volume_mm3": 2.5177728835572006
+        },
+        {
+          "actual_step_id": "actual_step_solid_37",
+          "bounds_mm": [
+            0.3039999,
+            2.066,
+            -3.6160001,
+            5.733633608473,
+            -47.07242062627075,
+            -0.6339999000000001
+          ],
+          "volume_mm3": 2.5177728835578366
+        }
+      ],
+      "complete_four_wire_vs_fixed_fixture": {
+        "all_pairs": 44,
+        "bbox_overlap_pairs_checked_by_boolean": 8,
+        "intersections_above_1e_minus6_mm3": []
+      },
+      "loadtrain": {
+        "status": "SEPARATELY_POSITIONED_CAP_FORCE_COUPON",
+        "z_translation_mm": -0.6,
+        "bounds_mm": {
+          "force_transducer_ENVELOPE_UNSELECTED": [
+            -10.0,
+            10.0,
+            -10.0,
+            10.0,
+            64.4,
+            79.4
+          ],
+          "thermal_standoff_D4": [
+            -2.0,
+            2.0,
+            -2.0,
+            2.0,
+            3.0,
+            64.4
+          ],
+          "cap_force_coupon_D6x3": [
+            -3.0,
+            3.0,
+            -3.0,
+            3.0,
+            0.0,
+            3.0
+          ]
+        },
+        "vs_cartridge": {
+          "all_pairs": 129,
+          "bbox_overlap_pairs_checked_by_boolean": 0,
+          "intersections_above_1e_minus6_mm3": []
+        },
+        "vs_fixed_fixture": {
+          "all_pairs": 33,
+          "bbox_overlap_pairs_checked_by_boolean": 0,
+          "intersections_above_1e_minus6_mm3": []
+        },
+        "limitations": "Stage transmission/guide travel and loadcell attachment are unengineered; no actuator kinematic or strength qualification."
+      }
+    },
+    {
+      "variant": "IST308_thin_0075",
+      "pose": "full_stroke",
+      "actual_STEP_solids": 43,
+      "cartridge_bounds_mm": [
+        -25.0,
+        25.0,
+        -25.0,
+        25.0,
+        -47.07935665977925,
+        0.0
+      ],
+      "fixed_fixture_all_solids": {
+        "all_pairs": 473,
+        "bbox_overlap_pairs_checked_by_boolean": 34,
+        "intersections_above_1e_minus6_mm3": []
+      },
+      "wire_bounds_mm": [
+        {
+          "actual_step_id": "actual_step_solid_31",
+          "bounds_mm": [
+            -2.0660000999999997,
+            -0.3039999,
+            -3.616,
+            6.091375772792,
+            -47.075959020904904,
+            -1.1839998999999999
+          ],
+          "volume_mm3": 2.5177728835497826
+        },
+        {
+          "actual_step_id": "actual_step_solid_33",
+          "bounds_mm": [
+            -1.6660001000000002,
+            -0.023999900000000008,
+            -3.6160001,
+            6.510666987453001,
+            -47.07935665977925,
+            -1.4839999
+          ],
+          "volume_mm3": 2.5177728835564994
+        },
+        {
+          "actual_step_id": "actual_step_solid_35",
+          "bounds_mm": [
+            0.023999900000000008,
+            1.6660000000000001,
+            -3.616,
+            6.27177077858,
+            -47.07746148520485,
+            -1.1839998999999999
+          ],
+          "volume_mm3": 2.5177728835431705
+        },
+        {
+          "actual_step_id": "actual_step_solid_37",
+          "bounds_mm": [
+            0.3039999,
+            2.066,
+            -3.6160001,
+            6.335066332047,
+            -47.07797395639042,
+            -1.4839999
+          ],
+          "volume_mm3": 2.517772883540675
+        }
+      ],
+      "complete_four_wire_vs_fixed_fixture": {
+        "all_pairs": 44,
+        "bbox_overlap_pairs_checked_by_boolean": 8,
+        "intersections_above_1e_minus6_mm3": []
+      },
+      "loadtrain": {
+        "status": "SEPARATELY_POSITIONED_CAP_FORCE_COUPON",
+        "z_translation_mm": -1.45,
+        "bounds_mm": {
+          "force_transducer_ENVELOPE_UNSELECTED": [
+            -10.0,
+            10.0,
+            -10.0,
+            10.0,
+            63.55,
+            78.55
+          ],
+          "thermal_standoff_D4": [
+            -2.0,
+            2.0,
+            -2.0,
+            2.0,
+            2.1500000000000004,
+            63.55
+          ],
+          "cap_force_coupon_D6x3": [
+            -3.0,
+            3.0,
+            -3.0,
+            3.0,
+            -0.85,
+            2.1500000000000004
+          ]
+        },
+        "vs_cartridge": {
+          "all_pairs": 129,
+          "bbox_overlap_pairs_checked_by_boolean": 3,
+          "intersections_above_1e_minus6_mm3": []
+        },
+        "vs_fixed_fixture": {
+          "all_pairs": 33,
+          "bbox_overlap_pairs_checked_by_boolean": 0,
+          "intersections_above_1e_minus6_mm3": []
+        },
+        "limitations": "Stage transmission/guide travel and loadcell attachment are unengineered; no actuator kinematic or strength qualification."
+      },
+      "negative_large_pan_control": {
+        "all_pairs": 1,
+        "bbox_overlap_pairs_checked_by_boolean": 1,
+        "intersections_above_1e_minus6_mm3": [
+          {
+            "left": "UNSUITABLE_D36_PAN_FULL_STROKE",
+            "right": "actual_step_solid_0",
+            "overlap_mm3": 648.895962598986
+          }
+        ]
+      }
+    },
+    {
+      "variant": "IST308_thin_0075",
+      "pose": "cap_capture",
+      "actual_STEP_solids": 43,
+      "cartridge_bounds_mm": [
+        -25.0,
+        25.0,
+        -25.0,
+        25.0,
+        -47.06778719657416,
+        0.8
+      ],
+      "fixed_fixture_all_solids": {
+        "all_pairs": 473,
+        "bbox_overlap_pairs_checked_by_boolean": 33,
+        "intersections_above_1e_minus6_mm3": []
+      },
+      "wire_bounds_mm": [
+        {
+          "actual_step_id": "actual_step_solid_31",
+          "bounds_mm": [
+            -2.0660000999999997,
+            -0.3039999,
+            -3.616,
+            4.743352447922001,
+            -47.06207407175016,
+            0.4660001
+          ],
+          "volume_mm3": 2.517772883548097
+        },
+        {
+          "actual_step_id": "actual_step_solid_33",
+          "bounds_mm": [
+            -1.6660001000000002,
+            -0.023999900000000008,
+            -3.6160001,
+            5.2808645566840005,
+            -47.06778719657416,
+            0.1660001
+          ],
+          "volume_mm3": 2.51777288355752
+        },
+        {
+          "actual_step_id": "actual_step_solid_35",
+          "bounds_mm": [
+            0.023999900000000008,
+            1.6660001,
+            -3.616,
+            4.977777624901001,
+            -47.06464188455742,
+            0.4660001
+          ],
+          "volume_mm3": 2.5177728835451987
+        },
+        {
+          "actual_step_id": "actual_step_solid_37",
+          "bounds_mm": [
+            0.3039999,
+            2.066,
+            -3.6160001,
+            5.058839838011001,
+            -47.0655022767646,
+            0.1660001
+          ],
+          "volume_mm3": 2.517772883551083
+        }
+      ],
+      "complete_four_wire_vs_fixed_fixture": {
+        "all_pairs": 44,
+        "bbox_overlap_pairs_checked_by_boolean": 8,
+        "intersections_above_1e_minus6_mm3": []
+      },
+      "loadtrain": {
+        "status": "REMOVED_FOR_RETENTION_POSE",
+        "reason": "Pan/force train is absent during cap-lift retention; no fixed pan clash is hidden as a pass."
+      }
+    }
+  ],
+  "failures": []
+}

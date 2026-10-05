@@ -1,0 +1,203 @@
+{
+  "findings": [
+    {
+      "#": 1,
+      "autofix_class": "manual",
+      "confidence": 100,
+      "evidence": [
+        "packages/temper-thermal/studies/glass_sensor/revision7/source-provenance.json:8 --     \"VERIFICATION.md\": \"0b43945a550b2ef4967ef2fd630ccbeb028763e50bfcd60e20f64c5c760fedd1\",",
+        "Merge-stage read-only execution of python3 -B revision7/provenance.py verify exited 1 with ValueError: R7 artifact identity changed: VERIFICATION.md.",
+        "At 2026-10-05T04:43:06.961889+00:00, the read-only digest census found 25 mismatches among 110 previously recorded artifacts and 0 missing recorded files; see merge-source-snapshot.json. Concurrent mechanical regeneration means this is an intermediate snapshot, not the final delivered inventory."
+      ],
+      "file": "packages/temper-thermal/studies/glass_sensor/revision7/source-provenance.json",
+      "first_evidence": "packages/temper-thermal/studies/glass_sensor/revision7/source-provenance.json:8 --     \"VERIFICATION.md\": \"0b43945a550b2ef4967ef2fd630ccbeb028763e50bfcd60e20f64c5c760fedd1\",",
+      "independent_reviewers": [
+        "adversarial"
+      ],
+      "line": 8,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "adversarial"
+      ],
+      "severity": "P2",
+      "suggested_fix": "After completing the final verification text and mechanical receipt refresh, run revision7/provenance.py write and then revision7/provenance.py verify; confirm every recorded R7 artifact and current-index digest matches the delivered bytes.",
+      "title": "Final artifact refresh leaves provenance verification failing",
+      "why_it_matters": "The documented identity verification still exits with ValueError: R7 artifact identity changed: VERIFICATION.md. Review-driven calibration and CAD regeneration have also changed recorded files. The complete package requires a final manifest/current-index refresh after review evidence and generated outputs settle, followed by successful read-only verification. This is pending final bookkeeping, not evidence that the physical NOT_RUN labels or preserved R5/R6 history are wrong.",
+      "historical_reviewer_evidence": [
+        "packages/temper-thermal/studies/glass_sensor/revision7/source-provenance.json:8 --     \"VERIFICATION.md\": \"0b43945a550b2ef4967ef2fd630ccbeb028763e50bfcd60e20f64c5c760fedd1\",",
+        "Read-only SHA256 comparison of all 110 recorded R7 artifacts found exactly two mismatches: VERIFICATION.md and mechanical/inputs.sha256. All integration input hashes and both historical manifest hashes matched.",
+        "Executed python3 -B packages/temper-thermal/studies/glass_sensor/revision7/provenance.py verify from the reviewed worktree: exit 1 with ValueError: R7 artifact identity changed: VERIFICATION.md.",
+        "packages/temper-thermal/studies/glass_sensor/revision7/source-provenance.json:93 also pins the stale mechanical/inputs.sha256 digest f2e2c596bca0cac2f11cd1bd17859eb229863401b3ac0ed8f3ee75b7ca86fae8."
+      ],
+      "context": "The author is completing final provenance bookkeeping concurrently. Recheck current source and provenance verification before confirming this remains open; reject with fresh evidence if final refresh has completed."
+    }
+  ],
+  "first_evidence_backfilled": 0,
+  "malformed_findings": 0,
+  "malformed_returns": 0,
+  "pre_existing_findings": [],
+  "residual_risks": [],
+  "status": "complete",
+  "suppressed_by_confidence": {},
+  "suppressed_findings": [],
+  "testing_gaps": [],
+  "primary_findings": [
+    {
+      "#": 1,
+      "autofix_class": "manual",
+      "confidence": 100,
+      "evidence": [
+        "packages/temper-thermal/studies/glass_sensor/revision7/source-provenance.json:8 --     \"VERIFICATION.md\": \"0b43945a550b2ef4967ef2fd630ccbeb028763e50bfcd60e20f64c5c760fedd1\",",
+        "Merge-stage read-only execution of python3 -B revision7/provenance.py verify exited 1 with ValueError: R7 artifact identity changed: VERIFICATION.md.",
+        "At 2026-10-05T04:43:06.961889+00:00, the read-only digest census found 25 mismatches among 110 previously recorded artifacts and 0 missing recorded files; see merge-source-snapshot.json. Concurrent mechanical regeneration means this is an intermediate snapshot, not the final delivered inventory."
+      ],
+      "file": "packages/temper-thermal/studies/glass_sensor/revision7/source-provenance.json",
+      "first_evidence": "packages/temper-thermal/studies/glass_sensor/revision7/source-provenance.json:8 --     \"VERIFICATION.md\": \"0b43945a550b2ef4967ef2fd630ccbeb028763e50bfcd60e20f64c5c760fedd1\",",
+      "independent_reviewers": [
+        "adversarial"
+      ],
+      "line": 8,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "adversarial"
+      ],
+      "severity": "P2",
+      "suggested_fix": "After completing the final verification text and mechanical receipt refresh, run revision7/provenance.py write and then revision7/provenance.py verify; confirm every recorded R7 artifact and current-index digest matches the delivered bytes.",
+      "title": "Final artifact refresh leaves provenance verification failing",
+      "why_it_matters": "The documented identity verification still exits with ValueError: R7 artifact identity changed: VERIFICATION.md. Review-driven calibration and CAD regeneration have also changed recorded files. The complete package requires a final manifest/current-index refresh after review evidence and generated outputs settle, followed by successful read-only verification. This is pending final bookkeeping, not evidence that the physical NOT_RUN labels or preserved R5/R6 history are wrong.",
+      "historical_reviewer_evidence": [
+        "packages/temper-thermal/studies/glass_sensor/revision7/source-provenance.json:8 --     \"VERIFICATION.md\": \"0b43945a550b2ef4967ef2fd630ccbeb028763e50bfcd60e20f64c5c760fedd1\",",
+        "Read-only SHA256 comparison of all 110 recorded R7 artifacts found exactly two mismatches: VERIFICATION.md and mechanical/inputs.sha256. All integration input hashes and both historical manifest hashes matched.",
+        "Executed python3 -B packages/temper-thermal/studies/glass_sensor/revision7/provenance.py verify from the reviewed worktree: exit 1 with ValueError: R7 artifact identity changed: VERIFICATION.md.",
+        "packages/temper-thermal/studies/glass_sensor/revision7/source-provenance.json:93 also pins the stale mechanical/inputs.sha256 digest f2e2c596bca0cac2f11cd1bd17859eb229863401b3ac0ed8f3ee75b7ca86fae8."
+      ],
+      "context": "The author is completing final provenance bookkeeping concurrently. Recheck current source and provenance verification before confirming this remains open; reject with fresh evidence if final refresh has completed."
+    }
+  ],
+  "actionable_findings": [
+    {
+      "#": 1,
+      "autofix_class": "manual",
+      "confidence": 100,
+      "evidence": [
+        "packages/temper-thermal/studies/glass_sensor/revision7/source-provenance.json:8 --     \"VERIFICATION.md\": \"0b43945a550b2ef4967ef2fd630ccbeb028763e50bfcd60e20f64c5c760fedd1\",",
+        "Merge-stage read-only execution of python3 -B revision7/provenance.py verify exited 1 with ValueError: R7 artifact identity changed: VERIFICATION.md.",
+        "At 2026-10-05T04:43:06.961889+00:00, the read-only digest census found 25 mismatches among 110 previously recorded artifacts and 0 missing recorded files; see merge-source-snapshot.json. Concurrent mechanical regeneration means this is an intermediate snapshot, not the final delivered inventory."
+      ],
+      "file": "packages/temper-thermal/studies/glass_sensor/revision7/source-provenance.json",
+      "first_evidence": "packages/temper-thermal/studies/glass_sensor/revision7/source-provenance.json:8 --     \"VERIFICATION.md\": \"0b43945a550b2ef4967ef2fd630ccbeb028763e50bfcd60e20f64c5c760fedd1\",",
+      "independent_reviewers": [
+        "adversarial"
+      ],
+      "line": 8,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "adversarial"
+      ],
+      "severity": "P2",
+      "suggested_fix": "After completing the final verification text and mechanical receipt refresh, run revision7/provenance.py write and then revision7/provenance.py verify; confirm every recorded R7 artifact and current-index digest matches the delivered bytes.",
+      "title": "Final artifact refresh leaves provenance verification failing",
+      "why_it_matters": "The documented identity verification still exits with ValueError: R7 artifact identity changed: VERIFICATION.md. Review-driven calibration and CAD regeneration have also changed recorded files. The complete package requires a final manifest/current-index refresh after review evidence and generated outputs settle, followed by successful read-only verification. This is pending final bookkeeping, not evidence that the physical NOT_RUN labels or preserved R5/R6 history are wrong.",
+      "historical_reviewer_evidence": [
+        "packages/temper-thermal/studies/glass_sensor/revision7/source-provenance.json:8 --     \"VERIFICATION.md\": \"0b43945a550b2ef4967ef2fd630ccbeb028763e50bfcd60e20f64c5c760fedd1\",",
+        "Read-only SHA256 comparison of all 110 recorded R7 artifacts found exactly two mismatches: VERIFICATION.md and mechanical/inputs.sha256. All integration input hashes and both historical manifest hashes matched.",
+        "Executed python3 -B packages/temper-thermal/studies/glass_sensor/revision7/provenance.py verify from the reviewed worktree: exit 1 with ValueError: R7 artifact identity changed: VERIFICATION.md.",
+        "packages/temper-thermal/studies/glass_sensor/revision7/source-provenance.json:93 also pins the stale mechanical/inputs.sha256 digest f2e2c596bca0cac2f11cd1bd17859eb229863401b3ac0ed8f3ee75b7ca86fae8."
+      ],
+      "context": "The author is completing final provenance bookkeeping concurrently. Recheck current source and provenance verification before confirming this remains open; reject with fresh evidence if final refresh has completed."
+    }
+  ],
+  "triage_groups": [],
+  "resolved_findings": [
+    {
+      "reviewer": "testing",
+      "title": "Test the guarded screen's passing outcome",
+      "resolution": "Resolved in current source and recorded synthetic evidence before synthesis.",
+      "evidence": [
+        "calibration/adapter.rs:167-170 adds guarded_screen_accepts_strictly_inside_bound with two WITHIN_PROPOSED_SCREEN assertions.",
+        "calibration/run.sh:71-80 evaluates a fast unbiased synthetic pair and asserts both proposed screens pass while physical_validation remains NOT_RUN.",
+        "calibration/results/tests.txt records 27 passed, including the new passing-screen unit test; calibration/results/SYNTHETIC-passing.txt records both screens WITHIN_PROPOSED_SCREEN.",
+        "All 13 entries in calibration/results/inputs.sha256 matched current source and result bytes during merge."
+      ]
+    },
+    {
+      "reviewer": "testing",
+      "title": "Exercise independent acquisition guards through R7 entry point",
+      "resolution": "Resolved in current source and recorded negative-case evidence before synthesis.",
+      "evidence": [
+        "calibration/run.sh:52-70 separately reuses run_id, raw_origin and identical_bytes after distinct pan/configuration identities pass; each entrypoint invocation must fail with the independent-acquisition message.",
+        "calibration/results/run_id-rejection.txt, raw_origin-rejection.txt and identical_bytes-rejection.txt each contain the expected independent-acquisition error.",
+        "All 13 entries in calibration/results/inputs.sha256 matched current source and result bytes during merge."
+      ]
+    },
+    {
+      "reviewer": "maintainability",
+      "title": "Information Leakage: baseline overwrite hides CAD changes",
+      "resolution": "Resolved in current source and regenerated audit evidence before synthesis.",
+      "evidence": [
+        "mechanical/build.py:57-79 defines preserve_unchanged_baseline; numeric CAD-derived values outside the seven declared changes must match baseline with rel_tol=0 and abs_tol=1e-7 before baseline text is restored.",
+        "mechanical/build.py:375 calls the guard on M222 variants after CAD scalar derivation.",
+        "mechanical/audit.py:78-90 checks unchanged preservation and rejection of native_nickel_length_mm drift from 1.0 to 1.01.",
+        "mechanical/independent-audit.json now records scalar_negative_test=PASS_REJECTED_UNDECLARED_CAD_SCALAR_CHANGE."
+      ]
+    }
+  ],
+  "reconciliation": {
+    "initial_candidate_count": 4,
+    "resolved_current_source_count": 3,
+    "semantic_duplicate_residual_count": 1,
+    "settled_conflict_count": 0,
+    "mode_aware_demotion_count": 0
+  },
+  "peer": {
+    "selected": true,
+    "target": "claude",
+    "route": "claude",
+    "preference_source": "default",
+    "outcome": "in-process-fallback",
+    "artifact": null,
+    "coverage": "Automatic approval review rejected the external Claude route because transmission of private repository contents was not authorized by the user\u2019s Astra-subagent request. No peer job started; the in-process adversarial reviewer completed. Cross-model independence is unavailable."
+  },
+  "coverage": [
+    "Full-depth review, 2405 executable non-test lines plus large generated CAD artifacts; generated repetition reviewed through generators/manifests and representative outputs.",
+    "Project standards used root AGENTS.md and CLAUDE.md fallback; no applicable CODING_STANDARDS.md found.",
+    "All seven selected lenses collected; no failed reviewers. Session-model correctness/adversarial; balanced model for other lenses.",
+    "Root confirmed VERIFICATION.md and mechanical/inputs.sha256 provenance mismatch is pending final bookkeeping, scheduled after importing review receipt; it must verify before final delivery.",
+    "After testing review, root added passing-screen unit/end-to-end synthetic cases and separate run-ID/origin/bytes reuse rejection entrypoint cases; validation must inspect final source, not assume these fixes passed.",
+    "Automatic approval review rejected the external Claude route because transmission of private repository contents was not authorized by the user\u2019s Astra-subagent request. No peer job started; the in-process adversarial reviewer completed. Cross-model independence is unavailable.",
+    "Initial mechanics admitted four candidates; current-source reconciliation resolved three review-driven findings before validation. No primary or pre-existing finding was confidence-suppressed, malformed, or moved to a soft bucket.",
+    "Calibration fixes were inspected against current source and content-matching receipts: 27 passing recorded unit tests, one passing synthetic end-to-end screen, and three independent-acquisition entrypoint negatives. No tests were rerun by the merge leaf.",
+    "The new mechanical baseline guard and scalar-drift audit were inspected; the refreshed audit records rejection of undeclared CAD scalar changes.",
+    "Provenance verification remains failing during author regeneration; the validator must use current bytes and classify completion accurately. The historical claim of exactly two mismatches is superseded by merge-source-snapshot.json, not a new independent defect.",
+    "Validator shortcut-skipped: 0. No independent adversarial-provider artifact exists; in-process reviewer agreement does not establish cross-model corroboration. One actionable P2 is selected in a single batch.",
+    "first_evidence_backfilled: 0; quote-gate demotions: 0; mode-aware demotions: 0; settlement-conflict suppressions: 0.",
+    "The correctness residual-risk note duplicates the primary provenance finding and is folded into its context. The five institutional learnings are retained as known patterns, not defect claims."
+  ],
+  "coverage_notes": [
+    "Full-depth review, 2405 executable non-test lines plus large generated CAD artifacts; generated repetition reviewed through generators/manifests and representative outputs.",
+    "Project standards used root AGENTS.md and CLAUDE.md fallback; no applicable CODING_STANDARDS.md found.",
+    "All seven selected lenses collected; no failed reviewers. Session-model correctness/adversarial; balanced model for other lenses.",
+    "Root confirmed VERIFICATION.md and mechanical/inputs.sha256 provenance mismatch is pending final bookkeeping, scheduled after importing review receipt; it must verify before final delivery.",
+    "After testing review, root added passing-screen unit/end-to-end synthetic cases and separate run-ID/origin/bytes reuse rejection entrypoint cases; validation must inspect final source, not assume these fixes passed.",
+    "Automatic approval review rejected the external Claude route because transmission of private repository contents was not authorized by the user\u2019s Astra-subagent request. No peer job started; the in-process adversarial reviewer completed. Cross-model independence is unavailable.",
+    "Initial mechanics admitted four candidates; current-source reconciliation resolved three review-driven findings before validation. No primary or pre-existing finding was confidence-suppressed, malformed, or moved to a soft bucket.",
+    "Calibration fixes were inspected against current source and content-matching receipts: 27 passing recorded unit tests, one passing synthetic end-to-end screen, and three independent-acquisition entrypoint negatives. No tests were rerun by the merge leaf.",
+    "The new mechanical baseline guard and scalar-drift audit were inspected; the refreshed audit records rejection of undeclared CAD scalar changes.",
+    "Provenance verification remains failing during author regeneration; the validator must use current bytes and classify completion accurately. The historical claim of exactly two mismatches is superseded by merge-source-snapshot.json, not a new independent defect.",
+    "Validator shortcut-skipped: 0. No independent adversarial-provider artifact exists; in-process reviewer agreement does not establish cross-model corroboration. One actionable P2 is selected in a single batch.",
+    "first_evidence_backfilled: 0; quote-gate demotions: 0; mode-aware demotions: 0; settlement-conflict suppressions: 0.",
+    "The correctness residual-risk note duplicates the primary provenance finding and is folded into its context. The five institutional learnings are retained as known patterns, not defect claims."
+  ],
+  "learnings": {
+    "path": "/private/tmp/temper-r7-review/ce-code-review/r7-final/learnings-researcher.md",
+    "kind": "Known Pattern",
+    "findings": []
+  },
+  "source_snapshot": "/private/tmp/temper-r7-review/ce-code-review/r7-final/merge-source-snapshot.json"
+}

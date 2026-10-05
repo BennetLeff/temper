@@ -1,0 +1,11 @@
+specimen_id,cad_sha256,run_id,test_case,temperature_target_C,time_s,pan_z_mm,carrier_z_mm,island_z_mm,force_N,force_bound_N,paired_registration_bound_mm,pressure_Pa,pressure_bound_Pa,glass_C,body_C,loadcell_C,witness_island_raw,witness_carrier_raw,approach_direction,physical_result
+,,,hot_cold_force_loop,,,,,,,,,,,,,,,,,NOT_RUN
+,,,pan_lift,,,,,,,,,,,,,,,,,NOT_RUN
+,,,jam_main_loaded,,,,,,,,,,,,,,,,,NOT_RUN
+,,,jam_island_depressed,,,,,,,,,,,,,,,,,NOT_RUN
+,,,jam_island_released,,,,,,,,,,,,,,,,,NOT_RUN
+,,,compliant_jam,,,,,,,,,,,,,,,,,NOT_RUN
+,,,witness_frozen_fresh,,,,,,,,,,,,,,,,,NOT_RUN
+,,,insulating_debris,,,,,,,,,,,,,,,,,NOT_RUN
+,,,conductive_bridge,,,,,,,,,,,,,,,,,NOT_RUN
+,,,carrier_retract_0p4mm,,,,,,,,,,,,,,,,,NOT_RUN

@@ -1,0 +1,29 @@
+{
+  "schema": "temper-glass-sensor-current-cad-v1",
+  "revision": "R5",
+  "status": "DEVELOPMENT_DRY_COMPARISON_NOT_RELEASED",
+  "physical_result": "NOT_RUN",
+  "comparison_candidate": "revision5/mechanical/R5-D6-rest.step",
+  "reference_control": "revision5/mechanical/R5-D8-rest.step",
+  "pressure_apparatus": "REFERENCE_ONLY_UNCONNECTED_DRY_APPARATUS",
+  "paths_relative_to": "packages/temper-thermal/studies/glass_sensor",
+  "files": {
+    "revision5/mechanical/R5-D6-cap.step": "c99b4b39e8b30fe27225cf910bd89a94031e55966da5680b973a9b9756c78661",
+    "revision5/mechanical/R5-D6-cap_capture.step": "fd1c494a9955900c4a92b4f16fc55c9dcd15dd94db8b63dde572898b83db7d5d",
+    "revision5/mechanical/R5-D6-full_stroke.step": "ff8a730f961f1388f1131f49492ca5c50040f49243e21a876306dba82d5cafe7",
+    "revision5/mechanical/R5-D6-loaded.step": "a06c92445ad4c786be8a170ca9358328253d2aa40037e9e0c41081c4471b1f04",
+    "revision5/mechanical/R5-D6-local_stop.step": "a5adb6e5f43231f2cf7152eaeda61320e6c38e9c2df5e4b5f1b523dd822d9489",
+    "revision5/mechanical/R5-D6-rest.step": "7cf03ca43b973510bfe005063403198be7b1c77dffa517344ff246038edc154b",
+    "revision5/mechanical/R5-D6-upper_capture.step": "5aff725f86da5d3c5708fe092d1a66d63aa311597a0099068ea6d1211df51782",
+    "revision5/mechanical/R5-D8-cap.step": "2463802cdc0abef6f90a26b475c9760186379214c9f3faac4aaa0494ed4e52a1",
+    "revision5/mechanical/R5-D8-cap_capture.step": "b6231c39250e516defbb1009efca91327dfc845fe3981c4d3ba3ad03fbce839b",
+    "revision5/mechanical/R5-D8-full_stroke.step": "f309fe569dd2b2643e24df95e3001e558c02a936b45e53ed945a75c1438ab789",
+    "revision5/mechanical/R5-D8-loaded.step": "584a32e8f5682b7b900b8d16d757f1f241190b8767b7e0bdd38240502ee7fb10",
+    "revision5/mechanical/R5-D8-local_stop.step": "07ed0063d9522c51a34c8574e51080d0e7e961a8272ecf1e9e29bd8ddfb71e24",
+    "revision5/mechanical/R5-D8-rest.step": "b1e7953d24c2605f0ffee574a72baccc209b86ae652724c46b930283a60947bf",
+    "revision5/mechanical/R5-D8-upper_capture.step": "16de7f7774458ed33d1c782913bc00394e24cf7ca72765429d7a71ab58c7a2e9",
+    "revision5/mechanical/R5-pressure-reference.step": "5a88cc5f1155da5d889a62bb254f47b44ba4849de6e91b8f95645e89f34f7922",
+    "revision5/mechanical/thermal_geometry.csv": "420fdbe70bef0dbaf73cb7b03821721cec9e9065e2e85f774eff2d2a9d0219e3",
+    "revision5/mechanical/geometry.json": "e50a1b4214e92f49bfbf5f1bf45eff48ad46ba48b1ca40af7259e65f3275d0ac"
+  }
+}

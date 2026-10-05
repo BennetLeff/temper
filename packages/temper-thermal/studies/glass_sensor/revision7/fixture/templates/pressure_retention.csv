@@ -1,0 +1,9 @@
+specimen_id,cad_sha256,run_id,test_case,time_s,cell_temperature_C,reference_temperature_C,signed_delta_pressure_Pa,pressure_bound_Pa,force_N,force_bound_N,position_mm,reference_state,limit_source,approved_limit,observed_inhibition_latency_ms,physical_result
+,,,signed_pressure_sweep,,,,,,,,,,,,,NOT_RUN
+,,,reference_restriction,,,,,,,,,,,,,NOT_RUN
+,,,reference_blockage,,,,,,,,,,,,,NOT_RUN
+,,,effective_area_vs_stroke,,,,,,,,,,,,,NOT_RUN
+,,,cap_retention_axial,,,,,,,,,,,,,NOT_RUN
+,,,cap_retention_off_axis,,,,,,,,,,,,,NOT_RUN
+,,,single_hook_first,,,,,,,,,,,,,NOT_RUN
+,,,whole_cartridge_pull,,,,,,,,,,,,,NOT_RUN

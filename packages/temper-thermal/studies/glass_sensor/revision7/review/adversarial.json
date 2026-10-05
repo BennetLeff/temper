@@ -1,0 +1,26 @@
+{
+  "reviewer": "adversarial",
+  "findings": [
+    {
+      "title": "Final artifact refresh leaves provenance verification failing",
+      "severity": "P2",
+      "file": "packages/temper-thermal/studies/glass_sensor/revision7/source-provenance.json",
+      "line": 8,
+      "why_it_matters": "The published R7 identity verification currently exits with failure, so consumers cannot verify the delivered artifact package using its own documented command. The manifest still pins earlier bytes for VERIFICATION.md and mechanical/inputs.sha256 after their review/audit refresh. Regenerating the manifest after all final evidence changes will restore the intended identity chain without rerunning or relabeling physical tests.",
+      "autofix_class": "manual",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "suggested_fix": "After completing the final verification text and mechanical receipt refresh, run revision7/provenance.py write and then revision7/provenance.py verify; confirm every recorded R7 artifact and current-index digest matches the delivered bytes.",
+      "confidence": 100,
+      "evidence": [
+        "packages/temper-thermal/studies/glass_sensor/revision7/source-provenance.json:8 --     \"VERIFICATION.md\": \"0b43945a550b2ef4967ef2fd630ccbeb028763e50bfcd60e20f64c5c760fedd1\",",
+        "Read-only SHA256 comparison of all 110 recorded R7 artifacts found exactly two mismatches: VERIFICATION.md and mechanical/inputs.sha256. All integration input hashes and both historical manifest hashes matched.",
+        "Executed python3 -B packages/temper-thermal/studies/glass_sensor/revision7/provenance.py verify from the reviewed worktree: exit 1 with ValueError: R7 artifact identity changed: VERIFICATION.md.",
+        "packages/temper-thermal/studies/glass_sensor/revision7/source-provenance.json:93 also pins the stale mechanical/inputs.sha256 digest f2e2c596bca0cac2f11cd1bd17859eb229863401b3ac0ed8f3ee75b7ca86fae8."
+      ],
+      "pre_existing": false
+    }
+  ],
+  "residual_risks": [],
+  "testing_gaps": []
+}

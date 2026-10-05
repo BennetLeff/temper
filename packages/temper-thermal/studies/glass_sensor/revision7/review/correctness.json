@@ -1,0 +1,8 @@
+{
+  "reviewer": "correctness",
+  "findings": [],
+  "residual_risks": [
+    "Final provenance remains pending: running revision7/provenance.py verify against the reviewed working tree fails on VERIFICATION.md. A complete read-only comparison also finds mechanical/inputs.sha256 differs from source-provenance.json; all other listed artifacts match. VERIFICATION.md explicitly records the independent review as in progress. Regenerate the manifest after final review documentation and receipt updates, then verify it."
+  ],
+  "testing_gaps": []
+}

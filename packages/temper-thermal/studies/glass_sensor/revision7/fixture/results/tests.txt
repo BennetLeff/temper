@@ -1,0 +1,13 @@
+
+running 9 tests
+test tests::force_difference_does_not_cancel_independent_errors ... ok
+test tests::full_pressure_allocation_leaves_no_elastic_margin ... ok
+test tests::invalid_metrology_inputs_are_rejected ... ok
+test tests::interval_contains_all_pressure_area_corners ... ok
+test tests::ordinary_displacement_measurement_cannot_resolve_hysteresis_budget ... ok
+test tests::pressure_force_matches_independent_one_square_centimeter ... ok
+test tests::signed_loads_cannot_cancel_for_budget ... ok
+test tests::signed_pressure_reverses_interval ... ok
+test tests::zero_pressure_retains_uncertainty ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
