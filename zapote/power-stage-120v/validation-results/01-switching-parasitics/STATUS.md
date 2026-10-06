@@ -5,7 +5,7 @@ results land. The round folders are the lab notebook behind it
 ([ROUNDS.md](ROUNDS.md)); open findings and risks are in
 [FINDINGS.md](FINDINGS.md). Last updated 2026-10-05.
 
-Board: extraction on `native-17` copper; **native-18** (R9/R17 value only, identical copper) and **native-19** (R5 rework; leg A re-checked, no verdict change, FINDINGS M10) are covered; **native-20** (R34/R8/R16 values only, identical copper, both leg regions UNCHANGED) is covered too. Leg A (Q2 high / Q3 low, driver U1)
+Board: extraction on `native-17` copper; **native-18** (R9/R17 value only, identical copper) and **native-19** (R5 rework; leg A re-checked, no verdict change, FINDINGS M10) are covered; **native-20** (R34/R8/R16 values only, identical copper, both leg regions UNCHANGED) is covered too. **Native-21** (enclosure re-layout) source is frozen with F6 bias, the rail monitor and LINE_ZC; its copper does not exist yet and will need the FEM and decision reruns. Leg A (Q2 high / Q3 low, driver U1)
 is extracted and simulated; leg B has provisional decision cases (leg-A correction transfer; no verdict change), with its own corrections running. Evidence class: simulation and
 model-based throughout. **No physical qualification is claimed.**
 
@@ -75,7 +75,7 @@ Known limits, each tracked in [FINDINGS.md](FINDINGS.md):
 
 | Work | Where | State |
 | --- | --- | --- |
-| Leg B matrix (native-19) | remote box | coarse corrections **done**: `legB-h0-corr-n19` (own closure + crop; leg A mesh offset borrowed). All leg B verdicts hold on it (d2 README). Fine extraction (`campB19`, h 1/2/3 mm, 0.35 mm) **running** |
+| Leg B matrix (native-19) | remote box | coarse corrections **done** (`legB-h0-corr-n19`); fine h1 run on its last port, then `compose_leg_best.py --leg B` → `legB-h0-best-n19` and reruns (queued). Fine h2/h3 dropped (`scripts/fine_h1_recipe_check.py`, 0.026 nH) |
 | Leg B decision cases (provisional) | Mac | **done** (`round17/d2/results/legB-prov-n19/`, leg-A correction transferred): S1/S2 pass hot screen and ZVS, no verdict change vs leg A; S2 off-gate ≤ 1.29 V; S4 die VDS up to 537 V. Rerun on leg B's corrected matrix when it lands |
 | D-5, D-6, D-8, D-9, D-10 | delegated ([reports](round17/delegation/README.md)) | **done, merged** (#1629–#1633); D-9's six tooling findings fixed (FINDINGS S8–S13) |
 | D-12 … D-15 | delegated | **done, merged** (#1636–#1639): remedy build comparison, hot transients, solver robustness, losses vs dead time |
@@ -93,6 +93,12 @@ Known limits, each tracked in [FINDINGS.md](FINDINGS.md):
 | D-28 phase-shift validation | delegated | **merged** (#1654): no phase range qualified; 180° only (FINDINGS F9) |
 | D-29 prototype firmware conformance | delegated | **draft** (#1653): pad restoration, GPIO errors, 180° cap; 379 fault-injection cases pass; target validation pending |
 | D-30 connector power direction | delegated | **merged** (#1655): J9.1 power_in, J9.2 passive at the generator source; no other instance on the nine boards; `power_direction.rs` validator in `round5/boards/check.sh` (20 tests; 0 findings now, 4 on the pre-fix boards) |
+| D-32 firmware (safe state, 180°, burst scheduler) | delegated + Claude | **merged** (#1657); follow-up by Claude: scheduler accepts LINE_ZC crossings only, plus a `line_zc` pulse-centre estimator (host 20/20). `burst_enabled` stays false until LINE_ZC capture glue and bench B2 |
+| D-33 native-21 F6 source | delegated + Claude | **merged** (#1661): HOT-side F6 on the TCO supply; rail 7,972/7,972 (−1.679 V worst); switching bound 504/504 at −1.6 V; monitor crossings changed to ISO7710 plus a 10 µs filter by Claude; audit 74/74; 347 parts |
+| D-34 bench verdict tool | delegated | **merged** (#1658); B4 endpoint aligned to the D-31 ledger (comparator → driver OUT) by Claude |
+| D-35 120 V flickermeter | delegated | **merged** (#1659): 20 s default and the period rule conservative (min periods 2.0/4.7/9.3/15.0 s at 160–300 W) |
+| D-36 enclosure fit gate | delegated | brief written (`round17/delegation/D36-enclosure-fit.md`); not yet returned |
+| D-20 J4 returns (native-21) | Claude | **screened**: 3 returns ≤ 0.48 A each, 107 mV offset, digital margins positive; CT_MON needs controller auto-zero (R20a) |
 | D-7 capacitor ESL | delegated | **done, merged** (#1634): C38–C41 1.06 nH, C5/C6 19.2 nH typical-model values; grid now sweeps 1.06–20 nH |
 | D-11 bus-sense range (task 06) | delegated | **done, merged** (#1635); targets, ADC1 allocation and the 1.210 V over-range latch decided 2026-10-03 (DECISIONS.md) |
 | Diode-recovery data, TI timing limits for the fitted 49.9 kΩ DT resistor, deployed four-PWM controller and harness, mounted C38 ESL (lead length) | outside input / owner | open |
