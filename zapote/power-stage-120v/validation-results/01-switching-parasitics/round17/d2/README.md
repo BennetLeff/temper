@@ -451,3 +451,20 @@ crop correction is larger on the power loop (−2.5…−2.9 nH vs −0.5…−1
 
 The leg B conclusions from the provisional matrix hold on its own corrections.
 
+### F6 off-bias sensitivity: how negative must the rail be? (`f6_legs.py --vneg`, `results/f6-vneg-*`)
+
+Same F6 deck (1 nF Cgs, 1 Ω + PMEG6030EP), driver pull-down target set to 0 V
+and −1 V instead of −2 V. Leg A best-n19 and leg B's corrected matrix, 27/150 °C;
+decision cases (S1/S2/S4) and S5 startup.
+
+| Off-bias | S4 max off-gate | S4 pass 3.0 V + model / 1.9 V (of 144) | S5 max off-gate | S5 pass 1.9 V (of 144) | S1/S2 |
+| --- | ---: | ---: | ---: | ---: | --- |
+| 0 V | 3.78 V | 92 / 42 | 2.34 V | 98 | pass |
+| −1 V | 2.48 V | 144 / 115 | 1.02 V | 144 | pass |
+| −2 V (`f6-legs-pmeg`, `f6-legB-corr`) | 1.27 V | 144 / 144 | ≤ 0.02 V | 144 | pass |
+
+S4's worst off-gate falls about 1.25 V per volt of off-bias. **The negative
+rail must therefore be more negative than about −1.6 V at the moment of the
+partner's edge**, after droop and regulator tolerance, to hold the 1.9 V hot
+screen. Cgs plus the Schottky discharge alone (0 V) is not enough.
+

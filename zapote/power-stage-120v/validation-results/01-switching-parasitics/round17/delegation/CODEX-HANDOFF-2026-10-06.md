@@ -57,7 +57,7 @@ any hardware change.
 
 ---
 
-## D-33: native-21 source — F6 negative bias from a SELV-fed transformer driver (large)
+## D-33: native-21 source — F6 negative bias, HOT-side transformer driver on the TCO-switched supply (large)
 
 **Why.** F6 (−2 V off-bias with a 1 nF Cgs and a 1 Ω + PMEG6030EP discharge
 branch) is adopted for the enclosure re-layout. In the model it passes all
@@ -66,37 +66,50 @@ which fails without it (FINDINGS F2/F6/F11). The owner is doing the layout.
 This task delivers the **source and netlist** the layout needs.
 
 **Do.** In `zapote/power-stage-120v/elec/src/` (the power-stage atopile source,
-**not** the repository-root `elec/`), implement F6 with a **transformer-driver
-isolated bias fed from the existing SELV 15 V rail (PS1)**. This is the
-2026-10-06 decision ([BOM-REVIEW-2026-10-06.md](../../../../BOM-REVIEW-2026-10-06.md)
-item 1), which replaces D-12's four-RECOM-module variant:
-- **one transformer driver** (TI SN6507, 36 V input, push-pull, or the
-  UCC25800 class; pick one from its datasheet and justify the choice) on PS1's
-  15 V, with **three reinforced-isolation transformers**: HS-A referenced to
-  `sw_a`, HS-B to `sw_b`, and one low side referenced to `leg_ret`, shared by
-  both low-side channels;
-- per secondary: a rectifier, a regulated +15 V (LDO) and a **−2 V** rail from a
-  Zener or shunt split, each backed by reservoir capacitors sized for the
-  gate-charge transfer;
+**not** the repository-root `elec/`), implement F6 per **DECISIONS.md
+2026-10-06 "F6 bias architecture REVISED"**. That entry supersedes both D-12's
+RECOM-module variant and the earlier SELV-fed proposal:
+- **keep a HOT-side AC-DC on `TCO_L`**, referenced to `leg_ret`, so the
+  thermal-cutoff loop still removes all gate drive, HOT5 and OCP_OK
+  (`power_stage_120v.ato:377–386`). Size it, since IRM-05-15 may be too small.
+  If a +15/−2 V split needs a raw rail of about 17–20 V, choose its output to
+  suit. **Nothing that gates or protects may be fed from PS1/SELV**;
+- **low sides direct** from that rail: +15 V (LDO if needed) and a **−2 V rail
+  regulated by a TLV431-class shunt** (not a bare Zener), with **≥ 2.2 µF
+  effective plus 100 nF at each driver's VSS pins** in a low-ESL loop;
+- **one SN6507-class push-pull driver** on that HOT-side rail drives **two
+  high-side transformers** (HS-A on `sw_a`, HS-B on `sw_b`). They need
+  functional isolation only (≥ 280 V working plus switch-node dv/dt, with
+  interwinding capacitance as low as available; state it). Each secondary gets
+  the same +15 V / −2 V shunt-regulated arrangement and reservoir;
 - per gate: 1 nF C0G Cgs and a 1 Ω + **PMEG6030EP** discharge branch (anode at
   the gate side as in the F6 deck: `Doff gd3 off`), keeping the existing 3.9 Ω Rg;
-- a rail-window monitor that holds DIS active until every bias rail is in window;
-- **delete PS2 and the bootstrap network** (D1/D2, C10/C11/C17/C18). V15_LS
-  and HOT5 now come from the low-side secondary. HOT5 uses a **30 V-input low-Iq
-  LDO (TPS709 class)** in place of the MC78L05, because its ground current is in
-  the Kelvin budget.
+- a **rail-window monitor** that holds DIS active until every +15 V and −2 V
+  rail is in window. It is mandatory, because UCC21550's UVLO cannot see a
+  collapsed negative rail;
+- delete the bootstrap network (D1/D2, C10/C11/C17/C18). HOT5 uses a **30 V
+  low-Iq LDO (TPS709 class)** in place of the MC78L05, and its return is routed
+  as a star to R5.2 (Kelvin budget);
+- the TPS3700 HOT5 monitor stays powered independently of HOT5.
 
-**Sizing first** (`native-21/bias_sizing.py`, committed). Calculate the gate
-power from the IPW65R018CFD7 datasheet Qg at 33–80 kHz, the transformer
-driver's and transformers' datasheet efficiency, the PS1 (IRM-20-15) budget
-with the D-20 controller allocation, the transformer isolation rating against
-the **D5 reinforced basis** for 120 V mains (stop and report if no catalogue
-transformer meets it), and the −2 V rail's source impedance and ripple at
-80 kHz. **Then re-run F6** with that bias-source model in place of the ideal
-−2 V source: `round17/d2/f6_legs.py --diode pmeg`, with a deck variant that
-models the rail as its reservoir capacitance plus ESR and the Zener or shunt.
-Run decision and startup cases on both legs at 27/100/150 °C. The adoption
-holds only if they all still pass.
+**Sizing first** (`native-21/bias_sizing.py`, committed). Calculate:
+- gate power at 33–80 kHz from the IPW65R018CFD7 datasheet Qg;
+- the driver and transformer efficiency;
+- the HOT-side supply size;
+- −2 V droop per edge (about 417 nC per turn-off) against the **−1.6 V limit**
+  (from the sensitivity runs `round17/d2/results/f6-vneg-*`: S4 off-gate rises
+  about 1.25 V per volt of lost off-bias);
+- the shunt regulator's stability with the reservoir.
+
+**Then re-run F6** with that rail model (reservoir C, ESR/ESL and shunt) in
+place of the ideal −2 V source. Use `round17/d2/f6_legs.py --diode pmeg` with a
+deck variant, on both legs (leg B: `--matrix-b legB-h0-corr-n19.matrix.txt`),
+decision and startup cases at 27/100/150 °C. Everything must still pass the
+1.9 V hot screen.
+
+If the HOT-side transformer path does not close, the **fallback** is a
+bootstrap high side plus a regulated split, with a firmware low-side pre-charge
+before each burst. Report it; don't build D-12's modules.
 
 Keep native-20's values: R34 10.6 kΩ RT0603BRD0710K6L, R8/R16 330 Ω,
 R9/R17 49.9 kΩ. Then:

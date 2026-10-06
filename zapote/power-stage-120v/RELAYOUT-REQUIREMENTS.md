@@ -10,7 +10,7 @@ Each row links to its evidence. Start from **native-20** (values current as of
 
 | # | Requirement | Why / evidence |
 | --- | --- | --- |
-| L1 | **F6 negative gate bias from one SELV-fed transformer driver** (three reinforced transformers: HS-A, HS-B, shared LS; +15 V LDO and −2 V split per secondary), 1 nF Cgs, 1 Ω + **PMEG6030EP** discharge branch per gate, rail-window monitor gating DIS; **PS2 and the bootstrap network removed**; HOT5 from a low-Iq LDO (DECISIONS 2026-10-06, [BOM review](BOM-REVIEW-2026-10-06.md); source in Codex D-33) | S4 hard turn-on and the S5 burst-start edge both fail without it. With it, all 288 + 216 model cases pass at 27/100/150 °C on both legs (FINDINGS F2/F6/F11; DECISIONS 2026-10-05) |
+| L1 | **F6 negative gate bias:** a **TCO-switched HOT-side supply** (on `TCO_L`, referenced to `leg_ret`) feeds the low sides directly (+15 V, −2 V shunt-regulated split) and one SN6507-class driver with two functional-isolation high-side transformers. The −2 V rail stays more negative than −1.6 V at the edge, with ≥ 2.2 µF + 100 nF local reservoir at each driver VSS in a low-ESL loop. 1 nF Cgs and 1 Ω + PMEG6030EP per gate; rail-window monitor gating DIS; bootstrap network removed; HOT5 from a low-Iq LDO with a star return to R5.2 (DECISIONS 2026-10-06, revised) | S4/S5 fail without it; `f6-vneg` sensitivity sets the −1.6 V limit |
 | L2 | Keep **R34 = 10.6 kΩ RT0603BRD0710K6L** and **R8/R16 = 330 Ω** | Shunt-OCP band and gate-off delay ([native-20](native-20/README.md)) |
 | L3 | Keep **R9/R17 = 49.9 kΩ ±0.1 %** (443 ns nominal dead time) | F7, native-18 |
 

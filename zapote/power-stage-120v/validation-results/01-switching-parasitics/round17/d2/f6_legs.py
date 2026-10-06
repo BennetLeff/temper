@@ -93,6 +93,7 @@ def main():
     ap.add_argument("--out", default=None)
     ap.add_argument("--matrix-b", default=None, help="leg B matrix file in d2/ (default: provisional)")
     ap.add_argument("--legs", default="AB")
+    ap.add_argument("--vneg", type=float, default=-2.0, help="F6 off-bias level (V); the D-13 deck uses -2")
     a = ap.parse_args()
     global OUT
     if a.out:
@@ -111,6 +112,9 @@ def main():
         assert old in deck and "Doffh gdh3 offh D6D" in deck
         deck = deck.replace(old, f".include {PMEG}\nXDoffl gdl3 offl PMEG6030EP")
         deck = deck.replace("Doffh gdh3 offh D6D", "XDoffh gdh3 offh PMEG6030EP")
+    if a.vneg != -2.0:
+        assert deck.count("-(-2))") == 2
+        deck = deck.replace("-(-2))", f"-({a.vneg}))")
     (OUT / "F6.cir").write_text(deck)
     vendor = run_d2.KIT / "models" / "vendor" / "IFX_CFD7_650V.lib"
     if not vendor.is_file():
