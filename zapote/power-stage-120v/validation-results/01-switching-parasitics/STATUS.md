@@ -75,7 +75,7 @@ Known limits, each tracked in [FINDINGS.md](FINDINGS.md):
 
 | Work | Where | State |
 | --- | --- | --- |
-| Leg B matrix (native-19) | remote box | **running**: `chain_legB19_v2.sh` corrections (h 2/3 mm, m20) in `r17/b19corr`, then fine extraction in `campB19` |
+| Leg B matrix (native-19) | remote box | coarse corrections **done**: `legB-h0-corr-n19` (own closure + crop; leg A mesh offset borrowed). All leg B verdicts hold on it (d2 README). Fine extraction (`campB19`, h 1/2/3 mm, 0.35 mm) **running** |
 | Leg B decision cases (provisional) | Mac | **done** (`round17/d2/results/legB-prov-n19/`, leg-A correction transferred): S1/S2 pass hot screen and ZVS, no verdict change vs leg A; S2 off-gate ≤ 1.29 V; S4 die VDS up to 537 V. Rerun on leg B's corrected matrix when it lands |
 | D-5, D-6, D-8, D-9, D-10 | delegated ([reports](round17/delegation/README.md)) | **done, merged** (#1629–#1633); D-9's six tooling findings fixed (FINDINGS S8–S13) |
 | D-12 … D-15 | delegated | **done, merged** (#1636–#1639): remedy build comparison, hot transients, solver robustness, losses vs dead time |

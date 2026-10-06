@@ -431,3 +431,23 @@ moves −0.14 … +0.21 V (S2 max 1.32 V, inside 1.9 V) and die VDS −12.9 … 
 `compose_legB_corr.py` (self-tested against leg A) builds the full
 correction once the 3 mm and 20 mm-crop matrices land.
 
+## Leg B on its own corrections (`legB-h0-corr-n19`, `compose_legB_corr.py`)
+
+Leg B's coarse closure set (0.5/1/2/3 mm) and 20 mm-crop matrix are complete
+(remote `b19corr`; `../results/matrices/legB-*-n19`). `legB-h0-corr-n19` =
+provisional + [C_h(B) + C_m(B)] − [C_h(A) + C_m(A)]: leg B's own closure
+(cubic 0.5–3 mm) and crop corrections replace leg A's. Only leg A's
+fine-vs-coarse mesh change is still borrowed (the fine leg B extraction,
+`campB19`, is running). Min eigenvalue 7.88 nH. Versus the provisional:
+**M14 +25 %, M24 +13 %, M13/M23 +5 %**, L22 −6.6 %, M12 −4.7 %, and leg B's
+crop correction is larger on the power loop (−2.5…−2.9 nH vs −0.5…−1.7).
+
+| Run | Result |
+| --- | --- |
+| Unipolar decision cases (`results/legB-corr-n19/`, 96) | 60/96 as provisional; **no verdict flips**, no aborts; ZVS 12/12 at 443 ns; S2 off-gate ≤ 1.28 V (Δ ≤ +0.22 V); S4 die VDS ≤ 523 V (Δ −29 … −3 V) |
+| F6 + PMEG6030EP, 27/100/150 °C (`results/f6-legB-corr/`, 144) | **144/144 pass**; S4 off-gate ≤ 1.18 V, die VDS ≤ 493 V |
+| S5 burst start, unipolar (`results/startup-baseline-legB-corr/`, 108) | **0/108**; off-gate up to 3.94 V |
+| S5 burst start, F6 (`results/startup-f6-legB-corr/`, 108) | **108/108**; off-gate ≤ −0.21 V |
+
+The leg B conclusions from the provisional matrix hold on its own corrections.
+
