@@ -41,6 +41,11 @@ DIS_C_ALLOC = 270e-12                    # allocation: AO3400A Coss at 0..3 V (c
 VIH_DIS_MAX = 2.3                        # UCC21550 IN/DIS high threshold max, p9
 
 t_q_off = R_GATE * GATE_C_ALLOC * math.log(VCC_MAX / VTH_MIN)          # gate from Vcc to Vth(min)
+# Datasheet-only hard bound (BOUND*): Qg <= 7 nC max at VGS 4.5 V / VDS 15 V (AO3400A p2) covers our
+# <= 3.465 V gate and drain swing (Qg monotonic in both); gate current >= VTH_MIN / R_GATE until the
+# gate reaches VTH_MIN, so t <= R_GATE * QG_MAX / VTH_MIN. No vendor SPICE model was reachable (AOS site).
+QG_MAX = 7e-9
+t_q_off_charge_bound = R_GATE * QG_MAX / VTH_MIN
 t_dis = R_PU * DIS_C_ALLOC * math.log(VCC_MIN / (VCC_MIN - VIH_DIS_MAX))  # DIS from 0 to VIH max at lowest rail
 t_dis_n20 = R_PU_N20 * DIS_C_ALLOC * math.log(VCC_MIN / (VCC_MIN - VIH_DIS_MAX))
 I_PU_N20_MA = VCC_MAX / (330 * 0.99) * 1e3   # per leg, while PERMIT holds DIS low
@@ -85,7 +90,7 @@ def total(path: str) -> dict:
 def main() -> None:
     res = {"stages": {k: {"min_ns": v[0], "max_ns": v[1], "tag": v[2], "source": v[3]} for k, v in STAGES.items()},
            "paths": {p: total(p) for p in ("CT", "shunt")},
-           "derived": {"t_q_off_ns": t_q_off * 1e9, "t_dis_ns": t_dis * 1e9,
+           "derived": {"t_q_off_ns": t_q_off * 1e9, "t_q_off_charge_bound_ns": t_q_off_charge_bound * 1e9, "t_dis_ns": t_dis * 1e9,
                        "assumptions": {"VCC_min": VCC_MIN, "VCC_max": VCC_MAX, "gate_C_alloc_pF": GATE_C_ALLOC * 1e12,
                                        "R_gate_ohm": R_GATE, "R_pu_ohm": R_PU, "DIS_C_alloc_pF": DIS_C_ALLOC * 1e12,
                                        "VIH_DIS_max": VIH_DIS_MAX}}}

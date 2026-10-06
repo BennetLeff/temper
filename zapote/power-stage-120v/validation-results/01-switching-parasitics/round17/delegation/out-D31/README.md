@@ -12,6 +12,7 @@
 
 - Parts 1–2 are rerunnable: `python3 ledger.py`, `python3 survival.py [--currents 200,250,330 --out survival-short]` (needs `sim-kit/models/fetch_models.sh`; the vendor model is not committed), and `python3 retune.py` (imports round-3 `thresholds.py` unchanged).
 - Parts 3–5 cite the evidence recorded in `prototype-closure/round5/protection/README.md` (Eaton 720025 pp2,5; Ohmite HS energy graph; Schneider LC1D18BD). The primary Eaton, Ohmite and Schneider PDFs could not be fetched from this host (blocked or HTML responses), so nothing beyond those recorded values is claimed.
+- **Q1/Q4 turn-off has no tight datasheet bound.** Qg ≤ 7 nC discharged through 108.5 Ω at no more than the 0.65 V threshold gives ≤ 1.17 µs (`ledger.json` `t_q_off_charge_bound_ns`). That would take the chain to about 1.5 µs worst case, versus 0.55–0.57 µs with the allocation. The typical-curve estimate (≈ 150 ns) sits inside the 181.6 ns allocation, and AOS's SPICE model could not be fetched. Even at that bound, the tank-fault current rises only about 4 A more (280 V / 70 µH × 1 µs), well inside the ≤ 330 A survival result. **Bench capture of PERMIT → DIS is the closing evidence.**
 - The ledger's CD74HC30 row is BOUND*: the part is specified at 2 V and 4.5 V, not 3.3 V. The Q1 and DIS rows are allocations that a bench edge capture must confirm.
 
 ## Proposals (implemented in [native-20](../../../../../native-20/README.md), 2026-10-05)
