@@ -35,6 +35,7 @@ only your brief.
 | [D-27 prototype reconciliation](D27-prototype-reconciliation.md) | Check every prototype-closure choice against DECISIONS.md and round-17 findings (agree / contradict / one-sided / supersedes); nominal enclosure fit of the D-18 and D-22 allocations | medium |
 | [D-28 phase-shift validation](D28-phase-shift-validation.md) | Validate fixed-frequency phase shift (gated low-power mode): per-leg commutation current, ZVS, off-gate, losses vs phase; CT inhibit | medium |
 | [D-29 prototype firmware conformance](D29-prototype-firmware-conformance.md) | **Firmware change (draft PR):** prototype ESP32 PWM safe state on every failure path, 180° phase cap, fault-injection tests | small |
+| [D-30 connector power direction](D30-connector-power-direction.md) | **Board-source fix (draft PR):** central J9 supply pins typed power_out; fix, audit the class on all nine round-5 boards, add a power-direction validator | small |
 
 D-1..D-27 are complete (`out-D*`; D-23 and D-26 indeterminate, D-24 answer c); D-21 is a draft PR awaiting the D-25 cleanup fix. D-5..D-10 are independent of
 each other except D-8 (cite D-5/D-6 if done first) and D-10's dead-time check (cite D-5).
