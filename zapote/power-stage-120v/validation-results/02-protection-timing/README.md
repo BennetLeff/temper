@@ -67,6 +67,15 @@ cd tools/ct_detector && sed 's/{ 4e-6 } else { -4e-6 }/{ 60e-6 } else { -60e-6 }
   && rustc -O /tmp/m.rs -o /tmp/m && /tmp/m      # repeat with 600e-6 and/or sense_series_ohm: 100.0
 ```
 
+## Round-17 closure on native-19 (D-31, 2026-10-05)
+
+The device-survival part of the BLOCKED verdict below is **closed for fault turn-off**. Gate-off timing, FC1 on DC, precharge and contactors remain open. Evidence is in [`01-switching-parasitics/round17/delegation/out-D31/`](../01-switching-parasitics/round17/delegation/out-D31/README.md):
+
+- **Gate-off chain:** at most 787.5 ns (CT path) and 814.9 ns (shunt path) from comparator output to completed DIS response. The figure is ALLOCATION-dominated: the DIS RC alone is 360.8 ns. Bench edge captures must confirm the allocations.
+- **Fault turn-off at 60–330 A:** die VDS ≤ 350 V on the native-19 best matrix, against the 520 V screen and the 650 V rating.
+- **Shoot-through:** not survivable through this chain. It stays prevention-only: driver interlock, dead time, FC1 and the catch circuit.
+- **Decision B (R34):** no resistor-only value meets both criteria. R34 = 10.6 kΩ was chosen (DECISIONS.md 2026-10-05), giving a 49.73–97.98 A band.
+
 ## SPICE continuation on native-13 (partial, 2026-09-27)
 
 **Verdict: BLOCKED for the complete protection and device-survival decision.**
