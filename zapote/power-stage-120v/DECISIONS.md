@@ -130,3 +130,5 @@ Native-20 (no detector) runs continuous-only, as already ruled.
 
 D-33 proceeds to source on this basis. The coupled deck is kept as a diagnostic, not as a gate.
 
+**2026-10-06, burst scheduler takes crossings from LINE_ZC only (D-32 follow-up), decided under the owner's delegation:** `burst_scheduler_step` now refuses any crossing record without `from_line_zc`, and the "bus ≤ 5 V at the crossing" rule is removed. That rule would have blocked bursts by design: the idle bus holds the line peak. `hal_bus_crossing.h` documents that adapters may set `from_line_zc` only for the native-21 LINE_ZC (J4.16) pulse centre, never for a VBUS-derived event. Tests cover a charged-bus start via LINE_ZC (allowed) and a non-LINE_ZC crossing (refused). The host suite passes 19/19. `burst_enabled` stays false by default. Still required before enabling: a controller adapter for LINE_ZC (pulse-centre estimate, period and timeout checks per the native-21 ECO) and bench B2.
+

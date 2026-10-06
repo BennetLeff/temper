@@ -368,7 +368,7 @@ static bool sample_service(void *ctx, uint32_t *now, bridge_feedback_t *f,
 static bool sample_bus(void *ctx,uint64_t *now,hal_bus_crossing_t *bus)
 {
     (void)ctx; *now=service_now;
-    *bus=(hal_bus_crossing_t){.sampled_us=*now,.bus_v=service_crossing?0:2,.valid=true,.zero_crossing=service_crossing};
+    *bus=(hal_bus_crossing_t){.sampled_us=*now,.bus_v=service_crossing?0:2,.valid=true,.zero_crossing=service_crossing,.from_line_zc=true};
     return true;
 }
 static bool gate(void *ctx,bool enabled)

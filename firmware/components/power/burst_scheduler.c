@@ -36,7 +36,7 @@ bool burst_scheduler_step(burst_scheduler_t *s, uint64_t now,
     if (!s || !s->configured || s->fault) return false;
     if (!isfinite(requested) || requested < 0) return fail(s);
     if (!s->config.burst_enabled) { s->on = requested > 0; return true; }
-    if (!bus || !bus->valid || !isfinite(bus->bus_v) || bus->bus_v < 0 ||
+    if (!bus || !bus->valid || !bus->from_line_zc ||
         now < bus->sampled_us || now - bus->sampled_us > 150 ||
         (s->seen_sample && bus->sampled_us < s->last_sample_us)) return fail(s);
     if (s->seen_crossing && (now < s->last_crossing_us || now - s->last_crossing_us > 9000)) return fail(s);
@@ -44,7 +44,6 @@ bool burst_scheduler_step(burst_scheduler_t *s, uint64_t now,
     s->seen_sample = true;
     s->last_sample_us = bus->sampled_us;
     if (!bus->zero_crossing || !new_sample) return true;
-    if (bus->bus_v > 5) return fail(s);
     if (s->seen_crossing) {
         uint64_t elapsed = bus->sampled_us - s->last_crossing_us;
         /* Two timestamps each have the D-11 +/-250 us allocation. */
