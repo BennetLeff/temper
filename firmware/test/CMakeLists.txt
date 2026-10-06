@@ -508,6 +508,11 @@ target_include_directories(test_burst_scheduler PRIVATE ../components/power/incl
 target_link_libraries(test_burst_scheduler m)
 target_compile_options(test_burst_scheduler PRIVATE -UNDEBUG -Wall -Wextra -Werror)
 add_test(NAME burst_scheduler_tests COMMAND test_burst_scheduler)
+
+add_executable(test_line_zc test_line_zc.c ../components/power/line_zc.c)
+target_include_directories(test_line_zc PRIVATE ../components/power/include)
+target_compile_options(test_line_zc PRIVATE -UNDEBUG -Wall -Wextra -Werror)
+add_test(NAME line_zc_tests COMMAND test_line_zc)
 set(PROTOTYPE ${CMAKE_CURRENT_SOURCE_DIR}/../../zapote/power-stage-120v/prototype-closure/round5/firmware)
 add_executable(test_prototype_pwm ${PROTOTYPE}/tests/test_pwm_target.c ../components/power/fullbridge_adapter.c)
 target_include_directories(test_prototype_pwm PRIVATE ${PROTOTYPE}/tests/pwm_stub ../components/power/include)
