@@ -456,6 +456,7 @@ add_executable(test_profiles_only
 )
 target_include_directories(test_profiles_only PRIVATE ${INCLUDE_DIRS})
 target_link_libraries(test_profiles_only m)
+add_test(NAME profiles_tests COMMAND test_profiles_only)
 
 # SIL Fault Injection Tests
 add_executable(test_sil_fault_injection
