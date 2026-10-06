@@ -124,3 +124,9 @@ Not chosen: the passive −2 V/−4 V networks (+$5–9) because they don't repr
 
 Native-20 (no detector) runs continuous-only, as already ruled.
 
+**2026-10-06, F6 rail qualification by bounding (unblocks D-33, PR #1660), decided under the owner's delegation:** D-33's coupled deck (TI shunt macro plus sub-nH reservoir ESL inside the switching transient) leaves 181/504 cases indeterminate in both solvers. **Every case it completed passed.** Qualification is split instead:
+- **(i) Switching bound:** with the rail held at the −1.6 V limit for the whole event, all 504 cases pass (`round17/d2/results/f6-vneg-m1p6*`; worst off-gate 1.741 V vs 1.9 V).
+- **(ii) Rail requirement:** the negative rail stays more negative than −1.6 V through every partner-edge window. This is shown with the standalone rail model (convergent) driven by the worst edge-current waveform, at component corners (capacitance −20 %/DC bias, ESR/ESL high, shunt reference and loop tolerance, temperature), and confirmed on the bench by measuring VSS-to-negative-rail at the edge.
+
+D-33 proceeds to source on this basis. The coupled deck is kept as a diagnostic, not as a gate.
+

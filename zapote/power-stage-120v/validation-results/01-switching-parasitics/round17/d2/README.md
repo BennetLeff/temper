@@ -468,3 +468,18 @@ rail must therefore be more negative than about −1.6 V at the moment of the
 partner's edge**, after droop and regulator tolerance, to hold the 1.9 V hot
 screen. Cgs plus the Schottky discharge alone (0 V) is not enough.
 
+### Bounding run: rail held at the −1.6 V limit (`results/f6-vneg-m1p6*`)
+
+All 504 cases (decision and S5 startup, both legs with leg B corrected,
+27/100/150 °C) with the F6 off-bias **held at −1.6 V for the whole event**:
+**504/504 complete and pass every screen**, including 1.9 V hot. Worst
+off-gate: S4 1.741 V (leg A, 27 °C), margin 0.16 V. S5 ≤ 0.27 V; S1/S2 ≤ 0.14 V.
+Off-gate is monotone in the off-bias (sensitivity above), so holding the rail at
+its limit throughout is conservative. **F6 qualification therefore splits into
+(i) this switching bound and (ii) a rail-only requirement**: the negative rail
+must stay more negative than −1.6 V through each partner-edge window under the
+worst edge current, at component corners. Part (ii) is checked with D-33's
+standalone rail model, which converges, and on the bench. This removes the
+need for the coupled shunt-macro deck, where D-33 found 181/504 cases
+indeterminate in both solvers.
+
