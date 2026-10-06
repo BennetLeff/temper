@@ -88,7 +88,9 @@ Known limits, each tracked in [FINDINGS.md](FINDINGS.md):
 | D-23 / D-24 / D-25 | delegated | **merged** (#1649/#1650/#1648): D-23 indeterminate (TI proxy model does not converge); D-24 answer (c): S4 needs one commutation measurement; D-25 found the failed-init GPIO defect |
 | D-26 parametric driver model | delegated | **merged** (#1651): output stage does not validate; driver modelling closed (DECISIONS.md 2026-10-05, FINDINGS M5) |
 | D-27 prototype-closure reconciliation | delegated | **done, merged** (#1652): 78 overlaps, 33 agree, 2 contradict (modulation policy, prototype PWM failure state), 32 one-sided, 11 supersede; decisions 2026-10-05 |
-| D-28 phase-shift validation, D-29 prototype firmware conformance | delegated | briefs written |
+| D-28 phase-shift validation | delegated | **merged** (#1654): no phase range qualified; 180° only (FINDINGS F9) |
+| D-29 prototype firmware conformance | delegated | **draft** (#1653): pad restoration, GPIO errors, 180° cap; 379 fault-injection cases pass; target validation pending |
+| D-30 connector power direction | delegated | brief written |
 | D-7 capacitor ESL | delegated | **done, merged** (#1634): C38–C41 1.06 nH, C5/C6 19.2 nH typical-model values; grid now sweeps 1.06–20 nH |
 | D-11 bus-sense range (task 06) | delegated | **done, merged** (#1635); targets, ADC1 allocation and the 1.210 V over-range latch decided 2026-10-03 (DECISIONS.md) |
 | Diode-recovery data, TI timing limits for the fitted 49.9 kΩ DT resistor, deployed four-PWM controller and harness, mounted C38 ESL (lead length) | outside input / owner | open |
