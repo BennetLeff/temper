@@ -1,0 +1,574 @@
+[
+  {
+    "name": "edge-0-0",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.859178,
+      "negmin": -2.123791,
+      "shuntmin": 0.001418546,
+      "shuntmax": 0.001825867
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-0-1",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.942675,
+      "negmin": -2.136839,
+      "shuntmin": 0.00182555,
+      "shuntmax": 0.002068477
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-1-0",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.85909,
+      "negmin": -2.124002,
+      "shuntmin": 0.00141824,
+      "shuntmax": 0.001825867
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-1-1",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.942672,
+      "negmin": -2.136909,
+      "shuntmin": 0.00182555,
+      "shuntmax": 0.00205385
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-2-0",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.859187,
+      "negmin": -2.123943,
+      "shuntmin": 0.001417736,
+      "shuntmax": 0.001825867
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-2-1",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.942628,
+      "negmin": -2.136614,
+      "shuntmin": 0.00182555,
+      "shuntmax": 0.0020381
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-3-0",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.932668,
+      "negmin": -2.132735,
+      "shuntmin": 0.001825831,
+      "shuntmax": 0.002070513
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-3-1",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.896752,
+      "negmin": -2.158411,
+      "shuntmin": 0.001421145,
+      "shuntmax": 0.001825867
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-4-0",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.932803,
+      "negmin": -2.13286,
+      "shuntmin": 0.001825814,
+      "shuntmax": 0.002054627
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-4-1",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.896824,
+      "negmin": -2.159334,
+      "shuntmin": 0.001420344,
+      "shuntmax": 0.001825867
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-5-0",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.932505,
+      "negmin": -2.132924,
+      "shuntmin": 0.001825795,
+      "shuntmax": 0.002038097
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-5-1",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.895634,
+      "negmin": -2.159252,
+      "shuntmin": 0.001419761,
+      "shuntmax": 0.001825867
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-6-0",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.988943,
+      "negmin": -2.033127,
+      "shuntmin": 0.00182208,
+      "shuntmax": 0.002072539
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-6-1",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.976696,
+      "negmin": -1.987526,
+      "shuntmin": 0.001417797,
+      "shuntmax": 0.001825867
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-7-0",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.859794,
+      "negmin": -2.121334,
+      "shuntmin": 0.001419212,
+      "shuntmax": 0.001825867
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-7-1",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.942469,
+      "negmin": -2.134935,
+      "shuntmin": 0.001825537,
+      "shuntmax": 0.002070884
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-8-0",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.859632,
+      "negmin": -2.120888,
+      "shuntmin": 0.001418104,
+      "shuntmax": 0.001825867
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-8-1",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.942403,
+      "negmin": -2.134712,
+      "shuntmin": 0.001825537,
+      "shuntmax": 0.002055213
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-9-0",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.942568,
+      "negmin": -2.133609,
+      "shuntmin": 0.001825835,
+      "shuntmax": 0.002069739
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-9-1",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.844489,
+      "negmin": -2.144054,
+      "shuntmin": 0.001420141,
+      "shuntmax": 0.001825867
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-10-0",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.945389,
+      "negmin": -2.128245,
+      "shuntmin": 0.001825838,
+      "shuntmax": 0.002070124
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-10-1",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.846859,
+      "negmin": -2.119375,
+      "shuntmin": 0.001419452,
+      "shuntmax": 0.001825867
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-11-0",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.94259,
+      "negmin": -2.133745,
+      "shuntmin": 0.001825815,
+      "shuntmax": 0.002054553
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-11-1",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.844532,
+      "negmin": -2.144591,
+      "shuntmin": 0.001419461,
+      "shuntmax": 0.001825867
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-12-0",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.945353,
+      "negmin": -2.128015,
+      "shuntmin": 0.001825819,
+      "shuntmax": 0.00205387
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-12-1",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.847021,
+      "negmin": -2.11873,
+      "shuntmin": 0.001418697,
+      "shuntmax": 0.001825867
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-13-0",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.942565,
+      "negmin": -2.133716,
+      "shuntmin": 0.001825799,
+      "shuntmax": 0.002038479
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-13-1",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.844417,
+      "negmin": -2.144485,
+      "shuntmin": 0.001418844,
+      "shuntmax": 0.001825867
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-14-0",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.945351,
+      "negmin": -2.127907,
+      "shuntmin": 0.001825803,
+      "shuntmax": 0.00203732
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-14-1",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.847328,
+      "negmin": -2.118753,
+      "shuntmin": 0.001418069,
+      "shuntmax": 0.001825867
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-15-0",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.94718,
+      "negmin": -2.133678,
+      "shuntmin": 0.001825833,
+      "shuntmax": 0.002075595
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-15-1",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.936649,
+      "negmin": -2.141625,
+      "shuntmin": 0.001420997,
+      "shuntmax": 0.001825867
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-16-0",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.947255,
+      "negmin": -2.133725,
+      "shuntmin": 0.001825813,
+      "shuntmax": 0.002059601
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-16-1",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.936792,
+      "negmin": -2.141873,
+      "shuntmin": 0.001420358,
+      "shuntmax": 0.001825867
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-17-0",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.947234,
+      "negmin": -2.133781,
+      "shuntmin": 0.001825796,
+      "shuntmax": 0.002043045
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-17-1",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.93691,
+      "negmin": -2.142069,
+      "shuntmin": 0.001419784,
+      "shuntmax": 0.001825867
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-18-0",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.942346,
+      "negmin": -2.131767,
+      "shuntmin": 0.001825824,
+      "shuntmax": 0.002072051
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-18-1",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.845609,
+      "negmin": -2.139904,
+      "shuntmin": 0.001420334,
+      "shuntmax": 0.001825867
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-19-0",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.945524,
+      "negmin": -2.126685,
+      "shuntmin": 0.00182583,
+      "shuntmax": 0.00206852
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-19-1",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.848277,
+      "negmin": -2.117382,
+      "shuntmin": 0.001417406,
+      "shuntmax": 0.001825867
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-20-0",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.9423,
+      "negmin": -2.131976,
+      "shuntmin": 0.001825805,
+      "shuntmax": 0.002055906
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-20-1",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.845395,
+      "negmin": -2.14021,
+      "shuntmin": 0.001419165,
+      "shuntmax": 0.001825867
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-21-0",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.942277,
+      "negmin": -2.131908,
+      "shuntmin": 0.001825789,
+      "shuntmax": 0.002039366
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-21-1",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.845319,
+      "negmin": -2.139784,
+      "shuntmin": 0.001418292,
+      "shuntmax": 0.001825867
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-22-0",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.945586,
+      "negmin": -2.126724,
+      "shuntmin": 0.001825795,
+      "shuntmax": 0.002038376
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-22-1",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.848872,
+      "negmin": -2.117709,
+      "shuntmin": 0.001417574,
+      "shuntmax": 0.001825867
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-23-0",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.996043,
+      "negmin": -2.026737,
+      "shuntmin": 0.001825836,
+      "shuntmax": 0.002074982
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-23-1",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.979439,
+      "negmin": -1.982731,
+      "shuntmin": 0.001419989,
+      "shuntmax": 0.001825867
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-24-0",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.942113,
+      "negmin": -2.129825,
+      "shuntmin": 0.001825812,
+      "shuntmax": 0.002073294
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-24-1",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.846152,
+      "negmin": -2.130061,
+      "shuntmin": 0.001420056,
+      "shuntmax": 0.001825867
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-25-0",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.942067,
+      "negmin": -2.129788,
+      "shuntmin": 0.001825793,
+      "shuntmax": 0.002057144
+    },
+    "pass": true
+  },
+  {
+    "name": "edge-25-1",
+    "complete": true,
+    "measurements": {
+      "negmax": -1.845855,
+      "negmin": -2.129715,
+      "shuntmin": 0.001419082,
+      "shuntmax": 0.001825867
+    },
+    "pass": true
+  }
+]

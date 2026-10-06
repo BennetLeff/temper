@@ -1,8 +1,11 @@
 {
-  "status": "preliminary sizing; qualification gates remain open",
+  "status": "source sizing; physical enclosure/transformer qualification remains a bench gate",
   "Qg_typ_datasheet_C": 2.34e-07,
   "Qg_sizing_assumption_C": 4e-07,
-  "Q_edge_including_1nF_Cgs_C": 4.17e-07,
+  "old_Q_edge_including_1nF_Cgs_C": 4.17e-07,
+  "extracted_positive_negative_charge_C": 6.612051477597351e-07,
+  "extracted_peak_negative_current_A": 7.056518305055944,
+  "Q_edge_allowance_C": 7.4e-07,
   "gate_swing_V": 17.0,
   "conversion_efficiency_assumption": 0.7,
   "candidate": "TCO_L -> IRM-20-24 -> low-side 17V split; direct 24V -> SN6507 -> two WE 750320775 -> 17V splits",
@@ -24,58 +27,58 @@
     {
       "frequency_Hz": 33000,
       "gate_typ_reference_W_4_at_10V": 0.30888,
-      "gate_allowance_W_4_at_17V": 0.9357479999999999,
-      "channel_current_A": 0.025661,
-      "transformer_output_W_2": 1.02644,
-      "transformer_driver_input_W_at_70pct": 1.4663428571428572,
-      "low_side_span_LDO_heat_W_2": 0.359254,
-      "high_side_span_LDO_heat_W_2": 0.153966,
-      "HOT_supply_allocation_W": 3.5140708571428574,
-      "supply_21p6W_utilization": 0.16268846560846562
+      "gate_allowance_W_4_at_17V": 1.66056,
+      "channel_current_A": 0.04732,
+      "transformer_output_W_2": 1.8928,
+      "transformer_driver_input_W_at_70pct": 2.704,
+      "low_side_span_LDO_heat_W": 0.87248,
+      "high_side_span_LDO_heat_W_2": 0.28392,
+      "HOT_supply_allocation_W": 5.93536,
+      "supply_21p6W_utilization": 0.2747851851851852
     },
     {
       "frequency_Hz": 40000,
       "gate_typ_reference_W_4_at_10V": 0.3744,
-      "gate_allowance_W_4_at_17V": 1.13424,
-      "channel_current_A": 0.02858,
-      "transformer_output_W_2": 1.1432,
-      "transformer_driver_input_W_at_70pct": 1.6331428571428572,
-      "low_side_span_LDO_heat_W_2": 0.40012000000000003,
-      "high_side_span_LDO_heat_W_2": 0.17148000000000002,
-      "HOT_supply_allocation_W": 3.820982857142857,
-      "supply_21p6W_utilization": 0.17689735449735447
+      "gate_allowance_W_4_at_17V": 2.0128,
+      "channel_current_A": 0.052500000000000005,
+      "transformer_output_W_2": 2.1,
+      "transformer_driver_input_W_at_70pct": 3.0000000000000004,
+      "low_side_span_LDO_heat_W": 0.9450000000000001,
+      "high_side_span_LDO_heat_W_2": 0.31500000000000006,
+      "HOT_supply_allocation_W": 6.480000000000001,
+      "supply_21p6W_utilization": 0.30000000000000004
     },
     {
       "frequency_Hz": 80000,
       "gate_typ_reference_W_4_at_10V": 0.7488,
-      "gate_allowance_W_4_at_17V": 2.26848,
-      "channel_current_A": 0.04526000000000001,
-      "transformer_output_W_2": 1.8104000000000005,
-      "transformer_driver_input_W_at_70pct": 2.586285714285715,
-      "low_side_span_LDO_heat_W_2": 0.6336400000000001,
-      "high_side_span_LDO_heat_W_2": 0.27156,
-      "HOT_supply_allocation_W": 5.574765714285715,
-      "supply_21p6W_utilization": 0.2580910052910053
+      "gate_allowance_W_4_at_17V": 4.0256,
+      "channel_current_A": 0.0821,
+      "transformer_output_W_2": 3.2840000000000003,
+      "transformer_driver_input_W_at_70pct": 4.691428571428572,
+      "low_side_span_LDO_heat_W": 1.3594000000000002,
+      "high_side_span_LDO_heat_W_2": 0.49260000000000004,
+      "HOT_supply_allocation_W": 9.592228571428574,
+      "supply_21p6W_utilization": 0.4440846560846562
     }
   ],
   "negative_rail_droop": [
     {
       "effective_C_F": 2.2e-06,
-      "charge_step_V": 0.18954545454545452,
-      "charge_only_edge_V_from_minus_2": -1.8104545454545455,
-      "with_2A_20mohm_0p5nH_0p1Aperns_V": -1.7204545454545455
+      "charge_step_V": 0.33636363636363636,
+      "charge_only_edge_V_from_minus_2": -1.6636363636363636,
+      "with_2A_20mohm_0p5nH_0p1Aperns_V": -1.5736363636363635
     },
     {
       "effective_C_F": 1e-05,
-      "charge_step_V": 0.041699999999999994,
-      "charge_only_edge_V_from_minus_2": -1.9583,
-      "with_2A_20mohm_0p5nH_0p1Aperns_V": -1.8682999999999998
+      "charge_step_V": 0.074,
+      "charge_only_edge_V_from_minus_2": -1.926,
+      "with_2A_20mohm_0p5nH_0p1Aperns_V": -1.8359999999999999
     },
     {
       "effective_C_F": 2.2e-05,
-      "charge_step_V": 0.018954545454545453,
-      "charge_only_edge_V_from_minus_2": -1.9810454545454546,
-      "with_2A_20mohm_0p5nH_0p1Aperns_V": -1.8910454545454545
+      "charge_step_V": 0.03363636363636364,
+      "charge_only_edge_V_from_minus_2": -1.9663636363636363,
+      "with_2A_20mohm_0p5nH_0p1Aperns_V": -1.8763636363636362
     }
   ],
   "shunt": {
@@ -85,8 +88,14 @@
     "nominal_V": 1.9988800000000002,
     "bleed_ohm": 4990,
     "idle_current_A": 0.003006012024048096,
-    "reservoir_effective_F": 1e-05,
-    "stability": "TI SLVS555N p11 Figs5-15/16 bracket 2V only typically; run SLVM672 model, then qualify actual 2V circuit over temperature"
+    "local_bank": "2x10uF 50V 1210, 2x1uF 25V 0603, 4x100nF 25V 0402",
+    "minimum_effective_F_by_branch": [
+      1e-05,
+      1e-06,
+      3.2e-07
+    ],
+    "bulk": "220uF 6SVPC220M through 0.68ohm, per driver VSS; 140.8..316.8uF sensitivity",
+    "stability": "rail_qualification.py: full TI macro plus gm/pole sensitivities; bench loop and ESR/ESL verification required"
   },
   "transformer": {
     "candidate": "WE 750320775",
@@ -100,14 +109,14 @@
     "Cww_status": "typical, not a maximum; sweep and layout qualification remain required",
     "primary_full_DCR_max_ohm": 0.41,
     "secondary_full_DCR_max_ohm": 0.29,
-    "RCLK_ohm": 21000,
-    "switching_frequency_typ_Hz": 523000,
-    "frequency_min_estimate_Hz": 444550.0,
-    "frequency_max_estimate_Hz": 601450.0,
-    "Vt_required_Vus": 27.780902035766506,
-    "magnetizing_peak_A_two_cores_estimate": 0.3704120271435534,
-    "reflected_load_A_two_cores": 0.07543333333333335,
+    "RCLK_ohm": 18200,
+    "switching_frequency_curve_estimate_Hz": 600000,
+    "frequency_acceptance_min_Hz": 500000,
+    "frequency_acceptance_max_Hz": 700000,
+    "Vt_required_Vus": 24.7,
+    "magnetizing_peak_A_two_cores_estimate": 0.3293333333333333,
+    "reflected_load_A_two_cores": 0.13683333333333336,
     "driver_switch_current_limit_recommended_A": 0.5,
-    "limits": "linear-core estimate omits rectifier recharge peaks, core loss, frequency spread, startup flux and temperature DCR; not driver-current qualification"
+    "limits": "transformer_check.py includes recharge, +40% winding DCR and min filter L; core loss, worst leakage, clock limits and startup still need bench verification"
   }
 }

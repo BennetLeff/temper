@@ -1,0 +1,74 @@
+[
+  {
+    "vin": 23.3,
+    "frequency": 500000,
+    "complete": true,
+    "measurements": {
+      "outa_min": 17.74599,
+      "outa_max": 17.74617,
+      "rectifiera_reverse": 63.28808,
+      "outb_min": 17.74599,
+      "outb_max": 17.74617,
+      "rectifierb_reverse": 63.28808,
+      "switch1_max": 0.4602796,
+      "switch2_max": 0.4601871,
+      "drain1_max": 47.58697,
+      "drain2_max": 47.58688,
+      "input_w": 3.35797
+    }
+  },
+  {
+    "vin": 23.3,
+    "frequency": 700000,
+    "complete": true,
+    "measurements": {
+      "outa_min": 17.27942,
+      "outa_max": 17.27958,
+      "rectifiera_reverse": 86.28616,
+      "outb_min": 17.27942,
+      "outb_max": 17.27958,
+      "rectifierb_reverse": 86.28616,
+      "switch1_max": 0.4270661,
+      "switch2_max": 0.4266201,
+      "drain1_max": 47.28552,
+      "drain2_max": 47.28576,
+      "input_w": 3.451713
+    }
+  },
+  {
+    "vin": 24.7,
+    "frequency": 500000,
+    "complete": true,
+    "measurements": {
+      "outa_min": 18.91049,
+      "outa_max": 18.91062,
+      "rectifiera_reverse": 63.99117,
+      "outb_min": 18.91049,
+      "outb_max": 18.91062,
+      "rectifierb_reverse": 63.99117,
+      "switch1_max": 0.4666561,
+      "switch2_max": 0.4667421,
+      "drain1_max": 50.42807,
+      "drain2_max": 50.37945,
+      "input_w": 3.573686
+    }
+  },
+  {
+    "vin": 24.7,
+    "frequency": 700000,
+    "complete": true,
+    "measurements": {
+      "outa_min": 18.29319,
+      "outa_max": 18.29387,
+      "rectifiera_reverse": 89.4776,
+      "outb_min": 18.29319,
+      "outb_max": 18.29387,
+      "rectifierb_reverse": 89.4776,
+      "switch1_max": 0.4312707,
+      "switch2_max": 0.4307501,
+      "drain1_max": 50.11974,
+      "drain2_max": 50.12013,
+      "input_w": 3.65522
+    }
+  }
+]

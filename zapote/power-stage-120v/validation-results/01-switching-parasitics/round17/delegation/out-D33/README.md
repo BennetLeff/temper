@@ -1,202 +1,206 @@
-# D-33 — revised HOT-side bias: source freeze held
+# D-33 — HOT-side F6 bias and isolated mains zero crossing
 
-**The revised transformer path is not qualified for source freeze: sizing is
-recorded, but the loaded-rail F6 campaign remains partly indeterminate.**
-The circuit source, audit, frozen exports and board are unchanged. This is a
-verification draft, not the requested completed native-21 source delivery.
+**Native-21 source is implemented on the revised TCO-switched architecture;
+the rail/switching qualification is split as the owner directed.** The final
+machine-readable campaign summary and refinement results accompany this
+report. This is source for owner layout, not a routed or bench-qualified board.
 
-The branch starts at `3b0abe9776c6fac81577d2617ef857497cbed781`, including
-DECISIONS.md's 2026-10-06 **F6 bias architecture REVISED**. It supersedes both
-the RECOM proposal and the SELV-fed proposal. No gate or protection load is
-allocated to PS1/SELV here. The user's ordering constraint is preserved:
-sizing and a passing rail-model rerun must precede circuit-source work.
+**Final modeled rail minimum margin: 78.6 mV**, with the least-negative
+partner-edge voltage **−1.678614 V** against −1.6 V. All **7,972** rail cases
+complete and pass. The six worst-case timestep refinements also pass.
+See [qualification-summary.json](qualification-summary.json) for case names,
+limits and complete evidence hashes.
 
-## Candidate and sizing
+| Rail campaign | Pass / total | Least-negative partner-window VSS |
+|---|---:|---:|
+| Full waveform screen at nominal components | 1,008 / 1,008 | −1.844578 V |
+| Selected waveforms × 128 corners | 3,328 / 3,328 | −1.678912 V |
+| −2.4 V current extraction, nominal screen | 52 / 52 | −1.844417 V |
+| −2.4 V selected waveforms × 128 corners | 3,200 / 3,200 | −1.678614 V |
+| Repeated 740 nC pulses, 33/80 kHz | 256 / 256 | −1.888341 V |
+| Repeated pulses + 30 mA HOT load, 18 V span | 128 / 128 | −1.915819 V |
 
-Run `python3 zapote/power-stage-120v/native-21/bias_sizing.py` from the checkout.
-Its output is [bias-sizing.json](bias-sizing.json).
+The branch is rebased onto `fada4c13c`, which contains the owner's split-F6
+qualification decision and isolated LINE_ZC requirement. D-32, D-34 and D-35
+are already merged by the owner; this change does not alter those tools or
+firmware. In particular, it does not enable bursts or revert the B4
+comparator-to-driver-output timing correction.
 
-The candidate is TCO_L → IRM-20-24, a direct low-side regulated 17 V span,
-and one SN6507 driving two WE 750320775 transformers. Each floating secondary
-needs a regulated 17 V span. A shunt fixes each source midpoint approximately
-2 V above its negative terminal, yielding approximately +15/−2 V at the gate
-driver. The low-side supply's negative terminal is thus at approximately
-−2 V relative to `leg_ret`; it must not also be hard-tied to `leg_ret`.
-HOT5 would use a TPS709-class LDO returning at R5.2, and its TPS3700 monitor
-must retain an independent HOT-side supply. These are topology requirements,
-not implemented connections.
+## Deliverables
 
-The Qg reference is **234 nC typical at 10 V**, not a maximum at 15 V.
-The calculation separately labels **400 nC** as an engineering allowance;
-adding the 1 nF Cgs over a 17 V swing gives **417 nC**. Four-gate power is
-0.936 W at 33 kHz and 2.268 W at 80 kHz. Including the stated driver, monitor,
-bleed and HOT-load allocations, and an **assumed 70%** transformer conversion
-efficiency, the raw-supply allocation is **3.514–5.575 W**. Efficiency has
-not been measured or bounded. The 21.6 W supply rating provides allocation
-headroom, but its temperature derating and the final netlist load still need
-checking. The low-side span-regulator heat allocation is 0.634 W at 80 kHz;
-the two high-side span regulators together account for 0.272 W.
+- [Circuit source](../../../../../elec/src/power_stage_120v.ato), `f6_bias.ato`
+  and `f6_parts.ato`: IRM-20-24 on TCO_L, direct low-side split, one SN6507,
+  two HOT↔HOT transformers, shunt-regulated negative rails, damped local
+  reservoirs, all-rail monitor → DIS, F6 gate networks and TPS709 HOT5.
+- [Native-21 ECO](../../../../../native-21/ECO.md), exact part/footprint and
+  net-delta inventory, plus identical compiler outputs in both `frozen/`
+  and `native-21/frozen/`. No board file is added or changed.
+- Reinforced VOL628A AC-input detector from L_FILT/N_FILT to **LINE_ZC at
+  J4.16**, with a Schmitt output. The ECO records the three-return D-20
+  allocation and its still-open harness/ground-offset qualification.
+- Standalone Rust safety audit, including each gate's Cgs/negative bias/
+  discharge orientation, three local references, all rail monitors through
+  DIS, HOT-only bias power and the line detector's exclusive optocoupler
+  boundary. Mutations exercise the actual exported netlist.
 
-The transformer has **3 pF typical** Cww, 500 Vrms reinforced working
-insulation up to 700 kHz, 1.2:1 primary/secondary ratio, and a 60 Vµs
-half-primary rating. These are distinct from its insulation test voltage.
-The 21 kΩ SN6507 clock setting gives 523 kHz typical. Applying TI's −15%
-frequency estimate gives 27.781 Vµs at the allocated maximum supply voltage.
-The linear-core estimate gives 0.370 A total magnetizing peak plus 0.075 A
-reflected load for two cores. This does **not** include recharge peaks,
-startup flux, core loss or temperature-dependent winding resistance and
-does not establish compliance with the driver's 0.5 A operating limit.
-The 3 pF figure is not a maximum; the earlier 25 pF campaign is a separate
-scenario, not a guaranteed bound for this part.
+## Qualification method
 
-## Reservoir and regulator
+The owner demonstrated 504/504 switching cases with a fixed −1.6 V rail,
+worst off gate 1.741 V against 1.9 V. That run establishes the switching side
+of the decomposition in DECISIONS.md. This branch additionally reruns all
+504 decision/startup cases on both native-19 matrices at 27/100/150°C with
+**the physical 1 Ω** discharge resistor and PMEG6030EP, still at fixed
+−1.6 V: 504 pass, worst off gate **1.589109 V**. The old deck's 1.344827 Ω
+compensation is not the circuit's 1 Ω resistor.
 
-Charge-only droop is 0.190 V with 2.2 µF effective, 0.0417 V with 10 µF,
-and 0.0190 V with 22 µF. This calculation alone misses the edge inductance.
-All capacitances in these models are **effective**, not nameplate values.
-No capacitor MPN or layout has yet been qualified to deliver the model values.
+`edge_currents.py` observes both signed driver-output branch currents without
+loading the switching circuit. Its 0.2 ns samples cover turn-off, the partner
+edge and 0.75 µs afterward. The largest positive-only negative-rail charge
+integral is 654.4 nC and the largest current is 7.057 A. This exceeds the
+original 417 nC sizing estimate. A second run at −2.4 V on the 26 selected
+stress cases finds 661.3 nC; all 26 switching cases pass. The implemented
+power/repeated-pulse allowance is therefore **740 nC and 8 A**, and signed
+waveform replays carry a further 10% current multiplier. The selection is the
+union of worst rail response, current, charge and slew; all 1,008 original
+case/rail combinations are first screened at nominal component values.
 
-The TLVH431 candidate uses a 6.12 kΩ/10 kΩ divider (1.99888 V nominal),
-4.99 kΩ bleed and a local reservoir plus 100 nF. The standalone pulse test
-uses the complete TI model with its TABLE functions translated algebraically
-for ngspice. Paired 4 A pulses integrate to 417 nC each. At 80 kHz, the 10 µF,
-20 mΩ, 0.5 nH bulk plus 100 nF, 50 mΩ, 0.1 nH circuit reaches
-−1.765760 V and −2.239297 V. Increasing to 22 µF barely changes those edge
-peaks: ESL matters. The active-region loop estimate gives phase margins of
-4.27°, 9.45° and 14.06° for 2.2, 10 and 22 µF respectively. These are nominal
-model calculations, not stability guarantees over component tolerance and
-temperature. See [shunt-stability.json](shunt-stability.json) and
-[shunt_stability.py](shunt_stability.py).
+`rail_qualification.py` applies those waveforms to a standalone full TI
+TLVH431 nonlinear macro, a finite source resistance and the actual reservoir
+network. It crosses 128 component/model corners with the selected waveforms.
+The source span is **15.5 V** for negative-rail droop, below the monitor's
+normal enable window; **18 V** checks the upper shunt-current case with
+30 mA of HOT protection load returning through the shared LS midpoint.
+This brackets regulator tolerance/dropout effects more widely than treating
+25°C nominal accuracy as a full-temperature specification.
 
-In a completed F6 diagnostic (leg A, 27°C, 170 V, −20 A, DIR=0, 391 ns,
-film ESL 1.06 nH), changing only reservoir ESL from 0.5 to 0.25 to 0.125 nH
-reduces the least-negative low-side excursion from about −1.442 V to
-−1.649 V to −1.748 V. The latter two are **layout scenarios**, not measured
-parasitics. The full grid uses 0.125 nH and 3 pF typical Cww; it cannot turn
-that assumption into a component or board qualification.
+The corner grid includes:
 
-## F6 method and limits
+- polymer 140.8–316.8 µF, total damping resistance 0.67–1.1 Ω, 10 nH;
+- local ceramic 10–24 µF, ESR up to 40 mΩ and ESL up to 0.5 nH;
+- middle ceramic 1–2.4 µF, ESR up to 100 mΩ and ESL up to 0.5 nH;
+- HF bank ≥320 nF, ESR up to 50 mΩ and **aggregate ESL ≤0.1 nH**;
+- shared/single bank configurations, polymer leakage, gate hold-off and
+  monitor loads; worst 0.1% feedback-resistor directions;
+- shunt reference 1.2188 V, including the BQ full-temperature minimum and
+  cathode-voltage coefficient allowance;
+- macro gm ×0.5/2 and each pole ×0.5/2 sensitivity. These factors are
+  **engineering sensitivities, not TI temperature/process limits**.
 
-[rail_campaign.py](rail_campaign.py) reuses `d2/f6_legs.py`'s job construction,
-PMEG6030EP model and switching verdicts. Both legs use the native-19 matrices,
-with **legB-h0-corr-n19.matrix.txt**, at 27/100/150°C. The full grid has
-288 decision cases and 216 S5 burst-start cases. The physical discharge
-resistor is 1 Ω while the existing 3.9 Ω remains; the old deck's 1.3448 Ω
-value was an effective-parallel-resistance choice. The 1 nF Cgs remains.
+The nominal source is approximately −2.0 V. Stability comes from the
+220 µF polymer **through 0.68 Ω**, per driver, in parallel with the fast
+ceramic branches. The computed minimum phase margin is **51.62°**, versus
+4–14° in the superseded candidate. Every unity crossing is considered.
+Actual loop gain, effective capacitance and mounted ESL remain bench/layout
+acceptance conditions. The source is not certified over unmeasured parasitics.
 
-The new driver current returns to the actual positive/negative rail nodes.
-Returning that current to the MOSFET source would leave the reservoir
-unloaded and produce a false pass. The model includes negative-rail C,
-ESR, ESL and shunt dynamics. It uses a **17 V Thevenin upstream regulator
-(1 Ω and 47 µF)**, not a switched SN6507/transformer/rectifier/LDO model.
-It therefore does **not** yet satisfy full real-supply qualification.
-Shared low-side impedance, the second bridge leg and its transformer,
-actual monitor loading, cold bias startup, TCO loss and component corners
-also remain outside this deck.
+The rail verdict measures VSS relative to its MOSFET source over the partner
+edge window, not only at a sampled instant. Periodic 740 nC pulses at
+33/80 kHz exercise recharge and shared-LS loading over 4 ms. A positive
+current-source DC operating point incorrectly holds an instantaneous Miller
+pulse forever; the replay instead starts from the energized idle rail and
+introduces the signed waveform after 50 ns. No waveform clipping or
+smoothing is applied.
 
-Both full-grid solver runs are complete:
+Some transients briefly reduce the shunt current essentially to zero; the
+reservoir then supports the rail. The small-signal phase margin describes
+the regulating operating point, not that cutoff interval. The nonlinear
+transient model supplies the edge-voltage verdict. Maximum shunt current
+across the final campaigns is **64.062 mA**, below the 70 mA design limit.
 
-| Solver | Attempted | Completed and candidate-pass | Indeterminate |
-| --- | ---: | ---: | ---: |
-| Default Sparse | 504 | 299 | 205 |
-| KLU | 504 | 171 | 333 |
+## Numerical checks and historical diagnostics
 
-**181 cases remain indeterminate in both solvers.** Of the 147 cases completed
-by both, no candidate verdict differs; maximum differences are 1.0323 mV in
-off-gate peak, 0.3696 V in die VDS peak and 0.184 mV in partner-window rail
-peak. This agreement covers only that intersection. Default-solver completed
-cases reach at most 1.020663 V off-gate, 492.0922 V die VDS, and −1.788605 V
-on the least-negative partner-window rail. These extrema exclude aborted
-cases and are not whole-envelope bounds. The 48 retained high-iteration
-attempts contain 29 completed cases and 19 indeterminate cases.
+The final edge step is **50 ps**. `refine_rail.py` checks the three
+least-negative corners of each final waveform campaign at 25 ps and rejects
+differences above 5 mV. `qualification_summary.py` checks distinct case
+counts, completion, finite rail measurements, rail/shunt limits and timestep
+agreement before writing the final summary. That summary gives the actual
+worst cases, completed counts and shunt currents.
+The six 50-to-25 ps comparisons change the reported worst rail voltage by
+at most **1 µV** at the simulator's printed precision; this is a numerical
+agreement check, not a claim of physical voltage accuracy.
 
-See [campaign-comparison.json](campaign-comparison.json), the
-[per-leg/temperature/case table](campaign-table.md), both campaign folders,
-and [long-iteration-checks.json](long-iteration-checks.json). Generate the
-comparison with `python3 .../out-D33/summarize.py`. The separate
-[diagnostic records](diagnostics/records.json) retain the ESR/ESL and solver
-experiments, including failures, with portable decks and hashes.
+The originally coupled switching/shunt campaign remains in this directory
+as diagnostic evidence: 181/504 cases were indeterminate, while every
+completed case passed. Per the owner's 2026-10-06 decision, it is no longer
+the source gate. `rail_campaign.py`, its old candidate decks/results and
+KLU/iteration experiments describe that **superseded candidate**, not the
+new damped reservoir. Their old source-hold verdict is superseded by the
+separate qualification here.
 
-The complete TI shunt macro aborts during initialization in the mixed F6
-deck. The campaign substitutes its two-pole active-region equations in a
-local voltage frame, with a direct transconductance output. It rejects a
-case unless **both control states remain strictly between 0 and 80 mV**.
-The rail check requires both rails to remain below −1.6 V from the partner's
-command through the following 0.75 µs, as well as at the command itself.
-The outgoing turn-off excursion is recorded separately. A pass also needs
-every canonical hot-screen, VDS, VGS, model-threshold and S1 ZVS condition.
+## Supply sizing and physical limits
 
-`gmin=1e-7` is a numerical experiment, not a qualified universal fix.
-Changing it to `2e-7` gave close results on one completed diagnostic, but
-other cases still abort. The full screening run uses `itl4=1000`; selected
-matching cases also ran with `itl4=100000`. A lower iteration count never
-converts an abort into an electrical failure or a pass. Initializing with a
-bus ramp, changing integration method/tolerances, adding a large shunt
-resistance and reformulating the regulator port did not remove the general
-convergence problem. All indeterminate cases stay visible.
+`native-21/bias_sizing.py` derives gate power from the Infineon datasheet's
+234 nC typical reference at 10 V, then budgets the larger extracted charge.
+It includes driver, bleed, monitor, HOT5 and operating-current allocations.
+Transformer efficiency is budgeted at 70%; that is an allowance, not a
+manufacturer minimum. The 21.6 W IRM-20-24 has adequate calculated capacity,
+with a **9.592 W** allocation at 80 kHz, but enclosure-temperature derating
+and LDO cooling must be verified.
 
-S5 here means the first **bridge** edge with bias already energized. It is
-not proof that the bias supply starts correctly or that the mandatory rail
-monitor releases DIS correctly.
+`transformer_check.py` evaluates both transformers together at 23.3/24.7 V,
+500/700 kHz and 85 mA per secondary, including rectifier models, hot winding
+DCR, minimum filter L and maximum switch RON. Its committed results contain
+output headroom, switch current, drain voltage, rectifier reverse voltage and
+input power. The model does not include SN6507 startup control, magnetic
+saturation/core loss or a manufacturer maximum leakage capacitance.
+The four completed cases give ≥17.279 V rectified output, ≤0.46675 A switch
+current, ≤50.429 V drain voltage and ≤89.478 V diode reverse voltage.
 
-## Source hold and fallback
+The ECO names the remaining physical checks: effective MLCC capacitance and
+ESL; loop margin; high-side headroom and clock range; transformer startup,
+flux and snubbers; current/temperature derating; monitor enable/brownout/
+recovery behavior; the added DIS-OR timing; changed-loop FEM; D5 isolation;
+and D-20 harness returns. These are not waived by a source/netlist audit.
+The three new custom land patterns remain explicitly ReviewOnly pending
+manufacturer-drawing review.
 
-The next source gate requires a convergent, sensitivity-qualified full F6
-grid with the actual supply impedance and realistic capacitor/ESL corners;
-then regulator startup/thermal checks and a fail-safe rail-window monitor.
-Only then should the bootstrap removal, HOT5 change, new parts, structural
-mutation tests, atopile exports and native-21 ECO be implemented. The
-existing R34/R8/R16/R9/R17 values remain untouched.
-
-The brief's fallback is **bootstrap high sides with regulated split rails
-and a low-side pre-charge before every burst**. It is not implemented or
-validated here, and these numerical aborts do not establish that the
-transformer hardware is infeasible. The fallback needs an explicit startup
-sequence: if the mandatory all-rails monitor holds shared DIS active while
-an empty bootstrap awaits a low-side pulse, the pulse cannot occur. That
-interlock must be resolved in the fallback design; silently bypassing the
-monitor or drawing gate power from PS1 would violate the brief.
+LINE_ZC's raw optocoupler edges are not guaranteed within ±250 µs of voltage
+zero. The controller must infer phase from the continuous pulse train and
+qualify timing on the bench. Bursts remain disabled until that firmware and
+harness integration is complete.
 
 ## Reproduction
 
-Use ngspice 45.2 and Python 3.12 with NumPy. Run from the checkout root:
+Use Miniforge Python 3.12 with NumPy/SciPy and ngspice 45.2. From repo root:
 
 ```sh
 zsh zapote/power-stage-120v/validation-plan/sim-kit/models/fetch_models.sh
-python3 zapote/power-stage-120v/validation-plan/sim-kit/smoke_test.py
-python3 zapote/power-stage-120v/native-21/bias_sizing.py
-python3 zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D33/shunt_stability.py
-python3 zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D33/rail_campaign.py --workers 4 --itl4 1000 --tag screen-3p-0p125n
-python3 zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D33/run_klu.py --workers 6 --itl4 1000 --tag klu-3p-0p125n
-python3 zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D33/summarize.py
-python3 zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D33/replay_diagnostics.py solver-direct
+PATH=/opt/homebrew/bin:$PATH /Users/bennet/Miniforge3/bin/python3 zapote/power-stage-120v/validation-plan/sim-kit/smoke_test.py
+cd zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D33
+/Users/bennet/Miniforge3/bin/python3 edge_currents.py --workers 8
+/Users/bennet/Miniforge3/bin/python3 rail_qualification.py --loop --edges --workers 8
+/Users/bennet/Miniforge3/bin/python3 edge_currents.py --bias=-2.4 --selected --workers 4
+/Users/bennet/Miniforge3/bin/python3 rail_qualification.py --edges --waveforms edge-current-2.4V --output rail-deep-bias --workers 8
+/Users/bennet/Miniforge3/bin/python3 rail_qualification.py --periodic --workers 4
+/Users/bennet/Miniforge3/bin/python3 rail_qualification.py --hot-load --span 18 --output rail-hot-18V --workers 4
+/Users/bennet/Miniforge3/bin/python3 refine_rail.py
+/Users/bennet/Miniforge3/bin/python3 transformer_check.py
 ```
 
-The TI archive is fetched and SHA-256 checked by the script. Licensed model
-files and raw working directories are ignored; no vendor library is committed.
-The standard model smoke test passes. Import-boundary and derived-artifact
-checks pass; their logs are committed. Review was performed in the main
-session, not by an independent reviewer. Atopile and new structural audit
-tests were not run for this revision because the source gate is still held.
+Then run `native-21/bias_sizing.py` from repo root and
+`qualification_summary.py` from this directory. The full sampled waveform
+archives and vendor models are ignored; regenerate them with the commands
+above. The model fetchers verify their hashes. No licensed models are in Git.
+The default extraction remains numerically identical after adding the
+`--bias`/`--selected` CLI options; the original 504-case result records the
+script hash used at measurement time.
 
-## Manufacturer references
+From `zapote/power-stage-120v`:
 
-- Infineon IPW65R018CFD7, Rev. 2.0, p.5 Table 6, Qg conditions; repository
-  `validation-results/03-loss-thermal-budget/round3/sources/ipw65r018cfd7.pdf`.
-- [Mean Well IRM-20 specification](https://www.meanwell.com/Upload/PDF/IRM-20/IRM-20-SPEC.PDF),
-  2025-11-21, specification table and mechanical drawing: IRM-20-24 ratings,
-  tolerance, ripple and 52.4 × 27.2 × 24 mm envelope.
-- [WE 750320775](https://www.we-online.com/components/products/datasheet/750320775.pdf),
-  revision 001.002, 2026-07-29, pp.1–2: winding data, Cww and working insulation.
-- [TI SN6507](https://www.ti.com/lit/ds/symlink/sn6507.pdf), SLLSFM0A,
-  June 2022, §§6.3/6.5, Table 8-1 and §9.2.2.5: current, clock and Vt sizing.
-- [TI TLVH431](https://www.ti.com/lit/ds/symlink/tlvh431.pdf), SLVS555N,
-  June 2024, p.11 stability curves and stability discussion; the plotted
-  1.25/2.5/5 V examples do not guarantee this 2 V circuit.
-- [TI SLVM672 model](https://www.ti.com/lit/zip/slvm672), model Final 1.00,
-  2010-10-20, archive SHA-256
-  `b658a78537ed2ba314fcfadf053686280c74e234f3e2ea6c2d846db245def7a6`.
-- [Nexperia PMEG6030EP](https://assets.nexperia.com/documents/data-sheet/PMEG6030EP.pdf),
-  pinning and manufacturer model, loaded by the existing hash-checked kit.
-- [ngspice KLU selection](https://ngspice.sourceforge.io/applic.html),
-  alternate matrix-solver option; selecting it does not qualify a circuit.
+```sh
+uv tool run --offline --from atopile==0.2.69 ato build
+uv tool run --offline --from atopile==0.2.69 python tools/circuit_export.py . build/resolved-components.json --entry-file elec/src/power_stage_120v.ato --entry PowerStage120V
+rustc --edition=2021 --test audit.rs -o /tmp/d33-audit
+/tmp/d33-audit
+/Users/bennet/Miniforge3/bin/python3 native-21/verification/verify_source.py
+```
+
+Compiler outputs were copied into both frozen directories; source hashes
+are checked in `native-21/verification/source-check.json`. Full project Rust
+builds, PCB DRC and routing are outside this source-only task.
+
+Manufacturer document revisions, pin contracts and footprint references are
+collected in [ECO.md](../../../../../native-21/ECO.md). The shunt macro is TI
+SLVM672 and the PMEG models are Nexperia; their download hashes are recorded
+by the fetchers/results. Model accuracy and all engineering assumptions
+remain explicit; none of these simulations is a measured PCB result.

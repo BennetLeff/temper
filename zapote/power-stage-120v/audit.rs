@@ -14,6 +14,7 @@
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::fs;
+mod audit_f6;
 
 // ------------------------------------------------------------ s-expression
 
@@ -244,7 +245,8 @@ const SELV_NETS: &[&str] = &[
     "v15_selv", "selv_gnd", "v3v3", "pwm_ha", "pwm_la", "pwm_hb", "pwm_lb", "permit",
     "bus_fault", "vbus_p", "vbus_n", "ct_s1", "ct_s2",
     "ct_sense_mon", "ct_ref_hi", "ct_ref_lo", "ct_oc_pos", "ct_oc_neg", "ct_zc", "ct_mon",
-    "bus_fault_iso",
+    "bus_fault_iso", "bias_bad", "bias_ls_bad", "bias_ha_bad", "bias_hb_bad",
+    "line_zc", "line_zc-raw", "leg_a-driver_dis", "leg_b-driver_dis",
     "leg_a-dis", "leg_a-permit_gate", "leg_a.driver-dt",
     "leg_b-dis", "leg_b-permit_gate", "leg_b.driver-dt",
 ];
@@ -257,6 +259,10 @@ const BARRIER_PARTS: &[(&str, &str, &[&str])] = &[
     ("u_iso", "ISO7710DWR", &["9", "13", "14", "16"]),
     ("t_ct", "CST3015-100ED", &["3", "4"]),
     ("ps_selv", "IRM-20-15", &["3", "4"]),
+    ("monitor_ls.opto", "VO617A-3X017T", &["3", "4"]),
+    ("bias_ha.monitor.opto", "VO617A-3X017T", &["3", "4"]),
+    ("bias_hb.monitor.opto", "VO617A-3X017T", &["3", "4"]),
+    ("line_zc.opto", "VOL628A-3X001T", &["3", "4"]),
 ];
 
 /// Safety-relevant part identities (path -> MPN).
@@ -302,7 +308,7 @@ const IDENTITY: &[(&str, &str)] = &[
     ("r_hot5_uv_pull", "RT0603BRD0710KL"),
     ("r_fe", "RC0603JR-070RL"),
     ("u_ref", "LM4040A25IDBZR"),
-    ("u_ldo", "MC78L05ACHT1G"),
+    ("u_ldo", "TPS70950DBVR"),
     ("r_ref_bias", "RC0603FR-075K6L"),
     ("r_ocp_ref", "RT0603BRD0710KL"),
     ("r_ocp_sense", "RT0603BRD0710KL"),
@@ -316,7 +322,7 @@ const IDENTITY: &[(&str, &str)] = &[
     ("r_div3", "RC1206FR-07470KL"),
     ("r_div4", "RC1206FR-07470KL"),
     ("r_div_bot", "RT0603BRD0715K8L"),
-    ("ps_gate", "IRM-05-15"),
+    ("ps_gate", "IRM-20-24"),
     ("ps_selv", "IRM-20-15"),
     ("t_ct", "CST3015-100ED"),
     // Tank-CT detector (tools/ct_detector): burden, trip references, clamps.
@@ -341,6 +347,203 @@ const IDENTITY: &[(&str, &str)] = &[
     ("leg_b.r_permit", "RC0603FR-07100RL"),
     ("leg_a.r_dis_pu", "RC0603FR-07330RL"),
     ("leg_b.r_dis_pu", "RC0603FR-07330RL"),
+    // Native-21 F6 and isolated mains detector: every added part.
+    ("leg_a.bias_h.clocal1", "UMK325AB7106KM-T"),
+    ("leg_a.bias_h.clocal2", "UMK325AB7106KM-T"),
+    ("leg_a.bias_h.cmid1", "GRM188R71E105KA12D"),
+    ("leg_a.bias_h.cmid2", "GRM188R71E105KA12D"),
+    ("leg_a.bias_h.chf1", "GRM155R71E104KE14D"),
+    ("leg_a.bias_h.chf2", "GRM155R71E104KE14D"),
+    ("leg_a.bias_h.chf3", "GRM155R71E104KE14D"),
+    ("leg_a.bias_h.chf4", "GRM155R71E104KE14D"),
+    ("leg_a.bias_h.rdamp", "RC1206FR-070R68L"),
+    ("leg_a.bias_h.cbulk", "6SVPC220M"),
+    ("leg_a.bias_h.rbleed", "RT0603BRD074K99L"),
+    ("leg_a.bias_l.clocal1", "UMK325AB7106KM-T"),
+    ("leg_a.bias_l.clocal2", "UMK325AB7106KM-T"),
+    ("leg_a.bias_l.cmid1", "GRM188R71E105KA12D"),
+    ("leg_a.bias_l.cmid2", "GRM188R71E105KA12D"),
+    ("leg_a.bias_l.chf1", "GRM155R71E104KE14D"),
+    ("leg_a.bias_l.chf2", "GRM155R71E104KE14D"),
+    ("leg_a.bias_l.chf3", "GRM155R71E104KE14D"),
+    ("leg_a.bias_l.chf4", "GRM155R71E104KE14D"),
+    ("leg_a.bias_l.rdamp", "RC1206FR-070R68L"),
+    ("leg_a.bias_l.cbulk", "6SVPC220M"),
+    ("leg_a.bias_l.rbleed", "RT0603BRD074K99L"),
+    ("leg_a.dis_or", "SN74LVC1G32DBVR"),
+    ("leg_a.c_dis_or", "C0603C104K5RACTU"),
+    ("leg_a.r_driver_dis", "RC0603FR-0710KL"),
+    ("leg_a.cgs_h", "C0603C102J5GACTU"),
+    ("leg_a.doff_h", "PMEG6030EP,115"),
+    ("leg_a.roff_h", "RC1206FR-071RL"),
+    ("leg_a.cgs_l", "C0603C102J5GACTU"),
+    ("leg_a.doff_l", "PMEG6030EP,115"),
+    ("leg_a.roff_l", "RC1206FR-071RL"),
+    ("leg_b.bias_h.clocal1", "UMK325AB7106KM-T"),
+    ("leg_b.bias_h.clocal2", "UMK325AB7106KM-T"),
+    ("leg_b.bias_h.cmid1", "GRM188R71E105KA12D"),
+    ("leg_b.bias_h.cmid2", "GRM188R71E105KA12D"),
+    ("leg_b.bias_h.chf1", "GRM155R71E104KE14D"),
+    ("leg_b.bias_h.chf2", "GRM155R71E104KE14D"),
+    ("leg_b.bias_h.chf3", "GRM155R71E104KE14D"),
+    ("leg_b.bias_h.chf4", "GRM155R71E104KE14D"),
+    ("leg_b.bias_h.rdamp", "RC1206FR-070R68L"),
+    ("leg_b.bias_h.cbulk", "6SVPC220M"),
+    ("leg_b.bias_h.rbleed", "RT0603BRD074K99L"),
+    ("leg_b.bias_l.clocal1", "UMK325AB7106KM-T"),
+    ("leg_b.bias_l.clocal2", "UMK325AB7106KM-T"),
+    ("leg_b.bias_l.cmid1", "GRM188R71E105KA12D"),
+    ("leg_b.bias_l.cmid2", "GRM188R71E105KA12D"),
+    ("leg_b.bias_l.chf1", "GRM155R71E104KE14D"),
+    ("leg_b.bias_l.chf2", "GRM155R71E104KE14D"),
+    ("leg_b.bias_l.chf3", "GRM155R71E104KE14D"),
+    ("leg_b.bias_l.chf4", "GRM155R71E104KE14D"),
+    ("leg_b.bias_l.rdamp", "RC1206FR-070R68L"),
+    ("leg_b.bias_l.cbulk", "6SVPC220M"),
+    ("leg_b.bias_l.rbleed", "RT0603BRD074K99L"),
+    ("leg_b.dis_or", "SN74LVC1G32DBVR"),
+    ("leg_b.c_dis_or", "C0603C104K5RACTU"),
+    ("leg_b.r_driver_dis", "RC0603FR-0710KL"),
+    ("leg_b.cgs_h", "C0603C102J5GACTU"),
+    ("leg_b.doff_h", "PMEG6030EP,115"),
+    ("leg_b.roff_h", "RC1206FR-071RL"),
+    ("leg_b.cgs_l", "C0603C102J5GACTU"),
+    ("leg_b.doff_l", "PMEG6030EP,115"),
+    ("leg_b.roff_l", "RC1206FR-071RL"),
+    ("bias_ls.ldo", "TPS7A4700RGWR"),
+    ("bias_ls.cnr", "GRM188R71E105KA12D"),
+    ("bias_ls.cin", "UMK325AB7106KM-T"),
+    ("bias_ls.cout1", "UMK325AB7106KM-T"),
+    ("bias_ls.cout2", "UMK325AB7106KM-T"),
+    ("bias_ls.chf", "C0603C104K5RACTU"),
+    ("bias_ls.shunt", "TLVH431BQDBZR"),
+    ("bias_ls.rtop", "RT0603BRD076K12L"),
+    ("bias_ls.rbot", "RT0603BRD0710KL"),
+    ("monitor_ls.reference", "TL431AIDBZR"),
+    ("monitor_ls.rref", "RC1206FR-072K2L"),
+    ("monitor_ls.rhalf_top", "RT0603BRD0710KL"),
+    ("monitor_ls.rhalf_bot", "RT0603BRD0710KL"),
+    ("monitor_ls.ruv_top", "RT0603BRD074K42L"),
+    ("monitor_ls.ruv_bot", "RT0603BRD0710KL"),
+    ("monitor_ls.rov_top", "RT0603BRD077K62L"),
+    ("monitor_ls.rov_bot", "RT0603BRD0710KL"),
+    ("monitor_ls.rspanuv_top", "RT0603BRD07120KL"),
+    ("monitor_ls.rspanuv_bot", "RT0603BRD0710KL"),
+    ("monitor_ls.rspanov_top", "RT0603BRD07133KL"),
+    ("monitor_ls.rspanov_bot", "RT0603BRD0710KL"),
+    ("monitor_ls.monitor", "LM339BIDR"),
+    ("monitor_ls.rnotice", "RC0603FR-071KL"),
+    ("monitor_ls.dnotice", "1N4148W-7-F"),
+    ("monitor_ls.qnotice", "MMBT3904-7-F"),
+    ("monitor_ls.rbase", "RC0603FR-0710KL"),
+    ("monitor_ls.rled", "RC1206FR-072K7L"),
+    ("monitor_ls.opto", "VO617A-3X017T"),
+    ("monitor_ls.rbad", "RC0603FR-0710KL"),
+    ("monitor_ls.cuv", "C0603C102J5GACTU"),
+    ("monitor_ls.cov", "C0603C102J5GACTU"),
+    ("monitor_ls.cspanuv", "C0603C102J5GACTU"),
+    ("monitor_ls.cspanov", "C0603C102J5GACTU"),
+    ("monitor_ls.cmonitor", "C0603C104K5RACTU"),
+    ("bias_driver", "SN6507DGQR"),
+    ("bias_rclk", "RT0603BRD0718K2L"),
+    ("bias_rlim", "RT0603BRD0730K1L"),
+    ("bias_css", "GRM31CR71H475KA12L"),
+    ("bias_rsr", "RT0603BRD074K99L"),
+    ("bias_cin", "UMK325AB7106KM-T"),
+    ("bias_chf", "C0603C104K5RACTU"),
+    ("bias_rsn1", "RC1206FR-07680RL"),
+    ("bias_csn1", "C0603C101J5GACTU"),
+    ("bias_rsn2", "RC1206FR-07680RL"),
+    ("bias_csn2", "C0603C101J5GACTU"),
+    ("bias_ha.transformer", "750320775"),
+    ("bias_ha.da", "PMEG10030ELPX"),
+    ("bias_ha.db", "PMEG10030ELPX"),
+    ("bias_ha.filter", "74404064101"),
+    ("bias_ha.craw", "UMK325AB7106KM-T"),
+    ("bias_ha.split.ldo", "TPS7A4700RGWR"),
+    ("bias_ha.split.cnr", "GRM188R71E105KA12D"),
+    ("bias_ha.split.cin", "UMK325AB7106KM-T"),
+    ("bias_ha.split.cout1", "UMK325AB7106KM-T"),
+    ("bias_ha.split.cout2", "UMK325AB7106KM-T"),
+    ("bias_ha.split.chf", "C0603C104K5RACTU"),
+    ("bias_ha.split.shunt", "TLVH431BQDBZR"),
+    ("bias_ha.split.rtop", "RT0603BRD076K12L"),
+    ("bias_ha.split.rbot", "RT0603BRD0710KL"),
+    ("bias_ha.monitor.reference", "TL431AIDBZR"),
+    ("bias_ha.monitor.rref", "RC1206FR-072K2L"),
+    ("bias_ha.monitor.rhalf_top", "RT0603BRD0710KL"),
+    ("bias_ha.monitor.rhalf_bot", "RT0603BRD0710KL"),
+    ("bias_ha.monitor.ruv_top", "RT0603BRD074K42L"),
+    ("bias_ha.monitor.ruv_bot", "RT0603BRD0710KL"),
+    ("bias_ha.monitor.rov_top", "RT0603BRD077K62L"),
+    ("bias_ha.monitor.rov_bot", "RT0603BRD0710KL"),
+    ("bias_ha.monitor.rspanuv_top", "RT0603BRD07120KL"),
+    ("bias_ha.monitor.rspanuv_bot", "RT0603BRD0710KL"),
+    ("bias_ha.monitor.rspanov_top", "RT0603BRD07133KL"),
+    ("bias_ha.monitor.rspanov_bot", "RT0603BRD0710KL"),
+    ("bias_ha.monitor.monitor", "LM339BIDR"),
+    ("bias_ha.monitor.rnotice", "RC0603FR-071KL"),
+    ("bias_ha.monitor.dnotice", "1N4148W-7-F"),
+    ("bias_ha.monitor.qnotice", "MMBT3904-7-F"),
+    ("bias_ha.monitor.rbase", "RC0603FR-0710KL"),
+    ("bias_ha.monitor.rled", "RC1206FR-072K7L"),
+    ("bias_ha.monitor.opto", "VO617A-3X017T"),
+    ("bias_ha.monitor.rbad", "RC0603FR-0710KL"),
+    ("bias_ha.monitor.cuv", "C0603C102J5GACTU"),
+    ("bias_ha.monitor.cov", "C0603C102J5GACTU"),
+    ("bias_ha.monitor.cspanuv", "C0603C102J5GACTU"),
+    ("bias_ha.monitor.cspanov", "C0603C102J5GACTU"),
+    ("bias_ha.monitor.cmonitor", "C0603C104K5RACTU"),
+    ("bias_hb.transformer", "750320775"),
+    ("bias_hb.da", "PMEG10030ELPX"),
+    ("bias_hb.db", "PMEG10030ELPX"),
+    ("bias_hb.filter", "74404064101"),
+    ("bias_hb.craw", "UMK325AB7106KM-T"),
+    ("bias_hb.split.ldo", "TPS7A4700RGWR"),
+    ("bias_hb.split.cnr", "GRM188R71E105KA12D"),
+    ("bias_hb.split.cin", "UMK325AB7106KM-T"),
+    ("bias_hb.split.cout1", "UMK325AB7106KM-T"),
+    ("bias_hb.split.cout2", "UMK325AB7106KM-T"),
+    ("bias_hb.split.chf", "C0603C104K5RACTU"),
+    ("bias_hb.split.shunt", "TLVH431BQDBZR"),
+    ("bias_hb.split.rtop", "RT0603BRD076K12L"),
+    ("bias_hb.split.rbot", "RT0603BRD0710KL"),
+    ("bias_hb.monitor.reference", "TL431AIDBZR"),
+    ("bias_hb.monitor.rref", "RC1206FR-072K2L"),
+    ("bias_hb.monitor.rhalf_top", "RT0603BRD0710KL"),
+    ("bias_hb.monitor.rhalf_bot", "RT0603BRD0710KL"),
+    ("bias_hb.monitor.ruv_top", "RT0603BRD074K42L"),
+    ("bias_hb.monitor.ruv_bot", "RT0603BRD0710KL"),
+    ("bias_hb.monitor.rov_top", "RT0603BRD077K62L"),
+    ("bias_hb.monitor.rov_bot", "RT0603BRD0710KL"),
+    ("bias_hb.monitor.rspanuv_top", "RT0603BRD07120KL"),
+    ("bias_hb.monitor.rspanuv_bot", "RT0603BRD0710KL"),
+    ("bias_hb.monitor.rspanov_top", "RT0603BRD07133KL"),
+    ("bias_hb.monitor.rspanov_bot", "RT0603BRD0710KL"),
+    ("bias_hb.monitor.monitor", "LM339BIDR"),
+    ("bias_hb.monitor.rnotice", "RC0603FR-071KL"),
+    ("bias_hb.monitor.dnotice", "1N4148W-7-F"),
+    ("bias_hb.monitor.qnotice", "MMBT3904-7-F"),
+    ("bias_hb.monitor.rbase", "RC0603FR-0710KL"),
+    ("bias_hb.monitor.rled", "RC1206FR-072K7L"),
+    ("bias_hb.monitor.opto", "VO617A-3X017T"),
+    ("bias_hb.monitor.rbad", "RC0603FR-0710KL"),
+    ("bias_hb.monitor.cuv", "C0603C102J5GACTU"),
+    ("bias_hb.monitor.cov", "C0603C102J5GACTU"),
+    ("bias_hb.monitor.cspanuv", "C0603C102J5GACTU"),
+    ("bias_hb.monitor.cspanov", "C0603C102J5GACTU"),
+    ("bias_hb.monitor.cmonitor", "C0603C104K5RACTU"),
+    ("bias_or", "SN74LVC1G332DBVR"),
+    ("bias_c_or", "C0603C104K5RACTU"),
+    ("line_zc.r1", "RC1206FR-0716K5L"),
+    ("line_zc.r2", "RC1206FR-0716K5L"),
+    ("line_zc.opto", "VOL628A-3X001T"),
+    ("line_zc.r3", "RC1206FR-0716K5L"),
+    ("line_zc.r4", "RC1206FR-0716K5L"),
+    ("line_zc.pullup", "RC0603FR-0733KL"),
+    ("line_zc.buffer", "SN74LVC1G17DBVR"),
+    ("line_zc.cbuffer", "C0603C104K5RACTU"),
+
 ];
 
 fn expect(errs: &mut Vec<String>, m: &Model, path: &str, pin: &str, net: &str) {
@@ -568,7 +771,7 @@ fn audit(m: &Model) -> Vec<String> {
             e.push("r_shunt footprint must be the 1mOhm T2.21mm variant".into());
         }
     }
-    expect(&mut e, m, "c_v15", "2", "leg_ret");
+    expect(&mut e, m, "c_v15", "2", "n_ls");
     // Gate recharge must not use the sense terminal. All analog returns
     // are a separate loaded Kelvin island; its finite error needs testing.
     for (path, pin) in members(m, "ocp_kelvin_p") {
@@ -613,11 +816,11 @@ fn audit(m: &Model) -> Vec<String> {
         e.push("ocp_kelvin_p exact analog-return membership differs".into());
     }
 
-    // 5. Legs: fail-safe DIS, dead time, bootstrap and gate hold-offs.
+    // 5. Legs: fail-safe DIS, dead time, F6 bias and gate hold-offs.
     for (leg, sw) in [("leg_a", "sw_a"), ("leg_b", "sw_b")] {
         let dis = format!("{leg}-dis");
         let pg = format!("{leg}-permit_gate");
-        expect(&mut e, m, &format!("{leg}.driver"), "5", &dis);
+        expect(&mut e, m, &format!("{leg}.driver"), "5", &format!("{leg}-driver_dis"));
         expect(&mut e, m, &format!("{leg}.r_dis_pu"), "1", &dis);
         expect(&mut e, m, &format!("{leg}.r_dis_pu"), "2", "v3v3");
         expect(&mut e, m, &format!("{leg}.permit_fet"), "3", &dis);
@@ -628,11 +831,7 @@ fn audit(m: &Model) -> Vec<String> {
         expect(&mut e, m, &format!("{leg}.r_permit"), "1", "permit");
         expect(&mut e, m, &format!("{leg}.r_dt"), "2", "selv_gnd");
         expect(&mut e, m, &format!("{leg}.driver"), "11", "v15_ls");
-        expect(&mut e, m, &format!("{leg}.driver"), "9", "leg_ret");
-        expect(&mut e, m, &format!("{leg}.driver"), "14", sw);
-        expect(&mut e, m, &format!("{leg}.d_boot"), "2", "v15_ls");
-        expect(&mut e, m, &format!("{leg}.d_boot"), "1", &format!("{leg}-boot"));
-        expect(&mut e, m, &format!("{leg}.driver"), "16", &format!("{leg}-boot"));
+        expect(&mut e, m, &format!("{leg}.driver"), "9", "n_ls");
         expect(&mut e, m, &format!("{leg}.q_high"), "1", &format!("{leg}-gate_h"));
         expect(&mut e, m, &format!("{leg}.q_high"), "3", sw);
         expect(&mut e, m, &format!("{leg}.q_low"), "1", &format!("{leg}-gate_l"));
@@ -646,13 +845,13 @@ fn audit(m: &Model) -> Vec<String> {
     expect(&mut e, m, "leg_b.driver", "2", "pwm_lb");
 
     // 6. Thermal cutoffs gate the gate-driver supply: PS2 line input only
-    //    through the TCO loop header, output returns to LEG_RET.
+    //    through the TCO loop header; N_LS is split below the LEG_RET midpoint.
     expect(&mut e, m, "j_tco", "1", "l_filt");
     expect(&mut e, m, "j_tco", "2", "tco_l");
-    expect(&mut e, m, "ps_gate", "2", "tco_l"); // IRM-05 pin 2 = AC/L
-    expect(&mut e, m, "ps_gate", "1", "n_filt");
-    expect(&mut e, m, "ps_gate", "4", "v15_ls");
-    expect(&mut e, m, "ps_gate", "3", "leg_ret");
+    expect(&mut e, m, "ps_gate", "1", "tco_l"); // IRM-20 pin 1 = AC/L
+    expect(&mut e, m, "ps_gate", "2", "n_filt");
+    expect(&mut e, m, "ps_gate", "4", "v24_raw");
+    expect(&mut e, m, "ps_gate", "3", "n_ls");
     let tco: BTreeSet<String> = members(m, "tco_l").into_iter().map(|(p, _)| p).collect();
     if tco != ["j_tco", "ps_gate"].iter().map(|s| s.to_string()).collect() {
         e.push(format!("tco_l must join only the TCO header and PS2, found {:?}", tco));
@@ -660,7 +859,8 @@ fn audit(m: &Model) -> Vec<String> {
     expect(&mut e, m, "ps_selv", "1", "l_filt"); // IRM-20 pin 1 = AC/L
     expect(&mut e, m, "ps_selv", "2", "n_filt");
     expect(&mut e, m, "u_ldo", "3", "v15_ls");
-    expect(&mut e, m, "u_ldo", "1", "hot5");
+    expect(&mut e, m, "u_ldo", "1", "v15_ls");
+    expect(&mut e, m, "u_ldo", "5", "hot5");
 
     // 7. OCP and OVP: node = offset + shunt Kelvin; bus-sense node vs the
     //    OVP threshold; both OK-high comparators and V15-powered HOT5 monitor
@@ -822,7 +1022,7 @@ fn audit(m: &Model) -> Vec<String> {
     // 10. Controller header map.
     let header = [
         "v15_selv", "selv_gnd", "v3v3", "selv_gnd", "pwm_ha", "pwm_la", "pwm_hb", "pwm_lb",
-        "permit", "bus_fault", "vbus_p", "vbus_n", "ct_zc", "ct_mon", "selv_gnd", "selv_gnd",
+        "permit", "bus_fault", "vbus_p", "vbus_n", "ct_zc", "ct_mon", "selv_gnd", "line_zc",
     ];
     for (i, net) in header.iter().enumerate() {
         expect(&mut e, m, "j_selv", &(i + 1).to_string(), net);
@@ -915,6 +1115,7 @@ fn audit(m: &Model) -> Vec<String> {
             }
         }
     }
+    audit_f6::audit_f6(m, &mut e);
     e
 }
 
@@ -949,7 +1150,7 @@ fn main() {
 mod tests {
     use super::*;
 
-    fn built() -> Model {
+    pub(super) fn built() -> Model {
         load(include_str!("frozen/default.net"), include_str!("frozen/default.csv"), include_str!("frozen/resolved-components.json")).unwrap()
     }
 
@@ -1030,15 +1231,15 @@ mod tests {
     #[test]
     fn gate_supply_bypassing_tco_fails() {
         let mut m = built();
-        m.rewire("ps_gate", "2", "l_filt");
-        fails(&m, "ps_gate.2");
+        m.rewire("ps_gate", "1", "l_filt");
+        fails(&m, "ps_gate.1");
     }
 
     #[test]
-    fn irm05_line_neutral_swap_fails() {
+    fn irm20_line_neutral_swap_fails() {
         let mut m = built();
-        m.rewire("ps_gate", "1", "tco_l");
-        m.rewire("ps_gate", "2", "n_filt");
+        m.rewire("ps_gate", "1", "n_filt");
+        m.rewire("ps_gate", "2", "tco_l");
         fails(&m, "ps_gate.2");
     }
 
@@ -1456,11 +1657,11 @@ mod tests {
     }
 
     #[test]
-    fn bootstrap_diode_reversed_fails() {
+    fn f6_discharge_diode_reversed_fails() {
         let mut m = built();
-        m.rewire("leg_a.d_boot", "2", "leg_a-boot");
-        m.rewire("leg_a.d_boot", "1", "v15_ls");
-        fails(&m, "leg_a.d_boot.2");
+        m.rewire("leg_a.doff_h", "2", "leg_a-off_h");
+        m.rewire("leg_a.doff_h", "1", "leg_a-gate_h");
+        fails(&m, "leg_a.doff_h.2");
     }
 
     #[test]
