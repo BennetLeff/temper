@@ -14,8 +14,8 @@
 - Parts 3–5 cite the evidence recorded in `prototype-closure/round5/protection/README.md` (Eaton 720025 pp2,5; Ohmite HS energy graph; Schneider LC1D18BD). The primary Eaton, Ohmite and Schneider PDFs could not be fetched from this host (blocked or HTML responses), so nothing beyond those recorded values is claimed.
 - The ledger's CD74HC30 row is BOUND*: the part is specified at 2 V and 4.5 V, not 3.3 V. The Q1 and DIS rows are allocations that a bench edge capture must confirm.
 
-## Proposals (no board change made)
+## Proposals (implemented in [native-20](../../../../../native-20/README.md), 2026-10-05)
 
-- **Stiffen the DIS pull-up** (R8/R16 1 kΩ → about 330 Ω). This saves about 250 ns of allocated delay; check the AO3400A sink current and VCCI load first.
+- **Stiffen the DIS pull-up** (R8/R16 1 kΩ → 330 Ω). The DIS rise drops from 360.8 to 119.1 ns, and the chain to ≤ 545.8/573.2 ns (CT/shunt, `ledger.md`). Cost: 10.6 mA per leg from V3V3 while running.
 - **Set R34 to 10.6 kΩ** (above).
 - **Treat shoot-through as prevention-only:** interlock, dead time and firmware plus FC1 and the catch circuit. Do not credit it to the DIS chain.

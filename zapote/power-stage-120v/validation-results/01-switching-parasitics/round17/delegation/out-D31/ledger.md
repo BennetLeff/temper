@@ -15,3 +15,5 @@
 | UCC21550 DIS response (incl. 20 ns filter) | 80.0 | BOUND | https://www.ti.com/lit/ds/symlink/ucc21550.pdf p10, tPD_DIS_HL |
 | **CT path, comparator output to DIS response complete** | **787.5** | ALLOCATION/BOUND/BOUND*/ROUND-3 | sum of the applicable rows (front end and gate discharge separate) |
 | **shunt path, comparator output to DIS response complete** | **814.9** | ALLOCATION/BOUND/BOUND*/ROUND-3 | sum of the applicable rows (front end and gate discharge separate) |
+| **native-20 (R8/R16 330 Ω): CT path** | **545.8** | as above | DIS rise 119.1 ns; 10.61 mA per leg from V3V3 while running |
+| **native-20 (R8/R16 330 Ω): shunt path** | **573.2** | as above | DIS rise 119.1 ns; 10.61 mA per leg from V3V3 while running |

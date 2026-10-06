@@ -141,5 +141,15 @@
    "DIS_C_alloc_pF": 270.0,
    "VIH_DIS_max": 2.3
   }
+ },
+ "native20": {
+  "R_pu_ohm": 333.3,
+  "t_dis_ns": 119.1,
+  "saving_ns": 241.7,
+  "pullup_current_mA_per_leg": 10.61,
+  "paths_max_ns": {
+   "CT": 545.8,
+   "shunt": 573.2
+  }
  }
 }

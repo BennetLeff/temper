@@ -35,12 +35,15 @@ VTH_MIN = 0.65                           # AO3400A VGS(th) min, p2
 CISS = 630e-12                           # AO3400A Ciss typ, p2 (VDS=15 V); low-VDS value larger
 GATE_C_ALLOC = 1.0e-9                    # allocation: Ciss plus Miller at low VDS (curve p4, unread)
 R_GATE = 100 * 1.01 + 3 + 4.5            # R6/R14 +1 %, LVC1G74 output (allocation 3 ohm), AO3400A Rg max 4.5 ohm (p2)
-R_PU = 1000 * 1.01                       # R8/R16 1 k +1 %
+R_PU = 1000 * 1.01                       # R8/R16 1 k +1 % (native-19)
+R_PU_N20 = 330 * 1.01                    # R8/R16 330 ohm +1 % (native-20, DECISIONS.md 2026-10-05)
 DIS_C_ALLOC = 270e-12                    # allocation: AO3400A Coss at 0..3 V (curve p4; 75 pF at 15 V) + DIS pin + trace
 VIH_DIS_MAX = 2.3                        # UCC21550 IN/DIS high threshold max, p9
 
 t_q_off = R_GATE * GATE_C_ALLOC * math.log(VCC_MAX / VTH_MIN)          # gate from Vcc to Vth(min)
 t_dis = R_PU * DIS_C_ALLOC * math.log(VCC_MIN / (VCC_MIN - VIH_DIS_MAX))  # DIS from 0 to VIH max at lowest rail
+t_dis_n20 = R_PU_N20 * DIS_C_ALLOC * math.log(VCC_MIN / (VCC_MIN - VIH_DIS_MAX))
+I_PU_N20_MA = VCC_MAX / (330 * 0.99) * 1e3   # per leg, while PERMIT holds DIS low
 
 STAGES = {
     # name: (min_ns, max_ns, tag, source)
@@ -86,13 +89,20 @@ def main() -> None:
                        "assumptions": {"VCC_min": VCC_MIN, "VCC_max": VCC_MAX, "gate_C_alloc_pF": GATE_C_ALLOC * 1e12,
                                        "R_gate_ohm": R_GATE, "R_pu_ohm": R_PU, "DIS_C_alloc_pF": DIS_C_ALLOC * 1e12,
                                        "VIH_DIS_max": VIH_DIS_MAX}}}
-    (HERE / "ledger.json").write_text(json.dumps(res, indent=1) + "\n")
     lines = ["| Stage | max ns | tag | source |", "| --- | ---: | --- | --- |"]
     for k, v in STAGES.items():
         lines.append(f"| {k} | {'' if v[1] is None else v[1]} | {v[2]} | {v[3]} |")
     for p in ("CT", "shunt"):
         t = res["paths"][p]
         lines.append(f"| **{p} path, comparator output to DIS response complete** | **{t['max_ns_excluding_front_end_and_gate_discharge']}** | {'/'.join(t['tags'])} | sum of the applicable rows (front end and gate discharge separate) |")
+    d = t_dis * 1e9 - t_dis_n20 * 1e9
+    res["native20"] = {"R_pu_ohm": R_PU_N20, "t_dis_ns": round(t_dis_n20 * 1e9, 1), "saving_ns": round(d, 1),
+                       "pullup_current_mA_per_leg": round(I_PU_N20_MA, 2),
+                       "paths_max_ns": {p: round(res["paths"][p]["max_ns_excluding_front_end_and_gate_discharge"] - d, 1)
+                                        for p in ("CT", "shunt")}}
+    for p in ("CT", "shunt"):
+        lines.append(f"| **native-20 (R8/R16 330 Ω): {p} path** | **{res['native20']['paths_max_ns'][p]}** | as above | DIS rise {res['native20']['t_dis_ns']} ns; {res['native20']['pullup_current_mA_per_leg']} mA per leg from V3V3 while running |")
+    (HERE / "ledger.json").write_text(json.dumps(res, indent=1) + "\n")
     (HERE / "ledger.md").write_text("\n".join(lines) + "\n")
     print(json.dumps(res["paths"], indent=1))
 

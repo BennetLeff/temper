@@ -281,6 +281,15 @@ component R100k0603:
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
+component R330R0603:
+    designator_prefix = "R"
+    mpn = "RC0603FR-07330RL"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
 component R1k0603:
     designator_prefix = "R"
     mpn = "RC0603FR-071KL"
@@ -473,9 +482,9 @@ component R10kThin:
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
-component R10k5Thin:
+component R10k6Thin:
     designator_prefix = "R"
-    mpn = "RT0603BRD0710K5L"
+    mpn = "RT0603BRD0710K6L"
     manufacturer = "Yageo"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance

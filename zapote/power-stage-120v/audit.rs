@@ -307,7 +307,7 @@ const IDENTITY: &[(&str, &str)] = &[
     ("r_ocp_ref", "RT0603BRD0710KL"),
     ("r_ocp_sense", "RT0603BRD0710KL"),
     // Trip thresholds: ~61 A OCP (10.5 k / 10.0 k) and ~280 V OVP (10 k / 140 k).
-    ("r_th_top", "RT0603BRD0710K5L"),
+    ("r_th_top", "RT0603BRD0710K6L"),
     ("r_th_bot", "RT0603BRD0710KL"),
     ("r_ovp_top", "RT0603BRD0710KL"),
     ("r_ovp_bot", "RT0603BRD07140KL"),
@@ -339,8 +339,8 @@ const IDENTITY: &[(&str, &str)] = &[
     // Fast PERMIT -> DIS path (validation-results/02-protection-timing).
     ("leg_a.r_permit", "RC0603FR-07100RL"),
     ("leg_b.r_permit", "RC0603FR-07100RL"),
-    ("leg_a.r_dis_pu", "RC0603FR-071KL"),
-    ("leg_b.r_dis_pu", "RC0603FR-071KL"),
+    ("leg_a.r_dis_pu", "RC0603FR-07330RL"),
+    ("leg_b.r_dis_pu", "RC0603FR-07330RL"),
 ];
 
 fn expect(errs: &mut Vec<String>, m: &Model, path: &str, pin: &str, net: &str) {

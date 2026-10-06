@@ -24,10 +24,10 @@ from "parts.ato" import MainsTerminal2, PowerTerminalM4, PeBranchTerminal, Mains
 from "parts.ato" import CapX2_1u, CapY1_2n2, R120k1206, BridgeGbj2510, BusFilm2u7, LocalBus100n
 from "parts.ato" import R220k1206, Shunt1m, MosfetCfd7, Snubber1n1kV, UCC21550BDWK
 from "parts.ato" import BootDiode, PermitFet, R3R9Gate, R49k9Dt, R10k0603, R100k0603, R100R0603
-from "parts.ato" import R1k0603, C100n0603, C10u1210, Res942C12P22, Res942C12P1
+from "parts.ato" import R1k0603, R330R0603, C100n0603, C10u1210, Res942C12P22, Res942C12P1
 from "parts.ato" import CST3015_100E, Irm05_15, Irm20_15, TcoLoopHeader, Ldo78L05
 from "parts.ato" import Amc1311, R470k1206, R15k8Thin, C1nC0G0603, C100pC0G0603
-from "parts.ato" import Tlv3201, Ref2V5, R10kThin, R10k5Thin, R140kThin, R5k6Bias
+from "parts.ato" import Tlv3201, Ref2V5, R10kThin, R10k6Thin, R140kThin, R5k6Bias
 from "parts.ato" import Iso7710, SelvHeader16, Nand3Lvc1g10, FunctionalEarthLink
 from "parts.ato" import Hot5Supervisor, Hot5SchmittBuffer, R105kThin
 from "parts.ato" import BusTvsMrt130kp295
@@ -79,15 +79,17 @@ module BridgeLeg:
 
     # DIS is active-high. PERMIT high turns the FET on and pulls DIS low.
     permit_fet = new PermitFet
-    # 100 ohm PERMIT gate resistor, 100 k pulldown, and 1 k DIS pullup.
+    # 100 ohm PERMIT gate resistor, 100 k pulldown, and 330 ohm DIS pullup
+    # (D-31: 1 k -> 330 ohm cuts the allocated DIS rise ~361 -> ~119 ns;
+    # ~10.5 mA per leg from V3V3 while PERMIT holds DIS low).
     # Loaded PERMIT-to-DIS delay needs qualification; the earlier ~0.35 us
     # estimate is not a worst-case bound (prototype-closure/round2/d17/ECO.md).
     r_permit = new R100R0603
     r_permit.value = 100ohm
     r_permit_pd = new R100k0603
     r_permit_pd.value = 100kohm
-    r_dis_pu = new R1k0603
-    r_dis_pu.value = 1kohm
+    r_dis_pu = new R330R0603
+    r_dis_pu.value = 330ohm
     permit ~ r_permit.p1
     r_permit.p2 ~ permit_gate
     permit_gate ~ permit_fet.G
@@ -444,7 +446,8 @@ module PowerStage120V:
 
     # ---------------- DC-bus OCP (shoot-through), referenced to LEG_RET.
     # V(OCP_KELVIN_N) = -I*1 mohm. OCP_NODE = 1.25 V + 0.5 * V(KELVIN_N);
-    # OCP_THRESH = 2.5 * 10.0/(10.5+10.0) = 1.2195 V -> trip at ~61 A
+    # OCP_THRESH = 2.5 * 10.0/(10.6+10.0) = 1.2136 V -> trip at ~73 A nominal
+    # (D-31 / task 02 decision B: corner band 49.73-97.98 A, was 38.44-85.55 A)
     # (TLV3201 offset +/-5 mV max = +/-10 A; normal peak <= 45 A). The lower
     # trip reduces risk; returned tank energy is not bounded: ORACLE-REVIEW.md.
     # Comparator output high = OK. NAND + default-HIGH isolation make
@@ -468,8 +471,8 @@ module PowerStage120V:
     c_ocp_node.value = 100pF
     c_ocp_node.p1 ~ OCP_NODE
     c_ocp_node.p2 ~ OCP_KELVIN_P
-    r_th_top = new R10k5Thin
-    r_th_top.value = 10.5kohm
+    r_th_top = new R10k6Thin
+    r_th_top.value = 10.6kohm
     r_th_top.p1 ~ REF25
     r_th_top.p2 ~ OCP_THRESH
     r_th_bot = new R10kThin
