@@ -108,6 +108,8 @@ extraction. It is a scope gate, not a general geometric verifier. No fine mesh
 was launched, no surrogate path was relabeled as physical, and no1/3µH value
 was called extracted. Local matrices cannot fill these missing modes.
 
+Since 2026-10-05 the gate parses the file instead of matching substrings (the earlier gate authorised `{"status": "COMPLETE_PHYSICAL_FIELD_GEOMETRY", "segments": []}`; round-6 investigation). It authorises a solve only for: the exact status; a non-empty segment list with unique ids; all four required kinds (fuse-holder path, catch-diode die/bond, catch-capacitor distribution, native-return closure); per-segment provenance (`physical` or `bounded_model`) whose relative source file exists and matches its SHA-256; one closed connected loop (every node degree 2); and no UNKNOWN/APPROXIMATION/UNRESOLVED/PORT_CLOSURE_ONLY markers. The contract and its 11 negative/positive tests are in `geometry_gate.rs` (`rustc --edition 2021 --test geometry_gate.rs`).
+
 ## Replay and evidence
 
 Run from the worktree, with an entirely new directory below the model output:
