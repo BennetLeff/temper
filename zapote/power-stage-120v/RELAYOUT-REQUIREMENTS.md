@@ -43,6 +43,8 @@ Each row links to its evidence. Start from **native-20** (values current as of
    the band minimum must stay ≥ 44 A.
 4. Source audit (`audit.rs`), DRC with schematic parity, and ERC, as for native-20.
 
+Bench work on native-20 before the re-layout lands: [validation-plan/BENCH-NATIVE20-ADDENDUM.md](validation-plan/BENCH-NATIVE20-ADDENDUM.md).
+
 ## Firmware requirements arising from the same decisions
 
 - 180° fixed phase only; no phase shift (F9 closed by decision).
