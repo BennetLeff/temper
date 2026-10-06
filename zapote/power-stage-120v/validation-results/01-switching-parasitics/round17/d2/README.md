@@ -417,3 +417,17 @@ the datasheet guarantees VGS(th) ≥ 3.5 V only at 25 °C, and lower hot. A
 low-threshold part at about 4 V on its gate would shoot through. Hence FINDINGS F11
 and the bring-up precaution in DECISIONS.md.
 
+### Leg B interim check with its own closure data (`results/legB-interim-n19/`)
+
+Leg B's coarse 0.5 mm and 2 mm closure matrices (remote `b19corr`; fetched
+as `../results/matrices/legB-h{0p5,2}-e1p0-m10-n19`) allow a quad(0.5,1,2)
+closure correction per leg. Leg B's differs from leg A's by up to
+**+0.85 nH**. The ones that matter are the power-to-low-gate mutuals M14/M24,
+at **+0.67/+0.41 nH** (+20/+11 % of those entries): the transfer
+under-states leg B's low-gate coupling. `legB-h0-interim-n19` = provisional +
+that difference (min eig 7.63 nH; no 3 mm point and no leg-B crop correction
+yet). The 96 decision cases: **no verdict changes, no aborts**. Off-gate
+moves −0.14 … +0.21 V (S2 max 1.32 V, inside 1.9 V) and die VDS −12.9 … +5.5 V.
+`compose_legB_corr.py` (self-tested against leg A) builds the full
+correction once the 3 mm and 20 mm-crop matrices land.
+
