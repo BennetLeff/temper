@@ -3,10 +3,10 @@
 **Read this first.** It is the current answer for task 01 and is updated as
 results land. The round folders are the lab notebook behind it
 ([ROUNDS.md](ROUNDS.md)); open findings and risks are in
-[FINDINGS.md](FINDINGS.md). Last updated 2026-10-03.
+[FINDINGS.md](FINDINGS.md). Last updated 2026-10-05.
 
-Board: extraction on `native-17` copper; **native-18** (R9/R17 value only, identical copper) and **native-19** (R5 rework; leg A re-checked, no verdict change, FINDINGS M10) are covered. Leg A (Q2 high / Q3 low, driver U1)
-is extracted and simulated; leg B is queued. Evidence class: simulation and
+Board: extraction on `native-17` copper; **native-18** (R9/R17 value only, identical copper) and **native-19** (R5 rework; leg A re-checked, no verdict change, FINDINGS M10) are covered; **native-20** (R34/R8/R16 values only, identical copper, both leg regions UNCHANGED) is covered too. Leg A (Q2 high / Q3 low, driver U1)
+is extracted and simulated; leg B has provisional decision cases (leg-A correction transfer; no verdict change), with its own corrections running. Evidence class: simulation and
 model-based throughout. **No physical qualification is claimed.**
 
 ## Bottom line
@@ -76,6 +76,7 @@ Known limits, each tracked in [FINDINGS.md](FINDINGS.md):
 | Work | Where | State |
 | --- | --- | --- |
 | Leg B matrix (native-19) | remote box | **running**: `chain_legB19_v2.sh` corrections (h 2/3 mm, m20) in `r17/b19corr`, then fine extraction in `campB19` |
+| Leg B decision cases (provisional) | Mac | **done** (`round17/d2/results/legB-prov-n19/`, leg-A correction transferred): S1/S2 pass hot screen and ZVS, no verdict change vs leg A; S2 off-gate ≤ 1.29 V; S4 die VDS up to 537 V. Rerun on leg B's corrected matrix when it lands |
 | D-5, D-6, D-8, D-9, D-10 | delegated ([reports](round17/delegation/README.md)) | **done, merged** (#1629–#1633); D-9's six tooling findings fixed (FINDINGS S8–S13) |
 | D-12 … D-15 | delegated | **done, merged** (#1636–#1639): remedy build comparison, hot transients, solver robustness, losses vs dead time |
 | D-16 native-18 (R9/R17 value change) | delegated | **done, merged** (#1640): native-18 board diff is only R9/R17 Value/MPN; copper identical; no FEM rerun; D4 carry-over conditions met |

@@ -16,7 +16,7 @@ subtotal = {
     "U9_ICC2_DC_max_mA": 1.2,
     "U10_U11_U12_IQ_max_mA": 3 * .060,
     "U13_ICC_max_mA": .010,
-    "R8_R16_DIS_pullups_max_mA": 2 * rail_max / 990 * 1000,
+    "R8_R16_DIS_pullups_max_mA": 2 * rail_max / (330 * .99) * 1000,   # native-20: 330 ohm +-1 % (was 1 k: 7.0 mA)
     "R40_R41_bias_max_mA": rail_max / (2000 * .999) * 1000,
     "R43_R44_R45_R46_references_max_mA": 2 * rail_max / (13320 * .999) * 1000,
 }

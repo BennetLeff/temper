@@ -26,7 +26,7 @@ Direction is relative to the power board. Default codes: **P** = power-source ab
 |---:|---|---|---|---|
 | 1 | V15_SELV / PS1.4 | OUT | 15 V; 1.4 A/21 W module rating before derating and all loads | P |
 | 2 | SELV_GND | return | Shared supply/signal current; allocation open | G |
-| 3 | V3V3 / U1,U2,U4,U9,CT | IN | Controller-owned 3.3 V (3.135–3.465 V planning envelope); 27.445 mA selected DC subtotal, not maximum | P/U |
+| 3 | V3V3 / U1,U2,U4,U9,CT | IN | Controller-owned 3.3 V (3.135–3.465 V planning envelope); 41.657 mA selected DC subtotal on native-20 (27.445 mA on native-19; 330 Ω DIS pull-ups), not maximum | P/U |
 | 4 | SELV_GND | return | Same net as 2,15,16 | G |
 | 5 | PWM_HA / U1.1 | IN | High ≥2.3 V, low ≤0.8 V; pulldown ≥50 kΩ | L |
 | 6 | PWM_LA / U1.2 | IN | Same as 5 | L |
@@ -62,7 +62,7 @@ One requirement occupies each line. Tests may cover multiple requirements, but e
 - **R15.** The controller/harness shall connect J4.15 as an allocated SELV return and satisfy the corresponding schedule level, load and default-state contract. **Source:** D10:56,245. **Verify:** inspection + bench. **Status:** derived.
 - **R16.** The controller/harness shall connect J4.16 as an allocated SELV return and satisfy the corresponding schedule level, load and default-state contract. **Source:** D10:57,245. **Verify:** inspection + bench. **Status:** derived.
 - **R17.** The harness shall mate with Molex 0430451612 using a selected, rated housing/contact/wire assembly and a numbered end-to-end continuity drawing verified from mating-face and wire-entry views; 43025-1600 remains a candidate until selected (O01). **Source:** D10:80. **Verify:** inspection + bench. **Status:** derived.
-- **R18.** The supply design shall identify the sole 15 V source and 3.3 V converter and close total continuous, dynamic, startup, inrush, cable and derated thermal budgets; the 27.445 mA DC subtotal shall not be treated as the complete 3.3 V requirement (O02). **Source:** D10:90–110. **Verify:** analysis + bench. **Status:** derived.
+- **R18.** The supply design shall identify the sole 15 V source and 3.3 V converter and close total continuous, dynamic, startup, inrush, cable and derated thermal budgets; the 41.657 mA (native-20) DC subtotal shall not be treated as the complete 3.3 V requirement (O02). **Source:** D10:90–110. **Verify:** analysis + bench. **Status:** derived.
 - **R19.** The assembled interface shall inhibit all four gates through power-up, MCU reset, brownout, controller/interlock power loss and entire-J4 disconnect, including partial-power injection, alternate feeds and hot-unplug tests; static pull-downs alone shall not count as proof (O03). **Source:** D10:149–160; D11:70. **Verify:** bench. **Status:** derived.
 - **R20.** The grounding design shall allocate J4.2/.4/.15/.16 current and nearby PWM/analog returns, qualify a missing contact and ground offset, and inventory every PE/USB/instrument bond against R38’s functional SELV_GND-to-PE link (O04). **Source:** D10:245–256; POWER:58. **Verify:** analysis + inspection + bench. **Status:** derived.
 - **R21.** The controller shall provide two complementary PWM pairs with independently controlled full-bridge phase and a documented four-pin MCU/timer allocation; GPIO4/5 alone shall not satisfy this requirement (O05). **Source:** D5:24,40–47; POWER:98–102. **Verify:** inspection + bench. **Status:** derived.

@@ -101,9 +101,9 @@ Thus neither the 15 V total load nor the controller's spare 3.3 V capacity
 has a defensible system bound.
 
 J4.3 also powers the new CT comparators/bias/OR, omitted from the old task
-text. The selected **DC allocation subtotal is 27.445 mA**, using 3.465 V
+text. The selected **DC allocation subtotal is 41.657 mA on native-20** (27.445 mA on native-19), using 3.465 V
 and resistor minima. Components of that subtotal (mA): U1/U2 9.6, U4 7.2,
-U9 1.2, U10–12 0.18, U13 0.010, both DIS pullups 7.0, bias divider 1.734,
+U9 1.2, U10–12 0.18, U13 0.010, both DIS pullups 21.212 (330 Ω, native-20; 7.0 at 1 kΩ), bias divider 1.734,
 references 0.521. Device conditions are in the source table below. This
 subtotal is **not a full-board upper bound**: PWM/supply dynamics, driver DT
 current, cable charging, output loads, clamps, startup and all other boards

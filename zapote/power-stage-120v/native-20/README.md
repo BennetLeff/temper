@@ -40,8 +40,9 @@ evidence is in [D-31](../validation-results/01-switching-parasitics/round17/dele
 
 - **V3V3 load:** each 330 Ω pull-up draws up to 10.6 mA from the controller-side
   V3V3 (J4.3) while PERMIT holds DIS low. That is about 21 mA for both legs,
-  versus about 7 mA before. The controller rail budget must include it (D-20
-  requirements). Dissipation is 36 mW per 0.1 W 0603 resistor.
+  versus about 7 mA before. Task 06's selected V3V3 DC subtotal
+  rises from 27.445 to **41.657 mA** (`06-controller-interface/scripts/interface_numbers.py`);
+  the controller rail allocation (D-20 R18) must include it. Dissipation is 36 mW per 0.1 W 0603 resistor.
 - **Bench confirmation:** the DIS and PERMIT edge timings are still allocations;
   a bench capture must confirm them. The threshold band must be confirmed on the
   bench as well.

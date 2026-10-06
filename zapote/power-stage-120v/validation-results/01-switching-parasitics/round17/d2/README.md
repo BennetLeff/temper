@@ -323,3 +323,38 @@ nominal, ESL 1.06 and 10 nH, 96 cases) against `grid-best-longdt`: **no verdict
 changes, no aborts**; off-gate −0.016 … +0.025 V, die VDS −3.3 … +1.2 V; S1/S2
 off-gate ≤ 1.742 V (1.9 V hot screen), ZVS 12/12 at 443 ns. Round 17's leg-A
 conclusions carry to native-19. Leg B: native-17 vs native-19 pair running.
+
+## Leg B, first decision cases (provisional, `results/legB-prov-n19/`)
+
+Leg B's own corrections are still running on the remote box (`b19corr`, then
+the fine extraction `campB19`), so this run uses **`legB-h0-prov-n19.matrix.txt`**
+(`compose_legB_prov.py`). It is leg B's native-19 coarse reference (h = 1 mm,
+1.0 mm edges, 10 mm crop) plus leg A's per-entry correction to its best matrix
+(best − coarse, native-19). Both legs' closure files orient every port the same
+way semantically (bus_p → hv_ret, driver output → its return), so the entries
+correspond one to one. The transfer is an assumption that leg B's real
+corrections will test. SPD, min eigenvalue 7.87 nH.
+
+Leg B differs from leg A at the reference mainly in the power loop: C41's self
+inductance is +6 nH and M12 is +4.7 nH. The low-gate coupling to the power ports
+is smaller (3.3–3.7 vs 5.5–5.8 nH) and the high-gate coupling slightly larger
+(+0.2–0.5 nH).
+
+Same 96 cases as the leg A carry-over (S1/S2/S4 at 391 / 443 / 498 ns, 443 ns
+nominal, ESL 1.06 / 10 nH); comparison in `results/legB-prov-n19/compare-vs-legA.json`
+(`compare_legs.py`):
+
+- **No verdict changes and no aborts.** S1 36/36 and S2 24/24 pass the 3.0 V and
+  1.9 V hot screens, with ZVS 12/12 at 443 ns.
+- **Leg B has more off-gate margin than leg A:** S1 ≤ 1.03 V and S2 ≤ 1.29 V
+  (leg A 1.74 V). S1/S2 die VDS ≤ 384 V.
+- **S4 (already failing on off-gate) is worse on die VDS:** up to **537 V**
+  (170 V, direction 1, 443 ns, 10 nH), +3 … +86 V vs leg A, and above the 520 V
+  screen in 18/36 cases. Leg A stays ≤ 511 V. Any S4 remedy (FINDINGS F2, D-24
+  answer (c)) must therefore be judged on leg B's power loop as well as leg A's.
+
+Status: provisional until leg B's corrected matrix exists. Then rerun with
+`grid.py --matrix <legB best> --out results/legB-best-n19 --only S1,S2,S4
+--dt 391,443,498 --esl 1.06,10 --nominal-dt 443` and compare with this run
+to test the transfer. Native-20 is copper-identical, so these results apply to it too.
+
