@@ -2,7 +2,7 @@
 #define TEMPER_FULLBRIDGE_ADAPTER_H
 #include <stdbool.h>
 #include <stdint.h>
-/* Fixed-frequency phase-shifted bridge, one common timer. Indices A_H,A_L,B_H,B_L.
+/* Fixed 180-degree bridge, one common timer. Indices A_H,A_L,B_H,B_L.
  * Each pulse wraps modulo period. Deadtime is MCU input non-overlap, NOT the
  * UCC21550's separate 396.6..488 ns output deadtime allocation. */
 typedef struct { uint32_t rise, width; } bridge_pulse_t;
@@ -43,8 +43,7 @@ bool fullbridge_request(fullbridge_adapter_t *, float watts);
  * data re-use. Return false inhibits on invalid/repeated/out-of-range data. */
 bool fullbridge_line_cycle(fullbridge_adapter_t *, uint32_t now_us,
                            float line_rms_v, float inlet_rms_a, float pan_budget_w);
-/* Calibrated phase is supplied by characterized pan/current controller. It is
- * not guessed from watts. Feedback covers ALL four outputs and both deadtimes. */
+/* phase_fraction must be exactly 1 (180 degrees). Feedback covers all outputs. */
 bool fullbridge_apply(fullbridge_adapter_t *, uint32_t now_us,
                       const bridge_feedback_t *, float characterized_phase_fraction);
 #endif

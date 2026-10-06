@@ -3,7 +3,7 @@
 #include <string.h>
 bool bridge_plan_cycle(uint32_t hz, uint32_t freq, uint32_t ns, float phase, bridge_cycle_t *c)
 {
-    if (!c || hz == 0 || freq < 35000 || freq > 60000 || !isfinite(phase) || phase < 0 || phase > 1 || ns == 0)
+    if (!c || hz == 0 || freq < 35000 || freq > 60000 || phase != 1.0f || ns == 0)
         return false;
     uint32_t period = hz / freq;
     /* Even periods keep both polarities exactly balanced. */
@@ -68,10 +68,10 @@ bool fullbridge_init(fullbridge_adapter_t *b, const bridge_config_t *c, const br
         !isfinite(c->max_power_w) || c->max_power_w <= 0 ||
         !isfinite(c->inlet_target_a) || c->inlet_target_a <= 0 || c->inlet_target_a > 13.5f ||
         !isfinite(c->auxiliary_reserve_w) || c->auxiliary_reserve_w < 0 ||
-        !bridge_plan_cycle(c->timer_hz, c->frequency_hz, c->input_deadtime_ns, 0, &b->cycle))
+        !bridge_plan_cycle(c->timer_hz, c->frequency_hz, c->input_deadtime_ns, 1, &b->cycle))
         return fail(b);
     b->cfg = *c;
-    /* Zero differential phase, PERMIT inhibited: qualify captures before RUN. */
+    /* Fixed 180 degrees, PERMIT inhibited: qualify captures before RUN. */
     if (!ops->set_request(ops->context, false) || !ops->apply_cycle(ops->context, &b->cycle))
         return fail(b);
     b->initialized = true;
@@ -133,7 +133,7 @@ bool fullbridge_apply(fullbridge_adapter_t *b, uint32_t now, const bridge_feedba
     if (!f || !f->rails_ok || !f->interlock_ok || f->bus_fault ||
         (uint32_t)(now - f->sampled_us) > b->cfg.capture_age_us ||
         !b->have_line || (uint32_t)(now - b->last_line_us) > 22000 ||
-        !isfinite(phase) || phase < 0 || phase > 1)
+        phase != 1.0f)
         return fail(b);
     if (b->have_capture && (uint32_t)(f->serial - b->last_capture_serial) >= UINT32_C(0x80000000))
         return fail(b);
@@ -157,16 +157,12 @@ bool fullbridge_apply(fullbridge_adapter_t *b, uint32_t now, const bridge_feedba
             return fail(b);
     }
     bool run = b->requested_w > 0 && b->conductance_s > 0;
-    if (!run)
-        phase = 0;
     /*
      * A dropped supervisor permission after running is a latched fault. During arming, request is
-     * asserted with zero phase; supervisor may then grant it.
+     * asserted with fixed 180-degree timing; supervisor may then grant it.
      */
     if (b->armed && !f->sup_run_ok)
         return fail(b);
-    if (!f->sup_run_ok)
-        phase = 0;
     if (!bridge_plan_cycle(b->cfg.timer_hz, b->cfg.frequency_hz, b->cfg.input_deadtime_ns, phase, &b->cycle) ||
         !b->backend.apply_cycle(b->backend.context, &b->cycle) ||
         !b->backend.set_request(b->backend.context, run))

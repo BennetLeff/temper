@@ -221,7 +221,11 @@ static void test_waveforms(void)
     for (uint32_t freq = 35000; freq <= 60000; freq += 5000)
         for (unsigned phase = 0; phase <= 100; phase++) {
             bridge_cycle_t c;
-            assert(bridge_plan_cycle(80000000, freq, 125, phase / 100.0f, &c));
+            if (phase != 100) {
+                assert(!bridge_plan_cycle(80000000, freq, 125, phase / 100.0f, &c));
+                continue;
+            }
+            assert(bridge_plan_cycle(80000000, freq, 200, 1, &c));
             unsigned high[4] = {0}, positive = 0, negative = 0;
             for (uint32_t t = 0; t < c.period; t++) {
                 bool a = bridge_output_at(&c, 0, t), al = bridge_output_at(&c, 1, t), b = bridge_output_at(&c, 2, t),
@@ -244,10 +248,11 @@ static struct {
     unsigned inhibits, applies;
     bool request, fail_apply;
 } fake;
+static bridge_cycle_t captured_cycle;
 static bool apply(void *c, const bridge_cycle_t *cycle)
 {
     (void)c;
-    (void)cycle;
+    captured_cycle = *cycle;
     fake.applies++;
     return !fake.fail_apply;
 }
@@ -298,26 +303,26 @@ static void test_control_and_capture(void)
     run(&b);
     assert(b.conductance_s * 14400 <= 33.335f);
     bridge_feedback_t f = feedback(&b, 16667);
-    assert(fullbridge_apply(&b, 16667, &f, .1f) && fake.request);
+    assert(fullbridge_apply(&b, 16667, &f, 1) && fake.request);
     float before = b.conductance_s;
     assert(fullbridge_line_cycle(&b, 33334, 120, 14, 1000));
     assert(b.conductance_s < before);
     f = feedback(&b, 33334);
     f.valid[3] = false;
-    assert(!fullbridge_apply(&b, 33334, &f, .1f) && !fake.request && b.tripped);
+    assert(!fullbridge_apply(&b, 33334, &f, 1) && !fake.request && b.tripped);
     for (unsigned n = 0; n < 4; n++) {
         run(&b);
         f = feedback(&b, 16667);
         f.nonoverlap_ticks[n] = 0;
-        assert(!fullbridge_apply(&b, 16667, &f, .1f));
+        assert(!fullbridge_apply(&b, 16667, &f, 1));
     }
     run(&b);
     f = feedback(&b, 0);
-    assert(!fullbridge_apply(&b, 16667, &f, .1f));
+    assert(!fullbridge_apply(&b, 16667, &f, 1));
     run(&b);
     f = feedback(&b, 16667);
     f.rise_ticks[2] += 20;
-    assert(!fullbridge_apply(&b, 16667, &f, .1f));
+    assert(!fullbridge_apply(&b, 16667, &f, 1));
     run(&b);
     assert(!fullbridge_line_cycle(&b, 16667, 120, 1, 1000));
     run(&b);
@@ -325,7 +330,7 @@ static void test_control_and_capture(void)
     run(&b);
     f = feedback(&b, 16667);
     fake.fail_apply = true;
-    assert(!fullbridge_apply(&b, 16667, &f, .1f) && !fake.request);
+    assert(!fullbridge_apply(&b, 16667, &f, 1) && !fake.request);
     tests++;
 }
 static void test_default_off(void)
@@ -342,6 +347,58 @@ static void test_default_off(void)
     assert(!power_service_pan_pulse(20));
     assert(!power_service_frequency(50000));
     tests++;
+}
+static uint64_t service_now;
+static bool service_crossing, service_line, service_gate;
+static unsigned service_gate_changes;
+static bool sample_service(void *ctx, uint32_t *now, bridge_feedback_t *f,
+                           bool *line, float *v, float *a, float *pan)
+{
+    (void)ctx;
+    *now = (uint32_t)service_now; *line=service_line; *v=120; *a=1; *pan=160;
+    *f=(bridge_feedback_t){.sampled_us=*now,.serial=*now,.rails_ok=true,.sup_run_ok=true,.interlock_ok=true};
+    for (unsigned i=0;i<4;i++) {
+        f->valid[i]=true; f->period[i]=captured_cycle.period;
+        f->rise_ticks[i]=captured_cycle.pulse[i].rise;
+        f->high_ticks[i]=captured_cycle.pulse[i].width;
+        f->nonoverlap_ticks[i]=captured_cycle.dead_ticks;
+    }
+    return true;
+}
+static bool sample_bus(void *ctx,uint64_t *now,hal_bus_crossing_t *bus)
+{
+    (void)ctx; *now=service_now;
+    *bus=(hal_bus_crossing_t){.sampled_us=*now,.bus_v=service_crossing?0:2,.valid=true,.zero_crossing=service_crossing};
+    return true;
+}
+static bool gate(void *ctx,bool enabled)
+{
+    (void)ctx;
+    if (enabled!=service_gate) { assert(service_crossing); service_gate_changes++; }
+    service_gate=enabled; return true;
+}
+static void test_burst_binding(void)
+{
+    power_service_bootstrap(); memset(&fake,0,sizeof fake);
+    power_binding_t b={.config=config(),.backend={apply,request,inhibit,NULL},
+        .sample=sample_service,
+        .burst={.burst_enabled=true,.measured_burst_w=160,.line_rms_v=120,.power_factor=.95},
+        .sample_bus=sample_bus,.set_burst_gate=gate};
+    b.config.max_power_w=160;
+    service_gate=false; service_gate_changes=0; service_crossing=true;
+    assert(power_service_bind(&b)); power_set_level(50);
+    for (unsigned n=0;n<4804;n++) {
+        service_now=(uint64_t)n*25000/3; service_crossing=true; service_line=n%2==0;
+        power_service_tick();
+        service_now+=50; service_crossing=false; service_line=false;
+        power_service_tick();
+    }
+    assert(service_gate_changes>=4 && test_pwm_generation());
+    /* A normal stop demand must not change the outputs between crossings. */
+    bool before=service_gate; power_set_level(0); power_service_tick(); assert(service_gate==before);
+    service_now=(uint64_t)4804*25000/3; service_crossing=service_line=true;
+    power_service_tick(); assert(!service_gate);
+    power_service_bootstrap(); tests++;
 }
 static void test_link(void)
 {
@@ -464,9 +521,10 @@ int main(void){
     test_waveforms();
     test_control_and_capture();
     test_default_off();
+    test_burst_binding();
     test_link();
     test_hardware_contract();
     test_completed_attempt_requires_reset_and_post();
-    printf("%u power adapter test groups passed; 606 full-cycle waveform sweeps\n", tests);
+    printf("%u power adapter test groups passed; 6 fixed-phase waveform sweeps and 600 rejected phase configurations\n", tests);
     return 0;
 }
