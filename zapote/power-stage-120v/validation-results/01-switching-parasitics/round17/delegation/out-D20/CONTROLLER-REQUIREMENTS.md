@@ -25,7 +25,7 @@ Direction is relative to the power board. Default codes: **P** = power-source ab
 | J4 | Net / local endpoint | Direction | Level / load contract | Default |
 |---:|---|---|---|---|
 | 1 | V15_SELV / PS1.4 | OUT | 15 V; 1.4 A/21 W module rating before derating and all loads | P |
-| 2 | SELV_GND | return | Shared supply/signal current; allocation open | G |
+| 2 | SELV_GND | return | Shared supply/signal current; native-21: one of three returns, ≤ 0.48 A each at the full 1.4 A PS1 rating (`06-controller-interface/scripts/j4_returns.py`) | G |
 | 3 | V3V3 / U1,U2,U4,U9,CT | IN | Controller-owned 3.3 V (3.135–3.465 V planning envelope); 41.657 mA selected DC subtotal on native-20 (27.445 mA on native-19; 330 Ω DIS pull-ups), not maximum | P/U |
 | 4 | SELV_GND | return | Same net as 2,15,16 | G |
 | 5 | PWM_HA / U1.1 | IN | High ≥2.3 V, low ≤0.8 V; pulldown ≥50 kΩ | L |
@@ -39,7 +39,7 @@ Direction is relative to the power board. Default codes: **P** = power-source ab
 | 13 | CT_ZC / U12.1 | OUT | Push-pull low ≤0.325 V, high ≥VCC−0.350 V at 4 mA; idle level/chatter unspecified | U |
 | 14 | CT_MON / R47.2 | OUT | Biased analog via 1 kΩ; nominal 1.65 V + 15 mV/A; high-impedance receiver required | U |
 | 15 | SELV_GND | return | Same net as 2,4,16 | G |
-| 16 | SELV_GND | return | Same net as 2,4,15 | G |
+| 16 | LINE_ZC / native-21 line_zc.buffer (SN74LVC1G17) | OUT | Push-pull 3.3 V logic; high near the line zero crossing and when the line/detector is absent (native-21 ECO). Native-20: SELV_GND | U |
 
 ## Numbered acceptance requirements
 
@@ -60,11 +60,12 @@ One requirement occupies each line. Tests may cover multiple requirements, but e
 - **R13.** The controller/harness shall capture J4.13 as digital CT_ZC and satisfy the corresponding schedule level, load and default-state contract. **Source:** D10:54,180. **Verify:** inspection + bench. **Status:** derived.
 - **R14.** The controller/harness shall receive J4.14 as analog CT_MON without connecting another sensor output to it and satisfy the corresponding schedule level, load and default-state contract. **Source:** D10:55,164. **Verify:** inspection + bench. **Status:** derived.
 - **R15.** The controller/harness shall connect J4.15 as an allocated SELV return and satisfy the corresponding schedule level, load and default-state contract. **Source:** D10:56,245. **Verify:** inspection + bench. **Status:** derived.
-- **R16.** The controller/harness shall connect J4.16 as an allocated SELV return and satisfy the corresponding schedule level, load and default-state contract. **Source:** D10:57,245. **Verify:** inspection + bench. **Status:** derived.
+- **R16.** (native-21, DECISIONS 2026-10-06) The controller/harness shall receive **LINE_ZC** on J4.16 with a logic input (no ground connection on the old harness contact), and use it as the only zero-cross source for line-synchronous bursts. On native-20, J4.16 remains a SELV return. **Source:** DECISIONS 2026-10-06 (line zero-cross), native-21 ECO. **Verify:** inspection + bench. **Status:** decided.
 - **R17.** The harness shall mate with Molex 0430451612 using a selected, rated housing/contact/wire assembly and a numbered end-to-end continuity drawing verified from mating-face and wire-entry views; 43025-1600 remains a candidate until selected (O01). **Source:** D10:80. **Verify:** inspection + bench. **Status:** derived.
 - **R18.** The supply design shall identify the sole 15 V source and 3.3 V converter and close total continuous, dynamic, startup, inrush, cable and derated thermal budgets; the 41.657 mA (native-20) DC subtotal shall not be treated as the complete 3.3 V requirement (O02). **Source:** D10:90–110. **Verify:** analysis + bench. **Status:** derived.
 - **R19.** The assembled interface shall inhibit all four gates through power-up, MCU reset, brownout, controller/interlock power loss and entire-J4 disconnect, including partial-power injection, alternate feeds and hot-unplug tests; static pull-downs alone shall not count as proof (O03). **Source:** D10:149–160; D11:70. **Verify:** bench. **Status:** derived.
 - **R20.** The grounding design shall allocate J4.2/.4/.15/.16 current and nearby PWM/analog returns, qualify a missing contact and ground offset, and inventory every PE/USB/instrument bond against R38’s functional SELV_GND-to-PE link (O04). **Source:** D10:245–256; POWER:58. **Verify:** analysis + inspection + bench. **Status:** derived.
+  - *2026-10-06 screen (native-21, three returns J4.2/.4/.15):* at the full 1.4 A PS1 rating, with 2 m of 24 AWG and 10 mΩ contacts assumed, each contact carries ≤ 0.48 A (0.72 A with one missing). The DC ground offset is 107 mV (160 mV with one missing), against ≥ 0.45 V PWM-low and 0.5 V BUS_FAULT-low margins, and the digital margins stay positive. **CT_MON is the exception:** a single-ended 15 mV/A signal, it reads 7.1 A (10.7 A with one contact missing) of offset error, already 5.3 A on native-20's four returns. **Added requirement R20a:** if the controller uses CT_MON quantitatively, it shall auto-zero CT_MON while the bridge is idle (tank current zero) before each burst or start, or measure it against a sense return. Evidence: `06-controller-interface/scripts/j4_returns.py` → `outputs/j4_returns.json`. Replace the assumptions with the harness design.
 - **R21.** The controller shall provide two complementary PWM pairs with independently controlled full-bridge phase and a documented four-pin MCU/timer allocation; GPIO4/5 alone shall not satisfy this requirement (O05). **Source:** D5:24,40–47; POWER:98–102. **Verify:** inspection + bench. **Status:** derived.
 - **R22.** The PWM operating policy shall cover the nominal approximately 33–39 kHz full-power pan range and the 60 kHz low-power operating point, with final allowed frequency/duty/phase limits and burst sequencing explicitly approved before enabling heating (O06). **Source:** POWER:34–44,98–102. **Verify:** analysis + bench. **Status:** derived.
 - **R23.** The controller shall never command overlapping high inputs within a leg, including reconfiguration/start/stop transients, and shall implement a capacitive-operation phase inhibit before powered qualification (O06). **Source:** TI-DT pp25–26; POWER:28. **Verify:** bench. **Status:** derived; phase policy value open.
