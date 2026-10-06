@@ -38,6 +38,7 @@ only your brief.
 | [D-30 connector power direction](D30-connector-power-direction.md) | **Board-source fix (draft PR):** central J9 supply pins typed power_out; fix, audit the class on all nine round-5 boards, add a power-direction validator | small |
 | [D-31 protection closure](D31-protection-closure.md) | **Supersedes D-17.** Gate-off chain and device survival on native-19, a source-to-gate-off/extinction timing ledger, FC1 DC clearing, precharge repeated pulses, contactor DC duty | large |
 
+| [D-36 enclosure fit](D36-enclosure-fit.md) | Fit gate for power board + heatsink + fans + duct + EMI module in the R4 enclosure (90 mm clear height, sensor corridor); close the cooling architecture with numbers; native-21 layout constraints | medium/large |
 | [D-32 … D-35](CODEX-HANDOFF-2026-10-06.md) | Firmware safe state + 180° + burst scheduler; native-21 F6 bias source/netlist; bench verdict tool; 120 V flickermeter | medium |
 
 D-1..D-27 are complete (`out-D*`; D-23 and D-26 indeterminate, D-24 answer c); D-21 is a draft PR awaiting the D-25 cleanup fix. D-5..D-10 are independent of
