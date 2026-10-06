@@ -22,12 +22,14 @@ The output directory contains `verification-summary.json`, `native-pin-oracle.js
 
 ## Source authority and replay
 
-- `partition.rs` derives central pins, connector additions and one preload ECO from immutable round4 `supervisor/generated/pins.tsv`. `central/generated/pins.tsv` and `central/ref-map.tsv` retain source identities.
+- `partition.rs` derives central pins, connector additions, the preload ECO, and the D-30 controller-supply pin ECO from immutable round4 `supervisor/generated/pins.tsv`. `central/generated/pins.tsv` and `central/ref-map.tsv` retain source identities.
 - `central/layout.json` records placements. `central/copper.json` contains the final reviewed copper geometry; `build_central.py` replays it using native KiCad. Freerouting 2.0.1 helped route it through the local-only `LocalRoute.java` adapter. Native KiCad found opens despite the router reporting completion; manual fixes and native checks closed them. The final replay, not discarded router sessions, is authoritative.
 - Voltage `*-pins.tsv`, `*-ref-map.json`, `*-layout.json`, `build_boards.py` and `render_sensor.py` define their source-derived circuits and explicit geometry. `derive_sensor_variants.py` is an adapter over the round4 pin capture, not a new circuit authority.
 - `build_current.py` derives the two burden circuits and emits their drawing-based CT footprint, conventional symbols and routed boards. CT pin 3 is mechanical support, not a secondary center tap.
 - `board-bom.csv`, `component-census.json` and `connector-map.json` inventory actual candidates. The connector map gives **board pin numbers**, domains and directions; it is not a mating-face photograph or permission to mirror a cable.
-- Run `check.sh` from the repository root, with KiCad available. The adapters use KiCad's bundled Python 3.9; Rust partition compilation is standalone and does not touch shared placer extensions. `ruff check` and Python 3.9 compilation pass.
+- `power_direction.rs` audits all nine pin tables with explicit sensor harnesses and external supply/return boundaries. Connectors and `PWR_FLAG` symbols cannot count as onboard producers. Its negative tests include the original J9 defect, missing supplies and two joined `power_out` connector pins. `verify_native.py` also checks connector types against KiCad XML.
+- J9.1 is `power_in`; J9.2 is a passive connector return. `render_central.py` declares the external controller supply and return with labeled ERC flags. These are interface assumptions, not validated controller hardware. See [D-30 evidence](../../../validation-results/01-switching-parasitics/round17/delegation/out-D30/README.md).
+- Run `check.sh` from the repository root, with KiCad and standalone `rustc` available. The adapters use KiCad's bundled Python 3.9; Rust partition compilation is standalone and does not touch shared placer extensions. `ruff check` and Python 3.9 compilation pass.
 
 ## Implemented physical and electrical changes
 

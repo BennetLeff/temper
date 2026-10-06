@@ -1,0 +1,109 @@
+{
+  "catch": {
+    "parts": 21,
+    "pins": 60,
+    "netlist_exact": true,
+    "board_pins_exact": true,
+    "footprint_identity_exact": true,
+    "missing_pin_negative_control": true,
+    "wrong_net_negative_control": true,
+    "board_sha256": "caa5afa6af24bccec2f5d09d8c1765354d5c8ba1eb1dd8dcbad46142c7a31555",
+    "pins_sha256": "d5bb573ad18a86cdf07627cb814e24de26cfd1bf33d36455ae72eb76ca913ed1"
+  },
+  "bus": {
+    "parts": 21,
+    "pins": 60,
+    "netlist_exact": true,
+    "board_pins_exact": true,
+    "footprint_identity_exact": true,
+    "missing_pin_negative_control": true,
+    "wrong_net_negative_control": true,
+    "board_sha256": "1ea6ce5cad5d3aad38d3942300c7a62cd2013e3a4b843d54dc6702dc367d4f82",
+    "pins_sha256": "aa710dc065313642b4ff781b2360ffe2250a670ec8ed658c93f4de28cc46fd2f"
+  },
+  "line": {
+    "parts": 17,
+    "pins": 52,
+    "netlist_exact": true,
+    "board_pins_exact": true,
+    "footprint_identity_exact": true,
+    "missing_pin_negative_control": true,
+    "wrong_net_negative_control": true,
+    "board_sha256": "c403debe8ab653d427908750bc41bf2a923b57e52c86e742766a7c31c7ed1c5b",
+    "pins_sha256": "b520eac628c52296fe494374eb92dd6fc4a800ec9b6c83213135580dac7c5f77"
+  },
+  "pre": {
+    "parts": 17,
+    "pins": 52,
+    "netlist_exact": true,
+    "board_pins_exact": true,
+    "footprint_identity_exact": true,
+    "missing_pin_negative_control": true,
+    "wrong_net_negative_control": true,
+    "board_sha256": "54edac05a4c80dcf1801cc2bba61d976cf0cbf4af9158bf50ce260e0e83ddd79",
+    "pins_sha256": "17de3e7c10e6ffcc5f57ef4db3e59207681d6b7343a13e5f59009b57120fa430"
+  },
+  "out": {
+    "parts": 17,
+    "pins": 52,
+    "netlist_exact": true,
+    "board_pins_exact": true,
+    "footprint_identity_exact": true,
+    "missing_pin_negative_control": true,
+    "wrong_net_negative_control": true,
+    "board_sha256": "b2ffe1d25a0c1ae25b36ea333d3f026e31cd9038bc985335356f5bfcd4f43847",
+    "pins_sha256": "5293345cc065a8ce72e9124fcfc3a611397f1eaf1ad1c27745d8304b282c8280"
+  },
+  "tank": {
+    "parts": 25,
+    "pins": 68,
+    "netlist_exact": true,
+    "board_pins_exact": true,
+    "footprint_identity_exact": true,
+    "missing_pin_negative_control": true,
+    "wrong_net_negative_control": true,
+    "board_sha256": "2599db7ecdd9e35b2309a7ed473addbbd391e6f4255ebbeb3d8bdd3ebb104eea",
+    "pins_sha256": "ad25c561cc810db3f519ac1de4d3ce15b4ee83fa306a841be3c1648385417530"
+  },
+  "iproof": {
+    "parts": 5,
+    "pins": 11,
+    "netlist_exact": true,
+    "board_pins_exact": true,
+    "footprint_identity_exact": true,
+    "missing_pin_negative_control": true,
+    "wrong_net_negative_control": true,
+    "board_sha256": "3be1bf0462c2f0d72dde1aa06fc3e8645432be561894b6b649ba13d916f3a631",
+    "pins_sha256": "84ca699a2ca190f131b4d2562535bc68b344e1f07c5622211c7157b63717bc99"
+  },
+  "iline": {
+    "parts": 5,
+    "pins": 11,
+    "netlist_exact": true,
+    "board_pins_exact": true,
+    "footprint_identity_exact": true,
+    "missing_pin_negative_control": true,
+    "wrong_net_negative_control": true,
+    "board_sha256": "12bc2c0804e34f62a1959cd843c8301f6604e63d15b6e86c38c08644dbd3d422",
+    "pins_sha256": "b393c0043a93d0033746bad99b26bb430bef40b5b825a30f6db1adfb5942cf9d"
+  },
+  "central": {
+    "parts": 436,
+    "pins": 1411,
+    "netlist_exact": true,
+    "board_pins_exact": true,
+    "footprint_identity_exact": true,
+    "missing_pin_negative_control": true,
+    "wrong_net_negative_control": true,
+    "board_sha256": "7d9b219dfadb796bef750b84bb3bc89f286e44df3e1a47284eb22879e6183622",
+    "pins_sha256": "15e269db31b79eda55747cdc13f09fbbb956aad8cd1db53cfa199278d74bfa1d"
+  },
+  "harness_parity": {
+    "eight_straight_through_sensor_harnesses_exact": true
+  },
+  "source_partition": {
+    "original_pins": 1761,
+    "all_original_pins_preserved": true,
+    "all_eight_sensor_source_nets_preserved": true
+  }
+}
