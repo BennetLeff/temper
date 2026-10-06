@@ -5,7 +5,7 @@ Copper is unchanged. Native DRC/ERC match native-19. Product qualification is op
 
 | Ref | Source instance | native-19 | native-20 | Why |
 | --- | --- | --- | --- | --- |
-| R34 | `r_th_top` | RT0603BRD0710K5L (10.5 kΩ) | **RT0603BRD0710K6L (10.6 kΩ, ±0.1 %, 25 ppm/°C)** | Task 02 decision B. The shunt-OCP band moves from 38.44–85.55 A to **49.73–97.98 A**, which meets the ≥ 44 A nuisance-trip minimum |
+| R34 | `r_th_top` | RT0603BRD0710K5L (10.5 kΩ) | **RT0603BRD0710K6L (10.6 kΩ, ±0.1 %, 25 ppm/°C)** | Task 02 decision B. The shunt-OCP band moves from 38.44–85.55 A to **49.73–97.98 A**, which meets the ≥ 44 A nuisance-trip minimum. Including the Kelvin-return error (`02-protection-timing/kelvin/`) it is **47.54–97.98 A** |
 | R8, R16 | `leg_a/leg_b.r_dis_pu` | RC0603FR-071KL (1 kΩ) | **RC0603FR-07330RL (330 Ω)** | The allocated DIS rise drops from 360.8 ns to 119.1 ns, putting the chain at ≤ 546/573 ns (CT/shunt) |
 
 Decided in [DECISIONS.md](../DECISIONS.md) 2026-10-05 (protection closure). The

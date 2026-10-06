@@ -74,6 +74,7 @@ The device-survival part of the BLOCKED verdict below is **closed for fault turn
 - **Gate-off chain:** at most 787.5 ns (CT path) and 814.9 ns (shunt path) from comparator output to completed DIS response. The figure is ALLOCATION-dominated: the DIS RC alone is 360.8 ns. Bench edge captures must confirm the allocations.
 - **Fault turn-off at 60–330 A:** die VDS ≤ 350 V on the native-19 best matrix, against the 520 V screen and the 650 V rating.
 - **Shoot-through:** not survivable through this chain. It stays prevention-only: driver interlock, dead time, FC1 and the catch circuit.
+- **Kelvin-return error** ([kelvin/](kelvin/README.md)): HOT-side return current (≤ 21.1 mA) on the shared R5.2 lead lowers the trip by ≤ 2.19 A, so native-20's band is **47.54–97.98 A**, still ≥ 44 A.
 - **Decision B (R34):** no resistor-only value meets both criteria. R34 = 10.6 kΩ was chosen (DECISIONS.md 2026-10-05), giving a 49.73–97.98 A band.
 
 ## SPICE continuation on native-13 (partial, 2026-09-27)
