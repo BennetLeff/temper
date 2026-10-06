@@ -1,0 +1,115 @@
+{
+ "method": "IEC 61000-3-3 Annex B analytical, F=1",
+ "V": 120.0,
+ "PF": 0.95,
+ "Zref_ohm": [
+  0.4,
+  0.25
+ ],
+ "rows": [
+  {
+   "P_W": 100,
+   "step_A": 0.877,
+   "d_pct": 0.335,
+   "pst_by_period": {
+    "2": 0.434,
+    "3": 0.383,
+    "5": 0.326,
+    "10": 0.263
+   },
+   "min_period_s_for_Plt_0p65": 2.0,
+   "d_within_3p3": true
+  },
+  {
+   "P_W": 160,
+   "step_A": 1.404,
+   "d_pct": 0.536,
+   "pst_by_period": {
+    "2": 0.695,
+    "3": 0.612,
+    "5": 0.522,
+    "10": 0.42
+   },
+   "min_period_s_for_Plt_0p65": 2.48,
+   "d_within_3p3": true
+  },
+  {
+   "P_W": 200,
+   "step_A": 1.754,
+   "d_pct": 0.67,
+   "pst_by_period": {
+    "2": 0.869,
+    "3": 0.765,
+    "5": 0.652,
+    "10": 0.525
+   },
+   "min_period_s_for_Plt_0p65": 5.06,
+   "d_within_3p3": true
+  },
+  {
+   "P_W": 250,
+   "step_A": 2.193,
+   "d_pct": 0.837,
+   "pst_by_period": {
+    "2": 1.086,
+    "3": 0.957,
+    "5": 0.816,
+    "10": 0.657
+   },
+   "min_period_s_for_Plt_0p65": 10.34,
+   "d_within_3p3": true
+  },
+  {
+   "P_W": 300,
+   "step_A": 2.632,
+   "d_pct": 1.005,
+   "pst_by_period": {
+    "2": 1.303,
+    "3": 1.148,
+    "5": 0.979,
+    "10": 0.788
+   },
+   "min_period_s_for_Plt_0p65": 18.52,
+   "d_within_3p3": true
+  },
+  {
+   "P_W": 400,
+   "step_A": 3.509,
+   "d_pct": 1.339,
+   "pst_by_period": {
+    "2": 1.738,
+    "3": 1.531,
+    "5": 1.305,
+    "10": 1.051
+   },
+   "min_period_s_for_Plt_0p65": 46.51,
+   "d_within_3p3": true
+  },
+  {
+   "P_W": 500,
+   "step_A": 4.386,
+   "d_pct": 1.674,
+   "pst_by_period": {
+    "2": 2.172,
+    "3": 1.913,
+    "5": 1.631,
+    "10": 1.313
+   },
+   "min_period_s_for_Plt_0p65": 94.98,
+   "d_within_3p3": true
+  },
+  {
+   "P_W": 600,
+   "step_A": 5.263,
+   "d_pct": 2.009,
+   "pst_by_period": {
+    "2": 2.606,
+    "3": 2.296,
+    "5": 1.957,
+    "10": 1.576
+   },
+   "min_period_s_for_Plt_0p65": 170.22,
+   "d_within_3p3": true
+  }
+ ]
+}
