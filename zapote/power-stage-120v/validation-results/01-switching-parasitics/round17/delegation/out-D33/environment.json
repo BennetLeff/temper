@@ -1,0 +1,24 @@
+{
+  "source_revision": "3b0abe9776c6fac81577d2617ef857497cbed781",
+  "evidence_tree_dirty": true,
+  "scope": "new sizing and simulation evidence; circuit source, frozen exports, audit and PCB unchanged",
+  "model_provider": "OpenAI Codex / GPT-6",
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "ngspice": "******\n** ngspice-45.2 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2025, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n******",
+  "sha256": {
+    "zapote/power-stage-120v/native-21/bias_sizing.py": "7b30b46f846f5abe52ab68f1478391bc5037f8ff0fa32aa31f9ec944822dea9c",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D33/summarize.py": "7a09f51481a299927484ffb73bf8448d9775db5a9171dea663cb0206185a177a",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D33/run_klu.py": "d39f28f02d56d54a4af5e21bdc045ac8c910ef23d274e175ac346cdc2200f965",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D33/replay_diagnostics.py": "50db387580510ee22fae3a0af560e6934850f45094846e8599aa08bdad05cae0",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D33/shunt_stability.py": "fb7ddf1a8abcef15bb82c95d87e1b1147b490f9d6c4e8a3946261fc47f8c7494",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D33/rail_campaign.py": "e561751902321f2d6f6c13513df6436773e9d79d14ffa568d9e8f56157db8e33",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/d2/f6_legs.py": "42f0a1c093328c39e31c059fd9a0383594dc683459f72fb9cdeb66fb7d432ec6",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/d2/run_d2.py": "bec75e3212b120853eb4a58286fb3c222094e46b6e88ba6e41edcde73cd24c7a",
+    "zapote/power-stage-120v/validation-plan/sim-kit/common/run_ngspice.py": "e518996d3c4050f3fbbb109abbf116a23b010612dd073bea860d3db613f758b0",
+    "zapote/power-stage-120v/validation-plan/sim-kit/common/options.inc": "ae752d460d50fdbbcaaf03b29871b3b039cf27f018707efe4aa50d0fc3529330",
+    "zapote/power-stage-120v/validation-plan/sim-kit/models/vendor/IFX_CFD7_650V.lib": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b"
+  },
+  "packaging_python": "3.14.7 (main, Aug  5 2026, 10:29:49) [Clang 21.0.0 (clang-2100.1.1.101)]",
+  "simulation_python": "3.12.12 | packaged by conda-forge | (main, Oct 22 2025, 23:34:53) [Clang 19.1.7 ]",
+  "numpy": "2.4.6"
+}

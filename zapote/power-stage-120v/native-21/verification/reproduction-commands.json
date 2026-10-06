@@ -1,0 +1,35 @@
+{
+  "base_commit": "fada4c13cc8b844b949a92e9d3facf5977417663",
+  "python": "3.12.12 | packaged by conda-forge | (main, Oct 22 2025, 23:34:53) [Clang 19.1.7 ]",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "ngspice": "45.2",
+  "atopile": "0.2.69",
+  "power_stage_cwd": "zapote/power-stage-120v",
+  "power_stage_commands": [
+    "uv tool run --offline --from atopile==0.2.69 ato build",
+    "uv tool run --offline --from atopile==0.2.69 python tools/circuit_export.py . build/resolved-components.json --entry-file elec/src/power_stage_120v.ato --entry PowerStage120V",
+    "rustc --edition=2021 --test audit.rs -o /private/tmp/d33-audit-final",
+    "/private/tmp/d33-audit-final",
+    "/Users/bennet/Miniforge3/bin/python3 native-21/verification/verify_source.py"
+  ],
+  "repository_commands": [
+    "PYTHONPATH=packages/temper-placer/src uv run --no-sync python scripts/import_linter_gate.py",
+    "make regen",
+    "make regen-check"
+  ],
+  "results": {
+    "atopile": "PASS with implicit-designator deprecation warnings",
+    "frozen_components": 331,
+    "structural_and_mutation_tests": {
+      "passed": 73,
+      "failed": 0
+    },
+    "model_fetch_and_smoke": "PASS",
+    "import_gate": "PASS, zero new violations",
+    "regen": "PASS",
+    "regen_check": "PASS",
+    "python_syntax": "PASS",
+    "python_ruff_F": "PASS"
+  },
+  "limits": "Source/export and simulation checks only; no PCB, routing, full-workspace build or physical bench qualification."
+}

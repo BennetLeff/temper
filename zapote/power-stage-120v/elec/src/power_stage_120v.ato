@@ -23,15 +23,18 @@
 from "parts.ato" import MainsTerminal2, PowerTerminalM4, PeBranchTerminal, MainsFuse20A, Tmov175, Cmc20A
 from "parts.ato" import CapX2_1u, CapY1_2n2, R120k1206, BridgeGbj2510, BusFilm2u7, LocalBus100n
 from "parts.ato" import R220k1206, Shunt1m, MosfetCfd7, Snubber1n1kV, UCC21550BDWK
-from "parts.ato" import BootDiode, PermitFet, R3R9Gate, R49k9Dt, R10k0603, R100k0603, R100R0603
+from "parts.ato" import PermitFet, R3R9Gate, R49k9Dt, R10k0603, R100k0603, R100R0603
 from "parts.ato" import R1k0603, R330R0603, C100n0603, C10u1210, Res942C12P22, Res942C12P1
-from "parts.ato" import CST3015_100E, Irm05_15, Irm20_15, TcoLoopHeader, Ldo78L05
+from "parts.ato" import CST3015_100E, Irm20_15, TcoLoopHeader
 from "parts.ato" import Amc1311, R470k1206, R15k8Thin, C1nC0G0603, C100pC0G0603
 from "parts.ato" import Tlv3201, Ref2V5, R10kThin, R10k6Thin, R140kThin, R5k6Bias
 from "parts.ato" import Iso7710, SelvHeader16, Nand3Lvc1g10, FunctionalEarthLink
 from "parts.ato" import Hot5Supervisor, Hot5SchmittBuffer, R105kThin
 from "parts.ato" import BusTvsMrt130kp295
 from "parts.ato" import Burden1R5, C100nC0G1206, R1kThin, R3k32Thin, R1k1206, ClampBas116h, Or3Lvc1g332
+
+from "f6_parts.ato" import HotSupply24, HotLdo, GateDischarge, Gate1R, DisOr, BiasPushPull, Bias18k2, Bias30k1, Bias4k99, Bias4u7, Bias680, Bias10u
+from "f6_bias.ato" import BiasReservoir, RegulatedSplit, RailMonitor, HighBias, LineZeroCross
 
 module BusBringupLink:
     """Two M4 landings for one removable insulated jumper (ASSEMBLY.md).
@@ -47,7 +50,7 @@ module BusBringupLink:
 
 module BridgeLeg:
     """One half-bridge leg: UCC21550 (A = high side, B = low side), fail-safe
-    DIS receiver, dead time, bootstrap, gate networks, two MOSFETs, snubbers.
+    DIS receiver, dead time, monitored F6 bias, gate networks, two MOSFETs, snubbers.
     PERMIT low, floating or unpowered leaves DIS high (outputs disabled)."""
     signal v3v3
     signal selv_gnd
@@ -59,7 +62,11 @@ module BridgeLeg:
     signal bus_p
     signal sw
     signal dis
-    signal boot
+    signal p_hs
+    signal n_hs
+    signal n_ls
+    signal bias_bad
+    signal driver_dis
     signal gate_h
     signal gate_l
     signal out_h
@@ -97,7 +104,7 @@ module BridgeLeg:
     r_permit_pd.p2 ~ selv_gnd
     permit_fet.S ~ selv_gnd
     permit_fet.D ~ dis
-    dis ~ driver.DIS
+    driver_dis ~ driver.DIS
     dis ~ r_dis_pu.p1
     r_dis_pu.p2 ~ v3v3
 
@@ -109,30 +116,41 @@ module BridgeLeg:
 
     # Low side (channel B) on the floating 15 V referenced to HOT_GND.
     driver.VDDB ~ v15_ls
-    driver.VSSB ~ hot_gnd
+    driver.VSSB ~ n_ls
     c_ls = new C100n0603
     c_ls.value = 100nF
     c_ls.p1 ~ v15_ls
-    c_ls.p2 ~ hot_gnd
+    c_ls.p2 ~ n_ls
     c_ls_bulk = new C10u1210
     c_ls_bulk.value = 10uF
     c_ls_bulk.p1 ~ v15_ls
-    c_ls_bulk.p2 ~ hot_gnd
+    c_ls_bulk.p2 ~ n_ls
 
-    # High side (channel A) bootstrapped from the low-side rail.
-    d_boot = new BootDiode
-    d_boot.A ~ v15_ls
-    d_boot.K ~ boot
-    driver.VDDA ~ boot
-    driver.VSSA ~ sw
-    c_boot = new C10u1210
-    c_boot.value = 10uF
-    c_boot.p1 ~ boot
-    c_boot.p2 ~ sw
-    c_boot_hf = new C100n0603
-    c_boot_hf.value = 100nF
-    c_boot_hf.p1 ~ boot
-    c_boot_hf.p2 ~ sw
+    # The two high-side transformers and shared low-side split are HOT-powered.
+    driver.VDDA ~ p_hs
+    driver.VSSA ~ n_hs
+    bias_h = new BiasReservoir
+    bias_h.src ~ sw
+    bias_h.n ~ n_hs
+    bias_h.p ~ p_hs
+    bias_l = new BiasReservoir
+    bias_l.src ~ hot_gnd
+    bias_l.n ~ n_ls
+    bias_l.p ~ v15_ls
+    dis_or = new DisOr
+    dis_or.A ~ dis
+    dis_or.B ~ bias_bad
+    dis_or.Y ~ driver_dis
+    dis_or.VCC ~ v3v3
+    dis_or.GND ~ selv_gnd
+    c_dis_or = new C100n0603
+    c_dis_or.value = 100nF
+    c_dis_or.p1 ~ v3v3
+    c_dis_or.p2 ~ selv_gnd
+    r_driver_dis = new R10k0603
+    r_driver_dis.value = 10kohm
+    r_driver_dis.p1 ~ v3v3
+    r_driver_dis.p2 ~ driver_dis
 
     # Gate networks: series 3.9 ohm, 10 k gate-source hold-off.
     driver.OUTA ~ out_h
@@ -153,6 +171,31 @@ module BridgeLeg:
     r_gl_pd.value = 10kohm
     r_gl_pd.p1 ~ gate_l
     r_gl_pd.p2 ~ hot_gnd
+
+    signal off_h
+    cgs_h = new C1nC0G0603
+    cgs_h.value = 1nF
+    cgs_h.p1 ~ gate_h
+    cgs_h.p2 ~ sw
+    doff_h = new GateDischarge
+    doff_h.A ~ gate_h
+    doff_h.K ~ off_h
+    roff_h = new Gate1R
+    roff_h.value = 1ohm
+    roff_h.p1 ~ off_h
+    roff_h.p2 ~ out_h
+    signal off_l
+    cgs_l = new C1nC0G0603
+    cgs_l.value = 1nF
+    cgs_l.p1 ~ gate_l
+    cgs_l.p2 ~ hot_gnd
+    doff_l = new GateDischarge
+    doff_l.A ~ gate_l
+    doff_l.K ~ off_l
+    roff_l = new Gate1R
+    roff_l.value = 1ohm
+    roff_l.p1 ~ off_l
+    roff_l.p2 ~ out_l
 
     q_high = new MosfetCfd7
     q_high.G ~ gate_h
@@ -196,6 +239,21 @@ module PowerStage120V:
     signal CRBLEED_3
     signal TCO_L
     signal V15_LS
+    signal N_LS
+    signal V24_RAW
+    signal P_HA
+    signal N_HA
+    signal P_HB
+    signal N_HB
+    signal BIAS_BAD
+    signal BIAS_BAD_RAW
+    signal BIAS_BAD_FLT
+    signal BIAS_LS_BAD
+    signal BIAS_HA_BAD
+    signal BIAS_HB_BAD
+    signal LINE_ZC
+    signal BIAS_SW1
+    signal BIAS_SW2
     signal HOT5
     signal VDIV_1
     signal VDIV_2
@@ -313,6 +371,10 @@ module PowerStage120V:
     leg_a.pwm_l ~ PWM_LA
     leg_a.permit ~ PERMIT
     leg_a.v15_ls ~ V15_LS
+    leg_a.n_ls ~ N_LS
+    leg_a.p_hs ~ P_HA
+    leg_a.n_hs ~ N_HA
+    leg_a.bias_bad ~ BIAS_BAD
     leg_a.hot_gnd ~ LEG_RET
     leg_a.bus_p ~ BUS_P
     leg_a.sw ~ SW_A
@@ -323,6 +385,10 @@ module PowerStage120V:
     leg_b.pwm_l ~ PWM_LB
     leg_b.permit ~ PERMIT
     leg_b.v15_ls ~ V15_LS
+    leg_b.n_ls ~ N_LS
+    leg_b.p_hs ~ P_HB
+    leg_b.n_hs ~ N_HB
+    leg_b.bias_bad ~ BIAS_BAD
     leg_b.hot_gnd ~ LEG_RET
     leg_b.bus_p ~ BUS_P
     leg_b.sw ~ SW_B
@@ -379,17 +445,18 @@ module PowerStage120V:
     j_tco = new TcoLoopHeader
     j_tco.p1 ~ L_FILT
     j_tco.p2 ~ TCO_L
-    ps_gate = new Irm05_15
+    ps_gate = new HotSupply24
     ps_gate.ACL ~ TCO_L
     ps_gate.ACN ~ N_FILT
-    ps_gate.VP ~ V15_LS
-    ps_gate.VN ~ LEG_RET
+    ps_gate.VP ~ V24_RAW
+    ps_gate.VN ~ N_LS
     c_v15 = new C10u1210
     c_v15.value = 10uF
     c_v15.p1 ~ V15_LS
-    c_v15.p2 ~ LEG_RET
-    u_ldo = new Ldo78L05
+    c_v15.p2 ~ N_LS
+    u_ldo = new HotLdo
     u_ldo.IN ~ V15_LS
+    u_ldo.EN ~ V15_LS
     u_ldo.GND ~ OCP_KELVIN_P
     u_ldo.OUT ~ HOT5
     c_ldo_in = new C100n0603
@@ -566,7 +633,7 @@ module PowerStage120V:
     j_selv.p13 ~ CT_ZC
     j_selv.p14 ~ CT_MON
     j_selv.p15 ~ SELV_GND
-    j_selv.p16 ~ SELV_GND
+    j_selv.p16 ~ LINE_ZC
 
     # D5 functional earth: place beside the separate PCB PE branch terminal. This link is
     # not protective earthing. Reinforced isolation remains required with
@@ -753,3 +820,477 @@ module PowerStage120V:
     c_hot5_schmitt.value = 100nF
     c_hot5_schmitt.p1 ~ HOT5
     c_hot5_schmitt.p2 ~ OCP_KELVIN_P
+
+    # D-33 HOT bias; PS2 negative is N_LS, shunt midpoint is LEG_RET.
+    bias_ls = new RegulatedSplit
+    bias_ls.raw ~ V24_RAW
+    bias_ls.p ~ V15_LS
+    bias_ls.n ~ N_LS
+    bias_ls.src ~ LEG_RET
+    monitor_ls = new RailMonitor
+    monitor_ls.src ~ LEG_RET
+    monitor_ls.p ~ V15_LS
+    monitor_ls.n ~ N_LS
+    monitor_ls.selv_v ~ V3V3
+    monitor_ls.selv_gnd ~ SELV_GND
+    monitor_ls.bad ~ BIAS_LS_BAD
+    bias_driver = new BiasPushPull
+    bias_driver.VCC ~ V24_RAW
+    bias_driver.EN ~ V24_RAW
+    bias_driver.GND1 ~ N_LS
+    bias_driver.GND2 ~ N_LS
+    bias_driver.EP ~ N_LS
+    bias_driver.SW1 ~ BIAS_SW1
+    bias_driver.SW2 ~ BIAS_SW2
+    # DC is intentionally open: no duty-cycle control. External clock unused.
+    bias_rclk = new Bias18k2
+    bias_rclk.value = 18.2kohm
+    bias_rclk.p1 ~ bias_driver.CLK
+    bias_rclk.p2 ~ N_LS
+    bias_rlim = new Bias30k1
+    bias_rlim.value = 30.1kohm
+    bias_rlim.p1 ~ bias_driver.SS
+    bias_rlim.p2 ~ N_LS
+    bias_css = new Bias4u7
+    bias_css.value = 4.7uF
+    bias_css.p1 ~ bias_driver.SS
+    bias_css.p2 ~ N_LS
+    bias_rsr = new Bias4k99
+    bias_rsr.value = 4.99kohm
+    bias_rsr.p1 ~ bias_driver.SR
+    bias_rsr.p2 ~ N_LS
+    bias_cin = new Bias10u
+    bias_cin.value = 10uF
+    bias_cin.p1 ~ V24_RAW
+    bias_cin.p2 ~ N_LS
+    bias_chf = new C100n0603
+    bias_chf.value = 100nF
+    bias_chf.p1 ~ V24_RAW
+    bias_chf.p2 ~ N_LS
+    signal BIAS_SN1
+    bias_rsn1 = new Bias680
+    bias_rsn1.value = 680ohm
+    bias_rsn1.p1 ~ BIAS_SW1
+    bias_rsn1.p2 ~ BIAS_SN1
+    bias_csn1 = new C100pC0G0603
+    bias_csn1.value = 100pF
+    bias_csn1.p1 ~ BIAS_SN1
+    bias_csn1.p2 ~ V24_RAW
+    signal BIAS_SN2
+    bias_rsn2 = new Bias680
+    bias_rsn2.value = 680ohm
+    bias_rsn2.p1 ~ BIAS_SW2
+    bias_rsn2.p2 ~ BIAS_SN2
+    bias_csn2 = new C100pC0G0603
+    bias_csn2.value = 100pF
+    bias_csn2.p1 ~ BIAS_SN2
+    bias_csn2.p2 ~ V24_RAW
+    bias_ha = new HighBias
+    bias_ha.p ~ P_HA
+    bias_ha.n ~ N_HA
+    bias_ha.raw24 ~ V24_RAW
+    bias_ha.sw1 ~ BIAS_SW1
+    bias_ha.sw2 ~ BIAS_SW2
+    bias_ha.src ~ SW_A
+    bias_ha.selv_v ~ V3V3
+    bias_ha.selv_gnd ~ SELV_GND
+    bias_ha.bad ~ BIAS_HA_BAD
+    bias_hb = new HighBias
+    bias_hb.p ~ P_HB
+    bias_hb.n ~ N_HB
+    bias_hb.raw24 ~ V24_RAW
+    bias_hb.sw1 ~ BIAS_SW1
+    bias_hb.sw2 ~ BIAS_SW2
+    bias_hb.src ~ SW_B
+    bias_hb.selv_v ~ V3V3
+    bias_hb.selv_gnd ~ SELV_GND
+    bias_hb.bad ~ BIAS_HB_BAD
+    bias_or = new Or3Lvc1g332
+    bias_or.A ~ BIAS_LS_BAD
+    bias_or.B ~ BIAS_HA_BAD
+    bias_or.C ~ BIAS_HB_BAD
+    bias_or.Y ~ BIAS_BAD_RAW
+    # ~10 us common-mode glitch filter: the ISO7710 crossings are 85 kV/us min
+    # (SLLSER9E) against hard edges modelled up to ~95 V/ns. Rail faults are
+    # ms-scale (reservoirs), so 10 us costs nothing; Schmitt input for the RC.
+    r_bias_flt = new R10k0603
+    r_bias_flt.value = 10kohm
+    r_bias_flt.p1 ~ BIAS_BAD_RAW
+    r_bias_flt.p2 ~ BIAS_BAD_FLT
+    c_bias_flt = new C1nC0G0603
+    c_bias_flt.value = 1nF
+    c_bias_flt.p1 ~ BIAS_BAD_FLT
+    c_bias_flt.p2 ~ SELV_GND
+    u_bias_flt = new Hot5SchmittBuffer
+    u_bias_flt.A ~ BIAS_BAD_FLT
+    u_bias_flt.Y ~ BIAS_BAD
+    u_bias_flt.VCC ~ V3V3
+    u_bias_flt.GND ~ SELV_GND
+    c_bias_flt_vcc = new C100n0603
+    c_bias_flt_vcc.value = 100nF
+    c_bias_flt_vcc.p1 ~ V3V3
+    c_bias_flt_vcc.p2 ~ SELV_GND
+    bias_or.VCC ~ V3V3
+    bias_or.GND ~ SELV_GND
+    bias_c_or = new C100n0603
+    bias_c_or.value = 100nF
+    bias_c_or.p1 ~ V3V3
+    bias_c_or.p2 ~ SELV_GND
+    line_zc = new LineZeroCross
+    line_zc.line ~ L_FILT
+    line_zc.neutral ~ N_FILT
+    line_zc.selv_v ~ V3V3
+    line_zc.selv_gnd ~ SELV_GND
+    line_zc.out ~ LINE_ZC
+
+    # Preserve native-20 designators; removed bootstrap references stay vacant.
+    j_mains.designator = "J1"
+    f1.designator = "F1"
+    rv1.designator = "RV1"
+    cx1.designator = "C1"
+    cx2.designator = "C2"
+    rb1a.designator = "R1"
+    rb1b.designator = "R2"
+    r_bus1.designator = "R3"
+    r_bus2.designator = "R4"
+    leg_a.r_gh.designator = "R10"
+    leg_a.r_gl.designator = "R12"
+    leg_b.r_gh.designator = "R18"
+    leg_b.r_gl.designator = "R20"
+    r_crb1.designator = "R22"
+    r_crb2.designator = "R23"
+    r_crb3.designator = "R24"
+    r_crb4.designator = "R25"
+    r_div1.designator = "R26"
+    r_div2.designator = "R27"
+    r_div3.designator = "R28"
+    r_div4.designator = "R29"
+    r_ct_burden.designator = "R39"
+    r_ct_series.designator = "R42"
+    l1.designator = "L1"
+    cy1.designator = "C3"
+    cy2.designator = "C4"
+    br1.designator = "BR1"
+    c_bus1.designator = "C5"
+    c_bus2.designator = "C6"
+    r_shunt.designator = "R5"
+    leg_a.driver.designator = "U1"
+    leg_b.driver.designator = "U2"
+    leg_a.c_vcci.designator = "C7"
+    leg_a.c_ls.designator = "C8"
+    leg_b.c_vcci.designator = "C14"
+    leg_b.c_ls.designator = "C15"
+    c_ldo_in.designator = "C25"
+    c_div.designator = "C27"
+    c_vs1.designator = "C28"
+    c_vs2.designator = "C29"
+    c_ocp_node.designator = "C30"
+    c_th.designator = "C31"
+    c_ocp_vcc.designator = "C32"
+    c_ovp_th.designator = "C33"
+    c_ovp_vcc.designator = "C34"
+    c_nand_vcc.designator = "C35"
+    c_iso1.designator = "C36"
+    c_iso2.designator = "C37"
+    c_ct_pos.designator = "C44"
+    c_ct_neg.designator = "C45"
+    c_ct_zc.designator = "C46"
+    c_fault_or.designator = "C47"
+    c_hot5_uv.designator = "C48"
+    c_hot5_schmitt.designator = "C49"
+    leg_a.permit_fet.designator = "Q1"
+    leg_b.permit_fet.designator = "Q4"
+    u_ref.designator = "U5"
+    leg_a.r_permit.designator = "R6"
+    leg_a.r_permit_pd.designator = "R7"
+    leg_a.r_dis_pu.designator = "R8"
+    leg_a.r_dt.designator = "R9"
+    leg_a.r_gh_pd.designator = "R11"
+    leg_a.r_gl_pd.designator = "R13"
+    leg_b.r_permit.designator = "R14"
+    leg_b.r_permit_pd.designator = "R15"
+    leg_b.r_dis_pu.designator = "R16"
+    leg_b.r_dt.designator = "R17"
+    leg_b.r_gh_pd.designator = "R19"
+    leg_b.r_gl_pd.designator = "R21"
+    r_div_bot.designator = "R30"
+    r_ref_bias.designator = "R31"
+    r_ocp_ref.designator = "R32"
+    r_ocp_sense.designator = "R33"
+    r_th_top.designator = "R34"
+    r_th_bot.designator = "R35"
+    r_ovp_top.designator = "R36"
+    r_ovp_bot.designator = "R37"
+    r_fe.designator = "R38"
+    r_ct_bias_top.designator = "R40"
+    r_ct_bias_bot.designator = "R41"
+    r_ct_hi_top.designator = "R43"
+    r_ct_hi_bot.designator = "R44"
+    r_ct_lo_top.designator = "R45"
+    r_ct_lo_bot.designator = "R46"
+    r_ct_mon.designator = "R47"
+    r_hot5_uv_top.designator = "R48"
+    r_hot5_uv_bot.designator = "R49"
+    r_hot5_uv_pull.designator = "R50"
+    leg_a.c_ls_bulk.designator = "C9"
+    leg_b.c_ls_bulk.designator = "C16"
+    c_v15.designator = "C24"
+    c_ldo_out.designator = "C26"
+    leg_a.q_high.designator = "Q2"
+    leg_a.q_low.designator = "Q3"
+    leg_b.q_high.designator = "Q5"
+    leg_b.q_low.designator = "Q6"
+    leg_a.c_snub_h.designator = "C12"
+    leg_a.c_snub_l.designator = "C13"
+    leg_b.c_snub_h.designator = "C19"
+    leg_b.c_snub_l.designator = "C20"
+    c_ct_burden.designator = "C42"
+    c_ct_bias.designator = "C43"
+    t_ct.designator = "T1"
+    j_coil.designator = "J2"
+    j_coil_return.designator = "J5"
+    link_pos.terminal_rect.designator = "J7"
+    link_pos.terminal_bus.designator = "J8"
+    link_neg.terminal_rect.designator = "J9"
+    link_neg.terminal_bus.designator = "J10"
+    c_res1.designator = "C21"
+    c_res2.designator = "C22"
+    c_res3.designator = "C23"
+    ps_selv.designator = "PS1"
+    j_tco.designator = "J3"
+    ps_gate.designator = "PS2"
+    u_ldo.designator = "U3"
+    u_vsense.designator = "U4"
+    u_ocp.designator = "U6"
+    u_ovp.designator = "U7"
+    u_ct_pos.designator = "U10"
+    u_ct_neg.designator = "U11"
+    u_ct_zc.designator = "U12"
+    u_hot5_schmitt.designator = "U15"
+    u_nand.designator = "U8"
+    u_fault_or.designator = "U13"
+    u_hot5_uv.designator = "U14"
+    u_iso.designator = "U9"
+    j_selv.designator = "J4"
+    tvs_bus.designator = "D3"
+    j_pe.designator = "J6"
+    c_hf_a1.designator = "C38"
+    c_hf_a2.designator = "C39"
+    c_hf_b1.designator = "C40"
+    c_hf_b2.designator = "C41"
+    d_ct_hi.designator = "D4"
+    d_ct_lo.designator = "D5"
+
+    # D-33 additions have explicit references above the native-20 maxima.
+    leg_a.bias_h.rdamp.designator = "R51"
+    leg_a.bias_l.rdamp.designator = "R52"
+    leg_a.roff_h.designator = "R53"
+    leg_a.roff_l.designator = "R54"
+    leg_b.bias_h.rdamp.designator = "R55"
+    leg_b.bias_l.rdamp.designator = "R56"
+    leg_b.roff_h.designator = "R57"
+    leg_b.roff_l.designator = "R58"
+    monitor_ls.rref.designator = "R59"
+    bias_rsn1.designator = "R61"
+    bias_rsn2.designator = "R62"
+    bias_ha.monitor.rref.designator = "R63"
+    bias_hb.monitor.rref.designator = "R65"
+    line_zc.r1.designator = "R67"
+    line_zc.r2.designator = "R68"
+    line_zc.r3.designator = "R69"
+    line_zc.r4.designator = "R70"
+    leg_a.bias_h.cmid1.designator = "C50"
+    leg_a.bias_h.cmid2.designator = "C51"
+    leg_a.bias_l.cmid1.designator = "C52"
+    leg_a.bias_l.cmid2.designator = "C53"
+    leg_a.c_dis_or.designator = "C54"
+    leg_a.cgs_h.designator = "C55"
+    leg_a.cgs_l.designator = "C56"
+    leg_b.bias_h.cmid1.designator = "C57"
+    leg_b.bias_h.cmid2.designator = "C58"
+    leg_b.bias_l.cmid1.designator = "C59"
+    leg_b.bias_l.cmid2.designator = "C60"
+    leg_b.c_dis_or.designator = "C61"
+    leg_b.cgs_h.designator = "C62"
+    leg_b.cgs_l.designator = "C63"
+    bias_ls.cnr.designator = "C64"
+    bias_ls.chf.designator = "C65"
+    monitor_ls.cuv.designator = "C66"
+    monitor_ls.cov.designator = "C67"
+    monitor_ls.cspanuv.designator = "C68"
+    monitor_ls.cspanov.designator = "C69"
+    monitor_ls.cmonitor.designator = "C70"
+    bias_chf.designator = "C71"
+    bias_csn1.designator = "C72"
+    bias_csn2.designator = "C73"
+    bias_ha.split.cnr.designator = "C74"
+    bias_ha.split.chf.designator = "C75"
+    bias_ha.monitor.cuv.designator = "C76"
+    bias_ha.monitor.cov.designator = "C77"
+    bias_ha.monitor.cspanuv.designator = "C78"
+    bias_ha.monitor.cspanov.designator = "C79"
+    bias_ha.monitor.cmonitor.designator = "C80"
+    bias_hb.split.cnr.designator = "C81"
+    bias_hb.split.chf.designator = "C82"
+    bias_hb.monitor.cuv.designator = "C83"
+    bias_hb.monitor.cov.designator = "C84"
+    bias_hb.monitor.cspanuv.designator = "C85"
+    bias_hb.monitor.cspanov.designator = "C86"
+    bias_hb.monitor.cmonitor.designator = "C87"
+    bias_c_or.designator = "C88"
+    line_zc.cbuffer.designator = "C89"
+    bias_ls.shunt.designator = "U16"
+    monitor_ls.reference.designator = "U17"
+    monitor_ls.qnotice.designator = "Q7"
+    bias_ha.split.shunt.designator = "U18"
+    bias_ha.monitor.reference.designator = "U19"
+    bias_ha.monitor.qnotice.designator = "Q8"
+    bias_hb.split.shunt.designator = "U20"
+    bias_hb.monitor.reference.designator = "U21"
+    bias_hb.monitor.qnotice.designator = "Q9"
+    leg_a.bias_h.rbleed.designator = "R71"
+    leg_a.bias_l.rbleed.designator = "R72"
+    leg_a.r_driver_dis.designator = "R73"
+    leg_b.bias_h.rbleed.designator = "R74"
+    leg_b.bias_l.rbleed.designator = "R75"
+    leg_b.r_driver_dis.designator = "R76"
+    bias_ls.rtop.designator = "R77"
+    bias_ls.rbot.designator = "R78"
+    monitor_ls.rhalf_top.designator = "R79"
+    monitor_ls.rhalf_bot.designator = "R80"
+    monitor_ls.ruv_top.designator = "R81"
+    monitor_ls.ruv_bot.designator = "R82"
+    monitor_ls.rov_top.designator = "R83"
+    monitor_ls.rov_bot.designator = "R84"
+    monitor_ls.rspanuv_top.designator = "R85"
+    monitor_ls.rspanuv_bot.designator = "R86"
+    monitor_ls.rspanov_top.designator = "R87"
+    monitor_ls.rspanov_bot.designator = "R88"
+    monitor_ls.rnotice.designator = "R89"
+    monitor_ls.rbase.designator = "R90"
+    monitor_ls.rpull.designator = "R91"
+    bias_rclk.designator = "R92"
+    bias_rlim.designator = "R93"
+    bias_rsr.designator = "R94"
+    bias_ha.split.rtop.designator = "R95"
+    bias_ha.split.rbot.designator = "R96"
+    bias_ha.monitor.rhalf_top.designator = "R97"
+    bias_ha.monitor.rhalf_bot.designator = "R98"
+    bias_ha.monitor.ruv_top.designator = "R99"
+    bias_ha.monitor.ruv_bot.designator = "R100"
+    bias_ha.monitor.rov_top.designator = "R101"
+    bias_ha.monitor.rov_bot.designator = "R102"
+    bias_ha.monitor.rspanuv_top.designator = "R103"
+    bias_ha.monitor.rspanuv_bot.designator = "R104"
+    bias_ha.monitor.rspanov_top.designator = "R105"
+    bias_ha.monitor.rspanov_bot.designator = "R106"
+    bias_ha.monitor.rnotice.designator = "R107"
+    bias_ha.monitor.rbase.designator = "R108"
+    bias_ha.monitor.rpull.designator = "R109"
+    bias_hb.split.rtop.designator = "R110"
+    bias_hb.split.rbot.designator = "R111"
+    bias_hb.monitor.rhalf_top.designator = "R112"
+    bias_hb.monitor.rhalf_bot.designator = "R113"
+    bias_hb.monitor.ruv_top.designator = "R114"
+    bias_hb.monitor.ruv_bot.designator = "R115"
+    bias_hb.monitor.rov_top.designator = "R116"
+    bias_hb.monitor.rov_bot.designator = "R117"
+    bias_hb.monitor.rspanuv_top.designator = "R118"
+    bias_hb.monitor.rspanuv_bot.designator = "R119"
+    bias_hb.monitor.rspanov_top.designator = "R120"
+    bias_hb.monitor.rspanov_bot.designator = "R121"
+    bias_hb.monitor.rnotice.designator = "R122"
+    bias_hb.monitor.rbase.designator = "R123"
+    bias_hb.monitor.rpull.designator = "R124"
+    line_zc.pullup.designator = "R125"
+    leg_a.bias_h.clocal1.designator = "C90"
+    leg_a.bias_h.clocal2.designator = "C91"
+    leg_a.bias_l.clocal1.designator = "C92"
+    leg_a.bias_l.clocal2.designator = "C93"
+    leg_b.bias_h.clocal1.designator = "C94"
+    leg_b.bias_h.clocal2.designator = "C95"
+    leg_b.bias_l.clocal1.designator = "C96"
+    leg_b.bias_l.clocal2.designator = "C97"
+    bias_ls.cin.designator = "C98"
+    bias_ls.cout1.designator = "C99"
+    bias_ls.cout2.designator = "C100"
+    bias_cin.designator = "C101"
+    bias_ha.craw.designator = "C102"
+    bias_ha.split.cin.designator = "C103"
+    bias_ha.split.cout1.designator = "C104"
+    bias_ha.split.cout2.designator = "C105"
+    bias_hb.craw.designator = "C106"
+    bias_hb.split.cin.designator = "C107"
+    bias_hb.split.cout1.designator = "C108"
+    bias_hb.split.cout2.designator = "C109"
+    leg_a.bias_h.chf1.designator = "C110"
+    leg_a.bias_h.chf2.designator = "C111"
+    leg_a.bias_h.chf3.designator = "C112"
+    leg_a.bias_h.chf4.designator = "C113"
+    leg_a.bias_l.chf1.designator = "C114"
+    leg_a.bias_l.chf2.designator = "C115"
+    leg_a.bias_l.chf3.designator = "C116"
+    leg_a.bias_l.chf4.designator = "C117"
+    leg_b.bias_h.chf1.designator = "C118"
+    leg_b.bias_h.chf2.designator = "C119"
+    leg_b.bias_h.chf3.designator = "C120"
+    leg_b.bias_h.chf4.designator = "C121"
+    leg_b.bias_l.chf1.designator = "C122"
+    leg_b.bias_l.chf2.designator = "C123"
+    leg_b.bias_l.chf3.designator = "C124"
+    leg_b.bias_l.chf4.designator = "C125"
+    leg_a.bias_h.cbulk.designator = "C126"
+    leg_a.bias_l.cbulk.designator = "C127"
+    leg_b.bias_h.cbulk.designator = "C128"
+    leg_b.bias_l.cbulk.designator = "C129"
+    leg_a.dis_or.designator = "U22"
+    leg_b.dis_or.designator = "U23"
+    line_zc.buffer.designator = "U24"
+    leg_a.doff_h.designator = "D6"
+    leg_a.doff_l.designator = "D7"
+    leg_b.doff_h.designator = "D8"
+    leg_b.doff_l.designator = "D9"
+    bias_ha.da.designator = "D10"
+    bias_ha.db.designator = "D11"
+    bias_hb.da.designator = "D12"
+    bias_hb.db.designator = "D13"
+    bias_css.designator = "C130"
+    bias_or.designator = "U25"
+    bias_ls.ldo.designator = "U26"
+    bias_ha.split.ldo.designator = "U27"
+    bias_hb.split.ldo.designator = "U28"
+    monitor_ls.monitor.designator = "U29"
+    bias_ha.monitor.monitor.designator = "U30"
+    bias_hb.monitor.monitor.designator = "U31"
+    monitor_ls.dnotice.designator = "D14"
+    bias_ha.monitor.dnotice.designator = "D15"
+    bias_hb.monitor.dnotice.designator = "D16"
+    monitor_ls.iso.designator = "U32"
+    bias_ha.monitor.iso.designator = "U33"
+    bias_hb.monitor.iso.designator = "U34"
+    bias_driver.designator = "U35"
+    bias_ha.transformer.designator = "T2"
+    bias_hb.transformer.designator = "T3"
+    bias_ha.filter.designator = "L2"
+    bias_hb.filter.designator = "L3"
+    line_zc.opto.designator = "U36"
+    # Monitor crossings changed to ISO7710 (CMTI); R60/R64/R66 vacated.
+    monitor_ls.ldo5.designator = "U37"
+    monitor_ls.cldo_in.designator = "C131"
+    monitor_ls.cldo_out.designator = "C132"
+    monitor_ls.civcc1.designator = "C133"
+    monitor_ls.civcc2.designator = "C134"
+    bias_ha.monitor.ldo5.designator = "U38"
+    bias_ha.monitor.cldo_in.designator = "C135"
+    bias_ha.monitor.cldo_out.designator = "C136"
+    bias_ha.monitor.civcc1.designator = "C137"
+    bias_ha.monitor.civcc2.designator = "C138"
+    bias_hb.monitor.ldo5.designator = "U39"
+    bias_hb.monitor.cldo_in.designator = "C139"
+    bias_hb.monitor.cldo_out.designator = "C140"
+    bias_hb.monitor.civcc1.designator = "C141"
+    bias_hb.monitor.civcc2.designator = "C142"
+    r_bias_flt.designator = "R126"
+    c_bias_flt.designator = "C143"
+    c_bias_flt_vcc.designator = "C144"
+    u_bias_flt.designator = "U40"

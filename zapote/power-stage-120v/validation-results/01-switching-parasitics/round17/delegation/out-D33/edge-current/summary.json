@@ -1,0 +1,14 @@
+{
+  "cases": 504,
+  "hot_pass": 504,
+  "maximum_off_gate_V": 1.589109,
+  "maximum_negative_current_A": 7.056518305055944,
+  "maximum_positive_negative_charge_C": 6.543841315973121e-07,
+  "inputs_sha256": {
+    "edge_currents.py": "5dd52719c35b69a5c55aa1ca1ac3671d0174aff12dc0f1d6a1da0be814470437",
+    "F6.cir": "16361783224389bf8d979b4a6c1da54ff6c0636a903fd7259045542abb2d8007",
+    "legA-h0-best-n19.matrix.txt": "cf861da357ee496a0314356a21cfa4478d67e4ae8e15d36dae42dbc9deac2019",
+    "legB-h0-corr-n19.matrix.txt": "4e5ceb13538e44799c499370889e231d25825baf4c4d198df8959a6d5b54b0a6",
+    "PMEG6030EP.txt": "0c2892521c7933b99f405d803cef84240050b71c9e1f412088bd7a6c6352b983"
+  }
+}

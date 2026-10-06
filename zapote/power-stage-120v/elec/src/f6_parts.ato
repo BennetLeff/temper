@@ -1,0 +1,371 @@
+# D-33 selected parts. Manufacturer pin contracts and land-pattern status: native-21/ECO.md.
+
+component Bias10u:
+    designator_prefix = "C"
+    mpn = "UMK325AB7106KM-T"
+    manufacturer = "Taiyo Yuden"
+    footprint = "Capacitor_SMD:C_1210_3225Metric"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component BiasComparator:
+    designator_prefix = "U"
+    mpn = "LM339BIDR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+    signal p3 ~ pin 3
+    signal p4 ~ pin 4
+    signal p5 ~ pin 5
+    signal p6 ~ pin 6
+    signal p7 ~ pin 7
+    signal p8 ~ pin 8
+    signal p9 ~ pin 9
+    signal p10 ~ pin 10
+    signal p11 ~ pin 11
+    signal p12 ~ pin 12
+    signal p13 ~ pin 13
+    signal p14 ~ pin 14
+
+component BiasReference:
+    designator_prefix = "U"
+    mpn = "TL431AIDBZR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_TO_SOT_SMD:SOT-23"
+    signal K ~ pin 1
+    signal REF ~ pin 2
+    signal A ~ pin 3
+
+component BiasOpto:
+    designator_prefix = "U"
+    mpn = "VO617A-3X017T"
+    manufacturer = "Vishay"
+    footprint = "Package_DIP:SMDIP-4_W9.53mm"
+    signal A ~ pin 1
+    signal K ~ pin 2
+    signal E ~ pin 3
+    signal C ~ pin 4
+
+component BiasNpn:
+    designator_prefix = "Q"
+    mpn = "MMBT3904-7-F"
+    manufacturer = "Diodes Incorporated"
+    footprint = "Package_TO_SOT_SMD:SOT-23"
+    signal B ~ pin 1
+    signal E ~ pin 2
+    signal C ~ pin 3
+
+component BiasSilicon:
+    designator_prefix = "D"
+    mpn = "1N4148W-7-F"
+    manufacturer = "Diodes Incorporated"
+    footprint = "Diode_SMD:D_SOD-123"
+    signal K ~ pin 1
+    signal A ~ pin 2
+
+component GateDischarge:
+    designator_prefix = "D"
+    mpn = "PMEG6030EP,115"
+    manufacturer = "Nexperia"
+    footprint = "Diode_SMD:D_SOD-128"
+    signal K ~ pin 1
+    signal A ~ pin 2
+
+component Bias4k42:
+    designator_prefix = "R"
+    mpn = "RT0603BRD074K42L"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Bias7k62:
+    designator_prefix = "R"
+    mpn = "RT0603BRD077K62L"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Bias120k:
+    designator_prefix = "R"
+    mpn = "RT0603BRD07120KL"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Bias133k:
+    designator_prefix = "R"
+    mpn = "RT0603BRD07133KL"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Bias2k2:
+    designator_prefix = "R"
+    mpn = "RC1206FR-072K2L"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_1206_3216Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Bias2k7:
+    designator_prefix = "R"
+    mpn = "RC1206FR-072K7L"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_1206_3216Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Gate1R:
+    designator_prefix = "R"
+    mpn = "RC1206FR-071RL"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_1206_3216Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Bias6k12:
+    designator_prefix = "R"
+    mpn = "RT0603BRD076K12L"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Bias4k99:
+    designator_prefix = "R"
+    mpn = "RT0603BRD074K99L"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Bias18k2:
+    designator_prefix = "R"
+    mpn = "RT0603BRD0718K2L"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Bias30k1:
+    designator_prefix = "R"
+    mpn = "RT0603BRD0730K1L"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component BiasDamping:
+    designator_prefix = "R"
+    mpn = "RC1206FR-070R68L"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_1206_3216Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Bias680:
+    designator_prefix = "R"
+    mpn = "RC1206FR-07680RL"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_1206_3216Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Line16k5:
+    designator_prefix = "R"
+    mpn = "RC1206FR-0716K5L"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_1206_3216Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Line33k:
+    designator_prefix = "R"
+    mpn = "RC0603FR-0733KL"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Bias1u:
+    designator_prefix = "C"
+    mpn = "GRM188R71E105KA12D"
+    manufacturer = "Murata"
+    footprint = "Capacitor_SMD:C_0603_1608Metric"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Bias100n:
+    designator_prefix = "C"
+    mpn = "GRM155R71E104KE14D"
+    manufacturer = "Murata"
+    footprint = "Capacitor_SMD:C_0402_1005Metric"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Bias220u:
+    designator_prefix = "C"
+    mpn = "6SVPC220M"
+    manufacturer = "Panasonic"
+    footprint = "Capacitor_SMD:CP_Elec_6.3x5.9"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Bias4u7:
+    designator_prefix = "C"
+    mpn = "GRM31CR71H475KA12L"
+    manufacturer = "Murata"
+    footprint = "Capacitor_SMD:C_1206_3216Metric"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component HotSupply24:
+    designator_prefix = "PS"
+    mpn = "IRM-20-24"
+    manufacturer = "Mean Well"
+    footprint = "Converter_ACDC:Converter_ACDC_MeanWell_IRM-20-xx_THT"
+    signal ACL ~ pin 1
+    signal ACN ~ pin 2
+    signal VN ~ pin 3
+    signal VP ~ pin 4
+
+component NegativeShunt:
+    designator_prefix = "U"
+    mpn = "TLVH431BQDBZR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_TO_SOT_SMD:SOT-23"
+    signal REF ~ pin 1
+    signal K ~ pin 2
+    signal A ~ pin 3
+
+component SpanRegulator:
+    designator_prefix = "U"
+    mpn = "TPS7A4700RGWR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_DFN_QFN:Texas_RGW0020A_VQFN-20-1EP_5x5mm_P0.65mm_EP3.15x3.15mm"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+    signal p3 ~ pin 3
+    signal p4 ~ pin 4
+    signal p5 ~ pin 5
+    signal p6 ~ pin 6
+    signal p7 ~ pin 7
+    signal p8 ~ pin 8
+    signal p9 ~ pin 9
+    signal p10 ~ pin 10
+    signal p11 ~ pin 11
+    signal p12 ~ pin 12
+    signal p13 ~ pin 13
+    signal p14 ~ pin 14
+    signal p15 ~ pin 15
+    signal p16 ~ pin 16
+    signal p17 ~ pin 17
+    signal p18 ~ pin 18
+    signal p19 ~ pin 19
+    signal p20 ~ pin 20
+    signal p21 ~ pin 21
+
+component BiasPushPull:
+    designator_prefix = "U"
+    mpn = "SN6507DGQR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_SO:HVSSOP-10-1EP_3x3mm_P0.5mm_EP1.83x1.89mm"
+    signal SW1 ~ pin 1
+    signal GND1 ~ pin 2
+    signal VCC ~ pin 3
+    signal EN ~ pin 4
+    signal DC ~ pin 5
+    signal SR ~ pin 6
+    signal CLK ~ pin 7
+    signal SS ~ pin 8
+    signal GND2 ~ pin 9
+    signal SW2 ~ pin 10
+    signal EP ~ pin 11
+
+component BiasTransformer:
+    designator_prefix = "T"
+    mpn = "750320775"
+    manufacturer = "Wurth Elektronik"
+    footprint = "temper:WE_750320775_EP7HV_ReviewOnly"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+    signal p3 ~ pin 3
+    signal p4 ~ pin 4
+    signal p5 ~ pin 5
+    signal p6 ~ pin 6
+    signal p7 ~ pin 7
+    signal p8 ~ pin 8
+
+component BiasRectifier:
+    designator_prefix = "D"
+    mpn = "PMEG10030ELPX"
+    manufacturer = "Nexperia"
+    footprint = "Diode_SMD:D_SOD-128"
+    signal K ~ pin 1
+    signal A ~ pin 2
+
+component BiasFilter:
+    designator_prefix = "L"
+    mpn = "74404064101"
+    manufacturer = "Wurth Elektronik"
+    footprint = "temper:WE_74404064101_6x6_ReviewOnly"
+    value: inductance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component HotLdo:
+    designator_prefix = "U"
+    mpn = "TPS70950DBVR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    signal IN ~ pin 1
+    signal GND ~ pin 2
+    signal EN ~ pin 3
+    signal NC ~ pin 4
+    signal OUT ~ pin 5
+
+component DisOr:
+    designator_prefix = "U"
+    mpn = "SN74LVC1G32DBVR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    signal A ~ pin 1
+    signal B ~ pin 2
+    signal GND ~ pin 3
+    signal Y ~ pin 4
+    signal VCC ~ pin 5
+
+component LineOpto:
+    designator_prefix = "U"
+    mpn = "VOL628A-3X001T"
+    manufacturer = "Vishay"
+    footprint = "temper:VOL628A_LSOP4_ReviewOnly"
+    signal AC1 ~ pin 1
+    signal AC2 ~ pin 2
+    signal E ~ pin 3
+    signal C ~ pin 4

@@ -1,0 +1,3074 @@
+[
+  {
+    "name": "periodic-0-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.634021,
+      "negmin": -2.297424,
+      "shuntmin": 7.318348e-10,
+      "shuntmax": 0.007702745,
+      "negmax": -1.907579
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-0-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.650657,
+      "negmin": -2.297424,
+      "shuntmin": 0.0003064495,
+      "shuntmax": 0.006380111,
+      "negmax": -1.923688
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-1-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.641884,
+      "negmin": -2.299203,
+      "shuntmin": 0.001231011,
+      "shuntmax": 0.01006389,
+      "negmax": -1.915445
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-1-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.652489,
+      "negmin": -2.299203,
+      "shuntmin": 0.002480601,
+      "shuntmax": 0.008737783,
+      "negmax": -1.92553
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-2-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.634035,
+      "negmin": -2.297424,
+      "shuntmin": 9.383914e-10,
+      "shuntmax": 0.007699208,
+      "negmax": -1.907584
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-2-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.65067,
+      "negmin": -2.297424,
+      "shuntmin": 0.0003386165,
+      "shuntmax": 0.006351754,
+      "negmax": -1.923694
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-3-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.64189,
+      "negmin": -2.299203,
+      "shuntmin": 0.00124172,
+      "shuntmax": 0.01005568,
+      "negmax": -1.915452
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-3-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.652497,
+      "negmin": -2.299203,
+      "shuntmin": 0.002513101,
+      "shuntmax": 0.008706442,
+      "negmax": -1.925532
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-4-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.639919,
+      "negmin": -2.297424,
+      "shuntmin": 0.0009614443,
+      "shuntmax": 0.003717483,
+      "negmax": -1.913469
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-4-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.650347,
+      "negmin": -2.297424,
+      "shuntmin": 0.00128881,
+      "shuntmax": 0.003381337,
+      "negmax": -1.923397
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-5-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.641965,
+      "negmin": -2.299203,
+      "shuntmin": 0.003174697,
+      "shuntmax": 0.006190587,
+      "negmax": -1.915529
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-5-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.652294,
+      "negmin": -2.299203,
+      "shuntmin": 0.00347967,
+      "shuntmax": 0.005847642,
+      "negmax": -1.925327
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-6-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.639929,
+      "negmin": -2.297424,
+      "shuntmin": 0.0009647165,
+      "shuntmax": 0.003714271,
+      "negmax": -1.913504
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-6-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.650352,
+      "negmin": -2.297424,
+      "shuntmin": 0.001296929,
+      "shuntmax": 0.003373315,
+      "negmax": -1.923408
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-7-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.641967,
+      "negmin": -2.299203,
+      "shuntmin": 0.003178405,
+      "shuntmax": 0.006187055,
+      "negmax": -1.915519
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-7-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.652293,
+      "negmin": -2.299203,
+      "shuntmin": 0.003487453,
+      "shuntmax": 0.005839634,
+      "negmax": -1.925329
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-8-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.615355,
+      "negmin": -2.296311,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.02196385,
+      "negmax": -1.889025
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-8-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.630171,
+      "negmin": -2.296311,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.01793186,
+      "negmax": -1.903228
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-9-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.623807,
+      "negmin": -2.296757,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.02629717,
+      "negmax": -1.89749
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-9-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.643307,
+      "negmin": -2.296757,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.02105593,
+      "negmax": -1.916323
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-10-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.615322,
+      "negmin": -2.296311,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.0220223,
+      "negmax": -1.888982
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-10-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.630164,
+      "negmin": -2.296311,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.01780534,
+      "negmax": -1.903236
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-11-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.623832,
+      "negmin": -2.296757,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.02631782,
+      "negmax": -1.89743
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-11-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.643341,
+      "negmin": -2.296757,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.02096317,
+      "negmax": -1.916346
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-12-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.632552,
+      "negmin": -2.296311,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.008264667,
+      "negmax": -1.906145
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-12-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.648689,
+      "negmin": -2.296311,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.006840108,
+      "negmax": -1.921701
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-13-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.638846,
+      "negmin": -2.296757,
+      "shuntmin": 0.0006372154,
+      "shuntmax": 0.01082504,
+      "negmax": -1.912458
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-13-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.649516,
+      "negmin": -2.296757,
+      "shuntmin": 0.001948651,
+      "shuntmax": 0.009470029,
+      "negmax": -1.92251
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-14-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.632565,
+      "negmin": -2.296311,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.008255875,
+      "negmax": -1.906122
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-14-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.648705,
+      "negmin": -2.296311,
+      "shuntmin": 5.811304e-06,
+      "shuntmax": 0.006808174,
+      "negmax": -1.921734
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-15-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.638885,
+      "negmin": -2.296757,
+      "shuntmin": 0.0006490801,
+      "shuntmax": 0.01081395,
+      "negmax": -1.912423
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-15-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.649492,
+      "negmin": -2.296757,
+      "shuntmin": 0.001982491,
+      "shuntmax": 0.00943841,
+      "negmax": -1.922526
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-16-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.636421,
+      "negmin": -2.297875,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.009515192,
+      "negmax": -1.907261
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-16-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.653611,
+      "negmin": -2.297875,
+      "shuntmin": 0.0002104896,
+      "shuntmax": 0.007601979,
+      "negmax": -1.924154
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-17-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.647641,
+      "negmin": -2.299654,
+      "shuntmin": 0.0006675831,
+      "shuntmax": 0.01193776,
+      "negmax": -1.918493
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-17-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.656759,
+      "negmin": -2.299654,
+      "shuntmin": 0.002385349,
+      "shuntmax": 0.01003773,
+      "negmax": -1.92735
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-18-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.636418,
+      "negmin": -2.297875,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.009503356,
+      "negmax": -1.907246
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-18-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.653623,
+      "negmin": -2.297875,
+      "shuntmin": 0.0002506881,
+      "shuntmax": 0.007566455,
+      "negmax": -1.92417
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-19-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.647652,
+      "negmin": -2.299654,
+      "shuntmin": 0.0006887805,
+      "shuntmax": 0.01191882,
+      "negmax": -1.9185
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-19-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.656768,
+      "negmin": -2.299654,
+      "shuntmin": 0.002425746,
+      "shuntmax": 0.009997357,
+      "negmax": -1.927352
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-20-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.645775,
+      "negmin": -2.297875,
+      "shuntmin": 0.0009045499,
+      "shuntmax": 0.004148441,
+      "negmax": -1.916602
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-20-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.654687,
+      "negmin": -2.297875,
+      "shuntmin": 0.001344807,
+      "shuntmax": 0.003696766,
+      "negmax": -1.925284
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-21-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.647812,
+      "negmin": -2.299654,
+      "shuntmin": 0.003107094,
+      "shuntmax": 0.006477489,
+      "negmax": -1.918689
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-21-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.656633,
+      "negmin": -2.299654,
+      "shuntmin": 0.003524048,
+      "shuntmax": 0.006028011,
+      "negmax": -1.927231
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-22-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.645758,
+      "negmin": -2.297875,
+      "shuntmin": 0.0009106843,
+      "shuntmax": 0.004142863,
+      "negmax": -1.916629
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-22-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.654704,
+      "negmin": -2.297875,
+      "shuntmin": 0.001355418,
+      "shuntmax": 0.003686892,
+      "negmax": -1.925276
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-23-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.647819,
+      "negmin": -2.299654,
+      "shuntmin": 0.003113097,
+      "shuntmax": 0.006471333,
+      "negmax": -1.918692
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-23-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.656655,
+      "negmin": -2.299654,
+      "shuntmin": 0.003534374,
+      "shuntmax": 0.006017939,
+      "negmax": -1.927237
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-24-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.617391,
+      "negmin": -2.296762,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.02769827,
+      "negmax": -1.888378
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-24-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.633401,
+      "negmin": -2.296762,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.02054168,
+      "negmax": -1.904046
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-25-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.625901,
+      "negmin": -2.297208,
+      "shuntmin": 1.462388e-10,
+      "shuntmax": 0.03307105,
+      "negmax": -1.896824
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-25-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.646455,
+      "negmin": -2.297208,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.02535121,
+      "negmax": -1.917007
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-26-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.617368,
+      "negmin": -2.296763,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.02779242,
+      "negmax": -1.888341
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-26-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.633469,
+      "negmin": -2.296763,
+      "shuntmin": 3.2392e-10,
+      "shuntmax": 0.02036637,
+      "negmax": -1.904039
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-27-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.625913,
+      "negmin": -2.297208,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.03307715,
+      "negmax": -1.896784
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-27-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.646459,
+      "negmin": -2.297208,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.02524273,
+      "negmax": -1.917015
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-28-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.635158,
+      "negmin": -2.296763,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.01019557,
+      "negmax": -1.905977
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-28-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.651231,
+      "negmin": -2.296763,
+      "shuntmin": 5.940268e-05,
+      "shuntmax": 0.008176027,
+      "negmax": -1.921803
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-29-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.644314,
+      "negmin": -2.297208,
+      "shuntmin": 0.0003652487,
+      "shuntmax": 0.01263787,
+      "negmax": -1.915122
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-29-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.653393,
+      "negmin": -2.297208,
+      "shuntmin": 0.002139001,
+      "shuntmax": 0.01099651,
+      "negmax": -1.923955
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-30-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.635159,
+      "negmin": -2.296763,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.01017719,
+      "negmax": -1.906019
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-30-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.6512,
+      "negmin": -2.296763,
+      "shuntmin": 0.000100645,
+      "shuntmax": 0.008136391,
+      "negmax": -1.921772
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-31-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.64428,
+      "negmin": -2.297208,
+      "shuntmin": 0.0003906964,
+      "shuntmax": 0.01261162,
+      "negmax": -1.91517
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-31-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.6534,
+      "negmin": -2.297208,
+      "shuntmin": 0.00218002,
+      "shuntmax": 0.01095836,
+      "negmax": -1.923961
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-32-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.640127,
+      "negmin": -2.297,
+      "shuntmin": 0.00028988,
+      "shuntmax": 0.005808477,
+      "negmax": -1.943723
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-32-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.642871,
+      "negmin": -2.297,
+      "shuntmin": 0.001060691,
+      "shuntmax": 0.005106221,
+      "negmax": -1.946409
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-33-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.641989,
+      "negmin": -2.298779,
+      "shuntmin": 0.002487449,
+      "shuntmax": 0.008222158,
+      "negmax": -1.945591
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-33-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.644647,
+      "negmin": -2.298779,
+      "shuntmin": 0.003232979,
+      "shuntmax": 0.007474679,
+      "negmax": -1.948181
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-34-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.640136,
+      "negmin": -2.297,
+      "shuntmin": 0.0003018823,
+      "shuntmax": 0.005795178,
+      "negmax": -1.943724
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-34-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.642874,
+      "negmin": -2.297,
+      "shuntmin": 0.001079004,
+      "shuntmax": 0.005089576,
+      "negmax": -1.94641
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-35-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.641999,
+      "negmin": -2.298779,
+      "shuntmin": 0.002499661,
+      "shuntmax": 0.008212015,
+      "negmax": -1.945585
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-35-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.644645,
+      "negmin": -2.298779,
+      "shuntmin": 0.003251154,
+      "shuntmax": 0.007457897,
+      "negmax": -1.948181
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-36-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.639871,
+      "negmin": -2.297,
+      "shuntmin": 0.001284718,
+      "shuntmax": 0.003339882,
+      "negmax": -1.943482
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-36-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.642493,
+      "negmin": -2.297,
+      "shuntmin": 0.001475539,
+      "shuntmax": 0.00313826,
+      "negmax": -1.946034
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-37-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.641828,
+      "negmin": -2.298779,
+      "shuntmin": 0.003508727,
+      "shuntmax": 0.005789527,
+      "negmax": -1.945438
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-37-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.644421,
+      "negmin": -2.298779,
+      "shuntmin": 0.003677789,
+      "shuntmax": 0.005582092,
+      "negmax": -1.947954
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-38-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.639899,
+      "negmin": -2.297,
+      "shuntmin": 0.001287946,
+      "shuntmax": 0.003336724,
+      "negmax": -1.943476
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-38-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.642495,
+      "negmin": -2.297,
+      "shuntmin": 0.001480143,
+      "shuntmax": 0.003133829,
+      "negmax": -1.946035
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-39-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.641828,
+      "negmin": -2.29878,
+      "shuntmin": 0.003512334,
+      "shuntmax": 0.005786255,
+      "negmax": -1.945427
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-39-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.644424,
+      "negmin": -2.29878,
+      "shuntmin": 0.003682402,
+      "shuntmax": 0.005577727,
+      "negmax": -1.947952
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-40-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.630115,
+      "negmin": -2.295888,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.01648615,
+      "negmax": -1.933744
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-40-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.637324,
+      "negmin": -2.295888,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.01288303,
+      "negmax": -1.940896
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-41-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.636243,
+      "negmin": -2.296334,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.01950187,
+      "negmax": -1.939834
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-41-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.641514,
+      "negmin": -2.296334,
+      "shuntmin": 0.0009222147,
+      "shuntmax": 0.01599814,
+      "negmax": -1.945028
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-42-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.630094,
+      "negmin": -2.295888,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.01647281,
+      "negmax": -1.933724
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-42-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.637336,
+      "negmin": -2.295888,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.01282919,
+      "negmax": -1.940907
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-43-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.636236,
+      "negmin": -2.296334,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.01946257,
+      "negmax": -1.939847
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-43-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.641493,
+      "negmin": -2.296334,
+      "shuntmin": 0.0009949549,
+      "shuntmax": 0.01594468,
+      "negmax": -1.945031
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-44-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.638206,
+      "negmin": -2.295888,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.006593867,
+      "negmax": -1.941754
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-44-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.640913,
+      "negmin": -2.295888,
+      "shuntmin": 0.0006437439,
+      "shuntmax": 0.005778515,
+      "negmax": -1.944454
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-45-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.639012,
+      "negmin": -2.296334,
+      "shuntmin": 0.001890246,
+      "shuntmax": 0.009311819,
+      "negmax": -1.94258
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-45-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.641633,
+      "negmin": -2.296334,
+      "shuntmin": 0.002655333,
+      "shuntmax": 0.00850149,
+      "negmax": -1.945179
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-46-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.638208,
+      "negmin": -2.295888,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.006583901,
+      "negmax": -1.941767
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-46-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.640907,
+      "negmin": -2.670555,
+      "shuntmin": 0.0006612129,
+      "shuntmax": 0.005762157,
+      "negmax": -1.944435
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-47-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.638969,
+      "negmin": -2.296334,
+      "shuntmin": 0.001903267,
+      "shuntmax": 0.009300177,
+      "negmax": -1.942584
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-47-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.641662,
+      "negmin": -2.296334,
+      "shuntmin": 0.002673726,
+      "shuntmax": 0.008484147,
+      "negmax": -1.945179
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-48-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.641137,
+      "negmin": -2.297451,
+      "shuntmin": 0.0001760847,
+      "shuntmax": 0.006474881,
+      "negmax": -1.943989
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-48-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.643006,
+      "negmin": -2.297451,
+      "shuntmin": 0.001031759,
+      "shuntmax": 0.005793208,
+      "negmax": -1.945854
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-49-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.643507,
+      "negmin": -2.29923,
+      "shuntmin": 0.002375412,
+      "shuntmax": 0.009128202,
+      "negmax": -1.946382
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-49-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.64536,
+      "negmin": -2.29923,
+      "shuntmin": 0.003204715,
+      "shuntmax": 0.008289828,
+      "negmax": -1.948214
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-50-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.641162,
+      "negmin": -2.297451,
+      "shuntmin": 0.0001913621,
+      "shuntmax": 0.006465751,
+      "negmax": -1.944001
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-50-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.643044,
+      "negmin": -2.297451,
+      "shuntmin": 0.001052147,
+      "shuntmax": 0.005774722,
+      "negmax": -1.945887
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-51-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.643509,
+      "negmin": -2.29923,
+      "shuntmin": 0.002390938,
+      "shuntmax": 0.00911581,
+      "negmax": -1.946387
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-51-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.645361,
+      "negmin": -2.29923,
+      "shuntmin": 0.003224586,
+      "shuntmax": 0.008271407,
+      "negmax": -1.948214
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-52-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.641444,
+      "negmin": -2.297451,
+      "shuntmin": 0.001328976,
+      "shuntmax": 0.003576694,
+      "negmax": -1.944308
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-52-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.643259,
+      "negmin": -2.297451,
+      "shuntmin": 0.001539587,
+      "shuntmax": 0.003354991,
+      "negmax": -1.946116
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-53-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.64344,
+      "negmin": -2.29923,
+      "shuntmin": 0.003539525,
+      "shuntmax": 0.005944486,
+      "negmax": -1.946288
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-53-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.645221,
+      "negmin": -2.29923,
+      "shuntmin": 0.003729197,
+      "shuntmax": 0.005721194,
+      "negmax": -1.948065
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-54-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.641438,
+      "negmin": -2.297451,
+      "shuntmin": 0.001333254,
+      "shuntmax": 0.003572733,
+      "negmax": -1.9443
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-54-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.643272,
+      "negmin": -2.297451,
+      "shuntmin": 0.001545145,
+      "shuntmax": 0.003349882,
+      "negmax": -1.946115
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-55-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.643415,
+      "negmin": -2.29923,
+      "shuntmin": 0.003543948,
+      "shuntmax": 0.005940428,
+      "negmax": -1.946303
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-55-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.64522,
+      "negmin": -2.29923,
+      "shuntmin": 0.003734233,
+      "shuntmax": 0.005716076,
+      "negmax": -1.948077
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-56-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.631018,
+      "negmin": -2.296338,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.01878808,
+      "negmax": -1.933925
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-56-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.637641,
+      "negmin": -2.296338,
+      "shuntmin": 9.673193e-10,
+      "shuntmax": 0.01458171,
+      "negmax": -1.940539
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-57-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.637138,
+      "negmin": -2.296784,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.02196468,
+      "negmax": -1.940001
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-57-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.641038,
+      "negmin": -2.296784,
+      "shuntmin": 0.0004385451,
+      "shuntmax": 0.01835141,
+      "negmax": -1.943889
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-58-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.631013,
+      "negmin": -2.296338,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.01876354,
+      "negmax": -1.933914
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-58-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.637659,
+      "negmin": -2.296338,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.01452153,
+      "negmax": -1.940526
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-59-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.637135,
+      "negmin": -2.296784,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.02190772,
+      "negmax": -1.94
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-59-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.641036,
+      "negmin": -2.296784,
+      "shuntmin": 0.0005068203,
+      "shuntmax": 0.0182958,
+      "negmax": -1.943881
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-60-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.63867,
+      "negmin": -2.296338,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.007531615,
+      "negmax": -1.941553
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-60-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.640626,
+      "negmin": -2.296338,
+      "shuntmin": 0.0007421559,
+      "shuntmax": 0.006636236,
+      "negmax": -1.943465
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-61-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.640255,
+      "negmin": -2.296784,
+      "shuntmin": 0.002039881,
+      "shuntmax": 0.01032868,
+      "negmax": -1.943084
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-61-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.642073,
+      "negmin": -2.296784,
+      "shuntmin": 0.002885416,
+      "shuntmax": 0.00947008,
+      "negmax": -1.944947
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-62-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.638696,
+      "negmin": -2.296339,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.007520653,
+      "negmax": -1.941535
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-62-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.640584,
+      "negmin": -2.296339,
+      "shuntmin": 0.0007615509,
+      "shuntmax": 0.006619577,
+      "negmax": -1.943467
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-63-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.640229,
+      "negmin": -2.296784,
+      "shuntmin": 0.002056141,
+      "shuntmax": 0.0103128,
+      "negmax": -1.943106
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-63-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.642106,
+      "negmin": -2.296784,
+      "shuntmin": 0.002906812,
+      "shuntmax": 0.009451291,
+      "negmax": -1.944941
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-64-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.634672,
+      "negmin": -2.297424,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.00753507,
+      "negmax": -1.908249
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-64-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.650077,
+      "negmin": -2.297424,
+      "shuntmin": 0.0003042645,
+      "shuntmax": 0.006219634,
+      "negmax": -1.923055
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-65-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.641377,
+      "negmin": -2.299203,
+      "shuntmin": 0.001224924,
+      "shuntmax": 0.009893259,
+      "negmax": -1.914927
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-65-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.652396,
+      "negmin": -2.299203,
+      "shuntmin": 0.00248094,
+      "shuntmax": 0.008572065,
+      "negmax": -1.925429
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-66-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.634694,
+      "negmin": -2.297424,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.007533897,
+      "negmax": -1.908194
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-66-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.650075,
+      "negmin": -2.297424,
+      "shuntmin": 0.0003362977,
+      "shuntmax": 0.006192557,
+      "negmax": -1.923139
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-67-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.641391,
+      "negmin": -2.299203,
+      "shuntmin": 0.001234315,
+      "shuntmax": 0.009887585,
+      "negmax": -1.914933
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-67-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.652403,
+      "negmin": -2.299203,
+      "shuntmin": 0.002513431,
+      "shuntmax": 0.008542264,
+      "negmax": -1.925432
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-68-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.639789,
+      "negmin": -2.297424,
+      "shuntmin": 0.001105453,
+      "shuntmax": 0.003465777,
+      "negmax": -1.913353
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-68-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.650647,
+      "negmin": -2.297424,
+      "shuntmin": 0.001435364,
+      "shuntmax": 0.003138965,
+      "negmax": -1.923683
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-69-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.641714,
+      "negmin": -2.299203,
+      "shuntmin": 0.003309174,
+      "shuntmax": 0.005716832,
+      "negmax": -1.915268
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-69-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.652455,
+      "negmin": -2.299203,
+      "shuntmin": 0.003617732,
+      "shuntmax": 0.005379201,
+      "negmax": -1.925493
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-70-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.639801,
+      "negmin": -2.297424,
+      "shuntmin": 0.00110875,
+      "shuntmax": 0.003462262,
+      "negmax": -1.91336
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-70-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.65065,
+      "negmin": -2.297424,
+      "shuntmin": 0.001443831,
+      "shuntmax": 0.003130685,
+      "negmax": -1.92368
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-71-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.641698,
+      "negmin": -2.299203,
+      "shuntmin": 0.003312538,
+      "shuntmax": 0.005713499,
+      "negmax": -1.91527
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-71-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.652455,
+      "negmin": -2.299203,
+      "shuntmin": 0.003625934,
+      "shuntmax": 0.005370936,
+      "negmax": -1.925494
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-72-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.615805,
+      "negmin": -2.296311,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.021498,
+      "negmax": -1.889529
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-72-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.632814,
+      "negmin": -2.296311,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.01783717,
+      "negmax": -1.905863
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-73-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.625123,
+      "negmin": -2.296757,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.02564947,
+      "negmax": -1.898743
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-73-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.644521,
+      "negmin": -2.296757,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.02045374,
+      "negmax": -1.917525
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-74-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.615777,
+      "negmin": -2.296311,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.02155337,
+      "negmax": -1.889451
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-74-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.632849,
+      "negmin": -2.296311,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.0177141,
+      "negmax": -1.905836
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-75-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.625091,
+      "negmin": -2.296757,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.02567841,
+      "negmax": -1.898737
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-75-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.644557,
+      "negmin": -2.296757,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.02036491,
+      "negmax": -1.917546
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-76-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.633111,
+      "negmin": -2.296311,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.008089549,
+      "negmax": -1.906657
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-76-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.648423,
+      "negmin": -2.296311,
+      "shuntmin": 0.0002517716,
+      "shuntmax": 0.006669169,
+      "negmax": -1.921451
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-77-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.638776,
+      "negmin": -2.296757,
+      "shuntmin": 0.001086686,
+      "shuntmax": 0.01046286,
+      "negmax": -1.912313
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-77-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.64978,
+      "negmin": -2.296757,
+      "shuntmin": 0.002410024,
+      "shuntmax": 0.009052199,
+      "negmax": -1.922796
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-78-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.633113,
+      "negmin": -2.296311,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.008083255,
+      "negmax": -1.906638
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-78-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.648442,
+      "negmin": -2.296311,
+      "shuntmin": 0.000284903,
+      "shuntmax": 0.006638655,
+      "negmax": -1.921498
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-79-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.638744,
+      "negmin": -2.296757,
+      "shuntmin": 0.001099572,
+      "shuntmax": 0.01045145,
+      "negmax": -1.912323
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-79-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.649786,
+      "negmin": -2.296757,
+      "shuntmin": 0.002443849,
+      "shuntmax": 0.009021122,
+      "negmax": -1.922803
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-80-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.638037,
+      "negmin": -2.297875,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.009425069,
+      "negmax": -1.90889
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-80-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.652989,
+      "negmin": -2.297875,
+      "shuntmin": 0.000209931,
+      "shuntmax": 0.007506743,
+      "negmax": -1.92355
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-81-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.646854,
+      "negmin": -2.299654,
+      "shuntmin": 0.0006620933,
+      "shuntmax": 0.01184601,
+      "negmax": -1.917633
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-81-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.65609,
+      "negmin": -2.299654,
+      "shuntmin": 0.002389341,
+      "shuntmax": 0.009939357,
+      "negmax": -1.926688
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-82-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.638061,
+      "negmin": -2.297875,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.009414641,
+      "negmax": -1.908901
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-82-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.652996,
+      "negmin": -2.297875,
+      "shuntmin": 0.0002501666,
+      "shuntmax": 0.007472096,
+      "negmax": -1.923567
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-83-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.646855,
+      "negmin": -2.299654,
+      "shuntmin": 0.0006826199,
+      "shuntmax": 0.01182854,
+      "negmax": -1.917684
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-83-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.656126,
+      "negmin": -2.299654,
+      "shuntmin": 0.002429547,
+      "shuntmax": 0.009899944,
+      "negmax": -1.926755
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-84-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.645544,
+      "negmin": -2.297875,
+      "shuntmin": 0.0009808194,
+      "shuntmax": 0.004017595,
+      "negmax": -1.916408
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-84-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.654652,
+      "negmin": -2.297875,
+      "shuntmin": 0.001424089,
+      "shuntmax": 0.003596684,
+      "negmax": -1.925224
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-85-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.647803,
+      "negmin": -2.299654,
+      "shuntmin": 0.003176581,
+      "shuntmax": 0.006311379,
+      "negmax": -1.918663
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-85-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.656788,
+      "negmin": -2.299654,
+      "shuntmin": 0.003597541,
+      "shuntmax": 0.005865323,
+      "negmax": -1.927379
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-86-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.645577,
+      "negmin": -2.297875,
+      "shuntmin": 0.0009870981,
+      "shuntmax": 0.004012408,
+      "negmax": -1.916426
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-86-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.654674,
+      "negmin": -2.297875,
+      "shuntmin": 0.00143439,
+      "shuntmax": 0.003586488,
+      "negmax": -1.925221
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-87-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.647809,
+      "negmin": -2.299654,
+      "shuntmin": 0.003182883,
+      "shuntmax": 0.006305531,
+      "negmax": -1.918666
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-87-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.656789,
+      "negmin": -2.299654,
+      "shuntmin": 0.003607839,
+      "shuntmax": 0.00585519,
+      "negmax": -1.92738
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-88-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.618326,
+      "negmin": -2.296762,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.02739266,
+      "negmax": -1.889369
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-88-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.636271,
+      "negmin": -2.296762,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.02049887,
+      "negmax": -1.906868
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-89-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.627894,
+      "negmin": -2.297208,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.03272335,
+      "negmax": -1.898812
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-89-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.647926,
+      "negmin": -2.297208,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.02499456,
+      "negmax": -1.918525
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-90-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.618335,
+      "negmin": -2.296763,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.02748435,
+      "negmax": -1.889354
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-90-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.636316,
+      "negmin": -2.296763,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.0203251,
+      "negmax": -1.906838
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-91-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.627894,
+      "negmin": -2.297208,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.03273439,
+      "negmax": -1.898775
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-91-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.647985,
+      "negmin": -2.297208,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.02488872,
+      "negmax": -1.91853
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-92-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.636586,
+      "negmin": -2.296763,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.01010171,
+      "negmax": -1.907438
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-92-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.65083,
+      "negmin": -2.296763,
+      "shuntmin": 0.0002015741,
+      "shuntmax": 0.008075173,
+      "negmax": -1.921349
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-93-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.643683,
+      "negmin": -2.297208,
+      "shuntmin": 0.0005924168,
+      "shuntmax": 0.01254228,
+      "negmax": -1.914472
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-93-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.652896,
+      "negmin": -2.297208,
+      "shuntmin": 0.002377396,
+      "shuntmax": 0.01074329,
+      "negmax": -1.923447
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-94-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.636627,
+      "negmin": -2.296763,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.01008476,
+      "negmax": -1.90743
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-94-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.650806,
+      "negmin": -2.296763,
+      "shuntmin": 0.0002431972,
+      "shuntmax": 0.008036476,
+      "negmax": -1.921364
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-95-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.643696,
+      "negmin": -2.297208,
+      "shuntmin": 0.0006166692,
+      "shuntmax": 0.01251755,
+      "negmax": -1.914481
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-95-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.652853,
+      "negmin": -2.297208,
+      "shuntmin": 0.002419377,
+      "shuntmax": 0.01070627,
+      "negmax": -1.923448
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-96-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.639861,
+      "negmin": -2.297,
+      "shuntmin": 0.0002851264,
+      "shuntmax": 0.005750514,
+      "negmax": -1.943411
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-96-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.642668,
+      "negmin": -2.297,
+      "shuntmin": 0.0010604,
+      "shuntmax": 0.004952651,
+      "negmax": -1.946212
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-97-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.641888,
+      "negmin": -2.298779,
+      "shuntmin": 0.0024855,
+      "shuntmax": 0.008010073,
+      "negmax": -1.945481
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-97-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.644623,
+      "negmin": -2.298779,
+      "shuntmin": 0.003235489,
+      "shuntmax": 0.007300016,
+      "negmax": -1.948163
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-98-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.639859,
+      "negmin": -2.297,
+      "shuntmin": 0.0002968274,
+      "shuntmax": 0.005738161,
+      "negmax": -1.943448
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-98-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.642699,
+      "negmin": -2.297,
+      "shuntmin": 0.001078812,
+      "shuntmax": 0.004936861,
+      "negmax": -1.946232
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-99-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.641888,
+      "negmin": -2.298779,
+      "shuntmin": 0.002497478,
+      "shuntmax": 0.007995954,
+      "negmax": -1.945484
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-99-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.64462,
+      "negmin": -2.298779,
+      "shuntmin": 0.003254186,
+      "shuntmax": 0.007282569,
+      "negmax": -1.948159
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-100-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.640131,
+      "negmin": -2.297,
+      "shuntmin": 0.001431355,
+      "shuntmax": 0.003090163,
+      "negmax": -1.943732
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-100-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.642838,
+      "negmin": -2.297,
+      "shuntmin": 0.001624105,
+      "shuntmax": 0.002894063,
+      "negmax": -1.946379
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-101-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.641951,
+      "negmin": -2.298779,
+      "shuntmin": 0.003635483,
+      "shuntmax": 0.005354227,
+      "negmax": -1.945546
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-101-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.644636,
+      "negmin": -2.298779,
+      "shuntmin": 0.003807156,
+      "shuntmax": 0.005153327,
+      "negmax": -1.948171
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-102-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.640133,
+      "negmin": -2.297,
+      "shuntmin": 0.00143472,
+      "shuntmax": 0.003087004,
+      "negmax": -1.943717
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-102-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.639989,
+      "negmin": -2.297,
+      "shuntmin": 0.00162891,
+      "shuntmax": 0.002889575,
+      "negmax": -1.946375
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-103-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.641952,
+      "negmin": -2.298779,
+      "shuntmin": 0.003639048,
+      "shuntmax": 0.005350884,
+      "negmax": -1.945547
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-103-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.644635,
+      "negmin": -2.298779,
+      "shuntmin": 0.003811914,
+      "shuntmax": 0.005148601,
+      "negmax": -1.94817
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-104-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.630227,
+      "negmin": -2.295888,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.01626703,
+      "negmax": -1.933895
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-104-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.637691,
+      "negmin": -2.295888,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.0126557,
+      "negmax": -1.941269
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-105-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.636296,
+      "negmin": -2.296334,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.01927431,
+      "negmax": -1.939913
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-105-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.641181,
+      "negmin": -2.296334,
+      "shuntmin": 0.0009213926,
+      "shuntmax": 0.01570564,
+      "negmax": -1.944715
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-106-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.630281,
+      "negmin": -2.295888,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.0162568,
+      "negmax": -1.933888
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-106-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.637717,
+      "negmin": -2.295888,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.01260382,
+      "negmax": -1.941259
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-107-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.636313,
+      "negmin": -2.296334,
+      "shuntmin": 5.018395e-10,
+      "shuntmax": 0.01923858,
+      "negmax": -1.939915
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-107-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.641188,
+      "negmin": -2.296334,
+      "shuntmin": 0.000994256,
+      "shuntmax": 0.01563607,
+      "negmax": -1.944716
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-108-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.638115,
+      "negmin": -2.295888,
+      "shuntmin": 0.00020234,
+      "shuntmax": 0.006249659,
+      "negmax": -1.941702
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-108-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.640922,
+      "negmin": -2.295888,
+      "shuntmin": 0.001001658,
+      "shuntmax": 0.005489715,
+      "negmax": -1.944463
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-109-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.639253,
+      "negmin": -2.296334,
+      "shuntmin": 0.002388458,
+      "shuntmax": 0.008833839,
+      "negmax": -1.942833
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-109-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.64201,
+      "negmin": -2.296334,
+      "shuntmin": 0.003160852,
+      "shuntmax": 0.008005416,
+      "negmax": -1.945532
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-110-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.638122,
+      "negmin": -2.295888,
+      "shuntmin": 0.0002157894,
+      "shuntmax": 0.006240512,
+      "negmax": -1.94172
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-110-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.640902,
+      "negmin": -2.295888,
+      "shuntmin": 0.00102036,
+      "shuntmax": 0.00547407,
+      "negmax": -1.944441
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-111-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.639257,
+      "negmin": -2.296334,
+      "shuntmin": 0.002401546,
+      "shuntmax": 0.008821837,
+      "negmax": -1.94286
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-111-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.642007,
+      "negmin": -2.296334,
+      "shuntmin": 0.00317972,
+      "shuntmax": 0.00798711,
+      "negmax": -1.945523
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-112-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.640691,
+      "negmin": -2.297451,
+      "shuntmin": 0.0001740224,
+      "shuntmax": 0.006418316,
+      "negmax": -1.943542
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-112-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.642641,
+      "negmin": -2.297451,
+      "shuntmin": 0.001032517,
+      "shuntmax": 0.005709717,
+      "negmax": -1.945497
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-113-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.643362,
+      "negmin": -2.29923,
+      "shuntmin": 0.002377763,
+      "shuntmax": 0.008928247,
+      "negmax": -1.946249
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-113-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.645267,
+      "negmin": -2.29923,
+      "shuntmin": 0.00320899,
+      "shuntmax": 0.008127847,
+      "negmax": -1.9481
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-114-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.640691,
+      "negmin": -2.297451,
+      "shuntmin": 0.0001893151,
+      "shuntmax": 0.006400167,
+      "negmax": -1.943559
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-114-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.642668,
+      "negmin": -2.297451,
+      "shuntmin": 0.00105255,
+      "shuntmax": 0.00569172,
+      "negmax": -1.945496
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-115-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.643353,
+      "negmin": -2.29923,
+      "shuntmin": 0.002393453,
+      "shuntmax": 0.008916575,
+      "negmax": -1.946225
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-115-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.64525,
+      "negmin": -2.29923,
+      "shuntmin": 0.003229811,
+      "shuntmax": 0.008110289,
+      "negmax": -1.948105
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-116-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.641514,
+      "negmin": -2.297451,
+      "shuntmin": 0.00141722,
+      "shuntmax": 0.003440975,
+      "negmax": -1.944367
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-116-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.643347,
+      "negmin": -2.297451,
+      "shuntmin": 0.001629553,
+      "shuntmax": 0.003232439,
+      "negmax": -1.946195
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-117-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.643541,
+      "negmin": -2.29923,
+      "shuntmin": 0.003611916,
+      "shuntmax": 0.005742363,
+      "negmax": -1.946412
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-117-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.645372,
+      "negmin": -2.29923,
+      "shuntmin": 0.003802588,
+      "shuntmax": 0.005519207,
+      "negmax": -1.948224
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-118-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.641477,
+      "negmin": -2.297451,
+      "shuntmin": 0.001421816,
+      "shuntmax": 0.003437254,
+      "negmax": -1.944346
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-118-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.64337,
+      "negmin": -2.297451,
+      "shuntmin": 0.001634779,
+      "shuntmax": 0.003227471,
+      "negmax": -1.94619
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-119-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.643535,
+      "negmin": -2.29923,
+      "shuntmin": 0.003616499,
+      "shuntmax": 0.005738212,
+      "negmax": -1.946413
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-119-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.645369,
+      "negmin": -2.29923,
+      "shuntmin": 0.003807906,
+      "shuntmax": 0.005514173,
+      "negmax": -1.948223
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-120-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.631317,
+      "negmin": -2.296338,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.01868746,
+      "negmax": -1.934226
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-120-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.638088,
+      "negmin": -2.296338,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.01447132,
+      "negmax": -1.94097
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-121-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.63735,
+      "negmin": -2.296784,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.0218601,
+      "negmax": -1.940206
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-121-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.640829,
+      "negmin": -2.296784,
+      "shuntmin": 0.0002062109,
+      "shuntmax": 0.01804241,
+      "negmax": -1.943665
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-122-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.631324,
+      "negmin": -2.296338,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.01866443,
+      "negmax": -1.934244
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-122-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.638116,
+      "negmin": -2.296338,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.0144121,
+      "negmax": -1.940973
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-123-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.637365,
+      "negmin": -2.296784,
+      "shuntmin": 1e-09,
+      "shuntmax": 0.02180487,
+      "negmax": -1.940229
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-123-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.640841,
+      "negmin": -2.296784,
+      "shuntmin": 0.0002747396,
+      "shuntmax": 0.01798845,
+      "negmax": -1.943659
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-124-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.638514,
+      "negmin": -2.296338,
+      "shuntmin": 6.464046e-05,
+      "shuntmax": 0.007321329,
+      "negmax": -1.941368
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-124-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.640428,
+      "negmin": -2.296338,
+      "shuntmin": 0.0009450914,
+      "shuntmax": 0.006466015,
+      "negmax": -1.943301
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-125-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.640047,
+      "negmin": -2.296784,
+      "shuntmin": 0.002348846,
+      "shuntmax": 0.01009951,
+      "negmax": -1.942911
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-125-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.641912,
+      "negmin": -2.296784,
+      "shuntmin": 0.003200338,
+      "shuntmax": 0.009182875,
+      "negmax": -1.944745
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-126-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.638511,
+      "negmin": -2.296338,
+      "shuntmin": 7.99221e-05,
+      "shuntmax": 0.007310929,
+      "negmax": -1.941411
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-126-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.640445,
+      "negmin": -2.296338,
+      "shuntmin": 0.0009645862,
+      "shuntmax": 0.006449816,
+      "negmax": -1.9433
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-127-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.640065,
+      "negmin": -2.296784,
+      "shuntmin": 0.002366243,
+      "shuntmax": 0.01008449,
+      "negmax": -1.94292
+    },
+    "pass": true
+  },
+  {
+    "name": "periodic-127-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.641934,
+      "negmin": -2.296784,
+      "shuntmin": 0.003221447,
+      "shuntmax": 0.009164964,
+      "negmax": -1.944765
+    },
+    "pass": true
+  }
+]
