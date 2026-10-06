@@ -90,7 +90,7 @@ Known limits, each tracked in [FINDINGS.md](FINDINGS.md):
 | D-27 prototype-closure reconciliation | delegated | **done, merged** (#1652): 78 overlaps, 33 agree, 2 contradict (modulation policy, prototype PWM failure state), 32 one-sided, 11 supersede; decisions 2026-10-05 |
 | D-28 phase-shift validation | delegated | **merged** (#1654): no phase range qualified; 180° only (FINDINGS F9) |
 | D-29 prototype firmware conformance | delegated | **draft** (#1653): pad restoration, GPIO errors, 180° cap; 379 fault-injection cases pass; target validation pending |
-| D-30 connector power direction | delegated | brief written |
+| D-30 connector power direction | delegated | **merged** (#1655): J9.1 power_in, J9.2 passive at the generator source; no other instance on the nine boards; `power_direction.rs` validator in `round5/boards/check.sh` (20 tests; 0 findings now, 4 on the pre-fix boards) |
 | D-7 capacitor ESL | delegated | **done, merged** (#1634): C38–C41 1.06 nH, C5/C6 19.2 nH typical-model values; grid now sweeps 1.06–20 nH |
 | D-11 bus-sense range (task 06) | delegated | **done, merged** (#1635); targets, ADC1 allocation and the 1.210 V over-range latch decided 2026-10-03 (DECISIONS.md) |
 | Diode-recovery data, TI timing limits for the fitted 49.9 kΩ DT resistor, deployed four-PWM controller and harness, mounted C38 ESL (lead length) | outside input / owner | open |
