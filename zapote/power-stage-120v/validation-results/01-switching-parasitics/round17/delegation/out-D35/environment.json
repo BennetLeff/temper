@@ -1,0 +1,12 @@
+{
+  "python": "3.12.12",
+  "numpy": "2.4.6",
+  "scipy": "1.18.0",
+  "inputs_sha256": {
+    "zapote/power-stage-120v/validation-results/07-conducted-emi/flicker/burst_meter_sweep.py": "fb62a695bd02b92e1ede2590914970a8090911bed02b6aa0374d9c83cc2689cd",
+    "zapote/power-stage-120v/validation-results/07-conducted-emi/flicker/test_flickermeter.py": "29ffb63e071fa20c5eb6aa07c1a34285893fea9248cfbb7bb79ebc2376ce3301",
+    "zapote/power-stage-120v/validation-results/07-conducted-emi/flicker/burst_flicker.py": "f57a19c0bc89b83200f4a779aed041a77948d455f52efa4b264ba03cbdc59859",
+    "zapote/power-stage-120v/validation-results/07-conducted-emi/flicker/refine_burst.py": "098510e8383c345669ab701b6cc9229c1aedf88fe7885f259ef8bead794feaec",
+    "zapote/power-stage-120v/validation-results/07-conducted-emi/flicker/flickermeter.py": "a754c84e32cd7a595194b2484b510a3c59bd65cf94a6fb34efbc364254adc292"
+  }
+}
