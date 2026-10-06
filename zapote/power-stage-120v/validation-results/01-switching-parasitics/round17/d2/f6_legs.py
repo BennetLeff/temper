@@ -35,15 +35,17 @@ import run_d2
 HERE = Path(__file__).resolve().parent
 D13 = HERE.parent / "delegation" / "out-D13"
 OUT = HERE / "results" / "f6-legs"
+PMEG = run_d2.KIT / "models" / "vendor" / "PMEG6030EP.txt"   # Nexperia model, fetch_models.sh (not committed)
+TEMPS = (27, 100)
 OPTION = ".options itl4=100000"
 MATRICES = {"A": HERE / "legA-h0-best-n19.matrix.txt", "B": HERE / "legB-h0-prov-n19.matrix.txt"}
 SCREEN = {r["temp_C"]: r["model_screen_V"] for r in json.loads((D13 / "results-threshold.json").read_text())}
 
 
-def jobs():
+def jobs(temps=TEMPS):
     pts = [("S4", v, -20, dt) for v in (170, 198, 280) for dt in (391, 443, 498)]
     pts += [("S1", v, 37, 443) for v in (198, 280)] + [("S2", 280, 71, 443)]
-    return list(itertools.product("AB", (27, 100), pts, (0, 1), (1.06, 10)))
+    return list(itertools.product("AB", temps, pts, (0, 1), (1.06, 10)))
 
 
 def one(job):
@@ -78,23 +80,40 @@ def one(job):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--workers", type=int, default=8)
+    ap.add_argument("--diode", choices=["placeholder", "pmeg"], default="placeholder",
+                    help="discharge diode: D-6's generic D6D, or the selected Nexperia PMEG6030EP vendor model (D-12)")
+    ap.add_argument("--temps", default="27,100")
+    ap.add_argument("--out", default=None)
     a = ap.parse_args()
+    global OUT
+    if a.out:
+        OUT = HERE / "results" / a.out
+    temps = tuple(int(x) for x in a.temps.split(","))
     OUT.mkdir(parents=True, exist_ok=True)
     deck = (D13 / "decks" / "F6.cir").read_text()
     assert ".include params.inc" in deck
-    (OUT / "F6.cir").write_text(deck.replace(".include params.inc", ".include params.inc\n" + OPTION, 1))
+    deck = deck.replace(".include params.inc", ".include params.inc\n" + OPTION, 1)
+    if a.diode == "pmeg":
+        if not PMEG.is_file():
+            raise SystemExit("PMEG6030EP model missing; run sim-kit/models/fetch_models.sh")
+        old = ".model D6D D(Is=1u N=1 Rs=0.05 Cjo=20p Tt=0)\nDoffl gdl3 offl D6D"
+        assert old in deck and "Doffh gdh3 offh D6D" in deck
+        deck = deck.replace(old, f".include {PMEG}\nXDoffl gdl3 offl PMEG6030EP")
+        deck = deck.replace("Doffh gdh3 offh D6D", "XDoffh gdh3 offh PMEG6030EP")
+    (OUT / "F6.cir").write_text(deck)
     vendor = run_d2.KIT / "models" / "vendor" / "IFX_CFD7_650V.lib"
     if not vendor.is_file():
         raise SystemExit("vendor model missing; run sim-kit/models/fetch_models.sh")
     with ThreadPoolExecutor(a.workers) as ex:
-        rows = list(ex.map(one, jobs()))
+        rows = list(ex.map(one, jobs(temps)))
     (OUT / "results.json").write_text(json.dumps(rows, indent=1) + "\n")
     summ = {"identity": {str(p.name): hashlib.sha256(p.read_bytes()).hexdigest()
-                         for p in (*MATRICES.values(), OUT / "F6.cir", Path(__file__), HERE / "run_d2.py")},
+                         for p in (*MATRICES.values(), OUT / "F6.cir", Path(__file__), HERE / "run_d2.py")
+                         + ((PMEG,) if a.diode == "pmeg" else ())}, "diode": a.diode,
             "model_screen_V": SCREEN, "groups": {}}
     lines = ["| leg | Tj °C | case | complete | pass (3.0 V + model + VDS) | pass incl. 1.9 V | max off-gate V | max die VDS V |",
              "| --- | ---: | --- | ---: | ---: | ---: | ---: | ---: |"]
-    for leg, temp, case in itertools.product("AB", (27, 100), ("S1", "S2", "S4")):
+    for leg, temp, case in itertools.product("AB", temps, ("S1", "S2", "S4")):
         g = [r for r in rows if (r["leg"], r["temp_C"], r["case"]) == (leg, temp, case)]
         c = [r for r in g if r["status"] == "complete"]
         s = {"cases": len(g), "complete": len(c), "pass": sum(r["pass"] for r in c), "pass_hot": sum(r["pass_hot"] for r in c),

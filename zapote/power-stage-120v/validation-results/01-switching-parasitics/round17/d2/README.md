@@ -380,3 +380,14 @@ for S4 on both legs in the model. It is still not a qualified fix: 150 °C stays
 indeterminate (placeholder Schottky, FINDINGS F6), recovery has no physical bound
 (D-24 answer c), and the stiff −2 V source must be built as modelled (D-12).
 
+### F6 with the selected Schottky's vendor model (`results/f6-legs-pmeg/`)
+
+`f6_legs.py --diode pmeg --temps 27,100,150` replaces D-6's generic `D6D`
+(Is = 1 µA, N = 1, Cjo = 20 pF) with Nexperia's PMEG6030EP subcircuit (D-12's
+selected part; fetched by `sim-kit/models/fetch_models.sh`, not committed;
+Cjo 634 pF, EG 0.69). **288/288 complete and pass at 27/100/150 °C on both
+legs.** S4 max off-gate is 1.27 V (A 27 °C) and max die VDS is 489.6 V (B 27 °C);
+S1/S2 off-gate ≤ −0.27 V with ZVS. 150 °C converges with no aborts, so D-13's
+150 °C indeterminacy was the placeholder diode. 27/100 °C agree with the
+placeholder run within 0.23 V off-gate and 12.5 V die VDS (192 matched cases; the real diode's 634 pF junction changes the discharge path), with no verdict change.
+

@@ -12,3 +12,9 @@ echo "$ZIP_SHA  vendor/cfd7-650.zip" | shasum -a 256 -c -
 (cd vendor && unzip -o -q cfd7-650.zip)
 echo "$LIB_SHA  vendor/IFX_CFD7_650V.lib" | shasum -a 256 -c -
 echo "OK: vendor/IFX_CFD7_650V.lib (subcircuits IPW65R018CFD7_L0/L1/L3; pin order drain gate source)"
+# Nexperia PMEG6030EP Schottky (F6 gate-discharge diode, D-12). SUBCKT pins: 1 anode, 2 cathode.
+PMEG_URL=https://assets.nexperia.com/documents/spice-model/PMEG6030EP.txt
+PMEG_SHA=0c2892521c7933b99f405d803cef84240050b71c9e1f412088bd7a6c6352b983
+curl -sL -A "Mozilla/5.0" -o vendor/PMEG6030EP.txt "$PMEG_URL"
+echo "$PMEG_SHA  vendor/PMEG6030EP.txt" | shasum -a 256 -c -
+echo "OK: vendor/PMEG6030EP.txt (subcircuit PMEG6030EP; pins anode cathode)"
