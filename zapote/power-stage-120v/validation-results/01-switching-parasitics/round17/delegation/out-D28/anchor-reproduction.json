@@ -1,0 +1,27 @@
+{
+  "new": "runs/anchor-original-170-35k-repeat",
+  "reference": "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D22/periodic-runs/envelope-v170-f35000-r2-e1.06-s0.5",
+  "new_periodic": {
+    "status": "complete",
+    "cycle_relative_RMS_change": {
+      "v(swa)": 9.358027401597908e-06,
+      "v(swb)": 7.945015277901754e-06,
+      "bus_current_A": 9.958298182381536e-05
+    },
+    "end_time_s": 0.0006877142857142856,
+    "points": 114581,
+    "input_power_estimate_W": 912.5548124492807
+  },
+  "reference_cycle_relative_RMS_change": {
+    "v(swa)": 9.358027401597908e-06,
+    "v(swb)": 7.945015277901754e-06,
+    "bus_current_A": 9.958298182381536e-05
+  },
+  "max_absolute_FFT_difference": {
+    "v(swa)": 0.0,
+    "v(swb)": 0.0,
+    "bus_current_A": 0.0,
+    "frequency_Hz": 0.0
+  },
+  "comparison": "Exact equality is required for this unchanged physical-source replay."
+}
