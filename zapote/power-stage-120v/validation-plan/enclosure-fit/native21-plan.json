@@ -1,0 +1,42 @@
+{
+ "description": "native-21 band-A arrangement (D-36): board in the front-middle band; BR1+FET row compressed onto the board's REAR edge right of the sensor corridor; edge sink under the coil support plate; right-wall inlet, rear-wall exhaust left of the mains connector blank.",
+ "boxes": {
+  "board_290x140_bottom_z26_envelope": [
+   -149,
+   96,
+   11.5,
+   141,
+   236,
+   76
+  ],
+  "sink_114x50x73": [
+   35,
+   236,
+   10,
+   149,
+   284,
+   83
+  ],
+  "inlet_duct_right_wall": [
+   149,
+   236,
+   10,
+   183,
+   284,
+   83
+  ],
+  "exhaust_duct_to_rear_wall": [
+   35,
+   284,
+   10,
+   95,
+   438,
+   83
+  ]
+ },
+ "sink": {
+  "flow_length_mm": 114,
+  "fin_depth_mm": 44,
+  "stack_mm": 73
+ }
+}

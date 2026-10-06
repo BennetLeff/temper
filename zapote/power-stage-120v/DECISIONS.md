@@ -132,3 +132,11 @@ D-33 proceeds to source on this basis. The coupled deck is kept as a diagnostic,
 
 **2026-10-06, burst scheduler takes crossings from LINE_ZC only (D-32 follow-up), decided under the owner's delegation:** `burst_scheduler_step` now refuses any crossing record without `from_line_zc`, and the "bus ≤ 5 V at the crossing" rule is removed. That rule would have blocked bursts by design: the idle bus holds the line peak. `hal_bus_crossing.h` documents that adapters may set `from_line_zc` only for the native-21 LINE_ZC (J4.16) pulse centre, never for a VBUS-derived event. Tests cover a charged-bus start via LINE_ZC (allowed) and a non-LINE_ZC crossing (refused). The host suite passes 19/19. `burst_enabled` stays false by default. Still required before enabling: the GPIO-capture glue feeding `line_zc_edge` and calling `line_zc_poll` (the estimator itself is `firmware/components/power/line_zc.c`: pulse-centre, width/half-period qualification, 4-pulse lock, prediction, dropout/glitch unlock; host test `line_zc_tests` shows ≤ 65 µs error with ±50 µs edge jitter), the bench-calibrated centre offset, and bench B2.
 
+**2026-10-06, native-21 packaging in R4 (D-36), decided under the owner's delegation, with the owner's input that enclosure connectors go on the rear wall:** native-20's 240 × 160 board fits nowhere in R4. The fit gate (`validation-plan/enclosure-fit/`) found 0 placements, blocked by the front-panel module, the centre-sensor service corridor and the coil-support legs. **Native-21 takes the front-middle band:**
+- an outline of at most 290 × 140 mm;
+- the BR1 + FET row compressed to about 106 mm on the board's rear edge, right of the corridor;
+- an edge sink under the coil plate (114 × 44 fins × 73 mm), modelling 0.24 °C/W at 20 CFM and 0.21 at 30 CFM, inside D-18's 0.29 limit;
+- right-wall inlet and rear-wall exhaust beside the rear mains connector.
+
+The rear band (240 × 150) was rejected: the sink cannot be placed without crossing the corridor or giving up about 50 mm of board depth. Fan ≈ 30 CFM at ≈ 140 Pa and MOSFET interface ≤ 0.7 °C/W. **Reversible:** if the legs or the sensor corridor move, re-run `fit_gate.py --mode scan`.
+
