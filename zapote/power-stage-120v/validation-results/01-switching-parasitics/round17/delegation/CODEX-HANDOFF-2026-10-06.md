@@ -57,7 +57,7 @@ any hardware change.
 
 ---
 
-## D-33: native-21 source — F6 independently powered negative bias (medium/large)
+## D-33: native-21 source — F6 negative bias from a SELV-fed transformer driver (large)
 
 **Why.** F6 (−2 V off-bias with a 1 nF Cgs and a 1 Ω + PMEG6030EP discharge
 branch) is adopted for the enclosure re-layout. In the model it passes all
@@ -66,15 +66,37 @@ which fails without it (FINDINGS F2/F6/F11). The owner is doing the layout.
 This task delivers the **source and netlist** the layout needs.
 
 **Do.** In `zapote/power-stage-120v/elec/src/` (the power-stage atopile source,
-**not** the repository-root `elec/`), implement D-12's independently powered
-−2 V variant per
-[`out-D12/ISOLATED-BIAS.md`](out-D12/ISOLATED-BIAS.md):
-- isolated +15/−6 V gate-supply modules with a negative LDO to −2 V;
-- per gate: 1 nF C0G Cgs, a 1 Ω + **PMEG6030EP** discharge branch (anode
-  at the gate side as in the F6 deck: `Doff gd3 off`), and the existing 3.9 Ω Rg;
-- a rail-window monitor that holds DIS active until both bias rails are in
-  window;
-- PS2 replaced as D-12 specifies.
+**not** the repository-root `elec/`), implement F6 with a **transformer-driver
+isolated bias fed from the existing SELV 15 V rail (PS1)**. This is the
+2026-10-06 decision ([BOM-REVIEW-2026-10-06.md](../../../../BOM-REVIEW-2026-10-06.md)
+item 1), which replaces D-12's four-RECOM-module variant:
+- **one transformer driver** (TI SN6507, 36 V input, push-pull, or the
+  UCC25800 class; pick one from its datasheet and justify the choice) on PS1's
+  15 V, with **three reinforced-isolation transformers**: HS-A referenced to
+  `sw_a`, HS-B to `sw_b`, and one low side referenced to `leg_ret`, shared by
+  both low-side channels;
+- per secondary: a rectifier, a regulated +15 V (LDO) and a **−2 V** rail from a
+  Zener or shunt split, each backed by reservoir capacitors sized for the
+  gate-charge transfer;
+- per gate: 1 nF C0G Cgs and a 1 Ω + **PMEG6030EP** discharge branch (anode at
+  the gate side as in the F6 deck: `Doff gd3 off`), keeping the existing 3.9 Ω Rg;
+- a rail-window monitor that holds DIS active until every bias rail is in window;
+- **delete PS2 and the bootstrap network** (D1/D2, C10/C11/C17/C18). V15_LS
+  and HOT5 now come from the low-side secondary. HOT5 uses a **30 V-input low-Iq
+  LDO (TPS709 class)** in place of the MC78L05, because its ground current is in
+  the Kelvin budget.
+
+**Sizing first** (`native-21/bias_sizing.py`, committed). Calculate the gate
+power from the IPW65R018CFD7 datasheet Qg at 33–80 kHz, the transformer
+driver's and transformers' datasheet efficiency, the PS1 (IRM-20-15) budget
+with the D-20 controller allocation, the transformer isolation rating against
+the **D5 reinforced basis** for 120 V mains (stop and report if no catalogue
+transformer meets it), and the −2 V rail's source impedance and ripple at
+80 kHz. **Then re-run F6** with that bias-source model in place of the ideal
+−2 V source: `round17/d2/f6_legs.py --diode pmeg`, with a deck variant that
+models the rail as its reservoir capacitance plus ESR and the Zener or shunt.
+Run decision and startup cases on both legs at 27/100/150 °C. The adoption
+holds only if they all still pass.
 
 Keep native-20's values: R34 10.6 kΩ RT0603BRD0710K6L, R8/R16 330 Ω,
 R9/R17 49.9 kΩ. Then:

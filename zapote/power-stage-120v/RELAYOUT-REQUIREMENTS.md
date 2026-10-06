@@ -10,7 +10,7 @@ Each row links to its evidence. Start from **native-20** (values current as of
 
 | # | Requirement | Why / evidence |
 | --- | --- | --- |
-| L1 | **F6 negative gate bias, independently powered:** isolated +15/−6 V modules with a negative LDO to −2 V, 1 nF Cgs, 1 Ω + **PMEG6030EP** discharge branch per gate, rail-window monitor gating DIS, PS2 replaced (D-12 [ISOLATED-BIAS.md](validation-results/01-switching-parasitics/round17/delegation/out-D12/ISOLATED-BIAS.md)) | S4 hard turn-on and the S5 burst-start edge both fail without it. With it, all 288 + 216 model cases pass at 27/100/150 °C on both legs (FINDINGS F2/F6/F11; DECISIONS 2026-10-05) |
+| L1 | **F6 negative gate bias from one SELV-fed transformer driver** (three reinforced transformers: HS-A, HS-B, shared LS; +15 V LDO and −2 V split per secondary), 1 nF Cgs, 1 Ω + **PMEG6030EP** discharge branch per gate, rail-window monitor gating DIS; **PS2 and the bootstrap network removed**; HOT5 from a low-Iq LDO (DECISIONS 2026-10-06, [BOM review](BOM-REVIEW-2026-10-06.md); source in Codex D-33) | S4 hard turn-on and the S5 burst-start edge both fail without it. With it, all 288 + 216 model cases pass at 27/100/150 °C on both legs (FINDINGS F2/F6/F11; DECISIONS 2026-10-05) |
 | L2 | Keep **R34 = 10.6 kΩ RT0603BRD0710K6L** and **R8/R16 = 330 Ω** | Shunt-OCP band and gate-off delay ([native-20](native-20/README.md)) |
 | L3 | Keep **R9/R17 = 49.9 kΩ ±0.1 %** (443 ns nominal dead time) | F7, native-18 |
 

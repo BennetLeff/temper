@@ -90,7 +90,12 @@ switch to it; the gate must take the enclosure as an input.
 
    Recommend one, and state the board-outline, device-row and connector
    constraints it imposes on native-21.
-5. Output `out-D36/README.md`: a one-line answer first (does native-20 plus the
+5. **EMI filter packaging input** (BOM-REVIEW item 4): fit two variants. (a)
+   The inlet module (110 × 80 × 50 mm) with the board's L1 (B82726, 46 × 30 mm),
+   C1/C2 and C3/C4 removed. (b) No module, with a larger on-board filter
+   envelope (state the allocation). Report which fits; the filter's electrical
+   choice is decided separately with D-22's model.
+6. Output `out-D36/README.md`: a one-line answer first (does native-20 plus the
    D-18 cooling fit R4: yes/no and why), the gate results table, the chosen
    cooling architecture with its thermal numbers, and **a list of layout
    constraints for native-21** (outline, keep-outs, device-row position and
