@@ -22,7 +22,7 @@ only your brief.
 | [D-14 solver robustness](D14-solver-robustness.md) | Why some D2 runs abort ("timestep too small"); a physics-neutral fix, qualified; timestep convergence | medium |
 | [D-15 losses vs dead time](D15-losses-dead-time.md) | Round-4 C1/C2 (ZVS map, switching losses) rerun on the FEM matrix, 307–498 ns: the cost of F7 | medium |
 | [D-16 native-18](D16-native18-dt-resistors.md) | **Design change** (owner decision 2026-10-03): R9/R17 → 49.9 kΩ ±0.1 %, value-only native-18, verified copper-identical | medium |
-| [D-17 protection gate-off](D17-protection-gate-off.md) | Task 02 on the FEM matrix: fault current at actual gate-off, device survival, input to the held R34/R35 retune (decision B) | medium |
+| [D-17 protection gate-off](D17-protection-gate-off.md) | (superseded by D-31) Task 02 on the FEM matrix: fault current at actual gate-off, device survival, input to the held R34/R35 retune (decision B) | medium |
 | [D-18 loss/thermal](D18-loss-thermal-update.md) | Task 03 on round-17 results at 443 ns: loss table, heatsink Rth and airflow direction for the enclosure, R5 check | medium |
 | [D-19 conducted EMI](D19-conducted-emi-edges.md) | Task 07 with the real switch-node edges: spectrum and margin, filter change or not | medium |
 | [D-20 controller requirements](D20-controller-requirements.md) | One testable requirements document for the controller (J4, PWM/dead-time ownership, protection, bus sense) from D-5/D-10/D-11 and decisions | medium |
@@ -36,6 +36,7 @@ only your brief.
 | [D-28 phase-shift validation](D28-phase-shift-validation.md) | Validate fixed-frequency phase shift (gated low-power mode): per-leg commutation current, ZVS, off-gate, losses vs phase; CT inhibit | medium |
 | [D-29 prototype firmware conformance](D29-prototype-firmware-conformance.md) | **Firmware change (draft PR):** prototype ESP32 PWM safe state on every failure path, 180° phase cap, fault-injection tests | small |
 | [D-30 connector power direction](D30-connector-power-direction.md) | **Board-source fix (draft PR):** central J9 supply pins typed power_out; fix, audit the class on all nine round-5 boards, add a power-direction validator | small |
+| [D-31 protection closure](D31-protection-closure.md) | **Supersedes D-17.** Gate-off chain and device survival on native-19, a source-to-gate-off/extinction timing ledger, FC1 DC clearing, precharge repeated pulses, contactor DC duty | large |
 
 D-1..D-27 are complete (`out-D*`; D-23 and D-26 indeterminate, D-24 answer c); D-21 is a draft PR awaiting the D-25 cleanup fix. D-5..D-10 are independent of
 each other except D-8 (cite D-5/D-6 if done first) and D-10's dead-time check (cite D-5).

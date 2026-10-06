@@ -79,7 +79,8 @@ Known limits, each tracked in [FINDINGS.md](FINDINGS.md):
 | D-5, D-6, D-8, D-9, D-10 | delegated ([reports](round17/delegation/README.md)) | **done, merged** (#1629–#1633); D-9's six tooling findings fixed (FINDINGS S8–S13) |
 | D-12 … D-15 | delegated | **done, merged** (#1636–#1639): remedy build comparison, hot transients, solver robustness, losses vs dead time |
 | D-16 native-18 (R9/R17 value change) | delegated | **done, merged** (#1640): native-18 board diff is only R9/R17 Value/MPN; copper identical; no FEM rerun; D4 carry-over conditions met |
-| D-17 protection gate-off (task 02 on the FEM matrix) | delegated | brief written |
+| D-17 protection gate-off | delegated | **superseded by D-31** (never returned) |
+| D-31 protection closure (gate-off, timing ledger, FC1 DC, precharge, contactors) | delegated | brief written |
 | D-18 loss/thermal | delegated | **done, merged** (#1641): sink ≤ 0.15 °C/W, ≥ 20 CFM, interface ≤ 1.0 °C/W, coil→mains airflow; decided 2026-10-03 (DECISIONS.md) |
 | D-19 conducted EMI | delegated | **merged, partial** (#1644): conditional −24.2 dB AV at 210 kHz; most periodic cases aborted. Follow-up D-22 (filter sizing) brief written |
 | D-22 EMI inlet filter | delegated | **done, merged** (#1645): all 16 cases converge; a 20 A DM+CM inlet module (110 × 80 × 50 mm, 8 W) gives ≥ 8.3 dB modelled margin; reserved in the enclosure (DECISIONS.md 2026-10-05) |
