@@ -246,6 +246,8 @@ module PowerStage120V:
     signal P_HB
     signal N_HB
     signal BIAS_BAD
+    signal BIAS_BAD_RAW
+    signal BIAS_BAD_FLT
     signal BIAS_LS_BAD
     signal BIAS_HA_BAD
     signal BIAS_HB_BAD
@@ -907,7 +909,27 @@ module PowerStage120V:
     bias_or.A ~ BIAS_LS_BAD
     bias_or.B ~ BIAS_HA_BAD
     bias_or.C ~ BIAS_HB_BAD
-    bias_or.Y ~ BIAS_BAD
+    bias_or.Y ~ BIAS_BAD_RAW
+    # ~10 us common-mode glitch filter: the ISO7710 crossings are 85 kV/us min
+    # (SLLSER9E) against hard edges modelled up to ~95 V/ns. Rail faults are
+    # ms-scale (reservoirs), so 10 us costs nothing; Schmitt input for the RC.
+    r_bias_flt = new R10k0603
+    r_bias_flt.value = 10kohm
+    r_bias_flt.p1 ~ BIAS_BAD_RAW
+    r_bias_flt.p2 ~ BIAS_BAD_FLT
+    c_bias_flt = new C1nC0G0603
+    c_bias_flt.value = 1nF
+    c_bias_flt.p1 ~ BIAS_BAD_FLT
+    c_bias_flt.p2 ~ SELV_GND
+    u_bias_flt = new Hot5SchmittBuffer
+    u_bias_flt.A ~ BIAS_BAD_FLT
+    u_bias_flt.Y ~ BIAS_BAD
+    u_bias_flt.VCC ~ V3V3
+    u_bias_flt.GND ~ SELV_GND
+    c_bias_flt_vcc = new C100n0603
+    c_bias_flt_vcc.value = 100nF
+    c_bias_flt_vcc.p1 ~ V3V3
+    c_bias_flt_vcc.p2 ~ SELV_GND
     bias_or.VCC ~ V3V3
     bias_or.GND ~ SELV_GND
     bias_c_or = new C100n0603
@@ -1069,13 +1091,10 @@ module PowerStage120V:
     leg_b.roff_h.designator = "R57"
     leg_b.roff_l.designator = "R58"
     monitor_ls.rref.designator = "R59"
-    monitor_ls.rled.designator = "R60"
     bias_rsn1.designator = "R61"
     bias_rsn2.designator = "R62"
     bias_ha.monitor.rref.designator = "R63"
-    bias_ha.monitor.rled.designator = "R64"
     bias_hb.monitor.rref.designator = "R65"
-    bias_hb.monitor.rled.designator = "R66"
     line_zc.r1.designator = "R67"
     line_zc.r2.designator = "R68"
     line_zc.r3.designator = "R69"
@@ -1149,7 +1168,7 @@ module PowerStage120V:
     monitor_ls.rspanov_bot.designator = "R88"
     monitor_ls.rnotice.designator = "R89"
     monitor_ls.rbase.designator = "R90"
-    monitor_ls.rbad.designator = "R91"
+    monitor_ls.rpull.designator = "R91"
     bias_rclk.designator = "R92"
     bias_rlim.designator = "R93"
     bias_rsr.designator = "R94"
@@ -1167,7 +1186,7 @@ module PowerStage120V:
     bias_ha.monitor.rspanov_bot.designator = "R106"
     bias_ha.monitor.rnotice.designator = "R107"
     bias_ha.monitor.rbase.designator = "R108"
-    bias_ha.monitor.rbad.designator = "R109"
+    bias_ha.monitor.rpull.designator = "R109"
     bias_hb.split.rtop.designator = "R110"
     bias_hb.split.rbot.designator = "R111"
     bias_hb.monitor.rhalf_top.designator = "R112"
@@ -1182,7 +1201,7 @@ module PowerStage120V:
     bias_hb.monitor.rspanov_bot.designator = "R121"
     bias_hb.monitor.rnotice.designator = "R122"
     bias_hb.monitor.rbase.designator = "R123"
-    bias_hb.monitor.rbad.designator = "R124"
+    bias_hb.monitor.rpull.designator = "R124"
     line_zc.pullup.designator = "R125"
     leg_a.bias_h.clocal1.designator = "C90"
     leg_a.bias_h.clocal2.designator = "C91"
@@ -1246,12 +1265,32 @@ module PowerStage120V:
     monitor_ls.dnotice.designator = "D14"
     bias_ha.monitor.dnotice.designator = "D15"
     bias_hb.monitor.dnotice.designator = "D16"
-    monitor_ls.opto.designator = "U32"
-    bias_ha.monitor.opto.designator = "U33"
-    bias_hb.monitor.opto.designator = "U34"
+    monitor_ls.iso.designator = "U32"
+    bias_ha.monitor.iso.designator = "U33"
+    bias_hb.monitor.iso.designator = "U34"
     bias_driver.designator = "U35"
     bias_ha.transformer.designator = "T2"
     bias_hb.transformer.designator = "T3"
     bias_ha.filter.designator = "L2"
     bias_hb.filter.designator = "L3"
     line_zc.opto.designator = "U36"
+    # Monitor crossings changed to ISO7710 (CMTI); R60/R64/R66 vacated.
+    monitor_ls.ldo5.designator = "U37"
+    monitor_ls.cldo_in.designator = "C131"
+    monitor_ls.cldo_out.designator = "C132"
+    monitor_ls.civcc1.designator = "C133"
+    monitor_ls.civcc2.designator = "C134"
+    bias_ha.monitor.ldo5.designator = "U38"
+    bias_ha.monitor.cldo_in.designator = "C135"
+    bias_ha.monitor.cldo_out.designator = "C136"
+    bias_ha.monitor.civcc1.designator = "C137"
+    bias_ha.monitor.civcc2.designator = "C138"
+    bias_hb.monitor.ldo5.designator = "U39"
+    bias_hb.monitor.cldo_in.designator = "C139"
+    bias_hb.monitor.cldo_out.designator = "C140"
+    bias_hb.monitor.civcc1.designator = "C141"
+    bias_hb.monitor.civcc2.designator = "C142"
+    r_bias_flt.designator = "R126"
+    c_bias_flt.designator = "C143"
+    c_bias_flt_vcc.designator = "C144"
+    u_bias_flt.designator = "U40"

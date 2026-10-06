@@ -69,7 +69,7 @@ Do not return any bias recharge or shunt current through the Kelvin island.
 ## Mandatory rail monitor
 
 Three HOT-powered monitor circuits cover LS, HS-A and HS-B. Each uses an
-LM339B, TL431 reference, and VO617A isolated healthy indication. The negative
+LM339B, TL431 reference, and an **ISO7710 reinforced digital isolator** (side 1 from a local TPS70950 5 V on the monitored domain) for the healthy indication. The VO617A phototransistor optocoupler of the first draft was replaced (2026-10-06 review): the HS domains ride the switch node (≈10 V/ns ZVS, up to ≈95 V/ns hard edges), and ISO7710 is specified at 85 kV/µs minimum, 100 typical, CMTI (SLLSER9E p.11). The negative
 window is nominally **−2.198 to −1.799 V**; the total-span window is nominally
 **16.218 to 17.839 V**. The combination supervises the positive rail too
 (approximately +14.02 to +16.04 V at nominal thresholds). It does not claim a
@@ -77,15 +77,21 @@ precise +15 V window independent of negative-rail voltage. Divider/reference
 and comparator errors must be included when measuring enable thresholds.
 
 The four open-collector comparator outputs wire together as healthy-AND.
-A silicon diode plus NPN prevents the comparator's low output from keeping
-the optocoupler LED on. LED off, monitor unpowered or an open isolated
-connection gives BAD through a 10 kΩ SELV pullup. All three BADs OR together;
-a local two-input OR combines BAD with each existing PERMIT-derived DIS.
-Each final DIS has a 10 kΩ pullup. A monitor cannot override an asserted DIS.
+A silicon diode plus NPN prevents the comparator's low output from holding
+the healthy state. Healthy: the NPN conducts, ISO7710 IN is low, OUT (BAD) is low.
+Any window violation turns the NPN off, so IN is pulled high to the local 5 V
+and BAD goes high. If side 1 is unpowered (rail, local LDO or HOT supply lost),
+ISO7710's default-high output gives BAD. All three BADs OR together
+(`BIAS_BAD_RAW`). A **10 kΩ / 1 nF (≈ 10 µs) RC into an SN74LVC1G17 Schmitt
+buffer** then gives `BIAS_BAD`. This filter absorbs any common-mode glitch
+beyond the isolator's 85 kV/µs minimum CMTI, and it costs nothing against
+ms-scale rail collapse. A local two-input OR combines BIAS_BAD with each
+existing PERMIT-derived DIS. Each final DIS has a 10 kΩ pullup. A monitor
+cannot override an asserted DIS.
 The 1 nF input filters reject switching-edge excursions; they are not a
 substitute for reservoir qualification or a safety latch.
 
-Startup, TCO removal, each missing rail, brownout, optocoupler open, and rail
+Startup, TCO removal, each missing rail, brownout, isolator side-1 loss, and rail
 recovery must be captured with both DIS and driver outputs. There is no
 hardware latch in this new monitor: the controller's existing fault/reset
 policy still owns deliberate restart. Establish the allowed startup wait
@@ -93,6 +99,24 @@ from measured settling (the negative bulk reservoir may take hundreds of
 milliseconds). Added DIS OR propagation also requires the native-21 B4 check:
 **comparator → driver output** is the timing endpoint; report gate discharge
 separately. Do not silently reuse a native-20 timing certificate.
+
+## D5: every HOT → SELV crossing
+
+| Crossing | Part | Insulation | Clearance / creepage | CMTI |
+| --- | --- | --- | --- | --- |
+| Gate drivers (existing) | UCC21550BDWKR | reinforced | per FOOTPRINTS.md F8 | per UCC21550 datasheet |
+| Bus sense (existing) | AMC1311BDWVR | reinforced | existing D5 evidence | — |
+| OCP fault (existing) | ISO7710DWR (U9) | reinforced (VDE) | 8 mm CLR/CPG (DW, SLLSER9E p.8); TI HV land pattern 8.1 mm across the barrier | 85 kV/µs min (p.11) |
+| **Rail monitors LS/HS-A/HS-B (new)** | **ISO7710DWR (U32–U34)** | reinforced (VDE) | 8 mm CLR/CPG (DW, SLLSER9E p.8) with the same `SOIC16W_DW0016B_HV` 8.1 mm pattern | 85 kV/µs min, plus 10 µs SELV filter |
+| Line zero cross (new) | VOL628A-3X001T | VDE option | LSOP4 ≥ 8 mm (Vishay rev 1.9) | slow signal, Schmitt-buffered |
+| Tank CT / SELV supply (existing) | CST3015, IRM-20-15 | per existing D5 evidence | — | — |
+
+The audit's `BARRIER_PARTS` list fixes exactly these parts and their SELV pins.
+Any other part bridging SELV and HOT fails, and so does a monitor isolator
+replaced by a phototransistor opto (`audit_f6` mutation test). **Layout must
+hold ≥ 8.0 mm across every one of these packages and keep the board barrier
+line continuous around the three new isolators**; this is a placement gate,
+not a source fact.
 
 ## Isolated line zero crossing and J4 returns
 

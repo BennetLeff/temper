@@ -1,5 +1,5 @@
 from "f6_parts.ato" import Bias10u, BiasComparator, BiasReference, BiasOpto, BiasNpn, BiasSilicon, GateDischarge, Bias4k42, Bias7k62, Bias120k, Bias133k, Bias2k2, Bias2k7, Gate1R, Bias6k12, Bias4k99, Bias18k2, Bias30k1, BiasDamping, Bias680, Line16k5, Line33k, Bias1u, Bias100n, Bias220u, Bias4u7, HotSupply24, NegativeShunt, SpanRegulator, BiasPushPull, BiasTransformer, BiasRectifier, BiasFilter, HotLdo, DisOr, LineOpto
-from "parts.ato" import C100n0603, C1nC0G0603, R10kThin, R1k0603, R10k0603, C100pC0G0603, Hot5SchmittBuffer
+from "parts.ato" import C100n0603, C1nC0G0603, R10kThin, R1k0603, R10k0603, C100pC0G0603, Hot5SchmittBuffer, Iso7710, C10u1210
 
 module BiasReservoir:
     signal src
@@ -119,8 +119,8 @@ module RailMonitor:
     signal halfref
     signal good
     signal base
-    signal ledk
-    signal leda
+    signal isoin
+    signal v5
     signal uv
     signal ov
     signal spanuv
@@ -198,24 +198,49 @@ module RailMonitor:
     qnotice = new BiasNpn
     qnotice.B ~ base
     qnotice.E ~ n
-    qnotice.C ~ ledk
+    qnotice.C ~ isoin
     rbase = new R10k0603
     rbase.value = 10kohm
     rbase.p1 ~ base
     rbase.p2 ~ n
-    rled = new Bias2k7
-    rled.value = 2.7kohm
-    rled.p1 ~ p
-    rled.p2 ~ leda
-    opto = new BiasOpto
-    opto.A ~ leda
-    opto.K ~ ledk
-    opto.E ~ selv_gnd
-    opto.C ~ bad
-    rbad = new R10k0603
-    rbad.value = 10kohm
-    rbad.p1 ~ selv_v
-    rbad.p2 ~ bad
+    # HOT -> SELV crossing: reinforced ISO7710 (CMTI ~100 kV/us class), not a
+    # phototransistor opto, because the HS domains ride the switch node
+    # (10 V/ns ZVS, up to ~95 V/ns hard edges). Rails good: NPN on, IN low,
+    # OUT (bad) low. Any rail bad, or side 1 unpowered: OUT defaults HIGH (bad).
+    ldo5 = new HotLdo
+    ldo5.IN ~ p
+    ldo5.EN ~ p
+    ldo5.GND ~ n
+    ldo5.OUT ~ v5
+    cldo_in = new C100n0603
+    cldo_in.value = 100nF
+    cldo_in.p1 ~ p
+    cldo_in.p2 ~ n
+    cldo_out = new C10u1210
+    cldo_out.value = 10uF
+    cldo_out.p1 ~ v5
+    cldo_out.p2 ~ n
+    rpull = new R10k0603
+    rpull.value = 10kohm
+    rpull.p1 ~ v5
+    rpull.p2 ~ isoin
+    iso = new Iso7710
+    iso.VCC1 ~ v5
+    iso.GND1 ~ n
+    iso.GND1B ~ n
+    iso.IN ~ isoin
+    iso.VCC2 ~ selv_v
+    iso.GND2 ~ selv_gnd
+    iso.GND2B ~ selv_gnd
+    iso.OUT ~ bad
+    civcc1 = new C100n0603
+    civcc1.value = 100nF
+    civcc1.p1 ~ v5
+    civcc1.p2 ~ n
+    civcc2 = new C100n0603
+    civcc2.value = 100nF
+    civcc2.p1 ~ selv_v
+    civcc2.p2 ~ selv_gnd
 
     cuv = new C1nC0G0603
     cuv.value = 1nF

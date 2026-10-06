@@ -134,7 +134,10 @@ fn connections() -> Vec<(String, String, String)> {
             ("rspanov_bot", "spanov", "n"),
             ("rnotice", "ref", "good"),
             ("rbase", "base", "n"),
-            ("rled", "p", "leda"),
+            ("rpull", "v5", "isoin"),
+            ("cldo_in", "p", "n"),
+            ("cldo_out", "v5", "n"),
+            ("civcc1", "v5", "n"),
             ("cuv", "uv", "n"),
             ("cov", "ov", "n"),
             ("cspanuv", "spanuv", "n"),
@@ -171,16 +174,27 @@ fn connections() -> Vec<(String, String, String)> {
             ("dnotice", "1", "base"),
             ("qnotice", "1", "base"),
             ("qnotice", "2", "n"),
-            ("qnotice", "3", "ledk"),
-            ("opto", "1", "leda"),
-            ("opto", "2", "ledk"),
+            ("qnotice", "3", "isoin"),
+            // TPS70950 SOT-23-5: 1 IN, 2 GND, 3 EN, 5 OUT.
+            ("ldo5", "1", "p"),
+            ("ldo5", "2", "n"),
+            ("ldo5", "3", "p"),
+            ("ldo5", "5", "v5"),
+            // ISO7710 DW: 1/7 GND1, 3 VCC1, 4 IN (side 1 on the monitored domain).
+            ("iso", "1", "n"),
+            ("iso", "7", "n"),
+            ("iso", "3", "v5"),
+            ("iso", "4", "isoin"),
         ] {
             add(&format!("{base}.{part}"), pin, &local(key));
         }
-        add(&format!("{base}.opto"), "3", "selv_gnd");
-        add(&format!("{base}.opto"), "4", bad);
-        add(&format!("{base}.rbad"), "1", "v3v3");
-        add(&format!("{base}.rbad"), "2", bad);
+        // Side 2: 9/16 GND2, 14 VCC2, 13 OUT drives the bad line directly.
+        add(&format!("{base}.iso"), "9", "selv_gnd");
+        add(&format!("{base}.iso"), "16", "selv_gnd");
+        add(&format!("{base}.iso"), "14", "v3v3");
+        add(&format!("{base}.iso"), "13", bad);
+        add(&format!("{base}.civcc2"), "1", "v3v3");
+        add(&format!("{base}.civcc2"), "2", "selv_gnd");
     }
     for (base, n) in [("bias_ha", "n_ha"), ("bias_hb", "n_hb")] {
         for (pin, net) in [
@@ -233,7 +247,7 @@ fn connections() -> Vec<(String, String, String)> {
         ("1", "bias_ls_bad"),
         ("2", "selv_gnd"),
         ("3", "bias_ha_bad"),
-        ("4", "bias_bad"),
+        ("4", "bias_bad_raw"),
         ("5", "v3v3"),
         ("6", "bias_hb_bad"),
     ] {
@@ -267,6 +281,18 @@ fn connections() -> Vec<(String, String, String)> {
         add("line_zc.buffer", pin, net);
     }
     add("j_selv", "16", "line_zc");
+    // CMT glitch filter between the monitor OR and both DIS ORs.
+    for (part, a, b) in [
+        ("r_bias_flt", "bias_bad_raw", "bias_bad_flt"),
+        ("c_bias_flt", "bias_bad_flt", "selv_gnd"),
+        ("c_bias_flt_vcc", "v3v3", "selv_gnd"),
+    ] {
+        add(part, "1", a);
+        add(part, "2", b);
+    }
+    for (pin, net) in [("2", "bias_bad_flt"), ("3", "selv_gnd"), ("4", "bias_bad"), ("5", "v3v3")] {
+        add("u_bias_flt", pin, net);
+    }
     rows
 }
 
@@ -405,6 +431,23 @@ mod tests {
                 "{part}"
             );
         }
+    }
+    #[test]
+    fn rail_monitor_crossings_must_be_reinforced_high_cmti_isolators() {
+        // A phototransistor opto (e.g. VO617A, ~10 kV/us class) on a switch-node
+        // domain is rejected: the crossing must be the pinned ISO7710.
+        for base in ["monitor_ls", "bias_ha.monitor", "bias_hb.monitor"] {
+            let mut changed = crate::tests::built();
+            changed.set_part(&format!("{base}.iso"), "VO617A-3X017T");
+            assert!(
+                crate::audit(&changed).iter().any(|e| e.contains(&format!("{base}.iso"))),
+                "{base}"
+            );
+        }
+        // The bad line driven from the HOT side instead of the isolator output fails.
+        let mut changed = crate::tests::built();
+        changed.rewire("bias_ha.monitor.iso", "13", "bias_ha.monitor-isoin");
+        assert!(crate::audit(&changed).iter().any(|e| e.contains("bias_ha.monitor.iso")));
     }
     #[test]
     fn rail_bad_cannot_bypass_disable() {
