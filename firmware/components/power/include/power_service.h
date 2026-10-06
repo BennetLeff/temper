@@ -1,6 +1,7 @@
 #ifndef TEMPER_POWER_SERVICE_H
 #define TEMPER_POWER_SERVICE_H
 #include "fullbridge_adapter.h"
+#include "burst_scheduler.h"
 /* A board owner must implement and review this binding, including actual four
  * GPIOs, synchronous atomic cycle commit, independent captures and JCTRL
  * isolated transport. There is deliberately no legacy-pin fallback. */
@@ -9,8 +10,13 @@ typedef struct {
     bridge_backend_t backend;
     bool (*sample)(void *, uint32_t *now_us, bridge_feedback_t *, bool *new_line_cycle,
                    float *line_v, float *inlet_a, float *pan_budget_w);
-    bool (*phase_from_conductance)(void *, float conductance_s, float *phase);
     void *context;
+    burst_config_t burst; /* burst_enabled defaults false. */
+    bool (*sample_bus)(void *, uint64_t *now_us, hal_bus_crossing_t *);
+    /* Atomic all-four-output gate at a qualified bus crossing. Keep PERMIT
+     * independent and internal captures active during idle. Enabling requires
+     * a reviewed controller implementation; the prototype has none. */
+    bool (*set_burst_gate)(void *, bool enabled);
 } power_binding_t;
 void power_service_bootstrap(void);
 bool power_service_bind(const power_binding_t *binding);

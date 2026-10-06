@@ -5,7 +5,7 @@
  * Provides safety mechanisms for the PWM generation:
  * - Startup self-test (verify frequency/deadtime)
  * - Runtime frequency monitoring via timer capture
- * - Configuration integrity checks (register CRC)
+ * - Configuration integrity checks (programmed-state comparison)
  * - Frequency boundary enforcement
  */
 
@@ -13,6 +13,7 @@
 #define PWM_GUARD_H
 
 #include "hal_types.h"
+#include "hal_pwm.h"
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -25,8 +26,8 @@ extern "C" {
 #define PWM_GUARD_MAX_FREQ_HZ 60000
 #define PWM_GUARD_TARGET_FREQ_HZ 38000
 #define PWM_GUARD_FREQ_TOLERANCE_PERCENT 5
-#define PWM_GUARD_MIN_DEADTIME_NS 300
-#define PWM_GUARD_MAX_DEADTIME_NS 1000
+#define PWM_GUARD_MIN_DEADTIME_NS HAL_PWM_MIN_DEAD_TIME_NS
+#define PWM_GUARD_MAX_DEADTIME_NS HAL_PWM_MAX_DEAD_TIME_NS
 
 /**
  * @brief PWM Guard Failure Codes
@@ -37,7 +38,7 @@ typedef enum {
     PWM_GUARD_ERR_FREQ_HIGH = 2,   // Frequency above maximum
     PWM_GUARD_ERR_DEADTIME = 3,    // Deadtime out of range
     PWM_GUARD_ERR_MISMATCH = 4,    // Measured freq != Configured freq
-    PWM_GUARD_ERR_CORRUPTION = 5,  // Register CRC mismatch
+    PWM_GUARD_ERR_CORRUPTION = 5,  // Programmed-state mismatch
     PWM_GUARD_ERR_NULL = 6         // Invalid pointer
 } pwm_guard_status_t;
 
