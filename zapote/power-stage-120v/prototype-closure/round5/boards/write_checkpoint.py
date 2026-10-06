@@ -47,6 +47,7 @@ def main():
         "drc_samples_per_board": 3,
         "checks": summary,
         "eco": [
+            "D-30: J9.1 receives controller power; J9.2 is passive return; explicit external ERC boundaries",
             "Remote voltage and CT permanent-burden partition; source signal nets unchanged",
             "Manufacturer-based AMC3330 isolation land option and CT footprint",
             "Exact JST XH / Phoenix board connectors and eight straight-through harness contracts",

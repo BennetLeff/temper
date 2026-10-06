@@ -61,6 +61,30 @@ def main():
             if not node.attrib["ref"].startswith("#")
         }
         compare(expected, exported)
+        # D-30: check exported connector types too; net parity cannot catch a
+        # source direction regression in the renderer's embedded symbol cache.
+        connector_types = {
+            (r["reference"], r["pin"]): r["type"]
+            for r in pin_rows
+            if r["reference"].startswith("J")
+        }
+        exported_types = {
+            (node.attrib["ref"], node.attrib["pin"]): node.attrib["pintype"].removesuffix(
+                "+no_connect"
+            )
+            for node in schematic.findall("./nets/net/node")
+            if node.attrib["ref"].startswith("J")
+        }
+        compare(connector_types, exported_types)
+        type_mutation = dict(exported_types)
+        type_key = next(iter(type_mutation))
+        type_mutation[type_key] = "WRONG_NEGATIVE_CONTROL_TYPE"
+        try:
+            compare(connector_types, type_mutation)
+        except AssertionError:
+            pass
+        else:
+            raise AssertionError("Connector type oracle failed its negative control")
         board = pcbnew.LoadBoard(str(board_path))
         actual = {
             (fp.GetReference(), pad.GetNumber()): normalize(pad.GetNetname())
@@ -92,6 +116,8 @@ def main():
             "parts": len(footprints),
             "pins": len(expected),
             "netlist_exact": True,
+            "connector_types_exact": True,
+            "wrong_connector_type_negative_control": True,
             "board_pins_exact": True,
             "footprint_identity_exact": True,
             "missing_pin_negative_control": True,

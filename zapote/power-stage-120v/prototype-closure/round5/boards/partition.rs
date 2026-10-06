@@ -52,6 +52,21 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         if r[0] == "R_MINLOAD" {
             r[1] = "470R 0.1% TNPW1206470RBEEA".into();
         }
+        // D-30: this partition receives controller power; JCTRL is not a supply.
+        // Keep round4's captured source immutable and apply the board-facing ECO here.
+        if r[0] == "JCTRL" {
+            match r[4].as_str() {
+                "1" => {
+                    assert_eq!(r[7], "CTRL_3V3");
+                    r[6] = "power_in".into();
+                }
+                "2" => {
+                    assert_eq!(r[7], "CTRL_GND");
+                    r[6] = "passive".into(); // connector return, not a producer
+                }
+                _ => {}
+            }
+        }
         central.push(r);
     }
     connector(&mut central, "J_AUX24", &["AUX_24V", "AUX_0V"], "POWER");

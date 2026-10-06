@@ -3,6 +3,21 @@
 set -eu
 base=zapote/power-stage-120v/prototype-closure/round5/boards
 out=output/temper-prototype-closure/round5/boards
+mkdir -p "$out"
+# Standalone std-only Rust; never builds the workspace or native bridge.
+work=$(mktemp -d "${TMPDIR:-/tmp}/temper-r5-direction.XXXXXX")
+trap 'rm -rf "$work"' EXIT HUP INT TERM
+rustc --edition=2021 --test "$base/power_direction.rs" -o "$work/power-direction-tests"
+"$work/power-direction-tests" --test-threads=1 >"$out/power-direction-tests.log" 2>&1 || {
+ cat "$out/power-direction-tests.log" >&2
+ exit 1
+}
+rustc --edition=2021 "$base/power_direction.rs" -o "$work/power-direction"
+"$work/power-direction" "$base" >"$out/power-direction.tsv" 2>"$out/power-direction.log" || {
+ cat "$out/power-direction.log" >&2
+ exit 1
+}
+cat "$out/power-direction.log"
 for name in central catch bus line pre out tank iproof iline; do
  if [ "$name" = central ]; then
   native="$base/central/native/supervisor"

@@ -195,6 +195,7 @@
     }
   },
   "eco": [
+    "D-30: J9.1 receives controller power; J9.2 is passive return; explicit external ERC boundaries",
     "Remote voltage and CT permanent-burden partition; source signal nets unchanged",
     "Manufacturer-based AMC3330 isolation land option and CT footprint",
     "Exact JST XH / Phoenix board connectors and eight straight-through harness contracts",
@@ -208,8 +209,8 @@
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/README.md",
-      "sha256": "7c2a4a9cda9c8b42e8da714ed77a3e0d5ab0c83d63976099a8655419f54a319d",
-      "bytes": 9606
+      "sha256": "27fb6ec90d588211e9a87358c2419d32b3d45e10a902baf66f1a64e497f1e207",
+      "bytes": 10364
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/board-bom.csv",
@@ -278,8 +279,8 @@
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv",
-      "sha256": "15e269db31b79eda55747cdc13f09fbbb956aad8cd1db53cfa199278d74bfa1d",
-      "bytes": 139508
+      "sha256": "2ffd7fb739244327a238e9680e6bbee61277aa548d7221b58b36f5627f439524",
+      "bytes": 139505
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/layout.json",
@@ -383,8 +384,8 @@
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/CONTROLLER_1.kicad_sch",
-      "sha256": "2a29e7f231f0cdf68a8684a9386c9ac20914b8ba5ba517b3da3bde81c0fdd3d1",
-      "bytes": 38446
+      "sha256": "009234943457c1b28f442e50b70f0f056e95ae68b8c1dd0dd7d62d504d83672f",
+      "bytes": 38443
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/CONTROLLER_2.kicad_sch",
@@ -658,13 +659,13 @@
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/supervisor.kicad_sch",
-      "sha256": "df94e13bc19e1555fddbd67fbfe01feae8f13a5646dc2cbac57e6f6171cc4e76",
-      "bytes": 22324
+      "sha256": "07a370f70cd582b60005af46864bf1f8599fa657be543f18515b969c2a33dbc0",
+      "bytes": 23712
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/supervisor.kicad_sym",
-      "sha256": "3fcee64368f8b3f1d108c7e46ca7385cdc66e1da966d348d7189b20b7894d766",
-      "bytes": 385450
+      "sha256": "8b609a4fed4beb0395cc445114761f09ee8f2b011535e3d09ba88e9d2a3aef34",
+      "bytes": 385447
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/sym-lib-table",
@@ -688,8 +689,8 @@
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/check.sh",
-      "sha256": "f160fb98b848dee05a91380359fadab0a5419ed4b062f74ec14f1beb72344f49",
-      "bytes": 1848
+      "sha256": "836a840e2574a579b230319cbf1daf22c833d6d0d116cd7f0209a8d502bec644",
+      "bytes": 2517
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/component-census.json",
@@ -1358,13 +1359,18 @@
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/partition.rs",
-      "sha256": "3d453c23e30ba536f4f40c3f4558ee3c59c1cdb3c2524d5e3102bcf6a55ecd1c",
-      "bytes": 4920
+      "sha256": "0d23f497e7b16ab95eb092a2fa76008efada7271d18e8250045f32c1b9f25765",
+      "bytes": 5514
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/power-review.md",
       "sha256": "ae8da4044059ff0129f58d99db7f487e5e382664ba6abc61b53b8a617c8a5212",
       "bytes": 4859
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/boards/power_direction.rs",
+      "sha256": "b7a0539b8effebc70caef711646d56a0617fdae564925245aefaccfb6c1f56f3",
+      "bytes": 19768
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/pre-layout.json",
@@ -1388,8 +1394,8 @@
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/render_central.py",
-      "sha256": "00509e01c8515465dec48cb5e1c79b79bc537669fc46a8730150c691285b0fa7",
-      "bytes": 2307
+      "sha256": "ad74bc50e76d342b554b0fe2b1cc1d92185fd9f3036083127548b1ffe2e8b9cd",
+      "bytes": 2685
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/render_sensor.py",
@@ -1423,297 +1429,297 @@
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/verify_native.py",
-      "sha256": "4a039873470adb1c5e720a29fe1c5681da1238e904cddf06f48212f5fb2766d0",
-      "bytes": 6827
+      "sha256": "74831158b4dd969711a6dffc474cc57580252bcd5aad9bef06ae0a986b44b85f",
+      "bytes": 7949
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/write_checkpoint.py",
-      "sha256": "0075bf05713bb527bc706c389c05b8d668399970cb1e1f3e0af4e8cfeb58bfa7",
-      "bytes": 2152
+      "sha256": "52ae108f24026c0532b3f04bfbe169c08bfe39b505c3e5aea428f3769419f4be",
+      "bytes": 2262
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/bus-board.pdf",
-      "sha256": "019753b825e9b223347e80a3773ce906a66ff109f02a1ed9612472453864c315",
+      "sha256": "196da070e804221eab46dc0ba13fb8b35c65c9476376d11aa8d96d9e5619cd97",
       "bytes": 33952
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/bus-drc-1.json",
-      "sha256": "244141bfc821c70ec58758d17d78874e8c81274cdca1f22e5d17c70d61f36e07",
+      "sha256": "290c7bf081d42ecd2d033c83abdeb6dde52b8b435c694b4dada16d69e1c4d477",
       "bytes": 1067
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/bus-drc-2.json",
-      "sha256": "45d20ed8151924c03da2b9dc8595d5746c2e872aa0fbfdcdb8e12684df1292d2",
+      "sha256": "00d7cbe8a259152599c6e81a5a96e4cddfe1329538fbe12943bdcbbb20f106fd",
       "bytes": 1067
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/bus-drc-3.json",
-      "sha256": "6d9e971e94d2225526b8166bcd2b8cf702142c9387209097190489ad17fd530c",
+      "sha256": "05df2b1beec85a63833749b2a609258b9bbb8e68013f31c4c75acf90ccfccdd3",
       "bytes": 1067
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/bus-drc-parity.json",
-      "sha256": "244141bfc821c70ec58758d17d78874e8c81274cdca1f22e5d17c70d61f36e07",
+      "sha256": "290c7bf081d42ecd2d033c83abdeb6dde52b8b435c694b4dada16d69e1c4d477",
       "bytes": 1067
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/bus-erc.json",
-      "sha256": "f3f0c8fc7e401bb9193ace80c351872f246b7b43788fdcca206b57349f592d82",
+      "sha256": "254451bb7698411b9a45ac11a5d735e615618427162e8de0ce4cb620b502698a",
       "bytes": 983
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/bus-netlist.xml",
-      "sha256": "596886952e8a67ab8a01b8218bdb18e79ef3c666b596e23ea93f04388843eb91",
-      "bytes": 31731
+      "sha256": "31ff263f79d465cc757336650ad3261216d5c37fd96875e30cb14447f9c82c51",
+      "bytes": 31740
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/bus-sensor.pdf",
-      "sha256": "32247abbe0622452100b524bab5959824b0b863ea632a8f9c27f38cf05af8857",
+      "sha256": "0aa8bf20eb463100ab728b686ae41abee21aba6409802578e3944e6b193ee22d",
       "bytes": 79445
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/catch-board.pdf",
-      "sha256": "ab627fa0f9b87c1780a7f097143a3f81b4332b121977b962e19f5b6619a9deab",
+      "sha256": "3771f5c47043292c950b144302d8b4557d1b933c4390f540b31c01ca68bec6fb",
       "bytes": 33994
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/catch-drc-1.json",
-      "sha256": "e13bdb2a8c4a396271e7626507e9722324d7bbdd7366d710ba19b8450770c5fa",
+      "sha256": "e73ce7c65c3e6800e07e7db51a8d8c816b02e2b08f0465045483cc966eb164d0",
       "bytes": 1069
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/catch-drc-2.json",
-      "sha256": "b7c0a9baebdb43632ce392ed986174b25232f547b536b29e854a79cdc3e29ca2",
+      "sha256": "ee820452048e89fcae13c4bd345562b5c8cc9be4296810830c35a9a37f5f914f",
       "bytes": 1069
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/catch-drc-3.json",
-      "sha256": "b179bcf3c164bbe86239b4ca23e41009376134f4206a1f3b02c3bcb539bd8738",
+      "sha256": "8ac7d4b0c35ae0a0699522ce17721cb0af805e4b518cecb0996e58297d9fdffe",
       "bytes": 1069
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/catch-drc-parity.json",
-      "sha256": "e13bdb2a8c4a396271e7626507e9722324d7bbdd7366d710ba19b8450770c5fa",
+      "sha256": "e73ce7c65c3e6800e07e7db51a8d8c816b02e2b08f0465045483cc966eb164d0",
       "bytes": 1069
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/catch-erc.json",
-      "sha256": "16ac7e2360f27e3a47fef2ba15aa4a964112ef469f90e58f0d97f232924dde26",
+      "sha256": "88ebce840f9b80cdf7da89fa3d22c0e648feb90e4591a33993d92515df8cb301",
       "bytes": 985
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/catch-netlist.xml",
-      "sha256": "8cf932f9d4ae8fae71295188b57d14281b927459d70709ec5fd919e9e3808dde",
-      "bytes": 31877
+      "sha256": "255364d7bd96a98769a82e7898769fc6b7a49802ddf7c938bebee0c8596b2454",
+      "bytes": 31886
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/catch-sensor.pdf",
-      "sha256": "7959ec394b4613fba3900e5adc53e563512981c6e2efe0b9200f306f9e092789",
+      "sha256": "dbc03522df089e180789b98b762ce3fb9d4b49caa1a8b07b5855d85de15589f4",
       "bytes": 79631
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/central-board.pdf",
-      "sha256": "7257b18287c40c0665aba2e746f92d00dffd3f6dc075594aa4c7f18e46cbef73",
+      "sha256": "d94a1d521ae8e92017536d3d6030c304bc40fac83e448b7f3bddabe94745656f",
       "bytes": 606555
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/central-drc-1.json",
-      "sha256": "8bb14712149e63b08f129445e9e41ccc75d4381269279293c9b43dd92759f7ae",
+      "sha256": "a89419843fa9c23ba5599f78b7a26b5ba7b970c66c088708b335dc4d2e9a9b3d",
       "bytes": 1067
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/central-drc-2.json",
-      "sha256": "550cf3cbd23965acfb9d07fdb66561a867c680f5299cbae00687d209970a5afa",
+      "sha256": "e6ae68454e5fadfd855c737560674ee6dcc142bd9714c35bb39e6b41a45659a7",
       "bytes": 1067
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/central-drc-3.json",
-      "sha256": "a336d2fd5f8aff38cbf61a209dacc0337c4e41c2a62f2ee023f1e1509bb3ac43",
+      "sha256": "e8de694bdbbf3114a51f50e9ccb53ecfa729200f0502bc8ca47b1ab764f23d89",
       "bytes": 1067
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/central-erc.json",
-      "sha256": "61c141a2a67faa57aeaeb48ee77f139f51d677e03082afa39e1c521065e77429",
+      "sha256": "5df2cfbcb19eb1aaba3d268658aa55a5825ec0d170952320ff03da13b9879dfc",
       "bytes": 14677
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/central-netlist.xml",
-      "sha256": "d9bcef7908e23265363a74c8e86273476f84b075d59129361aa2e60eb4734892",
-      "bytes": 724748
+      "sha256": "feb58cdaea5e41e04edd1e27f9ad63c0f8d9723be2e98be3e2dee0d112e3bf60",
+      "bytes": 724751
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/central-routed-drc.json",
-      "sha256": "8bb14712149e63b08f129445e9e41ccc75d4381269279293c9b43dd92759f7ae",
+      "sha256": "a89419843fa9c23ba5599f78b7a26b5ba7b970c66c088708b335dc4d2e9a9b3d",
       "bytes": 1067
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/central-schematic.pdf",
-      "sha256": "b6cf461b38beffd3cbbf23a49d57b3e2454244e231aa203e8b641b682e820a86",
-      "bytes": 1281753
+      "sha256": "21de805d18c7039d9b7a46f5a3f2a5dcd16c39acf984653a043243b374e314d0",
+      "bytes": 1283187
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/iline-board.pdf",
-      "sha256": "92fcdd593a23357a413d15ba281d958aa9bf6a8a575401fefb4f134b2eee002e",
+      "sha256": "5b531cd396248059824b8994e96573cea2cd8ea0ea3d9e571f83b4bc50eff6f6",
       "bytes": 12083
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/iline-drc-1.json",
-      "sha256": "09a816065d05ff60c183367e790b6440dcdc99aa09a23c345cb39e3ebb9b5131",
+      "sha256": "68452318b0437db3ff3bf65cc5e143825892abcd7d0ae551ddbc4f78b5fb4599",
       "bytes": 1069
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/iline-drc-2.json",
-      "sha256": "e5baf449a932d18585b7df21aff4f0a0acd50f5aaebd87ee9ce85f190dab3a70",
+      "sha256": "ad287c4224d7bb68f9013f79920307505c700270533d3574dd1f0194049323d1",
       "bytes": 1069
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/iline-drc-3.json",
-      "sha256": "b31e102d9d887cd3defe1755600a3b50f7a79da7090b4ce6a80fc86a5ded831a",
+      "sha256": "2ff2a04535d62af18136f03a62de661bbc02599afeb027ffb45ed0011918daac",
       "bytes": 1069
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/iline-drc-parity.json",
-      "sha256": "09a816065d05ff60c183367e790b6440dcdc99aa09a23c345cb39e3ebb9b5131",
+      "sha256": "68452318b0437db3ff3bf65cc5e143825892abcd7d0ae551ddbc4f78b5fb4599",
       "bytes": 1069
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/iline-erc.json",
-      "sha256": "230c9d0240d7d29ad9309c668c95ef5a6b8967b93dd1b839c4b1bd95df45173c",
+      "sha256": "9ca671a3aead8bf56d4b4b187bd4e7f3005e708b33dfdc6ec1ca6205680f83ac",
       "bytes": 985
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/iline-netlist.xml",
-      "sha256": "01a6162e04b8a448cb57ab45584d08d8b32384d1e62efeaa3b2fd88adfec8e84",
-      "bytes": 9686
+      "sha256": "eba92865e031df84e52bd1e468e6c9994b795ec46f29335da614b7f97b68190c",
+      "bytes": 9803
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/iline-sensor.pdf",
-      "sha256": "f1e58fdec3fd2ce235779cbf0bd5394993dcafd956ff9b9ea7f6bb90c775365d",
+      "sha256": "59273fbed770fbbb32d73b3354367abf5cdea775b46484aee719ad5c69ada59f",
       "bytes": 43323
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/iproof-board.pdf",
-      "sha256": "eea1569f74b6bd2b3e7c61ae14abde847c575b1b80ad3e3bfb771da268523da9",
+      "sha256": "794ae78e0eda1440a7078422cf6ac9f9805a353532ee93477b02b607bf954e01",
       "bytes": 12107
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/iproof-drc-1.json",
-      "sha256": "d301ad6b320c4089908dcbb8ba9846f7d20708081faa7df3c28a7983adea7b8a",
+      "sha256": "b9763dc59d571975c0877c63670bcd5821f1ff5e7549901d41260ae354e3afac",
       "bytes": 1070
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/iproof-drc-2.json",
-      "sha256": "7427cc08ecedc2256529fa5a3c9a3371720db86b147370b2a1e7b111f420b8f2",
+      "sha256": "356abd49a4f572077183795fbb9c7e51113d6385d28b3d782435a759f9a0eb2c",
       "bytes": 1070
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/iproof-drc-3.json",
-      "sha256": "acad12d4aa8bb4b98cfc222cbdf34c517266ae757c347339bf2184647b78e6e5",
+      "sha256": "0307645dfd6a3e4258750d089205f9a1a22b4d20d37b2cc4cbb389f9f07eb4eb",
       "bytes": 1070
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/iproof-drc-parity.json",
-      "sha256": "d301ad6b320c4089908dcbb8ba9846f7d20708081faa7df3c28a7983adea7b8a",
+      "sha256": "b9763dc59d571975c0877c63670bcd5821f1ff5e7549901d41260ae354e3afac",
       "bytes": 1070
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/iproof-erc.json",
-      "sha256": "2261db0d1917f59b4e7b277accdc692619f6320fccfba84e673bf5331086024b",
+      "sha256": "8259cebbac9c9b7c752b24d915e000751126ed79fdb9a11b63c6f1ed0c8c9199",
       "bytes": 986
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/iproof-netlist.xml",
-      "sha256": "595d1fe1012c81e6c7e5636b540ff32eb29db3b9bf30c69d61c07770774ef8c6",
-      "bytes": 9701
+      "sha256": "02ff0694d859e2111ed6e66f03a563fc3cd26053924db263cca8263276b3b003",
+      "bytes": 9818
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/iproof-sensor.pdf",
-      "sha256": "4ba6a2705e9e9f76dea3a50c89bc7f4c4d562f51f4aa22ed265dabe86d97aac4",
+      "sha256": "b5ce757ae4e4747c20010af7806524174ebbca893cfb0600da8973e2ce8435ce",
       "bytes": 43796
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/line-board.pdf",
-      "sha256": "dddd1a66096f1cc49c4934a7801013061a857fab0c85e191074920f791120227",
+      "sha256": "f5bd92af22e8f24f9ff10210b4f496d5b36efe9efbd7a2abb1efc58b7ca76db9",
       "bytes": 29901
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/line-drc-1.json",
-      "sha256": "519a7daef69c5c94dbb7ea579925a8b97230e8b274b7ed71285346f8a2e9b67f",
+      "sha256": "e92db366601a1e00646f18ac819fdb1c06453286d97979afdfa892bbd48a457a",
       "bytes": 1068
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/line-drc-2.json",
-      "sha256": "c362da7455c1bf206e0434bc1bb2465d8c47ee07e8094d36959f3f4f593287d5",
+      "sha256": "64a4de7b5243de1d8821c9007eb922aa5c6bb641734e732958bb328dfd5f0d3e",
       "bytes": 1068
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/line-drc-3.json",
-      "sha256": "2cd8f8714b511dc4552feb7fc5a462dcb326c68b696ce7d84b1507cf5317a6e2",
+      "sha256": "0ec36f769952a605bab04618e12ccab6129b148be492b1f222aa0e5688e78a46",
       "bytes": 1068
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/line-drc-parity.json",
-      "sha256": "519a7daef69c5c94dbb7ea579925a8b97230e8b274b7ed71285346f8a2e9b67f",
+      "sha256": "e92db366601a1e00646f18ac819fdb1c06453286d97979afdfa892bbd48a457a",
       "bytes": 1068
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/line-erc.json",
-      "sha256": "245d26cba856eed8256c06a66ebe837736a50ccc2756d8abdad793c1e2a9f339",
+      "sha256": "595739953aa2ae922370298704a53f9b64c91ed5ba344484e13db45a0ee15b53",
       "bytes": 984
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/line-netlist.xml",
-      "sha256": "9e3195be62668210543ae54835e782c4ecfe75400f2d164ae3d418fea6c24261",
-      "bytes": 27131
+      "sha256": "96260ae0b6bd4e5f9e9a45356d13ef6f3714ae2b8011f68b8f86a5a1446a55c4",
+      "bytes": 27140
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/line-sensor.pdf",
-      "sha256": "ee5bbd47b58539e3b0327e69b9ac249442ba379b02975ccb707bf619052463dc",
+      "sha256": "ec1e81d6772faedc1483850a836be76d2fd95bcc1b1eb56676c0d708b7312d83",
       "bytes": 74101
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/native-pin-oracle.json",
-      "sha256": "0a3c7b53c4f976070e0b94c738534cb9280d2b715029d8d5ae6871493545811d",
-      "bytes": 3850
+      "sha256": "8bcf8aaa5c85219413c398f13a9e7f51542cb55db7fd168145f2f71e73e305ad",
+      "bytes": 4624
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/out-board.pdf",
-      "sha256": "0333cf12bb7d4d0da166bcb7a11cfb222c5b48f95b5e896e8e051056539af342",
+      "sha256": "6b9c18c0662b822fc097d7ff6cd1bdcafc527d76b243c05c349dfeba0a03965e",
       "bytes": 29907
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/out-drc-1.json",
-      "sha256": "4586667e557ee0f97d2dd6bbca8b72a1a7246e465651985d4d7a09c54c23ab66",
+      "sha256": "c63ba546e17062a299dfc62bedd97084b5ff7ac665b1f006cc21d582ae162126",
       "bytes": 1067
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/out-drc-2.json",
-      "sha256": "ee65636ee1afbe2bdf4cc17e2547f85de92dbda0a0a6bd06378f0c554ce85c50",
+      "sha256": "a2e4e9242e1cbc4bfc353d35ef3f4c1d6dd4a447aa658dc499b5939bad9bfd00",
       "bytes": 1067
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/out-drc-3.json",
-      "sha256": "c42378e15afc6675d0b0df89ec11e9371f00b02adaf176e5fb7b7370235e438d",
+      "sha256": "45f66cecb46f9f45aa0479f66408163cbc4e2e365a0550be2d7250799454a04e",
       "bytes": 1067
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/out-drc-parity.json",
-      "sha256": "4586667e557ee0f97d2dd6bbca8b72a1a7246e465651985d4d7a09c54c23ab66",
+      "sha256": "c63ba546e17062a299dfc62bedd97084b5ff7ac665b1f006cc21d582ae162126",
       "bytes": 1067
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/out-erc.json",
-      "sha256": "1068d944da47aaef6a303ff64490105949baf04f635ab1129dca23a9147faeb8",
+      "sha256": "94a4f4f3df69afd135fe34f1192d9819d83e4a62b82cd630f938b4549020efe6",
       "bytes": 983
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/out-netlist.xml",
-      "sha256": "02565198449422da423106fca3646342b32322fceeaf44106d7980eeebfca124",
-      "bytes": 27083
+      "sha256": "5a35a696a85f6f6bfe8194b2ff162259fea79cd10839b369a6276342ce680e6a",
+      "bytes": 27092
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/out-sensor.pdf",
-      "sha256": "1c14f543beb00e0d58f58fcf6c173ee8df9c5bfb36578f8b4d4bee36f950da84",
+      "sha256": "d7957b2390a270b7bba0ac17db4a140d66801cee98705d0b420155625947611a",
       "bytes": 74363
     },
     {
@@ -1722,83 +1728,98 @@
       "bytes": 109433
     },
     {
+      "path": "output/temper-prototype-closure/round5/boards/power-direction-tests.log",
+      "sha256": "c9cc973eb6a5ff15b14232ad29587be7b09d79ae284dd05ec41aa1d5fd2725ee",
+      "bytes": 1322
+    },
+    {
+      "path": "output/temper-prototype-closure/round5/boards/power-direction.log",
+      "sha256": "9e6a3fefc4888d9155cde54b834b2958fdfe123ff85318dcca51ee99722abdbe",
+      "bytes": 108
+    },
+    {
+      "path": "output/temper-prototype-closure/round5/boards/power-direction.tsv",
+      "sha256": "c6e4a2d36e4a398cf3b7696b25bf29a89f81c405e0f7ba874380101b08956bf4",
+      "bytes": 61839
+    },
+    {
       "path": "output/temper-prototype-closure/round5/boards/pre-board.pdf",
-      "sha256": "06a73562284185f569bda1469ece181d258880080608e5a9637b9ba9c55f3674",
+      "sha256": "6db17aa1840b0b7aa887ae7f1318b5e92013d910a72d1894fc552f8837a2a757",
       "bytes": 29915
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/pre-drc-1.json",
-      "sha256": "d47ccf8957c6278f28f14e323039723836e7e8decd1686b6ca76488d7692a45a",
+      "sha256": "df52241f4196f2c65f7c9517c57c30d5c41f0bae6bf486a384fd21d9429f44fe",
       "bytes": 1067
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/pre-drc-2.json",
-      "sha256": "c8548ea75cde261cdf33acd4849ddbf33c83ace7b5b01d233065840ef7b11305",
+      "sha256": "13158407662d7dfaf72b95b1d398357a0ae1f9c03207ecd6b7451fbd4a61076c",
       "bytes": 1067
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/pre-drc-3.json",
-      "sha256": "e0b474f82f6cb7763b8e70b2193c97adae472b3ff5675c838d9f51f7cfb61544",
+      "sha256": "1e1755581efc8f9ba31fe709633f70753c6fd643f0ada6c4ef57ef1f6a0dcb44",
       "bytes": 1067
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/pre-drc-parity.json",
-      "sha256": "d47ccf8957c6278f28f14e323039723836e7e8decd1686b6ca76488d7692a45a",
+      "sha256": "df52241f4196f2c65f7c9517c57c30d5c41f0bae6bf486a384fd21d9429f44fe",
       "bytes": 1067
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/pre-erc.json",
-      "sha256": "6b3de2ad3001d48ee7b0a0761d1bb699deb7f996f5fa626d739f065e6e39af36",
+      "sha256": "3c1b362bee71396d65cf39a30f640157bd45bb73cb63810ea04da0b1d5fedf42",
       "bytes": 983
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/pre-netlist.xml",
-      "sha256": "07710839c0b89d0d67f92e02cd11cb1bda13afee4f9fa14cd9a216281cbe9855",
-      "bytes": 27083
+      "sha256": "8c1120532194352ee5d08a30f575de5a67ccccc62a6322e65e4a1c1b8231f23a",
+      "bytes": 27092
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/pre-sensor.pdf",
-      "sha256": "69a33a4605835219e3d179ba32817818b7a1a0d2124237b7ef9acab280119025",
+      "sha256": "5aeff5e6ab3527a4f410fe7f5e54ee8039c7f4129b4d5aec8f790d6595ebe371",
       "bytes": 74050
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/tank-board.pdf",
-      "sha256": "eaf98a0dfc5f7eb3a8cbeb83dd2a53df5dc21d6adeec79516f441980357bb8c0",
+      "sha256": "c4b4db20af79f341a9b2fd2736ca264c5fca06f81bd7f92f768a41c19b400a65",
       "bytes": 37700
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/tank-drc-1.json",
-      "sha256": "1bea3fd1384f881a9cdfc8ee57e231590de42f95744d7ddc0ca00a25fc95a5aa",
+      "sha256": "cdfb211614b1b8561527445d028ebfd56c14df1169b0e93ddb10547e40a0e031",
       "bytes": 1068
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/tank-drc-2.json",
-      "sha256": "e5ef82b9f1d3bee8ed5e65eed554ec56c92a3295ee6d04345fc987c56b29dd25",
+      "sha256": "1a06aea9b94adca3352c965f89c508755d7c3b6f204ef3cdcb8d85a796c91954",
       "bytes": 1068
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/tank-drc-3.json",
-      "sha256": "0a073fc132419c8a77737c3da8a7b21bd10f943ee0f8025c086f24b9892f55bf",
+      "sha256": "f55e67cae18422f9c5e4a6944f0aeb0222f6c349d88fd25af78112f86f9d7ac4",
       "bytes": 1068
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/tank-drc-parity.json",
-      "sha256": "1bea3fd1384f881a9cdfc8ee57e231590de42f95744d7ddc0ca00a25fc95a5aa",
+      "sha256": "cdfb211614b1b8561527445d028ebfd56c14df1169b0e93ddb10547e40a0e031",
       "bytes": 1068
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/tank-erc.json",
-      "sha256": "6a64d259afd09a3c19834e8ecc02bf50ab50b7ee172f35e490c908f835965f08",
+      "sha256": "8e08eaaebc9305c3a216b03e4a06eb75d8c716aa301943668fecbcf843d34b2c",
       "bytes": 984
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/tank-netlist.xml",
-      "sha256": "a751a75207619eb22e927c18a812be5f2641f684bba00702e40846a75cfac9a8",
-      "bytes": 36449
+      "sha256": "3c2b60364ccaa2c44233c827f91138292ce00c1abd4c2e617944e7bf26705e6e",
+      "bytes": 36458
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/tank-sensor.pdf",
-      "sha256": "34b88575bac82e3acfe4d5678c4c53b762546d95668fc7b468dac64e859e9d9d",
+      "sha256": "32e36dd4e9d383fd59d7b42cbdaf905840e84f25fdd4ade3c2b67d75968a6833",
       "bytes": 83767
     },
     {

@@ -19,7 +19,9 @@ module.render()
 for p, data in sidecars.items():
     p.write_bytes(data)
 # The physical 24V supply and wired 5V converter are external to this partition.
-# Power flags describe their connector-fed rails; they do not invent a regulator.
+# Power flags declare external connector-fed rails for ERC, not on-board producers.
+# D-30: J9 receives CTRL_3V3/CTRL_GND from the controller. The independent
+# power_direction.rs validator requires these exact boundaries and ignores flags.
 flag = """(symbol "Supervisor:ExternalPower" (power) (pin_names (offset 0)) (in_bom no) (on_board no)
 (property "Reference" "#FLG" (at 0 0 0) (effects (font (size 1 1)) hide))
 (property "Value" "PWR_FLAG" (at 0 4 0) (effects (font (size 1 1))))
@@ -28,13 +30,20 @@ p = native / "supervisor.kicad_sch"
 text = p.read_text()
 text = text.replace("(lib_symbols)", f"(lib_symbols {flag})", 1)
 items = []
-for i, net in enumerate(["AUX_24V", "AUX_0V", "POD_5V"], 1):
+external_rails = [
+    ("AUX_24V", "External supply"),
+    ("AUX_0V", "External supply"),
+    ("POD_5V", "External supply"),
+    ("CTRL_3V3", "Controller supply via J9.1"),
+    ("CTRL_GND", "Controller return via J9.2"),
+]
+for i, (net, description) in enumerate(external_rails, 1):
     x = 30.48 + 50.8 * i
     y = 480.06
     ref = f"#FLG0{i}"
     items.append(f'''(symbol (lib_id "Supervisor:ExternalPower") (at {x} {y} 0) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid "{module.uid(ref)}")
 (property "Reference" "{ref}" (at {x} {y} 0) (effects (font (size 1 1)) hide))
-(property "Value" "External supply" (at {x} {y - 5.08} 0) (effects (font (size 1 1))))
+(property "Value" "{description}" (at {x} {y - 5.08} 0) (effects (font (size 1 1))))
 (pin "1" (uuid "{module.uid(ref + "pin")}")) (instances (project "supervisor" (path "/{module.uid("root")}" (reference "{ref}") (unit 1)))))
 (global_label "{net}" (shape bidirectional) (at {x} {y} 0) (effects (font (size 1.27 1.27)) (justify left)) (uuid "{module.uid(net + "flag")}"))''')
 text = text.rstrip()
