@@ -93,3 +93,8 @@ Requirements this creates: (a) bursts run at or near the frequency-control floor
 
 Not chosen: the passive −2 V/−4 V networks (+$5–9) because they don't reproduce the stiff source and collapse in bursts (D-12), and control-only S4 avoidance as the sole barrier. Still open: S4's physical recovery bound (D-24 answer c, one commutation measurement) and bias startup/sequencing qualification on the bench. Cost-down to revisit: one shared low-side module (both low sides reference `leg_ret`) would save one module. **Reversible** until the re-layout is released.
 
+**2026-10-05, addendum to the F6 adoption: burst-start edge and native-20 bring-up, decided under the same delegation:** a new decision case, S5 (first hard turn-on after idle, 0 A, full bus held by the film capacitors), fails the off-gate screens in all 216 unipolar cases and passes all 216 with F6 (FINDINGS F11). Burst-mode low power makes this edge routine: it happens at every burst and every power-up. That is a second, independent reason F6 is required for the product. **For the native-20 prototype (unipolar drive)**, the bench rules are:
+(1) the first power-ups run from a **current-limited DC source** (not the mains bus) at ≤ 50 V, rising to 170 V only after the first-edge capture;
+(2) the partner's VGS (isolated probe) and bus current are captured at the first edge, in the same session as D-24's S4 commutation measurement;
+(3) firmware on native-20 uses **continuous operation** (no burst cycling) until the capture shows the partner gate stays below 3.0 V.
+

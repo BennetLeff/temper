@@ -42,7 +42,12 @@ MATRICES = {"A": HERE / "legA-h0-best-n19.matrix.txt", "B": HERE / "legB-h0-prov
 SCREEN = {r["temp_C"]: r["model_screen_V"] for r in json.loads((D13 / "results-threshold.json").read_text())}
 
 
-def jobs(temps=TEMPS):
+def jobs(temps=TEMPS, case_set="decision"):
+    if case_set == "startup":
+        # S5: burst-start edge. Bridge idle, tank current 0, bus film caps still at the line peak
+        # (or the 280 V maximum): the first turn-on hard-switches the full bus with no diode recovery.
+        pts = [("S5", v, 0, dt) for v in (170, 198, 280) for dt in (391, 443, 498)]
+        return list(itertools.product("AB", temps, pts, (0, 1), (1.06, 10)))
     pts = [("S4", v, -20, dt) for v in (170, 198, 280) for dt in (391, 443, 498)]
     pts += [("S1", v, 37, 443) for v in (198, 280)] + [("S2", 280, 71, 443)]
     return list(itertools.product("AB", temps, pts, (0, 1), (1.06, 10)))
@@ -54,7 +59,7 @@ def one(job):
     p = run_d2.matrix_params(run_d2.read_L(str(MATRICES[leg])))
     p.update(TJ=str(temp), VBUS=str(vbus), IL=str(il), DIR=str(d), DT=f"{dt}n", LESL=f"{esl}n", LSHUNT="2n", TRMAX="0.2n")
     keep = OUT / "runs" / name
-    r = run_d2.run(OUT / "F6.cir", p, keep=keep)
+    r = run_d2.run(OUT / "F6.cir", p, keep=keep)   # deck file name kept; content per --deck
     (keep / "IFX_CFD7_650V.lib").unlink(missing_ok=True)
     m = r["meas"]
     off, inc = ("ls", "hs") if d == 0 else ("hs", "ls")
@@ -83,6 +88,8 @@ def main():
     ap.add_argument("--diode", choices=["placeholder", "pmeg"], default="placeholder",
                     help="discharge diode: D-6's generic D6D, or the selected Nexperia PMEG6030EP vendor model (D-12)")
     ap.add_argument("--temps", default="27,100")
+    ap.add_argument("--deck", choices=["F6", "baseline"], default="F6", help="D-13 deck: F6 remedy or the unipolar baseline")
+    ap.add_argument("--cases", choices=["decision", "startup"], default="decision")
     ap.add_argument("--out", default=None)
     a = ap.parse_args()
     global OUT
@@ -90,10 +97,10 @@ def main():
         OUT = HERE / "results" / a.out
     temps = tuple(int(x) for x in a.temps.split(","))
     OUT.mkdir(parents=True, exist_ok=True)
-    deck = (D13 / "decks" / "F6.cir").read_text()
+    deck = (D13 / "decks" / f"{a.deck}.cir").read_text()
     assert ".include params.inc" in deck
     deck = deck.replace(".include params.inc", ".include params.inc\n" + OPTION, 1)
-    if a.diode == "pmeg":
+    if a.diode == "pmeg" and a.deck == "F6":
         if not PMEG.is_file():
             raise SystemExit("PMEG6030EP model missing; run sim-kit/models/fetch_models.sh")
         old = ".model D6D D(Is=1u N=1 Rs=0.05 Cjo=20p Tt=0)\nDoffl gdl3 offl D6D"
@@ -105,7 +112,7 @@ def main():
     if not vendor.is_file():
         raise SystemExit("vendor model missing; run sim-kit/models/fetch_models.sh")
     with ThreadPoolExecutor(a.workers) as ex:
-        rows = list(ex.map(one, jobs(temps)))
+        rows = list(ex.map(one, jobs(temps, a.cases)))
     (OUT / "results.json").write_text(json.dumps(rows, indent=1) + "\n")
     summ = {"identity": {str(p.name): hashlib.sha256(p.read_bytes()).hexdigest()
                          for p in (*MATRICES.values(), OUT / "F6.cir", Path(__file__), HERE / "run_d2.py")
@@ -113,7 +120,7 @@ def main():
             "model_screen_V": SCREEN, "groups": {}}
     lines = ["| leg | Tj °C | case | complete | pass (3.0 V + model + VDS) | pass incl. 1.9 V | max off-gate V | max die VDS V |",
              "| --- | ---: | --- | ---: | ---: | ---: | ---: | ---: |"]
-    for leg, temp, case in itertools.product("AB", temps, ("S1", "S2", "S4")):
+    for leg, temp, case in itertools.product("AB", temps, sorted({r["case"] for r in rows})):
         g = [r for r in rows if (r["leg"], r["temp_C"], r["case"]) == (leg, temp, case)]
         c = [r for r in g if r["status"] == "complete"]
         s = {"cases": len(g), "complete": len(c), "pass": sum(r["pass"] for r in c), "pass_hot": sum(r["pass_hot"] for r in c),

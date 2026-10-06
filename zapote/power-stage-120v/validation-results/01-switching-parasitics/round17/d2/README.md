@@ -391,3 +391,29 @@ S1/S2 off-gate ≤ −0.27 V with ZVS. 150 °C converges with no aborts, so D-13
 150 °C indeterminacy was the placeholder diode. 27/100 °C agree with the
 placeholder run within 0.23 V off-gate and 12.5 V die VDS (192 matched cases; the real diode's 634 pF junction changes the discharge path), with no verdict change.
 
+## S5: the burst-start edge (`f6_legs.py --cases startup`, `startup_probe.py`)
+
+With the bridge idle, the bus film capacitors keep the line peak through the
+zero crossing. A burst's (or any power-up's) first turn-on therefore
+hard-switches the full bus into **zero tank current**: no diode recovery,
+unlike S4, but the same dv/dt on the partner's gate. S5 = IL 0 A at
+170/198/280 V × 391/443/498 ns, both directions, ESL 1.06/10 nH, Tj
+27/100/150 °C, both legs (108 cases per variant).
+
+| Deck | complete | pass (3.0 V + model + VDS) | max off-gate | max die VDS |
+| --- | ---: | ---: | ---: | ---: |
+| baseline (unipolar, native-20 as built) | 216/216 | **0** | 4.13 V (A, 27 °C) | 463.7 V |
+| F6, PMEG6030EP | 216/216 | **216** | 0.02 V | 420.8 V |
+
+`startup_probe.py` measures the off device's peak drain current and its
+energy in the 0.75 µs after the edge (worst cases, both legs, 27/150 °C,
+170/280 V; `results/startup-probe.json`). Peak current is about 67–73 A in
+**both** decks, i.e. dominated by its output-capacitance charging, not
+channel conduction. Its energy is **114–143 µJ** without F6 and
+**83–105 µJ** with F6. The difference, about 30–40 µJ per edge, is partial
+channel conduction with the gate near the model's typical threshold (4.05 V at 27 °C).
+Thermally that's negligible at one edge per 20 s burst. The risk is device spread:
+the datasheet guarantees VGS(th) ≥ 3.5 V only at 25 °C, and lower hot. A
+low-threshold part at about 4 V on its gate would shoot through. Hence FINDINGS F11
+and the bring-up precaution in DECISIONS.md.
+
