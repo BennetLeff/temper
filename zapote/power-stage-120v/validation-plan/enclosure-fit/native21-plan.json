@@ -1,5 +1,5 @@
 {
- "description": "native-21 band-A arrangement (D-36): board in the front-middle band; BR1+FET row compressed onto the board's REAR edge right of the sensor corridor; edge sink under the coil support plate; right-wall inlet, rear-wall exhaust left of the mains connector blank.",
+ "description": "native-21 band-A arrangement (D-36): board in the front-middle band; BR1+FET row compressed onto the board's REAR edge right of the sensor corridor; edge sink under the coil support plate; right-wall inlet, rear-wall exhaust left of the mains connector blank. Board is L-shaped: main 290x140 plus a 91x50 tongue under the power core (world x 50..141, y 46..96); in the tongue, parts <= 22 mm above the board top for y < 76 (knob mechanism above Z 52), full height for y >= 76.",
  "boxes": {
   "board_290x140_bottom_z26_envelope": [
    -149,
@@ -32,6 +32,22 @@
    95,
    438,
    83
+  ],
+  "board_tongue_lowprofile_y46_76": [
+   50,
+   46,
+   11.5,
+   141,
+   76,
+   50
+  ],
+  "board_tongue_fullheight_y76_96": [
+   50,
+   76,
+   11.5,
+   141,
+   96,
+   76
   ]
  },
  "sink": {
