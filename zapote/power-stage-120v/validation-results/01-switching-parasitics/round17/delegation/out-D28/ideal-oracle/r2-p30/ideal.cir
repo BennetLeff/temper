@@ -1,0 +1,13 @@
+* D28 ideal differential bridge; independent ngspice RLC oracle.
+.param F=50000 T1=2u P=30 R=2
+Va a 0 PULSE(0 170 {T1} 1p 1p {0.5/F-1p} {1/F})
+Vb b 0 PULSE(0 170 {T1+P/360/F} 1p 1p {0.5/F-1p} {1/F})
+R a n1 {R}
+L n1 n2 70u
+C n2 b 0.54u
+.options method=trap reltol=1e-7 abstol=1e-12
+.tran 2n {T1+100/F} {T1+99/F} 2n
+.meas tran ia FIND i(L) AT={T1+99/F}
+.meas tran ib FIND i(L) AT={T1+99/F+P/360/F}
+.meas tran irms RMS i(L) FROM={T1+99/F} TO={T1+100/F}
+.end

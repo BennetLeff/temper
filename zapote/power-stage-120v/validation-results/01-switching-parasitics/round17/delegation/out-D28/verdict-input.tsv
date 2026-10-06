@@ -1,0 +1,50 @@
+label	transient	periodic	comparison	cycle_flags	step_flags	zvs	off3	off1p9	vds520
+anchor-original-170-35k	indeterminate	missing	missing						
+anchor-original-170-35k-repeat	unqualified_complete	complete	missing			true;true;true;true	true;true;true;true	true;true;true;true	true;true;true;true
+boundary-v170-r2-p100-s0.5	unqualified_complete	complete	missing			false;false;false;false	true;true;true;true	true;true;true;true	true;true;true;true
+boundary-v170-r2-p110-s0.5	unqualified_complete	complete	missing			false;false;true;true	true;true;true;true	true;true;true;true	true;true;true;true
+boundary-v170-r2-p125-s0.25	unqualified_complete	complete	comparisons_complete	true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true	false;false;false;false;true;true;true;true;true;true;false;false;false;false;true;true;true;true;false;false;false;false;true;true;true;true;false;false;false;false;true;true;true;true;false;false;false;false;true;true;false;false;true;true;false;false;true;true;false;false;false;false;false;false;false;false	true;true;true;true	true;true;true;true	true;true;true;true	true;true;true;true
+boundary-v170-r2-p125-s0.5	unqualified_complete	complete	missing			true;true;true;true	true;true;true;true	true;true;true;true	true;true;true;true
+boundary-v170-r2-p130-s0.5	indeterminate	missing	missing						
+boundary-v198-r2-p100-s0.5	unqualified_complete	complete	missing			false;false;true;true	true;true;true;true	true;true;true;true	true;true;true;true
+boundary-v198-r2-p110-s0.5	unqualified_complete	complete	missing			true;true;true;true	true;true;true;true	true;true;true;true	true;true;true;true
+complementary-v170-r100-p180-s1	indeterminate	missing	missing						
+complementary-v170-r100-p30-s1	indeterminate	missing	missing						
+complementary-v170-r100-p90-s0.5	unqualified_complete	complete	indeterminate			false;false;false;false	false;false;true;true	false;false;false;false	true;true;true;true
+complementary-v170-r100-p90-s1	indeterminate	missing	missing						
+complementary-v170-r2-p0-s1	indeterminate	missing	missing						
+complementary-v170-r2-p120-s0.25	unqualified_complete	complete	comparisons_complete	true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true	false;false;false;false;true;true;true;true;true;true;false;false;false;false;true;true;true;true;false;false;false;false;true;true;true;true;false;false;false;false;true;true;true;true;false;false;false;false;true;true;false;false;true;true;false;false;true;true;false;false;false;false;false;false;false;false	false;false;true;true	true;true;true;true	true;true;true;true	true;true;true;true
+complementary-v170-r2-p120-s0.5	unqualified_complete	complete	indeterminate			false;false;true;true	true;true;true;true	true;true;true;true	true;true;true;true
+complementary-v170-r2-p120-s1	indeterminate	missing	missing						
+complementary-v170-r2-p150-s0.5	unqualified_complete	complete	indeterminate			true;true;true;true	true;true;true;true	true;true;true;true	true;true;true;true
+complementary-v170-r2-p150-s1	indeterminate	missing	missing						
+complementary-v170-r2-p180-s0.5	unqualified_complete	complete	indeterminate			true;true;true;true	true;true;true;true	true;true;true;true	true;true;true;true
+complementary-v170-r2-p180-s1	indeterminate	missing	missing						
+complementary-v170-r2-p30-s1	indeterminate	missing	missing						
+complementary-v170-r2-p60-s0.5	unqualified_complete	complete	indeterminate			false;false;false;false	true;true;true;true	true;true;true;true	true;true;true;true
+complementary-v170-r2-p60-s1	indeterminate	missing	missing						
+complementary-v170-r2-p90-s0.25	unqualified_complete	complete	comparisons_complete	true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true	false;false;false;false;true;true;true;true;true;true;false;false;false;false;true;true;true;true;false;false;false;false;true;true;true;true;false;false;false;false;true;true;true;true;false;false;false;false;true;true;false;false;true;true;false;false;true;true;false;false;false;false;false;false;false;false	false;false;false;false	true;true;true;true	true;true;true;true	true;true;true;true
+complementary-v170-r2-p90-s0.5	unqualified_complete	complete	indeterminate			false;false;false;false	true;true;true;true	true;true;true;true	true;true;true;true
+complementary-v170-r2-p90-s1	indeterminate	missing	missing						
+complementary-v198-r100-p180-s1	unqualified_complete	not_settled	missing			false;false;false;false	true;true;true;true	false;false;false;false	true;true;true;true
+complementary-v198-r100-p30-s1	indeterminate	missing	missing						
+complementary-v198-r100-p90-s0.5	indeterminate	missing	indeterminate						
+complementary-v198-r100-p90-s1	indeterminate	missing	missing						
+complementary-v198-r2-p0-s1	indeterminate	missing	missing						
+complementary-v198-r2-p120-s0.5	unqualified_complete	complete	indeterminate			true;true;true;true	true;true;true;true	true;true;true;true	true;true;true;true
+complementary-v198-r2-p120-s1	indeterminate	missing	missing						
+complementary-v198-r2-p150-s0.5	unqualified_complete	complete	comparisons_complete	true;false;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true	false;false;false;false;true;true;false;false;false;false;false;false;false;false;false;false;false;false;false;false;false;false;false;false;false;false;false;false;false;false;false;false;false;false;false;false;false;false;true;true;false;false;true;true;false;false;false;false;false;false;false;false;false;false;false;false	true;true;true;true	true;true;true;true	true;true;true;true	true;true;true;true
+complementary-v198-r2-p150-s1	unqualified_complete	complete	missing			true;true;true;true	true;true;true;true	true;true;true;true	true;true;true;true
+complementary-v198-r2-p180-s0.5	unqualified_complete	complete	comparisons_complete	true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true;true	false;false;false;false;false;true;false;false;false;false;false;false;false;false;false;false;false;false;false;false;false;false;false;false;false;false;false;false;false;false;false;false;false;false;false;false;false;false;true;true;false;false;true;true;false;false;false;false;false;false;false;false;false;false;false;false	true;true;true;true	true;true;true;true	true;true;true;true	true;true;true;true
+complementary-v198-r2-p180-s1	unqualified_complete	complete	missing			true;true;true;true	true;true;true;true	true;true;true;true	true;true;true;true
+complementary-v198-r2-p30-s1	indeterminate	missing	missing						
+complementary-v198-r2-p60-s0.5	unqualified_complete	complete	indeterminate			false;false;false;false	true;true;true;true	true;true;true;true	true;true;true;true
+complementary-v198-r2-p60-s1	unqualified_complete	not_settled	missing			false;false;false;false	true;true;true;true	true;true;true;true	true;true;true;true
+complementary-v198-r2-p90-s0.5	indeterminate	missing	indeterminate						
+complementary-v198-r2-p90-s1	unqualified_complete	complete	missing			false;false;false;false	true;true;true;true	true;true;true;true	true;true;true;true
+v170-r2-p0-s1	indeterminate	missing	missing						
+v170-r2-p120-s1	indeterminate	missing	missing						
+v170-r2-p150-s1	indeterminate	missing	missing						
+v170-r2-p30-s1	indeterminate	missing	missing						
+v170-r2-p60-s1	indeterminate	missing	missing						
+v170-r2-p90-s1	indeterminate	missing	missing						

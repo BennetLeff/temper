@@ -1,0 +1,42 @@
+
+Note: No compatibility mode selected!
+
+
+Circuit: * d28 ideal differential bridge; independent ngspice rlc oracle.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+Initial Transient Solution
+--------------------------
+
+Node                                   Voltage
+----                                   -------
+a                                            0
+b                                            0
+n1                                           0
+n2                                           0
+l#branch                                     0
+vb#branch                                    0
+va#branch                                    0
+
+ Reference value :  1.96200e-03
+No. of Data Rows : 20144
+
+  Measurements for Transient Analysis
+
+ia                  =  7.632071e-02
+ib                  =  1.658857e+00
+irms                =   1.12655e+00 from=  1.98200e-03 to=  2.00200e-03
+
+
+Total analysis time (seconds) = 1.40676
+
+Total elapsed time (seconds) = 1.411 
+
+Total DRAM available = 32768.000 MB.
+DRAM currently available =  752.766 MB.
+Maximum ngspice program size =   10.609 MB.
+Current ngspice program size =   10.609 MB.
+
