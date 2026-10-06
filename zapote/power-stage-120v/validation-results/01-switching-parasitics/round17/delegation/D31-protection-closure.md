@@ -1,3 +1,5 @@
+> **Taken by Claude (owner request 2026-10-05: "instead of delegating, can you just do it"). Do not start a separate run.**
+
 # D-31: protection closure — timing ledger, DC fuse, precharge pulses, DC contactors (supersedes D-17)
 
 **Read [README.md](README.md) first (ground rules, board facts).**

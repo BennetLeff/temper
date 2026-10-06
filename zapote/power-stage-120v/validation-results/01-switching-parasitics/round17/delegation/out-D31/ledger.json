@@ -1,0 +1,145 @@
+{
+ "stages": {
+  "shunt front end (R5 filter, TLV3201 at 20 mV overdrive)": {
+   "min_ns": null,
+   "max_ns": null,
+   "tag": "ROUND-3",
+   "source": "validation-results/02-protection-timing/round3 (A5); see survival.py for the current reached"
+  },
+  "CT front end (crossing -> comparator OR output)": {
+   "min_ns": 71.0,
+   "max_ns": 336.3,
+   "tag": "ROUND-3",
+   "source": "validation-results/02-protection-timing/round3/README.md:39 (106 modelled CT rows)"
+  },
+  "NAND SN74LVC1G10 (HOT side, shunt path only)": {
+   "min_ns": null,
+   "max_ns": 6.4,
+   "tag": "BOUND",
+   "source": "https://www.ti.com/lit/ds/symlink/sn74lvc1g10.pdf p5, 3.3 V column, worst row"
+  },
+  "ISO7710 (shunt path only)": {
+   "min_ns": null,
+   "max_ns": 21.0,
+   "tag": "BOUND",
+   "source": "https://www.ti.com/lit/ds/symlink/iso7710.pdf pp14-15, largest of the supply cases"
+  },
+  "OR SN74LVC1G332": {
+   "min_ns": null,
+   "max_ns": 6.2,
+   "tag": "BOUND",
+   "source": "https://www.ti.com/lit/ds/symlink/sn74lvc1g332.pdf p5, 3.3 V column, worst row"
+  },
+  "harness J4.10 out + J4.9 back (2 x 2 m, 5 ns/m)": {
+   "min_ns": null,
+   "max_ns": 20.0,
+   "tag": "ALLOCATION",
+   "source": "cable length not fixed; D-20 O01"
+  },
+  "interlock SN74LVC14A (fault input)": {
+   "min_ns": null,
+   "max_ns": 8.0,
+   "tag": "BOUND",
+   "source": "https://www.ti.com/lit/ds/symlink/sn74lvc14a.pdf p9, 3.3 V +-0.3 V, extended temperature"
+  },
+  "interlock CD74HC30 8-input NAND": {
+   "min_ns": null,
+   "max_ns": 115.0,
+   "tag": "BOUND*",
+   "source": "https://www.ti.com/lit/ds/symlink/cd74hc30.pdf p6: 2 V, -40..85 C max; not specified at 3.3 V (4.5 V: 23 ns); delay decreases with VCC"
+  },
+  "interlock SN74LVC14A (ALL_GOOD)": {
+   "min_ns": null,
+   "max_ns": 8.0,
+   "tag": "BOUND",
+   "source": "https://www.ti.com/lit/ds/symlink/sn74lvc14a.pdf p9"
+  },
+  "interlock SN74LVC1G74 CLR -> Q (= PERMIT)": {
+   "min_ns": null,
+   "max_ns": 7.9,
+   "tag": "BOUND",
+   "source": "https://www.ti.com/lit/ds/symlink/sn74lvc1g74.pdf p7, PRE/CLR to Q, worst 3.3 V-range column"
+  },
+  "Q1/Q4 AO3400A turn-off (gate Vcc -> Vth min via 100 ohm)": {
+   "min_ns": null,
+   "max_ns": 181.6,
+   "tag": "ALLOCATION",
+   "source": "https://www.aosmd.com/sites/default/files/res/datasheets/AO3400A.pdf p2 (Vth 0.65 V min, Rg 4.5 ohm max); gate C allocated 1000 pF (Ciss 630 pF at 15 V; low-VDS curve p4)"
+  },
+  "DIS node rise to VIH (1 k pull-up)": {
+   "min_ns": null,
+   "max_ns": 360.8,
+   "tag": "ALLOCATION",
+   "source": "https://www.ti.com/lit/ds/symlink/ucc21550.pdf p9 (DIS VIH 2.3 V max); C allocated 270 pF (AO3400A Coss 75 pF at 15 V, larger near 0 V), lowest rail 3.135 V"
+  },
+  "UCC21550 DIS response (incl. 20 ns filter)": {
+   "min_ns": 27.0,
+   "max_ns": 80.0,
+   "tag": "BOUND",
+   "source": "https://www.ti.com/lit/ds/symlink/ucc21550.pdf p10, tPD_DIS_HL"
+  }
+ },
+ "paths": {
+  "CT": {
+   "path": "CT",
+   "stages": [
+    "CT front end (crossing -> comparator OR output)",
+    "OR SN74LVC1G332",
+    "harness J4.10 out + J4.9 back (2 x 2 m, 5 ns/m)",
+    "interlock SN74LVC14A (fault input)",
+    "interlock CD74HC30 8-input NAND",
+    "interlock SN74LVC14A (ALL_GOOD)",
+    "interlock SN74LVC1G74 CLR -> Q (= PERMIT)",
+    "Q1/Q4 AO3400A turn-off (gate Vcc -> Vth min via 100 ohm)",
+    "DIS node rise to VIH (1 k pull-up)",
+    "UCC21550 DIS response (incl. 20 ns filter)"
+   ],
+   "max_ns_excluding_front_end_and_gate_discharge": 787.5,
+   "max_ns_including_front_end_where_known": 1123.8,
+   "tags": [
+    "ALLOCATION",
+    "BOUND",
+    "BOUND*",
+    "ROUND-3"
+   ]
+  },
+  "shunt": {
+   "path": "shunt",
+   "stages": [
+    "shunt front end (R5 filter, TLV3201 at 20 mV overdrive)",
+    "NAND SN74LVC1G10 (HOT side, shunt path only)",
+    "ISO7710 (shunt path only)",
+    "OR SN74LVC1G332",
+    "harness J4.10 out + J4.9 back (2 x 2 m, 5 ns/m)",
+    "interlock SN74LVC14A (fault input)",
+    "interlock CD74HC30 8-input NAND",
+    "interlock SN74LVC14A (ALL_GOOD)",
+    "interlock SN74LVC1G74 CLR -> Q (= PERMIT)",
+    "Q1/Q4 AO3400A turn-off (gate Vcc -> Vth min via 100 ohm)",
+    "DIS node rise to VIH (1 k pull-up)",
+    "UCC21550 DIS response (incl. 20 ns filter)"
+   ],
+   "max_ns_excluding_front_end_and_gate_discharge": 814.9,
+   "max_ns_including_front_end_where_known": 814.9,
+   "tags": [
+    "ALLOCATION",
+    "BOUND",
+    "BOUND*",
+    "ROUND-3"
+   ]
+  }
+ },
+ "derived": {
+  "t_q_off_ns": 181.57426703767382,
+  "t_dis_ns": 360.76920898454836,
+  "assumptions": {
+   "VCC_min": 3.135,
+   "VCC_max": 3.465,
+   "gate_C_alloc_pF": 1000.0000000000001,
+   "R_gate_ohm": 108.5,
+   "R_pu_ohm": 1010.0,
+   "DIS_C_alloc_pF": 270.0,
+   "VIH_DIS_max": 2.3
+  }
+ }
+}

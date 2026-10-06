@@ -1,0 +1,21 @@
+# D-31 out: protection closure (done by Claude, 2026-10-05)
+
+## One-line answers
+
+1. **Gate-off and survival:** from comparator output to completed DIS response, the chain takes at most **787.5 ns on the CT path and 814.9 ns on the shunt path**. This is ALLOCATION-dominated: the DIS 1 kΩ/270 pF RC accounts for 360.8 ns and the Q1/Q4 gate 181.6 ns ([ledger.md](ledger.md)). On the native-19 matrix, turning off at **60–120 A gives die VDS ≤ 345.2 V**, and at **200–330 A gives ≤ 349.8 V** ([survival.md](survival.md), [survival-short.md](survival-short.md)). All of these are well under the 520 V screen and the 650 V rating. One case (280 V, 330 A, direction 1, 10 nH) aborted; rerunning it at a 0.1 ns and 0.05 ns step gave 344.1 V, so the abort was numerical. **Shoot-through cannot be survived via this chain:** 495 A ID,pulse is reached in about 55 ns, so it relies on prevention plus FC1 and the catch circuit.
+2. **R34 retune (decision B, proposal only):** **no resistor-only value satisfies both criteria.** 10.6 kΩ is the smallest E192 value that meets the ≥ 44 A minimum, giving a 49.73–97.98 A band. Its maximum exceeds T1's 88 A only in a CT-failed double fault. Each 0.1 kΩ step moves the band by about 11 A on a band about 48 A wide ([retune.md](retune.md)). Recommendation: take 10.6 kΩ and accept the double-fault maximum, which turn-off survives (above). A narrower band would need a tighter reference or offset.
+3. **FC1 on DC:** **not established.** FWP-10A14F is rated 700 VDC with 50 kA DC interrupting, but its 22 A²s clearing figure is at 700 **VAC**. The native bulk capacitor first lobe is 0.48–2.47 A²s, which is below the 4 A²s prearc figure, so do not assume the fuse clears the first impulse. Vendor confirmation is needed for DC clearing I²t, arc voltage and minimum interrupting current at ≤ 280 V and the installed L/R.
+4. **Precharge pulses:** the **single cold pulse passes** (412.632 J in 500 ms against the HS400 4000 W 5 s overload screen). The **240 V case fails the screen at 4850 W**. **No hot or repeated rating exists**, so repeated loaded proofs cannot be credited. Firmware limit implied: allow one loaded proof attempt per cool-down until a hot repetitive rating is obtained from Ohmite. The G4A01128C cutoff is not credited within 500 ms.
+5. **Contactors on DC:** **LC1D18BD DC make/break is not established.** Only a 24 ms opening allocation exists, which leaves 29.542 ms of the 500 ms budget unproven. Sequencing must therefore guarantee that the contacts never break DC fault current: gate-off (< 1 µs) and fuse or catch first, then the contacts open at near-zero current.
+
+## Evidence and limits
+
+- Parts 1–2 are rerunnable: `python3 ledger.py`, `python3 survival.py [--currents 200,250,330 --out survival-short]` (needs `sim-kit/models/fetch_models.sh`; the vendor model is not committed), and `python3 retune.py` (imports round-3 `thresholds.py` unchanged).
+- Parts 3–5 cite the evidence recorded in `prototype-closure/round5/protection/README.md` (Eaton 720025 pp2,5; Ohmite HS energy graph; Schneider LC1D18BD). The primary Eaton, Ohmite and Schneider PDFs could not be fetched from this host (blocked or HTML responses), so nothing beyond those recorded values is claimed.
+- The ledger's CD74HC30 row is BOUND*: the part is specified at 2 V and 4.5 V, not 3.3 V. The Q1 and DIS rows are allocations that a bench edge capture must confirm.
+
+## Proposals (no board change made)
+
+- **Stiffen the DIS pull-up** (R8/R16 1 kΩ → about 330 Ω). This saves about 250 ns of allocated delay; check the AO3400A sink current and VCCI load first.
+- **Set R34 to 10.6 kΩ** (above).
+- **Treat shoot-through as prevention-only:** interlock, dead time and firmware plus FC1 and the catch circuit. Do not credit it to the DIS chain.
