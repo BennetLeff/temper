@@ -358,3 +358,25 @@ Status: provisional until leg B's corrected matrix exists. Then rerun with
 --dt 391,443,498 --esl 1.06,10 --nominal-dt 443` and compare with this run
 to test the transfer. Native-20 is copper-identical, so these results apply to it too.
 
+## F6 on both legs (`f6_legs.py`, `results/f6-legs/`)
+
+D-13's F6 deck (1 Ω discharge, 1 nF Cgs, −2 V off bias) unchanged except D-14's
+`itl4=100000`. Run on `legA-h0-best-n19` and `legB-h0-prov-n19` at Tj 27/100 °C,
+both directions, ESL 1.06/10 nH: S4 (−20 A) at 170/198/280 V × 391/443/498 ns,
+S1 (37 A) at 198/280 V and S2 (71 A) at 280 V, both at 443 ns. 192 runs.
+
+**All 192 complete and pass** the 3.0 V, model-threshold (D-13) and 1.9 V hot
+off-gate screens, VDS (520/585 V) and ±30 V gate screens, and S1 ZVS:
+
+| leg | Tj | S4 max off-gate | S4 max die VDS | S1/S2 max die VDS |
+| --- | ---: | ---: | ---: | ---: |
+| A | 27 °C | 1.233 V | 489.1 V | 383.9 V |
+| A | 100 °C | 1.039 V | 481.9 V | 383.1 V |
+| B | 27 °C | 0.997 V | 484.0 V | 370.3 V |
+| B | 100 °C | 0.814 V | 478.6 V | 366.1 V |
+
+Without F6, leg B's S4 reached 537 V (section above). F6 is therefore a remedy
+for S4 on both legs in the model. It is still not a qualified fix: 150 °C stays
+indeterminate (placeholder Schottky, FINDINGS F6), recovery has no physical bound
+(D-24 answer c), and the stiff −2 V source must be built as modelled (D-12).
+
