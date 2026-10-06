@@ -10,7 +10,7 @@ CSV begins with `time_s`; all remaining columns contain calibrated volts or ampe
 | B1 | permit_v, permit_gate_v (Q1 or Q4), dis_v, out_a_v, out_b_v (one driver per capture) |
 | B2 | incoming_cmd_v, outgoing_vgs_v (the partner, referenced to its source) |
 | B3 | incoming_cmd_v, outgoing_cmd_v, incoming_out_v, outgoing_out_v, incoming_vgs_v, outgoing_vgs_v, incoming_vds_v, outgoing_vds_v, diode_id_a |
-| B4 | bus_fault_v, load_current_a, comparator_v (U6 healthy-high output), conducting_vgs_v, die_vds_v |
+| B4 | bus_fault_v, load_current_a, comparator_v (U6 healthy-high output), conducting_out_v (driver OUT of the conducting device), conducting_vgs_v, die_vds_v |
 
 Retain both VDS and bus-current channels for B2's raw shot record even though its numerical screen uses only partner VGS. B3's role names must match direction: DIR=0 outgoing low-side, DIR=1 outgoing high-side. Diode terminal current is negative during forward conduction and positive during recovery; load current cannot substitute for it.
 
@@ -38,6 +38,6 @@ Each numerical screen reports value, worst-direction uncertainty, operator, limi
 
 B3 reports input gap, output 90%-fall to 10%-rise gap, package-gate 3.0 V and exploratory 1.9 V gaps, and all gate crossings. It screens VDS against 520 V, partner VGS against strictly 3.0 V in both command- and output-aligned windows, and single-shot |VGS| against strictly 20 V. Qrr integrates positive terminal current from its forward-to-reverse zero crossing through the first descending 10% Irrm endpoint. It reports trr, ta, tb10, softness and fitted di/dt over ±20 ns and ±40 ns. Missing terminal current is INVALID for this complete B3 tool; retain a voltage-only shot separately. Recovery numbers are measurements without invented acceptance limits: the native S4 fixture is not Infineon's matched coupon, and typical values are not limits.
 
-B4 samples current at BUS_FAULT's configured logic threshold, uses U6 falling to VGS below 3.0 V for the gate-off screen, and screens die VDS. The addendum rounds the chain budget to 573 ns; D-31's ledger is 573.2 ns to driver DIS-response completion, with gate discharge separate. This tool deliberately applies the addendum's stricter 573 ns endpoint to gate VGS and labels it explicitly. It does not claim that the ledger proves that added gate-discharge time.
+B4 samples current at BUS_FAULT's configured logic threshold. It screens comparator (U6 falling) → conducting driver OUT below 10 % against D-31's 573.2 ns ledger, whose endpoint is the UCC21550 DIS response; it reports driver OUT → gate VGS below 3.0 V as a measurement (gate discharge is outside the ledger); and it screens die VDS.
 
 No aggregate PASS means hardware qualification, hot-threshold qualification, recovery-model fidelity or a power-up release. INVALID can retain earlier completed criteria for diagnosis but never returns a successful aggregate verdict.

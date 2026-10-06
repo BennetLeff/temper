@@ -80,7 +80,7 @@ teardown remain outstanding.
 **2026-10-05, low-power control: no phase shift; 180° fixed phase plus line-synchronous bursts (F9), decided under the owner's delegation ("make a data driven decision or a decision that leans on what a great senior pcb designer would do"):** phase-shift control is **removed from this power stage's operating envelope**, not left open. Below the frequency-control floor (≈ 150–160 W, POWER-SECTION.md §4), power is set by **line-synchronous bursts of whole 8.33 ms half-cycles at 180°**, started and stopped at bus zero crossings. Why:
 1. **Data:** D-28's waveform screens put the nominal ZVS boundary at **120–125° (170 V) and 100–110° (198 V)** for the 2 Ω load. Below that, the lagging leg hard-switches, which is the S4 failure mode (F2): unbounded diode recovery, and it fails without F6. Usable phase shift would therefore only cover a narrow band near 180°, which bursts already cover.
 2. **Practice:** commercial induction stages keep every edge soft-switched and reach low power by frequency control plus burst/pulse-density modulation, not deep phase shift. A water bath's thermal time constant is minutes, so 20 s burst windows (sub-watt average resolution at half-cycle granularity) are invisible to the temperature loop.
-3. **Burst edges are soft:** each burst starts and stops at a bus zero crossing (the unfiltered bus follows |V_line|), so the first and last edges switch at near-zero voltage and current. No hard-switched edge is added.
+3. ~~**Burst edges are soft**~~ **(corrected 2026-10-06):** bursts start and stop at **line** zero crossings for a whole-half-cycle current envelope. The switching edges themselves are *not* soft, though: with the bridge idle, the film bus capacitors hold the line peak, so the first edge hard-switches about 170 V (S5, FINDINGS F11; handled by F6). The bus is not a valid zero-cross source (see the 2026-10-06 line zero-cross entry).
 4. **It costs nothing in hardware** and removes an unqualifiable mode from validation scope (no periodic-deck convergence campaign for phase sweeps).
 
 Requirements this creates: (a) bursts run at or near the frequency-control floor, not at full power; (b) **the burst period scales with burst power: T ≥ max(2 s, 4.6·d^3.2/0.65^3.2), with a fixed 20 s default** (covers burst floors to 300 W). This replaces the 1 s window first written here: the flicker screen (`validation-results/07-conducted-emi/flicker/`, IEC 61000-3-3 Annex B with the 230 V reference impedance as proxy) shows 1 s windows fail Plt and the method's ≥ 1 s spacing. Minimum periods are 2.5 s at 160 W, 10.3 s at 250 W and 18.5 s at 300 W. Closing evidence: a 120 V-lamp flickermeter run on measured current. (c) The bootstrap hold-up during off-intervals is covered by docs/hardware/BOOTSTRAP_BURST_MODE_ANALYSIS.md and must be re-checked against the final burst timing. **Reversible:** phase shift can be re-qualified later on leg B's own matrix if a product need appears; nothing in hardware precludes it.
@@ -111,4 +111,16 @@ Not chosen: the passive −2 V/−4 V networks (+$5–9) because they don't repr
 - **(4) The rail-window monitor stays mandatory.** UCC21550's UVLO does not see a collapsed negative rail.
 - **(5) Unchanged:** the bootstrap network goes, and HOT5 gets a low-Iq LDO, with a star return to R5.2.
 - **Fallback** if the HOT-side transformer path does not close: the bootstrap high side plus a regulated split, with a firmware low-side pre-charge before each burst. This replaces D-12's modules as the fallback.
+
+**2026-10-06, line zero-cross detector added to native-21; bursts stay disabled until firmware uses it, decided under the owner's delegation (review of D-32, PR #1657):** D-32's burst scheduler takes zero crossings from the DC-bus sense (AMC1311) and faults if the bus exceeds 5 V at a crossing. That cannot work:
+- with the bridge idle, the film bus capacitors hold the line peak (about 170 V), so the bus never crosses zero and the next burst never starts;
+- at burst power (about 160 W, roughly 90 Ω equivalent load on about 5.8 µF), the bus valley lags the line by roughly 0.5 ms × 64 V/ms ≈ 30 V. This is an estimate, to be confirmed in D-33/bench;
+- free-running a phase-locked loop through a 20 s idle is not an option: ±0.02 Hz of grid drift is up to about 2.7 ms against the ±250 µs allocation.
+
+**Decision:**
+- **native-21 adds an isolated line zero-cross detector**, the standard cooktop solution: high-value resistor string from L_FILT/N_FILT to an AC-input optocoupler with reinforced insulation (D5), SELV-side pull-up to V3V3, output `LINE_ZC` to the controller.
+- **J4 pin:** `LINE_ZC` takes **p16**, one of the four SELV_GND returns, leaving three returns. This must be re-checked against the D-10/D-20 return allocation; if three returns fail it, J4 grows to 2×9.
+- **Firmware:** `burst_enabled` must remain false until the scheduler takes crossings from `LINE_ZC`, with the same plausibility checks as D-32 (half-cycle spacing, staleness), and B2 passes. D-32's bus-based check stays as a cross-check only while the bridge is running.
+
+Native-20 (no detector) runs continuous-only, as already ruled.
 

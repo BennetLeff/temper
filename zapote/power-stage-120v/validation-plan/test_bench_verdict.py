@@ -32,7 +32,7 @@ def capture(test: str) -> tuple[dict[str, Trace], dict]:
         "B1": {"permit_v": falling(100), "permit_gate_v": falling(200), "dis_v": rising(315), "out_a_v": falling(350, 15), "out_b_v": falling(360, 15)},
         "B2": {"incoming_cmd_v": rising(300), "outgoing_vgs_v": trace([(0, 0), (300, 0), (400, 2), (500, 0), (2000, 0)])},
         "B3": {"incoming_cmd_v": rising(300), "outgoing_cmd_v": falling(100), "incoming_out_v": rising(340, 15), "outgoing_out_v": falling(140, 15), "incoming_vgs_v": rising(360, 15), "outgoing_vgs_v": falling(160, 15), "incoming_vds_v": trace([(0, 400), (2000, 0)]), "outgoing_vds_v": trace([(0, 0), (2000, 450)]), "diode_id_a": trace([(0, -20), (350, -20), (550, 20), (750, 0), (2000, 0)])},
-        "B4": {"bus_fault_v": rising(300), "load_current_a": trace([(0, 60), (2000, 100)]), "comparator_v": falling(100), "conducting_vgs_v": falling(600, 15), "die_vds_v": trace([(0, 0), (700, 450), (2000, 50)])},
+        "B4": {"bus_fault_v": rising(300), "load_current_a": trace([(0, 60), (2000, 100)]), "comparator_v": falling(100), "conducting_out_v": falling(550, 15), "conducting_vgs_v": falling(600, 15), "die_vds_v": trace([(0, 0), (700, 450), (2000, 50)])},
     }[test]
     meta = {"test": test, "leg": "A", "bus_v": 0 if test in ("B0", "B1") else 50,
             "capture_ok": True, "board_manifest_sha256": "0" * 64,
@@ -49,7 +49,7 @@ class VerdictTests(unittest.TestCase):
             "B1": [("permit_gate_v", falling(285), "permit_to_gate"), ("dis_v", rising(340), "gate_to_dis"), ("out_a_v", falling(500, 15), "permit_to_out_a_v"), ("out_b_v", falling(500, 15), "permit_to_out_b_v")],
             "B2": [("outgoing_vgs_v", trace([(0, 0), (400, 3), (2000, 0)]), "partner_vgs_peak")],
             "B3": [("outgoing_vgs_v", trace([(0, 15), (200, 0), (400, 3), (500, 0), (2000, 0)]), "partner_vgs_peak"), ("outgoing_vgs_v", trace([(0, 15), (200, 0), (400, 3), (500, 0), (2000, 0)]), "partner_vgs_output_window"), ("incoming_vds_v", trace([(0, 600), (2000, 600)]), "incoming_vds_peak"), ("outgoing_vds_v", trace([(0, 600), (2000, 600)]), "outgoing_vds_peak"), ("incoming_vgs_v", rising(360, 21), "incoming_gate_rating"), ("outgoing_vgs_v", falling(160, 21), "outgoing_gate_rating")],
-            "B4": [("load_current_a", trace([(0, 100), (2000, 100)]), "trip_current"), ("conducting_vgs_v", falling(700, 15), "comparator_to_gate_below_3V"), ("die_vds_v", trace([(0, 530), (2000, 530)]), "die_vds_peak")],
+            "B4": [("load_current_a", trace([(0, 100), (2000, 100)]), "trip_current"), ("conducting_out_v", falling(700, 15), "comparator_to_driver_out_low"), ("die_vds_v", trace([(0, 530), (2000, 530)]), "die_vds_peak")],
         }
         for test, cases in mutations.items():
             waves, meta = capture(test)

@@ -209,8 +209,10 @@ def verdict(raw: dict[str, Trace], meta: dict[str, Any]) -> dict[str, Any]:
             fault = edge("bus_fault_v", meta["logic_threshold_v"], True)
             check("trip_current", waves["load_current_a"].at(fault), [47.54, 97.98], "A", uncertainty["current_a"])
             comp = edge("comparator_v", meta["logic_threshold_v"], False)
+            out = edge("conducting_out_v", meta["driver_high_v"] * 0.1, False)
+            delay("comparator_to_driver_out_low", comp, out, 573.2)
             gate = edge("conducting_vgs_v", 3.0, False)
-            delay("comparator_to_gate_below_3V", comp, gate, 573)
+            result.setdefault("measurements", {})["driver_out_to_gate_below_3V_s"] = gate - out
             if meta["vds_reference"] != "die":
                 raise ValueError("B4 die-VDS screen needs die reference or documented de-embedding to die")
             check("die_vds_peak", peak("die_vds_v"), 520, "V", uncertainty["vds_v"])

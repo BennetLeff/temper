@@ -92,6 +92,12 @@ RECOM-module variant and the earlier SELV-fed proposal:
   as a star to R5.2 (Kelvin budget);
 - the TPS3700 HOT5 monitor stays powered independently of HOT5.
 
+**Also in native-21 source (added 2026-10-06):** the isolated line
+zero-cross detector (DECISIONS.md 2026-10-06, RELAYOUT-REQUIREMENTS L3a): a
+reinforced AC-input optocoupler fed from L_FILT/N_FILT through a resistor string,
+with output `LINE_ZC` on J4.16. Add an `audit.rs` structural test that the
+optocoupler is the only element crossing from line to SELV, and an IDENTITY row.
+
 **Sizing first** (`native-21/bias_sizing.py`, committed). Calculate:
 - gate power at 33–80 kHz from the IPW65R018CFD7 datasheet Qg;
 - the driver and transformer efficiency;
