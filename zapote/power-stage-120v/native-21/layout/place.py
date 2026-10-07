@@ -133,36 +133,43 @@ pack(group("u_ct_pos", "u_ct_neg", "u_ct_zc", "c_ct_pos", "c_ct_neg", "c_ct_zc",
      2.0, 128.0, 89.0, 170.0)
 
 # ---------------- remaining zones are packed for the first cut ----------------
-# HOT protection (OCP/OVP/HOT5, Kelvin island) beside the core, right of the LS-A bank
+# HOT protection (OCP/OVP/HOT5, Kelvin island) below the BR1-gate copper lanes (y < 51), above the LS block
 pack(group("u_ldo", "c_ldo_in", "c_ldo_out", "c_v15", "u_ref", "r_ref_bias", "u_ocp", "c_ocp_vcc", "r_ocp_ref",
            "r_ocp_sense", "c_ocp_node", "r_th_top", "r_th_bot", "c_th", "u_ovp", "c_ovp_vcc", "r_ovp_top",
            "r_ovp_bot", "c_ovp_th", "u_nand", "c_nand_vcc", "c_iso1", "u_hot5_uv", "r_hot5_uv_top",
            "r_hot5_uv_bot", "r_hot5_uv_pull", "c_hot5_uv", "u_hot5_schmitt", "c_hot5_schmitt",
            "c_vs1", "c_div", "r_div_bot"),
-     101.0, 16.0, 118.5, 62.0)
+     101.0, 51.4, 121.5, 75.0)
 # ---- barrier isolators for protection on the SELV band edge (HOT above, SELV below y 128)
 put("u_vsense", 104.0, 121.0, 270)               # AMC1311
 put("u_iso", 113.0, 121.0, 270)                 # OCP ISO7710
 # ---------------- rear band (connectors exit the enclosure rear) -------------
-put("j_coil", 118.0, 6.5)                      # coil feed, nearest the coil
-put("j_coil_return", 133.0, 6.5)
-put("link_pos.terminal_rect", 148.0, 6.5)      # BR1 + out to FC1/catch
-put("link_neg.terminal_rect", 163.0, 6.5)
-put("link_pos.terminal_bus", 178.0, 6.5)       # back onto BUS_P
-put("link_neg.terminal_bus", 193.0, 6.5)
-put("j_tco", 207.0, 6.5)
+# Bring-up links: 2 x 2 block right of BR1 at the 13.0 mm strap pitch (ASSEMBLY.md), straps
+# horizontal: J9 (RECT_N) - J10 (HV_RET) on the edge row, J7 (RECT_P) - J8 (BUS_P) below.
+# RECT_N reaches J9 on In2 straight from BR1.4, RECT_P reaches J7 on In1 from BR1.1 (under BR1);
+# BUS_P (In2) meets J8 from the trunk below; HV_RET (In1) reaches J10 round J8's right side.
+put("link_neg.terminal_rect", 130.0, 6.5)
+put("link_neg.terminal_bus", 143.0, 6.5)
+put("link_pos.terminal_rect", 130.0, 19.5)
+put("link_pos.terminal_bus", 143.0, 19.5)
+put("ps_gate", 186.5, 14.0)                     # rear band; N_FILT pin on the mains lane, LS rails down
+put("j_tco", 217.5, 6.5)
 put("j_pe", 160.0, 134.5, 90)
-put("f1", 240.5, 6.0)
+put("f1", 244.5, 6.0)
 put("j_mains", 283.5, 7.2)
 # ---------------- tank block, next to the core --------------------------------
-put("c_res1", 168.0, 28.0)
-put("c_res2", 168.0, 56.0)
-put("c_res3", 168.0, 81.2)
+# Resonant bank stacked right of the SW_A column: RES_A pins left (x 155.25), SW_B pins right
+# (x 197.75). Coil terminals beside T1: J5 (RES_A) over J2 (COIL_FEED), 15 mm apart (5 mm tank rule).
+put("c_res1", 176.5, 58.0)
+put("c_res2", 176.5, 86.4)
+put("c_res3", 176.5, 110.9)
 put("t_ct", 135.0, 110.0)                      # primary sw_a -> coil_feed; secondary on the SELV band
+put("j_coil_return", 131.0, 70.5)
+put("j_coil", 131.0, 85.5)
 pack(group("c_ct_burden", "r_ct_burden", "r_ct_series", "d_ct_hi", "d_ct_lo"), 116.0, 129.0, 142.0, 139.5)
-# tank bleed chain (each tap its own group, 5 mm tank rule): 1206s 9 mm apart, vertical
+# tank bleed chain RES_A -> SW_B across the top of C21 (each tap its own group, 5 mm tank rule)
 for i, n in enumerate(("r_crb1", "r_crb2", "r_crb3", "r_crb4")):
-    put(n, 132.0, 20.0 + 10.0 * i, 90)
+    put(n, 158.0 + 10.0 * i, 41.0)
 # ---------------- mains block, far end ----------------------------------------
 put("rv1", 276.5, 28.0)
 put("cx1", 249.5, 19.5)
@@ -172,10 +179,9 @@ put("l1", 237.0, 43.5)
 put("cx2", 274.5, 49.5)
 put("cy1", 210.0, 124.0, 0)
 put("cy2", 210.0, 131.5, 0)
-put("c_bus1", 220.0, 75.6)
-put("c_bus2", 265.0, 84.0)
+put("c_bus1", 224.0, 75.6)
+put("c_bus2", 267.0, 84.0)
 put("tvs_bus", 264.0, 106.0)
-put("ps_gate", 175.0, 106.4)                    # HOT only (TCO_L, N_LS, V24_RAW), above the moat
 put("ps_selv", 262.5, 125.5)                    # straddles the SELV band
 put("line_zc.opto", 229.0, 125.0, 270)
 for i, n in enumerate(("line_zc.r1", "line_zc.r2", "line_zc.r3", "line_zc.r4")):
@@ -183,14 +189,15 @@ for i, n in enumerate(("line_zc.r1", "line_zc.r2", "line_zc.r3", "line_zc.r4")):
 # LS bias, SN6507 and LS monitor (N_LS / LEG_RET domain) beside PS2
 pack(group("bias_ls", "monitor_ls", "bias_driver", "bias_rclk", "bias_rlim", "bias_css", "bias_rsr",
            "bias_cin", "bias_chf", "bias_rsn1", "bias_rsn2", "bias_csn1", "bias_csn2",
-           exclude=("monitor_ls.iso", "monitor_ls.civcc2")), 101.0, 66.0, 118.5, 111.5, gap=0.4)
+           exclude=("monitor_ls.iso", "monitor_ls.civcc2")), 101.0, 75.6, 121.5, 112.5, gap=0.4)
 put("monitor_ls.iso", 92.0, 121.0, 270)
 put("monitor_ls.civcc2", 92.0, 131.0, 0)
 put("r_bus1", 246.0, 106.0)
 put("r_bus2", 283.0, 106.0)
-# bus divider for AMC1311: 4 x 470 k chain, taps 9 mm apart (vertical), above U4
+# bus divider for AMC1311: 4 x 470 k chain, taps 9 mm apart (vertical), in the corridor between
+# U1's SELV moat (x >= 92.5) and the LOW blocks; top end via to BUS_P on the In2 trunk
 for i, n in enumerate(("r_div1", "r_div2", "r_div3", "r_div4")):
-    put(n, 124.0, 18.0 + 9.0 * i, 90)
+    put(n, 96.5, 64.0 + 9.0 * i, 90)
 
 missing = sorted(set(PARTS) - set(POSE))
 if missing:

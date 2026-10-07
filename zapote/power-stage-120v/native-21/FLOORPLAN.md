@@ -38,6 +38,28 @@ or near the top edge, outside the sink span x 0–106 (L15).
   loop is re-extracted anyway (native-21 FEM).
 - Bulk C5 moves from the board's left edge to the mains zone (right of BR1).
 
+## Stage 3 re-floorplan for routing (2026-10-06)
+
+Routing showed the stage-1 floorplan could not carry its power copper: BR1's pin order
+(RECT_P, L_FILT, N_FILT, RECT_N) sits at the end of the sink row, so mains, rectifier,
+bus and both switch nodes all had to leave through the 30 mm under BR1, and the bring-up
+link studs were 30 mm apart instead of the strap's 13.0 mm pitch (ASSEMBLY.md). Changes
+(`layout/place.py`):
+
+- **Link block** right of BR1, 2 x 2 at 13.0 mm: J9 (RECT_N) - J10 (HV_RET) on the edge
+  row, J7 (RECT_P) - J8 (BUS_P) below; straps horizontal.
+- **PS2** on the rear band (x 160-213), **J3** beside it, **F1** 4 mm right.
+- **Protection** below the BR1-gate lanes (x 101-121.5, y 51-75); **LS block** under it.
+- **Coil terminals** beside T1: J5 (RES_A) over J2 (COIL_FEED), 15 mm apart (5 mm tank
+  rule); coil leads drop from the plate above (it covers board y <= 79).
+- **Resonant bank** C21-C23 stacked at x 153-200 (RES_A pins left, SW_B right), **C5/C6**
+  4 / 2 mm right; tank bleed chain across the top of C21; bus divider in the corridor
+  between U1's SELV moat and the LOW blocks.
+
+Copper lanes (`layout/route21.py`): F carries N_FILT over SW_A, B carries L_FILT over SW_B
+(mains and switch nodes each a stacked pair), In1 / In2 carry RECT_P / RECT_N to the links
+and the HV_RET / BUS_P trunk (stacked) from the core's bottom exit to J8/J10 and C5/C6.
+
 ## Next stages
 
 2. `prototype-closure/pcb/build_native21.py`: generate the unrouted board from
