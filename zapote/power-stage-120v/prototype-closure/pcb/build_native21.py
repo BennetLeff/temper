@@ -83,6 +83,13 @@ def main():
     if missing:
         raise SystemExit(f"{len(missing)} instances have no pose, e.g. {missing[:8]}")
 
+    # Per-instance 3D model assignments come from native-20 (its models3d maps), not the libraries.
+    n20_models = {}
+    for f in pcbnew.LoadBoard(str(base)).GetFootprints():
+        n20_models[f.GetField("SourceInstance").GetText()] = (
+            f.GetFPID().GetLibItemName().wx_str(),
+            [(m.m_Filename, (m.m_Offset.x, m.m_Offset.y, m.m_Offset.z), (m.m_Rotation.x, m.m_Rotation.y, m.m_Rotation.z),
+              (m.m_Scale.x, m.m_Scale.y, m.m_Scale.z)) for m in f.Models()])
     board = pcbnew.LoadBoard(str(base))
     tracks = [t for t in board.GetTracks()]
     zones = [z for z in board.Zones()]
@@ -119,6 +126,18 @@ def main():
         fp.SetPosition(pcbnew.VECTOR2I(mm(x), mm(y)))
         fp.SetOrientationDegrees(float(ang))
         fp.SetPath(pcbnew.KIID_PATH(f"/{root}/{c['tstamp']}"))
+        prior = n20_models.get(c["path"])
+        if prior and prior[0] == name and prior[1]:
+            fp.Models().clear()
+            for fn, off, rot, sc in prior[1]:
+                m = pcbnew.FP_3DMODEL()
+                m.m_Filename = fn
+                m.m_Offset = pcbnew.VECTOR3D(*off)
+                m.m_Rotation = pcbnew.VECTOR3D(*rot)
+                m.m_Scale = pcbnew.VECTOR3D(*sc)
+                fp.Models().append(m)
+        for model in fp.Models():          # vendored libraries point one level up
+            model.m_Filename = model.m_Filename.replace("${KIPRJMOD}/../models3d/", "${KIPRJMOD}/models3d/")
         board.Add(fp)
         for pad in fp.Pads():
             n = pin_net.get((ref, pad.GetNumber()))

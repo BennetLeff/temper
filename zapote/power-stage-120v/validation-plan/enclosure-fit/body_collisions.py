@@ -2,7 +2,7 @@
 """Part-to-part 3D body collision gate for a populated board.
 
     KICAD_PY body_collisions.py --dump-courtyards BOARD.kicad_pcb OUT.json   (KiCad python)
-    python3  body_collisions.py BOXES.json COURTYARDS.json                   (host python)
+    python3  body_collisions.py BOXES.json COURTYARDS.json [ENVELOPES.json]  (host python)
 
 BOXES.json comes from board_boxes.py (one AABB per STEP solid). Each solid is
 attributed to the smallest footprint courtyard containing its XY centre, then
@@ -29,6 +29,12 @@ import numpy as np
 
 boxes = np.array(json.load(open(sys.argv[1]))["boxes"])
 crt = json.load(open(sys.argv[2]))
+# Optional 3rd argument: {ref: height_mm} envelopes for parts without a 3D model
+# (courtyard x [board top 1.6 mm, 1.6 + height]); datasheet maximum heights.
+if len(sys.argv) > 3:
+    env = json.load(open(sys.argv[3]))
+    extra = [[*crt[r][:2], 1.6, *crt[r][2:], 1.6 + h] for r, h in env.items()]
+    boxes = np.vstack([boxes, np.array(extra)])
 area = (boxes[:, 3] - boxes[:, 0]) * (boxes[:, 4] - boxes[:, 1])
 boxes = boxes[~((boxes[:, 5] - boxes[:, 2] < 2) & (area > 30000))]   # the board slab
 

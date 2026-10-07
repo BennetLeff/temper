@@ -67,14 +67,14 @@ DX = -88.0
 Q = {"leg_b.q_high": 9.95, "leg_b.q_low": 27.95, "leg_a.q_low": 50.05, "leg_a.q_high": 68.05}  # courtyard centres
 for q, x in Q.items():
     put(q, x, 4.4)
-put("br1", 76.85 + 0.5 + 15.05, 4.6)          # right after Q2: row 1.7 .. 107.0
+put("br1", 94.4, 4.6)          # right after Q2: row 1.7 .. 107.0
 GATE = {k: Q[k] - 5.45 for k in Q}           # gate pin x (TO-247 pin 1)
 for leg, q, side in (("leg_b", "leg_b.q_high", "h"), ("leg_b", "leg_b.q_low", "l"),
                      ("leg_a", "leg_a.q_high", "h"), ("leg_a", "leg_a.q_low", "l")):
     g = GATE[q]
     put(f"{leg}.c_snub_{side}", Q[q] + 2.73, 9.7)
-    put(f"{leg}.r_g{side}", g + 2.7, 12.6, 90)
-    put(f"{leg}.r_g{side}_pd", g, 12.1, 90)
+    put(f"{leg}.r_g{side}", g, 12.6, 90)
+    put(f"{leg}.r_g{side}_pd", g - 2.7, 12.1, 90)
     # F6 network directly under the gate: PMEG (anode at gate) + 1 ohm to OUT, Cgs to source.
     put(f"{leg}.doff_{side}", g + 4.6, 17.9)
     put(f"{leg}.roff_{side}", g + 11.0, 17.9)
@@ -82,17 +82,17 @@ for leg, q, side in (("leg_b", "leg_b.q_high", "h"), ("leg_b", "leg_b.q_low", "l
 put("r_shunt", 38.5 + 0.0, 12.6, 270)          # between the low-side sources
 # HF film row (moved 6 mm down for the F6 row; C41 pulled in from the edge)
 put("c_hf_b2", 9.9, 28.2)
-put("c_hf_b1", 29.0, 28.2)
-put("c_hf_a1", 48.6, 28.2, 180)
-put("c_hf_a2", 69.2, 28.2, 180)
+put("c_hf_b1", 31.7, 28.2)
+put("c_hf_a1", 53.5, 28.2, 180)
+put("c_hf_a2", 75.3, 28.2, 180)
 
 # ---------------- drivers, HOT row facing the gates (rot 90) ------------------
-DRV = {"leg_b": 33.0, "leg_a": 77.0}
+DRV = {"leg_b": 33.0, "leg_a": 80.0}
 for leg, x in DRV.items():
-    put(f"{leg}.driver", x, 47.0, 90)
+    put(f"{leg}.driver", x, 51.0, 90)
 # Reservoir banks: HS (channel A, left end of the HOT row) and LS (channel B, right end).
 BANK = {"leg_b.bias_h": (13.0, 33.6), "leg_b.bias_l": (39.0, 33.6),
-        "leg_a.bias_h": (57.0, 33.6), "leg_a.bias_l": (83.0, 33.6)}
+        "leg_a.bias_h": (60.0, 33.6), "leg_a.bias_l": (86.0, 33.6)}
 # Explicit 14.4 x 12 mm bank template (courtyard centres relative to the bank's top-left);
 # HF parts (100 nF, 1 uF) on the side facing the driver pins, bulk 220 uF + damping behind.
 BANK_TEMPLATE = {"cbulk": (4.85, 3.6, 0), "rdamp": (11.0, 2.4, 90), "rbleed": (13.6, 1.6, 90),
@@ -101,22 +101,27 @@ BANK_TEMPLATE = {"cbulk": (4.85, 3.6, 0), "rdamp": (11.0, 2.4, 90), "rbleed": (1
                  "chf3": (11.3, 11.4, 0), "chf4": (13.4, 11.4, 0)}
 for b, (x, y) in BANK.items():
     for part, (dx, dy, ang) in BANK_TEMPLATE.items():
-        put(f"{b}.{part}", x + dx, y + dy, ang)
+        # LS banks sit right of their driver: mirror so the 100 nF / 1 uF parts face the pins
+        put(f"{b}.{part}", x + (14.4 - dx if b.endswith("bias_l") else dx), y + dy, ang)
 # Driver-local parts that stay on the HOT side near each driver (LS caps)
 for leg, x in DRV.items():
-    pack(group(f"{leg}.c_ls", f"{leg}.c_ls_bulk"), x + 6.0, 47.2, x + 14.5, 53.0)
+    pack(group(f"{leg}.c_ls", f"{leg}.c_ls_bulk"), x + 14.0, 51.0, x + 20.5, 58.5)
 
 # ---------------- SELV side of each driver (tongue) ---------------------------
 for leg, x in DRV.items():
     pack(group(f"{leg}.c_vcci", f"{leg}.permit_fet", f"{leg}.r_permit", f"{leg}.r_permit_pd",
                f"{leg}.r_dis_pu", f"{leg}.r_dt", f"{leg}.dis_or", f"{leg}.c_dis_or", f"{leg}.r_driver_dis"),
-         x - 5.0, 55.0, x + 5.0, 78.0)
+         x - 5.0, 59.0, x + 5.0, 82.0)
 
 # ---------------- HS bias islands (left of each driver tongue) ----------------
-pack(group("bias_hb", exclude=("bias_hb.monitor.iso",)), 0.8, 50.0, 19.6, 118.0, gap=0.5)
-put("bias_hb.monitor.iso", 23.6, 110.0, 0)       # straddles the leg-B tongue's left edge
-pack(group("bias_ha", exclude=("bias_ha.monitor.iso",)), 46.4, 50.0, 63.6, 118.0, gap=0.5)
-put("bias_ha.monitor.iso", 67.6, 110.0, 0)       # straddles the leg-A tongue's left edge
+put("bias_hb.transformer", 10.2, 61.2, 90)
+pack(group("bias_hb", exclude=("bias_hb.monitor.iso", "bias_hb.monitor.civcc2")), 0.8, 72.2, 19.4, 118.0, gap=0.45)
+put("bias_hb.monitor.iso", 25.6, 110.0, 0)
+put("bias_hb.monitor.civcc2", 35.0, 112.0, 90)       # straddles the leg-B tongue's left edge
+put("bias_ha.transformer", 56.5, 66.2, 90)
+pack(group("bias_ha", exclude=("bias_ha.monitor.iso", "bias_ha.monitor.civcc2")), 46.4, 77.2, 66.6, 118.0, gap=0.5)
+put("bias_ha.monitor.iso", 70.6, 110.0, 0)
+put("bias_ha.monitor.civcc2", 76.0, 121.0, 0)       # straddles the leg-A tongue's left edge
 
 # ---------------- SELV island (bottom band + board tongue) --------------------
 put("j_selv", 45.0, 182.0)
@@ -124,7 +129,7 @@ pack(group("u_ct_pos", "u_ct_neg", "u_ct_zc", "c_ct_pos", "c_ct_neg", "c_ct_zc",
            "r_ct_lo_top", "r_ct_lo_bot", "r_ct_bias_top", "r_ct_bias_bot", "c_ct_bias", "r_ct_mon",
            "u_fault_or", "c_fault_or", "bias_or", "bias_c_or", "u_bias_flt", "r_bias_flt", "c_bias_flt",
            "c_bias_flt_vcc", "line_zc.buffer", "line_zc.cbuffer", "line_zc.pullup", "r_fe",
-           "c_iso2", "c_vs2", "monitor_ls.civcc2", "bias_ha.monitor.civcc2", "bias_hb.monitor.civcc2"),
+           "c_iso2", "c_vs2"),
      2.0, 128.0, 89.0, 170.0)
 
 # ---------------- remaining zones are packed for the first cut ----------------
@@ -133,41 +138,59 @@ pack(group("u_ldo", "c_ldo_in", "c_ldo_out", "c_v15", "u_ref", "r_ref_bias", "u_
            "r_ocp_sense", "c_ocp_node", "r_th_top", "r_th_bot", "c_th", "u_ovp", "c_ovp_vcc", "r_ovp_top",
            "r_ovp_bot", "c_ovp_th", "u_nand", "c_nand_vcc", "c_iso1", "u_hot5_uv", "r_hot5_uv_top",
            "r_hot5_uv_bot", "r_hot5_uv_pull", "c_hot5_uv", "u_hot5_schmitt", "c_hot5_schmitt",
-           "c_vs1", "c_div", "r_div_bot", "r_div1", "r_div2", "r_div3", "r_div4"),
-     98.5, 12.0, 120.0, 64.0)
-put("u_iso", 105.0, 112.0, 90)                  # OCP isolator straddles the SELV band edge
-put("u_vsense", 92.0, 112.0, 90)               # AMC1311 straddles too
-# LS bias, SN6507 and LS monitor (LEG_RET domain) near PS2
+           "c_vs1", "c_div", "r_div_bot"),
+     101.0, 16.0, 118.5, 62.0)
+# ---- barrier isolators for protection on the SELV band edge (HOT above, SELV below y 128)
+put("u_vsense", 104.0, 121.0, 270)               # AMC1311
+put("u_iso", 113.0, 121.0, 270)                 # OCP ISO7710
+# ---------------- rear band (connectors exit the enclosure rear) -------------
+put("j_coil", 118.0, 6.5)                      # coil feed, nearest the coil
+put("j_coil_return", 133.0, 6.5)
+put("link_pos.terminal_rect", 148.0, 6.5)      # BR1 + out to FC1/catch
+put("link_neg.terminal_rect", 163.0, 6.5)
+put("link_pos.terminal_bus", 178.0, 6.5)       # back onto BUS_P
+put("link_neg.terminal_bus", 193.0, 6.5)
+put("j_tco", 207.0, 6.5)
+put("j_pe", 160.0, 134.5, 90)
+put("f1", 240.5, 6.0)
+put("j_mains", 283.5, 7.2)
+# ---------------- tank block, next to the core --------------------------------
+put("c_res1", 168.0, 28.0)
+put("c_res2", 168.0, 56.0)
+put("c_res3", 168.0, 81.2)
+put("t_ct", 135.0, 110.0)                      # primary sw_a -> coil_feed; secondary on the SELV band
+pack(group("c_ct_burden", "r_ct_burden", "r_ct_series", "d_ct_hi", "d_ct_lo"), 116.0, 129.0, 142.0, 139.5)
+# tank bleed chain (each tap its own group, 5 mm tank rule): 1206s 9 mm apart, vertical
+for i, n in enumerate(("r_crb1", "r_crb2", "r_crb3", "r_crb4")):
+    put(n, 132.0, 20.0 + 10.0 * i, 90)
+# ---------------- mains block, far end ----------------------------------------
+put("rv1", 276.5, 28.0)
+put("cx1", 249.5, 19.5)
+put("rb1a", 226.0, 15.0)
+put("rb1b", 226.0, 23.0)
+put("l1", 237.0, 43.5)
+put("cx2", 274.5, 49.5)
+put("cy1", 210.0, 124.0, 0)
+put("cy2", 210.0, 131.5, 0)
+put("c_bus1", 220.0, 75.6)
+put("c_bus2", 265.0, 84.0)
+put("tvs_bus", 264.0, 106.0)
+put("ps_gate", 175.0, 106.4)                    # HOT only (TCO_L, N_LS, V24_RAW), above the moat
+put("ps_selv", 262.5, 125.5)                    # straddles the SELV band
+put("line_zc.opto", 229.0, 125.0, 270)
+for i, n in enumerate(("line_zc.r1", "line_zc.r2", "line_zc.r3", "line_zc.r4")):
+    put(n, 222.0 + (i % 2) * 9.0, 103.0 + (i // 2) * 7.5, 0)
+# LS bias, SN6507 and LS monitor (N_LS / LEG_RET domain) beside PS2
 pack(group("bias_ls", "monitor_ls", "bias_driver", "bias_rclk", "bias_rlim", "bias_css", "bias_rsr",
            "bias_cin", "bias_chf", "bias_rsn1", "bias_rsn2", "bias_csn1", "bias_csn2",
-           exclude=("monitor_ls.iso",)),
-     122.0, 62.0, 160.0, 100.0, gap=0.5)
-put("monitor_ls.iso", 150.0, 112.0, 90)
-# Supplies
-put("ps_gate", 150.0, 30.0, 0)
-put("ps_selv", 200.0, 120.0, 0)
-# Mains along the rear edge, right part
-put("j_mains", 283.0, 7.0, 0)
-put("f1", 255.0, 5.5, 0)
-put("rv1", 270.0, 26.0, 0)
-put("cx1", 240.0, 22.0, 0)
-put("l1", 205.0, 24.0, 0)
-put("cx2", 175.0, 13.0, 0)
-pack(group("cy1", "cy2", "rb1a", "rb1b"), 160.0, 40.0, 190.0, 58.0)
-pack(group("link_pos", "link_neg"), 125.0, 2.0, 172.0, 13.0)
-put("c_bus1", 225.0, 60.0, 0)
-put("tvs_bus", 186.0, 66.0, 0)
-put("line_zc.opto", 232.0, 112.0, 90)
-pack(group("line_zc.r1", "line_zc.r2", "line_zc.r3", "line_zc.r4"), 225.0, 90.0, 245.0, 100.0)
-# Tank
-put("c_bus2", 268.0, 60.0, 90)
-put("t_ct", 255.0, 112.0, 0)
-put("c_res1", 248.0, 90.0, 0)
-put("c_res2", 196.0, 90.0, 0)
-put("c_res3", 196.0, 112.0, 0)
-pack(group("r_crb1", "r_crb2", "r_crb3", "r_crb4", "r_bus1", "r_bus2", "j_coil", "j_coil_return",
-           "c_ct_burden", "r_ct_burden", "r_ct_series", "d_ct_hi", "d_ct_lo", "j_tco", "j_pe"),
-     160.0, 62.0, 188.0, 117.0)
+           exclude=("monitor_ls.iso", "monitor_ls.civcc2")), 101.0, 66.0, 118.5, 111.5, gap=0.4)
+put("monitor_ls.iso", 92.0, 121.0, 270)
+put("monitor_ls.civcc2", 92.0, 131.0, 0)
+put("r_bus1", 246.0, 106.0)
+put("r_bus2", 283.0, 106.0)
+# bus divider for AMC1311: 4 x 470 k chain, taps 9 mm apart (vertical), above U4
+for i, n in enumerate(("r_div1", "r_div2", "r_div3", "r_div4")):
+    put(n, 124.0, 18.0 + 9.0 * i, 90)
 
 missing = sorted(set(PARTS) - set(POSE))
 if missing:
