@@ -31,6 +31,8 @@ class Geometry:
         self._trees = {}
         self.pad_at = {}
         for p in self.pads:
+            if not p["net"] and not p["npth"]:
+                continue          # paste / thermal sub-pads of an exposed pad: part of its copper
             g = box(*p["box"])
             if p["npth"]:
                 net = "<npth>"

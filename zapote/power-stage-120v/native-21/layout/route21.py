@@ -83,8 +83,8 @@ def track(net, layer, width, *points):
     GEO.add_track(net, layer, width, [_xy(p) for p in points])
 
 
-def via(net, x, y, power=False):
-    spec = POWER_VIA if power else {"size": 0.85, "drill": 0.3}
+def via(net, x, y, power=False, size=None):
+    spec = POWER_VIA if power else {"size": size or 0.85, "drill": 0.3}
     VIAS.append({"net": net, "at": [x, y], **spec})
     GEO.add_via(net, x, y, spec["size"])
 
@@ -132,12 +132,28 @@ def link(net, layer, bx, width, pads):
     """Join `pads` ("REF.PAD") inside box `bx`, nearest pad first (a minimum tree). Bends (and,
     when `layer` is "F+B", F/B vias) come from maze21; each leg is recorded as explicit copper."""
     # never wider than the narrowest pad it lands on (fine-pitch pins)
-    width = min([width] + [min(b[2] - b[0], b[3] - b[1]) * 0.9 for b in (GEO.pad(pp)["box"] for pp in pads)])
+    width = min([width] + [min(b[2] - b[0], b[3] - b[1]) * 0.9 for b in (GEO.pad(pp)["box"] for pp in pads
+                                                                          if not pp.startswith("@"))])
     width = max(round(width, 2), 0.2)
     layers = ("F.Cu", "B.Cu") if layer == "F+B" else (layer if isinstance(layer, tuple) else None)
     two = layers is not None
-    pts = {pp: _xy(pp) for pp in pads}
-    lidx = {pp: (None if GEO.pad(pp)["tht"] else 0) for pp in pads}
+    def _pt(pp):
+        if pp.startswith("@"):
+            x, y, _ = pp[1:].split(",")
+            return (float(x), float(y))
+        return _xy(pp)
+
+    def _li(pp):
+        if pp.startswith("@"):
+            lay = pp.rsplit(",", 1)[1]
+            lays_ = layers or (layer,)
+            return lays_.index(lay) if lay in lays_ else (None if lay == "*" else -1)
+        return None if GEO.pad(pp)["tht"] else 0
+    pts = {pp: _pt(pp) for pp in pads}
+    lidx = {pp: _li(pp) for pp in pads}
+    if any(v == -1 for v in lidx.values()):
+        LINK_LOG.append((net, layer, len(pads), [pp for pp in pads if lidx[pp] == -1]))
+        return False
     tree = [(*pts[pads[0]], lidx[pads[0]] if two else 0)]
     todo = list(pads[1:])
     failed = []
@@ -153,7 +169,7 @@ def link(net, layer, bx, width, pads):
             for li, lay in enumerate(lays0):
                 if (near[2] not in (None, li)) or (lidx.get(q) not in (None, li)) if two else False:
                     continue
-                if lay != "F.Cu" and not (GEO.pad(q)["tht"]):
+                if lay != "F.Cu" and not q.startswith("@") and not (GEO.pad(q)["tht"]):
                     continue
                 geom = LineString(cand).buffer(wj / 2)
                 if not GEO.conflicts(net, (lay,), geom, limit=1):
@@ -247,7 +263,7 @@ TRUNK = [(0.6, 0.6, 76.5, 25.5), (0.6, 25.5, 100.5, 48.0), (77.0, 27.2, 214.0, 5
 zone("bus_p", "In2.Cu", *TRUNK, (137.0, 21.0, 148.5, 27.2), name="bus_p trunk")      # J8 from below
 zone("hv_ret", "In1.Cu", *TRUNK, (144.5, 0.6, 160.0, 13.2), (150.8, 13.2, 160.0, 27.2),
      name="hv_ret trunk")                                                               # J10 round J8
-zone("leg_ret", "In1.Cu", (30.0, 0.6, 58.0, 12.5), priority=2, name="leg_ret sources")
+zone("leg_ret", "In1.Cu", (18.0, 0.6, 58.0, 12.5), priority=2, name="leg_ret sources")
 
 # ---------------------------------------------------------------- rectifier to the links
 zone("rect_p", "In1.Cu", (79.7, 0.6, 86.4, 9.8), (79.7, 9.8, 128.6, 24.0), name="rect_p BR1.1-J7", protect=True)
@@ -263,15 +279,15 @@ zone("l_filt", "B.Cu", (86.9, 0.6, 94.0, 16.5), (86.9, 9.8, 122.2, 16.5), (113.2
 
 # ---------------------------------------------------------------- switch nodes and tank
 zone("sw_a", "F.Cu", (72.5, 0.6, 76.5, 24.0), (72.5, 9.8, 93.7, 23.8), (87.2, 19.2, 103.6, 30.4),
-     (103.6, 19.2, 110.0, 48.0), (103.6, 37.2, 148.6, 48.0), (140.5, 37.2, 148.6, 101.5),
+     (103.6, 19.2, 110.0, 48.0), (103.6, 37.2, 148.6, 48.0), (139.0, 37.2, 148.6, 101.5),
      name="sw_a Q2.3-T1.1", protect=True)
 zone("sw_a", "B.Cu", (46.5, 0.6, 76.5, 16.0), name="sw_a leg-A link", protect=True)
 # SW_B: leg-B pins, a lane under leg A between the shunt vias (y < 16) and the HF-row pins
 # (y > 30.6), a 4.6 mm neck past C39.1, then down right of the LS-A bank (its vias stay free).
-zone("sw_b", "B.Cu", (12.5, 0.6, 31.0, 27.0), (12.5, 19.4, 77.0, 27.0), (77.0, 19.4, 100.5, 27.3),
+zone("sw_b", "B.Cu", (0.6, 9.7, 12.5, 27.0), (12.5, 0.6, 31.0, 27.0), (12.5, 19.4, 77.0, 27.0), (77.0, 19.4, 100.5, 27.3),
      (79.7, 9.8, 83.7, 23.8), (100.5, 19.7, 110.0, 50.0), (100.5, 37.2, 200.6, 50.0),
      (192.0, 37.2, 200.6, 113.0), name="sw_b leg B-C21..C23", protect=True)
-zone("res_a", "B.Cu", (126.0, 64.0, 161.0, 77.0), (150.0, 55.0, 161.0, 114.0), name="res_a J5-C21..C23", protect=True)
+zone("res_a", "B.Cu", (127.0, 64.0, 161.0, 77.0), (150.0, 55.0, 161.0, 114.0), name="res_a J5-C21..C23", protect=True)
 zone("coil_feed", "F.Cu", (126.0, 80.0, 135.5, 101.0), name="coil_feed J2-T1.2", protect=True)
 zone("coil_feed", "B.Cu", (126.0, 80.0, 135.5, 101.0), name="coil_feed J2-T1.2", protect=True)
 
@@ -312,14 +328,14 @@ for g, leg, side in ((4.5, "leg_b", "h"), (22.5, "leg_b", "l"), (44.6, "leg_a", 
 track("leg_b-out_h", "F.Cu", 0.6, [17.0, 17.9], [17.0, 18.9], [12.6, 21.0], [12.6, 32.9], [29.82, 32.9],
       [29.82, 46.12])
 # Leg B low side: straight down beside the shunt (LOW group throughout).
-track("leg_b-out_l", "F.Cu", 0.6, [35.0, 17.9], [35.0, 18.9], [35.6, 21.5], [35.6, 44.5], [36.17, 46.12])
+track("leg_b-out_l", "F.Cu", 0.6, [35.0, 17.9], [35.0, 18.9], [35.95, 21.5], [35.95, 44.5], [36.17, 46.12])
 # Leg A low side: down to a via below the HF row, In1 (LOW, inside the HV_RET plane) under
 # the leg-A high-side area, up beside U1.
 track("leg_a-out_l", "F.Cu", 0.6, [57.1, 17.9], [57.1, 18.9], [56.0, 20.5], [56.0, 31.0])
 via("leg_a-out_l", 56.0, 31.0)
-track("leg_a-out_l", "In1.Cu", 0.5, [56.0, 31.0], [56.0, 33.6], [82.0, 33.6], [82.0, 41.5])
-via("leg_a-out_l", 82.0, 41.5)
-track("leg_a-out_l", "F.Cu", 0.5, [82.0, 41.5], [83.22, 43.5], [83.22, 46.12])
+track("leg_a-out_l", "In1.Cu", 0.5, [56.0, 31.0], [56.0, 33.6], [82.0, 33.6], [82.0, 37.0])
+via("leg_a-out_l", 82.0, 37.0)
+track("leg_a-out_l", "F.Cu", 0.5, [82.0, 37.0], [82.6, 43.5], [83.22, 46.12])
 # Leg A high side: down the SW_A pour beside Q2.3, left of C39.1.
 track("leg_a-out_h", "F.Cu", 0.6, [75.1, 17.9], [75.1, 18.9], [77.0, 20.5], [77.0, 44.0], [76.87, 46.12])
 
@@ -383,9 +399,9 @@ via("ocp_kelvin_n", 41.3, 15.2)
 # its right-hand corner, where a slot leaves the band's turn down to C5/C6 intact (x 198-209),
 # then run between C21 and C22's pins and over J5 into the LS block.
 track("n_ls", "In1.Cu", 0.4, "PS2.3", [211.0, 26.0], [211.0, 75.0], [151.0, 75.0], [145.2, 59.75],
-      [120.2, 59.75], [120.2, 76.0])
+      [121.0, 59.75], [121.0, 76.0])
 track("v24_raw", "In1.Cu", 0.4, "PS2.4", [212.2, 17.6], [212.2, 76.0], [150.0, 76.0], [144.3, 60.55],
-      [121.0, 60.55], [121.0, 77.0], [117.6, 77.0])
+      [121.8, 60.55], [121.8, 77.0], [117.6, 77.0])
 V24 = GEO.via_spot("U26.15", width=0.3)
 track("v24_raw", "In1.Cu", 0.4, [117.6, 77.0], list(V24))
 via("v24_raw", *V24)
@@ -396,15 +412,32 @@ track("l_filt", "B.Cu", 0.5, [214.0, 30.0], [214.0, 7.6], "J3.1")
 ESCAPES.append({"ref": "J3", "pad": "1", "rect": [212.9, 4.0, 218.0, 30.5], "layer": "B.Cu"})
 ESCAPES.append({"ref": "J3", "pad": "2", "rect": [217.5, 0.4, 222.4, 7.5]})
 
+
+# Core distribution of the LS rails and gate-network sources.
+# U2's VSSA (N_HB) and VDDB (V15_LS) pins rise between the OUTA and OUTB tracks to vias.
+track("n_hb", "F.Cu", 0.3, "U2.14", [31.09, 40.0])
+via("n_hb", 31.09, 40.0, size=0.6)
+track("v15_ls", "F.Cu", 0.3, "U2.11", [34.91, 41.0])
+via("v15_ls", 34.91, 41.0, size=0.6)
+# N_LS / LEG_RET / V15_LS along In1 above the Kelvin pair, from vias just east of the LS-B bank,
+# turning down east of the Kelvin pair and ending above its last leg (y < 72): N_LS joins PS2's
+# N_LS feed at x 120.2, LEG_RET and V15_LS stop at the top of the protection block (the
+# remaining-connection pass takes them on to their pads).
+LS_LINES = {"n_ls": (39.2, 121.0, (54.8, 39.2), 59.75), "leg_ret": (40.0, 110.0, (55.6, 40.0), 52.0),
+            "v15_ls": (40.8, 109.0, (56.4, 40.8), 60.0)}
+for net, (yl, xv, sp, yend) in LS_LINES.items():
+    via(net, *sp, size=0.6)
+    track(net, "In1.Cu", 0.4, list(sp), [xv, yl], [xv, yend])
+
 # KELVIN_N's last leg, after the PS2 feeds are in place (its via must clear them).
-KN = GEO.via_spot("R33.2", size=0.85, width=0.3, reach=(0.4, 2.5))
+KN = (119.95, 72.4)        # just below R33.2, clear of PS2's V24_RAW feed (x 121)
 track("ocp_kelvin_n", "In1.Cu", 0.3, [41.3, 15.2], [41.3, 43.4], [106.6, 43.4], [106.6, KN[1]], list(KN))
 via("ocp_kelvin_n", *KN)
 track("ocp_kelvin_n", "F.Cu", 0.3, list(KN), "R33.2")
 
 # Bring-up / coil stud lands: each REDCUBE's four same-number pads joined on F and B.
 for ref, (cx, cy) in {"J9": (130.0, 6.5), "J10": (143.0, 6.5), "J7": (130.0, 19.5), "J8": (143.0, 19.5),
-                      "J5": (131.0, 70.5), "J2": (131.0, 85.5)}.items():
+                      "J5": (132.0, 70.5), "J2": (132.0, 85.5)}.items():
     n = [p["net"] for p in GEO.pads if p["ref"] == ref and p["net"]][0]
     for lay in ("F.Cu", "B.Cu"):
         zone(n, lay, (cx - 4.6, cy - 4.6, cx + 4.6, cy + 4.6), priority=4, name=f"{ref} stud land")
@@ -459,12 +492,15 @@ ESCAPES.append({"ref": "R2", "pad": "2", "rect": [226.3, 22.0, 229.9, 25.9]})
 # (band line y, vertical x, horizontal y, T2 via x, T3 via x, U35 via, horizontal end x)
 # Verticals run down through the protection / LS-block In1 planes (LOW) right of the bus
 # divider and left of the Kelvin pair's turn.
-T_LINES = {"bias_sw2": (44.4, 103.0, 82.0, 56.6, 9.5, (106.8, 85.1), 106.8),
+T_LINES = {"bias_sw2": (44.4, 103.0, 82.0, 56.6, 9.5, (107.3, 85.0), 107.3),
            "v24_raw": (45.5, 101.9, 87.6, 54.6, 7.6, (100.4, 87.6), 100.4),
            "bias_sw1": (46.6, 100.8, 85.4, 52.6, 5.7, (100.0, 85.4), 100.0)}
 U35_PIN = {"bias_sw1": "U35.1", "v24_raw": "U35.3", "bias_sw2": "U35.10"}
 for net, (yb, xv, yh, xt2, xt3, spot, xe) in T_LINES.items():
-    track(net, "F.Cu", 0.25, U35_PIN[net], list(spot))
+    if net == "bias_sw2":      # leave pin 10 sideways, clear of pin 9 (N_LS) below it
+        track(net, "F.Cu", 0.2, U35_PIN[net], [107.3, 86.045], list(spot))
+    else:
+        track(net, "F.Cu", 0.25, U35_PIN[net], list(spot))
     via(net, *spot)
     track(net, "In1.Cu", 0.4, list(spot), [xv, yh], [xv, yb], [xt2, yb], [xt3, yb])
     via(net, xt2, yb)
@@ -487,7 +523,8 @@ for leg, isl, bank in (("b", (0.6, 60.0, 22.0, 119.0), (12.0, 30.6, 28.5, 48.0))
     zone(f"n_h{leg}", "In1.Cu", isl, name=f"n_h{leg} island")
     # strip from the bank down into the island, kept 3.2 mm clear of the transformer primaries
     strip_x0 = 17.5 if leg == "b" else 64.5
-    zone(f"n_h{leg}", "B.Cu", bank, (strip_x0, bank[3], bank[2], isl[1] + 2.5), name=f"n_h{leg} bank")
+    ext = [(28.5, 38.5, 31.4, 48.0)] if leg == "b" else []          # under U2.14 (VSSA) via
+    zone(f"n_h{leg}", "B.Cu", bank, (strip_x0, bank[3], bank[2], isl[1] + 2.5), *ext, name=f"n_h{leg} bank")
 # LOW blocks: protection (OCP_KELVIN_P ground) and LS bias (N_LS) on In1; HOT5 / V15_LS routed. B N_LS also
 # under both LS reservoir banks, joined to the block past U1's SELV moat (x >= 92.5).
 PROT, LSB = (100.5, 51.0, 123.0, 75.3), (100.5, 75.3, 123.0, 113.0)
@@ -516,6 +553,10 @@ for net, pads_, bx in SELV_LONG:
 # bank (B) to island (In1) for each high-side -2 V rail
 for net, x, y in (("n_hb", 18.6, 61.6), ("n_hb", 19.4, 62.4), ("n_ha", 65.6, 65.6), ("n_ha", 66.4, 66.0)):
     via(net, x, y)
+fanout("sw_b", (0, 8, 13, 24), "B.Cu")
+fanout("leg_ret", (18, 9, 46, 13.5), "In1.Cu")
+fanout("sw_a", (58, 9, 62, 14), "B.Cu")
+track("sw_a", "F.Cu", 0.4, "C55.2", [72.8, 22.6])
 fanout("v3v3", (0, 52, 160, 190), "In1.Cu")
 fanout("selv_gnd", (0, 52, 160, 190), "In2.Cu")
 for leg, isl, bank in (("b", (0, 30, 29, 120), None), ("a", (44, 30, 76, 120), None)):  # noqa
@@ -568,6 +609,10 @@ if TODO.exists():
     for net, a, b in json.loads(TODO.read_text()):
         group = rules21.GROUP.get(net)
         layers = LAYERS_FOR.get(group, ("F.Cu", "B.Cu"))
+        if rules21.domain(net) == "SELV":
+            # SELV signals may use In1/In2 inside the SELV region (only the SELV planes live there,
+            # and they yield); the plan-view barrier keeps them out of everything else.
+            layers = ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu")
         w = 0.4 if net in ("leg_ret", "v15_ls", "n_ls", "v24_raw", "bias_sw1", "bias_sw2", "hot5",
                            "v15_selv", "pe", "l_filt", "n_filt", "l_f", "ac_n_in", "ac_l_in", "tco_l") else 0.25
         try:

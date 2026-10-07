@@ -20,6 +20,10 @@ def name(net, item):
     m = re.search(r"Pad (\S+) \[[^\]]*\] of (\S+)", item["description"])
     if m:
         return f"{m.group(2)}.{m.group(1)}"
+    t = re.search(r"^(Track|Via) \[[^\]]*\] on ([A-Za-z0-9.]+)", item["description"])
+    if t:      # existing copper: route to the point KiCad names on it
+        lay = t.group(2) if t.group(1) == "Track" else "*"
+        return f"@{item['pos']['x']:.3f},{item['pos']['y']:.3f},{lay}"
     x, y = item["pos"]["x"], item["pos"]["y"]
     c = [p for p in pads if p["net"] == net]
     p = min(c, key=lambda p: math.hypot(p["x"] - x, p["y"] - y))
@@ -36,7 +40,16 @@ for v in d.get("unconnected_items", []):
         continue
     seen.add(key)
     pp = {f"{p['ref']}.{p['pad']}": p for p in pads}
-    dist = math.hypot(pp[pa]["x"] - pp[pb]["x"], pp[pa]["y"] - pp[pb]["y"]) if pa in pp and pb in pp else 99
+
+    def xy(n):
+        if n.startswith("@"):
+            x, y, _ = n[1:].split(",")
+            return float(x), float(y)
+        return pp[n]["x"], pp[n]["y"]
+    try:
+        dist = math.dist(xy(pa), xy(pb))
+    except KeyError:
+        dist = 99
     out.append((dist, net, pa, pb))
 out.sort()
 # Cumulative: route21 rebuilds all copper each run, so pairs joined in earlier runs stay listed

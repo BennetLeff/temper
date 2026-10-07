@@ -164,8 +164,8 @@ put("c_res1", 176.5, 58.0)
 put("c_res2", 176.5, 86.4)
 put("c_res3", 176.5, 110.9)
 put("t_ct", 135.0, 110.0)                      # primary sw_a -> coil_feed; secondary on the SELV band
-put("j_coil_return", 131.0, 70.5)
-put("j_coil", 131.0, 85.5)
+put("j_coil_return", 132.0, 70.5)
+put("j_coil", 132.0, 85.5)
 pack(group("c_ct_burden", "r_ct_burden", "r_ct_series", "d_ct_hi", "d_ct_lo"), 116.0, 129.0, 142.0, 139.5)
 # tank bleed chain RES_A -> SW_B across the top of C21 (each tap its own group, 5 mm tank rule)
 for i, n in enumerate(("r_crb1", "r_crb2", "r_crb3", "r_crb4")):
