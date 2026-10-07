@@ -35,6 +35,11 @@ def _blocked(geo, net, layer, bx, width):
         need = 0.3 if other == "<npth>" else rules21.clearance(net, other)
         shapes.append(g.buffer(need + width / 2 + 0.03, resolution=8))
     shapes.append(geo.outline.exterior.buffer(width / 2 - 0.005))
+    ptree, pitems = geo._tree("PLAN")
+    for i in ptree.query(_box(x0 - 9, y0 - 9, x1 + 9, y1 + 9)):
+        g, other = pitems[i]
+        if other != net and other != "<npth>" and rules21.barrier(net, other):
+            shapes.append(g.buffer(rules21.BARRIER + width / 2 + 0.03, resolution=8))
     import numpy as np
     import shapely
     xs, ys = np.meshgrid(x0 + np.arange(nx) * STEP, y0 + np.arange(ny) * STEP)
@@ -128,6 +133,16 @@ def _via_ok(geo, net, bx, size):
             bad = unary_union(shapes)
             shapely.prepare(bad)
             mask |= shapely.contains_xy(bad, xs.ravel(), ys.ravel())
+    ptree, pitems = geo._tree("PLAN")
+    pshapes = []
+    for i in ptree.query(_box(x0 - 9, y0 - 9, x1 + 9, y1 + 9)):
+        g, other = pitems[i]
+        if other != net and other != "<npth>" and rules21.barrier(net, other):
+            pshapes.append(g.buffer(rules21.BARRIER + size / 2 + 0.03, resolution=8))
+    if pshapes:
+        bad = unary_union(pshapes)
+        shapely.prepare(bad)
+        mask |= shapely.contains_xy(bad, xs.ravel(), ys.ravel())
     inner = geo.outline.buffer(-size / 2 - 0.03)
     shapely.prepare(inner)
     mask |= ~shapely.contains_xy(inner, xs.ravel(), ys.ravel())

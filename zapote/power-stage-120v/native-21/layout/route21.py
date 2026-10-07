@@ -45,8 +45,23 @@ PLANES = {}       # (net, layer) -> union of authored pour outlines, for fan-out
 
 
 def zone(net, layer, *rects, priority=1, name="", protect=False):
+    """Pour outline from rectangles, clipped to the D5 barrier in plan view: SELV / PE pours stay
+    8.2 mm from every HOT item authored so far (pads, tracks, vias, pour outlines on any layer);
+    HOT pours stay 8.2 mm from SELV / PE pads and tracks."""
+    import rules21
     shape = unary_union([box(*r) for r in rects])
+    dom = rules21.domain(net)
+    if dom in ("SELV", "PE", "HOT"):
+        tree, items = GEO._tree("PLAN")
+        cut = [g for i in tree.query(shape.buffer(8.5)) for g, other in [items[i]]
+               if other not in (net, "<npth>") and rules21.barrier(net, other)
+               and not (dom == "HOT" and g.area > 400)]
+        if cut:
+            shape = shape.difference(unary_union(cut).buffer(rules21.BARRIER + 0.2, resolution=8))
+    if shape.is_empty:
+        return
     PLANES[(net, layer)] = unary_union([PLANES.get((net, layer), shape), shape])
+    GEO.add_plan(net, shape)
     if protect:
         GEO.protect(net, layer, shape)
     for poly in getattr(shape, "geoms", [shape]):
@@ -134,22 +149,23 @@ def link(net, layer, bx, width, pads):
         # direct and L-shaped joins first (fine-pitch neighbours, short hops)
         lays0 = layers or (layer,)
         a, b = near[:2], pts[q]
-        for cand in ([a, b], [a, (b[0], a[1]), b], [a, (a[0], b[1]), b]):
+        for cand, wj in [(c, w_) for w_ in (width, 0.2) for c in ([a, b], [a, (b[0], a[1]), b], [a, (a[0], b[1]), b])]:
             for li, lay in enumerate(lays0):
                 if (near[2] not in (None, li)) or (lidx.get(q) not in (None, li)) if two else False:
                     continue
                 if lay != "F.Cu" and not (GEO.pad(q)["tht"]):
                     continue
-                geom = LineString(cand).buffer(width / 2)
+                geom = LineString(cand).buffer(wj / 2)
                 if not GEO.conflicts(net, (lay,), geom, limit=1):
                     res = ([(lay, [[round(x, 3), round(y, 3)] for x, y in cand])], [])
+                    join_w = wj
                     break
             if res:
                 break
         if res is not None:
             segs, vs = res
             for lay, path in segs:
-                track(net, lay, width, *path)
+                track(net, lay, join_w, *path)
                 tree.extend((x, y, lays0.index(lay)) for x, y in path)
             continue
         for m in (4.0, 10.0, 30.0):
@@ -415,10 +431,27 @@ track("l_filt", "F.Cu", 1.0, [230.5, 107.0], [250.0, 130.0], "PS1.1")
 track("n_filt", "B.Cu", 1.0, "L1.3", [241.0, 59.0], [238.0, 62.0], [237.5, 64.0], [237.5, 113.0], [250.0, 113.0],
       "PS1.2")
 track("n_filt", "B.Cu", 0.6, [237.5, 111.5], [226.0, 111.5], "C4.1")
-track("n_filt", "B.Cu", 0.6, [237.5, 101.5], [244.8, 101.5])
-via("n_filt", 244.8, 101.5)
-track("n_filt", "F.Cu", 0.6, [244.8, 101.5], "R70.2")
-ESCAPES.append({"ref": "R70", "pad": "2", "rect": [242.1, 100.6, 245.6, 102.4]})
+track("n_filt", "B.Cu", 0.6, [237.5, 107.0], [243.5, 107.0])
+via("n_filt", 243.5, 107.0)
+track("n_filt", "F.Cu", 0.6, [243.5, 107.0], "R70.2")
+ESCAPES.append({"ref": "R70", "pad": "2", "rect": [242.1, 100.6, 244.4, 107.8]})
+# Bus bleed: R3 (BUS_P end to the In2 trunk, bleed end over D3) - R4 (HV_RET end to the In1 trunk).
+track("busbleed_mid", "F.Cu", 0.4, "R3.2", [248.04, 100.8], [281.54, 100.8], "R4.1")
+ESCAPES.append({"ref": "R3", "pad": "2", "rect": [247.2, 100.0, 249.0, 107.3]})
+ESCAPES.append({"ref": "R4", "pad": "1", "rect": [280.6, 100.0, 282.4, 107.3]})
+track("bus_p", "F.Cu", 0.6, "R3.1", "D3.1")
+ESCAPES.append({"ref": "R3", "pad": "1", "rect": [250.0, 105.0, 255.2, 107.0]})
+track("hv_ret", "F.Cu", 0.4, "R4.2", [286.6, 106.0])
+ESCAPES.append({"ref": "R4", "pad": "2", "rect": [283.5, 105.0, 287.3, 107.0]})
+via("hv_ret", 286.6, 106.0)
+# X-cap bleeder R1 (L_F) - R2 (AC_N_IN).
+chain_link("xbleed_mid", "R1.2", "R2.1", 0.3)
+track("l_f", "F.Cu", 0.4, [224.54, 8.6], "R1.1")
+ESCAPES.append({"ref": "R1", "pad": "1", "rect": [223.4, 8.0, 225.7, 15.9]})
+track("ac_n_in", "F.Cu", 0.4, "R2.2", [229.0, 25.0])
+via("ac_n_in", 229.0, 25.0)
+track("ac_n_in", "B.Cu", 0.6, [229.0, 25.0], [238.5, 25.0], [240.5, 26.8])
+ESCAPES.append({"ref": "R2", "pad": "2", "rect": [226.3, 22.0, 229.9, 25.9]})
 
 # SN6507 (U35, LS block) to both high-side transformer primaries: three LOW tracks along the
 # bottom band of the core plane on In1 (below the Kelvin pair), each tapping T2 and T3 through a
@@ -448,8 +481,6 @@ track("bias_sw2", "F.Cu", 0.4, [9.5, 44.4], [9.5, 49.0], [13.95, 53.45], "T3.4")
 # (other HOT groups) from everything else. Every SMD pad of a plane net gets a via beside it.
 SELV_REGION = [(0.6, 114.0, 160.0, 139.4), (0.6, 139.4, 90.4, 189.4), (22.0, 52.0, 44.5, 114.0),
                (70.0, 52.0, 93.0, 114.0), (142.0, 131.0, 207.0, 139.4), (205.0, 92.8, 216.8, 139.4)]
-zone("v3v3", "In1.Cu", *SELV_REGION, name="v3v3 SELV island")
-zone("selv_gnd", "In2.Cu", *SELV_REGION, name="selv_gnd SELV island")
 # High-side islands: -2 V rail (N_Hx) on In1 (B under the HS reservoir bank); +15 V routed.
 for leg, isl, bank in (("b", (0.6, 60.0, 22.0, 119.0), (12.0, 30.6, 28.5, 48.0)),
                        ("a", (44.5, 64.0, 70.0, 119.0), (58.5, 30.6, 75.5, 48.0))):
@@ -464,6 +495,9 @@ zone("ocp_kelvin_p", "In1.Cu", PROT, name="ocp_kelvin_p protection")
 zone("n_ls", "In1.Cu", LSB, name="n_ls LS block")
 zone("n_ls", "B.Cu", (84.0, 30.6, 97.3, 48.0), name="n_ls LS-A bank")
 zone("n_ls", "B.Cu", (37.5, 30.6, 54.0, 48.0), name="n_ls LS-B bank")
+# SELV planes last, so they are clipped against every HOT pour above (plan view, 8.2 mm).
+zone("v3v3", "In1.Cu", *SELV_REGION, name="v3v3 SELV island")
+zone("selv_gnd", "In2.Cu", *SELV_REGION, name="selv_gnd SELV island")
 
 # Long SELV runs first, before the pad fan-outs crowd the driver tongues (F/B only; the SELV
 # planes on In1/In2 stay whole). U2's PWM pair lands on J4 from B, U1's from F, so they cross.
@@ -479,6 +513,9 @@ SELV_LONG = [("pwm_hb", ["U2.1", "J4.7"], (20, 50, 62, 189)), ("pwm_lb", ["U2.2"
 for net, pads_, bx in SELV_LONG:
     link(net, "F+B", bx, 0.3 if net != "pe" else 0.6, pads_)
 
+# bank (B) to island (In1) for each high-side -2 V rail
+for net, x, y in (("n_hb", 18.6, 61.6), ("n_hb", 19.4, 62.4), ("n_ha", 65.6, 65.6), ("n_ha", 66.4, 66.0)):
+    via(net, x, y)
 fanout("v3v3", (0, 52, 160, 190), "In1.Cu")
 fanout("selv_gnd", (0, 52, 160, 190), "In2.Cu")
 for leg, isl, bank in (("b", (0, 30, 29, 120), None), ("a", (44, 30, 76, 120), None)):  # noqa

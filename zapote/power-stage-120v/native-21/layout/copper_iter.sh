@@ -16,6 +16,8 @@ $KPY prototype-closure/pcb/apply_copper21.py --out "$OUT" 2>/dev/null | grep -v 
 $CLI pcb drc --refill-zones --save-board --format json -o "$OUT/drc.json" "$OUT/section.kicad_pcb" >/dev/null 2>&1 || true
 $KPY native-21/layout/plot_copper.py --dump "$OUT/section.kicad_pcb" "$OUT/copper-dump.json" >/dev/null 2>&1
 python3 native-21/layout/plot_copper.py "$OUT/copper-dump.json" "$OUT/copper.png"
+(cd native-21/layout && python3 barrier21.py "$OUT/copper-dump.json" > "$OUT/barrier.txt" 2>&1 || true)
+head -1 "$OUT/barrier.txt"
 python3 native-21/layout/unrouted.py "$OUT/drc.json" "$OUT/unrouted.json"
 python3 - "$OUT/drc.json" <<'PY'
 import json, sys, collections

@@ -40,3 +40,11 @@ def clearance(a, b):
         if GROUP[a] != GROUP[b]:
             return _m.wr.FUNCTIONAL_CREEPAGE_MM
     return FLOOR
+
+
+BARRIER = _m.wr.REINFORCED_MM
+
+
+def barrier(a, b):
+    """True when the pair is separated by the reinforced barrier (plan view, all layers)."""
+    return {domain(a), domain(b)} in ({"SELV", "HOT"}, {"PE", "HOT"})

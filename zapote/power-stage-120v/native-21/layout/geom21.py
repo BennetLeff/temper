@@ -27,7 +27,7 @@ EPS = 0.01
 class Geometry:
     def __init__(self, pads_path=HERE / "pads.json"):
         self.pads = json.loads(Path(pads_path).read_text())
-        self.items = {lay: [] for lay in CU}       # (geom, net)
+        self.items = {lay: [] for lay in CU + ("PLAN",)}   # (geom, net); PLAN = all copper, plan view
         self._trees = {}
         self.pad_at = {}
         for p in self.pads:
@@ -38,6 +38,7 @@ class Geometry:
                 net = p["net"]
             for lay in (CU if p["tht"] else ("F.Cu",)):
                 self.items[lay].append((g, net))
+            self.items["PLAN"].append((g, net))
             self.pad_at.setdefault(f"{p['ref']}.{p['pad']}", []).append(p)
         self.outline = Polygon(EDGE).buffer(-EDGE_CLEARANCE, join_style=2)
 
@@ -46,6 +47,13 @@ class Geometry:
         for lay in layers:
             self.items[lay].append((geom, net))
             self._trees.pop(lay, None)
+        self.items["PLAN"].append((geom, net))
+        self._trees.pop("PLAN", None)
+
+    def add_plan(self, net, polygon):
+        """Copper whose exact fill is unknown at authoring time (pour outlines): plan-view only."""
+        self.items["PLAN"].append((polygon, net))
+        self._trees.pop("PLAN", None)
 
     def add_track(self, net, layer, width, pts):
         self._add((layer,), LineString(pts).buffer(width / 2, cap_style=1), net)
@@ -76,6 +84,17 @@ class Geometry:
                 need = 0.3 if other == "<npth>" else rules21.clearance(net, other)
                 if g.distance(geom) < need + 0.03:
                     out.append((lay, other))
+                    if len(out) >= limit:
+                        return out
+        # D5 barrier: SELV / PE against HOT is a plan-view distance over every copper layer
+        if rules21.domain(net) in ("SELV", "PE", "HOT"):
+            tree, items = self._tree("PLAN")
+            for i in tree.query(geom.buffer(8.5)):
+                g, other = items[i]
+                if other in (net, "<npth>") or not rules21.barrier(net, other):
+                    continue
+                if g.distance(geom) < rules21.BARRIER + 0.03:
+                    out.append(("PLAN", other))
                     if len(out) >= limit:
                         return out
         return out
