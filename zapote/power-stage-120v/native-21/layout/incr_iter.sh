@@ -13,7 +13,7 @@ python3 native-21/layout/place.py
 $KPY prototype-closure/pcb/build_native21.py >/dev/null 2>&1
 python3 native-21/layout/write_rules21.py
 $KPY native-21/layout/dump_pads.py native-21/section.kicad_pcb native-21/layout/pads.json >/dev/null 2>&1
-if [ "$2" = "-" ]; then cp "$BASE" native-21/layout/copper.json
+if [ "$2" = "-" ]; then [ "$BASE" -ef native-21/layout/copper.json ] || cp "$BASE" native-21/layout/copper.json
 else python3 native-21/layout/incr21.py "$BASE" "$2" native-21/layout/copper.json "${FILLS:-}"; fi
 $KPY prototype-closure/pcb/apply_copper21.py --out "$OUT" 2>/dev/null | grep -v -i wxapp
 $CLI pcb drc --refill-zones --save-board --format json -o "$OUT/drc.json" "$OUT/section.kicad_pcb" >/dev/null 2>&1 || true
