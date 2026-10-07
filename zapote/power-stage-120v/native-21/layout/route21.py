@@ -127,10 +127,14 @@ def add_signal_via(net, x, y, la, lb, width):
     GEO.add_via(net, x, y, 0.6)
 
 
-def _legal(net, segs, width):
+def _legal(net, segs, width, vias=()):
     """Final check of a found path against everything authored so far (incl. plan-view barrier)."""
+    from shapely.geometry import Point
     for lay, path in segs:
         if len(path) > 1 and GEO.conflicts(net, (lay,), LineString(path).buffer(width / 2), limit=1):
+            return False
+    for v in vias:
+        if GEO.conflicts(net, ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu"), Point(v[0], v[1]).buffer(0.3), limit=1):
             return False
     return True
 
@@ -200,7 +204,7 @@ def link(net, layer, bx, width, pads):
             starts = [t for t in tree if sub[0] <= t[0] <= sub[2] and sub[1] <= t[1] <= sub[3]] or [near]
             if two:
                 res = maze21.connect2(GEO, net, sub, width, starts, [(*pts[q], lidx[q])], layers=layers, via=0.6)
-                if res is not None and not _legal(net, res[0], width):
+                if res is not None and not _legal(net, res[0], width, res[1]):
                     res = None
             else:
                 p = maze21.connect(GEO, net, layer, sub, width, [t[:2] for t in starts], [pts[q]])
@@ -216,7 +220,7 @@ def link(net, layer, bx, width, pads):
                            min(bx[2], max(near[0], pts[q][0]) + m), min(bx[3], max(near[1], pts[q][1]) + m))
                     starts = [t for t in tree if sub[0] <= t[0] <= sub[2] and sub[1] <= t[1] <= sub[3]] or [near]
                     res = maze21.connect2(GEO, net, sub, 0.2, starts, [(*pts[q], lidx[q])], layers=layers, via=0.6)
-                    if res is not None and not _legal(net, res[0], 0.2):
+                    if res is not None and not _legal(net, res[0], 0.2, res[1]):
                         res = None
                     if res is not None:
                         width_used = 0.2
