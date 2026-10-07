@@ -499,6 +499,8 @@ U35_PIN = {"bias_sw1": "U35.1", "v24_raw": "U35.3", "bias_sw2": "U35.10"}
 for net, (yb, xv, yh, xt2, xt3, spot, xe) in T_LINES.items():
     if net == "bias_sw2":      # leave pin 10 sideways, clear of pin 9 (N_LS) below it
         track(net, "F.Cu", 0.2, U35_PIN[net], [107.3, 86.045], list(spot))
+    elif net == "bias_sw1":    # leave pin 1 sideways, clear of pin 2 (N_LS) below it
+        track(net, "F.Cu", 0.2, U35_PIN[net], [100.6, 86.045], list(spot))
     else:
         track(net, "F.Cu", 0.25, U35_PIN[net], list(spot))
     via(net, *spot)
