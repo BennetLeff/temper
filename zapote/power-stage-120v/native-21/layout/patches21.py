@@ -34,6 +34,21 @@ SELV_OUTER = {"v15_selv": ["PS1.4", "J4.1"], "line_zc-raw": ["U36.4", "R125.2", 
               "bus_fault_iso": ["U9.13", "U13.1"], "bias_bad_raw": ["U25.4", "R126.1"],
               "bias_bad_flt": ["R126.2", "C143.1", "U40.2"], "bias_ls_bad": ["U25.1", "U32.13"]}
 REMOVE += [{"net": n} for n in SELV_OUTER]
+# Protection block: U3 is the HOT5 LDO, but its output pin U3.5 was walled in (vias are barred
+# above y 53.5 by the SW_B lane on B; the channel down was taken by U8's logic nets). Lay the rail
+# from U3.5 first, then U8's OCP_OK / HOT5_OK / BUS_FAULT nets around it.
+REMOVE += [{"net": n} for n in ("ocp_ok_hot", "hot5_ok_hot", "bus_fault_hot", "ovp_ok_hot")]
+REMOVE += [{"net": "hot5", "box": [117.4, 53.0, 121.4, 57.7], "layer": "F.Cu"}]   # U8.5 -> C26.1 wrap
+# U9 (BUS_FAULT isolator): its HOT pins sit 8 mm from the SELV row, so U9.4 can only leave upward;
+# the KELVIN_P link U9.7 -> U9.1 ran along the top of the row. U9.4 gets its via first.
+REMOVE += [{"net": "ocp_kelvin_p", "box": [109.8, 114.9, 117.5, 116.2], "layer": "F.Cu"}]
+# LS monitor: R91.2 (MONITOR_LS-ISOIN, the opto drive) sat in a pad-sized F pocket between the
+# HALFREF and a LEG_RET hop; lay ISOIN first, then those two around it.
+REMOVE += [{"net": "monitor_ls-halfref", "box": [112.4, 107.3, 117.8, 108.5], "layer": "F.Cu"},
+           {"net": "leg_ret", "box": [108.8, 109.5, 116.2, 111.7], "layer": "F.Cu"}]
+# U4 (bus-voltage isolated amp) likewise: U4.2 (VSENSE_IN) leaves upward; KELVIN_P U4.3 -> U9.7 ran
+# along the top of its row.
+REMOVE += [{"net": "ocp_kelvin_p", "box": [103.3, 114.2, 109.9, 116.2], "layer": "F.Cu"}]
 HANDLED = ("led1", "led2")     # joined explicitly below
 REMOVE_ESCAPES = [("R67", "1"), ("R67", "2"), ("R68", "1"), ("R69", "2"), ("R70", "1"), ("R70", "2")]
 
@@ -44,12 +59,22 @@ REMOVE_ESCAPES = [("R67", "1"), ("R67", "2"), ("R68", "1"), ("R69", "2"), ("R70"
 SPUR = (205.0, 92.8, 216.8, 139.4)
 
 
+# Leg-A SELV pocket: its planes reached into the empty corner above U32 (the LS monitor isolator),
+# fencing U32's HOT pins in by the 8 mm barrier. No SELV part lives there; cut it back.
+POCKET_CUT = (84.0, 104.0, 93.5, 114.5)
+
+
 def edit_zones(zones):
     import rules21
     cut = box(*SPUR).buffer(rules21.BARRIER + 0.2, join_style=2)
     out = []
     for z in zones:
         poly = Polygon(z["outline"], z["holes"])
+        if z["net"] in ("v3v3", "selv_gnd") and poly.intersects(box(*POCKET_CUT)):
+            poly = poly.difference(box(*POCKET_CUT))
+            poly = max(getattr(poly, "geoms", [poly]), key=lambda q: q.area)
+            z = {**z, "outline": [[round(x, 3), round(y, 3)] for x, y in list(poly.exterior.coords)[:-1]],
+                 "holes": [[[round(x, 3), round(y, 3)] for x, y in list(i.coords)[:-1]] for i in poly.interiors]}
         if z["net"] in ("v3v3", "selv_gnd") and poly.intersects(box(*SPUR)):
             rest = poly.difference(box(*SPUR))      # re-poured by add()
         elif z["net"] in ("hv_ret", "bus_p") and z["layer"] in ("In1.Cu", "In2.Cu") and poly.intersects(cut):
@@ -64,6 +89,42 @@ def edit_zones(zones):
             out.append({**z, "outline": [[round(x, 3), round(y, 3)] for x, y in list(q.exterior.coords)[:-1]],
                         "holes": [[[round(x, 3), round(y, 3)] for x, y in list(i.coords)[:-1]] for i in q.interiors]})
     return out
+
+
+def _snapshot(g):
+    G = g["GEO"]
+    return ({k: len(v) for k, v in G.items.items()}, len(g["TRACKS"]), len(g["VIAS"]), len(g["LINK_LOG"]))
+
+
+def _restore(g, snap):
+    G = g["GEO"]
+    items, nt, nv, nl = snap
+    for k, n in items.items():
+        del G.items[k][n:]
+    G._trees.clear()
+    del g["TRACKS"][nt:], g["VIAS"][nv:], g["LINK_LOG"][nl:]
+
+
+def route_group(g, jobs, tries=8):
+    """Link every job (net, layers, box, width, pads). When some fail, they move to the front and
+    the group is re-laid from scratch; the best order found is kept."""
+    order = list(range(len(jobs)))
+    best = None
+    snap = _snapshot(g)
+    for _ in range(tries):
+        failed = [i for i in order if not g["link"](*jobs[i])]
+        if not failed:
+            return []
+        if best is None or len(failed) < len(best[1]):
+            best = (list(order), failed)
+        _restore(g, snap)
+        nxt = failed + [i for i in order if i not in failed]
+        if nxt == order:
+            break
+        order = nxt
+    for i in best[0]:
+        g["link"](*jobs[i])
+    return [jobs[i][0] for i in best[1]]
 
 
 def put(g, net, layer, width, *pts, escape=None):
@@ -183,5 +244,26 @@ def add(g):
     link("permit", "F+B", (20, 60, 95, 189), 0.3, ["R14.1", "R6.1", "J4.9"])
     link("bias_hb_bad", "F+B", (0.6, 100, 40, 140), 0.3, ["U34.13", "U25.6"])
     link("bias_ha_bad", "F+B", (0.6, 100, 90, 140), 0.3, ["U33.13", "U25.3"])
+    drill(g, "bus_fault_hot", 113.6, 113.9)
+    put(g, "bus_fault_hot", "F.Cu", 0.25, "U9.4", [113.635, 114.6], [113.6, 113.9])
+    put(g, "hot5", "F.Cu", 0.3, "U3.5", [116.3, 52.195], [116.3, 55.0])   # LDO out, down the U3/U8 channel
+    drill(g, "hot5", 116.3, 55.0)
+    esc.append({"ref": "R29", "pad": "2", "rect": [94.3, 91.6, 99.5, 93.4]})   # divider tap, away from R29.1
+    put(g, "vsense_in", "F.Cu", 0.3, "R29.2", [99.0, 92.46], escape="vdiv_3")
+    drill(g, "monitor_ls-isoin", 92.6, 113.9)
+    put(g, "monitor_ls-isoin", "F.Cu", 0.25, "U32.4", [92.6, 113.9])
+    drill(g, "vsense_in", 104.6, 114.0)
+    put(g, "vsense_in", "F.Cu", 0.25, "U4.2", [104.6, 114.0])
+    PROT_BOX = (99.0, 48.0, 124.5, 78.0)
+    route_group(g, [("hot5", L4, PROT_BOX, 0.3, ["U3.5", "U8.5", "C26.1"]),
+                    ("ocp_ok_hot", L4, PROT_BOX, 0.25, ["U8.1", "U6.1"]),
+                    ("hot5_ok_hot", L4, PROT_BOX, 0.25, ["U8.6", "U15.4"]),
+                    ("ovp_ok_hot", L4, PROT_BOX, 0.25, ["U8.3", "U7.1"]),
+                    ("bus_fault_hot", L4, (88.0, 48.0, 124.5, 120.0), 0.25, ["U8.4", "U9.4"]),
+                    ("ocp_kelvin_p", L4, (100.0, 100.0, 124.5, 117.2), 0.25, ["U4.3", "U9.7", "U9.1"]),
+                    ("monitor_ls-isoin", L4, (86.0, 80.0, 124.5, 117.2), 0.25, ["R91.2", "@92.6,113.9,*", "Q7.3"]),
+                    ("monitor_ls-halfref", L4, (100.0, 100.0, 124.5, 117.2), 0.25, ["R79.2", "R80.1"]),
+                    ("leg_ret", L4, (100.0, 100.0, 124.5, 117.2), 0.25, ["R83.1", "R81.1"]),
+                    ("vsense_in", L4, (88.0, 55.0, 124.5, 117.2), 0.25, ["@104.6,114.0,*", "@99.0,92.46,F.Cu", "C27.1"])])
     for net, pads_ in SELV_OUTER.items():
         link(net, "F+B", (0.6, 52.0, 217.0, 189.4), 0.4 if net == "v15_selv" else 0.25, pads_)

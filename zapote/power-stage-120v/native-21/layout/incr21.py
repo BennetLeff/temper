@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Incremental native-21 routing on top of frozen copper.
 
-    python3 native-21/layout/incr21.py BASE_COPPER.json DRC.json [OUT=copper.json]
+    python3 native-21/layout/incr21.py BASE_COPPER.json DRC.json[,DRC2.json...] [OUT=copper.json] [FILLS=copper-dump.json]
 
 route21.py regenerates all copper from scratch; with ~800 connections the order of the
 remaining-connection passes reshuffles which leftovers fail. Once a build is good, its copper
@@ -50,6 +50,7 @@ def removed(item, kind):
 
 
 PATCHED = set()
+FILLS = []          # filled pour polygons from the previous build's copper dump (optional argv[4])
 
 
 def isolated(net, ref_pad):
@@ -63,20 +64,83 @@ def isolated(net, ref_pad):
     return not any(v["net"] == net and x0 <= v["at"][0] <= x1 and y0 <= v["at"][1] <= y1 for v in g["VIAS"])
 
 
-def attach(net, ref_pad, layers, width):
-    """Join a bare pad to the nearest legal point of any other authored copper of its net
+def clusters(net):
+    """Same-net copper grouped by contact (authored tracks, vias, pads, pour outlines), a stand-in
+    for KiCad's connectivity. Returns [(kind, layer or None, geometry, payload)], cluster ids."""
+    from shapely.geometry import LineString, Point, Polygon, box
+    from shapely.strtree import STRtree
+    items = []
+    for t in g["TRACKS"]:
+        if t["net"] == net:
+            pts = [g["_xy"](q) for q in t["points"]]
+            items.append(("track", t["layer"], LineString(pts).buffer(t["width"] / 2), (t, pts)))
+    for v in g["VIAS"]:
+        if v["net"] == net:
+            items.append(("via", None, Point(*v["at"]).buffer(v["size"] / 2), v))
+    for p in GEO.pads:
+        if p["net"] == net:
+            items.append(("pad", None if p["tht"] else "F.Cu", box(*p["box"]), p))
+    if FILLS:      # KiCad's fill of the previous build: what the pours really reach
+        for z in FILLS:
+            if z["net"] == net and len(z["pts"]) > 2:
+                items.append(("zone", z["layer"], Polygon(z["pts"], [h for h in z["holes"] if len(h) > 2]).buffer(0), z))
+    else:
+        for z in g["ZONES"]:
+            if z["net"] == net:
+                items.append(("zone", z["layer"], Polygon(z["outline"], z["holes"]), z))
+    parent = list(range(len(items)))
+
+    def find(i):
+        while parent[i] != i:
+            parent[i] = parent[parent[i]]
+            i = parent[i]
+        return i
+    tree = STRtree([it[2] for it in items])
+    for i, (_, la, geo_, _) in enumerate(items):
+        for j in tree.query(geo_):
+            if j <= i:
+                continue
+            lb = items[j][1]
+            if (la is None or lb is None or la == lb) and geo_.intersects(items[j][2]):
+                parent[find(i)] = find(j)
+    return items, [find(i) for i in range(len(items))]
+
+
+def cluster_of(items, cid, where):
+    """Cluster id of the item at a pad name or an "@x,y,layer" point."""
+    from shapely.geometry import Point
+    if where.startswith("@"):
+        x, y, lay = where[1:].split(",")
+        pt = Point(float(x), float(y))
+        hits = [i for i, it in enumerate(items) if (lay == "*" or it[1] in (None, lay)) and it[2].distance(pt) < 0.05]
+    else:
+        ref, pad = where.split(".")
+        hits = [i for i, it in enumerate(items) if it[0] == "pad" and it[3]["ref"] == ref and it[3]["pad"] == pad]
+    return cid[hits[0]] if hits else None
+
+
+def attach(net, ref_pad, layers, width, target=None):
+    """Join a bare pad to the nearest legal point of authored copper of its net: of the cluster
+    holding `target` (the other end KiCad named) when given, else of any other cluster
     (tracks sampled every 0.4 mm on their layer, vias on any layer)."""
     import maze21
     p = GEO.pad(ref_pad)
+    items, cid = clusters(net)
+    mine = cluster_of(items, cid, ref_pad)
+    want = cluster_of(items, cid, target) if target else None
     goals = []
-    for t in g["TRACKS"]:
-        if t["net"] != net or t["layer"] not in layers or ref_pad in t["points"]:
+    for (kind, lay, _, payload), c in zip(items, cid):
+        if c == mine or (want is not None and c != want):
             continue
-        pts = [g["_xy"](q) for q in t["points"]]
-        for (ax, ay), (bx_, by) in zip(pts, pts[1:]):
-            n = max(1, int(math.hypot(bx_ - ax, by - ay) / 0.4))
-            goals += [(ax + (bx_ - ax) * k / n, ay + (by - ay) * k / n, layers.index(t["layer"])) for k in range(n + 1)]
-    goals += [(v["at"][0], v["at"][1], None) for v in g["VIAS"] if v["net"] == net]
+        if kind == "track" and lay in layers:
+            pts = payload[1]
+            for (ax, ay), (bx_, by) in zip(pts, pts[1:]):
+                n = max(1, int(math.hypot(bx_ - ax, by - ay) / 0.4))
+                goals += [(ax + (bx_ - ax) * k / n, ay + (by - ay) * k / n, layers.index(lay)) for k in range(n + 1)]
+        elif kind == "via":
+            goals.append((payload["at"][0], payload["at"][1], None))
+        elif kind == "pad":
+            goals.append((payload["x"], payload["y"], None if payload["tht"] else layers.index("F.Cu")))
     goals = [q for q in goals if math.hypot(q[0] - p["x"], q[1] - p["y"]) > 1.0]
     start = [(p["x"], p["y"], None if p["tht"] else layers.index("F.Cu"))]
     for m in (6.0, 15.0, 40.0):
@@ -143,11 +207,15 @@ def load(base_path, patches=True):
 
 if __name__ == "__main__":
     load(sys.argv[1])
+    if len(sys.argv) > 4 and Path(sys.argv[4]).exists():
+        FILLS.extend(json.loads(Path(sys.argv[4]).read_text())["zones"])
     # Remaining pairs from the latest DRC (fresh, not cumulative), pads or points on existing copper.
     pads = {f"{p['ref']}.{p['pad']}": p for p in GEO.pads}
-    d = json.loads(Path(sys.argv[2]).read_text())
+    # pairs from every DRC given (comma-separated): a pair fixed by the patches of one pass must be
+    # routed again by every later pass, which all start from the same base
+    unconnected = [v for f in sys.argv[2].split(",") for v in json.loads(Path(f).read_text()).get("unconnected_items", [])]
     pairs, seen = [], set()
-    for v in d.get("unconnected_items", []):
+    for v in unconnected:
         a, b = v["items"]
         net = re.search(r"\[([^\]]*)\]", a["description"]).group(1)
 
@@ -171,10 +239,21 @@ if __name__ == "__main__":
         if rules21.domain(net) == "SELV":
             layers = ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu")
         w = 0.4 if net in WIDE else 0.25
-        bare = [q for q in (a, b) if not q.startswith("@") and isolated(net, q)]
+        items, cid = clusters(net)
+        ca, cb = cluster_of(items, cid, a), cluster_of(items, cid, b)
+        if ca is not None and ca == cb:
+            continue                        # already joined (by a patch or an earlier pair)
+        if None in (ca, cb):
+            # a stale point (its copper was re-laid): only a bare pad end still needs work
+            q = a if cb is None else b
+            if q.startswith("@") or not isolated(net, q):
+                continue
+            a, b = q, q
         # SELV: outer layers first, the In1 / In2 reference planes only as a fallback
         tries = [("F.Cu", "B.Cu"), layers] if rules21.domain(net) == "SELV" else [layers]
-        if bare and any(attach(net, bare[0], lays, w) for lays in tries):
+        # a pad end joins the other end's cluster anywhere along it (not only the item KiCad named)
+        ends = [(q, o if o != q else None) for q, o in ((a, b), (b, a)) if not q.startswith("@")][:1 if a == b else 2]
+        if any(attach(net, q, lays, w, target=o) for q, o in ends for lays in tries):
             g["LINK_LOG"].append((net, "attach", 1, []))
             continue
         if len(tries) > 1 and not any(q.startswith("@") and q.rsplit(",", 1)[1] in ("In1.Cu", "In2.Cu")

@@ -120,8 +120,15 @@ Fixes made this way (each in `patches21.py` with its reason):
   on F/B, and remaining SELV pairs try F/B before the inner layers.
 - **U34 / U2 pockets:** the SELV long runs are re-laid after the pin vias and the short pin-to-pin
   nets, instead of hugging the pin rows.
-- Status after these: **15 open, 0 DRC errors, 0 plan-view barrier violations, 0 plane splits**
-  (from 32 / 0 / 0 / 3 hidden splits in the frozen base).
+- **Protection / LS-monitor pins boxed in by their neighbours** (HOT5 LDO output U3.5, U8's
+  logic, the U9 / U4 / U32 isolator HOT pins that may only leave upward, R91.2, R29.2): each gets
+  an explicit escape or via first. The leg-A SELV pocket's empty corner above U32 is cut back.
+  The neighbours are re-laid as ordered groups (`route_group`: failures move to the front).
+- Incremental pairs are **cumulative** over every DRC of the series. Ends are matched by
+  connectivity clusters built from KiCad's *filled* pours of the previous build (`FILLS=`). Pour
+  outlines overstated connectivity, and joining "any copper of the net" could land on an orphan.
+- Status: **7 open, 0 DRC errors, 0 plan-view barrier violations, 0 plane splits** (from
+  32 / 0 / 0 / 3 hidden splits in the frozen base).
 - Router: a final whole-corridor maze pass for long detours, and circumscribed clearance
   buffers. Polygonal buffers fell 0.04 mm short at the 8 mm barrier, more than the 0.03 mm
   margin, so found paths failed the exact check.
