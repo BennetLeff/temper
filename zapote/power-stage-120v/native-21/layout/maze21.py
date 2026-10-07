@@ -211,7 +211,7 @@ def connect2(geo, net, bx, width, starts, goals, layers=("F.Cu", "B.Cu"), via=0.
             p = goal[c]
         if cur and cur[-1][2] != c[2]:
             segs.append(cur)
-            vias.append(p)
+            vias.append((p[0], p[1], layers[cur[-1][2]], layers[c[2]]))
             cur = []
         cur.append((p[0], p[1], c[2]))
     segs.append(cur)
@@ -227,4 +227,4 @@ def connect2(geo, net, bx, width, starts, goals, layers=("F.Cu", "B.Cu"), via=0.
             simple.append(pts[-1])
         if len(simple) > 1:
             out.append((layers[s[0][2]], [[round(x, 3), round(y, 3)] for x, y in simple]))
-    return out, [(round(x, 3), round(y, 3)) for x, y in vias]
+    return out, [(round(x, 3), round(y, 3), la, lb) for x, y, la, lb in vias]

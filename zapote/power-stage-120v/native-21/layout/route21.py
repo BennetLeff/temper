@@ -97,6 +97,19 @@ def fanout(net, region, layer, skip=()):
 
 FANOUT_LOG = []
 
+def add_signal_via(net, x, y, la, lb, width):
+    """A 0.6/0.3 via at a layer change, or, when a same-net via is already within one drill
+    pitch, short joins on both layers to that via instead (no stacked drills)."""
+    for v in VIAS:
+        if v["net"] == net and math.dist(v["at"], (x, y)) < 0.8:
+            for lay in {la, lb}:
+                if math.dist(v["at"], (x, y)) > 1e-3:
+                    track(net, lay, width, [x, y], list(v["at"]))
+            return
+    VIAS.append({"net": net, "at": [x, y], "size": 0.6, "drill": 0.3})
+    GEO.add_via(net, x, y, 0.6)
+
+
 LINK_LOG = []
 
 
@@ -170,10 +183,9 @@ def link(net, layer, bx, width, pads):
                 for lay, path in segs:
                     track(net, lay, 0.2, *path)
                     tree.extend((x, y, lays.index(lay)) for x, y in path)
-                for x, y in vs:
-                    VIAS.append({"net": net, "at": [x, y], "size": 0.6, "drill": 0.3})
-                    GEO.add_via(net, x, y, 0.6)
-                    tree.extend((x, y, k) for k in range(len(lays)))
+                for x, y, la, lb in vs:
+                    add_signal_via(net, x, y, la, lb, 0.2)
+                    tree.extend((x, y, kk) for kk in range(len(lays)))
                 continue
         if res is None:
             failed.append(q)
@@ -183,10 +195,9 @@ def link(net, layer, bx, width, pads):
         for lay, path in segs:
             track(net, lay, width, *path)
             tree.extend((x, y, lays.index(lay)) for x, y in path)
-        for x, y in vs:
-            VIAS.append({"net": net, "at": [x, y], "size": 0.6, "drill": 0.3})
-            GEO.add_via(net, x, y, 0.6)
-            tree.extend((x, y, k) for k in range(len(lays)))
+        for x, y, la, lb in vs:
+            add_signal_via(net, x, y, la, lb, width)
+            tree.extend((x, y, kk) for kk in range(len(lays)))
     LINK_LOG.append((net, layer, len(pads), failed))
     return not failed
 
@@ -349,10 +360,7 @@ track("ocp_kelvin_p", "In1.Cu", 0.3, [36.0, 8.0], [39.4, 11.4], [42.2, 11.4], [4
       [107.6, 53.5])
 track("ocp_kelvin_n", "F.Cu", 0.3, "R5.3", [41.3, 15.2])
 via("ocp_kelvin_n", 41.3, 15.2)
-KN = GEO.via_spot("R33.2", size=0.85, width=0.3)
-track("ocp_kelvin_n", "In1.Cu", 0.3, [41.3, 15.2], [41.3, 43.4], [106.6, 43.4], [106.6, KN[1]], list(KN))
-via("ocp_kelvin_n", *KN)
-track("ocp_kelvin_n", "F.Cu", 0.3, list(KN), "R33.2")
+
 
 # PS2 (rear band) to the LS block. Its LOW outputs are walled off by the power lanes on F/B and
 # by the BUS_P trunk on In2, so they cross on In1 inside the HV_RET trunk (same LOW group) at
@@ -371,6 +379,12 @@ track("tco_l", "F.Cu", 0.4, "PS2.1", [165.0, 1.0], [221.6, 1.0], [221.6, 5.95], 
 track("l_filt", "B.Cu", 0.5, [214.0, 30.0], [214.0, 7.6], "J3.1")
 ESCAPES.append({"ref": "J3", "pad": "1", "rect": [212.9, 4.0, 218.0, 30.5], "layer": "B.Cu"})
 ESCAPES.append({"ref": "J3", "pad": "2", "rect": [217.5, 0.4, 222.4, 7.5]})
+
+# KELVIN_N's last leg, after the PS2 feeds are in place (its via must clear them).
+KN = GEO.via_spot("R33.2", size=0.85, width=0.3, reach=(0.4, 2.5))
+track("ocp_kelvin_n", "In1.Cu", 0.3, [41.3, 15.2], [41.3, 43.4], [106.6, 43.4], [106.6, KN[1]], list(KN))
+via("ocp_kelvin_n", *KN)
+track("ocp_kelvin_n", "F.Cu", 0.3, list(KN), "R33.2")
 
 # Bring-up / coil stud lands: each REDCUBE's four same-number pads joined on F and B.
 for ref, (cx, cy) in {"J9": (130.0, 6.5), "J10": (143.0, 6.5), "J7": (130.0, 19.5), "J8": (143.0, 19.5),
@@ -436,37 +450,44 @@ SELV_REGION = [(0.6, 114.0, 160.0, 139.4), (0.6, 139.4, 90.4, 189.4), (22.0, 52.
                (70.0, 52.0, 93.0, 114.0), (142.0, 131.0, 207.0, 139.4), (205.0, 92.8, 216.8, 139.4)]
 zone("v3v3", "In1.Cu", *SELV_REGION, name="v3v3 SELV island")
 zone("selv_gnd", "In2.Cu", *SELV_REGION, name="selv_gnd SELV island")
-# High-side islands: -2 V rail (N_Hx) on In1 and B (B continues up under the HS reservoir bank),
-# +15 V (P_Hx) on In2.
+# High-side islands: -2 V rail (N_Hx) on In1 (B under the HS reservoir bank); +15 V routed.
 for leg, isl, bank in (("b", (0.6, 60.0, 22.0, 119.0), (12.0, 30.6, 28.5, 48.0)),
                        ("a", (44.5, 64.0, 70.0, 119.0), (58.5, 30.6, 75.5, 48.0))):
     zone(f"n_h{leg}", "In1.Cu", isl, name=f"n_h{leg} island")
     # strip from the bank down into the island, kept 3.2 mm clear of the transformer primaries
     strip_x0 = 17.5 if leg == "b" else 64.5
     zone(f"n_h{leg}", "B.Cu", bank, (strip_x0, bank[3], bank[2], isl[1] + 2.5), name=f"n_h{leg} bank")
-    zone(f"p_h{leg}", "In2.Cu", isl, name=f"p_h{leg} island")
-# LOW blocks: protection (OCP_KELVIN_P ground, HOT5) and LS bias (N_LS, V15_LS); B N_LS also
+# LOW blocks: protection (OCP_KELVIN_P ground) and LS bias (N_LS) on In1; HOT5 / V15_LS routed. B N_LS also
 # under both LS reservoir banks, joined to the block past U1's SELV moat (x >= 92.5).
 PROT, LSB = (100.5, 51.0, 123.0, 75.3), (100.5, 75.3, 123.0, 113.0)
 zone("ocp_kelvin_p", "In1.Cu", PROT, name="ocp_kelvin_p protection")
-zone("hot5", "In2.Cu", PROT, name="hot5 protection")
 zone("n_ls", "In1.Cu", LSB, name="n_ls LS block")
-zone("v15_ls", "In2.Cu", LSB, name="v15_ls LS block")
 zone("n_ls", "B.Cu", (84.0, 30.6, 97.3, 48.0), name="n_ls LS-A bank")
 zone("n_ls", "B.Cu", (37.5, 30.6, 54.0, 48.0), name="n_ls LS-B bank")
+
+# Long SELV runs first, before the pad fan-outs crowd the driver tongues (F/B only; the SELV
+# planes on In1/In2 stay whole). U2's PWM pair lands on J4 from B, U1's from F, so they cross.
+SELV_LONG = [("pwm_hb", ["U2.1", "J4.7"], (20, 50, 62, 189)), ("pwm_lb", ["U2.2", "J4.8"], (20, 50, 62, 189)),
+             ("pwm_ha", ["U1.1", "J4.5"], (40, 50, 95, 189)), ("pwm_la", ["U1.2", "J4.6"], (40, 50, 95, 189)),
+             ("permit", ["R14.1", "R6.1", "J4.9"], (20, 60, 95, 189)),
+             ("bias_bad", ["U23.2", "U22.2", "U40.4"], (5, 55, 95, 140)),
+             ("bias_hb_bad", ["U34.13", "U25.6"], (0.6, 100, 40, 140)),
+             ("bias_ha_bad", ["U33.13", "U25.3"], (0.6, 100, 90, 140)),
+             ("line_zc", ["U24.4", "J4.16"], (0.6, 120, 90.4, 189)),
+             ("line_zc-raw", ["U36.4", "R125.2", "U24.2"], (0.6, 90, 217, 139.4)),
+             ("pe", ["C3.2", "C4.2", "J6.1", "J6.2", "R38.1"], (0.6, 95, 217, 139.4))]
+for net, pads_, bx in SELV_LONG:
+    link(net, "F+B", bx, 0.3 if net != "pe" else 0.6, pads_)
 
 fanout("v3v3", (0, 52, 160, 190), "In1.Cu")
 fanout("selv_gnd", (0, 52, 160, 190), "In2.Cu")
 for leg, isl, bank in (("b", (0, 30, 29, 120), None), ("a", (44, 30, 76, 120), None)):  # noqa
     fanout(f"n_h{leg}", (isl[0], isl[1], isl[2], 48.5), "B.Cu")
     fanout(f"n_h{leg}", (isl[0], 58.0, isl[2], isl[3]), "In1.Cu")
-    fanout(f"p_h{leg}", (isl[0], 58.0, isl[2], 120), "In2.Cu")
 fanout("ocp_kelvin_p", PROT, "In1.Cu")
-fanout("hot5", PROT, "In2.Cu")
 fanout("n_ls", (84, 30, 100, 49), "B.Cu")
 fanout("n_ls", (100, 75.3, 124, 114), "In1.Cu")
 fanout("n_ls", (37, 30, 55, 49), "B.Cu")
-fanout("v15_ls", LSB, "In2.Cu")
 
 # ---------------------------------------------------------------- remaining connections
 # Everything still open after the explicit copper above is listed in todo.json as pad pairs
@@ -482,6 +503,8 @@ def protect_pours():
     from shapely.geometry import Polygon
     opened = unary_union([box(*r) for r in OPEN_IN1])
     for z in ZONES:
+        if z["net"] not in ("hv_ret", "bus_p") or z["layer"] not in ("In1.Cu", "In2.Cu"):
+            continue          # island / SELV / LOW-block planes yield to vias; lanes protected at creation
         poly = Polygon(z["outline"], z["holes"])
         if z["layer"] == "In1.Cu":
             poly = poly.difference(opened)
@@ -489,15 +512,19 @@ def protect_pours():
             GEO.protect(z["net"], z["layer"], poly)
 
 
-LAYERS_FOR = {"LOW": ("F.Cu", "In1.Cu", "B.Cu")}
+# In2 inside the islands and the LOW blocks is a signal layer (their +15 V / HOT5 rails are
+# routed, only the reference planes are poured); elsewhere In2 is the protected BUS_P trunk.
+LAYERS_FOR = {"LOW": ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu"), "SW_A": ("F.Cu", "In2.Cu", "B.Cu"),
+              "SW_B": ("F.Cu", "In2.Cu", "B.Cu")}
 
 # ---------------------------------------------------------------- island-local signals (F.Cu)
-island_signals((0.6, 34.0, 28.0, 120.0))            # SW_B island
-island_signals((44.0, 50.0, 70.5, 120.0))           # SW_A island
-island_signals((100.0, 50.0, 123.5, 114.0))         # protection + LS block
+protect_pours()
+L3 = ("F.Cu", "In2.Cu", "B.Cu")
+island_signals((0.6, 34.0, 28.0, 120.0), layer=L3)            # SW_B island
+island_signals((44.0, 50.0, 70.5, 120.0), layer=L3)           # SW_A island
+island_signals((100.0, 50.0, 123.5, 114.0), layer=L3)         # protection + LS block
 island_signals((0.6, 113.0, 160.0, 189.4))          # SELV band + tongue
 
-protect_pours()
 TODO = HERE / "todo.json"
 if TODO.exists():
     import rules21

@@ -115,11 +115,11 @@ for leg, x in DRV.items():
 
 # ---------------- HS bias islands (left of each driver tongue) ----------------
 put("bias_hb.transformer", 10.2, 61.2, 270)   # primary (LOW) up toward the core
-pack(group("bias_hb", exclude=("bias_hb.monitor.iso", "bias_hb.monitor.civcc2")), 0.8, 72.2, 19.4, 118.0, gap=0.45)
+pack(group("bias_hb", exclude=("bias_hb.monitor.iso", "bias_hb.monitor.civcc2")), 0.8, 68.9, 19.4, 118.0, gap=1.0)
 put("bias_hb.monitor.iso", 25.6, 110.0, 0)
 put("bias_hb.monitor.civcc2", 35.0, 112.0, 90)       # straddles the leg-B tongue's left edge
 put("bias_ha.transformer", 56.5, 66.2, 270)   # secondary down into the island
-pack(group("bias_ha", exclude=("bias_ha.monitor.iso", "bias_ha.monitor.civcc2")), 46.4, 77.2, 66.6, 118.0, gap=0.5)
+pack(group("bias_ha", exclude=("bias_ha.monitor.iso", "bias_ha.monitor.civcc2")), 46.4, 73.9, 64.6, 118.0, gap=0.7)
 put("bias_ha.monitor.iso", 70.6, 110.0, 0)
 put("bias_ha.monitor.civcc2", 76.0, 121.0, 0)       # straddles the leg-A tongue's left edge
 
@@ -139,7 +139,7 @@ pack(group("u_ldo", "c_ldo_in", "c_ldo_out", "c_v15", "u_ref", "r_ref_bias", "u_
            "r_ovp_bot", "c_ovp_th", "u_nand", "c_nand_vcc", "c_iso1", "u_hot5_uv", "r_hot5_uv_top",
            "r_hot5_uv_bot", "r_hot5_uv_pull", "c_hot5_uv", "u_hot5_schmitt", "c_hot5_schmitt",
            "c_vs1", "c_div", "r_div_bot"),
-     101.0, 51.4, 121.5, 75.0)
+     101.0, 51.4, 121.5, 75.0, gap=1.1)
 # ---- barrier isolators for protection on the SELV band edge (HOT above, SELV below y 128)
 put("u_vsense", 104.0, 121.0, 270)               # AMC1311
 put("u_iso", 113.0, 121.0, 270)                 # OCP ISO7710
@@ -193,7 +193,7 @@ for i, n in enumerate(("line_zc.r1", "line_zc.r2", "line_zc.r3", "line_zc.r4")):
 # LS bias, SN6507 and LS monitor (N_LS / LEG_RET domain) beside PS2
 pack(group("bias_ls", "monitor_ls", "bias_driver", "bias_rclk", "bias_rlim", "bias_css", "bias_rsr",
            "bias_cin", "bias_chf", "bias_rsn1", "bias_rsn2", "bias_csn1", "bias_csn2",
-           exclude=("monitor_ls.iso", "monitor_ls.civcc2")), 101.0, 75.6, 121.5, 112.5, gap=0.4)
+           exclude=("monitor_ls.iso", "monitor_ls.civcc2")), 101.0, 75.6, 121.5, 112.5, gap=0.55)
 put("monitor_ls.iso", 92.0, 121.0, 270)
 put("monitor_ls.civcc2", 92.0, 131.0, 0)
 put("r_bus1", 249.5, 106.0, 180)
