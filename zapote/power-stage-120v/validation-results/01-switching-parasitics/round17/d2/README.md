@@ -483,3 +483,20 @@ standalone rail model, which converges, and on the bench. This removes the
 need for the coupled shunt-macro deck, where D-33 found 181/504 cases
 indeterminate in both solvers.
 
+## Leg B final matrix (`legB-h0-best-n19`, `compose_leg_best.py`)
+
+Leg B's own fine h = 1 mm run (0.35 mm edges, remote `campB19`) completes the
+recipe: cubic coarse(0.5,1,2,3) + (fine h1 − coarse h1) + crop. No part is
+borrowed from leg A now. The fine h2/h3 runs were dropped
+(`scripts/fine_h1_recipe_check.py`: 0.026 nH on leg A). Min eigenvalue 7.88 nH.
+Versus `legB-h0-corr-n19`: entries within 0.5 nH.
+
+| Run | Result |
+| --- | --- |
+| Unipolar decision cases (`results/legB-best-n19/`, 96) | 60/96; **no verdict flips** vs corr; off-gate Δ −0.03…+0.03 V; S2 ≤ 1.28 V; ZVS 12/12 |
+| F6 bound −1.6 V, PMEG, 27/100/150 °C (`results/f6-vneg-m1p6-legB-best/`, 144) | **144/144**; S4 off-gate ≤ 1.65 V (1.9 V screen) |
+| S5 burst start, F6 bound (`results/f6-vneg-m1p6-legB-best-startup/`, 108) | **108/108**; ≤ 0.30 V |
+
+**Leg B is closed on native-19/20 copper.** Native-21's new copper requires a
+re-extraction of both legs (RELAYOUT-REQUIREMENTS, after the layout).
+

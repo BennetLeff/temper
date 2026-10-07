@@ -75,7 +75,7 @@ Known limits, each tracked in [FINDINGS.md](FINDINGS.md):
 
 | Work | Where | State |
 | --- | --- | --- |
-| Leg B matrix (native-19) | remote box | coarse corrections **done** (`legB-h0-corr-n19`); fine h1 run on its last port, then `compose_leg_best.py --leg B` → `legB-h0-best-n19` and reruns (queued). Fine h2/h3 dropped (`scripts/fine_h1_recipe_check.py`, 0.026 nH) |
+| Leg B matrix (native-19) | remote box | **done**: `legB-h0-best-n19` (own coarse closure set + own fine h1 + crop). Verdicts unchanged vs the corrected matrix; F6 bound 144/144 and S5 108/108 at 27/100/150 °C. Leg B closed on native-19/20 copper |
 | Leg B decision cases (provisional) | Mac | **done** (`round17/d2/results/legB-prov-n19/`, leg-A correction transferred): S1/S2 pass hot screen and ZVS, no verdict change vs leg A; S2 off-gate ≤ 1.29 V; S4 die VDS up to 537 V. Rerun on leg B's corrected matrix when it lands |
 | D-5, D-6, D-8, D-9, D-10 | delegated ([reports](round17/delegation/README.md)) | **done, merged** (#1629–#1633); D-9's six tooling findings fixed (FINDINGS S8–S13) |
 | D-12 … D-15 | delegated | **done, merged** (#1636–#1639): remedy build comparison, hot transients, solver robustness, losses vs dead time |
