@@ -150,6 +150,31 @@ def link(net, layer, bx, width, pads):
                 res = None if p is None else ([(layer, p)], [])
             if res is not None:
                 break
+        if res is None and two:
+            # fine pass for dense pin fields: 0.1 mm grid, 0.2 mm trace, local box only
+            maze21.STEP = 0.1
+            try:
+                for m in (3.0, 8.0):
+                    sub = (max(bx[0], min(near[0], pts[q][0]) - m), max(bx[1], min(near[1], pts[q][1]) - m),
+                           min(bx[2], max(near[0], pts[q][0]) + m), min(bx[3], max(near[1], pts[q][1]) + m))
+                    starts = [t for t in tree if sub[0] <= t[0] <= sub[2] and sub[1] <= t[1] <= sub[3]] or [near]
+                    res = maze21.connect2(GEO, net, sub, 0.2, starts, [(*pts[q], lidx[q])], layers=layers, via=0.6)
+                    if res is not None:
+                        width_used = 0.2
+                        break
+            finally:
+                maze21.STEP = 0.2
+            if res is not None:
+                segs, vs = res
+                lays = layers or (layer,)
+                for lay, path in segs:
+                    track(net, lay, 0.2, *path)
+                    tree.extend((x, y, lays.index(lay)) for x, y in path)
+                for x, y in vs:
+                    VIAS.append({"net": net, "at": [x, y], "size": 0.6, "drill": 0.3})
+                    GEO.add_via(net, x, y, 0.6)
+                    tree.extend((x, y, k) for k in range(len(lays)))
+                continue
         if res is None:
             failed.append(q)
             continue
@@ -298,10 +323,10 @@ def chain_link(net, a, b, width=0.4):
 # Bus divider for the AMC1311 (vertical at x 96.5): BUS_P at the top joins the In2 trunk.
 for net, a, b in (("vdiv_1", "R26.2", "R27.1"), ("vdiv_2", "R27.2", "R28.1"), ("vdiv_3", "R28.2", "R29.1")):
     chain_link(net, a, b)
-track("bus_p", "F.Cu", 0.4, "R26.1", [96.5, 60.5])
-via("bus_p", 96.5, 60.5)
-track("bus_p", "In2.Cu", 0.4, [96.5, 60.5], [96.5, 46.5])
-ESCAPES.append({"ref": "R26", "pad": "1", "rect": [95.4, 59.6, 97.6, 63.2]})
+track("bus_p", "F.Cu", 0.4, "R26.1", [95.2, 60.5])
+via("bus_p", 95.2, 60.5)
+track("bus_p", "In2.Cu", 0.4, [95.2, 60.5], [95.2, 46.5])
+ESCAPES.append({"ref": "R26", "pad": "1", "rect": [94.1, 59.6, 96.3, 63.2]})
 # Tank bleed across the top of C21: RES_A (C21.1) - R22 - R23 - R24 - R25 - SW_B (B lane).
 for net, a, b in (("crbleed_1", "R22.2", "R23.1"), ("crbleed_2", "R23.2", "R24.1"), ("crbleed_3", "R24.2", "R25.1")):
     chain_link(net, a, b)
@@ -320,13 +345,12 @@ for net, a, b in (("r1mid", "R67.2", "R68.1"), ("r2mid", "R69.2", "R70.1")):
 # own ground plane; KELVIN_N continues to R33.
 track("ocp_kelvin_p", "F.Cu", 0.3, "R5.2", [36.0, 8.0])
 via("ocp_kelvin_p", 36.0, 8.0)
-track("ocp_kelvin_p", "In1.Cu", 0.3, [36.0, 8.0], [39.4, 11.4], [42.2, 11.4], [42.2, 42.6], [99.0, 42.6],
-      [103.0, 46.6], [103.0, 53.5])
+track("ocp_kelvin_p", "In1.Cu", 0.3, [36.0, 8.0], [39.4, 11.4], [42.2, 11.4], [42.2, 42.6], [107.6, 42.6],
+      [107.6, 53.5])
 track("ocp_kelvin_n", "F.Cu", 0.3, "R5.3", [41.3, 15.2])
 via("ocp_kelvin_n", 41.3, 15.2)
 KN = GEO.via_spot("R33.2", size=0.85, width=0.3)
-track("ocp_kelvin_n", "In1.Cu", 0.3, [41.3, 15.2], [41.3, 43.4], [98.7, 43.4], [102.3, 47.0], [102.3, KN[1]],
-      list(KN))
+track("ocp_kelvin_n", "In1.Cu", 0.3, [41.3, 15.2], [41.3, 43.4], [106.6, 43.4], [106.6, KN[1]], list(KN))
 via("ocp_kelvin_n", *KN)
 track("ocp_kelvin_n", "F.Cu", 0.3, list(KN), "R33.2")
 
@@ -348,6 +372,63 @@ track("l_filt", "B.Cu", 0.5, [214.0, 30.0], [214.0, 7.6], "J3.1")
 ESCAPES.append({"ref": "J3", "pad": "1", "rect": [212.9, 4.0, 218.0, 30.5], "layer": "B.Cu"})
 ESCAPES.append({"ref": "J3", "pad": "2", "rect": [217.5, 0.4, 222.4, 7.5]})
 
+# Bring-up / coil stud lands: each REDCUBE's four same-number pads joined on F and B.
+for ref, (cx, cy) in {"J9": (130.0, 6.5), "J10": (143.0, 6.5), "J7": (130.0, 19.5), "J8": (143.0, 19.5),
+                      "J5": (131.0, 70.5), "J2": (131.0, 85.5)}.items():
+    n = [p["net"] for p in GEO.pads if p["ref"] == ref and p["net"]][0]
+    for lay in ("F.Cu", "B.Cu"):
+        zone(n, lay, (cx - 4.6, cy - 4.6, cx + 4.6, cy + 4.6), priority=4, name=f"{ref} stud land")
+
+# Mains input (line current): J1.1 -> fuse line clips on F; fuse load clips (L_F) on F down to
+# C1.1 / L1.1 and along a band over C1 to the varistor; AC_N_IN on B from J1.2 down the right
+# edge and back along y 26.5-36 to RV1.2, C1.2 and L1.2 (stacked under L_F where they run together).
+zone("ac_l_in", "F.Cu", (251.5, 0.6, 283.0, 8.9), name="ac_l_in J1-F1")
+zone("l_f", "F.Cu", (223.5, 0.6, 237.5, 9.0), (229.5, 9.0, 240.0, 25.6), (229.5, 25.6, 236.8, 33.5),
+     (235.0, 12.1, 278.5, 15.1), (273.5, 12.1, 279.5, 26.5), name="l_f F1-C1-L1-RV1")
+zone("ac_n_in", "B.Cu", (283.6, 3.5, 289.4, 40.0), (239.5, 26.5, 289.4, 36.0), (257.5, 15.5, 264.5, 30.0),
+     name="ac_n_in J1-RV1-C1-L1")
+# Filtered mains down under C5's body: L_FILT on F to the zero-cross string and PS1's line pin,
+# N_FILT on B to the string, C4 and PS1's neutral pin.
+# L_FILT drops to B past U36's LED pins and the string, back to F under PS1's body.
+track("l_filt", "F.Cu", 1.0, "L1.4", [230.0, 60.0], [230.0, 92.5])
+track("l_filt", "F.Cu", 0.6, [230.0, 92.5], "R67.1")
+ESCAPES.append({"ref": "R67", "pad": "1", "rect": [229.3, 91.8, 232.4, 96.4]})
+via("l_filt", 230.0, 92.5)
+track("l_filt", "B.Cu", 1.0, [230.0, 92.5], [230.5, 93.5], [230.5, 107.0])
+track("l_filt", "B.Cu", 0.6, [230.5, 102.8], "C3.1")
+via("l_filt", 230.5, 107.0)
+track("l_filt", "F.Cu", 1.0, [230.5, 107.0], [250.0, 130.0], "PS1.1")
+track("n_filt", "B.Cu", 1.0, "L1.3", [241.0, 59.0], [238.0, 62.0], [237.5, 64.0], [237.5, 113.0], [250.0, 113.0],
+      "PS1.2")
+track("n_filt", "B.Cu", 0.6, [237.5, 111.5], [226.0, 111.5], "C4.1")
+track("n_filt", "B.Cu", 0.6, [237.5, 101.5], [244.8, 101.5])
+via("n_filt", 244.8, 101.5)
+track("n_filt", "F.Cu", 0.6, [244.8, 101.5], "R70.2")
+ESCAPES.append({"ref": "R70", "pad": "2", "rect": [242.1, 100.6, 245.6, 102.4]})
+
+# SN6507 (U35, LS block) to both high-side transformer primaries: three LOW tracks along the
+# bottom band of the core plane on In1 (below the Kelvin pair), each tapping T2 and T3 through a
+# via and a short F.Cu drop; pin order (SW1, V24, V24, SW2) kept so nothing crosses.
+# (band line y, vertical x, horizontal y, T2 via x, T3 via x, U35 via, horizontal end x)
+# Verticals run down through the protection / LS-block In1 planes (LOW) right of the bus
+# divider and left of the Kelvin pair's turn.
+T_LINES = {"bias_sw2": (44.4, 103.0, 82.0, 56.6, 9.5, (106.8, 85.1), 106.8),
+           "v24_raw": (45.5, 101.9, 87.6, 54.6, 7.6, (100.4, 87.6), 100.4),
+           "bias_sw1": (46.6, 100.8, 85.4, 52.6, 5.7, (100.0, 85.4), 100.0)}
+U35_PIN = {"bias_sw1": "U35.1", "v24_raw": "U35.3", "bias_sw2": "U35.10"}
+for net, (yb, xv, yh, xt2, xt3, spot, xe) in T_LINES.items():
+    track(net, "F.Cu", 0.25, U35_PIN[net], list(spot))
+    via(net, *spot)
+    track(net, "In1.Cu", 0.4, list(spot), [xv, yh], [xv, yb], [xt2, yb], [xt3, yb])
+    via(net, xt2, yb)
+    via(net, xt3, yb)
+track("bias_sw1", "F.Cu", 0.4, [52.6, 46.6], [52.6, 58.0], "T2.1")
+track("v24_raw", "F.Cu", 0.4, [54.6, 45.5], [54.6, 57.5], "T2.2", "T2.3")
+track("bias_sw2", "F.Cu", 0.4, [56.6, 44.4], [56.6, 50.0], [60.25, 53.65], "T2.4")
+track("bias_sw1", "F.Cu", 0.4, [5.7, 46.6], [5.7, 53.0], "T3.1")
+track("v24_raw", "F.Cu", 0.4, [7.6, 45.5], [7.6, 53.0], "T3.2", "T3.3")
+track("bias_sw2", "F.Cu", 0.4, [9.5, 44.4], [9.5, 49.0], [13.95, 53.45], "T3.4")
+
 # ---------------------------------------------------------------- rail planes (islands)
 # Each isolation island gets its own planes; KiCad's fill keeps them 8 mm (SELV) / 3.2 mm
 # (other HOT groups) from everything else. Every SMD pad of a plane net gets a via beside it.
@@ -360,7 +441,9 @@ zone("selv_gnd", "In2.Cu", *SELV_REGION, name="selv_gnd SELV island")
 for leg, isl, bank in (("b", (0.6, 60.0, 22.0, 119.0), (12.0, 30.6, 28.5, 48.0)),
                        ("a", (44.5, 64.0, 70.0, 119.0), (58.5, 30.6, 75.5, 48.0))):
     zone(f"n_h{leg}", "In1.Cu", isl, name=f"n_h{leg} island")
-    zone(f"n_h{leg}", "B.Cu", bank, (bank[0], bank[3], bank[2], isl[1] + 2.5), name=f"n_h{leg} bank")
+    # strip from the bank down into the island, kept 3.2 mm clear of the transformer primaries
+    strip_x0 = 17.5 if leg == "b" else 64.5
+    zone(f"n_h{leg}", "B.Cu", bank, (strip_x0, bank[3], bank[2], isl[1] + 2.5), name=f"n_h{leg} bank")
     zone(f"p_h{leg}", "In2.Cu", isl, name=f"p_h{leg} island")
 # LOW blocks: protection (OCP_KELVIN_P ground, HOT5) and LS bias (N_LS, V15_LS); B N_LS also
 # under both LS reservoir banks, joined to the block past U1's SELV moat (x >= 92.5).

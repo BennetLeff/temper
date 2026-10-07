@@ -155,7 +155,7 @@ put("link_pos.terminal_bus", 143.0, 19.5)
 put("ps_gate", 186.5, 14.0)                     # rear band; N_FILT pin on the mains lane, LS rails down
 put("j_tco", 217.5, 6.5)
 put("j_pe", 160.0, 134.5, 90)
-put("f1", 244.5, 6.0)
+put("f1", 244.5, 6.0, 180)    # line clip toward J1, load clip toward L1
 put("j_mains", 283.5, 7.2)
 # ---------------- tank block, next to the core --------------------------------
 # Resonant bank stacked right of the SW_A column: RES_A pins left (x 155.25), SW_B pins right
@@ -171,7 +171,7 @@ pack(group("c_ct_burden", "r_ct_burden", "r_ct_series", "d_ct_hi", "d_ct_lo"), 1
 for i, n in enumerate(("r_crb1", "r_crb2", "r_crb3", "r_crb4")):
     put(n, 158.0 + 10.0 * i, 41.0)
 # ---------------- mains block, far end ----------------------------------------
-put("rv1", 276.5, 28.0)
+put("rv1", 276.5, 28.0, 270)   # L_F pin up toward the fuse, AC_N_IN down
 put("cx1", 249.5, 19.5)
 put("rb1a", 226.0, 15.0)
 put("rb1b", 226.0, 23.0)
@@ -201,7 +201,7 @@ put("r_bus2", 283.0, 106.0)
 # bus divider for AMC1311: 4 x 470 k chain, taps 9 mm apart (vertical), in the corridor between
 # U1's SELV moat (x >= 92.5) and the LOW blocks; top end via to BUS_P on the In2 trunk
 for i, n in enumerate(("r_div1", "r_div2", "r_div3", "r_div4")):
-    put(n, 96.5, 64.0 + 9.0 * i, 270)
+    put(n, 95.2, 64.0 + 9.0 * i, 270)
 
 missing = sorted(set(PARTS) - set(POSE))
 if missing:
