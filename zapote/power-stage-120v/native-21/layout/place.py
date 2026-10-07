@@ -145,6 +145,9 @@ put("bias_ha.transformer", 56.5, 66.2, 270)   # secondary down into the island
 pack(group("bias_ha", exclude=("bias_ha.monitor.iso", "bias_ha.monitor.civcc2")), 46.4, 73.9, 64.6, 118.0, gap=0.7)
 put("bias_ha.monitor.iso", 70.6, 110.0, 0)
 put("bias_ha.monitor.civcc2", 76.0, 121.0, 0)       # straddles the leg-A tongue's left edge
+# Leg-A -2 V bleed resistor beside U1.16's column, clear of the decoupling cluster: P_HA reaches it
+# straight up from U1.16 and its SW_A end meets the feed from above, so neither cages the cluster.
+POSE["leg_a.bias_h.rbleed"] = (75.6, 34.6, 90.0)    # just below C39's courtyard (y 33.0)
 # Each TPS7A47's NR/SS cap beside its pin 14 (the packer had put it ~35 mm away, at the island
 # foot); the rail monitor's 5 V LDO that sat there moves to the next free spot in its island.
 for leg, isl in (("hb", (0.8, 68.9, 19.4, 118.0)), ("ha", (46.4, 73.9, 64.6, 118.0))):

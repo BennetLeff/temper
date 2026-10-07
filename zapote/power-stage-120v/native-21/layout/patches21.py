@@ -62,6 +62,13 @@ NHA_VIA = (77.86, 30.85)
 REMOVE += [{"net": "sw_a", "box": [73.49, 15.79, 73.51, 15.81], "touch": True, "kind": "track"},
            {"net": "sw_a", "box": [74.59, 35.56, 74.61, 35.59], "touch": True, "kind": "track"},
            {"net": "p_ha", "box": [74.19, 33.61, 74.21, 33.64], "touch": True, "kind": "track"}]
+REMOVE += [{"net": n, "box": [58.0, 29.5, 76.6, 47.6], "layer": "F.Cu", "pads": True}
+           for n in ("n_ha", "sw_a", "p_ha", "leg_a.bias_h-damp")]
+# Leg-A SELV pocket: BIAS_BAD's U22.2 is the middle pin of a SOT-23-5 at the barrier edge and can
+# only leave under the body, where PWM_LA and a LEG_A-DIS hop ran. Re-lay the pocket's local nets
+# with BIAS_BAD first.
+POCKET_A = ("pwm_la", "leg_a-dis", "leg_a-driver_dis", "leg_a-permit_gate")
+REMOVE += [{"net": n} for n in POCKET_A]
 HANDLED = ("led1", "led2")     # joined explicitly below
 REMOVE_ESCAPES = [("R67", "1"), ("R67", "2"), ("R68", "1"), ("R69", "2"), ("R70", "1"), ("R70", "2")]
 
@@ -137,6 +144,7 @@ def route_group(g, jobs, tries=8):
         order = nxt
     for i in best[0]:
         g["link"](*jobs[i])
+    print("route_group: still open", [jobs[i][0] for i in best[1]])
     return [jobs[i][0] for i in best[1]]
 
 
@@ -208,10 +216,16 @@ def add(g):
     merge_zones(g, "n_ha", "B.Cu")
     # ... and the leg-A N_HA decoupling cluster (C110-C113, C50/C51), whose fan-out vias all fell
     # in the LOW band, drops to the same bank above the band
-    put(g, "sw_a", "F.Cu", 0.25, [73.5, 15.8], [73.5, 29.8], "R71.2")
-    put(g, "p_ha", "F.Cu", 0.25, "U1.16", [75.6, 46.0], [75.6, 36.6], [74.4, 36.025], "R71.1")
-    drill(g, "n_ha", 72.6, 30.8)
-    put(g, "n_ha", "F.Cu", 0.3, "C50.2", [72.5, 39.2], [72.5, 31.0], [72.6, 30.8])
+    put(g, "sw_a", "F.Cu", 0.25, [73.5, 15.8], [73.5, 29.8], [75.6, 29.8], "R71.2")
+    put(g, "p_ha", "F.Cu", 0.25, "U1.16", [75.6, 46.0], "R71.1")
+    drill(g, "n_ha", 74.8, 30.7)
+    F1 = ("F.Cu",)
+    HSA = (58.0, 29.5, 76.6, 47.6)
+    route_group(g, [("n_ha", F1, HSA, 0.3, ["@74.8,30.7,F.Cu", "C111.2", "C113.2", "C110.2", "C112.2", "C51.2",
+                                             "C50.2", "C91.2", "C90.2", "C126.2"]),
+                    ("sw_a", F1, HSA, 0.3, ["@73.5,29.8,F.Cu", "C111.1", "C113.1", "R51.1", "C110.1", "C112.1",
+                                             "C51.1", "C50.1", "C91.1", "C90.1"]),
+                    ("leg_a.bias_h-damp", F1, HSA, 0.3, ["C126.1", "R51.2"])], tries=8)
     for lay in ("F.Cu", "B.Cu"):
         g["zone"]("hv_ret", lay, BRIDGE, name="hv_ret trunk bridge", priority=2)
     for x, y in BRIDGE_VIAS:
@@ -263,11 +277,20 @@ def add(g):
     L4 = ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu")
     link("leg_b-dis", L4, (22, 50, 45, 75), 0.25, ["R16.1", "U23.1", "Q4.3"])
     link("leg_b.driver-dt", L4, (22, 50, 45, 75), 0.25, ["R17.1", "U2.6"])
-    link("bias_bad", L4, (5, 55, 95, 140), 0.25, ["U23.2", "U22.2", "U40.4"])
-    link("pwm_hb", "F+B", (20, 50, 62, 189), 0.3, ["U2.1", "J4.7"])
-    link("permit", "F+B", (20, 60, 95, 189), 0.3, ["R14.1", "R6.1", "J4.9"])
-    link("bias_hb_bad", "F+B", (0.6, 100, 40, 140), 0.3, ["U34.13", "U25.6"])
-    link("bias_ha_bad", "F+B", (0.6, 100, 90, 140), 0.3, ["U33.13", "U25.3"])
+    PA = (70.0, 50.0, 93.0, 76.0)
+    SELV_BOX = (0.6, 52.0, 217.0, 189.4)
+    # every long SELV run shares the band and the pocket necks: one ordered group
+    route_group(g, [("bias_bad", ("F.Cu", "B.Cu"), (5, 52, 95, 140), 0.25, ["U22.2", "U23.2", "U40.4"]),
+                    ("leg_a-dis", L4, PA, 0.25, ["U22.1", "Q1.3", "R8.1"]),
+                    ("leg_a-driver_dis", L4, PA, 0.25, ["U22.4", "U1.5", "R73.2"]),
+                    ("leg_a-permit_gate", L4, PA, 0.25, ["Q1.1", "R6.2", "R7.1"]),
+                    ("pwm_la", "F+B", (40, 50, 95, 189), 0.3, ["U1.2", "J4.6"]),
+                    ("pwm_hb", "F+B", (20, 50, 62, 189), 0.3, ["U2.1", "J4.7"]),
+                    ("permit", "F+B", (20, 60, 95, 189), 0.3, ["R14.1", "R6.1", "J4.9"]),
+                    ("bias_hb_bad", "F+B", (0.6, 100, 40, 140), 0.3, ["U34.13", "U25.6"]),
+                    ("bias_ha_bad", "F+B", (0.6, 100, 90, 140), 0.3, ["U33.13", "U25.3"])]
+                + [(net, "F+B", SELV_BOX, 0.4 if net == "v15_selv" else 0.25, pads_) for net, pads_ in SELV_OUTER.items()],
+                tries=8)
     drill(g, "bus_fault_hot", 113.6, 113.9)
     put(g, "bus_fault_hot", "F.Cu", 0.25, "U9.4", [113.635, 114.6], [113.6, 113.9])
     put(g, "hot5", "F.Cu", 0.3, "U3.5", [116.3, 52.195], [116.3, 55.0])   # LDO out, down the U3/U8 channel
@@ -290,5 +313,3 @@ def add(g):
                     ("monitor_ls-halfref", L4, (100.0, 100.0, 124.5, 117.2), 0.25, ["R79.2", "R80.1"]),
                     ("leg_ret", L4, (100.0, 100.0, 124.5, 117.2), 0.25, ["R83.1", "R81.1"]),
                     ("vsense_in", L4, (88.0, 55.0, 124.5, 117.2), 0.25, ["@104.6,114.0,*", "@99.0,92.46,F.Cu", "C27.1"])])
-    for net, pads_ in SELV_OUTER.items():
-        link(net, "F+B", (0.6, 52.0, 217.0, 189.4), 0.4 if net == "v15_selv" else 0.25, pads_)

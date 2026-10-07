@@ -136,9 +136,18 @@ Fixes made this way (each in `patches21.py` with its reason):
   barrier around moved pads; island rail pours (N_HA / N_HB) are protected from later tracks.
 - Leg-A N_HA: U1.14 and its decoupling cluster get vias to the B bank above the LOW band (OUT_L's
   In1 run moved to y 34.7 to open the only legal spots).
-- Status: **2 open, 0 DRC errors, 0 plan-view barrier violations, 0 plane splits** (from
-  32 / 0 / 0 / 3 hidden splits in the frozen base). Open: SW_A between the leg-A high-side
-  decoupling cluster and its feed, and BIAS_BAD from U22 (leg-A pocket) to the leg-B pocket.
+- **Leg-A high-side -2 V block** (C50/C51, C90/C91, C110-C113, C126, R51, R71 under U1):
+  - The packer interleaved N_HA and SW_A pads in alternating columns.
+  - With vias banned across the In1 LOW band, every F escape for one net cut another.
+  - Fix: R71 moves to (75.6, 34.6) beside U1.16's column, just below C39's courtyard. P_HA rises
+    straight to it and its SW_A end meets the feed from above.
+  - The block's N_HA / SW_A / damp copper is then re-laid F-only as one group: N_HA to a B-bank
+    via at (74.8, 30.7), SW_A to the feed.
+- **Long SELV runs as one ordered group** (BIAS_BAD, PWM_LA/HB, PERMIT, the BIAS_*_BAD nets and the
+  F/B-only SELV set, with the leg-A pocket's local nets). BIAS_BAD's U22.2 leaves under U22's body,
+  where PWM_LA used to run.
+- Status: **fully routed: 0 unconnected, 0 DRC errors, 0 plan-view barrier violations, 0 plane
+  splits**, on two consecutive builds (from 32 / 0 / 0 / 3 hidden splits in the frozen base).
 - **Open fab item:** 116 vias sit mostly inside SMD pads (maze layer changes at pad centres). They
   need either plugged-and-capped via-in-pad on the JLC order or a dog-bone pass.
 - Router: a final whole-corridor maze pass for long detours, and circumscribed clearance

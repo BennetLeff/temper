@@ -43,7 +43,9 @@ def removed(item, kind):
         if "layer" in rm and (kind == "via" or rm["layer"] != item["layer"]):
             continue          # a layer-scoped removal names tracks only
         x0, y0, x1, y1 = rm.get("box", (-1e9, -1e9, 1e9, 1e9))
-        pts = [item["at"]] if kind == "via" else [p for p in item["points"] if not isinstance(p, str)]
+        pts = [item["at"]] if kind == "via" else \
+            [p for p in item["points"] if not isinstance(p, str)] + \
+            ([g["_xy"](p) for p in item["points"] if isinstance(p, str)] if rm.get("pads") else [])
         inside = [x0 <= p[0] <= x1 and y0 <= p[1] <= y1 for p in pts]
         if pts and (any(inside) if rm.get("touch") else all(inside)):
             return True
@@ -227,7 +229,7 @@ def join_clusters(net, a, b, layers, width):
         return ca is not None and ca == cb
     A, B = _samples(items, cid, ca, layers), _samples(items, cid, cb, layers)
     xy = [incr21_point(a), incr21_point(b)]
-    for m in (8.0, 20.0, 45.0):
+    for m in (8.0, 20.0, 45.0, 95.0):     # the last for detours round pockets / through the band
         bx = (max(0.6, min(x for x, _ in xy) - m), max(0.6, min(y for _, y in xy) - m),
               min(289.4, max(x for x, _ in xy) + m), min(189.4, max(y for _, y in xy) + m))
         sa = [q for q in A if bx[0] < q[0] < bx[2] and bx[1] < q[1] < bx[3]]
