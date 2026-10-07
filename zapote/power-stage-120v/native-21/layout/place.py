@@ -114,11 +114,11 @@ for leg, x in DRV.items():
          x - 5.0, 59.0, x + 5.0, 82.0)
 
 # ---------------- HS bias islands (left of each driver tongue) ----------------
-put("bias_hb.transformer", 10.2, 61.2, 90)
+put("bias_hb.transformer", 10.2, 61.2, 270)   # primary (LOW) up toward the core
 pack(group("bias_hb", exclude=("bias_hb.monitor.iso", "bias_hb.monitor.civcc2")), 0.8, 72.2, 19.4, 118.0, gap=0.45)
 put("bias_hb.monitor.iso", 25.6, 110.0, 0)
 put("bias_hb.monitor.civcc2", 35.0, 112.0, 90)       # straddles the leg-B tongue's left edge
-put("bias_ha.transformer", 56.5, 66.2, 90)
+put("bias_ha.transformer", 56.5, 66.2, 270)   # secondary down into the island
 pack(group("bias_ha", exclude=("bias_ha.monitor.iso", "bias_ha.monitor.civcc2")), 46.4, 77.2, 66.6, 118.0, gap=0.5)
 put("bias_ha.monitor.iso", 70.6, 110.0, 0)
 put("bias_ha.monitor.civcc2", 76.0, 121.0, 0)       # straddles the leg-A tongue's left edge
@@ -177,22 +177,26 @@ put("rb1a", 226.0, 15.0)
 put("rb1b", 226.0, 23.0)
 put("l1", 237.0, 43.5)
 put("cx2", 274.5, 49.5)
-put("cy1", 210.0, 124.0, 0)
-put("cy2", 210.0, 131.5, 0)
+# Bottom-right: PS1's SELV end faces left onto an SELV/PE spur (x 205-216.5) that joins the
+# bottom SELV corridor (y >= 131) back to the SELV band; its mains end (right) is fed under
+# C5. The Y capacitors and the LINE_ZC opto straddle the spur: PE / SELV pins on it, mains
+# pins 9-10 mm to the right; the opto's resistor string sits between C5 and D3.
+put("cy1", 220.0, 102.8, 180)
+put("cy2", 220.0, 109.1, 180)
 put("c_bus1", 224.0, 75.6)
 put("c_bus2", 267.0, 84.0)
 put("tvs_bus", 264.0, 106.0)
-put("ps_selv", 262.5, 125.5)                    # straddles the SELV band
-put("line_zc.opto", 229.0, 125.0, 270)
+put("ps_selv", 233.0, 126.0, 180)               # SELV pins left (x 210.8), mains pins right
+put("line_zc.opto", 220.0, 95.0, 180)
 for i, n in enumerate(("line_zc.r1", "line_zc.r2", "line_zc.r3", "line_zc.r4")):
-    put(n, 222.0 + (i % 2) * 9.0, 103.0 + (i // 2) * 7.5, 0)
+    put(n, 233.0 + (i % 2) * 8.5, 95.5 + (i // 2) * 6.0, 0)
 # LS bias, SN6507 and LS monitor (N_LS / LEG_RET domain) beside PS2
 pack(group("bias_ls", "monitor_ls", "bias_driver", "bias_rclk", "bias_rlim", "bias_css", "bias_rsr",
            "bias_cin", "bias_chf", "bias_rsn1", "bias_rsn2", "bias_csn1", "bias_csn2",
            exclude=("monitor_ls.iso", "monitor_ls.civcc2")), 101.0, 75.6, 121.5, 112.5, gap=0.4)
 put("monitor_ls.iso", 92.0, 121.0, 270)
 put("monitor_ls.civcc2", 92.0, 131.0, 0)
-put("r_bus1", 246.0, 106.0)
+put("r_bus1", 249.5, 106.0, 180)
 put("r_bus2", 283.0, 106.0)
 # bus divider for AMC1311: 4 x 470 k chain, taps 9 mm apart (vertical), in the corridor between
 # U1's SELV moat (x >= 92.5) and the LOW blocks; top end via to BUS_P on the In2 trunk

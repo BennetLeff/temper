@@ -74,6 +74,7 @@ unknown = sorted(nets - SELV - wr.SELV_NC - set().union(*groups.values()) - wr.P
 if unknown:
     print("UNCLASSIFIED:", unknown)
     sys.exit(1)
-text = wr.rules(BOARD.read_text(), SELV)
-(UNIT / "native-21/section.kicad_dru").write_text(text)
-print("wrote section.kicad_dru:", len(groups), "HOT groups,", len(nets), "nets")
+if __name__ == "__main__":
+    text = wr.rules(BOARD.read_text(), SELV)
+    (UNIT / "native-21/section.kicad_dru").write_text(text)
+    print("wrote section.kicad_dru:", len(groups), "HOT groups,", len(nets), "nets")

@@ -10,11 +10,13 @@ cd "$UNIT"
 python3 native-21/layout/place.py
 $KPY prototype-closure/pcb/build_native21.py >/dev/null 2>&1
 python3 native-21/layout/write_rules21.py
+$KPY native-21/layout/dump_pads.py native-21/section.kicad_pcb native-21/layout/pads.json >/dev/null 2>&1
 python3 native-21/layout/route21.py
 $KPY prototype-closure/pcb/apply_copper21.py --out "$OUT" 2>/dev/null | grep -v -i wxapp
 $CLI pcb drc --refill-zones --save-board --format json -o "$OUT/drc.json" "$OUT/section.kicad_pcb" >/dev/null 2>&1 || true
 $KPY native-21/layout/plot_copper.py --dump "$OUT/section.kicad_pcb" "$OUT/copper-dump.json" >/dev/null 2>&1
 python3 native-21/layout/plot_copper.py "$OUT/copper-dump.json" "$OUT/copper.png"
+python3 native-21/layout/unrouted.py "$OUT/drc.json" "$OUT/unrouted.json"
 python3 - "$OUT/drc.json" <<'PY'
 import json, sys, collections
 d = json.load(open(sys.argv[1]))
