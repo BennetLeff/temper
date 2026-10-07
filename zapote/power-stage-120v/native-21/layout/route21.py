@@ -100,12 +100,14 @@ def fanout(net, region, layer, skip=()):
         if not (region[0] <= p["x"] <= region[2] and region[1] <= p["y"] <= region[3]):
             continue
         rp = f"{p['ref']}.{p['pad']}"
-        spot = GEO.via_spot(rp, within=target)
+        spot = GEO.via_spot(rp, within=target) or GEO.via_spot(rp, size=0.6, width=0.25, reach=(0.3, 4.5),
+                                                                within=target)
         if spot is None:
             missed.append(rp)
             continue
-        track(net, "F.Cu", 0.4, rp, list(spot))
-        via(net, *spot)
+        small = GEO.via_spot(rp, within=target) is None
+        track(net, "F.Cu", 0.25 if small else 0.4, rp, list(spot))
+        via(net, *spot, size=0.6 if small else None)
         done += 1
     FANOUT_LOG.append((net, layer, done, missed))
 
@@ -123,6 +125,14 @@ def add_signal_via(net, x, y, la, lb, width):
             return
     VIAS.append({"net": net, "at": [x, y], "size": 0.6, "drill": 0.3})
     GEO.add_via(net, x, y, 0.6)
+
+
+def _legal(net, segs, width):
+    """Final check of a found path against everything authored so far (incl. plan-view barrier)."""
+    for lay, path in segs:
+        if len(path) > 1 and GEO.conflicts(net, (lay,), LineString(path).buffer(width / 2), limit=1):
+            return False
+    return True
 
 
 LINK_LOG = []
@@ -190,6 +200,8 @@ def link(net, layer, bx, width, pads):
             starts = [t for t in tree if sub[0] <= t[0] <= sub[2] and sub[1] <= t[1] <= sub[3]] or [near]
             if two:
                 res = maze21.connect2(GEO, net, sub, width, starts, [(*pts[q], lidx[q])], layers=layers, via=0.6)
+                if res is not None and not _legal(net, res[0], width):
+                    res = None
             else:
                 p = maze21.connect(GEO, net, layer, sub, width, [t[:2] for t in starts], [pts[q]])
                 res = None if p is None else ([(layer, p)], [])
@@ -204,6 +216,8 @@ def link(net, layer, bx, width, pads):
                            min(bx[2], max(near[0], pts[q][0]) + m), min(bx[3], max(near[1], pts[q][1]) + m))
                     starts = [t for t in tree if sub[0] <= t[0] <= sub[2] and sub[1] <= t[1] <= sub[3]] or [near]
                     res = maze21.connect2(GEO, net, sub, 0.2, starts, [(*pts[q], lidx[q])], layers=layers, via=0.6)
+                    if res is not None and not _legal(net, res[0], 0.2):
+                        res = None
                     if res is not None:
                         width_used = 0.2
                         break
