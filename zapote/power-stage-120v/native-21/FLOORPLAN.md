@@ -60,6 +60,34 @@ Copper lanes (`layout/route21.py`): F carries N_FILT over SW_A, B carries L_FILT
 (mains and switch nodes each a stacked pair), In1 / In2 carry RECT_P / RECT_N to the links
 and the HV_RET / BUS_P trunk (stacked) from the core's bottom exit to J8/J10 and C5/C6.
 
+### Further placement fixes found while routing
+
+- **T2 / T3** turned 180°: their LOW primaries face the core (fed along In1), their SW secondaries
+  face the islands.
+- **PS1** turned so its SELV end faces a SELV/PE spur (x 205-216.8) joined to a bottom SELV
+  corridor (y >= 131) back to the SELV band; Y caps C3/C4 and the LINE_ZC opto U36 straddle the
+  spur, the zero-cross string sits between C5 and D3. **F1** turned (line clips toward J1),
+  **RV1** turned (L_F pin up). Bus divider and coil terminals nudged; island and LOW-block pack
+  gaps widened to 0.55-1.1 mm.
+
+## Stage 3 routing method (`layout/route21.py`)
+
+1. **Explicit copper:** power lanes and pours, gate networks, snubbers, shunt pads and the
+   Kelvin pair, HV chains (bounded pad escapes, as native-20), the SN6507 feeds, PS2's LOW feeds,
+   the LS-rail lines along the core plane's bottom band, mains input, stud lands.
+2. **Rail planes** per island (reference plane on In1; In2 free for signals inside islands and
+   the LOW blocks), with a via beside every pad (`fanout`).
+3. **Local and remaining connections** joined pair by pair inside chosen corridors; a grid
+   search (`maze21.py`) finds bends, every result is checked against all authored copper.
+4. **Insulation:** KiCad DRC with `section.kicad_dru` (per layer), plus the D5 barrier in
+   **plan view over all layers** — enforced while authoring (`geom21`/`maze21`, pours clipped
+   at creation) and checked on the filled board by `layout/barrier21.py` on every build.
+   (The first routed passes had 779 plan-view pairs under 8 mm that per-layer DRC could not
+   see; the gate now holds this at 0.)
+
+Build: `sh native-21/layout/copper_iter.sh` (placement → board → rules → copper → fill + DRC →
+barrier → plots); `layout/make_todo.py` turns the remaining ratsnest into the next pass's pairs.
+
 ## Next stages
 
 2. `prototype-closure/pcb/build_native21.py`: generate the unrouted board from
