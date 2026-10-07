@@ -49,6 +49,19 @@ REMOVE += [{"net": "monitor_ls-halfref", "box": [112.4, 107.3, 117.8, 108.5], "l
 # U4 (bus-voltage isolated amp) likewise: U4.2 (VSENSE_IN) leaves upward; KELVIN_P U4.3 -> U9.7 ran
 # along the top of its row.
 REMOVE += [{"net": "ocp_kelvin_p", "box": [103.3, 114.2, 109.9, 116.2], "layer": "F.Cu"}]
+# Leg-A -2 V rail: U1.14 (N_HA) sat in a pocket walled by OUT_H (F, x 77, same group) and OUT_L /
+# V15_LS (x 82); below it is the isolation gap, and any via under the LOW In1 band (3.2 mm) or
+# between the B SW_B lane (y < 27.3) and OUT_L's In1 run (y 33.6) was illegal. OUT_L's run moves to
+# y 34.7, which frees one via at (77.86, 30.85): F up from the pin, B over to the bank strip.
+REMOVE += [{"net": "leg_a-out_l", "box": [55.9, 30.9, 82.1, 37.1], "layer": "In1.Cu"}]
+NHA_VIA = (77.86, 30.85)
+# The N_HA / SW_A decoupling cluster (C110-C113, C50/C51, between R51 and R71) was caged by a long
+# SW_A detour round its left and top, a SW_A loop round its right and bottom, and P_HA's loop over
+# R71. SW_A now feeds R71.2 straight down; P_HA reaches R71.1 from the right; N_HA rises through the
+# R51/R71 channel to a bank via above the LOW band.
+REMOVE += [{"net": "sw_a", "box": [73.49, 15.79, 73.51, 15.81], "touch": True, "kind": "track"},
+           {"net": "sw_a", "box": [74.59, 35.56, 74.61, 35.59], "touch": True, "kind": "track"},
+           {"net": "p_ha", "box": [74.19, 33.61, 74.21, 33.64], "touch": True, "kind": "track"}]
 HANDLED = ("led1", "led2")     # joined explicitly below
 REMOVE_ESCAPES = [("R67", "1"), ("R67", "2"), ("R68", "1"), ("R69", "2"), ("R70", "1"), ("R70", "2")]
 
@@ -188,6 +201,17 @@ def add(g):
     merge_zones(g, "v3v3", "In1.Cu")
     merge_zones(g, "selv_gnd", "In2.Cu")
     esc = g["ESCAPES"]
+    put(g, "leg_a-out_l", "In1.Cu", 0.5, [56.0, 31.0], [56.0, 34.7], [82.0, 34.7], [82.0, 37.0], escape="hv_ret")
+    drill(g, "n_ha", *NHA_VIA)
+    put(g, "n_ha", "F.Cu", 0.25, "U1.14", [78.095, 45.0], [77.83, 44.735], [77.83, 31.2], list(NHA_VIA))
+    g["zone"]("n_ha", "B.Cu", (74.5, 30.6, 78.6, 33.0), name="n_ha U1.14 via")
+    merge_zones(g, "n_ha", "B.Cu")
+    # ... and the leg-A N_HA decoupling cluster (C110-C113, C50/C51), whose fan-out vias all fell
+    # in the LOW band, drops to the same bank above the band
+    put(g, "sw_a", "F.Cu", 0.25, [73.5, 15.8], [73.5, 29.8], "R71.2")
+    put(g, "p_ha", "F.Cu", 0.25, "U1.16", [75.6, 46.0], [75.6, 36.6], [74.4, 36.025], "R71.1")
+    drill(g, "n_ha", 72.6, 30.8)
+    put(g, "n_ha", "F.Cu", 0.3, "C50.2", [72.5, 39.2], [72.5, 31.0], [72.6, 30.8])
     for lay in ("F.Cu", "B.Cu"):
         g["zone"]("hv_ret", lay, BRIDGE, name="hv_ret trunk bridge", priority=2)
     for x, y in BRIDGE_VIAS:
@@ -250,8 +274,9 @@ def add(g):
     drill(g, "hot5", 116.3, 55.0)
     esc.append({"ref": "R29", "pad": "2", "rect": [94.3, 91.6, 99.5, 93.4]})   # divider tap, away from R29.1
     put(g, "vsense_in", "F.Cu", 0.3, "R29.2", [99.0, 92.46], escape="vdiv_3")
-    drill(g, "monitor_ls-isoin", 92.6, 113.9)
-    put(g, "monitor_ls-isoin", "F.Cu", 0.25, "U32.4", [92.6, 113.9])
+    u32x = round(g["_xy"]("U32.4")[0], 3)
+    drill(g, "monitor_ls-isoin", u32x, 113.9)
+    put(g, "monitor_ls-isoin", "F.Cu", 0.25, "U32.4", [u32x, 113.9])
     drill(g, "vsense_in", 104.6, 114.0)
     put(g, "vsense_in", "F.Cu", 0.25, "U4.2", [104.6, 114.0])
     PROT_BOX = (99.0, 48.0, 124.5, 78.0)
@@ -261,7 +286,7 @@ def add(g):
                     ("ovp_ok_hot", L4, PROT_BOX, 0.25, ["U8.3", "U7.1"]),
                     ("bus_fault_hot", L4, (88.0, 48.0, 124.5, 120.0), 0.25, ["U8.4", "U9.4"]),
                     ("ocp_kelvin_p", L4, (100.0, 100.0, 124.5, 117.2), 0.25, ["U4.3", "U9.7", "U9.1"]),
-                    ("monitor_ls-isoin", L4, (86.0, 80.0, 124.5, 117.2), 0.25, ["R91.2", "@92.6,113.9,*", "Q7.3"]),
+                    ("monitor_ls-isoin", L4, (86.0, 80.0, 124.5, 117.2), 0.25, ["R91.2", f"@{u32x},113.9,*", "Q7.3"]),
                     ("monitor_ls-halfref", L4, (100.0, 100.0, 124.5, 117.2), 0.25, ["R79.2", "R80.1"]),
                     ("leg_ret", L4, (100.0, 100.0, 124.5, 117.2), 0.25, ["R83.1", "R81.1"]),
                     ("vsense_in", L4, (88.0, 55.0, 124.5, 117.2), 0.25, ["@104.6,114.0,*", "@99.0,92.46,F.Cu", "C27.1"])])

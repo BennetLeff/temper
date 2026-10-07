@@ -53,6 +53,29 @@ def pack(paths, x0, y0, x1, y1, ang=0.0, gap=GAP, big_first=True):
         row = max(row, h)
 
 
+def _box(path, cx, cy, ang, gap):
+    w, h = size(path, ang)
+    return (cx - w / 2 - gap / 2, cy - h / 2 - gap / 2, cx + w / 2 + gap / 2, cy + h / 2 + gap / 2)
+
+
+def relocate(path, x0, y0, x1, y1, ang=0.0, gap=GAP, step=0.25):
+    """Move an already-placed part to the first spot in the rectangle (scanning rows top-down)
+    whose courtyard clears every other placed courtyard by `gap`."""
+    others = [_box(q, *POSE[q][:2], POSE[q][2], gap) for q in POSE if q != path]
+    w, h = size(path, ang)
+    y = y0 + h / 2
+    while y + h / 2 <= y1 + 1e-9:
+        x = x0 + w / 2
+        while x + w / 2 <= x1 + 1e-9:
+            b = _box(path, x, y, ang, gap)
+            if all(b[2] <= o[0] or o[2] <= b[0] or b[3] <= o[1] or o[3] <= b[1] for o in others):
+                POSE[path] = (round(x, 3), round(y, 3), ang)
+                return
+            x += step
+        y += step
+    raise ValueError(f"no room for {path} in ({x0},{y0})-({x1},{y1})")
+
+
 def under(prefix):
     return sorted(p for p in PARTS if p == prefix or p.startswith(prefix + ".")) if prefix.endswith("") else []
 
@@ -122,6 +145,20 @@ put("bias_ha.transformer", 56.5, 66.2, 270)   # secondary down into the island
 pack(group("bias_ha", exclude=("bias_ha.monitor.iso", "bias_ha.monitor.civcc2")), 46.4, 73.9, 64.6, 118.0, gap=0.7)
 put("bias_ha.monitor.iso", 70.6, 110.0, 0)
 put("bias_ha.monitor.civcc2", 76.0, 121.0, 0)       # straddles the leg-A tongue's left edge
+# Each TPS7A47's NR/SS cap beside its pin 14 (the packer had put it ~35 mm away, at the island
+# foot); the rail monitor's 5 V LDO that sat there moves to the next free spot in its island.
+for leg, isl in (("hb", (0.8, 68.9, 19.4, 118.0)), ("ha", (46.4, 73.9, 64.6, 118.0))):
+    lx, ly, _ = POSE[f"bias_{leg}.split.ldo"]
+    POSE[f"bias_{leg}.monitor.ldo5"] = (-100.0, -100.0, 0.0)
+    POSE[f"bias_{leg}.split.cnr"] = (lx + 4.9, ly - 0.65, 0.0)     # pad 1 faces pin 14
+    for gap, ang in ((0.7, 0.0), (0.7, 90.0), (0.5, 0.0), (0.5, 90.0), (0.4, 0.0), (0.4, 90.0)):
+        try:
+            relocate(f"bias_{leg}.monitor.ldo5", *isl, ang=ang, gap=gap)
+            break
+        except ValueError:
+            continue
+    else:
+        raise ValueError(f"bias_{leg}.monitor.ldo5: no room in its island")
 
 # ---------------- SELV island (bottom band + board tongue) --------------------
 put("j_selv", 45.0, 182.0)
@@ -199,8 +236,10 @@ put("line_zc.r4", 241.5, 95.5, 0)
 pack(group("bias_ls", "monitor_ls", "bias_driver", "bias_rclk", "bias_rlim", "bias_css", "bias_rsr",
            "bias_cin", "bias_chf", "bias_rsn1", "bias_rsn2", "bias_csn1", "bias_csn2",
            exclude=("monitor_ls.iso", "monitor_ls.civcc2")), 101.0, 75.6, 121.5, 112.5, gap=0.55)
-put("monitor_ls.iso", 92.0, 121.0, 270)
-put("monitor_ls.civcc2", 92.0, 131.0, 0)
+# 3 mm right of the first cut: its HOT pins set the right side of the SELV neck below the leg-A
+# pocket (island A's barrier sets the left); at x 92 that neck was 1.3 mm, now ~4.3 mm.
+put("monitor_ls.iso", 95.0, 121.0, 270)
+put("monitor_ls.civcc2", 95.0, 131.0, 0)
 put("r_bus1", 249.5, 106.0, 180)
 put("r_bus2", 283.0, 106.0)
 # bus divider for AMC1311: 4 x 470 k chain, taps 9 mm apart (vertical), in the corridor between

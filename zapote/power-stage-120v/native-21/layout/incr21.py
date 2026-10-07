@@ -44,12 +44,91 @@ def removed(item, kind):
             continue          # a layer-scoped removal names tracks only
         x0, y0, x1, y1 = rm.get("box", (-1e9, -1e9, 1e9, 1e9))
         pts = [item["at"]] if kind == "via" else [p for p in item["points"] if not isinstance(p, str)]
-        if pts and all(x0 <= p[0] <= x1 and y0 <= p[1] <= y1 for p in pts):
+        inside = [x0 <= p[0] <= x1 and y0 <= p[1] <= y1 for p in pts]
+        if pts and (any(inside) if rm.get("touch") else all(inside)):
             return True
     return False
 
 
 PATCHED = set()
+
+
+def moved_refs(base_path):
+    """Parts whose pads moved since the base was frozen (<base>_pads.json beside it)."""
+    prev_path = Path(base_path).with_name(Path(base_path).stem + "_pads.json")
+    if not prev_path.exists():
+        return set(), []
+    prev_list = json.loads(prev_path.read_text())
+    prev = {(p["ref"], p["pad"], round(p["x"], 3), round(p["y"], 3)) for p in prev_list}
+    return {p["ref"] for p in GEO.pads if (p["ref"], p["pad"], round(p["x"], 3), round(p["y"], 3)) not in prev}, prev_list
+
+
+def prune_dangling(base, nets):
+    """Drop base tracks / vias of `nets` left hanging by removals: a track end touching no pad,
+    via, other track or pour of its net, and vias touching only one such track. Repeats until
+    stable; returns the number dropped."""
+    from shapely.geometry import LineString as _LS, Point as _Pt, Polygon as _Poly, box as _box
+    dropped = 0
+    while True:
+        gone = []
+        for t in base["tracks"]:
+            if t["net"] not in nets:
+                continue
+            for end in (t["points"][0], t["points"][-1]):
+                if isinstance(end, str):
+                    continue
+                pt = _Pt(*end).buffer(t["width"] / 2)
+                touch = any(_box(*p["box"]).intersects(pt) for p in GEO.pads if p["net"] == t["net"]
+                            and (p["tht"] or t["layer"] == "F.Cu"))
+                touch = touch or any(math.dist(v["at"], end) < v["size"] / 2 + 0.01 for v in base["vias"] if v["net"] == t["net"])
+                touch = touch or any(o is not t and o["net"] == t["net"] and o["layer"] == t["layer"] and
+                                     _LS([g["_xy"](q) for q in o["points"]]).buffer(o["width"] / 2).intersects(pt)
+                                     for o in base["tracks"])
+                touch = touch or any(z["net"] == t["net"] and z["layer"] == t["layer"] and
+                                     _Poly(z["outline"], z["holes"]).buffer(0).intersects(pt) for z in base["zones"])
+                if not touch:
+                    gone.append(t)
+                    break
+        vgone = []
+        for v in base["vias"]:
+            if v["net"] not in nets:
+                continue
+            pt = _Pt(*v["at"]).buffer(v["size"] / 2)
+            n = sum(1 for t in base["tracks"] if t["net"] == v["net"] and t not in gone and
+                    _LS([g["_xy"](q) for q in t["points"]]).buffer(t["width"] / 2).intersects(pt))
+            n += sum(1 for z in base["zones"] if z["net"] == v["net"] and _Poly(z["outline"], z["holes"]).buffer(0).intersects(pt))
+            n += sum(1 for p in GEO.pads if p["net"] == v["net"] and _box(*p["box"]).intersects(pt))
+            if n <= 1:
+                vgone.append(v)
+        if not gone and not vgone:
+            return dropped
+        dropped += len(gone) + len(vgone)
+        base["tracks"] = [t for t in base["tracks"] if t not in gone]
+        base["vias"] = [v for v in base["vias"] if v not in vgone]
+
+
+def reclip_for_moved(base_path, zones):
+    """Pours were clipped to the plan-view barrier around the pads of their day: clip them again
+    against moved parts' pads of the other side (SELV/PE pours vs HOT pads and back)."""
+    from shapely.geometry import box as _box
+    from shapely.ops import unary_union as _union
+    moved, _ = moved_refs(base_path)
+    pads = [p for p in GEO.pads if p["ref"] in moved and p["net"]]
+    if not pads:
+        return zones
+    out = []
+    for z in zones:
+        cut = [_box(*p["box"]) for p in pads if rules21.barrier(z["net"], p["net"])]
+        poly = Polygon(z["outline"], z["holes"])
+        if cut:
+            poly = poly.difference(_union(cut).buffer(rules21.BARRIER + 0.2, resolution=16))
+        for q in getattr(poly, "geoms", [poly]):
+            if q.is_empty or q.area < 1.0:
+                continue
+            q = q.simplify(0.001)
+            out.append({**z, "outline": [[round(x, 3), round(y, 3)] for x, y in list(q.exterior.coords)[:-1]],
+                        "holes": [[[round(x, 3), round(y, 3)] for x, y in list(i.coords)[:-1]] for i in q.interiors]})
+    return out
 FILLS = []          # filled pour polygons from the previous build's copper dump (optional argv[4])
 
 
@@ -119,6 +198,60 @@ def cluster_of(items, cid, where):
     return cid[hits[0]] if hits else None
 
 
+def _samples(items, cid, c, layers):
+    """Points of cluster c on `layers`: track vertices every 0.4 mm, vias and THT pads on any
+    layer, SMD pads on F."""
+    out = []
+    for (kind, lay, _, payload), k in zip(items, cid):
+        if k != c:
+            continue
+        if kind == "track" and lay in layers:
+            pts = payload[1]
+            for (ax, ay), (bx_, by) in zip(pts, pts[1:]):
+                n = max(1, int(math.hypot(bx_ - ax, by - ay) / 0.4))
+                out += [(ax + (bx_ - ax) * i / n, ay + (by - ay) * i / n, layers.index(lay)) for i in range(n + 1)]
+        elif kind == "via":
+            out.append((payload["at"][0], payload["at"][1], None))
+        elif kind == "pad" and (payload["tht"] or "F.Cu" in layers):
+            out.append((payload["x"], payload["y"], None if payload["tht"] else layers.index("F.Cu")))
+    return out
+
+
+def join_clusters(net, a, b, layers, width):
+    """Join the cluster holding end `a` to the one holding `b` anywhere along them (multi-start,
+    multi-goal maze), growing the search box around the two named ends."""
+    import maze21
+    items, cid = clusters(net)
+    ca, cb = cluster_of(items, cid, a), cluster_of(items, cid, b)
+    if ca is None or cb is None or ca == cb:
+        return ca is not None and ca == cb
+    A, B = _samples(items, cid, ca, layers), _samples(items, cid, cb, layers)
+    xy = [incr21_point(a), incr21_point(b)]
+    for m in (8.0, 20.0, 45.0):
+        bx = (max(0.6, min(x for x, _ in xy) - m), max(0.6, min(y for _, y in xy) - m),
+              min(289.4, max(x for x, _ in xy) + m), min(189.4, max(y for _, y in xy) + m))
+        sa = [q for q in A if bx[0] < q[0] < bx[2] and bx[1] < q[1] < bx[3]]
+        sb = [q for q in B if bx[0] < q[0] < bx[2] and bx[1] < q[1] < bx[3]]
+        if not sa or not sb:
+            continue
+        for w in (width, 0.2):
+            res = maze21.connect2(GEO, net, bx, w, sa, sb, layers=layers, via=0.6)
+            if res is not None and g["_legal"](net, res[0], w, res[1]):
+                for lay, path in res[0]:
+                    g["track"](net, lay, w, *path)
+                for x, y, la, lb in res[1]:
+                    g["add_signal_via"](net, x, y, la, lb, w)
+                return True
+    return False
+
+
+def incr21_point(where):
+    if where.startswith("@"):
+        x, y, _ = where[1:].split(",")
+        return (float(x), float(y))
+    return g["_xy"](where)
+
+
 def attach(net, ref_pad, layers, width, target=None):
     """Join a bare pad to the nearest legal point of authored copper of its net: of the cluster
     holding `target` (the other end KiCad named) when given, else of any other cluster
@@ -164,6 +297,8 @@ def load(base_path, patches=True):
     base = json.loads(Path(base_path).read_text())
     if patches and hasattr(patches21, "edit_zones"):
         base["zones"] = patches21.edit_zones(base["zones"])
+    if patches:
+        base["zones"] = reclip_for_moved(base_path, base["zones"])
     for z in base["zones"]:
         g["ZONES"].append(z)
         poly = Polygon(z["outline"], z["holes"])
@@ -174,13 +309,71 @@ def load(base_path, patches=True):
         g["PLANES"][k] = poly if k not in g["PLANES"] else g["PLANES"][k].union(poly)
     global n_rm
     n_rm = 0
+    # placement changes since the base was frozen: base copper that now meets another net's pad
+    # inside its clearance is dropped (the pair passes re-join what it served)
+    from shapely.geometry import LineString as _LS, Point as _Pt, box as _box
+    from shapely.strtree import STRtree as _Tree
+    # only parts whose pads moved since the base was frozen (copper_base_pads.json)
+    prev_path = Path(base_path).with_name(Path(base_path).stem + "_pads.json")
+    prev = {(p["ref"], p["pad"], round(p["x"], 3), round(p["y"], 3)) for p in json.loads(prev_path.read_text())} \
+        if prev_path.exists() else None
+    moved = {p["ref"] for p in GEO.pads if prev is not None and (p["ref"], p["pad"], round(p["x"], 3), round(p["y"], 3)) not in prev}
+    pad_geo = [(_box(*p["box"]), p) for p in GEO.pads if (p["net"] or p["npth"]) and p["ref"] in moved]
+    if pad_geo:
+        print("parts moved since the base:", " ".join(sorted(moved)))
+    pad_tree = _Tree([q for q, _ in pad_geo])
+
+    def meets_pad(net, geom, layer):
+        if not pad_geo:
+            return False
+        for i in pad_tree.query(geom.buffer(3.5)):
+            q, p = pad_geo[i]
+            if p["net"] == net or (layer not in (None, "F.Cu") and not p["tht"]):
+                continue
+            need = 0.3 if p["npth"] else rules21.clearance(net, p["net"])
+            if q.distance(geom) < need - 0.01:
+                return True
+        return False
+    # ... and base copper that served a moved part's old pads (a numeric point on an old pad of its
+    # net) goes too, with the vias left orphaned by it
+    old_pads = [(_box(*q["box"]).buffer(0.05), q["net"]) for q in json.loads(prev_path.read_text())
+                if q["ref"] in moved and q["net"]] if pad_geo else []
+
+    def served_old(t):
+        names = [q for q in t["points"] if isinstance(q, str)]
+        if names and len(names) == len(t["points"]):
+            return False             # pad to pad only: follows the parts
+        if any(q.split(".")[0] in moved for q in names):
+            return True              # a pad-named end on a moved part with fixed bends: stale
+        return any(b.contains(_Pt(*q)) for q in t["points"] if not isinstance(q, str)
+                   for b, n in old_pads if n == t["net"])
+    stale = [t for t in base["tracks"] if patches and served_old(t)]
+    stale_ends = {(t["net"], round(q[0], 3), round(q[1], 3)) for t in stale for q in t["points"]
+                  if not isinstance(q, str)}
+    kept_pts = {(t["net"], round(q[0], 3), round(q[1], 3)) for t in base["tracks"] if t not in stale
+                for q in t["points"] if not isinstance(q, str)}
+    n_pad = len(stale)
+    base["tracks"] = [t for t in base["tracks"] if t not in stale]
+    n_pad += prune_dangling(base, {t["net"] for t in stale})
+    base["vias"] = [v for v in base["vias"]
+                    if not ((v["net"], round(v["at"][0], 3), round(v["at"][1], 3)) in stale_ends
+                            and (v["net"], round(v["at"][0], 3), round(v["at"][1], 3)) not in kept_pts)
+                    and not any(b.contains(_Pt(*v["at"])) for b, n in old_pads if n == v["net"])]
     for t in base["tracks"]:
+        follows = all(isinstance(q, str) for q in t["points"])      # pad-to-pad tracks move with the parts
+        if patches and not follows and \
+                meets_pad(t["net"], _LS([g["_xy"](q) for q in t["points"]]).buffer(t["width"] / 2), t["layer"]):
+            n_pad += 1
+            continue
         if removed(t, "track"):
             n_rm += 1
             continue
         g["TRACKS"].append(t)
         GEO.add_track(t["net"], t["layer"], t["width"], [g["_xy"](p) for p in t["points"]])
     for v in base["vias"]:
+        if patches and meets_pad(v["net"], _Pt(*v["at"]).buffer(v["size"] / 2), None):
+            n_pad += 1
+            continue
         if removed(v, "via"):
             n_rm += 1
             continue
@@ -188,19 +381,20 @@ def load(base_path, patches=True):
         GEO.add_via(v["net"], *v["at"], v["size"])
     rm_esc = set(getattr(patches21, "REMOVE_ESCAPES", ()))
     g["ESCAPES"].extend(e for e in base.get("escapes", []) if (e["ref"], e["pad"]) not in rm_esc)
+    if n_pad:
+        print(f"{n_pad} base items dropped: they served a moved part's old pads or meet its new ones")
+    # island rail pours (the -2 V banks and island planes): later tracks of other nets may not
+    # cut them (vias may pass; the fill opens antipads)
+    for z in g["ZONES"]:
+        if z["net"] in ("n_ha", "n_hb") and z["layer"] in ("B.Cu", "In1.Cu"):
+            GEO.protect(z["net"], z["layer"], Polygon(z["outline"], z["holes"]), via_ok=True)
     if patches and hasattr(patches21, "OPEN_IN1"):
         g["OPEN_IN1"][:] = patches21.OPEN_IN1
     g["protect_pours"]()
     if patches:
-        real_link = g["link"]
-
-        def link_rec(net, *a, **k):
-            PATCHED.add(net)
-            return real_link(net, *a, **k)
-        g["link"] = link_rec
         patches21.add(g)
-        g["link"] = real_link
-        # nets the patches re-laid whole: their old DRC pairs are stale
+        # nets the patches re-laid whole: their old DRC pairs are stale (pairs already joined
+        # are skipped anyway by the cluster check)
         PATCHED.update(rm["net"] for rm in patches21.REMOVE if "box" not in rm)
         PATCHED.update(getattr(patches21, "HANDLED", ()))
 
@@ -253,8 +447,15 @@ if __name__ == "__main__":
         tries = [("F.Cu", "B.Cu"), layers] if rules21.domain(net) == "SELV" else [layers]
         # a pad end joins the other end's cluster anywhere along it (not only the item KiCad named)
         ends = [(q, o if o != q else None) for q, o in ((a, b), (b, a)) if not q.startswith("@")][:1 if a == b else 2]
-        if any(attach(net, q, lays, w, target=o) for q, o in ends for lays in tries):
+        try:
+            ok = any(attach(net, q, lays, w, target=o) for q, o in ends for lays in tries)
+        except KeyError:              # multi-pad numbers (fuse clips, ...): leave to link()
+            ok = False
+        if ok:
             g["LINK_LOG"].append((net, "attach", 1, []))
+            continue
+        if a != b and any(join_clusters(net, a, b, lays, w) for lays in tries):
+            g["LINK_LOG"].append((net, "join", 2, []))
             continue
         if len(tries) > 1 and not any(q.startswith("@") and q.rsplit(",", 1)[1] in ("In1.Cu", "In2.Cu")
                                       for q in (a, b)):

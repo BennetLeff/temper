@@ -127,8 +127,20 @@ Fixes made this way (each in `patches21.py` with its reason):
 - Incremental pairs are **cumulative** over every DRC of the series. Ends are matched by
   connectivity clusters built from KiCad's *filled* pours of the previous build (`FILLS=`). Pour
   outlines overstated connectivity, and joining "any copper of the net" could land on an orphan.
-- Status: **7 open, 0 DRC errors, 0 plan-view barrier violations, 0 plane splits** (from
-  32 / 0 / 0 / 3 hidden splits in the frozen base).
+- **Placement fixes found while routing (stage 4):** the TPS7A47 NR/SS caps (C81, C74) now sit
+  beside pin 14; the packer had put them about 35 mm away. The rail monitors' 5 V LDOs moved to free
+  island spots. U32 (LS-monitor isolator) moved 3 mm right, which widened the SELV neck below the
+  leg-A pocket from 1.3 to 4.3 mm.
+- incr21 reconciles placement changes against the frozen base. Copper that served a moved part's old
+  pads, and chains left dangling by that, are dropped; pours are re-clipped to the plan-view
+  barrier around moved pads; island rail pours (N_HA / N_HB) are protected from later tracks.
+- Leg-A N_HA: U1.14 and its decoupling cluster get vias to the B bank above the LOW band (OUT_L's
+  In1 run moved to y 34.7 to open the only legal spots).
+- Status: **2 open, 0 DRC errors, 0 plan-view barrier violations, 0 plane splits** (from
+  32 / 0 / 0 / 3 hidden splits in the frozen base). Open: SW_A between the leg-A high-side
+  decoupling cluster and its feed, and BIAS_BAD from U22 (leg-A pocket) to the leg-B pocket.
+- **Open fab item:** 116 vias sit mostly inside SMD pads (maze layer changes at pad centres). They
+  need either plugged-and-capped via-in-pad on the JLC order or a dog-bone pass.
 - Router: a final whole-corridor maze pass for long detours, and circumscribed clearance
   buffers. Polygonal buffers fell 0.04 mm short at the 8 mm barrier, more than the 0.03 mm
   margin, so found paths failed the exact check.
