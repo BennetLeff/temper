@@ -128,6 +128,9 @@ def _via_ok(geo, net, bx, size):
             bad = unary_union(shapes)
             shapely.prepare(bad)
             mask |= shapely.contains_xy(bad, xs.ravel(), ys.ravel())
+    inner = geo.outline.buffer(-size / 2 - 0.03)
+    shapely.prepare(inner)
+    mask |= ~shapely.contains_xy(inner, xs.ravel(), ys.ravel())
     return mask
 
 

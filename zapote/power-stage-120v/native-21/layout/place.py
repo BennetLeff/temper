@@ -201,7 +201,7 @@ put("r_bus2", 283.0, 106.0)
 # bus divider for AMC1311: 4 x 470 k chain, taps 9 mm apart (vertical), in the corridor between
 # U1's SELV moat (x >= 92.5) and the LOW blocks; top end via to BUS_P on the In2 trunk
 for i, n in enumerate(("r_div1", "r_div2", "r_div3", "r_div4")):
-    put(n, 96.5, 64.0 + 9.0 * i, 90)
+    put(n, 96.5, 64.0 + 9.0 * i, 270)
 
 missing = sorted(set(PARTS) - set(POSE))
 if missing:

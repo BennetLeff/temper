@@ -39,6 +39,11 @@ for v in d.get("unconnected_items", []):
     dist = math.hypot(pp[pa]["x"] - pp[pb]["x"], pp[pa]["y"] - pp[pb]["y"]) if pa in pp and pb in pp else 99
     out.append((dist, net, pa, pb))
 out.sort()
-Path(sys.argv[2] if len(sys.argv) > 2 else HERE / "todo.json").write_text(
-    json.dumps([[n, a, b] for _, n, a, b in out], indent=0) + "\n")
-print(len(out), "pairs")
+# Cumulative: route21 rebuilds all copper each run, so pairs joined in earlier runs stay listed
+# (they route identically again); new open pairs are appended after them.
+dest = Path(sys.argv[2] if len(sys.argv) > 2 else HERE / "todo.json")
+old = json.loads(dest.read_text()) if dest.exists() else []
+have = {(n, *sorted((a, b))) for n, a, b in old}
+new = [[n, a, b] for _, n, a, b in out if (n, *sorted((a, b))) not in have]
+dest.write_text(json.dumps(old + new, indent=0) + "\n")
+print(len(old), "kept,", len(new), "new pairs")

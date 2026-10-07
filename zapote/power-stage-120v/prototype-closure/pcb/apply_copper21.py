@@ -126,7 +126,7 @@ def main():
         name = f"PE_{e['ref']}_{e['pad']}"
         area = pcbnew.ZONE(board)
         area.SetIsRuleArea(True)
-        area.SetLayer(pcbnew.F_Cu)
+        area.SetLayer({"F.Cu": pcbnew.F_Cu, "B.Cu": pcbnew.B_Cu}[e.get("layer", "F.Cu")])
         area.SetZoneName(name)
         for kind in ("Tracks", "Vias", "Pads", "Footprints", "ZoneFills"):
             getattr(area, "SetDoNotAllow" + kind)(False)

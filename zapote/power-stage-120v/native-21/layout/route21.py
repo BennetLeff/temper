@@ -27,7 +27,7 @@ import json
 import math
 from pathlib import Path
 
-from shapely.geometry import box
+from shapely.geometry import LineString, box
 from shapely.ops import unary_union
 
 HERE = Path(__file__).resolve().parent
@@ -118,12 +118,33 @@ def link(net, layer, bx, width, pads):
         q = todo.pop(0)
         res = None
         near = min(tree, key=lambda t: math.dist(t[:2], pts[q]))
-        for m in (4.0, 10.0, None):
+        # direct and L-shaped joins first (fine-pitch neighbours, short hops)
+        lays0 = layers or (layer,)
+        a, b = near[:2], pts[q]
+        for cand in ([a, b], [a, (b[0], a[1]), b], [a, (a[0], b[1]), b]):
+            for li, lay in enumerate(lays0):
+                if (near[2] not in (None, li)) or (lidx.get(q) not in (None, li)) if two else False:
+                    continue
+                if lay != "F.Cu" and not (GEO.pad(q)["tht"]):
+                    continue
+                geom = LineString(cand).buffer(width / 2)
+                if not GEO.conflicts(net, (lay,), geom, limit=1):
+                    res = ([(lay, [[round(x, 3), round(y, 3)] for x, y in cand])], [])
+                    break
+            if res:
+                break
+        if res is not None:
+            segs, vs = res
+            for lay, path in segs:
+                track(net, lay, width, *path)
+                tree.extend((x, y, lays0.index(lay)) for x, y in path)
+            continue
+        for m in (4.0, 10.0, 30.0):
             sub = bx if m is None else (max(bx[0], min(near[0], pts[q][0]) - m), max(bx[1], min(near[1], pts[q][1]) - m),
                                         min(bx[2], max(near[0], pts[q][0]) + m), min(bx[3], max(near[1], pts[q][1]) + m))
             starts = [t for t in tree if sub[0] <= t[0] <= sub[2] and sub[1] <= t[1] <= sub[3]] or [near]
             if two:
-                res = maze21.connect2(GEO, net, sub, width, starts, [(*pts[q], lidx[q])], layers=layers)
+                res = maze21.connect2(GEO, net, sub, width, starts, [(*pts[q], lidx[q])], layers=layers, via=0.6)
             else:
                 p = maze21.connect(GEO, net, layer, sub, width, [t[:2] for t in starts], [pts[q]])
                 res = None if p is None else ([(layer, p)], [])
@@ -138,8 +159,8 @@ def link(net, layer, bx, width, pads):
             track(net, lay, width, *path)
             tree.extend((x, y, lays.index(lay)) for x, y in path)
         for x, y in vs:
-            VIAS.append({"net": net, "at": [x, y], "size": 0.75, "drill": 0.3})
-            GEO.add_via(net, x, y, 0.75)
+            VIAS.append({"net": net, "at": [x, y], "size": 0.6, "drill": 0.3})
+            GEO.add_via(net, x, y, 0.6)
             tree.extend((x, y, k) for k in range(len(lays)))
     LINK_LOG.append((net, layer, len(pads), failed))
     return not failed
@@ -261,6 +282,72 @@ zone("hv_ret", "F.Cu", (35.4, 13.3, 39.2, 16.9), priority=3, name="hv_ret R5.4")
 for y in (13.9, 15.3):
     via("hv_ret", 35.8, y)
 
+# ---------------------------------------------------------------- HV chains and the Kelvin pair
+def chain_link(net, a, b, width=0.4):
+    """Straight pad-to-pad link between neighbouring resistors of a high-voltage chain, with a
+    bounded pad escape at each end (the part's own pins sit closer than the group spacing)."""
+    pa, pb = GEO.pad(a), GEO.pad(b)
+    track(net, "F.Cu", width, a, b)
+    # each end's escape area covers the whole link (KiCad's enclosedByArea needs the full track)
+    rect = [round(min(pa["x"], pb["x"]) - 0.9, 3), round(min(pa["y"], pb["y"]) - 0.9, 3),
+            round(max(pa["x"], pb["x"]) + 0.9, 3), round(max(pa["y"], pb["y"]) + 0.9, 3)]
+    for pp in (pa, pb):
+        ESCAPES.append({"ref": pp["ref"], "pad": pp["pad"], "rect": rect})
+
+
+# Bus divider for the AMC1311 (vertical at x 96.5): BUS_P at the top joins the In2 trunk.
+for net, a, b in (("vdiv_1", "R26.2", "R27.1"), ("vdiv_2", "R27.2", "R28.1"), ("vdiv_3", "R28.2", "R29.1")):
+    chain_link(net, a, b)
+track("bus_p", "F.Cu", 0.4, "R26.1", [96.5, 60.5])
+via("bus_p", 96.5, 60.5)
+track("bus_p", "In2.Cu", 0.4, [96.5, 60.5], [96.5, 46.5])
+ESCAPES.append({"ref": "R26", "pad": "1", "rect": [95.4, 59.6, 97.6, 63.2]})
+# Tank bleed across the top of C21: RES_A (C21.1) - R22 - R23 - R24 - R25 - SW_B (B lane).
+for net, a, b in (("crbleed_1", "R22.2", "R23.1"), ("crbleed_2", "R23.2", "R24.1"), ("crbleed_3", "R24.2", "R25.1")):
+    chain_link(net, a, b)
+track("res_a", "F.Cu", 0.4, "R22.1", [156.54, 50.0], "C21.1")
+ESCAPES.append({"ref": "R22", "pad": "1", "rect": [154.0, 40.0, 157.8, 59.7]})
+track("sw_b", "F.Cu", 0.4, "R25.2", [193.0, 44.0])
+via("sw_b", 193.0, 44.0)
+ESCAPES.append({"ref": "R25", "pad": "2", "rect": [188.3, 40.0, 193.6, 44.6]})
+# Line zero-cross string taps.
+for net, a, b in (("r1mid", "R67.2", "R68.1"), ("r2mid", "R69.2", "R70.1")):
+    chain_link(net, a, b, 0.3)
+
+# Shunt Kelvin pair R5 -> protection (In1, LOW group): vias beside pads 2 / 3, down the radial
+# wedge between C40.2 and C38.2 (parallel to the HF-cap return currents into R5.4), along the
+# bottom band of the core plane, into the protection block. KELVIN_P ends on the protection's
+# own ground plane; KELVIN_N continues to R33.
+track("ocp_kelvin_p", "F.Cu", 0.3, "R5.2", [36.0, 8.0])
+via("ocp_kelvin_p", 36.0, 8.0)
+track("ocp_kelvin_p", "In1.Cu", 0.3, [36.0, 8.0], [39.4, 11.4], [42.2, 11.4], [42.2, 42.6], [99.0, 42.6],
+      [103.0, 46.6], [103.0, 53.5])
+track("ocp_kelvin_n", "F.Cu", 0.3, "R5.3", [41.3, 15.2])
+via("ocp_kelvin_n", 41.3, 15.2)
+KN = GEO.via_spot("R33.2", size=0.85, width=0.3)
+track("ocp_kelvin_n", "In1.Cu", 0.3, [41.3, 15.2], [41.3, 43.4], [98.7, 43.4], [102.3, 47.0], [102.3, KN[1]],
+      list(KN))
+via("ocp_kelvin_n", *KN)
+track("ocp_kelvin_n", "F.Cu", 0.3, list(KN), "R33.2")
+
+# PS2 (rear band) to the LS block. Its LOW outputs are walled off by the power lanes on F/B and
+# by the BUS_P trunk on In2, so they cross on In1 inside the HV_RET trunk (same LOW group) at
+# its right-hand corner, where a slot leaves the band's turn down to C5/C6 intact (x 198-209),
+# then run between C21 and C22's pins and over J5 into the LS block.
+track("n_ls", "In1.Cu", 0.4, "PS2.3", [211.0, 26.0], [211.0, 75.0], [151.0, 75.0], [145.2, 59.75],
+      [120.2, 59.75], [120.2, 76.0])
+track("v24_raw", "In1.Cu", 0.4, "PS2.4", [212.2, 17.6], [212.2, 76.0], [150.0, 76.0], [144.3, 60.55],
+      [121.0, 60.55], [121.0, 77.0], [117.6, 77.0])
+V24 = GEO.via_spot("U26.15", width=0.3)
+track("v24_raw", "In1.Cu", 0.4, [117.6, 77.0], list(V24))
+via("v24_raw", *V24)
+track("v24_raw", "F.Cu", 0.3, list(V24), "U26.15")
+# TCO loop: J3.2 (TCO_L) along the rear edge to PS2.1; J3.1 (L_FILT) from the B lane.
+track("tco_l", "F.Cu", 0.4, "PS2.1", [165.0, 1.0], [221.6, 1.0], [221.6, 5.95], "J3.2")
+track("l_filt", "B.Cu", 0.5, [214.0, 30.0], [214.0, 7.6], "J3.1")
+ESCAPES.append({"ref": "J3", "pad": "1", "rect": [212.9, 4.0, 218.0, 30.5], "layer": "B.Cu"})
+ESCAPES.append({"ref": "J3", "pad": "2", "rect": [217.5, 0.4, 222.4, 7.5]})
+
 # ---------------------------------------------------------------- rail planes (islands)
 # Each isolation island gets its own planes; KiCad's fill keeps them 8 mm (SELV) / 3.2 mm
 # (other HOT groups) from everything else. Every SMD pad of a plane net gets a via beside it.
@@ -282,8 +369,7 @@ zone("ocp_kelvin_p", "In1.Cu", PROT, name="ocp_kelvin_p protection")
 zone("hot5", "In2.Cu", PROT, name="hot5 protection")
 zone("n_ls", "In1.Cu", LSB, name="n_ls LS block")
 zone("v15_ls", "In2.Cu", LSB, name="v15_ls LS block")
-zone("n_ls", "B.Cu", (84.0, 30.6, 97.3, 48.0), (92.5, 48.0, 97.3, 56.0), (92.5, 53.5, 103.0, 56.0),
-     name="n_ls LS-A bank to LS block")
+zone("n_ls", "B.Cu", (84.0, 30.6, 97.3, 48.0), name="n_ls LS-A bank")
 zone("n_ls", "B.Cu", (37.5, 30.6, 54.0, 48.0), name="n_ls LS-B bank")
 
 fanout("v3v3", (0, 52, 160, 190), "In1.Cu")
