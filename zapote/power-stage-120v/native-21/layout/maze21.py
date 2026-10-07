@@ -125,7 +125,7 @@ def _via_ok(geo, net, bx, size):
         shapes = []
         for i in tree.query(_box(x0 - 9, y0 - 9, x1 + 9, y1 + 9)):
             g, other = items[i]
-            if other == net:
+            if other == net or id(g) in geo.via_permeable:
                 continue
             need = 0.3 if other == "<npth>" else rules21.clearance(net, other)
             shapes.append(g.buffer(need + size / 2 + 0.03, resolution=8))

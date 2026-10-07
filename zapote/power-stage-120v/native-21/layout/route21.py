@@ -134,7 +134,7 @@ def _legal(net, segs, width, vias=()):
         if len(path) > 1 and GEO.conflicts(net, (lay,), LineString(path).buffer(width / 2), limit=1):
             return False
     for v in vias:
-        if GEO.conflicts(net, ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu"), Point(v[0], v[1]).buffer(0.3), limit=1):
+        if GEO.conflicts(net, ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu"), Point(v[0], v[1]).buffer(0.3), limit=1, via=True):
             return False
     return True
 
@@ -299,10 +299,11 @@ zone("l_filt", "B.Cu", (86.9, 0.6, 94.0, 16.5), (86.9, 9.8, 122.2, 16.5), (113.2
 zone("sw_a", "F.Cu", (72.5, 0.6, 76.5, 24.0), (72.5, 9.8, 93.7, 23.8), (87.2, 19.2, 103.6, 30.4),
      (103.6, 19.2, 110.0, 48.0), (103.6, 37.2, 148.6, 48.0), (139.0, 37.2, 148.6, 101.5),
      name="sw_a Q2.3-T1.1", protect=True)
-zone("sw_a", "B.Cu", (46.5, 0.6, 76.5, 16.0), name="sw_a leg-A link", protect=True)
+zone("sw_a", "B.Cu", (46.5, 0.6, 76.5, 12.5), (58.0, 12.5, 76.5, 16.0), name="sw_a leg-A link", protect=True)
 # SW_B: leg-B pins, a lane under leg A between the shunt vias (y < 16) and the HF-row pins
 # (y > 30.6), a 4.6 mm neck past C39.1, then down right of the LS-A bank (its vias stay free).
-zone("sw_b", "B.Cu", (0.6, 9.7, 12.5, 27.0), (12.5, 0.6, 31.0, 27.0), (12.5, 19.4, 77.0, 27.0), (77.0, 19.4, 100.5, 27.3),
+# (widened upward under leg A's low side, x 40-57, so the Cgs source via at x 46.4 cannot sever it)
+zone("sw_b", "B.Cu", (0.6, 9.7, 12.5, 27.0), (12.5, 0.6, 31.0, 27.0), (12.5, 19.4, 77.0, 27.0), (40.0, 15.7, 57.0, 27.0), (77.0, 19.4, 100.5, 27.3),
      (79.7, 9.8, 83.7, 23.8), (100.5, 19.7, 110.0, 50.0), (100.5, 37.2, 200.6, 50.0),
      (192.0, 37.2, 200.6, 113.0), name="sw_b leg B-C21..C23", protect=True)
 zone("res_a", "B.Cu", (127.0, 64.0, 161.0, 77.0), (150.0, 55.0, 161.0, 114.0), name="res_a J5-C21..C23", protect=True)
@@ -357,11 +358,27 @@ track("leg_a-out_l", "F.Cu", 0.5, [82.0, 37.0], [82.6, 43.5], [83.22, 46.12])
 # Leg A high side: down the SW_A pour beside Q2.3, left of C39.1.
 track("leg_a-out_h", "F.Cu", 0.6, [75.1, 17.9], [75.1, 18.9], [77.0, 20.5], [77.0, 44.0], [76.87, 46.12])
 
+
+# Gate-network source pads (R_pd and Cgs source sides) are enclosed by each network's own gate,
+# OFF and OUT tracks, so they leave through vias: high-side ones into their switch node's B
+# copper, low-side ones into the In1 LEG_RET region (R_pd directly; Cgs through a short In1 slot
+# running from below the HF row's return currents up into the region). R13.2 sits in the F
+# LEG_RET pour; C55.2 reaches the SW_A F pour beside Q2.3 directly.
+for net, pad_, at in (("sw_b", "R19.2", (1.8, 9.9)), ("sw_b", "C62.2", (6.28, 23.3)),
+                      ("sw_a", "R11.2", (59.9, 9.7)), ("leg_ret", "R21.2", (19.8, 9.7))):
+    track(net, "F.Cu", 0.3, pad_, list(at))
+    via(net, *at, size=0.6)
+for pad_, x in (("C63.2", 24.27), ("C56.2", 46.38)):
+    track("leg_ret", "F.Cu", 0.3, pad_, [x, 23.3])
+    via("leg_ret", x, 23.3, size=0.6)
+    track("leg_ret", "In1.Cu", 0.3, [x, 23.3], [x, 12.2])
+track("sw_a", "F.Cu", 0.4, "C55.2", [72.8, 22.6])
+
 # ---------------------------------------------------------------- core: shunt R5
 # LEG_RET current pad 1 joins Q6.3 on F (Q3.3 arrives through the In1 LEG_RET region and
 # Q6.3's barrel, plus three vias beside pad 1). HV_RET pad 4 drops to the In1 plane through
 # vias left of the pad (kept above the SW_B lane). Kelvin pads 2/3 are left for their own pair.
-zone("leg_ret", "F.Cu", (31.0, 0.6, 41.2, 12.2), priority=3, name="leg_ret Q6.3-R5.1")
+zone("leg_ret", "F.Cu", (31.0, 0.6, 41.2, 12.2), (41.2, 9.8, 42.6, 11.9), priority=3, name="leg_ret Q6.3-R5.1-R13.2")
 for y in (4.0, 5.5, 7.0):
     via("leg_ret", 40.9, y, power=False)
 zone("hv_ret", "F.Cu", (35.4, 13.3, 39.2, 16.9), priority=3, name="hv_ret R5.4")
@@ -573,10 +590,6 @@ for net, pads_, bx in SELV_LONG:
 # bank (B) to island (In1) for each high-side -2 V rail
 for net, x, y in (("n_hb", 18.6, 61.6), ("n_hb", 19.4, 62.4), ("n_ha", 65.6, 65.6), ("n_ha", 66.4, 66.0)):
     via(net, x, y)
-fanout("sw_b", (0, 8, 13, 24), "B.Cu")
-fanout("leg_ret", (18, 9, 46, 13.5), "In1.Cu")
-fanout("sw_a", (58, 9, 62, 14), "B.Cu")
-track("sw_a", "F.Cu", 0.4, "C55.2", [72.8, 22.6])
 fanout("v3v3", (0, 52, 160, 190), "In1.Cu")
 fanout("selv_gnd", (0, 52, 160, 190), "In2.Cu")
 for leg, isl, bank in (("b", (0, 30, 29, 120), None), ("a", (44, 30, 76, 120), None)):  # noqa
@@ -607,7 +620,7 @@ def protect_pours():
         if z["layer"] == "In1.Cu":
             poly = poly.difference(opened)
         if not poly.is_empty:
-            GEO.protect(z["net"], z["layer"], poly)
+            GEO.protect(z["net"], z["layer"], poly, via_ok=True)
 
 
 # In2 inside the islands and the LOW blocks is a signal layer (their +15 V / HOT5 rails are

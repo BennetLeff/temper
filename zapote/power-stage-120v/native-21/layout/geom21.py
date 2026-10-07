@@ -28,6 +28,7 @@ class Geometry:
     def __init__(self, pads_path=HERE / "pads.json"):
         self.pads = json.loads(Path(pads_path).read_text())
         self.items = {lay: [] for lay in CU + ("PLAN",)}   # (geom, net); PLAN = all copper, plan view
+        self.via_permeable = set()
         self._trees = {}
         self.pad_at = {}
         for p in self.pads:
@@ -63,8 +64,12 @@ class Geometry:
     def add_via(self, net, x, y, size):
         self._add(CU, Point(x, y).buffer(size / 2), net)
 
-    def protect(self, net, layer, polygon):
+    def protect(self, net, layer, polygon, via_ok=False):
+        """A pour that tracks of other nets must not enter; via_ok pours let vias through (the
+        fill opens an antipad), lanes do not."""
         self._add((layer,), polygon, net)
+        if via_ok:
+            self.via_permeable.add(id(polygon))
 
     # -- queries
     def _tree(self, lay):
@@ -73,7 +78,7 @@ class Geometry:
             self._trees[lay] = (STRtree(geoms), self.items[lay])
         return self._trees[lay]
 
-    def conflicts(self, net, layers, geom, limit=3):
+    def conflicts(self, net, layers, geom, limit=3, via=False):
         out = []
         if not self.outline.contains(geom):
             out.append(("edge", None))
@@ -81,7 +86,7 @@ class Geometry:
             tree, items = self._tree(lay)
             for i in tree.query(geom.buffer(8.5)):
                 g, other = items[i]
-                if other == net:
+                if other == net or (via and id(g) in self.via_permeable):
                     continue
                 need = 0.3 if other == "<npth>" else rules21.clearance(net, other)
                 if g.distance(geom) < need + 0.03:
@@ -128,7 +133,7 @@ class Geometry:
                 v = Point(x, y).buffer(size / 2)
                 if within is not None and not within.contains(Point(x, y)):
                     continue
-                if self.conflicts(p["net"], CU, v, limit=1):
+                if self.conflicts(p["net"], CU, v, limit=1, via=True):
                     continue
                 stub = LineString([(cx, cy), (x, y)]).buffer(width / 2)
                 if self.conflicts(p["net"], ("F.Cu",), stub, limit=1):
