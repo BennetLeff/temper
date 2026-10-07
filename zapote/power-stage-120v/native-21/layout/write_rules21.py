@@ -15,7 +15,8 @@ unchanged (same group only when joined by a conductor/low impedance and within
   conservative in practice and recorded here.
 - SW_A / SW_B also hold each high-side bias island (transformer secondary,
   rectifier, split, monitor HOT side) and the high-side F6 nodes.
-- Line zero-cross resistor-string taps are separate groups (like divider taps).
+- Line zero-cross resistor-string taps are separate groups (like divider taps); the AC-input
+  opto's two LED nodes (LED1, LED2) share one group (they differ by one LED drop).
 """
 import importlib.util
 import re
@@ -52,8 +53,11 @@ for n in nets:
                 (n.startswith(f"bias_h{leg}") and not n.endswith("_bad")):
             groups[f"SW_{leg.upper()}"].add(n)
 for n in nets:
-    if n.startswith("line_zc-") and n not in SELV or n in ("led1", "led2", "r1mid", "r2mid"):
+    if n.startswith("line_zc-") and n not in SELV or n in ("r1mid", "r2mid"):
         groups[f"ZC_{n}"] = {n}
+# The VOL628A is an AC-input opto (pins AC1/AC2, f6_parts.ato LineOpto): antiparallel LEDs, so
+# LED1 and LED2 never differ by more than one LED drop (< 1.5 V): one potential group.
+groups["ZC_led"] = {n for n in ("led1", "led2") if n in nets}
 # drop native-20-only nets so the writer's stale check passes; keep groups non-empty
 for g in list(groups):
     groups[g] &= nets

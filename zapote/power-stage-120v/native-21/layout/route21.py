@@ -198,7 +198,7 @@ def link(net, layer, bx, width, pads):
                 track(net, lay, join_w, *path)
                 tree.extend((x, y, lays0.index(lay)) for x, y in path)
             continue
-        for m in (4.0, 10.0, 30.0):
+        for m in (4.0, 10.0, 30.0, None):   # None: the whole corridor box (long detours)
             sub = bx if m is None else (max(bx[0], min(near[0], pts[q][0]) - m), max(bx[1], min(near[1], pts[q][1]) - m),
                                         min(bx[2], max(near[0], pts[q][0]) + m), min(bx[3], max(near[1], pts[q][1]) + m))
             starts = [t for t in tree if sub[0] <= t[0] <= sub[2] and sub[1] <= t[1] <= sub[3]] or [near]

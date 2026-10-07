@@ -88,6 +88,44 @@ and the HV_RET / BUS_P trunk (stacked) from the core's bottom exit to J8/J10 and
 Build: `sh native-21/layout/copper_iter.sh` (placement → board → rules → copper → fill + DRC →
 barrier → plots); `layout/make_todo.py` turns the remaining ratsnest into the next pass's pairs.
 
+### Incremental stage (`layout/incr21.py`, `layout/patches21.py`)
+
+Full rebuilds re-route ~800 connections from scratch and the leftover set moves between runs
+(32 open one build, 43 the next), so the last good build is frozen as `layout/copper_base.json`
+and finished incrementally: `sh native-21/layout/incr_iter.sh copper_base.json DRC.json`
+applies the base, then `patches21.py` (hand fixes: base items removed, explicit copper added),
+then joins only the pairs KiCad still reports open. A bare pad attaches to any copper of its
+net, not only the pad KiCad named. The summary now prints **plane splits** (zone-to-zone
+ratsnest) separately from stray pins.
+
+Fixes made this way (each in `patches21.py` with its reason):
+
+- **HV_RET core plane was cut in four.** The Kelvin pair's In1 wedge ran from R5 (inside the
+  LEG_RET region, which meets the board edge) to the bottom band, and C63's Cgs slot sealed off
+  C41. So leg A's caps and the trunk had no copper path to the shunt. Now the pair leaves R5 on
+  In1 as a dead-end notch to the C40/C38 gap, changes to In2 below the R5 / FET antipad row (also
+  a notch from one edge), and rejoins its In1 band route. C63.2 reaches the LEG_RET via on In2.
+  Earlier builds counted this as ordinary ratsnest.
+- **Trunk bridge.** PS2's N_LS / V24_RAW feeds have to cross the In1 trunk band (F/B there carry
+  the mains lanes). Their In1 L cuts the core plane off the bulk-cap leg (C5/C6), so an HV_RET
+  pour on F and B beside the cut (203.5-226 × 52.5-75) joins both In1 pieces through 1.6 mm vias.
+- **SELV spur.** The In1 HV_RET / In2 BUS_P planes were poured before the spur and cleared only
+  the SELV pads, which pinched the opto's SELV pins shut. The spur plus 8.2 mm is now cut from
+  them and the spur's SELV planes are re-poured.
+- **LINE_ZC string re-folded** (place.py): each LED node sits beside its opto pin, so neither
+  LED net crosses another string node at 3.2 mm.
+- **SELV reference planes kept whole.** The router had put more than 600 mm of SELV signals
+  (V15_SELV, LINE_ZC-RAW, CT_SENSE_MON, BUS_FAULT_ISO, BIAS_*) on In1/In2 along the band. That
+  sliced V3V3 / SELV_GND into strips and cut the isolator pocket columns off. Those nets are now
+  on F/B, and remaining SELV pairs try F/B before the inner layers.
+- **U34 / U2 pockets:** the SELV long runs are re-laid after the pin vias and the short pin-to-pin
+  nets, instead of hugging the pin rows.
+- Status after these: **15 open, 0 DRC errors, 0 plan-view barrier violations, 0 plane splits**
+  (from 32 / 0 / 0 / 3 hidden splits in the frozen base).
+- Router: a final whole-corridor maze pass for long detours, and circumscribed clearance
+  buffers. Polygonal buffers fell 0.04 mm short at the 8 mm barrier, more than the 0.03 mm
+  margin, so found paths failed the exact check.
+
 ## Next stages
 
 2. `prototype-closure/pcb/build_native21.py`: generate the unrouted board from

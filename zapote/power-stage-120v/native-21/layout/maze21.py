@@ -19,6 +19,15 @@ from shapely.prepared import prep
 from shapely.ops import unary_union
 
 STEP = 0.2
+# Polygonal buffers are inscribed in the true offset curve: with 8 segments per quarter circle a
+# corner falls short by r(1 - cos(pi/32)), 0.04 mm at the 8 mm barrier -- more than the 0.03 mm
+# margin. Scaling the radius by 1/cos(pi/32) makes every buffer a circumscribed (safe) one.
+_RES = 8
+_CIRC = 1 / math.cos(math.pi / (4 * _RES))
+
+
+def _grow(g, d):
+    return g.buffer(d * _CIRC, resolution=_RES)
 
 
 def _blocked(geo, net, layer, bx, width):
@@ -33,13 +42,13 @@ def _blocked(geo, net, layer, bx, width):
         if other == net:
             continue
         need = 0.3 if other == "<npth>" else rules21.clearance(net, other)
-        shapes.append(g.buffer(need + width / 2 + 0.03, resolution=8))
+        shapes.append(_grow(g, need + width / 2 + 0.03))
     shapes.append(geo.outline.exterior.buffer(width / 2 - 0.005))
     ptree, pitems = geo._tree("PLAN")
     for i in ptree.query(_box(x0 - 9, y0 - 9, x1 + 9, y1 + 9)):
         g, other = pitems[i]
         if other != net and other != "<npth>" and rules21.barrier(net, other):
-            shapes.append(g.buffer(rules21.BARRIER + width / 2 + 0.03, resolution=8))
+            shapes.append(_grow(g, rules21.BARRIER + width / 2 + 0.03))
     import numpy as np
     import shapely
     xs, ys = np.meshgrid(x0 + np.arange(nx) * STEP, y0 + np.arange(ny) * STEP)
@@ -128,7 +137,7 @@ def _via_ok(geo, net, bx, size):
             if other == net or id(g) in geo.via_permeable:
                 continue
             need = 0.3 if other == "<npth>" else rules21.clearance(net, other)
-            shapes.append(g.buffer(need + size / 2 + 0.03, resolution=8))
+            shapes.append(_grow(g, need + size / 2 + 0.03))
         if shapes:
             bad = unary_union(shapes)
             shapely.prepare(bad)
@@ -138,7 +147,7 @@ def _via_ok(geo, net, bx, size):
     for i in ptree.query(_box(x0 - 9, y0 - 9, x1 + 9, y1 + 9)):
         g, other = pitems[i]
         if other != net and other != "<npth>" and rules21.barrier(net, other):
-            pshapes.append(g.buffer(rules21.BARRIER + size / 2 + 0.03, resolution=8))
+            pshapes.append(_grow(g, rules21.BARRIER + size / 2 + 0.03))
     if pshapes:
         bad = unary_union(pshapes)
         shapely.prepare(bad)

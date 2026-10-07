@@ -188,8 +188,13 @@ put("c_bus2", 267.0, 84.0)
 put("tvs_bus", 264.0, 106.0)
 put("ps_selv", 233.0, 126.0, 180)               # SELV pins left (x 210.8), mains pins right
 put("line_zc.opto", 220.0, 95.0, 180)
-for i, n in enumerate(("line_zc.r1", "line_zc.r2", "line_zc.r3", "line_zc.r4")):
-    put(n, 233.0 + (i % 2) * 8.5, 95.5 + (i // 2) * 6.0, 0)
+# String L_FILT-r1-r2-LED-r3-r4-N_FILT folded so each LED node lands beside its opto pin: the
+# LED2 half (r3, r4) on the upper row by U36.2, the LED1 half (r2, r1) on the lower row by U36.1;
+# L_FILT enters r1 from below (PS1 feed), N_FILT enters r4 from above.
+put("line_zc.r1", 241.5, 101.5, 180)
+put("line_zc.r2", 233.0, 101.5, 180)
+put("line_zc.r3", 233.0, 95.5, 0)
+put("line_zc.r4", 241.5, 95.5, 0)
 # LS bias, SN6507 and LS monitor (N_LS / LEG_RET domain) beside PS2
 pack(group("bias_ls", "monitor_ls", "bias_driver", "bias_rclk", "bias_rlim", "bias_css", "bias_rsr",
            "bias_cin", "bias_chf", "bias_rsn1", "bias_rsn2", "bias_csn1", "bias_csn2",

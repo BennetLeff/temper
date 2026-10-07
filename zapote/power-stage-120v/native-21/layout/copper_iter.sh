@@ -20,9 +20,14 @@ python3 native-21/layout/plot_copper.py "$OUT/copper-dump.json" "$OUT/copper.png
 head -1 "$OUT/barrier.txt"
 python3 native-21/layout/unrouted.py "$OUT/drc.json" "$OUT/unrouted.json"
 python3 - "$OUT/drc.json" <<'PY'
-import json, sys, collections
+import json, sys, collections, re
 d = json.load(open(sys.argv[1]))
 c = collections.Counter((v["type"], v["severity"]) for v in d["violations"])
 print("violations", sorted(c.items(), key=lambda kv: -kv[1]))
-print("unconnected", len(d.get("unconnected_items", [])))
+un = d.get("unconnected_items", [])
+print("unconnected", len(un))
+# a pour split into pieces shows up as zone-to-zone ratsnest: name it, it is a plane cut, not a stray pin
+splits = collections.Counter(re.search(r"\[([^\]]*)\] on (\S+)", v["items"][0]["description"]).groups()
+                             for v in un if all(i["description"].startswith("Zone") for i in v["items"]))
+print("plane splits", dict(splits) or 0)
 PY
