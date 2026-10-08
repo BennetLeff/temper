@@ -73,6 +73,10 @@ fn parse_violation(
     if raw.kind.is_empty() || raw.description.is_empty() {
         return Err(format!("{category}: violation without type or description"));
     }
+    // KiCad's report severities; anything else is a schema change to review.
+    if !["error", "warning", "exclusion", "info"].contains(&raw.severity.as_str()) {
+        return Err(format!("{category}: unknown violation severity {:?}", raw.severity));
+    }
     if raw.items.iter().any(|i| !i.pos.x.is_finite() || !i.pos.y.is_finite()) {
         return Err(format!("{category}: violation item without a finite position"));
     }

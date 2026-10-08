@@ -48,3 +48,13 @@ fn a_quote_must_contain_the_number_it_backs() {
     let err = parse_profile(&v.to_string()).unwrap_err();
     assert!(err.contains("minimum_annular_ring_mm"), "{err}");
 }
+
+#[test]
+fn conditional_figures_in_parentheses_do_not_back_a_limit() {
+    // JLC: "Min. Via hole size/diameter: 0.15/0.25mm (0.1mm/0.2mm only available
+    // for board thickness <=1mm ...)". 0.1 is a conditional exception, not the rule.
+    let mut v: serde_json::Value = serde_json::from_str(TWO_LAYER_2OZ).unwrap();
+    v["limits"]["minimum_via_drill_mm"] = serde_json::json!(0.1);
+    let err = parse_profile(&v.to_string()).unwrap_err();
+    assert!(err.contains("minimum_via_drill_mm"), "{err}");
+}
