@@ -29,6 +29,7 @@ fn resolve_manifest_paths(manifest: &mut Manifest, base: &Path) {
             .into_iter()
             .chain(s.contract.iter_mut())
             .chain(s.composite.iter_mut())
+            .chain(s.fab_profile.iter_mut())
         {
             *p = base.join(&*p);
         }
@@ -143,6 +144,7 @@ mod tests {
                 schematic: "section.kicad_sch".into(),
                 contract: Some("contract.json".into()),
                 composite: Some("composite.json".into()),
+                fab_profile: Some("../fab-profiles/p.json".into()),
             }],
         };
         resolve_manifest_paths(&mut manifest, Path::new("/run"));
@@ -153,5 +155,6 @@ mod tests {
         assert_eq!(u.schematic, Path::new("/run/section.kicad_sch"));
         assert_eq!(u.contract.as_deref(), Some(Path::new("/run/contract.json")));
         assert_eq!(u.composite.as_deref(), Some(Path::new("/run/composite.json")));
+        assert_eq!(u.fab_profile.as_deref(), Some(Path::new("/run/../fab-profiles/p.json")));
     }
 }

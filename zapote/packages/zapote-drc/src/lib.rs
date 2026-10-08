@@ -1966,6 +1966,7 @@ mod tests {
     }
 }
 
+pub mod fab_profile;
 pub mod manufacturing;
 
 pub mod power_integrity;

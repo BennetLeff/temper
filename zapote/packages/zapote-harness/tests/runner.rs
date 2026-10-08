@@ -11,11 +11,24 @@ fn manifest() -> Manifest {
             .into_iter()
             .chain(s.contract.iter_mut())
             .chain(s.composite.iter_mut())
+            .chain(s.fab_profile.iter_mut())
         {
             *p = base.join(&*p);
         }
     }
     m
+}
+
+#[test]
+fn every_maintained_unit_names_a_loadable_fab_profile() {
+    for spec in manifest().units {
+        let path = spec
+            .fab_profile
+            .as_ref()
+            .unwrap_or_else(|| panic!("{} has no fab_profile", spec.unit.name()));
+        let limits = zapote_drc::fab_profile::load_profile(path).unwrap();
+        assert!(limits.qualified && limits.minimum_track_width_mm.is_some(), "{}", spec.unit.name());
+    }
 }
 
 #[test]

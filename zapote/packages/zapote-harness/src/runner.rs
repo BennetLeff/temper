@@ -43,6 +43,11 @@ pub struct UnitRunSpec {
     pub schematic: PathBuf,
     pub contract: Option<PathBuf>,
     pub composite: Option<PathBuf>,
+    /// Vendor fabrication profile (zapote/fab-profiles) whose limits the P2
+    /// manufacturing rules apply. Without one, limits stay empty and the
+    /// manufacturing report records that gap.
+    #[serde(default)]
+    pub fab_profile: Option<PathBuf>,
 }
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
@@ -389,7 +394,18 @@ fn manufacturing_run(
         .map_err(|e| e.to_string())?;
     fs::write(out.join("manufacturing.stdout"), &child.stdout).map_err(|e| e.to_string())?;
     fs::write(out.join("manufacturing.stderr"), &child.stderr).map_err(|e| e.to_string())?;
-    fs::write(out.join("manufacturing-command.json"), serde_json::to_vec_pretty(&serde_json::json!({"python":python,"argv":argv,"returncode":child.status.code(),"extractor_sha256":extractor_hash})).map_err(|e| e.to_string())?).map_err(|e| e.to_string())?;
+    let profile = match &spec.fab_profile {
+        Some(path) => Some((
+            path.clone(),
+            hash_file(path)?,
+            zapote_drc::fab_profile::load_profile(path)?,
+        )),
+        None => None,
+    };
+    let profile_receipt = profile
+        .as_ref()
+        .map(|(path, hash, limits)| serde_json::json!({"path": path, "sha256": hash, "name": limits.name}));
+    fs::write(out.join("manufacturing-command.json"), serde_json::to_vec_pretty(&serde_json::json!({"python":python,"argv":argv,"returncode":child.status.code(),"extractor_sha256":extractor_hash,"fab_profile":profile_receipt})).map_err(|e| e.to_string())?).map_err(|e| e.to_string())?;
     if !child.status.success() {
         return Err("manufacturing native extraction failed; see captured stderr".into());
     }
@@ -421,7 +437,14 @@ fn manufacturing_run(
             ));
         }
     }
-    let input = serde_json::from_value(receipt["input"].clone()).map_err(|e| e.to_string())?;
+    let mut input: zapote_drc::manufacturing::ManufacturingInput =
+        serde_json::from_value(receipt["input"].clone()).map_err(|e| e.to_string())?;
+    if let Some((path, hash, limits)) = profile {
+        if hash_file(&path)? != hash {
+            return Err("fab profile changed during the manufacturing run".into());
+        }
+        input.limits = limits;
+    }
     let (report, population) = zapote_drc::manufacturing::validate_with_population(&input);
     Ok((report, digest(&bytes), population))
 }
