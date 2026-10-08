@@ -19,6 +19,9 @@ pub struct NativeViolation {
     /// ERC sheet path; `None` for board reports.
     pub sheet: Option<String>,
     pub items: Vec<NativeItem>,
+    /// Marked excluded in KiCad by the designer, with their comment.
+    pub excluded: bool,
+    pub comment: Option<String>,
 }
 
 #[derive(Clone, Debug, Serialize)]
@@ -37,6 +40,11 @@ struct RawViolation {
     severity: String,
     description: String,
     items: Vec<RawItem>,
+    // KiCad 10 writes these only for designer exclusions.
+    #[serde(default)]
+    excluded: Option<bool>,
+    #[serde(default)]
+    comment: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -74,6 +82,8 @@ fn parse_violation(
         severity: raw.severity,
         description: raw.description,
         sheet: sheet.map(str::to_owned),
+        excluded: raw.excluded.unwrap_or(false),
+        comment: raw.comment.filter(|c| !c.is_empty()),
         items: raw
             .items
             .into_iter()
@@ -114,23 +124,46 @@ fn collect(e: &Erc, d: &Drc) -> Result<Vec<NativeViolation>, String> {
     Ok(all)
 }
 
-/// KiCad states limits as `(<constraint> <value> mm; actual <value> mm)`.
+/// KiCad states limits as `(<constraint> <v> <unit>; actual <v> <unit>)`.
+/// Uses the first parenthesised clause that contains "; actual " and its
+/// first measurement, so nested `(from ...)` and later clauses (skew/length
+/// rules) cannot relabel the values. `actual < 0` (copper collision) is kept.
 fn actual_required(description: &str) -> (Option<String>, Option<String>) {
-    let Some(open) = description.rfind('(') else {
+    let clause = description.match_indices('(').find_map(|(open, _)| {
+        let rest = &description[open + 1..];
+        let mut depth = 0usize;
+        let close = rest.char_indices().find_map(|(i, c)| match c {
+            '(' => {
+                depth += 1;
+                None
+            }
+            ')' if depth == 0 => Some(i),
+            ')' => {
+                depth -= 1;
+                None
+            }
+            _ => None,
+        })?;
+        let inner = &rest[..close];
+        inner.contains("; actual ").then_some(inner)
+    });
+    let Some(inner) = clause else {
         return (None, None);
     };
-    let inner = description[open + 1..].trim_end_matches(')').trim();
-    let Some((constraint, actual)) = inner.split_once("; actual ") else {
-        return (None, None);
+    let (constraint, after) = inner.split_once("; actual ").unwrap();
+    let actual_text = after.split(';').next().unwrap_or("").trim();
+    let measurement = |text: &str| -> Option<String> {
+        let words: Vec<&str> = text.split_whitespace().collect();
+        let (n, unit) = (words.len().checked_sub(2)?, words.last()?);
+        words[n].parse::<f64>().ok()?;
+        Some(format!("{} {unit}", words[n]))
     };
-    let value = |text: &str| {
-        let mut words = text.split_whitespace().rev();
-        let unit = words.next()?;
-        let number = words.next()?;
-        number.parse::<f64>().ok()?;
-        Some(format!("{number} {unit}"))
+    let actual = if actual_text == "< 0" {
+        Some("< 0 mm".to_string())
+    } else {
+        measurement(actual_text)
     };
-    (value(actual.trim()), value(constraint.trim()))
+    (actual, measurement(constraint.trim()))
 }
 
 fn violation_finding(v: &NativeViolation) -> Finding {
@@ -153,11 +186,16 @@ fn violation_finding(v: &NativeViolation) -> Finding {
         None => object,
     };
     let (actual, required) = actual_required(&v.description);
-    let mut f = Finding::fail(
-        &format!("NATIVE.{}.{}", v.category, v.kind),
-        v.description.clone(),
-        object,
-    );
+    let message = if v.excluded {
+        format!(
+            "{} (excluded by designer: {})",
+            v.description,
+            v.comment.as_deref().unwrap_or("no comment")
+        )
+    } else {
+        v.description.clone()
+    };
+    let mut f = Finding::fail(&format!("NATIVE.{}.{}", v.category, v.kind), message, object);
     f.severity = v.severity.clone();
     f.actual = actual;
     f.required = required;

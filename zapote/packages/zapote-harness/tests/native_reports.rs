@@ -229,3 +229,34 @@ fn every_retained_kicad_report_parses_per_violation() {
     assert!(reports >= 191, "only {reports} retained reports found");
     assert!(total >= 6792, "only {total} violations parsed");
 }
+
+#[test]
+fn designer_exclusions_are_kept_with_their_comment() {
+    let mut real = v(RELEASE_PREP_DRC)["violations"][0].clone();
+    real["excluded"] = json!(true);
+    real["comment"] = json!("accepted: test pad");
+    let mut d = v(DRC);
+    d["violations"] = json!([real]);
+    let r = report(ERC, &d.to_string());
+    assert!(!r.findings.iter().any(|f| f.rule == "NATIVE.REPORT_CONTRACT"), "{:#?}", r.findings);
+    let f = r.findings.iter().find(|f| f.rule == "NATIVE.DRC.clearance").expect("kept");
+    assert!(f.message.contains("excluded") && f.message.contains("accepted: test pad"), "{}", f.message);
+}
+
+#[test]
+fn actual_required_reads_the_measured_clause_not_a_nested_one() {
+    let mut d = v(DRC);
+    d["violations"] = json!([
+        {"description": "Skew between traces out of range (max skew 0.1000 mm; actual 0.2500 mm; target net length 10.0000 mm (from 9.0000 mm); actual 12.0000 mm)",
+         "items": [], "severity": "error", "type": "skew_out_of_range"},
+        {"description": "Clearance violation (netclass 'HV' clearance 3.0000 mm; actual < 0)",
+         "items": [], "severity": "error", "type": "clearance"}
+    ]);
+    let r = report(ERC, &d.to_string());
+    let skew = r.findings.iter().find(|f| f.rule == "NATIVE.DRC.skew_out_of_range").unwrap();
+    assert_eq!(skew.required.as_deref(), Some("0.1000 mm"));
+    assert_eq!(skew.actual.as_deref(), Some("0.2500 mm"));
+    let collision = r.findings.iter().find(|f| f.rule == "NATIVE.DRC.clearance").unwrap();
+    assert_eq!(collision.required.as_deref(), Some("3.0000 mm"));
+    assert_eq!(collision.actual.as_deref(), Some("< 0 mm"));
+}
