@@ -2,7 +2,8 @@
 
 A tracked file under zapote/ is bulk when it ends in .gz or .npz, or exceeds
 5 MB. Rust workspace inputs under zapote/packages/ (e.g. include_bytes!
-fixtures) are exempt from the suffix rule but not the size cap. Bulk lives in GitHub release assets (plain tar parts); the manifest
+fixtures) are exempt from the suffix rule but not the size cap. Bulk lives in
+GitHub release assets (plain tar parts); the manifest
 zapote/evidence-archive.json records each file's path, size, sha256 and the
 asset that holds it. `check` is the CI gate that keeps bulk from returning.
 """
@@ -89,19 +90,53 @@ def _asset_release(manifest: dict, asset: dict) -> str:
     return asset.get("release", manifest.get("release"))
 
 
-def extract(manifest: dict, asset_dir: Path, dest: Path) -> None:
-    wanted = {f["path"]: f for f in manifest["files"]}
-    for asset in manifest["assets"]:
-        part = asset_dir / asset["name"]
-        if sha256_file(part) != asset["sha256"]:
-            raise ValueError(f"{part}: sha256 does not match manifest")
-        with tarfile.open(part) as tar:
-            members = [m for m in tar.getmembers() if m.isfile() and m.name in wanted]
-            tar.extractall(dest, members=members)
-    bad = [p for p, f in wanted.items()
-           if not (dest / p).is_file() or sha256_file(dest / p) != f["sha256"]]
+def extract_part(manifest: dict, asset: dict, part: Path, dest: Path) -> None:
+    """Verify one asset and extract only the manifest's members from it."""
+    if sha256_file(part) != asset["sha256"]:
+        raise ValueError(f"{part}: sha256 does not match manifest")
+    wanted = {f["path"] for f in manifest["files"]}
+    # The "data" filter (3.12+, backported to 3.9.17+) also rejects links and
+    # absolute names; older interpreters rely on the exact-name membership test.
+    safety = {"filter": "data"} if hasattr(tarfile, "data_filter") else {}
+    with tarfile.open(part) as tar:
+        members = [m for m in tar.getmembers() if m.isfile() and m.name in wanted]
+        tar.extractall(dest, members=members, **safety)
+
+
+def verify_restored(manifest: dict, dest: Path) -> None:
+    bad = [f["path"] for f in manifest["files"]
+           if not (dest / f["path"]).is_file() or sha256_file(dest / f["path"]) != f["sha256"]]
     if bad:
         raise ValueError(f"{len(bad)} restored files missing or wrong, first: {bad[0]}")
+
+
+def extract(manifest: dict, asset_dir: Path, dest: Path) -> None:
+    for asset in manifest["assets"]:
+        extract_part(manifest, asset, asset_dir / asset["name"], dest)
+    verify_restored(manifest, dest)
+
+
+def gh_download(release: str, name: str, into: Path) -> Path:
+    subprocess.run(["gh", "release", "download", release, "-p", name, "-D", str(into)], check=True)
+    return into / name
+
+
+def fetch(manifest: dict, dest: Path, asset_dir: Path | None = None, download=gh_download) -> None:
+    """Restore every archived file. Parts already in `asset_dir` are reused;
+    the rest are downloaded one at a time and deleted after extraction, so
+    peak temporary disk is one part (<= 1.5 GB), not the whole archive."""
+    with tempfile.TemporaryDirectory() as tmp:
+        for asset in manifest["assets"]:
+            local = asset_dir / asset["name"] if asset_dir else None
+            if local is not None and local.is_file():
+                extract_part(manifest, asset, local, dest)
+                continue
+            part = download(_asset_release(manifest, asset), asset["name"], Path(tmp))
+            try:
+                extract_part(manifest, asset, part, dest)
+            finally:
+                part.unlink(missing_ok=True)
+    verify_restored(manifest, dest)
 
 
 def check(repo: Path, max_bytes: int = MAX_TRACKED_BYTES) -> list[str]:
@@ -112,8 +147,12 @@ def check(repo: Path, max_bytes: int = MAX_TRACKED_BYTES) -> list[str]:
 def gitignore_block(manifest: dict, base: str = "zapote/") -> str:
     explicit = sorted("/" + f["path"][len(base):] for f in manifest["files"]
                       if f["path"].startswith(base) and not f["path"].endswith(BULK_SUFFIXES))
+    # Inside the workspace the suffix rule does not apply, so a nested
+    # .gitignore there gets only explicit paths (its globs would re-ignore
+    # include_bytes! fixtures that zapote/.gitignore re-includes).
+    suffixes = [] if base.startswith(WORKSPACE) else [f"*{s}" for s in BULK_SUFFIXES]
     exempt = [f"!/{WORKSPACE[len(base):]}**/*{s}" for s in BULK_SUFFIXES] if WORKSPACE.startswith(base) else []
-    return "\n".join([GITIGNORE_BEGIN, *(f"*{s}" for s in BULK_SUFFIXES), *exempt, *explicit, GITIGNORE_END]) + "\n"
+    return "\n".join([GITIGNORE_BEGIN, *suffixes, *exempt, *explicit, GITIGNORE_END]) + "\n"
 
 
 def apply_gitignores(repo: Path, manifest: dict) -> list[Path]:
@@ -126,10 +165,16 @@ def apply_gitignores(repo: Path, manifest: dict) -> list[Path]:
     written = []
     for ignore in [repo / "zapote/.gitignore", *nested]:
         text = ignore.read_text() if ignore.exists() else ""
-        if GITIGNORE_BEGIN in text:
-            text = text[: text.index(GITIGNORE_BEGIN)]
         base = str(ignore.parent.relative_to(repo)) + "/"
-        ignore.write_text(text.rstrip("\n") + "\n" + gitignore_block(manifest, base))
+        block = gitignore_block(manifest, base)
+        if GITIGNORE_BEGIN in text and GITIGNORE_END in text:
+            start = text.index(GITIGNORE_BEGIN)
+            end = text.index(GITIGNORE_END) + len(GITIGNORE_END)
+            after = text[end:].lstrip("\n")
+            text = text[:start] + block + after
+        else:
+            text = text.rstrip("\n") + "\n" + block
+        ignore.write_text(text)
         written.append(ignore)
     return written
 
@@ -147,6 +192,7 @@ def main() -> int:
     p_pack.add_argument("--release", required=True)
     p_fetch = sub.add_parser("fetch")
     p_fetch.add_argument("--dest", type=Path)
+    p_fetch.add_argument("--asset-dir", type=Path, help="reuse already-downloaded parts from this directory")
     sub.add_parser("check")
     args = parser.parse_args()
     repo = _repo_root()
@@ -163,11 +209,7 @@ def main() -> int:
         print(f"{len(manifest['files'])} files in {len(manifest['assets'])} assets -> {args.out}")
         return 0
     manifest = json.loads((repo / MANIFEST).read_text())
-    with tempfile.TemporaryDirectory() as tmp:
-        for asset in manifest["assets"]:
-            subprocess.run(["gh", "release", "download", _asset_release(manifest, asset), "-p", asset["name"], "-D", tmp],
-                           check=True)
-        extract(manifest, Path(tmp), args.dest or repo)
+    fetch(manifest, args.dest or repo, asset_dir=args.asset_dir)
     print(f"restored {len(manifest['files'])} files")
     return 0
 
