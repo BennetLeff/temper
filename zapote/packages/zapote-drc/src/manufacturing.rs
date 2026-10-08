@@ -72,6 +72,9 @@ pub struct DrillHole {
     pub polygon: Option<Polygon>,
     #[serde(default)]
     pub kind: Option<HoleKind>,
+    /// Native drill size (x, y); differs from `diameter_mm` for slots.
+    #[serde(default)]
+    pub size_mm: Option<[f64; 2]>,
 }
 
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
@@ -536,8 +539,13 @@ fn fab_house_rules(
                 HoleKind::Pth => (limits.minimum_pth_drill_mm, limits.maximum_pth_drill_mm, "plated hole"),
                 HoleKind::Npth => (limits.minimum_npth_drill_mm, None, "non-plated hole"),
             };
-            let d = hole.diameter_mm;
-            if let Some(min) = min.filter(|m| d < *m) {
+            // Slots: the narrow side meets minimums, the long side maximums.
+            let (narrow, long) = match hole.size_mm {
+                Some([x, y]) => (x.min(y), x.max(y)),
+                None => (hole.diameter_mm, hole.diameter_mm),
+            };
+            if let Some(min) = min.filter(|m| narrow < *m) {
+                let d = narrow;
                 findings.push(finding(
                     DRILL_SIZE,
                     format!("{what} drill is smaller than the fabrication limit"),
@@ -545,7 +553,8 @@ fn fab_house_rules(
                     format!("{d:.3} mm"),
                     format!(">= {min:.3} mm"),
                 ));
-            } else if let Some(max) = max.filter(|m| d > *m) {
+            } else if let Some(max) = max.filter(|m| long > *m) {
+                let d = long;
                 findings.push(finding(
                     DRILL_SIZE,
                     format!("{what} drill is larger than the fabrication limit"),
@@ -772,6 +781,7 @@ mod tests {
                 diameter_mm: 0.5,
                 polygon: None,
                 kind: None,
+                size_mm: None,
             }],
             copper: vec![CopperPolygon {
                 id: "T1".into(),
@@ -832,6 +842,7 @@ mod tests {
             diameter_mm: 0.5,
             polygon: Some(rect(8., 8., 0.5, 0.5)),
             kind: None,
+            size_mm: None,
         });
         i.pads[0].drill_center_mm = None;
         let (_, p) = validate_with_population(&i);
@@ -885,6 +896,7 @@ mod tests {
             diameter_mm: 0.5,
             polygon: None,
             kind: None,
+            size_mm: None,
         });
         assert!(validate(&i).findings.iter().any(|f| f.rule == DRILL));
     }
@@ -958,6 +970,7 @@ mod tests {
             diameter_mm: 0.2,
             polygon: Some(rect(8.5, 6., 3., 0.5)),
             kind: None,
+            size_mm: None,
         });
         assert!(validate(&i)
             .findings

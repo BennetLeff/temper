@@ -202,3 +202,15 @@ fn many_holes_complete_quickly() {
     assert!(started.elapsed() < std::time::Duration::from_secs(10), "took {:?}", started.elapsed());
     assert!(r.checked_rules.iter().any(|c| c == "DRC.P2.DRILL_CONFLICT"));
 }
+
+#[test]
+fn slots_are_judged_by_their_narrow_and_long_dimensions() {
+    let mut v = base();
+    // A 0.4 x 2.0 mm NPTH slot reported with diameter 2.0 (pcbnew drill x).
+    v["holes"].as_array_mut().unwrap().push(json!({"id": "SLOT1", "center_mm": [18., 18.], "diameter_mm": 2.0, "size_mm": [2.0, 0.4], "kind": "Npth"}));
+    // A 1.0 x 7.0 mm PTH slot exceeds the 6.3 mm maximum on its long side.
+    v["holes"].as_array_mut().unwrap().push(json!({"id": "SLOT2", "center_mm": [2., 18.], "diameter_mm": 1.0, "size_mm": [1.0, 7.0], "kind": "Pth"}));
+    let r = run(&v);
+    let objects: Vec<_> = failing(&r, "DRC.P2.DRILL_SIZE").iter().map(|f| f.object.clone()).collect();
+    assert_eq!(objects, ["SLOT1", "SLOT2"]);
+}

@@ -90,6 +90,8 @@ class NativeExtraction(unittest.TestCase):
             self.assertTrue(all(p["kind"] == "Pth" for p in geometry["pads"] if p["id"].startswith("J1.1")))
             self.assertTrue(all(p["kind"] == "Via" for p in geometry["pads"] if p["id"].startswith(via.m_Uuid.AsString())))
             self.assertEqual(geometry["tracks"], [{"id": track.m_Uuid.AsString(), "layer": "F.Cu", "width_mm": 0.2}])
+            slot_size = next(h for h in geometry["holes"] if h["id"].startswith("J1.1"))["size_mm"]
+            self.assertEqual([round(v, 6) for v in slot_size], [2.0, 0.8])
             self.assertEqual(geometry["limits"]["name"], "")  # profiles are applied by Rust callers
 
 

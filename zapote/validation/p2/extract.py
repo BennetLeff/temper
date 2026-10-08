@@ -103,7 +103,8 @@ def extract(path: Path) -> dict[str, Any]:
             # Vendors limit component holes and non-plated holes separately.
             kind = {pcbnew.PAD_ATTRIB_PTH: "Pth", pcbnew.PAD_ATTRIB_NPTH: "Npth"}.get(pad.GetAttribute())
             if drill:
-                holes.append({"id": uid, "center_mm": [pcbnew.ToMM(pos.x), pcbnew.ToMM(pos.y)], "diameter_mm": pcbnew.ToMM(pad.GetDrillSize().x), "polygon": drill, "kind": kind})
+                holes.append({"id": uid, "center_mm": [pcbnew.ToMM(pos.x), pcbnew.ToMM(pos.y)], "diameter_mm": pcbnew.ToMM(pad.GetDrillSize().x), "polygon": drill, "kind": kind,
+                              "size_mm": [pcbnew.ToMM(pad.GetDrillSize().x), pcbnew.ToMM(pad.GetDrillSize().y)]})
             for layer in enabled:
                 if not pad.IsOnLayer(layer):
                     continue
