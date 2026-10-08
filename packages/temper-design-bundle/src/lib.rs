@@ -181,7 +181,7 @@ mod schema_validator;
 
 #[cfg(feature = "python")]
 mod validation;
-mod atopile;
+pub(crate) mod atopile;
 pub(crate) mod constraint_merge;
 mod error;
 pub(crate) mod identity;
@@ -328,6 +328,52 @@ mod python {
         sha256(bytes)
     }
 
+    /// Strict P1 U2 bridge: explicit `temper.circuit-export.v1` to
+    /// bundle-shaped conversion (`crate::atopile::convert_circuit_export`).
+    /// Returns the converted candidate as JSON. Raises `ValueError` naming
+    /// the failing code on any missing field, conflicting join, unmatched
+    /// instance, or tool/entry mismatch -- never a partial result.
+    #[pyfunction]
+    #[pyo3(signature = (export_json, netlist_json, bom_json, expected_entry))]
+    fn candidate_convert_bridge(
+        export_json: &str,
+        netlist_json: &str,
+        bom_json: &str,
+        expected_entry: &str,
+    ) -> PyResult<String> {
+        crate::atopile::convert_circuit_export(export_json, netlist_json, bom_json, expected_entry)
+            .map(|out| serde_json::to_string(&out).unwrap_or_else(|_| "{}".to_string()))
+            .map_err(value_error)
+    }
+
+    /// Strict P1 U2 pin map validation
+    /// (`crate::identity::validate_strict_pin_map`). Each argument is JSON:
+    /// the explicit reviewed map, `{reference: [pads]}` from resolved
+    /// library bytes, `{reference: [pins]}` from the compiled netlist, and
+    /// `[[reference, pad]]` explicit unconnected pairs. Raises `ValueError`
+    /// on any positional fallback, omission, extra, alias, or open.
+    #[pyfunction]
+    #[pyo3(signature = (map_json, footprint_pads_json, netlist_pins_json, unconnected_json))]
+    fn candidate_validate_pin_map(
+        map_json: &str,
+        footprint_pads_json: &str,
+        netlist_pins_json: &str,
+        unconnected_json: &str,
+    ) -> PyResult<()> {
+        let entries: Vec<crate::identity::StrictPinMapEntry> =
+            serde_json::from_str(map_json).map_err(value_error)?;
+        let pads: std::collections::HashMap<String, Vec<String>> =
+            serde_json::from_str(footprint_pads_json).map_err(value_error)?;
+        let pins: std::collections::HashMap<String, Vec<String>> =
+            serde_json::from_str(netlist_pins_json).map_err(value_error)?;
+        let unconnected_list: Vec<(String, String)> =
+            serde_json::from_str(unconnected_json).map_err(value_error)?;
+        let unconnected: std::collections::HashSet<(String, String)> =
+            unconnected_list.into_iter().collect();
+        crate::identity::validate_strict_pin_map(&entries, &pads, &pins, &unconnected)
+            .map_err(value_error)
+    }
+
     /// Fail-closed board/netlist identity preflight. Raises `ValueError` on
     /// any mismatch or role violation -- never returns a warning or a bool,
     /// per the identity-provenance plan's hard-fail requirement. Callers
@@ -360,6 +406,8 @@ mod python {
     fn temper_design_bundle_python(module: &Bound<'_, PyModule>) -> PyResult<()> {
         module.add_function(wrap_pyfunction!(preflight_identity, module)?)?;
         module.add_function(wrap_pyfunction!(sha256_hex, module)?)?;
+        module.add_function(wrap_pyfunction!(candidate_convert_bridge, module)?)?;
+        module.add_function(wrap_pyfunction!(candidate_validate_pin_map, module)?)?;
 
         // Wave 4 Phase 3 (formats/IO): _write_board.py's numeric kernels
         // (see write_board_geometry.rs).

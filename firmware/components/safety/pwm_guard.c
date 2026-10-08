@@ -15,8 +15,11 @@ static struct {
     hal_timer_t timer_channel;
     uint32_t last_capture_timestamp;
     volatile uint32_t measured_freq_hz;
-    uint32_t config_crc;
+    uint32_t expected_frequency_hz;
+    uint32_t expected_dead_time_ticks;
+    uint32_t expected_resolution_hz;
     bool initialized;
+    bool self_test_passed;
 } s_pwm_guard;
 
 // Forward decl
@@ -67,9 +70,19 @@ pwm_guard_status_t pwm_guard_validate_frequency(uint32_t freq_hz) {
     return PWM_GUARD_OK;
 }
 
+static bool programmed_timing_valid(const hal_pwm_state_t *state) {
+    return state->configured && state->complementary &&
+        state->timer_resolution_hz == HAL_PWM_TIMER_RESOLUTION_HZ &&
+        (uint64_t)state->dead_time_ticks * 1000000000ULL >=
+            (uint64_t)PWM_GUARD_MIN_DEADTIME_NS * state->timer_resolution_hz &&
+        (uint64_t)state->dead_time_ticks * 1000000000ULL <=
+            (uint64_t)PWM_GUARD_MAX_DEADTIME_NS * state->timer_resolution_hz;
+}
+
 pwm_guard_status_t pwm_guard_self_test(void) {
+    s_pwm_guard.self_test_passed = false;
     if (!s_pwm_guard.initialized) return PWM_GUARD_ERR_NULL;
-    if (!hal_pwm) return PWM_GUARD_ERR_NULL;
+    if (!hal_pwm || !hal_pwm->get_state) return PWM_GUARD_ERR_NULL;
     
     hal_pwm_state_t state;
     if (hal_pwm->get_state(s_pwm_guard.pwm_channel, &state) != HAL_OK) {
@@ -90,19 +103,21 @@ pwm_guard_status_t pwm_guard_self_test(void) {
         return PWM_GUARD_ERR_MISMATCH;
     }
     
-    // 3. Check Dead-time
-    if (state.dead_time_ns < PWM_GUARD_MIN_DEADTIME_NS || 
-        state.dead_time_ns > PWM_GUARD_MAX_DEADTIME_NS) {
+    // Validate successful programming and exact ticks, never requested ns.
+    if (!programmed_timing_valid(&state)) {
         return PWM_GUARD_ERR_DEADTIME;
     }
-    
-    // Store simple "CRC" (checksum) of config for integrity check
-    s_pwm_guard.config_crc = state.frequency_hz ^ state.dead_time_ns;
-    
+    s_pwm_guard.expected_frequency_hz = state.frequency_hz;
+    s_pwm_guard.expected_dead_time_ticks = state.dead_time_ticks;
+    s_pwm_guard.expected_resolution_hz = state.timer_resolution_hz;
+    s_pwm_guard.self_test_passed = true;
+
     return PWM_GUARD_OK;
 }
 
 pwm_guard_status_t pwm_guard_check_integrity(void) {
+    if (!s_pwm_guard.self_test_passed) return PWM_GUARD_ERR_NULL;
+    if (!hal_pwm || !hal_pwm->get_state) return PWM_GUARD_ERR_NULL;
     if (!s_pwm_guard.initialized) return PWM_GUARD_ERR_NULL;
     
     // 1. Check Runtime Frequency (measured via timer)
@@ -123,14 +138,17 @@ pwm_guard_status_t pwm_guard_check_integrity(void) {
         }
     }
     
-    // 2. Check Register Integrity
-    // Read back config and compare to stored checksum
+    // Compare each successful-API field; not peripheral register readback.
     if (hal_pwm) {
         hal_pwm_state_t state;
-        hal_pwm->get_state(s_pwm_guard.pwm_channel, &state);
+        if (!hal_pwm->get_state || hal_pwm->get_state(s_pwm_guard.pwm_channel, &state) != HAL_OK)
+            return PWM_GUARD_ERR_NULL;
+        if (!programmed_timing_valid(&state))
+            return PWM_GUARD_ERR_DEADTIME;
         
-        uint32_t current_crc = state.frequency_hz ^ state.dead_time_ns;
-        if (current_crc != s_pwm_guard.config_crc) {
+        if (state.frequency_hz != s_pwm_guard.expected_frequency_hz ||
+            state.dead_time_ticks != s_pwm_guard.expected_dead_time_ticks ||
+            state.timer_resolution_hz != s_pwm_guard.expected_resolution_hz) {
             return PWM_GUARD_ERR_CORRUPTION;
         }
     }

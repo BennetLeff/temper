@@ -224,6 +224,9 @@ void tearDown(void);
 #define TEST_ASSERT_EQUAL(expected, actual)              TEST_ASSERT_EQUAL_INT((expected), (actual))
 #define TEST_ASSERT_EQUAL_MESSAGE(expected, actual, msg) TEST_ASSERT_EQUAL_INT_MESSAGE((expected), (actual), (msg))
 
+/* Pointer equality (upstream Unity name). TEST_ASSERT_EQUAL is an integer
+ * comparison and rejects pointer arguments. */
+#define TEST_ASSERT_EQUAL_PTR(expected, actual)          UNITY_TEST_ASSERT_TRUE(((const void *)(expected) == (const void *)(actual)), __LINE__, " Expected Equal Pointers")
 #define TEST_ASSERT_NOT_EQUAL(expected, actual)          UNITY_TEST_ASSERT_FALSE(((expected) == (actual)), __LINE__, " Expected Not-Equal")
 
 #define TEST_ASSERT_INT_WITHIN(delta, expected, actual)  UnityAssertNumbersWithin((delta), (expected), (actual), NULL, __LINE__)

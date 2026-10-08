@@ -14,6 +14,7 @@
  */
 
 #include "pan_detect.h"
+#include "../power/include/power_service.h"
 #include "driver/mcpwm_prelude.h"
 #include "esp_timer.h"
 #include "esp_rom_sys.h"
@@ -118,13 +119,15 @@ pan_result_t pan_detect_run(mcpwm_timer_handle_t timer_handle) {
     /* 2. Generate pulse (one-shot) */
     /* We manually start and stop the timer for a precise short burst */
     /* Note: In production, use a dedicated one-shot timer configuration */
-    mcpwm_timer_start_stop(timer_handle, MCPWM_TIMER_START_NO_STOP);
+    if (!power_service_pan_pulse(s_config.pulse_width_us)) {
+        return PAN_DETECT_ERROR;
+    }
     
     /* Busy-wait for pulse duration (acceptable for this short duration) */
     esp_rom_delay_us(s_config.pulse_width_us);
     
     /* Force stop (High-Z or Low, depending on driver logic) */
-    mcpwm_timer_start_stop(timer_handle, MCPWM_TIMER_STOP_EMPTY);
+    pwm_disable_all();
     
     /* 3. Listen window */
     /* Allow ringing to occur. Ringing at 30kHz = 33us per cycle. */

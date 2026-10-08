@@ -4,7 +4,8 @@ use crate::{
     error::{DesignBundleError, diagnostic},
     model::BoardRole,
 };
-use std::collections::HashSet;
+use serde::{Deserialize, Serialize};
+use std::collections::{HashMap, HashSet};
 
 /// Validate that the board identity (atopile, netlist, footprint refs)
 /// is consistent and internally coherent.
@@ -209,6 +210,359 @@ pub fn validate_board_identity(
     }
 
     Ok(())
+}
+
+// ---------------------------------------------------------------------------
+// Strict source-to-board pin map (P1 U2, MCU candidate profile).
+//
+// Every required compiled pin must map to the actual numbered footprint pad,
+// using an explicit reviewed alias note where names differ. The positional
+// pad fallback the legacy skeleton generator applies (mapping by pad order
+// when numbers differ) is forbidden here: it is unverifiable against the
+// manufacturer pin table and normalizes both sides of the comparison through
+// the same guess. Omitted components, unintended opens, extra connectivity,
+// and unreviewed aliases all fail admission.
+// ---------------------------------------------------------------------------
+
+/// One reviewed pin-to-pad assignment. `pin` is the compiled netlist pin
+/// number; `pad` is the actual numbered pad in the resolved library bytes.
+/// `pin != pad` is allowed only with a non-empty `alias_note` naming the
+/// review (e.g. manufacturer-table alias). `positional = true` marks an
+/// order-based guess and is always rejected.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct StrictPinMapEntry {
+    pub instance_path: String,
+    pub reference: String,
+    pub pin: String,
+    pub pad: String,
+    #[serde(default)]
+    pub alias_note: String,
+    #[serde(default)]
+    pub positional: bool,
+}
+
+/// Fail-closed strict map validation.
+///
+/// - `entries`: the explicit reviewed map, one per required `(ref, pin)`.
+/// - `footprint_pads`: `reference ->` actual pad numbers in library-byte
+///   order; repeats are allowed (a footprint may expose the same number
+///   twice) and must share one pin/net.
+/// - `netlist_pins`: `reference ->` compiled pins.
+/// - `unconnected_pads`: explicit `(reference, pad)` pairs with no
+///   connection; anything else unmapped fails as an unintended open.
+pub fn validate_strict_pin_map(
+    entries: &[StrictPinMapEntry],
+    footprint_pads: &HashMap<String, Vec<String>>,
+    netlist_pins: &HashMap<String, Vec<String>>,
+    unconnected_pads: &HashSet<(String, String)>,
+) -> Result<(), DesignBundleError> {
+    let mut seen_pin: HashSet<(&str, &str)> = HashSet::new();
+    for entry in entries {
+        if !seen_pin.insert((entry.reference.as_str(), entry.pin.as_str())) {
+            return Err(diagnostic(
+                "duplicate_map",
+                format!(
+                    "map covers {}.{} more than once",
+                    entry.reference, entry.pin
+                ),
+                vec![entry.reference.clone(), entry.pin.clone()],
+            ));
+        }
+        if entry.positional {
+            return Err(diagnostic(
+                "positional_fallback",
+                format!(
+                    "map entry {}.{} is positional-only; exact pad numbers are required",
+                    entry.reference, entry.pin
+                ),
+                vec![entry.reference.clone(), entry.pin.clone()],
+            ));
+        }
+        let pins = netlist_pins.get(&entry.reference).ok_or_else(|| {
+            diagnostic(
+                "extra_map",
+                format!(
+                    "map entry {}.{} names a reference absent from the compiled netlist",
+                    entry.reference, entry.pin
+                ),
+                vec![entry.reference.clone(), entry.pin.clone()],
+            )
+        })?;
+        if !pins.iter().any(|p| p == &entry.pin) {
+            return Err(diagnostic(
+                "extra_map",
+                format!(
+                    "map entry {}.{} names a pin absent from the compiled netlist",
+                    entry.reference, entry.pin
+                ),
+                vec![entry.reference.clone(), entry.pin.clone()],
+            ));
+        }
+        let pads = footprint_pads.get(&entry.reference).ok_or_else(|| {
+            diagnostic(
+                "unknown_pad",
+                format!(
+                    "map entry {}.{} names a reference with no resolved footprint pads",
+                    entry.reference, entry.pin
+                ),
+                vec![entry.reference.clone()],
+            )
+        })?;
+        if !pads.iter().any(|p| p == &entry.pad) {
+            return Err(diagnostic(
+                "unknown_pad",
+                format!(
+                    "map entry {}.{} targets pad '{}' absent from the resolved footprint",
+                    entry.reference, entry.pin, entry.pad
+                ),
+                vec![entry.reference.clone(), entry.pin.clone()],
+            ));
+        }
+        if entry.pin != entry.pad && entry.alias_note.trim().is_empty() {
+            return Err(diagnostic(
+                "unreviewed_alias",
+                format!(
+                    "map entry {}.{} -> pad '{}' differs without a reviewed alias note",
+                    entry.reference, entry.pin, entry.pad
+                ),
+                vec![entry.reference.clone(), entry.pin.clone()],
+            ));
+        }
+        if unconnected_pads.contains(&(entry.reference.clone(), entry.pad.clone())) {
+            return Err(diagnostic(
+                "contradictory_pad",
+                format!(
+                    "pad '{}' on {} is both mapped and listed unconnected",
+                    entry.pad, entry.reference
+                ),
+                vec![entry.reference.clone(), entry.pad.clone()],
+            ));
+        }
+    }
+    // One pad number claimed by two different pins is a split identity,
+    // even when the footprint repeats the number: repeated same-number pads
+    // must share one pin/net.
+    let mut pad_owner: HashMap<(&str, &str), &str> = HashMap::new();
+    for entry in entries {
+        let key = (entry.reference.as_str(), entry.pad.as_str());
+        match pad_owner.get(&key) {
+            Some(owner) if *owner != entry.pin.as_str() => {
+                return Err(diagnostic(
+                    "split_pad",
+                    format!(
+                        "pad '{}' on {} is claimed by pins '{owner}' and '{}'",
+                        entry.pad, entry.reference, entry.pin
+                    ),
+                    vec![entry.reference.clone(), entry.pad.clone()],
+                ));
+            }
+            _ => {
+                pad_owner.insert(key, entry.pin.as_str());
+            }
+        }
+    }
+    // Every compiled pin must be mapped: an omitted component or pin is an
+    // unintended open, never a silent spare.
+    for (reference, pins) in netlist_pins {
+        for pin in pins {
+            if !seen_pin.contains(&(reference.as_str(), pin.as_str())) {
+                return Err(diagnostic(
+                    "missing_map",
+                    format!("compiled pin {reference}.{pin} has no map entry"),
+                    vec![reference.clone(), pin.clone()],
+                ));
+            }
+        }
+    }
+    // Every actual pad must be mapped or explicitly unconnected.
+    for (reference, pads) in footprint_pads {
+        for pad in pads {
+            let mapped = pad_owner.contains_key(&(reference.as_str(), pad.as_str()));
+            let listed = unconnected_pads.contains(&(reference.clone(), pad.clone()));
+            if mapped && listed {
+                return Err(diagnostic(
+                    "contradictory_pad",
+                    format!("pad '{pad}' on {reference} is both mapped and listed unconnected"),
+                    vec![reference.clone(), pad.clone()],
+                ));
+            }
+            if !mapped && !listed {
+                return Err(diagnostic(
+                    "unmapped_pad",
+                    format!(
+                        "footprint pad '{pad}' on {reference} is neither mapped nor explicitly unconnected"
+                    ),
+                    vec![reference.clone(), pad.clone()],
+                ));
+            }
+            if listed {
+                // An explicitly unconnected pad must not carry a compiled
+                // pin of the same number: that pin would be an open the
+                // listing hides.
+                if netlist_pins
+                    .get(reference)
+                    .is_some_and(|pins| pins.iter().any(|p| p == pad))
+                {
+                    return Err(diagnostic(
+                        "false_unconnected",
+                        format!(
+                            "pad '{pad}' on {reference} is listed unconnected but carries compiled pin '{pad}'"
+                        ),
+                        vec![reference.clone(), pad.clone()],
+                    ));
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
+#[cfg(any(test, feature = "wasm-registry"))]
+#[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
+pub(crate) mod strict_pin_map_tests {
+    use super::*;
+
+    fn entry(reference: &str, pin: &str, pad: &str) -> StrictPinMapEntry {
+        StrictPinMapEntry {
+            instance_path: format!("m.{reference}"),
+            reference: reference.to_string(),
+            pin: pin.to_string(),
+            pad: pad.to_string(),
+            alias_note: String::new(),
+            positional: false,
+        }
+    }
+
+    fn case() -> (
+        Vec<StrictPinMapEntry>,
+        HashMap<String, Vec<String>>,
+        HashMap<String, Vec<String>>,
+        HashSet<(String, String)>,
+    ) {
+        (
+            vec![entry("U1", "1", "1"), entry("U1", "2", "2")],
+            HashMap::from([("U1".to_string(), vec!["1".to_string(), "2".to_string()])]),
+            HashMap::from([("U1".to_string(), vec!["1".to_string(), "2".to_string()])]),
+            HashSet::new(),
+        )
+    }
+
+    fn code(err: &DesignBundleError) -> String {
+        match err {
+            DesignBundleError::Validation(diags) => diags[0].code.clone(),
+            other => panic!("expected Validation, got {other:?}"),
+        }
+    }
+
+    #[cfg_attr(test, test)]
+    fn exact_map_passes() {
+        let (entries, pads, pins, unconnected) = case();
+        validate_strict_pin_map(&entries, &pads, &pins, &unconnected).expect("exact map passes");
+    }
+
+    #[cfg_attr(test, test)]
+    fn repeated_same_number_pads_share_one_pin() {
+        let (_, mut pads, pins, unconnected) = case();
+        pads.get_mut("U1").expect("U1 pads").push("1".to_string());
+        // The repeated pad number is covered by the single pin-1 entry: no
+        // second entry is needed and none is allowed to split the net.
+        let entries = vec![entry("U1", "1", "1"), entry("U1", "2", "2")];
+        validate_strict_pin_map(&entries, &pads, &pins, &unconnected)
+            .expect("repeated same-number pads on one pin pass");
+    }
+
+    #[cfg_attr(test, test)]
+    fn split_pad_number_fails() {
+        let (mut entries, pads, mut pins, unconnected) = case();
+        pins.get_mut("U1").expect("U1 pins").push("3".to_string());
+        let mut aliased = entry("U1", "3", "1");
+        aliased.alias_note = "reviewed".to_string();
+        entries.push(aliased);
+        let err = validate_strict_pin_map(&entries, &pads, &pins, &unconnected).unwrap_err();
+        assert_eq!(code(&err), "split_pad");
+    }
+
+    #[cfg_attr(test, test)]
+    fn positional_missing_unreviewed_and_unmapped_fail() {
+        let (mut entries, pads, pins, unconnected) = case();
+        entries[0].positional = true;
+        assert_eq!(
+            code(&validate_strict_pin_map(&entries, &pads, &pins, &unconnected).unwrap_err()),
+            "positional_fallback"
+        );
+        let (mut entries, pads, pins, unconnected) = case();
+        entries.pop();
+        assert_eq!(
+            code(&validate_strict_pin_map(&entries, &pads, &pins, &unconnected).unwrap_err()),
+            "missing_map"
+        );
+        let (mut entries, pads, pins, unconnected) = case();
+        entries[0].pad = "2".to_string();
+        assert_eq!(
+            code(&validate_strict_pin_map(&entries, &pads, &pins, &unconnected).unwrap_err()),
+            "unreviewed_alias"
+        );
+        let (entries, mut pads, pins, unconnected) = case();
+        pads.get_mut("U1").expect("U1 pads").push("3".to_string());
+        assert_eq!(
+            code(&validate_strict_pin_map(&entries, &pads, &pins, &unconnected).unwrap_err()),
+            "unmapped_pad"
+        );
+    }
+
+    #[cfg_attr(test, test)]
+    fn explicit_unconnected_pad_passes_but_hiding_a_pin_fails() {
+        let (entries, mut pads, pins, mut unconnected) = case();
+        pads.get_mut("U1").expect("U1 pads").push("9".to_string());
+        unconnected.insert(("U1".to_string(), "9".to_string()));
+        validate_strict_pin_map(&entries, &pads, &pins, &unconnected)
+            .expect("explicit unconnected pad passes");
+
+        // Same listing, but pin 9 is compiled and unmapped: missing_map
+        // fires (the open is named, never hidden by the listing).
+        let (entries, _, mut pins, mut unconnected) = case();
+        pins.get_mut("U1").expect("U1 pins").push("9".to_string());
+        let pads2: HashMap<String, Vec<String>> = HashMap::from([(
+            "U1".to_string(),
+            vec!["1".to_string(), "2".to_string(), "9".to_string()],
+        )]);
+        unconnected.insert(("U1".to_string(), "9".to_string()));
+        assert_eq!(
+            code(&validate_strict_pin_map(&entries, &pads2, &pins, &unconnected).unwrap_err()),
+            "missing_map"
+        );
+    }
+
+    #[cfg_attr(test, test)]
+    fn duplicate_and_extra_entries_fail() {
+        let (mut entries, pads, pins, unconnected) = case();
+        entries.push(entry("U1", "1", "1"));
+        assert_eq!(
+            code(&validate_strict_pin_map(&entries, &pads, &pins, &unconnected).unwrap_err()),
+            "duplicate_map"
+        );
+        let (mut entries, pads, pins, unconnected) = case();
+        entries.push(entry("U1", "7", "2"));
+        assert_eq!(
+            code(&validate_strict_pin_map(&entries, &pads, &pins, &unconnected).unwrap_err()),
+            "extra_map"
+        );
+    }
+
+    // --- BEGIN generated by scripts/gen_wasm_test_registry.py: strict_pin_map_tests ---
+    /// Every `#[test]` in this module, as a callable the `wasm32`
+    /// entry point can invoke by index.  Generated because these
+    /// functions are private to this module and unreachable from
+    /// anywhere a registry could otherwise live.
+    pub const WASM_TESTS: &[(&str, fn())] = &[
+        ("identity::strict_pin_map_tests::exact_map_passes", exact_map_passes),
+        ("identity::strict_pin_map_tests::repeated_same_number_pads_share_one_pin", repeated_same_number_pads_share_one_pin),
+        ("identity::strict_pin_map_tests::split_pad_number_fails", split_pad_number_fails),
+        ("identity::strict_pin_map_tests::positional_missing_unreviewed_and_unmapped_fail", positional_missing_unreviewed_and_unmapped_fail),
+        ("identity::strict_pin_map_tests::explicit_unconnected_pad_passes_but_hiding_a_pin_fails", explicit_unconnected_pad_passes_but_hiding_a_pin_fails),
+        ("identity::strict_pin_map_tests::duplicate_and_extra_entries_fail", duplicate_and_extra_entries_fail),
+    ];
+    // --- END generated by scripts/gen_wasm_test_registry.py: strict_pin_map_tests ---
 }
 
 #[cfg(any(test, feature = "wasm-registry"))]
