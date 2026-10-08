@@ -1,0 +1,55 @@
+{
+ "schema": "temper.native21.engineering-candidate.v1",
+ "status": "DIGITAL_CANDIDATE_NOT_MANUFACTURING_RELEASE",
+ "routed_board_sha256": "76ec8ccae6ca0dbd145b672abc3d18a8f8132875e567cb31ab84325d897a1715",
+ "copper_json_sha256": "c450f12cd4abf1b5c9af31b3a725199634330ea71462879327c68232f37627a6",
+ "schematic_sha256": "c4982d4ce75c12643c8a08d35a300cbe19ef3085aea56c1c97fca4f540836bc5",
+ "frozen_netlist_sha256": "e3fb7cddff3d78b2319eb9b541d03016ec2661d77779b256adda814d75a051f1",
+ "rebuild": "sh native-21/layout/incr_iter.sh native-21/layout/copper.json - [OUTDIR]",
+ "components": 347,
+ "drc": {
+  "errors": 0,
+  "unconnected": 0,
+  "schematic_parity_findings": 0,
+  "warnings": {
+   "track_dangling": 6,
+   "silk_edge_clearance": 2,
+   "lib_footprint_issues": 199,
+   "silk_overlap": 2,
+   "silk_over_copper": 20
+  }
+ },
+ "erc": {
+  "errors": 0,
+  "warnings": {
+   "isolated_pin_label": 65,
+   "ground_pin_not_ground": 9
+  }
+ },
+ "plane_splits": 0,
+ "barrier_plan_view_8mm": {
+  "barrier21": 0,
+  "rust_gate_violations": 0,
+  "rust_gate_items": 5543
+ },
+ "body_collisions": {
+  "solids": 412,
+  "part_overlaps": 0
+ },
+ "board_in_R4": {
+  "bodies": 414,
+  "hits": 0
+ },
+ "kelvin_ocp_band_A": [
+  47.51,
+  97.98
+ ],
+ "kelvin_meets_44A": true,
+ "reference_labels": {
+  "silk": 272,
+  "fab_only": 75
+ },
+ "via_in_pad_remaining": 44,
+ "fem": "setup ready, coarse mesh gates pass (validation-results/01-switching-parasitics/round17/native21-setup); extraction and decision reruns NOT_RUN",
+ "physical": "NOT_RUN"
+}

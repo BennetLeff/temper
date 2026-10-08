@@ -163,8 +163,25 @@ run, and that count is 0. Their inductance effect belongs to the FEM rerun on th
 | PS2 N_LS / V24_RAW feeds across the trunk | In1 | Cut of the trunk band | Bridged on F and B beside the cut (203.5-226 x 52.5-75) with ten 1.6 mm vias |
 | Gate-source and Cgs vias through the core | all | Antipads in HV_RET / BUS_P | Planes are protected against tracks only; vias open antipads |
 
-- **Open fab item:** 116 vias sit mostly inside SMD pads (maze layer changes at pad centres). They
-  need either plugged-and-capped via-in-pad on the JLC order or a dog-bone pass.
+- **Stage 5 (2026-10-08):**
+  - Post-route cleanup (incr21): 68 vias moved off SMD pads, 20 same-net drill clashes merged,
+    dangling chains and single-layer vias pruned.
+  - Reference labels: 272 on silk at the JLC legend minimum, 75 on F.Fab only (no clear spot).
+  - Generated schematic: ERC 0 errors, DRC schematic parity 0.
+  - Rust barrier gate: 0.
+  - Re-run fit gates found the bias-bank electrolytics' bodies 0.15 mm into the 1210s; fixed in
+    the bank template (body collisions 0, board in R4 0 hits).
+  - Kelvin OCP band on this copper: 47.51-97.98 A.
+  - Manifest: `verification/final-manifest.json`.
+- **Open items:**
+  - **44 vias** remain mostly inside SMD pads (no legal spot within 1.3 mm). Order them
+    plugged and capped (JLC via-in-pad) or rework by hand.
+  - Accepted warnings: 6 short dangling stubs, 20 silk-over-copper, PS1/PS2 outline silk at the
+    board edge (2) and J3/PS2 outline silk (2). Nudging PS1/PS2/J3 broke the mains-entry escapes
+    and the PS1/C4 courtyards. The 199 `lib_footprint_issues` are the project's unconfigured
+    stock-library table.
+  - FEM extraction and decision reruns (task 01): setup and coarse mesh gates done, solves pending
+    remote access.
 - Router: a final whole-corridor maze pass for long detours, and circumscribed clearance
   buffers. Polygonal buffers fell 0.04 mm short at the 8 mm barrier, more than the 0.03 mm
   margin, so found paths failed the exact check.
