@@ -2,9 +2,9 @@
 
 Board: native-21 stage 6 (R5 current vias, SW_B neck widened), rebuilt from `native-21/layout/copper.json` by
 `sh native-21/layout/incr_iter.sh native-21/layout/copper.json - OUTDIR`; SHA-256
-`a2d1589ac672360c1075832c3b6b129bf853cb863ff4d3dee058fa9aca187387`.
+`387b753a8d1b8b1097406e9d6643daf21263e44b7ad76becb79edcc5cd46ecda`.
 Gerbers: `native-21-gerbers.zip`, SHA-256
-`3ff50e60e880b9daa86b4ca4fb50703a066a5f2037360da1c11e22f4dede6f36`.
+`d1b675d99ea18337f03a1af69ff341aae3c81ea6801e6e6659f8ac560d626d98`.
 
 **This package isn't released for ordering.** The release gates in `DECISIONS.md` and
 `FAB-JLCPCB.md` are still open: insulation and thermal qualification, the laminate CTI
@@ -27,9 +27,9 @@ JLC rules applied (`tools/jlc_dfm_check.py`, re-read verbatim 2026-10-08): PTH a
 (8 mil at 2 oz); via drill ≥ 0.15 mm. Result: PASS (`../jlc-dfm.json`).
 
 Deviations and notes:
-- **No LCSC part numbers yet.** Every BOM line is "LCSC number to be sourced, or
-  consigned/hand-assembled". JLCPCB assembly needs a checked LCSC number per line and each CPL
-  rotation checked in JLCPCB's preview.
+- **LCSC numbers:** 87 of 92 BOM lines carry a checked LCSC number (`../sourcing/README.md`); 5 are
+  consigned or hand-assembled; 14 exact matches had zero stock at the survey. Check each CPL
+  rotation in JLCPCB's preview.
 - Plated through-hole pads have lands on both outer layers; unconnected inner rings are removed
   on purpose.
 - Accepted DRC warnings: 6 short dangling stubs, 20 silk-over-copper, 2 + 2 PS1/PS2/J3 outline

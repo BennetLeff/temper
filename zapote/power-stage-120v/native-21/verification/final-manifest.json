@@ -1,10 +1,10 @@
 {
  "schema": "temper.native21.engineering-candidate.v1",
  "status": "DIGITAL_CANDIDATE_NOT_MANUFACTURING_RELEASE",
- "routed_board_sha256": "a2d1589ac672360c1075832c3b6b129bf853cb863ff4d3dee058fa9aca187387",
+ "routed_board_sha256": "387b753a8d1b8b1097406e9d6643daf21263e44b7ad76becb79edcc5cd46ecda",
  "copper_json_sha256": "e78fa41973f66866ede03961e0a312778654ae52a37a0fe70dace22af59a5ca8",
  "schematic_sha256": "c4982d4ce75c12643c8a08d35a300cbe19ef3085aea56c1c97fca4f540836bc5",
- "frozen_netlist_sha256": "e3fb7cddff3d78b2319eb9b541d03016ec2661d77779b256adda814d75a051f1",
+ "frozen_netlist_sha256": "9d64277f7961333d9972b52fb40b95a9de2ef2a22379afa652c45f0e9f5b6be2",
  "rebuild": "sh native-21/layout/incr_iter.sh native-21/layout/copper.json - [OUTDIR]",
  "components": 347,
  "drc": {
@@ -83,5 +83,15 @@
   },
   "short_constrictions": "SW_B x 36-48 (3.1-6 mm over 4-6 mm, bounded by gate-loop vias / film-cap pins): fin estimate ~1 K",
   "extreme_44.7A": "fails (copper ~60-72 K, R5 2 W vs 1 W, C21/C22 18.2 A vs 10.3 A): interim firmware tank RMS ceiling 22 A (DECISIONS 2026-10-08)"
+ },
+ "board_build": "canonical: sh native-21/layout/incr_iter.sh native-21/layout/copper.json - OUTDIR (all evidence re-run on it)",
+ "value_changes_2026_10_08": {
+  "R83,R101,R116": "RT0603BRD077K62L (7.62k, not manufactured) -> RT0603BRD077K68L",
+  "R51,R52,R55,R56": "RC1206FR-070R68L (no such RC part) -> RL1206FR-070R68L"
+ },
+ "lcsc": {
+  "with_lcsc": 87,
+  "consign": 5,
+  "evidence": "validation-results/08-manufacturing-package/native-21/sourcing"
  }
 }

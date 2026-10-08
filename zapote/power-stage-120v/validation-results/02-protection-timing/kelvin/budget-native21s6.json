@@ -11,15 +11,15 @@
   {
    "pad": "U4.3",
    "mA": 9.7,
-   "transfer_mohm": 158.2759,
-   "mV_at_R35_2": 1.5353,
+   "transfer_mohm": 158.2713,
+   "mV_at_R35_2": 1.5352,
    "what": "AMC1311B IDD1, 4.5 V < VDD1 < 5.5 V, max",
    "source": "TI SBAS781 (amc1311.pdf) 6.10 Electrical Characteristics, IDD1"
   },
   {
    "pad": "U9.1",
    "mA": 2.4,
-   "transfer_mohm": 158.2759,
+   "transfer_mohm": 158.2713,
    "mV_at_R35_2": 0.3799,
    "what": "ISO7710 ICC1, 5 V supply, DC signal, max (input state that draws more)",
    "source": "TI iso7710.pdf 5.10, ICC1 DC"
@@ -93,8 +93,8 @@
  "e_th_mV": 2.1528,
  "trip_shift_A": -2.215,
  "bound_all_at_max_transfer": {
-  "e_th_mV": 2.2387,
-  "trip_shift_A": -2.304
+  "e_th_mV": 2.2401,
+  "trip_shift_A": -2.305
  },
  "band_before_A": [
   49.73,

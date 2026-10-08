@@ -4,7 +4,7 @@ The round-4 A4 experiments (same imposed currents and pad names, plus the two ma
 cases), run on native-21 copper: the enclosure re-layout's new current paths, which D4's
 conditions require screening before fabrication.
 
-- **Board:** native-21 stage 6, SHA-256 `a2d1589a…` (`inputs/power_copper.json.gz`,
+- **Board:** native-21 stage 6, SHA-256 `387b753a…` (`inputs/power_copper.json.gz`,
   `tools/export_power_copper.py`). Stage 6 = stage-5 copper + the R5 current-pad vias below.
 - **Evidence class:** simulation/model-based. These are conditional DC experiments with imposed
   currents, not operating waveforms. The thermal B3 solve still waits for task 03's heat
@@ -129,7 +129,7 @@ operating point by (I_op / I_case)²: 8.6 W nominal, 35.3 W at the extreme.
 
 | Run (50 °C ambient) | Source | Peak 1 mm grid | Peak 0.5 mm grid |
 | --- | ---: | ---: | ---: |
-| nominal, h 10 / 25 W/m²K | 17.6 W | 186 / 160 °C at U26 | 139 / 111 °C at the mains entry |
+| nominal, h 10 / 25 W/m²K | 17.5 W | 176 / 152 °C at U26 | 139 / 111 °C at the mains entry |
 | extreme, h 10 / 25 | 53.6 W | 353 / 237 °C | 392 / 263 °C at R5 |
 
 **These peaks are not temperatures to decide on.** They move 30–50 K and change place between

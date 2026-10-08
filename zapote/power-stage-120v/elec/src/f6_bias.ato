@@ -1,4 +1,4 @@
-from "f6_parts.ato" import Bias10u, BiasComparator, BiasReference, BiasOpto, BiasNpn, BiasSilicon, GateDischarge, Bias4k42, Bias7k62, Bias120k, Bias133k, Bias2k2, Bias2k7, Gate1R, Bias6k12, Bias4k99, Bias18k2, Bias30k1, BiasDamping, Bias680, Line16k5, Line33k, Bias1u, Bias100n, Bias220u, Bias4u7, HotSupply24, NegativeShunt, SpanRegulator, BiasPushPull, BiasTransformer, BiasRectifier, BiasFilter, HotLdo, DisOr, LineOpto
+from "f6_parts.ato" import Bias10u, BiasComparator, BiasReference, BiasOpto, BiasNpn, BiasSilicon, GateDischarge, Bias4k42, Bias7k68, Bias120k, Bias133k, Bias2k2, Bias2k7, Gate1R, Bias6k12, Bias4k99, Bias18k2, Bias30k1, BiasDamping, Bias680, Line16k5, Line33k, Bias1u, Bias100n, Bias220u, Bias4u7, HotSupply24, NegativeShunt, SpanRegulator, BiasPushPull, BiasTransformer, BiasRectifier, BiasFilter, HotLdo, DisOr, LineOpto
 from "parts.ato" import C100n0603, C1nC0G0603, R10kThin, R1k0603, R10k0603, C100pC0G0603, Hot5SchmittBuffer, Iso7710, C10u1210
 
 module BiasReservoir:
@@ -149,8 +149,8 @@ module RailMonitor:
     ruv_bot.value = 10kohm
     ruv_bot.p1 ~ uv
     ruv_bot.p2 ~ n
-    rov_top = new Bias7k62
-    rov_top.value = 7.62kohm
+    rov_top = new Bias7k68
+    rov_top.value = 7.68kohm
     rov_top.p1 ~ src
     rov_top.p2 ~ ov
     rov_bot = new R10kThin

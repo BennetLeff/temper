@@ -143,7 +143,7 @@
    }
   },
   "R51": {
-   "mpn": "RC1206FR-070R68L",
+   "mpn": "RL1206FR-070R68L",
    "source_instance": "leg_a.bias_h.rdamp",
    "basis": "passive-two-terminal",
    "pins": {
@@ -158,7 +158,7 @@
    }
   },
   "R52": {
-   "mpn": "RC1206FR-070R68L",
+   "mpn": "RL1206FR-070R68L",
    "source_instance": "leg_a.bias_l.rdamp",
    "basis": "passive-two-terminal",
    "pins": {
@@ -233,7 +233,7 @@
    }
   },
   "R55": {
-   "mpn": "RC1206FR-070R68L",
+   "mpn": "RL1206FR-070R68L",
    "source_instance": "leg_b.bias_h.rdamp",
    "basis": "passive-two-terminal",
    "pins": {
@@ -248,7 +248,7 @@
    }
   },
   "R56": {
-   "mpn": "RC1206FR-070R68L",
+   "mpn": "RL1206FR-070R68L",
    "source_instance": "leg_b.bias_l.rdamp",
    "basis": "passive-two-terminal",
    "pins": {
@@ -2847,7 +2847,7 @@
    }
   },
   "R83": {
-   "mpn": "RT0603BRD077K62L",
+   "mpn": "RT0603BRD077K68L",
    "source_instance": "monitor_ls.rov_top",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3117,7 +3117,7 @@
    }
   },
   "R101": {
-   "mpn": "RT0603BRD077K62L",
+   "mpn": "RT0603BRD077K68L",
    "source_instance": "bias_ha.monitor.rov_top",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3342,7 +3342,7 @@
    }
   },
   "R116": {
-   "mpn": "RT0603BRD077K62L",
+   "mpn": "RT0603BRD077K68L",
    "source_instance": "bias_hb.monitor.rov_top",
    "basis": "passive-two-terminal",
    "pins": {

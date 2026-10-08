@@ -82,9 +82,9 @@ component Bias4k42:
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
-component Bias7k62:
+component Bias7k68:
     designator_prefix = "R"
-    mpn = "RT0603BRD077K62L"
+    mpn = "RT0603BRD077K68L"
     manufacturer = "Yageo"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
@@ -174,7 +174,7 @@ component Bias30k1:
 
 component BiasDamping:
     designator_prefix = "R"
-    mpn = "RC1206FR-070R68L"
+    mpn = "RL1206FR-070R68L"
     manufacturer = "Yageo"
     footprint = "Resistor_SMD:R_1206_3216Metric"
     value: resistance
