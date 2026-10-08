@@ -29,6 +29,11 @@ class IsBulk(unittest.TestCase):
         self.assertTrue(ea.is_bulk("zapote/a/field.npz", 10))
         self.assertFalse(ea.is_bulk("zapote/a/report.json", 10))
 
+    def test_workspace_packages_are_exempt_from_suffix_rule_but_not_size(self):
+        # include_bytes! fixtures such as native17-layout.json.gz are build inputs.
+        self.assertFalse(ea.is_bulk("zapote/packages/zapote-drc/tests/fixtures/a.json.gz", 10))
+        self.assertTrue(ea.is_bulk("zapote/packages/zapote-drc/tests/fixtures/a.json.gz", 101, max_bytes=100))
+
     def test_size_rule_is_strictly_greater(self):
         self.assertFalse(ea.is_bulk("zapote/a.csv", 100, max_bytes=100))
         self.assertTrue(ea.is_bulk("zapote/a.csv", 101, max_bytes=100))
@@ -102,6 +107,16 @@ class Gitignore(unittest.TestCase):
         self.assertIn("/v/big.csv", block)
         self.assertNotIn("a.gz", block)
         self.assertIn("*.gz", block)
+
+    def test_workspace_gz_fixture_stays_addable(self):
+        repo = git_repo({"zapote/.gitignore": b"", "zapote/v/a.gz": b"g"})
+        m = ea.pack(repo, Path(tempfile.mkdtemp()), "rel-x")
+        ea.apply_gitignores(repo, m)
+        fixture = repo / "zapote/packages/p/tests/fixtures/new.json.gz"
+        fixture.parent.mkdir(parents=True)
+        fixture.write_bytes(b"g")
+        ignored = subprocess.run(["git", "-C", str(repo), "check-ignore", "-q", str(fixture)])
+        self.assertEqual(ignored.returncode, 1)  # 1 = not ignored
 
     def test_archived_files_stay_ignored_under_nested_negations(self):
         repo = git_repo({
