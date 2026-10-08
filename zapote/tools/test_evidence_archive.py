@@ -123,6 +123,40 @@ class Accumulate(unittest.TestCase):
             ea.pack(self.repo, self.out2, "rel-1", max_bytes=100, prior=self.m1)
 
 
+class Fetch(unittest.TestCase):
+    def setUp(self):
+        self.repo = git_repo({"zapote/v/a.gz": b"g" * 50, "zapote/v/b.gz": b"h" * 50})
+        self.out = Path(tempfile.mkdtemp())
+        self.m = ea.pack(self.repo, self.out, "rel-x", max_asset_bytes=60)  # two parts
+
+    def test_local_asset_dir_is_used_without_downloading(self):
+        def no_download(release, name, into):
+            raise AssertionError("downloaded although the part was local")
+        dest = Path(tempfile.mkdtemp())
+        ea.fetch(self.m, dest, asset_dir=self.out, download=no_download)
+        self.assertEqual((dest / "zapote/v/b.gz").read_bytes(), b"h" * 50)
+
+    def test_downloads_hold_at_most_one_part_on_disk(self):
+        peaks = []
+
+        def download(release, name, into):
+            peaks.append(len(list(into.glob("*.tar"))))
+            target = into / name
+            target.write_bytes((self.out / name).read_bytes())
+            return target
+        dest = Path(tempfile.mkdtemp())
+        ea.fetch(self.m, dest, download=download)
+        self.assertEqual(peaks, [0, 0])
+        self.assertEqual((dest / "zapote/v/a.gz").read_bytes(), b"g" * 50)
+
+    def test_extract_emits_no_deprecation_warning(self):
+        import warnings
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            ea.extract(self.m, self.out, Path(tempfile.mkdtemp()))
+        self.assertEqual([w for w in caught if issubclass(w.category, DeprecationWarning)], [])
+
+
 class Check(unittest.TestCase):
     def test_flags_tracked_bulk(self):
         repo = git_repo({"zapote/a.npz": b"n", "zapote/b.json": b"{}"})
@@ -168,6 +202,29 @@ class Gitignore(unittest.TestCase):
                                 check=True, capture_output=True, text=True).stdout
         self.assertNotIn("wave.txt.gz", status)
         self.assertNotIn("big.csv", status)
+
+    def test_nested_gitignore_under_packages_keeps_new_fixtures_addable(self):
+        repo = git_repo({"zapote/.gitignore": b"", "zapote/packages/p/.gitignore": b"!keep\n",
+                         "zapote/v/a.gz": b"g"})
+        m = ea.pack(repo, Path(tempfile.mkdtemp()), "rel-x")
+        ea.apply_gitignores(repo, m)
+        fixture = repo / "zapote/packages/p/tests/fixtures/new.json.gz"
+        fixture.parent.mkdir(parents=True)
+        fixture.write_bytes(b"g")
+        ignored = subprocess.run(["git", "-C", str(repo), "check-ignore", "-q", str(fixture)])
+        self.assertEqual(ignored.returncode, 1)  # 1 = not ignored
+
+    def test_lines_after_the_generated_block_survive_reapply(self):
+        repo = git_repo({"zapote/.gitignore": b"*.log\n", "zapote/a.gz": b"g"})
+        m = ea.pack(repo, Path(tempfile.mkdtemp()), "rel-x")
+        ea.apply_gitignores(repo, m)
+        ignore = repo / "zapote/.gitignore"
+        ignore.write_text(ignore.read_text() + "scratch/\n")
+        ea.apply_gitignores(repo, m)
+        text = ignore.read_text()
+        self.assertIn("scratch/", text)
+        self.assertIn("*.log", text)
+        self.assertEqual(text.count(ea.GITIGNORE_BEGIN), 1)
 
     def test_apply_gitignores_is_idempotent(self):
         repo = git_repo({"zapote/.gitignore": b"*.log\n", "zapote/a.gz": b"g"})

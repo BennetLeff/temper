@@ -90,7 +90,8 @@ cargo bench --locked --manifest-path zapote/Cargo.toml \
 Landed on `main` by the 2026-10-08 squash landing PRs, cut from integration
 freeze `ea5718069` plus layout-quality `ff28b521e` (full history: tag
 `archive/zapote-history-2026-10-08`). `.github/workflows/zapote.yml` runs the
-Rust suite and the tree-budget gate (`make -C zapote check-tree`) on every PR
+Rust suite and the tree-budget gate (`python3 zapote/tools/evidence_archive.py check`,
+also available locally as `make -C zapote check-tree`) on every PR
 touching `zapote/**`. Native KiCad commands (`check-layout`, `check-current`,
 `check-units`) remain local-only; #1628 tracks CI for them.
 Bulk evidence (`*.gz`, `*.npz` outside `packages/`, and any file over 5 MB)

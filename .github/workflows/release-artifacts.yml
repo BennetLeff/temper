@@ -9,6 +9,8 @@ permissions:
 
 jobs:
   firmware:
+    # Evidence releases (zapote/tools/evidence_archive.py) are data, not product builds.
+    if: ${{ !startsWith(github.event.release.tag_name, 'zapote-evidence-') }}
     runs-on: ubuntu-latest
     container: espressif/idf:release-v5.3
     steps:
@@ -22,6 +24,8 @@ jobs:
           files: firmware/build/temper.bin
 
   wheel:
+    # Evidence releases (zapote/tools/evidence_archive.py) are data, not product builds.
+    if: ${{ !startsWith(github.event.release.tag_name, 'zapote-evidence-') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
