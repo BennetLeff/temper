@@ -115,3 +115,21 @@ pads, plus 0.25 mm. No 3D models yet; the fit gate uses datasheet envelopes.
 | F11 | `temper.pretty/VOL628A_LSOP4_ReviewOnly.kicad_mod` | Vishay VOL628A rev 1.9 p.8: pads 1.30 × 0.90, rows 8.20 inner / 10.80 outer, pitch 2.54 | Pins counter-clockwise from the top (pin 1 top-left). ≥ 8 mm creepage/clearance per datasheet: the D5 barrier crossing for LINE_ZC |
 | F12 | `temper.pretty/WE_750320775_EP7HV_ReviewOnly.kicad_mod` | Würth 750320775 rev 001.002 p.1: two columns 11.06 c-c, pitch 2.50, pads 2.50 × 1.29 | Land-pattern view: left 4,3,2,1 top→bottom, right 5,6,7,8. The dimension view is the vertical mirror; a mirror is electrically harmless here (1↔4, 5↔8 symmetric ends, 2+3 and 6+7 tied). **Confirm on a physical part.** Body 13.40 × 11.46 × 11.94 mm max |
 | F13 | `temper.pretty/WE_74404064101_6x6_ReviewOnly.kicad_mod` | Würth 74404064101 (WE-LQS 6045) rev 002.003 p.1: pads 1.8 × 5.7, gap 2.8 | Body 6.0 × 6.0 × 4.5 mm max |
+
+**Independent review against the vendor drawings (2026-10-08).** Each `.kicad_mod` was read
+pad by pad against the cited drawing, fetched fresh from the manufacturer:
+- **F11 VOL628A** (Vishay doc 82401 rev 1.9 p.8, "Possible footprint"): pads at x ±4.750 (8.20
+  inner / 10.80 outer), 1.30 × 0.90, y ±1.270 (2.54). Pins 1/2 share the left row; the order is
+  counter-clockwise, as in the top-view drawing rotated 90°. The 8.20 mm pad gap is ≥ the 8 mm
+  plan-view barrier and the datasheet's ≥ 8 mm creepage/clearance. **Matches.**
+- **F12 750320775** (rev 001.002 p.1): pads at x ±5.530 (11.06 c-c), y −3.75/−1.25/1.25/3.75
+  (2.50), 2.50 × 1.29. Numbering follows the land-pattern view; the pin-1 marker is beside pad 1.
+  Fab body 13.40 × 11.46. **Matches.** The mirror note stands: confirm pin 1 on a physical part.
+  On native-21 (T2, T3) the primary is V24_RAW/N_LS (LS HOT) and the secondary is the HS bias.
+  This is a HOT↔HOT functional barrier (ECO.md), not a D5 crossing.
+- **F13 74404064101** (rev 002.003 p.1): pads at x ±2.300 (2.8 gap + 1.8 width), 1.8 × 5.7.
+  **Matches.** Its 120 V DC operating limit is not approached: on native-21, L2/L3 sit on the
+  HS bias rectifier outputs (bias_h*-rect → -raw), about 20 V.
+
+All three land patterns are fit for fabrication. The `_ReviewOnly` names stay so the board's
+library references don't change. F12's pin-1 orientation is a bring-up check, not a build blocker.
