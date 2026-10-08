@@ -13,7 +13,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import gen_schematics as generator  # noqa: E402
 
-CONFIG = ROOT / "elec/qualification/iso7741_gate_drive/validation/schematic_layout.json"
+CONFIG = Path(__file__).resolve().parent / "fixtures" / "iso7741_gate_drive_schematic_layout.json"
 
 
 def test_candidate_layout_selects_root_and_single_child() -> None:

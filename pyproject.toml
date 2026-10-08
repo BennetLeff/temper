@@ -1,44 +1,19 @@
 [project]
 name = "temper-workspace"
 version = "0.1.0"
-description = "Temper induction cooker development workspace"
+description = "Temper induction cooker: zapote validation workspace, firmware and the design-bundle crates"
 requires-python = ">=3.11"
 
 [dependency-groups]
 dev = [
     "pytest>=7.4.0",
-    "pytest-cov>=4.1.0",
-    # Parallel test execution. Pair `-n` with `--dist loadgroup` so the
-    # xdist_group tags applied in packages/temper-placer/tests/conftest.py keep
-    # the pytest-dependency clusters on one worker. Defensive as of 2026-07-28
-    # (pytest-dependency is not installed, so those marks are inert), but
-    # load-bearing the moment it is -- see that file's comment block.
-    "pytest-xdist>=3.6",
     "ruff>=0.1.6",
-    "mypy>=1.7.0",
-    "pytest-bdd>=8.1.0",
-    "hypothesis>=6.148.7",
-    "vulture>=2.16,<3.0",
-    "import-linter>=2.0",
-    # scripts/gen_domain_models.py imports jinja2 to render the NetClassRules
-    # SSOT templates. It was never declared, so the "Check domain model codegen
-    # drift" gate died on ModuleNotFoundError on every run -- silently, because
-    # that step is continue-on-error.
-    "jinja2>=3.1",
-    # scripts/known_failure_pins.py imports yaml (pyyaml) for the known-failure
-    # pin registry. It was never declared as a direct dependency, so the
-    # "Known-Failure Pin Registry Gate" died on ModuleNotFoundError on every run
-    # -- silently, because that step carries continue-on-error.
-    "pyyaml>=6.0",
-    # sympy was a dev dep ONLY for packages/temper-placer/tests/physics/
-    # test_thermal_fdm_mms.py's symbolic MMS source-term derivation; the terms
-    # are now pre-computed and hardcoded in that test (2026-08-20), so sympy
-    # (and its mpmath dependency) were removed from the lock.
-    "python-sat>=1.9.dev5",
+    "jinja2>=3.1",           # firmware/tools code generators
+    "pyyaml>=6.0",           # firmware/tools, CI scripts
+    "kiutils>=1.4",          # zapote/tools/generators/gen_pcb_skeleton.py
     "temper-geometry",
     "temper-io-types",
-    "temper-design-bundle",
-    "temper-orchestration",
+    "temper-design-bundle",  # temper_design_bundle_python, imported by zapote unit tools
 ]
 
 [tool.uv.workspace]
@@ -46,82 +21,21 @@ members = ["packages/*"]
 exclude = [
     "packages/temper-py-bridge",
     "packages/temper-py-bridge-derive",
-    # wasm-only crate (#800): no pyproject.toml / Python surface — it is
-    # built through cargo's wasm32 target, not uv; without the exclusion
-    # every `uv run`/`uv sync` fails with "Workspace member is missing a
-    # pyproject.toml" and the pyo3 extension gate cannot run.
-    "packages/temper-wasm-test-runner",
-    # Cloudflare Worker scaffold (#897): JavaScript only — index.js +
-    # wrangler.toml, deployed through wrangler, never installed by uv.
-    # Same failure mode as the wasm crate above: without the exclusion
-    # `uv sync --all-packages` exits 2 on every job in every workflow.
-    "packages/temper-worker",
 ]
 
 [tool.uv.sources]
-temper-placer = { workspace = true }
-temper-workflow = { workspace = true }
-temper-drc-rs = { workspace = true }
 temper-geometry = { workspace = true }
 temper-io-types = { workspace = true }
 temper-design-bundle = { workspace = true }
-temper-orchestration = { workspace = true }
 
 [tool.pytest.ini_options]
-testpaths = [
-    "packages/temper-placer/tests",
-    "packages/temper-workflow/tests",
-    "elec/validation"
-]
-pythonpath = [
-    "packages/temper-placer/src",
-    "packages/temper-workflow/src",
-    "elec/validation"
-]
-addopts = ["-v", "--tb=short"]
-# xfail_strict = true: a test marked @pytest.mark.xfail that unexpectedly
-# passes (XPASS) is a hard failure instead of a green skip. An xfail whose
-# reason is stale (the underlying defect closed) must be retired with a
-# normal assertion, never silently left to xpass. See
-# docs/evidence/2026-08-15-unsilence-checks-batch-2.md.
-xfail_strict = true
-markers = [
-    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-    "integration: marks integration tests requiring full pipeline",
-    "routing: marks routing DRC regression gate tests (golden-board CI gate)",
-    "property: marks Hypothesis/property-based invariant tests",
-]
+testpaths = ["firmware/tools", "zapote/tools", "scripts/tests"]
+addopts = ["--tb=short"]
 
 [tool.ruff]
 target-version = "py311"
 line-length = 100
-src = ["packages/*/src", "packages/*/tests"]
 
 [tool.ruff.lint]
 select = ["E", "W", "F", "I", "B", "C4", "UP"]
 ignore = ["E501"]
-
-[tool.mypy]
-ignore_missing_imports = true
-disable_error_code = ["import-untyped"]
-mypy_path = "packages/temper-placer/stubs"
-
-[[tool.mypy.overrides]]
-module = "yaml"
-follow_imports = "skip"
-
-[tool.coverage.run]
-branch = true
-source = ["temper_placer"]
-omit = ["*/_constraint_types/*", "*/profiling/*"]
-
-[tool.coverage.report]
-show_missing = true
-fail_under = 0  # Per-module gates enforced in CI
-
-[tool.coverage.coverage_gates]
-grid_prep_stage = 90
-net_prep_stage = 90
-route_stage = 90
-result_aggregate_stage = 90
-stage4_orchestrator = 90

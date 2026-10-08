@@ -23,16 +23,3 @@ jobs:
         with:
           files: firmware/build/temper.bin
 
-  wheel:
-    # Evidence releases (zapote/tools/evidence_archive.py) are data, not product builds.
-    if: ${{ !startsWith(github.event.release.tag_name, 'zapote-evidence-') }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v7
-      - name: Build wheel
-        run: uv build --package temper-placer
-      - name: Upload wheel to release
-        uses: softprops/action-gh-release@v3
-        with:
-          files: dist/*.whl

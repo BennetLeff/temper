@@ -14,13 +14,6 @@ on:
       - 'firmware/**'
       # Host tests compile the 120 V prototype PWM sources (test/CMakeLists.txt).
       - 'zapote/power-stage-120v/prototype-closure/round5/firmware/**'
-      - 'pcb/**'
-      - 'scripts/check_firmware_board_contract.py'
-      - 'scripts/check_pll_range_consistency.py'
-      - 'scripts/check_state_machine_model.py'
-      - 'scripts/check_firmware_invariants.py'
-      - 'scripts/check_sil_coverage.py'
-      - 'state-machine-crosscheck-allowlist.yaml'
       - '.github/workflows/firmware-tests.yml'
   pull_request:
     branches: [main]
@@ -28,13 +21,6 @@ on:
       - 'firmware/**'
       # Host tests compile the 120 V prototype PWM sources (test/CMakeLists.txt).
       - 'zapote/power-stage-120v/prototype-closure/round5/firmware/**'
-      - 'pcb/**'
-      - 'scripts/check_firmware_board_contract.py'
-      - 'scripts/check_pll_range_consistency.py'
-      - 'scripts/check_state_machine_model.py'
-      - 'scripts/check_firmware_invariants.py'
-      - 'scripts/check_sil_coverage.py'
-      - 'state-machine-crosscheck-allowlist.yaml'
       - '.github/workflows/firmware-tests.yml'
 
 jobs:
@@ -67,6 +53,9 @@ jobs:
           python3 firmware/tools/gen_config.py
           git diff --exit-code firmware/config.h
 
+      - name: firmware/tools unit tests (generators, state-machine and invariant gates)
+        run: python3 -m pytest -q firmware/tools
+
       - name: Check header matches manifest
         run: python3 firmware/tools/check_config_matches_manifest.py
 
@@ -76,25 +65,10 @@ jobs:
           git diff --exit-code firmware/main/fault_list_generated.h
 
       - name: Check fault list consistency
-        run: python3 scripts/check_fault_list_consistency.py
+        run: python3 firmware/tools/check_fault_list_consistency.py
 
-      # Firmware-assumption contract oracle (plan 2026-08-02-027, R18):
-      # re-derives every board-derived firmware constant
-      # (PLL_MIN_FREQ_HZ, MAX31865 threshold words) from the ACTUAL board
-      # (pcb/temper.kicad_pcb) -- hardware and firmware cannot disagree
-      # about a load-bearing value.
-      #
-      # Was ADVISORY (continue-on-error) until the board fix landed: the
-      # oracle was RED by design because tank.c_tank3 was staged
-      # OFF-OUTLINE at (20.0, 272.75) -- the exact defect class this
-      # oracle exists to catch. The tank-cap placement fix landed in
-      # de59c045 (#602, 2026-08-03); the oracle now PASSES 3/3 on the
-      # current board (verified stable across repeated local runs on
-      # 2026-08-07) and the mask was removed -- it was dead weight, not a
-      # live advisory. This is now a hard gate, per the landing contract
-      # the original comment described.
-      - name: Firmware-board contract oracle
-        run: python3 scripts/check_firmware_board_contract.py
+      # The firmware-board contract oracle (pcb/temper.kicad_pcb) was removed with
+      # the legacy board on 2026-10-08 (archive/temper-legacy-2026-10-08).
 
       # Drift guard: every constant annotated with a board-derivation
       # marker (@board-derived in pll_control.h, board_derivation: true in
@@ -116,11 +90,11 @@ jobs:
       # firmware/test/gen_transition_table.py's TRANSITIONS list (test-side).
       # One real, pre-existing manifest divergence
       # ((STATE_FAULT, EVENT_FAULT_RESET_PERSISTS)) is a dated backlog entry
-      # (state-machine-crosscheck-allowlist.yaml, seeded 2026-08-07) --
+      # (firmware/tools/state-machine-crosscheck-allowlist.yaml, seeded 2026-08-07) --
       # deferred to a firmware maintainer's call, not fixed here; any NEW
       # divergence still fails this step immediately. No continue-on-error.
       - name: State-machine model check (reachability, P1-P4, manifest cross-check)
-        run: python3 scripts/check_state_machine_model.py
+        run: python3 firmware/tools/check_state_machine_model.py
 
       # Firmware invariant proofs (R29, plan 2026-08-02-028-feat-state-
       # machine-model-check-plan.md U7): re-derives every declared invariant
@@ -128,7 +102,7 @@ jobs:
       # firmware/tools/proof_record.json's verdict, only its byte-identity to
       # a fresh regeneration -- KTD5).
       - name: Firmware invariant proofs (proof_record.json freshness + invariant verification)
-        run: python3 scripts/check_firmware_invariants.py
+        run: python3 firmware/tools/check_firmware_invariants.py
 
       - name: Build and run host tests
         run: |
@@ -154,7 +128,7 @@ jobs:
 
       - name: Gate transition-table mutation report
         run: |
-          python3 scripts/check_transition_table_mutations.py \
+          python3 firmware/tools/check_transition_table_mutations.py \
             --report firmware/test/build/mutations/report.json \
             --max-report-age-seconds 900
 
@@ -172,4 +146,4 @@ jobs:
       # docstring for why it is a standalone scripts/check_*.py entry point
       # rather than folded into the CMake/CTest build above.
       - name: SIL fault-injection coverage gate
-        run: python3 scripts/check_sil_coverage.py
+        run: python3 firmware/tools/check_sil_coverage.py

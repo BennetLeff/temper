@@ -1195,9 +1195,12 @@ mod tests {
     /// point.
     #[test]
     fn production_board_round_trips() {
-        let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../pcb/temper.kicad_pcb");
+        // The legacy pcb/temper.kicad_pcb was archived on 2026-10-08; the 120 V
+        // power-stage board is the current production-shaped fixture.
+        let path = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../zapote/power-stage-120v/native-17/section.kicad_pcb");
         let text = std::fs::read_to_string(&path)
-            .expect("pcb/temper.kicad_pcb must be present for the round-trip test");
+            .expect("zapote native-17 board must be present for the round-trip test");
         let (tree, tree2, out) = round_trips(&text);
         assert_eq!(tree, tree2, "production board round trip changed the tree");
         let out2 = write_board_document(&tree2);

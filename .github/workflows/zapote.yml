@@ -25,6 +25,10 @@ jobs:
         run: |
           python3 zapote/tools/test_evidence_archive.py
           python3 zapote/tools/evidence_archive.py check
+      - name: Generator tests (schematic/PCB skeleton, stale-extension gate)
+        run: |
+          python3 -m pip install --quiet pytest kiutils
+          python3 -m pytest -q zapote/tools/generators/tests
       - name: Rust tests
         working-directory: zapote
         env:

@@ -105,7 +105,7 @@ not overwrite an extension another checkout imports.
 
 ## Shared inputs and current scaffold
 
-Temper's `elec/`, `pcb/`, `firmware/`, `components/`, and `datasheets/` remain
+Temper's `firmware/`, `components/`, and `datasheets/` remain
 shared product inputs. Hashed run snapshots are evidence, not second editable
 product sources. Candidate boards remain distinct from the production board.
 

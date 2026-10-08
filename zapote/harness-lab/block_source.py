@@ -52,7 +52,7 @@ KICAD_STOCK_FOOTPRINT_DIR = Path("/Applications/KiCad/KiCad.app/Contents/SharedS
 
 # Last-resort footprint source: the buck prototype library. Some parts (e.g.
 # the Bourns SRP1265A power inductor) were authored for the prototype and
-# exist in neither KiCad stock nor ``pcb/libs``. They are resolved by
+# exist in neither KiCad stock nor ``zapote/elec-base/libs``. They are resolved by
 # footprint stem, because the prototype nickname (``buck-reva``) differs from
 # the netlist nickname (``Inductor_SMD``); provenance records this as a
 # prototype source, never as stock. Overriding resolution globally (staging
@@ -246,7 +246,7 @@ def _stock_footprint_source(nickname: str, repo: Path | None = None) -> tuple[Pa
         searched.append(str(prototype))
     raise BlockSourceError(
         f"footprint {nickname!r} not found in {', '.join(searched)}; "
-        f"vendor it under pcb/libs or set a hermetic checkout"
+        f"vendor it under zapote/elec-base/libs or set a hermetic checkout"
     )
 
 
@@ -288,7 +288,7 @@ def vendor_candidate_libs(
             source = local_source
             origin = str(source.relative_to(repo))
         elif lib in ("lib", "temper", "Temper_RTD"):
-            root = local_libraries if local_libraries is not None else repo / "pcb" / "libs"
+            root = local_libraries if local_libraries is not None else repo / "zapote" / "elec-base" / "libs"
             source = root / f"{lib}.pretty" / f"{fp}.kicad_mod"
             origin = str(source.relative_to(repo))
         else:

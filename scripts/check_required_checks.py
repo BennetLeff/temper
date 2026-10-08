@@ -914,6 +914,21 @@ def _run(
         sleep(min(manifest.poll_interval_seconds, max(1.0, deadline - clock())))
 
 
+def validate_against_workflow(manifest: Manifest, workflow_path: Path) -> None:
+    """Cross-check the manifest against the path-filtered python-tests
+    workflow when it exists. The legacy workflow was removed on 2026-10-08;
+    since then every required context is gated by its own context_triggers,
+    so there is nothing left to cross-check."""
+    if not workflow_path.exists():
+        if manifest.job_triggers:
+            raise RequiredChecksError(
+                f"manifest declares job_triggers but {workflow_path} does not exist"
+            )
+        return
+    validate_trigger_manifest(manifest, workflow_path)
+    validate_job_conditions(manifest, workflow_path)
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -941,8 +956,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.event_path is None:
             raise RequiredChecksError("GITHUB_EVENT_PATH is not set")
         manifest = load_manifest(args.manifest)
-        validate_trigger_manifest(manifest, args.workflow_path)
-        validate_job_conditions(manifest, args.workflow_path)
+        validate_against_workflow(manifest, args.workflow_path)
         repository, number, sha = _event_context(args.event_path)
         api = GitHubApi(
             os.environ.get("GITHUB_TOKEN", os.environ.get("GH_TOKEN", "")),

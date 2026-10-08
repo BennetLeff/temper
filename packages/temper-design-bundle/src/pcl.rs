@@ -425,7 +425,7 @@ pub(crate) mod real_pcl_tests {
     #[cfg_attr(test, test)]
     fn full_temper_pcl_has_no_unsupported_types_and_on_side_needs_no_distance() {
         let bytes =
-            include_bytes!("../../../packages/temper-placer/configs/pcl/temper_induction.yaml");
+            include_bytes!("../tests/fixtures/legacy/temper_induction.yaml");
         let document: PclDocument = serde_yaml::from_slice(bytes).unwrap();
         assert!(document.constraints.iter().any(|c| c.r#type == "on_side"));
         // Derived, not declared: into_constraints maps 1:1 (see its

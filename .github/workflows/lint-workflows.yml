@@ -12,10 +12,14 @@ on:
     paths:
       - '.github/workflows/**'
       - '.github/actionlint.yaml'
+      - '.github/required-checks.json'
+      - 'scripts/**'
   pull_request:
     paths:
       - '.github/workflows/**'
       - '.github/actionlint.yaml'
+      - '.github/required-checks.json'
+      - 'scripts/**'
 
 permissions:
   contents: read
@@ -43,3 +47,8 @@ jobs:
 
       - name: Check pull_request trigger coverage
         run: python3 scripts/check_workflow_pr_triggers.py
+
+      - name: CI tooling tests (required-checks aggregator, worktree guards)
+        run: |
+          python3 -m pip install --quiet pytest pyyaml
+          python3 -m pytest -q scripts/tests

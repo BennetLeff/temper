@@ -47,7 +47,7 @@ body:
       description: Which subsystems would this touch?
       placeholder: |
         - [ ] firmware/
-        - [ ] packages/temper-placer/
-        - [ ] pcb/
+        - [ ] zapote/
+        - [ ] packages/
         - [ ] CI / workflows
         - [ ] docs/
