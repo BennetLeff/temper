@@ -1,0 +1,81 @@
+{
+  "files": [
+    {
+      "file": "DXF/coil_support_flat_routed_plate-PROVISIONAL.dxf",
+      "units": 4,
+      "findings": [],
+      "sha256": "1e007897e5d1e1e163a829e7799a19503ef18cbc44b514e6a281aea1310fc54a"
+    },
+    {
+      "file": "DXF/cover-PROVISIONAL.dxf",
+      "units": 4,
+      "findings": [],
+      "sha256": "83d1d2ff15513c20f3212ccba7f95349da4489b0b8495f1d6855267c9fef1f53"
+    },
+    {
+      "file": "DXF/flush-lens-support-ring-PROVISIONAL.dxf",
+      "units": 4,
+      "findings": [],
+      "sha256": "6ed694fcda1d36585cfff92385081c8e059e05a6735bb5d70e951c7bddec6ec5"
+    },
+    {
+      "file": "DXF/front-panel-rear-lid-PROVISIONAL.dxf",
+      "units": 4,
+      "findings": [],
+      "sha256": "0175b94942455aace61ebd9f91782a19a1fbed9f2bde50d94899958aacca4c66"
+    },
+    {
+      "file": "DXF/glass-carrier-PROVISIONAL.dxf",
+      "units": 4,
+      "findings": [],
+      "sha256": "16121d6d8ee4b9142b338fece8e13c589c2256563b363580931a13f25e8723da"
+    },
+    {
+      "file": "DXF/hatch-cover-PROVISIONAL.dxf",
+      "units": 4,
+      "findings": [],
+      "sha256": "fda21bc7a677d26ff1ad38afe83ef21666ef202c414303a413e5c8e494ad2227"
+    },
+    {
+      "file": "DXF/hatch-tapped-strip-pre-tap-PROVISIONAL.dxf",
+      "units": 4,
+      "findings": [],
+      "sha256": "e7349a479d5320858edb29c3c17a57ec681669d4abc4e2053f3fc1406d33ebf5"
+    },
+    {
+      "file": "DXF/mains-adapter-blank-PROVISIONAL.dxf",
+      "units": 4,
+      "findings": [],
+      "sha256": "64154e287d5e30ef95b174d578cd85e4c2d82fd51439631a8b9f219cbfada976"
+    },
+    {
+      "file": "DXF/probe-adapter-blank-PROVISIONAL.dxf",
+      "units": 4,
+      "findings": [],
+      "sha256": "ad0f5a3fa48cde8cc4b2ad68b2ee2319d99c76232b9c93e2235af3361bede7fe"
+    },
+    {
+      "file": "DXF/sensor_support_flat_adapter_3mm-PROVISIONAL.dxf",
+      "units": 4,
+      "findings": [],
+      "sha256": "8996c59bc108719888eb92f774a175c5c0c29821b4e71fd395f3bc629d84e808"
+    },
+    {
+      "file": "DXF/sensor_support_flat_spacer_2mm-PROVISIONAL.dxf",
+      "units": 4,
+      "findings": [],
+      "sha256": "1d05c86906c20f4bd32d5fb10d1d583e3cc490c05ab3333ab9719316bf125883"
+    },
+    {
+      "file": "DXF/tray-PROVISIONAL.dxf",
+      "units": 4,
+      "findings": [],
+      "sha256": "3e6da2969c2d46c09efcd9ce787fc4e53d722a806e4600e7cedb2f8a27b73818"
+    }
+  ],
+  "tap_pilot_radii_mm": [
+    1.25
+  ],
+  "pilot_matches_2p5mm": true,
+  "scope": "Skill serialized-DXF syntax, closure, duplicates, units and degeneracy checks; no kerf, bend unfolding, laminate cutting suitability or tooling approval."
+}

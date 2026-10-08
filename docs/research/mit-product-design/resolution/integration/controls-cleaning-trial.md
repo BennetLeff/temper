@@ -1,0 +1,26 @@
+# Full-size controls and cleaning trial for the approved R4 front
+
+**Question:** can a cook understand and operate the flush interface, stop heat reliably, recognize actual heating versus a requested setting, and clean the front without trapping soil or harming a seal? Current R4 design rules say rotate navigates or adjusts, Back cancels an unconfirmed edit, Select/Start explicitly starts, and Stop requests heat off from every screen with cooldown indication. These rules are not implemented firmware evidence. No participant trial or spill test has run.
+
+## Build two discriminating articles
+
+1. **Full-size cold interaction mule:** R4 formed-face geometry at actual 35° presentation, actual glass/lens/finish/light conditions, knob/detent and three buttons at the intended reach. A click-through display simulation is sufficient for meaning/reach but must label commanded heat and independently indicated delivered heat as separate states. Include gloves, water/oil on fingers, bright oblique light, pan occlusion, low vision and left/right approach as scenarios. Log exact module/firmware revisions and mark simulated functions.
+2. **Material/cleaning coupons:** actual finish, glass edge, chosen bond/seal/membrane and formed opening, made by proposed process. Include at least one process-limit sample with intentionally small/large but *conforming* joint or button gap once supplier tolerances are defined. Use de-energized coupons for water, hot oil at controlled material-safe condition, flour/starch, detergent and wiping. Do not expose people to hot or energized unqualified hardware.
+
+Recruit cooks spanning experience, hand size, handedness and accessibility needs, plus at least one service/cleaning worker. Number and mix are recorded before test; this development study is not a statistical certification sample. Use the same scripted tasks for each candidate. Alternate prototype presentation order if comparing geometry/label variants. Do not coach after the task starts except to stop an unsafe action. Video may be used only with participant consent; otherwise timed observer notes suffice.
+
+| Task ID | Scripted cue | Observable outcome and record |
+| --- | --- | --- |
+| U01 | “Set a pan down and get moderate heat.” | First interpreted start control, intentional versus unintended heat request, time/actions/errors, verbal confidence after completion. |
+| U02 | “Change the target while the pan is heating.” | Whether requested target and actual heating indication are distinguished; overshoots, selection slips, corrective steps. |
+| U03 | “A spill occurs; stop heating now.” | Stop press location, time to user action, display understanding of commanded-off versus residual heat; simulate an independent actual-off indicator. |
+| U04 | “Power went out, then returned.” | Whether user expects automatic restart; test prototype must require explicit restart per R4 design rule. Record first action and expectation separately. |
+| U05 | “The sensor loses contact while a pan is present.” | Present fault cue and observe whether user recognizes loss of trustworthy control; heating action is simulated until T02/T06 integration is proven. |
+| U06 | “Clean the face after oil and flour.” | Wipe path, number of passes, residue in 0.4 mm lens joint/0.3 mm button radial gap, visible damage, perceived cleanliness and cleaning tool used. |
+| U07 | Service mockup: “Remove and reinstall the carrier.” | Tool/fastener access, lens bond untouched, membrane compression and button response after reinstall; assembly technician trial only. |
+
+Before trials, product/controls leads set task-specific acceptance rules: maximum tolerated wrong-start and failed-stop events, comprehension of heat/fault states, and cleaning residue/damage screen. The starting rule may be zero *observed* wrong starts or failed stops in this small study; zero observations are not a field-risk estimate. Record actual counts/exposures and each failure mode, not an invented reliability percentage. Use [observations](controls-observations.csv) to separate behavior, participant statements and researcher inference. Blindly compare visual alternatives only if the owner has explicitly selected them as candidates; the approved flush aesthetic remains the baseline.
+
+For coupon runs, pre-register soil mass/application area, dwell and surface temperature, cleaner concentration, wipe material/force/passes, inspection illumination and magnification, pre/post photographs, water/oil ingress detection, seal profile and re-test after cycling. Record material batch and actual joint dimensions. The [coupon sheet](cleaning-coupon-results.csv) intentionally has blank measured cells and `NOT_RUN` statuses. Do not turn a neat render or a successful wipe of a printed mockup into a seal claim.
+
+**Gate:** after the mule reveals comprehension and reach issues, update graphics/control behavior or physical button features, then repeat affected tasks. After supplier-material coupons, choose a seal/bond process and retest cleaning plus retention after heat/humidity/aging. Closed-appliance hot/oil ingress and electrical effects require the qualified integrated build and the safety team's standard-derived pass limits.

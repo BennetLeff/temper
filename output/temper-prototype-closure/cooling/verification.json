@@ -1,0 +1,103 @@
+{
+  "status": "LOCAL_COLD_STUDY_VERIFIED_INTEGRATED_COOLING_BLOCKED",
+  "environment": {
+    "python": "/private/tmp/temper-center-sensor-env/bin/python",
+    "cadquery": "2.6.1"
+  },
+  "source_hashes": {
+    "build_control_coupon.py": "8415b50fe16ff36dee184404055b09881b0a66189c205a9453dd71cc4aca996c",
+    "build_study.py": "1fa6ef4cb56f3bcd02ec7cf316a98c7aad449121aa3b18ddbe607291cb98a4aa",
+    "check_contact_tolerances.py": "bb5059ef1ae4dfa77280e5a4e2c06fda25f14f1b0d61868af8db4591d03c9294",
+    "contact-tolerances.json": "ef3e70c1e3f90f91a73d701619743e7d54e1192be762a56b98661c6adc80f8cb",
+    "interface.json": "df385e6f263cd4ff721f23ebf2ad469a49f2902f297e54d50bd22d8d38048b0b",
+    "plot_study.py": "b885ec25ba5bbb2ce27b27147bbc3b0c2c12164e8495b67469e971996769a573"
+  },
+  "checks": {
+    "ruff_check": "PASS",
+    "ruff_format": "All four scripts formatted; existing three scripts unchanged by erratum",
+    "local_markdown_links": "20/20 exist",
+    "source_and_step_receipt_hashes": "PASS",
+    "negative_guards": "4/4 expected rejections including severed sink",
+    "native18_model_count": 135,
+    "retained_R4_named_parts": 250,
+    "cooling_vs_native18_positive_volume_hits": 0,
+    "new_parts_vs_retained_R4_positive_volume_hits": 0,
+    "connected_sink_solid_count": 1,
+    "assembly_step_solids": 539,
+    "fixture_step_solids": 1,
+    "physical_measurements": "NOT_RUN",
+    "behavior_preserving_simplification": "PASS: fixture receipt dimensions/volume/bounds unchanged; PNG byte-identical; see simplification-checks.json",
+    "contact_interval_erratum": "PASS corrected near-edge interpretation; exact-decimal checker rejects both historical plus-sign intervals",
+    "manufacturer_source_pdf_hashes": "2/2 match independent review PDFs",
+    "cooling_geometry_after_erratum": "Unchanged main generator, interface, checks and STEP SHA-256"
+  },
+  "commands": [
+    "UV_CACHE_DIR=/private/tmp/temper-cooling-uv-cache uv run --no-sync ruff format zapote/power-stage-120v/prototype-closure/cooling/*.py",
+    "UV_CACHE_DIR=/private/tmp/temper-cooling-uv-cache uv run --no-sync ruff check zapote/power-stage-120v/prototype-closure/cooling/*.py",
+    "/private/tmp/temper-center-sensor-env/bin/python zapote/power-stage-120v/prototype-closure/cooling/build_study.py",
+    "/private/tmp/temper-center-sensor-env/bin/python zapote/power-stage-120v/prototype-closure/cooling/build_control_coupon.py",
+    "MPLCONFIGDIR=/private/tmp/temper-cooling-mpl /private/tmp/temper-center-sensor-env/bin/python zapote/power-stage-120v/prototype-closure/cooling/plot_study.py",
+    "python3 zapote/power-stage-120v/prototype-closure/cooling/check_contact_tolerances.py"
+  ],
+  "verification_evidence": [
+    {
+      "unit": "contact-bearing cold assembly and floating PCB carrier",
+      "behavior_changed": "CAD adapter added; product sources unchanged",
+      "existing_tests_inspected": "Existing native18 geometry/R4 identities and geometry evidence; no product test changed",
+      "tests_added_or_changed": "Fail-closed identity/thickness/connected-sink assertions; four negative-input replays",
+      "red_or_characterization": "Initial nine R4 intersections and six cooling/PCB intersections; original full-depth recess severed base and fails final continuity guard",
+      "verification": "Final zero intersections against included R4/native18; connected sink one valid solid; STEP 539 valid solids; hash equality PASS",
+      "exception": "No full product tests added: review-only CAD geometry checked directly with OpenCascade. No physical test or native19 population fit claimed."
+    },
+    {
+      "unit": "cold switch-cartridge holding fixture",
+      "behavior_changed": "New unpowered fixture CAD, no product click mechanism changes",
+      "existing_tests_inspected": "R4 cartridge dimensions and existing knob review",
+      "tests_added_or_changed": "STEP validity and one-solid assertion",
+      "red_or_characterization": "Safe overtravel unavailable; .44\u2013.52 mm product proposal remains unapproved",
+      "verification": "One valid reimported solid; source/STEP hashes match; dimensions/holes reported",
+      "exception": "Physical force, travel and durability tests NOT_RUN; no assembled hardware."
+    },
+    {
+      "unit": "manufacturer contact bounds and assembly guidance",
+      "behavior_changed": false,
+      "existing_tests_inspected": "Infineon and Diodes dimensioned package drawings; D18 conditional thermal allocations",
+      "tests_added_or_changed": "Exact-decimal near-edge corner construction checker; rejects both historical wrong plus-sign intervals",
+      "verification": "Independent reviewer, parent and cooling worker visually confirmed near-edge datums; source PDF hashes match; corrected MOS1.170..1.825 and bridge1.300..1.800; signed fixed-interface differences MOS\u2212.345..+.310 and bridge\u2212.900..\u2212.400; see contact-tolerance-checks.json",
+      "exception": "Drawing interpretation corrected and independently reviewed, not physical/thermal validation. Generic MOS plane lies inside interval; bridge fixed interface interferes across straight-lead interval. All real seating/clamp/interface work remains open."
+    },
+    {
+      "unit": "behavior-preserving fixture/plot simplification",
+      "behavior_changed": false,
+      "existing_tests_inspected": "Existing STEP validity/source pins and geometry receipt",
+      "tests_added_or_changed": "Before/after exact receipt dimensions, bounds, volume, one solid; PNG byte equality; main assembly source/artifact hash equality",
+      "verification": "All comparisons PASS; scoped Ruff PASS; fixture and plot rerun",
+      "exception": "No whole cooling rerun needed: its generator, interface, receipt and STEP unchanged. Native19 remains absent."
+    }
+  ],
+  "native19_integration": "PENDING revised HOT5/R5 inventory and final saved-fill contact/corner screens; parent coordinates after PCB worker finishes",
+  "blockers": [
+    "Actual seating, coplanarity and clamp/interface pressure remain unverified. Generic MOS plane lies inside corrected drawing interval; signed gap may be negative or positive. Bridge fixed interface gives \u22120.900..\u22120.400mm drawing-derived interference under straight-lead assumptions; .685mm boss and paired ceramic are not released.",
+    "Custom sink thermal/pressure-drop and fan P-Q operating point not obtained; <=.15C/W and >=20 delivered CFM remain requirements",
+    "Exact Max03NG anchor/profile and bridge clamp/load unverified",
+    "Complete rear duct, protective chamber, harness, guards and upstream EMI protection absent",
+    "Carrier and sink chassis attachment, chosen insulating grade, temperature/growth/load/creep/clearance verification open",
+    "Physical fitting, contact resistance, insulation, airflow and powered testing NOT_RUN"
+  ],
+  "standalone_shipping_skipped": true,
+  "contact_plane_erratum": {
+    "date": "2026-10-04",
+    "record": "docs/research/mit-product-design/readiness/mechanical/cooling-closure/contact-plane-erratum.md",
+    "corrected_data_sha256": "ef3e70c1e3f90f91a73d701619743e7d54e1192be762a56b98661c6adc80f8cb",
+    "check_receipt_sha256": "676b571ff2b164d46f01c9890a8a48bb52690b25de32ef4e95c569c405076a52",
+    "independent_pdf_hashes": {
+      "ipw65r018cfd7.pdf": "c364050a04a434bd173da6486fd51f4baf540ee9e4e1ebbe07aed57e279943f2",
+      "gbj2510.pdf": "c7d9657711588ecf8d9adf4e1438435d488b21b7733e99caaead3c2490728a02"
+    },
+    "review_crop_hashes": {
+      "mos-side.png": "6c6dd585b0b0cbfda0144f9294d8375fb3ea7f7c8aa7ca669290a837740820d8",
+      "gbj-side.png": "dccbe0bf7b0062258eba2b386668419881600ef406a458a0d48796dda97aa049"
+    },
+    "physical_validation": "NOT_RUN"
+  }
+}

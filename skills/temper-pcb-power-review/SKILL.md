@@ -1,0 +1,32 @@
+---
+name: temper-pcb-power-review
+description: Review a specified Temper PCB or power-stage design for switching paths, device stress, thermal behavior, faults, EMI, and build/test readiness using page-cited MIT coursework. Use for a hardware design review or meaningful power-layout change, not routine unrelated edits.
+---
+
+# Temper PCB and power-stage review
+
+Use this skill to turn a concrete hardware design into prioritized, verifiable engineering findings. The MIT material supplies review methods and physical reasoning; it does not certify an appliance. Read [references/source-rules.md](references/source-rules.md) when forming a technical finding or citing a course.
+
+## Establish the artifact
+
+Resolve the user's intended schematic, PCB, revision, operating target, and enclosure interface before evaluating it. Temper includes a legacy `pcb/temper.kicad_pcb` and a newer `zapote/power-stage-120v` full-bridge concept; neither name alone proves which is current. Compare both when asked, label their identity and maturity separately, and surface conflicting assumptions. Do not carry a net, placement, bus specification, or test result from one baseline into another. For a small edit, review only the affected current paths and interfaces; for a system review, cover the relevant topics below.
+
+## Review the paths and corners that can fail
+
+- **Commutation and control returns:** Trace the actual topology's fast current loop through switches and local energy storage, then the gate-drive/return and sensor/reference loops. Check loop area, return continuity, common impedance, and the coupling of high-`dv/dt` copper into sensitive nodes. Map lecture examples to the actual full bridge rather than assuming a buck current path. Inspect whether source/Kelvin sense and driver return share a power-current segment; treating a dedicated Kelvin path as a candidate mitigation is an engineering inference, not a prescription from MIT. [Lecture 38, pp. 1–3](references/source-rules.md#switching-paths).
+- **Electrical stress and fault path:** Build a corner matrix for input range, load/pan coupling, no-pan/detuned operation, startup, shutdown, brownout, sensor faults, gate-drive loss, and plausible open/short faults. Establish where fault current and stored energy go, what detects it, what interrupts it, and whether the interruption leaves outputs safe. Check switching waveforms, voltage/current stress, device SOA, snubber dissipation and gate supply limits against *selected-component* datasheets and measurements. MIT supports transient/loss/resonance reasoning, while the specific fault-tree application is an engineering extension. [Lectures 15 and 35; 2.996 Lecture 4](references/source-rules.md#stress-and-faults).
+  Bound the complete sensing-to-current-extinction path: filtering/blanking, worst-case comparator delay, isolator delay and common-mode immunity, latch, driver, device turn-off, and passive/freewheel paths for remaining bus/tank energy. Gate disable cannot interrupt a device already shorted. Check surge protection and fuse coordination, including protection-component failure and end-of-life; a nominal MOV clamp is not an absolute FET-voltage ceiling. Pair statistical load screens with deterministic boundary and fault cases. These are product engineering extensions, not MIT-specified acceptance limits.
+- **Mixed domains and insulation:** Identify live, accessible, chassis, low-voltage and sense domains from real artifacts. Record the insulation system and the authoritative standard/product requirement used to set clearances, creepage, slots, coatings, connector ratings, earthing, and leakage limits. Treat DRC as evidence that a configured rule was checked, not evidence that the rule was sufficient. Never copy a classroom spacing value into a mains design. This domain-boundary procedure is an engineering extension to the MIT layout and EMI material. [2.996 Lab 3 and Lecture 30](references/source-rules.md#domain-and-emi).
+- **Thermal and EMI:** Sum conduction, switching, gate and snubber losses over operating corners; follow heat through junction, package, interface, sink/enclosure and ambient, including shared paths and transient duty. Map differential and common-mode noise loops, filter parasitics, and chassis coupling; distinguish analysis from conducted/radiated measurement. [Lectures 15, 16, 28, 30](references/source-rules.md#thermal-and-emi).
+- **Manufacture, assembly, and test:** Check selected footprints and polarity against part data, fabrication and assembly limits against actual suppliers, access to critical probe points, board-to-enclosure fit, mounting and thermal contact, staged first power, and whether a fault can be diagnosed without unsafe probing. These DFM/DFT questions extend the lab's placement, decoupling, DRC and staged assembly guidance; they require supplier and product evidence. [2.996 labs](references/source-rules.md#build-and-bring-up).
+
+## Report and evidence
+
+Put findings in a compact table, ordered by consequence and confidence. Use artifact identity, concrete observed issue, physical failure mechanism, evidence class/source, and next verification. Distinguish **observed in design**, **calculated**, **simulated**, **measured**, and **hypothesis**. State assumptions and unresolved requirements; do not present a green DRC, simulation, classroom example, or an unwatched video as product validation. A useful row looks like this:
+
+| Artifact identity | Finding and failure mechanism | Evidence | Next verification |
+|---|---|---|---|
+| `power-stage-120v`, schematic rev X, bridge leg A | Gate return may share pulsed source copper; common-source inductance could change effective `Vgs` at turn-off | Observed in layout rev X; mechanism is engineering inference from [6.622 L38 pp. 1–2](references/source-rules.md#switching-paths) | Check selected driver's and FET's limits; capture `Vgs` at device pins across worst load and bus corners |
+| Selected full-bridge source; no native layout supplied | Switching-loop geometry and insulation separation cannot yet be assessed | Artifact missing; no layout defect asserted | Obtain the layout, stackup, mechanical interfaces, and applicable rule basis before a PCB release decision |
+
+If a required artifact or limit is missing, identify the decision it blocks and the minimum measurement, document, or owner needed. Do not imply MIT, OCW, or a course instructor endorsed the design. Cite short paraphrases only; do not reproduce course PDFs or transcript text.

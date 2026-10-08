@@ -1,0 +1,32 @@
+id,priority,finding,R2_status,R2_action
+DFM-01,P1,Service-hatch holes leave 0.8 mm ligaments,Geometry improved,"Ø64 cover,56mm pitch; fixed tapped strips. Rivet specification and joint sealing open."
+DFM-02,P1,Glass-carrier holes sit close to the cut edge,Geometry improved,Cover/carrier/angle/spacer/hardware axes all X±174. Shop tolerances open.
+DFM-03,P1,The coil/sensor carrier has no chassis attachment,Geometry improved,"Flat support and four tube legs attached with through bolts. Strength, stiffness, material and EM remain unverified."
+DFM-04,P1,Display and buttons are floating appearance parts,Open,Display and button carriers/seals still need component selection. Appearance parts unchanged.
+DFM-05,P1,Feet touch the base but are not attached,Geometry improved,Screw-through foot candidate and complete nominal M4 stack. Exact stock foot/compound pending.
+DFM-06,P1,Sensor cap has a 0.2 mm local wall,Geometry improved,"Cap skirt0.8, groove wall1.0; stepped bore and post-insertion formed lip. Guide relief added. Forming, thermal and seal qualification open."
+DFM-07,P1,Three tiny pads concentrate the glass reaction load,Geometry improved,"Flat annular glass shim replaces tiny pads; larger measured area, no stress/strength claim."
+DFM-08,P1,The press-click tolerance stack still fails,Open inherited fail,Click tolerance conflict unchanged; detent changes do not solve trip/overtravel.
+DFM-09,P1,"Cooling is still an allocation, not an assembled system",Open,Heat sink path and fan/duct interfaces remain unresolved.
+DFM-10,P1,"Seals, cable flex and contact confidence remain unqualified",Open,Diaphragm mechanical capture retained; cable loop/gland/contact confidence still unqualified.
+DFM-11,P1,"Glass, bonding and load retention lack a supplier definition",Open,"Glass-ceramic vendor drawing, bond, load and thermal criteria required."
+DFM-12,P1,Nominal bent-sheet fit has no tolerance/adjustment strategy,Partly improved,"Simple flat support and tube legs avoid extra bends; exterior still needs shop bend coupon, angle stock and tolerance stack."
+DFM-13,P2,Hardware envelopes do not yet define an assembly process,Partly improved,Hatch threads retained; M4 mounting stacks added; cam uses M2 screws. Hardware grade/locking/torque/driver study incomplete.
+DFM-14,P2,Cleanability and edge finish need a deliberate detail pass,Partly improved,Silver grip and cleaning concept retained. Ø56 grip; smooth wipe panel unchanged. Control gaps and edge/finish specification open.
+DFM-15,P2,18 legacy STL files have mesh-quality flags,Preserved historical evidence,Legacy flagged meshes not reused or overwritten.
+DFM-16,P2,Current assembly depends on source in old output folders,Improved,Self-contained R2 source + inputs; all contained source/input hashes. Reference helpers retained for reproducibility.
+DFM-17,P2,Clean DXFs are not yet a shop drawing package,Partly improved,Nominal projected review PDF and new flat-part DXFs. Not released shop drawings; tolerances and bend approval missing.
+DFM-18,P2,There is no released make/buy BOM or unambiguous current catalog,Partly improved,"R2 catalog, individual parts and make/buy review. Unselected suppliers and materials explicitly open."
+DFM-19,P2,Test coverage needs explicit requirements and exclusion tracking,Improved,"Saved-part dimensional checks, affected-context interference and sampled motion, documented exclusions and physical gates."
+DFM-20,P2,The knob is a high-part-count prototype mechanism,Geometry improved,Turned grip plus replaceable flat-profile cam. Two catalog detents replace ten custom/loose pieces; adds cam and three M2 screws.
+DFM-21,P1,Electrical and connector interfaces remain open,Open,"Connector blanks, bonding and harness interfaces remain provisional."
+R2.1-01,P1,Nominal minimum detent compression0.031mm is sensitive to a0.05mm offset,Geometry and offset-budget checks pass; physical qualification open,Increase body-face radius20.800 to20.849mm; define combined offset budget ±0.050mm and assembly-setting procedure. Locking and feel unqualified.
+R2.1-02,P1,Thermal screening inputs are unmeasured,Test plan added; physical work open,No thermal geometry changes. Measure force and local thermal response; identify contact and housing losses before optimization.
+R3-01,Redundant plus/minus controls,CHANGED,"Replace with Back, Select/Start, Stop; rotation handles adjustment. Firmware unchanged.",
+R3-02,Undefined display mount and seals,MODELED / UNQUALIFIED,"Captured glass, blind mounting bosses, OLED envelope, membrane and rear lid; verify materials, compression and heat.",
+R3-03,Cassette intersects PCB compartment allocations,OPEN FIT FAIL,Preserve barrier and compare shallower interconnect against sloping compartment cover. Do not release integrated assembly.,
+R3-04,Glass diagonal fit and button seal/cover clash,CORRECTED IN CAD,Pocket corner relief and shorter membrane; rerun saved geometry checks.,
+R4-01,Visible cassette outline and recessed lens,CHANGED,"Continuous formed front,flush glass with0.4mm seal joint,no exterior bezel.",
+R4-02,Removable electronics without disturbing lens,MODELED / UNQUALIFIED,"Rear bonded lens ring, concealed bonded studs and removable carrier; adhesion/heat qualification required.",
+R4-03,Carrier plate moved rearward,CORRECTED IN CAD,Extend eight blind M2 screw bores into plate to clear screw tips.,
+R4-04,PCB compartment conflict,OPEN INHERITED FIT FAIL,Barrier geometry preserved; integrated fabrication release withheld pending compartment revision.,

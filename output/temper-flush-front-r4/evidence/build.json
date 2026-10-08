@@ -1,0 +1,79 @@
+{
+  "exports": [
+    {
+      "file": "STEP/assembly.step",
+      "named_parts": 406,
+      "solids": 434,
+      "valid": true,
+      "sha256": "2e89923f65e466831395a10a2ac7e307ded48fbb8b49e5c19e87b4da1df21291"
+    },
+    {
+      "file": "STEP/knob.step",
+      "named_parts": 54,
+      "solids": 54,
+      "valid": true,
+      "sha256": "2083e88b5a78dffc4a439bd3fd24a0796cf5b482275a06780f785b0338f81773"
+    },
+    {
+      "file": "STEP/sensor.step",
+      "named_parts": 21,
+      "solids": 21,
+      "valid": true,
+      "sha256": "8db260eae2c4d2918e6566d5fa73f6a279652b5210a6efd056bfd21a56d39f4c"
+    },
+    {
+      "file": "STEP/enclosure.step",
+      "named_parts": 70,
+      "solids": 70,
+      "valid": true,
+      "sha256": "75f9aeaf3eb4fd7efaa986508b1709ad9d221c8399f6bf857fa59e81eb5af7e3"
+    },
+    {
+      "file": "STEP/support.step",
+      "named_parts": 29,
+      "solids": 29,
+      "valid": true,
+      "sha256": "e5d530741237933eae6b7c45308f0d1ba4d1caddc50366f5141a91f3f65658d7"
+    },
+    {
+      "file": "STEP/front_panel.step",
+      "named_parts": 73,
+      "solids": 96,
+      "valid": true,
+      "sha256": "4465d1550f02457cbc730b2b0a12dfcab656262a425efbaba40d64e73e7cc224"
+    },
+    {
+      "file": "STEP/front_panel_exploded.step",
+      "named_parts": 73,
+      "solids": 96,
+      "valid": true,
+      "sha256": "0de9295800dfb6bc107b4080ec60c9aa0d7588bdf3dc65b8f5d4b0386047b5bd"
+    },
+    {
+      "file": "STEP/knob_exploded.step",
+      "named_parts": 54,
+      "solids": 54,
+      "valid": true,
+      "sha256": "964a612cfe3a2be41c7dd70e90f0b769b618c3c9f16ebeded3fbda1735c3b684"
+    }
+  ],
+  "python": "3.11.15",
+  "cadquery": "2.6.1",
+  "source_hashes": {
+    "src/assembly.py": "e12d154ed1041ea6537e144a25a87d15ad348999b59ad9af25d874af6d708494",
+    "src/baseline_engine.py": "d24d814439cb9e12fe94810bdf063cd334209ffc492a25efdd9182c901d6c8d0",
+    "src/enclosure.py": "ecc1dabdf16e40e68d8f9c10074c1cb1a82f39acdbc10367dcfb1f36e291a514",
+    "src/front_panel.py": "99b3e1f4103515b8e0cdd2758a6cb2d14dbe92192ab2fa4fd02456508fc11025",
+    "src/mechanisms.py": "73eb4e7205a428dec2c7a00a3a2ebf2193263edfe58c1230854eb20308208f21",
+    "src/reference/exterior.py": "a5398b0326ac7f465c461fc900e5f8337df1efec48e4ebcc047f940969d9f46a",
+    "src/reference/knob_correction.py": "289a05819e43f3fbab343c25e4425fe070a5b6ad99b7523a22e9f7427e2f74ea",
+    "src/reference/knob_original.py": "d14f38a1dd5df9a86dc3545e4046bd5debbf8caf0974e9700369f0df4247f3d8",
+    "src/reference/packaging.py": "c2fa153699410728c3e2fa3d6307fee87f8e9c5bb88abd5a4c2a55078cca34ac",
+    "src/reference/sensor_correction.py": "a260bbba24f18f7e65f6d727c8e23f2bc4387145f4f7dbbf4044d73a28d1b158",
+    "src/reference/sensor_original.py": "878a0e708f0754efa2b7ea3dc338dee7bc0376475258e1d3bf8427e5058f9dca",
+    "src/review_drawings.py": "defc728fe0748ff7eb13efbd79e69fbb7aab1db60930f2394d40f5acf5f91e30",
+    "src/support.py": "4649934d90a66b9dac0c015da12664d857aa2df7dc6daea72d360e5ebaa7d0f4",
+    "inputs/current-pcb.step": "7b5206e0b4f035f4042f4a9857e9b5a96dfb11977f8de97572c3598688e799a2",
+    "inputs/exterior-parameters.json": "06ba556a16ef71b4d3ed5876470cd9e8dc797e2101d1c5c8438874ce907dd477"
+  }
+}
