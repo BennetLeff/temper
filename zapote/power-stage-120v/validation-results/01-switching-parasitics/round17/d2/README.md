@@ -500,3 +500,61 @@ Versus `legB-h0-corr-n19`: entries within 0.5 nH.
 **Leg B is closed on native-19/20 copper.** Native-21's new copper requires a
 re-extraction of both legs (RELAYOUT-REQUIREMENTS, after the layout).
 
+
+## Native-21 leg A, first matrix and decision cases (provisional, 2026-10-08)
+
+The first native-21 extraction landed on the remote box: leg A's coarse reference
+(`results/matrices/legA21-h1-e1p0-m10-n21.matrix.txt`, h 1 mm, 1.0 mm edges, 10 mm crop,
+3.37 M tets, 12 ranks; diagonals agree with the port energies to ≤ 2.3e-7). Against
+native-19 at the same reference (nH):
+
+| entry | native-19 | native-21 | change |
+| --- | ---: | ---: | ---: |
+| L11 (C38 loop) | 31.49 | 42.18 | +34 % |
+| L22 (C39 loop) | 30.18 | 44.14 | +46 % |
+| M12 (shared path) | 19.03 | 32.06 | +68 % |
+| L33 (gate high) | 28.02 | 56.78 | ×2.0 (new closure) |
+| L44 (gate low) | 37.93 | 72.63 | ×1.9 (new closure) |
+| M13 / M14 | 3.74 / 5.60 | 4.25 / 7.55 | +14 / +35 % |
+
+**Why the power loop grew:** the enclosure re-layout put F6's gate network (PMEG + 1 Ω
+at y 17.9, Cgs at y 21.8) directly under each gate pin and moved the HF film row
+(C38–C41) 6 mm down to make room. C38/C39 sit 24 mm from the TO-247 row (native-19:
+17.8 mm), and C39 is 20 mm right of Q2 (was 14 mm). That lengthens the commutation path
+both capacitors share, so most of the rise is in M12. The parallel commutation loop
+(C38 ∥ C39, (L11·L22 − M12²)/(L11 + L22 − 2·M12)) goes from 24.9 to 37.6 nH at the
+reference. FLOORPLAN.md's "proven commutation loops, rail model ≤ 0.5 nH per branch"
+does not hold for native-21. The gate loops are not like-for-like: native-21's gate ports
+close through the driver's bias capacitor (`closures-legA-n21.json`), so they include the
+bias-reservoir path that native-19's closure left out.
+
+**Provisional decision matrix** `legA21-h0-prov-n21.matrix.txt` (`compose_legA21_prov.py`)
+= native-21 coarse + native-19 leg A's (best − coarse) correction, the transfer that held
+for leg B (`legB-corr-vs-prov.json`: no verdict flips). It is SPD, with a minimum
+eigenvalue of 8.16 nH. The parallel loop is 32.0 nH (native-19 best: 19.4 nH, +65 %).
+
+**Without F6** (unipolar baseline deck, `results/legA21-prov-n21/`; the same 96 cases as
+`native19-carryover`, compare in `compare-vs-n19.json`):
+- S1 and S2 pass 36/36 and 24/24, including the 1.9 V hot screen, with ZVS 12/12 at 443 ns.
+- S2 die VDS rises by +40 … +80 V, to ≤ 414 V.
+- S4 (already failing every case) loses 0.45–1.08 V of off-gate, but its die VDS reaches
+  **550 V** (native-19 511 V), above 520 V in 19/36 cases.
+
+**With F6 at the −1.6 V rail bound** (the design basis, DECISIONS.md; PMEG6030EP model;
+`f6_legs.py --matrix-a legA21-h0-prov-n21.matrix.txt --vneg -1.6 --diode pmeg --temps
+27,100,150`, results `results/f6-vneg-m1p6-legA21-prov{,-startup}/`): **252/252 pass**,
+the 1.9 V hot screen included, at 27/100/150 °C.
+
+| case | native-19 (`f6-vneg-m1p6*`): max off-gate / die VDS | native-21 provisional: max off-gate / die VDS |
+| --- | --- | --- |
+| S1 | −0.67 V / 355 V | −0.90 V / 351 V |
+| S2 (585 V limit) | 0.14 V / 389 V | −0.43 V / 446 V |
+| S4 | 1.74 V / 486 V | 0.83 V / 470 V |
+| S5 burst start | 0.16 V / 389 V | 0.47 V / 440 V |
+
+Decision (recorded in DECISIONS.md): **no placement change for the power loop.** With F6
+built in, every decision and startup case passes with margin. The worst margins are S4 at
+470 V against 520 V and S5 at 440 V. Pulling the film row back up would mean moving F6's
+network off the gate pins, which is what makes F6 work. Status: provisional until
+native-21's own corrections (`a21corr`) and fine extraction (`campA21`) land. Leg B's
+native-21 coarse matrix is running.
