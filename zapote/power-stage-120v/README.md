@@ -1,5 +1,11 @@
 # power-stage-120v: full-bridge induction power stage
 
+**Run board checks:** [Zapote check index](../CHECKS.md),
+[native placement/routing feedback](../layout-quality/NATIVE.md), and
+[current-sharing / resistance / loss analysis](../layout-quality/CURRENT.md).
+The native feedback commands default to the saved native-17 board; the index
+separates measured results, missing models and pending CI integration.
+
 Status: **source compiled and audited; 240 × 160 mm four-layer placement
 generated; native-06 routed and checked for renewed D4 review; physical NOT RUN.**
 Design basis and justification: `docs/hardware/power-section-120v/` (POWER-SECTION.md,

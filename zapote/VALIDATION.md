@@ -1,5 +1,8 @@
 # Zapote validation objective
 
+For runnable commands, Rust owners, evidence and CI status, start at the
+[check index](CHECKS.md). This document defines the validation objective.
+
 The product outcome is a cooker board that passes a broad, demanding suite of
 Rust engineering validations. The agent places/routes in KiCad through the
 working Python adapter. Replacing that adapter with Rust is later work, not a
@@ -43,12 +46,19 @@ does not become proof of measured RF/thermal/hardware behavior.
 
 ## Rule inventory and test corpus
 
-The [2026-09-12 coverage inventory](validation/README.md) records the actual
+The [2026-09-12 coverage inventory](validation/inventory-2026-09-12.json) records the actual
 Temper registry, copied kernels, per-unit report IDs and ordered next ports.
 It also exposes the current execution gap: the shared `check-boards` command
 runs stackup only; richer unit checks have separate entrypoints. This inventory
 is a measured common-gate baseline and a retained-report audit, not a claim
 that every donor rule or unit suite was freshly executed.
+
+The [2026-10-02 integration audit](layout-quality/INTEGRATION-AUDIT.md) updates
+that baseline with a fresh five-unit run and the native 120 V layout integration.
+`make check` runs `check-layout` and `check-current` before `check-units`.
+The native commands measure saved geometry and conditional DC current distribution
+and support before/after comparisons. Their explicit model gaps prevent treating
+successful measurement as full-board acceptance.
 
 P1 records one compact coverage manifest with: requirement/fault ID, actual
 Rust owner/entry point, relevant source inputs, applicability, units/thresholds

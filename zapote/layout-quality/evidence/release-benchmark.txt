@@ -1,0 +1,7 @@
+   Compiling zapote-drc v0.1.0 (/Users/bennet/Desktop/temper/worktrees/layout-quality/zapote/packages/zapote-drc)
+    Finished `bench` profile [optimized] target(s) in 7.64s
+     Running benches/layout_quality.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/layout_quality-4358ea12ba3382b7)
+64-node factorization: 59.5 us/iteration (100 iterations)
+64-node solve with object report: 12.3 us/iteration (10000 iterations)
+1000+1000 sparse patches with 1000 pair reports: 602.8 us/iteration (100 iterations)
+1000 sparse envelopes with 999 pair reports: 208.5 us/iteration (100 iterations)

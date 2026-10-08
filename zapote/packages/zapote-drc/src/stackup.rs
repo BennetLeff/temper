@@ -315,3 +315,62 @@ pub fn nominal_outer_copper_um(text: &str) -> Result<f64, String> {
     }
     Ok(values.into_iter().fold(f64::INFINITY, f64::min))
 }
+
+/// Ordered copper midplanes and the series dielectric thickness/epsilon between
+/// adjacent copper surfaces, for native geometry screens. No default epsilon.
+#[derive(Debug, Clone)]
+pub struct LayoutStack {
+    pub copper: Vec<LayoutLayer>,
+    pub adjacent_dielectrics: Vec<(String, String, f64)>,
+}
+#[derive(Debug, Clone)]
+pub struct LayoutLayer {
+    pub name: String,
+    pub center_z_mm: f64,
+    pub thickness_mm: f64,
+}
+pub fn layout_stack(text: &str) -> Result<LayoutStack, String> {
+    inspect(text)?;
+    let board = parse_document(text, "KiCad PCB")?;
+    let mut result = LayoutStack {
+        copper: Vec::new(),
+        adjacent_dielectrics: Vec::new(),
+    };
+    let mut z = 0.0;
+    let mut electrical_distance: f64 = 0.0;
+    for layer in children(one(one(&board, "setup")?, "stackup")?, "layer")? {
+        let name = atom(list(layer)?.get(1))?;
+        let kind = scalar(layer, "type")?;
+        if kind == "copper" {
+            let t = thickness(layer, true)?;
+            if let Some(previous) = result.copper.last() {
+                if !electrical_distance.is_finite() || electrical_distance <= 0.0 {
+                    return Err("missing adjacent dielectric model".into());
+                }
+                result.adjacent_dielectrics.push((
+                    previous.name.clone(),
+                    name.clone(),
+                    electrical_distance,
+                ));
+            }
+            result.copper.push(LayoutLayer {
+                name,
+                center_z_mm: z + t / 2.0,
+                thickness_mm: t,
+            });
+            z += t;
+            electrical_distance = 0.0;
+        } else if matches!(kind.as_str(), "core" | "prepreg") {
+            let t = thickness(layer, true)?;
+            let epsilon: f64 = scalar(layer, "epsilon_r")?
+                .parse()
+                .map_err(|_| "invalid dielectric epsilon")?;
+            if !epsilon.is_finite() || epsilon <= 0.0 {
+                return Err("invalid dielectric epsilon".into());
+            }
+            electrical_distance += t / epsilon;
+            z += t;
+        }
+    }
+    Ok(result)
+}

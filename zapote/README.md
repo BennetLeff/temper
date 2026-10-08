@@ -1,5 +1,9 @@
 # Zapote
 
+**Board checks:** [ERC, DRC and layout command index](CHECKS.md), or
+`make -C zapote help`. Includes native current analysis, before/after comparisons,
+Rust owners, test evidence, and the current integration/CI checkpoint.
+
 > **Scope on `main` (2026-09-25).** Five maintained units — RTD, current-sense,
 > thermal-sense, interlock, gate-drive — plus `power-stage-120v` and the inverter
 > measurement framework. The Rev38 PFC power entry, the voltage-sense unit, the
@@ -45,10 +49,10 @@ The [standalone thermal unit](thermal-sense/README.md) adds two external-NTC cha
 
 The [isolated gate-drive unit](gate-drive/README.md) has a routed 100 × 80 mm candidate with clean native ERC/DRC and passing Rust construction checks; physical qualification is unrun. The [active PFC power-entry unit](power-entry/README.md) preserves the 1,800 W nominal AC-input target. Its 54-component, 230 × 210 mm candidate is routed with zero native ERC/DRC findings or unconnected nets and seven passing Rust construction findings. Qualification remains INDETERMINATE. See the [two-board demo](demo-gate-power/index.html).
 
-The [Rust coverage inventory](validation/README.md) maps Temper donors to Zapote,
+The [Rust coverage inventory](validation/inventory-2026-09-12.json) maps Temper donors to Zapote,
 lists the checks recorded for each maintained unit, and orders the next ports.
-The common saved-board command currently checks only physical stackup; separate
-unit commands provide electrical and routing validation.
+The `zapote-board` CLI checks physical stackup only. The [check index](CHECKS.md)
+lists the separate native layout/current and unit electrical-validation commands.
 
 [Engineering memory](skills/README.md) connects reviewed, versioned lessons to
 construction inputs through Rust selection and a thin process transport. The
@@ -67,6 +71,8 @@ or replace existing board findings.
 | `project.toml` | Zapote identity and shared Temper resource map |
 | `AGENTS.md` | Local operating rules for work in this project |
 | `Makefile` | Rust build/test and common saved-board gates |
+| `CHECKS.md` | Check discovery: commands, scope, code owners, evidence and CI status |
+| `layout-quality/` | Native geometry/current feedback and supplied-model check catalog |
 | `Cargo.toml`, `packages/` | Rust workspace, validators and harness |
 | `ports.toml` | Donor hashes, copied tests and extraction changes |
 | `validation/` | Dated donor inventory, per-unit coverage and next-port sequence |
@@ -82,13 +88,15 @@ or replace existing board findings.
 
 ```sh
 make -C zapote setup
+make -C zapote help
 make -C zapote check
 make -C zapote build
 ```
 
 `setup` checks Rust workspace metadata, `build` builds its binaries/examples,
-and `check` runs the Rust tests followed by common checks on every registered
-maintained Zapote board. `check-boards` runs just the saved-board checks.
+and `check` runs release Rust tests, native 120 V layout/current analysis, then
+the five-unit acceptance runner. Native commands need the KiCad runtimes listed
+in [CHECKS.md](CHECKS.md). `check-boards` runs stackup checks only.
 
 Check any new board with `make -C zapote board-check BOARD=/absolute/path/to/board.kicad_pcb`.
 The `zapote-board` Rust CLI reads the actual PCB bytes, hashes them and runs
