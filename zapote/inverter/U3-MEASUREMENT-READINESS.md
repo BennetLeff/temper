@@ -18,6 +18,12 @@ rustc --edition=2021 --test zapote/inverter/evidence/measurement_gate.rs -o /tmp
 rustfmt --check zapote/inverter/evidence/measurement_gate.rs
 ```
 
+**Current state (2026-10-08): REJECTED, source drift.** The plan is locked to
+`pfc_power.ato` as of `c70288a00` (2026-09-23). That file changed afterwards and was
+then archived with the Rev38 PFC entry (tag `archive/rev38-power-entry-2026-09-25`;
+the gate reads archived sources from that tag). Re-binding the inverter plan to the
+current 120 V front end is an engineering decision, not a lock refresh.
+
 The output is deterministic by registry order. `INDETERMINATE` means absent or synthetic evidence. `REJECTED` means malformed or invalid input, source drift, wrong topology, or an unsafe shortcut. `CAPTURE_RECORDED` means a typed record, bounded raw file path and matching digest are present. Even if all 20 become `CAPTURE_RECORDED`, the overall verdict is only `REVIEW_PENDING` and the program exits 2: this checker cannot establish whether an instrument, calibration, fixture, load envelope or reviewer is genuine or adequate. It never emits a hardware PASS. A digest establishes byte identity only.
 
 ## Manifest contract

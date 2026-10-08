@@ -527,17 +527,60 @@ fn source_check() -> Result<(), String> {
     if found.len() != PATHS.len() {
         return Err("source lock registry incomplete".into());
     }
-    let output = Command::new("shasum")
-        .args(["-a", "256", "-c", SOURCES])
-        .output()
-        .map_err(|e| format!("shasum unavailable: {e}"))?;
-    if !output.status.success() {
-        return Err(format!(
-            "source missing or drifted: {}",
-            String::from_utf8_lossy(&output.stdout)
-        ));
+    for line in locks.lines() {
+        let mut words = line.split_whitespace();
+        let (digest, path) = (words.next().unwrap(), words.next().unwrap());
+        let actual = match ARCHIVED.iter().find(|(prefix, _)| path.starts_with(prefix)) {
+            Some((_, tag)) => archived_sha256(tag, path)?,
+            None => sha256(path).map_err(|e| format!("source missing or drifted: {path}: {e}"))?,
+        };
+        if actual != digest {
+            return Err(format!("source missing or drifted: {path}"));
+        }
     }
     Ok(())
+}
+
+/// Sources archived out of the working tree, verified from their archive tag.
+/// The Rev38 PFC power entry (and the pfc_power.ato this plan is bound to)
+/// moved to this tag on 2026-09-25; see docs/archive/REV38.md.
+const ARCHIVED: &[(&str, &str)] = &[(
+    "zapote/power-entry/",
+    "archive/rev38-power-entry-2026-09-25",
+)];
+
+fn archived_sha256(tag: &str, path: &str) -> Result<String, String> {
+    let blob = Command::new("git")
+        .args(["show", &format!("{tag}:{path}")])
+        .output()
+        .map_err(|e| format!("git unavailable: {e}"))?;
+    if !blob.status.success() {
+        return Err(format!(
+            "source missing or drifted: {path} not in {tag} (fetch tags: git fetch --tags)"
+        ));
+    }
+    let mut child = Command::new("shasum")
+        .args(["-a", "256"])
+        .stdin(std::process::Stdio::piped())
+        .stdout(std::process::Stdio::piped())
+        .spawn()
+        .map_err(|e| format!("shasum unavailable: {e}"))?;
+    {
+        use std::io::Write;
+        child
+            .stdin
+            .take()
+            .ok_or("shasum stdin")?
+            .write_all(&blob.stdout)
+            .map_err(|e| e.to_string())?;
+    }
+    let out = child.wait_with_output().map_err(|e| e.to_string())?;
+    let text = String::from_utf8(out.stdout).map_err(|_| "invalid shasum output")?;
+    let digest = text
+        .split_whitespace()
+        .next()
+        .ok_or("empty shasum output")?;
+    Ok(digest.into())
 }
 fn record_result(record: &Record, verify_hash: bool) -> (&'static str, String) {
     if record.return_net != "HOT0" {
@@ -704,6 +747,21 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// Run from the repository root. Archived sources are read from their
+    /// tag, so a moved file reports drift rather than "missing". The locked
+    /// pfc_power.ato is the c70288a00 revision; the archived tip differs, so
+    /// source_check() reports genuine drift until the plan is re-bound.
+    #[test]
+    fn archived_sources_are_read_from_their_tag() {
+        let path = "zapote/power-entry/passive-reva/protection/interface-integration-38/elec/src/pfc_power.ato";
+        assert_eq!(
+            archived_sha256("archive/rev38-power-entry-2026-09-25", path).unwrap(),
+            "07913515ba224aa59d21a9d25ee4798aab4d32f6c7a7d8b58fcbf6975ea331fa"
+        );
+        let err = source_check().unwrap_err();
+        assert!(err.contains("drifted: zapote/power-entry/"), "{err}");
+    }
     const COIL_VALUES: &str = "f_min_hz=30000;f_max_hz=50000;i_min_a=0.1;i_max_a=20;t_min_c=20;t_max_c=80;z_re_min_ohm=1;z_re_max_ohm=4;z_im_min_ohm=-10;z_im_max_ohm=12;u_z_ohm=0.1;gap_mm=5;offset_mm=0;samples=5";
     fn base() -> (String, String) {
         (

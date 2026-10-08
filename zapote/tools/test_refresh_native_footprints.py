@@ -10,7 +10,9 @@ import pcbnew
 
 ROOT = Path(__file__).resolve().parents[2]
 HELPER = ROOT / "zapote/tools/refresh_native_footprints.py"
-LIB = ROOT / "zapote/power-entry/candidate/candidate-libs"
+# The two footprints this transport test needs, restored byte-for-byte from
+# the archived power-entry candidate libraries (archive/rev38-power-entry-2026-09-25).
+LIB = ROOT / "zapote/tools/fixtures/refresh-native-footprints"
 
 
 def run() -> dict:
