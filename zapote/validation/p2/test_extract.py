@@ -95,6 +95,16 @@ class NativeExtraction(unittest.TestCase):
             self.assertEqual(geometry["limits"]["name"], "")  # profiles are applied by Rust callers
 
 
+    def test_pad_copper_only_on_layers_kicad_flashes(self):
+        """remove_unused_layers pads report IsOnLayer() for a layer KiCad does not
+        manufacture (FlashLayer() is false); that copper must not be transported.
+        native-09 has 112 such pad-layers, e.g. PS2.1 on F.Cu."""
+        board = Path(__file__).resolve().parents[2] / "power-stage-120v/native-09/section.kicad_pcb"
+        geometry = extract(board)["input"]
+        ps2_1 = {p["id"].split("@")[1].split(":")[0] for p in geometry["pads"] if p["id"].startswith("PS2.1:")}
+        self.assertNotIn("F.Cu", ps2_1)
+        self.assertTrue(ps2_1, "PS2.1 must keep the layers KiCad does flash")
+
 if __name__ == "__main__":
     app = wx.App(False)
     unittest.main()

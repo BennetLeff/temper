@@ -222,6 +222,7 @@ const TRACK: &str = "DRC.P2.TRACK_WIDTH";
 const DRILL_SIZE: &str = "DRC.P2.DRILL_SIZE";
 const EDGE: &str = "DRC.P2.EDGE_CLEARANCE";
 const SIZE: &str = "DRC.P2.BOARD_SIZE";
+const OUTER_LAND: &str = "DRC.P2.PTH_OUTER_LAND";
 
 pub fn validate_with_population(input: &ManufacturingInput) -> (CheckReport, P2Population) {
     let mut population = P2Population::candidates(input);
@@ -497,6 +498,38 @@ fn fab_house_rules(
     population: &mut P2Population,
 ) {
     let limits = &input.limits;
+    // A plated through-hole needs copper on both outer layers (solder land and
+    // outer barrel ring). KiCad DRC accepts a pad whose outer copper was removed
+    // by remove_unused_layers; native-08..15 shipped 23 such pads. Needs hole
+    // kinds, so legacy receipts skip it.
+    if input.holes.iter().any(|h| h.kind.is_some()) {
+        checked.push(OUTER_LAND.into());
+        population.evaluated.insert(OUTER_LAND.into(), vec![]);
+        population.skipped.insert(OUTER_LAND.into(), vec![]);
+        for hole in input.holes.iter().filter(|h| h.kind == Some(HoleKind::Pth)) {
+            population.evaluated.get_mut(OUTER_LAND).unwrap().push(hole.id.clone());
+            let prefix = format!("{}@", hole.id);
+            let layers: std::collections::BTreeSet<&str> = input
+                .pads
+                .iter()
+                .filter_map(|p| p.id.strip_prefix(prefix.as_str()))
+                .map(|rest| rest.split(':').next().unwrap_or(rest))
+                .collect();
+            let missing: Vec<&str> = ["F.Cu", "B.Cu"]
+                .into_iter()
+                .filter(|l| !layers.contains(l))
+                .collect();
+            if !missing.is_empty() {
+                findings.push(finding(
+                    OUTER_LAND,
+                    "plated through-hole has no outer copper land",
+                    &hole.id,
+                    format!("missing {}", missing.join(", ")),
+                    "copper on F.Cu and B.Cu",
+                ));
+            }
+        }
+    }
     let mut start = |rule: &str, population: &mut P2Population| {
         checked.push(rule.into());
         population.evaluated.insert(rule.into(), vec![]);
