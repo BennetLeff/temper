@@ -62,7 +62,7 @@ def replace_stackup(board_path: Path) -> None:
 
 
 def initialize(repo: Path, board_path: Path, receipt_path: Path) -> None:
-    sys.path.insert(0, str(repo / "harness-lab"))
+    sys.path.insert(0, str(repo / "zapote" / "harness-lab"))
     import buck_native  # type: ignore[import-not-found]
     import pcbnew  # type: ignore[import-not-found]
 

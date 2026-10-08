@@ -15,7 +15,7 @@ import sys
 import pcbnew
 
 REPO = Path(__file__).resolve().parents[3]
-sys.path[:0] = [str(REPO / "harness-lab"), str(REPO / "zapote/rtd")]
+sys.path[:0] = [str(REPO / "zapote" / "harness-lab"), str(REPO / "zapote/rtd")]
 import apply_routes
 import block_native
 import buck_native
@@ -82,7 +82,7 @@ def main():
         "kicad_version": pcbnew.Version(), "command": command,
         "before": [{"position_mm": p, "net": n} for p, n in sorted(before.items())],
         "after": [{"position_mm": p, "net": n} for p, n in sorted(after.items())],
-        "inputs": {str(p.relative_to(REPO)): hashlib.sha256(p.read_bytes()).hexdigest() for p in [Path(__file__), fixture / "baseline.kicad_pcb", operation, REPO / "harness-lab/block_native.py", REPO / "harness-lab/buck_native.py", REPO / "zapote/rtd/apply_routes.py"]},
+        "inputs": {str(p.relative_to(REPO)): hashlib.sha256(p.read_bytes()).hexdigest() for p in [Path(__file__), fixture / "baseline.kicad_pcb", operation, REPO / "zapote/harness-lab/block_native.py", REPO / "zapote/harness-lab/buck_native.py", REPO / "zapote/rtd/apply_routes.py"]},
         "output_board_sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
     }
     (args.output / "receipt.json").write_text(json.dumps(receipt, indent=2) + "\n")

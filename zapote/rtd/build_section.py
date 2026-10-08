@@ -13,7 +13,7 @@ from pathlib import Path
 import sys
 
 REPO = Path(__file__).resolve().parents[2]
-sys.path[:0] = [str(REPO / "harness-lab"), str(REPO / "scripts")]
+sys.path[:0] = [str(REPO / "zapote" / "harness-lab"), str(REPO / "zapote" / "tools" / "generators")]
 import block_source
 import gen_pcb_skeleton as skeleton
 import gen_schematics as schematics

@@ -11,7 +11,7 @@ import tempfile
 import pcbnew
 
 REPO = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(REPO / 'harness-lab'))
+sys.path.insert(0, str(REPO / 'zapote/harness-lab'))
 import block_native
 import buck_native
 
@@ -109,8 +109,8 @@ def _replay(board_path, instruction_path, receipt_path):
                          'authored_items': sorted(authored_items, key=lambda item: item['uuid'])})
     receipt_path.write_text(json.dumps({'input_board_sha256': before,
         'instruction_sha256': hashlib.sha256(instruction_bytes).hexdigest(),
-        'adapter_sha256': hashlib.sha256((REPO / 'harness-lab/block_native.py').read_bytes()).hexdigest(),
-        'buck_native_sha256': hashlib.sha256((REPO / 'harness-lab/buck_native.py').read_bytes()).hexdigest(),
+        'adapter_sha256': hashlib.sha256((REPO / 'zapote/harness-lab/block_native.py').read_bytes()).hexdigest(),
+        'buck_native_sha256': hashlib.sha256((REPO / 'zapote/harness-lab/buck_native.py').read_bytes()).hexdigest(),
         'replay_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         'output_board_sha256': hashlib.sha256(board_path.read_bytes()).hexdigest(),
         'operations': receipts}, indent=2) + '\n')

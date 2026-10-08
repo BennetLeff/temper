@@ -16,7 +16,7 @@ def sha256(path: Path) -> str:
 
 
 def close(repo: Path, source: Path, schematic_dir: Path, receipt_path: Path) -> None:
-    sys.path.insert(0, str(repo / "scripts"))
+    sys.path.insert(0, str(repo / "zapote" / "tools" / "generators"))
     import gen_schematics as schematics  # type: ignore[import-not-found]
 
     netlist_path = source / "build" / "default.net"

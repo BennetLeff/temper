@@ -10,7 +10,7 @@ from types import SimpleNamespace
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
-sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "scripts"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "zapote" / "tools" / "generators"))
 import gen_pcb_skeleton as skeleton  # noqa: E402
 from build_current_sense_native import _assign_board_bom_values, build  # noqa: E402
 

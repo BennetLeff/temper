@@ -10,7 +10,7 @@ import sys
 import pcbnew
 
 REPO = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(REPO / 'harness-lab'))
+sys.path.insert(0, str(REPO / 'zapote/harness-lab'))
 import buck_native
 
 board_path, manifest_path, poses_path, receipt_path = map(Path, sys.argv[1:])
@@ -60,5 +60,5 @@ buck_native.save(board, board_path)
 receipt_path.write_text(json.dumps({'input_board_sha256': before,
     'output_board_sha256': sha(board_path), 'manifest_sha256': sha(manifest_path),
     'poses_sha256': sha(poses_path), 'replay_sha256': sha(Path(__file__)),
-    'buck_native_sha256': sha(REPO / 'harness-lab/buck_native.py'),
+    'buck_native_sha256': sha(REPO / 'zapote/harness-lab/buck_native.py'),
     'kicad_version': pcbnew.Version(), 'operations': changes}, indent=2) + '\n')

@@ -58,7 +58,8 @@ lists the separate native layout/current and unit electrical-validation commands
 
 [Engineering memory](skills/README.md) connects reviewed, versioned lessons to
 construction inputs through Rust selection and a thin process transport. The
-existing `harness-lab/` remains available for legacy experiments. The old Python
+native KiCad adapters live in `harness-lab/`, the generators in `tools/generators/`
+and the atopile base library in `elec-base/src`. The old Python
 migration outline is superseded by [MIGRATION.md](MIGRATION.md).
 
 The [Gmsh + Elmer thermal backend](thermal/README.md) adds a separate external

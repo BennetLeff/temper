@@ -5,7 +5,7 @@ from pathlib import Path
 import sys
 import pcbnew
 REPO = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(REPO / 'harness-lab'))
+sys.path.insert(0, str(REPO / 'zapote/harness-lab'))
 import block_native
 import buck_native
 
@@ -46,7 +46,7 @@ def run(board_path, instruction_path, receipt_path):
     buck_native.save(board, board_path)
     receipt_path.write_text(json.dumps({'input_board_sha256': before, 'output_board_sha256': sha(board_path),
         'instruction_sha256': sha(instruction_path), 'replay_sha256': sha(Path(__file__)),
-        'buck_native_sha256': sha(REPO / 'harness-lab/buck_native.py'), 'placements': changed, 'removed_copper': removed}, indent=2) + '\n')
+        'buck_native_sha256': sha(REPO / 'zapote/harness-lab/buck_native.py'), 'placements': changed, 'removed_copper': removed}, indent=2) + '\n')
 
 if __name__ == '__main__':
     run(*(Path(p) for p in sys.argv[1:]))

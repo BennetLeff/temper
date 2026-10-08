@@ -7,7 +7,7 @@ import shutil
 import sys
 
 REPO = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(REPO / 'harness-lab'))
+sys.path.insert(0, str(REPO / 'zapote/harness-lab'))
 import block_source
 
 
@@ -23,7 +23,7 @@ def run(output: Path) -> None:
     receipt = {'command': 'uv tool run --offline --from atopile==0.2.69 ato --non-interactive build elec/src/rtd_unit.ato:RTDUnit',
         'returncode': proc.returncode, 'build_report_failed': 'FAILED' in proc.stdout,
         'adapter_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
-        'block_source_sha256': hashlib.sha256((REPO / 'harness-lab/block_source.py').read_bytes()).hexdigest(),
+        'block_source_sha256': hashlib.sha256((REPO / 'zapote/harness-lab/block_source.py').read_bytes()).hexdigest(),
         'source_hashes': block_source.workspace_hashes(output)}
     (output / 'build-receipt.json').write_text(json.dumps(receipt, indent=2) + '\n')
     block_source.gate_build(proc)

@@ -19,8 +19,9 @@ simulation = "../simulation"
 packages = "../packages"
 components = "../components"
 datasheets = "../datasheets"
-scripts = "../scripts"
-active_implementation = "../harness-lab"
+generators = "tools/generators"
+electrical_base = "elec-base/src"
+active_implementation = "harness-lab"
 
 [paths]
 source = "src"

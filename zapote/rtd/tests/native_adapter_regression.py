@@ -6,7 +6,7 @@ import sys
 import pcbnew
 
 REPO = Path(__file__).resolve().parents[3]
-sys.path[:0] = [str(REPO / 'harness-lab'), str(REPO / 'zapote/rtd')]
+sys.path[:0] = [str(REPO / 'zapote/harness-lab'), str(REPO / 'zapote/rtd')]
 import block_native
 import buck_native
 import apply_routes
@@ -66,6 +66,6 @@ else:
  raise AssertionError('missing native pad accepted')
 assert path.read_bytes()==before
 assert not (out/'should-not-exist.json').exists()
-receipt={'status':'PASS','kicad_version':pcbnew.Version(),'checks':['existing zone deletion/new zone/native save reload','zone priority and clearance survive serialization','late operation failure leaves destination bytes unchanged'], 'board_sha256':hashlib.sha256(path.read_bytes()).hexdigest(),'inputs':{str(p.relative_to(REPO)):hashlib.sha256(p.read_bytes()).hexdigest() for p in [Path(__file__),REPO/'harness-lab/block_native.py',REPO/'harness-lab/buck_native.py',REPO/'zapote/rtd/apply_routes.py']},'native_refill':'PENDING'}
+receipt={'status':'PASS','kicad_version':pcbnew.Version(),'checks':['existing zone deletion/new zone/native save reload','zone priority and clearance survive serialization','late operation failure leaves destination bytes unchanged'], 'board_sha256':hashlib.sha256(path.read_bytes()).hexdigest(),'inputs':{str(p.relative_to(REPO)):hashlib.sha256(p.read_bytes()).hexdigest() for p in [Path(__file__),REPO/'zapote/harness-lab/block_native.py',REPO/'zapote/harness-lab/buck_native.py',REPO/'zapote/rtd/apply_routes.py']},'native_refill':'PENDING'}
 (out/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
 print(json.dumps(receipt,indent=2))

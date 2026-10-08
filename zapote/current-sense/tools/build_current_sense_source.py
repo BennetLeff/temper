@@ -27,8 +27,8 @@ def sha256(path: Path) -> str:
 
 
 def load_block_source(repo: Path):
-    lab = repo / "harness-lab"
-    scripts = repo / "scripts"
+    lab = repo / "zapote" / "harness-lab"
+    scripts = repo / "zapote" / "tools" / "generators"
     sys.path[:0] = [str(lab), str(scripts)]
     import block_source  # type: ignore[import-not-found]
 
@@ -46,7 +46,7 @@ def build(repo: Path, output: Path, entry_file: str = ENTRY_FILE, entry_module: 
 
     block_source = load_block_source(repo)
     (output / "elec").mkdir(parents=True)
-    shutil.copytree(repo / "elec" / "src", output / "elec" / "src")
+    shutil.copytree(repo / "zapote" / "elec-base" / "src", output / "elec" / "src")
     (output / "ato.yaml").write_text(
         f"ato-version: {PINNED_ATOPILE}\nbuilds:\n"
         f"  default:\n    entry: {entry_file}:{entry_module}\n",
@@ -67,7 +67,7 @@ def build(repo: Path, output: Path, entry_file: str = ENTRY_FILE, entry_module: 
         "returncode": proc.returncode,
         "build_report_failed": "FAILED" in proc.stdout,
         "adapter_sha256": sha256(Path(__file__).resolve()),
-        "block_source_sha256": sha256(repo / "harness-lab" / "block_source.py"),
+        "block_source_sha256": sha256(repo / "zapote" / "harness-lab" / "block_source.py"),
         "source_hashes": block_source.workspace_hashes(output),
     }
     (output / "build-receipt.json").write_text(

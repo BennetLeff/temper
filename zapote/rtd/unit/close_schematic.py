@@ -13,7 +13,7 @@ from pathlib import Path
 import sys
 
 REPO = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(REPO / "scripts"))
+sys.path.insert(0, str(REPO / "zapote" / "tools" / "generators"))
 import gen_schematics as donor
 
 LIBRARY = "RTDUnit"

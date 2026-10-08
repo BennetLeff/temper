@@ -130,7 +130,7 @@ def verify(xml_path: Path) -> None:
 
 def verify_atopile() -> None:
     # Reuse the repo's existing parser; never trust libsource's aliased identity.
-    sys.path.insert(0, str(HERE.parents[4] / "scripts"))
+    sys.path.insert(0, str(HERE.parents[4] / "zapote" / "tools" / "generators"))
     from gen_schematics import parse_netlist
     parts = source()
     netlist = parse_netlist(HERE / "generated/build/default.net")

@@ -29,8 +29,8 @@ from pathlib import Path
 from typing import Any
 
 LAB = Path(__file__).resolve().parent
-REPO = LAB.parent
-sys.path.insert(0, str(REPO / "scripts"))
+REPO = LAB.parents[1]
+sys.path.insert(0, str(REPO / "zapote" / "tools" / "generators"))
 
 import gen_pcb_skeleton as skeleton  # noqa: E402
 import gen_schematics as schematics  # noqa: E402
@@ -84,7 +84,7 @@ def fresh_block_workspace(repo: Path, block_dir: Path, parent: Path, tag: str) -
         raise BlockSourceError(f"workspace {workspace} already exists")
     (workspace / "elec").mkdir(parents=True)
     shutil.copytree(
-        repo / "elec" / "src",
+        repo / "zapote" / "elec-base" / "src",
         workspace / "elec" / "src",
         ignore=shutil.ignore_patterns("*.log", "__pycache__"),
     )
