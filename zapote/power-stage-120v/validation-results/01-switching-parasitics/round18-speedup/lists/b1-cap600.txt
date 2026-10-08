@@ -1,0 +1,12 @@
+# Battery 1: native-21 leg A small mesh sA-e3 (823,851 tets), P1_C38, 2 ranks, 600-iteration cap.
+# Compares residual reduction per iteration and time per iteration against b0-base.
+b0-base|10 -2500 0 0|meshes/sA-e3.msh|--hypre-method 8 --tol 1e-8 --maxit 600
+b-noscale|10 -2500 0 0|meshes/sA-e3.msh|--hypre-method 8 --tol 1e-8 --maxit 600 --solver-line "'Linear System Scaling = False'"
+b-pcg|10 -2500 0 0|meshes/sA-e3.msh|--hypre-method 6 --tol 1e-8 --maxit 600
+b-k300|10 -2500 0 0|meshes/sA-e3.msh|--hypre-method 8 --tol 1e-8 --maxit 600 --solver-line "'HYPRE GmRes Dimension = Integer 300'"
+b-k20|10 -2500 0 0|meshes/sA-e3.msh|--hypre-method 8 --tol 1e-8 --maxit 600 --solver-line "'HYPRE GmRes Dimension = Integer 20'"
+b-lgmres|10 -2500 0 0|meshes/sA-e3.msh|--hypre-method 10 --tol 1e-8 --maxit 600
+b-c7|10 -2500 0 0|meshes/sA-e3.msh|--hypre-method 8 --tol 1e-8 --maxit 600 --solver-line "'AMS Cycle Type = Integer 7'"
+b-c3|10 -2500 0 0|meshes/sA-e3.msh|--hypre-method 8 --tol 1e-8 --maxit 600 --solver-line "'AMS Cycle Type = Integer 3'"
+b-c5|10 -2500 0 0|meshes/sA-e3.msh|--hypre-method 8 --tol 1e-8 --maxit 600 --solver-line "'AMS Cycle Type = Integer 5'"
+b-amsit2|10 -2500 0 0|meshes/sA-e3.msh|--hypre-method 8 --tol 1e-8 --maxit 600 --solver-line "'AMS Max Iterations = Integer 2'"

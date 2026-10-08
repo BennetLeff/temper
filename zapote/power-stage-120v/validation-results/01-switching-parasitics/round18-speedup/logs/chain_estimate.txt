@@ -1,0 +1,26 @@
+tet scale vs native-19 leg B: A21 1.351, B21 1.105 (estimate)
+fine/coarse ratio check: B19 3.45, A17 3.59
+
+case                    tets(M)  wall(h)  mem(GB)  fits?  in current / proposed
+A21 h1                     3.37      3.4     20.6  yes   yes / yes
+A21 h0p5                   3.01      2.4     18.4  yes   yes / yes
+A21 h2                     3.85      3.7     23.5  yes   yes / yes
+A21 h3                     4.32      4.4     26.4  yes   yes / yes
+A21 m20                    4.46      4.1     27.2  yes   yes / yes
+A21 fine_h1               11.64     17.9     71.0  NO    yes / yes
+A21 fine_h2               13.05     20.7     79.6  NO    yes / no
+A21 fine_h3               14.47     24.7     88.3  NO    yes / no
+B21 h1                     2.76      2.8     16.8  yes   yes / yes
+B21 h0p5                   2.46      2.0     15.0  yes   yes / yes
+B21 h2                     3.15      3.1     19.2  yes   yes / yes
+B21 h3                     3.54      3.6     21.6  yes   yes / yes
+B21 m20                    3.65      3.3     22.3  yes   yes / yes
+B21 fine_h1                9.52     14.6     58.1  NO    yes / yes
+B21 fine_h2               10.68     17.0     65.1  NO    yes / no
+B21 fine_h3               11.84     20.2     72.2  NO    yes / no
+
+current   chain:  147.8 h =  6.2 days (estimate)
+proposed  chain:   65.2 h =  2.7 days (estimate)
+saving from dropping fine h2/h3: 2.27x
+  with Krylov time x0.85 (looser stop, if qualified):   55.4 h -> 2.67x
+  with Krylov time x0.71 (looser stop, if qualified):   46.3 h -> 3.19x

@@ -1,0 +1,71 @@
+# b0-base: case.sif solver section, Hypre summary, residual every 50 its (rank-0 solver.log)
+Solver 1
+  Equation = "MGDynamics"
+  Variable = "AV"
+  Procedure = "MagnetoDynamics" "WhitneyAVSolver"
+  Edge Basis = Logical True
+  Linear System Solver = Iterative
+  Linear System Use Hypre = Logical True
+  Linear System Preconditioning = ams
+  Linear System Method Hypre Index = Integer 8
+  AMS Singular Matrix = Logical True
+  Linear System Symmetric = True
+  Edge Basis = Logical True
+  Linear System Convergence Tolerance = 1e-08
+  Linear System Max Iterations = 600
+  Linear System Residual Output = 10
+  Linear System Abort Not Converged = True
+  Use Tree Gauge = False
+End
+SolveHypre: AMS preconditioner setup time: 2.3885
+SolveHypre: setup time (method 802): 9.10001
+SolveHypre: Required iterations 600 (method 802) to norm 0.0103994
+SolveHypre: Solution time (method 802): 525.68
+   50    1.735940e-02    0.993125   1.729270e-02
+  100    1.462423e-02    0.998499   1.456804e-02
+  150    1.381016e-02    0.997954   1.375710e-02
+  200    1.315398e-02    0.999320   1.310344e-02
+  250    1.269062e-02    0.997605   1.264186e-02
+  300    1.210452e-02    0.999567   1.205801e-02
+  350    1.184317e-02    0.999420   1.179767e-02
+  400    1.165560e-02    0.999673   1.161082e-02
+  450    1.152339e-02    0.999600   1.147912e-02
+  500    1.074262e-02    0.999017   1.070134e-02
+  550    1.047040e-02    0.999896   1.043017e-02
+  600    1.043951e-02    0.999943   1.039941e-02
+{
+ "label": "b0-base",
+ "mesh": "meshes/sA-e3.msh",
+ "exit_code": 1,
+ "mesh_sha256": "0f96a91d63c02723026b2f1729eb6f4add21dd270ef4df99dad09836a231536b",
+ "sif_sha256": "c679a1403543c826d80d1109049e2d6b3b684bcaec4fd19ef14827cf7d2902c4",
+ "elmer_solver_sha256": "463fde4a2985ffbd397abaf56c994ebfe959896fe16675e298fab8e18dbe67c0",
+ "maxit": 600,
+ "all_done": false,
+ "energy_J": null,
+ "inductance_nH": null,
+ "peak_memory_GB": 2.555532,
+ "max_rss_GB": 2.555532,
+ "wall_s": 630.26,
+ "np": 2,
+ "solver": "iterative Hypre GMRES(100) + AMS",
+ "tol": 1e-08,
+ "solver_lines": [],
+ "tree_gauge": false,
+ "last_iteration": 600,
+ "last_residual": 0.0103994,
+ "converged": false,
+ "k_A_per_m": [
+  -2500.0,
+  0.0,
+  0.0
+ ],
+ "pec": [
+  2,
+  3
+ ],
+ "port": 10,
+ "port2": null,
+ "k2_A_per_m": null,
+ "scale_m": 0.001
+}
