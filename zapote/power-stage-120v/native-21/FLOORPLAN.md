@@ -180,7 +180,8 @@ run, and that count is 0. Their inductance effect belongs to the FEM rerun on th
   0 mm². The worst via falls to 7.3 A (coherent 34 A case). DRC, parity, barrier (both gates), DFM
   and plane splits are all 0 / PASS; the Kelvin band is unchanged.
 - **Open items:**
-  - **44 vias** remain mostly inside SMD pads (no legal spot within 1.3 mm). **Decided
+  - **44 vias** remain mostly inside SMD pads (the straight-stub dogbone found no spot within 1.3 mm;
+    a routed-stub trial moves 15 more, 28 stay; R5's current pads need in-pad vias anyway). **Decided
     2026-10-08:** order every 0.3 mm via epoxy-filled and capped (JLC POFV); see DECISIONS.md.
   - **2 oz via rule (2026-10-08):** JLC's 0.254 mm ring is the PTH rule; vias need diameter >= hole
     + 0.1 mm, so the 0.6/0.3 signal vias stand (DFM gate PASS). A trial upsize to 0.72/0.2 could not

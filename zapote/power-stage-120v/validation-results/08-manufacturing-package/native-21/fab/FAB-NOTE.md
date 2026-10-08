@@ -19,7 +19,7 @@ confirmation, and the LCSC sourcing below. Ordering is a purchase and needs the 
 | Surface finish | Lead-free HASL or ENIG |
 | Solder mask / silk | Green / white |
 | Impedance control | None |
-| **Via covering** | **Epoxy-filled and capped (via-in-pad / POFV) for every 0.3 mm via** (730: 501 × 0.6/0.3 and 229 × 0.85/0.3). 42 sit inside SMD pads with no legal spot outside, plus the R5 shunt current-pad arrays. The ten 1.6/0.8 current vias stay tented (JLC fills holes ≤ 0.5 mm only). Select "Confirm production files". |
+| **Via covering** | **Epoxy-filled and capped (via-in-pad / POFV) for every 0.3 mm via** (730: 501 × 0.6/0.3 and 229 × 0.85/0.3). 42 sit inside SMD pads (left there by the dogbone pass; see DECISIONS.md 2026-10-08), plus the R5 shunt current-pad arrays, which need them. The ten 1.6/0.8 current vias stay tented (JLC fills holes ≤ 0.5 mm only). Select "Confirm production files". |
 | Drills | 852 plated (740 vias, 112 component holes), 8 non-plated |
 
 JLC rules applied (`tools/jlc_dfm_check.py`, re-read verbatim 2026-10-08): PTH annular ring
