@@ -223,3 +223,30 @@ fn copper_crossing_the_edge_is_an_outline_failure_only() {
     assert_eq!(failing(&r, "DRC.P2.COPPER_OUTLINE").len(), 1);
     assert!(failing(&r, "DRC.P2.EDGE_CLEARANCE").is_empty(), "{:#?}", failing(&r, "DRC.P2.EDGE_CLEARANCE"));
 }
+
+fn rotated_rect(w: f64, h: f64, degrees: f64) -> Value {
+    let (s, c) = degrees.to_radians().sin_cos();
+    let pts: Vec<[f64; 2]> = [[0., 0.], [w, 0.], [w, h], [0., h]]
+        .iter()
+        .map(|p| [1000. + c * p[0] - s * p[1], 1000. + s * p[0] + c * p[1]])
+        .collect();
+    json!({ "vertices_mm": pts })
+}
+
+#[test]
+fn board_size_uses_the_outline_not_its_axis_aligned_box() {
+    // 660 x 500 mm drawn at 45 degrees: its axis box is ~820 mm square, but the
+    // board itself fits a 670 x 600 mm panel.
+    let mut v = base();
+    v["outline"] = rotated_rect(660., 500., 45.);
+    v["copper"] = json!([]);
+    v["tracks"] = json!([]);
+    v["pads"] = json!([]);
+    v["holes"] = json!([]);
+    assert!(failing(&run(&v), "DRC.P2.BOARD_SIZE").is_empty());
+    v["outline"] = rotated_rect(700., 100., 45.);
+    let r = run(&v);
+    let f = failing(&r, "DRC.P2.BOARD_SIZE");
+    assert_eq!(f.len(), 1);
+    assert!(f[0].actual.as_deref().unwrap().starts_with("700.0 x 100.0"), "{:?}", f[0].actual);
+}

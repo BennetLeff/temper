@@ -44,6 +44,8 @@ pub struct BoardCheckReport {
     pub status: Status,
     pub checks: Vec<NamedCheck>,
     pub native_commands: Vec<NativeCommand>,
+    /// Identity of the manufacturing extraction behind the DFM findings.
+    pub manufacturing: Option<serde_json::Value>,
     pub scope: &'static str,
 }
 
@@ -71,6 +73,7 @@ impl BoardCheckReport {
             status,
             checks,
             native_commands: vec![],
+            manufacturing: None,
             scope: "stackup, KiCad ERC/DRC and P2 manufacturing under the named fab profile; unit electrical, current, thermal and assembly checks are not included",
         }
     }
@@ -122,6 +125,12 @@ pub fn run(c: &BoardCheck) -> Result<BoardCheckReport, String> {
         ],
     );
     report.native_commands = commands;
+    report.manufacturing = Some(serde_json::json!({
+        "receipt_sha256": dfm.receipt_sha256,
+        "extractor_sha256": dfm.extractor_sha256,
+        "python": c.python,
+        "census": dfm.census,
+    }));
     fs::write(
         c.output.join("report.json"),
         serde_json::to_vec_pretty(&report).map_err(|e| e.to_string())?,

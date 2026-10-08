@@ -8,7 +8,7 @@ functions, so the two cannot drift:
 
 1. ``scripts/check_pll_range_consistency.py`` -- the existing
    declared-vs-declared PLL gate (its check 5 derives the ZVS floor).
-2. ``scripts/check_firmware_board_contract.py`` -- the board-vs-firmware
+2. ``scripts/check_firmware_board_contract.py (archived 2026-10-08)`` -- the board-vs-firmware
    oracle that re-derives each registered constant from the actual
    board's placed components.
 

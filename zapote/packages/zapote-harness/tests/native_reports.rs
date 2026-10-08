@@ -260,3 +260,15 @@ fn actual_required_reads_the_measured_clause_not_a_nested_one() {
     assert_eq!(collision.required.as_deref(), Some("3.0000 mm"));
     assert_eq!(collision.actual.as_deref(), Some("< 0 mm"));
 }
+
+#[test]
+fn unknown_severity_fails_the_report_contract() {
+    let mut real = v(RELEASE_PREP_DRC)["violations"][0].clone();
+    real["severity"] = json!("catastrophic");
+    let mut d = v(DRC);
+    d["violations"] = json!([real]);
+    assert!(report(ERC, &d.to_string())
+        .findings
+        .iter()
+        .any(|f| f.rule == "NATIVE.REPORT_CONTRACT" && f.message.contains("severity")));
+}

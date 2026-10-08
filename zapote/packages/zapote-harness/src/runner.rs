@@ -419,6 +419,7 @@ pub struct DfmCheck {
     pub report: CheckReport,
     pub population: zapote_drc::manufacturing::P2Population,
     pub receipt_sha256: String,
+    pub extractor_sha256: String,
     /// The extractor's native object census (footprints, pads, tracks, vias, zones).
     pub census: serde_json::Value,
     /// `{path, sha256, name}` of the applied fab profile, if any.
@@ -449,12 +450,16 @@ pub fn dfm_check(
         .map_err(|e| e.to_string())?;
     fs::write(out.join("manufacturing.stdout"), &child.stdout).map_err(|e| e.to_string())?;
     fs::write(out.join("manufacturing.stderr"), &child.stderr).map_err(|e| e.to_string())?;
+    // Hash and parse the same bytes, so the recorded hash is the profile applied.
     let profile = match fab_profile {
-        Some(path) => Some((
-            path.to_path_buf(),
-            hash_file(path)?,
-            zapote_drc::fab_profile::load_profile(path)?,
-        )),
+        Some(path) => {
+            let bytes = read(path)?;
+            let text = std::str::from_utf8(&bytes)
+                .map_err(|_| format!("{}: fab profile is not UTF-8", path.display()))?;
+            let limits = zapote_drc::fab_profile::parse_profile(text)
+                .map_err(|e| format!("{}: {e}", path.display()))?;
+            Some((path.to_path_buf(), digest(&bytes), limits))
+        }
         None => None,
     };
     let profile_receipt = profile
@@ -490,6 +495,7 @@ pub fn dfm_check(
         report,
         population,
         receipt_sha256: digest(&bytes),
+        extractor_sha256: extractor_hash,
         census: receipt["native_census"].clone(),
         profile: profile_receipt,
     })

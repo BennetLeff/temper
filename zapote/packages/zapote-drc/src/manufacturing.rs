@@ -595,11 +595,8 @@ fn fab_house_rules(
     if let Some(max) = limits.maximum_board_mm {
         start(SIZE, population);
         population.evaluated.get_mut(SIZE).unwrap().push(input.board_id.clone());
-        let (lo, hi) = input.outline.vertices_mm.iter().fold(
-            ([f64::INFINITY; 2], [f64::NEG_INFINITY; 2]),
-            |(lo, hi), p| ([lo[0].min(p[0]), lo[1].min(p[1])], [hi[0].max(p[0]), hi[1].max(p[1])]),
-        );
-        let mut size = [hi[0] - lo[0], hi[1] - lo[1]];
+        // The board's own extent, in whatever orientation it is drawn.
+        let mut size = min_area_rectangle(&input.outline.vertices_mm);
         size.sort_by(|a, b| b.total_cmp(a));
         let mut max = max;
         max.sort_by(|a, b| b.total_cmp(a));
@@ -613,6 +610,64 @@ fn fab_house_rules(
             ));
         }
     }
+}
+
+/// Side lengths of the minimum-area rectangle enclosing `points` (rotating
+/// each convex-hull edge onto an axis; the optimum shares an edge with the hull).
+fn min_area_rectangle(points: &[[f64; 2]]) -> [f64; 2] {
+    let hull = convex_hull(points);
+    if hull.len() < 3 {
+        return [0.0, 0.0];
+    }
+    let mut best = [f64::INFINITY, f64::INFINITY];
+    for i in 0..hull.len() {
+        let (a, b) = (hull[i], hull[(i + 1) % hull.len()]);
+        let len = distance(a, b);
+        if len == 0.0 {
+            continue;
+        }
+        let (ux, uy) = ((b[0] - a[0]) / len, (b[1] - a[1]) / len);
+        let (mut lo_u, mut hi_u, mut lo_v, mut hi_v) =
+            (f64::INFINITY, f64::NEG_INFINITY, f64::INFINITY, f64::NEG_INFINITY);
+        for p in &hull {
+            let u = p[0] * ux + p[1] * uy;
+            let v = -p[0] * uy + p[1] * ux;
+            lo_u = lo_u.min(u);
+            hi_u = hi_u.max(u);
+            lo_v = lo_v.min(v);
+            hi_v = hi_v.max(v);
+        }
+        let dims = [hi_u - lo_u, hi_v - lo_v];
+        if dims[0] * dims[1] < best[0] * best[1] {
+            best = dims;
+        }
+    }
+    best
+}
+
+/// Andrew's monotone chain; counter-clockwise, no repeated end point.
+fn convex_hull(points: &[[f64; 2]]) -> Vec<[f64; 2]> {
+    let mut pts = points.to_vec();
+    pts.sort_by(|a, b| a[0].total_cmp(&b[0]).then(a[1].total_cmp(&b[1])));
+    pts.dedup();
+    if pts.len() < 3 {
+        return pts;
+    }
+    let cross = |o: [f64; 2], a: [f64; 2], b: [f64; 2]| (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+    let mut hull: Vec<[f64; 2]> = Vec::with_capacity(2 * pts.len());
+    for pass in 0..2 {
+        let start = hull.len();
+        let iter: Box<dyn Iterator<Item = &[f64; 2]>> =
+            if pass == 0 { Box::new(pts.iter()) } else { Box::new(pts.iter().rev()) };
+        for &p in iter {
+            while hull.len() >= start + 2 && cross(hull[hull.len() - 2], hull[hull.len() - 1], p) <= 0.0 {
+                hull.pop();
+            }
+            hull.push(p);
+        }
+        hull.pop();
+    }
+    hull
 }
 
 fn indeterminate(rule: &str, message: impl Into<String>, object: impl Into<String>) -> Finding {

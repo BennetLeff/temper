@@ -1,8 +1,10 @@
 # Board-derivation registry -- plan 2026-08-02-027 (R18), U1.
 #
 # The single record of every firmware constant that has a board
-# derivation. The oracle (`scripts/check_firmware_board_contract.py`)
-# iterates this file: adding a derivation is DATA, not new check code.
+# derivation. The board oracle that iterated this file
+# (`scripts/check_firmware_board_contract.py`) was archived with the legacy
+# board on 2026-10-08 (tag archive/temper-legacy-2026-10-08); the registry
+# remains the record of how each constant was derived.
 # The formula arithmetic lives in `firmware/tools/board_derivation_lib.py`
 # (shared with `scripts/check_pll_range_consistency.py` so the two cannot
 # drift); the registry names which formula each constant uses and where

@@ -71,7 +71,14 @@ pub fn parse_profile(text: &str) -> Result<FabricationLimits, String> {
             serde_json::Value::Array(items) => items.iter().filter_map(|v| v.as_f64()).collect(),
             other => other.as_f64().into_iter().collect(),
         };
-        let backing = format!("{quote} {}", p.derivations.get(key).map_or("", String::as_str));
+        // Parenthesised text in a vendor quote is a condition or exception
+        // ("0.1mm/0.2mm only available for board thickness <=1mm"), never the
+        // rule itself, so its numbers cannot back a limit.
+        let backing = format!(
+            "{} {}",
+            outside_parentheses(quote),
+            p.derivations.get(key).map_or("", String::as_str)
+        );
         let stated = numbers_in(&backing);
         for n in numbers {
             if !n.is_finite() || n < 0.0 || !stated.iter().any(|s| (s - n).abs() < 1e-9) {
@@ -106,6 +113,23 @@ pub fn parse_profile(text: &str) -> Result<FabricationLimits, String> {
         minimum_copper_to_edge_mm: l.minimum_copper_to_edge_mm,
         maximum_board_mm: l.maximum_board_mm,
     })
+}
+
+fn outside_parentheses(text: &str) -> String {
+    let mut depth = 0usize;
+    text.chars()
+        .filter(|c| match c {
+            '(' => {
+                depth += 1;
+                false
+            }
+            ')' => {
+                depth = depth.saturating_sub(1);
+                false
+            }
+            _ => depth == 0,
+        })
+        .collect()
 }
 
 /// Every decimal number written in `text` ("0.15/0.25mm" -> 0.15, 0.25).
