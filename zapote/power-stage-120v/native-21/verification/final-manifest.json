@@ -1,7 +1,7 @@
 {
  "schema": "temper.native21.engineering-candidate.v1",
  "status": "DIGITAL_CANDIDATE_NOT_MANUFACTURING_RELEASE",
- "routed_board_sha256": "387b753a8d1b8b1097406e9d6643daf21263e44b7ad76becb79edcc5cd46ecda",
+ "routed_board_sha256": "ebdfdb3cd209134498c863c9b914a19da773bf32f931144d51619354e18c6124",
  "copper_json_sha256": "e78fa41973f66866ede03961e0a312778654ae52a37a0fe70dace22af59a5ca8",
  "schematic_sha256": "c4982d4ce75c12643c8a08d35a300cbe19ef3085aea56c1c97fca4f540836bc5",
  "frozen_netlist_sha256": "9d64277f7961333d9972b52fb40b95a9de2ef2a22379afa652c45f0e9f5b6be2",
@@ -30,7 +30,7 @@
  "barrier_plan_view_8mm": {
   "barrier21": 0,
   "rust_gate_violations": 0,
-  "rust_gate_items": 5562
+  "rust_gate_items": 5603
  },
  "body_collisions": {
   "solids": 412,
@@ -63,7 +63,7 @@
   }
  },
  "via_in_pad_decision": "order every 0.3 mm via epoxy-filled and capped (POFV); DECISIONS.md 2026-10-08",
- "stage": "6: stage-5 copper + R5 shunt current-pad vias + SW_B B.Cu neck widened (task 04 round 5)",
+ "stage": "7: stage-6 copper + board-only bring-up test pads, fiducials, mounting holes",
  "board_hash_note": "rebuilds are not byte-identical (KiCad UUIDs / timestamps); copper_json_sha256 is the reproducible identity",
  "r5_current_vias": {
   "R5.1_leg_ret": 10,
@@ -95,8 +95,19 @@
   "evidence": "validation-results/08-manufacturing-package/native-21/sourcing"
  },
  "d5_audit": {
-  "pcb": "PASS (HOT-SELV 8.047 mm, HOT-PE 8.507 mm, 12 crossing parts >= 8.1 mm)",
+  "pcb": "PASS (HOT-SELV 8.047, HOT-PE 8.507 mm; H1 metal 20.4 mm from HOT; H2-H8 nylon)",
   "evidence": "verification/D5-AUDIT.md",
-  "open": "fixings (no mounting holes), CTI, PD3, IEC 60664-4, hipot"
- }
+  "open": "enclosure bosses to match H1-H8, CTI, PD3, IEC 60664-4, hipot"
+ },
+ "board_only": {
+  "test_pads": 41,
+  "fiducials": 3,
+  "mounting_holes": {
+   "metal": 1,
+   "nylon": 7
+  },
+  "spec": "layout/board_only21.json",
+  "probe_map": "BRINGUP-PROBES.md"
+ },
+ "evidence_note": "task 04 / B3 / Kelvin / FEM ran on stage-6 copper (387b753a); stage 7 adds only same-net 1 mm test pads on existing vias/tracks and NPTH holes clear of copper"
 }

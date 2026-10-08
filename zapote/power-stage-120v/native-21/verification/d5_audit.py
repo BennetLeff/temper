@@ -99,14 +99,18 @@ def main():
     res["barrier_crossing_parts"] = cross
     hot_u = unary_union([g[3] for g in by["HOT"]])
     from shapely.geometry import box as _box
-    npth = [p for p in json.loads((HERE.parent / "layout" / "pads.json").read_text()) if p["npth"]]
+    npth = [p for p in json.loads(Path(sys.argv[2] if len(sys.argv) > 2 else HERE.parent / "layout" / "pads.json").read_text()) if p["npth"]]
     hot_refs = {ref for ref, ps in pads.items() if any(x[0] == "HOT" for x in ps)}
+    bo = HERE.parent / "layout" / "board_only21.json"
+    kinds = {h["ref"]: h["kind"] for h in json.loads(bo.read_text())["mounting_holes"]} if bo.exists() else {}
     # a HOT terminal's own locating / press-fit hole is part of that HOT conductor, not barrier hardware
     res["npth_to_hot"] = [{"ref": p["ref"], "at": [p["x"], p["y"]], "hot_mm": round(_box(*p["box"]).distance(hot_u), 2),
-                           "role": "own hole of a HOT terminal" if p["ref"] in hot_refs else "hardware",
-                           "pass": p["ref"] in hot_refs or _box(*p["box"]).distance(hot_u) >= FLOOR - 1e-6} for p in npth]
-    res["board_fixings"] = ("none: no native board has mounting holes; any metal fixing is chassis/PE and must be "
-                            ">= 8.0 mm from HOT and off SELV copper (see mounting-candidates.json)")
+                           "role": "own hole of a HOT terminal" if p["ref"] in hot_refs else
+                                   ("nylon fixing (insulating hardware only, F.Fab NYLON)" if kinds.get(p["ref"]) == "nylon"
+                                    else "metal-capable fixing / connector hardware"),
+                           "pass": p["ref"] in hot_refs or kinds.get(p["ref"]) == "nylon"
+                                   or _box(*p["box"]).distance(hot_u) >= FLOOR - 1e-6} for p in npth]
+    res["board_fixings"] = {k: v for k, v in kinds.items()} or "none"
     res["open_for_lab"] = [
         "laminate CTI >= 175 V (group IIIa) on the order: JLC question open (FAB-JLCPCB.md)",
         "PD3 / material-group qualification of the package distances (TI tables state group I, PD2)",

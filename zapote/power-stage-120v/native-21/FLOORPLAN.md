@@ -183,9 +183,8 @@ run, and that count is 0. Their inductance effect belongs to the FEM rerun on th
   pour trimmed to y <= 12.5; the Cgs/R71 return via moved to (73.1, 15.2)). Tank-path screen and the 22 A
   RMS tank ceiling: task 04 round 5 README, DECISIONS.md 2026-10-08.
 - **Open items:**
-  - **Board fixings:** none on any native board. Metal hardware is chassis/PE (8 mm from HOT, off SELV
-    copper); legal M3 centres only in the right/rear band (`verification/mounting-candidates.json`).
-    Needs the enclosure's boss positions (verification/D5-AUDIT.md).
+  - **Board fixings (stage 7):** H1 metal-capable, H2-H8 nylon only; the enclosure must match them
+    (verification/D5-AUDIT.md). Bring-up test pads and fiducials: BRINGUP-PROBES.md.
   - **44 vias** remain mostly inside SMD pads (the straight-stub dogbone found no spot within 1.3 mm;
     a routed-stub trial moves 15 more, 28 stay; R5's current pads need in-pad vias anyway). **Decided
     2026-10-08:** order every 0.3 mm via epoxy-filled and capped (JLC POFV); see DECISIONS.md.

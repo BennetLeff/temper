@@ -56,6 +56,9 @@ def dump(board_path: Path) -> dict:
             if pad.GetAttribute() == pcbnew.PAD_ATTRIB_NPTH:
                 continue
             if not pad.GetNetname():
+                # a board-only fiducial is an isolated copper dot (no net, no conductor to bridge a barrier)
+                if fp.IsBoardOnly() and fp.IsExcludedFromBOM() and str(fp.GetFPID().GetLibItemName()).startswith("Fiducial"):
+                    continue
                 raise ValueError(f"unclassified copper pad: {fp.GetReference()}.{pad.GetNumber()}")
             bb = pad.GetBoundingBox()
             items.append({"kind": "pad", "ref": f"{fp.GetReference()}.{pad.GetNumber()}",

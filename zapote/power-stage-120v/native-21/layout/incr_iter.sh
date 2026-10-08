@@ -18,12 +18,16 @@ $KPY native-21/layout/dump_pads.py native-21/section.kicad_pcb native-21/layout/
 if [ "$2" = "-" ]; then [ "$BASE" -ef native-21/layout/copper.json ] || cp "$BASE" native-21/layout/copper.json
 else python3 native-21/layout/incr21.py "$BASE" "$2" native-21/layout/copper.json "${FILLS:-}"; fi
 $KPY prototype-closure/pcb/apply_copper21.py --out "$OUT" 2>/dev/null | grep -v -i wxapp
+# board-only parts: bring-up test points, fiducials, mounting holes (board_only21.json)
+[ -f native-21/layout/board_only21.json ] && $KPY native-21/layout/board_only21.py "$OUT/section.kicad_pcb" 2>/dev/null | { grep -v -i wxapp || true; }
 # designators at the fabricator legend minimum, collision-free (positions kept in reference-labels.json)
 [ -f native-21/reference-labels.json ] || echo '{"schema": "temper.power-stage-120v.labels.v1", "references": {}}' > native-21/reference-labels.json
 $KPY tools/place_reference_labels.py "$OUT/section.kicad_pcb" native-21/reference-labels.json --output native-21/reference-labels.json --fab-unresolved 2>/dev/null \
     | python3 -c 'import sys,json; t=sys.stdin.read(); d=json.loads(t[t.index("{"):]); print("labels:", d["references"] - len(d["unresolved"]), "on silk,", len(d["unresolved"]), "on F.Fab (no clear legend spot)")' 
+[ -f native-21/layout/board_only21.json ] && $KPY native-21/layout/board_only21.py --fix-labels 2>/dev/null
 NFP=$(grep -c '(footprint "' "$OUT/section.kicad_pcb")
 $KPY tools/apply_reference_labels.py "$OUT/section.kicad_pcb" native-21/reference-labels.json "$OUT/section.kicad_pcb" "$OUT/labels-receipt.json" --components "$NFP" --bounds 0 0 290 190 2>/dev/null | { grep -v -i wxapp || true; }
+[ -f native-21/layout/board_only21.json ] && $KPY native-21/layout/board_only21.py --unmirror "$OUT/section.kicad_pcb" 2>/dev/null
 # schematic beside the board for parity (native-21/section.kicad_sch, build_schematic21.py)
 cp native-21/section.kicad_sch native-21/native21.kicad_sym native-21/sym-lib-table "$OUT/"
 $CLI pcb drc --refill-zones --save-board --schematic-parity --format json -o "$OUT/drc.json" "$OUT/section.kicad_pcb" >/dev/null 2>&1 || true

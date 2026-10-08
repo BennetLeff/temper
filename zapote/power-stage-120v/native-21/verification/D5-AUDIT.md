@@ -42,12 +42,12 @@ studs, part of their own conductor) or to J4 (SELV, ≥ 64 mm from HOT).
 
 ## Open, not closable on the PCB
 
-- **No board fixings.** No native board has mounting holes. Any metal screw, washer or standoff is
+- **Board fixings (stage 7):** H1 (metal allowed, 20.4 mm from HOT) and H2–H8 (nylon only, F.Fab NYLON) now exist (`../layout/board_only21.json`). Before stage 7, no native board had mounting holes. Any metal screw, washer or standoff is
   chassis/PE: it must be ≥ 8.0 mm from HOT and off SELV copper, or it adds a second controller-ground–PE
   bond beyond R38. `mounting-candidates.json` lists the legal M3 centres for metal hardware: 173 on a
   2 mm grid, all in the right and rear band (x 150–290, e.g. (285, 135) at 18.5 mm from HOT). The
   power core and the SELV tongue have none, so fixings there need nylon hardware or cut-outs in the
-  SELV planes. **Needs the enclosure's boss positions before holes are placed.**
+  SELV planes. **The enclosure's bosses must match H1–H8, or the holes move with them.**
 - Laminate CTI ≥ 175 V (group IIIa) confirmed on the order: the JLC question is open (FAB-JLCPCB.md).
 - PD3 / material-group qualification of the package distances (TI tables state group I, PD2).
 - IEC 60664-4 high-frequency distances (switching 33–40 kHz is above 30 kHz). Expected well below

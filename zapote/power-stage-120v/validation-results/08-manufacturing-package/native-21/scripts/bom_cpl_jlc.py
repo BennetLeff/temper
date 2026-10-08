@@ -27,7 +27,8 @@ import pcbnew  # type: ignore[import-not-found]
 def main() -> None:
     board_path, bom_path, out = Path(sys.argv[1]), Path(sys.argv[2]), Path(sys.argv[3])
     board = pcbnew.LoadBoard(str(board_path))
-    fps = {fp.GetReference(): fp for fp in board.GetFootprints()}
+    # board-only parts (test points, fiducials, mounting holes) are excluded from the BOM and CPL by design
+    fps = {fp.GetReference(): fp for fp in board.GetFootprints() if not fp.IsExcludedFromBOM()}
     mm = pcbnew.ToMM
 
     def mount(ref: str) -> str:

@@ -1,10 +1,10 @@
 # Fabrication note: power-stage-120v native-21 (CANDIDATE, not released)
 
-Board: native-21 stage 6 (R5 current vias, SW_B neck widened), rebuilt from `native-21/layout/copper.json` by
+Board: native-21 stage 7 (stage-6 copper; bring-up test pads, fiducials, M3 holes), rebuilt from `native-21/layout/copper.json` by
 `sh native-21/layout/incr_iter.sh native-21/layout/copper.json - OUTDIR`; SHA-256
-`387b753a8d1b8b1097406e9d6643daf21263e44b7ad76becb79edcc5cd46ecda`.
+`ebdfdb3cd209134498c863c9b914a19da773bf32f931144d51619354e18c6124`.
 Gerbers: `native-21-gerbers.zip`, SHA-256
-`d1b675d99ea18337f03a1af69ff341aae3c81ea6801e6e6659f8ac560d626d98`.
+`5e97dc7ce0478e2ec4d6552a2f4f0e8e4ee4b1817e3ae85cd0fb179bb35c9cf8`.
 
 **This package isn't released for ordering.** The release gates in `DECISIONS.md` and
 `FAB-JLCPCB.md` are still open: insulation and thermal qualification, the laminate CTI
@@ -20,7 +20,8 @@ confirmation, and the LCSC sourcing below. Ordering is a purchase and needs the 
 | Solder mask / silk | Green / white |
 | Impedance control | None |
 | **Via covering** | **Epoxy-filled and capped (via-in-pad / POFV) for every 0.3 mm via** (730: 501 × 0.6/0.3 and 229 × 0.85/0.3). 42 sit inside SMD pads (left there by the dogbone pass; see DECISIONS.md 2026-10-08), plus the R5 shunt current-pad arrays, which need them. The ten 1.6/0.8 current vias stay tented (JLC fills holes ≤ 0.5 mm only). Select "Confirm production files". |
-| Drills | 852 plated (740 vias, 112 component holes), 8 non-plated |
+| Drills | 852 plated (740 vias, 112 component holes), 16 non-plated (8 connector holes, 8 M3 fixings) |
+| Board-only parts | 41 bring-up test pads (bare copper), 3 fiducials (1 mm, 3 mm mask opening), 8 M3 holes; none in BOM/CPL. **H2–H8 nylon hardware only** (F.Fab NYLON), H1 metal allowed (native-21/BRINGUP-PROBES.md) |
 
 JLC rules applied (`tools/jlc_dfm_check.py`, re-read verbatim 2026-10-08): PTH annular ring
 ≥ 0.254 mm at 2 oz; via diameter ≥ hole + 0.1 mm (our floor is a 0.15 mm ring); tracks ≥ 0.2 mm

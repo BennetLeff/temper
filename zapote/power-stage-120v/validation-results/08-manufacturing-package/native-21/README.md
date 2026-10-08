@@ -4,8 +4,8 @@ A **candidate** JLCPCB package for native-21 (stage 6), reviewed independently o
 does not release fabrication: `DECISIONS.md` controls that, and its gates are open
 ([fab/FAB-NOTE.md](fab/FAB-NOTE.md)).
 
-- Board: native-21 stage 6 (`native-21/layout/copper.json`, rebuilt), SHA-256
-  `387b753a8d1b8b1097406e9d6643daf21263e44b7ad76becb79edcc5cd46ecda`.
+- Board: native-21 stage 7 (stage-6 copper + board-only test pads, fiducials, holes; rebuilt), SHA-256
+  `ebdfdb3cd209134498c863c9b914a19da773bf32f931144d51619354e18c6124`.
 - Tools: KiCad 10.0.4 `kicad-cli`, gerbv 2.11.1 (independent renderer), Miniforge Python 3.12.
 - Scripts: native-17's `bom_cpl_jlc.py` unchanged; `review_fab.py` with one change, below.
 
