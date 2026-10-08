@@ -103,6 +103,32 @@ class Gitignore(unittest.TestCase):
         self.assertNotIn("a.gz", block)
         self.assertIn("*.gz", block)
 
+    def test_archived_files_stay_ignored_under_nested_negations(self):
+        repo = git_repo({
+            "zapote/.gitignore": b"*.log\n",
+            "zapote/out/.gitignore": b"!runs/\n!runs/**\n",
+            "zapote/out/runs/wave.txt.gz": b"g",
+            "zapote/out/runs/big.csv": b"c" * 300,
+            "zapote/out/runs/keep.json": b"{}",
+        })
+        m = ea.pack(repo, Path(tempfile.mkdtemp()), "rel-x", max_bytes=100)
+        ea.apply_gitignores(repo, m)
+        for f in m["files"]:
+            subprocess.run(["git", "-C", str(repo), "rm", "--cached", "-q", f["path"]], check=True)
+        status = subprocess.run(["git", "-C", str(repo), "status", "--porcelain", "--untracked-files=all"],
+                                check=True, capture_output=True, text=True).stdout
+        self.assertNotIn("wave.txt.gz", status)
+        self.assertNotIn("big.csv", status)
+
+    def test_apply_gitignores_is_idempotent(self):
+        repo = git_repo({"zapote/.gitignore": b"*.log\n", "zapote/a.gz": b"g"})
+        m = ea.pack(repo, Path(tempfile.mkdtemp()), "rel-x")
+        ea.apply_gitignores(repo, m)
+        once = (repo / "zapote/.gitignore").read_text()
+        ea.apply_gitignores(repo, m)
+        self.assertEqual((repo / "zapote/.gitignore").read_text(), once)
+        self.assertEqual(once.count(ea.GITIGNORE_BEGIN), 1)
+
 
 if __name__ == "__main__":
     unittest.main()

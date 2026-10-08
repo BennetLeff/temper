@@ -97,10 +97,28 @@ def check(repo: Path, max_bytes: int = MAX_TRACKED_BYTES) -> list[str]:
             for p, s in tracked_files(repo) if is_bulk(p, s, max_bytes)]
 
 
-def gitignore_block(manifest: dict) -> str:
-    explicit = sorted("/" + f["path"].removeprefix("zapote/") for f in manifest["files"]
-                      if not f["path"].endswith(BULK_SUFFIXES))
+def gitignore_block(manifest: dict, base: str = "zapote/") -> str:
+    explicit = sorted("/" + f["path"][len(base):] for f in manifest["files"]
+                      if f["path"].startswith(base) and not f["path"].endswith(BULK_SUFFIXES))
     return "\n".join([GITIGNORE_BEGIN, *(f"*{s}" for s in BULK_SUFFIXES), *explicit, GITIGNORE_END]) + "\n"
+
+
+def apply_gitignores(repo: Path, manifest: dict) -> list[Path]:
+    """Keep restored bulk ignored: write the block to zapote/.gitignore and to
+    every nested .gitignore with a negation, because a deeper file's `!`
+    pattern overrides its parents and a later line in the same file wins."""
+    nested = [repo / p for p, _ in tracked_files(repo)
+              if p.endswith("/.gitignore") and p != "zapote/.gitignore"
+              and any(line.startswith("!") for line in (repo / p).read_text().splitlines())]
+    written = []
+    for ignore in [repo / "zapote/.gitignore", *nested]:
+        text = ignore.read_text() if ignore.exists() else ""
+        if GITIGNORE_BEGIN in text:
+            text = text[: text.index(GITIGNORE_BEGIN)]
+        base = str(ignore.parent.relative_to(repo)) + "/"
+        ignore.write_text(text.rstrip("\n") + "\n" + gitignore_block(manifest, base))
+        written.append(ignore)
+    return written
 
 
 def _repo_root() -> Path:
@@ -126,11 +144,7 @@ def main() -> int:
     if args.cmd == "pack":
         manifest = pack(repo, args.out, args.release)
         (repo / MANIFEST).write_text(json.dumps(manifest, indent=1) + "\n")
-        ignore = repo / "zapote/.gitignore"
-        text = ignore.read_text()
-        if GITIGNORE_BEGIN in text:
-            text = text[: text.index(GITIGNORE_BEGIN)]
-        ignore.write_text(text.rstrip("\n") + "\n" + gitignore_block(manifest))
+        apply_gitignores(repo, manifest)
         print(f"{len(manifest['files'])} files in {len(manifest['assets'])} assets -> {args.out}")
         return 0
     manifest = json.loads((repo / MANIFEST).read_text())
