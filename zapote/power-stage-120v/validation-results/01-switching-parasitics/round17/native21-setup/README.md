@@ -19,6 +19,11 @@ Coarse check here (arch 1 mm, edge 0.7 mm; no solve): leg A 5.78 M tets, leg B 4
 pass every campaign gate: no PEC columns, zero port leakage, every port a closed loop, all 19
 closure ends on the main conductor body.
 
+**Running since 2026-10-08 05:10 UTC** on the remote box: [`chain_n21.sh`](chain_n21.sh) (log
+`~/temper-fem/r17/chain_n21.out`; per-campaign `campaign.log` in `r17/a21c`, `b21c`, `a21corr`,
+`b21corr`, `campA21`, `campB21`). On the remote, the leg-A coarse base meshed at 3.37 M tets and
+passed its gates; the first port solves at ~2 it/s.
+
 Pending: the round-17 campaign on the remote box (fine 1/2/3 mm + coarse, four single-port solves
 per height per leg) and then the decision grid on the new matrices. Blocked on SSH access to the
 remote box (Tailscale SSH check), and the fine meshes do not fit on the Mac (~2 GB free).
