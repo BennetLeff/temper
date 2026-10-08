@@ -20,6 +20,25 @@ pub struct ManufacturingInput {
     pub angle_policy: AnglePolicy,
     #[serde(default)]
     pub unsupported: Vec<String>,
+    /// Track centreline widths. `None` means the receipt predates track
+    /// transport, so a track-width limit cannot be evaluated.
+    #[serde(default)]
+    pub tracks: Option<Vec<Track>>,
+}
+
+#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+pub struct Track {
+    pub id: String,
+    pub layer: String,
+    pub width_mm: f64,
+}
+
+/// What a drilled hole is; vendors set different limits for each.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub enum HoleKind {
+    Via,
+    Pth,
+    Npth,
 }
 
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
@@ -40,6 +59,8 @@ pub struct PadGeometry {
     pub plated: bool,
     #[serde(default)]
     pub drill_polygon: Option<Polygon>,
+    #[serde(default)]
+    pub kind: Option<HoleKind>,
 }
 
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
@@ -49,6 +70,8 @@ pub struct DrillHole {
     pub diameter_mm: f64,
     #[serde(default)]
     pub polygon: Option<Polygon>,
+    #[serde(default)]
+    pub kind: Option<HoleKind>,
 }
 
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
@@ -63,15 +86,62 @@ pub struct Polygon {
     pub vertices_mm: Vec<[f64; 2]>,
 }
 
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
 pub struct FabricationLimits {
-    /// The source-declared prototype envelope. Values are not vendor claims.
+    /// The envelope's name and source. Vendor profiles (zapote/fab-profiles)
+    /// quote each value verbatim; older unit envelopes are prototype claims.
     pub name: String,
     pub source: String,
     pub qualified: bool,
+    /// Plated component-hole (PTH) annular ring; also vias when no via limit is set.
     pub minimum_annular_ring_mm: f64,
+    /// Hole-to-hole edge spacing for any pair that is not via/via.
     pub minimum_hole_clearance_mm: f64,
     pub assembly_process: String,
+    // Optional per-rule limits. A rule is evaluated only when its limit is set.
+    #[serde(default)]
+    pub minimum_via_annular_ring_mm: Option<f64>,
+    #[serde(default)]
+    pub minimum_via_hole_clearance_mm: Option<f64>,
+    #[serde(default)]
+    pub minimum_track_width_mm: Option<f64>,
+    #[serde(default)]
+    pub minimum_via_drill_mm: Option<f64>,
+    #[serde(default)]
+    pub minimum_pth_drill_mm: Option<f64>,
+    #[serde(default)]
+    pub maximum_pth_drill_mm: Option<f64>,
+    #[serde(default)]
+    pub minimum_npth_drill_mm: Option<f64>,
+    #[serde(default)]
+    pub minimum_copper_to_edge_mm: Option<f64>,
+    /// Maximum board outline extent, in either orientation.
+    #[serde(default)]
+    pub maximum_board_mm: Option<[f64; 2]>,
+}
+
+impl FabricationLimits {
+    fn optional(&self) -> impl Iterator<Item = f64> + '_ {
+        [
+            self.minimum_via_annular_ring_mm,
+            self.minimum_via_hole_clearance_mm,
+            self.minimum_track_width_mm,
+            self.minimum_via_drill_mm,
+            self.minimum_pth_drill_mm,
+            self.maximum_pth_drill_mm,
+            self.minimum_npth_drill_mm,
+            self.minimum_copper_to_edge_mm,
+        ]
+        .into_iter()
+        .flatten()
+        .chain(self.maximum_board_mm.into_iter().flatten())
+    }
+    fn drill_limited(&self) -> bool {
+        self.minimum_via_drill_mm.is_some()
+            || self.minimum_pth_drill_mm.is_some()
+            || self.maximum_pth_drill_mm.is_some()
+            || self.minimum_npth_drill_mm.is_some()
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
@@ -134,6 +204,10 @@ const RING: &str = "DRC.P2.ANNULAR_RING";
 const DRILL: &str = "DRC.P2.DRILL_CONFLICT";
 const OUTLINE: &str = "DRC.P2.COPPER_OUTLINE";
 const ANGLE: &str = "DRC.P2.SUPPORTED_ANGLE";
+const TRACK: &str = "DRC.P2.TRACK_WIDTH";
+const DRILL_SIZE: &str = "DRC.P2.DRILL_SIZE";
+const EDGE: &str = "DRC.P2.EDGE_CLEARANCE";
+const SIZE: &str = "DRC.P2.BOARD_SIZE";
 
 pub fn validate_with_population(input: &ManufacturingInput) -> (CheckReport, P2Population) {
     let mut population = P2Population::candidates(input);
@@ -196,8 +270,9 @@ pub fn validate_with_population(input: &ManufacturingInput) -> (CheckReport, P2P
             input.limits.minimum_annular_ring_mm,
             input.limits.minimum_hole_clearance_mm,
         ]
-        .iter()
-        .any(|v| !v.is_finite() || *v < 0.0)
+        .into_iter()
+        .chain(input.limits.optional())
+        .any(|v| !v.is_finite() || v < 0.0)
         || input.holes.iter().any(|h| {
             !h.diameter_mm.is_finite()
                 || h.diameter_mm <= 0.0
@@ -303,13 +378,19 @@ pub fn validate_with_population(input: &ManufacturingInput) -> (CheckReport, P2P
             }
         };
         population.evaluated(RING, pad.id.clone());
-        if !ring.is_finite() || ring < input.limits.minimum_annular_ring_mm {
+        // Vendors set the via ring separately from the component-hole ring
+        // (JLC: via diameter >= hole + 0.1 mm vs 2 oz PTH ring >= 0.254 mm).
+        let (limit, what) = match (pad.kind, input.limits.minimum_via_annular_ring_mm) {
+            (Some(HoleKind::Via), Some(via)) => (via, "via"),
+            _ => (input.limits.minimum_annular_ring_mm, "plated hole"),
+        };
+        if !ring.is_finite() || ring < limit {
             findings.push(finding(
                 RING,
-                "minimum annular ring is below the source-declared limit",
+                format!("{what} annular ring is below the fabrication limit"),
                 &pad.id,
                 format!("{ring:.3} mm"),
-                format!(">= {:.3} mm", input.limits.minimum_annular_ring_mm),
+                format!(">= {limit:.3} mm"),
             ));
         }
     }
@@ -336,13 +417,19 @@ pub fn validate_with_population(input: &ManufacturingInput) -> (CheckReport, P2P
                 }
             };
             population.evaluated(DRILL, format!("{} / {}", a.id, b.id));
-            if !gap.is_finite() || gap < input.limits.minimum_hole_clearance_mm {
+            // Via/via pairs use the via spacing; every other pair the pad
+            // spacing. Mixed pairs are unspecified by JLC; see fab-profiles.
+            let limit = match (a.kind, b.kind, input.limits.minimum_via_hole_clearance_mm) {
+                (Some(HoleKind::Via), Some(HoleKind::Via), Some(via)) => via,
+                _ => input.limits.minimum_hole_clearance_mm,
+            };
+            if !gap.is_finite() || gap < limit {
                 findings.push(finding(
                     DRILL,
-                    "drill-to-drill clearance is below the source-declared limit",
+                    "drill-to-drill clearance is below the fabrication limit",
                     format!("{} / {}", a.id, b.id),
                     format!("{gap:.3} mm"),
-                    format!(">= {:.3} mm", input.limits.minimum_hole_clearance_mm),
+                    format!(">= {limit:.3} mm"),
                 ));
             }
         }
@@ -374,6 +461,7 @@ pub fn validate_with_population(input: &ManufacturingInput) -> (CheckReport, P2P
             "copper",
         ));
     }
+    fab_house_rules(input, &mut findings, &mut checked, &mut gaps, &mut population);
     if !input.limits.qualified {
         findings.push(indeterminate("DRC.P2.FABRICATION_QUALIFICATION", "mechanical findings use source-declared prototype limits; vendor/process qualification is pending", "fabrication-envelope"));
     }
@@ -381,6 +469,122 @@ pub fn validate_with_population(input: &ManufacturingInput) -> (CheckReport, P2P
         CheckReport::from_findings(findings, checked, gaps),
         population,
     )
+}
+
+/// Rules that exist only when a fab profile supplies their limit.
+fn fab_house_rules(
+    input: &ManufacturingInput,
+    findings: &mut Vec<Finding>,
+    checked: &mut Vec<String>,
+    gaps: &mut Vec<String>,
+    population: &mut P2Population,
+) {
+    let limits = &input.limits;
+    let mut start = |rule: &str, population: &mut P2Population| {
+        checked.push(rule.into());
+        population.evaluated.insert(rule.into(), vec![]);
+        population.skipped.insert(rule.into(), vec![]);
+    };
+    if let Some(min) = limits.minimum_track_width_mm {
+        start(TRACK, population);
+        match &input.tracks {
+            None => gaps.push(format!(
+                "{TRACK}: receipt carries no track widths; re-extract with the current validation/p2/extract.py"
+            )),
+            Some(tracks) => {
+                for t in tracks {
+                    population.evaluated.get_mut(TRACK).unwrap().push(t.id.clone());
+                    if !t.width_mm.is_finite() || t.width_mm < min {
+                        findings.push(finding(
+                            TRACK,
+                            format!("{} track is narrower than the fabrication limit", t.layer),
+                            &t.id,
+                            format!("{:.3} mm", t.width_mm),
+                            format!(">= {min:.3} mm"),
+                        ));
+                    }
+                }
+            }
+        }
+    }
+    if limits.drill_limited() {
+        start(DRILL_SIZE, population);
+        for hole in &input.holes {
+            let Some(kind) = hole.kind else {
+                population.skipped.get_mut(DRILL_SIZE).unwrap().push(hole.id.clone());
+                findings.push(indeterminate(
+                    DRILL_SIZE,
+                    "hole kind (via, PTH, NPTH) is not in the receipt; size limits differ by kind",
+                    &hole.id,
+                ));
+                continue;
+            };
+            population.evaluated.get_mut(DRILL_SIZE).unwrap().push(hole.id.clone());
+            let (min, max, what) = match kind {
+                HoleKind::Via => (limits.minimum_via_drill_mm, None, "via"),
+                HoleKind::Pth => (limits.minimum_pth_drill_mm, limits.maximum_pth_drill_mm, "plated hole"),
+                HoleKind::Npth => (limits.minimum_npth_drill_mm, None, "non-plated hole"),
+            };
+            let d = hole.diameter_mm;
+            if let Some(min) = min.filter(|m| d < *m) {
+                findings.push(finding(
+                    DRILL_SIZE,
+                    format!("{what} drill is smaller than the fabrication limit"),
+                    &hole.id,
+                    format!("{d:.3} mm"),
+                    format!(">= {min:.3} mm"),
+                ));
+            } else if let Some(max) = max.filter(|m| d > *m) {
+                findings.push(finding(
+                    DRILL_SIZE,
+                    format!("{what} drill is larger than the fabrication limit"),
+                    &hole.id,
+                    format!("{d:.3} mm"),
+                    format!("<= {max:.3} mm"),
+                ));
+            }
+        }
+    }
+    if let Some(min) = limits.minimum_copper_to_edge_mm {
+        start(EDGE, population);
+        for copper in &input.copper {
+            population.evaluated.get_mut(EDGE).unwrap().push(copper.id.clone());
+            let gap = std::iter::once(&input.outline)
+                .chain(input.cutouts.iter())
+                .map(|edge| boundary_distance(&copper.polygon, edge))
+                .fold(f64::INFINITY, f64::min);
+            if gap < min {
+                findings.push(finding(
+                    EDGE,
+                    format!("{} copper is closer to a board edge than the fabrication limit", copper.layer),
+                    &copper.id,
+                    format!("{gap:.3} mm"),
+                    format!(">= {min:.3} mm"),
+                ));
+            }
+        }
+    }
+    if let Some(max) = limits.maximum_board_mm {
+        start(SIZE, population);
+        population.evaluated.get_mut(SIZE).unwrap().push(input.board_id.clone());
+        let (lo, hi) = input.outline.vertices_mm.iter().fold(
+            ([f64::INFINITY; 2], [f64::NEG_INFINITY; 2]),
+            |(lo, hi), p| ([lo[0].min(p[0]), lo[1].min(p[1])], [hi[0].max(p[0]), hi[1].max(p[1])]),
+        );
+        let mut size = [hi[0] - lo[0], hi[1] - lo[1]];
+        size.sort_by(|a, b| b.total_cmp(a));
+        let mut max = max;
+        max.sort_by(|a, b| b.total_cmp(a));
+        if size[0] > max[0] || size[1] > max[1] {
+            findings.push(finding(
+                SIZE,
+                "board outline exceeds the fabrication panel limit",
+                &input.board_id,
+                format!("{:.1} x {:.1} mm", size[0], size[1]),
+                format!("<= {:.1} x {:.1} mm", max[0], max[1]),
+            ));
+        }
+    }
 }
 
 fn indeterminate(rule: &str, message: impl Into<String>, object: impl Into<String>) -> Finding {
@@ -549,12 +753,14 @@ mod tests {
                 drill_center_mm: Some([0.5, 0.5]),
                 plated: true,
                 drill_polygon: None,
+                kind: None,
             }],
             holes: vec![DrillHole {
                 id: "H1".into(),
                 center_mm: [7., 7.],
                 diameter_mm: 0.5,
                 polygon: None,
+                kind: None,
             }],
             copper: vec![CopperPolygon {
                 id: "T1".into(),
@@ -570,9 +776,11 @@ mod tests {
                 minimum_annular_ring_mm: 0.2,
                 minimum_hole_clearance_mm: 0.2,
                 assembly_process: "reflow".into(),
+                ..Default::default()
             },
             angle_policy: AnglePolicy::Arbitrary,
             unsupported: vec![],
+            tracks: None,
         }
     }
     #[test]
@@ -592,6 +800,7 @@ mod tests {
             drill_center_mm: None,
             plated: false,
             drill_polygon: None,
+            kind: None,
         });
         let (_, p) = validate_with_population(&i);
         assert_eq!(p.evaluated[RING], vec!["J1.1"]);
@@ -611,6 +820,7 @@ mod tests {
             center_mm: [8., 8.],
             diameter_mm: 0.5,
             polygon: Some(rect(8., 8., 0.5, 0.5)),
+            kind: None,
         });
         i.pads[0].drill_center_mm = None;
         let (_, p) = validate_with_population(&i);
@@ -663,6 +873,7 @@ mod tests {
             center_mm: [7.3, 7.],
             diameter_mm: 0.5,
             polygon: None,
+            kind: None,
         });
         assert!(validate(&i).findings.iter().any(|f| f.rule == DRILL));
     }
@@ -735,6 +946,7 @@ mod tests {
             center_mm: [9., 6.],
             diameter_mm: 0.2,
             polygon: Some(rect(8.5, 6., 3., 0.5)),
+            kind: None,
         });
         assert!(validate(&i)
             .findings
