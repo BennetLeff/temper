@@ -89,6 +89,40 @@ class RoundTrip(unittest.TestCase):
         self.assertFalse((dest.parent / "escape.txt").exists())
 
 
+class Accumulate(unittest.TestCase):
+    """A later pack adds a release; it must not drop what earlier releases hold."""
+
+    def setUp(self):
+        self.repo = git_repo({"zapote/.gitignore": b"", "zapote/v/big.csv": b"c" * 300, "zapote/v/a.gz": b"g"})
+        self.out1, self.out2 = Path(tempfile.mkdtemp()), Path(tempfile.mkdtemp())
+        self.m1 = ea.pack(self.repo, self.out1, "rel-1", max_bytes=100)
+        for f in self.m1["files"]:
+            subprocess.run(["git", "-C", str(self.repo), "rm", "--cached", "-q", f["path"]], check=True)
+        new = self.repo / "zapote/w/new.npz"
+        new.parent.mkdir(parents=True)
+        new.write_bytes(b"n")
+        subprocess.run(["git", "-C", str(self.repo), "add", str(new)], check=True)
+
+    def test_second_pack_keeps_first_release_entries(self):
+        m2 = ea.pack(self.repo, self.out2, "rel-2", max_bytes=100, prior=self.m1)
+        self.assertEqual(sorted(f["path"] for f in m2["files"]),
+                         ["zapote/v/a.gz", "zapote/v/big.csv", "zapote/w/new.npz"])
+        self.assertEqual({a["release"] for a in m2["assets"]}, {"rel-1", "rel-2"})
+        self.assertEqual(len({a["name"] for a in m2["assets"]}), len(m2["assets"]))
+        self.assertIn("/v/big.csv", ea.gitignore_block(m2))
+        both = Path(tempfile.mkdtemp())
+        for part in [*self.out1.iterdir(), *self.out2.iterdir()]:
+            (both / part.name).write_bytes(part.read_bytes())
+        dest = Path(tempfile.mkdtemp())
+        ea.extract(m2, both, dest)
+        self.assertEqual((dest / "zapote/v/big.csv").read_bytes(), b"c" * 300)
+        self.assertEqual((dest / "zapote/w/new.npz").read_bytes(), b"n")
+
+    def test_reusing_a_release_name_is_an_error(self):
+        with self.assertRaises(ValueError):
+            ea.pack(self.repo, self.out2, "rel-1", max_bytes=100, prior=self.m1)
+
+
 class Check(unittest.TestCase):
     def test_flags_tracked_bulk(self):
         repo = git_repo({"zapote/a.npz": b"n", "zapote/b.json": b"{}"})

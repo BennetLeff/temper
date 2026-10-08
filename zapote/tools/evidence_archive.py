@@ -64,19 +64,29 @@ def plan_assets(entries, max_asset_bytes: int) -> list[list[tuple[str, int]]]:
 
 
 def pack(repo: Path, out_dir: Path, release: str, max_asset_bytes: int = 1_500_000_000,
-         max_bytes: int = MAX_TRACKED_BYTES) -> dict:
+         max_bytes: int = MAX_TRACKED_BYTES, prior: dict | None = None) -> dict:
+    """Archive currently tracked bulk as `release`; entries from `prior` (earlier
+    releases, already untracked) are kept so `fetch` still restores them."""
     bulk = [(p, s) for p, s in tracked_files(repo) if is_bulk(p, s, max_bytes)]
     out_dir.mkdir(parents=True, exist_ok=True)
-    files, assets = [], []
+    prior = prior or {"files": [], "assets": []}
+    if any(_asset_release(prior, a) == release for a in prior["assets"]):
+        raise ValueError(f"release {release} is already in the manifest; use a new release name")
+    files, assets = list(prior["files"]), [{**a, "release": _asset_release(prior, a)} for a in prior["assets"]]
     for index, group in enumerate(plan_assets(bulk, max_asset_bytes), 1):
-        name = f"zapote-evidence-part{index:02d}.tar"
+        name = f"{release}-part{index:02d}.tar"
         part = out_dir / name
         with tarfile.open(part, "w") as tar:
             for path, size in group:
                 tar.add(repo / path, arcname=path, recursive=False)
                 files.append({"path": path, "bytes": size, "sha256": sha256_file(repo / path), "asset": name})
-        assets.append({"name": name, "bytes": part.stat().st_size, "sha256": sha256_file(part)})
+        assets.append({"name": name, "release": release, "bytes": part.stat().st_size, "sha256": sha256_file(part)})
     return {"schema": SCHEMA, "release": release, "assets": assets, "files": files}
+
+
+def _asset_release(manifest: dict, asset: dict) -> str:
+    # The first (2026-10-08) manifest recorded one top-level release.
+    return asset.get("release", manifest.get("release"))
 
 
 def extract(manifest: dict, asset_dir: Path, dest: Path) -> None:
@@ -145,7 +155,9 @@ def main() -> int:
         print("\n".join(problems) or "zapote tree budget: ok")
         return 1 if problems else 0
     if args.cmd == "pack":
-        manifest = pack(repo, args.out, args.release)
+        existing = repo / MANIFEST
+        prior = json.loads(existing.read_text()) if existing.exists() else None
+        manifest = pack(repo, args.out, args.release, prior=prior)
         (repo / MANIFEST).write_text(json.dumps(manifest, indent=1) + "\n")
         apply_gitignores(repo, manifest)
         print(f"{len(manifest['files'])} files in {len(manifest['assets'])} assets -> {args.out}")
@@ -153,7 +165,7 @@ def main() -> int:
     manifest = json.loads((repo / MANIFEST).read_text())
     with tempfile.TemporaryDirectory() as tmp:
         for asset in manifest["assets"]:
-            subprocess.run(["gh", "release", "download", manifest["release"], "-p", asset["name"], "-D", tmp],
+            subprocess.run(["gh", "release", "download", _asset_release(manifest, asset), "-p", asset["name"], "-D", tmp],
                            check=True)
         extract(manifest, Path(tmp), args.dest or repo)
     print(f"restored {len(manifest['files'])} files")
