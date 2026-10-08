@@ -448,6 +448,7 @@ pub fn validate_with_population(input: &ManufacturingInput) -> (CheckReport, P2P
             }
         }
     }
+    let mut outside = std::collections::HashSet::new();
     for copper in &input.copper {
         population.evaluated(OUTLINE, copper.id.clone());
         if !polygon_inside(&copper.polygon, &input.outline)
@@ -456,6 +457,7 @@ pub fn validate_with_population(input: &ManufacturingInput) -> (CheckReport, P2P
                 .iter()
                 .any(|hole| polygons_intersect(&copper.polygon, hole))
         {
+            outside.insert(copper.id.as_str());
             findings.push(finding(
                 OUTLINE,
                 format!(
@@ -475,7 +477,7 @@ pub fn validate_with_population(input: &ManufacturingInput) -> (CheckReport, P2P
             "copper",
         ));
     }
-    fab_house_rules(input, &mut findings, &mut checked, &mut gaps, &mut population);
+    fab_house_rules(input, &outside, &mut findings, &mut checked, &mut gaps, &mut population);
     if !input.limits.qualified {
         findings.push(indeterminate("DRC.P2.FABRICATION_QUALIFICATION", "mechanical findings use source-declared prototype limits; vendor/process qualification is pending", "fabrication-envelope"));
     }
@@ -488,6 +490,7 @@ pub fn validate_with_population(input: &ManufacturingInput) -> (CheckReport, P2P
 /// Rules that exist only when a fab profile supplies their limit.
 fn fab_house_rules(
     input: &ManufacturingInput,
+    outside: &std::collections::HashSet<&str>,
     findings: &mut Vec<Finding>,
     checked: &mut Vec<String>,
     gaps: &mut Vec<String>,
@@ -568,6 +571,11 @@ fn fab_house_rules(
     if let Some(min) = limits.minimum_copper_to_edge_mm {
         start(EDGE, population);
         for copper in &input.copper {
+            // Copper crossing an edge already fails COPPER_OUTLINE; a boundary
+            // distance would report a misleading positive clearance.
+            if outside.contains(copper.id.as_str()) {
+                continue;
+            }
             population.evaluated.get_mut(EDGE).unwrap().push(copper.id.clone());
             let gap = std::iter::once(&input.outline)
                 .chain(input.cutouts.iter())

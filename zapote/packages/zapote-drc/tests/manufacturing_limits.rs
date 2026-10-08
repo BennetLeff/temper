@@ -214,3 +214,12 @@ fn slots_are_judged_by_their_narrow_and_long_dimensions() {
     let objects: Vec<_> = failing(&r, "DRC.P2.DRILL_SIZE").iter().map(|f| f.object.clone()).collect();
     assert_eq!(objects, ["SLOT1", "SLOT2"]);
 }
+
+#[test]
+fn copper_crossing_the_edge_is_an_outline_failure_only() {
+    let mut v = base();
+    v["copper"][0]["polygon"] = rect(19.85, 9.9, 0.3, 0.2); // crosses the right edge
+    let r = run(&v);
+    assert_eq!(failing(&r, "DRC.P2.COPPER_OUTLINE").len(), 1);
+    assert!(failing(&r, "DRC.P2.EDGE_CLEARANCE").is_empty(), "{:#?}", failing(&r, "DRC.P2.EDGE_CLEARANCE"));
+}
