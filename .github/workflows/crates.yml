@@ -41,9 +41,9 @@ jobs:
           set -eu
           for crate in temper-design-bundle temper-rust-router-core temper-py-bridge temper-py-bridge-derive temper-pcl-ir temper-geometry temper-io-types; do
             echo "::group::$crate"
-            cargo clippy --locked --manifest-path "packages/$crate/Cargo.toml" --all-targets -- -D warnings
+            # --all-features, as the legacy Rust Checks job did: several helpers
+            # exist only for the python / wasm-registry features.
+            cargo clippy --locked --manifest-path "packages/$crate/Cargo.toml" --all-features --all-targets -- -D warnings
             cargo test --locked --manifest-path "packages/$crate/Cargo.toml"
             echo "::endgroup::"
           done
-          # The pyo3 build zapote's tools import.
-          cargo clippy --locked --manifest-path packages/temper-design-bundle/Cargo.toml --features python --lib -- -D warnings
