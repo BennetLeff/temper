@@ -1,0 +1,54 @@
+name: crates
+# The Rust crates zapote still builds on: temper-design-bundle (the
+# temper_design_bundle_python module zapote's unit tools import) and its
+# path dependencies. Replaces the legacy python-tests Rust jobs for them.
+on:
+  pull_request:
+    paths:
+      - "packages/temper-design-bundle/**"
+      - "packages/temper-rust-router-core/**"
+      - "packages/temper-py-bridge/**"
+      - "packages/temper-py-bridge-derive/**"
+      - "packages/temper-pcl-ir/**"
+      - "packages/temper-geometry/**"
+      - "packages/temper-io-types/**"
+      - ".github/workflows/crates.yml"
+  push:
+    branches: [main]
+    paths:
+      - "packages/temper-design-bundle/**"
+      - "packages/temper-rust-router-core/**"
+      - "packages/temper-py-bridge/**"
+      - "packages/temper-py-bridge-derive/**"
+      - "packages/temper-pcl-ir/**"
+      - "packages/temper-geometry/**"
+      - "packages/temper-io-types/**"
+      - ".github/workflows/crates.yml"
+concurrency:
+  group: crates-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+jobs:
+  rust:
+    name: crates / rust
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Rust toolchain (pinned; bumps are deliberate, as in the legacy CI image)
+        run: |
+          rustup toolchain install 1.97.0 --profile minimal --component clippy
+          rustup default 1.97.0
+          rustc --version
+      - name: Test and lint
+        env:
+          CARGO_TARGET_DIR: ${{ runner.temp }}/crates-target
+        run: |
+          set -eu
+          for crate in temper-design-bundle temper-rust-router-core temper-py-bridge temper-py-bridge-derive temper-pcl-ir temper-geometry temper-io-types; do
+            echo "::group::$crate"
+            # --all-features, as the legacy Rust Checks job did: several helpers
+            # exist only for the python / wasm-registry features.
+            cargo clippy --locked --manifest-path "packages/$crate/Cargo.toml" --all-features --all-targets -- -D warnings
+            cargo test --locked --manifest-path "packages/$crate/Cargo.toml"
+            echo "::endgroup::"
+          done
