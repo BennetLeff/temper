@@ -45,7 +45,7 @@ kiutils==1.4.8
     # via temper-placer
 librt==0.15.0 ; platform_python_implementation != 'PyPy'
     # via mypy
-mako==1.4.1
+mako==1.4.2
     # via pytest-bdd
 markdown-it-py==4.2.0
     # via rich
