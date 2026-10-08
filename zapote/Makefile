@@ -71,6 +71,15 @@ check-boards:
 check-tree:
 	python3 tools/evidence_archive.py check
 
+# Any saved board: stackup + KiCad ERC/DRC (per violation) + fab-house DFM.
+PROFILE ?= fab-profiles/jlcpcb-2layer-2oz.json
+CHECK_RUN_DIR ?= validation/runs/check-$(shell date -u +%Y%m%dT%H%M%SZ)
+.PHONY: check-board
+check-board:
+	@test -n "$(BOARD)" || { echo 'Usage: make -C zapote check-board BOARD=/abs/board.kicad_pcb [PROFILE=fab-profiles/...json] [SCHEMATIC=...] [ASSEMBLY=reflow]' >&2; exit 2; }
+	@mkdir -p "$$(dirname "$(CHECK_RUN_DIR)")"
+	$(CARGO) run --release --quiet --locked --bin zapote-check -- --board "$(BOARD)" --profile "$(PROFILE)" --output "$(CHECK_RUN_DIR)" --kicad-cli "$(KICAD_CLI)" --python "$(KICAD_PYTHON)" $(if $(SCHEMATIC),--schematic "$(SCHEMATIC)") $(if $(ASSEMBLY),--assembly "$(ASSEMBLY)")
+
 board-check:
 	@test -n "$(BOARD)" || { echo 'Usage: make -C zapote board-check BOARD=/absolute/path/to/board.kicad_pcb' >&2; exit 2; }
 	$(CARGO) run --quiet --locked --bin zapote-board -- "$(BOARD)"
@@ -83,6 +92,7 @@ help:
 	  '  check-layout          Native placement/routing measurements and comparisons' \
 	  '  check-current         Layout plus conditional DC current, resistance and loss' \
 	  '  check-units           ERC/DRC and engineering checks for five maintained units' \
+	  '  check-board BOARD=... Any board: stackup, KiCad ERC/DRC per violation, fab-house DFM (PROFILE=...)' \
 	  '  board-check BOARD=... Physical stackup of one saved PCB (stackup only)' \
 	  '  check-boards          Stackup checks for the maintained unit board list' \
 	  '  check-native-oracle   Native manufacturing extraction tests' \

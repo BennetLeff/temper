@@ -19,6 +19,7 @@ export KICAD_CLI="/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli"
 
 | Need | Command | Scope / result |
 |---|---|---|
+| Check any saved board | `make -C zapote check-board BOARD=/abs/board.kicad_pcb PROFILE=fab-profiles/jlcpcb-2layer-2oz.json` | Stackup, KiCad ERC/DRC with one finding per violation (type, location, items, actual/required), and fab-house DFM under a [vendor profile](fab-profiles/). Writes `report.json` and `summary.txt`; exit 0 pass, 1 fail, 2 indeterminate, 3 run error. Pass `ASSEMBLY=<process>` to state the assembly process; without it the result is at best indeterminate. |
 | Placement/routing feedback | `make -C zapote check-layout` | Saved copper, paths, pad entries, coupling geometry, courtyards and placement distances; [details](layout-quality/NATIVE.md). |
 | Current sharing, R and loss | `make -C zapote check-current` | Includes layout analysis plus the declared two-terminal DC experiments, layer samples and barrel currents; [assumptions and results](layout-quality/CURRENT.md). |
 | Maintained unit ERC/DRC and engineering checks | `make -C zapote check-units` | Runs the five units in [units.json](validation/units.json), retaining pass/fail/indeterminate results. The full 120 V board is not registered there. |
@@ -56,6 +57,19 @@ cases to pass KCL, energy and mesh refinement checks. Neither qualifies the boar
 The unit runner uses exit 2 for incomplete evidence;
 Make returns nonzero on a failed recipe, so inspect the retained report to
 distinguish failure from indeterminate. Do not interpret missing inputs as zero.
+
+## Fab-house DFM profiles
+
+`fab-profiles/*.json` turn a fab house's published capabilities into the P2
+manufacturing limits. Each value carries the vendor's text verbatim and the date
+it was read; the loader rejects a limit whose quote does not state its number.
+Shipped: JLCPCB 2-layer 2 oz, 4-layer 1 oz and 4-layer 2 oz (read 2026-10-08).
+Vias use JLC's via rule (diameter ≥ hole + 0.1 mm, ring ≥ 0.05 mm), not the
+component-hole ring; rings use the vendor's absolute minimum, not its
+recommendation. Rules: annular ring (via/PTH), hole spacing (via/via vs other),
+track width, drill size (via, PTH min/max, NPTH), copper-to-edge, board size.
+Track *spacing* stays with the board's native KiCad DRC rules. `units.json` names
+a profile per maintained unit.
 
 ## Find implementations and evidence
 
