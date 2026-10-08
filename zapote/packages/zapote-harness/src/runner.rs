@@ -306,6 +306,18 @@ fn native_run(
     out: &Path,
     kicad: &Path,
 ) -> Result<(CheckReport, Vec<NativeCommand>)> {
+    native_check(&spec.schematic, &spec.board, out, kicad)
+}
+
+/// Run KiCad ERC and DRC on any saved schematic/board pair, retain the
+/// reports and bound command receipts in `out`, and return one finding per
+/// violation plus the category counts (see `native_reports`).
+pub fn native_check(
+    schematic: &Path,
+    board: &Path,
+    out: &Path,
+    kicad: &Path,
+) -> Result<(CheckReport, Vec<NativeCommand>)> {
     fs::create_dir_all(out).map_err(|e| e.to_string())?;
     let version = Command::new(kicad)
         .arg("--version")
@@ -318,7 +330,7 @@ fn native_run(
     let mut captures = Vec::new();
     let mut reports = Vec::new();
     let mut commands = Vec::new();
-    for (kind, domain, path) in [("erc", "sch", &spec.schematic), ("drc", "pcb", &spec.board)] {
+    for (kind, domain, path) in [("erc", "sch", schematic), ("drc", "pcb", board)] {
         let source = path.canonicalize().map_err(|e| e.to_string())?;
         let mut deps = BTreeMap::new();
         dependencies(source.parent().ok_or("source parent missing")?, &mut deps)?;
@@ -379,13 +391,55 @@ fn manufacturing_run(
     python: &Path,
     native: &UnitNativeEvidence,
 ) -> Result<(CheckReport, String, zapote_drc::manufacturing::P2Population)> {
+    let dfm = dfm_check(&spec.board, out, python, spec.fab_profile.as_deref())?;
+    for (key, expected) in [
+        ("footprints", native.components.len()),
+        (
+            "pads",
+            native
+                .components
+                .iter()
+                .map(|c| c.footprint_pads.len())
+                .sum(),
+        ),
+        ("tracks", native.traces.len()),
+        ("vias", native.vias.len()),
+    ] {
+        if dfm.census[key].as_u64() != Some(expected as u64) {
+            return Err(format!(
+                "manufacturing {key} census differs from native unit export"
+            ));
+        }
+    }
+    Ok((dfm.report, dfm.receipt_sha256, dfm.population))
+}
+
+/// Result of [`dfm_check`].
+pub struct DfmCheck {
+    pub report: CheckReport,
+    pub population: zapote_drc::manufacturing::P2Population,
+    pub receipt_sha256: String,
+    /// The extractor's native object census (footprints, pads, tracks, vias, zones).
+    pub census: serde_json::Value,
+    /// `{path, sha256, name}` of the applied fab profile, if any.
+    pub profile: Option<serde_json::Value>,
+}
+
+/// Extract any saved board's manufacturing geometry with pcbnew and apply
+/// the P2 rules, with limits from `fab_profile` when one is given.
+pub fn dfm_check(
+    board: &Path,
+    out: &Path,
+    python: &Path,
+    fab_profile: Option<&Path>,
+) -> Result<DfmCheck> {
     fs::create_dir_all(out).map_err(|e| e.to_string())?;
     let extractor = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../validation/p2/extract.py");
     let extractor_hash = hash_file(&extractor)?;
     let receipt_path = out.join("manufacturing-input.json");
     let argv = vec![
         extractor.to_string_lossy().into_owned(),
-        spec.board.to_string_lossy().into_owned(),
+        board.to_string_lossy().into_owned(),
         receipt_path.to_string_lossy().into_owned(),
     ];
     let child = Command::new(python)
@@ -394,9 +448,9 @@ fn manufacturing_run(
         .map_err(|e| e.to_string())?;
     fs::write(out.join("manufacturing.stdout"), &child.stdout).map_err(|e| e.to_string())?;
     fs::write(out.join("manufacturing.stderr"), &child.stderr).map_err(|e| e.to_string())?;
-    let profile = match &spec.fab_profile {
+    let profile = match fab_profile {
         Some(path) => Some((
-            path.clone(),
+            path.to_path_buf(),
             hash_file(path)?,
             zapote_drc::fab_profile::load_profile(path)?,
         )),
@@ -412,30 +466,11 @@ fn manufacturing_run(
     let bytes = read(&receipt_path)?;
     let receipt: serde_json::Value = json(&bytes)?;
     if receipt["schema"] != "zapote.manufacturing-native.v1"
-        || receipt["board_sha256"] != hash_file(&spec.board)?
+        || receipt["board_sha256"] != hash_file(board)?
         || receipt["extractor_sha256"] != extractor_hash
         || hash_file(&extractor)? != extractor_hash
     {
         return Err("manufacturing board/extractor identity mismatch".into());
-    }
-    for (key, expected) in [
-        ("footprints", native.components.len()),
-        (
-            "pads",
-            native
-                .components
-                .iter()
-                .map(|c| c.footprint_pads.len())
-                .sum(),
-        ),
-        ("tracks", native.traces.len()),
-        ("vias", native.vias.len()),
-    ] {
-        if receipt["native_census"][key].as_u64() != Some(expected as u64) {
-            return Err(format!(
-                "manufacturing {key} census differs from native unit export"
-            ));
-        }
     }
     let mut input: zapote_drc::manufacturing::ManufacturingInput =
         serde_json::from_value(receipt["input"].clone()).map_err(|e| e.to_string())?;
@@ -446,7 +481,13 @@ fn manufacturing_run(
         input.limits = limits;
     }
     let (report, population) = zapote_drc::manufacturing::validate_with_population(&input);
-    Ok((report, digest(&bytes), population))
+    Ok(DfmCheck {
+        report,
+        population,
+        receipt_sha256: digest(&bytes),
+        census: receipt["native_census"].clone(),
+        profile: profile_receipt,
+    })
 }
 
 fn bound_manufacturing_bytes(path: &Path, expected_hash: &str) -> Result<Vec<u8>> {
