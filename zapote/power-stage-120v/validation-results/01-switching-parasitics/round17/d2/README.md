@@ -558,3 +558,25 @@ built in, every decision and startup case passes with margin. The worst margins 
 network off the gate pins, which is what makes F6 work. Status: provisional until
 native-21's own corrections (`a21corr`) and fine extraction (`campA21`) land. Leg B's
 native-21 coarse matrix is running.
+
+### Leg B (same day)
+
+Leg B's native-21 coarse reference (`results/matrices/legB21-h1-e1p0-m10-n21.matrix.txt`)
+goes the other way: pulling C41 in from the board edge shortens its commutation loop.
+L11 33.0 → 30.2, L22 36.3 → 29.6, M12 23.8 → 19.2 nH, so the parallel loop goes from 29.1 to
+24.5 nH at the reference. The gate loops grow (P3 29.8 → 56.4, P4 32.6 → 48.6 nH) with the
+bias-capacitor closure; M34 changes sign but stays small (−0.24 → +0.09 nH). The provisional matrix
+`legB21-h0-prov-n21.matrix.txt` (`compose_legB21_prov.py`, leg B's own native-19 best − coarse)
+has a parallel loop of 18.1 nH (native-19 best: 22.7 nH) and a minimum eigenvalue of 7.72 nH.
+
+F6 at the −1.6 V bound (`results/f6-vneg-m1p6-legB21-prov{,-startup}/`): **252/252 pass** at
+27/100/150 °C.
+
+| case | native-19 (`f6-vneg-m1p6`, leg B): off-gate / die VDS | native-21 provisional |
+| --- | --- | --- |
+| S1 | −0.67 V / 353 V | −0.68 V / 359 V |
+| S2 (585 V limit) | −0.43 V / 360 V | 0.07 V / 414 V |
+| S4 | 1.65 V / 492 V | 1.25 V / 492 V |
+| S5 burst start | — | 0.19 V / 404 V |
+
+Both legs of native-21 pass every F6 decision and startup case on the provisional matrices.
