@@ -186,6 +186,14 @@ class TestDiscovery:
         assert [c.name for c in crates] == ["real-crate"]
         assert crates[0].module_name == "real_crate"
 
+    def test_discovers_zapote_workspace_crates(self, tmp_path: Path) -> None:
+        """zapote-bridge lives in zapote/packages/ since the legacy packages/
+        tree was retired; both roots are scanned."""
+        repo = tmp_path
+        _make_pyo3_crate(repo / "zapote" / "packages" / "zapote-bridge", package_name="zapote-bridge", module_name="zapote_bridge")
+        crates = discover_crates(repo)
+        assert [(c.name, c.module_name) for c in crates] == [("zapote-bridge", "zapote_bridge")]
+
     def test_module_name_from_tool_maturin_overrides_default(self, tmp_path: Path) -> None:
         """temper-design-bundle's real shape: module-name != crate name
         with hyphens replaced. Guessing from the crate name would silently

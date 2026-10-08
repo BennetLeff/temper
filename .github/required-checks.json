@@ -4,28 +4,18 @@
   "poll_interval_seconds": 15,
   "backlog_grace_seconds": 7200,
   "_note": [
-    "Since the legacy cleanup (2026-10-08) every required context is owned by its own",
-    "workflow and required only when its own paths change (context_triggers):",
-    "zapote / rust (zapote.yml), crates / rust (crates.yml), Firmware Tests (firmware-tests.yml)",
-    "and actionlint (lint-workflows.yml, which also tests this checker); context_triggers mirror each workflow's pull_request paths (enforced by scripts/tests).",
-    "(firmware-tests.yml). trigger_paths is their union; there are no job_triggers",
-    "because python-tests.yml no longer exists. The legacy manifest is in tag",
-    "archive/temper-legacy-2026-10-08."
+    "Every required context is owned by its own workflow and required only when its own",
+    "paths change (context_triggers mirror each workflow's pull_request paths; enforced by",
+    "scripts/tests): zapote / rust (zapote.yml, which also builds and imports zapote_bridge),",
+    "Firmware Tests (firmware-tests.yml) and actionlint (lint-workflows.yml, which tests this",
+    "checker). crates / rust was retired when zapote-bridge replaced the design-bundle chain",
+    "(2026-10-08). The legacy manifest is in tag archive/temper-legacy-2026-10-08."
   ],
   "trigger_paths": [
     "zapote/**",
     ".github/workflows/zapote.yml",
-    "packages/temper-design-bundle/**",
-    "packages/temper-rust-router-core/**",
-    "packages/temper-py-bridge/**",
-    "packages/temper-py-bridge-derive/**",
-    "packages/temper-pcl-ir/**",
-    "packages/temper-geometry/**",
-    "packages/temper-io-types/**",
-    ".github/workflows/crates.yml",
     "pyproject.toml",
     "uv.lock",
-    "zapote/power-stage-120v/native-17/section.kicad_pcb",
     "firmware/**",
     "zapote/power-stage-120v/prototype-closure/round5/firmware/**",
     ".github/workflows/firmware-tests.yml",
@@ -36,27 +26,15 @@
   ],
   "required_contexts": [
     "zapote / rust",
-    "crates / rust",
     "Firmware Tests (state-machine + fault-injection)",
     "actionlint"
   ],
   "context_triggers": {
     "zapote / rust": [
       "zapote/**",
-      ".github/workflows/zapote.yml"
-    ],
-    "crates / rust": [
-      "packages/temper-design-bundle/**",
-      "packages/temper-rust-router-core/**",
-      "packages/temper-py-bridge/**",
-      "packages/temper-py-bridge-derive/**",
-      "packages/temper-pcl-ir/**",
-      "packages/temper-geometry/**",
-      "packages/temper-io-types/**",
-      ".github/workflows/crates.yml",
+      ".github/workflows/zapote.yml",
       "pyproject.toml",
-      "uv.lock",
-      "zapote/power-stage-120v/native-17/section.kicad_pcb"
+      "uv.lock"
     ],
     "Firmware Tests (state-machine + fault-injection)": [
       "firmware/**",

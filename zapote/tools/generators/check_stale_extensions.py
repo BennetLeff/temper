@@ -228,6 +228,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import importlib.util
+import itertools
 import os
 import sys
 import tomllib
@@ -283,12 +284,15 @@ def discover_crates(repo_root: Path) -> list[Crate]:
     docstring "Design decision: crate discovery" for why this is a static
     source-tree scan rather than an environment probe.
     """
-    packages_root = repo_root / "packages"
-    if not packages_root.is_dir():
-        return []
+    # zapote/packages holds zapote-bridge (the only extension left after the
+    # legacy packages/ tree was retired on 2026-10-08); packages/ is still
+    # scanned for any crate added there.
+    roots = [r for r in (repo_root / "packages", repo_root / "zapote" / "packages") if r.is_dir()]
+    # Lazy chain: os.walk honours the dirnames pruning below only while walking.
+    walks = itertools.chain.from_iterable(os.walk(root) for root in roots)
 
     crates: list[Crate] = []
-    for dirpath, dirnames, filenames in os.walk(packages_root):
+    for dirpath, dirnames, filenames in walks:
         dirnames[:] = sorted(d for d in dirnames if d not in _PRUNE_DIRS)
         if "pyproject.toml" not in filenames or "Cargo.toml" not in filenames:
             continue

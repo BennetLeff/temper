@@ -190,12 +190,12 @@ def build(
         (
             crate
             for crate in stale.discover_crates(repo)
-            if crate.name == "temper-design-bundle"
+            if crate.name == "zapote-bridge"
         ),
         None,
     )
     if crate is None:
-        raise ValueError("temper-design-bundle crate is not discoverable")
+        raise ValueError("zapote-bridge crate is not discoverable")
     extension = stale.check_module(crate)
     if extension.state != "fresh" or extension.artifact is None:
         raise ValueError("strict source bridge is not fresh: " + extension.detail)
