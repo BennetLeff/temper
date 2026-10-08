@@ -3,11 +3,21 @@
 
     KICAD_PY tools/jlc_dfm_check.py <board> > jlc-dfm.json
 
-Limits are from https://jlcpcb.com/capabilities/pcb-capabilities as read on
-2026-09-26 (2 oz: annular ring >= 0.254 mm for vias and PTH pads, track/space
->= 0.15 mm; via drill >= 0.15 mm; PTH drill 0.15-6.3 mm; via hole-to-hole
->= 0.2 mm; 4-layer size <= 663 x 593 mm). Copper spacing itself is enforced
-by the board's DRC rules (Default netclass 0.2 mm), not re-measured here.
+Limits are from https://jlcpcb.com/capabilities/pcb-capabilities. Re-read verbatim on
+2026-10-08: the 2 oz figure is the **PTH annular ring** row ("Multilayer, 2 oz: 0.254 mm or
+above", under Traces), which does not mention vias. Vias have their own rule under Drilling:
+"Min. Via hole size/diameter 0.15/0.25mm" and "Via diameter should be 0.1mm (0.15mm preferred)
+larger than Via hole size", with no copper-weight dependence. (Until 2026-10-08 this gate applied
+the PTH 0.254 mm ring to vias as well.) So:
+- plated component holes: ring >= 0.254 mm, drill 0.15-6.3 mm;
+- vias: drill >= 0.15 mm and ring >= 0.15 mm. That is our floor, three times JLC's 0.05 mm via
+  rule and equal to its multilayer 1 oz PTH absolute minimum, kept as margin for 2 oz etch;
+- tracks >= 0.2 mm: JLC's copper-weight page
+  (https://jlcpcb.com/help/article/jlcpcb-copper-weight, read 2026-10-08) asks for track/space
+  > 8 mil on 2 oz boards, stricter than the capabilities table;
+- via hole-to-hole >= 0.2 mm (KiCad DRC); 4-layer size <= 663 x 593 mm.
+Copper spacing itself is enforced by the board's DRC rules (Default netclass 0.2 mm), not
+re-measured here.
 
 Every plated through-hole pad must also have copper (KiCad FlashLayer) on
 both F.Cu and B.Cu: a lead needs a solder land and the barrel an outer ring.
@@ -23,7 +33,7 @@ import sys
 
 import pcbnew  # type: ignore[import-not-found]
 
-LIMITS = {"annular_ring_mm": 0.254, "track_mm": 0.15, "via_drill_mm": 0.15,
+LIMITS = {"annular_ring_mm": 0.254, "via_ring_mm": 0.15, "track_mm": 0.2, "via_drill_mm": 0.15,
           "pth_drill_mm": (0.15, 6.3), "board_max_mm": (663.0, 593.0)}
 
 
@@ -35,7 +45,7 @@ def main() -> None:
     tracks = [t for t in board.GetTracks() if t.Type() == pcbnew.PCB_TRACE_T]
     for v in vias:
         ring = (mm(v.GetWidth(pcbnew.F_Cu)) - mm(v.GetDrillValue())) / 2
-        if ring < LIMITS["annular_ring_mm"] - 1e-9 or mm(v.GetDrillValue()) < LIMITS["via_drill_mm"]:
+        if ring < LIMITS["via_ring_mm"] - 1e-9 or mm(v.GetDrillValue()) < LIMITS["via_drill_mm"]:
             fails.append({"kind": "via", "net": v.GetNetname(), "at": [mm(v.GetPosition().x), mm(v.GetPosition().y)],
                           "ring_mm": round(ring, 4)})
     for t in tracks:

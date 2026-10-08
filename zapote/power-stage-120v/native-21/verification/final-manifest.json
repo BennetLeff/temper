@@ -50,6 +50,17 @@
   "fab_only": 75
  },
  "via_in_pad_remaining": 44,
- "fem": "setup ready, coarse mesh gates pass (validation-results/01-switching-parasitics/round17/native21-setup); extraction and decision reruns NOT_RUN",
- "physical": "NOT_RUN"
+ "fem": "both legs' coarse native-21 matrices extracted; provisional decision matrices pass F6 at the -1.6 V bound 252/252 per leg (validation-results/01-switching-parasitics FINDINGS M11); corrections and fine extraction running",
+ "physical": "NOT_RUN",
+ "jlc_dfm": {
+  "status": "PASS",
+  "evidence": "verification/jlc-dfm.json",
+  "rules": "tools/jlc_dfm_check.py 2026-10-08: PTH ring >= 0.254, via ring >= 0.15, track >= 0.2",
+  "vias": {
+   "0.6/0.3": 484,
+   "0.85/0.3": 229,
+   "1.6/0.8": 10
+  }
+ },
+ "via_in_pad_decision": "order every 0.3 mm via epoxy-filled and capped (POFV); DECISIONS.md 2026-10-08"
 }

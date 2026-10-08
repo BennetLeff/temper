@@ -17,7 +17,7 @@ C21–C23 47 × 28, T1 24 × 33, RV1 24 × 24, F1 38 × 9, C1/C2 27 × 12.
 | Zone | Board x | Board y | Contents | Why |
 | --- | --- | --- | --- | --- |
 | **Sink row** | 0 – 106 | 0 – 8 | Q5, Q6, Q3, Q2, then **BR1** (106 mm), tabs at y ≈ 1.6, flush with the edge | Sink span world x 35…141 (L13). BR1 moved from native-20's far left to after Q2, so airflow (inlet world right = board left) passes the FETs before BR1 (D-18 order), without mirroring any footprint |
-| **Power core** | 0 – 115 | 8 – 62 | native-20 core rows kept: gate R/hold-off under each gate pin, snubbers, R5 between the low-side sources, C38–C41 HF row, U1/U2 straddling the SELV island edge, F6 network (Cgs, PMEG + 1 Ω) at each gate, bias reservoirs (2×10 µF + 2×1 µF + 4×100 nF + 220 µF/0.68 Ω) **at each driver's VSS pins** | Proven gate and commutation loops; rail model ≤ 0.5 nH added per branch (ECO L1) |
+| **Power core** | 0 – 115 | 8 – 62 | native-20 core rows kept: gate R/hold-off under each gate pin, snubbers, R5 between the low-side sources, C38–C41 HF row, U1/U2 straddling the SELV island edge, F6 network (Cgs, PMEG + 1 Ω) at each gate, bias reservoirs (2×10 µF + 2×1 µF + 4×100 nF + 220 µF/0.68 Ω) **at each driver's VSS pins** | Gate loops per ECO L1. **Commutation loops measured, not carried over** (FEM 2026-10-08, FINDINGS M11): the film row sits 6 mm lower for F6, so leg A's parallel loop rises 24.9 → 37.6 nH at the reference, while leg B's falls 29.1 → 24.5 nH (C41 pulled in). Both legs pass all 252 F6 cases on the provisional matrices |
 | **HS bias A / B** | 0 – 115 | 62 – 95 | SN6507-fed transformers T2/T3, rectifiers, LC filter, TPS7A47 split + TLVH431, rail monitor (LM339, TL431, ISO7710 straddling the island edge) per high-side domain, each a compact island referenced to its own switch node | HS domains swing with sw_a/sw_b: keep each island small, beside its driver, with functional creepage to its neighbours |
 | **SELV island** | 30 – 160 | 62 – 125 | J4 (harness exits the rear via a short pigtail), U9/U4 SELV halves, CT comparators U10–U13, DIS ORs, BIAS_BAD filter, LINE_ZC buffer, PS1 secondary side | One island with an 8 mm moat (D5); every crossing part (U1, U2, U4, U9, U32–U34, U36, T1, PS1) straddles its edge |
 | **HOT protection** | 106 – 160 | 8 – 60 | U3 HOT5 LDO, U5/U6/U7 OCP/OVP, U8 NAND, U14/U15 HOT5 monitor, R30–R37 dividers, on OCP_KELVIN_P with a **star return to R5.2** (L4) | Kelvin budget; short lead from R5 |
@@ -174,8 +174,14 @@ run, and that count is 0. Their inductance effect belongs to the FEM rerun on th
   - Kelvin OCP band on this copper: 47.51-97.98 A.
   - Manifest: `verification/final-manifest.json`.
 - **Open items:**
-  - **44 vias** remain mostly inside SMD pads (no legal spot within 1.3 mm). Order them
-    plugged and capped (JLC via-in-pad) or rework by hand.
+  - **44 vias** remain mostly inside SMD pads (no legal spot within 1.3 mm). **Decided
+    2026-10-08:** order every 0.3 mm via epoxy-filled and capped (JLC POFV); see DECISIONS.md.
+  - **2 oz via rule (2026-10-08):** JLC's 0.254 mm ring is the PTH rule; vias need diameter >= hole
+    + 0.1 mm, so the 0.6/0.3 signal vias stand (DFM gate PASS). A trial upsize to 0.72/0.2 could not
+    re-route the LS bias block: the block is at 84 % courtyard area, its size-sorted row-pack
+    scatters each IC's parts (IC-to-satellite runs of 12-30 mm), and functional sub-packing needs
+    about 4 mm more height than the block has. If a future change needs more routing room there, the
+    lever is 0402 for its low-voltage passives (an ECO through the source), then a functional pack.
   - Accepted warnings: 6 short dangling stubs, 20 silk-over-copper, PS1/PS2 outline silk at the
     board edge (2) and J3/PS2 outline silk (2). Nudging PS1/PS2/J3 broke the mains-entry escapes
     and the PS1/C4 courtyards. The 199 `lib_footprint_issues` are the project's unconfigured

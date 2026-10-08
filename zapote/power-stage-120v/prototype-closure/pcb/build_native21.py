@@ -146,6 +146,12 @@ def main():
     for f in ("section.kicad_pro", "fp-lib-table", "stackup.json"):
         if (N20 / f).exists():
             shutil.copy2(N20 / f, OUT / f)
+    # JLC multilayer limits (tools/jlc_dfm_check.py): via drill >= 0.15 mm and our 0.15 mm via ring
+    # floor, so KiCad's own DRC enforces the via rules too (PTH rings are checked by the gate)
+    pro = json.loads((OUT / "section.kicad_pro").read_text())
+    rules = pro["board"]["design_settings"]["rules"]
+    rules.update(min_through_hole_diameter=0.15, min_via_annular_width=0.15)
+    (OUT / "section.kicad_pro").write_text(json.dumps(pro, indent=2) + "\n")
     if not (OUT / "models3d").exists() and (N20 / "models3d").exists():
         shutil.copytree(N20 / "models3d", OUT / "models3d")
     pcbnew.SaveBoard(str(OUT / "section.kicad_pcb"), board)

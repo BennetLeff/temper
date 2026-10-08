@@ -520,10 +520,12 @@ def load(base_path, patches=True):
     g["ESCAPES"].extend(e for e in base.get("escapes", []) if (e["ref"], e["pad"]) not in rm_esc)
     if n_pad:
         print(f"{n_pad} base items dropped: they served a moved part's old pads or meet its new ones")
-    # island rail pours (the -2 V banks and island planes): later tracks of other nets may not
-    # cut them (vias may pass; the fill opens antipads)
+    # island rail pours (the -2 V banks and island planes) and the OCP Kelvin sense pours: later
+    # tracks of other nets may not cut them (vias may pass; the fill opens antipads). A re-route
+    # across the In1 Kelvin pour split it once, and its resistance is budgeted.
     for z in g["ZONES"]:
-        if z["net"] in ("n_ha", "n_hb") and z["layer"] in ("B.Cu", "In1.Cu"):
+        if (z["net"] in ("n_ha", "n_hb") and z["layer"] in ("B.Cu", "In1.Cu")) or \
+                z["net"] in ("ocp_kelvin_p", "ocp_kelvin_n"):
             GEO.protect(z["net"], z["layer"], Polygon(z["outline"], z["holes"]), via_ok=True)
     if patches and hasattr(patches21, "OPEN_IN1"):
         g["OPEN_IN1"][:] = patches21.OPEN_IN1
@@ -538,7 +540,7 @@ def load(base_path, patches=True):
 
 if __name__ == "__main__":
     load(sys.argv[1])
-    if len(sys.argv) > 4 and Path(sys.argv[4]).exists():
+    if len(sys.argv) > 4 and sys.argv[4] and Path(sys.argv[4]).is_file():
         FILLS.extend(json.loads(Path(sys.argv[4]).read_text())["zones"])
     # Remaining pairs from the latest DRC (fresh, not cumulative), pads or points on existing copper.
     pads = {f"{p['ref']}.{p['pad']}": p for p in GEO.pads}
