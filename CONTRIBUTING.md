@@ -4,7 +4,6 @@
 
 - `zapote/` — board validation workspace (Rust ERC/DRC/DFM, units, 120 V power stage). Start at [zapote/CHECKS.md](zapote/CHECKS.md); rules in [zapote/AGENTS.md](zapote/AGENTS.md).
 - `firmware/` — ESP32-S3 firmware (C, 8-state machine); generators and gates in `firmware/tools/`.
-- `packages/` — the design-bundle crate chain zapote builds on.
 - `docs/` — plans, solutions, evidence; `scripts/` — CI and worktree-safety tooling only.
 
 ## Workflow
@@ -16,11 +15,10 @@
 ```bash
 make zapote          # zapote/** changes
 make firmware-test   # firmware/** changes (plus the firmware/tools gates in firmware-tests.yml)
-make crates          # packages/** changes
 ```
 
 4. Open a PR. `Required Python Tests` passes when the checks for the paths you changed
-   (`zapote / rust`, `crates / rust`, Firmware Tests) pass.
+   (`zapote / rust`, Firmware Tests, `actionlint`) pass.
 
 ## Commit Convention
 

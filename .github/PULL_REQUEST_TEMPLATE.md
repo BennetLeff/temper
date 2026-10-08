@@ -12,7 +12,7 @@ you ran and their output.
 ## Checklist
 
 - [ ] `cmake -B firmware/test/build firmware/test && cmake --build firmware/test/build && ./firmware/test/build/test_state_machine_only` passes
-- [ ] If I changed `zapote/`, `make zapote` passes; if I changed `packages/`, `make crates` passes
+- [ ] If I changed `zapote/`, `make zapote` passes
 - [ ] If I changed `firmware/config.yaml`, I regenerated `firmware/config.h` and committed it
 - [ ] If I changed `firmware/transition_table.yaml`, I regenerated `firmware/main/transition_table.h` and `firmware/test/test_transition_table_generated.c` and committed them
 - [ ] I reviewed the diff for secrets, debug prints, and unintended changes

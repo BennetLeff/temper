@@ -8,7 +8,6 @@ Temper is an ESP32-S3 induction cooker. The repository holds:
   units, the 120 V power stage). Its own rules are in [zapote/AGENTS.md](zapote/AGENTS.md);
   check discovery starts at [zapote/CHECKS.md](zapote/CHECKS.md).
 - `firmware/` — ESP32-S3 firmware with host tests and its code generators/gates in `firmware/tools/`.
-- `packages/` — the design-bundle crate chain zapote's unit tools build on.
 - `components/`, `datasheets/`, `docs/`, `skills/`, `output/` — part docs, references, history and review skills.
 
 The legacy placer/router, the old production board (`pcb/`, `elec/`), datasets and their CI
@@ -180,7 +179,7 @@ tool-calling harnesses start a *fresh shell process per tool call*, so
 shell state — including exported env vars — does not persist between calls;
 without the wrapper, `.cargo/config.toml`'s *relative*
 `build.target-dir = target-shared` resolves per-worktree and each worktree
-cold-compiles all 10 pyo3 crates into its own `target-shared`. Recurrences:
+cold-compiles every crate into its own `target-shared`. Recurrences:
 51 GB (2026-07-28), 36.6 GB across 25 caches (2026-08-06), ~74 GB across 99
 worktrees (2026-08-11/12) — see
 `docs/evidence/2026-08-13-cargo-target-dir-shell-convention-failure.md` and

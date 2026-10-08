@@ -18,7 +18,6 @@ gate drive, sensing and protection units, and ESP32-S3 firmware with an
 |---|---|
 | [`zapote/`](zapote/README.md) | Board validation workspace: Rust ERC/DRC/DFM, the five standalone units (RTD, current-sense, thermal-sense, interlock, gate-drive), the 120 V power stage, native KiCad adapters and fab-house profiles |
 | [`firmware/`](firmware/) | ESP32-S3 firmware, host tests, code generators and state-machine/invariant gates (`firmware/tools/`) |
-| [`packages/`](packages/README.md) | The design-bundle crate chain zapote's unit tools build on |
 | `components/`, `datasheets/` | Part documentation and datasheets |
 | `docs/`, `skills/`, `output/` | Plans, evidence and history; product/PCB/mechanical review skills; mechanical and prototype outputs |
 
@@ -43,7 +42,6 @@ layout and current checks.
 ```sh
 make zapote          # zapote Rust suite
 make firmware-test   # firmware host tests
-make crates          # design-bundle crate chain
 make bridge-python   # build zapote_bridge (uv sync)
 ```
 
