@@ -36,3 +36,21 @@ board export.
 Limits: DC only. The OCP node's 0.5 µs RC filters supply ripple, but transient
 return currents are not bounded here. Copper thickness is the kit's 70/61 µm
 (the stackup specifies 2 oz), and pads are injected at their centres.
+
+## Native-21 (routed board, 2026-10-08)
+
+Re-run on the native-21 routed copper (`native-21/verification/native21-all-copper.json.gz`,
+board `76ec8cca…`): `python3 kelvin_plane.py <export> native21` then `python3 kelvin_budget.py native21`.
+
+- R35.2 sits **164 mΩ** above R5.2 (native-20: 93–125 mΩ). The Kelvin pair now leaves R5 as a
+  dead-end In1 notch, changes to In2 below the FET antipads and rejoins the In1 band, so the
+  shared lead to the protection block is longer.
+- The census changes in one row: U3 is a TPS70950 (native-21 ECO), so the MC78L05's 7.6 mA
+  ground-pin current is gone (over-bounded here at 0.1 mA). Total returned current **13.6 mA**.
+- e_th = **2.15 mV**, trip shift **−2.22 A** (all current at the worst transfer: −2.30 A).
+  Band **47.51–97.98 A**: still meets the ≥ 44 A minimum, with 3.5 A to spare, about as native-20.
+- The layout guidance above still applies: widening or paralleling the R5.2 lead, or a star at
+  R5.2 for the AMC1311 / LDO / ISO7710 returns, would cut most of the shift.
+
+Files: [plane-native21.json](plane-native21.json), [budget-native21.json](budget-native21.json),
+[budget-native21.md](budget-native21.md).

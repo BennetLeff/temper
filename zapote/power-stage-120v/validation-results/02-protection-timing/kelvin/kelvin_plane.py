@@ -20,12 +20,14 @@ at their centres. Grid 0.1 mm. Input: the committed native-19 copper export
 (board SHA-256 3557aa44..., copper byte-identical to native-20).
 
     python3 kelvin_plane.py  ->  plane-native20.json
+    python3 kelvin_plane.py EXPORT.json.gz TAG  ->  plane-TAG.json   (another board's copper export)
 """
 from __future__ import annotations
 
 import gzip
 import importlib.util
 import json
+import sys
 from collections import defaultdict
 from pathlib import Path
 
@@ -44,8 +46,12 @@ PLATING_UM, PITCH, TEMP = 18.0, 0.1, 125.0
 
 
 def main() -> None:
-    data = json.load(gzip.open(EXPORT))
-    assert data["board_sha256"] == "3557aa444873fa8b45eb7e0ae8ec3a4bc2b5cd526826b338b58d50e57747430b"
+    export, tag = (Path(sys.argv[1]), sys.argv[2]) if len(sys.argv) > 2 else (EXPORT, "native20")
+    data = json.load(gzip.open(export))
+    # the committed native-19/20 export is pinned; another board's export carries its own hash
+    PINNED = {"native20": "3557aa444873fa8b45eb7e0ae8ec3a4bc2b5cd526826b338b58d50e57747430b",
+              "native21": "76ec8ccae6ca0dbd145b672abc3d18a8f8132875e567cb31ab84325d897a1715"}
+    assert data["board_sha256"] == PINNED[tag], f"{export} is not the pinned {tag} board"
     net = kit.Net(pitch_mm=PITCH, temp_c=TEMP)
     shapes, vias, pads = defaultdict(list), {}, {}
     for it in data["primitives"]:
@@ -84,7 +90,7 @@ def main() -> None:
            "trip_shift_A_per_mV_at_R35_2": round(a_per_mv, 4),
            "trip_shift_A_per_10mA_returned_bound": round(a_per_mv * 10e-3 * T[worst], 4),
            "unused_island_cells": sol["unused_island_cells"], "dropped_edges": sol["dropped_edges"]}
-    (HERE / "plane-native20.json").write_text(json.dumps(res, indent=1) + "\n")
+    (HERE / f"plane-{tag}.json").write_text(json.dumps(res, indent=1) + "\n")
     for r, v in sorted(T.items(), key=lambda kv: -kv[1]):
         print(f"{r:7s} {v:8.3f} mOhm")
     print(json.dumps({k: res[k] for k in ("R_eff_R35_2_mohm", "max_transfer", "trip_shift_A_per_mV_at_R35_2",

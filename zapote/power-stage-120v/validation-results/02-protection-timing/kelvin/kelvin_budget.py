@@ -11,6 +11,7 @@ A positive e_th lowers the trip, so the shift is applied to the band minimum.
 Census: CENSUS below (pad, mA, what, source).
 """
 import json
+import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -33,12 +34,21 @@ CENSUS = [  # pad, mA, what, source
 ]
 
 
+# Native-21 replaces the MC78L05 HOT5 regulator (U3) with a TPS70950 (D-33, native-21/ECO.md):
+# its ground-pin current is in the microamp range; 0.1 mA here is a deliberate over-bound.
+CENSUS21 = [row if row[0] != "U3.2" else
+            ("U3.2", 0.1, "TPS70950 ground-pin current, over-bounded at 0.1 mA (datasheet IQ is microamp-class)",
+             "TI tps709.pdf (native-21/ECO.md sources)") for row in CENSUS]
+
+
 def main():
-    plane = json.loads((HERE / "plane-native20.json").read_text())
+    tag = sys.argv[1] if len(sys.argv) > 1 else "native20"
+    census = CENSUS21 if tag == "native21" else CENSUS
+    plane = json.loads((HERE / f"plane-{tag}.json").read_text())
     T = plane["transfer_mohm_to_R35_2"]
     a_per_mv = plane["trip_shift_A_per_mV_at_R35_2"]
     rows, e = [], 0.0
-    for pad, ma, what, src in CENSUS:
+    for pad, ma, what, src in census:
         mv = ma * 1e-3 * T[pad]        # mA * mOhm = uV -> here mA*1e-3 A * mOhm = mV
         e += mv
         rows.append({"pad": pad, "mA": round(ma, 4), "transfer_mohm": T[pad], "mV_at_R35_2": round(mv, 4), "what": what, "source": src})
@@ -50,11 +60,11 @@ def main():
            "band_after_A": [round(49.73 + e * a_per_mv, 2), 97.98],
            "meets_44A_min": 49.73 + e * a_per_mv >= 44.0,
            "note": "shift ranges from 0 (no load current) to the census value, so it widens the band downward"}
-    (HERE / "budget-native20.json").write_text(json.dumps(res, indent=1) + "\n")
+    (HERE / f"budget-{tag}.json").write_text(json.dumps(res, indent=1) + "\n")
     lines = ["| pad | mA (max) | mΩ to R35.2 | mV at R35.2 | what |", "| --- | ---: | ---: | ---: | --- |"]
     lines += [f"| {r['pad']} | {r['mA']} | {r['transfer_mohm']} | {r['mV_at_R35_2']} | {r['what']} |" for r in rows]
     lines.append(f"| **total** | **{res['total_mA']}** | | **{res['e_th_mV']}** | trip shift **{res['trip_shift_A']} A**; band {res['band_after_A'][0]}–{res['band_after_A'][1]} A |")
-    (HERE / "budget-native20.md").write_text("\n".join(lines) + "\n")
+    (HERE / f"budget-{tag}.md").write_text("\n".join(lines) + "\n")
     print("\n".join(lines))
     print(json.dumps({k: res[k] for k in ("total_mA", "e_th_mV", "trip_shift_A", "bound_all_at_max_transfer", "band_after_A", "meets_44A_min")}))
 
