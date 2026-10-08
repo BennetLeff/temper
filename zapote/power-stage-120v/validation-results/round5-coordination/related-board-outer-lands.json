@@ -1,0 +1,686 @@
+{
+  "tool": "10.0.4",
+  "evidence_class": "exact structural; FlashLayer census only, not full PCB qualification",
+  "boards": [
+    {
+      "label": "native15_negative_control",
+      "path": "zapote/power-stage-120v/native-15/section.kicad_pcb",
+      "sha256": "a3ac1249f5052afe52944804cdc3f6ef0e8f895668360e79c1fa7b6fb7322155",
+      "pth_pads": 116,
+      "missing_outer_land_pads": 88,
+      "missing": [
+        {
+          "ref": "PS2",
+          "pad": "1",
+          "missing": [
+            "F.Cu"
+          ]
+        },
+        {
+          "ref": "PS2",
+          "pad": "2",
+          "missing": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "PS2",
+          "pad": "3",
+          "missing": [
+            "F.Cu"
+          ]
+        },
+        {
+          "ref": "PS2",
+          "pad": "4",
+          "missing": [
+            "F.Cu"
+          ]
+        },
+        {
+          "ref": "D1",
+          "pad": "1",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "D1",
+          "pad": "2",
+          "missing": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "Q5",
+          "pad": "1",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "Q5",
+          "pad": "2",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "J1",
+          "pad": "1",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "J1",
+          "pad": "2",
+          "missing": [
+            "F.Cu"
+          ]
+        },
+        {
+          "ref": "J4",
+          "pad": "1",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "J4",
+          "pad": "2",
+          "missing": [
+            "F.Cu"
+          ]
+        },
+        {
+          "ref": "J4",
+          "pad": "3",
+          "missing": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "J4",
+          "pad": "4",
+          "missing": [
+            "F.Cu"
+          ]
+        },
+        {
+          "ref": "J4",
+          "pad": "5",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "J4",
+          "pad": "6",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "J4",
+          "pad": "7",
+          "missing": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "J4",
+          "pad": "8",
+          "missing": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "J4",
+          "pad": "9",
+          "missing": [
+            "F.Cu"
+          ]
+        },
+        {
+          "ref": "J4",
+          "pad": "10",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "J4",
+          "pad": "11",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "J4",
+          "pad": "12",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "J4",
+          "pad": "13",
+          "missing": [
+            "F.Cu"
+          ]
+        },
+        {
+          "ref": "J4",
+          "pad": "14",
+          "missing": [
+            "F.Cu"
+          ]
+        },
+        {
+          "ref": "J4",
+          "pad": "15",
+          "missing": [
+            "F.Cu"
+          ]
+        },
+        {
+          "ref": "J4",
+          "pad": "16",
+          "missing": [
+            "F.Cu"
+          ]
+        },
+        {
+          "ref": "C39",
+          "pad": "1",
+          "missing": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "C39",
+          "pad": "2",
+          "missing": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "C40",
+          "pad": "1",
+          "missing": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "C40",
+          "pad": "2",
+          "missing": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "BR1",
+          "pad": "1",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "BR1",
+          "pad": "2",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "BR1",
+          "pad": "3",
+          "missing": [
+            "F.Cu"
+          ]
+        },
+        {
+          "ref": "BR1",
+          "pad": "4",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "J3",
+          "pad": "1",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "J3",
+          "pad": "2",
+          "missing": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "J2",
+          "pad": "1",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "J2",
+          "pad": "1",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "J2",
+          "pad": "1",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "J2",
+          "pad": "1",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "C3",
+          "pad": "1",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "C3",
+          "pad": "2",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "J7",
+          "pad": "1",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "J7",
+          "pad": "1",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "J7",
+          "pad": "1",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "J7",
+          "pad": "1",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "PS1",
+          "pad": "1",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "PS1",
+          "pad": "3",
+          "missing": [
+            "F.Cu"
+          ]
+        },
+        {
+          "ref": "PS1",
+          "pad": "4",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "F1",
+          "pad": "1",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "F1",
+          "pad": "1",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "F1",
+          "pad": "2",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "F1",
+          "pad": "2",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "J10",
+          "pad": "1",
+          "missing": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "J10",
+          "pad": "1",
+          "missing": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "J10",
+          "pad": "1",
+          "missing": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "J10",
+          "pad": "1",
+          "missing": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "D3",
+          "pad": "2",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "C1",
+          "pad": "1",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "C1",
+          "pad": "2",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "C4",
+          "pad": "1",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "C4",
+          "pad": "2",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "C2",
+          "pad": "1",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "C2",
+          "pad": "2",
+          "missing": [
+            "F.Cu"
+          ]
+        },
+        {
+          "ref": "J8",
+          "pad": "1",
+          "missing": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "J8",
+          "pad": "1",
+          "missing": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "J8",
+          "pad": "1",
+          "missing": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "J8",
+          "pad": "1",
+          "missing": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "J9",
+          "pad": "1",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "J9",
+          "pad": "1",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "J9",
+          "pad": "1",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "J9",
+          "pad": "1",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "Q3",
+          "pad": "1",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "Q3",
+          "pad": "3",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "Q6",
+          "pad": "1",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "Q6",
+          "pad": "3",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "C38",
+          "pad": "1",
+          "missing": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "C38",
+          "pad": "2",
+          "missing": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "D2",
+          "pad": "1",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "D2",
+          "pad": "2",
+          "missing": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "Q2",
+          "pad": "1",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "Q2",
+          "pad": "2",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "C41",
+          "pad": "1",
+          "missing": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "C41",
+          "pad": "2",
+          "missing": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "J5",
+          "pad": "1",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "J5",
+          "pad": "1",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "J5",
+          "pad": "1",
+          "missing": [
+            "B.Cu"
+          ]
+        },
+        {
+          "ref": "J5",
+          "pad": "1",
+          "missing": [
+            "B.Cu"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "native17_positive_control",
+      "path": "zapote/power-stage-120v/native-17/section.kicad_pcb",
+      "sha256": "16e8b70bb7f2bc9020ea574022c13661cd09640ca3a52db1ff43f9f6db976162",
+      "pth_pads": 116,
+      "missing_outer_land_pads": 0,
+      "missing": []
+    },
+    {
+      "label": "rtd_current",
+      "path": "zapote/rtd/unit/candidate/section.kicad_pcb",
+      "sha256": "d9908e58335fc9e20d9d786af4423ba8844d7ee893a08dc99472a3dd357653cb",
+      "pth_pads": 14,
+      "missing_outer_land_pads": 0,
+      "missing": []
+    },
+    {
+      "label": "thermal_current",
+      "path": "zapote/thermal-sense/candidate/section.kicad_pcb",
+      "sha256": "09eb0c3485aed367f2a33732c89d4820ff88a7a1114e534d62ac0ce43713964c",
+      "pth_pads": 10,
+      "missing_outer_land_pads": 0,
+      "missing": []
+    },
+    {
+      "label": "current_sense_current",
+      "path": "zapote/current-sense/candidate/section.kicad_pcb",
+      "sha256": "ce54a8983876bc750e6b37857599d7e404e8bf846ddfd2ea2b96535a7552f623",
+      "pth_pads": 6,
+      "missing_outer_land_pads": 0,
+      "missing": []
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+ "limits": {
+  "annular_ring_mm": 0.254,
+  "track_mm": 0.15,
+  "via_drill_mm": 0.15,
+  "pth_drill_mm": [
+   0.15,
+   6.3
+  ],
+  "board_max_mm": [
+   663.0,
+   593.0
+  ]
+ },
+ "vias": 147,
+ "tracks": 560,
+ "plated_pads": 116,
+ "min_track_mm": 0.3,
+ "failures": [],
+ "status": "PASS"
+}

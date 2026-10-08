@@ -1,0 +1,504 @@
+{
+  "board_sha256": "ace40079ee7f9dbde98810a250079714d4f102bb9cd4a0925ba589233281414d",
+  "tool": "pcbnew 10.0.4",
+  "scope": "Footprints named by lib_footprint_mismatch; native integer units, shelf angle zero. Annotation fields are not asserted equal.",
+  "compared_pad_fields": [
+    "number",
+    "local_position",
+    "size",
+    "drill_size",
+    "shape",
+    "orientation",
+    "layers",
+    "attribute",
+    "roundrect_radius_ratio"
+  ],
+  "footprints": [
+    {
+      "reference": "BR1",
+      "footprint": "temper:Diode_Bridge_GBJ2510",
+      "exact_pad_geometry_matches": true,
+      "graphic_class_layer_counts_match": true,
+      "graphic_bbox_deltas": {
+        "board_only": [],
+        "library_only": []
+      }
+    },
+    {
+      "reference": "C1",
+      "footprint": "Capacitor_THT:C_Rect_L26.5mm_W10.5mm_P22.50mm_MKS4",
+      "exact_pad_geometry_matches": true,
+      "graphic_class_layer_counts_match": true,
+      "graphic_bbox_deltas": {
+        "board_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            10148810,
+            -848250,
+            2202381,
+            1696500
+          ]
+        ],
+        "library_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            8982143,
+            -848250,
+            4535715,
+            1696500
+          ]
+        ]
+      }
+    },
+    {
+      "reference": "C2",
+      "footprint": "Capacitor_THT:C_Rect_L26.5mm_W10.5mm_P22.50mm_MKS4",
+      "exact_pad_geometry_matches": true,
+      "graphic_class_layer_counts_match": true,
+      "graphic_bbox_deltas": {
+        "board_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            10148810,
+            -848250,
+            2202381,
+            1696500
+          ]
+        ],
+        "library_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            8982143,
+            -848250,
+            4535715,
+            1696500
+          ]
+        ]
+      }
+    },
+    {
+      "reference": "C3",
+      "footprint": "Capacitor_THT:C_Disc_D10.5mm_W5.0mm_P10.00mm",
+      "exact_pad_geometry_matches": true,
+      "graphic_class_layer_counts_match": true,
+      "graphic_bbox_deltas": {
+        "board_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            3898810,
+            -848250,
+            2202381,
+            1696500
+          ]
+        ],
+        "library_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            2732143,
+            -848250,
+            4535715,
+            1696500
+          ]
+        ]
+      }
+    },
+    {
+      "reference": "C4",
+      "footprint": "Capacitor_THT:C_Disc_D10.5mm_W5.0mm_P10.00mm",
+      "exact_pad_geometry_matches": true,
+      "graphic_class_layer_counts_match": true,
+      "graphic_bbox_deltas": {
+        "board_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            3898810,
+            -848250,
+            2202381,
+            1696500
+          ]
+        ],
+        "library_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            2732143,
+            -848250,
+            4535715,
+            1696500
+          ]
+        ]
+      }
+    },
+    {
+      "reference": "D1",
+      "footprint": "Diode_THT:D_DO-41_SOD81_P10.16mm_Horizontal",
+      "exact_pad_geometry_matches": true,
+      "graphic_class_layer_counts_match": true,
+      "graphic_bbox_deltas": {
+        "board_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            4368810,
+            -848250,
+            2202381,
+            1696500
+          ]
+        ],
+        "library_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            3202143,
+            -848250,
+            4535715,
+            1696500
+          ]
+        ]
+      }
+    },
+    {
+      "reference": "D2",
+      "footprint": "Diode_THT:D_DO-41_SOD81_P10.16mm_Horizontal",
+      "exact_pad_geometry_matches": true,
+      "graphic_class_layer_counts_match": true,
+      "graphic_bbox_deltas": {
+        "board_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            4368810,
+            -848250,
+            2202381,
+            1696500
+          ]
+        ],
+        "library_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            3202143,
+            -848250,
+            4535715,
+            1696500
+          ]
+        ]
+      }
+    },
+    {
+      "reference": "F1",
+      "footprint": "Fuse:Fuseholder_Clip-6.3x32mm_Littelfuse_102071_Inline_P34.70x7.60mm_D2.00mm_Horizontal",
+      "exact_pad_geometry_matches": true,
+      "graphic_class_layer_counts_match": true,
+      "graphic_bbox_deltas": {
+        "board_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            16070238,
+            -848250,
+            2059524,
+            1696500
+          ]
+        ],
+        "library_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            14832143,
+            -848250,
+            4535715,
+            1696500
+          ]
+        ]
+      }
+    },
+    {
+      "reference": "J1",
+      "footprint": "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-3-3-5.08_1x03_P5.08mm_Horizontal",
+      "exact_pad_geometry_matches": true,
+      "graphic_class_layer_counts_match": true,
+      "graphic_bbox_deltas": {
+        "board_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            4097857,
+            2251750,
+            1964286,
+            1696500
+          ]
+        ],
+        "library_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            2812143,
+            2251750,
+            4535715,
+            1696500
+          ]
+        ]
+      }
+    },
+    {
+      "reference": "J2",
+      "footprint": "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-3-2-5.08_1x02_P5.08mm_Horizontal",
+      "exact_pad_geometry_matches": true,
+      "graphic_class_layer_counts_match": true,
+      "graphic_bbox_deltas": {
+        "board_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            1557857,
+            2251750,
+            1964286,
+            1696500
+          ]
+        ],
+        "library_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            272143,
+            2251750,
+            4535715,
+            1696500
+          ]
+        ]
+      }
+    },
+    {
+      "reference": "J3",
+      "footprint": "Connector_JST:JST_VH_B2P-VH_1x02_P3.96mm_Vertical",
+      "exact_pad_geometry_matches": true,
+      "graphic_class_layer_counts_match": true,
+      "graphic_bbox_deltas": {
+        "board_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            997857,
+            3251750,
+            1964286,
+            1696500
+          ]
+        ],
+        "library_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            -287857,
+            3251750,
+            4535715,
+            1696500
+          ]
+        ]
+      }
+    },
+    {
+      "reference": "J4",
+      "footprint": "Connector_Molex:Molex_Micro-Fit_3.0_43045-1612_2x08_P3.00mm_Vertical",
+      "exact_pad_geometry_matches": true,
+      "graphic_class_layer_counts_match": true,
+      "graphic_bbox_deltas": {
+        "board_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            9517857,
+            3351750,
+            1964286,
+            1696500
+          ]
+        ],
+        "library_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            8232143,
+            3351750,
+            4535715,
+            1696500
+          ]
+        ]
+      }
+    },
+    {
+      "reference": "PS1",
+      "footprint": "Converter_ACDC:Converter_ACDC_MeanWell_IRM-20-xx_THT",
+      "exact_pad_geometry_matches": true,
+      "graphic_class_layer_counts_match": true,
+      "graphic_bbox_deltas": {
+        "board_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            20922619,
+            9551750,
+            3154762,
+            1696500
+          ]
+        ],
+        "library_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            20232143,
+            9551750,
+            4535715,
+            1696500
+          ]
+        ]
+      }
+    },
+    {
+      "reference": "PS2",
+      "footprint": "Converter_ACDC:Converter_ACDC_MeanWell_IRM-05-xx_THT",
+      "exact_pad_geometry_matches": true,
+      "graphic_class_layer_counts_match": true,
+      "graphic_bbox_deltas": {
+        "board_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            20842619,
+            -368250,
+            3154762,
+            1696500
+          ]
+        ],
+        "library_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            20152143,
+            -368250,
+            4535715,
+            1696500
+          ]
+        ]
+      }
+    },
+    {
+      "reference": "Q2",
+      "footprint": "Package_TO_SOT_THT:TO-247-3_Vertical",
+      "exact_pad_geometry_matches": true,
+      "graphic_class_layer_counts_match": true,
+      "graphic_bbox_deltas": {
+        "board_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            4325000,
+            -658250,
+            2250000,
+            1696500
+          ]
+        ],
+        "library_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            3182143,
+            -658250,
+            4535715,
+            1696500
+          ]
+        ]
+      }
+    },
+    {
+      "reference": "Q3",
+      "footprint": "Package_TO_SOT_THT:TO-247-3_Vertical",
+      "exact_pad_geometry_matches": true,
+      "graphic_class_layer_counts_match": true,
+      "graphic_bbox_deltas": {
+        "board_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            4325000,
+            -658250,
+            2250000,
+            1696500
+          ]
+        ],
+        "library_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            3182143,
+            -658250,
+            4535715,
+            1696500
+          ]
+        ]
+      }
+    },
+    {
+      "reference": "Q5",
+      "footprint": "Package_TO_SOT_THT:TO-247-3_Vertical",
+      "exact_pad_geometry_matches": true,
+      "graphic_class_layer_counts_match": true,
+      "graphic_bbox_deltas": {
+        "board_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            4325000,
+            -658250,
+            2250000,
+            1696500
+          ]
+        ],
+        "library_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            3182143,
+            -658250,
+            4535715,
+            1696500
+          ]
+        ]
+      }
+    },
+    {
+      "reference": "Q6",
+      "footprint": "Package_TO_SOT_THT:TO-247-3_Vertical",
+      "exact_pad_geometry_matches": true,
+      "graphic_class_layer_counts_match": true,
+      "graphic_bbox_deltas": {
+        "board_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            4325000,
+            -658250,
+            2250000,
+            1696500
+          ]
+        ],
+        "library_only": [
+          [
+            "PCB_TEXT",
+            "F.Fab",
+            3182143,
+            -658250,
+            4535715,
+            1696500
+          ]
+        ]
+      }
+    }
+  ]
+}

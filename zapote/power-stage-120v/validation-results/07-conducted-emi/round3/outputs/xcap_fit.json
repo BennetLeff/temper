@@ -1,0 +1,84 @@
+{
+  "part": "R46KN4100JHP1M (related series only; not board R463N410000N1M)",
+  "condition": "K-SIM 3.0.7.15, 25 deg C, 0 V DC bias",
+  "frequency_range_hz": [
+    100.0,
+    10000000.0
+  ],
+  "capacitance_f": 1.0000040902014007e-06,
+  "self_resonance_hz_from_rlc": 1440659.4581866376,
+  "esl_fit_h": 1.2204382692353272e-08,
+  "esl_fit_band_hz": [
+    1513560.625,
+    10000000.0
+  ],
+  "reactance_fit_rmse_ohm": 0.005513272047287539,
+  "esr_fit_formula_ohm": "a + b*sqrt(f/1e6) + c/sqrt(f/1e6)",
+  "esr_fit_abc_ohm": [
+    0.003484532455670936,
+    0.027489815657210863,
+    0.006112951980069394
+  ],
+  "esr_fit_band_hz": [
+    151356.0625,
+    10000000.0
+  ],
+  "esr_fit_rmse_ohm": 0.0008930573093089849,
+  "sampled": [
+    {
+      "frequency_hz": 100.0,
+      "impedance_ohm": 1591.5430908203125,
+      "esr_ohm": 0.4211237132549286
+    },
+    {
+      "frequency_hz": 316.2277526855469,
+      "impedance_ohm": 503.2901306152344,
+      "esr_ohm": 0.1767287403345108
+    },
+    {
+      "frequency_hz": 1000.0,
+      "impedance_ohm": 159.15423583984375,
+      "esr_ohm": 0.07835014164447784
+    },
+    {
+      "frequency_hz": 3162.277587890625,
+      "impedance_ohm": 50.328765869140625,
+      "esr_ohm": 0.03999151289463043
+    },
+    {
+      "frequency_hz": 10000.0,
+      "impedance_ohm": 15.914645195007324,
+      "esr_ohm": 0.026660338044166565
+    },
+    {
+      "frequency_hz": 31622.77734375,
+      "impedance_ohm": 5.030405521392822,
+      "esr_ohm": 0.02422521449625492
+    },
+    {
+      "frequency_hz": 100000.0,
+      "impedance_ohm": 1.5837020874023438,
+      "esr_ohm": 0.02711397036910057
+    },
+    {
+      "frequency_hz": 316227.78125,
+      "impedance_ohm": 0.47872495651245117,
+      "esr_ohm": 0.030372077599167824
+    },
+    {
+      "frequency_hz": 1000000.0,
+      "impedance_ohm": 0.08696218580007553,
+      "esr_ohm": 0.03758036345243454
+    },
+    {
+      "frequency_hz": 3162277.75,
+      "impedance_ohm": 0.2054712027311325,
+      "esr_ohm": 0.05467178672552109
+    },
+    {
+      "frequency_hz": 10000000.0,
+      "impedance_ohm": 0.7457094788551331,
+      "esr_ohm": 0.0950213074684143
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+ "identity": {
+  "legA-h0-best-n19.matrix.txt": "cf861da357ee496a0314356a21cfa4478d67e4ae8e15d36dae42dbc9deac2019",
+  "legB-h0-corr-n19.matrix.txt": "4e5ceb13538e44799c499370889e231d25825baf4c4d198df8959a6d5b54b0a6",
+  "F6.cir": "e6b8cf1f4eaa6a5eb76338cd8c8eb7db749f42272a8a66fd50ed46beabd2ce0d",
+  "f6_legs.py": "42f0a1c093328c39e31c059fd9a0383594dc683459f72fb9cdeb66fb7d432ec6",
+  "run_d2.py": "bec75e3212b120853eb4a58286fb3c222094e46b6e88ba6e41edcde73cd24c7a",
+  "PMEG6030EP.txt": "0c2892521c7933b99f405d803cef84240050b71c9e1f412088bd7a6c6352b983"
+ },
+ "diode": "pmeg",
+ "model_screen_V": {
+  "25": 3.5624339999999997,
+  "27": 3.545527,
+  "100": 2.924901,
+  "150": 2.48794
+ },
+ "groups": {
+  "A_T27_S5": {
+   "cases": 36,
+   "complete": 36,
+   "pass": 36,
+   "pass_hot": 23,
+   "max_off_V": 2.24,
+   "max_vds_V": 387.7
+  },
+  "A_T150_S5": {
+   "cases": 36,
+   "complete": 36,
+   "pass": 36,
+   "pass_hot": 30,
+   "max_off_V": 2.131,
+   "max_vds_V": 389.4
+  },
+  "B_T27_S5": {
+   "cases": 36,
+   "complete": 36,
+   "pass": 36,
+   "pass_hot": 18,
+   "max_off_V": 2.338,
+   "max_vds_V": 402.6
+  },
+  "B_T150_S5": {
+   "cases": 36,
+   "complete": 36,
+   "pass": 36,
+   "pass_hot": 27,
+   "max_off_V": 2.227,
+   "max_vds_V": 406.4
+  }
+ }
+}

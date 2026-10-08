@@ -1,0 +1,29 @@
+{
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "python": "3.12.14",
+  "gmsh": "4.15.2",
+  "meshio": "5.3.5",
+  "numpy": "2.5.3",
+  "shapely": "2.1.2",
+  "mpi": "Open MPI5.0.11",
+  "binary_and_source_sha256": {
+    "ElmerSolver_mpi": "b60ae75db18b3c1102ee4f2155dcff7f26310ede453697215360f08a4b50b7ed",
+    "ElmerGrid": "19f9573ba2c1c7cf30f09bdc65c48a930865e0511293e1ff02fcf7c1b46dbec8",
+    "libelmersolver": "33302a65dfd2afd67641561b3922a68e6ca2af6a1adbee29af3230432a73d52e",
+    "MagnetoDynamics": "593f2ebebd73d492cd510bcaf38e1c327720562747dd94490bbd715eb97e8a50",
+    "ResultOutputSolve": "5da5196799c3e84770fcd3fdc5c1bc0bddeba4d7358ec033bf93e2234ffcefdc",
+    "libHYPRE": "4821d466db4d175fb32f2c4e78eccee2e023aecac7a85a0d2395c4e069e33714",
+    "libmpi": "b44879bd3f792a1b5e8950bbc8d2dc21230c0be8c0baf15be5309719b21df200",
+    "SParIterSolver-source": "7765cdad2306b1510f05e6a2ec6c24251e0903454632ecbc52222f21dc73579a",
+    "CalcFields-source": "ffd33b7ad274b71383e12aab9d80e047a0a8991979f5badf244cab774af75456"
+  },
+  "execution": "Local, no external compute or uploads; one native-board solve at a time",
+  "restart_keyword": "SParIterSolver.F90 line1186 reads HYPRE GmRes Dimension with default100. Actual explicit value is recorded in each case.sif and solver_lines; upstream human-readable solver label always says100.",
+  "upstream_checkout_head_at_recording": "fda5ab9ece24ef1ee6f2317604c5ca73367d5201",
+  "upstream_identity_policy": "Content hashes in round2/d17/upstream-inputs.json and the pair-verifier pin are authoritative; checkout HEAD is advisory.",
+  "elemental_profile_source_evidence": {
+    "path": "/private/tmp/claude-501/-Users-bennet-Desktop-temper/5a71b9c0-fe6f-4b0a-a3af-0c109a4e3165/scratchpad/macfem/elmerfem/fem/src/modules/MagnetoDynamics/CalcFields.F90",
+    "lines": "241-243 nodal gating;435-462 elemental B/H/A allocation;915 component census",
+    "qualification": "elemental-qualification.json: analytic + nonuniform fixtures + native A coarse reference passed"
+  }
+}

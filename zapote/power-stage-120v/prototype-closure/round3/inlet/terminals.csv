@@ -1,0 +1,121 @@
+reference,terminal,net,domain,note
+IN,L,LINE_IN,MAINS,From appropriately protected source
+IN,N,NEUTRAL_IN,MAINS,Not fused
+IN,PE,PE,PROTECTIVE_EARTH,Dedicated first bond
+F0,IN,LINE_IN,MAINS,15A candidate
+F0,OUT,LINE_FUSED,MAINS,Upstream of S0
+S0,L_IN,LINE_FUSED,MAINS,Verify actual stamped switch terminal numbering at native capture
+S0,L_OUT,L_AUX,MAINS,Manual switched line
+S0,N_IN,NEUTRAL_IN,MAINS,Manual neutral pole
+S0,N_OUT,N_AUX,MAINS,Manual switched neutral
+F2,IN,L_AUX,MAINS,Auxiliary branch
+F2,OUT,L_AUX_FUSED,MAINS,Auxiliary branch
+PS_AUX,L,L_AUX_FUSED,MAINS,Upstream of source contactors
+PS_AUX,N,N_AUX,MAINS,Upstream of source contactors
+PS_AUX,+V,AUX_24V,SELV_CANDIDATE,24.0V setpoint
+PS_AUX,-V,AUX_0V,SELV_CANDIDATE,Not PE by assumption
+K1,1L1,L_AUX,MAINS,Line pole
+K1,2T1,L_MID,MAINS,To K2
+K1,3L2,N_AUX,MAINS,Neutral pole
+K1,4T2,N_MID,MAINS,To K2
+K1,5L3,NC_K1_5,UNCONNECTED,Unused main pole
+K1,6T3,NC_K1_6,UNCONNECTED,Unused main pole
+K2,1L1,L_MID,MAINS,Independent series line pole
+K2,2T1,L_SER,MAINS,To precharge and bypass
+K2,3L2,N_MID,MAINS,Independent series neutral pole
+K2,4T2,N_PRE,MAINS,Output neutral
+K2,5L3,NC_K2_5,UNCONNECTED,Unused main pole
+K2,6T3,NC_K2_6,UNCONNECTED,Unused main pole
+KB,1L1,L_SER,MAINS,Bypass input
+KB,2T1,L_PRE,MAINS,Bypass output
+TF1,1,L_SER,MAINS,Live insulated thermal cutoff body
+TF1,2,RPA_IN,MAINS,Only RP1 branch
+RP1,1,RPA_IN,MAINS,22ohm
+RP1,2,L_PRE,MAINS,Parallel branch output
+TF2,1,L_SER,MAINS,Live insulated thermal cutoff body
+TF2,2,RPB_IN,MAINS,Only RP2 branch
+RP2,1,RPB_IN,MAINS,22ohm
+RP2,2,L_PRE,MAINS,Parallel branch output
+FT,IN,L_PRE,MAINS,Proof branch fuse
+FT,OUT,TEST_FUSED,MAINS,To KT NO common
+KT,CONTACT_IN,TEST_FUSED,MAINS,Use manufacturer drawing when native symbol captured
+KT,CONTACT_OUT,TEST_LOAD,MAINS,SPST-NO
+RTEST,1,TEST_LOAD,MAINS,220ohm
+RTEST,2,N_PRE,MAINS,This insulated conductor passes through CT_TEST once
+CT_TEST,1,CT_T_P,ISOLATED_ANALOG,Burden remains attached
+CT_TEST,2,CT_T_N,ISOLATED_ANALOG,Burden remains attached
+CT_TEST,3,NC_CT_SUPPORT,UNCONNECTED,Mechanical support only
+OUT,L,L_PRE,MAINS,To D22 input not its output
+OUT,N,N_PRE,MAINS,To D22 input
+OUT,PE,PE,PROTECTIVE_EARTH,Never current return
+K1,21,K1_MIRROR_FEED,SELV_CANDIDATE,Independent monitored loop excitation
+K1,22,K1_MIRROR_RETURN,SELV_CANDIDATE,NC mirror loop
+K2,21,K2_MIRROR_FEED,SELV_CANDIDATE,Independent monitored loop excitation
+K2,22,K2_MIRROR_RETURN,SELV_CANDIDATE,NC mirror loop
+KB,21,KB_MIRROR_FEED,SELV_CANDIDATE,Independent monitored loop excitation
+KB,22,KB_MIRROR_RETURN,SELV_CANDIDATE,NC mirror loop
+K1,A1,COIL1_24V,SELV_CANDIDATE,Independent high-side enabled branch
+K1,A2,QD1_D,SELV_CANDIDATE,Independent low-side driver
+K2,A1,COIL2_24V,SELV_CANDIDATE,Independent high-side enabled branch
+K2,A2,QD2_D,SELV_CANDIDATE,Independent low-side driver
+KB,A1,COILB_24V,SELV_CANDIDATE,Hold during ordered stop until source off confirmed
+KB,A2,QDB_D,SELV_CANDIDATE,Bypass low-side driver
+KT,COIL_PLUS,COILT_24V,SELV_CANDIDATE,Default off and timeout limited
+KT,COIL_MINUS,QDT_D,SELV_CANDIDATE,Local suppression separately qualified
+RVH1,1,L_AUX,MAINS,VLINE upper divider starts upstream of K1 and K2
+RVH1,2,VLINE_DIV_1,MAINS,249kohm
+RVH2,1,VLINE_DIV_1,MAINS,249kohm
+RVH2,2,VLINE_DIV_2,MAINS,Series node
+RVH3,1,VLINE_DIV_2,MAINS,249kohm
+RVH3,2,VLINE_DIV_3,MAINS,Series node
+RVH4,1,VLINE_DIV_3,MAINS,249kohm
+RVH4,2,VLINE_TAP,MAINS,To isolated amplifier input
+RVL1,1,VLINE_TAP,MAINS,4.02kohm
+RVL1,2,N_AUX,MAINS,Upstream neutral reference
+UVLINE,6,VLINE_TAP,MAINS,INP
+UVLINE,7,N_AUX,MAINS,INN
+UVLINE,8,N_AUX,MAINS,HGND
+UVLINE,2,N_AUX,MAINS,DCDC_HGND
+RVH5,1,L_SER,MAINS,VPRE upper divider
+RVH5,2,VPRE_DIV_1,MAINS,249kohm
+RVH6,1,VPRE_DIV_1,MAINS,249kohm
+RVH6,2,VPRE_DIV_2,MAINS,Series node
+RVH7,1,VPRE_DIV_2,MAINS,249kohm
+RVH7,2,VPRE_DIV_3,MAINS,Series node
+RVH8,1,VPRE_DIV_3,MAINS,249kohm
+RVH8,2,VPRE_TAP,MAINS,To isolated amplifier input
+RVL2,1,VPRE_TAP,MAINS,4.02kohm
+RVL2,2,L_PRE,MAINS,Live bypass-output reference
+UVPRE,6,VPRE_TAP,MAINS,INP
+UVPRE,7,L_PRE,MAINS,INN
+UVPRE,8,L_PRE,MAINS,HGND
+UVPRE,2,L_PRE,MAINS,DCDC_HGND
+RVH9,1,L_PRE,MAINS,VOUT upper divider
+RVH9,2,VOUT_DIV_1,MAINS,249kohm
+RVH10,1,VOUT_DIV_1,MAINS,249kohm
+RVH10,2,VOUT_DIV_2,MAINS,Series node
+RVH11,1,VOUT_DIV_2,MAINS,249kohm
+RVH11,2,VOUT_DIV_3,MAINS,Series node
+RVH12,1,VOUT_DIV_3,MAINS,249kohm
+RVH12,2,VOUT_TAP,MAINS,To isolated amplifier input
+RVL3,1,VOUT_TAP,MAINS,4.02kohm
+RVL3,2,N_PRE,MAINS,Downstream neutral reference
+UVOUT,6,VOUT_TAP,MAINS,INP
+UVOUT,7,N_PRE,MAINS,INN
+UVOUT,8,N_PRE,MAINS,HGND
+UVOUT,2,N_PRE,MAINS,DCDC_HGND
+POD_START,1,POD_5V,SELV_CANDIDATE,Separate momentary NO dry contact; exact switch not captured
+POD_START,2,POD_START_RAW,SELV_CANDIDATE,Active high fresh edge accepted only in OFF
+R_START_PD,1,POD_START_RAW,SELV_CANDIDATE,10kohm pull-down; exact passive part remains native capture
+R_START_PD,2,AUX_0V,SELV_CANDIDATE,Released or disconnected defaults low
+SUP_START_INPUT,RAW,POD_START_RAW,SELV_CANDIDATE,Debounce protection and5V translation required; exact supervisor pin not captured
+POD_RESET,1,POD_5V,SELV_CANDIDATE,Separate momentary NO dry contact; never OR with START
+POD_RESET,2,POD_RESET_RAW,SELV_CANDIDATE,Active high fresh edge resets eligible cleared fault only to OFF
+R_RESET_PD,1,POD_RESET_RAW,SELV_CANDIDATE,10kohm pull-down; exact passive part remains native capture
+R_RESET_PD,2,AUX_0V,SELV_CANDIDATE,Released or disconnected defaults low
+SUP_RESET_INPUT,RAW,POD_RESET_RAW,SELV_CANDIDATE,Debounce protection and5V translation required; exact supervisor pin not captured
+POD_STOP,1,POD_5V,SELV_CANDIDATE,Separate normally-closed hardware healthy chain; no emergency-stop certification claim
+POD_STOP,2,POD_STOP_HEALTHY,SELV_CANDIDATE,Opening operator or wire removes healthy and trips hardware latch
+R_STOP_PD,1,POD_STOP_HEALTHY,SELV_CANDIDATE,10kohm pull-down at receiver; exact passive part remains native capture
+R_STOP_PD,2,AUX_0V,SELV_CANDIDATE,Open wire or unpowered default is not healthy
+SUP_STOP_CHAIN,RAW,POD_STOP_HEALTHY,SELV_CANDIDATE,Hardware gate and source withdrawal path; not software polling only

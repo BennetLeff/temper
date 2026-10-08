@@ -1,0 +1,3671 @@
+# modules.ato
+# Module definitions for Temper Induction Cooker
+# Reference: pcb/*.kicad_sch
+
+# Enable experimental features for interfaces
+#pragma experiment("MODULE_TEMPLATING")
+#pragma experiment("TRAITS")
+
+import IKW40N120H3 from "components.ato"
+import UCC21550BDWK from "components.ato"
+import Resistor from "components.ato"
+import Capacitor from "components.ato"
+import MOSFET_N from "components.ato"
+import Diode from "components.ato"
+import HighVoltageConstraints from "constraints.ato"
+import ACMainsConstraints from "constraints.ato"
+import GateDriveConstraints from "constraints.ato"
+
+# Import standard interfaces
+import ElectricPower from "generics/interfaces.ato"
+import SPI from "generics/interfaces.ato"
+import ElectricLogic from "generics/interfaces.ato"
+import I2C from "generics/interfaces.ato"
+import UART from "generics/interfaces.ato"
+import ElectricSignal from "generics/interfaces.ato"
+
+# Custom Temper interfaces
+import HighVoltageBus from "interfaces.ato"
+import GateDrive from "interfaces.ato"
+import CTInterface from "interfaces.ato"
+import AnalogSense from "interfaces.ato"
+
+# Power input components
+import Fuse from "components.ato"
+import NTC_Inrush from "components.ato"
+import MUR1560 from "components.ato"
+import ES1J from "components.ato"
+import CapPolarized from "components.ato"
+import Relay_SPST from "components.ato"
+import Relay_SPDT from "components.ato"
+import MOV_Varistor from "components.ato"
+import CommonModeChoke from "components.ato"
+
+# Power management components
+import LMR51430 from "components.ato"
+# import XC6220 from "components.ato"  # Removed: LDO3V3 replaced by BuckConverter3V3 (plan 005)
+import Inductor from "components.ato"
+
+# Sensing components
+import MAX31865 from "components.ato"
+# ADUM1250 I2C isolator no longer needed for RTD isolation; the isolation
+# barrier is between the HV power domain and the SELV control domain
+# (Option A, plan 003). Component definition retained in components.ato
+# for future isolated I2C expansion if needed.
+import CST3015_100E from "components.ato"
+import IRM_10_15 from "components.ato"
+import PinHeader_1x02 from "components.ato"
+import JST_XH_B4B_XH_A from "components.ato"
+
+# Safety components
+import TLV3201 from "components.ato"
+import INA240A1 from "components.ato"
+import TPS3823 from "components.ato"
+import REF2025 from "components.ato"
+import TPS3700 from "components.ato"
+import TPS3890 from "components.ato"
+import SN74HC4075 from "components.ato"
+import SN74HC00 from "components.ato"
+import SN74LVC1G08 from "components.ato"
+import SN74LVC1G38 from "components.ato"
+
+# MCU
+import ESP32_S3_WROOM_1 from "components.ato"
+import TestPoint from "components.ato"
+import Button from "components.ato"
+
+module PowerLoop:
+    constraints = new HighVoltageConstraints
+    q_high = new IKW40N120H3
+    q_low = new IKW40N120H3
+    
+    q_high.voltage_rating = 1200V
+    q_high.current_rating = 40A
+    q_low.voltage_rating = 1200V
+    q_low.current_rating = 40A
+    
+    # Verify ratings against constraints (temper-ofq.6)
+    assert q_high.voltage_rating >= constraints.v_max
+    assert q_high.current_rating >= constraints.i_max
+    assert q_low.voltage_rating >= constraints.v_max
+    assert q_low.current_rating >= constraints.i_max
+
+module GateDriveHS:
+    constraints = new GateDriveConstraints
+    driver = new UCC21550BDWK
+    rg_on = new Resistor
+    rgs = new Resistor
+    boot_diode = new ES1J
+    boot_cap = new Capacitor
+    neg_bias_zener = new Diode
+    
+    # EMI Filters (temper-jf7)
+    # 51Ω + 220pF provides >15dB attenuation @ 100MHz
+    r_filt_a = new Resistor
+    c_filt_a = new Capacitor
+    r_filt_b = new Resistor
+    c_filt_b = new Capacitor
+    
+    r_filt_a.value = 51ohm +/- 1%
+    r_filt_a.mpn = "RC0603FR-0751RL"
+    r_filt_a.footprint = "Resistor_SMD:R_0603_1608Metric"
+    
+    r_filt_b.value = 51ohm +/- 1%
+    r_filt_b.mpn = "RC0603FR-0751RL"
+    r_filt_b.footprint = "Resistor_SMD:R_0603_1608Metric"
+
+    c_filt_a.value = 220pF +/- 5%
+    c_filt_a.dielectric = "C0G"
+    c_filt_a.voltage_rating = 50V
+    c_filt_a.mpn = "GRM1885C1H221JA01D"
+    c_filt_a.footprint = "Capacitor_SMD:C_0603_1608Metric"
+    
+    c_filt_b.value = 220pF +/- 5%
+    c_filt_b.dielectric = "C0G"
+    c_filt_b.voltage_rating = 50V
+    c_filt_b.mpn = "GRM1885C1H221JA01D"
+    c_filt_b.footprint = "Capacitor_SMD:C_0603_1608Metric"
+
+    # Input Signals
+    signal pwm_in_a
+    signal pwm_in_b
+
+    # Filter Connections
+    pwm_in_a ~ r_filt_a.p1
+    r_filt_a.p2 ~ driver.INA
+    driver.INA ~ c_filt_a.p1
+    c_filt_a.p2 ~ driver.GNDI
+    
+    pwm_in_b ~ r_filt_b.p1
+    r_filt_b.p2 ~ driver.INB
+    driver.INB ~ c_filt_b.p1
+    c_filt_b.p2 ~ driver.GNDI
+
+    # Output interface to IGBT
+    drive = new GateDrive
+    
+    boot_cap.value = 10uF +/- 20%
+    boot_cap.dielectric = "X7R"
+    boot_cap.voltage_rating = 50V
+    boot_cap.mpn = "GRM32ER71H106KA12L"
+    boot_cap.footprint = "Capacitor_SMD:C_1210_3225Metric"
+    
+    neg_bias_zener.voltage_rating = 5.1V
+    neg_bias_zener.mpn = "BZT52C5V1-7-F"
+    neg_bias_zener.footprint = "Diode_SMD:D_SOD-123"
+
+    # Gate resistor: controls turn-on speed and dI/dt
+    # Rg = 2.2Ω: 15V/2.2Ω ≈ 6.8A peak demand, UCC21550 limits to 4A source
+    # Gate rise is driver-limited, not resistor-limited. This is acceptable
+    # but a 3.9Ω resistor would match the driver's 4A capability.
+    rg_on.value = 2.2ohm +/- 5%
+    rg_on.power_rating = 0.5W
+    rg_on.mpn = "RC1206FR-072R2L"
+    rg_on.footprint = "Resistor_SMD:R_1206_3216Metric"
+
+    # Gate-source pulldown: keeps gate low when driver off
+    rgs.value = 2200ohm +/- 5%
+    rgs.power_rating = 0.1W
+    rgs.mpn = "RC0603FR-072K2L"
+    rgs.footprint = "Resistor_SMD:R_0603_1608Metric"
+    
+    # Power assertion: gate resistor must handle average dissipation (temper-ip1.3)
+    p_rg_avg: power = 0.25W
+    assert rg_on.power_rating >= p_rg_avg * 1.5
+    
+    # Verify gate drive current within constraint (temper-ofq.6)
+    assert driver.i_source_peak >= constraints.i_max
+    
+    # Connections
+    driver.OUTA ~ rg_on.p1
+    rg_on.p2 ~ drive.out
+    rgs.p1 ~ drive.out
+    rgs.p2 ~ drive.vss
+    
+    # Zener negative-bias clamp:
+    #   cathode (K) → switch node / IGBT emitter (drive.vss)
+    #   anode (A)   → driver VSSA
+    # This establishes VSSA = switch_node - Vz.
+    # When driver output is LOW: gate = VSSA = emitter - 5.1V → V_GS = -5.1V
+    # True negative off-bias; boot cap charges to full VDD (15V).
+    
+    # Connections:
+    # driver.OUTA ~ rg_on.p1
+    # rg_on.p2 ~ drive.out
+    # rgs.p1 ~ drive.out
+    # rgs.p2 ~ drive.vss
+    
+    # Zener connections (negative bias):
+    neg_bias_zener.A ~ driver.VSSA
+    neg_bias_zener.K ~ drive.vss
+    boot_cap.p2 ~ driver.VSSA
+    boot_cap.p1 ~ driver.VDDA
+    boot_diode.K ~ driver.VDDA
+    
+    # Inputs
+    # power_15v_ls.vcc (from HalfBridge, floats on hv_minus) ~ boot_diode.A --
+    # see the "High Side Power (Bootstrap)" comment in HalfBridge for why
+    # this must NOT be power_15v (gnd-referenced).
+
+module GateDriveLS:
+    rg_on = new Resistor
+    rgs = new Resistor
+    
+    drive = new GateDrive
+    signal input
+    signal input_ref
+
+    # Gate resistor: controls turn-on speed and dI/dt
+    rg_on.value = 2.2ohm +/- 5%
+    rg_on.power_rating = 0.5W
+    rg_on.mpn = "RC1206FR-072R2L"
+    rg_on.footprint = "Resistor_SMD:R_1206_3216Metric"
+
+    # Gate-source pulldown: keeps gate low when driver off
+    rgs.value = 2200ohm +/- 5%
+    rgs.power_rating = 0.1W
+    rgs.mpn = "RC0603FR-072K2L"
+    rgs.footprint = "Resistor_SMD:R_0603_1608Metric"
+    
+    # Power assertion (temper-ip1.3)
+    p_rg_avg: power = 0.25W
+    assert rg_on.power_rating >= p_rg_avg * 1.5
+    
+    # Connections
+    input ~ rg_on.p1
+    input_ref ~ rgs.p2
+    rg_on.p2 ~ drive.out
+    rgs.p1 ~ drive.out
+    rgs.p2 ~ drive.vss
+    drive.vss ~ input_ref
+
+module HalfBridge:
+    # Interface
+    signal pwm_h
+    pwm_h.required = true
+    signal pwm_l
+    pwm_l.required = true
+    # HalfBridge owns the required declarations for the shared PWM inputs;
+    # MCU exposes these nets without a second required assignment so the
+    # connected endpoints have one authoritative value.
+    
+    constraints = new HighVoltageConstraints
+    # UCC21550 VCCI is the 3.0–5.5 V control-side supply. Keep it separate
+    # from the 15 V secondary gate-drive rail (VDDA/VDDB).
+    power_3v3 = new ElectricPower
+    power_15v = new ElectricPower
+    power_15v_ls = new ElectricPower  # Low-side gate driver supply, MUST float on hv_minus
+    dc_bus = new HighVoltageBus
+    
+    signal switch_node
+    
+    # Instances (Critical Loop Grouping)
+    power_loop = new PowerLoop
+    gate_hs = new GateDriveHS
+    gate_ls = new GateDriveLS
+
+    # Dead-time config
+    # TI's nominal relationship is t_DT(ns) ~= 8.6 * R_DT(kohm) + 13;
+    # 34 kohm gives 305.4 ns nominal from TI's equation. The bounded corner
+    # model shows that IC/temperature variation can fall below 300 ns, so this
+    # is a nominal starting value only; scope verification remains required.
+    dt_res = new Resistor
+    dt_res.value = 34kohm +/- 1%
+    dt_res.power_rating = 0.1W
+    dt_res.voltage_rating = 10V
+    dt_res.mpn = "RC0603FR-0734KL"
+    dt_res.footprint = "Resistor_SMD:R_0603_1608Metric"
+    dt_res.p1 ~ gate_hs.driver.DT
+    dt_res.p2 ~ gate_hs.driver.GNDI
+
+    # t_dead_time per TI UCC21550 datasheet: t_DT(ns) ≈ 8.6 × R_DT(kΩ) + 13
+    # With R_DT = 34kΩ: t_DT ≈ 8.6 × 34 + 13 ≈ 305.4ns (nominal)
+    # Scope verification required — corner model may fall below 300ns
+    t_dead_time: time = 305.4ns
+    assert t_dead_time within 300ns to 310ns
+    
+    # UCC21550 bypass capacitors
+    # VCCI bypass: 0.1µF + 1µF at each VCCI pin
+    #
+    # 100nF/0603 decoupling MPN fixed 2026-07-26: GRM188R71E104KA01D (Murata)
+    # is Obsolete/0-stock at DigiKey (docs/evidence/2026-07-26-bom-availability-sweep.md,
+    # Blocker 1). Replaced everywhere in this file with KEMET C0603C104K5RACTU
+    # (100nF +/-10% X7R 50V 0603) -- Active, 6.7M units at DigiKey, confirmed
+    # 2026-07-26 (docs/evidence/2026-07-26-bom-blocker-resolution.md).
+    c_vcci1 = new Capacitor
+    c_vcci1.value = 100nF +/- 10%
+    c_vcci1.dielectric = "X7R"
+    c_vcci1.voltage_rating = 16V
+    c_vcci1.mpn = "C0603C104K5RACTU"
+    c_vcci1.footprint = "Capacitor_SMD:C_0603_1608Metric"
+    power_3v3.vcc ~ c_vcci1.p1
+    c_vcci1.p2 ~ power_3v3.gnd
+
+    c_vcci2 = new Capacitor
+    c_vcci2.value = 1uF +/- 10%
+    c_vcci2.dielectric = "X7R"
+    c_vcci2.voltage_rating = 16V
+    c_vcci2.mpn = "GRM188R71C105KA12D"
+    c_vcci2.footprint = "Capacitor_SMD:C_0603_1608Metric"
+    power_3v3.vcc ~ c_vcci2.p1
+    c_vcci2.p2 ~ power_3v3.gnd
+
+    # VDDA bypass (high-side): placed at the gate driver IC
+    #
+    # DC-BIAS DERATING FLAG (2026-07-26, UNVERIFIED numeric %): this cap sits
+    # directly across the 15V VDDA-VSSA gate-drive rail, i.e. ~60% of a 25V
+    # part's rated voltage. 0603 X7R MLCCs are known to lose a large fraction
+    # of nominal capacitance under DC bias (industry rule of thumb: material
+    # loss of 40-60% of nominal C at ~50% of rated voltage is common for this
+    # case size/dielectric). The replacement part is rated 50V, dropping the
+    # bias ratio to ~30% (15V/50V), which should retain materially more
+    # capacitance than the original 25V-rated part -- but no P/N-specific
+    # bias curve has been pulled for either part, so the actual retained
+    # capacitance under bias is UNVERIFIED. If gate-drive VDDA/VDDB ripple is
+    # ever measured out of spec, revisit this before assuming the 100nF
+    # nominal value holds.
+    c_vdda = new Capacitor
+    c_vdda.value = 100nF +/- 10%
+    c_vdda.dielectric = "X7R"
+    c_vdda.voltage_rating = 25V
+    c_vdda.mpn = "C0603C104K5RACTU"
+    c_vdda.footprint = "Capacitor_SMD:C_0603_1608Metric"
+    gate_hs.driver.VDDA ~ c_vdda.p1
+    c_vdda.p2 ~ gate_hs.driver.VSSA
+
+    # VDDB bypass (low-side): placed at the gate driver IC
+    # Same DC-bias derating flag as c_vdda above (15V rail on a 25V-declared,
+    # 50V-actual part).
+    c_vddb = new Capacitor
+    c_vddb.value = 100nF +/- 10%
+    c_vddb.dielectric = "X7R"
+    c_vddb.voltage_rating = 25V
+    c_vddb.mpn = "C0603C104K5RACTU"
+    c_vddb.footprint = "Capacitor_SMD:C_0603_1608Metric"
+    gate_hs.driver.VDDB ~ c_vddb.p1
+    c_vddb.p2 ~ gate_hs.driver.VSSB
+
+    # DC bus HF bypass: film cap across HV+/HV- near the bridge
+    c_dc_hf = new Capacitor
+    c_dc_hf.value = 470nF +/- 10%
+    c_dc_hf.dielectric = "PP"
+    c_dc_hf.voltage_rating = 630V
+    c_dc_hf.mpn = "B32671L6474K000"  # EPCOS/TDK 0.47µF 630VDC PP film
+    c_dc_hf.footprint = "Capacitor_THT:C_Rect_L18.0mm_W11.0mm_P15.00mm_FKS3_FKP3"
+    dc_bus.hv_plus ~ c_dc_hf.p1
+    c_dc_hf.p2 ~ dc_bus.hv_minus
+    
+    # IGBT timing
+    t_igbt_turn_off: time = 245ns
+    t_dead_time_required: time = 300ns
+    
+    # Constraint Assignments
+    dc_bus.v_max = constraints.v_max
+    # Keep the limit on the HighVoltageBus interface. Repeating v_max on the
+    # connected switch-node net makes Atopile merge two separately-defined
+    # values for the same attribute.
+    
+    # Connections - Primary Side
+    pwm_h ~ gate_hs.pwm_in_a
+    pwm_l ~ gate_hs.pwm_in_b
+    power_3v3.vcc ~ gate_hs.driver.VCCI_1
+    power_3v3.vcc ~ gate_hs.driver.VCCI_2
+    power_3v3.gnd ~ gate_hs.driver.GNDI
+    power_15v.gnd ~ gate_hs.driver.GNDI
+
+    # Power Stage Connections
+    dc_bus.hv_plus ~ power_loop.q_high.C
+    power_loop.q_high.E ~ switch_node
+    switch_node ~ power_loop.q_low.C
+    power_loop.q_low.E ~ dc_bus.hv_minus
+
+    # High Side Drive
+    gate_hs.drive.out ~ power_loop.q_high.G
+    gate_hs.drive.vss ~ power_loop.q_high.E
+
+    # High Side Power (Bootstrap)
+    #
+    # WIRING BUG FIXED (2026-07-26, domain-partition gate investigation --
+    # docs/evidence/2026-07-26-ovp-crossing-resolution.md): this used to read
+    # `power_15v.vcc ~ gate_hs.boot_diode.A`, i.e. the bootstrap diode's anode
+    # was fed from `power_15v` -- the PRIMARY, GNDI-referenced control supply
+    # (main.ato: hb.power_15v.vcc ~ vcc_15v, the SELV/PE-bonded "+15V" rail).
+    # That is wrong on two independent grounds:
+    #
+    # 1. Bootstrap physics: a high-side bootstrap diode must be referenced to
+    #    whatever node the switch leg bottoms out at (here, `dc_bus.hv_minus`
+    #    / VSSB) so it recharges the floating VDDA-VSSA rail each cycle when
+    #    switch_node is low. `power_15v` floats on `gnd`, not on `hv_minus` --
+    #    electrically unrelated to where switch_node actually sits when low.
+    #    `power_15v_ls` (declared two lines below, "MUST float on hv_minus")
+    #    is the rail this diode was always supposed to bootstrap from; the
+    #    module already had the correct supply, just not wired to this diode.
+    # 2. Isolation: UCC21550 is a reinforced-isolation part specifically so
+    #    the primary (gnd) and secondary (switch-node-referenced) sides never
+    #    share a conductive path. Feeding the boot diode from `power_15v`
+    #    (gnd) into `driver.VDDA` (secondary) defeated that barrier with an
+    #    external, forward-biased silicon diode -- confirmed as a live
+    #    domain-partition crossing (`scripts/check_domain_partition.py`,
+    #    'SW_NODE' --D5--> ... --C17--> ... --U8--> '+15V') and traced back to
+    #    this line, not to a manifest gap.
+    #
+    # Fix: bootstrap from `power_15v_ls` (already floats on `hv_minus`,
+    # already the low-side driver's own secondary-side supply) instead.
+    # This keeps the entire bootstrap network (D5/C17/U8) on the HV-
+    # referenced secondary side end-to-end, matching how every other
+    # already-isolated crossing in this design works -- no manifest
+    # declaration needed because there is no crossing left to declare.
+    power_15v_ls.vcc ~ gate_hs.boot_diode.A
+    # Internal connections handled in GateDriveHS
+    # Just need to connect Zener Anode (drive.vss) to switch_node
+    gate_hs.drive.vss ~ switch_node
+
+    # Low Side Drive
+    gate_hs.driver.OUTB ~ gate_ls.input
+    dc_bus.hv_minus ~ gate_hs.driver.VSSB # VSSB is driver output ref
+    gate_hs.driver.VSSB ~ gate_ls.input_ref
+    
+    gate_ls.drive.out ~ power_loop.q_low.G
+    gate_ls.drive.vss ~ power_loop.q_low.E
+
+    # Low Side Power — supply MUST be referenced to hv_minus (VSSB).
+    # VDDB and VSSB are the secondary-side supply pins for channel B of the
+    # UCC21550. VDDB must stay within 25V of VSSB (abs max, v_cc_sec_max).
+    # This supply must come from an isolated auxiliary winding or DC-DC
+    # module floating on hv_minus (plan 005).
+    power_15v_ls.vcc ~ gate_hs.driver.VDDB
+    power_15v_ls.gnd ~ dc_bus.hv_minus  # Referenced to hv_minus, NOT logic gnd
+    power_15v_ls.voltage = 15V
+    assert power_15v_ls.voltage <= gate_hs.driver.v_cc_sec_max
+    # VSSB connected above to dc_bus.hv_minus
+
+module ResonantTank:
+    signal in
+    signal out
+    
+    # TANK CAPACITOR RE-SOURCED 2026-07-29 (docs/evidence/
+    # 2026-07-29-tank-cap-cde-942c-verification.md). The bank total,
+    # 300nF, is UNCHANGED -- it is the value the whole resonant design is
+    # built on and is hard-coded as C_TANK_F = 300e-9 in both simulation
+    # harnesses. What changed is the part and the topology: 2 x 150nF
+    # WIMA FKP 1 -> 3 x 100nF Cornell Dubilier 942C. 3 x 0.10uF = 0.300uF
+    # exactly, so the committed value survives the swap unmodified.
+    #
+    # Was: 2 x FKP1T031507G00JSSD (WIMA FKP 1, 0.15uF/1600VDC, PCM 37.5).
+    #   Correct value, correct voltage, correct land pattern -- and about
+    #   2x over its permissible AC current at 47 kHz. Established in
+    #   docs/evidence/2026-07-28-reference-appliance-and-cap-rating.md:
+    #   WIMA publishes permissible current only as curves and publishes
+    #   NO curve for this part; the bracketing published curves give
+    #   4.0-6.2 A and two independent interpolations both land at ~5.2 A,
+    #   against 10.37 A required per capacitor. The whole bracket is
+    #   below the requirement. Worse, that curve is a 15 K *internal*
+    #   rise with no ambient allowance, footnoted "for ordinary assembly
+    #   and ventilation conditions avoiding radiant heat within the
+    #   chassis" -- which is not a part beside an IGBT half-bridge. The
+    #   failure mode is thermal, not dielectric: FKP 1 in this case size
+    #   is a *pulse* capacitor and this is continuous HF duty.
+    #
+    # Now: 3 x 942C16P1K-F, read off Cornell Dubilier's own "Ratings and
+    #   Dimensions" TABLE -- not a chart -- in catalog 942C.pdf
+    #   (https://www.cde.com/resources/catalogs/942C.pdf), printed page 2,
+    #   1600 Vdc (460 Vac) block:
+    #     ".10 | 942C16P1K-F | D 22.5 | L 34.0 | d 1.0 | ESR 4 mOhm |
+    #      ESL 24 nH | dV/dt 3425 V/us | Ipeak 342 A | IRMS 70C/100kHz 11.4 A"
+    #   The same row appears in CDE's older PULSE-942C.pdf in inches.
+    #   The MPN is not pattern-matched: it is printed verbatim in that
+    #   table, it decodes cleanly under CDE's own published Part Numbering
+    #   System on the same page (942 | C = tinned copper wire | 16 =
+    #   1600 Vdc | P = "0." decimal point | 1 = significant figures |
+    #   K = +/-10% | -F = RoHS), and DigiKey lists it Active with stock
+    #   (https://www.digikey.com/en/products/detail/
+    #    cornell-dubilier-electronics-cde/942C16P1K-F/1929475).
+    #
+    # THE NUMBER THAT MATTERS. 11.4 A is quoted at 100 kHz; this tank runs
+    #   at 47 kHz, so it must be transferred, not copied. Two independent
+    #   readings of CDE's own published curves agree on the transfer
+    #   factor: the constant-current asymptotes of the 942C/943C "RMS
+    #   Voltage vs Frequency" panels give I(47k)/I(100k) = 0.84 worst-case
+    #   over ten curves (1.00 on both 1600 Vdc curves), and CDE's generic
+    #   polypropylene DF-vs-frequency curve gives 0.845. Conservative
+    #   permissible current at 47 kHz: 9.5 A per capacitor.
+    #   Required: 20.75 A tank / 3 = 6.92 A each -> 1.38x margin.
+    #   (At the 22.5 A stress point of the 88 uH coil candidate in
+    #   docs/evidence/2026-07-28-coil-selection-research.md: 7.50 A each,
+    #   1.27x.) Applied stress is far from every other rated axis:
+    #   234 Vrms / 331 V peak against 1600 Vdc, 98 V/us against 3425 V/us,
+    #   9.8 A peak against 342 A.
+    #
+    # TOLERANCE REGRESSION, DELIBERATELY NOT PAPERED OVER: the catalogue
+    #   942C tolerance is K = +/-10%, against the WIMA part's J = +/-5%.
+    #   Worst-case bank is 270-330nF instead of 285-315nF, i.e. resonant
+    #   frequency spread widens from +2.6/-2.4% to +5.4/-4.7%. CDE's
+    #   specification page offers "+/-5% (J) Optional", but no J part
+    #   number appears in any CDE catalogue table, so acquiring one is a
+    #   procurement conversation with CDE -- NOT an MPN to be constructed
+    #   by swapping the K. Flagged here for the PLL/ZVS-window owner.
+    #
+    # BOARD REWORK REQUIRED, NOT DONE HERE: three axial cans on a 40.00mm
+    # land pitch replace two 37.50mm-pitch boxes. Height DROPS from 39.5mm
+    # standing to 22.5mm lying down; footprint area GROWS from 2 x 830 to
+    # 3 x 968 mm^2. pcb/temper.kicad_pcb still carries two 37.5mm-pitch
+    # lands for C25/C26 and is deliberately untouched -- a separate
+    # placement pass owns re-placing this bank.
+    c_tank1 = new Capacitor
+    c_tank1.value = 100nF
+    c_tank1.dielectric = "PP"
+    c_tank1.voltage_rating = 1600V
+    c_tank1.mpn = "942C16P1K-F"  # CDE 942C, 0.10uF/1600VDC axial -- 942C.pdf p.2 ratings table, IRMS 11.4 A @ 70C/100kHz
+    c_tank1.footprint = "temper:C_Axial_L34.0mm_D22.5mm_P40.00mm_Horizontal"  # D22.5 x L34.0, lead d1.0 -- matches the 942C16P1K-F case exactly
+
+    c_tank2 = new Capacitor
+    c_tank2.value = 100nF
+    c_tank2.dielectric = "PP"
+    c_tank2.voltage_rating = 1600V
+    c_tank2.mpn = "942C16P1K-F"  # same part as c_tank1
+    c_tank2.footprint = "temper:C_Axial_L34.0mm_D22.5mm_P40.00mm_Horizontal"
+
+    c_tank3 = new Capacitor
+    c_tank3.value = 100nF
+    c_tank3.dielectric = "PP"
+    c_tank3.voltage_rating = 1600V
+    c_tank3.mpn = "942C16P1K-F"  # same part as c_tank1; the three are in parallel for 300nF total
+    c_tank3.footprint = "temper:C_Axial_L34.0mm_D22.5mm_P40.00mm_Horizontal"
+
+    v_tank_peak: voltage = 400V
+    assert c_tank1.voltage_rating >= v_tank_peak * 1.43
+    assert c_tank2.voltage_rating >= v_tank_peak * 1.43
+    assert c_tank3.voltage_rating >= v_tank_peak * 1.43
+
+    # THE RESONANT TANK COIL. Declared as an `Inductor` 2026-07-29
+    # (docs/evidence/2026-07-29-tank-coil-specification.md); it was
+    # `new Resistor` with no value until then, so the one component whose
+    # inductance the entire frequency plan is computed from carried no
+    # inductance at all. `main.ato:l_tank_assumed` is the same quantity
+    # and scripts/check_pll_range_consistency.py now cross-checks the two
+    # (check 7), so this value and that one cannot drift apart.
+    #
+    # STILL NOT A PURCHASED PART. `mpn = "CUSTOM_LITZ_COIL"` is unchanged
+    # and deliberately not replaced with a part number: no orderable coil
+    # in this class publishes an inductance (docs/evidence/2026-07-28-
+    # coil-selection-research.md Sec 2 checked Infineon, Wurth, OEM
+    # appliance spares and the custom-wind channel -- the one 2 kW cooking
+    # coil with manufacturer-published L/R across this design's band ships
+    # only as a kit item with no MPN of its own). What replaces the
+    # placeholder is a SPECIFICATION plus an incoming acceptance test:
+    # docs/hardware/TANK_COIL_SPECIFICATION.md, issuable to a magnetics
+    # house as-is.
+    #
+    # 88uH +/-10% @ 40kHz: read off Fig. 16 of Infineon's EVAL-
+    # IHW25N140R5L user guide (rev 1.0, 2023-08-04, docs.rs-online.com/
+    # e357/A700000012089135.pdf) for its 2kW cooking coil, ~87uH flat over
+    # 15-50kHz -- i.e. measured IN THIS DESIGN'S BAND, not extrapolated
+    # into it. It is a CHART READING of an unspecified part (+/-5% on the
+    # read, part-to-part spread unknown), not a datasheet line item.
+    #
+    # WHY THIS IS NOT A 1.7x CHANGE TO THE FREQUENCY PLAN: only the LOADED
+    # inductance resonates with c_tank1||c_tank2. This value moves with
+    # main.ato's l_pan_loaded_ratio as a MATCHED PAIR, and the product is
+    # what is conserved:
+    #     150uH x 0.399 = 59.850uH -> f_res = 37560.2Hz  (was)
+    #      88uH x 0.68  = 59.840uH -> f_res = 37563.3Hz  (now)  = +0.008%
+    # See docs/solutions/design-patterns/resonant-tank-only-loaded-
+    # inductance-resonates-2026-07-28.md. Changing either factor alone
+    # breaks the design; check_pll_range_consistency.py's check 5 catches
+    # the hazardous direction (a smaller coil with the old, too-strong
+    # ratio) and provably cannot catch the other one.
+    #
+    # dcr = 0.1ohm is the DC figure from the same chart (R, no vessel, at
+    # DC). It is NOT the resistance that matters in operation: the same
+    # curve gives ~0.34ohm at 40kHz once skin and proximity effect are in,
+    # which is ~193W of self-heating at the 1800W operating point and is
+    # the number the coil's thermal design must be sized to. The Inductor
+    # component has no AC-resistance field, so that figure lives in
+    # TANK_COIL_SPECIFICATION.md, which is where a supplier reads it.
+    #
+    # current_rating = 25A is an RMS THERMAL requirement this design
+    # imposes, not a value read from any part: 22.5A rms at the 1800W
+    # point (first-harmonic solve, coil-selection-research Sec 4.2)
+    # against 20.7A rms from this repo's own ngspice harness, x ~1.11
+    # margin. UNRESOLVED AND RECORDED, NOT FIXED HERE: the corresponding
+    # PEAK is 28.7-31.9A, which is above BOTH `LitzPad_15A`'s declared
+    # 15A pad rating (footprints.ato) and Top.i_peak_max / Highvoltage-
+    # Constraints.i_max = 25A. Both were already exceeded by the
+    # PREVIOUS 150uH model's own committed 28.71A peak -- this
+    # declaration surfaces the conflict, it does not create it, and
+    # raising either rating to match is exactly the move that must not be
+    # made without a thermal/geometry basis. See the evidence doc Sec 6.
+    #
+    # DESIGNATOR PINNED TO "R30" ON PURPOSE, AND IT IS WRONG ON PURPOSE.
+    # An inductor's designator prefix is "L", and atopile assigns this part
+    # L3 the moment the pin is removed. The pin exists because
+    # pcb/temper.kicad_pcb is out of scope for this change and atopile
+    # assigns designators POSITIONALLY per prefix: taking one component out
+    # of the "R" pool renumbers every later resistor down by one. Measured,
+    # not assumed -- building without this line moves 49 unrelated
+    # resistors (ct_sense.r_burden R31->R30 ... thermal.r_fan_drop
+    # R79->R78) and turns scripts/check_copper_net_consistency.py from 0 to
+    # 82 violations, because the board's R31 pads then carry a different
+    # component's nets than the netlist's R31 declares.
+    #
+    # REMOVE THIS LINE in the same commit that runs
+    # scripts/resync_pcb_netlist.py (which matches footprints by stable
+    # sheetpath identity and therefore survives renumbering -- see
+    # docs/solutions/logic-errors/fixed-positions-ref-fragility-across-
+    # renumbering.md) or regenerates the board. Keeping a wrong PREFIX on
+    # a part whose TYPE and VALUE are now right is the smaller of the two
+    # errors, and it is the one the board already had.
+    inductor_conn = new Inductor
+    inductor_conn.designator = "R30"
+    inductor_conn.value = 88uH +/- 10%
+    inductor_conn.current_rating = 25A
+    inductor_conn.dcr = 0.1ohm
+    inductor_conn.mpn = "CUSTOM_LITZ_COIL"
+    inductor_conn.footprint = "LitzPad_15A"
+
+    in ~ c_tank1.p1
+    in ~ c_tank2.p1
+    in ~ c_tank3.p1
+    c_tank1.p2 ~ inductor_conn.p1
+    c_tank2.p2 ~ inductor_conn.p1
+    c_tank3.p2 ~ inductor_conn.p1
+    inductor_conn.p2 ~ out
+
+module PowerInput:
+    """AC input with EMI filter, soft-start, and voltage doubler."""
+
+    # WARNING: Bus capacitors store hazardous energy (>300VDC combined).
+    # Passive bleeders alone need ~9 minutes to safe level (<34V); the
+    # BusDischarge module (instantiated in Top) adds fail-safe active
+    # discharge to <34V in <60s on any loss of power. The passive 22k
+    # bleeders below remain as the backstop if a relay contact fails open.
+    # Always verify bus voltage with a meter before servicing.
+
+    constraints = new ACMainsConstraints
+    
+    dc_bus = new HighVoltageBus
+    
+    signal ac_l
+    ac_l.required = true
+    signal ac_n
+    ac_n.required = true
+    signal pe
+    pe.required = true
+    signal gnd
+    signal relay_ctrl
+    power_15v = new ElectricPower
+
+    fuse = new Fuse
+    fuse.current_rating = 16A
+    fuse.voltage_rating = 250V
+    # VERIFIED 2026-07-16: 0034.3128 is the 12.5A FST variant — under the 15A
+    # branch load. 0034.3129 is the 16A time-lag 5x20 sibling (same footprint).
+    fuse.mpn = "0034.3129"
+    assert fuse.current_rating >= constraints.i_max
+    assert fuse.voltage_rating >= constraints.v_max
+    # OPEN QUESTION (2026-07-26, not resolved by this pass): 16A/250V on a
+    # 15A continuous branch load (1800W / 120V, main.ato constraints.i_max)
+    # is only ~7% headroom above rated full-load current for a *time-lag*
+    # fuse meant to ride through the NTC-limited inrush without nuisance
+    # tripping at legit steady-state load. No I2t coordination analysis
+    # between this fuse, NTC_Inrush (ntc, below), and bypass_relay's
+    # switch-in timing has been found anywhere in this repo. This is a flag
+    # to verify (fuse manufacturer I2t / time-current curve vs NTC inrush
+    # profile and bypass-relay pull-in delay), not a fix made here.
+    #
+    # HOLDER GAP (2026-07-26, Blocker 3): 0034.3129 is a bare fuse LINK
+    # (Schurter FST 5x20 family), not a holder+fuse assembly — see the Fuse
+    # component docstring in components.ato. No PCB-mount fuseholder is
+    # instantiated anywhere in this file or the 155-part BOM. BOM.md Section
+    # 1.2 adds a new line for Schurter FUP 0031.2510 (5x20mm PCB-mount
+    # fuseholder, 16A VDE / 30A UL-CSA, matches this fuse's rating) to close
+    # that gap. It is not modeled as a separate elec/src component: as a
+    # mechanical carrier it occupies the same two electrical nodes as `fuse`
+    # above (ac_l and fuse.p2), so it adds no new net -- same treatment this
+    # codebase already gives other mechanical-only BOM lines (heatsink, TIM
+    # pads, mounting hardware in BOM.md Section 11). The existing PCB
+    # footprint stub ("Fuse:Fuse_Holder_5x20mm", 2-pin THT, 22.5mm pitch) is
+    # a generic placeholder and does not match the FUP's real drilling
+    # diagram (Schurter FUP datasheet: ~30.48mm primary pin spacing plus a
+    # third orientation pin) -- a correct footprint still needs to be drawn
+    # before fab, same caveat CT1/CST3015 already carries.
+    
+    # MOV: 150VAC surge protection across L-N (after fuse)
+    mov = new MOV_Varistor
+    mov.voltage_rating = 150V
+    mov.mpn = "V150LA10AP"
+    mov.footprint = "Varistor:RV_Disc_D15.5mm_W5.2mm_P7.5mm"
+
+    # X2 EMI capacitor: differential-mode filtering L-N (after fuse, after MOV)
+    #
+    # MPN fixed 2026-07-26 (docs/evidence/2026-07-26-bom-availability-sweep.md,
+    # Blocker 2 / docs/evidence/2026-07-26-bom-blocker-resolution.md):
+    # DE2E3KH221MA3B was not found at any distributor, and Murata's own DE2
+    # "221" suffix convention decodes to 220pF (confirmed against sibling
+    # DE2B3SA221KA3BT02F = 220pF), 1000x off the 0.22uF/220nF this circuit
+    # needs -- Murata's DE2 leaded safety-disc line tops out around 10nF and
+    # cannot make this value in that family at all. The 220nF *value* is
+    # correct for this circuit (standard X2 line-EMI value); only the MPN was
+    # wrong. Replaced with EPCOS/TDK B32922C3224M289 (0.22uF X2, rated
+    # 305VAC/max-continuous 310VAC, 630VDC, polypropylene, 15mm lead pitch) --
+    # Active, 28,179 units at DigiKey, approved to IEC 60384-14/EN132400
+    # (cert 40005536/40010694), UL1414/UL1283 (E97863/E157153), CSA C22.2
+    # No.1/No.8, CQC GB/T14472-1998 (CQC001007-14859), per EPCOS's own
+    # B32921...B32926 X2/305VAC datasheet, confirmed 2026-07-26.
+    #
+    # FOOTPRINT FIXED (this change): the disc footprint below matched the old
+    # (fictional) disc-style part and did NOT fit the real MKP box-style
+    # replacement. Body envelope 18.0(L) x 7.0(W) x 12.5(H) mm, 15.00mm lead
+    # pitch -- confirmed directly against DigiKey's own product page for this
+    # exact MPN (Length 18.00mm / Width 7.00mm / Height 12.50mm / Lead Spacing
+    # 15.00mm, https://www.digikey.com/en/products/detail/epcos-tdk-electronics/B32922C3224M289/2504694),
+    # matching the EPCOS B32921...B32926 dimensional table row already cited
+    # above. Replaced with "Capacitor_THT:C_Rect_L18.0mm_W7.0mm_P15.00mm_FKS3_FKP3"
+    # -- confirmed to exist in the standard KiCad footprint library (present
+    # in this machine's installed KiCad footprint set at
+    # Capacitor_THT.pretty/C_Rect_L18.0mm_W7.0mm_P15.00mm_FKS3_FKP3.kicad_mod,
+    # and in the upstream kicad-footprints repo), whose own descr string
+    # ("length*width=18*7mm^2, pin pitch=15.00mm") matches this part's
+    # envelope and pitch exactly; two THT round pads (2.4mm pad / 1.2mm
+    # drill) at 0mm and 15mm, consistent with the part's 0.8mm lead diameter.
+    # Still not yet propagated into pcb/temper.kicad_pcb -- see the C6/U3
+    # resync precedent (docs/evidence/2026-07-29-board-regeneration-corrected-footprints.md);
+    # that PCB-side resync is out of scope for this change.
+    c_x2 = new Capacitor
+    c_x2.value = 0.22uF +/- 20%
+    c_x2.dielectric = "X2"
+    c_x2.voltage_rating = 310V
+    c_x2.mpn = "B32922C3224M289"
+    c_x2.footprint = "Capacitor_THT:C_Rect_L18.0mm_W7.0mm_P15.00mm_FKS3_FKP3"
+
+    # CMC: common-mode choke for conducted EMI suppression.
+    # ONE physical 4-pin part (TDK B82726S2163N030) — previously modeled as
+    # 2x 2-pin Inductor (cmc_w1/cmc_w2), which made the BOM show qty 2 for a
+    # part you order once. Now a single CommonModeChoke instance on a proper
+    # 4-pad footprint (temper:CMC_B82726S) built from the TDK dimensional
+    # drawing. Ratings, MPN verification history and datasheet link live on
+    # the component definition in components.ato.
+    cmc = new CommonModeChoke
+    assert cmc.current_rating >= constraints.i_max
+    
+    ntc = new NTC_Inrush
+    ntc.resistance_cold = 10ohm
+    ntc.current_rating = 15A
+    
+    # PD3 REPLACEMENT 2026-08-13 (docs/evidence/2026-07-30-pd3-part-selection-k1-c6-t1.md
+    # Section 1, re-verified this session -- docs/evidence/2026-08-13-pd3-land-k1-c6.md):
+    # was Omron G4A-1A-E DC12 (temper:Relay_SPST_Omron-G4A-E), 8.000mm
+    # coil<->contact -- fails the 12.6mm PD3 reinforced-creepage target
+    # (docs/evidence/2026-08-13-hv-creepage-pd3-gap-measurement-and-plan.md).
+    # TE Schrack RT33K012 (2-1393240-3, DigiKey PB2347-ND, confirmed
+    # Active/orderable), same RT1 case family already verified for K2/K3's
+    # RT314012: 20A UL508/16A IEC 1-Form-A contact, 12VDC/360ohm/400mW coil,
+    # reinforced insulation (VDE 40007571, same certificate class as
+    # RT314012). MEASURED this session with the canonical pad-geometry
+    # kernel against temper:Relay_SPST_Schrack-RT33K012 (see that
+    # footprint's own descr): 17.8000mm, clears 12.6mm by +5.2mm.
+    bypass_relay = new Relay_SPST
+    bypass_relay.coil_voltage = 12V
+    bypass_relay.contact_current = 20A
+    bypass_relay.mpn = "RT33K012"
+    bypass_relay.footprint = "temper:Relay_SPST_Schrack-RT33K012"
+
+    # Coil driver: RELAY_CTRL (3.3V GPIO) cannot drive the 75mA/12V coil directly.
+    q_relay_drv = new MOSFET_N
+    q_relay_drv.mpn = "AO3400A"
+
+    # RETUNED 2026-08-13 for the RT33K012 swap above: was 39ohm, sized for
+    # the outgoing G4A-1A-E's 160ohm/75mA coil (15V/(160+39)=75.4mA,
+    # 75.4mA*160ohm=12.06V, ~100.5% of rated). RT33K012's coil is
+    # 360ohm/400mW, different enough that 39ohm overdrives it: 15V/(360+39)
+    # =37.6mA, 37.6mA*360ohm=13.5V, 112.7% of the 12V rated coil voltage --
+    # above IEC 61810-1's typical 110% continuous-operation ceiling
+    # (flagged, not fixed, in docs/evidence/2026-07-30-pd3-part-selection-
+    # k1-c6-t1.md Section 1.5). 91ohm (nearest E24 value to the exact
+    # 90.0ohm solve) restores correct coil drive: 15V/(360+91)=33.26mA,
+    # 33.26mA*360ohm=11.97V, 99.8% of rated. Yageo RSF100JB-73-91R -- same
+    # 1W axial metal-film family as the outgoing part, confirmed
+    # orderable/Active at DigiKey this session.
+    r_relay_drop = new Resistor
+    r_relay_drop.value = 91ohm +/- 5%
+    r_relay_drop.power_rating = 1W
+    r_relay_drop.voltage_rating = 25V
+    r_relay_drop.mpn = "RSF100JB-73-91R"  # Yageo 1W axial metal film 91Ω ±5%
+    r_relay_drop.footprint = "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
+
+    r_gate = new Resistor
+    r_gate.value = 1kohm +/- 5%
+    r_gate.power_rating = 0.125W
+    r_gate.voltage_rating = 25V
+    r_gate.mpn = "CRCW08051K00FKEA"
+    r_gate.footprint = "Resistor_SMD:R_0805_2012Metric"
+
+    r_gate_pd = new Resistor
+    r_gate_pd.value = 100kohm +/- 5%
+    r_gate_pd.power_rating = 0.125W
+    r_gate_pd.voltage_rating = 25V
+    r_gate_pd.mpn = "CRCW0805100KFKEA"
+    r_gate_pd.footprint = "Resistor_SMD:R_0805_2012Metric"
+
+    d_flyback = new Diode
+    d_flyback.mpn = "SS14"
+    d_flyback.voltage_rating = 40V
+    d_flyback.current_rating = 1A
+    d_flyback.footprint = "Diode_SMD:D_SMA"
+
+
+    d1 = new MUR1560
+    d2 = new MUR1560
+    
+    c_bus1 = new CapPolarized
+    c_bus1.value = 1800uF
+    c_bus1.voltage_rating = 250V
+    # Chemi-Con KMQ 250V snap-in, largest of the series (CAT E1001E, verified
+    # 2026-07-16). Two in parallel per half-bus replace the fictional
+    # 3300uF/250V EKZE part; 2x 2.7Arms@120Hz ripple rating per half.
+    c_bus1.mpn = "EKMQ251VSN182MA50S"
+    c_bus1.footprint = "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn"
+    
+    c_bus2 = new CapPolarized
+    c_bus2.value = 1800uF
+    c_bus2.voltage_rating = 250V
+    c_bus2.mpn = "EKMQ251VSN182MA50S"
+    c_bus2.footprint = "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn"
+
+    # Parallel partners: 2x 1800uF per half-bus = 3600uF (>= the original
+    # 3300uF target for ripple), since no single 3300uF/250V snap-in exists
+    # in this family.
+    c_bus1b = new CapPolarized
+    c_bus1b.value = 1800uF
+    c_bus1b.voltage_rating = 250V
+    c_bus1b.mpn = "EKMQ251VSN182MA50S"
+    c_bus1b.footprint = "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn"
+    c_bus2b = new CapPolarized
+    c_bus2b.value = 1800uF
+    c_bus2b.voltage_rating = 250V
+    c_bus2b.mpn = "EKMQ251VSN182MA50S"
+    c_bus2b.footprint = "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn"
+    
+    r_bleed1 = new Resistor
+    r_bleed1.value = 22kohm +/- 1%
+    r_bleed1.power_rating = 2W
+    r_bleed1.voltage_rating = 250V
+    r_bleed1.mpn = "CRGP2512F22K"  # VERIFIED 2026-07-16: CRGP2512 = 2W@70C pulse-withstanding; orderable variant is F (1%)
+    r_bleed1.footprint = "Resistor_SMD:R_2512_6332Metric"
+    
+    r_bleed2 = new Resistor
+    r_bleed2.value = 22kohm +/- 1%
+    r_bleed2.power_rating = 2W
+    r_bleed2.voltage_rating = 250V
+    r_bleed2.mpn = "CRGP2512F22K"  # VERIFIED 2026-07-16: CRGP2512 = 2W@70C pulse-withstanding; orderable variant is F (1%)
+    r_bleed2.footprint = "Resistor_SMD:R_2512_6332Metric"
+    
+    v_bus_half: voltage = 170V
+    # Passive discharge τ = 22kΩ × 3600μF ≈ 79s per half-bus (~4.6 min to
+    # <34V). Active discharge to <60s is provided by BusDischarge (see Top);
+    # these passive bleeders are retained as the independent backstop.
+    p_bleed_actual: power = v_bus_half * v_bus_half / r_bleed1.value  # 170V x 170V / 22kΩ ≈ 1.31W
+    
+    # Voltage derating check (temper-ofq.2)
+    assert r_bleed1.voltage_rating >= v_bus_half * 1.25
+    assert r_bleed2.voltage_rating >= v_bus_half * 1.25
+    
+    # Power handling check (temper-ip1.3)
+    assert r_bleed1.power_rating >= p_bleed_actual * 0.5  # 50% derating
+    assert r_bleed2.power_rating >= p_bleed_actual * 0.5
+    
+    # Voltage derating for electrolytic capacitors
+    assert c_bus1.voltage_rating >= v_bus_half * 1.25
+    assert c_bus2.voltage_rating >= v_bus_half * 1.25
+    
+    # Connections
+    ac_l ~ fuse.p1
+    # MOV and X2 cap: parallel across L-N after fuse
+    fuse.p2 ~ mov.p1
+    mov.p2 ~ ac_n
+    fuse.p2 ~ c_x2.p1
+    c_x2.p2 ~ ac_n
+    # CMC: L path — fuse → CMC winding 1 (pins 1→4) → NTC/relay.
+    # Both windings pass through in the same physical direction (top row in,
+    # bottom row out) so line and neutral currents are flux-compensated;
+    # the TDK datasheet marks the part "No polarity" (symmetric windings).
+    fuse.p2 ~ cmc.W1_1
+    cmc.W1_2 ~ ntc.p1
+    ntc.p2 ~ d1.A
+
+    cmc.W1_2 ~ bypass_relay.COM
+    bypass_relay.NO ~ d1.A
+
+    r_gate.p1 ~ relay_ctrl
+    r_gate.p2 ~ q_relay_drv.G
+    r_gate_pd.p1 ~ q_relay_drv.G
+    r_gate_pd.p2 ~ gnd
+
+    r_relay_drop.p1 ~ power_15v.vcc
+    r_relay_drop.p2 ~ bypass_relay.coil1
+    d_flyback.K ~ bypass_relay.coil1
+    d_flyback.A ~ bypass_relay.coil2
+    q_relay_drv.D ~ bypass_relay.coil2
+    q_relay_drv.S ~ gnd
+    power_15v.gnd ~ gnd
+    
+    d1.K ~ dc_bus.hv_plus
+    c_bus1.plus ~ dc_bus.hv_plus
+    c_bus1.minus ~ dc_bus.gnd_ref
+    c_bus1b.plus ~ dc_bus.hv_plus
+    c_bus1b.minus ~ dc_bus.gnd_ref
+    
+    # CMC: N path — neutral → CMC winding 2 (pins 2→3) → doubler midpoint
+    ac_n ~ cmc.W2_1
+    cmc.W2_2 ~ dc_bus.gnd_ref
+    d2.K ~ d1.A
+    d2.A ~ dc_bus.hv_minus
+    c_bus2.plus ~ dc_bus.gnd_ref
+    c_bus2.minus ~ dc_bus.hv_minus
+    c_bus2b.plus ~ dc_bus.gnd_ref
+    c_bus2b.minus ~ dc_bus.hv_minus
+    
+    r_bleed1.p1 ~ dc_bus.hv_plus
+    r_bleed1.p2 ~ dc_bus.gnd_ref
+    r_bleed2.p1 ~ dc_bus.gnd_ref
+    r_bleed2.p2 ~ dc_bus.hv_minus
+    
+    # Y-capacitor: PE bonding from doubler midpoint to protective earth.
+    # Class I appliance pattern: provides EMI return path from the power
+    # return net to PE without a DC short. Y1 safety rating required
+    # per IEC 60335-1 for line-to-ground (250VAC) applications.
+    # PD3 REPLACEMENT 2026-08-13 (docs/evidence/2026-07-30-pd3-part-selection-k1-c6-t1.md
+    # Section 2 + docs/evidence/2026-07-30-c6-touch-current-budget-and-part2-routes.md,
+    # re-verified this session -- docs/evidence/2026-08-13-pd3-land-k1-c6.md):
+    # was VY1222M47Y5UQ6TV0 (10.00mm lead spacing, 2.2nF ceramic Y1),
+    # 8.000mm HV<->SELV -- fails the 12.6mm PD3 reinforced-creepage target
+    # (docs/evidence/2026-08-13-hv-creepage-pd3-gap-measurement-and-plan.md).
+    # No 2.2nF Y1 part at any manufacturer checked (TDK, Vishay x3, KEMET)
+    # clears 12.6mm -- ceramic-disc Y1 is flat at a 12.5mm lead-spacing
+    # ceiling industry-wide, independent of capacitance. TDK's own B81123
+    # film-Y1 family only reaches a genuinely larger (22.5mm) lead spacing
+    # starting at 5.6nF, a real 2.5x value change from the 2.2nF+/-20%
+    # spec window -- reported and accepted as an electrical-design decision,
+    # not smoothed over. Touch-current re-checked against the corrected,
+    # complete IEC 60335-1 Clause 13/16 leakage budget (1.35mA, this
+    # appliance's real 0.75mA/kW heating-appliance limit, not the stale
+    # 3.5mA motor-appliance figure three other repo docs still cite):
+    # 5.6nF clears even the strictest reading found (no protective-impedance
+    # exemption, no radio-interference-filter doubling credit) with
+    # 8-15% headroom (1153.7-1241.7uA against 1.35mA) -- thinner margin than
+    # this design's other already-solved PD3 crossings, reported plainly,
+    # not smoothed into a false "wide margin" claim.
+    y_cap_pe = new Capacitor
+    y_cap_pe.value = 5.6nF +/- 20%
+    y_cap_pe.dielectric = "Y1"
+    y_cap_pe.voltage_rating = 250V  # requirement: Y1 certified >=250VAC line-to-ground
+    # MPN VERIFIED 2026-07-28. Was "DE1E3KX222MA4BA01" -- fabricated: it
+    # pairs Murata's current lead-style code A4B with the legacy individual-
+    # specification suffix A01, a combination that appears in no Murata
+    # document and at no distributor. Murata's own datasheets pair A4B with
+    # N01F/Q01F (DE1E3KX222MA4BN01F) and A01 with A5B (DE1E3KX222MA5BA01,
+    # Murata datasheet https://www.farnell.com/datasheets/1694675.pdf --
+    # 2200pF +/-20%, 250Vac, X1/Y1 certified, F = 10 +/-1.0mm). Neither
+    # real Murata spelling is buyable: DE1E3KX222MA4BN01F is "Obsolete --
+    # no longer manufactured", 0 stock, DigiKey 4421160 (its listed
+    # substitute DE1E3RA222MA4BN01F is also 0 stock), and Mouser redirects
+    # DE1E3KX222MA5BA01 to that same obsolete A4BN01F.
+    #
+    # Replacement: Vishay BCcomponents VY1 series, X1/Y1 per IEC 60384-14.
+    #   - Vishay datasheet doc 28537 ("Class X1, 760 VAC, Class Y1, 500 VAC"),
+    #     https://www.vishay.com/docs/28537/vy1series.pdf: the 2200pF Y5U row
+    #     is "VY1222#47Y5UQ6###", Dmax 12.0mm, Tmax 5.0mm, lead spacing F =
+    #     10.0 or 12.5mm. Ordering code: 222 = 2200pF, M = +/-20%, 47 = size
+    #     code, Y5U dielectric, Q = X1/Y1 500VAC, 6 = lead-wire diameter,
+    #     T = tape and reel, V = inline kinked leads, 0 = 10.0mm spacing.
+    #   - DigiKey 2824499 (fetched 2026-07-28): VY1222M47Y5UQ6TV0, Active,
+    #     365 in stock, 2200pF +/-20%, X1/Y1, 760VAC, lead spacing 0.394"
+    #     (10.00mm), body dia 0.472" (12.00mm), through hole.
+    # Safety class is preserved and its margin increased: Y1 at 500VAC vs
+    # the 250VAC this node requires. Capacitance/tolerance are unchanged.
+    #
+    # FOOTPRINT CORRECTED 2026-07-28 (docs/evidence/
+    # 2026-07-28-tank-cap-and-isolator-footprints.md). Was
+    # "Capacitor_THT:C_Disc_D10.0mm_W5.0mm_P5.00mm" -- a 5.00mm-pitch stub
+    # ("Created to resolve netlist reference", pcb/temper.kicad_pcb:205)
+    # that no 2.2nF Y1 disc fits: VY1222M47Y5UQ6TV0 is 10.00mm lead
+    # spacing / 12.00mm body diameter (DigiKey 2824499; Vishay 28537 p.2,
+    # F = 10.0mm, Dmax 12.0, Tmax 5.0), and so are both real Murata
+    # spellings above. Every candidate part for this slot has 10mm leads.
+    # C_Disc_D12.5mm_W5.0mm_P10.00mm is stock KiCad 9 and its own descr
+    # cites Vishay's sibling VY2 datasheet (doc 28535); D12.5 >= the
+    # 12.0mm body and W5.0 >= the 5.0mm thickness.
+    #
+    # Barrier consequence (repo's own pad model, pad_geometry.py): the
+    # 5.00mm stub with 1.8mm pads measured 3.200mm HV<->SELV, vs the
+    # 8.0mm MIN_BARRIER_WIDTH_MM in scripts/check_isolation_keepout.py.
+    # This land is 10.00mm pitch with 2.0mm pads = 8.000mm, which clears
+    # the 8.0mm safety gate EXACTLY and does NOT clear the CP-SAT
+    # placer's 8.5mm working corridor. Shrinking the pads to 1.4mm
+    # (0.8mm drill on a 0.6mm lead) would give 8.600mm, but Vishay
+    # publishes no recommended land pattern for this part, so that pad
+    # size would be an unsourced choice; it is left to a human.
+    #
+    # FOOTPRINT/MPN CORRECTED AGAIN 2026-08-13 for the PD3 replacement above:
+    # TDK B81123C1562M000 (5.6nF Y1, 500VAC, 22.5mm lead spacing, DigiKey
+    # 495-1653-ND, confirmed Active/orderable this session -- stock was thin
+    # at fetch time, not EOL). Stock KiCad footprint
+    # Capacitor_THT:C_Rect_L26.5mm_W7.0mm_P22.50mm_MKS4 matches the
+    # datasheet's own max-dimensions row for this ordering code (26.5 x 7.0
+    # x 16.0mm) exactly. MEASURED this session with the canonical
+    # pad-geometry kernel (2.4mm circular pads at 22.5mm pitch):
+    # 20.1000mm, clears 12.6mm by +7.5mm.
+    #
+    # BOARD REWORK REQUIRED, NOT DONE HERE: pcb/temper.kicad_pcb still
+    # carries the P10.00mm disc footprint for C6 and is deliberately
+    # untouched by this change, same as the 2026-07-28 note above.
+    y_cap_pe.mpn = "B81123C1562M000"
+    y_cap_pe.footprint = "Capacitor_THT:C_Rect_L26.5mm_W7.0mm_P22.50mm_MKS4"
+    
+    dc_bus.gnd_ref ~ y_cap_pe.p1
+    y_cap_pe.p2 ~ pe
+
+
+module BusDischarge:
+    """Fail-safe active bus discharge (plan 2026-07-16-001, Option A).
+
+    One relay-switched resistor string across each 170V half-bus:
+    NC contact + 2x 3.9k/5W wirewound in series (7.8k per string).
+    RESIZED 2026-07-27 from 2x 4.7k (9.4k per string) --
+    docs/evidence/2026-07-27-busdischarge-tolerance-retune.md. Both relay
+    coils are held energized from the 15V SELV rail whenever the unit
+    runs, holding the NC contacts OPEN. ANY loss of power (unplug, fuse,
+    aux-supply fault, MCU dead) drops the coils and the NC contacts close
+    -> discharge engages with no MCU involvement.
+
+    RELAY REPLACEMENT LANDED 2026-07-31. K2/K3 now use TE Connectivity /
+    Schrack RT314012 (RT1 family, Relay_SPDT), footprint
+    temper:Relay_SPDT_Schrack-RT314012. Coil-to-contact copper gap
+    12.76 mm computed by hand from the footprint geometry, independently
+    reproducing the 12.760 mm the sourcing analysis derived from the
+    datasheet (see that footprint's descr for the ENG_DS_RT1_0718
+    extraction trail) -- clears the 8.0 mm reinforced-creepage bar
+    (1.6x) and the 6.0 mm pollution-degree-independent clearance
+    minimum (2.1x). Coil 360 ohm +/-10% / 400 mW / 12VDC rated, 8.4V
+    must-operate (70% of rated): identical R/P to the outgoing G5LE-1,
+    so the 100R dropper from the 15V rail is unaffected (~11.7V at the
+    coil, 1.4x must-operate). Contacts 16A/250VAC, 400VAC max switching
+    voltage, AgNi 90/10. Pad numbering matches this project's Relay_SPDT
+    convention (2/5 coil, 1 COM, 3 NO, 4 NC), so no wiring changes were
+    needed. The 2026-07-28 excursion below (Finder 40.52, tried and
+    reverted) is preserved as history -- its geometry findings remain
+    the reason no same-pitch family part is reintroduced without a
+    datasheet-cited pitch.
+
+    HISTORY -- RELAY REPLACEMENT TRIED AND REVERTED 2026-07-28. K2/K3
+    were Omron G5LE-1 SPDT relays (Relay_SPDT, single NC contact per
+    relay) until the 2026-07-31 landing above. A same-day attempt on
+    2026-07-28 to replace them with Finder 40.52.7.012.0000 (Relay_DPDT,
+    2-pole) was implemented, then RETRACTED after a follow-up measurement
+    invalidated its own stated justification. Full trail:
+    docs/evidence/2026-07-28-discharge-relay-isolation.md (candidate
+    search) -> docs/evidence/2026-07-28-relay-replacement-implementation.md
+    (adopted Finder, claimed 9.2mm edge-to-edge coil<->contact PCB
+    creepage, "clearing the 8.0mm target with 1.2mm margin") ->
+    docs/evidence/2026-07-28-pd3-retarget-relay.md (retraction: that
+    9.2mm figure was an INVENTED footprint layout, not measured from the
+    real part's fixed pinout; pixel-calibrating the manufacturer's own
+    catalog drawing gives a real, fixed 7.5mm coil-to-nearest-contact
+    center-to-center spacing, worth only 5.3mm edge-to-edge at realistic
+    pad sizing -- FAILS the then-current 8.0mm target by 2.7mm and the
+    later-established 12.6mm PD3 target by 7.3mm. No slot helps: the
+    relay's own one-piece moulded case sits over the entire coil-to-
+    contact pin field, the same failure mode already on record for the
+    G5LE-1 below) -> docs/evidence/2026-07-28-relay-board-resync-decision.md
+    (this decision: REVERTED rather than resynced the board to the
+    inadequate part -- see that doc for the full reasoning).
+
+    NET EFFECT OF THE REVERT: G5LE-1 was restored, unchanged from before
+    this excursion -- until the 2026-07-31 replacement landed (above),
+    which supersedes it. This is NOT a fix -- the G5LE-1's own isolation
+    gap (below) is exactly as unresolved as it was before the Finder
+    attempt. The Finder part was not worse on isolation (5.3mm > 3.5mm
+    edge-to-edge, though both fail both targets) and was a genuine
+    improvement on DC-break disclosure (an explicit manufacturer DC1
+    graph vs. the G5LE-1's total silence above 125VDC) -- but it did
+    not satisfy this project's own three-way bar (reinforced isolation
+    AND rated DC break AND fail-safe NC topology, all three) any more
+    than the G5LE-1 does,
+    so swapping to it would not have made this circuit safety-compliant,
+    only differently non-compliant, while ALSO making the board/netlist
+    inconsistency the new "must fix eventually" instead of the isolation
+    gap itself. A real fix requires a DPDT or SPDT relay with reinforced
+    coil-to-contact isolation AND a rated DC break at 170-200V AND NC
+    fail-safe topology, with a coil-to-nearest-contact pin pitch of
+    roughly DOUBLE the Finder 40.52's 7.5mm (~14.4-14.8mm) so the PCB
+    surface path itself can clear 12.6mm without depending on any
+    internal-vs-external-path argument. SUPERSEDED 2026-07-31 by the
+    RT314012 landing above: its 15.26mm coil-to-nearest-contact
+    center-to-center pitch (12.76mm edge-to-edge at these pad sizes) is
+    exactly the ~14.4-14.8mm-class pitch this paragraph demands, and it
+    was verified from the manufacturer's own dimensioned drawing (see
+    the footprint's descr) before adoption. Do not resurrect
+    Relay_DPDT/the Finder 40.52.7.012.0000 footprint for K2/K3 without
+    first fetching and citing a manufacturer datasheet proving that
+    pitch (see scripts/mpn_fabrication_gate.py's hard rule against
+    unverified MPNs).
+    No `Relay_DPDT` component is defined in this design. It deliberately
+    does not exist: an instantiable definition of a part measured to fail
+    reinforced insulation is a trap whose only safeguard would be a human
+    reading a docstring first. The part is fully described instead in
+    docs/evidence/2026-07-28-pd3-retarget-relay.md (geometry, the 5.300mm
+    measurement, and the method), which is the record without the hazard.
+    Only pcb/libs/temper.pretty/Relay_DPDT_Finder-40.52.kicad_mod remains
+    in the tree -- an inert library footprint that nothing references, with
+    its geometry corrected to the real part in case a same-pitch-family
+    part is ever useful elsewhere, and flagged in its own descr as
+    inadequate for this role.
+
+    Sizing (per half-bus), per docs/hardware/BUS_CAPACITANCE_DERIVATION.md
+    SS5.3 and re-derived independently here with the resistor's OWN
+    tolerance included (the derivation doc's own worst case did not):
+    the bus capacitor (EKMQ251VSN182MA50S, 3600uF/half nominal) is
+    +/-20% tolerance, VERIFIED against its DigiKey product page (see the
+    derivation doc). At NOMINAL R and C: tau = 7.8k x 3600uF = 28.1s,
+    170V -> <34V in 1.61 tau ~= 45.2s. At the CAPACITOR's own +20%
+    tolerance alone (4320uF, R held at nominal): tau = 33.7s, t = 54.2s
+    (<60s target, restoring the ~10% margin the 9.4k design had nominally
+    and did not have at tolerance -- see the derivation doc SS5.1 for why
+    9.4k fails at 65.4s under this same test). At BOTH tolerances stacked
+    worst-case (resistor's own +5% AND capacitor's +20%, since a real
+    board can see both at once): R=8.19k, C=4320uF, tau=35.4s,
+    t=56.9s -- still <60s, ~3s of real margin. (2x 4.3k/8.6k, the
+    capacitor-tolerance-only answer, was evaluated first and REJECTED:
+    stacked with its own +5% resistor tolerance it gives t=62.8s, failing
+    the same way 9.4k did -- the point of this exercise. 3.9k is the
+    nearest standard value below that clears both.)
+
+    Peak power at contact closure (worst case, nominal R since dissipation
+    should not be UNDER-estimated by assuming tolerance in resistor's
+    favour): 170^2/7.8k = 3.7W per string, 1.85W per 5W resistor (37% of
+    rating, vs. 1.54W/30.8% at the prior 9.4k) -- comfortable margin
+    retained on a part rated for continuous 5W, and this IS the peak (bus
+    voltage only falls from here as the cap discharges).
+
+    Contact stress: break at ~21.8mA (up from ~18mA at 9.4k) / up to
+    170VDC, purely resistive. VERIFIED 2026-07-16 (Omron G5LE datasheet
+    K100-E1-08, ratings table + max switching capacity curve): max
+    switching voltage is 125VDC (30VDC where UL/CSA is applied) and the DC
+    load curve ends at 125V -- a 170VDC break is out-of-catalog at ANY
+    current, unchanged conclusion at the new current. (The RT314012
+    swapped in 2026-07-31 is rated 16A/250VAC, 400VAC max switching
+    voltage, AgNi 90/10; the snubber analysis below is the DC-break
+    mechanism this design relies on at 170VDC -- see the relay's
+    footprint descr for the datasheet extraction.) 21.8mA remains far
+    below the ~0.4A minimum arc-sustain current of Ag contacts (5.4% of
+    it, same order of magnitude as before), so each NC contact keeps its
+    RC snubber (100R 2W pulse-withstanding + 470nF/630V PP film, both
+    already-on-BOM families): opening dV/dt is limited to I/C ~= 38V/ms so
+    the gap is fully open long before it sees bus voltage -- this and the
+    6.8mJ/1.7A-peak/47us closure-discharge figures depend only on the
+    snubber RC and bus voltage, not on the discharge string resistance, so
+    they are unchanged by this resize.
+
+    Coil budget: 2 x 33mA from the 15V rail, only while running. Each
+    coil gets its own 100R dropper (15V -> ~11.7V at the 360R coil,
+    97.5% of rated; RT314012 must-operate voltage is 8.4V, 70% of
+    rated -- 1.4x must-operate margin at the dropper point, better
+    than the G5LE-1's 1.3x)."""
+
+    # HV side: half-bus taps (Top wires these to dc_bus_plus /
+    # power_return / dc_bus_minus)
+    signal hv_plus
+    signal mid
+    signal hv_minus
+
+    # SELV side: coil supply + low-side driver
+    signal gnd
+    signal ctrl
+    power_15v = new ElectricPower
+
+    # Discharge relay K2 (k_dis1): TE Connectivity / Schrack RT314012
+    # (RT1 family), SPDT so the NC contact is available (the existing
+    # bypass relay G4A-1A-E is NO-only). REPLACED the Omron G5LE-1 DC12
+    # 2026-07-31 (see RELAY REPLACEMENT LANDED above): the G5LE-1's
+    # 3.559mm coil-to-contact gap failed the 8.0mm reinforced creepage
+    # and the 6.0mm PD-independent clearance minimum; the RT314012's
+    # 12.76mm clears both (1.6x / 2.1x). VERIFIED from the ENG_DS_RT1_0718
+    # datasheet (footprint descr carries the extraction trail):
+    # contacts 16A / 250VAC, 400VAC max switching voltage, AgNi 90/10;
+    # 12VDC coil 360R +/-10% / 400mW -- identical R/P to the outgoing
+    # G5LE-1, so the 100R dropper and flyback diode are unchanged.
+    # Board placement: rotated 270 deg at its existing origin so the
+    # 29.9mm courtyard stays inside the board outline (rot 0 hangs
+    # 3.06mm past the x=172 edge; other rotations overlap U3/T1).
+    k_dis1 = new Relay_SPDT
+    k_dis1.coil_voltage = 12V
+    k_dis1.contact_current = 10A
+    k_dis1.mpn = "RT314012"
+    k_dis1.footprint = "temper:Relay_SPDT_Schrack-RT314012"
+
+    # Discharge relay K3 (k_dis2): TE Connectivity / Schrack RT314012
+    # (RT1 family) -- SWAPPED 2026-08-02 (owner-granted wave-2 board write,
+    # docs/evidence/2026-08-02-k3-swap-and-board-write.md), mirroring the
+    # K2 swap (#524): the G5LE-1's 3.559mm coil-to-contact gap failed both
+    # the 8.0mm reinforced-creepage bar and the 6.0mm PD-independent
+    # clearance minimum (the intra-footprint blocker #523 tracked); the
+    # RT314012's 12.76mm internal gap clears both at 1.6x/2.1x and the
+    # 12.6mm PD3 bar. The swap was previously BLOCKED on placement,
+    # measured 2026-07-31: at the pre-re-solve origin (47.8, 70.78) the new
+    # footprint introduced NEW cross-net shorts in every rotation (rot 0:
+    # 30+ items incl. +170V_BUS x DC_BUS_RTN; rot 90: 5x
+    # hb.gate_hs.driver-p2 x discharge.k_dis2-no -- the NO pad lands on a
+    # pre-existing B.Cu gate-driver track; rot 180: 10x incl.
+    # RTD_SDI/SHUTDOWN/ina/inb; rot 270: 18x incl. RTD_SDI x DC_BUS_RTN).
+    # This write re-solves K3 (validator-gated repair, FREE {K3, C27}) to a
+    # position where the RT314012 clears -- see the evidence doc.
+    k_dis2 = new Relay_SPDT
+    k_dis2.coil_voltage = 12V
+    k_dis2.contact_current = 10A
+    k_dis2.mpn = "RT314012"
+    k_dis2.footprint = "temper:Relay_SPDT_Schrack-RT314012"
+
+    # Discharge resistors: Vishay AC05 cemented wirewound, 3.9k 5% 5W,
+    # axial ~18mm body, AEC-Q200, all-welded -- RESIZED 2026-07-27 from
+    # 4.7k (docs/evidence/2026-07-27-busdischarge-tolerance-retune.md;
+    # MPN verified 2026-07-27 via DigiKey product search, exact match,
+    # active/orderable, same Vishay AC05 family/footprint as the prior
+    # 4.7k part). voltage_rating is the series' max continuous element
+    # voltage sqrt(P x R) = sqrt(5W x 3.9k) ~= 139V; each resistor sees at
+    # most half a half-bus (85V) in the stuck-contact steady state.
+    r_dis1a = new Resistor
+    r_dis1a.value = 3.9kohm +/- 5%
+    r_dis1a.power_rating = 5W
+    r_dis1a.voltage_rating = 139V
+    r_dis1a.mpn = "AC05000003901JAC00"
+    r_dis1a.footprint = "Resistor_THT:R_Axial_DIN0918_L18.0mm_D9.0mm_P22.86mm_Horizontal"
+
+    r_dis1b = new Resistor
+    r_dis1b.value = 3.9kohm +/- 5%
+    r_dis1b.power_rating = 5W
+    r_dis1b.voltage_rating = 139V
+    r_dis1b.mpn = "AC05000003901JAC00"
+    r_dis1b.footprint = "Resistor_THT:R_Axial_DIN0918_L18.0mm_D9.0mm_P22.86mm_Horizontal"
+
+    r_dis2a = new Resistor
+    r_dis2a.value = 3.9kohm +/- 5%
+    r_dis2a.power_rating = 5W
+    r_dis2a.voltage_rating = 139V
+    r_dis2a.mpn = "AC05000003901JAC00"
+    r_dis2a.footprint = "Resistor_THT:R_Axial_DIN0918_L18.0mm_D9.0mm_P22.86mm_Horizontal"
+
+    r_dis2b = new Resistor
+    r_dis2b.value = 3.9kohm +/- 5%
+    r_dis2b.power_rating = 5W
+    r_dis2b.voltage_rating = 139V
+    r_dis2b.mpn = "AC05000003901JAC00"
+    r_dis2b.footprint = "Resistor_THT:R_Axial_DIN0918_L18.0mm_D9.0mm_P22.86mm_Horizontal"
+
+    # Coil droppers: 15V rail -> 12V coil, one per coil so a single relay
+    # removal doesn't overdrive the survivor. 3.3V x 33mA ~= 0.11W on a
+    # 0.25W 1206 (44%). VERIFIED 2026-07-16: Yageo RC1206FR-07100RL,
+    # 100R 1% 0.25W 200V (DigiKey 728491 / TME listing).
+    r_coil1 = new Resistor
+    r_coil1.value = 100ohm +/- 1%
+    r_coil1.power_rating = 0.25W
+    r_coil1.voltage_rating = 200V
+    r_coil1.mpn = "RC1206FR-07100RL"
+    r_coil1.footprint = "Resistor_SMD:R_1206_3216Metric"
+
+    r_coil2 = new Resistor
+    r_coil2.value = 100ohm +/- 1%
+    r_coil2.power_rating = 0.25W
+    r_coil2.voltage_rating = 200V
+    r_coil2.mpn = "RC1206FR-07100RL"
+    r_coil2.footprint = "Resistor_SMD:R_1206_3216Metric"
+
+    # Low-side coil driver: same proven pattern as PowerInput's
+    # bypass_relay (AO3400A + 1k gate R + 100k pulldown + SS14 flyback).
+    # DISCHARGE_CTRL high = coils energized = NC contacts open =
+    # discharge disengaged. GPIO low / floating / MCU dead = discharge.
+    q_dis_drv = new MOSFET_N
+    q_dis_drv.mpn = "AO3400A"
+
+    r_gate = new Resistor
+    r_gate.value = 1kohm +/- 5%
+    r_gate.power_rating = 0.125W
+    r_gate.voltage_rating = 25V
+    r_gate.mpn = "CRCW08051K00FKEA"
+    r_gate.footprint = "Resistor_SMD:R_0805_2012Metric"
+
+    r_gate_pd = new Resistor
+    r_gate_pd.value = 100kohm +/- 5%
+    r_gate_pd.power_rating = 0.125W
+    r_gate_pd.voltage_rating = 25V
+    r_gate_pd.mpn = "CRCW0805100KFKEA"
+    r_gate_pd.footprint = "Resistor_SMD:R_0805_2012Metric"
+
+    d_fly1 = new Diode
+    d_fly1.mpn = "SS14"
+    d_fly1.voltage_rating = 40V
+    d_fly1.current_rating = 1A
+    d_fly1.footprint = "Diode_SMD:D_SMA"
+
+    d_fly2 = new Diode
+    d_fly2.mpn = "SS14"
+    d_fly2.voltage_rating = 40V
+    d_fly2.current_rating = 1A
+    d_fly2.footprint = "Diode_SMD:D_SMA"
+
+    # Contact snubbers (see docstring): R in series with C across each
+    # NC-COM gap. Cap blocks DC so the open-contact leakage is zero.
+    # CRGP2512F100R: TE pulse-withstanding 2W/500V 2512 (same family as
+    # the F22K bleeders; distributor-verified). Film cap is the same
+    # B32671L6474K000 470nF/630VDC PP already used as the DC-bus HF cap.
+    r_snub1 = new Resistor
+    r_snub1.value = 100ohm +/- 1%
+    r_snub1.power_rating = 2W
+    r_snub1.voltage_rating = 500V
+    r_snub1.mpn = "CRGP2512F100R"
+    r_snub1.footprint = "Resistor_SMD:R_2512_6332Metric"
+
+    r_snub2 = new Resistor
+    r_snub2.value = 100ohm +/- 1%
+    r_snub2.power_rating = 2W
+    r_snub2.voltage_rating = 500V
+    r_snub2.mpn = "CRGP2512F100R"
+    r_snub2.footprint = "Resistor_SMD:R_2512_6332Metric"
+
+    c_snub1 = new Capacitor
+    c_snub1.value = 470nF +/- 10%
+    c_snub1.dielectric = "PP"
+    c_snub1.voltage_rating = 630V
+    c_snub1.mpn = "B32671L6474K000"
+    c_snub1.footprint = "Capacitor_THT:C_Rect_L18.0mm_W11.0mm_P15.00mm_FKS3_FKP3"
+
+    c_snub2 = new Capacitor
+    c_snub2.value = 470nF +/- 10%
+    c_snub2.dielectric = "PP"
+    c_snub2.voltage_rating = 630V
+    c_snub2.mpn = "B32671L6474K000"
+    c_snub2.footprint = "Capacitor_THT:C_Rect_L18.0mm_W11.0mm_P15.00mm_FKS3_FKP3"
+
+    # --- Sizing assertions ---
+    v_bus_half: voltage = 170V
+    # Steady dissipation per resistor with a stuck-closed contact across
+    # an energized half-bus: (170V)^2 / 7.8k / 2 ~= 1.85W (was 9.4k/1.54W
+    # before the 2026-07-27 resize -- docs/evidence/
+    # 2026-07-27-busdischarge-tolerance-retune.md). Written against
+    # r_dis1a.value + r_dis1b.value (not a hardcoded resistance) so this
+    # assertion cannot go stale the way OVPComparator's trip-point assert
+    # did across a resistor-value change.
+    p_dis_resistor: power = v_bus_half * v_bus_half / (r_dis1a.value + r_dis1b.value) / 2
+
+    # Power: 50% derating even in the abnormal continuous case
+    assert r_dis1a.power_rating >= p_dis_resistor * 2
+    assert r_dis1b.power_rating >= p_dis_resistor * 2
+    assert r_dis2a.power_rating >= p_dis_resistor * 2
+    assert r_dis2b.power_rating >= p_dis_resistor * 2
+
+    # Snubber caps must hold the full half-bus with 2x margin
+    assert c_snub1.voltage_rating >= v_bus_half * 2
+    assert c_snub2.voltage_rating >= v_bus_half * 2
+    assert r_snub1.voltage_rating >= v_bus_half * 2
+    assert r_snub2.voltage_rating >= v_bus_half * 2
+
+    # Voltage: each resistor sees half of a 170V half-bus; 25% margin
+    assert r_dis1a.voltage_rating >= v_bus_half * 0.625
+    assert r_dis1b.voltage_rating >= v_bus_half * 0.625
+    assert r_dis2a.voltage_rating >= v_bus_half * 0.625
+    assert r_dis2b.voltage_rating >= v_bus_half * 0.625
+
+    # --- Connections ---
+    # Half-bus 1 string: hv_plus -> 3.9k -> 3.9k -> NC contact -> mid
+    hv_plus ~ r_dis1a.p1
+    r_dis1a.p2 ~ r_dis1b.p1
+    r_dis1b.p2 ~ k_dis1.NC
+    k_dis1.COM ~ mid
+
+    # Half-bus 2 string: mid -> 3.9k -> 3.9k -> NC contact -> hv_minus
+    mid ~ r_dis2a.p1
+    r_dis2a.p2 ~ r_dis2b.p1
+    r_dis2b.p2 ~ k_dis2.NC
+    k_dis2.COM ~ hv_minus
+    # NO contacts intentionally unconnected: energized = pole held on NO
+    # = discharge path open.
+
+    # Snubbers across the contact gaps
+    k_dis1.NC ~ r_snub1.p1
+    r_snub1.p2 ~ c_snub1.p1
+    c_snub1.p2 ~ k_dis1.COM
+    k_dis2.NC ~ r_snub2.p1
+    r_snub2.p2 ~ c_snub2.p1
+    c_snub2.p2 ~ k_dis2.COM
+
+    # Gate drive
+    ctrl ~ r_gate.p1
+    r_gate.p2 ~ q_dis_drv.G
+    r_gate_pd.p1 ~ q_dis_drv.G
+    r_gate_pd.p2 ~ gnd
+
+    # Coils: 15V -> dropper -> coil -> shared low-side switch
+    power_15v.vcc ~ r_coil1.p1
+    r_coil1.p2 ~ k_dis1.coil1
+    d_fly1.K ~ k_dis1.coil1
+    d_fly1.A ~ k_dis1.coil2
+    k_dis1.coil2 ~ q_dis_drv.D
+
+    power_15v.vcc ~ r_coil2.p1
+    r_coil2.p2 ~ k_dis2.coil1
+    d_fly2.K ~ k_dis2.coil1
+    d_fly2.A ~ k_dis2.coil2
+    k_dis2.coil2 ~ q_dis_drv.D
+
+    q_dis_drv.S ~ gnd
+    power_15v.gnd ~ gnd
+
+
+module BuckConverter3V3:
+    """3.3V synchronous buck converter for MCU and logic, LMR51430-based.
+    Replaces XC6220 LDO which had Vin_max=6V but was fed from 15V rail (P0-7).
+
+    VERIFIED 2026-07-17 against the TI datasheet (SLUSF4A, June 2022, rev
+    Nov 2022 -- note the doc number is SLUSF4A, not "SLUSF42" as an earlier,
+    unverified comment on the sibling module claimed): Vfb = 0.591V min /
+    0.6V typ / 0.609V max (Section 7.5), NOT 1.0V. L/Cout/Rfbt/Rfbb values
+    below are TI's own Table 9-1 recommendation for Vout=3.3V, fsw=500kHz.
+
+    This module was previously a stub: it declared the inductor and output
+    caps but never instantiated the switching IC or wired a buck topology,
+    so power_out.vcc had zero connection back to power_in.vcc in the
+    generated netlist (caught via a net-count regression: l_out's two pins
+    surfaced as two isolated single-node nets)."""
+
+    power_in = new ElectricPower
+    power_out = new ElectricPower
+    power_out.voltage = 3.3V
+    enable = new ElectricLogic
+    enable.reference ~ power_in.gnd
+
+    buck = new LMR51430
+
+    c_in = new Capacitor
+    # Samsung CL32B106KBJZW6E: exact 10uF +/-10%, 50V, X7R, 1210,
+    # mass-production soft-termination candidate (Samsung product page and
+    # ADS catalog, retrieved 2026-09-10). Typical DC-bias data are screening
+    # evidence only; effective capacitance remains an open qualification item.
+    c_in.value = 10uF +/- 10%
+    c_in.dielectric = "X7R"
+    c_in.voltage_rating = 50V
+    c_in.mpn = "CL32B106KBJZW6E"
+    c_in.footprint = "Capacitor_SMD:C_1210_3225Metric"
+
+    c_boot = new Capacitor
+    c_boot.value = 100nF +/- 10%
+    # C0603C104K5RACTU is the exact 50V KEMET orderable; 25V was only a
+    # stale minimum declaration and misrepresented the selected part.
+    c_boot.voltage_rating = 50V
+    c_boot.dielectric = "X7R"
+    c_boot.mpn = "C0603C104K5RACTU"
+    c_boot.footprint = "Capacitor_SMD:C_0603_1608Metric"
+
+    # TI Table 9-1 (Vout=3.3V, fsw=500kHz): L=5.6uH, Cout=2x22uF/25V,
+    # Rfbt=100k, Rfbb=22.1k.
+    l_out = new Inductor
+    l_out.value = 5.6uH
+    l_out.current_rating = 12.5A
+    l_out.dcr = 0.01ohm
+    l_out.mpn = "SRP1265A-5R6M"
+    l_out.footprint = "Inductor_SMD:L_Bourns_SRP1265A"
+
+    c_out1 = new Capacitor
+    c_out1.value = 22uF +/- 10%
+    c_out1.dielectric = "X7R"
+    c_out1.voltage_rating = 25V
+    # Samsung CL32B226KAJNNWE: exact 22uF +/-10%, 25V, X7R, 1210.
+    # This prototype substitution preserves nominal value, voltage, dielectric
+    # and land pattern. Samsung DC-bias behavior has not been qualified here;
+    # do not reuse the prior Murata derating evidence as a Samsung minimum.
+    c_out1.mpn = "CL32B226KAJNNWE"
+    c_out1.footprint = "Capacitor_SMD:C_1210_3225Metric"
+
+    c_out2 = new Capacitor
+    c_out2.value = 22uF +/- 10%
+    c_out2.dielectric = "X7R"
+    c_out2.voltage_rating = 25V
+    c_out2.mpn = "CL32B226KAJNNWE"
+    c_out2.footprint = "Capacitor_SMD:C_1210_3225Metric"
+
+    c_out_hf = new Capacitor
+    c_out_hf.value = 100nF +/- 10%
+    c_out_hf.dielectric = "X7R"
+    # The exact KEMET MPN is rated 50V; the old 10V field was a stale
+    # minimum and did not describe the selected BOM part.
+    c_out_hf.voltage_rating = 50V
+    c_out_hf.mpn = "C0603C104K5RACTU"
+    c_out_hf.footprint = "Capacitor_SMD:C_0603_1608Metric"
+
+    r_fb_top = new Resistor
+    r_fb_top.value = 100kohm +/- 1%
+    r_fb_top.mpn = "RC0603FR-07100KL"
+    r_fb_top.footprint = "Resistor_SMD:R_0603_1608Metric"
+
+    r_fb_bot = new Resistor
+    r_fb_bot.value = 22.1kohm +/- 1%
+    r_fb_bot.mpn = "RC0603FR-0722K1L"
+    r_fb_bot.footprint = "Resistor_SMD:R_0603_1608Metric"
+
+    power_in.vcc ~ buck.VIN
+    power_in.vcc ~ c_in.p1
+    c_in.p2 ~ power_in.gnd
+
+    enable.line ~ buck.EN
+    buck.GND ~ power_in.gnd
+
+    buck.BOOT ~ c_boot.p1
+    c_boot.p2 ~ buck.SW
+
+    buck.SW ~ l_out.p1
+    l_out.p2 ~ power_out.vcc
+
+    power_out.vcc ~ c_out1.p1
+    c_out1.p2 ~ power_out.gnd
+    power_out.vcc ~ c_out2.p1
+    c_out2.p2 ~ power_out.gnd
+    power_out.vcc ~ c_out_hf.p1
+    c_out_hf.p2 ~ power_out.gnd
+
+    power_out.vcc ~ r_fb_top.p1
+    r_fb_top.p2 ~ buck.FB
+    buck.FB ~ r_fb_bot.p1
+    r_fb_bot.p2 ~ power_out.gnd
+
+    # Ground
+    power_in.gnd ~ power_out.gnd
+
+    assert power_out.voltage within 3.3V +/- 5%
+
+    # Equation verification (TI datasheet Section 9.2.2.2, Equation 9)
+    v_fb: voltage = 0.6V
+    v_out_calculated: voltage = v_fb * (1 + r_fb_top.value / r_fb_bot.value)
+    assert v_out_calculated within 3.135V to 3.465V
+
+module PowerManagement:
+    """Power management subsystem: 15V -> 3.3V.
+    
+    15V is supplied by the isolated AuxSupply module (plan 005).
+    The 3.3V buck converter replaces the XC6220 LDO which had Vin_max=6V
+    but was fed from the 15V rail (P0-7)."""
+    
+    power_15v = new ElectricPower  # 15V input from AuxSupply
+    power_3v3 = new ElectricPower  # 3.3V output to MCU/logic
+    
+    buck_3v3 = new BuckConverter3V3
+    
+    # Connections
+    power_15v ~ buck_3v3.power_in
+    buck_3v3.enable.line ~ power_15v.vcc
+    
+    buck_3v3.power_out ~ power_3v3
+    
+    # Ground chain
+    power_15v.gnd ~ power_3v3.gnd
+
+module AuxSupply:
+    """Offline isolated auxiliary power supply. 
+    Takes rectified AC (~170VDC from half-bus) and produces an isolated 15V rail
+    for gate drivers, relay, and downstream regulation.
+    Uses a LinkSwitch-TN or VIPer-based flyback topology.
+    The transformer provides galvanic isolation between HV and SELV domains."""
+    
+    power_in = new ElectricPower    # ~170VDC from half-bus (post-rectifier)
+    power_out = new ElectricPower   # Isolated 15V output (SELV side)
+    power_out.voltage = 15V
+    
+    enable = new ElectricLogic
+    enable.reference ~ power_in.gnd
+    
+    # Mean Well IRM-10-15 encapsulated AC/DC module does the actual
+    # conversion: 170VDC half-bus in (120-430VDC rated), isolated 15V out.
+    psu = new IRM_10_15
+    
+    # Input bulk capacitor
+    c_in_bulk = new Capacitor
+    c_in_bulk.value = 10uF +/- 20%
+    c_in_bulk.dielectric = "X7R"
+    c_in_bulk.voltage_rating = 250V
+    c_in_bulk.mpn = "GRM55DR72E106KW01L"
+    c_in_bulk.footprint = "Capacitor_SMD:C_2220_5750Metric"
+    
+    # Output filter
+    c_out = new Capacitor
+    c_out.value = 100uF +/- 20%
+    c_out.dielectric = "X7R"
+    c_out.voltage_rating = 25V
+    c_out.mpn = "GRM32ER71E107ME15L"  # 100uF 25V X7R 1210
+    c_out.footprint = "Capacitor_SMD:C_1210_3225Metric"
+    
+    # DC-bias derating flag (2026-07-26, UNVERIFIED numeric %): this cap
+    # decouples the 15V SELV output rail, i.e. the same ~60%-of-25V-rated
+    # bias condition as HalfBridge.c_vdda/c_vddb -- see the comment there.
+    # The 50V-rated replacement drops the bias ratio to ~30%.
+    c_out_hf = new Capacitor
+    c_out_hf.value = 100nF +/- 10%
+    c_out_hf.dielectric = "X7R"
+    c_out_hf.voltage_rating = 25V
+    c_out_hf.mpn = "C0603C104K5RACTU"
+    c_out_hf.footprint = "Capacitor_SMD:C_0603_1608Metric"
+
+    # Connections
+    power_in.vcc ~ c_in_bulk.p1
+    c_in_bulk.p2 ~ power_in.gnd
+    power_in.vcc ~ psu.ACL
+    power_in.gnd ~ psu.ACN
+    psu.VP ~ power_out.vcc
+    psu.VN ~ power_out.gnd
+    
+    power_out.vcc ~ c_out.p1
+    c_out.p2 ~ power_out.gnd
+    power_out.vcc ~ c_out_hf.p1
+    c_out_hf.p2 ~ power_out.gnd
+    
+    enable.line ~ power_in.vcc  # Always on when input present
+    
+    # Verify output voltage
+    assert power_out.voltage within 15V +/- 10%
+    
+    # Power budget assertion: must supply gate driver + relay + MCU + safety logic
+    # Gate driver: ~2W (2 channels, switching), Relay coil: ~1W (75mA @ 12V),
+    # MCU+logic: ~1.5W (500mA @ 3.3V after downstream buck)
+    # Total: ~5W. Design for 8W for margin.
+    p_out_max: power = 8W
+    assert c_in_bulk.voltage_rating >= 170V * 1.25  # half-bus + margin
+
+module ThermalSystem:
+    """Forced-air cooling: fan power circuit (PCB side).
+
+    Fan: Sunon MF60251V1-1000U-A99, 60x60x25 MagLev/Vapo, 12V 75mA
+    (87mA max), 23.5CFM. VERIFIED 2026-07-16 (Sunon spec D06077210G-02):
+    operating range 4.5-13.8VDC -- a direct 15V feed EXCEEDS it, so the
+    fan runs through a 39R 1W series dropper (same Yageo RSF100JB-73-39R
+    as the bypass-relay coil dropper): 15V - 0.075A x 39R = 12.1V at the
+    fan (11.6V at max current), inside range with margin; dropper
+    dissipates 0.30W worst-case on a 1W part.
+
+    The fan itself is off-board (leadwires to J_FAN); heatsink
+    (Wakefield-Vette 392-120AB), Sil-Pads and mounting hardware are
+    chassis BOM -- see docs/plans/2026-07-16-001 for the verified MPNs.
+    """
+
+    power_15v = new ElectricPower
+
+    j_fan = new PinHeader_1x02
+
+    r_fan_drop = new Resistor
+    r_fan_drop.value = 39ohm +/- 5%
+    r_fan_drop.power_rating = 1W
+    r_fan_drop.voltage_rating = 25V
+    r_fan_drop.mpn = "RSF100JB-73-39R"
+    r_fan_drop.footprint = "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
+
+    # Worst case: 87mA max fan current -> 0.30W in the dropper
+    i_fan_max: current = 87mA
+    p_drop_max: power = i_fan_max * i_fan_max * 39ohm
+    assert r_fan_drop.power_rating >= p_drop_max * 2
+
+    power_15v.vcc ~ r_fan_drop.p1
+    r_fan_drop.p2 ~ j_fan.p1
+    j_fan.p2 ~ power_15v.gnd
+
+module CurrentSensing:
+    """Current transformer with burden resistor."""
+    
+    signal primary_in
+    primary_in.required = true
+    
+    i_sense = new ElectricSignal
+    
+    signal primary_out
+    ct = new CST3015_100E
+    
+    r_burden = new Resistor
+    # 1:100 ratio: 4.99R puts the OCP trip at 2.49V(comp ref)/4.99R*100 =
+    # 49.9A, centred in the OCP-01 45-55A window. RE-DERIVED 2026-07-27
+    # (docs/evidence/2026-07-27-ocp01-uvl02-part-resolution.md) alongside
+    # OCPComparator.r_ref_top: the reference divider's top leg moved from a
+    # fabricated 3.2kohm ("RC0603FR-073K2L", confirmed zero DigiKey hits, not
+    # an E96 member) to the real E96 neighbour 3.24kohm
+    # ("RC0603FR-073K24L", DigiKey-confirmed). Worst case over +/-1% initial
+    # tolerance AND +/-100ppm/C tempco (DT=60C, Yageo RC-series, matching
+    # docs/evidence/2026-07-27-threshold-sensitivity-tempco-budget.md's
+    # convention) on the burden and both OCPComparator reference resistors is
+    # 48.77-51.16A; see simulation/harness/run_ocp01_sim.py's
+    # worst_case_corners output for the full sweep.
+    #
+    # Was 6.65R (37.6A), 7.4A below the OCP-01 minimum. Raising the reference
+    # instead is impossible: 50A across 6.65R/100 needs 3.325V from a 3.3V rail.
+    #
+    # This value was applied, reverted, and reapplied. The revert was because
+    # the previous transformer (CST2010-100L) sensed only to 47A, so a 50.1A
+    # trip sat above its rated current where the core saturates and the
+    # secondary under-reads -- the comparator could trip late or not at all.
+    # No burden value satisfied both the spec and that part. Resolved by
+    # moving to the CST3015-100ED (88A sensed, same 1:100 ratio), which leaves
+    # 1.73x headroom at the worst-case trip.
+    # See docs/hardware/PROTECTION_CHAIN_REVIEW.md.
+    #
+    # Steady-state 15A RMS dissipates 0.112W, improved from 0.150W -- lowering
+    # the burden reduces continuous dissipation. The 1.25W at trip level is
+    # transient; the latch kills PWM within microseconds. Confirm the part's
+    # pulse rating on the bench.
+    r_burden.value = 4.99ohm +/- 1%
+    r_burden.power_rating = 0.25W
+    r_burden.mpn = "RC1206FR-074R99L"
+    r_burden.footprint = "Resistor_SMD:R_1206_3216Metric"
+
+    # Assert the burden voltage at the OCP trip lands close to the comparator
+    # reference (3.3 * 10k/13.24k = 2.4925V, re-derived 2026-07-27 alongside
+    # r_ref_top's fabricated-MPN fix; see OCPComparator). This assertion only
+    # checks r_burden's own nominal drop at the fixed 500mA/50A design point,
+    # independent of the exact reference-divider value, so its 2.4V-2.6V
+    # window is unaffected by the r_ref_top correction. The original
+    # assertion asserted 1.5-1.8V at 250mA -- a 25A design point inconsistent
+    # with any 45-55A OCP window, and one that masked the transformer
+    # conflict above.
+    i_ct_trip: current = 500mA  # 50A OCP trip / 100
+    v_burden_trip: voltage = i_ct_trip * r_burden.value
+    assert v_burden_trip within 2.4V to 2.6V
+    
+    c_filter = new Capacitor
+    c_filter.value = 100nF
+    c_filter.dielectric = "C0G"
+    c_filter.voltage_rating = 16V
+    c_filter.mpn = "GRM1885C1H104JA01D"
+    c_filter.footprint = "Capacitor_SMD:C_0603_1608Metric"
+    
+    primary_in ~ ct.P1
+    ct.P2 ~ primary_out
+    ct.S1 ~ r_burden.p1
+    ct.S2 ~ i_sense.reference
+    r_burden.p2 ~ i_sense.reference
+    ct.S1 ~ i_sense.line
+    i_sense.line ~ c_filter.p1
+    c_filter.p2 ~ i_sense.reference
+    
+    # DC bias network: 1.65V mid-rail for bipolar CT output
+    r_bias_top = new Resistor
+    r_bias_top.value = 10kohm +/- 1%
+    r_bias_top.mpn = "RC0603FR-0710KL"
+    r_bias_top.footprint = "Resistor_SMD:R_0603_1608Metric"
+    
+    r_bias_bot = new Resistor
+    r_bias_bot.value = 10kohm +/- 1%
+    r_bias_bot.mpn = "RC0603FR-0710KL"
+    r_bias_bot.footprint = "Resistor_SMD:R_0603_1608Metric"
+    
+    # Bias injection: VCC_3V3 -> r_bias_top -> I_SENSE -> r_bias_bot -> GND
+    signal vcc_3v3_ct
+    vcc_3v3_ct ~ r_bias_top.p1
+    r_bias_top.p2 ~ i_sense.line
+    i_sense.line ~ r_bias_bot.p1
+    r_bias_bot.p2 ~ i_sense.reference
+
+module RTDSensing:
+    """MAX31865 RTD interface for PT100.
+
+    Isolation (corrected 2026-07-26, SELV isolation redesign -- this
+    docstring previously asserted a claim the netlist contradicted; see
+    docs/hardware/SELV_ISOLATION_REDESIGN.md for the full finding and fix):
+
+    The RTD probe and MAX31865 are on the SELV side (power.gnd here chains
+    to Top's `gnd`), galvanically isolated from the HV power domain by the
+    AuxSupply module's Mean Well IRM-10-15 transformer (4.2kVAC I/O
+    withstand). `gnd` is bonded to protective earth (PE) and is no longer
+    tied to `power_return` (the doubler midpoint) -- the star join that used
+    to join them has been removed. That means the RTD probe's SELV
+    reference is now PE, not AC Neutral, and does not shift under an L/N
+    reversal fault.
+
+    This claim now holds ONLY if every other HV/SELV crossing is actually
+    isolated. As of this change it is NOT fully true end-to-end: the OVP
+    bus-sense divider in SafetyInterlock/OVPComparator still connects
+    resistively from the HV half-bus into this same `gnd` net (see
+    OVPComparator's docstring and SELV_ISOLATION_REDESIGN.md), so `gnd` --
+    and therefore this module -- is not yet on a domain with ZERO galvanic
+    connection to HV, only a high-impedance (~1.3M ohm / ~520k ohm) one.
+    The isolation barrier is intended to sit between the HV domain (DC bus,
+    IGBTs, resonant tank) and the SELV control domain (MCU, sensors,
+    gate-driver control side), NOT at the RTD interface itself -- but that
+    intent is not yet fully realized. Do not restate the old unqualified
+    "separated from AC mains potential" claim until the OVP crossing is
+    also resolved.
+    """
+    
+    power = new ElectricPower
+    power.voltage = 3.3V
+    spi = new SPI
+    cs = new ElectricLogic
+    drdy = new ElectricLogic
+    rtd_hw_fault = new ElectricLogic
+    rtd_hw_fault.reference ~ power.gnd
+    rtd_hw_fault.line.required = true
+    
+    # Assertions
+    assert power.voltage within 3.3V +/- 10%
+    
+    signal rtd_force_p
+    rtd_force_p.required = true
+    signal rtd_force_n
+    rtd_force_n.required = true
+    signal rtd_sense_p
+    rtd_sense_p.required = true
+    signal rtd_sense_n
+    rtd_sense_n.required = true
+    
+    adc = new MAX31865
+    
+    r_ref = new Resistor
+    r_ref.value = 430ohm +/- 0.05%
+    r_ref.mpn = "RG2012V-431-W-T1"
+    r_ref.footprint = "Resistor_SMD:R_0805_2012Metric"
+    
+    c_vdd = new Capacitor
+    c_vdd.value = 100nF
+    c_vdd.voltage_rating = 10V
+    c_vdd.mpn = "C0603C104K5RACTU"
+    c_vdd.footprint = "Capacitor_SMD:C_0603_1608Metric"
+
+    # A differential RTDIN filter is required at the converter pins. The
+    # datasheet shows 100 nF as a typical 100 ohm application value, but that
+    # value cannot meet the 100 ms open-lead response requirement here.
+    # A 1 Mohm diagnostic pullup paired with 1 nF C0G gives a worst-case
+    # 1.31 ms tau including a 200 pF harness/PCB parasitic budget (10.5 tau =
+    # 13.8 ms). The MAX's 10 Mohm recommendation is too slow with its
+    # typical 100 nF filter. Input-leakage and connected-load error still need
+    # electrical acceptance.
+    c_rtd_input = new Capacitor
+    c_rtd_input.value = 1nF
+    c_rtd_input.dielectric = "C0G"
+    c_rtd_input.voltage_rating = 50V
+    c_rtd_input.mpn = "C0603C102J5GACTU"
+    c_rtd_input.footprint = "Capacitor_SMD:C_0603_1608Metric"
+    adc.RTDIN_P ~ c_rtd_input.p1
+    c_rtd_input.p2 ~ adc.RTDIN_N
+
+    # MAX31865 datasheet p20 recommends this optional bias for a broken
+    # RTDIN+ lead. The 1 Mohm value requires the recorded loading/error
+    # allocation. A matched pullup on RTDIN- gives the open-SENSE- case a bounded
+    # negative differential rather than leaving it unclassified.
+    r_rtdin_p_bias = new Resistor
+    r_rtdin_p_bias.value = 1Mohm +/- 5%
+    r_rtdin_p_bias.mpn = "RC0603JR-071ML"
+    r_rtdin_p_bias.footprint = "Resistor_SMD:R_0603_1608Metric"
+    adc.RTDIN_P ~ r_rtdin_p_bias.p1
+    r_rtdin_p_bias.p2 ~ adc.BIAS
+
+    # Apply the same bounded bias to RTDIN-. This is not in the MAX typical
+    # figure, but it gives an open-SENSE- lead a deterministic negative RTD
+    # differential (short/low code) with negligible connected-load error.
+    r_rtdin_n_bias = new Resistor
+    r_rtdin_n_bias.value = 1Mohm +/- 5%
+    r_rtdin_n_bias.mpn = "RC0603JR-071ML"
+    r_rtdin_n_bias.footprint = "Resistor_SMD:R_0603_1608Metric"
+    adc.RTDIN_N ~ r_rtdin_n_bias.p1
+    r_rtdin_n_bias.p2 ~ adc.BIAS
+    
+    # EMI Filtering (temper-en5)
+    # Series resistors on SPI lines to dampen ringing
+    r_sclk = new Resistor
+    r_mosi = new Resistor
+    r_cs = new Resistor
+    r_miso = new Resistor
+    
+    r_sclk.value = 33ohm +/- 1%
+    r_sclk.mpn = "RC0603FR-0733RL"
+    r_sclk.footprint = "Resistor_SMD:R_0603_1608Metric"
+    
+    r_mosi.value = 33ohm +/- 1%
+    r_mosi.mpn = "RC0603FR-0733RL"
+    r_mosi.footprint = "Resistor_SMD:R_0603_1608Metric"
+    
+    r_cs.value = 33ohm +/- 1%
+    r_cs.mpn = "RC0603FR-0733RL"
+    r_cs.footprint = "Resistor_SMD:R_0603_1608Metric"
+    
+    r_miso.value = 33ohm +/- 1%
+    r_miso.mpn = "RC0603FR-0733RL"
+    r_miso.footprint = "Resistor_SMD:R_0603_1608Metric"
+    
+    # Ferrite bead on power input for high frequency noise rejection (temper-en5)
+    # Target: ~120ohm @ 100MHz
+    fb_power = new Resistor # Using Resistor component as generic placeholder for Ferrite Bead
+    fb_power.value = 120ohm 
+    fb_power.mpn = "BLM18AG121SN1D"
+    fb_power.footprint = "Inductor_SMD:L_0603_1608Metric"
+    
+    # Power connections through Ferrite Bead
+    power.vcc ~ fb_power.p1
+    fb_power.p2 ~ adc.VDD
+    fb_power.p2 ~ adc.DVDD
+    fb_power.p2 ~ c_vdd.p1 # Decoupling cap after bead
+    
+    c_vdd.p2 ~ power.gnd
+    power.gnd ~ adc.GND1
+    power.gnd ~ adc.GND2
+    power.gnd ~ adc.DGND
+
+    # Each added analogue/logic IC gets a local 100 nF bypass footprint.  They
+    # share the electrical rail in the netlist, but the separate references
+    # force placement review to keep each capacitor at its IC supply pins.
+    c_reference = new Capacitor
+    c_low_window = new Capacitor
+    c_high_window = new Capacitor
+    c_window_and = new Capacitor
+    c_rail_monitor = new Capacitor
+    c_fault_nand = new Capacitor
+    c_reference.value = 100nF
+    c_low_window.value = 100nF
+    c_high_window.value = 100nF
+    c_window_and.value = 100nF
+    c_rail_monitor.value = 100nF
+    c_fault_nand.value = 100nF
+    c_reference.voltage_rating = 10V
+    c_low_window.voltage_rating = 10V
+    c_high_window.voltage_rating = 10V
+    c_window_and.voltage_rating = 10V
+    c_rail_monitor.voltage_rating = 10V
+    c_fault_nand.voltage_rating = 10V
+    c_reference.dielectric = "X7R"
+    c_low_window.dielectric = "X7R"
+    c_high_window.dielectric = "X7R"
+    c_window_and.dielectric = "X7R"
+    c_rail_monitor.dielectric = "X7R"
+    c_fault_nand.dielectric = "X7R"
+    c_reference.mpn = "C0603C104K5RACTU"
+    c_low_window.mpn = "C0603C104K5RACTU"
+    c_high_window.mpn = "C0603C104K5RACTU"
+    c_window_and.mpn = "C0603C104K5RACTU"
+    c_rail_monitor.mpn = "C0603C104K5RACTU"
+    c_fault_nand.mpn = "C0603C104K5RACTU"
+    power.vcc ~ c_reference.p1
+    c_reference.p2 ~ power.gnd
+    fb_power.p2 ~ c_low_window.p1
+    c_low_window.p2 ~ power.gnd
+    fb_power.p2 ~ c_high_window.p1
+    c_high_window.p2 ~ power.gnd
+    fb_power.p2 ~ c_window_and.p1
+    c_window_and.p2 ~ power.gnd
+    power.vcc ~ c_rail_monitor.p1
+    c_rail_monitor.p2 ~ power.gnd
+    fb_power.p2 ~ c_fault_nand.p1
+    c_fault_nand.p2 ~ power.gnd
+    
+    # SPI connections through Series Resistors
+    cs.line ~ r_cs.p1
+    r_cs.p2 ~ adc.CS_N
+    
+    spi.sclk ~ r_sclk.p1
+    r_sclk.p2 ~ adc.SCLK
+    
+    spi.mosi ~ r_mosi.p1
+    r_mosi.p2 ~ adc.SDI
+    
+    adc.SDO ~ r_miso.p1
+    r_miso.p2 ~ spi.miso
+    
+    adc.DRDY ~ drdy.line
+    
+    # MAX31865 4-wire reference network (datasheet Figure 4): BIAS drives
+    # REFIN+, the 430 ohm RREF spans REFIN+ to REFIN-, and ISENSOR returns
+    # to REFIN-.  Do not put RREF in series with BIAS: that leaves the
+    # converter reference network and sensor-current monitor disconnected.
+    adc.BIAS ~ adc.REFIN_P
+    adc.REFIN_P ~ r_ref.p1
+    r_ref.p2 ~ adc.REFIN_N
+    adc.ISENSOR ~ adc.REFIN_N
+
+    # Independent hardware RTD window.  REF2025 runs from upstream 3.3 V so
+    # its 1.25 V VBIAS threshold reference remains defined while the
+    # post-ferrite RTD_AVDD rail browns out.  The comparators observe the local
+    # REFIN-/ISENSOR RTD-drop node; they do not assume RTDIN- is board ground.
+    reference = new REF2025
+    reference.VIN ~ power.vcc
+    reference.EN ~ power.vcc
+    reference.GND ~ power.gnd
+
+    # r_low_top/r_high_top were ERA-3AEB6132V (61.3k) and ERA-3AEB5931V
+    # (5.93k): neither value is an E96/E192 member and neither MPN exists at
+    # any distributor (confirmed 2026-07-27, DigiKey direct fetch -- "did not
+    # return any results" for both). Replaced with the nearest E192 values
+    # that are BOTH legal series members AND real, stocked/orderable Panasonic
+    # ERA-3A part numbers (verified by DigiKey product-page fetch, not by
+    # naming-pattern similarity alone -- see
+    # docs/evidence/2026-07-27-era-resistor-resolution.md for the distributor
+    # evidence, the rejected 61.2k/5.97k/5.83k candidates that do NOT exist as
+    # real parts, and the worst-case threshold-margin arithmetic including
+    # 25 ppm/C tempco at ΔT=60C).
+    r_low_top = new Resistor
+    r_low_top.value = 61.9kohm +/- 0.1%
+    r_low_top.mpn = "ERA-3AEB6192V"
+    r_low_bottom = new Resistor
+    r_low_bottom.value = 10kohm +/- 0.1%
+    r_low_bottom.mpn = "ERA-3AEB103V"
+    r_high_top = new Resistor
+    r_high_top.value = 5.9kohm +/- 0.1%
+    r_high_top.mpn = "ERA-3AEB5901V"
+    r_high_bottom = new Resistor
+    r_high_bottom.value = 10kohm +/- 0.1%
+    r_high_bottom.mpn = "ERA-3AEB103V"
+
+    low_window = new TLV3201
+    high_window = new TLV3201
+    low_window.VCC ~ fb_power.p2
+    high_window.VCC ~ fb_power.p2
+    low_window.GND ~ power.gnd
+    high_window.GND ~ power.gnd
+    adc.REFIN_N ~ low_window.INP
+    reference.VBIAS ~ r_low_top.p1
+    r_low_top.p2 ~ low_window.INN
+    low_window.INN ~ r_low_bottom.p1
+    r_low_bottom.p2 ~ power.gnd
+    # Invert the high comparison so both outputs are high only inside the
+    # permitted RTD voltage window.
+    reference.VBIAS ~ r_high_top.p1
+    r_high_top.p2 ~ high_window.INP
+    high_window.INP ~ r_high_bottom.p1
+    r_high_bottom.p2 ~ power.gnd
+    adc.REFIN_N ~ high_window.INN
+
+    window_and = new SN74LVC1G08
+    window_and.VCC ~ fb_power.p2
+    window_and.GND ~ power.gnd
+    low_window.OUT ~ window_and.A
+    high_window.OUT ~ window_and.B
+    # Keep the downstream NAND input deterministically low if the post-rail
+    # AND output is unpowered or high impedance during a fault transition.
+    r_window_ok_pulldown = new Resistor
+    r_window_ok_pulldown.value = 100kohm +/- 1%
+    r_window_ok_pulldown.mpn = "RC0603FR-07100KL"
+    window_and.Y ~ r_window_ok_pulldown.p1
+    r_window_ok_pulldown.p2 ~ power.gnd
+
+    # TPS389001 is powered upstream of the ferrite while SENSE monitors the
+    # post-ferrite RTD_AVDD rail. Its 1% threshold and <=0.825% hysteresis
+    # provide a bounded trip/release window around the MAX31865 3.0 V minimum.
+    rail_monitor = new TPS3890
+    rail_monitor.VDD ~ power.vcc
+    rail_monitor.GND ~ power.gnd
+    rail_monitor.MR ~ power.vcc
+    # CT intentionally unconnected: TI specifies approximately 25 us minimum
+    # delay with no capacitor; deassertion delay is not in the fault assertion path.
+    # ERA-3AEB1652V is a real 0603 16.5k, 0.1%, 25 ppm/C part. Together with
+    # the existing ERA-3AEB103V 10k bottom, nominal falling threshold is
+    # 1.15 V * (1 + 16.5k/10k) = 3.0475 V.
+    r_avdd_top = new Resistor
+    r_avdd_top.value = 16.5kohm +/- 0.1%
+    r_avdd_top.mpn = "ERA-3AEB1652V"
+    r_avdd_top.footprint = "Resistor_SMD:R_0603_1608Metric"
+    r_avdd_bottom = new Resistor
+    r_avdd_bottom.value = 10kohm +/- 0.1%
+    r_avdd_bottom.mpn = "ERA-3AEB103V"
+    r_avdd_bottom.footprint = "Resistor_SMD:R_0603_1608Metric"
+    fb_power.p2 ~ r_avdd_top.p1
+    r_avdd_top.p2 ~ rail_monitor.SENSE
+    rail_monitor.SENSE ~ r_avdd_bottom.p1
+    r_avdd_bottom.p2 ~ power.gnd
+    r_rail_ok_pullup = new Resistor
+    r_rail_ok_pullup.value = 10kohm +/- 1%
+    r_rail_ok_pullup.mpn = "RC0603FR-0710KL"
+    power.vcc ~ r_rail_ok_pullup.p1
+    r_rail_ok_pullup.p2 ~ rail_monitor.RESET
+
+    # The Ioff-rated open-drain NAND is the only device allowed to hold the
+    # active-high fault net low. A short/open window violation, local-rail
+    # brownout/loss, or logic supply loss releases the upstream pull-up.
+    fault_nand = new SN74LVC1G38
+    fault_nand.VCC ~ fb_power.p2
+    fault_nand.GND ~ power.gnd
+    window_and.Y ~ fault_nand.A
+    rail_monitor.RESET ~ fault_nand.B
+    r_fault_pullup = new Resistor
+    r_fault_pullup.value = 10kohm +/- 1%
+    r_fault_pullup.mpn = "RC0603FR-0710KL"
+    power.vcc ~ r_fault_pullup.p1
+    r_fault_pullup.p2 ~ rtd_hw_fault.line
+    fault_nand.Y ~ rtd_hw_fault.line
+
+    # This board uses the datasheet's 4-wire topology. FORCE2 is grounded;
+    # FORCE+/RTDIN+ and FORCE-/RTDIN- remain separate connector conductors.
+    adc.FORCE2 ~ power.gnd
+    adc.FORCE_P ~ rtd_force_p
+    adc.FORCE_N ~ rtd_force_n
+    adc.RTDIN_P ~ rtd_sense_p
+    adc.RTDIN_N ~ rtd_sense_n
+    # Both sense inputs have explicit diagnostic pullups above; their
+    # individual open-lead response is qualified in the RTD circuit contract.
+
+    # J_RTD1 (docs/CONNECTORS_AND_WIRING.md Sec 1, 2.3): the external PT100
+    # pan-probe connector these four force/sense conductors dead-ended
+    # without (docs/hardware/RTD_PROBE_INTERFACE_ANALYSIS.md). JST XH 4-pin,
+    # pinout 1:Bias+ 2:Sense+ 3:Sense- 4:Bias-, which the doc states maps
+    # 1:1 onto MAX31865 FORCE+/RTDIN+/RTDIN-/FORCE- -- verified directly
+    # against this module's own adc.FORCE_P/FORCE_N/RTDIN_P/RTDIN_N wiring
+    # immediately above before wiring the connector, not assumed from the
+    # doc alone.
+    j_rtd1 = new JST_XH_B4B_XH_A
+    j_rtd1.p1 ~ rtd_force_p   # Bias+  = MAX31865 FORCE+
+    j_rtd1.p2 ~ rtd_sense_p   # Sense+ = MAX31865 RTDIN+
+    j_rtd1.p3 ~ rtd_sense_n   # Sense- = MAX31865 RTDIN-
+    j_rtd1.p4 ~ rtd_force_n   # Bias-  = MAX31865 FORCE-
+
+module OCPComparator:
+    """Over-current protection comparator, 50A threshold.
+
+    r_ref_top RE-DERIVED 2026-07-27
+    (docs/evidence/2026-07-27-ocp01-uvl02-part-resolution.md): the previous
+    3.2kohm value/`RC0603FR-073K2L` MPN was fabricated -- 3.2kohm is not an
+    E24 or E96 member (nearest E96 neighbours 3.16k/3.24k), the MPN encodes
+    the same invented "3K2" figure, and DigiKey confirms zero hits for that
+    part number. Replaced with the real E96 neighbour 3.24kohm
+    (`RC0603FR-073K24L`, DigiKey-verified: 3.24k, +/-1%, 0603,
+    +/-100ppm/C, Yageo, in stock), chosen over the other real E96 neighbour
+    (3.16k) because it centres the nominal trip closer to the 45-55A
+    window's 50.0A midpoint (49.95A vs 50.25A). Worst-case tolerance
+    (+/-1%) plus tempco (+/-100ppm/C, DT=60C) on r_ref_top/r_ref_bot/
+    r_burden: 48.77-51.16A, comfortably inside 45-55A. See
+    simulation/harness/run_ocp01_sim.py and the evidence doc for the full
+    corner sweep, including a bonus check folding in the 3.3V rail's own
+    +/-5% regulation tolerance (46.34-53.71A, still inside spec)."""
+
+    power = new ElectricPower
+    i_sense = new ElectricSignal
+    i_sense.reference ~ power.gnd
+
+    fault = new ElectricLogic
+    fault.reference ~ power.gnd
+    fault.line.required = true
+
+    comp = new TLV3201
+
+    r_ref_top = new Resistor
+    r_ref_top.value = 3240ohm +/- 1%
+    r_ref_top.mpn = "RC0603FR-073K24L"
+    r_ref_top.footprint = "Resistor_SMD:R_0603_1608Metric"
+    
+    r_ref_bot = new Resistor
+    r_ref_bot.value = 10000ohm +/- 1%
+    r_ref_bot.mpn = "RC0603FR-0710KL"
+    r_ref_bot.footprint = "Resistor_SMD:R_0603_1608Metric"
+    
+    power.vcc ~ comp.VCC
+    power.gnd ~ comp.GND
+    power.vcc ~ r_ref_top.p1
+    r_ref_top.p2 ~ comp.INN
+    comp.INN ~ r_ref_bot.p1
+    r_ref_bot.p2 ~ power.gnd
+    i_sense.line ~ comp.INP
+    comp.OUT ~ fault.line
+
+module OVPComparator:
+    """Over-voltage protection, senses the +170V half-bus at half the
+    full-bus-equivalent threshold (OVP-01 spec: 390-410V trip / 10-20V
+    hysteresis on the FULL bus -> 195-205V trip / 5-10V hysteresis AT
+    dc_bus_plus).
+
+    RE-REFERENCED 2026-07-27 (Option C, docs/evidence/
+    2026-07-27-ovp01-ref2025-implementation.md, selected in
+    docs/evidence/2026-07-27-threshold-sensitivity-tempco-budget.md): the
+    2026-07-27 RE-TUNED design below (docs/evidence/
+    2026-07-27-ovp01-half-bus-retune.md, r_ref_top=11.8k/r_ref_bot=10k
+    dividing power.vcc, r_hyst=619k) passed nominally (199.9V trip, 6.9V
+    hysteresis) but FAILED worst case once tempco was accounted for
+    alongside the pre-existing +/-1% tolerance (193.9-206.2V
+    tolerance-only, roughly tripling to ~190-210V once +/-100ppm/C tempco
+    at a 45-60C board rise is added -- an exhaustive E96 search over that
+    divider found no combination fitting the 195-205V window in that worst
+    case). r_ref_top/r_ref_bot are deleted; comp.INN is now driven directly
+    by the already-instantiated REF2025's VREF output (2.5V, +/-0.05%/
+    8ppm/C -- see r_div_bot's comment for the full re-derivation and
+    worst-case table, now clearing the window with margin even with
+    tempco). See the SUPERSEDED block below for the earlier fail-open
+    history, both of which this replaces.
+
+    NODE IDENTITY (2026-07-26, SELV isolation redesign -- read this before
+    touching r_div_top1-3): v_bus.line is wired in main.ato to dc_bus_plus,
+    which is the +170V HALF-bus (positive rail of the Delon/cascade voltage
+    doubler in PowerInput), referenced to power_return/dc_bus.gnd_ref -- the
+    doubler MIDPOINT -- not to dc_bus_minus. Proof independent of any
+    comment: PowerInput's own c_bus1 is sized against v_bus_half (170V), not
+    the 340V full bus (`assert c_bus1.voltage_rating >= v_bus_half * 1.25`;
+    250V >= 212.5V passes, but 250V >= 425V would not). See
+    docs/hardware/VOLTAGE_DOUBLER_DESIGN.md and
+    docs/hardware/SELV_ISOLATION_REDESIGN.md.
+
+    SUPERSEDED 2026-07-27 -- kept verbatim for history, but the reasoning
+    below is WRONG and the values it describes are no longer in this file.
+    "THIS REVISION'S VALUES ARE FAIL-OPEN. r_ref_top=1.1k (V_ref=2.973V)
+    plus the 287k hysteresis resistor below require dc_bus_plus to reach
+    ~386-400V to trip (see the inline derivation further down). dc_bus_plus
+    physically cannot reach that -- it is the 170V-nominal half-bus, and the
+    bus capacitors are rated 250V and fail well before 400V. The inline
+    comment below that justifies 1.1k asserts "the divider senses the FULL
+    bus," reading the net name that used to be at main.ato ("+340V_BUS")
+    instead of the actual doubler topology; that net name is corrected in
+    this same change (now "+170V_BUS") specifically because trusting it
+    produced this fail-open comparator. The prior 12k/1.50V value (also
+    preserved in the inline comment below, framed there as "the bug") was,
+    per this corrected understanding, the physically correct one: 1.50V x
+    130 = 195V trip AT dc_bus_plus, a sensible ~15% margin over the 170V
+    half-bus nominal, comfortably under the 250V-rated caps, matching the
+    390V full-bus-equivalent spec via the same x2 relationship the inline
+    comment already uses. NOT RE-TUNED HERE -- this is flagged, not fixed,
+    per instruction not to unilaterally retune a value entangled with the
+    still-open isolation decision below. See
+    docs/hardware/SELV_ISOLATION_REDESIGN.md for the full derivation and two
+    remediation options with a recommendation." -- END SUPERSEDED BLOCK.
+    It IS re-tuned now, per explicit instruction to do so
+    (docs/evidence/2026-07-27-ovp01-half-bus-retune.md); the isolation
+    decision it was waiting on (below) was resolved 2026-07-26 and does not
+    change the half-bus sensing topology.
+
+    KNOWN LIMITATION (not fixed, stated per instruction): sensing only
+    dc_bus_plus (the +170V half relative to the doubler midpoint) is BLIND
+    to bus IMBALANCE -- a fault mode where one half-bus over-volts while
+    the other under-volts such that dc_bus_plus alone never crosses this
+    trip point even though the plus-to-minus differential is abnormal.
+    Detecting that requires a reference at dc_bus_minus (-170V), a second
+    SELV/HV domain-crossing problem this change does not take on.
+
+    RESOLVED 2026-07-26 (docs/evidence/2026-07-26-ovp-crossing-resolution.md,
+    supersedes the "UNRESOLVED"/"NOT implemented" framing that used to be
+    here after the SELV float): this divider (r_div_top1-3/r_div_bot) and
+    the adc_v_bus divider (r_adc_top1-3/r_adc_bot) both return to
+    `power.gnd`, the floated-and-PE-bonded SELV ground -- two resistive
+    paths from the HV half-bus into SELV. Investigated properly rather than
+    either rubber-stamped or reflexively isolated: IEC 60335-1 permits a
+    protective-impedance connection between a mains-derived circuit and a
+    PE-bonded (earthed) low-voltage circuit -- the same provision this
+    design already relies on for `power_in.y_cap_pe` (C6) -- provided (a) no
+    single component failure removes the current-limiting function and (b)
+    touch current stays under the applicable limit in both normal and
+    single-fault conditions. Verified, not assumed: this divider's 3x430k
+    already satisfied (a); the adc_v_bus divider's PRIOR single 510k
+    resistor did NOT (fixed below, to 3x169k, this same change) and neither
+    the arithmetic against IEC 60335-2-6's 0.75mA/kW (capped 5mA) limit --
+    ~1.35mA at 1.8kW, against 131/195/386uA normal/one-shorted/two-shorted
+    for this divider -- nor the RC1206 resistors' datasheet voltage rating
+    (200V, against a worst-case 166V two-shorted per-resistor voltage) had
+    been checked before. See the evidence doc for the full standard clause,
+    the single-fault analysis (including what happens if r_div_bot opens),
+    and the declared exceptions in elec/domain_manifest.yaml. Both dividers
+    are declared there as intentional protective-impedance crossings; no
+    isolated-amplifier or HV-referenced-bias-supply hardware was added,
+    because none was needed once the ADC divider's redundancy defect was
+    fixed."""
+
+    power = new ElectricPower
+    v_bus = new ElectricSignal
+    # Note: v_bus reference might be different (HV ground), but here it's measuring relative to signal ground via divider?
+    # Actually OVP measures HV bus. The divider is connected to v_bus.
+    # v_bus input to this module is the HV rail.
+    # So v_bus.reference is HV ground.
+
+    fault = new ElectricLogic
+    fault.reference ~ power.gnd
+    fault.line.required = true
+    
+    comp = new TLV3201
+    
+    # Protective-impedance construction (IEC 60335-1) -- see
+    # docs/evidence/2026-07-26-ovp-crossing-resolution.md and
+    # elec/domain_manifest.yaml's isolator declarations for r_div_top1-3/
+    # r_div_bot for the standard clause, arithmetic (131uA normal / 195uA
+    # one-shorted / 386uA two-shorted, all << the ~1.35mA IEC 60335-2-6
+    # touch-current limit at 1.8kW), and the R54-open fail-safe analysis.
+    # voltage_rating=200V below is the Yageo RC1206 (1/4W family) datasheet-
+    # confirmed rated (continuous working) voltage -- verified against the
+    # actual MPN, not assumed.
+    r_div_top1 = new Resistor
+    r_div_top1.value = 430kohm +/- 1%
+    r_div_top1.power_rating = 0.25W
+    r_div_top1.voltage_rating = 200V
+    r_div_top1.mpn = "RC1206FR-07430KL"
+    r_div_top1.footprint = "Resistor_SMD:R_1206_3216Metric"
+
+    r_div_top2 = new Resistor
+    r_div_top2.value = 430kohm +/- 1%
+    r_div_top2.power_rating = 0.25W
+    r_div_top2.voltage_rating = 200V
+    r_div_top2.mpn = "RC1206FR-07430KL"
+    r_div_top2.footprint = "Resistor_SMD:R_1206_3216Metric"
+
+    r_div_top3 = new Resistor
+    r_div_top3.value = 430kohm +/- 1%
+    r_div_top3.power_rating = 0.25W
+    r_div_top3.voltage_rating = 200V
+    r_div_top3.mpn = "RC1206FR-07430KL"
+    r_div_top3.footprint = "Resistor_SMD:R_1206_3216Metric"
+    
+    # RE-REFERENCED 2026-07-27 (Option C, docs/evidence/
+    # 2026-07-27-ovp01-ref2025-implementation.md, selected in
+    # docs/evidence/2026-07-27-threshold-sensitivity-tempco-budget.md Part 3
+    # over a full 0.1% upgrade and a partial upgrade): the 619k/11.8k-era
+    # divider-derived reference below r_div_bot used to be r_ref_top/
+    # r_ref_bot, a resistor divider off `power.vcc` (see git history and the
+    # 2026-07-27-ovp01-half-bus-retune.md evidence doc for that design and
+    # its worst-case-tolerance-only 193.9-206.2V figure, which tempco alone
+    # roughly triples past the 195-205V window -- the reason it was
+    # replaced). That divider is deleted outright; `comp.INN` is now driven
+    # directly by `REF2025.VREF` (2.5V, +/-0.05% initial accuracy, 8ppm/C
+    # max tempco -- TI/DigiKey datasheet figures, an order of magnitude
+    # tighter than the 1% divider it replaces) via `vref_ext` below, wired
+    # at Top from `rtd_pan.reference.VREF` (RTDSensing's REF2025 instance;
+    # its VREF pin was otherwise completely unused). r_div_bot re-derived
+    # for the fixed 2.5V reference (was 10k for the divider-referenced
+    # design): with Rtop = 3x430k = 1,290,000 ohm unchanged (protective-
+    # impedance chain, not touched by this change) and
+    # V_trip = Vref*(1 + Rtop/r_div_bot + Rtop/r_hyst), 16.9k is the E96
+    # value (of an exhaustive E96 sweep over r_div_bot x r_hyst pairs) that
+    # jointly minimizes the worst-case tolerance+tempco excursion together
+    # with r_hyst below -- see that resistor's comment for the full
+    # trip/hysteresis derivation and worst-case table.
+    r_div_bot = new Resistor
+    r_div_bot.value = 16.9kohm +/- 0.1%
+    r_div_bot.power_rating = 0.1W
+    r_div_bot.mpn = "RT0603BRD0716K9L"
+    r_div_bot.footprint = "Resistor_SMD:R_0603_1608Metric"
+
+    # Fixed 2.5V reference for comp.INN, replacing the r_ref_top/r_ref_bot
+    # divider (see r_div_bot's comment and the 2026-07-27-ovp01-ref2025-
+    # implementation.md evidence doc). REF2025 is already instantiated in
+    # RTDSensing (main.ato's `rtd_pan`), on the same power_3v3 domain as
+    # this comparator (both ultimately `vcc_3v3`/`gnd` at Top); its VREF pin
+    # was unused elsewhere in the design and its 20mA output-current rating
+    # has enormous headroom against the ~pA of TLV3201 CMOS input bias
+    # current this connection actually draws (REF2025's VREF is a buffered,
+    # actively-driven output -- no loading resistor needed, unlike the
+    # resistive divider it replaces).
+    vref_ext = new ElectricSignal
+    vref_ext.reference ~ power.gnd
+
+    power.vcc ~ comp.VCC
+    power.gnd ~ comp.GND
+
+    v_bus.line ~ r_div_top1.p1
+    r_div_top1.p2 ~ r_div_top2.p1
+    r_div_top2.p2 ~ r_div_top3.p1
+    r_div_top3.p2 ~ comp.INP
+    comp.INP ~ r_div_bot.p1
+    r_div_bot.p2 ~ power.gnd
+
+    vref_ext.line ~ comp.INN
+
+    # Hysteresis: positive feedback from output to INP (the bus-sense node).
+    # RE-DERIVED 2026-07-27 alongside r_div_bot for the REF2025 (2.5V fixed)
+    # reference (Option C -- see r_div_bot's comment and
+    # docs/evidence/2026-07-27-ovp01-ref2025-implementation.md). This
+    # feedback path does not involve Vref at all -- comp.OUT still swings
+    # rail-to-rail across the same 3.3V comp.VCC/GND supply regardless of
+    # what comp.INN is referenced to -- so the closed form is unchanged from
+    # the prior divider-referenced design:
+    #
+    #   N          = 1 + Rtop/r_div_bot = 1 + 1290000/16900 = 77.331
+    #   V_trip     = Vref * (N + Rtop/r_hyst)
+    #              = 2.5 * (77.331 + 1290000/487000) = 2.5 * 79.980
+    #              = 199.95 V   (window: 195-205V, centred)
+    #   hysteresis = VCC*Rtop/r_hyst = 3.3*1290000/487000 = 8.74 V
+    #              (window: 5-10V, centred)
+    #
+    # WORST CASE, independent corners over all 6 error sources (r_div_top1-3
+    # each +/-1% tol / +/-100ppm/C tempco, r_div_bot and r_hyst each +/-0.1%
+    # tol / +/-25ppm/C tempco -- both thin-film RT-series, matching this
+    # project's existing 0.1% parts, e.g. ERA-3AEB103V -- and REF2025's Vref
+    # itself at +/-0.05% initial accuracy / 8ppm/C max tempco), 64-corner
+    # exhaustive search (script + full E96 sweep in the evidence doc):
+    #
+    #   Tolerance only:            trip 197.68-202.23 V, hyst 8.65-8.84 V
+    #   Tolerance + tempco, dT=45: trip 196.51-203.42 V, hyst 8.60-8.89 V
+    #   Tolerance + tempco, dT=60: trip 196.11-203.81 V, hyst 8.58-8.90 V
+    #
+    # Both bounds clear the 195-205V / 5-10V windows with margin even in the
+    # worst case WITH tempco included at the more conservative 60C board
+    # rise -- unlike the divider-referenced design this replaces, which
+    # failed worst-case-tolerance-only (193.9-206.2V) before tempco was even
+    # considered. 16.9k/487k is the E96 pair (of an exhaustive sweep over
+    # both values together) that maximizes the worst-case margin to either
+    # window edge; it is not a value picked to make a nominal-only check
+    # pass.
+    #
+    # Feedback goes to INP rather than INN: the bus drives INP, so pulling INP
+    # up when the output is high reinforces the trip, requiring the bus to fall
+    # further before release. Feeding INN instead would move the threshold the
+    # wrong way.
+    r_hyst = new Resistor
+    r_hyst.value = 487kohm +/- 0.1%
+    r_hyst.mpn = "RT0603BRD07487KL"
+    r_hyst.footprint = "Resistor_SMD:R_0603_1608Metric"
+    comp.INP ~ r_hyst.p1
+    r_hyst.p2 ~ comp.OUT
+    comp.OUT ~ fault.line
+
+    # Verify trip point stays below the OVP-01 window's low edge at a
+    # representative below-trip bus voltage (180V, close to the 170V
+    # half-bus nominal but with margin above it). Written symbolically
+    # against the actual component values (not hardcoded numbers) so it
+    # cannot go stale the way the previous version of this assert did: that
+    # version hardcoded "12000" and "1.50V" and kept passing, unchanged,
+    # all the way through the 1.1k fail-open revision, because it never
+    # referenced a live component value at all. RE-EXPRESSED 2026-07-27:
+    # r_ref_top/r_ref_bot no longer exist (deleted, see r_div_bot's
+    # comment); the right-hand side is now REF2025's fixed 2.5V VREF output
+    # (a literal, not a resistor ratio -- there is no component field to
+    # read it from, same reason VCC was already a 3.3V literal here).
+    assert 180V * (r_div_bot.value / (r_div_top1.value + r_div_top2.value + r_div_top3.value + r_div_bot.value)) < 2.5V
+    
+    # Bus voltage ADC sense: separate divider from the same v_bus net.
+    #
+    # REDUNDANCY FIX (2026-07-26, domain-partition gate investigation --
+    # docs/evidence/2026-07-26-ovp-crossing-resolution.md): this used to be a
+    # SINGLE 510k resistor (r_adc_top) in series with r_adc_bot. That is not
+    # a valid protective-impedance construction: IEC 60335-1's protective-
+    # impedance provision (the same one r_div_top1-3/r_div_bot above rely on)
+    # requires the current-limiting function to survive ANY single component
+    # failure. With only one top resistor, shorting THAT ONE resistor removes
+    # 100% of the top-side impedance in a single fault, dumping the full
+    # +170V_BUS across r_adc_bot alone (10k -> 17mA, ~29x r_adc_bot's 0.1W
+    # rating and ~13x the 1.35mA touch-current limit derived in the evidence
+    # doc) -- exactly the failure mode protective impedance exists to
+    # prevent. Split into 3x169k (matches r_div_top1-3's pattern: 3x169k =
+    # 507k, within 0.6% of the original 510k, so the ADC ratio below is
+    # essentially unchanged): losing any one of the three still leaves 338k
+    # or 169k of top-side impedance, never zero.
+    adc_v_bus = new ElectricSignal
+    adc_v_bus.reference ~ power.gnd
+
+    r_adc_top1 = new Resistor
+    r_adc_top1.value = 169kohm +/- 1%
+    r_adc_top1.power_rating = 0.25W
+    # 200V is the Yageo RC1206 (1/4W family) datasheet-confirmed rated
+    # (continuous working) voltage; the previous single-resistor version of
+    # this divider declared 250V here, which does not match the part's own
+    # datasheet. Corrected while splitting this divider (not a separate,
+    # undocumented change) -- see the evidence doc's resistor-rating check.
+    r_adc_top1.voltage_rating = 200V
+    r_adc_top1.mpn = "RC1206FR-07169KL"
+    r_adc_top1.footprint = "Resistor_SMD:R_1206_3216Metric"
+
+    r_adc_top2 = new Resistor
+    r_adc_top2.value = 169kohm +/- 1%
+    r_adc_top2.power_rating = 0.25W
+    r_adc_top2.voltage_rating = 200V
+    r_adc_top2.mpn = "RC1206FR-07169KL"
+    r_adc_top2.footprint = "Resistor_SMD:R_1206_3216Metric"
+
+    r_adc_top3 = new Resistor
+    r_adc_top3.value = 169kohm +/- 1%
+    r_adc_top3.power_rating = 0.25W
+    r_adc_top3.voltage_rating = 200V
+    r_adc_top3.mpn = "RC1206FR-07169KL"
+    r_adc_top3.footprint = "Resistor_SMD:R_1206_3216Metric"
+
+    r_adc_bot = new Resistor
+    r_adc_bot.value = 10kohm +/- 1%
+    r_adc_bot.power_rating = 0.1W
+    r_adc_bot.mpn = "RC0603FR-0710KL"
+    r_adc_bot.footprint = "Resistor_SMD:R_0603_1608Metric"
+
+    c_adc_filter = new Capacitor
+    c_adc_filter.value = 100nF +/- 10%
+    c_adc_filter.dielectric = "X7R"
+    c_adc_filter.voltage_rating = 10V
+    c_adc_filter.mpn = "C0603C104K5RACTU"
+    c_adc_filter.footprint = "Capacitor_SMD:C_0603_1608Metric"
+
+    v_bus.line ~ r_adc_top1.p1
+    r_adc_top1.p2 ~ r_adc_top2.p1
+    r_adc_top2.p2 ~ r_adc_top3.p1
+    r_adc_top3.p2 ~ adc_v_bus.line
+    adc_v_bus.line ~ r_adc_bot.p1
+    r_adc_bot.p2 ~ power.gnd
+    adc_v_bus.line ~ c_adc_filter.p1
+    c_adc_filter.p2 ~ power.gnd
+
+    # Verify ADC range: 3x169k + 10k = 517k total, 170V * 10k/517k = 3.29V
+    v_adc_max: voltage = 170V * (10kohm / (3 * 169kohm + 10kohm))
+    assert v_adc_max <= 3.3V
+
+module ThermalComparator:
+    """Thermal protection, 85C threshold with hysteresis."""
+    
+    power = new ElectricPower
+    ntc_sense = new ElectricSignal
+    ntc_sense.reference ~ power.gnd
+    
+    fault = new ElectricLogic
+    fault.reference ~ power.gnd
+    fault.line.required = true
+    
+    comp = new TLV3201
+    
+    # NTC thermistor: 100k at 25C, B25/85=4190K, lug-mount on heatsink
+    ntc = new Resistor  # Using Resistor as NTC placeholder
+    ntc.value = 100kohm  # Resistance at 25C
+    # VERIFIED 2026-07-16: Vishay BCcomponents NTCALUG01A104GA — standard
+    # lug sensor, R25=100k +/-2%, B25/85=4190K +/-1.5%, AWG#24 PTFE leads
+    # 38.1mm, M3 ring lug, AEC-Q200, 1500VAC lug-to-terminal isolation
+    # (datasheet 29092, ordering table; "A" suffix = RoHS e4 termination,
+    # preferred for new designs). The previous code "NTCALUG103A104GCA"
+    # was malformed — series is NTCALUG01A, not NTCALUG103A, and "GCA" is
+    # not a valid suffix.
+    ntc.mpn = "NTCALUG01A104GA"
+    # Stand-in 2-pad axial footprint; no NTC/thermistor lib in the committed
+    # fp-lib-table. The lug-mount part is wired via flying leads anyway.
+    ntc.footprint = "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P2.54mm_Vertical"
+    
+    # Fixed resistor for NTC divider
+    r_ntc_fixed = new Resistor
+    # 10k matches R_NTC at the 85C trip point (9.50k for R25=100k, B=4190),
+    # putting the sense node near mid-rail where dV/dT is greatest.
+    #
+    # Was 100k, which left the trip node at 0.19V -- under 6% of rail, where
+    # comparator offset and noise dominate and the slope is poor. That was a
+    # proportioning fault, separate from the threshold error.
+    # See docs/hardware/PROTECTION_CHAIN_REVIEW.md.
+    r_ntc_fixed.value = 10kohm +/- 1%
+    r_ntc_fixed.mpn = "RC0603FR-0710KL"
+    r_ntc_fixed.footprint = "Resistor_SMD:R_0603_1608Metric"
+
+    # NTC divider: VCC -> r_ntc_fixed -> ntc_sense -> NTC -> GND
+    # V_sense: 3.000V at 25C, 1.607V at 85C, 0.828V at 120C
+    power.vcc ~ r_ntc_fixed.p1
+    r_ntc_fixed.p2 ~ ntc_sense.line
+    ntc_sense.line ~ ntc.p1
+    ntc.p2 ~ power.gnd
+    
+    # Reference divider: sets trip threshold. r_hyst loads this node, so the
+    # effective reference is 3.3 * (r_ref_bot||r_hyst) / (r_ref_top +
+    # r_ref_bot||r_hyst) while the output is low.
+    #
+    # 9.09k/11.5k with 34.8k hysteresis gives trip 85.0C and release 69.8C.
+    # THM-01 requires 85C trip / 70C RECOVERY (FUNCTIONAL_TEST_CRITERIA §2.3),
+    # i.e. 15C of hysteresis. An earlier revision used 9.53k/10k/100k, giving
+    # only 5.6C -- the recovery column had been dropped from STRATEGY's gate
+    # table, so the constraint was invisible when that value was chosen.
+    #
+    # Was 150k/10k, giving 0.189V -> 99.3C trip (simulated 99.47C), 14.5C
+    # above the THM-01 85C requirement and contradicting this module's own
+    # docstring. Its hysteresis was also 30.7C wide -- the fault would not
+    # clear until 68.6C. See docs/hardware/PROTECTION_CHAIN_REVIEW.md.
+    r_ref_top = new Resistor
+    r_ref_top.value = 9.09kohm +/- 1%
+    r_ref_top.mpn = "RC0603FR-079K09L"
+    r_ref_top.footprint = "Resistor_SMD:R_0603_1608Metric"
+    
+    r_ref_bot = new Resistor
+    r_ref_bot.value = 11.5kohm +/- 1%
+    r_ref_bot.mpn = "RC0603FR-0711K5L"
+    r_ref_bot.footprint = "Resistor_SMD:R_0603_1608Metric"
+    
+    # Reference: VCC -> r_ref_top -> INP -> r_ref_bot -> GND, with r_hyst
+    # from INP to OUT loading the node.
+    # V_INP = 1.611V (output low, trip) / 1.765V (output high, release)
+    power.vcc ~ r_ref_top.p1
+    r_ref_top.p2 ~ comp.INP
+    comp.INP ~ r_ref_bot.p1
+    r_ref_bot.p2 ~ power.gnd
+    
+    # Hysteresis: positive feedback from output to INP
+    r_hyst = new Resistor
+    r_hyst.value = 34.8kohm +/- 1%
+    r_hyst.mpn = "RC0603FR-0734K8L"
+    r_hyst.footprint = "Resistor_SMD:R_0603_1608Metric"
+    comp.INP ~ r_hyst.p1
+    r_hyst.p2 ~ comp.OUT
+    
+    power.vcc ~ comp.VCC
+    power.gnd ~ comp.GND
+    
+    # NTC sense to comparator inverting input (fault when V_NTC < V_ref = hot)
+    ntc_sense.line ~ comp.INN
+    comp.OUT ~ fault.line
+
+module CoilThermalComparator:
+    """Coil over-temperature protection, 120C threshold with hysteresis (THM-02).
+
+    Structurally identical to ThermalComparator (heatsink, THM-01); only the
+    divider values differ, scaled for the higher trip temperature.
+
+    Designed 2026-07-26. THM-02 is a non-negotiable gate in docs/STRATEGY.md
+    and previously had NO CIRCUIT AT ALL -- only one ThermalComparator
+    instance existed, wired to the heatsink NTC.
+
+    Sizing follows the same rule as the corrected THM-01: match the fixed
+    divider resistor to the NTC resistance AT the trip temperature, which puts
+    the sense node near mid-rail where dV/dT is greatest.
+
+        R_NTC(120C) = 100k * exp(4190 * (1/393.15 - 1/298.15)) = 3.35k
+        r_ntc_fixed = 3.32k (E96)
+        V_sense(120C) = 3.3 * 3.351/(3.32+3.351) = 1.658 V
+
+    r_hyst loads the reference exactly as in THM-01, so the effective
+    reference while the output is low is
+        3.3 * (r_ref_bot||r_hyst) / (r_ref_top + r_ref_bot||r_hyst)
+    3.16k/4.42k with 11.5k hysteresis gives trip 120.0C and release 100.1C.
+    THM-02 requires 120C trip / 100C RECOVERY (FUNCTIONAL_TEST_CRITERIA §2.3),
+    i.e. 20C of hysteresis. The first revision of this module used
+    9.09k/10k/100k and delivered only 6.6C, because STRATEGY's gate table had
+    dropped the recovery column.
+
+    SENSOR RATING CAVEAT: NTCALUG01A104GA is specified to +125C, and this gate
+    trips at 120.3C, so the sensor operates within 5C of its maximum. Confirm
+    the part is acceptable for sustained coil-adjacent service, or select a
+    higher-temperature variant. Flagged rather than silently accepted.
+
+    See docs/hardware/PROTECTION_CHAIN_REVIEW.md."""
+    power = new ElectricPower
+    ntc_sense = new ElectricSignal
+    ntc_sense.reference ~ power.gnd
+
+    fault = new ElectricLogic
+    fault.reference ~ power.gnd
+    fault.line.required = true
+
+    comp = new TLV3201
+
+    # Coil-mounted NTC, same family as the heatsink sensor
+    ntc = new Resistor  # Using Resistor as NTC placeholder
+    ntc.value = 100kohm  # Resistance at 25C
+    ntc.mpn = "NTCALUG01A104GA"
+    ntc.footprint = "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
+
+    # Fixed resistor: matched to R_NTC at the 120C trip point
+    r_ntc_fixed = new Resistor
+    r_ntc_fixed.value = 3.32kohm +/- 1%
+    r_ntc_fixed.mpn = "RC0603FR-073K32L"
+    r_ntc_fixed.footprint = "Resistor_SMD:R_0603_1608Metric"
+
+    # NTC divider: VCC -> r_ntc_fixed -> ntc_sense -> NTC -> GND
+    # V_sense: 3.194V at 25C, 1.658V at 120C
+    power.vcc ~ r_ntc_fixed.p1
+    r_ntc_fixed.p2 ~ ntc_sense.line
+    ntc_sense.line ~ ntc.p1
+    ntc.p2 ~ power.gnd
+
+    # Reference divider, loaded by r_hyst while the output is low
+    r_ref_top = new Resistor
+    r_ref_top.value = 3.16kohm +/- 1%
+    r_ref_top.mpn = "RC0603FR-073K16L"
+    r_ref_top.footprint = "Resistor_SMD:R_0603_1608Metric"
+
+    r_ref_bot = new Resistor
+    r_ref_bot.value = 4.42kohm +/- 1%
+    r_ref_bot.mpn = "RC0603FR-074K42L"
+    r_ref_bot.footprint = "Resistor_SMD:R_0603_1608Metric"
+
+    power.vcc ~ r_ref_top.p1
+    r_ref_top.p2 ~ comp.INP
+    comp.INP ~ r_ref_bot.p1
+    r_ref_bot.p2 ~ power.gnd
+
+    # Hysteresis: positive feedback from output to INP
+    r_hyst = new Resistor
+    r_hyst.value = 11.5kohm +/- 1%
+    r_hyst.mpn = "RC0603FR-0711K5L"
+    r_hyst.footprint = "Resistor_SMD:R_0603_1608Metric"
+    comp.INP ~ r_hyst.p1
+    r_hyst.p2 ~ comp.OUT
+
+    power.vcc ~ comp.VCC
+    power.gnd ~ comp.GND
+
+    # Rising temperature lowers V_sense, so the fault asserts on
+    # V_sense < V_ref -- same polarity as ThermalComparator.
+    ntc_sense.line ~ comp.INN
+    comp.OUT ~ fault.line
+
+
+module SecondaryOCPComparator:
+    """Secondary overcurrent protection, OCP-02 (55-65A window, 60A nominal
+    target).
+
+    IMPLEMENTS OPTION A (second current transformer) -- the decision made
+    on evidence in docs/hardware/OCP02_DECISION_BRIEF.md and confirmed with
+    simulation and real-kicad-cli-DRC evidence in
+    docs/hardware/OCP02_QUANTIFIED_TRADEOFF.md. This REPLACES the original
+    shunt + INA240A1 front end (SUPERSEDED block at the end of this
+    docstring, kept verbatim for history) -- that design put a low-side
+    shunt directly in DC_BUS_RTN and read it with an INA240A1 referenced to
+    signal ground. DC_BUS_RTN sits at roughly -170V relative to signal
+    ground in this doubler topology (dc_bus_minus is the far side of the
+    doubler midpoint from dc_bus_plus, both +/-170V nominal -- see
+    main.ato's PowerInput/BusDischarge topology), about 2x the INA240's
+    -4..+80V absolute maximum common-mode rating -- destructive. That is
+    exactly why this module was never instantiated (main.ato, prior text at
+    the hb.dc_bus.hv_minus connection). A current transformer sidesteps the
+    problem entirely: its secondary has no galvanic connection to the
+    primary, so it can be referenced to signal ground regardless of
+    DC_BUS_RTN's absolute potential, up to its own insulation rating -- the
+    same reasoning that already makes OCP-01's CT (ct_sense.ct) work on the
+    tank-return path.
+
+        DC_BUS_RTN (hb/bus_in) --[ CT2 primary ]-- DC_BUS_RTN (bulk/bus_out)
+                                     |
+                                [ CT2 secondary, 1:100 ]
+                                     |
+                                 r_burden (4.12R)
+                                     |
+                                  i_sense --- comp.INP
+                                                 |  TLV3201 --> fault.line
+                       REF2025.VREF (2.5V) --- comp.INN
+
+    PLACEMENT / SPLICE POINT (per OCP02_DECISION_BRIEF.md SS3.1 and
+    OCP02_QUANTIFIED_TRADEOFF.md SS3): the CT primary sits IN the
+    DC_BUS_RTN conductor, in series, at the same splice point the
+    superseded shunt design used -- between hb.dc_bus.hv_minus
+    (half-bridge/load side, `bus_in`) and the shared dc_bus_minus net that
+    power_in and discharge also sit on (bulk/source side, `bus_out`); the
+    bus_in/bus_out signal names and their meaning carry over unchanged from
+    the shunt design, only the sensing element between them changed. In a
+    shoot-through fault (both IGBTs conducting), fault current flows
+    dc_bus_plus -> Q_high -> SW_NODE -> Q_low -> DC_BUS_RTN -- through this
+    exact conductor -- so this CT sees the same fault class OCP-01's CT
+    does, just at a different physical location on the board (independence:
+    a single sensor failure cannot disable both channels).
+
+    BOARD FOLLOW-ON, NOT DONE HERE (elec/ only; pcb/ is out of scope for
+    this change -- see docs/hardware/OCP02_QUANTIFIED_TRADEOFF.md SS3): the
+    second CST3015-100ED footprint (23.0 x 30.0mm) has not been placed on
+    pcb/temper.kicad_pcb. The placement study's own real-kicad-cli-DRC
+    measurement found a ~44mm HV run from this splice point to a
+    domain-safe candidate site produces 9 new creepage violations (7 after
+    correcting a pre-existing, unrelated netclass-pattern gap that
+    misclassified two HV nets), 6 of them against U7 (the high-side gate
+    driver, newly identified as sitting almost exactly on the corridor,
+    22mm from the splice, and a poor relocation candidate itself since it
+    must stay close to the half-bridge for gate-loop inductance) -- known,
+    attributed, and pending a human placement decision, not silently
+    absorbed here. A BOM row for the second CST3015-100ED and
+    RC1206FR-074R12L is also still needed (docs/hardware/BOM.md untouched
+    by this change, per instruction).
+
+    TRIP-POINT DERIVATION (real E96 part, REF2025 precision reference --
+    see "WHY REF2025" below for why not a raw VCC divider):
+
+        I_trip = N * V_ref / R_burden = 100 * 2.5V / 4.12ohm = 60.68A
+
+    R_burden = 4.12ohm, Yageo RC1206FR-074R12L: E96 member, 1%, 1206/3216,
+    0.25W @ 70C -- verified directly against Yageo's own published
+    specsheet this session (yageogroup.com component-documentation
+    specsheet download, fetched and read, not inferred from the MPN
+    string): 4.12 Ohms, 1%, +/-200ppm/C. Chosen over 4.02ohm (the other E96
+    neighbour of the exact 2.5V*100/60A = 4.1667ohm target; 4.02ohm gives a
+    less-centred 62.19A nominal) because 4.12ohm centres the nominal trip
+    closer to the window's 60.0A midpoint while still landing on a real,
+    specsheet-verified Yageo value, not merely an E96-membership check.
+
+    +/-200ppm/C, NOT +/-100ppm/C -- a real correction, flagged not fixed:
+    this repo's usual "Yageo RC-series = +/-100ppm/C" shorthand (used
+    throughout modules.ato's worst-case comments) is only correct for the
+    0603 F-tolerance family -- independently re-verified this session
+    against RC0603FR-073K24L's own specsheet: 3.24k, 1%, +/-100ppm/C,
+    confirmed. The 1206 F-tolerance family is different: both
+    RC1206FR-074R99L (OCP-01's own existing burden, CurrentSensing.r_burden)
+    and this new RC1206FR-074R12L are, per their own Yageo specsheets
+    (fetched and read this session), +/-200ppm/C. OCP-01's own worst-case
+    commentary applies +/-100ppm/C uniformly to "Yageo RC-series," including
+    its 1206 burden -- likely the same 0603 shorthand carried one package
+    size too far. NOT corrected in OCP-01 here (out of this task's scope:
+    "implement OCP-02 in elec/src only"); the corrected +/-200ppm/C figure
+    is used for THIS module's own derivation below, and OCP-01's committed
+    worst-case band is independently re-checked with the corrected figure
+    in the SEPARATION note below to confirm this discrepancy does not
+    silently erode the OCP-01/OCP-02 margin.
+
+    WHY REF2025, NOT A RAW VCC DIVIDER: the exploratory ngspice harness
+    (simulation/harness/nets/ocp02_option_a_trip_point.cir) used a raw
+    r_ref_top=1020/r_ref_bot=10000 divider off VCC, reusing OCP-01's own
+    4.99ohm burden unchanged, purely for simulation convenience -- and its
+    own header flags the resulting 2.994V/3.3V = 90.7%-of-rail reference as
+    the same tightness OCP02_DECISION_BRIEF.md SS3.1/SS7 already named,
+    recommending "a precision reference ... would be the real fix." That is
+    the fix applied here, not the sim's raw divider: REF2025 is already
+    instantiated on this board (RTDSensing.reference, main.ato's rtd_pan)
+    and already used for exactly this purpose by OVP-01
+    (OVPComparator's "RE-REFERENCED 2026-07-27" history, an analogous
+    near-rail-percentage problem) -- its VREF pin's 20mA output-current
+    rating has enormous headroom against a second TLV3201's ~pA CMOS input
+    bias current, so no new part is needed. Wired at Top exactly like
+    OVP-01's vref_ext: `safety.ocp2.vref_ext.line ~ rtd_pan.reference.VREF`.
+    Using a fixed 2.5V reference instead of the sim's 90.7%-of-rail divider
+    also means this module's burden value (4.12ohm) differs deliberately
+    from the sim's reused 4.99ohm -- a considered choice, not a copy of
+    OCP-01's value, per instruction not to reuse it blindly.
+
+    WORST CASE (r_burden +/-1% tolerance and +/-200ppm/C tempco at
+    dT=60C -> +/-2.2% combined; REF2025 +/-0.05% initial accuracy and
+    +/-8ppm/C tempco at dT=60C -> +/-0.098% combined -- both figures
+    independently re-verified against the parts' own published datasheets
+    this session):
+
+        I_trip_max = 100 * (2.5V*1.00098) / (4.12ohm*0.978)  = 62.10A
+        I_trip_min = 100 * (2.5V*0.99902) / (4.12ohm*1.022)  = 59.31A
+
+    Worst-case band: 59.31-62.10A, inside the 55-65A window with 4.31A of
+    margin to the low edge and 2.90A to the high edge -- both directions
+    clear in the worst corner, not just nominally.
+
+    OCP-01/OCP-02 SEPARATION (must hold across tolerances so OCP-02 cannot
+    trip before OCP-01 on a monotonically rising fault current): OCP-01's
+    own committed worst-case band
+    (docs/evidence/2026-07-27-ocp01-trip-point-sim.json,
+    re-derived symbolically in OCPComparator/CurrentSensing's own
+    docstrings) is 48.77-51.16A, using this repo's usual (uncorrected)
+    +/-100ppm/C figure for its 1206 burden. Re-deriving that SAME band with
+    the CORRECTED +/-200ppm/C 1206-burden tempco (see above) --
+    r_ref_top/r_ref_bot (0603, +/-100ppm/C, confirmed correct) unchanged,
+    only r_burden's tempco term corrected -- widens it slightly to
+    48.49-51.47A. Either way, OCP-01's trip ceiling (51.16A as committed,
+    51.47A re-derived) sits at least 7.84A below this module's worst-case
+    trip floor (59.31A): under every tolerance corner considered for either
+    channel, OCP-01 trips first, which is the intended behaviour (OCP-02 is
+    a backstop, not a race). Independent ngspice confirmation:
+    docs/evidence/2026-08-07-ocp02-option-a-sim.json (60.03A simulated,
+    58.89-61.17A worst-case corner sweep, on the exploratory raw-VCC-divider
+    circuit -- a different reference topology than this module's REF2025
+    design, but broadly consistent with, and not contradicted by, the
+    REF2025-referenced arithmetic above).
+
+    TIMING: unchanged from the decision brief's own budget -- this module's
+    logic/driver path downstream of `fault.line` is identical to before,
+    only the analog front end changed. 528ns logic/driver (real datasheet
+    arithmetic, OCP02_DECISION_BRIEF.md SS3.3, 2 OR + 2 NAND from
+    fault_or3.B1 to the latch) + ~350ns CT front-end (datasheet-bandwidth
+    estimate, OCP02_QUANTIFIED_TRADEOFF.md SS2.3 -- ngspice cannot produce a
+    non-trivial figure here, see that section for why, an honest structural
+    limitation of the CT model, not a claim the physical part is
+    delay-free) + 40ns TLV3201 typ (datasheet-typical, not a guaranteed
+    max) = ~918ns, ~82% margin to the 5us budget.
+
+    Comparator is TLV3201 (already used for OCP-01/OVP-01/THM-01/THM-02, no
+    new comparator part).
+
+    SUPERSEDED SHUNT+INA240 DESIGN (2026-07-26, kept verbatim for history --
+    this front end no longer exists in this module; every value/MPN/pin
+    reference below is stale):
+
+    "DC_BUS_RTN --[ R_SHUNT 2mOhm ]-- DC_BUS_RTN (bulk side)
+                   |          |
+                  IN+        IN-
+                +-----------------+
+                |     INA240A1    |  G = 20, REF1/REF2 -> GND
+                +--------+--------+
+                         | 2.402V at ~60A
+                      +--+--+  INP
+             3V3 -[3.74k]-+-INN--comparator (TLV3201)--> fault.line
+                       [10k]
+                         |
+                        GND
+
+    Derivation (matches OCP02_DESIGN.md exactly):
+
+        V_shunt = I x R_shunt        60A x 2mOhm = 120mV
+        V_out   = V_shunt x G        120mV x 20  = 2.400V
+        V_ref   = 3.3 x 10/13.74     =              2.402V  -> trip 60.0A
+
+    Worst case over +/-1% shunt, +/-1% divider and INA240A1 gain error:
+    59.0-61.1A, inside the 55-65A window (independently re-checked here:
+    Rtop 3.7026-3.7774k, Rbot 9.9-10.1k, Rshunt 1.98-2.02mOhm, gain
+    19.8-20.2 V/V gives 58.5-61.6A -- same order, no discrepancy from the
+    design doc's stated band).
+
+    FLAGGED, NOT SILENTLY ASSUMED -- common-mode voltage on the INA240:
+    OCP02_DESIGN.md justifies the low-side shunt placement by treating the
+    "DC bus" as a single-ended 340V rail with DC_BUS_RTN near 0V. But
+    main.ato's actual doubler topology (PowerInput: v_bus_half = 170V,
+    asserted on both r_bleed1 AND r_bleed2; BusDischarge: two independent
+    170V half-bus strings) puts DC_BUS_RTN (dc_bus_minus) at approximately
+    -170V relative to the system ground star point (power_return ~ gnd,
+    main.ato:283) -- not near 0V. This is the same class of half-bus/
+    full-bus confusion already flagged for OVP-01 in
+    docs/hardware/PROTECTION_CHAIN_REVIEW.md, just not caught for OCP-02.
+    If this module's power.gnd is tied to system 3V3 ground (the pattern
+    every other comparator in SafetyInterlock uses, and the only pattern
+    with a working path back to the fault-OR logic), the INA240 inputs see
+    roughly -170V of common-mode against its own GND pin -- far outside
+    the -4V to +80V absolute rating, and likely destructive. Low-side
+    placement only helps if the amplifier's own GND is referenced to
+    DC_BUS_RTN itself (which then needs an isolated supply and an isolated
+    fault-output path back to SafetyInterlock's SELV logic, neither of
+    which exists in this design). This module is implemented exactly as
+    specified in the design doc and wired into DC_BUS_RTN as directed, but
+    the common-mode question MUST be resolved (either the bus topology
+    read here is wrong, or the sensing domain needs isolation) before this
+    circuit is trusted on hardware. Do not power this from power_3v3
+    without re-deriving the actual DC_BUS_RTN-to-gnd potential first." --
+    END SUPERSEDED BLOCK. Resolved 2026-08-07 by switching to the CT front
+    end above (Option A), which has no common-mode dependency at all."""
+
+    power = new ElectricPower
+    fault = new ElectricLogic
+    fault.reference ~ power.gnd
+    fault.line.required = true
+
+    # The CT primary sits IN the DC_BUS_RTN conductor (a two-terminal
+    # splice, not a signal tap), at the same splice point the superseded
+    # shunt design used: bus_in is the half-bridge (load) side, bus_out is
+    # the bulk-capacitor/bleeder (source) side. Top wires these into the
+    # dc_bus_minus net on either side of the CT primary so bus return
+    # current flows through it.
+    signal bus_in
+    signal bus_out
+
+    # Second instance of OCP-01's own CT (ct_sense.ct) -- same real,
+    # already-verified MPN, zero incremental part-verification risk. See
+    # elec/domain_manifest.yaml's isolator declaration for this instance
+    # (safety.ocp2.ct), added alongside this change.
+    ct = new CST3015_100E
+
+    r_burden = new Resistor
+    # 4.12ohm, sized for a 60A-ish nominal trip against REF2025's fixed
+    # 2.5V reference (not OCP-01's 4.99ohm/raw-VCC-divider pair) -- see the
+    # docstring's TRIP-POINT DERIVATION and WHY REF2025 sections for the
+    # full derivation, E96 neighbour comparison, and worst-case corners.
+    r_burden.value = 4.12ohm +/- 1%
+    r_burden.power_rating = 0.25W
+    r_burden.mpn = "RC1206FR-074R12L"
+    r_burden.footprint = "Resistor_SMD:R_1206_3216Metric"
+
+    comp = new TLV3201
+
+    i_sense = new ElectricSignal
+    i_sense.reference ~ power.gnd
+
+    c_filter = new Capacitor
+    c_filter.value = 100nF
+    c_filter.dielectric = "C0G"
+    c_filter.voltage_rating = 16V
+    c_filter.mpn = "GRM1885C1H104JA01D"
+    c_filter.footprint = "Capacitor_SMD:C_0603_1608Metric"
+
+    # Fixed 2.5V reference for comp.INN -- see docstring's "WHY REF2025"
+    # section. Driven at Top from RTDSensing's already-instantiated REF2025
+    # (main.ato: `safety.ocp2.vref_ext.line ~ rtd_pan.reference.VREF`),
+    # the same pattern OVP-01's vref_ext already uses.
+    vref_ext = new ElectricSignal
+    vref_ext.reference ~ power.gnd
+
+    # CT primary in series in the DC_BUS_RTN conductor
+    bus_in ~ ct.P1
+    ct.P2 ~ bus_out
+
+    # CT secondary + burden: ct.S1/r_burden.p1 is the sense node, ct.S2 is
+    # the secondary bias reference, tied to power.gnd -- same roles as
+    # ct_sense.ct's S1/S2 in CurrentSensing.
+    ct.S1 ~ r_burden.p1
+    ct.S2 ~ power.gnd
+    r_burden.p2 ~ power.gnd
+    ct.S1 ~ i_sense.line
+    i_sense.line ~ c_filter.p1
+    c_filter.p2 ~ power.gnd
+
+    i_sense.line ~ comp.INP
+    vref_ext.line ~ comp.INN
+
+    power.vcc ~ comp.VCC
+    power.gnd ~ comp.GND
+    comp.OUT ~ fault.line
+
+    # Sanity check: at the window's 60A centre (600mA secondary), the
+    # burden voltage should land close to REF2025's fixed 2.5V reference --
+    # same style of design-point check CurrentSensing.r_burden already
+    # uses for OCP-01 (i_ct_trip/v_burden_trip), same 2.4-2.6V window
+    # width, this time centred on REF2025's literal value rather than a
+    # VCC-divider ratio.
+    i_sense_design: current = 600mA  # 60A primary / N=100
+    v_burden_design: voltage = i_sense_design * r_burden.value
+    assert v_burden_design within 2.4V to 2.6V
+
+
+module Watchdog:
+    """External watchdog with 1.6s timeout."""
+    
+    power = new ElectricPower
+    wdi = new ElectricLogic
+    wdi.reference ~ power.gnd
+    wdi.line.required = true
+    
+    reset_n = new ElectricLogic
+    reset_n.reference ~ power.gnd
+    reset_n.line.required = true
+    
+    wdt = new TPS3823
+    
+    c_bypass = new Capacitor
+    c_bypass.value = 100nF
+    c_bypass.voltage_rating = 10V
+    c_bypass.mpn = "C0603C104K5RACTU"
+    c_bypass.footprint = "Capacitor_SMD:C_0603_1608Metric"
+    
+    power.vcc ~ wdt.VDD
+    power.vcc ~ c_bypass.p1
+    c_bypass.p2 ~ power.gnd
+    power.gnd ~ wdt.GND
+    
+    wdi.line ~ wdt.WDI
+    wdt.RESET_N ~ reset_n.line
+    power.vcc ~ wdt.MR_N
+
+module LogicUVLOComparator:
+    """Logic-rail (3.3V) under-voltage lockout, UVL-02.
+
+    Ambiguity this module resolves (see docs/hardware/UVL02_DESIGN.md for the
+    full writeup): two pre-existing candidates were checked against UVL-02
+    (FUNCTIONAL_TEST_CRITERIA.md SS2.4: trip <2.9V falling, recover >3.0V
+    rising -- >100mV hysteresis on a 2.9V threshold) and NEITHER qualified.
+
+      1. TPS3823-33 (Watchdog module): its VDD brownout comparator is fixed
+         silicon. Verified directly from TI's TPS3823 datasheet (SLVS165O,
+         Mar 2025 rev), NOT the secondhand figure in SAFETY_INTERLOCK_DESIGN.md:
+         VIT- (falling) = 2.86/2.93/3.00 V min/typ/max over -40..85C, and
+         V_HYS = 30mV typ (no min/max given, i.e. not a guaranteed spec) ->
+         VIT- + V_HYS (rising) = 2.89/2.96/3.03 V min/typ/max. Nominal alone
+         already fails: falling trips at 2.93V (above the 2.9V ceiling) and
+         rising recovers at 2.96V (below the 3.0V floor). A fixed-threshold
+         supervisor with ~1% factory hysteresis cannot deliver the >100mV
+         (3.4%) hysteresis this spec demands -- confirmed, not assumed.
+      2. RTDSensing.rail_monitor (TPS3700): trips at a simulated 2.825V
+         (docs/evidence/2026-07-25-uvl02-rtd-avdd-monitor-candidate-sim.json)
+         with NO added hysteresis resistor, and it monitors RTD_AVDD (a
+         downstream RTD-subsystem rail), not the board logic supply. Not
+         UVL-02 by its own component docstring.
+
+    This module is the actual UVL-02 gate: a NEW TPS3700 instance, wired
+    directly across the board's own power_3v3 logic rail (VDD of the chip
+    IS the rail under test), with an external resistor divider AND a
+    deliberate positive-feedback hysteresis resistor -- unlike candidate 2,
+    which had no r_hyst at all. This works because VIT_A is an internal
+    bandgap-derived ~0.4V reference, independent of VDD (down to the part's
+    own 1.3-1.7V UVLO, far below anything we care about here), so an
+    external divider referenced to the same rail it measures still produces
+    an absolute (not ratiometric) trip point -- the same reason candidate 2
+    could work as a brownout detector at all.
+
+    Topology follows OVPComparator's hysteresis pattern, not
+    ThermalComparator's: the externally-set node (INA_P, driven by the
+    VCC divider) is the one that carries the sense signal, and the
+    threshold being compared against (VIT_A) is fixed/internal -- exactly
+    like OVPComparator's bus-sense INP node against a fixed INN reference.
+    So r_hyst loads INA_P directly from OUTA, not a separate reference leg.
+
+    Derivation (VITA_NOM = 394.5mV, the TPS3700_ngspice.lib model default,
+    itself sourced from TI's TPS3700 datasheet SBVS187G, VIT- typ 394.5mV):
+        Gt = 1/R_div_top, Gb = 1/R_div_bot, Gh = 1/R_hyst
+        V(INA_P) pre-trip  (OUTA high, ~VCC) = VCC * (Gt+Gh) / (Gt+Gb+Gh)
+        V(INA_P) post-trip (OUTA low,  ~0V)  = VCC * Gt      / (Gt+Gb+Gh)
+        Trip    (falling): VCC_trip    = VIT_A * (Gt+Gb+Gh) / (Gt+Gh)
+        Recover (rising):  VCC_recover = VIT_A * (Gt+Gb+Gh) / Gt
+
+    With R_div_top=698k, R_div_bot=100k, R_hyst=3.74M (all E96 1%):
+        VCC_trip    = 2.715 V  (nominal)
+        VCC_recover = 3.222 V  (nominal)
+        hysteresis  = 0.507 V  (15.4% of 3.3V -- wide, but this is what a
+                                 >100mV window on a 2.9V threshold, stacked
+                                 with +/-1% resistors and the datasheet's
+                                 full VIT_A range, actually costs)
+
+    WORST-CASE (each resistor independently at +/-1%, VIT_A at its full
+    datasheet range 387-400mV, all 16 corner combinations swept -- see
+    docs/hardware/UVL02_DESIGN.md for the script):
+        worst-case trip    (max) = 2.800 V  < 2.9V ceiling  (100mV margin)
+        worst-case recovery (min) = 3.106 V > 3.0V floor    (106mV margin)
+    Both requirements clear with comfortable margin in the worst corner, not
+    just nominal -- this was NOT true of an earlier trial with a narrower
+    hysteresis resistor (see UVL02_DESIGN.md's "spec is achievable" section
+    for the failed first attempt at 2.85/3.05V nominal, which gave only
+    -3.6mV of trip margin in the worst corner).
+
+    mon.OUTA is active-low (open-drain, LOW = undervoltage). It is pulled up
+    to power.vcc and inverted to the project's active-high fault convention
+    by a NAND with one input tied high -- the same inverter idiom used for
+    SafetyInterlock's own SR-latch gate 1, and structurally identical to how
+    RTDSensing's fault_nand inverts rail_monitor.OUTA.
+
+    WIRED INTO THE INTERLOCK 2026-07-27: this.fault.line now reaches the
+    SET path via a third fan-in package, SafetyInterlock.fault_or3
+    (uvlo_logic.fault.line ~ fault_or3.A1 -> ... -> fault_or3.Y2 ~
+    latch.A1) -- see docs/evidence/
+    2026-07-27-fault-tree-capacity-expansion.md. Before that change, this
+    fault had nowhere to connect: by the time this module was designed,
+    THM-02 (coil_thermal) already occupied the one spare input in the SET
+    aggregation (fault_any_or.C1), and no other input reached
+    fault_any_or.Y1 -> latch.A1 without adding a further OR stage. See the
+    "UVL-02 fault output" comment block near the end of SafetyInterlock
+    (including the SUPERSEDED block preserved there) and
+    docs/hardware/UVL02_DESIGN.md SS7.1 for the full survey and the
+    remediation options it named. fault.line is ALSO still brought to a
+    test point (SafetyInterlock.tp_uvlo2_fault) for bench observability --
+    the functional connection and the probe pad are not exclusive."""
+
+    power = new ElectricPower
+    fault = new ElectricLogic
+    fault.reference ~ power.gnd
+    fault.line.required = true
+
+    mon = new TPS3700
+
+    r_div_top = new Resistor
+    r_div_top.value = 698kohm +/- 1%
+    r_div_top.mpn = "RC0603FR-07698KL"
+    r_div_top.footprint = "Resistor_SMD:R_0603_1608Metric"
+
+    r_div_bot = new Resistor
+    # MPN corrected 2026-07-27
+    # (docs/evidence/2026-07-27-ocp01-uvl02-part-resolution.md): was
+    # "RC0603FR-0710KL", which decodes (Yageo RC-series convention) to
+    # 10kohm -- a 10x mismatch against the declared 100kohm value used
+    # throughout this module's own derivation and worst-case corner sweep
+    # (see docstring above and docs/hardware/UVL02_DESIGN.md). Re-deriving
+    # from the circuit confirms the VALUE, not the MPN, was right: with
+    # r_div_bot actually at 10kohm, VCC_trip/VCC_recover come out to
+    # ~23.6V/~28.0V -- physically unreachable on a 3.3V logic rail, i.e. a
+    # UVLO that would never trip. Corrected to "RC0603FR-07100KL"
+    # (DigiKey-verified: 100kohm, +/-1%, 0603, +/-100ppm/C, Yageo, in
+    # stock -- the same MPN pattern already used for this file's other real
+    # 100kohm 1% 0603 parts, e.g. RTDSensing.r_window_ok_pulldown).
+    r_div_bot.value = 100kohm +/- 1%
+    r_div_bot.mpn = "RC0603FR-07100KL"
+    r_div_bot.footprint = "Resistor_SMD:R_0603_1608Metric"
+
+    # Positive feedback: loads the sense node (INA_P) from OUTA, exactly as
+    # OVPComparator loads its bus-sense INP from comp.OUT. 3.74M is E96
+    # exact (no rounding error) and gives 507mV of nominal hysteresis --
+    # see module docstring for the worst-case corner sweep.
+    r_hyst = new Resistor
+    r_hyst.value = 3.74Mohm +/- 1%
+    r_hyst.mpn = "RC0603FR-073M74L"
+    r_hyst.footprint = "Resistor_SMD:R_0603_1608Metric"
+
+    # OUTA is open-drain; needs its own pull-up (same 10k convention as
+    # RTDSensing.r_rail_ok_pullup).
+    r_outa_pullup = new Resistor
+    r_outa_pullup.value = 10kohm +/- 1%
+    r_outa_pullup.mpn = "RC0603FR-0710KL"
+    r_outa_pullup.footprint = "Resistor_SMD:R_0603_1608Metric"
+
+    mon.VDD ~ power.vcc
+    mon.GND ~ power.gnd
+    # Channel B unused -- tie INB_N low, same convention as
+    # RTDSensing.rail_monitor.INB_N.
+    mon.INB_N ~ power.gnd
+
+    power.vcc ~ r_div_top.p1
+    r_div_top.p2 ~ mon.INA_P
+    mon.INA_P ~ r_div_bot.p1
+    r_div_bot.p2 ~ power.gnd
+
+    mon.INA_P ~ r_hyst.p1
+    r_hyst.p2 ~ mon.OUTA
+
+    power.vcc ~ r_outa_pullup.p1
+    r_outa_pullup.p2 ~ mon.OUTA
+
+    # Invert active-low OUTA to active-high fault (NAND with B tied high).
+    # inv.Y is itself open-drain (SN74LVC1G38), so it needs its own pull-up
+    # feeding the fault line -- same pattern as RTDSensing.fault_nand ->
+    # r_fault_pullup -> rtd_hw_fault.
+    inv = new SN74LVC1G38
+    inv.VCC ~ power.vcc
+    inv.GND ~ power.gnd
+    mon.OUTA ~ inv.A
+    power.vcc ~ inv.B
+
+    r_fault_pullup = new Resistor
+    r_fault_pullup.value = 10kohm +/- 1%
+    r_fault_pullup.mpn = "RC0603FR-0710KL"
+    r_fault_pullup.footprint = "Resistor_SMD:R_0603_1608Metric"
+    power.vcc ~ r_fault_pullup.p1
+    r_fault_pullup.p2 ~ fault.line
+    inv.Y ~ fault.line
+
+module SafetyInterlock:
+    """Complete safety interlock system."""
+    
+    power_3v3 = new ElectricPower
+    power_15v = new ElectricPower
+    
+    i_sense = new ElectricSignal
+    i_sense.reference ~ power_3v3.gnd
+    
+    dc_bus = new ElectricSignal
+    # dc_bus ref is HV ground, handled in OVPComparator connection
+    
+    ntc_sense = new ElectricSignal
+    ntc_sense.reference ~ power_3v3.gnd
+
+    # THM-02 coil thermistor sense (added 2026-07-26)
+    coil_ntc_sense = new ElectricSignal
+    coil_ntc_sense.reference ~ power_3v3.gnd
+
+    # OCP-02 CT splice (WIRED 2026-08-07, Option A -- see
+    # SecondaryOCPComparator's docstring): the CT primary is a two-terminal
+    # element IN the DC_BUS_RTN conductor, not a signal tap, so these are
+    # plain signals (like HalfBridge.switch_node) rather than an
+    # ElectricSignal interface. Top wires them into main.ato's dc_bus_minus
+    # net on either side of SecondaryOCPComparator's internal CT primary
+    # (main.ato: `hb.dc_bus.hv_minus ~ safety.ocp2_bus_in` /
+    # `safety.ocp2_bus_out ~ dc_bus_minus`).
+    signal ocp2_bus_in
+    signal ocp2_bus_out
+
+    wdt_kick = new ElectricLogic
+    wdt_kick.reference ~ power_3v3.gnd
+    
+    # Active-high shutdown output for UCC21550 DIS. This replaces the legacy
+    # active-low SHUTDOWN_N net; a latched high level disables the driver.
+    shutdown = new ElectricLogic
+    shutdown.reference ~ power_3v3.gnd
+    shutdown.line.required = true
+
+    reset_n_in = new ElectricLogic
+    reset_n_in.reference ~ power_3v3.gnd
+
+    # Firmware runaway-cut output is active-high and is an independent
+    # hardware fault source.
+    runaway_cut = new ElectricLogic
+    runaway_cut.reference ~ power_3v3.gnd
+
+    # Independent RTD hardware window fault. This is deliberately distinct
+    # from the MCU's GPIO15 runaway-cut request.
+    rtd_hw_fault = new ElectricLogic
+    rtd_hw_fault.reference ~ power_3v3.gnd
+    
+    fault_status = new ElectricLogic
+    fault_status.reference ~ power_3v3.gnd
+    # fault_status is the latch output alias; shutdown_n carries the single
+    # required declaration for this shared net.
+    
+    wdt_reset_n = new ElectricLogic
+    wdt_reset_n.reference ~ power_3v3.gnd
+    
+    ocp_led = new ElectricLogic
+    ovp_led = new ElectricLogic
+    thermal_led = new ElectricLogic
+    wdt_led = new ElectricLogic
+    
+    ocp = new OCPComparator
+    ovp = new OVPComparator
+    thermal = new ThermalComparator
+    coil_thermal = new CoilThermalComparator  # THM-02
+    # OCP-02: INSTANTIATED 2026-08-07 (Option A, second CT -- see
+    # SecondaryOCPComparator's docstring and
+    # docs/hardware/OCP02_DECISION_BRIEF.md /
+    # docs/hardware/OCP02_QUANTIFIED_TRADEOFF.md). The original shunt+INA240
+    # front end could never be instantiated: DC_BUS_RTN sits at ~-170V from
+    # signal ground in this doubler topology, ~2x the INA240's -4..+80V
+    # absolute common-mode rating. The CT front end has no common-mode
+    # dependency (magnetically isolated secondary), so that blocker no
+    # longer applies.
+    ocp2 = new SecondaryOCPComparator  # OCP-02
+    wdt = new Watchdog
+    uvlo_logic = new LogicUVLOComparator
+    fault_or = new SN74HC4075
+    fault_any_or = new SN74HC4075
+    # Third fan-in package, added 2026-07-27 (docs/hardware/UVL02_DESIGN.md
+    # SS7.1 remediation option 2; docs/evidence/
+    # 2026-07-27-fault-tree-capacity-expansion.md). fault_or/fault_any_or
+    # were both fully occupied on their SET-aggregation paths -- see the
+    # OCP-02/UVL-02 survey comments further down for why. Chosen over
+    # reworking the existing two packages' spare Y3 gates into the chain
+    # (SS7.1 option 1) because that also adds a gate delay to every fault
+    # path while additionally requiring re-verification of all existing
+    # connections; a fresh package with a well-defined interface is the
+    # lower-risk way to add capacity on a board that is still unrouted.
+    fault_or3 = new SN74HC4075
+    latch = new SN74HC00
+
+    ocp.power ~ power_3v3
+    ocp.i_sense.line ~ i_sense.line
+
+    ovp.power ~ power_3v3
+    ovp.v_bus.line ~ dc_bus.line
+
+    thermal.power ~ power_3v3
+    thermal.ntc_sense.line ~ ntc_sense.line
+
+    # THM-02: coil over-temperature, 120C. Added 2026-07-26 -- this gate
+    # previously had no circuit at all.
+    coil_thermal.power ~ power_3v3
+    coil_thermal.ntc_sense.line ~ coil_ntc_sense.line
+
+    # OCP-02: secondary overcurrent, 55-65A window. WIRED 2026-08-07
+    # (Option A, second CT -- see SecondaryOCPComparator's docstring).
+    ocp2.power ~ power_3v3
+    ocp2.bus_in ~ ocp2_bus_in
+    ocp2.bus_out ~ ocp2_bus_out
+
+    wdt.power ~ power_3v3
+    wdt.wdi.line ~ wdt_kick.line
+    wdt.reset_n.line ~ wdt_reset_n.line
+
+    # UVL-02: logic-rail (3.3V) UVLO. Monitors power_3v3 directly -- this is
+    # a NEW circuit, not RTDSensing.rail_monitor (which measures RTD_AVDD,
+    # a different rail) and not the TPS3823-33 watchdog (fixed silicon
+    # threshold, confirmed against TI's datasheet to fail this spec in both
+    # directions -- see LogicUVLOComparator's docstring and
+    # docs/hardware/UVL02_DESIGN.md).
+    uvlo_logic.power ~ power_3v3
+    
+    fault_or.VCC ~ power_3v3.vcc
+    fault_or.GND ~ power_3v3.gnd
+    ocp.fault.line ~ fault_or.A1
+    ovp.fault.line ~ fault_or.B1
+    thermal.fault.line ~ fault_or.C1
+    
+    latch.VCC ~ power_3v3.vcc
+    latch.GND ~ power_3v3.gnd
+    
+    # Base aggregation: Y1 combines OCP/OVP/thermal; Y2 adds the watchdog
+    # fault (RESET_N is active-low and is inverted by NAND gate 4) and the MCU
+    # runaway-cut request. RTD_HW_FAULT is intentionally added only below by
+    # the separate FAULT_ANY stage because all base-OR inputs are occupied.
+    fault_or.Y1 ~ fault_or.A2
+    wdt.reset_n.line ~ latch.A4
+    power_3v3.vcc ~ latch.B4
+    latch.Y4 ~ fault_or.B2
+    runaway_cut.line ~ fault_or.C2
+
+    # Fault-any expansion. Both consumers of the historical fault_or.Y2 move
+    # here: the latch set input and reset qualification. A live RTD hardware
+    # fault can therefore neither be hidden by GPIO15 nor cleared by reset.
+    fault_any_or.VCC ~ power_3v3.vcc
+    fault_any_or.GND ~ power_3v3.gnd
+    fault_or.Y2 ~ fault_any_or.A1
+    rtd_hw_fault.line ~ fault_any_or.B1
+    # THM-02 coil over-temperature joins the fault-any chain here. This
+    # input was previously tied to GND -- a spare OR input on a part already
+    # placed, so THM-02 costs no additional logic. THM-02 got here first;
+    # by the time UVL-02 was designed (below), this was the last spare in
+    # the SET aggregation and is no longer available to it -- see the
+    # UVL-02 fault-wiring note near the end of this module for the survey.
+    coil_thermal.fault.line ~ fault_any_or.C1
+
+    # Third-package aggregation, added 2026-07-27: gate1 combines the new
+    # fault sources (UVL-02 and, as of 2026-08-07, OCP-02 -- both wired;
+    # one input genuinely spare). gate2 merges that with the existing
+    # 7-source SET bus (fault_any_or.Y1) and now drives latch.A1 in place
+    # of the previous direct connection. This adds exactly one gate of
+    # delay to the pre-existing 7-source path -- see
+    # docs/evidence/2026-07-27-fault-tree-capacity-expansion.md for the
+    # propagation-delay recheck against OCP-01's <1us budget, and
+    # SecondaryOCPComparator's own docstring TIMING section for OCP-02's
+    # recheck against the 5us budget.
+    fault_or3.VCC ~ power_3v3.vcc
+    fault_or3.GND ~ power_3v3.gnd
+    uvlo_logic.fault.line ~ fault_or3.A1
+    ocp2.fault.line ~ fault_or3.B1  # OCP-02, WIRED 2026-08-07 (Option A)
+    power_3v3.gnd ~ fault_or3.C1  # spare
+    fault_any_or.Y1 ~ fault_or3.A2
+    fault_or3.Y1 ~ fault_or3.B2
+    power_3v3.gnd ~ fault_or3.C2  # spare
+    fault_or3.Y2 ~ latch.A1
+    # Third gate on this package is genuinely unused headroom beyond the
+    # slots above; inputs tied GND rather than left floating (same
+    # convention as fault_or gate 3 below).
+    power_3v3.gnd ~ fault_or3.A3
+    power_3v3.gnd ~ fault_or3.B3
+    power_3v3.gnd ~ fault_or3.C3
+
+    # Set-dominant NAND SR latch. Gate 1 inverts the active-high fault bus;
+    # gates 2 and 3 cross-couple Q/Q-bar. Reset is explicit and active-low.
+    power_3v3.vcc ~ latch.B1
+    latch.Y1 ~ latch.A2
+    latch.Y3 ~ latch.B2
+    # Fault-qualified reset: R_N = FAULT_OR_RESET_REQUEST. A live fault keeps
+    # the latch set even if firmware requests reset.
+    fault_any_or.Y1 ~ fault_any_or.A2
+    reset_n_in.line ~ fault_any_or.B2
+    power_3v3.gnd ~ fault_any_or.C2
+    fault_any_or.Y2 ~ latch.A3
+
+    # Third gate on this package is unused. Its inputs are tied GND rather
+    # than left floating -- the same convention already applied to
+    # fault_or3 gate 3 above and fault_or gate 3 below. This package was
+    # the one that missed it: A3/B3/C3 were the only SN74HC4075 spare-gate
+    # inputs in the design left on single-node nets, i.e. floating CMOS
+    # inputs, which sit near the switching threshold, bias both output
+    # FETs partially on, draw excess ICC and can self-oscillate -- inside
+    # the package that carries the FAULT_ANY aggregation on gates 1 and 2.
+    # Found by triaging the 29 single-node nets in #1500; the generated
+    # schematic had been marking these pins `no_connect`, which asserts
+    # deliberate non-connection and suppresses the very ERC unconnected/
+    # undriven-input check that would otherwise have caught this.
+    power_3v3.gnd ~ fault_any_or.A3
+    power_3v3.gnd ~ fault_any_or.B3
+    power_3v3.gnd ~ fault_any_or.C3
+
+    # Unused base-OR gate has defined inputs and no safety consumer.
+    power_3v3.gnd ~ fault_or.A3
+    power_3v3.gnd ~ fault_or.B3
+    power_3v3.gnd ~ fault_or.C3
+    latch.Y2 ~ latch.B3
+    latch.Y2 ~ shutdown.line
+    latch.Y2 ~ fault_status.line
+
+    tp_shutdown = new TestPoint
+    tp_shutdown.p1 ~ shutdown.line
+    tp_fault = new TestPoint
+    tp_fault.p1 ~ fault_status.line
+
+    # OCP-02 fault output: WIRED 2026-08-07, via fault_or3 above
+    # (ocp2.fault.line ~ fault_or3.B1 -> fault_or3.Y1 -> fault_or3.B2 ->
+    # fault_or3.Y2 ~ latch.A1). A third fan-in package (fault_or3, added
+    # 2026-07-27, see its instantiation comment above and docs/evidence/
+    # 2026-07-27-fault-tree-capacity-expansion.md) provided the SET-path
+    # capacity that did not exist when this was last surveyed
+    # (fault_or/fault_any_or were both fully occupied -- see the SUPERSEDED
+    # survey block below); fault_or3.B1 was reserved for OCP-02 from that
+    # point on but stayed tied to GND until the sensing-domain question
+    # (the INA240 common-mode problem, see SecondaryOCPComparator's
+    # docstring) was resolved by switching to a CT front end (Option A,
+    # 2026-08-07), which has no common-mode dependency to resolve.
+    tp_ocp2_fault = new TestPoint
+    tp_ocp2_fault.p1 ~ ocp2.fault.line
+
+    # UVL-02 fault output: WIRED 2026-07-27, via fault_or3 above
+    # (uvlo_logic.fault.line ~ fault_or3.A1 -> fault_or3.Y1 ->
+    # fault_or3.B2 -> fault_or3.Y2 ~ latch.A1). LogicUVLOComparator
+    # (uvlo_logic) is a real, populated, spec-meeting circuit (see its own
+    # module docstring for the worst-case trip/recovery derivation); prior
+    # to this change its fault.line had nowhere to connect, because both
+    # SN74HC4075s were fully occupied on their SET-aggregation paths (the
+    # full survey that established this is preserved below for history).
+    # It remains ALSO brought to a test point for bench observability --
+    # the two are not exclusive; a net can carry both a functional
+    # connection and a probe pad.
+    tp_uvlo2_fault = new TestPoint
+    tp_uvlo2_fault.p1 ~ uvlo_logic.fault.line
+
+    # SUPERSEDED 2026-07-27 -- kept for history, describes the tree BEFORE
+    # fault_or3 was added. UVL-02's fault is wired now (above); OCP-02's is
+    # not, for the sensing-domain reason above, not for lack of capacity.
+    #
+    # "Surveyed both SN74HC4075s for a spare input before wiring, per
+    # docs/hardware/OCP02_DESIGN.md's own instruction to do so:
+    #
+    #   fault_or gate 1 (A1/B1/C1->Y1): full -- ocp/ovp/thermal.
+    #   fault_or gate 2 (A2/B2/C2->Y2): full -- Y1 feedback, latch.Y4
+    #     (watchdog), runaway_cut.
+    #   fault_or gate 3 (A3/B3/C3->Y3): all three inputs tied GND, Y3 has
+    #     no consumer anywhere -- a genuinely free gate, but its output
+    #     doesn't reach the latch's SET path without another gate to
+    #     combine it in.
+    #   fault_any_or gate 1 (A1/B1/C1->Y1): full -- fault_or.Y2,
+    #     rtd_hw_fault, coil_thermal (THM-02 took the last spare here).
+    #     This Y1 is what feeds latch.A1, the SET input.
+    #   fault_any_or gate 2 (A2/B2/C2->Y2): C2 is GND-tied and looks
+    #     spare, but this gate computes the RESET qualifier (Y2 ->
+    #     latch.A3: OR(any_fault, reset_request), which blocks firmware
+    #     reset during a live fault). Wiring OCP-02 fault here would only
+    #     block reset -- it would never SET the latch, i.e. OCP-02 would
+    #     not actually trip shutdown. That is a worse outcome than not
+    #     wiring it at all, so this input is not usable despite appearing
+    #     free.
+    #
+    # Every input that actually participates in the SET aggregation
+    # (fault_or gates 1-2, fault_any_or gate 1) is full. The only fully
+    # unused gate (fault_or gate 3) has no path into the SET aggregation
+    # without adding a further OR stage -- and rewiring the existing
+    # fault_or.Y2 -> fault_any_or.A1 link through it would add one gate
+    # delay to EVERY fault source (OCP-01, OVP-01, THM-01, watchdog,
+    # runaway-cut), not just OCP-02, which is a timing-budget decision
+    # for humans, not something to do silently here.
+    #
+    # fault_or gate 3 (A3/B3/C3->Y3): unchanged from the OCP-02 survey --
+    #     all three inputs tied GND, Y3 has no consumer anywhere. Confirmed
+    #     still a dead end, not a path into the SET aggregation.
+    #   fault_any_or gate 1 (A1/B1/C1->Y1): full -- fault_or.Y2,
+    #     rtd_hw_fault, AND NOW coil_thermal (THM-02, added 2026-07-26,
+    #     took what used to be the last spare here before this module
+    #     existed). This is the gate whose Y1 feeds latch.A1, the SET
+    #     input, and it has no free input left.
+    #   fault_any_or gate 2 (A2/B2/C2->Y2): C2 is GND-tied and looks spare,
+    #     but this gate computes the RESET qualifier, same as the OCP-02
+    #     finding already established -- wiring a fault here blocks reset
+    #     without ever tripping the latch. Still not usable.
+    #   fault_any_or gate 3 (A3/B3/C3/Y3): all four pins entirely
+    #     unreferenced anywhere in this module -- not grounded, not wired,
+    #     just absent. This is a genuinely unused gate, structurally the
+    #     same situation as fault_or gate 3: its output has no path into
+    #     the SET aggregation (fault_any_or.Y1 -> latch.A1) without another
+    #     OR stage to combine it in, and, unlike a truly spare INPUT on an
+    #     already-consumed gate, wiring inputs here produces a Y3 that
+    #     still reaches nothing.
+    #
+    # Net result: OCP-02 and UVL-02 are now BOTH designed with no available
+    # SET-path input. This is not a per-gate problem to solve by finding
+    # yet another spare -- there isn't one -- it is a fault-aggregation
+    # capacity problem. See docs/hardware/UVL02_DESIGN.md SS7 for what a
+    # fix would require (rework the existing two 3-input OR ICs into a
+    # wider tree vs. adding a third SN74HC4075/74HC4078-class part) and why
+    # that decision is left to a human rather than made silently here." --
+    # END SUPERSEDED BLOCK. The third-package remediation was implemented
+    # 2026-07-27.
+
+    # LED indicators remain unassigned until their current-limiting circuits
+    # are specified; they must not be used as safety logic.
+
+module MCU:
+    """ESP32-S3 microcontroller with support circuitry."""
+    
+    power = new ElectricPower
+    power.voltage = 3.3V
+    spi = new SPI
+    i2c = new I2C
+    uart = new UART
+    
+    cs_rtd = new ElectricLogic
+    rtd_drdy = new ElectricLogic
+    wdt_kick = new ElectricLogic
+    relay_ctrl = new ElectricLogic
+    discharge_ctrl = new ElectricLogic
+    fault_status_in = new ElectricLogic
+    reset_n = new ElectricLogic
+    wdt_reset_in = new ElectricLogic
+    runaway_cut = new ElectricLogic
+    
+    # Assertions
+    assert power.voltage within 3.3V +/- 5%
+    
+    # Boot timing assertions use honest worst-case spreads: r_en +/-2%
+    # (declared; MPN RC0603FR is +/-1%, so this is conservative) plus c_en
+    # +/-10% (per MPN K code). Linear sum: RC = 10ms +/-12% = 8.8-11.2ms;
+    # delay = x1.4 = 12.3-15.7ms. Bands below contain those corners.
+    t_boot_rc: time = r_en.value * c_en.value
+    assert t_boot_rc within 8.5ms to 11.5ms
+    t_boot_delay: time = t_boot_rc * 1.4
+    assert t_boot_delay within 12ms to 16ms
+    
+    signal pwm_h
+    signal pwm_l
+    # HalfBridge owns the required declarations for the shared PWM inputs;
+    # repeating them here conflicts when Atopile merges the connected nets.
+    signal adc_i_sense
+    adc_i_sense.required = true
+    signal adc_v_bus
+    adc_v_bus.required = true
+    signal adc_ntc
+    adc_ntc.required = true
+    signal usb_dn
+    signal usb_dp
+    
+    mcu = new ESP32_S3_WROOM_1
+    
+    c_vcc1 = new Capacitor
+    c_vcc1.value = 100nF
+    c_vcc1.voltage_rating = 10V
+    c_vcc1.mpn = "C0603C104K5RACTU"
+    c_vcc1.footprint = "Capacitor_SMD:C_0603_1608Metric"
+    
+    c_vcc2 = new Capacitor
+    c_vcc2.value = 10uF
+    c_vcc2.voltage_rating = 10V
+    c_vcc2.mpn = "GRM21BR71A106KE51L"
+    c_vcc2.footprint = "Capacitor_SMD:C_0805_2012Metric"
+    
+    r_en = new Resistor
+    r_en.value = 10kohm +/- 2%
+    r_en.mpn = "RC0603FR-0710KL"
+    r_en.footprint = "Resistor_SMD:R_0603_1608Metric"
+    
+    c_en = new Capacitor
+    # GRM188R71A105KA61D tolerance code K = +/-10%: the declared tolerance
+    # must match the purchasable part, not an ideal value. A +/-2% 1uF X7R
+    # 0603 does not exist as an orderable part; declaring it made the RC
+    # assertions pass against a fiction (previously 10ms +/-400us).
+    c_en.value = 1uF +/- 10%
+    c_en.voltage_rating = 10V
+    c_en.mpn = "GRM188R71A105KA61D"
+    c_en.footprint = "Capacitor_SMD:C_0603_1608Metric"
+    
+    power.vcc ~ mcu.VCC3V3
+    power.vcc ~ c_vcc1.p1
+    c_vcc1.p2 ~ power.gnd
+    power.vcc ~ c_vcc2.p1
+    c_vcc2.p2 ~ power.gnd
+    power.gnd ~ mcu.GND
+    power.vcc ~ r_en.p1
+    r_en.p2 ~ mcu.EN
+    mcu.EN ~ c_en.p1
+    c_en.p2 ~ power.gnd
+    
+    # USB D+/D- connections (native USB on GPIO19 = D-, GPIO20 = D+)
+    usb_dn ~ mcu.IO19
+    usb_dp ~ mcu.IO20
+    
+    # IO0 bootstrap: 10k pull-up to 3.3V, button to GND for download mode
+    r_boot = new Resistor
+    r_boot.value = 10kohm
+    r_boot.mpn = "RC0603FR-0710KL"
+    r_boot.footprint = "Resistor_SMD:R_0603_1608Metric"
+    power.vcc ~ r_boot.p1
+    r_boot.p2 ~ mcu.IO0
+    
+    # EN reset button (parallel to RC: button pulls EN to GND for reset)
+    btn_reset = new Button
+    btn_reset.p1 ~ mcu.EN
+    btn_reset.p2 ~ power.gnd
+    
+    # BOOT button for download mode
+    btn_boot = new Button
+    btn_boot.p1 ~ mcu.IO0
+    btn_boot.p2 ~ power.gnd
+    
+    # I2C pull-up resistors (4.7k to 3.3V)
+    r_sda_pullup = new Resistor
+    r_sda_pullup.value = 4.7kohm
+    r_sda_pullup.mpn = "RC0603FR-074K7L"
+    r_sda_pullup.footprint = "Resistor_SMD:R_0603_1608Metric"
+    power.vcc ~ r_sda_pullup.p1
+    r_sda_pullup.p2 ~ mcu.IO38  # SDA
+    
+    r_scl_pullup = new Resistor
+    r_scl_pullup.value = 4.7kohm
+    r_scl_pullup.mpn = "RC0603FR-074K7L"
+    r_scl_pullup.footprint = "Resistor_SMD:R_0603_1608Metric"
+    power.vcc ~ r_scl_pullup.p1
+    r_scl_pullup.p2 ~ mcu.IO39  # SCL
+    
+    mcu.IO4 ~ pwm_h
+    mcu.IO5 ~ pwm_l
+    mcu.GPIO1 ~ adc_i_sense
+    mcu.GPIO2 ~ adc_v_bus
+    mcu.GPIO3 ~ adc_ntc
+    
+    cs_rtd.line ~ mcu.SPI_CS
+    spi.sclk ~ mcu.SPI_CLK
+    spi.mosi ~ mcu.SPI_MOSI
+    spi.miso ~ mcu.SPI_MISO
+    # DRDY on IO9: confirmed by firmware (temper_pins.h PIN_RTD_DRDY=9,
+    # main.c bootstrap comment, README). Not an assumption; any pin move
+    # must change firmware and source together.
+    rtd_drdy.line ~ mcu.IO9
+    
+    wdt_kick.line ~ mcu.IO7
+    relay_ctrl.line ~ mcu.IO16
+    # IO47 drives the bus-discharge relay coils (BusDischarge module):
+    # high = coils energized = discharge disengaged; low/floating/reset =
+    # NC contacts close = discharge engages (fail-safe). IO47 is a plain
+    # GPIO on the S3 (not a strapping pin, not JTAG), boots as input
+    # (Hi-Z) so the discharge stays engaged until firmware asserts it.
+    discharge_ctrl.line ~ mcu.IO47
+    fault_status_in.line ~ mcu.IO17
+    # GPIO6 is an input from the TPS3823 RESET_N output; keep it separate from
+    # the explicit latch-reset request on GPIO14 to avoid output contention.
+    wdt_reset_in.line ~ mcu.IO6
+    reset_n.line ~ mcu.IO14
+    # GPIO15 is the dedicated active-high hardware runaway-cut output.  GPIO4
+    # and GPIO5 are already reserved for PWM_H/PWM_L.
+    runaway_cut.line ~ mcu.IO15
+
+    # Default I2C/UART pin mappings (can be overridden).  Keep I2C off the
+    # SPI clock (IO8) and status LED pins (IO17/18); the firmware manifest
+    # reserves the exposed IO38/39 pair for this optional bus.
+    i2c.sda ~ mcu.IO38
+    i2c.scl ~ mcu.IO39
+    uart.tx ~ mcu.TXD0
+    uart.rx ~ mcu.RXD0

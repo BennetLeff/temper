@@ -1,0 +1,20 @@
+[
+  {
+    "tag": "v170-r2-e1.06-f35000-s0.5-c24",
+    "maximum_complex_FFT_absolute_error": {
+      "v(swa)": 0.0,
+      "v(swb)": 0.0,
+      "bus_current_A": 0.0
+    },
+    "pass": true
+  },
+  {
+    "tag": "v170-r2-e1.06-f60000-s2-c48",
+    "maximum_complex_FFT_absolute_error": {
+      "v(swa)": 0.0,
+      "v(swb)": 0.0,
+      "bus_current_A": 0.0
+    },
+    "pass": true
+  }
+]

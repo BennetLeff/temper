@@ -1,0 +1,87 @@
+{
+  "review": "corrected C2 read-only re-review; prior 33%/103-of-135 assessment superseded",
+  "root": "/Users/bennet/.codex/worktrees/ps-r4-c2/temper/zapote/power-stage-120v/validation-results/01-switching-parasitics/round4/c2-losses",
+  "sha256": {
+    "build_waveform_catalog.py": "de2b73f2a51e2c81a88f64b579da61c580d26d9b84d6f3dc00d0da93366d0306",
+    "loss_primitives.py": "ec1313d068b00329332b91542752b97abde9aefc0eef8de9ed92507c09aea8ae",
+    "deadtime_losses.py": "35bad8e9af11ad25b21a0e869247809fea1efada00e9b4380f9b79676b82ab90",
+    "compare_corners.py": "8f455bcf0f10d5944ccd6d896e885f3a3b080dd2ffc040e7f940a57a360c04f6",
+    "README.md": "bde49fe39dfc12a9de267e07e260e51027e54e656e70d1198e11df6ed3bff04f",
+    "outputs/deadtime_losses.csv": "3e89050026e46d6ba0608d5b06601f0f0fcffdb4ab185c83da26ae10be3189ec",
+    "outputs/deadtime_comparison.csv": "7b685124f2d31239a753de0b0f14e0429f7a9e42554de0ce7cff2ffa74dd239d",
+    "outputs/comparison-summary.json": "e362d4cb963b876d0b7a2e714c6eef9f3e065d1a71e4af0156f4638237e7496b",
+    "outputs/waveform_loss_catalog.csv": "773cde599933f4ab1441272ce97cb567f3962319f7062430f691e50de66fcf72"
+  },
+  "checks": {
+    "loss_rows": 1620,
+    "case_ceiling_groups": 270,
+    "six_corner_identical_matched_counts_per_case": true,
+    "comparison_rows": 810,
+    "comparison_deltas_arithmetic_consistent": true,
+    "summary": {
+      "40.45A/min": {
+        "51_higher_on_matched_events": 105,
+        "51_lower_on_matched_events": 30,
+        "matched_full_bridge_events": 73152,
+        "all_full_bridge_events": 95444,
+        "median_matched_delta_51_minus_39_with_die_vds_snubber_proxy_25c_diode_w": 0.3978656611865876
+      },
+      "40.45A/typ": {
+        "51_higher_on_matched_events": 110,
+        "51_lower_on_matched_events": 25,
+        "matched_full_bridge_events": 73152,
+        "all_full_bridge_events": 95444,
+        "median_matched_delta_51_minus_39_with_die_vds_snubber_proxy_25c_diode_w": 0.22505261559166456
+      },
+      "40.45A/max": {
+        "51_higher_on_matched_events": 118,
+        "51_lower_on_matched_events": 17,
+        "matched_full_bridge_events": 73152,
+        "all_full_bridge_events": 95444,
+        "median_matched_delta_51_minus_39_with_die_vds_snubber_proxy_25c_diode_w": 0.28016149968611126
+      },
+      "42.0A/min": {
+        "51_higher_on_matched_events": 105,
+        "51_lower_on_matched_events": 30,
+        "matched_full_bridge_events": 72997,
+        "all_full_bridge_events": 94892,
+        "median_matched_delta_51_minus_39_with_die_vds_snubber_proxy_25c_diode_w": 0.39442363074463804
+      },
+      "42.0A/typ": {
+        "51_higher_on_matched_events": 110,
+        "51_lower_on_matched_events": 25,
+        "matched_full_bridge_events": 72997,
+        "all_full_bridge_events": 94892,
+        "median_matched_delta_51_minus_39_with_die_vds_snubber_proxy_25c_diode_w": 0.2345391630777245
+      },
+      "42.0A/max": {
+        "51_higher_on_matched_events": 118,
+        "51_lower_on_matched_events": 17,
+        "matched_full_bridge_events": 72997,
+        "all_full_bridge_events": 94892,
+        "median_matched_delta_51_minus_39_with_die_vds_snubber_proxy_25c_diode_w": 0.28643014393048016
+      }
+    }
+  },
+  "raw_sample": {
+    "case": "120V DIR1 40A 406.74582392776523ns reference L, max step .2ns",
+    "off_to_gate_qualified_onset_charge_C": 8.355526799066436e-06,
+    "catalog_off_to_onset_charge_C": 8.355526792033032e-06,
+    "off_to_saved_end_charge_C": 8.793657557066145e-06,
+    "post_onset_saved_charge_C": 4.381307579997093e-07,
+    "end_forward_diode_A": 5.53979839391,
+    "end_die_Vgs_V": 9.93051629948,
+    "end_model_channel_A": 42.9731243376,
+    "onset_after_incoming_command_ns": 105.00000000223558,
+    "independent_25C_heat_trapezoid_J": 7.730049801749983e-06,
+    "catalog_25C_heat_J": 7.729970766735057e-06
+  },
+  "assessment": "Corrected to-channel interval is code-consistent and matches raw sample. Six-corner match uses same event rows for every timing corner. Full saved-window diode heat is retained separately, not added to matched core. Eoss is residual die-VDS screen; snubber and Qrr are conditional sensitivity columns. No new numerical/physics defect identified in bounded review. Final README table, coverage reasons, withdrawn prior diagnostic, and O6 limitation now match corrected CSV/JSON.",
+  "limitations": [
+    "Gate-qualified channel onset is a surrogate; model diode remains conducting after it, so matched core omits continuing third-quadrant heat.",
+    "Only reference L and 27C MOSFET model, with typical diode curves.",
+    "Qrr test-point transfer and die-VDS snubber proxy are not physical installed losses.",
+    "Unclassified/uncoupled events and floating-current reversal keep O6 unresolved."
+  ],
+  "report_consistency": "final README rechecked: 105/110/118 higher of 135 at min/typ/max, 73152/95444 and 72997/94892 matched; withdrawn 103/135 explicitly identified as superseded."
+}

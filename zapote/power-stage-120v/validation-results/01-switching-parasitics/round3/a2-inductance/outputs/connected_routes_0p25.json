@@ -1,0 +1,9445 @@
+{
+  "board_sha256": "a3ac1249f5052afe52944804cdc3f6ef0e8f895668360e79c1fa7b6fb7322155",
+  "pitch_mm": 0.25,
+  "z_centres_mm": {
+    "F.Cu": 0.0,
+    "In1.Cu": 0.5009999999999999,
+    "In2.Cu": 1.062,
+    "B.Cu": 1.563
+  },
+  "method": "8-neighbour shortest raster path through hole-aware copper; plated-barrel vertical edges",
+  "limitation": "geometry witness only, not physical 10 MHz current density or unique return-current route",
+  "paths": {
+    "A_bus_C38": {
+      "net": "bus_p",
+      "ports": [
+        "C38.1",
+        "Q2.2"
+      ],
+      "port_centres_mm": [
+        [
+          144.0,
+          22.0
+        ],
+        [
+          156.0,
+          4.215
+        ]
+      ],
+      "status": "CONNECTED_RASTER_ROUTE",
+      "pitch_mm": 0.25,
+      "length_mm": 24.844562748477124,
+      "nodes": 76,
+      "visited_nodes": 2577,
+      "start_port_offset_mm": 0.0,
+      "end_port_offset_mm": 0.03500000000000014,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            144.25,
+            21.75
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            144.25,
+            21.75
+          ]
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            155.75,
+            4.75
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            156.0,
+            4.25
+          ]
+        }
+      ],
+      "polyline": [
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            144.0,
+            22.0
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            144.25,
+            21.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            144.25,
+            21.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            146.5,
+            19.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            146.5,
+            19.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            151.5,
+            14.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            151.5,
+            14.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            151.75,
+            13.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            151.75,
+            13.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            152.0,
+            13.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            152.0,
+            12.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            152.25,
+            12.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            152.25,
+            12.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            152.5,
+            12.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            152.5,
+            11.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            152.75,
+            11.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            152.75,
+            11.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            153.0,
+            11.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            153.0,
+            10.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            153.25,
+            10.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            153.25,
+            10.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            153.5,
+            9.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            153.5,
+            9.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            153.75,
+            9.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            153.75,
+            9.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            154.0,
+            8.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            154.0,
+            8.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            154.25,
+            8.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            154.25,
+            7.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            154.5,
+            7.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            154.5,
+            7.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            154.75,
+            7.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            154.75,
+            6.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            155.0,
+            6.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            155.0,
+            6.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            155.25,
+            5.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            155.25,
+            5.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            155.75,
+            4.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            155.75,
+            4.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            155.75,
+            4.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            156.0,
+            4.25
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            156.0,
+            4.25
+          ]
+        }
+      ]
+    },
+    "A_bus_C39": {
+      "net": "bus_p",
+      "ports": [
+        "C39.1",
+        "Q2.2"
+      ],
+      "port_centres_mm": [
+        [
+          164.6,
+          22.0
+        ],
+        [
+          156.0,
+          4.215
+        ]
+      ],
+      "status": "CONNECTED_RASTER_ROUTE",
+      "pitch_mm": 0.25,
+      "length_mm": 23.394815280171297,
+      "nodes": 76,
+      "visited_nodes": 2871,
+      "start_port_offset_mm": 0.09999999999999432,
+      "end_port_offset_mm": 0.03500000000000014,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            164.25,
+            21.75
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            164.25,
+            21.75
+          ]
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            156.25,
+            4.75
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            156.0,
+            4.25
+          ]
+        }
+      ],
+      "polyline": [
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            164.5,
+            22.0
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            164.25,
+            21.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            164.25,
+            21.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            163.75,
+            21.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            163.75,
+            21.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            163.5,
+            20.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            163.5,
+            20.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            163.25,
+            20.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            163.25,
+            20.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            163.0,
+            19.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            163.0,
+            19.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            162.75,
+            19.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            162.75,
+            19.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            162.5,
+            18.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            162.5,
+            18.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            162.25,
+            18.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            162.25,
+            17.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            162.0,
+            17.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            162.0,
+            17.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            161.75,
+            17.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            161.75,
+            16.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            161.5,
+            16.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            161.5,
+            16.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            161.25,
+            16.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            161.25,
+            15.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            161.0,
+            15.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            161.0,
+            15.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            160.75,
+            14.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            160.75,
+            14.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            160.5,
+            14.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            160.5,
+            14.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            160.25,
+            13.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            160.25,
+            13.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            160.0,
+            13.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            160.0,
+            12.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            159.75,
+            12.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            159.75,
+            12.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            159.5,
+            12.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            159.5,
+            11.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            159.25,
+            11.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            159.25,
+            11.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            159.0,
+            11.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            159.0,
+            10.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            158.75,
+            10.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            158.75,
+            10.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            158.5,
+            9.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            158.5,
+            9.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            158.25,
+            9.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            158.25,
+            9.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            158.0,
+            8.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            158.0,
+            8.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            157.75,
+            8.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            157.75,
+            7.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            157.5,
+            7.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            157.5,
+            7.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            157.25,
+            7.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            157.25,
+            6.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            157.0,
+            6.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            157.0,
+            6.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            156.75,
+            5.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            156.75,
+            5.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            156.25,
+            4.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            156.25,
+            4.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            156.25,
+            4.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            156.0,
+            4.25
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            156.0,
+            4.25
+          ]
+        }
+      ]
+    },
+    "A_switch": {
+      "net": "sw_a",
+      "ports": [
+        "Q2.3",
+        "Q3.2"
+      ],
+      "port_centres_mm": [
+        [
+          161.45,
+          4.215
+        ],
+        [
+          138.0,
+          4.215
+        ]
+      ],
+      "status": "CONNECTED_RASTER_ROUTE",
+      "pitch_mm": 0.25,
+      "length_mm": 30.52549493661166,
+      "nodes": 105,
+      "visited_nodes": 3346,
+      "start_port_offset_mm": 0.06103277807867791,
+      "end_port_offset_mm": 0.03500000000000014,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            161.0,
+            4.75
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            161.0,
+            4.75
+          ]
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "B.Cu",
+          "xy_mm": [
+            161.0,
+            4.75
+          ]
+        },
+        {
+          "from_layer": "B.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            138.25,
+            4.75
+          ]
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            138.25,
+            4.75
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            138.0,
+            4.25
+          ]
+        }
+      ],
+      "polyline": [
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            161.5,
+            4.25
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            161.0,
+            4.75
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            161.0,
+            4.75
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            159.75,
+            6.0
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            159.75,
+            6.25
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            159.25,
+            6.75
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            159.25,
+            7.0
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            158.75,
+            7.5
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            158.5,
+            7.5
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            158.0,
+            8.0
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            157.5,
+            8.0
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            157.25,
+            8.25
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            142.25,
+            8.25
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            142.0,
+            8.0
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            141.5,
+            8.0
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            141.0,
+            7.5
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            140.75,
+            7.5
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            139.0,
+            5.75
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            139.0,
+            5.5
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            138.25,
+            4.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            138.25,
+            4.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            138.25,
+            4.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            138.0,
+            4.25
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            138.0,
+            4.25
+          ]
+        }
+      ]
+    },
+    "A_source_shunt": {
+      "net": "leg_ret",
+      "ports": [
+        "Q3.3",
+        "R5.1"
+      ],
+      "port_centres_mm": [
+        [
+          143.45,
+          4.215
+        ],
+        [
+          127.135,
+          9.615
+        ]
+      ],
+      "status": "CONNECTED_RASTER_ROUTE",
+      "pitch_mm": 0.25,
+      "length_mm": 24.144135623730936,
+      "nodes": 79,
+      "visited_nodes": 2912,
+      "start_port_offset_mm": 0.06103277807867791,
+      "end_port_offset_mm": 0.16263455967290247,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            143.0,
+            4.75
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            130.0,
+            4.5
+          ]
+        }
+      ],
+      "polyline": [
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            143.5,
+            4.25
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            143.0,
+            4.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            143.0,
+            4.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            141.75,
+            6.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            141.75,
+            6.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            141.25,
+            6.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            141.25,
+            7.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            140.75,
+            7.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            140.5,
+            7.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            140.0,
+            8.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            139.5,
+            8.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            139.25,
+            8.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            133.75,
+            8.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            130.0,
+            4.5
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            130.0,
+            4.5
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            129.0,
+            5.5
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            129.0,
+            5.75
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            128.75,
+            6.0
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            128.75,
+            6.25
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            128.5,
+            6.5
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            128.5,
+            7.0
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            128.25,
+            7.25
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            128.25,
+            7.5
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            128.0,
+            7.75
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            128.0,
+            8.0
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            127.75,
+            8.25
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            127.75,
+            8.5
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            127.5,
+            8.75
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            127.5,
+            9.25
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            127.25,
+            9.5
+          ]
+        }
+      ]
+    },
+    "A_shunt_C38": {
+      "net": "hv_ret",
+      "ports": [
+        "R5.4",
+        "C38.2"
+      ],
+      "port_centres_mm": [
+        [
+          125.865,
+          15.585
+        ],
+        [
+          129.0,
+          22.0
+        ]
+      ],
+      "status": "CONNECTED_RASTER_ROUTE",
+      "pitch_mm": 0.25,
+      "length_mm": 8.84819407771256,
+      "nodes": 29,
+      "visited_nodes": 424,
+      "start_port_offset_mm": 0.1430034964607473,
+      "end_port_offset_mm": 0.0,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            126.5,
+            18.5
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            129.0,
+            22.0
+          ]
+        }
+      ],
+      "polyline": [
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            125.75,
+            15.5
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            126.5,
+            16.25
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            126.5,
+            18.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            126.5,
+            18.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            127.75,
+            19.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            127.75,
+            20.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            128.75,
+            21.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            128.75,
+            21.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            129.0,
+            22.0
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            129.0,
+            22.0
+          ]
+        }
+      ]
+    },
+    "A_shunt_C39": {
+      "net": "hv_ret",
+      "ports": [
+        "R5.4",
+        "C39.2"
+      ],
+      "port_centres_mm": [
+        [
+          125.865,
+          15.585
+        ],
+        [
+          149.6,
+          22.0
+        ]
+      ],
+      "status": "CONNECTED_RASTER_ROUTE",
+      "pitch_mm": 0.25,
+      "length_mm": 32.661902576697294,
+      "nodes": 111,
+      "visited_nodes": 3441,
+      "start_port_offset_mm": 0.1430034964607473,
+      "end_port_offset_mm": 0.09999999999999432,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            126.5,
+            18.5
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            149.5,
+            22.0
+          ]
+        }
+      ],
+      "polyline": [
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            125.75,
+            15.5
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            126.5,
+            16.25
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            126.5,
+            18.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            126.5,
+            18.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            127.75,
+            19.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            127.75,
+            20.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            128.0,
+            20.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            128.25,
+            20.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            130.25,
+            20.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            134.25,
+            16.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            138.25,
+            16.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            138.5,
+            17.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            138.75,
+            17.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            139.0,
+            17.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            139.25,
+            17.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            139.5,
+            17.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            139.75,
+            17.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            140.0,
+            17.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            140.25,
+            17.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            140.5,
+            18.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            144.75,
+            18.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            145.0,
+            18.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            145.5,
+            18.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            145.75,
+            18.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            146.0,
+            18.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            146.25,
+            18.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            146.5,
+            18.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            149.25,
+            21.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            149.25,
+            21.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            149.5,
+            22.0
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            149.5,
+            22.0
+          ]
+        }
+      ]
+    },
+    "B_bus_C40": {
+      "net": "bus_p",
+      "ports": [
+        "C40.1",
+        "Q5.2"
+      ],
+      "port_centres_mm": [
+        [
+          109.0,
+          22.0
+        ],
+        [
+          98.0,
+          4.215
+        ]
+      ],
+      "status": "CONNECTED_RASTER_ROUTE",
+      "pitch_mm": 0.25,
+      "length_mm": 24.43034918610403,
+      "nodes": 76,
+      "visited_nodes": 2323,
+      "start_port_offset_mm": 0.0,
+      "end_port_offset_mm": 0.03500000000000014,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            108.75,
+            21.75
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            108.75,
+            21.75
+          ]
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            98.25,
+            4.75
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            98.0,
+            4.25
+          ]
+        }
+      ],
+      "polyline": [
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            109.0,
+            22.0
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            108.75,
+            21.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            108.75,
+            21.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            106.5,
+            19.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            106.5,
+            19.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            103.25,
+            16.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            103.25,
+            15.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            103.0,
+            15.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            103.0,
+            15.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            102.75,
+            14.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            102.75,
+            14.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            102.5,
+            14.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            102.5,
+            14.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            102.25,
+            13.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            102.25,
+            13.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            102.0,
+            13.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            102.0,
+            12.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            101.75,
+            12.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            101.75,
+            12.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            101.5,
+            12.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            101.5,
+            11.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            101.25,
+            11.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            101.25,
+            11.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            101.0,
+            11.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            101.0,
+            10.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            100.75,
+            10.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            100.75,
+            10.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            100.5,
+            9.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            100.5,
+            9.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            100.25,
+            9.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            100.25,
+            9.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            100.0,
+            8.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            100.0,
+            8.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            99.75,
+            8.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            99.75,
+            7.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            99.5,
+            7.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            99.5,
+            7.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            99.25,
+            7.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            99.25,
+            6.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            99.0,
+            6.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            99.0,
+            6.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            98.75,
+            5.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            98.75,
+            5.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            98.25,
+            4.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            98.25,
+            4.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            98.25,
+            4.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            98.0,
+            4.25
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            98.0,
+            4.25
+          ]
+        }
+      ]
+    },
+    "B_bus_C41": {
+      "net": "bus_p",
+      "ports": [
+        "C41.1",
+        "Q5.2"
+      ],
+      "port_centres_mm": [
+        [
+          88.4,
+          22.0
+        ],
+        [
+          98.0,
+          4.215
+        ]
+      ],
+      "status": "CONNECTED_RASTER_ROUTE",
+      "pitch_mm": 0.25,
+      "length_mm": 23.809028842544393,
+      "nodes": 76,
+      "visited_nodes": 2622,
+      "start_port_offset_mm": 0.09999999999999432,
+      "end_port_offset_mm": 0.03500000000000014,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            88.75,
+            21.75
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            88.75,
+            21.75
+          ]
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            97.75,
+            4.75
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            98.0,
+            4.25
+          ]
+        }
+      ],
+      "polyline": [
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            88.5,
+            22.0
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            88.75,
+            21.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            88.75,
+            21.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            91.25,
+            19.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            91.25,
+            19.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            91.5,
+            18.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            91.5,
+            18.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            91.75,
+            18.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            91.75,
+            17.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            92.0,
+            17.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            92.0,
+            17.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            92.25,
+            17.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            92.25,
+            16.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            92.5,
+            16.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            92.5,
+            16.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            92.75,
+            16.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            92.75,
+            15.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            93.0,
+            15.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            93.0,
+            15.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            93.25,
+            14.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            93.25,
+            14.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            93.5,
+            14.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            93.5,
+            14.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            93.75,
+            13.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            93.75,
+            13.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            94.0,
+            13.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            94.0,
+            12.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            94.25,
+            12.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            94.25,
+            12.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            94.5,
+            12.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            94.5,
+            11.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            94.75,
+            11.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            94.75,
+            11.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            95.0,
+            11.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            95.0,
+            10.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            95.25,
+            10.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            95.25,
+            10.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            95.5,
+            9.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            95.5,
+            9.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            95.75,
+            9.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            95.75,
+            9.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            96.0,
+            8.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            96.0,
+            8.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            96.25,
+            8.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            96.25,
+            7.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            96.5,
+            7.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            96.5,
+            7.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            96.75,
+            7.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            96.75,
+            6.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            97.0,
+            6.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            97.0,
+            6.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            97.25,
+            5.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            97.25,
+            5.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            97.75,
+            4.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            97.75,
+            4.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            97.75,
+            4.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            98.0,
+            4.25
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            98.0,
+            4.25
+          ]
+        }
+      ]
+    },
+    "B_switch": {
+      "net": "sw_b",
+      "ports": [
+        "Q5.3",
+        "Q6.2"
+      ],
+      "port_centres_mm": [
+        [
+          103.45,
+          4.215
+        ],
+        [
+          116.0,
+          4.215
+        ]
+      ],
+      "status": "CONNECTED_RASTER_ROUTE",
+      "pitch_mm": 0.25,
+      "length_mm": 29.707475451951108,
+      "nodes": 98,
+      "visited_nodes": 2935,
+      "start_port_offset_mm": 0.06103277807866627,
+      "end_port_offset_mm": 0.03500000000000014,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            103.75,
+            4.75
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            103.75,
+            4.75
+          ]
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "B.Cu",
+          "xy_mm": [
+            103.75,
+            4.75
+          ]
+        },
+        {
+          "from_layer": "B.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            115.75,
+            4.75
+          ]
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            115.75,
+            4.75
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            116.0,
+            4.25
+          ]
+        }
+      ],
+      "polyline": [
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            103.5,
+            4.25
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            103.75,
+            4.5
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            103.75,
+            4.75
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            103.75,
+            4.75
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            103.75,
+            10.75
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            104.0,
+            11.0
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            104.0,
+            11.75
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            104.25,
+            12.0
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            104.25,
+            12.25
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            105.5,
+            13.5
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            105.75,
+            13.5
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            106.0,
+            13.75
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            106.5,
+            13.75
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            106.75,
+            14.0
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            108.5,
+            14.0
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            108.75,
+            13.75
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            109.25,
+            13.75
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            109.5,
+            13.5
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            109.75,
+            13.5
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            113.5,
+            9.75
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            113.5,
+            9.25
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            113.75,
+            9.0
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            113.75,
+            8.75
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            114.0,
+            8.5
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            114.0,
+            8.25
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            114.25,
+            8.0
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            114.25,
+            7.5
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            114.5,
+            7.25
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            114.5,
+            7.0
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            114.75,
+            6.75
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            114.75,
+            6.25
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            115.0,
+            6.0
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            115.0,
+            5.5
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            115.75,
+            4.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            115.75,
+            4.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            115.75,
+            4.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            116.0,
+            4.25
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            116.0,
+            4.25
+          ]
+        }
+      ]
+    },
+    "B_source_shunt": {
+      "net": "leg_ret",
+      "ports": [
+        "Q6.3",
+        "R5.1"
+      ],
+      "port_centres_mm": [
+        [
+          121.45,
+          4.215
+        ],
+        [
+          127.135,
+          9.615
+        ]
+      ],
+      "status": "CONNECTED_RASTER_ROUTE",
+      "pitch_mm": 0.25,
+      "length_mm": 11.56266017177982,
+      "nodes": 44,
+      "visited_nodes": 1696,
+      "start_port_offset_mm": 0.06103277807866627,
+      "end_port_offset_mm": 0.16263455967290247,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            122.0,
+            4.5
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            126.75,
+            4.5
+          ]
+        }
+      ],
+      "polyline": [
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            121.5,
+            4.25
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            121.75,
+            4.5
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            122.0,
+            4.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            122.0,
+            4.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            126.75,
+            4.5
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            126.75,
+            4.5
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            126.75,
+            8.5
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            127.0,
+            8.75
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            127.0,
+            9.25
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            127.25,
+            9.5
+          ]
+        }
+      ]
+    },
+    "B_shunt_C40": {
+      "net": "hv_ret",
+      "ports": [
+        "R5.4",
+        "C40.2"
+      ],
+      "port_centres_mm": [
+        [
+          125.865,
+          15.585
+        ],
+        [
+          124.0,
+          22.0
+        ]
+      ],
+      "status": "CONNECTED_RASTER_ROUTE",
+      "pitch_mm": 0.25,
+      "length_mm": 8.226873734152916,
+      "nodes": 29,
+      "visited_nodes": 567,
+      "start_port_offset_mm": 0.1430034964607473,
+      "end_port_offset_mm": 0.0,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            124.75,
+            18.25
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            124.25,
+            21.75
+          ]
+        }
+      ],
+      "polyline": [
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            125.75,
+            15.5
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            125.75,
+            17.25
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            124.75,
+            18.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            124.75,
+            18.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            124.75,
+            20.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            124.5,
+            20.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            124.5,
+            21.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            124.25,
+            21.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            124.25,
+            21.75
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            124.25,
+            21.75
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            124.0,
+            22.0
+          ]
+        }
+      ]
+    },
+    "B_shunt_C41": {
+      "net": "hv_ret",
+      "ports": [
+        "R5.4",
+        "C41.2"
+      ],
+      "port_centres_mm": [
+        [
+          125.865,
+          15.585
+        ],
+        [
+          103.4,
+          22.0
+        ]
+      ],
+      "status": "CONNECTED_RASTER_ROUTE",
+      "pitch_mm": 0.25,
+      "length_mm": 29.369009357883854,
+      "nodes": 97,
+      "visited_nodes": 2772,
+      "start_port_offset_mm": 0.1430034964607473,
+      "end_port_offset_mm": 0.09999999999999432,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            122.75,
+            18.5
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            103.5,
+            22.0
+          ]
+        }
+      ],
+      "polyline": [
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            125.75,
+            15.5
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            122.75,
+            18.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            122.75,
+            18.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            120.5,
+            20.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            120.5,
+            21.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            120.25,
+            21.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            113.25,
+            21.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            112.75,
+            20.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            112.75,
+            20.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            112.5,
+            20.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            112.5,
+            20.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            112.25,
+            19.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            112.25,
+            19.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            111.5,
+            18.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            111.25,
+            18.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            111.0,
+            18.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            110.75,
+            18.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            110.5,
+            18.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            110.0,
+            18.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            109.75,
+            18.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            108.25,
+            18.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            108.0,
+            18.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            107.5,
+            18.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            107.25,
+            18.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            107.0,
+            18.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            106.75,
+            18.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            106.5,
+            18.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            103.75,
+            21.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            103.75,
+            21.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            103.5,
+            22.0
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            103.5,
+            22.0
+          ]
+        }
+      ]
+    },
+    "Q2_return": {
+      "net": "sw_a",
+      "ports": [
+        "Q2.3",
+        "U1.14"
+      ],
+      "port_centres_mm": [
+        [
+          161.45,
+          4.215
+        ],
+        [
+          146.095,
+          41.125
+        ]
+      ],
+      "status": "CONNECTED_RASTER_ROUTE",
+      "pitch_mm": 0.25,
+      "length_mm": 47.41726188957805,
+      "nodes": 177,
+      "visited_nodes": 6976,
+      "start_port_offset_mm": 0.06103277807867791,
+      "end_port_offset_mm": 0.15700318468107513,
+      "layer_transitions": [],
+      "polyline": [
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            161.5,
+            4.25
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            161.5,
+            7.0
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            161.25,
+            7.25
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            161.25,
+            11.0
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            161.0,
+            11.25
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            161.0,
+            11.75
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            160.75,
+            12.0
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            160.75,
+            12.25
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            160.5,
+            12.5
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            160.5,
+            12.75
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            157.5,
+            15.75
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            157.5,
+            16.0
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            157.25,
+            16.25
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            157.25,
+            16.5
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            157.0,
+            16.75
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            157.0,
+            17.0
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            156.75,
+            17.25
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            156.75,
+            17.5
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            156.5,
+            17.75
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            156.5,
+            18.0
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            156.25,
+            18.25
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            156.25,
+            29.25
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            155.75,
+            29.75
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            148.5,
+            29.75
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            148.5,
+            30.25
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            148.25,
+            30.5
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            148.25,
+            31.25
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            148.0,
+            31.5
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            148.0,
+            32.25
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            147.75,
+            32.5
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            147.75,
+            33.0
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            147.5,
+            33.25
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            147.5,
+            34.0
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            147.25,
+            34.25
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            147.25,
+            35.0
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            147.0,
+            35.25
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            147.0,
+            38.0
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            146.75,
+            38.25
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            146.75,
+            38.5
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            146.5,
+            38.75
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            146.5,
+            39.25
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            146.25,
+            39.5
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            146.25,
+            40.75
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            146.0,
+            41.0
+          ]
+        }
+      ]
+    },
+    "Q3_return": {
+      "net": "leg_ret",
+      "ports": [
+        "Q3.3",
+        "U1.9"
+      ],
+      "port_centres_mm": [
+        [
+          143.45,
+          4.215
+        ],
+        [
+          152.445,
+          41.125
+        ]
+      ],
+      "status": "CONNECTED_RASTER_ROUTE",
+      "pitch_mm": 0.25,
+      "length_mm": 79.3710093578839,
+      "nodes": 295,
+      "visited_nodes": 6313,
+      "start_port_offset_mm": 0.06103277807867791,
+      "end_port_offset_mm": 0.13656500283747938,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            143.5,
+            4.75
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            130.0,
+            4.5
+          ]
+        },
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            136.0,
+            18.75
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            153.25,
+            38.75
+          ]
+        }
+      ],
+      "polyline": [
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            143.5,
+            4.25
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            143.5,
+            4.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            143.5,
+            4.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            140.0,
+            8.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            133.75,
+            8.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            130.0,
+            4.5
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            130.0,
+            4.5
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            130.0,
+            10.75
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            128.75,
+            12.0
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            128.75,
+            18.5
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            129.0,
+            18.75
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            136.0,
+            18.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            136.0,
+            18.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            136.25,
+            19.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            136.25,
+            20.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            136.5,
+            20.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            136.5,
+            21.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            136.75,
+            21.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            136.75,
+            23.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            137.0,
+            23.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            137.0,
+            24.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            137.25,
+            24.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            137.25,
+            26.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            137.5,
+            26.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            152.5,
+            26.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            152.5,
+            37.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            153.0,
+            38.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            153.0,
+            38.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            153.25,
+            38.75
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            153.25,
+            38.75
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            153.25,
+            39.5
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            153.0,
+            39.75
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            153.0,
+            40.0
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            152.75,
+            40.25
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            152.75,
+            40.75
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            152.5,
+            41.0
+          ]
+        }
+      ]
+    },
+    "Q5_return": {
+      "net": "sw_b",
+      "ports": [
+        "Q5.3",
+        "U2.14"
+      ],
+      "port_centres_mm": [
+        [
+          103.45,
+          4.215
+        ],
+        [
+          102.095,
+          41.125
+        ]
+      ],
+      "status": "CONNECTED_RASTER_ROUTE",
+      "pitch_mm": 0.25,
+      "length_mm": 42.568388155425104,
+      "nodes": 154,
+      "visited_nodes": 5075,
+      "start_port_offset_mm": 0.06103277807866627,
+      "end_port_offset_mm": 0.15700318468107513,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            103.5,
+            4.75
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            103.5,
+            4.75
+          ]
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "B.Cu",
+          "xy_mm": [
+            103.5,
+            4.75
+          ]
+        },
+        {
+          "from_layer": "B.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            102.0,
+            33.0
+          ]
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            102.0,
+            33.0
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            102.0,
+            33.0
+          ]
+        }
+      ],
+      "polyline": [
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            103.5,
+            4.25
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            103.5,
+            4.75
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            103.5,
+            4.75
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            103.5,
+            16.25
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            100.0,
+            19.75
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            100.0,
+            20.0
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            99.75,
+            20.25
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            99.75,
+            20.5
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            99.5,
+            20.75
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            99.5,
+            30.5
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            102.0,
+            33.0
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            102.0,
+            33.0
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            102.0,
+            41.0
+          ]
+        }
+      ]
+    },
+    "Q6_return": {
+      "net": "leg_ret",
+      "ports": [
+        "Q6.3",
+        "U2.9"
+      ],
+      "port_centres_mm": [
+        [
+          121.45,
+          4.215
+        ],
+        [
+          108.445,
+          41.125
+        ]
+      ],
+      "status": "CONNECTED_RASTER_ROUTE",
+      "pitch_mm": 0.25,
+      "length_mm": 46.7979415460184,
+      "nodes": 175,
+      "visited_nodes": 2787,
+      "start_port_offset_mm": 0.06103277807866627,
+      "end_port_offset_mm": 0.13656500283747938,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            121.5,
+            4.75
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            115.0,
+            17.75
+          ]
+        }
+      ],
+      "polyline": [
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            121.5,
+            4.25
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            121.5,
+            4.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            121.5,
+            4.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            115.5,
+            10.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            115.0,
+            10.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            115.0,
+            17.75
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            115.0,
+            17.75
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            115.0,
+            26.75
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            114.75,
+            27.0
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            114.75,
+            38.25
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            114.5,
+            38.25
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            114.25,
+            38.5
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            113.75,
+            38.5
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            113.5,
+            38.75
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            108.5,
+            38.75
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            108.5,
+            41.0
+          ]
+        }
+      ]
+    },
+    "A_bulk_bus": {
+      "net": "bus_p",
+      "ports": [
+        "C6.1",
+        "C39.1"
+      ],
+      "port_centres_mm": [
+        [
+          174.35,
+          50.75
+        ],
+        [
+          164.6,
+          22.0
+        ]
+      ],
+      "status": "CONNECTED_RASTER_ROUTE",
+      "pitch_mm": 0.25,
+      "length_mm": 34.91258223313766,
+      "nodes": 120,
+      "visited_nodes": 5903,
+      "start_port_offset_mm": 0.09999999999999432,
+      "end_port_offset_mm": 0.09999999999999432,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            174.25,
+            50.0
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            174.25,
+            50.0
+          ]
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            164.75,
+            22.5
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            164.5,
+            22.0
+          ]
+        }
+      ],
+      "polyline": [
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            174.25,
+            50.75
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            174.25,
+            50.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            174.25,
+            50.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            174.25,
+            43.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            174.0,
+            43.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            174.0,
+            42.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            173.75,
+            42.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            173.75,
+            42.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            173.5,
+            42.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            173.5,
+            41.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            173.25,
+            41.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            173.25,
+            41.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            173.0,
+            40.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            173.0,
+            40.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            172.75,
+            40.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            172.75,
+            40.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            172.5,
+            39.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            172.5,
+            39.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            172.25,
+            39.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            172.25,
+            38.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            172.0,
+            38.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            172.0,
+            38.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            171.75,
+            38.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            171.75,
+            37.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            171.5,
+            37.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            171.5,
+            37.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            171.25,
+            37.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            171.25,
+            36.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            171.0,
+            36.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            171.0,
+            36.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            170.75,
+            35.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            170.75,
+            35.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            170.5,
+            35.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            170.5,
+            35.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            170.25,
+            34.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            170.25,
+            34.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            170.0,
+            34.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            170.0,
+            34.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            169.75,
+            33.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            169.75,
+            33.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            169.5,
+            33.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            169.5,
+            32.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            169.25,
+            32.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            169.25,
+            32.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            169.0,
+            32.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            169.0,
+            31.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            168.75,
+            31.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            168.75,
+            31.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            168.5,
+            31.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            168.5,
+            30.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            168.25,
+            30.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            168.25,
+            30.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            168.0,
+            29.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            168.0,
+            29.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            167.75,
+            29.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            167.75,
+            29.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            167.5,
+            28.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            167.5,
+            28.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            167.25,
+            28.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            167.25,
+            27.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            167.0,
+            27.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            167.0,
+            27.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            166.75,
+            27.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            166.75,
+            26.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            166.5,
+            26.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            166.5,
+            26.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            166.25,
+            25.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            166.25,
+            25.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            166.0,
+            25.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            166.0,
+            25.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            165.75,
+            24.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            165.75,
+            24.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            165.5,
+            24.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            165.5,
+            23.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            165.25,
+            23.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            165.25,
+            23.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            164.75,
+            22.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            164.75,
+            22.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            164.75,
+            22.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            164.5,
+            22.0
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            164.5,
+            22.0
+          ]
+        }
+      ]
+    },
+    "A_bulk_return": {
+      "net": "hv_ret",
+      "ports": [
+        "C6.3",
+        "C39.2"
+      ],
+      "port_centres_mm": [
+        [
+          174.35,
+          13.25
+        ],
+        [
+          149.6,
+          22.0
+        ]
+      ],
+      "status": "CONNECTED_RASTER_ROUTE",
+      "pitch_mm": 0.25,
+      "length_mm": 29.37636867076456,
+      "nodes": 102,
+      "visited_nodes": 3601,
+      "start_port_offset_mm": 0.09999999999999432,
+      "end_port_offset_mm": 0.09999999999999432,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            173.5,
+            13.25
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            149.5,
+            22.0
+          ]
+        }
+      ],
+      "polyline": [
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            174.25,
+            13.25
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            173.5,
+            13.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            173.5,
+            13.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            168.5,
+            13.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            168.25,
+            13.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            168.0,
+            13.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            167.75,
+            13.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            167.5,
+            13.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            167.25,
+            14.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            167.0,
+            14.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            166.75,
+            14.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            166.25,
+            14.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            166.0,
+            14.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            165.75,
+            14.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            165.5,
+            14.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            165.25,
+            14.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            165.0,
+            15.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            164.75,
+            15.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            164.5,
+            15.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            164.25,
+            15.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            164.0,
+            15.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            163.5,
+            15.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            163.25,
+            15.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            163.0,
+            15.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            162.75,
+            16.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            162.5,
+            16.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            162.25,
+            16.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            162.0,
+            16.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            161.75,
+            16.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            161.5,
+            16.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            161.25,
+            16.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            160.75,
+            16.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            160.5,
+            17.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            160.25,
+            17.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            160.0,
+            17.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            159.75,
+            17.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            159.5,
+            17.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            159.25,
+            17.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            159.0,
+            17.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            158.75,
+            17.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            158.5,
+            18.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            158.0,
+            18.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            157.75,
+            18.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            157.5,
+            18.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            157.25,
+            18.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            157.0,
+            18.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            156.75,
+            18.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            156.5,
+            18.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            156.25,
+            19.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            156.0,
+            19.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            155.75,
+            19.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            155.25,
+            19.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            155.0,
+            19.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            154.75,
+            19.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            154.5,
+            19.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            154.25,
+            19.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            154.0,
+            20.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            153.75,
+            20.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            153.5,
+            20.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            153.25,
+            20.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            153.0,
+            20.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            152.5,
+            20.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            152.25,
+            20.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            152.0,
+            20.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            151.75,
+            21.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            151.5,
+            21.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            151.25,
+            21.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            151.0,
+            21.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            150.75,
+            21.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            150.25,
+            21.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            150.0,
+            21.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            149.75,
+            21.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            149.5,
+            22.0
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            149.5,
+            22.0
+          ]
+        }
+      ]
+    },
+    "B_bulk_bus": {
+      "net": "bus_p",
+      "ports": [
+        "C5.1",
+        "C41.1"
+      ],
+      "port_centres_mm": [
+        [
+          13.0,
+          43.95
+        ],
+        [
+          88.4,
+          22.0
+        ]
+      ],
+      "status": "CONNECTED_RASTER_ROUTE",
+      "pitch_mm": 0.25,
+      "length_mm": 136.7950475583125,
+      "nodes": 487,
+      "visited_nodes": 30345,
+      "start_port_offset_mm": 0.04999999999999716,
+      "end_port_offset_mm": 0.09999999999999432,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            13.75,
+            44.0
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            13.75,
+            44.0
+          ]
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "B.Cu",
+          "xy_mm": [
+            68.25,
+            46.75
+          ]
+        },
+        {
+          "from_layer": "B.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            67.0,
+            34.25
+          ]
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            88.25,
+            21.5
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            88.5,
+            22.0
+          ]
+        }
+      ],
+      "polyline": [
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            13.0,
+            44.0
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            13.75,
+            44.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            13.75,
+            44.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            14.0,
+            44.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            18.0,
+            48.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            48.0,
+            48.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            48.25,
+            48.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            48.5,
+            48.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            48.75,
+            48.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            49.5,
+            48.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            49.75,
+            48.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            56.25,
+            48.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            56.5,
+            49.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            59.5,
+            49.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            59.75,
+            48.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            60.0,
+            48.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            60.25,
+            48.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            60.5,
+            48.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            62.25,
+            46.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            68.25,
+            46.75
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            68.25,
+            46.75
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            68.25,
+            36.25
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            68.0,
+            36.0
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            68.0,
+            35.25
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            67.0,
+            34.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            67.0,
+            34.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            65.5,
+            32.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            64.5,
+            32.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            55.75,
+            24.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            55.75,
+            23.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            55.5,
+            23.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            55.5,
+            23.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            55.25,
+            23.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            55.25,
+            20.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            55.5,
+            20.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            55.5,
+            20.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            56.0,
+            19.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            56.0,
+            19.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            56.5,
+            18.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            56.75,
+            18.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            57.25,
+            18.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            58.0,
+            18.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            58.25,
+            18.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            62.0,
+            18.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            66.25,
+            13.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            66.5,
+            13.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            66.75,
+            13.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            67.25,
+            13.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            67.5,
+            13.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            68.25,
+            13.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            68.75,
+            12.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            69.0,
+            12.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            69.25,
+            12.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            69.75,
+            12.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            70.0,
+            12.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            78.25,
+            12.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            78.5,
+            12.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            78.75,
+            12.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            79.25,
+            13.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            79.5,
+            13.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            80.0,
+            13.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            83.25,
+            13.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            83.5,
+            13.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            83.75,
+            13.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            84.0,
+            14.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            84.25,
+            14.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            85.5,
+            15.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            85.5,
+            15.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            85.75,
+            16.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            85.75,
+            16.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            86.0,
+            16.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            86.0,
+            16.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            86.25,
+            17.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            86.25,
+            17.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            86.5,
+            17.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            86.5,
+            18.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            86.75,
+            18.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            86.75,
+            18.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            87.0,
+            18.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            87.0,
+            19.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            87.25,
+            19.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            87.25,
+            19.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            87.5,
+            20.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            87.5,
+            20.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            87.75,
+            20.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            87.75,
+            21.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            88.25,
+            21.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            88.25,
+            21.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            88.25,
+            21.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            88.5,
+            22.0
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            88.5,
+            22.0
+          ]
+        }
+      ]
+    },
+    "B_bulk_return": {
+      "net": "hv_ret",
+      "ports": [
+        "C5.3",
+        "C41.2"
+      ],
+      "port_centres_mm": [
+        [
+          50.5,
+          43.95
+        ],
+        [
+          103.4,
+          22.0
+        ]
+      ],
+      "status": "CONNECTED_RASTER_ROUTE",
+      "pitch_mm": 0.25,
+      "length_mm": 63.114698372208196,
+      "nodes": 215,
+      "visited_nodes": 12498,
+      "start_port_offset_mm": 0.04999999999999716,
+      "end_port_offset_mm": 0.09999999999999432,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            51.25,
+            44.0
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            103.5,
+            22.0
+          ]
+        }
+      ],
+      "polyline": [
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            50.5,
+            44.0
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            51.25,
+            44.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            51.25,
+            44.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            55.25,
+            44.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            55.5,
+            43.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            55.75,
+            43.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            56.0,
+            43.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            56.5,
+            43.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            56.75,
+            43.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            57.0,
+            43.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            57.25,
+            43.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            57.5,
+            43.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            57.75,
+            42.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            58.0,
+            42.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            58.25,
+            42.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            58.5,
+            42.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            58.75,
+            42.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            59.25,
+            42.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            59.5,
+            42.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            59.75,
+            42.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            60.0,
+            41.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            60.25,
+            41.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            60.5,
+            41.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            60.75,
+            41.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            61.0,
+            41.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            61.25,
+            41.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            61.5,
+            41.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            62.0,
+            41.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            62.25,
+            40.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            62.5,
+            40.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            62.75,
+            40.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            63.0,
+            40.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            63.25,
+            40.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            63.5,
+            40.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            63.75,
+            40.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            64.0,
+            40.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            64.25,
+            39.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            64.75,
+            39.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            65.0,
+            39.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            65.25,
+            39.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            65.5,
+            39.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            65.75,
+            39.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            66.0,
+            39.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            66.25,
+            39.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            66.5,
+            38.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            66.75,
+            38.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            67.0,
+            38.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            67.5,
+            38.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            67.75,
+            38.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            68.0,
+            38.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            68.25,
+            38.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            68.75,
+            38.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            69.0,
+            37.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            69.25,
+            37.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            69.5,
+            37.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            69.75,
+            37.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            70.0,
+            37.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            70.25,
+            37.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            70.5,
+            37.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            70.75,
+            37.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            71.0,
+            36.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            73.25,
+            36.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            75.25,
+            34.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            75.75,
+            34.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            76.0,
+            34.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            76.25,
+            34.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            76.5,
+            34.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            76.75,
+            34.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            77.0,
+            34.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            77.25,
+            34.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            77.5,
+            33.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            77.75,
+            33.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            78.0,
+            33.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            78.5,
+            33.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            78.75,
+            33.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            79.0,
+            33.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            79.25,
+            33.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            79.5,
+            33.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            79.75,
+            32.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            80.0,
+            32.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            80.25,
+            32.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            80.5,
+            32.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            80.75,
+            32.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            81.25,
+            32.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            81.5,
+            32.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            81.75,
+            32.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            82.0,
+            31.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            82.25,
+            31.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            82.5,
+            31.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            82.75,
+            31.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            83.0,
+            31.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            83.25,
+            31.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            88.0,
+            26.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            93.75,
+            26.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            94.0,
+            26.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            94.25,
+            26.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            94.5,
+            26.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            95.0,
+            26.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            95.25,
+            25.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            95.5,
+            25.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            95.75,
+            25.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            96.0,
+            25.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            96.25,
+            25.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            96.5,
+            25.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            96.75,
+            25.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            97.0,
+            25.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            97.25,
+            24.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            97.75,
+            24.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            98.0,
+            24.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            98.25,
+            24.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            98.5,
+            24.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            98.75,
+            24.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            99.0,
+            24.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            99.25,
+            24.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            99.5,
+            23.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            99.75,
+            23.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            100.0,
+            23.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            100.5,
+            23.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            100.75,
+            23.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            101.0,
+            23.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            101.25,
+            23.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            101.5,
+            23.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            101.75,
+            22.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            102.0,
+            22.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            102.25,
+            22.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            102.75,
+            22.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            103.0,
+            22.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            103.25,
+            22.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            103.5,
+            22.0
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            103.5,
+            22.0
+          ]
+        }
+      ]
+    },
+    "A_bulk_alt_bus": {
+      "net": "bus_p",
+      "ports": [
+        "C5.1",
+        "C39.1"
+      ],
+      "port_centres_mm": [
+        [
+          13.0,
+          43.95
+        ],
+        [
+          164.6,
+          22.0
+        ]
+      ],
+      "status": "CONNECTED_RASTER_ROUTE",
+      "pitch_mm": 0.25,
+      "length_mm": 211.01256197958475,
+      "nodes": 776,
+      "visited_nodes": 44293,
+      "start_port_offset_mm": 0.04999999999999716,
+      "end_port_offset_mm": 0.09999999999999432,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            13.75,
+            44.0
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            13.75,
+            44.0
+          ]
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "B.Cu",
+          "xy_mm": [
+            68.25,
+            46.75
+          ]
+        },
+        {
+          "from_layer": "B.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            67.0,
+            34.25
+          ]
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            164.25,
+            21.75
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            164.5,
+            22.0
+          ]
+        }
+      ],
+      "polyline": [
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            13.0,
+            44.0
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            13.75,
+            44.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            13.75,
+            44.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            14.0,
+            44.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            18.0,
+            48.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            48.0,
+            48.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            48.25,
+            48.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            48.5,
+            48.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            48.75,
+            48.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            49.5,
+            48.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            49.75,
+            48.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            56.25,
+            48.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            56.5,
+            49.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            66.0,
+            49.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            68.25,
+            46.75
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            68.25,
+            46.75
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            68.25,
+            36.25
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            68.0,
+            36.0
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            68.0,
+            35.25
+          ]
+        },
+        {
+          "layer": "B.Cu",
+          "xy_mm": [
+            67.0,
+            34.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            67.0,
+            34.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            66.0,
+            34.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            55.75,
+            24.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            55.75,
+            23.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            55.5,
+            23.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            55.5,
+            23.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            55.25,
+            23.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            55.25,
+            20.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            55.5,
+            20.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            55.5,
+            20.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            56.0,
+            19.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            56.0,
+            19.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            56.5,
+            18.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            56.75,
+            18.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            57.25,
+            18.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            58.0,
+            18.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            58.25,
+            18.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            62.0,
+            18.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            66.25,
+            13.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            66.5,
+            13.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            66.75,
+            13.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            67.25,
+            13.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            67.5,
+            13.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            68.25,
+            13.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            68.75,
+            12.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            69.0,
+            12.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            69.25,
+            12.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            69.75,
+            12.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            70.0,
+            12.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            84.5,
+            12.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            86.0,
+            13.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            86.25,
+            13.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            86.5,
+            14.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            86.75,
+            14.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            87.0,
+            14.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            113.75,
+            14.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            114.0,
+            14.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            133.5,
+            14.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            133.75,
+            13.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            146.5,
+            13.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            146.75,
+            14.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            147.0,
+            14.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            147.25,
+            14.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            147.75,
+            14.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            148.0,
+            14.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            148.25,
+            14.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            148.5,
+            14.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            148.75,
+            14.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            149.0,
+            15.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            149.25,
+            15.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            149.5,
+            15.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            149.75,
+            15.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            150.0,
+            15.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            150.5,
+            15.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            150.75,
+            15.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            151.0,
+            15.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            151.25,
+            16.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            151.5,
+            16.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            151.75,
+            16.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            152.0,
+            16.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            152.25,
+            16.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            152.5,
+            16.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            152.75,
+            16.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            153.25,
+            16.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            153.5,
+            17.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            153.75,
+            17.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            154.0,
+            17.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            154.25,
+            17.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            154.5,
+            17.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            154.75,
+            17.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            155.0,
+            17.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            155.25,
+            17.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            155.5,
+            18.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            156.0,
+            18.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            156.25,
+            18.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            156.5,
+            18.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            156.75,
+            18.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            157.0,
+            18.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            157.25,
+            18.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            157.5,
+            18.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            157.75,
+            19.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            158.25,
+            19.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            158.5,
+            19.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            158.75,
+            19.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            159.0,
+            19.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            159.25,
+            19.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            159.5,
+            19.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            159.75,
+            19.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            160.0,
+            20.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            160.5,
+            20.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            160.75,
+            20.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            161.0,
+            20.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            161.25,
+            20.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            161.5,
+            20.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            161.75,
+            20.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            162.25,
+            20.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            162.5,
+            21.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            162.75,
+            21.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            163.0,
+            21.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            163.5,
+            21.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            163.75,
+            21.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            164.0,
+            21.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            164.25,
+            21.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            164.25,
+            21.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            164.5,
+            22.0
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            164.5,
+            22.0
+          ]
+        }
+      ]
+    },
+    "A_bulk_alt_return": {
+      "net": "hv_ret",
+      "ports": [
+        "C5.3",
+        "C39.2"
+      ],
+      "port_centres_mm": [
+        [
+          50.5,
+          43.95
+        ],
+        [
+          149.6,
+          22.0
+        ]
+      ],
+      "status": "CONNECTED_RASTER_ROUTE",
+      "pitch_mm": 0.25,
+      "length_mm": 113.61038738653258,
+      "nodes": 400,
+      "visited_nodes": 31391,
+      "start_port_offset_mm": 0.04999999999999716,
+      "end_port_offset_mm": 0.09999999999999432,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            51.25,
+            44.0
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            149.5,
+            22.0
+          ]
+        }
+      ],
+      "polyline": [
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            50.5,
+            44.0
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            51.25,
+            44.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            51.25,
+            44.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            64.0,
+            44.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            66.0,
+            42.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            71.75,
+            42.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            72.75,
+            41.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            73.0,
+            41.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            73.25,
+            40.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            73.75,
+            40.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            88.0,
+            26.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            124.5,
+            26.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            134.25,
+            16.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            138.25,
+            16.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            138.5,
+            17.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            138.75,
+            17.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            139.0,
+            17.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            139.25,
+            17.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            139.5,
+            17.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            139.75,
+            17.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            140.0,
+            17.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            140.25,
+            17.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            140.5,
+            18.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            144.75,
+            18.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            145.0,
+            18.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            145.5,
+            18.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            145.75,
+            18.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            146.0,
+            18.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            146.25,
+            18.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            146.5,
+            18.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            149.25,
+            21.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            149.25,
+            21.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            149.5,
+            22.0
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            149.5,
+            22.0
+          ]
+        }
+      ]
+    },
+    "B_bulk_alt_bus": {
+      "net": "bus_p",
+      "ports": [
+        "C6.1",
+        "C41.1"
+      ],
+      "port_centres_mm": [
+        [
+          174.35,
+          50.75
+        ],
+        [
+          88.4,
+          22.0
+        ]
+      ],
+      "status": "CONNECTED_RASTER_ROUTE",
+      "pitch_mm": 0.25,
+      "length_mm": 100.07553313704007,
+      "nodes": 350,
+      "visited_nodes": 18125,
+      "start_port_offset_mm": 0.09999999999999432,
+      "end_port_offset_mm": 0.09999999999999432,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            173.75,
+            50.25
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            173.75,
+            50.25
+          ]
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            88.75,
+            22.25
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            88.5,
+            22.0
+          ]
+        }
+      ],
+      "polyline": [
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            174.25,
+            50.75
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            173.75,
+            50.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            173.75,
+            50.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            166.0,
+            42.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            166.0,
+            42.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            162.0,
+            42.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            155.25,
+            35.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            155.0,
+            35.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            154.75,
+            35.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            154.0,
+            35.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            153.75,
+            34.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            120.25,
+            34.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            117.5,
+            32.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            117.25,
+            32.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            116.75,
+            31.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            116.5,
+            31.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            115.0,
+            30.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            114.75,
+            30.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            114.5,
+            29.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            105.25,
+            29.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            105.0,
+            29.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            104.75,
+            29.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            104.5,
+            29.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            104.25,
+            29.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            104.0,
+            29.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            103.75,
+            29.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            103.5,
+            28.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            103.25,
+            28.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            103.0,
+            28.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            102.5,
+            28.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            102.25,
+            28.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            102.0,
+            28.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            101.75,
+            28.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            101.5,
+            28.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            101.25,
+            27.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            101.0,
+            27.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            100.75,
+            27.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            100.5,
+            27.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            100.25,
+            27.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            99.75,
+            27.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            99.5,
+            27.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            99.25,
+            27.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            99.0,
+            26.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            98.75,
+            26.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            98.5,
+            26.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            98.25,
+            26.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            98.0,
+            26.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            97.75,
+            26.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            97.5,
+            26.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            97.0,
+            26.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            96.75,
+            25.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            96.5,
+            25.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            96.25,
+            25.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            96.0,
+            25.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            95.75,
+            25.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            95.5,
+            25.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            95.25,
+            25.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            94.75,
+            25.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            94.5,
+            24.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            94.25,
+            24.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            94.0,
+            24.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            93.75,
+            24.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            93.5,
+            24.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            93.25,
+            24.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            93.0,
+            24.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            92.5,
+            24.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            92.25,
+            23.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            92.0,
+            23.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            91.75,
+            23.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            91.5,
+            23.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            91.25,
+            23.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            90.75,
+            23.25
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            90.5,
+            23.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            90.25,
+            23.0
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            90.0,
+            22.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            89.5,
+            22.75
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            89.25,
+            22.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            89.0,
+            22.5
+          ]
+        },
+        {
+          "layer": "In2.Cu",
+          "xy_mm": [
+            88.75,
+            22.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            88.75,
+            22.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            88.5,
+            22.0
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            88.5,
+            22.0
+          ]
+        }
+      ]
+    },
+    "B_bulk_alt_return": {
+      "net": "hv_ret",
+      "ports": [
+        "C6.3",
+        "C41.2"
+      ],
+      "port_centres_mm": [
+        [
+          174.35,
+          13.25
+        ],
+        [
+          103.4,
+          22.0
+        ]
+      ],
+      "status": "CONNECTED_RASTER_ROUTE",
+      "pitch_mm": 0.25,
+      "length_mm": 78.65454326381678,
+      "nodes": 290,
+      "visited_nodes": 14743,
+      "start_port_offset_mm": 0.09999999999999432,
+      "end_port_offset_mm": 0.09999999999999432,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            173.5,
+            13.25
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            103.5,
+            22.0
+          ]
+        }
+      ],
+      "polyline": [
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            174.25,
+            13.25
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            173.5,
+            13.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            173.5,
+            13.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            136.5,
+            13.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            129.25,
+            20.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            129.0,
+            20.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            128.75,
+            20.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            120.75,
+            20.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            120.25,
+            21.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            113.25,
+            21.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            112.75,
+            20.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            112.75,
+            20.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            112.5,
+            20.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            112.5,
+            20.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            112.25,
+            19.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            112.25,
+            19.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            111.5,
+            18.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            111.25,
+            18.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            111.0,
+            18.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            110.75,
+            18.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            110.5,
+            18.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            110.0,
+            18.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            109.75,
+            18.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            108.25,
+            18.0
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            108.0,
+            18.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            107.5,
+            18.25
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            107.25,
+            18.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            107.0,
+            18.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            106.75,
+            18.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            106.5,
+            18.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            103.75,
+            21.5
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            103.75,
+            21.75
+          ]
+        },
+        {
+          "layer": "In1.Cu",
+          "xy_mm": [
+            103.5,
+            22.0
+          ]
+        },
+        {
+          "layer": "F.Cu",
+          "xy_mm": [
+            103.5,
+            22.0
+          ]
+        }
+      ]
+    }
+  }
+}

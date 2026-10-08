@@ -1,0 +1,39 @@
+{
+  "board": "native-13/section.kicad_pcb",
+  "board_sha256": "8056fc952675bc6987bcc9d32c12a88eebc4cec9bc3696f8cbd4876700a39129",
+  "capacitors": [
+    {
+      "footprint": "Capacitor_THT:C_Rect_L26.5mm_W10.5mm_P22.50mm_MKS4",
+      "outside_manufacturer_tolerance": true,
+      "pad_center_pitch_mm": 22.5,
+      "pad_nets": {
+        "1": "l_f",
+        "2": "ac_n_in"
+      },
+      "pitch_shortfall_mm": 5.0,
+      "reference": "C1"
+    },
+    {
+      "footprint": "Capacitor_THT:C_Rect_L26.5mm_W10.5mm_P22.50mm_MKS4",
+      "outside_manufacturer_tolerance": true,
+      "pad_center_pitch_mm": 22.5,
+      "pad_nets": {
+        "1": "l_filt",
+        "2": "n_filt"
+      },
+      "pitch_shortfall_mm": 5.0,
+      "reference": "C2"
+    }
+  ],
+  "manufacturer_part": "R463R410000M1M",
+  "manufacturer_pitch_mm": 27.5,
+  "manufacturer_pitch_tolerance_mm": 0.4,
+  "mosfet_drain_tab_nets": {
+    "Q2": "bus_p",
+    "Q3": "sw_a",
+    "Q5": "bus_p",
+    "Q6": "sw_b"
+  },
+  "source": "sources/KEM_F3095_R46_X2_310_110C.pdf",
+  "source_sha256": "5a3131ce8de7445130b777cab1a5e1a17e6b5f3343faddfe19735221db205094"
+}

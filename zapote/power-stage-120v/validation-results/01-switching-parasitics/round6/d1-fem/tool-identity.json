@@ -1,0 +1,39 @@
+{
+  "date_local": "2026-09-28",
+  "worktree_head": "dac4f6e1b506b5146f1030f3d3416e1fa2076545",
+  "native17_board_sha256": "16e8b70bb7f2bc9020ea574022c13661cd09640ca3a52db1ff43f9f6db976162",
+  "native17_step_sha256": "07e8a14caa1f2b1888576dbece1e4356350f593d3bef12cc5d4d928a6ac17aff",
+  "palace": {
+    "git_commit": "ca04eddeaa1d8f5345b8a51b5ce5cc578da3a8c7",
+    "binary": null,
+    "build_attempts": 2
+  },
+  "elmer": {
+    "git_commit": "a19504ac53ec222e3355e182b08f2ff280c2203a",
+    "release": "26.2.1",
+    "direct_runtime": {
+      "ElmerSolver": "b12d9ea79bc83345c7458e9d991447f53186b0d814d4a54692a93f89e8747355",
+      "ElmerGrid": "8e197689936602e30f40d81c1e5b51adc65c03246958e7563a0ac54c45eae2ec",
+      "MagnetoDynamics.dylib": "92bd4e1420ab93898dbea57240109816593ad0a6e0c9ba13419fe8df9f27e096",
+      "libelmersolver.dylib": "3713aea3c83682b636ee17d56f179f0d37029e93d4b6c3873e6a32c416501e58"
+    },
+    "hypre_runtime": {
+      "ElmerSolver": "a6a53c43805dc7fb7adb233280093950135235a299b055701d767135b94b2fa4",
+      "MagnetoDynamics.dylib": "dc2c8a292faec4faff9537ccb4e4231b0721d3e1d56d6f65aac69eb46ed73edb",
+      "libelmersolver.dylib": "6be200d864f597f8a784701d73888b3ffc57eeb2855f29453acf38d3a9554579",
+      "libHYPRE.a": "2d4e245bcba8025b1a86351b1a3ba8dd5e1cc850c3c2dffd10b0bcb7f19c7e01"
+    },
+    "source_files": {
+      "WhitneyAVSolver.F90": "ba6e08584bcf2f8d7baed616ea932cbfcc7272889584571e5437e204a6fcf9e8",
+      "SParIterSolver.F90": "7765cdad2306b1510f05e6a2ec6c24251e0903454632ecbc52222f21dc73579a"
+    }
+  },
+  "tools": {
+    "kicad_cli": "10.0.4",
+    "gmsh": "4.15.2-git",
+    "cmake": "4.4.3",
+    "gfortran": "16.2.0",
+    "AppleClang": "21.0.0"
+  },
+  "raw_rings_upstream_mesh_sha256": "2291c903231832cf5c69c9aff03ac78c931c94f2058da36931307c72b71888a5"
+}

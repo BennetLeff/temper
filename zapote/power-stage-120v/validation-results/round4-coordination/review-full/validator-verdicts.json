@@ -1,0 +1,40 @@
+{
+  "verdicts": [
+    {
+      "#": 1,
+      "status": "confirmed",
+      "protected_subject": null,
+      "reason": "A parseable replacement selected C1 wave can change C2 energy terms because build_waveform_catalog.py:236 analyzes it before hashing it at line 238, while the frozen inputs pin only metrics and curves and deadtime_losses.py:472-475 checks the newly generated manifest against itself; replacement incidence was not measured."
+    },
+    {
+      "#": 2,
+      "status": "confirmed",
+      "protected_subject": null,
+      "reason": "With an existing progress.jsonl and a changed TIMINGS_NS value, run_c1.py:76-77 and 341-356 reuse rows by an ID lacking deadtime and export current timing and source hashes around those old rows; incidence was not measured."
+    },
+    {
+      "#": 3,
+      "status": "confirmed",
+      "protected_subject": null,
+      "reason": "Removing both 39 and 51 kΩ rows for one accepted case and timing corner leaves no grouped key for compare_corners.py:88-91 to inspect, and the bounded reproduction printed 'C2 comparison PASS: 809 case/corner pairs' instead of the required 810."
+    },
+    {
+      "#": 4,
+      "status": "confirmed",
+      "protected_subject": null,
+      "reason": "With the same source case but a changed selected C1 wave or onset, or a new ngspice version, run_check.py:143-157 returns cached results after checking only case, deck, raw, and log digests while lines 284-305 publish current provenance; incidence was not measured."
+    },
+    {
+      "#": 5,
+      "status": "confirmed",
+      "protected_subject": null,
+      "reason": "With unchanged params and a revised quarterstep deck or vendor model, check_quarterstep.py:47-54 reuses result.json without source identity checks, and check_numerics.py:85-92 repeats that rule for halfstep; incidence was not measured."
+    },
+    {
+      "#": 6,
+      "status": "confirmed",
+      "protected_subject": "data-loss",
+      "reason": "If compression is interrupted after find_freq.py:293-296 writes case.json, lines 299-301 can leave a truncated waves.raw.gz that verify_cached_case at lines 225-230 accepts by existence alone on retry, losing complete raw evidence; interruption incidence was not measured."
+    }
+  ]
+}

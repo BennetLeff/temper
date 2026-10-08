@@ -1,0 +1,115 @@
+{
+ "identity": {
+  "legA-h0-best-n19.matrix.txt": "cf861da357ee496a0314356a21cfa4478d67e4ae8e15d36dae42dbc9deac2019",
+  "legB-h0-corr-n19.matrix.txt": "4e5ceb13538e44799c499370889e231d25825baf4c4d198df8959a6d5b54b0a6",
+  "F6.cir": "42417f0274abec253fa9797e1aa8c1cd359b366c63c66c5fdf467a99dfc9d1e7",
+  "f6_legs.py": "42f0a1c093328c39e31c059fd9a0383594dc683459f72fb9cdeb66fb7d432ec6",
+  "run_d2.py": "bec75e3212b120853eb4a58286fb3c222094e46b6e88ba6e41edcde73cd24c7a",
+  "PMEG6030EP.txt": "0c2892521c7933b99f405d803cef84240050b71c9e1f412088bd7a6c6352b983"
+ },
+ "diode": "pmeg",
+ "model_screen_V": {
+  "25": 3.5624339999999997,
+  "27": 3.545527,
+  "100": 2.924901,
+  "150": 2.48794
+ },
+ "groups": {
+  "A_T27_S1": {
+   "cases": 8,
+   "complete": 8,
+   "pass": 8,
+   "pass_hot": 8,
+   "max_off_V": -0.096,
+   "max_vds_V": 356.4
+  },
+  "A_T27_S2": {
+   "cases": 4,
+   "complete": 4,
+   "pass": 4,
+   "pass_hot": 4,
+   "max_off_V": 0.716,
+   "max_vds_V": 400.9
+  },
+  "A_T27_S4": {
+   "cases": 36,
+   "complete": 36,
+   "pass": 36,
+   "pass_hot": 31,
+   "max_off_V": 2.482,
+   "max_vds_V": 484.3
+  },
+  "A_T150_S1": {
+   "cases": 8,
+   "complete": 8,
+   "pass": 8,
+   "pass_hot": 8,
+   "max_off_V": -0.061,
+   "max_vds_V": 354.9
+  },
+  "A_T150_S2": {
+   "cases": 4,
+   "complete": 4,
+   "pass": 4,
+   "pass_hot": 4,
+   "max_off_V": 0.735,
+   "max_vds_V": 404.1
+  },
+  "A_T150_S4": {
+   "cases": 36,
+   "complete": 36,
+   "pass": 36,
+   "pass_hot": 33,
+   "max_off_V": 2.219,
+   "max_vds_V": 477.9
+  },
+  "B_T27_S1": {
+   "cases": 8,
+   "complete": 8,
+   "pass": 8,
+   "pass_hot": 8,
+   "max_off_V": -0.393,
+   "max_vds_V": 354.3
+  },
+  "B_T27_S2": {
+   "cases": 4,
+   "complete": 4,
+   "pass": 4,
+   "pass_hot": 4,
+   "max_off_V": 0.157,
+   "max_vds_V": 368.9
+  },
+  "B_T27_S4": {
+   "cases": 36,
+   "complete": 36,
+   "pass": 36,
+   "pass_hot": 25,
+   "max_off_V": 2.395,
+   "max_vds_V": 491.2
+  },
+  "B_T150_S1": {
+   "cases": 8,
+   "complete": 8,
+   "pass": 8,
+   "pass_hot": 8,
+   "max_off_V": -0.371,
+   "max_vds_V": 353.8
+  },
+  "B_T150_S2": {
+   "cases": 4,
+   "complete": 4,
+   "pass": 4,
+   "pass_hot": 4,
+   "max_off_V": 0.155,
+   "max_vds_V": 378.6
+  },
+  "B_T150_S4": {
+   "cases": 36,
+   "complete": 36,
+   "pass": 36,
+   "pass_hot": 26,
+   "max_off_V": 2.099,
+   "max_vds_V": 482.2
+  }
+ }
+}

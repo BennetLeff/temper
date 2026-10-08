@@ -1,0 +1,727 @@
+[
+  {
+    "case": "best_S3_v280_i5_d1_dt250_esl20",
+    "parameters": {
+      "LP1": "24.5969n",
+      "LP2": "23.8522n",
+      "LP3": "24.2606n",
+      "LP4": "35.6765n",
+      "K12": "0.632482752",
+      "K13": "0.165300953",
+      "K14": "0.185415768",
+      "K23": "0.160678209",
+      "K24": "0.196916347",
+      "K34": "-0.00889872432",
+      "VBUS": "280",
+      "IL": "5",
+      "DIR": "1",
+      "DT": "250n",
+      "LESL": "20n",
+      "LSHUNT": "2n",
+      "TRMAX": "0.2n"
+    },
+    "failure_lines": [
+      "doAnalyses: TRAN:  Timestep too small; time = 2e-06, timestep = 2.5e-22: trouble with node \"bus\"",
+      "run simulation(s) aborted"
+    ],
+    "initial_transient_solution_reported": true,
+    "gmin_stepping_completed": true,
+    "data_rows": 10014
+  },
+  {
+    "case": "best_S3_v280_i5_d1_dt307_esl20",
+    "parameters": {
+      "LP1": "24.5969n",
+      "LP2": "23.8522n",
+      "LP3": "24.2606n",
+      "LP4": "35.6765n",
+      "K12": "0.632482752",
+      "K13": "0.165300953",
+      "K14": "0.185415768",
+      "K23": "0.160678209",
+      "K24": "0.196916347",
+      "K34": "-0.00889872432",
+      "VBUS": "280",
+      "IL": "5",
+      "DIR": "1",
+      "DT": "307n",
+      "LESL": "20n",
+      "LSHUNT": "2n",
+      "TRMAX": "0.2n"
+    },
+    "failure_lines": [
+      "doAnalyses: TRAN:  Timestep too small; time = 2e-06, timestep = 2.5e-22: trouble with node \"bus\"",
+      "run simulation(s) aborted"
+    ],
+    "initial_transient_solution_reported": true,
+    "gmin_stepping_completed": true,
+    "data_rows": 10014
+  },
+  {
+    "case": "best_S3_v280_i5_d1_dt348_esl20",
+    "parameters": {
+      "LP1": "24.5969n",
+      "LP2": "23.8522n",
+      "LP3": "24.2606n",
+      "LP4": "35.6765n",
+      "K12": "0.632482752",
+      "K13": "0.165300953",
+      "K14": "0.185415768",
+      "K23": "0.160678209",
+      "K24": "0.196916347",
+      "K34": "-0.00889872432",
+      "VBUS": "280",
+      "IL": "5",
+      "DIR": "1",
+      "DT": "348n",
+      "LESL": "20n",
+      "LSHUNT": "2n",
+      "TRMAX": "0.2n"
+    },
+    "failure_lines": [
+      "doAnalyses: TRAN:  Timestep too small; time = 2e-06, timestep = 2.5e-22: trouble with node \"bus\"",
+      "run simulation(s) aborted"
+    ],
+    "initial_transient_solution_reported": true,
+    "gmin_stepping_completed": true,
+    "data_rows": 10014
+  },
+  {
+    "case": "best_S3_v280_i5_d1_dt391_esl20",
+    "parameters": {
+      "LP1": "24.5969n",
+      "LP2": "23.8522n",
+      "LP3": "24.2606n",
+      "LP4": "35.6765n",
+      "K12": "0.632482752",
+      "K13": "0.165300953",
+      "K14": "0.185415768",
+      "K23": "0.160678209",
+      "K24": "0.196916347",
+      "K34": "-0.00889872432",
+      "VBUS": "280",
+      "IL": "5",
+      "DIR": "1",
+      "DT": "391n",
+      "LESL": "20n",
+      "LSHUNT": "2n",
+      "TRMAX": "0.2n"
+    },
+    "failure_lines": [
+      "doAnalyses: TRAN:  Timestep too small; time = 2e-06, timestep = 2.5e-22: trouble with node \"bus\"",
+      "run simulation(s) aborted"
+    ],
+    "initial_transient_solution_reported": true,
+    "gmin_stepping_completed": true,
+    "data_rows": 10014
+  },
+  {
+    "case": "best_S3_v280_i5_d1_dt450_esl20",
+    "parameters": {
+      "LP1": "24.5969n",
+      "LP2": "23.8522n",
+      "LP3": "24.2606n",
+      "LP4": "35.6765n",
+      "K12": "0.632482752",
+      "K13": "0.165300953",
+      "K14": "0.185415768",
+      "K23": "0.160678209",
+      "K24": "0.196916347",
+      "K34": "-0.00889872432",
+      "VBUS": "280",
+      "IL": "5",
+      "DIR": "1",
+      "DT": "450n",
+      "LESL": "20n",
+      "LSHUNT": "2n",
+      "TRMAX": "0.2n"
+    },
+    "failure_lines": [
+      "doAnalyses: TRAN:  Timestep too small; time = 2e-06, timestep = 2.5e-22: trouble with node \"bus\"",
+      "run simulation(s) aborted"
+    ],
+    "initial_transient_solution_reported": true,
+    "gmin_stepping_completed": true,
+    "data_rows": 10014
+  },
+  {
+    "case": "best_S3_v280_i10_d1_dt250_esl1.06",
+    "parameters": {
+      "LP1": "24.5969n",
+      "LP2": "23.8522n",
+      "LP3": "24.2606n",
+      "LP4": "35.6765n",
+      "K12": "0.632482752",
+      "K13": "0.165300953",
+      "K14": "0.185415768",
+      "K23": "0.160678209",
+      "K24": "0.196916347",
+      "K34": "-0.00889872432",
+      "VBUS": "280",
+      "IL": "10",
+      "DIR": "1",
+      "DT": "250n",
+      "LESL": "1.06n",
+      "LSHUNT": "2n",
+      "TRMAX": "0.2n"
+    },
+    "failure_lines": [
+      "doAnalyses: TRAN:  Timestep too small; time = 2e-12, timestep = 2.5e-22: trouble with node \"bus\"",
+      "run simulation(s) aborted"
+    ],
+    "initial_transient_solution_reported": true,
+    "gmin_stepping_completed": true,
+    "data_rows": 2
+  },
+  {
+    "case": "best_S3_v280_i10_d1_dt307_esl1.06",
+    "parameters": {
+      "LP1": "24.5969n",
+      "LP2": "23.8522n",
+      "LP3": "24.2606n",
+      "LP4": "35.6765n",
+      "K12": "0.632482752",
+      "K13": "0.165300953",
+      "K14": "0.185415768",
+      "K23": "0.160678209",
+      "K24": "0.196916347",
+      "K34": "-0.00889872432",
+      "VBUS": "280",
+      "IL": "10",
+      "DIR": "1",
+      "DT": "307n",
+      "LESL": "1.06n",
+      "LSHUNT": "2n",
+      "TRMAX": "0.2n"
+    },
+    "failure_lines": [
+      "doAnalyses: TRAN:  Timestep too small; time = 2e-12, timestep = 2.5e-22: trouble with node \"bus\"",
+      "run simulation(s) aborted"
+    ],
+    "initial_transient_solution_reported": true,
+    "gmin_stepping_completed": true,
+    "data_rows": 2
+  },
+  {
+    "case": "best_S3_v280_i10_d1_dt348_esl1.06",
+    "parameters": {
+      "LP1": "24.5969n",
+      "LP2": "23.8522n",
+      "LP3": "24.2606n",
+      "LP4": "35.6765n",
+      "K12": "0.632482752",
+      "K13": "0.165300953",
+      "K14": "0.185415768",
+      "K23": "0.160678209",
+      "K24": "0.196916347",
+      "K34": "-0.00889872432",
+      "VBUS": "280",
+      "IL": "10",
+      "DIR": "1",
+      "DT": "348n",
+      "LESL": "1.06n",
+      "LSHUNT": "2n",
+      "TRMAX": "0.2n"
+    },
+    "failure_lines": [
+      "doAnalyses: TRAN:  Timestep too small; time = 2e-12, timestep = 2.5e-22: trouble with node \"bus\"",
+      "run simulation(s) aborted"
+    ],
+    "initial_transient_solution_reported": true,
+    "gmin_stepping_completed": true,
+    "data_rows": 2
+  },
+  {
+    "case": "best_S3_v280_i10_d1_dt391_esl1.06",
+    "parameters": {
+      "LP1": "24.5969n",
+      "LP2": "23.8522n",
+      "LP3": "24.2606n",
+      "LP4": "35.6765n",
+      "K12": "0.632482752",
+      "K13": "0.165300953",
+      "K14": "0.185415768",
+      "K23": "0.160678209",
+      "K24": "0.196916347",
+      "K34": "-0.00889872432",
+      "VBUS": "280",
+      "IL": "10",
+      "DIR": "1",
+      "DT": "391n",
+      "LESL": "1.06n",
+      "LSHUNT": "2n",
+      "TRMAX": "0.2n"
+    },
+    "failure_lines": [
+      "doAnalyses: TRAN:  Timestep too small; time = 2e-12, timestep = 2.5e-22: trouble with node \"bus\"",
+      "run simulation(s) aborted"
+    ],
+    "initial_transient_solution_reported": true,
+    "gmin_stepping_completed": true,
+    "data_rows": 2
+  },
+  {
+    "case": "best_S3_v280_i10_d1_dt450_esl1.06",
+    "parameters": {
+      "LP1": "24.5969n",
+      "LP2": "23.8522n",
+      "LP3": "24.2606n",
+      "LP4": "35.6765n",
+      "K12": "0.632482752",
+      "K13": "0.165300953",
+      "K14": "0.185415768",
+      "K23": "0.160678209",
+      "K24": "0.196916347",
+      "K34": "-0.00889872432",
+      "VBUS": "280",
+      "IL": "10",
+      "DIR": "1",
+      "DT": "450n",
+      "LESL": "1.06n",
+      "LSHUNT": "2n",
+      "TRMAX": "0.2n"
+    },
+    "failure_lines": [
+      "doAnalyses: TRAN:  Timestep too small; time = 2e-12, timestep = 2.5e-22: trouble with node \"bus\"",
+      "run simulation(s) aborted"
+    ],
+    "initial_transient_solution_reported": true,
+    "gmin_stepping_completed": true,
+    "data_rows": 2
+  },
+  {
+    "case": "best_S3_v280_i5_d1_dt443_esl20",
+    "parameters": {
+      "LP1": "24.5969n",
+      "LP2": "23.8522n",
+      "LP3": "24.2606n",
+      "LP4": "35.6765n",
+      "K12": "0.632482752",
+      "K13": "0.165300953",
+      "K14": "0.185415768",
+      "K23": "0.160678209",
+      "K24": "0.196916347",
+      "K34": "-0.00889872432",
+      "VBUS": "280",
+      "IL": "5",
+      "DIR": "1",
+      "DT": "443n",
+      "LESL": "20n",
+      "LSHUNT": "2n",
+      "TRMAX": "0.2n"
+    },
+    "failure_lines": [
+      "doAnalyses: TRAN:  Timestep too small; time = 2e-06, timestep = 2.5e-22: trouble with node \"bus\"",
+      "run simulation(s) aborted"
+    ],
+    "initial_transient_solution_reported": true,
+    "gmin_stepping_completed": true,
+    "data_rows": 10014
+  },
+  {
+    "case": "best_S3_v280_i5_d1_dt498_esl20",
+    "parameters": {
+      "LP1": "24.5969n",
+      "LP2": "23.8522n",
+      "LP3": "24.2606n",
+      "LP4": "35.6765n",
+      "K12": "0.632482752",
+      "K13": "0.165300953",
+      "K14": "0.185415768",
+      "K23": "0.160678209",
+      "K24": "0.196916347",
+      "K34": "-0.00889872432",
+      "VBUS": "280",
+      "IL": "5",
+      "DIR": "1",
+      "DT": "498n",
+      "LESL": "20n",
+      "LSHUNT": "2n",
+      "TRMAX": "0.2n"
+    },
+    "failure_lines": [
+      "doAnalyses: TRAN:  Timestep too small; time = 2e-06, timestep = 2.5e-22: trouble with node \"bus\"",
+      "run simulation(s) aborted"
+    ],
+    "initial_transient_solution_reported": true,
+    "gmin_stepping_completed": true,
+    "data_rows": 10014
+  },
+  {
+    "case": "best_S3_v280_i10_d1_dt443_esl1.06",
+    "parameters": {
+      "LP1": "24.5969n",
+      "LP2": "23.8522n",
+      "LP3": "24.2606n",
+      "LP4": "35.6765n",
+      "K12": "0.632482752",
+      "K13": "0.165300953",
+      "K14": "0.185415768",
+      "K23": "0.160678209",
+      "K24": "0.196916347",
+      "K34": "-0.00889872432",
+      "VBUS": "280",
+      "IL": "10",
+      "DIR": "1",
+      "DT": "443n",
+      "LESL": "1.06n",
+      "LSHUNT": "2n",
+      "TRMAX": "0.2n"
+    },
+    "failure_lines": [
+      "doAnalyses: TRAN:  Timestep too small; time = 2e-12, timestep = 2.5e-22: trouble with node \"bus\"",
+      "run simulation(s) aborted"
+    ],
+    "initial_transient_solution_reported": true,
+    "gmin_stepping_completed": true,
+    "data_rows": 2
+  },
+  {
+    "case": "best_S3_v280_i10_d1_dt498_esl1.06",
+    "parameters": {
+      "LP1": "24.5969n",
+      "LP2": "23.8522n",
+      "LP3": "24.2606n",
+      "LP4": "35.6765n",
+      "K12": "0.632482752",
+      "K13": "0.165300953",
+      "K14": "0.185415768",
+      "K23": "0.160678209",
+      "K24": "0.196916347",
+      "K34": "-0.00889872432",
+      "VBUS": "280",
+      "IL": "10",
+      "DIR": "1",
+      "DT": "498n",
+      "LESL": "1.06n",
+      "LSHUNT": "2n",
+      "TRMAX": "0.2n"
+    },
+    "failure_lines": [
+      "doAnalyses: TRAN:  Timestep too small; time = 2e-12, timestep = 2.5e-22: trouble with node \"bus\"",
+      "run simulation(s) aborted"
+    ],
+    "initial_transient_solution_reported": true,
+    "gmin_stepping_completed": true,
+    "data_rows": 2
+  },
+  {
+    "case": "d6_lin_baseline_S1_v280_i37_d1_dt307",
+    "parameters": {
+      "LP1": "26.5944n",
+      "LP2": "25.9745n",
+      "LP3": "25.9394n",
+      "LP4": "36.2982n",
+      "K12": "0.61234757",
+      "K13": "0.134853193",
+      "K14": "0.163596468",
+      "K23": "0.126952541",
+      "K24": "0.172340472",
+      "K34": "-0.00695459601",
+      "VBUS": "280",
+      "IL": "37",
+      "DIR": "1",
+      "DT": "307n",
+      "LESL": "10n",
+      "LSHUNT": "2n",
+      "TRMAX": "0.1n"
+    },
+    "failure_lines": [
+      "doAnalyses: TRAN:  Timestep too small; time = 1.32265e-12, timestep = 1.25e-22: trouble with node \"bus\"",
+      "run simulation(s) aborted"
+    ],
+    "initial_transient_solution_reported": true,
+    "gmin_stepping_completed": false,
+    "data_rows": 3
+  },
+  {
+    "case": "d6_lin_baseline_S1_v280_i37_d1_dt348",
+    "parameters": {
+      "LP1": "26.5944n",
+      "LP2": "25.9745n",
+      "LP3": "25.9394n",
+      "LP4": "36.2982n",
+      "K12": "0.61234757",
+      "K13": "0.134853193",
+      "K14": "0.163596468",
+      "K23": "0.126952541",
+      "K24": "0.172340472",
+      "K34": "-0.00695459601",
+      "VBUS": "280",
+      "IL": "37",
+      "DIR": "1",
+      "DT": "348n",
+      "LESL": "10n",
+      "LSHUNT": "2n",
+      "TRMAX": "0.1n"
+    },
+    "failure_lines": [
+      "doAnalyses: TRAN:  Timestep too small; time = 1.32265e-12, timestep = 1.25e-22: trouble with node \"bus\"",
+      "run simulation(s) aborted"
+    ],
+    "initial_transient_solution_reported": true,
+    "gmin_stepping_completed": false,
+    "data_rows": 3
+  },
+  {
+    "case": "d6_lin_off1_c1_neg2_S1_v280_i37_d1_dt307",
+    "parameters": {
+      "LP1": "26.5944n",
+      "LP2": "25.9745n",
+      "LP3": "25.9394n",
+      "LP4": "36.2982n",
+      "K12": "0.61234757",
+      "K13": "0.134853193",
+      "K14": "0.163596468",
+      "K23": "0.126952541",
+      "K24": "0.172340472",
+      "K34": "-0.00695459601",
+      "VBUS": "280",
+      "IL": "37",
+      "DIR": "1",
+      "DT": "307n",
+      "LESL": "10n",
+      "LSHUNT": "2n",
+      "TRMAX": "0.1n"
+    },
+    "failure_lines": [
+      "doAnalyses: TRAN:  Timestep too small; time = 1e-12, timestep = 1.25e-22: trouble with node \"bus\"",
+      "run simulation(s) aborted"
+    ],
+    "initial_transient_solution_reported": true,
+    "gmin_stepping_completed": true,
+    "data_rows": 2
+  },
+  {
+    "case": "d6_lin_off1_c1_neg2_S1_v280_i37_d1_dt348",
+    "parameters": {
+      "LP1": "26.5944n",
+      "LP2": "25.9745n",
+      "LP3": "25.9394n",
+      "LP4": "36.2982n",
+      "K12": "0.61234757",
+      "K13": "0.134853193",
+      "K14": "0.163596468",
+      "K23": "0.126952541",
+      "K24": "0.172340472",
+      "K34": "-0.00695459601",
+      "VBUS": "280",
+      "IL": "37",
+      "DIR": "1",
+      "DT": "348n",
+      "LESL": "10n",
+      "LSHUNT": "2n",
+      "TRMAX": "0.1n"
+    },
+    "failure_lines": [
+      "doAnalyses: TRAN:  Timestep too small; time = 1e-12, timestep = 1.25e-22: trouble with node \"bus\"",
+      "run simulation(s) aborted"
+    ],
+    "initial_transient_solution_reported": true,
+    "gmin_stepping_completed": true,
+    "data_rows": 2
+  },
+  {
+    "case": "d6_lin_off1_c1_neg2_S2_v280_i71_d0_dt348",
+    "parameters": {
+      "LP1": "26.5944n",
+      "LP2": "25.9745n",
+      "LP3": "25.9394n",
+      "LP4": "36.2982n",
+      "K12": "0.61234757",
+      "K13": "0.134853193",
+      "K14": "0.163596468",
+      "K23": "0.126952541",
+      "K24": "0.172340472",
+      "K34": "-0.00695459601",
+      "VBUS": "280",
+      "IL": "71",
+      "DIR": "0",
+      "DT": "348n",
+      "LESL": "10n",
+      "LSHUNT": "2n",
+      "TRMAX": "0.1n"
+    },
+    "failure_lines": [
+      "doAnalyses: TRAN:  Timestep too small; time = 2.348e-06, timestep = 1.25e-22: trouble with node \"bus\"",
+      "run simulation(s) aborted"
+    ],
+    "initial_transient_solution_reported": true,
+    "gmin_stepping_completed": true,
+    "data_rows": 23509
+  },
+  {
+    "case": "d6_quad_baseline_S1_v280_i37_d1_dt307",
+    "parameters": {
+      "LP1": "24.8781n",
+      "LP2": "24.1373n",
+      "LP3": "24.5359n",
+      "LP4": "35.7635n",
+      "K12": "0.630159662",
+      "K13": "0.161484424",
+      "K14": "0.182729107",
+      "K23": "0.156662305",
+      "K24": "0.193877987",
+      "K34": "-0.00880750859",
+      "VBUS": "280",
+      "IL": "37",
+      "DIR": "1",
+      "DT": "307n",
+      "LESL": "10n",
+      "LSHUNT": "2n",
+      "TRMAX": "0.1n"
+    },
+    "failure_lines": [
+      "doAnalyses: TRAN:  Timestep too small; time = 1e-12, timestep = 1.25e-22: trouble with node \"bus\"",
+      "run simulation(s) aborted"
+    ],
+    "initial_transient_solution_reported": true,
+    "gmin_stepping_completed": false,
+    "data_rows": 2
+  },
+  {
+    "case": "d6_quad_baseline_S1_v280_i37_d1_dt348",
+    "parameters": {
+      "LP1": "24.8781n",
+      "LP2": "24.1373n",
+      "LP3": "24.5359n",
+      "LP4": "35.7635n",
+      "K12": "0.630159662",
+      "K13": "0.161484424",
+      "K14": "0.182729107",
+      "K23": "0.156662305",
+      "K24": "0.193877987",
+      "K34": "-0.00880750859",
+      "VBUS": "280",
+      "IL": "37",
+      "DIR": "1",
+      "DT": "348n",
+      "LESL": "10n",
+      "LSHUNT": "2n",
+      "TRMAX": "0.1n"
+    },
+    "failure_lines": [
+      "doAnalyses: TRAN:  Timestep too small; time = 1e-12, timestep = 1.25e-22: trouble with node \"bus\"",
+      "run simulation(s) aborted"
+    ],
+    "initial_transient_solution_reported": true,
+    "gmin_stepping_completed": false,
+    "data_rows": 2
+  },
+  {
+    "case": "d6_quad_baseline_S2_v280_i71_d1_dt348",
+    "parameters": {
+      "LP1": "24.8781n",
+      "LP2": "24.1373n",
+      "LP3": "24.5359n",
+      "LP4": "35.7635n",
+      "K12": "0.630159662",
+      "K13": "0.161484424",
+      "K14": "0.182729107",
+      "K23": "0.156662305",
+      "K24": "0.193877987",
+      "K34": "-0.00880750859",
+      "VBUS": "280",
+      "IL": "71",
+      "DIR": "1",
+      "DT": "348n",
+      "LESL": "10n",
+      "LSHUNT": "2n",
+      "TRMAX": "0.1n"
+    },
+    "failure_lines": [
+      "doAnalyses: TRAN:  Timestep too small; time = 1e-12, timestep = 1.25e-22: trouble with node \"bus\"",
+      "run simulation(s) aborted"
+    ],
+    "initial_transient_solution_reported": true,
+    "gmin_stepping_completed": false,
+    "data_rows": 2
+  },
+  {
+    "case": "d6_quad_off1_c1_neg2_S1_v280_i37_d1_dt307",
+    "parameters": {
+      "LP1": "24.8781n",
+      "LP2": "24.1373n",
+      "LP3": "24.5359n",
+      "LP4": "35.7635n",
+      "K12": "0.630159662",
+      "K13": "0.161484424",
+      "K14": "0.182729107",
+      "K23": "0.156662305",
+      "K24": "0.193877987",
+      "K34": "-0.00880750859",
+      "VBUS": "280",
+      "IL": "37",
+      "DIR": "1",
+      "DT": "307n",
+      "LESL": "10n",
+      "LSHUNT": "2n",
+      "TRMAX": "0.1n"
+    },
+    "failure_lines": [
+      "doAnalyses: TRAN:  Timestep too small; time = 1e-12, timestep = 1.25e-22: trouble with node \"bus\"",
+      "run simulation(s) aborted"
+    ],
+    "initial_transient_solution_reported": true,
+    "gmin_stepping_completed": true,
+    "data_rows": 2
+  },
+  {
+    "case": "d6_quad_off1_c1_neg2_S1_v280_i37_d1_dt348",
+    "parameters": {
+      "LP1": "24.8781n",
+      "LP2": "24.1373n",
+      "LP3": "24.5359n",
+      "LP4": "35.7635n",
+      "K12": "0.630159662",
+      "K13": "0.161484424",
+      "K14": "0.182729107",
+      "K23": "0.156662305",
+      "K24": "0.193877987",
+      "K34": "-0.00880750859",
+      "VBUS": "280",
+      "IL": "37",
+      "DIR": "1",
+      "DT": "348n",
+      "LESL": "10n",
+      "LSHUNT": "2n",
+      "TRMAX": "0.1n"
+    },
+    "failure_lines": [
+      "doAnalyses: TRAN:  Timestep too small; time = 1e-12, timestep = 1.25e-22: trouble with node \"bus\"",
+      "run simulation(s) aborted"
+    ],
+    "initial_transient_solution_reported": true,
+    "gmin_stepping_completed": true,
+    "data_rows": 2
+  },
+  {
+    "case": "d6_quad_off1_c1_neg2_S2_v280_i71_d1_dt348",
+    "parameters": {
+      "LP1": "24.8781n",
+      "LP2": "24.1373n",
+      "LP3": "24.5359n",
+      "LP4": "35.7635n",
+      "K12": "0.630159662",
+      "K13": "0.161484424",
+      "K14": "0.182729107",
+      "K23": "0.156662305",
+      "K24": "0.193877987",
+      "K34": "-0.00880750859",
+      "VBUS": "280",
+      "IL": "71",
+      "DIR": "1",
+      "DT": "348n",
+      "LESL": "10n",
+      "LSHUNT": "2n",
+      "TRMAX": "0.1n"
+    },
+    "failure_lines": [
+      "doAnalyses: TRAN:  Timestep too small; initial timepoint: trouble with node \"bus\"",
+      "run simulation(s) aborted"
+    ],
+    "initial_transient_solution_reported": true,
+    "gmin_stepping_completed": true,
+    "data_rows": 1
+  }
+]

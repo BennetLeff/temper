@@ -1,0 +1,16 @@
+Official ESP-IDF v5.3 source retrieval, 2026-10-02. These are external reference inputs, not firmware build receipts.
+
+URL: https://raw.githubusercontent.com/espressif/esp-idf/v5.3/components/esp_driver_mcpwm/src/mcpwm_gen.c
+SHA256: a8e8e8206eca4e9461681f13b2342cfcbf2d550e193266480a85bff57a6f3c55
+Retrieve: curl -fsSL https://raw.githubusercontent.com/espressif/esp-idf/v5.3/components/esp_driver_mcpwm/src/mcpwm_gen.c -o /tmp/d5-mcpwm-gen-v5.3.c
+Verify: shasum -a 256 /tmp/d5-mcpwm-gen-v5.3.c
+
+URL: https://raw.githubusercontent.com/espressif/esp-idf/v5.3/components/hal/esp32s3/include/hal/mcpwm_ll.h
+SHA256: 7e41013edfb24efeff70be6ead8767971e3b37678952d7461e9747bc612cb3b9
+Retrieve: curl -fsSL https://raw.githubusercontent.com/espressif/esp-idf/v5.3/components/hal/esp32s3/include/hal/mcpwm_ll.h -o /tmp/d5-mcpwm-ll-v5.3.h
+Verify: shasum -a 256 /tmp/d5-mcpwm-ll-v5.3.h
+
+mcpwm_gen.c:318-395: mcpwm_generator_set_dead_time implementation.
+mcpwm_gen.c:329-357: checks existing positive/negative delay-block owners; a different owner returns ESP_ERR_INVALID_STATE before the hardware programming below line 359.
+mcpwm_ll.h:53: MCPWM_LL_MAX_DEAD_DELAY = 65536; mcpwm_gen.c:322 requires each requested delay strictly below this.
+The release workflow uses release-v5.3, not an immutable SDK commit; v5.3 is the checked reference implementation, not a claim about an unknown flashed SDK.

@@ -1,0 +1,15 @@
+[
+  {
+    "label": "envelope-v170-f60000-r2-e10-s0.08",
+    "config": {
+      "bus": 170,
+      "freq": 60000,
+      "resistance": 2,
+      "esl": 10,
+      "step": 0.08,
+      "cycles": 48,
+      "timeout": 12000,
+      "reference_label": "envelope-v170-f60000-r2-e10-s0.1"
+    }
+  }
+]

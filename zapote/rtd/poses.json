@@ -1,0 +1,277 @@
+{
+  "mcu.mcu": [
+    35,
+    50,
+    0
+  ],
+  "mcu.c_vcc1": [
+    23.5,
+    59,
+    180
+  ],
+  "mcu.c_vcc2": [
+    21,
+    61,
+    0
+  ],
+  "mcu.c_en": [
+    23,
+    56.5,
+    180
+  ],
+  "mcu.r_en": [
+    21,
+    54,
+    0
+  ],
+  "mcu.r_boot": [
+    48,
+    46.19,
+    180
+  ],
+  "mcu.r_sda_pullup": [
+    49,
+    51.27,
+    180
+  ],
+  "mcu.r_scl_pullup": [
+    49,
+    54,
+    180
+  ],
+  "mcu.btn_reset": [
+    31,
+    24,
+    0
+  ],
+  "mcu.btn_boot": [
+    38,
+    24,
+    0
+  ],
+  "power_mgmt.buck_3v3.buck": [
+    134,
+    116,
+    180
+  ],
+  "power_mgmt.buck_3v3.l_out": [
+    145,
+    116,
+    0
+  ],
+  "power_mgmt.buck_3v3.c_in": [
+    134,
+    112,
+    90
+  ],
+  "power_mgmt.buck_3v3.c_boot": [
+    134,
+    120,
+    0
+  ],
+  "power_mgmt.buck_3v3.c_out1": [
+    156,
+    112,
+    0
+  ],
+  "power_mgmt.buck_3v3.c_out2": [
+    156,
+    120,
+    0
+  ],
+  "power_mgmt.buck_3v3.c_out_hf": [
+    156,
+    116,
+    0
+  ],
+  "power_mgmt.buck_3v3.r_fb_top": [
+    128,
+    113,
+    0
+  ],
+  "power_mgmt.buck_3v3.r_fb_bot": [
+    128,
+    117,
+    180
+  ],
+  "rtd_pan.adc": [
+    16,
+    34,
+    0
+  ],
+  "rtd_pan.j_rtd1": [
+    11,
+    24,
+    0
+  ],
+  "rtd_pan.r_ref": [
+    10.5,
+    34,
+    270
+  ],
+  "rtd_pan.c_vdd": [
+    10.5,
+    30.5,
+    180
+  ],
+  "rtd_pan.r_sclk": [
+    23,
+    44.92,
+    180
+  ],
+  "rtd_pan.r_mosi": [
+    33,
+    34,
+    90
+  ],
+  "rtd_pan.r_cs": [
+    29,
+    34,
+    90
+  ],
+  "rtd_pan.r_miso": [
+    37,
+    34,
+    270
+  ],
+  "rtd_pan.fb_power": [
+    18,
+    28.65,
+    0
+  ],
+  "rtd_pan.reference": [
+    11,
+    43,
+    0
+  ],
+  "rtd_pan.c_reference": [
+    11,
+    40,
+    0
+  ],
+  "rtd_pan.low_window": [
+    19,
+    43,
+    0
+  ],
+  "rtd_pan.high_window": [
+    19,
+    51,
+    0
+  ],
+  "rtd_pan.c_low_window": [
+    23,
+    43,
+    0
+  ],
+  "rtd_pan.c_high_window": [
+    23,
+    51,
+    0
+  ],
+  "rtd_pan.r_low_top": [
+    14,
+    42.0,
+    270
+  ],
+  "rtd_pan.r_low_bottom": [
+    14,
+    45.0,
+    270
+  ],
+  "rtd_pan.r_high_top": [
+    14.5,
+    48,
+    270
+  ],
+  "rtd_pan.r_high_bottom": [
+    14.5,
+    51.5,
+    270
+  ],
+  "rtd_pan.window_and": [
+    11,
+    49,
+    0
+  ],
+  "rtd_pan.c_window_and": [
+    11,
+    46,
+    0
+  ],
+  "rtd_pan.r_window_ok_pulldown": [
+    15,
+    56,
+    90
+  ],
+  "rtd_pan.rail_monitor": [
+    23,
+    30,
+    0
+  ],
+  "rtd_pan.c_rail_monitor": [
+    27,
+    30,
+    0
+  ],
+  "rtd_pan.r_avdd_top": [
+    23,
+    26.5,
+    270
+  ],
+  "rtd_pan.r_avdd_bottom": [
+    23,
+    33.5,
+    270
+  ],
+  "rtd_pan.r_rail_ok_pullup": [
+    27,
+    26.5,
+    0
+  ],
+  "rtd_pan.fault_nand": [
+    11,
+    55,
+    0
+  ],
+  "rtd_pan.c_fault_nand": [
+    11,
+    52,
+    0
+  ],
+  "rtd_pan.r_fault_pullup": [
+    18.5,
+    57,
+    0
+  ],
+  "rtd_pan.c_rtd_input": [
+    16,
+    40,
+    0
+  ],
+  "rtd_pan.r_rtdin_p_bias": [
+    10,
+    37.6,
+    90
+  ],
+  "rtd_pan.r_rtdin_n_bias": [
+    21.5,
+    40,
+    90
+  ],
+  "ct_sense.r_burden": [
+    48,
+    40,
+    0
+  ],
+  "discharge.r_gate": [
+    48,
+    43,
+    0
+  ],
+  "hb.gate_hs.c_filt_a": [
+    24,
+    24,
+    0
+  ]
+}

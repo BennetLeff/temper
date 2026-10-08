@@ -1,0 +1,1220 @@
+{
+  "references": {
+    "BR1": {
+      "at": [
+        29.0,
+        8.145
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C1": {
+      "at": [
+        64.0,
+        134.045
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C10": {
+      "at": [
+        138.0,
+        36.655
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C11": {
+      "at": [
+        141.4,
+        36.375
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C12": {
+      "at": [
+        158.73,
+        11.895
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C13": {
+      "at": [
+        140.73,
+        11.895
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C14": {
+      "at": [
+        96.5,
+        54.725
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C15": {
+      "at": [
+        112.128,
+        41.218
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C16": {
+      "at": [
+        111.5,
+        32.955
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C17": {
+      "at": [
+        94.0,
+        36.655
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C18": {
+      "at": [
+        99.875,
+        38.8
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C19": {
+      "at": [
+        100.73,
+        11.895
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C2": {
+      "at": [
+        36.745,
+        23.6
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C20": {
+      "at": [
+        118.73,
+        11.895
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C21": {
+      "at": [
+        236.274,
+        100.752
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C22": {
+      "at": [
+        213.0,
+        140.295
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C23": {
+      "at": [
+        217.873,
+        52.78
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C24": {
+      "at": [
+        66.5,
+        21.345
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C25": {
+      "at": [
+        62.0,
+        11.725
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C26": {
+      "at": [
+        58.159,
+        21.134
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C27": {
+      "at": [
+        57.434,
+        94.342
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C28": {
+      "at": [
+        57.434,
+        84.342
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C29": {
+      "at": [
+        70.434,
+        79.342
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C3": {
+      "at": [
+        138.5,
+        94.995
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C30": {
+      "at": [
+        78.0,
+        16.475
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C31": {
+      "at": [
+        83.434,
+        27.842
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C32": {
+      "at": [
+        72.628,
+        24.618
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C33": {
+      "at": [
+        64.434,
+        101.342
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C34": {
+      "at": [
+        66.5,
+        93.225
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C35": {
+      "at": [
+        74.8,
+        33.025
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C36": {
+      "at": [
+        83.0,
+        35.725
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C37": {
+      "at": [
+        83.0,
+        54.725
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C38": {
+      "at": [
+        136.5,
+        16.205
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C39": {
+      "at": [
+        157.1,
+        16.205
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C4": {
+      "at": [
+        145.5,
+        94.995
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C40": {
+      "at": [
+        116.5,
+        16.205
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C41": {
+      "at": [
+        95.9,
+        16.205
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C42": {
+      "at": [
+        175.042,
+        73.634
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C43": {
+      "at": [
+        176.84,
+        86.024
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C44": {
+      "at": [
+        169.968,
+        73.862
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C45": {
+      "at": [
+        169.968,
+        70.938
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C46": {
+      "at": [
+        169.968,
+        82.938
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C47": {
+      "at": [
+        102.634,
+        72.842
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C5": {
+      "at": [
+        9.255,
+        54.1
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C6": {
+      "at": [
+        184.5,
+        54.195
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C7": {
+      "at": [
+        140.5,
+        54.725
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C8": {
+      "at": [
+        156.128,
+        41.218
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "C9": {
+      "at": [
+        155.5,
+        32.955
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "D1": {
+      "at": [
+        126.42,
+        37.355
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "D2": {
+      "at": [
+        93.5,
+        31.355
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "D3": {
+      "at": [
+        54.51,
+        63.856
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "D4": {
+      "at": [
+        166.0,
+        61.905
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "D5": {
+      "at": [
+        169.328,
+        67.62
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "F1": {
+      "at": [
+        36.5,
+        147.745
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "J1": {
+      "at": [
+        7.0,
+        146.37
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "J10": {
+      "at": [
+        47.0,
+        24.415
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "J2": {
+      "at": [
+        231.0,
+        64.415
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "J3": {
+      "at": [
+        31.205,
+        103.3
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "J4": {
+      "at": [
+        123.0,
+        60.065
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "J5": {
+      "at": [
+        225.0,
+        144.915
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "J6": {
+      "at": [
+        120.0,
+        75.665
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "J7": {
+      "at": [
+        6.915,
+        17.5
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "J8": {
+      "at": [
+        6.915,
+        30.5
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "J9": {
+      "at": [
+        47.0,
+        11.415
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "L1": {
+      "at": [
+        24.0,
+        139.045
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "PS1": {
+      "at": [
+        96.72,
+        112.43
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "PS2": {
+      "at": [
+        3.6,
+        78.653
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "Q1": {
+      "at": [
+        145.5,
+        54.255
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "Q2": {
+      "at": [
+        149.755,
+        8.21
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "Q3": {
+      "at": [
+        131.755,
+        8.21
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "Q4": {
+      "at": [
+        101.5,
+        54.255
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "Q5": {
+      "at": [
+        91.755,
+        8.21
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "Q6": {
+      "at": [
+        109.755,
+        8.21
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R1": {
+      "at": [
+        81.463,
+        120.885
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R10": {
+      "at": [
+        151.087,
+        15.715
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R11": {
+      "at": [
+        147.75,
+        14.525
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R12": {
+      "at": [
+        133.087,
+        15.715
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R13": {
+      "at": [
+        129.75,
+        9.575
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R14": {
+      "at": [
+        106.5,
+        54.725
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R15": {
+      "at": [
+        106.5,
+        61.175
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R16": {
+      "at": [
+        110.5,
+        54.725
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R17": {
+      "at": [
+        113.725,
+        59.5
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R18": {
+      "at": [
+        92.55,
+        15.825
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R19": {
+      "at": [
+        89.239,
+        14.732
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R2": {
+      "at": [
+        82.537,
+        132.315
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R20": {
+      "at": [
+        111.087,
+        15.715
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R21": {
+      "at": [
+        107.75,
+        14.525
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R22": {
+      "at": [
+        190.0,
+        142.825
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R23": {
+      "at": [
+        197.0,
+        142.825
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R24": {
+      "at": [
+        204.0,
+        142.825
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R25": {
+      "at": [
+        210.3,
+        142.825
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R26": {
+      "at": [
+        51.463,
+        72.885
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R27": {
+      "at": [
+        49.223,
+        81.742
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R28": {
+      "at": [
+        49.223,
+        86.442
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R29": {
+      "at": [
+        52.537,
+        93.215
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R3": {
+      "at": [
+        64.037,
+        64.615
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R30": {
+      "at": [
+        59.475,
+        88.0
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R31": {
+      "at": [
+        84.525,
+        22.0
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R32": {
+      "at": [
+        75.934,
+        25.842
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R33": {
+      "at": [
+        74.263,
+        16.207
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R34": {
+      "at": [
+        78.0,
+        27.725
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R35": {
+      "at": [
+        80.5,
+        29.725
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R36": {
+      "at": [
+        58.434,
+        101.342
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R37": {
+      "at": [
+        61.0,
+        103.225
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R38": {
+      "at": [
+        103.5,
+        77.225
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R39": {
+      "at": [
+        176.463,
+        67.385
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R4": {
+      "at": [
+        64.037,
+        51.615
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R40": {
+      "at": [
+        174.066,
+        77.658
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R41": {
+      "at": [
+        180.675,
+        80.0
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R42": {
+      "at": [
+        170.165,
+        63.496
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R43": {
+      "at": [
+        173.099,
+        75.762
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R44": {
+      "at": [
+        171.062,
+        80.66
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R45": {
+      "at": [
+        161.628,
+        76.068
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R46": {
+      "at": [
+        160.372,
+        71.332
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R47": {
+      "at": [
+        161.628,
+        87.418
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R5": {
+      "at": [
+        126.5,
+        7.275
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R6": {
+      "at": [
+        150.5,
+        54.725
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R7": {
+      "at": [
+        151.128,
+        61.118
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R8": {
+      "at": [
+        154.5,
+        54.725
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "R9": {
+      "at": [
+        155.128,
+        61.118
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "RV1": {
+      "at": [
+        68.2,
+        134.254
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "T1": {
+      "at": [
+        195.0,
+        57.705
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "U1": {
+      "at": [
+        148.0,
+        39.305
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "U10": {
+      "at": [
+        164.252,
+        80.724
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "U11": {
+      "at": [
+        162.822,
+        69.069
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "U12": {
+      "at": [
+        166.0,
+        86.645
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "U13": {
+      "at": [
+        106.453,
+        73.345
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "U2": {
+      "at": [
+        104.0,
+        39.305
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "U3": {
+      "at": [
+        62.0,
+        21.595
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "U4": {
+      "at": [
+        65.5,
+        79.775
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "U5": {
+      "at": [
+        82.0,
+        15.755
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "U6": {
+      "at": [
+        71.095,
+        15.962
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "U7": {
+      "at": [
+        62.0,
+        92.055
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "U8": {
+      "at": [
+        74.8,
+        41.445
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    },
+    "U9": {
+      "at": [
+        83.0,
+        39.105
+      ],
+      "layer": "F.SilkS",
+      "size": 1.0,
+      "thickness": 0.15
+    }
+  },
+  "schema": "temper.power-stage-120v.labels.v1"
+}

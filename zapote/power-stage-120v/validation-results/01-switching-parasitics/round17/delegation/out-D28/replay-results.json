@@ -1,0 +1,2239 @@
+[
+  {
+    "status": "indeterminate",
+    "reason": "no complete transient",
+    "label": "anchor-original-170-35k"
+  },
+  {
+    "label": "anchor-original-170-35k-repeat",
+    "periodic": {
+      "status": "complete",
+      "cycle_relative_RMS_change": {
+        "v(swa)": 9.358027401597908e-06,
+        "v(swb)": 7.945015277901754e-06,
+        "bus_current_A": 9.958298182381536e-05
+      },
+      "end_time_s": 0.0006877142857142856,
+      "points": 114581,
+      "input_power_estimate_W": 912.5548124492807
+    },
+    "switching": {
+      "tank_i_rms_A": 21.08513998026443,
+      "tank_power_W": 889.166255974691,
+      "bridge_overlap_proxy_W": 9.626555374101958,
+      "events": [
+        {
+          "leg": "A",
+          "edge": 0,
+          "current_inductive_A": 31.809250554016636,
+          "ct_zero_delay_ns": 5973.446239353458,
+          "incoming_vds_V": -0.8484872780263072,
+          "zvs": true,
+          "off_gate_commutation_V": 0.7931172619511143,
+          "vds_commutation_peak_V": 191.43927614901028,
+          "off_gate_V": 1.6232504038364617,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 191.90183692936995,
+          "screen520": true,
+          "overlap_uJ": 71.0196737107143
+        },
+        {
+          "leg": "A",
+          "edge": 1,
+          "current_inductive_A": 31.808480750948917,
+          "ct_zero_delay_ns": 5973.127376635327,
+          "incoming_vds_V": -0.845099922839935,
+          "zvs": true,
+          "off_gate_commutation_V": 0.5525205268254736,
+          "vds_commutation_peak_V": 191.90183692936995,
+          "off_gate_V": 1.3473615099977678,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 191.90183692936995,
+          "screen520": true,
+          "overlap_uJ": 66.50131642276408
+        },
+        {
+          "leg": "B",
+          "edge": 0,
+          "current_inductive_A": 31.808480750948917,
+          "ct_zero_delay_ns": 5973.127376635327,
+          "incoming_vds_V": -0.8484807572623936,
+          "zvs": true,
+          "off_gate_commutation_V": 0.7930984494383778,
+          "vds_commutation_peak_V": 191.44905017135366,
+          "off_gate_V": 1.6232778989769034,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 191.903027282736,
+          "screen520": true,
+          "overlap_uJ": 71.01869426277818
+        },
+        {
+          "leg": "B",
+          "edge": 1,
+          "current_inductive_A": 31.80926158982677,
+          "ct_zero_delay_ns": 5972.998785614249,
+          "incoming_vds_V": -0.8451025959367263,
+          "zvs": true,
+          "off_gate_commutation_V": 0.5525353123731415,
+          "vds_commutation_peak_V": 191.9046201948714,
+          "off_gate_V": 1.3474060238523293,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 191.903027282736,
+          "screen520": true,
+          "overlap_uJ": 66.50475486379939
+        }
+      ]
+    },
+    "raw_sha256": "b7a5a77a5c59c15461b41b56cf2fc3888f4d04f0375eaaac3cf6829d7809a49a",
+    "physics_source_sha256": "1c9743d344d7de4b089c0e41a5d9446d1b0c605a6ed777ba578d256673a6174d",
+    "physics_binary_sha256": "6ba83584c4d609231c49ce54307a4fa575d0fc1d2b4fd5e2376a8af1e86036d1"
+  },
+  {
+    "label": "boundary-v170-r2-p100-s0.5",
+    "periodic": {
+      "status": "complete",
+      "cycle_relative_RMS_change": {
+        "v(swa)": 3.4424015580180132e-06,
+        "v(swb)": 2.946901824062333e-06,
+        "bus_current_A": 4.42355914674071e-05
+      },
+      "end_time_s": 0.000802,
+      "points": 80313,
+      "input_power_estimate_W": 106.07564418821362
+    },
+    "switching": {
+      "tank_i_rms_A": 7.210481002344782,
+      "tank_power_W": 103.98207257035003,
+      "bridge_overlap_proxy_W": 5.002550548791963,
+      "events": [
+        {
+          "leg": "A",
+          "edge": 0,
+          "current_inductive_A": 8.204080516467572,
+          "ct_zero_delay_ns": 2763.3867662536,
+          "incoming_vds_V": 21.980284245011855,
+          "zvs": false,
+          "off_gate_commutation_V": 0.7136486493449158,
+          "vds_commutation_peak_V": 172.03116274625594,
+          "off_gate_V": 0.7136486493449158,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 185.0088164615786,
+          "screen520": true,
+          "overlap_uJ": 22.899025623914493
+        },
+        {
+          "leg": "A",
+          "edge": 1,
+          "current_inductive_A": 8.204669631396866,
+          "ct_zero_delay_ns": 2763.313767171886,
+          "incoming_vds_V": 21.93953416985684,
+          "zvs": false,
+          "off_gate_commutation_V": 0.7236997341852849,
+          "vds_commutation_peak_V": 172.2075246966003,
+          "off_gate_V": 0.7236997341852849,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 185.0088164615786,
+          "screen520": true,
+          "overlap_uJ": 23.038298548092538
+        },
+        {
+          "leg": "B",
+          "edge": 0,
+          "current_inductive_A": 8.532546253423115,
+          "ct_zero_delay_ns": 7207.75821161639,
+          "incoming_vds_V": 12.774076247017712,
+          "zvs": false,
+          "off_gate_commutation_V": 0.6460452997080381,
+          "vds_commutation_peak_V": 176.8465340786551,
+          "off_gate_V": 0.6460452997080381,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 179.58637731552454,
+          "screen520": true,
+          "overlap_uJ": 27.072325051405087
+        },
+        {
+          "leg": "B",
+          "edge": 1,
+          "current_inductive_A": 8.532986369546698,
+          "ct_zero_delay_ns": 7207.83092685094,
+          "incoming_vds_V": 12.767299495166922,
+          "zvs": false,
+          "off_gate_commutation_V": 0.6502188910185236,
+          "vds_commutation_peak_V": 176.86757450881674,
+          "off_gate_V": 0.6502188910185236,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 179.58637731552454,
+          "screen520": true,
+          "overlap_uJ": 27.041361752427143
+        }
+      ]
+    },
+    "raw_sha256": "00ec334f3913c1ebba8e715d4e411a7f3f4b2fdde1fe4c9219aa9224afdd6fff",
+    "physics_source_sha256": "1c9743d344d7de4b089c0e41a5d9446d1b0c605a6ed777ba578d256673a6174d",
+    "physics_binary_sha256": "6ba83584c4d609231c49ce54307a4fa575d0fc1d2b4fd5e2376a8af1e86036d1"
+  },
+  {
+    "label": "boundary-v170-r2-p110-s0.5",
+    "periodic": {
+      "status": "complete",
+      "cycle_relative_RMS_change": {
+        "v(swa)": 2.840012499447089e-06,
+        "v(swb)": 2.6262947122370816e-06,
+        "bus_current_A": 3.4999170133442004e-05
+      },
+      "end_time_s": 0.000802,
+      "points": 80360,
+      "input_power_estimate_W": 121.20501597281955
+    },
+    "switching": {
+      "tank_i_rms_A": 7.712846447091435,
+      "tank_power_W": 118.97600063282194,
+      "bridge_overlap_proxy_W": 5.385950994008444,
+      "events": [
+        {
+          "leg": "A",
+          "edge": 0,
+          "current_inductive_A": 9.19276738440356,
+          "ct_zero_delay_ns": 3002.717714822899,
+          "incoming_vds_V": 14.588571421965865,
+          "zvs": false,
+          "off_gate_commutation_V": 0.7127829463727069,
+          "vds_commutation_peak_V": 174.21152780897123,
+          "off_gate_V": 0.7127829463727069,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 186.48342458699463,
+          "screen520": true,
+          "overlap_uJ": 25.16191411870195
+        },
+        {
+          "leg": "A",
+          "edge": 1,
+          "current_inductive_A": 9.192419471238708,
+          "ct_zero_delay_ns": 3002.835286235574,
+          "incoming_vds_V": 14.70600182516014,
+          "zvs": false,
+          "off_gate_commutation_V": 0.7170180312750176,
+          "vds_commutation_peak_V": 174.20438652010077,
+          "off_gate_V": 0.7170180312750176,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 186.48342458699463,
+          "screen520": true,
+          "overlap_uJ": 25.14951212436211
+        },
+        {
+          "leg": "B",
+          "edge": 0,
+          "current_inductive_A": 9.530342323113297,
+          "ct_zero_delay_ns": 6891.724175124461,
+          "incoming_vds_V": 8.10835039809131,
+          "zvs": true,
+          "off_gate_commutation_V": 0.7213378343259897,
+          "vds_commutation_peak_V": 177.44690876238988,
+          "off_gate_V": 0.7213378343259897,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 181.11252752988025,
+          "screen520": true,
+          "overlap_uJ": 28.751800957015742
+        },
+        {
+          "leg": "B",
+          "edge": 1,
+          "current_inductive_A": 9.530627374182234,
+          "ct_zero_delay_ns": 6891.608465255475,
+          "incoming_vds_V": 8.149587843764822,
+          "zvs": true,
+          "off_gate_commutation_V": 0.7276493597621911,
+          "vds_commutation_peak_V": 177.43587526311,
+          "off_gate_V": 0.7276493597621911,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 181.11252752988025,
+          "screen520": true,
+          "overlap_uJ": 28.655792680089057
+        }
+      ]
+    },
+    "raw_sha256": "8e47b7a01df7b57b0a900d558089c784c9a8024969bb0a547658a19ebaff6e5f",
+    "physics_source_sha256": "1c9743d344d7de4b089c0e41a5d9446d1b0c605a6ed777ba578d256673a6174d",
+    "physics_binary_sha256": "6ba83584c4d609231c49ce54307a4fa575d0fc1d2b4fd5e2376a8af1e86036d1"
+  },
+  {
+    "label": "boundary-v170-r2-p125-s0.25",
+    "periodic": {
+      "status": "complete",
+      "cycle_relative_RMS_change": {
+        "v(swa)": 1.003571085882216e-06,
+        "v(swb)": 1.1979916730523436e-06,
+        "bus_current_A": 1.0286359285731296e-05
+      },
+      "end_time_s": 0.000802,
+      "points": 160315,
+      "input_power_estimate_W": 142.597312140319
+    },
+    "switching": {
+      "tank_i_rms_A": 8.358048718045922,
+      "tank_power_W": 139.71395674645817,
+      "bridge_overlap_proxy_W": 5.800625794116651,
+      "events": [
+        {
+          "leg": "A",
+          "edge": 0,
+          "current_inductive_A": 10.679235204822218,
+          "ct_zero_delay_ns": 3377.6084671382655,
+          "incoming_vds_V": 7.899071105320129,
+          "zvs": true,
+          "off_gate_commutation_V": 0.6247763163776705,
+          "vds_commutation_peak_V": 176.4404837912075,
+          "off_gate_V": 0.6247763163776705,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 185.59112810225363,
+          "screen520": true,
+          "overlap_uJ": 28.26901249648113
+        },
+        {
+          "leg": "A",
+          "edge": 1,
+          "current_inductive_A": 10.679324465219254,
+          "ct_zero_delay_ns": 3377.636865413967,
+          "incoming_vds_V": 7.986560430596795,
+          "zvs": true,
+          "off_gate_commutation_V": 0.6560907345771216,
+          "vds_commutation_peak_V": 176.4946813903656,
+          "off_gate_V": 0.6560907345771216,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 185.59112810225363,
+          "screen520": true,
+          "overlap_uJ": 28.29021093781518
+        },
+        {
+          "leg": "B",
+          "edge": 0,
+          "current_inductive_A": 10.931949776953958,
+          "ct_zero_delay_ns": 6433.192420969591,
+          "incoming_vds_V": 4.381284720042925,
+          "zvs": true,
+          "off_gate_commutation_V": 0.5480221606829863,
+          "vds_commutation_peak_V": 179.44996378795145,
+          "off_gate_V": 0.5726257431171371,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 187.54300679557358,
+          "screen520": true,
+          "overlap_uJ": 29.740365839900306
+        },
+        {
+          "leg": "B",
+          "edge": 1,
+          "current_inductive_A": 10.93287372509985,
+          "ct_zero_delay_ns": 6433.163873440341,
+          "incoming_vds_V": 4.356360393836354,
+          "zvs": true,
+          "off_gate_commutation_V": 0.5696592495556598,
+          "vds_commutation_peak_V": 179.50584527692274,
+          "off_gate_V": 0.5696592495556598,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 187.54300679557358,
+          "screen520": true,
+          "overlap_uJ": 29.7129266081364
+        }
+      ]
+    },
+    "raw_sha256": "6a58f57dc867b6a8a57c9c41d58b2238cc9eed5c4f19ebe79460fac68088aa71",
+    "physics_source_sha256": "1c9743d344d7de4b089c0e41a5d9446d1b0c605a6ed777ba578d256673a6174d",
+    "physics_binary_sha256": "6ba83584c4d609231c49ce54307a4fa575d0fc1d2b4fd5e2376a8af1e86036d1"
+  },
+  {
+    "label": "boundary-v170-r2-p125-s0.5",
+    "periodic": {
+      "status": "complete",
+      "cycle_relative_RMS_change": {
+        "v(swa)": 5.301870336349017e-06,
+        "v(swb)": 5.946696216617357e-06,
+        "bus_current_A": 4.820234597821869e-05
+      },
+      "end_time_s": 0.000802,
+      "points": 80391,
+      "input_power_estimate_W": 142.59407208095627
+    },
+    "switching": {
+      "tank_i_rms_A": 8.358044256409313,
+      "tank_power_W": 139.71380758419343,
+      "bridge_overlap_proxy_W": 5.780189359575967,
+      "events": [
+        {
+          "leg": "A",
+          "edge": 0,
+          "current_inductive_A": 10.679236326705677,
+          "ct_zero_delay_ns": 3377.62148396785,
+          "incoming_vds_V": 7.905566350377332,
+          "zvs": true,
+          "off_gate_commutation_V": 0.625046068615372,
+          "vds_commutation_peak_V": 176.43477552120652,
+          "off_gate_V": 0.625046068615372,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 185.3684145326685,
+          "screen520": true,
+          "overlap_uJ": 28.24604765768908
+        },
+        {
+          "leg": "A",
+          "edge": 1,
+          "current_inductive_A": 10.679333016923307,
+          "ct_zero_delay_ns": 3377.651003461037,
+          "incoming_vds_V": 7.995197343381672,
+          "zvs": true,
+          "off_gate_commutation_V": 0.6568864770123071,
+          "vds_commutation_peak_V": 176.49894099013488,
+          "off_gate_V": 0.6568864770123071,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 185.3684145326685,
+          "screen520": true,
+          "overlap_uJ": 28.274216851508697
+        },
+        {
+          "leg": "B",
+          "edge": 0,
+          "current_inductive_A": 10.931913619341856,
+          "ct_zero_delay_ns": 6433.20655901666,
+          "incoming_vds_V": 4.379122094163373,
+          "zvs": true,
+          "off_gate_commutation_V": 0.5510035933177164,
+          "vds_commutation_peak_V": 179.2258199327158,
+          "off_gate_V": 0.5676890818993385,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 187.46963667859947,
+          "screen520": true,
+          "overlap_uJ": 29.57261461286402
+        },
+        {
+          "leg": "B",
+          "edge": 1,
+          "current_inductive_A": 10.93284110508146,
+          "ct_zero_delay_ns": 6433.180238378175,
+          "incoming_vds_V": 4.354050232110745,
+          "zvs": true,
+          "off_gate_commutation_V": 0.5717904678671819,
+          "vds_commutation_peak_V": 179.22873372279082,
+          "off_gate_V": 0.5717904678671819,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 187.46963667859947,
+          "screen520": true,
+          "overlap_uJ": 29.51090806945754
+        }
+      ]
+    },
+    "raw_sha256": "ec84e0b7c1ff5e0b8e5ee7b7cce937f417e1c4a53860dec0f53ebe8ccc13e094",
+    "physics_source_sha256": "1c9743d344d7de4b089c0e41a5d9446d1b0c605a6ed777ba578d256673a6174d",
+    "physics_binary_sha256": "6ba83584c4d609231c49ce54307a4fa575d0fc1d2b4fd5e2376a8af1e86036d1"
+  },
+  {
+    "status": "indeterminate",
+    "reason": "no complete transient",
+    "label": "boundary-v170-r2-p130-s0.5"
+  },
+  {
+    "label": "boundary-v198-r2-p100-s0.5",
+    "periodic": {
+      "status": "complete",
+      "cycle_relative_RMS_change": {
+        "v(swa)": 1.8789078681381188e-07,
+        "v(swb)": 1.9692697372469855e-07,
+        "bus_current_A": 1.996605110445435e-06
+      },
+      "end_time_s": 0.000802,
+      "points": 80403,
+      "input_power_estimate_W": 143.94136454691443
+    },
+    "switching": {
+      "tank_i_rms_A": 8.4043718800261,
+      "tank_power_W": 141.26693339554686,
+      "bridge_overlap_proxy_W": 5.549829940122414,
+      "events": [
+        {
+          "leg": "A",
+          "edge": 0,
+          "current_inductive_A": 9.544634176458423,
+          "ct_zero_delay_ns": 2741.4487474448088,
+          "incoming_vds_V": 14.983187552350552,
+          "zvs": false,
+          "off_gate_commutation_V": 0.6591152430444893,
+          "vds_commutation_peak_V": 200.72547597307562,
+          "off_gate_V": 0.6591152430444893,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 213.36689319770477,
+          "screen520": true,
+          "overlap_uJ": 25.21032570598056
+        },
+        {
+          "leg": "A",
+          "edge": 1,
+          "current_inductive_A": 9.54509916843959,
+          "ct_zero_delay_ns": 2741.396733391805,
+          "incoming_vds_V": 14.993226169966631,
+          "zvs": false,
+          "off_gate_commutation_V": 0.6790164798171592,
+          "vds_commutation_peak_V": 200.64770299079052,
+          "off_gate_V": 0.6790164798171592,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 213.36689319770477,
+          "screen520": true,
+          "overlap_uJ": 25.183826673469017
+        },
+        {
+          "leg": "B",
+          "edge": 0,
+          "current_inductive_A": 10.008961176414317,
+          "ct_zero_delay_ns": 7185.841177836309,
+          "incoming_vds_V": 7.1613254295305016,
+          "zvs": true,
+          "off_gate_commutation_V": 0.6895328222535708,
+          "vds_commutation_peak_V": 205.9096217883247,
+          "off_gate_V": 0.6895328222535708,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 209.45291380553962,
+          "screen520": true,
+          "overlap_uJ": 30.37890329864905
+        },
+        {
+          "leg": "B",
+          "edge": 1,
+          "current_inductive_A": 10.009674318686628,
+          "ct_zero_delay_ns": 7185.8935615081455,
+          "incoming_vds_V": 7.118684794944631,
+          "zvs": true,
+          "off_gate_commutation_V": 0.6960317995383178,
+          "vds_commutation_peak_V": 205.718249539127,
+          "off_gate_V": 0.6960317995383178,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 209.45291380553962,
+          "screen520": true,
+          "overlap_uJ": 30.223543124349657
+        }
+      ]
+    },
+    "raw_sha256": "18386d26e253f04cc7847d16450e7517f82d6eed16c659d5204a751f6c881cfe",
+    "physics_source_sha256": "1c9743d344d7de4b089c0e41a5d9446d1b0c605a6ed777ba578d256673a6174d",
+    "physics_binary_sha256": "6ba83584c4d609231c49ce54307a4fa575d0fc1d2b4fd5e2376a8af1e86036d1"
+  },
+  {
+    "label": "boundary-v198-r2-p110-s0.5",
+    "periodic": {
+      "status": "complete",
+      "cycle_relative_RMS_change": {
+        "v(swa)": 1.3831967557428419e-06,
+        "v(swb)": 1.8745625984789635e-06,
+        "bus_current_A": 2.155290848587335e-05
+      },
+      "end_time_s": 0.000802,
+      "points": 80365,
+      "input_power_estimate_W": 164.6960573731854
+    },
+    "switching": {
+      "tank_i_rms_A": 8.987930270070214,
+      "tank_power_W": 161.56578107928885,
+      "bridge_overlap_proxy_W": 6.065430239840413,
+      "events": [
+        {
+          "leg": "A",
+          "edge": 0,
+          "current_inductive_A": 10.697326807341009,
+          "ct_zero_delay_ns": 2984.1833521355957,
+          "incoming_vds_V": 9.074936258263225,
+          "zvs": true,
+          "off_gate_commutation_V": 0.7058824855828699,
+          "vds_commutation_peak_V": 202.4224860752977,
+          "off_gate_V": 0.7058824855828699,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 218.05035542298484,
+          "screen520": true,
+          "overlap_uJ": 27.608655582832906
+        },
+        {
+          "leg": "A",
+          "edge": 1,
+          "current_inductive_A": 10.696613304783387,
+          "ct_zero_delay_ns": 2984.339228575281,
+          "incoming_vds_V": 9.270195892089923,
+          "zvs": true,
+          "off_gate_commutation_V": 0.715211044548381,
+          "vds_commutation_peak_V": 202.47930615680713,
+          "off_gate_V": 0.715211044548381,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 218.05035542298484,
+          "screen520": true,
+          "overlap_uJ": 27.664041657782455
+        },
+        {
+          "leg": "B",
+          "edge": 0,
+          "current_inductive_A": 11.158909305267096,
+          "ct_zero_delay_ns": 6873.2281174641685,
+          "incoming_vds_V": 3.9967508479239404,
+          "zvs": true,
+          "off_gate_commutation_V": 0.5601555189090653,
+          "vds_commutation_peak_V": 208.94487220026315,
+          "off_gate_V": 0.6231905479147946,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 209.89691916138776,
+          "screen520": true,
+          "overlap_uJ": 33.03681339880712
+        },
+        {
+          "leg": "B",
+          "edge": 1,
+          "current_inductive_A": 11.159346284675596,
+          "ct_zero_delay_ns": 6873.072172019568,
+          "incoming_vds_V": 4.029971513512011,
+          "zvs": true,
+          "off_gate_commutation_V": 0.5832798194652216,
+          "vds_commutation_peak_V": 209.08730195602567,
+          "off_gate_V": 0.5832798194652216,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 209.89691916138776,
+          "screen520": true,
+          "overlap_uJ": 32.99909415738578
+        }
+      ]
+    },
+    "raw_sha256": "1160035ce74dca632f42ce93a592fd6b8d98384d40ccd7217a4b9dd8e8dd7c98",
+    "physics_source_sha256": "1c9743d344d7de4b089c0e41a5d9446d1b0c605a6ed777ba578d256673a6174d",
+    "physics_binary_sha256": "6ba83584c4d609231c49ce54307a4fa575d0fc1d2b4fd5e2376a8af1e86036d1"
+  },
+  {
+    "status": "indeterminate",
+    "reason": "no complete transient",
+    "label": "complementary-v170-r100-p180-s1"
+  },
+  {
+    "status": "indeterminate",
+    "reason": "no complete transient",
+    "label": "complementary-v170-r100-p30-s1"
+  },
+  {
+    "label": "complementary-v170-r100-p90-s0.5",
+    "periodic": {
+      "status": "complete",
+      "cycle_relative_RMS_change": {
+        "v(swa)": 0.00011591415368390099,
+        "v(swb)": 0.00011650749418678012,
+        "bus_current_A": 0.0006103758607178892
+      },
+      "end_time_s": 0.000802,
+      "points": 84546,
+      "input_power_estimate_W": 178.1865506470362
+    },
+    "switching": {
+      "tank_i_rms_A": 1.1243353332775279,
+      "tank_power_W": 126.41299416562894,
+      "bridge_overlap_proxy_W": 57.691657438165414,
+      "events": [
+        {
+          "leg": "A",
+          "edge": 0,
+          "current_inductive_A": -0.07511699830178045,
+          "ct_zero_delay_ns": null,
+          "incoming_vds_V": 169.69620368470768,
+          "zvs": false,
+          "off_gate_commutation_V": 3.6560636868463314,
+          "vds_commutation_peak_V": 369.7840202288761,
+          "off_gate_V": 3.6560636868463314,
+          "screen3": false,
+          "screen1p9": false,
+          "vds_peak_V": 369.7840202288761,
+          "screen520": true,
+          "overlap_uJ": 341.918533773964
+        },
+        {
+          "leg": "A",
+          "edge": 1,
+          "current_inductive_A": -0.07522143678692501,
+          "ct_zero_delay_ns": null,
+          "incoming_vds_V": 169.6899191249571,
+          "zvs": false,
+          "off_gate_commutation_V": 3.421794283161695,
+          "vds_commutation_peak_V": 349.34667929061465,
+          "off_gate_V": 3.421794283161695,
+          "screen3": false,
+          "screen1p9": false,
+          "vds_peak_V": 369.7840202288761,
+          "screen520": true,
+          "overlap_uJ": 340.6131643913101
+        },
+        {
+          "leg": "B",
+          "edge": 0,
+          "current_inductive_A": 1.6726043509654125,
+          "ct_zero_delay_ns": 2697.8466726969773,
+          "incoming_vds_V": 165.4733431243763,
+          "zvs": false,
+          "off_gate_commutation_V": 2.12127872927033,
+          "vds_commutation_peak_V": 321.99946028080603,
+          "off_gate_V": 2.12127872927033,
+          "screen3": true,
+          "screen1p9": false,
+          "vds_peak_V": 335.1128208367128,
+          "screen520": true,
+          "overlap_uJ": 236.3735702944776
+        },
+        {
+          "leg": "B",
+          "edge": 1,
+          "current_inductive_A": 1.6727395139041281,
+          "ct_zero_delay_ns": 2700.0571743416613,
+          "incoming_vds_V": 165.49103643893932,
+          "zvs": false,
+          "off_gate_commutation_V": 1.9685999623530783,
+          "vds_commutation_peak_V": 308.64680547204614,
+          "off_gate_V": 1.9685999623530783,
+          "screen3": true,
+          "screen1p9": false,
+          "vds_peak_V": 335.1128208367128,
+          "screen520": true,
+          "overlap_uJ": 234.9278803035567
+        }
+      ]
+    },
+    "raw_sha256": "b3a5a2210133262f29b3ed31dec830c5bd8e5e9b33272a8442bd340e92e419d4",
+    "physics_source_sha256": "1c9743d344d7de4b089c0e41a5d9446d1b0c605a6ed777ba578d256673a6174d",
+    "physics_binary_sha256": "6ba83584c4d609231c49ce54307a4fa575d0fc1d2b4fd5e2376a8af1e86036d1"
+  },
+  {
+    "status": "indeterminate",
+    "reason": "no complete transient",
+    "label": "complementary-v170-r100-p90-s1"
+  },
+  {
+    "status": "indeterminate",
+    "reason": "no complete transient",
+    "label": "complementary-v170-r2-p0-s1"
+  },
+  {
+    "label": "complementary-v170-r2-p120-s0.25",
+    "periodic": {
+      "status": "complete",
+      "cycle_relative_RMS_change": {
+        "v(swa)": 1.6106374078353387e-06,
+        "v(swb)": 2.1024257327785357e-06,
+        "bus_current_A": 1.618674984865731e-05
+      },
+      "end_time_s": 0.000802,
+      "points": 160311,
+      "input_power_estimate_W": 135.74958754062845
+    },
+    "switching": {
+      "tank_i_rms_A": 8.156968330293562,
+      "tank_power_W": 133.0722646828243,
+      "bridge_overlap_proxy_W": 5.741840636458162,
+      "events": [
+        {
+          "leg": "A",
+          "edge": 0,
+          "current_inductive_A": 10.182848837773754,
+          "ct_zero_delay_ns": 3251.305315422697,
+          "incoming_vds_V": 10.339250379089234,
+          "zvs": false,
+          "off_gate_commutation_V": 0.726394828475089,
+          "vds_commutation_peak_V": 177.65017241357756,
+          "off_gate_V": 0.726394828475089,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 186.27640373623808,
+          "screen520": true,
+          "overlap_uJ": 27.99405848188546
+        },
+        {
+          "leg": "A",
+          "edge": 1,
+          "current_inductive_A": 10.182659471054073,
+          "ct_zero_delay_ns": 3251.3949439349913,
+          "incoming_vds_V": 10.428169464989487,
+          "zvs": false,
+          "off_gate_commutation_V": 0.7214038381461378,
+          "vds_commutation_peak_V": 177.70203743913328,
+          "off_gate_V": 0.7214038381461378,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 186.27640373623808,
+          "screen520": true,
+          "overlap_uJ": 28.024198477369357
+        },
+        {
+          "leg": "B",
+          "edge": 0,
+          "current_inductive_A": 10.477129881246341,
+          "ct_zero_delay_ns": 6584.728277268369,
+          "incoming_vds_V": 5.165675822191228,
+          "zvs": true,
+          "off_gate_commutation_V": 0.576121537785897,
+          "vds_commutation_peak_V": 178.43491812774454,
+          "off_gate_V": 0.576121537785897,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 186.07794245706276,
+          "screen520": true,
+          "overlap_uJ": 29.45052180599909
+        },
+        {
+          "leg": "B",
+          "edge": 1,
+          "current_inductive_A": 10.477098376078175,
+          "ct_zero_delay_ns": 6584.638880442381,
+          "incoming_vds_V": 5.234956135541676,
+          "zvs": true,
+          "off_gate_commutation_V": 0.5958402804997958,
+          "vds_commutation_peak_V": 178.434979497863,
+          "off_gate_V": 0.5958402804997958,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 186.07794245706276,
+          "screen520": true,
+          "overlap_uJ": 29.368033963909316
+        }
+      ]
+    },
+    "raw_sha256": "771a78f22814f3c8f52dc6615322c02d721948fe4842f99c5274fe3b2abbe0f8",
+    "physics_source_sha256": "1c9743d344d7de4b089c0e41a5d9446d1b0c605a6ed777ba578d256673a6174d",
+    "physics_binary_sha256": "6ba83584c4d609231c49ce54307a4fa575d0fc1d2b4fd5e2376a8af1e86036d1"
+  },
+  {
+    "label": "complementary-v170-r2-p120-s0.5",
+    "periodic": {
+      "status": "complete",
+      "cycle_relative_RMS_change": {
+        "v(swa)": 8.118075151736816e-06,
+        "v(swb)": 8.089068583197196e-06,
+        "bus_current_A": 7.975215643404286e-05
+      },
+      "end_time_s": 0.000802,
+      "points": 80396,
+      "input_power_estimate_W": 135.74764898270126
+    },
+    "switching": {
+      "tank_i_rms_A": 8.156969102710569,
+      "tank_power_W": 133.07228988514973,
+      "bridge_overlap_proxy_W": 5.720716250905089,
+      "events": [
+        {
+          "leg": "A",
+          "edge": 0,
+          "current_inductive_A": 10.182858357515434,
+          "ct_zero_delay_ns": 3251.315805331877,
+          "incoming_vds_V": 10.353820527666763,
+          "zvs": false,
+          "off_gate_commutation_V": 0.7239773510232461,
+          "vds_commutation_peak_V": 177.51906482558718,
+          "off_gate_V": 0.7239773510232461,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 186.1863004660339,
+          "screen520": true,
+          "overlap_uJ": 27.86723400359989
+        },
+        {
+          "leg": "A",
+          "edge": 1,
+          "current_inductive_A": 10.182682264155119,
+          "ct_zero_delay_ns": 3251.4072202272787,
+          "incoming_vds_V": 10.442271836246057,
+          "zvs": false,
+          "off_gate_commutation_V": 0.7188379122703505,
+          "vds_commutation_peak_V": 177.57229712771326,
+          "off_gate_V": 0.7188379122703505,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 186.1863004660339,
+          "screen520": true,
+          "overlap_uJ": 27.90891536777477
+        },
+        {
+          "leg": "B",
+          "edge": 0,
+          "current_inductive_A": 10.47710264058926,
+          "ct_zero_delay_ns": 6584.740553560657,
+          "incoming_vds_V": 5.159827322551073,
+          "zvs": true,
+          "off_gate_commutation_V": 0.578883171574111,
+          "vds_commutation_peak_V": 178.34222501916037,
+          "off_gate_V": 0.578883171574111,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 185.87398358010745,
+          "screen520": true,
+          "overlap_uJ": 29.367428050250467
+        },
+        {
+          "leg": "B",
+          "edge": 1,
+          "current_inductive_A": 10.47707342143878,
+          "ct_zero_delay_ns": 6584.653611450353,
+          "incoming_vds_V": 5.225762744451447,
+          "zvs": true,
+          "off_gate_commutation_V": 0.5977423644821096,
+          "vds_commutation_peak_V": 178.3028983374659,
+          "off_gate_V": 0.5977423644821096,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 185.87398358010745,
+          "screen520": true,
+          "overlap_uJ": 29.27074759647665
+        }
+      ]
+    },
+    "raw_sha256": "e0605cb05c945574e125a3159a144da7455aff14634c6db057df3ae3c526c2d6",
+    "physics_source_sha256": "1c9743d344d7de4b089c0e41a5d9446d1b0c605a6ed777ba578d256673a6174d",
+    "physics_binary_sha256": "6ba83584c4d609231c49ce54307a4fa575d0fc1d2b4fd5e2376a8af1e86036d1"
+  },
+  {
+    "status": "indeterminate",
+    "reason": "no complete transient",
+    "label": "complementary-v170-r2-p120-s1"
+  },
+  {
+    "label": "complementary-v170-r2-p150-s0.5",
+    "periodic": {
+      "status": "complete",
+      "cycle_relative_RMS_change": {
+        "v(swa)": 1.5331471517594212e-05,
+        "v(swb)": 1.7630030792353194e-05,
+        "bus_current_A": 8.422162328914064e-05
+      },
+      "end_time_s": 0.000802,
+      "points": 80398,
+      "input_power_estimate_W": 170.1873915142504
+    },
+    "switching": {
+      "tank_i_rms_A": 9.122774650453069,
+      "tank_power_W": 166.45003464589823,
+      "bridge_overlap_proxy_W": 6.0635052799899505,
+      "events": [
+        {
+          "leg": "A",
+          "edge": 0,
+          "current_inductive_A": 13.093701536643792,
+          "ct_zero_delay_ns": 4026.1252346485708,
+          "incoming_vds_V": 1.670618517382871,
+          "zvs": true,
+          "off_gate_commutation_V": 0.5044383431824266,
+          "vds_commutation_peak_V": 178.69703105987568,
+          "off_gate_V": 0.5044383431824266,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 186.15764885682887,
+          "screen520": true,
+          "overlap_uJ": 29.961991229906733
+        },
+        {
+          "leg": "A",
+          "edge": 1,
+          "current_inductive_A": 13.093394906838752,
+          "ct_zero_delay_ns": 4026.19071354594,
+          "incoming_vds_V": 1.78382312239098,
+          "zvs": true,
+          "off_gate_commutation_V": 0.5529474798573114,
+          "vds_commutation_peak_V": 178.81336047255834,
+          "off_gate_V": 0.5529474798573114,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 186.15764885682887,
+          "screen520": true,
+          "overlap_uJ": 30.063468995351357
+        },
+        {
+          "leg": "B",
+          "edge": 0,
+          "current_inductive_A": 13.006902443182673,
+          "ct_zero_delay_ns": 5692.857380212683,
+          "incoming_vds_V": 0.44016658109527046,
+          "zvs": true,
+          "off_gate_commutation_V": 0.5551461460516683,
+          "vds_commutation_peak_V": 179.23024374513017,
+          "off_gate_V": 0.5574508738481457,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 186.60837998691682,
+          "screen520": true,
+          "overlap_uJ": 30.705375892334388
+        },
+        {
+          "leg": "B",
+          "edge": 1,
+          "current_inductive_A": 13.00811307335732,
+          "ct_zero_delay_ns": 5692.794719516065,
+          "incoming_vds_V": 0.41462215177982614,
+          "zvs": true,
+          "off_gate_commutation_V": 0.593085940429456,
+          "vds_commutation_peak_V": 179.1146968211217,
+          "off_gate_V": 0.593085940429456,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 186.60837998691682,
+          "screen520": true,
+          "overlap_uJ": 30.539269482206542
+        }
+      ]
+    },
+    "raw_sha256": "d16f5c2ecd79fff0c33dc0033ed974bb34ec6d9ea270cb338c13ed5915d99801",
+    "physics_source_sha256": "1c9743d344d7de4b089c0e41a5d9446d1b0c605a6ed777ba578d256673a6174d",
+    "physics_binary_sha256": "6ba83584c4d609231c49ce54307a4fa575d0fc1d2b4fd5e2376a8af1e86036d1"
+  },
+  {
+    "status": "indeterminate",
+    "reason": "no complete transient",
+    "label": "complementary-v170-r2-p150-s1"
+  },
+  {
+    "label": "complementary-v170-r2-p180-s0.5",
+    "periodic": {
+      "status": "complete",
+      "cycle_relative_RMS_change": {
+        "v(swa)": 1.1894347619877992e-05,
+        "v(swb)": 1.2336944043465983e-05,
+        "bus_current_A": 9.922387009350725e-05
+      },
+      "end_time_s": 0.000802,
+      "points": 80250,
+      "input_power_estimate_W": 184.45660106859285
+    },
+    "switching": {
+      "tank_i_rms_A": 9.46625121949938,
+      "tank_power_W": 179.21982430134702,
+      "bridge_overlap_proxy_W": 9.47893403577455,
+      "events": [
+        {
+          "leg": "A",
+          "edge": 0,
+          "current_inductive_A": 14.983830979753295,
+          "ct_zero_delay_ns": 4833.242533696779,
+          "incoming_vds_V": -0.6988671490068084,
+          "zvs": true,
+          "off_gate_commutation_V": 0.40967802313193313,
+          "vds_commutation_peak_V": 200.97424411494953,
+          "off_gate_V": 1.2288793683807056,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 201.2246805489404,
+          "screen520": true,
+          "overlap_uJ": 47.425474846738425
+        },
+        {
+          "leg": "A",
+          "edge": 1,
+          "current_inductive_A": 14.983702288007269,
+          "ct_zero_delay_ns": 4833.22913203668,
+          "incoming_vds_V": -0.699230741873739,
+          "zvs": true,
+          "off_gate_commutation_V": 0.43096362642397323,
+          "vds_commutation_peak_V": 201.2246805489404,
+          "off_gate_V": 1.0804806843454742,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 201.2246805489404,
+          "screen520": true,
+          "overlap_uJ": 47.36381240454487
+        },
+        {
+          "leg": "B",
+          "edge": 0,
+          "current_inductive_A": 14.983702288007269,
+          "ct_zero_delay_ns": 4833.22913203668,
+          "incoming_vds_V": -0.6988688300671841,
+          "zvs": true,
+          "off_gate_commutation_V": 0.4096915144204726,
+          "vds_commutation_peak_V": 200.97428486351902,
+          "off_gate_V": 1.2288771882257992,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 201.22463884994158,
+          "screen520": true,
+          "overlap_uJ": 47.425766278320474
+        },
+        {
+          "leg": "B",
+          "edge": 1,
+          "current_inductive_A": 14.983634431934377,
+          "ct_zero_delay_ns": 4833.1943393939555,
+          "incoming_vds_V": -0.6992289064016373,
+          "zvs": true,
+          "off_gate_commutation_V": 0.43096419840480465,
+          "vds_commutation_peak_V": 201.22463673767493,
+          "off_gate_V": 1.0804837133029253,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 201.22463884994158,
+          "screen520": true,
+          "overlap_uJ": 47.36362718588724
+        }
+      ]
+    },
+    "raw_sha256": "85e88324b7f18f2223a9bdbbea55276d52714fb2250106237e320a47839d4616",
+    "physics_source_sha256": "1c9743d344d7de4b089c0e41a5d9446d1b0c605a6ed777ba578d256673a6174d",
+    "physics_binary_sha256": "6ba83584c4d609231c49ce54307a4fa575d0fc1d2b4fd5e2376a8af1e86036d1"
+  },
+  {
+    "status": "indeterminate",
+    "reason": "no complete transient",
+    "label": "complementary-v170-r2-p180-s1"
+  },
+  {
+    "status": "indeterminate",
+    "reason": "no complete transient",
+    "label": "complementary-v170-r2-p30-s1"
+  },
+  {
+    "label": "complementary-v170-r2-p60-s0.5",
+    "periodic": {
+      "status": "complete",
+      "cycle_relative_RMS_change": {
+        "v(swa)": 7.777697140436572e-06,
+        "v(swb)": 7.957270255822567e-06,
+        "bus_current_A": 0.00025113979274377936
+      },
+      "end_time_s": 0.000802,
+      "points": 81034,
+      "input_power_estimate_W": 55.07612318368262
+    },
+    "switching": {
+      "tank_i_rms_A": 4.7640913560103,
+      "tank_power_W": 45.39313289682412,
+      "bridge_overlap_proxy_W": 12.098168888832301,
+      "events": [
+        {
+          "leg": "A",
+          "edge": 0,
+          "current_inductive_A": 4.491331527501641,
+          "ct_zero_delay_ns": 1872.4319189501346,
+          "incoming_vds_V": 154.71735272084234,
+          "zvs": false,
+          "off_gate_commutation_V": 0.9428680691019253,
+          "vds_commutation_peak_V": 222.29790190365287,
+          "off_gate_V": 0.9428680691019253,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 223.18809536089003,
+          "screen520": true,
+          "overlap_uJ": 83.8722418989718
+        },
+        {
+          "leg": "A",
+          "edge": 1,
+          "current_inductive_A": 4.4907582512969135,
+          "ct_zero_delay_ns": 1872.673309010744,
+          "incoming_vds_V": 154.71107021978978,
+          "zvs": false,
+          "off_gate_commutation_V": 0.8937803083233877,
+          "vds_commutation_peak_V": 223.18809536089003,
+          "off_gate_V": 0.8937803083233877,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 223.18809536089003,
+          "screen520": true,
+          "overlap_uJ": 82.24127540316333
+        },
+        {
+          "leg": "B",
+          "edge": 0,
+          "current_inductive_A": 4.275377687585223,
+          "ct_zero_delay_ns": 8539.339975677392,
+          "incoming_vds_V": 148.45462461184198,
+          "zvs": false,
+          "off_gate_commutation_V": 0.7620151950070919,
+          "vds_commutation_peak_V": 190.6661526858609,
+          "off_gate_V": 0.7620151950070919,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 231.96330039170897,
+          "screen520": true,
+          "overlap_uJ": 38.01007517331934
+        },
+        {
+          "leg": "B",
+          "edge": 1,
+          "current_inductive_A": 4.275028069530775,
+          "ct_zero_delay_ns": 8539.097412872046,
+          "incoming_vds_V": 148.46682051583736,
+          "zvs": false,
+          "off_gate_commutation_V": 0.790404961766427,
+          "vds_commutation_peak_V": 190.85031404757981,
+          "off_gate_V": 0.790404961766427,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 231.96330039170897,
+          "screen520": true,
+          "overlap_uJ": 37.83978530119157
+        }
+      ]
+    },
+    "raw_sha256": "4ce6732f1a51bf03a1990b28f261a8f83f209bd7c971d7c4b9ba0eacc05e062e",
+    "physics_source_sha256": "1c9743d344d7de4b089c0e41a5d9446d1b0c605a6ed777ba578d256673a6174d",
+    "physics_binary_sha256": "6ba83584c4d609231c49ce54307a4fa575d0fc1d2b4fd5e2376a8af1e86036d1"
+  },
+  {
+    "status": "indeterminate",
+    "reason": "no complete transient",
+    "label": "complementary-v170-r2-p60-s1"
+  },
+  {
+    "label": "complementary-v170-r2-p90-s0.25",
+    "periodic": {
+      "status": "complete",
+      "cycle_relative_RMS_change": {
+        "v(swa)": 6.614279842593305e-08,
+        "v(swb)": 9.023357721390736e-08,
+        "bus_current_A": 1.0422077704175946e-06
+      },
+      "end_time_s": 0.000802,
+      "points": 160240,
+      "input_power_estimate_W": 90.876987998119
+    },
+    "switching": {
+      "tank_i_rms_A": 6.6576343882170494,
+      "tank_power_W": 88.64819129434042,
+      "bridge_overlap_proxy_W": 4.708727844744656,
+      "events": [
+        {
+          "leg": "A",
+          "edge": 0,
+          "current_inductive_A": 7.231121751431162,
+          "ct_zero_delay_ns": 2532.332560076559,
+          "incoming_vds_V": 40.27099662325636,
+          "zvs": false,
+          "off_gate_commutation_V": 0.7984936193885394,
+          "vds_commutation_peak_V": 172.02275251537844,
+          "off_gate_V": 0.7984936193885394,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 179.91730071280344,
+          "screen520": true,
+          "overlap_uJ": 22.235686774104437
+        },
+        {
+          "leg": "A",
+          "edge": 1,
+          "current_inductive_A": 7.231754899997205,
+          "ct_zero_delay_ns": 2532.184724724201,
+          "incoming_vds_V": 39.382133350421434,
+          "zvs": false,
+          "off_gate_commutation_V": 0.8188786952245906,
+          "vds_commutation_peak_V": 171.977353899013,
+          "off_gate_V": 0.8188786952245906,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 179.91730071280344,
+          "screen520": true,
+          "overlap_uJ": 22.124078836639892
+        },
+        {
+          "leg": "B",
+          "edge": 0,
+          "current_inductive_A": 7.495417128244309,
+          "ct_zero_delay_ns": 7532.184724724214,
+          "incoming_vds_V": 19.27494850308916,
+          "zvs": false,
+          "off_gate_commutation_V": 0.7416528083319959,
+          "vds_commutation_peak_V": 174.56200760523078,
+          "off_gate_V": 0.7416528083319959,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 178.38578581304526,
+          "screen520": true,
+          "overlap_uJ": 24.90873877943804
+        },
+        {
+          "leg": "B",
+          "edge": 1,
+          "current_inductive_A": 7.496146944405867,
+          "ct_zero_delay_ns": 7532.332468248985,
+          "incoming_vds_V": 19.190292248410667,
+          "zvs": false,
+          "off_gate_commutation_V": 0.7550277190690231,
+          "vds_commutation_peak_V": 174.8636386219579,
+          "off_gate_V": 0.7550277190690231,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 178.38578581304526,
+          "screen520": true,
+          "overlap_uJ": 24.906052504710754
+        }
+      ]
+    },
+    "raw_sha256": "2e398b4deb490df1a9f2a247e6d01c5f97f2a54299552cf335b9443441987c29",
+    "physics_source_sha256": "1c9743d344d7de4b089c0e41a5d9446d1b0c605a6ed777ba578d256673a6174d",
+    "physics_binary_sha256": "6ba83584c4d609231c49ce54307a4fa575d0fc1d2b4fd5e2376a8af1e86036d1"
+  },
+  {
+    "label": "complementary-v170-r2-p90-s0.5",
+    "periodic": {
+      "status": "complete",
+      "cycle_relative_RMS_change": {
+        "v(swa)": 1.6006775181638091e-06,
+        "v(swb)": 2.727326327355584e-06,
+        "bus_current_A": 3.162193141453827e-05
+      },
+      "end_time_s": 0.000802,
+      "points": 80334,
+      "input_power_estimate_W": 90.87812095126141
+    },
+    "switching": {
+      "tank_i_rms_A": 6.657632591533011,
+      "tank_power_W": 88.6481434476851,
+      "bridge_overlap_proxy_W": 4.7200963803671705,
+      "events": [
+        {
+          "leg": "A",
+          "edge": 0,
+          "current_inductive_A": 7.231119334335602,
+          "ct_zero_delay_ns": 2532.330538948611,
+          "incoming_vds_V": 40.6455698275651,
+          "zvs": false,
+          "off_gate_commutation_V": 0.7975458377903945,
+          "vds_commutation_peak_V": 172.12506913024254,
+          "off_gate_V": 0.7975458377903945,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 179.6963047733143,
+          "screen520": true,
+          "overlap_uJ": 22.27308814503786
+        },
+        {
+          "leg": "A",
+          "edge": 1,
+          "current_inductive_A": 7.2317433266958,
+          "ct_zero_delay_ns": 2532.183876546336,
+          "incoming_vds_V": 39.585766516042774,
+          "zvs": false,
+          "off_gate_commutation_V": 0.8185688851204063,
+          "vds_commutation_peak_V": 171.84607350021895,
+          "off_gate_V": 0.8185688851204063,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 179.6963047733143,
+          "screen520": true,
+          "overlap_uJ": 22.141609317703413
+        },
+        {
+          "leg": "B",
+          "edge": 0,
+          "current_inductive_A": 7.495419657826661,
+          "ct_zero_delay_ns": 7532.183876546349,
+          "incoming_vds_V": 19.2764799146096,
+          "zvs": false,
+          "off_gate_commutation_V": 0.7399949060808853,
+          "vds_commutation_peak_V": 174.49720442240547,
+          "off_gate_V": 0.7399949060808853,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 178.14267055056357,
+          "screen520": true,
+          "overlap_uJ": 24.98736230234347
+        },
+        {
+          "leg": "B",
+          "edge": 1,
+          "current_inductive_A": 7.496150937423352,
+          "ct_zero_delay_ns": 7532.331179151467,
+          "incoming_vds_V": 19.19393137291412,
+          "zvs": false,
+          "off_gate_commutation_V": 0.7536137448664455,
+          "vds_commutation_peak_V": 174.81262448194886,
+          "off_gate_V": 0.7536137448664455,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 178.14267055056357,
+          "screen520": true,
+          "overlap_uJ": 24.999867842258666
+        }
+      ]
+    },
+    "raw_sha256": "609867915bf78337d6101ec10f0b5476f3935f31f13adb5d385e40fa6b98f74e",
+    "physics_source_sha256": "1c9743d344d7de4b089c0e41a5d9446d1b0c605a6ed777ba578d256673a6174d",
+    "physics_binary_sha256": "6ba83584c4d609231c49ce54307a4fa575d0fc1d2b4fd5e2376a8af1e86036d1"
+  },
+  {
+    "status": "indeterminate",
+    "reason": "no complete transient",
+    "label": "complementary-v170-r2-p90-s1"
+  },
+  {
+    "label": "complementary-v198-r100-p180-s1",
+    "periodic": {
+      "status": "not_settled",
+      "cycle_relative_RMS_change": {
+        "v(swa)": 9.15068397379475e-05,
+        "v(swb)": 8.55421905444813e-05,
+        "bus_current_A": 0.0010076336694759035
+      },
+      "end_time_s": 0.000802,
+      "points": 42248,
+      "input_power_estimate_W": 390.91806368173053
+    },
+    "switching": {
+      "tank_i_rms_A": 1.854539552371684,
+      "tank_power_W": 343.93169513109666,
+      "bridge_overlap_proxy_W": 57.09732168876411,
+      "events": [
+        {
+          "leg": "A",
+          "edge": 0,
+          "current_inductive_A": 1.8614724418883495,
+          "ct_zero_delay_ns": 967.1878247756363,
+          "incoming_vds_V": 193.73464893986574,
+          "zvs": false,
+          "off_gate_commutation_V": 2.4302486953059095,
+          "vds_commutation_peak_V": 357.47833537743884,
+          "off_gate_V": 2.4302486953059095,
+          "screen3": true,
+          "screen1p9": false,
+          "vds_peak_V": 357.47833537743884,
+          "screen520": true,
+          "overlap_uJ": 281.3675940496827
+        },
+        {
+          "leg": "A",
+          "edge": 1,
+          "current_inductive_A": 1.8614743473324673,
+          "ct_zero_delay_ns": 967.187908551396,
+          "incoming_vds_V": 193.74202423484277,
+          "zvs": false,
+          "off_gate_commutation_V": 2.286294394388724,
+          "vds_commutation_peak_V": 334.50214895926433,
+          "off_gate_V": 2.286294394388724,
+          "screen3": true,
+          "screen1p9": false,
+          "vds_peak_V": 357.47833537743884,
+          "screen520": true,
+          "overlap_uJ": 289.59852925993414
+        },
+        {
+          "leg": "B",
+          "edge": 0,
+          "current_inductive_A": 1.8614743473324673,
+          "ct_zero_delay_ns": 967.187908551396,
+          "incoming_vds_V": 193.73463570551797,
+          "zvs": false,
+          "off_gate_commutation_V": 2.43037821366919,
+          "vds_commutation_peak_V": 357.48111581209974,
+          "off_gate_V": 2.43037821366919,
+          "screen3": true,
+          "screen1p9": false,
+          "vds_peak_V": 357.48111581209974,
+          "screen520": true,
+          "overlap_uJ": 281.3769196521087
+        },
+        {
+          "leg": "B",
+          "edge": 1,
+          "current_inductive_A": 1.8614727680104777,
+          "ct_zero_delay_ns": 967.188283066485,
+          "incoming_vds_V": 193.74202843995457,
+          "zvs": false,
+          "off_gate_commutation_V": 2.286292476515478,
+          "vds_commutation_peak_V": 334.50191344352595,
+          "off_gate_V": 2.286292476515478,
+          "screen3": true,
+          "screen1p9": false,
+          "vds_peak_V": 357.48111581209974,
+          "screen520": true,
+          "overlap_uJ": 289.6033908135567
+        }
+      ]
+    },
+    "raw_sha256": "dd3b07b48ebe14679cdb66f6c8edc0904c438c02f61bc642800d47991bd019f7",
+    "physics_source_sha256": "1c9743d344d7de4b089c0e41a5d9446d1b0c605a6ed777ba578d256673a6174d",
+    "physics_binary_sha256": "6ba83584c4d609231c49ce54307a4fa575d0fc1d2b4fd5e2376a8af1e86036d1"
+  },
+  {
+    "status": "indeterminate",
+    "reason": "no complete transient",
+    "label": "complementary-v198-r100-p30-s1"
+  },
+  {
+    "status": "indeterminate",
+    "reason": "no complete transient",
+    "label": "complementary-v198-r100-p90-s0.5"
+  },
+  {
+    "status": "indeterminate",
+    "reason": "no complete transient",
+    "label": "complementary-v198-r100-p90-s1"
+  },
+  {
+    "status": "indeterminate",
+    "reason": "no complete transient",
+    "label": "complementary-v198-r2-p0-s1"
+  },
+  {
+    "label": "complementary-v198-r2-p120-s0.5",
+    "periodic": {
+      "status": "complete",
+      "cycle_relative_RMS_change": {
+        "v(swa)": 1.1142051414724869e-05,
+        "v(swb)": 1.1991275694875023e-05,
+        "bus_current_A": 9.414210452701899e-05
+      },
+      "end_time_s": 0.000802,
+      "points": 80385,
+      "input_power_estimate_W": 184.3236616296938
+    },
+    "switching": {
+      "tank_i_rms_A": 9.502326478278109,
+      "tank_power_W": 180.5884169995705,
+      "bridge_overlap_proxy_W": 6.641269857253319,
+      "events": [
+        {
+          "leg": "A",
+          "edge": 0,
+          "current_inductive_A": 11.848795482392868,
+          "ct_zero_delay_ns": 3235.924076891699,
+          "incoming_vds_V": 5.666166794685134,
+          "zvs": true,
+          "off_gate_commutation_V": 0.6652504612473586,
+          "vds_commutation_peak_V": 206.79161674279524,
+          "off_gate_V": 0.6652504612473586,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 218.82868159732752,
+          "screen520": true,
+          "overlap_uJ": 31.229527621914414
+        },
+        {
+          "leg": "A",
+          "edge": 1,
+          "current_inductive_A": 11.84860670168673,
+          "ct_zero_delay_ns": 3236.0112115795105,
+          "incoming_vds_V": 5.70028365330973,
+          "zvs": true,
+          "off_gate_commutation_V": 0.6576233716586408,
+          "vds_commutation_peak_V": 206.78020669026114,
+          "off_gate_V": 0.6576233716586408,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 218.82868159732752,
+          "screen520": true,
+          "overlap_uJ": 31.22695799935756
+        },
+        {
+          "leg": "B",
+          "edge": 0,
+          "current_inductive_A": 12.249872190095806,
+          "ct_zero_delay_ns": 6569.3445449128885,
+          "incoming_vds_V": 1.63678383276497,
+          "zvs": true,
+          "off_gate_commutation_V": 0.5761434855531878,
+          "vds_commutation_peak_V": 211.20591134852515,
+          "off_gate_V": 0.6067001197278543,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 215.72365957003572,
+          "screen520": true,
+          "overlap_uJ": 35.21383283587681
+        },
+        {
+          "leg": "B",
+          "edge": 1,
+          "current_inductive_A": 12.249656864296071,
+          "ct_zero_delay_ns": 6569.256398990904,
+          "incoming_vds_V": 1.7115630543914382,
+          "zvs": true,
+          "off_gate_commutation_V": 0.6027207807213982,
+          "vds_commutation_peak_V": 211.36127819505492,
+          "off_gate_V": 0.6027207807213982,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 215.72365957003572,
+          "screen520": true,
+          "overlap_uJ": 35.155078687917616
+        }
+      ]
+    },
+    "raw_sha256": "5f223c7e884ffbc3aec6ec54de0429796c226d582bd3d9e9ada8b796d72aa5b7",
+    "physics_source_sha256": "1c9743d344d7de4b089c0e41a5d9446d1b0c605a6ed777ba578d256673a6174d",
+    "physics_binary_sha256": "6ba83584c4d609231c49ce54307a4fa575d0fc1d2b4fd5e2376a8af1e86036d1"
+  },
+  {
+    "status": "indeterminate",
+    "reason": "no complete transient",
+    "label": "complementary-v198-r2-p120-s1"
+  },
+  {
+    "label": "complementary-v198-r2-p150-s0.5",
+    "periodic": {
+      "status": "complete",
+      "cycle_relative_RMS_change": {
+        "v(swa)": 5.222795775405783e-06,
+        "v(swb)": 7.2255743562376246e-06,
+        "bus_current_A": 3.9963944177729954e-05
+      },
+      "end_time_s": 0.000802,
+      "points": 80410,
+      "input_power_estimate_W": 230.97148407190954
+    },
+    "switching": {
+      "tank_i_rms_A": 10.626376376492084,
+      "tank_power_W": 225.8397497897381,
+      "bridge_overlap_proxy_W": 7.12048718564226,
+      "events": [
+        {
+          "leg": "A",
+          "edge": 0,
+          "current_inductive_A": 15.243667923841468,
+          "ct_zero_delay_ns": 4014.467528050121,
+          "incoming_vds_V": -0.703469036889844,
+          "zvs": true,
+          "off_gate_commutation_V": 0.45968860544586576,
+          "vds_commutation_peak_V": 208.4898126116173,
+          "off_gate_V": 0.4879632165526697,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 217.2618359892358,
+          "screen520": true,
+          "overlap_uJ": 35.21866744079075
+        },
+        {
+          "leg": "A",
+          "edge": 1,
+          "current_inductive_A": 15.24303391419207,
+          "ct_zero_delay_ns": 4014.559289499363,
+          "incoming_vds_V": -0.7025409948298023,
+          "zvs": true,
+          "off_gate_commutation_V": 0.5221010540365385,
+          "vds_commutation_peak_V": 208.53684240159546,
+          "off_gate_V": 0.5221010540365385,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 217.2618359892358,
+          "screen520": true,
+          "overlap_uJ": 35.25180795481723
+        },
+        {
+          "leg": "B",
+          "edge": 0,
+          "current_inductive_A": 15.180859005372465,
+          "ct_zero_delay_ns": 5681.225956166106,
+          "incoming_vds_V": -0.7292722510623644,
+          "zvs": true,
+          "off_gate_commutation_V": 0.48740881031291683,
+          "vds_commutation_peak_V": 209.26425244538476,
+          "off_gate_V": 0.669814433209631,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 217.57029569857445,
+          "screen520": true,
+          "overlap_uJ": 36.030030836865514
+        },
+        {
+          "leg": "B",
+          "edge": 1,
+          "current_inductive_A": 15.18261247947016,
+          "ct_zero_delay_ns": 5681.141221148818,
+          "incoming_vds_V": -0.7286462841787041,
+          "zvs": true,
+          "off_gate_commutation_V": 0.5208811388582908,
+          "vds_commutation_peak_V": 209.18961737832288,
+          "off_gate_V": 0.6058144875345022,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 217.57029569857445,
+          "screen520": true,
+          "overlap_uJ": 35.90923748037168
+        }
+      ]
+    },
+    "raw_sha256": "d146ca17fdbbaaba4d79fd14d40d17fb142a3a730eda632584b9e189da71a1e9",
+    "physics_source_sha256": "1c9743d344d7de4b089c0e41a5d9446d1b0c605a6ed777ba578d256673a6174d",
+    "physics_binary_sha256": "6ba83584c4d609231c49ce54307a4fa575d0fc1d2b4fd5e2376a8af1e86036d1"
+  },
+  {
+    "label": "complementary-v198-r2-p150-s1",
+    "periodic": {
+      "status": "complete",
+      "cycle_relative_RMS_change": {
+        "v(swa)": 1.8307712145793964e-05,
+        "v(swb)": 1.8399407016485434e-05,
+        "bus_current_A": 0.00015485988356255992
+      },
+      "end_time_s": 0.000802,
+      "points": 40798,
+      "input_power_estimate_W": 230.9624523955012
+    },
+    "switching": {
+      "tank_i_rms_A": 10.626377874643232,
+      "tank_power_W": 225.83981346941442,
+      "bridge_overlap_proxy_W": 7.065354348163982,
+      "events": [
+        {
+          "leg": "A",
+          "edge": 0,
+          "current_inductive_A": 15.243664522059925,
+          "ct_zero_delay_ns": 4014.4696383787427,
+          "incoming_vds_V": -0.7058802163538528,
+          "zvs": true,
+          "off_gate_commutation_V": 0.47159717387478084,
+          "vds_commutation_peak_V": 208.6444095118612,
+          "off_gate_V": 0.4845351569578602,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 216.95215261169622,
+          "screen520": true,
+          "overlap_uJ": 34.92888356175855
+        },
+        {
+          "leg": "A",
+          "edge": 1,
+          "current_inductive_A": 15.243010226564875,
+          "ct_zero_delay_ns": 4014.558633826473,
+          "incoming_vds_V": -0.7045985764793445,
+          "zvs": true,
+          "off_gate_commutation_V": 0.5315968652613439,
+          "vds_commutation_peak_V": 208.6373753572123,
+          "off_gate_V": 0.5315968652613439,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 216.95215261169622,
+          "screen520": true,
+          "overlap_uJ": 34.99930416518161
+        },
+        {
+          "leg": "B",
+          "edge": 0,
+          "current_inductive_A": 15.180847611605138,
+          "ct_zero_delay_ns": 5681.225300493216,
+          "incoming_vds_V": -0.7314048936329062,
+          "zvs": true,
+          "off_gate_commutation_V": 0.49656229533893304,
+          "vds_commutation_peak_V": 208.9619427080754,
+          "off_gate_V": 0.6674714708225018,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 217.57282751505784,
+          "screen520": true,
+          "overlap_uJ": 35.762744317777646
+        },
+        {
+          "leg": "B",
+          "edge": 1,
+          "current_inductive_A": 15.182609730769677,
+          "ct_zero_delay_ns": 5681.140250148411,
+          "incoming_vds_V": -0.7309003274339759,
+          "zvs": true,
+          "off_gate_commutation_V": 0.5294267997096336,
+          "vds_commutation_peak_V": 208.84844059870278,
+          "off_gate_V": 0.6019251455280994,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 217.57282751505784,
+          "screen520": true,
+          "overlap_uJ": 35.61615491856182
+        }
+      ]
+    },
+    "raw_sha256": "4366e3cda853a793c1eefa1d66d7616d82d1bbf3272ac146d1c55c9751300d56",
+    "physics_source_sha256": "1c9743d344d7de4b089c0e41a5d9446d1b0c605a6ed777ba578d256673a6174d",
+    "physics_binary_sha256": "6ba83584c4d609231c49ce54307a4fa575d0fc1d2b4fd5e2376a8af1e86036d1"
+  },
+  {
+    "label": "complementary-v198-r2-p180-s0.5",
+    "periodic": {
+      "status": "complete",
+      "cycle_relative_RMS_change": {
+        "v(swa)": 2.1963955565097968e-06,
+        "v(swb)": 1.3128789904483936e-06,
+        "bus_current_A": 2.0955552593946233e-05
+      },
+      "end_time_s": 0.000802,
+      "points": 80281,
+      "input_power_estimate_W": 250.2962844831104
+    },
+    "switching": {
+      "tank_i_rms_A": 11.025606535014159,
+      "tank_power_W": 243.12799892989383,
+      "bridge_overlap_proxy_W": 12.02080558094148,
+      "events": [
+        {
+          "leg": "A",
+          "edge": 0,
+          "current_inductive_A": 17.474269680518443,
+          "ct_zero_delay_ns": 4823.423224583463,
+          "incoming_vds_V": -0.7772224304260559,
+          "zvs": true,
+          "off_gate_commutation_V": 0.4783525650116744,
+          "vds_commutation_peak_V": 239.4952890915206,
+          "off_gate_V": 1.4472391032912553,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 239.5354898188423,
+          "screen520": true,
+          "overlap_uJ": 60.16715663308166
+        },
+        {
+          "leg": "A",
+          "edge": 1,
+          "current_inductive_A": 17.47409535618738,
+          "ct_zero_delay_ns": 4823.407641859007,
+          "incoming_vds_V": -0.7768382707692529,
+          "zvs": true,
+          "off_gate_commutation_V": 0.49266238705504295,
+          "vds_commutation_peak_V": 239.5354898188423,
+          "off_gate_V": 1.272395969466487,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 239.5354898188423,
+          "screen520": true,
+          "overlap_uJ": 60.04096432225276
+        },
+        {
+          "leg": "B",
+          "edge": 0,
+          "current_inductive_A": 17.47409535618738,
+          "ct_zero_delay_ns": 4823.407641859007,
+          "incoming_vds_V": -0.777233814550879,
+          "zvs": true,
+          "off_gate_commutation_V": 0.4783487082751813,
+          "vds_commutation_peak_V": 239.49321671793493,
+          "off_gate_V": 1.4472170091767174,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 239.53685382839973,
+          "screen520": true,
+          "overlap_uJ": 60.16619794429291
+        },
+        {
+          "leg": "B",
+          "edge": 1,
+          "current_inductive_A": 17.474009921128236,
+          "ct_zero_delay_ns": 4823.371092993619,
+          "incoming_vds_V": -0.776821341729511,
+          "zvs": true,
+          "off_gate_commutation_V": 0.4926536317597673,
+          "vds_commutation_peak_V": 239.5356310455745,
+          "off_gate_V": 1.2724632495508104,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 239.53685382839973,
+          "screen520": true,
+          "overlap_uJ": 60.041792719202284
+        }
+      ]
+    },
+    "raw_sha256": "f0dcf50a1f69471aa507f9220b14f3e06567b87cf5d507f58feee86113565b4a",
+    "physics_source_sha256": "1c9743d344d7de4b089c0e41a5d9446d1b0c605a6ed777ba578d256673a6174d",
+    "physics_binary_sha256": "6ba83584c4d609231c49ce54307a4fa575d0fc1d2b4fd5e2376a8af1e86036d1"
+  },
+  {
+    "label": "complementary-v198-r2-p180-s1",
+    "periodic": {
+      "status": "complete",
+      "cycle_relative_RMS_change": {
+        "v(swa)": 1.7127604167525105e-05,
+        "v(swb)": 1.0031029748243942e-05,
+        "bus_current_A": 0.00011486384607555139
+      },
+      "end_time_s": 0.000802,
+      "points": 40377,
+      "input_power_estimate_W": 250.28979083309414
+    },
+    "switching": {
+      "tank_i_rms_A": 11.025609498330978,
+      "tank_power_W": 243.12812961937257,
+      "bridge_overlap_proxy_W": 11.883690120966392,
+      "events": [
+        {
+          "leg": "A",
+          "edge": 0,
+          "current_inductive_A": 17.474268938152882,
+          "ct_zero_delay_ns": 4823.408362259092,
+          "incoming_vds_V": -0.7695355396171,
+          "zvs": true,
+          "off_gate_commutation_V": 0.47848344046984825,
+          "vds_commutation_peak_V": 239.14050172807845,
+          "off_gate_V": 1.4413559932396574,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 239.14050172807845,
+          "screen520": true,
+          "overlap_uJ": 59.46041066213446
+        },
+        {
+          "leg": "A",
+          "edge": 1,
+          "current_inductive_A": 17.474114657076008,
+          "ct_zero_delay_ns": 4823.393128521643,
+          "incoming_vds_V": -0.768949414956401,
+          "zvs": true,
+          "off_gate_commutation_V": 0.4779323630264698,
+          "vds_commutation_peak_V": 238.99553317974787,
+          "off_gate_V": 1.2689746827344663,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 239.14050172807845,
+          "screen520": true,
+          "overlap_uJ": 59.375826808076255
+        },
+        {
+          "leg": "B",
+          "edge": 0,
+          "current_inductive_A": 17.474114657076008,
+          "ct_zero_delay_ns": 4823.393128521643,
+          "incoming_vds_V": -0.7695348137614623,
+          "zvs": true,
+          "off_gate_commutation_V": 0.47847845398867944,
+          "vds_commutation_peak_V": 239.14010491869612,
+          "off_gate_V": 1.44132305655899,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 239.14010491869612,
+          "screen520": true,
+          "overlap_uJ": 59.45484890146831
+        },
+        {
+          "leg": "B",
+          "edge": 1,
+          "current_inductive_A": 17.474059408776288,
+          "ct_zero_delay_ns": 4823.366742593587,
+          "incoming_vds_V": -0.7689262784956583,
+          "zvs": true,
+          "off_gate_commutation_V": 0.47794119650930966,
+          "vds_commutation_peak_V": 238.9958406852983,
+          "off_gate_V": 1.2689624919902087,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 239.14010491869612,
+          "screen520": true,
+          "overlap_uJ": 59.3827160476488
+        }
+      ]
+    },
+    "raw_sha256": "044a6dd16b97d7c6ed87967f8557d1150e5ef62e2f06e8794af34289d7516746",
+    "physics_source_sha256": "1c9743d344d7de4b089c0e41a5d9446d1b0c605a6ed777ba578d256673a6174d",
+    "physics_binary_sha256": "6ba83584c4d609231c49ce54307a4fa575d0fc1d2b4fd5e2376a8af1e86036d1"
+  },
+  {
+    "status": "indeterminate",
+    "reason": "no complete transient",
+    "label": "complementary-v198-r2-p30-s1"
+  },
+  {
+    "label": "complementary-v198-r2-p60-s0.5",
+    "periodic": {
+      "status": "complete",
+      "cycle_relative_RMS_change": {
+        "v(swa)": 8.387214346634053e-06,
+        "v(swb)": 7.983876904054173e-06,
+        "bus_current_A": 0.00027387823135708114
+      },
+      "end_time_s": 0.000802,
+      "points": 80495,
+      "input_power_estimate_W": 67.5122568656208
+    },
+    "switching": {
+      "tank_i_rms_A": 5.518874357074605,
+      "tank_power_W": 60.91594833835126,
+      "bridge_overlap_proxy_W": 8.5509172466724,
+      "events": [
+        {
+          "leg": "A",
+          "edge": 0,
+          "current_inductive_A": 5.188105338786578,
+          "ct_zero_delay_ns": 1857.0918891603087,
+          "incoming_vds_V": 177.91651931864544,
+          "zvs": false,
+          "off_gate_commutation_V": 0.7420073958670312,
+          "vds_commutation_peak_V": 231.11345553218075,
+          "off_gate_V": 0.7420073958670312,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 231.11345553218075,
+          "screen520": true,
+          "overlap_uJ": 59.14104889121138
+        },
+        {
+          "leg": "A",
+          "edge": 1,
+          "current_inductive_A": 5.187845484933595,
+          "ct_zero_delay_ns": 1857.1939401375694,
+          "incoming_vds_V": 177.9096260535024,
+          "zvs": false,
+          "off_gate_commutation_V": 0.7647476949695715,
+          "vds_commutation_peak_V": 229.46214834044446,
+          "off_gate_V": 0.7647476949695715,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 231.11345553218075,
+          "screen520": true,
+          "overlap_uJ": 58.55215689603132
+        },
+        {
+          "leg": "B",
+          "edge": 0,
+          "current_inductive_A": 5.024830405958998,
+          "ct_zero_delay_ns": 8523.860606804217,
+          "incoming_vds_V": 169.208059544938,
+          "zvs": false,
+          "off_gate_commutation_V": 0.8271969691860392,
+          "vds_commutation_peak_V": 206.61060799314308,
+          "off_gate_V": 0.8271969691860392,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 238.144604279505,
+          "screen520": true,
+          "overlap_uJ": 26.6207269383304
+        },
+        {
+          "leg": "B",
+          "edge": 1,
+          "current_inductive_A": 5.024785990141683,
+          "ct_zero_delay_ns": 8523.759431021514,
+          "incoming_vds_V": 169.22740926329044,
+          "zvs": false,
+          "off_gate_commutation_V": 0.846907278050395,
+          "vds_commutation_peak_V": 206.91329788403016,
+          "off_gate_V": 0.846907278050395,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 238.144604279505,
+          "screen520": true,
+          "overlap_uJ": 26.704412207874906
+        }
+      ]
+    },
+    "raw_sha256": "78103d395ffa5b833d4157cd84d77818994193d585f7eb0543a7dc6aab6b6e71",
+    "physics_source_sha256": "1c9743d344d7de4b089c0e41a5d9446d1b0c605a6ed777ba578d256673a6174d",
+    "physics_binary_sha256": "6ba83584c4d609231c49ce54307a4fa575d0fc1d2b4fd5e2376a8af1e86036d1"
+  },
+  {
+    "label": "complementary-v198-r2-p60-s1",
+    "periodic": {
+      "status": "not_settled",
+      "cycle_relative_RMS_change": {
+        "v(swa)": 3.492929763564773e-05,
+        "v(swb)": 3.399139368179769e-05,
+        "bus_current_A": 0.001123088773894335
+      },
+      "end_time_s": 0.000802,
+      "points": 40885,
+      "input_power_estimate_W": 67.51175928984534
+    },
+    "switching": {
+      "tank_i_rms_A": 5.5189415209638195,
+      "tank_power_W": 60.917431023636865,
+      "bridge_overlap_proxy_W": 8.480011797270302,
+      "events": [
+        {
+          "leg": "A",
+          "edge": 0,
+          "current_inductive_A": 5.188179868618615,
+          "ct_zero_delay_ns": 1857.0672365720698,
+          "incoming_vds_V": 177.86390137396887,
+          "zvs": false,
+          "off_gate_commutation_V": 0.7423153853424803,
+          "vds_commutation_peak_V": 230.93440750343947,
+          "off_gate_V": 0.7423153853424803,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 230.93440750343947,
+          "screen520": true,
+          "overlap_uJ": 58.87036162593348
+        },
+        {
+          "leg": "A",
+          "edge": 1,
+          "current_inductive_A": 5.187875585828107,
+          "ct_zero_delay_ns": 1857.1772481607757,
+          "incoming_vds_V": 177.85830597810508,
+          "zvs": false,
+          "off_gate_commutation_V": 0.7651080304035531,
+          "vds_commutation_peak_V": 229.29224759818945,
+          "off_gate_V": 0.7651080304035531,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 230.93440750343947,
+          "screen520": true,
+          "overlap_uJ": 58.260722492625995
+        },
+        {
+          "leg": "B",
+          "edge": 0,
+          "current_inductive_A": 5.024917683229149,
+          "ct_zero_delay_ns": 8523.843914827423,
+          "incoming_vds_V": 169.15160997202182,
+          "zvs": false,
+          "off_gate_commutation_V": 0.8266493812017865,
+          "vds_commutation_peak_V": 205.6870510883415,
+          "off_gate_V": 0.8266493812017865,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 237.91836125930658,
+          "screen520": true,
+          "overlap_uJ": 26.19044448589593
+        },
+        {
+          "leg": "B",
+          "edge": 1,
+          "current_inductive_A": 5.02485921506019,
+          "ct_zero_delay_ns": 8523.733083973164,
+          "incoming_vds_V": 169.1716267892465,
+          "zvs": false,
+          "off_gate_commutation_V": 0.8462417553818966,
+          "vds_commutation_peak_V": 205.9616129817415,
+          "off_gate_V": 0.8462417553818966,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 237.91836125930658,
+          "screen520": true,
+          "overlap_uJ": 26.278707340950657
+        }
+      ]
+    },
+    "raw_sha256": "ab80349ba3dcf857f3e6ffd80a12ae647464b0027dc2c7c8b812a835cd1a3dfc",
+    "physics_source_sha256": "1c9743d344d7de4b089c0e41a5d9446d1b0c605a6ed777ba578d256673a6174d",
+    "physics_binary_sha256": "6ba83584c4d609231c49ce54307a4fa575d0fc1d2b4fd5e2376a8af1e86036d1"
+  },
+  {
+    "status": "indeterminate",
+    "reason": "no complete transient",
+    "label": "complementary-v198-r2-p90-s0.5"
+  },
+  {
+    "label": "complementary-v198-r2-p90-s1",
+    "periodic": {
+      "status": "complete",
+      "cycle_relative_RMS_change": {
+        "v(swa)": 1.5061046584998881e-05,
+        "v(swb)": 1.460489992701382e-05,
+        "bus_current_A": 0.00019672000164820363
+      },
+      "end_time_s": 0.000802,
+      "points": 40639,
+      "input_power_estimate_W": 122.7929376623577
+    },
+    "switching": {
+      "tank_i_rms_A": 7.758178579794473,
+      "tank_power_W": 120.37866975196356,
+      "bridge_overlap_proxy_W": 5.11775396474489,
+      "events": [
+        {
+          "leg": "A",
+          "edge": 0,
+          "current_inductive_A": 8.404562293749589,
+          "ct_zero_delay_ns": 2506.420751629385,
+          "incoming_vds_V": 22.729480826198916,
+          "zvs": false,
+          "off_gate_commutation_V": 0.7821890828049904,
+          "vds_commutation_peak_V": 200.69438311453928,
+          "off_gate_V": 0.7821890828049904,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 209.57758391230007,
+          "screen520": true,
+          "overlap_uJ": 24.71139141559139
+        },
+        {
+          "leg": "A",
+          "edge": 1,
+          "current_inductive_A": 8.40540833240583,
+          "ct_zero_delay_ns": 2506.2343198334943,
+          "incoming_vds_V": 22.65399776162965,
+          "zvs": false,
+          "off_gate_commutation_V": 0.7795387331579136,
+          "vds_commutation_peak_V": 200.50694673288416,
+          "off_gate_V": 0.7795387331579136,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 209.57758391230007,
+          "screen520": true,
+          "overlap_uJ": 24.533805490228424
+        },
+        {
+          "leg": "B",
+          "edge": 0,
+          "current_inductive_A": 8.81412511637786,
+          "ct_zero_delay_ns": 7506.2343198335075,
+          "incoming_vds_V": 12.200955213977268,
+          "zvs": false,
+          "off_gate_commutation_V": 0.6210730421528671,
+          "vds_commutation_peak_V": 202.6071493194068,
+          "off_gate_V": 0.6210730421528671,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 207.48631965288942,
+          "screen520": true,
+          "overlap_uJ": 26.533348449992427
+        },
+        {
+          "leg": "B",
+          "edge": 1,
+          "current_inductive_A": 8.815107071710994,
+          "ct_zero_delay_ns": 7506.417031343817,
+          "incoming_vds_V": 12.13937005774448,
+          "zvs": false,
+          "off_gate_commutation_V": 0.6418040406131649,
+          "vds_commutation_peak_V": 202.70730235228547,
+          "off_gate_V": 0.6418040406131649,
+          "screen3": true,
+          "screen1p9": true,
+          "vds_peak_V": 207.48631965288942,
+          "screen520": true,
+          "overlap_uJ": 26.576533939085557
+        }
+      ]
+    },
+    "raw_sha256": "751acfe2a52fe3208d415ac9bb3f980845e59486718f78386824d1de8f86c7eb",
+    "physics_source_sha256": "1c9743d344d7de4b089c0e41a5d9446d1b0c605a6ed777ba578d256673a6174d",
+    "physics_binary_sha256": "6ba83584c4d609231c49ce54307a4fa575d0fc1d2b4fd5e2376a8af1e86036d1"
+  },
+  {
+    "status": "indeterminate",
+    "reason": "no complete transient",
+    "label": "v170-r2-p0-s1"
+  },
+  {
+    "status": "indeterminate",
+    "reason": "no complete transient",
+    "label": "v170-r2-p120-s1"
+  },
+  {
+    "status": "indeterminate",
+    "reason": "no complete transient",
+    "label": "v170-r2-p150-s1"
+  },
+  {
+    "status": "indeterminate",
+    "reason": "no complete transient",
+    "label": "v170-r2-p30-s1"
+  },
+  {
+    "status": "indeterminate",
+    "reason": "no complete transient",
+    "label": "v170-r2-p60-s1"
+  },
+  {
+    "status": "indeterminate",
+    "reason": "no complete transient",
+    "label": "v170-r2-p90-s1"
+  }
+]

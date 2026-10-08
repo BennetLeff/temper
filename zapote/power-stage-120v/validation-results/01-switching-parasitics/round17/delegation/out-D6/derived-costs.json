@@ -1,0 +1,30 @@
+{
+  "discharge_branch_ohm": {
+    "1": 1.3448275862068966,
+    "2": 4.105263157894737
+  },
+  "cgs_15V": [
+    {
+      "C_nF": 1,
+      "Q_nC": 15,
+      "energy_full_cycle_uJ": 0.225
+    },
+    {
+      "C_nF": 2.2,
+      "Q_nC": 33.0,
+      "energy_full_cycle_uJ": 0.49500000000000005
+    },
+    {
+      "C_nF": 4.7,
+      "Q_nC": 70.5,
+      "energy_full_cycle_uJ": 1.0575
+    }
+  ],
+  "candidate_cgs_at_17V": {
+    "C_nF": 1,
+    "Q_nC": 17,
+    "energy_full_cycle_uJ": 0.289
+  },
+  "candidate_margin_gate_V": 1.3879231,
+  "candidate_margin_vds_V": 36.23200000000003
+}

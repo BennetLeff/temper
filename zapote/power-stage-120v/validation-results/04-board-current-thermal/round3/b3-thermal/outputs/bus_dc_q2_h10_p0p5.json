@@ -1,0 +1,255 @@
+{
+  "status": "conditional_experiment",
+  "source_revision": "44417ae1489fd00e2d652fd3b2c1582b76d17630",
+  "board_sha256": "a3ac1249f5052afe52944804cdc3f6ef0e8f895668360e79c1fa7b6fb7322155",
+  "stackup_sha256": "4022df3f3b96530ece8727e96e523691352234c4ed0de00f0cb93227cc89a37d",
+  "geometry_sha256": "2c78992e8f8be58837bb76fa979e549c9a9f7391084c05b30de3ff4f5c86666e",
+  "kicad_version": "10.0.4",
+  "runtime": {
+    "python": "3.12.12",
+    "numpy": "2.4.6",
+    "scipy": "1.18.0",
+    "shapely": "2.1.2"
+  },
+  "script_sha256": "7eacc3327dd9251f5e320b339a286ced7bbe64966ba3a5914d6a3d0bd6005081",
+  "case": "bus_dc_q2-p0125-pl18",
+  "pitch_mm": 0.5,
+  "h_w_m2k_each_face": 10.0,
+  "ambient_c": 50.0,
+  "layer_names": [
+    "F.Cu",
+    "dielectric 1",
+    "In1.Cu",
+    "dielectric 2",
+    "In2.Cu",
+    "dielectric 3",
+    "B.Cu"
+  ],
+  "layer_thickness_mm": [
+    0.07,
+    0.4355,
+    0.061,
+    0.5,
+    0.061,
+    0.4355,
+    0.07
+  ],
+  "k_cu_w_mk": 390.0,
+  "k_fr4_w_mk": 0.3,
+  "board_cells": 153600,
+  "copper_cells_by_layer": {
+    "F.Cu": 22136,
+    "In1.Cu": 37121,
+    "In2.Cu": 36996,
+    "B.Cu": 36869
+  },
+  "material_node_count_by_layer": {
+    "F.Cu": {
+      "copper": 22136,
+      "fr4": 131464
+    },
+    "dielectric 1": {
+      "fr4": 153600
+    },
+    "In1.Cu": {
+      "copper": 37121,
+      "fr4": 116479
+    },
+    "dielectric 2": {
+      "fr4": 153600
+    },
+    "In2.Cu": {
+      "copper": 36996,
+      "fr4": 116604
+    },
+    "dielectric 3": {
+      "fr4": 153600
+    },
+    "B.Cu": {
+      "copper": 36869,
+      "fr4": 116731
+    }
+  },
+  "heat_w_by_layer": {
+    "F.Cu": 0.013597041688654811,
+    "dielectric 1": 0.0,
+    "In1.Cu": 0.029042934106449057,
+    "dielectric 2": 0.0,
+    "In2.Cu": 1.5511233940400695,
+    "dielectric 3": 0.0,
+    "B.Cu": 0.18884866225643523
+  },
+  "thermal_barrel_links": 903,
+  "a4": {
+    "case_json_sha256": "5a2fc4593a1c26e73f3e29c13aa6c5108816766203e6d00dc373c637160cf1d4",
+    "heat_npz_sha256": "3d2760a5c61e2793477acd8003e029b89845d7aeba5a0189bf72c6d5b7544af0",
+    "a4_loss_w": 1.7826120322430614,
+    "remapped_w": 1.7826120320916086
+  },
+  "a6": null,
+  "a6_parts_applied": [],
+  "balance": {
+    "source_w": 1.7826120320916086,
+    "convection_w": 1.7826120321224035,
+    "fixed_end_w": 0.0,
+    "fixed_bottom_w": 0.0,
+    "balance_w": -3.079492216784274e-11,
+    "cg_iterations": 2290,
+    "relative_residual": 9.862363210453882e-10
+  },
+  "peak": {
+    "temperature_c": 78.16973474281953,
+    "rise_k": 28.169734742819532,
+    "x_mm": 54.75,
+    "y_mm": 21.75,
+    "layer": "In2.Cu"
+  },
+  "largest_local_copper_minus_fr4": {
+    "copper_minus_adjacent_fr4_k": 3.283849381059941,
+    "x_mm": 54.25,
+    "y_mm": 21.75,
+    "layer": "In2.Cu",
+    "fr4_sheet_indices": [
+      3,
+      5
+    ]
+  },
+  "empty_via_board_cell_proxies": [
+    {
+      "xy_mm": [
+        68.5,
+        53.0
+      ],
+      "max_abs_hop_amps": 1.876623313779306,
+      "adjacent_board_cell_max_c": 65.11424100710556,
+      "adjacent_board_cell_max_rise_k": 15.114241007105555
+    },
+    {
+      "xy_mm": [
+        68.5,
+        47.0
+      ],
+      "max_abs_hop_amps": 4.946281116202244,
+      "adjacent_board_cell_max_c": 66.36620979264508,
+      "adjacent_board_cell_max_rise_k": 16.366209792645083
+    },
+    {
+      "xy_mm": [
+        81.5,
+        2.5
+      ],
+      "max_abs_hop_amps": 1.0139315430421172,
+      "adjacent_board_cell_max_c": 66.26553326790673,
+      "adjacent_board_cell_max_rise_k": 16.265533267906726
+    },
+    {
+      "xy_mm": [
+        67.2,
+        32.2
+      ],
+      "max_abs_hop_amps": 6.866891303865339,
+      "adjacent_board_cell_max_c": 69.44729784953805,
+      "adjacent_board_cell_max_rise_k": 19.447297849538042
+    },
+    {
+      "xy_mm": [
+        58.5,
+        6.5
+      ],
+      "max_abs_hop_amps": 2.52178377236803,
+      "adjacent_board_cell_max_c": 67.97619555707007,
+      "adjacent_board_cell_max_rise_k": 17.976195557070067
+    },
+    {
+      "xy_mm": [
+        68.5,
+        58.4
+      ],
+      "max_abs_hop_amps": 0.9278445738250467,
+      "adjacent_board_cell_max_c": 64.40239993706982,
+      "adjacent_board_cell_max_rise_k": 14.402399937069816
+    },
+    {
+      "xy_mm": [
+        67.2,
+        34.0
+      ],
+      "max_abs_hop_amps": 8.133108694894776,
+      "adjacent_board_cell_max_c": 69.42371900728654,
+      "adjacent_board_cell_max_rise_k": 19.42371900728653
+    },
+    {
+      "xy_mm": [
+        68.5,
+        48.8
+      ],
+      "max_abs_hop_amps": 3.008722741525071,
+      "adjacent_board_cell_max_c": 65.86258027484811,
+      "adjacent_board_cell_max_rise_k": 15.862580274848106
+    },
+    {
+      "xy_mm": [
+        68.5,
+        54.8
+      ],
+      "max_abs_hop_amps": 1.1969578112168264,
+      "adjacent_board_cell_max_c": 64.79436900417032,
+      "adjacent_board_cell_max_rise_k": 14.79436900417032
+    },
+    {
+      "xy_mm": [
+        81.5,
+        4.5
+      ],
+      "max_abs_hop_amps": 1.3301195650939266,
+      "adjacent_board_cell_max_c": 66.3085669672078,
+      "adjacent_board_cell_max_rise_k": 16.308566967207792
+    },
+    {
+      "xy_mm": [
+        58.5,
+        2.5
+      ],
+      "max_abs_hop_amps": 1.083510010674975,
+      "adjacent_board_cell_max_c": 67.60812522027751,
+      "adjacent_board_cell_max_rise_k": 17.608125220277522
+    },
+    {
+      "xy_mm": [
+        81.5,
+        6.5
+      ],
+      "max_abs_hop_amps": 2.6366274169064474,
+      "adjacent_board_cell_max_c": 66.3961809341964,
+      "adjacent_board_cell_max_rise_k": 16.396180934196394
+    },
+    {
+      "xy_mm": [
+        68.5,
+        56.6
+      ],
+      "max_abs_hop_amps": 0.960095493321197,
+      "adjacent_board_cell_max_c": 64.54195516172793,
+      "adjacent_board_cell_max_rise_k": 14.54195516172793
+    },
+    {
+      "xy_mm": [
+        58.5,
+        4.5
+      ],
+      "max_abs_hop_amps": 1.3753847419633274,
+      "adjacent_board_cell_max_c": 67.72845135340516,
+      "adjacent_board_cell_max_rise_k": 17.728451353405163
+    }
+  ],
+  "limits": [
+    "A4 case, if present, is one imposed current path, not a simultaneous operating load",
+    "A6 map is partial; unknown part losses and heat fractions remain",
+    "local pad-cell temperatures are not package body or junction temperatures and have no rating verdict",
+    "via-adjacent board-cell temperatures are not barrel-wall temperatures",
+    "10 um mask on each face excluded from solid; convection acts directly on outer thermal sheet",
+    "18 um plated barrels included as axial links; drill voids and solder/lead cores not spatially resolved",
+    "component source spread over actual KiCad pad copper cells; no body/contact/air heat path",
+    "convection h on both exposed faces is an assumed boundary, not measured enclosure airflow"
+  ]
+}

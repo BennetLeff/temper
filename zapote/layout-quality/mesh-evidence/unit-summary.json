@@ -1,0 +1,67 @@
+{
+  "rtd": {
+    "status": "indeterminate",
+    "native_status": "pass",
+    "native_coverage_gaps": [],
+    "native_population": {
+      "components": 36,
+      "connections": 119,
+      "connectivity_clusters": 31,
+      "traces": 207,
+      "vias": 55,
+      "zones": 4
+    }
+  },
+  "current-sense": {
+    "status": "indeterminate",
+    "native_status": "pass",
+    "native_coverage_gaps": [],
+    "native_population": {
+      "components": 21,
+      "connections": 64,
+      "connectivity_clusters": 14,
+      "traces": 88,
+      "vias": 28,
+      "zones": 2
+    }
+  },
+  "thermal-sense": {
+    "status": "indeterminate",
+    "native_status": "pass",
+    "native_coverage_gaps": [],
+    "native_population": {
+      "components": 27,
+      "connections": 76,
+      "connectivity_clusters": 13,
+      "traces": 162,
+      "vias": 44,
+      "zones": 1
+    }
+  },
+  "interlock": {
+    "status": "indeterminate",
+    "native_status": "pass",
+    "native_coverage_gaps": [],
+    "native_population": {
+      "components": 25,
+      "connections": 110,
+      "connectivity_clusters": 32,
+      "traces": 212,
+      "vias": 135,
+      "zones": 2
+    }
+  },
+  "gate-drive": {
+    "status": "indeterminate",
+    "native_status": "pass",
+    "native_coverage_gaps": [],
+    "native_population": {
+      "components": 20,
+      "connections": 55,
+      "connectivity_clusters": 17,
+      "traces": 91,
+      "vias": 17,
+      "zones": 3
+    }
+  }
+}

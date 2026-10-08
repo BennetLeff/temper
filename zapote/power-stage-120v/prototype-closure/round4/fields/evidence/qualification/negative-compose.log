@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/Users/bennet/Desktop/temper/worktrees/mit-product-guidance/zapote/power-stage-120v/prototype-closure/round4/fields/compose.py", line 56, in <module>
+    main()
+  File "/Users/bennet/Desktop/temper/worktrees/mit-product-guidance/zapote/power-stage-120v/prototype-closure/round4/fields/compose.py", line 38, in main
+    raise ValueError(f"unconverged or failed result: {directory}")
+ValueError: unconverged or failed result: output/temper-prototype-closure/round4/fields/negative-convergence

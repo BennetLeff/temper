@@ -1,0 +1,3599 @@
+{
+  "schema": "zapote.rtd.source-section.v1",
+  "source": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/rtd/unit/evidence/source-04",
+  "entry": "RTDUnit",
+  "standalone_unit": true,
+  "strict_bridge_extension": {
+    "path": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/.venv/lib/python3.12/site-packages/temper_design_bundle_python/temper_design_bundle_python.cpython-312-darwin.so",
+    "sha256": "cf484372789b29926beadcc9a45d93254caa3a9941d333c3d370f2f6deca8fd7",
+    "freshness_method": "mtime",
+    "detail": "temper_design_bundle_python: /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/.venv/lib/python3.12/site-packages/temper_design_bundle_python/temper_design_bundle_python.cpython-312-darwin.so (built 2026-09-10T16:55:48) is fresh (no build stamp; mtime comparison)"
+  },
+  "input_hashes": {
+    "build/default.net": "35ddb519d74e381cb5987d449b131f798a126da74499c7f9125396a70b3aceb0",
+    "build/default.csv": "29e875b76522778b3f7fd8a85da73e63fbb9c026a541f65d5847b6f2d2689e84",
+    "resolved-components.json": "1916c51f8e72fda7e93d8204bb95c9f785c76e6694d08482eb145cc480f71bdc"
+  },
+  "poses_sha256": "60385b9ae24026096773159f0628c29268fbd6040c5af8825d1ea82e1057167f",
+  "generator_sha256": "d6c906779b2b60a72de3c017ccd7677dcd6203cde10a816177c5d3bdf1357ce8",
+  "bridge": {
+    "components": [
+      {
+        "reference": "U1",
+        "instance_path": "rtd_pan.adc",
+        "footprint": "Package_SO:SSOP-20_3.9x8.7mm_P0.635mm",
+        "tstamp": "72770b67-8c49-433d-3e3d-75eae5ed193e"
+      },
+      {
+        "reference": "R1",
+        "instance_path": "rtd_pan.r_ref",
+        "footprint": "Resistor_SMD:R_0805_2012Metric",
+        "tstamp": "e6ad5c11-e3cb-6f25-c53d-a4cc66a163a9"
+      },
+      {
+        "reference": "C1",
+        "instance_path": "rtd_pan.c_vdd",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "tstamp": "cdcd4a12-f571-240f-7b92-e89568659b59"
+      },
+      {
+        "reference": "C2",
+        "instance_path": "rtd_pan.c_dvdd",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "tstamp": "79cbf77f-8111-dc3c-7ef4-0d4c8b425241"
+      },
+      {
+        "reference": "C3",
+        "instance_path": "rtd_pan.c_rtd_input",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "tstamp": "ac145a8e-41f9-5184-a1a4-35f2152f8a45"
+      },
+      {
+        "reference": "C4",
+        "instance_path": "rtd_pan.c_reference",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "tstamp": "04b2127c-54cf-c5f7-ff16-455aee412058"
+      },
+      {
+        "reference": "C5",
+        "instance_path": "rtd_pan.c_low_window",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "tstamp": "6928b376-37a3-7afa-5217-249957e91b46"
+      },
+      {
+        "reference": "C6",
+        "instance_path": "rtd_pan.c_high_window",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "tstamp": "c547d938-abb1-bcbd-ddbf-a9aba63f95d2"
+      },
+      {
+        "reference": "C7",
+        "instance_path": "rtd_pan.c_window_and",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "tstamp": "71ba932d-7242-2c2c-e981-7319cdb58702"
+      },
+      {
+        "reference": "C8",
+        "instance_path": "rtd_pan.c_rail_monitor",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "tstamp": "00f62d04-5df7-5e4d-ad55-3f9c6853ab43"
+      },
+      {
+        "reference": "C9",
+        "instance_path": "rtd_pan.c_fault_nand",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "tstamp": "ca1e1894-c042-c0ae-a136-ca04e5d02f98"
+      },
+      {
+        "reference": "R2",
+        "instance_path": "rtd_pan.r_rtdin_p_bias",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "tstamp": "8e2868d1-50c3-780c-e8cc-9069040783c7"
+      },
+      {
+        "reference": "R3",
+        "instance_path": "rtd_pan.r_rtdin_n_bias",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "tstamp": "f0e52afe-db17-55c0-9ffe-9b3b5ef47199"
+      },
+      {
+        "reference": "R4",
+        "instance_path": "rtd_pan.r_sclk",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "tstamp": "a2ddec6b-9c55-4b38-04c3-62616b2d0d6c"
+      },
+      {
+        "reference": "R5",
+        "instance_path": "rtd_pan.r_mosi",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "tstamp": "5ff56916-6877-e0b1-aeed-b349e11e0687"
+      },
+      {
+        "reference": "R6",
+        "instance_path": "rtd_pan.r_cs",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "tstamp": "ce4e2e69-62cb-fdcd-d9cb-29f050ae76cc"
+      },
+      {
+        "reference": "R7",
+        "instance_path": "rtd_pan.r_miso",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "tstamp": "43f56e78-e97c-63f5-4cff-1f6b08605937"
+      },
+      {
+        "reference": "R9",
+        "instance_path": "rtd_pan.r_low_top",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "tstamp": "ba536c97-91bd-4625-6595-200d140d9c60"
+      },
+      {
+        "reference": "R10",
+        "instance_path": "rtd_pan.r_low_bottom",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "tstamp": "edc3bb1c-9c61-0422-85d9-47248495f511"
+      },
+      {
+        "reference": "R11",
+        "instance_path": "rtd_pan.r_high_top",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "tstamp": "8e7bed95-16d5-1930-5a98-92603ca1de68"
+      },
+      {
+        "reference": "R12",
+        "instance_path": "rtd_pan.r_high_bottom",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "tstamp": "4bbcf9b1-becf-950b-a6e8-8d3229e2f6b9"
+      },
+      {
+        "reference": "R13",
+        "instance_path": "rtd_pan.r_window_sense_p",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "tstamp": "94e721d8-1ba7-357b-2df3-52180ccfa07c"
+      },
+      {
+        "reference": "R14",
+        "instance_path": "rtd_pan.r_window_ok_pulldown",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "tstamp": "8906717d-d62b-ee0b-588d-843711563843"
+      },
+      {
+        "reference": "R15",
+        "instance_path": "rtd_pan.r_avdd_top",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "tstamp": "25208cf1-623d-93bc-ec3b-42bb9e3bc3f4"
+      },
+      {
+        "reference": "R16",
+        "instance_path": "rtd_pan.r_avdd_bottom",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "tstamp": "c14b874a-3a6d-3091-fb04-29dc825bd00b"
+      },
+      {
+        "reference": "R17",
+        "instance_path": "rtd_pan.r_rail_ok_pullup",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "tstamp": "ccaf8cfa-8903-6a89-57ef-8873943c3774"
+      },
+      {
+        "reference": "R18",
+        "instance_path": "rtd_pan.r_fault_pullup",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "tstamp": "146192b5-176e-1ccd-7c53-14b56423f117"
+      },
+      {
+        "reference": "R8",
+        "instance_path": "rtd_pan.fb_power",
+        "footprint": "Inductor_SMD:L_0603_1608Metric",
+        "tstamp": "7aa078ed-6557-c5e8-15bf-83955d99b0f7"
+      },
+      {
+        "reference": "U2",
+        "instance_path": "rtd_pan.reference",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "tstamp": "b174f82f-1402-b4f5-b620-e30d4f06fcb9"
+      },
+      {
+        "reference": "U3",
+        "instance_path": "rtd_pan.low_window",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "tstamp": "4da6a109-c7bc-4e7b-54bf-003499a57409"
+      },
+      {
+        "reference": "U4",
+        "instance_path": "rtd_pan.high_window",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "tstamp": "6f9bbb25-afb1-b7b6-ea73-1c03c9f4b980"
+      },
+      {
+        "reference": "U5",
+        "instance_path": "rtd_pan.window_and",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "tstamp": "e0f04281-f680-88d1-f25f-23a1f7bf5059"
+      },
+      {
+        "reference": "U7",
+        "instance_path": "rtd_pan.fault_nand",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "tstamp": "3d80368c-a102-4721-4de3-760fbcb8f690"
+      },
+      {
+        "reference": "U6",
+        "instance_path": "rtd_pan.rail_monitor",
+        "footprint": "Temper_RTD:TPS389001DSER_WSON-6_DSE",
+        "tstamp": "6bced1c4-dac8-98f2-5c17-141417bf3722"
+      },
+      {
+        "reference": "J1",
+        "instance_path": "rtd_pan.j_rtd1",
+        "footprint": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical",
+        "tstamp": "eaee547c-9b9b-0e26-22dc-072996f12e6d"
+      },
+      {
+        "reference": "J2",
+        "instance_path": "unit_io",
+        "footprint": "Temper_RTD:FTSH-105-01-F-D_2x5_P1.27mm",
+        "tstamp": "c07b4ba6-dc92-74f8-384a-50e91d660bb5"
+      }
+    ],
+    "nets": [
+      {
+        "name": "+3V3",
+        "nodes": [
+          [
+            "R18",
+            "1"
+          ],
+          [
+            "R17",
+            "1"
+          ],
+          [
+            "C9",
+            "1"
+          ],
+          [
+            "C8",
+            "1"
+          ],
+          [
+            "C4",
+            "1"
+          ],
+          [
+            "C2",
+            "1"
+          ],
+          [
+            "U1",
+            "2"
+          ],
+          [
+            "R8",
+            "1"
+          ],
+          [
+            "U2",
+            "4"
+          ],
+          [
+            "U2",
+            "3"
+          ],
+          [
+            "U6",
+            "4"
+          ],
+          [
+            "U6",
+            "3"
+          ],
+          [
+            "U7",
+            "5"
+          ],
+          [
+            "J2",
+            "1"
+          ]
+        ]
+      },
+      {
+        "name": "gnd",
+        "nodes": [
+          [
+            "U1",
+            "18"
+          ],
+          [
+            "U1",
+            "13"
+          ],
+          [
+            "U1",
+            "19"
+          ],
+          [
+            "C2",
+            "2"
+          ],
+          [
+            "C1",
+            "2"
+          ],
+          [
+            "C4",
+            "2"
+          ],
+          [
+            "C5",
+            "2"
+          ],
+          [
+            "C6",
+            "2"
+          ],
+          [
+            "C7",
+            "2"
+          ],
+          [
+            "C8",
+            "2"
+          ],
+          [
+            "C9",
+            "2"
+          ],
+          [
+            "U2",
+            "2"
+          ],
+          [
+            "U3",
+            "2"
+          ],
+          [
+            "U4",
+            "2"
+          ],
+          [
+            "R12",
+            "2"
+          ],
+          [
+            "U5",
+            "3"
+          ],
+          [
+            "R14",
+            "2"
+          ],
+          [
+            "U6",
+            "2"
+          ],
+          [
+            "R16",
+            "2"
+          ],
+          [
+            "U7",
+            "3"
+          ],
+          [
+            "U1",
+            "9"
+          ],
+          [
+            "J2",
+            "2"
+          ],
+          [
+            "J2",
+            "3"
+          ]
+        ]
+      },
+      {
+        "name": "RTD_SCK",
+        "nodes": [
+          [
+            "R4",
+            "1"
+          ],
+          [
+            "J2",
+            "4"
+          ]
+        ]
+      },
+      {
+        "name": "RTD_SDO",
+        "nodes": [
+          [
+            "R7",
+            "2"
+          ],
+          [
+            "J2",
+            "6"
+          ]
+        ]
+      },
+      {
+        "name": "RTD_SDI",
+        "nodes": [
+          [
+            "R5",
+            "1"
+          ],
+          [
+            "J2",
+            "5"
+          ]
+        ]
+      },
+      {
+        "name": "RTD_CS_N",
+        "nodes": [
+          [
+            "R6",
+            "1"
+          ],
+          [
+            "J2",
+            "7"
+          ]
+        ]
+      },
+      {
+        "name": "reference",
+        "nodes": []
+      },
+      {
+        "name": "RTD_DRDY",
+        "nodes": [
+          [
+            "U1",
+            "1"
+          ],
+          [
+            "J2",
+            "8"
+          ]
+        ]
+      },
+      {
+        "name": "reference-1",
+        "nodes": []
+      },
+      {
+        "name": "RTD_HW_FAULT",
+        "nodes": [
+          [
+            "R18",
+            "2"
+          ],
+          [
+            "U7",
+            "4"
+          ],
+          [
+            "J2",
+            "9"
+          ]
+        ]
+      },
+      {
+        "name": "reference-2",
+        "nodes": []
+      },
+      {
+        "name": "SHARED_REF_2V5",
+        "nodes": [
+          [
+            "U2",
+            "5"
+          ],
+          [
+            "J2",
+            "10"
+          ]
+        ]
+      },
+      {
+        "name": "reference-3",
+        "nodes": []
+      },
+      {
+        "name": "rtd_pan-reference",
+        "nodes": []
+      },
+      {
+        "name": "rtd_pan-reference-1",
+        "nodes": []
+      },
+      {
+        "name": "rtd_force_p",
+        "nodes": [
+          [
+            "U1",
+            "8"
+          ],
+          [
+            "J1",
+            "1"
+          ]
+        ]
+      },
+      {
+        "name": "rtd_force_n",
+        "nodes": [
+          [
+            "U1",
+            "12"
+          ],
+          [
+            "J1",
+            "4"
+          ]
+        ]
+      },
+      {
+        "name": "rtd_sense_p",
+        "nodes": [
+          [
+            "R13",
+            "1"
+          ],
+          [
+            "R2",
+            "1"
+          ],
+          [
+            "C3",
+            "1"
+          ],
+          [
+            "U1",
+            "10"
+          ],
+          [
+            "J1",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "rtd_sense_n",
+        "nodes": [
+          [
+            "R3",
+            "1"
+          ],
+          [
+            "U1",
+            "11"
+          ],
+          [
+            "C3",
+            "2"
+          ],
+          [
+            "R10",
+            "2"
+          ],
+          [
+            "J1",
+            "3"
+          ]
+        ]
+      },
+      {
+        "name": "RTD_AVDD",
+        "nodes": [
+          [
+            "U1",
+            "3"
+          ],
+          [
+            "R8",
+            "2"
+          ],
+          [
+            "U3",
+            "5"
+          ],
+          [
+            "U4",
+            "5"
+          ],
+          [
+            "U5",
+            "5"
+          ],
+          [
+            "R15",
+            "1"
+          ],
+          [
+            "C7",
+            "1"
+          ],
+          [
+            "C6",
+            "1"
+          ],
+          [
+            "C5",
+            "1"
+          ],
+          [
+            "C1",
+            "1"
+          ]
+        ]
+      },
+      {
+        "name": "bias",
+        "nodes": [
+          [
+            "R1",
+            "1"
+          ],
+          [
+            "U1",
+            "5"
+          ],
+          [
+            "U1",
+            "4"
+          ],
+          [
+            "R2",
+            "2"
+          ],
+          [
+            "R3",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "refin_n",
+        "nodes": [
+          [
+            "U1",
+            "6"
+          ],
+          [
+            "R1",
+            "2"
+          ],
+          [
+            "U1",
+            "7"
+          ]
+        ]
+      },
+      {
+        "name": "sdi",
+        "nodes": [
+          [
+            "U1",
+            "14"
+          ],
+          [
+            "R5",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "sclk",
+        "nodes": [
+          [
+            "U1",
+            "15"
+          ],
+          [
+            "R4",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "cs_n",
+        "nodes": [
+          [
+            "U1",
+            "16"
+          ],
+          [
+            "R6",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "sdo",
+        "nodes": [
+          [
+            "R7",
+            "1"
+          ],
+          [
+            "U1",
+            "17"
+          ]
+        ]
+      },
+      {
+        "name": "nc3",
+        "nodes": [
+          [
+            "U1",
+            "20"
+          ]
+        ]
+      },
+      {
+        "name": "vbias",
+        "nodes": [
+          [
+            "R11",
+            "1"
+          ],
+          [
+            "R9",
+            "1"
+          ],
+          [
+            "U2",
+            "1"
+          ]
+        ]
+      },
+      {
+        "name": "inn",
+        "nodes": [
+          [
+            "R10",
+            "1"
+          ],
+          [
+            "U3",
+            "4"
+          ],
+          [
+            "R9",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "inp",
+        "nodes": [
+          [
+            "R12",
+            "1"
+          ],
+          [
+            "U4",
+            "3"
+          ],
+          [
+            "R11",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "rtd_pan.low_window-out",
+        "nodes": [
+          [
+            "U5",
+            "1"
+          ],
+          [
+            "U3",
+            "1"
+          ]
+        ]
+      },
+      {
+        "name": "window_rtdin_p",
+        "nodes": [
+          [
+            "U3",
+            "3"
+          ],
+          [
+            "R13",
+            "2"
+          ],
+          [
+            "U4",
+            "4"
+          ]
+        ]
+      },
+      {
+        "name": "rtd_pan.high_window-out",
+        "nodes": [
+          [
+            "U5",
+            "2"
+          ],
+          [
+            "U4",
+            "1"
+          ]
+        ]
+      },
+      {
+        "name": "y",
+        "nodes": [
+          [
+            "U7",
+            "1"
+          ],
+          [
+            "R14",
+            "1"
+          ],
+          [
+            "U5",
+            "4"
+          ]
+        ]
+      },
+      {
+        "name": "sense",
+        "nodes": [
+          [
+            "R16",
+            "1"
+          ],
+          [
+            "U6",
+            "1"
+          ],
+          [
+            "R15",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "ct",
+        "nodes": [
+          [
+            "U6",
+            "5"
+          ]
+        ]
+      },
+      {
+        "name": "reset",
+        "nodes": [
+          [
+            "U7",
+            "2"
+          ],
+          [
+            "U6",
+            "6"
+          ],
+          [
+            "R17",
+            "2"
+          ]
+        ]
+      }
+    ]
+  },
+  "full_bridge": {
+    "components": [
+      {
+        "reference": "U1",
+        "instance_path": "rtd_pan.adc",
+        "footprint": "Package_SO:SSOP-20_3.9x8.7mm_P0.635mm",
+        "tstamp": "72770b67-8c49-433d-3e3d-75eae5ed193e"
+      },
+      {
+        "reference": "R1",
+        "instance_path": "rtd_pan.r_ref",
+        "footprint": "Resistor_SMD:R_0805_2012Metric",
+        "tstamp": "e6ad5c11-e3cb-6f25-c53d-a4cc66a163a9"
+      },
+      {
+        "reference": "C1",
+        "instance_path": "rtd_pan.c_vdd",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "tstamp": "cdcd4a12-f571-240f-7b92-e89568659b59"
+      },
+      {
+        "reference": "C2",
+        "instance_path": "rtd_pan.c_dvdd",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "tstamp": "79cbf77f-8111-dc3c-7ef4-0d4c8b425241"
+      },
+      {
+        "reference": "C3",
+        "instance_path": "rtd_pan.c_rtd_input",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "tstamp": "ac145a8e-41f9-5184-a1a4-35f2152f8a45"
+      },
+      {
+        "reference": "C4",
+        "instance_path": "rtd_pan.c_reference",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "tstamp": "04b2127c-54cf-c5f7-ff16-455aee412058"
+      },
+      {
+        "reference": "C5",
+        "instance_path": "rtd_pan.c_low_window",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "tstamp": "6928b376-37a3-7afa-5217-249957e91b46"
+      },
+      {
+        "reference": "C6",
+        "instance_path": "rtd_pan.c_high_window",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "tstamp": "c547d938-abb1-bcbd-ddbf-a9aba63f95d2"
+      },
+      {
+        "reference": "C7",
+        "instance_path": "rtd_pan.c_window_and",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "tstamp": "71ba932d-7242-2c2c-e981-7319cdb58702"
+      },
+      {
+        "reference": "C8",
+        "instance_path": "rtd_pan.c_rail_monitor",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "tstamp": "00f62d04-5df7-5e4d-ad55-3f9c6853ab43"
+      },
+      {
+        "reference": "C9",
+        "instance_path": "rtd_pan.c_fault_nand",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "tstamp": "ca1e1894-c042-c0ae-a136-ca04e5d02f98"
+      },
+      {
+        "reference": "R2",
+        "instance_path": "rtd_pan.r_rtdin_p_bias",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "tstamp": "8e2868d1-50c3-780c-e8cc-9069040783c7"
+      },
+      {
+        "reference": "R3",
+        "instance_path": "rtd_pan.r_rtdin_n_bias",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "tstamp": "f0e52afe-db17-55c0-9ffe-9b3b5ef47199"
+      },
+      {
+        "reference": "R4",
+        "instance_path": "rtd_pan.r_sclk",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "tstamp": "a2ddec6b-9c55-4b38-04c3-62616b2d0d6c"
+      },
+      {
+        "reference": "R5",
+        "instance_path": "rtd_pan.r_mosi",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "tstamp": "5ff56916-6877-e0b1-aeed-b349e11e0687"
+      },
+      {
+        "reference": "R6",
+        "instance_path": "rtd_pan.r_cs",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "tstamp": "ce4e2e69-62cb-fdcd-d9cb-29f050ae76cc"
+      },
+      {
+        "reference": "R7",
+        "instance_path": "rtd_pan.r_miso",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "tstamp": "43f56e78-e97c-63f5-4cff-1f6b08605937"
+      },
+      {
+        "reference": "R9",
+        "instance_path": "rtd_pan.r_low_top",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "tstamp": "ba536c97-91bd-4625-6595-200d140d9c60"
+      },
+      {
+        "reference": "R10",
+        "instance_path": "rtd_pan.r_low_bottom",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "tstamp": "edc3bb1c-9c61-0422-85d9-47248495f511"
+      },
+      {
+        "reference": "R11",
+        "instance_path": "rtd_pan.r_high_top",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "tstamp": "8e7bed95-16d5-1930-5a98-92603ca1de68"
+      },
+      {
+        "reference": "R12",
+        "instance_path": "rtd_pan.r_high_bottom",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "tstamp": "4bbcf9b1-becf-950b-a6e8-8d3229e2f6b9"
+      },
+      {
+        "reference": "R13",
+        "instance_path": "rtd_pan.r_window_sense_p",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "tstamp": "94e721d8-1ba7-357b-2df3-52180ccfa07c"
+      },
+      {
+        "reference": "R14",
+        "instance_path": "rtd_pan.r_window_ok_pulldown",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "tstamp": "8906717d-d62b-ee0b-588d-843711563843"
+      },
+      {
+        "reference": "R15",
+        "instance_path": "rtd_pan.r_avdd_top",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "tstamp": "25208cf1-623d-93bc-ec3b-42bb9e3bc3f4"
+      },
+      {
+        "reference": "R16",
+        "instance_path": "rtd_pan.r_avdd_bottom",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "tstamp": "c14b874a-3a6d-3091-fb04-29dc825bd00b"
+      },
+      {
+        "reference": "R17",
+        "instance_path": "rtd_pan.r_rail_ok_pullup",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "tstamp": "ccaf8cfa-8903-6a89-57ef-8873943c3774"
+      },
+      {
+        "reference": "R18",
+        "instance_path": "rtd_pan.r_fault_pullup",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "tstamp": "146192b5-176e-1ccd-7c53-14b56423f117"
+      },
+      {
+        "reference": "R8",
+        "instance_path": "rtd_pan.fb_power",
+        "footprint": "Inductor_SMD:L_0603_1608Metric",
+        "tstamp": "7aa078ed-6557-c5e8-15bf-83955d99b0f7"
+      },
+      {
+        "reference": "U2",
+        "instance_path": "rtd_pan.reference",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "tstamp": "b174f82f-1402-b4f5-b620-e30d4f06fcb9"
+      },
+      {
+        "reference": "U3",
+        "instance_path": "rtd_pan.low_window",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "tstamp": "4da6a109-c7bc-4e7b-54bf-003499a57409"
+      },
+      {
+        "reference": "U4",
+        "instance_path": "rtd_pan.high_window",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "tstamp": "6f9bbb25-afb1-b7b6-ea73-1c03c9f4b980"
+      },
+      {
+        "reference": "U5",
+        "instance_path": "rtd_pan.window_and",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "tstamp": "e0f04281-f680-88d1-f25f-23a1f7bf5059"
+      },
+      {
+        "reference": "U7",
+        "instance_path": "rtd_pan.fault_nand",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "tstamp": "3d80368c-a102-4721-4de3-760fbcb8f690"
+      },
+      {
+        "reference": "U6",
+        "instance_path": "rtd_pan.rail_monitor",
+        "footprint": "Temper_RTD:TPS389001DSER_WSON-6_DSE",
+        "tstamp": "6bced1c4-dac8-98f2-5c17-141417bf3722"
+      },
+      {
+        "reference": "J1",
+        "instance_path": "rtd_pan.j_rtd1",
+        "footprint": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical",
+        "tstamp": "eaee547c-9b9b-0e26-22dc-072996f12e6d"
+      },
+      {
+        "reference": "J2",
+        "instance_path": "unit_io",
+        "footprint": "Temper_RTD:FTSH-105-01-F-D_2x5_P1.27mm",
+        "tstamp": "c07b4ba6-dc92-74f8-384a-50e91d660bb5"
+      }
+    ],
+    "nets": [
+      {
+        "name": "+3V3",
+        "nodes": [
+          [
+            "R18",
+            "1"
+          ],
+          [
+            "R17",
+            "1"
+          ],
+          [
+            "C9",
+            "1"
+          ],
+          [
+            "C8",
+            "1"
+          ],
+          [
+            "C4",
+            "1"
+          ],
+          [
+            "C2",
+            "1"
+          ],
+          [
+            "U1",
+            "2"
+          ],
+          [
+            "R8",
+            "1"
+          ],
+          [
+            "U2",
+            "4"
+          ],
+          [
+            "U2",
+            "3"
+          ],
+          [
+            "U6",
+            "4"
+          ],
+          [
+            "U6",
+            "3"
+          ],
+          [
+            "U7",
+            "5"
+          ],
+          [
+            "J2",
+            "1"
+          ]
+        ]
+      },
+      {
+        "name": "gnd",
+        "nodes": [
+          [
+            "U1",
+            "18"
+          ],
+          [
+            "U1",
+            "13"
+          ],
+          [
+            "U1",
+            "19"
+          ],
+          [
+            "C2",
+            "2"
+          ],
+          [
+            "C1",
+            "2"
+          ],
+          [
+            "C4",
+            "2"
+          ],
+          [
+            "C5",
+            "2"
+          ],
+          [
+            "C6",
+            "2"
+          ],
+          [
+            "C7",
+            "2"
+          ],
+          [
+            "C8",
+            "2"
+          ],
+          [
+            "C9",
+            "2"
+          ],
+          [
+            "U2",
+            "2"
+          ],
+          [
+            "U3",
+            "2"
+          ],
+          [
+            "U4",
+            "2"
+          ],
+          [
+            "R12",
+            "2"
+          ],
+          [
+            "U5",
+            "3"
+          ],
+          [
+            "R14",
+            "2"
+          ],
+          [
+            "U6",
+            "2"
+          ],
+          [
+            "R16",
+            "2"
+          ],
+          [
+            "U7",
+            "3"
+          ],
+          [
+            "U1",
+            "9"
+          ],
+          [
+            "J2",
+            "2"
+          ],
+          [
+            "J2",
+            "3"
+          ]
+        ]
+      },
+      {
+        "name": "RTD_SCK",
+        "nodes": [
+          [
+            "R4",
+            "1"
+          ],
+          [
+            "J2",
+            "4"
+          ]
+        ]
+      },
+      {
+        "name": "RTD_SDO",
+        "nodes": [
+          [
+            "R7",
+            "2"
+          ],
+          [
+            "J2",
+            "6"
+          ]
+        ]
+      },
+      {
+        "name": "RTD_SDI",
+        "nodes": [
+          [
+            "R5",
+            "1"
+          ],
+          [
+            "J2",
+            "5"
+          ]
+        ]
+      },
+      {
+        "name": "RTD_CS_N",
+        "nodes": [
+          [
+            "R6",
+            "1"
+          ],
+          [
+            "J2",
+            "7"
+          ]
+        ]
+      },
+      {
+        "name": "reference",
+        "nodes": []
+      },
+      {
+        "name": "RTD_DRDY",
+        "nodes": [
+          [
+            "U1",
+            "1"
+          ],
+          [
+            "J2",
+            "8"
+          ]
+        ]
+      },
+      {
+        "name": "reference-1",
+        "nodes": []
+      },
+      {
+        "name": "RTD_HW_FAULT",
+        "nodes": [
+          [
+            "R18",
+            "2"
+          ],
+          [
+            "U7",
+            "4"
+          ],
+          [
+            "J2",
+            "9"
+          ]
+        ]
+      },
+      {
+        "name": "reference-2",
+        "nodes": []
+      },
+      {
+        "name": "SHARED_REF_2V5",
+        "nodes": [
+          [
+            "U2",
+            "5"
+          ],
+          [
+            "J2",
+            "10"
+          ]
+        ]
+      },
+      {
+        "name": "reference-3",
+        "nodes": []
+      },
+      {
+        "name": "rtd_pan-reference",
+        "nodes": []
+      },
+      {
+        "name": "rtd_pan-reference-1",
+        "nodes": []
+      },
+      {
+        "name": "rtd_force_p",
+        "nodes": [
+          [
+            "U1",
+            "8"
+          ],
+          [
+            "J1",
+            "1"
+          ]
+        ]
+      },
+      {
+        "name": "rtd_force_n",
+        "nodes": [
+          [
+            "U1",
+            "12"
+          ],
+          [
+            "J1",
+            "4"
+          ]
+        ]
+      },
+      {
+        "name": "rtd_sense_p",
+        "nodes": [
+          [
+            "R13",
+            "1"
+          ],
+          [
+            "R2",
+            "1"
+          ],
+          [
+            "C3",
+            "1"
+          ],
+          [
+            "U1",
+            "10"
+          ],
+          [
+            "J1",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "rtd_sense_n",
+        "nodes": [
+          [
+            "R3",
+            "1"
+          ],
+          [
+            "U1",
+            "11"
+          ],
+          [
+            "C3",
+            "2"
+          ],
+          [
+            "R10",
+            "2"
+          ],
+          [
+            "J1",
+            "3"
+          ]
+        ]
+      },
+      {
+        "name": "RTD_AVDD",
+        "nodes": [
+          [
+            "U1",
+            "3"
+          ],
+          [
+            "R8",
+            "2"
+          ],
+          [
+            "U3",
+            "5"
+          ],
+          [
+            "U4",
+            "5"
+          ],
+          [
+            "U5",
+            "5"
+          ],
+          [
+            "R15",
+            "1"
+          ],
+          [
+            "C7",
+            "1"
+          ],
+          [
+            "C6",
+            "1"
+          ],
+          [
+            "C5",
+            "1"
+          ],
+          [
+            "C1",
+            "1"
+          ]
+        ]
+      },
+      {
+        "name": "bias",
+        "nodes": [
+          [
+            "R1",
+            "1"
+          ],
+          [
+            "U1",
+            "5"
+          ],
+          [
+            "U1",
+            "4"
+          ],
+          [
+            "R2",
+            "2"
+          ],
+          [
+            "R3",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "refin_n",
+        "nodes": [
+          [
+            "U1",
+            "6"
+          ],
+          [
+            "R1",
+            "2"
+          ],
+          [
+            "U1",
+            "7"
+          ]
+        ]
+      },
+      {
+        "name": "sdi",
+        "nodes": [
+          [
+            "U1",
+            "14"
+          ],
+          [
+            "R5",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "sclk",
+        "nodes": [
+          [
+            "U1",
+            "15"
+          ],
+          [
+            "R4",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "cs_n",
+        "nodes": [
+          [
+            "U1",
+            "16"
+          ],
+          [
+            "R6",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "sdo",
+        "nodes": [
+          [
+            "R7",
+            "1"
+          ],
+          [
+            "U1",
+            "17"
+          ]
+        ]
+      },
+      {
+        "name": "nc3",
+        "nodes": [
+          [
+            "U1",
+            "20"
+          ]
+        ]
+      },
+      {
+        "name": "vbias",
+        "nodes": [
+          [
+            "R11",
+            "1"
+          ],
+          [
+            "R9",
+            "1"
+          ],
+          [
+            "U2",
+            "1"
+          ]
+        ]
+      },
+      {
+        "name": "inn",
+        "nodes": [
+          [
+            "R10",
+            "1"
+          ],
+          [
+            "U3",
+            "4"
+          ],
+          [
+            "R9",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "inp",
+        "nodes": [
+          [
+            "R12",
+            "1"
+          ],
+          [
+            "U4",
+            "3"
+          ],
+          [
+            "R11",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "rtd_pan.low_window-out",
+        "nodes": [
+          [
+            "U5",
+            "1"
+          ],
+          [
+            "U3",
+            "1"
+          ]
+        ]
+      },
+      {
+        "name": "window_rtdin_p",
+        "nodes": [
+          [
+            "U3",
+            "3"
+          ],
+          [
+            "R13",
+            "2"
+          ],
+          [
+            "U4",
+            "4"
+          ]
+        ]
+      },
+      {
+        "name": "rtd_pan.high_window-out",
+        "nodes": [
+          [
+            "U5",
+            "2"
+          ],
+          [
+            "U4",
+            "1"
+          ]
+        ]
+      },
+      {
+        "name": "y",
+        "nodes": [
+          [
+            "U7",
+            "1"
+          ],
+          [
+            "R14",
+            "1"
+          ],
+          [
+            "U5",
+            "4"
+          ]
+        ]
+      },
+      {
+        "name": "sense",
+        "nodes": [
+          [
+            "R16",
+            "1"
+          ],
+          [
+            "U6",
+            "1"
+          ],
+          [
+            "R15",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "ct",
+        "nodes": [
+          [
+            "U6",
+            "5"
+          ]
+        ]
+      },
+      {
+        "name": "reset",
+        "nodes": [
+          [
+            "U7",
+            "2"
+          ],
+          [
+            "U6",
+            "6"
+          ],
+          [
+            "R17",
+            "2"
+          ]
+        ]
+      }
+    ]
+  },
+  "components": [
+    {
+      "instance_path": "rtd_pan.c_vdd",
+      "reference": "C1",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.c_dvdd",
+      "reference": "C2",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.c_rtd_input",
+      "reference": "C3",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C102J5GACTU",
+      "value": "1nF",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.c_reference",
+      "reference": "C4",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "origins": {
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "footprint": "resolved-attr",
+        "value": "resolved-attr"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.c_low_window",
+      "reference": "C5",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "origins": {
+        "mpn": "resolved-attr+csv",
+        "value": "resolved-attr",
+        "reference": "netlist",
+        "footprint": "resolved-attr"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.c_high_window",
+      "reference": "C6",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.c_window_and",
+      "reference": "C7",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "origins": {
+        "mpn": "resolved-attr+csv",
+        "value": "resolved-attr",
+        "reference": "netlist",
+        "footprint": "resolved-attr"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.c_rail_monitor",
+      "reference": "C8",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "value": "resolved-attr",
+        "reference": "netlist"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.c_fault_nand",
+      "reference": "C9",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "origins": {
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "footprint": "resolved-attr",
+        "value": "resolved-attr"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.j_rtd1",
+      "reference": "J1",
+      "footprint": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical",
+      "mpn": "B4B-XH-A(LF)(SN)",
+      "value": null,
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      }
+    },
+    {
+      "instance_path": "unit_io",
+      "reference": "J2",
+      "footprint": "Temper_RTD:FTSH-105-01-F-D_2x5_P1.27mm",
+      "mpn": "FTSH-105-01-F-D",
+      "value": null,
+      "origins": {
+        "footprint": "resolved-attr",
+        "reference": "netlist",
+        "mpn": "resolved-attr+csv"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.r_ref",
+      "reference": "R1",
+      "footprint": "Resistor_SMD:R_0805_2012Metric",
+      "mpn": "RG2012V-431-W-T1",
+      "value": "430ohm +/- 0.05%",
+      "origins": {
+        "footprint": "resolved-attr",
+        "reference": "netlist",
+        "mpn": "resolved-attr+csv",
+        "value": "resolved-attr"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.r_low_bottom",
+      "reference": "R10",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "ERA-3AEB103V",
+      "value": "10kohm +/- 0.1%",
+      "origins": {
+        "footprint": "resolved-attr",
+        "value": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.r_high_top",
+      "reference": "R11",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "ERA-3AEB5901V",
+      "value": "5.9kohm +/- 0.1%",
+      "origins": {
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "footprint": "resolved-attr",
+        "value": "resolved-attr"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.r_high_bottom",
+      "reference": "R12",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "ERA-3AEB103V",
+      "value": "10kohm +/- 0.1%",
+      "origins": {
+        "value": "resolved-attr",
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.r_window_sense_p",
+      "reference": "R13",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-07100KL",
+      "value": "100kohm +/- 1%",
+      "origins": {
+        "reference": "netlist",
+        "mpn": "resolved-attr+csv",
+        "value": "resolved-attr",
+        "footprint": "resolved-attr"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.r_window_ok_pulldown",
+      "reference": "R14",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-07100KL",
+      "value": "100kohm +/- 1%",
+      "origins": {
+        "reference": "netlist",
+        "value": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "footprint": "resolved-attr"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.r_avdd_top",
+      "reference": "R15",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "ERA-3AEB1652V",
+      "value": "16.5kohm +/- 0.1%",
+      "origins": {
+        "mpn": "resolved-attr+csv",
+        "value": "resolved-attr",
+        "footprint": "resolved-attr",
+        "reference": "netlist"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.r_avdd_bottom",
+      "reference": "R16",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "ERA-3AEB103V",
+      "value": "10kohm +/- 0.1%",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.r_rail_ok_pullup",
+      "reference": "R17",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0710KL",
+      "value": "10kohm +/- 1%",
+      "origins": {
+        "value": "resolved-attr",
+        "footprint": "resolved-attr",
+        "reference": "netlist",
+        "mpn": "resolved-attr+csv"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.r_fault_pullup",
+      "reference": "R18",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0710KL",
+      "value": "10kohm +/- 1%",
+      "origins": {
+        "value": "resolved-attr",
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.r_rtdin_p_bias",
+      "reference": "R2",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603JR-071ML",
+      "value": "1Mohm +/- 5%",
+      "origins": {
+        "footprint": "resolved-attr",
+        "value": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.r_rtdin_n_bias",
+      "reference": "R3",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603JR-071ML",
+      "value": "1Mohm +/- 5%",
+      "origins": {
+        "value": "resolved-attr",
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.r_sclk",
+      "reference": "R4",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0733RL",
+      "value": "33ohm +/- 1%",
+      "origins": {
+        "reference": "netlist",
+        "mpn": "resolved-attr+csv",
+        "value": "resolved-attr",
+        "footprint": "resolved-attr"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.r_mosi",
+      "reference": "R5",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0733RL",
+      "value": "33ohm +/- 1%",
+      "origins": {
+        "value": "resolved-attr",
+        "reference": "netlist",
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.r_cs",
+      "reference": "R6",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0733RL",
+      "value": "33ohm +/- 1%",
+      "origins": {
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr",
+        "footprint": "resolved-attr"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.r_miso",
+      "reference": "R7",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0733RL",
+      "value": "33ohm +/- 1%",
+      "origins": {
+        "value": "resolved-attr",
+        "footprint": "resolved-attr",
+        "reference": "netlist",
+        "mpn": "resolved-attr+csv"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.fb_power",
+      "reference": "R8",
+      "footprint": "Inductor_SMD:L_0603_1608Metric",
+      "mpn": "BLM18AG121SN1D",
+      "value": "120ohm",
+      "origins": {
+        "reference": "netlist",
+        "mpn": "resolved-attr+csv",
+        "value": "resolved-attr",
+        "footprint": "resolved-attr"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.r_low_top",
+      "reference": "R9",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "ERA-3AEB6192V",
+      "value": "61.9kohm +/- 0.1%",
+      "origins": {
+        "footprint": "resolved-attr",
+        "reference": "netlist",
+        "value": "resolved-attr",
+        "mpn": "resolved-attr+csv"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.adc",
+      "reference": "U1",
+      "footprint": "Package_SO:SSOP-20_3.9x8.7mm_P0.635mm",
+      "mpn": "MAX31865AAP+",
+      "value": null,
+      "origins": {
+        "reference": "netlist",
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.reference",
+      "reference": "U2",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "mpn": "REF2025AIDDCR",
+      "value": null,
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.low_window",
+      "reference": "U3",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "mpn": "TLV3201AIDBVR",
+      "value": null,
+      "origins": {
+        "reference": "netlist",
+        "mpn": "resolved-attr+csv",
+        "footprint": "resolved-attr"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.high_window",
+      "reference": "U4",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "mpn": "TLV3201AIDBVR",
+      "value": null,
+      "origins": {
+        "reference": "netlist",
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.window_and",
+      "reference": "U5",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "mpn": "SN74LVC1G08DBVR",
+      "value": null,
+      "origins": {
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "footprint": "resolved-attr"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.rail_monitor",
+      "reference": "U6",
+      "footprint": "Temper_RTD:TPS389001DSER_WSON-6_DSE",
+      "mpn": "TPS389001DSER",
+      "value": null,
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.fault_nand",
+      "reference": "U7",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "mpn": "SN74LVC1G38DBVR",
+      "value": null,
+      "origins": {
+        "mpn": "resolved-attr+csv",
+        "footprint": "resolved-attr",
+        "reference": "netlist"
+      }
+    }
+  ],
+  "libraries": {
+    "Capacitor_SMD:C_0603_1608Metric": {
+      "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Capacitor_SMD.pretty/C_0603_1608Metric.kicad_mod",
+      "sha256": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405"
+    },
+    "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical": {
+      "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Connector_JST.pretty/JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical.kicad_mod",
+      "sha256": "fa93a9f49b03c4caad76b643da2473903ee645833aa1d0ae65afd97740431d86"
+    },
+    "Temper_RTD:FTSH-105-01-F-D_2x5_P1.27mm": {
+      "source": "pcb/libs/Temper_RTD.pretty/FTSH-105-01-F-D_2x5_P1.27mm.kicad_mod",
+      "sha256": "e7bb1532a01e30864dd947afe1a6b27613e0f4440c57c2f1a46d0ed885ba6c5b"
+    },
+    "Resistor_SMD:R_0805_2012Metric": {
+      "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Resistor_SMD.pretty/R_0805_2012Metric.kicad_mod",
+      "sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794"
+    },
+    "Resistor_SMD:R_0603_1608Metric": {
+      "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Resistor_SMD.pretty/R_0603_1608Metric.kicad_mod",
+      "sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23"
+    },
+    "Inductor_SMD:L_0603_1608Metric": {
+      "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Inductor_SMD.pretty/L_0603_1608Metric.kicad_mod",
+      "sha256": "a2a9c562208496756e22f3ab19e0bd6db2341d14da92e7c767d5eafd1bb45d38"
+    },
+    "Package_SO:SSOP-20_3.9x8.7mm_P0.635mm": {
+      "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Package_SO.pretty/SSOP-20_3.9x8.7mm_P0.635mm.kicad_mod",
+      "sha256": "38e1d013616514c692a593ab99a4327a30a98e91bfb4bc7a621bc2c0352d9008"
+    },
+    "Package_TO_SOT_SMD:SOT-23-5": {
+      "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Package_TO_SOT_SMD.pretty/SOT-23-5.kicad_mod",
+      "sha256": "455a3f7c3e5eb5b8847eaa5df23e18651e78ab9f75afd09a0883758a0d901761"
+    },
+    "Temper_RTD:TPS389001DSER_WSON-6_DSE": {
+      "source": "pcb/libs/Temper_RTD.pretty/TPS389001DSER_WSON-6_DSE.kicad_mod",
+      "sha256": "42f4a408e86b82b26da7b4b1c68170c1214dedadff38dff5015ac55a23dd6401"
+    }
+  },
+  "strict_pin_map": [
+    {
+      "instance_path": "rtd_pan.c_vdd",
+      "reference": "C1",
+      "pin": "1",
+      "pad": "1",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.c_vdd",
+      "reference": "C1",
+      "pin": "2",
+      "pad": "2",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.c_dvdd",
+      "reference": "C2",
+      "pin": "1",
+      "pad": "1",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.c_dvdd",
+      "reference": "C2",
+      "pin": "2",
+      "pad": "2",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.c_rtd_input",
+      "reference": "C3",
+      "pin": "1",
+      "pad": "1",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.c_rtd_input",
+      "reference": "C3",
+      "pin": "2",
+      "pad": "2",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.c_reference",
+      "reference": "C4",
+      "pin": "1",
+      "pad": "1",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.c_reference",
+      "reference": "C4",
+      "pin": "2",
+      "pad": "2",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.c_low_window",
+      "reference": "C5",
+      "pin": "1",
+      "pad": "1",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.c_low_window",
+      "reference": "C5",
+      "pin": "2",
+      "pad": "2",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.c_high_window",
+      "reference": "C6",
+      "pin": "1",
+      "pad": "1",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.c_high_window",
+      "reference": "C6",
+      "pin": "2",
+      "pad": "2",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.c_window_and",
+      "reference": "C7",
+      "pin": "1",
+      "pad": "1",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.c_window_and",
+      "reference": "C7",
+      "pin": "2",
+      "pad": "2",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.c_rail_monitor",
+      "reference": "C8",
+      "pin": "1",
+      "pad": "1",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.c_rail_monitor",
+      "reference": "C8",
+      "pin": "2",
+      "pad": "2",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.c_fault_nand",
+      "reference": "C9",
+      "pin": "1",
+      "pad": "1",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.c_fault_nand",
+      "reference": "C9",
+      "pin": "2",
+      "pad": "2",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.j_rtd1",
+      "reference": "J1",
+      "pin": "1",
+      "pad": "1",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.j_rtd1",
+      "reference": "J1",
+      "pin": "2",
+      "pad": "2",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.j_rtd1",
+      "reference": "J1",
+      "pin": "3",
+      "pad": "3",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.j_rtd1",
+      "reference": "J1",
+      "pin": "4",
+      "pad": "4",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "unit_io",
+      "reference": "J2",
+      "pin": "1",
+      "pad": "1",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "unit_io",
+      "reference": "J2",
+      "pin": "10",
+      "pad": "10",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "unit_io",
+      "reference": "J2",
+      "pin": "2",
+      "pad": "2",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "unit_io",
+      "reference": "J2",
+      "pin": "3",
+      "pad": "3",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "unit_io",
+      "reference": "J2",
+      "pin": "4",
+      "pad": "4",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "unit_io",
+      "reference": "J2",
+      "pin": "5",
+      "pad": "5",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "unit_io",
+      "reference": "J2",
+      "pin": "6",
+      "pad": "6",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "unit_io",
+      "reference": "J2",
+      "pin": "7",
+      "pad": "7",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "unit_io",
+      "reference": "J2",
+      "pin": "8",
+      "pad": "8",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "unit_io",
+      "reference": "J2",
+      "pin": "9",
+      "pad": "9",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.r_ref",
+      "reference": "R1",
+      "pin": "1",
+      "pad": "1",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.r_ref",
+      "reference": "R1",
+      "pin": "2",
+      "pad": "2",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.r_low_bottom",
+      "reference": "R10",
+      "pin": "1",
+      "pad": "1",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.r_low_bottom",
+      "reference": "R10",
+      "pin": "2",
+      "pad": "2",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.r_high_top",
+      "reference": "R11",
+      "pin": "1",
+      "pad": "1",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.r_high_top",
+      "reference": "R11",
+      "pin": "2",
+      "pad": "2",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.r_high_bottom",
+      "reference": "R12",
+      "pin": "1",
+      "pad": "1",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.r_high_bottom",
+      "reference": "R12",
+      "pin": "2",
+      "pad": "2",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.r_window_sense_p",
+      "reference": "R13",
+      "pin": "1",
+      "pad": "1",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.r_window_sense_p",
+      "reference": "R13",
+      "pin": "2",
+      "pad": "2",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.r_window_ok_pulldown",
+      "reference": "R14",
+      "pin": "1",
+      "pad": "1",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.r_window_ok_pulldown",
+      "reference": "R14",
+      "pin": "2",
+      "pad": "2",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.r_avdd_top",
+      "reference": "R15",
+      "pin": "1",
+      "pad": "1",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.r_avdd_top",
+      "reference": "R15",
+      "pin": "2",
+      "pad": "2",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.r_avdd_bottom",
+      "reference": "R16",
+      "pin": "1",
+      "pad": "1",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.r_avdd_bottom",
+      "reference": "R16",
+      "pin": "2",
+      "pad": "2",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.r_rail_ok_pullup",
+      "reference": "R17",
+      "pin": "1",
+      "pad": "1",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.r_rail_ok_pullup",
+      "reference": "R17",
+      "pin": "2",
+      "pad": "2",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.r_fault_pullup",
+      "reference": "R18",
+      "pin": "1",
+      "pad": "1",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.r_fault_pullup",
+      "reference": "R18",
+      "pin": "2",
+      "pad": "2",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.r_rtdin_p_bias",
+      "reference": "R2",
+      "pin": "1",
+      "pad": "1",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.r_rtdin_p_bias",
+      "reference": "R2",
+      "pin": "2",
+      "pad": "2",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.r_rtdin_n_bias",
+      "reference": "R3",
+      "pin": "1",
+      "pad": "1",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.r_rtdin_n_bias",
+      "reference": "R3",
+      "pin": "2",
+      "pad": "2",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.r_sclk",
+      "reference": "R4",
+      "pin": "1",
+      "pad": "1",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.r_sclk",
+      "reference": "R4",
+      "pin": "2",
+      "pad": "2",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.r_mosi",
+      "reference": "R5",
+      "pin": "1",
+      "pad": "1",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.r_mosi",
+      "reference": "R5",
+      "pin": "2",
+      "pad": "2",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.r_cs",
+      "reference": "R6",
+      "pin": "1",
+      "pad": "1",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.r_cs",
+      "reference": "R6",
+      "pin": "2",
+      "pad": "2",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.r_miso",
+      "reference": "R7",
+      "pin": "1",
+      "pad": "1",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.r_miso",
+      "reference": "R7",
+      "pin": "2",
+      "pad": "2",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.fb_power",
+      "reference": "R8",
+      "pin": "1",
+      "pad": "1",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.fb_power",
+      "reference": "R8",
+      "pin": "2",
+      "pad": "2",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.r_low_top",
+      "reference": "R9",
+      "pin": "1",
+      "pad": "1",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.r_low_top",
+      "reference": "R9",
+      "pin": "2",
+      "pad": "2",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.adc",
+      "reference": "U1",
+      "pin": "1",
+      "pad": "1",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.adc",
+      "reference": "U1",
+      "pin": "10",
+      "pad": "10",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.adc",
+      "reference": "U1",
+      "pin": "11",
+      "pad": "11",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.adc",
+      "reference": "U1",
+      "pin": "12",
+      "pad": "12",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.adc",
+      "reference": "U1",
+      "pin": "13",
+      "pad": "13",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.adc",
+      "reference": "U1",
+      "pin": "14",
+      "pad": "14",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.adc",
+      "reference": "U1",
+      "pin": "15",
+      "pad": "15",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.adc",
+      "reference": "U1",
+      "pin": "16",
+      "pad": "16",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.adc",
+      "reference": "U1",
+      "pin": "17",
+      "pad": "17",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.adc",
+      "reference": "U1",
+      "pin": "18",
+      "pad": "18",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.adc",
+      "reference": "U1",
+      "pin": "19",
+      "pad": "19",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.adc",
+      "reference": "U1",
+      "pin": "2",
+      "pad": "2",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.adc",
+      "reference": "U1",
+      "pin": "20",
+      "pad": "20",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.adc",
+      "reference": "U1",
+      "pin": "3",
+      "pad": "3",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.adc",
+      "reference": "U1",
+      "pin": "4",
+      "pad": "4",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.adc",
+      "reference": "U1",
+      "pin": "5",
+      "pad": "5",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.adc",
+      "reference": "U1",
+      "pin": "6",
+      "pad": "6",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.adc",
+      "reference": "U1",
+      "pin": "7",
+      "pad": "7",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.adc",
+      "reference": "U1",
+      "pin": "8",
+      "pad": "8",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.adc",
+      "reference": "U1",
+      "pin": "9",
+      "pad": "9",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.reference",
+      "reference": "U2",
+      "pin": "1",
+      "pad": "1",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.reference",
+      "reference": "U2",
+      "pin": "2",
+      "pad": "2",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.reference",
+      "reference": "U2",
+      "pin": "3",
+      "pad": "3",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.reference",
+      "reference": "U2",
+      "pin": "4",
+      "pad": "4",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.reference",
+      "reference": "U2",
+      "pin": "5",
+      "pad": "5",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.low_window",
+      "reference": "U3",
+      "pin": "1",
+      "pad": "1",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.low_window",
+      "reference": "U3",
+      "pin": "2",
+      "pad": "2",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.low_window",
+      "reference": "U3",
+      "pin": "3",
+      "pad": "3",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.low_window",
+      "reference": "U3",
+      "pin": "4",
+      "pad": "4",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.low_window",
+      "reference": "U3",
+      "pin": "5",
+      "pad": "5",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.high_window",
+      "reference": "U4",
+      "pin": "1",
+      "pad": "1",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.high_window",
+      "reference": "U4",
+      "pin": "2",
+      "pad": "2",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.high_window",
+      "reference": "U4",
+      "pin": "3",
+      "pad": "3",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.high_window",
+      "reference": "U4",
+      "pin": "4",
+      "pad": "4",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.high_window",
+      "reference": "U4",
+      "pin": "5",
+      "pad": "5",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.window_and",
+      "reference": "U5",
+      "pin": "1",
+      "pad": "1",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.window_and",
+      "reference": "U5",
+      "pin": "2",
+      "pad": "2",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.window_and",
+      "reference": "U5",
+      "pin": "3",
+      "pad": "3",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.window_and",
+      "reference": "U5",
+      "pin": "4",
+      "pad": "4",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.window_and",
+      "reference": "U5",
+      "pin": "5",
+      "pad": "5",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.rail_monitor",
+      "reference": "U6",
+      "pin": "1",
+      "pad": "1",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.rail_monitor",
+      "reference": "U6",
+      "pin": "2",
+      "pad": "2",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.rail_monitor",
+      "reference": "U6",
+      "pin": "3",
+      "pad": "3",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.rail_monitor",
+      "reference": "U6",
+      "pin": "4",
+      "pad": "4",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.rail_monitor",
+      "reference": "U6",
+      "pin": "5",
+      "pad": "5",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.rail_monitor",
+      "reference": "U6",
+      "pin": "6",
+      "pad": "6",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.fault_nand",
+      "reference": "U7",
+      "pin": "1",
+      "pad": "1",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.fault_nand",
+      "reference": "U7",
+      "pin": "2",
+      "pad": "2",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.fault_nand",
+      "reference": "U7",
+      "pin": "3",
+      "pad": "3",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.fault_nand",
+      "reference": "U7",
+      "pin": "4",
+      "pad": "4",
+      "alias_note": "",
+      "positional": false
+    },
+    {
+      "instance_path": "rtd_pan.fault_nand",
+      "reference": "U7",
+      "pin": "5",
+      "pad": "5",
+      "alias_note": "",
+      "positional": false
+    }
+  ],
+  "unconnected_pads": [],
+  "footprint_census": {
+    "Capacitor_SMD:C_0603_1608Metric": {
+      "pads": [
+        "1",
+        "2"
+      ],
+      "sha256": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405"
+    },
+    "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical": {
+      "pads": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "sha256": "fa93a9f49b03c4caad76b643da2473903ee645833aa1d0ae65afd97740431d86"
+    },
+    "Inductor_SMD:L_0603_1608Metric": {
+      "pads": [
+        "1",
+        "2"
+      ],
+      "sha256": "a2a9c562208496756e22f3ab19e0bd6db2341d14da92e7c767d5eafd1bb45d38"
+    },
+    "Package_SO:SSOP-20_3.9x8.7mm_P0.635mm": {
+      "pads": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "20"
+      ],
+      "sha256": "38e1d013616514c692a593ab99a4327a30a98e91bfb4bc7a621bc2c0352d9008"
+    },
+    "Package_TO_SOT_SMD:SOT-23-5": {
+      "pads": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "sha256": "455a3f7c3e5eb5b8847eaa5df23e18651e78ab9f75afd09a0883758a0d901761"
+    },
+    "Resistor_SMD:R_0603_1608Metric": {
+      "pads": [
+        "1",
+        "2"
+      ],
+      "sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23"
+    },
+    "Resistor_SMD:R_0805_2012Metric": {
+      "pads": [
+        "1",
+        "2"
+      ],
+      "sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794"
+    },
+    "Temper_RTD:FTSH-105-01-F-D_2x5_P1.27mm": {
+      "pads": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10"
+      ],
+      "sha256": "e7bb1532a01e30864dd947afe1a6b27613e0f4440c57c2f1a46d0ed885ba6c5b"
+    },
+    "Temper_RTD:TPS389001DSER_WSON-6_DSE": {
+      "pads": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ],
+      "sha256": "42f4a408e86b82b26da7b4b1c68170c1214dedadff38dff5015ac55a23dd6401"
+    }
+  },
+  "source_attributes": {
+    "rtd_pan.adc": {
+      "footprint": "Package_SO:SSOP-20_3.9x8.7mm_P0.635mm",
+      "manufacturer": "Analog Devices",
+      "mpn": "MAX31865AAP+",
+      "resolution": "15",
+      "v_supply_max": "3.6V"
+    },
+    "rtd_pan.r_ref": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0805_2012Metric",
+      "mpn": "RG2012V-431-W-T1",
+      "power_rating": null,
+      "value": "430ohm +/- 0.05%",
+      "voltage_rating": null
+    },
+    "rtd_pan.c_vdd": {
+      "designator_prefix": "C",
+      "dielectric": null,
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "voltage_rating": "10V"
+    },
+    "rtd_pan.c_dvdd": {
+      "designator_prefix": "C",
+      "dielectric": null,
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "voltage_rating": "10V"
+    },
+    "rtd_pan.c_rtd_input": {
+      "designator_prefix": "C",
+      "dielectric": "C0G",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C102J5GACTU",
+      "value": "1nF",
+      "voltage_rating": "50V"
+    },
+    "rtd_pan.r_rtdin_p_bias": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603JR-071ML",
+      "power_rating": null,
+      "value": "1Mohm +/- 5%",
+      "voltage_rating": null
+    },
+    "rtd_pan.r_rtdin_n_bias": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603JR-071ML",
+      "power_rating": null,
+      "value": "1Mohm +/- 5%",
+      "voltage_rating": null
+    },
+    "rtd_pan.r_sclk": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0733RL",
+      "power_rating": null,
+      "value": "33ohm +/- 1%",
+      "voltage_rating": null
+    },
+    "rtd_pan.r_mosi": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0733RL",
+      "power_rating": null,
+      "value": "33ohm +/- 1%",
+      "voltage_rating": null
+    },
+    "rtd_pan.r_cs": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0733RL",
+      "power_rating": null,
+      "value": "33ohm +/- 1%",
+      "voltage_rating": null
+    },
+    "rtd_pan.r_miso": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0733RL",
+      "power_rating": null,
+      "value": "33ohm +/- 1%",
+      "voltage_rating": null
+    },
+    "rtd_pan.fb_power": {
+      "designator_prefix": "R",
+      "footprint": "Inductor_SMD:L_0603_1608Metric",
+      "mpn": "BLM18AG121SN1D",
+      "power_rating": null,
+      "value": "120ohm",
+      "voltage_rating": null
+    },
+    "rtd_pan.c_reference": {
+      "designator_prefix": "C",
+      "dielectric": "X7R",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "voltage_rating": "10V"
+    },
+    "rtd_pan.c_low_window": {
+      "designator_prefix": "C",
+      "dielectric": "X7R",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "voltage_rating": "10V"
+    },
+    "rtd_pan.c_high_window": {
+      "designator_prefix": "C",
+      "dielectric": "X7R",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "voltage_rating": "10V"
+    },
+    "rtd_pan.c_window_and": {
+      "designator_prefix": "C",
+      "dielectric": "X7R",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "voltage_rating": "10V"
+    },
+    "rtd_pan.c_rail_monitor": {
+      "designator_prefix": "C",
+      "dielectric": "X7R",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "voltage_rating": "10V"
+    },
+    "rtd_pan.c_fault_nand": {
+      "designator_prefix": "C",
+      "dielectric": "X7R",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "voltage_rating": "10V"
+    },
+    "rtd_pan.reference": {
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "manufacturer": "Texas Instruments",
+      "mpn": "REF2025AIDDCR"
+    },
+    "rtd_pan.r_low_top": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "ERA-3AEB6192V",
+      "power_rating": null,
+      "value": "61.9kohm +/- 0.1%",
+      "voltage_rating": null
+    },
+    "rtd_pan.r_low_bottom": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "ERA-3AEB103V",
+      "power_rating": null,
+      "value": "10kohm +/- 0.1%",
+      "voltage_rating": null
+    },
+    "rtd_pan.r_high_top": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "ERA-3AEB5901V",
+      "power_rating": null,
+      "value": "5.9kohm +/- 0.1%",
+      "voltage_rating": null
+    },
+    "rtd_pan.r_high_bottom": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "ERA-3AEB103V",
+      "power_rating": null,
+      "value": "10kohm +/- 0.1%",
+      "voltage_rating": null
+    },
+    "rtd_pan.low_window": {
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "manufacturer": "Texas Instruments",
+      "mpn": "TLV3201AIDBVR",
+      "t_pd": "40ns",
+      "v_supply_max": "5.5V"
+    },
+    "rtd_pan.high_window": {
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "manufacturer": "Texas Instruments",
+      "mpn": "TLV3201AIDBVR",
+      "t_pd": "40ns",
+      "v_supply_max": "5.5V"
+    },
+    "rtd_pan.r_window_sense_p": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-07100KL",
+      "power_rating": null,
+      "value": "100kohm +/- 1%",
+      "voltage_rating": null
+    },
+    "rtd_pan.window_and": {
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "manufacturer": "Texas Instruments",
+      "mpn": "SN74LVC1G08DBVR"
+    },
+    "rtd_pan.r_window_ok_pulldown": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-07100KL",
+      "power_rating": null,
+      "value": "100kohm +/- 1%",
+      "voltage_rating": null
+    },
+    "rtd_pan.rail_monitor": {
+      "footprint": "Temper_RTD:TPS389001DSER_WSON-6_DSE",
+      "manufacturer": "Texas Instruments",
+      "mpn": "TPS389001DSER"
+    },
+    "rtd_pan.r_avdd_top": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "ERA-3AEB1652V",
+      "power_rating": null,
+      "value": "16.5kohm +/- 0.1%",
+      "voltage_rating": null
+    },
+    "rtd_pan.r_avdd_bottom": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "ERA-3AEB103V",
+      "power_rating": null,
+      "value": "10kohm +/- 0.1%",
+      "voltage_rating": null
+    },
+    "rtd_pan.r_rail_ok_pullup": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0710KL",
+      "power_rating": null,
+      "value": "10kohm +/- 1%",
+      "voltage_rating": null
+    },
+    "rtd_pan.fault_nand": {
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "manufacturer": "Texas Instruments",
+      "mpn": "SN74LVC1G38DBVR"
+    },
+    "rtd_pan.r_fault_pullup": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0710KL",
+      "power_rating": null,
+      "value": "10kohm +/- 1%",
+      "voltage_rating": null
+    },
+    "rtd_pan.j_rtd1": {
+      "designator_prefix": "J",
+      "footprint": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical",
+      "manufacturer": "JST Sales America Inc.",
+      "mpn": "B4B-XH-A(LF)(SN)"
+    },
+    "unit_io": {
+      "designator_prefix": "J",
+      "footprint": "Temper_RTD:FTSH-105-01-F-D_2x5_P1.27mm",
+      "manufacturer": "Samtec",
+      "mpn": "FTSH-105-01-F-D"
+    }
+  },
+  "board_sha256": "80700e03346d7c937e8f13dcf346d40066623b8885f84eb61d8374b11fce678c"
+}

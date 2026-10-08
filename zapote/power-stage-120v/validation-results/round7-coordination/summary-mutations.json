@@ -1,0 +1,27 @@
+{
+  "checks_passed": 22,
+  "checks": [
+    "baseline",
+    "missing audit",
+    "2 A current",
+    "NaN current",
+    "wrong mesh",
+    "wrong sif",
+    "wrong constant_source_density_A_per_m",
+    "changed SIF axis 3",
+    "changed SIF axis 1",
+    "wrong SIF mesh",
+    "final energy NaN",
+    "final energy Inf",
+    "final energy 0",
+    "final energy -1e-9",
+    "ERROR:: failed",
+    "FATAL",
+    "STOP 1",
+    "Error occurred in umf4num: -1",
+    "exit nonzero",
+    "missing completion",
+    "energy mismatch",
+    "last valid energy replaces earlier energy"
+  ]
+}

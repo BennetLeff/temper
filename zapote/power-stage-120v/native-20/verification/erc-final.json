@@ -1,0 +1,278 @@
+{
+    "$schema": "https://schemas.kicad.org/erc.v1.json",
+    "coordinate_units": "mm",
+    "date": "2026-10-05T20:20:52",
+    "ignored_checks": [
+        {
+            "description": "Global label only appears once in the schematic",
+            "key": "single_global_label"
+        },
+        {
+            "description": "Four connection points are joined together",
+            "key": "four_way_junction"
+        },
+        {
+            "description": "SPICE model issue",
+            "key": "simulation_model_issue"
+        },
+        {
+            "description": "Assigned footprint doesn't match footprint filters",
+            "key": "footprint_filter"
+        }
+    ],
+    "included_severities": [
+        "error",
+        "warning",
+        "exclusion"
+    ],
+    "kicad_version": "10.0.4",
+    "sheets": [
+        {
+            "path": "/",
+            "uuid_path": "/14a21bb2-536d-5be1-855e-2e61584431c0",
+            "violations": [
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'leg_a.driver-nc_7'",
+                            "pos": {
+                                "x": 0.4826,
+                                "y": 2.1844
+                            },
+                            "uuid": "2e22d6b4-b337-5e8f-8a78-30845e9d6348"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'leg_b.driver-nc_7'",
+                            "pos": {
+                                "x": 1.6256,
+                                "y": 2.1844
+                            },
+                            "uuid": "ba9c5fdd-988e-59c9-9ec0-d176bf5ca1c5"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'outb'",
+                            "pos": {
+                                "x": 1.9304,
+                                "y": 7.1628
+                            },
+                            "uuid": "04720bd3-0ab1-5a72-92d3-fa0d503208de"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Pin GND1 not connected to ground net",
+                    "items": [
+                        {
+                            "description": "Symbol U4 Pin 4 [GND1, Power input, Line]",
+                            "pos": {
+                                "x": 2.7686,
+                                "y": 6.6802
+                            },
+                            "uuid": "1df81e4a-0421-5c02-a3a0-e8edad2e7fa4"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "ground_pin_not_ground"
+                },
+                {
+                    "description": "Pin GND1 not connected to ground net",
+                    "items": [
+                        {
+                            "description": "Symbol U9 Pin 1 [GND1, Power input, Line]",
+                            "pos": {
+                                "x": 2.7686,
+                                "y": 6.9342
+                            },
+                            "uuid": "84b51fb8-3da5-52ac-b50a-2d3cb3d8ccca"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "ground_pin_not_ground"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'nc2'",
+                            "pos": {
+                                "x": 2.7686,
+                                "y": 6.985
+                            },
+                            "uuid": "08e6ae37-6aff-5758-b2a6-46daa715faaf"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'nc5'",
+                            "pos": {
+                                "x": 2.7686,
+                                "y": 7.1374
+                            },
+                            "uuid": "6fac7aa3-e93a-5f20-8af4-cc30408f3f6c"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'nc6'",
+                            "pos": {
+                                "x": 2.7686,
+                                "y": 7.1882
+                            },
+                            "uuid": "433ca9d1-df12-54d9-a296-4f6d8f811b9c"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Pin GND1B not connected to ground net",
+                    "items": [
+                        {
+                            "description": "Symbol U9 Pin 7 [GND1B, Power input, Line]",
+                            "pos": {
+                                "x": 2.7686,
+                                "y": 7.239
+                            },
+                            "uuid": "c52645fb-48c9-5ba2-8706-f37de7c22037"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "ground_pin_not_ground"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'nc8'",
+                            "pos": {
+                                "x": 2.7686,
+                                "y": 7.2898
+                            },
+                            "uuid": "5c572b96-fa61-53a8-bd19-2d2f4b23cfcf"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'nc10'",
+                            "pos": {
+                                "x": 3.0734,
+                                "y": 6.985
+                            },
+                            "uuid": "0e1ace00-375e-53f9-979d-3ee0d491da42"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'nc11'",
+                            "pos": {
+                                "x": 3.0734,
+                                "y": 7.0358
+                            },
+                            "uuid": "7dc9387b-a578-57ed-94ad-c9ef837b4379"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'nc12'",
+                            "pos": {
+                                "x": 3.0734,
+                                "y": 7.0866
+                            },
+                            "uuid": "2e85fde6-886a-5415-85be-42366cc7c94f"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'nc15'",
+                            "pos": {
+                                "x": 3.0734,
+                                "y": 7.239
+                            },
+                            "uuid": "e277265f-0b8a-5fc0-8886-b8c66e4bc7e6"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'u_hot5_schmitt-nc'",
+                            "pos": {
+                                "x": 9.6266,
+                                "y": 6.5532
+                            },
+                            "uuid": "1e596862-7839-5b70-83a6-9c700152e508"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Global Label 'u_ref-nc'",
+                            "pos": {
+                                "x": 9.9314,
+                                "y": 3.048
+                            },
+                            "uuid": "fbb3d870-2303-5c4c-8a03-671962d287ae"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                }
+            ]
+        }
+    ],
+    "source": "section.kicad_sch"
+}

@@ -1,0 +1,162 @@
+{
+  "references": {
+    "ct": [
+      40,
+      13.2
+    ],
+    "primary_lands": [
+      40,
+      5
+    ],
+    "burden": [
+      34,
+      51
+    ],
+    "c_burden": [
+      43.8,
+      52.2
+    ],
+    "c_bias_bypass": [
+      51.4,
+      49.8
+    ],
+    "r_bias_top": [
+      59.8,
+      47.5
+    ],
+    "r_bias_bottom": [
+      59.8,
+      51
+    ],
+    "r_sense_series": [
+      37.8,
+      55
+    ],
+    "r_ref_hi_top": [
+      27,
+      49
+    ],
+    "r_ref_hi_bottom": [
+      27,
+      52.5
+    ],
+    "r_ref_lo_top": [
+      51,
+      52.5
+    ],
+    "r_ref_lo_bottom": [
+      51,
+      56
+    ],
+    "comp_pos": [
+      33,
+      57.7
+    ],
+    "comp_neg": [
+      44,
+      57.7
+    ],
+    "c_comp_pos": [
+      28,
+      64.8
+    ],
+    "c_comp_neg": [
+      38.6,
+      61.5
+    ],
+    "output_or": [
+      38.5,
+      68
+    ],
+    "c_or_bypass": [
+      47,
+      64.2
+    ],
+    "d_clamp_hi": [
+      31.6,
+      55.5
+    ],
+    "d_clamp_lo": [
+      42,
+      55.5
+    ],
+    "host": [
+      69,
+      70
+    ]
+  },
+  "board_text": [
+    {
+      "text": "CURRENT SENSE / Rev A",
+      "at": [
+        40,
+        77
+      ],
+      "size": 1.5
+    },
+    {
+      "text": "SERIES OUT",
+      "at": [
+        12,
+        10
+      ],
+      "size": 1.3
+    },
+    {
+      "text": "SERIES IN",
+      "at": [
+        69,
+        10
+      ],
+      "size": 1.3
+    },
+    {
+      "text": "3V3",
+      "at": [
+        70,
+        67
+      ],
+      "size": 1
+    },
+    {
+      "text": "GND",
+      "at": [
+        70,
+        64.5
+      ],
+      "size": 1
+    },
+    {
+      "text": "FAULT",
+      "at": [
+        70,
+        62
+      ],
+      "size": 1
+    },
+    {
+      "text": "MON",
+      "at": [
+        70,
+        59.5
+      ],
+      "size": 1
+    },
+    {
+      "text": "PRIMARY",
+      "at": [
+        14,
+        32
+      ],
+      "size": 1.2
+    },
+    {
+      "text": "ISOLATED LV",
+      "at": [
+        14,
+        42
+      ],
+      "size": 1.2
+    }
+  ]
+}

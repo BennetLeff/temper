@@ -1,0 +1,42 @@
+{
+  "schema": "zapote.current_sense_source_receipt.v1",
+  "attempt": "current-sense-build-20260911",
+  "source": {
+    "proposal": "current_sense_unit.ato",
+    "proposal_sha256": "b925e59448209e3eff8f8d7a0df71646c4ae953e09063644e821fee56c1b55b5",
+    "contract": "standalone_interface_contract.md",
+    "contract_sha256": "82ed7dbcfb0c8ac1f633f0279c2e3fac397c63e2ef6ea85caccb84f1cf640610",
+    "evidence": "source_and_datasheet_evidence.md",
+    "evidence_sha256": "ee2b10c21479a43dab03bf78267aaa03ca8d2c64e8473de69362a5446f540f0a",
+    "profile": "current_sense_profile.json",
+    "profile_sha256": "9c021334e4137c418674273986b8a9d9bb41f6d29b119e7cde8896efc7927440"
+  },
+  "model": {
+    "source": "current_sense_model.rs",
+    "source_sha256": "3ecf3e24431d4d10f24f0f1b1034ffd7a2f678bfd7d88714d9ed3a82be1ddf5f",
+    "output": "model_output.json",
+    "output_sha256": "5e7aff9769499dda7304edf72145ef4cc255e5ffece5eec18190b8eb0f13e75e",
+    "compiler": "rustc (dependency-free standalone replay)",
+    "tests": "rustc --test current_sense_model.rs; 6 passed"
+  },
+  "memory": {
+    "selected_context": "../actual_memory_use.md",
+    "selected_id": "rtd-mem-001",
+    "selection_sha256": "4adc152e94e431ed4e35d887aa2f7c92cd2c6a5454643d7e50ed452546b29a26"
+  },
+  "datasheets": {
+    "cst3015": "https://www.coilcraft.com/getmedia/df31d5fe-b3af-4586-82a7-7b773ac9f838/cst3015.pdf",
+    "tlv3201": "https://www.ti.com/lit/ds/symlink/tlv3201.pdf",
+    "era3aeb3741v": "https://industrial.panasonic.com/ww/products/pt/high-precision-chip-resistors/models/ERA3AEB3741V",
+    "era3aeb102v": "https://industrial.panasonic.com/ww/products/pt/high-precision-chip-resistors/models/ERA3AEB102V"
+  },
+  "status": {
+    "analytical_trip_window": "PASS_CONDITIONAL_BOUNDED_DC",
+    "both_polarities": "PASS_CONDITIONAL_BOUNDED_DC",
+    "source_native_build": "NOT_RUN",
+    "physical_timing": "INDETERMINATE",
+    "physical_isolation_pd3_12_6mm": "INDETERMINATE",
+    "primary_copper_and_terminal": "NOT_RUN",
+    "hardware_tests": "NOT_RUN"
+  }
+}

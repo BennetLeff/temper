@@ -1,0 +1,85 @@
+* Task 01: one half-bridge leg, clamped-inductive switching event on the low side.
+* Run: python3 ../common/run_ngspice.py leg.cir VBUS=198 IL=37 EVENT_ON=0 ...
+*
+* EVENT_ON=0: low side is on carrying IL, turns off at T1. Current commutates to
+*             the high-side body diode: worst VDS overshoot on the low side and
+*             dv/dt-induced gate bump on the (off) high side.
+* EVENT_ON=1: high-side body diode freewheels IL, low side turns on hard at T1:
+*             reverse-recovery spike on the high side, false turn-on check.
+* The load is an ideal current source (a very large inductor); see the task doc
+* for when to use the full-tank deck instead.
+*
+* IMPORTANT: the Infineon L1 subcircuit already contains the TO-247 leads
+* (Ld 1.88 nH, Ls 2.82 nH, Lg 8.32 nH) and Rg,int 2.7 ohm. The L* parameters
+* below are BOARD copper and capacitor ESL only; do not add package L again.
+* Pin-level VGS/VDS include lead-inductance voltage at ns di/dt. Judge oxide
+* and avalanche stress with the *_die measures (nodes xq?.g, xq?.s, xq?.dd).
+
+.include IFX_CFD7_650V.lib
+.include ../common/options.inc
+
+* ---- defaults; params.inc (written by run_ngspice.py) overrides them
+.param VBUS=198 IL=37 EVENT_ON=0 T1=2u
+.param LD_HS=4n LS_HS=4n LD_LS=4n LS_LS=4n LCAP=3n LBULK=30n
+.param LCS=1n LG=20n RG=3.9 ROL=0.55 ROH=5 VDRV=15 CSNUB=1n
+.param CLOC=0.4u CBULK=5.4u
+.include params.inc
+.param VL0={VDRV*(1-EVENT_ON)} VL1={VDRV*EVENT_ON}
+.param RDRV={EVENT_ON*ROH + (1-EVENT_ON)*ROL}
+
+* ---- DC bus: bulk capacitors behind the western bus, local film caps at the leg
+Vbus src 0 {VBUS}
+Rsrc src bulk 10m
+Cbulk bulk 0 {CBULK}
+Lbulk bulk bus {LBULK}
+Lcap bus capn {LCAP}
+Rcap capn capm 5m
+Cloc capm 0 {CLOC}
+
+* ---- power loop: bus -> HS drain ... LS source -> return (shunt included)
+Ldhs bus d_hs {LD_HS}
+XQH d_hs g_hs s_hs IPW65R018CFD7_L1
+Lshs s_hs sw {LS_HS}
+Ldls sw d_ls1 {LD_LS}
+Vids d_ls1 d_ls 0
+XQL d_ls g_ls s_ls IPW65R018CFD7_L1
+Lcs s_ls kret {LCS}
+Lsls kret shunt {LS_LS}
+Rshunt shunt 0 1m
+Csnh d_hs s_hs {CSNUB}
+Csnl d_ls s_ls {CSNUB}
+
+* ---- load: current into the switch node, ramped from 0 so the start state is
+* trivially consistent: the DC operating point is solved at 0 A (it fails to
+* converge with the full current applied at t = 0).
+Iload bus sw PWL(0 0 1u {IL})
+
+* ---- low-side gate drive, returned at kret (after the common-source part LCS)
+Vgl gdl kret PULSE({VL0} {VL1} {T1} 5n 5n 1 2)
+Rdl gdl gdl2 {RDRV}
+Rgl gdl2 gdl3 {RG}
+Lgl gdl3 g_ls {LG}
+* ---- high-side gate held off by its driver pull-down
+Vgh gdh s_hs 0
+Rdh gdh gdh2 {ROL}
+Rgh gdh2 gdh3 {RG}
+Lgh gdh3 g_hs {LG}
+
+.tran 0.2n {T1+1.5u} 0 0.2n
+
+.meas tran vds_ls_pk MAX par('v(d_ls)-v(s_ls)') from={T1} to={T1+1.4u}
+.meas tran vds_hs_pk MAX par('v(d_hs)-v(s_hs)') from={T1} to={T1+1.4u}
+.meas tran vgs_hs_max MAX par('v(g_hs)-v(s_hs)') from={T1} to={T1+1.4u}
+.meas tran vgs_hs_min MIN par('v(g_hs)-v(s_hs)') from={T1} to={T1+1.4u}
+.meas tran vgs_ls_max MAX par('v(g_ls)-v(s_ls)') from={T1} to={T1+1.4u}
+.meas tran vgs_ls_min MIN par('v(g_ls)-v(s_ls)') from={T1} to={T1+1.4u}
+.meas tran id_ls_pk MAX i(Vids) from={T1} to={T1+1.4u}
+.meas tran vgs_ls_die_max MAX par('v(xql.g)-v(xql.s)') from={T1} to={T1+1.4u}
+.meas tran vgs_ls_die_min MIN par('v(xql.g)-v(xql.s)') from={T1} to={T1+1.4u}
+.meas tran vgs_hs_die_max MAX par('v(xqh.g)-v(xqh.s)') from={T1} to={T1+1.4u}
+.meas tran vgs_hs_die_min MIN par('v(xqh.g)-v(xqh.s)') from={T1} to={T1+1.4u}
+.meas tran vds_ls_die_pk MAX par('v(xql.dd)-v(xql.s)') from={T1} to={T1+1.4u}
+.meas tran vds_hs_die_pk MAX par('v(xqh.dd)-v(xqh.s)') from={T1} to={T1+1.4u}
+.meas tran sw_edge_s TRIG v(sw) VAL={0.2*VBUS} TD={T1} CROSS=1 TARG v(sw) VAL={0.8*VBUS} TD={T1} CROSS=1
+.meas tran e_ls_j INTEG par('(v(d_ls)-v(s_ls))*i(Vids)') from={T1-10n} to={T1+1.4u}
+.end

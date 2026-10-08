@@ -1,0 +1,16 @@
+{
+  "status": "BLOCKED",
+  "board_sha256": "8056fc952675bc6987bcc9d32c12a88eebc4cec9bc3696f8cbd4876700a39129",
+  "kit_commit": "36ba41f249eea0b9c78c9d7bdd6e38ea04bb37f9",
+  "smoke": "PASS",
+  "kit_selftest": "PASS",
+  "independent_solver_audit": "FAILED_BOARD_ACCURACY_PROBES",
+  "zone_polygons": 31,
+  "zone_holes": 0,
+  "board_resistance": null,
+  "board_current_density": null,
+  "via_currents": null,
+  "joule_only_temperature": null,
+  "total_board_temperature": null,
+  "remaining_thermal_dependency": "task 03 board_heat_sources.json"
+}

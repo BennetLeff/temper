@@ -1,0 +1,15 @@
+{
+  "Problem": {"Type": "Magnetostatic", "Verbose": 2, "Output": "raw/fixtures/plates-box0p25-far12-m20-palace"},
+  "Model": {"Mesh": "raw/fixtures/plates-box0p25-far12-m20-ascii.msh", "L0": 0.001},
+  "Domains": {"Materials": [{"Attributes": [1], "Permeability": 1.0}]},
+  "Boundaries": {
+    "PEC": {"Attributes": [2]},
+    "SurfaceCurrent": [{"Index": 1, "Attributes": [3], "Direction": [0.0, 0.0, 1.0]}]
+  },
+  "Solver": {
+    "Order": 2,
+    "Device": "CPU",
+    "Magnetostatic": {"Save": 0, "InactivePorts": "Open"},
+    "Linear": {"Type": "AMS", "KSPType": "CG", "Tol": 1e-8, "MaxIts": 1000}
+  }
+}

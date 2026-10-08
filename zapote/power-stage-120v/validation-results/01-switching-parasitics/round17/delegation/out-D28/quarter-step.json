@@ -1,0 +1,20 @@
+[
+  {
+    "label": "complementary-v170-r2-p90-s0.25",
+    "bus": 170,
+    "resistance": 2,
+    "freq": 50000,
+    "phase": 90,
+    "step": 0.25,
+    "cycles": 40
+  },
+  {
+    "label": "complementary-v170-r2-p120-s0.25",
+    "bus": 170,
+    "resistance": 2,
+    "freq": 50000,
+    "phase": 120,
+    "step": 0.25,
+    "cycles": 40
+  }
+]

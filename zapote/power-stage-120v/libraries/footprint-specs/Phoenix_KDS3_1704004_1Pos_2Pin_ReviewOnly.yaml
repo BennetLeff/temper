@@ -1,0 +1,24 @@
+# Geometry input for the adjacent unit-local .pretty footprint; millimetres.
+# The installed Phoenix generator covers MKDS multi-potential series but has
+# no KDS 3 one-potential/two-pin input, so this was transcribed from drawings.
+footprint: Phoenix_KDS3_1704004_1Pos_2Pin_ReviewOnly
+manufacturer: Phoenix Contact
+mpn: '1704004'
+method: manufacturer_drawing_transcription
+source:
+  current_product_url: https://www.phoenixcontact.com/en-us/products/printed-circuit-board-terminal-kds-3-1704004
+  manufacturer_sheet_mirror: https://www.micro-semiconductor.kr/datasheet/fb-1704004.pdf
+  drilling_diagram: page 6
+  dimensioned_drawing: page 7
+body_nominal_mm: {width: 5.08, length: 27.0, installed_height: 25.0}
+fab_rect_mm: {xmin: -2.54, ymin: -4.1, xmax: 2.54, ymax: 22.9}
+pin_section_mm: {width: 1.1, thickness: 0.8}
+pad_size_mm: 2.6
+drill_mm: 1.4
+pads:
+  - {number: '1', x_mm: 0.0, y_mm: 0.0, potential: PE}
+  - {number: '2', x_mm: 0.0, y_mm: 15.24, potential: PE}
+limitations:
+  - The manufacturer supplies one potential with two parallel solder pins; pad numbers are local identifiers.
+  - The PCB terminal is only a PE branch; the cord-to-chassis protective bond must not depend on this footprint or its solder joints.
+  - Check actual latch and wire-entry space with the enclosure and part sample.

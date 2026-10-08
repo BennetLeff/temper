@@ -1,0 +1,61 @@
+{
+  "base_revision": "c09244caa7588bb72d786a8b1b884390003a5caf",
+  "model": "GPT-6 Astra",
+  "python": "3.12.12 | packaged by conda-forge | (main, Oct 22 2025, 23:34:53) [Clang 19.1.7 ]",
+  "ngspice": "******\n** ngspice-45.2 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2025, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n******\n",
+  "inputs_sha256": {
+    "validation-results/01-switching-parasitics/round17/delegation/out-D24/run.py": "ea083ce1d74205935ffdbcd38eb5329677e20a95cb7aa05771866094714c5dae",
+    "validation-results/01-switching-parasitics/round17/delegation/out-D24/cache/vendor/IFX_CFD7_650V.lib": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+    "validation-results/01-switching-parasitics/round17/d2/legA-h0-best.matrix.txt": "c6f8fde3c97a2283eaceed2ef2dd860845ba78849fe5b0e580aece37620801a4",
+    "validation-results/01-switching-parasitics/round17/d2/leg_matrix.cir": "804f9be838a470feb92a6b31bf43fb61fd56830f784aa242121f382bade5e346",
+    "validation-results/01-switching-parasitics/round17/d2/run_d2.py": "bec75e3212b120853eb4a58286fb3c222094e46b6e88ba6e41edcde73cd24c7a",
+    "validation-results/01-switching-parasitics/round17/delegation/out-D3/recovery.cir": "34175551ca3cfbc32e80e600fdd62e42a2b88034e63271ee35ffd9a49c5a8273",
+    "validation-results/01-switching-parasitics/round17/delegation/out-D3/run.py": "121cf954fc760b31bcb9c26d53246fd5922c1746a5d2d6b0e82564f5c1abd946",
+    "validation-plan/sim-kit/common/options.inc": "ae752d460d50fdbbcaaf03b29871b3b039cf27f018707efe4aa50d0fc3529330",
+    "validation-plan/sim-kit/common/run_ngspice.py": "e518996d3c4050f3fbbb109abbf116a23b010612dd073bea860d3db613f758b0"
+  },
+  "parameter_edits": [
+    {
+      "parameter": "cool_tech_w3.fpar20",
+      "before_ns": 50,
+      "after_ns": 0.0,
+      "library_sha256": "655eb936e42a8fd7dc82e4590c0724dad33d7a68ec31b72ba87077de0b6f63f6"
+    },
+    {
+      "parameter": "cool_tech_w3.fpar20",
+      "before_ns": 50,
+      "after_ns": 25.0,
+      "library_sha256": "5ec47d9ef7272bc59a7e83fd35538c222e30fb2a4f16a9864d89f107fbeb0ca8"
+    },
+    {
+      "parameter": "cool_tech_w3.fpar20",
+      "before_ns": 50,
+      "after_ns": 50.0,
+      "library_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b"
+    },
+    {
+      "parameter": "cool_tech_w3.fpar20",
+      "before_ns": 50,
+      "after_ns": 100.0,
+      "library_sha256": "f7476358db2f5e0ea8339195908801a55ac0b6651022970cce1810f526a4aa2e"
+    },
+    {
+      "parameter": "cool_tech_w3.fpar20",
+      "before_ns": 50,
+      "after_ns": 200.0,
+      "library_sha256": "7f3b5c5c2a4fe6ae95f94d12194486731541d78f9e92853bd109c057146a2456"
+    },
+    {
+      "parameter": "cool_tech_w3.fpar20",
+      "before_ns": 50,
+      "after_ns": 400.0,
+      "library_sha256": "92d58c635ae0095391a0795c10784b70de6293c87db6201f8833cd77c7c582b9"
+    },
+    {
+      "parameter": "cool_tech_w3.fpar20",
+      "before_ns": 50,
+      "after_ns": 800.0,
+      "library_sha256": "4314859bb1cec5534b21ffd34fccf0a1948b91fa898abe680841f6fff0c8e6fe"
+    }
+  ]
+}

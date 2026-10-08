@@ -1,0 +1,22 @@
+#VRML V2.0 utf8
+# Dimensioned assembly envelope; see README.md.
+Transform { translation 8.36614173 0.00000000 5.45275591 rotation 0 0 1 1.57079633 children [
+  Shape { appearance Appearance { material Material { diffuseColor 0.14 0.30 0.55 } }
+          geometry Cylinder { radius 5.21653543 height 13.38582677 } }
+] }
+Transform { translation 0.00000000 0.00000000 2.72637795 rotation 1 0 0 1.57079633 children [
+  Shape { appearance Appearance { material Material { diffuseColor 0.70 0.70 0.72 } }
+          geometry Cylinder { radius 0.23622047 height 5.45275591 } }
+] }
+Transform { translation 0.83661417 0.00000000 5.45275591 rotation 0 0 1 1.57079633 children [
+  Shape { appearance Appearance { material Material { diffuseColor 0.70 0.70 0.72 } }
+          geometry Cylinder { radius 0.23622047 height 1.67322835 } }
+] }
+Transform { translation 16.73228346 0.00000000 2.72637795 rotation 1 0 0 1.57079633 children [
+  Shape { appearance Appearance { material Material { diffuseColor 0.70 0.70 0.72 } }
+          geometry Cylinder { radius 0.23622047 height 5.45275591 } }
+] }
+Transform { translation 15.89566929 0.00000000 5.45275591 rotation 0 0 1 1.57079633 children [
+  Shape { appearance Appearance { material Material { diffuseColor 0.70 0.70 0.72 } }
+          geometry Cylinder { radius 0.23622047 height 1.67322835 } }
+] }

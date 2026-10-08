@@ -1,0 +1,40 @@
+{
+  "deck": "zapote/power-stage-120v/validation-results/01-switching-parasitics/round3/b1-board-grid/complementary_leg.cir",
+  "params": {
+    "VBUS": "170",
+    "IL": "37",
+    "DIR": "0",
+    "DT": "348n",
+    "TRMAX": "0.2n",
+    "LD_HS": "4n",
+    "LS_HS": "4n",
+    "LD_LS": "4n",
+    "LS_LS": "4n",
+    "LCAP": "3n",
+    "LBULK": "30n",
+    "LCS": "1n",
+    "LG_HS": "20n",
+    "LG_LS": "20n"
+  },
+  "run_dir": "zapote/power-stage-120v/validation-results/01-switching-parasitics/round3/b1-board-grid/outputs/control_reference",
+  "aborted": false,
+  "returncode": 0,
+  "raw_returncode": null,
+  "meas": {
+    "vds_ls_die_pk": 216.0887,
+    "vds_hs_die_pk": 171.3263,
+    "vgs_ls_die_max": 14.97214,
+    "vgs_ls_die_min": -0.01228501,
+    "vgs_hs_die_max": 14.35208,
+    "vgs_hs_die_min": -0.8570455
+  },
+  "failed": [],
+  "log_tail": [
+    "DRAM currently available =  355.734 MB.",
+    "Maximum ngspice program size =   15.094 MB.",
+    "Current ngspice program size =   15.094 MB.",
+    "",
+    "Note: Starting dynamic gmin stepping",
+    "Note: Dynamic gmin stepping completed"
+  ]
+}

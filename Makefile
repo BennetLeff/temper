@@ -20,6 +20,7 @@ help:
 	@echo "  make visualize- Show graphical schematic view"
 	@echo "  make route    - Run the autorouter"
 	@echo "  make drc      - Run KiCad DRC validation"
+	@echo "  make -C zapote help - Zapote/120 V ERC, DRC, layout and current checks (zapote/CHECKS.md)"
 	@echo "  make test     - Run the full test suite"
 	@echo "  make test-fast- Run tests excluding 'slow' markers (inner loop)"
 	@echo "  make extensions      - Rebuild every pyo3/maturin Rust extension crate (fixes stale .so files)"

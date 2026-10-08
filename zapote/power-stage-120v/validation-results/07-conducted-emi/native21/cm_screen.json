@@ -1,0 +1,7 @@
+{
+ "switch_node_CM_change_dB": 0.052,
+ "bus_n_CM_change_dB": 0.341,
+ "line_ZC_vs_Y_caps_ratio": 0.00022727272727272727,
+ "transformer_sw_to_bus_n_pF": 3.0,
+ "verdict": "No new material CM path; D-22's 16-case margins (>= 8.28 dB after reserve) stand for native-21. Re-run D-22 only if layout adds sw-node copper/metal area near PE (sink, chassis) beyond the 42 pF tab allocation."
+}

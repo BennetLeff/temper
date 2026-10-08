@@ -1,0 +1,13 @@
+{
+  "status": "COMPLETED",
+  "rss_limit_gib": 10.0,
+  "time_limit_s": 3600.0,
+  "initial_used_swap_bytes": 10726083133,
+  "initial_swapout_bytes": 112324837376,
+  "elapsed_s": 499.9137681659777,
+  "peak_tree_rss_gib": 7.0340423583984375,
+  "peak_used_swap_growth_bytes": 0,
+  "new_swapout_bytes": 0,
+  "exit_code": 0,
+  "solver_converged": true
+}

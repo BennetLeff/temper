@@ -1,0 +1,89 @@
+{
+  "references": {
+    "ct": [
+      40,
+      13.2
+    ],
+    "primary_lands": [
+      40,
+      0
+    ],
+    "burden": [
+      34,
+      51
+    ],
+    "c_burden": [
+      43.8,
+      52.2
+    ],
+    "c_bias_bypass": [
+      51.4,
+      49.8
+    ],
+    "r_bias_top": [
+      59.8,
+      47.5
+    ],
+    "r_bias_bottom": [
+      59.8,
+      51
+    ],
+    "r_sense_series": [
+      37.8,
+      55
+    ],
+    "r_ref_hi_top": [
+      27,
+      49
+    ],
+    "r_ref_hi_bottom": [
+      27,
+      52.5
+    ],
+    "r_ref_lo_top": [
+      51,
+      52.5
+    ],
+    "r_ref_lo_bottom": [
+      51,
+      56
+    ],
+    "comp_pos": [
+      29.3,
+      59.3
+    ],
+    "comp_neg": [
+      44,
+      57.7
+    ],
+    "c_comp_pos": [
+      28,
+      64.8
+    ],
+    "c_comp_neg": [
+      38.1,
+      60.3
+    ],
+    "output_or": [
+      38.5,
+      68
+    ],
+    "c_or_bypass": [
+      47,
+      64.2
+    ],
+    "d_clamp_hi": [
+      31,
+      55.5
+    ],
+    "d_clamp_lo": [
+      42,
+      55.5
+    ],
+    "host": [
+      69,
+      70
+    ]
+  },
+  "board_text": []
+}

@@ -1,0 +1,105 @@
+{
+ "model": "validation-results/02-protection-timing/round3/thresholds.py",
+ "criterion": "min >= 44 A at -10 and +85 C (R5 +50 C)",
+ "baseline_R34_kohm": 10.5,
+ "rows": [
+  {
+   "R34_kohm": 10.5,
+   "min_A": 38.44,
+   "max_A": 85.55,
+   "meets_44A_min": false,
+   "max_vs_T1_88A": true
+  },
+  {
+   "R34_kohm": 10.6,
+   "min_A": 49.73,
+   "max_A": 97.98,
+   "meets_44A_min": true,
+   "max_vs_T1_88A": false
+  },
+  {
+   "R34_kohm": 10.7,
+   "min_A": 60.91,
+   "max_A": 110.28,
+   "meets_44A_min": true,
+   "max_vs_T1_88A": false
+  },
+  {
+   "R34_kohm": 10.9,
+   "min_A": 82.95,
+   "max_A": 134.54,
+   "meets_44A_min": true,
+   "max_vs_T1_88A": false
+  },
+  {
+   "R34_kohm": 11.0,
+   "min_A": 93.82,
+   "max_A": 146.49,
+   "meets_44A_min": true,
+   "max_vs_T1_88A": false
+  },
+  {
+   "R34_kohm": 11.1,
+   "min_A": 104.58,
+   "max_A": 158.33,
+   "meets_44A_min": true,
+   "max_vs_T1_88A": false
+  },
+  {
+   "R34_kohm": 11.3,
+   "min_A": 125.8,
+   "max_A": 181.68,
+   "meets_44A_min": true,
+   "max_vs_T1_88A": false
+  },
+  {
+   "R34_kohm": 11.4,
+   "min_A": 136.26,
+   "max_A": 193.19,
+   "meets_44A_min": true,
+   "max_vs_T1_88A": false
+  },
+  {
+   "R34_kohm": 11.5,
+   "min_A": 146.63,
+   "max_A": 204.59,
+   "meets_44A_min": true,
+   "max_vs_T1_88A": false
+  },
+  {
+   "R34_kohm": 11.7,
+   "min_A": 167.07,
+   "max_A": 227.08,
+   "meets_44A_min": true,
+   "max_vs_T1_88A": false
+  },
+  {
+   "R34_kohm": 11.8,
+   "min_A": 177.16,
+   "max_A": 238.17,
+   "meets_44A_min": true,
+   "max_vs_T1_88A": false
+  },
+  {
+   "R34_kohm": 12.0,
+   "min_A": 197.05,
+   "max_A": 260.05,
+   "meets_44A_min": true,
+   "max_vs_T1_88A": false
+  },
+  {
+   "R34_kohm": 12.1,
+   "min_A": 206.86,
+   "max_A": 270.84,
+   "meets_44A_min": true,
+   "max_vs_T1_88A": false
+  }
+ ],
+ "smallest_R34_meeting_min": {
+  "R34_kohm": 10.6,
+  "min_A": 49.73,
+  "max_A": 97.98,
+  "meets_44A_min": true,
+  "max_vs_T1_88A": false
+ }
+}

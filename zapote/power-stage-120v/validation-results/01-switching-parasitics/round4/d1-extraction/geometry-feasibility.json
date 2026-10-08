@@ -1,0 +1,489 @@
+{
+  "board_sha256": "a3ac1249f5052afe52944804cdc3f6ef0e8f895668360e79c1fa7b6fb7322155",
+  "source_export": "validation-results/01-switching-parasitics/round4/d1-extraction/extraction/native15-flashed-copper.json.gz",
+  "source_export_sha256": "fd0b8e6dd5e003543099d6e445e269fa8d73863291409a35828c9b85f17b369d",
+  "kicad_version": "10.0.4",
+  "relevant_net_count": 13,
+  "relevant_primitive_count_by_kind": {
+    "zone": 23,
+    "pad": 159,
+    "track": 169,
+    "via": 228
+  },
+  "zone_shell_vertices": 7528,
+  "raw_zone_hole_vertices": 2477,
+  "note": "KiCad Unfracture restored explicit hole rings; only pad/via annuli with FlashLayer true are present.",
+  "net_layers": [
+    {
+      "net": "bus_p",
+      "layer": "B.Cu",
+      "primitive_count": 21,
+      "planar_copper_area_mm2_after_drills": 520.1686259210193,
+      "polygon_components": 6,
+      "exact_polygon_interiors": 19,
+      "bounds_mm": [
+        11.604316,
+        0.6,
+        196.045684,
+        67.5
+      ]
+    },
+    {
+      "net": "bus_p",
+      "layer": "F.Cu",
+      "primitive_count": 37,
+      "planar_copper_area_mm2_after_drills": 79.77198773659578,
+      "polygon_components": 21,
+      "exact_polygon_interiors": 21,
+      "bounds_mm": [
+        11.604316,
+        1.7,
+        196.045684,
+        75.1
+      ]
+    },
+    {
+      "net": "bus_p",
+      "layer": "In1.Cu",
+      "primitive_count": 18,
+      "planar_copper_area_mm2_after_drills": 35.41819295101993,
+      "polygon_components": 18,
+      "exact_polygon_interiors": 18,
+      "bounds_mm": [
+        11.604316,
+        1.7,
+        196.045684,
+        65.645684
+      ]
+    },
+    {
+      "net": "bus_p",
+      "layer": "In2.Cu",
+      "primitive_count": 35,
+      "planar_copper_area_mm2_after_drills": 4727.612285498446,
+      "polygon_components": 2,
+      "exact_polygon_interiors": 34,
+      "bounds_mm": [
+        8.0,
+        0.6,
+        200.0,
+        68.0
+      ]
+    },
+    {
+      "net": "hv_ret",
+      "layer": "B.Cu",
+      "primitive_count": 13,
+      "planar_copper_area_mm2_after_drills": 27.89425958201921,
+      "polygon_components": 13,
+      "exact_polygon_interiors": 13,
+      "bounds_mm": [
+        49.104316,
+        11.854316,
+        196.045684,
+        65.645684
+      ]
+    },
+    {
+      "net": "hv_ret",
+      "layer": "F.Cu",
+      "primitive_count": 23,
+      "planar_copper_area_mm2_after_drills": 90.79220066235584,
+      "polygon_components": 7,
+      "exact_polygon_interiors": 14,
+      "bounds_mm": [
+        49.104316,
+        11.854316,
+        196.045684,
+        65.645684
+      ]
+    },
+    {
+      "net": "hv_ret",
+      "layer": "In1.Cu",
+      "primitive_count": 27,
+      "planar_copper_area_mm2_after_drills": 3711.4302185083498,
+      "polygon_components": 1,
+      "exact_polygon_interiors": 46,
+      "bounds_mm": [
+        40.0,
+        8.0,
+        200.0,
+        68.0
+      ]
+    },
+    {
+      "net": "hv_ret",
+      "layer": "In2.Cu",
+      "primitive_count": 13,
+      "planar_copper_area_mm2_after_drills": 27.89425958201921,
+      "polygon_components": 13,
+      "exact_polygon_interiors": 13,
+      "bounds_mm": [
+        49.104316,
+        11.854316,
+        196.045684,
+        65.645684
+      ]
+    },
+    {
+      "net": "leg_a-gate_h",
+      "layer": "F.Cu",
+      "primitive_count": 5,
+      "planar_copper_area_mm2_after_drills": 16.386147635341057,
+      "polygon_components": 1,
+      "exact_polygon_interiors": 1,
+      "bounds_mm": [
+        147.275,
+        1.965,
+        151.8,
+        13.325
+      ]
+    },
+    {
+      "net": "leg_a-gate_l",
+      "layer": "F.Cu",
+      "primitive_count": 5,
+      "planar_copper_area_mm2_after_drills": 16.386147635341057,
+      "polygon_components": 1,
+      "exact_polygon_interiors": 1,
+      "bounds_mm": [
+        129.275,
+        1.965,
+        133.8,
+        13.325
+      ]
+    },
+    {
+      "net": "leg_a-out_h",
+      "layer": "F.Cu",
+      "primitive_count": 7,
+      "planar_copper_area_mm2_after_drills": 32.30610245927555,
+      "polygon_components": 1,
+      "exact_polygon_interiors": 0,
+      "bounds_mm": [
+        144.42499999999998,
+        13.5,
+        155.9,
+        41.95
+      ]
+    },
+    {
+      "net": "leg_a-out_l",
+      "layer": "B.Cu",
+      "primitive_count": 2,
+      "planar_copper_area_mm2_after_drills": 0.9917206659177533,
+      "polygon_components": 2,
+      "exact_polygon_interiors": 2,
+      "bounds_mm": [
+        134.375,
+        17.075,
+        152.22500000000002,
+        39.224999999999994
+      ]
+    },
+    {
+      "net": "leg_a-out_l",
+      "layer": "F.Cu",
+      "primitive_count": 6,
+      "planar_copper_area_mm2_after_drills": 6.507714163890435,
+      "polygon_components": 2,
+      "exact_polygon_interiors": 2,
+      "bounds_mm": [
+        131.675,
+        13.5,
+        152.22500000000002,
+        41.95
+      ]
+    },
+    {
+      "net": "leg_a-out_l",
+      "layer": "In1.Cu",
+      "primitive_count": 5,
+      "planar_copper_area_mm2_after_drills": 18.947039330806874,
+      "polygon_components": 1,
+      "exact_polygon_interiors": 2,
+      "bounds_mm": [
+        134.375,
+        17.075,
+        152.22500000000002,
+        39.224999999999994
+      ]
+    },
+    {
+      "net": "leg_a-out_l",
+      "layer": "In2.Cu",
+      "primitive_count": 2,
+      "planar_copper_area_mm2_after_drills": 0.9917206659177533,
+      "polygon_components": 2,
+      "exact_polygon_interiors": 2,
+      "bounds_mm": [
+        134.375,
+        17.075,
+        152.22500000000002,
+        39.224999999999994
+      ]
+    },
+    {
+      "net": "leg_b-gate_h",
+      "layer": "F.Cu",
+      "primitive_count": 5,
+      "planar_copper_area_mm2_after_drills": 16.386147635341032,
+      "polygon_components": 1,
+      "exact_polygon_interiors": 1,
+      "bounds_mm": [
+        89.275,
+        1.965,
+        93.8,
+        13.325
+      ]
+    },
+    {
+      "net": "leg_b-gate_l",
+      "layer": "F.Cu",
+      "primitive_count": 5,
+      "planar_copper_area_mm2_after_drills": 16.386147635341032,
+      "polygon_components": 1,
+      "exact_polygon_interiors": 1,
+      "bounds_mm": [
+        107.275,
+        1.965,
+        111.8,
+        13.325
+      ]
+    },
+    {
+      "net": "leg_b-out_h",
+      "layer": "F.Cu",
+      "primitive_count": 6,
+      "planar_copper_area_mm2_after_drills": 26.423806633157195,
+      "polygon_components": 1,
+      "exact_polygon_interiors": 0,
+      "bounds_mm": [
+        91.675,
+        13.5,
+        101.22500000000001,
+        41.95
+      ]
+    },
+    {
+      "net": "leg_b-out_l",
+      "layer": "F.Cu",
+      "primitive_count": 6,
+      "planar_copper_area_mm2_after_drills": 19.748098252740665,
+      "polygon_components": 1,
+      "exact_polygon_interiors": 0,
+      "bounds_mm": [
+        106.875,
+        13.5,
+        114.25,
+        41.95
+      ]
+    },
+    {
+      "net": "leg_ret",
+      "layer": "B.Cu",
+      "primitive_count": 43,
+      "planar_copper_area_mm2_after_drills": 74.81786118963342,
+      "polygon_components": 19,
+      "exact_polygon_interiors": 27,
+      "bounds_mm": [
+        41.8,
+        3.5,
+        153.625,
+        98.625
+      ]
+    },
+    {
+      "net": "leg_ret",
+      "layer": "F.Cu",
+      "primitive_count": 119,
+      "planar_copper_area_mm2_after_drills": 160.81437790481786,
+      "polygon_components": 23,
+      "exact_polygon_interiors": 28,
+      "bounds_mm": [
+        55.175000000000004,
+        1.968853,
+        157.55,
+        98.675
+      ]
+    },
+    {
+      "net": "leg_ret",
+      "layer": "In1.Cu",
+      "primitive_count": 51,
+      "planar_copper_area_mm2_after_drills": 911.5474386369814,
+      "polygon_components": 10,
+      "exact_polygon_interiors": 37,
+      "bounds_mm": [
+        41.0,
+        0.6,
+        153.625,
+        103.0
+      ]
+    },
+    {
+      "net": "leg_ret",
+      "layer": "In2.Cu",
+      "primitive_count": 26,
+      "planar_copper_area_mm2_after_drills": 15.845908634630767,
+      "polygon_components": 24,
+      "exact_polygon_interiors": 26,
+      "bounds_mm": [
+        55.175000000000004,
+        3.5,
+        153.625,
+        98.625
+      ]
+    },
+    {
+      "net": "sw_a",
+      "layer": "B.Cu",
+      "primitive_count": 5,
+      "planar_copper_area_mm2_after_drills": 427.9626519806246,
+      "polygon_components": 3,
+      "exact_polygon_interiors": 5,
+      "bounds_mm": [
+        136.2,
+        0.6,
+        202.3,
+        72.8
+      ]
+    },
+    {
+      "net": "sw_a",
+      "layer": "F.Cu",
+      "primitive_count": 29,
+      "planar_copper_area_mm2_after_drills": 958.165785366461,
+      "polygon_components": 1,
+      "exact_polygon_interiors": 4,
+      "bounds_mm": [
+        136.2,
+        0.6,
+        211.05,
+        78.48
+      ]
+    },
+    {
+      "net": "sw_a",
+      "layer": "In1.Cu",
+      "primitive_count": 5,
+      "planar_copper_area_mm2_after_drills": 160.12799258747498,
+      "polygon_components": 1,
+      "exact_polygon_interiors": 2,
+      "bounds_mm": [
+        197.0,
+        20.5,
+        203.0,
+        73.5
+      ]
+    },
+    {
+      "net": "sw_a",
+      "layer": "In2.Cu",
+      "primitive_count": 2,
+      "planar_copper_area_mm2_after_drills": 3.009573347600343,
+      "polygon_components": 2,
+      "exact_polygon_interiors": 2,
+      "bounds_mm": [
+        197.7,
+        21.2,
+        202.3,
+        72.8
+      ]
+    },
+    {
+      "net": "sw_b",
+      "layer": "B.Cu",
+      "primitive_count": 15,
+      "planar_copper_area_mm2_after_drills": 2893.4946395495613,
+      "polygon_components": 1,
+      "exact_polygon_interiors": 11,
+      "bounds_mm": [
+        86.5,
+        0.6,
+        215.0,
+        152.0
+      ]
+    },
+    {
+      "net": "sw_b",
+      "layer": "F.Cu",
+      "primitive_count": 29,
+      "planar_copper_area_mm2_after_drills": 63.047150226744705,
+      "polygon_components": 9,
+      "exact_polygon_interiors": 9,
+      "bounds_mm": [
+        87.875,
+        1.968853,
+        214.72,
+        151.925
+      ]
+    },
+    {
+      "net": "sw_b",
+      "layer": "In1.Cu",
+      "primitive_count": 7,
+      "planar_copper_area_mm2_after_drills": 19.48182193977043,
+      "polygon_components": 7,
+      "exact_polygon_interiors": 7,
+      "bounds_mm": [
+        87.875,
+        9.254624,
+        213.995376,
+        151.925
+      ]
+    },
+    {
+      "net": "sw_b",
+      "layer": "In2.Cu",
+      "primitive_count": 7,
+      "planar_copper_area_mm2_after_drills": 19.48182193977043,
+      "polygon_components": 7,
+      "exact_polygon_interiors": 7,
+      "bounds_mm": [
+        87.875,
+        9.254624,
+        213.995376,
+        151.925
+      ]
+    }
+  ],
+  "fast_henry_geometry_gap": "Uniform G supports rectangular/circular/point holes, but actual filled copper has irregular shell and pad contours. Nonuniform G contact refinement cannot use the hole utility (pinned source nonuniform plane manual, page 1). No qualified mesh or interlayer barrel connectors have been generated.",
+  "round3_raster_evidence": {
+    "Q3_source_return_0p5_mm": "NO_CONNECTED_ROUTE",
+    "Q3_source_return_0p25_mm": "CONNECTED_RASTER_ROUTE"
+  },
+  "uniform_G_local_roi_node_estimate": {
+    "A": {
+      "roi_xy_mm": [
+        124,
+        0,
+        166,
+        43
+      ],
+      "qualification": "UNQUALIFIED_CROP: contains saved shortest routes but excludes possible current spreading and coupling outside it",
+      "nodes_per_layer_by_pitch_mm": {
+        "0.5": 7395,
+        "0.25": 29237,
+        "0.125": 116265,
+        "0.0625": 463697
+      }
+    },
+    "B": {
+      "roi_xy_mm": [
+        85,
+        0,
+        129,
+        43
+      ],
+      "qualification": "UNQUALIFIED_CROP: contains saved shortest routes but excludes possible current spreading and coupling outside it",
+      "nodes_per_layer_by_pitch_mm": {
+        "0.5": 7743,
+        "0.25": 30621,
+        "0.125": 121785,
+        "0.0625": 485745
+      }
+    }
+  }
+}

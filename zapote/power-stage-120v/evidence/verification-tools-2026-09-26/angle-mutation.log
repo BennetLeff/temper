@@ -1,0 +1,9 @@
+./src/common/stdpbase.cpp(59): assert ""traits"" failed in Get(): create wxApp before calling this
+Traceback (most recent call last):
+  File "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/tools/pad_escape.py", line 134, in <module>
+    main()
+  File "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/tools/pad_escape.py", line 107, in main
+    plan = rust_plan(requests, pad_observations(board, requests), actual)
+  File "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/tools/pad_escape.py", line 85, in rust_plan
+    raise ValueError(f"pad escape geometry rejected: {result.stderr.strip()}")
+ValueError: pad escape geometry rejected: R27 pad 1 must have orthogonal copper orientation

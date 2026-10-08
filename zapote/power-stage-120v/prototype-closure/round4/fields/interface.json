@@ -1,0 +1,94 @@
+{
+  "status": "REDUCED_NATIVE19_MATRICES_SOLVED_FINE_WORKFLOW_RESOURCE_STOPPED",
+  "native_board_sha256": "3557aa444873fa8b45eb7e0ae8ec3a4bc2b5cd526826b338b58d50e57747430b",
+  "units": {
+    "geometry": "mm",
+    "Elmer_scale_m": 0.001,
+    "excitation_current_A": 1,
+    "matrix": "nH"
+  },
+  "expected_primary_outputs": [
+    "output/temper-prototype-closure/round4/fields/A-e4-h1-matrix.json",
+    "output/temper-prototype-closure/round4/fields/B-e4-f4-h1-matrix.json"
+  ],
+  "consumer_checks": [
+    "Require the actual output and converged_run_receipts; an expected filename is not a solved matrix.",
+    "Match mesh hash, physical port identity and signed excitation. Never substitute one leg for the other.",
+    "Retain finite 1 mm artificial closure geometry and 2 mm gate-source bridge height in the interpretation.",
+    "Do not set missing cross-leg mutuals to zero or duplicate the shared R5 return as independent inductors.",
+    "Do not replace package, capacitor or installed catch parasitics with these air-domain PEC values.",
+    "The numerical residual and energy agreement do not supply a physical discretization or manufacturing error bound."
+  ],
+  "unextracted_modes": [
+    "full-board C5/C6 bulk network",
+    "cross-leg mutuals in one combined physical current-mode model",
+    "loaded Kelvin/reference transfer impedance",
+    "installed closed catch-module loop",
+    "installed heatsink/enclosure magnetic coupling and electrostatic/common-mode network"
+  ],
+  "hardware_measurements": "NONE",
+  "available_primary_outputs": [
+    {
+      "leg": "B",
+      "path": "zapote/power-stage-120v/prototype-closure/round4/fields/evidence/B-e4-f4-h1-matrix.json",
+      "sha256": "fbdc133846c1e84c5c77a19378e23266f3ec5c6c52c22cdc16f7d34d4326e56a"
+    },
+    {
+      "leg": "A",
+      "path": "zapote/power-stage-120v/prototype-closure/round4/fields/evidence/A-e4-h1-matrix.json",
+      "sha256": "e3781f7c9e6590405ca3f2713a07d9966a70cfaf1dde2c7776b06098b3a594ed"
+    }
+  ],
+  "available_selected_checks": [
+    {
+      "case": "A C38 horizontal refinement",
+      "matrix": "zapote/power-stage-120v/prototype-closure/round4/fields/evidence/A-selected-refinement-matrix.json",
+      "coarse_nH": 27.818028,
+      "refined_nH": 28.145563,
+      "change_relative_to_coarse": 0.011774199091322988,
+      "claim": "one diagonal sensitivity, not global convergence"
+    },
+    {
+      "case": "A C38/gate-high independently excited pair",
+      "M_field_nH": 3.579547,
+      "M_pair_energy_nH": 3.579609,
+      "absolute_difference_nH": 6.2e-05,
+      "claim": "selected signed native mutual check, not all-port reciprocity certification"
+    },
+    {
+      "case": "C38 and C6 local extended domain",
+      "path": "zapote/power-stage-120v/prototype-closure/round4/fields/evidence/A5-selected-bulk-matrix.json",
+      "sha256": "a4ad0dfe45b47eb92dd43553d06232f6e279e8b1b0b8a4f4021582202e301cfb",
+      "ports": [
+        "C38",
+        "C6"
+      ],
+      "L_nH": [
+        [
+          27.772455,
+          16.942696
+        ],
+        [
+          16.942696,
+          38.038505
+        ]
+      ],
+      "claim": "local two-port finite-closure result, excludes C5 and cross-leg/load reference modes"
+    }
+  ],
+  "elemental_profile_qualification": "elemental-qualification.json",
+  "fine_outcome": {
+    "A": "two rejected postprocessing attempts; no fine matrix",
+    "B": "registered4.21M-tet geometry; no fine solve launched",
+    "evidence": [
+      "evidence/rejected/fine-A-default-postprocess/disposition.json",
+      "evidence/rejected/fine-A-elemental-postprocess/disposition.json"
+    ]
+  },
+  "geometry_outcomes": {
+    "A-e2-h1": "one selected C38 solve accepted",
+    "A5-e4-f4-h1": "C38/C6 local two-port matrix accepted",
+    "fine-A-e1-dz025-h1": "two workflows resource-stopped at postprocessing; no accepted fine matrix",
+    "fine-B-e1-dz025-h1": "fresh topology gates pass; field solve not launched"
+  }
+}

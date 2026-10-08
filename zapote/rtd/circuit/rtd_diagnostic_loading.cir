@@ -1,0 +1,42 @@
+* Healthy PT100 loading/error envelope for paired diagnostic pullups.
+* BIAS->RREF->force RTD->ISENSOR is represented explicitly; sense leads have
+* 1 ohm worst-case copper/contact resistance. Pullups are 1 Mohm +/-5%.
+* MAX input leakage is swept independently at +/-14 nA per input. This deck
+* bounds passive loading and leakage; it excludes MAX internal switch and
+* calibrated ADC gain/error, cable EMC, and lead-temperature behavior.
+.param VBIAS=2 RREF=430 RTD=194.1 RDIAG=1Meg RLEAD=1 ILEAKP=14n ILEAKN=-14n
+VBIAS bias 0 {VBIAS}
+RREF bias forcep {RREF}
+RRTD forcep forcen {RTD}
+RRETURN forcen 0 1m
+RLEADP forcep sensep {RLEAD}
+RLEADN forcen sensem {RLEAD}
+RDIAGP bias sensep {RDIAG}
+RDIAGN bias sensem {RDIAG}
+ILEAKP sensep 0 {ILEAKP}
+ILEAKN sensem 0 {ILEAKN}
+BVDIFF diff 0 V=V(sensep)-V(sensem)
+BVIDEAL ideal 0 V={VBIAS*RTD/(RREF+RTD)}
+BERROR error 0 V=V(diff)-V(ideal)
+.op
+.control
+set noaskquit
+foreach r 100 194.1
+  foreach d 950k 1Meg 1.05Meg
+    foreach lp -14n 14n
+      foreach ln -14n 14n
+        alterparam RTD=$r
+        alterparam RDIAG=$d
+        alterparam ILEAKP=$lp
+        alterparam ILEAKN=$ln
+        reset
+        run
+        echo RTD=$r RDIAG=$d ILEAKP=$lp ILEAKN=$ln
+        print V(diff) V(ideal) V(error)
+      end
+    end
+  end
+end
+quit
+.endc
+.end

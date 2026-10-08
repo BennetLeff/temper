@@ -1,0 +1,1304 @@
+{
+  "board_sha256": "16e8b70bb7f2bc9020ea574022c13661cd09640ca3a52db1ff43f9f6db976162",
+  "export_sha256": "d7d9783859bf20932c4e2355e96924e408f4b3ebc427506b8b4f9f2558fb2a8a",
+  "port_map_sha256": "8be4df6aa36a18b5825170b14c06d4932dff4a45de72132ff03131f55aa1f716",
+  "leg": "B",
+  "pitch_mm": 0.25,
+  "margin_mm": 5.0,
+  "roi_xy_mm": [
+    83.4,
+    -0.7850000000000001,
+    132.135,
+    46.125
+  ],
+  "min_practical_width_mm": 0.02,
+  "qualification": "CANDIDATE_GRID_LINK_AUDIT_ONLY",
+  "net_layers": [
+    {
+      "net": "bus_p",
+      "layer": "B.Cu",
+      "grid_nodes": 367,
+      "native_roi_polygon_components": 4,
+      "candidate_links": 593,
+      "centerline_outside": 0,
+      "min_20um_rectangle_outside": 11,
+      "nominal_rectangle_outside": 145,
+      "examples_20um_outside": [
+        [
+          97.65,
+          3.465,
+          "horizontal"
+        ],
+        [
+          97.9,
+          3.465,
+          "horizontal"
+        ],
+        [
+          97.65,
+          4.965,
+          "horizontal"
+        ],
+        [
+          97.9,
+          4.965,
+          "horizontal"
+        ],
+        [
+          108.4,
+          20.965,
+          "horizontal"
+        ]
+      ],
+      "centerline_components": 4,
+      "centerline_largest_component_nodes": 132,
+      "centerline_nonlargest_nodes": 235,
+      "centerline_components_over_10_nodes": 4,
+      "min_20um_components": 6,
+      "min_20um_largest_component_nodes": 132,
+      "min_20um_nonlargest_nodes": 235,
+      "min_20um_components_over_10_nodes": 4,
+      "port_pad_coverage": [
+        {
+          "ref": "C40.1",
+          "grid_nodes": 57,
+          "nodes_in_largest_20um_component": 0,
+          "component_ids_20um": [
+            3,
+            4,
+            5
+          ]
+        },
+        {
+          "ref": "C41.1",
+          "grid_nodes": 48,
+          "nodes_in_largest_20um_component": 0,
+          "component_ids_20um": [
+            2
+          ]
+        },
+        {
+          "ref": "Q5.2",
+          "grid_nodes": 130,
+          "nodes_in_largest_20um_component": 0,
+          "component_ids_20um": [
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "net": "bus_p",
+      "layer": "F.Cu",
+      "grid_nodes": 325,
+      "native_roi_polygon_components": 3,
+      "candidate_links": 532,
+      "centerline_outside": 0,
+      "min_20um_rectangle_outside": 24,
+      "nominal_rectangle_outside": 127,
+      "examples_20um_outside": [
+        [
+          97.65,
+          3.465,
+          "horizontal"
+        ],
+        [
+          97.9,
+          3.465,
+          "horizontal"
+        ],
+        [
+          97.65,
+          4.965,
+          "horizontal"
+        ],
+        [
+          97.9,
+          4.965,
+          "horizontal"
+        ],
+        [
+          108.4,
+          20.965,
+          "horizontal"
+        ]
+      ],
+      "centerline_components": 3,
+      "centerline_largest_component_nodes": 220,
+      "centerline_nonlargest_nodes": 105,
+      "centerline_components_over_10_nodes": 3,
+      "min_20um_components": 5,
+      "min_20um_largest_component_nodes": 220,
+      "min_20um_nonlargest_nodes": 105,
+      "min_20um_components_over_10_nodes": 3,
+      "port_pad_coverage": [
+        {
+          "ref": "C40.1",
+          "grid_nodes": 57,
+          "nodes_in_largest_20um_component": 0,
+          "component_ids_20um": [
+            2,
+            3,
+            4
+          ]
+        },
+        {
+          "ref": "C41.1",
+          "grid_nodes": 48,
+          "nodes_in_largest_20um_component": 0,
+          "component_ids_20um": [
+            1
+          ]
+        },
+        {
+          "ref": "Q5.2",
+          "grid_nodes": 130,
+          "nodes_in_largest_20um_component": 130,
+          "component_ids_20um": [
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "net": "bus_p",
+      "layer": "In2.Cu",
+      "grid_nodes": 14285,
+      "native_roi_polygon_components": 1,
+      "candidate_links": 27768,
+      "centerline_outside": 0,
+      "min_20um_rectangle_outside": 42,
+      "nominal_rectangle_outside": 779,
+      "examples_20um_outside": [
+        [
+          97.65,
+          3.465,
+          "horizontal"
+        ],
+        [
+          97.9,
+          3.465,
+          "horizontal"
+        ],
+        [
+          97.65,
+          4.965,
+          "horizontal"
+        ],
+        [
+          97.9,
+          4.965,
+          "horizontal"
+        ],
+        [
+          87.9,
+          6.965,
+          "horizontal"
+        ]
+      ],
+      "centerline_components": 1,
+      "centerline_largest_component_nodes": 14285,
+      "centerline_nonlargest_nodes": 0,
+      "centerline_components_over_10_nodes": 1,
+      "min_20um_components": 8,
+      "min_20um_largest_component_nodes": 14278,
+      "min_20um_nonlargest_nodes": 7,
+      "min_20um_components_over_10_nodes": 1,
+      "port_pad_coverage": [
+        {
+          "ref": "C40.1",
+          "grid_nodes": 57,
+          "nodes_in_largest_20um_component": 57,
+          "component_ids_20um": [
+            0
+          ]
+        },
+        {
+          "ref": "C41.1",
+          "grid_nodes": 48,
+          "nodes_in_largest_20um_component": 48,
+          "component_ids_20um": [
+            0
+          ]
+        },
+        {
+          "ref": "Q5.2",
+          "grid_nodes": 130,
+          "nodes_in_largest_20um_component": 130,
+          "component_ids_20um": [
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "net": "hv_ret",
+      "layer": "B.Cu",
+      "grid_nodes": 365,
+      "native_roi_polygon_components": 12,
+      "candidate_links": 490,
+      "centerline_outside": 1,
+      "min_20um_rectangle_outside": 42,
+      "nominal_rectangle_outside": 257,
+      "examples_20um_outside": [
+        [
+          122.65,
+          17.465,
+          "horizontal"
+        ],
+        [
+          126.65,
+          18.215,
+          "horizontal"
+        ],
+        [
+          122.9,
+          18.465,
+          "horizontal"
+        ],
+        [
+          122.4,
+          18.965,
+          "horizontal"
+        ],
+        [
+          123.4,
+          20.965,
+          "horizontal"
+        ]
+      ],
+      "centerline_components": 12,
+      "centerline_largest_component_nodes": 57,
+      "centerline_nonlargest_nodes": 308,
+      "centerline_components_over_10_nodes": 12,
+      "min_20um_components": 22,
+      "min_20um_largest_component_nodes": 55,
+      "min_20um_nonlargest_nodes": 310,
+      "min_20um_components_over_10_nodes": 12,
+      "port_pad_coverage": [
+        {
+          "ref": "C40.2",
+          "grid_nodes": 57,
+          "nodes_in_largest_20um_component": 55,
+          "component_ids_20um": [
+            6,
+            7,
+            10
+          ]
+        },
+        {
+          "ref": "C41.2",
+          "grid_nodes": 48,
+          "nodes_in_largest_20um_component": 0,
+          "component_ids_20um": [
+            5
+          ]
+        }
+      ]
+    },
+    {
+      "net": "hv_ret",
+      "layer": "F.Cu",
+      "grid_nodes": 1095,
+      "native_roi_polygon_components": 5,
+      "candidate_links": 1955,
+      "centerline_outside": 0,
+      "min_20um_rectangle_outside": 30,
+      "nominal_rectangle_outside": 252,
+      "examples_20um_outside": [
+        [
+          122.9,
+          18.465,
+          "horizontal"
+        ],
+        [
+          123.4,
+          18.715,
+          "horizontal"
+        ],
+        [
+          123.4,
+          20.965,
+          "horizontal"
+        ],
+        [
+          128.4,
+          20.965,
+          "horizontal"
+        ],
+        [
+          124.65,
+          21.215,
+          "horizontal"
+        ]
+      ],
+      "centerline_components": 5,
+      "centerline_largest_component_nodes": 653,
+      "centerline_nonlargest_nodes": 442,
+      "centerline_components_over_10_nodes": 5,
+      "min_20um_components": 11,
+      "min_20um_largest_component_nodes": 652,
+      "min_20um_nonlargest_nodes": 443,
+      "min_20um_components_over_10_nodes": 5,
+      "port_pad_coverage": [
+        {
+          "ref": "C40.2",
+          "grid_nodes": 57,
+          "nodes_in_largest_20um_component": 0,
+          "component_ids_20um": [
+            3,
+            4,
+            7
+          ]
+        },
+        {
+          "ref": "C41.2",
+          "grid_nodes": 48,
+          "nodes_in_largest_20um_component": 0,
+          "component_ids_20um": [
+            2
+          ]
+        },
+        {
+          "ref": "R5.4",
+          "grid_nodes": 78,
+          "nodes_in_largest_20um_component": 0,
+          "component_ids_20um": [
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "net": "hv_ret",
+      "layer": "In1.Cu",
+      "grid_nodes": 17680,
+      "native_roi_polygon_components": 2,
+      "candidate_links": 34055,
+      "centerline_outside": 2,
+      "min_20um_rectangle_outside": 52,
+      "nominal_rectangle_outside": 1266,
+      "examples_20um_outside": [
+        [
+          88.65,
+          14.215,
+          "horizontal"
+        ],
+        [
+          125.4,
+          15.715,
+          "horizontal"
+        ],
+        [
+          121.9,
+          15.965,
+          "horizontal"
+        ],
+        [
+          124.4,
+          16.715,
+          "horizontal"
+        ],
+        [
+          120.9,
+          16.965,
+          "horizontal"
+        ]
+      ],
+      "centerline_components": 2,
+      "centerline_largest_component_nodes": 15634,
+      "centerline_nonlargest_nodes": 2046,
+      "centerline_components_over_10_nodes": 2,
+      "min_20um_components": 11,
+      "min_20um_largest_component_nodes": 15625,
+      "min_20um_nonlargest_nodes": 2055,
+      "min_20um_components_over_10_nodes": 2,
+      "port_pad_coverage": [
+        {
+          "ref": "C40.2",
+          "grid_nodes": 57,
+          "nodes_in_largest_20um_component": 57,
+          "component_ids_20um": [
+            1
+          ]
+        },
+        {
+          "ref": "C41.2",
+          "grid_nodes": 48,
+          "nodes_in_largest_20um_component": 48,
+          "component_ids_20um": [
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "net": "hv_ret",
+      "layer": "In2.Cu",
+      "grid_nodes": 203,
+      "native_roi_polygon_components": 9,
+      "candidate_links": 250,
+      "centerline_outside": 1,
+      "min_20um_rectangle_outside": 28,
+      "nominal_rectangle_outside": 165,
+      "examples_20um_outside": [
+        [
+          122.65,
+          17.465,
+          "horizontal"
+        ],
+        [
+          126.65,
+          18.215,
+          "horizontal"
+        ],
+        [
+          122.9,
+          18.465,
+          "horizontal"
+        ],
+        [
+          122.4,
+          18.965,
+          "horizontal"
+        ],
+        [
+          85.15,
+          28.715,
+          "horizontal"
+        ]
+      ],
+      "centerline_components": 9,
+      "centerline_largest_component_nodes": 26,
+      "centerline_nonlargest_nodes": 177,
+      "centerline_components_over_10_nodes": 9,
+      "min_20um_components": 15,
+      "min_20um_largest_component_nodes": 26,
+      "min_20um_nonlargest_nodes": 177,
+      "min_20um_components_over_10_nodes": 9,
+      "port_pad_coverage": []
+    },
+    {
+      "net": "leg_b-gate_h",
+      "layer": "B.Cu",
+      "grid_nodes": 154,
+      "native_roi_polygon_components": 1,
+      "candidate_links": 269,
+      "centerline_outside": 0,
+      "min_20um_rectangle_outside": 13,
+      "nominal_rectangle_outside": 44,
+      "examples_20um_outside": [
+        [
+          92.4,
+          3.465,
+          "horizontal"
+        ],
+        [
+          92.65,
+          3.465,
+          "horizontal"
+        ],
+        [
+          92.4,
+          4.965,
+          "horizontal"
+        ],
+        [
+          92.65,
+          4.965,
+          "horizontal"
+        ],
+        [
+          91.4,
+          6.465,
+          "horizontal"
+        ]
+      ],
+      "centerline_components": 1,
+      "centerline_largest_component_nodes": 154,
+      "centerline_nonlargest_nodes": 0,
+      "centerline_components_over_10_nodes": 1,
+      "min_20um_components": 1,
+      "min_20um_largest_component_nodes": 154,
+      "min_20um_nonlargest_nodes": 0,
+      "min_20um_components_over_10_nodes": 1,
+      "port_pad_coverage": [
+        {
+          "ref": "Q5.1",
+          "grid_nodes": 154,
+          "nodes_in_largest_20um_component": 154,
+          "component_ids_20um": [
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "net": "leg_b-gate_h",
+      "layer": "F.Cu",
+      "grid_nodes": 274,
+      "native_roi_polygon_components": 1,
+      "candidate_links": 469,
+      "centerline_outside": 0,
+      "min_20um_rectangle_outside": 29,
+      "nominal_rectangle_outside": 98,
+      "examples_20um_outside": [
+        [
+          92.4,
+          3.465,
+          "horizontal"
+        ],
+        [
+          92.65,
+          3.465,
+          "horizontal"
+        ],
+        [
+          92.4,
+          4.965,
+          "horizontal"
+        ],
+        [
+          92.65,
+          4.965,
+          "horizontal"
+        ],
+        [
+          91.4,
+          6.465,
+          "horizontal"
+        ]
+      ],
+      "centerline_components": 1,
+      "centerline_largest_component_nodes": 274,
+      "centerline_nonlargest_nodes": 0,
+      "centerline_components_over_10_nodes": 1,
+      "min_20um_components": 2,
+      "min_20um_largest_component_nodes": 273,
+      "min_20um_nonlargest_nodes": 1,
+      "min_20um_components_over_10_nodes": 1,
+      "port_pad_coverage": [
+        {
+          "ref": "Q5.1",
+          "grid_nodes": 154,
+          "nodes_in_largest_20um_component": 154,
+          "component_ids_20um": [
+            0
+          ]
+        },
+        {
+          "ref": "R18.2",
+          "grid_nodes": 27,
+          "nodes_in_largest_20um_component": 27,
+          "component_ids_20um": [
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "net": "leg_b-gate_l",
+      "layer": "B.Cu",
+      "grid_nodes": 154,
+      "native_roi_polygon_components": 1,
+      "candidate_links": 269,
+      "centerline_outside": 0,
+      "min_20um_rectangle_outside": 13,
+      "nominal_rectangle_outside": 44,
+      "examples_20um_outside": [
+        [
+          110.4,
+          3.465,
+          "horizontal"
+        ],
+        [
+          110.65,
+          3.465,
+          "horizontal"
+        ],
+        [
+          110.4,
+          4.965,
+          "horizontal"
+        ],
+        [
+          110.65,
+          4.965,
+          "horizontal"
+        ],
+        [
+          109.4,
+          6.465,
+          "horizontal"
+        ]
+      ],
+      "centerline_components": 1,
+      "centerline_largest_component_nodes": 154,
+      "centerline_nonlargest_nodes": 0,
+      "centerline_components_over_10_nodes": 1,
+      "min_20um_components": 1,
+      "min_20um_largest_component_nodes": 154,
+      "min_20um_nonlargest_nodes": 0,
+      "min_20um_components_over_10_nodes": 1,
+      "port_pad_coverage": [
+        {
+          "ref": "Q6.1",
+          "grid_nodes": 154,
+          "nodes_in_largest_20um_component": 154,
+          "component_ids_20um": [
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "net": "leg_b-gate_l",
+      "layer": "F.Cu",
+      "grid_nodes": 274,
+      "native_roi_polygon_components": 1,
+      "candidate_links": 469,
+      "centerline_outside": 0,
+      "min_20um_rectangle_outside": 29,
+      "nominal_rectangle_outside": 98,
+      "examples_20um_outside": [
+        [
+          110.4,
+          3.465,
+          "horizontal"
+        ],
+        [
+          110.65,
+          3.465,
+          "horizontal"
+        ],
+        [
+          110.4,
+          4.965,
+          "horizontal"
+        ],
+        [
+          110.65,
+          4.965,
+          "horizontal"
+        ],
+        [
+          109.4,
+          6.465,
+          "horizontal"
+        ]
+      ],
+      "centerline_components": 1,
+      "centerline_largest_component_nodes": 274,
+      "centerline_nonlargest_nodes": 0,
+      "centerline_components_over_10_nodes": 1,
+      "min_20um_components": 2,
+      "min_20um_largest_component_nodes": 273,
+      "min_20um_nonlargest_nodes": 1,
+      "min_20um_components_over_10_nodes": 1,
+      "port_pad_coverage": [
+        {
+          "ref": "Q6.1",
+          "grid_nodes": 154,
+          "nodes_in_largest_20um_component": 154,
+          "component_ids_20um": [
+            0
+          ]
+        },
+        {
+          "ref": "R20.2",
+          "grid_nodes": 27,
+          "nodes_in_largest_20um_component": 27,
+          "component_ids_20um": [
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "net": "leg_b-out_h",
+      "layer": "F.Cu",
+      "grid_nodes": 439,
+      "native_roi_polygon_components": 1,
+      "candidate_links": 727,
+      "centerline_outside": 0,
+      "min_20um_rectangle_outside": 37,
+      "nominal_rectangle_outside": 190,
+      "examples_20um_outside": [
+        [
+          95.9,
+          25.465,
+          "horizontal"
+        ],
+        [
+          99.4,
+          28.215,
+          "horizontal"
+        ],
+        [
+          96.4,
+          16.715,
+          "vertical"
+        ],
+        [
+          96.4,
+          16.965,
+          "vertical"
+        ],
+        [
+          96.4,
+          17.215,
+          "vertical"
+        ]
+      ],
+      "centerline_components": 1,
+      "centerline_largest_component_nodes": 439,
+      "centerline_nonlargest_nodes": 0,
+      "centerline_components_over_10_nodes": 1,
+      "min_20um_components": 3,
+      "min_20um_largest_component_nodes": 437,
+      "min_20um_nonlargest_nodes": 2,
+      "min_20um_components_over_10_nodes": 1,
+      "port_pad_coverage": [
+        {
+          "ref": "R18.1",
+          "grid_nodes": 28,
+          "nodes_in_largest_20um_component": 28,
+          "component_ids_20um": [
+            0
+          ]
+        },
+        {
+          "ref": "U2.15",
+          "grid_nodes": 12,
+          "nodes_in_largest_20um_component": 12,
+          "component_ids_20um": [
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "net": "leg_b-out_l",
+      "layer": "F.Cu",
+      "grid_nodes": 317,
+      "native_roi_polygon_components": 1,
+      "candidate_links": 475,
+      "centerline_outside": 1,
+      "min_20um_rectangle_outside": 5,
+      "nominal_rectangle_outside": 159,
+      "examples_20um_outside": [
+        [
+          110.9,
+          14.715,
+          "horizontal"
+        ],
+        [
+          113.65,
+          17.215,
+          "horizontal"
+        ],
+        [
+          111.4,
+          14.215,
+          "vertical"
+        ],
+        [
+          110.9,
+          14.465,
+          "vertical"
+        ],
+        [
+          113.65,
+          16.965,
+          "vertical"
+        ]
+      ],
+      "centerline_components": 1,
+      "centerline_largest_component_nodes": 317,
+      "centerline_nonlargest_nodes": 0,
+      "centerline_components_over_10_nodes": 1,
+      "min_20um_components": 3,
+      "min_20um_largest_component_nodes": 315,
+      "min_20um_nonlargest_nodes": 2,
+      "min_20um_components_over_10_nodes": 1,
+      "port_pad_coverage": [
+        {
+          "ref": "R20.1",
+          "grid_nodes": 28,
+          "nodes_in_largest_20um_component": 28,
+          "component_ids_20um": [
+            0
+          ]
+        },
+        {
+          "ref": "U2.10",
+          "grid_nodes": 18,
+          "nodes_in_largest_20um_component": 18,
+          "component_ids_20um": [
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "net": "leg_ret",
+      "layer": "B.Cu",
+      "grid_nodes": 292,
+      "native_roi_polygon_components": 9,
+      "candidate_links": 401,
+      "centerline_outside": 0,
+      "min_20um_rectangle_outside": 9,
+      "nominal_rectangle_outside": 173,
+      "examples_20um_outside": [
+        [
+          121.15,
+          3.465,
+          "horizontal"
+        ],
+        [
+          121.4,
+          3.465,
+          "horizontal"
+        ],
+        [
+          121.15,
+          4.965,
+          "horizontal"
+        ],
+        [
+          121.4,
+          4.965,
+          "horizontal"
+        ],
+        [
+          114.65,
+          17.465,
+          "horizontal"
+        ]
+      ],
+      "centerline_components": 9,
+      "centerline_largest_component_nodes": 128,
+      "centerline_nonlargest_nodes": 164,
+      "centerline_components_over_10_nodes": 3,
+      "min_20um_components": 12,
+      "min_20um_largest_component_nodes": 128,
+      "min_20um_nonlargest_nodes": 164,
+      "min_20um_components_over_10_nodes": 3,
+      "port_pad_coverage": [
+        {
+          "ref": "Q6.3",
+          "grid_nodes": 128,
+          "nodes_in_largest_20um_component": 128,
+          "component_ids_20um": [
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "net": "leg_ret",
+      "layer": "F.Cu",
+      "grid_nodes": 1470,
+      "native_roi_polygon_components": 8,
+      "candidate_links": 2445,
+      "centerline_outside": 4,
+      "min_20um_rectangle_outside": 46,
+      "nominal_rectangle_outside": 559,
+      "examples_20um_outside": [
+        [
+          121.15,
+          3.465,
+          "horizontal"
+        ],
+        [
+          121.4,
+          3.465,
+          "horizontal"
+        ],
+        [
+          121.15,
+          4.965,
+          "horizontal"
+        ],
+        [
+          121.4,
+          4.965,
+          "horizontal"
+        ],
+        [
+          122.65,
+          11.215,
+          "horizontal"
+        ]
+      ],
+      "centerline_components": 16,
+      "centerline_largest_component_nodes": 653,
+      "centerline_nonlargest_nodes": 817,
+      "centerline_components_over_10_nodes": 9,
+      "min_20um_components": 24,
+      "min_20um_largest_component_nodes": 653,
+      "min_20um_nonlargest_nodes": 817,
+      "min_20um_components_over_10_nodes": 9,
+      "port_pad_coverage": [
+        {
+          "ref": "Q6.3",
+          "grid_nodes": 128,
+          "nodes_in_largest_20um_component": 0,
+          "component_ids_20um": [
+            0
+          ]
+        },
+        {
+          "ref": "R5.1",
+          "grid_nodes": 79,
+          "nodes_in_largest_20um_component": 79,
+          "component_ids_20um": [
+            1
+          ]
+        },
+        {
+          "ref": "U2.9",
+          "grid_nodes": 18,
+          "nodes_in_largest_20um_component": 0,
+          "component_ids_20um": [
+            13
+          ]
+        }
+      ]
+    },
+    {
+      "net": "leg_ret",
+      "layer": "In1.Cu",
+      "grid_nodes": 3694,
+      "native_roi_polygon_components": 5,
+      "candidate_links": 6888,
+      "centerline_outside": 0,
+      "min_20um_rectangle_outside": 29,
+      "nominal_rectangle_outside": 642,
+      "examples_20um_outside": [
+        [
+          110.9,
+          3.215,
+          "horizontal"
+        ],
+        [
+          121.15,
+          3.465,
+          "horizontal"
+        ],
+        [
+          121.4,
+          3.465,
+          "horizontal"
+        ],
+        [
+          121.15,
+          4.965,
+          "horizontal"
+        ],
+        [
+          121.4,
+          4.965,
+          "horizontal"
+        ]
+      ],
+      "centerline_components": 6,
+      "centerline_largest_component_nodes": 3469,
+      "centerline_nonlargest_nodes": 225,
+      "centerline_components_over_10_nodes": 4,
+      "min_20um_components": 10,
+      "min_20um_largest_component_nodes": 3469,
+      "min_20um_nonlargest_nodes": 225,
+      "min_20um_components_over_10_nodes": 4,
+      "port_pad_coverage": [
+        {
+          "ref": "Q6.3",
+          "grid_nodes": 128,
+          "nodes_in_largest_20um_component": 128,
+          "component_ids_20um": [
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "net": "leg_ret",
+      "layer": "In2.Cu",
+      "grid_nodes": 129,
+      "native_roi_polygon_components": 8,
+      "candidate_links": 148,
+      "centerline_outside": 0,
+      "min_20um_rectangle_outside": 5,
+      "nominal_rectangle_outside": 119,
+      "examples_20um_outside": [
+        [
+          114.65,
+          17.465,
+          "horizontal"
+        ],
+        [
+          114.9,
+          17.465,
+          "horizontal"
+        ],
+        [
+          84.15,
+          25.965,
+          "horizontal"
+        ],
+        [
+          84.4,
+          25.965,
+          "horizontal"
+        ],
+        [
+          113.15,
+          33.215,
+          "vertical"
+        ]
+      ],
+      "centerline_components": 8,
+      "centerline_largest_component_nodes": 71,
+      "centerline_nonlargest_nodes": 58,
+      "centerline_components_over_10_nodes": 1,
+      "min_20um_components": 11,
+      "min_20um_largest_component_nodes": 71,
+      "min_20um_nonlargest_nodes": 58,
+      "min_20um_components_over_10_nodes": 1,
+      "port_pad_coverage": []
+    },
+    {
+      "net": "sw_b",
+      "layer": "B.Cu",
+      "grid_nodes": 12082,
+      "native_roi_polygon_components": 1,
+      "candidate_links": 23444,
+      "centerline_outside": 6,
+      "min_20um_rectangle_outside": 54,
+      "nominal_rectangle_outside": 728,
+      "examples_20um_outside": [
+        [
+          103.15,
+          3.465,
+          "horizontal"
+        ],
+        [
+          103.4,
+          3.465,
+          "horizontal"
+        ],
+        [
+          115.65,
+          3.465,
+          "horizontal"
+        ],
+        [
+          115.9,
+          3.465,
+          "horizontal"
+        ],
+        [
+          103.15,
+          4.965,
+          "horizontal"
+        ]
+      ],
+      "centerline_components": 1,
+      "centerline_largest_component_nodes": 12082,
+      "centerline_nonlargest_nodes": 0,
+      "centerline_components_over_10_nodes": 1,
+      "min_20um_components": 14,
+      "min_20um_largest_component_nodes": 12069,
+      "min_20um_nonlargest_nodes": 13,
+      "min_20um_components_over_10_nodes": 1,
+      "port_pad_coverage": [
+        {
+          "ref": "Q5.3",
+          "grid_nodes": 128,
+          "nodes_in_largest_20um_component": 128,
+          "component_ids_20um": [
+            0
+          ]
+        },
+        {
+          "ref": "Q6.2",
+          "grid_nodes": 130,
+          "nodes_in_largest_20um_component": 130,
+          "component_ids_20um": [
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "net": "sw_b",
+      "layer": "F.Cu",
+      "grid_nodes": 646,
+      "native_roi_polygon_components": 5,
+      "candidate_links": 1067,
+      "centerline_outside": 4,
+      "min_20um_rectangle_outside": 38,
+      "nominal_rectangle_outside": 230,
+      "examples_20um_outside": [
+        [
+          103.15,
+          3.465,
+          "horizontal"
+        ],
+        [
+          103.4,
+          3.465,
+          "horizontal"
+        ],
+        [
+          115.65,
+          3.465,
+          "horizontal"
+        ],
+        [
+          115.9,
+          3.465,
+          "horizontal"
+        ],
+        [
+          103.15,
+          4.965,
+          "horizontal"
+        ]
+      ],
+      "centerline_components": 5,
+      "centerline_largest_component_nodes": 220,
+      "centerline_nonlargest_nodes": 426,
+      "centerline_components_over_10_nodes": 5,
+      "min_20um_components": 10,
+      "min_20um_largest_component_nodes": 220,
+      "min_20um_nonlargest_nodes": 426,
+      "min_20um_components_over_10_nodes": 5,
+      "port_pad_coverage": [
+        {
+          "ref": "Q5.3",
+          "grid_nodes": 128,
+          "nodes_in_largest_20um_component": 0,
+          "component_ids_20um": [
+            0
+          ]
+        },
+        {
+          "ref": "Q6.2",
+          "grid_nodes": 130,
+          "nodes_in_largest_20um_component": 130,
+          "component_ids_20um": [
+            1
+          ]
+        },
+        {
+          "ref": "U2.14",
+          "grid_nodes": 12,
+          "nodes_in_largest_20um_component": 0,
+          "component_ids_20um": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "net": "sw_b",
+      "layer": "In1.Cu",
+      "grid_nodes": 28,
+      "native_roi_polygon_components": 3,
+      "candidate_links": 31,
+      "centerline_outside": 4,
+      "min_20um_rectangle_outside": 7,
+      "nominal_rectangle_outside": 27,
+      "examples_20um_outside": [
+        [
+          87.9,
+          10.465,
+          "horizontal"
+        ],
+        [
+          88.4,
+          10.715,
+          "horizontal"
+        ],
+        [
+          87.9,
+          10.465,
+          "vertical"
+        ],
+        [
+          88.4,
+          10.715,
+          "vertical"
+        ],
+        [
+          102.4,
+          32.715,
+          "vertical"
+        ]
+      ],
+      "centerline_components": 3,
+      "centerline_largest_component_nodes": 12,
+      "centerline_nonlargest_nodes": 16,
+      "centerline_components_over_10_nodes": 1,
+      "min_20um_components": 8,
+      "min_20um_largest_component_nodes": 8,
+      "min_20um_nonlargest_nodes": 20,
+      "min_20um_components_over_10_nodes": 0,
+      "port_pad_coverage": []
+    },
+    {
+      "net": "sw_b",
+      "layer": "In2.Cu",
+      "grid_nodes": 28,
+      "native_roi_polygon_components": 3,
+      "candidate_links": 31,
+      "centerline_outside": 4,
+      "min_20um_rectangle_outside": 7,
+      "nominal_rectangle_outside": 27,
+      "examples_20um_outside": [
+        [
+          87.9,
+          10.465,
+          "horizontal"
+        ],
+        [
+          88.4,
+          10.715,
+          "horizontal"
+        ],
+        [
+          87.9,
+          10.465,
+          "vertical"
+        ],
+        [
+          88.4,
+          10.715,
+          "vertical"
+        ],
+        [
+          102.4,
+          32.715,
+          "vertical"
+        ]
+      ],
+      "centerline_components": 3,
+      "centerline_largest_component_nodes": 12,
+      "centerline_nonlargest_nodes": 16,
+      "centerline_components_over_10_nodes": 1,
+      "min_20um_components": 8,
+      "min_20um_largest_component_nodes": 8,
+      "min_20um_nonlargest_nodes": 20,
+      "min_20um_components_over_10_nodes": 0,
+      "port_pad_coverage": []
+    }
+  ],
+  "totals": {
+    "grid_nodes": 54301,
+    "candidate_links": 102776,
+    "centerline_outside": 27,
+    "min_20um_rectangle_outside": 550,
+    "nominal_rectangle_outside": 6129
+  }
+}

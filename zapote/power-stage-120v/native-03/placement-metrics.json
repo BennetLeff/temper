@@ -1,0 +1,98 @@
+{
+  "board": "native-03/section.kicad_pcb",
+  "barrier": {
+    "selv_to_hot": {
+      "min_mm": 8.1,
+      "between": [
+        "U1.1[pwm_ha]",
+        "U1.16[leg_a-boot]"
+      ]
+    },
+    "pe_to_hot": {
+      "min_mm": 8.5,
+      "between": [
+        "C3.2[pe]",
+        "C3.1[l_filt]"
+      ]
+    }
+  },
+  "commutation_bbox_mm": {
+    "x": [
+      47.7,
+      159.3
+    ],
+    "y": [
+      1.6,
+      20.8
+    ],
+    "area_mm2": 2143,
+    "members": [
+      "Q2",
+      "Q3",
+      "Q5",
+      "Q6",
+      "C38",
+      "C39",
+      "C40",
+      "C41",
+      "R5"
+    ]
+  },
+  "gate_paths": {
+    "leg_a high": {
+      "driver_out_to_gate_manhattan_mm": 31.6
+    },
+    "leg_a low": {
+      "driver_out_to_gate_manhattan_mm": 42.5
+    },
+    "leg_b high": {
+      "driver_out_to_gate_manhattan_mm": 36.2
+    },
+    "leg_b low": {
+      "driver_out_to_gate_manhattan_mm": 25.3
+    }
+  },
+  "heat_zone_parts": [
+    "BR1",
+    "C12",
+    "C13",
+    "C19",
+    "C20",
+    "Q2",
+    "Q3",
+    "Q5",
+    "Q6"
+  ],
+  "stud_screw_holes": {
+    "J10": {
+      "stud_net": "hv_ret",
+      "nearest_other_net_mm": 4.81,
+      "nearest": "J9.1[rect_n]"
+    },
+    "J2": {
+      "stud_net": "coil_feed",
+      "nearest_other_net_mm": 13.6,
+      "nearest": "C23.1[res_a]"
+    },
+    "J5": {
+      "stud_net": "res_a",
+      "nearest_other_net_mm": 10.27,
+      "nearest": "R25.2[sw_b]"
+    },
+    "J7": {
+      "stud_net": "rect_p",
+      "nearest_other_net_mm": 4.81,
+      "nearest": "J8.1[bus_p]"
+    },
+    "J8": {
+      "stud_net": "bus_p",
+      "nearest_other_net_mm": 4.81,
+      "nearest": "J7.1[rect_p]"
+    },
+    "J9": {
+      "stud_net": "rect_n",
+      "nearest_other_net_mm": 4.81,
+      "nearest": "J10.1[hv_ret]"
+    }
+  }
+}

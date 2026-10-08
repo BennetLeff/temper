@@ -1,0 +1,55 @@
+{
+  "schema": "rtd_fullnetwork_ngspice_cases.v2",
+  "cases": [
+    {
+      "case": "FORCE+",
+      "ngspice_cross_ms_after_open": 0.00011409999999999947,
+      "python_cross_ms": 0.001,
+      "cross_difference_us": 0.8859000000000006,
+      "python_initial_healthy_margin_v": 0.21002323907703763,
+      "python_final_margin_v": -0.1776582825795084,
+      "returncode": 0
+    },
+    {
+      "case": "FORCE-",
+      "ngspice_cross_ms_after_open": 2.653999999999992e-05,
+      "python_cross_ms": 0.001,
+      "cross_difference_us": 0.9734600000000001,
+      "python_initial_healthy_margin_v": 0.390916221594468,
+      "python_final_margin_v": -1.273021257891826,
+      "returncode": 0
+    },
+    {
+      "case": "SENSE+",
+      "ngspice_cross_ms_after_open": 0.33922009999999997,
+      "python_cross_ms": 0.33999999999999997,
+      "cross_difference_us": 0.7799,
+      "python_initial_healthy_margin_v": 0.390916221594468,
+      "python_final_margin_v": -1.277836477986995,
+      "returncode": 0
+    },
+    {
+      "case": "SENSE-",
+      "ngspice_cross_ms_after_open": 0.018554069999999995,
+      "python_cross_ms": 0.018999999999999996,
+      "cross_difference_us": 0.4459300000000006,
+      "python_initial_healthy_margin_v": 0.21002323907703763,
+      "python_final_margin_v": -0.909544238879954,
+      "returncode": 0
+    },
+    {
+      "case": "SHORT_0OHM_EXACT",
+      "ngspice_cross_ms_after_fault": 1.925957e-06,
+      "python_cross_ms_after_fault": 3.0000000000000005e-06,
+      "cross_difference_us": 0.0010740430000000004,
+      "python_final_margin_v": -0.17720034333469115,
+      "initial_sensep_v_from_ngspice": 0.3912473,
+      "initial_sensem_v_from_ngspice": 0.003916155,
+      "zero_ohm_model": "VSHORT ideal 0-V node merge with ngspice healthy OP initial state",
+      "returncode": 0
+    }
+  ],
+  "switch_protocol": "closed at t=0, falling control opens at 10 us",
+  "cross_comparison_tolerance_us": 2.1,
+  "scope": "independent representative checks; not whole-range proof"
+}

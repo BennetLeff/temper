@@ -1,0 +1,46 @@
+{
+  "native15_board": {
+    "path": "native-15/section.kicad_pcb",
+    "sha256": "a3ac1249f5052afe52944804cdc3f6ef0e8f895668360e79c1fa7b6fb7322155"
+  },
+  "Infineon_IPW65R018CFD7_L1_vendor_library": {
+    "path": "validation-plan/sim-kit/models/vendor/IFX_CFD7_650V.lib",
+    "sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b"
+  },
+  "Infineon_vendor_archive": {
+    "path": "validation-plan/sim-kit/models/vendor/cfd7-650.zip",
+    "sha256": "5a6341084202debb0f8f230b8809c090434ea9526c8e0defe3d2e07a832ff48d"
+  },
+  "A1_deck": {
+    "path": "validation-results/01-switching-parasitics/round3/a1-zvs/complementary_leg.cir",
+    "sha256": "b2da52e71a9538d090f3c8828d29509d7c4870a6774667738d582abc52c9b902"
+  },
+  "A1_runner": {
+    "path": "validation-results/01-switching-parasitics/round3/a1-zvs/run_a1.py",
+    "sha256": "10607cee98257b8ac52ef282dfe2f78676a29b126437fcc7cde724f66a449377"
+  },
+  "A1_audit": {
+    "path": "validation-results/01-switching-parasitics/round3/a1-zvs/audit_a1.py",
+    "sha256": "446e04d2f3954d0cd7bae84091e05616d4feee81d73d5d79802cb58f4a9c9936"
+  },
+  "A1_threshold_refinement": {
+    "path": "validation-results/01-switching-parasitics/round3/a1-zvs/refine_thresholds.py",
+    "sha256": "060c0877e6183403fa37c2ce5f5e5dfbb2b216324405e0c40dc47a6615e742f4"
+  },
+  "sim_kit_options": {
+    "path": "validation-plan/sim-kit/common/options.inc",
+    "sha256": "ae752d460d50fdbbcaaf03b29871b3b039cf27f018707efe4aa50d0fc3529330"
+  },
+  "round2_deck_reference": {
+    "path": "validation-results/01-switching-parasitics/round2/complementary_leg.cir",
+    "sha256": "133ff2441bbbf22728dda2495cdbbe5242c4910797541f4df3832222a227c102"
+  },
+  "round3_plan": {
+    "path": "validation-plan/ROUND-3.md",
+    "sha256": "3862ce29b115978143f2fdc8d678fcad805fc73efb4617d4f05b253f6405a359"
+  },
+  "simulation_runbook": {
+    "path": "validation-plan/SIMULATION-RUNBOOK.md",
+    "sha256": "812fdf1a82c4decbf7ecc7209e790627cc8c3893b2bc3971960ef6abfb414fc5"
+  }
+}

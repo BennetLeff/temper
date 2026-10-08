@@ -1,0 +1,385 @@
+{
+    "$schema": "https://schemas.kicad.org/erc.v1.json",
+    "coordinate_units": "mm",
+    "date": "2026-10-05T18:15:02",
+    "ignored_checks": [
+        {
+            "description": "Global label only appears once in the schematic",
+            "key": "single_global_label"
+        },
+        {
+            "description": "Four connection points are joined together",
+            "key": "four_way_junction"
+        },
+        {
+            "description": "SPICE model issue",
+            "key": "simulation_model_issue"
+        },
+        {
+            "description": "Assigned footprint doesn't match footprint filters",
+            "key": "footprint_filter"
+        }
+    ],
+    "included_severities": [
+        "error",
+        "warning"
+    ],
+    "kicad_version": "10.0.4",
+    "sheets": [
+        {
+            "path": "/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5",
+            "violations": []
+        },
+        {
+            "path": "/POWER_1/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5/86516b79-fa37-5da3-a698-f87438312523",
+            "violations": []
+        },
+        {
+            "path": "/HARDWARE_1/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5/635bd8fd-7065-58c6-ba2d-95e3e01f0e8c",
+            "violations": []
+        },
+        {
+            "path": "/HARDWARE_2/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5/f4fb9589-0352-5f78-96b2-8bdbf8e01c75",
+            "violations": []
+        },
+        {
+            "path": "/HARDWARE_3/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5/df0494dc-e293-5ded-a818-bb27be137ac3",
+            "violations": []
+        },
+        {
+            "path": "/HARDWARE_4/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5/b83cbe57-64ef-5607-9d9c-c44983c1a656",
+            "violations": []
+        },
+        {
+            "path": "/HARDWARE_5/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5/ea06e4cf-d0bb-5106-9215-7e2d12971cdc",
+            "violations": []
+        },
+        {
+            "path": "/HARDWARE_6/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5/f4a8540c-4a74-5169-a20e-2425997861d9",
+            "violations": []
+        },
+        {
+            "path": "/HARDWARE_7/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5/7fc99e7f-0772-5033-8d28-d1a53e91caae",
+            "violations": []
+        },
+        {
+            "path": "/HARDWARE_8/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5/bb59f2ae-df46-586c-b0a3-6cc8494ac77b",
+            "violations": []
+        },
+        {
+            "path": "/HARDWARE_9/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5/237b90b7-94f1-56c8-9bf0-fda3ae5c89f0",
+            "violations": []
+        },
+        {
+            "path": "/HARDWARE_10/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5/d5d95972-e8e7-5e68-952b-a0be01d1c40d",
+            "violations": []
+        },
+        {
+            "path": "/HARDWARE_11/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5/73936641-1343-579e-856d-10e0bf92d7af",
+            "violations": []
+        },
+        {
+            "path": "/HARDWARE_12/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5/21586164-6816-5f54-9b38-677533e9c1c2",
+            "violations": []
+        },
+        {
+            "path": "/HARDWARE_13/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5/f3effd53-f839-5bf7-a16b-c474af5dab92",
+            "violations": []
+        },
+        {
+            "path": "/OPERATORS_1/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5/353f88f7-356b-5dcb-83ef-269eb370d41a",
+            "violations": []
+        },
+        {
+            "path": "/ADC_U27/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5/51751a84-c621-56f9-a848-a7c488c26f4f",
+            "violations": []
+        },
+        {
+            "path": "/ADC_1/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5/b993fb60-5080-5a24-ab1e-0aa26f8fd8e2",
+            "violations": []
+        },
+        {
+            "path": "/ADC_2/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5/6b676102-33cb-5803-b9e7-f6b77f1dbaaf",
+            "violations": []
+        },
+        {
+            "path": "/ADC_3/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5/e00924c9-0faa-50dc-9f96-61ac6cd87154",
+            "violations": []
+        },
+        {
+            "path": "/ADC_4/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5/653231bb-102f-5cf7-925b-9e8b8b5dd90f",
+            "violations": []
+        },
+        {
+            "path": "/CURRENT_1/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5/8f0e60d1-c6be-55d5-971a-208946d22e84",
+            "violations": []
+        },
+        {
+            "path": "/ANALOG_GUARD_1/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5/ec628ea2-5480-528a-a871-ee1aaed12143",
+            "violations": []
+        },
+        {
+            "path": "/ANALOG_GUARD_2/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5/3ba0f0cb-375f-58de-9997-6c5160cd3c6b",
+            "violations": []
+        },
+        {
+            "path": "/ANALOG_GUARD_3/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5/b41395e3-9f25-5e19-9b55-f28327125c29",
+            "violations": []
+        },
+        {
+            "path": "/ANALOG_GUARD_4/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5/d64bf93b-b513-5374-8be9-6ec5382c0ddf",
+            "violations": []
+        },
+        {
+            "path": "/ANALOG_GUARD_5/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5/716a4adf-79d4-5e4b-aee2-e6cf71ba2f07",
+            "violations": []
+        },
+        {
+            "path": "/ANALOG_GUARD_6/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5/eb21de80-fe22-5d04-863a-3b4be1204fbd",
+            "violations": []
+        },
+        {
+            "path": "/ANALOG_GUARD_7/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5/4b8a7fd5-8b7b-5bff-8313-aea12a7b2c33",
+            "violations": []
+        },
+        {
+            "path": "/ANALOG_GUARD_8/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5/6502d5d1-41bf-5218-bd82-cedaf0587f40",
+            "violations": []
+        },
+        {
+            "path": "/ANALOG_GUARD_9/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5/d6bd3e59-055e-5791-b19c-25918a8d1789",
+            "violations": []
+        },
+        {
+            "path": "/COILS_1/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5/836c0387-0f61-5f3c-b300-72aab840940d",
+            "violations": []
+        },
+        {
+            "path": "/COILS_2/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5/097eac50-046a-5fd2-b75b-0f381b650588",
+            "violations": []
+        },
+        {
+            "path": "/COILS_3/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5/c6a33183-d8c5-5b39-bdd9-912949ecdae0",
+            "violations": []
+        },
+        {
+            "path": "/COILS_4/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5/73d0928f-7410-57f2-8fd0-d826e078ee73",
+            "violations": []
+        },
+        {
+            "path": "/COILS_5/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5/a439a736-0076-5493-a87b-70089ef492d1",
+            "violations": []
+        },
+        {
+            "path": "/FEEDBACK_1/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5/830ec0e2-1eaa-55c2-be5d-015163e89583",
+            "violations": []
+        },
+        {
+            "path": "/CONTROLLER_1/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5/36b457cd-4140-5fdb-ad45-f067d3e5d01e",
+            "violations": [
+                {
+                    "description": "Pin GND2 not connected to ground net",
+                    "items": [
+                        {
+                            "description": "Symbol U100 Pin 5 [GND2, Power input, Line]",
+                            "pos": {
+                                "x": 1.016,
+                                "y": 2.1844
+                            },
+                            "uuid": "bea8880d-b068-5fdd-ae41-17bd5c77a3d4"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "ground_pin_not_ground"
+                },
+                {
+                    "description": "Pin GND1 not connected to ground net",
+                    "items": [
+                        {
+                            "description": "Symbol U98 Pin 4 [GND1, Power input, Line]",
+                            "pos": {
+                                "x": 1.905,
+                                "y": 0.5842
+                            },
+                            "uuid": "13fbc15b-7246-523c-87fe-ac39ffbd2724"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "ground_pin_not_ground"
+                },
+                {
+                    "description": "Pin GND1 not connected to ground net",
+                    "items": [
+                        {
+                            "description": "Symbol U99 Pin 4 [GND1, Power input, Line]",
+                            "pos": {
+                                "x": 3.2258,
+                                "y": 1.1684
+                            },
+                            "uuid": "c8464312-c11f-5303-96ab-027dce32271b"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "ground_pin_not_ground"
+                }
+            ]
+        },
+        {
+            "path": "/CONTROLLER_2/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5/28f6b6b9-8504-5872-a626-b34abb42d4d8",
+            "violations": [
+                {
+                    "description": "Pin GND2 not connected to ground net",
+                    "items": [
+                        {
+                            "description": "Symbol U103 Pin 5 [GND2, Power input, Line]",
+                            "pos": {
+                                "x": 1.016,
+                                "y": 2.1844
+                            },
+                            "uuid": "024c4039-3f70-574e-8fb7-cbff8306b36e"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "ground_pin_not_ground"
+                },
+                {
+                    "description": "Pin GND2 not connected to ground net",
+                    "items": [
+                        {
+                            "description": "Symbol U101 Pin 5 [GND2, Power input, Line]",
+                            "pos": {
+                                "x": 2.3368,
+                                "y": 0.4318
+                            },
+                            "uuid": "03dc40da-8fd4-571e-95ea-fa47d69cb52b"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "ground_pin_not_ground"
+                },
+                {
+                    "description": "Pin GND2 not connected to ground net",
+                    "items": [
+                        {
+                            "description": "Symbol U102 Pin 5 [GND2, Power input, Line]",
+                            "pos": {
+                                "x": 3.6576,
+                                "y": 1.016
+                            },
+                            "uuid": "d771a0e2-10b1-50a1-a891-b9fd5f576610"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "ground_pin_not_ground"
+                }
+            ]
+        },
+        {
+            "path": "/CONTROLLER_3/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5/13ede2d0-75d9-5a84-af25-8b2d12b2bfd8",
+            "violations": [
+                {
+                    "description": "Pin GND2 not connected to ground net",
+                    "items": [
+                        {
+                            "description": "Symbol U104 Pin 5 [GND2, Power input, Line]",
+                            "pos": {
+                                "x": 2.3368,
+                                "y": 0.4318
+                            },
+                            "uuid": "09d71a7a-3ab4-565e-8d47-478b9bc27acc"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "ground_pin_not_ground"
+                },
+                {
+                    "description": "Pin GND2 not connected to ground net",
+                    "items": [
+                        {
+                            "description": "Symbol U105 Pin 5 [GND2, Power input, Line]",
+                            "pos": {
+                                "x": 3.6576,
+                                "y": 1.016
+                            },
+                            "uuid": "40b5c354-214e-5a03-9fc5-19969386ab2a"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "ground_pin_not_ground"
+                }
+            ]
+        },
+        {
+            "path": "/CONTROLLER_4/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5/f8cc748b-c954-5b7e-9e81-e44a3e0ac84b",
+            "violations": [
+                {
+                    "description": "Pin GND1 not connected to ground net",
+                    "items": [
+                        {
+                            "description": "Symbol U107 Pin 4 [GND1, Power input, Line]",
+                            "pos": {
+                                "x": 0.5842,
+                                "y": 0.5842
+                            },
+                            "uuid": "b8c7f7f3-5494-59b2-b71b-3dd124276d22"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "ground_pin_not_ground"
+                }
+            ]
+        },
+        {
+            "path": "/MCU_U108/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5/895938ba-3792-5db7-abc9-f6dd8395af0c",
+            "violations": []
+        },
+        {
+            "path": "/MCU_1/",
+            "uuid_path": "/8576b9d0-3979-5b8c-a83d-a4f5dd5f1ef5/44423b36-d2f0-56d4-a3bf-b968a3a36da7",
+            "violations": []
+        }
+    ],
+    "source": "supervisor.kicad_sch"
+}

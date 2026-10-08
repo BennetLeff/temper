@@ -1,0 +1,59 @@
+* Round3 passive catch sensitivity; NOT vendor device, operating or fault qualification.
+* Adapted from round2/d17/shutdown-template.cir with explicit receiver energy accounting.
+.param VB=@VB@ IL=@IL@ VC=@VC@ LCOIL=@L@ RTANK=@R@ TD=@TD@ STEP=@STEP@
+.param CTANK=0.54u CBUS=5.22u CCATCH=@CC@ LCATCH=@LC@ RCATCH=@RC@ VINITIAL=@VI@
+.options method=gear reltol=1e-5 abstol=1e-10 vntol=1e-7 itl4=1000
+Cbus bus 0 {CBUS} IC={VB}
+Rbusleak bus 0 440k
+Raleak a 0 1e6
+Rbleak b 0 1e6
+Cah bus a 1n IC=0
+Cal a 0 1n IC={VB}
+Cbh bus b 1n IC={VB}
+Cbl b 0 1n IC=0
+Va ctrl 0 PULSE(1 0 {TD} 1n 1n 1m 2m)
+Voff off 0 0
+BSAH bus a I={v(bus,a)*(1e-12+v(ctrl)/0.018)}
+BSAL a 0 I={v(a,0)*(1e-12+v(off)/0.018)}
+BSBH bus b I={v(bus,b)*(1e-12+v(off)/0.018)}
+BSBL b 0 I={v(b,0)*(1e-12+v(ctrl)/0.018)}
+BDAH a bus I={max(v(a,bus),0)/0.02}
+BDAL 0 a I={max(v(0,a),0)/0.02}
+BDBH b bus I={max(v(b,bus),0)/0.02}
+BDBL 0 b I={max(v(0,b),0)/0.02}
+Lcoil a lr {LCOIL} IC={IL}
+Rtank lr cr {RTANK}
+Ctank cr b {CTANK} IC={VC}
+Rbleed cr b 1.88meg
+* Receiver: 1.5V+20mOhm one-way diode approximation; no reverse recovery/junction C.
+Bcatch bus dc I={max(v(bus,dc)-1.5,0)/0.02}
+Ccatchdiode bus dc 100p IC={VB-VINITIAL}
+Rcatchdiode bus dc 1g
+Lcatch dc rc {LCATCH} IC=0
+Rcatch rc catch {RCATCH}
+Ccatch catch 0 {CCATCH} IC={VINITIAL}
+Rcatchbleed catch 0 200k
+Babs abs_i 0 V=abs(i(Lcoil))
+Bci catch_i 0 V=abs(i(Lcatch))
+Bdi2 di2 0 V=i(Lcatch)^2
+Bloss losses 0 V={RTANK*i(Lcoil)^2+(v(a)^2+v(b)^2)/1e6+v(bus)^2/440e3+v(cr,b)^2/1.88e6+i(BDAH)*v(a,bus)+i(BDAL)*v(0,a)+i(BDBH)*v(b,bus)+i(BDBL)*v(0,b)+i(BSAH)*v(bus,a)+i(BSAL)*v(a)+i(BSBH)*v(bus,b)+i(BSBL)*v(b)+i(Bcatch)*v(bus,dc)+i(Lcatch)^2*RCATCH+v(catch)^2/200e3+v(bus,dc)^2/1e9}
+.ic V(bus)={VB} V(a)={VB} V(b)=0 V(cr)={VC} V(catch)={VINITIAL} V(rc)={VINITIAL} V(dc)={VINITIAL}
+.tran {STEP} 300u 0 {STEP} UIC
+.meas tran vbus_pk MAX v(bus)
+.meas tran current_pk MAX v(abs_i)
+.meas tran vcap_pk MAX par('abs(v(cr,b))')
+.meas tran catch_pk MAX v(catch)
+.meas tran catch_i_pk MAX v(catch_i)
+.meas tran catch_i2t INTEG v(di2) FROM=0 TO=300u
+.meas tran current_end FIND v(abs_i) AT=300u
+.meas tran vbus_end FIND v(bus) AT=300u
+.meas tran vcap_end FIND par('v(cr,b)') AT=300u
+.meas tran catch_end FIND v(catch) AT=300u
+.meas tran catch_i_end FIND v(catch_i) AT=300u
+.meas tran esnub_end FIND par('0.5e-9*(v(bus,a)^2+v(a)^2+v(bus,b)^2+v(b)^2)') AT=300u
+.meas tran ediode_end FIND par('0.5e-10*v(bus,dc)^2') AT=300u
+.meas tran loss_j INTEG v(losses) FROM=0 TO=300u
+.meas tran e_initial PARAM='0.5*(CBUS+2n)*VB^2+0.5*LCOIL*IL^2+0.5*CTANK*VC^2+0.5*CCATCH*VINITIAL^2+0.5e-10*(VB-VINITIAL)^2'
+.meas tran e_final PARAM='esnub_end+ediode_end+0.5*CBUS*vbus_end^2+0.5*LCOIL*current_end^2+0.5*CTANK*vcap_end^2+0.5*CCATCH*catch_end^2+0.5*LCATCH*catch_i_end^2'
+.meas tran energy_residual PARAM='(e_final+loss_j-e_initial)/e_initial'
+.end

@@ -23,6 +23,7 @@
 #include "state_machine.h"
 #include "hal.h"
 #include "rtd_service.h"
+#include "power_service.h"
 /* These will be included when components are built */
 /* #include "pan_detect.h" */
 /* #include "pid_control.h" */
@@ -67,6 +68,7 @@ static void control_task(void *arg) {
 
         /* Update state machine (handles PID, PLL internally) */
         state_machine_update();
+        power_service_tick();
         
         /* Wait for next period */
         vTaskDelayUntil(&xLastWakeTime, xFrequency);
@@ -150,8 +152,8 @@ static void init_peripherals(void) {
     /* Initialize ADC for temperature sensing */
     /* adc_init(); */
     
-    /* Initialize MCPWM for gate driver */
-    /* mcpwm_init(); */
+    /* Inhibited until a reviewed full-bridge board binding is installed. */
+    power_service_bootstrap();
     
     /* Board-owned SPI2/MAX31865 bootstrap. DRDY on GPIO9 is configured as a
      * falling-edge handoff; no SPI transfer is performed in its ISR. */

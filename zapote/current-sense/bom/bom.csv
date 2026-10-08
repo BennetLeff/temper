@@ -1,0 +1,14 @@
+references,quantity,manufacturer,mpn,value,footprint,purchased,datasheet,availability_review
+T1,1,Coilcraft,CST3015-100ED,,temper:CST3015_Datasheet2025,True,https://www.coilcraft.com/getmedia/df31d5fe-b3af-4586-82a7-7b773ac9f838/cst3015.pdf,manual_confirmation_required
+J1,1,,NON_PURCHASED_BARE_LANDS,,lib:LitzPad_15A,False,,not_purchased
+R1,1,YAGEO,RC1206FR-071R5L,1.50ohm +/- 1%,Resistor_SMD:R_1206_3216Metric,True,https://yageogroup.com/content/datasheet/asset/file/PYU-RC_GROUP_51_ROHS_L,in_stock
+R4,1,YAGEO,RC1206FR-071KL,1kohm +/- 1%,Resistor_SMD:R_1206_3216Metric,True,https://yageogroup.com/content/datasheet/asset/file/PYU-RC_GROUP_51_ROHS_L,manual_confirmation_required
+C1 C2,2,Murata,GRM31C5C1H104JA01L,100nF +/- 5%,Capacitor_SMD:C_1206_3216Metric,True,https://search.murata.co.jp/Ceramy/image/img/A01X/G101/ENG/GRM31C5C1H104JA01-01A.pdf,in_stock
+R2 R3,2,Panasonic Industry,ERA3AEB102V,1kohm +/- 0.1%,Resistor_SMD:R_0603_1608Metric,True,https://industrial.panasonic.com/ww/products/pt/high-precision-chip-resistors/models/ERA3AEB102V,manual_confirmation_required
+R5 R8,2,Panasonic Industry,ERA3AEB3741V,3.74kohm +/- 0.1%,Resistor_SMD:R_0603_1608Metric,True,https://industrial.panasonic.com/ww/products/pt/high-precision-chip-resistors/models/ERA3AEB3741V,in_stock
+R6 R7,2,Panasonic Industry,ERA3AEB103V,10kohm +/- 0.1%,Resistor_SMD:R_0603_1608Metric,True,https://na.industrial.panasonic.com/products/resistors/smd-chip-resistors/series/36034/model/46550,in_stock
+D1 D2,2,Nexperia,"BAT54H,115",,Diode_SMD:D_SOD-123F,True,https://assets.nexperia.com/documents/data-sheet/BAT54H.pdf,out_of_stock
+U1 U2,2,Texas Instruments,TLV3201AIDBVR,,Package_TO_SOT_SMD:SOT-23-5,True,https://www.ti.com/lit/ds/symlink/tlv3201.pdf,out_of_stock
+U3,1,Texas Instruments,CD74HC4075M96,,Package_SO:SOIC-14_3.9x8.7mm_P1.27mm,True,https://www.ti.com/lit/gpn/CD74HC4075,in_stock
+C3 C4 C5,3,KEMET,C0603C104K5RACTU,100nF +/- 10%,Capacitor_SMD:C_0603_1608Metric,True,https://search.kemet.com/download/specsheet/C0603C104K5RACTU,in_stock
+J2,1,JST Sales America Inc.,B4B-XH-A(LF)(SN),,Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical,True,https://www.jst.com/wp-content/uploads/2021/01/eXH.pdf,in_stock

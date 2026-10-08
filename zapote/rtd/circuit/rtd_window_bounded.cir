@@ -1,0 +1,45 @@
+* Zapote RTD bounded passive/DC and Boolean rail-permission model.
+*
+* Validity limits: this deck models the 430 ohm/RTD series divider, the two
+* ideal REF2025 divider thresholds, comparator logic, and the upstream fault
+* pull-up. It does not model MAX31865 internal FORCE switches, comparator
+* offset/corners, cable parasitics, EMC, power sequencing, or shutdown timing.
+* RTD=1e9 is an open-element approximation only.
+
+.param RTD=100 AVDD=3.3 VBIAS=2.0
+VBIAS bias 0 {VBIAS}
+RREF bias refn 430
+RRTD refn 0 {RTD}
+VREF refsrc 0 1.25
+RLOWTOP refsrc lowth 61.9k
+RLOWBOT lowth 0 10k
+RHIGHTOP refsrc highth 5.9k
+RHIGHBOT highth 0 10k
+
+* TLV3201 ideal Boolean outputs: LOW_OK is REFIN->LOW threshold;
+* HIGH_OK is HIGH threshold->REFIN. AVDD=0 is treated as an unavailable
+* local rail and therefore as a fault by the upstream pull-up abstraction.
+BLOW lowok 0 V=(V(refn)>V(lowth)) ? AVDD : 0
+BHIGH highok 0 V=(V(highth)>V(refn)) ? AVDD : 0
+BWINDOW window 0 V=(V(lowok)>AVDD/2 && V(highok)>AVDD/2) ? AVDD : 0
+BFAULT hw_fault 0 V=(AVDD<2.7 || V(window)<AVDD/2) ? 3.3 : 0
+
+.op
+.control
+set noaskquit
+foreach r 0.001 10 100 194.1 300 1e9
+  alterparam RTD=$r
+  reset
+  run
+  echo RTD=$r
+  print V(refn) V(lowth) V(highth) V(lowok) V(highok) V(window) V(hw_fault)
+end
+alterparam RTD=100
+alterparam AVDD=0
+reset
+run
+echo RTD=100 AVDD=0 (post-ferrite rail loss)
+print V(refn) V(lowok) V(highok) V(window) V(hw_fault)
+quit
+.endc
+.end

@@ -1,0 +1,43 @@
+{
+  "identity": {
+    "config": {
+      "label": "complementary-v198-r2-p0-s1",
+      "bus": 198,
+      "resistance": 2,
+      "freq": 50000,
+      "phase": 0,
+      "step": 1,
+      "cycles": 40
+    },
+    "params": {
+      "LP1": "24.2544n",
+      "LP2": "23.4895n",
+      "LP3": "24.2615n",
+      "LP4": "35.617n",
+      "K12": "0.627255913",
+      "K13": "0.166300122",
+      "K14": "0.188169102",
+      "K23": "0.161764352",
+      "K24": "0.19954378",
+      "K34": "-0.00887537245",
+      "VBUS": "198",
+      "RTANK": "2",
+      "FREQ": "50000",
+      "PHASE": "0",
+      "DT": "443n",
+      "LESL": "1.06n",
+      "TRMAX": "1n",
+      "CYCLES": "40"
+    },
+    "matrix_sha256": "cf861da357ee496a0314356a21cfa4478d67e4ae8e15d36dae42dbc9deac2019",
+    "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+    "deck_sha256": "dc139f22b6dbc09db9173a81afc7b8d8b4fda55fe5122a33a3581d41f909a0dc",
+    "common_options_sha256": "ae752d460d50fdbbcaaf03b29871b3b039cf27f018707efe4aa50d0fc3529330",
+    "simulator_sha256": "08c2c84bb215c54b8ba7ea030df71a2dc8fc33504a03180ea56f247d9f693560"
+  },
+  "status": "indeterminate",
+  "label": "complementary-v198-r2-p0-s1",
+  "returncode": 1,
+  "raw_sha256": "c57d8a62ce28eb52124ae09270e899d7e2974580026f7c6b0534b8d76e03b2e6",
+  "elapsed_s": 234.7518172080163
+}

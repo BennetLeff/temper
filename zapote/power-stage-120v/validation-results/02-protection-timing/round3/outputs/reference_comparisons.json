@@ -1,0 +1,39 @@
+{
+  "round_two_families": [
+    [
+      "33000",
+      "37",
+      "1000000.0"
+    ],
+    [
+      "33000",
+      "37",
+      "3000000.0"
+    ]
+  ],
+  "round_two_rows": 12,
+  "round_two_max_relative_error_pct": 0.0003781241776552376,
+  "third_case": {
+    "params": {
+      "FREQ": 35000,
+      "I0": 37,
+      "SLOPE": 3000000.0,
+      "VOS": 0,
+      "TPD": 5.5e-08
+    },
+    "smoke_reference_s": {
+      "t_ip_trip": 6.344e-06,
+      "t_pos_trip": 6.589e-06
+    },
+    "computed_s": {
+      "t_ip_trip": 6.344084949975214e-06,
+      "t_pos_trip": 6.589403808839082e-06
+    },
+    "relative_error_pct": {
+      "t_ip_trip": 0.0013390601389370942,
+      "t_pos_trip": 0.006128529960269236
+    }
+  },
+  "criterion_pct": 1.0,
+  "pass": true
+}

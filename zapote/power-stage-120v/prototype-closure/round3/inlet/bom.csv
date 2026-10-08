@@ -1,0 +1,21 @@
+reference,quantity,manufacturer,mpn,value_or_role,selection_status,primary_source
+K1 K2 KB,3,Schneider Electric,LC1D18BD,24VDC contactor with mirror NC,CANDIDATE-application coordination open,https://www.se.com/us/en/product/LC1D18BD/
+RP1 RP2,2,Ohmite,HS200 22R F,22ohm 1percent 200W chassis precharge,CANDIDATE-pulse qualification open,https://www.ohmite.com/catalog/hs-series/HS200_22R_F
+TF1 TF2,2,Cantherm,SDF DF128S,128C nonresettable thermal cutoff,CANDIDATE-application clarification and thermal coupling open,https://www.cantherm.com/product_post_type/sdf-15-amp-250v/
+RTEST,1,Ohmite,HS100 220R F,220ohm 1percent 100W proof load,CANDIDATE-mounted thermal qualification open,https://www.ohmite.com/catalog/hs-series/HS100_220R_F
+KT,1,Omron G5Q catalogue / current Aratas sourcing,G5Q-1A-EU DC24,24VDC SPST-NO proof relay,CANDIDATE-contact pin drawing and current ordering status require native capture review,https://omronfs.omron.com/en_US/ecb/products/pdf/en-g5q.pdf
+PS_AUX,1,Mean Well,HDR-60-24,24V 60W isolated upstream bootstrap,CANDIDATE-branch inrush and installed derating open,https://www.meanwell.com/Upload/PDF/HDR-60/HDR-60-SPEC.PDF
+F0,1,Littelfuse,KLDR015.TXP,15A Class CC line fuse,PROPOSED CHANGE from20A-not coordinated yet,https://www.littelfuse.com/assetdocs/kldr-classcc-fuse-datasheet-final?assetguid=8f8c3052-d0e1-411d-9a86-62bff0e1cf9a
+F2,1,Littelfuse,KLDR002.TXP,2A Class CC AUX fuse,CANDIDATE-AUX cold-inrush coordination open,https://www.littelfuse.com/assetdocs/kldr-classcc-fuse-datasheet-final?assetguid=8f8c3052-d0e1-411d-9a86-62bff0e1cf9a
+FT,1,Littelfuse,KLDR001.TXP,1A Class CC proof-load fuse,CANDIDATE-pulse and conductor coordination open,https://www.littelfuse.com/assetdocs/kldr-classcc-fuse-datasheet-final?assetguid=8f8c3052-d0e1-411d-9a86-62bff0e1cf9a
+FH0 FH2 FHT,3,Littelfuse,LPSC0001Z,Class CC single-pole holder,CANDIDATE-service and thermal envelope in packaging,https://www.littelfuse.com/products/fuses-overcurrent-protection/fuse-holders-blocks-accessories/fuse-blocks/power-distribution/lpsc
+S0,1,Schurter,4435.0002,20A two-pole manual supplemental switch,RETAINED CANDIDATE-not independent automatic disconnect,https://www.schurter.com/en/datasheet/typ_TA35_Rocker_2Pole.pdf
+QD1 QD2 QDB QDT,4,Infineon,IRL540NPBF,100V logic-level low-side coil MOSFET,CANDIDATE-5V gate drive and installed transient test,https://www.infineon.com/part/IRL540N
+UBUF,1,Texas Instruments,SN74AHCT125PWR,Four-channel TTL input 5V gate buffer,CANDIDATE-default-off rails and OE review,https://www.ti.com/product/SN74AHCT125/part-details/SN74AHCT125PWR
+UH1 UH2,2,Texas Instruments,TPS1H100AQPWPRQ1,Independent24V coil high-side cuts,CANDIDATE-current limit and complete pin network not yet captured,https://www.ti.com/product/TPS1H100-Q1
+UVLINE UVPRE UVOUT,3,Texas Instruments,AMC3330DWE,Isolated voltage sensing with integrated isolated supply,CANDIDATE-divider pulse insulation and ADC error budget open,https://www.ti.com/lit/gpn/AMC3330
+CT_TEST,1,Talema,AC1005,5A1000to1 proof-branch CT with100ohm burden,CANDIDATE-calibrate0.4to0.65A and installed insulation,https://talema.com/wp-content/uploads/datasheets/AC-1005.pdf
+REG5,1,RECOM,R-78HB5.0-0.5/W,9to72V input5V0.5A nonisolated regulator,CANDIDATE-afterHDR isolation outputbudget and startup open,https://recom-power.com/pdf/Innoline/R-78HB-0.5_W.pdf
+UT_START UT_PROOF UT_TOTAL,3,Analog Devices,LTC6993HS6-1#TRMPBF,Rising-edge nonretriggerable hardware timeout,CANDIDATE-native circuit and total5percent timing allocation not yet verified,https://www.analog.com/media/en/technical-documentation/data-sheets/LTC6993-6993-1-6993-2-6993-3-6993-4.pdf
+RVH1 through RVH12,12,Vishay,TNPW1206249KBEEA,249kohm0.1percent upper voltage divider,CANDIDATE-surge sharing and layout not qualified,https://www.vishay.com/docs/28758/tnpw_e3.pdf
+RVL1 RVL2 RVL3,3,Vishay,TNPW12064K02BEEA,4.02kohm0.1percent lower voltage divider,CANDIDATE-full measurement error budget open,https://www.vishay.com/docs/28758/tnpw_e3.pdf

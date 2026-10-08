@@ -1,0 +1,37 @@
+{
+  "tolerance_case": "high_bus_cap",
+  "params": {
+    "LLOAD": "5.6e-05",
+    "RPAN40": "0.84",
+    "RCOIL": "0.105",
+    "FREQ": "31924.588804820854",
+    "VBUS0": "152.730363567",
+    "VCAP0": "822.296892015",
+    "I0": "-0.271559778612",
+    "CBULK": "2.835e-06",
+    "CLOCAL": "1.1e-07"
+  },
+  "bus_capacitance_f": 6.11e-06,
+  "initial_tank_energy_j": 0.18256855307862335,
+  "initial_total_stored_energy_j": 0.25383120596194547,
+  "bus_peak_v": 265.5733332031223,
+  "bus_peak_meas_v": 265.5733,
+  "bus_final_v": 265.5733108943182,
+  "residual_tank_cap_v": -203.14714234176475,
+  "residual_tank_current_a": 2.031455636657006e-08,
+  "trip_shunt_abs_peak_a": 58.94123852465113,
+  "max_abs_r5_vs_tank_magnitude_difference_a": 5.3254525012036424e-08,
+  "final_total_stored_energy_j": 0.22660922105761472,
+  "dissipated_energy_j": 0.027221984904330754,
+  "integrated_loss_breakdown_j": {
+    "pan_coil_resistance": 0.024906709935134986,
+    "r5": 2.911590824796384e-05,
+    "tank_bleed": 1.2847362080185578e-05,
+    "bus_leak": 3.476219592010818e-08,
+    "four_idealized_diodes": 0.0022768277997309823
+  },
+  "energy_balance_error_j": -3.550863059285231e-06,
+  "energy_balance_error_fraction_of_initial": -1.3989072170336608e-05,
+  "last_60v_crossing_after_trip_s": 1.2386237004719414,
+  "touch_time_method": "500-us freewheel state plus isolated 1.88-Mohm RC exponential"
+}

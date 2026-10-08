@@ -1,0 +1,139 @@
+{
+  "input_board_sha256": "f45f2ffdcaf4b41ba6c9259e711d8f070471e4606ff8b7277dd85c1ed5775b4b",
+  "output_board_sha256": "f45f2ffdcaf4b41ba6c9259e711d8f070471e4606ff8b7277dd85c1ed5775b4b",
+  "models_attached": [
+    {
+      "reference": "C21",
+      "path": "${KIPRJMOD}/../models3d/capacitors/CDE_942C12P22K-F.step",
+      "asset_sha256": "1ba5d3b3aeab9f63c870f6bc59f246dd34062564c5db924c363db544561b1db5",
+      "status": "provisional-dimensioned"
+    },
+    {
+      "reference": "C22",
+      "path": "${KIPRJMOD}/../models3d/capacitors/CDE_942C12P22K-F.step",
+      "asset_sha256": "1ba5d3b3aeab9f63c870f6bc59f246dd34062564c5db924c363db544561b1db5",
+      "status": "provisional-dimensioned"
+    },
+    {
+      "reference": "C23",
+      "path": "${KIPRJMOD}/../models3d/capacitors/CDE_942C12P1K-F.step",
+      "asset_sha256": "d847a7fe2fd9b46ebb51ab5243026ca840adf7e285f5781ea321bd21d5c973ad",
+      "status": "provisional-dimensioned"
+    },
+    {
+      "reference": "C38",
+      "path": "${KIPRJMOD}/../models3d/capacitors/TDK_B32652A0104K000.step",
+      "asset_sha256": "0df5794113e79f640c373c71e0f1af890ab66ce070f02e38e3aed8e71969000e",
+      "status": "provisional-dimensioned"
+    },
+    {
+      "reference": "C39",
+      "path": "${KIPRJMOD}/../models3d/capacitors/TDK_B32652A0104K000.step",
+      "asset_sha256": "0df5794113e79f640c373c71e0f1af890ab66ce070f02e38e3aed8e71969000e",
+      "status": "provisional-dimensioned"
+    },
+    {
+      "reference": "C40",
+      "path": "${KIPRJMOD}/../models3d/capacitors/TDK_B32652A0104K000.step",
+      "asset_sha256": "0df5794113e79f640c373c71e0f1af890ab66ce070f02e38e3aed8e71969000e",
+      "status": "provisional-dimensioned"
+    },
+    {
+      "reference": "C41",
+      "path": "${KIPRJMOD}/../models3d/capacitors/TDK_B32652A0104K000.step",
+      "asset_sha256": "0df5794113e79f640c373c71e0f1af890ab66ce070f02e38e3aed8e71969000e",
+      "status": "provisional-dimensioned"
+    },
+    {
+      "reference": "C5",
+      "path": "${KIPRJMOD}/../models3d/capacitors/TDK_B32656G0275J000.step",
+      "asset_sha256": "1472b12fa3bf8c3f8b4b67e931243d88f108e0fd6a91f49ec160435dc9861007",
+      "status": "provisional-dimensioned"
+    },
+    {
+      "reference": "C6",
+      "path": "${KIPRJMOD}/../models3d/capacitors/TDK_B32656G0275J000.step",
+      "asset_sha256": "1472b12fa3bf8c3f8b4b67e931243d88f108e0fd6a91f49ec160435dc9861007",
+      "status": "provisional-dimensioned"
+    },
+    {
+      "reference": "C3",
+      "path": "${KIPRJMOD}/../models3d/capacitors/Murata_DE1E3RA222MA4BP01F.step",
+      "asset_sha256": "e516b7bc17521af73d334e3da8eed0c43d0583b33132acf86f6f450f9d472fc1",
+      "status": "provisional-dimensioned"
+    },
+    {
+      "reference": "C4",
+      "path": "${KIPRJMOD}/../models3d/capacitors/Murata_DE1E3RA222MA4BP01F.step",
+      "asset_sha256": "e516b7bc17521af73d334e3da8eed0c43d0583b33132acf86f6f450f9d472fc1",
+      "status": "provisional-dimensioned"
+    },
+    {
+      "reference": "PS2",
+      "path": "${KIPRJMOD}/../models3d/linked-parts/IRM-05-15-envelope.step",
+      "asset_sha256": "6b9167e1109fca0a82a12bf52ed665884b2d6820122d2cb5081caf152d258c06",
+      "status": "provisional-dimensioned"
+    },
+    {
+      "reference": "J4",
+      "path": "${KIPRJMOD}/../models3d/linked-parts/Molex-43045-1612-envelope.step",
+      "asset_sha256": "4048fa66b0abb6810fb9dcc2bf22a380c677a95610be67d21a2e0b47b00d4aba",
+      "status": "provisional-dimensioned"
+    },
+    {
+      "reference": "R5",
+      "path": "${KIPRJMOD}/../models3d/linked-parts/WSK2512R0010FEA-envelope.step",
+      "asset_sha256": "ae5fdb65474a380fdb14a67e7f201c4c1d96ce231df15ca17aee39cbe83b2cfd",
+      "status": "provisional-dimensioned"
+    },
+    {
+      "reference": "J3",
+      "path": "${KIPRJMOD}/../models3d/linked-parts/JST-B2P-VH-envelope.step",
+      "asset_sha256": "4d1d8273f9cb82ba83090cca1d426a910e0c08b05d4ef83742ae02c1dc32febe",
+      "status": "provisional-dimensioned"
+    },
+    {
+      "reference": "F1",
+      "path": "${KIPRJMOD}/../models3d/linked-parts/Littelfuse-102071-pair-envelope.step",
+      "asset_sha256": "1e9b32ef23e93a40e702b88e65de34e6a3e7eb1837483689f5e2c7bc999b301a",
+      "status": "provisional-dimensioned"
+    },
+    {
+      "reference": "BR1",
+      "path": "${KIPRJMOD}/../models3d/power-parts/GBJ2510-F_provisional.step",
+      "asset_sha256": "1a1c80d4f760da21d5962d906c0fba8618dd937529bbb4cba9cd22f9be4e1aea",
+      "status": "provisional-dimensioned"
+    },
+    {
+      "reference": "D3",
+      "path": "${KIPRJMOD}/../models3d/power-parts/MRT130KP295CV_provisional.step",
+      "asset_sha256": "88938b721f6c892a130604f474f6dfcb4081f02ed67db1956b1d435024b3367f",
+      "status": "provisional-dimensioned"
+    },
+    {
+      "reference": "J6",
+      "path": "${KIPRJMOD}/../models3d/power-parts/KDS3_1704004_provisional.step",
+      "asset_sha256": "b84e4defadf8d3486af8528fbcf536c29aacd810e4bbfd94572ff9f2f64d542e",
+      "status": "provisional-dimensioned"
+    },
+    {
+      "reference": "RV1",
+      "path": "${KIPRJMOD}/../models3d/power-parts/TMOV20RP175E_provisional.step",
+      "asset_sha256": "2841b0cbc4cf831e7d7b11c082f26b34db01a0e03b21cbb1fc24005db816a549",
+      "status": "provisional-dimensioned"
+    },
+    {
+      "reference": "L1",
+      "path": "${KIPRJMOD}/../models3d/power-parts/B82726S2203A020_provisional.step",
+      "asset_sha256": "4c79e571d2df591727741e39d11d11448eb52ea19febdc5cdc49ea36077e1939",
+      "status": "provisional-dimensioned"
+    },
+    {
+      "reference": "T1",
+      "path": "${KIPRJMOD}/../models3d/power-parts/CST3015-100ED_provisional.step",
+      "asset_sha256": "7e06bce8b91cfec2e61b7728bf26933b85615c4c05bd5d3de33c4284aea5b766",
+      "status": "provisional-dimensioned"
+    }
+  ],
+  "scope": "visual/assembly models only; no physical qualification"
+}

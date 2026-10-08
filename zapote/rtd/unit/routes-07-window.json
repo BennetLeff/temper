@@ -1,0 +1,223 @@
+{
+  "nets": [
+    {
+      "net": "rtd_sense_p",
+      "paths": [
+        {
+          "points": [
+            "rtd_pan.adc.10",
+            [
+              17.4,
+              24.1
+            ],
+            "rtd_pan.c_rtd_input.1"
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.2
+        },
+        {
+          "points": [
+            "rtd_pan.c_rtd_input.1",
+            [
+              19.225,
+              30
+            ],
+            [
+              18.75,
+              30.475
+            ],
+            "rtd_pan.j_rtd1.2"
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.2
+        },
+        {
+          "points": [
+            "rtd_pan.c_rtd_input.1",
+            [
+              18.7,
+              26.1
+            ],
+            [
+              17.4,
+              27.825
+            ],
+            "rtd_pan.r_rtdin_p_bias.1"
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.2
+        },
+        {
+          "points": [
+            "rtd_pan.c_rtd_input.1",
+            [
+              18.1,
+              25.5
+            ]
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.2
+        },
+        {
+          "points": [
+            [
+              18.1,
+              25.5
+            ],
+            [
+              11,
+              25.5
+            ],
+            [
+              11,
+              28
+            ],
+            [
+              31.8,
+              28
+            ],
+            [
+              31.8,
+              32
+            ]
+          ],
+          "layer": "B.Cu",
+          "width_mm": 0.2
+        },
+        {
+          "points": [
+            [
+              31.8,
+              32
+            ],
+            "rtd_pan.r_window_sense_p.1"
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.2
+        }
+      ],
+      "vias": [
+        {
+          "position_mm": [
+            18.1,
+            25.5
+          ],
+          "diameter_mm": 0.7,
+          "drill_mm": 0.3
+        },
+        {
+          "position_mm": [
+            31.8,
+            32
+          ],
+          "diameter_mm": 0.7,
+          "drill_mm": 0.3
+        }
+      ]
+    },
+    {
+      "net": "window_rtdin_p",
+      "paths": [
+        {
+          "points": [
+            "rtd_pan.r_window_sense_p.2",
+            [
+              35.2,
+              32
+            ]
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.2
+        },
+        {
+          "points": [
+            [
+              35.2,
+              32
+            ],
+            [
+              35.2,
+              40.95
+            ],
+            [
+              27.2,
+              40.95
+            ]
+          ],
+          "layer": "B.Cu",
+          "width_mm": 0.2
+        },
+        {
+          "points": [
+            [
+              27.2,
+              40.95
+            ],
+            "rtd_pan.low_window.3"
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.2
+        },
+        {
+          "points": [
+            [
+              27.2,
+              40.95
+            ],
+            [
+              27.2,
+              44
+            ],
+            [
+              33,
+              49.8
+            ],
+            [
+              33,
+              49.95
+            ]
+          ],
+          "layer": "B.Cu",
+          "width_mm": 0.2
+        },
+        {
+          "points": [
+            [
+              33,
+              49.95
+            ],
+            "rtd_pan.high_window.4"
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.2
+        }
+      ],
+      "vias": [
+        {
+          "position_mm": [
+            35.2,
+            32
+          ],
+          "diameter_mm": 0.7,
+          "drill_mm": 0.3
+        },
+        {
+          "position_mm": [
+            27.2,
+            40.95
+          ],
+          "diameter_mm": 0.7,
+          "drill_mm": 0.3
+        },
+        {
+          "position_mm": [
+            33,
+            49.95
+          ],
+          "diameter_mm": 0.7,
+          "drill_mm": 0.3
+        }
+      ]
+    }
+  ]
+}

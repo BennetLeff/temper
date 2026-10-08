@@ -55,8 +55,10 @@ DIRECTORY_PURPOSE: dict[str, str] = {
     "docs": "Plans, brainstorms, solutions, evidence, specs, and strategy",
     "elec": "Atopile electrical source -- the schematic's source of truth",
     "firmware": "ESP32-S3 firmware (C), 8-state machine and protection monitoring",
+    "harness-lab": "Retained KiCad native-bridge adapters used by zapote unit tools",
     "max31865": "KiCad library for the MAX31865 RTD front-end (predates components/)",
     "metrics": "Recorded routing/placement metric snapshots (JSON)",
+    "output": "Revisioned mechanical sources, historical geometry inputs, and validation receipts",
     "output_gerbers": "Exported Gerber/drill artifacts from a past routed revision",
     "packages": "Python and Rust workspace members -- placer, DRC, geometry, router",
     "crates": "Rust-only crates -- no pyproject.toml, outside the uv workspace. Where code lives once it no longer needs an interpreter: the temper binary and the CP-SAT FFI",
@@ -64,7 +66,9 @@ DIRECTORY_PURPOSE: dict[str, str] = {
     "power_pcb_dataset": "Regression corpus, baselines, and DRC ceilings",
     "scripts": "CI gates, generators, and one-off analysis tooling",
     "simulation": "ngspice models and protection-gate simulation harnesses",
+    "skills": "Source-grounded agent skills for product, mechanical, PCB, and manufacturing reviews",
     "tools": "Developer utilities not wired into CI gates",
+    "zapote": "Rust ERC/DRC/DFM validation workspace, standalone units, and the 120 V power stage (see zapote/CHECKS.md)",
 }
 
 MARKER_BEGIN = (

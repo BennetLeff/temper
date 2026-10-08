@@ -1,0 +1,145 @@
+[18:18:06] INFO     Using project                                   common.py:72
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/thermal-sens             
+                    e/source-build-01                                           
+           INFO     Building default                                 build.py:38
+[18:18:08] WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/thermal-sens             
+                    e/source-build-01/elec/src/thermal_sense_unit.a             
+                    to:140:4                                                    
+                        Field 'override_net_name' not declared for              
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/thermal-sens             
+                    e/source-build-01/elec/src/thermal_sense_unit.a             
+                    to:ThermalSenseUnit::vcc. Declaring implicitly              
+                    for now, but in the future this may become an               
+                    error...                                                    
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/thermal-sens             
+                    e/source-build-01/elec/src/thermal_sense_unit.a             
+                    to:141:4                                                    
+                        Field 'override_net_name' not declared for              
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/thermal-sens             
+                    e/source-build-01/elec/src/thermal_sense_unit.a             
+                    to:ThermalSenseUnit::gnd. Declaring implicitly              
+                    for now, but in the future this may become an               
+                    error...                                                    
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/thermal-sens             
+                    e/source-build-01/elec/src/thermal_sense_unit.a             
+                    to:142:4                                                    
+                        Field 'override_net_name' not declared for              
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/thermal-sens             
+                    e/source-build-01/elec/src/thermal_sense_unit.a             
+                    to:ThermalSenseUnit::hs_sense. Declaring                    
+                    implicitly for now, but in the future this may              
+                    become an error...                                          
+           WARNING  Implicit Declaration Future Deprecation Warning errors.py:81
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/thermal-sens             
+                    e/source-build-01/elec/src/thermal_sense_unit.a             
+                    to:143:4                                                    
+                        Field 'override_net_name' not declared for              
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/thermal-sens             
+                    e/source-build-01/elec/src/thermal_sense_unit.a             
+                    to:ThermalSenseUnit::hs_ref. Declaring                      
+                    implicitly for now, but in the future this may              
+                    become an error...                                          
+           WARNING  ... forgoing more "Implicit Declaration Future errors.py:209
+                    Deprecation Warning" errors of                              
+           INFO     No variables in assertions to solve        assertions.py:252
+           INFO     Writing outputs to                               build.py:78
+                    /Users/bennet/Desktop/temper/.worktrees/codex/bu            
+                    ck-harness-experiment-plan/zapote/thermal-sense/            
+                    source-build-01/build                                       
+           INFO     Building 'clone-footprints' for 'default'       build.py:100
+                    config                                                      
+           INFO     Building 'copy-footprints' for 'default' config build.py:100
+           INFO     Building 'variable-report' for 'default' config build.py:100
+       Variable Values       
+┏━━━━━━━━━┳━━━━━━━┳━━━━━━━━━┓
+┃ Address ┃ Value ┃ Comment ┃
+┡━━━━━━━━━╇━━━━━━━╇━━━━━━━━━┩
+└─────────┴───────┴─────────┘
+           INFO     Building 'copy-3dmodels' for 'default' config   build.py:100
+           INFO     Building 'bom' for 'default' config             build.py:100
+┏━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━┓
+┃ Comment          ┃ Designator  ┃ Footprint        ┃ LCSC             ┃ Price ┃
+┡━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━┩
+│ B2B-XH-A(LF)(SN) │ J1,J2       │ Connector_JST:J… │ B2B-XH-A(LF)(SN) │ 0.00  │
+│ B6B-XH-A(LF)(SN) │ J3          │ Connector_JST:J… │ B6B-XH-A(LF)(SN) │ 0.00  │
+│ TLV3201AIDBVR    │ U1,U2       │ Package_TO_SOT_… │ TLV3201AIDBVR    │ 0.00  │
+│ RC0603FR-0710KL  │ R1          │ Resistor_SMD:R_… │ RC0603FR-0710KL  │ 0.00  │
+│ RC0603FR-079K09L │ R2          │ Resistor_SMD:R_… │ RC0603FR-079K09L │ 0.00  │
+│ RC0603FR-0711K5L │ R3,R8       │ Resistor_SMD:R_… │ RC0603FR-0711K5L │ 0.00  │
+│ RC0603FR-0734K8L │ R4          │ Resistor_SMD:R_… │ RC0603FR-0734K8L │ 0.00  │
+│ RC0603FR-073K32L │ R5          │ Resistor_SMD:R_… │ RC0603FR-073K32L │ 0.00  │
+│ RC0603FR-073K16L │ R6          │ Resistor_SMD:R_… │ RC0603FR-073K16L │ 0.00  │
+│ RC0603FR-074K42L │ R7          │ Resistor_SMD:R_… │ RC0603FR-074K42L │ 0.00  │
+│ C0603C104K5RACTU │ C1,C2,C3,C4 │ Capacitor_SMD:C… │ C0603C104K5RACTU │ 0.00  │
+└──────────────────┴─────────────┴──────────────────┴──────────────────┴───────┘
+           INFO     Building 'designator-map' for 'default' config  build.py:100
+┏━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┓
+┃ Designator ↓ ┃ Name           ┃
+┡━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━┩
+│           C1 │ hs_filter      │
+│           C2 │ hs_bypass      │
+│           C3 │ coil_filter    │
+│           C4 │ coil_bypass    │
+│           J1 │ heatsink_probe │
+│           J2 │ coil_probe     │
+│           J3 │ host           │
+│           R1 │ hs_fixed       │
+│           R2 │ hs_top         │
+│           R3 │ hs_bottom      │
+│           R4 │ hs_hyst        │
+│           R5 │ coil_fixed     │
+│           R6 │ coil_top       │
+│           R7 │ coil_bottom    │
+│           R8 │ coil_hyst      │
+│           U1 │ hs_comp        │
+│           U2 │ coil_comp      │
+└──────────────┴────────────────┘
+┏━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Name ↓         ┃ Designator ┃
+┡━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━┩
+│ coil_bottom    │ R7         │
+│ coil_bypass    │ C4         │
+│ coil_comp      │ U2         │
+│ coil_filter    │ C3         │
+│ coil_fixed     │ R5         │
+│ coil_hyst      │ R8         │
+│ coil_probe     │ J2         │
+│ coil_top       │ R6         │
+│ heatsink_probe │ J1         │
+│ host           │ J3         │
+│ hs_bottom      │ R3         │
+│ hs_bypass      │ C2         │
+│ hs_comp        │ U1         │
+│ hs_filter      │ C1         │
+│ hs_fixed       │ R1         │
+│ hs_hyst        │ R4         │
+│ hs_top         │ R2         │
+└────────────────┴────────────┘
+           INFO     Building 'netlist' for 'default' config         build.py:100
+           INFO     Building 'layout-module-map' for 'default'      build.py:100
+                    config                                                      
+           INFO     Building 'assertions-report' for 'default'      build.py:100
+                    config                                                      
+           Assertions           
+┏━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━┓
+┃ Status ┃ Assertion ┃ Numeric ┃
+┡━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━┩
+└────────┴───────────┴─────────┘
+           INFO     Successfully built 'clone-footprints,           build.py:105
+                    copy-footprints, variable-report,                           
+                    copy-3dmodels, bom, designator-map, netlist,                
+                    layout-module-map, assertions-report' for                   
+                    'default' config                                            
+           INFO     Build complete!                                  build.py:59

@@ -1,0 +1,243 @@
+{
+  "author": "GPT-6 Astra: explicit paths, no search",
+  "nets": [
+    {
+      "net": "rtd_force_p",
+      "paths": [
+        {
+          "points": [
+            "rtd_pan.adc.8",
+            [
+              15.8,
+              21.5875
+            ],
+            [
+              15.8,
+              22.8
+            ],
+            [
+              12.5,
+              26.1
+            ],
+            [
+              12.5,
+              31.5
+            ],
+            [
+              14,
+              33
+            ],
+            "rtd_pan.j_rtd1.1"
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.2
+        }
+      ],
+      "vias": []
+    },
+    {
+      "net": "vbias",
+      "paths": [
+        {
+          "points": [
+            "rtd_pan.reference.1",
+            [
+              22.5,
+              41.95
+            ]
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.2
+        },
+        {
+          "points": [
+            "rtd_pan.reference.1",
+            [
+              21.1375,
+              46
+            ],
+            [
+              25.5,
+              46
+            ],
+            "rtd_pan.r_high_top.1"
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.2
+        },
+        {
+          "points": [
+            [
+              22.5,
+              41.95
+            ],
+            [
+              24.2,
+              40.25
+            ],
+            [
+              24.2,
+              38.175
+            ]
+          ],
+          "layer": "In2.Cu",
+          "width_mm": 0.2
+        },
+        {
+          "points": [
+            [
+              24.2,
+              38.175
+            ],
+            "rtd_pan.r_low_top.1"
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.2
+        }
+      ],
+      "vias": [
+        {
+          "position_mm": [
+            22.5,
+            41.95
+          ],
+          "diameter_mm": 0.7,
+          "drill_mm": 0.3
+        },
+        {
+          "position_mm": [
+            24.2,
+            38.175
+          ],
+          "diameter_mm": 0.7,
+          "drill_mm": 0.3
+        }
+      ]
+    },
+    {
+      "net": "reset",
+      "paths": [
+        {
+          "points": [
+            "rtd_pan.rail_monitor.6",
+            [
+              44.4,
+              27.5
+            ],
+            [
+              44.4,
+              26.7
+            ],
+            [
+              47.6,
+              26.7
+            ],
+            [
+              47.6,
+              31
+            ],
+            "rtd_pan.r_rail_ok_pullup.2"
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.2
+        },
+        {
+          "points": [
+            "rtd_pan.r_rail_ok_pullup.2",
+            [
+              46.825,
+              36
+            ],
+            [
+              46,
+              36.825
+            ]
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.2
+        },
+        {
+          "points": [
+            [
+              46,
+              36.825
+            ],
+            [
+              46,
+              42
+            ]
+          ],
+          "layer": "B.Cu",
+          "width_mm": 0.2
+        },
+        {
+          "points": [
+            [
+              46,
+              42
+            ],
+            "rtd_pan.fault_nand.2"
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.2
+        }
+      ],
+      "vias": [
+        {
+          "position_mm": [
+            46,
+            36.825
+          ],
+          "diameter_mm": 0.7,
+          "drill_mm": 0.3
+        },
+        {
+          "position_mm": [
+            46,
+            42
+          ],
+          "diameter_mm": 0.7,
+          "drill_mm": 0.3
+        }
+      ]
+    },
+    {
+      "net": "y",
+      "paths": [
+        {
+          "points": [
+            "rtd_pan.window_and.4",
+            [
+              42.5,
+              42.95
+            ],
+            "rtd_pan.r_window_ok_pulldown.1"
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.2
+        },
+        {
+          "points": [
+            "rtd_pan.window_and.4",
+            [
+              44,
+              42.95
+            ],
+            [
+              45,
+              41.95
+            ],
+            [
+              45,
+              41.05
+            ],
+            "rtd_pan.fault_nand.1"
+          ],
+          "layer": "F.Cu",
+          "width_mm": 0.2
+        }
+      ],
+      "vias": []
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "native15_board": {
+    "path": "native-15/section.kicad_pcb",
+    "sha256": "a3ac1249f5052afe52944804cdc3f6ef0e8f895668360e79c1fa7b6fb7322155"
+  },
+  "Infineon_L1_library": {
+    "path": "validation-plan/sim-kit/models/vendor/IFX_CFD7_650V.lib",
+    "sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b"
+  },
+  "Infineon_archive": {
+    "path": "validation-plan/sim-kit/models/vendor/cfd7-650.zip",
+    "sha256": "5a6341084202debb0f8f230b8809c090434ea9526c8e0defe3d2e07a832ff48d"
+  },
+  "A1_deck": {
+    "path": "validation-results/01-switching-parasitics/round3/a1-zvs/complementary_leg.cir",
+    "sha256": "b2da52e71a9538d090f3c8828d29509d7c4870a6774667738d582abc52c9b902"
+  },
+  "A1_runner": {
+    "path": "validation-results/01-switching-parasitics/round3/a1-zvs/run_a1.py",
+    "sha256": "10607cee98257b8ac52ef282dfe2f78676a29b126437fcc7cde724f66a449377"
+  },
+  "sim_kit_options": {
+    "path": "validation-plan/sim-kit/common/options.inc",
+    "sha256": "ae752d460d50fdbbcaaf03b29871b3b039cf27f018707efe4aa50d0fc3529330"
+  },
+  "TI_UCC21550_RevC": {
+    "path": "validation-results/01-switching-parasitics/round4/c1-zvs/sources/ucc21550-revc.pdf",
+    "sha256": "5f80a86ae72418d7d538067f3f0438907b9692b74554a8d7aa6866c2f6ffc7ba"
+  },
+  "Infineon_IPW65R018CFD7_datasheet": {
+    "path": "validation-results/03-loss-thermal-budget/round3/sources/ipw65r018cfd7.pdf",
+    "sha256": "c364050a04a434bd173da6486fd51f4baf540ee9e4e1ebbe07aed57e279943f2"
+  },
+  "round4_plan": {
+    "path": "validation-plan/ROUND-4.md",
+    "sha256": "335a48ac943f624d26558dc63e273c0ca370be7263ddffe0913a9ee2f4937881"
+  },
+  "simulation_runbook": {
+    "path": "validation-plan/SIMULATION-RUNBOOK.md",
+    "sha256": "812fdf1a82c4decbf7ecc7209e790627cc8c3893b2bc3971960ef6abfb414fc5"
+  },
+  "C1_runner": {
+    "path": "validation-results/01-switching-parasitics/round4/c1-zvs/run_c1.py",
+    "sha256": "b48d887e92018eee362e4d6c3ce60bc5d8104d832cd2c5f848e52e950d777e82"
+  },
+  "C1_resolution": {
+    "path": "validation-results/01-switching-parasitics/round4/c1-zvs/check_resolution.py",
+    "sha256": "2fc2fc8460bb7b2b70639f61a4f719526496566257d3b7280c50f674165b9810"
+  },
+  "C1_resolution_refinement": {
+    "path": "validation-results/01-switching-parasitics/round4/c1-zvs/refine_resolution.py",
+    "sha256": "687c55249e8dc5256d1a5a96cdec41de736fcbb79a791021ede47d4ce85ea113"
+  },
+  "C1_signed_vds_refinement": {
+    "path": "validation-results/01-switching-parasitics/round4/c1-zvs/refine_physical.py",
+    "sha256": "906b5c70cbb3bde874cf62a00a44f80a420674fae90dc35e78a6786c23d671f4"
+  },
+  "C1_audit": {
+    "path": "validation-results/01-switching-parasitics/round4/c1-zvs/audit_c1.py",
+    "sha256": "5e23b27fa9f71257983d8c4aed58fd6d8340599d644ffa47f7c46a84fc0ce944"
+  }
+}

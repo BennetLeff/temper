@@ -1,0 +1,1537 @@
+
+Note: No compatibility mode selected!
+
+
+Circuit: * zapote rtd bounded passive/dc and boolean rail-permission model.
+
+Reset re-loads circuit * zapote rtd bounded passive/dc and boolean rail-permission model.
+
+Circuit: * zapote rtd bounded passive/dc and boolean rail-permission model.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+RTD=0.001
+v(refn) = 4.651152e-06
+v(lowth) = 1.738526e-01
+v(highth) = 7.861635e-01
+v(lowok) = 0.000000e+00
+v(highok) = 3.300000e+00
+v(window) = 0.000000e+00
+v(hw_fault) = 3.300000e+00
+Reset re-loads circuit * zapote rtd bounded passive/dc and boolean rail-permission model.
+
+Circuit: * zapote rtd bounded passive/dc and boolean rail-permission model.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+RTD=10
+v(refn) = 4.545455e-02
+v(lowth) = 1.738526e-01
+v(highth) = 7.861635e-01
+v(lowok) = 0.000000e+00
+v(highok) = 3.300000e+00
+v(window) = 0.000000e+00
+v(hw_fault) = 3.300000e+00
+Reset re-loads circuit * zapote rtd bounded passive/dc and boolean rail-permission model.
+
+Circuit: * zapote rtd bounded passive/dc and boolean rail-permission model.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+RTD=100
+v(refn) = 3.773585e-01
+v(lowth) = 1.738526e-01
+v(highth) = 7.861635e-01
+v(lowok) = 3.300000e+00
+v(highok) = 3.300000e+00
+v(window) = 3.300000e+00
+v(hw_fault) = 0.000000e+00
+Reset re-loads circuit * zapote rtd bounded passive/dc and boolean rail-permission model.
+
+Circuit: * zapote rtd bounded passive/dc and boolean rail-permission model.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+RTD=194.1
+v(refn) = 6.220157e-01
+v(lowth) = 1.738526e-01
+v(highth) = 7.861635e-01
+v(lowok) = 3.300000e+00
+v(highok) = 3.300000e+00
+v(window) = 3.300000e+00
+v(hw_fault) = 0.000000e+00
+Reset re-loads circuit * zapote rtd bounded passive/dc and boolean rail-permission model.
+
+Circuit: * zapote rtd bounded passive/dc and boolean rail-permission model.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+RTD=300
+v(refn) = 8.219178e-01
+v(lowth) = 1.738526e-01
+v(highth) = 7.861635e-01
+v(lowok) = 3.300000e+00
+v(highok) = 0.000000e+00
+v(window) = 0.000000e+00
+v(hw_fault) = 3.300000e+00
+Reset re-loads circuit * zapote rtd bounded passive/dc and boolean rail-permission model.
+
+Circuit: * zapote rtd bounded passive/dc and boolean rail-permission model.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+RTD=1e9
+v(refn) = 1.999999e+00
+v(lowth) = 1.738526e-01
+v(highth) = 7.861635e-01
+v(lowok) = 3.300000e+00
+v(highok) = 0.000000e+00
+v(window) = 0.000000e+00
+v(hw_fault) = 3.300000e+00
+Reset re-loads circuit * zapote rtd bounded passive/dc and boolean rail-permission model.
+
+Circuit: * zapote rtd bounded passive/dc and boolean rail-permission model.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+RTD=100 AVDD=0 (post-ferrite rail loss)
+v(refn) = 3.773585e-01
+v(lowok) = 0.000000e+00
+v(highok) = 0.000000e+00
+v(window) = 0.000000e+00
+v(hw_fault) = 3.300000e+00
+ngspice-45.2 done
+
+Note: No compatibility mode selected!
+
+
+Circuit: * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Reset re-loads circuit * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Circuit: * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=950k CDIFF=950p CPAR=0 ILEAK=-14n
+v_diff_30ms         =  1.635941e+00
+v_diff_85ms         =  1.635941e+00
+v_diff_95ms         =  1.635941e+00
+Reset re-loads circuit * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Circuit: * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=950k CDIFF=950p CPAR=0 ILEAK=14n
+v_diff_30ms         =  1.609341e+00
+v_diff_85ms         =  1.609341e+00
+v_diff_95ms         =  1.609341e+00
+Reset re-loads circuit * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Circuit: * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=950k CDIFF=950p CPAR=200p ILEAK=-14n
+v_diff_30ms         =  1.635941e+00
+v_diff_85ms         =  1.635941e+00
+v_diff_95ms         =  1.635941e+00
+Reset re-loads circuit * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Circuit: * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=950k CDIFF=950p CPAR=200p ILEAK=14n
+v_diff_30ms         =  1.609341e+00
+v_diff_85ms         =  1.609341e+00
+v_diff_95ms         =  1.609341e+00
+Reset re-loads circuit * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Circuit: * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=950k CDIFF=1n CPAR=0 ILEAK=-14n
+v_diff_30ms         =  1.635941e+00
+v_diff_85ms         =  1.635941e+00
+v_diff_95ms         =  1.635941e+00
+Reset re-loads circuit * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Circuit: * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=950k CDIFF=1n CPAR=0 ILEAK=14n
+v_diff_30ms         =  1.609341e+00
+v_diff_85ms         =  1.609341e+00
+v_diff_95ms         =  1.609341e+00
+Reset re-loads circuit * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Circuit: * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=950k CDIFF=1n CPAR=200p ILEAK=-14n
+v_diff_30ms         =  1.635941e+00
+v_diff_85ms         =  1.635941e+00
+v_diff_95ms         =  1.635941e+00
+Reset re-loads circuit * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Circuit: * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=950k CDIFF=1n CPAR=200p ILEAK=14n
+v_diff_30ms         =  1.609341e+00
+v_diff_85ms         =  1.609341e+00
+v_diff_95ms         =  1.609341e+00
+Reset re-loads circuit * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Circuit: * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=950k CDIFF=1.05n CPAR=0 ILEAK=-14n
+v_diff_30ms         =  1.635941e+00
+v_diff_85ms         =  1.635941e+00
+v_diff_95ms         =  1.635941e+00
+Reset re-loads circuit * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Circuit: * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=950k CDIFF=1.05n CPAR=0 ILEAK=14n
+v_diff_30ms         =  1.609341e+00
+v_diff_85ms         =  1.609341e+00
+v_diff_95ms         =  1.609341e+00
+Reset re-loads circuit * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Circuit: * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=950k CDIFF=1.05n CPAR=200p ILEAK=-14n
+v_diff_30ms         =  1.635941e+00
+v_diff_85ms         =  1.635941e+00
+v_diff_95ms         =  1.635941e+00
+Reset re-loads circuit * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Circuit: * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=950k CDIFF=1.05n CPAR=200p ILEAK=14n
+v_diff_30ms         =  1.609341e+00
+v_diff_85ms         =  1.609341e+00
+v_diff_95ms         =  1.609341e+00
+Reset re-loads circuit * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Circuit: * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1meg CDIFF=950p CPAR=0 ILEAK=-14n
+v_diff_30ms         =  1.636641e+00
+v_diff_85ms         =  1.636641e+00
+v_diff_95ms         =  1.636641e+00
+Reset re-loads circuit * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Circuit: * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1meg CDIFF=950p CPAR=0 ILEAK=14n
+v_diff_30ms         =  1.608641e+00
+v_diff_85ms         =  1.608641e+00
+v_diff_95ms         =  1.608641e+00
+Reset re-loads circuit * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Circuit: * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+ Reference value :  4.58096e-02
+No. of Data Rows : 10011
+RDIAG=1meg CDIFF=950p CPAR=200p ILEAK=-14n
+v_diff_30ms         =  1.636641e+00
+v_diff_85ms         =  1.636641e+00
+v_diff_95ms         =  1.636641e+00
+Reset re-loads circuit * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Circuit: * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1meg CDIFF=950p CPAR=200p ILEAK=14n
+v_diff_30ms         =  1.608641e+00
+v_diff_85ms         =  1.608641e+00
+v_diff_95ms         =  1.608641e+00
+Reset re-loads circuit * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Circuit: * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1meg CDIFF=1n CPAR=0 ILEAK=-14n
+v_diff_30ms         =  1.636641e+00
+v_diff_85ms         =  1.636641e+00
+v_diff_95ms         =  1.636641e+00
+Reset re-loads circuit * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Circuit: * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1meg CDIFF=1n CPAR=0 ILEAK=14n
+v_diff_30ms         =  1.608641e+00
+v_diff_85ms         =  1.608641e+00
+v_diff_95ms         =  1.608641e+00
+Reset re-loads circuit * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Circuit: * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1meg CDIFF=1n CPAR=200p ILEAK=-14n
+v_diff_30ms         =  1.636641e+00
+v_diff_85ms         =  1.636641e+00
+v_diff_95ms         =  1.636641e+00
+Reset re-loads circuit * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Circuit: * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1meg CDIFF=1n CPAR=200p ILEAK=14n
+v_diff_30ms         =  1.608641e+00
+v_diff_85ms         =  1.608641e+00
+v_diff_95ms         =  1.608641e+00
+Reset re-loads circuit * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Circuit: * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1meg CDIFF=1.05n CPAR=0 ILEAK=-14n
+v_diff_30ms         =  1.636641e+00
+v_diff_85ms         =  1.636641e+00
+v_diff_95ms         =  1.636641e+00
+Reset re-loads circuit * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Circuit: * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1meg CDIFF=1.05n CPAR=0 ILEAK=14n
+v_diff_30ms         =  1.608641e+00
+v_diff_85ms         =  1.608641e+00
+v_diff_95ms         =  1.608641e+00
+Reset re-loads circuit * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Circuit: * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1meg CDIFF=1.05n CPAR=200p ILEAK=-14n
+v_diff_30ms         =  1.636641e+00
+v_diff_85ms         =  1.636641e+00
+v_diff_95ms         =  1.636641e+00
+Reset re-loads circuit * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Circuit: * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1meg CDIFF=1.05n CPAR=200p ILEAK=14n
+v_diff_30ms         =  1.608641e+00
+v_diff_85ms         =  1.608641e+00
+v_diff_95ms         =  1.608641e+00
+Reset re-loads circuit * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Circuit: * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1.05meg CDIFF=950p CPAR=0 ILEAK=-14n
+v_diff_30ms         =  1.637341e+00
+v_diff_85ms         =  1.637341e+00
+v_diff_95ms         =  1.637341e+00
+Reset re-loads circuit * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Circuit: * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1.05meg CDIFF=950p CPAR=0 ILEAK=14n
+v_diff_30ms         =  1.607941e+00
+v_diff_85ms         =  1.607941e+00
+v_diff_95ms         =  1.607941e+00
+Reset re-loads circuit * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Circuit: * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1.05meg CDIFF=950p CPAR=200p ILEAK=-14n
+v_diff_30ms         =  1.637341e+00
+v_diff_85ms         =  1.637341e+00
+v_diff_95ms         =  1.637341e+00
+Reset re-loads circuit * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Circuit: * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1.05meg CDIFF=950p CPAR=200p ILEAK=14n
+v_diff_30ms         =  1.607941e+00
+v_diff_85ms         =  1.607941e+00
+v_diff_95ms         =  1.607941e+00
+Reset re-loads circuit * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Circuit: * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1.05meg CDIFF=1n CPAR=0 ILEAK=-14n
+v_diff_30ms         =  1.637341e+00
+v_diff_85ms         =  1.637341e+00
+v_diff_95ms         =  1.637341e+00
+Reset re-loads circuit * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Circuit: * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1.05meg CDIFF=1n CPAR=0 ILEAK=14n
+v_diff_30ms         =  1.607941e+00
+v_diff_85ms         =  1.607941e+00
+v_diff_95ms         =  1.607941e+00
+Reset re-loads circuit * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Circuit: * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+ Reference value :  2.58960e-03
+No. of Data Rows : 10011
+RDIAG=1.05meg CDIFF=1n CPAR=200p ILEAK=-14n
+v_diff_30ms         =  1.637341e+00
+v_diff_85ms         =  1.637341e+00
+v_diff_95ms         =  1.637341e+00
+Reset re-loads circuit * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Circuit: * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1.05meg CDIFF=1n CPAR=200p ILEAK=14n
+v_diff_30ms         =  1.607941e+00
+v_diff_85ms         =  1.607941e+00
+v_diff_95ms         =  1.607941e+00
+Reset re-loads circuit * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Circuit: * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1.05meg CDIFF=1.05n CPAR=0 ILEAK=-14n
+v_diff_30ms         =  1.637341e+00
+v_diff_85ms         =  1.637341e+00
+v_diff_95ms         =  1.637341e+00
+Reset re-loads circuit * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Circuit: * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1.05meg CDIFF=1.05n CPAR=0 ILEAK=14n
+v_diff_30ms         =  1.607941e+00
+v_diff_85ms         =  1.607941e+00
+v_diff_95ms         =  1.607941e+00
+Reset re-loads circuit * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Circuit: * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1.05meg CDIFF=1.05n CPAR=200p ILEAK=-14n
+v_diff_30ms         =  1.637341e+00
+v_diff_85ms         =  1.637341e+00
+v_diff_95ms         =  1.637341e+00
+Reset re-loads circuit * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Circuit: * rtdin+ diagnostic pull-up timing bound with max input-leakage corner.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1.05meg CDIFF=1.05n CPAR=200p ILEAK=14n
+v_diff_30ms         =  1.607941e+00
+v_diff_85ms         =  1.607941e+00
+v_diff_95ms         =  1.607941e+00
+ngspice-45.2 done
+
+Note: No compatibility mode selected!
+
+
+Circuit: * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Reset re-loads circuit * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Circuit: * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=950k CDIFF=950p CPAR=0 ILEAK=-14n
+v_diff_30ms         =  -1.635941e+00
+v_diff_85ms         =  -1.635941e+00
+v_diff_95ms         =  -1.635941e+00
+Reset re-loads circuit * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Circuit: * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=950k CDIFF=950p CPAR=0 ILEAK=14n
+v_diff_30ms         =  -1.609341e+00
+v_diff_85ms         =  -1.609341e+00
+v_diff_95ms         =  -1.609341e+00
+Reset re-loads circuit * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Circuit: * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=950k CDIFF=950p CPAR=200p ILEAK=-14n
+v_diff_30ms         =  -1.635941e+00
+v_diff_85ms         =  -1.635941e+00
+v_diff_95ms         =  -1.635941e+00
+Reset re-loads circuit * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Circuit: * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=950k CDIFF=950p CPAR=200p ILEAK=14n
+v_diff_30ms         =  -1.609341e+00
+v_diff_85ms         =  -1.609341e+00
+v_diff_95ms         =  -1.609341e+00
+Reset re-loads circuit * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Circuit: * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=950k CDIFF=1n CPAR=0 ILEAK=-14n
+v_diff_30ms         =  -1.635941e+00
+v_diff_85ms         =  -1.635941e+00
+v_diff_95ms         =  -1.635941e+00
+Reset re-loads circuit * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Circuit: * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=950k CDIFF=1n CPAR=0 ILEAK=14n
+v_diff_30ms         =  -1.609341e+00
+v_diff_85ms         =  -1.609341e+00
+v_diff_95ms         =  -1.609341e+00
+Reset re-loads circuit * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Circuit: * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=950k CDIFF=1n CPAR=200p ILEAK=-14n
+v_diff_30ms         =  -1.635941e+00
+v_diff_85ms         =  -1.635941e+00
+v_diff_95ms         =  -1.635941e+00
+Reset re-loads circuit * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Circuit: * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=950k CDIFF=1n CPAR=200p ILEAK=14n
+v_diff_30ms         =  -1.609341e+00
+v_diff_85ms         =  -1.609341e+00
+v_diff_95ms         =  -1.609341e+00
+Reset re-loads circuit * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Circuit: * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=950k CDIFF=1.05n CPAR=0 ILEAK=-14n
+v_diff_30ms         =  -1.635941e+00
+v_diff_85ms         =  -1.635941e+00
+v_diff_95ms         =  -1.635941e+00
+Reset re-loads circuit * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Circuit: * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=950k CDIFF=1.05n CPAR=0 ILEAK=14n
+v_diff_30ms         =  -1.609341e+00
+v_diff_85ms         =  -1.609341e+00
+v_diff_95ms         =  -1.609341e+00
+Reset re-loads circuit * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Circuit: * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=950k CDIFF=1.05n CPAR=200p ILEAK=-14n
+v_diff_30ms         =  -1.635941e+00
+v_diff_85ms         =  -1.635941e+00
+v_diff_95ms         =  -1.635941e+00
+Reset re-loads circuit * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Circuit: * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=950k CDIFF=1.05n CPAR=200p ILEAK=14n
+v_diff_30ms         =  -1.609341e+00
+v_diff_85ms         =  -1.609341e+00
+v_diff_95ms         =  -1.609341e+00
+Reset re-loads circuit * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Circuit: * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1meg CDIFF=950p CPAR=0 ILEAK=-14n
+v_diff_30ms         =  -1.636641e+00
+v_diff_85ms         =  -1.636641e+00
+v_diff_95ms         =  -1.636641e+00
+Reset re-loads circuit * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Circuit: * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1meg CDIFF=950p CPAR=0 ILEAK=14n
+v_diff_30ms         =  -1.608641e+00
+v_diff_85ms         =  -1.608641e+00
+v_diff_95ms         =  -1.608641e+00
+Reset re-loads circuit * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Circuit: * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1meg CDIFF=950p CPAR=200p ILEAK=-14n
+v_diff_30ms         =  -1.636641e+00
+v_diff_85ms         =  -1.636641e+00
+v_diff_95ms         =  -1.636641e+00
+Reset re-loads circuit * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Circuit: * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+ Reference value :  3.67096e-02
+No. of Data Rows : 10011
+RDIAG=1meg CDIFF=950p CPAR=200p ILEAK=14n
+v_diff_30ms         =  -1.608641e+00
+v_diff_85ms         =  -1.608641e+00
+v_diff_95ms         =  -1.608641e+00
+Reset re-loads circuit * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Circuit: * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1meg CDIFF=1n CPAR=0 ILEAK=-14n
+v_diff_30ms         =  -1.636641e+00
+v_diff_85ms         =  -1.636641e+00
+v_diff_95ms         =  -1.636641e+00
+Reset re-loads circuit * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Circuit: * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1meg CDIFF=1n CPAR=0 ILEAK=14n
+v_diff_30ms         =  -1.608641e+00
+v_diff_85ms         =  -1.608641e+00
+v_diff_95ms         =  -1.608641e+00
+Reset re-loads circuit * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Circuit: * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1meg CDIFF=1n CPAR=200p ILEAK=-14n
+v_diff_30ms         =  -1.636641e+00
+v_diff_85ms         =  -1.636641e+00
+v_diff_95ms         =  -1.636641e+00
+Reset re-loads circuit * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Circuit: * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1meg CDIFF=1n CPAR=200p ILEAK=14n
+v_diff_30ms         =  -1.608641e+00
+v_diff_85ms         =  -1.608641e+00
+v_diff_95ms         =  -1.608641e+00
+Reset re-loads circuit * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Circuit: * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1meg CDIFF=1.05n CPAR=0 ILEAK=-14n
+v_diff_30ms         =  -1.636641e+00
+v_diff_85ms         =  -1.636641e+00
+v_diff_95ms         =  -1.636641e+00
+Reset re-loads circuit * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Circuit: * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1meg CDIFF=1.05n CPAR=0 ILEAK=14n
+v_diff_30ms         =  -1.608641e+00
+v_diff_85ms         =  -1.608641e+00
+v_diff_95ms         =  -1.608641e+00
+Reset re-loads circuit * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Circuit: * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1meg CDIFF=1.05n CPAR=200p ILEAK=-14n
+v_diff_30ms         =  -1.636641e+00
+v_diff_85ms         =  -1.636641e+00
+v_diff_95ms         =  -1.636641e+00
+Reset re-loads circuit * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Circuit: * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1meg CDIFF=1.05n CPAR=200p ILEAK=14n
+v_diff_30ms         =  -1.608641e+00
+v_diff_85ms         =  -1.608641e+00
+v_diff_95ms         =  -1.608641e+00
+Reset re-loads circuit * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Circuit: * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1.05meg CDIFF=950p CPAR=0 ILEAK=-14n
+v_diff_30ms         =  -1.637341e+00
+v_diff_85ms         =  -1.637341e+00
+v_diff_95ms         =  -1.637341e+00
+Reset re-loads circuit * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Circuit: * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1.05meg CDIFF=950p CPAR=0 ILEAK=14n
+v_diff_30ms         =  -1.607941e+00
+v_diff_85ms         =  -1.607941e+00
+v_diff_95ms         =  -1.607941e+00
+Reset re-loads circuit * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Circuit: * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1.05meg CDIFF=950p CPAR=200p ILEAK=-14n
+v_diff_30ms         =  -1.637341e+00
+v_diff_85ms         =  -1.637341e+00
+v_diff_95ms         =  -1.637341e+00
+Reset re-loads circuit * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Circuit: * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1.05meg CDIFF=950p CPAR=200p ILEAK=14n
+v_diff_30ms         =  -1.607941e+00
+v_diff_85ms         =  -1.607941e+00
+v_diff_95ms         =  -1.607941e+00
+Reset re-loads circuit * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Circuit: * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1.05meg CDIFF=1n CPAR=0 ILEAK=-14n
+v_diff_30ms         =  -1.637341e+00
+v_diff_85ms         =  -1.637341e+00
+v_diff_95ms         =  -1.637341e+00
+Reset re-loads circuit * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Circuit: * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1.05meg CDIFF=1n CPAR=0 ILEAK=14n
+v_diff_30ms         =  -1.607941e+00
+v_diff_85ms         =  -1.607941e+00
+v_diff_95ms         =  -1.607941e+00
+Reset re-loads circuit * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Circuit: * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1.05meg CDIFF=1n CPAR=200p ILEAK=-14n
+v_diff_30ms         =  -1.637341e+00
+v_diff_85ms         =  -1.637341e+00
+v_diff_95ms         =  -1.637341e+00
+Reset re-loads circuit * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Circuit: * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+ Reference value :  2.05796e-02
+No. of Data Rows : 10011
+RDIAG=1.05meg CDIFF=1n CPAR=200p ILEAK=14n
+v_diff_30ms         =  -1.607941e+00
+v_diff_85ms         =  -1.607941e+00
+v_diff_95ms         =  -1.607941e+00
+Reset re-loads circuit * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Circuit: * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1.05meg CDIFF=1.05n CPAR=0 ILEAK=-14n
+v_diff_30ms         =  -1.637341e+00
+v_diff_85ms         =  -1.637341e+00
+v_diff_95ms         =  -1.637341e+00
+Reset re-loads circuit * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Circuit: * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1.05meg CDIFF=1.05n CPAR=0 ILEAK=14n
+v_diff_30ms         =  -1.607941e+00
+v_diff_85ms         =  -1.607941e+00
+v_diff_95ms         =  -1.607941e+00
+Reset re-loads circuit * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Circuit: * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1.05meg CDIFF=1.05n CPAR=200p ILEAK=-14n
+v_diff_30ms         =  -1.637341e+00
+v_diff_85ms         =  -1.637341e+00
+v_diff_95ms         =  -1.637341e+00
+Reset re-loads circuit * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Circuit: * rtdin- diagnostic pull-up timing bound with intact 100 ohm force loop.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 10011
+RDIAG=1.05meg CDIFF=1.05n CPAR=200p ILEAK=14n
+v_diff_30ms         =  -1.607941e+00
+v_diff_85ms         =  -1.607941e+00
+v_diff_95ms         =  -1.607941e+00
+ngspice-45.2 done
+
+Note: No compatibility mode selected!
+
+
+Circuit: * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Reset re-loads circuit * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Circuit: * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+RTD=100 RDIAG=950k ILEAKP=-14n ILEAKN=-14n
+v(diff) = 3.774971e-01
+v(ideal) = 3.773585e-01
+v(error) = 1.385906e-04
+Reset re-loads circuit * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Circuit: * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+RTD=100 RDIAG=950k ILEAKP=-14n ILEAKN=14n
+v(diff) = 3.774971e-01
+v(ideal) = 3.773585e-01
+v(error) = 1.386186e-04
+Reset re-loads circuit * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Circuit: * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+RTD=100 RDIAG=950k ILEAKP=14n ILEAKN=-14n
+v(diff) = 3.774948e-01
+v(ideal) = 3.773585e-01
+v(error) = 1.362911e-04
+Reset re-loads circuit * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Circuit: * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+RTD=100 RDIAG=950k ILEAKP=14n ILEAKN=14n
+v(diff) = 3.774948e-01
+v(ideal) = 3.773585e-01
+v(error) = 1.363191e-04
+Reset re-loads circuit * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Circuit: * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+RTD=100 RDIAG=1meg ILEAKP=-14n ILEAKN=-14n
+v(diff) = 3.774902e-01
+v(ideal) = 3.773585e-01
+v(error) = 1.316829e-04
+Reset re-loads circuit * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Circuit: * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+RTD=100 RDIAG=1meg ILEAKP=-14n ILEAKN=14n
+v(diff) = 3.774902e-01
+v(ideal) = 3.773585e-01
+v(error) = 1.317109e-04
+Reset re-loads circuit * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Circuit: * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+RTD=100 RDIAG=1meg ILEAKP=14n ILEAKN=-14n
+v(diff) = 3.774879e-01
+v(ideal) = 3.773585e-01
+v(error) = 1.293833e-04
+Reset re-loads circuit * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Circuit: * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+RTD=100 RDIAG=1meg ILEAKP=14n ILEAKN=14n
+v(diff) = 3.774879e-01
+v(ideal) = 3.773585e-01
+v(error) = 1.294114e-04
+Reset re-loads circuit * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Circuit: * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+RTD=100 RDIAG=1.05meg ILEAKP=-14n ILEAKN=-14n
+v(diff) = 3.774839e-01
+v(ideal) = 3.773585e-01
+v(error) = 1.254329e-04
+Reset re-loads circuit * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Circuit: * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+RTD=100 RDIAG=1.05meg ILEAKP=-14n ILEAKN=14n
+v(diff) = 3.774840e-01
+v(ideal) = 3.773585e-01
+v(error) = 1.254609e-04
+Reset re-loads circuit * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Circuit: * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+RTD=100 RDIAG=1.05meg ILEAKP=14n ILEAKN=-14n
+v(diff) = 3.774816e-01
+v(ideal) = 3.773585e-01
+v(error) = 1.231334e-04
+Reset re-loads circuit * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Circuit: * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+RTD=100 RDIAG=1.05meg ILEAKP=14n ILEAKN=14n
+v(diff) = 3.774817e-01
+v(ideal) = 3.773585e-01
+v(error) = 1.231614e-04
+Reset re-loads circuit * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Circuit: * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+RTD=194.1 RDIAG=950k ILEAKP=-14n ILEAKN=-14n
+v(diff) = 6.222099e-01
+v(ideal) = 6.220157e-01
+v(error) = 1.941732e-04
+Reset re-loads circuit * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Circuit: * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+RTD=194.1 RDIAG=950k ILEAKP=-14n ILEAKN=14n
+v(diff) = 6.222099e-01
+v(ideal) = 6.220157e-01
+v(error) = 1.942012e-04
+Reset re-loads circuit * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Circuit: * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+RTD=194.1 RDIAG=950k ILEAKP=14n ILEAKN=-14n
+v(diff) = 6.222061e-01
+v(ideal) = 6.220157e-01
+v(error) = 1.904012e-04
+Reset re-loads circuit * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Circuit: * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+RTD=194.1 RDIAG=950k ILEAKP=14n ILEAKN=14n
+v(diff) = 6.222061e-01
+v(ideal) = 6.220157e-01
+v(error) = 1.904292e-04
+Reset re-loads circuit * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Circuit: * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+RTD=194.1 RDIAG=1meg ILEAKP=-14n ILEAKN=-14n
+v(diff) = 6.222002e-01
+v(ideal) = 6.220157e-01
+v(error) = 1.845096e-04
+Reset re-loads circuit * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Circuit: * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+RTD=194.1 RDIAG=1meg ILEAKP=-14n ILEAKN=14n
+v(diff) = 6.222002e-01
+v(ideal) = 6.220157e-01
+v(error) = 1.845376e-04
+Reset re-loads circuit * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Circuit: * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+RTD=194.1 RDIAG=1meg ILEAKP=14n ILEAKN=-14n
+v(diff) = 6.221964e-01
+v(ideal) = 6.220157e-01
+v(error) = 1.807376e-04
+Reset re-loads circuit * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Circuit: * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+RTD=194.1 RDIAG=1meg ILEAKP=14n ILEAKN=14n
+v(diff) = 6.221965e-01
+v(ideal) = 6.220157e-01
+v(error) = 1.807656e-04
+Reset re-loads circuit * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Circuit: * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+RTD=194.1 RDIAG=1.05meg ILEAKP=-14n ILEAKN=-14n
+v(diff) = 6.221915e-01
+v(ideal) = 6.220157e-01
+v(error) = 1.757663e-04
+Reset re-loads circuit * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Circuit: * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+RTD=194.1 RDIAG=1.05meg ILEAKP=-14n ILEAKN=14n
+v(diff) = 6.221915e-01
+v(ideal) = 6.220157e-01
+v(error) = 1.757943e-04
+Reset re-loads circuit * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Circuit: * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+RTD=194.1 RDIAG=1.05meg ILEAKP=14n ILEAKN=-14n
+v(diff) = 6.221877e-01
+v(ideal) = 6.220157e-01
+v(error) = 1.719942e-04
+Reset re-loads circuit * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Circuit: * healthy pt100 loading/error envelope for paired diagnostic pullups.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+RTD=194.1 RDIAG=1.05meg ILEAKP=14n ILEAKN=14n
+v(diff) = 6.221877e-01
+v(ideal) = 6.220157e-01
+v(error) = 1.720222e-04
+ngspice-45.2 done

@@ -1,0 +1,28 @@
+{
+  "schema": "zapote.native-library-transport-test.v1",
+  "kicad_version": "10.0.4",
+  "helper_sha256": "ed50f168d8645e3d8c8a11508716e19066cfc9c7cd3f60f10b99787ca7b951ce",
+  "test_sha256": "e22a8688b65a8cf70007d2be3fc67d7dc2e8fbcf7f5ccc2ed2d8a9f334ccc528",
+  "checks": [
+    {
+      "test": "37-degree-native-pad-centres-and-orientations",
+      "status": "pass"
+    },
+    {
+      "test": "changed-pad-centre-refuses-without-writing",
+      "status": "pass"
+    },
+    {
+      "test": "extra-pad-refuses-without-writing",
+      "status": "pass"
+    },
+    {
+      "test": "duplicate-pad-refuses-without-writing",
+      "status": "pass"
+    },
+    {
+      "test": "back-side-refuses-without-writing",
+      "status": "pass"
+    }
+  ]
+}

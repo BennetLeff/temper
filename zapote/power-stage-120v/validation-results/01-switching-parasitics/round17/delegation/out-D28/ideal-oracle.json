@@ -1,0 +1,110 @@
+[
+  {
+    "resistance": 2,
+    "phase": 30,
+    "spice": {
+      "ib": 2.702498,
+      "irms": 2.52595
+    },
+    "rust": {
+      "bus_V": "170",
+      "R_ohm": "2",
+      "phase_deg": "30",
+      "leading_A": "1.843425237",
+      "lagging_A": "2.702499023",
+      "power_W": "12.760801842",
+      "zero_after_A_ns": "665.327431",
+      "zero_after_B_ns": "8998.660765"
+    }
+  },
+  {
+    "resistance": 2,
+    "phase": 90,
+    "spice": {
+      "ib": 8.598509,
+      "irms": 6.70025
+    },
+    "rust": {
+      "bus_V": "170",
+      "R_ohm": "2",
+      "phase_deg": "90",
+      "leading_A": "6.982809448",
+      "lagging_A": "8.598510703",
+      "power_W": "89.786605182",
+      "zero_after_A_ns": "2132.911117",
+      "zero_after_B_ns": "7132.911117"
+    }
+  },
+  {
+    "resistance": 2,
+    "phase": 180,
+    "spice": {
+      "ib": 15.58132,
+      "irms": 9.47558
+    },
+    "rust": {
+      "bus_V": "170",
+      "R_ohm": "2",
+      "phase_deg": "180",
+      "leading_A": "15.581320151",
+      "lagging_A": "15.581320151",
+      "power_W": "179.573210365",
+      "zero_after_A_ns": "4538.446702",
+      "zero_after_B_ns": "4538.446702"
+    }
+  },
+  {
+    "resistance": 100,
+    "phase": 30,
+    "spice": {
+      "ib": 1.549916,
+      "irms": 0.550979
+    },
+    "rust": {
+      "bus_V": "170",
+      "R_ohm": "100",
+      "phase_deg": "30",
+      "leading_A": "-0.025125525",
+      "lagging_A": "1.549916010",
+      "power_W": "30.357806676",
+      "zero_after_A_ns": "NaN",
+      "zero_after_B_ns": "NaN"
+    }
+  },
+  {
+    "resistance": 100,
+    "phase": 90,
+    "spice": {
+      "ib": 1.658857,
+      "irms": 1.12655
+    },
+    "rust": {
+      "bus_V": "170",
+      "R_ohm": "100",
+      "phase_deg": "90",
+      "leading_A": "-0.076320700",
+      "lagging_A": "1.658856802",
+      "power_W": "126.912354537",
+      "zero_after_A_ns": "NaN",
+      "zero_after_B_ns": "NaN"
+    }
+  },
+  {
+    "resistance": 100,
+    "phase": 180,
+    "spice": {
+      "ib": 1.582536,
+      "irms": 1.59319
+    },
+    "rust": {
+      "bus_V": "170",
+      "R_ohm": "100",
+      "phase_deg": "180",
+      "leading_A": "1.582536102",
+      "lagging_A": "1.582536102",
+      "power_W": "253.824709073",
+      "zero_after_A_ns": "434.003270",
+      "zero_after_B_ns": "434.003270"
+    }
+  }
+]

@@ -1,0 +1,30 @@
+{
+  "model_status": "candidate, unqualified transformer Cww and upstream source",
+  "args": {
+    "cap_u": 10,
+    "cww_p": 3,
+    "esl_n": 0.125,
+    "itl4": 1000,
+    "off_r": 1.0,
+    "workers": 6,
+    "gmin": 1e-07,
+    "limit": 0,
+    "tag": "klu-3p-0p125n"
+  },
+  "cases": 504,
+  "complete": 171,
+  "hot_pass": 171,
+  "rail_pass": 171,
+  "shunt_active_region": 171,
+  "pass_candidate": 171,
+  "max_off_V": 1.003374,
+  "max_die_VDS_V": 480.0848,
+  "inputs_sha256": {
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D33/rail_campaign.py": "e561751902321f2d6f6c13513df6436773e9d79d14ffa568d9e8f56157db8e33",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D33/klu-3p-0p125n/F6.cir": "5a37c590f70ae3aef19c97e228b61010ef821dccb096a3235e8464a4b7d8b408",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/d2/legA-h0-best-n19.matrix.txt": "cf861da357ee496a0314356a21cfa4478d67e4ae8e15d36dae42dbc9deac2019",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/d2/legB-h0-corr-n19.matrix.txt": "4e5ceb13538e44799c499370889e231d25825baf4c4d198df8959a6d5b54b0a6",
+    "zapote/power-stage-120v/validation-plan/sim-kit/models/vendor/PMEG6030EP.txt": "0c2892521c7933b99f405d803cef84240050b71c9e1f412088bd7a6c6352b983",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D33/.models/TLVH431.lib": "6a05ad711caa2e739cfa2511abc5e70392493284289a75d20b8f756353adb8ca"
+  }
+}

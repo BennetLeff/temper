@@ -1,0 +1,5 @@
+Audited 9 boards, 1777 pins, 40 harness conductors, 5 declared external supply/return endpoints; 4 findings
+boundary_direction zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1129 central:J9.1: expected power_in, found power_out
+boundary_direction zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1130 central:J9.2: expected passive, found power_out
+connector_without_onboard_source zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1129 central:J9.1 CTRL_3V3 power_out
+connector_without_onboard_source zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1130 central:J9.2 CTRL_GND power_out

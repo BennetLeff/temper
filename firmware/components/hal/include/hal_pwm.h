@@ -28,13 +28,23 @@ extern "C" {
 #define HAL_PWM_CHANNEL_GATE    0   /**< Half-bridge gate drive */
 #define HAL_PWM_CHANNEL_FAN     1   /**< PWM fan control */
 
+/* Existing guard envelope; engineering policy, not the selected deployed gap.
+ * Native-18 DT-pin timing does not choose this controller setting (D20 R25).
+ */
+#define HAL_PWM_TIMER_RESOLUTION_HZ 80000000U
+#define HAL_PWM_MIN_DEAD_TIME_NS 300U
+#define HAL_PWM_MAX_DEAD_TIME_NS 1000U
+
 /**
  * @brief PWM channel state (for verification/testing)
  */
 typedef struct {
     uint32_t frequency_hz;      /**< Current frequency */
     float duty_percent;         /**< Current duty cycle */
-    uint16_t dead_time_ns;      /**< Current dead-time */
+    uint16_t dead_time_ns;      /**< Programmed time, truncated to whole ns */
+    uint32_t dead_time_ticks;   /**< Successfully programmed delay per edge */
+    uint32_t timer_resolution_hz; /**< Tick clock; not a measured oscillator */
+    bool configured;           /**< All configuration calls succeeded; not HW readback */
     bool running;               /**< PWM is active */
     bool complementary;         /**< Complementary mode enabled */
 } hal_pwm_state_t;
@@ -55,7 +65,8 @@ typedef struct {
     /**
      * @brief Set PWM frequency
      * 
-     * For PLL tracking, this must update without glitches.
+     * The ESP32 proposal requires stopped outputs for a period/compare update.
+     * Returns HAL_ERROR_BUSY while running; live PLL integration is deferred.
      * 
      * @param channel PWM channel
      * @param freq_hz Frequency in Hz

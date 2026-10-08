@@ -1,0 +1,34 @@
+[
+  {
+    "run_id": "cast_iron-low-108v-1710w",
+    "measure": "i_pk",
+    "original": 51.46897,
+    "halfstep": 51.47432,
+    "difference_percent": 0.010394612520903306,
+    "within_2_percent": true
+  },
+  {
+    "run_id": "cast_iron-low-108v-1710w",
+    "measure": "vc_pk",
+    "original": 452.0684,
+    "halfstep": 452.1379,
+    "difference_percent": 0.01537377972006117,
+    "within_2_percent": true
+  },
+  {
+    "run_id": "cast_iron-low-140v-1710w",
+    "measure": "i_pk",
+    "original": 51.52031,
+    "halfstep": 51.52529,
+    "difference_percent": 0.009666090906666147,
+    "within_2_percent": true
+  },
+  {
+    "run_id": "cast_iron-low-140v-1710w",
+    "measure": "vc_pk",
+    "original": 410.9289,
+    "halfstep": 410.9969,
+    "difference_percent": 0.016547874827003803,
+    "within_2_percent": true
+  }
+]

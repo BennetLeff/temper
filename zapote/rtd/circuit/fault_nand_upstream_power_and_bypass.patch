@@ -1,0 +1,34 @@
+--- elec/src/modules.ato
++++ elec/src/modules.ato
+@@ -1963,7 +1963,9 @@
+     c_window_and.p2 ~ power.gnd
+     power.vcc ~ c_rail_monitor.p1
+     c_rail_monitor.p2 ~ power.gnd
+-    fb_power.p2 ~ c_fault_nand.p1
++    # The fault NAND is upstream powered so it remains a qualified sink
++    # during post-ferrite RTD_AVDD loss.
++    power.vcc ~ c_fault_nand.p1
+     c_fault_nand.p2 ~ power.gnd
+     
+     # SPI connections through Series Resistors
+@@ -2097,11 +2099,16 @@
+     power.vcc ~ r_rail_ok_pullup.p1
+     r_rail_ok_pullup.p2 ~ rail_monitor.RESET
+ 
+-    # The Ioff-rated open-drain NAND is the only device allowed to hold the
+-    # active-high fault net low. A short/open window violation, local-rail
+-    # brownout/loss, or logic supply loss releases the upstream pull-up.
++    # The open-drain NAND is powered from the upstream +3V3 rail. This keeps
++    # its RESET-qualified fault sink alive when post-ferrite RTD_AVDD is lost;
++    # otherwise its VCC would be in the unqualified brownout interval and its
++    # output state could not be used as a fault proof. SN74LVC1G38 Ioff is
++    # specified for VCC=0 partial-power-down, but is not a guarantee for every
++    # intermediate brownout voltage. The upstream rail monitor drives B low
++    # on local-rail loss, which makes Y high-Z and lets the upstream pull-up
++    # assert RTD_HW_FAULT. A local window loss is similarly represented by A.
+     fault_nand = new SN74LVC1G38
+-    fault_nand.VCC ~ fb_power.p2
++    fault_nand.VCC ~ power.vcc
+     fault_nand.GND ~ power.gnd
+     window_and.Y ~ fault_nand.A
+     rail_monitor.RESET ~ fault_nand.B

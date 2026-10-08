@@ -1,0 +1,28 @@
+* exact zero-ohm post-fault transient; remote RTD nodes are merged
+VBIAS bias 0 2.06
+VREFSRC refsrc 0 1.25
+RREF bias forcep_i 430
+RFPATH forcep_i sensorp 1
+VSHORT sensorp sensorn 0
+RFNATH sensorn forcen_i 1
+RRETURN forcen_i 0 1m
+RSPATH sensorp sensep 1
+RSNATH sensorn sensem 1
+RDIAGP bias sensep 1Meg
+RDIAGN bias sensem 1Meg
+RWINP sensep windowp 100k
+RLOWTOPX refsrc lowth 61900
+RLOWBOTX lowth sensem 10000
+RHIGHTOPX refsrc highth 5900
+RHIGHBOTX highth 0 10000
+CDIFF sensep sensem 1.1n
+CGP sensep 0 100p
+CGN sensem 0 100p
+.ic V(sensep)=0.3912473 V(sensem)=0.003916155
+.tran 1n 3u uic
+.control
+run
+let low_margin=v(windowp)-v(lowth)-0.004
+meas tran cross WHEN low_margin=-0.020 FALL=1
+.endc
+.end

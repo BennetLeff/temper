@@ -1,0 +1,23 @@
+{
+  "base_revision": "2981c5e07128b2476975d478bb7fa6fa7faa4d8a",
+  "branch": "codex/ps-r17-d16",
+  "dirty_at_measurement": true,
+  "model": "GPT-6",
+  "provider": "OpenAI",
+  "python": "3.12.12 | packaged by conda-forge | (main, Oct 22 2025, 23:34:53) [Clang 19.1.7 ]",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "kicad_cli_version": "10.0.4",
+  "rust_validators_reused": {
+    "/Users/bennet/Desktop/temper/target-shared/debug/zapote-power-native-parity": "65087ed2c5cb5e76b41d20a38333ea109e80f98d868de11ee705843c0f2f6312",
+    "/Users/bennet/Desktop/temper/target-shared/debug/zapote-power-copper-identity": "53435d485ab7effe8d4d1224487d801d3c59a8e85019db14acc58e993483a1b4",
+    "/Users/bennet/Desktop/temper/target-shared/debug/zapote-power-barrier": "2882adcd07cce15039aff5a13ebb896a2dc99950607b2f86078f4b0fae1eb04f",
+    "/Users/bennet/Desktop/temper/target-shared/debug/zapote-board": "83cb8a52b7a8d1d4a9d50d901555eb4418696f38e2df915a8da39424ecf3568c"
+  },
+  "source_hashes": {
+    "elec/src/parts.ato": "44f3f32770d1cd2c50da5985d82c5836b5a9ad237d1c6585cb6066097a1a7472",
+    "elec/src/power_stage_120v.ato": "de5424925fb034b5f699670d6522176696d1006ffa7dcb5c7a734a1d8cb2049b"
+  },
+  "board_sha256": "fb113d95819f1ea7cd8c27f929f7e88308eff44b663af85f71cd6f2bca5a0002",
+  "source_manifest_sha256": "c15d7dbf4441e972c7b2568ce1e5610b27ca0641f2efe7ff74c704770ec3b4b8",
+  "authoritative_result": "Native-18 scoped value revision verified; owner placement carry-over and physical qualification remain separate."
+}

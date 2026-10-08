@@ -1,0 +1,44 @@
+# KiCad's official two-pin rectangular capacitor pattern is the 2D source.
+footprint: KEMET_R463N410000N1M_P22.50_ReviewOnly
+manufacturer: KEMET
+mpn: R463N410000N1M
+method: stock_footprint_variant
+stock_footprint: Capacitor_THT:C_Rect_L26.5mm_W10.5mm_P22.50mm_MKS4
+source:
+  url: https://content.kemet.com/datasheets/KEM_F3095_R46_X2_310_110C.pdf
+  sha256: 5a3131ce8de7445130b777cab1a5e1a17e6b5f3343faddfe19735221db205094
+  saved_copy: validation-results/07-conducted-emi/sources/KEM_F3095_R46_X2_310_110C.pdf
+  ordering_table: R463N4100(1)N1(2) row, page 10; packaging 00 and tolerance M, pages 1-2
+  dimensions: page 3 (maximum body tolerances)
+body_nominal_mm: {length: 26.5, width: 11.0, height: 20.0}
+body_max_mm: {length: 26.8, width: 11.2, height: 20.1}
+lead_diameter_mm: 0.8
+lead_diameter_tolerance_mm: 0.05
+pitch_tolerance_mm: 0.4
+pad_size_mm: 2.4
+drill_mm: 1.2
+courtyard_mm:
+  x_min: -2.25
+  x_max: 24.75
+  y_min: -5.85
+  y_max: 5.85
+  basis: >-
+    Max body (26.8 x 11.2 mm) centred on the pitch midpoint, plus 0.25 mm
+    across the width and 0.10 mm (IPC-7351 least) at the length ends. The
+    length-end allowance is the least because C2's ends sit 0.16 mm from C5's
+    courtyard and on the 10 mm heat-sink zone line; the length extent equals
+    the stock pattern's, so C2's clearances are unchanged.
+pads:
+  - {number: '1', x_mm: 0.0, y_mm: 0.0}
+  - {number: '2', x_mm: 22.5, y_mm: 0.0}
+lead_fit: >-
+  1.2 mm drill vs 0.85 mm max lead gives 0.175 mm radial play per hole,
+  0.35 mm total pitch accommodation. At the 22.5 +/- 0.4 mm pitch extreme the
+  leads need a further 0.05 mm of forming, which is within normal radial-lead
+  insertion; confirm on the first article.
+modifications_from_stock:
+  - Set the part-specific footprint name, description, tags, and value.
+  - Fab outline to the 11.0 mm nominal width (stock is 10.5 mm WIMA MKS4).
+  - Silkscreen at nominal body + 0.12 mm.
+  - Courtyard from the page-3 maximum body plus 0.25 mm across and 0.10 mm at the ends.
+  - Remove the generic WIMA 3D model; the assembly envelope is models3d/capacitors/KEMET_R463N410000N1M.step.

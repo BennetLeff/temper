@@ -1,0 +1,6 @@
+Review correction, 2026-10-02
+PASS check_recovery_audit.py: complete cohort; missing/failed probes remain indeterminate; incomplete/duplicate recovery cohorts and duplicate/unexpected probes rejected.
+PASS audit_recovery.py: recovery-audit.json and full-load-convergence.csv unchanged byte-for-byte after guard fix.
+No simulation rerun or primary runner modification.
+PASS check_analysis_inputs.py: exact32+8 refinements; missing aborted row, absent boundary cohort, duplicate focused row, altered boundary identity and altered aborted-row identity rejected.
+PASS full analyze.py replay: all eight numerical JSON/CSV/table outputs byte-identical; analysis-provenance refreshed for new audit source.

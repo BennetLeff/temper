@@ -1,0 +1,3181 @@
+{
+  "evidence_class": "simulation/model-based, reference inductances with sensitivity",
+  "criterion": "incoming die |VDS| <= 5% VBUS throughout 20 ns before incoming 50% command",
+  "threshold_estimate": "midpoint of last fail/pass bracket; half-width <= 0.25 A",
+  "board_sha256": "a3ac1249f5052afe52944804cdc3f6ef0e8f895668360e79c1fa7b6fb7322155",
+  "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+  "deck_sha256": "b2da52e71a9538d090f3c8828d29509d7c4870a6774667738d582abc52c9b902",
+  "kit_options_sha256": "ae752d460d50fdbbcaaf03b29871b3b039cf27f018707efe4aa50d0fc3529330",
+  "reference_board_l_nh": {
+    "LD_HS": 4,
+    "LS_HS": 4,
+    "LD_LS": 4,
+    "LS_LS": 4,
+    "LCAP": 3,
+    "LBULK": 30,
+    "LCS": 1,
+    "LG": 20
+  },
+  "scale_scope": "board copper, gate loop and capacitor ESL only; Infineon package L is internal and unscaled",
+  "completed_of": 54,
+  "thresholds": [
+    {
+      "bus_v": 120,
+      "direction": 0,
+      "deadtime_ns": 250,
+      "board_l_scale": 0.5,
+      "status": "not_found_in_sampled_1_to_100A",
+      "threshold_a": null,
+      "bracket_a": null,
+      "sampled_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          false
+        ],
+        [
+          20.0,
+          false
+        ],
+        [
+          37.0,
+          false
+        ],
+        [
+          50.0,
+          false
+        ],
+        [
+          75.0,
+          false
+        ],
+        [
+          100.0,
+          false
+        ]
+      ]
+    },
+    {
+      "bus_v": 120,
+      "direction": 0,
+      "deadtime_ns": 250,
+      "board_l_scale": 1.0,
+      "status": "not_found_in_sampled_1_to_100A",
+      "threshold_a": null,
+      "bracket_a": null,
+      "sampled_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          false
+        ],
+        [
+          20.0,
+          false
+        ],
+        [
+          37.0,
+          false
+        ],
+        [
+          50.0,
+          false
+        ],
+        [
+          75.0,
+          false
+        ],
+        [
+          100.0,
+          false
+        ]
+      ]
+    },
+    {
+      "bus_v": 120,
+      "direction": 0,
+      "deadtime_ns": 250,
+      "board_l_scale": 3.0,
+      "status": "not_found_in_sampled_1_to_100A",
+      "threshold_a": null,
+      "bracket_a": null,
+      "sampled_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          false
+        ],
+        [
+          20.0,
+          false
+        ],
+        [
+          37.0,
+          false
+        ],
+        [
+          50.0,
+          false
+        ],
+        [
+          75.0,
+          false
+        ],
+        [
+          100.0,
+          false
+        ]
+      ]
+    },
+    {
+      "bus_v": 120,
+      "direction": 1,
+      "deadtime_ns": 250,
+      "board_l_scale": 0.5,
+      "status": "not_found_in_sampled_1_to_100A",
+      "threshold_a": null,
+      "bracket_a": null,
+      "sampled_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          false
+        ],
+        [
+          20.0,
+          false
+        ],
+        [
+          37.0,
+          false
+        ],
+        [
+          50.0,
+          false
+        ],
+        [
+          75.0,
+          false
+        ],
+        [
+          100.0,
+          false
+        ]
+      ]
+    },
+    {
+      "bus_v": 120,
+      "direction": 1,
+      "deadtime_ns": 250,
+      "board_l_scale": 1.0,
+      "status": "not_found_in_sampled_1_to_100A",
+      "threshold_a": null,
+      "bracket_a": null,
+      "sampled_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          false
+        ],
+        [
+          20.0,
+          false
+        ],
+        [
+          37.0,
+          false
+        ],
+        [
+          50.0,
+          false
+        ],
+        [
+          75.0,
+          false
+        ],
+        [
+          100.0,
+          false
+        ]
+      ]
+    },
+    {
+      "bus_v": 120,
+      "direction": 1,
+      "deadtime_ns": 250,
+      "board_l_scale": 3.0,
+      "status": "not_found_in_sampled_1_to_100A",
+      "threshold_a": null,
+      "bracket_a": null,
+      "sampled_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          false
+        ],
+        [
+          20.0,
+          false
+        ],
+        [
+          37.0,
+          false
+        ],
+        [
+          50.0,
+          false
+        ],
+        [
+          75.0,
+          false
+        ],
+        [
+          100.0,
+          false
+        ]
+      ]
+    },
+    {
+      "bus_v": 170,
+      "direction": 0,
+      "deadtime_ns": 250,
+      "board_l_scale": 0.5,
+      "status": "not_found_in_sampled_1_to_100A",
+      "threshold_a": null,
+      "bracket_a": null,
+      "sampled_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          false
+        ],
+        [
+          20.0,
+          false
+        ],
+        [
+          37.0,
+          false
+        ],
+        [
+          50.0,
+          false
+        ],
+        [
+          75.0,
+          false
+        ],
+        [
+          100.0,
+          false
+        ]
+      ]
+    },
+    {
+      "bus_v": 170,
+      "direction": 0,
+      "deadtime_ns": 250,
+      "board_l_scale": 1.0,
+      "status": "not_found_in_sampled_1_to_100A",
+      "threshold_a": null,
+      "bracket_a": null,
+      "sampled_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          false
+        ],
+        [
+          20.0,
+          false
+        ],
+        [
+          37.0,
+          false
+        ],
+        [
+          50.0,
+          false
+        ],
+        [
+          75.0,
+          false
+        ],
+        [
+          100.0,
+          false
+        ]
+      ]
+    },
+    {
+      "bus_v": 170,
+      "direction": 0,
+      "deadtime_ns": 250,
+      "board_l_scale": 3.0,
+      "status": "not_found_in_sampled_1_to_100A",
+      "threshold_a": null,
+      "bracket_a": null,
+      "sampled_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          false
+        ],
+        [
+          20.0,
+          false
+        ],
+        [
+          37.0,
+          false
+        ],
+        [
+          50.0,
+          false
+        ],
+        [
+          75.0,
+          false
+        ],
+        [
+          100.0,
+          false
+        ]
+      ]
+    },
+    {
+      "bus_v": 170,
+      "direction": 1,
+      "deadtime_ns": 250,
+      "board_l_scale": 0.5,
+      "status": "not_found_in_sampled_1_to_100A",
+      "threshold_a": null,
+      "bracket_a": null,
+      "sampled_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          false
+        ],
+        [
+          20.0,
+          false
+        ],
+        [
+          37.0,
+          false
+        ],
+        [
+          50.0,
+          false
+        ],
+        [
+          75.0,
+          false
+        ],
+        [
+          100.0,
+          false
+        ]
+      ]
+    },
+    {
+      "bus_v": 170,
+      "direction": 1,
+      "deadtime_ns": 250,
+      "board_l_scale": 1.0,
+      "status": "not_found_in_sampled_1_to_100A",
+      "threshold_a": null,
+      "bracket_a": null,
+      "sampled_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          false
+        ],
+        [
+          20.0,
+          false
+        ],
+        [
+          37.0,
+          false
+        ],
+        [
+          50.0,
+          false
+        ],
+        [
+          75.0,
+          false
+        ],
+        [
+          100.0,
+          false
+        ]
+      ]
+    },
+    {
+      "bus_v": 170,
+      "direction": 1,
+      "deadtime_ns": 250,
+      "board_l_scale": 3.0,
+      "status": "not_found_in_sampled_1_to_100A",
+      "threshold_a": null,
+      "bracket_a": null,
+      "sampled_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          false
+        ],
+        [
+          20.0,
+          false
+        ],
+        [
+          37.0,
+          false
+        ],
+        [
+          50.0,
+          false
+        ],
+        [
+          75.0,
+          false
+        ],
+        [
+          100.0,
+          false
+        ]
+      ]
+    },
+    {
+      "bus_v": 198,
+      "direction": 0,
+      "deadtime_ns": 250,
+      "board_l_scale": 0.5,
+      "status": "not_found_in_sampled_1_to_100A",
+      "threshold_a": null,
+      "bracket_a": null,
+      "sampled_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          false
+        ],
+        [
+          20.0,
+          false
+        ],
+        [
+          37.0,
+          false
+        ],
+        [
+          50.0,
+          false
+        ],
+        [
+          75.0,
+          false
+        ],
+        [
+          100.0,
+          false
+        ]
+      ]
+    },
+    {
+      "bus_v": 198,
+      "direction": 0,
+      "deadtime_ns": 250,
+      "board_l_scale": 1.0,
+      "status": "not_found_in_sampled_1_to_100A",
+      "threshold_a": null,
+      "bracket_a": null,
+      "sampled_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          false
+        ],
+        [
+          20.0,
+          false
+        ],
+        [
+          37.0,
+          false
+        ],
+        [
+          50.0,
+          false
+        ],
+        [
+          75.0,
+          false
+        ],
+        [
+          100.0,
+          false
+        ]
+      ]
+    },
+    {
+      "bus_v": 198,
+      "direction": 0,
+      "deadtime_ns": 250,
+      "board_l_scale": 3.0,
+      "status": "not_found_in_sampled_1_to_100A",
+      "threshold_a": null,
+      "bracket_a": null,
+      "sampled_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          false
+        ],
+        [
+          20.0,
+          false
+        ],
+        [
+          37.0,
+          false
+        ],
+        [
+          50.0,
+          false
+        ],
+        [
+          75.0,
+          false
+        ],
+        [
+          100.0,
+          false
+        ]
+      ]
+    },
+    {
+      "bus_v": 198,
+      "direction": 1,
+      "deadtime_ns": 250,
+      "board_l_scale": 0.5,
+      "status": "not_found_in_sampled_1_to_100A",
+      "threshold_a": null,
+      "bracket_a": null,
+      "sampled_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          false
+        ],
+        [
+          20.0,
+          false
+        ],
+        [
+          37.0,
+          false
+        ],
+        [
+          50.0,
+          false
+        ],
+        [
+          75.0,
+          false
+        ],
+        [
+          100.0,
+          false
+        ]
+      ]
+    },
+    {
+      "bus_v": 198,
+      "direction": 1,
+      "deadtime_ns": 250,
+      "board_l_scale": 1.0,
+      "status": "not_found_in_sampled_1_to_100A",
+      "threshold_a": null,
+      "bracket_a": null,
+      "sampled_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          false
+        ],
+        [
+          20.0,
+          false
+        ],
+        [
+          37.0,
+          false
+        ],
+        [
+          50.0,
+          false
+        ],
+        [
+          75.0,
+          false
+        ],
+        [
+          100.0,
+          false
+        ]
+      ]
+    },
+    {
+      "bus_v": 198,
+      "direction": 1,
+      "deadtime_ns": 250,
+      "board_l_scale": 3.0,
+      "status": "not_found_in_sampled_1_to_100A",
+      "threshold_a": null,
+      "bracket_a": null,
+      "sampled_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          false
+        ],
+        [
+          20.0,
+          false
+        ],
+        [
+          37.0,
+          false
+        ],
+        [
+          50.0,
+          false
+        ],
+        [
+          75.0,
+          false
+        ],
+        [
+          100.0,
+          false
+        ]
+      ]
+    },
+    {
+      "bus_v": 120,
+      "direction": 0,
+      "deadtime_ns": 348,
+      "board_l_scale": 0.5,
+      "status": "bracketed",
+      "threshold_a": 21.7265625,
+      "bracket_a": [
+        21.59375,
+        21.859375
+      ],
+      "half_width_a": 0.1328125,
+      "outside_requested_1_to_37a_grid": false,
+      "grid_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          false
+        ],
+        [
+          20.0,
+          false
+        ],
+        [
+          37.0,
+          true
+        ]
+      ]
+    },
+    {
+      "bus_v": 120,
+      "direction": 0,
+      "deadtime_ns": 348,
+      "board_l_scale": 1.0,
+      "status": "bracketed",
+      "threshold_a": 21.9921875,
+      "bracket_a": [
+        21.859375,
+        22.125
+      ],
+      "half_width_a": 0.1328125,
+      "outside_requested_1_to_37a_grid": false,
+      "grid_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          false
+        ],
+        [
+          20.0,
+          false
+        ],
+        [
+          37.0,
+          true
+        ]
+      ]
+    },
+    {
+      "bus_v": 120,
+      "direction": 0,
+      "deadtime_ns": 348,
+      "board_l_scale": 3.0,
+      "status": "bracketed",
+      "threshold_a": 20.6640625,
+      "bracket_a": [
+        20.53125,
+        20.796875
+      ],
+      "half_width_a": 0.1328125,
+      "outside_requested_1_to_37a_grid": false,
+      "grid_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          false
+        ],
+        [
+          20.0,
+          false
+        ],
+        [
+          37.0,
+          true
+        ]
+      ]
+    },
+    {
+      "bus_v": 120,
+      "direction": 1,
+      "deadtime_ns": 348,
+      "board_l_scale": 0.5,
+      "status": "bracketed",
+      "threshold_a": 21.7265625,
+      "bracket_a": [
+        21.59375,
+        21.859375
+      ],
+      "half_width_a": 0.1328125,
+      "outside_requested_1_to_37a_grid": false,
+      "grid_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          false
+        ],
+        [
+          20.0,
+          false
+        ],
+        [
+          37.0,
+          true
+        ]
+      ]
+    },
+    {
+      "bus_v": 120,
+      "direction": 1,
+      "deadtime_ns": 348,
+      "board_l_scale": 1.0,
+      "status": "bracketed",
+      "threshold_a": 21.9921875,
+      "bracket_a": [
+        21.859375,
+        22.125
+      ],
+      "half_width_a": 0.1328125,
+      "outside_requested_1_to_37a_grid": false,
+      "grid_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          false
+        ],
+        [
+          20.0,
+          false
+        ],
+        [
+          37.0,
+          true
+        ]
+      ]
+    },
+    {
+      "bus_v": 120,
+      "direction": 1,
+      "deadtime_ns": 348,
+      "board_l_scale": 3.0,
+      "status": "bracketed",
+      "threshold_a": 20.9296875,
+      "bracket_a": [
+        20.796875,
+        21.0625
+      ],
+      "half_width_a": 0.1328125,
+      "outside_requested_1_to_37a_grid": false,
+      "grid_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          false
+        ],
+        [
+          20.0,
+          false
+        ],
+        [
+          37.0,
+          true
+        ]
+      ]
+    },
+    {
+      "bus_v": 170,
+      "direction": 0,
+      "deadtime_ns": 348,
+      "board_l_scale": 0.5,
+      "status": "bracketed",
+      "threshold_a": 21.7265625,
+      "bracket_a": [
+        21.59375,
+        21.859375
+      ],
+      "half_width_a": 0.1328125,
+      "outside_requested_1_to_37a_grid": false,
+      "grid_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          false
+        ],
+        [
+          20.0,
+          false
+        ],
+        [
+          37.0,
+          true
+        ]
+      ]
+    },
+    {
+      "bus_v": 170,
+      "direction": 0,
+      "deadtime_ns": 348,
+      "board_l_scale": 1.0,
+      "status": "bracketed",
+      "threshold_a": 21.4609375,
+      "bracket_a": [
+        21.328125,
+        21.59375
+      ],
+      "half_width_a": 0.1328125,
+      "outside_requested_1_to_37a_grid": false,
+      "grid_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          false
+        ],
+        [
+          20.0,
+          false
+        ],
+        [
+          37.0,
+          true
+        ]
+      ]
+    },
+    {
+      "bus_v": 170,
+      "direction": 0,
+      "deadtime_ns": 348,
+      "board_l_scale": 3.0,
+      "status": "bracketed",
+      "threshold_a": 20.6640625,
+      "bracket_a": [
+        20.53125,
+        20.796875
+      ],
+      "half_width_a": 0.1328125,
+      "outside_requested_1_to_37a_grid": false,
+      "grid_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          false
+        ],
+        [
+          20.0,
+          false
+        ],
+        [
+          37.0,
+          true
+        ]
+      ]
+    },
+    {
+      "bus_v": 170,
+      "direction": 1,
+      "deadtime_ns": 348,
+      "board_l_scale": 0.5,
+      "status": "bracketed",
+      "threshold_a": 21.7265625,
+      "bracket_a": [
+        21.59375,
+        21.859375
+      ],
+      "half_width_a": 0.1328125,
+      "outside_requested_1_to_37a_grid": false,
+      "grid_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          false
+        ],
+        [
+          20.0,
+          false
+        ],
+        [
+          37.0,
+          true
+        ]
+      ]
+    },
+    {
+      "bus_v": 170,
+      "direction": 1,
+      "deadtime_ns": 348,
+      "board_l_scale": 1.0,
+      "status": "bracketed",
+      "threshold_a": 21.4609375,
+      "bracket_a": [
+        21.328125,
+        21.59375
+      ],
+      "half_width_a": 0.1328125,
+      "outside_requested_1_to_37a_grid": false,
+      "grid_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          false
+        ],
+        [
+          20.0,
+          false
+        ],
+        [
+          37.0,
+          true
+        ]
+      ]
+    },
+    {
+      "bus_v": 170,
+      "direction": 1,
+      "deadtime_ns": 348,
+      "board_l_scale": 3.0,
+      "status": "bracketed",
+      "threshold_a": 20.6640625,
+      "bracket_a": [
+        20.53125,
+        20.796875
+      ],
+      "half_width_a": 0.1328125,
+      "outside_requested_1_to_37a_grid": false,
+      "grid_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          false
+        ],
+        [
+          20.0,
+          false
+        ],
+        [
+          37.0,
+          true
+        ]
+      ]
+    },
+    {
+      "bus_v": 198,
+      "direction": 0,
+      "deadtime_ns": 348,
+      "board_l_scale": 0.5,
+      "status": "bracketed",
+      "threshold_a": 21.9921875,
+      "bracket_a": [
+        21.859375,
+        22.125
+      ],
+      "half_width_a": 0.1328125,
+      "outside_requested_1_to_37a_grid": false,
+      "grid_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          false
+        ],
+        [
+          20.0,
+          false
+        ],
+        [
+          37.0,
+          true
+        ]
+      ]
+    },
+    {
+      "bus_v": 198,
+      "direction": 0,
+      "deadtime_ns": 348,
+      "board_l_scale": 1.0,
+      "status": "bracketed",
+      "threshold_a": 20.9296875,
+      "bracket_a": [
+        20.796875,
+        21.0625
+      ],
+      "half_width_a": 0.1328125,
+      "outside_requested_1_to_37a_grid": false,
+      "grid_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          false
+        ],
+        [
+          20.0,
+          false
+        ],
+        [
+          37.0,
+          true
+        ]
+      ]
+    },
+    {
+      "bus_v": 198,
+      "direction": 0,
+      "deadtime_ns": 348,
+      "board_l_scale": 3.0,
+      "status": "bracketed",
+      "threshold_a": 20.9296875,
+      "bracket_a": [
+        20.796875,
+        21.0625
+      ],
+      "half_width_a": 0.1328125,
+      "outside_requested_1_to_37a_grid": false,
+      "grid_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          false
+        ],
+        [
+          20.0,
+          false
+        ],
+        [
+          37.0,
+          true
+        ]
+      ]
+    },
+    {
+      "bus_v": 198,
+      "direction": 1,
+      "deadtime_ns": 348,
+      "board_l_scale": 0.5,
+      "status": "bracketed",
+      "threshold_a": 21.9921875,
+      "bracket_a": [
+        21.859375,
+        22.125
+      ],
+      "half_width_a": 0.1328125,
+      "outside_requested_1_to_37a_grid": false,
+      "grid_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          false
+        ],
+        [
+          20.0,
+          false
+        ],
+        [
+          37.0,
+          true
+        ]
+      ]
+    },
+    {
+      "bus_v": 198,
+      "direction": 1,
+      "deadtime_ns": 348,
+      "board_l_scale": 1.0,
+      "status": "bracketed",
+      "threshold_a": 20.9296875,
+      "bracket_a": [
+        20.796875,
+        21.0625
+      ],
+      "half_width_a": 0.1328125,
+      "outside_requested_1_to_37a_grid": false,
+      "grid_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          false
+        ],
+        [
+          20.0,
+          false
+        ],
+        [
+          37.0,
+          true
+        ]
+      ]
+    },
+    {
+      "bus_v": 198,
+      "direction": 1,
+      "deadtime_ns": 348,
+      "board_l_scale": 3.0,
+      "status": "bracketed",
+      "threshold_a": 20.9296875,
+      "bracket_a": [
+        20.796875,
+        21.0625
+      ],
+      "half_width_a": 0.1328125,
+      "outside_requested_1_to_37a_grid": false,
+      "grid_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          false
+        ],
+        [
+          20.0,
+          false
+        ],
+        [
+          37.0,
+          true
+        ]
+      ]
+    },
+    {
+      "bus_v": 120,
+      "direction": 0,
+      "deadtime_ns": 450,
+      "board_l_scale": 0.5,
+      "status": "bracketed",
+      "threshold_a": 11.09375,
+      "bracket_a": [
+        10.9375,
+        11.25
+      ],
+      "half_width_a": 0.15625,
+      "outside_requested_1_to_37a_grid": false,
+      "grid_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          true
+        ],
+        [
+          20.0,
+          true
+        ],
+        [
+          37.0,
+          true
+        ]
+      ]
+    },
+    {
+      "bus_v": 120,
+      "direction": 0,
+      "deadtime_ns": 450,
+      "board_l_scale": 1.0,
+      "status": "bracketed",
+      "threshold_a": 11.09375,
+      "bracket_a": [
+        10.9375,
+        11.25
+      ],
+      "half_width_a": 0.15625,
+      "outside_requested_1_to_37a_grid": false,
+      "grid_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          true
+        ],
+        [
+          20.0,
+          true
+        ],
+        [
+          37.0,
+          true
+        ]
+      ]
+    },
+    {
+      "bus_v": 120,
+      "direction": 0,
+      "deadtime_ns": 450,
+      "board_l_scale": 3.0,
+      "status": "bracketed",
+      "threshold_a": 10.78125,
+      "bracket_a": [
+        10.625,
+        10.9375
+      ],
+      "half_width_a": 0.15625,
+      "outside_requested_1_to_37a_grid": false,
+      "grid_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          true
+        ],
+        [
+          20.0,
+          true
+        ],
+        [
+          37.0,
+          true
+        ]
+      ]
+    },
+    {
+      "bus_v": 120,
+      "direction": 1,
+      "deadtime_ns": 450,
+      "board_l_scale": 0.5,
+      "status": "bracketed",
+      "threshold_a": 11.09375,
+      "bracket_a": [
+        10.9375,
+        11.25
+      ],
+      "half_width_a": 0.15625,
+      "outside_requested_1_to_37a_grid": false,
+      "grid_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          true
+        ],
+        [
+          20.0,
+          true
+        ],
+        [
+          37.0,
+          true
+        ]
+      ]
+    },
+    {
+      "bus_v": 120,
+      "direction": 1,
+      "deadtime_ns": 450,
+      "board_l_scale": 1.0,
+      "status": "bracketed",
+      "threshold_a": 11.09375,
+      "bracket_a": [
+        10.9375,
+        11.25
+      ],
+      "half_width_a": 0.15625,
+      "outside_requested_1_to_37a_grid": false,
+      "grid_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          true
+        ],
+        [
+          20.0,
+          true
+        ],
+        [
+          37.0,
+          true
+        ]
+      ]
+    },
+    {
+      "bus_v": 120,
+      "direction": 1,
+      "deadtime_ns": 450,
+      "board_l_scale": 3.0,
+      "status": "bracketed",
+      "threshold_a": 10.78125,
+      "bracket_a": [
+        10.625,
+        10.9375
+      ],
+      "half_width_a": 0.15625,
+      "outside_requested_1_to_37a_grid": false,
+      "grid_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          true
+        ],
+        [
+          20.0,
+          true
+        ],
+        [
+          37.0,
+          true
+        ]
+      ]
+    },
+    {
+      "bus_v": 170,
+      "direction": 0,
+      "deadtime_ns": 450,
+      "board_l_scale": 0.5,
+      "status": "bracketed",
+      "threshold_a": 10.78125,
+      "bracket_a": [
+        10.625,
+        10.9375
+      ],
+      "half_width_a": 0.15625,
+      "outside_requested_1_to_37a_grid": false,
+      "grid_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          true
+        ],
+        [
+          20.0,
+          true
+        ],
+        [
+          37.0,
+          true
+        ]
+      ]
+    },
+    {
+      "bus_v": 170,
+      "direction": 0,
+      "deadtime_ns": 450,
+      "board_l_scale": 1.0,
+      "status": "bracketed",
+      "threshold_a": 11.09375,
+      "bracket_a": [
+        10.9375,
+        11.25
+      ],
+      "half_width_a": 0.15625,
+      "outside_requested_1_to_37a_grid": false,
+      "grid_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          true
+        ],
+        [
+          20.0,
+          true
+        ],
+        [
+          37.0,
+          true
+        ]
+      ]
+    },
+    {
+      "bus_v": 170,
+      "direction": 0,
+      "deadtime_ns": 450,
+      "board_l_scale": 3.0,
+      "status": "bracketed",
+      "threshold_a": 10.78125,
+      "bracket_a": [
+        10.625,
+        10.9375
+      ],
+      "half_width_a": 0.15625,
+      "outside_requested_1_to_37a_grid": false,
+      "grid_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          true
+        ],
+        [
+          20.0,
+          true
+        ],
+        [
+          37.0,
+          true
+        ]
+      ]
+    },
+    {
+      "bus_v": 170,
+      "direction": 1,
+      "deadtime_ns": 450,
+      "board_l_scale": 0.5,
+      "status": "bracketed",
+      "threshold_a": 10.78125,
+      "bracket_a": [
+        10.625,
+        10.9375
+      ],
+      "half_width_a": 0.15625,
+      "outside_requested_1_to_37a_grid": false,
+      "grid_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          true
+        ],
+        [
+          20.0,
+          true
+        ],
+        [
+          37.0,
+          true
+        ]
+      ]
+    },
+    {
+      "bus_v": 170,
+      "direction": 1,
+      "deadtime_ns": 450,
+      "board_l_scale": 1.0,
+      "status": "bracketed",
+      "threshold_a": 10.78125,
+      "bracket_a": [
+        10.625,
+        10.9375
+      ],
+      "half_width_a": 0.15625,
+      "outside_requested_1_to_37a_grid": false,
+      "grid_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          true
+        ],
+        [
+          20.0,
+          true
+        ],
+        [
+          37.0,
+          true
+        ]
+      ],
+      "coarse_0p2ns_threshold_a": 11.09375,
+      "coarse_0p2ns_bracket_a": [
+        10.9375,
+        11.25
+      ],
+      "max_step_ns": 0.1,
+      "timestep_refinement_cause": "0.2/0.1 ns ZVS classification flip at strict 5% diagnostic boundary"
+    },
+    {
+      "bus_v": 170,
+      "direction": 1,
+      "deadtime_ns": 450,
+      "board_l_scale": 3.0,
+      "status": "bracketed",
+      "threshold_a": 10.78125,
+      "bracket_a": [
+        10.625,
+        10.9375
+      ],
+      "half_width_a": 0.15625,
+      "outside_requested_1_to_37a_grid": false,
+      "grid_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          true
+        ],
+        [
+          20.0,
+          true
+        ],
+        [
+          37.0,
+          true
+        ]
+      ]
+    },
+    {
+      "bus_v": 198,
+      "direction": 0,
+      "deadtime_ns": 450,
+      "board_l_scale": 0.5,
+      "status": "bracketed",
+      "threshold_a": 10.78125,
+      "bracket_a": [
+        10.625,
+        10.9375
+      ],
+      "half_width_a": 0.15625,
+      "outside_requested_1_to_37a_grid": false,
+      "grid_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          true
+        ],
+        [
+          20.0,
+          true
+        ],
+        [
+          37.0,
+          true
+        ]
+      ]
+    },
+    {
+      "bus_v": 198,
+      "direction": 0,
+      "deadtime_ns": 450,
+      "board_l_scale": 1.0,
+      "status": "bracketed",
+      "threshold_a": 10.78125,
+      "bracket_a": [
+        10.625,
+        10.9375
+      ],
+      "half_width_a": 0.15625,
+      "outside_requested_1_to_37a_grid": false,
+      "grid_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          true
+        ],
+        [
+          20.0,
+          true
+        ],
+        [
+          37.0,
+          true
+        ]
+      ]
+    },
+    {
+      "bus_v": 198,
+      "direction": 0,
+      "deadtime_ns": 450,
+      "board_l_scale": 3.0,
+      "status": "bracketed",
+      "threshold_a": 11.09375,
+      "bracket_a": [
+        10.9375,
+        11.25
+      ],
+      "half_width_a": 0.15625,
+      "outside_requested_1_to_37a_grid": false,
+      "grid_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          true
+        ],
+        [
+          20.0,
+          true
+        ],
+        [
+          37.0,
+          true
+        ]
+      ]
+    },
+    {
+      "bus_v": 198,
+      "direction": 1,
+      "deadtime_ns": 450,
+      "board_l_scale": 0.5,
+      "status": "bracketed",
+      "threshold_a": 10.78125,
+      "bracket_a": [
+        10.625,
+        10.9375
+      ],
+      "half_width_a": 0.15625,
+      "outside_requested_1_to_37a_grid": false,
+      "grid_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          true
+        ],
+        [
+          20.0,
+          true
+        ],
+        [
+          37.0,
+          true
+        ]
+      ]
+    },
+    {
+      "bus_v": 198,
+      "direction": 1,
+      "deadtime_ns": 450,
+      "board_l_scale": 1.0,
+      "status": "bracketed",
+      "threshold_a": 10.78125,
+      "bracket_a": [
+        10.625,
+        10.9375
+      ],
+      "half_width_a": 0.15625,
+      "outside_requested_1_to_37a_grid": false,
+      "grid_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          true
+        ],
+        [
+          20.0,
+          true
+        ],
+        [
+          37.0,
+          true
+        ]
+      ]
+    },
+    {
+      "bus_v": 198,
+      "direction": 1,
+      "deadtime_ns": 450,
+      "board_l_scale": 3.0,
+      "status": "bracketed",
+      "threshold_a": 11.09375,
+      "bracket_a": [
+        10.9375,
+        11.25
+      ],
+      "half_width_a": 0.15625,
+      "outside_requested_1_to_37a_grid": false,
+      "grid_observations": [
+        [
+          1.0,
+          false
+        ],
+        [
+          2.0,
+          false
+        ],
+        [
+          3.0,
+          false
+        ],
+        [
+          4.0,
+          false
+        ],
+        [
+          6.0,
+          false
+        ],
+        [
+          8.0,
+          false
+        ],
+        [
+          10.0,
+          false
+        ],
+        [
+          15.0,
+          true
+        ],
+        [
+          20.0,
+          true
+        ],
+        [
+          37.0,
+          true
+        ]
+      ]
+    }
+  ],
+  "timestep_refined_tuple_count": 1
+}

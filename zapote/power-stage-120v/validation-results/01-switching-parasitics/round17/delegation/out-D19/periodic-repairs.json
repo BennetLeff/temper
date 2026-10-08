@@ -1,0 +1,106 @@
+[
+  {
+    "deck": "/Users/bennet/.codex/worktrees/ps-r17-d19/temper/zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D19/periodic-sweep.cir",
+    "params": {
+      "LP1": "24.5969n",
+      "LP2": "23.8522n",
+      "LP3": "24.2606n",
+      "LP4": "35.6765n",
+      "K12": "0.632482752",
+      "K13": "0.165300953",
+      "K14": "0.185415768",
+      "K23": "0.160678209",
+      "K24": "0.196916347",
+      "K34": "-0.00889872432",
+      "VBUS": "170",
+      "RTANK": "2",
+      "FREQ": "60000",
+      "DT": "443n",
+      "LESL": "1.06n",
+      "TRMAX": "2n",
+      "CYCLES": "48"
+    },
+    "aborted": false,
+    "returncode": 0,
+    "raw_returncode": 0,
+    "meas": {
+      "sw_max": 182.3256
+    },
+    "failed": [],
+    "log_tail": [
+      "DRAM currently available = 1260.266 MB.",
+      "Maximum ngspice program size =   14.734 MB.",
+      "Current ngspice program size =   14.734 MB.",
+      "",
+      "Note: Starting dynamic gmin stepping",
+      "Note: Dynamic gmin stepping completed"
+    ],
+    "tag": "v170-r2-e1.06-f60000-s2-c48",
+    "bus_V": 170,
+    "tank_R_ohm": 2,
+    "esl_nH": 1.06,
+    "frequency_Hz": 60000,
+    "step_ns": 2,
+    "cycles": 48,
+    "status": "complete",
+    "cycle_relative_RMS_change": {
+      "v(swa)": 3.692876856045654e-05,
+      "v(swb)": 4.1016345147421936e-05,
+      "bus_current_A": 0.00041841149346787116
+    },
+    "mean_bus_current_A": 0.6161397422346709,
+    "mean_input_power_estimate_W": 104.74375617989406
+  },
+  {
+    "deck": "/Users/bennet/.codex/worktrees/ps-r17-d19/temper/zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D19/periodic-sweep.cir",
+    "params": {
+      "LP1": "24.5969n",
+      "LP2": "23.8522n",
+      "LP3": "24.2606n",
+      "LP4": "35.6765n",
+      "K12": "0.632482752",
+      "K13": "0.165300953",
+      "K14": "0.185415768",
+      "K23": "0.160678209",
+      "K24": "0.196916347",
+      "K34": "-0.00889872432",
+      "VBUS": "170",
+      "RTANK": "2",
+      "FREQ": "35000",
+      "DT": "443n",
+      "LESL": "1.06n",
+      "TRMAX": "0.5n",
+      "CYCLES": "24"
+    },
+    "aborted": false,
+    "returncode": 0,
+    "raw_returncode": 0,
+    "meas": {
+      "sw_max": 188.6801
+    },
+    "failed": [],
+    "log_tail": [
+      "DRAM currently available =  339.750 MB.",
+      "Maximum ngspice program size =   16.266 MB.",
+      "Current ngspice program size =   16.266 MB.",
+      "",
+      "Note: Starting dynamic gmin stepping",
+      "Note: Dynamic gmin stepping completed"
+    ],
+    "tag": "v170-r2-e1.06-f35000-s0.5-c24",
+    "bus_V": 170,
+    "tank_R_ohm": 2,
+    "esl_nH": 1.06,
+    "frequency_Hz": 35000,
+    "step_ns": 0.5,
+    "cycles": 24,
+    "status": "complete",
+    "cycle_relative_RMS_change": {
+      "v(swa)": 9.872028520679734e-06,
+      "v(swb)": 8.734048389791751e-06,
+      "bus_current_A": 9.957067289438566e-05
+    },
+    "mean_bus_current_A": 5.36796982300768,
+    "mean_input_power_estimate_W": 912.5548699113057
+  }
+]

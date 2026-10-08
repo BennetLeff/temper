@@ -1,0 +1,360 @@
+from "f6_parts.ato" import Bias10u, BiasComparator, BiasReference, BiasOpto, BiasNpn, BiasSilicon, GateDischarge, Bias4k42, Bias7k62, Bias120k, Bias133k, Bias2k2, Bias2k7, Gate1R, Bias6k12, Bias4k99, Bias18k2, Bias30k1, BiasDamping, Bias680, Line16k5, Line33k, Bias1u, Bias100n, Bias220u, Bias4u7, HotSupply24, NegativeShunt, SpanRegulator, BiasPushPull, BiasTransformer, BiasRectifier, BiasFilter, HotLdo, DisOr, LineOpto
+from "parts.ato" import C100n0603, C1nC0G0603, R10kThin, R1k0603, R10k0603, C100pC0G0603, Hot5SchmittBuffer, Iso7710, C10u1210
+
+module BiasReservoir:
+    signal src
+    signal n
+    signal p
+    signal damp
+    # Per VSS: minimum effective 10u + 1u + 320n; aggregate HF ESL <= 0.1nH.
+    clocal1 = new Bias10u
+    clocal1.value = 10uF
+    clocal1.p1 ~ src
+    clocal1.p2 ~ n
+    clocal2 = new Bias10u
+    clocal2.value = 10uF
+    clocal2.p1 ~ src
+    clocal2.p2 ~ n
+    cmid1 = new Bias1u
+    cmid1.value = 1uF
+    cmid1.p1 ~ src
+    cmid1.p2 ~ n
+    cmid2 = new Bias1u
+    cmid2.value = 1uF
+    cmid2.p1 ~ src
+    cmid2.p2 ~ n
+    chf1 = new Bias100n
+    chf1.value = 100nF
+    chf1.p1 ~ src
+    chf1.p2 ~ n
+    chf2 = new Bias100n
+    chf2.value = 100nF
+    chf2.p1 ~ src
+    chf2.p2 ~ n
+    chf3 = new Bias100n
+    chf3.value = 100nF
+    chf3.p1 ~ src
+    chf3.p2 ~ n
+    chf4 = new Bias100n
+    chf4.value = 100nF
+    chf4.p1 ~ src
+    chf4.p2 ~ n
+    rdamp = new BiasDamping
+    rdamp.value = 0.68ohm
+    rdamp.p1 ~ src
+    rdamp.p2 ~ damp
+    cbulk = new Bias220u
+    cbulk.value = 220uF
+    cbulk.p1 ~ damp
+    cbulk.p2 ~ n
+    rbleed = new Bias4k99
+    rbleed.value = 4.99kohm
+    rbleed.p1 ~ p
+    rbleed.p2 ~ src
+
+module RegulatedSplit:
+    signal raw
+    signal p
+    signal n
+    signal src
+    signal fb
+    signal nr
+    # 17.0 V = 1.4 + 6.4 + 6.4 + 1.6 + 0.8 + 0.4, relative to N.
+    ldo = new SpanRegulator
+    ldo.p4 ~ n
+    ldo.p5 ~ n
+    ldo.p7 ~ n
+    ldo.p8 ~ n
+    ldo.p9 ~ n
+    ldo.p10 ~ n
+    ldo.p21 ~ n
+    ldo.p13 ~ raw
+    ldo.p15 ~ raw
+    ldo.p16 ~ raw
+    ldo.p1 ~ p
+    ldo.p3 ~ p
+    ldo.p20 ~ p
+    ldo.p14 ~ nr
+    cnr = new Bias1u
+    cnr.value = 1uF
+    cnr.p1 ~ nr
+    cnr.p2 ~ n
+    cin = new Bias10u
+    cin.value = 10uF
+    cin.p1 ~ raw
+    cin.p2 ~ n
+    cout1 = new Bias10u
+    cout1.value = 10uF
+    cout1.p1 ~ p
+    cout1.p2 ~ n
+    cout2 = new Bias10u
+    cout2.value = 10uF
+    cout2.p1 ~ p
+    cout2.p2 ~ n
+    chf = new C100n0603
+    chf.value = 100nF
+    chf.p1 ~ p
+    chf.p2 ~ n
+    shunt = new NegativeShunt
+    shunt.K ~ src
+    shunt.A ~ n
+    shunt.REF ~ fb
+    rtop = new Bias6k12
+    rtop.value = 6.12kohm
+    rtop.p1 ~ src
+    rtop.p2 ~ fb
+    rbot = new R10kThin
+    rbot.value = 10kohm
+    rbot.p1 ~ fb
+    rbot.p2 ~ n
+
+module RailMonitor:
+    signal src
+    signal p
+    signal n
+    signal selv_v
+    signal selv_gnd
+    signal bad
+    signal ref
+    signal halfref
+    signal good
+    signal base
+    signal isoin
+    signal v5
+    signal uv
+    signal ov
+    signal spanuv
+    signal spanov
+    reference = new BiasReference
+    reference.K ~ ref
+    reference.REF ~ ref
+    reference.A ~ n
+    rref = new Bias2k2
+    rref.value = 2.2kohm
+    rref.p1 ~ p
+    rref.p2 ~ ref
+    rhalf_top = new R10kThin
+    rhalf_top.value = 10kohm
+    rhalf_top.p1 ~ ref
+    rhalf_top.p2 ~ halfref
+    rhalf_bot = new R10kThin
+    rhalf_bot.value = 10kohm
+    rhalf_bot.p1 ~ halfref
+    rhalf_bot.p2 ~ n
+    ruv_top = new Bias4k42
+    ruv_top.value = 4.42kohm
+    ruv_top.p1 ~ src
+    ruv_top.p2 ~ uv
+    ruv_bot = new R10kThin
+    ruv_bot.value = 10kohm
+    ruv_bot.p1 ~ uv
+    ruv_bot.p2 ~ n
+    rov_top = new Bias7k62
+    rov_top.value = 7.62kohm
+    rov_top.p1 ~ src
+    rov_top.p2 ~ ov
+    rov_bot = new R10kThin
+    rov_bot.value = 10kohm
+    rov_bot.p1 ~ ov
+    rov_bot.p2 ~ n
+    rspanuv_top = new Bias120k
+    rspanuv_top.value = 120kohm
+    rspanuv_top.p1 ~ p
+    rspanuv_top.p2 ~ spanuv
+    rspanuv_bot = new R10kThin
+    rspanuv_bot.value = 10kohm
+    rspanuv_bot.p1 ~ spanuv
+    rspanuv_bot.p2 ~ n
+    rspanov_top = new Bias133k
+    rspanov_top.value = 133kohm
+    rspanov_top.p1 ~ p
+    rspanov_top.p2 ~ spanov
+    rspanov_bot = new R10kThin
+    rspanov_bot.value = 10kohm
+    rspanov_bot.p1 ~ spanov
+    rspanov_bot.p2 ~ n
+    monitor = new BiasComparator
+    monitor.p1 ~ good
+    monitor.p2 ~ good
+    monitor.p3 ~ p
+    monitor.p4 ~ ov
+    monitor.p5 ~ halfref
+    monitor.p6 ~ halfref
+    monitor.p7 ~ uv
+    monitor.p8 ~ halfref
+    monitor.p9 ~ spanuv
+    monitor.p10 ~ spanov
+    monitor.p11 ~ halfref
+    monitor.p12 ~ n
+    monitor.p13 ~ good
+    monitor.p14 ~ good
+    rnotice = new R1k0603
+    rnotice.value = 1kohm
+    rnotice.p1 ~ ref
+    rnotice.p2 ~ good
+    dnotice = new BiasSilicon
+    dnotice.A ~ good
+    dnotice.K ~ base
+    qnotice = new BiasNpn
+    qnotice.B ~ base
+    qnotice.E ~ n
+    qnotice.C ~ isoin
+    rbase = new R10k0603
+    rbase.value = 10kohm
+    rbase.p1 ~ base
+    rbase.p2 ~ n
+    # HOT -> SELV crossing: reinforced ISO7710 (CMTI ~100 kV/us class), not a
+    # phototransistor opto, because the HS domains ride the switch node
+    # (10 V/ns ZVS, up to ~95 V/ns hard edges). Rails good: NPN on, IN low,
+    # OUT (bad) low. Any rail bad, or side 1 unpowered: OUT defaults HIGH (bad).
+    ldo5 = new HotLdo
+    ldo5.IN ~ p
+    ldo5.EN ~ p
+    ldo5.GND ~ n
+    ldo5.OUT ~ v5
+    cldo_in = new C100n0603
+    cldo_in.value = 100nF
+    cldo_in.p1 ~ p
+    cldo_in.p2 ~ n
+    cldo_out = new C10u1210
+    cldo_out.value = 10uF
+    cldo_out.p1 ~ v5
+    cldo_out.p2 ~ n
+    rpull = new R10k0603
+    rpull.value = 10kohm
+    rpull.p1 ~ v5
+    rpull.p2 ~ isoin
+    iso = new Iso7710
+    iso.VCC1 ~ v5
+    iso.GND1 ~ n
+    iso.GND1B ~ n
+    iso.IN ~ isoin
+    iso.VCC2 ~ selv_v
+    iso.GND2 ~ selv_gnd
+    iso.GND2B ~ selv_gnd
+    iso.OUT ~ bad
+    civcc1 = new C100n0603
+    civcc1.value = 100nF
+    civcc1.p1 ~ v5
+    civcc1.p2 ~ n
+    civcc2 = new C100n0603
+    civcc2.value = 100nF
+    civcc2.p1 ~ selv_v
+    civcc2.p2 ~ selv_gnd
+
+    cuv = new C1nC0G0603
+    cuv.value = 1nF
+    cuv.p1 ~ uv
+    cuv.p2 ~ n
+    cov = new C1nC0G0603
+    cov.value = 1nF
+    cov.p1 ~ ov
+    cov.p2 ~ n
+    cspanuv = new C1nC0G0603
+    cspanuv.value = 1nF
+    cspanuv.p1 ~ spanuv
+    cspanuv.p2 ~ n
+    cspanov = new C1nC0G0603
+    cspanov.value = 1nF
+    cspanov.p1 ~ spanov
+    cspanov.p2 ~ n
+    cmonitor = new C100n0603
+    cmonitor.value = 100nF
+    cmonitor.p1 ~ p
+    cmonitor.p2 ~ n
+
+module HighBias:
+    signal raw24
+    signal sw1
+    signal sw2
+    signal src
+    signal p
+    signal n
+    signal selv_v
+    signal selv_gnd
+    signal bad
+    signal sa
+    signal sb
+    signal rect
+    signal raw
+    transformer = new BiasTransformer
+    transformer.p1 ~ sw1
+    transformer.p2 ~ raw24
+    transformer.p3 ~ raw24
+    transformer.p4 ~ sw2
+    transformer.p5 ~ sa
+    transformer.p6 ~ n
+    transformer.p7 ~ n
+    transformer.p8 ~ sb
+    da = new BiasRectifier
+    da.A ~ sa
+    da.K ~ rect
+    db = new BiasRectifier
+    db.A ~ sb
+    db.K ~ rect
+    filter = new BiasFilter
+    filter.value = 100uH
+    filter.p1 ~ rect
+    filter.p2 ~ raw
+    craw = new Bias10u
+    craw.value = 10uF
+    craw.p1 ~ raw
+    craw.p2 ~ n
+    split = new RegulatedSplit
+    split.raw ~ raw
+    split.p ~ p
+    split.n ~ n
+    split.src ~ src
+    monitor = new RailMonitor
+    monitor.src ~ src
+    monitor.p ~ p
+    monitor.n ~ n
+    monitor.selv_v ~ selv_v
+    monitor.selv_gnd ~ selv_gnd
+    monitor.bad ~ bad
+
+module LineZeroCross:
+    signal line
+    signal neutral
+    signal selv_v
+    signal selv_gnd
+    signal out
+    signal r1mid
+    signal led1
+    signal led2
+    signal r2mid
+    signal raw
+    r1 = new Line16k5
+    r1.value = 16.5kohm
+    r1.p1 ~ line
+    r1.p2 ~ r1mid
+    r2 = new Line16k5
+    r2.value = 16.5kohm
+    r2.p1 ~ r1mid
+    r2.p2 ~ led1
+    opto = new LineOpto
+    opto.AC1 ~ led1
+    opto.AC2 ~ led2
+    opto.E ~ selv_gnd
+    opto.C ~ raw
+    r3 = new Line16k5
+    r3.value = 16.5kohm
+    r3.p1 ~ led2
+    r3.p2 ~ r2mid
+    r4 = new Line16k5
+    r4.value = 16.5kohm
+    r4.p1 ~ r2mid
+    r4.p2 ~ neutral
+    pullup = new Line33k
+    pullup.value = 33kohm
+    pullup.p1 ~ selv_v
+    pullup.p2 ~ raw
+    buffer = new Hot5SchmittBuffer
+    buffer.A ~ raw
+    buffer.Y ~ out
+    buffer.VCC ~ selv_v
+    buffer.GND ~ selv_gnd
+    cbuffer = new C100n0603
+    cbuffer.value = 100nF
+    cbuffer.p1 ~ selv_v
+    cbuffer.p2 ~ selv_gnd
