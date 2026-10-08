@@ -21,7 +21,16 @@ members = ["zapote/packages/zapote-bridge"]
 zapote-bridge = { workspace = true }
 
 [tool.pytest.ini_options]
-testpaths = ["firmware/tools", "zapote/tools", "scripts/tests"]
+# Mirrors the Python suites CI runs; KiCad-dependent tests run under KiCad's
+# Python separately (see zapote/CHECKS.md).
+testpaths = [
+    "firmware/tools",
+    "firmware/test/test_codegen_tools.py",
+    "zapote/tools/generators/tests",
+    "zapote/tools/test_check_campaign_dispatch.py",
+    "zapote/tools/test_check_fault_loop.py",
+    "scripts/tests",
+]
 addopts = ["--tb=short"]
 
 [tool.ruff]
