@@ -1,0 +1,86 @@
+{
+  "board_sha256": "500cdb4b9f3491bfed2535099ad0ed2a59a461f12dd79a7aeedae18014b0f3fe",
+  "renderer": "CairoSVG 2.9.1",
+  "renders": [
+    {
+      "argv": [
+        "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+        "pcb",
+        "export",
+        "svg",
+        "--layers",
+        "F.Cu,F.Silkscreen,Edge.Cuts",
+        "--mode-single",
+        "--fit-page-to-board",
+        "--exclude-drawing-sheet",
+        "--output",
+        "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/native-06/previews/front.svg",
+        "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/native-06/section.kicad_pcb"
+      ],
+      "exit_code": 0,
+      "stdout": "Plotted to '/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/native-06/previews/front.svg'.\nDone.\n",
+      "svg_sha256": "b88507044cee7129d99440601344ca900261afcea3adb5e953988c2a514134e6",
+      "png_sha256": "5ff836e30f2c2627428223d6a673186da7a89008c57b13a062b4927c1928d16c"
+    },
+    {
+      "argv": [
+        "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+        "pcb",
+        "export",
+        "svg",
+        "--layers",
+        "In1.Cu,Edge.Cuts",
+        "--mode-single",
+        "--fit-page-to-board",
+        "--exclude-drawing-sheet",
+        "--output",
+        "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/native-06/previews/inner-return.svg",
+        "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/native-06/section.kicad_pcb"
+      ],
+      "exit_code": 0,
+      "stdout": "Plotted to '/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/native-06/previews/inner-return.svg'.\nDone.\n",
+      "svg_sha256": "ed6e3631386ebd984f0e2d7e5e0000e5390238a80df10f78e63175ee1a64fdae",
+      "png_sha256": "8739cb5ec4a749e754593aeeb89b0367beaae8235dd93267def9bbe9a9e0dbd6"
+    },
+    {
+      "argv": [
+        "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+        "pcb",
+        "export",
+        "svg",
+        "--layers",
+        "In2.Cu,Edge.Cuts",
+        "--mode-single",
+        "--fit-page-to-board",
+        "--exclude-drawing-sheet",
+        "--output",
+        "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/native-06/previews/inner-bus.svg",
+        "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/native-06/section.kicad_pcb"
+      ],
+      "exit_code": 0,
+      "stdout": "Plotted to '/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/native-06/previews/inner-bus.svg'.\nDone.\n",
+      "svg_sha256": "48303c8000eda01ceb715ef59906389b45c3e0e21bc82175450c8675b6c4a2bb",
+      "png_sha256": "46873e398ca96005e0c22a749e13408ddaccc7f6d6e5c1163d4164cfbfde74a6"
+    },
+    {
+      "argv": [
+        "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+        "pcb",
+        "export",
+        "svg",
+        "--layers",
+        "B.Cu,B.Silkscreen,Edge.Cuts",
+        "--mode-single",
+        "--fit-page-to-board",
+        "--exclude-drawing-sheet",
+        "--output",
+        "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/native-06/previews/back.svg",
+        "/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/native-06/section.kicad_pcb"
+      ],
+      "exit_code": 0,
+      "stdout": "Plotted to '/Users/bennet/Desktop/temper/worktrees/ps-build/zapote/power-stage-120v/native-06/previews/back.svg'.\nDone.\n",
+      "svg_sha256": "850664f39c944f7122198baa0349c6e3d4f270ed5d5eb7c5399c41938cfc8bf0",
+      "png_sha256": "a850abbeef5056cefc5eb79ee57de0ee61755250c32e1c729b1836ad29d6c790"
+    }
+  ]
+}

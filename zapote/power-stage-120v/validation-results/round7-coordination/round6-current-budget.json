@@ -1,0 +1,20 @@
+{
+  "source": "01-switching-parasitics/round6/d1-fem/fixtures/results.json",
+  "source_sha256": "70b510d6bbdfa35da738e65150d90b23c6697270ea1c711d4eb44165a9c57566",
+  "interpretation": "sampled normalization interval, not a spatial bound",
+  "nominal_inductance_nH": 13.745242,
+  "analytic_inductance_nH": 13.862943611198906,
+  "sampled_current_range_A": [
+    0.999669029393654,
+    1.0111193845412074
+  ],
+  "inductance_interval_nH": [
+    13.444588600197333,
+    13.754345061177409
+  ],
+  "error_interval_percent": [
+    -3.0177934985150867,
+    -0.7833729478187279
+  ],
+  "entire_reported_interval_within_two_percent": false
+}

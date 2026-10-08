@@ -1,0 +1,143 @@
+
+Note: Compatibility modes selected: ps a
+
+
+Circuit: * table 8 clamped-inductive commutation; ideal constant-current load limit.
+
+Doing analysis at TEMP = 25.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+Initial Transient Solution
+--------------------------
+
+Node                                   Voltage
+----                                   -------
+bus                                        400
+xqh.x1.d1                                  400
+xqh.x1.ox                             0.792119
+xqh.x1.e_edg1_int1                     399.208
+xqh.g                                 -1.00644
+xqh.x1.ox2                              43.733
+xqh.x1.e_edg2_int1                     356.267
+xqh.s                                 -1.00644
+xqh.x1.edep1                           6492.89
+xqh.x1.e_eds1_int1                    -6092.89
+xqh.x1.edep2                           27.2669
+xqh.x1.e_eds2_int1                     372.733
+xqh.x1.d                                   400
+xqh.x1.g_chan_int1                 7.44929e-16
+xqh.tj                                      25
+xqh.dd                                     400
+xqh.x1.d2                                  400
+xqh.x1.g_g_rd_int1                  8.0201e-07
+xqh.x1.dio                                 400
+xqh.x1.dio2                                400
+xqh.x1.g_rdio_int1                -8.43018e-07
+xqh.x1.g_g_ptot_channel_int1                 0
+xqh.x1.g_g_ptot_epi_int1                     0
+xqh.ldrd                                   400
+sw                                    -1.00644
+xqh.lsrs                              -1.00644
+gh                                    -1.00644
+xqh.lgrg                              -1.00644
+xqh.w                                        0
+xqh.e1_int1                                 25
+drain                                 -1.00644
+xqd.x1.d1                             -1.00211
+xqd.x1.ox                             -1.00211
+xqd.x1.e_edg1_int1                           0
+xqd.g                             -1.45839e-08
+xqd.x1.ox2                            -1.00211
+xqd.x1.e_edg2_int1                -8.94409e-15
+xqd.s                               -0.0199044
+xqd.x1.edep1                          -1.00211
+xqd.x1.e_eds1_int1                           0
+xqd.x1.edep2                          -1.00211
+xqd.x1.e_eds2_int1                -7.73768e-19
+xqd.x1.d                              -1.00211
+xqd.x1.g_chan_int1                 -8.5863e-16
+xqd.tj                                      25
+xqd.dd                                -1.00211
+xqd.x1.d2                             -1.00211
+xqd.x1.g_g_rd_int1                 -1.9644e-09
+xqd.x1.dio                           -0.767887
+xqd.x1.dio2                          -0.767887
+xqd.x1.g_rdio_int1                        58.2
+xqd.x1.g_g_ptot_channel_int1                 0
+xqd.x1.g_g_ptot_epi_int1                     0
+xqd.ldrd                              -1.00644
+xqd.lsrs                           4.96859e-17
+gd                                -1.45302e-08
+xqd.lgrg                          -1.45302e-08
+xqd.w                                        0
+xqd.e1_int1                                 25
+cmd                                   -1.00644
+b.xqd.be1#branch                             0
+b.xqd.x1.bg_g_ptot_epi#branch                0
+v.xqd.x1.v_iepi#branch            -3.92886e-09
+v.xqd.x1.v_sense2#branch                 -58.2
+b.xqd.x1.bg_g_ptot_channel#branch               0
+v.xqd.x1.v_ichannel#branch        -1.96441e-09
+b.xqd.x1.bg_rdio#branch                      0
+b.xqd.x1.bg_g_rd#branch                      0
+b.xqd.x1.bg_chan#branch                      0
+b.xqd.x1.be_eds2#branch                      0
+b.xqd.x1.be_eds1#branch                      0
+b.xqd.x1.be_edg2#branch                      0
+b.xqd.x1.be_edg1#branch                      0
+b.xqh.be1#branch                             0
+b.xqh.x1.bg_g_ptot_epi#branch                0
+v.xqh.x1.v_iepi#branch             1.60402e-06
+v.xqh.x1.v_sense2#branch           8.43018e-07
+b.xqh.x1.bg_g_ptot_channel#branch               0
+v.xqh.x1.v_ichannel#branch          8.0201e-07
+b.xqh.x1.bg_rdio#branch                      0
+b.xqh.x1.bg_g_rd#branch                      0
+b.xqh.x1.bg_chan#branch                      0
+b.xqh.x1.be_eds2#branch                      0
+b.xqh.x1.be_eds1#branch                      0
+b.xqh.x1.be_edg2#branch                      0
+b.xqh.x1.be_edg1#branch                      0
+l.xqd.l_lg#branch                  1.99044e-11
+l.xqd.l_ls#branch                         58.2
+l.xqd.l_ld#branch                        -58.2
+l.xqh.l_lg#branch                  4.09869e-17
+l.xqh.l_ls#branch                 -2.44705e-06
+l.xqh.l_ld#branch                  2.44699e-06
+e.xqd.e1#branch                              0
+e.xqd.x1.e_eds2#branch                       0
+e.xqd.x1.e_eds1#branch                       0
+e.xqd.x1.e_edg2#branch                       0
+e.xqd.x1.e_edg1#branch                       0
+e.xqh.e1#branch                              0
+e.xqh.x1.e_eds2#branch                       0
+e.xqh.x1.e_eds1#branch                       0
+e.xqh.x1.e_edg2#branch                       0
+e.xqh.x1.e_edg1#branch                       0
+vcmd#branch                       -5.46116e-17
+vprobe#branch                            -58.2
+vbus#branch                       -2.44699e-06
+
+ Reference value :  0.00000e+00
+No. of Data Rows : 3
+
+Total analysis time (seconds) = 0.429726
+
+Total elapsed time (seconds) = 0.449 
+
+Total DRAM available = 32768.000 MB.
+DRAM currently available = 2752.172 MB.
+Maximum ngspice program size =   12.797 MB.
+Current ngspice program size =   12.797 MB.
+
+Note: Starting dynamic gmin stepping
+Warning: Dynamic gmin stepping failed
+Note: Starting true gmin stepping
+Warning: True gmin stepping failed
+Note: Starting source stepping
+Note: Source stepping completed
+doAnalyses: TRAN:  Timestep too small; time = 2.056e-12, timestep = 2.5e-22: trouble with node "xqh.x1.ox"
+
+
+run simulation(s) aborted

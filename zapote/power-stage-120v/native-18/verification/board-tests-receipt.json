@@ -1,0 +1,59 @@
+{
+  "argv": [
+    "/Users/bennet/Miniforge3/bin/python3",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "/var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/d16-board-tests-fvf7e6pg"
+  ],
+  "returncode": 0,
+  "adaptation": "Temporary copies only: bind original UNIT path explicitly, replace native-17 board references with native-18; historical placement/frozen fixtures remain unchanged. No test assertions changed.",
+  "inputs": {
+    "test_kelvin_connection.py": {
+      "original_sha256": "b086327d6a6818f1c659663d4db74cc9f7e6b358821d20b8da851ac68c628f0a",
+      "executed_sha256": "1cf0b63b1d05aec8fe912c975c3d9b492388dd737d67302a0039ad73f90ab28c"
+    },
+    "test_jlc_dfm_outer_lands.py": {
+      "original_sha256": "95e0be8ba1074bfce92ed3c90db2e9cef58a68aff55dc31b5400b37a54062a85",
+      "executed_sha256": "d150bf9621b3fda9ffeb4af5d847b4014a203d4efa0655aacc083ed127b00e99"
+    },
+    "test_placement_tools.py": {
+      "original_sha256": "1ebf89f6f353d9bc1542a237d448aca3e75c22d349a87c36d77dd56722e8fb45",
+      "executed_sha256": "292058f1b5e8c7716f1cff3f7e5523f7cd7b7dda609c206aba8be9deca53e37b"
+    },
+    "test_shelf_poses.py": {
+      "original_sha256": "346bf4e1f02e9b274bffbc94fdfa37daacd480da620b480bc35f8f1b189dde04",
+      "executed_sha256": "481c1f2c764e564cf2a409baac5e26fee1fadac95f4365d91efec425feb9e165"
+    },
+    "test_barrier_rust_differential.py": {
+      "original_sha256": "8d1d74ecf0189608edc524d0e0651c1bf7f5783b18fc90f427719ae339f4d173",
+      "executed_sha256": "76375632ca62b8e422ee82f38a1818aa9fbcb180300824b0bf642675df9e8f3a"
+    },
+    "test_reference_labels.py": {
+      "original_sha256": "d5291de6d28521f65ec67d4d40ac65e35dd2e129ff9bb6339ae917e6eb9ae216",
+      "executed_sha256": "dca1f4e7c43671bd9b993609a5e30e12d8b7cb55752cbd948a785a8e75d14236"
+    },
+    "test_planning_stackup.py": {
+      "original_sha256": "4eab9d978f97229236d1c9401dcbf0e540fee38c82f657734717ca35aebe0012",
+      "executed_sha256": "5297baee064b86293846f1e41154f42fafa632384cc80ba60051893cf399a471"
+    },
+    "test_terminal_footprint.py": {
+      "original_sha256": "d071feb81ea6434d7b226ad66bac07934a17aef22ff99721007cc4c8e54f756e",
+      "executed_sha256": "6cb25d3a0c41b4cb2d6606d34aeea9fa0100bb28b4d07aad80a28b9c2f2271c1"
+    },
+    "test_write_rules.py": {
+      "original_sha256": "b79513cf50ee77d080a0058b57e7f92c6a10ee490d63ac98c65c5eb2e3ad407c",
+      "executed_sha256": "86ea898ce91eed018bebfb75285c1568f3d3d3a95c15a03a2196d906c35fd206"
+    },
+    "test_routing_evidence.py": {
+      "original_sha256": "d42f533aacaafb758bda4299f819e780582ebf7512033622f607a2a407545e0f",
+      "executed_sha256": "53fe6d12fd89a6033ba8333b774f542beec3e63b1e7c1234537dfa1a9992a5df"
+    },
+    "test_copper_identity.py": {
+      "original_sha256": "20812ead369e436a4c127113763b6feee314a3439b9fb7d22af565290dae9425",
+      "executed_sha256": "cd3f04025694fb436621eb486d4a75f0ad50ab9657da4306068ba5f3a321e46b"
+    }
+  }
+}

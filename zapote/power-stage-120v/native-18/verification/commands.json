@@ -1,0 +1,110 @@
+[
+  {
+    "output": "source-audit-build.txt",
+    "argv": [
+      "rustc",
+      "--edition=2021",
+      "-O",
+      "audit.rs",
+      "-o",
+      "/private/tmp/temper-d16-audit"
+    ],
+    "returncode": 0
+  },
+  {
+    "output": "source-audit.txt",
+    "argv": [
+      "/private/tmp/temper-d16-audit",
+      "/Users/bennet/.codex/worktrees/ps-r17-d16/temper/zapote/power-stage-120v/native-18/frozen/default.net",
+      "/Users/bennet/.codex/worktrees/ps-r17-d16/temper/zapote/power-stage-120v/native-18/frozen/default.csv",
+      "/Users/bennet/.codex/worktrees/ps-r17-d16/temper/zapote/power-stage-120v/native-18/frozen/resolved-components.json"
+    ],
+    "returncode": 0
+  },
+  {
+    "output": "source-parity.json",
+    "argv": [
+      "/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python3",
+      "tools/check_native_parity.py",
+      "/Users/bennet/.codex/worktrees/ps-r17-d16/temper/zapote/power-stage-120v/native-18/section.kicad_pcb",
+      "/Users/bennet/.codex/worktrees/ps-r17-d16/temper/zapote/power-stage-120v/native-18/source-manifest.json",
+      "/Users/bennet/.codex/worktrees/ps-r17-d16/temper/zapote/power-stage-120v/native-18/frozen/default.net",
+      "/Users/bennet/Desktop/temper/target-shared/debug/zapote-power-native-parity"
+    ],
+    "returncode": 0
+  },
+  {
+    "output": "copper-identity.json",
+    "argv": [
+      "/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python3",
+      "tools/check_copper_identity.py",
+      "/Users/bennet/.codex/worktrees/ps-r17-d16/temper/zapote/power-stage-120v/native-18/section.kicad_pcb"
+    ],
+    "returncode": 0
+  },
+  {
+    "output": "stackup.json",
+    "argv": [
+      "/Users/bennet/Desktop/temper/target-shared/debug/zapote-board",
+      "/Users/bennet/.codex/worktrees/ps-r17-d16/temper/zapote/power-stage-120v/native-18/section.kicad_pcb"
+    ],
+    "returncode": 0
+  },
+  {
+    "output": "jlc-dfm.json",
+    "argv": [
+      "/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python3",
+      "tools/jlc_dfm_check.py",
+      "/Users/bennet/.codex/worktrees/ps-r17-d16/temper/zapote/power-stage-120v/native-18/section.kicad_pcb"
+    ],
+    "returncode": 0
+  },
+  {
+    "output": "connectivity-command.txt",
+    "argv": [
+      "/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python3",
+      "native-06/verification/power-probes/connectivity-receipt.py",
+      "/Users/bennet/.codex/worktrees/ps-r17-d16/temper/zapote/power-stage-120v/native-18/section.kicad_pcb",
+      "/Users/bennet/.codex/worktrees/ps-r17-d16/temper/zapote/power-stage-120v/native-18/verification/connectivity.json"
+    ],
+    "returncode": 0
+  },
+  {
+    "output": "copper-command.txt",
+    "argv": [
+      "/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python3",
+      "tools/copper_dump.py",
+      "/Users/bennet/.codex/worktrees/ps-r17-d16/temper/zapote/power-stage-120v/native-18/section.kicad_pcb",
+      "/Users/bennet/.codex/worktrees/ps-r17-d16/temper/zapote/power-stage-120v/native-18/verification/copper.json"
+    ],
+    "returncode": 0
+  },
+  {
+    "output": "barrier.json",
+    "argv": [
+      "/Users/bennet/Miniforge3/bin/python3",
+      "tools/barrier_check.py",
+      "/Users/bennet/.codex/worktrees/ps-r17-d16/temper/zapote/power-stage-120v/native-18/verification/copper.json"
+    ],
+    "returncode": 0
+  },
+  {
+    "output": "barrier-oracle.json",
+    "argv": [
+      "/Users/bennet/Miniforge3/bin/python3",
+      "tests/_barrier_check_py_oracle.py",
+      "/Users/bennet/.codex/worktrees/ps-r17-d16/temper/zapote/power-stage-120v/native-18/verification/copper.json"
+    ],
+    "returncode": 0
+  },
+  {
+    "output": "leg-region-diff.txt",
+    "argv": [
+      "/Users/bennet/Miniforge3/bin/python3",
+      "validation-results/01-switching-parasitics/round17/scripts/leg_region_diff.py",
+      "native-17/section.kicad_pcb",
+      "native-18/section.kicad_pcb"
+    ],
+    "returncode": 0
+  }
+]

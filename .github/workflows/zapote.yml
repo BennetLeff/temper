@@ -1,0 +1,28 @@
+name: zapote
+# Zapote's Rust validation suite. KiCad-backed native tests are #[ignore]d and
+# run locally via `make -C zapote check`; see zapote/CHECKS.md.
+on:
+  pull_request:
+    paths: ["zapote/**", ".github/workflows/zapote.yml"]
+  push:
+    branches: [main]
+    paths: ["zapote/**", ".github/workflows/zapote.yml"]
+concurrency:
+  group: zapote-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  rust:
+    name: zapote / rust
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Tree budget
+        run: |
+          python3 zapote/tools/test_evidence_archive.py
+          python3 zapote/tools/evidence_archive.py check
+      - name: Rust tests
+        working-directory: zapote
+        env:
+          CARGO_TARGET_DIR: ${{ runner.temp }}/zapote-target
+        run: cargo test --release --locked --workspace

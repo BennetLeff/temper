@@ -1,0 +1,40 @@
+
+Note: Compatibility modes selected: ps a
+
+
+Circuit: * task 02: tank-ct detector front end (native-13 values), analog timing.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+Initial Transient Solution
+--------------------------
+
+Node                                   Voltage
+----                                   -------
+ipri                                         0
+ct_s2                                     1.65
+ctx                                       1.65
+ct_s1                                     1.65
+vcc                                        3.3
+sense                                     1.65
+ref_hi                                 2.47748
+ref_lo                                0.822523
+pos_i                                        0
+pos_d                                        0
+neg_i                                        0
+neg_d                                        0
+zc_i                                   2.74566
+zc_d                                   2.74566
+or_i                                         0
+or_d                                         0
+bor#branch                                   0
+bzc#branch                          -0.0549132
+bneg#branch                                  0
+bpos#branch                                  0
+bip#branch                                   0
+lmag#branch                        2.03282e-16
+vcc#branch                          -0.0021455
+
+ Reference value :  1.41245e-04 Reference value :  1.42856e-04 Reference value :  1.42883e-04 Reference value :  1.42896e-04 Reference value :  1.42905e-04 Reference value :  1.42914e-04 Reference value :  1.42919e-04 Reference value :  1.42923e-04 Reference value :  1.42928e-04 Reference value :  1.42932e-04 Reference value :  1.42937e-04 Reference value :  1.42937e-04 Reference value :  1.42941e-04 Reference value :  1.42946e-04 Reference value :  1.42946e-04 Reference value :  1.42950e-04 Reference value :  1.42950e-04 Reference value :  1.42955e-04 Reference value :  1.42955e-04 Reference value :  1.42959e-04 Reference value :  1.42959e-04 Reference value :  1.42964e-04 Reference value :  1.42964e-04 Reference value :  1.42968e-04 Reference value :  1.42968e-04 Reference value :  1.42968e-04 Reference value :  1.42973e-04 Reference value :  1.42973e-04 Reference value :  1.42973e-04 Reference value :  1.42977e-04 Reference value :  1.42977e-04 Reference value :  1.42977e-04 Reference value :  1.42982e-04 Reference value :  1.42982e-04 Reference value :  1.42982e-04 Reference value :  1.42986e-04 Reference value :  1.42986e-04 Reference value :  1.42986e-04 Reference value :  1.42991e-04 Reference value :  1.42991e-04 Reference value :  1.42991e-04 Reference value :  1.42991e-04 Reference value :  1.42995e-04 Reference value :  1.42995e-04 Reference value :  1.42995e-04 Reference value :  1.42995e-04 Reference value :  1.43000e-04 Reference value :  1.43000e-04 Reference value :  1.43000e-04 Reference value :  1.43000e-04 Reference value :  1.43004e-04 Reference value :  1.43004e-04 Reference value :  1.43004e-04 Reference value :  1.43004e-04 Reference value :  1.43009e-04 Reference value :  1.43009e-04 Reference value :  1.43009e-04 Reference value :  1.43009e-04 Reference value :  1.43009e-04

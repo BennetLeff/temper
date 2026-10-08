@@ -1,0 +1,6 @@
+id,topology,f2,vd0_v,vb0_v,i0_a,vc0_v,cd_uf,cb_uf,local_uf,l_uh,c_nf,r_coil_ohm,r_pan_ohm,f_khz,dead_ns,run_ms,stop_kind,stop_at_ms,stop_delay_us,source_off_ms,source_command_a,source_target_v,source_gain_a_per_v,source_max_a,source_max_w,rd_ohm,rb_ohm,screen_ceiling_v,stop_threshold_a,tank_v_screen_v,tank_i_screen_a,dt_ns
+restart_cap_zero,hot0,closed,390,390,0,0,22.47,2240,0.47,59.84,300,0.2,0.8,47,300,2,none,never,0,never,6,390,0,6,1800,500000,450000,430,0.1,1600,160,50
+restart_cap_half_bus,hot0,closed,390,390,0,195,22.47,2240,0.47,59.84,300,0.2,0.8,47,300,2,none,never,0,never,6,390,0,6,1800,500000,450000,430,0.1,1600,160,50
+restart_cap_reverse_half_bus,hot0,closed,390,390,0,-195,22.47,2240,0.47,59.84,300,0.2,0.8,47,300,2,none,never,0,never,6,390,0,6,1800,500000,450000,430,0.1,1600,160,50
+restart_cap_full_bus,hot0,closed,390,390,0,390,22.47,2240,0.47,59.84,300,0.2,0.8,47,300,2,none,never,0,never,6,390,0,6,1800,500000,450000,430,0.1,1600,160,50
+restart_f2_open_vd_zero_vb_charged,hot0,open,0,390,0,0,22.47,2240,0.47,59.84,300,0.2,0.8,47,300,2,none,never,0,0,0,390,0,6,1800,500000,450000,430,0.1,1600,160,50

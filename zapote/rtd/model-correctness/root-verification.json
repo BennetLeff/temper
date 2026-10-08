@@ -1,0 +1,55 @@
+{
+  "date": "2026-09-11",
+  "scope": "bounded first-pass model review; circuit intent assumed",
+  "checks": [
+    {
+      "script": "ref2025_envelope_regression.py",
+      "result": "PASS",
+      "retained_receipt_reproduced": true
+    },
+    {
+      "script": "evidence/independent_static_compare.py",
+      "result": "PASS",
+      "retained_receipt_reproduced": true
+    },
+    {
+      "script": "evidence/analytic_pairing_repro.py",
+      "result": "PASS",
+      "retained_receipt_reproduced": true
+    },
+    {
+      "script": "evidence/timestep_convergence.py",
+      "result": "PASS",
+      "retained_receipt_reproduced": true
+    }
+  ],
+  "baseline_unchanged": {
+    "zapote/rtd/circuit/rtdin_comparator_model.py": "46df61023950e23949d73d0dec78417b5b4decc0f934879091f4fabbc41d992a",
+    "zapote/rtd/circuit/rtdin_transient_model.py": "1cab91630f8d1b4229b5f15a34ffd1b88a4a0d04e07299c4811b76e18db7429f",
+    "zapote/rtd/circuit/rtd_observed_faults.py": "e754081f93921c53f333492bdc8fc29071d89f17d198baafc28e1e8f4929d0b9",
+    "zapote/rtd/unit/candidate/section.kicad_pcb": "d9908e58335fc9e20d9d786af4423ba8844d7ee893a08dc99472a3dd357653cb"
+  },
+  "artifacts": {
+    "zapote/rtd/model-correctness/topology-review.md": "ef7ee292f45d950f4302bc7a74c4f1b2cc70d57377a4cbc2b0766fd89ad89e05",
+    "zapote/rtd/model-correctness/ref2025_envelope_regression.py": "bf98a6e3616a64300f4ca51a514933bed01e21df7eebb7dabb70fe47b9c81f3e",
+    "zapote/rtd/model-correctness/ref2025_envelope_regression.json": "7baf3003a44019f0d44983ac1b21f98081520c332704fc944219b4458db20d59",
+    "zapote/rtd/model-correctness/README.md": "1a011486f3b1528e46f47c77e9606923fb3ec0185f17de354cb1be26f908dfb4",
+    "zapote/rtd/model-correctness/datasheet-audit.json": "2b6e2dbcc6e3c9ffb437b83251bcb5cd3e90ee77f9dfc87f43d6deba70d37a7d",
+    "zapote/rtd/model-correctness/evidence/independent_static_compare.json": "9ff1280de979f6b4f37235a19360ce763765ee77bcf6b8f0a543a7077209a165",
+    "zapote/rtd/model-correctness/evidence/analytic_pairing_repro.json": "6dc1ac73c4baf6308de2378b5abf9923470a90c88eceb721f183d743dbe34cdd",
+    "zapote/rtd/model-correctness/evidence/analytic_pairing_repro.py": "bf181f142687bb1735768262352dfa907ca2df37e0f1c786847b6b796142e62b",
+    "zapote/rtd/model-correctness/evidence/independent_static_compare.py": "3768e15c306ec5f04e40a5fd350a40d2f3191dc2d141c95d9a091234243d2be6",
+    "zapote/rtd/model-correctness/evidence/independent_static_corrected.cir": "6e64039e2d0b226351a978ce24556d90c2b2648c0b6ec6044f4e5f671d584551",
+    "zapote/rtd/model-correctness/evidence/timestep_convergence.json": "158b20b66c926b669e1d88f5d0f867a8ddfc0dfd7c6e7f2cae885de9e5f218d5",
+    "zapote/rtd/model-correctness/evidence/timestep_convergence.py": "8fe9056631ee386f0d095fc54fa82966564935b0807af2c9aabdc12a518801e6",
+    "zapote/rtd/model-correctness/revised/rtdin_comparator_model.py": "3e3462de55ccdf863d6d5da472cedc33f33787ee39d57851f94a8aa91fdf8510",
+    "zapote/rtd/model-correctness/sources/ref20-sbos600f.pdf": "2b21e0c5aea93ed74f4a6bd7c4c1f4f3e39ca87c338f699ef51998df424a3dff"
+  },
+  "qualification": "UNDER_REVIEW",
+  "physical_tests": "NOT_RUN",
+  "limitations": [
+    "No revised full static sweep acceptance",
+    "Full-network transient worst-case bound unqualified",
+    "No new Rust acceptance gate in this pass"
+  ]
+}

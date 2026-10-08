@@ -4,6 +4,8 @@
   "poll_interval_seconds": 15,
   "trigger_paths": [
     "packages/**",
+    "zapote/**",
+    "harness-lab/**",
     "crates/temper-cli/**",
     "elec/**",
     "tests/**",
@@ -206,7 +208,9 @@
     "Repo Hygiene & Import Gates": {
       "id": "hygiene-gates",
       "paths": [
-        "packages/**"
+        "packages/**",
+        "harness-lab/**",
+        "zapote/**/*.py"
       ]
     },
     "Invariant tests (router_v6 group 3)": {
@@ -242,7 +246,8 @@
   ],
   "mapped_to_nothing": [
     "docs/**",
-    "**/TRACEABILITY"
+    "**/TRACEABILITY",
+    "zapote/**"
   ],
   "_required_contexts_note": [
     "A context belongs here only if it can actually FAIL. Eight were removed on",
@@ -465,6 +470,7 @@
     ],
     "Firmware Tests (state-machine + fault-injection)": [
       "firmware/**",
+      "zapote/power-stage-120v/prototype-closure/round5/firmware/**",
       "pcb/**",
       "scripts/check_firmware_board_contract.py",
       "scripts/check_pll_range_consistency.py",

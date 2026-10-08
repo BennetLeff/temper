@@ -1,0 +1,75 @@
+{
+  "before_sha256": "2a4a16e88a4ca777616cf08457783fa2ef2c88610d73261f2f4f5ba41c208344",
+  "after_sha256": "1ca9dd4c5441f6548ce05b49d9b2e0b953f8ae656093c6876f331b1903d678e5",
+  "labels": {
+    "heatsink_probe": [
+      6,
+      17
+    ],
+    "coil_probe": [
+      6,
+      35
+    ],
+    "host": [
+      57,
+      23
+    ],
+    "hs_fixed": [
+      15,
+      5
+    ],
+    "hs_top": [
+      27,
+      10
+    ],
+    "hs_bottom": [
+      23,
+      16.5
+    ],
+    "hs_hyst": [
+      32,
+      3
+    ],
+    "hs_comp": [
+      36,
+      16
+    ],
+    "hs_filter": [
+      15,
+      18
+    ],
+    "hs_bypass": [
+      41,
+      7
+    ],
+    "coil_fixed": [
+      15,
+      23
+    ],
+    "coil_top": [
+      27,
+      28
+    ],
+    "coil_bottom": [
+      23,
+      34.5
+    ],
+    "coil_hyst": [
+      32,
+      21
+    ],
+    "coil_comp": [
+      36,
+      34
+    ],
+    "coil_filter": [
+      15,
+      36
+    ],
+    "coil_bypass": [
+      41,
+      25
+    ]
+  },
+  "scope": "fields and labels only"
+}

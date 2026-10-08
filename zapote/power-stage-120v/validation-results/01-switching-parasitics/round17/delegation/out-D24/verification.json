@@ -1,0 +1,132 @@
+{
+  "complete_results": 105,
+  "complete_s4": 86,
+  "complete_recovery": 19,
+  "s4_all_fail": true,
+  "interrupted_indeterminate": 1,
+  "planned_not_run": 29,
+  "source_hash_checks": 27,
+  "licensed_files_excluded": true,
+  "format_equivalence": {
+    "run": {
+      "executed_sha256": "ea083ce1d74205935ffdbcd38eb5329677e20a95cb7aa05771866094714c5dae",
+      "current_sha256": "304fd87df65eb27c96f0aac1f121deaa5f6747954879be37f750bc032cef9251",
+      "ast_equivalent_except_contiguous_import_order": true
+    },
+    "refine": {
+      "executed_sha256": "8655a4a295caeb531ebef6ad95d8f712a9c53cbeee2f807a522e46d43e2312a2",
+      "current_sha256": "63d0b00bafc92f767b3271dfcd3fe940910782b9a2bc1d339dfca81e64a6676a",
+      "ast_equivalent_except_contiguous_import_order": true
+    }
+  },
+  "inputs": [
+    {
+      "path": "validation-results/01-switching-parasitics/round17/delegation/out-D24/run.py",
+      "sha256": "ea083ce1d74205935ffdbcd38eb5329677e20a95cb7aa05771866094714c5dae"
+    },
+    {
+      "path": "validation-results/01-switching-parasitics/round17/delegation/out-D24/cache/vendor/IFX_CFD7_650V.lib",
+      "sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b"
+    },
+    {
+      "path": "validation-results/01-switching-parasitics/round17/d2/legA-h0-best.matrix.txt",
+      "sha256": "c6f8fde3c97a2283eaceed2ef2dd860845ba78849fe5b0e580aece37620801a4"
+    },
+    {
+      "path": "validation-results/01-switching-parasitics/round17/d2/leg_matrix.cir",
+      "sha256": "804f9be838a470feb92a6b31bf43fb61fd56830f784aa242121f382bade5e346"
+    },
+    {
+      "path": "validation-results/01-switching-parasitics/round17/d2/run_d2.py",
+      "sha256": "bec75e3212b120853eb4a58286fb3c222094e46b6e88ba6e41edcde73cd24c7a"
+    },
+    {
+      "path": "validation-results/01-switching-parasitics/round17/delegation/out-D3/recovery.cir",
+      "sha256": "34175551ca3cfbc32e80e600fdd62e42a2b88034e63271ee35ffd9a49c5a8273"
+    },
+    {
+      "path": "validation-results/01-switching-parasitics/round17/delegation/out-D3/run.py",
+      "sha256": "121cf954fc760b31bcb9c26d53246fd5922c1746a5d2d6b0e82564f5c1abd946"
+    },
+    {
+      "path": "validation-plan/sim-kit/common/options.inc",
+      "sha256": "ae752d460d50fdbbcaaf03b29871b3b039cf27f018707efe4aa50d0fc3529330"
+    },
+    {
+      "path": "validation-plan/sim-kit/common/run_ngspice.py",
+      "sha256": "e518996d3c4050f3fbbb109abbf116a23b010612dd073bea860d3db613f758b0"
+    },
+    {
+      "path": "validation-results/01-switching-parasitics/round17/delegation/out-D24/run.py",
+      "sha256": "ea083ce1d74205935ffdbcd38eb5329677e20a95cb7aa05771866094714c5dae"
+    },
+    {
+      "path": "validation-results/01-switching-parasitics/round17/delegation/out-D24/cache/vendor/IFX_CFD7_650V.lib",
+      "sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b"
+    },
+    {
+      "path": "validation-results/01-switching-parasitics/round17/d2/legA-h0-best.matrix.txt",
+      "sha256": "c6f8fde3c97a2283eaceed2ef2dd860845ba78849fe5b0e580aece37620801a4"
+    },
+    {
+      "path": "validation-results/01-switching-parasitics/round17/d2/leg_matrix.cir",
+      "sha256": "804f9be838a470feb92a6b31bf43fb61fd56830f784aa242121f382bade5e346"
+    },
+    {
+      "path": "validation-results/01-switching-parasitics/round17/d2/run_d2.py",
+      "sha256": "bec75e3212b120853eb4a58286fb3c222094e46b6e88ba6e41edcde73cd24c7a"
+    },
+    {
+      "path": "validation-results/01-switching-parasitics/round17/delegation/out-D3/recovery.cir",
+      "sha256": "34175551ca3cfbc32e80e600fdd62e42a2b88034e63271ee35ffd9a49c5a8273"
+    },
+    {
+      "path": "validation-results/01-switching-parasitics/round17/delegation/out-D3/run.py",
+      "sha256": "121cf954fc760b31bcb9c26d53246fd5922c1746a5d2d6b0e82564f5c1abd946"
+    },
+    {
+      "path": "validation-plan/sim-kit/common/options.inc",
+      "sha256": "ae752d460d50fdbbcaaf03b29871b3b039cf27f018707efe4aa50d0fc3529330"
+    },
+    {
+      "path": "validation-plan/sim-kit/common/run_ngspice.py",
+      "sha256": "e518996d3c4050f3fbbb109abbf116a23b010612dd073bea860d3db613f758b0"
+    },
+    {
+      "path": "validation-results/01-switching-parasitics/round17/delegation/out-D24/run.py",
+      "sha256": "ea083ce1d74205935ffdbcd38eb5329677e20a95cb7aa05771866094714c5dae"
+    },
+    {
+      "path": "validation-results/01-switching-parasitics/round17/delegation/out-D24/cache/vendor/IFX_CFD7_650V.lib",
+      "sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b"
+    },
+    {
+      "path": "validation-results/01-switching-parasitics/round17/d2/legA-h0-best.matrix.txt",
+      "sha256": "c6f8fde3c97a2283eaceed2ef2dd860845ba78849fe5b0e580aece37620801a4"
+    },
+    {
+      "path": "validation-results/01-switching-parasitics/round17/d2/leg_matrix.cir",
+      "sha256": "804f9be838a470feb92a6b31bf43fb61fd56830f784aa242121f382bade5e346"
+    },
+    {
+      "path": "validation-results/01-switching-parasitics/round17/d2/run_d2.py",
+      "sha256": "bec75e3212b120853eb4a58286fb3c222094e46b6e88ba6e41edcde73cd24c7a"
+    },
+    {
+      "path": "validation-results/01-switching-parasitics/round17/delegation/out-D3/recovery.cir",
+      "sha256": "34175551ca3cfbc32e80e600fdd62e42a2b88034e63271ee35ffd9a49c5a8273"
+    },
+    {
+      "path": "validation-results/01-switching-parasitics/round17/delegation/out-D3/run.py",
+      "sha256": "121cf954fc760b31bcb9c26d53246fd5922c1746a5d2d6b0e82564f5c1abd946"
+    },
+    {
+      "path": "validation-plan/sim-kit/common/options.inc",
+      "sha256": "ae752d460d50fdbbcaaf03b29871b3b039cf27f018707efe4aa50d0fc3529330"
+    },
+    {
+      "path": "validation-plan/sim-kit/common/run_ngspice.py",
+      "sha256": "e518996d3c4050f3fbbb109abbf116a23b010612dd073bea860d3db613f758b0"
+    }
+  ]
+}

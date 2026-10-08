@@ -12,6 +12,8 @@ on:
     branches: [main]
     paths:
       - 'firmware/**'
+      # Host tests compile the 120 V prototype PWM sources (test/CMakeLists.txt).
+      - 'zapote/power-stage-120v/prototype-closure/round5/firmware/**'
       - 'pcb/**'
       - 'scripts/check_firmware_board_contract.py'
       - 'scripts/check_pll_range_consistency.py'
@@ -24,6 +26,8 @@ on:
     branches: [main]
     paths:
       - 'firmware/**'
+      # Host tests compile the 120 V prototype PWM sources (test/CMakeLists.txt).
+      - 'zapote/power-stage-120v/prototype-closure/round5/firmware/**'
       - 'pcb/**'
       - 'scripts/check_firmware_board_contract.py'
       - 'scripts/check_pll_range_consistency.py'

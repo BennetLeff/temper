@@ -1,0 +1,39 @@
+* RTDIN+ diagnostic pull-up timing bound with MAX input-leakage corner.
+* Selected source values: 1 Mohm pullup and 1 nF C0G differential capacitor.
+* Sweep includes +/-5% parts and 0/200 pF added harness/PCB capacitance.
+* Validity limits: isolated R-C network, ideal healthy RTDIN- endpoint, and
+* explicit +/-14 nA input-leakage current source. MAX internal switches, ADC
+* acquisition/filter response, common-mode limits, and harness topology remain
+* unmodeled.
+.param VBIAS=2.0 RDIAG=1Meg CDIFF=1n CPAR=0 ILEAK=14n
+VBIAS bias 0 {VBIAS}
+VRTDN sensem 0 0.3773585
+RDIAG bias sensep {RDIAG}
+CDIFF sensep sensem {CDIFF} ic=0
+CPAR sensep sensem {CPAR} ic=0
+Ileak sensep 0 {ILEAK}
+BDIFF diff 0 V=V(sensep)-V(sensem)
+.tran 10u 100m uic
+.control
+set noaskquit
+foreach r 950k 1Meg 1.05Meg
+  foreach c 950p 1n 1.05n
+    foreach p 0 200p
+      foreach l -14n 14n
+        alterparam RDIAG=$r
+        alterparam CDIFF=$c
+        alterparam CPAR=$p
+        alterparam ILEAK=$l
+        reset
+        run
+        echo RDIAG=$r CDIFF=$c CPAR=$p ILEAK=$l
+        meas tran v_diff_30ms find v(diff) at=30m
+        meas tran v_diff_85ms find v(diff) at=85m
+        meas tran v_diff_95ms find v(diff) at=95m
+      end
+    end
+  end
+end
+quit
+.endc
+.end

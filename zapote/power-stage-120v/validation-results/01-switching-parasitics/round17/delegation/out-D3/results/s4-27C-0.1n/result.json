@@ -1,0 +1,42 @@
+{
+  "tag": "s4-27C-0.1n",
+  "params": {
+    "LP1": "28.2423n",
+    "LP2": "26.4809n",
+    "LP3": "25.9656n",
+    "LP4": "36.3715n",
+    "K12": "0.620844613",
+    "K13": "0.134146801",
+    "K14": "0.164910088",
+    "K23": "0.127614294",
+    "K24": "0.174517787",
+    "K34": "-0.00657312032",
+    "VBUS": "170",
+    "IL": "-20",
+    "DIR": "0",
+    "LESL": "10n",
+    "LSHUNT": "2n",
+    "DT": "348n",
+    "TJ": "27",
+    "TRMAX": "0.1n"
+  },
+  "meas": {
+    "vds_ls_die_pk": 535.5322,
+    "vds_hs_die_pk": 172.0804,
+    "vgs_ls_die_max": 15.02273,
+    "vgs_ls_die_min": -1.629448,
+    "vgs_hs_die_max": 14.20809,
+    "vgs_hs_die_min": -0.03548481,
+    "vgs_ls_off_max": 4.560759,
+    "vgs_hs_off_max": 14.20809,
+    "vds_hs_at_on": 171.5145,
+    "vds_ls_at_on": -0.2837511,
+    "vgs_ls_at_partner": 1.197523,
+    "vgs_hs_at_partner": -0.02851864
+  },
+  "aborted": false,
+  "returncode": 0,
+  "raw_returncode": 0,
+  "final_time_s": 3.148e-06,
+  "ls_current_peak_A": 90.84662451845372
+}

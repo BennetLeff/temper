@@ -1,0 +1,43 @@
+{
+  "base": "212c497f9e762f87ed59ba38842dfaeedc7aa538",
+  "rows": 78,
+  "classes": {
+    "AGREES": 33,
+    "ONE-SIDED": 32,
+    "SUPERSEDES": 11,
+    "CONTRADICTS": 2
+  },
+  "citations": 384,
+  "census_files": 770,
+  "cited_files_sha256": {
+    "docs/hardware/power-section-120v/COIL-MC.md": "860bf4dde23e597554abc439c810d69e0c86b807cd56276cd19cb1d09e4c7383",
+    "docs/hardware/power-section-120v/LOSS-REFACTOR.md": "449650cd6c669074d36bc07f92960fc17b7ecac2cd014f759f9517b040ff7e06",
+    "docs/hardware/power-section-120v/POWER-SECTION.md": "d0774d5873c34f2a8f66fb75554e3032bb32661e39101e8d1637ed842cdd4772",
+    "zapote/power-stage-120v/DECISIONS.md": "2bca59374640a1f0115d2e64742e524059467e21617a68f38bf023d917fba5bf",
+    "zapote/power-stage-120v/prototype-closure/README.md": "4e839b683a57bbcd972b5acce3c41946cf8c328a178d4dc2908e613445966f5a",
+    "zapote/power-stage-120v/prototype-closure/manufacturing/first-unit.md": "712c16508786a5b80595f6bff13740490d0db89d0375472a43977b8950a0e524",
+    "zapote/power-stage-120v/prototype-closure/power/README.md": "c372de2393e59a318ea8c0730db500bd613a7b7f3351489b2e10872b1ee11689",
+    "zapote/power-stage-120v/prototype-closure/round2/cooling/README.md": "72df9cd1e26d6786d69effc158a9ac61df1a6c17867acb8b4a0505b42c1b74e7",
+    "zapote/power-stage-120v/prototype-closure/round2/cooling/interface.json": "0092d401cbafd5656d4ab4b2c31f55da0ef71971569fbaffcbda64e69290e438",
+    "zapote/power-stage-120v/prototype-closure/round2/d17/README.md": "8b01d4f125470ef8f9c3f128d1f869e6922ad7adce2b369c2f9cd88f934b9bf8",
+    "zapote/power-stage-120v/prototype-closure/round2/d22/README.md": "ab1bc95b8527d687f0b2acf4cfb223a6aa8cef63ad36432b272e7da079991f5e",
+    "zapote/power-stage-120v/prototype-closure/round3/control-energy/README.md": "df0efa540887737b8f68dd7097fcc9776970e90a0017bc08623356a567fd5c8c",
+    "zapote/power-stage-120v/prototype-closure/round3/inlet/README.md": "028b20997bde4e7193136c6866322c6e6e1555e035c813dc0182ab9ee6d6a1bf",
+    "zapote/power-stage-120v/prototype-closure/round3/integration/source-audit.md": "41bcc786f78fa93b33711bf07921d65b4688871ed55958989f92dfa58193e349",
+    "zapote/power-stage-120v/prototype-closure/round3/packaging/README.md": "8b750b31fb72db3943c37185c1e8fe2199a4fc20d0e7da5da0e84484c6b6b802",
+    "zapote/power-stage-120v/prototype-closure/round4/coupled-model/README.md": "565e2c7c5286cf8c6b23f44b8cfb2d8969e4ea4e89734fac3402c4c300bd60b2",
+    "zapote/power-stage-120v/prototype-closure/round4/fields/README.md": "92ddbaf8ce30cd8d09b2cdc326ef6ddabd233eb730bb1713aaa22f0574790e9c",
+    "zapote/power-stage-120v/prototype-closure/round4/firmware/README.md": "389bce990408f2b0362af8fd7a28639856047bbccbb40cdab014886cd7464ae9",
+    "zapote/power-stage-120v/prototype-closure/round4/supervisor/README.md": "d1dbc9adaa0c3b46194f542ff4c01648ce98c9a5761389246ba81c23c182f4f4",
+    "zapote/power-stage-120v/prototype-closure/round5/boards/README.md": "7c2a4a9cda9c8b42e8da714ed77a3e0d5ab0c83d63976099a8655419f54a319d",
+    "zapote/power-stage-120v/prototype-closure/round5/firmware/README.md": "4bce6b3fab9060dfc2cce40d8407f76fe6338132d05bedd4d3feef7db6e628db",
+    "zapote/power-stage-120v/prototype-closure/round5/firmware/esp32/mcpwm_target.c": "1d3f62b26e967f4c8a79cc604ad3aa6aa1c33a4637772101a2dc81ecfb6af952",
+    "zapote/power-stage-120v/prototype-closure/round5/firmware/esp32/pins.h": "18f164ae2437158b621d9e22bd61284d15f42797b62d0eb888ccf2dd155443ee",
+    "zapote/power-stage-120v/prototype-closure/round5/model/RESULTS.md": "228f80a18e064a1ef85a403855a375911245982daf25d78e6b21549972010479",
+    "zapote/power-stage-120v/prototype-closure/round5/protection/README.md": "616146fd72df22bd7dce6056e66e79d997b03b83d12fd0a92fdf0c282c27645d",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/FINDINGS.md": "1603d72a54eb860d5444e8eb29c1adc53bf27d5ff87452b78c601ddd73cfe325",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/STATUS.md": "561153d4a7950588f2fef51c24add745cf3fa403f918ad7a7d3d6e828b63e28a",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D18/README.md": "ce20727a1bd4dabfba3f96da1eb72631cd8aeebe82bbec0fd29cd6ecbb72350d",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D20/CONTROLLER-REQUIREMENTS.md": "a648dac863609e02b0ee85a69aac396aae45a7bccaa1c526e8aa5a063f34d77f"
+  }
+}

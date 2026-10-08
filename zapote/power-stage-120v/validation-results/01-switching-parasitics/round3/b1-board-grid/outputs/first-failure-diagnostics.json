@@ -1,0 +1,21 @@
+{
+  "scope": "completed A/min, 170 V, 37 A, DIR=0, 348 ns case only; heuristic stress, not board bound",
+  "commanded_ls_off_s": 2.0025e-06,
+  "commanded_hs_on_s": 2.3505e-06,
+  "first_ls_die_vgs_fall_below_3p5_s": 2.3064212858265497e-06,
+  "first_ls_die_vgs_fall_below_3_s": 2.3086564826196545e-06,
+  "first_ls_die_vgs_rise_above_3_after_hs_on_s": 2.367972989589139e-06,
+  "first_3p5_fall_minus_command_off_ns": 303.92128582654976,
+  "gate_off_is_not_sustained": true,
+  "off_ls_die_vgs_peak_v": 7.36511013453,
+  "off_ls_die_vgs_peak_time_s": 3.09556339602e-06,
+  "off_ls_die_vgs_above_3_last_saved_time_s": 3.11209784539e-06,
+  "die_vds_ls_peak_v": 723.918050184,
+  "die_vds_ls_peak_time_s": 2.49211510762e-06,
+  "first_die_vds_ls_rise_above_520_s": 2.359061331619452e-06,
+  "first_die_vds_ls_rise_above_650_s": 2.4180395497690616e-06,
+  "ls_command_at_vds_peak_v": 0.0,
+  "hs_command_at_vds_peak_v": 15.0,
+  "model_over_650v_rating": true,
+  "interpretation": "The 723.9 V modeled excursion is outside the 650 V-rated device design range; it is a stress flag, not a calibrated physical peak-voltage prediction. The LS gate re-crosses 3 V after HS command and continues ringing, so the initial turn-off crossing is not a guaranteed sustained gate-off time."
+}

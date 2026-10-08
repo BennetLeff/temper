@@ -1,0 +1,348 @@
+//! Corroborate native-export identities against the saved KiCad 10 document.
+//! World pad geometry and connectivity remain outputs of the pinned KiCad extractor.
+use crate::donor_sexpr::{parse_document, unquote, Sexpr};
+use serde_json::{json, Value};
+use std::collections::{BTreeMap, BTreeSet};
+use zapote_core::{CheckReport, Finding};
+const RULE: &str = "DRC.NATIVE.DOCUMENT_BINDING";
+fn items(n: &Sexpr) -> Result<&[Sexpr], String> {
+    if let Sexpr::List(v) = n {
+        Ok(v)
+    } else {
+        Err("expected list".into())
+    }
+}
+fn atom(n: Option<&Sexpr>) -> Result<String, String> {
+    if let Some(Sexpr::Atom(s)) = n {
+        Ok(unquote(s))
+    } else {
+        Err("expected atom".into())
+    }
+}
+fn children<'a>(n: &'a Sexpr, key: &str) -> Result<Vec<&'a Sexpr>, String> {
+    Ok(items(n)?
+        .iter()
+        .filter(|n| items(n).is_ok_and(|v| atom(v.first()).is_ok_and(|s| s == key)))
+        .collect())
+}
+fn field(n: &Sexpr, key: &str) -> Result<Vec<String>, String> {
+    let v = children(n, key)?;
+    if v.len() != 1 {
+        return Err(format!("expected one {key}"));
+    }
+    items(v[0])?.iter().skip(1).map(|n| atom(Some(n))).collect()
+}
+fn scalar(n: &Sexpr, key: &str) -> Result<String, String> {
+    let v = field(n, key)?;
+    if v.len() != 1 {
+        return Err(format!("expected scalar {key}"));
+    }
+    Ok(v[0].clone())
+}
+fn numbers(n: &Sexpr, key: &str) -> Result<Vec<f64>, String> {
+    field(n, key)?
+        .iter()
+        .map(|s| s.parse::<f64>().map_err(|_| format!("invalid {key}")))
+        .collect()
+}
+fn property(n: &Sexpr, name: &str) -> Result<String, String> {
+    let found: Vec<_> = children(n, "property")?
+        .into_iter()
+        .filter(|p| items(p).is_ok_and(|v| atom(v.get(1)).is_ok_and(|s| s == name)))
+        .collect();
+    if found.len() != 1 {
+        return Err(format!("expected one property {name}"));
+    }
+    atom(items(found[0])?.get(2))
+}
+fn board_nets(board: &Sexpr) -> Result<BTreeMap<String, String>, String> {
+    let mut nets = BTreeMap::new();
+    let mut names = BTreeSet::new();
+    for entry in children(board, "net")? {
+        let fields = items(entry)?;
+        if fields.len() != 3 {
+            return Err("board net declaration requires numeric ID and name".into());
+        }
+        let id = atom(fields.get(1))?;
+        let name = atom(fields.get(2))?;
+        if id.parse::<u32>().is_err()
+            || nets.insert(id.clone(), name.clone()).is_some()
+            || !names.insert(name)
+        {
+            return Err(format!("invalid or duplicate board net {id}"));
+        }
+    }
+    Ok(nets)
+}
+fn net_name(n: &Sexpr, board_nets: &BTreeMap<String, String>) -> Result<String, String> {
+    let values = field(n, "net")?;
+    match values.as_slice() {
+        [single] => match board_nets.get(single) {
+            Some(name) => Ok(name.clone()),
+            None if single.parse::<u32>().is_ok() => Err(format!("unmapped board net ID {single}")),
+            None => Ok(single.clone()), // legacy name-only fixture
+        },
+        [id, name] if id.parse::<u32>().is_ok() => {
+            if board_nets.get(id) == Some(name) {
+                Ok(name.clone())
+            } else {
+                Err(format!(
+                    "pad net {id}/{name} differs from board declaration"
+                ))
+            }
+        }
+        _ => Err("net requires a name or declared numeric ID".into()),
+    }
+}
+fn put(m: &mut BTreeMap<String, Value>, id: String, v: Value) -> Result<(), String> {
+    if m.insert(id.clone(), v).is_some() {
+        return Err(format!("duplicate {id}"));
+    }
+    Ok(())
+}
+fn inspect(n: &Value) -> Result<(), String> {
+    let board = parse_document(
+        n["board_file_utf8"].as_str().ok_or("missing board bytes")?,
+        "KiCad board",
+    )?;
+    if atom(items(&board)?.first())? != "kicad_pcb" {
+        return Err("not a board".into());
+    }
+    let board_nets = board_nets(&board)?;
+    let mut saved = BTreeMap::new();
+    let mut exported = BTreeMap::new();
+    let mut saved_holes = BTreeMap::new();
+    let mut exported_holes = BTreeMap::new();
+    let mut saved_uuids = BTreeSet::new();
+    let mut exported_uuids = BTreeSet::new();
+    for fp in children(&board, "footprint")? {
+        let id = property(fp, "SourceInstance")?;
+        let mut pins = BTreeMap::new();
+        let pads = children(fp, "pad")?;
+        let mut counts = BTreeMap::<String, usize>::new();
+        for pad in &pads {
+            *counts.entry(atom(items(pad)?.get(1))?).or_default() += 1;
+        }
+        for pad in pads {
+            let pin = atom(items(pad)?.get(1))?;
+            let uuid_nodes = children(pad, "uuid")?;
+            if uuid_nodes.len() > 1 {
+                return Err("duplicate pad UUID field".into());
+            }
+            let uuid = uuid_nodes
+                .first()
+                .map(|_| scalar(pad, "uuid"))
+                .transpose()?;
+            if let Some(uuid) = &uuid {
+                if uuid.trim().is_empty() || !saved_uuids.insert(uuid.clone()) {
+                    return Err("empty or duplicate saved pad UUID".into());
+                }
+            }
+            if atom(items(pad)?.get(2))? == "np_thru_hole" {
+                if !pin.is_empty() || !children(pad, "net")?.is_empty() {
+                    return Err("mechanical hole has electrical pin/net".into());
+                }
+                put(
+                    &mut saved_holes,
+                    uuid.ok_or("mechanical hole requires UUID")?,
+                    json!({"component":id}),
+                )?;
+                continue;
+            }
+            let key = if counts[&pin] > 1 {
+                format!(
+                    "{}#{}",
+                    pin,
+                    uuid.ok_or("repeated physical pin requires UUID")?
+                )
+            } else {
+                pin.clone()
+            };
+            // KiCad omits the net field for an unassigned electrical pad.
+            // Preserve that pad in the census; source contracts decide whether
+            // it is intentionally NC. An omitted export pad still fails binding.
+            let net = if children(pad, "net")?.is_empty() {
+                String::new()
+            } else {
+                net_name(pad, &board_nets)?
+            };
+            let value = if counts[&pin] > 1 {
+                json!({"pin":pin,"net":net})
+            } else {
+                json!(net)
+            };
+            put(&mut pins, key, value)?;
+        }
+        put(
+            &mut saved,
+            id,
+            json!({"mpn":property(fp,"MPN")?,"pins":pins}),
+        )?;
+    }
+    for c in n["components"].as_array().ok_or("missing components")? {
+        let mut pins = BTreeMap::new();
+        let pads = c["footprint_pads"].as_array().ok_or("missing pads")?;
+        let mut counts = BTreeMap::<&str, usize>::new();
+        for p in pads {
+            *counts
+                .entry(p["pad"].as_str().ok_or("missing pin")?)
+                .or_default() += 1;
+        }
+        for p in pads {
+            let pin = p["pad"].as_str().ok_or("missing pin")?;
+            if let Some(uuid) = p["uuid"].as_str() {
+                if uuid.trim().is_empty() || !exported_uuids.insert(uuid.to_owned()) {
+                    return Err("empty or duplicate exported pad UUID".into());
+                }
+            }
+            if p["pad_type"].as_str() == Some("np_thru_hole") {
+                if !pin.is_empty() || p["net"].as_str() != Some("") {
+                    return Err("exported mechanical hole has electrical pin/net".into());
+                }
+                put(
+                    &mut exported_holes,
+                    p["uuid"]
+                        .as_str()
+                        .ok_or("mechanical hole requires UUID")?
+                        .to_owned(),
+                    json!({"component":c["id"]}),
+                )?;
+                continue;
+            }
+            let key = if counts[pin] > 1 {
+                format!(
+                    "{}#{}",
+                    pin,
+                    p["uuid"]
+                        .as_str()
+                        .ok_or("duplicate physical pin requires UUID")?
+                )
+            } else {
+                pin.to_owned()
+            };
+            let value = if counts[pin] > 1 {
+                json!({"pin":pin,"net":p["net"]})
+            } else {
+                p["net"].clone()
+            };
+            put(&mut pins, key, value)?;
+        }
+        put(
+            &mut exported,
+            c["id"].as_str().ok_or("missing id")?.into(),
+            json!({"mpn":c["mpn"],"pins":pins}),
+        )?;
+    }
+    if saved != exported || saved_holes != exported_holes {
+        return Err("exported component/MPN/pad nets differ from saved board".into());
+    }
+    if !saved_uuids.is_empty() && saved_uuids != exported_uuids {
+        return Err("exported pad UUID census differs from saved board".into());
+    }
+    saved.clear();
+    exported.clear();
+    for t in children(&board, "segment")? {
+        put(
+            &mut saved,
+            scalar(t, "uuid")?,
+            json!({"net":net_name(t,&board_nets)?,"layer":scalar(t,"layer")?,"width":numbers(t,"width")?,"points":[numbers(t,"start")?,numbers(t,"end")?]}),
+        )?;
+    }
+    if !children(&board, "arc")?.is_empty() {
+        return Err("arc binding is not supported by this entrypoint".into());
+    }
+    for t in n["traces"].as_array().ok_or("missing traces")? {
+        put(
+            &mut exported,
+            t["uuid"].as_str().ok_or("missing trace UUID")?.into(),
+            json!({"net":t["net"],"layer":t["layer"],"width":[t["width_mm"]],"points":t["points_mm"]}),
+        )?;
+    }
+    if saved != exported {
+        return Err("exported traces differ from saved board".into());
+    }
+    saved.clear();
+    exported.clear();
+    for v in children(&board, "via")? {
+        put(
+            &mut saved,
+            scalar(v, "uuid")?,
+            json!({"net":net_name(v,&board_nets)?,"position":numbers(v,"at")?,"size":numbers(v,"size")?,"drill":numbers(v,"drill")?,"layers":field(v,"layers")?}),
+        )?;
+    }
+    for v in n["vias"].as_array().ok_or("missing vias")? {
+        put(
+            &mut exported,
+            v["uuid"].as_str().ok_or("missing via UUID")?.into(),
+            json!({"net":v["net"],"position":v["position_mm"],"size":[v["diameter_mm"]],"drill":[v["drill_mm"]],"layers":[v["from_layer"],v["to_layer"]]}),
+        )?;
+    }
+    if saved != exported {
+        return Err("exported vias differ from saved board".into());
+    }
+    Ok(())
+}
+pub fn validate(native: &str) -> CheckReport {
+    let result = serde_json::from_str(native)
+        .map_err(|e| e.to_string())
+        .and_then(|n| inspect(&n));
+    let finding = match result {
+        Ok(()) => Finding::pass(
+            RULE,
+            "component/MPN/pad-net, straight trace and via census match saved board bytes",
+            "native",
+        ),
+        Err(e) => Finding::fail(RULE, e, "native"),
+    };
+    CheckReport::from_findings(vec![finding], vec![RULE.into()], vec![])
+}
+
+#[cfg(test)]
+mod bridge_tests {
+    use super::validate;
+    use serde_json::{json, Value};
+    use zapote_core::Status;
+
+    const ACTIVE_NATIVE: &str =
+        include_str!("../tests/fixtures/active-rectifier-native.json");
+
+    #[test]
+    fn active_board_empty_net_pads_bind_without_omitting_pad_identity() {
+        assert_eq!(validate(ACTIVE_NATIVE).status, Status::Pass);
+    }
+
+    #[test]
+    fn assigning_an_export_net_to_a_saved_unassigned_pad_is_rejected() {
+        let mut n: Value = serde_json::from_str(ACTIVE_NATIVE).unwrap();
+        let controller = n["components"]
+            .as_array_mut()
+            .unwrap()
+            .iter_mut()
+            .find(|c| c["id"] == "bridge")
+            .unwrap();
+        let pad = controller["footprint_pads"]
+            .as_array_mut()
+            .unwrap()
+            .iter_mut()
+            .find(|p| p["pad"] == "4")
+            .unwrap();
+        pad["net"] = json!("RECTIFIER_NEGATIVE");
+        assert_eq!(validate(&n.to_string()).status, Status::Fail);
+    }
+
+    #[test]
+    fn omitting_an_unassigned_physical_pad_is_rejected() {
+        let mut n: Value = serde_json::from_str(ACTIVE_NATIVE).unwrap();
+        let controller = n["components"]
+            .as_array_mut()
+            .unwrap()
+            .iter_mut()
+            .find(|c| c["id"] == "bridge")
+            .unwrap();
+        controller["footprint_pads"]
+            .as_array_mut()
+            .unwrap()
+            .retain(|p| p["pad"] != "4");
+        assert_eq!(validate(&n.to_string()).status, Status::Fail);
+    }
+}

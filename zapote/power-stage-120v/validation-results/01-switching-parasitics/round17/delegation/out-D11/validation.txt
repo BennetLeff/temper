@@ -1,0 +1,66 @@
+D-11 blocker report — 2026-10-02 — OpenAI GPT-6 / Codex
+Base: 4574380993f525cdfa4f41702416b398a22689c3
+Worktree: /Users/bennet/.codex/worktrees/d11-bus-sense/temper
+Branch: codex/d11-bus-sense-range
+
+Evidence replay (Python 3.12.12):
+/opt/homebrew/bin/python3.12 zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D11/bus_sense.py > /tmp/d11-bus-sense.json
+diff -u zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D11/bus_sense.json /tmp/d11-bus-sense.json
+Result: exit 0, byte-for-byte match.
+
+Import gate:
+The first attempt could not access the uv cache in the sandbox. The retry
+showed the shared environment lacked lint-imports. Neither was a passing gate.
+Created /tmp/d11-validation-venv with Python 3.12.12; installed binary packages
+import-linter==2.14 and grimp==3.16 (versions in uv.lock), plus PyYAML.
+No project packages or native extensions were installed or built.
+
+env UV_PROJECT_ENVIRONMENT=/tmp/d11-validation-venv PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/Users/bennet/.codex/worktrees/d11-bus-sense/temper/packages/temper-placer/src /tmp/d11-validation-venv/bin/python scripts/import_linter_gate.py
+Result: exit 0. lint-imports report: 5 kept, 0 broken.
+Import boundary gate PASSED — 0 new violations.
+
+Derived artifacts, read-only:
+env PYTHONDONTWRITEBYTECODE=1 /Users/bennet/Desktop/temper/.venv/bin/python scripts/regen_derived.py --check
+Result: exit 0. All derived artifacts consistent (repo state, wasm registries,
+oracle hashes, hash order, manifest, unwired kernels, wire formats).
+Mutating make regen omitted because all writes are restricted to out-D11;
+its read-only check found no drift.
+
+No firmware tests: no firmware edits; the report does not certify behavior.
+No Rust workspace/native bridge build, DRC, SPICE, or physical test.
+
+Continuation — owner decision incorporated, 2026-10-02
+Owner-decision base: 83c02a9a06383f020227ce57a14bc37a18c956ff
+Scope: retain shared divider; receiver, accuracy, over-range and trip proposal.
+The original blocker-only receipt above is historical.
+
+Python 3.12.12 evidence replay repeated after all arithmetic changes:
+/opt/homebrew/bin/python3.12 zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D11/bus_sense.py > /tmp/d11-bus-sense.json
+diff -u zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D11/bus_sense.json /tmp/d11-bus-sense.json
+Result: exit 0, byte-for-byte match.
+
+env PYTHONDONTWRITEBYTECODE=1 /opt/homebrew/bin/python3.12 -m unittest discover -s zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D11 -p test_bus_sense.py -v
+Result: 6 tests passed. Checks nominal divider/OVP, receiver common-mode error,
+no unsupported linear accuracy at 240/260/280 V, negative leakage/gain at zero,
+threshold crossing and normal/failure separation, and rejection of a too-high
+threshold. These tests validate arithmetic, not component/system assumptions.
+
+env UV_PROJECT_ENVIRONMENT=/tmp/d11-validation-venv PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/Users/bennet/.codex/worktrees/d11-bus-sense/temper/packages/temper-placer/src /tmp/d11-validation-venv/bin/python scripts/import_linter_gate.py
+Result: exit 0; 5 contracts kept, 0 broken, 0 new violations.
+
+env PYTHONDONTWRITEBYTECODE=1 /Users/bennet/Desktop/temper/.venv/bin/python scripts/regen_derived.py --check
+Result: exit 0; all derived artifacts consistent.
+
+git diff --check
+Result: exit 0.
+
+Self-review corrections, included in the final evidence:
+- Root-solving brackets now include the actual late threshold crossing and
+  verify each extremum crosses with its own input <= 2 V.
+- Gain thermal-drift allowance includes worst initial gain multiplier.
+- Negative zero-bus leakage uses maximum gain for its lower output corner.
+- AMC1311 RLOAD table verified with TI PDF layout: 10 kohm nominal, 1 kohm
+  in the maximum-loading column. Proposal independently requires >=10 kohm.
+
+No unconditional accuracy/protection bound or physical qualification is claimed.
+No native build, simulation, board, netlist, root elec or firmware edit.

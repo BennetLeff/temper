@@ -1,0 +1,18 @@
+{
+  "source_revision": "67aec36f8c876a7026c07ce3752105ab34d3ce46",
+  "model": "GPT-6 Astra",
+  "python": "3.12.12 | packaged by conda-forge | (main, Oct 22 2025, 23:34:53) [Clang 19.1.7 ]",
+  "ngspice": "******\n** ngspice-45.2 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2025, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n******\n",
+  "inputs": {
+    "validation-plan/sim-kit/models/vendor/IFX_CFD7_650V.lib": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+    "validation-results/01-switching-parasitics/round17/d2/legA-h0-lin12.matrix.txt": "22a9129a291bf7de52e81ab37e3e51871c9e17882882034e67df446679429d00",
+    "validation-results/01-switching-parasitics/round17/d2/run_d2.py": "1ea37c6c1b23c51e5dc694935c3d90336f45892432e17949d75df6a4d19e6579",
+    "validation-results/01-switching-parasitics/round17/d2/leg_matrix.cir": "b2dd2eaaa0c338a0ad982568b3bed5cbf5d974320dc49c0a9a9c2c8ab1d5a607",
+    "validation-plan/sim-kit/common/options.inc": "ae752d460d50fdbbcaaf03b29871b3b039cf27f018707efe4aa50d0fc3529330",
+    "validation-plan/sim-kit/common/run_ngspice.py": "e518996d3c4050f3fbbb109abbf116a23b010612dd073bea860d3db613f758b0",
+    "validation-results/01-switching-parasitics/round17/delegation/out-D3/run.py": "121cf954fc760b31bcb9c26d53246fd5922c1746a5d2d6b0e82564f5c1abd946",
+    "validation-results/01-switching-parasitics/round17/delegation/out-D3/recovery.cir": "34175551ca3cfbc32e80e600fdd62e42a2b88034e63271ee35ffd9a49c5a8273",
+    "validation-results/01-switching-parasitics/round17/delegation/out-D3/s4.cir": "1d3c9e06eea8e89b5c4634f6f456c3f8ee66d166a963f31845495dede89a1b1b"
+  },
+  "postprocessing_note": "Renamed gate_die_peak_V to gate_node_peak_V to correctly describe the absolute internal gate-node quantity. audit.py independently computes gate-minus-source from committed CSV."
+}

@@ -1,0 +1,22 @@
+{
+  "behavior": "Route replay receipts record every new track/via UUID under the route operation requested net. A Rust checker validates current route hashes and operation counts, receipt board chain, replace/add supersession, and exact saved KiCad UUID, kind and net census. Missing, extra, or reassigned copper fails.",
+  "created_at_utc": "2026-09-26T21:18:48.164498+00:00",
+  "files_sha256": {
+    "zapote/packages/zapote-harness/src/bin/zapote-power-copper-identity.rs": "e67c70eab3e24afefa96e26e08416672428eedf0ecea8d4e7e75de0a8b8544eb",
+    "zapote/power-stage-120v/tests/test_copper_identity.py": "eacf2076a0a4073b7d91b60453867db375d922cf118319f389ce2075464de174",
+    "zapote/power-stage-120v/tools/check_copper_identity.py": "2d45ffc3594174ffdd1950aa6f89836cc5f2253bc034759892b54bb63b4211d2",
+    "zapote/rtd/apply_routes.py": "237f8a4ed998cbb83cfa853add49a52885a4349e2bbcbeed784be264ea9371a9"
+  },
+  "integration_note": "Existing native-06 receipts lack authored_items; fresh route replay is required. Run check_copper_identity.py after final KiCad DRC/refill on the regenerated board.",
+  "review": "Independent review from /root/code_review pending final signoff.",
+  "schema": "temper.power-stage-120v.copper-identity-guard.v1",
+  "scope": "Verification/route adapter only; no route coordinates, CAD or docs edited.",
+  "trigger": "KiCad DRC/refill can silently reassign an unanchored authored via/track to a crossed net without reporting a short.",
+  "validation": [
+    "Rust binary unit tests: 5 passed (baseline, reassignment, missing/extra, stale hash/chain, later replacement preserving other nets).",
+    "KiCad integration test: 1 passed; route-01 replay baseline passes, a real saved-board via net mutation is rejected by the adapter and Rust binary.",
+    "ruff check on both new Python files: pass.",
+    "rustfmt --check on new Rust binary: pass.",
+    "cargo clippy -D warnings blocked by pre-existing warnings in unrelated zapote-erc and zapote-drc dependency code."
+  ]
+}

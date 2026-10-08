@@ -1,0 +1,1178 @@
+[
+  {
+    "tag": "baseline-S1-v170-i37-d0-e1.06-base391",
+    "full_tail_vds_V": 204.5992207985427,
+    "full_tail_off_gate_V": 0.950714541739124,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "baseline-S1-v170-i37-d0-e1.06-base443",
+    "full_tail_vds_V": 204.5992207985427,
+    "full_tail_off_gate_V": 0.9462804748746141,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "baseline-S1-v170-i37-d0-e1.06-base498",
+    "full_tail_vds_V": 204.5992207985427,
+    "full_tail_off_gate_V": 0.9429012382208262,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "baseline-S1-v170-i37-d0-e10-base391",
+    "full_tail_vds_V": 198.2420600429827,
+    "full_tail_off_gate_V": 0.8590900083037175,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "baseline-S1-v170-i37-d0-e10-base443",
+    "full_tail_vds_V": 198.2420600429827,
+    "full_tail_off_gate_V": 0.8570899178841838,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "baseline-S1-v170-i37-d0-e10-base498",
+    "full_tail_vds_V": 198.2420600429827,
+    "full_tail_off_gate_V": 0.8560179919138254,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "baseline-S1-v170-i37-d1-e1.06-base391",
+    "full_tail_vds_V": 203.2308174477643,
+    "full_tail_off_gate_V": 0.757624103487962,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "baseline-S1-v170-i37-d1-e1.06-base443",
+    "full_tail_vds_V": 203.2308174477643,
+    "full_tail_off_gate_V": 0.6076142801125978,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "baseline-S1-v170-i37-d1-e1.06-base498",
+    "full_tail_vds_V": 203.2308174477643,
+    "full_tail_off_gate_V": 0.6036590894913242,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "baseline-S1-v170-i37-d1-e10-base391",
+    "full_tail_vds_V": 197.2427773262158,
+    "full_tail_off_gate_V": 0.8154034049311418,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "baseline-S1-v170-i37-d1-e10-base443",
+    "full_tail_vds_V": 197.2427773262158,
+    "full_tail_off_gate_V": 0.5288394275993458,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "baseline-S1-v170-i37-d1-e10-base498",
+    "full_tail_vds_V": 197.2427773262158,
+    "full_tail_off_gate_V": 0.5276939902208547,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "baseline-S2-v280-i71-d0-e1.06-base391",
+    "full_tail_vds_V": 325.3825976537539,
+    "full_tail_off_gate_V": 1.741993698468238,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "baseline-S2-v280-i71-d0-e1.06-base443",
+    "full_tail_vds_V": 325.3825976537539,
+    "full_tail_off_gate_V": 1.737727768718943,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "baseline-S2-v280-i71-d0-e1.06-base498",
+    "full_tail_vds_V": 325.3825976537539,
+    "full_tail_off_gate_V": 1.73391607636821,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "baseline-S2-v280-i71-d0-e10-base391",
+    "full_tail_vds_V": 334.4023104474436,
+    "full_tail_off_gate_V": 1.616053910677858,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "baseline-S2-v280-i71-d0-e10-base443",
+    "full_tail_vds_V": 334.4023104474436,
+    "full_tail_off_gate_V": 1.613882811940168,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "baseline-S2-v280-i71-d0-e10-base498",
+    "full_tail_vds_V": 334.4023104474436,
+    "full_tail_off_gate_V": 1.611876652493908,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "baseline-S2-v280-i71-d1-e1.06-base391",
+    "full_tail_vds_V": 339.1279416111771,
+    "full_tail_off_gate_V": 1.124238343535224,
+    "crossings": {
+      "1.9": {
+        "incoming": 3,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "baseline-S2-v280-i71-d1-e1.06-base443",
+    "full_tail_vds_V": 339.1279416111771,
+    "full_tail_off_gate_V": 1.120032855510217,
+    "crossings": {
+      "1.9": {
+        "incoming": 3,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "baseline-S2-v280-i71-d1-e1.06-base498",
+    "full_tail_vds_V": 339.1279416111771,
+    "full_tail_off_gate_V": 1.116428066300644,
+    "crossings": {
+      "1.9": {
+        "incoming": 3,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "baseline-S2-v280-i71-d1-e10-base391",
+    "full_tail_vds_V": 345.9340787447171,
+    "full_tail_off_gate_V": 0.9927256998359089,
+    "crossings": {
+      "1.9": {
+        "incoming": 3,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "baseline-S2-v280-i71-d1-e10-base443",
+    "full_tail_vds_V": 345.9340787447171,
+    "full_tail_off_gate_V": 0.9901407938635958,
+    "crossings": {
+      "1.9": {
+        "incoming": 3,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "baseline-S2-v280-i71-d1-e10-base498",
+    "full_tail_vds_V": 345.9340787447171,
+    "full_tail_off_gate_V": 0.9880041092372284,
+    "crossings": {
+      "1.9": {
+        "incoming": 3,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "baseline-S4-v198-i-20-d0-e1.06-base391",
+    "full_tail_vds_V": 480.1669896786493,
+    "full_tail_off_gate_V": 4.365391334192946,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 11
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 5
+      },
+      "7.5": {
+        "incoming": 3,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "baseline-S4-v198-i-20-d0-e1.06-base443",
+    "full_tail_vds_V": 479.4364556638576,
+    "full_tail_off_gate_V": 4.201286805740416,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 9
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 5
+      },
+      "7.5": {
+        "incoming": 3,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "baseline-S4-v198-i-20-d0-e1.06-base498",
+    "full_tail_vds_V": 478.3792342007674,
+    "full_tail_off_gate_V": 4.076406123038925,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 9
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 5
+      },
+      "7.5": {
+        "incoming": 3,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "baseline-S4-v198-i-20-d0-e10-base391",
+    "full_tail_vds_V": 509.4614663683301,
+    "full_tail_off_gate_V": 4.288464254521987,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 9
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 5
+      },
+      "7.5": {
+        "incoming": 3,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "baseline-S4-v198-i-20-d0-e10-base443",
+    "full_tail_vds_V": 509.193323334395,
+    "full_tail_off_gate_V": 4.145193712639408,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 9
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 5
+      },
+      "7.5": {
+        "incoming": 3,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "baseline-S4-v198-i-20-d0-e10-base498",
+    "full_tail_vds_V": 508.3315588647037,
+    "full_tail_off_gate_V": 4.023894738060729,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 9
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 5
+      },
+      "7.5": {
+        "incoming": 3,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "baseline-S4-v198-i-20-d1-e1.06-base391",
+    "full_tail_vds_V": 444.8350371193285,
+    "full_tail_off_gate_V": 3.978218362884446,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 9
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 5
+      },
+      "7.5": {
+        "incoming": 3,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "baseline-S4-v198-i-20-d1-e1.06-base443",
+    "full_tail_vds_V": 444.5373746309302,
+    "full_tail_off_gate_V": 3.84218286603069,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 9
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 5
+      },
+      "7.5": {
+        "incoming": 3,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "baseline-S4-v198-i-20-d1-e1.06-base498",
+    "full_tail_vds_V": 444.5210181866927,
+    "full_tail_off_gate_V": 3.745506883409213,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 9
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 3
+      },
+      "7.5": {
+        "incoming": 3,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "baseline-S4-v198-i-20-d1-e10-base391",
+    "full_tail_vds_V": 454.9115682998293,
+    "full_tail_off_gate_V": 3.830675220859954,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 7
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 3
+      },
+      "7.5": {
+        "incoming": 3,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "baseline-S4-v198-i-20-d1-e10-base443",
+    "full_tail_vds_V": 454.7748988968651,
+    "full_tail_off_gate_V": 3.692687956419441,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 7
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 3
+      },
+      "7.5": {
+        "incoming": 3,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "baseline-S4-v198-i-20-d1-e10-base498",
+    "full_tail_vds_V": 454.8576557869731,
+    "full_tail_off_gate_V": 3.594100905214544,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 7
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 3
+      },
+      "7.5": {
+        "incoming": 3,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "model-S1-v170-i37-d0-e1.06-max",
+    "full_tail_vds_V": 203.7055589312882,
+    "full_tail_off_gate_V": 0.9199895587968987,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "model-S1-v170-i37-d0-e1.06-min",
+    "full_tail_vds_V": 204.0954611512889,
+    "full_tail_off_gate_V": 0.9376085455188098,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "model-S1-v170-i37-d0-e10-typ",
+    "full_tail_vds_V": 197.6869275826971,
+    "full_tail_off_gate_V": 0.8637770351248977,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "model-S1-v170-i37-d1-e1.06-typ",
+    "full_tail_vds_V": 203.4235833862697,
+    "full_tail_off_gate_V": 0.606986714919628,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "model-S1-v170-i37-d1-e10-max",
+    "full_tail_vds_V": 197.2805505531293,
+    "full_tail_off_gate_V": 0.5293828822961024,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "model-S1-v170-i37-d1-e10-typ",
+    "full_tail_vds_V": 197.2782701669494,
+    "full_tail_off_gate_V": 0.5292729163467775,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "model-S2-v280-i71-d0-e1.06-max",
+    "full_tail_vds_V": 328.7491249837699,
+    "full_tail_off_gate_V": 1.691654055655735,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "model-S2-v280-i71-d0-e1.06-min",
+    "full_tail_vds_V": 327.3815766988633,
+    "full_tail_off_gate_V": 1.719695051402449,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "model-S2-v280-i71-d0-e1.06-typ",
+    "full_tail_vds_V": 327.8624560794632,
+    "full_tail_off_gate_V": 1.705287012898006,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "model-S2-v280-i71-d0-e10-min",
+    "full_tail_vds_V": 336.7810064902858,
+    "full_tail_off_gate_V": 1.625725350105808,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "model-S2-v280-i71-d0-e10-typ",
+    "full_tail_vds_V": 337.4274312192637,
+    "full_tail_off_gate_V": 1.623331977316009,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "stress-S1-v170-i37-d0-e1.06-dtc-1-sk-6.5-pwd5",
+    "full_tail_vds_V": 204.095549927914,
+    "full_tail_off_gate_V": 0.9335753368592598,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "stress-S1-v170-i37-d0-e1.06-dtc-1-sk6.5-pwd-5",
+    "full_tail_vds_V": 203.7198775272757,
+    "full_tail_off_gate_V": 0.9220566211501946,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "stress-S1-v170-i37-d0-e1.06-dtc-1-sk6.5-pwd5",
+    "full_tail_vds_V": 203.8272077156559,
+    "full_tail_off_gate_V": 0.9281802913153433,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "stress-S1-v170-i37-d0-e1.06-dtc1-sk-6.5-pwd5",
+    "full_tail_vds_V": 204.095549927914,
+    "full_tail_off_gate_V": 0.927438298492351,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "stress-S1-v170-i37-d0-e1.06-dtc1-sk6.5-pwd-5",
+    "full_tail_vds_V": 203.7198775272757,
+    "full_tail_off_gate_V": 0.916700648080145,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "stress-S1-v170-i37-d0-e1.06-dtc1-sk6.5-pwd5",
+    "full_tail_vds_V": 203.8272077156559,
+    "full_tail_off_gate_V": 0.9242242303070833,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "stress-S1-v170-i37-d0-e10-dtc-1-sk-6.5-pwd-5",
+    "full_tail_vds_V": 197.7214482225327,
+    "full_tail_off_gate_V": 0.8639054853169639,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "stress-S1-v170-i37-d0-e10-dtc-1-sk-6.5-pwd5",
+    "full_tail_vds_V": 197.8215448482306,
+    "full_tail_off_gate_V": 0.8644935945218335,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  },
+  {
+    "tag": "stress-S1-v170-i37-d0-e10-dtc-1-sk6.5-pwd-5",
+    "full_tail_vds_V": 197.4489581713937,
+    "full_tail_off_gate_V": 1.016612726360268,
+    "crossings": {
+      "1.9": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "3.0": {
+        "incoming": 1,
+        "outgoing": 1
+      },
+      "7.5": {
+        "incoming": 1,
+        "outgoing": 1
+      }
+    },
+    "tail_additional_vds_V": 0.0,
+    "tail_additional_off_gate_V": 0.0
+  }
+]

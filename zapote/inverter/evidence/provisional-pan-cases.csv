@@ -1,0 +1,10 @@
+id,topology,bus_v,loaded_l_uh,coil_r_ohm,reflected_pan_r_ohm,tank_c_nf,frequency_khz,permit,v15_ok
+# Exploratory joint L/R scenarios at an illustrative 390 V, 47 kHz, 300 nF point. No row is a measured Temper operating point.
+kit_reference_vessel,half_hot0,390,60,0.34,2.91,300,47,yes,yes
+kit_no_vessel,half_hot0,390,87,0.34,0,300,47,yes,yes
+kit_half_coupling_synthetic,half_hot0,390,73.5,0.34,1.455,300,47,yes,yes
+cross_coil_cast_iron_synthetic,half_hot0,390,70.99,0.34,3.87,300,47,yes,yes
+cross_coil_steel_synthetic,half_hot0,390,64.70,0.34,3.02,300,47,yes,yes
+cross_coil_silargan_synthetic,half_hot0,390,54.63,0.34,2.14,300,47,yes,yes
+kit_reference_l_minus_10pct,half_hot0,390,54,0.34,2.91,300,47,yes,yes
+kit_reference_l_plus_10pct,half_hot0,390,66,0.34,2.91,300,47,yes,yes

@@ -1,0 +1,53 @@
+{
+  "review_date": "2026-09-11",
+  "scope": "passive-network model versus physical comparator applicability",
+  "source": {
+    "url": "https://www.ti.com/lit/ds/symlink/tlv3201.pdf",
+    "revision": "SBOS561C May2024",
+    "sha256": "a672c9ca6517733059451d887028a1b1569d73ba328746befe015b8d952f0c02",
+    "sections": [
+      "6.5",
+      "6.6",
+      "6.7",
+      "6.8"
+    ]
+  },
+  "datasheet_conditions": {
+    "offset_max_mv": 4,
+    "bias_current_max_na": 5,
+    "offset_and_bias_test_common_mode": "VCC/2",
+    "temperature_c": [
+      -40,
+      125
+    ],
+    "cmrr_min_db_2v7": 56,
+    "cmrr_min_db_5v": 60,
+    "psrr_min_db": 65,
+    "propagation_max_ns": 55,
+    "propagation_overdrive_mv": 20,
+    "propagation_load_pf": 15,
+    "electrical_tables_supply_v": [
+      2.7,
+      5.0
+    ],
+    "input_capacitance": "2pF common-mode / 4pF differential typical; no maximum in table",
+    "input_hysteresis_mv": "1.2 typical; no maximum in table"
+  },
+  "qualification_boundary": "The proposed two-state resistor-capacitor proof is conditional on its ideal comparator effective-offset/leakage and delay allocations. It does not derive guaranteed input-capacitance, hysteresis, or off-midpoint error limits from typical values. These remain an explicit device-applicability gap; mathematical passive-network PASS does not remove it.",
+  "max31865_boundary": {
+    "source_url": "https://www.analog.com/media/en/technical-documentation/data-sheets/MAX31865.pdf",
+    "revision": "19-6478 Rev3 July2015",
+    "sections": "Pin Description pp7-8; Block Diagram p9",
+    "source_pin_nets": {
+      "SSOP7_ISENSOR": "refin_n",
+      "SSOP8_FORCE_PLUS": "rtd_force_p",
+      "SSOP12_FORCE_MINUS": "rtd_force_n"
+    },
+    "model_idealizations": [
+      "ISENSOR to FORCE+ represented by zero series resistance",
+      "FORCE- to ground represented by1mohm return",
+      "BIAS represented by constant voltage within declared range; no active-source transient impedance model"
+    ],
+    "qualification_gap": "The passive network proof does not establish internal protected force-path on-resistance, switching dynamics, or BIAS transient regulation. These are device-model applicability conditions, not literal external PCB shorts."
+  }
+}

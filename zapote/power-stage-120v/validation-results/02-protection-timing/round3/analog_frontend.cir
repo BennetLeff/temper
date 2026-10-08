@@ -1,0 +1,44 @@
+* Task 02: tank-CT detector front end (native-13 values), analog timing.
+* Tank current is a sine at FREQ whose amplitude grows linearly (fault ramp).
+* Run: python3 ../../../validation-plan/sim-kit/common/run_ngspice.py ct_frontend.cir FREQ=35k I0=37 SLOPE=3e6
+*
+* Measures (absolute times; sweep.py subtracts them), relative to the instant
+* the primary current first reaches ITRIP:
+*   t_pos_trip  comparator U10 output rising through 1.65 V
+*   t_or        fault OR output rising through 1.65 V (add the downstream
+*               interlock + PERMIT + driver delays from detector_chain.py)
+* and the zero-cross comparator's lag behind the current zero crossing.
+
+.include ../../../validation-plan/sim-kit/common/options.inc
+.param FREQ=35k I0=37 SLOPE=3e6 ITRIP=55.17 VCC=3.3 VOS=0 TPD=55n TSTOP=200u
+.include params.inc
+
+* ---- primary current: (I0 + SLOPE*t) * sin(2 pi FREQ t), capped at 150 A
+Bip ipri 0 V={min(I0+SLOPE*time,150)*sin(6.283185307*FREQ*time)}
+* ---- CT: 1:100, magnetizing 3.2 mH, secondary DCR 1.5 ohm (CST3015-100ED)
+* Floating secondary: current leaves CT_S2 and enters ctx (never through ground).
+Bsec ct_s2 ctx I={v(ipri)/100}
+Lmag ctx ct_s2 3.2m
+Rdcr ctx ct_s1 1.5
+* ---- burden and its capacitor (R39, C42)
+Rbur ct_s1 ct_s2 1.5
+Cbur ct_s1 ct_s2 100n
+* ---- bias midpoint (R40, R41, C43)
+Vcc vcc 0 {VCC}
+Rbt vcc ct_s2 1k
+Rbb ct_s2 0 1k
+Cbias ct_s2 0 100n
+* ---- series input and clamps (R42, D4/D5 BAS116H; generic small-signal model)
+Rser ct_s1 sense 1k
+D4 sense vcc DCLAMP
+D5 0 sense DCLAMP
+.model DCLAMP D(IS=2.5n N=1.8 RS=0.6 CJO=1.5p BV=85)
+* ---- references (R43/R44 = 3.32k/10k, R45/R46 = 10k/3.32k)
+Rht vcc ref_hi 3.32k
+Rhb ref_hi 0 10k
+Rlt vcc ref_lo 10k
+Rlb ref_lo 0 3.32k
+
+.tran 5e-09 {TSTOP} 0 5e-09
+.save v(ipri) v(sense) v(ct_s2) v(ref_hi) v(ref_lo)
+.end

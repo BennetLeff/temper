@@ -1,0 +1,67 @@
+# Enclosure re-layout: power-board requirements checklist
+
+The enclosure work will move parts of the power board. This page collects
+every requirement the simulation campaign has put on that re-layout, so that
+nothing decided in [DECISIONS.md](DECISIONS.md) is lost when copper moves.
+Each row links to its evidence. Start from **native-20** (values current as of
+2026-10-05).
+
+## Circuit changes to implement in the re-layout
+
+| # | Requirement | Why / evidence |
+| --- | --- | --- |
+| L1 | **F6 negative gate bias:** a **TCO-switched HOT-side supply** (on `TCO_L`, referenced to `leg_ret`) feeds the low sides directly (+15 V, −2 V shunt-regulated split) and one SN6507-class driver with two functional-isolation high-side transformers. The −2 V rail stays more negative than −1.6 V at the edge, with ≥ 2.2 µF + 100 nF local reservoir at each driver VSS in a low-ESL loop. 1 nF Cgs and 1 Ω + PMEG6030EP per gate; rail-window monitor gating DIS; bootstrap network removed; HOT5 from a low-Iq LDO with a star return to R5.2 (DECISIONS 2026-10-06, revised) | S4/S5 fail without it; `f6-vneg` sensitivity sets the −1.6 V limit |
+| L2 | Keep **R34 = 10.6 kΩ RT0603BRD0710K6L** and **R8/R16 = 330 Ω** | Shunt-OCP band and gate-off delay ([native-20](native-20/README.md)) |
+| L3 | Keep **R9/R17 = 49.9 kΩ ±0.1 %** (443 ns nominal dead time) | F7, native-18 |
+| L3a | **Line zero-cross detector:** reinforced AC-input optocoupler from L_FILT/N_FILT (resistor string sized for 120 V +10 %), output `LINE_ZC` on J4.16 (replacing one SELV_GND; re-check the D-20 return allocation) | Bursts need line crossings; the bus holds its peak when idle (DECISIONS 2026-10-06) |
+
+## Layout rules
+
+| # | Rule | Why / evidence |
+| --- | --- | --- |
+| L4 | **Shunt Kelvin return:** the lead from **R5.2** into the HOT island carries all HOT-side supply current (≤ 21 mA) and sets the OCP trip error (each 10 mA across 0.1 Ω lowers the trip by ≈ 1 A). Either widen/parallel it to ≤ 50 mΩ, or star-return the AMC1311, the MC78L05 and the ISO7710 to R5.2 separately from the threshold divider (R35) and the reference (U5) | [kelvin/](validation-results/02-protection-timing/kelvin/README.md): today −2.19 A of trip shift, band 47.54–97.98 A |
+| L5 | **Gate loops and power loops at least as tight as native-19.** The decision margins depend on the power-to-gate mutuals (M13/M14/M23/M24) and on the power-loop self-inductance; leg B's power loop is already larger than leg A's | round-17 d2 README; leg B S4 VDS 537 V without F6 |
+| L6 | Keep C38–C41 local bus capacitors at their pads (ESL 1.06 nH typical) | D-7 |
+| L7 | Do not change stackup or the FET footprints without re-running the FET geometry check | `leg_region_diff.py` flags |
+
+## Enclosure items that touch the board
+
+| # | Requirement | Evidence |
+| --- | --- | --- |
+| L8 | Forced-air sink RθSA ≤ 0.15 °C/W, ≥ 20 CFM, ≤ 1.0 °C/W per FET interface; dedicated duct coil → mains; fans on their own SELV 12 V supply | DECISIONS 2026-10-03 (cooling) |
+| L9 | Reserve the 20 A DM + CM inlet filter module (110 × 80 × 50 mm, 8 W), out of the sink exhaust | DECISIONS 2026-10-05 (EMI) |
+| L10 | Controller 3.3 V rail: power-board DC subtotal **41.657 mA** (native-20) | task 06 `interface_numbers.py` |
+
+## Enclosure fit in R4 (D-36, `validation-results/01-switching-parasitics/round17/delegation/out-D36/`)
+
+| # | Constraint | Why |
+| --- | --- | --- |
+| L11 | Outline ≤ 290 × 140 mm at R4 x −149…141, y 96…236; board bottom Z 26 ± 1 | Only band that fits between the front module, the sensor corridor and the coil legs; native-20's 240 × 160 fits nowhere |
+| L12 | No part > 50 mm above the board bottom | Coil support plate at Z 85 |
+| L13 | BR1 + four TO-247 in one rear-edge row within x 35…141 (≈ 106 mm), order right→left Q2, Q3, Q6, Q5, BR1; tabs flush/proud | Sink right of the sensor corridor; D-18 airflow order |
+| L14 | Keep-out for the sink 114 × 50 × 73 (x 35…149, y 236…284, Z 10…83) and for the ducts (inlet x 149…183; exhaust x 35…95 to the rear wall) | 0.24 °C/W at 20 CFM / 0.21 at 30 CFM (model) |
+| L15 | Mains entry, coil terminals and J4 on/near the rear edge outside the sink span; enclosure connectors on the rear wall | Owner: connectors at the rear |
+| L16 | Fan ≈ 30 CFM at ≈ 140 Pa (60 × 38 high-pressure or blower, from a published curve); MOSFET interface ≤ 0.7 °C/W | D-18 hard limit with margin |
+| L17 | Re-run `validation-plan/enclosure-fit/fit_gate.py --mode plan` on native-21's STEP | Release gate |
+
+## After the re-layout (gates before any bench power)
+
+1. `leg_region_diff.py native-20 → new board`. Any CHANGED leg means a FEM
+   re-extraction of that leg (`campaign.py`; delete field files after each
+   matrix).
+2. Re-run the decision grids (S1/S2/S4/S5, both legs, F6 deck with PMEG6030EP)
+   on the new matrices: `round17/d2/f6_legs.py --diode pmeg --temps 27,100,150`
+   for both `--cases decision` and `--cases startup`.
+3. Re-run `kelvin_plane.py` and `kelvin_budget.py` on a new copper export;
+   the band minimum must stay ≥ 44 A.
+4. Source audit (`audit.rs`), DRC with schematic parity, and ERC, as for native-20.
+
+Bench work on native-20 before the re-layout lands: [validation-plan/BENCH-NATIVE20-ADDENDUM.md](validation-plan/BENCH-NATIVE20-ADDENDUM.md).
+
+## Firmware requirements arising from the same decisions
+
+- 180° fixed phase only; no phase shift (F9 closed by decision).
+- Low power by line-synchronous half-cycle bursts with **T_burst ≥ max(2 s,
+  4.6·d^3.2/0.65^3.2)**, 20 s default ([flicker screen](validation-results/07-conducted-emi/flicker/README.md)).
+- On native-20 (unipolar drive): continuous operation only, until the
+  first-edge capture passes (DECISIONS 2026-10-05, F6 addendum).

@@ -1,0 +1,601 @@
+{
+  "board_sha256": "a3ac1249f5052afe52944804cdc3f6ef0e8f895668360e79c1fa7b6fb7322155",
+  "ports": {
+    "C38.1": {
+      "net": "bus_p",
+      "centre_mm": [
+        144.0,
+        22.0
+      ],
+      "copper_layers": [
+        "B.Cu",
+        "F.Cu",
+        "In1.Cu",
+        "In2.Cu"
+      ],
+      "drill_mm": [
+        1.2,
+        1.2
+      ]
+    },
+    "C38.2": {
+      "net": "hv_ret",
+      "centre_mm": [
+        129.0,
+        22.0
+      ],
+      "copper_layers": [
+        "B.Cu",
+        "F.Cu",
+        "In1.Cu",
+        "In2.Cu"
+      ],
+      "drill_mm": [
+        1.2,
+        1.2
+      ]
+    },
+    "C39.1": {
+      "net": "bus_p",
+      "centre_mm": [
+        164.6,
+        22.0
+      ],
+      "copper_layers": [
+        "B.Cu",
+        "F.Cu",
+        "In1.Cu",
+        "In2.Cu"
+      ],
+      "drill_mm": [
+        1.2,
+        1.2
+      ]
+    },
+    "C39.2": {
+      "net": "hv_ret",
+      "centre_mm": [
+        149.6,
+        22.0
+      ],
+      "copper_layers": [
+        "B.Cu",
+        "F.Cu",
+        "In1.Cu",
+        "In2.Cu"
+      ],
+      "drill_mm": [
+        1.2,
+        1.2
+      ]
+    },
+    "C40.1": {
+      "net": "bus_p",
+      "centre_mm": [
+        109.0,
+        22.0
+      ],
+      "copper_layers": [
+        "B.Cu",
+        "F.Cu",
+        "In1.Cu",
+        "In2.Cu"
+      ],
+      "drill_mm": [
+        1.2,
+        1.2
+      ]
+    },
+    "C40.2": {
+      "net": "hv_ret",
+      "centre_mm": [
+        124.0,
+        22.0
+      ],
+      "copper_layers": [
+        "B.Cu",
+        "F.Cu",
+        "In1.Cu",
+        "In2.Cu"
+      ],
+      "drill_mm": [
+        1.2,
+        1.2
+      ]
+    },
+    "C41.1": {
+      "net": "bus_p",
+      "centre_mm": [
+        88.4,
+        22.0
+      ],
+      "copper_layers": [
+        "B.Cu",
+        "F.Cu",
+        "In1.Cu",
+        "In2.Cu"
+      ],
+      "drill_mm": [
+        1.2,
+        1.2
+      ]
+    },
+    "C41.2": {
+      "net": "hv_ret",
+      "centre_mm": [
+        103.4,
+        22.0
+      ],
+      "copper_layers": [
+        "B.Cu",
+        "F.Cu",
+        "In1.Cu",
+        "In2.Cu"
+      ],
+      "drill_mm": [
+        1.2,
+        1.2
+      ]
+    },
+    "C5.1": {
+      "net": "bus_p",
+      "centre_mm": [
+        13.0,
+        43.95
+      ],
+      "copper_layers": [
+        "B.Cu",
+        "F.Cu",
+        "In1.Cu",
+        "In2.Cu"
+      ],
+      "drill_mm": [
+        1.8,
+        1.8
+      ]
+    },
+    "C5.3": {
+      "net": "hv_ret",
+      "centre_mm": [
+        50.5,
+        43.95
+      ],
+      "copper_layers": [
+        "B.Cu",
+        "F.Cu",
+        "In1.Cu",
+        "In2.Cu"
+      ],
+      "drill_mm": [
+        1.8,
+        1.8
+      ]
+    },
+    "C6.1": {
+      "net": "bus_p",
+      "centre_mm": [
+        174.35,
+        50.75
+      ],
+      "copper_layers": [
+        "B.Cu",
+        "F.Cu",
+        "In1.Cu",
+        "In2.Cu"
+      ],
+      "drill_mm": [
+        1.8,
+        1.8
+      ]
+    },
+    "C6.3": {
+      "net": "hv_ret",
+      "centre_mm": [
+        174.35,
+        13.25
+      ],
+      "copper_layers": [
+        "B.Cu",
+        "F.Cu",
+        "In1.Cu",
+        "In2.Cu"
+      ],
+      "drill_mm": [
+        1.8,
+        1.8
+      ]
+    },
+    "Q2.1": {
+      "net": "leg_a-gate_h",
+      "centre_mm": [
+        150.55,
+        4.215
+      ],
+      "copper_layers": [
+        "B.Cu",
+        "F.Cu",
+        "In1.Cu",
+        "In2.Cu"
+      ]
+    },
+    "Q2.2": {
+      "net": "bus_p",
+      "centre_mm": [
+        156.0,
+        4.215
+      ],
+      "copper_layers": [
+        "B.Cu",
+        "F.Cu",
+        "In1.Cu",
+        "In2.Cu"
+      ],
+      "drill_mm": [
+        1.5,
+        1.5
+      ]
+    },
+    "Q2.3": {
+      "net": "sw_a",
+      "centre_mm": [
+        161.45,
+        4.215
+      ],
+      "copper_layers": [
+        "B.Cu",
+        "F.Cu",
+        "In1.Cu",
+        "In2.Cu"
+      ],
+      "drill_mm": [
+        1.5,
+        1.5
+      ]
+    },
+    "Q3.1": {
+      "net": "leg_a-gate_l",
+      "centre_mm": [
+        132.55,
+        4.215
+      ],
+      "copper_layers": [
+        "B.Cu",
+        "F.Cu",
+        "In1.Cu",
+        "In2.Cu"
+      ]
+    },
+    "Q3.2": {
+      "net": "sw_a",
+      "centre_mm": [
+        138.0,
+        4.215
+      ],
+      "copper_layers": [
+        "B.Cu",
+        "F.Cu",
+        "In1.Cu",
+        "In2.Cu"
+      ],
+      "drill_mm": [
+        1.5,
+        1.5
+      ]
+    },
+    "Q3.3": {
+      "net": "leg_ret",
+      "centre_mm": [
+        143.45,
+        4.215
+      ],
+      "copper_layers": [
+        "B.Cu",
+        "F.Cu",
+        "In1.Cu",
+        "In2.Cu"
+      ],
+      "drill_mm": [
+        1.5,
+        1.5
+      ]
+    },
+    "Q5.1": {
+      "net": "leg_b-gate_h",
+      "centre_mm": [
+        92.55,
+        4.215
+      ],
+      "copper_layers": [
+        "B.Cu",
+        "F.Cu",
+        "In1.Cu",
+        "In2.Cu"
+      ]
+    },
+    "Q5.2": {
+      "net": "bus_p",
+      "centre_mm": [
+        98.0,
+        4.215
+      ],
+      "copper_layers": [
+        "B.Cu",
+        "F.Cu",
+        "In1.Cu",
+        "In2.Cu"
+      ],
+      "drill_mm": [
+        1.5,
+        1.5
+      ]
+    },
+    "Q5.3": {
+      "net": "sw_b",
+      "centre_mm": [
+        103.45,
+        4.215
+      ],
+      "copper_layers": [
+        "B.Cu",
+        "F.Cu",
+        "In1.Cu",
+        "In2.Cu"
+      ],
+      "drill_mm": [
+        1.5,
+        1.5
+      ]
+    },
+    "Q6.1": {
+      "net": "leg_b-gate_l",
+      "centre_mm": [
+        110.55,
+        4.215
+      ],
+      "copper_layers": [
+        "B.Cu",
+        "F.Cu",
+        "In1.Cu",
+        "In2.Cu"
+      ]
+    },
+    "Q6.2": {
+      "net": "sw_b",
+      "centre_mm": [
+        116.0,
+        4.215
+      ],
+      "copper_layers": [
+        "B.Cu",
+        "F.Cu",
+        "In1.Cu",
+        "In2.Cu"
+      ],
+      "drill_mm": [
+        1.5,
+        1.5
+      ]
+    },
+    "Q6.3": {
+      "net": "leg_ret",
+      "centre_mm": [
+        121.45,
+        4.215
+      ],
+      "copper_layers": [
+        "B.Cu",
+        "F.Cu",
+        "In1.Cu",
+        "In2.Cu"
+      ],
+      "drill_mm": [
+        1.5,
+        1.5
+      ]
+    },
+    "R10.1": {
+      "net": "leg_a-out_h",
+      "centre_mm": [
+        150.55,
+        14.0625
+      ],
+      "copper_layers": [
+        "F.Cu"
+      ]
+    },
+    "R10.2": {
+      "net": "leg_a-gate_h",
+      "centre_mm": [
+        150.55,
+        11.1375
+      ],
+      "copper_layers": [
+        "F.Cu"
+      ]
+    },
+    "R12.1": {
+      "net": "leg_a-out_l",
+      "centre_mm": [
+        132.55,
+        14.0625
+      ],
+      "copper_layers": [
+        "F.Cu"
+      ]
+    },
+    "R12.2": {
+      "net": "leg_a-gate_l",
+      "centre_mm": [
+        132.55,
+        11.1375
+      ],
+      "copper_layers": [
+        "F.Cu"
+      ]
+    },
+    "R18.1": {
+      "net": "leg_b-out_h",
+      "centre_mm": [
+        92.55,
+        14.0625
+      ],
+      "copper_layers": [
+        "F.Cu"
+      ]
+    },
+    "R18.2": {
+      "net": "leg_b-gate_h",
+      "centre_mm": [
+        92.55,
+        11.1375
+      ],
+      "copper_layers": [
+        "F.Cu"
+      ]
+    },
+    "R20.1": {
+      "net": "leg_b-out_l",
+      "centre_mm": [
+        110.55,
+        14.0625
+      ],
+      "copper_layers": [
+        "F.Cu"
+      ]
+    },
+    "R20.2": {
+      "net": "leg_b-gate_l",
+      "centre_mm": [
+        110.55,
+        11.1375
+      ],
+      "copper_layers": [
+        "F.Cu"
+      ]
+    },
+    "R5.1": {
+      "net": "leg_ret",
+      "centre_mm": [
+        127.135,
+        9.615
+      ],
+      "copper_layers": [
+        "F.Cu"
+      ],
+      "drill_mm": [
+        0.0,
+        0.0
+      ]
+    },
+    "R5.4": {
+      "net": "hv_ret",
+      "centre_mm": [
+        125.865,
+        15.585
+      ],
+      "copper_layers": [
+        "F.Cu"
+      ],
+      "drill_mm": [
+        0.0,
+        0.0
+      ]
+    },
+    "U1.10": {
+      "net": "leg_a-out_l",
+      "centre_mm": [
+        151.175,
+        41.125
+      ],
+      "copper_layers": [
+        "F.Cu"
+      ]
+    },
+    "U1.14": {
+      "net": "sw_a",
+      "centre_mm": [
+        146.095,
+        41.125
+      ],
+      "copper_layers": [
+        "F.Cu"
+      ],
+      "drill_mm": [
+        0.0,
+        0.0
+      ]
+    },
+    "U1.15": {
+      "net": "leg_a-out_h",
+      "centre_mm": [
+        144.825,
+        41.125
+      ],
+      "copper_layers": [
+        "F.Cu"
+      ]
+    },
+    "U1.9": {
+      "net": "leg_ret",
+      "centre_mm": [
+        152.445,
+        41.125
+      ],
+      "copper_layers": [
+        "F.Cu"
+      ],
+      "drill_mm": [
+        0.0,
+        0.0
+      ]
+    },
+    "U2.10": {
+      "net": "leg_b-out_l",
+      "centre_mm": [
+        107.175,
+        41.125
+      ],
+      "copper_layers": [
+        "F.Cu"
+      ]
+    },
+    "U2.14": {
+      "net": "sw_b",
+      "centre_mm": [
+        102.095,
+        41.125
+      ],
+      "copper_layers": [
+        "F.Cu"
+      ],
+      "drill_mm": [
+        0.0,
+        0.0
+      ]
+    },
+    "U2.15": {
+      "net": "leg_b-out_h",
+      "centre_mm": [
+        100.825,
+        41.125
+      ],
+      "copper_layers": [
+        "F.Cu"
+      ]
+    },
+    "U2.9": {
+      "net": "leg_ret",
+      "centre_mm": [
+        108.445,
+        41.125
+      ],
+      "copper_layers": [
+        "F.Cu"
+      ],
+      "drill_mm": [
+        0.0,
+        0.0
+      ]
+    }
+  }
+}

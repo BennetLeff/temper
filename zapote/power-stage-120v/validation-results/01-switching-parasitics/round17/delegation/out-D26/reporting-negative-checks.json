@@ -1,0 +1,27 @@
+{
+  "valid": {
+    "actual": "PASS",
+    "expected": "PASS",
+    "pass": true
+  },
+  "aborted": {
+    "actual": "INDETERMINATE",
+    "expected": "INDETERMINATE",
+    "pass": true
+  },
+  "missing_measurement": {
+    "actual": "FAIL",
+    "expected": "FAIL",
+    "pass": true
+  },
+  "out_of_tolerance": {
+    "actual": "FAIL",
+    "expected": "FAIL",
+    "pass": true
+  },
+  "overlap_wrong_high": {
+    "actual": "FAIL",
+    "expected": "FAIL",
+    "pass": true
+  }
+}

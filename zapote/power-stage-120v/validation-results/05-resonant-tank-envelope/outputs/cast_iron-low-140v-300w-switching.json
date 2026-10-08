@@ -1,0 +1,17 @@
+{
+  "run_id": "cast_iron-low-140v-300w",
+  "params": {
+    "VRMS": "140",
+    "FREQ": "54626.538096653414",
+    "LLOAD": "5.179999999999999e-05",
+    "RPAN40": "2.52",
+    "RCOIL": "0.105"
+  },
+  "raw_end_s": 0.0083333,
+  "raw_points": 166683,
+  "crossing_count": 910,
+  "qualifying_count": 794,
+  "inductive_sign_count": 794,
+  "abs_current_min_a": 4.4954171603087065,
+  "abs_current_max_a": 22.361308917256466
+}

@@ -1,0 +1,235 @@
+[
+  {
+    "name": "P1_C40",
+    "kind": "port",
+    "a": [
+      109.0,
+      22.0
+    ],
+    "b": [
+      124.0,
+      22.0
+    ],
+    "note": "C40.1 bus_p -> C40.2 hv_ret",
+    "native19_pads": [
+      "C40.1",
+      "C40.2"
+    ],
+    "native19_nets": [
+      "bus_p",
+      "hv_ret"
+    ]
+  },
+  {
+    "name": "P2_C41",
+    "kind": "port",
+    "a": [
+      88.4,
+      22.0
+    ],
+    "b": [
+      103.4,
+      22.0
+    ],
+    "note": "C41.1 bus_p -> C41.2 hv_ret",
+    "native19_pads": [
+      "C41.1",
+      "C41.2"
+    ],
+    "native19_nets": [
+      "bus_p",
+      "hv_ret"
+    ]
+  },
+  {
+    "name": "P3_gate_high",
+    "kind": "port",
+    "a": [
+      100.825,
+      41.125
+    ],
+    "b": [
+      102.095,
+      41.125
+    ],
+    "note": "U2.15 out_h -> U2.14 sw_b",
+    "native19_pads": [
+      "U2.15",
+      "U2.14"
+    ],
+    "native19_nets": [
+      "leg_b-out_h",
+      "sw_b"
+    ]
+  },
+  {
+    "name": "P4_gate_low",
+    "kind": "port",
+    "a": [
+      107.175,
+      41.125
+    ],
+    "b": [
+      108.445,
+      41.125
+    ],
+    "note": "U2.10 out_l -> U2.9 leg_ret",
+    "native19_pads": [
+      "U2.10",
+      "U2.9"
+    ],
+    "native19_nets": [
+      "leg_b-out_l",
+      "leg_ret"
+    ]
+  },
+  {
+    "name": "Q5_DS",
+    "kind": "bridge",
+    "a": [
+      98.0,
+      4.215
+    ],
+    "b": [
+      103.45,
+      4.215
+    ],
+    "note": "Q5 drain bus_p -> source sw_b",
+    "native19_pads": [
+      "Q5.2",
+      "Q5.3"
+    ],
+    "native19_nets": [
+      "bus_p",
+      "sw_b"
+    ]
+  },
+  {
+    "name": "Q6_DS",
+    "kind": "bridge",
+    "a": [
+      116.0,
+      4.215
+    ],
+    "b": [
+      121.45,
+      4.215
+    ],
+    "note": "Q6 drain sw_b -> source leg_ret",
+    "native19_pads": [
+      "Q6.2",
+      "Q6.3"
+    ],
+    "native19_nets": [
+      "sw_b",
+      "leg_ret"
+    ]
+  },
+  {
+    "name": "R5_1_4",
+    "kind": "bridge",
+    "a": [
+      127.135,
+      10.12
+    ],
+    "b": [
+      125.865,
+      15.08
+    ],
+    "note": "R5.1 leg_ret -> R5.4 hv_ret (shunt shared with leg A)",
+    "native19_pads": [
+      "R5.1",
+      "R5.4"
+    ],
+    "native19_nets": [
+      "leg_ret",
+      "hv_ret"
+    ]
+  },
+  {
+    "name": "R18",
+    "kind": "bridge",
+    "a": [
+      92.55,
+      14.0625
+    ],
+    "b": [
+      92.55,
+      11.1375
+    ],
+    "note": "R18 out_h -> gate_h",
+    "native19_pads": [
+      "R18.1",
+      "R18.2"
+    ],
+    "native19_nets": [
+      "leg_b-out_h",
+      "leg_b-gate_h"
+    ]
+  },
+  {
+    "name": "R20",
+    "kind": "bridge",
+    "a": [
+      110.55,
+      14.0625
+    ],
+    "b": [
+      110.55,
+      11.1375
+    ],
+    "note": "R20 out_l -> gate_l",
+    "native19_pads": [
+      "R20.1",
+      "R20.2"
+    ],
+    "native19_nets": [
+      "leg_b-out_l",
+      "leg_b-gate_l"
+    ]
+  },
+  {
+    "name": "Q5_GS",
+    "kind": "bridge",
+    "level": 1,
+    "a": [
+      92.55,
+      4.215
+    ],
+    "b": [
+      103.45,
+      4.215
+    ],
+    "note": "Q5 gate -> source, over the drain",
+    "native19_pads": [
+      "Q5.1",
+      "Q5.3"
+    ],
+    "native19_nets": [
+      "leg_b-gate_h",
+      "sw_b"
+    ]
+  },
+  {
+    "name": "Q6_GS",
+    "kind": "bridge",
+    "level": 1,
+    "a": [
+      110.55,
+      4.215
+    ],
+    "b": [
+      121.45,
+      4.215
+    ],
+    "note": "Q6 gate -> source, over the drain",
+    "native19_pads": [
+      "Q6.1",
+      "Q6.3"
+    ],
+    "native19_nets": [
+      "leg_b-gate_l",
+      "leg_ret"
+    ]
+  }
+]

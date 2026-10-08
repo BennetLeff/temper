@@ -1,0 +1,9 @@
+* 50 mm x 1 mm square straight conductor; partial self L
+.units mm
+.default sigma=5.8e7
+N1 x=0 y=0 z=0
+N2 x=50 y=0 z=0
+E1 N1 N2 w=1 h=1 nwinc=8 nhinc=8
+.external N1 N2
+.freq fmin=1e7 fmax=1e7 ndec=1
+.end

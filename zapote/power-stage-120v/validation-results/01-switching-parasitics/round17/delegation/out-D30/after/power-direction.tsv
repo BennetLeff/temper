@@ -1,0 +1,432 @@
+board	reference	pin	net	type	file_line	onboard_typed_source	joined_power_source_or_boundary
+central	U1	1	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:8	-	external AUX return via central:J12.2
+central	U1	3	POD_5V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:10	-	external REG5 converter output via central:J13.3
+central	U2	2	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:16	-	external AUX return via central:J12.2
+central	U2	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:19	central:U1.2	central:U1.2
+central	U3	2	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:25	-	external AUX return via central:J12.2
+central	U3	5	POD_5V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:28	-	external REG5 converter output via central:J13.3
+central	J1	1	POD_3V3	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:33	central:U1.2	central:U1.2
+central	J1	2	POD_START_RAW	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:34	-	-
+central	J2	1	POD_3V3	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:41	central:U1.2	central:U1.2
+central	J2	2	POD_RESET_RAW	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:42	-	-
+central	J3	1	POD_3V3	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:49	central:U1.2	central:U1.2
+central	J3	2	POD_STOP_RAW	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:50	-	-
+central	J4	1	POD_3V3	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:117	central:U1.2	central:U1.2
+central	J4	2	AUX_0V	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:118	-	external AUX return via central:J12.2
+central	J4	3	VCATCH_P	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:119	-	-
+central	J4	4	VCATCH_N	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:120	-	-
+central	J4	5	VCATCH_DIAG_N	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:121	-	-
+central	J4	6	AUX_0V	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:122	-	external AUX return via central:J12.2
+central	U5	2	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:151	-	external AUX return via central:J12.2
+central	U5	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:154	central:U1.2	central:U1.2
+central	U6	2	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:166	-	external AUX return via central:J12.2
+central	U6	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:169	central:U1.2	central:U1.2
+central	U7	2	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:181	-	external AUX return via central:J12.2
+central	U7	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:184	central:U1.2	central:U1.2
+central	U8	2	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:196	-	external AUX return via central:J12.2
+central	U8	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:199	central:U1.2	central:U1.2
+central	U9	2	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:245	-	external AUX return via central:J12.2
+central	U9	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:248	central:U1.2	central:U1.2
+central	U10	2	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:252	-	external AUX return via central:J12.2
+central	U10	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:255	central:U1.2	central:U1.2
+central	U11	2	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:259	-	external AUX return via central:J12.2
+central	U11	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:262	central:U1.2	central:U1.2
+central	U12	2	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:266	-	external AUX return via central:J12.2
+central	U12	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:269	central:U1.2	central:U1.2
+central	U13	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:274	-	external AUX return via central:J12.2
+central	U13	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:276	central:U1.2	central:U1.2
+central	U14	2	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:284	-	external AUX return via central:J12.2
+central	U14	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:287	central:U1.2	central:U1.2
+central	U15	2	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:291	-	external AUX return via central:J12.2
+central	U15	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:294	central:U1.2	central:U1.2
+central	U16	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:299	-	external AUX return via central:J12.2
+central	U16	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:301	central:U1.2	central:U1.2
+central	U17	2	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:317	-	external AUX return via central:J12.2
+central	U17	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:320	central:U1.2	central:U1.2
+central	U18	2	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:324	-	external AUX return via central:J12.2
+central	U18	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:327	central:U1.2	central:U1.2
+central	U19	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:332	-	external AUX return via central:J12.2
+central	U19	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:334	central:U1.2	central:U1.2
+central	J5	1	RP1_TEMP	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:345	-	-
+central	J5	2	AUX_0V	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:346	-	external AUX return via central:J12.2
+central	U20	2	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:352	-	external AUX return via central:J12.2
+central	U20	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:355	central:U1.2	central:U1.2
+central	U21	2	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:359	-	external AUX return via central:J12.2
+central	U21	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:362	central:U1.2	central:U1.2
+central	J6	1	RP2_TEMP	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:367	-	-
+central	J6	2	AUX_0V	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:368	-	external AUX return via central:J12.2
+central	U22	2	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:374	-	external AUX return via central:J12.2
+central	U22	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:377	central:U1.2	central:U1.2
+central	U23	2	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:381	-	external AUX return via central:J12.2
+central	U23	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:384	central:U1.2	central:U1.2
+central	U24	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:389	-	external AUX return via central:J12.2
+central	U24	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:391	central:U1.2	central:U1.2
+central	U25	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:396	-	external AUX return via central:J12.2
+central	U25	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:398	central:U1.2	central:U1.2
+central	U26	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:403	-	external AUX return via central:J12.2
+central	U26	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:405	central:U1.2	central:U1.2
+central	U27	13	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:408	-	external AUX return via central:J12.2
+central	U27	28	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:409	-	external AUX return via central:J12.2
+central	U27	15	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:410	central:U1.2	central:U1.2
+central	U27	26	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:411	central:U1.2	central:U1.2
+central	U27	25	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:412	-	external AUX return via central:J12.2
+central	J7	1	POD_3V3	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:450	central:U1.2	central:U1.2
+central	J7	2	AUX_0V	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:451	-	external AUX return via central:J12.2
+central	J7	3	ADC_CLKIN	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:452	-	-
+central	J8	1	POD_3V3	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:453	central:U1.2	central:U1.2
+central	J8	2	AUX_0V	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:454	-	external AUX return via central:J12.2
+central	J8	3	BUS_LIMIT_OK	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:455	central:U9.1	-
+central	J8	4	CATCH_LIMIT_OK	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:456	central:U10.1	-
+central	J8	5	TANK_LIMIT_OK	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:457	central:U13.4	-
+central	J8	6	ILINE_LIMIT_OK	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:458	central:U16.4	-
+central	J8	7	RP_TEMP_OK	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:459	central:U26.4	-
+central	J8	8	RAIL24_OK	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:460	central:U19.4	-
+central	U28	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:511	-	external AUX return via central:J12.2
+central	U28	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:513	central:U1.2	central:U1.2
+central	U29	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:518	-	external AUX return via central:J12.2
+central	U29	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:520	central:U1.2	central:U1.2
+central	U30	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:525	-	external AUX return via central:J12.2
+central	U30	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:527	central:U1.2	central:U1.2
+central	U31	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:532	-	external AUX return via central:J12.2
+central	U31	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:534	central:U1.2	central:U1.2
+central	U32	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:539	-	external AUX return via central:J12.2
+central	U32	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:541	central:U1.2	central:U1.2
+central	U33	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:546	-	external AUX return via central:J12.2
+central	U33	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:548	central:U1.2	central:U1.2
+central	U34	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:553	-	external AUX return via central:J12.2
+central	U34	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:555	central:U1.2	central:U1.2
+central	U35	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:560	-	external AUX return via central:J12.2
+central	U35	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:562	central:U1.2	central:U1.2
+central	U36	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:567	-	external AUX return via central:J12.2
+central	U36	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:569	central:U1.2	central:U1.2
+central	U37	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:574	-	external AUX return via central:J12.2
+central	U37	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:576	central:U1.2	central:U1.2
+central	U38	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:581	-	external AUX return via central:J12.2
+central	U38	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:583	central:U1.2	central:U1.2
+central	U39	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:588	-	external AUX return via central:J12.2
+central	U39	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:590	central:U1.2	central:U1.2
+central	U40	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:595	-	external AUX return via central:J12.2
+central	U40	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:597	central:U1.2	central:U1.2
+central	U41	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:602	-	external AUX return via central:J12.2
+central	U41	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:604	central:U1.2	central:U1.2
+central	U42	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:609	-	external AUX return via central:J12.2
+central	U42	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:611	central:U1.2	central:U1.2
+central	U43	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:616	-	external AUX return via central:J12.2
+central	U43	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:618	central:U1.2	central:U1.2
+central	U44	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:623	-	external AUX return via central:J12.2
+central	U44	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:625	central:U1.2	central:U1.2
+central	U45	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:630	-	external AUX return via central:J12.2
+central	U45	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:632	central:U1.2	central:U1.2
+central	U46	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:637	-	external AUX return via central:J12.2
+central	U46	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:639	central:U1.2	central:U1.2
+central	U47	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:644	-	external AUX return via central:J12.2
+central	U47	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:646	central:U1.2	central:U1.2
+central	U48	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:651	-	external AUX return via central:J12.2
+central	U48	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:653	central:U1.2	central:U1.2
+central	U49	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:658	-	external AUX return via central:J12.2
+central	U49	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:660	central:U1.2	central:U1.2
+central	U50	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:665	-	external AUX return via central:J12.2
+central	U50	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:667	central:U1.2	central:U1.2
+central	U51	4	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:673	-	external AUX return via central:J12.2
+central	U51	8	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:677	central:U1.2	central:U1.2
+central	U52	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:682	-	external AUX return via central:J12.2
+central	U52	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:684	central:U1.2	central:U1.2
+central	U53	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:689	-	external AUX return via central:J12.2
+central	U53	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:691	central:U1.2	central:U1.2
+central	U54	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:696	-	external AUX return via central:J12.2
+central	U54	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:698	central:U1.2	central:U1.2
+central	U55	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:703	-	external AUX return via central:J12.2
+central	U55	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:705	central:U1.2	central:U1.2
+central	U56	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:710	-	external AUX return via central:J12.2
+central	U56	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:712	central:U1.2	central:U1.2
+central	U57	4	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:718	-	external AUX return via central:J12.2
+central	U57	8	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:722	central:U1.2	central:U1.2
+central	U58	2	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:726	-	external AUX return via central:J12.2
+central	U58	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:729	central:U1.2	central:U1.2
+central	U59	2	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:740	-	external AUX return via central:J12.2
+central	U59	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:743	central:U1.2	central:U1.2
+central	U60	2	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:754	-	external AUX return via central:J12.2
+central	U60	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:757	central:U1.2	central:U1.2
+central	U61	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:773	-	external AUX return via central:J12.2
+central	U61	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:775	central:U1.2	central:U1.2
+central	U62	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:780	-	external AUX return via central:J12.2
+central	U62	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:782	central:U1.2	central:U1.2
+central	U63	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:787	-	external AUX return via central:J12.2
+central	U63	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:789	central:U1.2	central:U1.2
+central	U64	4	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:795	-	external AUX return via central:J12.2
+central	U64	8	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:799	central:U1.2	central:U1.2
+central	U65	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:804	-	external AUX return via central:J12.2
+central	U65	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:806	central:U1.2	central:U1.2
+central	U66	4	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:812	-	external AUX return via central:J12.2
+central	U66	8	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:816	central:U1.2	central:U1.2
+central	U67	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:821	-	external AUX return via central:J12.2
+central	U67	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:823	central:U1.2	central:U1.2
+central	U68	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:828	-	external AUX return via central:J12.2
+central	U68	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:830	central:U1.2	central:U1.2
+central	U69	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:835	-	external AUX return via central:J12.2
+central	U69	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:837	central:U1.2	central:U1.2
+central	U70	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:842	-	external AUX return via central:J12.2
+central	U70	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:844	central:U1.2	central:U1.2
+central	U71	4	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:850	-	external AUX return via central:J12.2
+central	U71	8	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:854	central:U1.2	central:U1.2
+central	U72	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:859	-	external AUX return via central:J12.2
+central	U72	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:861	central:U1.2	central:U1.2
+central	U73	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:866	-	external AUX return via central:J12.2
+central	U73	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:868	central:U1.2	central:U1.2
+central	U74	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:873	-	external AUX return via central:J12.2
+central	U74	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:875	central:U1.2	central:U1.2
+central	U75	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:880	-	external AUX return via central:J12.2
+central	U75	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:882	central:U1.2	central:U1.2
+central	U76	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:887	-	external AUX return via central:J12.2
+central	U76	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:889	central:U1.2	central:U1.2
+central	U77	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:894	-	external AUX return via central:J12.2
+central	U77	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:896	central:U1.2	central:U1.2
+central	U78	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:901	-	external AUX return via central:J12.2
+central	U78	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:903	central:U1.2	central:U1.2
+central	U79	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:908	-	external AUX return via central:J12.2
+central	U79	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:910	central:U1.2	central:U1.2
+central	U80	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:915	-	external AUX return via central:J12.2
+central	U80	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:917	central:U1.2	central:U1.2
+central	U81	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:922	-	external AUX return via central:J12.2
+central	U81	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:924	central:U1.2	central:U1.2
+central	U82	4	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:930	-	external AUX return via central:J12.2
+central	U82	8	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:934	central:U1.2	central:U1.2
+central	U83	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:939	-	external AUX return via central:J12.2
+central	U83	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:941	central:U1.2	central:U1.2
+central	U84	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:946	-	external AUX return via central:J12.2
+central	U84	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:948	central:U1.2	central:U1.2
+central	U85	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:953	-	external AUX return via central:J12.2
+central	U85	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:955	central:U1.2	central:U1.2
+central	U86	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:960	-	external AUX return via central:J12.2
+central	U86	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:962	central:U1.2	central:U1.2
+central	U87	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:967	-	external AUX return via central:J12.2
+central	U87	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:969	central:U1.2	central:U1.2
+central	U88	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:974	-	external AUX return via central:J12.2
+central	U88	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:976	central:U1.2	central:U1.2
+central	U89	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:981	-	external AUX return via central:J12.2
+central	U89	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:983	central:U1.2	central:U1.2
+central	U90	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:988	-	external AUX return via central:J12.2
+central	U90	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:990	central:U1.2	central:U1.2
+central	U91	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:995	-	external AUX return via central:J12.2
+central	U91	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:997	central:U1.2	central:U1.2
+central	U92	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1002	-	external AUX return via central:J12.2
+central	U92	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1004	central:U1.2	central:U1.2
+central	U93	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1009	-	external AUX return via central:J12.2
+central	U93	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1011	central:U1.2	central:U1.2
+central	U94	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1016	-	external AUX return via central:J12.2
+central	U94	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1018	central:U1.2	central:U1.2
+central	U95	2	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1022	-	external AUX return via central:J12.2
+central	U95	8	AUX_24V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1028	-	external AUX 24V supply via central:J12.1
+central	U95	9	AUX_24V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1029	-	external AUX 24V supply via central:J12.1
+central	U95	10	AUX_24V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1030	-	external AUX 24V supply via central:J12.1
+central	U95	15	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1035	-	external AUX return via central:J12.2
+central	U96	2	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1045	-	external AUX return via central:J12.2
+central	U96	8	AUX_24V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1051	-	external AUX 24V supply via central:J12.1
+central	U96	9	AUX_24V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1052	-	external AUX 24V supply via central:J12.1
+central	U96	10	AUX_24V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1053	-	external AUX 24V supply via central:J12.1
+central	U96	15	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1058	-	external AUX return via central:J12.2
+central	U97	14	POD_5V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1099	-	external REG5 converter output via central:J13.3
+central	U97	7	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1100	-	external AUX return via central:J12.2
+central	J9	1	CTRL_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1129	-	external controller 3V3 supply via central:J9.1
+central	J9	2	CTRL_GND	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1130	-	external controller return via central:J9.2
+central	J9	3	SUP_RUN_OK	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1131	central:U98.6	-
+central	J9	4	CTRL_PWM_REQUEST	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1132	-	-
+central	J9	5	CTRL_HEARTBEAT	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1133	-	-
+central	J9	6	CTRL_FAULT_HIGH	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1134	-	-
+central	J9	7	CTRL_TX	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1135	-	-
+central	J9	8	CTRL_RX	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1136	central:U99.6	-
+central	J9	9	CTRL_RAIL_OK	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1137	-	-
+central	J9	10	CTRL_INTERLOCK_OK	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1138	-	-
+central	U98	1	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1139	central:U1.2	central:U1.2
+central	U98	3	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1141	central:U1.2	central:U1.2
+central	U98	4	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1142	-	external AUX return via central:J12.2
+central	U98	5	CTRL_GND	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1143	-	external controller return via central:J9.2
+central	U98	8	CTRL_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1146	-	external controller 3V3 supply via central:J9.1
+central	U99	1	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1153	central:U1.2	central:U1.2
+central	U99	3	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1155	central:U1.2	central:U1.2
+central	U99	4	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1156	-	external AUX return via central:J12.2
+central	U99	5	CTRL_GND	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1157	-	external controller return via central:J9.2
+central	U99	8	CTRL_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1160	-	external controller 3V3 supply via central:J9.1
+central	U100	1	CTRL_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1167	-	external controller 3V3 supply via central:J9.1
+central	U100	3	CTRL_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1169	-	external controller 3V3 supply via central:J9.1
+central	U100	4	CTRL_GND	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1170	-	external controller return via central:J9.2
+central	U100	5	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1171	-	external AUX return via central:J12.2
+central	U100	8	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1174	central:U1.2	central:U1.2
+central	U101	1	CTRL_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1181	-	external controller 3V3 supply via central:J9.1
+central	U101	3	CTRL_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1183	-	external controller 3V3 supply via central:J9.1
+central	U101	4	CTRL_GND	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1184	-	external controller return via central:J9.2
+central	U101	5	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1185	-	external AUX return via central:J12.2
+central	U101	8	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1188	central:U1.2	central:U1.2
+central	U102	1	CTRL_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1195	-	external controller 3V3 supply via central:J9.1
+central	U102	3	CTRL_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1197	-	external controller 3V3 supply via central:J9.1
+central	U102	4	CTRL_GND	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1198	-	external controller return via central:J9.2
+central	U102	5	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1199	-	external AUX return via central:J12.2
+central	U102	8	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1202	central:U1.2	central:U1.2
+central	U103	1	CTRL_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1209	-	external controller 3V3 supply via central:J9.1
+central	U103	3	CTRL_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1211	-	external controller 3V3 supply via central:J9.1
+central	U103	4	CTRL_GND	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1212	-	external controller return via central:J9.2
+central	U103	5	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1213	-	external AUX return via central:J12.2
+central	U103	8	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1216	central:U1.2	central:U1.2
+central	U104	1	CTRL_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1223	-	external controller 3V3 supply via central:J9.1
+central	U104	3	CTRL_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1225	-	external controller 3V3 supply via central:J9.1
+central	U104	4	CTRL_GND	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1226	-	external controller return via central:J9.2
+central	U104	5	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1227	-	external AUX return via central:J12.2
+central	U104	8	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1230	central:U1.2	central:U1.2
+central	U105	1	CTRL_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1237	-	external controller 3V3 supply via central:J9.1
+central	U105	3	CTRL_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1239	-	external controller 3V3 supply via central:J9.1
+central	U105	4	CTRL_GND	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1240	-	external controller return via central:J9.2
+central	U105	5	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1241	-	external AUX return via central:J12.2
+central	U105	8	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1244	central:U1.2	central:U1.2
+central	U106	3	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1253	-	external AUX return via central:J12.2
+central	U106	5	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1255	central:U1.2	central:U1.2
+central	U107	1	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1260	central:U1.2	central:U1.2
+central	U107	3	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1262	central:U1.2	central:U1.2
+central	U107	4	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1263	-	external AUX return via central:J12.2
+central	U107	5	CTRL_GND	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1264	-	external controller return via central:J9.2
+central	U107	8	CTRL_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1267	-	external controller 3V3 supply via central:J9.1
+central	J10	1	NATIVE_PERMIT	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1282	central:U107.6	-
+central	J10	2	CTRL_GND	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1283	-	external controller return via central:J9.2
+central	U108	6	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1291	central:U1.2	central:U1.2
+central	U108	7	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1292	central:U1.2	central:U1.2
+central	U108	8	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1293	central:U1.2	central:U1.2
+central	U108	9	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1294	-	external AUX return via central:J12.2
+central	J11	1	POD_3V3	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1354	central:U1.2	central:U1.2
+central	J11	2	SWDIO	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1355	-	-
+central	J11	3	AUX_0V	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1356	-	external AUX return via central:J12.2
+central	J11	4	SWCLK	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1357	-	-
+central	J11	5	WD_RESET_N	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1358	central:U2.1	-
+central	J12	1	AUX_24V	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1360	-	external AUX 24V supply via central:J12.1
+central	J12	2	AUX_0V	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1361	-	external AUX return via central:J12.2
+central	J13	1	AUX_24V	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1362	-	external AUX 24V supply via central:J12.1
+central	J13	2	AUX_0V	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1363	-	external AUX return via central:J12.2
+central	J13	3	POD_5V	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1364	-	external REG5 converter output via central:J13.3
+central	J14	1	K1_COIL_HIGH	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1365	central:U95.5	central:U95.5
+central	J14	2	K1_COIL_LOW	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1366	-	-
+central	J14	3	K1_FB_EXC	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1367	-	-
+central	J14	4	K1_MIRROR_RAW	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1368	-	-
+central	J15	1	K2_COIL_HIGH	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1369	central:U96.5	central:U96.5
+central	J15	2	K2_COIL_LOW	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1370	-	-
+central	J15	3	K2_FB_EXC	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1371	-	-
+central	J15	4	K2_MIRROR_RAW	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1372	-	-
+central	J16	1	KB_COIL_HIGH	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1373	-	-
+central	J16	2	KB_COIL_LOW	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1374	-	-
+central	J16	3	KB_FB_EXC	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1375	-	-
+central	J16	4	KB_MIRROR_RAW	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1376	-	-
+central	J17	1	POD_24V_ACT	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1377	-	-
+central	J17	2	KT_COIL_LOW	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1378	-	-
+central	J18	1	POD_3V3	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1379	central:U1.2	central:U1.2
+central	J18	2	AUX_0V	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1380	-	external AUX return via central:J12.2
+central	J18	3	VLINE_P	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1381	-	-
+central	J18	4	VLINE_N	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1382	-	-
+central	J18	5	VLINE_DIAG_N	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1383	-	-
+central	J18	6	AUX_0V	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1384	-	external AUX return via central:J12.2
+central	J19	1	POD_3V3	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1385	central:U1.2	central:U1.2
+central	J19	2	AUX_0V	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1386	-	external AUX return via central:J12.2
+central	J19	3	VPRE_P	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1387	-	-
+central	J19	4	VPRE_N	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1388	-	-
+central	J19	5	VPRE_DIAG_N	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1389	-	-
+central	J19	6	AUX_0V	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1390	-	external AUX return via central:J12.2
+central	J20	1	POD_3V3	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1391	central:U1.2	central:U1.2
+central	J20	2	AUX_0V	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1392	-	external AUX return via central:J12.2
+central	J20	3	VOUT_P	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1393	-	-
+central	J20	4	VOUT_N	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1394	-	-
+central	J20	5	VOUT_DIAG_N	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1395	-	-
+central	J20	6	AUX_0V	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1396	-	external AUX return via central:J12.2
+central	J21	1	POD_3V3	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1397	central:U1.2	central:U1.2
+central	J21	2	AUX_0V	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1398	-	external AUX return via central:J12.2
+central	J21	3	VBUS_P	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1399	-	-
+central	J21	4	VBUS_N	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1400	-	-
+central	J21	5	VBUS_DIAG_N	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1401	-	-
+central	J21	6	AUX_0V	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1402	-	external AUX return via central:J12.2
+central	J22	1	POD_3V3	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1403	central:U1.2	central:U1.2
+central	J22	2	AUX_0V	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1404	-	external AUX return via central:J12.2
+central	J22	3	VTANK_P	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1405	-	-
+central	J22	4	VTANK_N	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1406	-	-
+central	J22	5	VTANK_DIAG_N	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1407	-	-
+central	J22	6	AUX_0V	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1408	-	external AUX return via central:J12.2
+central	J23	1	IPROOF_RAW	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1409	-	-
+central	J23	2	REF_1V25	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1410	central:U5.1	-
+central	J24	1	ILINE_RAW	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1411	-	-
+central	J24	2	REF_1V25	passive	zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv:1412	central:U5.1	-
+catch	U1	3	VCATCH_DCDC_H	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/catch-pins.tsv:24	catch:U1.1	catch:U1.1
+catch	U1	9	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/catch-pins.tsv:30	-	external AUX return via central:J12.2
+catch	U1	12	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/catch-pins.tsv:33	-	central:U1.2
+catch	U1	15	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/catch-pins.tsv:36	-	external AUX return via central:J12.2
+catch	U1	16	VCATCH_DCDC_L	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/catch-pins.tsv:37	catch:U1.13	catch:U1.13
+catch	J1	1	CATCH_P	passive	zapote/power-stage-120v/prototype-closure/round5/boards/catch-pins.tsv:54	-	-
+catch	J1	2	HV_RET	passive	zapote/power-stage-120v/prototype-closure/round5/boards/catch-pins.tsv:55	-	-
+catch	J2	1	POD_3V3	passive	zapote/power-stage-120v/prototype-closure/round5/boards/catch-pins.tsv:56	-	central:U1.2
+catch	J2	2	AUX_0V	passive	zapote/power-stage-120v/prototype-closure/round5/boards/catch-pins.tsv:57	-	external AUX return via central:J12.2
+catch	J2	3	VCATCH_P	passive	zapote/power-stage-120v/prototype-closure/round5/boards/catch-pins.tsv:58	catch:U1.11	-
+catch	J2	4	VCATCH_N	passive	zapote/power-stage-120v/prototype-closure/round5/boards/catch-pins.tsv:59	catch:U1.10	-
+catch	J2	5	VCATCH_DIAG_N	passive	zapote/power-stage-120v/prototype-closure/round5/boards/catch-pins.tsv:60	catch:U1.14	-
+catch	J2	6	AUX_0V	passive	zapote/power-stage-120v/prototype-closure/round5/boards/catch-pins.tsv:61	-	external AUX return via central:J12.2
+bus	U1	3	VBUS_DCDC_H	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/bus-pins.tsv:24	bus:U1.1	bus:U1.1
+bus	U1	9	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/bus-pins.tsv:30	-	external AUX return via central:J12.2
+bus	U1	12	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/bus-pins.tsv:33	-	central:U1.2
+bus	U1	15	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/bus-pins.tsv:36	-	external AUX return via central:J12.2
+bus	U1	16	VBUS_DCDC_L	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/bus-pins.tsv:37	bus:U1.13	bus:U1.13
+bus	J1	1	BUS_P	passive	zapote/power-stage-120v/prototype-closure/round5/boards/bus-pins.tsv:54	-	-
+bus	J1	2	HV_RET	passive	zapote/power-stage-120v/prototype-closure/round5/boards/bus-pins.tsv:55	-	-
+bus	J2	1	POD_3V3	passive	zapote/power-stage-120v/prototype-closure/round5/boards/bus-pins.tsv:56	-	central:U1.2
+bus	J2	2	AUX_0V	passive	zapote/power-stage-120v/prototype-closure/round5/boards/bus-pins.tsv:57	-	external AUX return via central:J12.2
+bus	J2	3	VBUS_P	passive	zapote/power-stage-120v/prototype-closure/round5/boards/bus-pins.tsv:58	bus:U1.11	-
+bus	J2	4	VBUS_N	passive	zapote/power-stage-120v/prototype-closure/round5/boards/bus-pins.tsv:59	bus:U1.10	-
+bus	J2	5	VBUS_DIAG_N	passive	zapote/power-stage-120v/prototype-closure/round5/boards/bus-pins.tsv:60	bus:U1.14	-
+bus	J2	6	AUX_0V	passive	zapote/power-stage-120v/prototype-closure/round5/boards/bus-pins.tsv:61	-	external AUX return via central:J12.2
+line	U1	3	VLINE_DCDC_H	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/line-pins.tsv:16	line:U1.1	line:U1.1
+line	U1	9	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/line-pins.tsv:22	-	external AUX return via central:J12.2
+line	U1	12	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/line-pins.tsv:25	-	central:U1.2
+line	U1	15	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/line-pins.tsv:28	-	external AUX return via central:J12.2
+line	U1	16	VLINE_DCDC_L	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/line-pins.tsv:29	line:U1.13	line:U1.13
+line	J1	1	L_AUX	passive	zapote/power-stage-120v/prototype-closure/round5/boards/line-pins.tsv:46	-	-
+line	J1	2	N_AUX	passive	zapote/power-stage-120v/prototype-closure/round5/boards/line-pins.tsv:47	-	-
+line	J2	1	POD_3V3	passive	zapote/power-stage-120v/prototype-closure/round5/boards/line-pins.tsv:48	-	central:U1.2
+line	J2	2	AUX_0V	passive	zapote/power-stage-120v/prototype-closure/round5/boards/line-pins.tsv:49	-	external AUX return via central:J12.2
+line	J2	3	VLINE_P	passive	zapote/power-stage-120v/prototype-closure/round5/boards/line-pins.tsv:50	line:U1.11	-
+line	J2	4	VLINE_N	passive	zapote/power-stage-120v/prototype-closure/round5/boards/line-pins.tsv:51	line:U1.10	-
+line	J2	5	VLINE_DIAG_N	passive	zapote/power-stage-120v/prototype-closure/round5/boards/line-pins.tsv:52	line:U1.14	-
+line	J2	6	AUX_0V	passive	zapote/power-stage-120v/prototype-closure/round5/boards/line-pins.tsv:53	-	external AUX return via central:J12.2
+pre	U1	3	VPRE_DCDC_H	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/pre-pins.tsv:16	pre:U1.1	pre:U1.1
+pre	U1	9	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/pre-pins.tsv:22	-	external AUX return via central:J12.2
+pre	U1	12	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/pre-pins.tsv:25	-	central:U1.2
+pre	U1	15	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/pre-pins.tsv:28	-	external AUX return via central:J12.2
+pre	U1	16	VPRE_DCDC_L	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/pre-pins.tsv:29	pre:U1.13	pre:U1.13
+pre	J1	1	L_SER	passive	zapote/power-stage-120v/prototype-closure/round5/boards/pre-pins.tsv:46	-	-
+pre	J1	2	L_PRE	passive	zapote/power-stage-120v/prototype-closure/round5/boards/pre-pins.tsv:47	-	-
+pre	J2	1	POD_3V3	passive	zapote/power-stage-120v/prototype-closure/round5/boards/pre-pins.tsv:48	-	central:U1.2
+pre	J2	2	AUX_0V	passive	zapote/power-stage-120v/prototype-closure/round5/boards/pre-pins.tsv:49	-	external AUX return via central:J12.2
+pre	J2	3	VPRE_P	passive	zapote/power-stage-120v/prototype-closure/round5/boards/pre-pins.tsv:50	pre:U1.11	-
+pre	J2	4	VPRE_N	passive	zapote/power-stage-120v/prototype-closure/round5/boards/pre-pins.tsv:51	pre:U1.10	-
+pre	J2	5	VPRE_DIAG_N	passive	zapote/power-stage-120v/prototype-closure/round5/boards/pre-pins.tsv:52	pre:U1.14	-
+pre	J2	6	AUX_0V	passive	zapote/power-stage-120v/prototype-closure/round5/boards/pre-pins.tsv:53	-	external AUX return via central:J12.2
+out	U1	3	VOUT_DCDC_H	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/out-pins.tsv:16	out:U1.1	out:U1.1
+out	U1	9	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/out-pins.tsv:22	-	external AUX return via central:J12.2
+out	U1	12	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/out-pins.tsv:25	-	central:U1.2
+out	U1	15	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/out-pins.tsv:28	-	external AUX return via central:J12.2
+out	U1	16	VOUT_DCDC_L	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/out-pins.tsv:29	out:U1.13	out:U1.13
+out	J1	1	L_PRE	passive	zapote/power-stage-120v/prototype-closure/round5/boards/out-pins.tsv:46	-	-
+out	J1	2	N_PRE	passive	zapote/power-stage-120v/prototype-closure/round5/boards/out-pins.tsv:47	-	-
+out	J2	1	POD_3V3	passive	zapote/power-stage-120v/prototype-closure/round5/boards/out-pins.tsv:48	-	central:U1.2
+out	J2	2	AUX_0V	passive	zapote/power-stage-120v/prototype-closure/round5/boards/out-pins.tsv:49	-	external AUX return via central:J12.2
+out	J2	3	VOUT_P	passive	zapote/power-stage-120v/prototype-closure/round5/boards/out-pins.tsv:50	out:U1.11	-
+out	J2	4	VOUT_N	passive	zapote/power-stage-120v/prototype-closure/round5/boards/out-pins.tsv:51	out:U1.10	-
+out	J2	5	VOUT_DIAG_N	passive	zapote/power-stage-120v/prototype-closure/round5/boards/out-pins.tsv:52	out:U1.14	-
+out	J2	6	AUX_0V	passive	zapote/power-stage-120v/prototype-closure/round5/boards/out-pins.tsv:53	-	external AUX return via central:J12.2
+tank	U1	3	VTANK_DCDC_H	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/tank-pins.tsv:32	tank:U1.1	tank:U1.1
+tank	U1	9	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/tank-pins.tsv:38	-	external AUX return via central:J12.2
+tank	U1	12	POD_3V3	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/tank-pins.tsv:41	-	central:U1.2
+tank	U1	15	AUX_0V	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/tank-pins.tsv:44	-	external AUX return via central:J12.2
+tank	U1	16	VTANK_DCDC_L	power_in	zapote/power-stage-120v/prototype-closure/round5/boards/tank-pins.tsv:45	tank:U1.13	tank:U1.13
+tank	J1	1	RES_A	passive	zapote/power-stage-120v/prototype-closure/round5/boards/tank-pins.tsv:62	-	-
+tank	J1	2	SW_B	passive	zapote/power-stage-120v/prototype-closure/round5/boards/tank-pins.tsv:63	-	-
+tank	J2	1	POD_3V3	passive	zapote/power-stage-120v/prototype-closure/round5/boards/tank-pins.tsv:64	-	central:U1.2
+tank	J2	2	AUX_0V	passive	zapote/power-stage-120v/prototype-closure/round5/boards/tank-pins.tsv:65	-	external AUX return via central:J12.2
+tank	J2	3	VTANK_P	passive	zapote/power-stage-120v/prototype-closure/round5/boards/tank-pins.tsv:66	tank:U1.11	-
+tank	J2	4	VTANK_N	passive	zapote/power-stage-120v/prototype-closure/round5/boards/tank-pins.tsv:67	tank:U1.10	-
+tank	J2	5	VTANK_DIAG_N	passive	zapote/power-stage-120v/prototype-closure/round5/boards/tank-pins.tsv:68	tank:U1.14	-
+tank	J2	6	AUX_0V	passive	zapote/power-stage-120v/prototype-closure/round5/boards/tank-pins.tsv:69	-	external AUX return via central:J12.2
+iproof	J1	1	IPROOF_RAW	passive	zapote/power-stage-120v/prototype-closure/round5/boards/iproof-pins.tsv:11	-	-
+iproof	J1	2	REF_1V25	passive	zapote/power-stage-120v/prototype-closure/round5/boards/iproof-pins.tsv:12	-	-
+iline	J1	1	ILINE_RAW	passive	zapote/power-stage-120v/prototype-closure/round5/boards/iline-pins.tsv:11	-	-
+iline	J1	2	REF_1V25	passive	zapote/power-stage-120v/prototype-closure/round5/boards/iline-pins.tsv:12	-	-

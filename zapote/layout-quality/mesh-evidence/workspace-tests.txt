@@ -1,0 +1,730 @@
+   Compiling zapote-thermal v0.1.0 (/Users/bennet/Desktop/temper/worktrees/layout-quality/zapote/packages/zapote-thermal)
+   Compiling zapote-drc v0.1.0 (/Users/bennet/Desktop/temper/worktrees/layout-quality/zapote/packages/zapote-drc)
+   Compiling zapote-harness v0.1.0 (/Users/bennet/Desktop/temper/worktrees/layout-quality/zapote/packages/zapote-harness)
+    Finished `release` profile [optimized] target(s) in 50.19s
+     Running unittests src/lib.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/zapote_core-a7b4380389b3b24e)
+
+running 12 tests
+test shelf::tests::path_tiebreak_is_input_order_independent ... ok
+test shelf::tests::larger_part_leads_and_fractional_bounds_round_outward ... ok
+test shelf::tests::overflow_rejects_entire_output_and_reports_height ... ok
+test shelf::tests::height_order_packs_mixed_parts_inside_outline_without_overlap ... ok
+test shelf::tests::origin_offsets_and_gap_are_preserved ... ok
+test shelf::tests::pad_fallback_expands_one_mm_per_side_in_rust ... ok
+test unit::tests::deferred_contracts_cannot_be_reported_as_run ... ok
+test unit::tests::typed_unit_input_rejects_incomplete_unit_native_transport ... ok
+test unit::tests::standalone_profile_matches_source_and_manufacturing_contract ... ok
+test unit::tests::connector_qualification_cannot_be_filled_by_fixture_mutation ... ok
+test unit::tests::typed_unit_input_rejects_duplicate_native_components ... ok
+test current_sense::tests::captured_source_manifest_uses_bridge_and_strict_pin_map_shape ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src/lib.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/zapote_drc-aa9df1118a1addf8)
+
+running 121 tests
+test current_sense::tests::pad_rotation_uses_kicad_clockwise_child_transform ... ok
+test donor_clearance::tests::raw_pcbnew_shape_codes_are_explicitly_mapped ... ok
+test donor_clearance::tests::mapped_roundrect_uses_its_radius_ratio ... ok
+test donor_clearance::tests::oval_and_through_hole_shapes_are_supported ... ok
+test donor_clearance::tests::shape_aware_pad_to_capsule_uses_rectangular_corners ... ok
+test donor_geometry::tests::separated_segments_are_not_intersecting ... ok
+test donor_clearance::tests::unsupported_shape_is_rejected_fail_closed ... ok
+test donor_geometry::tests::crossing_segments_are_intersecting ... ok
+test ipc::tests::capacity_increases_with_width_and_finished_thickness ... ok
+test ipc::tests::seven_tenths_millimeter_seventy_um_carries_low_current_branch ... ok
+test manufacturing::tests::missing_body_is_indeterminate ... ok
+test manufacturing::tests::drill_outside_copper_cannot_have_positive_annular_ring ... ok
+test manufacturing::tests::edge_between_inside_vertices_cannot_cross_concave_notch ... ok
+test manufacturing::tests::drill_conflict_is_detected ... ok
+test current_sense::tests::zone_crossing_is_detected_without_a_vertex_inside ... ok
+test manufacturing::tests::native_fractured_zone_hole_matches_pcbnew_membership ... ok
+test current_sense::tests::trace_via_crossing_is_checked_as_a_native_pair ... ok
+test current_sense::tests::primary_secondary_separation_checks_cross_layer_xy ... ok
+test manufacturing::tests::empty_polygon_nan_and_negative_limits_are_not_success ... ok
+test manufacturing::tests::outline_crossing_is_detected ... ok
+test current_sense::tests::trace_entirely_in_zone_hole_is_not_treated_as_filled_copper ... ok
+test manufacturing::tests::body_collision_is_exact_and_object_identified ... ok
+test current_sense::tests::primary_secondary_pad_clearance_is_measured_from_native_geometry ... ok
+test manufacturing::tests::passing_baseline_has_no_findings ... ok
+test manufacturing::tests::population_reports_rule_objects_without_changing_check_report ... ok
+test manufacturing::tests::population_tracks_actual_early_returns_and_pair_skips ... ok
+test manufacturing::tests::slotted_holes_use_native_polygon_not_round_width ... ok
+test manufacturing::tests::undersized_ring_fails_with_actual_and_required ... ok
+test manufacturing::tests::unsupported_angle_is_indeterminate_under_quadrant_policy ... ok
+test native_layout::mesh_tests::removing_one_strip_cell_produces_an_open_not_zero_resistance ... ok
+test native_layout::mesh_tests::two_parallel_layers_solve_sharing_instead_of_adding_nominal_capacities ... ok
+test native_layout::mesh_tests::negative_or_nonfinite_mesh_and_material_inputs_fail_closed ... ok
+test native_layout::mesh_tests::one_nanometre_same_net_gap_never_becomes_a_current_link ... ok
+test native_layout::mesh_tests::sheet_barrel_sheet_matches_independent_series_circuit ... ok
+test native_layout::mesh_tests::triangulation_preserves_voids_area_and_disconnected_islands ... ok
+test native_layout::mesh_tests::floating_copper_does_not_change_the_connected_solution ... ok
+test native_layout::tests::holes_and_duplicate_copper_are_not_counted_twice ... ok
+test native_layout::tests::mid_track_via_joins_only_its_declared_span_and_net ... ok
+test native_layout::tests::interior_track_junction_preserves_partial_length_and_resistance ... ok
+test native_layout::mesh_tests::uniform_strip_matches_ohms_law ... ok
+test native_layout::mesh_tests::annular_sheet_converges_to_independent_logarithmic_solution ... ok
+test native_layout::tests::one_nanometre_gap_different_net_and_layer_do_not_connect ... ok
+test native_binding::bridge_tests::assigning_an_export_net_to_a_saved_unassigned_pad_is_rejected ... ok
+test native_layout::tests::oblique_junctions_match_three_four_five_geometry ... ok
+test native_layout::tests::plated_barrel_connects_intermediate_layers_but_surface_pad_does_not ... ok
+test native_binding::bridge_tests::active_board_empty_net_pads_bind_without_omitting_pad_identity ... ok
+test native_binding::bridge_tests::omitting_an_unassigned_physical_pad_is_rejected ... ok
+test native_layout::tests::split_tracks_preserve_analytical_length_and_resistance ... ok
+test native_layout::tests::polygon_overlap_matches_rectangle_oracle ... ok
+test pad_escape::tests::condition_metacharacters_in_net_fail_closed ... ok
+test native_layout::tests::stale_board_and_duplicate_uuid_fail_closed ... ok
+test pad_escape::tests::escape_area_extends_only_away_from_opposite_pad ... ok
+test pad_escape::tests::moved_or_enlarged_rule_area_fails_verification ... ok
+test pad_escape::tests::nonorthogonal_pad_body_fails_even_with_axis_aligned_centres ... ok
+test native_layout::tests::wrong_profile_and_conflicting_duplicate_physical_pins_fail_closed ... ok
+test power_barrier::tests::malformed_or_unclassified_copper_fails_closed ... ok
+test pad_escape::tests::wrong_pad_net_fails_verification ... ok
+test power_barrier::tests::exact_circle_to_rectangle_gap_counts_cross_layer_pair ... ok
+test power_barrier::tests::opposite_layer_track_crossing_is_not_discarded ... ok
+test power_barrier::tests::touching_zone_contour_keeps_both_lobes ... ok
+test power_barrier::tests::same_package_pad_exception_does_not_cover_other_copper ... ok
+test power_branches::tests::disconnected_components_validate_kcl_independently ... ok
+test power_branches::tests::endpoint_reversal_preserves_envelope ... ok
+test power_branches::tests::invalid_graph_and_samples_are_rejected ... ok
+test power_branches::tests::parallel_edges_are_cycle_envelopes ... ok
+test power_branches::tests::split_branches_have_exact_kcl_currents ... ok
+test native_layout::tests::invalid_dimensions_layers_and_contacts_are_rejected ... ok
+test power_branches::tests::zero_weight_sample_controls_peak_but_not_rms ... ok
+test power_contact::tests::annular_sections_match_interval_oracle_after_rigid_transform ... ok
+test power_contact::tests::drill_void_and_tangent_do_not_create_a_chord ... ok
+test power_contact::tests::large_pad_never_hides_a_narrow_trace ... ok
+test power_contact::tests::multiple_voids_and_a_separate_island_keep_their_ownership ... ok
+test power_contact::tests::side_overlap_is_measured_and_direction_invariant ... ok
+test power_contact::tests::unrepresentable_geometry_is_an_error_and_zero_is_never_full_width ... ok
+test power_integrity::tests::missing_barrier_fails_closed ... ok
+test power_integrity::tests::missing_path_is_indeterminate ... ok
+test power_integrity::tests::narrow_real_trace_fails ... ok
+test power_branches::tests::long_chain_is_analyzed_without_recursive_dfs ... ok
+test native_layout::mesh_tests::subdivision_preserves_resistance_and_current_scaling ... ok
+test power_integrity::tests::pad_candidate_cannot_claim_entry_geometry_and_rejects_missing_trace ... ok
+test power_integrity::tests::removed_barrier_fails ... ok
+test power_integrity::tests::removed_via_is_preserved_as_indeterminate ... ok
+test power_integrity::tests::via_mapping_is_checked_before_missing_electrical_inputs ... ok
+test power_integrity::tests::via_sharing_rejects_missing_plating_and_accepts_explicit_equal_share ... ok
+test stackup::tests::four_layer_stackup_checks_each_dielectric_and_copper_order ... ok
+test stackup::tests::excessive_nesting_and_unicode_are_handled_without_panics ... ok
+test stackup::tests::duplicate_fields_and_trailing_documents_are_rejected ... ok
+test stackup::tests::physical_total_includes_mask ... ok
+test stackup::tests::missing_stackup_or_copper_cannot_pass ... ok
+test switching::tests::enlarged_unscoped_extent_cannot_fail_loop_bound ... ok
+test switching::tests::missing_noise_population_is_indeterminate ... ok
+test switching::tests::missing_path_is_indeterminate ... ok
+test switching::tests::missing_spacing_and_malformed_limits_cannot_pass ... ok
+test switching::tests::missing_stitch_fails_closed ... ok
+test switching::tests::parallel_overlap_fails_only_when_same_layer_and_close ... ok
+test switching::tests::perpendicular_remote_and_different_layer_do_not_count_as_parallel ... ok
+test switching::tests::projection_axes_and_duplicate_victims_do_not_manufacture_overlap ... ok
+test switching::tests::small_unscoped_extent_cannot_pass_loop_bound ... ok
+test switching::tests::splitting_native_traces_preserves_measured_overlap ... ok
+test switching::tests::unscoped_extent_never_passes_or_fails_from_remote_return_branch ... ok
+test tests::copper_width_is_included_at_boundary ... ok
+test tests::crossing_segment_is_detected_without_vertex_inside ... ok
+test tests::filled_corridor_accepts_connected_route_with_terminal_clearance ... ok
+test tests::filled_corridor_rejects_hole_crossing_even_when_endpoints_are_covered ... ok
+test tests::filled_corridor_rejects_island_gap_between_valid_entries ... ok
+test tests::narrow_slot_between_old_sample_positions_fails ... ok
+test tests::nearby_return_via_with_long_copper_detour_fails ... ok
+test tests::own_antipad_requires_one_envelope_and_connected_ground_entry ... ok
+test tests::region_predicate_uses_authored_margin ... ok
+test tests::three_terminal_samples_cannot_hide_long_slot ... ok
+test native_layout::tests::native_stackup_uses_series_dielectrics_not_board_thickness ... ok
+test switching::tests::disconnected_return_fails_even_with_a_current_loop ... ok
+test stackup::tests::native_zero_core_is_rejected ... ok
+test stackup::tests::missing_and_invalid_thicknesses_fail_closed ... ok
+test stackup::tests::string_contents_cannot_spoof_structural_fields ... ok
+test native_layout::tests::native_pad_entries_have_a_production_consumer ... ok
+test native_layout::tests::live_native17_census_routes_and_incomplete_coverage_are_retained ... ok
+test native_layout::tests::removing_a_measurement_is_not_a_zero_improvement ... ok
+test native_layout::tests::pad_contact_identity_and_missing_copper_fail_closed ... ok
+test native_layout::tests::native_object_iteration_order_does_not_change_metrics ... ok
+test native_layout::tests::captured_native_current_profile_solves_every_case_and_preserves_plating_sensitivity ... ok
+
+test result: ok. 121 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.71s
+
+     Running unittests src/bin/p2-manufacturing.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/p2_manufacturing-9dcafb23cbbd7892)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/branch_cut_oracle.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/branch_cut_oracle-20bbd04d9767f99b)
+
+running 2 tests
+test subdividing_and_reordering_parallel_paths_preserves_currents ... ok
+test all_five_node_graphs_match_cut_current_oracle ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/clearance_profile.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/clearance_profile-abc79d116860893c)
+
+running 2 tests
+test profile_does_not_cross_count_opposite_copper_layers ... ok
+test profile_applies_two_mm_hv_and_six_mm_pe_floors ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/domain_clearance.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/domain_clearance-ff2a2df8094a8a9a)
+
+running 4 tests
+test unlisted_geometry_is_explicitly_out_of_scope ... ok
+test close_opposite_trace_fails_with_domain_namespace_and_id ... ok
+test projected_cross_layer_geometry_passes_and_reports_third_nets ... ok
+test invalid_sets_clearance_and_missing_domain_geometry_fail_closed ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/ipc_reference.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/ipc_reference-76510f154054de1d)
+
+running 1 test
+test exact_mil_dimensions_match_published_scalar ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/layout_quality.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/layout_quality-c310a1e2ee6bb266)
+
+running 2 tests
+test parallel_copper_shares_current_by_conductance ... ok
+test opposing_mutuals_cancel_only_for_the_declared_simultaneous_slews ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/layout_quality_copper.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/layout_quality_copper-c79150d33b4e22f5)
+
+running 7 tests
+test balanced_wheatstone_bridge_has_no_cross_current ... ok
+test conductor_resistance_has_correct_millimeter_conversion ... ok
+test invalid_or_disconnected_networks_do_not_produce_low_loss ... ok
+test conductor_subdivision_preserves_voltage_and_power ... ok
+test parallel_network_matches_closed_form ... ok
+test reversing_an_edge_reverses_its_current_but_preserves_loss ... ok
+test current_conservation_energy_balance_and_ground_invariance ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/layout_quality_electrical.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/layout_quality_electrical-aca3bc2e082838be)
+
+running 16 tests
+test antiresonance_can_have_branch_current_larger_than_total ... ok
+test decoupling_overflow_cannot_silently_remove_capacitive_reactance ... ok
+test decoupling_rejects_missing_sweep_or_lossless_resonance ... ok
+test emi_bypass_combines_inductive_and_capacitive_bounds ... ok
+test displacement_current_uses_picofarads_and_nanoseconds ... ok
+test kelvin_cancellation_preserves_independent_sign_bound ... ok
+test nonfinite_and_empty_electrical_inputs_are_not_zero_noise ... ok
+test return_length_includes_vias_and_reports_shared_noise_separately ... ok
+test rlc_series_resonance_and_parallel_sharing_match_closed_form ... ok
+test real_leg_a_matrix_preserves_port_orientation_and_mutual_sign ... ok
+test thermal_model_keeps_calibration_drift_and_domain_explicit ... ok
+test subdividing_a_straight_return_does_not_change_its_detour ... ok
+test parallel_identical_decouplers_halve_impedance ... ok
+test thermal_rise_is_monotone_in_positive_power ... ok
+test reversing_both_port_and_current_orientation_preserves_pickup ... ok
+test signed_pickup_never_exceeds_independent_bound ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/layout_quality_geometry.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/layout_quality_geometry-b8915a5118d1cdae)
+
+running 13 tests
+test nested_envelope_penetration_is_the_translation_to_separation ... ok
+test nonfinite_geometry_cannot_disappear_in_comparisons ... ok
+test tolerance_and_tool_access_consume_assembly_margin ... ok
+test overlapping_subdivisions_and_coplanar_crossings_are_rejected ... ok
+test parallel_plate_closed_form_has_correct_si_conversion ... ok
+test touching_rectangle_edges_do_not_have_overlap_area ... ok
+test underflowing_overlap_is_not_reported_as_absent_coupling ... ok
+test broadside_is_invariant_under_common_translation ... ok
+test increasing_assembly_tolerance_never_improves_clearance ... ok
+test broadside_subdivision_preserves_total_capacitance ... ok
+test assembly_sweep_matches_all_pairs ... ok
+test asymmetric_3d_assembly_sweep_matches_exhaustive_distances ... ok
+test sweep_matches_brute_force_overlap ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/layout_quality_report.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/layout_quality_report-bc261626a50fa9b7)
+
+running 8 tests
+test batch_rejects_bad_identity_unknown_schema_and_duplicate_cases ... ok
+test invalid_case_cannot_cover_a_required_family ... ok
+test budget_typo_is_an_error_and_cannot_silently_skip_comparison ... ok
+test lower_bound_clearance_cannot_claim_an_upper_bound ... ok
+test budget_margin_boundary_and_failure_are_preserved ... ok
+test no_budget_is_unscored_and_missing_family_is_explicit ... ok
+test serde_rejects_unknown_fields_and_roundtrips_typed_input ... ok
+test all_nine_families_are_evaluated_through_the_public_batch_api ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/native_multipad.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/native_multipad-d1a1009cacfd9cb4)
+
+running 5 tests
+test mechanical_npth_hole_is_accepted_without_electrical_assignment ... ok
+test physical_relay_contacts_bind_to_their_saved_uuids ... ok
+test declared_kicad_net_ids_bind_pads_and_tracks_by_name ... ok
+test repeated_uuid_missing_pad_and_changed_net_fail ... ok
+test mechanical_npth_mutations_fail_closed ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/zapote_erc-9bb84a33797abea3)
+
+running 28 tests
+test domain_contract::tests::matching_crossing_id_cannot_hide_wrong_domain_or_barrier ... ok
+test domain_contract::tests::swapped_native_domain_membership_fails_against_fixed_expectation ... ok
+test domain_contract::tests::reviewed_contract_passes ... ok
+test domain_contract::tests::protective_earth_is_distinct_from_hot ... ok
+test domain_contract::tests::intentional_nc_with_net_fails ... ok
+test domain_contract::tests::feedback_tap_misclassification_fails ... ok
+test domain_contract::tests::missing_barrier_fails ... ok
+test fault_loop::tests::a_shunt_outside_the_loop_is_rejected ... ok
+test fault_loop::tests::a_three_terminal_device_qualifies_on_two_power_terminals ... ok
+test fault_loop::tests::a_device_outside_the_loop_is_rejected ... ok
+test fault_loop::tests::a_two_terminal_element_on_the_loop_is_accepted ... ok
+test fault_loop::tests::a_zero_assignment_is_ignored ... ok
+test fault_loop::tests::an_element_absent_from_the_netlist_is_rejected ... ok
+test operating_limits::tests::excessive_shutdown_fails ... ok
+test operating_limits::tests::missing_delay_corner_is_indeterminate ... ok
+test operating_limits::tests::missing_heatsink_is_indeterminate ... ok
+test operating_limits::tests::negative_resistance_and_delay_cannot_manufacture_margin ... ok
+test operating_limits::tests::nominal_timing_without_guarantee_is_indeterminate ... ok
+test operating_limits::tests::passing_models_are_reported ... ok
+test operating_limits::tests::stressed_device_fails ... ok
+test tests::asymmetric_fault_cases_keep_documented_blind_spot ... ok
+test tests::low_threshold_strictly_exceeds_exact_code ... ok
+test tests::threshold_encoding_matches_board_words ... ok
+test thermal_sense::tests::open_detection_numeric_corner_reference_is_independent ... ok
+test thermal_sense::tests::thermal_math_matches_independent_loaded_network_audit ... ok
+test current_sense::tests::recomputation_uses_profile_values_without_rtd_constants ... ok
+test current_sense::tests::missing_independent_electrical_claims_fail_closed ... ok
+test current_sense::tests::owner_model_fixture_matches_floating_burden_topology ... ok
+
+test result: ok. 28 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/gate_drive.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/gate_drive-b0d34c7c9874a411)
+
+running 6 tests
+test dead_time_model_is_independent_of_native_binding ... ok
+test native_connection_mismatch_is_not_hidden_by_source_match ... ok
+test real_compiled_candidate_passes_structural_gate_checks ... ok
+test topology_and_native_mpn_mutations_fail_closed ... ok
+test permit_resistor_and_disable_inverter_mutations_fail_closed ... ok
+test matching_source_and_native_cannot_hide_any_pair_of_shorted_intended_nets ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running tests/power_stage_models.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/power_stage_models-d6444c201035605f)
+
+running 4 tests
+test invalid_inputs_fail_closed ... ok
+test equation_domain_is_bounded ... ok
+test dead_time_34k_fails_and_39k_passes_300ns_floor ... ok
+test cold_tcr_and_initial_tolerance_are_independent_corners ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/source_circuit.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/source_circuit-727017b597396a62)
+
+running 7 tests
+test every_physical_terminal_and_uuid_is_required ... ok
+test one_logical_pin_can_have_two_distinct_physical_relay_terminals ... ok
+test missing_pins_and_crossed_domains_do_not_compare_as_equal_none ... ok
+test gate_drive_local_library_nickname_binds ... ok
+test compiler_identity_and_schema_mutations_fail_closed ... ok
+test captured_compiler_graph_matches_real_saved_board_export ... ok
+test each_native_connection_representation_must_match ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running unittests src/lib.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/zapote_harness-8397a5f5dc42c0e6)
+
+running 14 tests
+test memory::tests::evidence_hash_accepts_prefixed_form ... ok
+test memory::tests::unsafe_evidence_path_rejected ... ok
+test model_qualification::tests::generalized_formula_is_stable ... ok
+test model_qualification::tests::expected_cases_match_independent_reference_scalars ... ok
+test model_qualification::tests::schur_graph_is_positive ... ok
+test model_qualification::tests::narrowed_capacitance_is_rejected_by_required_envelope ... ok
+test p1::tests::aggregate_status_preserves_failures ... ok
+test model_qualification::tests::expected_case_builder_covers_exactly_five_cases ... ok
+test tests::missing_input_identity_cannot_be_a_pass ... ok
+test p3::coordinator_regressions::gate_return_is_kelvin_not_control_ground_and_split_cluster_is_incomplete ... ok
+test p3::tests::gate_drive_saved_native_export_binds_reviewed_paths ... ok
+test runner::manufacturing_receipt_tests::edited_geometry_with_unchanged_board_identity_cannot_reach_downstream_checks ... ok
+test p3::tests::actual_gate_noise_measurement_responds_to_native_geometry ... ok
+test p3::tests::saved_units_report_measured_geometry_and_missing_limits ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running unittests src/bin/zapote-board.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/zapote_board-5dcbb1f7f1e5f5e9)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-fault-loop.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/zapote_fault_loop-0e0b6e53b0fe4279)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-gate-drive.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/zapote_gate_drive-4676164fd8beb9db)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-interlock.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/zapote_interlock-9eb9bc65ab987896)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-layout-quality.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/zapote_layout_quality-8ab1e5871132458a)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-native-reports.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/zapote_native_reports-dfb891571bf3ab5d)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-pad-escape.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/zapote_pad_escape-b1aba78a38a43435)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-power-barrier.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/zapote_power_barrier-34cc9138dc5aa101)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-power-copper-identity.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/zapote_power_copper_identity-f1d26b12076b5336)
+
+running 5 tests
+test tests::saved_via_reassigned_to_other_net_fails ... ok
+test tests::matching_authored_tracks_and_vias_pass ... ok
+test tests::missing_or_extra_saved_copper_fails ... ok
+test tests::stale_instruction_or_receipt_chain_fails ... ok
+test tests::later_replace_discards_only_old_net_uuids ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-power-native-parity.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/zapote_power_native_parity-293127eb7c26994d)
+
+running 5 tests
+test tests::duplicate_physical_pads_have_distinct_uuids_and_same_source_net ... ok
+test tests::each_frozen_source_identity_is_required ... ok
+test tests::extra_netless_copper_pad_fails ... ok
+test tests::missing_source_pin_and_wrong_mpn_fail ... ok
+test tests::net_swap_fails ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/zapote_rtd-7fd0486e0f4d7f71)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-shelf.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/zapote_shelf-805bc4e545f5a2ec)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-thermal.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/zapote_thermal-ec494e2350057f2d)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/zapote-unit-run.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/zapote_unit_run-1eafab55851cecd8)
+
+running 1 test
+test tests::resolves_every_manifest_path_against_the_base ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/board_cli.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/board_cli-007b811a22b36a2a)
+
+running 4 tests
+test missing_board_is_not_an_empty_pass ... ok
+test no_arguments_cannot_skip_the_board_gate ... ok
+test saved_rtd_board_passes_the_public_gate ... ok
+test real_board_without_explicit_stackup_is_rejected ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.20s
+
+     Running tests/current_sense_defect_corpus.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/current_sense_defect_corpus-1ea4d8f3e30d0a56)
+
+running 17 tests
+test real_source_and_native_artifacts_resolve_complete_census ... ok
+test duplicate_component_fails_exact_census ... ok
+test changed_threshold_and_filter_claims_fail_recomputed_model ... ok
+test copper_open_fails_required_physical_copper ... ok
+test clearance_violation_is_measured_from_actual_pads ... ok
+test real_source_burden_to_ground_topology_mutation_is_rejected ... ok
+test removing_placement_guards_cannot_retain_owner_identity ... ok
+test unsupported_measurement_remains_indeterminate ... ok
+test source_net_rehash_and_native_net_swap_fail ... ok
+test real_source_bias_value_mutation_is_rejected_by_quantity_binding ... ok
+test missing_native_pad_shape_cannot_pass_with_a_rehashed_export ... ok
+test back_layer_ground_is_checked_against_front_transformer_primary ... ok
+test real_route_via_through_supply_track_is_rejected ... ok
+test real_input_json_roundtrip_preserves_exact_owner_projection ... ok
+test real_zero_core_board_is_rejected_by_the_normal_harness ... ok
+test real_artifacts_build_current_sense_transport_without_synthetic_census ... ok
+test missing_or_changed_stackup_bytes_cannot_retain_board_identity ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s
+
+     Running tests/interlock.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/interlock-bb0f8f269a419260)
+
+running 18 tests
+test bypassing_actual_clear_pin_breaks_graph_behavior ... ok
+test bypassing_reset_inverter_breaks_actual_clock_behavior ... ok
+test missing_pull_component_fails_census ... ok
+test d_tied_low_cannot_grant_permission ... ok
+test nand_input_bypass_hides_fault_and_is_rejected ... ok
+test reset_retains_permission_and_recovery_needs_a_new_edge ... ok
+test swapped_q_outputs_break_connector_behavior ... ok
+test split_native_cluster_with_all_nodes_present_is_rejected ... ok
+test wdi_bias_substitution_is_rejected ... ok
+test changed_resistance_fails_electrical_margin_not_just_part_identity ... ok
+test malformed_input_is_a_hard_failure ... ok
+test nc_connected_to_ground_is_rejected ... ok
+test strict_pin_mapping_cannot_be_deleted ... ok
+test wrong_bypass_value_is_rejected ... ok
+test stale_embedded_board_digest_is_rejected ... ok
+test native_fields_cannot_contradict_saved_board_bytes ... ok
+test actual_artifacts_have_no_hard_failure_and_all_4096_graph_vectors_pass ... ok
+test timing_polarity_leakage_and_qualification_cannot_be_relaxed ... ok
+
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.40s
+
+     Running tests/layout_native_cli.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/layout_native_cli-d96305b180657d6e)
+
+running 3 tests
+test native_current_changes_with_stackup_and_reports_removed_copper_as_missing ... ignored, requires live KiCad; verifies native current extraction, deltas and cut copper
+test native_width_edit_changes_bound_report_and_preserves_source ... ignored, requires the live KiCad pcbnew runtime; keeps full evidence in temp directory
+test native_options_fail_closed_without_launching_kicad ... ok
+
+test result: ok. 1 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.24s
+
+     Running tests/layout_quality_cli.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/layout_quality_cli-6aea90bdf6f4f302)
+
+running 4 tests
+test stale_board_binding_is_rejected_before_evaluation ... ok
+test malformed_json_returns_error_without_partial_output ... ok
+test native_example_retains_missing_families_and_does_not_claim_a_board_pass ... ok
+test declared_subset_completes_and_exceeded_budget_returns_one ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/memory_policy.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/memory_policy-ea643ff5a3beb2fd)
+
+running 12 tests
+test evidence_tamper_rejects_while_unrelated_changes_do_not ... ok
+test general_procedure_selects_exact_fact_does_not ... ok
+test memory::tests::evidence_hash_accepts_prefixed_form ... ok
+test memory::tests::unsafe_evidence_path_rejected ... ok
+test context_prepare_transfers_procedure_but_excludes_mismatched_exact_fact ... ok
+test context_prepare_is_deterministic_and_exposes_bound_hashes ... ok
+test context_prepare_requires_matching_exact_source_when_required ... ok
+test ordering_stable_and_limits_explicit ... ok
+test selection_cannot_forge_historical_receipt ... ok
+test promotion_gates ... ok
+test unselectable_states_and_malformed_inputs_cannot_enter_selection ... ok
+test context_prepare_rejects_tamper_duplicate_keys_and_oversize_notes ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/native_reports.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/native_reports-dc859185f7b4f718)
+
+running 7 tests
+test real_clean_native_capture_passes ... ok
+test missing_nested_findings_or_empty_sheets_fail_closed ... ok
+test later_sheet_findings_are_not_omitted ... ok
+test hidden_severity_and_new_suppression_are_rejected ... ok
+test actual_interlock_offgrid_incident_is_not_a_root_level_zero ... ok
+test missing_parity_flag_or_failed_command_is_rejected ... ok
+test native_drc_categories_are_checked_independently ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/p1.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/p1-3789c7751102952e)
+
+running 2 tests
+test real_gate_drive_baseline_preserves_incomplete_p1 ... ok
+test p1_rejects_changed_native_membership_and_source ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/rtd_defect_corpus.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/rtd_defect_corpus-120a7cb487b3b009)
+
+running 20 tests
+test local_escape_empty_population_is_indeterminate ... ok
+test local_escape_accepts_explicit_short_same_layer_branch ... ok
+test connector_swap_is_detected_against_board_bound_contract ... ok
+test each_conductor_open_is_classified_without_name_only_coverage ... ok
+test broken_rref_and_reference_topology_are_detected ... ok
+test local_escape_requires_native_membership_and_same_ic_pads ... ok
+test local_escape_accepts_gnd_stub_to_declared_mcu_junction ... ok
+test local_escape_rejects_overlapping_pads_and_disconnected_fragment ... ok
+test missing_identity_field_is_indeterminate_and_never_passes ... ok
+test local_escape_rejects_closed_cycle_wrong_anchor_and_long_detour ... ok
+test actual_capacitor_and_return_cluster_mutations_fail ... ok
+test sense_force_short_is_detected_from_typed_net_identity ... ok
+test native_binding_without_extraction_hash_cannot_pass ... ok
+test native_export_bound_to_different_board_cannot_pass ... ok
+test stale_well_formed_digest_is_rejected_by_artifact_binding ... ok
+test wrong_rail_and_wrong_cs_are_detected ... ok
+test actual_board_mutations_fail_with_contract_unchanged ... ok
+test real_native_sensitive_trace_intruding_switch_region_fails ... ok
+test each_real_conductor_expectation_is_independent ... ok
+test real_native_board_mutations_fail_with_source_contract_unchanged ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running tests/runner.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/runner-8a7082c32b7cf948)
+
+running 5 tests
+test omitted_check_fails_and_mixed_status_never_loses_failure ... ok
+test missing_or_duplicate_unit_cannot_shrink_the_suite ... ok
+test stale_native_receipt_is_rejected_even_with_same_basename ... ok
+test changed_saved_pcb_and_composite_identity_fail_after_passing_baseline ... ok
+test all_maintained_saved_units_bind_and_execute_their_truth_functions ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.48s
+
+     Running tests/thermal_sense.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/thermal_sense-c3d8b6a18089c633)
+
+running 21 tests
+test rev_a_source_is_rejected_as_missing_open_detection_components ... ok
+test coherently_changed_source_value_still_rejects_wrong_mpn_binding ... ok
+test original_coil_bias_is_rejected ... ok
+test real_routed_baseline_is_conditional_indeterminate_without_hard_failures ... ok
+test independent_gate_pin_map_rejects_swapped_open_input ... ok
+test missing_strict_pin_fails_pin_map_rule ... ok
+test corrupt_contract_supply_fails_contract_rule ... ok
+test oversized_filter_capacitor_fails_settling_rule ... ok
+test missing_component_fails_native_census ... ok
+test fragmented_cluster_fails_exact_connectivity_rule ... ok
+test rev_b_open_contract_is_checked_independently_of_native_fixture ... ok
+test unrouted_fixture_fails_connectivity ... ok
+test duplicate_or_malformed_cluster_node_is_not_silently_discarded ... ok
+test split_net_with_complete_union_still_fails_connectivity ... ok
+test source_resistor_change_fails_source_and_threshold_rules ... ok
+test swapped_comparator_input_fails_topology_rule ... ok
+test unsafe_open_reference_fails_margin_rule ... ok
+test duplicate_or_remapped_strict_pin_fails ... ok
+test wrong_sensor_identity_fails_contract_rule ... ok
+test wrong_capacitor_and_qualification_contract_fail ... ok
+test strict_cli_retains_indeterminate_exit_status ... ok
+
+test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.26s
+
+     Running tests/unit_profile.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/unit_profile-f8b6683d0c11e0ca)
+
+running 14 tests
+test unit_adapter_reaches_existing_aggressor_geometry_rule ... ok
+test unit_mutated_observed_mpn_is_a_targeted_failure ... ok
+test unit_cli_rules_evaluate_actual_native_shape ... ok
+test unit_adapter_rejects_observed_adc_net_mutation_against_source ... ok
+test unit_consistent_native_pad_and_connection_swap_hits_source_binding ... ok
+test unit_model_budget_is_numeric_and_fails_above_authored_limit ... ok
+test unit_mutated_observed_adc_connection_is_a_targeted_failure ... ok
+test unit_fault_observations_are_compared_without_legacy_blind_spot_classification ... ok
+test unit_partial_source_binding_is_rejected_before_shared_rules ... ok
+test qualified_receipt_passes_math_gate_but_device_stays_indeterminate ... ok
+test qualification_gate_rejects_coordinated_source_hash_change ... ok
+test unit_source_component_omission_and_extra_are_census_failures ... ok
+test qualification_gate_fails_closed_for_malformed_missing_case_and_zero_cap ... ok
+test qualified_receipt_rejects_raw_model_drift_and_forged_bound ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src/lib.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/zapote_thermal-1505d5b667c8469a)
+
+running 12 tests
+test gbj_package::tests::asymmetric_network_closes_each_independent_port ... ok
+test gbj_package::tests::unequal_ports_recover_independently_constructed_node_temperatures ... ok
+test gbj_package::tests::rejects_nonfinite_and_wrong_power ... ok
+test tests::parse_real_elmer_labels_and_scalars ... ok
+test gbj_package::tests::symmetric_case_matches_closed_form ... ok
+test tests::parser_rejects_missing_nonfinite_and_malformed_measurements ... ok
+test tests::validator_rejects_duplicate_mesh_measurements ... ok
+test tests::captured_live_fixture_replay_fails_closed_when_scalar_or_log_changes ... ok
+test tests::runner_refuses_stale_output_directory_before_launching_solver ... ok
+test tests::process_failure_and_timeout_are_reported ... ok
+test tests::failed_preflight_retains_authoritative_report_and_command ... ok
+test tests::timeout_stops_descendant_writers ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.27s
+
+     Running unittests src/main.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/zapote_thermal_reference-f630e0c3576faf09)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/pinned_reference.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/pinned_reference-bd8db5a17276b0c9)
+
+running 2 tests
+test replay_all_three_live_meshes_with_exact_inputs_and_raw_outputs ... ok
+test edited_deck_or_raw_result_cannot_retain_reference_identity ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/strict_evidence.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/strict_evidence-6c56edafb846a8fb)
+
+running 5 tests
+test rejects_malformed_column_trailer ... ok
+test rejects_duplicate_measurement_in_log ... ok
+test rejects_other_variable_named_max ... ok
+test rejects_trailing_malformed_or_extra_scalar_row ... ok
+test rejects_scalar_power_disagreeing_with_raw_log ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests zapote_core
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests zapote_drc
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests zapote_erc
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests zapote_harness
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests zapote_thermal
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

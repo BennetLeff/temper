@@ -1,0 +1,126 @@
+{
+  "CT": {
+    "burden_ohm": 1.5,
+    "burden_power_at_18_7A_rms_W": 0.0524535,
+    "cases": [
+      {
+        "conditional_resistor_rail_range_V": [
+          1.0053825,
+          2.2947824999999997
+        ],
+        "ideal_monitor_V": [
+          1.095,
+          2.205
+        ],
+        "primary_peak_A": 37
+      },
+      {
+        "conditional_resistor_rail_range_V": [
+          0.4902825000000002,
+          2.8098824999999996
+        ],
+        "ideal_monitor_V": [
+          0.585,
+          2.715
+        ],
+        "primary_peak_A": 71
+      },
+      {
+        "conditional_resistor_rail_range_V": [
+          0.2327325,
+          3.0674325
+        ],
+        "ideal_monitor_V": [
+          0.33000000000000007,
+          2.9699999999999998
+        ],
+        "primary_peak_A": 88
+      }
+    ],
+    "nominal_transfer_mV_per_A": 15,
+    "ratio_assumed_exact": 100
+  },
+  "PERMIT": {
+    "includes_interlock_10k_pull_down_max_uA": 419.9300699300699,
+    "two_power_board_pulldowns_plus_100R_max_uA": 69.93006993006993
+  },
+  "PWM": {
+    "ESP_high_high_impedance_min_V": 2.508,
+    "ESP_low_high_impedance_max_V": 0.34650000000000003,
+    "UCC_high_threshold_max_V": 2.3,
+    "UCC_input_pull_down_load_max_uA": 69.3,
+    "UCC_low_threshold_min_V": 0.8
+  },
+  "classification": "Conditional DC resistor corners and selected specification maxima; no ADC receiver, load, timing or whole-board-current bound",
+  "divider": {
+    "bus_at_2V_max_resistor_only": 242.595025405152,
+    "bus_at_2V_min_resistor_only": 237.35957713172908,
+    "bus_at_2V_nominal": 239.9746835443038,
+    "cases": [
+      {
+        "ADC_code": null,
+        "VIN_nominal_V": 0.0,
+        "VIN_resistor_range_V": [
+          0.0,
+          0.0
+        ],
+        "bus_V": 0,
+        "ideal_OUTN_V": 1.44,
+        "ideal_OUTP_V": 1.44,
+        "reason": "no defined ADC receiver/calibration; outside linear range at 280 V"
+      },
+      {
+        "ADC_code": null,
+        "VIN_nominal_V": 1.6501740689946198,
+        "VIN_resistor_range_V": [
+          1.632350042374736,
+          1.6683548428308377
+        ],
+        "bus_V": 198,
+        "ideal_OUTN_V": 0.61491296550269,
+        "ideal_OUTP_V": 2.2650870344973097,
+        "reason": "no defined ADC receiver/calibration; outside linear range at 280 V"
+      },
+      {
+        "ADC_code": null,
+        "VIN_nominal_V": 2.333579491507543,
+        "VIN_resistor_range_V": [
+          2.3083737972976066,
+          2.3592896767304774
+        ],
+        "bus_V": 280,
+        "ideal_OUTN_V": null,
+        "ideal_OUTP_V": null,
+        "reason": "no defined ADC receiver/calibration; outside linear range at 280 V"
+      }
+    ],
+    "nominal_ratio": 0.008334212469669797,
+    "ratio_max_resistor_only": 0.008426034559751706,
+    "ratio_min_resistor_only": 0.008244192133205737
+  },
+  "fault": {
+    "U13_high_min_100uA_V": 3.0349999999999997,
+    "U13_low_guarantee_3V_16mA_V": 0.4,
+    "interlock_high_required_V": 2.7,
+    "interlock_low_required_V": 0.3,
+    "pullup_max_uA": 350.0,
+    "pullup_min_for_high_level_V": 2.933
+  },
+  "ground_contacts": [
+    2,
+    4,
+    15,
+    16
+  ],
+  "power_board_V3V3_selected_subtotal_mA": 41.65714650768705,
+  "power_board_V3V3_selected_terms_mA": {
+    "R40_R41_bias_max_mA": 1.734234234234234,
+    "R43_R44_R45_R46_references_max_mA": 0.5207910613316018,
+    "R8_R16_DIS_pullups_max_mA": 21.212121212121215,
+    "U10_U11_U12_IQ_max_mA": 0.18,
+    "U13_ICC_max_mA": 0.01,
+    "U1_U2_ICC_selected_DC_max_mA": 9.6,
+    "U4_IDD2_max_mA": 7.2,
+    "U9_ICC2_DC_max_mA": 1.2
+  }
+}

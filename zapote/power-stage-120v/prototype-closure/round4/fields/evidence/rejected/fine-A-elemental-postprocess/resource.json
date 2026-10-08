@@ -1,0 +1,12 @@
+{
+  "status": "SYSTEM_SWAP_GROWTH_GT_256MiB",
+  "rss_limit_gib": 16.0,
+  "time_limit_s": 3600.0,
+  "initial_used_swap_bytes": 11189092352,
+  "initial_swapout_bytes": 112829792256,
+  "elapsed_s": 1198.69974775007,
+  "peak_tree_rss_gib": 12.894012451171875,
+  "peak_used_swap_growth_bytes": 585493381,
+  "new_swapout_bytes": 921108480,
+  "exit_code": -15
+}

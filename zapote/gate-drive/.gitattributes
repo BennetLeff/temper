@@ -1,0 +1,9 @@
+*.step -diff -whitespace
+*.stderr -whitespace
+*.stdout -whitespace
+stdout.txt -whitespace
+stderr.txt -whitespace
+*.svg -whitespace
+*.log -whitespace
+source-build-09/** -whitespace
+libraries/** -whitespace

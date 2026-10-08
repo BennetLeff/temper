@@ -1,0 +1,1185 @@
+{
+  "schema": "zapote.rtd.bom-audit.v1",
+  "component_count": 33,
+  "source": {
+    "design_source": "elec/src/modules.ato",
+    "source_sha256": "49d3d7df1cd0fb0e49d07504bac10df3ca2b093cd1dec5570c22b6b05aacb625",
+    "compiled_source_manifest": "zapote/rtd/evidence/source-02/generated/source-manifest.json",
+    "manifest_sha256": "3a09d338ba7d2ae05f10c6e2888ae86cf97df0303b6df56b46af7d0ea9e6d93b",
+    "manifest_status": "available",
+    "canonical_top": "zapote/rtd/evidence/source-02/top-source",
+    "generated_at": "2026-09-10"
+  },
+  "summary": {
+    "resistors": 17,
+    "capacitors": 8,
+    "ics": 6,
+    "connector": 1,
+    "ferrite_bead": 1,
+    "known_source_discrepancies": [
+      "RC0603FR-0733RL: modules.ato says \u00b15%; YAGEO exact MPN sheet says \u00b11%"
+    ],
+    "pending_checks": [
+      "verify all 33 footprints and pad maps against the post-source-02 board export",
+      "evaluate X7R DC-bias capacitance at the actual rail"
+    ]
+  },
+  "components": [
+    {
+      "instance_path": "rtd_pan.c_vdd",
+      "reference": "C29",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "origins": {
+        "value": "resolved-attr",
+        "reference": "netlist",
+        "mpn": "resolved-attr+csv",
+        "footprint": "resolved-attr"
+      },
+      "source_02": {
+        "reference": "C29",
+        "source_value": "100nF",
+        "source_footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "origins": {
+          "value": "resolved-attr",
+          "reference": "netlist",
+          "mpn": "resolved-attr+csv",
+          "footprint": "resolved-attr"
+        }
+      },
+      "catalog": {
+        "category": "capacitor",
+        "catalog_value": "0.1 \u00b5F (100 nF)",
+        "catalog_tolerance": "\u00b110%",
+        "dielectric": "X7R",
+        "rated_voltage": "50 VDC",
+        "temperature_range": "-55..+125 \u00b0C",
+        "package": "0603 / 1608",
+        "notes": "Source declares 10 V minimum; catalog MPN is 50 V. Evaluate DC-bias capacitance at the actual rail."
+      },
+      "evidence_url": "https://search.kemet.com/component-documentation/download/specsheet/C0603C104K5RACTU",
+      "audit_status": "source_and_catalog_match"
+    },
+    {
+      "instance_path": "rtd_pan.c_rtd_input",
+      "reference": "C30",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C102J5GACTU",
+      "value": "1nF",
+      "origins": {
+        "value": "resolved-attr",
+        "footprint": "resolved-attr",
+        "reference": "netlist",
+        "mpn": "resolved-attr+csv"
+      },
+      "source_02": {
+        "reference": "C30",
+        "source_value": "1nF",
+        "source_footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "origins": {
+          "value": "resolved-attr",
+          "footprint": "resolved-attr",
+          "reference": "netlist",
+          "mpn": "resolved-attr+csv"
+        }
+      },
+      "catalog": {
+        "category": "capacitor",
+        "catalog_value": "1000 pF (1 nF)",
+        "catalog_tolerance": "\u00b15%",
+        "dielectric": "C0G",
+        "rated_voltage": "50 VDC",
+        "temperature_range": "-55..+125 \u00b0C",
+        "package": "0603 / 1608",
+        "notes": "TCC listed as 30 ppm/\u00b0C; no DC-bias derating expected for C0G."
+      },
+      "evidence_url": "https://search.kemet.com/component-documentation/download/specsheet/C0603C102J5GACTU",
+      "audit_status": "source_and_catalog_match"
+    },
+    {
+      "instance_path": "rtd_pan.c_reference",
+      "reference": "C31",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "origins": {
+        "footprint": "resolved-attr",
+        "reference": "netlist",
+        "mpn": "resolved-attr+csv",
+        "value": "resolved-attr"
+      },
+      "source_02": {
+        "reference": "C31",
+        "source_value": "100nF",
+        "source_footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "origins": {
+          "footprint": "resolved-attr",
+          "reference": "netlist",
+          "mpn": "resolved-attr+csv",
+          "value": "resolved-attr"
+        }
+      },
+      "catalog": {
+        "category": "capacitor",
+        "catalog_value": "0.1 \u00b5F (100 nF)",
+        "catalog_tolerance": "\u00b110%",
+        "dielectric": "X7R",
+        "rated_voltage": "50 VDC",
+        "temperature_range": "-55..+125 \u00b0C",
+        "package": "0603 / 1608",
+        "notes": "Source declares 10 V minimum; catalog MPN is 50 V. Evaluate DC-bias capacitance at the actual rail."
+      },
+      "evidence_url": "https://search.kemet.com/component-documentation/download/specsheet/C0603C104K5RACTU",
+      "audit_status": "source_and_catalog_match"
+    },
+    {
+      "instance_path": "rtd_pan.c_low_window",
+      "reference": "C32",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "origins": {
+        "value": "resolved-attr",
+        "footprint": "resolved-attr",
+        "reference": "netlist",
+        "mpn": "resolved-attr+csv"
+      },
+      "source_02": {
+        "reference": "C32",
+        "source_value": "100nF",
+        "source_footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "origins": {
+          "value": "resolved-attr",
+          "footprint": "resolved-attr",
+          "reference": "netlist",
+          "mpn": "resolved-attr+csv"
+        }
+      },
+      "catalog": {
+        "category": "capacitor",
+        "catalog_value": "0.1 \u00b5F (100 nF)",
+        "catalog_tolerance": "\u00b110%",
+        "dielectric": "X7R",
+        "rated_voltage": "50 VDC",
+        "temperature_range": "-55..+125 \u00b0C",
+        "package": "0603 / 1608",
+        "notes": "Source declares 10 V minimum; catalog MPN is 50 V. Evaluate DC-bias capacitance at the actual rail."
+      },
+      "evidence_url": "https://search.kemet.com/component-documentation/download/specsheet/C0603C104K5RACTU",
+      "audit_status": "source_and_catalog_match"
+    },
+    {
+      "instance_path": "rtd_pan.c_high_window",
+      "reference": "C33",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "origins": {
+        "footprint": "resolved-attr",
+        "value": "resolved-attr",
+        "reference": "netlist",
+        "mpn": "resolved-attr+csv"
+      },
+      "source_02": {
+        "reference": "C33",
+        "source_value": "100nF",
+        "source_footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "origins": {
+          "footprint": "resolved-attr",
+          "value": "resolved-attr",
+          "reference": "netlist",
+          "mpn": "resolved-attr+csv"
+        }
+      },
+      "catalog": {
+        "category": "capacitor",
+        "catalog_value": "0.1 \u00b5F (100 nF)",
+        "catalog_tolerance": "\u00b110%",
+        "dielectric": "X7R",
+        "rated_voltage": "50 VDC",
+        "temperature_range": "-55..+125 \u00b0C",
+        "package": "0603 / 1608",
+        "notes": "Source declares 10 V minimum; catalog MPN is 50 V. Evaluate DC-bias capacitance at the actual rail."
+      },
+      "evidence_url": "https://search.kemet.com/component-documentation/download/specsheet/C0603C104K5RACTU",
+      "audit_status": "source_and_catalog_match"
+    },
+    {
+      "instance_path": "rtd_pan.c_window_and",
+      "reference": "C34",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "source_02": {
+        "reference": "C34",
+        "source_value": "100nF",
+        "source_footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "origins": {
+          "footprint": "resolved-attr",
+          "mpn": "resolved-attr+csv",
+          "reference": "netlist",
+          "value": "resolved-attr"
+        }
+      },
+      "catalog": {
+        "category": "capacitor",
+        "catalog_value": "0.1 \u00b5F (100 nF)",
+        "catalog_tolerance": "\u00b110%",
+        "dielectric": "X7R",
+        "rated_voltage": "50 VDC",
+        "temperature_range": "-55..+125 \u00b0C",
+        "package": "0603 / 1608",
+        "notes": "Source declares 10 V minimum; catalog MPN is 50 V. Evaluate DC-bias capacitance at the actual rail."
+      },
+      "evidence_url": "https://search.kemet.com/component-documentation/download/specsheet/C0603C104K5RACTU",
+      "audit_status": "source_and_catalog_match"
+    },
+    {
+      "instance_path": "rtd_pan.c_rail_monitor",
+      "reference": "C35",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "origins": {
+        "mpn": "resolved-attr+csv",
+        "value": "resolved-attr",
+        "footprint": "resolved-attr",
+        "reference": "netlist"
+      },
+      "source_02": {
+        "reference": "C35",
+        "source_value": "100nF",
+        "source_footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "origins": {
+          "mpn": "resolved-attr+csv",
+          "value": "resolved-attr",
+          "footprint": "resolved-attr",
+          "reference": "netlist"
+        }
+      },
+      "catalog": {
+        "category": "capacitor",
+        "catalog_value": "0.1 \u00b5F (100 nF)",
+        "catalog_tolerance": "\u00b110%",
+        "dielectric": "X7R",
+        "rated_voltage": "50 VDC",
+        "temperature_range": "-55..+125 \u00b0C",
+        "package": "0603 / 1608",
+        "notes": "Source declares 10 V minimum; catalog MPN is 50 V. Evaluate DC-bias capacitance at the actual rail."
+      },
+      "evidence_url": "https://search.kemet.com/component-documentation/download/specsheet/C0603C104K5RACTU",
+      "audit_status": "source_and_catalog_match"
+    },
+    {
+      "instance_path": "rtd_pan.c_fault_nand",
+      "reference": "C36",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "origins": {
+        "value": "resolved-attr",
+        "reference": "netlist",
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv"
+      },
+      "source_02": {
+        "reference": "C36",
+        "source_value": "100nF",
+        "source_footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "origins": {
+          "value": "resolved-attr",
+          "reference": "netlist",
+          "footprint": "resolved-attr",
+          "mpn": "resolved-attr+csv"
+        }
+      },
+      "catalog": {
+        "category": "capacitor",
+        "catalog_value": "0.1 \u00b5F (100 nF)",
+        "catalog_tolerance": "\u00b110%",
+        "dielectric": "X7R",
+        "rated_voltage": "50 VDC",
+        "temperature_range": "-55..+125 \u00b0C",
+        "package": "0603 / 1608",
+        "notes": "Source declares 10 V minimum; catalog MPN is 50 V. Evaluate DC-bias capacitance at the actual rail."
+      },
+      "evidence_url": "https://search.kemet.com/component-documentation/download/specsheet/C0603C104K5RACTU",
+      "audit_status": "source_and_catalog_match"
+    },
+    {
+      "instance_path": "rtd_pan.j_rtd1",
+      "reference": "J1",
+      "footprint": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical",
+      "mpn": "B4B-XH-A(LF)(SN)",
+      "value": null,
+      "origins": {
+        "reference": "netlist",
+        "mpn": "resolved-attr+csv",
+        "footprint": "resolved-attr"
+      },
+      "source_02": {
+        "reference": "J1",
+        "source_value": null,
+        "source_footprint": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical",
+        "origins": {
+          "reference": "netlist",
+          "mpn": "resolved-attr+csv",
+          "footprint": "resolved-attr"
+        }
+      },
+      "catalog": {
+        "category": "connector",
+        "catalog_value": "4 circuits, 2.50 mm pitch",
+        "package": "JST XH through-hole vertical",
+        "notes": "JST product search confirms B4B-XH-A and LF/SN label marking."
+      },
+      "evidence_url": "https://www.jst-mfg.com/product/index.php?lang=2&search_product=B4B-XH-A&type=1",
+      "audit_status": "source_and_catalog_match"
+    },
+    {
+      "instance_path": "rtd_pan.r_ref",
+      "reference": "R28",
+      "footprint": "Resistor_SMD:R_0805_2012Metric",
+      "mpn": "ERA-6AEB431V",
+      "value": "430ohm +/- 0.1%",
+      "origins": {
+        "footprint": "resolved-attr",
+        "value": "resolved-attr",
+        "reference": "netlist",
+        "mpn": "resolved-attr+csv"
+      },
+      "source_02": {
+        "reference": "R28",
+        "source_value": "430ohm +/- 0.1%",
+        "source_footprint": "Resistor_SMD:R_0805_2012Metric",
+        "origins": {
+          "footprint": "resolved-attr",
+          "value": "resolved-attr",
+          "reference": "netlist",
+          "mpn": "resolved-attr+csv"
+        }
+      },
+      "catalog": {
+        "category": "resistor",
+        "catalog_value": "430 \u03a9",
+        "catalog_tolerance": "\u00b10.1%",
+        "tcr": "\u00b125 ppm/\u00b0C",
+        "power": "0.125 W",
+        "voltage": "100 V",
+        "temperature_range": "-55..+155 \u00b0C",
+        "package": "0805 / 2012",
+        "notes": "Panasonic high-reliability thin-film; critical MAX31865 RREF."
+      },
+      "evidence_url": "https://industrial.panasonic.com/ww/products/pt/high-precision-chip-resistors/models/ERA6AEB431V",
+      "audit_status": "source_and_catalog_match"
+    },
+    {
+      "instance_path": "rtd_pan.r_rtdin_p_bias",
+      "reference": "R29",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603JR-071ML",
+      "value": "1Mohm +/- 5%",
+      "origins": {
+        "footprint": "resolved-attr",
+        "reference": "netlist",
+        "mpn": "resolved-attr+csv",
+        "value": "resolved-attr"
+      },
+      "source_02": {
+        "reference": "R29",
+        "source_value": "1Mohm +/- 5%",
+        "source_footprint": "Resistor_SMD:R_0603_1608Metric",
+        "origins": {
+          "footprint": "resolved-attr",
+          "reference": "netlist",
+          "mpn": "resolved-attr+csv",
+          "value": "resolved-attr"
+        }
+      },
+      "catalog": {
+        "category": "resistor",
+        "catalog_value": "1 M\u03a9",
+        "catalog_tolerance": "\u00b15%",
+        "tcr": "\u00b1100 ppm/\u00b0C",
+        "power": "0.1 W at 70 \u00b0C",
+        "voltage": "75 V continuous; 150 V overload",
+        "temperature_range": "-55..+155 \u00b0C",
+        "package": "0603 / 1608",
+        "notes": "Exact manufacturer sheet; diagnostic bias part."
+      },
+      "evidence_url": "https://www.yageogroup.com/component-documentation/download/specsheet/RC0603JR-071ML",
+      "audit_status": "source_and_catalog_match"
+    },
+    {
+      "instance_path": "rtd_pan.r_rtdin_n_bias",
+      "reference": "R31",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603JR-071ML",
+      "value": "1Mohm +/- 5%",
+      "origins": {
+        "mpn": "resolved-attr+csv",
+        "footprint": "resolved-attr",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "source_02": {
+        "reference": "R31",
+        "source_value": "1Mohm +/- 5%",
+        "source_footprint": "Resistor_SMD:R_0603_1608Metric",
+        "origins": {
+          "mpn": "resolved-attr+csv",
+          "footprint": "resolved-attr",
+          "reference": "netlist",
+          "value": "resolved-attr"
+        }
+      },
+      "catalog": {
+        "category": "resistor",
+        "catalog_value": "1 M\u03a9",
+        "catalog_tolerance": "\u00b15%",
+        "tcr": "\u00b1100 ppm/\u00b0C",
+        "power": "0.1 W at 70 \u00b0C",
+        "voltage": "75 V continuous; 150 V overload",
+        "temperature_range": "-55..+155 \u00b0C",
+        "package": "0603 / 1608",
+        "notes": "Exact manufacturer sheet; diagnostic bias part."
+      },
+      "evidence_url": "https://www.yageogroup.com/component-documentation/download/specsheet/RC0603JR-071ML",
+      "audit_status": "source_and_catalog_match"
+    },
+    {
+      "instance_path": "rtd_pan.r_sclk",
+      "reference": "R32",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0733RL",
+      "value": "33ohm +/- 5%",
+      "origins": {
+        "mpn": "resolved-attr+csv",
+        "value": "resolved-attr",
+        "reference": "netlist",
+        "footprint": "resolved-attr"
+      },
+      "source_02": {
+        "reference": "R32",
+        "source_value": "33ohm +/- 5%",
+        "source_footprint": "Resistor_SMD:R_0603_1608Metric",
+        "origins": {
+          "mpn": "resolved-attr+csv",
+          "value": "resolved-attr",
+          "reference": "netlist",
+          "footprint": "resolved-attr"
+        }
+      },
+      "catalog": {
+        "category": "resistor",
+        "catalog_value": "33 \u03a9",
+        "catalog_tolerance": "\u00b11%",
+        "tcr": "\u00b1100 ppm/\u00b0C",
+        "power": "0.1 W at 70 \u00b0C",
+        "voltage": "75 V continuous; 150 V overload",
+        "temperature_range": "-55..+155 \u00b0C",
+        "package": "0603 / 1608",
+        "notes": "SOURCE DISCREPANCY: modules.ato claims \u00b15%; manufacturer exact MPN is \u00b11%."
+      },
+      "evidence_url": "https://www.yageogroup.com/component-documentation/download/specsheet/RC0603FR-0733RL",
+      "audit_status": "source_tolerance_mismatch"
+    },
+    {
+      "instance_path": "rtd_pan.r_mosi",
+      "reference": "R33",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0733RL",
+      "value": "33ohm +/- 5%",
+      "origins": {
+        "mpn": "resolved-attr+csv",
+        "value": "resolved-attr",
+        "reference": "netlist",
+        "footprint": "resolved-attr"
+      },
+      "source_02": {
+        "reference": "R33",
+        "source_value": "33ohm +/- 5%",
+        "source_footprint": "Resistor_SMD:R_0603_1608Metric",
+        "origins": {
+          "mpn": "resolved-attr+csv",
+          "value": "resolved-attr",
+          "reference": "netlist",
+          "footprint": "resolved-attr"
+        }
+      },
+      "catalog": {
+        "category": "resistor",
+        "catalog_value": "33 \u03a9",
+        "catalog_tolerance": "\u00b11%",
+        "tcr": "\u00b1100 ppm/\u00b0C",
+        "power": "0.1 W at 70 \u00b0C",
+        "voltage": "75 V continuous; 150 V overload",
+        "temperature_range": "-55..+155 \u00b0C",
+        "package": "0603 / 1608",
+        "notes": "SOURCE DISCREPANCY: modules.ato claims \u00b15%; manufacturer exact MPN is \u00b11%."
+      },
+      "evidence_url": "https://www.yageogroup.com/component-documentation/download/specsheet/RC0603FR-0733RL",
+      "audit_status": "source_tolerance_mismatch"
+    },
+    {
+      "instance_path": "rtd_pan.r_cs",
+      "reference": "R34",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0733RL",
+      "value": "33ohm +/- 5%",
+      "origins": {
+        "reference": "netlist",
+        "footprint": "resolved-attr",
+        "value": "resolved-attr",
+        "mpn": "resolved-attr+csv"
+      },
+      "source_02": {
+        "reference": "R34",
+        "source_value": "33ohm +/- 5%",
+        "source_footprint": "Resistor_SMD:R_0603_1608Metric",
+        "origins": {
+          "reference": "netlist",
+          "footprint": "resolved-attr",
+          "value": "resolved-attr",
+          "mpn": "resolved-attr+csv"
+        }
+      },
+      "catalog": {
+        "category": "resistor",
+        "catalog_value": "33 \u03a9",
+        "catalog_tolerance": "\u00b11%",
+        "tcr": "\u00b1100 ppm/\u00b0C",
+        "power": "0.1 W at 70 \u00b0C",
+        "voltage": "75 V continuous; 150 V overload",
+        "temperature_range": "-55..+155 \u00b0C",
+        "package": "0603 / 1608",
+        "notes": "SOURCE DISCREPANCY: modules.ato claims \u00b15%; manufacturer exact MPN is \u00b11%."
+      },
+      "evidence_url": "https://www.yageogroup.com/component-documentation/download/specsheet/RC0603FR-0733RL",
+      "audit_status": "source_tolerance_mismatch"
+    },
+    {
+      "instance_path": "rtd_pan.r_miso",
+      "reference": "R35",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0733RL",
+      "value": "33ohm +/- 5%",
+      "origins": {
+        "reference": "netlist",
+        "mpn": "resolved-attr+csv",
+        "value": "resolved-attr",
+        "footprint": "resolved-attr"
+      },
+      "source_02": {
+        "reference": "R35",
+        "source_value": "33ohm +/- 5%",
+        "source_footprint": "Resistor_SMD:R_0603_1608Metric",
+        "origins": {
+          "reference": "netlist",
+          "mpn": "resolved-attr+csv",
+          "value": "resolved-attr",
+          "footprint": "resolved-attr"
+        }
+      },
+      "catalog": {
+        "category": "resistor",
+        "catalog_value": "33 \u03a9",
+        "catalog_tolerance": "\u00b11%",
+        "tcr": "\u00b1100 ppm/\u00b0C",
+        "power": "0.1 W at 70 \u00b0C",
+        "voltage": "75 V continuous; 150 V overload",
+        "temperature_range": "-55..+155 \u00b0C",
+        "package": "0603 / 1608",
+        "notes": "SOURCE DISCREPANCY: modules.ato claims \u00b15%; manufacturer exact MPN is \u00b11%."
+      },
+      "evidence_url": "https://www.yageogroup.com/component-documentation/download/specsheet/RC0603FR-0733RL",
+      "audit_status": "source_tolerance_mismatch"
+    },
+    {
+      "instance_path": "rtd_pan.fb_power",
+      "reference": "R36",
+      "footprint": "Inductor_SMD:L_0603_1608Metric",
+      "mpn": "BLM18AG121SN1D",
+      "value": "120ohm",
+      "origins": {
+        "value": "resolved-attr",
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      },
+      "source_02": {
+        "reference": "R36",
+        "source_value": "120ohm",
+        "source_footprint": "Inductor_SMD:L_0603_1608Metric",
+        "origins": {
+          "value": "resolved-attr",
+          "footprint": "resolved-attr",
+          "mpn": "resolved-attr+csv",
+          "reference": "netlist"
+        }
+      },
+      "catalog": {
+        "category": "ferrite_bead",
+        "catalog_value": "120 \u03a9 typical impedance at 100 MHz",
+        "impedance": "120 \u03a9 @100 MHz typical",
+        "dc_resistance": "0.18 \u03a9 max",
+        "rated_current": "800 mA",
+        "package": "0603 / 1608",
+        "notes": "Murata general-use bead; source models it as a Resistor placeholder. Verify bead symbol/type before release."
+      },
+      "evidence_url": "https://www.murata.com/products/productdata/8818142019614/ENFA2345.pdf",
+      "audit_status": "source_and_catalog_match"
+    },
+    {
+      "instance_path": "rtd_pan.r_low_top",
+      "reference": "R37",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "ERA-3AEB6192V",
+      "value": "61.9kohm +/- 0.1%",
+      "origins": {
+        "reference": "netlist",
+        "value": "resolved-attr",
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv"
+      },
+      "source_02": {
+        "reference": "R37",
+        "source_value": "61.9kohm +/- 0.1%",
+        "source_footprint": "Resistor_SMD:R_0603_1608Metric",
+        "origins": {
+          "reference": "netlist",
+          "value": "resolved-attr",
+          "footprint": "resolved-attr",
+          "mpn": "resolved-attr+csv"
+        }
+      },
+      "catalog": {
+        "category": "resistor",
+        "catalog_value": "61.9 k\u03a9",
+        "catalog_tolerance": "\u00b10.1%",
+        "tcr": "\u00b125 ppm/\u00b0C",
+        "power": "0.1 W",
+        "voltage": "75 V",
+        "temperature_range": "-55..+155 \u00b0C",
+        "package": "0603 / 1608"
+      },
+      "evidence_url": "https://industrial.panasonic.com/ww/products/pt/high-precision-chip-resistors/models/ERA3AEB6192V",
+      "audit_status": "source_and_catalog_match"
+    },
+    {
+      "instance_path": "rtd_pan.r_low_bottom",
+      "reference": "R38",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "ERA-3AEB103V",
+      "value": "10kohm +/- 0.1%",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "source_02": {
+        "reference": "R38",
+        "source_value": "10kohm +/- 0.1%",
+        "source_footprint": "Resistor_SMD:R_0603_1608Metric",
+        "origins": {
+          "footprint": "resolved-attr",
+          "mpn": "resolved-attr+csv",
+          "reference": "netlist",
+          "value": "resolved-attr"
+        }
+      },
+      "catalog": {
+        "category": "resistor",
+        "catalog_value": "10 k\u03a9",
+        "catalog_tolerance": "\u00b10.1%",
+        "tcr": "\u00b125 ppm/\u00b0C",
+        "power": "0.1 W",
+        "voltage": "75 V",
+        "temperature_range": "-55..+155 \u00b0C",
+        "package": "0603 / 1608"
+      },
+      "evidence_url": "https://industrial.panasonic.com/ww/products/pt/high-precision-chip-resistors/models/ERA3AEB103V",
+      "audit_status": "source_and_catalog_match"
+    },
+    {
+      "instance_path": "rtd_pan.r_high_top",
+      "reference": "R39",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "ERA-3AEB5901V",
+      "value": "5.9kohm +/- 0.1%",
+      "origins": {
+        "mpn": "resolved-attr+csv",
+        "footprint": "resolved-attr",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "source_02": {
+        "reference": "R39",
+        "source_value": "5.9kohm +/- 0.1%",
+        "source_footprint": "Resistor_SMD:R_0603_1608Metric",
+        "origins": {
+          "mpn": "resolved-attr+csv",
+          "footprint": "resolved-attr",
+          "reference": "netlist",
+          "value": "resolved-attr"
+        }
+      },
+      "catalog": {
+        "category": "resistor",
+        "catalog_value": "5.9 k\u03a9",
+        "catalog_tolerance": "\u00b10.1%",
+        "tcr": "\u00b125 ppm/\u00b0C",
+        "power": "0.1 W",
+        "voltage": "75 V",
+        "temperature_range": "-55..+155 \u00b0C",
+        "package": "0603 / 1608"
+      },
+      "evidence_url": "https://industrial.panasonic.com/ww/products/pt/high-precision-chip-resistors/models/ERA3AEB5901V",
+      "audit_status": "source_and_catalog_match"
+    },
+    {
+      "instance_path": "rtd_pan.r_high_bottom",
+      "reference": "R40",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "ERA-3AEB103V",
+      "value": "10kohm +/- 0.1%",
+      "origins": {
+        "reference": "netlist",
+        "mpn": "resolved-attr+csv",
+        "footprint": "resolved-attr",
+        "value": "resolved-attr"
+      },
+      "source_02": {
+        "reference": "R40",
+        "source_value": "10kohm +/- 0.1%",
+        "source_footprint": "Resistor_SMD:R_0603_1608Metric",
+        "origins": {
+          "reference": "netlist",
+          "mpn": "resolved-attr+csv",
+          "footprint": "resolved-attr",
+          "value": "resolved-attr"
+        }
+      },
+      "catalog": {
+        "category": "resistor",
+        "catalog_value": "10 k\u03a9",
+        "catalog_tolerance": "\u00b10.1%",
+        "tcr": "\u00b125 ppm/\u00b0C",
+        "power": "0.1 W",
+        "voltage": "75 V",
+        "temperature_range": "-55..+155 \u00b0C",
+        "package": "0603 / 1608"
+      },
+      "evidence_url": "https://industrial.panasonic.com/ww/products/pt/high-precision-chip-resistors/models/ERA3AEB103V",
+      "audit_status": "source_and_catalog_match"
+    },
+    {
+      "instance_path": "rtd_pan.r_window_ok_pulldown",
+      "reference": "R41",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-07100KL",
+      "value": "100kohm +/- 1%",
+      "origins": {
+        "footprint": "resolved-attr",
+        "reference": "netlist",
+        "mpn": "resolved-attr+csv",
+        "value": "resolved-attr"
+      },
+      "source_02": {
+        "reference": "R41",
+        "source_value": "100kohm +/- 1%",
+        "source_footprint": "Resistor_SMD:R_0603_1608Metric",
+        "origins": {
+          "footprint": "resolved-attr",
+          "reference": "netlist",
+          "mpn": "resolved-attr+csv",
+          "value": "resolved-attr"
+        }
+      },
+      "catalog": {
+        "category": "resistor",
+        "catalog_value": "100 k\u03a9",
+        "catalog_tolerance": "\u00b11%",
+        "tcr": "\u00b1100 ppm/\u00b0C",
+        "power": "0.1 W at 70 \u00b0C",
+        "voltage": "75 V continuous; 150 V overload",
+        "temperature_range": "-55..+155 \u00b0C",
+        "package": "0603 / 1608"
+      },
+      "evidence_url": "https://www.yageogroup.com/component-documentation/download/specsheet/RC0603FR-07100KL",
+      "audit_status": "source_and_catalog_match"
+    },
+    {
+      "instance_path": "rtd_pan.r_avdd_top",
+      "reference": "R42",
+      "footprint": "Resistor_SMD:R_0805_2012Metric",
+      "mpn": "ERA-6AEB6193V",
+      "value": "619kohm +/- 0.1%",
+      "origins": {
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr",
+        "footprint": "resolved-attr"
+      },
+      "source_02": {
+        "reference": "R42",
+        "source_value": "619kohm +/- 0.1%",
+        "source_footprint": "Resistor_SMD:R_0805_2012Metric",
+        "origins": {
+          "mpn": "resolved-attr+csv",
+          "reference": "netlist",
+          "value": "resolved-attr",
+          "footprint": "resolved-attr"
+        }
+      },
+      "catalog": {
+        "category": "resistor",
+        "catalog_value": "619 k\u03a9",
+        "catalog_tolerance": "\u00b10.1%",
+        "tcr": "\u00b125 ppm/\u00b0C",
+        "power": "0.125 W",
+        "voltage": "100 V",
+        "temperature_range": "-55..+155 \u00b0C",
+        "package": "0805 / 2012"
+      },
+      "evidence_url": "https://industrial.panasonic.com/ww/products/pt/high-precision-chip-resistors/models/ERA6AEB6193V",
+      "audit_status": "source_and_catalog_match"
+    },
+    {
+      "instance_path": "rtd_pan.r_avdd_bottom",
+      "reference": "R43",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "ERA-3AEB104V",
+      "value": "100kohm +/- 0.1%",
+      "origins": {
+        "reference": "netlist",
+        "mpn": "resolved-attr+csv",
+        "value": "resolved-attr",
+        "footprint": "resolved-attr"
+      },
+      "source_02": {
+        "reference": "R43",
+        "source_value": "100kohm +/- 0.1%",
+        "source_footprint": "Resistor_SMD:R_0603_1608Metric",
+        "origins": {
+          "reference": "netlist",
+          "mpn": "resolved-attr+csv",
+          "value": "resolved-attr",
+          "footprint": "resolved-attr"
+        }
+      },
+      "catalog": {
+        "category": "resistor",
+        "catalog_value": "100 k\u03a9",
+        "catalog_tolerance": "\u00b10.1%",
+        "tcr": "\u00b125 ppm/\u00b0C",
+        "power": "0.1 W",
+        "voltage": "75 V",
+        "temperature_range": "-55..+155 \u00b0C",
+        "package": "0603 / 1608"
+      },
+      "evidence_url": "https://industrial.panasonic.com/ww/products/pt/high-precision-chip-resistors/models/ERA3AEB104V",
+      "audit_status": "source_and_catalog_match"
+    },
+    {
+      "instance_path": "rtd_pan.r_rail_ok_pullup",
+      "reference": "R44",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0710KL",
+      "value": "10kohm +/- 1%",
+      "origins": {
+        "reference": "netlist",
+        "value": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "footprint": "resolved-attr"
+      },
+      "source_02": {
+        "reference": "R44",
+        "source_value": "10kohm +/- 1%",
+        "source_footprint": "Resistor_SMD:R_0603_1608Metric",
+        "origins": {
+          "reference": "netlist",
+          "value": "resolved-attr",
+          "mpn": "resolved-attr+csv",
+          "footprint": "resolved-attr"
+        }
+      },
+      "catalog": {
+        "category": "resistor",
+        "catalog_value": "10 k\u03a9",
+        "catalog_tolerance": "\u00b11%",
+        "tcr": "\u00b1100 ppm/\u00b0C",
+        "power": "0.1 W at 70 \u00b0C",
+        "voltage": "75 V continuous; 150 V overload",
+        "temperature_range": "-55..+155 \u00b0C",
+        "package": "0603 / 1608"
+      },
+      "evidence_url": "https://www.yageogroup.com/component-documentation/download/specsheet/RC0603FR-0710KL",
+      "audit_status": "source_and_catalog_match"
+    },
+    {
+      "instance_path": "rtd_pan.r_fault_pullup",
+      "reference": "R45",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0710KL",
+      "value": "10kohm +/- 1%",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "value": "resolved-attr",
+        "reference": "netlist"
+      },
+      "source_02": {
+        "reference": "R45",
+        "source_value": "10kohm +/- 1%",
+        "source_footprint": "Resistor_SMD:R_0603_1608Metric",
+        "origins": {
+          "footprint": "resolved-attr",
+          "mpn": "resolved-attr+csv",
+          "value": "resolved-attr",
+          "reference": "netlist"
+        }
+      },
+      "catalog": {
+        "category": "resistor",
+        "catalog_value": "10 k\u03a9",
+        "catalog_tolerance": "\u00b11%",
+        "tcr": "\u00b1100 ppm/\u00b0C",
+        "power": "0.1 W at 70 \u00b0C",
+        "voltage": "75 V continuous; 150 V overload",
+        "temperature_range": "-55..+155 \u00b0C",
+        "package": "0603 / 1608"
+      },
+      "evidence_url": "https://www.yageogroup.com/component-documentation/download/specsheet/RC0603FR-0710KL",
+      "audit_status": "source_and_catalog_match"
+    },
+    {
+      "instance_path": "rtd_pan.low_window",
+      "reference": "U10",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "mpn": "TLV3201AIDBVR",
+      "value": null,
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      },
+      "source_02": {
+        "reference": "U10",
+        "source_value": null,
+        "source_footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "origins": {
+          "footprint": "resolved-attr",
+          "mpn": "resolved-attr+csv",
+          "reference": "netlist"
+        }
+      },
+      "catalog": {
+        "category": "comparator",
+        "catalog_value": "single push-pull comparator",
+        "package": "SOT-23 (DBV), 5 pin",
+        "supply": "1.8..5.5 V",
+        "temperature_range": "-40..+125 \u00b0C"
+      },
+      "evidence_url": "https://www.ti.com/product/TLV3201/part-details/TLV3201AIDBVR",
+      "audit_status": "source_and_catalog_match"
+    },
+    {
+      "instance_path": "rtd_pan.high_window",
+      "reference": "U11",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "mpn": "TLV3201AIDBVR",
+      "value": null,
+      "origins": {
+        "reference": "netlist",
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv"
+      },
+      "source_02": {
+        "reference": "U11",
+        "source_value": null,
+        "source_footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "origins": {
+          "reference": "netlist",
+          "footprint": "resolved-attr",
+          "mpn": "resolved-attr+csv"
+        }
+      },
+      "catalog": {
+        "category": "comparator",
+        "catalog_value": "single push-pull comparator",
+        "package": "SOT-23 (DBV), 5 pin",
+        "supply": "1.8..5.5 V",
+        "temperature_range": "-40..+125 \u00b0C"
+      },
+      "evidence_url": "https://www.ti.com/product/TLV3201/part-details/TLV3201AIDBVR",
+      "audit_status": "source_and_catalog_match"
+    },
+    {
+      "instance_path": "rtd_pan.window_and",
+      "reference": "U12",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "mpn": "SN74LVC1G08DBVR",
+      "value": null,
+      "origins": {
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "footprint": "resolved-attr"
+      },
+      "source_02": {
+        "reference": "U12",
+        "source_value": null,
+        "source_footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "origins": {
+          "mpn": "resolved-attr+csv",
+          "reference": "netlist",
+          "footprint": "resolved-attr"
+        }
+      },
+      "catalog": {
+        "category": "logic",
+        "catalog_value": "single 2-input positive AND",
+        "package": "SOT-23 (DBV), 5 pin",
+        "supply": "1.65..5.5 V",
+        "temperature_range": "-40..+125 \u00b0C"
+      },
+      "evidence_url": "https://www.ti.com/product/SN74LVC1G08/part-details/SN74LVC1G08DBVR",
+      "audit_status": "source_and_catalog_match"
+    },
+    {
+      "instance_path": "rtd_pan.rail_monitor",
+      "reference": "U13",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+      "mpn": "TPS3700DDCR",
+      "value": null,
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      },
+      "source_02": {
+        "reference": "U13",
+        "source_value": null,
+        "source_footprint": "Package_TO_SOT_SMD:SOT-23-6",
+        "origins": {
+          "footprint": "resolved-attr",
+          "mpn": "resolved-attr+csv",
+          "reference": "netlist"
+        }
+      },
+      "catalog": {
+        "category": "voltage_monitor",
+        "catalog_value": "dual window voltage detector",
+        "package": "SOT-23 (DDC), 6 pin",
+        "supply": "1.8..18 V",
+        "temperature_range": "-40..+125 \u00b0C",
+        "notes": "Internal 400 mV reference and open-drain outputs."
+      },
+      "evidence_url": "https://www.ti.com/product/TPS3700/part-details/TPS3700DDCR",
+      "audit_status": "source_and_catalog_match"
+    },
+    {
+      "instance_path": "rtd_pan.fault_nand",
+      "reference": "U14",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "mpn": "SN74LVC1G38DBVR",
+      "value": null,
+      "origins": {
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "footprint": "resolved-attr"
+      },
+      "source_02": {
+        "reference": "U14",
+        "source_value": null,
+        "source_footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "origins": {
+          "mpn": "resolved-attr+csv",
+          "reference": "netlist",
+          "footprint": "resolved-attr"
+        }
+      },
+      "catalog": {
+        "category": "logic",
+        "catalog_value": "single 2-input open-drain NAND",
+        "package": "SOT-23 (DBV), 5 pin",
+        "supply": "1.65..5.5 V",
+        "temperature_range": "-40..+125 \u00b0C"
+      },
+      "evidence_url": "https://www.ti.com/product/SN74LVC1G38/part-details/SN74LVC1G38DBVR",
+      "audit_status": "source_and_catalog_match"
+    },
+    {
+      "instance_path": "rtd_pan.adc",
+      "reference": "U8",
+      "footprint": "Package_SO:SSOP-20_3.9x8.7mm_P0.635mm",
+      "mpn": "MAX31865AAP+",
+      "value": null,
+      "origins": {
+        "mpn": "resolved-attr+csv",
+        "footprint": "resolved-attr",
+        "reference": "netlist"
+      },
+      "source_02": {
+        "reference": "U8",
+        "source_value": null,
+        "source_footprint": "Package_SO:SSOP-20_3.9x8.7mm_P0.635mm",
+        "origins": {
+          "mpn": "resolved-attr+csv",
+          "footprint": "resolved-attr",
+          "reference": "netlist"
+        }
+      },
+      "catalog": {
+        "category": "adc",
+        "catalog_value": "RTD-to-digital converter",
+        "package": "20-pin SSOP",
+        "supply": "2.7..3.6 V",
+        "temperature_range": "-40..+125 \u00b0C"
+      },
+      "evidence_url": "https://www.analog.com/media/en/technical-documentation/data-sheets/MAX31865.pdf",
+      "audit_status": "source_and_catalog_match"
+    },
+    {
+      "instance_path": "rtd_pan.reference",
+      "reference": "U9",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "mpn": "REF2025AIDDCR",
+      "value": null,
+      "origins": {
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "footprint": "resolved-attr"
+      },
+      "source_02": {
+        "reference": "U9",
+        "source_value": null,
+        "source_footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "origins": {
+          "mpn": "resolved-attr+csv",
+          "reference": "netlist",
+          "footprint": "resolved-attr"
+        }
+      },
+      "catalog": {
+        "category": "voltage_reference",
+        "catalog_value": "2.5 V VREF / 1.25 V VBIAS",
+        "package": "SOT-23 (DDC), 5 pin",
+        "supply": "3..5.5 V",
+        "temperature_range": "-40..+125 \u00b0C",
+        "initial_accuracy": "\u00b10.05% max",
+        "tcr": "8 ppm/\u00b0C max"
+      },
+      "evidence_url": "https://www.ti.com/product/REF2025/part-details/REF2025AIDDCR",
+      "audit_status": "source_and_catalog_match"
+    }
+  ]
+}

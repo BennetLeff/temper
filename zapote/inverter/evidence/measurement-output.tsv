@@ -1,0 +1,22 @@
+id	status	reason
+coil_no_pan	INDETERMINATE	measurement absent
+coil_reference_cold	INDETERMINATE	measurement absent
+coil_reference_hot	INDETERMINATE	measurement absent
+coil_weak_pan	INDETERMINATE	measurement absent
+coil_offset	INDETERMINATE	measurement absent
+coil_lift	INDETERMINATE	measurement absent
+coil_live_removal	INDETERMINATE	measurement absent
+bus_startup	INDETERMINATE	measurement absent
+bus_loaded_ripple	INDETERMINATE	measurement absent
+bus_surge	INDETERMINATE	measurement absent
+bus_f2_open	INDETERMINATE	measurement absent
+gate_permit	INDETERMINATE	measurement absent
+gate_pwm	INDETERMINATE	measurement absent
+gate_rail15_loss	INDETERMINATE	measurement absent
+gate_3v3_loss	INDETERMINATE	measurement absent
+fault_f2_open	INDETERMINATE	measurement absent
+fault_direct_bank	INDETERMINATE	measurement absent
+part_local_cap	INDETERMINATE	measurement absent
+part_switch	INDETERMINATE	measurement absent
+part_tank_cap	INDETERMINATE	measurement absent
+OVERALL	INDETERMINATE	0 capture records; 20 missing/synthetic; 0 rejected; no native or hardware acceptance

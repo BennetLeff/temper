@@ -1,0 +1,173 @@
+RTD_AVDD monitor bounded-divider receipt
+
+Source: TPS3700 SBVS187G Rev G (TI official datasheet), which specifies
+VIT- = 387..400 mV, VIT+ = 396..404 mV over temperature and INA+ input
+current = +/-25 nA. Divider: Panasonic ERA-6AEB6983V 698 kOhm +/-0.1%,
+25 ppm/C, 0805 over ERA-3AEB104V 100 kOhm +/-0.1%, 25 ppm/C, 60 C span.
+
+For each independent corner, using Rtop/Rbottom at tolerance and opposing
+temperature-coefficient endpoints, Rth = Rtop || Rbottom, and solving
+
+    Vnode = Vrail*Rbottom/(Rtop+Rbottom) + Iin*Rth
+
+at Vnode = VIT gives:
+
+    Vrail_trip = (VIT - Iin*Rth)*(Rtop+Rbottom)/Rbottom
+
+Python command used:
+
+    python3 - <<'PY'
+    from itertools import product
+    for vt in ([.387,.400], [.396,.404]):
+        out=[]
+        for v,r1,r2,t1,t2,i in product(vt,[.999,1.001],[.999,1.001],[-.0015,.0015],[-.0015,.0015],[-25e-9,25e-9]):
+            a=698000*r1*(1+t1); b=100000*r2*(1+t2); th=a*b/(a+b)
+            out.append((v-i*th)*(a+b)/b)
+        print(min(out),max(out))
+    PY
+
+Recorded output (V):
+
+    VIT- falling trip: 3.057381000530 .. 3.223488617599
+    VIT+ rising clear: 3.128887684290 .. 3.255548567263
+
+The exact corner script used for the contract additionally prints the falling
+maximum as 3.223 and rising minimum as 3.129 after decimal rounding. The
+falling minimum is above the MAX31865 3.0 V supply minimum, and the rising
+maximum is below nominal 3.3 V. This is a bounded resistor/reference/input
+current calculation; it does not model TPS output transients, V(POR), rail
+ramp shape, PCB parasitics, or physical fault-latch behavior.
+
+Source-rail minimum and load drop
+---------------------------------
+
+The authoritative WIP buck module uses LMR51430XDDCR with 100 kOhm / 22.1
+kOhm feedback resistors and declares `power_out.voltage within 3.3 V +/- 5%`
+and `v_out_calculated within 3.135 V to 3.465 V`. A direct feedback corner
+calculation using LMR51430 VFB=0.591..0.609 V, +/-1% resistor tolerance,
+opposing +/-100 ppm/C feedback-resistor TCR over 60 C, and +/-50 nA maximum FB
+leakage gives 3.176066..3.459346 V. The lower source contract bound, 3.135 V,
+is therefore the conservative rail floor because it also covers regulation
+and load behavior not represented by the static feedback equation.
+
+Feedback-corner command output:
+
+    nominal Vout = 0.6 * (1 + 100000/22100) = 3.314932 V
+    corner Vout (including +/-50 nA FB leakage) = 3.176066 .. 3.459346 V
+    declared source envelope = 3.135 .. 3.465 V
+
+The RTD branch is not assigned a source current limit, so this artifact uses a
+10 mA bounded allocation: MAX31865 active-conversion maximum 3.5 mA, REF2025
+quiescent current approximately 0.43 mA, comparator/logic current, and margin.
+The exact Murata BLM18AG121SN1D ferrite has maximum DC resistance 0.18 Ohm;
+at 10 mA the post-ferrite drop is at most 1.8 mV. The local RTD_AVDD floor used
+for the monitor comparison is therefore `3.135 - 0.0018 = 3.1332 V`. This is
+a bounded engineering allocation, not a measured branch-current result.
+
+Valid-minimum release verdict
+-----------------------------
+
+At 3.1332 V local rail, the TPS3700 rising-clear worst corner is 3.255549 V,
+so the selected 698 kOhm / 100 kOhm guard does **not** guarantee release at the
+declared valid-low rail. It does clear at nominal 3.3 V, with 44.451 mV of
+worst-corner margin. The low-valid-rail case is a deterministic nuisance UV
+fault, not an indeterminate result to be hidden as physical validation.
+
+For the same high-impedance divider family, even ideal ratio selection leaves
+no robust full-corner window: falling trip above the 3.0 V MAX minimum requires
+`Rtop > 100 kOhm * (3.000/.387 - 1) = 675.194 kOhm`; rising clear below the
+3.1332 V local minimum requires `Rtop < 100 kOhm * (3.1332/.404 - 1) =
+675.545 kOhm`, before resistor tolerance, TCR, and +/-25 nA input-current
+error. The approximately 351 Ohm ideal interval is consumed by those errors.
+The 698 kOhm part is retained as the fail-safe guard because it guarantees
+permission removal before the ADC's 3.0 V minimum, while the product/interface
+contract must choose a higher valid rail floor, a lower-impedance divider
+redesign, or an active supervisor if release at every 3.135 V-valid rail is
+required.
+
+Precision-supervisor check
+--------------------------
+
+The proposed TI TPS3808G01DBVR is an exact, orderable 6-pin SOT-23 (DBV)
+adjustable supervisor. Its official Rev N datasheet gives the pin map RESET=1,
+GND=2, MR=3, CT=4, SENSE=5, VDD=6; RESET is open-drain active-low, MR has an
+internal 90 kOhm pullup, and leaving CT open selects a 20 ms reset delay. VDD
+is specified from 1.7 to 6.5 V, the G01 SENSE threshold reference is 0.405 V,
+negative threshold accuracy is -2/+2% over temperature, hysteresis is 1.5..3%,
+and SENSE input current is +/-25 nA. TI recommends 1..10 nF at SENSE.
+
+This part is **not a drop-in closure** for the present rail contract. To ensure
+falling trip above 3.0 V, an adjustable nominal threshold must be at least
+3.0/0.98 = 3.0612 V. Its worst rising release then reaches at least
+3.0612 * 1.02 * 1.03 = 3.155 V, already above the 3.1332 V valid local floor;
+divider tolerance and SENSE current widen the gap. The fixed TPS3808G33
+(3.07 V nominal, +/-1.5% threshold and up to 2.5% hysteresis) also has a
+worst rising release above 3.1332 V. Therefore no TPS3808G01DBVR source patch
+or pin substitution is claimed here. A lower-impedance precision comparator
+or supervisor with explicitly bounded threshold/hysteresis, or an increased
+valid rail floor, is required to close both sides of the contract.
+
+TPS3808 source: TI [TPS3808 Rev N datasheet](https://www.ti.com/lit/ds/symlink/tps3808.pdf),
+pp. 1, 4-7, 10-12; exact orderable part and DBV package are listed on the
+[TI TPS3808G01DBVR product page](https://www.ti.com/product/TPS3808/part-details/TPS3808G01DBVR).
+
+Official references:
+
+* https://www.ti.com/lit/ds/symlink/tps3700.pdf
+* https://industrial.panasonic.com/ww/products/pt/high-precision-chip-resistors/models/ERA6AEB6983V
+
+Superseding monitor: TPS389001DSER + low-impedance divider
+------------------------------------------------------------
+
+The TPS3700 high-impedance divider is superseded by TI TPS389001DSER. The
+official TPS3890 Rev A datasheet gives DSE top-view pins SENSE=1, GND=2,
+MR=3, VDD=4, CT=5, RESET=6; 1% maximum threshold accuracy, maximum 0.825%
+hysteresis, 10..100 nA SENSE input current, and approximately 25 us minimum
+no-CT delay. CT is left open in the source proposal. RESET is open-drain,
+active-low, and its 10 kohm pullup is on upstream power.vcc.
+
+The exact divider is Panasonic ERA-3AEB1652V, 16.5 kohm, 0.1%, +/-25 ppm/C,
+0603 over ERA-3AEB103V, 10 kohm, 0.1%, +/-25 ppm/C, 0603. The nominal falling
+trip is 1.15 V * (1 + 16.5k/10k) = 3.0475 V. At the declared 3.1332 V local
+minimum, divider current is approximately 118.2 uA, more than 100 times the
+100 nA maximum SENSE current as TI recommends.
+
+For each corner, I used Rth=Rtop||Rbottom and
+
+    Vrail_trip = (Vthreshold - Iin*Rth) * (Rtop+Rbottom)/Rbottom
+
+with independent +/-0.1% resistor tolerance, opposing +/-25 ppm/C drift over
+60 C, +/-100 nA input current, and +/-1% threshold accuracy. For the rising
+bound I conservatively used Vthreshold = 1.15*1.01*1.00825 = 1.171082375 V,
+combining maximum threshold accuracy and maximum hysteresis. The exhaustive
+corner output is:
+
+    falling trip: 3.006009934549 .. 3.089235504007 V
+    rising clear: 3.092085094442 .. 3.114708050363 V
+
+Thus falling trip remains 6.0099 mV above the MAX31865 3.0 V minimum, and the
+worst rising clear is 18.4919 mV below the bounded 3.1332 V local rail floor.
+This is a resistor/reference/current bounded calculation, not a PVT, rail-ramp,
+transient, or physical fault-latch proof.
+
+Corner command (Python 3):
+
+    python3 - <<'PY'
+    from itertools import product
+    for vt, label in [([1.15*.99,1.15*1.01], 'falling'),
+                      ([1.15*1.01*1.00825]*2, 'rising')]:
+        out=[]
+        for v,a,b,ta,tb,i in product(vt,[.999,1.001],[.999,1.001],[-.0015,.0015],[-.0015,.0015],[-100e-9,100e-9]):
+            r1=16500*a*(1+ta); r2=10000*b*(1+tb); rth=r1*r2/(r1+r2)
+            out.append((v-i*rth)*(r1+r2)/r2)
+        print(label, min(out), max(out))
+    PY
+
+    falling 3.006009934548722 3.0892355040067647
+    rising 3.092085094441816 3.114708050363152
+
+The patch is [rail_monitor_tps3890.patch](rail_monitor_tps3890.patch). It changes
+only the supervisor, its exact pin mapping, the monitor divider, and the
+RESET net. Official sources: TI [TPS3890 Rev A datasheet](https://www.ti.com/lit/ds/symlink/tps3890.pdf),
+TI [TPS389001 product/order page](https://www.ti.com/product/TPS3890/part-details/TPS389001DSET),
+and Panasonic [ERA-3AEB1652V product page](https://www.digikey.com/en/products/detail/panasonic-industry/ERA-3AEB1652V/3075821).

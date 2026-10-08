@@ -1,0 +1,64 @@
+{
+  "status": "degraded",
+  "reason": "Review performed sequentially in the main session per user AGENTS; no independent agent or cross-model review claimed.",
+  "verdict": "Ready to merge",
+  "verdict_scope": "Source/ECO integration only, for owner review. Not approval to fabricate, route, energize, or enable bursts.",
+  "scope": {
+    "base": "fada4c13cc8b844b949a92e9d3facf5977417663",
+    "branch": "codex/ps-r17-d33",
+    "head_sha": "62d30c08b458a13a65dbd55730161ebf62577f51",
+    "includes": "staged and unstaged D-33 implementation/evidence",
+    "pr_url": "https://github.com/BennetLeff/temper/pull/1660"
+  },
+  "intent": "Implement revised HOT-side F6 bias using split switching/rail qualification, plus isolated LINE_ZC at J4.16; preserve native-20 selected values and source-only boundaries.",
+  "reviewers": [
+    "main-session"
+  ],
+  "perspectives_applied": [
+    "correctness",
+    "project-standards",
+    "testing",
+    "maintainability",
+    "adversarial failure cases",
+    "reliability",
+    "prior owner comment"
+  ],
+  "findings": [],
+  "actionable_findings": [],
+  "triage_groups": [],
+  "requirements": {
+    "TCO_L HOT power": "met",
+    "direct LS split and two HS transformers": "met",
+    "regulated negative rails and local reservoirs": "met subject to stated physical capacitance/ESL limits",
+    "rail monitor through DIS": "met in source; startup/recovery bench check remains",
+    "no RECOM/bootstrap": "met",
+    "LINE_ZC J4.16 and exclusive isolation boundary": "met",
+    "D20 return allocation": "cross-checked; three-return proposal documented, physical R20/O04 remains open",
+    "sizing and split rail/F6 qualification": "met within modeled envelope",
+    "frozen exports and Rust mutations": "met",
+    "native20 retained values": "met",
+    "ECO parts/nets/footprints L1-L7": "met; three custom land patterns explicitly ReviewOnly",
+    "no board/routing edits": "met"
+  },
+  "coverage": {
+    "cross_model": "not run under user AGENTS sequential-main-thread mapping",
+    "validator_batch": "not run; no unresolved finding candidates",
+    "malformed_returns_after_schema_correction": 0,
+    "suppressed_findings": 0,
+    "structural_tests": "73/73 pass",
+    "rail_cases": "7972/7972 complete and pass",
+    "timestep_refinements": "6/6 pass",
+    "source_export": "331 components, source hashes match and frozen copies identical",
+    "learnings": "Actual exported connectivity and mutation tests used; self-consistency alone is not a physical isolation or parasitic measurement."
+  },
+  "residual_risks": [
+    "Actual mounted capacitance, ESR/ESL, temperature, loop gain and driver/bias interaction require bench/extraction checks. gm/pole sensitivities are not vendor process/temperature bounds.",
+    "Transformer control startup, saturation/core loss, worst leakage and clock tolerance need physical qualification.",
+    "Monitor startup/recovery and added DIS propagation need the revised B4 comparator-to-driver-output check.",
+    "D5 land patterns/barrier clearance and D20 missing-contact/ground-offset/PE-bond tests remain open.",
+    "Bursts stay disabled until LINE_ZC firmware and continuous phase timing are qualified."
+  ],
+  "run_id": "d33-review-20261006",
+  "artifact_path": "/Users/bennet/.codex/worktrees/ps-r17-d33/temper/zapote/power-stage-120v/native-21/verification/review.json",
+  "completed_at": "2026-10-06T19:22:30.780871+00:00"
+}

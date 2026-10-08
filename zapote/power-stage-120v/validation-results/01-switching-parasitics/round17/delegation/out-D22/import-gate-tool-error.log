@@ -1,0 +1,14 @@
+WARN Ignoring non-directory workspace member: `/Users/bennet/.codex/worktrees/ps-r17-d22/temper/packages/README.md`
+Using CPython 3.12.12 interpreter at: /opt/homebrew/opt/python@3.12/bin/python3.12
+Creating virtual environment at: .venv
+=== IMPORT-LINTER TOOL ERROR ===
+GATE RESULT: ERROR — not PASSED, not a contract violation. lint-imports did not complete a normal run.
+Reason: lint-imports output does not contain the expected 'Analyzed N files...' / 'Contracts: X kept, Y broken.' completion markers -- the tool did not finish a normal run (exit code 2).
+lint-imports exit code: 2
+--- raw lint-imports output (stdout+stderr) ---
+
+WARN Ignoring non-directory workspace member: `/Users/bennet/.codex/worktrees/ps-r17-d22/temper/packages/README.md`
+error: Failed to spawn: `lint-imports`
+  Caused by: No such file or directory (os error 2)
+
+--- end raw output ---

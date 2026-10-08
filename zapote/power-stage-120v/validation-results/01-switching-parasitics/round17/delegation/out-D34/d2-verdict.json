@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "test": "B2",
+  "status": "FAIL",
+  "criteria": [
+    {
+      "name": "partner_vgs_peak",
+      "status": "FAIL",
+      "value": 4.434266882255482,
+      "uncertainty": 0,
+      "limit": 3.0,
+      "unit": "V",
+      "operator": "<",
+      "source": "validation-plan/BENCH-NATIVE20-ADDENDUM.md"
+    }
+  ],
+  "metadata": {
+    "test": "B2",
+    "leg": "A",
+    "bus_v": 50,
+    "capture_ok": true,
+    "board_manifest_sha256": "f30cfdd6d668780ef7de7524275f7c351e77fb4590c679420a10c6784999219a",
+    "deskew_s": {
+      "incoming_cmd_v": 0,
+      "outgoing_vgs_v": 0
+    },
+    "window_s": [
+      2e-06,
+      3.24e-06
+    ],
+    "logic_threshold_v": 7.5,
+    "uncertainty": {
+      "gate_v": 0,
+      "vds_v": 0,
+      "current_a": 0,
+      "offset_v": 0,
+      "timing_s": 0
+    },
+    "provenance": "SIMULATION SOFTWARE FIXTURE: die VGS, D2 default inductances; not native-20 hardware or FEM validation",
+    "params": {
+      "VBUS": "50",
+      "IL": "0",
+      "DIR": "0",
+      "DT": "443n"
+    },
+    "deck_sha256": "804f9be838a470feb92a6b31bf43fb61fd56830f784aa242121f382bade5e346",
+    "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b"
+  }
+}

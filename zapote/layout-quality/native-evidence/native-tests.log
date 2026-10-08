@@ -1,0 +1,18 @@
+   Compiling zapote-drc v0.1.0 (/Users/bennet/Desktop/temper/worktrees/layout-quality/zapote/packages/zapote-drc)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.53s
+     Running unittests src/lib.rs (/Users/bennet/Desktop/temper/target-shared/debug/deps/zapote_drc-a741a1579fcd9116)
+
+running 11 tests
+test native_layout::tests::one_nanometre_gap_different_net_and_layer_do_not_connect ... ok
+test native_layout::tests::holes_and_duplicate_copper_are_not_counted_twice ... ok
+test native_layout::tests::split_tracks_preserve_analytical_length_and_resistance ... ok
+test native_layout::tests::polygon_overlap_matches_rectangle_oracle ... ok
+test native_layout::tests::stale_board_and_duplicate_uuid_fail_closed ... ok
+test native_layout::tests::native_stackup_uses_series_dielectrics_not_board_thickness ... ok
+test native_layout::tests::invalid_dimensions_layers_and_contacts_are_rejected ... ok
+test native_layout::tests::wrong_profile_and_conflicting_duplicate_physical_pins_fail_closed ... ok
+test native_layout::tests::live_native17_census_routes_and_incomplete_coverage_are_retained ... ok
+test native_layout::tests::removing_a_measurement_is_not_a_zero_improvement ... ok
+test native_layout::tests::native_object_iteration_order_does_not_change_metrics ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 90 filtered out; finished in 6.10s

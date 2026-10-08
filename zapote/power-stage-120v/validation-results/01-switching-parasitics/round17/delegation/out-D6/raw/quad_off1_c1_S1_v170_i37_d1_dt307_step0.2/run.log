@@ -1,0 +1,234 @@
+
+Note: Compatibility modes selected: ps a
+
+
+Circuit: * round 17 d2: complementary half-bridge leg with the fem board inductance
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+Initial Transient Solution
+--------------------------
+
+Node                                   Voltage
+----                                   -------
+src                                        170
+bulk                                       170
+bus                                        170
+c38a                                       170
+c38b                                       170
+c38c                                       170
+c39a                                       170
+c39b                                       170
+c39c                                       170
+xqh.x1.d1                                  170
+xqh.x1.ox                                  170
+xqh.x1.e_edg1_int1                           0
+xqh.g                                  184.987
+xqh.x1.ox2                                 170
+xqh.x1.e_edg2_int1                -1.34885e-17
+xqh.s                                      170
+xqh.x1.edep1                               170
+xqh.x1.e_eds1_int1                           0
+xqh.x1.edep2                               170
+xqh.x1.e_eds2_int1                 1.87545e-23
+xqh.x1.d                                   170
+xqh.x1.g_chan_int1                 1.03922e-06
+xqh.tj                                      27
+xqh.dd                                     170
+xqh.x1.d2                                  170
+xqh.x1.g_g_rd_int1                 1.03918e-06
+xqh.x1.dio                                 170
+xqh.x1.dio2                                170
+xqh.x1.g_rdio_int1                -1.79787e-12
+xqh.x1.g_g_ptot_channel_int1                 0
+xqh.x1.g_g_ptot_epi_int1                     0
+xqh.ldrd                                   170
+sw                                         170
+xqh.lsrs                                   170
+g_hs                                   184.987
+xqh.lgrg                               184.987
+xqh.w                                        0
+xqh.e1_int1                                 27
+d_ls                                       170
+xql.x1.d1                                  170
+xql.x1.ox                              1.79856
+xql.x1.e_edg1_int1                     168.201
+xql.g                              1.03818e-09
+xql.x1.ox2                             26.1913
+xql.x1.e_edg2_int1                     143.809
+xql.s                              1.39324e-09
+xql.x1.edep1                           6409.37
+xql.x1.e_eds1_int1                    -6239.37
+xql.x1.edep2                           28.2733
+xql.x1.e_eds2_int1                     141.727
+xql.x1.d                                   170
+xql.x1.g_chan_int1                 1.01892e-15
+xql.tj                                      27
+xql.dd                                     170
+xql.x1.d2                                  170
+xql.x1.g_g_rd_int1                 3.39999e-07
+xql.x1.dio                                 170
+xql.x1.dio2                                170
+xql.x1.g_rdio_int1                -3.58185e-07
+xql.x1.g_g_ptot_channel_int1                 0
+xql.x1.g_g_ptot_epi_int1                     0
+xql.ldrd                                   170
+s_ls                               1.03818e-09
+xql.lsrs                           1.03818e-09
+g_ls                               1.03818e-09
+xql.lgrg                           1.03818e-09
+xql.w                                        0
+xql.e1_int1                                 27
+shunt                              1.03818e-09
+gl_cmd                             1.03818e-09
+gdl                                1.03818e-09
+gdl3                               1.03818e-09
+gh_cmd                                     185
+gdh                                    184.993
+gdh3                                   184.987
+pa_00                                      170
+pa_01                              1.47368e-08
+pa_02                             -3.55058e-10
+pa_03                             -3.55058e-10
+pa_04                                  14.9867
+pa_05                                  14.9867
+pa_06                             -3.55058e-10
+pa_07                                  14.9867
+pa_08                              1.47368e-08
+pa_09                                      170
+pa_10                             -3.55058e-10
+pa_11                                  14.9867
+offl                               1.03818e-09
+offh                                   184.993
+pa_12                              0.000176542
+pa_13                              0.000176542
+pa_14                                        0
+pa_15                                        0
+bpa_15#branch                                0
+bpa_14#branch                                0
+bpa_13#branch                                0
+bpa_12#branch                                0
+bpa_11#branch                                0
+bpa_10#branch                                0
+bpa_09#branch                                0
+bpa_08#branch                                0
+bpa_07#branch                                0
+bpa_06#branch                                0
+bpa_05#branch                                0
+bpa_04#branch                                0
+bpa_03#branch                                0
+bpa_02#branch                                0
+bpa_01#branch                                0
+bpa_00#branch                                0
+b.xql.be1#branch                             0
+b.xql.x1.bg_g_ptot_epi#branch                0
+v.xql.x1.v_iepi#branch             6.79998e-07
+v.xql.x1.v_sense2#branch           3.58185e-07
+b.xql.x1.bg_g_ptot_channel#branch               0
+v.xql.x1.v_ichannel#branch         3.39999e-07
+b.xql.x1.bg_rdio#branch                      0
+b.xql.x1.bg_g_rd#branch                      0
+b.xql.x1.bg_chan#branch                      0
+b.xql.x1.be_eds2#branch                      0
+b.xql.x1.be_eds1#branch                      0
+b.xql.x1.be_edg2#branch                      0
+b.xql.x1.be_edg1#branch                      0
+b.xqh.be1#branch                             0
+b.xqh.x1.bg_g_ptot_epi#branch                0
+v.xqh.x1.v_iepi#branch             1.03919e-06
+v.xqh.x1.v_sense2#branch           1.79787e-12
+b.xqh.x1.bg_g_ptot_channel#branch               0
+v.xqh.x1.v_ichannel#branch         1.03919e-06
+b.xqh.x1.bg_rdio#branch                      0
+b.xqh.x1.bg_g_rd#branch                      0
+b.xqh.x1.bg_chan#branch                      0
+b.xqh.x1.be_eds2#branch                      0
+b.xqh.x1.be_eds1#branch                      0
+b.xqh.x1.be_edg2#branch                      0
+b.xqh.x1.be_edg1#branch                      0
+l_p3#branch                        -0.00149868
+l_p4#branch                        3.54901e-19
+lshunt#branch                      1.03818e-06
+l.xql.l_lg#branch                 -3.55058e-19
+l.xql.l_ls#branch                 -1.03818e-06
+l.xql.l_ld#branch                  1.03816e-06
+l.xqh.l_lg#branch                  1.49867e-08
+l.xqh.l_ls#branch                 -1.05315e-06
+l.xqh.l_ld#branch                  1.03917e-06
+lesl39#branch                       1.5697e-12
+l_p2#branch                         1.5697e-12
+lesl38#branch                     -2.49286e-13
+l_p1#branch                       -2.49286e-13
+lbulk#branch                       1.03917e-06
+e.xql.e1#branch                              0
+e.xql.x1.e_eds2#branch                       0
+e.xql.x1.e_eds1#branch                       0
+e.xql.x1.e_edg2#branch                       0
+e.xql.x1.e_edg1#branch                       0
+e.xqh.e1#branch                              0
+e.xqh.x1.e_eds2#branch                       0
+e.xqh.x1.e_eds1#branch                       0
+e.xqh.x1.e_edg2#branch                       0
+e.xqh.x1.e_edg1#branch                       0
+vgh_cmd#branch                               0
+vgl_cmd#branch                               0
+vids#branch                        1.03816e-06
+vbus#branch                       -1.03917e-06
+
+ Reference value :  7.63577e-08
+ Reference value :  2.38758e-07
+ Reference value :  3.83958e-07
+ Reference value :  5.30158e-07
+ Reference value :  6.84758e-07
+ Reference value :  8.61558e-07
+ Reference value :  1.00050e-06
+ Reference value :  1.15028e-06
+ Reference value :  1.29868e-06
+ Reference value :  1.43288e-06
+ Reference value :  1.58928e-06
+ Reference value :  1.72388e-06
+ Reference value :  1.88168e-06
+ Reference value :  2.01210e-06
+ Reference value :  2.13090e-06
+ Reference value :  2.22755e-06
+ Reference value :  2.34870e-06
+ Reference value :  2.45950e-06
+ Reference value :  2.56910e-06
+ Reference value :  2.72970e-06
+ Reference value :  2.88590e-06
+ Reference value :  3.05470e-06
+No. of Data Rows : 15588
+
+  Measurements for Transient Analysis
+
+vds_ls_die_pk       =  1.716277e+02 at=  2.015100e-06
+vds_hs_die_pk       =  1.980606e+02 at=  2.243148e-06
+vgs_ls_die_max      =  1.395512e+01 at=  3.056900e-06
+vgs_ls_die_min      =  -1.096045e+00 at=  2.298948e-06
+vgs_hs_die_max      =  1.497245e+01 at=  2.000239e-06
+vgs_hs_die_min      =  -6.177233e-01 at=  2.392100e-06
+vgs_ls_off_max      =  1.395512e+01 at=  3.056900e-06
+vgs_hs_off_max      =  5.091053e-01 at=  2.709100e-06
+vds_hs_at_on        =  5.256512e-01
+vds_ls_at_on        =  -8.876329e-01
+vgs_ls_at_partner   =  -1.041696e+00
+vgs_hs_at_partner   =  -8.537826e-02
+e_l_pre             =   3.11111e-06 from=  2.00000e-06 to=  2.30700e-06
+e_l_post            =   1.70770e-05 from=  2.30700e-06 to=  3.05700e-06
+e_h_pre             =   3.91747e-05 from=  2.00000e-06 to=  2.30700e-06
+e_h_post            =   8.23605e-06 from=  2.30700e-06 to=  3.05700e-06
+
+
+Total analysis time (seconds) = 8.3188
+
+Total elapsed time (seconds) = 8.363 
+
+Total DRAM available = 32768.000 MB.
+DRAM currently available =  442.922 MB.
+Maximum ngspice program size =   16.375 MB.
+Current ngspice program size =   16.375 MB.
+
+Note: Starting dynamic gmin stepping
+Note: Dynamic gmin stepping completed

@@ -1,0 +1,24 @@
+## Institutional Learnings Search Results
+
+### Search Context
+- **Feature/Task:** Round-4 120 V power-stage simulation and extraction evidence packet.
+- **Keywords Used:** measurement convention, provenance, KiCad copper geometry, proxy audit, silent pass, simulation validity, qualification replay.
+- **Files Scanned:** Five strong matches read in full after repository-wide `docs/solutions/` keyword filtering.
+- **Relevant Matches:** Five.
+
+### Relevant Learnings
+
+1. **Measurement conventions must be stated.** [Known pattern](docs/solutions/best-practices/measurement-convention-must-be-stated-2026-07-28.md) (`best_practice`, high): two correctly transcribed numbers with the same unit can answer different questions; the historical centre-pitch/edge-gap mix inverted a creepage verdict. **Honored:** the [C2 report](zapote/power-stage-120v/validation-results/01-switching-parasitics/round4/c2-losses/README.md:48) separates precommand ZVS classification from residual energy at channel onset and labels the die-VDS snubber estimate as a proxy. The [A report](zapote/power-stage-120v/validation-results/05-resonant-tank-envelope/round4/a-derated/README.md:19) distinguishes total tank resistive power from pan heating. Retain these timing/quantity names in downstream decision tables.
+
+2. **A cheaper audit can agree with a wrong model.** [Known pattern](docs/solutions/design-patterns/proxy-audit-must-rerun-truth-validator-aligned-audit-2026-08-02.md) (`design_pattern`, high): a centre-distance audit passed while the exact copper validator failed. **Honored:** D1 uses native KiCad `FlashLayer` and final-union drill geometry, then [blocks board acceptance](zapote/power-stage-120v/validation-results/01-switching-parasitics/round4/d1-extraction/README.md:34) rather than promoting the incomplete 0.125 mm mesh. The 198 unflashed pad/layer shapes in the historical export show why this rule matters here. The native geometry audit is still an extraction check, not a field-solved matrix.
+
+3. **Green invariants verify a model, not the physical board.** [Known pattern](docs/solutions/best-practices/invariants-verify-model-not-reality-2026-07-09.md) (`best_practice`, high): solver consistency and timestep convergence cannot establish physical correspondence. **Honored:** [C1](zapote/power-stage-120v/validation-results/01-switching-parasitics/round4/c1-zvs/README.md:6), [D1](zapote/power-stage-120v/validation-results/01-switching-parasitics/round4/d1-extraction/README.md:6), and the [master status](zapote/power-stage-120v/validation-plan/00-MASTER-PLAN.md:220) distinguish conditional reference results from board-specific acceptance. No 51 kΩ hardware change is authorized by the simulation subtotal.
+
+4. **Silent measurement failures need nonempty and exit-status checks.** [Known pattern](docs/solutions/best-practices/three-silent-failures-measurement-pipeline-2026-07-07.md) (`best_practice`, medium): a failed KiCad load plus empty output previously masqueraded as zero errors. **Honored:** [D2's replay report](zapote/power-stage-120v/validation-results/01-switching-parasitics/round4/d2-switching/README.md:20) checks finite complete waveforms, logs and available exit status; [A's report](zapote/power-stage-120v/validation-results/05-resonant-tank-envelope/round4/a-derated/README.md:22) gives the explicit 270-case / 190,336-event denominator. D2 explicitly records that four historical process exit codes cannot be recovered rather than treating them as success.
+
+5. **Qualification exports need source-bound replay.** [Known pattern](docs/solutions/best-practices/qualification-exports-require-clean-build-replay-2026-09-01.md) (`best_practice`, high): plausible committed outputs can be stale or generated from a different source; verify source identity and byte-for-byte replay before promotion. **Partly honored, with an explicit limit:** [A's provenance](zapote/power-stage-120v/validation-results/05-resonant-tank-envelope/round4/a-derated/README.md:63) pins input fingerprints and replays representative cases; [C1's audit](zapote/power-stage-120v/validation-results/01-switching-parasitics/round4/c1-zvs/README.md:60) checks 15 source hashes; the [coordinator](zapote/power-stage-120v/validation-results/round4-coordination/README.md:47) says ignored raw runs remain local and another machine needs a separate raw copy or archive. Do not describe the committed summaries alone as independently replayable from a clean machine.
+
+### Recommendations
+- Keep the stated measured/modelled quantities and timing references attached to every derived decision number.
+- Keep D1 software extraction, simulation consistency, and physical qualification as separate status rows.
+- Finish the coordinator's final raw-manifest verification after the last added source snapshots before treating the local handback as frozen.

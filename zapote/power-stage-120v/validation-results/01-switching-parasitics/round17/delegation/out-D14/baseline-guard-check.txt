@@ -1,0 +1,4 @@
+D14 review fix: fresh baseline cannot be ignored.
+check_baseline.py PASS: frozen/fresh parity; missing, duplicate, completion, option, identity and measurement mutations rejected.
+summarize.py and verify.py replay PASS; all ten numerical/report outputs byte-identical.
+Historical raw evidence and recorder unchanged.

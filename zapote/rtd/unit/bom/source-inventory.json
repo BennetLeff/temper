@@ -1,0 +1,741 @@
+{
+  "schema": "zapote.rtd.unit-bom.v1",
+  "source_manifest_sha256": "b19f709e026b28499e8c50a2803225e0522dba3bdf3817a2ff37021843f22868",
+  "components": [
+    {
+      "instance_path": "rtd_pan.c_vdd",
+      "reference": "C1",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.c_dvdd",
+      "reference": "C2",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.c_rtd_input",
+      "reference": "C3",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C102J5GACTU",
+      "value": "1nF",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.c_reference",
+      "reference": "C4",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "origins": {
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "footprint": "resolved-attr",
+        "value": "resolved-attr"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.c_low_window",
+      "reference": "C5",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "origins": {
+        "mpn": "resolved-attr+csv",
+        "value": "resolved-attr",
+        "reference": "netlist",
+        "footprint": "resolved-attr"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.c_high_window",
+      "reference": "C6",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.c_window_and",
+      "reference": "C7",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "origins": {
+        "mpn": "resolved-attr+csv",
+        "value": "resolved-attr",
+        "reference": "netlist",
+        "footprint": "resolved-attr"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.c_rail_monitor",
+      "reference": "C8",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "value": "resolved-attr",
+        "reference": "netlist"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.c_fault_nand",
+      "reference": "C9",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "origins": {
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "footprint": "resolved-attr",
+        "value": "resolved-attr"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.j_rtd1",
+      "reference": "J1",
+      "footprint": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical",
+      "mpn": "B4B-XH-A(LF)(SN)",
+      "value": null,
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      }
+    },
+    {
+      "instance_path": "unit_io",
+      "reference": "J2",
+      "footprint": "Temper_RTD:FTSH-105-01-F-D_2x5_P1.27mm",
+      "mpn": "FTSH-105-01-F-D",
+      "value": null,
+      "origins": {
+        "footprint": "resolved-attr",
+        "reference": "netlist",
+        "mpn": "resolved-attr+csv"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.r_ref",
+      "reference": "R1",
+      "footprint": "Resistor_SMD:R_0805_2012Metric",
+      "mpn": "RG2012V-431-W-T1",
+      "value": "430ohm +/- 0.05%",
+      "origins": {
+        "footprint": "resolved-attr",
+        "reference": "netlist",
+        "mpn": "resolved-attr+csv",
+        "value": "resolved-attr"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.r_low_bottom",
+      "reference": "R10",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "ERA-3AEB103V",
+      "value": "10kohm +/- 0.1%",
+      "origins": {
+        "footprint": "resolved-attr",
+        "value": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.r_high_top",
+      "reference": "R11",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "ERA-3AEB5901V",
+      "value": "5.9kohm +/- 0.1%",
+      "origins": {
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "footprint": "resolved-attr",
+        "value": "resolved-attr"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.r_high_bottom",
+      "reference": "R12",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "ERA-3AEB103V",
+      "value": "10kohm +/- 0.1%",
+      "origins": {
+        "value": "resolved-attr",
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.r_window_sense_p",
+      "reference": "R13",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-07100KL",
+      "value": "100kohm +/- 1%",
+      "origins": {
+        "reference": "netlist",
+        "mpn": "resolved-attr+csv",
+        "value": "resolved-attr",
+        "footprint": "resolved-attr"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.r_window_ok_pulldown",
+      "reference": "R14",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-07100KL",
+      "value": "100kohm +/- 1%",
+      "origins": {
+        "reference": "netlist",
+        "value": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "footprint": "resolved-attr"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.r_avdd_top",
+      "reference": "R15",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "ERA-3AEB1652V",
+      "value": "16.5kohm +/- 0.1%",
+      "origins": {
+        "mpn": "resolved-attr+csv",
+        "value": "resolved-attr",
+        "footprint": "resolved-attr",
+        "reference": "netlist"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.r_avdd_bottom",
+      "reference": "R16",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "ERA-3AEB103V",
+      "value": "10kohm +/- 0.1%",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.r_rail_ok_pullup",
+      "reference": "R17",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0710KL",
+      "value": "10kohm +/- 1%",
+      "origins": {
+        "value": "resolved-attr",
+        "footprint": "resolved-attr",
+        "reference": "netlist",
+        "mpn": "resolved-attr+csv"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.r_fault_pullup",
+      "reference": "R18",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0710KL",
+      "value": "10kohm +/- 1%",
+      "origins": {
+        "value": "resolved-attr",
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.r_rtdin_p_bias",
+      "reference": "R2",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603JR-071ML",
+      "value": "1Mohm +/- 5%",
+      "origins": {
+        "footprint": "resolved-attr",
+        "value": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.r_rtdin_n_bias",
+      "reference": "R3",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603JR-071ML",
+      "value": "1Mohm +/- 5%",
+      "origins": {
+        "value": "resolved-attr",
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.r_sclk",
+      "reference": "R4",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0733RL",
+      "value": "33ohm +/- 1%",
+      "origins": {
+        "reference": "netlist",
+        "mpn": "resolved-attr+csv",
+        "value": "resolved-attr",
+        "footprint": "resolved-attr"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.r_mosi",
+      "reference": "R5",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0733RL",
+      "value": "33ohm +/- 1%",
+      "origins": {
+        "value": "resolved-attr",
+        "reference": "netlist",
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.r_cs",
+      "reference": "R6",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0733RL",
+      "value": "33ohm +/- 1%",
+      "origins": {
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr",
+        "footprint": "resolved-attr"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.r_miso",
+      "reference": "R7",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0733RL",
+      "value": "33ohm +/- 1%",
+      "origins": {
+        "value": "resolved-attr",
+        "footprint": "resolved-attr",
+        "reference": "netlist",
+        "mpn": "resolved-attr+csv"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.fb_power",
+      "reference": "R8",
+      "footprint": "Inductor_SMD:L_0603_1608Metric",
+      "mpn": "BLM18AG121SN1D",
+      "value": "120ohm",
+      "origins": {
+        "reference": "netlist",
+        "mpn": "resolved-attr+csv",
+        "value": "resolved-attr",
+        "footprint": "resolved-attr"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.r_low_top",
+      "reference": "R9",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "ERA-3AEB6192V",
+      "value": "61.9kohm +/- 0.1%",
+      "origins": {
+        "footprint": "resolved-attr",
+        "reference": "netlist",
+        "value": "resolved-attr",
+        "mpn": "resolved-attr+csv"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.adc",
+      "reference": "U1",
+      "footprint": "Package_SO:SSOP-20_3.9x8.7mm_P0.635mm",
+      "mpn": "MAX31865AAP+",
+      "value": null,
+      "origins": {
+        "reference": "netlist",
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.reference",
+      "reference": "U2",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "mpn": "REF2025AIDDCR",
+      "value": null,
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.low_window",
+      "reference": "U3",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "mpn": "TLV3201AIDBVR",
+      "value": null,
+      "origins": {
+        "reference": "netlist",
+        "mpn": "resolved-attr+csv",
+        "footprint": "resolved-attr"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.high_window",
+      "reference": "U4",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "mpn": "TLV3201AIDBVR",
+      "value": null,
+      "origins": {
+        "reference": "netlist",
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.window_and",
+      "reference": "U5",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "mpn": "SN74LVC1G08DBVR",
+      "value": null,
+      "origins": {
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "footprint": "resolved-attr"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.rail_monitor",
+      "reference": "U6",
+      "footprint": "Temper_RTD:TPS389001DSER_WSON-6_DSE",
+      "mpn": "TPS389001DSER",
+      "value": null,
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      }
+    },
+    {
+      "instance_path": "rtd_pan.fault_nand",
+      "reference": "U7",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "mpn": "SN74LVC1G38DBVR",
+      "value": null,
+      "origins": {
+        "mpn": "resolved-attr+csv",
+        "footprint": "resolved-attr",
+        "reference": "netlist"
+      }
+    }
+  ],
+  "component_count": 36,
+  "procurement": "NOT ORDERED",
+  "physical_tests": "NOT RUN",
+  "source_attributes": {
+    "rtd_pan.adc": {
+      "footprint": "Package_SO:SSOP-20_3.9x8.7mm_P0.635mm",
+      "manufacturer": "Analog Devices",
+      "mpn": "MAX31865AAP+",
+      "resolution": "15",
+      "v_supply_max": "3.6V"
+    },
+    "rtd_pan.r_ref": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0805_2012Metric",
+      "mpn": "RG2012V-431-W-T1",
+      "power_rating": null,
+      "value": "430ohm +/- 0.05%",
+      "voltage_rating": null
+    },
+    "rtd_pan.c_vdd": {
+      "designator_prefix": "C",
+      "dielectric": null,
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "voltage_rating": "10V"
+    },
+    "rtd_pan.c_dvdd": {
+      "designator_prefix": "C",
+      "dielectric": null,
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "voltage_rating": "10V"
+    },
+    "rtd_pan.c_rtd_input": {
+      "designator_prefix": "C",
+      "dielectric": "C0G",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C102J5GACTU",
+      "value": "1nF",
+      "voltage_rating": "50V"
+    },
+    "rtd_pan.r_rtdin_p_bias": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603JR-071ML",
+      "power_rating": null,
+      "value": "1Mohm +/- 5%",
+      "voltage_rating": null
+    },
+    "rtd_pan.r_rtdin_n_bias": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603JR-071ML",
+      "power_rating": null,
+      "value": "1Mohm +/- 5%",
+      "voltage_rating": null
+    },
+    "rtd_pan.r_sclk": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0733RL",
+      "power_rating": null,
+      "value": "33ohm +/- 1%",
+      "voltage_rating": null
+    },
+    "rtd_pan.r_mosi": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0733RL",
+      "power_rating": null,
+      "value": "33ohm +/- 1%",
+      "voltage_rating": null
+    },
+    "rtd_pan.r_cs": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0733RL",
+      "power_rating": null,
+      "value": "33ohm +/- 1%",
+      "voltage_rating": null
+    },
+    "rtd_pan.r_miso": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0733RL",
+      "power_rating": null,
+      "value": "33ohm +/- 1%",
+      "voltage_rating": null
+    },
+    "rtd_pan.fb_power": {
+      "designator_prefix": "R",
+      "footprint": "Inductor_SMD:L_0603_1608Metric",
+      "mpn": "BLM18AG121SN1D",
+      "power_rating": null,
+      "value": "120ohm",
+      "voltage_rating": null
+    },
+    "rtd_pan.c_reference": {
+      "designator_prefix": "C",
+      "dielectric": "X7R",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "voltage_rating": "10V"
+    },
+    "rtd_pan.c_low_window": {
+      "designator_prefix": "C",
+      "dielectric": "X7R",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "voltage_rating": "10V"
+    },
+    "rtd_pan.c_high_window": {
+      "designator_prefix": "C",
+      "dielectric": "X7R",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "voltage_rating": "10V"
+    },
+    "rtd_pan.c_window_and": {
+      "designator_prefix": "C",
+      "dielectric": "X7R",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "voltage_rating": "10V"
+    },
+    "rtd_pan.c_rail_monitor": {
+      "designator_prefix": "C",
+      "dielectric": "X7R",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "voltage_rating": "10V"
+    },
+    "rtd_pan.c_fault_nand": {
+      "designator_prefix": "C",
+      "dielectric": "X7R",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "voltage_rating": "10V"
+    },
+    "rtd_pan.reference": {
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "manufacturer": "Texas Instruments",
+      "mpn": "REF2025AIDDCR"
+    },
+    "rtd_pan.r_low_top": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "ERA-3AEB6192V",
+      "power_rating": null,
+      "value": "61.9kohm +/- 0.1%",
+      "voltage_rating": null
+    },
+    "rtd_pan.r_low_bottom": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "ERA-3AEB103V",
+      "power_rating": null,
+      "value": "10kohm +/- 0.1%",
+      "voltage_rating": null
+    },
+    "rtd_pan.r_high_top": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "ERA-3AEB5901V",
+      "power_rating": null,
+      "value": "5.9kohm +/- 0.1%",
+      "voltage_rating": null
+    },
+    "rtd_pan.r_high_bottom": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "ERA-3AEB103V",
+      "power_rating": null,
+      "value": "10kohm +/- 0.1%",
+      "voltage_rating": null
+    },
+    "rtd_pan.low_window": {
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "manufacturer": "Texas Instruments",
+      "mpn": "TLV3201AIDBVR",
+      "t_pd": "40ns",
+      "v_supply_max": "5.5V"
+    },
+    "rtd_pan.high_window": {
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "manufacturer": "Texas Instruments",
+      "mpn": "TLV3201AIDBVR",
+      "t_pd": "40ns",
+      "v_supply_max": "5.5V"
+    },
+    "rtd_pan.r_window_sense_p": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-07100KL",
+      "power_rating": null,
+      "value": "100kohm +/- 1%",
+      "voltage_rating": null
+    },
+    "rtd_pan.window_and": {
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "manufacturer": "Texas Instruments",
+      "mpn": "SN74LVC1G08DBVR"
+    },
+    "rtd_pan.r_window_ok_pulldown": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-07100KL",
+      "power_rating": null,
+      "value": "100kohm +/- 1%",
+      "voltage_rating": null
+    },
+    "rtd_pan.rail_monitor": {
+      "footprint": "Temper_RTD:TPS389001DSER_WSON-6_DSE",
+      "manufacturer": "Texas Instruments",
+      "mpn": "TPS389001DSER"
+    },
+    "rtd_pan.r_avdd_top": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "ERA-3AEB1652V",
+      "power_rating": null,
+      "value": "16.5kohm +/- 0.1%",
+      "voltage_rating": null
+    },
+    "rtd_pan.r_avdd_bottom": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "ERA-3AEB103V",
+      "power_rating": null,
+      "value": "10kohm +/- 0.1%",
+      "voltage_rating": null
+    },
+    "rtd_pan.r_rail_ok_pullup": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0710KL",
+      "power_rating": null,
+      "value": "10kohm +/- 1%",
+      "voltage_rating": null
+    },
+    "rtd_pan.fault_nand": {
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "manufacturer": "Texas Instruments",
+      "mpn": "SN74LVC1G38DBVR"
+    },
+    "rtd_pan.r_fault_pullup": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0710KL",
+      "power_rating": null,
+      "value": "10kohm +/- 1%",
+      "voltage_rating": null
+    },
+    "rtd_pan.j_rtd1": {
+      "designator_prefix": "J",
+      "footprint": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical",
+      "manufacturer": "JST Sales America Inc.",
+      "mpn": "B4B-XH-A(LF)(SN)"
+    },
+    "unit_io": {
+      "designator_prefix": "J",
+      "footprint": "Temper_RTD:FTSH-105-01-F-D_2x5_P1.27mm",
+      "manufacturer": "Samtec",
+      "mpn": "FTSH-105-01-F-D"
+    }
+  },
+  "candidate_board_sha256": "6d4ba04aeeb958253d014a40967dc679a5cae1e47af646f201efec5d8a63a863",
+  "board_sha256": "d9908e58335fc9e20d9d786af4423ba8844d7ee893a08dc99472a3dd357653cb"
+}

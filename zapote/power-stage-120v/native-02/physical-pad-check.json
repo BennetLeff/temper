@@ -1,0 +1,53 @@
+{
+  "tool": "pcbnew 10.0.4",
+  "source_sha256": "286991715ceb1519b9e62914a90a8a23d42e283e308b19d731841e73260a31ac",
+  "board_sha256": "d571bfe0560d93ef20cca98648b595c69dbcff816ca778babb23b341a8a40fa9",
+  "source_pin_nodes": 313,
+  "electrical_copper_pads": 333,
+  "netless_mechanical_holes": 8,
+  "netless_paste_apertures": 24,
+  "terminals": [
+    {
+      "reference": "J10",
+      "copper_pads": 4,
+      "net": "hv_ret",
+      "paste_apertures": 4
+    },
+    {
+      "reference": "J2",
+      "copper_pads": 4,
+      "net": "coil_feed",
+      "paste_apertures": 4
+    },
+    {
+      "reference": "J5",
+      "copper_pads": 4,
+      "net": "res_a",
+      "paste_apertures": 4
+    },
+    {
+      "reference": "J7",
+      "copper_pads": 4,
+      "net": "rect_p",
+      "paste_apertures": 4
+    },
+    {
+      "reference": "J8",
+      "copper_pads": 4,
+      "net": "bus_p",
+      "paste_apertures": 4
+    },
+    {
+      "reference": "J9",
+      "copper_pads": 4,
+      "net": "rect_n",
+      "paste_apertures": 4
+    }
+  ],
+  "y_cap_nominal_copper_gap_mm": {
+    "C3": 8.5,
+    "C4": 8.5
+  },
+  "status": "pass",
+  "limits": "Native connectivity and nominal footprint geometry only; no physical assembly or insulation qualification."
+}

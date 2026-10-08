@@ -1,0 +1,41 @@
+{
+  "status": "frozen after 270-case 25 ns and 133-case 12.5 ns checks",
+  "files": {
+    "derated_cases.csv": {
+      "bytes": 131353,
+      "sha256": "09f955e20df7bc7d71bb65567bf5aec9a1234ffbc35fac45718739c3cb2fdb70"
+    },
+    "switching-events.csv": {
+      "bytes": 48716172,
+      "sha256": "eb14fc83494fc3513dd21a1271221b6883a335f3cc07ffc3deb5374fc78c200b"
+    },
+    "shunt-grid.csv": {
+      "bytes": 31282,
+      "sha256": "ab60b2691bf1b85b89dde6d8f277cc495594252a2529962580fcc09d10ea3c7b"
+    },
+    "event-schema.json": {
+      "bytes": 1645,
+      "sha256": "40de836152d2ef10eb84eba4b3a968254100fe3e76d40242297c196c5bb9779d"
+    },
+    "power-breakdown.csv": {
+      "bytes": 42566,
+      "sha256": "f9d923b1f6a07b7013a5f446a185a3914654a5b2ca77147a70096b96f98701e2"
+    },
+    "delivered-power.csv": {
+      "bytes": 13453,
+      "sha256": "b4376d6d737751592eade9e3cd9834619660f6a33b636543fcf854ebb1ffd862"
+    },
+    "trip-band-screen.csv": {
+      "bytes": 49967,
+      "sha256": "481c4a9805f45c821f7776362d789f1357b253f2f46a459d9451447dbaca8320"
+    },
+    "numerical-checks.json": {
+      "bytes": 246277,
+      "sha256": "ef45b4a696f55c3f33b5d05372ef092adffcf1a2e9d6edff3d75a3ef7182edd5"
+    },
+    "quarterstep-checks.json": {
+      "bytes": 61747,
+      "sha256": "a9d2862102c7408630879dddc7c934bd28d076b69cf6f69e55849429c8f099a0"
+    }
+  }
+}

@@ -1,0 +1,42 @@
+{
+ "identity": {
+  "legA-h0-best-n19.matrix.txt": "cf861da357ee496a0314356a21cfa4478d67e4ae8e15d36dae42dbc9deac2019",
+  "legB-h0-corr-n19.matrix.txt": "4e5ceb13538e44799c499370889e231d25825baf4c4d198df8959a6d5b54b0a6",
+  "F6.cir": "ef8b284f29d47949a2da577daaeceea92a5b43a561cd2981c8215e153d9ca9fb",
+  "f6_legs.py": "0d88243924a4e5579edff0bf4f78db86ec9b321ebeb07b9eb56a308090c4831c",
+  "run_d2.py": "bec75e3212b120853eb4a58286fb3c222094e46b6e88ba6e41edcde73cd24c7a"
+ },
+ "diode": "placeholder",
+ "model_screen_V": {
+  "25": 3.5624339999999997,
+  "27": 3.545527,
+  "100": 2.924901,
+  "150": 2.48794
+ },
+ "groups": {
+  "B_T27_S5": {
+   "cases": 36,
+   "complete": 36,
+   "pass": 0,
+   "pass_hot": 0,
+   "max_off_V": 3.938,
+   "max_vds_V": 449.0
+  },
+  "B_T100_S5": {
+   "cases": 36,
+   "complete": 36,
+   "pass": 0,
+   "pass_hot": 0,
+   "max_off_V": 3.89,
+   "max_vds_V": 446.1
+  },
+  "B_T150_S5": {
+   "cases": 36,
+   "complete": 36,
+   "pass": 0,
+   "pass_hot": 0,
+   "max_off_V": 3.861,
+   "max_vds_V": 445.0
+  }
+ }
+}

@@ -1,0 +1,15 @@
+{
+  "Problem": {"Type": "Magnetostatic", "Verbose": 2, "Output": "@OUT@"},
+  "Model": {"Mesh": "@MESH@", "L0": 1.0e-3},
+  "Domains": {"Materials": [{"Attributes": [1], "Permeability": 1.0}]},
+  "Boundaries": {
+    "PEC": {"Attributes": [2, 3]},
+    "SurfaceCurrent": [{"Index": 1, "Attributes": [4], "Direction": "+R"}]
+  },
+  "Solver": {
+    "Order": 2,
+    "Device": "CPU",
+    "Magnetostatic": {"Save": 0, "InactivePorts": "Open"},
+    "Linear": {"Type": "AMS", "KSPType": "CG", "Tol": 1.0e-8, "MaxIts": 1000}
+  }
+}

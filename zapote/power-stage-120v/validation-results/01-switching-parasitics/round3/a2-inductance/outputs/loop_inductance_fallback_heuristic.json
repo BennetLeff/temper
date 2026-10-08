@@ -1,0 +1,2867 @@
+{
+  "schema": "temper.power-stage-120v.a2-inductance-fallback.v2",
+  "status": "COMPLETE_CONNECTED_GEOMETRY_HEURISTIC_SCENARIOS_NOT_FIELD_SOLVED",
+  "board_sha256": "a3ac1249f5052afe52944804cdc3f6ef0e8f895668360e79c1fa7b6fb7322155",
+  "source_revision": "44417ae1489fd00e2d652fd3b2c1582b76d17630",
+  "inputs_sha256": {
+    "copper.json.gz": "96359152c7951c27bfac4d76038a486db8282cc81e6d81f2533530d01485003c",
+    "vias-and-pads.json": "8832d6e604bcfc3be2f58e2d5e10e72feed3bf6e17b66c563fc421604de94322",
+    "power_copper_with_holes.json.gz": "521bae736e5cfc58fb9ad00efd6a5942ce184c003c56da5628f0247c1894b765",
+    "gate_vias.json": "c17f3e4e6ceaa69372748dcf643ed1e58b0093ee12a0d1e03c9e8b176951e122"
+  },
+  "stackup_sha256": "4022df3f3b96530ece8727e96e523691352234c4ed0de00f0cb93227cc89a37d",
+  "route_tool": "trace_connected_copper.py, hole-aware native KiCad copper, 0.5/0.25 mm raster",
+  "frequency_Hz": 10000000,
+  "frequency_limitation": "Magnetostatic external geometric approximations; conductor internal L, 10 MHz skin/proximity and mutual current division not solved.",
+  "fasthenry": {
+    "upstream_url": "https://github.com/ediloren/FastHenry2",
+    "commit": "363e43ed57ad3b9affa11cba5a86624fad0edaa9",
+    "git_tree": "86c4f4c441dcf600fb5f4a19e16dea8f3b764fc8",
+    "induct_c_sha256": "94eb918fd62c4c6e5db022608282ac32ba495952744a8f12c1888d1a967f75e6",
+    "build_attempts": 2,
+    "solver_result": null,
+    "field_mesh_convergence": null
+  },
+  "analytic_fixtures": "outputs/analytic-fixtures.json",
+  "routes": {
+    "A_bus_C38": {
+      "net": "bus_p",
+      "ports": [
+        "C38.1",
+        "Q2.2"
+      ],
+      "coarse_length_mm": 25.094562748477138,
+      "fine_length_mm": 24.844562748477124,
+      "path_change_fraction": 0.010062563890980059,
+      "path_converged_within_5_percent": true,
+      "field_mesh_convergence": null,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            144.25,
+            21.75
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            144.25,
+            21.75
+          ]
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            155.75,
+            4.75
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            156.0,
+            4.25
+          ]
+        }
+      ]
+    },
+    "A_bus_C39": {
+      "net": "bus_p",
+      "ports": [
+        "C39.1",
+        "Q2.2"
+      ],
+      "coarse_length_mm": 23.644815280171304,
+      "fine_length_mm": 23.394815280171297,
+      "path_change_fraction": 0.010686128400932457,
+      "path_converged_within_5_percent": true,
+      "field_mesh_convergence": null,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            164.25,
+            21.75
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            164.25,
+            21.75
+          ]
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            156.25,
+            4.75
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            156.0,
+            4.25
+          ]
+        }
+      ]
+    },
+    "A_switch": {
+      "net": "sw_a",
+      "ports": [
+        "Q2.3",
+        "Q3.2"
+      ],
+      "coarse_length_mm": 31.525494936611658,
+      "fine_length_mm": 30.52549493661166,
+      "path_change_fraction": 0.03275950159290019,
+      "path_converged_within_5_percent": true,
+      "field_mesh_convergence": null,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            161.0,
+            4.75
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            161.0,
+            4.75
+          ]
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "B.Cu",
+          "xy_mm": [
+            161.0,
+            4.75
+          ]
+        },
+        {
+          "from_layer": "B.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            138.25,
+            4.75
+          ]
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            138.25,
+            4.75
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            138.0,
+            4.25
+          ]
+        }
+      ]
+    },
+    "A_source_shunt": {
+      "net": "leg_ret",
+      "ports": [
+        "Q3.3",
+        "R5.1"
+      ],
+      "coarse_length_mm": 24.851242404917492,
+      "fine_length_mm": 24.144135623730936,
+      "path_change_fraction": 0.029286895675467932,
+      "path_converged_within_5_percent": true,
+      "field_mesh_convergence": null,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            143.0,
+            4.75
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            130.0,
+            4.5
+          ]
+        }
+      ]
+    },
+    "A_shunt_C38": {
+      "net": "hv_ret",
+      "ports": [
+        "R5.4",
+        "C38.2"
+      ],
+      "coarse_length_mm": 8.744640687119286,
+      "fine_length_mm": 8.84819407771256,
+      "path_change_fraction": 0.011703336260911194,
+      "path_converged_within_5_percent": true,
+      "field_mesh_convergence": null,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            126.5,
+            18.5
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            129.0,
+            22.0
+          ]
+        }
+      ]
+    },
+    "A_shunt_C39": {
+      "net": "hv_ret",
+      "ports": [
+        "R5.4",
+        "C39.2"
+      ],
+      "coarse_length_mm": 33.26545596729058,
+      "fine_length_mm": 32.661902576697294,
+      "path_change_fraction": 0.018478819143373792,
+      "path_converged_within_5_percent": true,
+      "field_mesh_convergence": null,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            126.5,
+            18.5
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            149.5,
+            22.0
+          ]
+        }
+      ]
+    },
+    "B_bus_C40": {
+      "net": "bus_p",
+      "ports": [
+        "C40.1",
+        "Q5.2"
+      ],
+      "coarse_length_mm": 24.680349186104042,
+      "fine_length_mm": 24.43034918610403,
+      "path_change_fraction": 0.010233173422761001,
+      "path_converged_within_5_percent": true,
+      "field_mesh_convergence": null,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            108.75,
+            21.75
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            108.75,
+            21.75
+          ]
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            98.25,
+            4.75
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            98.0,
+            4.25
+          ]
+        }
+      ]
+    },
+    "B_bus_C41": {
+      "net": "bus_p",
+      "ports": [
+        "C41.1",
+        "Q5.2"
+      ],
+      "coarse_length_mm": 24.0590288425444,
+      "fine_length_mm": 23.809028842544393,
+      "path_change_fraction": 0.010500218284976062,
+      "path_converged_within_5_percent": true,
+      "field_mesh_convergence": null,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            88.75,
+            21.75
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            88.75,
+            21.75
+          ]
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            97.75,
+            4.75
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            98.0,
+            4.25
+          ]
+        }
+      ]
+    },
+    "B_switch": {
+      "net": "sw_b",
+      "ports": [
+        "Q5.3",
+        "Q6.2"
+      ],
+      "coarse_length_mm": 30.646815280171293,
+      "fine_length_mm": 29.707475451951108,
+      "path_change_fraction": 0.03161964501963397,
+      "path_converged_within_5_percent": true,
+      "field_mesh_convergence": null,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            103.75,
+            4.75
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            103.75,
+            4.75
+          ]
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "B.Cu",
+          "xy_mm": [
+            103.75,
+            4.75
+          ]
+        },
+        {
+          "from_layer": "B.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            115.75,
+            4.75
+          ]
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            115.75,
+            4.75
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            116.0,
+            4.25
+          ]
+        }
+      ]
+    },
+    "B_source_shunt": {
+      "net": "leg_ret",
+      "ports": [
+        "Q6.3",
+        "R5.1"
+      ],
+      "coarse_length_mm": 11.709106781186547,
+      "fine_length_mm": 11.56266017177982,
+      "path_change_fraction": 0.01266547725445992,
+      "path_converged_within_5_percent": true,
+      "field_mesh_convergence": null,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            122.0,
+            4.5
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            126.75,
+            4.5
+          ]
+        }
+      ]
+    },
+    "B_shunt_C40": {
+      "net": "hv_ret",
+      "ports": [
+        "R5.4",
+        "C40.2"
+      ],
+      "coarse_length_mm": 8.33042712474619,
+      "fine_length_mm": 8.226873734152916,
+      "path_change_fraction": 0.012587210396020168,
+      "path_converged_within_5_percent": true,
+      "field_mesh_convergence": null,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            124.75,
+            18.25
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            124.25,
+            21.75
+          ]
+        }
+      ]
+    },
+    "B_shunt_C41": {
+      "net": "hv_ret",
+      "ports": [
+        "R5.4",
+        "C41.2"
+      ],
+      "coarse_length_mm": 30.38677631085022,
+      "fine_length_mm": 29.369009357883854,
+      "path_change_fraction": 0.03465445294950525,
+      "path_converged_within_5_percent": true,
+      "field_mesh_convergence": null,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            122.75,
+            18.5
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            103.5,
+            22.0
+          ]
+        }
+      ]
+    },
+    "Q2_return": {
+      "net": "sw_a",
+      "ports": [
+        "Q2.3",
+        "U1.14"
+      ],
+      "coarse_length_mm": 48.98528137423857,
+      "fine_length_mm": 47.41726188957805,
+      "path_change_fraction": 0.033068537114437566,
+      "path_converged_within_5_percent": true,
+      "field_mesh_convergence": null,
+      "layer_transitions": []
+    },
+    "Q3_return": {
+      "net": "leg_ret",
+      "ports": [
+        "Q3.3",
+        "U1.9"
+      ],
+      "coarse_length_mm": null,
+      "fine_length_mm": 79.3710093578839,
+      "path_change_fraction": null,
+      "path_converged_within_5_percent": false,
+      "field_mesh_convergence": null,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            143.5,
+            4.75
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            130.0,
+            4.5
+          ]
+        },
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            136.0,
+            18.75
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            153.25,
+            38.75
+          ]
+        }
+      ]
+    },
+    "Q5_return": {
+      "net": "sw_b",
+      "ports": [
+        "Q5.3",
+        "U2.14"
+      ],
+      "coarse_length_mm": 42.818388155425104,
+      "fine_length_mm": 42.568388155425104,
+      "path_change_fraction": 0.005872902659297399,
+      "path_converged_within_5_percent": true,
+      "field_mesh_convergence": null,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            103.5,
+            4.75
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            103.5,
+            4.75
+          ]
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "B.Cu",
+          "xy_mm": [
+            103.5,
+            4.75
+          ]
+        },
+        {
+          "from_layer": "B.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            102.0,
+            33.0
+          ]
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            102.0,
+            33.0
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            102.0,
+            33.0
+          ]
+        }
+      ]
+    },
+    "Q6_return": {
+      "net": "leg_ret",
+      "ports": [
+        "Q6.3",
+        "U2.9"
+      ],
+      "coarse_length_mm": 47.780174593052024,
+      "fine_length_mm": 46.7979415460184,
+      "path_change_fraction": 0.02098880879339004,
+      "path_converged_within_5_percent": true,
+      "field_mesh_convergence": null,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            121.5,
+            4.75
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            115.0,
+            17.75
+          ]
+        }
+      ]
+    },
+    "A_bulk_bus": {
+      "net": "bus_p",
+      "ports": [
+        "C6.1",
+        "C39.1"
+      ],
+      "coarse_length_mm": 35.26613562373093,
+      "fine_length_mm": 34.91258223313766,
+      "path_change_fraction": 0.010126818699124764,
+      "path_converged_within_5_percent": true,
+      "field_mesh_convergence": null,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            174.25,
+            50.0
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            174.25,
+            50.0
+          ]
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            164.75,
+            22.5
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            164.5,
+            22.0
+          ]
+        }
+      ]
+    },
+    "A_bulk_return": {
+      "net": "hv_ret",
+      "ports": [
+        "C6.3",
+        "C39.2"
+      ],
+      "coarse_length_mm": 29.729922061357843,
+      "fine_length_mm": 29.37636867076456,
+      "path_change_fraction": 0.01203529934403162,
+      "path_converged_within_5_percent": true,
+      "field_mesh_convergence": null,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            173.5,
+            13.25
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            149.5,
+            22.0
+          ]
+        }
+      ]
+    },
+    "B_bulk_bus": {
+      "net": "bus_p",
+      "ports": [
+        "C5.1",
+        "C41.1"
+      ],
+      "coarse_length_mm": 138.29504755831243,
+      "fine_length_mm": 136.7950475583125,
+      "path_change_fraction": 0.010965309247474976,
+      "path_converged_within_5_percent": true,
+      "field_mesh_convergence": null,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            13.75,
+            44.0
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            13.75,
+            44.0
+          ]
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "B.Cu",
+          "xy_mm": [
+            68.25,
+            46.75
+          ]
+        },
+        {
+          "from_layer": "B.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            67.0,
+            34.25
+          ]
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            88.25,
+            21.5
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            88.5,
+            22.0
+          ]
+        }
+      ]
+    },
+    "B_bulk_return": {
+      "net": "hv_ret",
+      "ports": [
+        "C5.3",
+        "C41.2"
+      ],
+      "coarse_length_mm": 63.11469837220804,
+      "fine_length_mm": 63.114698372208196,
+      "path_change_fraction": 2.4767511514569074e-15,
+      "path_converged_within_5_percent": true,
+      "field_mesh_convergence": null,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            51.25,
+            44.0
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            103.5,
+            22.0
+          ]
+        }
+      ]
+    },
+    "A_bulk_alt_bus": {
+      "net": "bus_p",
+      "ports": [
+        "C5.1",
+        "C39.1"
+      ],
+      "coarse_length_mm": 212.78032893255107,
+      "fine_length_mm": 211.01256197958475,
+      "path_change_fraction": 0.008377543670302226,
+      "path_converged_within_5_percent": true,
+      "field_mesh_convergence": null,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            13.75,
+            44.0
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            13.75,
+            44.0
+          ]
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "B.Cu",
+          "xy_mm": [
+            68.25,
+            46.75
+          ]
+        },
+        {
+          "from_layer": "B.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            67.0,
+            34.25
+          ]
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            164.25,
+            21.75
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            164.5,
+            22.0
+          ]
+        }
+      ]
+    },
+    "A_bulk_alt_return": {
+      "net": "hv_ret",
+      "ports": [
+        "C5.3",
+        "C39.2"
+      ],
+      "coarse_length_mm": 113.96394077712571,
+      "fine_length_mm": 113.61038738653258,
+      "path_change_fraction": 0.0031119812081113005,
+      "path_converged_within_5_percent": true,
+      "field_mesh_convergence": null,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            51.25,
+            44.0
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            149.5,
+            22.0
+          ]
+        }
+      ]
+    },
+    "B_bulk_alt_bus": {
+      "net": "bus_p",
+      "ports": [
+        "C6.1",
+        "C41.1"
+      ],
+      "coarse_length_mm": 100.42908652763333,
+      "fine_length_mm": 100.07553313704007,
+      "path_change_fraction": 0.0035328654218520954,
+      "path_converged_within_5_percent": true,
+      "field_mesh_convergence": null,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            173.75,
+            50.25
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            173.75,
+            50.25
+          ]
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            88.75,
+            22.25
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            88.5,
+            22.0
+          ]
+        }
+      ]
+    },
+    "B_bulk_alt_return": {
+      "net": "hv_ret",
+      "ports": [
+        "C6.3",
+        "C41.2"
+      ],
+      "coarse_length_mm": 79.33652377915612,
+      "fine_length_mm": 78.65454326381678,
+      "path_change_fraction": 0.00867058007128594,
+      "path_converged_within_5_percent": true,
+      "field_mesh_convergence": null,
+      "layer_transitions": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            173.5,
+            13.25
+          ]
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            103.5,
+            22.0
+          ]
+        }
+      ]
+    }
+  },
+  "annotated_ports": "outputs/annotated_ports.json",
+  "power_sections": {
+    "A_bus_C38": {
+      "status": "COMPLETE_CONNECTED_ROUTE_HEURISTIC_SCENARIOS",
+      "route_length_mm": 24.844562748477124,
+      "horizontal_length_mm": 22.72056274847713,
+      "width_proxy_mm": 0.4,
+      "paired_route": "A_shunt_C38",
+      "paired_route_separation_mm": [
+        15.125516520106016,
+        27.11861926279528,
+        31.688440337132402
+      ],
+      "vertical_connectors": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            144.25,
+            21.75
+          ],
+          "ref": "C38.1",
+          "centre_mm": [
+            144.0,
+            22.0
+          ],
+          "drill_mm": 1.2,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.15158492736815204
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            144.25,
+            21.75
+          ],
+          "ref": "C38.1",
+          "centre_mm": [
+            144.0,
+            22.0
+          ],
+          "drill_mm": 1.2,
+          "height_mm": 0.5610000000000002,
+          "heuristic_nH": 0.18243029194322086
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            155.75,
+            4.75
+          ],
+          "ref": "Q2.2",
+          "centre_mm": [
+            156.0,
+            4.215
+          ],
+          "drill_mm": 1.5,
+          "height_mm": 0.5610000000000002,
+          "heuristic_nH": 0.1573935854857665
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            156.0,
+            4.25
+          ],
+          "ref": "Q2.2",
+          "centre_mm": [
+            156.0,
+            4.215
+          ],
+          "drill_mm": 1.5,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.1292259435264682
+        }
+      ],
+      "reference_plane_case_nH": 10.823417989703607,
+      "separated_pair_case_nH": 43.810242188900546,
+      "scenario_min_nH": 10.823417989703607,
+      "scenario_max_nH": 43.810242188900546,
+      "ordering_reversed": false
+    },
+    "A_bus_C39": {
+      "status": "COMPLETE_CONNECTED_ROUTE_HEURISTIC_SCENARIOS",
+      "route_length_mm": 23.394815280171297,
+      "horizontal_length_mm": 21.270815280171295,
+      "width_proxy_mm": 0.4,
+      "paired_route": "A_shunt_C39",
+      "paired_route_separation_mm": [
+        13.260692704380114,
+        14.033189639138154,
+        17.2997471079782
+      ],
+      "vertical_connectors": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            164.25,
+            21.75
+          ],
+          "ref": "C39.1",
+          "centre_mm": [
+            164.6,
+            22.0
+          ],
+          "drill_mm": 1.2,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.15158492736815204
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            164.25,
+            21.75
+          ],
+          "ref": "C39.1",
+          "centre_mm": [
+            164.6,
+            22.0
+          ],
+          "drill_mm": 1.2,
+          "height_mm": 0.5610000000000002,
+          "heuristic_nH": 0.18243029194322086
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            156.25,
+            4.75
+          ],
+          "ref": "Q2.2",
+          "centre_mm": [
+            156.0,
+            4.215
+          ],
+          "drill_mm": 1.5,
+          "height_mm": 0.5610000000000002,
+          "heuristic_nH": 0.1573935854857665
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            156.0,
+            4.25
+          ],
+          "ref": "Q2.2",
+          "centre_mm": [
+            156.0,
+            4.215
+          ],
+          "drill_mm": 1.5,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.1292259435264682
+        }
+      ],
+      "reference_plane_case_nH": 10.172401580576363,
+      "separated_pair_case_nH": 37.046640495856835,
+      "scenario_min_nH": 10.172401580576363,
+      "scenario_max_nH": 37.046640495856835,
+      "ordering_reversed": false
+    },
+    "A_switch": {
+      "status": "COMPLETE_CONNECTED_ROUTE_HEURISTIC_SCENARIOS",
+      "route_length_mm": 30.52549493661166,
+      "horizontal_length_mm": 27.399494936611664,
+      "width_proxy_mm": 0.8,
+      "paired_route": "A_source_shunt",
+      "paired_route_separation_mm": [
+        1.0693310993326623,
+        11.036861620267711,
+        17.751760476076733
+      ],
+      "vertical_connectors": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            161.0,
+            4.75
+          ],
+          "ref": "Q2.3",
+          "centre_mm": [
+            161.45,
+            4.215
+          ],
+          "drill_mm": 1.5,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.1292259435264682
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            161.0,
+            4.75
+          ],
+          "ref": "Q2.3",
+          "centre_mm": [
+            161.45,
+            4.215
+          ],
+          "drill_mm": 1.5,
+          "height_mm": 0.5610000000000002,
+          "heuristic_nH": 0.1573935854857665
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "B.Cu",
+          "xy_mm": [
+            161.0,
+            4.75
+          ],
+          "ref": "Q2.3",
+          "centre_mm": [
+            161.45,
+            4.215
+          ],
+          "drill_mm": 1.5,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.1292259435264682
+        },
+        {
+          "from_layer": "B.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            138.25,
+            4.75
+          ],
+          "ref": "Q3.2",
+          "centre_mm": [
+            138.0,
+            4.215
+          ],
+          "drill_mm": 1.5,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.1292259435264682
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            138.25,
+            4.75
+          ],
+          "ref": "Q3.2",
+          "centre_mm": [
+            138.0,
+            4.215
+          ],
+          "drill_mm": 1.5,
+          "height_mm": 0.5610000000000002,
+          "heuristic_nH": 0.1573935854857665
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            138.0,
+            4.25
+          ],
+          "ref": "Q3.2",
+          "centre_mm": [
+            138.0,
+            4.215
+          ],
+          "drill_mm": 1.5,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.1292259435264682
+        }
+      ],
+      "reference_plane_case_nH": 10.404411045958627,
+      "separated_pair_case_nH": 31.470640413017787,
+      "scenario_min_nH": 10.404411045958627,
+      "scenario_max_nH": 31.470640413017787,
+      "ordering_reversed": false
+    },
+    "A_source_shunt": {
+      "status": "COMPLETE_CONNECTED_ROUTE_HEURISTIC_SCENARIOS",
+      "route_length_mm": 24.144135623730936,
+      "horizontal_length_mm": 23.142135623730947,
+      "width_proxy_mm": 0.3,
+      "paired_route": "A_switch",
+      "paired_route_separation_mm": [
+        1.0693310993326623,
+        9.104428867315072,
+        11.796450737404026
+      ],
+      "vertical_connectors": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            143.0,
+            4.75
+          ],
+          "ref": "Q3.3",
+          "centre_mm": [
+            143.45,
+            4.215
+          ],
+          "drill_mm": 1.5,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.1292259435264682
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            130.0,
+            4.5
+          ],
+          "ref": "via",
+          "centre_mm": [
+            129.9,
+            4.3
+          ],
+          "drill_mm": 0.8,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.1922125312005901
+        }
+      ],
+      "reference_plane_case_nH": 11.511694940229296,
+      "separated_pair_case_nH": 31.916177140634737,
+      "scenario_min_nH": 11.511694940229296,
+      "scenario_max_nH": 31.916177140634737,
+      "ordering_reversed": false
+    },
+    "A_shunt_C38": {
+      "status": "COMPLETE_CONNECTED_ROUTE_HEURISTIC_SCENARIOS",
+      "route_length_mm": 8.84819407771256,
+      "horizontal_length_mm": 7.846194077712559,
+      "width_proxy_mm": 2.0,
+      "paired_route": "A_bus_C38",
+      "paired_route_separation_mm": [
+        15.13381151594006,
+        16.365485816192564,
+        18.895270572288716
+      ],
+      "vertical_connectors": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            126.5,
+            18.5
+          ],
+          "ref": "via",
+          "centre_mm": [
+            126.2,
+            18.6
+          ],
+          "drill_mm": 0.8,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.1922125312005901
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            129.0,
+            22.0
+          ],
+          "ref": "C38.2",
+          "centre_mm": [
+            129.0,
+            22.0
+          ],
+          "drill_mm": 1.2,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.15158492736815204
+        }
+      ],
+      "reference_plane_case_nH": 1.9892901144333575,
+      "separated_pair_case_nH": 9.26187339862303,
+      "scenario_min_nH": 1.9892901144333575,
+      "scenario_max_nH": 9.26187339862303,
+      "ordering_reversed": false
+    },
+    "A_shunt_C39": {
+      "status": "COMPLETE_CONNECTED_ROUTE_HEURISTIC_SCENARIOS",
+      "route_length_mm": 32.661902576697294,
+      "horizontal_length_mm": 31.659902576697313,
+      "width_proxy_mm": 2.0,
+      "paired_route": "A_bus_C39",
+      "paired_route_separation_mm": [
+        13.260692704380114,
+        20.446256830498825,
+        32.4783923709287
+      ],
+      "vertical_connectors": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            126.5,
+            18.5
+          ],
+          "ref": "via",
+          "centre_mm": [
+            126.2,
+            18.6
+          ],
+          "drill_mm": 0.8,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.1922125312005901
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            149.5,
+            22.0
+          ],
+          "ref": "C39.2",
+          "centre_mm": [
+            149.6,
+            22.0
+          ],
+          "drill_mm": 1.2,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.15158492736815204
+        }
+      ],
+      "reference_plane_case_nH": 6.9834671709616485,
+      "separated_pair_case_nH": 39.78414278965463,
+      "scenario_min_nH": 6.9834671709616485,
+      "scenario_max_nH": 39.78414278965463,
+      "ordering_reversed": false
+    },
+    "B_bus_C40": {
+      "status": "COMPLETE_CONNECTED_ROUTE_HEURISTIC_SCENARIOS",
+      "route_length_mm": 24.43034918610403,
+      "horizontal_length_mm": 22.30634918610403,
+      "width_proxy_mm": 0.4,
+      "paired_route": "B_shunt_C40",
+      "paired_route_separation_mm": [
+        15.125516520106016,
+        24.797396481905658,
+        29.78518509259259
+      ],
+      "vertical_connectors": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            108.75,
+            21.75
+          ],
+          "ref": "C40.1",
+          "centre_mm": [
+            109.0,
+            22.0
+          ],
+          "drill_mm": 1.2,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.15158492736815204
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            108.75,
+            21.75
+          ],
+          "ref": "C40.1",
+          "centre_mm": [
+            109.0,
+            22.0
+          ],
+          "drill_mm": 1.2,
+          "height_mm": 0.5610000000000002,
+          "heuristic_nH": 0.18243029194322086
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            98.25,
+            4.75
+          ],
+          "ref": "Q5.2",
+          "centre_mm": [
+            98.0,
+            4.215
+          ],
+          "drill_mm": 1.5,
+          "height_mm": 0.5610000000000002,
+          "heuristic_nH": 0.1573935854857665
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            98.0,
+            4.25
+          ],
+          "ref": "Q5.2",
+          "centre_mm": [
+            98.0,
+            4.215
+          ],
+          "drill_mm": 1.5,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.1292259435264682
+        }
+      ],
+      "reference_plane_case_nH": 10.637413301381537,
+      "separated_pair_case_nH": 42.70634938548391,
+      "scenario_min_nH": 10.637413301381537,
+      "scenario_max_nH": 42.70634938548391,
+      "ordering_reversed": false
+    },
+    "B_bus_C41": {
+      "status": "COMPLETE_CONNECTED_ROUTE_HEURISTIC_SCENARIOS",
+      "route_length_mm": 23.809028842544393,
+      "horizontal_length_mm": 21.68502884254439,
+      "width_proxy_mm": 0.4,
+      "paired_route": "B_shunt_C41",
+      "paired_route_separation_mm": [
+        12.367511714164657,
+        13.402626453410086,
+        16.763986697680238
+      ],
+      "vertical_connectors": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            88.75,
+            21.75
+          ],
+          "ref": "C41.1",
+          "centre_mm": [
+            88.4,
+            22.0
+          ],
+          "drill_mm": 1.2,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.15158492736815204
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            88.75,
+            21.75
+          ],
+          "ref": "C41.1",
+          "centre_mm": [
+            88.4,
+            22.0
+          ],
+          "drill_mm": 1.2,
+          "height_mm": 0.5610000000000002,
+          "heuristic_nH": 0.18243029194322086
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            97.75,
+            4.75
+          ],
+          "ref": "Q5.2",
+          "centre_mm": [
+            98.0,
+            4.215
+          ],
+          "drill_mm": 1.5,
+          "height_mm": 0.5610000000000002,
+          "heuristic_nH": 0.1573935854857665
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            98.0,
+            4.25
+          ],
+          "ref": "Q5.2",
+          "centre_mm": [
+            98.0,
+            4.215
+          ],
+          "drill_mm": 1.5,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.1292259435264682
+        }
+      ],
+      "reference_plane_case_nH": 10.358406268898433,
+      "separated_pair_case_nH": 37.312255705122,
+      "scenario_min_nH": 10.358406268898433,
+      "scenario_max_nH": 37.312255705122,
+      "ordering_reversed": false
+    },
+    "B_switch": {
+      "status": "COMPLETE_CONNECTED_ROUTE_HEURISTIC_SCENARIOS",
+      "route_length_mm": 29.707475451951108,
+      "horizontal_length_mm": 26.581475451951125,
+      "width_proxy_mm": 0.8,
+      "paired_route": "B_source_shunt",
+      "paired_route_separation_mm": [
+        5.648650369778608,
+        13.778589506265227,
+        19.038755710392422
+      ],
+      "vertical_connectors": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            103.75,
+            4.75
+          ],
+          "ref": "Q5.3",
+          "centre_mm": [
+            103.45,
+            4.215
+          ],
+          "drill_mm": 1.5,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.1292259435264682
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            103.75,
+            4.75
+          ],
+          "ref": "Q5.3",
+          "centre_mm": [
+            103.45,
+            4.215
+          ],
+          "drill_mm": 1.5,
+          "height_mm": 0.5610000000000002,
+          "heuristic_nH": 0.1573935854857665
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "B.Cu",
+          "xy_mm": [
+            103.75,
+            4.75
+          ],
+          "ref": "Q5.3",
+          "centre_mm": [
+            103.45,
+            4.215
+          ],
+          "drill_mm": 1.5,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.1292259435264682
+        },
+        {
+          "from_layer": "B.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            115.75,
+            4.75
+          ],
+          "ref": "Q6.2",
+          "centre_mm": [
+            116.0,
+            4.215
+          ],
+          "drill_mm": 1.5,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.1292259435264682
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            115.75,
+            4.75
+          ],
+          "ref": "Q6.2",
+          "centre_mm": [
+            116.0,
+            4.215
+          ],
+          "drill_mm": 1.5,
+          "height_mm": 0.5610000000000002,
+          "heuristic_nH": 0.1573935854857665
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            116.0,
+            4.25
+          ],
+          "ref": "Q6.2",
+          "centre_mm": [
+            116.0,
+            4.215
+          ],
+          "drill_mm": 1.5,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.1292259435264682
+        }
+      ],
+      "reference_plane_case_nH": 10.11861484490315,
+      "separated_pair_case_nH": 38.22219722347873,
+      "scenario_min_nH": 10.11861484490315,
+      "scenario_max_nH": 38.22219722347873,
+      "ordering_reversed": false
+    },
+    "B_source_shunt": {
+      "status": "COMPLETE_CONNECTED_ROUTE_HEURISTIC_SCENARIOS",
+      "route_length_mm": 11.56266017177982,
+      "horizontal_length_mm": 10.56066017177982,
+      "width_proxy_mm": 0.3,
+      "paired_route": "B_switch",
+      "paired_route_separation_mm": [
+        5.62638871746345,
+        10.982941318244398,
+        12.248724423383848
+      ],
+      "vertical_connectors": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            122.0,
+            4.5
+          ],
+          "ref": "Q6.3",
+          "centre_mm": [
+            121.45,
+            4.215
+          ],
+          "drill_mm": 1.5,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.1292259435264682
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            126.75,
+            4.5
+          ],
+          "ref": "via",
+          "centre_mm": [
+            126.9,
+            4.3
+          ],
+          "drill_mm": 0.8,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.1922125312005901
+        }
+      ],
+      "reference_plane_case_nH": 5.427989472814194,
+      "separated_pair_case_nH": 17.828910350200626,
+      "scenario_min_nH": 5.427989472814194,
+      "scenario_max_nH": 17.828910350200626,
+      "ordering_reversed": false
+    },
+    "B_shunt_C40": {
+      "status": "COMPLETE_CONNECTED_ROUTE_HEURISTIC_SCENARIOS",
+      "route_length_mm": 8.226873734152916,
+      "horizontal_length_mm": 7.224873734152917,
+      "width_proxy_mm": 2.0,
+      "paired_route": "B_bus_C40",
+      "paired_route_separation_mm": [
+        15.125516520106016,
+        15.616842434835444,
+        17.66927064142717
+      ],
+      "vertical_connectors": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            124.75,
+            18.25
+          ],
+          "ref": "via",
+          "centre_mm": [
+            124.4,
+            18.2
+          ],
+          "drill_mm": 0.8,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.1922125312005901
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            124.25,
+            21.75
+          ],
+          "ref": "C40.2",
+          "centre_mm": [
+            124.0,
+            22.0
+          ],
+          "drill_mm": 1.2,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.15158492736815204
+        }
+      ],
+      "reference_plane_case_nH": 1.85898769619841,
+      "separated_pair_case_nH": 8.42531338511175,
+      "scenario_min_nH": 1.85898769619841,
+      "scenario_max_nH": 8.42531338511175,
+      "ordering_reversed": false
+    },
+    "B_shunt_C41": {
+      "status": "COMPLETE_CONNECTED_ROUTE_HEURISTIC_SCENARIOS",
+      "route_length_mm": 29.369009357883854,
+      "horizontal_length_mm": 28.367009357883862,
+      "width_proxy_mm": 2.0,
+      "paired_route": "B_bus_C41",
+      "paired_route_separation_mm": [
+        12.367511714164657,
+        17.706105060073146,
+        29.182614687515578
+      ],
+      "vertical_connectors": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            122.75,
+            18.5
+          ],
+          "ref": "via",
+          "centre_mm": [
+            122.6,
+            18.2
+          ],
+          "drill_mm": 0.8,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.1922125312005901
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            103.5,
+            22.0
+          ],
+          "ref": "C41.2",
+          "centre_mm": [
+            103.4,
+            22.0
+          ],
+          "drill_mm": 1.2,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.15158492736815204
+        }
+      ],
+      "reference_plane_case_nH": 6.2928862913100465,
+      "separated_pair_case_nH": 34.63940136771489,
+      "scenario_min_nH": 6.2928862913100465,
+      "scenario_max_nH": 34.63940136771489,
+      "ordering_reversed": false
+    },
+    "A_bulk_bus": {
+      "status": "COMPLETE_CONNECTED_ROUTE_HEURISTIC_SCENARIOS",
+      "route_length_mm": 34.91258223313766,
+      "horizontal_length_mm": 32.78858223313765,
+      "width_proxy_mm": 0.4,
+      "paired_route": "A_bulk_return",
+      "paired_route_separation_mm": [
+        6.317139384246639,
+        18.400977446864065,
+        36.00630675312313
+      ],
+      "vertical_connectors": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            174.25,
+            50.0
+          ],
+          "ref": "C6.1",
+          "centre_mm": [
+            174.35,
+            50.75
+          ],
+          "drill_mm": 1.8,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.11095732353571397
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            174.25,
+            50.0
+          ],
+          "ref": "C6.1",
+          "centre_mm": [
+            174.35,
+            50.75
+          ],
+          "drill_mm": 1.8,
+          "height_mm": 0.5610000000000002,
+          "heuristic_nH": 0.13693710681348478
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            164.75,
+            22.5
+          ],
+          "ref": "C39.1",
+          "centre_mm": [
+            164.6,
+            22.0
+          ],
+          "drill_mm": 1.2,
+          "height_mm": 0.5610000000000002,
+          "heuristic_nH": 0.18243029194322086
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            164.5,
+            22.0
+          ],
+          "ref": "C39.1",
+          "centre_mm": [
+            164.6,
+            22.0
+          ],
+          "drill_mm": 1.2,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.15158492736815204
+        }
+      ],
+      "reference_plane_case_nH": 15.305787795649247,
+      "separated_pair_case_nH": 60.48213388109619,
+      "scenario_min_nH": 15.305787795649247,
+      "scenario_max_nH": 60.48213388109619,
+      "ordering_reversed": false
+    },
+    "A_bulk_return": {
+      "status": "COMPLETE_CONNECTED_ROUTE_HEURISTIC_SCENARIOS",
+      "route_length_mm": 29.37636867076456,
+      "horizontal_length_mm": 28.37436867076456,
+      "width_proxy_mm": 2.0,
+      "paired_route": "A_bulk_bus",
+      "paired_route_separation_mm": [
+        6.206095793653205,
+        8.225341938181051,
+        14.87552520081224
+      ],
+      "vertical_connectors": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            173.5,
+            13.25
+          ],
+          "ref": "C6.3",
+          "centre_mm": [
+            174.35,
+            13.25
+          ],
+          "drill_mm": 1.8,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.11095732353571397
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            149.5,
+            22.0
+          ],
+          "ref": "C39.2",
+          "centre_mm": [
+            149.6,
+            22.0
+          ],
+          "drill_mm": 1.2,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.15158492736815204
+        }
+      ],
+      "reference_plane_case_nH": 6.213174468269294,
+      "separated_pair_case_nH": 25.254952131474134,
+      "scenario_min_nH": 6.213174468269294,
+      "scenario_max_nH": 25.254952131474134,
+      "ordering_reversed": false
+    },
+    "B_bulk_bus": {
+      "status": "COMPLETE_CONNECTED_ROUTE_HEURISTIC_SCENARIOS",
+      "route_length_mm": 136.7950475583125,
+      "horizontal_length_mm": 133.66904755831226,
+      "width_proxy_mm": 0.4,
+      "paired_route": "B_bulk_return",
+      "paired_route_separation_mm": [
+        2.1293412126758833,
+        12.112843225271265,
+        37.125
+      ],
+      "vertical_connectors": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            13.75,
+            44.0
+          ],
+          "ref": "C5.1",
+          "centre_mm": [
+            13.0,
+            43.95
+          ],
+          "drill_mm": 1.8,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.11095732353571397
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            13.75,
+            44.0
+          ],
+          "ref": "C5.1",
+          "centre_mm": [
+            13.0,
+            43.95
+          ],
+          "drill_mm": 1.8,
+          "height_mm": 0.5610000000000002,
+          "heuristic_nH": 0.13693710681348478
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "B.Cu",
+          "xy_mm": [
+            68.25,
+            46.75
+          ],
+          "ref": "via",
+          "centre_mm": [
+            68.5,
+            47.0
+          ],
+          "drill_mm": 0.8,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.1922125312005901
+        },
+        {
+          "from_layer": "B.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            67.0,
+            34.25
+          ],
+          "ref": "via",
+          "centre_mm": [
+            67.2,
+            34.0
+          ],
+          "drill_mm": 0.8,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.1922125312005901
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            88.25,
+            21.5
+          ],
+          "ref": "C41.1",
+          "centre_mm": [
+            88.4,
+            22.0
+          ],
+          "drill_mm": 1.2,
+          "height_mm": 0.5610000000000002,
+          "heuristic_nH": 0.18243029194322086
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            88.5,
+            22.0
+          ],
+          "ref": "C41.1",
+          "centre_mm": [
+            88.4,
+            22.0
+          ],
+          "drill_mm": 1.2,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.15158492736815204
+        }
+      ],
+      "reference_plane_case_nH": 60.99109437214462,
+      "separated_pair_case_nH": 219.1881178926072,
+      "scenario_min_nH": 60.99109437214462,
+      "scenario_max_nH": 219.1881178926072,
+      "ordering_reversed": false
+    },
+    "B_bulk_return": {
+      "status": "COMPLETE_CONNECTED_ROUTE_HEURISTIC_SCENARIOS",
+      "route_length_mm": 63.114698372208196,
+      "horizontal_length_mm": 62.11269837220814,
+      "width_proxy_mm": 2.0,
+      "paired_route": "B_bulk_bus",
+      "paired_route_separation_mm": [
+        2.0,
+        7.050044326101787,
+        14.87552520081224
+      ],
+      "vertical_connectors": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            51.25,
+            44.0
+          ],
+          "ref": "C5.3",
+          "centre_mm": [
+            50.5,
+            43.95
+          ],
+          "drill_mm": 1.8,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.11095732353571397
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            103.5,
+            22.0
+          ],
+          "ref": "C41.2",
+          "centre_mm": [
+            103.4,
+            22.0
+          ],
+          "drill_mm": 1.2,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.15158492736815204
+        }
+      ],
+      "reference_plane_case_nH": 13.28872895940281,
+      "separated_pair_case_nH": 45.44939977111191,
+      "scenario_min_nH": 13.28872895940281,
+      "scenario_max_nH": 45.44939977111191,
+      "ordering_reversed": false
+    },
+    "A_bulk_alt_bus": {
+      "status": "COMPLETE_CONNECTED_ROUTE_HEURISTIC_SCENARIOS",
+      "route_length_mm": 211.01256197958475,
+      "horizontal_length_mm": 207.8865619795845,
+      "width_proxy_mm": 0.4,
+      "paired_route": "A_bulk_alt_return",
+      "paired_route_separation_mm": [
+        1.1738159992094161,
+        9.466516987506191,
+        37.125
+      ],
+      "vertical_connectors": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            13.75,
+            44.0
+          ],
+          "ref": "C5.1",
+          "centre_mm": [
+            13.0,
+            43.95
+          ],
+          "drill_mm": 1.8,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.11095732353571397
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            13.75,
+            44.0
+          ],
+          "ref": "C5.1",
+          "centre_mm": [
+            13.0,
+            43.95
+          ],
+          "drill_mm": 1.8,
+          "height_mm": 0.5610000000000002,
+          "heuristic_nH": 0.13693710681348478
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "B.Cu",
+          "xy_mm": [
+            68.25,
+            46.75
+          ],
+          "ref": "via",
+          "centre_mm": [
+            68.5,
+            47.0
+          ],
+          "drill_mm": 0.8,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.1922125312005901
+        },
+        {
+          "from_layer": "B.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            67.0,
+            34.25
+          ],
+          "ref": "via",
+          "centre_mm": [
+            67.2,
+            34.0
+          ],
+          "drill_mm": 0.8,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.1922125312005901
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            164.25,
+            21.75
+          ],
+          "ref": "C39.1",
+          "centre_mm": [
+            164.6,
+            22.0
+          ],
+          "drill_mm": 1.2,
+          "height_mm": 0.5610000000000002,
+          "heuristic_nH": 0.18243029194322086
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            164.5,
+            22.0
+          ],
+          "ref": "C39.1",
+          "centre_mm": [
+            164.6,
+            22.0
+          ],
+          "drill_mm": 1.2,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.15158492736815204
+        }
+      ],
+      "reference_plane_case_nH": 94.31884336925039,
+      "separated_pair_case_nH": 328.31676747621765,
+      "scenario_min_nH": 94.31884336925039,
+      "scenario_max_nH": 328.31676747621765,
+      "ordering_reversed": false
+    },
+    "A_bulk_alt_return": {
+      "status": "COMPLETE_CONNECTED_ROUTE_HEURISTIC_SCENARIOS",
+      "route_length_mm": 113.61038738653258,
+      "horizontal_length_mm": 112.60838738653234,
+      "width_proxy_mm": 2.0,
+      "paired_route": "A_bulk_alt_bus",
+      "paired_route_separation_mm": [
+        2.0,
+        4.468889235593113,
+        12.938666623729047
+      ],
+      "vertical_connectors": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            51.25,
+            44.0
+          ],
+          "ref": "C5.3",
+          "centre_mm": [
+            50.5,
+            43.95
+          ],
+          "drill_mm": 1.8,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.11095732353571397
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            149.5,
+            22.0
+          ],
+          "ref": "C39.2",
+          "centre_mm": [
+            149.6,
+            22.0
+          ],
+          "drill_mm": 1.2,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.15158492736815204
+        }
+      ],
+      "reference_plane_case_nH": 23.878612997820294,
+      "separated_pair_case_nH": 91.79063892530792,
+      "scenario_min_nH": 23.878612997820294,
+      "scenario_max_nH": 91.79063892530792,
+      "ordering_reversed": false
+    },
+    "B_bulk_alt_bus": {
+      "status": "COMPLETE_CONNECTED_ROUTE_HEURISTIC_SCENARIOS",
+      "route_length_mm": 100.07553313704007,
+      "horizontal_length_mm": 97.95153313704003,
+      "width_proxy_mm": 0.4,
+      "paired_route": "B_bulk_alt_return",
+      "paired_route_separation_mm": [
+        6.231400003209552,
+        8.900087745930918,
+        37.25
+      ],
+      "vertical_connectors": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            173.75,
+            50.25
+          ],
+          "ref": "C6.1",
+          "centre_mm": [
+            174.35,
+            50.75
+          ],
+          "drill_mm": 1.8,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.11095732353571397
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            173.75,
+            50.25
+          ],
+          "ref": "C6.1",
+          "centre_mm": [
+            174.35,
+            50.75
+          ],
+          "drill_mm": 1.8,
+          "height_mm": 0.5610000000000002,
+          "heuristic_nH": 0.13693710681348478
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            88.75,
+            22.25
+          ],
+          "ref": "C41.1",
+          "centre_mm": [
+            88.4,
+            22.0
+          ],
+          "drill_mm": 1.2,
+          "height_mm": 0.5610000000000002,
+          "heuristic_nH": 0.18243029194322086
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            88.5,
+            22.0
+          ],
+          "ref": "C41.1",
+          "centre_mm": [
+            88.4,
+            22.0
+          ],
+          "drill_mm": 1.2,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.15158492736815204
+        }
+      ],
+      "reference_plane_case_nH": 44.567539399304515,
+      "separated_pair_case_nH": 170.6816599171411,
+      "scenario_min_nH": 44.567539399304515,
+      "scenario_max_nH": 170.6816599171411,
+      "ordering_reversed": false
+    },
+    "B_bulk_alt_return": {
+      "status": "COMPLETE_CONNECTED_ROUTE_HEURISTIC_SCENARIOS",
+      "route_length_mm": 78.65454326381678,
+      "horizontal_length_mm": 77.65254326381664,
+      "width_proxy_mm": 2.0,
+      "paired_route": "B_bulk_alt_bus",
+      "paired_route_separation_mm": [
+        6.342000551876356,
+        11.015005492508845,
+        28.84473035062037
+      ],
+      "vertical_connectors": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            173.5,
+            13.25
+          ],
+          "ref": "C6.3",
+          "centre_mm": [
+            174.35,
+            13.25
+          ],
+          "drill_mm": 1.8,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.11095732353571397
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            103.5,
+            22.0
+          ],
+          "ref": "C41.2",
+          "centre_mm": [
+            103.4,
+            22.0
+          ],
+          "drill_mm": 1.2,
+          "height_mm": 0.5009999999999999,
+          "heuristic_nH": 0.15158492736815204
+        }
+      ],
+      "reference_plane_case_nH": 16.54772311493252,
+      "separated_pair_case_nH": 86.4294841795677,
+      "scenario_min_nH": 16.54772311493252,
+      "scenario_max_nH": 86.4294841795677,
+      "ordering_reversed": false
+    }
+  },
+  "gate_loops": {
+    "Q2": {
+      "status": "COMPLETE_CONNECTED_RETURN_GEOMETRY_HEURISTIC_SCENARIOS",
+      "driver_output_net": "leg_a-out_h",
+      "series_resistor_to_gate_net": "leg_a-gate_h",
+      "return_route": "Q2_return",
+      "forward_track_length_mm": 48.477009413476914,
+      "return_connected_length_mm": 47.41726188957805,
+      "effective_pair_length_mm": 48.477009413476914,
+      "median_route_separation_mm": 1.3175067063743804,
+      "return_vertical_connectors": [],
+      "forward_vertical_connectors": [],
+      "reference_plane_case_nH": 16.936693304624313,
+      "separated_pair_case_nH": 23.11445517201241,
+      "scenario_min_nH": 16.936693304624313,
+      "scenario_max_nH": 23.11445517201241,
+      "ordering_reversed": false
+    },
+    "Q3": {
+      "status": "COMPLETE_CONNECTED_RETURN_GEOMETRY_HEURISTIC_SCENARIOS",
+      "driver_output_net": "leg_a-out_l",
+      "series_resistor_to_gate_net": "leg_a-gate_l",
+      "return_route": "Q3_return",
+      "forward_track_length_mm": 53.51284199963789,
+      "return_connected_length_mm": 79.3710093578839,
+      "effective_pair_length_mm": 77.36700935788387,
+      "median_route_separation_mm": 0.7107098612967376,
+      "return_vertical_connectors": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            143.5,
+            4.75
+          ],
+          "ref": "Q3.3",
+          "centre_mm": [
+            143.45,
+            4.215
+          ],
+          "drill_mm": 1.5,
+          "heuristic_nH": 0.1292259435264682
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            130.0,
+            4.5
+          ],
+          "ref": "via",
+          "centre_mm": [
+            129.9,
+            4.3
+          ],
+          "drill_mm": 0.8,
+          "heuristic_nH": 0.1922125312005901
+        },
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            136.0,
+            18.75
+          ],
+          "ref": "via",
+          "centre_mm": [
+            136.0,
+            18.6
+          ],
+          "drill_mm": 0.3,
+          "heuristic_nH": 0.2904916223523651
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            153.25,
+            38.75
+          ],
+          "ref": "via",
+          "centre_mm": [
+            153.2,
+            38.6
+          ],
+          "drill_mm": 0.3,
+          "heuristic_nH": 0.2904916223523651
+        }
+      ],
+      "forward_vertical_connectors": [
+        {
+          "net": "leg_a-out_l",
+          "centre_mm": [
+            134.8,
+            17.5
+          ],
+          "drill_mm": 0.3,
+          "diameter_mm": 0.85,
+          "through": true,
+          "active_transition": "F.Cu-In1.Cu",
+          "heuristic_nH": 0.2904916223523651
+        },
+        {
+          "net": "leg_a-out_l",
+          "centre_mm": [
+            151.8,
+            38.8
+          ],
+          "drill_mm": 0.3,
+          "diameter_mm": 0.85,
+          "through": true,
+          "active_transition": "F.Cu-In1.Cu",
+          "heuristic_nH": 0.2904916223523651
+        }
+      ],
+      "reference_plane_case_nH": 33.912398237824746,
+      "separated_pair_case_nH": 33.8167294140688,
+      "scenario_min_nH": 33.8167294140688,
+      "scenario_max_nH": 33.912398237824746,
+      "ordering_reversed": true
+    },
+    "Q5": {
+      "status": "COMPLETE_CONNECTED_RETURN_GEOMETRY_HEURISTIC_SCENARIOS",
+      "driver_output_net": "leg_b-out_h",
+      "series_resistor_to_gate_net": "leg_b-gate_h",
+      "return_route": "Q5_return",
+      "forward_track_length_mm": 41.04205145407959,
+      "return_connected_length_mm": 42.568388155425104,
+      "effective_pair_length_mm": 41.04205145407959,
+      "median_route_separation_mm": 3.8331408792268515,
+      "return_vertical_connectors": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            103.5,
+            4.75
+          ],
+          "ref": "Q5.3",
+          "centre_mm": [
+            103.45,
+            4.215
+          ],
+          "drill_mm": 1.5,
+          "heuristic_nH": 0.1292259435264682
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            103.5,
+            4.75
+          ],
+          "ref": "Q5.3",
+          "centre_mm": [
+            103.45,
+            4.215
+          ],
+          "drill_mm": 1.5,
+          "heuristic_nH": 0.1573935854857665
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "B.Cu",
+          "xy_mm": [
+            103.5,
+            4.75
+          ],
+          "ref": "Q5.3",
+          "centre_mm": [
+            103.45,
+            4.215
+          ],
+          "drill_mm": 1.5,
+          "heuristic_nH": 0.1292259435264682
+        },
+        {
+          "from_layer": "B.Cu",
+          "to_layer": "In2.Cu",
+          "xy_mm": [
+            102.0,
+            33.0
+          ],
+          "ref": "via",
+          "centre_mm": [
+            102.095,
+            33.0
+          ],
+          "drill_mm": 0.3,
+          "heuristic_nH": 0.2904916223523651
+        },
+        {
+          "from_layer": "In2.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            102.0,
+            33.0
+          ],
+          "ref": "via",
+          "centre_mm": [
+            102.095,
+            33.0
+          ],
+          "drill_mm": 0.3,
+          "heuristic_nH": 0.33797251926087263
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            102.0,
+            33.0
+          ],
+          "ref": "via",
+          "centre_mm": [
+            102.095,
+            33.0
+          ],
+          "drill_mm": 0.3,
+          "heuristic_nH": 0.2904916223523651
+        }
+      ],
+      "forward_vertical_connectors": [],
+      "reference_plane_case_nH": 15.673900254380388,
+      "separated_pair_case_nH": 38.436409794142826,
+      "scenario_min_nH": 15.673900254380388,
+      "scenario_max_nH": 38.436409794142826,
+      "ordering_reversed": false
+    },
+    "Q6": {
+      "status": "COMPLETE_CONNECTED_RETURN_GEOMETRY_HEURISTIC_SCENARIOS",
+      "driver_output_net": "leg_b-out_l",
+      "series_resistor_to_gate_net": "leg_b-gate_l",
+      "return_route": "Q6_return",
+      "forward_track_length_mm": 45.65772478666509,
+      "return_connected_length_mm": 46.7979415460184,
+      "effective_pair_length_mm": 45.79594154601839,
+      "median_route_separation_mm": 1.2021546266355225,
+      "return_vertical_connectors": [
+        {
+          "from_layer": "F.Cu",
+          "to_layer": "In1.Cu",
+          "xy_mm": [
+            121.5,
+            4.75
+          ],
+          "ref": "Q6.3",
+          "centre_mm": [
+            121.45,
+            4.215
+          ],
+          "drill_mm": 1.5,
+          "heuristic_nH": 0.1292259435264682
+        },
+        {
+          "from_layer": "In1.Cu",
+          "to_layer": "F.Cu",
+          "xy_mm": [
+            115.0,
+            17.75
+          ],
+          "ref": "via",
+          "centre_mm": [
+            114.9,
+            17.8
+          ],
+          "drill_mm": 0.3,
+          "heuristic_nH": 0.2904916223523651
+        }
+      ],
+      "forward_vertical_connectors": [],
+      "reference_plane_case_nH": 19.61544831318234,
+      "separated_pair_case_nH": 29.187076278662865,
+      "scenario_min_nH": 19.61544831318234,
+      "scenario_max_nH": 29.187076278662865,
+      "ordering_reversed": false
+    }
+  },
+  "loop_board_copper_scenario_nH": {
+    "A": {
+      "min": 34.72881409032489,
+      "max": 140.217600839164
+    },
+    "B": {
+      "min": 28.043005315297286,
+      "max": 128.00276464651625
+    }
+  },
+  "deck_parameters_heuristic_scenario_nH": {
+    "A": {
+      "min": {
+        "selected_local_capacitor": "C38",
+        "LD_HS": 10.823417989703607,
+        "LS_HS": 5.202205522979313,
+        "LD_LS": 5.202205522979313,
+        "LCS": 11.511694940229296,
+        "LS_LS": 1.9892901144333575,
+        "LCAP": 5.0,
+        "LBULK_copper_only": 21.51896226391854,
+        "LBULK": 21.51896226391854,
+        "LBULK_omits_internal_capacitor_ESL": true,
+        "LG_high_side": 16.936693304624313,
+        "LG_low_side": 33.8167294140688,
+        "LG_single_knob_sweep_nH": [
+          16.936693304624313,
+          33.8167294140688
+        ]
+      },
+      "max": {
+        "selected_local_capacitor": "C39",
+        "LD_HS": 37.046640495856835,
+        "LS_HS": 15.735320206508893,
+        "LD_LS": 15.735320206508893,
+        "LCS": 31.916177140634737,
+        "LS_LS": 39.78414278965463,
+        "LCAP": 20.0,
+        "LBULK_copper_only": 85.73708601257033,
+        "LBULK": 85.73708601257033,
+        "LBULK_omits_internal_capacitor_ESL": true,
+        "LG_high_side": 23.11445517201241,
+        "LG_low_side": 33.912398237824746,
+        "LG_single_knob_sweep_nH": [
+          23.11445517201241,
+          33.912398237824746
+        ]
+      }
+    },
+    "B": {
+      "min": {
+        "selected_local_capacitor": "C40",
+        "LD_HS": 10.637413301381537,
+        "LS_HS": 5.059307422451575,
+        "LD_LS": 5.059307422451575,
+        "LCS": 5.427989472814194,
+        "LS_LS": 1.85898769619841,
+        "LCAP": 5.0,
+        "LBULK_copper_only": 61.11526251423703,
+        "LBULK": 61.11526251423703,
+        "LBULK_omits_internal_capacitor_ESL": true,
+        "LG_high_side": 15.673900254380388,
+        "LG_low_side": 19.61544831318234,
+        "LG_single_knob_sweep_nH": [
+          15.673900254380388,
+          19.61544831318234
+        ]
+      },
+      "max": {
+        "selected_local_capacitor": "C41",
+        "LD_HS": 37.312255705122,
+        "LS_HS": 19.111098611739365,
+        "LD_LS": 19.111098611739365,
+        "LCS": 17.828910350200626,
+        "LS_LS": 34.63940136771489,
+        "LCAP": 20.0,
+        "LBULK_copper_only": 257.1111440967088,
+        "LBULK": 257.1111440967088,
+        "LBULK_omits_internal_capacitor_ESL": true,
+        "LG_high_side": 38.436409794142826,
+        "LG_low_side": 29.187076278662865,
+        "LG_single_knob_sweep_nH": [
+          29.187076278662865,
+          38.436409794142826
+        ]
+      }
+    }
+  },
+  "qualified_deck_parameters_nH": {
+    "LD_HS": null,
+    "LS_HS": null,
+    "LD_LS": null,
+    "LS_LS": null,
+    "LCS": null,
+    "LCAP": null,
+    "LBULK": null,
+    "LG": null
+  },
+  "component_assumptions": {
+    "C38-C41_ESL_nH": [
+      5,
+      20
+    ],
+    "class": "ASSUMED per ROUND-3 A2; exact TDK part model absent",
+    "bulk_cap_internal_ESL_nH": null
+  },
+  "deck_mapping": "LS_HS and LD_LS each get half of the same connected switch-node route as bookkeeping, not separate field terms. LCS is source-to-R5.1, LS_LS is R5.4-to-cap return. BUS_P and HV_RET use the same selected local capacitor branch in each scenario. LBULK_copper_only is shorter C5/C6 route pair; internal bulk-cap ESL is unresolved. Each gate has its own LG; sweep both per-device values with the starter deck's one LG knob.",
+  "sanity_flags": {
+    "scenario_loop_over_100_nH": [
+      "A",
+      "B"
+    ],
+    "meaning": "The runbook says to recheck >100 nH. Separated-pair terms on successive sections can double-count their shared return; these are stress scenarios, not a measured upper limit."
+  },
+  "use_for_B1": "Exploratory complete-path sensitivity only; no guaranteed low/high physical bounds or board stress acceptance. LBULK is the routed copper-only proxy with bulk-capacitor internal ESL omitted; declare this omission in every B1 result."
+}

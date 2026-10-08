@@ -1,0 +1,105 @@
+{
+  "board_sha256": "8056fc952675bc6987bcc9d32c12a88eebc4cec9bc3696f8cbd4876700a39129",
+  "renderer": "CairoSVG 2.9.1; kicad-cli pcb render",
+  "renders": [
+    {
+      "argv": [
+        "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+        "pcb",
+        "export",
+        "svg",
+        "--layers",
+        "F.Cu,F.Silkscreen,Edge.Cuts",
+        "--mode-single",
+        "--fit-page-to-board",
+        "--exclude-drawing-sheet",
+        "--output",
+        "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/native-13/previews/front.svg",
+        "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/native-13/section.kicad_pcb"
+      ],
+      "exit_code": 0,
+      "svg_sha256": "826122fbadbb1603c45ab1b8e2500c6c332c5099e75862cb85f4b6d38730da12",
+      "png_sha256": "3364d12de46f7484d71f86f9d6793fadfe2431e0b02cf422d1e3e9489e6f3705"
+    },
+    {
+      "argv": [
+        "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+        "pcb",
+        "export",
+        "svg",
+        "--layers",
+        "In1.Cu,Edge.Cuts",
+        "--mode-single",
+        "--fit-page-to-board",
+        "--exclude-drawing-sheet",
+        "--output",
+        "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/native-13/previews/inner-return.svg",
+        "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/native-13/section.kicad_pcb"
+      ],
+      "exit_code": 0,
+      "svg_sha256": "639ee78e20dfa5b46d3fb55c68bcbc86d9e0fdd2e32b67b9ce862869ba14e98f",
+      "png_sha256": "aa5091ec105c17b6bcaf33d7ab31179caa70714e42e0110219c62884465627e8"
+    },
+    {
+      "argv": [
+        "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+        "pcb",
+        "export",
+        "svg",
+        "--layers",
+        "In2.Cu,Edge.Cuts",
+        "--mode-single",
+        "--fit-page-to-board",
+        "--exclude-drawing-sheet",
+        "--output",
+        "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/native-13/previews/inner-bus.svg",
+        "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/native-13/section.kicad_pcb"
+      ],
+      "exit_code": 0,
+      "svg_sha256": "eabcb0593733857849637f9934fb9e8acc6f78697d99a7f9c88728447fde5ac1",
+      "png_sha256": "db8c9b94361c63061fa75320d54746e2a078cec325c1b9c104c5df53a1f99a25"
+    },
+    {
+      "argv": [
+        "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+        "pcb",
+        "export",
+        "svg",
+        "--layers",
+        "B.Cu,B.Silkscreen,Edge.Cuts",
+        "--mode-single",
+        "--fit-page-to-board",
+        "--exclude-drawing-sheet",
+        "--output",
+        "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/native-13/previews/back.svg",
+        "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/native-13/section.kicad_pcb"
+      ],
+      "exit_code": 0,
+      "svg_sha256": "41feff0540895528ab9ae56f5614030a20ab881eec7f08f7a0c347c1601ef385",
+      "png_sha256": "a86d99fe42bc87e72f19c87b66567202f5884fc8ecec099359af5c7c059c131c"
+    },
+    {
+      "argv": [
+        "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+        "pcb",
+        "export",
+        "svg",
+        "--layers",
+        "F.Silkscreen,F.Fab,Edge.Cuts",
+        "--mode-single",
+        "--fit-page-to-board",
+        "--exclude-drawing-sheet",
+        "--output",
+        "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/native-13/previews/reference-labels.svg",
+        "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/native-13/section.kicad_pcb"
+      ],
+      "exit_code": 0,
+      "svg_sha256": "ca13434d3390d1605689a18d2265c1cd87d18678740cd0fe3af2b6988942c35f",
+      "png_sha256": "3e3325925e43c41d75620ea7d952b42dd225eb3dda826672036d27196bd7615a"
+    },
+    {
+      "argv": "kicad-cli pcb render --side top --rotate -45,0,30 --perspective --background opaque --quality basic -w 1800 -h 1300",
+      "png_sha256": "c6e418d55ce75debb804e4dfd3a136775432b9f09957fc5ae4df50278cfc7658"
+    }
+  ]
+}

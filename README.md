@@ -181,7 +181,7 @@ For contributors working on architecture, verification, or toolchain internals:
 
 <!-- BEGIN GENERATED: repo-map -- edits here are overwritten by scripts/gen_repo_state.py -->
 
-*All 21 tracked top-level directories. Generated -- a new directory without a description fails CI.*
+*All 23 tracked top-level directories. Generated -- a new directory without a description fails CI.*
 
 | Directory | Purpose |
 |---|---|
@@ -197,6 +197,7 @@ For contributors working on architecture, verification, or toolchain internals:
 | `docs/` | Plans, brainstorms, solutions, evidence, specs, and strategy |
 | `elec/` | Atopile electrical source -- the schematic's source of truth |
 | `firmware/` | ESP32-S3 firmware (C), 8-state machine and protection monitoring |
+| `harness-lab/` | Retained KiCad native-bridge adapters used by zapote unit tools |
 | `max31865/` | KiCad library for the MAX31865 RTD front-end (predates components/) |
 | `metrics/` | Recorded routing/placement metric snapshots (JSON) |
 | `output_gerbers/` | Exported Gerber/drill artifacts from a past routed revision |
@@ -206,6 +207,7 @@ For contributors working on architecture, verification, or toolchain internals:
 | `scripts/` | CI gates, generators, and one-off analysis tooling |
 | `simulation/` | ngspice models and protection-gate simulation harnesses |
 | `tools/` | Developer utilities not wired into CI gates |
+| `zapote/` | Rust ERC/DRC/DFM validation workspace, standalone units, and the 120 V power stage (see zapote/CHECKS.md) |
 
 <!-- END GENERATED: repo-map -->
 

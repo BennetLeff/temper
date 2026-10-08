@@ -1,0 +1,43 @@
+{
+  "accessed_date": "2026-10-02",
+  "exact_model_listing": {
+    "url": "https://www.tdk-electronics.tdk.com/en/2970296/design-support/design-tools/film-capacitors/model-libraries/film-capacitors-readme-and-history/2976028",
+    "library": "TDK_B32651-8.lib",
+    "version": "1.10",
+    "assembled": "2025-03-21",
+    "names": [
+      "B32652A0104K",
+      "B32656G0275J"
+    ],
+    "model_contents_acquired": true
+  },
+  "archive_url": "https://www.tdk-electronics.tdk.com/download/2976030/8705da5784307ba596394f297843723b/tdk-b32651-8-ps-ux-en-tar.tar",
+  "attempts": [
+    {
+      "method": "curl --max-time 30 -L --fail",
+      "exit_code": 22,
+      "outcome": "HTTP 403"
+    },
+    {
+      "method": "independent coordinator curl with Mozilla/5.0 user-agent and TDK referrer",
+      "exit_code": 0,
+      "outcome": "HTML license agreement; tar tf rejected, not model archive"
+    },
+    {
+      "method": "browser downloadMedia",
+      "outcome": "no usable file/path; interrupted"
+    },
+    {
+      "method": "Chrome official B3265 PSpice Unix download after authorized license acceptance",
+      "outcome": "valid POSIX tar; exact member hashes verified"
+    }
+  ],
+  "redirect_document_title": "Design tools: Important notes | TDK Electronics - TDK Europe",
+  "redirect_document_canonical": "https://www.tdk-electronics.tdk.com/en/2905240/design-support/design-tools/important-notes-and-license-agreement",
+  "license_acceptance_performed": true,
+  "model_sha256": "c3c59e7ab7bdaa8e8baeecfc34eed84c1757b9b27b398ff412798bedab970e8b",
+  "srf_curve_reading": null,
+  "authorization": "User explicitly approved: accept it!",
+  "archive_sha256": "5eb5219af01c3fdaf80e68343fe9815960cc9d6696e216eccc9ddb78d9574df2",
+  "numeric_evidence": "model-evidence.json: full-model first resonance and equivalent ESL; typical only"
+}

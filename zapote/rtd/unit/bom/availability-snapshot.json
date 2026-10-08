@@ -1,0 +1,244 @@
+{
+  "schema": "rtd_unit_availability_snapshot.v1",
+  "observed_at": "2026-09-10",
+  "timezone": "America/Mexico_City",
+  "scope": "Exact-MPN catalog and orderability snapshot for the standalone RTD unit; no purchase authorization and no substitutions.",
+  "bom_source": "zapote/rtd/unit/bom/pcb-bom.csv",
+  "source_policy": {
+    "stock_count_rule": "A stock_count is recorded only when the live DigiKey or Mouser result explicitly displayed the exact BOM MPN and an in-stock quantity.",
+    "catalog_only_rule": "Catalog presence, a datasheet, a substitute listing, or an unavailable product-page fetch does not establish stock; those observations are marked manual_check_required.",
+    "freshness_rule": "observed_at is the retrieval date. reported_age preserves the distributor/search crawl age shown by the source, so counts are not represented as durable inventory guarantees."
+  },
+  "groups": [
+    {
+      "mpn": "B4B-XH-A(LF)(SN)",
+      "quantity": 1,
+      "references": ["J1"],
+      "status": "OBSERVED_IN_STOCK_WITH_REGION_VARIANCE",
+      "observations": [
+        {"distributor": "Mouser Brazil", "url": "https://br.mouser.com/en/ProductDetail/JST-Commercial/B4B-XH-ALFSN?qs=cdbOS8ANM9CfC08d%252BywhFw%3D%3D", "observed_at": "2026-09-10", "reported_age": "search result current at retrieval", "exact_mpn": true, "stock_count": 86929, "stock_text": "In Stock: 86,929; Can Ship Immediately", "source_kind": "exact_product_page"},
+        {"distributor": "Mouser Netherlands", "url": "https://nl.mouser.com/ProductDetail/JST-Commercial/B4B-XH-ALFSN?qs=cdbOS8ANM9CfC08d%252BywhFw%3D%3D", "observed_at": "2026-09-10", "reported_age": "search result current at retrieval", "exact_mpn": true, "stock_count": 0, "stock_text": "Stock: 0; backorder/on-order shown", "source_kind": "exact_product_page", "manual_check_required": true}
+      ],
+      "notes": "Exact stock differs by Mouser regional site; confirm ship-to region before release. DigiKey exact listing was not resolved in this snapshot."
+    },
+    {
+      "mpn": "BLM18AG121SN1D",
+      "quantity": 1,
+      "references": ["R8"],
+      "status": "OBSERVED_IN_STOCK",
+      "observations": [
+        {"distributor": "DigiKey", "url": "https://www.digikey.com/en/products/detail/murata-electronics/BLM18AG121SN1D/584459", "observed_at": "2026-09-10", "reported_age": "3 weeks ago", "exact_mpn": true, "stock_count": 426741, "stock_text": "In-Stock: 426,741", "source_kind": "exact_product_page", "reported_lead_time_weeks": 29},
+        {"distributor": "Mouser Australia", "url": "https://au.mouser.com/en/ProductDetail/Murata-Electronics/BLM18AG121SN1D?qs=sGAEpiMZZMt1hubY80%2Fs8HsV9InpULjU6OD3%2Fqc61w4%3D", "observed_at": "2026-09-10", "reported_age": "2 weeks ago", "exact_mpn": true, "stock_count": 92356, "stock_text": "In Stock: 92,356; Can Dispatch Immediately", "source_kind": "exact_product_page", "reported_lead_time_weeks": 22}
+      ]
+    },
+    {
+      "mpn": "C0603C102J5GACTU",
+      "quantity": 1,
+      "references": ["C3"],
+      "status": "OBSERVED_IN_STOCK",
+      "observations": [
+        {"distributor": "DigiKey", "url": "https://www.digikey.com/en/products/detail/kemet/C0603C102J5GACTU/608471", "observed_at": "2026-09-10", "reported_age": "yesterday", "exact_mpn": true, "stock_count": 464773, "stock_text": "In-Stock: 464,773", "source_kind": "exact_product_page", "reported_lead_time_weeks": 22},
+        {"distributor": "Mouser", "url": "https://www.mouser.com/en/ProductDetail/KEMET/C0603C102J5GACTU?qs=qG1y%252BaZBm0OW8vYbh%2BA%2Bbw%3D%3D", "observed_at": "2026-09-10", "reported_age": "search result current at retrieval", "exact_mpn": true, "stock_count": null, "stock_text": null, "source_kind": "exact_product_page", "manual_check_required": true}
+      ],
+      "notes": "DigiKey page identifies 1000 pF, 50 V, C0G/NP0, 0603, ±5%."
+    },
+    {
+      "mpn": "C0603C104K5RACTU",
+      "quantity": 8,
+      "references": ["C1", "C2", "C4", "C5", "C6", "C7", "C8", "C9"],
+      "status": "OBSERVED_IN_STOCK",
+      "observations": [
+        {"distributor": "DigiKey", "url": "https://www.digikey.com/en/products/detail/kemet/C0603C104K5RACTU/1465623", "observed_at": "2026-09-10", "reported_age": "today", "exact_mpn": true, "stock_count": 6734467, "stock_text": "In-Stock: 6,734,467", "source_kind": "exact_product_page", "reported_lead_time_weeks": 12},
+        {"distributor": "Mouser", "url": "https://cz.mouser.com/ProductDetail/KEMET/C0603C104K5RACTU?qs=l5k%252BbMnNDkkVcnZPSAaaiQ%3D%3D", "observed_at": "2026-09-10", "reported_age": "search result current at retrieval", "exact_mpn": true, "stock_count": null, "stock_text": null, "source_kind": "exact_product_page", "manual_check_required": true}
+      ],
+      "notes": "DigiKey page identifies 0.1 uF, 50 V, X7R, 0603, ±10%."
+    },
+    {
+      "mpn": "ERA-3AEB103V",
+      "quantity": 3,
+      "references": ["R10", "R12", "R16"],
+      "status": "OBSERVED_IN_STOCK",
+      "observations": [
+        {"distributor": "DigiKey", "url": "https://www.digikey.com/es/products/detail/panasonic-industry/ERA-3AEB103V/1466076", "observed_at": "2026-09-10", "reported_age": "search result current at retrieval", "exact_mpn": true, "stock_count": 244463, "stock_text": "En stock: 244,463", "source_kind": "exact_product_page", "reported_lead_time_weeks": 13},
+        {"distributor": "Mouser", "url": "https://www.mouser.com/search.aspx?query=ERA-3AEB103V", "observed_at": "2026-09-10", "reported_age": "no exact stock result captured", "exact_mpn": false, "stock_count": null, "stock_text": null, "source_kind": "search_attempt", "manual_check_required": true}
+      ]
+    },
+    {
+      "mpn": "ERA-3AEB1652V",
+      "quantity": 1,
+      "references": ["R15"],
+      "status": "OBSERVED_IN_STOCK",
+      "observations": [
+        {"distributor": "DigiKey", "url": "https://www.digikey.com/en/products/detail/panasonic-industry/ERA-3AEB1652V/2026856", "observed_at": "2026-09-10", "reported_age": "3 weeks ago", "exact_mpn": true, "stock_count": 41995, "stock_text": "In-Stock: 41,995", "source_kind": "exact_product_page"},
+        {"distributor": "Mouser", "url": "https://www.mouser.com/search.aspx?query=ERA-3AEB1652V", "observed_at": "2026-09-10", "reported_age": "no exact stock result captured", "exact_mpn": false, "stock_count": null, "stock_text": null, "source_kind": "search_attempt", "manual_check_required": true}
+      ]
+    },
+    {
+      "mpn": "ERA-3AEB5901V",
+      "quantity": 1,
+      "references": ["R11"],
+      "status": "OBSERVED_IN_STOCK_WITH_DISTRIBUTOR_VARIANCE",
+      "observations": [
+        {"distributor": "DigiKey", "url": "https://www.digikey.com/en/products/detail/panasonic-industry/ERA-3AEB5901V/3076013", "observed_at": "2026-09-10", "reported_age": "2 weeks ago", "exact_mpn": true, "stock_count": 0, "stock_text": "In-Stock: 0; 5,000 expected 19-Oct-2026", "source_kind": "exact_product_page", "manual_check_required": true},
+        {"distributor": "Mouser", "url": "https://www.mouser.com/c/?pg=3&resistance=5.9+kOhms", "observed_at": "2026-09-10", "reported_age": "2 months ago", "exact_mpn": true, "stock_count": 940, "stock_text": "ERA-3AEB5901V: 940 In Stock; Can Ship Immediately", "source_kind": "category_result", "reported_lead_time_weeks": 12}
+      ],
+      "notes": "Exact stock is available in the captured Mouser category result, while the exact DigiKey page is zero; recheck the selected distributor at order time."
+    },
+    {
+      "mpn": "ERA-3AEB6192V",
+      "quantity": 1,
+      "references": ["R9"],
+      "status": "OBSERVED_IN_STOCK",
+      "observations": [
+        {"distributor": "DigiKey", "url": "https://www.digikey.com/en/products/detail/panasonic-industry/ERA-3AEB6192V/2026910", "observed_at": "2026-09-10", "reported_age": "2 weeks ago", "exact_mpn": true, "stock_count": 48382, "stock_text": "In-Stock: 48,382", "source_kind": "exact_product_page", "reported_lead_time_weeks": 41},
+        {"distributor": "Mouser United Kingdom", "url": "https://www.mouser.co.uk/en/ProductDetail/Panasonic-Industry/ERA-3AEB6192V?qs=sGAEpiMZZMtG0KNrPCHnjfgxrTtCmcjjmcV%2Fbd7mhGw%3D", "observed_at": "2026-09-10", "reported_age": "3 weeks ago", "exact_mpn": true, "stock_count": 8413, "stock_text": "In Stock: 8,413; Can Dispatch Immediately", "source_kind": "exact_product_page", "reported_lead_time_weeks": 41}
+      ]
+    },
+    {
+      "mpn": "FTSH-105-01-F-D",
+      "quantity": 1,
+      "references": ["J2"],
+      "status": "OBSERVED_IN_STOCK",
+      "observations": [
+        {"distributor": "DigiKey", "url": "https://www.digikey.com/en/products/detail/samtec-inc/FTSH-105-01-F-D/6678167", "observed_at": "2026-09-10", "reported_age": "3 weeks ago", "exact_mpn": true, "stock_count": 3713, "stock_text": "In-Stock: 3,713; factory stock 1,748", "source_kind": "exact_product_page", "reported_lead_time_weeks": 4},
+        {"distributor": "Mouser", "url": "https://www.mouser.com/search.aspx?query=FTSH-105-01-F-D", "observed_at": "2026-09-10", "reported_age": "no exact stock result captured", "exact_mpn": false, "stock_count": null, "stock_text": null, "source_kind": "search_attempt", "manual_check_required": true}
+      ],
+      "notes": "The different Samtec FTS-105-01-F-D series is not counted as an alternative or as BOM stock."
+    },
+    {
+      "mpn": "MAX31865AAP+",
+      "quantity": 1,
+      "references": ["U1"],
+      "status": "OBSERVED_IN_STOCK",
+      "observations": [
+        {"distributor": "DigiKey", "url": "https://www.digikey.com/en/products/detail/analog-devices-inc-maxim-integrated/MAX31865AAP/5396622", "observed_at": "2026-09-10", "reported_age": "today", "exact_mpn": true, "stock_count": 3110, "stock_text": "In-Stock: 3,110", "source_kind": "exact_product_page", "reported_lead_time_weeks": 24},
+        {"distributor": "Mouser Canada", "url": "https://www.mouser.ca/ProductDetail/Analog-Devices-Maxim-Integrated/MAX31865AAP%2B?qs=PVVDbbWpW3IB0xqHe0DjLw%3D%3D", "observed_at": "2026-09-10", "reported_age": "2 months ago", "exact_mpn": true, "stock_count": 2871, "stock_text": "In Stock: 2,871; Can Ship Immediately", "source_kind": "exact_product_page", "reported_lead_time_weeks": 19}
+      ]
+    },
+    {
+      "mpn": "RC0603FR-07100KL",
+      "quantity": 2,
+      "references": ["R13", "R14"],
+      "status": "OBSERVED_IN_STOCK",
+      "observations": [
+        {"distributor": "DigiKey", "url": "https://www.digikey.com/es/products/detail/yageo/RC0603FR-07100KL/726889", "observed_at": "2026-09-10", "reported_age": "last week", "exact_mpn": true, "stock_count": 2140882, "stock_text": "En stock: 2,140,882", "source_kind": "exact_product_page", "reported_lead_time_weeks": 17},
+        {"distributor": "Mouser", "url": "https://www.mouser.com/search.aspx?query=RC0603FR-07100KL", "observed_at": "2026-09-10", "reported_age": "no exact stock result captured", "exact_mpn": false, "stock_count": null, "stock_text": null, "source_kind": "search_attempt", "manual_check_required": true}
+      ]
+    },
+    {
+      "mpn": "RC0603FR-0710KL",
+      "quantity": 2,
+      "references": ["R17", "R18"],
+      "status": "OBSERVED_IN_STOCK",
+      "observations": [
+        {"distributor": "DigiKey", "url": "https://www.digikey.com/en/products/detail/yageo/RC0603FR-0710KL/729827", "observed_at": "2026-09-10", "reported_age": "today", "exact_mpn": true, "stock_count": 2568043, "stock_text": "In-Stock: 2,568,043", "source_kind": "exact_product_page", "reported_lead_time_weeks": 17},
+        {"distributor": "Mouser", "url": "https://www.mouser.com/search.aspx?query=RC0603FR-0710KL", "observed_at": "2026-09-10", "reported_age": "no exact stock result captured", "exact_mpn": false, "stock_count": null, "stock_text": null, "source_kind": "search_attempt", "manual_check_required": true}
+      ]
+    },
+    {
+      "mpn": "RC0603FR-0733RL",
+      "quantity": 4,
+      "references": ["R4", "R5", "R6", "R7"],
+      "status": "OBSERVED_IN_STOCK",
+      "observations": [
+        {"distributor": "DigiKey", "url": "https://www.digikey.com/en/products/detail/yageo/RC0603FR-0733RL/727158?s=N4IgTCBcDaIMwEYEFo5wHQAYASAlAwgCrIByAIiALoC%2BQA", "observed_at": "2026-09-10", "reported_age": "search result current at retrieval", "exact_mpn": true, "stock_count": 1100110, "stock_text": "In-Stock: 1,100,110", "source_kind": "exact_product_page", "reported_lead_time_weeks": 17},
+        {"distributor": "Mouser", "url": "https://www.mouser.com/search.aspx?query=RC0603FR-0733RL", "observed_at": "2026-09-10", "reported_age": "no exact stock result captured", "exact_mpn": false, "stock_count": null, "stock_text": null, "source_kind": "search_attempt", "manual_check_required": true}
+      ]
+    },
+    {
+      "mpn": "RC0603JR-071ML",
+      "quantity": 2,
+      "references": ["R2", "R3"],
+      "status": "OBSERVED_IN_STOCK",
+      "observations": [
+        {"distributor": "DigiKey", "url": "https://www.digikey.com/en/products/detail/yageo/RC0603JR-071ML/726678", "observed_at": "2026-09-10", "reported_age": "5 days ago", "exact_mpn": true, "stock_count": 91032, "stock_text": "In-Stock: 91,032", "source_kind": "exact_product_page", "reported_lead_time_weeks": 17},
+        {"distributor": "Mouser", "url": "https://www.mouser.com/search.aspx?query=RC0603JR-071ML", "observed_at": "2026-09-10", "reported_age": "no exact stock result captured", "exact_mpn": false, "stock_count": null, "stock_text": null, "source_kind": "search_attempt", "manual_check_required": true}
+      ]
+    },
+    {
+      "mpn": "REF2025AIDDCR",
+      "quantity": 1,
+      "references": ["U2"],
+      "status": "OBSERVED_IN_STOCK",
+      "observations": [
+        {"distributor": "DigiKey", "url": "https://www.digikey.com/en/products/detail/texas-instruments/REF2025AIDDCR/4899802", "observed_at": "2026-09-10", "reported_age": "6 days ago", "exact_mpn": true, "stock_count": 3568, "stock_text": "In-Stock: 3,568", "source_kind": "exact_product_page", "reported_lead_time_weeks": 26},
+        {"distributor": "Mouser", "url": "https://www.mouser.com/ProductDetail/Texas-Instruments/REF2025AIDDCR?qs=7z%252BmIopC6%2FJNjz5Kdmpx6A%3D%3D", "observed_at": "2026-09-10", "reported_age": "2 months ago", "exact_mpn": true, "stock_count": 3931, "stock_text": "In Stock: 3,931; Can Ship Immediately", "source_kind": "exact_product_page"}
+      ]
+    },
+    {
+      "mpn": "RG2012V-431-W-T1",
+      "quantity": 1,
+      "references": ["R1"],
+      "status": "MANUAL_CHECK_REQUIRED",
+      "observations": [
+        {"distributor": "DigiKey", "url": "https://www.digikey.com/en/products/detail/vishay/MCU08050D4300BP500/462245", "observed_at": "2026-09-10", "reported_age": "search result current at retrieval", "exact_mpn": true, "stock_count": 0, "stock_text": "Exact RG2012V-431-W-T1 shown as a substitute listing: In Stock 0", "source_kind": "exact_mpn_substitute_listing", "manual_check_required": true},
+        {"distributor": "Mouser", "url": "https://www.mouser.com/search.aspx?query=RG2012V-431-W-T1", "observed_at": "2026-09-10", "reported_age": "no exact stock result captured", "exact_mpn": false, "stock_count": null, "stock_text": null, "source_kind": "search_attempt", "manual_check_required": true}
+      ],
+      "notes": "An exact-stock gap was demonstrated at DigiKey, but sole-source status is unproven because Mouser/account-region and other authorized channels still require manual confirmation. No substitute is authorized by this snapshot."
+    },
+    {
+      "mpn": "SN74LVC1G08DBVR",
+      "quantity": 1,
+      "references": ["U5"],
+      "status": "OBSERVED_IN_STOCK",
+      "observations": [
+        {"distributor": "DigiKey", "url": "https://www.digikey.com/en/products/detail/texas-instruments/SN74LVC1G08DBVR/385740", "observed_at": "2026-09-10", "reported_age": "yesterday", "exact_mpn": true, "stock_count": 261720, "stock_text": "In-Stock: 261,720", "source_kind": "exact_product_page", "reported_lead_time_weeks": 16},
+        {"distributor": "Mouser Greece", "url": "https://gr.mouser.com/en/ProductDetail/Texas-Instruments/SN74LVC1G08DBVR?qs=8yeEWhuAOtNjtL049wSCoQ%3D%3D", "observed_at": "2026-09-10", "reported_age": "last month", "exact_mpn": true, "stock_count": 68884, "stock_text": "In Stock: 68,884; Can Dispatch Immediately", "source_kind": "exact_product_page"}
+      ]
+    },
+    {
+      "mpn": "SN74LVC1G38DBVR",
+      "quantity": 1,
+      "references": ["U7"],
+      "status": "OBSERVED_IN_STOCK",
+      "observations": [
+        {"distributor": "DigiKey", "url": "https://www.digikey.com/en/products/detail/texas-instruments/SN74LVC1G38DBVR/746509", "observed_at": "2026-09-10", "reported_age": "last month", "exact_mpn": true, "stock_count": 6657, "stock_text": "In-Stock: 6,657", "source_kind": "exact_product_page", "reported_lead_time_weeks": 9},
+        {"distributor": "Mouser", "url": "https://www.mouser.com/c/semiconductors/integrated-circuits-ics/?propagation+delay+time=4.5+ns", "observed_at": "2026-09-10", "reported_age": "2 months ago", "exact_mpn": true, "stock_count": 5859, "stock_text": "SN74LVC1G38DBVR: 5,859 In Stock", "source_kind": "category_result"}
+      ]
+    },
+    {
+      "mpn": "TLV3201AIDBVR",
+      "quantity": 2,
+      "references": ["U3", "U4"],
+      "status": "OUT_OF_STOCK_OBSERVED",
+      "observations": [
+        {"distributor": "DigiKey", "url": "https://www.digikey.com/en/products/detail/texas-instruments/TLV3201AIDBVR/3188691", "observed_at": "2026-09-10", "reported_age": "today", "exact_mpn": true, "stock_count": 0, "stock_text": "In-Stock: 0; 2,637 expected 29-Oct-2026 and 363 expected 02-Nov-2026", "source_kind": "exact_product_page", "reported_lead_time_weeks": 16, "manual_check_required": true},
+        {"distributor": "Mouser", "url": "https://www.mouser.com/en/ProductDetail/Texas-Instruments/TLV3201AIDBVR?qs=5771e39Rz9GGuYwPEKy7fA%3D%3D", "observed_at": "2026-09-10", "reported_age": "5 days ago", "exact_mpn": true, "stock_count": 0, "stock_text": "Stock: 0; on order 32,995 expected 19-Nov-2026 and 21,000 expected 25-Dec-2026", "source_kind": "exact_product_page", "manual_check_required": true}
+      ],
+      "notes": "This is a demonstrated current exact-MPN availability blocker at both checked distributors. Similar comparator substitutes in search results are not accepted as BOM availability."
+    },
+    {
+      "mpn": "TPS389001DSER",
+      "quantity": 1,
+      "references": ["U6"],
+      "status": "OBSERVED_IN_STOCK",
+      "observations": [
+        {"distributor": "DigiKey", "url": "https://www.digikey.com/en/products/detail/texas-instruments/TPS389001DSER/8567784", "observed_at": "2026-09-10", "reported_age": "last week", "exact_mpn": true, "stock_count": 26322, "stock_text": "In-Stock: 26,322", "source_kind": "exact_product_page", "reported_lead_time_weeks": 16},
+        {"distributor": "Mouser", "url": "https://www.mouser.com/es/ProductDetail/Texas-Instruments/TPS389001DSER?qs=dSktwyqbRaVzajqGyLNKAA%3D%3D", "observed_at": "2026-09-10", "reported_age": "last month", "exact_mpn": true, "stock_count": 2631, "stock_text": "En existencias: 2,631; se puede enviar inmediatamente", "source_kind": "exact_product_page"}
+      ]
+    }
+  ],
+  "blockers": [
+    {
+      "mpn": "TLV3201AIDBVR",
+      "kind": "exact_mpn_zero_at_both_checked_distributors",
+      "evidence_urls": ["https://www.digikey.com/en/products/detail/texas-instruments/TLV3201AIDBVR/3188691", "https://www.mouser.com/en/ProductDetail/Texas-Instruments/TLV3201AIDBVR?qs=5771e39Rz9GGuYwPEKy7fA%3D%3D"],
+      "observed_stock": {"DigiKey": 0, "Mouser": 0},
+      "next_action": "Manual procurement check for authorized channels or wait for the displayed incoming dates; do not substitute from this evidence."
+    },
+    {
+      "mpn": "RG2012V-431-W-T1",
+      "kind": "exact_mpn_zero_at_digikey_and_mouser_unresolved",
+      "evidence_urls": ["https://www.digikey.com/en/products/detail/vishay/MCU08050D4300BP500/462245", "https://www.mouser.com/search.aspx?query=RG2012V-431-W-T1"],
+      "observed_stock": {"DigiKey": 0, "Mouser": null},
+      "next_action": "Manual check of Mouser and other authorized distributors; sole-source/unavailability is not declared proven."
+    }
+  ],
+  "limitations": [
+    "Distributor inventory is regional, account-dependent, and time-varying; positive counts are observations, not reservations or delivery guarantees.",
+    "Several Mouser pages and some regional pages are JavaScript-backed or returned incomplete cached content. They are explicitly marked manual_check_required when stock could not be read.",
+    "Category/search results are retained only where the exact BOM MPN and a stock quantity were displayed together; stock on a different MPN, package suffix, substitute, or alternate series is excluded.",
+    "No purchasing, price lock, lead-time guarantee, lifecycle guarantee, or approved substitution was performed.",
+    "The snapshot does not validate electrical, footprint, or assembly compatibility; it only records exact-MPN orderability evidence from the stated distributor pages."
+  ]
+}

@@ -1,0 +1,287 @@
+{
+  "schema": "zapote.rtd.authored-policy.v1",
+  "net_domains": {
+    "gnd": "SELV_LV",
+    "+3V3": "SELV_LV",
+    "vcc": "SELV_LV",
+    "rtd_force_p": "SELV_LV",
+    "rtd_force_n": "SELV_LV",
+    "rtd_sense_p": "SELV_LV",
+    "rtd_sense_n": "SELV_LV",
+    "bias": "SELV_LV",
+    "refin_n": "SELV_LV",
+    "RTD_DRDY": "SELV_LV",
+    "sdi": "SELV_LV",
+    "sclk": "SELV_LV",
+    "sdo": "SELV_LV",
+    "cs_n": "SELV_LV",
+    "vbias": "SELV_LV",
+    "SHARED_REF_2V5": "SELV_LV",
+    "nc3": "SELV_LV",
+    "RTD_HW_FAULT": "SELV_LV",
+    "RTD_SCK": "SELV_LV",
+    "RTD_SDI": "SELV_LV",
+    "RTD_SDO": "SELV_LV",
+    "RTD_CS_N": "SELV_LV",
+    "+170V_BUS": "HV",
+    "SW_NODE": "HV",
+    "GATE_HS": "HV",
+    "GATE_LS": "HV",
+    "+15V": "HV",
+    "+15V_LS": "HV",
+    "AC_L": "HV",
+    "AC_N": "HV",
+    "ac_l": "HV",
+    "ac_n": "HV",
+    "w1_1": "HV",
+    "w1_2": "HV",
+    "tank-out": "HV",
+    "hb-gnd": "HV",
+    "gnd_ref": "HV"
+  },
+  "geometry": {
+    "sensitive_nets": [
+      "rtd_sense_p",
+      "rtd_sense_n",
+      "rtd_force_p",
+      "rtd_force_n",
+      "sclk",
+      "sdi",
+      "sdo",
+      "cs_n",
+      "RTD_DRDY"
+    ],
+    "aggressors": [
+      {
+        "source_instance": "hb.power_loop.q_high",
+        "net": "SW_NODE",
+        "margin_mm": 2.0,
+        "min_distance_mm": 1.0
+      },
+      {
+        "source_instance": "hb.power_loop.q_low",
+        "net": "SW_NODE",
+        "margin_mm": 2.0,
+        "min_distance_mm": 1.0
+      },
+      {
+        "source_instance": "hb.gate_hs.driver",
+        "net": "GATE_HS",
+        "margin_mm": 2.0,
+        "min_distance_mm": 1.0
+      },
+      {
+        "source_instance": "hb.power_loop.q_low",
+        "net": "GATE_LS",
+        "margin_mm": 2.0,
+        "min_distance_mm": 1.0
+      },
+      {
+        "source_instance": "power_mgmt.buck_3v3.buck",
+        "net": "sw",
+        "margin_mm": 2.0,
+        "min_distance_mm": 1.0
+      },
+      {
+        "source_instance": "power_mgmt.buck_3v3.l_out",
+        "net": "sw",
+        "margin_mm": 2.0,
+        "min_distance_mm": 1.0
+      }
+    ],
+    "prohibited_connections": [
+      {
+        "first_net": "+170V_BUS",
+        "second_net": "rtd_sense_p",
+        "reason": "HV switching domain must remain isolated from RTD field conductors"
+      },
+      {
+        "first_net": "+170V_BUS",
+        "second_net": "rtd_sense_n",
+        "reason": "HV switching domain must remain isolated from RTD field conductors"
+      },
+      {
+        "first_net": "+170V_BUS",
+        "second_net": "rtd_force_p",
+        "reason": "HV switching domain must remain isolated from RTD field conductors"
+      },
+      {
+        "first_net": "+170V_BUS",
+        "second_net": "rtd_force_n",
+        "reason": "HV switching domain must remain isolated from RTD field conductors"
+      }
+    ],
+    "required_locality_mm": 3.0
+  },
+  "topology": {
+    "connector": {
+      "component": "rtd_pan.j_rtd1",
+      "pins": [
+        {
+          "number": 1,
+          "role": "FORCE+",
+          "net": "rtd_force_p"
+        },
+        {
+          "number": 2,
+          "role": "SENSE+",
+          "net": "rtd_sense_p"
+        },
+        {
+          "number": 3,
+          "role": "SENSE-",
+          "net": "rtd_sense_n"
+        },
+        {
+          "number": 4,
+          "role": "FORCE-",
+          "net": "rtd_force_n"
+        }
+      ]
+    },
+    "adc": {
+      "component": "rtd_pan.adc",
+      "mpn": "MAX31865AAP+",
+      "mcu_instance": "mcu.mcu",
+      "pins": {
+        "DRDY": "RTD_DRDY",
+        "DVDD": "vcc",
+        "VDD": "vcc",
+        "BIAS": "bias",
+        "REFIN_P": "bias",
+        "REFIN_N": "refin_n",
+        "ISENSOR": "refin_n",
+        "FORCE_P": "rtd_force_p",
+        "FORCE2": "gnd",
+        "RTDIN_P": "rtd_sense_p",
+        "RTDIN_N": "rtd_sense_n",
+        "FORCE_N": "rtd_force_n",
+        "GND2": "gnd",
+        "SDI": "sdi",
+        "SCLK": "sclk",
+        "CS_N": "cs_n",
+        "SDO": "sdo",
+        "DGND": "gnd",
+        "GND1": "gnd",
+        "NC3": "nc3"
+      }
+    },
+    "rref": {
+      "component": "rtd_pan.r_ref",
+      "mpn": "ERA-6AEB431V",
+      "connections": [
+        "bias",
+        "refin_n"
+      ]
+    },
+    "reference": {
+      "component": "rtd_pan.reference",
+      "mpn": "REF2025AIDDCR",
+      "v1_net": "vbias",
+      "v2_net": "SHARED_REF_2V5",
+      "ground_net": "gnd"
+    },
+    "local_rail": {
+      "upstream_net": "+3V3",
+      "post_ferrite_net": "vcc",
+      "ferrite_component": "rtd_pan.fb_power"
+    },
+    "required_local_ics": [
+      {
+        "component": "rtd_pan.adc",
+        "rail": "vcc",
+        "ground": "gnd",
+        "capacitor": "rtd_pan.c_vdd"
+      },
+      {
+        "component": "rtd_pan.reference",
+        "rail": "+3V3",
+        "ground": "gnd",
+        "capacitor": "rtd_pan.c_reference"
+      },
+      {
+        "component": "rtd_pan.low_window",
+        "rail": "vcc",
+        "ground": "gnd",
+        "capacitor": "rtd_pan.c_low_window"
+      },
+      {
+        "component": "rtd_pan.high_window",
+        "rail": "vcc",
+        "ground": "gnd",
+        "capacitor": "rtd_pan.c_high_window"
+      },
+      {
+        "component": "rtd_pan.window_and",
+        "rail": "vcc",
+        "ground": "gnd",
+        "capacitor": "rtd_pan.c_window_and"
+      },
+      {
+        "component": "rtd_pan.rail_monitor",
+        "rail": "+3V3",
+        "ground": "gnd",
+        "capacitor": "rtd_pan.c_rail_monitor"
+      },
+      {
+        "component": "rtd_pan.fault_nand",
+        "rail": "vcc",
+        "ground": "gnd",
+        "capacitor": "rtd_pan.c_fault_nand"
+      }
+    ],
+    "spi": [
+      {
+        "signal": "RTD_SCK",
+        "adc_pin": "SCLK",
+        "series_component": "rtd_pan.r_sclk"
+      },
+      {
+        "signal": "RTD_SDI",
+        "adc_pin": "SDI",
+        "series_component": "rtd_pan.r_mosi"
+      },
+      {
+        "signal": "RTD_SDO",
+        "adc_pin": "SDO",
+        "series_component": "rtd_pan.r_miso"
+      },
+      {
+        "signal": "RTD_CS_N",
+        "adc_pin": "CS_N",
+        "series_component": "rtd_pan.r_cs"
+      },
+      {
+        "signal": "RTD_DRDY",
+        "adc_pin": "DRDY",
+        "series_component": "direct"
+      }
+    ],
+    "fault_output": {
+      "net": "RTD_HW_FAULT",
+      "active_level": "high",
+      "pullup_rail": "+3V3",
+      "gate": "SN74LVC1G38",
+      "consumers": [
+        "safety.fault_latch"
+      ]
+    },
+    "downstream_reference_consumers": [
+      {
+        "name": "OVP-01",
+        "net": "SHARED_REF_2V5"
+      },
+      {
+        "name": "OCP-02",
+        "net": "SHARED_REF_2V5"
+      }
+    ]
+  },
+  "firmware": {
+    "thresholds": {
+      "rref_ohm": 430.0,
+      "adc_bits": 15,
+      "shift": 1
+    }
+  }
+}

@@ -1,0 +1,70 @@
+! 1 A closed-coax field verification. All coordinates are SI metres after ElmerGrid -scale.
+! In pinned Elmer WhitneyAVSolver.F90 LocalMatrixBC, the value under the
+! `Magnetic Field Strength` keyword is loaded directly as -L dot edge basis;
+! it must point radially on the annular end sheet for this current port.
+! The earlier azimuthal vector was a failed diagnostic, not the final source.
+! Direct tree-gauge solver pattern: pinned WhitneyAVSolver.F90 lines 543-558.
+Header
+  CHECK KEYWORDS Warn
+  Mesh DB "." "raw/coax-0p35-elmer"
+  Results Directory "raw/coax-0p35-elmer"
+End
+Simulation
+  Coordinate System = Cartesian 3D
+  Simulation Type = Steady
+  Steady State Max Iterations = 1
+  Max Output Level = 5
+End
+Constants
+  Permeability of Vacuum = 1.2566370614359173e-6
+End
+Body 1
+  Target Bodies(1) = 1
+  Name = "Air"
+  Equation = 1
+  Material = 1
+End
+Material 1
+  Name = "Air"
+  Relative Permeability = 1.0
+  Relative Permittivity = 1.0
+  Electric Conductivity = 0.0
+End
+Equation 1
+  Active Solvers(2) = 1 2
+End
+Solver 1
+  Equation = "MGDynamics"
+  Variable = "AV"
+  Procedure = "MagnetoDynamics" "WhitneyAVSolver"
+  Edge Basis = Logical True
+  Linear System Solver = Direct
+  Linear System Direct Method = UMFPack
+End
+Solver 2
+  Equation = "MGDynamicsCalc"
+  Procedure = "MagnetoDynamics" "MagnetoDynamicsCalcFields"
+  Potential Variable = String "AV"
+  Calculate Magnetic Field Strength = Logical True
+  Calculate Elemental Fields = Logical True
+  Separate Magnetic Energy = Logical True
+  Linear System Solver = Iterative
+  Linear System Iterative Method = CG
+  Linear System Preconditioning = ILU0
+  Linear System Max Iterations = 2000
+  Linear System Convergence Tolerance = 1e-9
+End
+Boundary Condition 1
+  Name = "PEC coax walls and short"
+  Target Boundaries(1) = 2
+  AV {e} = Real 0.0
+End
+Boundary Condition 2
+  Name = "1 A radial current sheet at z=50 mm (Elmer load vector)"
+  Target Boundaries(1) = 3
+  Magnetic Field Strength 1 = Variable Coordinate 1, Coordinate 2
+    Real MATC "tx(0)/(2*3.141592653589793*(tx(0)^2+tx(1)^2))"
+  Magnetic Field Strength 2 = Variable Coordinate 1, Coordinate 2
+    Real MATC "tx(1)/(2*3.141592653589793*(tx(0)^2+tx(1)^2))"
+  Magnetic Field Strength 3 = Real 0.0
+End

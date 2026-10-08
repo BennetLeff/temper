@@ -1,0 +1,52 @@
+{
+  "source": "03-loss-thermal-budget/round3/sources/ipw65r018cfd7.pdf",
+  "source_sha256": "c364050a04a434bd173da6486fd51f4baf540ee9e4e1ebbe07aed57e279943f2",
+  "source_revision": "IPW65R018CFD7 Rev2.0,2021-04-19",
+  "extractor_sha256": "c1293f0a4797ee817e4c262371f479ef371c90dd228b9331c0e7b4d96bcb6658",
+  "pdfplumber_version": "0.11.9",
+  "evidence": "typical plotted graph; approximate reading, not guaranteed device limit",
+  "method": "pdfplumber vector line intersections; voltage axes calibrated and checked against every numeric tick center; Eoss curve origin independently checked; vertical axes calibrated from grid rectangle and visually checked on rendered pages",
+  "axes_pdf_points": {
+    "x0": 80.8706,
+    "xspan": 216.0585,
+    "y_bottom": 715.4126,
+    "yspan": 240.7997
+  },
+  "diode": {
+    "printed_page": 9,
+    "diagram": 11,
+    "x_domain_v": [
+      0,
+      1.8
+    ],
+    "y_log10_current_a": [
+      -1,
+      3
+    ],
+    "curve_identity": "left125C,right25C",
+    "suggested_reading_uncertainty_v": 0.01,
+    "interpolation": "linearVf versus log10(I); no extrapolation outside supplied0.1\u2013150A"
+  },
+  "eoss": {
+    "printed_page": 10,
+    "diagram": 15,
+    "x_domain_v": [
+      0,
+      500
+    ],
+    "y_domain_uj": [
+      0,
+      40
+    ],
+    "suggested_reading_uncertainty_uj": 0.2,
+    "interpolation": "piecewise linear; dense knots preserve nonlinear knee; no extrapolation outside1\u2013490V"
+  },
+  "table_crosschecks": {
+    "vf_25c_at58p2a_v": 1.0065,
+    "vf_table_v": 1.0,
+    "eoss_at400v_uj": 31.6427,
+    "coer_table_energy_at400v_uj": 31.68
+  },
+  "uncertainty_note": "Suggested graph-reading scales reflect1.2pt stroke width; they are not statistical or manufacturer tolerances. Extra decimals preserve extraction reproducibility only.",
+  "zero_voltage_note": "Eoss(0)=0 follows stored-energy definition, but adding that point is a separately stated physical assumption; C1 classification below10V remains unavailable."
+}

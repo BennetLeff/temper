@@ -1,0 +1,211 @@
+# Standalone dual-channel isolated gate-drive unit.
+# The UCC21550BDWKR is the orderable DWK 14-pin SOIC (TI SLUSE89C):
+# pins 1..11 and 14..16 are present; pins 12/13 do not exist.
+#
+# Supply boundary: J2 accepts an externally isolated 15 V source whose return
+# is tied to the half-bridge HV- node by the integrator.  No local transformer
+# or DC/DC is invented here.  The high-side rail is a bootstrap from this
+# low-side floating rail, and therefore is valid only when the switch node
+# periodically returns near HV-; startup and loaded switching require scope
+# verification.
+#
+# PERMIT is active-high through the AO3400A inverter. A gate pulldown
+# and DIS pullup hold the powered driver disabled when PERMIT is absent.
+
+#pragma experiment("MODULE_TEMPLATING")
+#pragma experiment("TRAITS")
+
+import UCC21550BDWK from "components.ato"
+import Resistor from "components.ato"
+import Capacitor from "components.ato"
+import Diode from "components.ato"
+import PinHeader_1x02 from "components.ato"
+import JST_XH_B4B_XH_A from "components.ato"
+
+component AO3400A:
+    """AOS AO3400A 30 V N-channel MOSFET, SOT-23; 1=G, 2=S, 3=D."""
+    designator_prefix = "Q"
+    footprint = "Package_TO_SOT_SMD:SOT-23"
+    mpn = "AO3400A"
+    manufacturer = "Alpha & Omega Semiconductor"
+    signal G ~ pin 1
+    signal S ~ pin 2
+    signal D ~ pin 3
+
+module GateDriveUnit:
+    """Two-channel gate driver with explicit control, floating LS, and gate
+    interfaces.  The source is intentionally independent of Top/HalfBridge.
+    """
+    # Host/control connector: PWM_H, PWM_L, PERMIT, CTRL_GND.
+    host = new JST_XH_B4B_XH_A
+    signal pwm_h
+    signal pwm_l
+    signal permit
+    signal ctrl_gnd
+    host.p1 ~ pwm_h
+    host.p2 ~ pwm_l
+    host.p3 ~ permit
+    host.p4 ~ ctrl_gnd
+
+    # External isolated low-side supply and HV return boundary.
+    supply = new PinHeader_1x02
+    signal v15_ls
+    signal hv_minus
+    supply.p1 ~ v15_ls
+    supply.p2 ~ hv_minus
+
+    # Gate connectors are explicit gate/Kelvin-return pairs.
+    gate_h = new PinHeader_1x02
+    gate_l = new PinHeader_1x02
+    signal gate_h_out
+    signal gate_h_kelvin
+    signal gate_l_out
+    signal gate_l_kelvin
+    gate_h.p1 ~ gate_h_out
+    gate_h.p2 ~ gate_h_kelvin
+    gate_l.p1 ~ gate_l_out
+    gate_l.p2 ~ gate_l_kelvin
+
+    # Switch-node is carried by the high-side gate/Kelvin pair. HV_RETURN is
+    # carried by the low-side pair and J2 supply return; no separate full-bus
+    # 2.54 mm connector is exposed.
+    signal switch_node
+
+    driver = new UCC21550BDWK
+
+    # Control-side supply and local bypass. VCCI_1/VCCI_2 are both bonded at
+    # the package, and GNDI never connects to either secondary return.
+    vcc_3v3 = new PinHeader_1x02
+    signal v3v3
+    vcc_3v3.p1 ~ v3v3
+    vcc_3v3.p2 ~ ctrl_gnd
+    c_vcci = new Capacitor
+    c_vcci.value = 100nF +/- 10%
+    c_vcci.dielectric = "X7R"
+    c_vcci.voltage_rating = 50V
+    c_vcci.mpn = "C0603C104K5RACTU"
+    c_vcci.footprint = "Capacitor_SMD:C_0603_1608Metric"
+    v3v3 ~ c_vcci.p1
+    c_vcci.p2 ~ ctrl_gnd
+    v3v3 ~ driver.VCCI_1
+    v3v3 ~ driver.VCCI_2
+    ctrl_gnd ~ driver.GNDI
+
+    # Safe-disable receiver. DIS is active-high. Q_PERMIT is an N-MOSFET
+    # open-drain inverter: PERMIT high pulls DIS low (enabled), while a
+    # floating or unpowered PERMIT is held low by R_PERMIT_PD and leaves DIS
+    # high through R_DIS_PU (disabled). AO3400A has a specified RDS(on) at
+    # 2.5 V; its VGS(th) is not used as an on-state logic guarantee.
+    permit_sw = new AO3400A
+    r_permit_series = new Resistor
+    r_permit_series.value = 1kohm +/- 1%
+    r_permit_series.mpn = "RC0603FR-071KL"
+    r_permit_series.footprint = "Resistor_SMD:R_0603_1608Metric"
+    r_permit_pd = new Resistor
+    r_permit_pd.value = 100kohm +/- 5%
+    r_permit_pd.mpn = "RC0603FR-07100KL"
+    r_permit_pd.footprint = "Resistor_SMD:R_0603_1608Metric"
+    r_dis_pu = new Resistor
+    r_dis_pu.value = 10kohm +/- 5%
+    r_dis_pu.mpn = "RC0603FR-0710KL"
+    r_dis_pu.footprint = "Resistor_SMD:R_0603_1608Metric"
+    permit ~ r_permit_series.p1
+    r_permit_series.p2 ~ permit_sw.G
+    permit_sw.S ~ ctrl_gnd
+    permit_sw.D ~ driver.DIS
+    permit_sw.G ~ r_permit_pd.p1
+    r_permit_pd.p2 ~ ctrl_gnd
+    driver.DIS ~ r_dis_pu.p1
+    r_dis_pu.p2 ~ v3v3
+
+    # Hardware dead-time: TI equation tDT ~= 8.6*RDT[kohm]+13 ns. 34 kOhm
+    # gives ~270 ns at an assumed 0.90 characterization corner, so it cannot
+    # claim the 300 ns hardware floor. 39 kOhm gives ~309 ns at that assumed
+    # corner; the 10/20/50 kOhm TI table does not itself guarantee this 39 kOhm
+    # interpolation, so timing remains conditional until scoped.
+    dt = new Resistor
+    dt.value = 39kohm +/- 1%
+    dt.power_rating = 0.1W
+    dt.voltage_rating = 10V
+    dt.mpn = "RC0603FR-0739KL"
+    dt.footprint = "Resistor_SMD:R_0603_1608Metric"
+    dt.p1 ~ driver.DT
+    dt.p2 ~ ctrl_gnd
+
+    # Low-side 15 V bypass. This rail is floating on HV-.
+    c_ls = new Capacitor
+    c_ls.value = 100nF +/- 10%
+    c_ls.dielectric = "X7R"
+    c_ls.voltage_rating = 50V
+    c_ls.mpn = "C0603C104K5RACTU"
+    c_ls.footprint = "Capacitor_SMD:C_0603_1608Metric"
+    v15_ls ~ c_ls.p1
+    c_ls.p2 ~ hv_minus
+    c_ls_bulk = new Capacitor
+    c_ls_bulk.value = 10uF +/- 20%
+    c_ls_bulk.dielectric = "X7R"
+    c_ls_bulk.voltage_rating = 50V
+    c_ls_bulk.mpn = "GRM32ER71H106KA12L"
+    c_ls_bulk.footprint = "Capacitor_SMD:C_1210_3225Metric"
+    v15_ls ~ c_ls_bulk.p1
+    c_ls_bulk.p2 ~ hv_minus
+    v15_ls ~ driver.VDDB
+    hv_minus ~ driver.VSSB
+
+    # High-side bootstrap: DBOOT charges CBOOT from V15_LS while the switch
+    # node is low. CBOOT is only across VDDA-VSSA; it never reaches GNDI.
+    d_boot = new Diode
+    d_boot.mpn = "UF4007-E3/54"
+    d_boot.voltage_rating = 1000V
+    d_boot.current_rating = 1A
+    d_boot.footprint = "Diode_THT:D_DO-41_SOD81_P10.16mm_Horizontal"
+    c_boot = new Capacitor
+    c_boot.value = 10uF +/- 20%
+    c_boot.dielectric = "X7R"
+    c_boot.voltage_rating = 50V
+    c_boot.mpn = "GRM32ER71H106KA12L"
+    c_boot.footprint = "Capacitor_SMD:C_1210_3225Metric"
+    d_boot.A ~ v15_ls
+    d_boot.K ~ driver.VDDA
+    c_boot.p1 ~ driver.VDDA
+    c_boot.p2 ~ driver.VSSA
+    driver.VSSA ~ switch_node
+
+    # Independent gate networks: 3.9 ohm series gate resistor and 2.2 kohm
+    # gate-to-Kelvin pulldown on each channel.
+    rg_h = new Resistor
+    rg_h.value = 3.9ohm +/- 5%
+    rg_h.power_rating = 0.25W
+    rg_h.mpn = "RC1206FR-073R9L"
+    rg_h.footprint = "Resistor_SMD:R_1206_3216Metric"
+    rgs_h = new Resistor
+    rgs_h.value = 2.2kohm +/- 5%
+    rgs_h.mpn = "RC0603FR-072K2L"
+    rgs_h.footprint = "Resistor_SMD:R_0603_1608Metric"
+    driver.OUTA ~ rg_h.p1
+    rg_h.p2 ~ gate_h_out
+    rgs_h.p1 ~ gate_h_out
+    rgs_h.p2 ~ gate_h_kelvin
+    gate_h_kelvin ~ switch_node
+    driver.VSSA ~ gate_h_kelvin
+
+    rg_l = new Resistor
+    rg_l.value = 3.9ohm +/- 5%
+    rg_l.power_rating = 0.25W
+    rg_l.mpn = "RC1206FR-073R9L"
+    rg_l.footprint = "Resistor_SMD:R_1206_3216Metric"
+    rgs_l = new Resistor
+    rgs_l.value = 2.2kohm +/- 5%
+    rgs_l.mpn = "RC0603FR-072K2L"
+    rgs_l.footprint = "Resistor_SMD:R_0603_1608Metric"
+    driver.OUTB ~ rg_l.p1
+    rg_l.p2 ~ gate_l_out
+    rgs_l.p1 ~ gate_l_out
+    rgs_l.p2 ~ gate_l_kelvin
+    gate_l_kelvin ~ hv_minus
+
+    # Complementary PWM inputs and explicit timing floor.
+    pwm_h ~ driver.INA
+    pwm_l ~ driver.INB
+    t_dead_time: time = 348.4ns
+    assert t_dead_time within 300ns to 360ns

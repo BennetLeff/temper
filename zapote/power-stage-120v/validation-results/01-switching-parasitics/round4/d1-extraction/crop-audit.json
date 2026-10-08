@@ -1,0 +1,59 @@
+{
+  "status": "CROPS_UNQUALIFIED",
+  "board_sha256": "a3ac1249f5052afe52944804cdc3f6ef0e8f895668360e79c1fa7b6fb7322155",
+  "export_sha256": "fd0b8e6dd5e003543099d6e445e269fa8d73863291409a35828c9b85f17b369d",
+  "legs": {
+    "A": {
+      "roi_xy_mm": [
+        124.0,
+        0.0,
+        166.0,
+        43.0
+      ],
+      "native_copper_cuts": {
+        "bus_p/In2.Cu": {
+          "left_mm": 18.542224601296365,
+          "right_mm": 42.4
+        },
+        "hv_ret/In1.Cu": {
+          "left_mm": 27.890361487558604,
+          "right_mm": 26.808535401270767
+        },
+        "leg_ret/In1.Cu": {
+          "left_mm": 10.200000000000001,
+          "right_mm": 0.0
+        },
+        "sw_a/F.Cu": {
+          "left_mm": 0.0,
+          "right_mm": 4.466267758186685
+        }
+      }
+    },
+    "B": {
+      "roi_xy_mm": [
+        85.0,
+        0.0,
+        129.0,
+        43.0
+      ],
+      "native_copper_cuts": {
+        "bus_p/In2.Cu": {
+          "left_mm": 11.784972937826776,
+          "right_mm": 18.88229575216032
+        },
+        "hv_ret/In1.Cu": {
+          "left_mm": 22.94533161654659,
+          "right_mm": 22.941361205881993
+        },
+        "leg_ret/In1.Cu": {
+          "left_mm": 0.29999999999999716,
+          "right_mm": 10.200000000000001
+        },
+        "sw_b/F.Cu": {
+          "left_mm": 0.0,
+          "right_mm": 0.0
+        }
+      }
+    }
+  }
+}

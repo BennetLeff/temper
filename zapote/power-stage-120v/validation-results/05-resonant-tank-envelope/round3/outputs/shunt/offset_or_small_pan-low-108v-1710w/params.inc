@@ -1,0 +1,5 @@
+.param VRMS=108
+.param FREQ=31924.588804820854
+.param LLOAD=5.6e-05
+.param RPAN40=0.84
+.param RCOIL=0.105

@@ -1,0 +1,87 @@
+* Native-15 conducted EMI transfer topology. AC unit sources, NOT an emission prediction.
+* Run from this directory: ngspice -b -r OUTPUT.raw emi_topology.cir
+* EXC_A/B are independent switch-node AC amplitudes relative to floating bus_n.
+* EXC_DM is an independent bus ripple-current drive in amperes.
+.param EXC_A=0 EXC_B=1 EXC_DM=0
+.param LCM=1.6m LDM=18u RCH=4.5m CCH=11.078p RLOSSCH=12.691k
+.param CX=1u ESLX=12.2n ESRX=35m CY=2.2n CMOV=1.4n
+.param CBRJ=85p CBRP=10p CBRN=10p
+.param CBULK=5.4u CLOCAL=0.4u LBULK=20n LLOCAL=5n RBULK=20m RLOCAL=10m
+.param CTABA=42p CTABB=42p CTABH=42p CCOILA=5e-11 CCOILB=5e-11
+.param LPE=100n RPE=10m
+
+* The 50-uH series impedance and 50-ohm measurement termination are explicit
+* on each line. Supply sources are RF-quiet. PE is connected only through
+* the bond path below; no DC-bus node is aliased to earth.
+VsupL mains_l 0 0
+VsupN mains_n 0 0
+LlisnL mains_l line_in 50u
+LlisnN mains_n neut_in 50u
+CsenseL line_in lisn_l 0.1u
+CsenseN neut_in lisn_n 0.1u
+RsenseL lisn_l pe 50
+RsenseN lisn_n pe 50
+Rbond pe pe_l {RPE}
+Lbond pe_l 0 {LPE}
+
+* Input X capacitor, MOV, coupled choke, output X/Y capacitors.
+Lx1 line_in c1a {ESLX}
+Rx1 c1a c1b {ESRX}
+Cx1 c1b neut_in {CX}
+Cmov line_in neut_in {CMOV}
+RchL line_in ch_l {RCH}
+RchN neut_in ch_n {RCH}
+LchL ch_l line_f {LCM}
+LchN ch_n neut_f {LCM}
+Kch LchL LchN {1-LDM/(2*LCM)}
+CchL line_in line_f {CCH}
+CchN neut_in neut_f {CCH}
+RlossChL line_in line_f {RLOSSCH}
+RlossChN neut_in neut_f {RLOSSCH}
+Lx2 line_f c2a {ESLX}
+Rx2 c2a c2b {ESRX}
+Cx2 c2b neut_f {CX}
+CyL line_f pe {CY}
+CyN neut_f pe {CY}
+
+* One rectifier conducting pair at the 170-V mains crest. Four junction
+* capacitors are shown; 85 pF is the manufacturer's 1-MHz/4-V point, not
+* a qualified 170-V value. Case coupling through molded plastic is assumed.
+RbrLH line_f bus_p 0.05
+RbrNL neut_f bus_n 0.05
+CbrLH line_f bus_p {CBRJ}
+CbrLL line_f bus_n {CBRJ}
+CbrNH neut_f bus_p {CBRJ}
+CbrNL neut_f bus_n {CBRJ}
+CbrCaseP bus_p pe {CBRP}
+CbrCaseN bus_n pe {CBRN}
+
+* Board's bulk and local DC link groups, explicit scenario ESR and ESL.
+Lbulk bus_p bulk_a {LBULK}
+Rbulk bulk_a bulk_b {RBULK}
+Cbulk bulk_b bus_n {CBULK}
+Llocal bus_p local_a {LLOCAL}
+Rlocal local_a local_b {RLOCAL}
+Clocal local_b bus_n {CLOCAL}
+Idm bus_p bus_n AC {EXC_DM}
+
+* High-side drains Q2/Q5 are on BUS_P. Low-side drains Q3/Q6 are SW_A/B.
+* Each tab couples to the PE-bonded heatsink through an insulating pad.
+VlegA sw_a bus_n DC 0 AC {EXC_A}
+VlegB sw_b bus_n DC 0 AC {EXC_B}
+CtabQ2 bus_p pe {CTABH}
+CtabQ5 bus_p pe {CTABH}
+CtabQ3 sw_a tab_a {CTABA}
+VtabSenseA tab_a pe 0
+CtabQ6 sw_b tab_b {CTABB}
+VtabSenseB tab_b pe 0
+Rpan sw_a tank_a 2
+Lcoil tank_a tank_b 70u
+Cres tank_b sw_b 0.54u
+* Coil-to-pan/earth split between both leg ends; 10-100 pF total assumed.
+CcoilA sw_a pe {CCOILA}
+CcoilB sw_b pe {CCOILB}
+
+.save v(lisn_l) v(lisn_n) v(pe) v(bus_p) v(bus_n) v(sw_a) v(sw_b) i(vtabsensea) i(vtabsenseb)
+.ac lin 30000 150k 30meg
+.end

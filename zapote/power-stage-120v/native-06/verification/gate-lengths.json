@@ -1,0 +1,35 @@
+{
+  "board_sha256": "500cdb4b9f3491bfed2535099ad0ed2a59a461f12dd79a7aeedae18014b0f3fe",
+  "method": "sum KiCad straight track lengths on each unbranched driver-output net, excludes resistor-to-gate net",
+  "results": {
+    "leg_a-out_h": {
+      "authored_track_total_mm": 38.23258884699733,
+      "segments": 5,
+      "layers": [
+        "F.Cu"
+      ]
+    },
+    "leg_a-out_l": {
+      "authored_track_total_mm": 43.268421433158295,
+      "segments": 5,
+      "layers": [
+        "F.Cu",
+        "In1.Cu"
+      ]
+    },
+    "leg_b-out_h": {
+      "authored_track_total_mm": 30.79763088760001,
+      "segments": 4,
+      "layers": [
+        "F.Cu"
+      ]
+    },
+    "leg_b-out_l": {
+      "authored_track_total_mm": 35.41330422018551,
+      "segments": 4,
+      "layers": [
+        "F.Cu"
+      ]
+    }
+  }
+}

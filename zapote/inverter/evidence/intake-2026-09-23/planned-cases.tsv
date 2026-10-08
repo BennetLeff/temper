@@ -1,0 +1,10 @@
+case_id	coil_article	pan_article	position	thermal_state	frequency_set_khz	excitation_levels	stage	purpose	status
+N0	C1	NONE	fixture_center_reference	cold	20,30,40,47,50+band_edges	at_least_two_reviewed_low_energy	impedance	baseline_and_drift_check	NOT_RUN
+P1C	C1	P1	centered_installed_gap	cold	20,30,40,47,50+band_edges	at_least_two_reviewed_low_energy	impedance	cast_iron_reference_joint_LR	NOT_RUN
+P2C	C1	P2	centered_installed_gap	cold	20,30,40,47,50+band_edges	at_least_two_reviewed_low_energy	impedance	similar_size_stainless_construction	NOT_RUN
+P3C	C1	P3	centered_installed_gap	cold	20,30,40,47,50+band_edges	at_least_two_reviewed_low_energy	impedance	small_pan_detection_boundary	NOT_RUN
+P1O	C1	P1	approved_maximum_static_offset	cold	20,30,40,47,50+band_edges	at_least_two_reviewed_low_energy	impedance	reference_pan_position_limit	HOLD_INPUT
+P1L	C1	P1	approved_maximum_static_lift	cold	20,30,40,47,50+band_edges	at_least_two_reviewed_low_energy	impedance	reference_pan_lift_limit	HOLD_INPUT
+PWC	C1	empirically_weakest_of_P1_P2_P3	approved_offset_and_lift_separately	cold	20,30,40,47,50+band_edges	at_least_two_reviewed_low_energy	impedance	measured_weak_coupling_corner	HOLD_INPUT
+HOT	C1	NONE,P1,P2,P3	centered_installed_gap	measured_hot_coil_and_pan_states	20,30,40,47,50+band_edges	at_least_two_reviewed_low_energy	impedance	temperature_sensitivity	HOLD_INPUT
+REMOVE	protected_common_article	P1_and_empirically_weakest	controlled_motion	bounded_powered_state	approved_operating_band	approved_bounded_source	energized_waveforms	command_gate_current_zero_timing	HOLD_ENERGIZED

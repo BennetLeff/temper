@@ -1,0 +1,576 @@
+[
+  {
+    "tag": "map_tt0_tj25_step0.2",
+    "identity": {
+      "deck_sha256": "34175551ca3cfbc32e80e600fdd62e42a2b88034e63271ee35ffd9a49c5a8273",
+      "vendor_sha256": "655eb936e42a8fd7dc82e4590c0724dad33d7a68ec31b72ba87077de0b6f63f6",
+      "params": {
+        "RG": "730",
+        "TJ": "25",
+        "STEP": "0.2n"
+      },
+      "kind": "recovery",
+      "tt_ns": 0.0,
+      "step_ns": 0.2,
+      "runner_sha256": "ea083ce1d74205935ffdbcd38eb5329677e20a95cb7aa05771866094714c5dae",
+      "kit_runner_sha256": "e518996d3c4050f3fbbb109abbf116a23b010612dd073bea860d3db613f758b0"
+    },
+    "aborted": false,
+    "returncode": 0,
+    "raw_returncode": 0,
+    "failed_measures": [],
+    "meas": {
+      "peak": 11.69928
+    },
+    "final_time_s": 1.2e-05,
+    "status": "COMPLETE",
+    "zero_s": 6.803522160903304e-06,
+    "peak_s": 6.971869076873852e-06,
+    "end_s": 7.009351349385132e-06,
+    "Irrm_A": 11.6992806311996,
+    "Qrr_uC": 1.612363594652691,
+    "trr_ns": 205.82918848182814,
+    "ta_ns": 168.3469159705479,
+    "tb10_ns": 37.48227251128023,
+    "softness_tb10_over_ta": 0.22264900010308303,
+    "slew_A_per_us": 97.12574032082634,
+    "forward_A": 58.19999611549032,
+    "terminal_v_final": 395.9511523610247,
+    "body_branch_peak_A": 0.000637248152604525,
+    "body_branch_Q_same_window_uC": -0.0006975370997088865,
+    "gate_node_peak_V": 0.8136502472941411
+  },
+  {
+    "tag": "map_tt0_tj150_step0.2",
+    "identity": {
+      "deck_sha256": "34175551ca3cfbc32e80e600fdd62e42a2b88034e63271ee35ffd9a49c5a8273",
+      "vendor_sha256": "655eb936e42a8fd7dc82e4590c0724dad33d7a68ec31b72ba87077de0b6f63f6",
+      "params": {
+        "RG": "730",
+        "TJ": "150",
+        "STEP": "0.2n"
+      },
+      "kind": "recovery",
+      "tt_ns": 0.0,
+      "step_ns": 0.2,
+      "runner_sha256": "ea083ce1d74205935ffdbcd38eb5329677e20a95cb7aa05771866094714c5dae",
+      "kit_runner_sha256": "e518996d3c4050f3fbbb109abbf116a23b010612dd073bea860d3db613f758b0"
+    },
+    "aborted": false,
+    "returncode": 0,
+    "raw_returncode": 0,
+    "failed_measures": [],
+    "meas": {
+      "peak": 11.33133
+    },
+    "final_time_s": 1.2e-05,
+    "status": "COMPLETE",
+    "zero_s": 6.2632818165468715e-06,
+    "peak_s": 6.452276941061705e-06,
+    "end_s": 6.4789628430875766e-06,
+    "Irrm_A": 11.3313349334968,
+    "Qrr_uC": 1.6034102771532865,
+    "trr_ns": 215.68102654070506,
+    "ta_ns": 188.9951245148333,
+    "tb10_ns": 26.68590202587177,
+    "softness_tb10_over_ta": 0.141198891211489,
+    "slew_A_per_us": 84.83260154346793,
+    "forward_A": 58.19986975941281,
+    "terminal_v_final": 396.4227673605968,
+    "body_branch_peak_A": 0.0007652417382365285,
+    "body_branch_Q_same_window_uC": -0.0009058706869461639,
+    "gate_node_peak_V": 0.737932405153774
+  },
+  {
+    "tag": "map_tt25_tj25_step0.2",
+    "identity": {
+      "deck_sha256": "34175551ca3cfbc32e80e600fdd62e42a2b88034e63271ee35ffd9a49c5a8273",
+      "vendor_sha256": "5ec47d9ef7272bc59a7e83fd35538c222e30fb2a4f16a9864d89f107fbeb0ca8",
+      "params": {
+        "RG": "730",
+        "TJ": "25",
+        "STEP": "0.2n"
+      },
+      "kind": "recovery",
+      "tt_ns": 25.0,
+      "step_ns": 0.2,
+      "runner_sha256": "ea083ce1d74205935ffdbcd38eb5329677e20a95cb7aa05771866094714c5dae",
+      "kit_runner_sha256": "e518996d3c4050f3fbbb109abbf116a23b010612dd073bea860d3db613f758b0"
+    },
+    "aborted": false,
+    "returncode": 0,
+    "raw_returncode": 0,
+    "failed_measures": [],
+    "meas": {
+      "peak": 11.84816
+    },
+    "final_time_s": 1.2e-05,
+    "status": "COMPLETE",
+    "zero_s": 6.803330805404655e-06,
+    "peak_s": 6.971921874640834e-06,
+    "end_s": 7.0103158955588116e-06,
+    "Irrm_A": 11.84816267725929,
+    "Qrr_uC": 1.6459726164705888,
+    "trr_ns": 206.9850901541564,
+    "ta_ns": 168.59106923617912,
+    "tb10_ns": 38.394020917977286,
+    "softness_tb10_over_ta": 0.2277346071291068,
+    "slew_A_per_us": 100.35402162588711,
+    "forward_A": 58.19999611548614,
+    "terminal_v_final": 395.9511114161394,
+    "body_branch_peak_A": 2.007635424910907,
+    "body_branch_Q_same_window_uC": 0.030485017427627305,
+    "gate_node_peak_V": 0.8111747868691576
+  },
+  {
+    "tag": "map_tt25_tj150_step0.2",
+    "identity": {
+      "deck_sha256": "34175551ca3cfbc32e80e600fdd62e42a2b88034e63271ee35ffd9a49c5a8273",
+      "vendor_sha256": "5ec47d9ef7272bc59a7e83fd35538c222e30fb2a4f16a9864d89f107fbeb0ca8",
+      "params": {
+        "RG": "730",
+        "TJ": "150",
+        "STEP": "0.2n"
+      },
+      "kind": "recovery",
+      "tt_ns": 25.0,
+      "step_ns": 0.2,
+      "runner_sha256": "ea083ce1d74205935ffdbcd38eb5329677e20a95cb7aa05771866094714c5dae",
+      "kit_runner_sha256": "e518996d3c4050f3fbbb109abbf116a23b010612dd073bea860d3db613f758b0"
+    },
+    "aborted": false,
+    "returncode": 0,
+    "raw_returncode": 0,
+    "failed_measures": [],
+    "meas": {
+      "peak": 11.45343
+    },
+    "final_time_s": 1.2e-05,
+    "status": "COMPLETE",
+    "zero_s": 6.263035774126192e-06,
+    "peak_s": 6.451839574688776e-06,
+    "end_s": 6.4800144600026065e-06,
+    "Irrm_A": 11.45342813549798,
+    "Qrr_uC": 1.6336797192311976,
+    "trr_ns": 216.97868587641426,
+    "ta_ns": 188.80380056258406,
+    "tb10_ns": 28.174885313830213,
+    "softness_tb10_over_ta": 0.1492283800955103,
+    "slew_A_per_us": 87.44642763082652,
+    "forward_A": 58.19986975940933,
+    "terminal_v_final": 396.4227222219002,
+    "body_branch_peak_A": 1.67205890885869,
+    "body_branch_Q_same_window_uC": 0.026405960576862984,
+    "gate_node_peak_V": 0.7362031294946365
+  },
+  {
+    "tag": "map_tt50_tj25_step0.2",
+    "identity": {
+      "deck_sha256": "34175551ca3cfbc32e80e600fdd62e42a2b88034e63271ee35ffd9a49c5a8273",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "params": {
+        "RG": "730",
+        "TJ": "25",
+        "STEP": "0.2n"
+      },
+      "kind": "recovery",
+      "tt_ns": 50.0,
+      "step_ns": 0.2,
+      "runner_sha256": "ea083ce1d74205935ffdbcd38eb5329677e20a95cb7aa05771866094714c5dae",
+      "kit_runner_sha256": "e518996d3c4050f3fbbb109abbf116a23b010612dd073bea860d3db613f758b0"
+    },
+    "aborted": false,
+    "returncode": 0,
+    "raw_returncode": 0,
+    "failed_measures": [],
+    "meas": {
+      "peak": 12.30226
+    },
+    "final_time_s": 1.2e-05,
+    "status": "COMPLETE",
+    "zero_s": 6.803267231283828e-06,
+    "peak_s": 6.972677772332201e-06,
+    "end_s": 7.0132253458448255e-06,
+    "Irrm_A": 12.30225866030973,
+    "Qrr_uC": 1.7388150847133557,
+    "trr_ns": 209.95811456099753,
+    "ta_ns": 169.4105410483728,
+    "tb10_ns": 40.54757351262472,
+    "softness_tb10_over_ta": 0.23934504465720896,
+    "slew_A_per_us": 100.56387723677189,
+    "forward_A": 58.199996115493626,
+    "terminal_v_final": 395.9510006358774,
+    "body_branch_peak_A": 4.474171697098387,
+    "body_branch_Q_same_window_uC": 0.12218363977947155,
+    "gate_node_peak_V": 0.8024054359380448
+  },
+  {
+    "tag": "map_tt50_tj150_step0.2",
+    "identity": {
+      "deck_sha256": "34175551ca3cfbc32e80e600fdd62e42a2b88034e63271ee35ffd9a49c5a8273",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "params": {
+        "RG": "730",
+        "TJ": "150",
+        "STEP": "0.2n"
+      },
+      "kind": "recovery",
+      "tt_ns": 50.0,
+      "step_ns": 0.2,
+      "runner_sha256": "ea083ce1d74205935ffdbcd38eb5329677e20a95cb7aa05771866094714c5dae",
+      "kit_runner_sha256": "e518996d3c4050f3fbbb109abbf116a23b010612dd073bea860d3db613f758b0"
+    },
+    "aborted": false,
+    "returncode": 0,
+    "raw_returncode": 0,
+    "failed_measures": [],
+    "meas": {
+      "peak": 11.81075
+    },
+    "final_time_s": 1.2e-05,
+    "status": "COMPLETE",
+    "zero_s": 6.262949970874937e-06,
+    "peak_s": 6.451315559001535e-06,
+    "end_s": 6.483029456526913e-06,
+    "Irrm_A": 11.81075335535697,
+    "Qrr_uC": 1.7153686046606345,
+    "trr_ns": 220.0794856519755,
+    "ta_ns": 188.3655881265974,
+    "tb10_ns": 31.713897525378073,
+    "softness_tb10_over_ta": 0.1683635415618679,
+    "slew_A_per_us": 87.7061807489275,
+    "forward_A": 58.19986975941016,
+    "terminal_v_final": 396.4226030927616,
+    "body_branch_peak_A": 3.811348070593407,
+    "body_branch_Q_same_window_uC": 0.10672560369296342,
+    "gate_node_peak_V": 0.7303007160862409
+  },
+  {
+    "tag": "map_tt100_tj25_step0.2",
+    "identity": {
+      "deck_sha256": "34175551ca3cfbc32e80e600fdd62e42a2b88034e63271ee35ffd9a49c5a8273",
+      "vendor_sha256": "f7476358db2f5e0ea8339195908801a55ac0b6651022970cce1810f526a4aa2e",
+      "params": {
+        "RG": "730",
+        "TJ": "25",
+        "STEP": "0.2n"
+      },
+      "kind": "recovery",
+      "tt_ns": 100.0,
+      "step_ns": 0.2,
+      "runner_sha256": "ea083ce1d74205935ffdbcd38eb5329677e20a95cb7aa05771866094714c5dae",
+      "kit_runner_sha256": "e518996d3c4050f3fbbb109abbf116a23b010612dd073bea860d3db613f758b0"
+    },
+    "aborted": false,
+    "returncode": 0,
+    "raw_returncode": 0,
+    "failed_measures": [],
+    "meas": {
+      "peak": 14.20831
+    },
+    "final_time_s": 1.2e-05,
+    "status": "COMPLETE",
+    "zero_s": 6.803203009110634e-06,
+    "peak_s": 6.979968833304039e-06,
+    "end_s": 7.025242111598419e-06,
+    "Irrm_A": 14.2083056887201,
+    "Qrr_uC": 2.096425376895002,
+    "trr_ns": 222.0391024877846,
+    "ta_ns": 176.765824193405,
+    "tb10_ns": 45.273278294379594,
+    "softness_tb10_over_ta": 0.2561200871320278,
+    "slew_A_per_us": 100.66857181760118,
+    "forward_A": 58.199996114881436,
+    "terminal_v_final": 395.9505784925754,
+    "body_branch_peak_A": 9.433102946508757,
+    "body_branch_Q_same_window_uC": 0.4770929846972932,
+    "gate_node_peak_V": 0.7622827231875813
+  },
+  {
+    "tag": "map_tt100_tj150_step0.2",
+    "identity": {
+      "deck_sha256": "34175551ca3cfbc32e80e600fdd62e42a2b88034e63271ee35ffd9a49c5a8273",
+      "vendor_sha256": "f7476358db2f5e0ea8339195908801a55ac0b6651022970cce1810f526a4aa2e",
+      "params": {
+        "RG": "730",
+        "TJ": "150",
+        "STEP": "0.2n"
+      },
+      "kind": "recovery",
+      "tt_ns": 100.0,
+      "step_ns": 0.2,
+      "runner_sha256": "ea083ce1d74205935ffdbcd38eb5329677e20a95cb7aa05771866094714c5dae",
+      "kit_runner_sha256": "e518996d3c4050f3fbbb109abbf116a23b010612dd073bea860d3db613f758b0"
+    },
+    "aborted": false,
+    "returncode": 0,
+    "raw_returncode": 0,
+    "failed_measures": [],
+    "meas": {
+      "peak": 13.31399
+    },
+    "final_time_s": 1.2e-05,
+    "status": "COMPLETE",
+    "zero_s": 6.2628630491249694e-06,
+    "peak_s": 6.455818059035454e-06,
+    "end_s": 6.495202474030861e-06,
+    "Irrm_A": 13.31399167056951,
+    "Qrr_uC": 2.030753841714368,
+    "trr_ns": 232.33942490589175,
+    "ta_ns": 192.95500991048445,
+    "tb10_ns": 39.38441499540728,
+    "softness_tb10_over_ta": 0.20411190677909047,
+    "slew_A_per_us": 87.81860077348345,
+    "forward_A": 58.19986975849524,
+    "terminal_v_final": 396.4221479038829,
+    "body_branch_peak_A": 8.136081949690459,
+    "body_branch_Q_same_window_uC": 0.4193869950795921,
+    "gate_node_peak_V": 0.7035943168216863
+  },
+  {
+    "tag": "map_tt200_tj25_step0.2",
+    "identity": {
+      "deck_sha256": "34175551ca3cfbc32e80e600fdd62e42a2b88034e63271ee35ffd9a49c5a8273",
+      "vendor_sha256": "7f3b5c5c2a4fe6ae95f94d12194486731541d78f9e92853bd109c057146a2456",
+      "params": {
+        "RG": "730",
+        "TJ": "25",
+        "STEP": "0.2n"
+      },
+      "kind": "recovery",
+      "tt_ns": 200.0,
+      "step_ns": 0.2,
+      "runner_sha256": "ea083ce1d74205935ffdbcd38eb5329677e20a95cb7aa05771866094714c5dae",
+      "kit_runner_sha256": "e518996d3c4050f3fbbb109abbf116a23b010612dd073bea860d3db613f758b0"
+    },
+    "aborted": false,
+    "returncode": 0,
+    "raw_returncode": 0,
+    "failed_measures": [],
+    "meas": {
+      "peak": 21.0257
+    },
+    "final_time_s": 1.2e-05,
+    "status": "COMPLETE",
+    "zero_s": 6.803142283176213e-06,
+    "peak_s": 7.022976207156589e-06,
+    "end_s": 7.069440429408902e-06,
+    "Irrm_A": 21.02569617625556,
+    "Qrr_uC": 3.4159742487466476,
+    "trr_ns": 266.2981462326894,
+    "ta_ns": 219.8339239803766,
+    "tb10_ns": 46.46422225231282,
+    "softness_tb10_over_ta": 0.2113605644252633,
+    "slew_A_per_us": 100.72326319548299,
+    "forward_A": 58.199996059546876,
+    "terminal_v_final": 395.9490475236924,
+    "body_branch_peak_A": 19.14312013505631,
+    "body_branch_Q_same_window_uC": 1.7885731473035615,
+    "gate_node_peak_V": 0.5970390076500444
+  },
+  {
+    "tag": "map_tt200_tj150_step0.2",
+    "identity": {
+      "deck_sha256": "34175551ca3cfbc32e80e600fdd62e42a2b88034e63271ee35ffd9a49c5a8273",
+      "vendor_sha256": "7f3b5c5c2a4fe6ae95f94d12194486731541d78f9e92853bd109c057146a2456",
+      "params": {
+        "RG": "730",
+        "TJ": "150",
+        "STEP": "0.2n"
+      },
+      "kind": "recovery",
+      "tt_ns": 200.0,
+      "step_ns": 0.2,
+      "runner_sha256": "ea083ce1d74205935ffdbcd38eb5329677e20a95cb7aa05771866094714c5dae",
+      "kit_runner_sha256": "e518996d3c4050f3fbbb109abbf116a23b010612dd073bea860d3db613f758b0"
+    },
+    "aborted": false,
+    "returncode": 0,
+    "raw_returncode": 0,
+    "failed_measures": [],
+    "meas": {
+      "peak": 18.8871
+    },
+    "final_time_s": 1.2e-05,
+    "status": "COMPLETE",
+    "zero_s": 6.262779975591271e-06,
+    "peak_s": 6.494988774341335e-06,
+    "end_s": 6.539609555964051e-06,
+    "Irrm_A": 18.88709878518662,
+    "Qrr_uC": 3.2088156535524504,
+    "trr_ns": 276.82958037277984,
+    "ta_ns": 232.20879875006378,
+    "tb10_ns": 44.62078162271603,
+    "softness_tb10_over_ta": 0.19215801409292538,
+    "slew_A_per_us": 87.88189546667708,
+    "forward_A": 58.19986967993415,
+    "terminal_v_final": 396.4204731450712,
+    "body_branch_peak_A": 16.66389197925052,
+    "body_branch_Q_same_window_uC": 1.590138311884352,
+    "gate_node_peak_V": 0.5937730327355949
+  },
+  {
+    "tag": "map_tt400_tj25_step0.2",
+    "identity": {
+      "deck_sha256": "34175551ca3cfbc32e80e600fdd62e42a2b88034e63271ee35ffd9a49c5a8273",
+      "vendor_sha256": "92d58c635ae0095391a0795c10784b70de6293c87db6201f8833cd77c7c582b9",
+      "params": {
+        "RG": "730",
+        "TJ": "25",
+        "STEP": "0.2n"
+      },
+      "kind": "recovery",
+      "tt_ns": 400.0,
+      "step_ns": 0.2,
+      "runner_sha256": "ea083ce1d74205935ffdbcd38eb5329677e20a95cb7aa05771866094714c5dae",
+      "kit_runner_sha256": "e518996d3c4050f3fbbb109abbf116a23b010612dd073bea860d3db613f758b0"
+    },
+    "aborted": false,
+    "returncode": 0,
+    "raw_returncode": 0,
+    "failed_measures": [],
+    "meas": {
+      "peak": 37.82827
+    },
+    "final_time_s": 1.2e-05,
+    "status": "COMPLETE",
+    "zero_s": 6.803091343537644e-06,
+    "peak_s": 7.146774511151201e-06,
+    "end_s": 7.18635031597384e-06,
+    "Irrm_A": 37.82827372356727,
+    "Qrr_uC": 7.7974826822215,
+    "trr_ns": 383.2589724361966,
+    "ta_ns": 343.68316761355703,
+    "tb10_ns": 39.575804822639576,
+    "softness_tb10_over_ta": 0.11515200205306318,
+    "slew_A_per_us": 100.73808100878028,
+    "forward_A": 58.199995599683874,
+    "terminal_v_final": 395.944126866639,
+    "body_branch_peak_A": 37.09331947840586,
+    "body_branch_Q_same_window_uC": 6.1508413156083765,
+    "gate_node_peak_V": 0.2271540725661431
+  },
+  {
+    "tag": "map_tt400_tj150_step0.2",
+    "identity": {
+      "deck_sha256": "34175551ca3cfbc32e80e600fdd62e42a2b88034e63271ee35ffd9a49c5a8273",
+      "vendor_sha256": "92d58c635ae0095391a0795c10784b70de6293c87db6201f8833cd77c7c582b9",
+      "params": {
+        "RG": "730",
+        "TJ": "150",
+        "STEP": "0.2n"
+      },
+      "kind": "recovery",
+      "tt_ns": 400.0,
+      "step_ns": 0.2,
+      "runner_sha256": "ea083ce1d74205935ffdbcd38eb5329677e20a95cb7aa05771866094714c5dae",
+      "kit_runner_sha256": "e518996d3c4050f3fbbb109abbf116a23b010612dd073bea860d3db613f758b0"
+    },
+    "aborted": false,
+    "returncode": 0,
+    "raw_returncode": 0,
+    "failed_measures": [],
+    "meas": {
+      "peak": 33.32344
+    },
+    "final_time_s": 1.2e-05,
+    "status": "COMPLETE",
+    "zero_s": 6.26270837046639e-06,
+    "peak_s": 6.619379356885207e-06,
+    "end_s": 6.6595348574271435e-06,
+    "Irrm_A": 33.32343744923868,
+    "Qrr_uC": 7.218313965157123,
+    "trr_ns": 396.8264869607538,
+    "ta_ns": 356.67098641881705,
+    "tb10_ns": 40.15550054193675,
+    "softness_tb10_over_ta": 0.11258415198029198,
+    "slew_A_per_us": 87.91540413310413,
+    "forward_A": 58.19986902735258,
+    "terminal_v_final": 396.4149383087352,
+    "body_branch_peak_A": 32.62787373279016,
+    "body_branch_Q_same_window_uC": 5.581924284948997,
+    "gate_node_peak_V": 0.244960845098965
+  },
+  {
+    "tag": "map_tt800_tj25_step0.2",
+    "identity": {
+      "deck_sha256": "34175551ca3cfbc32e80e600fdd62e42a2b88034e63271ee35ffd9a49c5a8273",
+      "vendor_sha256": "4314859bb1cec5534b21ffd34fccf0a1948b91fa898abe680841f6fff0c8e6fe",
+      "params": {
+        "RG": "730",
+        "TJ": "25",
+        "STEP": "0.2n"
+      },
+      "kind": "recovery",
+      "tt_ns": 800.0,
+      "step_ns": 0.2,
+      "runner_sha256": "ea083ce1d74205935ffdbcd38eb5329677e20a95cb7aa05771866094714c5dae",
+      "kit_runner_sha256": "e518996d3c4050f3fbbb109abbf116a23b010612dd073bea860d3db613f758b0"
+    },
+    "aborted": false,
+    "returncode": 0,
+    "raw_returncode": 0,
+    "failed_measures": [],
+    "meas": {
+      "peak": 68.43095
+    },
+    "final_time_s": 1.2e-05,
+    "status": "COMPLETE",
+    "zero_s": 6.803053397626165e-06,
+    "peak_s": 7.37689999999286e-06,
+    "end_s": 7.402987224155768e-06,
+    "Irrm_A": 68.43095222612817,
+    "Qrr_uC": 20.34591553322403,
+    "trr_ns": 599.9338265296027,
+    "ta_ns": 573.8466023666947,
+    "tb10_ns": 26.087224162908026,
+    "softness_tb10_over_ta": 0.045460274671519245,
+    "slew_A_per_us": 100.7536097965592,
+    "forward_A": 58.19999465608979,
+    "terminal_v_final": 395.9308080713225,
+    "body_branch_peak_A": 67.7446840868525,
+    "body_branch_Q_same_window_uC": 18.66454718299381,
+    "gate_node_peak_V": -0.08920114110347382
+  },
+  {
+    "tag": "map_tt800_tj150_step0.2",
+    "identity": {
+      "deck_sha256": "34175551ca3cfbc32e80e600fdd62e42a2b88034e63271ee35ffd9a49c5a8273",
+      "vendor_sha256": "4314859bb1cec5534b21ffd34fccf0a1948b91fa898abe680841f6fff0c8e6fe",
+      "params": {
+        "RG": "730",
+        "TJ": "150",
+        "STEP": "0.2n"
+      },
+      "kind": "recovery",
+      "tt_ns": 800.0,
+      "step_ns": 0.2,
+      "runner_sha256": "ea083ce1d74205935ffdbcd38eb5329677e20a95cb7aa05771866094714c5dae",
+      "kit_runner_sha256": "e518996d3c4050f3fbbb109abbf116a23b010612dd073bea860d3db613f758b0"
+    },
+    "aborted": false,
+    "returncode": 0,
+    "raw_returncode": 0,
+    "failed_measures": [],
+    "meas": {
+      "peak": 60.92369
+    },
+    "final_time_s": 1.2e-05,
+    "status": "COMPLETE",
+    "zero_s": 6.26265360129454e-06,
+    "peak_s": 6.858810582992259e-06,
+    "end_s": 6.887848807922967e-06,
+    "Irrm_A": 60.92369413857482,
+    "Qrr_uC": 19.0210861304693,
+    "trr_ns": 625.1952066284266,
+    "ta_ns": 596.1569816977188,
+    "tb10_ns": 29.03822493070775,
+    "softness_tb10_over_ta": 0.04870902433787409,
+    "slew_A_per_us": 87.92257465336326,
+    "forward_A": 58.19986768842203,
+    "terminal_v_final": 396.3994841304873,
+    "body_branch_peak_A": 60.21573559035527,
+    "body_branch_Q_same_window_uC": 17.352250039589922,
+    "gate_node_peak_V": -0.07150005416031309
+  }
+]

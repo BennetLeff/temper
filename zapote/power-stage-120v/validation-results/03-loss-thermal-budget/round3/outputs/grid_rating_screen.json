@@ -1,0 +1,70 @@
+{
+  "a3_static_ct_max_a": 60.01430697046711,
+  "board_sha256": "a3ac1249f5052afe52944804cdc3f6ef0e8f895668360e79c1fa7b6fb7322155",
+  "full_power_case_count": 45,
+  "qualification": "ideal steady waveform only; static threshold does not establish actual fault-trip timing, thermal pulse duty or protection integrity",
+  "r5_over_1w_all_above_a3_ct_static_max": true,
+  "r5_over_1w_cases": [
+    {
+      "r5_nominal_w": 1.3105848039999999,
+      "run_id": "triply_clad_GUESS-low-108v-1710w",
+      "tank_peak_a": 72.08995
+    },
+    {
+      "r5_nominal_w": 1.30030196409,
+      "run_id": "triply_clad_GUESS-low-120v-1710w",
+      "tank_peak_a": 72.31881
+    },
+    {
+      "r5_nominal_w": 1.2836097562500002,
+      "run_id": "triply_clad_GUESS-low-140v-1710w",
+      "tank_peak_a": 72.82767
+    },
+    {
+      "r5_nominal_w": 1.1487286704099997,
+      "run_id": "low_R_silargan_like-low-108v-1710w",
+      "tank_peak_a": 67.2063
+    },
+    {
+      "r5_nominal_w": 1.1371732840000002,
+      "run_id": "low_R_silargan_like-low-120v-1710w",
+      "tank_peak_a": 67.39248
+    },
+    {
+      "r5_nominal_w": 1.1192370249999999,
+      "run_id": "low_R_silargan_like-low-140v-1710w",
+      "tank_peak_a": 67.8784
+    },
+    {
+      "r5_nominal_w": 1.9977145376399998,
+      "run_id": "offset_or_small_pan-low-108v-1710w",
+      "tank_peak_a": 89.78643
+    },
+    {
+      "r5_nominal_w": 1.98698411536,
+      "run_id": "offset_or_small_pan-low-120v-1710w",
+      "tank_peak_a": 90.06023
+    },
+    {
+      "r5_nominal_w": 1.97048985604,
+      "run_id": "offset_or_small_pan-low-140v-1710w",
+      "tank_peak_a": 90.61737
+    },
+    {
+      "r5_nominal_w": 1.29683533456,
+      "run_id": "offset_or_small_pan-mid-108v-1710w",
+      "tank_peak_a": 71.67466
+    },
+    {
+      "r5_nominal_w": 1.2899231402500002,
+      "run_id": "offset_or_small_pan-mid-120v-1710w",
+      "tank_peak_a": 71.9229
+    },
+    {
+      "r5_nominal_w": 1.2744471603599998,
+      "run_id": "offset_or_small_pan-mid-140v-1710w",
+      "tank_peak_a": 72.33241
+    }
+  ],
+  "r5_over_1w_nominal_count": 12
+}

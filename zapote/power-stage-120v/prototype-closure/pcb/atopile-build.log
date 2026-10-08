@@ -1,0 +1,392 @@
+[12:46:23] INFO     Using project                                   common.py:72
+                    /Users/bennet/Desktop/temper/worktrees/mit-prod             
+                    uct-guidance/zapote/power-stage-120v                        
+           INFO     Building default                                 build.py:38
+[12:46:27] INFO     No variables in assertions to solve        assertions.py:252
+           INFO     Writing outputs to                               build.py:78
+                    /Users/bennet/Desktop/temper/worktrees/mit-produ            
+                    ct-guidance/zapote/power-stage-120v/build                   
+           INFO     Building 'designator-map' for 'default' config  build.py:100
+┏━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Designator ↓ ┃ Name                   ┃
+┡━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│          BR1 │ br1                    │
+│           C1 │ cx1                    │
+│           C2 │ cx2                    │
+│           C3 │ cy1                    │
+│           C4 │ cy2                    │
+│           C5 │ c_bus1                 │
+│           C6 │ c_bus2                 │
+│           C7 │ leg_a.c_vcci           │
+│           C8 │ leg_a.c_ls             │
+│           C9 │ leg_a.c_ls_bulk        │
+│          C10 │ leg_a.c_boot           │
+│          C11 │ leg_a.c_boot_hf        │
+│          C12 │ leg_a.c_snub_h         │
+│          C13 │ leg_a.c_snub_l         │
+│          C14 │ leg_b.c_vcci           │
+│          C15 │ leg_b.c_ls             │
+│          C16 │ leg_b.c_ls_bulk        │
+│          C17 │ leg_b.c_boot           │
+│          C18 │ leg_b.c_boot_hf        │
+│          C19 │ leg_b.c_snub_h         │
+│          C20 │ leg_b.c_snub_l         │
+│          C21 │ c_res1                 │
+│          C22 │ c_res2                 │
+│          C23 │ c_res3                 │
+│          C24 │ c_v15                  │
+│          C25 │ c_ldo_in               │
+│          C26 │ c_ldo_out              │
+│          C27 │ c_div                  │
+│          C28 │ c_vs1                  │
+│          C29 │ c_vs2                  │
+│          C30 │ c_ocp_node             │
+│          C31 │ c_th                   │
+│          C32 │ c_ocp_vcc              │
+│          C33 │ c_ovp_th               │
+│          C34 │ c_ovp_vcc              │
+│          C35 │ c_nand_vcc             │
+│          C36 │ c_iso1                 │
+│          C37 │ c_iso2                 │
+│          C38 │ c_hf_a1                │
+│          C39 │ c_hf_a2                │
+│          C40 │ c_hf_b1                │
+│          C41 │ c_hf_b2                │
+│          C42 │ c_ct_burden            │
+│          C43 │ c_ct_bias              │
+│          C44 │ c_ct_pos               │
+│          C45 │ c_ct_neg               │
+│          C46 │ c_ct_zc                │
+│          C47 │ c_fault_or             │
+│          C48 │ c_hot5_uv              │
+│          C49 │ c_hot5_schmitt         │
+│           D1 │ leg_a.d_boot           │
+│           D2 │ leg_b.d_boot           │
+│           D3 │ tvs_bus                │
+│           D4 │ d_ct_hi                │
+│           D5 │ d_ct_lo                │
+│           F1 │ f1                     │
+│           J1 │ j_mains                │
+│           J2 │ j_coil                 │
+│           J3 │ j_tco                  │
+│           J4 │ j_selv                 │
+│           J5 │ j_coil_return          │
+│           J6 │ j_pe                   │
+│           J7 │ link_pos.terminal_rect │
+│           J8 │ link_pos.terminal_bus  │
+│           J9 │ link_neg.terminal_rect │
+│          J10 │ link_neg.terminal_bus  │
+│           L1 │ l1                     │
+│          PS1 │ ps_selv                │
+│          PS2 │ ps_gate                │
+│           Q1 │ leg_a.permit_fet       │
+│           Q2 │ leg_a.q_high           │
+│           Q3 │ leg_a.q_low            │
+│           Q4 │ leg_b.permit_fet       │
+│           Q5 │ leg_b.q_high           │
+│           Q6 │ leg_b.q_low            │
+│           R1 │ rb1a                   │
+│           R2 │ rb1b                   │
+│           R3 │ r_bus1                 │
+│           R4 │ r_bus2                 │
+│           R5 │ r_shunt                │
+│           R6 │ leg_a.r_permit         │
+│           R7 │ leg_a.r_permit_pd      │
+│           R8 │ leg_a.r_dis_pu         │
+│           R9 │ leg_a.r_dt             │
+│          R10 │ leg_a.r_gh             │
+│          R11 │ leg_a.r_gh_pd          │
+│          R12 │ leg_a.r_gl             │
+│          R13 │ leg_a.r_gl_pd          │
+│          R14 │ leg_b.r_permit         │
+│          R15 │ leg_b.r_permit_pd      │
+│          R16 │ leg_b.r_dis_pu         │
+│          R17 │ leg_b.r_dt             │
+│          R18 │ leg_b.r_gh             │
+│          R19 │ leg_b.r_gh_pd          │
+│          R20 │ leg_b.r_gl             │
+│          R21 │ leg_b.r_gl_pd          │
+│          R22 │ r_crb1                 │
+│          R23 │ r_crb2                 │
+│          R24 │ r_crb3                 │
+│          R25 │ r_crb4                 │
+│          R26 │ r_div1                 │
+│          R27 │ r_div2                 │
+│          R28 │ r_div3                 │
+│          R29 │ r_div4                 │
+│          R30 │ r_div_bot              │
+│          R31 │ r_ref_bias             │
+│          R32 │ r_ocp_ref              │
+│          R33 │ r_ocp_sense            │
+│          R34 │ r_th_top               │
+│          R35 │ r_th_bot               │
+│          R36 │ r_ovp_top              │
+│          R37 │ r_ovp_bot              │
+│          R38 │ r_fe                   │
+│          R39 │ r_ct_burden            │
+│          R40 │ r_ct_bias_top          │
+│          R41 │ r_ct_bias_bot          │
+│          R42 │ r_ct_series            │
+│          R43 │ r_ct_hi_top            │
+│          R44 │ r_ct_hi_bot            │
+│          R45 │ r_ct_lo_top            │
+│          R46 │ r_ct_lo_bot            │
+│          R47 │ r_ct_mon               │
+│          R48 │ r_hot5_uv_top          │
+│          R49 │ r_hot5_uv_bot          │
+│          R50 │ r_hot5_uv_pull         │
+│          RV1 │ rv1                    │
+│           T1 │ t_ct                   │
+│           U1 │ leg_a.driver           │
+│           U2 │ leg_b.driver           │
+│           U3 │ u_ldo                  │
+│           U4 │ u_vsense               │
+│           U5 │ u_ref                  │
+│           U6 │ u_ocp                  │
+│           U7 │ u_ovp                  │
+│           U8 │ u_nand                 │
+│           U9 │ u_iso                  │
+│          U10 │ u_ct_pos               │
+│          U11 │ u_ct_neg               │
+│          U12 │ u_ct_zc                │
+│          U13 │ u_fault_or             │
+│          U14 │ u_hot5_uv              │
+│          U15 │ u_hot5_schmitt         │
+└──────────────┴────────────────────────┘
+┏━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Name ↓                 ┃ Designator ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━┩
+│ br1                    │ BR1        │
+│ c_bus1                 │ C5         │
+│ c_bus2                 │ C6         │
+│ c_ct_bias              │ C43        │
+│ c_ct_burden            │ C42        │
+│ c_ct_neg               │ C45        │
+│ c_ct_pos               │ C44        │
+│ c_ct_zc                │ C46        │
+│ c_div                  │ C27        │
+│ c_fault_or             │ C47        │
+│ c_hf_a1                │ C38        │
+│ c_hf_a2                │ C39        │
+│ c_hf_b1                │ C40        │
+│ c_hf_b2                │ C41        │
+│ c_hot5_schmitt         │ C49        │
+│ c_hot5_uv              │ C48        │
+│ c_iso1                 │ C36        │
+│ c_iso2                 │ C37        │
+│ c_ldo_in               │ C25        │
+│ c_ldo_out              │ C26        │
+│ c_nand_vcc             │ C35        │
+│ c_ocp_node             │ C30        │
+│ c_ocp_vcc              │ C32        │
+│ c_ovp_th               │ C33        │
+│ c_ovp_vcc              │ C34        │
+│ c_res1                 │ C21        │
+│ c_res2                 │ C22        │
+│ c_res3                 │ C23        │
+│ c_th                   │ C31        │
+│ c_v15                  │ C24        │
+│ c_vs1                  │ C28        │
+│ c_vs2                  │ C29        │
+│ cx1                    │ C1         │
+│ cx2                    │ C2         │
+│ cy1                    │ C3         │
+│ cy2                    │ C4         │
+│ d_ct_hi                │ D4         │
+│ d_ct_lo                │ D5         │
+│ f1                     │ F1         │
+│ j_coil                 │ J2         │
+│ j_coil_return          │ J5         │
+│ j_mains                │ J1         │
+│ j_pe                   │ J6         │
+│ j_selv                 │ J4         │
+│ j_tco                  │ J3         │
+│ l1                     │ L1         │
+│ leg_a.c_boot           │ C10        │
+│ leg_a.c_boot_hf        │ C11        │
+│ leg_a.c_ls             │ C8         │
+│ leg_a.c_ls_bulk        │ C9         │
+│ leg_a.c_snub_h         │ C12        │
+│ leg_a.c_snub_l         │ C13        │
+│ leg_a.c_vcci           │ C7         │
+│ leg_a.d_boot           │ D1         │
+│ leg_a.driver           │ U1         │
+│ leg_a.permit_fet       │ Q1         │
+│ leg_a.q_high           │ Q2         │
+│ leg_a.q_low            │ Q3         │
+│ leg_a.r_dis_pu         │ R8         │
+│ leg_a.r_dt             │ R9         │
+│ leg_a.r_gh             │ R10        │
+│ leg_a.r_gh_pd          │ R11        │
+│ leg_a.r_gl             │ R12        │
+│ leg_a.r_gl_pd          │ R13        │
+│ leg_a.r_permit         │ R6         │
+│ leg_a.r_permit_pd      │ R7         │
+│ leg_b.c_boot           │ C17        │
+│ leg_b.c_boot_hf        │ C18        │
+│ leg_b.c_ls             │ C15        │
+│ leg_b.c_ls_bulk        │ C16        │
+│ leg_b.c_snub_h         │ C19        │
+│ leg_b.c_snub_l         │ C20        │
+│ leg_b.c_vcci           │ C14        │
+│ leg_b.d_boot           │ D2         │
+│ leg_b.driver           │ U2         │
+│ leg_b.permit_fet       │ Q4         │
+│ leg_b.q_high           │ Q5         │
+│ leg_b.q_low            │ Q6         │
+│ leg_b.r_dis_pu         │ R16        │
+│ leg_b.r_dt             │ R17        │
+│ leg_b.r_gh             │ R18        │
+│ leg_b.r_gh_pd          │ R19        │
+│ leg_b.r_gl             │ R20        │
+│ leg_b.r_gl_pd          │ R21        │
+│ leg_b.r_permit         │ R14        │
+│ leg_b.r_permit_pd      │ R15        │
+│ link_neg.terminal_bus  │ J10        │
+│ link_neg.terminal_rect │ J9         │
+│ link_pos.terminal_bus  │ J8         │
+│ link_pos.terminal_rect │ J7         │
+│ ps_gate                │ PS2        │
+│ ps_selv                │ PS1        │
+│ r_bus1                 │ R3         │
+│ r_bus2                 │ R4         │
+│ r_crb1                 │ R22        │
+│ r_crb2                 │ R23        │
+│ r_crb3                 │ R24        │
+│ r_crb4                 │ R25        │
+│ r_ct_bias_bot          │ R41        │
+│ r_ct_bias_top          │ R40        │
+│ r_ct_burden            │ R39        │
+│ r_ct_hi_bot            │ R44        │
+│ r_ct_hi_top            │ R43        │
+│ r_ct_lo_bot            │ R46        │
+│ r_ct_lo_top            │ R45        │
+│ r_ct_mon               │ R47        │
+│ r_ct_series            │ R42        │
+│ r_div1                 │ R26        │
+│ r_div2                 │ R27        │
+│ r_div3                 │ R28        │
+│ r_div4                 │ R29        │
+│ r_div_bot              │ R30        │
+│ r_fe                   │ R38        │
+│ r_hot5_uv_bot          │ R49        │
+│ r_hot5_uv_pull         │ R50        │
+│ r_hot5_uv_top          │ R48        │
+│ r_ocp_ref              │ R32        │
+│ r_ocp_sense            │ R33        │
+│ r_ovp_bot              │ R37        │
+│ r_ovp_top              │ R36        │
+│ r_ref_bias             │ R31        │
+│ r_shunt                │ R5         │
+│ r_th_bot               │ R35        │
+│ r_th_top               │ R34        │
+│ rb1a                   │ R1         │
+│ rb1b                   │ R2         │
+│ rv1                    │ RV1        │
+│ t_ct                   │ T1         │
+│ tvs_bus                │ D3         │
+│ u_ct_neg               │ U11        │
+│ u_ct_pos               │ U10        │
+│ u_ct_zc                │ U12        │
+│ u_fault_or             │ U13        │
+│ u_hot5_schmitt         │ U15        │
+│ u_hot5_uv              │ U14        │
+│ u_iso                  │ U9         │
+│ u_ldo                  │ U3         │
+│ u_nand                 │ U8         │
+│ u_ocp                  │ U6         │
+│ u_ovp                  │ U7         │
+│ u_ref                  │ U5         │
+│ u_vsense               │ U4         │
+└────────────────────────┴────────────┘
+           INFO     Building 'layout-module-map' for 'default'      build.py:100
+                    config                                                      
+           INFO     Building 'bom' for 'default' config             build.py:100
+┏━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━┓
+┃ Comment         ┃ Designator      ┃ Footprint      ┃ LCSC            ┃ Price ┃
+┡━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━┩
+│ 1711725         │ J1              │ TerminalBlock… │ 1711725         │ 0.00  │
+│ 0326020.MXP     │ F1              │ Fuse:Fusehold… │ 0326020.MXP     │ 0.00  │
+│ TMOV20RP175E    │ RV1             │ temper:TMOV20… │ TMOV20RP175E    │ 0.00  │
+│ R463N410000N1M  │ C1,C2           │ temper:KEMET_… │ R463N410000N1M  │ 0.00  │
+│ RC1206FR-07120… │ R1,R2           │ Resistor_SMD:… │ RC1206FR-07120… │ 0.00  │
+│ B82726S2203A020 │ L1              │ temper:B82726… │ B82726S2203A020 │ 0.00  │
+│ DE1E3RA222MA4B… │ C3,C4           │ temper:Murata… │ DE1E3RA222MA4B… │ 0.00  │
+│ GBJ2510-F       │ BR1             │ temper:Diode_… │ GBJ2510-F       │ 0.00  │
+│ B32656G0275J000 │ C5,C6           │ temper:TDK_B3… │ B32656G0275J000 │ 0.00  │
+│ RC1206FR-07220… │ R3,R4           │ Resistor_SMD:… │ RC1206FR-07220… │ 0.00  │
+│ WSK25121L000FEA │ R5              │ Resistor_SMD:… │ WSK25121L000FEA │ 0.00  │
+│ UCC21550BDWKR   │ U1,U2           │ lib:SOIC16W_I… │ UCC21550BDWKR   │ 0.00  │
+│ C0603C104K5RAC… │ C7,C8,C11,C14,… │ Capacitor_SMD… │ C0603C104K5RAC… │ 0.00  │
+│ AO3400A         │ Q1,Q4           │ Package_TO_SO… │ AO3400A         │ 0.00  │
+│ RC0603FR-07100… │ R6,R14          │ Resistor_SMD:… │ RC0603FR-07100… │ 0.00  │
+│ RC0603FR-07100… │ R7,R15          │ Resistor_SMD:… │ RC0603FR-07100… │ 0.00  │
+│ RC0603FR-071KL  │ R8,R16,R47      │ Resistor_SMD:… │ RC0603FR-071KL  │ 0.00  │
+│ RT0603BRD0749K… │ R9,R17          │ Resistor_SMD:… │ RT0603BRD0749K… │ 0.00  │
+│ GRM32ER71H106K… │ C9,C10,C16,C17… │ Capacitor_SMD… │ GRM32ER71H106K… │ 0.00  │
+│ UF4007-E3/54    │ D1,D2           │ Diode_THT:D_D… │ UF4007-E3/54    │ 0.00  │
+│ RC1206FR-073R9L │ R10,R12,R18,R20 │ Resistor_SMD:… │ RC1206FR-073R9L │ 0.00  │
+│ RC0603FR-0710KL │ R11,R13,R19,R21 │ Resistor_SMD:… │ RC0603FR-0710KL │ 0.00  │
+│ IPW65R018CFD7   │ Q2,Q3,Q5,Q6     │ Package_TO_SO… │ IPW65R018CFD7   │ 0.00  │
+│ GRM31A5C3A102J… │ C12,C13,C19,C20 │ Capacitor_SMD… │ GRM31A5C3A102J… │ 0.00  │
+│ CST3015-100ED   │ T1              │ temper:CST3015 │ CST3015-100ED   │ 0.00  │
+│ 74650074        │ J2,J5,J7,J8,J9… │ TerminalBlock… │ 74650074        │ 0.00  │
+│ 942C12P22K-F    │ C21,C22         │ temper:CDE_94… │ 942C12P22K-F    │ 0.00  │
+│ 942C12P1K-F     │ C23             │ temper:CDE_94… │ 942C12P1K-F     │ 0.00  │
+│ RC1206FR-07470… │ R22,R23,R24,R2… │ Resistor_SMD:… │ RC1206FR-07470… │ 0.00  │
+│ IRM-20-15       │ PS1             │ Converter_ACD… │ IRM-20-15       │ 0.00  │
+│ B2P-VH(LF)(SN)  │ J3              │ Connector_JST… │ B2P-VH(LF)(SN)  │ 0.00  │
+│ IRM-05-15       │ PS2             │ Converter_ACD… │ IRM-05-15       │ 0.00  │
+│ MC78L05ACHT1G   │ U3              │ Package_TO_SO… │ MC78L05ACHT1G   │ 0.00  │
+│ RT0603BRD0715K… │ R30             │ Resistor_SMD:… │ RT0603BRD0715K… │ 0.00  │
+│ C0603C102J5GAC… │ C27,C31,C33     │ Capacitor_SMD… │ C0603C102J5GAC… │ 0.00  │
+│ AMC1311BDWVR    │ U4              │ Package_SO:SO… │ AMC1311BDWVR    │ 0.00  │
+│ RC0603FR-075K6L │ R31             │ Resistor_SMD:… │ RC0603FR-075K6L │ 0.00  │
+│ LM4040A25IDBZR  │ U5              │ Package_TO_SO… │ LM4040A25IDBZR  │ 0.00  │
+│ RT0603BRD0710KL │ R32,R33,R35,R3… │ Resistor_SMD:… │ RT0603BRD0710KL │ 0.00  │
+│ C0603C101J5GAC… │ C30             │ Capacitor_SMD… │ C0603C101J5GAC… │ 0.00  │
+│ RT0603BRD0710K… │ R34             │ Resistor_SMD:… │ RT0603BRD0710K… │ 0.00  │
+│ TLV3201AIDBVR   │ U6,U7,U10,U11,… │ Package_TO_SO… │ TLV3201AIDBVR   │ 0.00  │
+│ RT0603BRD07140… │ R37             │ Resistor_SMD:… │ RT0603BRD07140… │ 0.00  │
+│ SN74LVC1G10DBVR │ U8              │ Package_TO_SO… │ SN74LVC1G10DBVR │ 0.00  │
+│ ISO7710DWR      │ U9              │ lib:SOIC16W_D… │ ISO7710DWR      │ 0.00  │
+│ 0430451612      │ J4              │ Connector_Mol… │ 0430451612      │ 0.00  │
+│ RC0603JR-070RL  │ R38             │ Resistor_SMD:… │ RC0603JR-070RL  │ 0.00  │
+│ MRT130KP295CV   │ D3              │ temper:MRT130… │ MRT130KP295CV   │ 0.00  │
+│ 1704004         │ J6              │ temper:Phoeni… │ 1704004         │ 0.00  │
+│ B32652A0104K000 │ C38,C39,C40,C41 │ temper:TDK_B3… │ B32652A0104K000 │ 0.00  │
+│ RC1206FR-071R5L │ R39             │ Resistor_SMD:… │ RC1206FR-071R5L │ 0.00  │
+│ GRM31C5C1H104J… │ C42,C43         │ Capacitor_SMD… │ GRM31C5C1H104J… │ 0.00  │
+│ RT0603BRD071KL  │ R40,R41         │ Resistor_SMD:… │ RT0603BRD071KL  │ 0.00  │
+│ RC1206FR-071KL  │ R42             │ Resistor_SMD:… │ RC1206FR-071KL  │ 0.00  │
+│ BAS116H,115     │ D4,D5           │ Diode_SMD:D_S… │ BAS116H,115     │ 0.00  │
+│ RT0603BRD073K3… │ R43,R46         │ Resistor_SMD:… │ RT0603BRD073K3… │ 0.00  │
+│ SN74LVC1G332DB… │ U13             │ Package_TO_SO… │ SN74LVC1G332DB… │ 0.00  │
+│ TPS3700DDCR     │ U14             │ Package_TO_SO… │ TPS3700DDCR     │ 0.00  │
+│ RT0603BRD07105… │ R48             │ Resistor_SMD:… │ RT0603BRD07105… │ 0.00  │
+│ SN74LVC1G17DBVR │ U15             │ Package_TO_SO… │ SN74LVC1G17DBVR │ 0.00  │
+└─────────────────┴─────────────────┴────────────────┴─────────────────┴───────┘
+           INFO     Building 'clone-footprints' for 'default'       build.py:100
+                    config                                                      
+           INFO     Building 'netlist' for 'default' config         build.py:100
+           INFO     Building 'assertions-report' for 'default'      build.py:100
+                    config                                                      
+           Assertions           
+┏━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━┓
+┃ Status ┃ Assertion ┃ Numeric ┃
+┡━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━┩
+└────────┴───────────┴─────────┘
+           INFO     Building 'copy-3dmodels' for 'default' config   build.py:100
+           INFO     Building 'copy-footprints' for 'default' config build.py:100
+           INFO     Building 'variable-report' for 'default' config build.py:100
+       Variable Values       
+┏━━━━━━━━━┳━━━━━━━┳━━━━━━━━━┓
+┃ Address ┃ Value ┃ Comment ┃
+┡━━━━━━━━━╇━━━━━━━╇━━━━━━━━━┩
+└─────────┴───────┴─────────┘
+           INFO     Successfully built 'designator-map,             build.py:105
+                    layout-module-map, bom, clone-footprints,                   
+                    netlist, assertions-report, copy-3dmodels,                  
+                    copy-footprints, variable-report' for 'default'             
+                    config                                                      
+           INFO     Build complete!                                  build.py:59

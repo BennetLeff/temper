@@ -1,0 +1,15 @@
+# Declared ideal-model probes only. 390 V, 0.47 uF local C, 20 us gate-off and 300 ns dead time are not accepted hardware limits.
+id,topology,f2,vd0_v,vb0_v,i0_a,vc0_v,cd_uf,cb_uf,local_uf,l_uh,c_nf,r_coil_ohm,r_pan_ohm,f_khz,dead_ns,run_ms,stop_kind,stop_at_ms,stop_delay_us,source_off_ms,source_command_a,source_target_v,source_gain_a_per_v,source_max_a,source_max_w,rd_ohm,rb_ohm,screen_ceiling_v,stop_threshold_a,tank_v_screen_v,tank_i_screen_a,dt_ns
+reference_permit_stop,hot0,closed,390,390,0,195,22.47,2240,0.47,59.84,300,0.2,0.8,47,300,1,permit,0.5,20,never,0,390,0,6,1800,500000,450000,430,0.1,1600,160,5
+reference_pwm_stop,hot0,closed,390,390,0,195,22.47,2240,0.47,59.84,300,0.2,0.8,47,300,1,pwm,0.5,20,never,0,390,0,6,1800,500000,450000,430,0.1,1600,160,5
+reference_gate_rail_loss,hot0,closed,390,390,0,195,22.47,2240,0.47,59.84,300,0.2,0.8,47,300,1,rail,0.5,20,never,0,390,0,6,1800,500000,450000,430,0.1,1600,160,5
+reference_command_timeout_proxy,hot0,closed,390,390,0,195,22.47,2240,0.47,59.84,300,0.2,0.8,47,300,1,pwm,0.5,20,never,0,390,0,6,1800,500000,450000,430,0.1,1600,160,5
+reference_aux_loss_proxy,hot0,closed,390,390,0,195,22.47,2240,0.47,59.84,300,0.2,0.8,47,300,1,rail,0.5,20,0.5,0,390,0,6,1800,500000,450000,430,0.1,1600,160,5
+reverse_bias_permit_stop,hot0,closed,390,390,0,-195,22.47,2240,0.47,59.84,300,0.2,0.8,47,300,1,permit,0.5,20,never,0,390,0,6,1800,500000,450000,430,0.1,1600,160,5
+zero_bias_permit_stop,hot0,closed,390,390,0,0,22.47,2240,0.47,59.84,300,0.2,0.8,47,300,1,permit,0.5,20,never,0,390,0,6,1800,500000,450000,430,0.1,1600,160,5
+full_bias_permit_stop,hot0,closed,390,390,0,390,22.47,2240,0.47,59.84,300,0.2,0.8,47,300,1,permit,0.5,20,never,0,390,0,6,1800,500000,450000,430,0.1,1600,160,5
+no_pan_permit_stop,hot0,closed,390,390,0,195,22.47,2240,0.47,88,300,0.2,0,47,300,1,permit,0.5,20,never,0,390,0,6,1800,500000,450000,430,0.1,1600,160,5
+weak_pan_permit_stop,hot0,closed,390,390,0,195,22.47,2240,0.47,70,300,0.2,0.2,47,300,1,permit,0.5,20,never,0,390,0,6,1800,500000,450000,430,0.1,1600,160,5
+f2_open_vd_dead_vb_charged_inhibit_violation,hot0,open,0,390,0,-195,22.47,2240,0.47,59.84,300,0.2,0.8,47,300,1,permit,0.5,20,0,0,390,0,6,1800,500000,450000,430,0.1,1600,160,5
+f2_opening_unmodeled,hot0,opening,390,390,10,195,22.47,2240,0.47,59.84,300,0.2,0.8,47,300,1,permit,0.5,20,never,0,390,0,6,1800,500000,450000,430,0.1,1600,160,50
+f2_unequal_reclose_unmodeled,hot0,reclosing,400,380,0,195,22.47,2240,0.47,59.84,300,0.2,0.8,47,300,1,permit,0.5,20,never,0,390,0,6,1800,500000,450000,430,0.1,1600,160,50

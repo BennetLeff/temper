@@ -1,0 +1,297 @@
+{
+  "schema": "zapote.current-sense.final-bom.v1",
+  "review_date": "2026-09-11",
+  "source_manifest_sha256": "b115dc2cd566ba6a4ec515a67355a3dacbccdb8b74bfe1a94d51fb0c5851bb45",
+  "component_count": 21,
+  "purchased_count": 20,
+  "groups": [
+    {
+      "manufacturer": "Coilcraft",
+      "datasheet_url": "https://www.coilcraft.com/getmedia/df31d5fe-b3af-4586-82a7-7b773ac9f838/cst3015.pdf",
+      "availability": {
+        "status": "manual_confirmation_required",
+        "source": "Coilcraft product page",
+        "note": "Page shows in-stock/ready-to-ship language while also displaying selected-configuration-unavailable; confirm CST3015-100ED reel configuration directly."
+      },
+      "mpn": "CST3015-100ED",
+      "refs": [
+        "T1"
+      ],
+      "instances": [
+        "ct"
+      ],
+      "quantity": 1,
+      "footprint": "temper:CST3015_Datasheet2025",
+      "value": "",
+      "purchased": true
+    },
+    {
+      "manufacturer": null,
+      "datasheet_url": null,
+      "availability": {
+        "status": "not_purchased",
+        "note": "Root-authored bare primary solder lands; no connector or ampacity claim encoded."
+      },
+      "mpn": "NON_PURCHASED_BARE_LANDS",
+      "refs": [
+        "J1"
+      ],
+      "instances": [
+        "primary_lands"
+      ],
+      "quantity": 1,
+      "footprint": "lib:LitzPad_15A",
+      "value": "",
+      "purchased": false
+    },
+    {
+      "manufacturer": "YAGEO",
+      "datasheet_url": "https://yageogroup.com/content/datasheet/asset/file/PYU-RC_GROUP_51_ROHS_L",
+      "availability": {
+        "status": "in_stock",
+        "vendor": "DigiKey",
+        "quantity": 12640,
+        "lead_time_weeks": 17
+      },
+      "mpn": "RC1206FR-071R5L",
+      "refs": [
+        "R1"
+      ],
+      "instances": [
+        "burden"
+      ],
+      "quantity": 1,
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "value": "1.50ohm +/- 1%",
+      "purchased": true
+    },
+    {
+      "manufacturer": "YAGEO",
+      "datasheet_url": "https://yageogroup.com/content/datasheet/asset/file/PYU-RC_GROUP_51_ROHS_L",
+      "availability": {
+        "status": "manual_confirmation_required",
+        "note": "Exact DigiKey/Mouser stock row was not returned during this check; use the YAGEO RC_L specification and confirm exact resistance code before ordering."
+      },
+      "mpn": "RC1206FR-071KL",
+      "refs": [
+        "R4"
+      ],
+      "instances": [
+        "r_sense_series"
+      ],
+      "quantity": 1,
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "value": "1kohm +/- 1%",
+      "purchased": true
+    },
+    {
+      "manufacturer": "Murata",
+      "datasheet_url": "https://search.murata.co.jp/Ceramy/image/img/A01X/G101/ENG/GRM31C5C1H104JA01-01A.pdf",
+      "availability": {
+        "status": "in_stock",
+        "vendor": "DigiKey",
+        "quantity": 54742,
+        "lead_time_weeks": 17
+      },
+      "mpn": "GRM31C5C1H104JA01L",
+      "refs": [
+        "C1",
+        "C2"
+      ],
+      "instances": [
+        "c_burden",
+        "c_bias_bypass"
+      ],
+      "quantity": 2,
+      "footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "value": "100nF +/- 5%",
+      "purchased": true
+    },
+    {
+      "manufacturer": "Panasonic Industry",
+      "datasheet_url": "https://industrial.panasonic.com/ww/products/pt/high-precision-chip-resistors/models/ERA3AEB102V",
+      "availability": {
+        "status": "manual_confirmation_required",
+        "note": "Official identity verified 2026-09-11; distributor quantity not captured."
+      },
+      "mpn": "ERA3AEB102V",
+      "refs": [
+        "R2",
+        "R3"
+      ],
+      "instances": [
+        "r_bias_top",
+        "r_bias_bottom"
+      ],
+      "quantity": 2,
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "value": "1kohm +/- 0.1%",
+      "purchased": true
+    },
+    {
+      "manufacturer": "Panasonic Industry",
+      "datasheet_url": "https://industrial.panasonic.com/ww/products/pt/high-precision-chip-resistors/models/ERA3AEB3741V",
+      "availability": {
+        "status": "in_stock",
+        "vendor": "DigiKey",
+        "quantity": 10099,
+        "lead_time_weeks": 33
+      },
+      "mpn": "ERA3AEB3741V",
+      "refs": [
+        "R5",
+        "R8"
+      ],
+      "instances": [
+        "r_ref_hi_top",
+        "r_ref_lo_bottom"
+      ],
+      "quantity": 2,
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "value": "3.74kohm +/- 0.1%",
+      "purchased": true
+    },
+    {
+      "manufacturer": "Panasonic Industry",
+      "datasheet_url": "https://na.industrial.panasonic.com/products/resistors/smd-chip-resistors/series/36034/model/46550",
+      "availability": {
+        "status": "in_stock",
+        "vendor": "DigiKey",
+        "quantity": 219134,
+        "lead_time_weeks": 41
+      },
+      "mpn": "ERA3AEB103V",
+      "refs": [
+        "R6",
+        "R7"
+      ],
+      "instances": [
+        "r_ref_hi_bottom",
+        "r_ref_lo_top"
+      ],
+      "quantity": 2,
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "value": "10kohm +/- 0.1%",
+      "purchased": true
+    },
+    {
+      "manufacturer": "Nexperia",
+      "datasheet_url": "https://assets.nexperia.com/documents/data-sheet/BAT54H.pdf",
+      "availability": {
+        "status": "out_of_stock",
+        "vendor": "DigiKey",
+        "quantity": 0,
+        "expected_in_stock": "2027-05-03",
+        "lead_time_weeks": 30
+      },
+      "mpn": "BAT54H,115",
+      "refs": [
+        "D1",
+        "D2"
+      ],
+      "instances": [
+        "d_clamp_hi",
+        "d_clamp_lo"
+      ],
+      "quantity": 2,
+      "footprint": "Diode_SMD:D_SOD-123F",
+      "value": "",
+      "purchased": true
+    },
+    {
+      "manufacturer": "Texas Instruments",
+      "datasheet_url": "https://www.ti.com/lit/ds/symlink/tlv3201.pdf",
+      "availability": {
+        "status": "out_of_stock",
+        "vendor": "DigiKey",
+        "quantity": 0,
+        "expected_in_stock": [
+          "2026-10-29",
+          "2026-11-02"
+        ],
+        "lead_time_weeks": 16
+      },
+      "mpn": "TLV3201AIDBVR",
+      "refs": [
+        "U1",
+        "U2"
+      ],
+      "instances": [
+        "comp_pos",
+        "comp_neg"
+      ],
+      "quantity": 2,
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "value": "",
+      "purchased": true
+    },
+    {
+      "manufacturer": "Texas Instruments",
+      "datasheet_url": "https://www.ti.com/lit/gpn/CD74HC4075",
+      "availability": {
+        "status": "in_stock",
+        "vendor": "DigiKey US",
+        "quantity": 6622,
+        "url": "https://www.digikey.com/en/products/detail/texas-instruments/CD74HC4075M96/555792"
+      },
+      "mpn": "CD74HC4075M96",
+      "refs": [
+        "U3"
+      ],
+      "instances": [
+        "output_or"
+      ],
+      "quantity": 1,
+      "footprint": "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm",
+      "value": "",
+      "purchased": true
+    },
+    {
+      "manufacturer": "KEMET",
+      "datasheet_url": "https://search.kemet.com/download/specsheet/C0603C104K5RACTU",
+      "availability": {
+        "status": "in_stock",
+        "vendor": "DigiKey",
+        "quantity": 6484964,
+        "lead_time_weeks": 12
+      },
+      "mpn": "C0603C104K5RACTU",
+      "refs": [
+        "C3",
+        "C4",
+        "C5"
+      ],
+      "instances": [
+        "c_comp_pos",
+        "c_comp_neg",
+        "c_or_bypass"
+      ],
+      "quantity": 3,
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "value": "100nF +/- 10%",
+      "purchased": true
+    },
+    {
+      "manufacturer": "JST Sales America Inc.",
+      "datasheet_url": "https://www.jst.com/wp-content/uploads/2021/01/eXH.pdf",
+      "availability": {
+        "status": "in_stock",
+        "vendor": "DigiKey",
+        "quantity": 112324,
+        "lead_time_weeks": 16
+      },
+      "mpn": "B4B-XH-A(LF)(SN)",
+      "refs": [
+        "J2"
+      ],
+      "instances": [
+        "host"
+      ],
+      "quantity": 1,
+      "footprint": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical",
+      "value": "",
+      "purchased": true
+    }
+  ],
+  "physical_tests": "NOT RUN"
+}

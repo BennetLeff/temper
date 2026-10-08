@@ -1,0 +1,20 @@
+# KiCad's official two-pin rectangular capacitor pattern is the 2D source.
+footprint: TDK_B32652A0104K000_P15.00_ReviewOnly
+manufacturer: TDK Electronics
+mpn: B32652A0104K000
+method: stock_footprint_variant
+stock_footprint: Capacitor_THT:C_Rect_L18.0mm_W9.0mm_P15.00mm_FKS3_FKP3
+source:
+  url: https://www.tdk-electronics.tdk.com/inf/20/20/db/fc_2009/MKP_B32651_658.pdf
+  drawing: A1, page 3
+  ordering_table: 1000 VDC 100 nF B32652A0104 row
+body_max_mm: {length: 18.0, width: 9.0, height: 17.5}
+lead_diameter_mm: 0.8
+pad_size_mm: 2.4
+drill_mm: 1.2
+pads:
+  - {number: '1', x_mm: 0.0, y_mm: 0.0}
+  - {number: '2', x_mm: 15.0, y_mm: 0.0}
+modifications_from_stock:
+  - Set the part-specific footprint name, description, tags, and value.
+  - Remove the generic WIMA 3D model; its 15 mm height understates the TDK 17.5 mm maximum.

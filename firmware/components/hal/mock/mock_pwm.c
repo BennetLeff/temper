@@ -89,12 +89,19 @@ static hal_status_t mock_pwm_init(hal_pwm_channel_t channel, const hal_pwm_confi
         return HAL_ERROR_INVALID_ARG;
     }
     
+    if (config->complementary && (config->dead_time_ns < HAL_PWM_MIN_DEAD_TIME_NS ||
+                                  config->dead_time_ns > HAL_PWM_MAX_DEAD_TIME_NS)) {
+        return HAL_ERROR_INVALID_ARG;
+    }
     mock_pwm_channel_t *ch = &s_channels[channel];
     ch->initialized = true;
     ch->config = *config;
     ch->state.frequency_hz = config->frequency_hz;
     ch->state.duty_percent = config->duty_percent;
-    ch->state.dead_time_ns = config->dead_time_ns;
+    ch->state.dead_time_ticks = (uint32_t)config->dead_time_ns * 2 / 25;
+    ch->state.dead_time_ns = ch->state.dead_time_ticks * 25 / 2;
+    ch->state.timer_resolution_hz = HAL_PWM_TIMER_RESOLUTION_HZ;
+    ch->state.configured = true;
     ch->state.complementary = config->complementary;
     ch->state.running = false;
     
@@ -155,7 +162,14 @@ static hal_status_t mock_pwm_set_dead_time(hal_pwm_channel_t channel, uint16_t d
         return HAL_ERROR_NOT_READY;
     }
     
-    s_channels[channel].state.dead_time_ns = dead_time_ns;
+    if (!s_channels[channel].state.complementary) return HAL_ERROR_NOT_READY;
+    if (s_channels[channel].state.running) return HAL_ERROR_BUSY;
+    if (dead_time_ns < HAL_PWM_MIN_DEAD_TIME_NS || dead_time_ns > HAL_PWM_MAX_DEAD_TIME_NS)
+        return HAL_ERROR_INVALID_ARG;
+    s_channels[channel].state.dead_time_ticks = (uint32_t)dead_time_ns * 2 / 25;
+    s_channels[channel].state.dead_time_ns = s_channels[channel].state.dead_time_ticks * 25 / 2;
+    s_channels[channel].state.timer_resolution_hz = HAL_PWM_TIMER_RESOLUTION_HZ;
+    s_channels[channel].state.configured = true;
     return HAL_OK;
 }
 
@@ -208,6 +222,7 @@ static hal_status_t mock_pwm_get_state(hal_pwm_channel_t channel, hal_pwm_state_
         return HAL_ERROR_INVALID_ARG;
     }
     
+    if (!s_channels[channel].initialized) return HAL_ERROR_NOT_READY;
     *state = s_channels[channel].state;
     return HAL_OK;
 }

@@ -1,0 +1,13 @@
+.param VBUS=198
+.param IL=37
+.param DIR=1
+.param DT=250n
+.param TRMAX=0.1n
+.param LD_HS=4n
+.param LS_HS=4n
+.param LD_LS=4n
+.param LS_LS=4n
+.param LCAP=3n
+.param LBULK=30n
+.param LCS=1n
+.param LG=20n

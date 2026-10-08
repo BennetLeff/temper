@@ -1,0 +1,373 @@
+{
+ "P1_h1_e0.35_standalone": {
+  "solve": {
+   "label": "P1-h1-e035",
+   "mesh": "legA-h1-e035.msh",
+   "exit_code": 0,
+   "all_done": true,
+   "energy_J": 1.652341e-08,
+   "inductance_nH": 33.04682,
+   "peak_memory_GB": 3.962164,
+   "max_rss_GB": 3.962164,
+   "wall_s": 13551.0,
+   "np": 12,
+   "solver": "iterative Hypre GMRES(100) + AMS",
+   "tol": 1e-08,
+   "tree_gauge": false,
+   "last_iteration": 9119,
+   "last_residual": 9.95754e-09,
+   "converged": true,
+   "k_A_per_m": [
+    -2500.0,
+    0.0,
+    0.0
+   ],
+   "pec": [
+    2,
+    3
+   ],
+   "port": 10,
+   "port2": null,
+   "k2_A_per_m": null,
+   "scale_m": 0.001
+  },
+  "mesh": {
+   "tets": 7943078,
+   "zero_volume_tets": 0,
+   "triangles_2d": 94087,
+   "z_levels": 24,
+   "thin_faces_merged": 389,
+   "port_leak_A": [
+    {
+     "port": "P1_C38",
+     "leak_A": 0.0
+    },
+    {
+     "port": "P2_C39",
+     "leak_A": 0.0
+    },
+    {
+     "port": "P3_gate_high",
+     "leak_A": 0.0
+    },
+    {
+     "port": "P4_gate_low",
+     "leak_A": 0.0
+    }
+   ],
+   "margin_mm": 10.0,
+   "air_mm": 10.0,
+   "h_edge_mm": 0.35,
+   "h_far_mm": 4.0,
+   "dz_max_mm": 0.45,
+   "arch_h_mm": 1.0,
+   "total_s": 61.6
+  },
+  "note": "no VTU; shared the box with the AMS scan for part of the run; the campaign re-solves P1 with VTU (repeatability check)"
+ },
+ "ams_scan_small_mesh_P1": {
+  "T-base": [
+   3000,
+   6.50974e-06,
+   1662.28,
+   29.75274
+  ],
+  "T-thr5": [
+   3000,
+   5.96992e-06,
+   1711.82,
+   29.7541
+  ],
+  "T-rt2": [
+   3000,
+   1.1093e-05,
+   2110.41,
+   29.73426
+  ],
+  "T-c13": "crash",
+  "T-c14": "crash",
+  "T-c13-rt2-thr5": "crash",
+  "columns": [
+   "iterations",
+   "residual",
+   "wall_s",
+   "L_nH"
+  ]
+ },
+ "reciprocity_fixture": {
+  "exact": [
+   3.141593,
+   1.884956,
+   1.884956
+  ],
+  "mac_direct_1part": [
+   3.141593,
+   1.884956,
+   1.884956,
+   3.48e-11
+  ],
+  "remote_gmres_ams_4part": [
+   3.141593,
+   1.884956,
+   1.884956,
+   3.14e-11
+  ],
+  "columns": [
+   "L11",
+   "L22",
+   "M",
+   "spread"
+  ],
+  "superseded": "uniform-field fixture cannot detect DG averaging; see mutual_qualification"
+ },
+ "mutual_qualification": {
+  "defect": "VtuOutputSolver averages DG fields within bodies by default (Average Within Materials defaults True); per-tet B smoothed; first leg-A h1 matrix diagonal 29.68/28.47/23.50/30.62 vs energy 33.05/31.84/29.57/40.31 nH, spread 0.57. Fixed: Average Within Materials = False.",
+  "Q1_float_fixture_nonuniform": {
+   "ports": [
+    "4"
+   ],
+   "L_nH": [
+    [
+     2.762937
+    ]
+   ],
+   "tets": 171606,
+   "partitions": 2,
+   "max_within_tet_spread": 8.95746192662816e-16,
+   "diagonal_vs_energy": [
+    {
+     "port": "4",
+     "L_from_B_nH": 2.762937,
+     "L_energy_nH": 2.762936,
+     "rel_diff": 2.6115862790782655e-07
+    }
+   ]
+  },
+  "Q2_two_port_plate": {
+   "ports": [
+    "4",
+    "5"
+   ],
+   "L_nH": [
+    [
+     3.141593,
+     1.884956
+    ],
+    [
+     1.884956,
+     1.884956
+    ]
+   ],
+   "tets": 91029,
+   "partitions": 4,
+   "max_within_tet_spread": 2.3726468568559844e-15,
+   "diagonal_vs_energy": [
+    {
+     "port": "4",
+     "L_from_B_nH": 3.141593,
+     "L_energy_nH": 3.1415919999999997,
+     "rel_diff": 2.0812002422157624e-07
+    },
+    {
+     "port": "5",
+     "L_from_B_nH": 1.884956,
+     "L_energy_nH": 1.8849555999999998,
+     "rel_diff": 4.190686108633881e-09
+    }
+   ]
+  },
+  "Q3_board_coarse_P1_P2": {
+   "ports": [
+    "10",
+    "11"
+   ],
+   "L_nH": [
+    [
+     29.770915,
+     18.106446
+    ],
+    [
+     18.106446,
+     29.05467
+    ]
+   ],
+   "tets": 850640,
+   "partitions": 12,
+   "max_within_tet_spread": 9.602690861897055e-16,
+   "diagonal_vs_energy": [
+    {
+     "port": "10",
+     "L_from_B_nH": 29.770915,
+     "L_energy_nH": 29.77092,
+     "rel_diff": 1.653457364686588e-07
+    },
+    {
+     "port": "11",
+     "L_from_B_nH": 29.05467,
+     "L_energy_nH": 29.05466,
+     "rel_diff": 3.415622317821186e-07
+    }
+   ]
+  },
+  "Q3_pair_energy": {
+   "L11": 29.77092,
+   "L22": 29.05466,
+   "L_both": 95.03848,
+   "M12": 18.10645,
+   "M12_from_B": 18.106446
+  }
+ },
+ "h1_e0.35_self_inductances_energy_valid": {
+  "P1_C38": [
+   33.04682,
+   9119,
+   12055.0
+  ],
+  "P2_C39": [
+   31.84262,
+   8168,
+   10799.0
+  ],
+  "P3_gate_high": [
+   29.5728,
+   10161,
+   13420.0
+  ],
+  "P4_gate_low": [
+   40.30778,
+   8920,
+   11796.0
+  ],
+  "columns": [
+   "L_nH",
+   "iterations",
+   "wall_s"
+  ],
+  "note": "energies valid; their VTU was averaged, so the campaign re-solves them for mutuals"
+ },
+ "legA_h1_e0.35_matrix": {
+  "ports": [
+   "P1_C38",
+   "P2_C39",
+   "P3_gate_high",
+   "P4_gate_low"
+  ],
+  "L_nH": [
+   [
+    33.046825,
+    19.990889,
+    3.791995,
+    5.672854
+   ],
+   [
+    19.990889,
+    31.842623,
+    3.594674,
+    5.634263
+   ],
+   [
+    3.791995,
+    3.594674,
+    29.572796,
+    -0.302835
+   ],
+   [
+    5.672854,
+    5.634263,
+    -0.302835,
+    40.307785
+   ]
+  ],
+  "k": [
+   [
+    1.0,
+    0.6163,
+    0.1213,
+    0.1554
+   ],
+   [
+    0.6163,
+    1.0,
+    0.1171,
+    0.1573
+   ],
+   [
+    0.1213,
+    0.1171,
+    1.0,
+    -0.0088
+   ],
+   [
+    0.1554,
+    0.1573,
+    -0.0088,
+    1.0
+   ]
+  ],
+  "C38_C39_parallel_loop_nH": 26.203,
+  "gates": {
+   "max_within_tet_spread": 1.0560177044640498e-15,
+   "diagonal_vs_energy": [
+    {
+     "port": "10",
+     "L_from_B_nH": 33.046825,
+     "L_energy_nH": 33.04682,
+     "rel_diff": 1.536460379369986e-07
+    },
+    {
+     "port": "11",
+     "L_from_B_nH": 31.842623,
+     "L_energy_nH": 31.84262,
+     "rel_diff": 7.959755285213826e-08
+    },
+    {
+     "port": "12",
+     "L_from_B_nH": 29.572796,
+     "L_energy_nH": 29.572799999999997,
+     "rel_diff": 1.472908745741488e-07
+    },
+    {
+     "port": "13",
+     "L_from_B_nH": 40.307785,
+     "L_energy_nH": 40.30778,
+     "rel_diff": 1.2777087587239672e-07
+    }
+   ]
+  },
+  "solves": [
+   {
+    "label": "legA-h1-e0p35-P1_C38",
+    "inductance_nH": 33.04682,
+    "last_iteration": 9119,
+    "last_residual": 9.95754e-09,
+    "wall_s": 12074.0,
+    "converged": true
+   },
+   {
+    "label": "legA-h1-e0p35-P2_C39",
+    "inductance_nH": 31.84262,
+    "last_iteration": 8168,
+    "last_residual": 9.99912e-09,
+    "wall_s": 10819.0,
+    "converged": true
+   },
+   {
+    "label": "legA-h1-e0p35-P3_gate_high",
+    "inductance_nH": 29.572799999999997,
+    "last_iteration": 10161,
+    "last_residual": 9.99521e-09,
+    "wall_s": 13437.0,
+    "converged": true
+   },
+   {
+    "label": "legA-h1-e0p35-P4_gate_low",
+    "inductance_nH": 40.30778,
+    "last_iteration": 8920,
+    "last_residual": 9.99736e-09,
+    "wall_s": 11805.0,
+    "converged": true
+   }
+  ],
+  "caveat": "1 mm closure arches included; not the board value until the h->0 extrapolation, mesh convergence, air-box check and package inductance are done"
+ }
+}

@@ -1,0 +1,1 @@
+Add hardware open-sensor detection to both thermal channels; preserve nominal hot trip/reset, enforce fault topology and cold/open margin, update native board and Rust negative controls. Read current exact-part evidence; do not transfer stale sensor limits or infer connectivity from endpoint union.

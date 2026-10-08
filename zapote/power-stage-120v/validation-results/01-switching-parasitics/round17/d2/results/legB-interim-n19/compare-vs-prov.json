@@ -1,0 +1,65 @@
+{
+ "a": "legB-prov-n19",
+ "b": "legB-interim-n19",
+ "cases": 96,
+ "verdict_flips": [],
+ "by_case": {
+  "S1": {
+   "vgs_off_max": {
+    "delta_min": -0.0146,
+    "delta_max": 0.0752,
+    "b_max": 1.0513
+   },
+   "vds_pk": {
+    "delta_min": -2.6812,
+    "delta_max": 3.3973,
+    "b_max": 383.1636
+   }
+  },
+  "S2": {
+   "vgs_off_max": {
+    "delta_min": -0.0223,
+    "delta_max": 0.1367,
+    "b_max": 1.3162
+   },
+   "vds_pk": {
+    "delta_min": -8.1117,
+    "delta_max": 2.9922,
+    "b_max": 359.9695
+   }
+  },
+  "S4": {
+   "vgs_off_max": {
+    "delta_min": -0.1408,
+    "delta_max": 0.2064,
+    "b_max": 4.1884
+   },
+   "vds_pk": {
+    "delta_min": -12.933,
+    "delta_max": 5.4743,
+    "b_max": 531.7468
+   }
+  }
+ },
+ "pass_counts": {
+  "S1": {
+   "a": 36,
+   "b": 36,
+   "of": 36
+  },
+  "S2": {
+   "a": 24,
+   "b": 24,
+   "of": 24
+  },
+  "S4": {
+   "a": 0,
+   "b": 0,
+   "of": 36
+  }
+ },
+ "zvs_S1_b": {
+  "yes": 12,
+  "of": 12
+ }
+}

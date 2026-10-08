@@ -1,0 +1,41 @@
+{
+  "matrix": "lin",
+  "variant": "off1_c1_neg2",
+  "case": "S2",
+  "vbus": 280,
+  "il": 71,
+  "dir": 0,
+  "dt": 348,
+  "step_ns": 0.1,
+  "aborted": true,
+  "returncode": 1,
+  "params": {
+    "LP1": "26.5944n",
+    "LP2": "25.9745n",
+    "LP3": "25.9394n",
+    "LP4": "36.2982n",
+    "K12": "0.61234757",
+    "K13": "0.134853193",
+    "K14": "0.163596468",
+    "K23": "0.126952541",
+    "K24": "0.172340472",
+    "K34": "-0.00695459601",
+    "VBUS": "280",
+    "IL": "71",
+    "DIR": "0",
+    "DT": "348n",
+    "LESL": "10n",
+    "LSHUNT": "2n",
+    "TRMAX": "0.1n"
+  },
+  "meas": {},
+  "failed": [],
+  "log_tail": [
+    "Note: Starting dynamic gmin stepping",
+    "Note: Dynamic gmin stepping completed",
+    "doAnalyses: TRAN:  Timestep too small; time = 2.348e-06, timestep = 1.25e-22: trouble with node \"bus\"",
+    "",
+    "",
+    "run simulation(s) aborted"
+  ]
+}

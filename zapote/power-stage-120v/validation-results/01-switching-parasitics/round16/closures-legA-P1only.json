@@ -1,0 +1,44 @@
+[
+ {
+  "name": "P1_C38",
+  "kind": "port",
+  "a": [
+   144.0,
+   22.0
+  ],
+  "b": [
+   129.0,
+   22.0
+  ],
+  "level": 0,
+  "note": "C38.1 bus_p -> C38.2 hv_ret"
+ },
+ {
+  "name": "Q2_DS",
+  "kind": "bridge",
+  "a": [
+   156.0,
+   4.215
+  ],
+  "b": [
+   161.45,
+   4.215
+  ],
+  "level": 0,
+  "note": "Q2 drain bus_p -> source sw_a"
+ },
+ {
+  "name": "Q3_DS",
+  "kind": "bridge",
+  "a": [
+   138.0,
+   4.215
+  ],
+  "b": [
+   143.45,
+   4.215
+  ],
+  "level": 0,
+  "note": "Q3 drain sw_a -> source leg_ret"
+ }
+]

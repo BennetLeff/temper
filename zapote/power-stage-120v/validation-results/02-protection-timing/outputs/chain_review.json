@@ -1,0 +1,24 @@
+{
+  "tank_ct": {
+    "old_analog_ns": 235.5,
+    "downstream_to_driver_output_ns": 572.1999999999999,
+    "old_gate_assumption_ns": 150.0,
+    "old_total_us": 0.958,
+    "spice_frontend_min_ns": 103.00000000000223,
+    "spice_frontend_max_ns": 296.9399999999999,
+    "model_crossing_to_driver_output_min_ns": 675.2000000000022,
+    "model_crossing_to_driver_output_max_ns": 869.1399999999999,
+    "final_gate_off": "BLOCKED: task 01 gate waveform and small-overdrive comparator upper bound"
+  },
+  "shunt_ocp": {
+    "old_analog_ns": 555.0,
+    "downstream_to_driver_output_ns": 602.6999999999999,
+    "old_gate_assumption_ns": 150.0,
+    "old_total_us": 1.308,
+    "spice_frontend_min_ns": 251.31239024390237,
+    "spice_frontend_max_ns": 555.0300813007898,
+    "model_crossing_to_driver_output_min_ns": 854.0123902439022,
+    "model_crossing_to_driver_output_max_ns": 1157.7300813007896,
+    "final_gate_off": "BLOCKED: task 01 gate waveform and small-overdrive comparator upper bound"
+  }
+}

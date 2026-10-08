@@ -1,0 +1,34 @@
+{
+  "status": "PASS_ANALYSIS_PACKET",
+  "base": "212c497f9e762f87ed59ba38842dfaeedc7aa538",
+  "provider_model": "OpenAI GPT-6",
+  "classes": {
+    "AGREES": 33,
+    "ONE-SIDED": 32,
+    "SUPERSEDES": 11,
+    "CONTRADICTS": 2
+  },
+  "rows": 78,
+  "citations": 384,
+  "source_files": 770,
+  "source_inputs_match_committed_base": true,
+  "only_out_D27_changed": true,
+  "python_document_checks": "3.14.7",
+  "geometry_status": "NOMINAL_GEOMETRY_ONLY",
+  "repo_gates": {
+    "import_gate_exit": 0,
+    "regen_check_exit": 0,
+    "import_invocation": "existing gate, same config/parser/allowlist; CLI --no-cache; source on PYTHONPATH",
+    "regen_invocation": "scripts/regen_derived.py --check (report-only make regen-check entry point)",
+    "write_regeneration": "not run: user allows writes only to out-D27"
+  },
+  "geometry_result_sha256": "933cc8c10fc35db5abe645e5b540752669911573c8c37d10fda41d290f8ff09b",
+  "source_interpretation": "Human/agent source review; machine checks do not prove semantic completeness",
+  "not_run": [
+    "firmware host or target tests",
+    "SPICE",
+    "FEM",
+    "Rust workspace/native bridge",
+    "physical hardware"
+  ]
+}

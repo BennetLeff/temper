@@ -1,0 +1,12 @@
+test_deskew_sign (test_bench_verdict.VerdictTests.test_deskew_sign) ... ok
+test_every_criterion_passes_and_fails (test_bench_verdict.VerdictTests.test_every_criterion_passes_and_fails) ... ok
+test_invalid_inputs_never_pass (test_bench_verdict.VerdictTests.test_invalid_inputs_never_pass) ... ok
+test_known_measurements (test_bench_verdict.VerdictTests.test_known_measurements) ... ok
+test_malformed_csv (test_bench_verdict.VerdictTests.test_malformed_csv) ... ok
+test_noise_and_ringing_do_not_select_false_edge (test_bench_verdict.VerdictTests.test_noise_and_ringing_do_not_select_false_edge) ... ok
+test_real_ngspice_fixture (test_bench_verdict.VerdictTests.test_real_ngspice_fixture) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.354s
+
+OK

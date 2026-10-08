@@ -1,0 +1,65 @@
+{
+ "boxes": {
+  "board_290x140_bottom_z26_envelope": {
+   "box": [
+    -149,
+    96,
+    11.5,
+    141,
+    236,
+    76
+   ],
+   "hits": []
+  },
+  "sink_114x50x73": {
+   "box": [
+    35,
+    236,
+    10,
+    149,
+    284,
+    83
+   ],
+   "hits": []
+  },
+  "inlet_duct_right_wall": {
+   "box": [
+    149,
+    236,
+    10,
+    183,
+    284,
+    83
+   ],
+   "hits": []
+  },
+  "exhaust_duct_to_rear_wall": {
+   "box": [
+    35,
+    284,
+    10,
+    95,
+    438,
+    83
+   ],
+   "hits": []
+  }
+ },
+ "pass": true,
+ "sink_thermal": {
+  "20_cfm": {
+   "fin_gap_mm": 3.0,
+   "fins": 16,
+   "R_C_per_W": 0.2425,
+   "dp_Pa": 44.2,
+   "air_m_per_s": 4.77
+  },
+  "30_cfm": {
+   "fin_gap_mm": 3.0,
+   "fins": 16,
+   "R_C_per_W": 0.2116,
+   "dp_Pa": 85.7,
+   "air_m_per_s": 7.15
+  }
+ }
+}

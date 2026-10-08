@@ -1,0 +1,12 @@
+{
+  "reason": "Supplemental identity for runs started by the original recorder; exact invoked source snapshot retained. No result relabeling.",
+  "original_recorder_sha256": "469abc491a91f4629508db5904cc935eda8ba4daaef931949bbf61fa4dfda731",
+  "source_revision": "a5eddd2bec65d0dd026bdd47087947b0b22cbfd6",
+  "dependencies": {
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/d2/run_d2.py": "bec75e3212b120853eb4a58286fb3c222094e46b6e88ba6e41edcde73cd24c7a",
+    "zapote/power-stage-120v/validation-plan/sim-kit/common/run_ngspice.py": "e518996d3c4050f3fbbb109abbf116a23b010612dd073bea860d3db613f758b0",
+    "zapote/power-stage-120v/validation-plan/sim-kit/common/options.inc": "ae752d460d50fdbbcaaf03b29871b3b039cf27f018707efe4aa50d0fc3529330",
+    "zapote/power-stage-120v/validation-plan/sim-kit/models/vendor/IFX_CFD7_650V.lib": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b"
+  },
+  "ngspice": "******\n** ngspice-45.2 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2025, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n******\n"
+}

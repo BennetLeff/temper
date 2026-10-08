@@ -1,0 +1,22 @@
+#!/usr/bin/env python3
+"""Bounded refinement of the lowest-gate, stock-VDS and charge-endpoint cases."""
+from __future__ import annotations
+
+import json
+import sys
+
+sys.dont_write_bytecode = True
+import run as d24  # noqa: E402
+
+base = d24.d2.matrix_params(d24.d2.read_L(str(d24.R17/'d2/legA-h0-best.matrix.txt')))
+rows = []
+# Original minimum off-gate, original model maximum VDS, and two charge-endpoint probes.
+for tt, vb, direction, esl, tj in ((0,280,1,10,150),(50,198,0,10,150),
+                                  (125,198,0,1.06,27),(260,198,0,1.06,150)):
+    p = base | {'VBUS':str(vb),'IL':'-20','DIR':str(direction),'DT':'443n',
+                'LESL':f'{esl:g}n','LSHUNT':'2n','TJ':str(tj),'TRMAX':'0.1n'}
+    rows.append(d24.execute(f's4_tt{tt}_v{vb}_d{direction}_esl{esl:g}_tj{tj}_step0.1',
+                            d24.HERE/'s4.cir',p,tt,'s4',.1))
+rows.append(d24.execute('map_tt260_tj25_step0.1',d24.R17/'delegation/out-D3/recovery.cir',
+                         {'RG':'730','TJ':'25','STEP':'0.1n'},260,'recovery',.1))
+(d24.HERE/'refinement.json').write_text(json.dumps(rows,indent=2)+'\n')

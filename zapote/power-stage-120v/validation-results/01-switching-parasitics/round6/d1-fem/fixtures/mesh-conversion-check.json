@@ -1,0 +1,35 @@
+{
+  "source": "raw/coax-0p35.msh",
+  "output": "raw/coax-0p35-ascii-verified.msh",
+  "tetrahedra": 66006,
+  "physical_groups": [
+    [
+      2,
+      2,
+      "pec",
+      [
+        4,
+        5,
+        7
+      ]
+    ],
+    [
+      2,
+      3,
+      "port",
+      [
+        6
+      ]
+    ],
+    [
+      3,
+      1,
+      "air",
+      [
+        1
+      ]
+    ]
+  ],
+  "roundtrip_max_coordinate_delta_mm": 7.105427357601002e-15,
+  "roundtrip_oriented_connectivity_equal_after_node_mapping": true
+}

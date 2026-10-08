@@ -1,0 +1,768 @@
+{
+  "status": "ROUND2_COLD_ENGINEERING_REVISION_NOT_POWERED_RELEASE",
+  "units": "mm",
+  "sources": {
+    "native19_step": {
+      "path": "output/temper-prototype-closure/pcb/temper-power-native19-candidate.step",
+      "sha256": "b4b9edb5ad9c4b0aa4e1b69158abb6be8b9ce203b561c1d34a58e88812a8fa4c"
+    },
+    "native19_board": {
+      "path": "zapote/power-stage-120v/native-19/section.kicad_pcb",
+      "sha256": "3557aa444873fa8b45eb7e0ae8ec3a4bc2b5cd526826b338b58d50e57747430b"
+    },
+    "native19_model_inventory": {
+      "path": "zapote/power-stage-120v/native-19/verification/model-inventory.json",
+      "sha256": "553019fab14d9582228ceee7a6d1a6d8b0458fdedbbd59315021873131e1405b"
+    },
+    "edge_contact_screen": {
+      "path": "zapote/power-stage-120v/native-19/verification/edge-contact-screen.json",
+      "sha256": "eaa5cb20acc08e1f150ff8ee9cae40263e16650bc0bfe0e474877daa5d9811dd"
+    },
+    "r4_assembly": {
+      "path": "output/temper-flush-front-r4/STEP/assembly.step",
+      "sha256": "2e89923f65e466831395a10a2ac7e307ded48fbb8b49e5c19e87b4da1df21291"
+    },
+    "prior_interface": {
+      "path": "zapote/power-stage-120v/prototype-closure/cooling/interface.json",
+      "sha256": "df385e6f263cd4ff721f23ebf2ad469a49f2902f297e54d50bd22d8d38048b0b"
+    },
+    "corrected_package_bounds": {
+      "path": "zapote/power-stage-120v/prototype-closure/cooling/contact-tolerances.json",
+      "sha256": "ef3e70c1e3f90f91a73d701619743e7d54e1192be762a56b98661c6adc80f8cb"
+    },
+    "filter_packing": {
+      "path": "zapote/power-stage-120v/prototype-closure/emi/inputs/module-plan.json",
+      "sha256": "e21d3e8fa76efd135974e4e74badb4375d2975de23cbdacf4e9ee740b23d1226"
+    },
+    "r4_catalog": {
+      "path": "output/temper-flush-front-r4/catalog.json",
+      "sha256": "66bf90c0b5668b525a732f51d07d234327f05adb001dbeab5ad2a54485562a6c"
+    }
+  },
+  "board": {
+    "origin_xy": [
+      -110.5,
+      162
+    ],
+    "model_top_datum_z": 32,
+    "export_model_top_datum_z": 1.613,
+    "physical_thickness_envelope": 1.653,
+    "nominal_size": [
+      240,
+      160
+    ],
+    "source_component_count": 142,
+    "export_substrate_z": [
+      0,
+      1.493
+    ],
+    "export_coordinate_mapping": "X unchanged, Y mirrored, Z translated by32-1.613; full-thickness retention envelope separately retained"
+  },
+  "sink": {
+    "min": [
+      -112,
+      93.9,
+      12
+    ],
+    "size": [
+      200,
+      68,
+      60
+    ],
+    "base_thickness": 8,
+    "fin_count": 20,
+    "fin_pitch": 3,
+    "fin_thickness": 1.6,
+    "board_relief": {
+      "min": [
+        -112,
+        160.5,
+        28
+      ],
+      "size": [
+        200,
+        1.4,
+        6
+      ]
+    },
+    "qualification": "Custom prototype geometry; supplier thermal and pressure-drop curves not obtained"
+  },
+  "contact": {
+    "ceramic_front_local_y": 0.9,
+    "ceramic_thickness": 1.0,
+    "approach": "Five independently measured live-side copper shims against fully supported ceramic; no common rear-face assumption or fixed BR boss",
+    "film_allowance_mm": null,
+    "shim_nominal_midpoints_mm": {
+      "Q5": 0.5975,
+      "Q6": 0.5975,
+      "Q3": 0.5975,
+      "Q2": 0.5975,
+      "BR1": 0.65
+    },
+    "shim_geometric_ranges_before_films_mm": {
+      "mos": [
+        0.27,
+        0.925
+      ],
+      "bridge": [
+        0.4,
+        0.9
+      ]
+    },
+    "ceramics": [
+      {
+        "name": "ALN_Q5_Q6",
+        "min": [
+          -22.5,
+          161.9,
+          34
+        ],
+        "size": [
+          38,
+          1,
+          28
+        ]
+      },
+      {
+        "name": "ALN_Q3_Q2",
+        "min": [
+          17.5,
+          161.9,
+          34
+        ],
+        "size": [
+          38,
+          1,
+          28
+        ]
+      },
+      {
+        "name": "ALN_BR1",
+        "min": [
+          -100,
+          161.9,
+          34
+        ],
+        "size": [
+          38,
+          1,
+          28
+        ]
+      }
+    ],
+    "shim_contacts": [
+      {
+        "reference": "Q5",
+        "x_center": -12.5,
+        "z_min": 45.3,
+        "width": 12,
+        "height": 10,
+        "hole_relief": {
+          "x_width": 5.5,
+          "z_min": 49.2,
+          "z_height": 5.5
+        }
+      },
+      {
+        "reference": "Q6",
+        "x_center": 5.5,
+        "z_min": 45.3,
+        "width": 12,
+        "height": 10,
+        "hole_relief": {
+          "x_width": 5.5,
+          "z_min": 49.2,
+          "z_height": 5.5
+        }
+      },
+      {
+        "reference": "Q3",
+        "x_center": 27.5,
+        "z_min": 45.3,
+        "width": 12,
+        "height": 10,
+        "hole_relief": {
+          "x_width": 5.5,
+          "z_min": 49.2,
+          "z_height": 5.5
+        }
+      },
+      {
+        "reference": "Q2",
+        "x_center": 45.5,
+        "z_min": 45.3,
+        "width": 12,
+        "height": 10,
+        "hole_relief": {
+          "x_width": 5.5,
+          "z_min": 49.2,
+          "z_height": 5.5
+        }
+      },
+      {
+        "reference": "BR1",
+        "x_center": -81.7,
+        "z_min": 37,
+        "width": 24,
+        "height": 14
+      }
+    ],
+    "real_seating_candidate_mm_above_board": 5,
+    "real_seating_status": "Drawing shoulder lengths require gauge/actual lead-hole fit check; sourceSTEP poses unchanged",
+    "contact_area_status": "MOS12x10 with5.5x5.5 mounting-hole relief, nominal89.75mm2; source drawing bounds at5mm seating only. BR rectangle provisional. Actual witness, flatness, seating and pressure approval required.",
+    "clamps": {
+      "mos_part": "Boyd Max03NG",
+      "catalog_width": 15,
+      "catalog_strip_thickness": 0.5,
+      "catalog_anchor_to_contact_span": 14.7,
+      "catalog_nominal_force_N": 45,
+      "force_class_N": [
+        30,
+        50
+      ],
+      "status": "Catalog width/span/force sourced; exact free profile and installed force curve still required; adjustable anchor fixture independent for each device",
+      "anchor_adjustment_mm": [
+        -1,
+        1
+      ],
+      "bridge_mount": "M3 low-profile screw+flat washer candidate in manufacturer mounting hole; exacttorque/bushing/pressure process not released"
+    },
+    "mos_rear_metal_interval_at_candidate_seating_mm": [
+      44.91,
+      56.35
+    ],
+    "mos_rear_metal_interval_basis": "Candidate body bottom37; guaranteed metal lower bound37+Dmax21.50-D2min0.51-D1min13.08; upper bound37+Dmin20.70-D2max1.35. Assumes drawing-centred rear metal and measured body seating; shim relief needs actual tab/hole witness."
+  },
+  "retention": {
+    "status": "NOMINAL_COLD_CARRIER_FINAL_NATIVE19_SAVED_FILL_SCREEN_PASSES_ZERO_MARGIN",
+    "contact_windows_board_xy": [
+      [
+        0,
+        17,
+        3,
+        23
+      ],
+      [
+        0,
+        137,
+        3,
+        143
+      ],
+      [
+        237,
+        17,
+        240,
+        23
+      ],
+      [
+        237,
+        77,
+        240,
+        83
+      ]
+    ],
+    "shoe_material": "Machined PEEK candidate; exact grade/insulation qualification open",
+    "vertical_capture_clearance_mm": 0.1,
+    "fastener": "M3x25 with 1.5mm external spacer; outside board; torque not set",
+    "frame_attachment": "Four M3 rail/floor fasteners and four M4 sink cradle/floor fasteners in revised copy of R4 floor; load/torque qualification open",
+    "fastener_centres_world_xy": [
+      [
+        -115.5,
+        182
+      ],
+      [
+        -115.5,
+        302
+      ],
+      [
+        135.5,
+        182
+      ],
+      [
+        135.5,
+        242
+      ]
+    ],
+    "datums": {
+      "vertical": "four underside lips at Z30.347; removable caps at Z32.1",
+      "lateral_X": "two left shoe posts locate left edge; right posts have 1mm nominal clearance",
+      "longitudinal_Y": "front left stop at Y162; rear left stop at Y323 gives 1mm nominal float"
+    },
+    "nominal_in_plane_float_mm": {
+      "positive_X": 1.0,
+      "positive_Y": 1.0
+    },
+    "corner_stop_screen_board_xy": [
+      [
+        0,
+        0,
+        3,
+        1
+      ],
+      [
+        0,
+        159,
+        3,
+        160
+      ]
+    ],
+    "growth_acceptance": "positive differential PCB-frame growth + worst-case location/size tolerances + service deflection <= minimum available float; vertical board warp/thickness stack separately bounded"
+  },
+  "retention_allocations": [
+    {
+      "name": "CARRIER_RAIL_-122p5",
+      "min": [
+        -122.5,
+        162,
+        10
+      ],
+      "size": [
+        12,
+        160,
+        6
+      ]
+    },
+    {
+      "name": "CARRIER_RAIL_128p5",
+      "min": [
+        128.5,
+        162,
+        10
+      ],
+      "size": [
+        12,
+        160,
+        6
+      ]
+    },
+    {
+      "name": "L20_PEEK_POST",
+      "min": [
+        -120.5,
+        179,
+        16
+      ],
+      "size": [
+        10,
+        6,
+        16.1
+      ],
+      "vertical_hole": {
+        "center_xy": [
+          -115.5,
+          182
+        ],
+        "radius": 1.7
+      }
+    },
+    {
+      "name": "L20_PEEK_UNDERSIDE_LIP",
+      "min": [
+        -110.5,
+        179,
+        28.347
+      ],
+      "size": [
+        3,
+        6,
+        2
+      ]
+    },
+    {
+      "name": "L20_PEEK_TOP_CAPTURE",
+      "min": [
+        -120.5,
+        179,
+        32.1
+      ],
+      "size": [
+        13,
+        6,
+        2
+      ],
+      "vertical_hole": {
+        "center_xy": [
+          -115.5,
+          182
+        ],
+        "radius": 1.7
+      }
+    },
+    {
+      "name": "L140_PEEK_POST",
+      "min": [
+        -120.5,
+        299,
+        16
+      ],
+      "size": [
+        10,
+        6,
+        16.1
+      ],
+      "vertical_hole": {
+        "center_xy": [
+          -115.5,
+          302
+        ],
+        "radius": 1.7
+      }
+    },
+    {
+      "name": "L140_PEEK_UNDERSIDE_LIP",
+      "min": [
+        -110.5,
+        299,
+        28.347
+      ],
+      "size": [
+        3,
+        6,
+        2
+      ]
+    },
+    {
+      "name": "L140_PEEK_TOP_CAPTURE",
+      "min": [
+        -120.5,
+        299,
+        32.1
+      ],
+      "size": [
+        13,
+        6,
+        2
+      ],
+      "vertical_hole": {
+        "center_xy": [
+          -115.5,
+          302
+        ],
+        "radius": 1.7
+      }
+    },
+    {
+      "name": "R20_PEEK_POST",
+      "min": [
+        130.5,
+        179,
+        16
+      ],
+      "size": [
+        10,
+        6,
+        16.1
+      ],
+      "vertical_hole": {
+        "center_xy": [
+          135.5,
+          182
+        ],
+        "radius": 1.7
+      }
+    },
+    {
+      "name": "R20_PEEK_UNDERSIDE_LIP",
+      "min": [
+        126.5,
+        179,
+        28.347
+      ],
+      "size": [
+        4,
+        6,
+        2
+      ]
+    },
+    {
+      "name": "R20_PEEK_TOP_CAPTURE",
+      "min": [
+        126.5,
+        179,
+        32.1
+      ],
+      "size": [
+        14,
+        6,
+        2
+      ],
+      "vertical_hole": {
+        "center_xy": [
+          135.5,
+          182
+        ],
+        "radius": 1.7
+      }
+    },
+    {
+      "name": "R80_PEEK_POST",
+      "min": [
+        130.5,
+        239,
+        16
+      ],
+      "size": [
+        10,
+        6,
+        16.1
+      ],
+      "vertical_hole": {
+        "center_xy": [
+          135.5,
+          242
+        ],
+        "radius": 1.7
+      }
+    },
+    {
+      "name": "R80_PEEK_UNDERSIDE_LIP",
+      "min": [
+        126.5,
+        239,
+        28.347
+      ],
+      "size": [
+        4,
+        6,
+        2
+      ]
+    },
+    {
+      "name": "R80_PEEK_TOP_CAPTURE",
+      "min": [
+        126.5,
+        239,
+        32.1
+      ],
+      "size": [
+        14,
+        6,
+        2
+      ],
+      "vertical_hole": {
+        "center_xy": [
+          135.5,
+          242
+        ],
+        "radius": 1.7
+      }
+    },
+    {
+      "name": "L20_PEEK_DATUM_ARM",
+      "min": [
+        -120.5,
+        161,
+        28.347
+      ],
+      "size": [
+        9.5,
+        21,
+        2
+      ]
+    },
+    {
+      "name": "L20_PEEK_EDGE_STOP",
+      "min": [
+        -111,
+        161,
+        28.347
+      ],
+      "size": [
+        3.5,
+        1,
+        3.653
+      ]
+    },
+    {
+      "name": "L140_PEEK_DATUM_ARM",
+      "min": [
+        -120.5,
+        302,
+        28.347
+      ],
+      "size": [
+        9.5,
+        22,
+        2
+      ]
+    },
+    {
+      "name": "L140_PEEK_EDGE_STOP",
+      "min": [
+        -111,
+        323,
+        28.347
+      ],
+      "size": [
+        3.5,
+        1,
+        3.653
+      ]
+    }
+  ],
+  "omitted_r4_prefixes": [
+    "pcb_export_",
+    "PS1_datasheet_body_envelope",
+    "Sunon_",
+    "fan_hub_envelope",
+    "compact_sink_candidate_",
+    "separate_rear_cooling_duct",
+    "covered_PCB_tray_allocation",
+    "PCB_chamber_lid_allocation"
+  ],
+  "thermal_allocation": {
+    "sink_degC_per_W_max": 0.15,
+    "mos_interface_degC_per_W_max": 1.0,
+    "bridge_interface_degC_per_W_assumed": 0.45,
+    "inlet_degC": 50,
+    "delivered_CFM_min": 20
+  },
+  "emi": {
+    "module_min": [
+      -140,
+      332,
+      12
+    ],
+    "module_size": [
+      110,
+      80,
+      50
+    ],
+    "holder_min": [
+      -20,
+      345,
+      17.5
+    ],
+    "holder_closed_size": [
+      78.5,
+      17.78,
+      61
+    ],
+    "holder_open_projection": 80,
+    "status": "Exact part-derived envelopes; wiring/cover/service integration in progress",
+    "rocker_panel_center_xz": [
+      70,
+      55
+    ],
+    "rocker_panel_outer_y": 440,
+    "rocker_body_size": [
+      33.8,
+      33.5,
+      26
+    ],
+    "rocker_terminal_depth": 10.6,
+    "rocker_cutout_size": [
+      34.1,
+      26.1
+    ],
+    "cord_adapter": "Retain original34x24opening atX135,Z34 covered; gland/cord/testfeed not selected",
+    "precharge": "Required by electrical study but no selectedparts/envelope; NOT_INTEGRATED",
+    "holder_mount_datum": "Conservative body entirely above TS35/7.5 rail top; exact supplier clip-to-depth datum not visually resolved; door sweep top97.5",
+    "rocker_external_projection": 7.2
+  },
+  "airflow": {
+    "fan_part": "DC0602512W2B-BT0",
+    "fan_count": 2,
+    "arrangement": "Push-pull, series pressure at common flow; actualP-Q unavailable",
+    "fans": [
+      {
+        "name": "RIGHT_PUSH_FAN",
+        "min": [
+          88,
+          93.9,
+          12
+        ],
+        "size": [
+          25,
+          60,
+          60
+        ]
+      },
+      {
+        "name": "LEFT_PULL_FAN",
+        "min": [
+          -137,
+          93.9,
+          12
+        ],
+        "size": [
+          25,
+          60,
+          60
+        ]
+      }
+    ],
+    "side_duct_wall": 0.8,
+    "leg_sleeve_inner_radius": 7,
+    "leg_sleeve_outer_radius": 10,
+    "rear_inlet_slot_centers_x": [
+      100,
+      109,
+      118,
+      127,
+      136,
+      145,
+      154,
+      163,
+      172
+    ],
+    "rear_inlet_slot_center_z": 67,
+    "rear_inlet_slot_size": [
+      5,
+      36
+    ],
+    "qualification": "Geometry and conditional pressure budget only;20CFMnotverified"
+  },
+  "pe": {
+    "main_stud_world_xy": [
+      10,
+      415
+    ],
+    "sink_cradle_stud_world_xy": [
+      -128,
+      160
+    ],
+    "stud_diameter": 4,
+    "bond_path_world_xyz": [
+      [
+        10,
+        415,
+        16
+      ],
+      [
+        10,
+        425,
+        16
+      ],
+      [
+        -20,
+        425,
+        16
+      ],
+      [
+        -20,
+        322,
+        16
+      ],
+      [
+        -132,
+        322,
+        16
+      ],
+      [
+        -132,
+        160,
+        16
+      ],
+      [
+        -128,
+        160,
+        16
+      ]
+    ],
+    "bond_width_allocation": 10,
+    "bond_thickness_allocation": 1,
+    "status": "DedicatedPEstuds and braidpath; grade/lugs/torque/bondtest not qualified; CMinductance not inherited"
+  },
+  "r4_part_identity_sha256": "354273f06ed4388292b01e904f2d296fc2209a499601a1ad86dd47b4c11c8b9a"
+}

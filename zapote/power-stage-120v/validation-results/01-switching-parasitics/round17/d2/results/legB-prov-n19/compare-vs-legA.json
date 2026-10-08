@@ -1,0 +1,65 @@
+{
+ "a": "native19-carryover",
+ "b": "legB-prov-n19",
+ "cases": 96,
+ "verdict_flips": [],
+ "by_case": {
+  "S1": {
+   "vgs_off_max": {
+    "delta_min": -0.4129,
+    "delta_max": 0.1455,
+    "b_max": 1.0333
+   },
+   "vds_pk": {
+    "delta_min": -17.2049,
+    "delta_max": 20.7315,
+    "b_max": 383.9462
+   }
+  },
+  "S2": {
+   "vgs_off_max": {
+    "delta_min": -0.7579,
+    "delta_max": 0.1266,
+    "b_max": 1.2941
+   },
+   "vds_pk": {
+    "delta_min": 4.028,
+    "delta_max": 29.2163,
+    "b_max": 368.0812
+   }
+  },
+  "S4": {
+   "vgs_off_max": {
+    "delta_min": -0.6837,
+    "delta_max": 0.3998,
+    "b_max": 4.318
+   },
+   "vds_pk": {
+    "delta_min": 2.6814,
+    "delta_max": 86.2922,
+    "b_max": 537.1546
+   }
+  }
+ },
+ "pass_counts": {
+  "S1": {
+   "a": 36,
+   "b": 36,
+   "of": 36
+  },
+  "S2": {
+   "a": 24,
+   "b": 24,
+   "of": 24
+  },
+  "S4": {
+   "a": 0,
+   "b": 0,
+   "of": 36
+  }
+ },
+ "zvs_S1_b": {
+  "yes": 12,
+  "of": 12
+ }
+}

@@ -1,0 +1,37 @@
+[project]
+name = "zapote"
+version = "0.1.0"
+description = "Temper's harness-based agent engineering project"
+status = "setup"
+source_of_truth = "temper"
+
+[identity]
+service_name = "zapote-harness"
+langsmith_project = "zapote-harness"
+trace_schema = 2
+
+[shared]
+temper_root = ".."
+pcb = "../pcb"
+electrical = "../elec"
+firmware = "../firmware"
+simulation = "../simulation"
+packages = "../packages"
+components = "../components"
+datasheets = "../datasheets"
+scripts = "../scripts"
+active_implementation = "../harness-lab"
+
+[paths]
+source = "src"
+tests = "tests"
+experiments = "experiments"
+skills = "skills"
+artifacts = "artifacts"
+runs = "runs"
+docs = "docs"
+
+[migration]
+mode = "seed-before-move"
+move_policy = "incremental-with-compatibility"
+active_source = "harness-lab"

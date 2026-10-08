@@ -1,0 +1,1246 @@
+{
+  "board_sha256": "a3ac1249f5052afe52944804cdc3f6ef0e8f895668360e79c1fa7b6fb7322155",
+  "records": [
+    {
+      "basis": "I_tank,rms\u00b2/2 \u00d7 linear interpolated 25-to-150 C typical RDS(on), VGS=10 V",
+      "board_fraction": 0.0,
+      "mechanism": "conduction_typical_125c",
+      "ref": "Q2",
+      "scenario": "nominal_example",
+      "sink_fraction": 1.0,
+      "source": "Infineon Rev2 p5 Table4; cases.csv",
+      "watts": 6.77524155
+    },
+    {
+      "basis": "I_tank,rms\u00b2/2 \u00d7 linear interpolated 25-to-150 C typical RDS(on), VGS=10 V",
+      "board_fraction": 0.0,
+      "mechanism": "conduction_typical_125c",
+      "ref": "Q3",
+      "scenario": "nominal_example",
+      "sink_fraction": 1.0,
+      "source": "Infineon Rev2 p5 Table4; cases.csv",
+      "watts": 6.77524155
+    },
+    {
+      "basis": "I_tank,rms\u00b2/2 \u00d7 linear interpolated 25-to-150 C typical RDS(on), VGS=10 V",
+      "board_fraction": 0.0,
+      "mechanism": "conduction_typical_125c",
+      "ref": "Q5",
+      "scenario": "nominal_example",
+      "sink_fraction": 1.0,
+      "source": "Infineon Rev2 p5 Table4; cases.csv",
+      "watts": 6.77524155
+    },
+    {
+      "basis": "I_tank,rms\u00b2/2 \u00d7 linear interpolated 25-to-150 C typical RDS(on), VGS=10 V",
+      "board_fraction": 0.0,
+      "mechanism": "conduction_typical_125c",
+      "ref": "Q6",
+      "scenario": "nominal_example",
+      "sink_fraction": 1.0,
+      "source": "Infineon Rev2 p5 Table4; cases.csv",
+      "watts": 6.77524155
+    },
+    {
+      "basis": "1 outgoing HS+1 LS per event, shared by 2 of each device; A1 heat only for 1-37 A events; low bus uses 120 V proxy",
+      "board_fraction": 0.0,
+      "mechanism": "turnoff_covered_events_27c_model",
+      "ref": "Q2",
+      "scenario": "nominal_example",
+      "sink_fraction": 1.0,
+      "source": "A1 turnoff_energy.csv; A5 switching-events.csv",
+      "watts": 0.25618743
+    },
+    {
+      "basis": "11 of 546 events outside 1-37 A model domain",
+      "board_fraction": 0.0,
+      "mechanism": "turnoff_uncovered_events",
+      "ref": "Q2",
+      "scenario": "nominal_example",
+      "sink_fraction": 1.0,
+      "source": "A1 turnoff_energy.csv; A5 switching-events.csv",
+      "watts": null
+    },
+    {
+      "basis": "A5 ideal bridge omits dead-time diode current and Qrr; cannot assign thermal watts",
+      "board_fraction": 0.0,
+      "mechanism": "body_diode_deadtime",
+      "ref": "Q2",
+      "scenario": "nominal_example",
+      "sink_fraction": 1.0,
+      "source": "ROUND-3.md A5.2",
+      "watts": null
+    },
+    {
+      "basis": "Requires A5 ZVS map and Eoss(V)/integrated Coss; Co(tr) is time-equivalent only",
+      "board_fraction": 0.0,
+      "mechanism": "lost_zvs_turnon",
+      "ref": "Q2",
+      "scenario": "nominal_example",
+      "sink_fraction": 1.0,
+      "source": "Infineon Rev2 p5 Table5; ROUND-3.md B4",
+      "watts": null
+    },
+    {
+      "basis": "1 outgoing HS+1 LS per event, shared by 2 of each device; A1 heat only for 1-37 A events; low bus uses 120 V proxy",
+      "board_fraction": 0.0,
+      "mechanism": "turnoff_covered_events_27c_model",
+      "ref": "Q3",
+      "scenario": "nominal_example",
+      "sink_fraction": 1.0,
+      "source": "A1 turnoff_energy.csv; A5 switching-events.csv",
+      "watts": 0.32922782
+    },
+    {
+      "basis": "11 of 546 events outside 1-37 A model domain",
+      "board_fraction": 0.0,
+      "mechanism": "turnoff_uncovered_events",
+      "ref": "Q3",
+      "scenario": "nominal_example",
+      "sink_fraction": 1.0,
+      "source": "A1 turnoff_energy.csv; A5 switching-events.csv",
+      "watts": null
+    },
+    {
+      "basis": "A5 ideal bridge omits dead-time diode current and Qrr; cannot assign thermal watts",
+      "board_fraction": 0.0,
+      "mechanism": "body_diode_deadtime",
+      "ref": "Q3",
+      "scenario": "nominal_example",
+      "sink_fraction": 1.0,
+      "source": "ROUND-3.md A5.2",
+      "watts": null
+    },
+    {
+      "basis": "Requires A5 ZVS map and Eoss(V)/integrated Coss; Co(tr) is time-equivalent only",
+      "board_fraction": 0.0,
+      "mechanism": "lost_zvs_turnon",
+      "ref": "Q3",
+      "scenario": "nominal_example",
+      "sink_fraction": 1.0,
+      "source": "Infineon Rev2 p5 Table5; ROUND-3.md B4",
+      "watts": null
+    },
+    {
+      "basis": "1 outgoing HS+1 LS per event, shared by 2 of each device; A1 heat only for 1-37 A events; low bus uses 120 V proxy",
+      "board_fraction": 0.0,
+      "mechanism": "turnoff_covered_events_27c_model",
+      "ref": "Q5",
+      "scenario": "nominal_example",
+      "sink_fraction": 1.0,
+      "source": "A1 turnoff_energy.csv; A5 switching-events.csv",
+      "watts": 0.25618743
+    },
+    {
+      "basis": "11 of 546 events outside 1-37 A model domain",
+      "board_fraction": 0.0,
+      "mechanism": "turnoff_uncovered_events",
+      "ref": "Q5",
+      "scenario": "nominal_example",
+      "sink_fraction": 1.0,
+      "source": "A1 turnoff_energy.csv; A5 switching-events.csv",
+      "watts": null
+    },
+    {
+      "basis": "A5 ideal bridge omits dead-time diode current and Qrr; cannot assign thermal watts",
+      "board_fraction": 0.0,
+      "mechanism": "body_diode_deadtime",
+      "ref": "Q5",
+      "scenario": "nominal_example",
+      "sink_fraction": 1.0,
+      "source": "ROUND-3.md A5.2",
+      "watts": null
+    },
+    {
+      "basis": "Requires A5 ZVS map and Eoss(V)/integrated Coss; Co(tr) is time-equivalent only",
+      "board_fraction": 0.0,
+      "mechanism": "lost_zvs_turnon",
+      "ref": "Q5",
+      "scenario": "nominal_example",
+      "sink_fraction": 1.0,
+      "source": "Infineon Rev2 p5 Table5; ROUND-3.md B4",
+      "watts": null
+    },
+    {
+      "basis": "1 outgoing HS+1 LS per event, shared by 2 of each device; A1 heat only for 1-37 A events; low bus uses 120 V proxy",
+      "board_fraction": 0.0,
+      "mechanism": "turnoff_covered_events_27c_model",
+      "ref": "Q6",
+      "scenario": "nominal_example",
+      "sink_fraction": 1.0,
+      "source": "A1 turnoff_energy.csv; A5 switching-events.csv",
+      "watts": 0.32922782
+    },
+    {
+      "basis": "11 of 546 events outside 1-37 A model domain",
+      "board_fraction": 0.0,
+      "mechanism": "turnoff_uncovered_events",
+      "ref": "Q6",
+      "scenario": "nominal_example",
+      "sink_fraction": 1.0,
+      "source": "A1 turnoff_energy.csv; A5 switching-events.csv",
+      "watts": null
+    },
+    {
+      "basis": "A5 ideal bridge omits dead-time diode current and Qrr; cannot assign thermal watts",
+      "board_fraction": 0.0,
+      "mechanism": "body_diode_deadtime",
+      "ref": "Q6",
+      "scenario": "nominal_example",
+      "sink_fraction": 1.0,
+      "source": "ROUND-3.md A5.2",
+      "watts": null
+    },
+    {
+      "basis": "Requires A5 ZVS map and Eoss(V)/integrated Coss; Co(tr) is time-equivalent only",
+      "board_fraction": 0.0,
+      "mechanism": "lost_zvs_turnon",
+      "ref": "Q6",
+      "scenario": "nominal_example",
+      "sink_fraction": 1.0,
+      "source": "Infineon Rev2 p5 Table5; ROUND-3.md B4",
+      "watts": null
+    },
+    {
+      "basis": "2\u00d71.05 V\u00d7E|Iin|, 15 A rms sinusoid; 1.05 V at IF=12.5 A/Tj25 only, not a waveform bound",
+      "board_fraction": 0.0,
+      "mechanism": "forward_sinusoidal_screen",
+      "ref": "BR1",
+      "scenario": "nominal_example",
+      "sink_fraction": 1.0,
+      "source": "Diodes GBJ Rev11 p2; 00-MASTER-PLAN.md envelope",
+      "watts": 28.35996396
+    },
+    {
+      "basis": "No reverse-recovery loss estimate for unfiltered input bridge",
+      "board_fraction": 0.0,
+      "mechanism": "reverse_recovery",
+      "ref": "BR1",
+      "scenario": "nominal_example",
+      "sink_fraction": 1.0,
+      "source": "GBJ datasheet",
+      "watts": null
+    },
+    {
+      "basis": "I_R5,rms\u00b2 \u00d7 1m\u03a9; stress uses +1% tolerance and +50 C\u00d7250ppm/C",
+      "board_fraction": 1.0,
+      "mechanism": "resistive",
+      "ref": "R5",
+      "scenario": "nominal_example",
+      "sink_fraction": 0.0,
+      "source": "A5 shunt-grid.csv; Vishay WSK2512 Rev2023 p1-2",
+      "watts": 0.46089935
+    },
+    {
+      "basis": "I_rms\u00b2 \u00d7 0.006\u03a9 typical at 100 kHz; actual 30-60 kHz/hot ESR unknown",
+      "board_fraction": 1.0,
+      "mechanism": "esr_typical_100khz_screen",
+      "ref": "C21",
+      "scenario": "nominal_example",
+      "sink_fraction": 0.0,
+      "source": "CDE 942C catalog p3; A5 cases.csv",
+      "watts": 0.45900407
+    },
+    {
+      "basis": "I_rms\u00b2 \u00d7 0.006\u03a9 typical at 100 kHz; actual 30-60 kHz/hot ESR unknown",
+      "board_fraction": 1.0,
+      "mechanism": "esr_typical_100khz_screen",
+      "ref": "C22",
+      "scenario": "nominal_example",
+      "sink_fraction": 0.0,
+      "source": "CDE 942C catalog p3; A5 cases.csv",
+      "watts": 0.45900407
+    },
+    {
+      "basis": "I_rms\u00b2 \u00d7 0.005\u03a9 typical at 100 kHz; actual 30-60 kHz/hot ESR unknown",
+      "board_fraction": 1.0,
+      "mechanism": "esr_typical_100khz_screen",
+      "ref": "C23",
+      "scenario": "nominal_example",
+      "sink_fraction": 0.0,
+      "source": "CDE 942C catalog p3; A5 cases.csv",
+      "watts": 0.07902963
+    },
+    {
+      "basis": "A5 average V\u00b2/R from ideal tank waveform; 470k\u03a9 per resistor",
+      "board_fraction": 1.0,
+      "mechanism": "bleed",
+      "ref": "R22",
+      "scenario": "nominal_example",
+      "sink_fraction": 0.0,
+      "source": "A5 cases.csv; frozen/default.csv",
+      "watts": 0.00494435
+    },
+    {
+      "basis": "A5 average V\u00b2/R from ideal tank waveform; 470k\u03a9 per resistor",
+      "board_fraction": 1.0,
+      "mechanism": "bleed",
+      "ref": "R23",
+      "scenario": "nominal_example",
+      "sink_fraction": 0.0,
+      "source": "A5 cases.csv; frozen/default.csv",
+      "watts": 0.00494435
+    },
+    {
+      "basis": "A5 average V\u00b2/R from ideal tank waveform; 470k\u03a9 per resistor",
+      "board_fraction": 1.0,
+      "mechanism": "bleed",
+      "ref": "R24",
+      "scenario": "nominal_example",
+      "sink_fraction": 0.0,
+      "source": "A5 cases.csv; frozen/default.csv",
+      "watts": 0.00494435
+    },
+    {
+      "basis": "A5 average V\u00b2/R from ideal tank waveform; 470k\u03a9 per resistor",
+      "board_fraction": 1.0,
+      "mechanism": "bleed",
+      "ref": "R25",
+      "scenario": "nominal_example",
+      "sink_fraction": 0.0,
+      "source": "A5 cases.csv; frozen/default.csv",
+      "watts": 0.00494435
+    },
+    {
+      "basis": "(tank rms/100)\u00b2\u00d71.5\u03a9; ideal CT ratio, no saturation/core heat",
+      "board_fraction": 1.0,
+      "mechanism": "ct_burden_ideal",
+      "ref": "R39",
+      "scenario": "nominal_example",
+      "sink_fraction": 0.0,
+      "source": "A5 cases.csv; ROUND-3.md A5; frozen/default.csv",
+      "watts": 0.06913512
+    },
+    {
+      "basis": "CT winding/core loss requires burden waveform and vendor winding data",
+      "board_fraction": null,
+      "mechanism": "core_and_winding",
+      "ref": "T1",
+      "scenario": "nominal_example",
+      "sink_fraction": null,
+      "source": "CST3015 datasheet needed",
+      "watts": null
+    },
+    {
+      "basis": "two windings \u00d7 4.5m\u03a9 typical \u00d7 15A\u00b2; AC/thermal copper rise excluded",
+      "board_fraction": 1.0,
+      "mechanism": "dc_copper_typical",
+      "ref": "L1",
+      "scenario": "nominal_example",
+      "sink_fraction": 0.0,
+      "source": "TDK B82726S22x3 May2026 p4; validation-results/07-conducted-emi/sources",
+      "watts": 2.025
+    },
+    {
+      "basis": "Qg234nC applies 0-10V; 15V gate swing and resistor/driver division unavailable",
+      "board_fraction": 1.0,
+      "mechanism": "gate_resistor",
+      "ref": "R10",
+      "scenario": "nominal_example",
+      "sink_fraction": 0.0,
+      "source": "Infineon Rev2 p5 Table6; frozen board",
+      "watts": null
+    },
+    {
+      "basis": "Qg234nC applies 0-10V; 15V gate swing and resistor/driver division unavailable",
+      "board_fraction": 1.0,
+      "mechanism": "gate_resistor",
+      "ref": "R12",
+      "scenario": "nominal_example",
+      "sink_fraction": 0.0,
+      "source": "Infineon Rev2 p5 Table6; frozen board",
+      "watts": null
+    },
+    {
+      "basis": "Qg234nC applies 0-10V; 15V gate swing and resistor/driver division unavailable",
+      "board_fraction": 1.0,
+      "mechanism": "gate_resistor",
+      "ref": "R18",
+      "scenario": "nominal_example",
+      "sink_fraction": 0.0,
+      "source": "Infineon Rev2 p5 Table6; frozen board",
+      "watts": null
+    },
+    {
+      "basis": "Qg234nC applies 0-10V; 15V gate swing and resistor/driver division unavailable",
+      "board_fraction": 1.0,
+      "mechanism": "gate_resistor",
+      "ref": "R20",
+      "scenario": "nominal_example",
+      "sink_fraction": 0.0,
+      "source": "Infineon Rev2 p5 Table6; frozen board",
+      "watts": null
+    },
+    {
+      "basis": "driver output plus quiescent heat; 15V charge and exact loads unknown",
+      "board_fraction": 1.0,
+      "mechanism": "gate_driver",
+      "ref": "U1",
+      "scenario": "nominal_example",
+      "sink_fraction": 0.0,
+      "source": "Infineon Rev2 p5 Table6; UCC21550 data needed",
+      "watts": null
+    },
+    {
+      "basis": "driver output plus quiescent heat; 15V charge and exact loads unknown",
+      "board_fraction": 1.0,
+      "mechanism": "gate_driver",
+      "ref": "U2",
+      "scenario": "nominal_example",
+      "sink_fraction": 0.0,
+      "source": "Infineon Rev2 p5 Table6; UCC21550 data needed",
+      "watts": null
+    },
+    {
+      "basis": "15V\u00d73.8mA typical input bias, excludes (15-5)V\u00d7Ihot5",
+      "board_fraction": 1.0,
+      "mechanism": "ldo_quiescent_only",
+      "ref": "U3",
+      "scenario": "nominal_example",
+      "sink_fraction": 0.0,
+      "source": "onsemi MC78L00A p3/5; hot5 load missing",
+      "watts": 0.057
+    },
+    {
+      "basis": "10V\u00d7measured HOT5 output current; no full native-15 current budget",
+      "board_fraction": 1.0,
+      "mechanism": "ldo_load",
+      "ref": "U3",
+      "scenario": "nominal_example",
+      "sink_fraction": 0.0,
+      "source": "MC78L00A; HOT5 measurement required",
+      "watts": null
+    },
+    {
+      "basis": "Pout\u00d7(1/0.84-1) is rated-load/230Vac/25C typical only; actual load unknown",
+      "board_fraction": 1.0,
+      "mechanism": "conversion_loss",
+      "ref": "PS1",
+      "scenario": "nominal_example",
+      "sink_fraction": 0.0,
+      "source": "Mean Well IRM-20 2025-11-21 p2 or IRM-05 2025-08-08 p2",
+      "watts": null
+    },
+    {
+      "basis": "Pout\u00d7(1/0.75-1) is rated-load/230Vac/25C typical only; actual load unknown",
+      "board_fraction": 1.0,
+      "mechanism": "conversion_loss",
+      "ref": "PS2",
+      "scenario": "nominal_example",
+      "sink_fraction": 0.0,
+      "source": "Mean Well IRM-20 2025-11-21 p2 or IRM-05 2025-08-08 p2",
+      "watts": null
+    },
+    {
+      "basis": "actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim",
+      "board_fraction": 1.0,
+      "mechanism": "secondary_power_part_unquantified",
+      "ref": "C1",
+      "scenario": "nominal_example",
+      "sink_fraction": 0.0,
+      "source": "frozen/default.csv; board-parts.json; electrical waveforms needed",
+      "watts": null
+    },
+    {
+      "basis": "actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim",
+      "board_fraction": 1.0,
+      "mechanism": "secondary_power_part_unquantified",
+      "ref": "C2",
+      "scenario": "nominal_example",
+      "sink_fraction": 0.0,
+      "source": "frozen/default.csv; board-parts.json; electrical waveforms needed",
+      "watts": null
+    },
+    {
+      "basis": "actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim",
+      "board_fraction": 1.0,
+      "mechanism": "secondary_power_part_unquantified",
+      "ref": "C5",
+      "scenario": "nominal_example",
+      "sink_fraction": 0.0,
+      "source": "frozen/default.csv; board-parts.json; electrical waveforms needed",
+      "watts": null
+    },
+    {
+      "basis": "actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim",
+      "board_fraction": 1.0,
+      "mechanism": "secondary_power_part_unquantified",
+      "ref": "C6",
+      "scenario": "nominal_example",
+      "sink_fraction": 0.0,
+      "source": "frozen/default.csv; board-parts.json; electrical waveforms needed",
+      "watts": null
+    },
+    {
+      "basis": "actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim",
+      "board_fraction": 1.0,
+      "mechanism": "secondary_power_part_unquantified",
+      "ref": "C12",
+      "scenario": "nominal_example",
+      "sink_fraction": 0.0,
+      "source": "frozen/default.csv; board-parts.json; electrical waveforms needed",
+      "watts": null
+    },
+    {
+      "basis": "actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim",
+      "board_fraction": 1.0,
+      "mechanism": "secondary_power_part_unquantified",
+      "ref": "C13",
+      "scenario": "nominal_example",
+      "sink_fraction": 0.0,
+      "source": "frozen/default.csv; board-parts.json; electrical waveforms needed",
+      "watts": null
+    },
+    {
+      "basis": "actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim",
+      "board_fraction": 1.0,
+      "mechanism": "secondary_power_part_unquantified",
+      "ref": "C19",
+      "scenario": "nominal_example",
+      "sink_fraction": 0.0,
+      "source": "frozen/default.csv; board-parts.json; electrical waveforms needed",
+      "watts": null
+    },
+    {
+      "basis": "actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim",
+      "board_fraction": 1.0,
+      "mechanism": "secondary_power_part_unquantified",
+      "ref": "C20",
+      "scenario": "nominal_example",
+      "sink_fraction": 0.0,
+      "source": "frozen/default.csv; board-parts.json; electrical waveforms needed",
+      "watts": null
+    },
+    {
+      "basis": "actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim",
+      "board_fraction": 1.0,
+      "mechanism": "secondary_power_part_unquantified",
+      "ref": "C38",
+      "scenario": "nominal_example",
+      "sink_fraction": 0.0,
+      "source": "frozen/default.csv; board-parts.json; electrical waveforms needed",
+      "watts": null
+    },
+    {
+      "basis": "actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim",
+      "board_fraction": 1.0,
+      "mechanism": "secondary_power_part_unquantified",
+      "ref": "C39",
+      "scenario": "nominal_example",
+      "sink_fraction": 0.0,
+      "source": "frozen/default.csv; board-parts.json; electrical waveforms needed",
+      "watts": null
+    },
+    {
+      "basis": "actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim",
+      "board_fraction": 1.0,
+      "mechanism": "secondary_power_part_unquantified",
+      "ref": "C40",
+      "scenario": "nominal_example",
+      "sink_fraction": 0.0,
+      "source": "frozen/default.csv; board-parts.json; electrical waveforms needed",
+      "watts": null
+    },
+    {
+      "basis": "actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim",
+      "board_fraction": 1.0,
+      "mechanism": "secondary_power_part_unquantified",
+      "ref": "C41",
+      "scenario": "nominal_example",
+      "sink_fraction": 0.0,
+      "source": "frozen/default.csv; board-parts.json; electrical waveforms needed",
+      "watts": null
+    },
+    {
+      "basis": "actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim",
+      "board_fraction": 1.0,
+      "mechanism": "secondary_power_part_unquantified",
+      "ref": "R26",
+      "scenario": "nominal_example",
+      "sink_fraction": 0.0,
+      "source": "frozen/default.csv; board-parts.json; electrical waveforms needed",
+      "watts": null
+    },
+    {
+      "basis": "actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim",
+      "board_fraction": 1.0,
+      "mechanism": "secondary_power_part_unquantified",
+      "ref": "R27",
+      "scenario": "nominal_example",
+      "sink_fraction": 0.0,
+      "source": "frozen/default.csv; board-parts.json; electrical waveforms needed",
+      "watts": null
+    },
+    {
+      "basis": "actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim",
+      "board_fraction": 1.0,
+      "mechanism": "secondary_power_part_unquantified",
+      "ref": "R28",
+      "scenario": "nominal_example",
+      "sink_fraction": 0.0,
+      "source": "frozen/default.csv; board-parts.json; electrical waveforms needed",
+      "watts": null
+    },
+    {
+      "basis": "actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim",
+      "board_fraction": 1.0,
+      "mechanism": "secondary_power_part_unquantified",
+      "ref": "R29",
+      "scenario": "nominal_example",
+      "sink_fraction": 0.0,
+      "source": "frozen/default.csv; board-parts.json; electrical waveforms needed",
+      "watts": null
+    },
+    {
+      "basis": "actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim",
+      "board_fraction": 1.0,
+      "mechanism": "secondary_power_part_unquantified",
+      "ref": "D3",
+      "scenario": "nominal_example",
+      "sink_fraction": 0.0,
+      "source": "frozen/default.csv; board-parts.json; electrical waveforms needed",
+      "watts": null
+    },
+    {
+      "basis": "I_tank,rms\u00b2/2 \u00d7 linear interpolated 25-to-150 C typical RDS(on), VGS=10 V",
+      "board_fraction": 0.0,
+      "mechanism": "conduction_typical_125c",
+      "ref": "Q2",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 1.0,
+      "source": "Infineon Rev2 p5 Table4; cases.csv",
+      "watts": 29.3664037
+    },
+    {
+      "basis": "I_tank,rms\u00b2/2 \u00d7 linear interpolated 25-to-150 C typical RDS(on), VGS=10 V",
+      "board_fraction": 0.0,
+      "mechanism": "conduction_typical_125c",
+      "ref": "Q3",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 1.0,
+      "source": "Infineon Rev2 p5 Table4; cases.csv",
+      "watts": 29.3664037
+    },
+    {
+      "basis": "I_tank,rms\u00b2/2 \u00d7 linear interpolated 25-to-150 C typical RDS(on), VGS=10 V",
+      "board_fraction": 0.0,
+      "mechanism": "conduction_typical_125c",
+      "ref": "Q5",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 1.0,
+      "source": "Infineon Rev2 p5 Table4; cases.csv",
+      "watts": 29.3664037
+    },
+    {
+      "basis": "I_tank,rms\u00b2/2 \u00d7 linear interpolated 25-to-150 C typical RDS(on), VGS=10 V",
+      "board_fraction": 0.0,
+      "mechanism": "conduction_typical_125c",
+      "ref": "Q6",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 1.0,
+      "source": "Infineon Rev2 p5 Table4; cases.csv",
+      "watts": 29.3664037
+    },
+    {
+      "basis": "1 outgoing HS+1 LS per event, shared by 2 of each device; A1 heat only for 1-37 A events; low bus uses 120 V proxy",
+      "board_fraction": 0.0,
+      "mechanism": "turnoff_covered_events_27c_model",
+      "ref": "Q2",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 1.0,
+      "source": "A1 turnoff_energy.csv; A5 switching-events.csv",
+      "watts": 0.05893838
+    },
+    {
+      "basis": "387 of 532 events outside 1-37 A model domain",
+      "board_fraction": 0.0,
+      "mechanism": "turnoff_uncovered_events",
+      "ref": "Q2",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 1.0,
+      "source": "A1 turnoff_energy.csv; A5 switching-events.csv",
+      "watts": null
+    },
+    {
+      "basis": "A5 ideal bridge omits dead-time diode current and Qrr; cannot assign thermal watts",
+      "board_fraction": 0.0,
+      "mechanism": "body_diode_deadtime",
+      "ref": "Q2",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 1.0,
+      "source": "ROUND-3.md A5.2",
+      "watts": null
+    },
+    {
+      "basis": "Requires A5 ZVS map and Eoss(V)/integrated Coss; Co(tr) is time-equivalent only",
+      "board_fraction": 0.0,
+      "mechanism": "lost_zvs_turnon",
+      "ref": "Q2",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 1.0,
+      "source": "Infineon Rev2 p5 Table5; ROUND-3.md B4",
+      "watts": null
+    },
+    {
+      "basis": "1 outgoing HS+1 LS per event, shared by 2 of each device; A1 heat only for 1-37 A events; low bus uses 120 V proxy",
+      "board_fraction": 0.0,
+      "mechanism": "turnoff_covered_events_27c_model",
+      "ref": "Q3",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 1.0,
+      "source": "A1 turnoff_energy.csv; A5 switching-events.csv",
+      "watts": 0.0757204
+    },
+    {
+      "basis": "387 of 532 events outside 1-37 A model domain",
+      "board_fraction": 0.0,
+      "mechanism": "turnoff_uncovered_events",
+      "ref": "Q3",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 1.0,
+      "source": "A1 turnoff_energy.csv; A5 switching-events.csv",
+      "watts": null
+    },
+    {
+      "basis": "A5 ideal bridge omits dead-time diode current and Qrr; cannot assign thermal watts",
+      "board_fraction": 0.0,
+      "mechanism": "body_diode_deadtime",
+      "ref": "Q3",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 1.0,
+      "source": "ROUND-3.md A5.2",
+      "watts": null
+    },
+    {
+      "basis": "Requires A5 ZVS map and Eoss(V)/integrated Coss; Co(tr) is time-equivalent only",
+      "board_fraction": 0.0,
+      "mechanism": "lost_zvs_turnon",
+      "ref": "Q3",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 1.0,
+      "source": "Infineon Rev2 p5 Table5; ROUND-3.md B4",
+      "watts": null
+    },
+    {
+      "basis": "1 outgoing HS+1 LS per event, shared by 2 of each device; A1 heat only for 1-37 A events; low bus uses 120 V proxy",
+      "board_fraction": 0.0,
+      "mechanism": "turnoff_covered_events_27c_model",
+      "ref": "Q5",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 1.0,
+      "source": "A1 turnoff_energy.csv; A5 switching-events.csv",
+      "watts": 0.05893838
+    },
+    {
+      "basis": "387 of 532 events outside 1-37 A model domain",
+      "board_fraction": 0.0,
+      "mechanism": "turnoff_uncovered_events",
+      "ref": "Q5",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 1.0,
+      "source": "A1 turnoff_energy.csv; A5 switching-events.csv",
+      "watts": null
+    },
+    {
+      "basis": "A5 ideal bridge omits dead-time diode current and Qrr; cannot assign thermal watts",
+      "board_fraction": 0.0,
+      "mechanism": "body_diode_deadtime",
+      "ref": "Q5",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 1.0,
+      "source": "ROUND-3.md A5.2",
+      "watts": null
+    },
+    {
+      "basis": "Requires A5 ZVS map and Eoss(V)/integrated Coss; Co(tr) is time-equivalent only",
+      "board_fraction": 0.0,
+      "mechanism": "lost_zvs_turnon",
+      "ref": "Q5",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 1.0,
+      "source": "Infineon Rev2 p5 Table5; ROUND-3.md B4",
+      "watts": null
+    },
+    {
+      "basis": "1 outgoing HS+1 LS per event, shared by 2 of each device; A1 heat only for 1-37 A events; low bus uses 120 V proxy",
+      "board_fraction": 0.0,
+      "mechanism": "turnoff_covered_events_27c_model",
+      "ref": "Q6",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 1.0,
+      "source": "A1 turnoff_energy.csv; A5 switching-events.csv",
+      "watts": 0.0757204
+    },
+    {
+      "basis": "387 of 532 events outside 1-37 A model domain",
+      "board_fraction": 0.0,
+      "mechanism": "turnoff_uncovered_events",
+      "ref": "Q6",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 1.0,
+      "source": "A1 turnoff_energy.csv; A5 switching-events.csv",
+      "watts": null
+    },
+    {
+      "basis": "A5 ideal bridge omits dead-time diode current and Qrr; cannot assign thermal watts",
+      "board_fraction": 0.0,
+      "mechanism": "body_diode_deadtime",
+      "ref": "Q6",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 1.0,
+      "source": "ROUND-3.md A5.2",
+      "watts": null
+    },
+    {
+      "basis": "Requires A5 ZVS map and Eoss(V)/integrated Coss; Co(tr) is time-equivalent only",
+      "board_fraction": 0.0,
+      "mechanism": "lost_zvs_turnon",
+      "ref": "Q6",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 1.0,
+      "source": "Infineon Rev2 p5 Table5; ROUND-3.md B4",
+      "watts": null
+    },
+    {
+      "basis": "2\u00d71.05 V\u00d7E|Iin|, 15 A rms sinusoid; 1.05 V at IF=12.5 A/Tj25 only, not a waveform bound",
+      "board_fraction": 0.0,
+      "mechanism": "forward_sinusoidal_screen",
+      "ref": "BR1",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 1.0,
+      "source": "Diodes GBJ Rev11 p2; 00-MASTER-PLAN.md envelope",
+      "watts": 28.35996396
+    },
+    {
+      "basis": "No reverse-recovery loss estimate for unfiltered input bridge",
+      "board_fraction": 0.0,
+      "mechanism": "reverse_recovery",
+      "ref": "BR1",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 1.0,
+      "source": "GBJ datasheet",
+      "watts": null
+    },
+    {
+      "basis": "I_R5,rms\u00b2 \u00d7 1m\u03a9; stress uses +1% tolerance and +50 C\u00d7250ppm/C",
+      "board_fraction": 1.0,
+      "mechanism": "resistive",
+      "ref": "R5",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 0.0,
+      "source": "A5 shunt-grid.csv; Vishay WSK2512 Rev2023 p1-2",
+      "watts": 2.04290563
+    },
+    {
+      "basis": "I_rms\u00b2 \u00d7 0.006\u03a9 typical at 100 kHz; actual 30-60 kHz/hot ESR unknown",
+      "board_fraction": 1.0,
+      "mechanism": "esr_typical_100khz_screen",
+      "ref": "C21",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 0.0,
+      "source": "CDE 942C catalog p3; A5 cases.csv",
+      "watts": 1.98949349
+    },
+    {
+      "basis": "I_rms\u00b2 \u00d7 0.006\u03a9 typical at 100 kHz; actual 30-60 kHz/hot ESR unknown",
+      "board_fraction": 1.0,
+      "mechanism": "esr_typical_100khz_screen",
+      "ref": "C22",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 0.0,
+      "source": "CDE 942C catalog p3; A5 cases.csv",
+      "watts": 1.98949349
+    },
+    {
+      "basis": "I_rms\u00b2 \u00d7 0.005\u03a9 typical at 100 kHz; actual 30-60 kHz/hot ESR unknown",
+      "board_fraction": 1.0,
+      "mechanism": "esr_typical_100khz_screen",
+      "ref": "C23",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 0.0,
+      "source": "CDE 942C catalog p3; A5 cases.csv",
+      "watts": 0.34254364
+    },
+    {
+      "basis": "A5 average V\u00b2/R from ideal tank waveform; 470k\u03a9 per resistor",
+      "board_fraction": 1.0,
+      "mechanism": "bleed",
+      "ref": "R22",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 0.0,
+      "source": "A5 cases.csv; frozen/default.csv",
+      "watts": 0.02263045
+    },
+    {
+      "basis": "A5 average V\u00b2/R from ideal tank waveform; 470k\u03a9 per resistor",
+      "board_fraction": 1.0,
+      "mechanism": "bleed",
+      "ref": "R23",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 0.0,
+      "source": "A5 cases.csv; frozen/default.csv",
+      "watts": 0.02263045
+    },
+    {
+      "basis": "A5 average V\u00b2/R from ideal tank waveform; 470k\u03a9 per resistor",
+      "board_fraction": 1.0,
+      "mechanism": "bleed",
+      "ref": "R24",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 0.0,
+      "source": "A5 cases.csv; frozen/default.csv",
+      "watts": 0.02263045
+    },
+    {
+      "basis": "A5 average V\u00b2/R from ideal tank waveform; 470k\u03a9 per resistor",
+      "board_fraction": 1.0,
+      "mechanism": "bleed",
+      "ref": "R25",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 0.0,
+      "source": "A5 cases.csv; frozen/default.csv",
+      "watts": 0.02263045
+    },
+    {
+      "basis": "(tank rms/100)\u00b2\u00d71.5\u03a9; ideal CT ratio, no saturation/core heat",
+      "board_fraction": 1.0,
+      "mechanism": "ct_burden_ideal",
+      "ref": "R39",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 0.0,
+      "source": "A5 cases.csv; ROUND-3.md A5; frozen/default.csv",
+      "watts": 0.29965718
+    },
+    {
+      "basis": "CT winding/core loss requires burden waveform and vendor winding data",
+      "board_fraction": null,
+      "mechanism": "core_and_winding",
+      "ref": "T1",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": null,
+      "source": "CST3015 datasheet needed",
+      "watts": null
+    },
+    {
+      "basis": "two windings \u00d7 4.5m\u03a9 typical \u00d7 15A\u00b2; AC/thermal copper rise excluded",
+      "board_fraction": 1.0,
+      "mechanism": "dc_copper_typical",
+      "ref": "L1",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 0.0,
+      "source": "TDK B82726S22x3 May2026 p4; validation-results/07-conducted-emi/sources",
+      "watts": 2.025
+    },
+    {
+      "basis": "Qg234nC applies 0-10V; 15V gate swing and resistor/driver division unavailable",
+      "board_fraction": 1.0,
+      "mechanism": "gate_resistor",
+      "ref": "R10",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 0.0,
+      "source": "Infineon Rev2 p5 Table6; frozen board",
+      "watts": null
+    },
+    {
+      "basis": "Qg234nC applies 0-10V; 15V gate swing and resistor/driver division unavailable",
+      "board_fraction": 1.0,
+      "mechanism": "gate_resistor",
+      "ref": "R12",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 0.0,
+      "source": "Infineon Rev2 p5 Table6; frozen board",
+      "watts": null
+    },
+    {
+      "basis": "Qg234nC applies 0-10V; 15V gate swing and resistor/driver division unavailable",
+      "board_fraction": 1.0,
+      "mechanism": "gate_resistor",
+      "ref": "R18",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 0.0,
+      "source": "Infineon Rev2 p5 Table6; frozen board",
+      "watts": null
+    },
+    {
+      "basis": "Qg234nC applies 0-10V; 15V gate swing and resistor/driver division unavailable",
+      "board_fraction": 1.0,
+      "mechanism": "gate_resistor",
+      "ref": "R20",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 0.0,
+      "source": "Infineon Rev2 p5 Table6; frozen board",
+      "watts": null
+    },
+    {
+      "basis": "driver output plus quiescent heat; 15V charge and exact loads unknown",
+      "board_fraction": 1.0,
+      "mechanism": "gate_driver",
+      "ref": "U1",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 0.0,
+      "source": "Infineon Rev2 p5 Table6; UCC21550 data needed",
+      "watts": null
+    },
+    {
+      "basis": "driver output plus quiescent heat; 15V charge and exact loads unknown",
+      "board_fraction": 1.0,
+      "mechanism": "gate_driver",
+      "ref": "U2",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 0.0,
+      "source": "Infineon Rev2 p5 Table6; UCC21550 data needed",
+      "watts": null
+    },
+    {
+      "basis": "15V\u00d73.8mA typical input bias, excludes (15-5)V\u00d7Ihot5",
+      "board_fraction": 1.0,
+      "mechanism": "ldo_quiescent_only",
+      "ref": "U3",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 0.0,
+      "source": "onsemi MC78L00A p3/5; hot5 load missing",
+      "watts": 0.057
+    },
+    {
+      "basis": "10V\u00d7measured HOT5 output current; no full native-15 current budget",
+      "board_fraction": 1.0,
+      "mechanism": "ldo_load",
+      "ref": "U3",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 0.0,
+      "source": "MC78L00A; HOT5 measurement required",
+      "watts": null
+    },
+    {
+      "basis": "Pout\u00d7(1/0.84-1) is rated-load/230Vac/25C typical only; actual load unknown",
+      "board_fraction": 1.0,
+      "mechanism": "conversion_loss",
+      "ref": "PS1",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 0.0,
+      "source": "Mean Well IRM-20 2025-11-21 p2 or IRM-05 2025-08-08 p2",
+      "watts": null
+    },
+    {
+      "basis": "Pout\u00d7(1/0.75-1) is rated-load/230Vac/25C typical only; actual load unknown",
+      "board_fraction": 1.0,
+      "mechanism": "conversion_loss",
+      "ref": "PS2",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 0.0,
+      "source": "Mean Well IRM-20 2025-11-21 p2 or IRM-05 2025-08-08 p2",
+      "watts": null
+    },
+    {
+      "basis": "actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim",
+      "board_fraction": 1.0,
+      "mechanism": "secondary_power_part_unquantified",
+      "ref": "C1",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 0.0,
+      "source": "frozen/default.csv; board-parts.json; electrical waveforms needed",
+      "watts": null
+    },
+    {
+      "basis": "actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim",
+      "board_fraction": 1.0,
+      "mechanism": "secondary_power_part_unquantified",
+      "ref": "C2",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 0.0,
+      "source": "frozen/default.csv; board-parts.json; electrical waveforms needed",
+      "watts": null
+    },
+    {
+      "basis": "actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim",
+      "board_fraction": 1.0,
+      "mechanism": "secondary_power_part_unquantified",
+      "ref": "C5",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 0.0,
+      "source": "frozen/default.csv; board-parts.json; electrical waveforms needed",
+      "watts": null
+    },
+    {
+      "basis": "actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim",
+      "board_fraction": 1.0,
+      "mechanism": "secondary_power_part_unquantified",
+      "ref": "C6",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 0.0,
+      "source": "frozen/default.csv; board-parts.json; electrical waveforms needed",
+      "watts": null
+    },
+    {
+      "basis": "actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim",
+      "board_fraction": 1.0,
+      "mechanism": "secondary_power_part_unquantified",
+      "ref": "C12",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 0.0,
+      "source": "frozen/default.csv; board-parts.json; electrical waveforms needed",
+      "watts": null
+    },
+    {
+      "basis": "actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim",
+      "board_fraction": 1.0,
+      "mechanism": "secondary_power_part_unquantified",
+      "ref": "C13",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 0.0,
+      "source": "frozen/default.csv; board-parts.json; electrical waveforms needed",
+      "watts": null
+    },
+    {
+      "basis": "actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim",
+      "board_fraction": 1.0,
+      "mechanism": "secondary_power_part_unquantified",
+      "ref": "C19",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 0.0,
+      "source": "frozen/default.csv; board-parts.json; electrical waveforms needed",
+      "watts": null
+    },
+    {
+      "basis": "actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim",
+      "board_fraction": 1.0,
+      "mechanism": "secondary_power_part_unquantified",
+      "ref": "C20",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 0.0,
+      "source": "frozen/default.csv; board-parts.json; electrical waveforms needed",
+      "watts": null
+    },
+    {
+      "basis": "actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim",
+      "board_fraction": 1.0,
+      "mechanism": "secondary_power_part_unquantified",
+      "ref": "C38",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 0.0,
+      "source": "frozen/default.csv; board-parts.json; electrical waveforms needed",
+      "watts": null
+    },
+    {
+      "basis": "actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim",
+      "board_fraction": 1.0,
+      "mechanism": "secondary_power_part_unquantified",
+      "ref": "C39",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 0.0,
+      "source": "frozen/default.csv; board-parts.json; electrical waveforms needed",
+      "watts": null
+    },
+    {
+      "basis": "actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim",
+      "board_fraction": 1.0,
+      "mechanism": "secondary_power_part_unquantified",
+      "ref": "C40",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 0.0,
+      "source": "frozen/default.csv; board-parts.json; electrical waveforms needed",
+      "watts": null
+    },
+    {
+      "basis": "actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim",
+      "board_fraction": 1.0,
+      "mechanism": "secondary_power_part_unquantified",
+      "ref": "C41",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 0.0,
+      "source": "frozen/default.csv; board-parts.json; electrical waveforms needed",
+      "watts": null
+    },
+    {
+      "basis": "actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim",
+      "board_fraction": 1.0,
+      "mechanism": "secondary_power_part_unquantified",
+      "ref": "R26",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 0.0,
+      "source": "frozen/default.csv; board-parts.json; electrical waveforms needed",
+      "watts": null
+    },
+    {
+      "basis": "actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim",
+      "board_fraction": 1.0,
+      "mechanism": "secondary_power_part_unquantified",
+      "ref": "R27",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 0.0,
+      "source": "frozen/default.csv; board-parts.json; electrical waveforms needed",
+      "watts": null
+    },
+    {
+      "basis": "actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim",
+      "board_fraction": 1.0,
+      "mechanism": "secondary_power_part_unquantified",
+      "ref": "R28",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 0.0,
+      "source": "frozen/default.csv; board-parts.json; electrical waveforms needed",
+      "watts": null
+    },
+    {
+      "basis": "actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim",
+      "board_fraction": 1.0,
+      "mechanism": "secondary_power_part_unquantified",
+      "ref": "R29",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 0.0,
+      "source": "frozen/default.csv; board-parts.json; electrical waveforms needed",
+      "watts": null
+    },
+    {
+      "basis": "actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim",
+      "board_fraction": 1.0,
+      "mechanism": "secondary_power_part_unquantified",
+      "ref": "D3",
+      "scenario": "high_current_unprotected_stress",
+      "sink_fraction": 0.0,
+      "source": "frozen/default.csv; board-parts.json; electrical waveforms needed",
+      "watts": null
+    }
+  ],
+  "status": "partial conditional calculations, unknown entries retained as null",
+  "summaries": {
+    "high_current_unprotected_stress": {
+      "bridge_forward_screen_w": 28.359963958948846,
+      "frequency_hz": 31924.588804820854,
+      "gate_0_to_10v_test_source_w_per_device": 0.0747035378032808,
+      "mos_conduction_typical_125c_w_per_mos": 29.366403703308002,
+      "r5_crest_interval_rms_a": 61.12692731738384,
+      "r5_rating_screen": "FAIL",
+      "r5_rating_w_at_70c": 1.0,
+      "r5_w": 2.042905628992806,
+      "run_id": "offset_or_small_pan-low-108v-1710w",
+      "switching_covered_events": 145,
+      "switching_events": 532,
+      "switching_low_bus_proxy_events": 145,
+      "switching_out_of_domain_events": 387,
+      "switching_partial_w_per_mos_hs": 0.05893838393046842,
+      "switching_partial_w_per_mos_ls": 0.07572040102738442,
+      "tank_peak_a": 89.78643,
+      "tank_rms_a": 44.6958
+    },
+    "nominal_example": {
+      "bridge_forward_screen_w": 28.359963958948846,
+      "frequency_hz": 32773.29639191693,
+      "gate_0_to_10v_test_source_w_per_device": 0.07668951355708561,
+      "mos_conduction_typical_125c_w_per_mos": 6.775241553612,
+      "r5_crest_interval_rms_a": 29.34787680242323,
+      "r5_rating_screen": "conditional below rating; board temperature unknown",
+      "r5_rating_w_at_70c": 1.0,
+      "r5_w": 0.4608993481938338,
+      "run_id": "cast_iron-high-120v-1710w",
+      "switching_covered_events": 535,
+      "switching_events": 546,
+      "switching_low_bus_proxy_events": 262,
+      "switching_out_of_domain_events": 11,
+      "switching_partial_w_per_mos_hs": 0.25618742762319335,
+      "switching_partial_w_per_mos_ls": 0.32922782357748104,
+      "tank_peak_a": 41.27881,
+      "tank_rms_a": 21.4686
+    }
+  }
+}

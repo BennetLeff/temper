@@ -1,0 +1,37 @@
+{
+  "source_commit": "36ba41f249eea0b9c78c9d7bdd6e38ea04bb37f9",
+  "board": "native-13/section.kicad_pcb",
+  "board_sha256": "8056fc952675bc6987bcc9d32c12a88eebc4cec9bc3696f8cbd4876700a39129",
+  "files": {
+    "zapote/power-stage-120v/native-13/section.kicad_pcb": "8056fc952675bc6987bcc9d32c12a88eebc4cec9bc3696f8cbd4876700a39129",
+    "zapote/power-stage-120v/stackup.json": "4022df3f3b96530ece8727e96e523691352234c4ed0de00f0cb93227cc89a37d",
+    "zapote/power-stage-120v/frozen/default.net": "3af92998c059eb7ef3ba4940384230a1c9cf4dfbf5a822a89ff2453e36738556",
+    "zapote/power-stage-120v/frozen/default.csv": "e85486fde382f61f8f675caab3d28c5450da4b8a9844fbe91050e12eaf1263e4",
+    "zapote/power-stage-120v/frozen/resolved-components.json": "74591f86137379f402894ce815387a0a1dd1ad4a5479dfbc4b74f3bf56d6c8ef",
+    "zapote/power-stage-120v/validation-plan/SIMULATION-RUNBOOK.md": "c5f9e87f9ec3c44dbb5f296554206ed6d07141ff6f11ce691ea9682a35ef0ed3",
+    "zapote/power-stage-120v/validation-plan/sim-kit/01-switching/leg.cir": "cd9285a97f061724fd259a80fd54e3bafe95eb3f47499198120ba38073eaae06",
+    "zapote/power-stage-120v/validation-plan/sim-kit/02-chain/ct_frontend.cir": "032cc965b17551dcf70a5e263c9b77e8b23c0bf6c598b99176559aef133a303d",
+    "zapote/power-stage-120v/validation-plan/sim-kit/02-chain/ocp_frontend.cir": "2244b5bb243540afd90bfee8f148d0e6bd291827df7aacfaa0f59665cee48bd9",
+    "zapote/power-stage-120v/validation-plan/sim-kit/05-tank/tank.cir": "53d75bfbe224a85d7bb6f43a4e555e2054c9faf81dab1b6fd75ff101e507b8e9",
+    "zapote/power-stage-120v/validation-plan/sim-kit/07-emi/emi_transfer.cir": "6cf73924c30f57bd96bac61bd879112861b0fd7b32eb26a38bf9f6b3f1c93ef5",
+    "zapote/power-stage-120v/validation-plan/sim-kit/common/options.inc": "ae752d460d50fdbbcaaf03b29871b3b039cf27f018707efe4aa50d0fc3529330",
+    "zapote/power-stage-120v/validation-plan/sim-kit/common/run_ngspice.py": "437c450069ac522dc78326c84116916073bb9303df8716673d2b1ad3cdb5f534",
+    "zapote/power-stage-120v/validation-plan/sim-kit/04-current/sheet_solver.py": "e6666e2d763fee3af53a82c5f4bd7c495a313c7e541c907727fdedfff2fa3c00",
+    "zapote/power-stage-120v/validation-plan/sim-kit/smoke_test.py": "5da4f157c5d8e9395aaece52e5299bbe6e6220af69b66ad47d3f48622c573b1a"
+  },
+  "vendor_hashes": {
+    "cfd7-650.zip": "5a6341084202debb0f8f230b8809c090434ea9526c8e0defe3d2e07a832ff48d",
+    "IFX_CFD7_650V.lib": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b"
+  },
+  "ngspice_version": "******\n** ngspice-45.2 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2025, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n******\n",
+  "model": "gpt-6-sol",
+  "reasoning_effort": "xhigh",
+  "smoke_gate": "16/16 PASS; see smoke-test.txt",
+  "tasks": [
+    "01",
+    "02",
+    "04",
+    "05",
+    "07"
+  ]
+}

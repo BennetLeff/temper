@@ -1,0 +1,14 @@
+   Compiling zapote-drc v0.1.0 (/Users/bennet/Desktop/temper/worktrees/layout-quality/zapote/packages/zapote-drc)
+   Compiling zapote-thermal v0.1.0 (/Users/bennet/Desktop/temper/worktrees/layout-quality/zapote/packages/zapote-thermal)
+   Compiling zapote-harness v0.1.0 (/Users/bennet/Desktop/temper/worktrees/layout-quality/zapote/packages/zapote-harness)
+    Finished `release` profile [optimized] target(s) in 41.77s
+     Running tests/layout_native_cli.rs (/Users/bennet/Desktop/temper/target-shared/release/deps/layout_native_cli-76b8c0672df4a1b7)
+
+running 3 tests
+test native_options_fail_closed_without_launching_kicad ... ok
+Native edit proof retained at /var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/zapote-native-layout-proof-37509
+test native_width_edit_changes_bound_report_and_preserves_source ... ok
+Native current edit proof retained at /var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/zapote-native-current-proof-37509
+test native_current_changes_with_stackup_and_reports_removed_copper_as_missing ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 26.56s
