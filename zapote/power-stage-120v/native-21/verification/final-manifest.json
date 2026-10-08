@@ -93,5 +93,10 @@
   "with_lcsc": 87,
   "consign": 5,
   "evidence": "validation-results/08-manufacturing-package/native-21/sourcing"
+ },
+ "d5_audit": {
+  "pcb": "PASS (HOT-SELV 8.047 mm, HOT-PE 8.507 mm, 12 crossing parts >= 8.1 mm)",
+  "evidence": "verification/D5-AUDIT.md",
+  "open": "fixings (no mounting holes), CTI, PD3, IEC 60664-4, hipot"
  }
 }

@@ -1,0 +1,261 @@
+{
+ "floor_mm": 8.0,
+ "copper": {
+  "HOT-SELV": {
+   "min_mm": 8.047,
+   "pass": true,
+   "between": [
+    "zone n_ha",
+    "via leg_a-dis"
+   ],
+   "at_mm": [
+    67.46,
+    42.32
+   ]
+  },
+  "HOT-PE": {
+   "min_mm": 8.507,
+   "pass": true,
+   "between": [
+    "pad l_filt C3",
+    "pad pe C3"
+   ],
+   "at_mm": [
+    225.0,
+    102.8
+   ]
+  }
+ },
+ "barrier_crossing_parts": [
+  {
+   "ref": "C3",
+   "mpn": "DE1E3RA222MA4BP01F",
+   "land_gap_mm": 8.507,
+   "board_pass": true,
+   "package": {
+    "src": "NOT IN TABLE: add the datasheet distances"
+   }
+  },
+  {
+   "ref": "C4",
+   "mpn": "DE1E3RA222MA4BP01F",
+   "land_gap_mm": 8.507,
+   "board_pass": true,
+   "package": {
+    "src": "NOT IN TABLE: add the datasheet distances"
+   }
+  },
+  {
+   "ref": "PS1",
+   "mpn": "IRM-20-15",
+   "land_gap_mm": 42.009,
+   "board_pass": true,
+   "package": {
+    "clr": null,
+    "cpg": null,
+    "src": "Mean Well IRM-20 (input/output pin span only)",
+    "rating": "module approval; PCB pin span checked here"
+   }
+  },
+  {
+   "ref": "T1",
+   "mpn": "CST3015-100ED",
+   "land_gap_mm": 18.5,
+   "board_pass": true,
+   "package": {
+    "clr": 8.0,
+    "cpg": 8.0,
+    "src": "Coilcraft CST3015 datasheet (\u22658 mm spacing, 5 kVrms test)",
+    "rating": "no CTI/PD certificate"
+   }
+  },
+  {
+   "ref": "U1",
+   "mpn": "UCC21550BDWKR",
+   "land_gap_mm": 8.1,
+   "board_pass": true,
+   "package": {
+    "clr": 8.0,
+    "cpg": 8.0,
+    "src": "TI UCC21550 datasheet, DWK insulation table",
+    "rating": "reinforced"
+   }
+  },
+  {
+   "ref": "U2",
+   "mpn": "UCC21550BDWKR",
+   "land_gap_mm": 8.1,
+   "board_pass": true,
+   "package": {
+    "clr": 8.0,
+    "cpg": 8.0,
+    "src": "TI UCC21550 datasheet, DWK insulation table",
+    "rating": "reinforced"
+   }
+  },
+  {
+   "ref": "U32",
+   "mpn": "ISO7710DWR",
+   "land_gap_mm": 8.1,
+   "board_pass": true,
+   "package": {
+    "clr": 8.0,
+    "cpg": 8.0,
+    "src": "TI SLLSER9E p.8 (DW-16)",
+    "rating": "reinforced (VDE 0884-17)"
+   }
+  },
+  {
+   "ref": "U33",
+   "mpn": "ISO7710DWR",
+   "land_gap_mm": 8.1,
+   "board_pass": true,
+   "package": {
+    "clr": 8.0,
+    "cpg": 8.0,
+    "src": "TI SLLSER9E p.8 (DW-16)",
+    "rating": "reinforced (VDE 0884-17)"
+   }
+  },
+  {
+   "ref": "U34",
+   "mpn": "ISO7710DWR",
+   "land_gap_mm": 8.1,
+   "board_pass": true,
+   "package": {
+    "clr": 8.0,
+    "cpg": 8.0,
+    "src": "TI SLLSER9E p.8 (DW-16)",
+    "rating": "reinforced (VDE 0884-17)"
+   }
+  },
+  {
+   "ref": "U36",
+   "mpn": "VOL628A-3X001T",
+   "land_gap_mm": 8.2,
+   "board_pass": true,
+   "package": {
+    "clr": 8.0,
+    "cpg": 8.0,
+    "src": "Vishay doc 82401 rev 1.9 p.4",
+    "rating": "option 1 (VDE)"
+   }
+  },
+  {
+   "ref": "U4",
+   "mpn": "AMC1311BDWVR",
+   "land_gap_mm": 8.85,
+   "board_pass": true,
+   "package": {
+    "clr": 8.5,
+    "cpg": 8.5,
+    "src": "TI AMC1311 datasheet, DWV insulation table",
+    "rating": "reinforced"
+   }
+  },
+  {
+   "ref": "U9",
+   "mpn": "ISO7710DWR",
+   "land_gap_mm": 8.1,
+   "board_pass": true,
+   "package": {
+    "clr": 8.0,
+    "cpg": 8.0,
+    "src": "TI SLLSER9E p.8 (DW-16)",
+    "rating": "reinforced (VDE 0884-17)"
+   }
+  }
+ ],
+ "npth_to_hot": [
+  {
+   "ref": "J2",
+   "at": [
+    132.0,
+    85.5
+   ],
+   "hot_mm": 0.0,
+   "role": "own hole of a HOT terminal",
+   "pass": true
+  },
+  {
+   "ref": "J5",
+   "at": [
+    132.0,
+    70.5
+   ],
+   "hot_mm": 0.0,
+   "role": "own hole of a HOT terminal",
+   "pass": true
+  },
+  {
+   "ref": "J10",
+   "at": [
+    143.0,
+    6.5
+   ],
+   "hot_mm": 0.0,
+   "role": "own hole of a HOT terminal",
+   "pass": true
+  },
+  {
+   "ref": "J8",
+   "at": [
+    143.0,
+    19.5
+   ],
+   "hot_mm": 0.0,
+   "role": "own hole of a HOT terminal",
+   "pass": true
+  },
+  {
+   "ref": "J4",
+   "at": [
+    31.5,
+    184.02
+   ],
+   "hot_mm": 65.15,
+   "role": "hardware",
+   "pass": true
+  },
+  {
+   "ref": "J4",
+   "at": [
+    58.5,
+    184.02
+   ],
+   "hot_mm": 64.51,
+   "role": "hardware",
+   "pass": true
+  },
+  {
+   "ref": "J7",
+   "at": [
+    130.0,
+    19.5
+   ],
+   "hot_mm": 0.0,
+   "role": "own hole of a HOT terminal",
+   "pass": true
+  },
+  {
+   "ref": "J9",
+   "at": [
+    130.0,
+    6.5
+   ],
+   "hot_mm": 0.0,
+   "role": "own hole of a HOT terminal",
+   "pass": true
+  }
+ ],
+ "board_fixings": "none: no native board has mounting holes; any metal fixing is chassis/PE and must be >= 8.0 mm from HOT and off SELV copper (see mounting-candidates.json)",
+ "open_for_lab": [
+  "laminate CTI >= 175 V (group IIIa) on the order: JLC question open (FAB-JLCPCB.md)",
+  "PD3 / material-group qualification of the package distances (TI tables state group I, PD2)",
+  "IEC 60664-4 high-frequency distances above 30 kHz (switching 33-40 kHz)",
+  "CST3015 CTI / PD certificate; IRM-20 internal insulation scope",
+  "heatsink insulators of the TO-247 tabs (HOT drain to chassis/PE heatsink): material and creepage",
+  "hipot / partial discharge on the assembled board"
+ ],
+ "verdict_pcb": true
+}
