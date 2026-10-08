@@ -164,8 +164,19 @@ impl P2Population {
         self.skipped.entry(rule.into()).or_default().push(id);
     }
     fn evaluated(&mut self, rule: &str, id: String) {
-        self.skipped.get_mut(rule).unwrap().retain(|v| v != &id);
+        // Candidates stay in `skipped` until `finish`; removing them here was
+        // quadratic in the number of hole pairs.
         self.evaluated.get_mut(rule).unwrap().push(id);
+    }
+    /// Drop every evaluated object from `skipped` (one pass per rule).
+    fn finish(mut self) -> Self {
+        for (rule, skipped) in self.skipped.iter_mut() {
+            if let Some(done) = self.evaluated.get(rule) {
+                let done: std::collections::HashSet<&String> = done.iter().collect();
+                skipped.retain(|id| !done.contains(id));
+            }
+        }
+        self
     }
     fn candidates(input: &ManufacturingInput) -> Self {
         let mut result = Self::default();
@@ -286,7 +297,7 @@ pub fn validate_with_population(input: &ManufacturingInput) -> (CheckReport, P2P
         ));
         return (
             CheckReport::from_findings(findings, checked, gaps),
-            population,
+            population.finish(),
         );
     }
     let mut world = Vec::new();
@@ -467,7 +478,7 @@ pub fn validate_with_population(input: &ManufacturingInput) -> (CheckReport, P2P
     }
     (
         CheckReport::from_findings(findings, checked, gaps),
-        population,
+        population.finish(),
     )
 }
 

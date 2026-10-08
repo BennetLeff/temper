@@ -187,3 +187,18 @@ fn limit_without_its_input_is_a_gap_not_a_pass() {
     let r = run(&v);
     assert!(r.findings.iter().any(|f| f.rule == "DRC.P2.DRILL_SIZE" && f.status == Status::Indeterminate && f.object == "V1"));
 }
+
+/// Any-board use means thousands of holes: population bookkeeping must not
+/// be quadratic in the number of candidate pairs (it was: retain() per pair).
+#[test]
+fn many_holes_complete_quickly() {
+    let mut v = base();
+    let holes: Vec<_> = (0..700)
+        .map(|i| json!({"id": format!("V{i}"), "center_mm": [1.0 + (i % 35) as f64 * 0.5, 1.0 + (i / 35) as f64 * 0.5], "diameter_mm": 0.2, "kind": "Via"}))
+        .collect();
+    v["holes"] = json!(holes);
+    let started = std::time::Instant::now();
+    let r = run(&v);
+    assert!(started.elapsed() < std::time::Duration::from_secs(10), "took {:?}", started.elapsed());
+    assert!(r.checked_rules.iter().any(|c| c == "DRC.P2.DRILL_CONFLICT"));
+}
