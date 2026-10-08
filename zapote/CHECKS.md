@@ -19,7 +19,7 @@ export KICAD_CLI="/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli"
 
 | Need | Command | Scope / result |
 |---|---|---|
-| Check any saved board | `make -C zapote check-board BOARD=/abs/board.kicad_pcb PROFILE=fab-profiles/jlcpcb-2layer-2oz.json` | Stackup, KiCad ERC/DRC with one finding per violation (type, location, items, actual/required), and fab-house DFM under a [vendor profile](fab-profiles/). Writes `report.json` and `summary.txt`; exit 0 pass, 1 fail, 2 indeterminate. |
+| Check any saved board | `make -C zapote check-board BOARD=/abs/board.kicad_pcb PROFILE=fab-profiles/jlcpcb-2layer-2oz.json` | Stackup, KiCad ERC/DRC with one finding per violation (type, location, items, actual/required), and fab-house DFM under a [vendor profile](fab-profiles/). Writes `report.json` and `summary.txt`; exit 0 pass, 1 fail, 2 indeterminate, 3 run error. Pass `ASSEMBLY=<process>` to state the assembly process; without it the result is at best indeterminate. |
 | Placement/routing feedback | `make -C zapote check-layout` | Saved copper, paths, pad entries, coupling geometry, courtyards and placement distances; [details](layout-quality/NATIVE.md). |
 | Current sharing, R and loss | `make -C zapote check-current` | Includes layout analysis plus the declared two-terminal DC experiments, layer samples and barrel currents; [assumptions and results](layout-quality/CURRENT.md). |
 | Maintained unit ERC/DRC and engineering checks | `make -C zapote check-units` | Runs the five units in [units.json](validation/units.json), retaining pass/fail/indeterminate results. The full 120 V board is not registered there. |

@@ -76,9 +76,9 @@ PROFILE ?= fab-profiles/jlcpcb-2layer-2oz.json
 CHECK_RUN_DIR ?= validation/runs/check-$(shell date -u +%Y%m%dT%H%M%SZ)
 .PHONY: check-board
 check-board:
-	@test -n "$(BOARD)" || { echo 'Usage: make -C zapote check-board BOARD=/abs/board.kicad_pcb [PROFILE=fab-profiles/...json] [SCHEMATIC=...]' >&2; exit 2; }
+	@test -n "$(BOARD)" || { echo 'Usage: make -C zapote check-board BOARD=/abs/board.kicad_pcb [PROFILE=fab-profiles/...json] [SCHEMATIC=...] [ASSEMBLY=reflow]' >&2; exit 2; }
 	@mkdir -p "$$(dirname "$(CHECK_RUN_DIR)")"
-	$(CARGO) run --release --quiet --locked --bin zapote-check -- --board "$(BOARD)" --profile "$(PROFILE)" --output "$(CHECK_RUN_DIR)" --kicad-cli "$(KICAD_CLI)" --python "$(KICAD_PYTHON)" $(if $(SCHEMATIC),--schematic "$(SCHEMATIC)")
+	$(CARGO) run --release --quiet --locked --bin zapote-check -- --board "$(BOARD)" --profile "$(PROFILE)" --output "$(CHECK_RUN_DIR)" --kicad-cli "$(KICAD_CLI)" --python "$(KICAD_PYTHON)" $(if $(SCHEMATIC),--schematic "$(SCHEMATIC)") $(if $(ASSEMBLY),--assembly "$(ASSEMBLY)")
 
 board-check:
 	@test -n "$(BOARD)" || { echo 'Usage: make -C zapote board-check BOARD=/absolute/path/to/board.kicad_pcb' >&2; exit 2; }

@@ -18,6 +18,10 @@ pub struct BoardCheck {
     /// Defaults to the board's sibling `.kicad_sch`.
     pub schematic: Option<PathBuf>,
     pub profile: PathBuf,
+    /// The assembly process the board is built for (e.g. "reflow"). Without
+    /// it the manufacturing report keeps an assembly gap, so the best
+    /// possible result is indeterminate (exit 2).
+    pub assembly: Option<String>,
     pub kicad_cli: PathBuf,
     pub python: PathBuf,
     /// Must not exist yet: evidence is never overwritten.
@@ -96,7 +100,13 @@ pub fn run(c: &BoardCheck) -> Result<BoardCheckReport, String> {
     let text = std::str::from_utf8(&bytes).map_err(|_| "KiCad board must be UTF-8".to_string())?;
     let stackup = zapote_drc::stackup::validate_board(text);
     let (native, commands) = runner::native_check(&schematic, &board, &c.output.join("native"), &c.kicad_cli)?;
-    let dfm = runner::dfm_check(&board, &c.output.join("manufacturing"), &c.python, Some(&c.profile))?;
+    let dfm = runner::dfm_check(
+        &board,
+        &c.output.join("manufacturing"),
+        &c.python,
+        Some(&c.profile),
+        c.assembly.as_deref(),
+    )?;
     if runner::digest(&fs::read(&board).map_err(|e| e.to_string())?) != runner::digest(&bytes) {
         return Err("board changed while it was being checked".into());
     }

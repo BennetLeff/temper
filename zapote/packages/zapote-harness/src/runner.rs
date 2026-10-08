@@ -391,7 +391,7 @@ fn manufacturing_run(
     python: &Path,
     native: &UnitNativeEvidence,
 ) -> Result<(CheckReport, String, zapote_drc::manufacturing::P2Population)> {
-    let dfm = dfm_check(&spec.board, out, python, spec.fab_profile.as_deref())?;
+    let dfm = dfm_check(&spec.board, out, python, spec.fab_profile.as_deref(), None)?;
     for (key, expected) in [
         ("footprints", native.components.len()),
         (
@@ -432,6 +432,7 @@ pub fn dfm_check(
     out: &Path,
     python: &Path,
     fab_profile: Option<&Path>,
+    assembly_process: Option<&str>,
 ) -> Result<DfmCheck> {
     fs::create_dir_all(out).map_err(|e| e.to_string())?;
     let extractor = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../validation/p2/extract.py");
@@ -479,6 +480,10 @@ pub fn dfm_check(
             return Err("fab profile changed during the manufacturing run".into());
         }
         input.limits = limits;
+    }
+    // Fab profiles never declare assembly; the caller states it explicitly.
+    if let Some(process) = assembly_process.filter(|p| !p.trim().is_empty()) {
+        input.limits.assembly_process = process.to_owned();
     }
     let (report, population) = zapote_drc::manufacturing::validate_with_population(&input);
     Ok(DfmCheck {

@@ -2,20 +2,23 @@
 //! violation) and fab-house DFM under a vendor profile.
 //!
 //! zapote-check --board B.kicad_pcb --profile P.json --output NEW_DIR
-//!              [--schematic S.kicad_sch] [--kicad-cli K] [--python KICAD_PY]
+//!              [--schematic S.kicad_sch] [--assembly PROCESS] [--kicad-cli K] [--python KICAD_PY]
 //!
-//! Exit 0 pass, 1 any failure, 2 indeterminate/missing input, 3 usage or run error.
+//! Exit 0 pass, 1 any failure, 2 indeterminate or missing input, 3 usage or
+//! run error (unreadable board/schematic, KiCad or extractor failure).
+//! Without --assembly the manufacturing report keeps an assembly gap, so 2 is
+//! the best possible result.
 use std::{collections::HashMap, env, path::PathBuf, process::ExitCode};
 use zapote_harness::board_check::{exit_code, run, summary, BoardCheck};
 
-const USAGE: &str = "usage: zapote-check --board B.kicad_pcb --profile P.json --output NEW_DIR [--schematic S.kicad_sch] [--kicad-cli K] [--python KICAD_PY]";
+const USAGE: &str = "usage: zapote-check --board B.kicad_pcb --profile P.json --output NEW_DIR [--schematic S.kicad_sch] [--assembly PROCESS] [--kicad-cli K] [--python KICAD_PY]";
 
 fn parse() -> Result<BoardCheck, String> {
     let mut args: HashMap<String, PathBuf> = HashMap::new();
     let mut it = env::args_os().skip(1);
     while let Some(flag) = it.next() {
         let flag = flag.to_string_lossy().into_owned();
-        if !["--board", "--profile", "--output", "--schematic", "--kicad-cli", "--python"].contains(&flag.as_str()) {
+        if !["--board", "--profile", "--output", "--schematic", "--assembly", "--kicad-cli", "--python"].contains(&flag.as_str()) {
             return Err(format!("unknown argument {flag}\n{USAGE}"));
         }
         let value = it.next().ok_or_else(|| format!("{flag} needs a value\n{USAGE}"))?;
@@ -33,6 +36,7 @@ fn parse() -> Result<BoardCheck, String> {
         profile: required("--profile")?,
         output: required("--output")?,
         schematic: args.get("--schematic").cloned(),
+        assembly: args.get("--assembly").map(|p| p.to_string_lossy().into_owned()),
         kicad_cli: tool("--kicad-cli", "KICAD_CLI", "kicad-cli"),
         python: tool("--python", "KICAD_PYTHON", "python3"),
     })

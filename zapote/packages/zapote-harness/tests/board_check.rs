@@ -66,6 +66,7 @@ fn live_check_of_the_120v_board_binds_inputs_and_locates_findings() {
         board: board.clone(),
         schematic: None,
         profile: root.join("fab-profiles/jlcpcb-4layer-2oz.json"),
+        assembly: Some("THT wave and hand solder".into()),
         kicad_cli: std::env::var_os("KICAD_CLI").expect("KICAD_CLI").into(),
         python: std::env::var_os("KICAD_PYTHON").expect("KICAD_PYTHON").into(),
         output: out.clone(),
@@ -75,6 +76,8 @@ fn live_check_of_the_120v_board_binds_inputs_and_locates_findings() {
         serde_json::from_slice(&std::fs::read(out.join("report.json")).unwrap()).unwrap();
     assert_eq!(saved["board_sha256"], zapote_harness::runner::digest(&std::fs::read(&board).unwrap()));
     assert_eq!(saved["profile"]["name"], "jlcpcb-4layer-2oz");
+    let dfm = &r.checks.iter().find(|c| c.name == "manufacturing").unwrap().report;
+    assert!(!dfm.coverage_gaps.iter().any(|g| g.contains("assembly process")), "{:?}", dfm.coverage_gaps);
     let names: Vec<_> = r.checks.iter().map(|c| c.name.as_str()).collect();
     assert_eq!(names, ["stackup", "native", "manufacturing"]);
     for c in &r.checks {

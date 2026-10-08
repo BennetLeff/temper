@@ -40,7 +40,7 @@
 **Decisions:**
 1. A profile's ring limit is the vendor's *absolute minimum*. The "recommended" figure is kept as a quote, not enforced.
 2. Via ring = (diameter − hole) / 2 ≥ 0.05 mm, derived from "0.1mm larger".
-3. Hole pairs: via/via uses the via rule (0.2 mm), pad/pad the pad rule (0.45 mm). A via/pad pair, which the vendor doesn't define, uses the via rule; this is recorded in the profile's `notes`.
+3. Hole pairs: via/via uses the via rule (0.2 mm); every other pair, including a via/pad pair the vendor doesn't define, uses the stricter pad rule (0.45 mm). This is recorded in the profile's `notes`.
 4. Track *spacing* stays with KiCad's native DRC (board rules). P2 adds a *minimum track width* check.
 
 ## Review focus
