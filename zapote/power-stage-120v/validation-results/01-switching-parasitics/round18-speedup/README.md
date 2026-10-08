@@ -7,7 +7,7 @@
 > chain's own logs, read passively. **Estimates are labelled.** No solve of
 > the live chain was touched; the recommendations are for the user to schedule.
 
-**STATUS OF THIS FILE: draft; sections marked PENDING wait for runs queued on the box.**
+**Status: battery 6 (§4.2, the causes of the remaining ~2000 iterations) was still running on the box at hand-back; results land in `~/temper-fem/speedup/logs/battery-b6.log`.**
 
 ## 0. Summary
 
@@ -256,7 +256,30 @@ install now** (round 17's lived in /tmp).
 - One useless 20,000-iteration run (the broken sA-e3 mesh) could not be stopped: the
   session's permission rules refuse `kill`.
 
-## 9. Recommendations, ranked — PENDING final numbers
+## 9. Recommendations, ranked
+
+1. **R1 `Linear System Scaling = False`** for every solve (no code change). Iterations to
+   1e-8: 4653 -> ~2050 on the board mesh at 2 ranks, 2.3x (measured); fixtures 2-2.5x.
+   Q1-Q3 re-qualified (§4.1). Confidence high. Optional on top: AMS alpha threshold 0.6
+   (-8 %, one measurement) and tol 1e-7 (-15 %, energy error 3.4e-6; mutuals unchecked).
+2. **R2 fine h = 1 mm only.** 2.27x on the chain (estimate), accuracy 0.10 % (round 17's
+   check, rerun). Confidence high.
+3. **R3 memory guard** on A21 fine (56 GB): the 0.35 mm A21 fine case is ~71 GB (estimate)
+   and does not fit by any solver setting tested (GMRES(30) -10.7 %, scaling off 0 %,
+   VTU 0 %). User options: 128 GB RAM; A21 fine at 0.45 mm (~51 GB est.); a swap file
+   (untested); or offset transfer (1.05 % error).
+4. **R4 Mac** takes B21's coarse corrections (~12 h off the remote queue, estimate;
+   needs an Elmer build on the Mac first).
+5. **Whole-machine scaling test** (`scripts/scaling_test.sh`) before betting on
+   concurrent ports: one near-idle measurement says 12 ranks are only 1.3x faster than 2.
+Combined R1 x R2: chain ~10.6 days (current, estimate) -> ~2 days (estimate:
+113 h / 2.3 on the 98-99 % Krylov share).
+
+**Current chain:** stop it at the next case boundary after the coarse corrections at
+the latest, and certainly before `campA21` fine starts (predicted OOM of the whole box).
+Stopping now (kill only the `chain_n21.sh` bash; the running case finishes) and
+relaunching as `chain_n21_v2.sh` saves the most: every remaining coarse case runs ~2.3x
+faster and the finished ones are reused.
 
 ## Files
 
