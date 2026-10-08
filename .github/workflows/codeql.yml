@@ -54,10 +54,7 @@ on:
     paths:
       - 'firmware/**'                 # c-cpp
       - 'packages/**'                 # rust + python
-      - 'scripts/**'                  # python
-      - 'tools/**'                    # python
-      - 'simulation/**'               # python
-      - 'elec/**'                     # python
+      - 'zapote/**'                   # rust + python
       - '.github/workflows/**'        # actions
       - '.github/actions/**'          # actions
   schedule:

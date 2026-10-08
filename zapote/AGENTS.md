@@ -5,8 +5,9 @@ Zapote is a project boundary inside Temper, not an isolated checkout.
 - Start check discovery at [CHECKS.md](CHECKS.md) or `make -C zapote help`.
   It links actual commands, Rust owners, evidence, model gaps and the CI checkpoint.
   Consult the linked integration audit before assuming a kernel is executed.
-- Keep Temper's product sources in place: `pcb/`, `elec/`, `firmware/`,
-  `simulation/`, `components/`, and `datasheets/` remain shared inputs.
+- Shared inputs outside zapote are `firmware/`, `components/`, `datasheets/` and the
+  design-bundle crates in `packages/`. The legacy board (`pcb/`, `elec/`) and placer were
+  removed on 2026-10-08 (tag `archive/temper-legacy-2026-10-08`).
   Existing packages and harness code are donors: copy needed Rust code and
   tests into `zapote/packages/` with the policy in `ARCHITECTURE.md`.
   Do not retain runtime dependencies on donor packages.

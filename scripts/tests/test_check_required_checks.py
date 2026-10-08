@@ -424,24 +424,6 @@ def test_run_skips_api_check_poll_for_irrelevant_paths() -> None:
     assert _run(manifest(), FakeApi(), "BennetLeff/temper", 1, "abc123") == 0
 
 
-def test_workflow_trigger_lists_match_manifest() -> None:
-    root = Path(__file__).resolve().parents[2]
-    workflow = root / ".github/workflows/python-tests.yml"
-    configured = load_manifest(root / ".github/required-checks.json")
-    trigger_paths = load_workflow_trigger_paths(workflow)
-    assert trigger_paths[0] == trigger_paths[1] == configured.trigger_paths
-
-
-def test_orchestration_changes_run_rust_checks() -> None:
-    root = Path(__file__).resolve().parents[2]
-    configured = load_manifest(root / ".github/required-checks.json")
-    assert job_should_run(
-        "Rust Checks (cargo check + clippy)",
-        ("packages/temper-orchestration/tests/compile_fail.rs",),
-        configured,
-    )
-
-
 def test_manifest_validator_rejects_drift(tmp_path: Path) -> None:
     workflow = tmp_path / "python-tests.yml"
     workflow.write_text(
@@ -896,3 +878,23 @@ def test_queued_check_run_still_counts_as_waiting() -> None:
 
     runs = (run("Core Tests"), queued_run("Type Check", run_id=2))
     assert _any_still_queueing(("Core Tests", "Type Check"), runs) is True
+
+
+def test_workflow_validation_is_skipped_without_the_legacy_workflow(tmp_path: Path) -> None:
+    """After the legacy python-tests.yml is removed the manifest only carries
+    context_triggers; validating against a missing workflow must not fail."""
+    from check_required_checks import validate_against_workflow
+
+    validate_against_workflow(manifest(), tmp_path / "python-tests.yml")
+
+
+def test_real_manifest_requires_only_surviving_contexts() -> None:
+    root = Path(__file__).resolve().parents[2]
+    configured = load_manifest(root / ".github/required-checks.json")
+    assert set(configured.required_contexts) == {
+        "zapote / rust",
+        "crates / rust",
+        "Firmware Tests (state-machine + fault-injection)",
+    }
+    assert required_contexts_for_files(("zapote/README.md",), configured) == ("zapote / rust",)
+    assert required_contexts_for_files(("docs/x.md",), configured) == ()

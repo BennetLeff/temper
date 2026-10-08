@@ -12,10 +12,7 @@ trace_schema = 2
 
 [shared]
 temper_root = ".."
-pcb = "../pcb"
-electrical = "../elec"
 firmware = "../firmware"
-simulation = "../simulation"
 packages = "../packages"
 components = "../components"
 datasheets = "../datasheets"

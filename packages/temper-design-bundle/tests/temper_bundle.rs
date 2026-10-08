@@ -4,8 +4,8 @@ use temper_design_bundle::*;
 
 #[test]
 fn temper_fixture_is_valid_and_deterministic() {
-    let atopile = include_bytes!("../../../elec/exports/temper.design-input.v1.json");
-    let mapping = include_bytes!("../../../elec/exports/net-name-mapping.v1.yaml");
+    let atopile = include_bytes!("fixtures/legacy/temper.design-input.v1.json");
+    let mapping = include_bytes!("fixtures/legacy/net-name-mapping.v1.yaml");
     let pcl = include_bytes!("fixtures/temper.pcl.yaml");
     let a = parse_atopile(atopile).unwrap();
     let b = parse_mapping(mapping).unwrap();
