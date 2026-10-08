@@ -44,7 +44,7 @@ layout and current checks.
 make zapote          # zapote Rust suite
 make firmware-test   # firmware host tests
 make crates          # design-bundle crate chain
-make bundle-python   # build temper_design_bundle_python (uv sync)
+make bridge-python   # build zapote_bridge (uv sync)
 ```
 
 See [AGENTS.md](AGENTS.md) for working rules and [CONTRIBUTING.md](CONTRIBUTING.md) for conventions.

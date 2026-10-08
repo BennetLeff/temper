@@ -4,7 +4,7 @@ Builds ``harness-lab/blocks/mcu/mcu.ato:McuCandidate`` (or the combined
 ``ControlAssemblyCandidate``) in a fresh workspace with pinned Atopile
 0.2.69, assembles the explicit bridge inputs (compiled netlist, resolved
 attributes, CSV BOM, resolved library bytes, hashed P3 target context), runs
-the strict Rust gates in ``temper-design-bundle``, and generates a fresh
+the strict Rust gates in ``zapote-bridge``, and generates a fresh
 candidate directory (local libs, project, rules, source manifest, schematic,
 PCB) with P3 outline/layers and neutral staging.
 
@@ -72,7 +72,7 @@ def sha256_file(path: Path) -> str:
 
 
 def _design_bundle() -> Any:
-    import temper_design_bundle_python as bundle
+    import zapote_bridge as bundle  # zapote/packages/zapote-bridge
 
     return bundle
 
@@ -464,7 +464,7 @@ def assemble_mcu_candidate(
         export_path = workspace / "resolved-components.json"
         export = run_resolved_export(workspace, MCU_ENTRY_FILE, MCU_ENTRY_MODULE, export_path)
         current = workspace_hashes(workspace)
-        bundle.validation.candidate_check_freshness(
+        bundle.candidate_check_freshness(
             json.dumps(recorded, sort_keys=True),
             json.dumps(current, sort_keys=True),
             proc.returncode,
@@ -512,7 +512,7 @@ def assemble_mcu_candidate(
             json.dumps(unconnected, sort_keys=True),
         )
         board_nets = sorted({net["name"] for net in bridge["nets"] if net["nodes"]})
-        bundle.validation.candidate_check_net_admission(
+        bundle.candidate_check_net_admission(
             json.dumps(bridge["nets"], sort_keys=True),
             json.dumps(board_nets, sort_keys=True),
         )

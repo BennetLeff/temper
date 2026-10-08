@@ -74,3 +74,10 @@ source_path = "packages/temper-design-bundle/src/sexpr.rs"
 source_sha256 = "155e5df6aab56e43e8c9afa2573fe884d5d8b0c6cfc3c850ad429c60e8d6e6f5"
 target = "zapote/packages/zapote-drc/src/donor_sexpr.rs"
 notes = "Copied tokenizer/parser; local String errors replace donor error dependency. Hardened trailing-document rejection, unterminated escaped strings, and recursion depth. Used to inspect actual PCB stackup bytes, not producer summaries."
+
+[[port]]
+source = "Temper design-bundle strict atopile bridge, pin-map validation and MCU candidate gates"
+source_path = "packages/temper-design-bundle/src/{atopile,model,error,identity}.rs; packages/temper-design-bundle/src/validation.rs (MCU candidate gates); packages/temper-pcl-ir/src/lib.rs"
+source_ref = "archive/temper-legacy-2026-10-08"
+target = "zapote/packages/zapote-bridge"
+notes = "Copied without logic changes (wasm-registry scaffolding removed). The Python module zapote_bridge replaces temper_design_bundle_python for zapote's unit tools. Differential on 2026-10-08: 568 calls over 8 retained unit input sets (convert 24, net admission 24, pin map 320, freshness 200; both success and rejection paths) matched the legacy module exactly, comparing parsed JSON for HashMap-ordered output."

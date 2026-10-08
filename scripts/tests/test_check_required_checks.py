@@ -893,7 +893,6 @@ def test_real_manifest_requires_only_surviving_contexts() -> None:
     configured = load_manifest(root / ".github/required-checks.json")
     assert set(configured.required_contexts) == {
         "zapote / rust",
-        "crates / rust",
         "Firmware Tests (state-machine + fault-injection)",
         "actionlint",
     }

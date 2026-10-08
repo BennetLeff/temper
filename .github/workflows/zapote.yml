@@ -3,10 +3,10 @@ name: zapote
 # run locally via `make -C zapote check`; see zapote/CHECKS.md.
 on:
   pull_request:
-    paths: ["zapote/**", ".github/workflows/zapote.yml"]
+    paths: ["zapote/**", ".github/workflows/zapote.yml", "pyproject.toml", "uv.lock"]
   push:
     branches: [main]
-    paths: ["zapote/**", ".github/workflows/zapote.yml"]
+    paths: ["zapote/**", ".github/workflows/zapote.yml", "pyproject.toml", "uv.lock"]
 # Cancel superseded PR runs only; every push to main keeps its own verdict.
 # No cargo cache: the job takes ~3 min (measured 2026-10-08) and CI is
 # capacity-bound, so a ~1 GB release target dir in the shared 10 GB cache
@@ -34,3 +34,11 @@ jobs:
         env:
           CARGO_TARGET_DIR: ${{ runner.temp }}/zapote-target
         run: cargo test --release --locked --workspace
+      - name: Build and import zapote_bridge (what zapote's unit tools load)
+        env:
+          CARGO_TARGET_DIR: ${{ runner.temp }}/zapote-target
+        run: |
+          python3 -m pip install --quiet maturin
+          python3 -m maturin build --release --manifest-path zapote/packages/zapote-bridge/Cargo.toml --out "$RUNNER_TEMP/wheels"
+          python3 -m pip install --quiet "$RUNNER_TEMP"/wheels/zapote_bridge-*.whl
+          python3 -c "import zapote_bridge as b; names = ('candidate_convert_bridge', 'candidate_validate_pin_map', 'candidate_check_freshness', 'candidate_check_net_admission'); assert all(hasattr(b, n) for n in names), names; print('zapote_bridge OK')"

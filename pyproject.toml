@@ -1,7 +1,7 @@
 [project]
 name = "temper-workspace"
 version = "0.1.0"
-description = "Temper induction cooker: zapote validation workspace, firmware and the design-bundle crates"
+description = "Temper induction cooker: zapote validation workspace and firmware"
 requires-python = ">=3.11"
 
 [dependency-groups]
@@ -11,22 +11,14 @@ dev = [
     "jinja2>=3.1",           # firmware/tools code generators
     "pyyaml>=6.0",           # firmware/tools, CI scripts
     "kiutils>=1.4",          # zapote/tools/generators/gen_pcb_skeleton.py
-    "temper-geometry",
-    "temper-io-types",
-    "temper-design-bundle",  # temper_design_bundle_python, imported by zapote unit tools
+    "zapote-bridge",         # zapote_bridge, imported by zapote's unit tools
 ]
 
 [tool.uv.workspace]
-members = ["packages/*"]
-exclude = [
-    "packages/temper-py-bridge",
-    "packages/temper-py-bridge-derive",
-]
+members = ["zapote/packages/zapote-bridge"]
 
 [tool.uv.sources]
-temper-geometry = { workspace = true }
-temper-io-types = { workspace = true }
-temper-design-bundle = { workspace = true }
+zapote-bridge = { workspace = true }
 
 [tool.pytest.ini_options]
 testpaths = ["firmware/tools", "zapote/tools", "scripts/tests"]

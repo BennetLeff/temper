@@ -65,7 +65,7 @@ A measurement is only as trustworthy as its apparatus. The full incident record 
 the rules that still apply:
 
 * **Rebuild before you measure.** A stale pyo3 extension or binary silently runs old
-  code. For the design-bundle module, run `uv sync` (or
+  code. For the zapote_bridge module, run `uv sync` (or
   `python3 zapote/tools/generators/check_stale_extensions.py`) before trusting a result.
 * **Use the native oracle.** KiCad (`pcbnew`, `kicad-cli`) is the ground truth for board
   geometry, DRC and ERC. KiCad places footprint children with clockwise `R(-theta)`; test
@@ -192,12 +192,13 @@ running in parallel — still far cheaper than each doing a cold build.
 
 ## Rebuilding pyo3/maturin Rust Extensions
 
-The only Python extension left is `temper_design_bundle_python`, built from
-`packages/temper-design-bundle` (maturin backend, `python` feature) and imported by
-zapote's unit tools. `uv sync` (or `make bundle-python`) rebuilds it into the uv
-environment. After changing any crate in the design-bundle chain, rebuild before running
-a zapote tool; `python3 zapote/tools/generators/check_stale_extensions.py` reports a
-stale installed module. `.cargo/config.toml` carries the macOS link flags pyo3 needs.
+The only Python extension is `zapote_bridge`, built from
+`zapote/packages/zapote-bridge` (maturin backend, `python` feature) and imported by
+zapote's unit tools for the strict atopile bridge, pin-map and candidate gates.
+`uv sync` (or `make bridge-python`) rebuilds it into the uv environment. After changing
+the crate, rebuild before running a zapote tool;
+`python3 zapote/tools/generators/check_stale_extensions.py` reports a stale installed
+module. `.cargo/config.toml` carries the macOS link flags pyo3 needs.
 
 ## Physics Verification Conventions
 

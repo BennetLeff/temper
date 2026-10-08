@@ -1,0 +1,21 @@
+[package]
+name = "zapote-bridge"
+description = "Strict atopile-export bridge, pin-map and candidate gates used by zapote's unit tools"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+[lib]
+name = "zapote_bridge"
+crate-type = ["rlib", "cdylib"]
+
+[features]
+default = []
+# The Python module zapote's tools import (built by maturin, see pyproject.toml).
+python = ["dep:pyo3"]
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+thiserror = "2"
+pyo3 = { version = "0.29", optional = true }

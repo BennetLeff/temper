@@ -26,7 +26,7 @@ def digest(path: Path) -> str:
 
 def build(source: Path, output: Path, poses_path: Path, unit: bool = False) -> None:
     crate = next(c for c in check_stale_extensions.discover_crates(REPO)
-                 if c.name == "temper-design-bundle")
+                 if c.name == "zapote-bridge")
     extension = check_stale_extensions.check_module(crate)
     if extension.state != "fresh" or extension.artifact is None:
         raise ValueError("required strict source bridge is not fresh: " + extension.detail)
