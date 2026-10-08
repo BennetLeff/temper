@@ -88,7 +88,7 @@ documents contain the incident details and the evidence behind each rule.
 - Before accepting any new or changed unit PCB, run the Rust physical stackup gate
   documented in `VALIDATION.md` on the actual saved PCB bytes. A clean native
   DRC does not establish a consistent physical stackup.
-- Before a new unit construction attempt, use the [memory workflow](skills/README.md)
+- Before a new unit construction attempt, use the [memory workflow](https://github.com/BennetLeff/temper/blob/archive/zapote-coil-intake-2026-09-25/zapote/skills/README.md)
   to select applicable reviewed notes and retain the actual outbound input and
   dispatch receipt. Preparation alone is not delivery. Record reported use and
   executed helpers separately; do not infer either from selection. Transfer
@@ -119,7 +119,7 @@ documents contain the incident details and the evidence behind each rule.
   running the common `check-units` command on current maintained candidates.
   Missing adapters, geometric models and evaluated-object counts are software
   gaps; never relabel them as only hardware qualification. Track exact remaining
-  requirements in the [integration checkpoint](validation/integration-2026-09-12.md).
+  requirements in the [integration checkpoint](https://github.com/BennetLeff/temper/blob/archive/zapote-coil-intake-2026-09-25/zapote/validation/integration-2026-09-12.md).
 - Use public module interfaces and keep import-boundary checks ratcheting
   monotonically: new violations fail, and fixed exceptions are removed rather
   than replaced with broader coupling.
@@ -148,7 +148,7 @@ starts. Keep geometry/software, circuit design and physical qualification as
 separate ownership and status categories; a worker finishing its files does not
 close the milestone. Freeze worker writes before the final shared suite, then
 review the handback against the raw result and current decision tables. The
-[passive milestone](power-entry/passive-reva/MILESTONE.md) is a current example
+[passive milestone](https://github.com/BennetLeff/temper/blob/archive/zapote-coil-intake-2026-09-25/zapote/power-entry/passive-reva/MILESTONE.md) is a current example
 of this separation, not a permanent universal definition of done. Parallel
 workers may edit disjoint documents when the user has authorized that batch;
 shared-CAD changes remain coordinated and sequential.
@@ -166,51 +166,51 @@ Read the relevant detailed record before changing behavior in that area:
 - [Dead-agent salvage and restart](../docs/solutions/workflow-issues/dead-agent-signature-and-cleanroom-restart-playbook-2026-08-02.md)
 - [Parallel-edit collision failure](../docs/solutions/workflow-issues/parallel-batch-agents-same-file-edit-clobber-2026-07-31.md)
 - [Import-boundary ratchet](../docs/solutions/tooling-decisions/import-linter-boundary-enforcement-ratchet-2026-06-22.md)
-- [PFC current and copper model lessons](validation/p1-current/README.md) —
+- [PFC current and copper model lessons](https://github.com/BennetLeff/temper/blob/archive/zapote-coil-intake-2026-09-25/zapote/validation/p1-current/README.md) —
   preserve switching-state moments, physical pad UUIDs, signed sharing
   sensitivity and explicit area-current gaps; a graph tree or pad-size proxy
   cannot certify native current distribution.
-- [Independent PFC validator references](validation/p1-current/oracle-2026-09-12/README.md) —
+- [Independent PFC validator references](https://github.com/BennetLeff/temper/blob/archive/zapote-coil-intake-2026-09-25/zapote/validation/p1-current/oracle-2026-09-12/README.md) —
   a passing self-consistency test is insufficient. Keep closed-form and external
   solver references independent; enforce CCM validity over the continuous phase
   domain, and require unchanged-copper subdivision to preserve verdicts. SPICE
   probes need correct initial conditions, integer-cycle windows and timestep
   refinement before their measurements become reference evidence.
-- [Model certificate semantic binding](../docs/solutions/best-practices/model-certificates-need-semantic-binding.md)
-- [Real bridge-neck thermal assessment](thermal/bridge-necks.md) — preserve
+- [Model certificate semantic binding](https://github.com/BennetLeff/temper/blob/archive/zapote-coil-intake-2026-09-25/docs/solutions/best-practices/model-certificates-need-semantic-binding.md)
+- [Real bridge-neck thermal assessment](https://github.com/BennetLeff/temper/blob/archive/zapote-coil-intake-2026-09-25/zapote/thermal/bridge-necks.md) — preserve
   independent geometry-transfer checks, electrical/thermal energy balance and
   mesh refinement. Elmer nodal reaction fluxes at shared boundary nodes are not
   per-face heat flows; use integrated boundary laws for heat partition. A valid
   numerical result cannot certify unbounded assembly cooling or waive current
   findings. Replay validates historical evidence, not the installed solver.
-- [Bridge cooling contract](thermal/bridge-cooling.md) — source-bind selected
+- [Bridge cooling contract](https://github.com/BennetLeff/temper/blob/archive/zapote-coil-intake-2026-09-25/zapote/thermal/bridge-cooling.md) — source-bind selected
   cooling targets separately from verified assembly properties. A Robin
   reservoir temperature is not the boundary-surface temperature; a junction
   limit is not a PCB limit. Compare mesh refinements of the same physics.
   The 20-case run has only 2.14 K nominal PCB margin and fails its weaker-contact
   sensitivity: finer meshes cannot resolve unknown lead/barrel heat paths.
-- [Buck harness refinement plan](../docs/plans/2026-09-09-1945-feat-buck-harness-refinement-plan.md)
+- [Buck harness refinement plan](https://github.com/BennetLeff/temper/blob/archive/zapote-coil-intake-2026-09-25/docs/plans/2026-09-09-1945-feat-buck-harness-refinement-plan.md)
 
-- [GBJ package and assembly study](thermal/gbj-study/README.md) — transfer the
+- [GBJ package and assembly study](https://github.com/BennetLeff/temper/blob/archive/zapote-coil-intake-2026-09-25/zapote/thermal/gbj-study/README.md) — transfer the
   procedure, not the numerical result: preserve actual copper side, distinguish
   per-element package ratings from total loss, test asymmetric conduction, and
   retain assembly/airflow applicability separately from numerical convergence.
   The historical GBU front-side normalization is not a validated model of an
   asymmetric back-copper joint.
-- [PFC electrical closeout](power-entry/electrical-closeout.md) — a whole-net
+- [PFC electrical closeout](https://github.com/BennetLeff/temper/blob/archive/zapote-coil-intake-2026-09-25/zapote/power-entry/electrical-closeout.md) — a whole-net
   bounding box is not a switching-loop measurement, even with an authored
   area limit. Source/native agreement also does not establish external supply
   compatibility. Preserve named HOT interface contracts, exact graph currents
   versus envelopes, and explicit missing external producers. I²R is mean
   heating from RMS current, not proof of shunt package temperature.
-- [Shunt assembly heat-path study](power-entry/shunt-assembly/README.md) —
+- [Shunt assembly heat-path study](https://github.com/BennetLeff/temper/blob/archive/zapote-coil-intake-2026-09-25/zapote/power-entry/shunt-assembly/README.md) —
   finished thickness includes solder mask: derive the copper/core solid from
   actual layers, never assign mask thickness to FR4. Bind converted mesh
   topology and pre-solve input hashes; check cell interiors against drilled
   voids. A contact-temperature solve and prescribed remote-board temperature
   cannot qualify resistor-body temperature or enclosure cooling.
 
-- [Switching-model review lessons](power-entry/loss-budget/SWITCHING-REVIEW-LESSONS.md)
+- [Switching-model review lessons](https://github.com/BennetLeff/temper/blob/archive/zapote-coil-intake-2026-09-25/zapote/power-entry/loss-budget/SWITCHING-REVIEW-LESSONS.md)
   — triangle-area agreement is numerical verification, not circuit energy
   conservation. Distinguish current transfer, Miller charge, duty-weighted RMS,
   output-capacitance energy and gate-network dissipation. Keep physical

@@ -27,7 +27,7 @@ packages under `zapote/packages/`:
 DRC and ERC depend on core; the harness composes them. Core never
 depends on those consumers. Keep one shared board/constraint/finding model.
 Additional packages are introduced only when a real requirement needs them.
-`zapote-thermal` starts with the [electrothermal reference](thermal/README.md)
+`zapote-thermal` starts with the [electrothermal reference](https://github.com/BennetLeff/temper/blob/archive/zapote-coil-intake-2026-09-25/zapote/thermal/README.md)
 needed before modeling power-entry terminal necks. It does not yet supply a
 board thermal qualification gate. Do not copy the optimizer workspace wholesale.
 

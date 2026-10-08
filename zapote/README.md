@@ -26,7 +26,7 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for package boundaries and
 [VALIDATION.md](VALIDATION.md) for the board-validation objective and coverage
 ambition. Replacing the Python adapter is deferred.
 
-The [cooker delivery roadmap](../docs/plans/2026-09-10-1627-zapote-cooker-roadmap-plan.md)
+The [cooker delivery roadmap](https://github.com/BennetLeff/temper/blob/archive/zapote-coil-intake-2026-09-25/docs/plans/2026-09-10-1627-zapote-cooker-roadmap-plan.md)
 sets the order from standalone buck/MCU units through the complete routed board and
 physical bring-up. Each milestone adds cooker circuitry, Rust validation coverage
 and reusable engineering lessons; implementation detail is added as it approaches.
@@ -45,24 +45,25 @@ transformer land pattern, bounded electrical model and Rust source/geometry
 checks. Its acceptance record separates digital verification from unrun
 physical qualification and procurement gaps.
 
-The [standalone voltage-sense / OVP unit](voltage-sense/README.md) adds the next separately compiled, routed unit, a corrected ADC divider, source-derived electrical checks and saved-document consistency controls. Its digital construction passes while qualification remains explicit.
+The [standalone voltage-sense / OVP unit](https://github.com/BennetLeff/temper/blob/archive/zapote-coil-intake-2026-09-25/zapote/voltage-sense/README.md) adds the next separately compiled, routed unit, a corrected ADC divider, source-derived electrical checks and saved-document consistency controls. Its digital construction passes while qualification remains explicit.
 
 The [standalone thermal unit](thermal-sense/README.md) adds two external-NTC channels, loaded-feedback trip/release modeling, exact connectivity controls and a routed native PCB. Rev B adds conditional open-wire detection; physical qualification remains separate.
 
-The [isolated gate-drive unit](gate-drive/README.md) has a routed 100 × 80 mm candidate with clean native ERC/DRC and passing Rust construction checks; physical qualification is unrun. The [active PFC power-entry unit](power-entry/README.md) preserves the 1,800 W nominal AC-input target. Its 54-component, 230 × 210 mm candidate is routed with zero native ERC/DRC findings or unconnected nets and seven passing Rust construction findings. Qualification remains INDETERMINATE. See the [two-board demo](demo-gate-power/index.html).
+The [isolated gate-drive unit](gate-drive/README.md) has a routed 100 × 80 mm candidate with clean native ERC/DRC and passing Rust construction checks; physical qualification is unrun. The [active PFC power-entry unit](https://github.com/BennetLeff/temper/blob/archive/zapote-coil-intake-2026-09-25/zapote/power-entry/README.md) preserves the 1,800 W nominal AC-input target. Its 54-component, 230 × 210 mm candidate is routed with zero native ERC/DRC findings or unconnected nets and seven passing Rust construction findings. Qualification remains INDETERMINATE. See the [two-board demo](https://github.com/BennetLeff/temper/blob/archive/zapote-coil-intake-2026-09-25/zapote/demo-gate-power/index.html).
 
 The [Rust coverage inventory](validation/inventory-2026-09-12.json) maps Temper donors to Zapote,
 lists the checks recorded for each maintained unit, and orders the next ports.
 The `zapote-board` CLI checks physical stackup only. The [check index](CHECKS.md)
 lists the separate native layout/current and unit electrical-validation commands.
 
-[Engineering memory](skills/README.md) connects reviewed, versioned lessons to
-construction inputs through Rust selection and a thin process transport. The
+[Engineering memory](https://github.com/BennetLeff/temper/blob/archive/zapote-coil-intake-2026-09-25/zapote/skills/README.md) connects reviewed, versioned lessons to
+construction inputs through Rust selection and a thin process transport (the catalog and
+Python transport are archived; the Rust policy remains in `zapote-harness`). The
 native KiCad adapters live in `harness-lab/`, the generators in `tools/generators/`
 and the atopile base library in `elec-base/src`. The old Python
-migration outline is superseded by [MIGRATION.md](MIGRATION.md).
+migration outline is superseded by [MIGRATION.md](https://github.com/BennetLeff/temper/blob/archive/zapote-coil-intake-2026-09-25/zapote/MIGRATION.md).
 
-The [Gmsh + Elmer thermal backend](thermal/README.md) adds a separate external
+The [Gmsh + Elmer thermal backend](https://github.com/BennetLeff/temper/blob/archive/zapote-coil-intake-2026-09-25/zapote/thermal/README.md) adds a separate external
 electrothermal reference path, orchestrated and checked in Rust. Its copper-bar
 benchmark establishes solver setup; it does not qualify the power-entry necks
 or replace existing board findings.

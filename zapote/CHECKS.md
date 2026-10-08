@@ -67,7 +67,9 @@ Shipped: JLCPCB 2-layer 2 oz, 4-layer 1 oz and 4-layer 2 oz (read 2026-10-08).
 Vias use JLC's via rule (diameter ≥ hole + 0.1 mm, ring ≥ 0.05 mm), not the
 component-hole ring; rings use the vendor's absolute minimum, not its
 recommendation. Rules: annular ring (via/PTH), hole spacing (via/via vs other),
-track width, drill size (via, PTH min/max, NPTH), copper-to-edge, board size.
+track width, drill size (via, PTH min/max, NPTH), copper-to-edge, board size, and
+PTH outer lands (every plated through-hole has copper on F.Cu and B.Cu; pad and via copper
+is extracted only on layers KiCad flashes).
 Track *spacing* stays with the board's native KiCad DRC rules. `units.json` names
 a profile per maintained unit.
 
@@ -79,7 +81,7 @@ a profile per maintained unit.
 | Native geometry and conductor paths | [Native guide](layout-quality/NATIVE.md), [Rust native analysis](packages/zapote-drc/src/native_layout/mod.rs). |
 | Native DC sheet/barrel model | [Current guide](layout-quality/CURRENT.md), [profile and report](packages/zapote-drc/src/native_layout/current.rs), [solver](packages/zapote-drc/src/native_layout/sheet.rs). |
 | ERC, manufacturing, isolation, power, switching and operating limits | [Integration audit](layout-quality/INTEGRATION-AUDIT.md): actual callers and remaining inputs for each surface. |
-| Legacy Temper rule registry | [Rust registry](../packages/temper-drc-rs/src/rules/mod.rs), [donor inventory](validation/inventory-2026-09-12.json). Registration in Temper does not mean execution on Zapote. |
+| Legacy Temper rule registry | [Rust registry](https://github.com/BennetLeff/temper/blob/archive/zapote-coil-intake-2026-09-25/packages/temper-drc-rs/src/rules/mod.rs), [donor inventory](validation/inventory-2026-09-12.json). Registration in Temper does not mean execution on Zapote. |
 | Native extraction, report persistence and commands | [Extractor](tools/layout_snapshot.py), [Rust harness](packages/zapote-harness/src/layout_native.rs), [CLI](packages/zapote-harness/src/bin/zapote-layout-quality.rs), [Makefile](Makefile). |
 | Latest measured results and regression proofs | [Native copper/current evidence](layout-quality/mesh-evidence/README.md), including tests, benchmarks, raw runs, scratch mutations and source hashes. |
 | Acceptance objective and missing coverage | [Validation contract](VALIDATION.md), [integration follow-up #1628](https://github.com/BennetLeff/temper/issues/1628). |

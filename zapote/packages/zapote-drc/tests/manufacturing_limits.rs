@@ -28,6 +28,10 @@ fn base() -> Value {
             {"id": "J1.1@F.Cu", "copper": circle(5., 5., 0.8), "drill_mm": null, "drill_center_mm": null,
              "plated": true, "drill_polygon": circle(5., 5., 0.5), "kind": "Pth"},
             {"id": "V1@F.Cu", "copper": circle(15., 5., 0.2), "drill_mm": null, "drill_center_mm": null,
+             "plated": true, "drill_polygon": circle(15., 5., 0.14), "kind": "Via"},
+            {"id": "J1.1@B.Cu", "copper": circle(5., 5., 0.8), "drill_mm": null, "drill_center_mm": null,
+             "plated": true, "drill_polygon": circle(5., 5., 0.5), "kind": "Pth"},
+            {"id": "V1@B.Cu", "copper": circle(15., 5., 0.2), "drill_mm": null, "drill_center_mm": null,
              "plated": true, "drill_polygon": circle(15., 5., 0.14), "kind": "Via"}
         ],
         "holes": [
@@ -249,4 +253,32 @@ fn board_size_uses_the_outline_not_its_axis_aligned_box() {
     let f = failing(&r, "DRC.P2.BOARD_SIZE");
     assert_eq!(f.len(), 1);
     assert!(f[0].actual.as_deref().unwrap().starts_with("700.0 x 100.0"), "{:?}", f[0].actual);
+}
+
+
+/// A plated through-hole needs copper on both outer layers: a lead needs a
+/// solder land and the barrel an outer ring. KiCad DRC accepts a pad whose
+/// outer copper was removed by remove_unused_layers (native-08..15: 23 pads).
+#[test]
+fn plated_hole_without_an_outer_land_fails() {
+    let r = run(&base());
+    assert!(r.checked_rules.iter().any(|c| c == "DRC.P2.PTH_OUTER_LAND"));
+    assert!(failing(&r, "DRC.P2.PTH_OUTER_LAND").is_empty(), "{:#?}", r.findings);
+    let mut v = base();
+    v["pads"].as_array_mut().unwrap().retain(|p| p["id"] != "J1.1@B.Cu");
+    let r = run(&v);
+    let f = failing(&r, "DRC.P2.PTH_OUTER_LAND");
+    assert_eq!(f.len(), 1);
+    assert_eq!(f[0].object, "J1.1");
+    assert!(f[0].actual.as_deref().unwrap().contains("B.Cu"), "{:?}", f[0].actual);
+}
+
+#[test]
+fn outer_land_rule_needs_hole_kinds() {
+    // Legacy receipts carry no kinds: the rule cannot tell PTH from via.
+    let mut v = base();
+    for hole in v["holes"].as_array_mut().unwrap() {
+        hole.as_object_mut().unwrap().remove("kind");
+    }
+    assert!(!run(&v).checked_rules.iter().any(|c| c == "DRC.P2.PTH_OUTER_LAND"));
 }

@@ -106,7 +106,9 @@ def extract(path: Path) -> dict[str, Any]:
                 holes.append({"id": uid, "center_mm": [pcbnew.ToMM(pos.x), pcbnew.ToMM(pos.y)], "diameter_mm": pcbnew.ToMM(pad.GetDrillSize().x), "polygon": drill, "kind": kind,
                               "size_mm": [pcbnew.ToMM(pad.GetDrillSize().x), pcbnew.ToMM(pad.GetDrillSize().y)]})
             for layer in enabled:
-                if not pad.IsOnLayer(layer):
+                # IsOnLayer() stays true for a layer that remove_unused_layers
+                # strips; only FlashLayer() says KiCad manufactures copper there.
+                if not pad.IsOnLayer(layer) or not pad.FlashLayer(layer):
                     continue
                 shapes = shape_polygons(pad, layer)
                 inner_shapes = shape_polygons(pad, layer, pcbnew.ERROR_INSIDE)
@@ -137,7 +139,9 @@ def extract(path: Path) -> dict[str, Any]:
             # Straight tracks and arcs: centreline width as drawn.
             tracks.append({"id": uid, "layer": pcbnew.LayerName(item.GetLayer()), "width_mm": pcbnew.ToMM(item.GetWidth())})
         for layer in enabled:
-            if not item.IsOnLayer(layer):
+            # Same rule as tools/layout_snapshot.py: vias with remove_unused_layers
+            # are only manufactured where FlashLayer() is true.
+            if not item.IsOnLayer(layer) or (via and not item.FlashLayer(layer)):
                 continue
             shapes = shape_polygons(item, layer)
             if not shapes:
