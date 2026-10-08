@@ -6,22 +6,13 @@
   "_note": [
     "Since the legacy cleanup (2026-10-08) every required context is owned by its own",
     "workflow and required only when its own paths change (context_triggers):",
-    "zapote / rust (zapote.yml), crates / rust (crates.yml) and Firmware Tests",
+    "zapote / rust (zapote.yml), crates / rust (crates.yml), Firmware Tests (firmware-tests.yml)",
+    "and actionlint (lint-workflows.yml, which also tests this checker); context_triggers mirror each workflow's pull_request paths (enforced by scripts/tests).",
     "(firmware-tests.yml). trigger_paths is their union; there are no job_triggers",
     "because python-tests.yml no longer exists. The legacy manifest is in tag",
     "archive/temper-legacy-2026-10-08."
   ],
   "trigger_paths": [
-    "firmware/**",
-    "zapote/power-stage-120v/prototype-closure/round5/firmware/**",
-    "pcb/**",
-    "scripts/check_firmware_board_contract.py",
-    "scripts/check_pll_range_consistency.py",
-    "scripts/check_state_machine_model.py",
-    "scripts/check_firmware_invariants.py",
-    "scripts/check_sil_coverage.py",
-    "state-machine-crosscheck-allowlist.yaml",
-    ".github/workflows/firmware-tests.yml",
     "zapote/**",
     ".github/workflows/zapote.yml",
     "packages/temper-design-bundle/**",
@@ -31,26 +22,25 @@
     "packages/temper-pcl-ir/**",
     "packages/temper-geometry/**",
     "packages/temper-io-types/**",
-    ".github/workflows/crates.yml"
+    ".github/workflows/crates.yml",
+    "pyproject.toml",
+    "uv.lock",
+    "zapote/power-stage-120v/native-17/section.kicad_pcb",
+    "firmware/**",
+    "zapote/power-stage-120v/prototype-closure/round5/firmware/**",
+    ".github/workflows/firmware-tests.yml",
+    ".github/workflows/**",
+    ".github/actionlint.yaml",
+    ".github/required-checks.json",
+    "scripts/**"
   ],
   "required_contexts": [
     "zapote / rust",
     "crates / rust",
-    "Firmware Tests (state-machine + fault-injection)"
+    "Firmware Tests (state-machine + fault-injection)",
+    "actionlint"
   ],
   "context_triggers": {
-    "Firmware Tests (state-machine + fault-injection)": [
-      "firmware/**",
-      "zapote/power-stage-120v/prototype-closure/round5/firmware/**",
-      "pcb/**",
-      "scripts/check_firmware_board_contract.py",
-      "scripts/check_pll_range_consistency.py",
-      "scripts/check_state_machine_model.py",
-      "scripts/check_firmware_invariants.py",
-      "scripts/check_sil_coverage.py",
-      "state-machine-crosscheck-allowlist.yaml",
-      ".github/workflows/firmware-tests.yml"
-    ],
     "zapote / rust": [
       "zapote/**",
       ".github/workflows/zapote.yml"
@@ -63,7 +53,21 @@
       "packages/temper-pcl-ir/**",
       "packages/temper-geometry/**",
       "packages/temper-io-types/**",
-      ".github/workflows/crates.yml"
+      ".github/workflows/crates.yml",
+      "pyproject.toml",
+      "uv.lock",
+      "zapote/power-stage-120v/native-17/section.kicad_pcb"
+    ],
+    "Firmware Tests (state-machine + fault-injection)": [
+      "firmware/**",
+      "zapote/power-stage-120v/prototype-closure/round5/firmware/**",
+      ".github/workflows/firmware-tests.yml"
+    ],
+    "actionlint": [
+      ".github/workflows/**",
+      ".github/actionlint.yaml",
+      ".github/required-checks.json",
+      "scripts/**"
     ]
   }
 }

@@ -24,7 +24,7 @@ scale its review to the change. The methods and source map are in
 `docs/research/mit-product-design/README.md`.
 
 Resolve the current design artifact before transferring any earlier result:
-the legacy PCB, newer power-stage source, and enclosure prototypes have different
+the archived legacy board, the 120 V power-stage source, and enclosure prototypes have different
 identities and maturity. Coursework informs design methods; actual component,
 supplier, product-standard, and test evidence sets acceptance limits. Geometry,
 connectivity, and simulation passes do not by themselves qualify hardware.
@@ -207,24 +207,6 @@ When an invariant surfaces a real bug, produce a triaged bug report. Trivial fix
 in-scope: sign flip, index/stencil mis-orientation, BC swap, off-by-one. Architectural
 fixes (e.g., "the solver needs a different discretization") are documented and scoped
 as a separate follow-up — do not inline a redesign in a bugfix PR.
-
-### Future CP-SAT Physics Constraint Discipline (R24)
-
-Any future CP-SAT constraint that gates on a physics quantity (e.g., zone penalty
-from a thermal field) must carry:
-
-1. A **Chebyshev-style soundness proof** — the constraint is either a conservative
-   bound (overestimates cost / underestimates margin) or the proof classifies the
-   approximation error.
-2. **BMC-exhaustive validation on small N** — the constraint is verified against
-   a truthful oracle on all inputs up to a bounded size.
-3. **Post-solve audit** — after each CP-SAT solve, the constraint's actual value is
-   recomputed from the placement coordinates and compared against the encoded bound;
-   a mismatch is a hard CI failure.
-
-These gates are prerequisites for the constraint to ship; they are NOT optional
-nice-to-haves. See `docs/physics-verification-methodology.md` for the broader
-verification pattern.
 
 ## Operational Rules
 

@@ -55,7 +55,6 @@ fp-info-cache
 # fresh before every kicad-cli-backend DRC run (CI and local alike) so the
 # gate never measures against a stale or missing rules file. See
 # docs/evidence/2026-07-27-drc-truth-gate-discrepancy.md.
-/pcb/*.kicad_dru
 
 # Simulations
 *.raw
@@ -108,7 +107,6 @@ temper-placer/research/*.svg
 .worktrees
 worktrees/
 firmware/test/build/
-power_pcb_dataset/quarantine/
 .enola/
 
 # Pruned directories (2026-06-23 purge)
@@ -122,7 +120,6 @@ power_pcb_dataset/quarantine/
 # close the submodule-foreach hole", for why a directory like this landing
 # in the index as an uncommitted gitlink is a real, previously-hit failure
 # mode, not a hypothetical one).
-/pcb/libs/kicad-footprints/
 /analysis_results/
 /reports/
 /snapshots/
@@ -166,7 +163,6 @@ temp_routing_test/
 # `git submodule foreach` in CI (exit 128) while delivering empty directories to
 # every fresh clone. Repopulate locally with scripts/scan_external_corpus.py.
 benchmarks/downloads_digital_iot/
-power_pcb_dataset/sources/
 
 # Rust-only crates build into the shared target dir
 /crates/*/target/

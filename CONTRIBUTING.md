@@ -24,8 +24,8 @@ make crates          # packages/** changes
 
 ## Commit Convention
 
-This project uses [Conventional Commits](https://www.conventionalcommits.org/), validated
-by commitlint on PR titles:
+This project uses [Conventional Commits](https://www.conventionalcommits.org/) for commit
+messages and PR titles (release-please reads them):
 
 - `feat:` new feature (minor bump)
 - `fix:` bug fix (patch bump)

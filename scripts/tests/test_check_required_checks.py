@@ -895,6 +895,37 @@ def test_real_manifest_requires_only_surviving_contexts() -> None:
         "zapote / rust",
         "crates / rust",
         "Firmware Tests (state-machine + fault-injection)",
+        "actionlint",
     }
     assert required_contexts_for_files(("zapote/README.md",), configured) == ("zapote / rust",)
     assert required_contexts_for_files(("docs/x.md",), configured) == ()
+
+
+def _workflow_for_context(root: Path, context: str):
+    """The workflow whose job `name:` is this context, and its pull_request paths."""
+    import yaml
+
+    for wf in sorted((root / ".github/workflows").glob("*.yml")):
+        data = yaml.safe_load(wf.read_text())
+        jobs = data.get("jobs", {}) or {}
+        if any((job or {}).get("name") == context for job in jobs.values()):
+            on = data.get(True, data.get("on"))  # PyYAML reads bare `on` as True
+            return wf, tuple(on["pull_request"]["paths"])
+    raise AssertionError(f"no workflow job is named {context!r}")
+
+
+def test_each_required_context_triggers_exactly_where_its_workflow_runs() -> None:
+    """A context required on a path its workflow does not run on never posts and
+    deadlocks the aggregator; the reverse leaves changes ungated."""
+    root = Path(__file__).resolve().parents[2]
+    configured = load_manifest(root / ".github/required-checks.json")
+    for context in configured.required_contexts:
+        wf, paths = _workflow_for_context(root, context)
+        assert configured.context_triggers[context] == paths, (context, wf.name)
+
+
+def test_ci_machinery_changes_are_gated() -> None:
+    root = Path(__file__).resolve().parents[2]
+    configured = load_manifest(root / ".github/required-checks.json")
+    for path in (".github/required-checks.json", "scripts/check_required_checks.py", "pyproject.toml", "uv.lock"):
+        assert required_contexts_for_files((path,), configured), path
