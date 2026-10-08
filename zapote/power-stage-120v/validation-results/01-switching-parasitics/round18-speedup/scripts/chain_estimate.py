@@ -5,7 +5,12 @@
 
 Model (every output is an estimate, not a measurement):
 - Per-case wall = the measured wall of the matching native-19 leg-B case
-  (sum of its four port solves, history.tsv) x (native-21 tets / native-19 tets).
+  (sum of its four port solves, history.tsv) x a per-leg time factor =
+  (measured native-21 coarse h1 wall) / (native-19 leg-B coarse h1 wall).
+  Measured native-21 coarse h1 (live chain, campaign.log DONE lines, 2026-10-08):
+  A21 7567 + 7568 + 6847 + 6758 s (12.7-14.1 k iterations per port; the first
+  ~10 h of it with our 2-rank experiments beside it, which cost the chain ~18 %),
+  B21 2321 + 2314 + 3064 + 2196 s.
   Wall per port is iterations x seconds per iteration, and seconds per
   iteration grow ~linearly with tets at fixed ranks (history: 1.6-2.0
   s*rank/(it*Mtet)); iteration counts are taken as unchanged.
@@ -35,6 +40,8 @@ def case(prefix: str) -> tuple[float, int]:
 
 KB_PER_TET, RAM_GB = 6.1, 62.0
 A21_H1 = 3_373_055
+B21_H1 = 2_715_967                       # measured (live chain)
+WALL_N21 = {"A21": 7567 + 7568 + 6847 + 6758.0, "B21": 2321.27 + 2314.15 + 3064.23 + 2196.0}
 B19 = {k: case(v) for k, v in {
     "h1": "b19c/legB-h1-e1p0-n19-", "h0p5": "b19corr/legB-h0p5-e1p0-n19-", "h2": "b19corr/legB-h2-e1p0-n19-",
     "h3": "b19corr/legB-h3-e1p0-n19-", "m20": "b19corr/legB-h1-e1p0-m20-a10-n19-",
@@ -47,9 +54,10 @@ for k in ("h2", "h3"):
     wall_ratio = A17F[k][0] / A17F["h1"][0]
     B19["fine_" + k] = (B19["fine_h1"][0] * wall_ratio, int(B19["fine_h1"][1] * ratio))
 
-leg_scale = {"A21": A21_H1 / B19["h1"][1]}
-leg_scale["B21"] = 0.818 * leg_scale["A21"]
-print(f"tet scale vs native-19 leg B: A21 {leg_scale['A21']:.3f}, B21 {leg_scale['B21']:.3f} (estimate)")
+leg_scale = {"A21": A21_H1 / B19["h1"][1], "B21": B21_H1 / B19["h1"][1]}
+time_scale = {k: WALL_N21[k] / B19["h1"][0] for k in WALL_N21}
+print(f"tet scale vs native-19 leg B: A21 {leg_scale['A21']:.3f}, B21 {leg_scale['B21']:.3f} (measured h1 meshes)")
+print(f"time scale vs native-19 leg B (measured coarse h1 walls): A21 {time_scale['A21']:.2f}, B21 {time_scale['B21']:.2f}")
 print(f"fine/coarse ratio check: B19 {B19['fine_h1'][1] / B19['h1'][1]:.2f}, A17 {A17F['h1'][1] / 2214123:.2f}")
 print()
 order_coarse = ["h1", "h0p5", "h2", "h3", "m20"]
@@ -60,7 +68,7 @@ for leg in ("A21", "B21"):
     for k in order_coarse + order_fine:
         w, t = B19[k]
         s = leg_scale[leg]
-        tets, wall = t * s, w * s / 3600
+        tets, wall = t * s, w * time_scale[leg] / 3600
         mem = tets * KB_PER_TET / 1e6
         fits = mem < RAM_GB - 4      # leave ~4 GB for the OS, campaign and page cache
         prop = k not in ("fine_h2", "fine_h3")

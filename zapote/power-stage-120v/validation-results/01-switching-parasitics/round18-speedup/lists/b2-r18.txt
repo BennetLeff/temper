@@ -1,3 +1,6 @@
 # Battery 2: the round-18 AMS patch (G and Pi consistent with Elmer's diagonal scaling).
 # sA-e3 (823,851 tets, native-21 leg A), P1_C38, 2 ranks.
+# r18-scaleaux (first attempt) had the keyword mis-quoted ("'AMS Scale ...") so Elmer did not
+# recognise it: it is the patched library with the patch OFF, i.e. a control against b0-base.
 r18-scaleaux|10 -2500 0 0|meshes/sA-e3.msh|--hypre-method 8 --tol 1e-8 --maxit 3000 --solver-line "'AMS Scale Auxiliary = Logical True'"|ELMER=$HOME/temper-fem/speedup/elmer-r18
+r18-scaleaux-on|10 -2500 0 0|meshes/sA-e3.msh|--hypre-method 8 --tol 1e-8 --maxit 3000 --solver-line "AMS Scale Auxiliary = Logical True"|ELMER=$HOME/temper-fem/speedup/elmer-r18

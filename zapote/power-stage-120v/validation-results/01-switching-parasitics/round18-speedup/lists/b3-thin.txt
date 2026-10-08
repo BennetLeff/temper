@@ -1,0 +1,6 @@
+# Battery 3: round-16 board mesh legA-small-thin (850,640 tets; native-17 leg A, P1; direct solve 29.77092 nH;
+# 12-rank GMRES+AMS baseline: 4443 its to 1e-7, 7783 to 1e-9 (q3p1); 4-rank: 6.5e-6 after 3000 (T-base)).
+# sA-e3 turned out to stagnate near 1e-2 for every variant (baseline included): not a usable test mesh.
+r18on-thin|10 -2500 0 0|/home/bennet/temper-fem/r16/meshes/legA-small-thin.msh|--hypre-method 8 --tol 1e-8 --maxit 4000 --solver-line "AMS Scale Auxiliary = Logical True"|ELMER=$HOME/temper-fem/speedup/elmer-r18
+base-thin-1000|10 -2500 0 0|/home/bennet/temper-fem/r16/meshes/legA-small-thin.msh|--hypre-method 8 --tol 1e-8 --maxit 1000
+noscale-thin-2000|10 -2500 0 0|/home/bennet/temper-fem/r16/meshes/legA-small-thin.msh|--hypre-method 8 --tol 1e-8 --maxit 2000 --solver-line "Linear System Scaling = False"

@@ -16,11 +16,13 @@ source ~/miniconda3/etc/profile.d/conda.sh; conda activate temper-fem
 S=$HOME/temper-fem/speedup
 name=$1 mesh=$2 port=$3 kx=$4 ky=$5 kz=$6; shift 6
 cd "$S" || exit 1
+# a finished run is never redone (a queued duplicate would otherwise wipe it)
+if [ -f "runs/$name.out" ] && grep -q '"label"' "runs/$name.out"; then echo "SKIP $name (finished)"; exit 0; fi
 rm -rf "runs/$name"
 CPUS=${CPUS:-22,23}
 NP=${NP:-2}
 taskset -c "$CPUS" python3 "${RUNNER:-r17scripts/run_elmer.py}" --elmer "${ELMER:-$HOME/temper-fem/elmer-install}" "$mesh" "runs/$name" \
-  --pec 2 3 --port "$port" --k "$kx" "$ky" "$kz" --hypre-ams --ams-singular --np "$NP" --vtu --label "$name" "$@" \
+  --pec ${PEC:-2 3} --port "$port" --k "$kx" "$ky" "$kz" --hypre-ams --ams-singular --np "$NP" --vtu --label "$name" "$@" \
   > "runs/$name.out" 2>&1 < /dev/null
 if [ "${KEEP:-0}" != 1 ]; then
   find "runs/$name" -type f \( -name "case.result*" -o -name "*.vtu" -o -name "*.pvtu" \) -delete

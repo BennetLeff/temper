@@ -1,0 +1,2 @@
+fine 0.35 mm: 21 solves; iterations median 9121 (range 7405-10705); Krylov share 99.0-99.4 %; setup median 41 s; post median 59 s; c median 2.02 s*rank/(it*Mtet); memory 6.06-6.23 kB/tet
+coarse 1.0 mm: 24 solves; iterations median 5991 (range 4235-9797); Krylov share 98.2-99.2 %; setup median 11 s; post median 17 s; c median 1.61 s*rank/(it*Mtet); memory 6.23-6.53 kB/tet

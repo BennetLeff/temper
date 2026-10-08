@@ -1,0 +1,5 @@
+# Battery 4 (legA-small-thin, P1): references and patch variants.
+np1-thin-300|10 -2500 0 0|/home/bennet/temper-fem/r16/meshes/legA-small-thin.msh|--hypre-method 8 --tol 1e-8 --maxit 300|NP=1 CPUS=22
+r18on-thin-pcg|10 -2500 0 0|/home/bennet/temper-fem/r16/meshes/legA-small-thin.msh|--hypre-method 6 --tol 1e-8 --maxit 4000 --solver-line "AMS Scale Auxiliary = Logical True"|ELMER=$HOME/temper-fem/speedup/elmer-r18
+r18on-thin-k30|10 -2500 0 0|/home/bennet/temper-fem/r16/meshes/legA-small-thin.msh|--hypre-method 8 --tol 1e-8 --maxit 4000 --solver-line "AMS Scale Auxiliary = Logical True" --solver-line "HYPRE GmRes Dimension = Integer 30"|ELMER=$HOME/temper-fem/speedup/elmer-r18
+base-thin-full|10 -2500 0 0|/home/bennet/temper-fem/r16/meshes/legA-small-thin.msh|--hypre-method 8 --tol 1e-8 --maxit 8000
