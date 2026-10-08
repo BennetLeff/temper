@@ -43,7 +43,7 @@ CENSUS21 = [row if row[0] != "U3.2" else
 
 def main():
     tag = sys.argv[1] if len(sys.argv) > 1 else "native20"
-    census = CENSUS21 if tag == "native21" else CENSUS
+    census = CENSUS21 if tag.startswith("native21") else CENSUS
     plane = json.loads((HERE / f"plane-{tag}.json").read_text())
     T = plane["transfer_mohm_to_R35_2"]
     a_per_mv = plane["trip_shift_A_per_mV_at_R35_2"]

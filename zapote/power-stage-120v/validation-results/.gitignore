@@ -7,6 +7,7 @@
 # Round 4: the same raw-evidence rule.
 **/round4/**/outputs/runs/
 **/round4/**/*.npz
+**/round5-native21/**/*.npz
 **/round4/**/*.raw
 **/round4/**/*.raw.gz
 /03-loss-thermal-budget/round3/inputs/switching-events.csv

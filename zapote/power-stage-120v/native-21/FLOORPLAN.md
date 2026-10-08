@@ -173,6 +173,12 @@ run, and that count is 0. Their inductance effect belongs to the FEM rerun on th
     the bank template (body collisions 0, board in R4 0 hits).
   - Kelvin OCP band on this copper: 47.51-97.98 A.
   - Manifest: `verification/final-manifest.json`.
+- **Stage 6 (2026-10-08):** the board current screen (task 04 round 5) found R5's current pads fed through
+  two (HV_RET) and three (LEG_RET) 0.3 mm vias, up to 18 A in one via. `layout/patches21.py` (base =
+  stage-5 copper; the stage-4/5 record is `patches21_v1.py`) adds legal 0.6/0.3 vias, 7 in R5.4 and
+  10 at R5.1, filled and capped in the pads. It clips SW_B's B.Cu outline under R5, where its fill was
+  0 mm². The worst via falls to 7.3 A (coherent 34 A case). DRC, parity, barrier (both gates), DFM
+  and plane splits are all 0 / PASS; the Kelvin band is unchanged.
 - **Open items:**
   - **44 vias** remain mostly inside SMD pads (no legal spot within 1.3 mm). **Decided
     2026-10-08:** order every 0.3 mm via epoxy-filled and capped (JLC POFV); see DECISIONS.md.

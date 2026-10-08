@@ -54,3 +54,5 @@ board `76ec8cca…`): `python3 kelvin_plane.py <export> native21` then `python3 
 
 Files: [plane-native21.json](plane-native21.json), [budget-native21.json](budget-native21.json),
 [budget-native21.md](budget-native21.md).
+
+**Stage 6** (R5 current-pad vias, board `e7b8fe77…`, export `native-21/verification/native21s6-all-copper.json.gz`): `python3 kelvin_plane.py <export> native21s6` then `python3 kelvin_budget.py native21s6`. R35.2 still sits 164.02 mΩ above R5.2 and the band is unchanged at **47.51–97.98 A**: the new vias are on LEG_RET / HV_RET and leave the Kelvin net's copper as it was. Files: [plane-native21s6.json](plane-native21s6.json), [budget-native21s6.json](budget-native21s6.json).

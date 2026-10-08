@@ -1,0 +1,400 @@
+{
+  "board_sha256": "e7b8fe778ed3e8f2d9aa22a49ad4d7b06b58b51b65da9a6106adf9543d5f2c54",
+  "pitch_mm": 0.0625,
+  "kit": "sheet_solver.py",
+  "layers": {
+    "ac_l_in/B.Cu": {
+      "grid_nodes": 4142,
+      "grid_components": 3,
+      "physical_components": 3,
+      "dropped_edges": 0,
+      "grid_components_spanning_two_physical": 0
+    },
+    "ac_l_in/F.Cu": {
+      "grid_nodes": 64141,
+      "grid_components": 1,
+      "physical_components": 1,
+      "dropped_edges": 0,
+      "grid_components_spanning_two_physical": 0
+    },
+    "ac_l_in/In1.Cu": {
+      "grid_nodes": 4142,
+      "grid_components": 3,
+      "physical_components": 3,
+      "dropped_edges": 0,
+      "grid_components_spanning_two_physical": 0
+    },
+    "ac_l_in/In2.Cu": {
+      "grid_nodes": 4142,
+      "grid_components": 3,
+      "physical_components": 3,
+      "dropped_edges": 0,
+      "grid_components_spanning_two_physical": 0
+    },
+    "ac_n_in/B.Cu": {
+      "grid_nodes": 174139,
+      "grid_components": 1,
+      "physical_components": 1,
+      "dropped_edges": 0,
+      "grid_components_spanning_two_physical": 0
+    },
+    "ac_n_in/F.Cu": {
+      "grid_nodes": 5434,
+      "grid_components": 5,
+      "physical_components": 5,
+      "dropped_edges": 0,
+      "grid_components_spanning_two_physical": 0
+    },
+    "ac_n_in/In1.Cu": {
+      "grid_nodes": 4820,
+      "grid_components": 5,
+      "physical_components": 5,
+      "dropped_edges": 0,
+      "grid_components_spanning_two_physical": 0
+    },
+    "ac_n_in/In2.Cu": {
+      "grid_nodes": 4820,
+      "grid_components": 5,
+      "physical_components": 5,
+      "dropped_edges": 0,
+      "grid_components_spanning_two_physical": 0
+    },
+    "bus_p/B.Cu": {
+      "grid_nodes": 27174,
+      "grid_components": 13,
+      "physical_components": 13,
+      "dropped_edges": 3,
+      "grid_components_spanning_two_physical": 0
+    },
+    "bus_p/F.Cu": {
+      "grid_nodes": 30664,
+      "grid_components": 13,
+      "physical_components": 13,
+      "dropped_edges": 5,
+      "grid_components_spanning_two_physical": 0
+    },
+    "bus_p/In1.Cu": {
+      "grid_nodes": 18418,
+      "grid_components": 16,
+      "physical_components": 16,
+      "dropped_edges": 3,
+      "grid_components_spanning_two_physical": 0
+    },
+    "bus_p/In2.Cu": {
+      "grid_nodes": 2102369,
+      "grid_components": 3,
+      "physical_components": 3,
+      "dropped_edges": 3,
+      "grid_components_spanning_two_physical": 0
+    },
+    "coil_feed/B.Cu": {
+      "grid_nodes": 46070,
+      "grid_components": 1,
+      "physical_components": 1,
+      "dropped_edges": 0,
+      "grid_components_spanning_two_physical": 0
+    },
+    "coil_feed/F.Cu": {
+      "grid_nodes": 48451,
+      "grid_components": 1,
+      "physical_components": 1,
+      "dropped_edges": 0,
+      "grid_components_spanning_two_physical": 0
+    },
+    "coil_feed/In1.Cu": {
+      "grid_nodes": 5495,
+      "grid_components": 4,
+      "physical_components": 4,
+      "dropped_edges": 0,
+      "grid_components_spanning_two_physical": 0
+    },
+    "coil_feed/In2.Cu": {
+      "grid_nodes": 5495,
+      "grid_components": 4,
+      "physical_components": 4,
+      "dropped_edges": 0,
+      "grid_components_spanning_two_physical": 0
+    },
+    "hv_ret/B.Cu": {
+      "grid_nodes": 139426,
+      "grid_components": 21,
+      "physical_components": 21,
+      "dropped_edges": 2,
+      "grid_components_spanning_two_physical": 0
+    },
+    "hv_ret/F.Cu": {
+      "grid_nodes": 142784,
+      "grid_components": 13,
+      "physical_components": 13,
+      "dropped_edges": 2,
+      "grid_components_spanning_two_physical": 0
+    },
+    "hv_ret/In1.Cu": {
+      "grid_nodes": 2185558,
+      "grid_components": 4,
+      "physical_components": 4,
+      "dropped_edges": 1,
+      "grid_components_spanning_two_physical": 0
+    },
+    "hv_ret/In2.Cu": {
+      "grid_nodes": 18686,
+      "grid_components": 33,
+      "physical_components": 33,
+      "dropped_edges": 1,
+      "grid_components_spanning_two_physical": 0
+    },
+    "l_f/B.Cu": {
+      "grid_nodes": 6896,
+      "grid_components": 5,
+      "physical_components": 5,
+      "dropped_edges": 0,
+      "grid_components_spanning_two_physical": 0
+    },
+    "l_f/F.Cu": {
+      "grid_nodes": 124585,
+      "grid_components": 1,
+      "physical_components": 1,
+      "dropped_edges": 0,
+      "grid_components_spanning_two_physical": 0
+    },
+    "l_f/In1.Cu": {
+      "grid_nodes": 6896,
+      "grid_components": 5,
+      "physical_components": 5,
+      "dropped_edges": 0,
+      "grid_components_spanning_two_physical": 0
+    },
+    "l_f/In2.Cu": {
+      "grid_nodes": 6896,
+      "grid_components": 5,
+      "physical_components": 5,
+      "dropped_edges": 0,
+      "grid_components_spanning_two_physical": 0
+    },
+    "l_filt/B.Cu": {
+      "grid_nodes": 323632,
+      "grid_components": 3,
+      "physical_components": 3,
+      "dropped_edges": 5,
+      "grid_components_spanning_two_physical": 0
+    },
+    "l_filt/F.Cu": {
+      "grid_nodes": 30098,
+      "grid_components": 6,
+      "physical_components": 6,
+      "dropped_edges": 0,
+      "grid_components_spanning_two_physical": 0
+    },
+    "l_filt/In1.Cu": {
+      "grid_nodes": 9199,
+      "grid_components": 8,
+      "physical_components": 8,
+      "dropped_edges": 0,
+      "grid_components_spanning_two_physical": 0
+    },
+    "l_filt/In2.Cu": {
+      "grid_nodes": 9199,
+      "grid_components": 8,
+      "physical_components": 8,
+      "dropped_edges": 0,
+      "grid_components_spanning_two_physical": 0
+    },
+    "leg_ret/B.Cu": {
+      "grid_nodes": 9414,
+      "grid_components": 26,
+      "physical_components": 26,
+      "dropped_edges": 2,
+      "grid_components_spanning_two_physical": 0
+    },
+    "leg_ret/F.Cu": {
+      "grid_nodes": 44486,
+      "grid_components": 14,
+      "physical_components": 14,
+      "dropped_edges": 7,
+      "grid_components_spanning_two_physical": 0
+    },
+    "leg_ret/In1.Cu": {
+      "grid_nodes": 81566,
+      "grid_components": 10,
+      "physical_components": 10,
+      "dropped_edges": 1,
+      "grid_components_spanning_two_physical": 0
+    },
+    "leg_ret/In2.Cu": {
+      "grid_nodes": 9144,
+      "grid_components": 28,
+      "physical_components": 28,
+      "dropped_edges": 3,
+      "grid_components_spanning_two_physical": 0
+    },
+    "n_filt/B.Cu": {
+      "grid_nodes": 30150,
+      "grid_components": 4,
+      "physical_components": 4,
+      "dropped_edges": 1,
+      "grid_components_spanning_two_physical": 0
+    },
+    "n_filt/F.Cu": {
+      "grid_nodes": 465980,
+      "grid_components": 4,
+      "physical_components": 4,
+      "dropped_edges": 0,
+      "grid_components_spanning_two_physical": 0
+    },
+    "n_filt/In1.Cu": {
+      "grid_nodes": 8633,
+      "grid_components": 7,
+      "physical_components": 7,
+      "dropped_edges": 0,
+      "grid_components_spanning_two_physical": 0
+    },
+    "n_filt/In2.Cu": {
+      "grid_nodes": 8633,
+      "grid_components": 7,
+      "physical_components": 7,
+      "dropped_edges": 0,
+      "grid_components_spanning_two_physical": 0
+    },
+    "rect_n/B.Cu": {
+      "grid_nodes": 16920,
+      "grid_components": 2,
+      "physical_components": 2,
+      "dropped_edges": 0,
+      "grid_components_spanning_two_physical": 0
+    },
+    "rect_n/F.Cu": {
+      "grid_nodes": 16920,
+      "grid_components": 2,
+      "physical_components": 2,
+      "dropped_edges": 0,
+      "grid_components_spanning_two_physical": 0
+    },
+    "rect_n/In1.Cu": {
+      "grid_nodes": 8159,
+      "grid_components": 5,
+      "physical_components": 5,
+      "dropped_edges": 0,
+      "grid_components_spanning_two_physical": 0
+    },
+    "rect_n/In2.Cu": {
+      "grid_nodes": 76932,
+      "grid_components": 3,
+      "physical_components": 3,
+      "dropped_edges": 0,
+      "grid_components_spanning_two_physical": 0
+    },
+    "rect_p/B.Cu": {
+      "grid_nodes": 17781,
+      "grid_components": 2,
+      "physical_components": 2,
+      "dropped_edges": 0,
+      "grid_components_spanning_two_physical": 0
+    },
+    "rect_p/F.Cu": {
+      "grid_nodes": 17781,
+      "grid_components": 2,
+      "physical_components": 2,
+      "dropped_edges": 0,
+      "grid_components_spanning_two_physical": 0
+    },
+    "rect_p/In1.Cu": {
+      "grid_nodes": 187453,
+      "grid_components": 3,
+      "physical_components": 3,
+      "dropped_edges": 0,
+      "grid_components_spanning_two_physical": 0
+    },
+    "rect_p/In2.Cu": {
+      "grid_nodes": 9019,
+      "grid_components": 5,
+      "physical_components": 5,
+      "dropped_edges": 0,
+      "grid_components_spanning_two_physical": 0
+    },
+    "res_a/B.Cu": {
+      "grid_nodes": 228459,
+      "grid_components": 1,
+      "physical_components": 1,
+      "dropped_edges": 1,
+      "grid_components_spanning_two_physical": 0
+    },
+    "res_a/F.Cu": {
+      "grid_nodes": 22428,
+      "grid_components": 4,
+      "physical_components": 4,
+      "dropped_edges": 0,
+      "grid_components_spanning_two_physical": 0
+    },
+    "res_a/In1.Cu": {
+      "grid_nodes": 11623,
+      "grid_components": 7,
+      "physical_components": 7,
+      "dropped_edges": 0,
+      "grid_components_spanning_two_physical": 0
+    },
+    "res_a/In2.Cu": {
+      "grid_nodes": 11623,
+      "grid_components": 7,
+      "physical_components": 7,
+      "dropped_edges": 0,
+      "grid_components_spanning_two_physical": 0
+    },
+    "sw_a/B.Cu": {
+      "grid_nodes": 67190,
+      "grid_components": 6,
+      "physical_components": 6,
+      "dropped_edges": 2,
+      "grid_components_spanning_two_physical": 0
+    },
+    "sw_a/F.Cu": {
+      "grid_nodes": 414125,
+      "grid_components": 11,
+      "physical_components": 11,
+      "dropped_edges": 8,
+      "grid_components_spanning_two_physical": 0
+    },
+    "sw_a/In1.Cu": {
+      "grid_nodes": 4821,
+      "grid_components": 14,
+      "physical_components": 14,
+      "dropped_edges": 2,
+      "grid_components_spanning_two_physical": 0
+    },
+    "sw_a/In2.Cu": {
+      "grid_nodes": 5633,
+      "grid_components": 11,
+      "physical_components": 11,
+      "dropped_edges": 4,
+      "grid_components_spanning_two_physical": 0
+    },
+    "sw_b/B.Cu": {
+      "grid_nodes": 755916,
+      "grid_components": 11,
+      "physical_components": 11,
+      "dropped_edges": 1,
+      "grid_components_spanning_two_physical": 0
+    },
+    "sw_b/F.Cu": {
+      "grid_nodes": 20957,
+      "grid_components": 14,
+      "physical_components": 14,
+      "dropped_edges": 10,
+      "grid_components_spanning_two_physical": 0
+    },
+    "sw_b/In1.Cu": {
+      "grid_nodes": 9419,
+      "grid_components": 18,
+      "physical_components": 18,
+      "dropped_edges": 4,
+      "grid_components_spanning_two_physical": 0
+    },
+    "sw_b/In2.Cu": {
+      "grid_nodes": 15149,
+      "grid_components": 12,
+      "physical_components": 12,
+      "dropped_edges": 6,
+      "grid_components_spanning_two_physical": 0
+    }
+  },
+  "total_spanning": 0
+}

@@ -1,8 +1,8 @@
 {
  "schema": "temper.native21.engineering-candidate.v1",
  "status": "DIGITAL_CANDIDATE_NOT_MANUFACTURING_RELEASE",
- "routed_board_sha256": "76ec8ccae6ca0dbd145b672abc3d18a8f8132875e567cb31ab84325d897a1715",
- "copper_json_sha256": "c450f12cd4abf1b5c9af31b3a725199634330ea71462879327c68232f37627a6",
+ "routed_board_sha256": "e7b8fe778ed3e8f2d9aa22a49ad4d7b06b58b51b65da9a6106adf9543d5f2c54",
+ "copper_json_sha256": "26493be7e945784b921a0dcc2a6d0acc76965d276fe4c261f54b3083d62cfe6d",
  "schematic_sha256": "c4982d4ce75c12643c8a08d35a300cbe19ef3085aea56c1c97fca4f540836bc5",
  "frozen_netlist_sha256": "e3fb7cddff3d78b2319eb9b541d03016ec2661d77779b256adda814d75a051f1",
  "rebuild": "sh native-21/layout/incr_iter.sh native-21/layout/copper.json - [OUTDIR]",
@@ -30,7 +30,7 @@
  "barrier_plan_view_8mm": {
   "barrier21": 0,
   "rust_gate_violations": 0,
-  "rust_gate_items": 5543
+  "rust_gate_items": 5564
  },
  "body_collisions": {
   "solids": 412,
@@ -49,18 +49,29 @@
   "silk": 272,
   "fab_only": 75
  },
- "via_in_pad_remaining": 44,
- "fem": "both legs' coarse native-21 matrices extracted; provisional decision matrices pass F6 at the -1.6 V bound 252/252 per leg (validation-results/01-switching-parasitics FINDINGS M11); corrections and fine extraction running",
+ "via_in_pad_remaining": 42,
+ "fem": "both legs' coarse native-21 matrices extracted on the stage-5 copper (native21-all-copper.json.gz); provisional decision matrices pass F6 at the -1.6 V bound 252/252 per leg (FINDINGS M11). Stage 6 adds vias only at R5's current pads (return path parallel copper; not expected to raise loop L). Corrections and fine extraction running.",
  "physical": "NOT_RUN",
  "jlc_dfm": {
   "status": "PASS",
   "evidence": "verification/jlc-dfm.json",
   "rules": "tools/jlc_dfm_check.py 2026-10-08: PTH ring >= 0.254, via ring >= 0.15, track >= 0.2",
   "vias": {
-   "0.6/0.3": 484,
+   "0.6/0.3": 501,
    "0.85/0.3": 229,
    "1.6/0.8": 10
   }
  },
- "via_in_pad_decision": "order every 0.3 mm via epoxy-filled and capped (POFV); DECISIONS.md 2026-10-08"
+ "via_in_pad_decision": "order every 0.3 mm via epoxy-filled and capped (POFV); DECISIONS.md 2026-10-08",
+ "stage": "6: stage-5 copper + R5 shunt current-pad vias (task 04 round 5)",
+ "board_hash_note": "rebuilds are not byte-identical (KiCad UUIDs / timestamps); copper_json_sha256 is the reproducible identity",
+ "r5_current_vias": {
+  "R5.1_leg_ret": 10,
+  "R5.4_hv_ret": 7,
+  "worst_via_A_coherent_34A": 7.27,
+  "evidence": "validation-results/04-board-current-thermal/round5-native21"
+ },
+ "kelvin_evidence": "validation-results/02-protection-timing/kelvin/budget-native21s6.json (R35.2 164.02 mOhm, unchanged)",
+ "board_current_screen": "task 04 round 5: 37/37 cases; SW_B tank path 7.4 mOhm / 2.6 W at 18.7 A and HV_RET west return 6.2 mOhm are the costliest paths; thermal B3 awaits task 03 heat sources",
+ "fab_package": "validation-results/08-manufacturing-package/native-21 (candidate; review PASS; POFV for 0.3 mm vias; LCSC numbers not sourced)"
 }

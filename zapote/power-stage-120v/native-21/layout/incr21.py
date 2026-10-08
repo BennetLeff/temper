@@ -287,7 +287,8 @@ def dogbone():
     pad: an F stub from the pad, and on each other layer a short join from the old via centre
     to the new one. All new copper is checked; if any piece fails, the via stays."""
     from shapely.geometry import LineString as _LS, Point as _Pt, box as _box
-    smd = [p for p in GEO.pads if not p["tht"] and p["net"]]
+    keep_in = set(getattr(patches21, "IN_PAD", ()))       # pads whose vias are intended (filled / capped)
+    smd = [p for p in GEO.pads if not p["tht"] and p["net"] and p["ref"] not in keep_in]
     moved = kept = 0
     for v in list(g["VIAS"]):
         c = _Pt(*v["at"])
