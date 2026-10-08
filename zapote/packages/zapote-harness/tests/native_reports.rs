@@ -91,3 +91,141 @@ fn missing_parity_flag_or_failed_command_is_rejected() {
     dc["returncode"] = json!(1);
     assert_eq!(status(ERC, DRC, EC, &dc.to_string()), Status::Fail);
 }
+
+const RELEASE_PREP_DRC: &str =
+    include_str!("../../../fabrication/standalone-2026-09-24/release-prep/interlock-drc-at-0p20mm.json");
+
+fn report(e: &str, d: &str) -> zapote_core::CheckReport {
+    zapote_harness::native_reports::validate(e, d, EC, DC)
+}
+
+#[test]
+fn each_erc_violation_becomes_a_located_finding() {
+    let erc = include_str!("../../../interlock/evidence/final-native-01/erc.json");
+    let r = report(erc, DRC);
+    let each: Vec<_> = r
+        .findings
+        .iter()
+        .filter(|f| f.rule == "NATIVE.ERC.endpoint_off_grid")
+        .collect();
+    assert_eq!(each.len(), 25);
+    assert!(each.iter().all(|f| f.status == Status::Fail && f.severity == "warning"));
+    assert!(each[0].object.contains("Symbol J1 Pin 1"), "{}", each[0].object);
+    assert!(each[0].object.contains("@ (0.398, 0.626)"), "{}", each[0].object);
+    assert!(r
+        .findings
+        .iter()
+        .any(|f| f.rule == "NATIVE.ERC" && f.message.starts_with("25 ")));
+}
+
+#[test]
+fn drc_clearance_violation_carries_items_and_actual_required() {
+    let real = v(RELEASE_PREP_DRC)["violations"][0].clone();
+    assert_eq!(real["type"], "clearance");
+    let mut d = v(DRC);
+    d["violations"] = json!([real]);
+    let r = report(ERC, &d.to_string());
+    assert_eq!(r.status, Status::Fail);
+    let f = r
+        .findings
+        .iter()
+        .find(|f| f.rule == "NATIVE.DRC.clearance")
+        .expect("per-violation clearance finding");
+    assert_eq!(f.actual.as_deref(), Some("0.1900 mm"));
+    assert_eq!(f.required.as_deref(), Some("0.2000 mm"));
+    assert!(f.object.contains("Track [vcc] on B.Cu") && f.object.contains("Via [aux_healthy]"), "{}", f.object);
+    assert!(f.object.contains("[574498db]"), "{}", f.object);
+}
+
+#[test]
+fn itemless_violation_is_kept_and_says_so() {
+    let mut d = v(DRC);
+    d["violations"] = json!([{"description": "Silkscreen clearance", "items": [], "severity": "warning", "type": "silk_overlap"}]);
+    let r = report(ERC, &d.to_string());
+    let f = r.findings.iter().find(|f| f.rule == "NATIVE.DRC.silk_overlap").expect("kept");
+    assert_eq!(f.object, "no located items reported by KiCad");
+}
+
+#[test]
+fn unconnected_items_become_individual_findings() {
+    let mut d = v(DRC);
+    d["unconnected_items"] = json!([{
+        "description": "Missing connection between items",
+        "items": [
+            {"description": "Pad 1 [GND] of C1 on F.Cu", "pos": {"x": 1.0, "y": 2.0}, "uuid": "aaaaaaaa-0000"},
+            {"description": "Pad 2 [GND] of C2 on F.Cu", "pos": {"x": 3.0, "y": 4.0}, "uuid": "bbbbbbbb-0000"}
+        ],
+        "severity": "error",
+        "type": "unconnected_items"
+    }]);
+    let r = report(ERC, &d.to_string());
+    let f = r
+        .findings
+        .iter()
+        .find(|f| f.rule == "NATIVE.UNCONNECTED.unconnected_items")
+        .expect("per-item unconnected finding");
+    assert!(f.object.contains("C1") && f.object.contains("C2"));
+}
+
+#[test]
+fn malformed_violation_fails_the_report_contract() {
+    let real = v(RELEASE_PREP_DRC)["violations"][0].clone();
+    for field in ["type", "items", "description", "severity"] {
+        let mut broken = real.clone();
+        broken.as_object_mut().unwrap().remove(field);
+        let mut d = v(DRC);
+        d["violations"] = json!([broken]);
+        let r = report(ERC, &d.to_string());
+        assert!(
+            r.findings.iter().any(|f| f.rule == "NATIVE.REPORT_CONTRACT" && f.status == Status::Fail),
+            "missing {field} must fail closed"
+        );
+    }
+    let mut broken = real.clone();
+    broken["items"][0].as_object_mut().unwrap().remove("pos");
+    let mut d = v(DRC);
+    d["violations"] = json!([broken]);
+    assert!(report(ERC, &d.to_string())
+        .findings
+        .iter()
+        .any(|f| f.rule == "NATIVE.REPORT_CONTRACT"));
+}
+
+/// Every KiCad report retained in the zapote tree (191 reports, 6,792
+/// violations on 2026-10-08) parses violation by violation.
+#[test]
+fn every_retained_kicad_report_parses_per_violation() {
+    fn walk(dir: &std::path::Path, out: &mut Vec<std::path::PathBuf>) {
+        for entry in std::fs::read_dir(dir).unwrap().flatten() {
+            let path = entry.path();
+            if path.is_dir() && path.file_name().map_or(true, |n| n != "target" && n != "runs") {
+                walk(&path, out);
+            } else if path.extension().map_or(false, |e| e == "json") {
+                out.push(path);
+            }
+        }
+    }
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let mut files = Vec::new();
+    walk(&root, &mut files);
+    // The clean real captures stand in for the other report (0 violations).
+    let (empty_erc, empty_drc) = (ERC.to_string(), DRC.to_string());
+    let (mut reports, mut total) = (0, 0);
+    for path in files {
+        let Ok(text) = std::fs::read_to_string(&path) else { continue };
+        let Ok(value) = serde_json::from_str::<Value>(&text) else { continue };
+        let schema = value["$schema"].as_str().unwrap_or("");
+        let parsed = if schema.ends_with("/erc.v1.json") {
+            zapote_harness::native_reports::violations(&text, &empty_drc)
+        } else if schema.ends_with("/drc.v1.json") {
+            zapote_harness::native_reports::violations(&empty_erc, &text)
+        } else {
+            continue;
+        };
+        let found = parsed.unwrap_or_else(|e| panic!("{}: {e}", path.display()));
+        reports += 1;
+        total += found.len();
+    }
+    assert!(reports >= 191, "only {reports} retained reports found");
+    assert!(total >= 6792, "only {total} violations parsed");
+}

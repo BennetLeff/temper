@@ -1,7 +1,168 @@
 //! Validate captured KiCad reports without treating absent fields as empty results.
 //! This checks report content and command coverage, not tool authenticity or freshness.
-use serde::Deserialize;
+//!
+//! Besides the four category counts, every KiCad violation becomes its own
+//! finding (`NATIVE.<CATEGORY>.<type>`) carrying KiCad's severity, message,
+//! located items and, when KiCad states them, actual/required values.
+use serde::{Deserialize, Serialize};
 use zapote_core::{CheckReport, Finding};
+
+/// One KiCad ERC/DRC entry, parsed strictly: a missing field is a contract
+/// failure, never an empty result.
+#[derive(Clone, Debug, Serialize)]
+pub struct NativeViolation {
+    /// `ERC`, `DRC`, `UNCONNECTED` or `SCHEMATIC_PARITY`.
+    pub category: &'static str,
+    pub kind: String,
+    pub severity: String,
+    pub description: String,
+    /// ERC sheet path; `None` for board reports.
+    pub sheet: Option<String>,
+    pub items: Vec<NativeItem>,
+}
+
+#[derive(Clone, Debug, Serialize)]
+pub struct NativeItem {
+    pub description: String,
+    pub x_mm: f64,
+    pub y_mm: f64,
+    pub uuid: String,
+}
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct RawViolation {
+    #[serde(rename = "type")]
+    kind: String,
+    severity: String,
+    description: String,
+    items: Vec<RawItem>,
+}
+
+#[derive(Deserialize)]
+struct RawItem {
+    description: String,
+    pos: RawPos,
+    #[serde(default)]
+    uuid: String,
+}
+
+#[derive(Deserialize)]
+struct RawPos {
+    x: f64,
+    y: f64,
+}
+
+fn parse_violation(
+    value: &serde_json::Value,
+    category: &'static str,
+    sheet: Option<&str>,
+) -> Result<NativeViolation, String> {
+    let raw: RawViolation = serde_json::from_value(value.clone())
+        .map_err(|e| format!("{category}: malformed violation entry: {e}"))?;
+    // `items` must be present but may be empty: KiCad 10 reports some
+    // silk_overlap violations with no located items (native-19 captures).
+    if raw.kind.is_empty() || raw.description.is_empty() {
+        return Err(format!("{category}: violation without type or description"));
+    }
+    if raw.items.iter().any(|i| !i.pos.x.is_finite() || !i.pos.y.is_finite()) {
+        return Err(format!("{category}: violation item without a finite position"));
+    }
+    Ok(NativeViolation {
+        category,
+        kind: raw.kind,
+        severity: raw.severity,
+        description: raw.description,
+        sheet: sheet.map(str::to_owned),
+        items: raw
+            .items
+            .into_iter()
+            .map(|i| NativeItem {
+                description: i.description,
+                x_mm: i.pos.x,
+                y_mm: i.pos.y,
+                uuid: i.uuid,
+            })
+            .collect(),
+    })
+}
+
+/// Every violation in the reports, in report order. Fails on the first
+/// malformed entry so callers cannot mistake a parse gap for a clean board.
+pub fn violations(erc: &str, drc: &str) -> Result<Vec<NativeViolation>, String> {
+    let e: Erc = serde_json::from_str(erc).map_err(|e| format!("ERC schema: {e}"))?;
+    let d: Drc = serde_json::from_str(drc).map_err(|e| format!("DRC schema: {e}"))?;
+    collect(&e, &d)
+}
+
+fn collect(e: &Erc, d: &Drc) -> Result<Vec<NativeViolation>, String> {
+    let mut all = Vec::new();
+    for sheet in &e.sheets {
+        for v in &sheet.violations {
+            all.push(parse_violation(v, "ERC", Some(&sheet.path))?);
+        }
+    }
+    for (category, list) in [
+        ("DRC", &d.violations),
+        ("UNCONNECTED", &d.unconnected_items),
+        ("SCHEMATIC_PARITY", &d.schematic_parity),
+    ] {
+        for v in list {
+            all.push(parse_violation(v, category, None)?);
+        }
+    }
+    Ok(all)
+}
+
+/// KiCad states limits as `(<constraint> <value> mm; actual <value> mm)`.
+fn actual_required(description: &str) -> (Option<String>, Option<String>) {
+    let Some(open) = description.rfind('(') else {
+        return (None, None);
+    };
+    let inner = description[open + 1..].trim_end_matches(')').trim();
+    let Some((constraint, actual)) = inner.split_once("; actual ") else {
+        return (None, None);
+    };
+    let value = |text: &str| {
+        let mut words = text.split_whitespace().rev();
+        let unit = words.next()?;
+        let number = words.next()?;
+        number.parse::<f64>().ok()?;
+        Some(format!("{number} {unit}"))
+    };
+    (value(actual.trim()), value(constraint.trim()))
+}
+
+fn violation_finding(v: &NativeViolation) -> Finding {
+    let object = v
+        .items
+        .iter()
+        .map(|i| {
+            let short = i.uuid.get(..8).unwrap_or(&i.uuid);
+            format!("{} @ ({:.3}, {:.3}) [{short}]", i.description, i.x_mm, i.y_mm)
+        })
+        .collect::<Vec<_>>()
+        .join("; ");
+    let object = if object.is_empty() {
+        "no located items reported by KiCad".to_string()
+    } else {
+        object
+    };
+    let object = match &v.sheet {
+        Some(sheet) => format!("sheet {sheet}: {object}"),
+        None => object,
+    };
+    let (actual, required) = actual_required(&v.description);
+    let mut f = Finding::fail(
+        &format!("NATIVE.{}.{}", v.category, v.kind),
+        v.description.clone(),
+        object,
+    );
+    f.severity = v.severity.clone();
+    f.actual = actual;
+    f.required = required;
+    f
+}
 
 #[derive(Deserialize)]
 struct IgnoredCheck {
@@ -131,6 +292,7 @@ fn inspect(
     if e.sheets.is_empty() || e.sheets.iter().any(|s| s.path.is_empty()) {
         return Err("ERC contains no identified schematic sheet".into());
     }
+    let each = collect(&e, &d)?;
     let counts = [
         (
             "NATIVE.ERC",
@@ -140,7 +302,7 @@ fn inspect(
         ("NATIVE.UNCONNECTED", d.unconnected_items.len()),
         ("NATIVE.SCHEMATIC_PARITY", d.schematic_parity.len()),
     ];
-    Ok(counts
+    let summaries = counts
         .into_iter()
         .map(|(rule, count)| {
             if count == 0 {
@@ -157,6 +319,10 @@ fn inspect(
                 )
             }
         })
+        .collect::<Vec<_>>();
+    Ok(summaries
+        .into_iter()
+        .chain(each.iter().map(violation_finding))
         .collect())
 }
 
