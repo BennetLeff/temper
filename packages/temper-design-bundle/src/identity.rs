@@ -433,12 +433,15 @@ pub(crate) mod strict_pin_map_tests {
         }
     }
 
-    fn case() -> (
+    /// (pin-map entries, pads by reference, pins by reference, unconnected pins)
+    type PinMapCase = (
         Vec<StrictPinMapEntry>,
         HashMap<String, Vec<String>>,
         HashMap<String, Vec<String>>,
         HashSet<(String, String)>,
-    ) {
+    );
+
+    fn case() -> PinMapCase {
         (
             vec![entry("U1", "1", "1"), entry("U1", "2", "2")],
             HashMap::from([("U1".to_string(), vec!["1".to_string(), "2".to_string()])]),
