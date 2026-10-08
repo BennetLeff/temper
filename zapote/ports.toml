@@ -10,6 +10,7 @@ notes = "Luna copied the pure numerical kernel without PyO3 or donor runtime dep
 [[port]]
 source = "Temper engineering memory policy"
 source_path = "harness-lab/src/memory.rs"
+source_ref = "archive/rev38-power-entry-2026-09-25"  # harness-lab/src/memory.rs no longer in the tree
 source_sha256 = "db369d02f22214629c78acfaa149ce05292c52990b3eb11ebc61cd6d97fa8b4b"
 target = "zapote/packages/zapote-harness/src/memory.rs"
 notes = "Independent Rust copy of entry validation, deterministic selection and promotion review. context.prepare binds raw catalog/entry/evidence bytes and preserves exact-fact source dependencies omitted by the old Python adapter. No runtime donor dependency."
@@ -17,6 +18,7 @@ notes = "Independent Rust copy of entry validation, deterministic selection and 
 [[port]]
 source = "Temper memory policy regression tests"
 source_path = "harness-lab/tests/memory_policy.rs"
+source_ref = "archive/rev38-power-entry-2026-09-25"  # harness-lab/tests/memory_policy.rs no longer in the tree
 source_sha256 = "06ad3506ba4475c41ce0a4f29eadcd0d79c45b91494f50b1ddce5cb1cfea408c"
 target = "zapote/packages/zapote-harness/tests/memory_policy.rs"
 notes = "Copied donor controls target Zapote's public memory dispatcher; context and transport controls extend the evidence separately."
@@ -24,6 +26,7 @@ notes = "Copied donor controls target Zapote's public memory dispatcher; context
 [[port]]
 source = "Temper source-derived RTD contract and firmware values"
 source_path = "elec/src/modules.ato; elec/src/main.ato; firmware/components/hal/include/temper_pins.h; firmware/config.yaml"
+source_ref = "archive/temper-legacy-2026-10-08"  # elec/src/modules.ato, elec/src/main.ato no longer in the tree
 source_sha256 = "b86344e7c0bd772f9de13d251066a8c9335cfbfaf8014b3d03e1cc78a102edf5,8913d3867b3d694eed1a4db4674c6f3340a95c82d2f610c0828bd8b035294e28,27b948327244b7dcab23264d37e5484e8b892954cc2718dfc39560237abc4055,aa14b7d63de14b3a08185f3e714d2a72622cefdfb56fe5745825fdb0d3cf1c3b"
 target = "zapote/packages/zapote-core/src/lib.rs"
 notes = "New typed boundary; no runtime dependency on donor packages. Values cross-checked against the committed source files."
@@ -31,6 +34,7 @@ notes = "New typed boundary; no runtime dependency on donor packages. Values cro
 [[port]]
 source = "Temper DRC geometry/connectivity patterns"
 source_path = "packages/temper-drc-rs/src/board.rs; packages/temper-drc-rs/src/rules/"
+source_ref = "archive/temper-legacy-2026-10-08"  # packages/temper-drc-rs/src/board.rs, packages/temper-drc-rs/src/rules/ no longer in the tree
 source_sha256 = "bbd4e8a6a6b839cfaa35402a4160102ba3efe298b35499a4f2f188ab25e20249"
 target = "zapote/packages/zapote-drc/src/lib.rs"
 notes = "No donor code is linked. Geometry checks use a smaller source-derived schema and preserve native evidence as input."
@@ -52,6 +56,7 @@ notes = "Copied segments_intersect with its orientation/on-segment helpers; Zapo
 [[port]]
 source = "Temper IPC external-layer ampacity scalar"
 source_path = "packages/temper-drc-rs/src/ipc.rs"
+source_ref = "archive/temper-legacy-2026-10-08"  # packages/temper-drc-rs/src/ipc.rs no longer in the tree
 source_sha256 = "a11a99c85e30e1877b4faf3cefeb11952a9bfae352d569e21393a738f7e1d6a3"
 target = "zapote/packages/zapote-drc/src/ipc.rs"
 notes = "Independent copy of the IPC external-layer scalar for local escapes and nominal power-path screening; no runtime dependency on donor packages. On 2026-09-12, independent dimensional tests replaced the donor's approximate ounce conversion with exact mm/um-to-mil conversion. The source hash remains the original donor identity; see validation/p1-current/oracle-2026-09-12/README.md."

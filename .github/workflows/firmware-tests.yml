@@ -54,7 +54,7 @@ jobs:
           git diff --exit-code firmware/config.h
 
       - name: firmware/tools unit tests (generators, state-machine and invariant gates)
-        run: python3 -m pytest -q firmware/tools
+        run: python3 -m pytest -q firmware/tools firmware/test/test_codegen_tools.py
 
       - name: Check header matches manifest
         run: python3 firmware/tools/check_config_matches_manifest.py
@@ -70,18 +70,13 @@ jobs:
       # The firmware-board contract oracle (pcb/temper.kicad_pcb) was removed with
       # the legacy board on 2026-10-08 (archive/temper-legacy-2026-10-08).
 
-      # Drift guard: every constant annotated with a board-derivation
-      # marker (@board-derived in pll_control.h, board_derivation: true in
-      # config.yaml) must have a registry entry in
-      # firmware/tools/board_derivations.yaml, or the oracle will never
-      # check it. Hard gate -- annotated-but-unregistered is a silent gap.
-      - name: Board-derivation coverage drift guard
-        run: python3 firmware/tools/check_board_derivation_coverage.py
 
       - name: Regenerate transition table and check drift
         run: |
           python3 firmware/tools/gen_transition_table.py
           git diff --exit-code firmware/main/transition_table.h
+          python3 firmware/test/gen_transition_table.py --generate
+          git diff --exit-code firmware/test/test_transition_table_generated.c
 
       # State-machine model check (R28, plan 2026-08-02-028-feat-state-
       # machine-model-check-plan.md U4): exhaustive reachability from
