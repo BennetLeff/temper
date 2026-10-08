@@ -1,5 +1,9 @@
 # Battery 6: what explains the remaining ~2000 iterations (scaling off throughout, tol 1e-8, cap 4000).
 # Mesh ladder: native-17 leg A, round-16 parameters (m17-base reproduces legA-small-thin's 850k tets).
+# Q1/Q2 re-run for the scaling-off qualification (first attempt had no mesher port record beside the fixture meshes; matrices built by hand after, see README 4.1)
+qual-noscale-q1b|4 0 0 100|/home/bennet/temper-fem/r17/qual/meshes/f2.msh|--hypre-method 8 --tol 1e-10 --maxit 5000 --solver-line "Linear System Scaling = False"|KEEP=1 PEC=2
+qual-noscale-q2p4b|4 0 0 100|/home/bennet/temper-fem/r17/qual/meshes/sect2.msh|--hypre-method 8 --tol 1e-10 --maxit 5000 --solver-line "Linear System Scaling = False"|KEEP=1 PEC=2
+qual-noscale-q2p5b|5 0 0 100|/home/bennet/temper-fem/r17/qual/meshes/sect2.msh|--hypre-method 8 --tol 1e-10 --maxit 5000 --solver-line "Linear System Scaling = False"|KEEP=1 PEC=2
 it-thin-dirscale|10 -2500 0 0|/home/bennet/temper-fem/r16/meshes/legA-small-thin.msh|--hypre-method 8 --tol 1e-8 --maxit 4000 --solver-line "Linear System Scaling = False" --solver-line "Linear System Dirichlet Scaling = True"
 it-base-P1|10 -2500 0 0|/home/bennet/temper-fem/speedup/meshes/m17-base.msh|--hypre-method 8 --tol 1e-8 --maxit 4000 --solver-line "Linear System Scaling = False"
 it-base-P3|12 2500 0 0|/home/bennet/temper-fem/speedup/meshes/m17-base.msh|--hypre-method 8 --tol 1e-8 --maxit 4000 --solver-line "Linear System Scaling = False"

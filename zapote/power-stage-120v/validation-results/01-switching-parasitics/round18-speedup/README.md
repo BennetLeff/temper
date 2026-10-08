@@ -40,6 +40,12 @@ Krylov time, 98-99 % of every solve). §4.2 asks what explains the remaining
   2 ranks (`runs/base-thin-full`) and 6105 at 12 (round 17 `qual/q3p1`) to 1e-8.
 - Native-21 is worse: leg A21's coarse base needed **12,672-14,055** iterations per port
   (live `a21c/campaign.log`), 2x native-19's; its coarse case took 8.0 h, not ~3 h.
+- **Native-21 leg A at h = 0.5 mm is harder still:** P1 16,004 and P2_C39 **20,109**
+  iterations (2 h 47 min), above every earlier coarse solve. Our experiments do not explain
+  it: iteration counts do not depend on load, and its rate (1.976 it/s with our runs beside
+  it) is the same per iteration as the h1 ports (1.715 it/s beside our runs, 2.086 alone, on
+  a 12 % larger mesh; `logs/chain_n21_rates.txt`). Our runs cost it ~15 % of its wall time
+  (estimate, from that ratio); the rest is the 20 k iterations.
 - Every solve converged; no crash except AMS cycle types 13/14 (round 17, exit 139).
 - ElmerGrid partitioning 10-34 s per port (directory timestamps,
   `logs/n21-coarse-phase-times.txt`); meshing + gates ~20 s per coarse case, 80 s fine
@@ -86,8 +92,9 @@ iterations. Not worth doing.
 PCG + AMS diverges (residual grows to 0.3 after 4000 iterations, `runs/r18on-thin-pcg`),
 as in round 16: Elmer hard-codes the auxiliary AMG relaxation to type 3 (hybrid
 Gauss-Seidel, forward), which makes AMS non-symmetric. GMRES(30) with the round-18
-patch: 7.1e-7 after 4000 iterations against 1e-8 after 2584 for GMRES(100): restarts
-hurt; memory 9.3 % lower. Scaling-off GMRES(30): PENDING.
+patch: 7.1e-7 after 4000 iterations against 1e-8 after 2584 for GMRES(100). Scaling off:
+GMRES(30) 3660 iterations against ~2050 for GMRES(100) (+78 %), memory 2.395 vs 2.683
+GB/rank (-10.7 %). Restarts hurt; GMRES(30) is a memory lever only.
 
 ### H3 Stopping criterion
 
@@ -95,7 +102,17 @@ hurt; memory 9.3 % lower. Scaling-off GMRES(30): PENDING.
 stopping at 1e-7 saves 3-30 % (median ~15 %), at 1e-6 12-55 % (median ~29 %).
 Energy error against residual (round 16/17 data, legA-small-thin, direct 29.77092 nH):
 residual 1.1e-5 -> -1.2e-3, 6.5e-6 -> -6.1e-4, 1.1e-7 -> -9.4e-6, ≤ 1e-9 -> exact: the
-relative energy error is ~90x the residual. Scaling off: tol 1e-6 / 1e-7 PENDING.
+relative energy error is ~90x the residual. **Scaling off** (`runs/ns-thin-tol1e-*`,
+same mesh, P1, 2 ranks):
+
+| Tolerance | Iterations | L (nH) | vs direct 29.77092 |
+| --- | ---: | ---: | ---: |
+| 1e-6 | 1376 | 29.76998 | -3.2e-5 |
+| 1e-7 | 1731 | 29.77082 | -3.4e-6 |
+| 1e-8 | ~2050 (1.9e-8 at 2000) | 29.77090 | -6.7e-7 |
+
+1e-7 saves ~15 % at an energy error 30x below the brief's 1e-4. Mutuals at 1e-7 are not
+checked (Q3 ran at 1e-8), so the chain keeps 1e-8; 1e-7 is a qualified-later option.
 
 ### H4 AMS settings — and the defect behind most of the iterations
 
@@ -124,8 +141,9 @@ components): every variant stalled near 1e-2 there, including scaling off for 20
 iterations (`logs/v1-noscale-gmres.txt`). Those runs are not evidence for or against
 anything; they do show what an inconsistent RHS looks like (§4.2).
 
-AMS scan beyond round 17 (scaling off): cycle 7, alpha threshold 0.6/0.9,
-AMS 3 cycles per iteration, GMRES(300), non-singular mode: PENDING (battery 6).
+AMS scan beyond round 17 (scaling off, iterations to 1e-8): default ~2050; cycle type 7
+2119; alpha threshold 0.6 **1884 (-8 %)**; GMRES(30) 3660. Threshold 0.9, 3 AMS cycles per
+iteration, GMRES(300), non-singular mode and Dirichlet scaling: battery 6 (§4.2).
 
 ### H5 Parallel configuration — PENDING whole-machine test (§7)
 
@@ -164,7 +182,26 @@ vectorisation gains); R1/R2 come first.
 
 ## 4. The remaining iterations (coordinator priority) — PENDING
 
-### 4.1 Q1-Q3 re-qualification with scaling off — PENDING (`scripts/qualify18.sh`)
+### 4.1 Q1-Q3 re-qualification with scaling off (`scripts/qualify18.sh`)
+
+Round 17's mutual-inductance qualification re-run with `Linear System Scaling = False`,
+2 ranks (`logs/qualify-noscale.log`, `logs/qualify-noscale-q1q2.log`):
+
+| Check | Scaling off | Reference | Iterations (off) | Iterations (round 17, scaling on) |
+| --- | --- | --- | ---: | ---: |
+| Q1 plate + floating blocks, L from B vs energy | 2.762937 vs 2.762936 nH, spread 1.0e-15 | 2.762936 (direct) | 100 (1e-10) | 198 |
+| Q2 two-port plate L11 / M | 3.141593 / 1.884956 nH | 3.141593 / 1.884956 exact | 32, 32 (1e-10) | 82, 82 |
+| Q3 board (legA-small-thin) L11 | 29.770909 (B) / 29.7709 (energy) | 29.77092 direct | 2119 (1e-8) | 7783 (1e-9, 12 ranks) |
+| Q3 L22 | 29.054665 / 29.05466 | 29.05466 (round 17) | 2228 | 7123 |
+| Q3 M12 from B fields vs pair-solve energy | **18.106441 vs 18.106450** nH | round 17: 18.106446 / 18.106450 | pair 2086 | 5259 |
+| Q3 gates | within-tet spread 8.6e-16; diagonals vs energy 3.0e-7, 1.8e-7 | ≤ 1e-5 | | |
+
+M12 by reciprocity and by pair energy agree to 9e-6 nH (5e-7 relative); every entry is
+within 1e-6 relative of round 17's. Q2's L22 line was cut when captured (operator error);
+its full re-run is queued (`logs/qualify-noscale-q2-full.log` when it lands).
+The fixture meshes have no mesher log, so `inductance_matrix.py`'s port-identity check
+needed a port record beside them: `r17/qual/meshes/{f2,sect2,legA-small-thin}.log`,
+written by hand with round 17's drives and marked as a round-18 shim.
 
 ### 4.2 What explains ~2000 iterations — PENDING (battery 6)
 

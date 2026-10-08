@@ -1,0 +1,2 @@
+qual-noscale-q2p4c|4 0 0 100|/home/bennet/temper-fem/r17/qual/meshes/sect2.msh|--hypre-method 8 --tol 1e-10 --maxit 5000 --solver-line "Linear System Scaling = False"|KEEP=1 PEC=2
+qual-noscale-q2p5c|5 0 0 100|/home/bennet/temper-fem/r17/qual/meshes/sect2.msh|--hypre-method 8 --tol 1e-10 --maxit 5000 --solver-line "Linear System Scaling = False"|KEEP=1 PEC=2
