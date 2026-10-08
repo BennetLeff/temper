@@ -4,14 +4,16 @@
 `make -C zapote help`. Includes native current analysis, before/after comparisons,
 Rust owners, test evidence, and the current integration/CI checkpoint.
 
-> **Scope on `main` (2026-09-25).** Five maintained units — RTD, current-sense,
+> **Scope on `main` (landed 2026-10-08).** Five maintained units — RTD, current-sense,
 > thermal-sense, interlock, gate-drive — plus `power-stage-120v` and the inverter
 > measurement framework. The Rev38 PFC power entry, the voltage-sense unit, the
 > PFC-board bridge/shunt FEM and cooling studies, and their crate modules are
 > archived at tags `archive/rev38-power-entry-2026-09-25` and
 > `archive/zapote-coil-intake-2026-09-25` (see `docs/archive/REV38.md`). Unit
 > evidence runs not read by a check also stay in those tags; a unit
-> `ACCEPTANCE.md` path that is absent here resolves there.
+> `ACCEPTANCE.md` path that is absent here resolves there. Bulk solver output
+> (`*.gz`, `*.npz`, files over 5 MB) is in release `zapote-evidence-2026-10-08`;
+> `python3 zapote/tools/evidence_archive.py fetch` restores it in place.
 
 Zapote is Temper's agent engineering subproject centered on a large Rust
 validation suite. The working Python/KiCad editing adapter stays in use.
@@ -82,6 +84,7 @@ or replace existing board findings.
 | `skills/` | Versioned agent skills and learned artifacts |
 | `artifacts/` | Durable evidence manifests and local artifact indexes |
 | `runs/` | Git-ignored runtime output |
+| `evidence-archive.json` | Manifest of bulk evidence held in release assets; restore with `tools/evidence_archive.py fetch` |
 | `docs/` | Design, migration, and operating notes |
 
 ## Commands

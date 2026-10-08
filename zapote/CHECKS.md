@@ -87,12 +87,15 @@ cargo bench --locked --manifest-path zapote/Cargo.toml \
 
 ## Integration and CI checkpoint
 
-Verified **2026-10-02**, implementation commit `765792717` on
-`codex/zapote-layout-quality`: native layout/current commands are connected to
-local `make check` and tested on the real board. The branch is pushed, but was
-not merged into `main`, had no PR, and no GitHub Actions workflow invoked these
-commands at this checkpoint. **Local integration is not CI enforcement.** Update
-this checkpoint when the branch lands or CI wiring changes; #1628 tracks the gap.
+Landed on `main` by the 2026-10-08 squash landing PRs, cut from integration
+freeze `ea5718069` plus layout-quality `ff28b521e` (full history: tag
+`archive/zapote-history-2026-10-08`). `.github/workflows/zapote.yml` runs the
+Rust suite and the tree-budget gate (`make -C zapote check-tree`) on every PR
+touching `zapote/**`. Native KiCad commands (`check-layout`, `check-current`,
+`check-units`) remain local-only; #1628 tracks CI for them.
+Bulk evidence (`*.gz`, `*.npz` outside `packages/`, and any file over 5 MB)
+lives in release `zapote-evidence-2026-10-08`; restore it in place with
+`python3 zapote/tools/evidence_archive.py fetch`.
 
 CI can run the Rust/PBT suite and native current command, retain artifacts even
 on failure, and make missing geometry or failed numerical checks blocking.
