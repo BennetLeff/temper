@@ -1,0 +1,3 @@
+# R4 approved direction
+
+Continuous bent aluminum front, flush bonded glass window with narrow sealed perimeter, three flush membrane buttons, hidden removable electronics carrier. No exterior cassette outline. Use a rear support ring permanently bonded to glass and sheet; qualify that joint for outward retention. Carrier uses concealed bonded stud pads so its removal does not disturb the lens bond. All bonds and elastomers are geometric allocations, not qualified materials. Preserve PCB/firmware and the prior revisions. Rebuild formed and developed cover from the same aperture definition. Check flushness, sheet bridges, internal interfaces, and the known PCB compartment clash; document any remaining failure. No new supplier, certification or thermal performance claim.
