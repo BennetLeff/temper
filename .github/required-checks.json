@@ -242,7 +242,8 @@
   ],
   "mapped_to_nothing": [
     "docs/**",
-    "**/TRACEABILITY"
+    "**/TRACEABILITY",
+    "zapote/**"
   ],
   "_required_contexts_note": [
     "A context belongs here only if it can actually FAIL. Eight were removed on",

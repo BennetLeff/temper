@@ -66,6 +66,11 @@ check-boards:
 		$(CARGO) run --quiet --locked --bin zapote-board -- "$$board"; \
 	done
 
+# Bulk evidence (*.gz, *.npz, >5 MB) lives in release assets; see tools/evidence_archive.py.
+.PHONY: check-tree
+check-tree:
+	python3 tools/evidence_archive.py check
+
 board-check:
 	@test -n "$(BOARD)" || { echo 'Usage: make -C zapote board-check BOARD=/absolute/path/to/board.kicad_pcb' >&2; exit 2; }
 	$(CARGO) run --quiet --locked --bin zapote-board -- "$(BOARD)"
@@ -82,6 +87,7 @@ help:
 	  '  check-boards          Stackup checks for the maintained unit board list' \
 	  '  check-native-oracle   Native manufacturing extraction tests' \
 	  '  check-thermal-oracle  External Gmsh/Elmer reference check' \
+	  '  check-tree            No bulk evidence tracked (CI gate)' \
 	  '  check                 Release Rust tests, layout, current, then unit checks' \
 	  'Native checks require KICAD_PYTHON; unit checks also require KICAD_CLI.' \
 	  'Successful layout/current measurement is not full board acceptance.'
