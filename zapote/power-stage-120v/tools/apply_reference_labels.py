@@ -25,7 +25,8 @@ def mm_position(x: float, y: float) -> pcbnew.VECTOR2I:
     return pcbnew.VECTOR2I(pcbnew.FromMM(x), pcbnew.FromMM(y))
 
 
-def apply(board_path: Path, labels_path: Path, output_path: Path, receipt_path: Path) -> None:
+def apply(board_path: Path, labels_path: Path, output_path: Path, receipt_path: Path,
+          components: int | None = None, bounds: tuple = (0, 0, 240, 160)) -> None:
     labels = json.loads(labels_path.read_text())
     if labels.get("schema") != "temper.power-stage-120v.labels.v1":
         raise ValueError("unexpected reference-label schema")
@@ -33,7 +34,8 @@ def apply(board_path: Path, labels_path: Path, output_path: Path, receipt_path: 
     board = io.LoadBoard(str(board_path), None)
     footprints = {fp.GetReference(): fp for fp in board.GetFootprints()}
     positions = labels["references"]
-    expected = json.loads((UNIT / "build-receipt.json").read_text())["components"]
+    expected = components if components is not None else \
+        json.loads((UNIT / "build-receipt.json").read_text())["components"]
     if len(footprints) != expected or set(footprints) != set(positions):
         raise ValueError(f"reference labels must cover the exact {expected}-footprint board")
 
@@ -41,6 +43,8 @@ def apply(board_path: Path, labels_path: Path, output_path: Path, receipt_path: 
         fp = footprints[name]
         for field_name in ("Sheetpath", "SourceInstance", "MPN"):
             field = fp.GetField(field_name)
+            if (field is None or not field.GetText()) and field_name == "Sheetpath" and components is not None:
+                continue            # boards built straight from the netlist (native-21) carry no Sheetpath
             if field is None or not field.GetText():
                 raise ValueError(f"{name} is missing {field_name}")
             field.SetPosition(fp.GetPosition())
@@ -48,16 +52,16 @@ def apply(board_path: Path, labels_path: Path, output_path: Path, receipt_path: 
         fp.Value().SetVisible(False)
 
         ref = fp.Reference()
-        if instruction["layer"] != "F.SilkS":
-            raise ValueError(f"{name} label must be on F.SilkS")
+        if instruction["layer"] not in ("F.SilkS", "F.Fab"):
+            raise ValueError(f"{name} label must be on F.SilkS (or F.Fab where no legend spot clears)")
         x, y = instruction["at"]
-        if not (0 < x < 240 and 0 < y < 160):
+        if not (bounds[0] < x < bounds[2] and bounds[1] < y < bounds[3]):
             raise ValueError(f"{name} label lies outside the board")
         size = instruction["size"]
         thickness = instruction.get("thickness", MIN_THICKNESS_MM)
         if not (MIN_SIZE_MM <= size <= 1.5) or thickness < MIN_THICKNESS_MM:
             raise ValueError(f"{name} label below the fabricator legend minimum")
-        ref.SetLayer(pcbnew.F_SilkS)
+        ref.SetLayer(pcbnew.F_SilkS if instruction["layer"] == "F.SilkS" else pcbnew.F_Fab)
         ref.SetTextAngle(pcbnew.EDA_ANGLE(0, pcbnew.DEGREES_T))
         ref.SetPosition(mm_position(x, y))
         ref.SetTextSize(mm_position(size, size))
@@ -89,5 +93,7 @@ if __name__ == "__main__":
     parser.add_argument("labels", type=Path)
     parser.add_argument("output", type=Path)
     parser.add_argument("receipt", type=Path)
+    parser.add_argument("--components", type=int, help="footprint count (default: build-receipt.json)")
+    parser.add_argument("--bounds", type=float, nargs=4, default=(0, 0, 240, 160), metavar=("X0", "Y0", "X1", "Y1"))
     args = parser.parse_args()
-    apply(args.board, args.labels, args.output, args.receipt)
+    apply(args.board, args.labels, args.output, args.receipt, args.components, tuple(args.bounds))

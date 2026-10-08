@@ -65,6 +65,13 @@ def moved_refs(base_path):
     return {p["ref"] for p in GEO.pads if (p["ref"], p["pad"], round(p["x"], 3), round(p["y"], 3)) not in prev}, prev_list
 
 
+def zgeom(z):
+    """A pour as geometry: a filled polygon from the previous build's dump, or an authored outline."""
+    if "pts" in z:
+        return Polygon(z["pts"], [h for h in z["holes"] if len(h) > 2]).buffer(0) if len(z["pts"]) > 2 else Polygon()
+    return Polygon(z["outline"], z["holes"]).buffer(0)
+
+
 def prune_dangling(base, nets):
     """Drop base tracks / vias of `nets` left hanging by removals: a track end touching no pad,
     via, other track or pour of its net, and vias touching only one such track. Repeats until
@@ -86,8 +93,8 @@ def prune_dangling(base, nets):
                 touch = touch or any(o is not t and o["net"] == t["net"] and o["layer"] == t["layer"] and
                                      _LS([g["_xy"](q) for q in o["points"]]).buffer(o["width"] / 2).intersects(pt)
                                      for o in base["tracks"])
-                touch = touch or any(z["net"] == t["net"] and z["layer"] == t["layer"] and
-                                     _Poly(z["outline"], z["holes"]).buffer(0).intersects(pt) for z in base["zones"])
+                touch = touch or any(z["net"] == t["net"] and z["layer"] == t["layer"] and zgeom(z).intersects(pt)
+                                     for z in (FILLS or base["zones"]))
                 if not touch:
                     gone.append(t)
                     break
@@ -96,11 +103,14 @@ def prune_dangling(base, nets):
             if v["net"] not in nets:
                 continue
             pt = _Pt(*v["at"]).buffer(v["size"] / 2)
-            n = sum(1 for t in base["tracks"] if t["net"] == v["net"] and t not in gone and
-                    _LS([g["_xy"](q) for q in t["points"]]).buffer(t["width"] / 2).intersects(pt))
-            n += sum(1 for z in base["zones"] if z["net"] == v["net"] and _Poly(z["outline"], z["holes"]).buffer(0).intersects(pt))
-            n += sum(1 for p in GEO.pads if p["net"] == v["net"] and _box(*p["box"]).intersects(pt))
-            if n <= 1:
+            # a via earns its drill only by joining copper on two or more layers
+            lays = {t["layer"] for t in base["tracks"] if t["net"] == v["net"] and t not in gone and
+                    _LS([g["_xy"](q) for q in t["points"]]).buffer(t["width"] / 2).intersects(pt)}
+            lays |= {z["layer"] for z in (FILLS or base["zones"]) if z["net"] == v["net"] and zgeom(z).intersects(pt)}
+            for p in GEO.pads:
+                if p["net"] == v["net"] and _box(*p["box"]).intersects(pt):
+                    lays |= set(CU4) if p["tht"] else {"F.Cu"}
+            if len(lays) <= 1:
                 vgone.append(v)
         if not gone and not vgone:
             return dropped
@@ -247,11 +257,136 @@ def join_clusters(net, a, b, layers, width):
     return False
 
 
+def drop_reported_tails(drc_path, longest=0.5):
+    """Short track segments KiCad's previous DRC called dangling (one end on nothing): drop the
+    matching authored segment (same net and layer, an end at the reported spot, under `longest`)."""
+    if not Path(drc_path).exists():
+        return 0
+    d = json.loads(Path(drc_path).read_text())
+    n = 0
+    for v in d.get("violations", []):
+        if v["type"] != "track_dangling":
+            continue
+        it = v["items"][0]
+        m = re.search(r"Track \[([^\]]*)\] on (\S+), length ([0-9.]+) mm", it["description"])
+        if not m or float(m.group(3)) > longest:
+            continue
+        net, lay, pos = m.group(1), m.group(2).rstrip(","), (it["pos"]["x"], it["pos"]["y"])
+        for t in list(g["TRACKS"]):
+            pts = [g["_xy"](q) for q in t["points"]]
+            if t["net"] == net and t["layer"] == lay and len(pts) == 2 and \
+                    min(math.dist(pts[0], pos), math.dist(pts[1], pos)) < 0.02 and math.dist(*pts) <= longest:
+                g["TRACKS"].remove(t)
+                n += 1
+                break
+    return n
+
+
+def dogbone():
+    """Move every via that sits in an SMD pad of its net to the nearest legal spot just off the
+    pad: an F stub from the pad, and on each other layer a short join from the old via centre
+    to the new one. All new copper is checked; if any piece fails, the via stays."""
+    from shapely.geometry import LineString as _LS, Point as _Pt, box as _box
+    smd = [p for p in GEO.pads if not p["tht"] and p["net"]]
+    moved = kept = 0
+    for v in list(g["VIAS"]):
+        c = _Pt(*v["at"])
+        r = v["size"] / 2
+        pad = next((p for p in smd if p["net"] == v["net"] and _box(*p["box"]).intersection(c.buffer(r)).area
+                    > 0.5 * c.buffer(r).area), None)
+        if pad is None:
+            continue
+        net = v["net"]
+        # layers on which other copper meets the via centre (those need a join to the new spot)
+        # tracks meeting the via anywhere (not only at its centre): their layers need a join, and
+        # a track that touches the via other than by an endpoint is left alone (keep the via)
+        meet = [t for t in g["TRACKS"] if t["net"] == net and t["layer"] != "F.Cu" and
+                _LS([g["_xy"](q) for q in t["points"]]).buffer(t["width"] / 2).intersects(c.buffer(r))]
+        if any(not any(not isinstance(q, str) and math.dist(q, v["at"]) < r for q in (t["points"][0], t["points"][-1]))
+               for t in meet):
+            kept += 1
+            continue
+        joins = sorted({t["layer"] for t in meet})
+        ends = [(t["layer"], next(q for q in (t["points"][0], t["points"][-1])
+                                  if not isinstance(q, str) and math.dist(q, v["at"]) < r)) for t in meet]
+        # pours the via fed: the new spot must sit well inside each of them
+        pours = [Polygon(z["outline"], z["holes"]) for z in g["ZONES"] if z["net"] == net and z["layer"] != "F.Cu"
+                 and Polygon(z["outline"], z["holes"]).contains(c)]
+        best = None
+        hw, hh = (pad["box"][2] - pad["box"][0]) / 2, (pad["box"][3] - pad["box"][1]) / 2
+        for step in (0.25, 0.4, 0.6, 0.8, 1.0, 1.3):
+            for k in range(16):
+                a = k * math.pi / 8
+                ex = abs(math.cos(a)) * hw + abs(math.sin(a)) * hh
+                d = ex + r + step
+                x, y = round(pad["x"] + d * math.cos(a), 3), round(pad["y"] + d * math.sin(a), 3)
+                nv = _Pt(x, y).buffer(r)
+                if GEO.conflicts(net, CU4, nv, limit=1, via=True):
+                    continue
+                stub = _LS([(pad["x"], pad["y"]), (x, y)]).buffer(0.125)
+                if GEO.conflicts(net, ("F.Cu",), stub, limit=1):
+                    continue
+                if any(not q.buffer(-(r + 0.4)).contains(_Pt(x, y)) for q in pours):
+                    continue
+                if any(GEO.conflicts(net, (lay,), _LS([e, (x, y)]).buffer(0.125), limit=1) for lay, e in ends):
+                    continue
+                best = (x, y)
+                break
+            if best:
+                break
+        if best is None:
+            kept += 1
+            continue
+        g["VIAS"].remove(v)
+        g["VIAS"].append({**v, "at": [best[0], best[1]]})
+        GEO.add_via(net, best[0], best[1], v["size"])
+        g["track"](net, "F.Cu", 0.25, [pad["x"], pad["y"]], list(best))
+        for lay, e in ends:
+            g["track"](net, lay, 0.25, list(e), list(best))
+        moved += 1
+    return moved, kept
+
+
+CU4 = ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu")
+
+
+def merge_close_vias(gap=0.5):
+    """Same-net vias whose drills sit closer than `gap` (wall to wall) are one via: the second
+    goes, and track ends that met it are joined to the first on their layer (checked)."""
+    from shapely.geometry import LineString as _LS
+    merged = 0
+    i = 0
+    while i < len(g["VIAS"]):
+        a = g["VIAS"][i]
+        j = i + 1
+        while j < len(g["VIAS"]):
+            b = g["VIAS"][j]
+            dist = math.dist(a["at"], b["at"])
+            if b["net"] != a["net"] or dist - (a["drill"] + b["drill"]) / 2 >= gap:
+                j += 1
+                continue
+            rb = b["size"] / 2
+            ends = [(t["layer"], q) for t in g["TRACKS"] if t["net"] == b["net"]
+                    for q in (t["points"][0], t["points"][-1]) if not isinstance(q, str) and math.dist(q, b["at"]) < rb]
+            if any(math.dist(q, a["at"]) > 1e-3 and
+                   GEO.conflicts(b["net"], (lay,), _LS([q, a["at"]]).buffer(0.125), limit=1) for lay, q in ends):
+                j += 1
+                continue
+            for lay, q in ends:
+                if math.dist(q, a["at"]) > 1e-3:
+                    g["track"](b["net"], lay, 0.25, list(q), list(a["at"]))
+            del g["VIAS"][j]
+            merged += 1
+        i += 1
+    return merged
+
+
 def incr21_point(where):
     if where.startswith("@"):
         x, y, _ = where[1:].split(",")
         return (float(x), float(y))
-    return g["_xy"](where)
+    hits = GEO.pad_at[where]            # multi-pad numbers (studs, clips): any of them
+    return (hits[0]["x"], hits[0]["y"])
 
 
 def attach(net, ref_pad, layers, width, target=None):
@@ -469,6 +604,15 @@ if __name__ == "__main__":
             g["link"](net, layers, (0.6, 0.6, 289.4, 189.4), w, [a, b])
         except KeyError as e:
             g["LINK_LOG"].append((net, "?", 2, [a, b, str(e)]))
+    n_tail = drop_reported_tails(sys.argv[2].split(",")[-1])
+    print(f"KiCad-reported dangling tails dropped: {n_tail}")
+    n_moved, n_kept = dogbone()
+    print(f"via-in-pad: {n_moved} vias moved off their pads, {n_kept} left in pad (no legal spot)")
+    print(f"same-net vias merged: {merge_close_vias()}")
+    state = {"tracks": g["TRACKS"], "vias": g["VIAS"], "zones": g["ZONES"]}
+    n_dead = prune_dangling(state, {t["net"] for t in g["TRACKS"]} | {v["net"] for v in g["VIAS"]})
+    g["TRACKS"][:], g["VIAS"][:] = state["tracks"], state["vias"]
+    print(f"dangling stubs pruned: {n_dead}")
     out = Path(sys.argv[3]) if len(sys.argv) > 3 else HERE / "copper.json"
     out.write_text(json.dumps({"zones": g["ZONES"], "tracks": g["TRACKS"], "vias": g["VIAS"],
                                "escapes": g["ESCAPES"]}, indent=1) + "\n")

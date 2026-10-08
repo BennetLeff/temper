@@ -148,6 +148,21 @@ Fixes made this way (each in `patches21.py` with its reason):
   where PWM_LA used to run.
 - Status: **fully routed: 0 unconnected, 0 DRC errors, 0 plan-view barrier violations, 0 plane
   splits**, on two consecutive builds (from 32 / 0 / 0 / 3 hidden splits in the frozen base).
+### Accepted plane slots and through-plane vias (core planes In1 HV_RET / In2 BUS_P)
+
+None of these splits a plane: the build counts zone-to-zone ratsnest as a plane split on every
+run, and that count is 0. Their inductance effect belongs to the FEM rerun on this copper (task 01).
+
+| Where | Layer | What | Why it is acceptable |
+| --- | --- | --- | --- |
+| Bottom band of the core plane (y 38.5-47, x 0.6-121) | In1 | LS rails (N_LS / LEG_RET / V15_LS), Kelvin pair, SN6507 T-lines | Runs along the plane's lower edge, not across the switching loops (FETs at y 4 to caps at y 28); LOW group = HV_RET's group, 0.2 mm |
+| Kelvin pair, R5 to the C40/C38 gap | In1, then In2 | Dead-end notches, one per plane | Each cuts from one edge only; the earlier straight In1 wedge cut the plane in two and was replaced |
+| OUT_L leg A, (56,31) to (82,37) | In1 | Interior slot along y 34.7 | Below the bus caps, parallel to the cap-to-FET current; moved from y 33.6 to open the N_HA via spot |
+| C56.2 Cgs source to the LEG_RET region | In1 | Slot x 46.4, y 12.2-23.3 | Ends on HV_RET copper (C38.2); no split |
+| C63.2 Cgs source to R21.2's via | In2 | Interior slot | The In1 version sealed off leg B's C41 piece; on In2 it is a hole in BUS_P |
+| PS2 N_LS / V24_RAW feeds across the trunk | In1 | Cut of the trunk band | Bridged on F and B beside the cut (203.5-226 x 52.5-75) with ten 1.6 mm vias |
+| Gate-source and Cgs vias through the core | all | Antipads in HV_RET / BUS_P | Planes are protected against tracks only; vias open antipads |
+
 - **Open fab item:** 116 vias sit mostly inside SMD pads (maze layer changes at pad centres). They
   need either plugged-and-capped via-in-pad on the JLC order or a dog-bone pass.
 - Router: a final whole-corridor maze pass for long detours, and circumscribed clearance

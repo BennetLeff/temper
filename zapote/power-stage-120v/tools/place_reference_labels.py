@@ -85,6 +85,8 @@ def main() -> None:
     parser.add_argument("board", type=Path)
     parser.add_argument("labels", type=Path)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--fab-unresolved", action="store_true",
+                        help="labels with no clear silkscreen spot go to F.Fab (assembly drawing) at the part centre")
     args = parser.parse_args()
 
     board = pcbnew.PCB_IO_KICAD_SEXPR().LoadBoard(str(args.board), None)
@@ -127,7 +129,7 @@ def main() -> None:
         court = rect(fp.GetCourtyard(pcbnew.F_CrtYd).BBox())
         cx, cy = (court[0] + court[2]) / 2, (court[1] + court[3]) / 2
         candidates = []
-        if name in refs:
+        if name in refs and refs[name].get("layer", "F.SilkS") == "F.SilkS":
             candidates.append(tuple(refs[name]["at"]))
         hw = (court[2] - court[0]) / 2
         hh = (court[3] - court[1]) / 2
@@ -143,14 +145,20 @@ def main() -> None:
             if clear(name, shape):
                 chosen = (round(x, 3), round(y, 3), shape)
                 break
+        layer = "F.SilkS"
         if chosen is None:
             unresolved.append(name)
-            x, y = refs.get(name, {"at": [cx, cy]})["at"]
-            chosen = (x, y, label_box(fp, x, y))
+            if args.fab_unresolved:
+                layer = "F.Fab"
+                chosen = (round(cx, 3), round(cy, 3), None)
+            else:
+                x, y = refs.get(name, {"at": [cx, cy]})["at"]
+                chosen = (x, y, label_box(fp, x, y))
         if name in refs and tuple(refs[name]["at"]) != chosen[:2]:
             moved.append(name)
-        placed[name] = chosen[2]
-        refs[name] = {"at": [chosen[0], chosen[1]], "layer": "F.SilkS",
+        if chosen[2] is not None:
+            placed[name] = chosen[2]
+        refs[name] = {"at": [chosen[0], chosen[1]], "layer": layer,
                       "size": SIZE_MM, "thickness": THICKNESS_MM}
     data["references"] = dict(sorted(refs.items()))
     args.output.write_text(json.dumps(data, indent=2) + "\n")

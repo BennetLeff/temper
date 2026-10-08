@@ -1,9 +1,11 @@
-# Routed-board check (native-21, stage 4)
+# Routed-board check (native-21, stage 5: cleanup, labels, schematic parity)
 # Rerun: sh native-21/layout/incr_iter.sh native-21/layout/copper.json - [OUTDIR]
-#   (placement -> board -> rules -> apply layout/copper.json -> kicad-cli DRC --refill-zones -> plan-view barrier)
-# KiCad 10.0.4, rules native-21/section.kicad_dru; 2026-10-07
-{"zones": 42, "tracks": 1287, "vias": 753}
+# KiCad 10.0.4, rules native-21/section.kicad_dru, DRC --schematic-parity; 2026-10-08
+base kept, 140 items removed by patches; 92 open pairs tried, 0 still open
+{"zones": 42, "tracks": 1470, "vias": 727}
+labels: 272 on silk, 75 on F.Fab (no clear legend spot)
 barrier (plan view, 8.0 mm): 0 violations
-violations [(('lib_footprint_issues', 'warning'), 199), (('silk_overlap', 'warning'), 199), (('silk_over_copper', 'warning'), 199), (('silk_edge_clearance', 'warning'), 9), (('hole_to_hole', 'warning'), 9), (('via_dangling', 'warning'), 6), (('track_dangling', 'warning'), 3), (('holes_co_located', 'warning'), 1)]
+violations [(('lib_footprint_issues', 'warning'), 199), (('silk_over_copper', 'warning'), 20), (('track_dangling', 'warning'), 2), (('silk_edge_clearance', 'warning'), 2), (('silk_overlap', 'warning'), 2)]
 unconnected 0
 plane splits 0
+schematic parity findings 0

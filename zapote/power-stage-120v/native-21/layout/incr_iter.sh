@@ -12,11 +12,21 @@ cd "$UNIT"
 python3 native-21/layout/place.py
 $KPY prototype-closure/pcb/build_native21.py >/dev/null 2>&1
 python3 native-21/layout/write_rules21.py
+python3 prototype-closure/pcb/pin_functions21.py >/dev/null
+python3 prototype-closure/pcb/build_schematic21.py
 $KPY native-21/layout/dump_pads.py native-21/section.kicad_pcb native-21/layout/pads.json >/dev/null 2>&1
 if [ "$2" = "-" ]; then [ "$BASE" -ef native-21/layout/copper.json ] || cp "$BASE" native-21/layout/copper.json
 else python3 native-21/layout/incr21.py "$BASE" "$2" native-21/layout/copper.json "${FILLS:-}"; fi
 $KPY prototype-closure/pcb/apply_copper21.py --out "$OUT" 2>/dev/null | grep -v -i wxapp
-$CLI pcb drc --refill-zones --save-board --format json -o "$OUT/drc.json" "$OUT/section.kicad_pcb" >/dev/null 2>&1 || true
+# designators at the fabricator legend minimum, collision-free (positions kept in reference-labels.json)
+[ -f native-21/reference-labels.json ] || echo '{"schema": "temper.power-stage-120v.labels.v1", "references": {}}' > native-21/reference-labels.json
+$KPY tools/place_reference_labels.py "$OUT/section.kicad_pcb" native-21/reference-labels.json --output native-21/reference-labels.json --fab-unresolved 2>/dev/null \
+    | python3 -c 'import sys,json; t=sys.stdin.read(); d=json.loads(t[t.index("{"):]); print("labels:", d["references"] - len(d["unresolved"]), "on silk,", len(d["unresolved"]), "on F.Fab (no clear legend spot)")' 
+NFP=$(grep -c '(footprint "' "$OUT/section.kicad_pcb")
+$KPY tools/apply_reference_labels.py "$OUT/section.kicad_pcb" native-21/reference-labels.json "$OUT/section.kicad_pcb" "$OUT/labels-receipt.json" --components "$NFP" --bounds 0 0 290 190 2>/dev/null | { grep -v -i wxapp || true; }
+# schematic beside the board for parity (native-21/section.kicad_sch, build_schematic21.py)
+cp native-21/section.kicad_sch native-21/native21.kicad_sym native-21/sym-lib-table "$OUT/"
+$CLI pcb drc --refill-zones --save-board --schematic-parity --format json -o "$OUT/drc.json" "$OUT/section.kicad_pcb" >/dev/null 2>&1 || true
 $KPY native-21/layout/plot_copper.py --dump "$OUT/section.kicad_pcb" "$OUT/copper-dump.json" >/dev/null 2>&1
 python3 native-21/layout/plot_copper.py "$OUT/copper-dump.json" "$OUT/copper.png"
 (cd native-21/layout && python3 barrier21.py "$OUT/copper-dump.json" > "$OUT/barrier.txt" 2>&1 || true)

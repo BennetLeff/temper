@@ -293,8 +293,6 @@ def add(g):
                 tries=8)
     drill(g, "bus_fault_hot", 113.6, 113.9)
     put(g, "bus_fault_hot", "F.Cu", 0.25, "U9.4", [113.635, 114.6], [113.6, 113.9])
-    put(g, "hot5", "F.Cu", 0.3, "U3.5", [116.3, 52.195], [116.3, 55.0])   # LDO out, down the U3/U8 channel
-    drill(g, "hot5", 116.3, 55.0)
     esc.append({"ref": "R29", "pad": "2", "rect": [94.3, 91.6, 99.5, 93.4]})   # divider tap, away from R29.1
     put(g, "vsense_in", "F.Cu", 0.3, "R29.2", [99.0, 92.46], escape="vdiv_3")
     u32x = round(g["_xy"]("U32.4")[0], 3)
