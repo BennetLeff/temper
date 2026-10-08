@@ -39,7 +39,8 @@ def solid_boxes(path):
     while ex.More():
         bb = Bnd_Box()
         BRepBndLib.Add_s(ex.Current(), bb)
-        yield bb.Get()
+        lo, hi = bb.CornerMin(), bb.CornerMax()
+        yield lo.X(), lo.Y(), lo.Z(), hi.X(), hi.Y(), hi.Z()
         ex.Next()
 
 

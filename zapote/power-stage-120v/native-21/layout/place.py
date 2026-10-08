@@ -118,8 +118,11 @@ BANK = {"leg_b.bias_h": (13.0, 33.6), "leg_b.bias_l": (39.0, 33.6),
         "leg_a.bias_h": (60.0, 33.6), "leg_a.bias_l": (86.0, 33.6)}
 # Explicit 14.4 x 12 mm bank template (courtyard centres relative to the bank's top-left);
 # HF parts (100 nF, 1 uF) on the side facing the driver pins, bulk 220 uF + damping behind.
-BANK_TEMPLATE = {"cbulk": (4.85, 3.6, 0), "rdamp": (11.0, 2.4, 90), "rbleed": (13.6, 1.6, 90),
-                 "clocal1": (2.4, 9.0, 0), "clocal2": (7.4, 9.0, 0), "cmid1": (11.6, 6.0, 0),
+# The 6.3 mm can's 3D body overhangs its courtyard by ~0.2 mm on both sides: cbulk at dy 3.5 and
+# clocal at dy 9.15 leave ~0.1 mm body-box clearance to the film caps above and the 1210s below
+# (body_collisions.py on the routed STEP).
+BANK_TEMPLATE = {"cbulk": (4.85, 3.5, 0), "rdamp": (11.0, 2.4, 90), "rbleed": (13.6, 1.6, 90),
+                 "clocal1": (2.4, 9.15, 0), "clocal2": (7.4, 9.15, 0), "cmid1": (11.6, 6.0, 0),
                  "cmid2": (11.6, 8.0, 0), "chf1": (11.3, 10.0, 0), "chf2": (13.4, 10.0, 0),
                  "chf3": (11.3, 11.4, 0), "chf4": (13.4, 11.4, 0)}
 for b, (x, y) in BANK.items():
