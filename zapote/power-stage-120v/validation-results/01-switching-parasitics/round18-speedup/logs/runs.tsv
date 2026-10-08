@@ -1,0 +1,16 @@
+run	mesh	np	solver_lines	method	iterations	final_res	krylov_s	s_per_it	L_nH	peak_GB_rank	res250	res500	res1000	res2000
+b0-base	sA-e3.msh	2		802	600	0.0103994	525.68	0.8761		2.555532	1.264186e-02	1.070134e-02		
+base-thin-1000	legA-small-thin.msh	2		802	1000	0.00229806	136.404	0.1364	24.27686	2.687628	7.963605e-03	5.307678e-03	2.298061e-03	
+base-thin-full	legA-small-thin.msh	2		802	4653	9.96887e-09	3809.48	0.8187	29.77088	2.687572	7.963605e-03	5.307678e-03	2.298061e-03	9.436613e-05
+noscale-thin-2000	legA-small-thin.msh	2	Linear System Scaling = False	802	2000	1.85676e-08	285.71	0.1429	29.77090	2.68336	4.596457e-03	3.579077e-04	7.724975e-06	1.856759e-08
+np1-thin-300	legA-small-thin.msh	1		802	300	0.00739242	204.98	0.6833	14.88767	4.597976	8.309250e-03			
+ns-thin-np1-400	legA-small-thin.msh	1	Linear System Scaling = False	802	400	0.00108036	705.787	1.7645	28.32190	4.589752	4.471986e-03			
+ns-thin-np2-400				802	400	0.000952955	370.992	0.9275	28.45718		4.596457e-03			
+ns-thin-pcg	skipped: deferred by operator 12:5x: low value (PCG diverged with and without the patch; 1e-9 not needed), budget goes to battery 6
+ns-thin-tol1e-9	skipped: deferred by operator 12:5x: low value (PCG diverged with and without the patch; 1e-9 not needed), budget goes to battery 6
+r18-scaleaux-on	sA-e3.msh	2	AMS Scale Auxiliary = Logical True	802	3000	0.0119562	405.269	0.1351		2.516284	1.232007e-02	1.197040e-02	1.196336e-02	1.195813e-02
+r18-scaleaux	sA-e3.msh	2	'AMS Scale Auxiliary = Logical True'	802	3000	0.0100998	1026.98	0.3423		2.516676	1.264186e-02	1.070134e-02	1.012394e-02	1.010530e-02
+r18on-thin-k30	legA-small-thin.msh	2	AMS Scale Auxiliary = Logical True;HYPRE GmRes Dimension = Integer 30	802	4000	7.11123e-07	3036.34	0.7591	29.77018	2.438836	7.630803e-03	5.048270e-03	3.508273e-04	2.207882e-05
+r18on-thin-pcg	legA-small-thin.msh	2	AMS Scale Auxiliary = Logical True	602	4000	0.309147	2680.12	0.6700	25.97982	2.3527	1.376681e-01	1.884133e-01	2.283549e-01	2.771015e-01
+r18on-thin	legA-small-thin.msh	2	AMS Scale Auxiliary = Logical True	802	2584	9.69234e-09	361.982	0.1401	29.77092	2.68754	6.412589e-03	1.402662e-03	1.565533e-04	7.614666e-07
+v1-noscale-gmres				802	20000	0.0167573	17148.2	0.8574			1.738655e-02	1.678992e-02	1.676162e-02	1.676117e-02

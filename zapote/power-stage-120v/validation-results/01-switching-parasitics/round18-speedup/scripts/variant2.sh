@@ -18,6 +18,17 @@ name=$1 mesh=$2 port=$3 kx=$4 ky=$5 kz=$6; shift 6
 cd "$S" || exit 1
 # a finished run is never redone (a queued duplicate would otherwise wipe it)
 if [ -f "runs/$name.out" ] && grep -q '"label"' "runs/$name.out"; then echo "SKIP $name (finished)"; exit 0; fi
+# The chain's campaign.py waits at the start of every case until NO ElmerSolver_mpi runs
+# (ours included), so a run of ours at a case boundary stalls the chain. Found 2026-10-08:
+# back-to-back runs held the chain idle ~40 min (08:57-09:3x). Start a run only while the
+# chain itself is mid-solve; the chain then waits at most one of our (capped) runs.
+chain_solving() {
+  for p in $(pgrep -x ElmerSolver_mpi); do
+    case "$(readlink "/proc/$p/cwd" 2>/dev/null)" in "$HOME/temper-fem/r17/"*) return 0 ;; esac
+  done
+  return 1
+}
+until chain_solving; do sleep 20; done
 rm -rf "runs/$name"
 CPUS=${CPUS:-22,23}
 # Open MPI binds ranks to cores by itself (np <= 2: bind-to core) and ignores the taskset
