@@ -1,0 +1,268 @@
+[
+ {
+  "name": "P1_C40",
+  "kind": "port",
+  "a": [
+   24.2,
+   28.2
+  ],
+  "b": [
+   39.2,
+   28.2
+  ],
+  "level": 0,
+  "note": "C40.1 bus_p -> C40.2 hv_ret"
+ },
+ {
+  "name": "P2_C41",
+  "kind": "port",
+  "a": [
+   2.4,
+   28.2
+  ],
+  "b": [
+   17.4,
+   28.2
+  ],
+  "level": 0,
+  "note": "C41.1 bus_p -> C41.2 hv_ret"
+ },
+ {
+  "name": "P3_gate_high",
+  "kind": "port",
+  "a": [
+   29.825,
+   46.125
+  ],
+  "b": [
+   31.095,
+   46.125
+  ],
+  "level": 0,
+  "note": "U2.15 leg_b-out_h -> U2.14 n_hb; VSSA is the -2 V rail n_hb; the loop closes through C118/C119/C120/C121"
+ },
+ {
+  "name": "P4_gate_low",
+  "kind": "port",
+  "a": [
+   36.175,
+   46.125
+  ],
+  "b": [
+   37.445,
+   46.125
+  ],
+  "level": 0,
+  "note": "U2.10 leg_b-out_l -> U2.9 n_ls; VSSB is n_ls; the loop closes through C122/C123/C124/C125"
+ },
+ {
+  "name": "Q5_DS",
+  "kind": "bridge",
+  "a": [
+   9.95,
+   4.215
+  ],
+  "b": [
+   15.4,
+   4.215
+  ],
+  "level": 0,
+  "note": "Q5.2 bus_p -> Q5.3 sw_b"
+ },
+ {
+  "name": "Q6_DS",
+  "kind": "bridge",
+  "a": [
+   27.95,
+   4.215
+  ],
+  "b": [
+   33.4,
+   4.215
+  ],
+  "level": 0,
+  "note": "Q6.2 sw_b -> Q6.3 leg_ret"
+ },
+ {
+  "name": "R5_1_4",
+  "kind": "bridge",
+  "a": [
+   39.135,
+   10.12
+  ],
+  "b": [
+   37.865,
+   15.08
+  ],
+  "level": 0,
+  "note": "R5.1 leg_ret -> R5.4 hv_ret; shunt current pads (shared by both legs)"
+ },
+ {
+  "name": "R18",
+  "kind": "bridge",
+  "a": [
+   4.5,
+   14.0625
+  ],
+  "b": [
+   4.5,
+   11.1375
+  ],
+  "level": 0,
+  "note": "R18.1 leg_b-out_h -> R18.2 leg_b-gate_h"
+ },
+ {
+  "name": "R20",
+  "kind": "bridge",
+  "a": [
+   22.5,
+   14.0625
+  ],
+  "b": [
+   22.5,
+   11.1375
+  ],
+  "level": 0,
+  "note": "R20.1 leg_b-out_l -> R20.2 leg_b-gate_l"
+ },
+ {
+  "name": "Q5_GS",
+  "kind": "bridge",
+  "a": [
+   4.5,
+   4.215
+  ],
+  "b": [
+   15.4,
+   4.215
+  ],
+  "level": 1,
+  "note": "Q5.1 leg_b-gate_h -> Q5.3 sw_b; gate -> source, over the drain"
+ },
+ {
+  "name": "Q6_GS",
+  "kind": "bridge",
+  "a": [
+   22.5,
+   4.215
+  ],
+  "b": [
+   33.4,
+   4.215
+  ],
+  "level": 1,
+  "note": "Q6.1 leg_b-gate_l -> Q6.3 leg_ret; gate -> source, over the drain"
+ },
+ {
+  "name": "C118",
+  "kind": "bridge",
+  "a": [
+   23.82,
+   43.6
+  ],
+  "b": [
+   24.78,
+   43.6
+  ],
+  "level": 0,
+  "note": "C118.1 sw_b -> C118.2 n_hb; 0402 HF bias decoupling, a short at the gate-loop frequencies (the 0603/1210 parallels are left open: conservative)"
+ },
+ {
+  "name": "C119",
+  "kind": "bridge",
+  "a": [
+   25.92,
+   43.6
+  ],
+  "b": [
+   26.88,
+   43.6
+  ],
+  "level": 0,
+  "note": "C119.1 sw_b -> C119.2 n_hb; 0402 HF bias decoupling, a short at the gate-loop frequencies (the 0603/1210 parallels are left open: conservative)"
+ },
+ {
+  "name": "C120",
+  "kind": "bridge",
+  "a": [
+   23.82,
+   45.0
+  ],
+  "b": [
+   24.78,
+   45.0
+  ],
+  "level": 0,
+  "note": "C120.1 sw_b -> C120.2 n_hb; 0402 HF bias decoupling, a short at the gate-loop frequencies (the 0603/1210 parallels are left open: conservative)"
+ },
+ {
+  "name": "C121",
+  "kind": "bridge",
+  "a": [
+   25.92,
+   45.0
+  ],
+  "b": [
+   26.88,
+   45.0
+  ],
+  "level": 0,
+  "note": "C121.1 sw_b -> C121.2 n_hb; 0402 HF bias decoupling, a short at the gate-loop frequencies (the 0603/1210 parallels are left open: conservative)"
+ },
+ {
+  "name": "C122",
+  "kind": "bridge",
+  "a": [
+   41.62,
+   43.6
+  ],
+  "b": [
+   42.58,
+   43.6
+  ],
+  "level": 0,
+  "note": "C122.1 leg_ret -> C122.2 n_ls; 0402 HF bias decoupling, a short at the gate-loop frequencies (the 0603/1210 parallels are left open: conservative)"
+ },
+ {
+  "name": "C123",
+  "kind": "bridge",
+  "a": [
+   39.52,
+   43.6
+  ],
+  "b": [
+   40.48,
+   43.6
+  ],
+  "level": 0,
+  "note": "C123.1 leg_ret -> C123.2 n_ls; 0402 HF bias decoupling, a short at the gate-loop frequencies (the 0603/1210 parallels are left open: conservative)"
+ },
+ {
+  "name": "C124",
+  "kind": "bridge",
+  "a": [
+   41.62,
+   45.0
+  ],
+  "b": [
+   42.58,
+   45.0
+  ],
+  "level": 0,
+  "note": "C124.1 leg_ret -> C124.2 n_ls; 0402 HF bias decoupling, a short at the gate-loop frequencies (the 0603/1210 parallels are left open: conservative)"
+ },
+ {
+  "name": "C125",
+  "kind": "bridge",
+  "a": [
+   39.52,
+   45.0
+  ],
+  "b": [
+   40.48,
+   45.0
+  ],
+  "level": 0,
+  "note": "C125.1 leg_ret -> C125.2 n_ls; 0402 HF bias decoupling, a short at the gate-loop frequencies (the 0603/1210 parallels are left open: conservative)"
+ }
+]

@@ -66,6 +66,14 @@ LEGS = {"A": (125.865, 4.215, 164.6, 41.125), "B": (88.4, 4.215, 127.135, 41.125
 # capacitor C6 (inner pads C6.1 bus_p -> C6.3 hv_ret), crop extended to reach it.
 LEGS["A5"] = (125.865, 4.215, 174.35, 50.75)
 LOOP_NETS["A5"] = LOOP_NETS["A"]
+# Native-21 (2026-10-07): the drivers' VSSA/VSSB are the isolated bias returns, so each gate
+# loop closes through its 0402 decoupling (closures-leg*-n21.json); crop = closure extent.
+LEGS["A21"] = (37.865, 4.215, 89.58, 46.125)
+LEGS["B21"] = (2.4, 4.215, 42.58, 46.125)
+LOOP_NETS["A21"] = {"bus_p", "hv_ret", "leg_ret", "sw_a", "leg_a-out_h", "leg_a-gate_h", "leg_a-out_l",
+                    "leg_a-gate_l", "n_ha", "n_ls"}
+LOOP_NETS["B21"] = {"bus_p", "hv_ret", "leg_ret", "sw_b", "leg_b-out_h", "leg_b-gate_h", "leg_b-out_l",
+                    "leg_b-gate_l", "n_hb", "n_ls"}
 LAYERS = {"B.Cu": (-0.07, 0.0), "In2.Cu": (0.4355, 0.4965), "In1.Cu": (0.9965, 1.0575), "F.Cu": (1.493, 1.563)}
 Z_BOTTOM, Z_TOP = -0.07, 1.563
 LEG_W, SPAN_W, BAR_T, LEG_EXTRA = 0.6, 0.6, 0.1, 0.3

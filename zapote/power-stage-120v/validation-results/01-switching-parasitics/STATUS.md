@@ -5,7 +5,7 @@ results land. The round folders are the lab notebook behind it
 ([ROUNDS.md](ROUNDS.md)); open findings and risks are in
 [FINDINGS.md](FINDINGS.md). Last updated 2026-10-05.
 
-Board: extraction on `native-17` copper; **native-18** (R9/R17 value only, identical copper) and **native-19** (R5 rework; leg A re-checked, no verdict change, FINDINGS M10) are covered; **native-20** (R34/R8/R16 values only, identical copper, both leg regions UNCHANGED) is covered too. **Native-21** (enclosure re-layout) source is frozen with F6 bias, the rail monitor and LINE_ZC; its copper does not exist yet and will need the FEM and decision reruns. Leg A (Q2 high / Q3 low, driver U1)
+Board: extraction on `native-17` copper; **native-18** (R9/R17 value only, identical copper) and **native-19** (R5 rework; leg A re-checked, no verdict change, FINDINGS M10) are covered; **native-20** (R34/R8/R16 values only, identical copper, both leg regions UNCHANGED) is covered too. **Native-21** (enclosure re-layout) is routed (2026-10-08). Its FEM setup is ready: new closures with the bias-cap gate returns, and coarse meshes of both legs pass every gate ([round17/native21-setup](round17/native21-setup/README.md)). The extraction campaign and decision reruns are pending remote-box access. Leg A (Q2 high / Q3 low, driver U1)
 is extracted and simulated; leg B has provisional decision cases (leg-A correction transfer; no verdict change), with its own corrections running. Evidence class: simulation and
 model-based throughout. **No physical qualification is claimed.**
 
