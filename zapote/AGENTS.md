@@ -10,7 +10,9 @@ Zapote is a project boundary inside Temper, not an isolated checkout.
   Existing packages and harness code are donors: copy needed Rust code and
   tests into `zapote/packages/` with the policy in `ARCHITECTURE.md`.
   Do not retain runtime dependencies on donor packages.
-- Do not move, delete, or duplicate `harness-lab/` during the setup phase.
+- Zapote is self-contained: the native KiCad adapters live in `harness-lab/`, the schematic/PCB
+  generators in `tools/generators/` and the atopile base library in `elec-base/src`. Do not
+  import from the legacy repo tree.
 - Add new harness behavior under `zapote/` only after its contract and
   evidence path are defined.
 - Prioritize the board passing the Rust validation suite in `VALIDATION.md`.
@@ -163,7 +165,6 @@ Read the relevant detailed record before changing behavior in that area:
 - [Dead-agent salvage and restart](../docs/solutions/workflow-issues/dead-agent-signature-and-cleanroom-restart-playbook-2026-08-02.md)
 - [Parallel-edit collision failure](../docs/solutions/workflow-issues/parallel-batch-agents-same-file-edit-clobber-2026-07-31.md)
 - [Import-boundary ratchet](../docs/solutions/tooling-decisions/import-linter-boundary-enforcement-ratchet-2026-06-22.md)
-- [Current harness contract](../harness-lab/CONTINUAL-HARNESS.md)
 - [PFC current and copper model lessons](validation/p1-current/README.md) —
   preserve switching-state moments, physical pad UUIDs, signed sharing
   sensitivity and explicit area-current gaps; a graph tree or pad-size proxy

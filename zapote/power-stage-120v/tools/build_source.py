@@ -17,7 +17,7 @@ ENTRY_MODULE = "PowerStage120V"
 def build(output: Path) -> None:
     if output.exists():
         raise FileExistsError(f"refusing to overwrite source build: {output}")
-    sys.path.insert(0, str(REPO / "harness-lab"))
+    sys.path.insert(0, str(REPO / "zapote" / "harness-lab"))
     import block_source  # type: ignore[import-not-found]
 
     (output / "elec").mkdir(parents=True)

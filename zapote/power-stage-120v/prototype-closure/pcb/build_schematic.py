@@ -17,7 +17,7 @@ from source_snapshot import verify_source_snapshot
 HERE = Path(__file__).resolve().parent
 UNIT = HERE.parents[1]
 REPO = UNIT.parents[1]
-sys.path.insert(0, str(REPO / "scripts"))
+sys.path.insert(0, str(REPO / "zapote" / "tools" / "generators"))
 import gen_schematics as source  # noqa: E402 — existing repository adapter, loaded after explicit path.
 
 

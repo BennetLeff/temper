@@ -41,7 +41,7 @@ def library_symbol(donor, part) -> str:
 
 
 def run(repo: Path, source: Path, output: Path, receipt_path: Path) -> None:
-    sys.path.insert(0, str(repo / "scripts"))
+    sys.path.insert(0, str(repo / "zapote" / "tools" / "generators"))
     import gen_schematics as donor  # type: ignore[import-not-found]
 
     net_path = source / "build/default.net"

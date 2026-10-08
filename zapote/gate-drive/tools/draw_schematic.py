@@ -11,7 +11,7 @@ PIN_NAMES = {
 def digest(p): return hashlib.sha256(p.read_bytes()).hexdigest()
 
 def main(repo, source, output, receipt):
-    sys.path.insert(0, str(repo / "scripts"))
+    sys.path.insert(0, str(repo / "zapote" / "tools" / "generators"))
     import gen_schematics as g
     net = g.parse_netlist(source / "build/default.net")
     g.apply_bom_values(net, g.load_bom_values(source / "build/default.csv"))

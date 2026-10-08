@@ -7,7 +7,7 @@ import sys
 import pcbnew
 
 REPO = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(REPO / 'harness-lab'))
+sys.path.insert(0, str(REPO / 'zapote/harness-lab'))
 import buck_native
 
 board_path, contract_path, receipt_path = map(Path, sys.argv[1:])

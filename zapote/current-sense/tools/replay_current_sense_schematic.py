@@ -55,7 +55,7 @@ def run(repo: Path, source: Path, template: Path, output: Path, receipt: Path, b
     violations = [v for sheet in erc_data.get("sheets", []) for v in sheet.get("violations", [])]
 
     import sys
-    sys.path.insert(0, str(repo / "scripts"))
+    sys.path.insert(0, str(repo / "zapote" / "tools" / "generators"))
     import gen_schematics as donor  # type: ignore[import-not-found]
 
     source_netlist = donor.parse_netlist(source / "build/default.net")

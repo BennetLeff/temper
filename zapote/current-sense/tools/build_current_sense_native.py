@@ -26,7 +26,7 @@ def sha256(path: Path) -> str:
 
 
 def load_donors(repo: Path):
-    sys.path[:0] = [str(repo / "harness-lab"), str(repo / "scripts")]
+    sys.path[:0] = [str(repo / "zapote" / "harness-lab"), str(repo / "zapote" / "tools" / "generators")]
     import block_source  # type: ignore[import-not-found]
     import check_stale_extensions  # type: ignore[import-not-found]
     import gen_pcb_skeleton as skeleton  # type: ignore[import-not-found]

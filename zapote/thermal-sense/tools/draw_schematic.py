@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[3]
-sys.path[:0] = [str(REPO / "scripts"), str(REPO / "zapote/current-sense/tools")]
+sys.path[:0] = [str(REPO / "zapote" / "tools" / "generators"), str(REPO / "zapote/current-sense/tools")]
 import gen_schematics as g  # noqa: E402 - shared native adapter path is set above.
 from close_current_sense_schematic_erc import library_symbol  # noqa: E402
 

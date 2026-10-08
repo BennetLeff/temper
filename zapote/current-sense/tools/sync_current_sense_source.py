@@ -15,7 +15,7 @@ def sha256(path: Path) -> str:
 
 
 def sync(repo: Path, board_path: Path, manifest_path: Path, receipt_path: Path) -> None:
-    sys.path.insert(0, str(repo / "harness-lab"))
+    sys.path.insert(0, str(repo / "zapote" / "harness-lab"))
     import pcbnew  # type: ignore[import-not-found]
 
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))

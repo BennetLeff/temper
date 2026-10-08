@@ -55,7 +55,6 @@ DIRECTORY_PURPOSE: dict[str, str] = {
     "docs": "Plans, brainstorms, solutions, evidence, specs, and strategy",
     "elec": "Atopile electrical source -- the schematic's source of truth",
     "firmware": "ESP32-S3 firmware (C), 8-state machine and protection monitoring",
-    "harness-lab": "Retained KiCad native-bridge adapters used by zapote unit tools",
     "max31865": "KiCad library for the MAX31865 RTD front-end (predates components/)",
     "metrics": "Recorded routing/placement metric snapshots (JSON)",
     "output": "Revisioned mechanical sources, historical geometry inputs, and validation receipts",

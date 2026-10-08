@@ -9,7 +9,7 @@ use temper_pcl_ir::{ConstraintTier, PclConstraintKind};
 /// would launder an unqualified input into a candidate board.
 pub const PINNED_ATOPILE_VERSION: &str = "0.2.69";
 /// Schema tag of the resolved-export document produced by
-/// `harness-lab/circuit_export.py`.
+/// `zapote/harness-lab/circuit_export.py`.
 pub const CIRCUIT_EXPORT_SCHEMA: &str = "temper.circuit-export.v1";
 
 /// Parsed atopile export — the primary input format for bundle assembly.

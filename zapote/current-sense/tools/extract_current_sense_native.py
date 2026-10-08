@@ -20,7 +20,7 @@ def extract(repo: Path, board_path: Path) -> dict:
     global pcbnew
     import pcbnew  # type: ignore[import-not-found]
 
-    sys.path.insert(0, str(repo / "harness-lab"))
+    sys.path.insert(0, str(repo / "zapote" / "harness-lab"))
     import assembly_geometry  # type: ignore[import-not-found]
 
     board = pcbnew.PCB_IO_KICAD_SEXPR().LoadBoard(str(board_path), None)
