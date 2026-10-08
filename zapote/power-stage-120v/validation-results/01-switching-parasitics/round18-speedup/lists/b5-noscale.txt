@@ -1,8 +1,11 @@
 # Battery 5 (legA-small-thin, P1, 2 ranks): the scaling-off candidate. Tolerance and memory variants.
+# Rank scaling inside the budget, binding off so ranks stay on CPUs 22/23 (hyper-thread siblings of chain cores 10/11):
+ns-thin-np1-400|10 -2500 0 0|/home/bennet/temper-fem/r16/meshes/legA-small-thin.msh|--hypre-method 8 --tol 1e-8 --maxit 400 --solver-line "Linear System Scaling = False"|NP=1 CPUS=22
+ns-thin-np2-400|10 -2500 0 0|/home/bennet/temper-fem/r16/meshes/legA-small-thin.msh|--hypre-method 8 --tol 1e-8 --maxit 400 --solver-line "Linear System Scaling = False"|NP=2 CPUS=22,23
 ns-thin-tol1e-6|10 -2500 0 0|/home/bennet/temper-fem/r16/meshes/legA-small-thin.msh|--hypre-method 8 --tol 1e-6 --maxit 8000 --solver-line "Linear System Scaling = False"
 ns-thin-tol1e-7|10 -2500 0 0|/home/bennet/temper-fem/r16/meshes/legA-small-thin.msh|--hypre-method 8 --tol 1e-7 --maxit 8000 --solver-line "Linear System Scaling = False"
 ns-thin-tol1e-9|10 -2500 0 0|/home/bennet/temper-fem/r16/meshes/legA-small-thin.msh|--hypre-method 8 --tol 1e-9 --maxit 8000 --solver-line "Linear System Scaling = False"
 ns-thin-k30|10 -2500 0 0|/home/bennet/temper-fem/r16/meshes/legA-small-thin.msh|--hypre-method 8 --tol 1e-8 --maxit 8000 --solver-line "Linear System Scaling = False" --solver-line "HYPRE GmRes Dimension = Integer 30"
-ns-thin-pcg|10 -2500 0 0|/home/bennet/temper-fem/r16/meshes/legA-small-thin.msh|--hypre-method 6 --tol 1e-8 --maxit 3000 --solver-line "Linear System Scaling = False"
+ns-thin-pcg|10 -2500 0 0|/home/bennet/temper-fem/r16/meshes/legA-small-thin.msh|--hypre-method 6 --tol 1e-8 --maxit 500 --solver-line "Linear System Scaling = False"
 ns-thin-c7|10 -2500 0 0|/home/bennet/temper-fem/r16/meshes/legA-small-thin.msh|--hypre-method 8 --tol 1e-8 --maxit 8000 --solver-line "Linear System Scaling = False" --solver-line "AMS Cycle Type = Integer 7"
 ns-thin-thr6|10 -2500 0 0|/home/bennet/temper-fem/r16/meshes/legA-small-thin.msh|--hypre-method 8 --tol 1e-8 --maxit 8000 --solver-line "Linear System Scaling = False" --solver-line "AMS Alpha Threshold = Real 0.6"

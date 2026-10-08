@@ -1,0 +1,14 @@
+Mac (10 ranks, 4 solves): c = 0.59, 0.66, 0.72, 1.54; memory 4.6-4.9 kB/tet
+remote coarse (12 ranks): c median 1.61
+  Mac wall / remote wall at 8 ranks (best 3 of 4): 0.61
+  Mac wall / remote wall at 8 ranks (worst): 1.43
+
+fits in 26 GB at 6.1 kB/tet (field files ~0.87 kB/tet/port: 4 ports kept until the matrix):
+  B21 h0p5  2.42 M tets   14.8 GB  disk  8.4 GB  fits
+  B21 h2    3.10 M tets   18.9 GB  disk 10.8 GB  fits
+  B21 h3    3.48 M tets   21.2 GB  disk 12.1 GB  fits
+  B21 m20   3.59 M tets   21.9 GB  disk 12.5 GB  fits
+  A21 h0p5  3.01 M tets   18.4 GB  disk 10.5 GB  fits
+  A21 h2    3.85 M tets   23.5 GB  disk 13.4 GB  fits
+  A21 h3    4.32 M tets   26.4 GB  disk 15.0 GB  NO
+  A21 m20   4.46 M tets   27.2 GB  disk 15.5 GB  NO

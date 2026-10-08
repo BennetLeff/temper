@@ -7,7 +7,7 @@
 #
 # Runs round-17's run_elmer.py unchanged (copied to ../r17scripts; RUNNER=scripts/run_elmer18.py
 # for the round-18 extension), with
-# --hypre-ams --ams-singular --np 2 --vtu, writes runs/NAME/ and runs/NAME.out,
+# --hypre-ams ${NOSING:+} $( [ "${NOSING:-0}" = 1 ] || echo --ams-singular ) --np 2 --vtu, writes runs/NAME/ and runs/NAME.out,
 # then deletes the field files (case.result.*, *.vtu, *.pvtu) unless KEEP=1.
 # Example: variant.sh noscale-gmres meshes/sA-e3.msh 10 2500 0 0 --hypre-method 8 \
 #            --tol 1e-8 --maxit 20000 --solver-line "Linear System Scaling = False"
@@ -20,9 +20,13 @@ cd "$S" || exit 1
 if [ -f "runs/$name.out" ] && grep -q '"label"' "runs/$name.out"; then echo "SKIP $name (finished)"; exit 0; fi
 rm -rf "runs/$name"
 CPUS=${CPUS:-22,23}
+# Open MPI binds ranks to cores by itself (np <= 2: bind-to core) and ignores the taskset
+# mask: runs before 2026-10-08 11:45 landed on CPUs 12/13 etc., sharing whichever chain core.
+# Binding off keeps the ranks inside the taskset mask.
+export OMPI_MCA_hwloc_base_binding_policy=none PRTE_MCA_hwloc_default_binding_policy=none
 NP=${NP:-2}
 taskset -c "$CPUS" python3 "${RUNNER:-r17scripts/run_elmer.py}" --elmer "${ELMER:-$HOME/temper-fem/elmer-install}" "$mesh" "runs/$name" \
-  --pec ${PEC:-2 3} --port "$port" --k "$kx" "$ky" "$kz" --hypre-ams --ams-singular --np "$NP" --vtu --label "$name" "$@" \
+  --pec ${PEC:-2 3} --port "$port" --k "$kx" "$ky" "$kz" --hypre-ams ${NOSING:+} $( [ "${NOSING:-0}" = 1 ] || echo --ams-singular ) --np "$NP" --vtu --label "$name" "$@" \
   > "runs/$name.out" 2>&1 < /dev/null
 if [ "${KEEP:-0}" != 1 ]; then
   find "runs/$name" -type f \( -name "case.result*" -o -name "*.vtu" -o -name "*.pvtu" \) -delete

@@ -6,6 +6,8 @@
 #   R2 fine extraction at h = 1 mm only (round 17's h1-only recipe, already used for leg B19);
 #   R3 a memory guard: a mesh whose estimate (6.1 kB/tet) exceeds MAXMEM GB is not solved
 #      (it would swap or OOM the box); the chain reports it and goes on;
+#   R5 optional (B21_CORR_ON_MAC=1): leg B21's four coarse corrections run on the Mac
+#      (mac_b21corr.sh) while this box runs leg A21's; their matrices land in r17/b21corr-mac/;
 #   R4 GMRES restart 30 instead of 100 for the fine cases (smaller Krylov basis), only if
 #      README says the ns-thin-k30 test passed: set FINE_EXTRA below accordingly.
 # Coarse cases already finished by chain_n21.sh are reused as they are (their matrices
@@ -59,6 +61,9 @@ step() {   # dir leg tag fatal extra2 args...: run one case (or reuse it), clean
 for L in A21 B21; do step $R/${L,,}c $L leg$L-h1-e1p0-n21 1 "" --cases 1:1.0; done
 echo BASE_DONE
 for L in A21 B21; do
+  if [ "$L" = B21 ] && [ "${B21_CORR_ON_MAC:-0}" = 1 ]; then
+    echo "B21 corrections on the Mac (mac_b21corr.sh -> $R/b21corr-mac/)"; continue
+  fi
   for h in 0.5 2 3; do step $R/${L,,}corr $L leg$L-h${h/./p}-e1p0-n21 1 "" --cases $h:1.0; done
   step $R/${L,,}corr $L leg$L-h1-e1p0-m20-a10-n21 1 "" --cases 1:1.0 --margin 20
 done
