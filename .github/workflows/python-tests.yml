@@ -85,6 +85,8 @@ on:
     branches: [main]
     paths:
       - 'packages/**'
+      - 'zapote/**'
+      - 'harness-lab/**'
       - 'crates/temper-cli/**'
       - 'elec/**'
       - 'tests/**'
@@ -216,6 +218,8 @@ on:
     branches: [main]
     paths:
       - 'packages/**'
+      - 'zapote/**'
+      - 'harness-lab/**'
       - 'crates/temper-cli/**'
       - 'elec/**'
       - 'tests/**'
