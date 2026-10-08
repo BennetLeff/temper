@@ -68,7 +68,7 @@ DIRECTORY_PURPOSE: dict[str, str] = {
     "simulation": "ngspice models and protection-gate simulation harnesses",
     "skills": "Source-grounded agent skills for product, mechanical, PCB, and manufacturing reviews",
     "tools": "Developer utilities not wired into CI gates",
-    "zapote": "Isolated circuit source candidates, compiled exports, and connectivity audits",
+    "zapote": "Rust ERC/DRC/DFM validation workspace, standalone units, and the 120 V power stage (see zapote/CHECKS.md)",
 }
 
 MARKER_BEGIN = (
