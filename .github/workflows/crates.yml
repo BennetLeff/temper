@@ -34,6 +34,11 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Rust toolchain (pinned; bumps are deliberate, as in the legacy CI image)
+        run: |
+          rustup toolchain install 1.97.0 --profile minimal --component clippy
+          rustup default 1.97.0
+          rustc --version
       - name: Test and lint
         env:
           CARGO_TARGET_DIR: ${{ runner.temp }}/crates-target
