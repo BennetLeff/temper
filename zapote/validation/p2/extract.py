@@ -81,7 +81,7 @@ def extract(path: Path) -> dict[str, Any]:
     before = path.read_bytes()
     board = pcbnew.LoadBoard(str(path))
     enabled = list(board.GetEnabledLayers().CuStack())
-    bodies, pads, holes, copper, unsupported = [], [], [], [], []
+    bodies, pads, holes, copper, tracks, unsupported = [], [], [], [], [], []
     census = {"footprints": 0, "pads": 0, "tracks": 0, "vias": 0, "zones": 0}
     for footprint in board.GetFootprints():
         census["footprints"] += 1
@@ -100,8 +100,10 @@ def extract(path: Path) -> dict[str, Any]:
                 unsupported.append(uid + ": multiple drill polygons")
             drill = drills[0] if len(drills) == 1 else None
             pos = pad.GetPosition()
+            # Vendors limit component holes and non-plated holes separately.
+            kind = {pcbnew.PAD_ATTRIB_PTH: "Pth", pcbnew.PAD_ATTRIB_NPTH: "Npth"}.get(pad.GetAttribute())
             if drill:
-                holes.append({"id": uid, "center_mm": [pcbnew.ToMM(pos.x), pcbnew.ToMM(pos.y)], "diameter_mm": pcbnew.ToMM(pad.GetDrillSize().x), "polygon": drill})
+                holes.append({"id": uid, "center_mm": [pcbnew.ToMM(pos.x), pcbnew.ToMM(pos.y)], "diameter_mm": pcbnew.ToMM(pad.GetDrillSize().x), "polygon": drill, "kind": kind})
             for layer in enabled:
                 if not pad.IsOnLayer(layer):
                     continue
@@ -112,7 +114,7 @@ def extract(path: Path) -> dict[str, Any]:
                 for index, polygon in enumerate(shapes):
                     identity = uid + "@" + pcbnew.LayerName(layer) + f":{index}"
                     copper.append({"id": identity, "layer": pcbnew.LayerName(layer), "polygon": polygon})
-                    pads.append({"id": identity, "copper": polygon, "inner_copper_polygons": inner_shapes, "drill_mm": None, "drill_center_mm": None, "drill_polygon": drill, "plated": pad.GetAttribute() == pcbnew.PAD_ATTRIB_PTH})
+                    pads.append({"id": identity, "copper": polygon, "inner_copper_polygons": inner_shapes, "drill_mm": None, "drill_center_mm": None, "drill_polygon": drill, "plated": pad.GetAttribute() == pcbnew.PAD_ATTRIB_PTH, "kind": kind})
     for item in board.GetTracks():
         uid = item.m_Uuid.AsString()
         via = isinstance(item, pcbnew.PCB_VIA)
@@ -127,9 +129,12 @@ def extract(path: Path) -> dict[str, Any]:
             if len(drills) == 1:
                 drill = drills[0]
                 p = item.GetPosition()
-                holes.append({"id": uid, "center_mm": [pcbnew.ToMM(p.x), pcbnew.ToMM(p.y)], "diameter_mm": pcbnew.ToMM(item.GetDrillValue()), "polygon": drill})
+                holes.append({"id": uid, "center_mm": [pcbnew.ToMM(p.x), pcbnew.ToMM(p.y)], "diameter_mm": pcbnew.ToMM(item.GetDrillValue()), "polygon": drill, "kind": "Via"})
             else:
                 unsupported.append(uid + ": missing native via drill polygon")
+        else:
+            # Straight tracks and arcs: centreline width as drawn.
+            tracks.append({"id": uid, "layer": pcbnew.LayerName(item.GetLayer()), "width_mm": pcbnew.ToMM(item.GetWidth())})
         for layer in enabled:
             if not item.IsOnLayer(layer):
                 continue
@@ -140,7 +145,7 @@ def extract(path: Path) -> dict[str, Any]:
                 identity = uid + "@" + pcbnew.LayerName(layer) + f":{index}"
                 copper.append({"id": identity, "layer": pcbnew.LayerName(layer), "polygon": polygon})
                 if via:
-                    pads.append({"id": identity, "copper": polygon, "inner_copper_polygons": shape_polygons(item, layer, pcbnew.ERROR_INSIDE), "drill_mm": None, "drill_center_mm": None, "drill_polygon": drill, "plated": True})
+                    pads.append({"id": identity, "copper": polygon, "inner_copper_polygons": shape_polygons(item, layer, pcbnew.ERROR_INSIDE), "drill_mm": None, "drill_center_mm": None, "drill_polygon": drill, "plated": True, "kind": "Via"})
     for zone in board.Zones():
         if zone.GetIsRuleArea():
             continue
@@ -159,7 +164,7 @@ def extract(path: Path) -> dict[str, Any]:
     if path.read_bytes() != before:
         raise ValueError("saved PCB changed during extraction")
     return {"schema": "zapote.manufacturing-native.v1", "board_sha256": hashlib.sha256(before).hexdigest(), "extractor_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(), "tool_version": pcbnew.Version(), "polygon_max_error_mm": pcbnew.ToMM(ERROR_IU), "native_census": census,
-            "input": {"board_id": str(path), "bodies": bodies, "pads": pads, "holes": holes, "copper": copper, "outline": ring(edges.Outline(0)), "cutouts": [ring(edges.Hole(0, i)) for i in range(edges.HoleCount(0))], "limits": {"name": "", "source": "", "qualified": False, "minimum_annular_ring_mm": 0., "minimum_hole_clearance_mm": 0., "assembly_process": ""}, "angle_policy": "Arbitrary", "unsupported": sorted(set(unsupported))}}
+            "input": {"board_id": str(path), "bodies": bodies, "pads": pads, "holes": holes, "copper": copper, "outline": ring(edges.Outline(0)), "cutouts": [ring(edges.Hole(0, i)) for i in range(edges.HoleCount(0))], "limits": {"name": "", "source": "", "qualified": False, "minimum_annular_ring_mm": 0., "minimum_hole_clearance_mm": 0., "assembly_process": ""}, "angle_policy": "Arbitrary", "unsupported": sorted(set(unsupported)), "tracks": tracks}}
 
 
 def main() -> None:

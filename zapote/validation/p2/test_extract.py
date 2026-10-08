@@ -84,6 +84,13 @@ class NativeExtraction(unittest.TestCase):
             self.assertAlmostEqual(min(p[0] for p in points), 2.9, delta=0.002)
             self.assertAlmostEqual(max(p[1] for p in points), 8.1, delta=0.002)
             self.assertTrue(any("no closed native F.Fab" in gap for gap in geometry["unsupported"]))
+            # Hole kinds and track widths feed the fab-profile rules in Rust.
+            kinds = {h["id"].split(":")[0]: h["kind"] for h in geometry["holes"]}
+            self.assertEqual(kinds, {"J1.1": "Pth", via.m_Uuid.AsString(): "Via"})
+            self.assertTrue(all(p["kind"] == "Pth" for p in geometry["pads"] if p["id"].startswith("J1.1")))
+            self.assertTrue(all(p["kind"] == "Via" for p in geometry["pads"] if p["id"].startswith(via.m_Uuid.AsString())))
+            self.assertEqual(geometry["tracks"], [{"id": track.m_Uuid.AsString(), "layer": "F.Cu", "width_mm": 0.2}])
+            self.assertEqual(geometry["limits"]["name"], "")  # profiles are applied by Rust callers
 
 
 if __name__ == "__main__":
