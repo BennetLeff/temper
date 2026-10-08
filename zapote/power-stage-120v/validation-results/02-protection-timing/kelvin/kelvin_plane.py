@@ -51,7 +51,7 @@ def main() -> None:
     # the committed native-19/20 export is pinned; another board's export carries its own hash
     PINNED = {"native20": "3557aa444873fa8b45eb7e0ae8ec3a4bc2b5cd526826b338b58d50e57747430b",
               "native21": "76ec8ccae6ca0dbd145b672abc3d18a8f8132875e567cb31ab84325d897a1715",
-              "native21s6": "e7b8fe778ed3e8f2d9aa22a49ad4d7b06b58b51b65da9a6106adf9543d5f2c54"}
+              "native21s6": "a2d1589ac672360c1075832c3b6b129bf853cb863ff4d3dee058fa9aca187387"}
     assert data["board_sha256"] == PINNED[tag], f"{export} is not the pinned {tag} board"
     net = kit.Net(pitch_mm=PITCH, temp_c=TEMP)
     shapes, vias, pads = defaultdict(list), {}, {}

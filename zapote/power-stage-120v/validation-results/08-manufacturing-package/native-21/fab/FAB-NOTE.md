@@ -1,10 +1,10 @@
 # Fabrication note: power-stage-120v native-21 (CANDIDATE, not released)
 
-Board: native-21 stage 6, rebuilt from `native-21/layout/copper.json` by
+Board: native-21 stage 6 (R5 current vias, SW_B neck widened), rebuilt from `native-21/layout/copper.json` by
 `sh native-21/layout/incr_iter.sh native-21/layout/copper.json - OUTDIR`; SHA-256
-`e7b8fe778ed3e8f2d9aa22a49ad4d7b06b58b51b65da9a6106adf9543d5f2c54`.
+`a2d1589ac672360c1075832c3b6b129bf853cb863ff4d3dee058fa9aca187387`.
 Gerbers: `native-21-gerbers.zip`, SHA-256
-`0b975203805af237e3f2a772e2946727f94916a777a9e1e36d33abbd6b3bae6b`.
+`3ff50e60e880b9daa86b4ca4fb50703a066a5f2037360da1c11e22f4dede6f36`.
 
 **This package isn't released for ordering.** The release gates in `DECISIONS.md` and
 `FAB-JLCPCB.md` are still open: insulation and thermal qualification, the laminate CTI

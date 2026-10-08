@@ -5,7 +5,7 @@ does not release fabrication: `DECISIONS.md` controls that, and its gates are op
 ([fab/FAB-NOTE.md](fab/FAB-NOTE.md)).
 
 - Board: native-21 stage 6 (`native-21/layout/copper.json`, rebuilt), SHA-256
-  `e7b8fe778ed3e8f2d9aa22a49ad4d7b06b58b51b65da9a6106adf9543d5f2c54`.
+  `a2d1589ac672360c1075832c3b6b129bf853cb863ff4d3dee058fa9aca187387`.
 - Tools: KiCad 10.0.4 `kicad-cli`, gerbv 2.11.1 (independent renderer), Miniforge Python 3.12.
 - Scripts: native-17's `bom_cpl_jlc.py` unchanged; `review_fab.py` with one change, below.
 

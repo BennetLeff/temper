@@ -4,7 +4,7 @@ The round-4 A4 experiments (same imposed currents and pad names, plus the two ma
 cases), run on native-21 copper: the enclosure re-layout's new current paths, which D4's
 conditions require screening before fabrication.
 
-- **Board:** native-21 stage 6, SHA-256 `e7b8fe77…` (`inputs/power_copper.json.gz`,
+- **Board:** native-21 stage 6, SHA-256 `a2d1589a…` (`inputs/power_copper.json.gz`,
   `tools/export_power_copper.py`). Stage 6 = stage-5 copper + the R5 current-pad vias below.
 - **Evidence class:** simulation/model-based. These are conditional DC experiments with imposed
   currents, not operating waveforms. The thermal B3 solve still waits for task 03's heat
@@ -87,3 +87,59 @@ $MP summarize.py && python3 compare_native17.py
 ```
 
 Heat-field arrays (`*.npz`) are ignored by git, as in rounds 3–4.
+
+## Tank-path width screen and the SW_B neck fix
+
+Each tank path rides on one copper layer and carries the full tank current: SW_B on B.Cu, SW_A on
+F.Cu. Section widths are measured by cutting the filled copper every 2 mm along each run. The
+screen is the project's width screen (IPC-2221B, 70 µm, 20 K rise; as for D4 condition 1), with the
+tank RMS from task 05 / task 03: **21.47 A nominal** (120 V, 1710 W cast iron) and **44.70 A at the
+108 V low-R grid extreme**.
+
+- **Before:** SW_B had a ~16 mm section at **4.4–5.6 mm** (x 58–74). That is a ~16 A screen, so
+  ~39 K at the nominal 21.5 A: **failed**. Cause: the SW_A B.Cu link pour above it (3.2 mm HOT
+  spacing) and C38/C39's antipads below.
+- **Fix** (`native-21/layout/patches21.py`, stage 6): the SW_A link pour, which only parallels SW_A's
+  F.Cu path, is trimmed to y ≤ 12.5. SW_B's lane top is raised to y 15.7 over x 57–79.7. The
+  high-side Cgs/R71 return via moves 0.6 mm, to (73.1, 15.2), with a 3.7 mm keep-out round it.
+  It ties that F.Cu island to SW_A's B.Cu pour (removing the via split the SW_A pour, so it stays).
+  The section is now **7.2–9.3 mm**, and SW_B R goes from 7.39 to 7.00 mΩ.
+- **After, at nominal 21.5 A:** SW_B's long sections (8.1–8.5 mm) ≈ 15 K. SW_A's 12 mm section at
+  7.0 mm ≈ 18.8 K (22.0 A screen): passes, without much margin.
+- **Short constrictions remain** on SW_B at x 36–48: 3.1–6 mm over 4–6 mm, bounded by the low-side
+  Cgs return via and C40's pins, both gate/power-loop items. A 1-D fin estimate between the wide
+  sections gives ≈ 1 K local rise at 21.5 A. A long-trace screen does not apply to them.
+- **At the 44.7 A extreme every tank section fails** (≈ 60–72 K), and so do parts: R5 dissipates
+  2.0 W against its 1 W rating, and C21/C22 carry 18.2 A RMS against CDE's 10.3 A at 70 °C. So
+  44.7 A RMS is not a supported operating point for this board. The interim decision (DECISIONS.md
+  2026-10-08) is a firmware tank-RMS ceiling of 22 A, set by the copper screen.
+
+## B3 thermal solve (`b3/`)
+
+`b3/make_heat_sources.py` builds native-21's board heat (46 parts). It takes task 03's quantified
+parts by reference and adds bias_sizing.py's gate-drive, push-pull and LDO losses plus stated
+estimates for the AC-DC modules, bus capacitors and small rails. Board share: **8.9 W nominal /
+18.3 W worst**. `b3/run_study.py` adds the copper Joule heat of every power net, scaled to the
+operating point by (I_op / I_case)²: 8.6 W nominal, 35.3 W at the extreme.
+
+`b3/thermal.py` is round 4's solver with three changes:
+- several A4 cases with I² scales;
+- the board-hash check against round 5's export;
+- a fix: sub-cell SMD pads fell back to one B.Cu cell, possibly bare FR-4, a false hot spot (U3).
+
+| Run (50 °C ambient) | Source | Peak 1 mm grid | Peak 0.5 mm grid |
+| --- | ---: | ---: | ---: |
+| nominal, h 10 / 25 W/m²K | 17.6 W | 186 / 160 °C at U26 | 139 / 111 °C at the mains entry |
+| extreme, h 10 / 25 | 53.6 W | 353 / 237 °C | 392 / 263 °C at R5 |
+
+**These peaks are not temperatures to decide on.** They move 30–50 K and change place between
+grids. Each part's heat goes into its pad copper only: no conduction through the package to air,
+and convection only from the board faces. So a 0.87 W 5 × 5 mm LDO reads 136 K hotter than ambient,
+where its datasheet θJA (~35 °C/W) gives about 31 K. That is round 3–4's limitation, unchanged.
+What the solve does show: board heat is concentrated in the power core and the LS bias block, and
+the extreme case puts ~54 W into a board cooled by its faces. Part temperatures use datasheet
+ratings, as above.
+
+**Verdict, task 04 on native-21:** nominal operation passes the copper width screen after the SW_B
+fix (SW_A at 18.8 K is the tightest). The board needs a tank-current ceiling (22 A RMS interim).
+Bench IR at nominal power remains the physical gate (D4).

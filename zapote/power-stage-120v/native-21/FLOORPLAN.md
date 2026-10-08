@@ -179,6 +179,9 @@ run, and that count is 0. Their inductance effect belongs to the FEM rerun on th
   10 at R5.1, filled and capped in the pads. It clips SW_B's B.Cu outline under R5, where its fill was
   0 mm². The worst via falls to 7.3 A (coherent 34 A case). DRC, parity, barrier (both gates), DFM
   and plane splits are all 0 / PASS; the Kelvin band is unchanged.
+  Also in stage 6: SW_B's B.Cu tank lane widened from 4.4-5.6 to 7.2-9.3 mm over x 58-74 (SW_A's B.Cu link
+  pour trimmed to y <= 12.5; the Cgs/R71 return via moved to (73.1, 15.2)). Tank-path screen and the 22 A
+  RMS tank ceiling: task 04 round 5 README, DECISIONS.md 2026-10-08.
 - **Open items:**
   - **44 vias** remain mostly inside SMD pads (the straight-stub dogbone found no spot within 1.3 mm;
     a routed-stub trial moves 15 more, 28 stay; R5's current pads need in-pad vias anyway). **Decided

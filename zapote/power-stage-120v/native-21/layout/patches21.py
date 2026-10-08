@@ -7,7 +7,19 @@ intended (filled and capped, DECISIONS.md 2026-10-08) and must not be moved off 
 """
 from patches21_v1 import CU, OPEN_IN1, drill  # noqa: F401  (OPEN_IN1 / CU re-exported for incr21)
 
-REMOVE = []
+# SW_B neck (task 04 round 5): SW_B's B.Cu lane narrowed to ~4.5 mm for ~16 mm under leg A
+# (x 58-74), squeezed by the SW_A B.Cu link pour above (3.2 mm HOT spacing) and C38/C39's antipads
+# below; an IPC-2221 20 K screen gives ~16 A against 21.5 A nominal tank RMS. The SW_A link pour only
+# parallels SW_A's F.Cu path: trim it to y <= 12.5 and raise SW_B's lane top to 15.7 (3.2 mm apart).
+# The high-side Cgs / R71 return island on F.Cu (C55.2) reaches SW_A's B.Cu pour through one via (the
+# F6 gate-loop return): it moves from (73.1, 15.8) to (73.1, 15.2) with a B.Cu stub into the trimmed
+# pour, and SW_B's raise keeps HOT spacing round it (TIE_KEEPOUT).
+TIE = (73.1, 15.2)
+TIE_KEEPOUT = 0.3 + 3.2 + 0.2
+SWA_TRIM = (58.0, 12.5, 76.6, 16.1)
+SWB_RAISE = (57.0, 15.7, 79.7, 19.4)
+REMOVE = [{"net": "sw_a", "box": [72.9, 15.6, 73.3, 16.0], "kind": "via"},
+          {"net": "sw_a", "box": [59.8, 11.1, 73.2, 15.9], "kind": "track", "layer": "B.Cu"}]
 REMOVE_ESCAPES = []
 HANDLED = ()
 
@@ -25,6 +37,17 @@ def edit_zones(zones):
     from shapely.geometry import Polygon, box
     out = []
     for z in zones:
+        poly = Polygon(z["outline"], z["holes"])
+        if z["net"] == "sw_a" and z["layer"] == "B.Cu" and poly.intersects(box(*SWA_TRIM)):
+            poly = poly.difference(box(*SWA_TRIM))
+            poly = max(getattr(poly, "geoms", [poly]), key=lambda q: q.area)
+            z = {**z, "outline": [[round(x, 3), round(y, 3)] for x, y in list(poly.exterior.coords)[:-1]],
+                 "holes": [[[round(x, 3), round(y, 3)] for x, y in list(i.coords)[:-1]] for i in poly.interiors]}
+        if z["net"] == "sw_b" and z["layer"] == "B.Cu" and poly.intersects(box(*SWB_RAISE)):
+            from shapely.geometry import Point as _Pt
+            poly = poly.union(box(*SWB_RAISE).difference(_Pt(*TIE).buffer(TIE_KEEPOUT))).simplify(0)
+            z = {**z, "outline": [[round(x, 3), round(y, 3)] for x, y in list(poly.exterior.coords)[:-1]],
+                 "holes": [[[round(x, 3), round(y, 3)] for x, y in list(i.coords)[:-1]] for i in poly.interiors]}
         if z["net"] == "sw_b" and z["layer"] == "B.Cu":
             poly = Polygon(z["outline"], z["holes"])
             if poly.intersects(box(*SWB_CLIP)):
@@ -39,6 +62,13 @@ R5_MAX, R5_REACH = 10, 2.6
 
 
 def add(g):
+    from patches21_v1 import put
+    drill(g, "sw_a", *TIE)
+    put(g, "sw_a", "B.Cu", 0.4, list(TIE), [TIE[0], 12.0])
+    add_r5(g)
+
+
+def add_r5(g):
     """Up to R5_MAX legal 0.6 / 0.3 vias per R5 current pad, 0.85 mm apart (so merge_close_vias
     keeps them), on a 0.15 mm grid in the pad and in the same-net F.Cu copper within R5_REACH of it,
     nearest the pad centre first. Every spot is checked against all copper on every layer (the
