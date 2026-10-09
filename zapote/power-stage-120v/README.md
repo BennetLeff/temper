@@ -123,10 +123,10 @@ tank peak is not a sufficient basis for selecting creepage bands. See
 1. **Coil measurement** (COIL-MC.md). Sets the resonant bank value (0.54 µF now, for 70 µH / 32 kHz), CT burden and frequency limits.
 2. **Parts to confirm against manufacturer drawings:**
    - J1 is Phoenix 1711725 for L/N only; J6 is a Phoenix 1704004 PE branch from the chassis stud. J2/J5 and the four disconnect terminals use Würth 74650074; assembly, temperature and spacing qualification remain open.
-   - ~~Littelfuse 102071 clip current rating~~ (10 A: replaced by 30 A 01220088Z clips, and the fuse re-sized 20 → 25 A for continuous derating, DECISIONS.md 2026-10-08 stage 8)
+   - ~~Littelfuse 102071 clip current rating~~ (10 A): replaced by 30 A 01220088Z clips. The fuse is now Eaton Bussmann MDA-25-R (25 A, 10 kA @ 125 Vac), DECISIONS.md 2026-10-08
    - ~~TDK B82726S2203A020 pin numbering~~ (confirmed from datasheet 2026-09-25: windings 1-4, 2-3)
-   - Molex 0430451612 order code
-   - 942C AC voltage rating vs frequency (≈236 V rms at line crest, 35 kHz)
+   - ~~Molex 0430451612 order code~~: a real, current Micro-Fit 3.0 2×8 vertical part that matches the footprint and pinout. Its mate is 43025-1600 + 43030-0007 (`validation-results/08-manufacturing-package/native-21/owner-items/order/ORDER-PACKAGE.md` §1c). Only the post-hole check against Molex drawing 430451612_sd is left
+   - 942C AC voltage rating vs frequency (≈ 236 V rms at line crest, 35 kHz): CDE's 1200 Vdc curves (942C.pdf p.4) have no 0.22 µF trace. The 0.33 µF trace allows ≈ 270 V rms at 35 kHz (read from the plot), and the smaller value allows more, so it passes at 25 °C. The hot-spot rating stays a bench item
 3. **Footprint qualification:** all current local footprints are now
    in `libraries/`. [FOOTPRINTS.md](FOOTPRINTS.md) records their drawing
    references and provisional formed-lead, retention and assembly limits.
@@ -134,3 +134,8 @@ tank peak is not a sufficient basis for selecting creepage bands. See
 5. **Bench:** dead time (39 kΩ ≈ 348 ns nominal), gate resistors, snubber value, OCP trip calibration, ZVS at light load.
 
 Physical assembly, powered test, EMI, insulation and certification: **NOT RUN**.
+
+The release gates (two tiers: bench prototype lot vs mains-connected / product release) are in
+`validation-results/08-manufacturing-package/native-21/fab/FAB-NOTE.md`. The owner decisions M6, M10
+and M11 are in DECISIONS.md (2026-10-08). The integrated SELV controller that drives J4 is captured in
+`zapote/controller/`.
