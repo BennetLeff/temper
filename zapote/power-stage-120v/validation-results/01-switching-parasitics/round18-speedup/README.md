@@ -203,7 +203,32 @@ The fixture meshes have no mesher log, so `inductance_matrix.py`'s port-identity
 needed a port record beside them: `r17/qual/meshes/{f2,sect2,legA-small-thin}.log`,
 written by hand with round 17's drives and marked as a round-18 shim.
 
-### 4.2 What explains ~2000 iterations — PENDING (battery 6)
+### 4.2 What explains ~2000 iterations (battery 6)
+
+Result: **no candidate comes near 100 iterations**; the remaining ~2000 are not a solver-setting
+defect that any of these knobs fixes. Records: [`logs/battery-b6-results.jsonl`](logs/battery-b6-results.jsonl)
+(last line of each run's `.out`; list `lists/b6-iters.txt`). legA-small-thin, P1, 2 ranks beside
+the live chain, scaling off; reference `ns-thin-c7` (≈ the scaling-off baseline): 2119 its, 2113 s.
+
+| run | change | its to 1e-8 | wall s | L nH |
+| --- | --- | --- | --- | --- |
+| it-thin-dirscale | + Dirichlet scaling | 2547 | 1621 | 29.77092 |
+| it-thin-k300 | GMRES(300) | 1326 | 1997 | 29.7709 |
+| it-thin-amsit3 | 3 AMS cycles per iteration | 753 | 1705 | 29.7709 |
+| it-thin-thr09 | AMS alpha threshold 0.9 | 1762 | 1855 | 29.7709 |
+| it-thin-nonsing | AMS non-singular mode | no convergence in 4000 | 4929 | (8.5e-11: wrong) |
+
+Fewer iterations from k300 / amsit3 / thr09 are mostly paid back in cost per iteration: wall time
+is 5-19 % below the reference, one run each, on a box shared with the chain (noise of that order),
+and none is qualified for accuracy. Not adopted for the running chain. The mesh variants
+(`it-base-*`, `it-nobar-P3`, `it-he2-P1` on m17-*) are inconclusive: both `it-base` runs stopped
+short of the 4000 cap without converging, so they give no baseline for the via/bar and aspect-ratio
+comparison.
+
+Live-chain confirmation (legA21-h2, scaling off, 2026-10-09): 8907 / 7701 / 6299 / 8396 iterations
+for P1-P4 against 13527 / 12892 / 12672 / 14055 for legA21-h1 at the old scaling: **1.5-2.0x fewer**
+(different arch height, so not like-for-like). Matrix SPD (eigenvalues 13.2-91.8 nH), diagonal vs
+energy ≤ 1.3e-7, within-tet spread 9e-16.
 
 ## 5. Leg A21 fine h = 1 mm does not fit in memory
 
