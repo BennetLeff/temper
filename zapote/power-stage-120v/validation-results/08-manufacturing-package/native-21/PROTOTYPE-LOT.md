@@ -11,9 +11,9 @@ the ready-to-place plan.
 | --- | --- | --- |
 | Bare PCBs | **5** from `fab/native-21-gerbers.zip` | 2 assembled, 1 for rework or partial bring-up, 2 spare |
 | PCB options | 4 layers, 1.6 mm, JLC041622-7628, **2 oz outer and inner**, green / white, **ENIG** | ENIG: flat pads for the fine-pitch parts and the capped vias, and a durable finish for probed test pads |
-| Via covering | **Epoxy-filled and capped for every 0.3 mm via**; 0.8 mm vias tented | 42 in-pad vias plus the R5 current-pad arrays (FAB-NOTE.md) |
+| Via covering | **Epoxy-filled and capped for every 0.3 mm via**; 0.8 mm vias tented | every 0.3 mm via; 79 drills fully inside SMD pads and 63 overlapping (stage 11, FAB-NOTE.md) |
 | Laminate | Ask JLC to confirm CTI ≥ 175 V (IIIa) before payment | D5 / FAB-JLCPCB.md open question |
-| SMT assembly | **2 boards**, top side, from `fab/bom-jlcpcb.csv` + `fab/cpl-jlcpcb.csv` | 87 lines with checked LCSC numbers; check every CPL rotation in JLC's preview |
+| SMT assembly | **2 boards**, top side, from `fab/bom-jlcpcb.csv` + `fab/cpl-jlcpcb.csv` | 88 of 95 source lines with checked LCSC numbers (stock re-check: `owner-items/order/`); check every CPL rotation in JLC's preview |
 | THT and consigned parts | Hand-solder in house | TO-247s, BR1, film caps, terminals, magnetics, PS1/PS2: heavy copper needs a hot iron or selective solder |
 
 ## Parts to buy before ordering (from `sourcing/README.md`)
@@ -31,7 +31,7 @@ the ready-to-place plan.
   - SN6507DGQR; VOL628A-3X001T;
   - RT0603BRD076K12L; RT0603BRD07133KL.
 - **Thin stock:** IPW65R018CFD7 (6 against 8 for two boards): buy 10 from a distributor, from one recorded lot (D-8 asks for lot traceability).
-- **Fixings:** M3 nylon (UL94 V-0) screws and standoffs for H2–H8; one metal M3 for H1 (chassis/PE).
+- **Fixings:** M3 nylon (UL94 V-0) screws, washers and standoffs for H2–H7, with the whole chain insulating (BRINGUP-PROBES.md); one metal M3 for H1 (chassis/PE).
 
 ## Gates before placing the order
 

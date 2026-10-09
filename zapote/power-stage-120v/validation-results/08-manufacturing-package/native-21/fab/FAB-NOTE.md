@@ -7,11 +7,20 @@ SHA-256
 Gerbers: `native-21-gerbers.zip`, SHA-256
 `abd1e10025fdc1a15fb552436169a28331a64942164dac0d282e7acb90f73f21`.
 
-**This package isn't released for ordering.** These gates are still open:
-- insulation and thermal qualification;
-- the laminate CTI confirmation;
+**This package isn't released for ordering.** The gates come in two tiers (decision 2026-10-08; PROTOTYPE-LOT.md agrees).
+
+**Before ordering the bench prototype lot** (run on an isolated, current-limited supply):
+- the native-21 FEM correction matrices (leg A/B `a21corr` / `b21corr`) land and F6 re-runs on them. A failure would mean a copper change;
+- M11 (heatsink HOT↔PE stack) is approved and its parts are sourced (`../owner-items/m11/`);
+- procurement of the no-stock parts in `../owner-items/order/ORDER-PACKAGE.md`, incl. UCC21550, ISO7710, T1/T2/T3, C5/C6 and the 942C film caps.
+
+**Before mains-connected or unattended operation, and before product release:**
+- insulation and thermal qualification (PD3, IEC 60664-4, hipot, partial discharge);
+- the laminate CTI written confirmation (`../sourcing/inquiries/CTI-JLC.md`; send it with the order);
 - F1 (MDA-25-R): the certifier's confirmation that the 10 kA @ 125 Vac rating covers the 127 V (+6 %) corner (nominal-voltage rule), and Recognized-component / clip acceptance (`../sourcing/F1-J3-PARTS.md`);
-- the owner items in `../REVIEW-TRIAGE.md` (M6, M10, M11).
+- the certification lab's answer on the tank-voltage RMS convention (M6 reversal condition).
+
+M6 and M10 are decided (DECISIONS.md 2026-10-08).
 
 Ordering is a purchase and needs the owner.
 
