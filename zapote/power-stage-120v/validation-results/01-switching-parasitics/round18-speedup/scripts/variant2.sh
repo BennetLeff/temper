@@ -24,7 +24,10 @@ if [ -f "runs/$name.out" ] && grep -q '"label"' "runs/$name.out"; then echo "SKI
 # chain itself is mid-solve; the chain then waits at most one of our (capped) runs.
 chain_solving() {
   for p in $(pgrep -x ElmerSolver_mpi); do
-    case "$(readlink "/proc/$p/cwd" 2>/dev/null)" in "$HOME/temper-fem/r17/"*) return 0 ;; esac
+    case "$(readlink "/proc/$p/cwd" 2>/dev/null)" in
+      *-e0p*) return 1 ;;                   # fine case (any sub-mm edge): no runs beside it (brief §3.3)
+      "$HOME/temper-fem/r17/"*) return 0 ;;
+    esac
   done
   return 1
 }
