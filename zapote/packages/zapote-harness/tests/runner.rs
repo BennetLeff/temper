@@ -145,3 +145,22 @@ fn changed_saved_pcb_and_composite_identity_fail_after_passing_baseline() {
         .unwrap_err()
         .contains("saved PCB bytes"));
 }
+
+/// Live: the unit runner includes the fab pass under each unit's profile.
+#[test]
+#[ignore = "requires KiCad 10 (KICAD_CLI, KICAD_PYTHON)"]
+fn live_unit_run_includes_the_fab_pass() {
+    let spec = manifest().units.into_iter().find(|s| s.unit.name() == "interlock").unwrap();
+    let out = std::env::temp_dir().join(format!("zapote-unit-fab-{}", std::process::id()));
+    let _ = fs::remove_dir_all(&out);
+    fs::create_dir(&out).unwrap();
+    let kicad = PathBuf::from(std::env::var_os("KICAD_CLI").expect("KICAD_CLI"));
+    let python = PathBuf::from(std::env::var_os("KICAD_PYTHON").expect("KICAD_PYTHON"));
+    let r = runner::run(&spec, &out, &kicad, &python).unwrap();
+    assert_eq!(r.schema, "zapote.unit-run.v4");
+    let fab = r.fab_checks.as_ref().expect("fab check present");
+    assert_eq!(fab.status, Status::Pass, "{fab:#?}");
+    assert!(r.declared_checked_rule_ids.iter().any(|c| c == "FAB.clearance"), "{:?}", r.declared_checked_rule_ids);
+    assert_eq!(r.fab_evidence.as_ref().unwrap()["profile"]["path"], serde_json::json!(spec.fab_profile.unwrap()));
+    let _ = fs::remove_dir_all(&out);
+}

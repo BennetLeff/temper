@@ -140,6 +140,25 @@ pub fn fab_check(i: &FabInputs, limits: &FabricationLimits) -> Result<Option<Fab
     Ok(Some(FabCheck { report, evidence }))
 }
 
+/// The fab pass must judge the `.kicad_pro` the native DRC hashed: the
+/// project beside `board` per the native DRC command's dependency census.
+pub fn check_project_matches_native(
+    fab: &FabCheck,
+    board: &Path,
+    native: &[crate::runner::NativeCommand],
+) -> Result<()> {
+    let project = board.canonicalize().map_err(|e| e.to_string())?.with_extension("kicad_pro");
+    let native_project = native
+        .iter()
+        .find(|n| n.argv.get(2).map(String::as_str) == Some("drc"))
+        .and_then(|n| n.dependency_hashes.get(&project));
+    let fab_project = fab.evidence.get("project_sha256");
+    if fab_project.is_some_and(|h| h.as_str() != native_project.map(String::as_str)) {
+        return Err("board project changed between the native and fab passes".into());
+    }
+    Ok(())
+}
+
 enum Failure {
     Io(String),
     Contract(String),

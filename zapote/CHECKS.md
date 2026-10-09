@@ -22,7 +22,7 @@ export KICAD_CLI="/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli"
 | Check any saved board | `make -C zapote check-board BOARD=/abs/board.kicad_pcb PROFILE=fab-profiles/jlcpcb-2layer-2oz.json` | Stackup, KiCad ERC/DRC with one finding per violation (type, location, items, actual/required), and fab-house DFM under a [vendor profile](fab-profiles/): P2 geometry plus the profile's clearance, hole-to-copper and silk limits in KiCad's own DRC (fab pass). Writes `report.json` and `summary.txt`; exit 0 pass, 1 fail, 2 indeterminate, 3 run error. Pass `ASSEMBLY=<process>` to state the assembly process; without it the result is at best indeterminate. |
 | Placement/routing feedback | `make -C zapote check-layout` | Saved copper, paths, pad entries, coupling geometry, courtyards and placement distances; [details](layout-quality/NATIVE.md). |
 | Current sharing, R and loss | `make -C zapote check-current` | Includes layout analysis plus the declared two-terminal DC experiments, layer samples and barrel currents; [assumptions and results](layout-quality/CURRENT.md). |
-| Maintained unit ERC/DRC and engineering checks | `make -C zapote check-units` | Runs the five units in [units.json](validation/units.json), retaining pass/fail/indeterminate results. The full 120 V board is not registered there. |
+| Maintained unit ERC/DRC and engineering checks | `make -C zapote check-units` | Runs the five units in [units.json](validation/units.json), including the fab pass under each unit's `fab_profile`, retaining pass/fail/indeterminate results. The full 120 V board is not registered there. |
 | Saved-board stackup | `make -C zapote board-check BOARD=/absolute/path/to/board.kicad_pcb` | Stackup consistency only. `check-boards` applies it to the maintained unit board list. |
 | Rust regression and property tests | `PROPTEST_CASES=2048 cargo test --release --locked --manifest-path zapote/Cargo.toml --workspace` | Software tests, including captured native-board replay; live KiCad tests require the separate command below. |
 | Combined local checks | `make -C zapote check` | Release Rust tests → layout → current → unit checks. Stops at the first failing step; run individual commands when collecting every verdict. |
@@ -108,8 +108,11 @@ bridges (no KiCad custom-rule constraint); `report.json` lists them.
 | Latest measured results and regression proofs | [Native copper/current evidence](layout-quality/mesh-evidence/README.md), including tests, benchmarks, raw runs, scratch mutations and source hashes. |
 | Acceptance objective and missing coverage | [Validation contract](VALIDATION.md), [integration follow-up #1628](https://github.com/BennetLeff/temper/issues/1628). |
 
-Run the native mutation/connectivity proofs explicitly; they are ignored by the
-default Rust test invocation because they need KiCad:
+The KiCad-backed tests (fab pass, board check, unit runner, native layout and
+current proofs) are `#[ignore]`d in the default Rust test invocation. CI runs
+them in a second step against the pinned KiCad 10.0.4
+([installer](tools/install_kicad_ci.sh)); locally, set `KICAD_CLI` and
+`KICAD_PYTHON` and pass `-- --ignored`, for example:
 
 ```sh
 cargo test --release --locked --manifest-path zapote/Cargo.toml \
@@ -130,8 +133,9 @@ freeze `ea5718069` plus layout-quality `ff28b521e` (full history: tag
 `archive/zapote-history-2026-10-08`). `.github/workflows/zapote.yml` runs the
 Rust suite and the tree-budget gate (`python3 zapote/tools/evidence_archive.py check`,
 also available locally as `make -C zapote check-tree`) on every PR
-touching `zapote/**`. Native KiCad commands (`check-layout`, `check-current`,
-`check-units`) remain local-only; #1628 tracks CI for them.
+touching `zapote/**`, then the KiCad-backed `#[ignore]`d tests against the
+pinned KiCad 10.0.4. The `check-layout`, `check-current` and `check-units` Make
+targets remain local; #1628 tracks CI for them.
 Bulk evidence (`*.gz`, `*.npz` outside `packages/`, and any file over 5 MB)
 lives in release `zapote-evidence-2026-10-08`; restore it in place with
 `python3 zapote/tools/evidence_archive.py fetch`.

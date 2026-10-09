@@ -1,6 +1,7 @@
 name: zapote
-# Zapote's Rust validation suite. KiCad-backed native tests are #[ignore]d and
-# run locally via `make -C zapote check`; see zapote/CHECKS.md.
+# Zapote's Rust validation suite. KiCad-backed native tests are #[ignore]d in
+# the main run and run afterwards against the pinned KiCad 10.0.4
+# (zapote/tools/install_kicad_ci.sh); see zapote/CHECKS.md.
 on:
   pull_request:
     paths: ["zapote/**", ".github/workflows/zapote.yml", "pyproject.toml", "uv.lock"]
@@ -34,6 +35,13 @@ jobs:
         env:
           CARGO_TARGET_DIR: ${{ runner.temp }}/zapote-target
         run: cargo test --release --locked --workspace
+      - name: Pinned KiCad 10.0.4 for the live native tests
+        run: zapote/tools/install_kicad_ci.sh
+      - name: Live KiCad tests (fab pass, board check, unit runner, native layout)
+        working-directory: zapote
+        env:
+          CARGO_TARGET_DIR: ${{ runner.temp }}/zapote-target
+        run: cargo test --release --locked --workspace -- --ignored
       - name: Build and import zapote_bridge (what zapote's unit tools load)
         env:
           CARGO_TARGET_DIR: ${{ runner.temp }}/zapote-target

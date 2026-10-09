@@ -74,6 +74,10 @@ pub struct UnitRunReport {
     pub operating_checks: Option<CheckReport>,
     pub manufacturing_receipt_sha256: String,
     pub native_execution: Vec<NativeCommand>,
+    /// The fab pass (vendor limits in KiCad's own DRC); absent when the unit's
+    /// profile sets none of its limits.
+    pub fab_checks: Option<CheckReport>,
+    pub fab_evidence: Option<serde_json::Value>,
     pub required_rule_ids: Vec<String>,
     pub declared_checked_rule_ids: Vec<String>,
     pub native_population: BTreeMap<String, usize>,
@@ -509,6 +513,34 @@ fn bound_manufacturing_bytes(path: &Path, expected_hash: &str) -> Result<Vec<u8>
     Ok(bytes)
 }
 
+/// The fab pass under the unit's fab profile, on the bound board bytes.
+fn fab_run(
+    spec: &UnitRunSpec,
+    board: &[u8],
+    out: &Path,
+    kicad: &Path,
+    python: &Path,
+) -> Result<Option<crate::fab_check::FabCheck>> {
+    let Some(path) = &spec.fab_profile else {
+        return Ok(None);
+    };
+    let bytes = read(path)?;
+    let text = std::str::from_utf8(&bytes).map_err(|_| format!("{}: fab profile is not UTF-8", path.display()))?;
+    let limits = zapote_drc::fab_profile::parse_profile(text).map_err(|e| format!("{}: {e}", path.display()))?;
+    let inputs = crate::fab_check::FabInputs {
+        board: &spec.board,
+        board_bytes: board,
+        out: &out.join("fab"),
+        kicad,
+        python,
+    };
+    let mut fab = crate::fab_check::fab_check(&inputs, &limits)?;
+    if let Some(f) = &mut fab {
+        f.evidence["profile"] = serde_json::json!({"path": path, "sha256": digest(&bytes)});
+    }
+    Ok(fab)
+}
+
 pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Result<UnitRunReport> {
     let (unit_checks, native, hashes) = evaluate(spec)?;
     let native_text = String::from_utf8(read(&spec.native)?).map_err(|e| e.to_string())?;
@@ -596,9 +628,15 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
     let coverage = enforce_required(&required, &combine(&parts));
     let common = combine(&[&stack, &binding, &coverage]);
     let (native_checks, native_execution) = native_run(spec, out, kicad)?;
+    let fab = fab_run(spec, &board, out, kicad, python)?;
+    if let Some(f) = &fab {
+        crate::fab_check::check_project_matches_native(f, &spec.board, &native_execution)?;
+    }
     verify_hashes(&hashes)?;
     let qualification=CheckReport::from_findings(vec![Finding::indeterminate("QUALIFICATION.HARDWARE","powered hardware qualification has not been performed; other model, implementation and input gaps are preserved separately","unit")],vec!["QUALIFICATION.HARDWARE".into()],vec!["hardware not run".into()]);
     parts.extend([&common, &native_checks, &qualification]);
+    let (fab_checks, fab_evidence) = fab.map_or((None, None), |f| (Some(f.report), Some(f.evidence)));
+    parts.extend(fab_checks.iter());
     let all = combine(&parts);
     let population = BTreeMap::from([
         ("components".into(), native.components.len()),
@@ -612,7 +650,7 @@ pub fn run(spec: &UnitRunSpec, out: &Path, kicad: &Path, python: &Path) -> Resul
         ("zones".into(), native.zones.len()),
     ]);
     let executable_sha256 = hash_file(&std::env::current_exe().map_err(|e| e.to_string())?)?;
-    Ok(UnitRunReport{schema:"zapote.unit-run.v3",unit:spec.unit,status:all.status,input_hashes:hashes,executable_sha256,unit_checks,common_checks:common,native_checks,power_checks,manufacturing_checks,manufacturing_population,operating_checks,manufacturing_receipt_sha256,native_execution,required_rule_ids:required,declared_checked_rule_ids:all.checked_rules,native_population:population,population_scope:"native_population is an input census. manufacturing_population records Rust P2 evaluations separately; other unit rules do not uniformly expose evaluated counts.",qualification})
+    Ok(UnitRunReport{schema:"zapote.unit-run.v4",unit:spec.unit,status:all.status,input_hashes:hashes,executable_sha256,unit_checks,common_checks:common,native_checks,power_checks,manufacturing_checks,manufacturing_population,operating_checks,manufacturing_receipt_sha256,native_execution,fab_checks,fab_evidence,required_rule_ids:required,declared_checked_rule_ids:all.checked_rules,native_population:population,population_scope:"native_population is an input census. manufacturing_population records Rust P2 evaluations separately; other unit rules do not uniformly expose evaluated counts.",qualification})
 }
 
 #[cfg(test)]

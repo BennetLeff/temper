@@ -95,7 +95,7 @@ fn main() -> Result<ExitCode> {
             }
             Err(error) => {
                 statuses.push(Status::Fail);
-                serde_json::json!({"schema":"zapote.unit-run.v3","unit":spec.unit,"status":"fail","runner_error":error})
+                serde_json::json!({"schema":"zapote.unit-run.v4","unit":spec.unit,"status":"fail","runner_error":error})
             }
         };
         fs::write(
