@@ -201,11 +201,13 @@ put("j_pe", 160.0, 134.5, 90)
 put("f1", 252.0, 7.25, 0)     # Class CC 10x38 clips (stage 12): pads 1 (ac_l_in) toward J1, pads 2 (l_f) toward L1
 put("j_mains", 283.5, 7.2)
 # ---------------- tank block, next to the core --------------------------------
-# Resonant bank stacked right of the SW_A column: RES_A pins left (x 155.25), SW_B pins right
-# (x 197.75). Coil terminals beside T1: J5 (RES_A) over J2 (COIL_FEED), 15 mm apart (5 mm tank rule).
-put("c_res1", 176.5, 58.0)
-put("c_res2", 176.5, 86.4)
-put("c_res3", 176.5, 110.9)
+# Resonant bank (stage 13): 5 x TDK B32654A1104K000 radials, P27.5, RES_A pins at x 163.0 and SW_B pins at
+# x 190.5. Rows are bounded by copper: pin 1 >= 5 mm (tank rule) below the sw_b band (B.Cu edge y 47.5),
+# no pin within 5 mm + pad of the In1 n_ls / v24_raw runs at y 74.8-76.2, and the last pad >= 8 mm from
+# the SELV line_zc-raw run (B.Cu, y 121.1). Courtyards are +/-7.2 (0.2 beyond the maximum body), pitch >= 14.5.
+# Coil terminals beside T1: J5 (RES_A) over J2 (COIL_FEED), 15 mm apart.
+for i, y in enumerate((53.2, 67.7, 82.5, 97.0, 111.5), 1):
+    put(f"c_res{i}", 176.75, y)
 put("t_ct", 135.0, 110.0)                      # primary sw_a -> coil_feed; secondary on the SELV band
 put("j_coil_return", 132.0, 70.5)
 put("j_coil", 132.0, 85.5)

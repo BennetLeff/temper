@@ -186,6 +186,13 @@ runs rise 1–10 K and remain outside the 22 A envelope.
 - **BUS_P mesh span:** 4.111 %.
 - **B3:** U26's pad cell is 162.8 / 138.4 °C.
 
+### Stage 13 re-run (2026-10-09, board `d7baa28a…`)
+
+- **Change:** the resonant bank is now 5 × TDK B32654 radials in the C21–C23 slot. The B.Cu res_a strip is re-cut, and the sw_b band's lower edge rises from y 50 to 46.8 over x 150–188.
+- **Tank paths:** res_a is **0.668 / 0.771 mΩ** (18 / 12 µm plating; stage 12: 0.731 / 0.819). sw_b high is 7.08 / 7.32 mΩ (+1.2 / +1.0 %) and sw_b low is 6.88 / 7.10 mΩ (−2.2 / −1.9 %). Every other row changed by less than 0.5 %.
+- **BUS_P mesh span:** 4.111 % (unchanged).
+- **B3:** 162.2 / 138.0 °C at U26, within 0.6 K of stage 12.
+
 **Verdict, task 04 on native-21:** nominal operation passes the copper width screen after the SW_B
 fix (SW_A at 18.8 K is the tightest). The board needs a tank-current ceiling (22 A RMS interim).
 Bench IR at nominal power remains the physical gate (D4).

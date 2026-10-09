@@ -19,9 +19,14 @@ ran under the native-21 envelope: 35–60 kHz, f ≥ 1.05·f_res, tank ≤ 22 A 
 - **Recommended fix.** 5 × 942C16P1K-F (0.50 µF), which passes the bound everywhere, or a bench hot-spot measurement.
 - **Shunt OCP.** Envelope tank peaks (47.3–47.7 A) reach the 47.52 A low edge of the shunt OCP band.
 
+**Design response (stage 13, DECISIONS.md 2026-10-09):**
+- **Bank:** 5 × **TDK B32654A1104K000** (0.50 µF, 1600 Vdc / 500 Vac, 7.3 A at 85 °C / 100 kHz), not the 942C16P1K-F, which does not fit the slot.
+- **Rating evidence:** an independent review found the √f bound valid but about 1.4× pessimistic for the 942C. On CDE's own curve shapes the as-built bank is 1.08–1.17× over. The TDK bank is 0.86× on TDK's own 85 °C current-vs-frequency curve (read by eye, ±10 %).
+- **Resonance:** this round's 0.50 µF run covers it (minimum f/f_res 1.21).
+
 What the bench measures first:
 1. loaded L/R per pan class over 25–60 kHz;
-2. C21/C22 hot-spot at 22 A, 35–45 kHz;
+2. bank hot-spot (middle TDK cap of the tightly stacked column) at 22 A, 35–45 kHz, ΔT ≤ 20 K;
 3. tank peak against the actual trip thresholds.
 
 The round-1 text below and rounds 3 and 4A are history. They used the earlier `coil_mc.rs` pan

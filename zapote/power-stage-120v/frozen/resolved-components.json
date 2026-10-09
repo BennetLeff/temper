@@ -1,11 +1,11 @@
 {
   "atopile_version": "0.2.69",
   "build_sha256": {
-    "build/default.csv": "d7cb1af417584fe2b9f43bc597ff833dbb921325d05c7a5b81e0599276c21240",
+    "build/default.csv": "7dba54703f8032548f4a7f78aa647809b4d262b5663e8e8d5812e849939c551f",
     "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-    "build/default.net": "c1c2e9d4acb3d3b579b1d41f3cc964f2d7b76698489f9b4d2eec084ef852257e",
+    "build/default.net": "a2b96c7949e548ed11941887efd4a64e06802641dea4f08c41c60decbb81612a",
     "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5",
-    "build/resolved-components.json": "170d32dabde5ae7231077cee0c966ed06497721785e80336758060693aec45b2"
+    "build/resolved-components.json": "0895a3992f8d14b8abc9da61cca32475611ab3e537c0e0608e11d54dd48c4d2e"
   },
   "components": [
     {
@@ -1323,9 +1323,9 @@
       "attributes": {
         "designator": "C21",
         "designator_prefix": "C",
-        "footprint": "temper:CDE_942C_D26.5_L34.0_Axial_ReviewOnly",
-        "manufacturer": "Cornell Dubilier",
-        "mpn": "942C12P22K-F"
+        "footprint": "temper:TDK_B32654_P27.5_W14.0_L31.5_Radial",
+        "manufacturer": "TDK",
+        "mpn": "B32654A1104K000"
       }
     },
     {
@@ -1333,9 +1333,9 @@
       "attributes": {
         "designator": "C22",
         "designator_prefix": "C",
-        "footprint": "temper:CDE_942C_D26.5_L34.0_Axial_ReviewOnly",
-        "manufacturer": "Cornell Dubilier",
-        "mpn": "942C12P22K-F"
+        "footprint": "temper:TDK_B32654_P27.5_W14.0_L31.5_Radial",
+        "manufacturer": "TDK",
+        "mpn": "B32654A1104K000"
       }
     },
     {
@@ -1343,9 +1343,29 @@
       "attributes": {
         "designator": "C23",
         "designator_prefix": "C",
-        "footprint": "temper:CDE_942C_D19.0_L34.0_Axial_ReviewOnly",
-        "manufacturer": "Cornell Dubilier",
-        "mpn": "942C12P1K-F"
+        "footprint": "temper:TDK_B32654_P27.5_W14.0_L31.5_Radial",
+        "manufacturer": "TDK",
+        "mpn": "B32654A1104K000"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_res4",
+      "attributes": {
+        "designator": "C151",
+        "designator_prefix": "C",
+        "footprint": "temper:TDK_B32654_P27.5_W14.0_L31.5_Radial",
+        "manufacturer": "TDK",
+        "mpn": "B32654A1104K000"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_res5",
+      "attributes": {
+        "designator": "C152",
+        "designator_prefix": "C",
+        "footprint": "temper:TDK_B32654_P27.5_W14.0_L31.5_Radial",
+        "manufacturer": "TDK",
+        "mpn": "B32654A1104K000"
       }
     },
     {
@@ -3841,8 +3861,8 @@
   "source_sha256": {
     "elec/src/f6_bias.ato": "188e0b61aa0abda0838fe5373f6ecbb4121f567f5450b9b5a3a80b13e44c79de",
     "elec/src/f6_parts.ato": "bfbb63a8f87d8dd28a8f51e6e0b347a0d8dbda1b6024c0767af2cd09099c791d",
-    "elec/src/parts.ato": "a0d39b723d754a4838c39bce8c8b4c2c5acda508808a36adb1cef8585ecf3ee3",
-    "elec/src/power_stage_120v.ato": "538f3d6ce66b2da9ccbd86f9ae2eef4ba77c52e82eaf45888fdeae0f186d379a",
+    "elec/src/parts.ato": "428678b954c87c085e40410801a614d31af6c34fbabb80546194bb337fd7b11f",
+    "elec/src/power_stage_120v.ato": "d3242749a2603e4e05adf201670aad24093d9cd5ed50f0085606eca8c3b632f7",
     "prototype-closure/round4/supervisor/generated/supervisor.ato": "1d6674935534a46c6c82f61c4f18890de7fa7cbf81f89c1cb63efb7bfed1b7e3"
   }
 }

@@ -70,3 +70,9 @@ Files: [plane-native21.json](plane-native21.json), [budget-native21.json](budget
 **Stage 11** (C29 placement order, silk; board `e85a4c82…`, export `native-21/verification/native21s11-all-copper.json.gz`; tag `native21s11`): R35.2 sits **161.72 mΩ** above R5.2, and the band is **47.52–97.98 A**. Files: [plane-native21s11.json](plane-native21s11.json), [budget-native21s11.json](budget-native21s11.json).
 
 **Stage 12** (F1 Class CC ECO; board `fc386321…`, export `native-21/verification/native21s12-all-copper.json.gz`; tag `native21s12`): R35.2 sits **161.79 mΩ** above R5.2, and the band is **47.52–97.98 A**. Files: [plane-native21s12.json](plane-native21s12.json), [budget-native21s12.json](budget-native21s12.json).
+
+**Stage 13** (BOM simplification and TDK resonant bank; board `d7baa28a…`, export `native-21/verification/native21s13-all-copper.json.gz`; tag `native21s13`):
+- **Kelvin plane:** unchanged. R35.2 still sits **161.79 mΩ** above R5.2.
+- **Divider:** R34/R35 are now **12.4 k / 11.7 k** (`../../08-manufacturing-package/native-21/bom-simplification/`), so the band before the Kelvin shift is 49.53–97.77 A.
+- **Band after the shift:** **47.32–97.77 A**, which still meets the ≥ 44 A minimum.
+- **Files:** [plane-native21s13.json](plane-native21s13.json), [budget-native21s13.json](budget-native21s13.json).

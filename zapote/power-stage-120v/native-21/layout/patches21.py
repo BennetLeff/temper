@@ -51,6 +51,15 @@ MAINS_POURS = {("ac_l_in", "F.Cu"): [[257.0, 0.6], [257.0, 9.1], [283.0, 9.1], [
                                  [223.5, 9.0]]}
 
 
+# Stage 13: resonant bank becomes 5 radial TDK B32654 (pins x 163.0 / 190.5, rows y 53.2-111.5). The B.Cu
+# res_a strip widens to x 166 and spans y 52.0-112.9; the sw_b band's lower edge rises from y 50 to 46.8
+# between x 150 and 188 (5 mm tank rule to the res_a strip), and the sw_b strip widens to x 188 and
+# reaches y 112.9. The last pad edges stay >= 8 mm from the SELV line_zc-raw run (B.Cu, y 121.1).
+RES_A_STRIP = (150.0, 52.0, 166.0, 112.9)
+SWB_STRIP = (188.0, 46.8, 200.6, 112.9)
+SWB_BAND_TRIM = (150.0, 46.8, 188.0, 50.1)
+
+
 def edit_zones(zones):
     from shapely.geometry import Polygon, box
     out = []
@@ -75,6 +84,15 @@ def edit_zones(zones):
                 poly = max(getattr(poly, "geoms", [poly]), key=lambda q: q.area)
                 z = {**z, "outline": [[round(x, 3), round(y, 3)] for x, y in list(poly.exterior.coords)[:-1]],
                      "holes": [[[round(x, 3), round(y, 3)] for x, y in list(i.coords)[:-1]] for i in poly.interiors]}
+        if z["layer"] == "B.Cu" and z["net"] in ("res_a", "sw_b"):
+            poly = Polygon(z["outline"], z["holes"])
+            if z["net"] == "res_a" and poly.intersects(box(*RES_A_STRIP)):
+                poly = poly.union(box(*RES_A_STRIP)).simplify(0)
+            if z["net"] == "sw_b" and poly.intersects(box(*SWB_STRIP)):
+                poly = poly.difference(box(*SWB_BAND_TRIM)).union(box(*SWB_STRIP)).simplify(0)
+                poly = max(getattr(poly, "geoms", [poly]), key=lambda q: q.area)
+            z = {**z, "outline": [[round(x, 3), round(y, 3)] for x, y in list(poly.exterior.coords)[:-1]],
+                 "holes": [[[round(x, 3), round(y, 3)] for x, y in list(i.coords)[:-1]] for i in poly.interiors]}
         out.append(z)
     return out
 R5_PADS = {"leg_ret": "R5.1", "hv_ret": "R5.4"}
@@ -140,6 +158,7 @@ def add(g):
     add_ep(g)
     add_stack(g)
     add_stage8(g)
+    add_stage13(g)
 
 
 # Output polylines (base copper), with the y where each leaves 0.6 / 0.5 mm for the 0.3 mm neck
@@ -179,6 +198,15 @@ def add_stage8(g):
     route_group(g, [("bias_ha.monitor-v5", ("F.Cu", "B.Cu"), (56.0, 96.0, 68.0, 114.0), 0.25, ["C137.1", "U33.3"]),
                     ("bias_ha.monitor-spanuv", CU, (44.0, 78.0, 58.0, 116.0), 0.2, ["U30.9", "C78.1"]),
                     ("bias_hb.monitor-ov", CU, (0.6, 70.0, 20.0, 114.0), 0.2, ["U31.4", "C84.1"])])
+
+
+def add_stage13(g):
+    """Stage 13: the resonant-bank bleed tap R22.1 -> RES_A. The base polyline served C21's old axial pad
+    and is dropped with it. Re-laid on F.Cu down the base's own x 156.54 lane to the new C21 pin 1. The
+    pad escape next to R22.2 (crbleed_1) is the base geometry, bounded by the DRU pad-escape rule, so
+    put()'s check waives that partner and the final DRC decides. The B.Cu sw_b band is another layer."""
+    from patches21_v1 import put
+    put(g, "res_a", "F.Cu", 0.4, "R22.1", [156.54, 50.0], "C21.1", escape="crbleed_1")
 
 
 def add_r5(g):

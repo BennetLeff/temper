@@ -24,7 +24,7 @@ from "parts.ato" import MainsTerminal2, PowerTerminalM4, PeBranchTerminal, Mains
 from "parts.ato" import CapX2_1u, CapY1_2n2, R100k1206, BridgeGbj2510, BusFilm2u7, LocalBus100n
 from "parts.ato" import R220k1206, Shunt1m, MosfetCfd7, Snubber1n1kV, UCC21550BDWK
 from "parts.ato" import PermitFet, R3R9Gate, R49k9Dt, R10k0603, R100k0603, R100R0603
-from "parts.ato" import R1k0603, R330R0603, C100n0603, C10u1210, C10u0805, Res942C12P22, Res942C12P1
+from "parts.ato" import R1k0603, R330R0603, C100n0603, C10u1210, C10u0805, ResB32654
 from "parts.ato" import C100n0805, C1u0805
 from "parts.ato" import CST3015_100E, Irm20_15, TcoLoopHeader
 from "parts.ato" import Amc1311, R470k1206, R15k8Thin, C1nC0G0603, C100pC0G0603
@@ -426,18 +426,25 @@ module PowerStage120V:
     t_ct.S2 ~ CT_S2
     j_coil = new PowerTerminalM4
     j_coil.p1 ~ COIL_FEED
-    # 0.22 + 0.22 + 0.10 = 0.54 uF for the nominal 70 uH / 32 kHz coil.
-    c_res1 = new Res942C12P22
+    # 5 x 0.10 uF = 0.50 uF (stage 13, was 0.54 uF in 942C parts): ferrous-pan resonance ~31-33 kHz
+    # with the assumed 70 uH coil, below the 35-60 kHz window (task 05 round 4).
+    c_res1 = new ResB32654
     c_res1.p1 ~ RES_A
     c_res1.p2 ~ SW_B
-    c_res2 = new Res942C12P22
+    c_res2 = new ResB32654
     c_res2.p1 ~ RES_A
     c_res2.p2 ~ SW_B
-    c_res3 = new Res942C12P1
+    c_res3 = new ResB32654
     c_res3.p1 ~ RES_A
     c_res3.p2 ~ SW_B
+    c_res4 = new ResB32654
+    c_res4.p1 ~ RES_A
+    c_res4.p2 ~ SW_B
+    c_res5 = new ResB32654
+    c_res5.p1 ~ RES_A
+    c_res5.p2 ~ SW_B
     # Bleed: an OCP trip can leave C_res holding ~250 V with no discharge
-    # path. 4 x 470 k = 1.88 M, tau ~1 s, ~26 mW in operation.
+    # path. 4 x 470 k = 1.88 M, tau ~0.94 s with 0.50 uF, ~26 mW in operation.
     r_crb1 = new R470k1206
     r_crb1.value = 470kohm
     r_crb1.p1 ~ RES_A
@@ -1098,6 +1105,8 @@ module PowerStage120V:
     c_res1.designator = "C21"
     c_res2.designator = "C22"
     c_res3.designator = "C23"
+    c_res4.designator = "C151"
+    c_res5.designator = "C152"
     ps_selv.designator = "PS1"
     j_tco.designator = "J3"
     ps_gate.designator = "PS2"

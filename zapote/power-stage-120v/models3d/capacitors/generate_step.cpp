@@ -111,6 +111,9 @@ int main(int argc, char** argv) {
         // KEMET R463N410000N1M (C1, C2): page-3 maximum body, centred on the pitch.
         film(directory, "KEMET_R463N410000N1M.step", -2.15, -5.6,
              26.8, 11.2, 20.1, 22.5, 0, 0.8);
+        // TDK B32654A1104K000 (resonant bank from stage 13): p.22 maximum body 14 x 24.5 x 31.5, e 27.5, d1 0.8.
+        film(directory, "TDK_B32654A1104K000.step", -2.0, -7.0,
+             31.5, 14, 24.5, 27.5, 0, 0.8);
         murata(directory);
     } catch (const std::exception& e) {
         std::cerr << e.what() << '\n';

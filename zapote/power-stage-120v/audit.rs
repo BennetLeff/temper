@@ -984,7 +984,7 @@ fn audit(m: &Model) -> Vec<String> {
     expect(&mut e, m, "t_ct", "2", "coil_feed");
     expect(&mut e, m, "j_coil", "1", "coil_feed");
     expect(&mut e, m, "j_coil_return", "1", "res_a");
-    for c in ["c_res1", "c_res2", "c_res3"] {
+    for c in ["c_res1", "c_res2", "c_res3", "c_res4", "c_res5"] {
         expect(&mut e, m, c, "1", "res_a");
         expect(&mut e, m, c, "2", "sw_b");
     }
@@ -994,7 +994,7 @@ fn audit(m: &Model) -> Vec<String> {
         e.push(format!("coil_feed must join only CT P2 and the coil terminal, found {:?}", feed));
     }
     let res_a: BTreeSet<String> = members(m, "res_a").into_iter().map(|(p, _)| p).collect();
-    if res_a != ["j_coil_return", "c_res1", "c_res2", "c_res3", "r_crb1"].iter().map(|s| s.to_string()).collect() {
+    if res_a != ["j_coil_return", "c_res1", "c_res2", "c_res3", "c_res4", "c_res5", "r_crb1"].iter().map(|s| s.to_string()).collect() {
         e.push(format!("res_a must join only the coil return, the resonant bank and its bleed, found {:?}", res_a));
     }
     // Resonant-bank bleed: four series resistors from RES_A to SW_B.

@@ -340,3 +340,40 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
 - **Effect:** 66 → 45 JLC Extended types, about −$63 per order. The unique-line count is unchanged.
 - **Checks:** audit PASS with 357 components, 74/74 tests, and verify_source PASS.
 - **Not taken without a further check:** the R3/R4 bleed, R40/R41 at 1 %, the U1/U2 and U35 -Q1 parts. Also open: removing R1/R2 (needs the certifier), the J7–J10 studs (production re-spin), and the 3-input OR merge (re-spin).
+
+**2026-10-09, resonant bank: 5 × TDK B32654A1104K000 (0.50 µF), stage 13, decided under the owner's delegation:** `validation-results/05-resonant-tank-envelope/round4-assumed-basis/` plus the independent review (scratch `bank-review/REVIEW.md`, summarised here).
+- **Problem:** CDE gives the 942C parts' current only at 70 °C / 100 kHz and publishes no frequency rule. At 22 A tank current, each 0.22 µF part carries 8.96 A nominal and 10.05 A worst case at ±10 % share.
+  - Round 4's √f bound (13.4 A tank) is valid but pessimistic: most of the 942C ESR is metallization, not dielectric loss.
+  - On CDE's own curve shape, the bank is still **1.08–1.17× over** at 35 kHz.
+  - 942C12P22K-F also has no distributor stock (24-week lead time).
+- **Choice:** 5 × TDK B32654A1104K000 in parallel.
+  - The part is 0.10 µF MKP, 1600 Vdc / 500 Vac, 14 × 24.5 × 31.5 mm, P27.5 (B3265*A data sheet pp. 3 and 22).
+  - It is rated **7.3 A at 85 °C / 100 kHz**, and **0.86×** on TDK's own I_RMS-vs-f curve at 85 °C, read by eye (±10 %).
+  - Stock: 2,669 at DigiKey on 2026-10-09.
+- **Rejected:** 942C16P1K-F × 5, which clears even the √f bound but needs 39 mm more than the slot.
+- **Resonance:** 0.50 µF raises resonance 3.9 %. Round 4's 0.50 µF run gives a minimum f/f_res of 1.21 and no floor-limited cases. The bleed τ becomes 0.94 s.
+- **Board:**
+  - **Footprint and model:** a new footprint, `temper:TDK_B32654_P27.5_W14.0_L31.5_Radial`, and STEP model (`models3d/capacitors`).
+  - **Layout:**
+    - the caps go in one column (C21–C23, C151, C152), pins at x 163.0 / 190.5, rows y 53.7 / 68.5 / 82.5 / 97.05 / 111.6;
+    - the res_a and sw_b B.Cu strips are re-cut (`patches21.py`);
+    - the rows are bounded by the sw_b band (5 mm), the In1 n_ls / v24_raw runs (5 mm) and the SELV line_zc-raw run (8 mm).
+- **Open (bench):** the bodies sit 0.55–0.8 mm apart at maximum dimensions, so the bank's large faces are mutually shadowed. Before releasing 22 A:
+  - measure the case hot-spot of the middle cap at 22 A tank current, 35–45 kHz, in the enclosure's worst ambient, and keep the rise ≤ 20 K;
+  - if that fails, add airflow across the bank, or cap the tank current at the measured limit;
+  - digitise TDK p.57 properly.
+
+**2026-10-09, heatsink mounting (to enclosure R30):** the sink is carried by the chassis, never by the board. Through the comb-spring clamp, the sink's mass and any shock would load the TO-247 solder joints and the FR-4.
+- **Mounting:** two PE-bonded brackets from the base grip the sink's base flange or bottom fin. Thread-forming M3 with ≥ 4 mm engagement is the fallback; M4 is not used in the 4 mm wall. The sink stays a catalogue extrusion.
+- **Clearance:** the brackets stay ≥ 8 mm from HOT copper, at Y ≥ 244.
+- **Assembly order:** board → clamp loaded → bracket last. Bracket holes are slotted in Z, or the sink-to-spreader stack is held to ±0.3 mm.
+- **Sink/bar PE bond (same day, to R30):** neither the sink's fin pack nor its base face can take a bolt stack, so the bond is made at an integral **ear on the 6061 spreader bar's X149 end**.
+  - **Ear stack:** M4 through-bolt; external-tooth washers against bare, masked metal; nyloc nut; 14 AWG 105 °C green/yellow strap with ring lugs to the chassis star. It must be ≥ 8 mm from HOT copper at any lug rotation, checked in the stage-13 fit/D5 gates.
+  - **Bar-to-sink joint:** this joint is part of the bond. At least two of the bar's fasteners carry toothed washers against masked metal, outside the thermal-compound footprint (IEC 60335-1 §28.2).
+  - **Acceptance:** from a bare sink fin to the inlet PE pin, ≤ 0.1 Ω at 25 A for 120 s (§27.5).
+  - **Hook contact:** the R30 hook brackets' contact is not counted as a bond.
+- **Stage 13 board** (`d7baa28a…`, same day):
+  - **Gates:** DRC 0 errors / 0 unconnected / parity 0; both barrier gates 0; D5 8.047 / 8.507 mm; JLC DFM PASS; Gerber review PASS (892 round holes + 4 slots); fit 415 solids with 0 overlaps and 0 R4 hits.
+  - **Kelvin band:** 47.32–97.77 A.
+  - **Task 04:** res_a 0.67 mΩ; sw_b within 2 %. B3 is unchanged.
+  - **Open, firmware:** round 4's envelope tank peaks (47.25 A main grid, 47.73 A with tolerances) now sit at or just above the band's 47.32 A low corner. That corner needs every component at its worst-case limit at once, but the nuisance-trip margin is gone at the extreme corner. The firmware **tank-peak limit of about 45 A** (round 4, recommendation 3) is therefore required before 22 A operation, as is a bench measurement of the real trip threshold.

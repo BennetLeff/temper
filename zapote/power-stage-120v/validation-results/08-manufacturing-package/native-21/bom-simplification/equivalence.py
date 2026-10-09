@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Structural equivalence proof for the 2026-10-09 BOM simplification.
 
-    python3 equivalence.py [BASE_REV]      (default base: 8496f67c6, stage 12 before the change)
+    python3 equivalence.py [BASE_REV [TARGET_REV]]   (defaults: 8496f67c6 stage 12, 1121945d7 the change)
 
-Compares the frozen native-21 build at BASE_REV (git show) with the working tree:
+Compares the frozen native-21 build at BASE_REV with the one at TARGET_REV (both by git show; later
+stages, e.g. the stage-13 resonant bank, are separate reviewed changes):
   1. topology: every net has exactly the same (ref, pin) members, by name; same component set;
   2. footprints and instance paths: identical per designator (so the board copper cannot change);
   3. part identity: every designator whose MPN changed is on the reviewed list below, with the
@@ -17,6 +18,7 @@ from pathlib import Path
 
 UNIT = Path(__file__).resolve().parents[4]
 BASE = sys.argv[1] if len(sys.argv) > 1 else "8496f67c6"
+TARGET = sys.argv[2] if len(sys.argv) > 2 else "1121945d7"
 REL = "zapote/power-stage-120v"
 
 # Reviewed MPN changes (PROPOSAL.md items B1-B17, V1-V4, M1, S1-S3).
@@ -63,7 +65,7 @@ def resolved(text):
 def main():
     fails = []
     old_net = git("show", f"{BASE}:{REL}/native-21/frozen/default.net")
-    new_net = (UNIT / "native-21/frozen/default.net").read_text()
+    new_net = git("show", f"{TARGET}:{REL}/native-21/frozen/default.net")
     oc, on = parse_net(old_net)
     nc, nn = parse_net(new_net)
     if set(oc) != set(nc):
@@ -74,7 +76,7 @@ def main():
     fails += [f"net {n}: members changed" for n in on if n in nn and on[n] != nn[n]]
 
     orr = resolved(git("show", f"{BASE}:{REL}/native-21/frozen/resolved-components.json"))
-    nrr = resolved((UNIT / "native-21/frozen/resolved-components.json").read_text())
+    nrr = resolved(git("show", f"{TARGET}:{REL}/native-21/frozen/resolved-components.json"))
     changed = []
     for ref, (mpn, fp, path) in orr.items():
         nmpn, nfp, npath = nrr[ref]
@@ -86,7 +88,7 @@ def main():
             if not ok:
                 fails.append(f"{ref}: unreviewed MPN change {mpn} -> {nmpn}")
 
-    diff = git("diff", BASE, "--", "elec/src")
+    diff = git("diff", BASE, TARGET, "--", "elec/src")
     vals = re.findall(r'^([-+])\s+(\S+)\.value = (\S+)', diff, re.M)
     seen = {}
     for sign, inst, v in vals:
@@ -95,7 +97,7 @@ def main():
         if REVIEWED_VALUES.get(inst) != (d.get("-"), d.get("+")):
             fails.append(f"unreviewed value edit {inst}: {d}")
 
-    res = {"base": BASE, "components": len(nc), "nets": len(nn), "topology_identical": not any("net" in f or "component set" in f for f in fails),
+    res = {"base": BASE, "target": TARGET, "components": len(nc), "nets": len(nn), "topology_identical": not any("net" in f or "component set" in f for f in fails),
            "footprints_identical": not any("footprint" in f for f in fails),
            "mpn_changes": len(changed), "mpn_changes_all_reviewed": all(c[3] for c in changed),
            "value_edits": {k: v for k, v in seen.items()}, "failures": fails, "pass": not fails}

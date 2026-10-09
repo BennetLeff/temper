@@ -41,17 +41,17 @@ Price at the buy qty; if a minimum order is higher, give the minimum and its pri
 | 3 | T1 | Coilcraft | CST3015-100ED | 1 | Current sense transformer 1:100, SMD, 5 kVrms reinforced | Samples / direct |
 | 4 | T2, T3 | Würth Elektronik | 750320775 | 2 | Isolation transformer for SN6507 push-pull | Direct / samples |
 | 5 | C5, C6 | TDK (EPCOS) | B32656G0275J000 | 2 | Film cap 2.7 µF, 5 %, PP, DC-link | TDK MOQ 360. Find any distributor stocking it |
-| 6 | C21, C22 | Cornell Dubilier | 942C12P22K-F | 2 | Film 0.22 µF 1200 Vdc, polypropylene, axial | LCSC C3793674 had no JLC stock |
-| 7 | C23 | Cornell Dubilier | 942C12P1K-F | 1 | Film 0.10 µF 1200 Vdc, axial | |
+| 6 | C21–C23, C151, C152 | TDK (EPCOS) | B32654A1104K000 (±5 % alternate B32654A1104J000) | 5 | MKP film 0.10 µF, 1600 Vdc / 500 Vac, radial 27.5 mm pitch, 0.8 mm leads, 14 × 24.5 × 31.5 mm, 7.3 A at 85 °C / 100 kHz | Changed 2026-10-09 (stage 13): replaces the 942C bank. DigiKey showed 2,669 (K000) |
+| 7 | — | — | (row retired: 942C12P1K-F is no longer used) | 0 | | |
 | 8 | L1 | TDK (EPCOS) | B82726S2203A020 | 1 | Current-compensated choke, 20 A, 1.6 mH | |
 | 9 | C1, C2 | KEMET | R463N410000N1M | 2 | X2 film 1 µF | |
 | 10 | C3, C4 | Murata | DE1E3RA222MA4BP01F | 2 | Y1 ceramic 2200 pF | |
 | 11 | J2, J5, J7–J10 | Würth Elektronik | 74650074 (LCSC lists 74650074R) | 6 | REDCUBE THR press-fit power terminal, M4 | Report both suffixes if seen |
 | 12 | Q2, Q3, Q5, Q6 | Infineon | IPW65R018CFD7 (IPW65R018CFD7XKSA1) | 4 | 650 V CoolMOS CFD7, TO-247-3 | JLC had 6, need 20 + spares; Newark seen earlier |
 | 13 | R5 | Vishay | WSK25121L000FEA | 1 | 1 mΩ 2512 4-terminal shunt | |
-| 14 | R34 | Yageo | RT0603BRD0710K6L | 1 | 10.6 kΩ 0.1 % 0603 thin film | No stock found anywhere |
-| 15 | R77, R95, R110 | Yageo | RT0603BRD076K12L | 3 | 6.12 kΩ 0.1 % 0603 thin film | |
-| 16 | R87, R105, R120 | Yageo | RT0603BRD07133KL | 3 | 133 kΩ 0.1 % 0603 thin film | Candidate already found: Viking ARG03BTC1333 |
+| 14 | R34, R35 | Yageo / Vishay | RT0603BRD0712K4L (R34), TNPW060311K7BEEA (R35) | 1 + 1 | 12.4 kΩ / 11.7 kΩ 0.1 % 25 ppm 0603 thin film | Changed 2026-10-09 (BOM simplification): 10.6 k had no stock; JLC C861102 / C4553285 |
+| 15 | R77, R95, R110 | Yageo | RT0603BRD076K2L | 3 | 6.2 kΩ 0.1 % 25 ppm 0603 thin film | Changed 2026-10-09: 6.12 k had no stock; JLC C136960 |
+| 16 | R87, R105, R120 | Viking Tech | ARG03BTC1333 | 3 | 133 kΩ 0.1 % 25 ppm 0603 thin film | Changed 2026-10-09: now the source part; JLC C1509631 |
 | 17 | U35 | Texas Instruments | SN6507DGQR | 1 | Push-pull transformer driver, HVSSOP-10 (DGQ) | Candidate: SN6507DGQRQ1 (automotive grade) |
 | 18 | U36 | Vishay | VOL628A-3X001T | 1 | Optocoupler | |
 | 19 | D3 | Littelfuse | MRT130KP295CV | 1 | TVS | |

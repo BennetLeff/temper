@@ -360,21 +360,14 @@ component C10u1210:
 
 # ----------------------------------------------------------------- resonant tank
 
-component Res942C12P22:
-    """CDE 942C12P22K-F 0.22 uF 1200 Vdc, 10.3 A rms (70 C, 100 kHz)."""
+component ResB32654:
+    """TDK B32654A1104K000 0.10 uF 1600 Vdc / 500 Vac MKP, 27.5 mm radial, 7.3 A rms at 85 C / 100 kHz
+    (B3265*A data sheet p.22). Five in parallel form the 0.50 uF bank from stage 13: the 942C parts'
+    catalogue current does not support the 22 A tank ceiling (validation-results/05 round 4 and its review)."""
     designator_prefix = "C"
-    mpn = "942C12P22K-F"
-    manufacturer = "Cornell Dubilier"
-    footprint = "temper:CDE_942C_D26.5_L34.0_Axial_ReviewOnly"
-    signal p1 ~ pin 1
-    signal p2 ~ pin 2
-
-component Res942C12P1:
-    """CDE 942C12P1K-F 0.10 uF 1200 Vdc, 9.2 A rms (70 C, 100 kHz)."""
-    designator_prefix = "C"
-    mpn = "942C12P1K-F"
-    manufacturer = "Cornell Dubilier"
-    footprint = "temper:CDE_942C_D19.0_L34.0_Axial_ReviewOnly"
+    mpn = "B32654A1104K000"
+    manufacturer = "TDK"
+    footprint = "temper:TDK_B32654_P27.5_W14.0_L31.5_Radial"
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 

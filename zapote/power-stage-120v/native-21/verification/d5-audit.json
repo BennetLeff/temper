@@ -17,12 +17,12 @@
    "min_mm": 8.507,
    "pass": true,
    "between": [
-    "pad l_filt C3",
-    "pad pe C3"
+    "pad n_filt C4",
+    "pad pe C4"
    ],
    "at_mm": [
     225.0,
-    102.8
+    109.1
    ]
   }
  },
@@ -168,6 +168,36 @@
  ],
  "npth_to_hot": [
   {
+   "ref": "H5",
+   "at": [
+    88.0,
+    100.0
+   ],
+   "hot_mm": 7.92,
+   "role": "nylon fixing (insulating hardware only, F.Fab NYLON)",
+   "pass": true
+  },
+  {
+   "ref": "J7",
+   "at": [
+    130.0,
+    19.5
+   ],
+   "hot_mm": 0.25,
+   "role": "own hole of a HOT terminal",
+   "pass": true
+  },
+  {
+   "ref": "J8",
+   "at": [
+    143.0,
+    19.5
+   ],
+   "hot_mm": 0.25,
+   "role": "own hole of a HOT terminal",
+   "pass": true
+  },
+  {
    "ref": "H4",
    "at": [
     24.0,
@@ -188,13 +218,13 @@
    "pass": true
   },
   {
-   "ref": "J10",
+   "ref": "H3",
    "at": [
-    143.0,
-    6.5
+    86.0,
+    180.0
    ],
-   "hot_mm": 0.25,
-   "role": "own hole of a HOT terminal",
+   "hot_mm": 61.6,
+   "role": "nylon fixing (insulating hardware only, F.Fab NYLON)",
    "pass": true
   },
   {
@@ -218,20 +248,10 @@
    "pass": true
   },
   {
-   "ref": "J2",
+   "ref": "J10",
    "at": [
-    132.0,
-    85.5
-   ],
-   "hot_mm": 0.25,
-   "role": "own hole of a HOT terminal",
-   "pass": true
-  },
-  {
-   "ref": "J7",
-   "at": [
-    130.0,
-    19.5
+    143.0,
+    6.5
    ],
    "hot_mm": 0.25,
    "role": "own hole of a HOT terminal",
@@ -245,56 +265,6 @@
    ],
    "hot_mm": 0.25,
    "role": "own hole of a HOT terminal",
-   "pass": true
-  },
-  {
-   "ref": "H5",
-   "at": [
-    88.0,
-    100.0
-   ],
-   "hot_mm": 7.92,
-   "role": "nylon fixing (insulating hardware only, F.Fab NYLON)",
-   "pass": true
-  },
-  {
-   "ref": "H3",
-   "at": [
-    86.0,
-    180.0
-   ],
-   "hot_mm": 61.6,
-   "role": "nylon fixing (insulating hardware only, F.Fab NYLON)",
-   "pass": true
-  },
-  {
-   "ref": "J8",
-   "at": [
-    143.0,
-    19.5
-   ],
-   "hot_mm": 0.25,
-   "role": "own hole of a HOT terminal",
-   "pass": true
-  },
-  {
-   "ref": "J9",
-   "at": [
-    130.0,
-    6.5
-   ],
-   "hot_mm": 0.25,
-   "role": "own hole of a HOT terminal",
-   "pass": true
-  },
-  {
-   "ref": "H2",
-   "at": [
-    6.0,
-    180.0
-   ],
-   "hot_mm": 59.4,
-   "role": "nylon fixing (insulating hardware only, F.Fab NYLON)",
    "pass": true
   },
   {
@@ -315,6 +285,36 @@
    ],
    "hot_mm": 20.4,
    "role": "metal-capable fixing / connector hardware",
+   "pass": true
+  },
+  {
+   "ref": "H2",
+   "at": [
+    6.0,
+    180.0
+   ],
+   "hot_mm": 59.4,
+   "role": "nylon fixing (insulating hardware only, F.Fab NYLON)",
+   "pass": true
+  },
+  {
+   "ref": "J9",
+   "at": [
+    130.0,
+    6.5
+   ],
+   "hot_mm": 0.25,
+   "role": "own hole of a HOT terminal",
+   "pass": true
+  },
+  {
+   "ref": "J2",
+   "at": [
+    132.0,
+    85.5
+   ],
+   "hot_mm": 0.25,
+   "role": "own hole of a HOT terminal",
    "pass": true
   }
  ],
