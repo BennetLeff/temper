@@ -1,0 +1,441 @@
+{
+  "schema": "temper.controller.parts.v1",
+  "checked": "2026-10-08 against vendor datasheets (scratch copies) and the JLCPCB parts API",
+  "parts": {
+    "0430451612": {
+      "origin": "controller (new) (same part as native-21 J4)",
+      "basis": "Molex Micro-Fit 3.0 43045-1612 2x8 vertical",
+      "lcsc": "C491447",
+      "jlc_stock_2026_10_08": 7797
+    },
+    "2N7002": {
+      "origin": "controller (new)",
+      "basis": "CJ 2N7002 SOT-23 (G1 S2 D3)",
+      "lcsc": "C8545",
+      "jlc_stock_2026_10_08": 1396595
+    },
+    "61300811121": {
+      "origin": "controller (new)",
+      "basis": "Wurth WR-PHD 1x8 2.54 mm header",
+      "lcsc": "C6400764",
+      "jlc_stock_2026_10_08": 115
+    },
+    "7-215079-6": {
+      "origin": "controller (new)",
+      "basis": "TE Micro-MaTch female-on-board 6 pos top entry; mates 7-215083-6 (TE/Future listing)",
+      "lcsc": "C306122",
+      "jlc_stock_2026_10_08": 567
+    },
+    "B2B-XH-A(LF)(SN)": {
+      "origin": "ported: zapote/thermal-sense + controller",
+      "basis": "JST eXH.pdf",
+      "lcsc": "C158012",
+      "jlc_stock_2026_10_08": 285156
+    },
+    "B3B-XH-A(LF)(SN)": {
+      "origin": "controller (new)",
+      "basis": "JST eXH.pdf",
+      "lcsc": "C144394",
+      "jlc_stock_2026_10_08": 172827
+    },
+    "B4B-XH-A(LF)(SN)": {
+      "origin": "ported: zapote/rtd (RTDSensing)",
+      "basis": "JST eXH.pdf",
+      "lcsc": "C144395",
+      "jlc_stock_2026_10_08": 175332
+    },
+    "B8B-XH-A(LF)(SN)": {
+      "origin": "controller (new)",
+      "basis": "JST eXH.pdf",
+      "lcsc": "C157972",
+      "jlc_stock_2026_10_08": 9993
+    },
+    "BLM18AG121SN1D": {
+      "origin": "ported: zapote/rtd (RTDSensing)",
+      "basis": "Murata BLM18AG ferrite; RTD unit BOM",
+      "lcsc": "C76892",
+      "jlc_stock_2026_10_08": 98679
+    },
+    "C0603C102J5GACTU": {
+      "origin": "ported: zapote/rtd (RTDSensing)",
+      "basis": "KEMET C0G 1 nF; RTD unit BOM",
+      "lcsc": "C2181873",
+      "jlc_stock_2026_10_08": 7506
+    },
+    "C0603C104K5RACTU": {
+      "origin": "ported: interlock / thermal-sense / RTD",
+      "basis": "KEMET C0603C104K5RACTU",
+      "lcsc": "C127833",
+      "jlc_stock_2026_10_08": 4095
+    },
+    "CC0603KRX7R9BB104": {
+      "origin": "controller (new)",
+      "basis": "Yageo CC series 100 nF 50 V X7R 0603",
+      "lcsc": "C14663",
+      "jlc_stock_2026_10_08": 59198566
+    },
+    "CD74HC30PWR": {
+      "origin": "ported: zapote/interlock",
+      "basis": "TI SCHS121E; zapote/interlock BOM.md",
+      "lcsc": "C2866074",
+      "jlc_stock_2026_10_08": 7
+    },
+    "CL10A105KB8NNNC": {
+      "origin": "controller (new)",
+      "basis": "Samsung 1 uF 50 V X5R 0603",
+      "lcsc": "C15849",
+      "jlc_stock_2026_10_08": 9047661
+    },
+    "CL10B103KB8NNNC": {
+      "origin": "controller (new)",
+      "basis": "Samsung 10 nF 50 V X7R 0603",
+      "lcsc": "C1589",
+      "jlc_stock_2026_10_08": 1807378
+    },
+    "CL10C102JB8NNNC": {
+      "origin": "controller (new)",
+      "basis": "Samsung 1 nF 50 V C0G 0603",
+      "lcsc": "C163508",
+      "jlc_stock_2026_10_08": 504196
+    },
+    "CL21A226MAQNNNE": {
+      "origin": "controller (new)",
+      "basis": "Samsung 22 uF 25 V X5R 0805",
+      "lcsc": "C45783",
+      "jlc_stock_2026_10_08": 3800121
+    },
+    "CL31A106KAHNNNE": {
+      "origin": "controller (new)",
+      "basis": "Samsung 10 uF 25 V X5R 1206",
+      "lcsc": "C9807",
+      "jlc_stock_2026_10_08": 332495
+    },
+    "CL31A226KAHNNNE": {
+      "origin": "controller (new)",
+      "basis": "Samsung 22 uF 25 V X5R 1206",
+      "lcsc": "C12891",
+      "jlc_stock_2026_10_08": 702643
+    },
+    "EEE-FK1E101P": {
+      "origin": "controller (new)",
+      "basis": "Panasonic FK series 100 uF 25 V, case D8 8x6.2",
+      "lcsc": "C178539",
+      "jlc_stock_2026_10_08": 1158
+    },
+    "ERA-3AEB103V": {
+      "origin": "ported: zapote/rtd (RTDSensing)",
+      "basis": "Panasonic ERA-3A 0.1 %; RTD unit BOM",
+      "lcsc": "C190610",
+      "jlc_stock_2026_10_08": 74539
+    },
+    "ERA-3AEB1652V": {
+      "origin": "ported: zapote/rtd (RTDSensing)",
+      "basis": "Panasonic ERA-3A 0.1 %; RTD unit BOM",
+      "lcsc": "C2074586",
+      "jlc_stock_2026_10_08": 0,
+      "procurement": "JLC stock 0 on 2026-10-08: order from TI/distributor or consign"
+    },
+    "ERA-3AEB5901V": {
+      "origin": "ported: zapote/rtd (RTDSensing)",
+      "basis": "Panasonic ERA-3A 0.1 %; RTD unit BOM",
+      "lcsc": "C491142",
+      "jlc_stock_2026_10_08": 1700
+    },
+    "ERA-3AEB6192V": {
+      "origin": "ported: zapote/rtd (RTDSensing)",
+      "basis": "Panasonic ERA-3A 0.1 %; RTD unit BOM",
+      "lcsc": "C4019122",
+      "jlc_stock_2026_10_08": 181
+    },
+    "ESD5Z3.3T1G": {
+      "origin": "controller (new)",
+      "basis": "onsemi ESD5Z3.3T1G, SOD-523, VRWM 3.3 V, IR 50 nA",
+      "lcsc": "C61148",
+      "jlc_stock_2026_10_08": 161301
+    },
+    "ESP32-S3-WROOM-1-N8": {
+      "origin": "controller (new)",
+      "basis": "Espressif ESP32-S3-WROOM-1/-1U datasheet v1.8, Table 3-1 pins, 5.x supply",
+      "lcsc": "C2913198",
+      "jlc_stock_2026_10_08": 278
+    },
+    "LM4040A25IDBZR": {
+      "origin": "controller (new), D-11 reference",
+      "basis": "TI SLOS456Q Table 5-1",
+      "lcsc": "C9421",
+      "jlc_stock_2026_10_08": 4844
+    },
+    "MAX31865AAP+": {
+      "origin": "ported: zapote/rtd (RTDSensing)",
+      "basis": "ADI MAX31865; zapote/rtd/unit/bom/pcb-bom.csv",
+      "lcsc": "C89608",
+      "jlc_stock_2026_10_08": 188
+    },
+    "OPA2388IDR": {
+      "origin": "controller (new), D-11 receiver",
+      "basis": "TI SBOS777D Fig 5-3, 6.5",
+      "lcsc": "C1517414",
+      "jlc_stock_2026_10_08": 8404
+    },
+    "RC0603FR-07100KL": {
+      "origin": "controller + ported blocks",
+      "basis": "Yageo RC_L 1 % 0603",
+      "lcsc": "C14675",
+      "jlc_stock_2026_10_08": 8677475
+    },
+    "RC0603FR-07100RL": {
+      "origin": "controller (new)",
+      "basis": "Yageo RC_L 1 % 0603",
+      "lcsc": "C105588",
+      "jlc_stock_2026_10_08": 3284495
+    },
+    "RC0603FR-0710KL": {
+      "origin": "controller + ported blocks",
+      "basis": "Yageo RC_L 1 % 0603",
+      "lcsc": "C98220",
+      "jlc_stock_2026_10_08": 10887463
+    },
+    "RC0603FR-0710ML": {
+      "origin": "controller (new)",
+      "basis": "Yageo RC_L 1 % 0603",
+      "lcsc": "C114606",
+      "jlc_stock_2026_10_08": 868575
+    },
+    "RC0603FR-0711K5L": {
+      "origin": "ported: zapote/thermal-sense",
+      "basis": "Yageo RC_L; thermal-sense BOM",
+      "lcsc": "C137802",
+      "jlc_stock_2026_10_08": 23128
+    },
+    "RC0603FR-0712K1L": {
+      "origin": "controller (new)",
+      "basis": "Yageo RC_L 1 % 0603",
+      "lcsc": "C123417",
+      "jlc_stock_2026_10_08": 128334
+    },
+    "RC0603FR-071K21L": {
+      "origin": "ported: zapote/thermal-sense",
+      "basis": "Yageo RC_L; thermal-sense BOM",
+      "lcsc": "C137779",
+      "jlc_stock_2026_10_08": 31081
+    },
+    "RC0603FR-071KL": {
+      "origin": "controller + ported: zapote/interlock",
+      "basis": "Yageo RC_L 1 % 0603",
+      "lcsc": "C22548",
+      "jlc_stock_2026_10_08": 10953408
+    },
+    "RC0603FR-0720KL": {
+      "origin": "ported: zapote/thermal-sense",
+      "basis": "Yageo RC_L; thermal-sense BOM",
+      "lcsc": "C105575",
+      "jlc_stock_2026_10_08": 3501563
+    },
+    "RC0603FR-0733RL": {
+      "origin": "controller + ported: zapote/rtd (RTDSensing)",
+      "basis": "Yageo RC_L 1 % 0603",
+      "lcsc": "C108661",
+      "jlc_stock_2026_10_08": 798405
+    },
+    "RC0603FR-0734K8L": {
+      "origin": "ported: zapote/thermal-sense",
+      "basis": "Yageo RC_L; thermal-sense BOM",
+      "lcsc": "C137741",
+      "jlc_stock_2026_10_08": 2954
+    },
+    "RC0603FR-0742K2L": {
+      "origin": "ported: zapote/thermal-sense",
+      "basis": "Yageo RC_L; thermal-sense BOM",
+      "lcsc": "C273741",
+      "jlc_stock_2026_10_08": 28
+    },
+    "RC0603FR-074K7L": {
+      "origin": "controller (new)",
+      "basis": "Yageo RC_L 1 % 0603",
+      "lcsc": "C99782",
+      "jlc_stock_2026_10_08": 9524530
+    },
+    "RC0603FR-078K06L": {
+      "origin": "ported: zapote/thermal-sense",
+      "basis": "Yageo RC_L; thermal-sense BOM",
+      "lcsc": "C131052",
+      "jlc_stock_2026_10_08": 163
+    },
+    "RC0603FR-079K09L": {
+      "origin": "ported: zapote/thermal-sense",
+      "basis": "Yageo RC_L; thermal-sense BOM",
+      "lcsc": "C185301",
+      "jlc_stock_2026_10_08": 40643
+    },
+    "RC0603JR-070RL": {
+      "origin": "controller (new)",
+      "basis": "Yageo RC_L 0 ohm jumper 0603",
+      "lcsc": "C95177",
+      "jlc_stock_2026_10_08": 3614751
+    },
+    "RC0603JR-071ML": {
+      "origin": "ported: zapote/rtd (RTDSensing)",
+      "basis": "Yageo RC_L 5 % 1 MOhm; RTD unit BOM",
+      "lcsc": "C107698",
+      "jlc_stock_2026_10_08": 1076606
+    },
+    "REF2025AIDDCR": {
+      "origin": "ported: zapote/rtd (RTDSensing)",
+      "basis": "TI REF20xx; RTD unit BOM",
+      "lcsc": "C962078",
+      "jlc_stock_2026_10_08": 5205
+    },
+    "RG2012V-431-W-T1": {
+      "origin": "ported: zapote/rtd (RTDSensing)",
+      "basis": "Susumu RG2012 430 ohm 0.05 %; RTD unit BOM",
+      "lcsc": "C4260028",
+      "jlc_stock_2026_10_08": 0,
+      "procurement": "JLC stock 0 on 2026-10-08: order from TI/distributor or consign"
+    },
+    "RT0603BRD0710KL": {
+      "origin": "controller (new)",
+      "basis": "Yageo RT 0.1 % 25 ppm 0603",
+      "lcsc": "C95204",
+      "jlc_stock_2026_10_08": 2119738
+    },
+    "RT0603BRD07140KL": {
+      "origin": "controller (new)",
+      "basis": "Yageo RT 0.1 % 25 ppm 0603",
+      "lcsc": "C861125",
+      "jlc_stock_2026_10_08": 8934
+    },
+    "RT0603BRD0720KL": {
+      "origin": "controller (new)",
+      "basis": "Yageo RT 0.1 % 25 ppm 0603 (D-11 RN/RP)",
+      "lcsc": "C723637",
+      "jlc_stock_2026_10_08": 73800
+    },
+    "RT0603BRD0722K1L": {
+      "origin": "controller (new)",
+      "basis": "Yageo RT 0.1 % 25 ppm 0603",
+      "lcsc": "C723484",
+      "jlc_stock_2026_10_08": 28798
+    },
+    "RT0603BRD077K06L": {
+      "origin": "controller (new)",
+      "basis": "Yageo RT 0.1 % 25 ppm 0603",
+      "lcsc": "C861561",
+      "jlc_stock_2026_10_08": 11929
+    },
+    "RT0603BRD0790K9L": {
+      "origin": "controller (new)",
+      "basis": "Yageo RT 0.1 % 25 ppm 0603 (D-11 bias divider)",
+      "lcsc": "C728600",
+      "jlc_stock_2026_10_08": 18851
+    },
+    "SN74LVC14ADR": {
+      "origin": "ported: zapote/interlock",
+      "basis": "TI SCAS285AC; zapote/interlock BOM.md",
+      "lcsc": "C133541",
+      "jlc_stock_2026_10_08": 39729
+    },
+    "SN74LVC1G08DBVR": {
+      "origin": "controller (new) + ported: zapote/rtd (RTDSensing)",
+      "basis": "TI SCES217AA DBV pins, ICC",
+      "lcsc": "C7666",
+      "jlc_stock_2026_10_08": 86027
+    },
+    "SN74LVC1G14DBVR": {
+      "origin": "controller (new)",
+      "basis": "TI SCES218AA DBV pins, ICC",
+      "lcsc": "C7835",
+      "jlc_stock_2026_10_08": 309752
+    },
+    "SN74LVC1G32DBVR": {
+      "origin": "ported: zapote/thermal-sense",
+      "basis": "TI SCES219W; zapote/thermal-sense BOM.md",
+      "lcsc": "C10096",
+      "jlc_stock_2026_10_08": 111194
+    },
+    "SN74LVC1G38DBVR": {
+      "origin": "ported: zapote/rtd (RTDSensing)",
+      "basis": "TI SCES538H; RTD unit BOM",
+      "lcsc": "C2867613",
+      "jlc_stock_2026_10_08": 1919
+    },
+    "SN74LVC1G74DCUR": {
+      "origin": "ported: zapote/interlock",
+      "basis": "TI SCES794G; zapote/interlock BOM.md",
+      "lcsc": "C70285",
+      "jlc_stock_2026_10_08": 11552
+    },
+    "SN74LVC244APWR": {
+      "origin": "controller (new)",
+      "basis": "TI SCAS414AG pinout, ICC",
+      "lcsc": "C7668",
+      "jlc_stock_2026_10_08": 93416
+    },
+    "SWPA6045S100MT": {
+      "origin": "controller (new)",
+      "basis": "Sunlord SWPA6045S series: 10 uH, Isat 3.5 A, Irms 2.45 A, 48 mOhm (catalogue)",
+      "lcsc": "C79272",
+      "jlc_stock_2026_10_08": 20433
+    },
+    "SWPA6045S220MT": {
+      "origin": "controller (new)",
+      "basis": "Sunlord SWPA6045S series: 22 uH, Isat 2.2 A, Irms 1.8 A, 89 mOhm (catalogue)",
+      "lcsc": "C83454",
+      "jlc_stock_2026_10_08": 41720
+    },
+    "TCA9555PWR": {
+      "origin": "controller (new)",
+      "basis": "TI SCPS200E pin functions, 7.5 ICC",
+      "lcsc": "C465732",
+      "jlc_stock_2026_10_08": 38474
+    },
+    "TLV3201AIDBVR": {
+      "origin": "ported: interlock-free blocks (thermal, RTD) + controller runaway",
+      "basis": "TI SBOS561C",
+      "lcsc": "C105188",
+      "jlc_stock_2026_10_08": 30055
+    },
+    "TLV9031DBVR": {
+      "origin": "ported: zapote/thermal-sense",
+      "basis": "TI SNOSDA3H; zapote/thermal-sense BOM.md",
+      "lcsc": "C29777121",
+      "jlc_stock_2026_10_08": 192
+    },
+    "TLV9062IDR": {
+      "origin": "controller (new)",
+      "basis": "TI SBOS839N, D package pins, IQ/IB table",
+      "lcsc": "C398355",
+      "jlc_stock_2026_10_08": 169080
+    },
+    "TPS3703A4330DSER": {
+      "origin": "controller (new)",
+      "basis": "TI SBVS249B, pin table, 7.5 electrical; A=10 ms delay, 4 = +/-4 %, 330 = 3.3 V",
+      "lcsc": "C2861205",
+      "jlc_stock_2026_10_08": 0,
+      "procurement": "JLC stock 0 on 2026-10-08: order from TI/distributor or consign; drop-in automotive grade TPS3703A4330DSERQ1 (LCSC C1850327) is stocked"
+    },
+    "TPS3823-33DBVR": {
+      "origin": "ported: zapote/interlock",
+      "basis": "TI SLVS165O; zapote/interlock BOM.md",
+      "lcsc": "C7719",
+      "jlc_stock_2026_10_08": 60444
+    },
+    "TPS389001DSER": {
+      "origin": "ported: zapote/rtd (RTDSensing)",
+      "basis": "TI SLVSD65A; RTD unit BOM (footprint Temper_RTD:TPS389001DSER_WSON-6_DSE)",
+      "lcsc": "C1509297",
+      "jlc_stock_2026_10_08": 346
+    },
+    "TPS62933DRLR": {
+      "origin": "controller (new)",
+      "basis": "TI SLUSEA4D, pins Fig 7-1, 8.5 electrical",
+      "lcsc": "C3200405",
+      "jlc_stock_2026_10_08": 33170
+    },
+    "TPS62933FDRLR": {
+      "origin": "controller (new)",
+      "basis": "TI SLUSEA4D (FCCM variant), pins Fig 7-1, 8.5 electrical",
+      "lcsc": "C5219272",
+      "jlc_stock_2026_10_08": 1965
+    }
+  }
+}
