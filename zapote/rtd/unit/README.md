@@ -13,6 +13,14 @@ See `evidence/acceptance-final/receipt.json` and `HANDOFF.md` for the conditiona
 layout acceptance and later physical/integration obligation.
 Physical tests are **NOT RUN**. Full-cooker integration is a later goal.
 
+**Current board revision:** the 2026-10-08 silk revision, which changes
+silkscreen only (`evidence/silk-2026-10-08/`). It is re-qualified in
+`../model-correctness/qualified-input-silk-2026-10-08/`, and `validation/units.json`
+binds it. The `acceptance-final/` receipts describe the board before that revision.
+Only the files cited here, and the bind's base `input.json`, are on main. The full
+bundle (inputs, suite snapshot, executable) is at tag
+`archive/zapote-coil-intake-2026-09-25`.
+
 `profile.json` is the authored standalone validation policy. Source instance
 identity remains `rtd_pan.*`; `unit_io` is the additional ten-contact host
 connector. `manufacturing-contract.json` defines the four-layer 35 µm minimum
