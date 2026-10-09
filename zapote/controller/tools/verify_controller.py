@@ -11,7 +11,8 @@ and native-21's frozen netlist snapshot. Checks, each fail-closed:
   adc1       the analog channels sit on five distinct ADC1 pads, nothing
              analog on ADC2, no strap/flash/USB/SPI collision, sample budget
   trip       hardware-only path to PERMIT: structural (no MCU/expander pin can
-             drive any net in PERMIT's fan-in cone except the reset request)
+             drive any net in PERMIT's fan-in cone except the reset request and
+             RUN_EN, which enters only the PERMIT = latch AND RUN_EN gate)
              and exhaustive logic simulation of the captured gates
   v3v3       current budget of every part on v3v3 on both boards, from
              datasheet maxima, with the regulator, inductor and PS1 limits
@@ -360,9 +361,19 @@ def check_j4(rep: Report, nl: Netlist, n21: Netlist):
         series = [r for r, p in nl.nets[net] if r.startswith("R") and r not in pulls]
         src = {pn.get((r, "2" if p == "1" else "1"), OPEN) for r, p in nl.nets[net] if r in series}
         rep.check("j4", f"{net}_driven_by_mcu_gpio", any(s in gm.values() for s in src), sorted(src))
+    # PERMIT = latch Q AND RUN_EN (COMMISSIONING.md H1): one driver, the AND gate, whose two inputs
+    # are the interlock latch Q and the firmware RUN_EN line
     drivers = [(r, p, nl.mpn[r]) for r, p in nl.nets["permit"] if pin_role(nl, r, p) in ("out", "od")]
-    rep.check("j4", "pin9_permit_driven_only_by_interlock_latch",
-              len(drivers) == 1 and drivers[0][2] == "SN74LVC1G74DCUR" and drivers[0][1] == "5", drivers)
+    gate_ok = len(drivers) == 1 and drivers[0][2] == "SN74LVC1G08DBVR" and drivers[0][1] == "4"
+    gate_in = {}
+    if gate_ok:
+        g = drivers[0][0]
+        gate_in = {nl.net_of(g, "1"), nl.net_of(g, "2")}
+        latch_q = {nl.net_of(r, p) for r, p in [(r, "5") for r, mp in nl.mpn.items() if mp == "SN74LVC1G74DCUR"]}
+        gate_ok = gate_in == latch_q | {"RUN_EN"} and len(latch_q) == 1
+        q_drivers = [(r, p) for n in latch_q for r, p in nl.nets[n] if pin_role(nl, r, p) in ("out", "od")]
+        gate_ok = gate_ok and len(q_drivers) == 1
+    rep.check("j4", "pin9_permit_is_latch_and_run_en_gate", gate_ok, {"drivers": drivers, "gate_inputs": sorted(gate_in)})
     il_pull = [r for r, p in nl.nets["bus_fault"] if nl.refs[r].startswith("interlock.ocp_pullup")]
     lat = [r for r, p in nl.nets["bus_fault"] if nl.mpn[r] == "SN74LVC14ADR"]
     rep.check("j4", "pin10_bus_fault_into_interlock_ocp_with_pullup", bool(il_pull) and bool(lat))
@@ -469,23 +480,44 @@ def check_trip(rep: Report, nl: Netlist, calcs: dict | None = None) -> None:
                     pull.setdefault(x, 0)
     sim = Sim(gates, free, pull, f(GND), f(V3))
     permit = f("permit")
-    rep.check("trip", "single_latch_drives_permit",
-              len(sim.dff) == 1 and sim.dff[0][2][0] == permit, [g[3] for g in sim.dff])
+    latch_q = f("PERMIT_LATCH") if "PERMIT_LATCH" in nl.nets else None
+    run_en = f("RUN_EN") if "RUN_EN" in nl.nets else None
+    rep.check("trip", "single_latch_drives_permit_gate",
+              len(sim.dff) == 1 and sim.dff[0][2][0] == latch_q, [g[3] for g in sim.dff])
+    pgate = [g for g in gates if g[0] != "dff" and g[2] == permit]
+    rep.check("trip", "permit_gate_is_latch_and_run_en",
+              len(pgate) == 1 and pgate[0][0] == "and" and sorted(pgate[0][1]) == sorted([latch_q, run_en]),
+              [(g[0], g[3]) for g in pgate])
     cone, by_out = fan_in_cone(gates, permit)
     reset = f("IL_RESET_N")
     fw = sorted(n for n in cone if n in free and free[n].startswith("firmware"))
     rep.data("trip", "fan_in_cone_nets", sorted(cone))
     rep.data("trip", "sources_in_cone", {n: free[n] for n in sorted(cone) if n in free})
-    rep.check("trip", "only_firmware_input_is_reset_request", fw == [reset], fw)
+    rep.check("trip", "only_firmware_inputs_are_reset_request_and_run_en", fw == sorted([reset, run_en]), fw)
+    # RUN_EN enters nothing but the PERMIT gate (it cannot reach the latch or any fault input)
+    run_en_loads = [g[3] for g in gates if run_en in g[1]]
+    rep.check("trip", "run_en_feeds_only_the_permit_gate", run_en_loads == [pgate[0][3]] if pgate else False,
+              run_en_loads)
+    # RUN_EN defaults to "not permitted": pull-down to selv_gnd, no pull-up, from a GPIO with no
+    # reset pull-up (ESP32-S3 DS Table 2-1, as in check_misc). Low level <= 0.8 V (LVC1G08 VIL at 3.3 V)
+    ups = [r for r, p in nl.nets.get("RUN_EN", []) if r.startswith("R") and pn.get((r, "2" if p == "1" else "1")) == V3]
+    downs = [r for r, p in nl.nets.get("RUN_EN", []) if r.startswith("R") and pn.get((r, "2" if p == "1" else "1")) == GND]
+    rmax = max((parse_value(nl.value[r])[0] * (1 + (parse_value(nl.value[r])[1] or 0)) for r in downs), default=None)
+    gm = gpio_map(nl)
+    src = [g for g, n in gm.items() if n == "RUN_EN"]
+    rep.check("trip", "run_en_defaults_low_with_pulldown",
+              bool(downs) and not ups and rmax is not None and rmax <= 10e3 and len(src) == 1
+              and src[0] not in {0, 20, 39, 43, 44} | STRAPS,
+              {"pulldowns": downs, "pullups": ups, "rmax_ohm": rmax, "gpio": src})
     undriven = sorted(n for n in cone if n not in by_out and n not in free and n not in pull
                       and n not in (f(GND), f(V3)))
     rep.check("trip", "every_cone_net_driven_or_pulled", not undriven, undriven)
     pd = [r for r, p in nl.nets["permit"] if r.startswith("R") and pn.get((r, "2" if p == "1" else "1"), OPEN) == GND]
     rep.check("trip", "permit_has_pulldown_at_controller", bool(pd), pd)
-    bad = [(n, r, p) for n in cone - {reset, f(GND), f(V3)} for r, p in m.nodes(n)
+    bad = [(n, r, p) for n in cone - {reset, run_en, f(GND), f(V3)} for r, p in m.nodes(n)
            if nl.mpn.get(r) in ("ESP32-S3-WROOM-1-N8", "TCA9555PWR")]
-    rep.check("trip", "no_mcu_or_expander_pin_in_cone_except_reset", not bad, bad)
-    sources = sorted(n for n in cone if n in free and n != reset)
+    rep.check("trip", "no_mcu_or_expander_pin_in_cone_except_reset_and_run_en", not bad, bad)
+    sources = sorted(n for n in cone if n in free and n not in (reset, run_en))
     unknown = [free[n] for n in sources if free[n] not in HEALTHY_LEVEL]
     rep.check("trip", "every_source_has_a_specified_healthy_level", not unknown, unknown)
     missing = sorted(set(HEALTHY_LEVEL) - {free[n] for n in sources})
@@ -493,20 +525,21 @@ def check_trip(rep: Report, nl: Netlist, calcs: dict | None = None) -> None:
     if unknown or len(sim.dff) != 1:
         return
     healthy = {n: HEALTHY_LEVEL[free[n]][0] for n in sources}
-    violations, missed, unheld = exhaustive(sim, sources, reset, healthy)
-    rep.data("trip", "enumerated_cases", 2 ** len(sources) * 8)
+    violations, missed, unheld, grants = exhaustive(sim, sources, reset, healthy, permit, run_en)
+    rep.data("trip", "enumerated_cases", 2 ** len(sources) * 8 * 2)
     rep.check("trip", "any_trip_source_forces_permit_low_for_every_firmware_state",
               not violations, violations[:3])
-    rep.check("trip", "all_healthy_plus_fresh_reset_edge_grants_permit", not missed, missed[:3])
+    rep.check("trip", "all_healthy_plus_fresh_reset_edge_and_run_en_grants_permit", not missed, missed[:3])
     rep.check("trip", "all_healthy_without_edge_holds_state", unheld == 0, unheld)
+    rep.check("trip", "run_en_alone_cannot_assert_permit", not grants, grants[:3])
     rows = []
     for n in sources:
         a = dict(healthy)
         a[n] = 1 - a[n]
         res = {}
         for r_prev, r_now in ((1, 1), (0, 0), (1, 0), (0, 1)):
-            val, q = sim.step(a, reset, r_prev, r_now, 1)
-            res[f"RESET_N {r_prev}->{r_now}"] = {"PERMIT": q, "LATCHED_FAULT": 1 - q}
+            val, q = sim.step({**a, run_en: 1}, reset, r_prev, r_now, 1)
+            res[f"RESET_N {r_prev}->{r_now}"] = {"PERMIT": val.get(permit), "LATCHED_FAULT": 1 - q}
         rows.append({"source": free[n], "fault_level": a[n], "from_PERMIT_high": res,
                      "basis": HEALTHY_LEVEL[free[n]][1]})
     rep.data("trip", "single_fault_rows", rows)

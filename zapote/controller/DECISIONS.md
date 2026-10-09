@@ -9,7 +9,7 @@ These are design calls I made during schematic capture, as a senior designer, fr
 - **Re-run each block's own validation** (Rust validators) on the integrated layout, per CONTROLLER-SPEC. That is a layout-stage item.
 
 ## C2. GPIO map: keep round-5 `pins.h` where it exists
-- **Kept from pins.h:** PWM 4/5/15/16, REQUEST→IL_RESET_N 17, HEARTBEAT→IL_WDI 18, FAULT_HIGH 21, RAIL_OK 35, INTERLOCK_OK (PERMIT read-back) 36, SUP_RUN_OK 37, fast SPI 10–13 → RTD (CS/CLK/MISO/MOSI = 10/11/12/13), RTD_DRDY on 14.
+- **Kept from pins.h:** PWM 4/5/15/16, REQUEST→IL_RESET_N 17, HEARTBEAT→IL_WDI 18, FAULT_HIGH 21, RAIL_OK 35, INTERLOCK_OK (PERMIT read-back) 36, SUP_RUN_OK 37, fast SPI 10–13 → RTD (CS/CLK/MISO/MOSI = 10/11/12/13). RTD_DRDY was on 14; C23 moves it to expander P07 and puts RUN_EN on GPIO14.
 - **"Supervisor run-OK":** `bridge_feedback_t.sup_run_ok` is the interlock's TPS3823 output (`WDT_RESET_N`). There is no separate STM32 supervisor on this board.
 - **Ambiguity resolved (flag).** The architecture lists ADC1 = GPIO 1, 2, 6, 7, **10** *and* RTD SPI = **10**–13, which conflicts on GPIO10. It also keeps GPIO8/9 for pins.h's UART. That UART was round 5's link to the STM32 supervisor, which the integrated interlock replaces, so **GPIO8 becomes the fifth ADC1 channel (M12) and GPIO9 becomes I²C SDA**. The ADC1 channels are 1, 2, 6, 7 and 8, still exactly five.
 - **Strap use (checked by `misc`):**
@@ -159,6 +159,14 @@ These are DEFAULTS, labelled in the docs and the calcs. The design doesn't break
 - **J4 harness ≤ 1 m AWG22** (the rail stays in contract to beyond 8 m);
 - **runaway band 297–319 °C** (one resistor ratio, cross-checked by the verifier).
 
+## C23. PERMIT = latch OK AND RUN_EN (firmware gate enable, 2026-10-09)
+- **Why:** the firmware binding (firmware/components/power/COMMISSIONING.md item H1, commit e4f9ca830 on codex/power-stage-integration) needs a gate enable separate from the PWM pads. Until now PERMIT came only from the latch.
+- **Circuit:** U37 SN74LVC1G08 (already on the BOM as U11/U25; LCSC C7666) with its own 100 nF (C70). Input A is the interlock latch Q, renamed `PERMIT_LATCH` (the ported block, with its 10 kΩ pull-down, is unchanged); input B is `RUN_EN`; the output is `permit` to J4.9 with a new 10 kΩ pull-down (R103), so with v3v3 lost the gate's Ioff output is high-Z and PERMIT still reads low (plus native-21's 2 × 100 kΩ). The MCU still reads the final PERMIT through U9 (GPIO36).
+- **RUN_EN source: a direct GPIO (GPIO14), for the fastest stop.** No GPIO was free, so I moved `RTD_DRDY` from GPIO14 to TCA9555 P07: in auto-conversion mode the MAX31865 can be read on its fixed conversion period or its DRDY polled over I²C, while a stop through the expander would cost an I²C transaction (≈ 0.1 ms at 400 kHz) and depend on the bus. P06 stays reserved for a second MAX31865 CS (C14).
+- **Default "not permitted":** 4.7 kΩ pull-down (R102), no pull-up. GPIO14 has no reset pull-up (ESP32-S3 DS Table 2-1, the same table `misc` uses for the PWM pins), so RUN_EN is low at reset, while firmware leaves the pin an input, and with the MCU unpowered (pads high-Z). Driving it high costs 0.7 mA.
+- **No firmware shortcut:** `verify_controller.py` proves PERMIT is the AND of the latch and RUN_EN, that RUN_EN feeds nothing but that gate, and, over all 32 768 cases, that PERMIT is never high while any source is unhealthy, the latch is tripped or RUN_EN is low. Mutation tests: RUN_EN bypassing the gate, RUN_EN onto the latch, RUN_EN without its pull-down, and RUN_EN pulled up each fail their check.
+- **GPIO / expander map change:** GPIO14 = RUN_EN (output, push-pull; high = permitted). TCA9555 P07 = RTD_DRDY (input, active low). Firmware pins.h: `R5_RUN_EN 14`; the RTD driver polls DRDY via the expander or uses the conversion period.
+
 ## FMEA: shared supply, ground and connector (CONTROLLER-SPEC requirement, before layout freeze)
 
 | Failure | Effect | Detection / safe state |
@@ -174,6 +182,8 @@ These are DEFAULTS, labelled in the docs and the calcs. The design doesn't break
 | PWM conductor open / MCU reset / MCU unpowered | Driver inputs float | 10 kΩ pull-downs here plus 50 kΩ UCC21550 internal ones; the ESP32 PWM GPIOs have no reset pull-up and only low glitches (DS Tables 2-1/2-2). **Safe**, and PERMIT is independent of these anyway |
 | MCU hangs | WDI stops | TPS3823 times out (≤ 1.6 s) and PERMIT goes low |
 | MCU GPIO misconfigured as output on a read-back | — | Buffered (C4); cannot reach a protective net |
+| RUN_EN stuck high (GPIO fault, firmware bug) | Gate enable always on | PERMIT still needs the latch Q: every trip source drops PERMIT (C23). RUN_EN stuck low only removes permission. **Safe** |
+| RUN_EN conductor open / MCU unpowered | — | 4.7 kΩ pull-down: not permitted. **Safe** |
 | RTD_AVDD lost | MAX31865 off | TPS389001 gives RTD_HW_FAULT and SENSOR_LIVE low |
 | Interlock 3.3 V shared with the MCU (common-cause) | One regulator feeds both | Accepted: every rail fault takes PERMIT low (rows above). The architecture asked for its own region and decoupling, not its own regulator |
 

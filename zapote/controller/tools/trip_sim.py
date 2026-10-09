@@ -115,7 +115,8 @@ class Sim:
             q = 1
         elif clk0 == 0 and clk1 == 1:
             q = d
-        after[outs[0]], after[outs[1]] = q, 1 - q
+        # re-evaluate everything downstream of the latch (the PERMIT gate) with Q settled
+        after = self.comb({**assign, reset_net: r_now, outs[0]: q, outs[1]: 1 - q})
         return after, q
 
 
@@ -135,19 +136,34 @@ def fan_in_cone(gates, start):
     return cone, by_out
 
 
-def exhaustive(sim, sources, reset, healthy):
-    violations, missed, unheld = [], [], 0
+def exhaustive(sim, sources, reset, healthy, permit, run_en=None):
+    """Enumerate every source combination x latch state x RESET_N transition (x RUN_EN, when
+    the PERMIT gate has one). Returns (violations, missed, unheld, run_en_grants):
+      violations    a source unhealthy but PERMIT high
+      missed        all healthy, fresh RESET_N edge, RUN_EN high, but PERMIT low
+      unheld        all healthy, no edge, but the latch changed state
+      run_en_grants PERMIT high while the latch is tripped (Q low): RUN_EN asserting PERMIT alone,
+                    or PERMIT high with RUN_EN low
+    """
+    violations, missed, unheld, run_en_grants = [], [], 0, []
+    run_levels = (0, 1) if run_en is not None else (None,)
     for bits in itertools.product((0, 1), repeat=len(sources)):
         assign = dict(zip(sources, bits))
         trip = any(assign[n] != healthy[n] for n in sources)
         for q_prev, r_prev, r_now in itertools.product((0, 1), repeat=3):
-            _, q = sim.step(assign, reset, r_prev, r_now, q_prev)
-            if trip and q:
-                violations.append({sim.free[n]: v for n, v in assign.items()}
-                                  | {"q_prev": q_prev, "reset": (r_prev, r_now)})
-            edge = r_prev == 1 and r_now == 0
-            if not trip and edge and not q:
-                missed.append(q_prev)
-            if not trip and not edge and q != q_prev:
-                unheld += 1
-    return violations, missed, unheld
+            for en in run_levels:
+                a = assign if en is None else {**assign, run_en: en}
+                val, q = sim.step(a, reset, r_prev, r_now, q_prev)
+                p = val.get(permit)
+                case = {sim.free[n]: v for n, v in assign.items()} | {"q_prev": q_prev, "reset": (r_prev, r_now),
+                                                                      "run_en": en}
+                if trip and p:
+                    violations.append(case)
+                if p and (not q or en == 0):
+                    run_en_grants.append(case)
+                edge = r_prev == 1 and r_now == 0
+                if not trip and edge and en != 0 and not p:
+                    missed.append(case)
+                if not trip and not edge and q != q_prev:
+                    unheld += 1
+    return violations, missed, unheld, run_en_grants

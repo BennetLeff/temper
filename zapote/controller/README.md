@@ -31,7 +31,7 @@ It draws power from native-21's J4 header and supplies native-21's 3.3 V logic b
 | `inputs/native-21/` | Frozen native-21 netlist, BOM and resolved export (the J4 and v3v3 counterpart) |
 | `tools/verify_controller.py` | The verification (below); writes `evidence/verify.json` |
 | `tools/controller_calcs.py` | Every numeric claim in these docs; writes `evidence/controller_calcs.json` |
-| `tests/test_verify_mutations.py` | 16 tests. They miswire the frozen netlist and require the owning check to fail |
+| `tests/test_verify_mutations.py` | 20 tests. They miswire the frozen netlist and require the owning check to fail |
 
 **What "ported unchanged" means here:** `tools/port_blocks.py` copies `zapote/interlock/source-build-02/.../interlock_unit.ato` and `zapote/thermal-sense/source-build-02/.../thermal_sense_unit.ato` with one line filter. It drops only:
 - the standalone inter-board headers (interlock J1/J2, thermal-sense J3);
@@ -57,14 +57,14 @@ python3 tools/snapshot_native21.py # re-derive inputs/native-21 from git (read-o
 - **Warnings:** the build emits only atopile's "Implicit Declaration" deprecation warnings for `override_net_name`, the same as the thermal-sense build.
 - **Part identity:** it comes from `resolved-components.json` or the CSV, never from the netlist's `libsource` field. Atopile 0.2.69 aliases parts by footprint there; see the power-stage README.
 
-**Current result** (frozen netlist sha256 `c6666ded…`; 222 components): `VERIFY: PASS` (114 checks), and 16/16 mutation tests pass.
+**Current result** (frozen netlist sha256 `dd21424c…`; 226 components): `VERIFY: PASS` (118 checks), and 20/20 mutation tests pass.
 
 | Section | Checks | What is asserted |
 |---|---|---|
 | sources | 4/4 | Ports equal their sources minus the boundary lines. Library `modules/components/footprints.ato` hashes equal `zapote/rtd/circuit/rtd_contract.json` |
-| j4 | 35/35 | All 16 pins carry exactly native-21's J4 net names. Both ends are Micro-Fit 3.0 2×8 headers (controller: right-angle 43045-1600 per R27; native-21: vertical 43045-1612) on a 1:1 harness. Pin obligations: J4.3 is the 3.3 V buck output; J4.1 feeds both bucks; each PWM line has a 10 kΩ pull-down and is driven from an MCU GPIO; PERMIT's only driver is the interlock latch Q; bus_fault enters the interlock OCP input with its 10 kΩ pull-up; 11/12 enter the D-11 receiver; ct_mon sees one buffer input and ≥ 1 MΩ DC; ct_zc/line_zc reach GPIO38/39; returns 2/4/15 are on selv_gnd |
+| j4 | 35/35 | All 16 pins carry exactly native-21's J4 net names. Both ends are Micro-Fit 3.0 2×8 headers (controller: right-angle 43045-1600 per R27; native-21: vertical 43045-1612) on a 1:1 harness. Pin obligations: J4.3 is the 3.3 V buck output; J4.1 feeds both bucks; each PWM line has a 10 kΩ pull-down and is driven from an MCU GPIO; PERMIT's only driver is the PERMIT gate U37 = latch Q AND RUN_EN (C23); bus_fault enters the interlock OCP input with its 10 kΩ pull-up; 11/12 enter the D-11 receiver; ct_mon sees one buffer input and ≥ 1 MΩ DC; ct_zc/line_zc reach GPIO38/39; returns 2/4/15 are on selv_gnd |
 | adc1 | 20/20 | VBUS, CT_MON, HS, COIL and M12 each on one ADC1 pad, driven by its buffer. Five distinct channels; nothing analog on ADC2 or a strap; SPI 10–13 go to the RTD front end; the sample pattern fits (below) |
-| trip | 15/15 | The structural and exhaustive interlock checks (below) |
+| trip | 19/19 | The structural and exhaustive interlock checks (below) |
 | v3v3 | 5/5 | Current budget for both boards, regulator, inductor, PS1, and the native-21 rail window |
 | ct_rms | 20/20 | The tank-RMS channel: ct_mon buffer → AC coupling → AD8436 (unity input buffer, AC-coupled core, single supply on v15, C0G CAVG) → gain-4 output buffer → 1 kΩ + BAT54S clamp → MCP3202 CH0. CH1 reads the LM4040 2.5 V reference. The ADC sits on the RTD SPI bus with its own pulled-up CS GPIO; the raw ct_mon ADC1 path is kept |
 | ui | 7/7 | Each encoder and button line reaches silicon only through ≥ 1 kΩ and only at a 5.5 V-tolerant input (LVC2G17 or TCA9555); J5 offers +3.3 V and +5 V |
@@ -76,18 +76,19 @@ python3 tools/snapshot_native21.py # re-derive inputs/native-21 from git (read-o
 **How the check works.** `verify_controller.py` builds a gate-level model from the captured netlist: LVC14, HC30, LVC1G74, the LVC1G08/32/38/14 gates and the LVC244 buffer, keyed by MPN pin tables. Comparators, supervisors, J4.10, the MCU and the I²C expander become free variables. The pass criterion is an **independent specification** of each source's healthy level (`tools/trip_sim.py`, `HEALTHY_LEVEL`), never the circuit's own internal nets.
 
 **Structural checks:**
-- PERMIT (J4.9) has one driver, the latch Q. It has a 10 kΩ pull-down here, and native-21 adds two 100 kΩ.
-- The only firmware-driven net in PERMIT's fan-in cone is `IL_RESET_N` (GPIO17).
+- PERMIT (J4.9) has one driver, the AND gate U37 (SN74LVC1G08): **PERMIT = latch Q AND RUN_EN** (DECISIONS C23). It has a 10 kΩ pull-down here (R103), and native-21 adds two 100 kΩ. The latch Q (`PERMIT_LATCH`) keeps the block's own 10 kΩ pull-down.
+- The only firmware-driven nets in PERMIT's fan-in cone are `IL_RESET_N` (GPIO17, the reset request) and `RUN_EN` (GPIO14). RUN_EN feeds only the PERMIT gate (checked), has a 4.7 kΩ pull-down and no pull-up, and sits on a GPIO with no reset pull-up, so it reads "not permitted" at reset and with the MCU unpowered.
 - No MCU or expander pin touches any other cone net. The MCU reads PERMIT, bus_fault, the supervisor output, RAIL_OK, LATCHED_FAULT and the three block faults only through the SN74LVC244A, so no GPIO misconfiguration can drive a protective net.
 - The runaway comparator observes RTDIN+ through the RTD block's window branch, and its threshold comes from the BIAS divider (checked, because comparators are free variables).
 - The rail supervisor senses v3v3, and the watchdog's WDI is the MCU heartbeat.
 
-**Exhaustive check.** All 2¹¹ source combinations × latch state × every RESET_N transition (16 384 cases) were enumerated:
+**Exhaustive check.** All 2¹¹ source combinations × latch state × every RESET_N transition × RUN_EN (32 768 cases) were enumerated:
 - every case with any source unhealthy leaves **PERMIT low**, whatever firmware does;
-- all-healthy plus a fresh RESET_N falling edge grants PERMIT;
-- all-healthy with no edge holds state.
+- PERMIT is never high while the latch is tripped or RUN_EN is low (`run_en_alone_cannot_assert_permit`): RUN_EN can only remove permission;
+- all-healthy plus a fresh RESET_N falling edge with RUN_EN high grants PERMIT;
+- all-healthy with no edge holds the latch state.
 
-**Single-cause truth table.** Each row has every other source healthy and starts from PERMIT high. The result is identical for RESET_N held low, held high, falling or rising.
+**Single-cause truth table.** Each row has every other source healthy and RUN_EN high, and starts from PERMIT high. The result is identical for RESET_N held low, held high, falling or rising.
 
 | Trip source (net → interlock input) | Fault level | PERMIT | LATCHED_FAULT |
 |---|---|---|---|
@@ -105,7 +106,7 @@ python3 tools/snapshot_native21.py # re-derive inputs/native-21 from git (read-o
 
 The simulation treats the sources as independent. Physical paths that make several assert together, like v3v3 loss, are covered by the FMEA in DECISIONS.md.
 - **Loss of v3v3 or selv_gnd, or J4 unplugged:** the latch loses supply, the controller's 10 kΩ and native-21's 100 kΩ pull-downs take PERMIT low, and a broken J4.10 conductor reads as a fault.
-- **Firmware reach:** it can read the latch and request a reset edge. It cannot hold the latch clear or override a trip.
+- **Firmware reach:** it can read the latch, request a reset edge and drop RUN_EN (a fast stop that removes PERMIT without tripping the latch). It cannot hold the latch clear, assert PERMIT while the latch is tripped, or override a trip.
 
 ## Power tree
 

@@ -40,7 +40,7 @@ R27 moved the rear holes to (−164, 80), (−75, 86) and (30, 80), and R28 move
 
 ## Placement-critical parts (layout must keep)
 1. **Interlock region** (CONTROLLER-SPEC: own region, own decoupling, short traces to J4, no MCU traces through it).
-   - **Parts:** U20 latch (LVC1G74), U21 TPS3823, U22 HC30, U23/U24 LVC14, U25 LVC1G08 and their pull-ups and bypasses. Next to them sit the trip glue: U3 TPS3703, U10 runaway TLV3201, U11 SENSOR_LIVE AND, U12 RAIL_FAULT inverter, and the 0 Ω OVP tie.
+   - **Parts:** U20 latch (LVC1G74), U21 TPS3823, U22 HC30, U23/U24 LVC14, U25 LVC1G08, U37 PERMIT gate (LVC1G08, latch AND RUN_EN, C23) and their pull-ups and bypasses. Next to them sit the trip glue: U3 TPS3703, U10 runaway TLV3201, U11 SENSOR_LIVE AND, U12 RAIL_FAULT inverter, and the 0 Ω OVP tie.
    - **Placement:** close to J4, on the J4 side of the board.
    - **Routing:** PERMIT (J4.9) and bus_fault (J4.10) go straight to the latch and inverter with no vias through the MCU region. U9 (LVC244 read-back buffer) sits on the region's boundary, and its outputs are the only interlock-to-MCU nets.
 2. **J4 and the star ground.** selv_gnd stars at J4 pins 2, 4 and 15; the 15 V return current (≈ 0.85 A peak) must not flow through the analog or interlock grounds.

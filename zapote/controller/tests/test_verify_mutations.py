@@ -81,12 +81,35 @@ class Mutations(unittest.TestCase):
     def test_permit_on_gpio_fails(self):
         t = add_node(self.base, "U4", "29", "permit")           # GPIO36 straight onto PERMIT
         failed = self.run_checks(t)
-        self.assertIn("j4.pin9_permit_driven_only_by_interlock_latch", failed)
+        self.assertIn("j4.pin9_permit_is_latch_and_run_en_gate", failed)
 
     def test_wdi_into_trip_cone_fails(self):
         inv = self.ref("interlock.control_inv")
         t = move_node(self.base, inv, "9", "IL_WDI")            # interlock SENSOR_LIVE input fed by GPIO18
-        self.assertIn("trip.only_firmware_input_is_reset_request", self.run_checks(t))
+        self.assertIn("trip.only_firmware_inputs_are_reset_request_and_run_en", self.run_checks(t))
+
+    def test_run_en_alone_asserting_permit_fails(self):
+        gate = self.ref("u_permit")
+        t = move_node(self.base, gate, "1", "RUN_EN")           # gate A off the latch: PERMIT = RUN_EN
+        failed = self.run_checks(t)
+        self.assertIn("trip.run_en_alone_cannot_assert_permit", failed)
+        self.assertIn("trip.every_specified_source_reaches_permit", failed)   # the latch no longer gates it
+
+    def test_run_en_into_latch_fails(self):
+        latch = self.ref("interlock.latch")
+        t = move_node(self.base, latch, "7", "RUN_EN")          # RUN_EN onto the latch's /PRE
+        failed = self.run_checks(t)
+        self.assertIn("trip.run_en_feeds_only_the_permit_gate", failed)
+
+    def test_run_en_without_pulldown_fails(self):
+        r = self.ref("r_run_en_pd")
+        t = drop_node(self.base, r, "2")
+        self.assertIn("trip.run_en_defaults_low_with_pulldown", self.run_checks(t))
+
+    def test_run_en_pulled_up_fails(self):
+        r = self.ref("r_run_en_pd")
+        t = move_node(self.base, r, "2", "v3v3")
+        self.assertIn("trip.run_en_defaults_low_with_pulldown", self.run_checks(t))
 
     def test_disconnected_heatsink_fault_fails(self):
         inv = self.ref("interlock.fault_inv")

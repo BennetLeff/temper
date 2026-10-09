@@ -3,7 +3,7 @@
   "inputs": {
     "native21_commit": "7c55c9ab81260b396be266861a0f0e8a42f96a5f",
     "netlist": "frozen/default.net",
-    "netlist_sha256": "c6666ded892944d29444001726f2f7d42c242b5760049c920dcfc90543bb1b15"
+    "netlist_sha256": "dd21424c7dc0da5d43af1a7180dae929738e04acc820d2a75b6c3f7bcefbcd4c"
   },
   "schema": "temper.controller.verify.v1",
   "sections": {
@@ -183,7 +183,7 @@
       },
       "data": {
         "count": {
-          "components": 222,
+          "components": 226,
           "distinct_mpns": 81
         },
         "unverified": [
@@ -468,14 +468,20 @@
           ],
           "ok": true
         },
-        "pin9_permit_driven_only_by_interlock_latch": {
-          "detail": [
-            [
-              "U20",
-              "5",
-              "SN74LVC1G74DCUR"
+        "pin9_permit_is_latch_and_run_en_gate": {
+          "detail": {
+            "drivers": [
+              [
+                "U37",
+                "4",
+                "SN74LVC1G08DBVR"
+              ]
+            ],
+            "gate_inputs": [
+              "PERMIT_LATCH",
+              "RUN_EN"
             ]
-          ],
+          },
           "ok": true
         },
         "pins11_12_into_d11_receiver_resistors": {
@@ -628,7 +634,7 @@
           "GPIO11": "RTD_SCK",
           "GPIO12": "RTD_SDO",
           "GPIO13": "RTD_SDI",
-          "GPIO14": "RTD_DRDY",
+          "GPIO14": "RUN_EN",
           "GPIO15": "pwm_hb_mcu",
           "GPIO16": "pwm_lb_mcu",
           "GPIO17": "IL_RESET_N",
@@ -684,7 +690,7 @@
     },
     "trip": {
       "checks": {
-        "all_healthy_plus_fresh_reset_edge_grants_permit": {
+        "all_healthy_plus_fresh_reset_edge_and_run_en_grants_permit": {
           "detail": [],
           "ok": true
         },
@@ -708,25 +714,58 @@
           "detail": [],
           "ok": true
         },
-        "no_mcu_or_expander_pin_in_cone_except_reset": {
+        "no_mcu_or_expander_pin_in_cone_except_reset_and_run_en": {
           "detail": [],
           "ok": true
         },
-        "only_firmware_input_is_reset_request": {
+        "only_firmware_inputs_are_reset_request_and_run_en": {
           "detail": [
-            "IL_RESET_N"
+            "IL_RESET_N",
+            "RUN_EN"
+          ],
+          "ok": true
+        },
+        "permit_gate_is_latch_and_run_en": {
+          "detail": [
+            [
+              "and",
+              "U37"
+            ]
           ],
           "ok": true
         },
         "permit_has_pulldown_at_controller": {
           "detail": [
-            "R61"
+            "R103"
           ],
           "ok": true
         },
         "rail_supervisor_senses_v3v3": {
           "detail": [
             "R21"
+          ],
+          "ok": true
+        },
+        "run_en_alone_cannot_assert_permit": {
+          "detail": [],
+          "ok": true
+        },
+        "run_en_defaults_low_with_pulldown": {
+          "detail": {
+            "gpio": [
+              14
+            ],
+            "pulldowns": [
+              "R102"
+            ],
+            "pullups": [],
+            "rmax_ohm": 4747.0
+          },
+          "ok": true
+        },
+        "run_en_feeds_only_the_permit_gate": {
+          "detail": [
+            "U37"
           ],
           "ok": true
         },
@@ -758,7 +797,7 @@
           "detail": 0.3333333333333333,
           "ok": true
         },
-        "single_latch_drives_permit": {
+        "single_latch_drives_permit_gate": {
           "detail": [
             "U20"
           ],
@@ -770,7 +809,7 @@
         }
       },
       "data": {
-        "enumerated_cases": 16384,
+        "enumerated_cases": 32768,
         "fan_in_cone_nets": [
           "COIL_FAULT",
           "COIL_HOT",
@@ -779,11 +818,13 @@
           "HS_HOT",
           "HS_OPEN",
           "IL_RESET_N",
+          "PERMIT_LATCH",
           "RAIL_FAULT",
           "RAIL_OK",
           "RTD_AVDD",
           "RTD_RAIL_OK",
           "RUNAWAY_FAULT",
+          "RUN_EN",
           "SENSOR_LIVE",
           "all_good",
           "any_fault",
@@ -1084,6 +1125,7 @@
           "RAIL_OK": "u_rail",
           "RTD_RAIL_OK": "rtd_pan.rail_monitor",
           "RUNAWAY_FAULT": "u_runaway",
+          "RUN_EN": "firmware:mcu.22",
           "bus_fault": "j4:bus_fault",
           "rtd_pan.high_window-out": "rtd_pan.high_window",
           "rtd_pan.low_window-out": "rtd_pan.low_window",
@@ -1190,25 +1232,25 @@
         "native21_rail_inside_3135_3465": {
           "detail": [
             3.236896130065459,
-            3.3898795259549086
+            3.3898880851757514
           ],
           "ok": true
         },
         "ps1_within_21W_at_peak": {
-          "detail": 12.993787842821316,
+          "detail": 12.998291041820064,
           "ok": true
         },
         "within_inductor_irms_2p45A": {
-          "detail": 954.7228745016213,
+          "detail": 955.8275553526851,
           "ok": true
         },
         "within_tps62933_3A": {
-          "detail": 954.7228745016213,
+          "detail": 955.8275553526851,
           "ok": true
         }
       },
       "data": {
-        "controller_mA": 535.3775155126729,
+        "controller_mA": 536.4821963637366,
         "encoder_allocation_mA": {
           "basis": "[UNVERIFIED] Grayhill encoder supply allocation; pin map and part not yet fixed",
           "mA": 30.0
@@ -1217,7 +1259,7 @@
         "native21_rail_V": {
           "harness": {
             "allocation": "J4 harness <= 1.0 m, AWG22, Micro-Fit 43030 terminals (DEFAULT; harness not yet specified)",
-            "ground_shift_max_V": 0.023325577344003774,
+            "ground_shift_max_V": 0.02333413656484677,
             "ground_shift_min_V": -0.0013716878145361526,
             "length_m": 1.0,
             "r_conductor_ohm": 0.08339312,
@@ -1228,19 +1270,19 @@
             ],
             "v3v3_drop_V": 0.004115063443608458
           },
-          "max": 3.3898795259549086,
+          "max": 3.3898880851757514,
           "min": 3.236896130065459
         },
         "oled_off_board_mA": {
           "basis": "Newhaven NHD-3.12-25664UCW2 rev: IDD 340 mA max, 3.3 V, 100 % on, factory jumper",
           "mA": 340.0
         },
-        "peak_mA": 954.7228745016213,
+        "peak_mA": 955.8275553526851,
         "ps1": {
           "basis": "efficiencies 85 % (3.3 V) / 90 % (12 V) are allocations from the TPS62933 typical curves; IRM-20-15 21 W rated",
-          "p_3v3_rail_W": 3.891899717821315,
+          "p_3v3_rail_W": 3.8964029168200627,
           "p_fan_W": 8.554,
-          "p_total_W": 12.993787842821316,
+          "p_total_W": 12.998291041820064,
           "p_v15_direct_W": 0.547888125,
           "rating_W": 21.0
         },
@@ -1384,6 +1426,13 @@
             "mA": 0.7446808510638298,
             "path": "r_sda_pu",
             "ref": "R89"
+          },
+          {
+            "basis": "4.7kohm +/- 1% pull-down driven high by U4",
+            "board": "controller",
+            "mA": 0.7446808510638298,
+            "path": "r_run_en_pd",
+            "ref": "R102"
           },
           {
             "basis": "MCP3202-CI/SN: DS21034F: IDD 550 uA max (5 V, worst case used at 3.3 V)",
@@ -1547,11 +1596,11 @@
             "ref": "R95"
           },
           {
-            "basis": "10kohm +/- 1% pull-down driven high by U20",
+            "basis": "10kohm +/- 1% pull-down driven high by U37",
             "board": "controller",
             "mA": 0.35,
-            "path": "interlock.permit_pulldown",
-            "ref": "R61"
+            "path": "r_permit_pd",
+            "ref": "R103"
           },
           {
             "basis": "10kohm +/- 1% pull-down driven high by U11",
@@ -1559,6 +1608,13 @@
             "mA": 0.35,
             "path": "interlock.live_pulldown",
             "ref": "R60"
+          },
+          {
+            "basis": "10kohm +/- 1% pull-down driven high by U20",
+            "board": "controller",
+            "mA": 0.35,
+            "path": "interlock.permit_pulldown",
+            "ref": "R61"
           },
           {
             "basis": "10kohm +/- 0.1% R + 0 ohm to gnd",
@@ -1648,6 +1704,20 @@
             "basis": "TLV3201AIDBVR: SBOS561C: IQ 65 uA (-40..125 C)",
             "board": "controller",
             "mA": 0.065,
+            "path": "rtd_pan.low_window",
+            "ref": "U32"
+          },
+          {
+            "basis": "TLV3201AIDBVR: SBOS561C: IQ 65 uA (-40..125 C)",
+            "board": "controller",
+            "mA": 0.065,
+            "path": "rtd_pan.high_window",
+            "ref": "U33"
+          },
+          {
+            "basis": "TLV3201AIDBVR: SBOS561C: IQ 65 uA (-40..125 C)",
+            "board": "controller",
+            "mA": 0.065,
             "path": "thermal.hs_comp",
             "ref": "U18"
           },
@@ -1664,20 +1734,6 @@
             "mA": 0.065,
             "path": "u_runaway",
             "ref": "U10"
-          },
-          {
-            "basis": "TLV3201AIDBVR: SBOS561C: IQ 65 uA (-40..125 C)",
-            "board": "controller",
-            "mA": 0.065,
-            "path": "rtd_pan.low_window",
-            "ref": "U32"
-          },
-          {
-            "basis": "TLV3201AIDBVR: SBOS561C: IQ 65 uA (-40..125 C)",
-            "board": "controller",
-            "mA": 0.065,
-            "path": "rtd_pan.high_window",
-            "ref": "U33"
           },
           {
             "basis": "TLV3201AIDBVR: SBOS561C: IQ 65 uA (-40..125 C)",
@@ -1785,6 +1841,13 @@
             "ref": "U22"
           },
           {
+            "basis": "SN74LVC1G08DBVR: SCES217AA: ICC 10 uA",
+            "board": "controller",
+            "mA": 0.01,
+            "path": "rtd_pan.window_and",
+            "ref": "U34"
+          },
+          {
             "basis": "SN74LVC1G32DBVR: SCES219W: ICC 10 uA",
             "board": "controller",
             "mA": 0.01,
@@ -1820,6 +1883,13 @@
             "ref": "U25"
           },
           {
+            "basis": "SN74LVC1G08DBVR: SCES217AA: ICC 10 uA",
+            "board": "controller",
+            "mA": 0.01,
+            "path": "u_permit",
+            "ref": "U37"
+          },
+          {
             "basis": "SN74LVC1G14DBVR: SCES218AA: ICC 10 uA",
             "board": "controller",
             "mA": 0.01,
@@ -1846,13 +1916,6 @@
             "mA": 0.01,
             "path": "u_enc",
             "ref": "U17"
-          },
-          {
-            "basis": "SN74LVC1G08DBVR: SCES217AA: ICC 10 uA",
-            "board": "controller",
-            "mA": 0.01,
-            "path": "rtd_pan.window_and",
-            "ref": "U34"
           },
           {
             "basis": "SN74LVC1G32DBVR: SCES219W: ICC 10 uA",
@@ -1932,7 +1995,7 @@
             "ref": "D4"
           }
         ],
-        "total_mA": 584.7228745016213
+        "total_mA": 585.8275553526851
       }
     }
   }
