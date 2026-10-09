@@ -34,7 +34,7 @@ fn structured_rules_match_the_text_one_to_one() {
     let limits = parse_profile(TWO_LAYER_2OZ).unwrap();
     let list = rules(&limits);
     let text = kicad_rules(&limits).unwrap();
-    assert_eq!(list.len(), 9);
+    assert_eq!(list.len(), 10);
     assert_eq!(text.lines().count(), list.len() + 1);
     for r in &list {
         assert!(r.name.starts_with(RULE_PREFIX) && text.contains(&r.text), "{r:?}");
@@ -103,4 +103,20 @@ fn pad_and_inner_layer_rules_follow_the_general_ones() {
         "(rule \"zapote fab inner PTH hole to copper\" (layer inner) (condition \"A.Type == 'Pad' && \
          A.Pad_Type == 'Through-hole'\") (constraint hole_clearance (min 0.3mm)))"
     );
+}
+
+#[test]
+fn pad_to_silk_is_a_silk_clearance_rule_reported_as_silk_over_copper() {
+    // Measured on KiCad 10.0.4: a silk_clearance rule scoped to pads measures
+    // silk to pad and reports `silk_over_copper`; silk-to-silk stays with the
+    // board's own setup.
+    let list = rules(&parse_profile(TWO_LAYER_2OZ).unwrap());
+    let r = list.iter().find(|r| r.name == "zapote fab pad to silk").expect("rule");
+    assert_eq!(
+        r.text,
+        "(rule \"zapote fab pad to silk\" (condition \"A.Type == 'Pad' || B.Type == 'Pad'\") \
+         (constraint silk_clearance (min 0.15mm)))"
+    );
+    assert_eq!((r.constraint.as_str(), r.violation.as_str()), ("silk_clearance", "silk_over_copper"));
+    assert!(list.iter().filter(|r| r.name != "zapote fab pad to silk").all(|r| r.violation == r.constraint));
 }

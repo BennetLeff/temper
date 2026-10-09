@@ -29,9 +29,8 @@ const BOARD_COPY_SCRIPT: &str = include_str!("../../../tools/fab_board_copy.py")
 const CONTRACT: &str = "FAB.REPORT_CONTRACT";
 
 /// What KiCad's custom rules cannot express; listed in the evidence.
-const NOT_COVERED: [&str; 3] = [
-    "silkscreen graphic line width (only text strokes are checked)",
-    "pad to silkscreen",
+const NOT_COVERED: [&str; 2] = [
+    "silkscreen graphic line width (JLC scopes its legend line width to characters, which are checked)",
     "solder-mask bridges",
 ];
 
@@ -57,19 +56,19 @@ pub fn evaluate(rules: &[KicadRule], selftest: &DrcReport, board: &DrcReport) ->
     let mut gaps = Vec::new();
     let mut checked: BTreeSet<String> = [CONTRACT.to_string()].into();
     for rule in rules {
-        let id = format!("FAB.{}", rule.constraint);
+        let id = format!("FAB.{}", rule.violation);
         checked.insert(id.clone());
         let mut hits = 0;
         for v in board.violations.iter().filter(|v| attributed(&v.description, rules) == Some(rule)) {
             hits += 1;
-            if v.kind == rule.constraint {
+            if v.kind == rule.violation {
                 findings.push(native_reports::finding(v, &id));
             } else {
                 findings.push(Finding::fail(
                     CONTRACT,
                     format!(
                         "KiCad reported a {} violation for {} rule '{}'",
-                        v.kind, rule.constraint, rule.name
+                        v.kind, rule.violation, rule.name
                     ),
                     native_reports::finding(v, &id).object,
                 ));
@@ -84,10 +83,10 @@ pub fn evaluate(rules: &[KicadRule], selftest: &DrcReport, board: &DrcReport) ->
                  is at or below the self-test board's geometry; no result on this board counts",
                 rule.name
             ));
-        } else if board.ignored_checks.contains(&rule.constraint) {
+        } else if board.ignored_checks.contains(&rule.violation) {
             gaps.push(format!(
                 "the board's project ignores {} checks, so rule '{}' cannot report",
-                rule.constraint, rule.name
+                rule.violation, rule.name
             ));
         } else {
             findings.push(Finding::pass(&id, format!("0 violations of '{}'", rule.name), "board"));

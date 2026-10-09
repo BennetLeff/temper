@@ -86,3 +86,11 @@ fn profiles_carry_pad_and_inner_layer_limits() {
     assert_eq!(four.minimum_inner_pth_hole_to_copper_mm, Some(0.3));
     assert_eq!(four2.minimum_inner_pth_hole_to_copper_mm, Some(0.3));
 }
+
+#[test]
+fn profiles_carry_pad_to_silkscreen() {
+    for text in [TWO_LAYER_2OZ, FOUR_LAYER_1OZ, FOUR_LAYER_2OZ] {
+        let p = parse_profile(text).unwrap();
+        assert_eq!(p.minimum_pad_to_silk_mm, Some(0.15), "{}", p.name);
+    }
+}

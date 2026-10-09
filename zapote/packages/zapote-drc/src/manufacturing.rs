@@ -141,6 +141,8 @@ pub struct FabricationLimits {
     pub minimum_pad_to_track_mm: Option<f64>,
     #[serde(default)]
     pub minimum_inner_pth_hole_to_copper_mm: Option<f64>,
+    #[serde(default)]
+    pub minimum_pad_to_silk_mm: Option<f64>,
 }
 
 impl FabricationLimits {
@@ -163,6 +165,7 @@ impl FabricationLimits {
             self.minimum_smd_pad_to_pad_mm,
             self.minimum_pad_to_track_mm,
             self.minimum_inner_pth_hole_to_copper_mm,
+            self.minimum_pad_to_silk_mm,
         ]
         .into_iter()
         .flatten()

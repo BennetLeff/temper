@@ -6,7 +6,7 @@ KiCad (a malformed .kicad_dru is ignored silently). Four copper layers, so
 inner-layer rules are exercised too. Measured gaps: copper 0.01 mm (track
 pair, SMD pad pair, pad to track), via and PTH hole to copper 0.06 mm (PTH
 also on In1.Cu), NPTH hole to copper 0.01 mm, silk text 0.3 mm high and
-0.03 mm thick on both silk layers.
+0.03 mm thick on both silk layers, silk line 0.01 mm from an SMD pad.
 
 With --override-probe it instead builds the local-override probe: an SMD
 pad with a 0.05 mm local clearance 0.10 mm from another net's track. KiCad
@@ -120,6 +120,14 @@ for number, x, net in (("2", 10.0, a), ("3", 10.51, b)):
     smd.SetPosition(xy(x, 20))
     smd.SetNet(net)
     fp.Add(smd)
+# Silk line 0.12 mm wide, its edge 0.01 mm from SMD pad 2 (top edge y = 19.5).
+silk = pcbnew.PCB_SHAPE(board)
+silk.SetShape(pcbnew.SHAPE_T_SEGMENT)
+silk.SetLayer(pcbnew.F_SilkS)
+silk.SetStart(xy(9.6, 19.43))
+silk.SetEnd(xy(10.4, 19.43))
+silk.SetWidth(pcbnew.FromMM(0.12))
+board.Add(silk)
 # NPTH 1.0 mm; track edge 0.01 mm from the hole.
 npth = pcbnew.PAD(fp)
 npth.SetNumber("")

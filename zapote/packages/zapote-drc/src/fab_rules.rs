@@ -14,18 +14,20 @@ use crate::manufacturing::FabricationLimits;
 
 pub const RULE_PREFIX: &str = "zapote fab";
 
-/// One emitted rule. `constraint` is also the KiCad violation type it reports.
+/// One emitted rule: the KiCad constraint it sets and the violation type
+/// (also the check key) KiCad reports for it.
 #[derive(Clone, Debug, PartialEq)]
 pub struct KicadRule {
     pub name: String,
     pub constraint: String,
+    pub violation: String,
     pub text: String,
 }
 
 fn rule(name: &str, scope: &str, constraint: &str, min_mm: f64) -> KicadRule {
     let name = format!("{RULE_PREFIX} {name}");
     let text = format!("(rule \"{name}\"{scope} (constraint {constraint} (min {min_mm}mm)))");
-    KicadRule { name, constraint: constraint.into(), text }
+    KicadRule { name, constraint: constraint.into(), violation: constraint.into(), text }
 }
 
 /// The rules for the limits this pass applies, in `.kicad_dru` order.
@@ -77,6 +79,14 @@ pub fn rules(limits: &FabricationLimits) -> Vec<KicadRule> {
         if let Some(v) = limits.minimum_silk_line_width_mm {
             out.push(rule(&format!("silk text thickness{suffix}"), &scope, "text_thickness", v));
         }
+    }
+    // Silk to pad: a silk_clearance rule scoped to pads measures silkscreen to
+    // pad (the mask opening) and is reported as `silk_over_copper`; silk to
+    // silk stays with the board's own setup (measured on 10.0.4).
+    if let Some(v) = limits.minimum_pad_to_silk_mm {
+        let mut r = rule("pad to silk", " (condition \"A.Type == 'Pad' || B.Type == 'Pad'\")", "silk_clearance", v);
+        r.violation = "silk_over_copper".into();
+        out.push(r);
     }
     out
 }
