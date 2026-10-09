@@ -14,17 +14,17 @@
     {
       "unit": "current-sense",
       "source": "../current-sense/candidate/source-manifest.json",
-      "native": "../current-sense/evidence/stackup-fix/native-fixed.json",
+      "native": "../current-sense/evidence/silk-legend-2026-10-08/native.json",
       "board": "../current-sense/candidate/section.kicad_pcb",
       "schematic": "../current-sense/candidate/section.kicad_sch",
       "contract": null,
-      "composite": "../current-sense/evidence/acceptance-stackup-v2/input.json",
+      "composite": "../current-sense/evidence/silk-legend-2026-10-08/composite.json",
       "fab_profile": "../fab-profiles/jlcpcb-2layer-2oz.json"
     },
     {
       "unit": "thermal-sense",
       "source": "../thermal-sense/candidate/source-manifest.json",
-      "native": "../thermal-sense/evidence/native-final-revb.json",
+      "native": "../thermal-sense/evidence/silk-legend-2026-10-08/native.json",
       "board": "../thermal-sense/candidate/section.kicad_pcb",
       "schematic": "../thermal-sense/candidate/section.kicad_sch",
       "contract": "../thermal-sense/sensor-contract.json",
@@ -34,7 +34,7 @@
     {
       "unit": "interlock",
       "source": "../interlock/candidate/source-manifest.json",
-      "native": "../interlock/evidence/native-final.json",
+      "native": "../interlock/evidence/silk-legend-2026-10-08/native.json",
       "board": "../interlock/candidate/section.kicad_pcb",
       "schematic": "../interlock/candidate/section.kicad_sch",
       "contract": "../interlock/interface-contract.json",
@@ -44,7 +44,7 @@
     {
       "unit": "gate-drive",
       "source": "../gate-drive/candidate/source-manifest.json",
-      "native": "../gate-drive/evidence/native-09.json",
+      "native": "../gate-drive/evidence/silk-legend-2026-10-08/native.json",
       "board": "../gate-drive/candidate/section.kicad_pcb",
       "schematic": "../gate-drive/candidate/section.kicad_sch",
       "contract": null,
