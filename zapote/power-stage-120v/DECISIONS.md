@@ -377,3 +377,14 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
   - **Kelvin band:** 47.32–97.77 A.
   - **Task 04:** res_a 0.67 mΩ; sw_b within 2 %. B3 is unchanged.
   - **Open, firmware:** round 4's envelope tank peaks (47.25 A main grid, 47.73 A with tolerances) now sit at or just above the band's 47.32 A low corner. That corner needs every component at its worst-case limit at once, but the nuisance-trip margin is gone at the extreme corner. The firmware **tank-peak limit of about 45 A** (round 4, recommendation 3) is therefore required before 22 A operation, as is a bench measurement of the real trip threshold.
+
+**2026-10-09, enclosure pose of native-21 was a mirror image; corrected pose adopted (found by the enclosure session, R30 exact-solid check; verified here).**
+- **Problem:** board-local coordinates are KiCad's (x right, y down). The pose used from R4 through R30, world = (141 − x, 236 − y), flips x alone against a right-handed world. That is a reflection, and no real board can be mounted that way. The R4 fit results, the enclosure envelopes, the hole bosses and every world coordinate quoted for native-21 (e.g. "HOT edge X 140.4") describe that mirror image.
+- **Decision (power stage):** the board stays as laid out. ICs cannot be mirrored, and the FEM and every gate are tied to this copper. The enclosure adopts **pose (a): world = (x − 149, 236 − y, 26 + z)**, keeping the FET row and sink at the rear.
+  - The enclosure's interior mirrors about the board in R31: sink/duct at rear-left, J1 mains at the right, the SELV tongue / J4 at front-left, hole bosses at x − 149.
+  - Rotating 180° instead would put the sink at the front, so it is rejected.
+  - The controller's plan position and J4 mating are provisional until R31.
+- **Fit gate:** `validation-plan/enclosure-fit/board_in_enclosure.py` now takes `--pose translate|rot180|mirror-legacy`. The legacy pose remains the default only so stage ≤ 13 records reproduce; R31 checks run with `--pose translate --x0 -149 --y0 236`.
+- **Found in the same check, independent of the pose:**
+  - The TO-247 bodies hang to Z 11.8, 0.8 mm above the PE base (Z 11). Their far end is the exposed drain tab, which is HOT. **This blocks mains use.** The required fix is ≥ 8 mm air and creepage from tab metal to base metal: a base relief under the FET row and BR1, or the board raised by ≥ 7.2 mm, or as a last resort a reinforced ≥ 0.4 mm V-0 barrier with 8 mm edge creepage.
+  - The M11 tile face must sit at the TO-247 body's 5.0 mm nominal (4.83–5.21 mm), with the comb spring taking the tolerance. BR1's strip must be sized for its 4.8 mm maximum.
