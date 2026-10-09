@@ -154,3 +154,21 @@ J11 (1×8, 2.54 mm) carries 3V3, GND, TXD0, RXD0, EN, IO0, USB D−/D+ for flash
     - fan start at the PS1 low corner;
     - D-11 accuracy and ct_mon estimation.
 11. **Enclosure:** connector-versus-hole and height conflicts. See [ENCLOSURE-HANDOFF.md](ENCLOSURE-HANDOFF.md).
+
+## Layout inputs from the enclosure (R27, 2026-10-08)
+
+Binding when the controller PCB is laid out (source: output/temper-manufacturing-r27/design/r27/CONTROLLER-SPEC.md, "R27 answers").
+- **Mounting holes:**
+  - rear holes at world (−164, 80), (−75, 86) and (30, 80), moved by the enclosure to clear the cable landings;
+  - front holes unchanged at (−164, 18), (−65, 18) and (34, 18);
+  - nearest landings: pan RTD 12.0, fan 14.4, M12 11.0, coil NTC 15.1, sink NTC 12.8 mm.
+- **J4 (harness to native-21):**
+  - a **right-angle** Micro-Fit 3.0 2×8 header on the right edge, mating +X, near Y42;
+  - the header, mated plug and lead bend may occupy X38–63, Y32–52, Z ≤ 40;
+  - above native-21's tongue (X ≥ 50), the plug body stays above Z30.
+  - Part to be selected and checked against Molex's drawing; the schematic currently carries the vertical footprint.
+- **Wi-Fi:**
+  - the ESP32-S3-WROOM-1 sits at the board's front edge, X−80…10, antenna end facing front toward the glass lens window (X−89…19, ~108 × 38), with Espressif's antenna keep-out;
+  - fallback: WROOM-1U with an external antenna behind the lens bezel;
+  - range is unqualified (enclosure bench test E4).
+- **Fan:** from the controller's 12 V buck (power-stage D-18 fan clause superseded, commit 307d332af).
