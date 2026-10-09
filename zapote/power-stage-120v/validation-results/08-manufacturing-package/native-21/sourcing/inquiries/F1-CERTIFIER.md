@@ -140,3 +140,9 @@ UL 248-14 / CSA C22.2 No. 248.14 (Supplemental Fuses), current text [UNVERIFIED]
 - **The rated voltage on the nameplate:** 120 V only, or 120/127 V. This decides whether question 4 applies. FAB-NOTE.md's "+6 %" wording assumes 120 V only.
 - **The target mark and lab:** cULus/UL Solutions, ETL/Intertek or cCSAus/CSA. Also the product format, which decides UL 1026 vs UL 858.
 - **If the lab rejects the 125 V figure:** keep a fallback ready. The cheapest is to show available fault current ≤ 1.5 kA on a basis the lab accepts. Otherwise use a 25 A 6.3 × 32 fuse with ≥ 10 kA at 250 Vac (or at least the bounded current), or a current-limiting upstream fuse in a tested series combination. Check what the market offers before committing [UNVERIFIED].
+
+
+## Added 2026-10-08: two more questions for the same lab inquiry
+
+6. **Heatsink insulation grade (review M11).** The FET/bridge heatsink is PE-bonded (Class I). The controller's SELV return is also bonded to PE through R38, a single functional bond. Our provisional basis (D5-BASIS) requires the HOT↔PE barrier at the sink to stay *reinforced* with PE open. Is reinforced insulation required between HOT and the earthed sink, or does basic insulation plus protective earthing satisfy IEC 60335-1 / UL 60335 for this construction? The answer decides between standard per-device silicone pads (basic) and ceramic insulators (reinforced).
+7. **Tank working voltage (review M6).** The resonant tank is line-modulated HF (≈ 31–55 kHz carrier under a 50/60 Hz envelope, ≤ 667 V pk at the coil terminals). For creepage per IEC 60335-1 Table 18 / IEC 60664-4, which RMS convention applies: the envelope-RMS working voltage (≤ 333 V rms), or carrier-crest RMS (≈ 450 V rms)? This sets the board's tank creepage rule: 5.0 mm or ~5.7 mm.
