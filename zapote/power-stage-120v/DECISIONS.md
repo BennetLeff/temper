@@ -236,3 +236,17 @@ The rear band (240 × 150) was rejected: the sink cannot be placed without cross
 - **If 127 V is on the nameplate:** either the lab accepts a branch-impedance fault basis, or F1 moves to a fuse with a ≥ 5 kA rating at 250 Vac (fallbacks listed in F1-CERTIFIER.md).
 
 Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JLC names no laminate for JLC041622-7628. Every candidate laminate with a public CTI is PLC 3 (175–249 V), which meets CTI ≥ 175 with no margin, so the written JLC confirmation is still required.
+
+**2026-10-08, coil-stud spacing (review M6), owner decision** (approved "if that's what a senior PCB design engineer would do", on the recommendation in `validation-results/08-manufacturing-package/native-21/owner-items/m6m10/`): J2/J5 stay at **15.0 mm**.
+- **Basis:** the J2–J5 insulation is functional. IEC 60335-1:2020 29.2.4 / Table 18 (PD3, IIIa) needs 4.2 mm creepage at the estimated ≤ 333 V rms coil-voltage bound (22 A ceiling, f ≥ 31.3 kHz), and the 5.0 mm tank rule covers ≤ 400 V rms. Clearance needs ≥ 1.3 mm (Table 16 PD3 + 0.5 mm).
+- **Why not move J5:** the board's own minimum for this voltage is 5.0 mm (SW_A↔RES_A along 74 mm, and RES_A↔COIL_FEED at the studs), so moving J5 cannot raise it.
+- **Why not bare lugs:** with bare lugs even 30 mm centres fail the "most unfavourable position" rule, because the lugs can be turned into contact.
+- **Requirement:** insulated M4 ring terminals on J2/J5 (bare ring ≤ 10 mm, ring-to-ring ≥ 5.0 mm at any rotation). ASSEMBLY.md's 30 mm target is withdrawn.
+- **Conditions:** the lug part (candidate TE 2-34853-1, 105 °C vinyl) is confirmed against the Litz cross-section and the lead temperature measured at the stud. The tank-voltage RMS convention goes to the certification lab.
+- **Reverses if** the lab rates the line-modulated HF working voltage as carrier-crest RMS (5.65 mm at 636 V pk). That changes the board-wide tank rule to ≥ 5.7 mm (a re-layout of the SW_A/RES_A lanes), not just the studs. It also reverses if IEC 60664-4 Table 2 exceeds 5.0 mm.
+
+**2026-10-08, native-21 outline and J4 position (review M10; amends D-36 / RELAYOUT L11, L15), owner decision** (same approval): the outline is **290 × 140 plus a 91 × 50 SELV tongue** (board x 0–91, y 140–190; R4/R25 world x 50–141, y 46–96).
+- **J4 stays on the tongue's front edge.** The J4 lead to the front controller is 74 mm, lands at both ends, and stays in front of the Nomex SELV/HOT barrier (R25 route landings 50/50, all-pairs 0 unresolved). A rear-band J4 would need a ≥ 140 mm SELV lead across the HOT core (estimate).
+- **L15's "rear"** applies to the enclosure's external connectors and the coil leads, not to the internal SELV harness.
+- **Fit:** `board_in_enclosure.py` (L modelled) gives 417 bodies, 0 hits.
+- **Reverses if** the controller moves rearward or the encoder/knob stack moves over the tongue.

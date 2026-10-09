@@ -1,7 +1,7 @@
 # Native-21 floorplan (layout stage 1, Claude, 2026-10-06)
 
 Board **290 × 190 mm L-shaped outline** (stage 1 planned 290 × 140; the tongue below y 140 grew
-during routing; owner confirmation open, REVIEW-TRIAGE.md M10), 4 layers, 2 oz all layers (JLC041622-7628). In the R4 enclosure it
+during routing; recorded as the outline by owner decision 2026-10-08, review M10), 4 layers, 2 oz all layers (JLC041622-7628). In the R4 enclosure it
 sits rotated 180°: the board's **top edge (KiCad y = 0) faces the enclosure
 rear**, and its left edge (KiCad x = 0) is at world x = 141 (right). Board
 frame below is KiCad: x right, y down, mm. World = (141 − x, 236 − y).
@@ -20,14 +20,14 @@ C21–C23 47 × 28, T1 24 × 33, RV1 24 × 24, F1 38 × 9, C1/C2 27 × 12.
 | **Sink row** | 0 – 106 | 0 – 8 | Q5, Q6, Q3, Q2, then **BR1** (106 mm), tabs at y ≈ 1.6, flush with the edge | Sink span world x 35…141 (L13). BR1 moved from native-20's far left to after Q2, so airflow (inlet world right = board left) passes the FETs before BR1 (D-18 order), without mirroring any footprint |
 | **Power core** | 0 – 115 | 8 – 62 | native-20 core rows kept: gate R/hold-off under each gate pin, snubbers, R5 between the low-side sources, C38–C41 HF row, U1/U2 straddling the SELV island edge, F6 network (Cgs, PMEG + 1 Ω) at each gate, bias reservoirs (2×10 µF + 2×1 µF + 4×100 nF + 220 µF/0.68 Ω) **at each driver's VSS pins** | Gate loops per ECO L1. **Commutation loops measured, not carried over** (FEM 2026-10-08, FINDINGS M11): the film row sits 6 mm lower for F6, so leg A's parallel loop rises 24.9 → 37.6 nH at the reference, while leg B's falls 29.1 → 24.5 nH (C41 pulled in). Both legs pass all 252 F6 cases on the provisional matrices |
 | **HS bias A / B** | 0 – 115 | 62 – 95 | SN6507-fed transformers T2/T3, rectifiers, LC filter, TPS7A47 split + TLVH431, rail monitor (LM339, TL431, ISO7710 straddling the island edge) per high-side domain, each a compact island referenced to its own switch node | HS domains swing with sw_a/sw_b: keep each island small, beside its driver, with functional creepage to its neighbours |
-| **SELV island** | 30 – 160 | 62 – 125 | J4 (harness exits the rear via a short pigtail), U9/U4 SELV halves, CT comparators U10–U13, DIS ORs, BIAS_BAD filter, LINE_ZC buffer, PS1 secondary side | One island with an 8 mm moat (D5); every crossing part (U1, U2, U4, U9, U32–U34, U36, T1, PS1) straddles its edge |
+| **SELV island** | 30 – 160 | 62 – 125 | J4 on the tongue's front edge (harness exits forward to the front controller), U9/U4 SELV halves, CT comparators U10–U13, DIS ORs, BIAS_BAD filter, LINE_ZC buffer, PS1 secondary side | One island with an 8 mm moat (D5); every crossing part (U1, U2, U4, U9, U32–U34, U36, T1, PS1) straddles its edge |
 | **HOT protection** | 106 – 160 | 8 – 60 | U3 HOT5 LDO, U5/U6/U7 OCP/OVP, U8 NAND, U14/U15 HOT5 monitor, R30–R37 dividers, on OCP_KELVIN_P with a **star return to R5.2** (L4) | Kelvin budget; short lead from R5 |
 | **Mains / rectifier** | 106 – 290 | 0 – 60 | J1 at the top edge (rear), F1, RV1, C1/C2 X2, L1, C3/C4 Y1, link terminals J7–J10, C5 bulk, D3 TVS; BR1 adjacent at the row end | Mains enters at the rear (owner, D-36 L15) and flows L1 → BR1 → bus |
 | **Tank** | 160 – 290 | 60 – 140 | T1 CT, C21–C23 resonant bank, bleed string R22–R25, C6 bulk, coil terminals J2/J5 at the top edge | Coil leads exit rearward (L15) |
 | **Supplies** | 160 – 290 | 95 – 140 | PS1 (SELV), PS2 IRM-20-24 (TCO_L), J3 TCO loop, J6 PE, SN6507 driver + snubbers | AC-DC modules away from the gate loops; PS1 straddles the SELV moat |
 
-Every connector that leaves the board (J1, J2, J5, J3, J6, J4 pigtail) is on
-or near the top edge, outside the sink span x 0–106 (L15).
+Off-board connectors: J1 and J3 on the rear edge; J2/J5 under the coil carrier; J4 on the tongue's front
+edge (M10); J6 on the front edge of the main body. The mains and coil connectors stay outside the sink span x 0–106 (L15).
 
 ## Open choices settled here
 

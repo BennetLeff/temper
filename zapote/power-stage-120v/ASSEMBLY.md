@@ -49,12 +49,14 @@ do not call a screw connection vibration-proof before retention testing.
 The coil lead termination must match the actual litz/pigtail conductor and
 crimp process; the bench-lead lug is not automatically suitable for it.
 
-The bare REDCUBE has no manufacturer voltage rating. Use at least 30 mm
-centers between the coil studs as an initial placement target (about 20 mm
-between 10 mm lug envelopes), and check actual exposed metal, screw heads,
-wire bend envelopes and both PCB faces. The approximately 540 V peak nominal
-coil voltage is not a maximum fault bound. High-frequency creepage and
-clearance remain part of the insulation review. Keep every PE branch pad,
+J2 (COIL_FEED) and J5 (RES_A) are at 15.0 mm centres (decision 2026-10-08, review M6).
+- **Insulation basis:** their insulation is functional (IEC 60335-1:2020 29.2.4, Table 18, PD3, group IIIa). The coil-terminal working voltage is ≤ 333 V rms (an estimated bound at the 22 A tank ceiling; ≤ 667 V pk, 31–55 kHz), so creepage needs ≥ 4.2 mm, covered by the 5.0 mm tank rule (≤ 400 V rms). Clearance needs ≥ 1.3 mm (Table 16 PD3 + 0.5 mm for assembled parts), pending the IEC 60664-4 check.
+- **Board gap:** the copper gap is 5.0 mm.
+- **Terminations:** coil leads end in **insulated M4 ring terminals**, insulated over the barrel and neck up to the ring.
+  - The bare ring is ≤ 10.0 mm wide, with a DIN 125 M4 washer (9 mm) and a pan-head M4 screw (head ≤ 8 mm). This keeps exposed metal ≥ 5.0 mm apart at any lug rotation (29.1/29.2 "most unfavourable position").
+  - **Bare ring lugs are not permitted on J2/J5:** they can be turned into contact at any pitch below about 37 mm.
+  - Dress both lugs to point +x (board frame), clear of each other.
+  - The lug's insulation temperature rating must exceed the lead temperature measured at the stud. The lug part, for example TE PLASTI-GRIP 2-34853-1 (vinyl, 105 °C), is confirmed against that measurement and the Litz cross-section with the coil supplier. A flag lug with dual-wall ≥ 150 °C heat-shrink to the ring is the alternative. Keep every PE branch pad,
 lug, screw and trace at least 8 mm from HOT under D5's provisional basis.
 
 ## Protective earth
