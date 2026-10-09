@@ -277,3 +277,16 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
 - **Budget:** the controller's budget, with every part at datasheet maximum, puts PS1 at 12.4 W of 21 W. J4.1 carries well under the Micro-Fit 3.0 contact rating.
 - **Input estimate:** the 1.3 A auxiliary allowance in the input-current estimate (both IRM-20 at full load) still covers it.
 - **Reverses if** a second fan returns or PS1's load exceeds ~80 % of its rating at 50 °C internal ambient.
+
+**2026-10-08, M11 insulator resolved: shared AlN tiles cut from stock plate, decided under the owner's delegation** (sourcing study `validation-results/08-manufacturing-package/native-21/owner-items/m11-sourcing/`). Per-device catalogue insulators were the preferred option, but they do not fit.
+- **Pitch:** the FETs sit on an 18 mm pitch with 2 mm body gaps, so a per-device insulator with the 6.5 mm overhang (≈ 29 × 34 mm) is physically impossible.
+- **Catalogue parts:** the stocked TO-247 ceramics are alumina, ≤ 25 mm tall (the stack needs z ≥ 32). There is no stocked AlN part and nothing for the GBJ.
+- **Thermal:** 1 mm alumina reaches 0.82 °C/W conservatively, against the 0.7 limit.
+
+**Decision:**
+- **Tiles:** the two shared 2.0 mm AlN tiles (A: Q5+Q6; B: Q3+Q2+BR1), **cut from stock lapped 2.032 mm AlN plate** (Valley Design AlN-110, or Almath SUB1141142ALN 114 × 114 × 2 mm; 3 B + 2 A tiles per plate, 4 plates for 7 stacks). The 2-tile split is kept, because a 3-tile split's groove would take 1.1 mm of contact under Q2's tab.
+- **Compound:** Electrolube HTCP20S (2.5 W/mK, 42 kV/mm, 10¹⁴ Ω·cm, metal-oxide filler) replaces the TC-5622 candidate, which publishes no dielectric data.
+- **Gap pad:** GAP PAD HC 3.0 sheet GPHC3.0-0.020-02-0816, cut 32 × 22 mm.
+- **Clamp and strip:** a custom 1.4310 comb spring to the §5.2 spec, and G-10 strips (CTI/RTI to be confirmed by UL card).
+- **Estimate:** ≈ $350 per stack, ≈ $2.5k for 7.
+- **Longest lead:** the AlN tiles (RFQ, cut and lap, 3–6 weeks); the RFQ text is ready (§1.2). The tiles gate powered tests on the real sink, not the PCB order.
