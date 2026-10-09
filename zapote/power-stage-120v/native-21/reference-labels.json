@@ -526,7 +526,7 @@
   "C150": {
    "at": [
     107.285,
-    132.859
+    133.109
    ],
    "layer": "F.SilkS",
    "size": 1.0,
@@ -1497,91 +1497,91 @@
   },
   "FID1": {
    "at": [
-    7.356,
-    38.412
+    4,
+    36
    ],
-   "layer": "F.SilkS",
+   "layer": "F.Fab",
    "size": 1.0,
    "thickness": 0.15
   },
   "FID2": {
    "at": [
-    282.495,
-    130.0
+    278,
+    128
    ],
-   "layer": "F.SilkS",
+   "layer": "F.Fab",
    "size": 1.0,
    "thickness": 0.15
   },
   "FID3": {
    "at": [
-    6.495,
-    184.0
+    6,
+    186
    ],
-   "layer": "F.SilkS",
+   "layer": "F.Fab",
    "size": 1.0,
    "thickness": 0.15
   },
   "H1": {
    "at": [
-    287.967,
-    137.968
+    285.0,
+    135.0
    ],
-   "layer": "F.SilkS",
+   "layer": "F.Fab",
    "size": 1.0,
    "thickness": 0.15
   },
   "H2": {
    "at": [
-    10.195,
-    180.0
+    6,
+    180
    ],
-   "layer": "F.SilkS",
+   "layer": "F.Fab",
    "size": 1.0,
    "thickness": 0.15
   },
   "H3": {
    "at": [
-    90.195,
-    180.0
+    86,
+    180
    ],
-   "layer": "F.SilkS",
+   "layer": "F.Fab",
    "size": 1.0,
    "thickness": 0.15
   },
   "H4": {
    "at": [
-    28.195,
-    74.0
+    24,
+    74
    ],
-   "layer": "F.SilkS",
+   "layer": "F.Fab",
    "size": 1.0,
    "thickness": 0.15
   },
   "H5": {
    "at": [
-    92.195,
-    100.0
+    88,
+    100
    ],
-   "layer": "F.SilkS",
+   "layer": "F.Fab",
    "size": 1.0,
    "thickness": 0.15
   },
   "H6": {
    "at": [
-    132.195,
-    54.0
+    128,
+    54
    ],
-   "layer": "F.SilkS",
+   "layer": "F.Fab",
    "size": 1.0,
    "thickness": 0.15
   },
   "H7": {
    "at": [
-    198.195,
-    130.0
+    194,
+    130
    ],
-   "layer": "F.SilkS",
+   "layer": "F.Fab",
    "size": 1.0,
    "thickness": 0.15
   },
@@ -2982,7 +2982,7 @@
   },
   "TP13": {
    "at": [
-    58.633,
+    54.983,
     129.962
    ],
    "layer": "F.Fab",
@@ -3010,7 +3010,7 @@
   "TP16": {
    "at": [
     56.155,
-    131.175
+    132.175
    ],
    "layer": "F.Fab",
    "size": 1.0,
@@ -3171,7 +3171,7 @@
   },
   "TP32": {
    "at": [
-    64.394,
+    60.744,
     130.287
    ],
    "layer": "F.Fab",
@@ -3234,10 +3234,10 @@
   },
   "TP6": {
    "at": [
-    113.934,
-    63.577
+    115.889,
+    63.835
    ],
-   "layer": "F.SilkS",
+   "layer": "F.Fab",
    "size": 1.0,
    "thickness": 0.15
   },

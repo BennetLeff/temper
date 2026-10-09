@@ -204,7 +204,13 @@ run, and that count is 0. Their inductance effect belongs to the FEM rerun on th
   - C150 (VDD2, SELV) sits 4.9 mm from pin 8.
   - C149 (VDD1, HOT) went to the nearest free 0805 spot, 13.8 mm by copper with 2 vias; C28's 100 nF stays the HF cap at 7.3 mm.
   - Board `ef993141…`: every gate 0 / PASS.
+- **Stage 11 (2026-10-08):** the closure re-review's minor items.
+  - AMC1311 VDD2 100 nF (C29) placed before its 1 µF, back at the pin: 2.40 mm, no vias.
+  - Hole and fiducial designators on F.Fab.
+  - Silk text placement uses the real stroke width: silk warnings 13 → 3.
+  - Board `e85a4c82…`: every gate 0 / PASS.
 - **Open items:**
+  - **U26 spreading plane (watch):** In1 n_ls within 12 mm of U26 fell 181 → 162 mm² over stages 8–11. IR-check at first power-up.
   - **Board fixings (stage 8 positions, frozen):** H1 metal-capable, H2-H7 nylon only (H4-H6 need nylon standoffs >= 10 mm, HOT copper near the hole wall); the enclosure must match them
     (verification/D5-AUDIT.md). Bring-up test pads and fiducials: BRINGUP-PROBES.md.
   - **Via-in-pad (stage 8 count):** 77 drills fully inside SMD pads and 64 overlapping a pad edge, all POFV. The stage-5 note follows: **44 vias** remained mostly inside SMD pads (the straight-stub dogbone found no spot within 1.3 mm;

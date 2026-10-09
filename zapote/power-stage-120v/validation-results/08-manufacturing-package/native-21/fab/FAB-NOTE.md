@@ -1,11 +1,11 @@
 # Fabrication note: power-stage-120v native-21 (CANDIDATE, not released)
 
-Board: native-21 stage 10 (the independent-review fixes and their closure-review rework, `../REVIEW-TRIAGE.md`), rebuilt from
+Board: native-21 stage 11 (the independent-review fixes and their closure-review rework, `../REVIEW-TRIAGE.md`), rebuilt from
 `native-21/layout/copper.json` by `sh native-21/layout/incr_iter.sh native-21/layout/copper.json - OUTDIR`;
 SHA-256
-`ef993141572fa93ad593c1d0d7fb07424c6e90af78b8bb277e57a48e1887b6df`.
+`e85a4c829ccfade2df791d7890856fc6ca2a86a9df3fbe8cc5ed17ea5fb798ac`.
 Gerbers: `native-21-gerbers.zip`, SHA-256
-`a0f8fa40af9d0c142dd6c8714d763c31b09ecc694351074e54139d2f49319eb2`.
+`abd1e10025fdc1a15fb552436169a28331a64942164dac0d282e7acb90f73f21`.
 
 **This package isn't released for ordering.** These gates are still open:
 - insulation and thermal qualification;
@@ -25,8 +25,8 @@ Ordering is a purchase and needs the owner.
 | Solder mask / silk | Green / white |
 | Impedance control | None |
 | Order number | **Remove** (JLC's "remove order number" option); the silk carries the board ID instead |
-| **Via covering** | **Epoxy-filled and capped (POFV) for all 766 × 0.3 mm vias, no exceptions.** 79 sit fully inside SMD pads and 62 more overlap a pad edge, including the R5 shunt current-pad arrays and the exposed-pad thermal fields (U26–U28 3 × 3, U35 2 × 2). The ten 1.6/0.8 current vias stay tented (JLC fills holes ≤ 0.5 mm only). The KiCad file says `filling/capping no`; this note is the requirement. Select "Confirm production files" |
-| Drills | 888 plated (776 vias, 112 component holes), 15 non-plated (8 connector holes, 7 M3 fixings) |
+| **Via covering** | **Epoxy-filled and capped (POFV) for all 767 × 0.3 mm vias, no exceptions.** 79 sit fully inside SMD pads and 63 more overlap a pad edge, including the R5 shunt current-pad arrays and the exposed-pad thermal fields (U26–U28 3 × 3, U35 2 × 2). The ten 1.6/0.8 current vias stay tented (JLC fills holes ≤ 0.5 mm only). The KiCad file says `filling/capping no`; this note is the requirement. Select "Confirm production files" |
+| Drills | 889 plated (777 vias, 112 component holes), 15 non-plated (8 connector holes, 7 M3 fixings) |
 | Board-only parts | 36 bring-up test pads (bare copper), 3 fiducials (1 mm, 3 mm mask opening), 7 M3 holes at the positions the enclosure adopted; none in BOM/CPL. **H2–H7: the whole fixing chain is insulating** (nylon screw, washer and standoff; no metal screw, nut or insert within 10 mm of the board), with outer copper clear under the 7 mm washer. H1 may take metal hardware (native-21/BRINGUP-PROBES.md) |
 
 JLC rules (`tools/jlc_dfm_check.py`, capabilities page re-read verbatim 2026-10-08):
@@ -34,7 +34,7 @@ JLC rules (`tools/jlc_dfm_check.py`, capabilities page re-read verbatim 2026-10-
 - Via diameter ≥ hole + 0.1 mm; our floor is a 0.15 mm ring.
 - Track/space at 2 oz multilayer: JLC allows 0.15/0.15 mm. Our floor is 0.2/0.2 mm, and the tightest gap is U35's 0.20 mm pad-to-pad.
 - Via drill ≥ 0.15 mm.
-- Result: **PASS**. 776 vias, 112 plated pads, minimum track 0.2 mm, 0 failures (`../jlc-dfm.json`).
+- Result: **PASS**. 777 vias, 112 plated pads, minimum track 0.2 mm, 0 failures (`../jlc-dfm.json`).
 
 Assembly:
 - **LCSC numbers:** 88 of 95 source lines map to a checked LCSC part (82 exact, 5 changed or added after the survey, 1 accepted substitute; `../sourcing/`). Seven are consigned or hand-assembled: F1 fuse, C5/C6, U1/U2, T1, J3, R34, T2/T3. Check stock again before ordering.
@@ -42,13 +42,14 @@ Assembly:
   - F1-CLIP (2 × Littelfuse 01220088Z, 30 A), soldered;
   - the F1 cartridge, inserted after cleaning;
   - J3 (JST B2P3-VH, 7.92 mm pitch, unshrouded).
+- **First-article inspection (closure review S10-3):** the 0.3 mm driver output necks run under the 0805 VDD–VSS stacks with 0.30 mm to the pads. Inspect for solder bridges under C10/C145/C11, C8/C146, C17/C147/C18 and C15/C148. IR-check U26 (TPS7A4700) at first power-up: its In1 n_ls spreading plane has thinned over stages 8–11 (DECISIONS stage 11).
 - **Through-hole reflow:** the REDCUBE studs (J2, J5, J7–J10) are THR parts, soldered by reflow (paste in hole), not wave. Low-current THT pads in the 2 oz pours have 0.5 mm × 4 thermal spokes (review M3). Power pins stay solid: hand rework of them only on a bottom-preheated board (≥ 100 °C).
 - Check each CPL rotation in JLCPCB's preview; centroids are pad centres (review M9).
-- `assembly-drawing.pdf`: F.Fab (all designators, including the 114 with no clear silk spot), silk and outline, scaled to A4.
+- `assembly-drawing.pdf`: F.Fab (all designators, including the 115 with no clear silk spot (hole and fiducial designators are there by design)), silk and outline, scaled to A4.
 
 Deviations and notes:
 - Plated through-hole pads have lands on both outer layers. Unconnected inner rings are removed on purpose.
 - Accepted DRC warnings, against 0 errors and 0 unconnected:
-  - 11 short dangling stubs (≤ 1.1 mm);
-  - 20 silk-over-copper, 9 silk-overlap and 4 silk-to-edge;
+  - 9 short dangling stubs (≤ 1.1 mm);
+  - 20 silk-over-copper, 1 silk overlap (Q2's designator on the BR1 outline) and 2 silk-to-edge (PS1/PS2 outlines);
   - 199 `lib_footprint_issues`, from the project's unconfigured stock-library table.

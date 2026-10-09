@@ -37,12 +37,12 @@ differential or isolated probes (D-8 equipment table), never a grounded scope gr
 
 | Net | Probe at |
 | --- | --- |
-| leg_b-out_l | component pad R20.1 / R58.2 / U2.10 (no legal test-pad spot) |
-| leg_a-out_h | component pad R53.2 / R10.1 / U1.15 (no legal test-pad spot) |
-| leg_b-out_h | component pad R57.2 / R18.1 / U2.15 (no legal test-pad spot) |
+| leg_b-out_l | component pad R58.2 / U2.10 / R20.1 (no legal test-pad spot) |
+| leg_a-out_h | component pad R53.2 / U1.15 / R10.1 (no legal test-pad spot) |
+| leg_b-out_h | component pad R57.2 / U2.15 / R18.1 (no legal test-pad spot) |
 | pwm_lb | J4.8 (bottom), ground J4.2 / J4.4 / J4.15 |
-| leg_a-dis | component pad U22.1 / Q1.3 / R8.1 (no legal test-pad spot) |
-| leg_b-dis | component pad U23.1 / Q4.3 / R16.1 (no legal test-pad spot) |
+| leg_a-dis | component pad Q1.3 / U22.1 / R8.1 (no legal test-pad spot) |
+| leg_b-dis | component pad Q4.3 / U23.1 / R16.1 (no legal test-pad spot) |
 | line_zc | J4.16 (bottom), ground J4.2 / J4.4 / J4.15 |
 | ct_zc | J4.13 (bottom), ground J4.2 / J4.4 / J4.15 |
 

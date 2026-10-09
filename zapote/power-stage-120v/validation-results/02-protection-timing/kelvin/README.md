@@ -66,3 +66,5 @@ Files: [plane-native21.json](plane-native21.json), [budget-native21.json](budget
 **Stage 9** (driver decoupling stacks, board `e9d1cc4f…`, export `native-21/verification/native21s9-all-copper.json.gz`; tag `native21s9`): R35.2 sits **161.89 mΩ** above R5.2, and the band is **47.52–97.98 A**, which meets 44 A. Files: [plane-native21s9.json](plane-native21s9.json), [budget-native21s9.json](budget-native21s9.json).
 
 **Stage 10** (AMC1311 1 µF supply caps, board `ef993141…`, export `native-21/verification/native21s10-all-copper.json.gz`; tag `native21s10`). C149 joins ocp_kelvin_p beside C28 (AMC1311 GND1); it carries no DC. R35.2 is unchanged at **161.89 mΩ**, and the band is **47.52–97.98 A**. Files: [plane-native21s10.json](plane-native21s10.json), [budget-native21s10.json](budget-native21s10.json).
+
+**Stage 11** (C29 placement order, silk; board `e85a4c82…`, export `native-21/verification/native21s11-all-copper.json.gz`; tag `native21s11`): R35.2 sits **161.72 mΩ** above R5.2, and the band is **47.52–97.98 A**. Files: [plane-native21s11.json](plane-native21s11.json), [budget-native21s11.json](budget-native21s11.json).

@@ -60,3 +60,20 @@ Board `d4468ffd` was re-reviewed independently. It confirmed B2, M7, M9 and M12 
 | N3 | **Fixed.** Dead leg_ret stub removed; 9 dangling-track warnings remain, all ≤ 3 mm |
 | N5 | **Fixed.** The board and position file now carry MDA-25-R |
 | N6 | **Open (method).** The H4 wall-to-HOT distance is 0.55 mm (d5_audit) vs 1.20 mm (reviewer); both are under 8 mm and covered by the insulating chain |
+
+## Re-review of stage 10 (`REVIEW-STAGE10.md`) and stage 11
+
+The independent reviewer re-measured board `ef993141` against stages 7 and 8.
+- **No new BLOCKER or MAJOR.**
+- B1, N1, N3 and N5 are **closed**, and M4 is closed with a residual hardware-error risk.
+- The +2 nH gate-loop bound is **sound**: the neck rise is 0.53–0.92 nH by the reviewer's own estimate.
+- **Reviewer correction:** the y = 40 leg_ret In1 run is live; only its duplicate segment was dead. Stage 9 removed just that.
+
+Minor items, answered in stage 11:
+
+| Id | Finding | Stage 11 |
+| --- | --- | --- |
+| M1 / S10-1 | Moving C29 lengthened the AMC1311 VDD2 100 nF loop from 1.8 to 3.85 mm. C149's 1 µF loop is long (~27 mm, 4 vias) | Placement order fixed: the 100 nF goes first and is back at the pin. C149 stays a recorded compromise (no closer free spot on U4's HOT side) |
+| N2 | NYLON per hole only on F.Fab; board-ID text breaks silk-to-edge; hole designators overlap their washer rings | Hole and fiducial designators on F.Fab (the rings and the H2–H7 legend mark the holes on silk); text placement uses the real stroke-font width and a 1.5 mm edge margin |
+| S10-2 | BRINGUP-PROBES.md stale against the stage-10 plan | Regenerated after the re-plan |
+| S10-3 | 0.3 mm output necks run under the 0805 bodies (0.30 mm to the pads) | First-article inspection item: check for solder bridges under C10/C145/C11, C8/C146, C17/C147/C18, C15/C148 |

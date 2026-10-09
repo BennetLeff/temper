@@ -25,6 +25,12 @@ if sys.argv[1] == "--fix-labels":
         e = lab["references"].get(t["ref"])
         if e is not None and t.get("side") == "B":
             e.update(at=[round(t["at"][0], 3), round(t["at"][1], 3)], layer="F.Fab")
+    # hole and fiducial designators on the assembly drawing: on silk they collide with the washer rings
+    # (the label tool does not see board-only graphics); the rings and the H2-Hn legend mark the holes
+    for x in spec["fiducials"] + spec["mounting_holes"]:
+        e = lab["references"].get(x["ref"])
+        if e is not None:
+            e.update(at=[round(x["at"][0], 3), round(x["at"][1], 3)], layer="F.Fab")
     labels_path.write_text(json.dumps(lab, indent=1) + "\n")
     sys.exit(0)
 if sys.argv[1] == "--unmirror":

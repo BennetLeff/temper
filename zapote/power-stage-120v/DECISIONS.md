@@ -223,3 +223,10 @@ The rear band (240 × 150) was rejected: the sink cannot be placed without cross
 - **C149** sits 13.8 mm through 2 vias: there is no closer free 0805 spot on U4's HOT side, and C28's 100 nF (7.3 mm) stays the HF cap. Accepted for a 5 V, ~6 mA supply.
 - **Audit:** C149.2 joins the audited ocp_kelvin_p membership (`audit.rs`). It carries no DC, and the Kelvin budget is unchanged (161.89 mΩ, 47.52–97.98 A).
 - **Board `ef993141…`:** DRC 0 / 0 / parity 0, barrier gates 0, DFM PASS, Gerber review 888/888, D5 PASS, collisions 0, R4 0 hits, source verify PASS (357), audit 74/74.
+
+**2026-10-08, stage 11: closure re-review minors, decided under the owner's delegation:** the stage-10 re-review (`REVIEW-STAGE10.md`) found no BLOCKER or MAJOR, and confirmed B1, N1 and the +2 nH gate-loop bound.
+- **S10-1:** adding C150 before C29 in placement had pushed the AMC1311 VDD2 100 nF off its pin. The order is fixed: C29 is back at 2.40 mm with no vias.
+- **N2:** hole and fiducial designators are on F.Fab. They collided with the washer rings, and the rings plus the H2–H7 legend mark the holes. The silk text planner now uses the real stroke-font width and a 1.5 mm edge margin. Silk warnings fell 13 → 3; the remaining three are the PS1/PS2 outlines and Q2 on BR1's box.
+- **S10-2:** the probe map is regenerated.
+- **Watch item:** re-routes over stages 8–11 thinned U26's In1 n_ls spreading plane, measured within 12 mm: 181 → 162 mm² (stage 7: 154). B3's grid-sensitive pad cell drifted from 162 to 178 °C. Not acted on: U26 is ~0.9 W with a datasheet θJA of ~35 °C/W. IR-check at first power-up (FAB-NOTE first-article list).
+- **Board `e85a4c82…`:** DRC 0 / 0 / parity 0, barrier gates 0, DFM PASS, Gerber review 889/889, D5 PASS, Kelvin 47.52–97.98 A, collisions 0, R4 0 hits.

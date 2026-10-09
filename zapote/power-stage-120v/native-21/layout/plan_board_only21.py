@@ -270,13 +270,13 @@ taken = [b for _, b in court] + [Point(h["at"]).buffer(4.0) for h in holes] + \
 
 
 def text_spot(lines, h, target, region=(2, 2, 288, 188)):
-    w = max(len(t) for t in lines) * h * 0.75 + 1.0
+    w = max(len(t) for t in lines) * h * 1.0 + 1.0     # KiCad stroke font: ~1 x size per glyph incl. spacing
     hh = len(lines) * h * 1.5 + 1.0
     best = None
     for i in range(int(region[0]), int(region[2]), 1):
         for j in range(int(region[1]), int(region[3]), 1):
             bx = box(i - w / 2, j - hh / 2, i + w / 2, j + hh / 2)
-            if not outline.buffer(-1.0).contains(bx) or any(bx.buffer(0.5).intersects(q) for q in taken):
+            if not outline.buffer(-1.5).contains(bx) or any(bx.buffer(0.5).intersects(q) for q in taken):
                 continue
             dd = math.dist((i, j), target)
             if best is None or dd < best[0]:

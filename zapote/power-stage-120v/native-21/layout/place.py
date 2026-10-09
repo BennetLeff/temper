@@ -299,8 +299,8 @@ for leg, dx in (("leg_a", 0.0), ("leg_b", -47.0)):
 DECOUPLE = []
 DECOUPLE += [("c_vs1", 106.6, 113.4),                   # AMC1311 U4 VDD1 (pin 1, 105.9 / 115.7)
              ("c_vs1_1u", 100.5, 111.0, (98.0, 98.0, 122.0, 116.0)),   # its 1 uF (SBAS786C s.10), HOT side; nearest free 0805 spot, ~8 mm (C28's 100 nF stays the HF cap)
-             ("c_vs2_1u", 106.6, 131.0, (98.0, 126.2, 122.0, 142.0)),  # VDD2's 1 uF, SELV side
-             ("c_vs2", 106.6, 128.6),                   # U4 VDD2 (pin 8, 105.9 / 126.3)
+             ("c_vs2", 106.6, 128.6),                   # U4 VDD2 (pin 8, 105.9 / 126.3): the 100 nF goes first, at the pin
+             ("c_vs2_1u", 106.6, 131.0, (98.0, 126.2, 122.0, 142.0)),  # VDD2's 1 uF, SELV side, after its 100 nF
              ("c_iso1", 115.5, 113.6),                  # ISO7710 U9 VCC1 (pin 3, 114.9 / 116.1)
              ("c_iso2", 115.5, 128.4),                  # U9 VCC2 (pin 14, 114.9 / 125.9)
              ("monitor_ls.civcc1", 97.5, 113.6),        # U32 VCC1 (pin 3, 96.9 / 116.1)
