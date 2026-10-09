@@ -290,3 +290,8 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
 - **Clamp and strip:** a custom 1.4310 comb spring to the §5.2 spec, and G-10 strips (CTI/RTI to be confirmed by UL card).
 - **Estimate:** ≈ $350 per stack, ≈ $2.5k for 7.
 - **Longest lead:** the AlN tiles (RFQ, cut and lap, 3–6 weeks); the RFQ text is ready (§1.2). The tiles gate powered tests on the real sink, not the PCB order.
+
+**2026-10-08, nameplate voltage: 120 V, US/Canada (owner decision: "120 V only").** This closes the open item recorded earlier the same day.
+- **F1:** the nominal-voltage rule supports MDA-25-R's 10 kA @ 125 Vac rating. The certifier inquiry goes out as the 120 V case.
+- **Design range:** the electrical design keeps its coverage to 140 V line: insulation analysis, tank cases, and the 15 A input limit at low line.
+- **Mexico is a separate, later market decision.** Its residential supply is nominally 127 V (220Y/127 V), and an appliance sold there carries NOM certification at its marked rating (to be confirmed with a NOM body, e.g. ANCE). A 120–127 V rating would reopen F1's interrupting-rating question. That needs either the lab's acceptance of a branch-impedance fault basis, or a fuse with ≥ 5 kA at 250 Vac (fallbacks in `sourcing/inquiries/F1-CERTIFIER.md`).

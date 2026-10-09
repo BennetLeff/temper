@@ -1,3 +1,5 @@
+# [Nameplate decided 2026-10-08: 120 V, US/Canada. Send as the 120 V case; drop or mark informational any 127 V-nominal question.]
+
 # Inquiry 2: F1 fuse interrupting rating at 127 V, to a certification lab
 
 Status: draft, **not sent**. Prepared 2026-10-08 for the owner to send.
