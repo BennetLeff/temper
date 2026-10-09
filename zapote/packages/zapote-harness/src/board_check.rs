@@ -1,9 +1,10 @@
 //! `zapote-check`: the board-generic checks on any saved KiCad board.
 //!
 //! Runs the physical stackup gate, KiCad ERC/DRC (one finding per
-//! violation) and the P2 manufacturing rules under a vendor fab profile,
-//! keeps every input, report and receipt in a new output directory, and
-//! writes `report.json`. Unit electrical checks are not included.
+//! violation), the P2 manufacturing rules under a vendor fab profile and the
+//! fab pass (the profile's limits in KiCad's own DRC, `fab_check`), keeps
+//! every input, report and receipt in a new output directory, and writes
+//! `report.json`. Unit electrical checks are not included.
 use crate::runner::{self, NativeCommand};
 use serde::Serialize;
 use std::{
@@ -46,6 +47,9 @@ pub struct BoardCheckReport {
     pub native_commands: Vec<NativeCommand>,
     /// Identity of the manufacturing extraction behind the DFM findings.
     pub manufacturing: Option<serde_json::Value>,
+    /// Rules hash, project and KiCad receipts of the fab pass; absent when
+    /// the profile sets none of its limits.
+    pub fab: Option<serde_json::Value>,
     pub scope: &'static str,
 }
 
@@ -74,7 +78,8 @@ impl BoardCheckReport {
             checks,
             native_commands: vec![],
             manufacturing: None,
-            scope: "stackup, KiCad ERC/DRC and P2 manufacturing under the named fab profile; unit electrical, current, thermal and assembly checks are not included",
+            fab: None,
+            scope: "stackup, KiCad ERC/DRC, and P2 manufacturing and KiCad fab rules under the named fab profile; unit electrical, current, thermal and assembly checks are not included",
         }
     }
 }
@@ -110,20 +115,35 @@ pub fn run(c: &BoardCheck) -> Result<BoardCheckReport, String> {
         Some(&c.profile),
         c.assembly.as_deref(),
     )?;
+    // The limits dfm_check applied: same profile bytes, by hash.
+    let profile_bytes = fs::read(&c.profile).map_err(|e| format!("{}: {e}", c.profile.display()))?;
+    if dfm.profile.as_ref().map(|p| &p["sha256"]) != Some(&serde_json::json!(runner::digest(&profile_bytes))) {
+        return Err("fab profile changed while the board was being checked".into());
+    }
+    let limits = zapote_drc::fab_profile::parse_profile(
+        std::str::from_utf8(&profile_bytes).map_err(|_| "fab profile is not UTF-8".to_string())?,
+    )?;
+    let fab = crate::fab_check::fab_check(&board, &c.output.join("fab"), &c.kicad_cli, &limits)?;
     if runner::digest(&fs::read(&board).map_err(|e| e.to_string())?) != runner::digest(&bytes) {
         return Err("board changed while it was being checked".into());
     }
+    let mut checks = vec![
+        NamedCheck { name: "stackup".into(), report: stackup },
+        NamedCheck { name: "native".into(), report: native },
+        NamedCheck { name: "manufacturing".into(), report: dfm.report },
+    ];
+    let fab_evidence = fab.map(|f| {
+        checks.push(NamedCheck { name: "fab".into(), report: f.report });
+        f.evidence
+    });
     let mut report = BoardCheckReport::new(
         board,
         runner::digest(&bytes),
         schematic,
         dfm.profile.clone().unwrap_or(serde_json::Value::Null),
-        vec![
-            NamedCheck { name: "stackup".into(), report: stackup },
-            NamedCheck { name: "native".into(), report: native },
-            NamedCheck { name: "manufacturing".into(), report: dfm.report },
-        ],
+        checks,
     );
+    report.fab = fab_evidence;
     report.native_commands = commands;
     report.manufacturing = Some(serde_json::json!({
         "receipt_sha256": dfm.receipt_sha256,

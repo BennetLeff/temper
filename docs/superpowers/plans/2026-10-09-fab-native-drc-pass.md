@@ -28,21 +28,38 @@
 Not covered: "Pad To Silkscreen 0.15mm" (no verified KiCad constraint) and the solder-mask bridge (no verified custom-rule constraint). The profile notes record both.
 
 ## Tasks
-- [ ] **T1** Profile limits:
+- [x] **T1** Profile limits:
   - New optional fields: `minimum_copper_clearance_mm`, `minimum_{via,pth,npth}_hole_to_copper_mm`, `minimum_silk_text_height_mm`, `minimum_silk_line_width_mm`.
   - Add quotes to the three JLC profiles.
   - The quote check stays strict. Text height is a derivation from "40 mil", because the quote puts 1.0 mm in parentheses.
   - Loader tests.
-- [ ] **T2** `zapote_drc::fab_rules::kicad_rules(&FabricationLimits) -> Option<String>`. It emits one `zapote fab …` rule per limit that is set, and `None` when none are. Unit tests cover the text and that unset limits are omitted.
-- [ ] **T3** `native_reports::drc_violations(drc)`, which parses a DRC report on its own. The existing `violations()` is reused.
-- [ ] **T4** `board_check`:
+- [x] **T2** `zapote_drc::fab_rules::kicad_rules(&FabricationLimits) -> Option<String>`. It emits one `zapote fab …` rule per limit that is set, and `None` when none are. Unit tests cover the text and that unset limits are omitted.
+- [x] **T3** `native_reports::drc_violations(drc)`, which parses a DRC report on its own. The existing `violations()` is reused.
+- [x] **T4** `board_check`:
   - New `fab` check: copy board and project, write the rules, run `kicad-cli`, and turn each `zapote fab` violation into a `FAB.<type>` finding with actual/required values.
   - Record the rules file's hash in `report.json`.
   - Live test on committed probe fixtures (via, PTH, NPTH, silk) and on native-17.
-- [ ] **T5** Run on native-17, native-20 and the five units. Update `CHECKS.md`, then PR, CI and merge.
+- [x] **T5** Run on native-17, native-20 and the five units. Update `CHECKS.md`, then PR, CI and merge.
 
 ## Review focus
 1. **Never touch the input board:** the copy goes in the new output directory, and the board hash is re-checked afterwards.
 2. **No double-counting:** board or netclass violations must not be attributed to the fab pass (match on the rule-name prefix).
 3. **Profile without native limits:** the fab check is absent, not passed.
 4. **Missing `.kicad_pro`:** still run, using KiCad's defaults, and record that.
+
+## Results (2026-10-08, KiCad 10.0.4, `zapote-check --assembly "THT wave and hand solder"`)
+
+Rulings made during execution:
+- A malformed `.kicad_dru` is skipped with exit 0, with no error (measured). The pass therefore runs the same rules first on a committed self-test board that breaks each rule (`zapote/tools/make_fab_selftest_board.py`). Any rule that does not fire there is a coverage gap.
+- The board's project may switch off a check (`ignored_checks`). A fab rule depending on that check is then a coverage gap, not a pass.
+
+Results:
+- native-17 and native-20 (4-layer 2 oz): `fab` PASS on all 8 rules. All 137 visible silk texts are exactly 1.0 mm / 0.15 mm.
+- The units fail on silk legend text of 0.8–0.9 mm, against the 1.0 mm minimum:
+  - rtd: 40
+  - current-sense: 21 height, 21 stroke
+  - thermal-sense: 35
+  - interlock: 29
+  - gate-drive: 19 height, 26 stroke
+- The interlock also fails on U4 pad-to-pad 0.15 mm, against the 2-layer 2 oz 0.16 mm spacing.
+- These are design findings for the unit owners; the boards are unchanged here.

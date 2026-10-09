@@ -82,7 +82,12 @@ fn live_check_of_the_120v_board_binds_inputs_and_locates_findings() {
     let dfm = &r.checks.iter().find(|c| c.name == "manufacturing").unwrap().report;
     assert!(!dfm.coverage_gaps.iter().any(|g| g.contains("assembly process")), "{:?}", dfm.coverage_gaps);
     let names: Vec<_> = r.checks.iter().map(|c| c.name.as_str()).collect();
-    assert_eq!(names, ["stackup", "native", "manufacturing"]);
+    assert_eq!(names, ["stackup", "native", "manufacturing", "fab"]);
+    assert_eq!(saved["fab"]["rules_sha256"].as_str().map(str::len), Some(64));
+    assert_eq!(saved["fab"]["board_sha256"], saved["board_sha256"]);
+    let fab = &r.checks.iter().find(|c| c.name == "fab").unwrap().report;
+    assert!(fab.coverage_gaps.is_empty(), "{:?}", fab.coverage_gaps);
+    assert!(fab.findings.iter().all(|f| f.rule.starts_with("FAB.")), "{:#?}", fab.findings);
     for c in &r.checks {
         for f in &c.report.findings {
             assert!(!f.rule.is_empty() && !f.object.is_empty(), "{f:?}");

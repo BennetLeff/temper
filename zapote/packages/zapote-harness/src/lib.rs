@@ -6,6 +6,7 @@ use zapote_core::{CheckReport, Finding, RunInput, Status};
 
 pub mod board_check;
 pub mod current_sense;
+pub mod fab_check;
 pub mod gate_drive;
 pub mod interlock;
 pub mod memory;

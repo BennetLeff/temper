@@ -109,6 +109,39 @@ pub fn violations(erc: &str, drc: &str) -> Result<Vec<NativeViolation>, String> 
     collect(&e, &d)
 }
 
+/// A board-only DRC report, as the fab pass runs it (no ERC, no parity).
+#[derive(Clone, Debug)]
+pub struct DrcReport {
+    /// The board file KiCad reports on.
+    pub source: String,
+    pub kicad_version: String,
+    /// Check keys the run's severity settings switched off; judged by the caller.
+    pub ignored_checks: Vec<String>,
+    pub violations: Vec<NativeViolation>,
+}
+
+/// Parse a DRC report on its own, with the same strictness as [`violations`].
+pub fn drc_report(drc: &str) -> Result<DrcReport, String> {
+    let d: Drc = serde_json::from_str(drc).map_err(|e| format!("DRC schema: {e}"))?;
+    identity(&d.header, "drc")?;
+    let mut violations = Vec::new();
+    for (category, list) in [
+        ("DRC", &d.violations),
+        ("UNCONNECTED", &d.unconnected_items),
+        ("SCHEMATIC_PARITY", &d.schematic_parity),
+    ] {
+        for v in list {
+            violations.push(parse_violation(v, category, None)?);
+        }
+    }
+    Ok(DrcReport {
+        source: d.header.source.clone(),
+        kicad_version: d.header.kicad_version.clone(),
+        ignored_checks: d.header.ignored_checks.iter().map(|i| i.key.clone()).collect(),
+        violations,
+    })
+}
+
 fn collect(e: &Erc, d: &Drc) -> Result<Vec<NativeViolation>, String> {
     let mut all = Vec::new();
     for sheet in &e.sheets {
@@ -171,6 +204,12 @@ fn actual_required(description: &str) -> (Option<String>, Option<String>) {
 }
 
 fn violation_finding(v: &NativeViolation) -> Finding {
+    finding(v, &format!("NATIVE.{}.{}", v.category, v.kind))
+}
+
+/// One failing finding for a KiCad violation under `rule`: KiCad's severity,
+/// message (with any designer exclusion), located items and actual/required.
+pub fn finding(v: &NativeViolation, rule: &str) -> Finding {
     let object = v
         .items
         .iter()
@@ -199,7 +238,7 @@ fn violation_finding(v: &NativeViolation) -> Finding {
     } else {
         v.description.clone()
     };
-    let mut f = Finding::fail(&format!("NATIVE.{}.{}", v.category, v.kind), message, object);
+    let mut f = Finding::fail(rule, message, object);
     f.severity = v.severity.clone();
     f.actual = actual;
     f.required = required;
@@ -250,6 +289,16 @@ struct Command {
 }
 
 fn header(h: &Header, kind: &str, permitted_ignored: &[&str]) -> Result<(), String> {
+    identity(h, kind)?;
+    for ignored in &h.ignored_checks {
+        if !permitted_ignored.contains(&ignored.key.as_str()) {
+            return Err(format!("{kind}: unreviewed ignored check {}", ignored.key));
+        }
+    }
+    Ok(())
+}
+
+fn identity(h: &Header, kind: &str) -> Result<(), String> {
     if h.schema != format!("https://schemas.kicad.org/{kind}.v1.json")
         || h.source.is_empty()
         || h.kicad_version.is_empty()
@@ -261,11 +310,6 @@ fn header(h: &Header, kind: &str, permitted_ignored: &[&str]) -> Result<(), Stri
     for severity in ["error", "warning", "exclusion"] {
         if !h.included_severities.iter().any(|s| s == severity) {
             return Err(format!("{kind}: report omits {severity} severity"));
-        }
-    }
-    for ignored in &h.ignored_checks {
-        if !permitted_ignored.contains(&ignored.key.as_str()) {
-            return Err(format!("{kind}: unreviewed ignored check {}", ignored.key));
         }
     }
     Ok(())
