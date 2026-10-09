@@ -18,11 +18,30 @@ rustc --edition=2021 --test zapote/inverter/evidence/measurement_gate.rs -o /tmp
 rustfmt --check zapote/inverter/evidence/measurement_gate.rs
 ```
 
-**Current state (2026-10-08): REJECTED, source drift.** The plan is locked to
-`pfc_power.ato` as of `c70288a00` (2026-09-23). That file changed afterwards and was
-then archived with the Rev38 PFC entry (tag `archive/rev38-power-entry-2026-09-25`;
-the gate reads archived sources from that tag). Re-binding the inverter plan to the
-current 120 V front end is an engineering decision, not a lock refresh.
+**Current state (2026-10-08): SUPERSEDED.** The gate itself still reports
+REJECTED for source drift. The plan is locked to `pfc_power.ato` as of `c70288a00`
+(2026-09-23). That file changed afterwards and was then archived with the Rev38
+PFC entry (tag `archive/rev38-power-entry-2026-09-25`; the gate reads archived
+sources from that tag).
+
+**Ruling: retire this plan, do not re-bind it.** It measures the Rev38 PFC
+topology: VD/VB 390 V buses, the F2 interconnect, and a VB-can short upstream of
+F2. Rev38 PFC is paused. The chosen front end is the full-bridge,
+unfiltered-bus stage in `../power-stage-120v/`, so re-binding would mean
+rewriting the scenarios for a different topology. That stage has its own plan
+and bench verdict, which already covers each family here:
+
+| U3 family | 120 V stage |
+| --- | --- |
+| `coil` (loaded complex impedance) | `validation-plan/05-resonant-tank-envelope.md` |
+| `stop` (gate-off vs current zero) | `validation-plan/02-protection-timing.md` |
+| `bus` (ripple, steps, surge) | `validation-plan/01-switching-parasitics.md`, `BENCH-SWITCHING.md` |
+| `fault` (short and clearing path) | `validation-plan/02-protection-timing.md` |
+| `part` (ratings and derating) | `validation-plan/ROUND-3.md` to `ROUND-5.md`, `08-manufacturing-package.md` |
+
+This file and the gate stay as the record of the Rev38 plan, reproducible against
+the archive tag. If Rev38 PFC resumes, re-bind the plan to its frozen revision
+before any capture is filled in.
 
 The output is deterministic by registry order. `INDETERMINATE` means absent or synthetic evidence. `REJECTED` means malformed or invalid input, source drift, wrong topology, or an unsafe shortcut. `CAPTURE_RECORDED` means a typed record, bounded raw file path and matching digest are present. Even if all 20 become `CAPTURE_RECORDED`, the overall verdict is only `REVIEW_PENDING` and the program exits 2: this checker cannot establish whether an instrument, calibration, fixture, load envelope or reviewer is genuine or adequate. It never emits a hardware PASS. A digest establishes byte identity only.
 
