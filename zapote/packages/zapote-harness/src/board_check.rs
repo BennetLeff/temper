@@ -134,16 +134,8 @@ pub fn run(c: &BoardCheck) -> Result<BoardCheckReport, String> {
         },
         &limits,
     )?;
-    // The fab pass must judge the project the native DRC hashed.
     if let Some(f) = &fab {
-        let native_project = commands
-            .iter()
-            .find(|n| n.argv.get(2).map(String::as_str) == Some("drc"))
-            .and_then(|n| n.dependency_hashes.get(&board.with_extension("kicad_pro")));
-        let fab_project = f.evidence.get("project_sha256");
-        if fab_project.is_some_and(|h| h.as_str() != native_project.map(String::as_str)) {
-            return Err("board project changed between the native and fab passes".into());
-        }
+        crate::fab_check::check_project_matches_native(f, &board, &commands)?;
     }
     if runner::digest(&fs::read(&board).map_err(|e| e.to_string())?) != runner::digest(&bytes) {
         return Err("board changed while it was being checked".into());
