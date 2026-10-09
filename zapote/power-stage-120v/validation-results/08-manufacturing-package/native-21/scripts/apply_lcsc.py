@@ -22,7 +22,9 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent.parent
 MAP = {r["MPN"]: r for r in csv.DictReader(open(HERE / "sourcing" / "lcsc-map.csv"))}
 CHANGED = {"RT0603BRD077K68L": "C375517", "RL1206FR-070R68L": "C728510",    # verified on lcsc.com 2026-10-08
-           "GRM21BZ71E106KE15L": "C237493"}                                  # stage 8; lcsc.com 2026-10-08, 930 in stock
+           "GRM21BZ71E106KE15L": "C237493",                                  # stage 8; lcsc.com 2026-10-08, 930 in stock
+           "CC0805KRX7R9BB104": "C49678",                                    # stage 9; lcsc.com 2026-10-08, 8.36 M in stock
+           "GRM21BR71H105KA12L": "C77083"}                                   # stage 9; lcsc.com 2026-10-08, 119 k in stock
 ACCEPT_ALT = {"GRM31A5C3A102JW01D"}
 bom_path = HERE / "fab" / "bom-jlcpcb.csv"
 rows = list(csv.DictReader(open(bom_path)))

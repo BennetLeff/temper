@@ -21,6 +21,7 @@ Mounting holes (MountingHole_3.2mm_M3, NPTH): "metal" holes satisfy D5 for chass
 """
 import json
 import math
+import re
 import sys
 from pathlib import Path
 
@@ -61,6 +62,10 @@ d = json.loads(Path(sys.argv[1]).read_text())
 pads = json.loads((HERE / "pads.json").read_text())
 outline = Polygon(EDGE)
 F, ALL = [], []
+# the dump of a board built with board_only21.json holds the previous plan's own test pads,
+# fiducials and holes; they are not copper to plan round (a kept hole would collide with itself)
+BOARD_ONLY = re.compile(r"^(TP|FID|H)\d+$")
+d["pads"] = [p for p in d["pads"] if not BOARD_ONLY.match(p.get("ref") or "")]
 for p in d["pads"]:
     if len(p.get("pts", [])) > 2:
         g = Polygon(p["pts"])
@@ -194,8 +199,11 @@ for i in range(4, 287, 2):
                 and c.distance(parts_u) >= 1.5:
             fid_ok.append((i, j))
 fids = []
-for target in ((5, 5), (280, 130), (5, 185)):
-    fids.append(min(fid_ok, key=lambda q: math.dist(q, target)))
+# stage-8 fiducials kept while legal (FID3 at (6, 186) leaves pinned hole H2 at (6, 180) its 6 mm)
+PINNED_FIDS = ((8, 36), (278, 128), (6, 186))
+fid_set = {tuple(q) for q in fid_ok}
+for pinned, target in zip(PINNED_FIDS, ((5, 5), (280, 130), (5, 185))):
+    fids.append(pinned if pinned in fid_set else min(fid_ok, key=lambda q: math.dist(q, target)))
 
 # mounting holes: metal-legal centres (D5) where available, nylon elsewhere
 mc = json.loads((HERE.parent / "verification" / "mounting-candidates.json").read_text())["candidates"]
@@ -226,8 +234,18 @@ for i in range(4, 287, 2):
                 and c.distance(allcu_hole) >= 2.2 and w.distance(parts_u) >= 0.3 \
                 and all(w.distance(b) >= 0.3 for _, b in court):
             nylon_ok.append((i, j))
-for target in ((5, 180), (86, 180), (5, 5), (5, 185), (88, 185), (88, 100), (5, 100), (145, 5), (285, 5),
-               (200, 135), (145, 135)):
+# Frozen once the enclosure adopted them (R22 bosses on the stage-8 board): each stage-8 nylon hole
+# is kept where it was while it is still legal on the new copper; only an illegal one is re-planned.
+PINNED_NYLON = ((6, 180), (86, 180), (24, 74), (88, 100), (128, 54), (194, 130))
+legal = set(nylon_ok)
+for q in PINNED_NYLON:
+    if q in legal and all(math.dist(q, f) >= 6.0 for f in fids):
+        holes.append({"at": list(q), "kind": "nylon"})
+    else:
+        print(f"pinned nylon hole {q} no longer legal: re-planned (the enclosure must follow)")
+for target in (() if len(holes) == 1 + len(PINNED_NYLON) else
+               ((5, 180), (86, 180), (5, 5), (5, 185), (88, 185), (88, 100), (5, 100), (145, 5), (285, 5),
+                (200, 135), (145, 135))):
     if nylon_ok:
         q = min(nylon_ok, key=lambda q: math.dist(q, target))
         if all(math.dist(q, h["at"]) > 30 for h in holes) and all(math.dist(q, f) >= 6.0 for f in fids):
@@ -272,7 +290,7 @@ def text_spot(lines, h, target, region=(2, 2, 288, 188)):
 silk = []
 for lines, h, target in ((["TEMPER POWER STAGE 120V", "NATIVE-21 REV A  2026-10"], 1.5, (240, 125)),
                          (["DANGER: MAINS AND 400 V DC", "HOT SECTIONS ARE NOT EARTHED"], 1.5, (150, 60)),
-                         (["H2-H8: NYLON SCREWS, WASHERS", "AND STANDOFFS ONLY"], 1.0, (60, 150))):
+                         ([f"H2-H{len(holes)}: NYLON SCREWS, WASHERS", "AND STANDOFFS ONLY"], 1.0, (60, 150))):
     at = text_spot(lines, h, target)
     if at:
         silk.append({"kind": "text", "lines": lines, "size": h, "at": at})

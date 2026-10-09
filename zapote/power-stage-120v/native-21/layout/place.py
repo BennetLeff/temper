@@ -281,24 +281,22 @@ def nearest_free(path, tx, ty, reach=8.0, gap=0.4, angs=(0.0, 90.0), step=0.25, 
     POSE[path] = (round(best[1], 3), round(best[2], 3), best[3])
 
 
-DECOUPLE = []
+# UCC21550 VDD-VSS decoupling (review B1; stage 9). U1 / U2 at x 80 / 33: VDDA 16 / OUTA 15 / VSSA 14
+# at x 75.56 / 76.83 / 78.09 and VDDB 11 / OUTB 10 / VSSB 9 at 81.91 / 83.17 / 84.44, on the y 46.1
+# HOT row; the package straddles the 8 mm barrier, so caps go on the HOT side (above the row).
+# Each channel gets a stack of 0805s centred on its output pin: the pads (1.9 mm apart) sit over
+# VDDx and VSSx (2.53 mm apart), the 0.9 mm pad gap passes a 0.3 mm OUTx neck, and the loop is
+# ~3 mm with no vias. (Stage 8 put the caps beside the stack and left a 30 mm VSSA return: no n_h
+# via fits under U1, where LOW-group In1 runs pass within the 3.2 mm HOT-group spacing.)
+# Stack pitch 2.1 mm (0805 courtyard 2.05); the lowest courtyard clears U1's (y 45.01). The HS and
+# LS stacks' facing pads are 3.44 mm apart (>= 3.2 mm between HOT groups). The LS 10 uF (1210)
+# keeps its block spot (no free spot near VDDB is closer; see DECISIONS.md).
+STACK = {"c_hs": (76.83, 43.95), "c_hs_1u": (76.83, 41.85), "c_hs_bulk": (76.83, 39.75),
+         "c_ls": (83.17, 43.95), "c_ls_1u": (83.17, 41.85)}
 for leg, dx in (("leg_a", 0.0), ("leg_b", -47.0)):
-    # UCC21550 (U1 / U2 at x 80 / 33): VDDA 16 / VSSA 14 at x 75.6 / 78.1, VDDB 11 / VSSB 9 at
-    # 81.9 / 84.4, all on the y 46.1 HOT row. The package straddles the 8 mm barrier (SELV row at
-    # y 55.9), so the caps go on the HOT side of the row (y <= 45.2), channel A left, channel B right.
-    # OUTA (pin 15, x 76.8) and OUTB (pin 10, x 83.2) leave straight up: keep a lane over each
-    ra, rb = (64.0 + dx, 28.0, 76.2 + dx, 45.2), (83.8 + dx, 28.0, 96.0 + dx, 45.2)
-    # bulk caps sit farther up; channel A (SW_A / SW_B group) and channel B (LOW group) caps stay
-    # >= 4 mm apart, and >= 3.2 mm (HOT groups) from the film caps' pins on the y 28.2 row
-    # (HS caps left of the OUTA lane, on the HOT side of the y 46.1 row like the 100 nF caps: at
-    # y 47.1 the 0805 bulk came 7.48 mm from the SELV PWM pins, under the 8.0 mm barrier)
-    ba = (62.0 + dx, 33.0, 76.1 + dx, 45.2)
-    # The LS 10 uF bulk (1210) keeps its block-pack spot by the LS bias reservoir: no free spot near
-    # VDDB is closer. The nearest (x 102.5) sat over SW_B's B.Cu tank lane, where its vias would
-    # cut 3.2 mm holes in tank copper; the free spots over the n_ls pour are >= 15.6 mm away and
-    # boxed in by C39's bus_p pin and SW_A's F.Cu pour. The 100 nF c_ls is the HF cap at the pins.
-    DECOUPLE += [(f"{leg}.c_hs", 75.2 + dx, 43.6, ra), (f"{leg}.c_hs_bulk", 75.0 + dx, 37.6, ba),
-                 (f"{leg}.c_ls", 85.4 + dx, 43.6, rb)]
+    for part, (x, y) in STACK.items():
+        POSE[f"{leg}.{part}"] = (round(x + dx, 3), y, 0.0)
+DECOUPLE = []
 DECOUPLE += [("c_vs1", 106.6, 113.4),                   # AMC1311 U4 VDD1 (pin 1, 105.9 / 115.7)
              ("c_vs2", 106.6, 128.6),                   # U4 VDD2 (pin 8, 105.9 / 126.3)
              ("c_iso1", 115.5, 113.6),                  # ISO7710 U9 VCC1 (pin 3, 114.9 / 116.1)
@@ -311,10 +309,7 @@ DECOUPLE += [("c_vs1", 106.6, 113.4),                   # AMC1311 U4 VDD1 (pin 1
              ("bias_hb.monitor.civcc2", 32.9, 108.5)]   # U34 VCC2 (pin 14, 30.5 / 108.1)
 POSE.pop("j_tco", None)
 nearest_free("j_tco", 218.2, 7.6, angs=(90.0,), rect=(211.0, 1.0, 226.0, 30.0))
-# The bias reservoir's 1206 bleed resistor (p_h -> sw, no layout sensitivity) sat in the only
-# HOT-side slot beside VDDA that the 10 uF bulk fits: it moves after the bulk is placed
-BLEED = {f"{leg}.bias_h.rbleed": POSE[f"{leg}.bias_h.rbleed"][:2] for leg in ("leg_a", "leg_b")}
-for path in [p for p, *_ in DECOUPLE] + list(BLEED):
+for path, *_ in DECOUPLE:
     POSE.pop(path, None)
 # The four gate-drive outputs run straight up 0.6 mm lanes from the driver pins to the gate
 # resistors (stage-5 copper). They are part of the FEM-extracted gate loops: keep every
@@ -324,14 +319,8 @@ OUT_LANES = [(76.1, 17.0, 77.9, 46.5), (74.2, 13.5, 76.0, 21.0),            # le
              (28.9, 32.0, 30.8, 46.5), (11.7, 20.0, 30.8, 33.8),              # leg B OUTA
              (35.0, 20.6, 36.9, 46.5)]                                        # leg B OUTB
 for path, tx, ty, *rect in DECOUPLE:
-    # bulk (10 uF) may sit farther than the 100 nF high-frequency cap at the pins
-    nearest_free(path, tx, ty, reach=22.0 if path.endswith("_bulk") else 8.0,
+    nearest_free(path, tx, ty,
                  rect=rect[0] if rect else (1.0, 1.0, 289.0, 189.0), avoid=OUT_LANES)
-for path, (tx, ty) in BLEED.items():
-    dx = 0.0 if path.startswith("leg_a") else -47.0
-    nearest_free(path, tx, ty, reach=20.0, rect=(max(1.0, 50.0 + dx), 33.0, 76.1 + dx, 45.2), avoid=OUT_LANES)
-# leg A's R71 turned so its p_ha pad faces the p_ha column right of C10 / C11 (patches21.add_stage8)
-POSE["leg_a.bias_h.rbleed"] = (74.35, 34.35, 180.0)
 
 
 missing = sorted(set(PARTS) - set(POSE))

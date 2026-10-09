@@ -195,8 +195,13 @@ run, and that count is 0. Their inductance effect belongs to the FEM rerun on th
   - **Placement fixes.** The 0805 bulk first landed 7.48 mm from the SELV PWM pins (barrier gate caught it). Leg A's LS bulk briefly sat over SW_B's tank lane; it went back to its block spot.
   - **Results:** DRC 0 / 0 unconnected / parity 0, both barrier gates 0, DFM PASS, Gerber review 892/892, D5 PASS, Kelvin band 47.52–97.98 A, body collisions 0, R4 fit 0 hits, task 04 tank paths unchanged.
   - **Build fix.** The reliefs step first died silently on a KiCad 10 API change: its stderr was discarded and the pipe hid the exit code. `incr_iter.sh` now fails on it.
+- **Stage 9 (2026-10-08):** the closure review's B1 / N1 rework.
+  - UCC21550 VDD–VSS 0805 stacks straddle each output pin: 100 nF + 1 µF, + 10 µF high side. Every loop is 2.07–2.2 mm with no vias.
+  - Bleed resistors back at their stage-7 spots; the sw_a gate return is 24.1 mm again.
+  - Board-only holes and fiducials frozen at the positions the enclosure adopted.
+  - Board `e9d1cc4f…`: every gate 0 / PASS (DECISIONS.md "stage 9").
 - **Open items:**
-  - **Board fixings (stage 8):** H1 metal-capable, H2-H7 nylon only (H4-H6 need nylon standoffs >= 10 mm, HOT copper near the hole wall); the enclosure must match them
+  - **Board fixings (stage 8 positions, frozen):** H1 metal-capable, H2-H7 nylon only (H4-H6 need nylon standoffs >= 10 mm, HOT copper near the hole wall); the enclosure must match them
     (verification/D5-AUDIT.md). Bring-up test pads and fiducials: BRINGUP-PROBES.md.
   - **Via-in-pad (stage 8 count):** 77 drills fully inside SMD pads and 64 overlapping a pad edge, all POFV. The stage-5 note follows: **44 vias** remained mostly inside SMD pads (the straight-stub dogbone found no spot within 1.3 mm;
     a routed-stub trial moves 15 more, 28 stay; R5's current pads need in-pad vias anyway). **Decided

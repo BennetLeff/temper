@@ -317,6 +317,29 @@ component C100n0603:
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
+component C100n0805:
+    """Yageo CC0805KRX7R9BB104, 100 nF 50 V X7R 0805 (LCSC C49678). UCC21550 VDD-VSS decoupling,
+    straddling the output trace at the driver pins: 0805 pads are 1.9 mm apart and sit over VDDx / VSSx
+    (2.53 mm), and the 0.9 mm pad gap passes a 0.3 mm OUTx neck (stage 9, review B1)."""
+    designator_prefix = "C"
+    mpn = "CC0805KRX7R9BB104"
+    manufacturer = "YAGEO"
+    footprint = "Capacitor_SMD:C_0805_2012Metric"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component C1u0805:
+    """Murata GRM21BR71H105KA12L, 1 uF 50 V X7R 0805 (LCSC C77083). Second straddle cap at the
+    UCC21550 VDD-VSS pins (review B1: >= 1 uF + 100 nF within 2 mm)."""
+    designator_prefix = "C"
+    mpn = "GRM21BR71H105KA12L"
+    manufacturer = "Murata"
+    footprint = "Capacitor_SMD:C_0805_2012Metric"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
 component C10u0805:
     """Murata GRM21BZ71E106KE15L, 10 uF 25 V X7R 0805 (LCSC C237493). High-side VDDA-VSSA bulk at
     the UCC21550 pins (TI SLUSE89C 11.1: ~10 uF + <= 100 nF at VDD-VSS); the 1210 does not fit

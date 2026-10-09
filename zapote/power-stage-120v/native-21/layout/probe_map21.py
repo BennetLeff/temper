@@ -53,8 +53,16 @@ for h in bo["mounting_holes"]:
         if h["ref"] in hot and hot[h["ref"]] < 8.0:
             hw += "; **nylon standoff ≥ 10 mm**, which carries the HOT→chassis 8.0 mm surface path"
     out.append(f"| {h['ref']} | {h['at'][0]}, {h['at'][1]} | {d} | {hw} |")
-out += ["", "Positions must match the enclosure's bosses before release (D5-AUDIT.md). The enclosure",
-        "design adopts them, or the holes move with it.", ""]
+out += ["", "**Nylon fixings are an insulation part, not hardware choice** (closure review M4):",
+        "- the whole chain at every nylon hole is insulating: nylon screw, nylon washer, and a nylon standoff;",
+        "- the standoff is male-female, or female-female with a nylon screw at the chassis too;",
+        "- no metal screw, nut or insert within 10 mm of the board at these holes.",
+        "",
+        "At the holes marked ≥ 10 mm, one metal screw would sit a millimetre or two of laminate from HOT copper",
+        "while bonded to PE. At the SELV holes, it would add a second SELV–PE bond beyond R38.",
+        "",
+        "Positions are frozen at the stage-8 plan, which the enclosure adopted (R22 bosses).",
+        "`layout/plan_board_only21.py` keeps them while they stay legal and says so when one has to move.", ""]
 (HERE.parent / "BRINGUP-PROBES.md").write_text("\n".join(out))
 print(f"BRINGUP-PROBES.md: {sum('ref_at' in t for t in bo['test_points'])} signal pads, "
       f"{len(bo['mounting_holes'])} holes")

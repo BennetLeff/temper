@@ -44,3 +44,19 @@ New in stage 8, not from the review:
 - body collisions 0; R4 fit 0 hits;
 - task 04 tank paths unchanged;
 - source verify PASS; audit 74/74.
+
+## Closure review of stage 8 (`REVIEW-STAGE8.md` in this folder) and stage 9
+
+Board `d4468ffd` was re-reviewed independently. It confirmed B2, M7, M9 and M12 closed, and M3 and M8 closed with release gates. It found B1 partial and a new MAJOR, N1. Stage 9 (board `e9d1cc4f`, DECISIONS.md 2026-10-08 "stage 9") answers:
+
+| Id | Status after stage 9 |
+| --- | --- |
+| B1 | **Fixed.** 0805 stacks (100 nF + 1 µF, + 10 µF high side) straddle each output pin. Every VDD–VSS loop is 2.07–2.2 mm with no vias, on all four channels, measured with the reviewer's `path.py` |
+| N1 | **Fixed.** The sw_a link from Q2's source to C50 is 24.1 mm, identical to stage 7. Gate loops: +2 nH on every gate diagonal still passes F6 252/252 per leg (`round17/d2/compose_stage9_bound.py`) |
+| M1 | **Partial.** The ISO7710s are fine. AMC1311 1 µF to be checked against TI's datasheet |
+| M2 | Unchanged from the FEM record; the gate loops are bounded as above |
+| M4 | **Requirement stated.** The whole fixing chain at H2–H7 is insulating (BRINGUP-PROBES.md, FAB-NOTE). Holes are frozen at the positions the enclosure adopted |
+| N2 | **Fixed.** The legend reads H2–H7 |
+| N3 | **Fixed.** Dead leg_ret stub removed; 9 dangling-track warnings remain, all ≤ 3 mm |
+| N5 | **Fixed.** The board and position file now carry MDA-25-R |
+| N6 | **Open (method).** The H4 wall-to-HOT distance is 0.55 mm (d5_audit) vs 1.20 mm (reviewer); both are under 8 mm and covered by the insulating chain |

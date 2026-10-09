@@ -152,7 +152,7 @@ The rear band (240 × 150) was rejected: the sink cannot be placed without cross
 **2026-10-08, operating envelope: tank current ceiling, approved by the owner (reply: "do all that", to the recommendation to write the envelope as a requirement):** native-21's operating envelope is **tank current ≤ 22 A RMS**, with output power reduced outside it (low line, low-resistance pans). This replaces the interim ceiling recorded above. Task 05's 108 V low-R grid extreme (44.7 A) is outside the envelope by requirement, not a design case. The binding limit is the tank copper's 20 K width screen (SW_A 7.0 mm: 22.0 A); then C21/C22's catalogue ripple (~25 A tank) and R5's 1 W rating (31.6 A). **New controller requirement:** the frequency/power control holds tank RMS ≤ 22 A in every pan/line case and reports when it is power-limited. OCP (47.5–98 A peak trip band) remains the fault protection, not the envelope limit. **Reverses if** the product must deliver full power into low-R pans at low line; that needs about 2× tank-path copper and a larger shunt and resonant capacitors (a re-layout).
 
 **2026-10-08, stage 8: independent-review fixes, decided under the owner's delegation:** the pre-fab review (`validation-results/08-manufacturing-package/native-21/REVIEW-2026-10-08.md`, triage in `REVIEW-TRIAGE.md`) found 2 BLOCKERs and 14 MAJORs.
-- **B1, high-side driver supply:** UCC21550 VDDA–VSSA had no capacitor in the source; the nearest bias-reservoir cap is on sw↔n_h, not p_h↔n_h. Each leg gets **c_hs 100 nF 0603 + c_hs_bulk 10 µF 0805** (C10/C11, C17/C18). The bulk is Murata GRM21BZ71E106KE15L (25 V X7R, LCSC C237493). Its DC-bias capacitance loss at the rail voltage is not credited. The 100 nF is the HF cap, and the 0805 is the largest that fits on the HOT side of the y 46.1 pin row. Pad-to-pin centre distances: 100 nF 4.3 mm, 10 µF 7.9 (leg A) / 8.6 mm (leg B), against 48–53 mm before. They can't go closer: the barrier runs just below the pin row, and OUTA leaves the adjacent pin straight up. The reservoir's 1206 bleed resistor (p_h→sw, no layout sensitivity) gave up that slot. On leg A the stack is planar on F.Cu: LOW-group In1 runs pass within the 3.2 mm HOT-group spacing, so no n_h via fits there. p_h takes a hand-laid column on the right (C10, C11, the bleed resistor), and n_h runs on the left to the reservoir's C50 (`layout/patches21.py` add_stage8). The LS 10 µF 1210 bulks (C9, C16) keep their stage-7 spots by the LS bias block, about 16 mm from VDDB. No free spot is closer: the nearest lay over SW_B's B.Cu tank lane, where vias would cut 3.2 mm holes in tank copper, and the spots over the n_ls pour are ≥ 15.6 mm away and hemmed in by C39's bus_p pin. The HF caps (100 nF C8, C15) are what moved to the VDDB pins. Caps stay ≥ 8.0 mm from the SELV pins (the first try put the 0805 at y 47.1, 7.48 mm, and the barrier gate caught it) and off the four OUT gate lanes, so the gate-loop copper the FEM extracted is untouched. The new caps sit about 4 mm from it, and the loops were not re-extracted.
+- **B1, high-side driver supply:** UCC21550 VDDA–VSSA had no capacitor in the source; the nearest bias-reservoir cap is on sw↔n_h, not p_h↔n_h. Each leg gets **c_hs 100 nF 0603 + c_hs_bulk 10 µF 0805** (C10/C11, C17/C18). The bulk is Murata GRM21BZ71E106KE15L (25 V X7R, LCSC C237493). Its DC-bias capacitance loss at the rail voltage is not credited. The 100 nF is the HF cap, and the 0805 is the largest that fits on the HOT side of the y 46.1 pin row. Pad-to-pin centre distances: 100 nF 4.3 mm, 10 µF 7.9 (leg A) / 8.6 mm (leg B), against 48–53 mm before. They can't go closer: the barrier runs just below the pin row, and OUTA leaves the adjacent pin straight up. The reservoir's 1206 bleed resistor (p_h→sw, no layout sensitivity) gave up that slot. On leg A the stack is planar on F.Cu: LOW-group In1 runs pass within the 3.2 mm HOT-group spacing, so no n_h via fits there. p_h takes a hand-laid column on the right (C10, C11, the bleed resistor), and n_h runs on the left to the reservoir's C50 (`layout/patches21.py` add_stage8). The LS 10 µF 1210 bulks (C9, C16) keep their stage-7 spots by the LS bias block, about 16 mm from VDDB. No free spot is closer: the nearest lay over SW_B's B.Cu tank lane, where vias would cut 3.2 mm holes in tank copper, and the spots over the n_ls pour are ≥ 15.6 mm away and hemmed in by C39's bus_p pin. The HF caps (100 nF C8, C15) are what moved to the VDDB pins. Caps stay ≥ 8.0 mm from the SELV pins (the first try put the 0805 at y 47.1, 7.48 mm, and the barrier gate caught it) and off the four OUT gate lanes. **Correction (stage-8 closure review, N1):** the gate-loop copper was *not* untouched. Rerouting round the new leg A stack lengthened the sw_a link from reservoir C50 to Q2's source from 24.1 to 44.5 mm, which is the return half of the high-side gate loop. Leg A's VSSA return to C10/C11 is also 30 mm, through vias near y 30.7. Both are being reworked (stage 9), and leg A's gate loop will be re-extracted.
 - **B2, exposed pads:** 3 × 3 filled vias in each TPS7A4700 pad (U26–U28), 2 × 2 in SN6507 U35, after clearing other nets' inner-layer tracks from under the pad.
 - **M3:** low-current THT pads get 0.5 mm × 4 spoke reliefs; the 15–45 A nets stay solid (`layout/pad_reliefs21.py`).
 - **M5, barrier margin:** **kept at 8.0 mm**, not re-routed to 8.3. The 8.0 mm floor is the owner-approved provisional distance (D5-BASIS). The certification lab sets the final distance, and etch undercut widens copper gaps rather than narrowing them.
@@ -179,3 +179,39 @@ The rear band (240 × 150) was rejected: the sink cannot be placed without cross
 - **Qualification (bench, before the limit is final):** measure true-RMS line current against I_ps,est over 108 / 120 / 132 V and the pan grid. The worst error e_max replaces the 10 %, and the limit is recomputed from the same formula; ±5 % would allow 13.0 A.
 - **Consequence:** about 1.49 kW input at 120 V (1.34 kW at 108 V), against the 1.71 kW nominal case. The 15 A plug costs about 13 % of nominal power until the bench tightens e_est.
 - **Not done here:** the firmware estimator and limit. No controller code exists for either this or the 22 A ceiling.
+
+**2026-10-08, stage 9: closure-review rework of the driver decoupling (B1) and the leg A gate return (N1), decided under the owner's delegation:** the stage-8 closure review (`validation-results/08-manufacturing-package/native-21/REVIEW-TRIAGE.md`) found B1 only partly closed and found N1.
+- **B1:** leg A's VDDA cap returned to VSSA through a 30 mm, two-via path. No n_h via fits under U1: LOW-group In1 runs (n_ls, leg_ret, v15_ls, the OCP Kelvin pair, the bias supplies) fill the HOT band within the 3.2 mm group spacing.
+- **N1:** the sw_a link from Q2's source to the reservoir had grown from 24.1 to 44.5 mm.
+
+**Decision:** the UCC21550's output pin sits between its VDD and VSS pins, so each channel gets a stack of 0805s centred on the output.
+- **Geometry:** the 0805 pads (1.9 mm apart) land over VDDx / VSSx (2.53 mm). The output leaves its pin as a 0.3 mm neck through the 0.9 mm pad gap, with 0.3 mm clearance each side.
+- **Contents:** 100 nF (Yageo CC0805KRX7R9BB104, C49678) and 1 µF (Murata GRM21BR71H105KA12L, C77083) per channel, plus the 10 µF on the high side.
+- **Spacing:** the high- and low-side stacks' facing pads are 3.44 mm apart (≥ 3.2 mm).
+- **Placement and copper:** `place.py` STACK; `patches21.py` add_stack re-lays the four output polylines unchanged beyond the neck.
+- **Result:** every VDD–VSS loop is **2.07–2.2 mm with no vias**, on all four channels (stage 7: low side 24–119 mm through 2–4 vias).
+- **N1:** with the bleed resistors back at their stage-7 spots, the sw_a link is again **24.1 mm**, identical to stage 7.
+
+**Gate loops:** against the extracted copper, the only change is the 0.3 mm neck (≈ 7.5 mm long) and the stack beside it. A thin-strip estimate puts it at ≈ 0.9 nH. To bound it, both legs' decision matrices got **+2 nH on both gate-port diagonals** (`round17/d2/compose_stage9_bound.py`). F6 at −1.6 V (PMEG, 27/100/150 °C) still passes **252/252 per leg**: worst off-gate 1.145 V against 1.9 V, worst die VDS 490 V against 520 V. A full re-extraction is not needed for this change. The reviewer's doubt about which conductors the FEM gate ports close through stays with the FEM record.
+
+**Board `e9d1cc4f…`:**
+- DRC 0 errors / 0 unconnected / parity 0;
+- both barrier gates 0;
+- DFM PASS;
+- Gerber review 882/882;
+- D5 PASS (8.047 / 8.507 mm);
+- Kelvin band 47.52–97.98 A;
+- body collisions 0 and R4 fit 0 hits (413 solids);
+- task 04 tank paths unchanged;
+- B3: U26's pad cell 167 / 143 °C (stage 8: 162 / 138; stage 6: 176 / 152; grid-sensitive);
+- source verify PASS (355 components), audit 74/74.
+
+**Also fixed:**
+- the dead In1 leg_ret stub (N3);
+- the nylon legend (N2);
+- the board-only planner, which counted its own previous holes and fiducials as copper and so moved every hole on each re-plan. The holes are now frozen at the positions the enclosure adopted while they stay legal.
+- The fixing chain at the nylon holes is now a stated insulation requirement (M4).
+
+**Open from the closure review:**
+- **M1:** the AMC1311 has no 1 µF on either supply. The reviewer cites its datasheet; to be checked against TI's sheet before an ECO.
+- **N6:** the D5 audit and the reviewer measure H4's wall-to-HOT distance differently (0.55 vs 1.20 mm). Both are under 8 mm, and the insulating fixing chain covers either.

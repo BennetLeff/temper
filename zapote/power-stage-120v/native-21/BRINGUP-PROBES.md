@@ -12,37 +12,37 @@ differential or isolated probes (D-8 equipment table), never a grounded scope gr
 
 | Signal pad | Net | Side | At (mm) | Ground pad | Ground net | Purpose |
 | --- | --- | --- | --- | --- | --- | --- |
-| TP1 | leg_a-out_l | B | 82.0, 37.0 | TP23 | n_ls | leg A low-side driver output vs VSSB |
-| TP2 | leg_b-out_l | F | 36.0, 42.5 | TP24 | n_ls | leg B low-side driver output vs VSSB |
-| TP3 | n_ls | B | 112.2, 77.8 | TP25 | leg_ret | LS -2 V rail vs low-side sources (F6 rail at the edge) |
-| TP4 | v15_ls | B | 108.0, 111.6 | TP26 | leg_ret | LS +15 V rail |
-| TP5 | v24_raw | F | 54.6, 48.0 | TP27 | n_ls | 24 V HOT supply |
-| TP6 | ocp_node | B | 116.8, 71.0 | TP28 | ocp_kelvin_p | OCP comparator input (D4 condition 2) |
-| TP7 | hot5 | F | 115.9, 63.8 | TP29 | ocp_kelvin_p | HOT5 protection rail |
-| TP8 | bus_fault_hot | B | 120.2, 54.7 | TP30 | ocp_kelvin_p | OCP fault, HOT side |
-| TP9 | n_ha | F | 65.6, 65.6 | TP31 | sw_a | HS-A -2 V rail vs switch node (F6 rail at the edge) |
-| TP10 | p_ha | F | 75.5, 43.9 | TP32 | sw_a | HS-A +15 V rail |
-| TP11 | leg_b-out_h | F | 29.8, 41.9 | TP33 | n_hb | leg B high-side driver output vs VSSA |
-| TP12 | n_hb | F | 18.6, 52.0 | TP34 | sw_b | HS-B -2 V rail vs switch node |
-| TP13 | p_hb | F | 24.7, 47.0 | TP34 | sw_b | HS-B +15 V rail |
-| TP14 | v15_selv | B | 134.0, 131.7 | TP35 | selv_gnd | SELV 15 V |
-| TP15 | v3v3 | B | 55.0, 130.0 | TP36 | selv_gnd | SELV 3.3 V |
-| TP16 | pwm_ha | B | 78.3, 105.9 | TP37 | selv_gnd | PWM A high |
-| TP17 | pwm_la | B | 79.8, 60.8 | TP38 | selv_gnd | PWM A low |
-| TP18 | pwm_hb | B | 56.2, 132.2 | TP36 | selv_gnd | PWM B high |
-| TP19 | permit | B | 44.3, 132.9 | TP39 | selv_gnd | PERMIT |
-| TP20 | bias_bad | B | 14.4, 130.3 | TP40 | selv_gnd | BIAS_BAD (rail monitors) |
-| TP21 | bus_fault | B | 35.2, 133.6 | TP39 | selv_gnd | OCP fault, SELV side |
-| TP22 | ct_mon | B | 23.8, 134.6 | TP40 | selv_gnd | tank CT monitor |
+| TP1 | leg_a-out_l | B | 82.0, 37.0 | TP21 | n_ls | leg A low-side driver output vs VSSB |
+| TP2 | n_ls | B | 113.5, 82.6 | TP22 | leg_ret | LS -2 V rail vs low-side sources (F6 rail at the edge) |
+| TP3 | v15_ls | B | 108.0, 111.6 | TP23 | leg_ret | LS +15 V rail |
+| TP4 | v24_raw | F | 54.6, 48.0 | TP24 | n_ls | 24 V HOT supply |
+| TP5 | ocp_node | B | 116.8, 71.0 | TP25 | ocp_kelvin_p | OCP comparator input (D4 condition 2) |
+| TP6 | hot5 | F | 115.9, 63.8 | TP26 | ocp_kelvin_p | HOT5 protection rail |
+| TP7 | bus_fault_hot | B | 120.2, 54.7 | TP27 | ocp_kelvin_p | OCP fault, HOT side |
+| TP8 | n_ha | B | 58.7, 74.0 | TP28 | sw_a | HS-A -2 V rail vs switch node (F6 rail at the edge) |
+| TP9 | p_ha | F | 67.1, 51.7 | TP29 | sw_a | HS-A +15 V rail |
+| TP10 | n_hb | F | 18.6, 52.0 | TP30 | sw_b | HS-B -2 V rail vs switch node |
+| TP11 | p_hb | F | 24.7, 47.0 | TP30 | sw_b | HS-B +15 V rail |
+| TP12 | v15_selv | B | 134.0, 131.7 | TP31 | selv_gnd | SELV 15 V |
+| TP13 | v3v3 | B | 55.0, 130.0 | TP32 | selv_gnd | SELV 3.3 V |
+| TP14 | pwm_ha | B | 78.3, 105.9 | TP33 | selv_gnd | PWM A high |
+| TP15 | pwm_la | B | 79.8, 60.8 | TP34 | selv_gnd | PWM A low |
+| TP16 | pwm_hb | B | 56.2, 132.2 | TP32 | selv_gnd | PWM B high |
+| TP17 | permit | B | 44.3, 132.9 | TP35 | selv_gnd | PERMIT |
+| TP18 | bias_bad | B | 14.4, 130.3 | TP36 | selv_gnd | BIAS_BAD (rail monitors) |
+| TP19 | bus_fault | B | 35.2, 133.6 | TP35 | selv_gnd | OCP fault, SELV side |
+| TP20 | ct_mon | B | 23.8, 134.6 | TP36 | selv_gnd | tank CT monitor |
 
 ## Probed elsewhere (no legal test-pad spot)
 
 | Net | Probe at |
 | --- | --- |
-| leg_a-out_h | component pad R53.2 / U1.15 / R10.1 (no legal test-pad spot) |
+| leg_b-out_l | component pad R20.1 / R58.2 / U2.10 (no legal test-pad spot) |
+| leg_a-out_h | component pad R53.2 / R10.1 / U1.15 (no legal test-pad spot) |
+| leg_b-out_h | component pad R57.2 / R18.1 / U2.15 (no legal test-pad spot) |
 | pwm_lb | J4.8 (bottom), ground J4.2 / J4.4 / J4.15 |
-| leg_a-dis | component pad Q1.3 / U22.1 / R8.1 (no legal test-pad spot) |
-| leg_b-dis | component pad Q4.3 / U23.1 / R16.1 (no legal test-pad spot) |
+| leg_a-dis | component pad U22.1 / Q1.3 / R8.1 (no legal test-pad spot) |
+| leg_b-dis | component pad U23.1 / Q4.3 / R16.1 (no legal test-pad spot) |
 | line_zc | J4.16 (bottom), ground J4.2 / J4.4 / J4.15 |
 | ct_zc | J4.13 (bottom), ground J4.2 / J4.4 / J4.15 |
 
@@ -51,7 +51,7 @@ D-8 (`validation-results/01-switching-parasitics/round17/delegation/out-D8/READM
 
 ## Fiducials and fixings
 
-Fiducials: FID1 (8, 36), FID2 (278, 128), FID3 (6, 186) (1 mm copper, 3 mm mask opening, F side).
+Fiducials: FID1 (4, 36), FID2 (278, 128), FID3 (6, 186) (1 mm copper, 3 mm mask opening, F side).
 
 | Hole | At (mm) | HOT copper from the hole wall | Hardware |
 | --- | --- | --- | --- |
@@ -63,5 +63,13 @@ Fiducials: FID1 (8, 36), FID2 (278, 128), FID3 (6, 186) (1 mm copper, 3 mm mask 
 | H6 | 128, 54 | 1.9 mm | **M3 nylon only** (UL94 V-0): screw, washer and standoff. Washer face copper-free on both outer layers (review M4); **nylon standoff ≥ 10 mm**, which carries the HOT→chassis 8.0 mm surface path |
 | H7 | 194, 130 | 15.4 mm | **M3 nylon only** (UL94 V-0): screw, washer and standoff. Washer face copper-free on both outer layers (review M4) |
 
-Positions must match the enclosure's bosses before release (D5-AUDIT.md). The enclosure
-design adopts them, or the holes move with it.
+**Nylon fixings are an insulation part, not hardware choice** (closure review M4):
+- the whole chain at every nylon hole is insulating: nylon screw, nylon washer, and a nylon standoff;
+- the standoff is male-female, or female-female with a nylon screw at the chassis too;
+- no metal screw, nut or insert within 10 mm of the board at these holes.
+
+At the holes marked ≥ 10 mm, one metal screw would sit a millimetre or two of laminate from HOT copper
+while bonded to PE. At the SELV holes, it would add a second SELV–PE bond beyond R38.
+
+Positions are frozen at the stage-8 plan, which the enclosure adopted (R22 bosses).
+`layout/plan_board_only21.py` keeps them while they stay legal and says so when one has to move.

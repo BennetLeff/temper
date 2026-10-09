@@ -49,6 +49,8 @@ These are primary-source verified values. For these parts, p.2 footnote 4 measur
 - Eaton's p.4 curve reads ~96 % at 50 °C and ~93 % at 70 °C; with a 25 % continuous margin that is about 18 A at 50 °C.
 - The conditions above stay open on F1 rather than blocking the swap: the fault-current bound at 127 V / high line against 1.5 kA, the Recognized-component and clip acceptance, and coordination with the upstream fuse.
 
+**127 V corner (enclosure session, R23 `evidence/fuse/fault_current_bound.py`):** the cord-limited prospective fault current at the inlet, from a zero-impedance source through a 14 AWG cord, is 4.26 kA (1.8 m) or 7.66 kA (1.0 m), under 10 kA. With a 15 m branch it is about 0.46 kA, under even the 1.5 kA figure. F1 sits downstream of that. What remains is a certifier confirmation that the 125 Vac rating covers the 127 V (+6 %) corner under the nominal-voltage rule; it is not a part change.
+
 ### Plug/current decision, 2026-10-08
 
 The recorded 16.5 A RMS input envelope exceeds a 15 A plug. A 25 A internal fuse does not limit normal appliance current to 15 A. The existing 15 A product target requires a cap on **total appliance RMS mains current**, including auxiliaries, throughout the line/pan envelope and with sensing/control tolerance allowed for. A fixed watt cap alone is insufficient without minimum line and minimum power factor: `P_input <= V_min * PF_min * I_limit`; pan output must additionally allow for losses and auxiliary power. The existing 22 A tank-current ceiling is a separate requirement.

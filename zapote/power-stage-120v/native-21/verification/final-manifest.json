@@ -1,18 +1,18 @@
 {
  "schema": "temper.native21.engineering-candidate.v1",
  "status": "DIGITAL_CANDIDATE_NOT_MANUFACTURING_RELEASE",
- "routed_board_sha256": "d4468ffd355d6d4a4d6d35ed902019698c9c43e503443fd60fdd81b7d345a5ba",
- "copper_json_sha256": "4b0dc3ca1784a90e27220093e9a045b2ccc234ab84364a2a696e38c0a1a3cc3c",
- "schematic_sha256": "e35d75e7c23d70f1f973bcfde751a2ceb68384f7f3de2bfbffe59bcbc587f244",
- "frozen_netlist_sha256": "889157b516795fbba0ee58dccdb64eafdb79b40c63f378eeba1c4b39a02cd5c1",
+ "routed_board_sha256": "e9d1cc4fb1353a79692354a1be93083c4fb12b1842d9dd9b109fd48949dd443e",
+ "copper_json_sha256": "2b7c8d6a78adc81a4554dcbd306fe87316f24850610fc6ea0a69614697cdfaa4",
+ "schematic_sha256": "87eb480c769fe6ea8887d03529e1b586f3126d34e213048ff07c3fd745b014a6",
+ "frozen_netlist_sha256": "3cbd9d76884254fab9bece7895eb717f75a61a644a1e3ee27c00a2331fde4384",
  "rebuild": "sh native-21/layout/incr_iter.sh native-21/layout/copper.json - [OUTDIR]",
- "components": 351,
+ "components": 355,
  "drc": {
   "errors": 0,
   "unconnected": 0,
   "schematic_parity_findings": 0,
   "warnings": {
-   "track_dangling": 13,
+   "track_dangling": 9,
    "silk_edge_clearance": 4,
    "lib_footprint_issues": 199,
    "silk_overlap": 9,
@@ -24,23 +24,23 @@
   "warnings": {
    "isolated_pin_label": 65,
    "ground_pin_not_ground": 9,
-   "footprint_link_issues": "348, environmental: the unconfigured stock-library table (stage 7 shows 344 under the same CLI)"
+   "footprint_link_issues": "352, environmental (unconfigured stock-library table)"
   }
  },
  "plane_splits": 0,
  "barrier_plan_view_8mm": {
   "barrier21": 0,
   "rust_gate_violations": 0,
-  "rust_gate_items": 5836
+  "rust_gate_items": 5758
  },
  "body_collisions": {
-  "solids": 409,
+  "solids": 413,
   "unattributed": 0,
   "part_overlaps": 0,
-  "envelopes_added_stage8": "J3 25 mm, F1 15 mm (conservative bounds: no stock 3D model for the VH header or the 6.3x32 clips)"
+  "envelopes": "J3 25 mm, F1 15 mm (no stock 3D model)"
  },
  "board_in_R4": {
-  "bodies": 411,
+  "bodies": 415,
   "hits": 0
  },
  "kelvin_ocp_band_A": [
@@ -49,38 +49,38 @@
  ],
  "kelvin_meets_44A": true,
  "reference_labels": {
-  "silk": 288,
-  "fab_only": 113
+  "silk": 287,
+  "fab_only": 114
  },
  "via_in_pad_remaining": {
-  "drill_fully_inside_smd_pad": 77,
+  "drill_fully_inside_smd_pad": 78,
   "drill_overlapping_pad_edge": 64,
-  "note": "includes the B2 exposed-pad fields and R5's current-pad arrays; every 0.3 mm via is POFV"
+  "note": "every 0.3 mm via is POFV"
  },
  "fem": "both legs' coarse native-21 matrices extracted on the stage-5 copper (native21-all-copper.json.gz); provisional decision matrices pass F6 at the -1.6 V bound 252/252 per leg (FINDINGS M11). Stage 6 adds vias only at R5's current pads (return path parallel copper; not expected to raise loop L). Corrections and fine extraction running.",
  "physical": "NOT_RUN",
  "jlc_dfm": {
   "status": "PASS",
   "evidence": "validation-results/08-manufacturing-package/native-21/jlc-dfm.json",
-  "rules": "tools/jlc_dfm_check.py 2026-10-08: PTH ring >= 0.254, via ring >= 0.15, track >= 0.2",
+  "rules": "tools/jlc_dfm_check.py: PTH ring >= 0.254, via ring >= 0.15, track >= 0.2",
   "vias": {
-   "0.6/0.3": 555,
+   "0.6/0.3": 545,
    "0.85/0.3": 215,
    "1.6/0.8": 10
   }
  },
  "via_in_pad_decision": "order every 0.3 mm via epoxy-filled and capped (POFV); DECISIONS.md 2026-10-08",
- "stage": "8: independent-review fixes (B1 driver decoupling, B2 exposed-pad vias, M1 isolator decoupling, M3 reliefs, M4 nylon holes, M7 J3, M8 F1, M12 silk); routed from stage-6 copper with hand routes in layout/patches21.py add_stage8",
- "board_hash_note": "rebuilds are not byte-identical (KiCad UUIDs / timestamps); copper_json_sha256 is the reproducible identity. Board d4468ffd still carries F1's earlier MPN in its footprint field; the BOM comes from the frozen netlist (MDA-25-R), and the next rebuild picks it up",
+ "stage": "9: stage 8 + UCC21550 VDD-VSS 0805 stacks straddling each output (review B1 closure), sw_a gate return restored to stage 7 (N1), board-only plan frozen",
+ "board_hash_note": "rebuilds are not byte-identical (KiCad UUIDs / timestamps); copper_json_sha256 is the reproducible identity",
  "r5_current_vias": {
   "R5.1_leg_ret": 10,
   "R5.4_hv_ret": 7,
   "worst_via_A_coherent_34A": 7.27,
   "evidence": "validation-results/04-board-current-thermal/round5-native21"
  },
- "kelvin_evidence": "validation-results/02-protection-timing/kelvin/budget-native21s8.json (R35.2 161.72 mOhm)",
- "board_current_screen": "task 04 round 5 re-run on stage 8: 37 scenarios, tank paths unchanged; BUS_P mesh span 4.109 % (as stage 6); B3 nominal U26 pad cell 162 / 138 C (stage 6 176 / 152)",
- "fab_package": "validation-results/08-manufacturing-package/native-21 (candidate; review PASS 892/892; DFM PASS; ENIG, POFV, CTI as order conditions; assembly drawing)",
+ "kelvin_evidence": "validation-results/02-protection-timing/kelvin/budget-native21s9.json (R35.2 161.89 mOhm)",
+ "board_current_screen": "task 04 round 5 re-run on stage 9: tank paths unchanged; BUS_P mesh span 4.110 % (as before); B3 nominal U26 pad cell 167 / 143 C",
+ "fab_package": "validation-results/08-manufacturing-package/native-21 (candidate; review PASS 882/882; DFM PASS; ENIG, POFV, CTI as order conditions; assembly drawing)",
  "tank_path_width_screen": {
   "SW_B_long_section_mm": "8.1-9.3 (was 4.4-5.6 over x 58-74)",
   "SW_A_long_section_mm": 7.0,
@@ -97,10 +97,11 @@
   "R51,R52,R55,R56": "RC1206FR-070R68L (no such RC part) -> RL1206FR-070R68L",
   "F1": "0326020.MXP (20 A; ~14.5 A continuous after derating) -> 0326025.MXP (no 125 Vac breaking figure) -> Eaton Bussmann MDA-25-R (10 kA @ 125 Vac, 1.5 kA @ 250 Vac, Eaton TD 2002); clips 01220088Z (30 A). Open: fault current above 125 Vac vs 1.5 kA, Recognized-component acceptance",
   "J3": "B2P-VH (1.26 mm gap) -> B2P3-VH(LF)(SN) (7.92 mm pitch, 5.22 mm gap)",
-  "C10,C11,C17,C18": "new: HS driver VDDA-VSSA 100 nF 0603 + 10 uF 0805 (GRM21BZ71E106KE15L) per leg"
+  "C10,C11,C17,C18": "new: HS driver VDDA-VSSA 100 nF 0603 + 10 uF 0805 (GRM21BZ71E106KE15L) per leg",
+  "C10,C15,C8,C17 / C145-C148": "stage 9: c_hs / c_ls -> 0805 100 nF CC0805KRX7R9BB104; new c_hs_1u / c_ls_1u 1 uF GRM21BR71H105KA12L per leg"
  },
  "lcsc": {
-  "with_lcsc": 86,
+  "with_lcsc": 88,
   "consign_or_hand": 7,
   "extra_line": "F1-CLIP 2 x 01220088Z",
   "evidence": "validation-results/08-manufacturing-package/native-21/sourcing"
@@ -111,14 +112,19 @@
   "open": "enclosure bosses to match H1-H7, CTI, PD3, IEC 60664-4, hipot"
  },
  "board_only": {
-  "test_pads": 40,
+  "test_pads": 36,
   "fiducials": 3,
   "mounting_holes": {
    "metal": 1,
    "nylon": 6
   },
+  "positions": "frozen at the stage-8 plan the enclosure adopted",
   "spec": "layout/board_only21.json",
-  "probe_map": "BRINGUP-PROBES.md (generated by layout/probe_map21.py)"
+  "probe_map": "BRINGUP-PROBES.md (layout/probe_map21.py)"
  },
- "evidence_note": "DRC/ERC, both barrier gates, D5, DFM, Gerber review, task 04, B3, Kelvin and the R4 fit all re-ran on stage 8 (d4468ffd). FEM did not: its matrices are on stage-5 copper. Stage 8 kept the four OUT gate lanes untouched (place.py OUT_LANES), but added the HS/LS decoupling caps about 4 mm from the driver pins; gate loops were not re-extracted."
+ "evidence_note": "DRC/ERC, both barrier gates, D5, DFM, Gerber review, task 04, B3, Kelvin and the R4 fit re-ran on stage 9 (e9d1cc4f). The gate loops are bounded (+2 nH, F6 252/252 per leg) rather than re-extracted.",
+ "driver_decoupling": {
+  "loop_mm": "2.07-2.2, no vias, all four channels (reviewer path.py)",
+  "gate_loop_bound": "+2 nH per gate diagonal: F6 252/252 per leg (round17/d2/compose_stage9_bound.py)"
+ }
 }

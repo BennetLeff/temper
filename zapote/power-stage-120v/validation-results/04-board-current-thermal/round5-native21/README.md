@@ -159,6 +159,13 @@ U26's pad cell falls 14 K, which is consistent with its new 3 × 3 exposed-pad v
 caveat above stands: these are grid-sensitive pad-cell values, not part temperatures. The extreme
 runs rise 1–10 K and remain outside the 22 A envelope.
 
+### Stage 9 re-run (2026-10-08, board `e9d1cc4f…`)
+
+`inputs/` and `outputs/` hold stage 9.
+- **Copper screen:** 37 scenarios; the tank paths are identical to stage 8 (SW_A 4.146, SW_B 6.980 / 7.010, coil feed 0.410 mΩ).
+- **BUS_P mesh span:** 4.110 %, as before.
+- **B3:** U26's pad cell is 167 / 143 °C nominal at h 10 / 25 (stage 8: 162 / 138), with the same grid caveat. The extreme runs are 352 / 236 °C at 1 mm and 392 / 263 °C at 0.5 mm.
+
 **Verdict, task 04 on native-21:** nominal operation passes the copper width screen after the SW_B
 fix (SW_A at 18.8 K is the tightest). The board needs a tank-current ceiling (22 A RMS interim).
 Bench IR at nominal power remains the physical gate (D4).

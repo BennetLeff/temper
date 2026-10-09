@@ -502,9 +502,9 @@
 {
 "ref": "C8",
 "path": "leg_a.c_ls",
-"fp": "Capacitor_SMD:C_0603_1608Metric",
-"w": 3.05,
-"h": 1.55,
+"fp": "Capacitor_SMD:C_0805_2012Metric",
+"w": 3.49,
+"h": 2.05,
 "ox": 0.0,
 "oy": 0.0,
 "group": "leg_a"
@@ -592,9 +592,9 @@
 {
 "ref": "C15",
 "path": "leg_b.c_ls",
-"fp": "Capacitor_SMD:C_0603_1608Metric",
-"w": 3.05,
-"h": 1.55,
+"fp": "Capacitor_SMD:C_0805_2012Metric",
+"w": 3.49,
+"h": 2.05,
 "ox": 0.0,
 "oy": 0.0,
 "group": "leg_b"
@@ -3472,9 +3472,9 @@
 {
 "ref": "C10",
 "path": "leg_a.c_hs",
-"fp": "Capacitor_SMD:C_0603_1608Metric",
-"w": 3.05,
-"h": 1.55,
+"fp": "Capacitor_SMD:C_0805_2012Metric",
+"w": 3.49,
+"h": 2.05,
 "ox": 0.0,
 "oy": 0.0,
 "group": "leg_a"
@@ -3482,9 +3482,9 @@
 {
 "ref": "C17",
 "path": "leg_b.c_hs",
-"fp": "Capacitor_SMD:C_0603_1608Metric",
-"w": 3.05,
-"h": 1.55,
+"fp": "Capacitor_SMD:C_0805_2012Metric",
+"w": 3.49,
+"h": 2.05,
 "ox": 0.0,
 "oy": 0.0,
 "group": "leg_b"
@@ -3502,6 +3502,46 @@
 {
 "ref": "C18",
 "path": "leg_b.c_hs_bulk",
+"fp": "Capacitor_SMD:C_0805_2012Metric",
+"w": 3.49,
+"h": 2.05,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "C145",
+"path": "leg_a.c_hs_1u",
+"fp": "Capacitor_SMD:C_0805_2012Metric",
+"w": 3.49,
+"h": 2.05,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "C146",
+"path": "leg_a.c_ls_1u",
+"fp": "Capacitor_SMD:C_0805_2012Metric",
+"w": 3.49,
+"h": 2.05,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "C147",
+"path": "leg_b.c_hs_1u",
+"fp": "Capacitor_SMD:C_0805_2012Metric",
+"w": 3.49,
+"h": 2.05,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "C148",
+"path": "leg_b.c_ls_1u",
 "fp": "Capacitor_SMD:C_0805_2012Metric",
 "w": 3.49,
 "h": 2.05,

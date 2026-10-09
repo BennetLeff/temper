@@ -580,3 +580,7 @@ F6 at the −1.6 V bound (`results/f6-vneg-m1p6-legB21-prov{,-startup}/`): **252
 | S5 burst start | — | 0.19 V / 404 V |
 
 Both legs of native-21 pass every F6 decision and startup case on the provisional matrices.
+
+**Stage 9 bound (2026-10-08).** Stage 9 necks each driver output to 0.3 mm for ≈ 7.5 mm under its new VDD–VSS cap stack; the rest of the gate-loop copper is as extracted. `compose_stage9_bound.py` writes `leg{A,B}21-h0-s9b2-n21.matrix.txt`: the provisional matrices with +2 nH on both gate-port diagonals, about twice a thin-strip estimate of the neck. F6 at −1.6 V (PMEG, 27/100/150 °C; `results/f6-vneg-m1p6-leg{A,B}21-s9b2{,-startup}/`) passes **252/252 on both legs**.
+- Worst off-gate: 0.694 V (leg A, S4) and 1.145 V (leg B, S4), against 1.9 V.
+- Worst die VDS: 467.6 V (A) and 490.2 V (B), against 520 V.

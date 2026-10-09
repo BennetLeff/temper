@@ -20,6 +20,13 @@ SWA_TRIM = (58.0, 12.5, 76.6, 16.1)
 SWB_RAISE = (57.0, 15.7, 79.7, 19.4)
 REMOVE = [{"net": "sw_a", "box": [72.9, 15.6, 73.3, 16.0], "kind": "via"},
           {"net": "sw_a", "box": [59.8, 11.1, 73.2, 15.9], "kind": "track", "layer": "B.Cu"}]
+# Stage 9 (review B1): each UCC21550 output leaves its pin as a 0.3 mm neck under a stack of 0805
+# VDD-VSS caps (place.py STACK); the four base output polylines are re-laid in add_stack, identical
+# beyond the neck. Also the dead In1 leg_ret stub (55.6-95.4 at y 40, lying on the full 55.6-110 run;
+# closure review N3).
+REMOVE += [{"net": n, "box": [x - 0.5, 45.5, x + 0.5, 46.5], "kind": "track", "layer": "F.Cu", "touch": True}
+           for n, x in (("leg_a-out_h", 76.87), ("leg_a-out_l", 83.22), ("leg_b-out_h", 29.82), ("leg_b-out_l", 36.17))]
+REMOVE += [{"net": "leg_ret", "box": [55.5, 39.9, 95.5, 40.1], "kind": "track", "layer": "In1.Cu"}]
 REMOVE_ESCAPES = [("J3", "1"), ("J3", "2")]   # the 3.96 mm J3 pin escapes; the 7.92 mm B2P3-VH needs none (M7)
 HANDLED = ()
 
@@ -118,26 +125,44 @@ def add(g):
     put(g, "sw_a", "B.Cu", 0.4, list(TIE), [TIE[0], 12.0])
     add_r5(g)
     add_ep(g)
+    add_stack(g)
     add_stage8(g)
 
 
-def add_stage8(g):
-    """Stage-8 hand routes (review B1 / M1), laid before the incremental router so it routes round them.
+# Output polylines (base copper), with the y where each leaves 0.6 / 0.5 mm for the 0.3 mm neck
+OUT_POLY = {"leg_a-out_h": ("U1.15", 0.6, [[75.1, 17.9], [75.1, 18.9], [77.0, 20.5], [77.0, 38.3]], [76.83, 38.6]),
+            "leg_a-out_l": ("U1.10", 0.5, [[82.0, 37.0], [83.17, 39.9]], None),
+            "leg_b-out_h": ("U2.15", 0.6, [[17.0, 17.9], [17.0, 18.9], [12.6, 21.0], [12.6, 32.9], [29.82, 32.9],
+                                           [29.82, 38.3]], [29.83, 38.6]),
+            "leg_b-out_l": ("U2.10", 0.6, [[35.0, 17.9], [35.0, 18.9], [35.95, 21.5], [35.95, 39.6]], [36.17, 39.9])}
+POURS = ("bus_p", "hv_ret", "leg_ret", "sw_a", "sw_b")    # pours the unchanged base routes cross; KiCad refills round them
+ESC = {n: POURS for n in ("leg_a-out_h", "leg_a-out_l", "leg_b-out_h", "leg_b-out_l")}
+# Pin -> stack columns: (pin, column x, top-of-stack y) per supply net; pads sit at 1.9 mm pitch
+STACK_TIES = [("U1.16", "p_ha", 75.88, 39.75), ("U1.14", "n_ha", 77.78, 39.75),
+              ("U1.11", "v15_ls", 82.22, 41.85), ("U1.9", "n_ls", 84.12, 41.85),
+              ("U2.16", "p_hb", 28.88, 39.75), ("U2.14", "n_hb", 30.78, 39.75),
+              ("U2.11", "v15_ls", 35.22, 41.85), ("U2.9", "n_ls", 37.12, 41.85)]
 
-    Leg A high side: the router spent the column right of the C10 / C11 stack on n_ha and left C11's
-    p_ha pad boxed in by n_ha on both sides. Leg B routed itself in this topology, so leg A gets it
-    by hand, all on F.Cu: no n_ha via can sit here, since leg A's LOW-group In1 runs (out_l y 34.7,
-    n_ls / leg_ret / v15_ls y 39.2-40.8) are within the 3.2 mm HOT-group spacing everywhere in the
-    stack. p_ha takes the right column (x 75.95, 0.6 mm from OUTA's lane): C10.1, C11.1 and the
-    bleed resistor R71.1 (rotated so its p_ha pad faces the column). n_ha takes the left: C11.2 down
-    to C50.2, the reservoir cap whose n_ha already reaches the pour; C10.2 joins it on the router.
-    U33's VCC1 cap C137 (M1) and U30's spanuv line: the cap's new spot cut the old v5 run, and
-    U27's exposed-pad via field cleared spanuv's In2 run under it, and U28's cleared leg B's ov run
-    (the router reports it linked, but the join never closes); all three are re-linked here."""
-    from patches21_v1 import put, route_group
-    put(g, "p_ha", "F.Cu", 0.25, "C10.1", [75.95, 41.875], [75.95, 34.35], "R71.1")
-    put(g, "p_ha", "F.Cu", 0.25, "C11.1", [75.95, 38.3])
-    put(g, "n_ha", "F.Cu", 0.25, "C11.2", [73.3, 36.4], [73.3, 39.6], "C50.2")
+
+def add_stack(g):
+    """Stage 9 (review B1): the UCC21550 VDD-VSS stacks. Each output leaves its pin as a 0.3 mm neck
+    through its stack's 0.9 mm pad gap (0.3 mm clear both sides); the supply pins tie straight up
+    to the pad columns (0.4 mm), so each cap's loop is pin - pad - pad - pin, ~3 mm, no vias."""
+    from patches21_v1 import put
+    for net, (pin, w, wide, jog) in OUT_POLY.items():
+        # the wide part is the base polyline unchanged (DRC-clean through stage 8); the pours it
+        # crosses refill round it, so put()'s pour-outline check is waived there (final DRC decides)
+        put(g, net, "F.Cu", w, *wide, escape=ESC.get(net))
+        put(g, net, "F.Cu", 0.3, wide[-1], *([jog] if jog else []), pin)
+    for pin, net, x, top in STACK_TIES:
+        put(g, net, "F.Cu", 0.4, pin, [x, 43.95], [x, top])
+
+
+def add_stage8(g):
+    """Stage-8 re-links (review M1 / B2 side effects): U33's VCC1 cap C137's new spot cut the old v5
+    run; U27's exposed-pad via field cleared spanuv's In2 run under it, and U28's cleared leg B's ov
+    run (the router reports it linked, but the join never closes). All three are re-linked here."""
+    from patches21_v1 import route_group
     route_group(g, [("bias_ha.monitor-v5", ("F.Cu", "B.Cu"), (56.0, 96.0, 68.0, 114.0), 0.25, ["C137.1", "U33.3"]),
                     ("bias_ha.monitor-spanuv", CU, (44.0, 78.0, 58.0, 116.0), 0.2, ["U30.9", "C78.1"]),
                     ("bias_hb.monitor-ov", CU, (0.6, 70.0, 20.0, 114.0), 0.2, ["U31.4", "C84.1"])])

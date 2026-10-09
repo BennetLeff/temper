@@ -62,3 +62,5 @@ Files: [plane-native21.json](plane-native21.json), [budget-native21.json](budget
 - The band is **47.52–97.98 A**, which meets the 44 A minimum.
 - `kelvin_plane.py` now skips bring-up test pads (TP*) in the transfer list. Their copper stays in the plane, but a probe returns no current, and each sits on a via drill the sheet solver can't inject into.
 - Files: [plane-native21s8.json](plane-native21s8.json), [budget-native21s8.json](budget-native21s8.json).
+
+**Stage 9** (driver decoupling stacks, board `e9d1cc4f…`, export `native-21/verification/native21s9-all-copper.json.gz`; tag `native21s9`): R35.2 sits **161.89 mΩ** above R5.2, and the band is **47.52–97.98 A**, which meets 44 A. Files: [plane-native21s9.json](plane-native21s9.json), [budget-native21s9.json](budget-native21s9.json).
