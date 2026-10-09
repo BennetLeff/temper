@@ -39,21 +39,18 @@ component PeBranchTerminal:
     signal p2 ~ pin 2
 
 component MainsFuse25A:
-    """Eaton Bussmann MDA-25-R 25 A 250 V time-delay ceramic 6.3x32 mm: 10 kA @ 125 Vac, 1.5 kA @
-    250 Vac, typical melting I2t 734.7 A2s, cULus Recognized E19180 (Technical Data 2002, Nov 2025,
-    pp.1-2, read 2026-10-08). It replaces Littelfuse 0326025.MXP, whose table gives no 125 Vac figure
-    (400 A @ 250 Vac). Eaton's p.4 derating is ~96 % at 50 C, so 25 x 0.75 x 0.96 ~ 18 A continuous.
-    Above 125 Vac only the 1.5 kA figure applies. It sits in a pair of Littelfuse
-    01220088Z 122-series clips (30 A, UL E14721, listed for 326-series fuses; 102/122 datasheet
-    rev 06/26/18 p.1). The 102071 clips of the earlier footprint are 10 A (review M8, 2026-10-08).
-    The clips are an assembly line of their own (FAB-NOTE). 25 A, not 20 A (2026-10-08): the
-    325/326 datasheet (rev 04/29/19 p.3) puts its temperature re-rating "in addition to the
-    standard derating of 25% for continuous operation", about 97 % at 50 C, so a 20 A fuse carries
-    ~14.5 A continuous against a 14-16.5 A RMS line current."""
+    """Littelfuse KLDR025.TXP: UL Class CC (UL 248-4), 25 A time-delay, 600 Vac, 200 kA interrupting,
+    10.3 x 38.1 mm (KLDR datasheet Rev 092821: p.1 ratings, p.5 I2t 226 / 1,710 A2s, p.6 ~10 %
+    downrating at 50 C, so 25 x 0.75 x 0.90 ~ 16.9 A continuous against the 15 A input limit).
+    Alternate: Eaton Bussmann LP-CC-25. Chosen 2026-10-09 for the 120-127 V~ nameplate (Mexico from
+    day 1): the 6.3 x 32 MDA-25-R is rated 1.5 kA at 250 Vac, against a cord-limited fault bound of
+    4.7-8.4 kA at 127 V + 10 %; 200 kA ends the question for UL, CSA and NOM. Held in 2 x Littelfuse
+    01250003H 125-series clips (30 A, LCSC C223911), custom footprint, hand-assembled
+    (validation-results/08-manufacturing-package/native-21/owner-items/f1cc/)."""
     designator_prefix = "F"
-    mpn = "MDA-25-R"
-    manufacturer = "Eaton Bussmann"
-    footprint = "Fuse:Fuseholder_Clip-6.3x32mm_Littelfuse_102_122_Inline_P34.21x7.62mm_D1.98mm_Horizontal"
+    mpn = "KLDR025.TXP"
+    manufacturer = "Littelfuse"
+    footprint = "temper:Fuseholder_Clip-10.3x38mm_Littelfuse_125_Inline_P41.76x10.80mm_Slot1.2x2.5mm_Horizontal"
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 

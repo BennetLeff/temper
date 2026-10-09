@@ -1,6 +1,6 @@
 Comment,Designator,Footprint,LCSC Part #,Manufacturer Part Number,Mount,Assembly
 1711725,J1,TerminalBlock_Phoenix_MKDS-3-2-5.08_1x02_P5.08mm_Horizontal,C89120,1711725,THT,JLC (Extended); stock at survey: JLC 2393 / LCSC 2393
-MDA-25-R,F1,Fuseholder_Clip-6.3x32mm_Littelfuse_102_122_Inline_P34.21x7.62mm_D1.98mm_Horizontal,,MDA-25-R,THT,consign or hand-assemble (not on LCSC / no stock / no exact match)
+KLDR025.TXP,F1,Fuseholder_Clip-10.3x38mm_Littelfuse_125_Inline_P41.76x10.80mm_Slot1.2x2.5mm_Horizontal,,KLDR025.TXP,THT,consign or hand-assemble (not on LCSC / no stock / no exact match)
 TMOV20RP175E,RV1,TMOV20RP_ReviewOnly,C1527834,TMOV20RP175E,THT,JLC (Extended); stock at survey: JLC 114 / LCSC 114
 R463N410000N1M,"C1,C2",KEMET_R463N410000N1M_P22.50_ReviewOnly,C19898344,R463N410000N1M,THT,JLC (Extended); stock at survey: JLC 0 / LCSC 0
 RC1206FR-07120KL,"R1,R2",R_1206_3216Metric,C163387,RC1206FR-07120KL,SMD,JLC (Extended); stock at survey: JLC 202540 / LCSC 192850
@@ -94,4 +94,4 @@ PMEG10030ELPX,"D10,D11,D12,D13",D_SOD-128,C5260346,PMEG10030ELPX,SMD,JLC (Extend
 RC1206FR-0716K5L,"R67,R68,R69,R70",R_1206_3216Metric,C274054,RC1206FR-0716K5L,SMD,JLC (Extended); stock at survey: JLC 5024 / LCSC 4900
 VOL628A-3X001T,U36,VOL628A_LSOP4_ReviewOnly,C17618137,VOL628A-3X001T,SMD,JLC (Extended); stock at survey: JLC 0 / LCSC 0
 RC0603FR-0733KL,R125,R_0603_1608Metric,C126359,RC0603FR-0733KL,SMD,JLC (Extended); stock at survey: JLC 610842 / LCSC 610200
-"Fuse clip 6.3x32 mm, 30 A (2 per F1)",F1-CLIP,,,01220088Z,THT,"hand-solder, 2 per board (not a source component)"
+"Fuse clip 10x38 mm (midget / Class CC), 30 A (2 per F1)",F1-CLIP,,C223911,01250003H,THT,"hand-solder, 2 per board (not a source component)"

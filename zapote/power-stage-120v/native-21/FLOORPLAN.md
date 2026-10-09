@@ -209,6 +209,10 @@ run, and that count is 0. Their inductance effect belongs to the FEM rerun on th
   - Hole and fiducial designators on F.Fab.
   - Silk text placement uses the real stroke width: silk warnings 13 → 3.
   - Board `e85a4c82…`: every gate 0 / PASS.
+- **Stage 12 (2026-10-09):** F1 is now a UL Class CC fuse (Littelfuse KLDR025.TXP, 600 V / 200 kA) for the 120–127 V nameplate (Mexico from day 1).
+  - **Fit:** 10 × 38 clips (2 × 01250003H) on plated slots at (252.00, 7.25); C1 moved +0.6 mm; the F.Cu ac_l_in / l_f pours redrawn.
+  - **Board `fc386321…`:** every gate 0 / PASS.
+  - **Tool fixes:** the DFM slot-ring check and the task-04 slot model.
 - **Open items:**
   - **U26 spreading plane (watch):** In1 n_ls within 12 mm of U26 fell 181 → 162 mm² over stages 8–11. IR-check at first power-up.
   - **Board fixings (stage 8 positions, frozen):** H1 metal-capable, H2-H7 nylon only (H4-H6 need nylon standoffs >= 10 mm, HOT copper near the hole wall); the enclosure must match them

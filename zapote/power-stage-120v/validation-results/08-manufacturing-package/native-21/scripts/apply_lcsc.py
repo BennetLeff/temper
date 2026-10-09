@@ -45,8 +45,8 @@ for r in rows:
         r["LCSC Part #"], r["Assembly"] = "", "consign or hand-assemble (not on LCSC / no stock / no exact match)"
         counts["consign"] += 1
 clip = dict.fromkeys(rows[0], "")
-clip.update({"Comment": "Fuse clip 6.3x32 mm, 30 A (2 per F1)", "Designator": "F1-CLIP",
-             "Manufacturer Part Number": "01220088Z", "Mount": "THT", "Assembly": "hand-solder, 2 per board (not a source component)"})
+clip.update({"Comment": "Fuse clip 10x38 mm (midget / Class CC), 30 A (2 per F1)", "Designator": "F1-CLIP",
+             "Manufacturer Part Number": "01250003H", "LCSC Part #": "C223911", "Mount": "THT", "Assembly": "hand-solder, 2 per board (not a source component)"})
 rows = [r for r in rows if r["Designator"] != "F1-CLIP"] + [clip]
 with open(bom_path, "w", newline="") as f:
     w = csv.DictWriter(f, fieldnames=list(rows[0].keys()))

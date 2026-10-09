@@ -1,11 +1,11 @@
 {
   "atopile_version": "0.2.69",
   "build_sha256": {
-    "build/default.csv": "fb8ebfc0604db5388ea3ee44e724517b85ccfcfd78404c3ffb72ddbc89663ea8",
+    "build/default.csv": "3c5f1afe9a39e102f0fe6016ee91e09528070a45a48774da292aa05e88aed974",
     "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-    "build/default.net": "4a848153742a60167ef230090a2cd056f6f71993b2dd95f8ecdd268dd89d67d3",
+    "build/default.net": "a5bc99bd196b0e868a5333bfed470e05311661aed70a53fb5778643a3a0cf955",
     "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5",
-    "build/resolved-components.json": "34216a5b444e63d6fc08261dc247513127e8c317ff7423872aa24f475a84fe20"
+    "build/resolved-components.json": "de83f85ea286ea50155f3e55812ce9a9c903d70fb0d5d71954d4c02e3b0dd5ae"
   },
   "components": [
     {
@@ -23,9 +23,9 @@
       "attributes": {
         "designator": "F1",
         "designator_prefix": "F",
-        "footprint": "Fuse:Fuseholder_Clip-6.3x32mm_Littelfuse_102_122_Inline_P34.21x7.62mm_D1.98mm_Horizontal",
-        "manufacturer": "Eaton Bussmann",
-        "mpn": "MDA-25-R"
+        "footprint": "temper:Fuseholder_Clip-10.3x38mm_Littelfuse_125_Inline_P41.76x10.80mm_Slot1.2x2.5mm_Horizontal",
+        "manufacturer": "Littelfuse",
+        "mpn": "KLDR025.TXP"
       }
     },
     {
@@ -3841,7 +3841,7 @@
   "source_sha256": {
     "elec/src/f6_bias.ato": "877f37a82db45f26957fe1e8db3cae28c797aab99e4ebdd27081f69db8964596",
     "elec/src/f6_parts.ato": "7e202c66e64cae56f8db0f0849ab73e7f9767e8b103134ae7e2112e08418b32c",
-    "elec/src/parts.ato": "32ab26238214f4b70d16ea9395a216768f7dcc500757b55ad1ada0d76bfd2954",
+    "elec/src/parts.ato": "092a905b2330cf48425f38ef62953c3a7ee21cf275501b04923d364d1fe2bc74",
     "elec/src/power_stage_120v.ato": "f4931aceed480485e054772c4d119e2b41007b9437cfa5951691d86f5dab4998",
     "prototype-closure/round4/supervisor/generated/supervisor.ato": "1d6674935534a46c6c82f61c4f18890de7fa7cbf81f89c1cb63efb7bfed1b7e3"
   }

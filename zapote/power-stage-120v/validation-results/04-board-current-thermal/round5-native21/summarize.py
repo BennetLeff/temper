@@ -25,8 +25,11 @@ def barrel_index(data):
         drill=item.get('drill_mm',0)
         if kind=='pad':
             if drill[0]!=drill[1]:
-                raise ValueError('slotted drill unsupported')
-            drill=drill[0]
+                # plated slot: equal-area round barrel, as run_board.py models it (stage 12, F1 clips)
+                lo_d,hi_d=min(drill),max(drill)
+                drill=(4*((hi_d-lo_d)*lo_d+math.pi*lo_d**2/4)/math.pi)**0.5
+            else:
+                drill=drill[0]
         if drill<=0:
             continue
         key=(kind,*item['centre'])

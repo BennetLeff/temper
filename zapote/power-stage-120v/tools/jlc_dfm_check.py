@@ -59,9 +59,11 @@ def main() -> None:
                 continue
             pads += 1
             s = p.GetSize(pcbnew.F_Cu)
-            ring = (mm(min(s.x, s.y)) - mm(max(d.x, d.y))) / 2
+            # axis by axis in the pad's own frame (size and drill share it), so an oval slot in an
+            # oval pad is measured correctly; for a round drill this equals (min(size) - drill) / 2
+            ring = min(mm(s.x) - mm(d.x), mm(s.y) - mm(d.y)) / 2
             lo, hi = LIMITS["pth_drill_mm"]
-            if ring < LIMITS["annular_ring_mm"] - 1e-9 or not lo <= mm(d.x) <= hi:
+            if ring < LIMITS["annular_ring_mm"] - 1e-9 or not (lo <= mm(d.x) <= hi and lo <= mm(d.y) <= hi):
                 fails.append({"kind": "pad", "ref": f"{fp.GetReference()}.{p.GetNumber()}",
                               "ring_mm": round(ring, 4), "drill_mm": mm(d.x)})
             missing = [n for n, lid in (("F.Cu", pcbnew.F_Cu), ("B.Cu", pcbnew.B_Cu)) if not p.FlashLayer(lid)]

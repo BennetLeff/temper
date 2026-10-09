@@ -1,8 +1,8 @@
 # Native-21 D5 insulation audit (2026-10-08)
 
 What the routed board shows against D5-BASIS.md's provisional 8.0 mm floor, and what only the
-laboratory, vendors or the enclosure can close. Board: native-21 stage 11, rebuild
-`e85a4c82…` (`d5_audit.py <copper-dump.json> <board pads.json>`, the board's own pads so the fixings
+laboratory, vendors or the enclosure can close. Board: native-21 stage 12, rebuild
+`fc386321…` (`d5_audit.py <copper-dump.json> <board pads.json>`, the board's own pads so the fixings
 are measured). Tool: `d5_audit.py` → `d5-audit.json`; `mounting_candidates.py` → `mounting-candidates.json`.
 
 ## Board measurements (all PASS)

@@ -11,7 +11,7 @@
 ))
 (symbol "Part_F1" (pin_names (offset 0.508)) (in_bom yes) (on_board yes)
 (property "Reference" "F" (at 0 7.6200 0) (effects (font (size 1.27 1.27))))
-(property "Value" "MDA-25-R" (at 0 -7.6200 0) (effects (font (size 1.27 1.27))))
+(property "Value" "KLDR025.TXP" (at 0 -7.6200 0) (effects (font (size 1.27 1.27))))
 (property "Footprint" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
 (property "Datasheet" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
 (symbol "Part_F1_0_1" (rectangle (start -12.7 -5.0800) (end 12.7 5.0800) (stroke (width 0.254) (type default)) (fill (type background))))

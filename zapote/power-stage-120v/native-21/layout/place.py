@@ -198,7 +198,7 @@ put("link_pos.terminal_bus", 143.0, 19.5)
 put("ps_gate", 186.5, 14.0)                     # rear band; N_FILT pin on the mains lane, LS rails down
 put("j_tco", 218.2, 7.6, 90)    # B2P3-VH (7.92 mm pitch, review M7) stands vertical between PS2 and F1 / R1
 put("j_pe", 160.0, 134.5, 90)
-put("f1", 244.5, 6.0, 180)    # line clip toward J1, load clip toward L1
+put("f1", 252.0, 7.25, 0)     # Class CC 10x38 clips (stage 12): pads 1 (ac_l_in) toward J1, pads 2 (l_f) toward L1
 put("j_mains", 283.5, 7.2)
 # ---------------- tank block, next to the core --------------------------------
 # Resonant bank stacked right of the SW_A column: RES_A pins left (x 155.25), SW_B pins right
@@ -215,7 +215,7 @@ for i, n in enumerate(("r_crb1", "r_crb2", "r_crb3", "r_crb4")):
     put(n, 158.0 + 10.0 * i, 41.0)
 # ---------------- mains block, far end ----------------------------------------
 put("rv1", 276.5, 28.0, 270)   # L_F pin up toward the fuse, AC_N_IN down
-put("cx1", 249.5, 19.5)
+put("cx1", 249.5, 20.1)       # +0.6 mm (stage 12) to clear F1's 10x38 courtyard; 3.4 mm kept to the B.Cu ac_n_in track
 put("rb1a", 226.0, 15.0)
 put("rb1b", 226.0, 23.0)
 put("l1", 237.0, 43.5)

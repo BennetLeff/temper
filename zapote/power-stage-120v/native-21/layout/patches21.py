@@ -40,9 +40,22 @@ IN_PAD = ("R5", "U26", "U27", "U28", "U35")
 SWB_CLIP = (34.0, 12.0, 42.0, 18.0)
 
 
+# Stage 12: F1 is a Class CC fuse in 10x38 clips at (252.00, 7.25) (owner-items/f1cc/). The F.Cu mains
+# pours are redrawn round its new pads: ac_l_in shrinks to x 257-283 (pads 262.08 / 272.88 and J1.1);
+# l_f's top block reaches x 243.5 (pads 231.12 / 241.92) and its strip under the ac_l_in clip starts at
+# y 12.3, 3.2 mm from the clip pads (pad edge y 9.10).
+MAINS_POURS = {("ac_l_in", "F.Cu"): [[257.0, 0.6], [257.0, 9.1], [283.0, 9.1], [283.0, 0.6]],
+               ("l_f", "F.Cu"): [[229.5, 9.0], [229.5, 33.5], [236.8, 33.5], [236.8, 25.6], [240.0, 25.6],
+                                 [240.0, 15.1], [273.5, 15.1], [273.5, 26.5], [279.5, 26.5], [279.5, 12.3],
+                                 [240.0, 12.3], [240.0, 9.0], [243.5, 9.0], [243.5, 0.6], [223.5, 0.6],
+                                 [223.5, 9.0]]}
+
+
 def edit_zones(zones):
     from shapely.geometry import Polygon, box
     out = []
+    zones = [{**z, "outline": MAINS_POURS[(z["net"], z["layer"])], "holes": []}
+             if (z["net"], z["layer"]) in MAINS_POURS else z for z in zones]
     for z in zones:
         poly = Polygon(z["outline"], z["holes"])
         if z["net"] == "sw_a" and z["layer"] == "B.Cu" and poly.intersects(box(*SWA_TRIM)):

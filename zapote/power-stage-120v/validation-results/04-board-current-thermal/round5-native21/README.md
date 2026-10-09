@@ -178,6 +178,14 @@ runs rise 1–10 K and remain outside the 22 A envelope.
 - **B3:** U26's pad cell is 178 / 150 °C nominal at h 10 / 25. The peak has drifted up over stages 8–11 (162 → 167 → 171 → 178 at h 10) as re-routes cut U26's In1 n_ls spreading plane, measured within 12 mm: 181 → 171 → 165 → 162 mm² (stage 7: 154 mm², with 9 n_ls vias against 21 now).
 - The grid caveat above stands, and U26 is a ~0.9 W part with a datasheet θJA of ~35 °C/W. This is a watch item: IR-check U26 at first power-up.
 
+### Stage 12 re-run (2026-10-09, board `fc386321…`)
+
+- **F1 change:** F1 is now a Class CC fuse in 10 × 38 clips with **plated slots**. `run_board.py` and `summarize.py` model a slot as the equal-area round filled barrel (1.2 × 2.5 mm becomes ⌀1.85 mm), slightly below the equal-perimeter 2.03 mm, so it is conservative for the layer transfer.
+- **Line entry:** ac_l_main (J1 → F1, 15 A) is **0.313 mΩ** (stage 11: 0.644), because F1 now sits closer to J1.
+- **Tank paths:** as stage 11.
+- **BUS_P mesh span:** 4.111 %.
+- **B3:** U26's pad cell is 162.8 / 138.4 °C.
+
 **Verdict, task 04 on native-21:** nominal operation passes the copper width screen after the SW_B
 fix (SW_A at 18.8 K is the tightest). The board needs a tank-current ceiling (22 A RMS interim).
 Bench IR at nominal power remains the physical gate (D4).

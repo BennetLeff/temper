@@ -47,8 +47,13 @@ def load_net(data: dict, name: str, pitch: float, plating: float):
         drill = item.get('drill_mm', 0)
         if kind == 'pad':
             if drill[0] != drill[1]:
-                raise ValueError('slotted drill unsupported')
-            drill = drill[0]
+                # plated slot (stage 12: F1's 10x38 clips, 1.2 x 2.5 mm): a soldered lead fills it, so
+                # model the equal-area round filled barrel. That is slightly below the equal-perimeter
+                # 2.03 mm for a 1.2 x 2.5 slot, so conservative for the layer transfer.
+                lo_d, hi_d = min(drill), max(drill)
+                drill = (4 * ((hi_d - lo_d) * lo_d + math.pi * lo_d ** 2 / 4) / math.pi) ** 0.5
+            else:
+                drill = drill[0]
         if kind in ('pad', 'via') and drill > 0:
             key = (kind, *item['centre'])
             b = barrels.setdefault(key, {'centre':item['centre'], 'drill':drill, 'layers':[],

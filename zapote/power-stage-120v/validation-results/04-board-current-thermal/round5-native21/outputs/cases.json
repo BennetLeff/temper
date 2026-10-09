@@ -661,10 +661,12 @@
         "F1.1"
       ],
       "plating_um": 18,
-      "exit_code": 0,
-      "stdout": "{\"output\": \"validation-results/04-board-current-thermal/round5-native21/outputs/ac_l_main-p0125-pl18.json\", \"status\": \"conditional DC experiment\", \"reason\": null, \"uncovered_contacts\": 0}",
-      "stderr": ""
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "Traceback (most recent call last):\n  File \"/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/run_board.py\", line 296, in <module>\n    raise SystemExit(main())\n                     ^^^^^^\n  File \"/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/run_board.py\", line 226, in main\n    net,barrels,pads=load_net(data,a.net,a.pitch,a.plating)\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/run_board.py\", line 50, in load_net\n    raise ValueError('slotted drill unsupported')\nValueError: slotted drill unsupported\n"
     }
   ],
-  "failed": []
+  "failed": [
+    "ac_l_main-p0125-pl18"
+  ]
 }

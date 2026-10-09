@@ -1,11 +1,11 @@
 # 08 Manufacturing package: native-21 candidate
 
-A **candidate** JLCPCB package for native-21 (stage 11), reviewed independently of KiCad. It
+A **candidate** JLCPCB package for native-21 (stage 12), reviewed independently of KiCad. It
 does not release fabrication: `DECISIONS.md` controls that, and its gates are open
 ([fab/FAB-NOTE.md](fab/FAB-NOTE.md)).
 
-- Board: native-21 stage 11 (independent-review fixes and closure rework, `REVIEW-TRIAGE.md`; rebuilt), SHA-256
-  `e85a4c829ccfade2df791d7890856fc6ca2a86a9df3fbe8cc5ed17ea5fb798ac`.
+- Board: native-21 stage 12 (independent-review fixes and closure rework, `REVIEW-TRIAGE.md`; rebuilt), SHA-256
+  `fc3863213b670163e4d4e78685b91683afdb9992a02ee59f8a8a12b142bc00ee`.
 - Tools: KiCad 10.0.4 `kicad-cli`, gerbv 2.11.1 (independent renderer), Miniforge Python 3.12.
 - Scripts: native-17's `bom_cpl_jlc.py` unchanged; `review_fab.py` with one change, below.
 
@@ -26,8 +26,8 @@ does not release fabrication: `DECISIONS.md` controls that, and its gates are op
 | Check | Result |
 | --- | --- |
 | Outline | 290 × 190 mm |
-| Holes | 889 plated (112 component + 777 via) and 15 non-plated; the board's census is 112 PTH pads + 777 vias |
-| Outer copper around every plated hole, F and B (12 points at drill radius + 0.07 mm) | **889/889 on both sides** |
+| Holes | 895 plated (112 component incl. 4 F1 slots + 783 via) and 15 non-plated; the board's census is 112 PTH pads + 783 vias |
+| Outer copper around every plated hole, F and B (12 points at drill radius + 0.07 mm) | **891/891 round holes on both sides.** The 4 F1 slots (G85) are outside the script's parser and were checked in the drill file |
 | Mask opening over every component hole, both sides | 112/112 |
 | Silk over a component land | 0 |
 | JLCPCB rules (`tools/jlc_dfm_check.py`, `jlc-dfm.json`) | PASS |
