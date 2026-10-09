@@ -75,6 +75,9 @@ def main():
         f.SetFPID(pcb.LIB_ID(lib, name))
         f.SetReference(ref)
         f.SetValue(rows[0]["mpn"])
+        if lib == "NetTie":
+            # Keep the explicitly captured PCB feature in the engineering inventory.
+            f.SetAttributes(f.GetAttributes() & ~pcb.FP_EXCLUDE_FROM_BOM)
         f.SetPath(
             pcb.KIID_PATH("/" + uid("root") + "/" + uid("page/" + pages[ref]) + "/" + uid(ref))
         )
@@ -82,6 +85,8 @@ def main():
         x, y, a = spec["placement"][ref]
         f.SetPosition(vec(x, y))
         f.SetOrientationDegrees(a)
+        if ref in spec.get("backside_parts", []):
+            f.Flip(f.GetPosition(), False)
         f.Reference().SetVisible(False)
         f.Value().SetVisible(False)
         wanted = {r["pin"]: r for r in rows}
@@ -125,6 +130,10 @@ def main():
             t.SetNet(nets[n])
             t.SetLayer(layers[layer])
             t.SetWidth(pcb.FromMM(width))
+            if (
+                n in {"AUX_24V", "POD_5V", "REG3_5V", "COIL_RET"} and width >= 0.4
+            ) or [n, layer, width, a, c] in copper.get("locked_tracks", []):
+                t.SetLocked(True)
             t.SetStart(vec(*a))
             t.SetEnd(vec(*c))
             b.Add(t)
@@ -134,6 +143,8 @@ def main():
             v.SetPosition(vec(x, y))
             v.SetWidth(pcb.FromMM(width))
             v.SetDrill(pcb.FromMM(drill))
+            if [n, x, y, width, drill] in copper.get("locked_vias", []):
+                v.SetLocked(True)
             v.SetViaType(pcb.VIATYPE_THROUGH)
             v.SetLayerPair(pcb.F_Cu, pcb.B_Cu)
             b.Add(v)
@@ -151,6 +162,21 @@ def main():
     ds.m_TrackMinWidth = pcb.FromMM(0.15)
     ds.m_ViasMinSize = pcb.FromMM(0.6)
     ds.m_MinThroughDrill = pcb.FromMM(0.3)
+    for region in spec.get("zones", []):
+        zone = pcb.ZONE(b)
+        zone.SetNet(nets[region["net"]])
+        zone.SetLayer(b.GetLayerID(region["layer"]))
+        zone.SetLocalClearance(pcb.FromMM(region["clearance_mm"]))
+        zone.SetPadConnection(pcb.ZONE_CONNECTION_FULL)
+        zone.SetMinThickness(pcb.FromMM(0.2))
+        x0, y0, x1, y1 = region["rect_mm"]
+        polygon = zone.Outline()
+        polygon.NewOutline()
+        for x, y in [(x0, y0), (x1, y0), (x1, y1), (x0, y1)]:
+            polygon.Append(pcb.FromMM(x), pcb.FromMM(y))
+        b.Add(zone)
+    b.BuildConnectivity()
+    # Load the saved board so native DRC/zone-fill has a project-backed context.
     pcb.SaveBoard(str(DST / "supervisor.kicad_pcb"), b)
     (HERE / "pad-coordinates.json").write_text(json.dumps(pads, indent=2) + "\n")
     names = {n.split(":")[0] for n in footprint_sources}
@@ -185,6 +211,10 @@ def main():
     (DST / "supervisor.kicad_dru").write_text(
         '(version 1)\n(rule "SELV prototype baseline" (constraint clearance (min 0.15mm)))\n'
     )
+    b = pcb.LoadBoard(str(DST / "supervisor.kicad_pcb"))
+    b.BuildConnectivity()
+    pcb.ZONE_FILLER(b).Fill(b.Zones())
+    pcb.SaveBoard(str(DST / "supervisor.kicad_pcb"), b)
     if not pcb.ExportSpecctraDSN(b, str(HERE / "supervisor.dsn")):
         raise RuntimeError("DSN export failed")
     print(f"Created central supervisor {len(parts)} electrical components / {len(nets)} nets")

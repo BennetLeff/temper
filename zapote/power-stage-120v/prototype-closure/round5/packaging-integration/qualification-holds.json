@@ -1,0 +1,73 @@
+{
+  "status": "DESIGN_REVIEW_HOLDS_NOT_RELEASE_CRITERIA_SATISFIED",
+  "holds": [
+    {
+      "id": "PKG-01",
+      "item": "Central receiver/gate ECO source identity",
+      "closure": "Final central f307cdd9 andPREa854 captured. Re-run complete chain after any source/model/placement change."
+    },
+    {
+      "id": "PKG-02",
+      "item": "BUS/TANK termination, grip and electrical performance after nominal route closure",
+      "closure": "Four R32 routes, wall apertures, grommets and bolted blocks are modeled. Finalize native-pad solder tails/boots and actual capacitor lead projection; choose and qualify guide/grip materials and pull force. Verify voltage waveform rating, transfer function, parasitic capacitance, common-mode pickup, EMI and fault behavior. Longer routes are not electrically accepted by CAD."
+    },
+    {
+      "id": "PKG-03",
+      "item": "Front guard / sloped user-control rear lid",
+      "nominal_mechanical_gap_mm": 1.4666758657,
+      "proposed_combined_adverse_variation_budget_mm": 0.9,
+      "remaining_nominal_mechanical_margin_mm": 0.5666758657,
+      "closure": "Confirm proposed budget with fabricator and mechanical engineer: guard/support0.30, lid/chassis location0.40, differential hot displacement0.20 mm. This is an allocation target, not measured process capability; investigate actual hot states before accepting."
+    },
+    {
+      "id": "PKG-04",
+      "item": "Sensor header lead / insulating tray",
+      "nominal_mechanical_gap_mm": 2.195,
+      "proposed_combined_adverse_variation_budget_mm": 0.5,
+      "closure": "Confirm lead projection/forming, board warp and standoff dimensions from supplier. No insulation rating follows from the resulting air gap; actual working voltage determines clearance, creepage and solid insulation."
+    },
+    {
+      "id": "PKG-05",
+      "item": "Insulating panels, top barrier, posts and sensor trays",
+      "closure": "Select exact material, thickness tolerances, temperature/tracking/flammability properties and fasteners. Mechanical coupon verifies thread retention, harness forces, service cycles and hot deformation. A nominal blank is not qualified solid insulation."
+    },
+    {
+      "id": "PKG-06",
+      "item": "Concrete support ECO process and load verification",
+      "closure": "Candidate floor drilling, catch guard screws, OUT brackets and pod support frames are modeled with explicit fastener patterns. Validate drawing tolerances, bracket/frame displacement, insulating thread creep and service cycling. Historical floor remains unchanged; use only the candidate floor matching the assembly hash. The rejected 0.25 mm OUT slot is not an accepted alternate."
+    },
+    {
+      "id": "PKG-07",
+      "item": "CT body and primary routing",
+      "closure": "Obtain actual AC1005/AC1020 samples/vendor CAD, verify lead seating/bore, restrained conductor diameter and bend geometry; keep burden/TVS local. Body envelope is not a wiring model."
+    },
+    {
+      "id": "PKG-08",
+      "item": "Five contactors / fuse / AUX installability",
+      "closure": "Obtain exact rail, clips, boots, conductor sizes, clamp torque and bend radii; verify terminal service with central panel removed. KPA/KPB remain additive proposal pending electrical acceptance."
+    },
+    {
+      "id": "PKG-09",
+      "item": "Thermal and fire containment",
+      "closure": "Correlate HS400 plate/cutoff contact coupons, fault temperatures and plume with cards/panels/cables. Existing cold geometry does not establish hot surface or enclosure safety."
+    },
+    {
+      "id": "PKG-10",
+      "item": "Insulation and accessibility",
+      "closure": "Assign actual mains, CATCH_P, tank and SELV domains and working/transient voltages; engineer barriers/feedthroughs/creepage/clearance/touch protection and dedicated PE bonds. Neither a STEP intersection result nor a nominal8mm PCB rule is acceptance."
+    },
+    {
+      "id": "PKG-11",
+      "item": "OUT support mechanical stack",
+      "nominal_minimum_target_mm": 1.0,
+      "proposed_combined_adverse_budget_mm": 0.6,
+      "closure": "Verify exact distances in support-critical-distances.json. Establish <=0.60 mm combined adverse fabrication, placement and hot/load movement; confirm actual PE conductor stays within its reservation. This is mechanical separation, never insulation acceptance."
+    },
+    {
+      "id": "PKG-12",
+      "item": "Inherited native19 power-board reflection",
+      "status": "DIGITAL_CORRECTION_PASSED_ACTUAL_STEP_AND_NEGATIVE_CONTROL",
+      "closure": "Final actual exported native19 solids pass Rz180 four-point chirality, independent native/model anchors and top-side checks; historical mirror fails the negative control. Re-run after any placement change. This closes the digital reflection defect only; cooling force/thermal/insulation and terminal process qualification remain separate."
+    }
+  ]
+}

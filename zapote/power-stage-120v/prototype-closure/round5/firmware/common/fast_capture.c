@@ -1,11 +1,8 @@
 #include "fast_capture.h"
+#include "crc32.h"
 #include <string.h>
 uint32_t fast_crc32(const uint8_t *b,size_t n)
-{
-    uint32_t crc=0xffffffff;
-    while(n--) { crc^=*b++; for(unsigned i=0;i<8;++i) crc=(crc>>1)^((crc&1)?0xedb88320:0); }
-    return ~crc;
-}
+{ return r5_crc32(b,n); }
 static uint32_t be32(const uint8_t *p)
 { return ((uint32_t)p[0]<<24)|((uint32_t)p[1]<<16)|((uint32_t)p[2]<<8)|p[3]; }
 bool fast_capture_accept(fast_capture_receiver_t *r,const uint8_t *b,size_t n,
@@ -26,7 +23,7 @@ bool fast_capture_accept(fast_capture_receiver_t *r,const uint8_t *b,size_t n,
            !out->nonoverlap_ticks[i] || out->nonoverlap_ticks[i]>=out->period[i]/4) goto fail;
         out->valid[i]=true;
     }
-    r->seen=true; r->sequence=seq;
+    out->kind=BRIDGE_FEEDBACK_BENCH_CAPTURE; r->seen=true; r->sequence=seq;
     out->serial=seq; out->sampled_us=began-(age+79)/80;
     return true;
 fail: r->fault=true; memset(out,0,sizeof *out); return false;

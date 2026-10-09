@@ -1,0 +1,95 @@
+{
+  "assembly": "output/temper-prototype-closure/round5/orientation-cooling/cooling-rigid-context.step",
+  "sha256": "fe919ddb933d6581a2f1ca933725cbf43585110df739cc8dae0f3825459529b9",
+  "source_sha256": "b4b9edb5ad9c4b0aa4e1b69158abb6be8b9ce203b561c1d34a58e88812a8fa4c",
+  "named_parts": 761,
+  "native_parts": 143,
+  "native_mismatches": [],
+  "contacts": [
+    {
+      "ref": "Q2",
+      "proxy_device_mm": 0.0,
+      "proxy_device_overlap_mm3": 0.0,
+      "proxy_ceramic_mm": 0.0,
+      "ceramic_sink_mm": 0.0,
+      "rear_slice_area_mm2": 65.240000000364
+    },
+    {
+      "ref": "Q3",
+      "proxy_device_mm": 0.0,
+      "proxy_device_overlap_mm3": 0.0,
+      "proxy_ceramic_mm": 0.0,
+      "ceramic_sink_mm": 0.0,
+      "rear_slice_area_mm2": 65.24000000036398
+    },
+    {
+      "ref": "Q5",
+      "proxy_device_mm": 0.0,
+      "proxy_device_overlap_mm3": 0.0,
+      "proxy_ceramic_mm": 0.0,
+      "ceramic_sink_mm": 0.0,
+      "rear_slice_area_mm2": 65.24000000036398
+    },
+    {
+      "ref": "Q6",
+      "proxy_device_mm": 0.0,
+      "proxy_device_overlap_mm3": 0.0,
+      "proxy_ceramic_mm": 0.0,
+      "ceramic_sink_mm": 0.0,
+      "rear_slice_area_mm2": 65.240000000364
+    },
+    {
+      "ref": "BR1",
+      "proxy_device_mm": 0.0,
+      "proxy_device_overlap_mm3": 0.0,
+      "proxy_ceramic_mm": 0.0,
+      "ceramic_sink_mm": 0.0,
+      "rear_slice_area_mm2": 336.00000000143973
+    },
+    {
+      "pad": "R5_BR_L_PEEK_PRESSURE_PAD",
+      "device": "BR1",
+      "distance_mm": 0.0,
+      "overlap_mm3": 0.0
+    },
+    {
+      "pad": "R5_BR_R_PEEK_PRESSURE_PAD",
+      "device": "BR1",
+      "distance_mm": 0.0,
+      "overlap_mm3": 0.0
+    },
+    {
+      "pad": "R5_Q2_PEEK_PRESSURE_PAD",
+      "device": "Q2",
+      "distance_mm": 0.0,
+      "overlap_mm3": 0.0
+    },
+    {
+      "pad": "R5_Q3_PEEK_PRESSURE_PAD",
+      "device": "Q3",
+      "distance_mm": 0.0,
+      "overlap_mm3": 0.0
+    },
+    {
+      "pad": "R5_Q5_PEEK_PRESSURE_PAD",
+      "device": "Q5",
+      "distance_mm": 0.0,
+      "overlap_mm3": 0.0
+    },
+    {
+      "pad": "R5_Q6_PEEK_PRESSURE_PAD",
+      "device": "Q6",
+      "distance_mm": 0.0,
+      "overlap_mm3": 0.0
+    }
+  ],
+  "status": "PRE_PE_CHECKPOINT_ONLY",
+  "replacement_step_sha256": "ddef6a195569348f8125d973e8381be7a50e0d5edc56ab2f5ada4d22b81b0ee8",
+  "independent_positive_overlap_pairs": 36,
+  "overlap_interpretation": "All exactly matched explicit analytic nominal thread annuli. No unexpected replacement pair intersections.",
+  "release": false,
+  "limits": [
+    "No dedicated sink PE in this checkpoint; superseded by pending PE addendum.",
+    "No physical fit, force, thermal, insulation, PE or manufacturing qualification."
+  ]
+}

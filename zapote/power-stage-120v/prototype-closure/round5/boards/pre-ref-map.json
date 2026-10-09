@@ -3,7 +3,11 @@
   "R_VPREH1": "R2",
   "R_VPREH2": "R3",
   "R_VPREH3": "R4",
-  "R_VPREL": "R5",
+  "R_VPREH4": "R5",
+  "R_VPREH5": "R6",
+  "R_VPREH6": "R7",
+  "R_VPREH7": "R8",
+  "R_VPREL": "R9",
   "C_VPREIN": "C1",
   "U_VPRE": "U1",
   "C_VPREV1": "C2",
@@ -13,5 +17,5 @@
   "C_VPREL": "C6",
   "C_VPREHL1": "C7",
   "C_VPREHL2": "C8",
-  "R_VPREDIAG": "R6"
+  "R_VPREDIAG": "R10"
 }

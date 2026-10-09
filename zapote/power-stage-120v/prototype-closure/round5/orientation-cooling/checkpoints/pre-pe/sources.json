@@ -1,0 +1,51 @@
+{
+  "status": "Primary sources reviewed; no supplier contact or physical qualification",
+  "sources": [
+    {
+      "title": "Infineon IPW65R018CFD7 final datasheet Rev2.0, package drawing p12",
+      "url": "https://www.infineon.com/assets/row/public/documents/24/49/infineon-ipw65r018cfd7-datasheet-en.pdf",
+      "download_sha256": "c364050a04a434bd173da6486fd51f4baf540ee9e4e1ebbe07aed57e279943f2"
+    },
+    {
+      "title": "Diodes GBJ25005\u2013GBJ2510 package and mounting limits",
+      "url": "https://www.diodes.com/datasheet/download/GBJ2510.pdf",
+      "download_sha256": "c7d9657711588ecf8d9adf4e1438435d488b21b7733e99caaead3c2490728a02"
+    },
+    {
+      "title": "Boyd Max-Clip packet pp19\u201320, Max03NG dimensions and force",
+      "url": "https://info.boydcorp.com/hubfs/Thermal/Air-Cooling/Boyd-Max-Clip-Datasheet-and-Standard-Part-Numbering-Packet.pdf",
+      "download_sha256": "e22b39de3bd3f5c0f525feef5e3c86726825b03ced8ece4ab009d88a2de6dabe"
+    },
+    {
+      "title": "Schurter TA35 2-pole, no-cover drawing p3",
+      "url": "https://www.schurter.com/en/datasheet/typ_TA35_Rocker_2Pole.pdf",
+      "download_sha256": "d65db7b2eb9c4b9c5575852eb59a3f02a3c60d9284a1c36d56801df36eb9cc97"
+    },
+    {
+      "title": "Infineon TO packages board assembly Rev3.0, lead forming and mounting",
+      "url": "https://community.infineon.com/gfawx74859/attachments/gfawx74859/cnigbt/1063/3/Infineon-Recommendations_for_Board_Assembly_TO-P-v03_00-EN.pdf",
+      "download_sha256": "f0ff2c0a9d01ecb3e955a0bac1c185bf70bf4f208be85dfe18b7a75cb10542ab"
+    },
+    {
+      "title": "Wakefield skived assembly catalog, exact DC0602512W2B-BT0 fan endpoints",
+      "url": "https://wakefieldthermal.com/content/catalogs/Catalog-SkivedFinHeatsinkAssembly.pdf",
+      "download_sha256": "8e456897afcc771c11d08f85b565a8aeea941528fd6e398e88702d1480469c22",
+      "limits": "No complete fan P-Q, temperature rating or mounting-hole drawing acquired; stock sink result does not qualify custom200mm geometry"
+    }
+  ],
+  "additional_primary_sources": [
+    {
+      "url": "https://www.innovacera.com/video/to-247-aluminum-nitride-ceramic-thermal-pads-for-power-electronics",
+      "scope": "Custom AlN capability, no acquired thickness/flatness/dielectric or interface resistance guarantee"
+    },
+    {
+      "url": "https://www.littelfuse.com/assetdocs/lpsc001-2d-print-pdf?assetguid=e0be2d74-f59f-4582-85a5-d5c636a5de64",
+      "scope": "D22 holder body bounds from primary drawing text; download403, exact rail clip datum and swept door geometry not visually resolved"
+    },
+    {
+      "url": "https://wakefieldthermal.com/wakefield-thermal-60x25mm-4-wire-dc-fan-55-5cfm-dc0602512w2b-bt0/",
+      "scope": "Exact fan product page:12V,0.54A,6.48W,55.5CFM,1.17inH2O,\u221210..70\u00b0C operating. Conflicts with catalog0.95A/11.4W; supplier revision confirmation required."
+    }
+  ],
+  "round5_scope": "Sources support package drawing bounds and fan envelope only; custom fixtures and200mm sink are engineering candidates, not manufacturer-qualified assemblies."
+}

@@ -15,8 +15,4 @@
 #define R5_SUP_RUN_OK 37
 #define R5_UART_TX 8
 #define R5_UART_RX 9
-#define R5_FAST_CS 10
-#define R5_FAST_CLK 11
-#define R5_FAST_MISO 12
-#define R5_FAST_MOSI 13
 #endif

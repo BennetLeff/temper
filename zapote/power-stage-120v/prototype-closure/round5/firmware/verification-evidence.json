@@ -1,0 +1,71 @@
+{
+  "schema": "temper.round5.firmware.verification.v3",
+  "date": "2026-10-05",
+  "status": "VERIFIED_DIGITAL_SUBSET_PHYSICALLY_INHIBITED",
+  "commissioned": false,
+  "hardware_flashed": false,
+  "behavior_changed": true,
+  "output": "output/temper-prototype-closure/round5/firmware/verification",
+  "resolved_review_behaviors": [
+    "R5I-002",
+    "R5I-004",
+    "R5I-005",
+    "R5I-006"
+  ],
+  "retained_review_correction": "R5I-003 DIN/DOUT CRC placement",
+  "tests": {
+    "post": "red: old scalar accepted whole-pair12.5ohm; green: two branch interval/isolation/cold/replay/expiry tests",
+    "measurement": "red: withdrawn proof/contact qualifier retained prior-cycle permission; green: immediate withdrawal, completed-cycle RMS, both polarity crests, proof open/disabled, source limits, catch initial state",
+    "contactor": "red: valid manufacturer pickup rejected at50ms; green:73ms pickup accepted,100ms missing pickup faults,446ms global attempt preserved",
+    "protocol": "240 ADS,736 fast capture,224 line-telemetry single-bit corruptions rejected; known CRC vectors, duplicate/gap/latency and wrap tests",
+    "register_semantics": "actual Espressif SDK struct;24 mixed ungated interleavings versus zero gated;801 phase settings including endpoints; each790ticks high and zero same-leg overlap",
+    "power_adapter": "12 groups,606 waveform sweeps pass",
+    "sanitizers": "AddressSanitizer and UndefinedBehaviorSanitizer enabled on all new host executables",
+    "stm32": "actual Cortex-M0+ linked ELF; final sizes in verification/stm32-size.txt",
+    "esp32": "actual ESP32-S3 IDFv5.2.3 linked ELF and binary; no mock SDK headers",
+    "mirror": "five-channel dynamic electrical test then continuous all-high static excitation;100us settling,2ms freshness, all stuck/cross-short faults; timer-owned50us schedule,256 entry phases0..20us latency with5us GPIOwrite allocation, absolute slot deadlines and actual post-write settling timestamp",
+    "onchip": "801 actual SDK register decodes; pending/clock/inversion/action/timer faults; unspecified provenance/missing scope/commissioning/physical guards fail closed",
+    "joined_wrapper": "two proof pulses, consumed POST, delayed hardware ADMIT acknowledgment, stale/missing ACK, physical131433us+2ms rearm, new proof serial, global446ms, reset-deadlock red/green including hardware latch low",
+    "output_projection": "exact portable target GPIO wireprojection coldRESET/START/selftest/ADMIT/ACK/K1/end trace with native latch truth tables; no physical gate timing claim",
+    "catch_history": "red normal bus-valley loss of instantaneous qualifier, green attempt history with livecatch>=100 and end/fault clearing",
+    "reset": "red both-controller reset deadlock and hardwareLATCH-low reset deadlock; green safeRESET-low/freshedge/newPOST-START and GPIOprojection; red reset-permission leak during mechanicalselftest, green shared five-contact reset predicate",
+    "controller_intent": "fresh fault-free TE command, heartbeat and independent physicalREQUEST; healthy zero demand remains diagnostically qualified",
+    "zero_demand": "red expiredTOTAL faults500us after demandzero; stronger policy red completedsecondproof withoutfirstRUN failedtotimeout; green actualstartup RUN<446ms, sourceage1s zero100ms resume50ms OFFclear, neverRUN timeout446ms, idlePWM/isolationloss faults"
+  },
+  "evidence_exceptions": {
+    "pd4_and_fifo": "Actual CMSIS target compilation plus source audit against pin authority and TI8.5.1.9; no host fake register test presented as peripheral execution",
+    "mcpwm": "Register-contract proof and exhaustive semantic interleavings, not measured silicon/pad timing",
+    "analog": "Calibration/NTC routines tested with explicit injected fixtures, not measured hardware coefficients"
+  },
+  "digital_remaining": [
+    "STM32 factory calibration/NTC record loader, boot nonce and operator POST submission service, commissioning-record loader; implemented validators currently receive empty target records",
+    "ESP32 factory scope-record/characterized-phase-map loader and live rail/interlock sensing provider; context remains zero/invalid",
+    "Standalone controller application power-demand integration to power_set_level; existing UART/request/heartbeat target binding is connected",
+    "STM32 option bytes/BOR/flash settings and stack/execution bounds, including20us mirror ISR entry and5us GPIOwrite allocations",
+    "Final native board integration review and physical pin/gate execution; pin export reconciledd8a30d9a8b82539ef012fb70c550a7e66d7c2e949fd455d59900a8323b64352e"
+  ],
+  "physical_remaining": [
+    "ADC and NTC coefficients, uncertainty, injection coverage and installed thermal lag",
+    "Coil/mirror wetting current, pickup/opening, released-contact and cold-equilibrium evidence",
+    "Four-pad reset/inhibit, live phase transition, minimum pulse/nonoverlap, global update event ordering",
+    "Clock tolerance, IRQ/DMA/flash/load deadlines and actual SPI/DRDY FIFO behavior",
+    "Tank/pan phase characterization and staged first-unit qualification",
+    "Proof load full source-window envelope including erroneous repeated pulses; requested two-pulse sequence alone is not hardware thermal qualification"
+  ],
+  "legacy_evidence": "Original evidence.json and output sibling receipts retained for earlier source revision; new verification manifest is separate",
+  "git_mutations": false,
+  "standalone_shipping_skipped": true,
+  "optional_bench": {
+    "hz": 5000000,
+    "cs_setup_ns": 200,
+    "cs_idle_min_us": 2,
+    "frame_bits": 736,
+    "nominal_wire_us": 147.2,
+    "read_deadline_us": 200,
+    "required_for_product": false
+  },
+  "feedback": "ONCHIP_REGISTER real digital readback plus independent hardware guards and separately qualified scope record; BENCH_CAPTURE explicitly optional",
+  "pin_authority": "zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv d8a30d9a8b82539ef012fb70c550a7e66d7c2e949fd455d59900a8323b64352e",
+  "aux_health": "PB9 BASIC_HEALTHY includes hardware24Vwindow,PG5,3V3watchdog; common path, not redundant sample",
+  "session_budget": "software retains merged qualified MCU_RUN command, not physicalreadback; native independently clocks actualSUP_RUN and ANDs retainedRUN with RUNTIME_HEALTHY; firstRUNrequiredwithin446ms"
+}

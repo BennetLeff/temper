@@ -126,6 +126,10 @@ def main():
                 direction = "power_out"
             elif net == "SWDIO":
                 direction = "bidirectional"
+            elif source == "J_CLK" and net == "ADC_CLKIN":
+                direction = "output_monitor_no_external_driver"
+            elif net.endswith("_MIRROR_24V"):
+                direction = "input_24V_wetted_contact"
             elif (
                 net
                 in [
@@ -174,7 +178,7 @@ def main():
     )
     (OUT / "physical-inventory.json").write_text(json.dumps(boards, indent=2) + "\n")
     with (HERE / "board-bom.csv").open("w") as stream:
-        writer = csv.DictWriter(stream, fieldnames=list(bom[0]))
+        writer = csv.DictWriter(stream, fieldnames=list(bom[0]), lineterminator="\n")
         writer.writeheader()
         writer.writerows(bom)
     print("Inventoried", len(boards), "boards,", len(bom), "electrical components")

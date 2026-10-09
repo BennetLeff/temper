@@ -1,0 +1,22 @@
+{
+  "classification": "OPTIONAL_BENCH_RESEARCH",
+  "product_dependency": false,
+  "safety_or_protection_credit": false,
+  "user_directed_stop": true,
+  "further_integration_authorized": false,
+  "functional_tests": "PASS",
+  "receiver_vectors": 18,
+  "independent_age_checks": 39,
+  "synthesis_structural_check": "PASS",
+  "fpga": "ICE40HX8K-CT256 on ICE40HX8K-B-EVN",
+  "placed_logic_cells": 3747,
+  "available_logic_cells": 7680,
+  "timing_target_mhz": 80.0,
+  "routed_fmax_mhz": 79.63,
+  "timing_result": "FAIL",
+  "physical_hardware_tested": false,
+  "native_conditioning_pcb_available": false,
+  "product_gpio_14_reset_recommendation": "withdrawn",
+  "product_gpio_38_fault_recommendation": "withdrawn",
+  "measurement_scope": "pre-isolation 3.3 V logic edges only; no physical Vgs or ZVS proof"
+}

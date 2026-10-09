@@ -1,0 +1,295 @@
+{
+  "step_sha256": "d7a7afbbf5e10671d9b688a81977d1cb17910d09bdb5855eb0320e964a1cf1af",
+  "named_parts": 117,
+  "invalid_parts": [],
+  "disconnected_parts": {},
+  "sink_bounds": [
+    -76.0,
+    93.9,
+    12.0,
+    124.0,
+    161.9,
+    72.0
+  ],
+  "historical_sink_bounds": [
+    -112.0,
+    93.9,
+    12.0,
+    88.0,
+    161.9,
+    72.0
+  ],
+  "pe_contacts": [
+    {
+      "a": "BASE_BASE_R2_CUSTOM_SINK",
+      "b": "R5_PE_SINK_EXTERNAL_TOOTH_WASHER_ENVELOPE",
+      "distance_mm": 0.0
+    },
+    {
+      "a": "R5_PE_SINK_EXTERNAL_TOOTH_WASHER_ENVELOPE",
+      "b": "R5_PE_SINK_FUSED_COPPER_END_PAD",
+      "distance_mm": 0.0
+    },
+    {
+      "a": "R5_PE_SINK_FUSED_COPPER_END_PAD",
+      "b": "R5_PE_BRAID_MAX_SECTION_ENVELOPE",
+      "distance_mm": 0.0
+    },
+    {
+      "a": "R5_PE_BRAID_MAX_SECTION_ENVELOPE",
+      "b": "R5_PE_CRADLE_FUSED_COPPER_END_PAD",
+      "distance_mm": 0.0
+    },
+    {
+      "a": "R5_PE_CRADLE_FUSED_COPPER_END_PAD",
+      "b": "R5_PE_CRADLE_INTERLUG_SPACER",
+      "distance_mm": 0.0
+    },
+    {
+      "a": "R5_PE_CRADLE_INTERLUG_SPACER",
+      "b": "BASE_BASE_R2_PE_BOND_ROUTE_ALLOCATION",
+      "distance_mm": 0.0
+    },
+    {
+      "a": "BASE_BASE_R2_PE_BOND_ROUTE_ALLOCATION",
+      "b": "R5_PE_CRADLE_CONDUCTIVE_SPACER",
+      "distance_mm": 0.0
+    },
+    {
+      "a": "R5_PE_CRADLE_CONDUCTIVE_SPACER",
+      "b": "BASE_BASE_R2_SINK_CRADLE_CHASSIS_MOUNT",
+      "distance_mm": 0.0
+    },
+    {
+      "a": "R5_PE_STRAIN_SUPPORT_FRONT",
+      "b": "BASE_BASE_R2_SINK_CRADLE_CHASSIS_MOUNT",
+      "distance_mm": 0.0
+    },
+    {
+      "a": "R5_PE_STRAIN_SUPPORT_REAR",
+      "b": "BASE_BASE_R2_SINK_CRADLE_CHASSIS_MOUNT",
+      "distance_mm": 0.0
+    }
+  ],
+  "positive_pairs": [
+    {
+      "a": "BASE_BASE_R2_CUSTOM_SINK",
+      "b": "BASE_BASE_R2_SINK_M3_LEFT_22",
+      "volume_mm3": 12.95906969605786
+    },
+    {
+      "a": "BASE_BASE_R2_CUSTOM_SINK",
+      "b": "BASE_BASE_R2_SINK_M3_LEFT_62",
+      "volume_mm3": 12.959069696057853
+    },
+    {
+      "a": "BASE_BASE_R2_CUSTOM_SINK",
+      "b": "BASE_BASE_R2_SINK_M3_RIGHT_22",
+      "volume_mm3": 12.959069696057863
+    },
+    {
+      "a": "BASE_BASE_R2_CUSTOM_SINK",
+      "b": "BASE_BASE_R2_SINK_M3_RIGHT_62",
+      "volume_mm3": 12.959069696057853
+    },
+    {
+      "a": "BASE_BASE_R2_CUSTOM_SINK",
+      "b": "R5_Q2_ANCHOR_M3x12",
+      "volume_mm3": 19.438604544087212
+    },
+    {
+      "a": "BASE_BASE_R2_CUSTOM_SINK",
+      "b": "R5_Q3_ANCHOR_M3x12",
+      "volume_mm3": 19.438604544087198
+    },
+    {
+      "a": "BASE_BASE_R2_CUSTOM_SINK",
+      "b": "R5_Q5_ANCHOR_M3x12",
+      "volume_mm3": 19.438604544087212
+    },
+    {
+      "a": "BASE_BASE_R2_CUSTOM_SINK",
+      "b": "R5_Q6_ANCHOR_M3x12",
+      "volume_mm3": 19.438604544087198
+    },
+    {
+      "a": "BASE_BASE_R2_CUSTOM_SINK",
+      "b": "R5_BR_L_ANCHOR_M3x12",
+      "volume_mm3": 19.43860454408714
+    },
+    {
+      "a": "BASE_BASE_R2_CUSTOM_SINK",
+      "b": "R5_BR_R_ANCHOR_M3x12",
+      "volume_mm3": 19.43860454408714
+    },
+    {
+      "a": "BASE_BASE_R2_CUSTOM_SINK",
+      "b": "R5_PE_SINK_M4x12_BOLT",
+      "volume_mm3": 34.91644615016114
+    },
+    {
+      "a": "BASE_BASE_R2_CARRIER_RAIL_-122p5",
+      "b": "BASE_BASE_R2_CARRIER_M3x25_0",
+      "volume_mm3": 11.663162726451787
+    },
+    {
+      "a": "BASE_BASE_R2_CARRIER_RAIL_-122p5",
+      "b": "BASE_BASE_R2_CARRIER_M3x25_1",
+      "volume_mm3": 11.663162726451777
+    },
+    {
+      "a": "BASE_BASE_R2_CARRIER_RAIL_-122p5",
+      "b": "BASE_BASE_R2_FLOOR_MOUNT_SCREW_2",
+      "volume_mm3": 12.959069696060949
+    },
+    {
+      "a": "BASE_BASE_R2_CARRIER_RAIL_-122p5",
+      "b": "BASE_BASE_R2_FLOOR_MOUNT_SCREW_3",
+      "volume_mm3": 12.95906969606096
+    },
+    {
+      "a": "BASE_BASE_R2_CARRIER_RAIL_128p5",
+      "b": "BASE_BASE_R2_CARRIER_M3x25_2",
+      "volume_mm3": 11.663162726451862
+    },
+    {
+      "a": "BASE_BASE_R2_CARRIER_RAIL_128p5",
+      "b": "BASE_BASE_R2_CARRIER_M3x25_3",
+      "volume_mm3": 11.663162726451862
+    },
+    {
+      "a": "BASE_BASE_R2_CARRIER_RAIL_128p5",
+      "b": "BASE_BASE_R2_FLOOR_MOUNT_SCREW_0",
+      "volume_mm3": 12.959069696060963
+    },
+    {
+      "a": "BASE_BASE_R2_CARRIER_RAIL_128p5",
+      "b": "BASE_BASE_R2_FLOOR_MOUNT_SCREW_1",
+      "volume_mm3": 12.959069696060974
+    },
+    {
+      "a": "BASE_BASE_R2_FLOOR_MOUNT_SCREW_4",
+      "b": "BASE_BASE_R2_CRADLE_M4_NUT_4",
+      "volume_mm3": 12.040153844883108
+    },
+    {
+      "a": "BASE_BASE_R2_FLOOR_MOUNT_SCREW_5",
+      "b": "BASE_BASE_R2_CRADLE_M4_NUT_5",
+      "volume_mm3": 12.040153844883111
+    },
+    {
+      "a": "BASE_BASE_R2_FLOOR_MOUNT_SCREW_6",
+      "b": "BASE_BASE_R2_CRADLE_M4_NUT_6",
+      "volume_mm3": 12.040153844883086
+    },
+    {
+      "a": "BASE_BASE_R2_FLOOR_MOUNT_SCREW_7",
+      "b": "BASE_BASE_R2_CRADLE_M4_NUT_7",
+      "volume_mm3": 12.040153844883172
+    },
+    {
+      "a": "R5_Q2_CLAMP_C_FRAME_6061",
+      "b": "R5_Q2_PRESSURE_M3x10",
+      "volume_mm3": 6.479534848029087
+    },
+    {
+      "a": "R5_Q3_CLAMP_C_FRAME_6061",
+      "b": "R5_Q3_PRESSURE_M3x10",
+      "volume_mm3": 6.479534848029091
+    },
+    {
+      "a": "R5_Q5_CLAMP_C_FRAME_6061",
+      "b": "R5_Q5_PRESSURE_M3x10",
+      "volume_mm3": 6.479534848029092
+    },
+    {
+      "a": "R5_Q6_CLAMP_C_FRAME_6061",
+      "b": "R5_Q6_PRESSURE_M3x10",
+      "volume_mm3": 6.479534848029087
+    },
+    {
+      "a": "R5_BR_L_CLAMP_C_FRAME_6061",
+      "b": "R5_BR_L_PRESSURE_M3x10",
+      "volume_mm3": 6.479534848029073
+    },
+    {
+      "a": "R5_BR_R_CLAMP_C_FRAME_6061",
+      "b": "R5_BR_R_PRESSURE_M3x10",
+      "volume_mm3": 6.479534848029073
+    },
+    {
+      "a": "R5_LEFT_FAN_POST_0",
+      "b": "R5_LEFT_FAN_TOP_M3_0",
+      "volume_mm3": 12.959069696058137
+    },
+    {
+      "a": "R5_LEFT_FAN_POST_0",
+      "b": "R5_LEFT_FAN_BOTTOM_M3_0",
+      "volume_mm3": 12.959069696058137
+    },
+    {
+      "a": "R5_LEFT_FAN_POST_1",
+      "b": "R5_LEFT_FAN_TOP_M3_1",
+      "volume_mm3": 12.959069696058137
+    },
+    {
+      "a": "R5_LEFT_FAN_POST_1",
+      "b": "R5_LEFT_FAN_BOTTOM_M3_1",
+      "volume_mm3": 12.959069696058137
+    },
+    {
+      "a": "R5_RIGHT_FAN_POST_0",
+      "b": "R5_RIGHT_FAN_TOP_M3_0",
+      "volume_mm3": 12.959069696058204
+    },
+    {
+      "a": "R5_RIGHT_FAN_POST_0",
+      "b": "R5_RIGHT_FAN_BOTTOM_M3_0",
+      "volume_mm3": 12.959069696058204
+    },
+    {
+      "a": "R5_RIGHT_FAN_POST_1",
+      "b": "R5_RIGHT_FAN_TOP_M3_1",
+      "volume_mm3": 12.959069696058204
+    },
+    {
+      "a": "R5_RIGHT_FAN_POST_1",
+      "b": "R5_RIGHT_FAN_BOTTOM_M3_1",
+      "volume_mm3": 12.959069696058204
+    },
+    {
+      "a": "R5_PE_CRADLE_M4_NUT_ENVELOPE",
+      "b": "BASE_BASE_R2_SINK_DEDICATED_PE_STUD",
+      "volume_mm3": 12.842830767875336
+    },
+    {
+      "a": "R5_PE_STRAIN_BASE_M3_167",
+      "b": "R5_PE_STRAIN_SUPPORT_FRONT",
+      "volume_mm3": 12.959069696058204
+    },
+    {
+      "a": "R5_PE_STRAIN_BASE_M3_173",
+      "b": "R5_PE_STRAIN_SUPPORT_REAR",
+      "volume_mm3": 12.959069696058204
+    }
+  ],
+  "pair_set_matches_receipt": true,
+  "max_pair_volume_difference_mm3": 4.5350390109888394e-12,
+  "input_hashes": {
+    "source": {
+      "path": "output/temper-prototype-closure/round5/protection/catch-with-power-interposer-review.step",
+      "sha256": "94cdf4dce6e30afc9d67939b64386b2feedc4a15699e2a72e2d19526e9a528f5",
+      "matches_receipt": true
+    },
+    "native_source": {
+      "path": "output/temper-prototype-closure/pcb/temper-power-native19-candidate.step",
+      "sha256": "b4b9edb5ad9c4b0aa4e1b69158abb6be8b9ce203b561c1d34a58e88812a8fa4c",
+      "matches_receipt": true
+    },
+    "validation_context_source": {
+      "path": "output/temper-prototype-closure/round5/orientation-cooling/validation-context-pre-pe.step",
+      "sha256": "8fb1bc2d5d4bf5c328723533ea344cef6b364249b53163c5c05d8c319543446f",
+      "matches_receipt": true
+    }
+  }
+}

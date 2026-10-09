@@ -1,0 +1,114 @@
+{
+  "status": "ACCEPTED_CONDITIONAL_DIGITAL_REPLAY_NO_POWER_RELEASE",
+  "accepted_replay": "output/temper-prototype-closure/round5/model/joined-product-20261005e",
+  "date": "2026-10-05",
+  "audit": {
+    "status": "DIAGNOSTIC_ONLY_NO_POWER_RELEASE",
+    "closed_loop_cases_completed": 24,
+    "negative_controls_match": true,
+    "maximum_case_refinement_fraction": 0.000483691517831447,
+    "precharge_branch_peak_w_prospective": 1056.67001,
+    "catch_i2t_prospective": 4295.13115,
+    "energy_cases": 64,
+    "maximum_energy_residual_fraction": 4.748289253823954e-06,
+    "energy_refinement_fraction": 0.0009116317034031888,
+    "energy_catch_peak_v": 254.11150703635562,
+    "installed_catch_inductance_extracted": false,
+    "shared_target_measurement_source": true,
+    "shared_loaded_bypass_predicate": true,
+    "whole_target_hal_parity": false,
+    "dc_fuse_clearing_qualified": false
+  },
+  "native19_sha256": "3557aa444873fa8b45eb7e0ae8ec3a4bc2b5cd526826b338b58d50e57747430b",
+  "compiled_cosim_sha256": "020fae9ae1b7a3ee83d471dcbd8132b2fa4e08e228a22f971daff927c797c8a1",
+  "fpga_product_dependency": false,
+  "complete_target_hal_or_native_gate_timing": false,
+  "installed_catch_loop_extracted": false,
+  "manufacturing_release": false,
+  "physical_qualification": false,
+  "files": [
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/model/evidence-current/STATUS",
+      "sha256": "ccc948a08ea0b5d986156f2f42a193af5873795a241b4184db9e892794ee2c81"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/model/evidence-current/audit-tests.log",
+      "sha256": "af67421d87aa0037630c66d3f2305b8c4f542e79fb97e7d4154a9434295788c3"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/model/evidence-current/audit.json",
+      "sha256": "89c88f657b4afb3bba2082feaf31c17fd2fca2ad65b23ac3e95a85ceb891a101"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/model/evidence-current/audit.log",
+      "sha256": "a25f0ba102f2d58f19a9129adf5bea54fc6ac09a58b6479b48582ff6ffe8d130"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/model/evidence-current/case-results.csv",
+      "sha256": "8d388cfed5988db28a5ec042c68280dc523a5227b16358ddc67992e3b76b4aef"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/model/evidence-current/cases.csv",
+      "sha256": "021936363e185916ed11d501d436ed5d9b3c8300b898a53dc0ac2fb3e2888f78"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/model/evidence-current/contact-model-tests.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/model/evidence-current/device-results.csv",
+      "sha256": "c30cca10584534fecd3342952ce633556ec19fee8662346c35e9a65132ff87c9"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/model/evidence-current/energy-ode.csv",
+      "sha256": "0b229ce5b9fa565abe224ceea29f2f6f94a3bda59bec34c7d04e6c2dfbaf7f15"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/model/evidence-current/energy-tests.log",
+      "sha256": "001ab2015a907d355e2166ba70ae11e7ae910874d14e63d9b82bb1890b3ce1f1"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/model/evidence-current/events.csv",
+      "sha256": "e43b4358c1838a0c7f48424a2cfa4b946e0ca49998627f1c3a4bd5a09ece6e1b"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/model/evidence-current/geometry-gate.json",
+      "sha256": "eaf1bfb68ef047ab74b0a3cda7b83bf80194b234731155e009b6a21d874c5a31"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/model/evidence-current/input-recheck.log",
+      "sha256": "35b4a7f24a9305d3901639c99ed53a39199274a63ec771c5a3770fd4b9b98aae"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/model/evidence-current/inputs.sha256",
+      "sha256": "561ccfec00dea7cb394d73ffb1712a297e6a750866e1f09969b047e7e6f6937f"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/model/evidence-current/measurement-tests.log",
+      "sha256": "8172ca9d07609a00e56881102ff09a1dc5f88990ef84ed3101e5e3d8e54c5c07"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/model/evidence-current/raw-receipt-hashes.json",
+      "sha256": "e69a3c1acb39bc26ae40614f1fa7350f4a192213d3c69e274d5bf2af1102c349"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/model/evidence-current/runtime-check.log",
+      "sha256": "1b1aae0f832439eff9f2ab209f052bb2e42901495e461bbce7af087509934bb0"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/model/evidence-current/shared-measurement-tests.log",
+      "sha256": "4b7edaa0cdcabb4b36c9a36f3f975ac301034ecd876f6e495ec6d5ccd2e0a298"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/model/evidence-current/tool-versions.txt",
+      "sha256": "5a0e3e9475070462eef6e67309e3aad2595a783038d65ed366a47f562a4f2a54"
+    }
+  ],
+  "limits": [
+    "Analog calibration/delays and hardware admission/feedback gates are ideal harness boundaries.",
+    "Native19 A/B matrices remain separate local references; no complete shared-return or installed catch extraction.",
+    "Catch inductance1/3uH is a sensitivity, not derived from the corrected mechanical candidate.",
+    "DC fuse/contact clearing, semiconductor surge/SOA and installed thermal limits are not qualified.",
+    "Mechanical orientation correction is separately reviewed and does not turn this into exact installed-layout evidence."
+  ]
+}

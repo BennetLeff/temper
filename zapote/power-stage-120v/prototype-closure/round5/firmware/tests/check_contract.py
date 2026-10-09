@@ -25,13 +25,15 @@ def main() -> None:
     if hashlib.sha256(source.read_bytes()).hexdigest() != authority["sha256"]:
         raise ValueError("STM32 source pin export changed; reconcile binding before reuse")
     rows = [
-        line.split("\t") for line in source.read_text().splitlines() if line.startswith("U_MCU\t")
+        line.split("\t") for line in source.read_text().splitlines() if line.endswith("\t" + authority["source_ref"])
     ]
     actual = {(int(row[4]), row[5], row[7]) for row in rows}
     recorded = {(pin["package_pin"], pin["pad"], pin["net"]) for pin in contract["stm32"]}
     if recorded != actual or len(actual) != 64:
         raise ValueError("STM32 package pin contract does not match source")
-    header = (HERE / "esp32/pins.h").read_text()
+    header = (HERE / "esp32/pins.h").read_text() + (HERE / "esp32/bench_pins.h").read_text()
+    if contract["optional_bench"]["required_for_product"]:
+        raise ValueError("Bench instrument became a product dependency")
     defines = dict(re.findall(r"^#define (R5_\w+) (\d+)$", header, re.MULTILINE))
     pin_map = {name: int(value) for name, value in defines.items()}
     if len(pin_map.values()) != len(set(pin_map.values())):
@@ -41,7 +43,7 @@ def main() -> None:
         raise ValueError("ESP32 pin collides with flash, strap, USB, debug or console allocation")
     expected = set(contract["esp32"]["native4_pwm"].values())
     expected.update(row["gpio"] for row in contract["esp32"]["JCTRL"] if row["gpio"] is not None)
-    expected.update(contract["esp32"]["JFAST"][net] for net in ("CS_N", "SCLK", "MISO", "MOSI"))
+    expected.update(contract["optional_bench"]["JFAST"][net] for net in ("CS_N", "SCLK", "MISO", "MOSI", "RESET_N", "FAULT"))
     named = {
         "R5_PWM_AH": contract["esp32"]["native4_pwm"]["J4.5"],
         "R5_PWM_AL": contract["esp32"]["native4_pwm"]["J4.6"],
@@ -61,12 +63,12 @@ def main() -> None:
     for row in contract["esp32"]["JCTRL"]:
         if row["pin"] in jctrl_names:
             named["R5_" + jctrl_names[row["pin"]]] = row["gpio"]
-    for net, define in {"CS_N": "CS", "SCLK": "CLK", "MISO": "MISO", "MOSI": "MOSI"}.items():
-        named["R5_FAST_" + define] = contract["esp32"]["JFAST"][net]
+    for net, define in {"CS_N": "CS", "SCLK": "CLK", "MISO": "MISO", "MOSI": "MOSI", "RESET_N": "RESET_N", "FAULT": "FAULT"}.items():
+        named["R5_FAST_" + define] = contract["optional_bench"]["JFAST"][net]
     if pin_map != named or set(pin_map.values()) != expected:
         raise ValueError("ESP32 header differs from connector contract")
     print(
-        f"PASS: 64 STM32 source pins; {len(pin_map)} unique ESP32 proposed GPIOs; reserved pins excluded"
+        f"PASS: 64 STM32 source pins; {len(pin_map)} unique ESP32 GPIOs (12 product + 6 optional bench); reserved pins excluded"
     )
     print("New ESP carrier ECO only; this does not establish compatibility with legacy controller.")
 

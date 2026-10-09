@@ -21,8 +21,8 @@ static void trip(energy_supervisor_t *s, energy_fault_t fault, uint32_t now)
 energy_config_t energy_study_config(void)
 {
     return (energy_config_t){
-        .precharge_ms = 298,.bypass_close_ms = 50,
-            .proof_ms = 96,.attempt_ms = 446,.rail_ms = 2000,.retry_ms = 60000,
+        .precharge_ms = 298,.bypass_close_ms = 100,
+            .proof_ms = 110,.attempt_ms = 446,.rail_ms = 2000,.retry_ms = 60000,
             .discharge_stable_ms = 1000,.sample_max_age_ms = 20,
             .bus_max_v = 250,.catch_max_v = 250,.tank_max_v = 2000,.inlet_max_a = 15
     };
@@ -36,7 +36,7 @@ void energy_supervisor_init(energy_supervisor_t *s, const energy_config_t *c, ui
         s->cfg = *c;
     s->entered_ms = s->lockout_ms = s->previous_ms = now;
     s->configured = c && c->commissioned && c->precharge_ms && c->precharge_ms <= 298 &&
-        c->bypass_close_ms && c->bypass_close_ms <= 50 && c->proof_ms >= 50 && c->proof_ms <= 96 &&
+        c->bypass_close_ms && c->bypass_close_ms <= 100 && c->proof_ms >= 50 && c->proof_ms <= 110 &&
         c->attempt_ms && c->attempt_ms <= 446 && c->rail_ms && c->rail_ms <= 2000 && c->retry_ms >= 60000 &&
         c->discharge_stable_ms >= 1000 && c->sample_max_age_ms && c->sample_max_age_ms <= 20 &&
         isfinite(c->bus_max_v) && c->bus_max_v > 30 &&
@@ -156,7 +156,10 @@ void energy_supervisor_step(energy_supervisor_t *s, const energy_inputs_t *i)
     case ENERGY_PRECHARGE:
         if (elapsed >= s->cfg.precharge_ms)
             trip(s, ENERGY_TIMEOUT, i->now_ms);
-        else if (elapsed >= 50 && (i->k1_released || i->k2_released))
+        /* LC1D18BD manufacturer maximum closing time is72.45ms. This100ms
+         * observation allocation also bounds feedback qualification. It does
+         * not extend the independent446ms total attempt deadline above. */
+        else if (elapsed >= 100 && (i->k1_released || i->k2_released))
             trip(s, ENERGY_CONTACT, i->now_ms);
         else if (!i->kb_released)
             trip(s, ENERGY_CONTACT, i->now_ms);
@@ -166,23 +169,23 @@ void energy_supervisor_step(energy_supervisor_t *s, const energy_inputs_t *i)
     case ENERGY_BYPASS_CLOSE:
         if (elapsed >= s->cfg.bypass_close_ms)
             trip(s, ENERGY_TIMEOUT, i->now_ms);
-        else if (i->bypass_closed_electrically) {
+        /* NC open does not prove power contact closure. Allow worst-case
+         * 72.45ms pickup, then apply KT's load in PROVE to measure that fact. */
+        else if (elapsed >= 73 && !i->kb_released) {
             s->proof_timing = false;
             enter(s, ENERGY_BYPASS_PROVE, i->now_ms);
         }
         break;
     case ENERGY_BYPASS_PROVE:
-        if (i->proof_current_valid && !s->proof_timing) {
+        if (i->proof_current_valid && i->bypass_closed_electrically && !s->proof_timing) {
             s->proof_timing = true;
             s->proof_since_ms = i->now_ms;
         }
-        if (!i->bypass_closed_electrically)
-            trip(s, ENERGY_CONTACT, i->now_ms);
-        else if (s->proof_timing && !i->proof_current_valid)
+        if (s->proof_timing && (!i->proof_current_valid || !i->bypass_closed_electrically))
             trip(s, ENERGY_CONTACT, i->now_ms);
         else if (elapsed >= s->cfg.proof_ms)
             trip(s, ENERGY_TIMEOUT, i->now_ms);
-        else if (i->proof_current_valid && s->proof_timing &&
+        else if (i->proof_current_valid && i->bypass_closed_electrically && s->proof_timing &&
                  (uint32_t)(i->now_ms - s->proof_since_ms) >= 50)
             enter(s, ENERGY_RAIL_QUALIFY, i->now_ms);
         break;

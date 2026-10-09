@@ -32,6 +32,14 @@ def main() -> None:
         raise ValueError("calculation tests not complete")
     if cad["precharge_context_collisions"]:
         raise ValueError("new precharge overlaps remain")
+    holes = cad["precharge_mount_holes_xz_d_mm"]
+    if len(holes) != 8:
+        raise ValueError("HS400 needs eight plate mounting holes")
+    for lower, upper in zip(holes[::2], holes[1::2], strict=True):
+        if abs(upper[1] - lower[1] - 45.0) > 1e-9 or lower[0] != upper[0]:
+            raise ValueError("HS400 drawing requires 45 mm transverse pitch")
+        if lower[2] != 5.4 or upper[2] != 5.4:
+            raise ValueError("HS400 plate hole diameter must remain 5.4 mm")
     files = sorted(
         p for folder in (HERE, OUT) for p in folder.iterdir() if p.is_file() and p != receipt
     )

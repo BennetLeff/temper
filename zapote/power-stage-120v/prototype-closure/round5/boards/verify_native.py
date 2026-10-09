@@ -112,13 +112,20 @@ def main():
         key = (row["reference"], row["pin"])
         assert key not in preserved
         preserved[key] = row["net"]
-    compare(source, preserved)
+    eco = json.loads((HERE / "power-eco.json").read_text())
+    revised_source = dict(source)
+    for change in eco["net_changes"]:
+        key = (change["source_ref"], change["pin"])
+        assert revised_source[key] == change["before"], change
+        revised_source[key] = change["after"]
+    compare(revised_source, preserved)
     for sensor in ["catch", "bus", "line", "pre", "out", "tank", "iproof", "iline"]:
         refmap = json.loads((HERE / f"{sensor}-ref-map.json").read_text())
         actual = {(r["reference"], r["pin"]): r["net"] for r in rows(HERE / f"{sensor}-pins.tsv")}
         for (ref, pin), net in source.items():
             if ref in refmap:
-                assert actual[(refmap[ref], pin)] == net, (sensor, ref, pin)
+                expected_net = "VPRE_DIV3" if (sensor, ref, pin) == ("pre", "R_VPREH3", "2") else net
+                assert actual[(refmap[ref], pin)] == expected_net, (sensor, ref, pin)
     central_pins = {
         (r["source_ref"], r["pin"]): r["net"] for r in rows(HERE / "central/generated/pins.tsv")
     }
@@ -144,8 +151,11 @@ def main():
     results["harness_parity"] = {"eight_straight_through_sensor_harnesses_exact": True}
     results["source_partition"] = {
         "original_pins": len(source),
-        "all_original_pins_preserved": True,
-        "all_eight_sensor_source_nets_preserved": True,
+        "all_original_pin_identities_accounted_for": True,
+        "explicit_power_eco_net_changes": len(eco["net_changes"]),
+        "all_other_original_nets_preserved": True,
+        "all_sensor_nets_except_explicit_vpre_ladder_extension_preserved": True,
+        "vpre_range_ratio": 801,
     }
     reports = {}
     for name in ["central", "catch", "bus", "line", "pre", "out", "tank", "iproof", "iline"]:
@@ -163,7 +173,8 @@ def main():
         violations = [v for sheet in erc["sheets"] for v in sheet["violations"]]
         assert all(v["severity"] != "error" for v in violations), (name, violations)
         kinds = dict(Counter(v["type"] for v in violations))
-        assert kinds == ({"ground_pin_not_ground": 9} if name == "central" else {}), (name, kinds)
+        # Five ISO1211 SUB pins terminate in deliberately floating thermal islands.
+        assert kinds == ({"ground_pin_not_ground": 9, "isolated_pin_label": 5} if name == "central" else {}), (name, kinds)
         reports[name] = {"native_drc_samples": samples, "erc_violations": kinds}
     (OUT / "verification-summary.json").write_text(json.dumps(reports, indent=2) + "\n")
     (OUT / "native-pin-oracle.json").write_text(json.dumps(results, indent=2) + "\n")

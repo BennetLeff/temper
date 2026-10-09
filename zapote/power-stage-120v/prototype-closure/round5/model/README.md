@@ -8,9 +8,11 @@ production target's inhibition is preserved. No hardware was energized.
 
 ## What executes
 
-`cosim.c` loads the installed ngspice45.2 shared library and links the unchanged
+`cosim.c` loads the installed ngspice45.2 shared library and links the current
 production `fullbridge_adapter.c` and `energy_supervisor.c`, plus round5
-`acquisition.c` and `fast_capture.c`. Only accepted solver points advance state.
+`acquisition.c`, `measurement.c`, `bypass.c`, `supervisor_binding.c` and the
+same `protection-closure/isolation.c` compiled into the STM32 target. Only
+accepted solver points advance state.
 External-source Newton callbacks read held commands; they do not advance the
 firmware. Scheduled events are ADC every256µs, supervisor every1ms, and applied
 PWM plans every20µs. A 61s **simulated unpowered** prehistory supplies the cold
@@ -20,28 +22,54 @@ RESET is a distinct event at56ms and START at60ms.
 ADC channel order is VLINE, VPRE, VOUT, VBUS, VCATCH, VTANK, IPROOF, ILINE. The
 harness produces signed24-bit frames with the real CRC and passes them through
 the actual parser; it then decodes them using explicitly ideal full-scale gains.
-`sampled_measurement.c` calculates square-integral true RMS using256µs samples,
-linear zero-crossing interpolation, and complete50–60Hz-compatible cycles. It
-is a **diagnostic estimator owned here**, not the target's completed analog
-qualification implementation. There is no ADS131M08 sinc-filter, AMC delay,
+The shared target helper calculates square-integral true RMS using256µs samples,
+linear zero-crossing interpolation, and complete45–65Hz-compatible cycles.
+The older `sampled_measurement.c` remains an independent historical oracle and
+is no longer linked into the plant. `test_shared_measurement.c` checks the
+actual target helper against analytic sine/harmonic values and adverse inputs.
+There is no ADS131M08 sinc-filter, AMC delay,
 noise, calibration, alias rejection, or sensor fault-coverage claim. The
 independent continuous-solver integration is logged only as an oracle and is
 never used as controller feedback.
 
-Startup qualification requires both crest polarities across two complete valid
-cycles: |VLINE|≥0.98√2 times the preceding cycle RMS, VBUS≥0.95|VLINE|,
-|VPRE|<5V, and |VPRE|/11.875Ω<0.5A. Catch correlation is proven while charging
+Startup qualification uses both measured crest polarities across two complete
+valid cycles, with uncertainty-contained source100–140V RMS, inlet≤15A,
+VBUS≥0.95|VLINE|, |VPRE|<5V, and |VPRE|/11.875Ω<0.5A. Each model channel has
+an explicitly ideal one-ADC-LSB uncertainty; these are not installed calibration
+bounds. Catch correlation requires an initially discharged capacitor and a
+subsequent measured rise before comparison with the bus. It is proven while charging
 and retained during RUN; a falling bus at line valleys must not erase a valid
 catch charge-history proof. Proof current must match0.9–1.1×VOUT_RMS/220Ω for a
 complete cycle before the real supervisor's additional continuous50ms proof.
-These thresholds/error windows are **diagnostic allocations**, not a calibrated
-production admission contract. Manual POST, independent contact mirrors,
-resistor-cold qualification and auxiliary supply health are ideal stimuli.
+Proof/contact withdrawal invalidates their qualifier immediately, without
+waiting for the next completed cycle. Both isolated branch POST records pass
+through the actual target validator and are consumed by the actual controller.
+Their zero uncertainty describes exact simulated resistor values only. Physical
+POST measurements, independent contact mirrors, resistor-cold qualification
+and auxiliary supply health remain ideal stimuli. No calibrated production
+admission contract is thereby demonstrated.
 
-Capture frames exercise the actual sequence/CRC/age parser but are synthesized
-from the applied digital plan. They do not independently measure physical Vgs,
-ZVS, gate propagation or driver overlap. Capture corruption and ADC loss are
-negative controls, not evidence that the physical capture system exists.
+The product path has no FPGA dependency. PWM feedback is explicitly typed as
+simulated on-chip register readback, synthesized from the applied plan. It
+does not independently measure physical Vgs, ZVS, propagation or overlap.
+The model's scope-record ID is UINT32_MAX, a diagnostic sentinel; it is not
+a physical commissioning record. Invalid register readback and ADC loss are
+negative controls. The shipped target remains uncommissioned and inhibited.
+
+The joined startup includes two source-off contactor self-tests, one-token
+admission, first loaded bypass proof, precharge isolation, nonretriggerable
+proof-timer rearm and a fresh second proof. KPA/KPB NC mirrors, excitation,
+admission gates and discharge qualifiers are ideal diagnostic inputs here.
+Native gate timing and target HAL parity require separate evidence. The
+audit checks actual joined permission and electrical load, not only the
+energy core's RUN enum, and rejects RUN while either isolation contact closes.
+The shared wrapper must command a fully qualified RUN within446ms; completed
+proof alone cannot extend startup. After that qualification, zero heat demand
+retains the session only with live guards and released isolation. Dedicated
+cases exercise both pause/resume and proof-without-RUN expiry. Normal STOP
+uses an integer-microsecond deadline, checked at exactly1.270s at both step
+sizes. The model does not simulate the propagation of the actual hardware
+retained-RUN latch; that circuit has a separate pin-driven state review.
 
 ## Electrical models and separation of claims
 
@@ -86,10 +114,17 @@ conservative2000J/part graph floor and4000W single-pulse overload figure.
 Those source curves do not qualify hot/repetitive installed use. Resistor winding inductance and temperature drift are not modeled. The G4A01128C
 thermal cutoff has no sub500ms protection credit in this model.
 
-Main contact opening24ms, bypass opening20ms, proof contact1ms, contact
+The exact LC1D18BD data gives closing53.55–72.45ms and opening16–24ms.
+The current replay uses72.45ms closing for main and bypass, main opening24ms
+and bypass opening16ms to exercise the adverse ordering. The actual controller
+now admits pickup within100ms while retaining its446ms total attempt deadline.
+The prior20ms closing assumption and50ms pickup deadline could not represent
+the selected component. See the [manufacturer's exact-part data, p3](https://iportal.se.com/Contents/docs/SQD-LC1D18BD.PDF).
+
+Proof contact5ms, contact
 transition100µs,400V arc threshold plus0.5Ω arc slope, source0.1Ω/20µH,
 25W nominal resistive AUX proxy,20µs analog guard delay, and thresholds230V/250V/1000V/85A
-are **allocations or sensitivities**. They do not establish component-chain
+remain **allocations or sensitivities**. They do not establish component-chain
 maximum delays, actual PSU inrush, contact breaking ability, current limit, or
 analog fault timing. The400V arc sensitivity appears on both source and bypass
 contacts; omitting the bypass arc created timestep-sensitive artificial voltage
@@ -132,6 +167,8 @@ See the accompanying `RESULTS.md` for the accepted replay identity, results and
 remaining integration work. This package deliberately reports the remaining
 exact-target, physical-geometry, analog-chain and protection-model gaps rather
 than converting approximate digital evidence into a manufacturing release.
+The current receipt is `current-evidence.json` with `evidence-current/`;
+the original `evidence.json` and `evidence/` remain historical.
 
 The catch diode's [official Infineon datasheet](https://www.infineon.com/assets/row/public/documents/24/49/infineon-idw40g65c5-ds-en.pdf)
 was rechecked on2026-10-05. Its simplified typical forward model is restricted

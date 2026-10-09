@@ -1,0 +1,552 @@
+{
+  "id": "R5-POWER-MIRROR-ISOLATION-3",
+  "status": "digital_candidate_not_powered_release",
+  "original_source": "round4/supervisor/generated/pins.tsv",
+  "net_changes": [
+    {
+      "source_ref": "REG3",
+      "pin": "1",
+      "before": "AUX_0V",
+      "after": "AUX_24V"
+    },
+    {
+      "source_ref": "REG3",
+      "pin": "2",
+      "before": "POD_3V3",
+      "after": "AUX_0V"
+    },
+    {
+      "source_ref": "REG3",
+      "pin": "3",
+      "before": "POD_5V",
+      "after": "REG3_5V"
+    },
+    {
+      "source_ref": "C3IN",
+      "pin": "1",
+      "before": "POD_5V",
+      "after": "AUX_24V"
+    },
+    {
+      "source_ref": "U_MCU",
+      "pin": "36",
+      "before": "ADC_CLKIN",
+      "after": "ADC_MCO_SOURCE"
+    },
+    {
+      "source_ref": "Q_K1",
+      "pin": "3",
+      "before": "AUX_0V",
+      "after": "COIL_RET"
+    },
+    {
+      "source_ref": "Q_K2",
+      "pin": "3",
+      "before": "AUX_0V",
+      "after": "COIL_RET"
+    },
+    {
+      "source_ref": "Q_KB",
+      "pin": "3",
+      "before": "AUX_0V",
+      "after": "COIL_RET"
+    },
+    {
+      "source_ref": "Q_KT",
+      "pin": "3",
+      "before": "AUX_0V",
+      "after": "COIL_RET"
+    },
+    {
+      "source_ref": "R_K1GS",
+      "pin": "2",
+      "before": "AUX_0V",
+      "after": "COIL_RET"
+    },
+    {
+      "source_ref": "R_K2GS",
+      "pin": "2",
+      "before": "AUX_0V",
+      "after": "COIL_RET"
+    },
+    {
+      "source_ref": "R_KBGS",
+      "pin": "2",
+      "before": "AUX_0V",
+      "after": "COIL_RET"
+    },
+    {
+      "source_ref": "R_KTGS",
+      "pin": "2",
+      "before": "AUX_0V",
+      "after": "COIL_RET"
+    },
+    {
+      "source_ref": "K1",
+      "pin": "21",
+      "before": "K1_FB_EXC",
+      "after": "AUX_24V"
+    },
+    {
+      "source_ref": "K1",
+      "pin": "22",
+      "before": "K1_MIRROR_RAW",
+      "after": "K1_MIRROR_24V"
+    },
+    {
+      "source_ref": "R_K1FB",
+      "pin": "1",
+      "before": "K1_MIRROR_RAW",
+      "after": "K1_MIRROR"
+    },
+    {
+      "source_ref": "R_K1FB_SER",
+      "pin": "1",
+      "before": "K1_MIRROR_RAW",
+      "after": "K1_MIRROR_24V"
+    },
+    {
+      "source_ref": "R_K1FB_SER",
+      "pin": "2",
+      "before": "K1_MIRROR",
+      "after": "K1_FB_IN"
+    },
+    {
+      "source_ref": "K2",
+      "pin": "21",
+      "before": "K2_FB_EXC",
+      "after": "AUX_24V"
+    },
+    {
+      "source_ref": "K2",
+      "pin": "22",
+      "before": "K2_MIRROR_RAW",
+      "after": "K2_MIRROR_24V"
+    },
+    {
+      "source_ref": "R_K2FB",
+      "pin": "1",
+      "before": "K2_MIRROR_RAW",
+      "after": "K2_MIRROR"
+    },
+    {
+      "source_ref": "R_K2FB_SER",
+      "pin": "1",
+      "before": "K2_MIRROR_RAW",
+      "after": "K2_MIRROR_24V"
+    },
+    {
+      "source_ref": "R_K2FB_SER",
+      "pin": "2",
+      "before": "K2_MIRROR",
+      "after": "K2_FB_IN"
+    },
+    {
+      "source_ref": "KB",
+      "pin": "21",
+      "before": "KB_FB_EXC",
+      "after": "AUX_24V"
+    },
+    {
+      "source_ref": "KB",
+      "pin": "22",
+      "before": "KB_MIRROR_RAW",
+      "after": "KB_MIRROR_24V"
+    },
+    {
+      "source_ref": "R_KBFB",
+      "pin": "1",
+      "before": "KB_MIRROR_RAW",
+      "after": "KB_MIRROR"
+    },
+    {
+      "source_ref": "R_KBFB_SER",
+      "pin": "1",
+      "before": "KB_MIRROR_RAW",
+      "after": "KB_MIRROR_24V"
+    },
+    {
+      "source_ref": "R_KBFB_SER",
+      "pin": "2",
+      "before": "KB_MIRROR",
+      "after": "KB_FB_IN"
+    },
+    {
+      "source_ref": "U_MCU",
+      "pin": "40",
+      "before": "NC",
+      "after": "CMD_KPA"
+    },
+    {
+      "source_ref": "U_MCU",
+      "pin": "41",
+      "before": "NC",
+      "after": "CMD_KPB"
+    },
+    {
+      "source_ref": "U_MCU",
+      "pin": "3",
+      "before": "NC",
+      "after": "KPA_MIRROR"
+    },
+    {
+      "source_ref": "U_MCU",
+      "pin": "4",
+      "before": "NC",
+      "after": "KPB_MIRROR"
+    },
+    {
+      "source_ref": "U_MCU",
+      "pin": "44",
+      "before": "NC",
+      "after": "KPA_FB_EXC"
+    },
+    {
+      "source_ref": "U_MCU",
+      "pin": "47",
+      "before": "NC",
+      "after": "KPB_FB_EXC"
+    },
+    {
+      "source_ref": "U_RUN5",
+      "pin": "4",
+      "before": "SUP_RUN_OK_LOCAL",
+      "after": "PRE_ISO_RUN_OK"
+    },
+    {
+      "source_ref": "U_MCU",
+      "pin": "5",
+      "before": "NC",
+      "after": "ADMIT"
+    },
+    {
+      "source_ref": "UT_PROOF",
+      "pin": "1",
+      "before": "PROOF_STARTED",
+      "after": "PROOF_REQUEST"
+    },
+    {
+      "source_ref": "U_K1HI1",
+      "pin": "1",
+      "before": "ATTEMPT",
+      "after": "SOURCE_DRIVE_TIMED"
+    },
+    {
+      "source_ref": "U_K2HI1",
+      "pin": "1",
+      "before": "ATTEMPT",
+      "after": "SOURCE_DRIVE_TIMED"
+    },
+    {
+      "source_ref": "U_FAULT",
+      "pin": "6",
+      "before": "NC",
+      "after": "FAULT_CLEAR_N",
+      "reason": "TI SCES794G DCU physical pinout correction plus logical round5 ECO"
+    },
+    {
+      "source_ref": "U_FAULT",
+      "pin": "1",
+      "before": "FAULT_CLEAR_N",
+      "after": "RESET_QUALIFIED",
+      "reason": "TI SCES794G DCU physical pinout correction plus logical round5 ECO"
+    },
+    {
+      "source_ref": "U_FAULT",
+      "pin": "3",
+      "before": "RESET_QUALIFIED",
+      "after": "NC",
+      "reason": "TI SCES794G DCU physical pinout correction plus logical round5 ECO"
+    },
+    {
+      "source_ref": "U_ATTEMPT",
+      "pin": "6",
+      "before": "NC",
+      "after": "ATTEMPT_CLEAR_N",
+      "reason": "TI SCES794G DCU physical pinout correction plus logical round5 ECO"
+    },
+    {
+      "source_ref": "U_ATTEMPT",
+      "pin": "2",
+      "before": "POD_3V3",
+      "after": "ATTEMPT_D",
+      "reason": "TI SCES794G DCU physical pinout correction plus logical round5 ECO"
+    },
+    {
+      "source_ref": "U_ATTEMPT",
+      "pin": "1",
+      "before": "ATTEMPT_CLEAR_N",
+      "after": "ADMIT",
+      "reason": "TI SCES794G DCU physical pinout correction plus logical round5 ECO"
+    },
+    {
+      "source_ref": "U_ATTEMPT",
+      "pin": "3",
+      "before": "START_QUALIFIED",
+      "after": "NC",
+      "reason": "TI SCES794G DCU physical pinout correction plus logical round5 ECO"
+    },
+    {
+      "source_ref": "U_PROOF_ONCE",
+      "pin": "6",
+      "before": "NC",
+      "after": "TOKEN_CLEAR_N",
+      "reason": "TI SCES794G DCU physical pinout correction plus logical round5 ECO"
+    },
+    {
+      "source_ref": "U_PROOF_ONCE",
+      "pin": "2",
+      "before": "POD_3V3",
+      "after": "TOKEN_ARM_VALID",
+      "reason": "TI SCES794G DCU physical pinout correction plus logical round5 ECO"
+    },
+    {
+      "source_ref": "U_PROOF_ONCE",
+      "pin": "1",
+      "before": "ATTEMPT",
+      "after": "START_QUALIFIED",
+      "reason": "TI SCES794G DCU physical pinout correction plus logical round5 ECO"
+    },
+    {
+      "source_ref": "U_PROOF_ONCE",
+      "pin": "5",
+      "before": "PROOF_STARTED",
+      "after": "START_TOKEN",
+      "reason": "TI SCES794G DCU physical pinout correction plus logical round5 ECO"
+    },
+    {
+      "source_ref": "U_PROOF_ONCE",
+      "pin": "3",
+      "before": "PROOF_REQUEST",
+      "after": "NC",
+      "reason": "TI SCES794G DCU physical pinout correction plus logical round5 ECO"
+    },
+    {
+      "source_ref": "U_PRE_DONE",
+      "pin": "6",
+      "before": "NC",
+      "after": "ATTEMPT",
+      "reason": "TI SCES794G DCU physical pinout correction plus logical round5 ECO"
+    },
+    {
+      "source_ref": "U_PRE_DONE",
+      "pin": "1",
+      "before": "ATTEMPT",
+      "after": "MCU_PRECHARGE_DONE",
+      "reason": "TI SCES794G DCU physical pinout correction plus logical round5 ECO"
+    },
+    {
+      "source_ref": "U_PRE_DONE",
+      "pin": "3",
+      "before": "MCU_PRECHARGE_DONE",
+      "after": "NC",
+      "reason": "TI SCES794G DCU physical pinout correction plus logical round5 ECO"
+    },
+    {
+      "source_ref": "U_PROVEN",
+      "pin": "6",
+      "before": "NC",
+      "after": "FINAL_PROOF_CLEAR_N",
+      "reason": "TI SCES794G DCU physical pinout correction plus logical round5 ECO"
+    },
+    {
+      "source_ref": "U_PROVEN",
+      "pin": "2",
+      "before": "PROOF_CAPTURE_VALID",
+      "after": "FINAL_PROOF_VALID",
+      "reason": "TI SCES794G DCU physical pinout correction plus logical round5 ECO"
+    },
+    {
+      "source_ref": "U_PROVEN",
+      "pin": "1",
+      "before": "ATTEMPT",
+      "after": "MCU_BYPASS_PROVEN",
+      "reason": "TI SCES794G DCU physical pinout correction plus logical round5 ECO"
+    },
+    {
+      "source_ref": "U_PROVEN",
+      "pin": "3",
+      "before": "MCU_BYPASS_PROVEN",
+      "after": "NC",
+      "reason": "TI SCES794G DCU physical pinout correction plus logical round5 ECO"
+    },
+    {
+      "source_ref": "U_RUN_ARM",
+      "pin": "6",
+      "before": "NC",
+      "after": "FINAL_PROOF_CLEAR_N",
+      "reason": "Reviewed retained qualified-RUN session ECO, preserving live runtime fault chain"
+    },
+    {
+      "source_ref": "U_RUN_ARM",
+      "pin": "1",
+      "before": "ATTEMPT",
+      "after": "SUP_RUN_OK_LOCAL",
+      "reason": "Reviewed retained qualified-RUN session ECO, preserving live runtime fault chain"
+    },
+    {
+      "source_ref": "U_RUN_ARM",
+      "pin": "3",
+      "before": "MCU_RUN",
+      "after": "NC",
+      "reason": "TI SCES794G DCU physical pinout correction plus logical round5 ECO"
+    },
+    {
+      "source_ref": "U_BUDGET1",
+      "pin": "2",
+      "before": "BYPASS_PROVEN",
+      "after": "SESSION_BUDGET_OK",
+      "reason": "Reviewed retained qualified-RUN session ECO, preserving live runtime fault chain"
+    },
+    {
+      "source_ref": "U_RUN3",
+      "pin": "2",
+      "before": "CTRL_RAIL_OK_LOCAL",
+      "after": "RUNTIME_HEALTHY",
+      "reason": "Require all live runtime guards, including controller interlock, at physical RUN capture"
+    }
+  ],
+  "parts": {
+    "REG3": {
+      "before": "LD1117S33TR",
+      "after": "R-78B5.0-1.0",
+      "pins": {
+        "1": "VIN",
+        "2": "GND",
+        "3": "VOUT"
+      },
+      "footprint_basis": "R-78B-1.0 manufacturer drawing matches official R-78HB-0.5 footprint: 11.5x8.5x17.5 mm SIP3, 2.54mm pitch. It is not pin-compatible with the removed SOT-223."
+    },
+    "C3IN": {
+      "after": "1uF C1206C105K5RAC 50V"
+    },
+    "R_MINLOAD": {
+      "after": "82R 1% CRCW251282R0FKEG 1W"
+    },
+    "R_HB_FAIL_LOW": {
+      "board_ref": "R151",
+      "value": "10kR",
+      "nets": [
+        "CTRL_HEARTBEAT_OK",
+        "AUX_0V"
+      ]
+    },
+    "R_ADC_MCO": {
+      "board_ref": "R152",
+      "value": "33R",
+      "nets": [
+        "ADC_MCO_SOURCE",
+        "ADC_CLKIN"
+      ]
+    },
+    "R_REG3_PRELOAD": {
+      "board_ref": "R153",
+      "value": "300R 0.1%",
+      "nets": [
+        "POD_3V3",
+        "AUX_0V"
+      ]
+    },
+    "NT_COIL_STAR": {
+      "board_ref": "N1",
+      "value": "PCB copper star 2mm",
+      "nets": [
+        "COIL_RET",
+        "AUX_0V"
+      ]
+    },
+    "R_UT_PROOFSET": {
+      "board_ref": "R110",
+      "before": "140kR 0.1% TNPW0603140KBEEA",
+      "after": "191kR 0.1% TNPW0603191KBEEA",
+      "nominal_ms": 125.17376,
+      "allocated_min_ms": 118.915072,
+      "allocated_max_ms": 131.432448,
+      "basis": "LTC6993 RevF full-temperature \u00b13%, NDIV32768; resistor 0.1% plus25ppm/K over100K gives0.35%; product bound3.3605% within allocated\u00b15%. Firmware deadline110ms; global timer unchanged."
+    },
+    "U_POSTREG": {
+      "after": "TPS7A4700RGWR",
+      "selector_ground_pins": [
+        8,
+        11,
+        12
+      ],
+      "nominal_output_v": 3.3,
+      "overall_accuracy_percent": 2.5,
+      "input_required_v": 4.3
+    },
+    "R_BUCK_PRELOAD": {
+      "board_ref": "R179",
+      "after": "39R 1% PR03000203909FAC00 3W",
+      "nets": [
+        "REG3_5V",
+        "AUX_0V"
+      ],
+      "purpose": "Guarantee buck 10%-load DC regulation condition over allocated tolerance/temperature/endurance"
+    }
+  },
+  "clock": {
+    "only_driver": "STM32 PA8 MCO HSI16/2",
+    "nominal_hz": 8000000,
+    "adc_osr": 1024,
+    "nominal_samples_per_second": 3906.25,
+    "J7": "Passive monitor only; no external oscillator, power source or powered probe drive permitted"
+  },
+  "manufacturer_sources": [
+    "https://recom-power.com/pdf/Innoline/R-78B-1.0.pdf",
+    "https://recom-power.com/pdf/Innoline/R-78HB-0.5_W.pdf",
+    "https://www.ti.com/lit/ds/symlink/amc3330.pdf",
+    "https://www.st.com.cn/resource/en/datasheet/stm32g071gb.pdf",
+    "https://www.ti.com/lit/ds/symlink/ads131m08.pdf"
+  ],
+  "admission": {
+    "clock": "ADMIT_PC15",
+    "token_clock": "START_QUALIFIED",
+    "attempt_hold": "ATTEMPT OR (START_TOKEN AND SOURCE_OFF_PHYSICAL AND ISO_HEALTH)",
+    "token_clear": "ATTEMPT_CLEAR_N AND NOT ATTEMPT",
+    "global_budget_escape": "RUN_ARMED AND RUNTIME_HEALTHY; RUN_ARMED clocks only actual SUP_RUN_OK_LOCAL and clears on attempt end/isolation loss",
+    "proof_trigger": "PROOF_REQUEST; LTC6993HS6-1 nonretriggerable",
+    "final_proof_capture": "PB13 rising while PROOF_CAPTURE_VALID and PRECHARGE_ISOLATED",
+    "budget_escape": "RUN_ARMED AND RUNTIME_HEALTHY; RUN_ARMED clocks only actual SUP_RUN_OK_LOCAL and clears on attempt end/isolation loss"
+  },
+  "sensor_range_eco": {
+    "board": "pre",
+    "old_ratio": 248.76119402985074,
+    "new_ratio": 801,
+    "ladder": "8xTNPW1206249KBEEA 249k 0.1%",
+    "bottom": "TNPW12062K49BEEA 2.49k 0.1%",
+    "original_pin_change": {
+      "source_ref": "R_VPREH3",
+      "pin": "2",
+      "before": "VPRE_TAP",
+      "after": "VPRE_DIV3"
+    },
+    "outline_unchanged_mm": [
+      60,
+      35
+    ],
+    "reason": "Linear measurement with open precharge contacts and source-opposed stored filter voltage"
+  },
+  "flipflop_pinout": {
+    "source": "https://www.ti.com/lit/ds/symlink/sn74lvc1g74.pdf",
+    "revision": "SCES794G p4",
+    "all_refs": [
+      "U_ATTEMPT",
+      "U_FAULT",
+      "U_PRE_DONE",
+      "U_PROOF_ONCE",
+      "U_PROVEN",
+      "U_RUN_ARM"
+    ],
+    "pin_functions": {
+      "1": "CLK",
+      "2": "D",
+      "3": "Q_N",
+      "4": "GND",
+      "5": "Q",
+      "6": "CLR_N",
+      "7": "PRE_N",
+      "8": "VCC"
+    }
+  }
+}

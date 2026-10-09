@@ -1,0 +1,18 @@
+{
+  "status": "FINDING_ON_SUPERSEDED_ASSEMBLY",
+  "assembly_sha256": "81e1955010941b5fbb1a7b4570c542376bc3a71c09861bafcfe96555e3921d37",
+  "findings": [
+    {
+      "priority": "P1",
+      "file": "zapote/power-stage-120v/prototype-closure/round5/packaging-integration/correct_power_installation.py",
+      "lines": [
+        124,
+        164
+      ],
+      "title": "Retain the lower catch saddle to its base",
+      "proof": "Separate lower saddle starts at Z70; separate base ends at Z70. M3 mounting heads terminate at Z70 and retain the base only. Closure M2 screws span Z73..81 and dowels Z74.2..77.3, joining saddle halves only. No lower-saddle/base fastener or declared integral part exists. The whole guide can lift or slide off the anchored base.",
+      "required": "Provide an integral or explicitly fastened lower/base load path with accessible mounting heads. Owner is correcting as integral machined PEEK."
+    }
+  ],
+  "related_service_limit": "Split Z75.5 misses bores centered Z73 and Z78 with radius2.15. It is a thread-through guide unless redesigned; do not claim an opening axial clamp."
+}

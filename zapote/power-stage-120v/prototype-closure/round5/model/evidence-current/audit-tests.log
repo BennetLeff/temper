@@ -1,0 +1,12 @@
+
+running 7 tests
+test tests::receipt_nan_cannot_disappear_in_maximum - should panic ... ok
+test tests::energy_run_enum_without_joined_permission_is_rejected - should panic ... ok
+test tests::loaded_run_with_connected_precharge_is_rejected - should panic ... ok
+test tests::permission_without_electrical_load_is_rejected - should panic ... ok
+test tests::one_tick_stop_drift_is_rejected - should panic ... ok
+test tests::unrelated_earlier_fault_cannot_pass_readback_injection - should panic ... ok
+test tests::receipt_infinity_cannot_pass_refinement - should panic ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

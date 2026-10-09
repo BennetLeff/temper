@@ -1,0 +1,8 @@
+references,quantity,manufacturer,part,package,status
+MODULE,1,Lattice,ICE40HX8K-B-EVN,evaluation_board,primary_identified_unpurchased
+U1 U2 U3,3,Nexperia,74LVC125APW,TSSOP14_SOT402-1,primary_type_identified_ordering_suffix_to_confirm
+Y1,1,Abracon,ASV-80.000MHZ-LC-T,7.0x5.08x1.8mm_4pad,candidate_datasheet_order_code_not_stock_confirmation
+R1-R10,10,Yageo,RC0603FR-0733RL,0603,33ohm1percent_candidate
+R11-R20,10,Yageo,RC0603FR-0710KL,0603,10kohm1percent_candidate
+C1-C4,4,Murata,GRM188R71H104KA93D,0603,100nF50V10percent_X7R_candidate
+C5,1,Murata,GRM188R71A105KA61D,0603,1uF10V10percent_X7R_candidate

@@ -171,7 +171,7 @@
         "pin": "3",
         "net": "ADC_CLKIN",
         "domain": "AUX",
-        "direction_from_board": "input",
+        "direction_from_board": "output_monitor_no_external_driver",
         "mpn": "B3B-XH-A(LF)(SN)"
       },
       {
@@ -475,18 +475,18 @@
         "connector": "J14",
         "source_ref": "J_K1",
         "pin": "3",
-        "net": "K1_FB_EXC",
+        "net": "AUX_24V",
         "domain": "AUX",
-        "direction_from_board": "output",
+        "direction_from_board": "power_out",
         "mpn": "B4B-XH-A(LF)(SN)"
       },
       {
         "connector": "J14",
         "source_ref": "J_K1",
         "pin": "4",
-        "net": "K1_MIRROR_RAW",
+        "net": "K1_MIRROR_24V",
         "domain": "AUX",
-        "direction_from_board": "input",
+        "direction_from_board": "input_24V_wetted_contact",
         "mpn": "B4B-XH-A(LF)(SN)"
       },
       {
@@ -511,18 +511,18 @@
         "connector": "J15",
         "source_ref": "J_K2",
         "pin": "3",
-        "net": "K2_FB_EXC",
+        "net": "AUX_24V",
         "domain": "AUX",
-        "direction_from_board": "output",
+        "direction_from_board": "power_out",
         "mpn": "B4B-XH-A(LF)(SN)"
       },
       {
         "connector": "J15",
         "source_ref": "J_K2",
         "pin": "4",
-        "net": "K2_MIRROR_RAW",
+        "net": "K2_MIRROR_24V",
         "domain": "AUX",
-        "direction_from_board": "input",
+        "direction_from_board": "input_24V_wetted_contact",
         "mpn": "B4B-XH-A(LF)(SN)"
       },
       {
@@ -547,18 +547,18 @@
         "connector": "J16",
         "source_ref": "J_KB",
         "pin": "3",
-        "net": "KB_FB_EXC",
+        "net": "AUX_24V",
         "domain": "AUX",
-        "direction_from_board": "output",
+        "direction_from_board": "power_out",
         "mpn": "B4B-XH-A(LF)(SN)"
       },
       {
         "connector": "J16",
         "source_ref": "J_KB",
         "pin": "4",
-        "net": "KB_MIRROR_RAW",
+        "net": "KB_MIRROR_24V",
         "domain": "AUX",
-        "direction_from_board": "input",
+        "direction_from_board": "input_24V_wetted_contact",
         "mpn": "B4B-XH-A(LF)(SN)"
       },
       {
@@ -884,6 +884,78 @@
         "domain": "AUX",
         "direction_from_board": "analog_reference_out",
         "mpn": "B2B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J25",
+        "source_ref": "J_KPA",
+        "pin": "1",
+        "net": "AUX_24V",
+        "domain": "AUX",
+        "direction_from_board": "power_out",
+        "mpn": "B4B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J25",
+        "source_ref": "J_KPA",
+        "pin": "2",
+        "net": "KPA_COIL_LOW",
+        "domain": "AUX",
+        "direction_from_board": "output",
+        "mpn": "B4B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J25",
+        "source_ref": "J_KPA",
+        "pin": "3",
+        "net": "AUX_24V",
+        "domain": "AUX",
+        "direction_from_board": "power_out",
+        "mpn": "B4B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J25",
+        "source_ref": "J_KPA",
+        "pin": "4",
+        "net": "KPA_MIRROR_24V",
+        "domain": "AUX",
+        "direction_from_board": "input_24V_wetted_contact",
+        "mpn": "B4B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J26",
+        "source_ref": "J_KPB",
+        "pin": "1",
+        "net": "AUX_24V",
+        "domain": "AUX",
+        "direction_from_board": "power_out",
+        "mpn": "B4B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J26",
+        "source_ref": "J_KPB",
+        "pin": "2",
+        "net": "KPB_COIL_LOW",
+        "domain": "AUX",
+        "direction_from_board": "output",
+        "mpn": "B4B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J26",
+        "source_ref": "J_KPB",
+        "pin": "3",
+        "net": "AUX_24V",
+        "domain": "AUX",
+        "direction_from_board": "power_out",
+        "mpn": "B4B-XH-A(LF)(SN)"
+      },
+      {
+        "connector": "J26",
+        "source_ref": "J_KPB",
+        "pin": "4",
+        "net": "KPB_MIRROR_24V",
+        "domain": "AUX",
+        "direction_from_board": "input_24V_wetted_contact",
+        "mpn": "B4B-XH-A(LF)(SN)"
       }
     ],
     "catch": [

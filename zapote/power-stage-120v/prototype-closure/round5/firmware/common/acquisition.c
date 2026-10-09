@@ -50,16 +50,24 @@ bool ads_accept(ads_receiver_t *r, const uint8_t f[ADS_FRAME_BYTES], uint32_t ca
 bool ads_fresh(const ads_receiver_t *r, uint32_t now)
 { return r && r->seen && !r->fault && (uint32_t)(now - r->captured_us) <= 1000; }
 bool post_record_accept(post_record_t *r, uint32_t nonce, uint32_t serial,
-                        uint32_t now, float ohm, float low, float high,
-                        bool released, bool discharged, bool operator_ok)
+                        uint32_t now, const post_branch_t branch[2],
+                        bool released, bool discharged, bool operator_ok, bool cold)
 {
     if (!r) return false;
-    bool ok = nonce && serial && serial > r->serial && released && discharged && operator_ok &&
-        isfinite(ohm) && isfinite(low) && isfinite(high) && low > 0 && high > low &&
-        ohm >= low && ohm <= high;
+    bool ok = nonce && serial && (!r->boot_nonce || nonce==r->boot_nonce) &&
+        serial > r->serial && branch && released && discharged && operator_ok && cold;
     r->valid = false;
+    /* Retire every submitted serial, including failed measurements. No replay
+       of a previously rejected record after changing physical qualifiers. */
+    if(nonce && !r->boot_nonce) r->boot_nonce=nonce;
+    if(serial>r->serial) r->serial=serial;
+    if(branch) for(unsigned i=0;i<2;++i)
+        ok = ok && branch[i].isolated_four_wire && isfinite(branch[i].ohm) &&
+            isfinite(branch[i].uncertainty_ohm) && branch[i].uncertainty_ohm>=0 &&
+            branch[i].ohm-branch[i].uncertainty_ohm>=23.75f &&
+            branch[i].ohm+branch[i].uncertainty_ohm<=26.25f;
     if (!ok) return false;
-    *r = (post_record_t){nonce, serial, now, ohm, true};
+    r->issued_ms=now; memcpy(r->branch,branch,sizeof r->branch);r->valid=true;
     return true;
 }
 bool post_record_fresh(const post_record_t *r, uint32_t nonce, uint32_t now)

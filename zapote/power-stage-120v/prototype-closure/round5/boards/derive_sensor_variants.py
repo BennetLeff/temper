@@ -22,11 +22,30 @@ def main():
     for channel, name, count in [
         ("VBUS", "bus", 8),
         ("VLINE", "line", 4),
-        ("VPRE", "pre", 4),
+        ("VPRE", "pre", 8),
         ("VOUT", "out", 4),
         ("VTANK", "tank", 12),
     ]:
         selected = [dict(r) for r in rows if r["sheet"] == channel]
+        if channel == "VPRE":
+            # Explicit round5 range ECO: retain the four original ladder parts,
+            # append four identical parts, and select the bus/catch 801:1 ratio.
+            template = next(r for r in selected if r["reference"] == "R_VPREH3")
+            for r in selected:
+                if r["reference"] == "R_VPREH3" and r["pin"] == "2":
+                    r["net"] = "VPRE_DIV3"
+                if r["reference"] == "R_VPREL":
+                    r["mpn"] = "TNPW12062K49BEEA 2.49kR 0.1%"
+            insertion = next(i for i, r in enumerate(selected) if r["reference"] == "R_VPREL")
+            extra = []
+            for index in range(4, 8):
+                for pin in (1, 2):
+                    r = dict(template)
+                    r.update(reference=f"R_VPREH{index}", pin=str(pin), function=str(pin),
+                             net=f"VPRE_DIV{index - 1}" if pin == 1 else
+                             "VPRE_TAP" if index == 7 else f"VPRE_DIV{index}")
+                    extra.append(r)
+            selected[insertion:insertion] = extra
         refs = {}
         seq = {}
         for r in selected:
@@ -87,7 +106,7 @@ def main():
                 else {
                     "VBUS": "2.49kR",
                     "VLINE": "4.02kR",
-                    "VPRE": "4.02kR",
+                    "VPRE": "2.49kR",
                     "VOUT": "4.02kR",
                     "VTANK": "1kR",
                 }[channel]

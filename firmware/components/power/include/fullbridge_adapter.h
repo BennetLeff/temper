@@ -7,14 +7,24 @@
  * UCC21550's separate 396.6..488 ns output deadtime allocation. */
 typedef struct { uint32_t rise, width; } bridge_pulse_t;
 typedef struct { uint32_t period, dead_ticks; bridge_pulse_t pulse[4]; } bridge_cycle_t;
+typedef enum { BRIDGE_FEEDBACK_UNKNOWN=0, BRIDGE_FEEDBACK_ONCHIP_REGISTER,
+               BRIDGE_FEEDBACK_BENCH_CAPTURE } bridge_feedback_kind_t;
 typedef struct {
     uint32_t timer_hz, frequency_hz, input_deadtime_ns, capture_age_us;
     float max_power_w, inlet_target_a, auxiliary_reserve_w;
     /* Disabled until commissioning map and exact controller wiring reviewed. */
     bool commissioned;
+    bridge_feedback_kind_t feedback_kind;
+    uint32_t scope_record_id; /* Scoped external commissioning record; never a runtime measurement. */
 } bridge_config_t;
 typedef struct {
     uint32_t sampled_us, serial;
+    bridge_feedback_kind_t kind;
+    struct {
+        bridge_cycle_t programmed_cycle;
+        uint32_t timer_hz;
+        bool coherent, timer_advancing, outputs_connected;
+    } onchip; /* Register diagnostics, explicitly NOT physical pad capture. */
     uint32_t period[4], high_ticks[4], rise_ticks[4], nonoverlap_ticks[4];
     bool valid[4], rails_ok, sup_run_ok, interlock_ok, bus_fault;
 } bridge_feedback_t;

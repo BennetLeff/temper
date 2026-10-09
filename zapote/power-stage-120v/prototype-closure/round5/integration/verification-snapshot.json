@@ -1,0 +1,63 @@
+{
+  "schema": "temper.round5.integration-snapshot.v1",
+  "date": "2026-10-05",
+  "status": "REVIEWED_DIGITAL_CANDIDATE_WITH_REMAINING_ENGINEERING_AND_PHYSICAL_QUALIFICATION",
+  "manufacturing_release": false,
+  "powered_test_release": false,
+  "fpga_product_dependency": false,
+  "independent_review_scope": "Read-only final proper-native orientation, cooling/PE component, merged contacts, support load paths, catch retention/service and candidate floor. No full DRC, physical test, electrical fault or thermal qualification.",
+  "remaining_work": "remaining-work.md",
+  "raw_mechanical_review_evidence": "mechanical-review-evidence",
+  "artifacts": [
+    {
+      "role": "boards",
+      "path": "zapote/power-stage-120v/prototype-closure/round5/boards/checkpoint.json",
+      "sha256": "397ad242955cde1155e41217a1f003572a6a4e82cec44439cfa6d23b472b2fed"
+    },
+    {
+      "role": "firmware",
+      "path": "zapote/power-stage-120v/prototype-closure/round5/firmware/verification-evidence.json",
+      "sha256": "d5b53eda54891e1b7d737bdbd2fa8d43f4edbc11af68daa8a580910522b56e71"
+    },
+    {
+      "role": "model",
+      "path": "zapote/power-stage-120v/prototype-closure/round5/model/current-evidence.json",
+      "sha256": "86c466de833b8bca07d44b4604006de514d023aca600e35b65a0cde1538b6038"
+    },
+    {
+      "role": "packaging",
+      "path": "zapote/power-stage-120v/prototype-closure/round5/packaging-integration/checkpoint.json",
+      "sha256": "f7294bf1353b107512ccd63c7c0ebf904fe349c847c56f12e00a0ada1435c760"
+    },
+    {
+      "role": "cooling",
+      "path": "output/temper-prototype-closure/round5/orientation-cooling/verification-pe-final.json",
+      "sha256": "8391303645b3edb996da6eeb61beac64edcf2e477dd665dd161ae44ee6cdea11"
+    },
+    {
+      "role": "independent_mechanical_review",
+      "path": "zapote/power-stage-120v/prototype-closure/round5/integration/final-mechanical-review.json",
+      "sha256": "22e0c8d47a78aec6baf764ba1c56837e87284c0402c9fbf60e2898729975577f"
+    },
+    {
+      "role": "engineer_pdf",
+      "path": "output/temper-prototype-closure/round5/packaging-integration/temper-installation-review.pdf",
+      "sha256": "15547d28dc27a96504daab5de5c1b2aa674b8644fe7a8f1b86f3668994fd9d6f"
+    },
+    {
+      "role": "cooker_step",
+      "path": "output/temper-prototype-closure/round5/packaging-integration/r4-supported-routed-candidate.step",
+      "sha256": "a341bf9a4747c85074304d3ea40749837457d8f1ffd522cbf92c48e133fe9b69"
+    },
+    {
+      "role": "pod_step",
+      "path": "output/temper-prototype-closure/round5/packaging-integration/pod-supported-integration-candidate.step",
+      "sha256": "98281d4d664ed402f711ee9c933e47cce16f31c769fd5b6a57e8f3d9446587b1"
+    },
+    {
+      "role": "native19_power_board",
+      "path": "zapote/power-stage-120v/native-19/section.kicad_pcb",
+      "sha256": "3557aa444873fa8b45eb7e0ae8ec3a4bc2b5cd526826b338b58d50e57747430b"
+    }
+  ]
+}

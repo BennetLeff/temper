@@ -1,0 +1,123 @@
+{
+  "version": "PC125-ISOLATE-CANDIDATE-3",
+  "status": "ADDITIVE_ECO_NOT_IN_FROZEN_BOARDS_OR_TARGET_NO_POWER_RELEASE",
+  "extends": "PC125-CATCH-R5-2",
+  "preserved": [
+    "RP1/RP2 HS400 25R J with individual TF1/TF2",
+    "existing KB bypass",
+    "K1/K2 source isolation",
+    "FC1 remains unqualified for actual DC clearing",
+    "attempt-scoped cold POST and original 500ms source-present target"
+  ],
+  "new_contactors": {
+    "quantity": 2,
+    "references": [
+      "KPA",
+      "KPB"
+    ],
+    "mpn": "Schneider Electric LC1D18BD",
+    "power_connections": {
+      "KPA.1L1": "L_SER",
+      "KPA.2T1": "PC_ISO_IN",
+      "KPB.1L1": "PC_ISO_OUT",
+      "KPB.2T1": "L_PRE"
+    },
+    "resistor_branch_connections": "PC_ISO_IN -> (TF1+RP1 in parallel with TF2+RP2) -> PC_ISO_OUT",
+    "other_power_poles": "3L2/4T2/5L3/6T3 unused and insulated; no parallel poles",
+    "coil": "Independent CMD_KPA/CMD_KPB drivers; A1 positive24V, A2 return, integral suppression retained",
+    "feedback": "Separate NC mirror21/22 pair per contactor;13/14 NO auxiliary unused",
+    "primary_source": "https://iportal.se.com/Contents/docs/SQD-LC1D18BD.PDF",
+    "source_facts": {
+      "ac1_a_at_up_to_440vac_and_60c": 32,
+      "coil_vdc": 24,
+      "coil_w_at_20c": 5.4,
+      "close_ms": [
+        53.55,
+        72.45
+      ],
+      "open_ms": [
+        16,
+        24
+      ],
+      "aux_min_switch_v": 17,
+      "aux_min_switch_ma": 5,
+      "body_width_height_depth_mm": [
+        45,
+        77,
+        95
+      ]
+    },
+    "limit_of_rating": "AC1 and timing figures do not qualify reactive precharge breaking, short-circuit coordination, dielectric transients, DC interruption or full command-to-extinction time"
+  },
+  "new_interfaces": {
+    "outputs": [
+      "CMD_KPA",
+      "CMD_KPB",
+      "KPA_FB_EXC",
+      "KPB_FB_EXC"
+    ],
+    "inputs": [
+      "KPA_MIRROR",
+      "KPB_MIRROR",
+      "KPA_DRIVER_OK",
+      "KPB_DRIVER_OK",
+      "PROOF_WINDOW"
+    ],
+    "physical_feedback": "Each excitation switches qualified24V into its21/22 loop. Receiver must guarantee>=17V open-circuit and>=5mA closed-contact wetting across supply/resistor/temperature corners. Do not copy existing3.3V/10k contact excitation.",
+    "receiver_candidate": "ISO1211DR per contact, RSENSE562ohm1%, RTHR0,4.7kohm1%>=0.5W field burden,1nF field cap; TPL7407LDR five independent sinks. Exact pins and source bounds in receiver-ECO.md. Supersedes earlier resistor-only/RSENSE200 exploratory proposals.",
+    "decoder": "Individually challenge excitation high/low; require low-low, high-low and low-high patterns to detect static-high, static-low and cross-connected channels. NC CLOSED proves main NO open only under the documented mirror relationship. NC OPEN never proves main NO closed. Disconnected feedback fails safe.",
+    "freshness_us": 2000,
+    "hardware_run_gate": "Existing SUP_RUN_OK AND raw KPA_MIRROR AND raw KPB_MIRROR AND KPA_FB_EXC AND KPB_FB_EXC AND NOT CMD_KPA AND NOT CMD_KPB AND qualified receiver supply-good. Direct combinational static hardware; no FPGA, decoded-state hold or firmware echo.",
+    "coil_hardware_gate": "Each actual KPA/PB driver command = requested command AND PG3 AND PG5 AND STOP_OK AND LATCH_OK AND (SOURCE_OFF_PHYSICAL OR (ATTEMPT AND TOTAL_WINDOW AND NOT RUN_PERMIT)). SOURCE_OFF_PHYSICAL = raw K1/K2/KB NC mirrors AND their static excitation levels AND NOT actual CMD_K1/2/KB AND existing hardware bus/catch-discharge comparators. Board owner must bind physical comparator nets; MCU CAPS_SAFE echo is not permitted. Assert ATTEMPT/TOTAL_WINDOW authorization before raising main-source commands to prevent authorization gap/chatter. No FPGA.",
+    "receiver_scope": [
+      "K1",
+      "K2",
+      "KB",
+      "KPA",
+      "KPB"
+    ],
+    "scan": "Before START, source-isolated: six150us slots, alloff then eachchannelonly, sampleafter100us. Then hold allfive FB_EXC high and settle before START; maintain static excitation through all mechanical selftests and source-present states."
+  },
+  "sequence": [
+    "With K1/K2 verified open, bus discharged and PWM inhibited: validate both mirrors closed, individually energize/release KPA then KPB; require each own transition and unchanged peer response. Maintain at least73ms coil-on dwell even if NC opens earlier; NC-open is not NO-closed proof.",
+    "Close KPA/PB while K1/K2 remain open. Require both mirrors open as movement diagnostics, not electrical closure proof; then permit existing K1/K2 precharge sequence. Maintain at least73ms coil-on dwell before admitting the source.",
+    "After existing precharge qualification close KB, keep both precharge contacts energized until electrical bypass proof succeeds.",
+    "Open KPA and KPB while KB remains closed. After both NC mirrors are valid/closed continuously10ms, start PC_REPROVE with a fresh loaded KT electrical-proof epoch. Require post_isolation_proven initially false, then true after at least50ms good epoch age; finish within110ms and the unchanged446458us global source-present budget. Two KT pulses require pulse-load thermal qualification and verified hardware one-shot rearm; a low KT command alone does not reset a nonretriggerable LTC6993-1. PC_REARM sits between confirmed isolation and PC_REPROVE: wait for first KT trigger plus at least the final board timer maximum rounded upward, and physical PROOF_WINDOW low continuously2ms. Existing provisional131433us is conservative only for the previous191k1% allocation; derive actual frozen value from selected timer resistor/tolerance.",
+    "During RUN both coils remain off. Fault/stop removes PWM and all coils; do not reclose precharge contacts to discharge or recover a fault. Any contact/feedback error latches fault; manual inspection/new POST and separate reset/start are required."
+  ],
+  "timing_allocations_not_guarantees": {
+    "contact_close_deadline_us": 100000,
+    "contact_open_deadline_us": 40000,
+    "feedback_stable_us": 10000,
+    "feedback_max_age_us": 2000,
+    "control_max_step_us": 1000,
+    "precharge_transfer_deadline_us": 446458,
+    "source_extinction_allocation_us": 24000,
+    "total_source_present_target_us": 500000,
+    "contact_energized_min_dwell_us": 73000,
+    "post_isolation_proof_deadline_us": 110000,
+    "post_isolation_good_min_us": 50000,
+    "proof_window_low_guard_us": 2000
+  },
+  "remaining_integration": [
+    "native driver/receiver and non-FPGA static hardware run-gate implementation",
+    "production energy_supervisor states and target HAL",
+    "new contactor enclosure/harness fit and24V supply budget",
+    "joined simulation with actual contact/receiver chain",
+    "reactive startup faults and residual open-contact capacitance/flashover",
+    "part-specific installed DC fuse clearing envelope"
+  ],
+  "dc_fuse_clearance": {
+    "mpn": "FWP-10A14F",
+    "dc_total_clearing_a2s": null,
+    "dc_arc_voltage_bound_v": null,
+    "qualified_source_L_over_R_s": null,
+    "minimum_interrupting_current_a": null,
+    "status": "MISSING_MANUFACTURER_APPLICATION_BOUND; AC22A2s is not substituted"
+  },
+  "reset_contract": "Fault requires a safe RESET-low observation followed by a fresh RESET rising edge with START low, source+bypass released, bus discharged, healthy and valid released KPA/PB mirrors. RESET does not clear consumed POST token; subsequent START needs a fresh greater token and cold per-resistor POST.",
+  "product_architecture": "Non-FPGA static mirror hardware AND gate; dynamic excitation only while source-isolated; FPGA optional bench instrumentation is outside this contract.",
+  "physical_discharge_window": "discharge-window-ECO.md: GUARD biasREF1V25,\u00b115.8929Vnominal; fourTLV3201AIDBVR,620k0805/10k0603 thresholds,DIAG_N AND; conditional\u221226.785702\u2026+26.741400V at\u221240..85\u00b0C withexplicitinstallederrorallocations.",
+  "admission": "PC15 pin5 ADMIT; PB8 pin62 physical PROOF_WINDOW. Physical START arms TOKEN only with ADMIT low and physical source-off safety. ATTEMPT D = ATTEMPT OR (TOKEN AND physical safety AND hard health), CLK = ADMIT. Accepted ATTEMPT consumes TOKEN. End/expiry/abort latches inhibit until new manual RESET/START. U_BUDGET1 = TOTAL_WINDOW OR actual SUP_RUN_OK_LOCAL; first BYPASS_PROVEN never bypasses the global budget.",
+  "proof_timer": "Exact native LTC6993HS6-1#TRMPBF is nonretriggerable. Feed qualified PROOF_REQUEST = CMD_KT AND PRECHARGE_DONE AND ATTEMPT AND LATCH_OK directly to TRIG; remove the one-proof-per-attempt DFF lockout. Qualify proof load for the entire500ms source-present bound."
+}

@@ -1,0 +1,15 @@
+port,board_header,FPGA_ball,bank_net,direction,domain,source_destination
+clk80,J2.25,H16,GBIN2/PIO1_28,in,FPGA_3V3,local ASV-80.000MHZ-LC-T output through33ohm
+logic_in[0],J2.5,P16,PIO1_04,in,FPGA_3V3,U1.3 buffered AH logic
+logic_in[1],J2.9,N16,PIO1_08,in,FPGA_3V3,U1.6 buffered AL logic
+logic_in[2],J2.11,M16,PIO1_12,in,FPGA_3V3,U1.8 buffered BH logic
+logic_in[3],J2.13,K15,PIO1_20,in,FPGA_3V3,U1.11 buffered BL logic
+cs_n,J2.17,K14,PIO1_18,in,FPGA_3V3,U2.3 buffered ESP GPIO10
+sclk,J2.19,G14,PIO1_37,in,FPGA_3V3,U2.6 buffered ESP GPIO11
+miso,J2.21,J15,PIO1_19,out,FPGA_3V3,U3.2 then ESP GPIO12
+reset_n,J2.27,G16,PIO1_30,in,FPGA_3V3,U2.8 external reset source assignment pending
+fault,J2.29,F16,PIO1_34,out,FPGA_3V3,U3.5 diagnostic external receiver assignment pending
+FPGA_3V3,J2.2,NA,VCCIO1,power,FPGA_3V3,module rail tap output only
+CTRL_GND,J2.15,NA,GND,return,CTRL_GND,controller ground only
+CTRL_GND,J2.23,NA,GND,return,CTRL_GND,clock local return
+MOSI,NC,NA,NA,unused,CTRL_3V3,ESP GPIO13 may toggle but not connected

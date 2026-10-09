@@ -1,0 +1,192 @@
+{
+  "assembly_sha256": "a341bf9a4747c85074304d3ea40749837457d8f1ffd522cbf92c48e133fe9b69",
+  "orientation": {
+    "determinant_measured_from_four_asymmetric_model_centers": 0.9999999999999906,
+    "references": [
+      "J8",
+      "J10",
+      "C21",
+      "C5"
+    ],
+    "world_centers": [
+      [
+        116.5,
+        192.5,
+        32.250000050000246
+      ],
+      [
+        82.5,
+        192.5,
+        32.25000005000016
+      ],
+      [
+        -83.5,
+        259.0,
+        45.55
+      ],
+      [
+        97.75,
+        216.1,
+        56.0
+      ]
+    ],
+    "top_side_world_normal": [
+      0,
+      0,
+      1
+    ],
+    "step_rotation_matrix": [
+      [
+        -1,
+        0,
+        0
+      ],
+      [
+        0,
+        -1,
+        0
+      ],
+      [
+        0,
+        0,
+        1
+      ]
+    ],
+    "step_translation_mm": [
+      129.5,
+      162,
+      30.387
+    ]
+  },
+  "historical_negative_control": "actual STEP chirality determinant -1.0000000000005727, expected +1",
+  "final_cooling_parts_missing": [],
+  "final_cooling_invalid_or_disconnected": {},
+  "pe_final_contacts": [
+    {
+      "a": "BASE_BASE_R2_CUSTOM_SINK",
+      "b": "R5_PE_SINK_EXTERNAL_TOOTH_WASHER_ENVELOPE",
+      "distance_mm": 0.0
+    },
+    {
+      "a": "R5_PE_SINK_EXTERNAL_TOOTH_WASHER_ENVELOPE",
+      "b": "R5_PE_SINK_FUSED_COPPER_END_PAD",
+      "distance_mm": 0.0
+    },
+    {
+      "a": "R5_PE_SINK_FUSED_COPPER_END_PAD",
+      "b": "R5_PE_BRAID_MAX_SECTION_ENVELOPE",
+      "distance_mm": 0.0
+    },
+    {
+      "a": "R5_PE_BRAID_MAX_SECTION_ENVELOPE",
+      "b": "R5_PE_CRADLE_FUSED_COPPER_END_PAD",
+      "distance_mm": 0.0
+    },
+    {
+      "a": "R5_PE_CRADLE_FUSED_COPPER_END_PAD",
+      "b": "R5_PE_CRADLE_INTERLUG_SPACER",
+      "distance_mm": 0.0
+    },
+    {
+      "a": "R5_PE_CRADLE_INTERLUG_SPACER",
+      "b": "BASE_BASE_R2_PE_BOND_ROUTE_ALLOCATION",
+      "distance_mm": 0.0
+    },
+    {
+      "a": "BASE_BASE_R2_PE_BOND_ROUTE_ALLOCATION",
+      "b": "R5_PE_CRADLE_CONDUCTIVE_SPACER",
+      "distance_mm": 0.0
+    },
+    {
+      "a": "R5_PE_CRADLE_CONDUCTIVE_SPACER",
+      "b": "BASE_BASE_R2_SINK_CRADLE_CHASSIS_MOUNT",
+      "distance_mm": 0.0
+    }
+  ],
+  "delegated_interfaces": [
+    {
+      "a": "BASE_PROPOSAL_LEFT_WALL",
+      "b": "OUT_FLOOR_M3x6_-126.0",
+      "volume_mm3": 0.0
+    },
+    {
+      "a": "BASE_PROPOSAL_LEFT_WALL",
+      "b": "OUT_MACHINED_BRACKET_-128",
+      "volume_mm3": 0.0
+    },
+    {
+      "a": "BASE_BASE_R2_CARRIER_RAIL_-122p5",
+      "b": "PAIRED_POST_M3x60_CS_285",
+      "volume_mm3": 12.959069696058144,
+      "bounds_mm": [
+        134.0,
+        283.5,
+        10.0,
+        137.0,
+        286.5,
+        16.0
+      ]
+    },
+    {
+      "a": "BASE_BASE_R2_CARRIER_RAIL_-122p5",
+      "b": "PAIRED_POST_M3x60_CS_295",
+      "volume_mm3": 12.959069696058227,
+      "bounds_mm": [
+        134.0,
+        293.5,
+        10.0,
+        137.0,
+        296.5,
+        16.0
+      ]
+    }
+  ],
+  "floor": {
+    "new_holes": 26,
+    "obsolete_holes_restored": 8,
+    "missing_material_vs_reconstructed_mm3": 0.0,
+    "excess_material_vs_reconstructed_mm3": 0.0,
+    "assembly_to_floor_export_missing_mm3": 0.0,
+    "assembly_to_floor_export_excess_mm3": 0.0
+  },
+  "catch_retention": {
+    "separate_base_present": false,
+    "lower_integral_solids": 1,
+    "lower_integral_bounds_mm": [
+      122.0,
+      281.0,
+      68.0,
+      140.0,
+      300.0,
+      75.5000001
+    ],
+    "post_to_integral_base": [
+      0.0,
+      0.0
+    ],
+    "mount_head_to_integral_base": [
+      0.0,
+      0.0
+    ],
+    "closure_head_to_upper": [
+      0.0,
+      0.0
+    ],
+    "closure_thread_volumes_mm3": [
+      2.8274333882308778,
+      2.8274333882308778
+    ],
+    "mount_driver_vs_guide_mm3": [
+      0.0,
+      0.0
+    ]
+  },
+  "sink_bounds": [
+    -76.0,
+    93.9,
+    12.0,
+    124.0,
+    161.9,
+    72.0
+  ]
+}

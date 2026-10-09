@@ -14,7 +14,8 @@ public class LocalRoute {
   HeadlessBoardManager mgr=new HeadlessBoardManager(Locale.ENGLISH,job);
   IdentificationNumberGenerator ids=new ItemIdentificationNumberGenerator();
   System.out.println(mgr.loadFromSpecctraDsn(new FileInputStream(a[0]),new BoardObserverAdaptor(),ids));
-  RouterSettings settings=mgr.get_settings().autoroute_settings;settings.maxPasses=6;settings.set_stop_pass_no(6);settings.maxThreads=1;
+  int passes=a.length>2?Integer.parseInt(a[2]):6;if(passes<1||passes>6)throw new IllegalArgumentException("passes must be1..6");
+  RouterSettings settings=mgr.get_settings().autoroute_settings;settings.maxPasses=passes;settings.set_stop_pass_no(passes);settings.maxThreads=1;
   StoppableThread thread=new StoppableThread(){protected void thread_action(){}};
   BatchAutorouter router=new BatchAutorouter(thread,mgr.get_routing_board(),settings,false,true,100,500);
   router.addTaskStateChangedEventListener(e->{System.out.println("PASS "+e.getPassNumber()+" "+e.getTaskState());try{mgr.saveAsSpecctraSessionSes(new FileOutputStream(a[1]),a[0]);}catch(Exception x){throw new RuntimeException(x);}});

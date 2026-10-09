@@ -1,204 +1,161 @@
-# Round5 target firmware implementation
+# Round5 target firmware
 
-**Inhibited bench targets, not a completed energized deployment.** This round
-adds real peripheral code for STM32G071RBT6 and ESP32-S3, acquisition drivers and
-fault tests. It does not close the whole target implementation workstream. The
-STM32 startup and peripheral units compile to ARM Cortex-M0+ objects using the
-official ST/ARM headers. A linked STM32 bench ELF and ESP-IDF v5.2.3 ESP32-S3 bench image now
-build with the actual target compilers. Toolchains were downloaded into isolated
-`/private/tmp` directories; no global installation was performed. Neither
-board has been flashed. The existing round4 portable safety core is unchanged.
+Buildable, inhibited STM32G071RBT6 and ESP32-S3 targets. `commissioned=false`
+remains; no hardware has been flashed. Current receipts are in
+`output/temper-prototype-closure/round5/firmware/verification/`. Historical sibling
+receipts and `evidence.json` are preserved and do not establish the changed image.
 
-## What changed
+## Implemented corrections
 
-`stm32/platform.c` implements the existing supervisor's exact pins from
-`round4/supervisor/generated/pins.tsv`, including:
+- R5I002: POST requires two isolated four-wire branch measurements, each entire
+  uncertainty interval inside23.75–26.25Ω, cold equilibrium, released contacts,
+  discharge and operator confirmation. Records bind to boot/serial, expire60s,
+  retire failed serials and are consumed on attempt/fault.
+- R5I003 retained: DIN CRC follows command/register words; DOUT CRC at27/28.
+- R5I004: PD3 heartbeat input; PD4 fail-low qualified output. Three alternating
+  2–15ms edges qualify; glitches/timeouts latch invalid until rails disappear.
+- R5I005: two immediate complete ADC reads drain both FIFO slots after startup
+  settling; discard both and timestamp only subsequent DRDY. PA8 HSI16/2=8MHz,
+  OSR1024,3906.25Hz. Actual peripheral behavior still needs measurement.
+- R5I006: request low precedes all four GPIO-matrix disconnects downstream of
+  deadtime inversion. Partial initialization also disconnects before inversion.
+- Common-timer phase commits gate all shadow loads, stage comparator/actions,
+  release on one TEZ; both endpoints work without live timer stop/restart.
+  See [MCPWM-PROOF.md](MCPWM-PROOF.md) for actual SDK semantics.
+- Actual energy core now permits100ms contact pickup (manufacturer max72.45ms),
+  uses73ms mechanical pickup allowance before KT proof, and waits for completed
+  loaded proof50ms within110ms. The total446ms source budget is unchanged.
 
-- HSI16 system clock; PA8 MCO supplies HSI16/2 (8 MHz) to ADS131M08. At OSR1024,
-  actual nominal telemetry rate is **3906.25 samples/s**, not 4 kSPS or 32 kSPS.
-- SPI1 PA4/5/6/7 at 4 MHz, CPOL0/CPHA1, 30-byte full-duplex frames. Hardware
-  reset, register writes and readbacks initialize MODE=0x3110 and CLOCK=0xff0e.
-  Input CRC follows the command/register payload; output CRC covers the first
-  27 output bytes. These are deliberately different positions.
-- PA0 EXTI falling-edge DRDY timestamping against a 1 MHz TIM2 counter; missed
-  pending interrupts, bad status, clipping, CRC, duplicate sample, sample-gap
-  and late-read conditions invalidate acquisition. Runtime ADC faults latch.
-  No ADC data becomes valid merely because a transfer returned bytes.
-- PA2/3 STM32 ADC calibration and long-acquisition-time raw NTC readings.
-  Raw ADC counts are **not** classified as temperature/cold eligibility.
-- PA9/10 USART1 at 115200 8N1; the existing CRC/sequence/freshness protocol is
-  used in both directions. Fault status is emitted every 5 ms without a
-  blocking full-frame transmit. UART parsing faults remove the received link.
-- Actual coil, health, reset, proof and stop output pin writes; reset establishes
-  low coil commands before GPIO output mode. MCU_RUN is removed first on fault.
-  The portable sequencer is invoked at nominal 1 ms cadence. A stuck SPI wait
-  is bounded; the external watchdog is fed only from the main loop after fresh
-  acquisition, never from an unrelated free-running interrupt.
-- Startup vector table and 128 KiB FLASH/36 KiB RAM linker script; a Makefile
-  targeting the real ST part, not host stubs. SWD pins remain reserved.
+## Product feedback and optional bench instrumentation
 
-The bench image deliberately has `commissioned=false`, invalid/unqualified
-physical inputs and low MCU_HEALTHY. Thus the sequencer remains faulted and
-cannot assert its coils or permission. Missing calibration/qualification is
-visible in source rather than filled with optimistic boolean constants.
+`fullbridge_adapter.h` distinguishes UNKNOWN, ONCHIP_REGISTER and BENCH_CAPTURE.
+Unknown fails closed. On-chip feedback decodes actual divider/timer/operator,
+compare/action/deadtime/pending registers; verifies counter progress, matrix and
+output enables; and compares against the previous commanded cycle. No captured
+edge arrays are synthesized. These are digital diagnostics, not physical pad
+measurements. A scoped oscilloscope record ID, commissioned configuration and
+actual physical guard predicates are all required; default app supplies none.
 
-`esp32/` is a standalone ESP-IDF project for **proposed new carrier R5-CTRL-01**.
-It does not change or borrow pins from the legacy Temper controller. The exact
-module proposal is ESP32-S3-WROOM-1-N8 without PSRAM; GPIO35/36/37 cannot be
-blindly transferred to an octal-PSRAM variant. The JSON pin contract records
-module pad numbers, JCTRL directions, JFAST pins and reserved GPIOs.
+`power_target.c` installs the real `power_binding_t`, connecting register readback,
+completed-cycle line telemetry and interpolation over a supplied characterized
+phase map. The owner task wakes every250µs, inhibits on>1ms lateness and uses
+nonblocking UART writes. Product targets do not compile or call FPGA capture,
+SPI/reset/fault boot paths. Optional `fast_spi.c`/`bench_pins.h` retain the92byte,
+5MHz,200ns setup,2µs idle bench contract; `optional_bench.required_for_product=false`.
 
-The MCPWM driver allocates one 80 MHz timer and two operators. Both bridge legs
-share that timer. The pair of generators for each leg uses hardware deadtime.
-Configuration occurs while the timer is stopped and PWM request is low. The
-bench image additionally disconnects the GPIO matrix and holds all four output
-pads low; forcing a raw generator low is insufficient evidence of a low pad
-through a downstream deadtime inverter. There is no API in this image that can
-raise PWM_REQUEST. The 50 kHz/125 ns values are test setup parameters, not a
-released frequency/deadtime choice.
+A qualified boot can initialize PWM with authorization, bind a matching reviewed
+context and then call boot-only `r5_pwm_prepare_capture` with REQUEST physically
+inhibited. Its legacy name denotes zero-phase logic connection for scope
+commissioning and on-chip diagnostics; no FPGA is required. Later fault inhibition
+cannot be undone through that entrypoint. Default app remains disconnected.
 
-**Live atomic phase changes are not implemented.** ESP-IDF's sequential writes
-into compare shadows can straddle a timer boundary; calling them in sequence is
-not a proof of atomic update. This driver does not present stop/restart as
-continuous phase control. Active request is rejected, and the phase=1 endpoint
-is rejected because its fall-at-period edge needs a different event topology.
-A verified live transaction and endpoint treatment remain digital engineering.
+## Shared target/model APIs
 
-## Acquisition and fast capture contracts
+Compile these allocation-free C sources into both model and target; do not copy
+estimators or fabricate target qualification from model outputs.
 
-`common/acquisition.c` provides tested ADS131M08 CRC/status/sign/freshness checks,
-volatile one-use POST records and a synchronized bus/catch correlation predicate.
-The POST function requires a new nonzero serial, current boot nonce, cold/released
-contacts, an explicit operator confirmation and resistance inside supplied
-bounds. Invalid input invalidates the record; consumption never restores it.
-The target image does **not** invent the boot-session admission/service protocol,
-POST bounds or calibrated gains. This remains integration work.
+- `acquisition.h`: ADS CRC/frame acceptance plus `post_record_accept`,
+  `post_record_fresh`, `post_record_consume`; measurement and physical confirmation
+  are explicit inputs.
+- `qualification.h`: gain/offset from zero/injection checked at a third independent
+  point, clipping/stuck/residual rejection; calibrated scale with absolute error;
+  supplied NTC coefficients/open-short checks and lag-qualified cold limit; heartbeat.
+- `measurement.h`: `r5_measurement_init(error[8])`, then `r5_measurement_add` for
+  VLINE,VPRE,VOUT,VBUS,VCATCH,VTANK,IPROOF,ILINE. `.complete`/`.serial` identify a
+  completed cycle. Exact piecewise-linear squared integration, interpolated
+  crossings,45–65Hz,200–350µs sample intervals; faults latch. Source limits include
+  100–140Vrms,15Arms,230Vpeak and crest≤1.8. Two cycles/both crest polarities,
+  uncertainty-bounded VPRE<5V/current<0.5A and bus/source≥0.95 qualify precharge.
+  Proof requires entire-cycle excitation and0.9–1.1×VOUT/220Ω current interval.
+  Qualifier withdrawal immediately removes permission. Catch proof needs initial
+  discharge, observed rise and continuing bus/catch correlation.
+- `sensor_frontend.h`: the same eight calibration records/ADS/measurement and two
+  NTC paths are called by STM32; missing calibration is invalid.
+- `line_telemetry.h`:28byte TLM1,sequence,cycleµs,RMSmV,RMSmA,flags1,CRC32, all
+  fields big-endian; sequence and local arrival bounds prevent stale/reordered
+  estimates. Coexists with20byte TE frames at115200baud. CRC is generic, not FPGA.
+- `mirror.h`: source-off all-off/one-channel electrical challenge,100µs settling,
+  150µs slots, complete five-channel scan≤1ms,2ms freshness. After stable released
+  contacts, `r5_mirror_hold_static` sets all five EXC high and requires physical
+  receivers high after settling. Excitation remains high through mechanical tests,
+  source and RUN; static samples still expire2ms. TIM3 owns the50µs excitation
+  schedule; ADC SPI polling cannot block it. Absolute slot deadlines avoid jitter
+  accumulation; settling starts after actual GPIO writes. Host tests exercise
+  0–20µs ISR-entry latency and5µs GPIO-write allocation, not measured WCET. KPA/PB use PD8/PD9 commands,
+  PC13/PC14 inputs, PA12/PA15 excitation. Wetting/settling need physical verification.
+- `bypass.h`: `r5_bypass_loaded` requires completed proof and uncertainty-bounded
+  VPRE<1Vrms. Current ratio alone passes a220Ω load mistakenly fed through12.5Ω;
+  VPRE rejects that failure. Historical first proof is valid only while KB remains
+  commanded and its NC mirror stays open.
+- `supervisor_binding.h`: common wrapper embeds the actual energy core and
+  `../protection-closure/isolation.c`; public energy enum/wire values stay unchanged.
+  Consumes POST at source-isolated mechanical-test START; retains the immutable
+  token for delayed core START. PC15 ADMIT starts the hardware attempt only after
+  mechanical tests; K1/K2 stay off until actual PB4 ATTEMPT and PB6 TOTAL_WINDOW
+  acknowledge within5ms. Prior-high windows fail; acknowledgment wait counts in
+  the446ms budget. After first loaded proof, opens both isolators,
+  waits first KT edge+131433µs AND actual PB8 PROOF_WINDOW low2ms, then starts a
+  second KT pulse. A new completed-cycle serial and50ms continuous loaded proof
+  are required for final permission. Source budget stays446ms through reproof. Only the merged qualified RUN command latches software session qualification, including subsequent zero demand. Completing second proof without first RUN still times out at446ms. OFF, fault, a new attempt, lost isolation or lost PWM qualification clears the session. ATTEMPT and all live guards remain mandatory. This is a software command history, not physical SUP_RUN readback: native hardware independently captures actual SUP_RUN and requires live RUNTIME_HEALTHY for the budget escape. Isolation loss clears native RUN/PERMIT immediately; before TOTAL expiry source contactors may remain commanded until firmware faults or the deadline, while after expiry the hardware budget also drops them.
+  Caller must honor `.consume_post`; simulated physical inputs remain simulation.
 
-`common/fast_capture.c` and `esp32/fast_spi.c` implement the receive side of a
-concrete external four-channel logic-capture contract. SPI2 mode0 at 10 MHz
-reads exactly 92 bytes; the frame's four periods, high times, rise positions and
-four nonoverlap values must all come from a **single 80 MHz acquisition clock**.
-The receiver checks version, flags, CRC32, contiguous snapshot sequence, source
-age <=500 us and transaction duration <=200 us. A fault invalidates all channels
-and latches. External physical rail/interlock/fault inputs are deliberately not
-asserted by this packet. Snapshot sequence advances once per read transaction,
-not once per switching cycle. Counter wrap is unsigned.
+## Verification and limits
 
-| Byte offset | Big-endian field |
-|---|---|
-| 0 | `TFC1` magic |
-| 4 | version 1 |
-| 5 | valid channel mask exactly 0x0f; other flags reserved/rejected |
-| 6 | frame length 92 (u16) |
-| 8 | snapshot sequence (u32) |
-| 12 | clock frequency exactly 80000000 (u32) |
-| 16 | common snapshot counter (u32), retained for diagnostics |
-| 20 | age of oldest complete measured cycle in 80 MHz ticks (u32) |
-| 24 | four periods (4 × u32) |
-| 40 | four high times (4 × u32) |
-| 56 | four rise positions relative to one common cycle origin (4 × u32) |
-| 72 | four nonoverlap intervals, same order as existing bridge validator (4 × u32) |
-| 88 | CRC32/ISO-HDLC over bytes 0..87 |
+Run `IDF_PATH=/private/tmp/temper-r5-esp-idf ./verify.sh`. Tests use ASan/UBSan,
+240ADS/736bench/224telemetry bit corruptions, analog/protocol/fault fixtures,
+actual SDK register layouts,801phase positions and mixed-shadow interleavings.
+Recorded red baselines cover old POST, retained measurement qualifiers,50ms
+pickup, circular bypass proof and unspecified feedback provenance. Shared wrapper
+exercises two pulses, physical rearm, static loss, cached proof and global deadline.
 
-**The transmitting capture hardware/FPGA is not implemented.** The concrete
-candidate agreed with the board owner is the official Lattice **iCE40HX8K-B-EVN**
-breakout module (ICE40HX8K-CT256), with a separate common 80 MHz oscillator and
-four level-qualified edge inputs, plus a separate AD7380-4
-quad simultaneous 4 MSPS SAR path for tank voltage/current acquisition. This is
-an ECO architecture, not a routed/synthesized design. The analog frontend,
-isolation, anti-alias filter, module header/HDL/timing, external oscillator part
-and input pin, clock tolerance budget and power sequencing are still missing.
-The module's onboard 12 MHz clock is not treated as an automatically valid 80 MHz
-source. Selecting the module avoids promising a new BGA FPGA PCB; it does not
-replace FPGA implementation or timing checks. At 4 MSPS each analog sample is 250 ns apart;
-that cannot by itself qualify a roughly 400 ns deadtime or prove ZVS. Independent
-oscilloscope/probe measurements remain required. The slow ADS131M08 path is never
-substituted for this fast capture.
+STM32 links with official CMSIS and ArmGNU13.2; ESP links with IDF5.2.3/Xtensa13.2.
+Use isolated output directories. Register models and linked images establish
+software/API compatibility, not actual silicon timing. Final board pin exports
+must be explicitly reconciled with `pin-contract.json` before accepting its check.
 
-## Verification and replay
+Remaining digital work: provision validated calibration/operator POST records;
+complete physical rail/interlock acquisition; install measured phase
+map; verify option bytes/BOR/flash, stack and execution bounds. Board admission and
+second-pulse permits must match the wrapper and final reviewed export. Missing
+predicates stay false. Loading calibration alone does not make this image operable.
 
-From repository root:
+Remaining physical evidence: installed ADC uncertainty/drift/injection coverage,
+NTC lag/cold equilibrium, contact wetting/timing, all four reset/inhibit levels,
+scope measurements of live phase changes/endpoints/nonoverlap, clock/load/DRDY
+behavior, two-pulse proof-load thermal qualification and staged tank/pan tests.
 
-```sh
-CMSIS_DEVICE=/path/to/official/ST/Include \
-CMSIS_CORE=/path/to/official/ARM/CMSIS/Core/Include \
-  zapote/power-stage-120v/prototype-closure/round5/firmware/replay.sh
-```
+The target reads AUX health from PB9 BASIC_HEALTHY: the native gate includes the
+24V window, PG5 reset,3.3V watchdog/reset and other hardware limits/diagnostics.
+This is the same common gate path as hardware_ok, not redundant rail sensing.
+MCU_HEALTHY is driven from acquisition health so it does not wait on its own
+BASIC_HEALTHY feedback. No voltage value is inferred from that logic level.
 
-The replay always resets its status to INCOMPLETE before checking. It compiles
-and executes new host tests with AddressSanitizer and UndefinedBehaviorSanitizer;
-it checks the exact 64-pin STM32 authority and all 16 proposed ESP GPIOs. With
-CMSIS paths, clang emits actual ARM EABI object files for platform/startup. It
-reports `PASS_HOST_CHECKS_ONLY` rather than a target-release pass. No mocked
-register or SDK headers are used. Compiler and source/header hashes are in
-`evidence.json` and `source-inputs.sha256`.
+`common/supervisor_outputs.h` exports the exact wire projection used by STM32 and
+model. Qualified RESET remains observable while faulted, with all energizing
+outputs low. STOP_DONE is an end/abort/fault latch, not the OFF enum; a safe released
+RESET clears STOP_DONE before the fresh reset edge. It stays low through all
+source-off selftests and admission. Catch-charge history lives in the common
+wrapper, clears at new attempt/end/fault and survives normal bus valleys while
+live sensor validity, catch≥100V and absolute limits remain enforced. Final proof
+PB13 rises while the second KT pulse is retained for one owner iteration, providing
+setup/hold before KT withdrawal. GPIO projection tests model discrete latch truth
+tables; they do not establish actual native gate propagation or analog qualification.
 
-New tests check the public CCITT and CRC32 check vectors, the different DIN/DOUT
-CRC placements, all **240 single-bit ADS frame corruptions** and **736 single-bit
-fast-frame corruptions**, clipping/status/freshness logic, duplicate timestamps,
-counter wrap, one-use POST and open-catch correlation. Five unchanged round4
-host executables also pass: power adapter, no-burst, state machine, PLL and
-integration. Existing unrelated legacy warnings remain in their build log.
+The remaining provider work is software implementation, separate from physical
+qualification: STM32 currently has no factory calibration/NTC record loader, boot
+nonce and operator POST submission service, or commissioning-record loader;
+`post_record_accept` and sensor validation are implemented but their target records
+start empty. ESP32's context has no factory scope/phase-map loader or live rail and
+interlock sensing provider, and this standalone image does not connect application
+power demand to `power_set_level`. These are not completed target features. Missing
+records remain zero/invalid; commissioning and physical inhibit verification stay
+false. VPRE factory calibration must use the board's revised801:1 divider.
 
-The actual linked builds used Arm GNU Toolchain 13.2.rel1 (13.2.1), official
-ST/ARM CMSIS inputs, ESP-IDF v5.2.3 at commit
-`c9763f62dd00c887a1a8fafe388db868a7e44069`, and its pinned Xtensa GCC 13.2.0.
-The Arm archive matched its official SHA-256
-`39c44f8af42695b7b871df42e346c09fee670ea8dfc11f17083e296ea2b0d279`.
-Build receipts and inhibited ELF/bin artifacts are retained under the output
-folder. A complete target build is:
-
-```sh
-cd zapote/power-stage-120v/prototype-closure/round5/firmware/stm32
-make CMSIS_DEVICE=/path/to/ST/Include CMSIS_CORE=/path/to/CMSIS/Core/Include
-# In a separate ESP-IDF v5.2 environment:
-cd ../esp32
-idf.py set-target esp32s3
-idf.py build
-```
-
-Do not flash or energize on the strength of these commands. Both target builds passed. This establishes compile/link compatibility, not
-peripheral execution or an energized target. The ESP bench loop reads capture
-frames every 5 ms for diagnostics; that cadence does not meet the production
-<=1 ms capture freshness requirement.
-
-## Outstanding digital work, separate from physical qualification
-
-1. Complete live atomic MCPWM phase commit and endpoint handling;
-   compose the capture, line telemetry and characterized phase controller into
-   `power_binding_t`. The current ESP project is a hardware-inhibited bench app.
-2. Complete calibrated channel scaling, NTC conversion, mirror excitation tests,
-   ADC injection/stuck-channel checks, crest-aware precharge/proof qualification,
-   catch charge-history qualification and MCU independent health boot sequence.
-   Wire fresh POST session/physical confirmation into STM32 admission. Merely
-   setting `commissioned=true` would leave missing inputs; it is not a release.
-3. Complete the proposed controller carrier and fast capture circuit/FPGA/analog
-   path, or select a different explicitly verified architecture. The JSON pinmap
-   is not evidence that an existing board already has those connections.
-4. Complete STM32 flash/option-byte/BOR/watchdog settings and stack/timing
-   analysis. The ARM/newlib and ESP SDK linked-build items are closed; no
-   peripheral timing claim follows from their success.
-5. Join the exact resulting targets, sensor delay/filter response and selected
-   precharge/proof bounds into the coupled model, then review the entire revision.
-
-Physical tests additionally include oscillator/timing accuracy, DMA/IRQ load,
-clock/reset/power ramps, pin-level force/inhibit behavior, ADC calibration and
-fault injection, real tank/pan waveforms and staged first-unit tests. No physical
-result is asserted by this package.
-
-## Primary references
-
-- [TI ADS131M08 SBAS950B](https://www.ti.com/lit/ds/symlink/ads131m08.pdf), pp. 11,
-  14, 29, 38–44, 51–56: clock, SPI mode, frame/CRC and register definitions.
-- [ST official STM32G071 device header](https://github.com/STMicroelectronics/cmsis-device-g0/blob/master/Include/stm32g071xx.h)
-  and [ST RCC low-level definitions](https://github.com/STMicroelectronics/stm32g0xx-hal-driver/blob/master/Inc/stm32g0xx_ll_rcc.h):
-  exact register names and MCO HSI16/div2 selection. Downloaded headers are local
-  compiler inputs, not redistributed as authored firmware.
-- [Espressif ESP-IDF v5.2 MCPWM](https://docs.espressif.com/projects/esp-idf/en/v5.2/esp32s3/api-reference/peripherals/mcpwm.html):
-  common timer/operators, compare update semantics, deadtime and force actions.
-- [ESP32-S3-WROOM-1 datasheet](https://documentation.espressif.com/esp32-s3-wroom-1_wroom-1u_datasheet_en.html):
-  module pad and memory-variant restrictions.
-- [AD7380-4](https://www.analog.com/en/products/ad7380-4.html): quad simultaneous
-  SAR up to 4 MSPS. Component capability is not a completed acquisition design.
-
-- [Lattice HX8K breakout board](https://www.latticesemi.com/en/Products/DevelopmentBoardsAndKits/iCE40HX8KBreakoutBoard): verified CT256 package candidate; the earlier TQ144 name was a selection error and is not used.
+The existing UART/request/heartbeat interface is now connected: STM32 accepts
+controller diagnostics only with a fresh fault-free command and qualified changing
+heartbeat, and accepts heat intent only with the dedicated physical REQUEST wire
+and matching command flag. This communicates the controller's commissioned on-chip
+diagnostics, not an independent physical waveform measurement. ESP32 emits these
+signals only after its bound service and physical qualifier context are valid.
+Initial telemetry/guard acquisition is allowed before first service tick; subsequent
+loss latches inhibition. Dedicated physical hardware guards continue to dominate.

@@ -8,7 +8,7 @@
     "sha256": "3163e9b3f6eccd77f064acfa12f8fe2d4f7c4fde69b0c42236372bae5785c0d2"
   },
   "board_count": 9,
-  "electrical_components": 564,
+  "electrical_components": 728,
   "drc_samples_per_board": 3,
   "checks": {
     "central": {
@@ -30,6 +30,7 @@
         ]
       ],
       "erc_violations": {
+        "isolated_pin_label": 5,
         "ground_pin_not_ground": 9
       }
     },
@@ -195,36 +196,42 @@
     }
   },
   "eco": [
-    "Remote voltage and CT permanent-burden partition; source signal nets unchanged",
+    "Remote voltage and CT permanent-burden partition; explicit VPRE801:1 ladder ECO",
+    "Five24V wetted mirror receivers;physical source-off and ADMIT token;corrected DCU flip-flop pinout;qualified retained-RUN timeout escape",
     "Manufacturer-based AMC3330 isolation land option and CT footprint",
     "Exact JST XH / Phoenix board connectors and eight straight-through harness contracts",
-    "R_MINLOAD 499 ohm to 470 ohm 0.1 percent to satisfy stated preload corner"
+    "Direct24V R-78B5.0-1.0 plusTPS7A4700 postregulator;82ohm external5V preload;39ohm buck preload;300ohm3V3 preload;coil star and return planes;heartbeat fail-low;PA8 MCO series clock;191k proof timer"
   ],
   "files": [
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/LocalRoute.java",
-      "sha256": "c935764a336d8ddcc46aacb628773576feebb3abedc0eb090c19803f4cec6dc0",
-      "bytes": 1506
+      "sha256": "566fecd7c3fe7fc54d6df006d128df2472eeca5d28b9cbe838f8424c110a5a21",
+      "bytes": 1645
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/README.md",
-      "sha256": "7c2a4a9cda9c8b42e8da714ed77a3e0d5ab0c83d63976099a8655419f54a319d",
-      "bytes": 9606
+      "sha256": "3a8769fa0cc36189502bcee14607c4ca63cf0d274eca254307008605bed0b06b",
+      "bytes": 9705
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/board-bom.csv",
-      "sha256": "111fb9b19caf738e430d8467a6c39b0b6bfb3e932db823b7a9dbcca7e13682d9",
-      "bytes": 42905
+      "sha256": "1be59e4b5c02a31792a8941ead045e5747e3646da209726396baaea532a66c12",
+      "bytes": 55269
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/boards/budget-session-proposal.md",
+      "sha256": "0e9574be87c322641a1f357ea4f5a09563367c4e0d23e543b5adf12d94e30bbd",
+      "bytes": 2961
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/build_boards.py",
-      "sha256": "32935874f86af5de5ab1548cb114f1dc532daaca58f2701b70b7cbec7434b366",
-      "bytes": 8979
+      "sha256": "110fe7c065dd86c97d82ba066c43e26bf0517c0533b6bb89306cab4e9b06bb06",
+      "bytes": 9193
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/build_central.py",
-      "sha256": "4e3c98b1fb77a4ab46aa6c1006cfe31e531598bd386652d405e5a80cdfc17752",
-      "bytes": 7122
+      "sha256": "55113f077f96c5b785009f30884bbec73d23095830544f998eaa407329bf50a7",
+      "bytes": 8580
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/build_current.py",
@@ -273,18 +280,18 @@
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/copper.json",
-      "sha256": "144da1b590a3461cf8f3a03521157fe34710d994043c9fc2b063603516437d93",
-      "bytes": 379711
+      "sha256": "01f2cffb3718047240802462a8ec12d511ddaf37e84ef40ceb8f41281e8beba9",
+      "bytes": 1364626
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/generated/pins.tsv",
-      "sha256": "15e269db31b79eda55747cdc13f09fbbb956aad8cd1db53cfa199278d74bfa1d",
-      "bytes": 139508
+      "sha256": "d8a30d9a8b82539ef012fb70c550a7e66d7c2e949fd455d59900a8323b64352e",
+      "bytes": 193993
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/layout.json",
-      "sha256": "2c114e6ad90d0cc75d1e528ed768e1fef5a0edb45011342f6bf9e81c896f3fd1",
-      "bytes": 23050
+      "sha256": "f0cf248f0f24fbf4e2617a264ce6a59522c35f728bb5f9ced082eb2c578463c1",
+      "bytes": 32931
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/ADC_1.kicad_sch",
@@ -303,8 +310,8 @@
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/ADC_4.kicad_sch",
-      "sha256": "2113035edea3307b2bf9ce9932523b7474c1e07c94efe1421a29201de40b4280",
-      "bytes": 23748
+      "sha256": "470594effbd9df8edb5bdb98f12ed422279676a68f8e6bcfdfad85811fd1610c",
+      "bytes": 23759
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/ADC_U27.kicad_sch",
@@ -328,7 +335,7 @@
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/ANALOG_GUARD_4.kicad_sch",
-      "sha256": "e414b02162e6a615449a43fb29801a218991211c43b01687c38408ff4150fdc3",
+      "sha256": "3de40e2504fd0bb1593aceb149f590655fe31ec0a02cc20aba818b3d2dbbc75a",
       "bytes": 26603
     },
     {
@@ -353,13 +360,13 @@
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/ANALOG_GUARD_9.kicad_sch",
-      "sha256": "ff11a3656d092008f65d0b6c4e002be48f8d7bb450690ea5e3cdfbe8ed63729f",
-      "bytes": 17454
+      "sha256": "be547c78842173426b99e5ca2038ec1be770c622b7bf28a69b52423da53e9b86",
+      "bytes": 32176
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/COILS_1.kicad_sch",
-      "sha256": "f8edaf160791934057e626b1ec84e0fe39ffd3822e3ad7539ccab337c251ea36",
-      "bytes": 34702
+      "sha256": "e9fb5d1b3f57a57f66c7ce20cb7f97c5f3f355426bf5e7d13b423053e5890629",
+      "bytes": 34724
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/COILS_2.kicad_sch",
@@ -368,18 +375,18 @@
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/COILS_3.kicad_sch",
-      "sha256": "aa718bd696a04a78ebb9dc66c1cd8895f4656e60c02ed4ee98000896bf34036d",
-      "bytes": 32297
+      "sha256": "9ae43f29c4531cf5e9db06b74b69ccbfd60622e27aad8f763c375b1b4181ff28",
+      "bytes": 32301
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/COILS_4.kicad_sch",
-      "sha256": "10a037e107895ba7898841834f550009eb55a2307494938eea5a80ca6d625c46",
-      "bytes": 33987
+      "sha256": "b20867a8f228d4bdb5d1fa6921403223df02eb9517a5fe8d922b041662c06e19",
+      "bytes": 33997
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/COILS_5.kicad_sch",
-      "sha256": "e4bd36b1319ceae48601219929d38594886597ad6e6699d999b253565e0523c9",
-      "bytes": 8750
+      "sha256": "239b58d64c5968660ff76f45cbba21cd221ab69ef28d4ed97bab85c956fafb27",
+      "bytes": 28642
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/CONTROLLER_1.kicad_sch",
@@ -422,6 +429,11 @@
       "bytes": 1938
     },
     {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/Capacitor_SMD.pretty/C_1210_3225Metric.kicad_mod",
+      "sha256": "e1dae516e079b70c4736d001fb81bfb4ef5f9c2a37c8175223a44f83a04ff75f",
+      "bytes": 1936
+    },
+    {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/Capacitor_THT.pretty/CP_Radial_D5.0mm_P2.00mm.kicad_mod",
       "sha256": "fd0a251de515130de6e789ffb786d43c746b83178e437feb9fc4f39b6ea9ef39",
       "bytes": 16180
@@ -462,14 +474,59 @@
       "bytes": 4147
     },
     {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/Converter_DCDC.pretty/Converter_DCDC_RECOM_R-78HB-0.5_THT.kicad_mod",
+      "sha256": "0dbbbd397f3fd2742bc498a9297f17fbf60136a260979bdaac26e19b06c9362b",
+      "bytes": 2980
+    },
+    {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/Diode_THT.pretty/D_DO-41_SOD81_P10.16mm_Horizontal.kicad_mod",
       "sha256": "f7a156e9b80a77d5d232d68b3f1b1e81b7bf99703017f9124da667d1d31af41e",
       "bytes": 3295
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/FEEDBACK_1.kicad_sch",
-      "sha256": "4b12d9559cd6ab95fb8de4a4dfd19ec46cd5345a1c6f43884c25b83f1a585adb",
-      "bytes": 12649
+      "sha256": "24998866857e5a94e36f36cf8f83fc1592ca26f8019ebaa249c26f7d3d950873",
+      "bytes": 31407
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/FEEDBACK_2.kicad_sch",
+      "sha256": "9ab6e58847f4b2dce021bb77543960c6f1fbf2125de10732aa06d3f723541864",
+      "bytes": 31556
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/FEEDBACK_3.kicad_sch",
+      "sha256": "eee63ba2759ecde5b39a03204007a21e79fc8706b9961f32906bc21b2dd9d345",
+      "bytes": 35322
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/FEEDBACK_4.kicad_sch",
+      "sha256": "753df50250043bb7c65ff5d9f1d78ad06649f32aaf3f63dfc9be271f49b37e8c",
+      "bytes": 25126
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/FEEDBACK_5.kicad_sch",
+      "sha256": "beb9e2267737b16c92e152f7a2152615b4bdb09403c1544cd574ebd523a880e9",
+      "bytes": 25145
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/FEEDBACK_6.kicad_sch",
+      "sha256": "c1e0454b2a09eb569c1456dea0fb5735ba819eb1c5ae689bed6a77fc5aed9293",
+      "bytes": 25130
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/FEEDBACK_7.kicad_sch",
+      "sha256": "535500f137fdf43a10d5bbc56f1fa5da450a7c148a111b773ccfefe4025337f8",
+      "bytes": 25108
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/FEEDBACK_8.kicad_sch",
+      "sha256": "f6930f532a3c5db5f2a5233450310e57514757f4fdf786a692defa75bff3253e",
+      "bytes": 25120
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/FEEDBACK_9.kicad_sch",
+      "sha256": "02016d8fe0189bff7ecf5ac271294aca9d8b29234bf21469c415ed9242a7e861",
+      "bytes": 12670
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/HARDWARE_1.kicad_sch",
@@ -478,23 +535,43 @@
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/HARDWARE_10.kicad_sch",
-      "sha256": "5a27cf69ea88b9f27e982edcbef96bd9c69f80014490ffd672ae2712580e5dfc",
-      "bytes": 37461
+      "sha256": "b433e4f9c7cd887e8496d8361c91505059bbc9d24a5a7c37883f901ef2cf3331",
+      "bytes": 37475
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/HARDWARE_11.kicad_sch",
-      "sha256": "83487f2f9b8f312ca0e3c8122fa6ab702ab1a74cc5fdf51b98e8cea86682fc74",
-      "bytes": 37209
+      "sha256": "7bcfcac72e8306907b7fb5eb57b443a376879404ca686f8d269dc78075920e02",
+      "bytes": 37240
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/HARDWARE_12.kicad_sch",
-      "sha256": "8ccc9d2683508e2b0f3568b4ab0bb46dd60afd5a9b635e19fa2f171a085a5b4d",
-      "bytes": 34687
+      "sha256": "f478dac1d2d4355ad8d0780e0c618c0bb18f1ad7c60eb8c21878f5ca0ac1f53a",
+      "bytes": 34684
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/HARDWARE_13.kicad_sch",
-      "sha256": "5c00464f11b7b31dc1b0a76b0ffbbe60f1e9b9f60b39aef23da843c9f503a934",
-      "bytes": 25378
+      "sha256": "009e54d12b3c2481738003c3c6c843d3a8eb233e512f1c65a8ec15622dcf0b27",
+      "bytes": 34308
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/HARDWARE_14.kicad_sch",
+      "sha256": "0f0b86b5284359bd8247e266662e10984d17597baf8b422c947d40c9a9d10500",
+      "bytes": 43663
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/HARDWARE_15.kicad_sch",
+      "sha256": "14a0410506aa0c53f4775e729ca62cbe5f4069a4ba84f5d5fb9776c076168b97",
+      "bytes": 44196
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/HARDWARE_16.kicad_sch",
+      "sha256": "8a3978f58e9ea2a33e1fc671d9f6a62da4011f0f27d4c1ffef543c89222eb7f1",
+      "bytes": 43902
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/HARDWARE_17.kicad_sch",
+      "sha256": "bbd53d604f55b19b03948814ec2857aad90f74cd6c6240cc47e1e61a88eb3adc",
+      "bytes": 22351
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/HARDWARE_2.kicad_sch",
@@ -518,38 +595,43 @@
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/HARDWARE_6.kicad_sch",
-      "sha256": "ad98b92709db5410ea8597a1c38b6fc4724eb1e19ce81b39d9f191c6e81e4142",
-      "bytes": 34782
+      "sha256": "dcef80f78534edd64dcdbf66882e8de2eb8d6c311856428187d3c6f99aa58f07",
+      "bytes": 34786
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/HARDWARE_7.kicad_sch",
-      "sha256": "950c9c9a3e2077dedeccdfbe813bcca688bd0a8977af97be134487c18db4def0",
+      "sha256": "e3755b6bb5b43bcb6cb91a9049d2ee2805b3de9ec2a3c300134cce027f048cea",
       "bytes": 35861
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/HARDWARE_8.kicad_sch",
-      "sha256": "f5e869b53a49fe05578454460def0a48fdce41a0294aeba33c2706a4935a0eda",
-      "bytes": 34020
+      "sha256": "e98e35acb3ab6eb0ccbdfbdc1fe0547ac322731761f859bf65262407002b75ca",
+      "bytes": 34012
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/HARDWARE_9.kicad_sch",
-      "sha256": "5ee73e4f9f3826f8efe3437d96742b47b68d408b613f6ec3b8380aa2a84e618b",
+      "sha256": "b977e2d409eff7c425d787de9762a7f3c4d3816e64fc5f1a22e1c5e2f74a4851",
       "bytes": 30090
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/MCU_1.kicad_sch",
-      "sha256": "22fe9e7f939c45cedd9b4c8b30fa12005c5d16a32b61cdfdff6ba45f28e28304",
-      "bytes": 8316
+      "sha256": "c02b255eb14bc3a520b2ffe6c7423b6880823ef10b57bb98a07d8b97b48f48e7",
+      "bytes": 10362
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/MCU_U108.kicad_sch",
-      "sha256": "0ae196ba09eaaa539134c10b55a4d15dc6c2dd0188569a8c4f6c456bfc120b30",
-      "bytes": 34619
+      "sha256": "d6edb39efcd5ff7e5f9864a1a4cae72e5da6df5ba9fbc36ba4cefc43f5e91ed0",
+      "bytes": 36304
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/MountingHole.pretty/MountingHole_3.2mm_M3.kicad_mod",
       "sha256": "b83ec84428449465df3b459f1bc24b285045c812102a2052b1b7ce0f67e018f2",
       "bytes": 1287
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/NetTie.pretty/NetTie-2_SMD_Pad2.0mm.kicad_mod",
+      "sha256": "2c1f0982caf52d5f2dfc3fae8c99b8c9bdfd0ffce450d2d4700e5ed0616dbb2a",
+      "bytes": 1586
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/OPERATORS_1.kicad_sch",
@@ -558,8 +640,23 @@
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/POWER_1.kicad_sch",
-      "sha256": "664c7bff3b3ad83cce81a866a90bc54e3dd4f932b84a87b166aaaee907a609cd",
-      "bytes": 25401
+      "sha256": "3d322709bf2f171057269b0592c42c3751490136dde746bccdcc26b3779b3d70",
+      "bytes": 27466
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/POWER_2.kicad_sch",
+      "sha256": "d8a14b0e3317b001ad6ff5e18e684a22685db4ec0c89fe3b097f4a5d597aae73",
+      "bytes": 25348
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/Package_DFN_QFN.pretty/Texas_RGW0020A_VQFN-20-1EP_5x5mm_P0.65mm_EP3.15x3.15mm.kicad_mod",
+      "sha256": "452e14f1a10a0809ecf8ce47ba83252268d70696c04ec02557c9903bec14a7e5",
+      "bytes": 8012
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/Package_DFN_QFN.pretty/Texas_RGW0020A_VQFN-20-1EP_5x5mm_P0.65mm_EP3.15x3.15mm_ThermalVias.kicad_mod",
+      "sha256": "cb5e7dcb9597f9995344887f4307236991504aff14ffc1ed69dac3ce7c1e71f5",
+      "bytes": 9511
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/Package_QFP.pretty/LQFP-64_10x10mm_P0.5mm.kicad_mod",
@@ -570,6 +667,11 @@
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/Package_QFP.pretty/TQFP-32_5x5mm_P0.5mm.kicad_mod",
       "sha256": "dbfbc8443ded5f598a0a89c2bc288cfb58b9ce5512885a6830ba368387af8f42",
       "bytes": 8924
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/Package_SO.pretty/SOIC-16_3.9x9.9mm_P1.27mm.kicad_mod",
+      "sha256": "f9b5075740f7816c540ae1137f025d659beaec522ed7b86b1a5274cc9a2d8a25",
+      "bytes": 5724
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/Package_SO.pretty/SOIC-8_3.9x4.9mm_P1.27mm.kicad_mod",
@@ -622,9 +724,29 @@
       "bytes": 1943
     },
     {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/Resistor_SMD.pretty/R_0805_2012Metric.kicad_mod",
+      "sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "bytes": 1945
+    },
+    {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/Resistor_SMD.pretty/R_1206_3216Metric.kicad_mod",
       "sha256": "c7320668dc81bbb954cb4f15e4e7a766c120059343d43551468c8f7ccc8fde37",
       "bytes": 1943
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/Resistor_SMD.pretty/R_2010_5025Metric.kicad_mod",
+      "sha256": "5bcbaf3a7798d3d1b8dd2bf0293dad98ef606efa5787149a542c5661c3a59725",
+      "bytes": 1941
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/Resistor_SMD.pretty/R_2512_6332Metric.kicad_mod",
+      "sha256": "abab4bf8eeb3ed03061d8eeb56b542cdac074ce8a0ace0f9b06e933c0b48f297",
+      "bytes": 1941
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/Resistor_THT.pretty/R_Axial_DIN0617_L17.0mm_D6.0mm_P25.40mm_Horizontal.kicad_mod",
+      "sha256": "f14e95bb7bb1b94c50a8725e76e0946b1b010dc4e28b9d9daa9e698de1d7f23c",
+      "bytes": 2363
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/TerminalBlock_Phoenix.pretty/TerminalBlock_Phoenix_MKDS-1-2-3.81_1x02_P3.81mm_Horizontal.kicad_mod",
@@ -633,8 +755,8 @@
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/fp-lib-table",
-      "sha256": "9ff633eec193496d275ea7263d7d76a872f1ecfeb0486e449fee0602e12d09cf",
-      "bytes": 1812
+      "sha256": "54add3652b553474627230997cb1506838b25516442354d7fe837fdbb0a96761",
+      "bytes": 2386
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/supervisor.kicad_dru",
@@ -643,8 +765,8 @@
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/supervisor.kicad_pcb",
-      "sha256": "7d9b219dfadb796bef750b84bb3bc89f286e44df3e1a47284eb22879e6183622",
-      "bytes": 2993736
+      "sha256": "f307cdd9c75840c6b90c42dadd8eeb334c827fefedf520cd4b79076bdc8c9221",
+      "bytes": 8468804
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/supervisor.kicad_prl",
@@ -653,18 +775,18 @@
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/supervisor.kicad_pro",
-      "sha256": "88f9222673e2bd4450e17d9d251abd7530812e4970054d13902d781fae7550e1",
-      "bytes": 292
+      "sha256": "3c0d9ad56efe4f8534035da04bf3651bb9d10297b5bf8005859860891f53d36d",
+      "bytes": 9588
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/supervisor.kicad_sch",
-      "sha256": "df94e13bc19e1555fddbd67fbfe01feae8f13a5646dc2cbac57e6f6171cc4e76",
-      "bytes": 22324
+      "sha256": "0f6f1414f871a59ac3e9cabd5a7568785853ddc0ec06988035ef01aaf9ce1662",
+      "bytes": 28349
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/supervisor.kicad_sym",
-      "sha256": "3fcee64368f8b3f1d108c7e46ca7385cdc66e1da966d348d7189b20b7894d766",
-      "bytes": 385450
+      "sha256": "01b0515c3c00c12d9b8cbed1bed303eb12aee06c05039d7241e03283f4ff8fcf",
+      "bytes": 530844
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/sym-lib-table",
@@ -672,19 +794,24 @@
       "bytes": 170
     },
     {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/native/~supervisor.kicad_pro.lck",
+      "sha256": "cdc458b20d72f87a5d6a9fd462119365ce4caa868a7a985b0c7dbd5d043b5e03",
+      "bytes": 56
+    },
+    {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/pad-coordinates.json",
-      "sha256": "f0d24252f9b349ea10142085dee1d7a3d949402db22099ee6d6ab295715e7a4a",
-      "bytes": 57720
+      "sha256": "aea1a7844fbdc1c46b2c055c9551dc10cf20756335ff2481fb85dc0236192e2b",
+      "bytes": 80872
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/ref-map.tsv",
-      "sha256": "7496dcb26b98937bb4857a37a05f396fe7ec0e85221e1231814a3dfaf4f4cae3",
-      "bytes": 6739
+      "sha256": "5aeffc653cbbc8bd1086481286c642ef005cf0d84dd794735cd13537406f3b44",
+      "bytes": 9641
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/central/supervisor.dsn",
-      "sha256": "dd48968f37687e6930a6e261a2963b035b3202098663f0bfc666ad4f7ac2a244",
-      "bytes": 617124
+      "sha256": "dfc7262626d80c00dbf75a35ae71fe61327b1cbca0393570553305981afd6cf3",
+      "bytes": 918168
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/check.sh",
@@ -693,23 +820,23 @@
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/component-census.json",
-      "sha256": "1fdd9369740a65c7848e0695f1704dd832b8931d3b141ffaf26c4d0dcaa16941",
-      "bytes": 4732
+      "sha256": "3de36070aeb036983bfdbffaf2536986afbae2d496fe2bc57f25521635c2d91b",
+      "bytes": 5226
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/connector-map.json",
-      "sha256": "237de007b2de61621ec2a0b4396626daf5540632aa14aa3337672464e9979c07",
-      "bytes": 34691
+      "sha256": "47c032f08063d78c831e88c6652c834c6bbfcb51bd0a325a415ed5016e397b1d",
+      "bytes": 36635
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/derive_sensor_variants.py",
-      "sha256": "9bac49c7bc2b06eea885394ea07692797c6b1f2dd30b2f561958a3c4ba83bdad",
-      "bytes": 7171
+      "sha256": "ef9dd4ab587e4b105ba8115403abb81ca077e23e026d26540e969b6e8e8501d5",
+      "bytes": 8255
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/external-pins.tsv",
-      "sha256": "672737d0b5bda74fbeb3ea056abf9f51883dade2de47e01a5787cfe511901068",
-      "bytes": 36184
+      "sha256": "cec4e18a48782c7baea1450da1ba9fbf0d745942648103ea3d7688c9b258cbde",
+      "bytes": 36178
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/iline-pad-coordinates.json",
@@ -725,6 +852,16 @@
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/iline-ref-map.json",
       "sha256": "22d4be56756a028fe2139333d53e371dd2f1d5a1adf052ad8c30e07e017f7ed9",
       "bytes": 86
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/boards/insulation-basis.md",
+      "sha256": "28660e80d31b0889a8a7115cafa644bdf0bcee724ee9cbb6e323076fd3d3cb8f",
+      "bytes": 2700
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/boards/interlock_audit.rs",
+      "sha256": "1eaa6c1523f0e223c12eb7a9cd9e58dae2a502d0f28c99ab1c929e5c107dcdce",
+      "bytes": 11121
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/iproof-pad-coordinates.json",
@@ -760,6 +897,11 @@
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/line-ref-map.json",
       "sha256": "c5afa4a0c9a986014e935909de7ab474fd39068227b38e9db041428da4b76f68",
       "bytes": 318
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/boards/mechanical-envelope.json",
+      "sha256": "9d448077ca2770ee76d2ae9ee823562851a118bcb15aa9a71b6d66f9d42e57d1",
+      "bytes": 6547
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/native/bus-sensor/Capacitor_SMD.pretty/C_0603_1608Metric.kicad_mod",
@@ -1213,7 +1355,7 @@
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/native/pre-sensor/Round5.pretty/AMC3330_DWE_HV.kicad_mod",
-      "sha256": "ff250af4aaebc37d8cc8f11bbff8c087cc60e227127ed498cd0691d5ae257a82",
+      "sha256": "9da80bb1477475dd45c27b584f487b00c7ae0ab40d01ffcdbbb614b1a1c0a005",
       "bytes": 7794
     },
     {
@@ -1228,13 +1370,13 @@
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/native/pre-sensor/pre-sensor.kicad_dru",
-      "sha256": "af225ec2cb78f5922d3e7f954b7d0f511a43bce206d6087cdede2f88ad3bcfca",
-      "bytes": 741
+      "sha256": "56af4faa2dde6f890e667b447892e29b131881099724af2b5d467d4bb6ddc36f",
+      "bytes": 965
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/native/pre-sensor/pre-sensor.kicad_pcb",
-      "sha256": "54edac05a4c80dcf1801cc2bba61d976cf0cbf4af9158bf50ce260e0e83ddd79",
-      "bytes": 98614
+      "sha256": "a854b5d920eb5fb7425701f3144efc86291ff8bd520191d86b590fa9b0c9082a",
+      "bytes": 112206
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/native/pre-sensor/pre-sensor.kicad_prl",
@@ -1243,13 +1385,13 @@
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/native/pre-sensor/pre-sensor.kicad_pro",
-      "sha256": "4c8dd432cc22677b2cb124d2e831972d39ba061ecb8a237e0f2450a118b9f76b",
+      "sha256": "f7c639e52372eb68cb6ee8b5439c3f90cce02a5a135825bd88a00e58b479cfdd",
       "bytes": 9586
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/native/pre-sensor/pre-sensor.kicad_sch",
-      "sha256": "3d9c10f471e12dc8bf563b45edd8b8007c05cfe071266c6a79816e87acd9b45f",
-      "bytes": 50169
+      "sha256": "dbba027db266d0fcb733341ab7ed46f8e5aa3367c1f600bf5d2bd7ba88357ef4",
+      "bytes": 54349
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/native/pre-sensor/sensor.kicad_sym",
@@ -1358,33 +1500,48 @@
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/partition.rs",
-      "sha256": "3d453c23e30ba536f4f40c3f4558ee3c59c1cdb3c2524d5e3102bcf6a55ecd1c",
-      "bytes": 4920
+      "sha256": "2d77cf70dfb428bf5bf0895783beead8373acb784bde6072e55009f6005417bc",
+      "bytes": 22595
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/boards/power-budget.json",
+      "sha256": "87b863a5d4db76fce8d58c763cf75effa96a8f80ff4350d08af9d685c19a250a",
+      "bytes": 538
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/boards/power-eco.json",
+      "sha256": "ca6f3e8a0f29c25674646e8db9976d3b0d79474b042e4642018e34383beef718",
+      "bytes": 14071
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/power-review.md",
-      "sha256": "ae8da4044059ff0129f58d99db7f487e5e382664ba6abc61b53b8a617c8a5212",
-      "bytes": 4859
+      "sha256": "f1a8111cb124774c1d86c6beca1172113ec3cc2f4d82ce39c1b740aa7517ae49",
+      "bytes": 15312
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/boards/power_budget.rs",
+      "sha256": "cf23c721fa6f7d00d06a252aa091de5cff2b9c121c556d602b9cd69c54fc8ed6",
+      "bytes": 6186
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/pre-layout.json",
-      "sha256": "0afc11c7b48d8e4175798cd5450fcc8d5fe8a778d6108752ba136a341568f144",
-      "bytes": 8698
+      "sha256": "083c89f5229bce4f7a34ce13f7ff69ff7c6723b91a8dfb981e52ad11bc2fa5d7",
+      "bytes": 9220
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/pre-pad-coordinates.json",
-      "sha256": "ab30f89b2f7dd2c8e63a7fcda77a007692e3455ba208d6b81a03b1730b4a02bb",
-      "bytes": 1999
+      "sha256": "b98faae37612510617dfa21ae721539a29005391be85a996c9070e623de761e6",
+      "bytes": 2311
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/pre-pins.tsv",
-      "sha256": "17de3e7c10e6ffcc5f57ef4db3e59207681d6b7343a13e5f59009b57120fa430",
-      "bytes": 4708
+      "sha256": "0f894a943dd8a6c102fd07fe4cee70427cf412306fcd3f8c03e48640d52c095e",
+      "bytes": 5510
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/pre-ref-map.json",
-      "sha256": "f1af4b6801e52e61de833038a05c33895f2b1b2ffcaaa74d1c6a49725fda4175",
-      "bytes": 303
+      "sha256": "291718fc1e1f4d81c0b686e065c6a53ca4961cf6f8100057916282bfd211e04e",
+      "bytes": 384
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/render_central.py",
@@ -1393,13 +1550,13 @@
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/render_sensor.py",
-      "sha256": "0e075504114348fbecc344db5a4f21b3a6cb279682cf82eb2317d183602cd956",
+      "sha256": "6adad06b751c581259f8f123f8c796565e66fab907a34d3fe9aad70bc97e2d5d",
       "bytes": 10011
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/review_manifest.py",
-      "sha256": "4205b9c5da9f5ff32afc62d544fb7d7aa4e44173d4e377b30fec2beef0f9b5ac",
-      "bytes": 6465
+      "sha256": "ac6b7189b9d2bdd8e317b9066f72b6494a7331cff82eafd6def67710fcf9a92f",
+      "bytes": 6710
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/tank-layout.json",
@@ -1423,13 +1580,13 @@
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/verify_native.py",
-      "sha256": "4a039873470adb1c5e720a29fe1c5681da1238e904cddf06f48212f5fb2766d0",
-      "bytes": 6827
+      "sha256": "909952d6a5a7f5d0037d57366b27bb5a07e3000cc7656635bd3ec594f8fba516",
+      "bytes": 7538
     },
     {
       "path": "zapote/power-stage-120v/prototype-closure/round5/boards/write_checkpoint.py",
-      "sha256": "0075bf05713bb527bc706c389c05b8d668399970cb1e1f3e0af4e8cfeb58bfa7",
-      "bytes": 2152
+      "sha256": "9189936d7e356cc342635efa1014217aadc9c4cf4010d37f47452dd59ce597f6",
+      "bytes": 2529
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/bus-board.pdf",
@@ -1513,43 +1670,48 @@
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/central-board.pdf",
-      "sha256": "7257b18287c40c0665aba2e746f92d00dffd3f6dc075594aa4c7f18e46cbef73",
-      "bytes": 606555
+      "sha256": "edec8199262bb54f27c149f9cfc1a089b6c3d439371e368ab1af106ddf2d97f9",
+      "bytes": 1270208
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/central-drc-1.json",
-      "sha256": "8bb14712149e63b08f129445e9e41ccc75d4381269279293c9b43dd92759f7ae",
+      "sha256": "70b26db364a1e4817a550939e09baf3ebc1146ce9a2db74a5a6a2a32e5335b60",
       "bytes": 1067
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/central-drc-2.json",
-      "sha256": "550cf3cbd23965acfb9d07fdb66561a867c680f5299cbae00687d209970a5afa",
+      "sha256": "1196c2d77d4d6938e08f932fbb44d7cdef67a15fe052f135a8f13d6b94f152d0",
       "bytes": 1067
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/central-drc-3.json",
-      "sha256": "a336d2fd5f8aff38cbf61a209dacc0337c4e41c2a62f2ee023f1e1509bb3ac43",
+      "sha256": "522da6e29b6f0922f171ae1693684d49c497e7a656dce93bd46e8096d8dd9bf3",
       "bytes": 1067
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/central-erc.json",
-      "sha256": "61c141a2a67faa57aeaeb48ee77f139f51d677e03082afa39e1c521065e77429",
-      "bytes": 14677
+      "sha256": "cded2ee5239bcfee5dffeab38cda5eba104ad6881c949da62fd3ce098471c9a7",
+      "bytes": 20171
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/central-netlist.xml",
-      "sha256": "d9bcef7908e23265363a74c8e86273476f84b075d59129361aa2e60eb4734892",
-      "bytes": 724748
+      "sha256": "4e49c2c5e7ff884717432a25535ae280ae7ca5053696d1f49a4516ce6710383e",
+      "bytes": 991827
+    },
+    {
+      "path": "output/temper-prototype-closure/round5/boards/central-returns.pdf",
+      "sha256": "855f6c0871697fbfeb72c40568a78baec3661cf2ff902e04b5faa0cf672b5236",
+      "bytes": 769825
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/central-routed-drc.json",
-      "sha256": "8bb14712149e63b08f129445e9e41ccc75d4381269279293c9b43dd92759f7ae",
+      "sha256": "70b26db364a1e4817a550939e09baf3ebc1146ce9a2db74a5a6a2a32e5335b60",
       "bytes": 1067
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/central-schematic.pdf",
-      "sha256": "b6cf461b38beffd3cbbf23a49d57b3e2454244e231aa203e8b641b682e820a86",
-      "bytes": 1281753
+      "sha256": "f30b804e623d3df14c161b85a4c95a35de64e8dd942c5926f2adf77f354f28bc",
+      "bytes": 1782402
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/iline-board.pdf",
@@ -1590,6 +1752,11 @@
       "path": "output/temper-prototype-closure/round5/boards/iline-sensor.pdf",
       "sha256": "f1e58fdec3fd2ce235779cbf0bd5394993dcafd956ff9b9ea7f6bb90c775365d",
       "bytes": 43323
+    },
+    {
+      "path": "output/temper-prototype-closure/round5/boards/interlock-tests.txt",
+      "sha256": "ed4c8bf9b37579c89e4047c9a3618ffd204aaa2a9a95e4f10c14977ec151661d",
+      "bytes": 694
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/iproof-board.pdf",
@@ -1672,9 +1839,14 @@
       "bytes": 74101
     },
     {
+      "path": "output/temper-prototype-closure/round5/boards/logic-power-validation.json",
+      "sha256": "2174cfc43274dab30b35fcb4f32b830471204cfb5cd5667aca1b714ee8e1acb2",
+      "bytes": 1755
+    },
+    {
       "path": "output/temper-prototype-closure/round5/boards/native-pin-oracle.json",
-      "sha256": "0a3c7b53c4f976070e0b94c738534cb9280d2b715029d8d5ae6871493545811d",
-      "bytes": 3850
+      "sha256": "9882c852e7c0c45af3cc00ab1928cd46eb34ec1c62bf73145120505b4974585d",
+      "bytes": 4007
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/out-board.pdf",
@@ -1718,48 +1890,63 @@
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/physical-inventory.json",
-      "sha256": "1eb57a8b95331daa69f0d830742220f0a136815e3c73f4155941749fe3d351fb",
-      "bytes": 109433
+      "sha256": "a6c76746298101bf1574f9faf5815d45f58e8ad20c6645a6e9daae3ad98d6dd2",
+      "bytes": 140350
+    },
+    {
+      "path": "output/temper-prototype-closure/round5/boards/power-budget.json",
+      "sha256": "576474eb99d850118c782e19e3b5ec304e1b31addcc4014aac0662035ba1d193",
+      "bytes": 538
+    },
+    {
+      "path": "output/temper-prototype-closure/round5/boards/power-eco-baseline.json",
+      "sha256": "45bcd2440ca12d77c4cc3e8e38c12ec5606cf12e2bc8908278795acc93eb7bbf",
+      "bytes": 462
+    },
+    {
+      "path": "output/temper-prototype-closure/round5/boards/power-tests.txt",
+      "sha256": "3ec7b260c84251a1e0f7d3fe00d2045d6725968294ff92fe88ddc6eb23ea542f",
+      "bytes": 353
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/pre-board.pdf",
-      "sha256": "06a73562284185f569bda1469ece181d258880080608e5a9637b9ba9c55f3674",
-      "bytes": 29915
+      "sha256": "ada1541d2fa7c0f55f181a1d67dced7130af54bfd1dea998df173bef2b5bf0b3",
+      "bytes": 33941
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/pre-drc-1.json",
-      "sha256": "d47ccf8957c6278f28f14e323039723836e7e8decd1686b6ca76488d7692a45a",
+      "sha256": "e2ccf43d40f3a7bd74eff78666fdbb89817301baad030b051a6bec412b3505b4",
       "bytes": 1067
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/pre-drc-2.json",
-      "sha256": "c8548ea75cde261cdf33acd4849ddbf33c83ace7b5b01d233065840ef7b11305",
+      "sha256": "beca33cdf71d45c9f9ccfbf842f740ab7838434a0bb861212ae66c8607e5cf0f",
       "bytes": 1067
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/pre-drc-3.json",
-      "sha256": "e0b474f82f6cb7763b8e70b2193c97adae472b3ff5675c838d9f51f7cfb61544",
+      "sha256": "bbce1c321dfd66355b8179f723c66c43a0793a3fd2a9680c0edf53808a8ac7df",
       "bytes": 1067
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/pre-drc-parity.json",
-      "sha256": "d47ccf8957c6278f28f14e323039723836e7e8decd1686b6ca76488d7692a45a",
+      "sha256": "e2ccf43d40f3a7bd74eff78666fdbb89817301baad030b051a6bec412b3505b4",
       "bytes": 1067
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/pre-erc.json",
-      "sha256": "6b3de2ad3001d48ee7b0a0761d1bb699deb7f996f5fa626d739f065e6e39af36",
+      "sha256": "4f53a2a99e608e93726cd03fc0f3f93bcbe09d816786dfc366e2366831a8d205",
       "bytes": 983
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/pre-netlist.xml",
-      "sha256": "07710839c0b89d0d67f92e02cd11cb1bda13afee4f9fa14cd9a216281cbe9855",
-      "bytes": 27083
+      "sha256": "9a3475555e2780f9e4ac7f3cbf90f8782f4eff45a1cb0d6c00d86402703d0621",
+      "bytes": 31730
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/pre-sensor.pdf",
-      "sha256": "69a33a4605835219e3d179ba32817818b7a1a0d2124237b7ef9acab280119025",
-      "bytes": 74050
+      "sha256": "eaceb30e1aa4d62052fb2323ae1d033c9d1aff9820fee7d30ab9b0ad2d306e2d",
+      "bytes": 78786
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/tank-board.pdf",
@@ -1803,8 +1990,8 @@
     },
     {
       "path": "output/temper-prototype-closure/round5/boards/verification-summary.json",
-      "sha256": "f97ff43e59e51d18d9dbf8acba1ddfd5e217251cea824cf2b90eeadc55b65b3a",
-      "bytes": 2052
+      "sha256": "6d66ad10326586ed37ef972685b6c45cbd3b8586c0c51bb0e1ab7831815415fb",
+      "bytes": 2083
     }
   ]
 }

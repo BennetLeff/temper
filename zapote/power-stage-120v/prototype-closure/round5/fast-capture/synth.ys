@@ -1,0 +1,6 @@
+read_verilog rtl/edge_capture.v rtl/tfc1_spi.v rtl/temper_capture.v
+synth_ice40 -noabc -top temper_capture
+techmap -map rtl/gate_map.v
+check -assert
+stat
+write_json ../../../../../output/temper-prototype-closure/round5/fast-capture/synth-noabc.json

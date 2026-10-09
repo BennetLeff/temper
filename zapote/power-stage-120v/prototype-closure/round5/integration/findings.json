@@ -1,35 +1,37 @@
 {
   "schema": 1,
-  "status": "IN_PROGRESS",
+  "status": "REVIEWED_DIGITAL_CORRECTIONS_QUALIFICATION_AND_REMAINING_ENGINEERING_OPEN",
   "findings": [
     {
       "id": "R5I-001",
       "priority": "P2",
-      "status": "OPEN_PENDING_OWNER",
+      "status": "IMPLEMENTED_NATIVE_AND_DIGITAL_CHECKS_PASS_PHYSICAL_QUALIFICATION_OPEN",
       "artifact": "round4/supervisor/generated/pins.tsv",
       "net": "CTRL_HEARTBEAT_OK",
       "observed": "MCU PD4 and two permissive gate inputs have no external fail-low bias.",
       "failure": "A Hi-Z or open MCU output can leave the hardware permissive floating. Boolean false-injection tests do not establish the real open-circuit voltage.",
       "correction": "Add a receiver-side pulldown sized for input leakage and driven-state loading; verify it in final circuit and board exports.",
       "evidence_class": "observed_connectivity",
-      "owner": "supervisor_layout"
+      "owner": "supervisor_layout",
+      "native_verification": "Final central f307cdd9c75840c6b90c42dadd8eeb334c827fefedf520cd4b79076bdc8c9221; three DRC samples0/0/0; XML/source/native/harness parity and negative controls pass. See boards/checkpoint.json and power-review.md for scope/holds."
     },
     {
       "id": "R5I-002",
       "priority": "P1",
-      "status": "OPEN_PENDING_OWNER",
+      "status": "CORRECTED_DIGITAL_TESTS_PASS_PHYSICAL_UNVERIFIED",
       "artifact": "round5/firmware/common/acquisition.c:post_record_accept",
       "observed": "Initial POST API accepts one scalar resistance, while protection/interface.json requires isolated per-branch measurements with uncertainty intervals.",
       "failure": "A whole-pair or scalar check can authorize an attempt without proving both adopted25ohm resistors meet their individual limits.",
       "correction": "Join two branch-specific measurements and uncertainty bounds to the boot/attempt-scoped POST. Align cold-admission and one-attempt policy with protection interface.",
       "evidence_class": "observed_interface_mismatch",
       "owner": "target_firmware",
-      "observed_source_sha256": "d5467b4e7e04deaa66267faf6e993d728a7dc8f6302df2a359f52e71974325bf"
+      "observed_source_sha256": "d5467b4e7e04deaa66267faf6e993d728a7dc8f6302df2a359f52e71974325bf",
+      "verification": "Two isolated branch uncertainty intervals, expiry and consumption tested with sanitizers."
     },
     {
       "id": "R5I-003",
       "priority": "P1",
-      "status": "CORRECTED_IN_WORKING_SOURCE_FINAL_PIN_PENDING",
+      "status": "CORRECTED_DIGITAL_TESTS_PASS_PHYSICAL_UNVERIFIED",
       "artifact": "round5/firmware/common/acquisition.c:ads_command",
       "observed": "TX command CRC is appended atbytes27/28 and computed over27bytes, copying the DOUT conversion-frame structure.",
       "failure": "Once RX_CRC_EN is set, simplecommands expect CRC inword2; a single-registerWREG expectsCRC inword3. Current builder produces CRCerrors and rejected commands. WREG can execute despite CRCerror.",
@@ -45,23 +47,25 @@
       "owner": "target_firmware",
       "observed_source_sha256": "d5467b4e7e04deaa66267faf6e993d728a7dc8f6302df2a359f52e71974325bf",
       "independent_verification": "check_adc_command.c compiled against current acquisition.c:3 DIN vectors pass; samefixture rejected all3 earlier frames.",
-      "corrected_source_sha256": "77cac4da01bbbe3d90d5af6b54b83e16d67f93ade24ec2c3b1b825f0cf644973"
+      "corrected_source_sha256": "77cac4da01bbbe3d90d5af6b54b83e16d67f93ade24ec2c3b1b825f0cf644973",
+      "verification": "Independent manufacturer DIN CRC vectors pass; actual target compile passes."
     },
     {
       "id": "R5I-004",
       "priority": "P2",
-      "status": "OPEN_PENDING_OWNER",
+      "status": "CORRECTED_DIGITAL_TESTS_PASS_PHYSICAL_UNVERIFIED",
       "artifact": "round5/firmware/stm32/platform.c",
       "observed": "PD4 is configured and read as an input, but the circuit net CTRL_HEARTBEAT_OK is a supervisor-generated hardware permissive. PD3 receives the actual controller heartbeat.",
       "failure": "The target cannot establish the hardware heartbeat qualification through the assigned pin. With no bias, the permissive can float.",
       "correction": "Qualify fresh heartbeat edges on PD3; configure and drive PD4 as a fail-low output, including safe_outputs.",
       "evidence_class": "observed_interface_direction_mismatch",
-      "owner": "target_firmware"
+      "owner": "target_firmware",
+      "verification": "PD3 heartbeat input and fail-low PD4 output reviewed and Cortex-M0+ target compiled."
     },
     {
       "id": "R5I-005",
       "priority": "P2",
-      "status": "OPEN_PENDING_OWNER",
+      "status": "CORRECTED_DIGITAL_TESTS_PASS_PHYSICAL_UNVERIFIED",
       "artifact": "round5/firmware/stm32/platform.c:adc_init",
       "observed": "After a2ms acquisition pause, startup reads one frame before enabling DRDY interrupt handling. The ADC has a two-slot FIFO.",
       "failure": "Unread stale data and the narrow DRDY pulse can misalign first acquisition timestamps or prevent predictable startup.",
@@ -72,12 +76,13 @@
         "Figures8-20/8-21"
       ],
       "evidence_class": "observed_source_vs_manufacturer_protocol",
-      "owner": "target_firmware"
+      "owner": "target_firmware",
+      "verification": "Two startup frame reads implemented and target compiled; actual FIFO timing remains physical validation."
     },
     {
       "id": "R5I-006",
       "priority": "P1",
-      "status": "OPEN_PENDING_OWNER",
+      "status": "CORRECTED_DIGITAL_TESTS_PASS_PHYSICAL_UNVERIFIED",
       "artifact": "round5/firmware/esp32/mcpwm_target.c:inhibit",
       "observed": "Complementary low-side outputs use the dead-time inverter, but inhibit forces generator outputs to zero upstream of that inverter.",
       "failure": "The forced zero can become a high low-side pad level. Therefore forcing all generators low does not establish four low external gate inputs, even in the disabled bench image.",
@@ -88,12 +93,13 @@
         "Dead Time"
       ],
       "evidence_class": "observed_source_vs_manufacturer_API_semantics",
-      "owner": "target_firmware"
+      "owner": "target_firmware",
+      "verification": "Downstream GPIO-matrix disconnect and frozen shadow update verified against actual SDK registers; physical pad timing remains unmeasured."
     },
     {
       "id": "R5I-007",
       "priority": "P2",
-      "status": "OPEN_PENDING_OWNER",
+      "status": "CORRECTED_AND_REPLAYED_DIGITAL_GEOMETRY",
       "artifact": "round5/protection/build_hardware.py:HS400 mounting holes",
       "observed": "Manufacturer top-view drawing dimensions2.png specifies45mm transverse hole-center pitch. Authored holes at z+5.4 and z+50.1 have44.7mm pitch. The5.4mm annotation is slot width/hole diameter, not edge offset.",
       "failure": "The drilled hot plate and supplier flange do not share the specified mounting pattern; available clearance must not silently absorb a copied-dimension error.",
@@ -101,7 +107,229 @@
       "source": "https://www.ohmite.com/assets/images/content/screenshot-172.png",
       "source_sha256": "6f36590f6b5fc5460763d91bfe83e18e19eb14de1ff7253b0fe746ea4283b4b7",
       "evidence_class": "visually_verified_manufacturer_drawing_vs_authored_geometry",
-      "owner": "protection_hardware"
+      "owner": "protection_hardware",
+      "independent_verification": "Four generated transverse pitches are45.0mm; test_mount_receipt.py rejects the former44.7mm geometry independently of the CAD generator. Full protection replay passes, with engineering holds preserved.",
+      "corrected_source_sha256": "bd6ad5043d0e871c219eb1ae1abc88c69942b757c998a3b1606ae57cb2dd2f6a",
+      "remaining_limits": "Nominal supplier drawing pattern only; edge datum/tolerances and installed interface/preload/thermal qualification remain unestablished. Supplier8mm slots now modeled separately from centred5.4mm plate drill holes."
+    },
+    {
+      "id": "R5I-008",
+      "priority": "P1",
+      "status": "IMPLEMENTED_NATIVE_AND_DIGITAL_CHECKS_PASS_PHYSICAL_QUALIFICATION_OPEN",
+      "artifact": "round5/boards/power-review.md",
+      "observed": "Six AMC3330 devices alone can demand246mA; inherited350mA3.3V budget and linear-regulator heat rejection were not closed.",
+      "correction": "Replace undersized supply path, derive worst-case load/startup/thermal budget, verify actual copper and return paths.",
+      "owner": "board_power",
+      "evidence_class": "source_and_implementation_comparison",
+      "native_verification": "Final central f307cdd9c75840c6b90c42dadd8eeb334c827fefedf520cd4b79076bdc8c9221; three DRC samples0/0/0; XML/source/native/harness parity and negative controls pass. See boards/checkpoint.json and power-review.md for scope/holds."
+    },
+    {
+      "id": "R5I-009",
+      "priority": "P1",
+      "status": "CORRECTED_CURRENT_CONDITIONAL_REPLAY_PASS",
+      "artifact": "firmware/components/power/energy_supervisor.c",
+      "observed": "LC1D18BD published closing time is53.55–72.45ms; previous main and bypass pickup deadlines were50ms and model closing assumption20ms.",
+      "correction": "Use bounded100ms pickup windows while preserving the global446ms attempt limit; simulate72.45ms closing and16/24ms opening bounds.",
+      "owner": "target_firmware",
+      "evidence_class": "source_and_implementation_comparison",
+      "source": "https://iportal.se.com/Contents/docs/SQD-LC1D18BD.PDF",
+      "source_page": 3,
+      "source_sha256": "23b9ff28a3acf1ed40d6acddba447264405dd662f59f9acc859ed4183d5f228d",
+      "current_replay": "round5/model/current-evidence.json; joined-product-20261005e,24/24 cases, all input hashes match; physical and complete installed-model qualification excluded"
+    },
+    {
+      "id": "R5I-010",
+      "priority": "P1",
+      "status": "IMPLEMENTED_NATIVE_AND_DIGITAL_CHECKS_PASS_PHYSICAL_QUALIFICATION_OPEN",
+      "artifact": "round5/boards/central/generated/pins.tsv",
+      "observed": "LC1D18BD auxiliary contacts specify minimum17V/5mA. GPIO3.3V excitation and10k feedback bias do not satisfy this contact wetting specification.",
+      "correction": "Implement an actively testable24V-wetted receiver and preserve explicit fail-low mirror semantics; update native boards, target bindings and diagnostics together.",
+      "owner": "protection_closure",
+      "evidence_class": "source_and_implementation_comparison",
+      "source": "https://iportal.se.com/Contents/docs/SQD-LC1D18BD.PDF",
+      "source_page": 3,
+      "source_sha256": "23b9ff28a3acf1ed40d6acddba447264405dd662f59f9acc859ed4183d5f228d",
+      "native_verification": "Final central f307cdd9c75840c6b90c42dadd8eeb334c827fefedf520cd4b79076bdc8c9221; three DRC samples0/0/0; XML/source/native/harness parity and negative controls pass. See boards/checkpoint.json and power-review.md for scope/holds."
+    },
+    {
+      "id": "R5I-011",
+      "priority": "P1",
+      "status": "MONITORED_ISOLATION_IMPLEMENTED_DC_CLEARING_AND_PULSE_QUALIFICATION_OPEN",
+      "artifact": "round5/model/RESULTS.md",
+      "observed": "Early bypass opening can divert fault energy through the always-connected precharge network; conditional model reports peaks beyond the available4000W resistor overload screen.",
+      "correction": "Implement and prove monitored precharge isolation before RUN or another complete protection architecture, including single-contact faults. DC clearing and installed fault limits remain separate gates.",
+      "owner": "protection_closure",
+      "evidence_class": "source_and_implementation_comparison",
+      "verification": "Shared target, nine routed boards and conditional model now include monitored KPA/KPB isolation. Prospective fuse demand and hot/repetitive component pulse limits remain unqualified."
+    },
+    {
+      "id": "R5I-012",
+      "priority": "P1",
+      "status": "CORRECTED_DIGITAL_TESTS_PASS_PHYSICAL_UNVERIFIED",
+      "artifact": "round5/firmware/common/supervisor_binding.c",
+      "observed": "Fault reset requires healthy RESET-low, but healthy excluded ENERGY_FAULT; the two controllers could not leave fault together.",
+      "correction": "Separate qualified physical reset health from operational state; regress fault, release, fresh RESET, new POST and START.",
+      "owner": "target_firmware",
+      "evidence_class": "independent_source_and_executable_review",
+      "verification": "Qualified physical RESET health separated from fault enum; latch-low and reset-edge regressions pass."
+    },
+    {
+      "id": "R5I-013",
+      "priority": "P1",
+      "status": "CORRECTED_DIGITAL_TESTS_PASS_PHYSICAL_UNVERIFIED",
+      "artifact": "round5/firmware/stm32/platform.c",
+      "observed": "MCU_STOP_DONE was asserted throughout OFF/mechanical selftests and safe_outputs suppressed MCU_RESET_OK in FAULT. Native clear gates therefore prevented a fresh attempt.",
+      "correction": "Implement and exercise an explicit end/reset GPIO protocol against the native latch/token clear gates.",
+      "owner": "target_firmware",
+      "evidence_class": "independent_source_and_executable_review",
+      "verification": "Shared GPIO projection tests RESET/selftest/ADMIT/ACK/end; independent review found correction complete."
+    },
+    {
+      "id": "R5I-014",
+      "priority": "P2",
+      "status": "CORRECTED_DIGITAL_TESTS_PASS_PHYSICAL_UNVERIFIED",
+      "artifact": "round5/firmware/stm32/platform.c",
+      "observed": "Six mirror slots at150us plus normal60us ADC transfers exceed the1000us scan budget; independent helper/schedule reproduction faults at1084us.",
+      "correction": "Bound target acquisition/scan scheduling and test all ADC phase offsets against the receiver freshness contract.",
+      "owner": "target_firmware",
+      "evidence_class": "independent_source_and_executable_review",
+      "verification": "TIM3 owns mirror scan; 256 entry phases with bounded jitter and GPIO delay pass; real ISR bounds unmeasured."
+    },
+    {
+      "id": "R5I-015",
+      "priority": "P1",
+      "status": "CORRECTED_DIGITAL_TESTS_PASS_PHYSICAL_UNVERIFIED",
+      "artifact": "round5/firmware/common/supervisor_binding.c",
+      "observed": "Model retained catch charge history, but target used instantaneous bus/catch correlation, which fails at RUN line valleys.",
+      "correction": "Move attempt-scoped catch charge history into the shared binding and retain independent runtime voltage guards.",
+      "owner": "target_firmware",
+      "evidence_class": "independent_source_and_executable_review",
+      "verification": "Shared attempt catch history and live voltage guards pass regression; same helper linked into new model."
+    },
+    {
+      "id": "R5I-016",
+      "priority": "P1",
+      "status": "CORRECTED_CURRENT_CONDITIONAL_REPLAY_PASS",
+      "artifact": "round5/boards/sensors/VPRE",
+      "observed": "Post-stop charged filter and opposite supply phase exceed the original248.76V amplifier input range. Model encountered249.793V before ADC clipping.",
+      "correction": "Increase VPRE divider to801:1 and join exact source/native pin/model transfer evidence; retain installed calibration and transient limits.",
+      "owner": "board_power",
+      "evidence_class": "independent_source_and_executable_review",
+      "current_replay": "round5/model/current-evidence.json; joined-product-20261005e,24/24 cases, all input hashes match; physical and complete installed-model qualification excluded"
+    },
+    {
+      "id": "R5I-017",
+      "priority": "P2",
+      "status": "CORRECTED_CURRENT_CONDITIONAL_REPLAY_PASS",
+      "artifact": "round5/model/audit.rs",
+      "observed": "Audit accepted energy RUN enum without requiring joined isolation permission or electrical load.",
+      "correction": "Require sustained actual joined enable, nonzero load energy and isolation open throughout RUN; reject deliberately invalid receipts.",
+      "owner": "model",
+      "evidence_class": "independent_source_and_executable_review",
+      "current_replay": "round5/model/current-evidence.json; joined-product-20261005e,24/24 cases, all input hashes match; physical and complete installed-model qualification excluded"
+    },
+    {
+      "id": "R5I-018",
+      "priority": "P1",
+      "status": "IMPLEMENTED_NATIVE_AND_DIGITAL_CHECKS_PASS_PHYSICAL_QUALIFICATION_OPEN",
+      "artifact": "round5/boards/partition.rs",
+      "observed": "First bypass proof could escape the total source-present budget, and repeated ADMIT edges could clear/restart ATTEMPT.",
+      "correction": "Escape startup budget only after fully qualified actual RUN is captured. Require live runtime health for retained escape and clear on attempt end/fault/isolation loss. ATTEMPT self-holds and consumes one physical START token.",
+      "owner": "board_power",
+      "evidence_class": "independent_source_and_executable_review",
+      "native_verification": "Final central f307cdd9c75840c6b90c42dadd8eeb334c827fefedf520cd4b79076bdc8c9221; three DRC samples0/0/0; XML/source/native/harness parity and negative controls pass. See boards/checkpoint.json and power-review.md for scope/holds."
+    },
+    {
+      "id": "R5I-019",
+      "priority": "P2",
+      "status": "CORRECTED_CURRENT_CONDITIONAL_REPLAY_PASS",
+      "artifact": "round5/model/cosim.c",
+      "observed": "Contact opening trajectory began at1 even when pickup was aborted before any closure.",
+      "correction": "Carry contact position through command reversals; test abort before pickup, mid-closing and mid-opening.",
+      "owner": "model",
+      "evidence_class": "independent_source_review",
+      "current_replay": "round5/model/current-evidence.json; joined-product-20261005e,24/24 cases, all input hashes match; physical and complete installed-model qualification excluded"
+    },
+    {
+      "id": "R5I-020",
+      "priority": "P2",
+      "status": "CORRECTED_CURRENT_CONDITIONAL_REPLAY_PASS",
+      "artifact": "round5/model/cosim.c",
+      "observed": "Model clipped negative calibrated bus/catch voltages to zero while target passed signed values into the core.",
+      "correction": "Remove model-only clipping and preserve the core negative-sample rejection.",
+      "owner": "model",
+      "evidence_class": "independent_source_review",
+      "current_replay": "round5/model/current-evidence.json; joined-product-20261005e,24/24 cases, all input hashes match; physical and complete installed-model qualification excluded"
+    },
+    {
+      "id": "R5I-021",
+      "priority": "P1",
+      "status": "IMPLEMENTED_NATIVE_AND_DIGITAL_CHECKS_PASS_PHYSICAL_QUALIFICATION_OPEN",
+      "artifact": "round5/boards/partition.rs",
+      "observed": "SN74LVC1G74DCUR inherited1=CLR,3=CLK,6=unusedQ_N; actualDCU1=CLK,3=Q_N output,6=CLR input. Logical tests shared the erroneous pin map.",
+      "failure": "ADMIT/START/proof clocks drive physical outputs while actual asynchronous clear inputs float; latch behavior and output contention invalidate the candidate.",
+      "correction": "Apply explicit round5 pin-role ECO, update physical-semantic audits and regenerate/reroute all six flip-flops. Preserve round4 historical source as uncorrected evidence.",
+      "source": "https://www.ti.com/lit/ds/symlink/sn74lvc1g74.pdf",
+      "source_sections": [
+        "SCES794G page4 DCU pin table"
+      ],
+      "owner": "board_power",
+      "evidence_class": "independent_primary_datasheet_vs_generated_native_pins",
+      "native_verification": "Final central f307cdd9c75840c6b90c42dadd8eeb334c827fefedf520cd4b79076bdc8c9221; three DRC samples0/0/0; XML/source/native/harness parity and negative controls pass. See boards/checkpoint.json and power-review.md for scope/holds."
+    },
+    {
+      "id": "R5I-022",
+      "priority": "P2",
+      "status": "CORRECTED_FIRMWARE_NATIVE_LOGIC_AND_CONDITIONAL_REPLAY_PASS_PHYSICAL_UNVERIFIED",
+      "artifact": "round5/firmware/common/supervisor_binding.c",
+      "observed": "Startup-budget escape depended on instantaneous RUN permission. After TOTAL_WINDOW expired, ordinary zero demand returned the core to READY then faulted on the next tick. Native budget escape shared the same defect.",
+      "correction": "Retain qualified RUN session separately from demand, not merely completed proof. Require first RUN within446ms; clear on end/fault/newattempt/isolation loss, preserve live health and PWM qualification during idle.",
+      "owner": "target_firmware_and_board_power",
+      "evidence_class": "independently_executed_actual_shared_source_reproducer",
+      "reproducer": "/private/tmp/temper-final-review.5Whaka/idle-after-run.c",
+      "verification": "Full-startup zero-demand/resume/OFF regression passes. Proof-complete-but-never-RUN now times out446ms. Idle PWM/isolation losses fault. Host/SDK and ARM build pass;29 independent state checks pass generated pin table as-is.",
+      "approval_review": "BYPASS-only proposal rejected and read-only review confirmed weakening; abandoned. Distinct retained actual-RUN circuit with live runtime health independently reviewed and generation accepted.",
+      "remaining_limits": "Ideal Boolean/state evidence only. Isolation loss before TOTAL_WINDOW expiry clears RUN/PERMIT but source can remain until firmware trips or startup deadline; propagation and physical fault tolerance remain unverified.",
+      "current_replay": "24/24 shared-source cases pass, including zero-demand/resume and proof-without-RUN446ms expiry."
+    },
+    {
+      "id": "R5I-023",
+      "priority": "P1",
+      "status": "CORRECTED_FINAL_EXPORTED_GEOMETRY_AND_INDEPENDENT_REVIEW_PASS",
+      "artifact": "round2/cooling/build_revision.py:97",
+      "observed": "Retained native19 STEP assembly uses shape.mirror(\"XZ\") rather than a proper rigid placement. New card transforms are rigid, but existing power-board and derived pickoff positions inherit reflection.",
+      "failure": "Mirrored geometry can appear collision-free while changing board handedness; matching reflected pad coordinates does not prove a physically realizable assembly.",
+      "correction": "Use actual native19 top-up Rz180 placement; rebuild affected cooling, clamps, supports, catch and sensing routes. Preserve the historical reflected artifacts as superseded evidence.",
+      "owner": "packaging",
+      "evidence_class": "observed_CAD_transform_determinant_and_source_provenance",
+      "verification": "Final cooker STEP a341bf9a4747c85074304d3ea40749837457d8f1ffd522cbf92c48e133fe9b69; exported orientation passes independent native/model anchors, historical mirror rejected. All31 group checks pass; independent native143 geometry/thermal contacts and complete new floor reconstruction pass.",
+      "remaining_limits": "Nominal modeled geometry only; actual supplier part fit, tolerance yield, force, thermal performance and electrical insulation remain unqualified."
+    },
+    {
+      "id": "R5I-024",
+      "priority": "P1",
+      "status": "DEDICATED_BOND_NOMINAL_COMPONENT_AND_FINAL_ASSEMBLY_REVIEW_PASS",
+      "artifact": "round5/orientation-cooling/pe_bond.py",
+      "observed": "Cooling installation relied on mechanical mounting for sink earth continuity without a dedicated modeled bond.",
+      "correction": "Add dedicated sink terminal, locking stacks, dimensioned copper braid, split restraint with positive stop collars and a connected cradle attachment; retain explicit service access.",
+      "owner": "cooling_and_packaging",
+      "evidence_class": "independent_exported_geometry_and_load_path_review",
+      "verification": "Frozen d7a7afbbf5e10671d9b688a81977d1cb17910d09bdb5855eb0320e964a1cf1af; 117 valid connected parts, eight PE chain and two guide-to-cradle zero-gap contacts; 40 bounded threaded intersections independently recomputed.",
+      "remaining_limits": "Nominal CAD only. Braid construction, bare-metal/corrosion process, stud weld, locking torque, hot creep, continuity and fault-current withstand remain unqualified.",
+      "final_assembly": "a341bf9a4747c85074304d3ea40749837457d8f1ffd522cbf92c48e133fe9b69; PE contact chain and all four delegated cooling interfaces independently checked."
+    },
+    {
+      "id": "R5I-025",
+      "priority": "P1",
+      "status": "CORRECTED_FINAL_EXPORTED_GEOMETRY_AND_INDEPENDENT_REVIEW_PASS",
+      "artifact": "round5/packaging-integration/correct_power_installation.py",
+      "observed": "Lower catch-cable saddle rests on its base at Z70 without positive retention: post fasteners retain only the base, closure screws join upper to lower, and locating dowels do not reach the base.",
+      "failure": "The clamp can detach from the base despite collision-free placement, transferring harness loads to electrical terminations.",
+      "correction": "Fuse lower guide and base into one machined PEEK part, retain proven posts, add driver wells, remove the interfering dowel and correct countersink seating. Explicitly require threading before termination and wire removal for driver access.",
+      "owner": "packaging",
+      "evidence_class": "independent_source_and_actual_STEP_load_path_review",
+      "verification": "Final a341bf9a STEP: one connected lower/base solid, zero-gap post/head and closure seating, exact bounded M2 engagement, clear driver wells with wires absent. Final installation-verification.json and independent review pass.",
+      "remaining_limits": "Closed-bore guide is not a qualified axial strain clamp. Terminal restraints, pull forces, hot creep and manufacturing tolerances remain open."
     }
   ],
   "release": "NOT_RELEASED"

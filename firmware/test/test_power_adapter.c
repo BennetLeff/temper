@@ -47,7 +47,7 @@ static void ready(energy_supervisor_t *s, energy_inputs_t *i)
     assert(s->out.kb);
     i->bypass_closed_electrically = true;
     i->kb_released = false;
-    step(s, i, 10);
+    step(s, i, 73);
     assert(s->out.kt);
     i->proof_current_valid = true;
     step(s, i, 1);
@@ -160,9 +160,10 @@ static void test_no_late_proof(void)
     i.precharge_complete = true;
     step(&s, &i, 100);
     i.bypass_closed_electrically = true;
-    step(&s, &i, 10);
+    i.kb_released = false;
+    step(&s, &i, 73);
     i.proof_current_valid = true;
-    step(&s, &i, 96);
+    step(&s, &i, 110);
     assert(s.state == ENERGY_FAULT);
     tests++;
 }
@@ -266,7 +267,7 @@ static void inhibit(void *c)
 static bridge_config_t config(void)
 {
     return (bridge_config_t){
-        .timer_hz = 80000000,.frequency_hz = 50000,.input_deadtime_ns = 125,.capture_age_us = 1000,.max_power_w = 1200,.inlet_target_a = 13.5f,.auxiliary_reserve_w = 100,.commissioned = true
+        .timer_hz = 80000000,.frequency_hz = 50000,.input_deadtime_ns = 125,.capture_age_us = 1000,.max_power_w = 1200,.inlet_target_a = 13.5f,.auxiliary_reserve_w = 100,.commissioned = true,.feedback_kind=BRIDGE_FEEDBACK_BENCH_CAPTURE,.scope_record_id=1
     };
 }
 static void init(fullbridge_adapter_t *b){
@@ -277,7 +278,7 @@ static void init(fullbridge_adapter_t *b){
 }
 static bridge_feedback_t feedback(fullbridge_adapter_t *b, uint32_t now)
 {
-    bridge_feedback_t f = {.sampled_us = now,.serial = 1,.rails_ok = true,.sup_run_ok = true,.interlock_ok = true};
+    bridge_feedback_t f = {.kind=BRIDGE_FEEDBACK_BENCH_CAPTURE,.sampled_us = now,.serial = 1,.rails_ok = true,.sup_run_ok = true,.interlock_ok = true};
     for (unsigned n = 0; n < 4; n++) {
         f.valid[n] = true;
         f.period[n] = b->cycle.period;
@@ -400,7 +401,7 @@ static void test_hardware_contract(void)
     step(&s, &i, 100);
     i.bypass_closed_electrically = true;
     i.kb_released = false;
-    step(&s, &i, 10);
+    step(&s, &i, 73);
     step(&s, &i, 20); /* Relay pickup does not count as loaded proof. */
     i.proof_current_valid = true;
     step(&s, &i, 1);
@@ -456,7 +457,98 @@ static void test_completed_attempt_requires_reset_and_post(void)
     assert(s.state == ENERGY_PRECHARGE && s.out.k1 && s.out.k2);
     tests++;
 }
+static void test_lc1d18bd_pickup_budget(void)
+{
+    energy_supervisor_t s;
+    energy_inputs_t i;
+    start(&s, &i);
+    i.k1_released = i.k2_released = true;
+    step(&s, &i, 50);
+    assert(s.state == ENERGY_PRECHARGE); /* Official maximum is 72.45 ms. */
+    i.k1_released = i.k2_released = false;
+    step(&s, &i, 23); /* First integer-ms observation after maximum pickup. */
+    assert(s.state == ENERGY_PRECHARGE);
+    i.precharge_complete = true;
+    step(&s, &i, 1);
+    step(&s, &i, 72);
+    assert(s.state == ENERGY_BYPASS_CLOSE);
+    i.bypass_closed_electrically = true;
+    i.kb_released = false;
+    step(&s, &i, 1);
+    assert(s.state == ENERGY_BYPASS_PROVE);
+
+    start(&s, &i);
+    i.k1_released = true;
+    step(&s, &i, 100);
+    assert(s.state == ENERGY_FAULT && s.fault == ENERGY_CONTACT && !s.out.k1);
+    start(&s, &i);
+    i.precharge_complete = true;
+    step(&s, &i, 1);
+    step(&s, &i, 100);
+    assert(s.state == ENERGY_FAULT && s.fault == ENERGY_TIMEOUT && !s.out.kb);
+
+    start(&s, &i);
+    i.precharge_complete = true;
+    step(&s, &i, 297);
+    i.bypass_closed_electrically = true;
+    i.kb_released = false;
+    step(&s, &i, 99);
+    assert(s.state == ENERGY_BYPASS_PROVE);
+    step(&s, &i, 49); /* Global elapsed445ms; proof result still absent. */
+    assert(s.state == ENERGY_BYPASS_PROVE);
+    step(&s, &i, 1);
+    assert(s.state == ENERGY_FAULT && s.fault == ENERGY_TIMEOUT && !s.out.k1);
+    energy_config_t c = energy_study_config();
+    c.commissioned = true;
+    c.bypass_close_ms = 101;
+    energy_supervisor_init(&s, &c, 0);
+    assert(s.state == ENERGY_FAULT && s.fault == ENERGY_CONFIG);
+    tests++;
+}
+static void test_bypass_proof_requires_excitation(void)
+{
+    energy_supervisor_t s;
+    energy_inputs_t i;
+    start(&s, &i);
+    i.precharge_complete = true;
+    step(&s, &i, 100);
+    i.kb_released = false; /* NC open is only a mechanical diagnostic. */
+    i.bypass_closed_electrically = false;
+    step(&s, &i, 73);
+    assert(s.state == ENERGY_BYPASS_PROVE && s.out.kt && !s.proof_timing);
+    step(&s, &i, 20);
+    assert(s.state == ENERGY_BYPASS_PROVE && s.out.kt);
+    i.proof_current_valid = true; /* Current alone through12.5R does not proveKB. */
+    step(&s, &i, 1);
+    assert(!s.proof_timing);
+    i.bypass_closed_electrically = true; /* Measured loaded VPRE also qualified. */
+    step(&s, &i, 1);
+    assert(s.proof_timing);
+    i.bypass_closed_electrically = false;
+    step(&s, &i, 1);
+    assert(s.state == ENERGY_FAULT && !s.out.kt);
+    start(&s, &i);
+    i.precharge_complete = true;
+    step(&s, &i, 100);
+    i.kb_released = false;
+    step(&s, &i, 73);
+    step(&s, &i, 49);
+    i.proof_current_valid = i.bypass_closed_electrically = true;
+    step(&s, &i, 1);
+    step(&s, &i, 50); /* Proof completes100ms afterKT command. */
+    assert(s.state == ENERGY_RAIL_QUALIFY && !s.out.kt);
+    start(&s, &i);
+    i.precharge_complete = true;
+    step(&s, &i, 100);
+    i.kb_released = false;
+    step(&s, &i, 73);
+    step(&s, &i, 110);
+    assert(s.state == ENERGY_FAULT && s.fault == ENERGY_TIMEOUT && !s.out.kt);
+    tests++;
+}
 int main(void){
+    test_bypass_proof_requires_excitation();
+    test_lc1d18bd_pickup_budget();
     test_start_reset();
     test_sequence_faults();
     test_no_late_proof();

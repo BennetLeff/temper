@@ -1,0 +1,235 @@
+{
+  "schema": "temper.focused-mechanical-review.v1",
+  "reviewer": "prototype_review_report",
+  "created_utc": "2026-10-05T22:34:13.407947+00:00",
+  "checkout": "/Users/bennet/Desktop/temper/worktrees/mit-product-guidance",
+  "status": "PASS_FOCUSED_NOMINAL_DIGITAL_REVIEW_WITH_UNQUALIFIED_LIMITS",
+  "release_authorized": false,
+  "scope": "Read-only final proper-native orientation, cooling/PE component, merged contacts, support load paths, catch retention/service and candidate floor. No full DRC, physical test, electrical fault or thermal qualification.",
+  "inspected_artifact_sha256": {
+    "output/temper-prototype-closure/round5/packaging-integration/r4-supported-routed-candidate.step": "a341bf9a4747c85074304d3ea40749837457d8f1ffd522cbf92c48e133fe9b69",
+    "output/temper-prototype-closure/round5/packaging-integration/candidate-drilled-floor.step": "7f7804d1c10f2476cc72098f829d300e2bb383effa042620c063867790eb1056",
+    "output/temper-prototype-closure/round5/packaging-integration/pod-supported-integration-candidate.step": "98281d4d664ed402f711ee9c933e47cce16f31c769fd5b6a57e8f3d9446587b1",
+    "output/temper-prototype-closure/round5/packaging-integration/installation-verification.json": "ab173597f61dcc30ca6b5888b49e0afc499ff973365759fe91301a3a7aca2eb4",
+    "output/temper-prototype-closure/round5/packaging-integration/power-orientation-verification.json": "f676e19ff6e9b59d3f68175d5ec6e8ad6878009fe84f8b9d5df98ebe585e3f76",
+    "output/temper-prototype-closure/round5/packaging-integration/floor-drilling-manifest.json": "9bdc12172ad390de01d89b94fc1ae2747738dcbfddbe6a58835aed20227bac94",
+    "output/temper-prototype-closure/round5/packaging-integration/integration-checks.json": "094d69d74298cd959bc44cb10ce1ecc1352fdf4ee1c98a33bafd86b93c68a85a",
+    "output/temper-prototype-closure/round5/packaging-integration/support-checks.json": "99cd918bbb2b1682f5cee56daa58767f9d9a56d78f428c5b7a517614c2943c3e",
+    "output/temper-prototype-closure/round5/packaging-integration/harness-checks.json": "f3222ba0a75382fc74d07620d15e0624e149d2a4524f096e203e447f705948f1",
+    "output/temper-prototype-closure/round5/orientation-cooling/cooling-replacements-pe-final.step": "d7a7afbbf5e10671d9b688a81977d1cb17910d09bdb5855eb0320e964a1cf1af",
+    "output/temper-prototype-closure/round5/orientation-cooling/checks-pe-final.json": "eb606ec7f360d062a80839856a2cd2b7a8739428315815aabaf68f780e4d3db8",
+    "output/temper-prototype-closure/round5/orientation-cooling/verification-pe-final.json": "8391303645b3edb996da6eeb61beac64edcf2e477dd665dd161ae44ee6cdea11",
+    "output/temper-prototype-closure/round5/orientation-cooling/interface-pe-final.json": "ec5024102640548a088d8e824c2ec164e8f2a73d006d20848f1103a47e09b2e7",
+    "zapote/power-stage-120v/prototype-closure/round5/orientation-cooling/build_correction.py": "59945760636c84f7510c980f94f3c057a62b0c71ec8379f55b21d663c55e742d",
+    "zapote/power-stage-120v/prototype-closure/round5/orientation-cooling/pe_bond.py": "252db5157f638635db66e432bed8f65bb1d5f8f63179b9449a110fc651b77ab2",
+    "zapote/power-stage-120v/prototype-closure/round5/orientation-cooling/check_correction.py": "4e8933e10eab057e016589e246ef002feeab195750fb0c18bd521ff2cd660a1a",
+    "zapote/power-stage-120v/prototype-closure/round5/orientation-cooling/README.md": "cdaffcbc2600609611579516590e505e137db74c3c9ec6da7ce70c35faa99473",
+    "zapote/power-stage-120v/prototype-closure/round5/packaging-integration/correct_power_installation.py": "2611c3324f8be72874b9694a7baa1310a6ff9b445ae7749185e4b2a05a881712",
+    "zapote/power-stage-120v/prototype-closure/round5/packaging-integration/merge_rigid_correction.py": "dfea1b8e66719f795abe31d039dd18fb0d3bf2d1f5b15ad157ef888353629f45",
+    "zapote/power-stage-120v/prototype-closure/round5/packaging-integration/build_supports.py": "9378dcc3cebb259861083fffa1ea0defefa696665ad80aa5acc38803f45ea07b",
+    "zapote/power-stage-120v/prototype-closure/round5/packaging-integration/build_harness.py": "092a020595148e38e9ecbca0460d60e545cdd78c183493279e0fcfd1e4f7b394",
+    "zapote/power-stage-120v/prototype-closure/round5/packaging-integration/check_installation.py": "2feb126eb84994de2032a33bdaa8735bdb806ad0fb17bcec26c9f6735bd7009c",
+    "zapote/power-stage-120v/prototype-closure/round5/packaging-integration/installation-ECO.md": "f8710bc6d159f1e0e2be541d81c4f1a078a4b3aacc90329681c1f46bdbc92949"
+  },
+  "independently_reproduced": {
+    "native": {
+      "parts_checked": 143,
+      "bounds_or_volume_mismatches": [],
+      "measured_chirality": 0.9999999999999906,
+      "historical_negative_control": "actual STEP chirality determinant -1.0000000000005727, expected +1",
+      "source_step_sha256": "b4b9edb5ad9c4b0aa4e1b69158abb6be8b9ce203b561c1d34a58e88812a8fa4c"
+    },
+    "source_vs_context": {
+      "separate_hashed_inputs": {
+        "source": {
+          "path": "output/temper-prototype-closure/round5/protection/catch-with-power-interposer-review.step",
+          "sha256": "94cdf4dce6e30afc9d67939b64386b2feedc4a15699e2a72e2d19526e9a528f5",
+          "matches_receipt": true
+        },
+        "native_source": {
+          "path": "output/temper-prototype-closure/pcb/temper-power-native19-candidate.step",
+          "sha256": "b4b9edb5ad9c4b0aa4e1b69158abb6be8b9ce203b561c1d34a58e88812a8fa4c",
+          "matches_receipt": true
+        },
+        "validation_context_source": {
+          "path": "output/temper-prototype-closure/round5/orientation-cooling/validation-context-pre-pe.step",
+          "sha256": "8fb1bc2d5d4bf5c328723533ea344cef6b364249b53163c5c05d8c319543446f",
+          "matches_receipt": true
+        }
+      },
+      "historical_sink_bounds_mm": [
+        -112.0,
+        93.9,
+        12.0,
+        88.0,
+        161.9,
+        72.0
+      ],
+      "final_sink_bounds_mm": [
+        -76.0,
+        93.9,
+        12.0,
+        124.0,
+        161.9,
+        72.0
+      ],
+      "conclusion": "Exactly one +36 mm X sink translation; all native parts match exactly one proper Rz180 plus (129.5,162,30.387) placement. No residual double transform."
+    },
+    "thermal_contacts": {
+      "five_device_proxy_ceramic_sink_chains": "zero nominal gaps; zero device/proxy penetration",
+      "four_mos_model_metal_contact_mm2_each": 65.24,
+      "bridge_model_contact_mm2": 336.0,
+      "six_pressure_pads": "zero nominal device gap and penetration",
+      "physical_shim_orders_derived": false
+    },
+    "cooling_pe": {
+      "frozen_replacement_named_parts": 117,
+      "invalid_parts": [],
+      "disconnected_parts": {},
+      "positive_pair_intersections_recomputed": 40,
+      "analytic_thread_volume_mismatches": [],
+      "thread_model_scope": "36 original M3/M4 joints plus sink M4 8.7mm, cradle M4 nut3.2mm and two M3 guide6mm engagements; nominal geometry only",
+      "eight_pe_chain_contacts": "zero gaps in component and final merged export",
+      "two_guide_to_cradle_seats": "zero gaps; extended cradle is one connected solid",
+      "final_cooling_parts_missing": [],
+      "final_cooling_invalid_or_disconnected": {}
+    },
+    "delegated_interfaces": [
+      {
+        "a": "BASE_PROPOSAL_LEFT_WALL",
+        "b": "OUT_FLOOR_M3x6_-126.0",
+        "volume_mm3": 0.0
+      },
+      {
+        "a": "BASE_PROPOSAL_LEFT_WALL",
+        "b": "OUT_MACHINED_BRACKET_-128",
+        "volume_mm3": 0.0
+      },
+      {
+        "a": "BASE_BASE_R2_CARRIER_RAIL_-122p5",
+        "b": "PAIRED_POST_M3x60_CS_285",
+        "volume_mm3": 12.959069696058144,
+        "bounds_mm": [
+          134.0,
+          283.5,
+          10.0,
+          137.0,
+          286.5,
+          16.0
+        ]
+      },
+      {
+        "a": "BASE_BASE_R2_CARRIER_RAIL_-122p5",
+        "b": "PAIRED_POST_M3x60_CS_295",
+        "volume_mm3": 12.959069696058227,
+        "bounds_mm": [
+          134.0,
+          293.5,
+          10.0,
+          137.0,
+          296.5,
+          16.0
+        ]
+      }
+    ],
+    "floor": {
+      "new_holes": 26,
+      "obsolete_holes_restored": 8,
+      "missing_material_vs_reconstructed_mm3": 0.0,
+      "excess_material_vs_reconstructed_mm3": 0.0,
+      "assembly_to_floor_export_missing_mm3": 0.0,
+      "assembly_to_floor_export_excess_mm3": 0.0
+    },
+    "catch_retention": {
+      "separate_base_present": false,
+      "lower_integral_solids": 1,
+      "lower_integral_bounds_mm": [
+        122.0,
+        281.0,
+        68.0,
+        140.0,
+        300.0,
+        75.5000001
+      ],
+      "post_to_integral_base": [
+        0.0,
+        0.0
+      ],
+      "mount_head_to_integral_base": [
+        0.0,
+        0.0
+      ],
+      "closure_head_to_upper": [
+        0.0,
+        0.0
+      ],
+      "closure_thread_volumes_mm3": [
+        2.8274333882308778,
+        2.8274333882308778
+      ],
+      "mount_driver_vs_guide_mm3": [
+        0.0,
+        0.0
+      ],
+      "connected_parts": {
+        "PAIRED_WIRE_SADDLE_LOWER": {
+          "valid": true,
+          "connected_solids": 1
+        },
+        "PAIRED_WIRE_SADDLE_UPPER": {
+          "valid": true,
+          "connected_solids": 1
+        },
+        "dowels": [
+          "PAIRED_LOCATING_DOWEL_289.5"
+        ]
+      },
+      "local_driver_probe": "Diameter6.0 mm, Z70.01..81, clears both6.2mm wells with wires absent; geometric upper-bound probe only, not selected supplier tool",
+      "service_contract": "Specified diameter4 driver; hood roof removed, wires absent. Tighten mounts before threading/terminating wires. Guide removal requires terminal release; no installed-wire retorque claim."
+    }
+  },
+  "author_receipts_inspected": {
+    "installation_status": "PASS",
+    "collision_groups": 31,
+    "scope": "Hash-bound author integration/support/harness receipts inspected; independent replays above are narrower than a full global collision rerun."
+  },
+  "findings": [],
+  "resolved_findings": [
+    {
+      "id": "catch-lower-saddle-unretained",
+      "priority": "P1",
+      "found_on_assembly_sha256": "81e1955010941b5fbb1a7b4570c542376bc3a71c09861bafcfe96555e3921d37",
+      "source": "zapote/power-stage-120v/prototype-closure/round5/packaging-integration/correct_power_installation.py",
+      "prior_defect": "Lower saddle rested unfastened on separate base; M3 retained only base and M2 joined only saddle halves.",
+      "resolution": "Final lower/base is one connected machined PEEK part; two seated M3 heads/post contacts and6mm rail engagements verified; driver wells and staged wire removal are explicit.",
+      "service_clarification": "Closed bores do not open at the saddle split and are routing guides, not qualified axial strain relief."
+    }
+  ],
+  "pre_pe_review": {
+    "receipt": "pre-pe-review.json",
+    "replacement_step_sha256": "ddef6a195569348f8125d973e8381be7a50e0d5edc56ab2f5ada4d22b81b0ee8",
+    "context_step_sha256": "fe919ddb933d6581a2f1ca933725cbf43585110df739cc8dae0f3825459529b9",
+    "status": "Preserved historical checkpoint, superseded for final integration; not mixed with PE-final conclusions."
+  },
+  "unqualified_limits": [
+    "No assembled hardware, fabrication release or energization approval. Nominal CAD gaps/intersections are not tolerance or insulation qualification.",
+    "Device/bridge generic STEP contact proxies are not manufacturer seating or physical shim purchase dimensions. Actual parts, lead form, flatness, films, ceramic coverage/creepage and clamp stack require measurement.",
+    "Clamp load, screw torque/locking, ceramic stress, PEEK creep, thread strength, fan-frame rib shape/friction retention, thermal resistance and airflow remain unqualified.",
+    "PE braid section, terminations, bare-metal preparation, stud weld, locking stack, corrosion, bend capability, strain-guide strength, bond resistance and fault-current withstand remain unqualified. Other metal-frame bonding requirements remain explicit.",
+    "HV/SELV insulation materials, thickness/tolerance stack, hood/duct penetration sealing, rated feedthroughs and complete installed creepage/clearance have not been qualified by this review.",
+    "Catch and sense routing guides do not establish axial strain relief. Native J8/J10 rings, catch lugs/holders and conductor tails are bounded connection allocations pending exact parts, manufacturing/termination processes and tests.",
+    "Assembly/service requires stated panel/top removal and staged population; straight clamp-tool collisions remain documented. Catch mount tools require wires absent.",
+    "The candidate floor is newly fabricated with26 specified cuts and8 obsolete holes restored in its model; do not shift-drill or patch an existing floor."
+  ],
+  "raw_review_evidence_sha256": {
+    "final-mechanical.json": "b45419f4f13e8e615e66fe549e19fbbcfdb5a0096f791ebc4bd2a4dbbe9069ea",
+    "merged-independent.json": "e945edd556f6dd9f82e161ada36bbf0a2d662295d2477d380c5b571a8795ad93",
+    "pe-independent.json": "7f8e29c1d8250080c9f3081ee1e3bbaa873e66e2a92db60d89344868cc1f4e5a",
+    "final-saddle-connectivity.json": "c2f741ea4dd451bc6a48ed422f9ee1a2c18c5b2b9a46d2e30cd061107cdf43ef",
+    "pre-pe-review.json": "9bf8eea1a955a556a5c057b3739d728adf03141f54b38b4b7136d1e2d6a2f811",
+    "saddle-finding.json": "757ea604cbb30eff26c8077e1613068761501fa0bed232af5e2618caa4f40a7b",
+    "check-final-mechanical.py": "c5f001d1bec453775ef3e559578bae7dcde2d633c6fd6ce942fbd49d1a9b67ee",
+    "check-merged-final.py": "c6a2aea8f7a8dd21ab387318f12ed044006b10eed3bd75aa3114537adccbb9a2",
+    "check-pe-final.py": "6e760728377ece2eeb036ce94351f416587af208cf98fb58151ac9c425a9a50e"
+  }
+}

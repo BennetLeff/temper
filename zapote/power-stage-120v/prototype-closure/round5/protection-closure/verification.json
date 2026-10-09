@@ -1,0 +1,51 @@
+{
+  "status": "CANDIDATE_DIGITAL_TESTS_PASS_NO_POWER_RELEASE",
+  "behavior_changed": true,
+  "commands": [
+    "replay.sh output/temper-prototype-closure/round5/protection-closure/replay-window-final"
+  ],
+  "source_inputs": {
+    "RESULTS.md": "b3e6872f8aec3a86191bf1c2016b5ada2c8a096599c36352e38bee5e8f6770d8",
+    "SOURCES.md": "84f2540b3afbb72a8a19a389567849e3efda6d4b8e3c97186f334b4e702393e8",
+    "discharge-window-ECO.md": "ecf4790c6192cc2973280210a22b38adf0a8da8c2b60b379f870a223038013fb",
+    "discharge-window.rs": "6400590d8dbc80637ec36353bfe5d02a03302ffa81bc296a961990fdfa256875",
+    "exposure.rs": "7dce583d7d32344a82ac50380bd6edb4b847bbde215ce8f1759b0fed65599feb",
+    "interface.json": "f2eca11a64f01a507c5de920acbcc9174fea70c9db82a821c88c2bcb8f03331f",
+    "isolation.c": "715617394af13fb8b62305b98872c93df4bd5b32bd550b9398ab56027cbab6cf",
+    "isolation.h": "82f77ecaa2cd55c7bf33069d6d9845924a2bfe8abaeffec90b42db3583e7a5a7",
+    "receiver-ECO.md": "5c0fd88b0c854362d58e0a6a56c45d2c86f7f491a6815f5aef3a7086ef669fec",
+    "replay.sh": "9d118261c8d707d96d55ece5b44b65a46f3c8b6613d4cd1c873d036148656055",
+    "test_isolation.c": "8883675c53519d0f60519528333bf8bd4469445182a69a3ec42f9ca309c4bf28"
+  },
+  "result_sha256": {
+    "replay-window-final/isolation-tests.log": "6356e0eb3702c838205923bce6b46143bf97668c6328511210614e5ec198bb36",
+    "replay-window-final/exposure.log": "43f45df2b4ad4e1b013bb1a833853337eefb53f4d238d4181891ec088bfd6f33",
+    "replay-window-final/exposure/exposure.csv": "1f53aba77dcea1b7ddb4b0330c7d325cddcd8399fe07387d445f93bc76b56f3a",
+    "replay-window-final/discharge-window.log": "5088321247af420cf73ce3dbede7fbd98c600bbe16a6fef5aeafcaa7f93f28e6",
+    "replay-window-final/negative-controls.log": "dc18fba0aa2f267c7bee3969dde6dfbefbec316de89567e7518d3293117e7df3"
+  },
+  "summary": {
+    "sequence": "ASan/UBSan PASS; fault and time boundaries; simultaneous START/RESET rejected",
+    "electrical_challenge": "32 valid masks and800 static/cross mutations rejected",
+    "negative_controls": [
+      "pickup dwell removed: rejected",
+      "level-sensitive reset: rejected"
+    ],
+    "exposure_cases": 54,
+    "exposure_is_joined_model": false,
+    "window_corners": 131072,
+    "window_V": [
+      -26.785702274,
+      26.741399627
+    ],
+    "window_is_unconditional_vendor_guarantee": false
+  },
+  "not_closed": [
+    "native board/target integration belongs to peer receipts",
+    "actual contact/receiver timing and capacitance",
+    "installed analog hysteresis/leakage/supply translation",
+    "500ms proof-load qualification",
+    "actual DC fuse clearing and catch survival",
+    "physical measurements and power release"
+  ]
+}

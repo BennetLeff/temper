@@ -43,14 +43,15 @@ def main():
             "sha256": digest(HERE / "../../round4/supervisor/generated/pins.tsv"),
         },
         "board_count": 9,
-        "electrical_components": 564,
+        "electrical_components": sum(sum(parts.values()) for parts in json.loads((HERE / "component-census.json").read_text()).values()),
         "drc_samples_per_board": 3,
         "checks": summary,
         "eco": [
-            "Remote voltage and CT permanent-burden partition; source signal nets unchanged",
+            "Remote voltage and CT permanent-burden partition; explicit VPRE801:1 ladder ECO",
+            "Five24V wetted mirror receivers;physical source-off and ADMIT token;corrected DCU flip-flop pinout;qualified retained-RUN timeout escape",
             "Manufacturer-based AMC3330 isolation land option and CT footprint",
             "Exact JST XH / Phoenix board connectors and eight straight-through harness contracts",
-            "R_MINLOAD 499 ohm to 470 ohm 0.1 percent to satisfy stated preload corner",
+            "Direct24V R-78B5.0-1.0 plusTPS7A4700 postregulator;82ohm external5V preload;39ohm buck preload;300ohm3V3 preload;coil star and return planes;heartbeat fail-low;PA8 MCO series clock;191k proof timer",
         ],
         "files": files,
     }

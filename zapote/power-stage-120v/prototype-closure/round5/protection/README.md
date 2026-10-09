@@ -72,6 +72,13 @@ existing 340 × 210 × 6 mm hot plate. Each drawing-derived flange is 182 mm lon
 55.5 mm maximum height and 4.3 mm thick; body projection is 30 mm maximum. The
 eight Ø5.4 mm mounting locations are recorded in
 [hardware-geometry.json](../../../../../output/temper-prototype-closure/round5/protection/hardware-geometry.json).
+The corrected plate pattern has 100 mm longitudinal and **45 mm transverse**
+centre spacing. Its transverse datum is the centre of the authored 55.5 mm
+maximum flange envelope; supplier edge tolerances remain unestablished. The
+previous 44.7 mm pitch mistakenly used the 5.4 mm hole diameter as an edge
+offset. The left flange pair now explicitly uses the supplier's 8 mm long,
+5.4 mm wide longitudinal slots; the plate holes remain centred round drills.
+Replay now rejects the former pitch independently of the CAD generator.
 The 22-solid assembly reimports valid and has no nominal overlap of the new
 parts with retained pod context. The hot plate remains a thermal mass/mount,
 **not a characterized 800 W continuous heatsink**. Mount flatness, interface

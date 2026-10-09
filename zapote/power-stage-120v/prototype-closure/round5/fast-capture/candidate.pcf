@@ -1,0 +1,12 @@
+# ICE40HX8K-B-EVN, CT256. Verified against FPGA-EB-02031-1.2 fig A.3.
+# These constraints are a candidate; require routed timing and physical continuity.
+set_io clk80 H16
+set_io logic_in[0] P16
+set_io logic_in[1] N16
+set_io logic_in[2] M16
+set_io logic_in[3] K15
+set_io cs_n K14
+set_io sclk G14
+set_io miso J15
+set_io reset_n G16
+set_io fault F16

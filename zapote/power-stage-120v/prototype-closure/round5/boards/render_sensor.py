@@ -57,7 +57,7 @@ def pins(raw):
 def main(sensor="catch"):
     global DST
     DST = HERE / "native" / (sensor + "-sensor")
-    count = {"catch": 8, "bus": 8, "line": 4, "pre": 4, "out": 4, "tank": 12}[sensor]
+    count = {"catch": 8, "bus": 8, "line": 4, "pre": 8, "out": 4, "tank": 12}[sensor]
     channel = {
         "catch": "VCATCH",
         "bus": "VBUS",

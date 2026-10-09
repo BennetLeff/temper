@@ -2,8 +2,8 @@
 ROOT := ../../../../../..
 CC := arm-none-eabi-gcc
 OUT ?= $(ROOT)/output/temper-prototype-closure/round5/firmware
-CFLAGS := -std=gnu11 -mcpu=cortex-m0plus -mthumb -Os -ffunction-sections -fdata-sections -Wall -Wextra -Werror -Wno-override-init -DSTM32G071xx -I$(CMSIS_DEVICE) -I$(CMSIS_CORE) -I../common -I$(ROOT)/firmware/components/power/include
-SOURCES := platform.c startup.c ../common/acquisition.c $(ROOT)/firmware/components/power/energy_supervisor.c $(ROOT)/firmware/components/power/energy_link.c
+CFLAGS := -std=gnu11 -mcpu=cortex-m0plus -mthumb -Os -ffunction-sections -fdata-sections -Wall -Wextra -Werror -Wno-override-init -DSTM32G071xx -I$(CMSIS_DEVICE) -I$(CMSIS_CORE) -I../common -I../../protection-closure -I$(ROOT)/firmware/components/power/include
+SOURCES := platform.c startup.c ../common/supervisor_binding.c ../common/supervisor_outputs.c ../../protection-closure/isolation.c ../common/acquisition.c ../common/qualification.c ../common/measurement.c ../common/sensor_frontend.c ../common/mirror.c ../common/bypass.c ../common/line_telemetry.c $(ROOT)/firmware/components/power/energy_supervisor.c $(ROOT)/firmware/components/power/energy_link.c
 all: $(OUT)/supervisor-bench.elf
 $(OUT)/supervisor-bench.elf: $(SOURCES) linker.ld
 	mkdir -p $(OUT)

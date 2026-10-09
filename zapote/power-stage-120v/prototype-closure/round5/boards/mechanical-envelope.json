@@ -1,0 +1,346 @@
+{
+  "units": "mm",
+  "frame": "PCB top view, origin top-left, x right,y down; board bottom z0, top z1.6",
+  "status": "drawing-based envelope, not complete interference qualification",
+  "outline": [
+    0,
+    0,
+    275,
+    240
+  ],
+  "thickness": 1.6,
+  "mount_holes_diameter": 3.2,
+  "mount_centers": [
+    [
+      3.5,
+      3.5
+    ],
+    [
+      271.5,
+      3.5
+    ],
+    [
+      3.5,
+      236.5
+    ],
+    [
+      271.5,
+      236.5
+    ]
+  ],
+  "changed_parts": [
+    {
+      "ref": "U1",
+      "mpn": "R-78B5.0-1.0",
+      "pin1": [
+        165,
+        205
+      ],
+      "pin_pitch": 2.54,
+      "nominal_body_xyz_bounds": [
+        161.79,
+        203.05,
+        1.6,
+        173.29,
+        211.55,
+        19.1
+      ],
+      "reserved_xyz_bounds": [
+        161.29,
+        202.55,
+        -5,
+        173.79,
+        212.05,
+        21.6
+      ],
+      "basis": "RECOM drawing11.5x8.5x17.5; dimensiontolxx.x\u00b10.5,xx.xx\u00b10.25. Conservative enclosure reserve20mm above PCBtop and5mm below bottom; includes insertion/lead space, not a vendorheight claim."
+    },
+    {
+      "refs": [
+        "R151",
+        "R152"
+      ],
+      "side": "B.Cu",
+      "centers": [
+        [
+          117,
+          62
+        ],
+        [
+          182,
+          166
+        ]
+      ],
+      "body_reserve_height_below_bottom": 1.5,
+      "footprint": "0603"
+    },
+    {
+      "ref": "N1",
+      "center": [
+        237,
+        228
+      ],
+      "type": "planar copper net tie",
+      "extra_height": 0
+    },
+    {
+      "ref": "U109",
+      "mpn": "TPS7A4700RGWR",
+      "center": [
+        185,
+        210
+      ],
+      "nominal_body_mm": [
+        5,
+        5,
+        1
+      ],
+      "reserved_xyz_bounds": [
+        182,
+        207,
+        1.6,
+        188,
+        213,
+        3.1
+      ],
+      "thermal_region_xy": [
+        170,
+        195,
+        207,
+        235
+      ],
+      "thermal_vias": {
+        "count": 9,
+        "drill_mm": 0.3,
+        "diameter_mm": 0.6,
+        "centers_x": [
+          184,
+          185,
+          186
+        ],
+        "centers_y": [
+          209,
+          210,
+          211
+        ]
+      },
+      "note": "Stencil aperture and via plugging/tenting require assemblerreview; do not credit soldermask as insulation."
+    },
+    {
+      "refs": [
+        "Q5",
+        "Q6"
+      ],
+      "mpn": "IRL540NPBF",
+      "pin1_centers": [
+        [
+          22,
+          207
+        ],
+        [
+          22,
+          220
+        ]
+      ],
+      "footprint": "Package_TO_SOT_THT:TO-220-3_Vertical",
+      "allocation_above_top_mm": 20,
+      "allocation_below_bottom_mm": 5,
+      "basis": "Conservative allocation; footprint courtyard is in native board, actual lead forming/height tolerance requires assembly drawing."
+    },
+    {
+      "refs": [
+        "U110",
+        "U111",
+        "U112",
+        "U113",
+        "U114"
+      ],
+      "mpn": "ISO1211DR",
+      "centers": [
+        [
+          35,
+          211
+        ],
+        [
+          60,
+          211
+        ],
+        [
+          85,
+          211
+        ],
+        [
+          110,
+          211
+        ],
+        [
+          135,
+          211
+        ]
+      ],
+      "body_nominal_xy_mm": [
+        3.9,
+        4.9
+      ],
+      "height_reserve_above_top_mm": 2,
+      "basis": "TI D SOIC8 nominal body; leads span approximately6mm."
+    },
+    {
+      "class": "backside LVC logic and decouplers",
+      "references": [
+        "R151",
+        "R152",
+        "U126",
+        "C175",
+        "U129",
+        "C178",
+        "U130",
+        "C179",
+        "U131",
+        "C180",
+        "U132",
+        "C181",
+        "U133",
+        "C182",
+        "U134",
+        "C183",
+        "U135",
+        "C184",
+        "U136",
+        "C185",
+        "U137",
+        "C186",
+        "U138",
+        "C187",
+        "U139",
+        "C188",
+        "U140",
+        "C189",
+        "U141",
+        "C190",
+        "U142",
+        "C191",
+        "U143",
+        "C192",
+        "U144",
+        "C193",
+        "U145",
+        "C194",
+        "U146",
+        "C195",
+        "U147",
+        "C196",
+        "U148",
+        "C197",
+        "U149",
+        "C198",
+        "U150",
+        "C199",
+        "U151",
+        "C200",
+        "U152",
+        "C201",
+        "U154",
+        "C203",
+        "U155",
+        "C204",
+        "U156",
+        "C205",
+        "U157",
+        "C206",
+        "U158",
+        "C207",
+        "U159",
+        "C208",
+        "U160",
+        "C209",
+        "U161",
+        "C210",
+        "U162",
+        "C211",
+        "U163",
+        "C212"
+      ],
+      "height_reserve_below_bottom_mm": 1.5,
+      "basis": "SOT23/0603 placement allocation, verify delivered assembly tolerances."
+    },
+    {
+      "ref": "R179",
+      "mpn": "PR03000203909FAC00",
+      "pin_centers": [
+        [
+          244,
+          180
+        ],
+        [
+          269.4,
+          180
+        ]
+      ],
+      "body_max_dimensions_mm": [
+        16.7,
+        5.2
+      ],
+      "nominal_body_xy_bounds": [
+        248.35,
+        177.4,
+        265.05,
+        182.6
+      ],
+      "reserved_xyz_bounds": [
+        247,
+        176,
+        1.6,
+        266.4,
+        184,
+        11.6
+      ],
+      "basis": "Vishay PR03 doc28729: Cu lead 0.78+/-0.05mm, body L1<=16.7mm D<=5.2mm; 25.4mm lead pitch and 2mm body standoff installation allocation. 10mm top reserve is an assembly allowance, not vendor height. Source: https://www.vishay.com/docs/28729/pr010203.pdf"
+    },
+    {
+      "ref": "R1",
+      "mpn": "CRCW251282R0FKEG",
+      "center": [
+        256,
+        209
+      ],
+      "footprint": "Resistor_SMD:R_2512_6332Metric",
+      "height_reserve_above_top_mm": 1.5
+    },
+    {
+      "refs": [
+        "U164",
+        "C213"
+      ],
+      "side": "B.Cu",
+      "centers": [
+        [
+          50,
+          75
+        ],
+        [
+          50,
+          80
+        ]
+      ],
+      "height_reserve_below_bottom_mm": 1.5,
+      "purpose": "Retained qualified RUN session gate and bypass"
+    },
+    {
+      "ref": "C196",
+      "side": "B.Cu",
+      "center": [
+        107,
+        153
+      ],
+      "height_reserve_below_bottom_mm": 1.5,
+      "reason": "Move decoupler outside isolated ground fill and clear adjacent START_TOKEN via"
+    }
+  ],
+  "source": "https://recom-power.com/pdf/Innoline/R-78B-1.0.pdf",
+  "remaining": [
+    "TQFP U27 absent installedmodel",
+    "CT bodies and HVleadpaths",
+    "fullassemblytolerance/airflow/enclosureclearances"
+  ]
+}

@@ -180,8 +180,6 @@ def main(sensor="catch"):
         t.SetTextSize(vec(0.8, 0.8))
         t.SetTextThickness(pcb.FromMM(0.12))
         b.Add(t)
-    b.BuildConnectivity()
-    pcb.ZONE_FILLER(b).Fill(b.Zones())
     pcb.SaveBoard(str(dst / (sensor + "-sensor.kicad_pcb")), b)
     (dst / (sensor + "-sensor.kicad_pro")).write_text(
         json.dumps(
@@ -215,6 +213,11 @@ def main(sensor="catch"):
         '(version 1)\n(rule "Baseline" (constraint clearance (min 0.2mm)))\n'
         + f'(rule "HV to SELV provisional 8mm" (condition "{rule}") (constraint clearance (min 8mm)) (constraint creepage (min 8mm)))\n'
     )
+    # Reload after writing project/rules so KiCad's fill engine has its DRC context.
+    b = pcb.LoadBoard(str(dst / (sensor + "-sensor.kicad_pcb")))
+    b.BuildConnectivity()
+    pcb.ZONE_FILLER(b).Fill(b.Zones())
+    pcb.SaveBoard(str(dst / (sensor + "-sensor.kicad_pcb")), b)
     print(f"Built {sensor} sensor {len(parts)} parts; {len(spec['routes'])} explicit routes")
 
 

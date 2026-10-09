@@ -1,6 +1,82 @@
 # Round 5 model results — 2026-10-05
 
-The accepted replay is
+## Current revision versus historical evidence
+
+The accepted current revision joins the actual shared target measurement, loaded
+bypass predicate and precharge-isolation controller. FPGA capture has been
+removed from the product simulation path. The historical receipts below do
+**not** validate these new source bytes. The current accepted replay is
+`output/temper-prototype-closure/round5/model/joined-product-20261005e/`.
+Its final status is `DIAGNOSTIC_REPLAY_COMPLETE_NO_POWER_RELEASE` and every
+pinned input passed the post-run hash check. See [current-evidence.json](current-evidence.json)
+and the compact `evidence-current/` receipts; `evidence.json` remains historical.
+
+| Current evidence | Result | Limit |
+|---|---|---|
+| Shared controller, measurement and GPIO projection |24/24 cases complete at0.625/0.3125µs; maximum refinement0.0483692% | Ideal analog/peripheral/native-gate boundaries remain |
+| Actual joined RUN | Nominal first RUN0.785s,0.485s permission,327.013J load, zero RUN with precharge isolation conducting | Averaged load omits tank switching/return energy |
+| Demand pause/resume |100ms zero demand after RUN, subsequent RUN and normal STOP pass | Not a measured timing test |
+| Proof without subsequent RUN | Second proof0.784s; source admitted0.379s; fault0.825s, exactly446ms later, both steps | First RUN still required before deadline |
+| Failure controls | Catch/bus shorts, stale ADC, invalid readback, open proof/bypass, invalid POST and inhibited path match expected faults; readback loss trips at1.001s | These are specific shared-software fault paths, not fuse/comparator qualification |
+| Audit negative controls |7/7 pass, including false enum-only RUN, nonfinite results and mis-timed events | Protects this evidence pipeline, not the physical cooker |
+| Local vendor device references |16/16 complete | Separate native19 A/B matrices,198V/37A assumptions |
+| Finite-energy oracle |64/64 complete;4.748ppm maximum energy residual,0.09116% refinement | Unmeasured initial-state and loop-inductance sensitivities |
+| Complete installed geometry | Correctly rejected as incomplete | No installed catch/shared-return extraction claim |
+
+Current prospective catch demand reaches4295.13A²s with an assumed conducting
+fuse. The isolated precharge branch peaks at1056.67W in this particular model;
+that does not qualify its full hot/repetitive fault envelope. The separate
+finite-energy study still reaches254.112V against the250V guard allocation.
+DC clearing, hot pulse/SOA limits, the real operating envelope and complete
+installed geometry remain unresolved. Corrected mechanical routing does not
+make the assumed1/3µH catch values extracted measurements.
+
+## Preserved intermediate failures
+
+Interim runs are deliberately not accepted as current-revision evidence:
+`shared-target-20261005a` detected source changes during execution, and
+`shared-target-20261005b` failed the2% refinement criterion (6.3449% on a fault
+peak). Investigation replaced an ill-conditioned linear-resistance contact
+ramp with a declared linear-conductance ramp; the arc/contact law remains an
+unqualified sensitivity. Independent review added contact-reversal tests and
+an audit that requires actual joined RUN permission and electrical load.
+
+`joined-product-20261005a` used stale expected fault outcomes and changed
+source identities. `joined-product-20261005b` completed its individual
+processes, but the joined audit exposed incorrect bad-POST expectations and
+then a10.02% catch-I²t refinement difference. The latter was caused by
+comparing floating-point solver time to the STOP deadline: one step size
+stopped at1.270s and the other at1.271s. Integer-microsecond event scheduling
+corrects the deadline; a negative audit test rejects that one-tick drift.
+Neither old run has been relabeled as passing.
+
+`joined-product-20261005c` repeats the cases with the corrected event clock
+and adds a100ms zero-demand interval after successful RUN, followed by resumed
+heat demand. Its22 cases and numerical audit passed (maximum0.04837%
+refinement), but its final input check correctly rejected five changed files:
+the stronger retained-RUN contract and added no-demand case were implemented
+while it ran. Its STATUS remains INCOMPLETE and it is not current evidence.
+`joined-product-20261005d` repeats the complete set against the new freeze,
+adding startup proof without subsequent RUN as an expected timeout.
+All24 individual simulations completed. Its original audit expected the
+adapter's readback fault code7, but the newly retained-session PWM-health check
+correctly withdraws hardware health first, producing code1 at1.001s after the
+injected loss at1s. The revised audit requires that exact fault time, rejects
+an unrelated earlier fault, and passes all24 receipts without changing the2%
+convergence threshold. The original run remains INCOMPLETE because its pinned
+auditor changed; its post-review `audit.json` is explicitly a reanalysis.
+`joined-product-20261005e` is the fresh full replay of the final frozen sources
+and corrected auditor.
+
+The joined nominal probes reached RUN after the two mechanical self-tests and
+second loaded proof. Shutdown then exposed VPRE clipping at249.793V, beyond
+the old native divider's approximately248.76V amplifier linear range. This
+was corrected by the separate801:1 VPRE board ECO and the current replay.
+Probe directories are not accepted completed-revision receipts.
+
+## Preserved earlier replay
+
+The earlier accepted replay is
 `output/temper-prototype-closure/round5/model/replay-20261005c/`.
 Its `STATUS` is `DIAGNOSTIC_REPLAY_COMPLETE_NO_POWER_RELEASE`; every pinned input
 passed the end-of-run SHA256 recheck. Compact receipts are in `evidence/` and
@@ -24,7 +100,11 @@ line RMS119.999V and inlet RMS12.3429A; maximum logged RUN inlet RMS is12.3436A.
 This demonstrates the actual conductance ramp approaching the1500W request in
 the averaged plant. It is not a measured1500W thermal, EMI or load-tolerance test.
 
-## Findings requiring design/model closure
+## Historical findings from the earlier topology
+
+The following numbers describe the preserved earlier replay, before monitored
+precharge isolation and shared target integration. Use the current table above
+for the latest conditional study; do not mix the two topology identities.
 
 1. **DC fault clearing is still unsupported.** With the fuse intentionally
    represented by an assumed2mΩ conductor, the source-fed catch short accumulates
@@ -70,9 +150,9 @@ the averaged plant. It is not a measured1500W thermal, EMI or load-tolerance tes
 
 ## Files and ownership
 
-Only `round5/model/` and its matching model output were authored. Native19,
-prior evidence, production firmware, peer boards and component selections were
-not edited. No Git index, commit, push, supplier message, purchase or hardware
-energization was performed. Full model assumptions and replay commands are in
-`README.md`; the compact CSVs permit independent checking without replaying all
-runs.
+The replay reads shared target and power-control sources whose integration
+corrections are recorded in `../firmware/` and `../integration/`. Native19 and
+historical evidence are preserved. No hardware was energized and no power
+release follows from the receipts. Full assumptions and replay commands are
+in `README.md`; the compact current CSVs permit inspection without replaying
+all runs.

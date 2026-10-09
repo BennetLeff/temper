@@ -81,10 +81,23 @@ def main() -> None:
     holes = []
     for i, z in enumerate((345.0, 410.0), 1):
         flange = box([70, 189.7, z], [182, 4.3, 55.5])
+        # Top-view drawing specifies 45 mm transverse centre pitch. Locate
+        # the pattern about the authored envelope centre; 5.4 is the hole
+        # diameter, not an edge datum. Supplier edge tolerances remain open.
+        centre_z = z + 55.5 / 2
         for x in (111.0, 211.0):
-            for hz in (z + 5.4, z + 50.1):
+            for hz in (centre_z - 22.5, centre_z + 22.5):
                 h = cylinder([x, 188, hz], [x, 201, hz], 2.7)
-                flange = flange.cut(h)
+                if x == 111.0:
+                    # Supplier left pair are 8 mm overall longitudinal slots,
+                    # 5.4 mm wide; the plate retains centred round drill holes.
+                    slot = cylinder([x - 1.3, 188, hz], [x - 1.3, 201, hz], 2.7)
+                    slot = slot.fuse(
+                        cylinder([x + 1.3, 188, hz], [x + 1.3, 201, hz], 2.7)
+                    ).fuse(box([x - 1.3, 188, hz - 2.7], [2.6, 13, 5.4]))
+                    flange = flange.cut(slot)
+                else:
+                    flange = flange.cut(h)
                 mount = mount.cut(h)
                 holes.append([x, hz, 5.4])
         hot[f"RP{i}_HS400_FLANGE_DRAWING"] = flange
@@ -240,6 +253,13 @@ def main() -> None:
         },
         "exports": exports,
         "precharge_mount_holes_xz_d_mm": holes,
+        "precharge_mount_datum": {
+            "transverse_pitch_mm": 45.0,
+            "longitudinal_pitch_mm": 100.0,
+            "transverse_location": "Symmetric about authored 55.5 mm maximum flange envelope centre; supplier edge tolerance not established",
+            "longitudinal_location": "First column 41 mm from drawing L1 end; second column at L3+L2",
+            "mount_plate_holes": "5.4 mm circular holes; resistor supplier 8 mm slots are not plate holes",
+        },
         "precharge_context_collisions": collision,
         "catch_contacts_and_collisions": overlap,
         "power_copper_edge_separation_mm": material_distance,

@@ -8,22 +8,33 @@ Lsrc sp mains 20u
 Vcontacts contacts 0 external
 Vbypass bypass 0 external
 Vproof proof 0 external
+Vpa pa 0 external
+Vpb pb 0 external
 Vallow allow 0 external
 Vm rawm 0 external
 Rm rawm m 10
 Cm m 0 10n
 Vhwfault hwfault 0 external
-Rcontacts mains pre R={.02+1e7*(1-v(contacts))}
+* Ramp conductance across the declared100us contact transition. A linear
+* resistance ramp spanning nine decades concentrated current extinction into
+* a tiny fraction of a timestep and created an unresolved fault peak.
+Rcontacts mains pre R={1/(1e-7+(50-1e-7)*v(contacts))}
 Ccontacts mains pre 100p
 * Arc is a sensitivity assumption, not a contactor model or interruption pass.
 Barc mains pre I=max(v(mains,pre)-400,0)/.5+min(v(mains,pre)+400,0)/.5
 Baux mains 0 I=25*v(mains)/(VRMS*VRMS)
-Rpre1 pre li {RP1}
-Rpre2 pre li {RP2}
-Rby pre li R={.01+1e9*(1-v(bypass))}
+* Two independently controlled precharge isolation contacts.100pF each is an
+* explicitly unqualified open-contact capacitance sensitivity, not extraction.
+Rpa pre pca R={1/(1e-9+(50-1e-9)*v(pa))}
+Cpa pre pca 100p
+Rpre1 pca pcb {RP1}
+Rpre2 pca pcb {RP2}
+Rpb pcb li R={1/(1e-9+(50-1e-9)*v(pb))}
+Cpb pcb li 100p
+Rby pre li R={1/(1e-9+(100-1e-9)*v(bypass))}
 * Bypass arc voltage is an explicit 400V sensitivity, not a supplier model.
 Bbyarc pre li I=max(v(pre,li)-400,0)/.5+min(v(pre,li)+400,0)/.5
-Rproof li 0 R={220+1e9*(1-v(proof))}
+Rproof li 0 R={1/(1e-9+(1/220-1e-9)*v(proof))}
 Rxin li xi .035
 Cxin xi 0 2.2u
 Rnew li nl .009
@@ -71,8 +82,9 @@ Bfault fraction 0 V=min(1,max(0,(time-FT)/1u))
 Bcapshort catch 0 I=v(catch)*(1e-8+(FAULT==1)*v(fraction)/.01)
 Bbusshort bp 0 I=v(bp)*(1e-8+(FAULT==2)*v(fraction)/.01)
 Bpre vpre 0 V=v(pre)-v(li)
-Bproofcurrent iproof 0 V=v(li)/(220+1e9*(1-v(proof)))
-.save v(src) v(mains) v(pre) v(li) v(bp) v(catch) v(ct) v(vpre) v(iproof) i(Lsrc) i(Lcoil) i(Lcatch) i(Vsense) v(mid) v(da) v(m) v(allow) v(bypass) v(contacts)
+Bres vres 0 V=v(pca)-v(pcb)
+Bproofcurrent iproof 0 V=v(li)*(1e-9+(1/220-1e-9)*v(proof))
+.save v(src) v(mains) v(pre) v(li) v(bp) v(catch) v(ct) v(vpre) v(iproof) i(Lsrc) i(Lcoil) i(Lcatch) i(Vsense) v(mid) v(da) v(m) v(allow) v(bypass) v(contacts) v(vres)
 .options method=gear reltol=1e-4 abstol=1e-8 vntol=1e-6 itl4=300
 .tran @STEP@ @END@ 0 @STEP@ uic
 .end

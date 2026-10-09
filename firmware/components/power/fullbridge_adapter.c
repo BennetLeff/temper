@@ -64,14 +64,15 @@ bool fullbridge_init(fullbridge_adapter_t *b, const bridge_config_t *c, const br
         b->backend = *ops;
     fullbridge_stop(b);
     if (!c || !ops || !ops->inhibit || !ops->set_request || !ops->apply_cycle ||
-        !c->commissioned || !c->capture_age_us || c->capture_age_us > 1000 ||
+        !c->commissioned || !c->scope_record_id ||
+        (c->feedback_kind!=BRIDGE_FEEDBACK_ONCHIP_REGISTER && c->feedback_kind!=BRIDGE_FEEDBACK_BENCH_CAPTURE) || !c->capture_age_us || c->capture_age_us > 1000 ||
         !isfinite(c->max_power_w) || c->max_power_w <= 0 ||
         !isfinite(c->inlet_target_a) || c->inlet_target_a <= 0 || c->inlet_target_a > 13.5f ||
         !isfinite(c->auxiliary_reserve_w) || c->auxiliary_reserve_w < 0 ||
         !bridge_plan_cycle(c->timer_hz, c->frequency_hz, c->input_deadtime_ns, 0, &b->cycle))
         return fail(b);
     b->cfg = *c;
-    /* Zero differential phase, PERMIT inhibited: qualify captures before RUN. */
+    /* Zero differential phase, PERMIT inhibited: qualify the selected feedback kind before RUN. */
     if (!ops->set_request(ops->context, false) || !ops->apply_cycle(ops->context, &b->cycle))
         return fail(b);
     b->initialized = true;
@@ -130,7 +131,7 @@ bool fullbridge_apply(fullbridge_adapter_t *b, uint32_t now, const bridge_feedba
 {
     if (!b || !b->initialized || b->tripped)
         return false;
-    if (!f || !f->rails_ok || !f->interlock_ok || f->bus_fault ||
+    if (!f || f->kind!=b->cfg.feedback_kind || !f->rails_ok || !f->interlock_ok || f->bus_fault ||
         (uint32_t)(now - f->sampled_us) > b->cfg.capture_age_us ||
         !b->have_line || (uint32_t)(now - b->last_line_us) > 22000 ||
         !isfinite(phase) || phase < 0 || phase > 1)
@@ -140,7 +141,11 @@ bool fullbridge_apply(fullbridge_adapter_t *b, uint32_t now, const bridge_feedba
     /* Same capture may be consumed within its age, but cannot refresh age. */
     b->have_capture = true;
     b->last_capture_serial = f->serial;
-    for (unsigned n = 0; n < 4; n++) {
+    if(f->kind==BRIDGE_FEEDBACK_ONCHIP_REGISTER) {
+        if(!f->onchip.coherent || !f->onchip.timer_advancing || !f->onchip.outputs_connected ||
+           f->onchip.timer_hz!=b->cfg.timer_hz ||
+           memcmp(&f->onchip.programmed_cycle,&b->cycle,sizeof b->cycle)) return fail(b);
+    } else for (unsigned n = 0; n < 4; n++) {
         uint32_t tolerance = b->cycle.period / 100;
         if (!f->valid[n] || f->period[n] + tolerance < b->cycle.period ||
             f->period[n] > b->cycle.period + tolerance ||
