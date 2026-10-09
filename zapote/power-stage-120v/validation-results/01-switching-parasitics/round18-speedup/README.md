@@ -228,8 +228,8 @@ not fit by any solver setting tested.** Options, for the user:
 The proposed chain runs B21 fine first and guards A21 (refuses above 56 GB) so the box
 is never OOM'd; option 1 or 2 is the user's call.
 
-**Decision (user, 2026-10-08): option 2.** chain_n21_v2.sh was launched at 2026-10-08
-~21:10 UTC (rescaling off from legA21-h2 on; base cases and legA21-h0p5 reused).
+**Decision (user, 2026-10-08): option 2.** chain_n21_v2.sh was launched at 2026-10-09
+00:05 UTC (rescaling off from legA21-h2 on; base cases and legA21-h0p5 reused).
 [`fine_n21_e0p45.sh`](fine_n21_e0p45.sh) waits for it to exit, then solves fine h = 1 mm at
 0.45 mm edges for each leg whose 0.35 mm case the guard refused (A21 certainly; B21 at
 ~57 GB estimate most likely). `scripts/variant2.sh` now also holds experiments during any
