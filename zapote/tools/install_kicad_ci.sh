@@ -32,7 +32,8 @@ for candidate in $(find "$root/usr/bin" -maxdepth 1 -name 'python3*' -type f) /u
 done
 if [ -z "$python" ]; then
   echo "no Python in the KiCad image can import pcbnew (pcbnew.py at $pcbnew_dir)" >&2
-  ls "$root/usr/bin" >&2
+  find "$root" \( -iname '*pcbnew*' -o -iname 'site-packages' -o -iname 'dist-packages' -o -iname 'libpython*' \) >&2
+  find "$root/usr/lib" -maxdepth 1 -iname "*python*" >&2
   exit 1
 fi
 {
