@@ -6,7 +6,8 @@ Rust owners, test evidence, and the current integration/CI checkpoint.
 
 > **Scope on `main` (landed 2026-10-08).** Five maintained units — RTD, current-sense,
 > thermal-sense, interlock, gate-drive — plus `power-stage-120v` and the inverter
-> measurement framework. The Rev38 PFC power entry, the voltage-sense unit, the
+> measurement framework (superseded by the 120 V stage's own validation plan; see
+> `inverter/U3-MEASUREMENT-READINESS.md`). The Rev38 PFC power entry, the voltage-sense unit, the
 > PFC-board bridge/shunt FEM and cooling studies, and their crate modules are
 > archived at tags `archive/rev38-power-entry-2026-09-25` and
 > `archive/zapote-coil-intake-2026-09-25` (see `docs/archive/REV38.md`). Unit
