@@ -164,3 +164,5 @@ The rear band (240 × 150) was rejected: the sink cannot be placed without cross
 - **m14:** JLC's 2 oz multilayer rule is 0.15/0.15 mm (re-read verbatim); the tightest copper gap is U35's 0.20 mm pad gap.
 
 **Open (owner):** M6 coil-stud spacing, M10 outline and J4 harness, M11 heatsink HOT↔PE stack.
+
+**2026-10-08, input current ≤ 15 A RMS (owner decision relayed by the enclosure session, R21 DECISIONS N8; to be confirmed by the owner here):** the appliance keeps a NEMA 5-15P plug. Total RMS mains current stays ≤ 15 A at every line voltage, with margin for auxiliaries (fan, SELV/gate supplies, EMI losses) and sensing tolerance. Output power reduces at low line. F1 stays 25 A: a 20 A 326 fuse carries only about 14.5 A continuous after Littelfuse's derating. **Open (board side):** native-21 has no line-current measurement. ct_mon is the tank CT, and R5 feeds only the OCP comparator. The limit value depends on the sensing path: (a) a firmware estimate from tank current and the AMC1311 bus voltage, with a bench-qualified tolerance and a larger margin, or (b) a hardware line-current sense, a board ECO. Not decided here.
