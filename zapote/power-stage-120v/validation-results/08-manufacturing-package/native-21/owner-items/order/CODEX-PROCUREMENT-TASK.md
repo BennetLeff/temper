@@ -44,7 +44,7 @@ Price at the buy qty; if a minimum order is higher, give the minimum and its pri
 | 6 | C21–C23, C151, C152 | TDK (EPCOS) | B32654A1104K000 (±5 % alternate B32654A1104J000) | 5 | MKP film 0.10 µF, 1600 Vdc / 500 Vac, radial 27.5 mm pitch, 0.8 mm leads, 14 × 24.5 × 31.5 mm, 7.3 A at 85 °C / 100 kHz | Changed 2026-10-09 (stage 13): replaces the 942C bank. DigiKey showed 2,669 (K000) |
 | 7 | — | — | (row retired: 942C12P1K-F is no longer used) | 0 | | |
 | 8 | L1 | TDK (EPCOS) | B82726S2203A020 | 1 | Current-compensated choke, 20 A, 1.6 mH | |
-| 9 | C1, C2 | KEMET | R463N410000N1M | 2 | X2 film 1 µF | |
+| 9 | C1, C2 | KEMET | R463N410050N1K (changed 2026-10-09 from R463N410000N1M, 24-38 wk) | 2 | X2 film 1 µF ±10 %, 310 Vac, 22.5 mm, N1 body; 25 mm leads | Digi-Key showed 955 |
 | 10 | C3, C4 | Murata | DE1E3RA222MA4BP01F | 2 | Y1 ceramic 2200 pF | |
 | 11 | J2, J5, J7–J10 | Würth Elektronik | 74650074 (LCSC lists 74650074R) | 6 | REDCUBE THR press-fit power terminal, M4 | Report both suffixes if seen |
 | 12 | Q2, Q3, Q5, Q6 | Infineon | IPW65R018CFD7 (IPW65R018CFD7XKSA1) | 4 | 650 V CoolMOS CFD7, TO-247-3 | JLC had 6, need 20 + spares; Newark seen earlier |

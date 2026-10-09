@@ -59,6 +59,10 @@ J2 (COIL_FEED) and J5 (RES_A) are at 15.0 mm centres (decision 2026-10-08, revie
   - The lug's insulation temperature rating must exceed the lead temperature measured at the stud. The lug part, for example TE PLASTI-GRIP 2-34853-1 (vinyl, 105 °C), is confirmed against that measurement and the Litz cross-section with the coil supplier. A bare upturned (flag) M4 ring with dual-wall ≥ 150 °C heat-shrink over the barrel and bend up to the ring meets the requirement. A moulded insulated upturned ring does too, if one is found for the Litz size. No straight-barrel part is acceptable. Keep every PE branch pad,
 lug, screw and trace at least 8 mm from HOT under D5's provisional basis.
 
+**THT lead trim (insulation, 2026-10-09):** after soldering, trim every through-hole lead to **≤ 2.5 mm below the board bottom**. That covers Q2/Q3/Q5/Q6, BR1, the film capacitors, the resonant bank and the connectors. Untrimmed TO-247 leads reach 14 mm below the board, to within 0.8 mm of the PE base. Trimmed, all HOT metal stays ≥ 12.5 mm from the base (enclosure R31). Inspect it as part of the board's visual check.
+
+**X2 capacitors C1/C2 (R463N410050N1K):** these come with 25 mm leads. Cut them to 4 mm before insertion (KEMET R46 p.2).
+
 ## Protective earth
 
 Cord PE bonds **directly** to the chassis/heatsink stud. A separate branch

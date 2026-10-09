@@ -17,7 +17,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 OUT = HERE / "outputs"
 UNIT = HERE.parents[3]
-GEOM = UNIT / "native-21/verification/native21s13-all-copper.json.gz"
+GEOM = UNIT / "native-21/verification/native21s13b-all-copper.json.gz"
 HEAT = HERE / "inputs/native21-board-heat-sources.json"
 # Operating points (task 05 round 3 / task 03 round 3): tank RMS I_t through the bridge, R5 and
 # the tank; line current P / V. Copper heat scales as (I_operating / I_case)^2.

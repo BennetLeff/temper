@@ -386,5 +386,15 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
   - The controller's plan position and J4 mating are provisional until R31.
 - **Fit gate:** `validation-plan/enclosure-fit/board_in_enclosure.py` now takes `--pose translate|rot180|mirror-legacy`. The legacy pose remains the default only so stage ≤ 13 records reproduce; R31 checks run with `--pose translate --x0 -149 --y0 236`.
 - **Found in the same check, independent of the pose:**
-  - The TO-247 bodies hang to Z 11.8, 0.8 mm above the PE base (Z 11). Their far end is the exposed drain tab, which is HOT. **This blocks mains use.** The required fix is ≥ 8 mm air and creepage from tab metal to base metal: a base relief under the FET row and BR1, or the board raised by ≥ 7.2 mm, or as a last resort a reinforced ≥ 0.4 mm V-0 barrier with 8 mm edge creepage.
+  - Metal reaches Z 11.8, 0.8 mm above the PE base (Z 11). This was first read as the TO-247 drain tab; the enclosure session's sections show it is the **untrimmed FET lead tails** in the STEP model (14.2 mm below the board), while the bodies sit above the board. **Fix: an assembly rule.** Every THT lead is trimmed to ≤ 2.5 mm below the board bottom after soldering, so all HOT metal is at ≥ Z 23.5, ≥ 12.5 mm from the base (ASSEMBLY.md). The R31 pose is x − 141 (whole assembly mirrored about X = 0), which is pose (a) with a different origin.
   - The M11 tile face must sit at the TO-247 body's 5.0 mm nominal (4.83–5.21 mm), with the comb spring taking the tolerance. BR1's strip must be sized for its 4.8 mm maximum.
+
+**2026-10-09, C1/C2 X2 → KEMET R463N410050N1K (stage 13b):** `scratchpad alternates/ALTERNATES.md`, summarised here.
+- **Why:** R463N410000N1M is at 24–38 weeks.
+- **Equivalence:** same R46 series, N1 body, 310 Vac X2, approvals and 22.5 mm pitch. The differences are ±10 % tolerance (inside the ±20 % basis) and 25 mm leads, which are trimmed at assembly. Digi-Key has 955.
+- **EMI:** the task-07 CM transfer is insensitive to it. DM moves ≤ 0.35 dB at 150–500 kHz; there are no DM results in the 1–2.5 MHz band, where it moves more.
+- **Board:** a value-only rebuild (6556f536). All gates were rerun, with identical results.
+- **Still blocked; these need the owner (samples are outward-facing):**
+  - **C5/C6 (TDK B32656G0275J000):** no stocked equivalent. Ask TDK for samples of J000 or M000; fallback is a deviation to B32676G1905K000.
+  - **T2/T3 (Würth 750320775):** ask Würth Midcom for samples or an allocation, 20 pcs for a 5-board lot; fallback is 750315240 with a footprint ECO.
+  - **D3 (Microchip MRT130KP295CV):** Microchip samples or brokers; fallback is Littelfuse AK3-380C-Y with a footprint ECO and vendor clamp data.

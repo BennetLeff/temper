@@ -1,11 +1,11 @@
 # Fabrication note: power-stage-120v native-21 (CANDIDATE, not released)
 
-Board: native-21 stage 13 (stage 12 plus the BOM simplification and the 5 × TDK B32654 resonant bank, DECISIONS.md 2026-10-09; stage 12 carried the independent-review fixes, `../REVIEW-TRIAGE.md`), rebuilt from
+Board: native-21 stage 13b (stage 12 plus the BOM simplification, the 5 × TDK B32654 resonant bank and the C1/C2 X2 swap, DECISIONS.md 2026-10-09; stage 12 carried the independent-review fixes, `../REVIEW-TRIAGE.md`), rebuilt from
 `native-21/layout/copper.json` by `sh native-21/layout/incr_iter.sh native-21/layout/copper.json - OUTDIR`;
 SHA-256
-`d7baa28a9ed9173bcc32eb1184f7424ccfd1736eae6b42885c0284d6d94a6905`.
+`6556f53612f4623e729360190ca06a9bbeeedc445e4a2ae26288433b76471a37`.
 Gerbers: `native-21-gerbers.zip`, SHA-256
-`c83210a12651ff3a0ce8acb78661661ceab56e48ddefc0981d30a1967db12ae5`.
+`a808aaf8f1b467a0b0ad6eed22ab326f3414dbd52565b8f94496f6be04d40e1d`.
 
 **This package isn't released for ordering.** The gates come in two tiers (decision 2026-10-08; PROTOTYPE-LOT.md agrees).
 
@@ -46,7 +46,8 @@ JLC rules (`tools/jlc_dfm_check.py`, capabilities page re-read verbatim 2026-10-
 - Result: **PASS**. 780 vias, 116 plated pads (slot rings checked per axis: 0.60 mm), minimum track 0.2 mm, 0 failures (`../jlc-dfm.json`).
 
 Assembly:
-- **LCSC numbers:** 87 of 94 source lines map to a checked LCSC part (56 exact from the survey, 30 changed or added since, most of them the 2026-10-09 Basic swaps, 1 accepted substitute; `../sourcing/`, `../bom-simplification/`). Seven are consigned or hand-assembled: F1 fuse, C5/C6, U1/U2, T1, the resonant bank C21–C23/C151/C152 (TDK B32654A1104K000), J3, T2/T3. R34 is now a stocked part. Check stock again before ordering.
+- **LCSC numbers:** 86 of 94 source lines map to a checked LCSC part (55 exact from the survey, 30 changed or added since, most of them the 2026-10-09 Basic swaps, 1 accepted substitute; `../sourcing/`, `../bom-simplification/`). Eight are consigned or hand-assembled: F1 fuse, C1/C2 (KEMET R463N410050N1K, Digi-Key), C5/C6, U1/U2, T1, the resonant bank C21–C23/C151/C152 (TDK B32654A1104K000), J3, T2/T3. R34 is now a stocked part. Check stock again before ordering.
+- **Lead trim (insulation):** trim every THT lead to ≤ 2.5 mm below the board bottom after soldering (ASSEMBLY.md); trim C1/C2's 25 mm leads to 4 mm before insertion.
 - **Hand assembly:**
   - F1-CLIP (2 × Littelfuse 01250003H, 10 × 38 / Class CC clips, 30 A), soldered into the plated slots;
   - the F1 cartridge, inserted after cleaning;

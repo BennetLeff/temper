@@ -41,7 +41,7 @@ CENSUS21 = [row if row[0] != "U3.2" else
              "TI tps709.pdf (native-21/ECO.md sources)") for row in CENSUS]
 
 
-BAND_BEFORE = {"native21s13": (49.53, 97.77)}
+BAND_BEFORE = {"native21s13": (49.53, 97.77), "native21s13b": (49.53, 97.77)}
 
 
 def main():

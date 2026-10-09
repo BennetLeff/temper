@@ -78,12 +78,13 @@ component Cmc20A:
     signal b_out ~ pin 3
 
 component CapX2_1u:
-    """KEMET R463N410000N1M X2 1 uF 310 VAC, 22.5 mm pitch, 26.5 x 11.0 x 20.0 mm
-    (KEMET R46 datasheet p.10 row R463N4100(1)N1(2); p.3 maximum body 26.8 x
-    11.2 x 20.1 mm). Replaced R463R410000M1M, a 27.5 mm-pitch part that did not
-    fit this 22.5 mm footprint (validation task 07 round 2)."""
+    """KEMET R463N410050N1K X2 1 uF +/-10 % 310 VAC, 22.5 mm pitch, R46 N1 body 26.5 x 11.0 x 20.0 mm
+    (KEMET R46 datasheet p.10 row R463N4100(1)N1(2); p.3 maximum body 26.8 x 11.2 x 20.1 mm).
+    Packaging 50 = 25 mm leads: trim to 4 mm at hand assembly (p.2). Same series, body, rating and
+    approvals as R463N410000N1M (24-38 week lead time, 2026-10-09); tolerance tighter than the
+    +/-20 % basis. Replaced R463R410000M1M, a 27.5 mm-pitch part, in task 07 round 2."""
     designator_prefix = "C"
-    mpn = "R463N410000N1M"
+    mpn = "R463N410050N1K"
     manufacturer = "KEMET"
     footprint = "temper:KEMET_R463N410000N1M_P22.50_ReviewOnly"
     signal p1 ~ pin 1

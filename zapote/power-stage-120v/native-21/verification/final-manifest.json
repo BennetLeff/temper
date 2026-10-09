@@ -1,10 +1,10 @@
 {
  "schema": "temper.native21.engineering-candidate.v1",
  "status": "DIGITAL_CANDIDATE_NOT_MANUFACTURING_RELEASE",
- "routed_board_sha256": "d7baa28a9ed9173bcc32eb1184f7424ccfd1736eae6b42885c0284d6d94a6905",
+ "routed_board_sha256": "6556f53612f4623e729360190ca06a9bbeeedc445e4a2ae26288433b76471a37",
  "copper_json_sha256": "120822b58faa6a503020e9af178ff19ca656030a2860f51f32db3fb5b24e4578",
- "schematic_sha256": "a6618d83d03324de2eb7e1da112ab37bb79be664cdc90480d774b72071044ea6",
- "frozen_netlist_sha256": "a2b96c7949e548ed11941887efd4a64e06802641dea4f08c41c60decbb81612a",
+ "schematic_sha256": "f7691d01f49fa34514a1a5b6090b433107c81682e5d9d941336a69004e8017c5",
+ "frozen_netlist_sha256": "c7a04d7ed09e27eddf099691c1d6693ad00c46724b42e096c1e39d891d2f4fd2",
  "rebuild": "sh native-21/layout/incr_iter.sh native-21/layout/copper.json - [OUTDIR]",
  "components": 359,
  "drc": {
@@ -70,7 +70,7 @@
   }
  },
  "via_in_pad_decision": "order every 0.3 mm via epoxy-filled and capped (POFV); DECISIONS.md 2026-10-08",
- "stage": "13: stage 12 + BOM simplification (25 MPN/value changes, no copper) + resonant bank 5 x TDK B32654A1104K000 (0.50 uF, 27.5 mm radial) re-placed in the C21-C23 slot",
+ "stage": "13b: stage 13 + C1/C2 X2 to KEMET R463N410050N1K (same R46 N1 body, +/-10 %; value-only board rebuild, tracks/vias/pads identical to stage 13)",
  "board_hash_note": "rebuilds are not byte-identical (KiCad UUIDs / timestamps); copper_json_sha256 is the reproducible identity",
  "r5_current_vias": {
   "R5.1_leg_ret": 10,
@@ -78,7 +78,7 @@
   "worst_via_A_coherent_34A": 7.27,
   "evidence": "validation-results/04-board-current-thermal/round5-native21"
  },
- "kelvin_evidence": "validation-results/02-protection-timing/kelvin/budget-native21s13.json (R35.2 161.79 mOhm; band before shift 49.53-97.77 A with R34/R35 12.4k/11.7k)",
+ "kelvin_evidence": "validation-results/02-protection-timing/kelvin/budget-native21s13b.json (R35.2 161.79 mOhm; band before shift 49.53-97.77 A with R34/R35 12.4k/11.7k)",
  "board_current_screen": "task 04 round 5 re-run on stage 13: tank RES_A path 0.67 / 0.77 mOhm (was 0.73 / 0.82), SW_B paths within 2 %; BUS_P span 4.111 % (unchanged); B3 nominal U26 162.2 / 138.0 C",
  "fab_package": "validation-results/08-manufacturing-package/native-21 (candidate; review PASS 892 round holes + 4 slots; DFM PASS)",
  "tank_path_width_screen": {
@@ -103,9 +103,9 @@
   "C149,C150": "stage 10: AMC1311 VDD1 / VDD2 1 uF GRM21BR71H105KA12L (SBAS786C section 10)"
  },
  "lcsc": {
-  "with_lcsc": 88,
-  "consign_or_hand": 7,
-  "extra_line": "F1-CLIP 2 x 01220088Z",
+  "with_lcsc": 86,
+  "consign_or_hand": 8,
+  "extra_line": "F1-CLIP 2 x 01250003H (C223911)",
   "evidence": "validation-results/08-manufacturing-package/native-21/sourcing"
  },
  "d5_audit": {
@@ -124,13 +124,14 @@
   "spec": "layout/board_only21.json",
   "probe_map": "BRINGUP-PROBES.md (layout/probe_map21.py)"
  },
- "evidence_note": "DRC/ERC, both barrier gates, D5, DFM, Gerber review, task 04, B3, Kelvin and the R4 fit re-ran on stage 13 (d7baa28a). Gate loops: stage-9 bound (+2 nH, F6 252/252 per leg); stage 13 does not touch the driver area or either leg's FEM region (tank bank and sw_b band edge only).",
+ "evidence_note": "DRC/ERC, both barrier gates, D5, DFM, Gerber review, task 04, B3, Kelvin and the R4 fit re-ran on stage 13b (6556f536). Gate loops: stage-9 bound (+2 nH, F6 252/252 per leg); stage 13 does not touch the driver area or either leg's FEM region (tank bank and sw_b band edge only).",
  "driver_decoupling": {
   "loop_mm": "2.07-2.2, no vias, all four channels (reviewer path.py)",
   "gate_loop_bound": "+2 nH per gate diagonal: F6 252/252 per leg (round17/d2/compose_stage9_bound.py)"
  },
  "value_changes_2026_10_09": {
   "BOM simplification": "validation-results/08-manufacturing-package/native-21/bom-simplification (EQUIVALENCE.md)",
-  "C21-C23 + C151,C152": "942C12P22K-F x2 + 942C12P1K-F -> 5 x TDK B32654A1104K000 (DECISIONS 2026-10-09)"
+  "C21-C23 + C151,C152": "942C12P22K-F x2 + 942C12P1K-F -> 5 x TDK B32654A1104K000 (DECISIONS 2026-10-09)",
+  "C1,C2": "R463N410000N1M (24-38 wk) -> R463N410050N1K (ALTERNATES 2026-10-09; 25 mm leads trimmed at assembly)"
  }
 }

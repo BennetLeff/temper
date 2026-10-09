@@ -76,3 +76,5 @@ Files: [plane-native21.json](plane-native21.json), [budget-native21.json](budget
 - **Divider:** R34/R35 are now **12.4 k / 11.7 k** (`../../08-manufacturing-package/native-21/bom-simplification/`), so the band before the Kelvin shift is 49.53–97.77 A.
 - **Band after the shift:** **47.32–97.77 A**, which still meets the ≥ 44 A minimum.
 - **Files:** [plane-native21s13.json](plane-native21s13.json), [budget-native21s13.json](budget-native21s13.json).
+
+**Stage 13b** (C1/C2 value-only rebuild; board `6556f536…`; tag `native21s13b`): identical results, R35.2 at 161.79 mΩ and a band of 47.32–97.77 A. Tracks, vias and pads are identical to stage 13; KiCad's zone refill differs by ≤ 8 mm² per pour.

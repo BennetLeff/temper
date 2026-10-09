@@ -1,11 +1,11 @@
 {
   "atopile_version": "0.2.69",
   "build_sha256": {
-    "build/default.csv": "7dba54703f8032548f4a7f78aa647809b4d262b5663e8e8d5812e849939c551f",
+    "build/default.csv": "c14a9d16d4cfa95b224c4e40266bfe8f27044e8ee5d4fa8aa4d8f17f09f9e9c1",
     "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-    "build/default.net": "a2b96c7949e548ed11941887efd4a64e06802641dea4f08c41c60decbb81612a",
+    "build/default.net": "c7a04d7ed09e27eddf099691c1d6693ad00c46724b42e096c1e39d891d2f4fd2",
     "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5",
-    "build/resolved-components.json": "0895a3992f8d14b8abc9da61cca32475611ab3e537c0e0608e11d54dd48c4d2e"
+    "build/resolved-components.json": "08318e7535442be3aaa14402e54eab1c56d50785c3e9973da251b28042e409cc"
   },
   "components": [
     {
@@ -45,7 +45,7 @@
         "designator_prefix": "C",
         "footprint": "temper:KEMET_R463N410000N1M_P22.50_ReviewOnly",
         "manufacturer": "KEMET",
-        "mpn": "R463N410000N1M"
+        "mpn": "R463N410050N1K"
       }
     },
     {
@@ -87,7 +87,7 @@
         "designator_prefix": "C",
         "footprint": "temper:KEMET_R463N410000N1M_P22.50_ReviewOnly",
         "manufacturer": "KEMET",
-        "mpn": "R463N410000N1M"
+        "mpn": "R463N410050N1K"
       }
     },
     {
@@ -3861,7 +3861,7 @@
   "source_sha256": {
     "elec/src/f6_bias.ato": "188e0b61aa0abda0838fe5373f6ecbb4121f567f5450b9b5a3a80b13e44c79de",
     "elec/src/f6_parts.ato": "bfbb63a8f87d8dd28a8f51e6e0b347a0d8dbda1b6024c0767af2cd09099c791d",
-    "elec/src/parts.ato": "428678b954c87c085e40410801a614d31af6c34fbabb80546194bb337fd7b11f",
+    "elec/src/parts.ato": "8ecf4bfc268d078c9a50cc592664c2cbdde8391b5e1e67dc3e38fa4d30da0872",
     "elec/src/power_stage_120v.ato": "d3242749a2603e4e05adf201670aad24093d9cd5ed50f0085606eca8c3b632f7",
     "prototype-closure/round4/supervisor/generated/supervisor.ato": "1d6674935534a46c6c82f61c4f18890de7fa7cbf81f89c1cb63efb7bfed1b7e3"
   }
