@@ -13,7 +13,7 @@ superseded_by: docs/adr/2026-09-25-front-end-architecture-brief.md, zapote/power
 | --- | --- |
 | Rev38 branch, including its previously untracked sources and small evidence | tag `archive/rev38-power-entry-2026-09-25` (commit `a1ede3f2b`) |
 | Standalone-boards / coil-intake branch | tag `archive/zapote-coil-intake-2026-09-25` (commit `687480b0a`) |
-| 689 large simulation traces (29.0 GB), not in git | listed with SHA-256 in `zapote/power-entry/archive/rev38-untracked-bulk-manifest.json` inside the Rev38 tag. Local copy only; move it to an archive location before removing `worktrees/power-entry` |
+| 689 large simulation traces (29.0 GB), not in git | **deleted on 2026-10-08 at the owner's request**, together with `worktrees/power-entry`. Their paths and SHA-256 remain in `zapote/power-entry/archive/rev38-untracked-bulk-manifest.json` inside the Rev38 tag. Before deletion they were checked to match that manifest exactly, and the worktree's HEAD was the tag commit with no uncommitted tracked changes. |
 
 Neither branch is merged. Everything below is reachable from the tags.
 
