@@ -295,3 +295,10 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
 - **F1:** the nominal-voltage rule supports MDA-25-R's 10 kA @ 125 Vac rating. The certifier inquiry goes out as the 120 V case.
 - **Design range:** the electrical design keeps its coverage to 140 V line: insulation analysis, tank cases, and the 15 A input limit at low line.
 - **Mexico is a separate, later market decision.** Its residential supply is nominally 127 V (220Y/127 V), and an appliance sold there carries NOM certification at its marked rating (to be confirmed with a NOM body, e.g. ANCE). A 120–127 V rating would reopen F1's interrupting-rating question. That needs either the lab's acceptance of a branch-impedance fault basis, or a fuse with ≥ 5 kA at 250 Vac (fallbacks in `sourcing/inquiries/F1-CERTIFIER.md`).
+
+**2026-10-08, nameplate voltage revised: 120–127 V~ 60 Hz, US/Canada and Mexico from day 1 (owner: "to be clear i need day 1 mexico support").** This supersedes the 120 V-only entry above.
+- **Unaffected:** the electrical design already covers 140 V line (127 V + 10 %): the insulation analysis (ORACLE-ANSWER.md "Rated 127 V"), the tank cases, TMOV20RP175E (175 Vac), the 650 V FETs and bus parts, and the IRM-20 modules (85–264 Vac).
+- **Affected: F1 interrupting rating.** At 127 V nominal, MDA-25-R's 10 kA @ 125 Vac does not clearly apply, leaving 1.5 kA @ 250 Vac, against the cord-limited bound of up to 4.26 kA (1.8 m) or 7.66 kA (1.0 m) from a stiff source. The same applies to the enclosure's MDA-30-R inlet fuse.
+- **Direction:** a fuse whose interrupting rating covers any branch fault at 127 V. A UL Class CC time-delay (600 Vac, 200 kA, 10 × 38 mm) is the leading candidate, which means a board ECO at F1 (clips and footprint). It is being checked for parts, fit and coordination before any change.
+- **Fallback:** the certification lab accepts the upstream current-limiting fuse's let-through as F1's fault basis.
+- **Certification:** NOM (Mexico) as well as UL/CSA; the body (e.g. ANCE/NYCE) is to be chosen.
