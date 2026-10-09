@@ -317,3 +317,9 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
   - the 01250003H voltage rating and agency file on Littelfuse's own page;
   - LP-CC-25's I²t data.
 - **Enclosure:** the inlet fuse is to be deleted (the two fuses cannot be selective), or else a Class CC 30 A in a Littelfuse 5710CC holder. MDA-30-R is not kept.
+
+**2026-10-09, inlet fuse deleted (owner decision, relayed by the enclosure session, R28).** The D-22 EMI module sits "after the upstream fuse/disconnect"; that now reads **after the disconnect** only.
+- **Disconnect:** the EC11 switched inlet.
+- **Overcurrent protection:** the branch-circuit breaker plus F1 (Littelfuse KLDR025.TXP, UL Class CC, 25 A time-delay, 600 Vac / 200 kA, a Listed branch-circuit fuse). There is no inlet fuse, and MDA-30-R is removed.
+- **Why:** the two fuses could not be made selective (KLDR025 clears at 1,710 A²s; KLDR030 melts at 300 A²s), so a second fuse added nothing.
+- **Certification:** the memo asks the certifier to accept "branch breaker + Class CC F1, no inlet fuse".
