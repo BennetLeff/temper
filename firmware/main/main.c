@@ -24,6 +24,10 @@
 #include "hal.h"
 #include "rtd_service.h"
 #include "power_service.h"
+#include "sdkconfig.h"
+#if CONFIG_TEMPER_POWER_HW_BINDING
+#include "n21_hw.h"
+#endif
 /* These will be included when components are built */
 /* #include "pan_detect.h" */
 /* #include "pid_control.h" */
@@ -160,6 +164,13 @@ static void init_peripherals(void) {
     if (rtd_service_bootstrap() != HAL_OK) {
         ESP_LOGE(TAG, "MAX31865 bootstrap failed; control task will fail closed");
     }
+
+#if CONFIG_TEMPER_POWER_HW_BINDING
+    /* Native-21 binding (components/power/COMMISSIONING.md). Default mode INHIBITED: pads low,
+     * acquisition for telemetry only. It binds the power service only in the COMMISSIONED mode;
+     * power_service_tick() stays in the control task as the adapter's sole owner. */
+    (void)n21_hw_start();
+#endif
     
     /* Initialize I2C for display */
     /* i2c_init(); */

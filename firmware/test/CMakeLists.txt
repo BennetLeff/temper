@@ -524,3 +524,15 @@ target_include_directories(test_prototype_pwm PRIVATE ${PROTOTYPE}/tests/pwm_stu
 target_compile_options(test_prototype_pwm PRIVATE -UNDEBUG -Wall -Wextra -Werror)
 target_link_libraries(test_prototype_pwm m)
 add_test(NAME prototype_pwm_tests COMMAND test_prototype_pwm)
+
+# Native-21 hardware binding (integrated SELV controller): pure signal layer plus the binding
+# driven through power_service and the unchanged fullbridge adapter with a fake HAL.
+add_executable(test_n21_binding test_n21_binding.c
+    ../components/power/n21_signal.c ../components/power/n21_binding.c
+    ../components/power/power_service.c ../components/power/fullbridge_adapter.c
+    ../components/power/burst_scheduler.c ../components/power/input_limits.c
+    ../components/power/line_zc.c)
+target_include_directories(test_n21_binding PRIVATE ../components/power/include)
+target_link_libraries(test_n21_binding m)
+target_compile_options(test_n21_binding PRIVATE -UNDEBUG -Wall -Wextra -Werror)
+add_test(NAME n21_binding_tests COMMAND test_n21_binding)

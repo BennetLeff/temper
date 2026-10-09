@@ -1,0 +1,94 @@
+menu "Temper native-21 power binding"
+
+config TEMPER_POWER_HW_BINDING
+    bool "Build the native-21 hardware binding (integrated SELV controller)"
+    default n
+    help
+        Compiles n21_hw_esp32.c and starts it from app_main. Off by default: the source has not yet
+        been compiled against ESP-IDF or run on hardware (see COMMISSIONING.md). With this off the
+        power service stays unbound and inhibited, as before.
+
+choice TEMPER_POWER_MODE
+    prompt "Power-stage authorisation"
+    depends on TEMPER_POWER_HW_BINDING
+    default TEMPER_POWER_MODE_INHIBITED
+    help
+        INHIBITED: PWM pads held low, acquisition runs for telemetry only. BENCH: bounded,
+        operator-confirmed bench PWM sessions (COMMISSIONING.md steps 3-9); the adapter is never
+        bound. COMMISSIONED: binds the fullbridge adapter with commissioned=true. It is refused at
+        run time unless TEMPER_POWER_CALIBRATED is set AND the hardware has a firmware run gate
+        (open hardware question H1; the controller as captured has none).
+
+config TEMPER_POWER_MODE_INHIBITED
+    bool "Inhibited (default)"
+config TEMPER_POWER_MODE_BENCH
+    bool "Bench bring-up (never ship)"
+config TEMPER_POWER_MODE_COMMISSIONED
+    bool "Commissioned (COMMISSIONING.md step 10 sign-off only)"
+endchoice
+
+config TEMPER_POWER_CALIBRATED
+    bool "Calibration record complete (COMMISSIONING.md section 'Commissioning record')"
+    depends on TEMPER_POWER_HW_BINDING
+    default n
+
+config TEMPER_POWER_FREQUENCY_HZ
+    int "Fixed bridge frequency, Hz (0 = not set; bench step 6)"
+    depends on TEMPER_POWER_HW_BINDING
+    range 0 60000
+    default 0
+
+config TEMPER_POWER_EST_ERROR_PPM
+    int "Inlet estimator error bound e_est, ppm (bench step 8; provisional 100000 = 10 %)"
+    depends on TEMPER_POWER_HW_BINDING
+    range 0 500000
+    default 100000
+
+config TEMPER_POWER_LINE_ZC_OFFSET_US
+    int "LINE_ZC pulse centre minus true zero, us (bench step 2)"
+    depends on TEMPER_POWER_HW_BINDING
+    range -2000 2000
+    default 0
+
+config TEMPER_POWER_VSW_DELAY_NS
+    int "PWM timer zero to switch-node transition, ns (bench step 7)"
+    depends on TEMPER_POWER_HW_BINDING
+    range 0 2000
+    default 100
+
+config TEMPER_POWER_CT_ZC_DELAY_NS
+    int "Tank-current zero to CT_ZC edge, ns (bench step 7)"
+    depends on TEMPER_POWER_HW_BINDING
+    range -2000 2000
+    default 0
+
+config TEMPER_POWER_CT_ZC_INVERTED
+    bool "CT_ZC rising edge marks the negative-going tank current (bench step 7)"
+    depends on TEMPER_POWER_HW_BINDING
+    default n
+
+config TEMPER_POWER_VBUS_OFFSET_UV
+    int "VBUS reading at 0 V bus minus 247.77 mV, uV (bench step 2)"
+    depends on TEMPER_POWER_HW_BINDING
+    range -50000 50000
+    default 0
+
+config TEMPER_POWER_VBUS_GAIN_PPM
+    int "VBUS gain trim, ppm of 1.0 (0 = nominal; bench step 4)"
+    depends on TEMPER_POWER_HW_BINDING
+    range 0 1100000
+    default 0
+
+config TEMPER_POWER_CT_MON_ZERO_MV
+    int "CT_MON idle level, mV (0 = nominal 1650; bench step 2)"
+    depends on TEMPER_POWER_HW_BINDING
+    range 0 2000
+    default 0
+
+config TEMPER_POWER_RMS_GAIN_PPM
+    int "Tank RMS gain trim, ppm of 1.0 (0 = nominal; bench step 5)"
+    depends on TEMPER_POWER_HW_BINDING
+    range 0 1100000
+    default 0
+
+endmenu

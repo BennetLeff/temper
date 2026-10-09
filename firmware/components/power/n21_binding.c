@@ -1,0 +1,431 @@
+#include "n21_binding.h"
+#include <math.h>
+#include <string.h>
+
+#define REPORT_MIN_US 15000u   /* report every second 10 ms tick: 20 ms, inside 14-22 ms */
+#define LINE_FRESH_US 12000u   /* newest half cycle must have ended within ~1.4 halves */
+#define REF_REFRESH_SAMPLES 8u /* LM4040 reference channel re-read cadence */
+#define RESET_MIN_INTERVAL_US 1000000u
+
+n21_config_t n21_config_default(void)
+{
+    return (n21_config_t){
+        .mode = N21_MODE_INHIBITED, .calibrated = false,
+        .timer_hz = 80000000u, .frequency_hz = 0u, .input_deadtime_ns = 200u,
+        .max_power_w = 1800.0f, .inlet_target_a = 13.5f, .auxiliary_reserve_w = 156.0f,
+        .limits = input_limits_native21(),
+        .vsw_delay_ns = 100, .ct_zc_delay_ns = 0, .ct_zc_inverted = false, .min_lag_deg = 5.0f,
+        .line_zc = {.min_width_us = 300, .max_width_us = 4000, .min_half_us = 7833,
+                    .max_half_us = 8834, .cal_offset_us = 0},
+        .rectifier_drop_v = 0.0f, .startup_budget_w = 300.0f,
+        .tank_rms_trip_a = 23.1f, .tank_peak_trip_a = 45.0f, .cos_phi_min_current_a = 2.0f,
+        .acq_period_us = 625u, .sample_max_age_us = 2000u, .ct_zc_max_age_us = 2000u,
+        .capture_age_us = 1000u, .half_max_gap_us = 1500u, .bench_max_ms = 60000u,
+    };
+}
+
+static void lock(n21_binding_t *b) { if (b->ops.lock) b->ops.lock(b->ops.ctx); }
+static void unlock(n21_binding_t *b) { if (b->ops.unlock) b->ops.unlock(b->ops.ctx); }
+static uint64_t now_us(n21_binding_t *b) { return b->ops.now_us(b->ops.ctx); }
+
+static void latch(n21_binding_t *b, n21_fault_t f)
+{
+    if (b->fault == N21_FAULT_NONE) b->fault = f;
+}
+
+/* Gate first, then pads (adapter contract: deassert request BEFORE forcing PWM low). Both are
+ * attempted whatever the first returns. */
+static void pads_off(n21_binding_t *b)
+{
+    bool ok = true;
+    if (b->ops.run_gate && !b->ops.run_gate(b->ops.ctx, false)) ok = false;
+    b->gate_on = false;
+    if (!b->ops.pwm_outputs(b->ops.ctx, false)) ok = false;
+    b->pads_live = false;
+    if (!ok) latch(b, N21_FAULT_HW);
+}
+
+static bool config_ok(const n21_config_t *c)
+{
+    return c->timer_hz && c->frequency_hz && c->input_deadtime_ns &&
+           isfinite(c->max_power_w) && c->max_power_w > 0 &&
+           isfinite(c->inlet_target_a) && c->inlet_target_a > 0 && c->inlet_target_a <= 13.5f &&
+           isfinite(c->auxiliary_reserve_w) && c->auxiliary_reserve_w >= 0 &&
+           input_limits_config_ok(&c->limits) &&
+           c->line_zc.min_width_us && c->line_zc.max_width_us > c->line_zc.min_width_us &&
+           c->line_zc.min_half_us >= 7833 && c->line_zc.max_half_us <= 8834 &&
+           isfinite(c->min_lag_deg) && c->min_lag_deg >= 0 && c->min_lag_deg < 90 &&
+           isfinite(c->rectifier_drop_v) && c->rectifier_drop_v >= 0 && c->rectifier_drop_v < 5 &&
+           isfinite(c->startup_budget_w) && c->startup_budget_w >= 0 &&
+           isfinite(c->tank_rms_trip_a) && c->tank_rms_trip_a > 0 &&
+           c->tank_rms_trip_a <= c->limits.tank_limit_a * 1.1f &&
+           isfinite(c->tank_peak_trip_a) && c->tank_peak_trip_a > 0 && c->tank_peak_trip_a < 50.9f &&
+           isfinite(c->cos_phi_min_current_a) && c->cos_phi_min_current_a >= 0 &&
+           /* >= 8 samples per half cycle even with one missed period */
+           c->acq_period_us >= 100 && c->acq_period_us * 10u <= 7833u &&
+           c->half_max_gap_us >= c->acq_period_us && c->half_max_gap_us <= 2000u &&
+           c->sample_max_age_us >= c->acq_period_us && c->sample_max_age_us <= 5000u &&
+           c->ct_zc_max_age_us && c->ct_zc_max_age_us <= 5000u &&
+           c->capture_age_us && c->capture_age_us <= 1000u &&
+           c->bench_max_ms && c->bench_max_ms <= 600000u;
+}
+
+static int32_t ns_to_ticks(int32_t ns, uint32_t hz)
+{
+    return (int32_t)llround((double)ns * hz / 1e9);
+}
+
+static bool cycle_equal(const bridge_cycle_t *a, const bridge_cycle_t *b)
+{
+    if (a->period != b->period || a->dead_ticks != b->dead_ticks) return false;
+    for (unsigned n = 0; n < 4; n++)
+        if (a->pulse[n].rise != b->pulse[n].rise || a->pulse[n].width != b->pulse[n].width)
+            return false;
+    return true;
+}
+
+static bool status(n21_binding_t *b, n21_status_rb_t *s)
+{
+    memset(s, 0, sizeof *s);
+    if (!b->ops.read_status(b->ops.ctx, s)) {
+        /* Unknown is treated as faulted. */
+        *s = (n21_status_rb_t){.permit = false, .bus_fault = true, .rail_ok = false, .sup_run_ok = false};
+        return false;
+    }
+    return true;
+}
+
+static bool interlock_healthy(const n21_status_rb_t *s)
+{
+    return s->permit && !s->bus_fault && s->rail_ok && s->sup_run_ok;
+}
+
+/* ------------------------------------------------------------------ acquisition context */
+void n21_acquire_step(n21_binding_t *b)
+{
+    if (!b || !b->initialized) return;
+    uint64_t now = now_us(b);
+    lock(b);
+    uint64_t t[8];
+    bool lv[8];
+    size_t edges = b->ops.line_zc_edges ? b->ops.line_zc_edges(b->ops.ctx, t, lv, 8) : 0;
+    for (size_t i = 0; i < edges && i < 8; i++) line_zc_edge(&b->zc, t[i], lv[i]);
+
+    /* Half-cycle boundaries come from LINE_ZC only (DECISIONS 2026-10-06). */
+    uint64_t zero;
+    while (line_zc_poll(&b->zc, now, &zero)) {
+        if (b->half.open) {
+            n21_half_result_t r;
+            if (n21_half_close(&b->half, &b->cfg.limits, zero, b->cfg.half_max_gap_us,
+                               b->cfg.rectifier_drop_v, &r)) {
+                n21_line_agg_add(&b->agg, &r);
+                b->tm.last_half = r;
+                b->tm.have_half = true;
+                b->tm.halves_ok++;
+            } else {
+                b->tm.halves_bad++;
+            }
+        }
+        n21_half_begin(&b->half, zero);
+    }
+    b->tm.zc_locked = b->zc.locked;
+
+    bool invalid = false;
+    float vbus_mv = NAN, ct_mv = NAN, bus = NAN, ct_a = NAN, rms = NAN, v3 = NAN;
+    if (!b->ops.read_adc1(b->ops.ctx, &vbus_mv, &ct_mv)) {
+        invalid = true;
+    } else {
+        n21_sig_t s = n21_vbus_from_mv(&b->cfg.analog, vbus_mv, &bus);
+        if (s == N21_SIG_OVERRANGE) latch(b, N21_FAULT_VBUS_OVERRANGE); /* D-11 latch */
+        else if (s != N21_SIG_OK) invalid = true;                      /* D-20 O13: re-arms */
+        s = n21_ct_mon_from_mv(&b->cfg.analog, ct_mv, &ct_a);
+        if (s == N21_SIG_OVERRANGE) latch(b, N21_FAULT_TANK_PEAK);
+        else if (s != N21_SIG_OK) latch(b, N21_FAULT_CT_MON);
+        else if (fabsf(ct_a) > b->cfg.tank_peak_trip_a) latch(b, N21_FAULT_TANK_PEAK);
+    }
+    /* MCP3202: the reference channel is re-read every few samples; v3v3 moves slowly. */
+    uint16_t code = 0;
+    if (b->ref_code == 0 || b->samples % REF_REFRESH_SAMPLES == 0) {
+        if (!b->ops.read_ext_adc(b->ops.ctx, N21_MCP3202_CH_REF, &code)) latch(b, N21_FAULT_RMS_CHANNEL);
+        else b->ref_code = code;
+    }
+    if (!b->ops.read_ext_adc(b->ops.ctx, N21_MCP3202_CH_RMS, &code)) {
+        latch(b, N21_FAULT_RMS_CHANNEL);
+    } else if (n21_tank_rms_from_codes(&b->cfg.analog, code, b->ref_code, &rms, &v3) != N21_SIG_OK) {
+        latch(b, N21_FAULT_RMS_CHANNEL);
+    } else if (rms > b->cfg.tank_rms_trip_a) {
+        latch(b, N21_FAULT_TANK_RMS);  /* 22 A envelope, 2026-10-08 */
+    }
+
+    /* cos(phi): CT_ZC is undefined without tank current; cos = 1 is the conservative bound. */
+    float cos_phi = 1.0f, phi = 0.0f;
+    if (isfinite(rms) && rms >= b->cfg.cos_phi_min_current_a && b->pads_live) {
+        uint32_t zc = 0;
+        uint64_t zt = 0;
+        if (!b->ops.read_ct_zc(b->ops.ctx, &zc, &zt) || zt > now || now - zt > b->cfg.ct_zc_max_age_us)
+            latch(b, N21_FAULT_CT_ZC_STALE);
+        else if (!n21_cos_phi(&b->phase, zc, &cos_phi, &phi))
+            latch(b, N21_FAULT_PHASE);
+    }
+
+    bool good = !invalid && b->fault == N21_FAULT_NONE && isfinite(bus) && isfinite(rms);
+    if (good) {
+        input_sample_t s = {.bus_v = bus, .tank_rms_a = rms, .cos_phi = cos_phi};
+        n21_half_add(&b->half, now, &s);
+    } else {
+        b->half.broken = true;  /* a half with a bad sample never closes */
+    }
+    b->invalid = invalid;
+    b->samples++;
+    b->last_sample_us = now;
+    b->have_sample = true;
+    b->tm.bus_v = bus;
+    b->tm.ct_mon_a = ct_a;
+    b->tm.tank_rms_a = rms;
+    b->tm.cos_phi = cos_phi;
+    b->tm.phi_rad = phi;
+    b->tm.v3v3 = v3;
+    b->tm.sample_invalid = invalid;
+    unlock(b);
+}
+
+/* ------------------------------------------------------------------ control context */
+static void capture(n21_binding_t *b, uint64_t now, const n21_status_rb_t *s, bridge_feedback_t *f)
+{
+    n21_pwm_capture_t cap;
+    memset(&cap, 0, sizeof cap);
+    cap.t_us = now;
+    if (b->pads_live && !b->ops.pwm_capture(b->ops.ctx, &cap)) memset(cap.out, 0, sizeof cap.out);
+    n21_feedback_from_capture(&cap, s, ++b->serial, f);
+}
+
+static bool line_ready(const n21_binding_t *b, uint64_t now)
+{
+    return b->agg.halves > 0 && now >= b->agg.last_end_us && now - b->agg.last_end_us <= LINE_FRESH_US;
+}
+
+static bool sample_fresh(const n21_binding_t *b, uint64_t now)
+{
+    return b->have_sample && now >= b->last_sample_us && now - b->last_sample_us <= b->cfg.sample_max_age_us;
+}
+
+static bool report(n21_binding_t *b, uint64_t now, bool *line, float *v, float *a, float *w)
+{
+    if (!n21_line_report(&b->agg, b->pan_model_w, b->cfg.startup_budget_w, v, a, w)) return false;
+    memset(&b->agg, 0, sizeof b->agg);
+    b->last_report_us = now;
+    *line = true;
+    return true;
+}
+
+static bool sample(void *ctx, uint32_t *now32, bridge_feedback_t *f, bool *line,
+                   float *v, float *a, float *w)
+{
+    n21_binding_t *b = ctx;
+    *line = false;
+    uint64_t now = now_us(b);
+    *now32 = (uint32_t)now;
+    n21_status_rb_t s;
+    if (!status(b, &s)) latch(b, N21_FAULT_HW);
+    lock(b);
+    bool ok = true;
+    if (b->fault != N21_FAULT_NONE) {
+        ok = false;
+    } else if (!b->armed_line) {
+        /* Pre-arm: the adapter has no line record, so power_service never reaches apply and the
+         * pads stay low. Readback and invalid-sample conditions only delay arming here. */
+        if (!b->invalid && sample_fresh(b, now) && interlock_healthy(&s) && line_ready(b, now)) {
+            if (!b->pads_live) {
+                /* With the run gate low the drivers stay disabled (hardware gap H1 otherwise,
+                 * where init has already refused to bind). */
+                if (b->ops.run_gate == NULL || b->gate_on || !b->ops.pwm_outputs(b->ops.ctx, true)) {
+                    latch(b, N21_FAULT_HW);
+                    ok = false;
+                } else {
+                    b->pads_live = true;
+                }
+            }
+            if (ok && report(b, now, line, v, a, w)) b->armed_line = true;
+        }
+    } else if (b->invalid || !sample_fresh(b, now) || !interlock_healthy(&s)) {
+        ok = false;
+    } else if (now - b->last_report_us >= REPORT_MIN_US) {
+        if (!line_ready(b, now) || !report(b, now, line, v, a, w)) ok = false; /* LINE_ZC lost */
+    }
+    unlock(b);
+    capture(b, now, &s, f);
+    b->tm.fault = b->fault;
+    return ok;
+}
+
+static bool apply_cycle(void *ctx, const bridge_cycle_t *c)
+{
+    n21_binding_t *b = ctx;
+    /* Only the fixed 180-degree plan computed at init; no live timing changes. */
+    if (!c || !cycle_equal(c, &b->cycle)) return false;
+    if (b->programmed) return true;
+    if (b->pads_live || !b->ops.pwm_program(b->ops.ctx, c)) return false;
+    b->programmed = true;
+    return true;
+}
+
+static bool set_request(void *ctx, bool on)
+{
+    n21_binding_t *b = ctx;
+    if (!on) {
+        bool ok = !b->ops.run_gate || b->ops.run_gate(b->ops.ctx, false);
+        b->gate_on = false;
+        return ok;
+    }
+    n21_status_rb_t s;
+    if (b->mode != N21_MODE_COMMISSIONED || !b->ops.run_gate || !b->pads_live || !b->armed_line ||
+        b->fault != N21_FAULT_NONE || !status(b, &s) || !interlock_healthy(&s))
+        return false;
+    if (!b->ops.run_gate(b->ops.ctx, true)) return false;
+    b->gate_on = true;
+    return true;
+}
+
+static void inhibit(void *ctx)
+{
+    pads_off((n21_binding_t *)ctx);
+}
+
+/* ------------------------------------------------------------------ init / API */
+n21_init_t n21_binding_init(n21_binding_t *b, const n21_config_t *c, const n21_hw_ops_t *ops,
+                            power_binding_t *out)
+{
+    if (out) memset(out, 0, sizeof *out);
+    if (!b) return N21_INIT_ERROR;
+    memset(b, 0, sizeof *b);
+    if (!ops || !ops->pwm_outputs) return N21_INIT_ERROR;
+    b->ops = *ops;
+    /* Safe state first, unconditionally. */
+    if (ops->run_gate) (void)ops->run_gate(ops->ctx, false);
+    if (!ops->pwm_outputs(ops->ctx, false)) return N21_INIT_ERROR;
+    if (!c || !ops->now_us || !ops->pwm_program || !ops->pwm_capture || !ops->read_status ||
+        !ops->interlock_reset_pulse || !ops->read_adc1 || !ops->read_ext_adc || !ops->read_ct_zc ||
+        !ops->line_zc_edges)
+        return N21_INIT_ERROR;
+    b->cfg = *c;
+    b->mode = c->mode;
+    b->pan_model_w = c->max_power_w;
+    line_zc_init(&b->zc, &c->line_zc);
+    if (c->mode == N21_MODE_INHIBITED) {
+        /* Telemetry only. Phase/limits still need a sane config to evaluate. */
+        b->initialized = input_limits_config_ok(&c->limits) && c->acq_period_us > 0;
+        return b->initialized ? N21_INIT_INHIBITED : N21_INIT_ERROR;
+    }
+    if (c->mode != N21_MODE_BENCH && c->mode != N21_MODE_COMMISSIONED) return N21_INIT_ERROR;
+    if (!config_ok(c) || !bridge_plan_cycle(c->timer_hz, c->frequency_hz, c->input_deadtime_ns, 1.0f, &b->cycle))
+        return N21_INIT_ERROR;
+    b->phase = (n21_phase_cfg_t){
+        .period_ticks = b->cycle.period,
+        .vsw_delay_ticks = ns_to_ticks(c->vsw_delay_ns, c->timer_hz),
+        .ct_zc_delay_ticks = ns_to_ticks(c->ct_zc_delay_ns, c->timer_hz),
+        .ct_zc_inverted = c->ct_zc_inverted,
+        .min_lag_rad = c->min_lag_deg * 0.0174532925f,
+    };
+    if (c->mode == N21_MODE_COMMISSIONED) {
+        if (!ops->run_gate) return N21_INIT_NO_RUN_GATE;
+        if (!c->calibrated) return N21_INIT_NOT_CALIBRATED;
+    }
+    if (!ops->pwm_program(ops->ctx, &b->cycle)) return N21_INIT_ERROR;
+    b->programmed = true;
+    b->initialized = true;
+    if (c->mode == N21_MODE_BENCH) return N21_INIT_BENCH;
+    if (!out) return N21_INIT_ERROR;
+    out->config = (bridge_config_t){
+        .timer_hz = c->timer_hz, .frequency_hz = c->frequency_hz,
+        .input_deadtime_ns = c->input_deadtime_ns, .capture_age_us = c->capture_age_us,
+        .max_power_w = c->max_power_w, .inlet_target_a = c->inlet_target_a,
+        .auxiliary_reserve_w = c->auxiliary_reserve_w,
+        .commissioned = true, /* reached only via MODE_COMMISSIONED + calibrated + run gate */
+    };
+    out->backend = (bridge_backend_t){apply_cycle, set_request, inhibit, b};
+    out->sample = sample;
+    out->context = b;
+    /* burst stays zero-initialised: burst_enabled = false */
+    return N21_INIT_BIND;
+}
+
+bool n21_set_pan_model(n21_binding_t *b, float w)
+{
+    if (!b || !isfinite(w) || w < 0) return false;
+    lock(b);
+    b->pan_model_w = fminf(w, b->cfg.max_power_w);
+    unlock(b);
+    return true;
+}
+
+bool n21_request_interlock_reset(n21_binding_t *b, bool confirmed)
+{
+    if (!b || !b->initialized || !confirmed || b->pads_live || b->gate_on || b->bench_active ||
+        b->fault != N21_FAULT_NONE)
+        return false;
+    n21_status_rb_t s;
+    if (!status(b, &s) || s.permit || s.bus_fault || !s.rail_ok || !s.sup_run_ok) return false;
+    uint64_t now = now_us(b);
+    if (b->have_reset && now - b->last_reset_us < RESET_MIN_INTERVAL_US) return false;
+    b->have_reset = true;
+    b->last_reset_us = now;
+    return b->ops.interlock_reset_pulse(b->ops.ctx);
+}
+
+void n21_telemetry(n21_binding_t *b, n21_telemetry_t *t)
+{
+    if (!b || !t) return;
+    lock(b);
+    *t = b->tm;
+    t->fault = b->fault;
+    t->pads_live = b->pads_live;
+    t->gate_on = b->gate_on;
+    t->armed_line = b->armed_line;
+    t->bench_active = b->bench_active;
+    unlock(b);
+}
+
+bool n21_bench_start(n21_binding_t *b, uint32_t ms, bool confirmed)
+{
+    if (!b || !b->initialized || b->mode != N21_MODE_BENCH || !confirmed || b->bench_active ||
+        b->fault != N21_FAULT_NONE || !b->programmed || ms == 0 || ms > b->cfg.bench_max_ms)
+        return false;
+    n21_status_rb_t s;
+    if (!status(b, &s)) return false;
+    /* PERMIT high with a faulted source means the interlock itself is suspect. */
+    if (s.permit && (s.bus_fault || !s.rail_ok || !s.sup_run_ok)) return false;
+    if (!b->ops.pwm_outputs(b->ops.ctx, true)) { pads_off(b); latch(b, N21_FAULT_HW); return false; }
+    b->pads_live = true;
+    if (b->ops.run_gate) {
+        if (!b->ops.run_gate(b->ops.ctx, true)) { pads_off(b); latch(b, N21_FAULT_HW); return false; }
+        b->gate_on = true;
+    }
+    b->bench_until_us = now_us(b) + (uint64_t)ms * 1000u;
+    b->bench_active = true;
+    return true;
+}
+
+void n21_bench_stop(n21_binding_t *b)
+{
+    if (!b) return;
+    pads_off(b);
+    b->bench_active = false;
+}
+
+bool n21_bench_poll(n21_binding_t *b)
+{
+    if (!b || !b->bench_active) return false;
+    uint64_t now = now_us(b);
+    n21_status_rb_t s;
+    bool ok = status(b, &s);
+    bridge_feedback_t f;
+    capture(b, now, &s, &f);
+    if (!ok) latch(b, N21_FAULT_HW);
+    else if (!n21_capture_matches(&b->cycle, &f)) latch(b, N21_FAULT_PWM);
+    bool fault = b->fault != N21_FAULT_NONE || (s.permit && s.bus_fault) || !sample_fresh(b, now);
+    if (fault || now >= b->bench_until_us) {
+        n21_bench_stop(b);
+        return false;
+    }
+    return true;
+}
