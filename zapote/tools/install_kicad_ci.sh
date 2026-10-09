@@ -22,9 +22,9 @@ libs="$root/usr/lib:$root/usr/lib/x86_64-linux-gnu"
 export LD_LIBRARY_PATH="$libs${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 "$root/usr/bin/kicad-cli" version
 
-pcbnew_dir=$(dirname "$(find "$root" -name pcbnew.py -print -quit)")
+pcbnew_dir=$(dirname "$(find -L "$root" -name pcbnew.py -print -quit)")
 python=""
-for candidate in $(find "$root/usr/bin" -maxdepth 1 -name 'python3*' -type f) /usr/bin/python3; do
+for candidate in $(find -L "$root/usr/bin" -maxdepth 1 -name 'python3*' -type f) /usr/bin/python3; do
   if PYTHONPATH="$pcbnew_dir" "$candidate" -c 'import pcbnew; print(pcbnew.Version())' 2>/dev/null; then
     python="$candidate"
     break
@@ -32,8 +32,8 @@ for candidate in $(find "$root/usr/bin" -maxdepth 1 -name 'python3*' -type f) /u
 done
 if [ -z "$python" ]; then
   echo "no Python in the KiCad image can import pcbnew (pcbnew.py at $pcbnew_dir)" >&2
-  find "$root" \( -iname '*pcbnew*' -o -iname 'site-packages' -o -iname 'dist-packages' -o -iname 'libpython*' \) >&2
-  find "$root/usr/lib" -maxdepth 1 -iname "*python*" >&2
+  find -L "$root" \( -iname '*pcbnew*' -o -iname 'site-packages' -o -iname 'dist-packages' -o -iname 'libpython*' \) >&2
+  find -L "$root/usr/lib" -maxdepth 1 -iname "*python*" >&2
   exit 1
 fi
 {
