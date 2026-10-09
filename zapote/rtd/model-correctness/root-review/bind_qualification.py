@@ -22,10 +22,12 @@ def write(path: Path, value: object) -> str:
     return raw
 
 
-def main(binary: Path) -> None:
-    output = AUDIT / 'qualified-input'
+def main(
+    binary: Path,
+    original: Path = UNIT / 'evidence/acceptance-final/input.json',
+    output: Path = AUDIT / 'qualified-input',
+) -> None:
     output.mkdir(exist_ok=True)
-    original = UNIT / 'evidence/acceptance-final/input.json'
     data = json.loads(original.read_text())
     certificate = json.loads((AUDIT / 'qualification/full_network_bound.json').read_text())
     spice = json.loads((AUDIT / 'qualification/ngspice_cases.json').read_text())
@@ -121,4 +123,6 @@ def main(binary: Path) -> None:
 
 
 if __name__ == '__main__':
-    main(Path(sys.argv[1]).resolve())
+    # Optional: a re-bound base input and a new output directory, for a board
+    # revision that leaves the qualified network unchanged (see REPLAY.md).
+    main(*(Path(a).resolve() for a in sys.argv[1:4]))
