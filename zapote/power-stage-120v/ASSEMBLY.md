@@ -55,8 +55,8 @@ J2 (COIL_FEED) and J5 (RES_A) are at 15.0 mm centres (decision 2026-10-08, revie
 - **Terminations:** coil leads end in **insulated M4 ring terminals**, insulated over the barrel and neck up to the ring.
   - The bare ring is ≤ 10.0 mm wide, with a DIN 125 M4 washer (9 mm) and a pan-head M4 screw (head ≤ 8 mm). This keeps exposed metal ≥ 5.0 mm apart at any lug rotation (29.1/29.2 "most unfavourable position").
   - **Bare ring lugs are not permitted on J2/J5:** they can be turned into contact at any pitch below about 37 mm.
-  - Dress both lugs to point +x (board frame), clear of each other.
-  - The lug's insulation temperature rating must exceed the lead temperature measured at the stud. The lug part, for example TE PLASTI-GRIP 2-34853-1 (vinyl, 105 °C), is confirmed against that measurement and the Litz cross-section with the coil supplier. A flag lug with dual-wall ≥ 150 °C heat-shrink to the ring is the alternative. Keep every PE branch pad,
+  - **Upturned terminals:** the ring tongue is formed 90° upward, so the barrel stands vertical and the Litz leaves within ~10 mm of each stud axis. Each barrel is offset away from the other stud, along the J2–J5 line. A horizontal barrel in any direction collides with parts: C21/C22, the U16/U26 block, T1, or the other stud and J7 (enclosure R26 screen, 2026-10-08).
+  - The lug's insulation temperature rating must exceed the lead temperature measured at the stud. The lug part, for example TE PLASTI-GRIP 2-34853-1 (vinyl, 105 °C), is confirmed against that measurement and the Litz cross-section with the coil supplier. A bare upturned (flag) M4 ring with dual-wall ≥ 150 °C heat-shrink over the barrel and bend up to the ring meets the requirement. A moulded insulated upturned ring does too, if one is found for the Litz size. No straight-barrel part is acceptable. Keep every PE branch pad,
 lug, screw and trace at least 8 mm from HOT under D5's provisional basis.
 
 ## Protective earth
