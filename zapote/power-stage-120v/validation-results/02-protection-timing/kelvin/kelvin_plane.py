@@ -51,7 +51,8 @@ def main() -> None:
     # the committed native-19/20 export is pinned; another board's export carries its own hash
     PINNED = {"native20": "3557aa444873fa8b45eb7e0ae8ec3a4bc2b5cd526826b338b58d50e57747430b",
               "native21": "76ec8ccae6ca0dbd145b672abc3d18a8f8132875e567cb31ab84325d897a1715",
-              "native21s6": "387b753a8d1b8b1097406e9d6643daf21263e44b7ad76becb79edcc5cd46ecda"}
+              "native21s6": "387b753a8d1b8b1097406e9d6643daf21263e44b7ad76becb79edcc5cd46ecda",
+              "native21s8": "d4468ffd355d6d4a4d6d35ed902019698c9c43e503443fd60fdd81b7d345a5ba"}
     assert data["board_sha256"] == PINNED[tag], f"{export} is not the pinned {tag} board"
     net = kit.Net(pitch_mm=PITCH, temp_c=TEMP)
     shapes, vias, pads = defaultdict(list), {}, {}
@@ -68,6 +69,8 @@ def main() -> None:
             v = vias.setdefault(tuple(it["centre"]), {"drill": it["drill_mm"], "layers": []})
             v["layers"].append(lay)
         if kind == "pad":
+            if it["ref"].startswith("TP"):
+                continue    # bring-up test pad: copper kept above, but a probe returns no current, and it sits on a via drill
             assert max(it["drill_mm"]) == 0, "THT pad on the Kelvin net: handle as filled barrel"
             pads[it["ref"]] = (lay, *it["centre"])
     for lay, parts in shapes.items():

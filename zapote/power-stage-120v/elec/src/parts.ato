@@ -38,13 +38,19 @@ component PeBranchTerminal:
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
-component MainsFuse20A:
-    """Littelfuse 0326020.MXP 20 A 250 V slo-blo ceramic 6.3x32 mm, in a
-    102071 clip pair (clip current rating to confirm >= 20 A)."""
+component MainsFuse25A:
+    """Littelfuse 0326025.MXP 25 A 250 V slo-blo ceramic 6.3x32 mm (400 A @ 250 Vac breaking), in a
+    pair of Littelfuse
+    01220088Z 122-series clips (30 A, UL E14721, listed for 326-series fuses; 102/122 datasheet
+    rev 06/26/18 p.1). The 102071 clips of the earlier footprint are 10 A (review M8, 2026-10-08).
+    The clips are an assembly line of their own (FAB-NOTE). 25 A, not 20 A (2026-10-08): the
+    325/326 datasheet (rev 04/29/19 p.3) puts its temperature re-rating "in addition to the
+    standard derating of 25% for continuous operation", about 97 % at 50 C, so a 20 A fuse carries
+    ~14.5 A continuous against a 14-16.5 A RMS line current; 25 A gives ~18.2 A."""
     designator_prefix = "F"
-    mpn = "0326020.MXP"
+    mpn = "0326025.MXP"
     manufacturer = "Littelfuse"
-    footprint = "Fuse:Fuseholder_Clip-6.3x32mm_Littelfuse_102071_Inline_P34.70x7.60mm_D2.00mm_Horizontal"
+    footprint = "Fuse:Fuseholder_Clip-6.3x32mm_Littelfuse_102_122_Inline_P34.21x7.62mm_D1.98mm_Horizontal"
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
@@ -308,6 +314,18 @@ component C100n0603:
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
+component C10u0805:
+    """Murata GRM21BZ71E106KE15L, 10 uF 25 V X7R 0805 (LCSC C237493). High-side VDDA-VSSA bulk at
+    the UCC21550 pins (TI SLUSE89C 11.1: ~10 uF + <= 100 nF at VDD-VSS); the 1210 does not fit
+    between the gate-drive lanes. ~3-4 uF effective at 17 V DC bias (estimate)."""
+    designator_prefix = "C"
+    mpn = "GRM21BZ71E106KE15L"
+    manufacturer = "Murata"
+    footprint = "Capacitor_SMD:C_0805_2012Metric"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
 component C10u1210:
     designator_prefix = "C"
     mpn = "GRM32ER71H106KA12L"
@@ -375,12 +393,16 @@ component Irm20_15:
     signal VP ~ pin 4
 
 component TcoLoopHeader:
-    """JST B2P-VH(LF)(SN), 3.96 mm, 250 V 10 A: series loop through the
-    off-board heatsink and under-glass Microtemp G4A thermal cutoffs."""
+    """JST B2P3-VH(LF)(SN): VH header with post 2 omitted (7.92 mm pitch, 250 V AC/DC 10 A, JST
+    eVH.pdf p.1 / p.6 item 3; "headers with posts omitted are available", p.3), series loop through
+    the off-board heatsink and under-glass Microtemp G4A thermal cutoffs. With the TCO open the two
+    posts see line voltage: the 3.96 mm B2P-VH left 1.26 mm of copper, this leaves 5.22 mm (review
+    M7, 2026-10-08). Unshrouded: the shrouded -FB-B (14.9 mm courtyard) does not fit between PS2 and
+    F1. Mates VHR-3M (cavity 2 empty), SVH-21T-P1.1 / SVH-41T-P1.1 crimps."""
     designator_prefix = "J"
-    mpn = "B2P-VH(LF)(SN)"
+    mpn = "B2P3-VH(LF)(SN)"
     manufacturer = "JST"
-    footprint = "Connector_JST:JST_VH_B2P-VH_1x02_P3.96mm_Vertical"
+    footprint = "Connector_JST:JST_VH_B2P3-VH_1x02_P7.92mm_Vertical"
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 

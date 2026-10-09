@@ -2,7 +2,7 @@
  "basis": "Native-21: native-19 reviewed annotations by MPN and pin set; ECO.md manufacturer pin tables for parts added in D-33; remaining parts passive (named after Atopile signals). Connectivity authority: native-21/frozen/default.net. Not datasheet or powered verification.",
  "basis_counts": {
   "native19-reviewed": 213,
-  "passive-two-terminal": 108,
+  "passive-two-terminal": 112,
   "eco-pin-table": 21,
   "passive-untyped": 5
  },
@@ -23,9 +23,9 @@
    }
   },
   "F1": {
-   "mpn": "0326020.MXP",
+   "mpn": "0326025.MXP",
    "source_instance": "f1",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -908,6 +908,21 @@
     }
    }
   },
+  "C10": {
+   "mpn": "C0603C104K5RACTU",
+   "source_instance": "leg_a.c_hs",
+   "basis": "native19-reviewed",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
   "C50": {
    "mpn": "GRM188R71E105KA12D",
    "source_instance": "leg_a.bias_h.cmid1",
@@ -1031,6 +1046,21 @@
   "C15": {
    "mpn": "C0603C104K5RACTU",
    "source_instance": "leg_b.c_ls",
+   "basis": "native19-reviewed",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C17": {
+   "mpn": "C0603C104K5RACTU",
+   "source_instance": "leg_b.c_hs",
    "basis": "native19-reviewed",
    "pins": {
     "1": {
@@ -3911,6 +3941,36 @@
     }
    }
   },
+  "C11": {
+   "mpn": "GRM21BZ71E106KE15L",
+   "source_instance": "leg_a.c_hs_bulk",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C18": {
+   "mpn": "GRM21BZ71E106KE15L",
+   "source_instance": "leg_b.c_hs_bulk",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
   "C110": {
    "mpn": "GRM155R71E104KE14D",
    "source_instance": "leg_a.bias_h.chf1",
@@ -5071,9 +5131,9 @@
    }
   },
   "J3": {
-   "mpn": "B2P-VH(LF)(SN)",
+   "mpn": "B2P3-VH(LF)(SN)",
    "source_instance": "j_tco",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",

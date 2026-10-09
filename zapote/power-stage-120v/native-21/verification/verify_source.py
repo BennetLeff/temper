@@ -7,7 +7,7 @@ import json
 def main() -> None:
     root = Path(__file__).resolve().parents[2]
     resolved = json.loads((root / 'frozen/resolved-components.json').read_text())
-    assert len(resolved['components']) == 347
+    assert len(resolved['components']) == 351   # + c_hs / c_hs_bulk per leg (2026-10-08 review B1)
     for filename, expected in resolved['source_sha256'].items():
         assert hashlib.sha256((root / filename).read_bytes()).hexdigest() == expected, filename
     for filename in ('default.csv', 'default.net', 'resolved-components.json',
@@ -18,6 +18,8 @@ def main() -> None:
         assert parts[f'{leg}.r_dt']['mpn'] == 'RT0603BRD0749K9L'
         assert parts[f'{leg}.r_dis_pu']['mpn'] == 'RC0603FR-07330RL'
     assert parts['r_th_top']['mpn'] == 'RT0603BRD0710K6L'
+    for leg in ('leg_a', 'leg_b'):
+        assert parts[f'{leg}.c_hs']['mpn'] == 'C0603C104K5RACTU' and parts[f'{leg}.c_hs_bulk']['mpn'] == 'GRM21BZ71E106KE15L'
     assert not any('RECOM' in str(part) for part in parts.values())
     assert not any('.d_boot' in path or '.c_boot' in path for path in parts)
     for base in ('monitor_ls', 'bias_ha.monitor', 'bias_hb.monitor'):

@@ -140,6 +140,25 @@ What the solve does show: board heat is concentrated in the power core and the L
 the extreme case puts ~54 W into a board cooled by its faces. Part temperatures use datasheet
 ratings, as above.
 
+### Stage 8 re-run (2026-10-08, board `d4468ffd…`)
+
+Stage 8's independent-review fixes ran through task 04 and B3 again. `inputs/power_copper.json.gz`
+and `outputs/` now hold the stage-8 results; the stage-6 tables above are kept as the record.
+- **Copper screen:** 37 scenarios; the tank paths are unchanged. SW_A 4.146 mΩ, SW_B high / low
+  6.980 / 7.010 mΩ and coil feed 0.410 mΩ are identical to stage 6. The HV_RET mixed case moved
+  2.013 → 2.020 mΩ.
+- **BUS_P mesh span:** 4.109 %, the same as stage 6, so it's not new.
+- **B3:**
+
+| Run (50 °C ambient) | Peak 1 mm grid | Peak 0.5 mm grid |
+| --- | ---: | ---: |
+| nominal, h 10 / 25 W/m²K | 162 / 138 °C at U26 (stage 6: 176 / 152) | 132 / 108 °C (R5 / L1) |
+| extreme, h 10 / 25 | 363 / 237 °C | 402 / 268 °C at R5 |
+
+U26's pad cell falls 14 K, which is consistent with its new 3 × 3 exposed-pad vias (review B2). The
+caveat above stands: these are grid-sensitive pad-cell values, not part temperatures. The extreme
+runs rise 1–10 K and remain outside the 22 A envelope.
+
 **Verdict, task 04 on native-21:** nominal operation passes the copper width screen after the SW_B
 fix (SW_A at 18.8 K is the tightest). The board needs a tank-current ceiling (22 A RMS interim).
 Bench IR at nominal power remains the physical gate (D4).

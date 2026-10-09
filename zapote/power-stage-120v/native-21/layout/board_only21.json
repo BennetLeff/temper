@@ -33,14 +33,14 @@
   {
    "net": "n_ls",
    "at": [
-    113.464,
-    82.584
+    112.215,
+    77.775
    ],
    "side": "B",
    "ref_net": "leg_ret",
    "ref_at": [
-    113.486,
-    84.814
+    113.8,
+    76.235
    ],
    "purpose": "LS -2 V rail vs low-side sources (F6 rail at the edge)",
    "ref": "TP3"
@@ -48,14 +48,14 @@
   {
    "net": "v15_ls",
    "at": [
-    116.284,
-    62.428
+    107.95,
+    111.635
    ],
    "side": "B",
    "ref_net": "leg_ret",
    "ref_at": [
-    113.6,
-    62.4
+    109.7,
+    113.235
    ],
    "purpose": "LS +15 V rail",
    "ref": "TP4"
@@ -93,23 +93,8 @@
   {
    "net": "hot5",
    "at": [
-    114.905,
-    116.125
-   ],
-   "side": "B",
-   "ref_net": "ocp_kelvin_p",
-   "ref_at": [
-    117.445,
-    114.75
-   ],
-   "purpose": "HOT5 protection rail",
-   "ref": "TP7"
-  },
-  {
-   "net": "bus_fault_hot",
-   "at": [
-    122.835,
-    60.295
+    115.89,
+    63.835
    ],
    "side": "F",
    "ref_net": "ocp_kelvin_p",
@@ -117,20 +102,35 @@
     119.274,
     60.395
    ],
+   "purpose": "HOT5 protection rail",
+   "ref": "TP7"
+  },
+  {
+   "net": "bus_fault_hot",
+   "at": [
+    120.235,
+    54.695
+   ],
+   "side": "B",
+   "ref_net": "ocp_kelvin_p",
+   "ref_at": [
+    122.05,
+    57.635
+   ],
    "purpose": "OCP fault, HOT side",
    "ref": "TP8"
   },
   {
    "net": "n_ha",
    "at": [
-    58.679,
-    73.972
+    65.599999,
+    65.599999
    ],
-   "side": "B",
+   "side": "F",
    "ref_net": "sw_a",
    "ref_at": [
-    60.888,
-    73.8
+    66.287,
+    56.9
    ],
    "purpose": "HS-A -2 V rail vs switch node (F6 rail at the edge)",
    "ref": "TP9"
@@ -138,14 +138,14 @@
   {
    "net": "p_ha",
    "at": [
-    67.069999,
-    51.725
+    75.47,
+    43.875
    ],
    "side": "F",
    "ref_net": "sw_a",
    "ref_at": [
-    62.487,
-    49.9
+    70.53,
+    46.757
    ],
    "purpose": "HS-A +15 V rail",
    "ref": "TP10"
@@ -213,14 +213,14 @@
   {
    "net": "v3v3",
    "at": [
-    77.232,
-    107.367
+    54.983,
+    129.961999
    ],
    "side": "B",
    "ref_net": "selv_gnd",
    "ref_at": [
-    76.762,
-    104.268
+    60.744,
+    130.287
    ],
    "purpose": "SELV 3.3 V",
    "ref": "TP15"
@@ -229,7 +229,7 @@
    "net": "pwm_ha",
    "at": [
     78.3,
-    102.375
+    105.875
    ],
    "side": "B",
    "ref_net": "selv_gnd",
@@ -259,7 +259,7 @@
    "net": "pwm_hb",
    "at": [
     56.155,
-    131.175
+    132.175
    ],
    "side": "B",
    "ref_net": "selv_gnd",
@@ -288,14 +288,14 @@
   {
    "net": "bias_bad",
    "at": [
-    33.2,
-    72.0
+    14.439,
+    130.267
    ],
    "side": "B",
    "ref_net": "selv_gnd",
    "ref_at": [
-    30.35,
-    71.815
+    14.681,
+    134.359
    ],
    "purpose": "BIAS_BAD (rail monitors)",
    "ref": "TP20"
@@ -353,8 +353,8 @@
   {
    "net": "leg_ret",
    "at": [
-    113.486,
-    84.814
+    113.8,
+    76.235
    ],
    "side": "B",
    "ref": "TP25",
@@ -363,8 +363,8 @@
   {
    "net": "leg_ret",
    "at": [
-    113.6,
-    62.4
+    109.7,
+    113.235
    ],
    "side": "B",
    "ref": "TP26",
@@ -393,38 +393,38 @@
   {
    "net": "ocp_kelvin_p",
    "at": [
-    117.445,
-    114.75
+    119.274,
+    60.395
    ],
-   "side": "B",
+   "side": "F",
    "ref": "TP29",
    "purpose": "ocp_kelvin_p reference"
   },
   {
    "net": "ocp_kelvin_p",
    "at": [
-    119.274,
-    60.395
+    122.05,
+    57.635
    ],
-   "side": "F",
+   "side": "B",
    "ref": "TP30",
    "purpose": "ocp_kelvin_p reference"
   },
   {
    "net": "sw_a",
    "at": [
-    60.888,
-    73.8
+    66.287,
+    56.9
    ],
-   "side": "B",
+   "side": "F",
    "ref": "TP31",
    "purpose": "sw_a reference"
   },
   {
    "net": "sw_a",
    "at": [
-    62.487,
-    49.9
+    70.53,
+    46.757
    ],
    "side": "F",
    "ref": "TP32",
@@ -463,8 +463,8 @@
   {
    "net": "selv_gnd",
    "at": [
-    76.762,
-    104.268
+    60.744,
+    130.287
    ],
    "side": "B",
    "ref": "TP36",
@@ -473,8 +473,8 @@
   {
    "net": "selv_gnd",
    "at": [
-    80.328,
-    63.02
+    76.762,
+    104.268
    ],
    "side": "B",
    "ref": "TP37",
@@ -483,8 +483,8 @@
   {
    "net": "selv_gnd",
    "at": [
-    60.744,
-    130.287
+    80.328,
+    63.02
    ],
    "side": "B",
    "ref": "TP38",
@@ -503,21 +503,11 @@
   {
    "net": "selv_gnd",
    "at": [
-    30.35,
-    71.815
-   ],
-   "side": "B",
-   "ref": "TP40",
-   "purpose": "selv_gnd reference"
-  },
-  {
-   "net": "selv_gnd",
-   "at": [
     14.681,
     134.359
    ],
    "side": "B",
-   "ref": "TP41",
+   "ref": "TP40",
    "purpose": "selv_gnd reference"
   }
  ],
@@ -538,13 +528,13 @@
    "net": "leg_a-dis",
    "ref": "selv_gnd",
    "why": "no legal via pair within 10 mm",
-   "probe": "component pad R8.1 / U22.1 / Q1.3 (no legal test-pad spot)"
+   "probe": "component pad Q1.3 / U22.1 / R8.1 (no legal test-pad spot)"
   },
   {
    "net": "leg_b-dis",
    "ref": "selv_gnd",
    "why": "no legal via pair within 10 mm",
-   "probe": "component pad U23.1 / Q4.3 / R16.1 (no legal test-pad spot)"
+   "probe": "component pad Q4.3 / U23.1 / R16.1 (no legal test-pad spot)"
   },
   {
    "net": "line_zc",
@@ -559,26 +549,176 @@
    "probe": "J4.13 (bottom), ground J4.2 / J4.4 / J4.15"
   }
  ],
+ "silk": [
+  {
+   "kind": "text",
+   "lines": [
+    "TEMPER POWER STAGE 120V",
+    "NATIVE-21 REV A  2026-10"
+   ],
+   "size": 1.5,
+   "at": [
+    274,
+    122
+   ]
+  },
+  {
+   "kind": "text",
+   "lines": [
+    "DANGER: MAINS AND 400 V DC",
+    "HOT SECTIONS ARE NOT EARTHED"
+   ],
+   "size": 1.5,
+   "at": [
+    136,
+    46
+   ]
+  },
+  {
+   "kind": "text",
+   "lines": [
+    "H2-H8: NYLON SCREWS, WASHERS",
+    "AND STANDOFFS ONLY"
+   ],
+   "size": 1.0,
+   "at": [
+    60,
+    150
+   ]
+  },
+  {
+   "kind": "text",
+   "lines": [
+    "PE"
+   ],
+   "size": 1.5,
+   "at": [
+    158,
+    128
+   ]
+  },
+  {
+   "kind": "ring",
+   "at": [
+    6,
+    180
+   ],
+   "r": 3.6
+  },
+  {
+   "kind": "ring",
+   "at": [
+    86,
+    180
+   ],
+   "r": 3.6
+  },
+  {
+   "kind": "ring",
+   "at": [
+    24,
+    74
+   ],
+   "r": 3.6
+  },
+  {
+   "kind": "ring",
+   "at": [
+    88,
+    100
+   ],
+   "r": 3.6
+  },
+  {
+   "kind": "ring",
+   "at": [
+    128,
+    54
+   ],
+   "r": 3.6
+  },
+  {
+   "kind": "ring",
+   "at": [
+    194,
+    130
+   ],
+   "r": 3.6
+  },
+  {
+   "kind": "rect",
+   "box": [
+    78.2,
+    1.0,
+    110.2,
+    8.6
+   ]
+  },
+  {
+   "kind": "text",
+   "lines": [
+    "+"
+   ],
+   "size": 1.5,
+   "at": [
+    81.7,
+    9.8
+   ]
+  },
+  {
+   "kind": "text",
+   "lines": [
+    "~"
+   ],
+   "size": 1.5,
+   "at": [
+    91.7,
+    9.8
+   ]
+  },
+  {
+   "kind": "text",
+   "lines": [
+    "~"
+   ],
+   "size": 1.5,
+   "at": [
+    99.2,
+    9.8
+   ]
+  },
+  {
+   "kind": "text",
+   "lines": [
+    "-"
+   ],
+   "size": 1.5,
+   "at": [
+    106.7,
+    9.8
+   ]
+  }
+ ],
  "fiducials": [
   {
    "ref": "FID1",
    "at": [
-    4,
+    8,
     36
    ]
   },
   {
    "ref": "FID2",
    "at": [
-    280,
-    130
+    278,
+    128
    ]
   },
   {
    "ref": "FID3",
    "at": [
-    4,
-    184
+    6,
+    186
    ]
   }
  ],
@@ -594,59 +734,51 @@
   },
   {
    "at": [
-    42,
-    62
+    6,
+    180
    ],
    "kind": "nylon",
    "ref": "H2"
   },
   {
    "at": [
-    20,
-    122
+    86,
+    180
    ],
    "kind": "nylon",
    "ref": "H3"
   },
   {
    "at": [
-    84,
-    120
+    24,
+    74
    ],
    "kind": "nylon",
    "ref": "H4"
   },
   {
    "at": [
-    134,
-    54
+    88,
+    100
    ],
    "kind": "nylon",
    "ref": "H5"
   },
   {
    "at": [
-    218,
-    18
+    128,
+    54
    ],
    "kind": "nylon",
    "ref": "H6"
   },
   {
    "at": [
-    200,
-    128
+    194,
+    130
    ],
    "kind": "nylon",
    "ref": "H7"
-  },
-  {
-   "at": [
-    164,
-    126
-   ],
-   "kind": "nylon",
-   "ref": "H8"
   }
  ]
 }

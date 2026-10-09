@@ -76,9 +76,12 @@ for v in d["vias"]:
     ALL.append((v["net"], g, None))
     F.append((v["net"], g, None))
 B = []
+SELV_INNER = []                      # SELV inner-layer pours: they refill round an NPTH (see the nylon holes)
 for z in d["zones"]:
     g = Polygon(z["pts"])
     ALL.append((z["net"], g, None))
+    if z["layer"] in ("In1.Cu", "In2.Cu") and rules21.domain(z["net"]) == "SELV":
+        SELV_INNER.append(g)
     if z["layer"] == "F.Cu":
         F.append((z["net"], g, None))
     if z["layer"] == "B.Cu":
@@ -206,15 +209,25 @@ for target in ((285, 135), (285, 5), (160, 135)):
     c = min(mc, key=lambda q: math.dist(q[:2], target))
     if all(math.dist(c[:2], h["at"]) > 30 for h in holes):
         holes.append({"at": c[:2], "kind": "metal", "hot_mm": c[2]})
+# nylon fixings (review M4): the washer / standoff face (Ø 7 mm) bears on bare laminate on both
+# outer layers, and the inner planes keep clear of the hole. SELV inner pours are the exception:
+# KiCad refills them round the NPTH at hole clearance, and a SELV plane edge by a nylon screw is
+# harmless. HOT inner planes still keep 2.2 mm: a plane edge at the hole wall would start a
+# creepage path down the hole to the chassis. That exception lets the SELV tongue (x < 91,
+# y > 140, J4's harness end) take fixings; its corner holds only the v3v3 / selv_gnd planes.
+allcu_hole = unary_union([g for _, g, _ in ALL if not any(g.equals(q) for q in SELV_INNER)])
+Bcopper = unary_union([g for _, g, _ in B])
 nylon_ok = []
 for i in range(4, 287, 2):
     for j in range(4, 187, 2):
         c = Point(i, j)
         w = c.buffer(3.5)
-        if outline.buffer(-0.5).contains(w) and w.distance(Fcopper) >= 0.3 and c.distance(allcu) >= 2.2 \
-                and w.distance(parts_u) >= 0.3 and all(w.distance(b) >= 0.3 for _, b in court):
+        if outline.buffer(-0.5).contains(w) and w.distance(Fcopper) >= 0.3 and w.distance(Bcopper) >= 0.3 \
+                and c.distance(allcu_hole) >= 2.2 and w.distance(parts_u) >= 0.3 \
+                and all(w.distance(b) >= 0.3 for _, b in court):
             nylon_ok.append((i, j))
-for target in ((5, 5), (5, 185), (88, 185), (88, 100), (5, 100), (145, 5), (285, 5), (200, 135), (145, 135)):
+for target in ((5, 180), (86, 180), (5, 5), (5, 185), (88, 185), (88, 100), (5, 100), (145, 5), (285, 5),
+               (200, 135), (145, 135)):
     if nylon_ok:
         q = min(nylon_ok, key=lambda q: math.dist(q, target))
         if all(math.dist(q, h["at"]) > 30 for h in holes) and all(math.dist(q, f) >= 6.0 for f in fids):
@@ -231,10 +244,57 @@ for m in missing:
     else:
         on = [f"{pd['ref']}.{pd['pad']}" for pd in pads if pd["net"] == m["net"]]
         m["probe"] = "component pad " + " / ".join(on[:4]) + " (no legal test-pad spot)"
-out = {"test_points": tps + refs, "missing_test_points": missing,
+# silk marks (review M12): board ID, HV warning, nylon legend, PE at J6, BR1 outline and pin marks.
+# Text blocks go where no courtyard, pad or other mark lies within the text box + 0.5 mm.
+taken = [b for _, b in court] + [Point(h["at"]).buffer(4.0) for h in holes] + \
+        [Point(f["at"]).buffer(2.0) for f in [{"at": q} for q in fids]] + \
+        [Point(t["at"]).buffer(1.2) for t in tps + refs]
+
+
+def text_spot(lines, h, target, region=(2, 2, 288, 188)):
+    w = max(len(t) for t in lines) * h * 0.75 + 1.0
+    hh = len(lines) * h * 1.5 + 1.0
+    best = None
+    for i in range(int(region[0]), int(region[2]), 1):
+        for j in range(int(region[1]), int(region[3]), 1):
+            bx = box(i - w / 2, j - hh / 2, i + w / 2, j + hh / 2)
+            if not outline.buffer(-1.0).contains(bx) or any(bx.buffer(0.5).intersects(q) for q in taken):
+                continue
+            dd = math.dist((i, j), target)
+            if best is None or dd < best[0]:
+                best = (dd, i, j)
+    if best is None:
+        return None
+    taken.append(box(best[1] - w / 2, best[2] - hh / 2, best[1] + w / 2, best[2] + hh / 2))
+    return [best[1], best[2]]
+
+
+silk = []
+for lines, h, target in ((["TEMPER POWER STAGE 120V", "NATIVE-21 REV A  2026-10"], 1.5, (240, 125)),
+                         (["DANGER: MAINS AND 400 V DC", "HOT SECTIONS ARE NOT EARTHED"], 1.5, (150, 60)),
+                         (["H2-H8: NYLON SCREWS, WASHERS", "AND STANDOFFS ONLY"], 1.0, (60, 150))):
+    at = text_spot(lines, h, target)
+    if at:
+        silk.append({"kind": "text", "lines": lines, "size": h, "at": at})
+pe = [pd for pd in pads if pd["ref"] == "J6"]
+if pe:
+    at = text_spot(["PE"], 1.5, (sum(q["x"] for q in pe) / len(pe), sum(q["y"] for q in pe) / len(pe) - 6))
+    if at:
+        silk.append({"kind": "text", "lines": ["PE"], "size": 1.5, "at": at})
+for h in holes:
+    if h["kind"] == "nylon":
+        silk.append({"kind": "ring", "at": h["at"], "r": 3.6})
+br = [pd for pd in pads if pd["ref"] == "BR1"]
+if br:
+    xs = [q["x"] for q in br]
+    silk.append({"kind": "rect", "box": [min(xs) - 3.5, 1.0, max(xs) + 3.5, 8.6]})   # GBJ body behind the pins
+    for q, mark in zip(sorted(br, key=lambda q: q["x"]), ("+", "~", "~", "-")):
+        silk.append({"kind": "text", "lines": [mark], "size": 1.5, "at": [q["x"], 9.8]})
+out = {"test_points": tps + refs, "missing_test_points": missing, "silk": silk,
        "fiducials": [{"ref": f"FID{k}", "at": list(p)} for k, p in enumerate(fids, 1)],
        "mounting_holes": holes}
 (HERE / "board_only21.json").write_text(json.dumps(out, indent=1) + "\n")
 print(len(tps), "signal TPs,", len(refs), "reference TPs,", len(missing), "missing:", [m["net"] for m in missing])
 print("fiducials", out["fiducials"])
 print("holes", [(h["ref"], h["kind"], h["at"]) for h in holes])
+print("silk", [(m["kind"], m.get("lines", [""])[0], m.get("at")) for m in silk])

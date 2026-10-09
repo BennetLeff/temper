@@ -37,7 +37,22 @@ def main() -> None:
             return "THT"
         if attrs & pcbnew.FP_SMD:
             return "SMD"
+        pads = list(fps[ref].Pads())          # attribute unset (T1): decide from the pads themselves
+        if pads and all(pd.GetAttribute() == pcbnew.PAD_ATTRIB_SMD for pd in pads):
+            return "SMD"
+        if any(pd.GetAttribute() == pcbnew.PAD_ATTRIB_PTH for pd in pads):
+            return "THT"
         return "other"
+
+    def centroid(fp):
+        """Part centre for the CPL: centre of the pads' bounding box (review M9). KiCad's origin is
+        pin 1 on most THT footprints, up to 25 mm from the body centre."""
+        boxes = [pd.GetBoundingBox() for pd in fp.Pads()]
+        if not boxes:
+            return mm(fp.GetPosition().x), mm(fp.GetPosition().y)
+        x0 = min(b.GetX() for b in boxes); x1 = max(b.GetRight() for b in boxes)
+        y0 = min(b.GetY() for b in boxes); y1 = max(b.GetBottom() for b in boxes)
+        return mm((x0 + x1) // 2), mm((y0 + y1) // 2)
 
     rows, seen = [], set()
     with bom_path.open() as f:
@@ -63,7 +78,8 @@ def main() -> None:
         w.writerow(["Designator", "Mid X", "Mid Y", "Layer", "Rotation", "Mount"])
         for ref in sorted(fps, key=lambda r: (r.rstrip("0123456789"), int(r[len(r.rstrip("0123456789")):] or 0))):
             fp = fps[ref]
-            w.writerow([ref, f"{mm(fp.GetPosition().x):.3f}mm", f"{mm(fp.GetPosition().y):.3f}mm",
+            cx, cy = centroid(fp)
+            w.writerow([ref, f"{cx:.3f}mm", f"{cy:.3f}mm",
                         "Bottom" if fp.IsFlipped() else "Top", f"{fp.GetOrientationDegrees():g}", mount(ref)])
     tht = sum(1 for r in fps if mount(r) == "THT")
     print(f"{len(rows)} BOM lines, {len(fps)} placements ({tht} THT, {len(fps) - tht} SMD/other)")

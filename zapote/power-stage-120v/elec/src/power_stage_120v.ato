@@ -20,11 +20,11 @@
 # current-sense board) are provisional for the 70 uH / 32 kHz nominal coil
 # until the coil and pan measurements in COIL-MC.md are taken.
 
-from "parts.ato" import MainsTerminal2, PowerTerminalM4, PeBranchTerminal, MainsFuse20A, Tmov175, Cmc20A
+from "parts.ato" import MainsTerminal2, PowerTerminalM4, PeBranchTerminal, MainsFuse25A, Tmov175, Cmc20A
 from "parts.ato" import CapX2_1u, CapY1_2n2, R120k1206, BridgeGbj2510, BusFilm2u7, LocalBus100n
 from "parts.ato" import R220k1206, Shunt1m, MosfetCfd7, Snubber1n1kV, UCC21550BDWK
 from "parts.ato" import PermitFet, R3R9Gate, R49k9Dt, R10k0603, R100k0603, R100R0603
-from "parts.ato" import R1k0603, R330R0603, C100n0603, C10u1210, Res942C12P22, Res942C12P1
+from "parts.ato" import R1k0603, R330R0603, C100n0603, C10u1210, C10u0805, Res942C12P22, Res942C12P1
 from "parts.ato" import CST3015_100E, Irm20_15, TcoLoopHeader
 from "parts.ato" import Amc1311, R470k1206, R15k8Thin, C1nC0G0603, C100pC0G0603
 from "parts.ato" import Tlv3201, Ref2V5, R10kThin, R10k6Thin, R140kThin, R5k6Bias
@@ -129,6 +129,17 @@ module BridgeLeg:
     # The two high-side transformers and shared low-side split are HOT-powered.
     driver.VDDA ~ p_hs
     driver.VSSA ~ n_hs
+    # VDDA-VSSA decoupling at the driver pins (independent review 2026-10-08, B1): turn-on gate
+    # charge (~0.7 uC edge allowance, bias_sizing.py) comes from here, not from the LDO 50 mm away.
+    # Mirrors channel B's c_ls / c_ls_bulk.
+    c_hs = new C100n0603
+    c_hs.value = 100nF
+    c_hs.p1 ~ p_hs
+    c_hs.p2 ~ n_hs
+    c_hs_bulk = new C10u0805
+    c_hs_bulk.value = 10uF
+    c_hs_bulk.p1 ~ p_hs
+    c_hs_bulk.p2 ~ n_hs
     bias_h = new BiasReservoir
     bias_h.src ~ sw
     bias_h.n ~ n_hs
@@ -297,7 +308,7 @@ module PowerStage120V:
     j_mains = new MainsTerminal2
     j_mains.p1 ~ AC_L_IN
     j_mains.p2 ~ AC_N_IN
-    f1 = new MainsFuse20A
+    f1 = new MainsFuse25A
     f1.p1 ~ AC_L_IN
     f1.p2 ~ L_F
     rv1 = new Tmov175
@@ -1034,6 +1045,10 @@ module PowerStage120V:
     r_hot5_uv_pull.designator = "R50"
     leg_a.c_ls_bulk.designator = "C9"
     leg_b.c_ls_bulk.designator = "C16"
+    leg_a.c_hs.designator = "C10"
+    leg_a.c_hs_bulk.designator = "C11"
+    leg_b.c_hs.designator = "C17"
+    leg_b.c_hs_bulk.designator = "C18"
     c_v15.designator = "C24"
     c_ldo_out.designator = "C26"
     leg_a.q_high.designator = "Q2"

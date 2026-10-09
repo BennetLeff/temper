@@ -14,7 +14,7 @@ earlier generic fabricator inquiry. Nothing has been sent to JLCPCB.
 | Finished copper | Outer 70 µm, inner **61 µm** per the stackup data (minimum finished not published) | Same | Power screens recomputed at 61 µm inner; native-09 README |
 | Via plating | **18 µm average** hole wall | Capabilities page | Better than the 10–15 µm sensitivity cases; it is an average, not a minimum |
 | Annular ring, 2 oz | **PTH: ≥ 0.254 mm** ("PTH annular ring, Multilayer 2 oz"). **Vias: diameter ≥ hole + 0.1 mm** (0.15 mm preferred), no copper-weight dependence ("Min. Via hole size/diameter 0.15/0.25mm"). Re-read verbatim 2026-10-08; until then the 0.254 mm PTH figure was applied to vias too | Capabilities page | Native-21 vias 0.6/0.3 (ring 0.15, 3× JLC's via rule; our floor 0.15), power vias 0.85/0.3 and 1.6/0.8. PTH pads ≥ 0.254. Checked by `tools/jlc_dfm_check.py` |
-| Track/space, 2 oz multilayer | ≥ 0.15/0.15 mm | Capabilities page | Minimum track is 0.30 mm; Default clearance 0.2 mm |
+| Track/space, 2 oz multilayer | ≥ 0.15/0.15 mm ("Multilayer: 0.15 / 0.15 mm (6 / 6 mil)", re-read 2026-10-08; one value for inner and outer) | Capabilities page | Native-21 floor 0.2/0.2 mm (`jlc_dfm_check.py` tracks ≥ 0.2; default clearance 0.2). Tightest copper gaps are pad-to-pad: U35 HVSSOP 0.20 mm, U26–U28 VQFN 0.30 mm |
 | Drill limits | Via hole ≥ 0.15 mm; PTH 0.15–6.3 mm; tolerance +0.13/−0.08 mm | Capabilities page | Largest hole 4.3 mm; smallest drill 0.3 mm |
 | Board size | 4-layer up to 663 × 593 mm | Capabilities page | 240 × 160 mm fits |
 | Laminate | Stackup data names **Nan Ya NP-155F**: Tg 150, UL94 V-0, dielectric breakdown 60 kV (D-48/50) | JLCPCB-hosted NP-155F datasheet | — |

@@ -56,3 +56,9 @@ Files: [plane-native21.json](plane-native21.json), [budget-native21.json](budget
 [budget-native21.md](budget-native21.md).
 
 **Stage 6** (R5 current-pad vias, board `387b753a…`, export `native-21/verification/native21s6-all-copper.json.gz`): `python3 kelvin_plane.py <export> native21s6` then `python3 kelvin_budget.py native21s6`. R35.2 sits 164.13 mΩ above R5.2 (stage 5: 164.02; zone refill) and the band is unchanged at **47.51–97.98 A**: the new vias are on LEG_RET / HV_RET and leave the Kelvin net's copper as it was. Files: [plane-native21s6.json](plane-native21s6.json), [budget-native21s6.json](budget-native21s6.json).
+
+**Stage 8** (independent-review fixes, board `d4468ffd…`, export `native-21/verification/native21s8-all-copper.json.gz`): `python3 kelvin_plane.py <export> native21s8` then `python3 kelvin_budget.py native21s8`.
+- R35.2 sits **161.72 mΩ** above R5.2 (stage 6: 164.13); only branch stubs at the moved AMC1311 / ISO7710 supply caps changed on ocp_kelvin_p.
+- The band is **47.52–97.98 A**, which meets the 44 A minimum.
+- `kelvin_plane.py` now skips bring-up test pads (TP*) in the transfer list. Their copper stays in the plane, but a probe returns no current, and each sits on a via drill the sheet solver can't inject into.
+- Files: [plane-native21s8.json](plane-native21s8.json), [budget-native21s8.json](budget-native21s8.json).

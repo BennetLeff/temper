@@ -20,6 +20,11 @@ else python3 native-21/layout/incr21.py "$BASE" "$2" native-21/layout/copper.jso
 $KPY prototype-closure/pcb/apply_copper21.py --out "$OUT" 2>/dev/null | grep -v -i wxapp
 # board-only parts: bring-up test points, fiducials, mounting holes (board_only21.json)
 [ -f native-21/layout/board_only21.json ] && $KPY native-21/layout/board_only21.py "$OUT/section.kicad_pcb" 2>/dev/null | { grep -v -i wxapp || true; }
+# thermal-relief spokes on low-current THT pads (review M3)
+# fail loudly: this step once died on a KiCad API change behind 2>/dev/null and the build went on
+R=$($KPY native-21/layout/pad_reliefs21.py "$OUT/section.kicad_pcb" 2>&1 | grep -v -i wxapp || true)
+echo "$R"
+echo "$R" | grep -q "^thermal reliefs on [1-9]" || { echo "pad_reliefs21 failed" >&2; exit 1; }
 # designators at the fabricator legend minimum, collision-free (positions kept in reference-labels.json)
 [ -f native-21/reference-labels.json ] || echo '{"schema": "temper.power-stage-120v.labels.v1", "references": {}}' > native-21/reference-labels.json
 $KPY tools/place_reference_labels.py "$OUT/section.kicad_pcb" native-21/reference-labels.json --output native-21/reference-labels.json --fab-unresolved 2>/dev/null \

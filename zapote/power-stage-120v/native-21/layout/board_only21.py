@@ -76,6 +76,30 @@ for h in spec["mounting_holes"]:
         txt.SetTextThickness(mm(0.15))
         txt.SetPosition(pcbnew.VECTOR2I(mm(h["at"][0]), mm(h["at"][1] + 4.6)))
         board.Add(txt)
+# silk marks (review M12): board ID, HV warning, nylon legend, PE, nylon washer rings, BR1 outline
+for m in spec.get("silk", []):
+    if m["kind"] == "text":
+        txt = pcbnew.PCB_TEXT(board)
+        txt.SetText("\n".join(m["lines"]))
+        txt.SetLayer(pcbnew.F_SilkS)
+        txt.SetTextSize(pcbnew.VECTOR2I(mm(m["size"]), mm(m["size"])))
+        txt.SetTextThickness(mm(max(0.15, m["size"] * 0.15)))
+        txt.SetPosition(pcbnew.VECTOR2I(mm(m["at"][0]), mm(m["at"][1])))
+        board.Add(txt)
+    elif m["kind"] == "ring":
+        c = pcbnew.PCB_SHAPE(board, pcbnew.SHAPE_T_CIRCLE)
+        c.SetLayer(pcbnew.F_SilkS)
+        c.SetWidth(mm(0.15))
+        c.SetCenter(pcbnew.VECTOR2I(mm(m["at"][0]), mm(m["at"][1])))
+        c.SetEnd(pcbnew.VECTOR2I(mm(m["at"][0] + m["r"]), mm(m["at"][1])))
+        board.Add(c)
+    elif m["kind"] == "rect":
+        r = pcbnew.PCB_SHAPE(board, pcbnew.SHAPE_T_RECT)
+        r.SetLayer(pcbnew.F_SilkS)
+        r.SetWidth(mm(0.15))
+        r.SetStart(pcbnew.VECTOR2I(mm(m["box"][0]), mm(m["box"][1])))
+        r.SetEnd(pcbnew.VECTOR2I(mm(m["box"][2]), mm(m["box"][3])))
+        board.Add(r)
 pcbnew.SaveBoard(sys.argv[1], board)
 # keep the designator file in step with the spec: drop labels of board-only parts no longer placed
 import re  # noqa: E402

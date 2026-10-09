@@ -8,8 +8,10 @@ LOSS-REFACTOR.md, COIL-MC.md). Front-end decision: `docs/adr/2026-09-25-front-en
 One board carries the mains entry, EMI filter, bridge rectifier and film bus, the full
 bridge with both UCC21550 drivers next to the MOSFETs, the resonant capacitor bank and tank
 current transformer, the DC-bus shoot-through OCP, isolated bus-voltage sense, the
-thermal-cutoff-gated gate supply, and the SELV 15 V supply. The ESP32 controller, current-sense,
-thermal, interlock and RTD boards connect through one SELV header.
+thermal-cutoff-gated gate supply, and the SELV 15 V supply. The SELV controller (ESP32 plus the
+integrated interlock, thermal-sense and RTD front end) connects through one SELV header (J4). Tank
+over-current sensing is on this board (T1, U10–U13 → bus_fault); zapote/current-sense is a
+bench-qualification unit only.
 
 Native construction records: [progress](BUILD-PROGRESS.md),
 [toolchain](TOOLCHAIN.md), [local footprints](FOOTPRINTS.md),
@@ -107,10 +109,10 @@ tank peak is not a sufficient basis for selecting creepage bands. See
 
 | Fault | Path |
 | --- | --- |
-| Hard short or bridge failure | F1 20 A slow-blow ceramic |
+| Hard short or bridge failure | F1 25 A slow-blow ceramic (Littelfuse 0326025.MXP, 400 A @ 250 Vac) in 30 A 01220088Z clips |
 | Shoot-through / MOSFET short | 1 mΩ DC-return shunt → TLV3201 (nominal ≈61 A) → NAND gate → ISO7710 → BUS_FAULT high → interlock latch → PERMIT low → DIS |
 | Elevated DC bus | Bus divider → TLV3201 (nominal ≈280 V) → NAND gate → ISO7710 → BUS_FAULT high → interlock latch → PERMIT low → DIS; this inhibits restart but does not clamp bus voltage |
-| Tank over-current / pan fault | CT → current-sense board comparators → interlock latch |
+| Tank over-current / pan fault | CT (T1) → on-board comparators U10/U11, ORed with the bus fault in U13 → bus_fault → controller interlock latch |
 | Heatsink or glass over-temperature | Off-board Microtemp cutoffs in the J3 loop open the IRM-05-15 input: gate drive and HOT 5 V drop; BUS_FAULT defaults high if controller 3.3 V remains valid. No electronics or firmware involved |
 | Controller hang / reset | Interlock-board watchdog; PERMIT floating = disabled |
 | Gate-supply loss | UCC21550 UVLO holds outputs low; 10 kΩ gate-source hold-off |
@@ -121,7 +123,7 @@ tank peak is not a sufficient basis for selecting creepage bands. See
 1. **Coil measurement** (COIL-MC.md). Sets the resonant bank value (0.54 µF now, for 70 µH / 32 kHz), CT burden and frequency limits.
 2. **Parts to confirm against manufacturer drawings:**
    - J1 is Phoenix 1711725 for L/N only; J6 is a Phoenix 1704004 PE branch from the chassis stud. J2/J5 and the four disconnect terminals use Würth 74650074; assembly, temperature and spacing qualification remain open.
-   - Littelfuse 102071 clip current rating (≥ 20 A)
+   - ~~Littelfuse 102071 clip current rating~~ (10 A: replaced by 30 A 01220088Z clips, and the fuse re-sized 20 → 25 A for continuous derating, DECISIONS.md 2026-10-08 stage 8)
    - ~~TDK B82726S2203A020 pin numbering~~ (confirmed from datasheet 2026-09-25: windings 1-4, 2-3)
    - Molex 0430451612 order code
    - 942C AC voltage rating vs frequency (≈236 V rms at line crest, 35 kHz)

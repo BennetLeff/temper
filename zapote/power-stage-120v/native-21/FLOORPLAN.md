@@ -1,6 +1,7 @@
 # Native-21 floorplan (layout stage 1, Claude, 2026-10-06)
 
-Board **290 × 140 mm**, 4 layers (native-20 stackup). In the R4 enclosure it
+Board **290 × 190 mm L-shaped outline** (stage 1 planned 290 × 140; the tongue below y 140 grew
+during routing; owner confirmation open, REVIEW-TRIAGE.md M10), 4 layers, 2 oz all layers (JLC041622-7628). In the R4 enclosure it
 sits rotated 180°: the board's **top edge (KiCad y = 0) faces the enclosure
 rear**, and its left edge (KiCad x = 0) is at world x = 141 (right). Board
 frame below is KiCad: x right, y down, mm. World = (141 − x, 236 − y).
@@ -182,10 +183,22 @@ run, and that count is 0. Their inductance effect belongs to the FEM rerun on th
   Also in stage 6: SW_B's B.Cu tank lane widened from 4.4-5.6 to 7.2-9.3 mm over x 58-74 (SW_A's B.Cu link
   pour trimmed to y <= 12.5; the Cgs/R71 return via moved to (73.1, 15.2)). Tank-path screen and the 22 A
   RMS tank ceiling: task 04 round 5 README, DECISIONS.md 2026-10-08.
+- **Stage 8 (2026-10-08):** fixes from the independent pre-fab review (validation-results/08-manufacturing-package/native-21/REVIEW-TRIAGE.md):
+  - **Driver decoupling (B1).** New HS VDDA–VSSA caps: 100 nF 4.3 mm from the pin, 10 µF 7.9–8.6 mm. The LS 100 nF sits at VDDB.
+  - **Leg A hand routes.** The HS stack is hand-laid on F.Cu (`layout/patches21.py` add_stage8). LOW-group In1 runs leave no legal n_ha via spot there.
+  - **Thermal vias (B2).** 3 × 3 in U26–U28's exposed pads, 2 × 2 in U35's.
+  - **Isolator decoupling (M1).** AMC1311 / ISO7710 caps at their pins.
+  - **Reliefs (M3).** On 30 low-current THT pads.
+  - **Holes (M4).** Re-planned nylon holes (washer face copper-free); SELV-tongue corner holes H2 / H3.
+  - **Silk (M12).** Board ID, HV warning, PE, BR1.
+  - **J3 / F1 (M7 / M8).** J3 becomes B2P3-VH; F1 gets 30 A clips and a 25 A fuse.
+  - **Placement fixes.** The 0805 bulk first landed 7.48 mm from the SELV PWM pins (barrier gate caught it). Leg A's LS bulk briefly sat over SW_B's tank lane; it went back to its block spot.
+  - **Results:** DRC 0 / 0 unconnected / parity 0, both barrier gates 0, DFM PASS, Gerber review 892/892, D5 PASS, Kelvin band 47.52–97.98 A, body collisions 0, R4 fit 0 hits, task 04 tank paths unchanged.
+  - **Build fix.** The reliefs step first died silently on a KiCad 10 API change: its stderr was discarded and the pipe hid the exit code. `incr_iter.sh` now fails on it.
 - **Open items:**
-  - **Board fixings (stage 7):** H1 metal-capable, H2-H8 nylon only; the enclosure must match them
+  - **Board fixings (stage 8):** H1 metal-capable, H2-H7 nylon only (H4-H6 need nylon standoffs >= 10 mm, HOT copper near the hole wall); the enclosure must match them
     (verification/D5-AUDIT.md). Bring-up test pads and fiducials: BRINGUP-PROBES.md.
-  - **44 vias** remain mostly inside SMD pads (the straight-stub dogbone found no spot within 1.3 mm;
+  - **Via-in-pad (stage 8 count):** 77 drills fully inside SMD pads and 64 overlapping a pad edge, all POFV. The stage-5 note follows: **44 vias** remained mostly inside SMD pads (the straight-stub dogbone found no spot within 1.3 mm;
     a routed-stub trial moves 15 more, 28 stay; R5's current pads need in-pad vias anyway). **Decided
     2026-10-08:** order every 0.3 mm via epoxy-filled and capped (JLC POFV); see DECISIONS.md.
   - **2 oz via rule (2026-10-08):** JLC's 0.254 mm ring is the PTH rule; vias need diameter >= hole
@@ -194,8 +207,8 @@ run, and that count is 0. Their inductance effect belongs to the FEM rerun on th
     scatters each IC's parts (IC-to-satellite runs of 12-30 mm), and functional sub-packing needs
     about 4 mm more height than the block has. If a future change needs more routing room there, the
     lever is 0402 for its low-voltage passives (an ECO through the source), then a functional pack.
-  - Accepted warnings: 6 short dangling stubs, 20 silk-over-copper, PS1/PS2 outline silk at the
-    board edge (2) and J3/PS2 outline silk (2). Nudging PS1/PS2/J3 broke the mains-entry escapes
+  - Accepted warnings (stage 8): 13 short dangling stubs, 20 silk-over-copper, 9 silk overlaps, 4 silk at the board edge
+    (stage 7: 6 stubs, PS1/PS2 outline silk at the edge (2), J3/PS2 outline silk (2)). Nudging PS1/PS2/J3 broke the mains-entry escapes
     and the PS1/C4 courtyards. The 199 `lib_footprint_issues` are the project's unconfigured
     stock-library table.
   - FEM extraction and decision reruns (task 01): setup and coarse mesh gates done, solves pending

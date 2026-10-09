@@ -86,8 +86,8 @@ Independent verification of both open paths is required before mains or
 bench power is applied. A single open positive link is insufficient.
 
 With mains present, the filter, BR1, J7/J9 and both IRM primaries remain live.
-The IRM-05 output still powers V15_LS, HOT5 and gate drivers when the thermal
-loop is closed. The IRM-20 still powers the controller domain. Their isolation
+The PS2 IRM-20-24 output still powers V15_LS, HOT5 and the gate drivers when the
+thermal loop is closed. The PS1 IRM-20-15 still powers the controller domain. Their isolation
 barriers and the two open link gaps remove intended galvanic mains paths
 to the bridge rails; leakage and capacitive coupling remain. This does not
 make the entire PCB touch-safe. Guard the live section and use appropriately
