@@ -165,4 +165,17 @@ The rear band (240 × 150) was rejected: the sink cannot be placed without cross
 
 **Open (owner):** M6 coil-stud spacing, M10 outline and J4 harness, M11 heatsink HOT↔PE stack.
 
-**2026-10-08, input current ≤ 15 A RMS (owner decision relayed by the enclosure session, R21 DECISIONS N8; to be confirmed by the owner here):** the appliance keeps a NEMA 5-15P plug. Total RMS mains current stays ≤ 15 A at every line voltage, with margin for auxiliaries (fan, SELV/gate supplies, EMI losses) and sensing tolerance. Output power reduces at low line. F1 stays 25 A: a 20 A 326 fuse carries only about 14.5 A continuous after Littelfuse's derating. **Open (board side):** native-21 has no line-current measurement. ct_mon is the tank CT, and R5 feeds only the OCP comparator. The limit value depends on the sensing path: (a) a firmware estimate from tank current and the AMC1311 bus voltage, with a bench-qualified tolerance and a larger margin, or (b) a hardware line-current sense, a board ECO. Not decided here.
+**2026-10-08, input current ≤ 15 A RMS (owner decision, relayed by the enclosure session as R21 DECISIONS N8 and confirmed here by the owner: "1, and go with (a) firmware estimate"):** the appliance keeps a NEMA 5-15P plug. Total RMS mains current stays ≤ 15 A at every line voltage, with margin for auxiliaries (fan, SELV/gate supplies, EMI losses) and sensing tolerance. Output power reduces at low line. F1 stays 25 A: a 20 A 326 fuse carries only about 14.5 A continuous after Littelfuse's derating. **Open (board side):** native-21 has no line-current measurement. ct_mon is the tank CT, and R5 feeds only the OCP comparator. The limit value depended on the sensing path: (a) a firmware estimate from tank current and the AMC1311 bus voltage, or (b) a hardware line-current sense (a board ECO). **The owner chose (a).**
+- **Controller requirement (new, with the 22 A tank ceiling):** the controller regulates the **estimated power-stage line current I_ps,est ≤ 12.4 A RMS** at every line voltage and pan. It reduces output power to stay there and reports when it is power-limited.
+- **Margin budget:** I_ps,est ≤ (15 A − I_aux) / (1 + e_est).
+  - I_aux = 1.3 A covers both Mean Well IRM-20 modules at full load: 0.6 A typical each at 115 Vac (IRM-20-SPEC 2025-11-21), scaled to 108 V. Adding the two currents linearly overstates their RMS sum.
+  - e_est = 10 % is a provisional estimator error.
+- **Estimator inputs (no new hardware):**
+  - bus voltage from U4 (AMC1311);
+  - tank current from the T1 CT (ct_mon);
+  - tank-current phase from ct_zc against the gate edges.
+  - Inverter power is the square-wave fundamental (2√2/π)·V_bus·I_tank·cos φ, averaged over each half line cycle (the bus is unsmoothed). Input power divides that by a minimum inverter efficiency.
+  - I_ps,est = P_in,est / V_line,rms, where V_line comes from the bus peak. PF ≈ 1 for the unsmoothed bus, and the PF error sits inside e_est.
+- **Qualification (bench, before the limit is final):** measure true-RMS line current against I_ps,est over 108 / 120 / 132 V and the pan grid. The worst error e_max replaces the 10 %, and the limit is recomputed from the same formula; ±5 % would allow 13.0 A.
+- **Consequence:** about 1.49 kW input at 120 V (1.34 kW at 108 V), against the 1.71 kW nominal case. The 15 A plug costs about 13 % of nominal power until the bench tightens e_est.
+- **Not done here:** the firmware estimator and limit. No controller code exists for either this or the 22 A ceiling.

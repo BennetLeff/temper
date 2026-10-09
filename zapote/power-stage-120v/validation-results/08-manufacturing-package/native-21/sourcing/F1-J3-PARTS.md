@@ -53,7 +53,7 @@ These are primary-source verified values. For these parts, p.2 footnote 4 measur
 
 The recorded 16.5 A RMS input envelope exceeds a 15 A plug. A 25 A internal fuse does not limit normal appliance current to 15 A. The existing 15 A product target requires a cap on **total appliance RMS mains current**, including auxiliaries, throughout the line/pan envelope and with sensing/control tolerance allowed for. A fixed watt cap alone is insufficient without minimum line and minimum power factor: `P_input <= V_min * PF_min * I_limit`; pan output must additionally allow for losses and auxiliary power. The existing 22 A tank-current ceiling is a separate requirement.
 
-Alternatively, retaining 16.5 A requires a 20 A plug/cord assembly and compatible supply. [Leviton 5366-C](https://leviton.com/products/5366-c), read in the browser, verifies NEMA 5-20P, 20 A, 125 Vac. The owner was asked to choose between the current cap and the changed connection; that choice is pending. Neither path is recorded as owner-approved or implemented here.
+Alternatively, retaining 16.5 A requires a 20 A plug/cord assembly and compatible supply. [Leviton 5366-C](https://leviton.com/products/5366-c), read in the browser, verifies NEMA 5-20P, 20 A, 125 Vac. The owner was asked to choose between the current cap and the changed connection. **Owner's choice, 2026-10-08: option 1** (15 A plug, total input ≤ 15 A RMS), sensed by a firmware estimate (DECISIONS.md: I_ps,est ≤ 12.4 A provisional). F1 stays MDA-25-R.
 
 ## J3: TCO loop connector (line voltage across the pins when the TCO is open)
 
