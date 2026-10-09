@@ -50,8 +50,8 @@ component BiasOpto:
 
 component BiasNpn:
     designator_prefix = "Q"
-    mpn = "MMBT3904-7-F"
-    manufacturer = "Diodes Incorporated"
+    mpn = "MMBT3904"
+    manufacturer = "Jiangsu Changjing Electronics Technology Co., Ltd."
     footprint = "Package_TO_SOT_SMD:SOT-23"
     signal B ~ pin 1
     signal E ~ pin 2
@@ -59,8 +59,8 @@ component BiasNpn:
 
 component BiasSilicon:
     designator_prefix = "D"
-    mpn = "1N4148W-7-F"
-    manufacturer = "Diodes Incorporated"
+    mpn = "1N4148W"
+    manufacturer = "Semtech"
     footprint = "Diode_SMD:D_SOD-123"
     signal K ~ pin 1
     signal A ~ pin 2
@@ -102,8 +102,8 @@ component Bias120k:
 
 component Bias133k:
     designator_prefix = "R"
-    mpn = "RT0603BRD07133KL"
-    manufacturer = "Yageo"
+    mpn = "ARG03BTC1333"
+    manufacturer = "Viking Tech"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
     signal p1 ~ pin 1
@@ -129,16 +129,16 @@ component Bias2k7:
 
 component Gate1R:
     designator_prefix = "R"
-    mpn = "RC1206FR-071RL"
-    manufacturer = "Yageo"
+    mpn = "1206W4F100KT5E"
+    manufacturer = "UNI-ROYAL(Uniroyal Elec)"
     footprint = "Resistor_SMD:R_1206_3216Metric"
     value: resistance
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
-component Bias6k12:
+component Bias6k2:
     designator_prefix = "R"
-    mpn = "RT0603BRD076K12L"
+    mpn = "RT0603BRD076K2L"
     manufacturer = "Yageo"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
@@ -147,26 +147,26 @@ component Bias6k12:
 
 component Bias4k99:
     designator_prefix = "R"
-    mpn = "RT0603BRD074K99L"
-    manufacturer = "Yageo"
+    mpn = "0603WAF4991T5E"
+    manufacturer = "UNI-ROYAL(Uniroyal Elec)"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
-component Bias18k2:
+component Bias18k:
     designator_prefix = "R"
-    mpn = "RT0603BRD0718K2L"
-    manufacturer = "Yageo"
+    mpn = "0603WAF1802T5E"
+    manufacturer = "UNI-ROYAL(Uniroyal Elec)"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
-component Bias30k1:
+component Bias30k:
     designator_prefix = "R"
-    mpn = "RT0603BRD0730K1L"
-    manufacturer = "Yageo"
+    mpn = "0603WAF3002T5E"
+    manufacturer = "UNI-ROYAL(Uniroyal Elec)"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
     signal p1 ~ pin 1
@@ -201,8 +201,8 @@ component Line16k5:
 
 component Line33k:
     designator_prefix = "R"
-    mpn = "RC0603FR-0733KL"
-    manufacturer = "Yageo"
+    mpn = "0603WAF3302T5E"
+    manufacturer = "UNI-ROYAL(Uniroyal Elec)"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
     signal p1 ~ pin 1
@@ -219,8 +219,8 @@ component Bias1u:
 
 component Bias100n:
     designator_prefix = "C"
-    mpn = "GRM155R71E104KE14D"
-    manufacturer = "Murata"
+    mpn = "CL05B104KB54PNC"
+    manufacturer = "Samsung Electro-Mechanics"
     footprint = "Capacitor_SMD:C_0402_1005Metric"
     value: capacitance
     signal p1 ~ pin 1
@@ -237,8 +237,8 @@ component Bias220u:
 
 component Bias4u7:
     designator_prefix = "C"
-    mpn = "GRM31CR71H475KA12L"
-    manufacturer = "Murata"
+    mpn = "1206B475K500NT"
+    manufacturer = "FH(Guangdong Fenghua Advanced Tech)"
     footprint = "Capacitor_SMD:C_1206_3216Metric"
     value: capacitance
     signal p1 ~ pin 1

@@ -25,6 +25,18 @@ CHANGED = {"RT0603BRD077K68L": "C375517", "RL1206FR-070R68L": "C728510",    # ve
            "GRM21BZ71E106KE15L": "C237493",                                  # stage 8; lcsc.com 2026-10-08, 930 in stock
            "CC0805KRX7R9BB104": "C49678",                                    # stage 9; lcsc.com 2026-10-08, 8.36 M in stock
            "GRM21BR71H105KA12L": "C77083"}                                   # stage 9; lcsc.com 2026-10-08, 119 k in stock
+# BOM simplification 2026-10-09 (../bom-simplification/PROPOSAL.md, safe set): JLC Basic parts of identical
+# spec, plus the stocked 0.1 % replacements for R34/R35, R77/R95/R110 and R87/R105/R120. C-numbers, class
+# and stock were read from JLC's part listings on 2026-10-09 (bom-simplification/totals.py re-checks them).
+BASIC = {"CC0603KRX7R9BB104": "C14663", "CL10C101JB8NNNC": "C14858", "CL21B105KBFNNNE": "C28323",
+         "1206B475K500NT": "C29823", "CL05B104KB54PNC": "C307331", "0603WAF1002T5E": "C25804",
+         "0603WAF1000T5E": "C22775", "0603WAF1003T5E": "C25803", "0603WAF3300T5E": "C23138",
+         "0603WAF1001T5E": "C21190", "0603WAF5601T5E": "C23189", "0603WAF3302T5E": "C4216",
+         "0603WAF0000T5E": "C21189", "1206W4F1001T5E": "C4410", "1206W4F100KT5E": "C17928",
+         "1N4148W": "C81598", "MMBT3904": "C20526", "0603WAF4991T5E": "C23046", "0603WAF1802T5E": "C25810",
+         "0603WAF3002T5E": "C22984", "1206W4F1003T5E": "C17900"}
+CHANGED.update({"UMK325AB7106KM-T": "C386167", "RT0603BRD0712K4L": "C861102", "TNPW060311K7BEEA": "C4553285",
+                "RT0603BRD076K2L": "C136960", "ARG03BTC1333": "C1509631"})
 ACCEPT_ALT = {"GRM31A5C3A102JW01D"}
 bom_path = HERE / "fab" / "bom-jlcpcb.csv"
 rows = list(csv.DictReader(open(bom_path)))
@@ -32,7 +44,10 @@ counts = {"exact": 0, "changed": 0, "substitute": 0, "consign": 0}
 for r in rows:
     mpn = r["Manufacturer Part Number"]
     m = MAP.get(mpn)
-    if mpn in CHANGED:
+    if mpn in BASIC:
+        r["LCSC Part #"], r["Assembly"] = BASIC[mpn], "JLC (Basic)"
+        counts["changed"] += 1
+    elif mpn in CHANGED:
         r["LCSC Part #"], r["Assembly"] = CHANGED[mpn], "JLC (Extended)"
         counts["changed"] += 1
     elif m and m["Match"] == "EXACT" and m["MPN"] == mpn:

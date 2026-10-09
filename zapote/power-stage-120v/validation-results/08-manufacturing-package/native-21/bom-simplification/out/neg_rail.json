@@ -1,0 +1,60 @@
+{
+ "uv_trip_V": [
+  1.739,
+  1.8595
+ ],
+ "ov_trip_V": [
+  2.1298,
+  2.2823
+ ],
+ "nominal_window_V": [
+  1.7989,
+  2.2056
+ ],
+ "rows": [
+  {
+   "case": "fitted 6.12k RT0603BRD076K12L (JLC 0)",
+   "jlc_stock": "0",
+   "vneg_nom": 1.9989,
+   "vneg_min": 1.9587,
+   "vneg_max": 2.0487,
+   "margin_to_uv_trip_V": 0.0992,
+   "margin_to_ov_trip_V": 0.0812,
+   "margin_to_-1.6V_bound_V": 0.3587,
+   "nominal_shift_mV": 0.0
+  },
+  {
+   "case": "6.19k RT0603BRD076K19L C861530",
+   "jlc_stock": "343",
+   "vneg_nom": 2.0076,
+   "vneg_min": 1.9672,
+   "vneg_max": 2.0576,
+   "margin_to_uv_trip_V": 0.1077,
+   "margin_to_ov_trip_V": 0.0722,
+   "margin_to_-1.6V_bound_V": 0.3672,
+   "nominal_shift_mV": 8.7
+  },
+  {
+   "case": "6.2k  RT0603BRD076K2L  C136960",
+   "jlc_stock": "91153",
+   "vneg_nom": 2.0088,
+   "vneg_min": 1.9684,
+   "vneg_max": 2.0589,
+   "margin_to_uv_trip_V": 0.1089,
+   "margin_to_ov_trip_V": 0.0709,
+   "margin_to_-1.6V_bound_V": 0.3684,
+   "nominal_shift_mV": 9.9
+  },
+  {
+   "case": "6.04k RT0603BRD076K04L C728595",
+   "jlc_stock": "3454",
+   "vneg_nom": 1.989,
+   "vneg_min": 1.9491,
+   "vneg_max": 2.0384,
+   "margin_to_uv_trip_V": 0.0896,
+   "margin_to_ov_trip_V": 0.0914,
+   "margin_to_-1.6V_bound_V": 0.3491,
+   "nominal_shift_mV": -9.9
+  }
+ ]
+}

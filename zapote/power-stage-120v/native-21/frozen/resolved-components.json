@@ -1,11 +1,11 @@
 {
   "atopile_version": "0.2.69",
   "build_sha256": {
-    "build/default.csv": "3c5f1afe9a39e102f0fe6016ee91e09528070a45a48774da292aa05e88aed974",
+    "build/default.csv": "d7cb1af417584fe2b9f43bc597ff833dbb921325d05c7a5b81e0599276c21240",
     "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-    "build/default.net": "a5bc99bd196b0e868a5333bfed470e05311661aed70a53fb5778643a3a0cf955",
+    "build/default.net": "c1c2e9d4acb3d3b579b1d41f3cc964f2d7b76698489f9b4d2eec084ef852257e",
     "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5",
-    "build/resolved-components.json": "de83f85ea286ea50155f3e55812ce9a9c903d70fb0d5d71954d4c02e3b0dd5ae"
+    "build/resolved-components.json": "170d32dabde5ae7231077cee0c966ed06497721785e80336758060693aec45b2"
   },
   "components": [
     {
@@ -54,9 +54,9 @@
         "designator": "R1",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_1206_3216Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RC1206FR-07120KL",
-        "value": "120kohm"
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "1206W4F1003T5E",
+        "value": "100kohm"
       }
     },
     {
@@ -65,9 +65,9 @@
         "designator": "R2",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_1206_3216Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RC1206FR-07120KL",
-        "value": "120kohm"
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "1206W4F1003T5E",
+        "value": "100kohm"
       }
     },
     {
@@ -188,8 +188,8 @@
         "designator": "C7",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C104K5RACTU",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
         "value": "100nF"
       }
     },
@@ -209,8 +209,8 @@
         "designator": "R6",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RC0603FR-07100RL",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "0603WAF1000T5E",
         "value": "100ohm"
       }
     },
@@ -220,8 +220,8 @@
         "designator": "R7",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RC0603FR-07100KL",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "0603WAF1003T5E",
         "value": "100kohm"
       }
     },
@@ -231,8 +231,8 @@
         "designator": "R8",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RC0603FR-07330RL",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "0603WAF3300T5E",
         "value": "330ohm"
       }
     },
@@ -264,8 +264,8 @@
         "designator": "C146",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0805_2012Metric",
-        "manufacturer": "Murata",
-        "mpn": "GRM21BR71H105KA12L",
+        "manufacturer": "Samsung Electro-Mechanics",
+        "mpn": "CL21B105KBFNNNE",
         "value": "1uF"
       }
     },
@@ -275,8 +275,8 @@
         "designator": "C9",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_1210_3225Metric",
-        "manufacturer": "Murata",
-        "mpn": "GRM32ER71H106KA12L",
+        "manufacturer": "Taiyo Yuden",
+        "mpn": "UMK325AB7106KM-T",
         "value": "10uF"
       }
     },
@@ -297,8 +297,8 @@
         "designator": "C145",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0805_2012Metric",
-        "manufacturer": "Murata",
-        "mpn": "GRM21BR71H105KA12L",
+        "manufacturer": "Samsung Electro-Mechanics",
+        "mpn": "CL21B105KBFNNNE",
         "value": "1uF"
       }
     },
@@ -363,8 +363,8 @@
         "designator": "C110",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0402_1005Metric",
-        "manufacturer": "Murata",
-        "mpn": "GRM155R71E104KE14D",
+        "manufacturer": "Samsung Electro-Mechanics",
+        "mpn": "CL05B104KB54PNC",
         "value": "100nF"
       }
     },
@@ -374,8 +374,8 @@
         "designator": "C111",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0402_1005Metric",
-        "manufacturer": "Murata",
-        "mpn": "GRM155R71E104KE14D",
+        "manufacturer": "Samsung Electro-Mechanics",
+        "mpn": "CL05B104KB54PNC",
         "value": "100nF"
       }
     },
@@ -385,8 +385,8 @@
         "designator": "C112",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0402_1005Metric",
-        "manufacturer": "Murata",
-        "mpn": "GRM155R71E104KE14D",
+        "manufacturer": "Samsung Electro-Mechanics",
+        "mpn": "CL05B104KB54PNC",
         "value": "100nF"
       }
     },
@@ -396,8 +396,8 @@
         "designator": "C113",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0402_1005Metric",
-        "manufacturer": "Murata",
-        "mpn": "GRM155R71E104KE14D",
+        "manufacturer": "Samsung Electro-Mechanics",
+        "mpn": "CL05B104KB54PNC",
         "value": "100nF"
       }
     },
@@ -429,8 +429,8 @@
         "designator": "R71",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RT0603BRD074K99L",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "0603WAF4991T5E",
         "value": "4.99kohm"
       }
     },
@@ -484,8 +484,8 @@
         "designator": "C114",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0402_1005Metric",
-        "manufacturer": "Murata",
-        "mpn": "GRM155R71E104KE14D",
+        "manufacturer": "Samsung Electro-Mechanics",
+        "mpn": "CL05B104KB54PNC",
         "value": "100nF"
       }
     },
@@ -495,8 +495,8 @@
         "designator": "C115",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0402_1005Metric",
-        "manufacturer": "Murata",
-        "mpn": "GRM155R71E104KE14D",
+        "manufacturer": "Samsung Electro-Mechanics",
+        "mpn": "CL05B104KB54PNC",
         "value": "100nF"
       }
     },
@@ -506,8 +506,8 @@
         "designator": "C116",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0402_1005Metric",
-        "manufacturer": "Murata",
-        "mpn": "GRM155R71E104KE14D",
+        "manufacturer": "Samsung Electro-Mechanics",
+        "mpn": "CL05B104KB54PNC",
         "value": "100nF"
       }
     },
@@ -517,8 +517,8 @@
         "designator": "C117",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0402_1005Metric",
-        "manufacturer": "Murata",
-        "mpn": "GRM155R71E104KE14D",
+        "manufacturer": "Samsung Electro-Mechanics",
+        "mpn": "CL05B104KB54PNC",
         "value": "100nF"
       }
     },
@@ -550,8 +550,8 @@
         "designator": "R72",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RT0603BRD074K99L",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "0603WAF4991T5E",
         "value": "4.99kohm"
       }
     },
@@ -571,8 +571,8 @@
         "designator": "C54",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C104K5RACTU",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
         "value": "100nF"
       }
     },
@@ -582,8 +582,8 @@
         "designator": "R73",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RC0603FR-0710KL",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "0603WAF1002T5E",
         "value": "10kohm"
       }
     },
@@ -604,8 +604,8 @@
         "designator": "R11",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RC0603FR-0710KL",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "0603WAF1002T5E",
         "value": "10kohm"
       }
     },
@@ -626,8 +626,8 @@
         "designator": "R13",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RC0603FR-0710KL",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "0603WAF1002T5E",
         "value": "10kohm"
       }
     },
@@ -658,8 +658,8 @@
         "designator": "R53",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_1206_3216Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RC1206FR-071RL",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "1206W4F100KT5E",
         "value": "1ohm"
       }
     },
@@ -690,8 +690,8 @@
         "designator": "R54",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_1206_3216Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RC1206FR-071RL",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "1206W4F100KT5E",
         "value": "1ohm"
       }
     },
@@ -751,8 +751,8 @@
         "designator": "C14",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C104K5RACTU",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
         "value": "100nF"
       }
     },
@@ -772,8 +772,8 @@
         "designator": "R14",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RC0603FR-07100RL",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "0603WAF1000T5E",
         "value": "100ohm"
       }
     },
@@ -783,8 +783,8 @@
         "designator": "R15",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RC0603FR-07100KL",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "0603WAF1003T5E",
         "value": "100kohm"
       }
     },
@@ -794,8 +794,8 @@
         "designator": "R16",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RC0603FR-07330RL",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "0603WAF3300T5E",
         "value": "330ohm"
       }
     },
@@ -827,8 +827,8 @@
         "designator": "C148",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0805_2012Metric",
-        "manufacturer": "Murata",
-        "mpn": "GRM21BR71H105KA12L",
+        "manufacturer": "Samsung Electro-Mechanics",
+        "mpn": "CL21B105KBFNNNE",
         "value": "1uF"
       }
     },
@@ -838,8 +838,8 @@
         "designator": "C16",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_1210_3225Metric",
-        "manufacturer": "Murata",
-        "mpn": "GRM32ER71H106KA12L",
+        "manufacturer": "Taiyo Yuden",
+        "mpn": "UMK325AB7106KM-T",
         "value": "10uF"
       }
     },
@@ -860,8 +860,8 @@
         "designator": "C147",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0805_2012Metric",
-        "manufacturer": "Murata",
-        "mpn": "GRM21BR71H105KA12L",
+        "manufacturer": "Samsung Electro-Mechanics",
+        "mpn": "CL21B105KBFNNNE",
         "value": "1uF"
       }
     },
@@ -926,8 +926,8 @@
         "designator": "C118",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0402_1005Metric",
-        "manufacturer": "Murata",
-        "mpn": "GRM155R71E104KE14D",
+        "manufacturer": "Samsung Electro-Mechanics",
+        "mpn": "CL05B104KB54PNC",
         "value": "100nF"
       }
     },
@@ -937,8 +937,8 @@
         "designator": "C119",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0402_1005Metric",
-        "manufacturer": "Murata",
-        "mpn": "GRM155R71E104KE14D",
+        "manufacturer": "Samsung Electro-Mechanics",
+        "mpn": "CL05B104KB54PNC",
         "value": "100nF"
       }
     },
@@ -948,8 +948,8 @@
         "designator": "C120",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0402_1005Metric",
-        "manufacturer": "Murata",
-        "mpn": "GRM155R71E104KE14D",
+        "manufacturer": "Samsung Electro-Mechanics",
+        "mpn": "CL05B104KB54PNC",
         "value": "100nF"
       }
     },
@@ -959,8 +959,8 @@
         "designator": "C121",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0402_1005Metric",
-        "manufacturer": "Murata",
-        "mpn": "GRM155R71E104KE14D",
+        "manufacturer": "Samsung Electro-Mechanics",
+        "mpn": "CL05B104KB54PNC",
         "value": "100nF"
       }
     },
@@ -992,8 +992,8 @@
         "designator": "R74",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RT0603BRD074K99L",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "0603WAF4991T5E",
         "value": "4.99kohm"
       }
     },
@@ -1047,8 +1047,8 @@
         "designator": "C122",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0402_1005Metric",
-        "manufacturer": "Murata",
-        "mpn": "GRM155R71E104KE14D",
+        "manufacturer": "Samsung Electro-Mechanics",
+        "mpn": "CL05B104KB54PNC",
         "value": "100nF"
       }
     },
@@ -1058,8 +1058,8 @@
         "designator": "C123",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0402_1005Metric",
-        "manufacturer": "Murata",
-        "mpn": "GRM155R71E104KE14D",
+        "manufacturer": "Samsung Electro-Mechanics",
+        "mpn": "CL05B104KB54PNC",
         "value": "100nF"
       }
     },
@@ -1069,8 +1069,8 @@
         "designator": "C124",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0402_1005Metric",
-        "manufacturer": "Murata",
-        "mpn": "GRM155R71E104KE14D",
+        "manufacturer": "Samsung Electro-Mechanics",
+        "mpn": "CL05B104KB54PNC",
         "value": "100nF"
       }
     },
@@ -1080,8 +1080,8 @@
         "designator": "C125",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0402_1005Metric",
-        "manufacturer": "Murata",
-        "mpn": "GRM155R71E104KE14D",
+        "manufacturer": "Samsung Electro-Mechanics",
+        "mpn": "CL05B104KB54PNC",
         "value": "100nF"
       }
     },
@@ -1113,8 +1113,8 @@
         "designator": "R75",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RT0603BRD074K99L",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "0603WAF4991T5E",
         "value": "4.99kohm"
       }
     },
@@ -1134,8 +1134,8 @@
         "designator": "C61",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C104K5RACTU",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
         "value": "100nF"
       }
     },
@@ -1145,8 +1145,8 @@
         "designator": "R76",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RC0603FR-0710KL",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "0603WAF1002T5E",
         "value": "10kohm"
       }
     },
@@ -1167,8 +1167,8 @@
         "designator": "R19",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RC0603FR-0710KL",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "0603WAF1002T5E",
         "value": "10kohm"
       }
     },
@@ -1189,8 +1189,8 @@
         "designator": "R21",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RC0603FR-0710KL",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "0603WAF1002T5E",
         "value": "10kohm"
       }
     },
@@ -1221,8 +1221,8 @@
         "designator": "R57",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_1206_3216Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RC1206FR-071RL",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "1206W4F100KT5E",
         "value": "1ohm"
       }
     },
@@ -1253,8 +1253,8 @@
         "designator": "R58",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_1206_3216Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RC1206FR-071RL",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "1206W4F100KT5E",
         "value": "1ohm"
       }
     },
@@ -1428,8 +1428,8 @@
         "designator": "C24",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_1210_3225Metric",
-        "manufacturer": "Murata",
-        "mpn": "GRM32ER71H106KA12L",
+        "manufacturer": "Taiyo Yuden",
+        "mpn": "UMK325AB7106KM-T",
         "value": "10uF"
       }
     },
@@ -1449,8 +1449,8 @@
         "designator": "C25",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C104K5RACTU",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
         "value": "100nF"
       }
     },
@@ -1460,8 +1460,8 @@
         "designator": "C26",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_1210_3225Metric",
-        "manufacturer": "Murata",
-        "mpn": "GRM32ER71H106KA12L",
+        "manufacturer": "Taiyo Yuden",
+        "mpn": "UMK325AB7106KM-T",
         "value": "10uF"
       }
     },
@@ -1547,8 +1547,8 @@
         "designator": "C28",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C104K5RACTU",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
         "value": "100nF"
       }
     },
@@ -1558,8 +1558,8 @@
         "designator": "C29",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C104K5RACTU",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
         "value": "100nF"
       }
     },
@@ -1569,8 +1569,8 @@
         "designator": "C149",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0805_2012Metric",
-        "manufacturer": "Murata",
-        "mpn": "GRM21BR71H105KA12L",
+        "manufacturer": "Samsung Electro-Mechanics",
+        "mpn": "CL21B105KBFNNNE",
         "value": "1uF"
       }
     },
@@ -1580,8 +1580,8 @@
         "designator": "C150",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0805_2012Metric",
-        "manufacturer": "Murata",
-        "mpn": "GRM21BR71H105KA12L",
+        "manufacturer": "Samsung Electro-Mechanics",
+        "mpn": "CL21B105KBFNNNE",
         "value": "1uF"
       }
     },
@@ -1591,8 +1591,8 @@
         "designator": "R31",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RC0603FR-075K6L",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "0603WAF5601T5E",
         "value": "5.6kohm"
       }
     },
@@ -1634,8 +1634,8 @@
         "designator": "C30",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C101J5GACTU",
+        "manufacturer": "Samsung Electro-Mechanics",
+        "mpn": "CL10C101JB8NNNC",
         "value": "100pF"
       }
     },
@@ -1646,8 +1646,8 @@
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
         "manufacturer": "Yageo",
-        "mpn": "RT0603BRD0710K6L",
-        "value": "10.6kohm"
+        "mpn": "RT0603BRD0712K4L",
+        "value": "12.4kohm"
       }
     },
     {
@@ -1656,9 +1656,9 @@
         "designator": "R35",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RT0603BRD0710KL",
-        "value": "10kohm"
+        "manufacturer": "Vishay Dale",
+        "mpn": "TNPW060311K7BEEA",
+        "value": "11.7kohm"
       }
     },
     {
@@ -1688,8 +1688,8 @@
         "designator": "C32",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C104K5RACTU",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
         "value": "100nF"
       }
     },
@@ -1742,8 +1742,8 @@
         "designator": "C34",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C104K5RACTU",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
         "value": "100nF"
       }
     },
@@ -1763,8 +1763,8 @@
         "designator": "C35",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C104K5RACTU",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
         "value": "100nF"
       }
     },
@@ -1784,8 +1784,8 @@
         "designator": "C36",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C104K5RACTU",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
         "value": "100nF"
       }
     },
@@ -1795,8 +1795,8 @@
         "designator": "C37",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C104K5RACTU",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
         "value": "100nF"
       }
     },
@@ -1816,8 +1816,8 @@
         "designator": "R38",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RC0603JR-070RL",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "0603WAF0000T5E",
         "value": "0ohm"
       }
     },
@@ -1992,8 +1992,8 @@
         "designator": "R42",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_1206_3216Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RC1206FR-071KL",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "1206W4F1001T5E",
         "value": "1kohm"
       }
     },
@@ -2077,8 +2077,8 @@
         "designator": "C44",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C104K5RACTU",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
         "value": "100nF"
       }
     },
@@ -2098,8 +2098,8 @@
         "designator": "C45",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C104K5RACTU",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
         "value": "100nF"
       }
     },
@@ -2119,8 +2119,8 @@
         "designator": "C46",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C104K5RACTU",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
         "value": "100nF"
       }
     },
@@ -2140,8 +2140,8 @@
         "designator": "C47",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C104K5RACTU",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
         "value": "100nF"
       }
     },
@@ -2151,8 +2151,8 @@
         "designator": "R47",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RC0603FR-071KL",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "0603WAF1001T5E",
         "value": "1kohm"
       }
     },
@@ -2205,8 +2205,8 @@
         "designator": "C48",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C104K5RACTU",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
         "value": "100nF"
       }
     },
@@ -2226,8 +2226,8 @@
         "designator": "C49",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C104K5RACTU",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
         "value": "100nF"
       }
     },
@@ -2291,8 +2291,8 @@
         "designator": "C65",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C104K5RACTU",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
         "value": "100nF"
       }
     },
@@ -2313,8 +2313,8 @@
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
         "manufacturer": "Yageo",
-        "mpn": "RT0603BRD076K12L",
-        "value": "6.12kohm"
+        "mpn": "RT0603BRD076K2L",
+        "value": "6.2kohm"
       }
     },
     {
@@ -2443,8 +2443,8 @@
         "designator": "R87",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RT0603BRD07133KL",
+        "manufacturer": "Viking Tech",
+        "mpn": "ARG03BTC1333",
         "value": "133kohm"
       }
     },
@@ -2475,8 +2475,8 @@
         "designator": "R89",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RC0603FR-071KL",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "0603WAF1001T5E",
         "value": "1kohm"
       }
     },
@@ -2486,8 +2486,8 @@
         "designator": "D14",
         "designator_prefix": "D",
         "footprint": "Diode_SMD:D_SOD-123",
-        "manufacturer": "Diodes Incorporated",
-        "mpn": "1N4148W-7-F"
+        "manufacturer": "Semtech",
+        "mpn": "1N4148W"
       }
     },
     {
@@ -2496,8 +2496,8 @@
         "designator": "Q7",
         "designator_prefix": "Q",
         "footprint": "Package_TO_SOT_SMD:SOT-23",
-        "manufacturer": "Diodes Incorporated",
-        "mpn": "MMBT3904-7-F"
+        "manufacturer": "Jiangsu Changjing Electronics Technology Co., Ltd.",
+        "mpn": "MMBT3904"
       }
     },
     {
@@ -2506,8 +2506,8 @@
         "designator": "R90",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RC0603FR-0710KL",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "0603WAF1002T5E",
         "value": "10kohm"
       }
     },
@@ -2527,8 +2527,8 @@
         "designator": "C131",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C104K5RACTU",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
         "value": "100nF"
       }
     },
@@ -2538,8 +2538,8 @@
         "designator": "C132",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_1210_3225Metric",
-        "manufacturer": "Murata",
-        "mpn": "GRM32ER71H106KA12L",
+        "manufacturer": "Taiyo Yuden",
+        "mpn": "UMK325AB7106KM-T",
         "value": "10uF"
       }
     },
@@ -2549,8 +2549,8 @@
         "designator": "R91",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RC0603FR-0710KL",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "0603WAF1002T5E",
         "value": "10kohm"
       }
     },
@@ -2570,8 +2570,8 @@
         "designator": "C133",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C104K5RACTU",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
         "value": "100nF"
       }
     },
@@ -2581,8 +2581,8 @@
         "designator": "C134",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C104K5RACTU",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
         "value": "100nF"
       }
     },
@@ -2636,8 +2636,8 @@
         "designator": "C70",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C104K5RACTU",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
         "value": "100nF"
       }
     },
@@ -2657,9 +2657,9 @@
         "designator": "R92",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RT0603BRD0718K2L",
-        "value": "18.2kohm"
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "0603WAF1802T5E",
+        "value": "18kohm"
       }
     },
     {
@@ -2668,9 +2668,9 @@
         "designator": "R93",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RT0603BRD0730K1L",
-        "value": "30.1kohm"
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "0603WAF3002T5E",
+        "value": "30kohm"
       }
     },
     {
@@ -2679,8 +2679,8 @@
         "designator": "C130",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_1206_3216Metric",
-        "manufacturer": "Murata",
-        "mpn": "GRM31CR71H475KA12L",
+        "manufacturer": "FH(Guangdong Fenghua Advanced Tech)",
+        "mpn": "1206B475K500NT",
         "value": "4.7uF"
       }
     },
@@ -2690,8 +2690,8 @@
         "designator": "R94",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RT0603BRD074K99L",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "0603WAF4991T5E",
         "value": "4.99kohm"
       }
     },
@@ -2712,8 +2712,8 @@
         "designator": "C71",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C104K5RACTU",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
         "value": "100nF"
       }
     },
@@ -2734,8 +2734,8 @@
         "designator": "C72",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C101J5GACTU",
+        "manufacturer": "Samsung Electro-Mechanics",
+        "mpn": "CL10C101JB8NNNC",
         "value": "100pF"
       }
     },
@@ -2756,8 +2756,8 @@
         "designator": "C73",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C101J5GACTU",
+        "manufacturer": "Samsung Electro-Mechanics",
+        "mpn": "CL10C101JB8NNNC",
         "value": "100pF"
       }
     },
@@ -2873,8 +2873,8 @@
         "designator": "C75",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C104K5RACTU",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
         "value": "100nF"
       }
     },
@@ -2895,8 +2895,8 @@
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
         "manufacturer": "Yageo",
-        "mpn": "RT0603BRD076K12L",
-        "value": "6.12kohm"
+        "mpn": "RT0603BRD076K2L",
+        "value": "6.2kohm"
       }
     },
     {
@@ -3025,8 +3025,8 @@
         "designator": "R105",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RT0603BRD07133KL",
+        "manufacturer": "Viking Tech",
+        "mpn": "ARG03BTC1333",
         "value": "133kohm"
       }
     },
@@ -3057,8 +3057,8 @@
         "designator": "R107",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RC0603FR-071KL",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "0603WAF1001T5E",
         "value": "1kohm"
       }
     },
@@ -3068,8 +3068,8 @@
         "designator": "D15",
         "designator_prefix": "D",
         "footprint": "Diode_SMD:D_SOD-123",
-        "manufacturer": "Diodes Incorporated",
-        "mpn": "1N4148W-7-F"
+        "manufacturer": "Semtech",
+        "mpn": "1N4148W"
       }
     },
     {
@@ -3078,8 +3078,8 @@
         "designator": "Q8",
         "designator_prefix": "Q",
         "footprint": "Package_TO_SOT_SMD:SOT-23",
-        "manufacturer": "Diodes Incorporated",
-        "mpn": "MMBT3904-7-F"
+        "manufacturer": "Jiangsu Changjing Electronics Technology Co., Ltd.",
+        "mpn": "MMBT3904"
       }
     },
     {
@@ -3088,8 +3088,8 @@
         "designator": "R108",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RC0603FR-0710KL",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "0603WAF1002T5E",
         "value": "10kohm"
       }
     },
@@ -3109,8 +3109,8 @@
         "designator": "C135",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C104K5RACTU",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
         "value": "100nF"
       }
     },
@@ -3120,8 +3120,8 @@
         "designator": "C136",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_1210_3225Metric",
-        "manufacturer": "Murata",
-        "mpn": "GRM32ER71H106KA12L",
+        "manufacturer": "Taiyo Yuden",
+        "mpn": "UMK325AB7106KM-T",
         "value": "10uF"
       }
     },
@@ -3131,8 +3131,8 @@
         "designator": "R109",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RC0603FR-0710KL",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "0603WAF1002T5E",
         "value": "10kohm"
       }
     },
@@ -3152,8 +3152,8 @@
         "designator": "C137",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C104K5RACTU",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
         "value": "100nF"
       }
     },
@@ -3163,8 +3163,8 @@
         "designator": "C138",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C104K5RACTU",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
         "value": "100nF"
       }
     },
@@ -3218,8 +3218,8 @@
         "designator": "C80",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C104K5RACTU",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
         "value": "100nF"
       }
     },
@@ -3335,8 +3335,8 @@
         "designator": "C82",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C104K5RACTU",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
         "value": "100nF"
       }
     },
@@ -3357,8 +3357,8 @@
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
         "manufacturer": "Yageo",
-        "mpn": "RT0603BRD076K12L",
-        "value": "6.12kohm"
+        "mpn": "RT0603BRD076K2L",
+        "value": "6.2kohm"
       }
     },
     {
@@ -3487,8 +3487,8 @@
         "designator": "R120",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RT0603BRD07133KL",
+        "manufacturer": "Viking Tech",
+        "mpn": "ARG03BTC1333",
         "value": "133kohm"
       }
     },
@@ -3519,8 +3519,8 @@
         "designator": "R122",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RC0603FR-071KL",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "0603WAF1001T5E",
         "value": "1kohm"
       }
     },
@@ -3530,8 +3530,8 @@
         "designator": "D16",
         "designator_prefix": "D",
         "footprint": "Diode_SMD:D_SOD-123",
-        "manufacturer": "Diodes Incorporated",
-        "mpn": "1N4148W-7-F"
+        "manufacturer": "Semtech",
+        "mpn": "1N4148W"
       }
     },
     {
@@ -3540,8 +3540,8 @@
         "designator": "Q9",
         "designator_prefix": "Q",
         "footprint": "Package_TO_SOT_SMD:SOT-23",
-        "manufacturer": "Diodes Incorporated",
-        "mpn": "MMBT3904-7-F"
+        "manufacturer": "Jiangsu Changjing Electronics Technology Co., Ltd.",
+        "mpn": "MMBT3904"
       }
     },
     {
@@ -3550,8 +3550,8 @@
         "designator": "R123",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RC0603FR-0710KL",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "0603WAF1002T5E",
         "value": "10kohm"
       }
     },
@@ -3571,8 +3571,8 @@
         "designator": "C139",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C104K5RACTU",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
         "value": "100nF"
       }
     },
@@ -3582,8 +3582,8 @@
         "designator": "C140",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_1210_3225Metric",
-        "manufacturer": "Murata",
-        "mpn": "GRM32ER71H106KA12L",
+        "manufacturer": "Taiyo Yuden",
+        "mpn": "UMK325AB7106KM-T",
         "value": "10uF"
       }
     },
@@ -3593,8 +3593,8 @@
         "designator": "R124",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RC0603FR-0710KL",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "0603WAF1002T5E",
         "value": "10kohm"
       }
     },
@@ -3614,8 +3614,8 @@
         "designator": "C141",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C104K5RACTU",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
         "value": "100nF"
       }
     },
@@ -3625,8 +3625,8 @@
         "designator": "C142",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C104K5RACTU",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
         "value": "100nF"
       }
     },
@@ -3680,8 +3680,8 @@
         "designator": "C87",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C104K5RACTU",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
         "value": "100nF"
       }
     },
@@ -3701,8 +3701,8 @@
         "designator": "R126",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RC0603FR-0710KL",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "0603WAF1002T5E",
         "value": "10kohm"
       }
     },
@@ -3733,8 +3733,8 @@
         "designator": "C144",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C104K5RACTU",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
         "value": "100nF"
       }
     },
@@ -3744,8 +3744,8 @@
         "designator": "C88",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C104K5RACTU",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
         "value": "100nF"
       }
     },
@@ -3809,8 +3809,8 @@
         "designator": "R125",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RC0603FR-0733KL",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "0603WAF3302T5E",
         "value": "33kohm"
       }
     },
@@ -3830,8 +3830,8 @@
         "designator": "C89",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C104K5RACTU",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
         "value": "100nF"
       }
     }
@@ -3839,10 +3839,10 @@
   "entry": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V",
   "schema": "temper.circuit-export.v1",
   "source_sha256": {
-    "elec/src/f6_bias.ato": "877f37a82db45f26957fe1e8db3cae28c797aab99e4ebdd27081f69db8964596",
-    "elec/src/f6_parts.ato": "7e202c66e64cae56f8db0f0849ab73e7f9767e8b103134ae7e2112e08418b32c",
-    "elec/src/parts.ato": "092a905b2330cf48425f38ef62953c3a7ee21cf275501b04923d364d1fe2bc74",
-    "elec/src/power_stage_120v.ato": "f4931aceed480485e054772c4d119e2b41007b9437cfa5951691d86f5dab4998",
+    "elec/src/f6_bias.ato": "188e0b61aa0abda0838fe5373f6ecbb4121f567f5450b9b5a3a80b13e44c79de",
+    "elec/src/f6_parts.ato": "bfbb63a8f87d8dd28a8f51e6e0b347a0d8dbda1b6024c0767af2cd09099c791d",
+    "elec/src/parts.ato": "a0d39b723d754a4838c39bce8c8b4c2c5acda508808a36adb1cef8585ecf3ee3",
+    "elec/src/power_stage_120v.ato": "538f3d6ce66b2da9ccbd86f9ae2eef4ba77c52e82eaf45888fdeae0f186d379a",
     "prototype-closure/round4/supervisor/generated/supervisor.ato": "1d6674935534a46c6c82f61c4f18890de7fa7cbf81f89c1cb63efb7bfed1b7e3"
   }
 }

@@ -1,0 +1,45 @@
+{
+ "X bleed 120k x2, nominal": {
+  "tau_s": 0.48,
+  "t_to_34V_s": 0.846
+ },
+ "X bleed 120k x2, +20 % C, +1 % R": {
+  "tau_s": 0.582,
+  "t_to_34V_s": 1.025
+ },
+ "X bleed 120k x2 power": {
+  "total_mW_140Vrms": 81.7,
+  "per_res_mW": 40.8,
+  "per_res_peak_V": 99.0,
+  "rating": "250 mW / 200 V (1206)"
+ },
+ "X bleed 100k x2, nominal": {
+  "tau_s": 0.4,
+  "t_to_34V_s": 0.705
+ },
+ "X bleed 100k x2, +20 % C, +1 % R": {
+  "tau_s": 0.485,
+  "t_to_34V_s": 0.854
+ },
+ "X bleed 100k x2 power": {
+  "total_mW_140Vrms": 98.0,
+  "per_res_mW": 49.0,
+  "per_res_peak_V": 99.0,
+  "rating": "250 mW / 200 V (1206)"
+ },
+ "bus bleed 220k x2": {
+  "tau_s": 2.07,
+  "t_198_to_60V_s": 2.47,
+  "per_res_mW_at_198V": 44.5
+ },
+ "bus bleed 100k x2": {
+  "tau_s": 1.05,
+  "t_198_to_60V_s": 1.25,
+  "per_res_mW_at_198V": 98.0
+ },
+ "bus bleed 470k x2": {
+  "tau_s": 3.64,
+  "t_198_to_60V_s": 4.35,
+  "per_res_mW_at_198V": 20.9
+ }
+}

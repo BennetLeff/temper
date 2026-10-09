@@ -16,12 +16,12 @@ def main() -> None:
     parts = {c['address'].split('::')[1]: c['attributes'] for c in resolved['components']}
     for leg in ('leg_a', 'leg_b'):
         assert parts[f'{leg}.r_dt']['mpn'] == 'RT0603BRD0749K9L'
-        assert parts[f'{leg}.r_dis_pu']['mpn'] == 'RC0603FR-07330RL'
-    assert parts['r_th_top']['mpn'] == 'RT0603BRD0710K6L'
+        assert parts[f'{leg}.r_dis_pu']['mpn'] == '0603WAF3300T5E'
+    assert parts['r_th_top']['mpn'] == 'RT0603BRD0712K4L'
     for leg in ('leg_a', 'leg_b'):
         assert parts[f'{leg}.c_hs']['mpn'] == 'CC0805KRX7R9BB104' and parts[f'{leg}.c_hs_bulk']['mpn'] == 'GRM21BZ71E106KE15L'
         assert parts[f'{leg}.c_ls']['mpn'] == 'CC0805KRX7R9BB104'
-        assert parts[f'{leg}.c_hs_1u']['mpn'] == parts[f'{leg}.c_ls_1u']['mpn'] == 'GRM21BR71H105KA12L'
+        assert parts[f'{leg}.c_hs_1u']['mpn'] == parts[f'{leg}.c_ls_1u']['mpn'] == 'CL21B105KBFNNNE'
     assert not any('RECOM' in str(part) for part in parts.values())
     assert not any('.d_boot' in path or '.c_boot' in path for path in parts)
     for base in ('monitor_ls', 'bias_ha.monitor', 'bias_hb.monitor'):

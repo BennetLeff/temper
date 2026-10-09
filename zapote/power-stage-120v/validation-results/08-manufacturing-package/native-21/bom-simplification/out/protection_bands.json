@@ -1,0 +1,70 @@
+{
+ "model": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/02-protection-timing/round3/thresholds.py",
+ "shunt_ocp": [
+  {
+   "case": "baseline (fitted) 10.6k/10.0k",
+   "thresh_V": 1.21359,
+   "nominal_trip_A": 72.82,
+   "band_min_A": 49.73,
+   "band_max_A": 97.98,
+   "meets_44A_min": true,
+   "thevenin_ohm": 5146,
+   "ref25_cathode_uA_min": 121.4
+  },
+  {
+   "case": "P-R34: 12.4k/11.7k",
+   "thresh_V": 1.21369,
+   "nominal_trip_A": 72.61,
+   "band_min_A": 49.53,
+   "band_max_A": 97.77,
+   "meets_44A_min": true,
+   "thevenin_ohm": 6020,
+   "ref25_cathode_uA_min": 139.2
+  },
+  {
+   "case": "alt: 19.3k/18.2k",
+   "thresh_V": 1.21333,
+   "nominal_trip_A": 73.33,
+   "band_min_A": 50.18,
+   "band_max_A": 98.56,
+   "meets_44A_min": true,
+   "thevenin_ohm": 9367,
+   "ref25_cathode_uA_min": 176.6
+  },
+  {
+   "case": "rejected: 10.5k/10.0k (D-31 old)",
+   "thresh_V": 1.21951,
+   "nominal_trip_A": 60.98,
+   "band_min_A": 38.44,
+   "band_max_A": 85.55,
+   "meets_44A_min": false,
+   "thevenin_ohm": 5122,
+   "ref25_cathode_uA_min": 120.8
+  }
+ ],
+ "ct_trip": [
+  {
+   "case": "baseline R40/R41 0.1 % 25 ppm",
+   "ct_pos_band_A": [
+    50.56,
+    60.01
+   ],
+   "ct_neg_band_A": [
+    50.56,
+    60.01
+   ]
+  },
+  {
+   "case": "NC-R40: R40/R41 1 % 100 ppm (Basic 0603WAF1001T5E)",
+   "ct_pos_band_A": [
+    49.18,
+    61.61
+   ],
+   "ct_neg_band_A": [
+    49.18,
+    61.61
+   ]
+  }
+ ],
+ "note": "band = min/max over every resistor vertex, ref +/-20 mV, Vos +/-4 mV, input bias, at -10 and +85 C, R5 +50 C (task 02 round 3 model, unchanged)"
+}

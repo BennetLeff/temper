@@ -98,11 +98,11 @@ component CapY1_2n2:
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
-component R120k1206:
-    """X-capacitor bleed, 2 in series (tau 0.48 s with 2 uF)."""
+component R100k1206:
+    """X-capacitor bleed, 2 x 100 k in series (tau 0.40 s with 2 uF; 0.85 s to 34 V at +20 % C)."""
     designator_prefix = "R"
-    mpn = "RC1206FR-07120KL"
-    manufacturer = "Yageo"
+    mpn = "1206W4F1003T5E"
+    manufacturer = "UNI-ROYAL(Uniroyal Elec)"
     footprint = "Resistor_SMD:R_1206_3216Metric"
     value: resistance
     signal p1 ~ pin 1
@@ -260,8 +260,8 @@ component R49k9Dt:
 
 component R10k0603:
     designator_prefix = "R"
-    mpn = "RC0603FR-0710KL"
-    manufacturer = "Yageo"
+    mpn = "0603WAF1002T5E"
+    manufacturer = "UNI-ROYAL(Uniroyal Elec)"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
     signal p1 ~ pin 1
@@ -271,8 +271,8 @@ component R100R0603:
     """Permit FET gate series resistor: 100 ohm keeps PERMIT -> DIS fast
     (validation-results/02-protection-timing)."""
     designator_prefix = "R"
-    mpn = "RC0603FR-07100RL"
-    manufacturer = "Yageo"
+    mpn = "0603WAF1000T5E"
+    manufacturer = "UNI-ROYAL(Uniroyal Elec)"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
     signal p1 ~ pin 1
@@ -280,8 +280,8 @@ component R100R0603:
 
 component R100k0603:
     designator_prefix = "R"
-    mpn = "RC0603FR-07100KL"
-    manufacturer = "Yageo"
+    mpn = "0603WAF1003T5E"
+    manufacturer = "UNI-ROYAL(Uniroyal Elec)"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
     signal p1 ~ pin 1
@@ -289,8 +289,8 @@ component R100k0603:
 
 component R330R0603:
     designator_prefix = "R"
-    mpn = "RC0603FR-07330RL"
-    manufacturer = "Yageo"
+    mpn = "0603WAF3300T5E"
+    manufacturer = "UNI-ROYAL(Uniroyal Elec)"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
     signal p1 ~ pin 1
@@ -298,8 +298,8 @@ component R330R0603:
 
 component R1k0603:
     designator_prefix = "R"
-    mpn = "RC0603FR-071KL"
-    manufacturer = "Yageo"
+    mpn = "0603WAF1001T5E"
+    manufacturer = "UNI-ROYAL(Uniroyal Elec)"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
     signal p1 ~ pin 1
@@ -307,8 +307,8 @@ component R1k0603:
 
 component C100n0603:
     designator_prefix = "C"
-    mpn = "C0603C104K5RACTU"
-    manufacturer = "KEMET"
+    mpn = "CC0603KRX7R9BB104"
+    manufacturer = "YAGEO"
     footprint = "Capacitor_SMD:C_0603_1608Metric"
     value: capacitance
     signal p1 ~ pin 1
@@ -327,11 +327,11 @@ component C100n0805:
     signal p2 ~ pin 2
 
 component C1u0805:
-    """Murata GRM21BR71H105KA12L, 1 uF 50 V X7R 0805 (LCSC C77083). Second straddle cap at the
-    UCC21550 VDD-VSS pins (review B1: >= 1 uF + 100 nF within 2 mm)."""
+    """Samsung CL21B105KBFNNNE, 1 uF 50 V X7R 0805 (LCSC C28323, JLC Basic). Second straddle cap at the
+    UCC21550 VDD-VSS pins (review B1: >= 1 uF + 100 nF within 2 mm); AMC1311 1 uF (SBAS786C 10)."""
     designator_prefix = "C"
-    mpn = "GRM21BR71H105KA12L"
-    manufacturer = "Murata"
+    mpn = "CL21B105KBFNNNE"
+    manufacturer = "Samsung Electro-Mechanics"
     footprint = "Capacitor_SMD:C_0805_2012Metric"
     value: capacitance
     signal p1 ~ pin 1
@@ -351,8 +351,8 @@ component C10u0805:
 
 component C10u1210:
     designator_prefix = "C"
-    mpn = "GRM32ER71H106KA12L"
-    manufacturer = "Murata"
+    mpn = "UMK325AB7106KM-T"
+    manufacturer = "Taiyo Yuden"
     footprint = "Capacitor_SMD:C_1210_3225Metric"
     value: capacitance
     signal p1 ~ pin 1
@@ -488,8 +488,8 @@ component C1nC0G0603:
 
 component C100pC0G0603:
     designator_prefix = "C"
-    mpn = "C0603C101J5GACTU"
-    manufacturer = "KEMET"
+    mpn = "CL10C101JB8NNNC"
+    manufacturer = "Samsung Electro-Mechanics"
     footprint = "Capacitor_SMD:C_0603_1608Metric"
     value: capacitance
     signal p1 ~ pin 1
@@ -527,10 +527,21 @@ component R10kThin:
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
-component R10k6Thin:
+component R12k4Thin:
+    """0.1 % 25 ppm thin film, OCP threshold top leg (LCSC C861102)."""
     designator_prefix = "R"
-    mpn = "RT0603BRD0710K6L"
+    mpn = "RT0603BRD0712K4L"
     manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component R11k7Thin:
+    """0.1 % 25 ppm thin film, OCP threshold bottom leg (LCSC C4553285)."""
+    designator_prefix = "R"
+    mpn = "TNPW060311K7BEEA"
+    manufacturer = "Vishay Dale"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
     signal p1 ~ pin 1
@@ -598,8 +609,8 @@ component R5k6Bias:
     """LM4040 bias, including the OCP and OVP divider loads. Worst-case
     cathode-current calculation: REFERENCE-BIAS.md."""
     designator_prefix = "R"
-    mpn = "RC0603FR-075K6L"
-    manufacturer = "Yageo"
+    mpn = "0603WAF5601T5E"
+    manufacturer = "UNI-ROYAL(Uniroyal Elec)"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
     signal p1 ~ pin 1
@@ -660,8 +671,8 @@ component FunctionalEarthLink:
     """Removable functional 0 ohm link, never a protective-earth conductor.
     HOT-to-controller insulation must remain valid with this link open."""
     designator_prefix = "R"
-    mpn = "RC0603JR-070RL"
-    manufacturer = "Yageo"
+    mpn = "0603WAF0000T5E"
+    manufacturer = "UNI-ROYAL(Uniroyal Elec)"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
     signal p1 ~ pin 1
@@ -715,8 +726,8 @@ component R3k32Thin:
 component R1k1206:
     """1 kohm 1 % 1206 series input from the CT secondary to SENSE_MON."""
     designator_prefix = "R"
-    mpn = "RC1206FR-071KL"
-    manufacturer = "Yageo"
+    mpn = "1206W4F1001T5E"
+    manufacturer = "UNI-ROYAL(Uniroyal Elec)"
     footprint = "Resistor_SMD:R_1206_3216Metric"
     value: resistance
     signal p1 ~ pin 1

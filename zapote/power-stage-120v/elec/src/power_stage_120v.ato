@@ -21,20 +21,20 @@
 # until the coil and pan measurements in COIL-MC.md are taken.
 
 from "parts.ato" import MainsTerminal2, PowerTerminalM4, PeBranchTerminal, MainsFuse25A, Tmov175, Cmc20A
-from "parts.ato" import CapX2_1u, CapY1_2n2, R120k1206, BridgeGbj2510, BusFilm2u7, LocalBus100n
+from "parts.ato" import CapX2_1u, CapY1_2n2, R100k1206, BridgeGbj2510, BusFilm2u7, LocalBus100n
 from "parts.ato" import R220k1206, Shunt1m, MosfetCfd7, Snubber1n1kV, UCC21550BDWK
 from "parts.ato" import PermitFet, R3R9Gate, R49k9Dt, R10k0603, R100k0603, R100R0603
 from "parts.ato" import R1k0603, R330R0603, C100n0603, C10u1210, C10u0805, Res942C12P22, Res942C12P1
 from "parts.ato" import C100n0805, C1u0805
 from "parts.ato" import CST3015_100E, Irm20_15, TcoLoopHeader
 from "parts.ato" import Amc1311, R470k1206, R15k8Thin, C1nC0G0603, C100pC0G0603
-from "parts.ato" import Tlv3201, Ref2V5, R10kThin, R10k6Thin, R140kThin, R5k6Bias
+from "parts.ato" import Tlv3201, Ref2V5, R10kThin, R12k4Thin, R11k7Thin, R140kThin, R5k6Bias
 from "parts.ato" import Iso7710, SelvHeader16, Nand3Lvc1g10, FunctionalEarthLink
 from "parts.ato" import Hot5Supervisor, Hot5SchmittBuffer, R105kThin
 from "parts.ato" import BusTvsMrt130kp295
 from "parts.ato" import Burden1R5, C100nC0G1206, R1kThin, R3k32Thin, R1k1206, ClampBas116h, Or3Lvc1g332
 
-from "f6_parts.ato" import HotSupply24, HotLdo, GateDischarge, Gate1R, DisOr, BiasPushPull, Bias18k2, Bias30k1, Bias4k99, Bias4u7, Bias680, Bias10u
+from "f6_parts.ato" import HotSupply24, HotLdo, GateDischarge, Gate1R, DisOr, BiasPushPull, Bias18k, Bias30k, Bias4k99, Bias4u7, Bias680, Bias10u
 from "f6_bias.ato" import BiasReservoir, RegulatedSplit, RailMonitor, HighBias, LineZeroCross
 
 module BusBringupLink:
@@ -328,12 +328,12 @@ module PowerStage120V:
     cx1 = new CapX2_1u
     cx1.p1 ~ L_F
     cx1.p2 ~ AC_N_IN
-    rb1a = new R120k1206
-    rb1a.value = 120kohm
+    rb1a = new R100k1206
+    rb1a.value = 100kohm
     rb1a.p1 ~ L_F
     rb1a.p2 ~ XBLEED_MID
-    rb1b = new R120k1206
-    rb1b.value = 120kohm
+    rb1b = new R100k1206
+    rb1b.value = 100kohm
     rb1b.p1 ~ XBLEED_MID
     rb1b.p2 ~ AC_N_IN
     l1 = new Cmc20A
@@ -545,8 +545,8 @@ module PowerStage120V:
 
     # ---------------- DC-bus OCP (shoot-through), referenced to LEG_RET.
     # V(OCP_KELVIN_N) = -I*1 mohm. OCP_NODE = 1.25 V + 0.5 * V(KELVIN_N);
-    # OCP_THRESH = 2.5 * 10.0/(10.6+10.0) = 1.2136 V -> trip at ~73 A nominal
-    # (D-31 / task 02 decision B: corner band 49.73-97.98 A, was 38.44-85.55 A)
+    # OCP_THRESH = 2.5 * 11.7/(12.4+11.7) = 1.2137 V -> trip at ~73 A nominal
+    # (D-31 / task 02 decision B: corner band 49.53-97.77 A with 12.4k/11.7k, BOM 2026-10-09)
     # (TLV3201 offset +/-5 mV max = +/-10 A; normal peak <= 45 A). The lower
     # trip reduces risk; returned tank energy is not bounded: ORACLE-REVIEW.md.
     # Comparator output high = OK. NAND + default-HIGH isolation make
@@ -570,12 +570,12 @@ module PowerStage120V:
     c_ocp_node.value = 100pF
     c_ocp_node.p1 ~ OCP_NODE
     c_ocp_node.p2 ~ OCP_KELVIN_P
-    r_th_top = new R10k6Thin
-    r_th_top.value = 10.6kohm
+    r_th_top = new R12k4Thin
+    r_th_top.value = 12.4kohm
     r_th_top.p1 ~ REF25
     r_th_top.p2 ~ OCP_THRESH
-    r_th_bot = new R10kThin
-    r_th_bot.value = 10kohm
+    r_th_bot = new R11k7Thin
+    r_th_bot.value = 11.7kohm
     r_th_bot.p1 ~ OCP_THRESH
     r_th_bot.p2 ~ OCP_KELVIN_P
     c_th = new C1nC0G0603
@@ -875,12 +875,12 @@ module PowerStage120V:
     bias_driver.SW1 ~ BIAS_SW1
     bias_driver.SW2 ~ BIAS_SW2
     # DC is intentionally open: no duty-cycle control. External clock unused.
-    bias_rclk = new Bias18k2
-    bias_rclk.value = 18.2kohm
+    bias_rclk = new Bias18k
+    bias_rclk.value = 18kohm
     bias_rclk.p1 ~ bias_driver.CLK
     bias_rclk.p2 ~ N_LS
-    bias_rlim = new Bias30k1
-    bias_rlim.value = 30.1kohm
+    bias_rlim = new Bias30k
+    bias_rlim.value = 30kohm
     bias_rlim.p1 ~ bias_driver.SS
     bias_rlim.p2 ~ N_LS
     bias_css = new Bias4u7

@@ -41,12 +41,18 @@ CENSUS21 = [row if row[0] != "U3.2" else
              "TI tps709.pdf (native-21/ECO.md sources)") for row in CENSUS]
 
 
+BAND_BEFORE = {"native21s13": (49.53, 97.77)}
+
+
 def main():
     tag = sys.argv[1] if len(sys.argv) > 1 else "native20"
     census = CENSUS21 if tag.startswith("native21") else CENSUS
     plane = json.loads((HERE / f"plane-{tag}.json").read_text())
     T = plane["transfer_mohm_to_R35_2"]
     a_per_mv = plane["trip_shift_A_per_mV_at_R35_2"]
+    # Band before the Kelvin shift: D-31 retune (10.6 k / 10 k), or 12.4 k / 11.7 k from stage 13
+    # (../../08-manufacturing-package/native-21/bom-simplification/calc_protection_bands.py).
+    lo, hi = BAND_BEFORE.get(tag, (49.73, 97.98))
     rows, e = [], 0.0
     for pad, ma, what, src in census:
         mv = ma * 1e-3 * T[pad]        # mA * mOhm = uV -> here mA*1e-3 A * mOhm = mV
@@ -56,9 +62,9 @@ def main():
     bound = total_ma * 1e-3 * plane["max_transfer"]["mohm"]
     res = {"rows": rows, "total_mA": round(total_ma, 3), "e_th_mV": round(e, 4), "trip_shift_A": round(e * a_per_mv, 3),
            "bound_all_at_max_transfer": {"e_th_mV": round(bound, 4), "trip_shift_A": round(bound * a_per_mv, 3)},
-           "band_before_A": [49.73, 97.98],
-           "band_after_A": [round(49.73 + e * a_per_mv, 2), 97.98],
-           "meets_44A_min": 49.73 + e * a_per_mv >= 44.0,
+           "band_before_A": [lo, hi],
+           "band_after_A": [round(lo + e * a_per_mv, 2), hi],
+           "meets_44A_min": lo + e * a_per_mv >= 44.0,
            "note": "shift ranges from 0 (no load current) to the census value, so it widens the band downward"}
     (HERE / f"budget-{tag}.json").write_text(json.dumps(res, indent=1) + "\n")
     lines = ["| pad | mA (max) | mΩ to R35.2 | mV at R35.2 | what |", "| --- | ---: | ---: | ---: | --- |"]

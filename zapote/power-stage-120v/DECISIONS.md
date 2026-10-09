@@ -323,3 +323,20 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
 - **Overcurrent protection:** the branch-circuit breaker plus F1 (Littelfuse KLDR025.TXP, UL Class CC, 25 A time-delay, 600 Vac / 200 kA, a Listed branch-circuit fuse). There is no inlet fuse, and MDA-30-R is removed.
 - **Why:** the two fuses could not be made selective (KLDR025 clears at 1,710 A²s; KLDR030 melts at 300 A²s), so a second fuse added nothing.
 - **Certification:** the memo asks the certifier to accept "branch breaker + Class CC F1, no inlet fuse".
+
+**2026-10-09, BOM simplification, safe set (source only; the board is rebuilt in stage 13):** `validation-results/08-manufacturing-package/native-21/bom-simplification/PROPOSAL.md`. The owner's rule: no functional part removed; only changes whose equivalence is validated.
+- **Scope:** 25 changes to MPNs or values only. Footprints, pads and nets are unchanged, and there are no copper changes.
+- **Part-for-part swaps:** 17 Extended → Basic swaps of identical spec (B1–B17). B1, the 100 nF 0603, also clears a stock risk.
+- **Relaxed precision:**
+  - 4.99 k goes to 1 %;
+  - R92 RCLK goes from 18.2 k to 18 k 1 % (≈ +1.1 % clock, inside 500–700 kHz);
+  - R93 goes from 30.1 k to 30 k 1 %;
+  - the GRM32ER 10 µF 1210 line merges into UMK325AB7106KM-T.
+- **R1/R2 120 k → 100 k:** this fixes a latent miss. With 120 k and the X caps at +20 %, the discharge from 198 V to 34 V took 1.025 s, over the 1 s limit. It is now 0.854 s (`calc_discharge.py`).
+- **No-stock lines resolved:**
+  - **R34/R35 10.6 k / 10 k → 12.4 k / 11.7 k,** both 0.1 % 25 ppm. The round-3 corner model gives a shunt-OCP band of **49.53–97.77 A**, against 49.73–97.98 A before (`calc_protection_bands.py`). The LM4040 minimum current rises to 139.2 µA, and audit `ocp_threshold_load` is now 24.1 k.
+  - **R77/R95/R110 6.12 k → 6.2 k:** −2 V nominal +10 mV; worst-case margins are UV 0.109 V, OV 0.071 V and −1.6 V bound 0.368 V (`calc_neg_rail.py`).
+  - **R87/R105/R120 → Viking ARG03BTC1333,** the same 133 k 0.1 %.
+- **Effect:** 66 → 45 JLC Extended types, about −$63 per order. The unique-line count is unchanged.
+- **Checks:** audit PASS with 357 components, 74/74 tests, and verify_source PASS.
+- **Not taken without a further check:** the R3/R4 bleed, R40/R41 at 1 %, the U1/U2 and U35 -Q1 parts. Also open: removing R1/R2 (needs the certifier), the J7–J10 studs (production re-spin), and the 3-input OR merge (re-spin).

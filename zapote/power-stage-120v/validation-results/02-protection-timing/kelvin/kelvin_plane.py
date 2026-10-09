@@ -42,6 +42,9 @@ kit = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(kit)
 NET, SINK, PROBE = "ocp_kelvin_p", "R5.2", "R35.2"
 R34, R35, RS = 10.6e3, 10.0e3, 1e-3
+# From stage 13 the divider is 12.4 k / 11.7 k (stocked 0.1 % parts, BOM simplification 2026-10-09;
+# ../../08-manufacturing-package/native-21/bom-simplification/). k changes from 0.48544 to 0.48548.
+DIVIDER = {"native21s13": (12.4e3, 11.7e3)}
 PLATING_UM, PITCH, TEMP = 18.0, 0.1, 125.0
 
 
@@ -88,7 +91,8 @@ def main() -> None:
     T = {}
     for ref, (lay, x, y) in sorted(pads.items()):
         T[ref] = float(sol["v"][net._node(lay, x, y)]) * 1e3          # mV per A (= mOhm)
-    k = R35 / (R34 + R35)
+    r34, r35 = DIVIDER.get(tag, (R34, R35))
+    k = r35 / (r34 + r35)
     a_per_mv = -(2 - 2 * k) / RS * 1e-3
     worst = max((r for r in T if r != SINK), key=lambda r: T[r])
     res = {"board_sha256": data["board_sha256"], "net": NET, "sink": SINK, "probe": PROBE,
