@@ -47,7 +47,7 @@ conductor), J4's (SELV, ≥ 64 mm from HOT), and the seven M3 fixings below.
   - **H1** takes metal hardware. It is 22.0 mm from HOT at the hole centre, 20.4 mm at the hole edge and 18.5 mm at the 7 mm washer's edge. Those three references are the review's m8 "inconsistency".
   - **H2–H7** take nylon hardware only (silk and F.Fab NYLON). Their 7 mm washer face is copper-free on both outer layers.
   - H2 and H3 are at the SELV tongue's corners, where only the SELV inner planes give way to the hole.
-  - **H4–H6 sit in the power core**, with HOT copper 0.55 mm (H4), 1.9 mm (H6) and 7.26 mm (H5) from the hole wall (H7: 15.4 mm). The HOT→chassis path then runs along the nylon standoff and screw: **nylon standoffs ≥ 10 mm long** at H4–H6 give the 8.0 mm floor with margin. That is an enclosure/assembly requirement, not a PCB one (BRINGUP-PROBES.md table).
+  - **H4–H6 sit in the power core**, with HOT copper 1.20 mm (H4), 1.90 mm (H6) and 7.92 mm (H5) from the hole wall (H7: 15.4 mm). The HOT→chassis path then runs along the nylon standoff and screw: **nylon standoffs ≥ 10 mm long** at H4–H6 give the 8.0 mm floor with margin. That is an enclosure/assembly requirement, not a PCB one (BRINGUP-PROBES.md table).
   - Any metal screw, washer or standoff is
   chassis/PE: it must be ≥ 8.0 mm from HOT and off SELV copper, or it adds a second controller-ground–PE
   bond beyond R38. `mounting-candidates.json` lists the legal M3 centres for metal hardware: 173 on a

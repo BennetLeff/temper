@@ -216,7 +216,7 @@ The rear band (240 × 150) was rejected: the sink cannot be placed without cross
 
 **Open from the closure review:**
 - **M1:** the AMC1311 has no 1 µF on either supply. The reviewer cites its datasheet; to be checked against TI's sheet before an ECO.
-- **N6:** the D5 audit and the reviewer measure H4's wall-to-HOT distance differently (0.55 vs 1.20 mm). Both are under 8 mm, and the insulating fixing chain covers either.
+- **N6:** the D5 audit and the reviewer measure H4's wall-to-HOT distance differently (0.55 vs 1.20 mm). Both are under 8 mm, and the insulating fixing chain covers either. *Resolved after stage 11:* `d5_audit.py` ignored zone cut-outs and measured from the drill's bounding box; fixed, it reports 1.20 mm.
 
 **2026-10-08, stage 10: AMC1311 1 µF supply caps (closure review M1), decided under the owner's delegation:** TI SBAS786C (rev. Jun 2022) §10 decouples each AMC1311 supply with "a low-ESR, 100-nF capacitor … parallel to a low-ESR, 1-µF capacitor". The board had only the 100 nF. C149 (VDD1, HOT5 → GND1 on ocp_kelvin_p) and C150 (VDD2, V3V3 → SELV_GND) are added, both 1 µF GRM21BR71H105KA12L 0805.
 - **C150** sits 4.9 mm by copper from pin 8.

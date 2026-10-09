@@ -48,7 +48,8 @@ def geoms(d):
     for v in d["vias"]:
         out.append(("via", v["net"], None, Point(v["at"]).buffer(v["d"] / 2)))
     for z in d["zones"]:
-        out.append(("zone", z["net"], None, Polygon(z["pts"])))
+        # filled zone with its cut-outs (a plane's clearance round a hole is not copper; N6, 2026-10-08)
+        out.append(("zone", z["net"], None, Polygon(z["pts"], z.get("holes") or [])))
     return [g for g in out if g[1]]
 
 
@@ -104,12 +105,14 @@ def main():
     bo = HERE.parent / "layout" / "board_only21.json"
     kinds = {h["ref"]: h["kind"] for h in json.loads(bo.read_text())["mounting_holes"]} if bo.exists() else {}
     # a HOT terminal's own locating / press-fit hole is part of that HOT conductor, not barrier hardware
-    res["npth_to_hot"] = [{"ref": p["ref"], "at": [p["x"], p["y"]], "hot_mm": round(_box(*p["box"]).distance(hot_u), 2),
+    # the drill is round: measure from its circle (centre, half the box width), not the square box
+    wall = lambda p: Point(p["x"], p["y"]).buffer((p["box"][2] - p["box"][0]) / 2, 64)
+    res["npth_to_hot"] = [{"ref": p["ref"], "at": [p["x"], p["y"]], "hot_mm": round(wall(p).distance(hot_u), 2),
                            "role": "own hole of a HOT terminal" if p["ref"] in hot_refs else
                                    ("nylon fixing (insulating hardware only, F.Fab NYLON)" if kinds.get(p["ref"]) == "nylon"
                                     else "metal-capable fixing / connector hardware"),
                            "pass": p["ref"] in hot_refs or kinds.get(p["ref"]) == "nylon"
-                                   or _box(*p["box"]).distance(hot_u) >= FLOOR - 1e-6} for p in npth]
+                                   or wall(p).distance(hot_u) >= FLOOR - 1e-6} for p in npth]
     res["board_fixings"] = {k: v for k, v in kinds.items()} or "none"
     res["open_for_lab"] = [
         "laminate CTI >= 175 V (group IIIa) on the order: JLC question open (FAB-JLCPCB.md)",

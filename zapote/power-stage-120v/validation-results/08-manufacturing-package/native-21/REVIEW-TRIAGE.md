@@ -59,7 +59,7 @@ Board `d4468ffd` was re-reviewed independently. It confirmed B2, M7, M9 and M12 
 | N2 | **Fixed.** The legend reads H2–H7 |
 | N3 | **Fixed.** Dead leg_ret stub removed; 9 dangling-track warnings remain, all ≤ 3 mm |
 | N5 | **Fixed.** The board and position file now carry MDA-25-R |
-| N6 | **Open (method).** The H4 wall-to-HOT distance is 0.55 mm (d5_audit) vs 1.20 mm (reviewer); both are under 8 mm and covered by the insulating chain |
+| N6 | **Fixed.** `d5_audit.py` built zones without their cut-outs and measured from the drill's square box. With the zone holes and the round drill it reports H4 1.20 / H5 7.92 mm, the reviewer's figures. Barrier minima unchanged |
 
 ## Re-review of stage 10 (`REVIEW-STAGE10.md`) and stage 11
 
