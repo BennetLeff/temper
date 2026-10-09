@@ -1,0 +1,97 @@
+#include "input_limits.h"
+#include <assert.h>
+#include <math.h>
+#include <stdio.h>
+static unsigned tests;
+#define N 64
+/* One half line cycle of an unsmoothed bus: V_bus = Vpk |sin|, tank current proportional to it. */
+static void half_cycle(input_sample_t *s, float vpk, float ipk_rms, float cos_phi)
+{
+    for (int j = 0; j < N; j++) {
+        float x = fabsf(sinf(3.14159265f * (j + 0.5f) / N));
+        s[j] = (input_sample_t){ vpk * x, ipk_rms * x, cos_phi };
+    }
+}
+static void test_config(void)
+{
+    input_limits_cfg_t c = input_limits_native21();
+    assert(input_limits_config_ok(&c));
+    input_limits_cfg_t bad = c; bad.eta_min = 1.2f; assert(!input_limits_config_ok(&bad));
+    bad = c; bad.est_error = NAN; assert(!input_limits_config_ok(&bad));
+    bad = c; bad.tank_limit_a = 0; assert(!input_limits_config_ok(&bad));
+    assert(!input_limits_config_ok(NULL));
+    tests++;
+}
+static void test_power_and_bound(void)
+{
+    input_limits_cfg_t c = input_limits_native21();
+    input_sample_t s[N]; input_estimate_t e;
+    half_cycle(s, 170.0f, 30.0f, 0.95f);
+    assert(input_limits_half_cycle(&c, s, N, 120.0f, &e));
+    /* mean of |sin|^2 over a half cycle is 1/2 */
+    double p = 0.900316316 * 170.0 * 30.0 * 0.95 * 0.5;
+    assert(fabs(e.p_inv_w - p) < 0.01 * p);
+    assert(fabs(e.p_in_w - e.p_inv_w / c.eta_min) < 1e-3f * e.p_in_w);
+    assert(fabs(e.i_ps_a - e.p_in_w / 120.0f) < 1e-4f);
+    assert(fabs(e.inlet_bound_a - (e.i_ps_a * 1.10f + 1.3f)) < 1e-4f);
+    assert(fabs(e.tank_rms_a - 30.0f / sqrtf(2.0f)) < 0.05f);
+    tests++;
+}
+static void test_tank_ceiling(void)
+{
+    input_limits_cfg_t c = input_limits_native21();
+    input_sample_t s[N]; input_estimate_t e;
+    for (int j = 0; j < N; j++) s[j] = (input_sample_t){ 160.0f, 25.0f, 0.9f };
+    assert(input_limits_half_cycle(&c, s, N, 120.0f, &e));
+    assert(e.tank_ceiling_w < e.p_inv_w);                                   /* above 22 A: cut */
+    assert(fabsf(e.tank_ceiling_w - e.p_inv_w * (22.0f / 25.0f) * (22.0f / 25.0f)) < 0.01f * e.p_inv_w);
+    for (int j = 0; j < N; j++) s[j].tank_rms_a = 10.0f;
+    assert(input_limits_half_cycle(&c, s, N, 120.0f, &e) && e.tank_ceiling_w > e.p_inv_w); /* below: room */
+    for (int j = 0; j < N; j++) s[j].tank_rms_a = 0;
+    assert(input_limits_half_cycle(&c, s, N, 120.0f, &e) && isinf(e.tank_ceiling_w) && e.p_inv_w == 0);
+    tests++;
+}
+static void test_rejects(void)
+{
+    input_limits_cfg_t c = input_limits_native21();
+    input_sample_t s[N]; input_estimate_t e;
+    half_cycle(s, 170.0f, 20.0f, 0.9f);
+    assert(!input_limits_half_cycle(&c, s, 7, 120.0f, &e));        /* too few samples */
+    assert(!input_limits_half_cycle(&c, s, N, 99.0f, &e));         /* line out of range */
+    assert(!input_limits_half_cycle(&c, s, N, NAN, &e));
+    s[5].cos_phi = 1.5f; assert(!input_limits_half_cycle(&c, s, N, 120.0f, &e)); s[5].cos_phi = 0.9f;
+    s[9].tank_rms_a = -1; assert(!input_limits_half_cycle(&c, s, N, 120.0f, &e)); s[9].tank_rms_a = 1;
+    s[3].bus_v = NAN; assert(!input_limits_half_cycle(&c, s, N, 120.0f, &e)); s[3].bus_v = 100;
+    assert(input_limits_half_cycle(&c, s, N, 120.0f, &e));
+    tests++;
+}
+static void test_regeneration_floor(void)
+{
+    input_limits_cfg_t c = input_limits_native21();
+    input_sample_t s[N]; input_estimate_t e;
+    half_cycle(s, 170.0f, 20.0f, -0.3f);
+    assert(input_limits_half_cycle(&c, s, N, 120.0f, &e));
+    assert(e.p_inv_w == 0 && e.i_ps_a == 0 && fabsf(e.inlet_bound_a - c.aux_max_a) < 1e-6f);
+    tests++;
+}
+static void test_operating_limit(void)
+{
+    /* The adapter regulates the reported inlet current at inlet_target_a <= 13.5 A (trip 15 A).
+     * With the provisional config that holds the power stage to (13.5 - 1.3) / 1.1 = 11.09 A, and
+     * the 15 A trip sits at 12.45 A, the DECISIONS.md boundary. */
+    input_limits_cfg_t c = input_limits_native21();
+    float hold = (13.5f - c.aux_max_a) / (1 + c.est_error), trip = (15.0f - c.aux_max_a) / (1 + c.est_error);
+    assert(fabsf(hold - 11.09f) < 0.01f && fabsf(trip - 12.45f) < 0.01f);
+    tests++;
+}
+int main(void)
+{
+    test_config();
+    test_power_and_bound();
+    test_tank_ceiling();
+    test_rejects();
+    test_regeneration_floor();
+    test_operating_limit();
+    printf("input_limits: %u tests passed\n", tests);
+    return 0;
+}
