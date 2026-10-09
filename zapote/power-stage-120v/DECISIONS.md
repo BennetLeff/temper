@@ -302,3 +302,18 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
 - **Direction:** a fuse whose interrupting rating covers any branch fault at 127 V. A UL Class CC time-delay (600 Vac, 200 kA, 10 × 38 mm) is the leading candidate, which means a board ECO at F1 (clips and footprint). It is being checked for parts, fit and coordination before any change.
 - **Fallback:** the certification lab accepts the upstream current-limiting fuse's let-through as F1's fault basis.
 - **Certification:** NOM (Mexico) as well as UL/CSA; the body (e.g. ANCE/NYCE) is to be chosen.
+
+**2026-10-09, F1 becomes a UL Class CC fuse (stage 12), decided under the owner's delegation (follows the 120–127 V nameplate):** `owner-items/f1cc/F1-RECOMMENDATION.md`.
+- **Fuse:** F1 is **Littelfuse KLDR025.TXP** (alternate Eaton Bussmann LP-CC-25): Class CC (UL 248-4), 25 A time-delay, 600 Vac, **200 kA**, UL Listed. That is ≈ 24× the 4.7–8.4 kA cord-limited bound at 127 V + 10 %, for UL, CSA and NOM alike.
+  - Carrying capacity: ≈ 10 % downrating at 50 °C (KLDR Rev 092821 p.6), so 25 × 0.75 × 0.90 ≈ 16.9 A continuous ≥ 15 A.
+  - No time-delay 6.3 × 32 mm 25 A fuse with ≥ 5 kA at 250 V was found. The fast-acting Littelfuse 0505025.MXP (20 kA @ 500 V, data unverified) is the fallback only if the ECO were blocked.
+- **Clips:** 2 × **Littelfuse 01250003H** (125 series, 30 A, LCSC C223911, hand-soldered) on a new footprint, `temper:Fuseholder_Clip-10.3x38mm_Littelfuse_125_Inline_P41.76x10.80mm_Slot1.2x2.5mm_Horizontal` (slotted PTH, 41.76 mm span).
+- **Board ECO:**
+  - F1 moves to (252.00, 7.25, 0°);
+  - C1 moves +0.6 mm;
+  - the F.Cu ac_l_in and l_f pours are redrawn (`layout/patches21.py` MAINS_POURS).
+- **Open:**
+  - the clip's 3D shape near the board (≥ 3.2 mm air to the l_f strip; B.Cu fallback in §5.3);
+  - the 01250003H voltage rating and agency file on Littelfuse's own page;
+  - LP-CC-25's I²t data.
+- **Enclosure:** the inlet fuse is to be deleted (the two fuses cannot be selective), or else a Class CC 30 A in a Littelfuse 5710CC holder. MDA-30-R is not kept.

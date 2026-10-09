@@ -1,4 +1,4 @@
-# [Nameplate decided 2026-10-08: **120–127 V~ 60 Hz, US/Canada and Mexico from day 1**. Keep the 127 V-nominal questions, and add NOM (ANCE/NYCE) to the scope. F1 may move to a UL Class CC fuse (study pending); update the fuse facts before sending.]
+# [Nameplate decided 2026-10-08: **120–127 V~ 60 Hz, US/Canada and Mexico from day 1**. Keep the 127 V-nominal questions, and add NOM (ANCE/NYCE) to the scope. **F1 is now a UL Class CC Littelfuse KLDR025.TXP (600 Vac, 200 kA, UL Listed) in 2 × Littelfuse 01250003H open PCB clips.** The interrupting-rating-at-127 V questions are moot; rewrite them to state the Class CC fuse. Keep the open-clip acceptance question (01250003H's voltage rating and agency file), and the heatsink-grade and tank-RMS questions.]
 
 # Inquiry 2: F1 fuse interrupting rating at 127 V, to a certification lab
 

@@ -60,8 +60,11 @@ Price at the buy qty; if a minimum order is higher, give the minimum and its pri
 | 22 | J3 | JST | B2P3-VH(LF)(SN) | 1 | VH header, 7.92 mm pitch (post 2 omitted), vertical | |
 | 23 | J3 mate | JST | VHR-3M + SVH-21T-P1.1 (or SVH-41T-P1.1) | 1 housing + 2 crimps | VH housing, contacts in positions 1 and 3 | |
 | 24 | J4 mate | Molex | 43025-1600 + 43030-0007 | 1 housing + 16 crimps | Micro-Fit 3.0 2×8 receptacle, crimps 20–24 AWG tin | |
-| 25 | F1 | Eaton Bussmann | MDA-25-R | 1 | 6.3 × 32 mm ceramic time-delay fuse, 25 A, 250 Vac | |
-| 26 | F1 clips | Littelfuse | 01220088Z | 2 | 6.3 × 32 mm PCB fuse clip, 30 A | |
+| 25 | F1 | Littelfuse | KLDR025.TXP (alternate Eaton Bussmann LP-CC-25) | 1 | UL Class CC, 25 A time-delay, 600 Vac, 200 kA, 10.3 × 38.1 mm | Changed 2026-10-09 for Mexico (120–127 V) |
+| 26 | F1 clips | Littelfuse | 01250003H | 2 | 125-series PCB clip for 13/32" (10.3 mm) midget / Class CC fuses, 30 A | LCSC C223911 had only 1 in stock |
+| 27 | Controller U14 | Analog Devices | AD8436BRQZ | 1 per controller | True-RMS-to-DC converter, QSOP-20 | Zero JLC stock; check ADI direct |
+| 28 | Controller U15 | Microchip | MCP3202-CI/SN (confirm the exact suffix in zapote/controller/bom/controller-parts.json) | 1 per controller | 12-bit 2-channel SPI ADC | Thin JLC stock |
+| 29 | Controller | Texas Instruments | TPS3703A4330DSERQ1 | 1 per controller | Window voltage supervisor, automotive grade | JLC had 18 |
 
 ## Output
 
