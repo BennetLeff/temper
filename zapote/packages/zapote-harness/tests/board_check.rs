@@ -95,3 +95,13 @@ fn live_check_of_the_120v_board_binds_inputs_and_locates_findings() {
     }
     let _ = std::fs::remove_dir_all(&out);
 }
+
+#[test]
+fn summary_says_when_the_fab_pass_ran_without_a_project() {
+    let fab = CheckReport::from_findings(vec![Finding::pass("FAB.clearance", "0 violations", "board")], vec![], vec![]);
+    let mut r = report(vec![("fab", fab)]);
+    r.fab = Some(serde_json::json!({"project_sha256": null}));
+    assert!(summary(&r).contains("no .kicad_pro beside the board"), "{}", summary(&r));
+    r.fab = Some(serde_json::json!({"project_sha256": "ab"}));
+    assert!(!summary(&r).contains("no .kicad_pro"), "{}", summary(&r));
+}

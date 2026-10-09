@@ -79,7 +79,7 @@ impl BoardCheckReport {
             native_commands: vec![],
             manufacturing: None,
             fab: None,
-            scope: "stackup, KiCad ERC/DRC, and P2 manufacturing and KiCad fab rules under the named fab profile; unit electrical, current, thermal and assembly checks are not included",
+            scope: "stackup, KiCad ERC/DRC, and P2 manufacturing under the named fab profile, plus its KiCad fab rules when the profile sets them (`fab` check); unit electrical, current, thermal and assembly checks are not included",
         }
     }
 }
@@ -117,13 +117,34 @@ pub fn run(c: &BoardCheck) -> Result<BoardCheckReport, String> {
     )?;
     // The limits dfm_check applied: same profile bytes, by hash.
     let profile_bytes = fs::read(&c.profile).map_err(|e| format!("{}: {e}", c.profile.display()))?;
-    if dfm.profile.as_ref().map(|p| &p["sha256"]) != Some(&serde_json::json!(runner::digest(&profile_bytes))) {
+    let profile_sha256 = serde_json::json!(runner::digest(&profile_bytes));
+    if dfm.profile.as_ref().map(|p| &p["sha256"]) != Some(&profile_sha256) {
         return Err("fab profile changed while the board was being checked".into());
     }
     let limits = zapote_drc::fab_profile::parse_profile(
         std::str::from_utf8(&profile_bytes).map_err(|_| "fab profile is not UTF-8".to_string())?,
     )?;
-    let fab = crate::fab_check::fab_check(&board, &c.output.join("fab"), &c.kicad_cli, &limits)?;
+    let fab = crate::fab_check::fab_check(
+        &crate::fab_check::FabInputs {
+            board: &board,
+            board_bytes: &bytes,
+            out: &c.output.join("fab"),
+            kicad: &c.kicad_cli,
+            python: &c.python,
+        },
+        &limits,
+    )?;
+    // The fab pass must judge the project the native DRC hashed.
+    if let Some(f) = &fab {
+        let native_project = commands
+            .iter()
+            .find(|n| n.argv.get(2).map(String::as_str) == Some("drc"))
+            .and_then(|n| n.dependency_hashes.get(&board.with_extension("kicad_pro")));
+        let fab_project = f.evidence.get("project_sha256");
+        if fab_project.is_some_and(|h| h.as_str() != native_project.map(String::as_str)) {
+            return Err("board project changed between the native and fab passes".into());
+        }
+    }
     if runner::digest(&fs::read(&board).map_err(|e| e.to_string())?) != runner::digest(&bytes) {
         return Err("board changed while it was being checked".into());
     }
@@ -193,6 +214,9 @@ pub fn summary(r: &BoardCheckReport) -> String {
         }
         for gap in &rep.coverage_gaps {
             out += &format!("  gap: {gap}\n");
+        }
+        if check.name == "fab" && r.fab.as_ref().is_some_and(|f| f["project_sha256"].is_null()) {
+            out += "  note: no .kicad_pro beside the board; KiCad default severities\n";
         }
     }
     out

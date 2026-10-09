@@ -55,8 +55,8 @@
   "The 0.254 mm 2 oz figure is JLC's PTH (component-hole) ring; vias have their own rule (diameter >= hole + 0.1 mm), which is the via ring limit here.",
   "Hole spacing: via/via pairs use 'Via Hole-to-Hole Spacing'; every other pair uses 'Pad Hole-to-Hole Spacing'. JLC does not state a via-to-pad hole rule.",
   "Holes above the PTH maximum are not impossible: 'Holes with diameter ≥ 6.3 mm are CNC routed from a smaller drilled hole.' Treat a DRILL_SIZE maximum finding as a process change, not a hard reject.",
-  "Track spacing is enforced by the board's native KiCad DRC rules; this profile checks minimum track width only.",
+  "P2 checks minimum track width; track spacing is the fab pass's copper clearance (below).",
   "Copper spacing, hole-to-copper and silkscreen text limits are applied by zapote-check's fab pass in KiCad's own DRC (a copy of the board with only these rules), not by the P2 geometry rules.",
-  "Not covered: 'Pad To Silkscreen 0.15mm' and the solder-mask bridge (no verified KiCad custom-rule constraint); PTH-to-track uses the 0.28 mm minimum, not the 0.35 mm recommendation."
+  "Not covered: 'Pad To Silkscreen 0.15mm', the solder-mask bridge, and the legend line width for silkscreen graphics (KiCad has no custom-rule constraint for them; minimum_silk_line_width_mm is checked on text strokes only). Pad and footprint local clearances are cleared on the fab pass's copy, since KiCad lets them override every custom rule; PTH-to-track uses the 0.28 mm minimum, not the 0.35 mm recommendation."
  ]
 }

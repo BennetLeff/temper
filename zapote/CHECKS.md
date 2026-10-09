@@ -78,14 +78,20 @@ for vias, PTH and NPTH, and silkscreen text height and stroke width (both silk
 layers). `zapote-check` copies the board and its `.kicad_pro` into
 `<output>/fab/board/` with a `.kicad_dru` holding only rules named
 `zapote fab …`, so the board's own rules keep running in the native pass and are
-never weakened (KiCad applies the *last* matching custom rule, even a looser one).
+never weakened (KiCad applies the *last* matching custom rule, even a looser one;
+hole rules are written loosest first so a via beside a PTH pad gets the stricter).
+A pad or footprint local clearance overrides every custom rule in KiCad, so the
+copy is written by pcbnew without them ([script](tools/fab_board_copy.py));
+zone clearances do not mask the rules and are kept.
 Only violations KiCad attributes to a `zapote fab` rule become findings. KiCad
 skips a malformed `.kicad_dru` silently, so the same rules first run on a
 committed self-test board that breaks each of them
 ([generator](tools/make_fab_selftest_board.py)); a rule that does not fire there,
 or a check the board's project switches off, is a coverage gap, not a pass. A
-profile with none of these limits has no `fab` check. Not covered: pad to
-silkscreen and solder-mask bridges (no verified KiCad custom-rule constraint).
+profile with none of these limits has no `fab` check. A KiCad or report failure
+is a failing `FAB.REPORT_CONTRACT` finding. Not covered: silkscreen *graphic*
+line width (only text strokes are checked), pad to silkscreen and solder-mask
+bridges (no KiCad custom-rule constraint); `report.json` lists them.
 
 ## Find implementations and evidence
 

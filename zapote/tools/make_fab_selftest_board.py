@@ -6,7 +6,12 @@ KiCad (a malformed .kicad_dru is ignored silently). Measured gaps:
 copper 0.01 mm, via and PTH hole to copper 0.06 mm, NPTH hole to copper
 0.01 mm, silk text 0.3 mm high and 0.03 mm thick on both silk layers.
 
-Usage: <kicad python> make_fab_selftest_board.py OUT.kicad_pcb
+With --override-probe it instead builds the local-override probe: an SMD
+pad with a 0.05 mm local clearance 0.10 mm from another net's track. KiCad
+applies that override before any custom rule, so the fab pass must clear it
+(tools/fab_board_copy.py) to report the gap.
+
+Usage: <kicad python> make_fab_selftest_board.py OUT.kicad_pcb [--override-probe]
 """
 import pathlib
 import sys
@@ -40,6 +45,27 @@ a = pcbnew.NETINFO_ITEM(board, "A")
 b = pcbnew.NETINFO_ITEM(board, "B")
 board.Add(a)
 board.Add(b)
+
+if "--override-probe" in sys.argv:
+    fp = pcbnew.FOOTPRINT(board)
+    fp.SetReference("J1")
+    fp.SetPosition(xy(10, 10))
+    board.Add(fp)
+    pad = pcbnew.PAD(fp)
+    pad.SetNumber("1")
+    pad.SetAttribute(pcbnew.PAD_ATTRIB_SMD)
+    pad.SetLayerSet(pcbnew.PAD.SMDMask())
+    pad.SetShape(pcbnew.PAD_SHAPE_RECT)
+    pad.SetSize(xy(1, 1))
+    pad.SetPosition(xy(10, 10))
+    pad.SetNet(a)
+    pad.SetLocalClearance(pcbnew.FromMM(0.05))
+    fp.Add(pad)
+    track(b, pcbnew.F_Cu, 10.7, 5, 15)
+    pcbnew.SaveBoard(sys.argv[1], board)
+    for suffix in (".kicad_pro", ".kicad_prl"):
+        pathlib.Path(sys.argv[1]).with_suffix(suffix).unlink(missing_ok=True)
+    sys.exit(0)
 
 # Copper to copper: 0.2 mm tracks 0.21 mm apart (0.01 mm gap).
 track(a, pcbnew.F_Cu, 5.0, 5, 35)
