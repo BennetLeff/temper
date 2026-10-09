@@ -4,11 +4,11 @@
     {
       "unit": "rtd",
       "source": "../rtd/unit/candidate/source-manifest.json",
-      "native": "../rtd/unit/evidence/return-rust-01/native.json",
+      "native": "../rtd/unit/evidence/silk-2026-10-08/native.json",
       "board": "../rtd/unit/candidate/section.kicad_pcb",
       "schematic": "../rtd/unit/candidate/section.kicad_sch",
       "contract": null,
-      "composite": "../rtd/model-correctness/qualified-input/input.json",
+      "composite": "../rtd/model-correctness/qualified-input-silk-2026-10-08/input.json",
       "fab_profile": "../fab-profiles/jlcpcb-4layer-1oz.json"
     },
     {

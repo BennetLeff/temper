@@ -14,8 +14,8 @@ RULE = 'ERC.RTD.MODEL_QUALIFICATION'
 DEVICE = 'ERC.RTD.MODEL_DEVICE_APPLICABILITY'
 
 
-def main(binary: Path) -> None:
-    base = json.loads((HERE.parent / 'qualified-input/input.json').read_text())
+def main(binary: Path, qualified: Path = HERE.parent / 'qualified-input') -> None:
+    base = json.loads((qualified / 'input.json').read_text())
     rows = []
     mutations = [('valid', (), None, 'pass')]
     for field in ['model_source_artifact_utf8', 'model_artifact_utf8', 'cases']:
@@ -68,9 +68,11 @@ def main(binary: Path) -> None:
             assert findings and all(f['status']==expected for f in findings),(name,expected,findings)
             if expected=='pass':assert any(f['rule']==DEVICE and f['status']=='indeterminate' for f in report['findings']),name
             rows.append({'case':name,'expected':expected,'observed':sorted({f['status'] for f in findings}),'exit_code':result.returncode})
-    receipt={'binary_sha256':hashlib.sha256(binary.read_bytes()).hexdigest(),'input_sha256':hashlib.sha256((HERE.parent/'qualified-input/input.json').read_bytes()).hexdigest(),'cases':rows,'all_expectations_met':True}
-    (HERE/'mutation-replay.json').write_text(json.dumps(receipt,indent=2)+'\n')
+    receipt={'binary_sha256':hashlib.sha256(binary.read_bytes()).hexdigest(),'input_sha256':hashlib.sha256((qualified/'input.json').read_bytes()).hexdigest(),'cases':rows,'all_expectations_met':True}
+    # The historical receipt lives here; a new qualified directory keeps its own.
+    out = HERE if qualified == HERE.parent / 'qualified-input' else qualified
+    (out/'mutation-replay.json').write_text(json.dumps(receipt,indent=2)+'\n')
     print(f'{len(rows)} compiled-validator scenarios matched expected results')
 
 
-if __name__=='__main__':main(Path(sys.argv[1]).resolve())
+if __name__=='__main__':main(*(Path(a).resolve() for a in sys.argv[1:3]))

@@ -41,3 +41,34 @@ artifact bytes must issue a new receipt; it must not silently reuse the old one.
 > 2026-09-25: the frozen `qualified-input/zapote-rtd` debug executable named in
 > `closeout-receipt.json` is not carried on `main`; it remains at tag
 > `archive/zapote-coil-intake-2026-09-25`. Rebuild it with the commands above.
+
+## Board revisions that leave the qualified network unchanged (2026-10-08)
+
+The qualification proof does not read the board. The board's hash enters the
+receipt only through the base input's identity. A board revision that changes
+no measurement, such as the silk revision in
+`zapote/rtd/unit/evidence/silk-2026-10-08/`, is re-qualified by replaying onto
+a re-bound base input into a new directory:
+
+```sh
+cargo build --release --locked --manifest-path zapote/Cargo.toml --bin zapote-rtd
+python3 zapote/rtd/model-correctness/root-review/bind_qualification.py <zapote-rtd> \
+  zapote/rtd/unit/evidence/silk-2026-10-08/acceptance-input.json \
+  zapote/rtd/model-correctness/qualified-input-silk-2026-10-08
+<zapote-rtd> --unit-input zapote/rtd/model-correctness/qualified-input-silk-2026-10-08/input.json \
+  --output zapote/rtd/model-correctness/qualified-input-silk-2026-10-08/report.json
+python3 zapote/rtd/model-correctness/root-review/replay_mutations.py <zapote-rtd> \
+  zapote/rtd/model-correctness/qualified-input-silk-2026-10-08
+```
+
+The replay was checked on 2026-10-08 (cargo 1.92.0, ngspice 45.2):
+- `acceptance-final/input.json` was restored from tag
+  `archive/zapote-coil-intake-2026-09-25`. Its SHA-256 is the
+  `historical_input_sha256` recorded in `qualified-input/`.
+- The four qualification scripts reproduce their committed outputs. Only
+  ngspice's run-time lines differ.
+- Binding on the *unchanged* board reproduces `qualified-input/input.json`.
+  Only `binary_sha256` differs, because the binary was rebuilt.
+- For the silk revision, `report.json` has identical findings:
+  MODEL_QUALIFICATION passes and device applicability stays indeterminate.
+  All 34 mutation scenarios match their expected results.
