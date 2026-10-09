@@ -230,3 +230,9 @@ The rear band (240 × 150) was rejected: the sink cannot be placed without cross
 - **S10-2:** the probe map is regenerated.
 - **Watch item:** re-routes over stages 8–11 thinned U26's In1 n_ls spreading plane, measured within 12 mm: 181 → 162 mm² (stage 7: 154). B3's grid-sensitive pad cell drifted from 162 to 178 °C. Not acted on: U26 is ~0.9 W with a datasheet θJA of ~35 °C/W. IR-check at first power-up (FAB-NOTE first-article list).
 - **Board `e85a4c82…`:** DRC 0 / 0 / parity 0, barrier gates 0, DFM PASS, Gerber review 889/889, D5 PASS, Kelvin 47.52–97.98 A, collisions 0, R4 0 hits.
+
+**2026-10-08, open (owner): nameplate voltage, 120 V or 120/127 V.** The external-confirmation drafts (`validation-results/08-manufacturing-package/native-21/sourcing/inquiries/`) surfaced a dependency. Under the nominal-voltage rule (UL 248-1: rating = nominal system voltage; interrupting test at rated +5 %), F1's MDA-25-R 10 kA @ 125 Vac covers a **120 V nominal** product. A product **rated 127 V nominal** (Mexico 220Y/127 V; ORACLE-ANSWER.md already uses a "Rated 127 V" column) falls under the 1.5 kA @ 250 Vac figure. That is below the repo's zero-impedance cord-limited bound (4.26 kA at 1.8 m), though above a realistic 15 m branch basis (~0.46 kA).
+- **If 120 V only:** send the certifier draft as written.
+- **If 127 V is on the nameplate:** either the lab accepts a branch-impedance fault basis, or F1 moves to a fuse with a ≥ 5 kA rating at 250 Vac (fallbacks listed in F1-CERTIFIER.md).
+
+Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JLC names no laminate for JLC041622-7628. Every candidate laminate with a public CTI is PLC 3 (175–249 V), which meets CTI ≥ 175 with no margin, so the written JLC confirmation is still required.

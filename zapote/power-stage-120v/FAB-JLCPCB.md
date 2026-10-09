@@ -17,8 +17,8 @@ earlier generic fabricator inquiry. Nothing has been sent to JLCPCB.
 | Track/space, 2 oz multilayer | ≥ 0.15/0.15 mm ("Multilayer: 0.15 / 0.15 mm (6 / 6 mil)", re-read 2026-10-08; one value for inner and outer) | Capabilities page | Native-21 floor 0.2/0.2 mm (`jlc_dfm_check.py` tracks ≥ 0.2; default clearance 0.2). Tightest copper gaps are pad-to-pad: U35 HVSSOP 0.20 mm, U26–U28 VQFN 0.30 mm |
 | Drill limits | Via hole ≥ 0.15 mm; PTH 0.15–6.3 mm; tolerance +0.13/−0.08 mm | Capabilities page | Largest hole 4.3 mm; smallest drill 0.3 mm |
 | Board size | 4-layer up to 663 × 593 mm | Capabilities page | 240 × 160 mm fits |
-| Laminate | Stackup data names **Nan Ya NP-155F**: Tg 150, UL94 V-0, dielectric breakdown 60 kV (D-48/50) | JLCPCB-hosted NP-155F datasheet | — |
-| CTI of NP-155F | **PLC 3, 175–249 V: material group IIIa**, which meets D5-BASIS (CTI ≥ 175) | Nan Ya/Technolam UL-file material table (semach.cz/Nanya2.pdf) | Meets the requirement *if NP-155F is actually used* |
+| Laminate | **Not named by JLC.** JLC's own stackup data for JLC041622-7628 names no laminate; "NP-155F" came from a third-party stackup repo (corrected 2026-10-08). The 4-layer quote defaults to "FR4-Standard TG 135-140", for which JLC states no material. JLC's listed 4-layer FR-4 laminates are NP-140F, NP-155F, KB-6164, KB-6165, S1141, S1000H and S1000-2M | jlcpcb.com capabilities / stackup data (`validation-results/08-manufacturing-package/native-21/sourcing/inquiries/CTI-JLC.md`) | Ask JLC which laminate |
+| CTI of the candidate laminates | Every public CTI found is **PLC 3 (175–249 V, group IIIa)**: NP-155F (Technolam UL-file table, E98983, old.semach.cz/pdf/nanya2.pdf), S1141 (TDS CN-TDS-1810-02 p.1), S1000-2M (TDS CN-TDS-1911-03 p.1), KB-6164 (TDS 2020-11-17 p.1). This meets D5-BASIS (CTI ≥ 175) with no margin | `sourcing/inquiries/CTI-JLC.md` | Meets the requirement *if* the order uses one of these; JLC must confirm in writing |
 | Surface finish | HASL (leaded / lead-free), ENIG, OSP | Capabilities page | Choose lead-free HASL or ENIG on order |
 
 ## Remaining question for JLCPCB support
