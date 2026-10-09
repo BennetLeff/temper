@@ -85,3 +85,41 @@ Reproduce a row: `make -C zapote check-board BOARD=$PWD/zapote/<unit>/candidate/
 - **M-10:** long lines wrapped.
 - Two tests passed on first run, because the code existed before them: `a_profile_without_fab_pass_limits_has_no_fab_check` and `summary_says_when_the_fab_pass_ran_without_a_project`.
 - Declined to judge, left as is: whether a board-setup minimum clearance floors the custom rules (only stricter, so it cannot mask), TrueType text thickness, and whether 4-layer inner layers deserve a separate spacing figure (the outer figure is conservative).
+
+## Follow-up: pad and inner-layer rows (2026-10-08)
+
+The capabilities page was re-read verbatim, and three rows are now profile limits:
+- "SMD pad to pad clearance (different nets) 0.15mm", in all profiles;
+- "Pad to track clearance (1oz) 0.1mm", in 4L 1 oz only;
+- "Inner layer PTH pad hole to copper clearance 0.3mm", in both 4-layer profiles.
+
+Verified rule syntax: `(layer inner)`. Arcs are `B.Type == 'Track'`, and `'Arc'` matches nothing.
+
+**Ruling:** the pad-specific rows are written after the general spacing, so KiCad (last match wins) judges a pad pair by its own row, even where that row is looser (0.15 vs 0.16 on 2L 2 oz). Cost if wrong: SMD pad pairs between 0.15 and 0.16 mm on 2 oz boards pass when JLC might etch them closed. The interlock U4 pads (0.15 mm) now pass.
+
+The self-test board is now 4-layer and exercises all 11 rules.
+
+Corrected unit counts (the first table came from summary output cut at 30 lines). Every unit fails only on silk:
+
+| Unit | Text height | Stroke |
+|---|---|---|
+| rtd | 40 × 0.8 mm | 40 × 0.12 mm |
+| current-sense | 21 × 0.9 mm | 21 × 0.12 mm |
+| thermal-sense | 35 (8 × 0.8 mm, 27 × 0.9 mm) | 36 × 0.12 mm |
+| interlock | 29 (0.8 to 0.9 mm) | 30 × 0.12 mm |
+| gate-drive | 19 × 0.9 mm | 26 × 0.12 mm |
+
+## Unit silk legends (2026-10-08)
+
+current-sense, thermal-sense, interlock and gate-drive now pass the fab pass. `tools/silk_legend_minimums.py` raised visible silk text to 1.0 mm high with a 0.15 mm stroke, keeping each text's character width. Keeping the width keeps the narrow thermal-sense label column clear. Current-sense R4's refdes moved above the part to clear D2's silk. Native ERC/DRC stay clean.
+
+How the evidence was handled:
+- The fresh native exports and the current-sense composite are in `<unit>/evidence/silk-legend-2026-10-08/`, and `validation/units.json` now points at them.
+- Old and new boards give identical extractor output apart from board identity.
+- The current-sense composite builder reproduces the old composite byte for byte.
+- Live `make check-units` gives the same findings per unit before and after; only gate-drive's identity message now prints the new board hash.
+- Older evidence stays as history: the 2026-09-24 review package, the freeze manifest and the inventory. The review package must be regenerated before release, which is held anyway.
+
+**Ruling: rtd is deferred.** Its model-qualification receipt binds the board's bytes (`source_hashes.board_sha256`), and the live runner fails it on any board change. Re-binding the receipt by hand would forge a qualification. The board needs the RTD model-correctness replay (`rtd/model-correctness/REPLAY.md`) against the corrected board.
+
+Until then rtd still fails the fab pass on silk: 40 texts at 0.8 mm and 40 strokes at 0.12 mm. Cost if wrong: none to safety. JLC calls smaller legends "unidentifiable", not rejected.

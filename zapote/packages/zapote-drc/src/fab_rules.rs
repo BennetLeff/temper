@@ -31,28 +31,38 @@ fn rule(name: &str, scope: &str, constraint: &str, min_mm: f64) -> KicadRule {
 /// The rules for the limits this pass applies, in `.kicad_dru` order.
 pub fn rules(limits: &FabricationLimits) -> Vec<KicadRule> {
     let mut out = Vec::new();
+    // General spacing first, then the vendor's pad-specific rows: KiCad keeps
+    // the last matching rule, so a pad pair is judged by the row written for it
+    // (JLC's SMD pad-to-pad 0.15 mm applies to pads even on 2 oz, where track
+    // spacing is 0.16 mm). Arcs are `Track` in KiCad's expressions (measured).
     if let Some(v) = limits.minimum_copper_clearance_mm {
         out.push(rule("copper clearance", "", "clearance", v));
+    }
+    if let Some(v) = limits.minimum_pad_to_track_mm {
+        out.push(rule("pad to track", " (condition \"A.Type == 'Pad' && B.Type == 'Track'\")", "clearance", v));
+    }
+    if let Some(v) = limits.minimum_smd_pad_to_pad_mm {
+        let condition = "A.Type == 'Pad' && A.Pad_Type == 'SMD' && B.Type == 'Pad' && B.Pad_Type == 'SMD'";
+        out.push(rule("SMD pad to pad", &format!(" (condition \"{condition}\")"), "clearance", v));
     }
     // A via beside a PTH pad matches both hole rules (KiCad tries A/B both
     // ways) and the last match wins, so the hole rules go loosest first: a
     // shared pair is judged at the stricter limit, never the looser.
+    let pth = "A.Type == 'Pad' && A.Pad_Type == 'Through-hole'";
     let mut holes: Vec<(f64, KicadRule)> = [
-        ("via hole to copper", "A.Type == 'Via'", limits.minimum_via_hole_to_copper_mm),
-        (
-            "PTH hole to copper",
-            "A.Type == 'Pad' && A.Pad_Type == 'Through-hole'",
-            limits.minimum_pth_hole_to_copper_mm,
-        ),
+        ("via hole to copper", "", "A.Type == 'Via'", limits.minimum_via_hole_to_copper_mm),
+        ("PTH hole to copper", "", pth, limits.minimum_pth_hole_to_copper_mm),
         (
             "NPTH hole to copper",
+            "",
             "A.Type == 'Pad' && A.Pad_Type == 'NPTH, mechanical'",
             limits.minimum_npth_hole_to_copper_mm,
         ),
+        ("inner PTH hole to copper", " (layer inner)", pth, limits.minimum_inner_pth_hole_to_copper_mm),
     ]
     .into_iter()
-    .filter_map(|(name, condition, v)| {
-        Some((v?, rule(name, &format!(" (condition \"{condition}\")"), "hole_clearance", v?)))
+    .filter_map(|(name, layer, condition, v)| {
+        Some((v?, rule(name, &format!("{layer} (condition \"{condition}\")"), "hole_clearance", v?)))
     })
     .collect();
     holes.sort_by(|a, b| a.0.total_cmp(&b.0));

@@ -29,7 +29,8 @@ mod tests {
             std::fs::read_to_string(root.join("../../gate-drive/candidate/source-manifest.json"))
                 .unwrap();
         let native =
-            std::fs::read_to_string(root.join("../../gate-drive/evidence/native-09.json")).unwrap();
+            std::fs::read_to_string(root.join("../../gate-drive/evidence/silk-legend-2026-10-08/native.json"))
+                .unwrap();
         let paths = [SourcePath {
             name: "gate_h_commutation".into(),
             current_endpoints: vec!["driver.15".into(), "gate_h.1".into()],
@@ -91,7 +92,7 @@ mod tests {
     #[test]
     fn actual_gate_noise_measurement_responds_to_native_geometry() {
         let source = include_str!("../../../gate-drive/candidate/source-manifest.json");
-        let native = include_str!("../../../gate-drive/evidence/native-09.json");
+        let native = include_str!("../../../gate-drive/evidence/silk-legend-2026-10-08/native.json");
         let json: serde_json::Value = serde_json::from_str(native).unwrap();
         let circuit = Circuit::parse(source, zapote_erc::gate_drive::ENTRY).unwrap();
         let aggressor = circuit.net("driver.15").unwrap().to_owned();
@@ -147,13 +148,13 @@ mod tests {
     fn saved_units_report_measured_geometry_and_missing_limits() {
         let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
         for (unit, dir, native_name) in [
-            ("gate-drive", "gate-drive", "native-09.json"),
+            ("gate-drive", "gate-drive", "silk-legend-2026-10-08/native.json"),
             (
                 "current-sense",
                 "current-sense",
-                "stackup-fix/native-fixed.json",
+                "silk-legend-2026-10-08/native.json",
             ),
-            ("interlock", "interlock", "native-final.json"),
+            ("interlock", "interlock", "silk-legend-2026-10-08/native.json"),
         ] {
             let source = std::fs::read_to_string(
                 root.join(format!("../../{dir}/candidate/source-manifest.json")),
@@ -402,7 +403,7 @@ mod coordinator_regressions {
     #[test]
     fn gate_return_is_kelvin_not_control_ground_and_split_cluster_is_incomplete() {
         let source = include_str!("../../../gate-drive/candidate/source-manifest.json");
-        let native = include_str!("../../../gate-drive/evidence/native-09.json");
+        let native = include_str!("../../../gate-drive/evidence/silk-legend-2026-10-08/native.json");
         let board = include_bytes!("../../../gate-drive/candidate/section.kicad_pcb");
         let baseline = run("gate-drive", source, native, board);
         let returns: Vec<_> = baseline

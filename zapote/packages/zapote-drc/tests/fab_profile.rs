@@ -71,3 +71,18 @@ fn profiles_carry_native_drc_limits() {
     assert_eq!(parse_profile(FOUR_LAYER_1OZ).unwrap().minimum_copper_clearance_mm, Some(0.09));
     assert_eq!(parse_profile(FOUR_LAYER_2OZ).unwrap().minimum_copper_clearance_mm, Some(0.15));
 }
+
+#[test]
+fn profiles_carry_pad_and_inner_layer_limits() {
+    let two = parse_profile(TWO_LAYER_2OZ).unwrap();
+    let four = parse_profile(FOUR_LAYER_1OZ).unwrap();
+    let four2 = parse_profile(FOUR_LAYER_2OZ).unwrap();
+    for p in [&two, &four, &four2] {
+        assert_eq!(p.minimum_smd_pad_to_pad_mm, Some(0.15), "{}", p.name);
+    }
+    // JLC states pad-to-track for 1 oz only, and inner-layer rules exist only on multilayer boards.
+    assert_eq!((two.minimum_pad_to_track_mm, four.minimum_pad_to_track_mm, four2.minimum_pad_to_track_mm), (None, Some(0.1), None));
+    assert_eq!(two.minimum_inner_pth_hole_to_copper_mm, None);
+    assert_eq!(four.minimum_inner_pth_hole_to_copper_mm, Some(0.3));
+    assert_eq!(four2.minimum_inner_pth_hole_to_copper_mm, Some(0.3));
+}

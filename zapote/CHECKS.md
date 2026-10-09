@@ -73,8 +73,10 @@ is extracted only on layers KiCad flashes).
 `units.json` names a profile per maintained unit.
 
 **Fab pass (`fab` check, `FAB.<type>` findings).** The limits KiCad measures
-better than P2 geometry run in KiCad's own DRC: copper clearance, hole to copper
-for vias, PTH and NPTH, and silkscreen text height and stroke width (both silk
+better than P2 geometry run in KiCad's own DRC: copper clearance (general, then
+the vendor's pad-to-track and SMD pad-to-pad rows, which govern those pairs),
+hole to copper for vias, PTH and NPTH (plus the inner-layer PTH figure on
+multilayer profiles), and silkscreen text height and stroke width (both silk
 layers). `zapote-check` copies the board and its `.kicad_pro` into
 `<output>/fab/board/` with a `.kicad_dru` holding only rules named
 `zapote fab …`, so the board's own rules keep running in the native pass and are

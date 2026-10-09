@@ -279,9 +279,9 @@ fn drc_report_parses_a_board_only_report() {
         .expect("board-only DRC report parses");
     assert_eq!(r.source, "fab_selftest.kicad_pcb");
     assert!(r.ignored_checks.iter().any(|k| k == "missing_courtyard"), "{:?}", r.ignored_checks);
-    assert_eq!(r.violations.iter().filter(|v| v.kind == "hole_clearance").count(), 3);
+    assert_eq!(r.violations.iter().filter(|v| v.kind == "hole_clearance").count(), 4);
     let count = |c: &str| r.violations.iter().filter(|v| v.category == c).count();
-    assert_eq!((count("DRC"), count("UNCONNECTED")), (19, 5));
+    assert_eq!((count("DRC"), count("UNCONNECTED")), (23, 8));
 }
 
 #[test]

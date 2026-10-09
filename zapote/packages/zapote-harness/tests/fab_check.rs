@@ -1,6 +1,7 @@
 //! The fab pass's judgement of KiCad reports. The live KiCad runs are
 //! `#[ignore]`d (CI has no KiCad); the others use a report KiCad 10.0.4 wrote
-//! for the committed self-test board under the 2-layer 2 oz profile's rules.
+//! for the committed self-test board under the 4-layer 1 oz profile's rules
+//! (the profile that sets every fab-pass limit).
 use serde_json::{json, Value};
 use std::path::{Path, PathBuf};
 use zapote_core::Status;
@@ -11,11 +12,12 @@ use zapote_harness::native_reports::{drc_report, DrcReport};
 
 const SELFTEST: &str = include_str!("../fixtures/fab_selftest-drc.json");
 const TWO_LAYER_2OZ: &str = include_str!("../../../fab-profiles/jlcpcb-2layer-2oz.json");
+const FOUR_LAYER_1OZ: &str = include_str!("../../../fab-profiles/jlcpcb-4layer-1oz.json");
 /// The board `fab_selftest-drc.json` was made from; regenerate the report when it changes.
-const SELFTEST_BOARD_SHA256: &str = "5fc3734e3c0894d3c0abd5a7556fc259dc2fac26bddb3d5365884ad919fa20f2";
+const SELFTEST_BOARD_SHA256: &str = "31ad313e0bd262a22f9ddb35efcf1cc6054a4f1d4e895d14e59484ad26ba91a7";
 
 fn fab_rules() -> Vec<KicadRule> {
-    rules(&parse_profile(TWO_LAYER_2OZ).unwrap())
+    rules(&parse_profile(FOUR_LAYER_1OZ).unwrap())
 }
 
 fn report(edit: impl FnOnce(&mut Value)) -> DrcReport {
@@ -48,7 +50,7 @@ fn only_fab_rule_violations_become_located_fab_findings() {
     let failing: Vec<_> = r.findings.iter().filter(|f| f.status == Status::Fail).collect();
     // annular_width, via_diameter and dangling tracks are board-setup findings
     // that belong to the native pass, not to the vendor.
-    assert_eq!(failing.len(), 10, "{failing:#?}");
+    assert_eq!(failing.len(), 13, "{failing:#?}");
     assert!(failing.iter().all(|f| f.rule.starts_with("FAB.")), "{failing:#?}");
     let npth = failing
         .iter()
@@ -58,6 +60,9 @@ fn only_fab_rule_violations_become_located_fab_findings() {
     assert_eq!(npth.actual.as_deref(), Some("0.0100 mm"));
     assert_eq!(npth.required.as_deref(), Some("0.2000 mm"));
     assert!(npth.object.contains("NPTH pad of J1"), "{}", npth.object);
+    for rule in ["'zapote fab SMD pad to pad'", "'zapote fab pad to track'", "'zapote fab inner PTH hole to copper'"] {
+        assert!(failing.iter().any(|f| f.message.contains(rule)), "{rule} missing");
+    }
 }
 
 #[test]
@@ -67,7 +72,7 @@ fn a_board_without_fab_violations_passes_every_rule() {
     for rule in ["FAB.clearance", "FAB.hole_clearance", "FAB.text_height", "FAB.text_thickness"] {
         assert!(r.checked_rules.iter().any(|c| c == rule), "{rule}");
     }
-    assert_eq!(r.findings.iter().filter(|f| f.status == Status::Pass).count(), 8);
+    assert_eq!(r.findings.iter().filter(|f| f.status == Status::Pass).count(), 11);
 }
 
 #[test]
@@ -136,7 +141,7 @@ fn a_profile_without_fab_pass_limits_has_no_fab_check() {
     assert!(!out.exists(), "nothing is written when the check is absent");
 }
 
-fn live(fixture: &str) -> (zapote_harness::fab_check::FabCheck, Vec<std::ffi::OsString>) {
+fn live(fixture: &str, profile: &str) -> (zapote_harness::fab_check::FabCheck, Vec<std::ffi::OsString>) {
     let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("fixtures");
     let listing = || {
         let mut names: Vec<_> = std::fs::read_dir(&dir).unwrap().map(|e| e.unwrap().file_name()).collect();
@@ -151,7 +156,7 @@ fn live(fixture: &str) -> (zapote_harness::fab_check::FabCheck, Vec<std::ffi::Os
     let kicad = PathBuf::from(std::env::var_os("KICAD_CLI").expect("KICAD_CLI"));
     let python = PathBuf::from(std::env::var_os("KICAD_PYTHON").expect("KICAD_PYTHON"));
     let inputs = FabInputs { board: &board, board_bytes: &bytes, out: &out, kicad: &kicad, python: &python };
-    let r = fab_check(&inputs, &parse_profile(TWO_LAYER_2OZ).unwrap()).unwrap().unwrap();
+    let r = fab_check(&inputs, &parse_profile(profile).unwrap()).unwrap().unwrap();
     assert_eq!(std::fs::read(&board).unwrap(), bytes, "input board untouched");
     assert_eq!(listing(), before, "nothing written beside the input board");
     let _ = std::fs::remove_dir_all(&out);
@@ -162,18 +167,19 @@ fn live(fixture: &str) -> (zapote_harness::fab_check::FabCheck, Vec<std::ffi::Os
 #[test]
 #[ignore = "requires KiCad 10 (KICAD_CLI, KICAD_PYTHON)"]
 fn live_fab_pass_on_the_self_test_board() {
-    let (r, _) = live("fab_selftest.kicad_pcb");
+    let (r, _) = live("fab_selftest.kicad_pcb", FOUR_LAYER_1OZ);
     assert!(r.report.coverage_gaps.is_empty(), "{:?}", r.report.coverage_gaps);
-    assert_eq!(r.report.findings.iter().filter(|f| f.status == Status::Fail).count(), 10);
+    assert_eq!(r.report.findings.iter().filter(|f| f.status == Status::Fail).count(), 13);
     assert_eq!(r.evidence["project_sha256"], Value::Null);
-    assert_eq!(r.evidence["rules"].as_array().unwrap().len(), 8);
+    assert_eq!(r.evidence["rules"].as_array().unwrap().len(), 11);
 }
 
 /// Live: a pad's local clearance must not hide a gap below the vendor limit.
 #[test]
 #[ignore = "requires KiCad 10 (KICAD_CLI, KICAD_PYTHON)"]
 fn live_local_clearance_override_does_not_hide_a_fab_violation() {
-    let (r, _) = live("fab_override_probe.kicad_pcb");
+    // 2-layer 2 oz: the probe's 0.10 mm gap is below its 0.16 mm spacing.
+    let (r, _) = live("fab_override_probe.kicad_pcb", TWO_LAYER_2OZ);
     assert_eq!(r.evidence["cleared_overrides"], json!([{"kind": "pad", "item": "J1.1", "clearance_mm": 0.05}]));
     let clearance: Vec<_> =
         r.report.findings.iter().filter(|f| f.rule == "FAB.clearance" && f.status == Status::Fail).collect();

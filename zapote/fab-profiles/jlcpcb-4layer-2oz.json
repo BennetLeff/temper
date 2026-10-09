@@ -24,7 +24,9 @@
   "minimum_pth_hole_to_copper_mm": 0.28,
   "minimum_npth_hole_to_copper_mm": 0.2,
   "minimum_silk_text_height_mm": 1.0,
-  "minimum_silk_line_width_mm": 0.15
+  "minimum_silk_line_width_mm": 0.15,
+  "minimum_smd_pad_to_pad_mm": 0.15,
+  "minimum_inner_pth_hole_to_copper_mm": 0.3
  },
  "quotes": {
   "minimum_hole_clearance_mm": "Pad Hole-to-Hole Spacing: 0.45mm",
@@ -41,9 +43,11 @@
   "minimum_via_hole_to_copper_mm": "Via hole to Track: 0.2mm",
   "minimum_pth_hole_to_copper_mm": "PTH to Track: 0.28mm (0.35mm is recommended, minimum 0.28mm)",
   "minimum_npth_hole_to_copper_mm": "NPTH to Track: 0.2mm",
-  "minimum_silk_line_width_mm": "Legend, Minimum Line Width: ≥0.15mm",
+  "minimum_silk_line_width_mm": "Legend, Minimum Line Width: ≥0.15mm. Characters width less than 0.15mm will be unidentifiable.",
   "minimum_silk_text_height_mm": "Legend, Minimum text height: 40 mil (1.0mm)",
-  "minimum_copper_clearance_mm": "Trace width/spacing, 2 oz: Multilayer: 0.15 / 0.15 mm (6 / 6 mil)"
+  "minimum_copper_clearance_mm": "Trace width/spacing, 2 oz: Multilayer: 0.15 / 0.15 mm (6 / 6 mil)",
+  "minimum_smd_pad_to_pad_mm": "SMD pad to pad clearance (different nets) 0.15mm",
+  "minimum_inner_pth_hole_to_copper_mm": "Inner layer PTH pad hole to copper clearance 0.3mm"
  },
  "derivations": {
   "minimum_via_annular_ring_mm": "Via ring = (diameter - hole) / 2 = 0.1 mm / 2 = 0.05 mm (the stated minimum, not the 0.15 mm preferred margin).",
@@ -57,6 +61,7 @@
   "Holes above the PTH maximum are not impossible: 'Holes with diameter ≥ 6.3 mm are CNC routed from a smaller drilled hole.' Treat a DRILL_SIZE maximum finding as a process change, not a hard reject.",
   "P2 checks minimum track width; track spacing is the fab pass's copper clearance (below).",
   "Copper spacing, hole-to-copper and silkscreen text limits are applied by zapote-check's fab pass in KiCad's own DRC (a copy of the board with only these rules), not by the P2 geometry rules.",
-  "Not covered: 'Pad To Silkscreen 0.15mm', the solder-mask bridge, and the legend line width for silkscreen graphics (KiCad has no custom-rule constraint for them; minimum_silk_line_width_mm is checked on text strokes only). Pad and footprint local clearances are cleared on the fab pass's copy, since KiCad lets them override every custom rule; PTH-to-track uses the 0.28 mm minimum, not the 0.35 mm recommendation."
+  "Not covered: 'Pad To Silkscreen 0.15mm', the solder-mask bridge, and silkscreen graphic line width (JLC scopes the legend line width to characters, and KiCad has no custom-rule constraint for graphics; minimum_silk_line_width_mm is checked on text strokes). Pad and footprint local clearances are cleared on the fab pass's copy, since KiCad lets them override every custom rule; PTH-to-track uses the 0.28 mm minimum, not the 0.35 mm recommendation.",
+  "JLC's SMD pad-to-pad row (0.15 mm) governs pad pairs, after the general spacing; 'Min. 0.09 mm locally for BGA pads' is not modelled (stricter is kept). JLC states pad-to-track for 1 oz only ('Pad to track clearance (1oz) 0.1mm'), so this profile uses its track spacing."
  ]
 }
