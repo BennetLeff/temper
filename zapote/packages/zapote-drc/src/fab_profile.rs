@@ -70,6 +70,8 @@ struct Limits {
     minimum_inner_pth_hole_to_copper_mm: Option<f64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     minimum_pad_to_silk_mm: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    minimum_solder_mask_web_mm: Option<f64>,
 }
 
 /// Parse and audit a profile; returns limits marked vendor-qualified.
@@ -142,6 +144,7 @@ pub fn parse_profile(text: &str) -> Result<FabricationLimits, String> {
         minimum_pad_to_track_mm: l.minimum_pad_to_track_mm,
         minimum_inner_pth_hole_to_copper_mm: l.minimum_inner_pth_hole_to_copper_mm,
         minimum_pad_to_silk_mm: l.minimum_pad_to_silk_mm,
+        minimum_solder_mask_web_mm: l.minimum_solder_mask_web_mm,
     })
 }
 

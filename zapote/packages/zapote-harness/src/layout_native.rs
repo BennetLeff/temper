@@ -36,8 +36,10 @@ pub fn run(
     )?;
     ensure!(
         result.status.success(),
-        "native extraction failed; see {}/extractor.stderr",
-        output.display()
+        "native extraction failed ({}); see {}/extractor.stderr. Last lines:\n{}",
+        result.status,
+        output.display(),
+        crate::runner::stderr_tail(&result.stderr)
     );
     ensure!(
         fs::read(&board_path)? == board,

@@ -154,7 +154,7 @@ mod tests {
                 "current-sense",
                 "silk-legend-2026-10-08/native.json",
             ),
-            ("interlock", "interlock", "silk-legend-2026-10-08/native.json"),
+            ("interlock", "interlock", "gang-relief-2026-10-08/native.json"),
         ] {
             let source = std::fs::read_to_string(
                 root.join(format!("../../{dir}/candidate/source-manifest.json")),

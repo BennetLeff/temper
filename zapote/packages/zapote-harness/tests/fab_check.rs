@@ -50,7 +50,7 @@ fn only_fab_rule_violations_become_located_fab_findings() {
     let failing: Vec<_> = r.findings.iter().filter(|f| f.status == Status::Fail).collect();
     // annular_width, via_diameter and dangling tracks are board-setup findings
     // that belong to the native pass, not to the vendor.
-    assert_eq!(failing.len(), 15, "{failing:#?}");
+    assert_eq!(failing.len(), 16, "{failing:#?}");
     assert!(failing.iter().all(|f| f.rule.starts_with("FAB.")), "{failing:#?}");
     let npth = failing
         .iter()
@@ -72,7 +72,7 @@ fn a_board_without_fab_violations_passes_every_rule() {
     for rule in ["FAB.clearance", "FAB.hole_clearance", "FAB.text_height", "FAB.text_thickness"] {
         assert!(r.checked_rules.iter().any(|c| c == rule), "{rule}");
     }
-    assert_eq!(r.findings.iter().filter(|f| f.status == Status::Pass).count(), 12);
+    assert_eq!(r.findings.iter().filter(|f| f.status == Status::Pass).count(), 13);
 }
 
 #[test]
@@ -169,9 +169,10 @@ fn live(fixture: &str, profile: &str) -> (zapote_harness::fab_check::FabCheck, V
 fn live_fab_pass_on_the_self_test_board() {
     let (r, _) = live("fab_selftest.kicad_pcb", FOUR_LAYER_1OZ);
     assert!(r.report.coverage_gaps.is_empty(), "{:?}", r.report.coverage_gaps);
-    assert_eq!(r.report.findings.iter().filter(|f| f.status == Status::Fail).count(), 15);
+    assert_eq!(r.report.findings.iter().filter(|f| f.status == Status::Fail).count(), 16);
     assert_eq!(r.evidence["project_sha256"], Value::Null);
-    assert_eq!(r.evidence["rules"].as_array().unwrap().len(), 12);
+    assert_eq!(r.evidence["rules"].as_array().unwrap().len(), 13);
+    assert_eq!(r.evidence["board_copy"]["solder_mask_min_web_mm"]["applied"], json!(0.1));
 }
 
 /// Live: a pad's local clearance must not hide a gap below the vendor limit.
@@ -206,4 +207,23 @@ fn a_project_that_ignores_silk_over_copper_leaves_pad_to_silk_unchecked() {
     });
     let r = evaluate(&fab_rules(), &report(|_| {}), &board);
     assert!(r.coverage_gaps.iter().any(|g| g.contains("silk_over_copper") && g.contains("pad to silk")), "{:?}", r.coverage_gaps);
+}
+
+#[test]
+fn a_mask_bridge_is_a_fab_finding_only_under_the_vendor_web() {
+    // The bridge in the fixture names no rule: the fab copy's web width (set
+    // from the profile) produced it, so it belongs to the board-setup rule.
+    let selftest = report(|_| {});
+    let r = evaluate(&fab_rules(), &selftest, &selftest);
+    let bridges: Vec<_> = r.findings.iter().filter(|f| f.rule == "FAB.solder_mask_bridge").collect();
+    assert_eq!(bridges.len(), 1, "{r:#?}");
+    assert_eq!(bridges[0].status, Status::Fail);
+    // Without a web limit the same violation is not the fab pass's to report,
+    // and no other unnamed board-setup violation (annular width, via diameter)
+    // is attributed.
+    let mut limits = parse_profile(FOUR_LAYER_1OZ).unwrap();
+    limits.minimum_solder_mask_web_mm = None;
+    let r = evaluate(&rules(&limits), &selftest, &selftest);
+    assert!(r.findings.iter().all(|f| f.rule != "FAB.solder_mask_bridge"), "{r:#?}");
+    assert!(r.findings.iter().all(|f| !f.rule.contains("annular") && !f.rule.contains("via_diameter")));
 }

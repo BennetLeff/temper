@@ -9,3 +9,10 @@ A separate 100 × 65 mm, two-layer logic board combines seven faults, a watchdog
 The flow is Atopile → native KiCad → agent-authored placement/routes → Rust and native checks. Luna contributed circuit review, native construction and validator scaffolding. Coordinator review corrected the latch evaluator, completed routing and strengthened the real-artifact mutation tests. Existing transport and geometry code was reused; no new placer/router was built.
 
 Digital construction is complete under the declared interfaces. Physical tests remain NOT RUN and full qualification is INDETERMINATE. SENSOR_LIVE/AUX producers, downstream active-high PERMIT handling and physical timing remain integration obligations. The next separate construction unit is isolated gate drive; whole-cooker integration follows the separate-unit milestones.
+
+**Solder-mask gang relief on U4 (2026-10-08).** U4's 0.5 mm-pitch pads are
+0.15 mm apart, which meets JLC's SMD pad-to-pad clearance. At 2 oz, though, JLC
+makes no mask dam below 0.20 mm, so U4's pads share one mask opening. That is
+standard for a fine-pitch IC in reflow, and the footprint records it with
+`allow_soldermask_bridges`; see `gang_relief_2026_10_08.py` and
+`evidence/gang-relief-2026-10-08/`.

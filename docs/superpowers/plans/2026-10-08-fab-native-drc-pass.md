@@ -137,3 +137,20 @@ Board results:
 - **native-17 and native-20:** R31's refdes is 0.011 mm from its pad 2. This is reported, not edited: those boards belong to the active native-21 work.
 - **rtd:** J2's footprint silk outline is 0.075 mm from its PTH pads. This joins the rtd re-qualification follow-up.
 - current-sense, thermal-sense and interlock are clean.
+
+## Solder-mask web (2026-10-08)
+
+Limits, quoted from the capabilities page: 0.20 mm for 2 oz ("2oz: Min. pad spacing: 0.20 mm (any color)"), and 0.10 mm for 4L 1 oz with green, red, yellow, blue or purple mask (black and white need 0.13 mm).
+
+Measured on KiCad 10.0.4:
+- Setting the board's minimum mask web makes the built-in `solder_mask_bridge` check report openings that merge across different nets.
+- With the board's own 0 mm, the same pads are not reported.
+
+Implementation:
+- The fab copy sets the web (`tools/fab_board_copy.py`) and records the board's own value.
+- The rule is a board-setup `KicadRule` with empty text. Only violations that name no rule and have its type are attributed to it.
+- The self-test board now goes through the same copy step; its SMD pair 0.01 mm apart produces the bridge.
+
+**Ruling: interlock U4 accepts gang relief.** U4's VSSOP-8 pads are 0.15 mm apart, below the 0.20 mm 2 oz web, so JLC makes no dam between them. Gang relief on a fine-pitch IC is standard for reflow, and the copper gap meets JLC's SMD pad-to-pad row. The footprint records the acceptance with `allow_soldermask_bridges`, on the board and in the vendored library (`interlock/gang_relief_2026_10_08.py`). Evidence is in `interlock/evidence/gang-relief-2026-10-08/`; the extractor output is identical apart from identity. Cost if wrong: a solder bridge risk at U4 that rework would have to catch.
+
+Live `check-units`: findings are unchanged except the new `FAB.solder_mask_bridge`, which passes on all five units. Every JLC row the fab pass can measure is now covered.

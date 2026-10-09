@@ -77,8 +77,11 @@ better than P2 geometry run in KiCad's own DRC: copper clearance (general, then
 the vendor's pad-to-track and SMD pad-to-pad rows, which govern those pairs),
 hole to copper for vias, PTH and NPTH (plus the inner-layer PTH figure on
 multilayer profiles), silkscreen text height and stroke width (both silk
-layers), and pad to silkscreen (a pad-scoped `silk_clearance` rule, reported by
-KiCad as `silk_over_copper`). `zapote-check` copies the board and its `.kicad_pro` into
+layers), pad to silkscreen (a pad-scoped `silk_clearance` rule, reported by
+KiCad as `silk_over_copper`), and the solder-mask web. KiCad has no custom rule
+for the web: the copy's minimum web is set to the vendor's figure, and KiCad's
+`solder_mask_bridge` check reports openings that merge across nets. A footprint
+that accepts gang relief says so with `allow_soldermask_bridges`. `zapote-check` copies the board and its `.kicad_pro` into
 `<output>/fab/board/` with a `.kicad_dru` holding only rules named
 `zapote fab …`, so the board's own rules keep running in the native pass and are
 never weakened (KiCad applies the *last* matching custom rule, even a looser one;
@@ -94,8 +97,7 @@ or a check the board's project switches off, is a coverage gap, not a pass. A
 profile with none of these limits has no `fab` check. A KiCad or report failure
 is a failing `FAB.REPORT_CONTRACT` finding. Not covered: silkscreen *graphic*
 line width (JLC scopes its legend line width to characters, which are
-checked) and solder-mask bridges (no KiCad custom-rule constraint);
-`report.json` lists them.
+checked); `report.json` lists it.
 
 ## Find implementations and evidence
 

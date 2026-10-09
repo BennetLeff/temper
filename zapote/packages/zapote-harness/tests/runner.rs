@@ -164,3 +164,14 @@ fn live_unit_run_includes_the_fab_pass() {
     assert_eq!(r.fab_evidence.as_ref().unwrap()["profile"]["path"], serde_json::json!(spec.fab_profile.unwrap()));
     let _ = fs::remove_dir_all(&out);
 }
+
+#[test]
+fn stderr_tail_keeps_the_last_lines_without_wx_noise() {
+    let mut text = String::new();
+    for i in 0..30 {
+        text += &format!("line {i}\n12:00:00 PM: Debug: Adding duplicate image handler for 'PNG file'\n");
+    }
+    let tail = runner::stderr_tail(text.as_bytes());
+    assert_eq!(tail.lines().count(), 20);
+    assert!(tail.starts_with("line 10") && tail.ends_with("line 29"), "{tail}");
+}

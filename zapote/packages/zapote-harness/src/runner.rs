@@ -94,6 +94,14 @@ pub struct NativeCommand {
     pub dependency_hashes: BTreeMap<PathBuf, String>,
     pub tool_version: String,
 }
+/// The last lines of a child's stderr, so a failure report (in CI, where the
+/// evidence directory is gone) says why without the file.
+pub fn stderr_tail(stderr: &[u8]) -> String {
+    let text = String::from_utf8_lossy(stderr);
+    let lines: Vec<_> = text.lines().filter(|l| !l.contains("Debug: Adding duplicate image handler")).collect();
+    lines[lines.len().saturating_sub(20)..].join("\n")
+}
+
 pub fn digest(bytes: &[u8]) -> String {
     format!("{:x}", Sha256::digest(bytes))
 }
@@ -471,7 +479,11 @@ pub fn dfm_check(
         .map(|(path, hash, limits)| serde_json::json!({"path": path, "sha256": hash, "name": limits.name}));
     fs::write(out.join("manufacturing-command.json"), serde_json::to_vec_pretty(&serde_json::json!({"python":python,"argv":argv,"returncode":child.status.code(),"extractor_sha256":extractor_hash,"fab_profile":profile_receipt})).map_err(|e| e.to_string())?).map_err(|e| e.to_string())?;
     if !child.status.success() {
-        return Err("manufacturing native extraction failed; see captured stderr".into());
+        return Err(format!(
+            "manufacturing native extraction failed ({}); last stderr lines:\n{}",
+            child.status,
+            stderr_tail(&child.stderr)
+        ));
     }
     let bytes = read(&receipt_path)?;
     let receipt: serde_json::Value = json(&bytes)?;

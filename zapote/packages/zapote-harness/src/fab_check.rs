@@ -14,7 +14,7 @@
 //! therefore run first on a committed self-test board that breaks every one
 //! of them by a wide margin; a rule that does not fire there is reported as a
 //! coverage gap instead of as a pass.
-use crate::native_reports::{self, DrcReport};
+use crate::native_reports::{self, DrcReport, NativeViolation};
 use crate::runner::digest;
 use std::{collections::BTreeSet, fs, path::Path, process::Command};
 use zapote_core::{CheckReport, Finding};
@@ -29,18 +29,24 @@ const BOARD_COPY_SCRIPT: &str = include_str!("../../../tools/fab_board_copy.py")
 const CONTRACT: &str = "FAB.REPORT_CONTRACT";
 
 /// What KiCad's custom rules cannot express; listed in the evidence.
-const NOT_COVERED: [&str; 2] = [
-    "silkscreen graphic line width (JLC scopes its legend line width to characters, which are checked)",
-    "solder-mask bridges",
-];
+const NOT_COVERED: [&str; 1] =
+    ["silkscreen graphic line width (JLC scopes its legend line width to characters, which are checked)"];
 
-/// The fab rule a violation is attributed to. KiCad states the governing rule
-/// in the first parenthesised clause, `(rule '<name>' ...)`; anything later
-/// (net or netclass names) cannot claim a fab rule.
-fn attributed<'a>(description: &str, rules: &'a [KicadRule]) -> Option<&'a KicadRule> {
-    let clause = &description[description.find('(')? + 1..];
-    let name = clause.strip_prefix("rule '")?.split('\'').next()?;
-    rules.iter().find(|r| r.name == name)
+/// The fab rule a violation is attributed to. KiCad states a custom rule in
+/// the first parenthesised clause, `(rule '<name>' ...)`; anything later (net
+/// or netclass names) cannot claim a fab rule. A violation naming no rule
+/// belongs to a board-setup fab rule (empty text) of the same type, which the
+/// fab copy set itself; other board-setup findings stay with the native pass.
+fn attributed<'a>(v: &NativeViolation, rules: &'a [KicadRule]) -> Option<&'a KicadRule> {
+    let named = v
+        .description
+        .find('(')
+        .and_then(|open| v.description[open + 1..].strip_prefix("rule '"))
+        .and_then(|rest| rest.split('\'').next());
+    match named {
+        Some(name) => rules.iter().find(|r| r.name == name),
+        None => rules.iter().find(|r| r.text.is_empty() && r.violation == v.kind),
+    }
 }
 
 /// Judge the board's report. Only violations KiCad attributes to a fab rule
@@ -49,7 +55,7 @@ pub fn evaluate(rules: &[KicadRule], selftest: &DrcReport, board: &DrcReport) ->
     let fired: BTreeSet<&str> = selftest
         .violations
         .iter()
-        .filter_map(|v| attributed(&v.description, rules))
+        .filter_map(|v| attributed(v, rules))
         .map(|r| r.name.as_str())
         .collect();
     let mut findings = Vec::new();
@@ -59,7 +65,7 @@ pub fn evaluate(rules: &[KicadRule], selftest: &DrcReport, board: &DrcReport) ->
         let id = format!("FAB.{}", rule.violation);
         checked.insert(id.clone());
         let mut hits = 0;
-        for v in board.violations.iter().filter(|v| attributed(&v.description, rules) == Some(rule)) {
+        for v in board.violations.iter().filter(|v| attributed(v, rules) == Some(rule)) {
             hits += 1;
             if v.kind == rule.violation {
                 findings.push(native_reports::finding(v, &id));
@@ -117,9 +123,11 @@ pub struct FabInputs<'a> {
 /// the check is then absent, not passed. Tool and report failures become a
 /// failing `FAB.REPORT_CONTRACT` finding; only I/O errors are `Err`.
 pub fn fab_check(i: &FabInputs, limits: &FabricationLimits) -> Result<Option<FabCheck>> {
-    let (Some(text), set) = (kicad_rules(limits), rules(limits)) else {
+    let set = rules(limits);
+    if set.is_empty() {
         return Ok(None);
-    };
+    }
+    let text = kicad_rules(limits).unwrap_or_else(|| "(version 1)\n".into());
     fs::create_dir(i.out).map_err(|e| format!("fab output {} must be new: {e}", i.out.display()))?;
     let mut evidence = serde_json::json!({
         "rules_sha256": digest(text.as_bytes()),
@@ -127,7 +135,7 @@ pub fn fab_check(i: &FabInputs, limits: &FabricationLimits) -> Result<Option<Fab
         "board_sha256": digest(i.board_bytes),
         "not_covered": NOT_COVERED,
     });
-    let report = match run(i, &text, &mut evidence) {
+    let report = match run(i, &text, limits.minimum_solder_mask_web_mm, &mut evidence) {
         Ok((selftest, board)) => evaluate(&set, &selftest, &board),
         Err(Failure::Io(e)) => return Err(e),
         Err(Failure::Contract(e)) => {
@@ -169,53 +177,38 @@ fn io<E: std::fmt::Display>(e: E) -> Failure {
 
 type Outcome<T> = std::result::Result<T, Failure>;
 
-fn run(i: &FabInputs, rules: &str, evidence: &mut serde_json::Value) -> Outcome<(DrcReport, DrcReport)> {
+fn run(
+    i: &FabInputs,
+    rules: &str,
+    mask_web_mm: Option<f64>,
+    evidence: &mut serde_json::Value,
+) -> Outcome<(DrcReport, DrcReport)> {
     let version = Command::new(i.kicad).arg("--version").output().map_err(io)?;
     if !version.status.success() {
         return Err(Failure::Contract("kicad-cli version probe failed".into()));
     }
     evidence["kicad_version"] = String::from_utf8_lossy(&version.stdout).trim().into();
+    let script = i.out.join("fab_board_copy.py");
+    fs::write(&script, BOARD_COPY_SCRIPT).map_err(io)?;
+    evidence["board_copy_script_sha256"] = digest(BOARD_COPY_SCRIPT.as_bytes()).into();
 
-    // Self-test board, with no project: KiCad's default severities.
+    // Self-test board, through the same copy step, with no project: KiCad's
+    // default severities.
     let selftest_dir = i.out.join("self-test");
     fs::create_dir(&selftest_dir).map_err(io)?;
     let selftest_board = selftest_dir.join("fab_selftest.kicad_pcb");
-    fs::write(&selftest_board, SELFTEST_BOARD).map_err(io)?;
+    copy_board(i, &script, SELFTEST_BOARD.as_bytes(), &selftest_board, mask_web_mm, evidence, "self_test_copy")?;
     fs::write(selftest_board.with_extension("kicad_dru"), rules).map_err(io)?;
     let selftest = drc(i.kicad, &selftest_board, evidence, "self_test")?;
 
-    // The board copy: written by pcbnew from the caller's bytes, without
-    // local clearance overrides, beside the board's own project file.
+    // The board copy, beside the board's own project file.
     let board_dir = i.out.join("board");
     fs::create_dir(&board_dir).map_err(io)?;
     let name = i.board.file_name().ok_or_else(|| Failure::Io("board path has no file name".into()))?;
-    let source = i.out.join("source.kicad_pcb");
-    fs::write(&source, i.board_bytes).map_err(io)?;
-    let script = i.out.join("fab_board_copy.py");
-    fs::write(&script, BOARD_COPY_SCRIPT).map_err(io)?;
     let copy = board_dir.join(name);
-    let child = Command::new(i.python).arg(&script).arg(&source).arg(&copy).output().map_err(io)?;
-    fs::write(i.out.join("board-copy.stderr"), &child.stderr).map_err(io)?;
-    evidence["board_copy"] = serde_json::json!({
-        "python": i.python, "script_sha256": digest(BOARD_COPY_SCRIPT.as_bytes()),
-        "returncode": child.status.code(),
-    });
-    if !child.status.success() {
-        let stderr = String::from_utf8_lossy(&child.stderr);
-        return Err(Failure::Contract(format!("board copy failed: {stderr}")));
-    }
-    let cleared: serde_json::Value = serde_json::from_slice(&child.stdout)
-        .map_err(|e| Failure::Contract(format!("board copy output: {e}")))?;
-    evidence["cleared_overrides"] = cleared["cleared"].clone();
-    fs::remove_file(&source).map_err(io)?;
-    // pcbnew writes default project files beside the copy; use the board's own.
+    let receipt = copy_board(i, &script, i.board_bytes, &copy, mask_web_mm, evidence, "board_copy")?;
+    evidence["cleared_overrides"] = receipt["cleared"].clone();
     let project = i.board.with_extension("kicad_pro");
-    for suffix in ["kicad_pro", "kicad_prl"] {
-        let path = copy.with_extension(suffix);
-        if path.exists() {
-            fs::remove_file(path).map_err(io)?;
-        }
-    }
     evidence["project_sha256"] = if project.is_file() {
         let p = fs::read(&project).map_err(io)?;
         fs::write(copy.with_extension("kicad_pro"), &p).map_err(io)?;
@@ -229,6 +222,46 @@ fn run(i: &FabInputs, rules: &str, evidence: &mut serde_json::Value) -> Outcome<
     fs::write(copy.with_extension("kicad_dru"), rules).map_err(io)?;
     let board = drc(i.kicad, &copy, evidence, "board_run")?;
     Ok((selftest, board))
+}
+
+/// Write `copy` from `bytes` with pcbnew (`tools/fab_board_copy.py`): no local
+/// clearance overrides, and the vendor's solder-mask web when the profile sets
+/// one. pcbnew's default project files beside the copy are removed.
+fn copy_board(
+    i: &FabInputs,
+    script: &Path,
+    bytes: &[u8],
+    copy: &Path,
+    mask_web_mm: Option<f64>,
+    evidence: &mut serde_json::Value,
+    key: &str,
+) -> Outcome<serde_json::Value> {
+    let dir = copy.parent().ok_or_else(|| Failure::Io("copy has no directory".into()))?;
+    let source = dir.join("source.kicad_pcb");
+    fs::write(&source, bytes).map_err(io)?;
+    let mut command = Command::new(i.python);
+    command.arg(script).arg(&source).arg(copy);
+    if let Some(web) = mask_web_mm {
+        command.arg(web.to_string());
+    }
+    let child = command.output().map_err(io)?;
+    fs::write(dir.join("board-copy.stderr"), &child.stderr).map_err(io)?;
+    evidence[key] = serde_json::json!({"python": i.python, "returncode": child.status.code()});
+    if !child.status.success() {
+        let stderr = String::from_utf8_lossy(&child.stderr);
+        return Err(Failure::Contract(format!("board copy failed: {stderr}")));
+    }
+    let receipt: serde_json::Value = serde_json::from_slice(&child.stdout)
+        .map_err(|e| Failure::Contract(format!("board copy output: {e}")))?;
+    evidence[key]["solder_mask_min_web_mm"] = receipt["solder_mask_min_web_mm"].clone();
+    fs::remove_file(&source).map_err(io)?;
+    for suffix in ["kicad_pro", "kicad_prl"] {
+        let path = copy.with_extension(suffix);
+        if path.exists() {
+            fs::remove_file(path).map_err(io)?;
+        }
+    }
+    Ok(receipt)
 }
 
 /// `kicad-cli pcb drc` on `board`, keeping the report and output beside it.

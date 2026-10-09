@@ -1,7 +1,7 @@
 {
   "$schema": "https://schemas.kicad.org/drc.v1.json",
   "coordinate_units": "mm",
-  "date": "2026-10-08T19:16:41",
+  "date": "2026-10-08T20:46:39",
   "ignored_checks": [
     {
       "description": "Footprint has no courtyard defined",
@@ -296,6 +296,29 @@
       "type": "clearance"
     },
     {
+      "description": "Clearance violation (rule 'zapote fab copper clearance' clearance 0.0900 mm; actual 0.0100 mm)",
+      "items": [
+        {
+          "description": "Via [A] on F.Cu - B.Cu",
+          "pos": {
+            "x": 10.0,
+            "y": 15.0
+          },
+          "uuid": "9b268bf8-2337-4e55-833a-01762de16ec7"
+        },
+        {
+          "description": "Track [B] on B.Cu, length 10.0000 mm",
+          "pos": {
+            "x": 5.0,
+            "y": 15.31
+          },
+          "uuid": "f81c5958-8f33-48a6-bdd1-561409f8c53b"
+        }
+      ],
+      "severity": "error",
+      "type": "clearance"
+    },
+    {
       "description": "Clearance violation (rule 'zapote fab pad to track' clearance 0.1000 mm; actual 0.0100 mm)",
       "items": [
         {
@@ -319,27 +342,27 @@
       "type": "clearance"
     },
     {
-      "description": "Clearance violation (rule 'zapote fab pad to track' clearance 0.1000 mm; actual 0.0100 mm)",
+      "description": "Hole clearance violation (rule 'zapote fab via hole to copper' clearance 0.2000 mm; actual 0.0600 mm)",
       "items": [
         {
-          "description": "PTH pad 1 [A] of J1",
+          "description": "Track [B] on B.Cu, length 10.0000 mm",
           "pos": {
-            "x": 20.0,
-            "y": 15.0
+            "x": 5.0,
+            "y": 15.31
           },
-          "uuid": "230068b3-2765-498c-8464-15a34cfc5b96"
+          "uuid": "f81c5958-8f33-48a6-bdd1-561409f8c53b"
         },
         {
-          "description": "Track [B] on B.Cu, length 6.0000 mm",
+          "description": "Via [A] on F.Cu - B.Cu",
           "pos": {
-            "x": 17.0,
-            "y": 15.66
+            "x": 10.0,
+            "y": 15.0
           },
-          "uuid": "7096fe3d-50db-4036-a25b-30c7ec208120"
+          "uuid": "9b268bf8-2337-4e55-833a-01762de16ec7"
         }
       ],
       "severity": "error",
-      "type": "clearance"
+      "type": "hole_clearance"
     },
     {
       "description": "Hole clearance violation (rule 'zapote fab inner PTH hole to copper' clearance 0.3000 mm; actual 0.0600 mm)",
@@ -365,23 +388,23 @@
       "type": "hole_clearance"
     },
     {
-      "description": "Clearance violation (rule 'zapote fab copper clearance' clearance 0.0900 mm; actual 0.0100 mm)",
+      "description": "Clearance violation (rule 'zapote fab pad to track' clearance 0.1000 mm; actual 0.0100 mm)",
       "items": [
         {
-          "description": "Via [A] on F.Cu - B.Cu",
+          "description": "PTH pad 1 [A] of J1",
           "pos": {
-            "x": 10.0,
+            "x": 20.0,
             "y": 15.0
           },
-          "uuid": "9b268bf8-2337-4e55-833a-01762de16ec7"
+          "uuid": "230068b3-2765-498c-8464-15a34cfc5b96"
         },
         {
-          "description": "Track [B] on B.Cu, length 10.0000 mm",
+          "description": "Track [B] on B.Cu, length 6.0000 mm",
           "pos": {
-            "x": 5.0,
-            "y": 15.31
+            "x": 17.0,
+            "y": 15.66
           },
-          "uuid": "f81c5958-8f33-48a6-bdd1-561409f8c53b"
+          "uuid": "7096fe3d-50db-4036-a25b-30c7ec208120"
         }
       ],
       "severity": "error",
@@ -405,29 +428,6 @@
             "y": 15.0
           },
           "uuid": "230068b3-2765-498c-8464-15a34cfc5b96"
-        }
-      ],
-      "severity": "error",
-      "type": "hole_clearance"
-    },
-    {
-      "description": "Hole clearance violation (rule 'zapote fab via hole to copper' clearance 0.2000 mm; actual 0.0600 mm)",
-      "items": [
-        {
-          "description": "Track [B] on B.Cu, length 10.0000 mm",
-          "pos": {
-            "x": 5.0,
-            "y": 15.31
-          },
-          "uuid": "f81c5958-8f33-48a6-bdd1-561409f8c53b"
-        },
-        {
-          "description": "Via [A] on F.Cu - B.Cu",
-          "pos": {
-            "x": 10.0,
-            "y": 15.0
-          },
-          "uuid": "9b268bf8-2337-4e55-833a-01762de16ec7"
         }
       ],
       "severity": "error",
@@ -470,6 +470,29 @@
       ],
       "severity": "error",
       "type": "via_diameter"
+    },
+    {
+      "description": "Front solder mask aperture bridges items with different nets",
+      "items": [
+        {
+          "description": "Pad 2 [A] of J1 on F.Cu",
+          "pos": {
+            "x": 10.0,
+            "y": 20.0
+          },
+          "uuid": "51175472-25fa-4680-99b7-c210a6afa630"
+        },
+        {
+          "description": "Pad 3 [B] of J1 on F.Cu",
+          "pos": {
+            "x": 10.51,
+            "y": 20.0
+          },
+          "uuid": "bbe700c3-739d-4237-a930-cc97583ccce8"
+        }
+      ],
+      "severity": "error",
+      "type": "solder_mask_bridge"
     },
     {
       "description": "Track has unconnected end",
