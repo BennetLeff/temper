@@ -14,7 +14,7 @@ const SELFTEST: &str = include_str!("../fixtures/fab_selftest-drc.json");
 const TWO_LAYER_2OZ: &str = include_str!("../../../fab-profiles/jlcpcb-2layer-2oz.json");
 const FOUR_LAYER_1OZ: &str = include_str!("../../../fab-profiles/jlcpcb-4layer-1oz.json");
 /// The board `fab_selftest-drc.json` was made from; regenerate the report when it changes.
-const SELFTEST_BOARD_SHA256: &str = "31ad313e0bd262a22f9ddb35efcf1cc6054a4f1d4e895d14e59484ad26ba91a7";
+const SELFTEST_BOARD_SHA256: &str = "c1af5e8b9a342604d1e08e5de1cc99dd32b05b8b31632e3cc99f5d2e0718ca6c";
 
 fn fab_rules() -> Vec<KicadRule> {
     rules(&parse_profile(FOUR_LAYER_1OZ).unwrap())
@@ -50,7 +50,7 @@ fn only_fab_rule_violations_become_located_fab_findings() {
     let failing: Vec<_> = r.findings.iter().filter(|f| f.status == Status::Fail).collect();
     // annular_width, via_diameter and dangling tracks are board-setup findings
     // that belong to the native pass, not to the vendor.
-    assert_eq!(failing.len(), 13, "{failing:#?}");
+    assert_eq!(failing.len(), 15, "{failing:#?}");
     assert!(failing.iter().all(|f| f.rule.starts_with("FAB.")), "{failing:#?}");
     let npth = failing
         .iter()
@@ -72,7 +72,7 @@ fn a_board_without_fab_violations_passes_every_rule() {
     for rule in ["FAB.clearance", "FAB.hole_clearance", "FAB.text_height", "FAB.text_thickness"] {
         assert!(r.checked_rules.iter().any(|c| c == rule), "{rule}");
     }
-    assert_eq!(r.findings.iter().filter(|f| f.status == Status::Pass).count(), 11);
+    assert_eq!(r.findings.iter().filter(|f| f.status == Status::Pass).count(), 12);
 }
 
 #[test]
@@ -169,9 +169,9 @@ fn live(fixture: &str, profile: &str) -> (zapote_harness::fab_check::FabCheck, V
 fn live_fab_pass_on_the_self_test_board() {
     let (r, _) = live("fab_selftest.kicad_pcb", FOUR_LAYER_1OZ);
     assert!(r.report.coverage_gaps.is_empty(), "{:?}", r.report.coverage_gaps);
-    assert_eq!(r.report.findings.iter().filter(|f| f.status == Status::Fail).count(), 13);
+    assert_eq!(r.report.findings.iter().filter(|f| f.status == Status::Fail).count(), 15);
     assert_eq!(r.evidence["project_sha256"], Value::Null);
-    assert_eq!(r.evidence["rules"].as_array().unwrap().len(), 11);
+    assert_eq!(r.evidence["rules"].as_array().unwrap().len(), 12);
 }
 
 /// Live: a pad's local clearance must not hide a gap below the vendor limit.
@@ -185,4 +185,25 @@ fn live_local_clearance_override_does_not_hide_a_fab_violation() {
         r.report.findings.iter().filter(|f| f.rule == "FAB.clearance" && f.status == Status::Fail).collect();
     assert_eq!(clearance.len(), 1, "{:#?}", r.report.findings);
     assert_eq!(clearance[0].actual.as_deref(), Some("0.1000 mm"));
+}
+
+#[test]
+fn pad_to_silk_violations_are_fab_silk_over_copper_findings() {
+    let selftest = report(|_| {});
+    let r = evaluate(&fab_rules(), &selftest, &selftest);
+    let silk: Vec<_> = r.findings.iter().filter(|f| f.message.contains("'zapote fab pad to silk'")).collect();
+    assert!(!silk.is_empty(), "{r:#?}");
+    assert!(silk.iter().all(|f| f.rule == "FAB.silk_over_copper" && f.status == Status::Fail), "{silk:#?}");
+    assert!(r.checked_rules.iter().any(|c| c == "FAB.silk_over_copper"));
+}
+
+#[test]
+fn a_project_that_ignores_silk_over_copper_leaves_pad_to_silk_unchecked() {
+    let board = report(|v| {
+        v["violations"] = json!([]);
+        let ignored = v["ignored_checks"].as_array_mut().unwrap();
+        ignored.push(json!({"key": "silk_over_copper", "description": "Silkscreen clipped by solder mask"}));
+    });
+    let r = evaluate(&fab_rules(), &report(|_| {}), &board);
+    assert!(r.coverage_gaps.iter().any(|g| g.contains("silk_over_copper") && g.contains("pad to silk")), "{:?}", r.coverage_gaps);
 }

@@ -91,12 +91,12 @@
 	)
 	(footprint ""
 		(layer "F.Cu")
-		(uuid "4a239252-a391-468e-ba7c-938d7bff1530")
+		(uuid "4bf6482b-5d2e-4dfd-a5e6-db496cfccc82")
 		(at 25 15)
 		(property "Reference" "J1"
 			(at 0 0 0)
 			(layer "F.SilkS")
-			(uuid "316f8ac3-596e-4264-9168-b9470ae219a3")
+			(uuid "128c65e7-fb82-4337-bb4b-795c77915e04")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -106,7 +106,7 @@
 		(property "Value" ""
 			(at 0 0 0)
 			(layer "F.Fab")
-			(uuid "f32a1df6-2e64-4bd7-8ae0-f822286fbcf6")
+			(uuid "5a1ef9b1-2d03-4594-a78b-895da5392a1a")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -117,7 +117,7 @@
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "dc2fd15c-1c75-4a40-81dc-cbfd67485503")
+			(uuid "70427763-9126-4d4d-bbc6-4e5b7d69ca34")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -128,7 +128,7 @@
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "d79e488e-31cc-4778-b105-acfdc1fb27d5")
+			(uuid "820b5b06-69cb-4cbb-87c9-c3bbac51ea5d")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -141,7 +141,7 @@
 			(size 1 1)
 			(drill 1)
 			(layers "*.Cu" "*.Mask")
-			(uuid "28b9c3ec-7ed1-45c4-89b5-121c685796d8")
+			(uuid "df9bfe30-c9cf-4606-aa1a-f6d5272dbc83")
 		)
 		(pad "1" thru_hole circle
 			(at -5 0)
@@ -150,7 +150,7 @@
 			(layers "*.Cu" "*.Mask")
 			(remove_unused_layers no)
 			(net "A")
-			(uuid "c2780b73-f913-458e-b180-76d07969bc25")
+			(uuid "230068b3-2765-498c-8464-15a34cfc5b96")
 		)
 		(pad "2" smd rect
 			(at -15 5)
@@ -158,7 +158,7 @@
 			(layers "F.Cu" "F.Mask" "F.Paste")
 			(net "A")
 			(thermal_bridge_angle 45)
-			(uuid "5f82d024-4d50-40da-bdb7-e2a52f0dc6e2")
+			(uuid "51175472-25fa-4680-99b7-c210a6afa630")
 		)
 		(pad "3" smd rect
 			(at -14.49 5)
@@ -166,9 +166,19 @@
 			(layers "F.Cu" "F.Mask" "F.Paste")
 			(net "B")
 			(thermal_bridge_angle 45)
-			(uuid "2f5c9ba3-510f-4665-8a27-da82359ef52c")
+			(uuid "bbe700c3-739d-4237-a930-cc97583ccce8")
 		)
 		(embedded_fonts no)
+	)
+	(gr_line
+		(start 9.6 19.43)
+		(end 10.4 19.43)
+		(stroke
+			(width 0.12)
+			(type default)
+		)
+		(layer "F.SilkS")
+		(uuid "faecefcf-4931-459a-bca4-1ad422797c0f")
 	)
 	(gr_rect
 		(start 0 0)
@@ -179,12 +189,12 @@
 		)
 		(fill no)
 		(layer "Edge.Cuts")
-		(uuid "8ed2a62b-5537-47d0-a2e6-62d147cce2b9")
+		(uuid "98c696dc-ec7f-40e9-ac36-705a04ef12d6")
 	)
 	(gr_text "FAB"
 		(at 10 25 0)
 		(layer "F.SilkS")
-		(uuid "53c3990c-8412-4788-b188-bbc73831bccc")
+		(uuid "87fb1c2c-c38c-4ee4-941a-d95d240b6788")
 		(effects
 			(font
 				(size 0.3 0.3)
@@ -195,7 +205,7 @@
 	(gr_text "FAB"
 		(at 30 25 0)
 		(layer "B.SilkS")
-		(uuid "38de69d5-95f3-424d-990e-c3423eb3f408")
+		(uuid "dec16c14-2768-4f87-9981-e2a32bfac97e")
 		(effects
 			(font
 				(size 0.3 0.3)
@@ -210,7 +220,7 @@
 		(width 0.2)
 		(layer "F.Cu")
 		(net "A")
-		(uuid "018c7374-f4bd-4257-8094-5e57fb9ca6d5")
+		(uuid "5c9490ab-1208-488c-9ff4-9b7e74e2bff2")
 	)
 	(via
 		(at 10 15)
@@ -218,7 +228,7 @@
 		(drill 0.3)
 		(layers "F.Cu" "B.Cu")
 		(net "A")
-		(uuid "463bf899-5e7a-48c4-a1ca-8d3cf8dfc847")
+		(uuid "9b268bf8-2337-4e55-833a-01762de16ec7")
 	)
 	(segment
 		(start 5 5.21)
@@ -226,15 +236,7 @@
 		(width 0.2)
 		(layer "F.Cu")
 		(net "B")
-		(uuid "e94521aa-0f31-40dd-90fa-07fd030f4e94")
-	)
-	(segment
-		(start 5 15.31)
-		(end 15 15.31)
-		(width 0.2)
-		(layer "B.Cu")
-		(net "B")
-		(uuid "0a05c2c9-bb11-415d-89c5-3779c66c2364")
+		(uuid "bda593b8-5c92-4499-add8-ddf827a273b8")
 	)
 	(segment
 		(start 17 15.66)
@@ -242,7 +244,7 @@
 		(width 0.2)
 		(layer "B.Cu")
 		(net "B")
-		(uuid "8d7e5c47-00b8-4100-b2fb-a21cd507a2e4")
+		(uuid "7096fe3d-50db-4036-a25b-30c7ec208120")
 	)
 	(segment
 		(start 27 15.61)
@@ -250,7 +252,15 @@
 		(width 0.2)
 		(layer "B.Cu")
 		(net "B")
-		(uuid "b314b07e-f485-4112-96cb-5f1475c612d3")
+		(uuid "97b38c4d-a9d6-40f1-a5d4-e1fc9561385a")
+	)
+	(segment
+		(start 5 15.31)
+		(end 15 15.31)
+		(width 0.2)
+		(layer "B.Cu")
+		(net "B")
+		(uuid "f81c5958-8f33-48a6-bdd1-561409f8c53b")
 	)
 	(segment
 		(start 20.66 12)
@@ -258,7 +268,7 @@
 		(width 0.2)
 		(layer "In1.Cu")
 		(net "B")
-		(uuid "dd7b4e44-d9ed-4547-90f9-9d14d6e71123")
+		(uuid "62f508af-8f9a-4b58-bc24-775ac5eceee9")
 	)
 	(embedded_fonts no)
 )

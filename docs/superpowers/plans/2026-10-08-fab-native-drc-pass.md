@@ -123,3 +123,17 @@ How the evidence was handled:
 **Ruling: rtd is deferred.** Its model-qualification receipt binds the board's bytes (`source_hashes.board_sha256`), and the live runner fails it on any board change. Re-binding the receipt by hand would forge a qualification. The board needs the RTD model-correctness replay (`rtd/model-correctness/REPLAY.md`) against the corrected board.
 
 Until then rtd still fails the fab pass on silk: 40 texts at 0.8 mm and 40 strokes at 0.12 mm. Cost if wrong: none to safety. JLC calls smaller legends "unidentifiable", not rejected.
+
+## Pad to silkscreen (2026-10-08)
+
+New limit: "Pad To Silkscreen 0.15mm. The Minimum Distance Between Pad and Silkscreen is 0.15mm." It applies to all profiles.
+
+Measured on KiCad 10.0.4: a `silk_clearance` rule with the condition `A.Type == 'Pad' || B.Type == 'Pad'` measures silk to pad (the mask opening) and reports `silk_over_copper`. Silk to silk stays with the board's own setup. `KicadRule` therefore separates `constraint` from `violation` (the type and check key).
+
+The self-test board adds a silk line 0.01 mm from an SMD pad. All 12 rules fire.
+
+Board results:
+- **gate-drive:** R5's refdes was 0.03 mm from C4's pad, after the 1.0 mm legend change. It moved below the part. The evidence is re-recorded in `gate-drive/evidence/silk-pad-2026-10-08/`, with output identical to the previous export apart from board identity.
+- **native-17 and native-20:** R31's refdes is 0.011 mm from its pad 2. This is reported, not edited: those boards belong to the active native-21 work.
+- **rtd:** J2's footprint silk outline is 0.075 mm from its PTH pads. This joins the rtd re-qualification follow-up.
+- current-sense, thermal-sense and interlock are clean.
