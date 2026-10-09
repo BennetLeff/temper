@@ -410,3 +410,18 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
   - The FR-4 strip loads the pad and must not push BR1 onto the tile; no lead flex is relied on.
   - Estimate: about 0.67 mm / (3 W/mK × ~6 cm²) ≈ 0.37 K/W, inside the ≤ 1.0 °C/W interface budget.
   - The re-spin option to move BR1 toward the sink and drop the pad remains.
+
+**2026-10-09, alternative-circuit studies for the three no-stock blocks: findings that hold whatever is fitted** (`validation-results/08-manufacturing-package/native-21/sourcing/alt-circuits-2026-10-09/`; simulation and datasheet work only; scripts are in the session scratch and are to be committed with any adopted change):
+1. **The F6 decks pin the bulk node with an ideal source,** so bulk capacitance and bulk-path inductance were never in the switching results.
+   - With the bulk modelled explicitly, the S4 hard-turn-on case is sensitive to the bulk-path inductance: about +5 V die VDS per nH, with failures from about 28–32 nH. The estimate is about 20 nH ±50 % (ALT-C5C6).
+   - **Action:** extract or measure the native-21 bulk path (the FET row to C5/C6) whatever capacitor is fitted.
+2. **Charge injected through the high-side bias barrier at the partner leg's edge is not in the F6 rail budget.** It costs about 6–25 mV per pF on a high-side bank, against the committed 78.6 mV margin (ALT-BIAS).
+   - The barrier must have a bounded coupling capacitance of about 4 pF maximum. 750320775 states 3 pF *typical* only.
+   - **Action:** add the coupling current to the edge campaign for whatever is built.
+3. **The recorded bootstrap fallback (2026-10-06) fails as written.**
+   - The TLVH431 split only sinks, so the negative rail never forms after a pre-charge; a source/sink split carrying about 44 mA would be needed.
+   - BIAS_BAD holds DIS through the burst idle, so the pre-charge cannot run.
+   - It is withdrawn as a fallback.
+4. **Unmodelled clamp case (ALT-D3):** gate-off at the line crest while the mains source inductance keeps driving current into the bus reaches about 578 V with no clamp (assumed 500 µH / 30 A). It sets the longest D3 pulse.
+   - DC-LINK-CLAMP.md and ORACLE-ANSWER.md do not cover it.
+   - **D3 is required before any bus above 150 V.** Bench bring-up without a qualified clamp stays at ≤ 150 V DC.
