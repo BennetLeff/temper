@@ -2,11 +2,11 @@
   "schema": "temper.controller.parts.v1",
   "checked": "2026-10-08 against vendor datasheets (scratch copies) and the JLCPCB parts API",
   "parts": {
-    "0430451612": {
-      "origin": "controller (new) (same part as native-21 J4)",
-      "basis": "Molex Micro-Fit 3.0 43045-1612 2x8 vertical",
-      "lcsc": "C491447",
-      "jlc_stock_2026_10_08": 7797
+    "0430451600": {
+      "origin": "controller (follow-up 2026-10-08), J4 right-angle (R27)",
+      "basis": "Molex Micro-Fit 3.0 43045-1600 right-angle THT 2x8 with PCB pegs (distributor listings; KiCad footprint cites Molex 430450201_sd.pdf). Molex drawing not read: envelope fit [UNVERIFIED]",
+      "lcsc": "C277731",
+      "jlc_stock_2026_10_08": 1348
     },
     "2N7002": {
       "origin": "controller (new)",
@@ -25,6 +25,13 @@
       "basis": "TE Micro-MaTch female-on-board 6 pos top entry; mates 7-215083-6 (TE/Future listing)",
       "lcsc": "C306122",
       "jlc_stock_2026_10_08": 567
+    },
+    "AD8436BRQZ": {
+      "origin": "controller (follow-up 2026-10-08)",
+      "basis": "ADI AD8436 Rev. B: 65 kHz for 1 % additional error, single supply 4.8-36 V, RQ-20 pin table (Table 4)",
+      "lcsc": "C652840",
+      "jlc_stock_2026_10_08": 0,
+      "procurement": "JLC stock 0 on 2026-10-08: order from ADI/distributor or consign"
     },
     "B2B-XH-A(LF)(SN)": {
       "origin": "ported: zapote/thermal-sense + controller",
@@ -49,6 +56,12 @@
       "basis": "JST eXH.pdf",
       "lcsc": "C157972",
       "jlc_stock_2026_10_08": 9993
+    },
+    "BAT54S-7-F": {
+      "origin": "controller (follow-up 2026-10-08)",
+      "basis": "Diodes DS11005 Rev 34: pin 1 A(D1), 3 common, 2 K(D2); VF <= 0.5 V at 30 mA; IR <= 2 uA at 25 V",
+      "lcsc": "C83574",
+      "jlc_stock_2026_10_08": 14605
     },
     "BLM18AG121SN1D": {
       "origin": "ported: zapote/rtd (RTDSensing)",
@@ -159,6 +172,18 @@
       "lcsc": "C2913198",
       "jlc_stock_2026_10_08": 278
     },
+    "GRM1885C1H103JA01D": {
+      "origin": "controller (follow-up 2026-10-08)",
+      "basis": "Murata 10 nF 50 V C0G 0603",
+      "lcsc": "C85973",
+      "jlc_stock_2026_10_08": 53519
+    },
+    "GRM31C5C1H104JA01L": {
+      "origin": "controller (follow-up 2026-10-08)",
+      "basis": "Murata 100 nF 50 V C0G 1206 (AD8436 CAVG/coupling: no X7R)",
+      "lcsc": "C97946",
+      "jlc_stock_2026_10_08": 72248
+    },
     "LM4040A25IDBZR": {
       "origin": "controller (new), D-11 reference",
       "basis": "TI SLOS456Q Table 5-1",
@@ -170,6 +195,12 @@
       "basis": "ADI MAX31865; zapote/rtd/unit/bom/pcb-bom.csv",
       "lcsc": "C89608",
       "jlc_stock_2026_10_08": 188
+    },
+    "MCP3202-CI/SN": {
+      "origin": "controller (follow-up 2026-10-08)",
+      "basis": "Microchip DS21034F pin table 3-1; 2.7-5.5 V; inputs VSS..VDD (abs max VDD+0.6 V)",
+      "lcsc": "C56997",
+      "jlc_stock_2026_10_08": 197
     },
     "OPA2388IDR": {
       "origin": "controller (new), D-11 receiver",
@@ -279,6 +310,12 @@
       "lcsc": "C107698",
       "jlc_stock_2026_10_08": 1076606
     },
+    "RC1206FR-07100RL": {
+      "origin": "controller (follow-up 2026-10-08)",
+      "basis": "Yageo RC_L 1 % 1206 0.25 W (5 V LDO dropper)",
+      "lcsc": "C137392",
+      "jlc_stock_2026_10_08": 845881
+    },
     "REF2025AIDDCR": {
       "origin": "ported: zapote/rtd (RTDSensing)",
       "basis": "TI REF20xx; RTD unit BOM",
@@ -315,6 +352,12 @@
       "basis": "Yageo RT 0.1 % 25 ppm 0603",
       "lcsc": "C723484",
       "jlc_stock_2026_10_08": 28798
+    },
+    "RT0603BRD0730KL": {
+      "origin": "controller (follow-up 2026-10-08)",
+      "basis": "Yageo RT 0.1 % 25 ppm 0603 (RMS gain)",
+      "lcsc": "C723585",
+      "jlc_stock_2026_10_08": 419149
     },
     "RT0603BRD077K06L": {
       "origin": "controller (new)",
@@ -370,6 +413,12 @@
       "lcsc": "C7668",
       "jlc_stock_2026_10_08": 93416
     },
+    "SN74LVC2G17DBVR": {
+      "origin": "controller (follow-up 2026-10-08)",
+      "basis": "TI SCES381N: inputs accept 5.5 V; pins 1A1 GND2 2A3 2Y4 VCC5 1Y6",
+      "lcsc": "C10429",
+      "jlc_stock_2026_10_08": 44616
+    },
     "SWPA6045S100MT": {
       "origin": "controller (new)",
       "basis": "Sunlord SWPA6045S series: 10 uH, Isat 3.5 A, Irms 2.45 A, 48 mOhm (catalogue)",
@@ -394,6 +443,12 @@
       "lcsc": "C105188",
       "jlc_stock_2026_10_08": 30055
     },
+    "TLV76050DBZR": {
+      "origin": "controller (follow-up 2026-10-08)",
+      "basis": "TI TLV760: OUT1 IN2 GND3 (DBZ); VIN to 30 V; IGND 5 mA max; RthJA 275.2 C/W",
+      "lcsc": "C2867465",
+      "jlc_stock_2026_10_08": 19221
+    },
     "TLV9031DBVR": {
       "origin": "ported: zapote/thermal-sense",
       "basis": "TI SNOSDA3H; zapote/thermal-sense BOM.md",
@@ -406,12 +461,12 @@
       "lcsc": "C398355",
       "jlc_stock_2026_10_08": 169080
     },
-    "TPS3703A4330DSER": {
-      "origin": "controller (new)",
-      "basis": "TI SBVS249B, pin table, 7.5 electrical; A=10 ms delay, 4 = +/-4 %, 330 = 3.3 V",
-      "lcsc": "C2861205",
-      "jlc_stock_2026_10_08": 0,
-      "procurement": "JLC stock 0 on 2026-10-08: order from TI/distributor or consign; drop-in automotive grade TPS3703A4330DSERQ1 (LCSC C1850327) is stocked"
+    "TPS3703A4330DSERQ1": {
+      "origin": "controller (replaces TPS3703A4330DSER, zero JLC stock)",
+      "basis": "TI SBVS344D: pins SENSE1 VDD2 CT3 RESET4 GND5 MR6, +/-0.7 %, VHYS 0.3-0.8 %, tD 7-13 ms -- identical to SBVS249B commercial part",
+      "lcsc": "C1850327",
+      "jlc_stock_2026_10_08": 18,
+      "procurement": "JLC stock 18 on 2026-10-08: confirm before ordering"
     },
     "TPS3823-33DBVR": {
       "origin": "ported: zapote/interlock",

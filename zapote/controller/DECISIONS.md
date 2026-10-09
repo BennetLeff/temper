@@ -21,7 +21,7 @@ These are design calls I made during schematic capture, as a senior designer, fr
 
 ## C3. The OLED is SPI, not I²C (architecture open item 6, answered)
 - **Why:** the NHD-3.12-25664UCW2 (SSD1322) offers 6800/8080 parallel or 3/4-wire SPI only (Newhaven DS "MPU Interface Pin Selections"). There is no I²C.
-- **Wiring:** 4-wire SPI on GPIO40/41/42 (SCLK/SDIN/CS#), D/C on GPIO45, RES# from the expander. The harness ties the module's BS1/BS0, R/W, E and D3–D7 to VSS at the OLED end (the J6 pin map is in ENCLOSURE-HANDOFF).
+- **Wiring:** 4-wire SPI on GPIO40/41 (SCLK/SDIN), D/C on GPIO45, RES# and CS# from the expander (P04/P05). CS# moved off GPIO42 in the follow-up (C20): the OLED is the only device on its bus, so CS# only needs setting once, and the expander pin powers up as an input with its pull-up, so the display is deselected at reset. The harness ties the module's BS1/BS0, R/W, E and D3–D7 to VSS at the OLED end (the J6 pin map is in ENCLOSURE-HANDOFF).
 - **Supply:** the factory 3.3 V jumper option is kept, at 340 mA maximum. Using its 12 V panel option would need a tighter 12 V rail than the fan rail (R11 review), so I didn't.
 - **I²C** (GPIO9 SDA, GPIO0 SCL) now serves only the TCA9555.
 
@@ -55,7 +55,7 @@ Through a removable 0 Ω link (`r_ovp_tie`) to selv_gnd. bus_fault already ORs D
 - **Regulator:** TPS62933F (forced CCM) at 500 kHz with 10 µH and 3 × 22 µF.
 - **Feedback:** 22.1k/7.06k 0.1 % gives 3.304 V nominal, centred between the window's UV release and OV trip. The first capture used 31.6k/10k (3.328 V), which left 13 mV to OV, so I changed it.
 - **Supervisor:** the TPS3703A4330 senses through 1 kΩ/1 µF (τ = 1 ms), so µs-scale ESP32-TX and OLED load steps can't nuisance-latch the interlock. Real rail faults are ms-scale.
-- **Flag:** JLC shows 0 stock for the TPS3703A4330DSER. The Q1 grade (C1850327) is pin- and threshold-identical and stocked.
+- **Part (follow-up):** fitted as **TPS3703A4330DSERQ1** (C1850327), because JLC showed 0 stock for the commercial TPS3703A4330DSER. The Q1 datasheet (SBVS344D) gives the same DSE pinout (SENSE1 VDD2 CT3 RESET4 GND5 MR6), ±0.7 % accuracy, 0.3–0.8 % hysteresis, 7–13 ms delay and supply/SENSE currents, so every calculation is unchanged.
 
 ## C9. Fan supply: a regulator on the controller, on by default (spec R19 L1, R24)
 - **Converter:** 15 V → 12.0 V with a TPS62933 (11.78–12.22 V, inside the Delta PFB0612EHE-F00's 7–13.2 V). At 14.5 V input the duty is 0.846, against a 0.923 typical limit without foldback, and foldback allows 98 %.
@@ -72,13 +72,12 @@ Through a removable 0 Ω link (`r_ovp_tie`) to selv_gnd. bus_fault already ORs D
   - Factory zero calibration absorbs the offset.
 - **Flag:** D-11's harness capacitance limits (≤ 400 pF to ground, ≤ 200 pF between conductors) become a J4 harness requirement.
 
-## C11. ct_mon: unity buffer, wideband (settled answer)
+## C11. ct_mon: unity buffer, wideband (settled answer; RMS added in C19)
 - **Load:** a TLV9062 follower, ≥ 10 MΩ DC (the 10 MΩ defines the input as 0 V when J4 is unplugged, so firmware can detect it). Gain error is 0.02 % against the ≈ 2 kΩ source.
 - **Bandwidth:** the output RC is 100 Ω/1 nF (1.6 MHz), so the ≈ 32 kHz tank waveform reaches the ADC.
 - **Range:** 1.18–2.12 V at 22 A RMS and 0.83–2.48 V at the 55 A trip, inside ATTEN3's 0–2.9 V.
 - **Flag (risk):** `input_limits.h` wants tank RMS over the switching period. At 20 kS/s that can only be estimated statistically: asynchronous sampling, many periods per half line cycle. The ESP32 SAR's aperture and settling at 32 kHz are not specified.
-  - If the bench shows the estimate error is too large, the fallback is an RMS-to-DC converter on this channel.
-  - That fallback is not fitted, because the settled answer asks for a buffer.
+  - **Superseded (owner-approved):** a true-RMS converter now gives firmware the RMS directly (C19). The raw path stays for phase and waveform checks.
 
 ## C12. ADC sampling plan
 - **Pattern** (one continuous ADC1 sequence at 80 kS/s): `VBUS, CT_MON, VBUS, CT_MON, VBUS, HS, COIL, M12`.
@@ -92,24 +91,73 @@ Through a removable 0 Ω link (`r_ovp_tie`) to selv_gnd. bus_fault already ORs D
 
 ## C14. M12 probe assumed to be an NTC divider (architecture open item 5)
 - **Circuit:** J9 pin 1 is the probe sense line. It has a 10.0 kΩ 0.1 % pull-up to v3v3, the same form as thermal-sense, and an ESD5Z3.3 TVS at the pin. A 10 kΩ/100 nF filter feeds a TLV9062 buffer into GPIO8 (ATTEN3). Pin 2 is GND and pin 3 is shield/drain to GND.
-- **Flag (owner):** the probe type and the M12 pin map are not fixed. A Pt100 probe would need a second MAX31865, which is a CS on the expander or a spare GPIO, and ADC1 is full.
+- **DEFAULT (recorded, owner item open):** M12 = NTC to ground at the probe.
+- **If the default changes:**
+  - **Another NTC value:** change one resistor (r_m12_pu); no topology change.
+  - **A Pt100 or other low-resistance probe:** it cannot use this divider usefully. It goes to a second MAX31865 on the existing RTD SPI bus, with its CS on spare expander pin P06 and its DRDY polled. The ADC1 channel then becomes spare. Nothing else on the board depends on the M12 type.
 
-## C15. Encoder (TE Micro-MaTch)
+## C15. Encoder (TE Micro-MaTch): safe with a 3.3 V or a 5 V encoder (follow-up)
 - **Connector:** J5 is TE 7-215079-6 (female-on-board, 6 positions), mating the 7-215083-6 on the encoder lead.
-- **Assumed pin map:** 1 +V (3.3 V through a removable 0 Ω), 2 GND, 3 A, 4 B, 5 switch, 6 GND. A/B/switch have 10 kΩ pull-ups; A/B go to GPIO47/48 and the switch to the expander.
-- **Flag:** the Grayhill part and its pin map are open. If it is a 5 V optical encoder, its outputs are not 3.3 V-tolerant on the ESP32. Confirm before layout.
+- **Pin map (default):** 1 +3.3 V (0 Ω link), 2 GND, 3 A, 4 B, 5 switch, **6 +5 V**.
+  - The Grayhill part isn't chosen, so J5 offers both supplies and the short extension harness selects one. No jumper or DNP option is needed.
+  - +5 V comes from a TLV76050 (100 mA, internal current limit and thermal shutdown) fed from v15 through 2 × 100 Ω 1206. Calcs: LDO ≤ 0.14 W, +39 °C; resistors 0.12 W each, half their rating. A factory cable that grounds pin 6 only current-limits the LDO.
+- **Input protection:** each of A, B and switch has a 10 kΩ pull-up to 3.3 V (for open-collector outputs) and 1 kΩ in series.
+  - A and B pass through an SN74LVC2G17 Schmitt buffer, whose inputs accept 5.5 V at VCC 3.3 V (SCES381N), into GPIO47/48.
+  - The switch goes to the TCA9555, whose I/O is 5 V tolerant (SCPS200E §9.3.1).
+  - No encoder line touches an ESP32 pin directly (`verify_controller.py` ui section, mutation-tested).
+- **Remaining flag:** the encoder's own pin map must still be wired correctly in the extension.
 
 ## C16. Buttons (two landings on the Y41 trunk)
-- **Connectors:** J7 (3-pin: BTN1, BTN2, GND) at X−90 and J8 (2-pin: BTN3, GND) at X5. The switches close to GND, use the TCA9555's internal pull-ups and are polled.
+- **Connectors:** J7 (3-pin: BTN1, BTN2, GND) at X−90 and J8 (2-pin: BTN3, GND) at X5. The switches close to GND, use the TCA9555's internal pull-ups and are polled. Each line has 1 kΩ in series into the 5 V-tolerant expander (follow-up), so an illuminated or 5 V-referenced switch can't stress the board.
 - **Option, not taken:** a normally-closed STOP contact could be an independent hardware trip on AUX. I didn't take it, because the APEM contact form is unknown and AUX carries the rail fault.
 
 ## C17. J4 and its harness
-- **Header:** the same Molex 43045-1612 as native-21; the harness is 43025-1600 to 43025-1600, pin 1 to pin 1.
+- **Header (follow-up, R27):** **Molex 43045-1600**, the right-angle Micro-Fit 3.0 2×8 THT header with plastic PCB pegs (C277731). KiCad footprint `Molex_Micro-Fit_3.0_43045-1600_2x08_P3.00mm_Horizontal`, mating +X on the right edge near Y42.
+  - native-21 keeps the vertical 43045-1612. The circuit numbers are Micro-Fit's, so the harness stays 43025-1600 to 43025-1600, pin 1 to pin 1, and the J4 contract check is unchanged.
+  - **[UNVERIFIED]:** Molex's drawing (430450201_sd, cited by the KiCad footprint) could not be fetched from here. Its fit in the R27 envelope (X38–63, Y32–52, Z ≤ 40, plug body above Z30 beyond X50) must be checked against the drawing before layout. Distributor listings confirm right-angle, 16 circuits, 3.00 mm, through-hole, PCB pegs.
 - **Returns:** LINE_ZC took one of the four selv_gnd contacts, leaving pins 2, 4 and 15 to return ≈ 0.85 A (15 V return) at peak. That is 3 × 8.5 A rated contacts, with a 22 mV ground shift over 1 m of AWG22 (included in the native-21 rail check).
 - **Input protection:** none on 15 V. The IRM-20-15 is current-limited, and the harness contacts are rated far above the load.
 
 ## C18. Debug header
 J11 (1×8, 2.54 mm) carries 3V3, GND, TXD0, RXD0, EN, IO0, USB D−/D+ for flashing and JTAG. Fit it for development; it can be left unpopulated in production.
+
+## C19. True-RMS tank current (owner-approved follow-up)
+- **Part:** **AD8436BRQZ.** Its datasheet (Rev. B Table 1) gives 65 kHz for 1 % additional error and 1 MHz −3 dB at 300 mV rms, which covers the 31–55 kHz tank band.
+  - The LTC1968 has a higher bandwidth (500 kHz for 1 % per ADI's product page), but it needs 4.5–5.5 V and I could not read its datasheet here.
+  - The LTC1966's datasheet was also unreachable. Its bandwidth for 1 % error is not claimed.
+- **Circuit (single supply on v15_selv, datasheet "Single Supply"):**
+  - Input: the ct_mon buffer output, AC-coupled (100 nF C0G) into the FET input buffer with 10 MΩ to IGND.
+  - Core: the unity buffer drives the core through 100 nF C0G.
+  - Averaging: CAVG is 100 nF C0G to VCC. The datasheet forbids X7R here, and the verifier checks it.
+  - Output: OUT feeds the internal 16 kΩ with 10 nF C0G (≈ 1 kHz, 2f ripple ×0.016), then the output buffer at gain 4 (30k/10k 0.1 %).
+- **Levels:** 22 A RMS reads 1.32 V and the 55 A peak trip 2.33 V. Coupling error is 0.002 % at 31 kHz.
+- **Settling:** 3.4 ms to 0.1 % (falling), from the datasheet's 10 µF figure scaled linearly to 100 nF (bench item). That is within the 8.3 ms half-cycle.
+- **Protection:** the output buffer runs from 15 V, so 1 kΩ plus a BAT54S clamp holds the ADC input within VDD + 0.5 V up to an 11 mA fault (DS11005 VF ≤ 0.5 V at 30 mA). Leakage contributes ≤ 0.15 %.
+- **Kept:** the raw ct_mon ADC1 path (CT_MON_ADC), for phase and waveform sanity.
+- **Open (bench):** the RMS output smooths the 120 Hz envelope with a time constant of order 0.5 ms (estimated). Its effect on the per-half-cycle product mean(V·I·cosφ) in `input_limits.h` has to be measured against true-RMS line current (the same bench run that sets e_est).
+
+## C20. Where the RMS channel is converted
+- **Choice:** an **external MCP3202** (12-bit, 2 channels) on the RTD SPI bus (RTD_SCK/SDI/SDO; DOUT high-Z when deselected, 33 Ω series). Its CS is GPIO42 with a 10 kΩ pull-up.
+  - **CH0** is the RMS output.
+  - **CH1** reads the LM4040A25 2.5 V (0.1 %) node, so firmware divides out the v3v3 reference (3.242–3.367 V).
+- **Why not freeing an ADC1 channel:** all five ADC1 channels carry required signals.
+- **Why not ADC2:** the only free ADC2 pads are GPIO19/20 (debug USB). ESP32-S3 ADC2 cannot be read while Wi-Fi is active, and C21 keeps Wi-Fi as an option. A signal the 15 A inlet cap depends on must not conflict with it.
+- **GPIO cost:** GPIO42 (previously OLED CS#, now on the expander).
+- **Firmware:** the MAX31865 (SPI mode 1/3) and MCP3202 (mode 0/3) share the bus. Use mode 3 for both, or per-device modes in ESP-IDF, with bus locking.
+
+## C21. Wi-Fi: option, unqualified (enclosure test E4)
+Wi-Fi is not required now. The WROOM-1 (PCB antenna) is kept at no cost, per R27:
+- placed at the board's front edge between X−80 and X10, antenna end facing the front lens window;
+- Espressif's antenna copper/metal keep-out kept clear;
+- WROOM-1U with an external antenna as the fallback.
+
+Nothing on the board needs ADC2 or depends on Wi-Fi being off except ADC2 itself, which is unused.
+
+## C22. Recorded defaults for open owner items
+These are DEFAULTS, labelled in the docs and the calcs. The design doesn't break if they change:
+- **M12 = NTC** (C14 gives the change path);
+- **J4 harness ≤ 1 m AWG22** (the rail stays in contract to beyond 8 m);
+- **runaway band 297–319 °C** (one resistor ratio, cross-checked by the verifier).
 
 ## FMEA: shared supply, ground and connector (CONTROLLER-SPEC requirement, before layout freeze)
 
@@ -133,10 +181,10 @@ J11 (1×8, 2.54 mm) carries 3V3, GND, TXD0, RXD0, EN, IO0, USB D−/D+ for flash
 1. **Owner:** confirm D-18 is superseded, so the fan can sit on PS1 through the controller (C9).
 2. **Owner:** M12 probe type and pin map (C14).
 3. **Owner/UI:** the Grayhill encoder part, its supply voltage and the 6-way pin map (C15). Also the APEM switch contact form, and whether STOP should be a hardware trip (C16).
-4. **Owner:** accept the hardware runaway band of 296.6–319.1 °C alongside firmware's 300 °C (C6), and the BIAS-on start-up sequence it imposes on firmware.
-5. **Owner/power-stage:** the ct_mon RMS estimation risk and the RMS-to-DC fallback (C11).
-6. **Power-stage:** the J4 harness spec. Length ≤ 1 m and AWG22 are assumed in the rail budget; D-11's ≤ 400 pF/≤ 200 pF capacitance limits apply.
-7. **Procurement:** TPS3703A4330DSER (use the Q1 grade). Ported parts with JLC stock 0 or near 0: ERA-3AEB1652V and RG2012V-431-W-T1 (RTD block), and CD74HC30PWR (interlock, 7 in stock). See `bom/controller-parts.json`.
+4. **Owner:** the runaway band. **DEFAULT** 296.6–319.1 °C (C6). It is set only by the 20k/10k ratio, so a new band is one resistor change. `verify_controller.py` checks that the fitted ratio equals `controller_calcs.py`, and `runaway()` reports the band. The BIAS-on start-up sequence for firmware stays.
+5. **Bench:** the AD8436 settling with CAVG = 100 nF (the linear scaling from the datasheet's 10 µF figure is an assumption), and the envelope-tracking error over a half line cycle (C19).
+6. **Power-stage:** the J4 harness spec. **DEFAULT:** ≤ 1 m AWG22 (R27's route is 74 mm). `controller_calcs.py harness_sensitivity()` shows native-21 still sees ≥ 3.208 V even at 8 m, so the design does not depend on this default. D-11's ≤ 400 pF/≤ 200 pF capacitance limits apply.
+7. **Procurement:** AD8436BRQZ has zero JLC stock (consign or buy from ADI or a distributor). The TPS3703 Q1 has only 18 at JLC. MCP3202 has 197. Ported parts with JLC stock 0 or near 0: ERA-3AEB1652V and RG2012V-431-W-T1 (RTD block), and CD74HC30PWR (interlock, 7 in stock). See `bom/controller-parts.json`.
 8. **Firmware:**
    - repeated ADC1 channels in one continuous pattern (C12);
    - the BIAS-on, settle, reset-request sequence (C6);
@@ -166,7 +214,7 @@ Binding when the controller PCB is laid out (source: output/temper-manufacturing
   - a **right-angle** Micro-Fit 3.0 2×8 header on the right edge, mating +X, near Y42;
   - the header, mated plug and lead bend may occupy X38–63, Y32–52, Z ≤ 40;
   - above native-21's tongue (X ≥ 50), the plug body stays above Z30.
-  - Part to be selected and checked against Molex's drawing; the schematic currently carries the vertical footprint.
+  - Selected in the follow-up: Molex 43045-1600 (C17); envelope fit against Molex's drawing still [UNVERIFIED].
 - **Wi-Fi:**
   - the ESP32-S3-WROOM-1 sits at the board's front edge, X−80…10, antenna end facing front toward the glass lens window (X−89…19, ~108 × 38), with Espressif's antenna keep-out;
   - fallback: WROOM-1U with an external antenna behind the lens bezel;

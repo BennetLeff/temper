@@ -1,9 +1,9 @@
 {
   "atopile_version": "0.2.69",
   "build_sha256": {
-    "build/default.csv": "4d08b03d3900c9dde3afb168a6947ce8e66a8b7ef9a3623f445c17a74891dd61",
+    "build/default.csv": "c9a675a6ecb0b4ffb042fae90ee3e873d0808059fa871e529ef88eaa3d24dd70",
     "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-    "build/default.net": "2e0b73ae6e5cf89eeca56c31910a803eb6dda2d651a7f5d0122bdbdbdef68155",
+    "build/default.net": "c6666ded892944d29444001726f2f7d42c242b5760049c920dcfc90543bb1b15",
     "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5"
   },
   "components": [
@@ -12,9 +12,9 @@
       "attributes": {
         "designator": "J4",
         "designator_prefix": "J",
-        "footprint": "Connector_Molex:Molex_Micro-Fit_3.0_43045-1612_2x08_P3.00mm_Vertical",
+        "footprint": "Connector_Molex:Molex_Micro-Fit_3.0_43045-1600_2x08_P3.00mm_Horizontal",
         "manufacturer": "Molex",
-        "mpn": "0430451612"
+        "mpn": "0430451600"
       }
     },
     {
@@ -455,7 +455,7 @@
         "designator_prefix": "U",
         "footprint": "Package_SON:WSON-6_1.5x1.5mm_P0.5mm",
         "manufacturer": "Texas Instruments",
-        "mpn": "TPS3703A4330DSER"
+        "mpn": "TPS3703A4330DSERQ1"
       }
     },
     {
@@ -1855,6 +1855,200 @@
       }
     },
     {
+      "address": "UNIT/elec/src/controller.ato:SelvController::u_rms",
+      "attributes": {
+        "designator": "U14",
+        "designator_prefix": "U",
+        "footprint": "Package_SO:QSOP-20_3.9x8.7mm_P0.635mm",
+        "manufacturer": "Analog Devices",
+        "mpn": "AD8436BRQZ"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/controller.ato:SelvController::c_rms_in",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "C0G",
+        "footprint": "Capacitor_SMD:C_1206_3216Metric",
+        "mpn": "GRM31C5C1H104JA01L",
+        "value": "100nF +/- 5%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "UNIT/elec/src/controller.ato:SelvController::r_rms_bias",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0710ML",
+        "power_rating": null,
+        "value": "10Mohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "UNIT/elec/src/controller.ato:SelvController::c_rms_core",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "C0G",
+        "footprint": "Capacitor_SMD:C_1206_3216Metric",
+        "mpn": "GRM31C5C1H104JA01L",
+        "value": "100nF +/- 5%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "UNIT/elec/src/controller.ato:SelvController::c_rms_avg",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "C0G",
+        "footprint": "Capacitor_SMD:C_1206_3216Metric",
+        "mpn": "GRM31C5C1H104JA01L",
+        "value": "100nF +/- 5%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "UNIT/elec/src/controller.ato:SelvController::c_rms_ignd",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": null,
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "CL10A105KB8NNNC",
+        "value": "1uF +/- 10%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "UNIT/elec/src/controller.ato:SelvController::c_rms_lpf",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "C0G",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "GRM1885C1H103JA01D",
+        "value": "10nF +/- 5%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "UNIT/elec/src/controller.ato:SelvController::r_rms_gf",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RT0603BRD0730KL",
+        "power_rating": null,
+        "value": "30kohm +/- 0.1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "UNIT/elec/src/controller.ato:SelvController::r_rms_gg",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RT0603BRD0710KL",
+        "power_rating": null,
+        "value": "10kohm +/- 0.1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "UNIT/elec/src/controller.ato:SelvController::c_rms_vcc",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": null,
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "CC0603KRX7R9BB104",
+        "value": "100nF +/- 10%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "UNIT/elec/src/controller.ato:SelvController::c_rms_vcc2",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": null,
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "CL10A105KB8NNNC",
+        "value": "1uF +/- 10%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "UNIT/elec/src/controller.ato:SelvController::r_rms_adc",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-071KL",
+        "power_rating": null,
+        "value": "1kohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "UNIT/elec/src/controller.ato:SelvController::c_rms_adc",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": "C0G",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "GRM1885C1H103JA01D",
+        "value": "10nF +/- 5%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "UNIT/elec/src/controller.ato:SelvController::d_rms_clamp",
+      "attributes": {
+        "designator_prefix": "D",
+        "footprint": "Package_TO_SOT_SMD:SOT-23",
+        "manufacturer": "Diodes Incorporated",
+        "mpn": "BAT54S-7-F"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/controller.ato:SelvController::u_adc",
+      "attributes": {
+        "designator": "U15",
+        "designator_prefix": "U",
+        "footprint": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+        "manufacturer": "Microchip",
+        "mpn": "MCP3202-CI/SN"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/controller.ato:SelvController::r_adc_dout",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0733RL",
+        "power_rating": null,
+        "value": "33ohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "UNIT/elec/src/controller.ato:SelvController::r_adc_cs_pu",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0710KL",
+        "power_rating": null,
+        "value": "10kohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "UNIT/elec/src/controller.ato:SelvController::c_adc",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": null,
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "CL10A105KB8NNNC",
+        "value": "1uF +/- 10%",
+        "voltage_rating": null
+      }
+    },
+    {
       "address": "UNIT/elec/src/controller.ato:SelvController::mcu",
       "attributes": {
         "designator": "U4",
@@ -1994,6 +2188,60 @@
       }
     },
     {
+      "address": "UNIT/elec/src/controller.ato:SelvController::r_v5_drop",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-07100RL",
+        "power_rating": null,
+        "value": "100ohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "UNIT/elec/src/controller.ato:SelvController::r_v5_drop2",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "mpn": "RC1206FR-07100RL",
+        "power_rating": null,
+        "value": "100ohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "UNIT/elec/src/controller.ato:SelvController::u_v5",
+      "attributes": {
+        "designator": "U16",
+        "designator_prefix": "U",
+        "footprint": "Package_TO_SOT_SMD:SOT-23",
+        "manufacturer": "Texas Instruments",
+        "mpn": "TLV76050DBZR"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/controller.ato:SelvController::c_v5_in",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": null,
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "CL10A105KB8NNNC",
+        "value": "1uF +/- 10%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "UNIT/elec/src/controller.ato:SelvController::c_v5_out",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": null,
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "CL10A105KB8NNNC",
+        "value": "1uF +/- 10%",
+        "voltage_rating": null
+      }
+    },
+    {
       "address": "UNIT/elec/src/controller.ato:SelvController::r_enc_a",
       "attributes": {
         "designator_prefix": "R",
@@ -2027,6 +2275,60 @@
       }
     },
     {
+      "address": "UNIT/elec/src/controller.ato:SelvController::rs_enc_a",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-071KL",
+        "power_rating": null,
+        "value": "1kohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "UNIT/elec/src/controller.ato:SelvController::rs_enc_b",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-071KL",
+        "power_rating": null,
+        "value": "1kohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "UNIT/elec/src/controller.ato:SelvController::rs_enc_sw",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-071KL",
+        "power_rating": null,
+        "value": "1kohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "UNIT/elec/src/controller.ato:SelvController::u_enc",
+      "attributes": {
+        "designator": "U17",
+        "designator_prefix": "U",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+        "manufacturer": "Texas Instruments",
+        "mpn": "SN74LVC2G17DBVR"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/controller.ato:SelvController::c_enc",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": null,
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "CC0603KRX7R9BB104",
+        "value": "100nF +/- 10%",
+        "voltage_rating": null
+      }
+    },
+    {
       "address": "UNIT/elec/src/controller.ato:SelvController::j_btn_a",
       "attributes": {
         "designator": "J7",
@@ -2047,6 +2349,39 @@
       }
     },
     {
+      "address": "UNIT/elec/src/controller.ato:SelvController::rs_btn1",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-071KL",
+        "power_rating": null,
+        "value": "1kohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "UNIT/elec/src/controller.ato:SelvController::rs_btn2",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-071KL",
+        "power_rating": null,
+        "value": "1kohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "UNIT/elec/src/controller.ato:SelvController::rs_btn3",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-071KL",
+        "power_rating": null,
+        "value": "1kohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
       "address": "UNIT/elec/src/controller.ato:SelvController::j_dbg",
       "attributes": {
         "designator": "J11",
@@ -2062,8 +2397,8 @@
   "source_sha256": {
     "elec/src/components.ato": "423a7d1377bf6d7500b430e3bd0bf88dec53d74e3be59e2ab1fce5971698553b",
     "elec/src/constraints.ato": "f031aedc6655d61335c6b7ebf3d51eac83a5e66b1302a982299cbf4a6c92e21e",
-    "elec/src/controller.ato": "da72744231f7155ff95ae2df8d614c78ece0c91998853fcee82629fe1eb74cf7",
-    "elec/src/controller_parts.ato": "e167a387d4d6297962ab9051f92f81903e69829bcdc907812908183f4f29ad82",
+    "elec/src/controller.ato": "aba9f7a99173defd05d51a6a95e08de28aa60356a07d0c1d4c2645126a94c9ac",
+    "elec/src/controller_parts.ato": "19dc99a9e5f4e13cfbfc95c157f751d4eb69ddf9f04c31be90661e90af67563f",
     "elec/src/fac_utils.ato": "a71fd9ecc48b2a5ad39ba3e637eef8242ca561de811c23063c18764d62ce3d7b",
     "elec/src/footprints.ato": "ae143ccaddd758fcd6a0cef2b8dcb37a1e32b51b59943c43f5e8fc4a848d7b3a",
     "elec/src/generics/interfaces.ato": "05a3dc1a86605241249c0d4e157d87edd6e23e4a2e25ace5169f9e3e6ff7079f",

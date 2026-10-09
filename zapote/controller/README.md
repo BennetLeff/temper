@@ -31,7 +31,7 @@ It draws power from native-21's J4 header and supplies native-21's 3.3 V logic b
 | `inputs/native-21/` | Frozen native-21 netlist, BOM and resolved export (the J4 and v3v3 counterpart) |
 | `tools/verify_controller.py` | The verification (below); writes `evidence/verify.json` |
 | `tools/controller_calcs.py` | Every numeric claim in these docs; writes `evidence/controller_calcs.json` |
-| `tests/test_verify_mutations.py` | 11 tests. They miswire the frozen netlist and require the owning check to fail |
+| `tests/test_verify_mutations.py` | 16 tests. They miswire the frozen netlist and require the owning check to fail |
 
 **What "ported unchanged" means here:** `tools/port_blocks.py` copies `zapote/interlock/source-build-02/.../interlock_unit.ato` and `zapote/thermal-sense/source-build-02/.../thermal_sense_unit.ato` with one line filter. It drops only:
 - the standalone inter-board headers (interlock J1/J2, thermal-sense J3);
@@ -57,15 +57,17 @@ python3 tools/snapshot_native21.py # re-derive inputs/native-21 from git (read-o
 - **Warnings:** the build emits only atopile's "Implicit Declaration" deprecation warnings for `override_net_name`, the same as the thermal-sense build.
 - **Part identity:** it comes from `resolved-components.json` or the CSV, never from the netlist's `libsource` field. Atopile 0.2.69 aliases parts by footprint there; see the power-stage README.
 
-**Current result** (frozen netlist sha256 `2e0b73ae…`; 191 components): `VERIFY: PASS`, and 11/11 mutation tests pass.
+**Current result** (frozen netlist sha256 `c6666ded…`; 222 components): `VERIFY: PASS` (114 checks), and 16/16 mutation tests pass.
 
 | Section | Checks | What is asserted |
 |---|---|---|
 | sources | 4/4 | Ports equal their sources minus the boundary lines. Library `modules/components/footprints.ato` hashes equal `zapote/rtd/circuit/rtd_contract.json` |
-| j4 | 34/34 | All 16 pins carry exactly native-21's J4 net names, on the same Molex 0430451612. Pin obligations: J4.3 is the 3.3 V buck output; J4.1 feeds both bucks; each PWM line has a 10 kΩ pull-down and is driven from an MCU GPIO; PERMIT's only driver is the interlock latch Q; bus_fault enters the interlock OCP input with its 10 kΩ pull-up; 11/12 enter the D-11 receiver; ct_mon sees one buffer input and ≥ 1 MΩ DC; ct_zc/line_zc reach GPIO38/39; returns 2/4/15 are on selv_gnd |
+| j4 | 35/35 | All 16 pins carry exactly native-21's J4 net names. Both ends are Micro-Fit 3.0 2×8 headers (controller: right-angle 43045-1600 per R27; native-21: vertical 43045-1612) on a 1:1 harness. Pin obligations: J4.3 is the 3.3 V buck output; J4.1 feeds both bucks; each PWM line has a 10 kΩ pull-down and is driven from an MCU GPIO; PERMIT's only driver is the interlock latch Q; bus_fault enters the interlock OCP input with its 10 kΩ pull-up; 11/12 enter the D-11 receiver; ct_mon sees one buffer input and ≥ 1 MΩ DC; ct_zc/line_zc reach GPIO38/39; returns 2/4/15 are on selv_gnd |
 | adc1 | 20/20 | VBUS, CT_MON, HS, COIL and M12 each on one ADC1 pad, driven by its buffer. Five distinct channels; nothing analog on ADC2 or a strap; SPI 10–13 go to the RTD front end; the sample pattern fits (below) |
 | trip | 15/15 | The structural and exhaustive interlock checks (below) |
 | v3v3 | 5/5 | Current budget for both boards, regulator, inductor, PS1, and the native-21 rail window |
+| ct_rms | 20/20 | The tank-RMS channel: ct_mon buffer → AC coupling → AD8436 (unity input buffer, AC-coupled core, single supply on v15, C0G CAVG) → gain-4 output buffer → 1 kΩ + BAT54S clamp → MCP3202 CH0. CH1 reads the LM4040 2.5 V reference. The ADC sits on the RTD SPI bus with its own pulled-up CS GPIO; the raw ct_mon ADC1 path is kept |
+| ui | 7/7 | Each encoder and button line reaches silicon only through ≥ 1 kΩ and only at a 5.5 V-tolerant input (LVC2G17 or TCA9555); J5 offers +3.3 V and +5 V |
 | bom | 2/2 | Every resolved MPN is in `bom/controller-parts.json` with a basis |
 | misc | 5/5 | GPIO0 is pulled up and GPIO45/46 read 0 at reset; the PWM GPIOs have no reset pull-up; USB is on the debug header |
 
@@ -111,12 +113,14 @@ The simulation treats the sources as independent. Physical paths that make sever
 native-21 PS1 IRM-20-15 (15 V ±2.5 %, 21 W) ── J4.1 v15_selv ── 100 µF + 2×(10 µF‖100 nF)
   ├─ U1 TPS62933F (FCCM, 500 kHz, EN UVLO on 10.9–12.1 V, off ≥ 9.8 V), 10 µH, 3×22 µF
   │    └─ v3v3 3.304 V nom (3.242–3.367 V, 0–85 °C)
-  │         ├─ ESP32-S3-WROOM-1-N8, OLED (J6), encoder (J5), expander, buffers, D-11 receiver
+  │         ├─ ESP32-S3-WROOM-1-N8, OLED (J6), encoder (J5 pin 1), expander, buffers, D-11 receiver, MCP3202
   │         ├─ interlock / thermal-sense / RTD blocks (RTD analogue behind its ferrite → RTD_AVDD)
-  │         ├─ U3 TPS3703A4330 window supervisor (SENSE via 1 k / 1 µF) → RAIL_OK
+  │         ├─ U3 TPS3703A4330-Q1 window supervisor (SENSE via 1 k / 1 µF) → RAIL_OK
   │         └─ J4.3 → native-21 SELV logic (u_fault_or, 4× ISO7710, AMC1311 VDD2, UCC21550 VCCI …)
   └─ U2 TPS62933 (500 kHz), 22 µH, 2×22 µF → v12_fan 11.78–12.22 V → J10 fan (0.63 A)
        EN defaults on; firmware can only switch the fan off (Q1 on GPIO46)
+  ├─ U14 AD8436 tank-RMS converter (single supply, ≈ 0.64 mA)
+  └─ 2 × 100 Ω → U16 TLV76050 → V5_ENC (J5 pin 6, for a 5 V encoder; current-limited)
 ```
 
 **v3v3 budget**, from datasheet maxima at 3.465 V (`evidence/verify.json`, rows per part):
@@ -127,11 +131,11 @@ native-21 PS1 IRM-20-15 (15 V ±2.5 %, 21 W) ── J4.1 v15_selv ── 100 µF
 | native-21 on J4.3: 2× UCC21550 VCCI 4.8, AMC1311 IDD2 7.2, 4× ISO7710 ICC2 1.2, 2× 330 Ω DIS pull-ups 11.1 each, CT bias/references, 3× TLV3201, logic. Computed from its frozen netlist; every v3v3 part must be modelled or the check fails | 49.0 |
 | native-21 loads on controller-driven J4 lines: UCC21550 INx 50 kΩ min, PERMIT gate networks | 0.35 |
 | OLED NHD-3.12-25664UCW2, 100 % on (Newhaven IDD max) | 340 |
-| Encoder supply allocation [UNVERIFIED part] | 30 |
+| Encoder supply allocation [UNVERIFIED part] (also counted on 15 V via the 5 V LDO in the PS1 figure) | 30 |
 | **Peak** | **954** |
 
 - **Converter limits:** the TPS62933F is good for 3 A and SWPA6045S100MT for 2.45 A Irms (3.5 A sat).
-- **PS1 at simultaneous peak:** 12.4 W, against IRM-20-15's 21 W. That is 3.9 W on the 3.3 V rail at an 85 % allocation plus 8.6 W for the fan at 90 %.
+- **PS1 at simultaneous peak:** 13.0 W, against IRM-20-15's 21 W. That is 3.9 W on the 3.3 V rail at an 85 % allocation, 8.6 W for the fan at 90 %, and 0.55 W straight from 15 V (AD8436, the 5 V encoder LDO at its 5 mA maximum ground current plus 30 mA).
 - **Own load:** with the fan excluded, the controller's own load stays under the spec's ≈ 4 W even at peak.
 - **Native-21's rail:** it sees 3.237–3.389 V at its J4.3. That covers regulator tolerance, the J4 harness (≤ 1 m AWG22, two 10 mΩ contacts per conductor; an allocation, because the harness isn't specified) and ground shift from the 15 V return. This is inside the 3.135–3.465 V contract.
 
@@ -151,7 +155,16 @@ native-21 PS1 IRM-20-15 (15 V ±2.5 %, 21 W) ── J4.1 v15_selv ── 100 µF
 | 7 | CH6 | COIL_ADC | TLV9062 follower of COIL_SENSE | ATTEN3 |
 | 8 | CH7 | M12_ADC | TLV9062 follower of the M12 probe divider | ATTEN3 |
 
-**Free ADC1 pads:** GPIO3, 4, 5, 9 and 10 are used digitally. GPIO3 is fan tach (a strap, harmless unless the JTAG eFuse is burnt). GPIO4/5 are PWM, GPIO9 is I²C SDA and GPIO10 is RTD CS. So **ADC1 is full**: a sixth analog input needs an external ADC.
+**Free ADC1 pads:** GPIO3, 4, 5, 9 and 10 are used digitally. GPIO3 is fan tach (a strap, harmless unless the JTAG eFuse is burnt). GPIO4/5 are PWM, GPIO9 is I²C SDA and GPIO10 is RTD CS. So **ADC1 is full**: the tank-RMS signal therefore goes to an external MCP3202 on the RTD SPI bus (below).
+
+**Tank RMS (external ADC).** U14 AD8436BRQZ converts the buffered ct_mon to true RMS. Its datasheet gives 65 kHz for 1 % additional error at 300 mV rms, against a 31–55 kHz tank band.
+- **Scaling:** a gain-4 output buffer puts 22 A RMS tank at 1.32 V (1606 codes) and the 55 A peak trip at 2.33 V.
+- **Errors:** coupling error at 31 kHz is 0.002 %; Schottky leakage contributes ≤ 0.15 %.
+- **Settling:** CAVG = 100 nF C0G gives an estimated 3.4 ms to 0.1 %, falling. That is the datasheet's 10 µF figure scaled linearly; the scaling is an assumption to bench-check. It is within the 8.3 ms half-cycle.
+- **ADC:** U15 MCP3202 CH0 reads it; CH1 reads the LM4040A25 2.5 V (0.1 %) so firmware removes the v3v3-as-reference error. CS is GPIO42, freed by moving the OLED's CS# to the expander (the OLED is alone on its bus).
+- **Why not ADC2:** the free ADC2 pads are the debug USB pins, and ADC2 cannot be read while Wi-Fi runs.
+
+The raw ct_mon ADC1 path stays for phase and waveform checks.
 
 **Sampling plan.** It is checked against ESP-IDF v5.2.3 `SOC_ADC_SAMPLE_FREQ_THRES_HIGH` = 83 333 S/s and the datasheet's 100 kS/s.
 - **Continuous pattern** at 80 kS/s: `VBUS, CT_MON, VBUS, CT_MON, VBUS, HS, COIL, M12`.
@@ -168,13 +181,16 @@ native-21 PS1 IRM-20-15 (15 V ±2.5 %, 21 W) ── J4.1 v15_selv ── 100 µF
 | MCU | ESP32-S3-WROOM-1-N8 (C2913198) | Required. It has no octal PSRAM, so GPIO35–37 are free. The round-5 firmware targets it |
 | 3.3 V | TPS62933FDRLR (C5219272) | 3.8–30 V, 3 A, ±1.5 % VFB. Forced-CCM gives predictable ripple. Shares a die with the fan buck |
 | 12 V fan | TPS62933DRLR (C3200405) | 98 % duty with frequency foldback. 0.846 duty is needed at 14.5 V in, under the 0.923 limit without foldback |
-| Rail window | TPS3703A4330DSER (C2861205) | ±0.7 % fixed ±4 % window, the only class that fits inside 3.135–3.465 V around a ±1.5 % regulator. The TPS3700 (±1.7 %) does not. **JLC stock 0**; the stocked Q1 grade C1850327 is a drop-in |
+| Rail window | TPS3703A4330DSERQ1 (C1850327) | ±0.7 % fixed ±4 % window, the only class that fits inside 3.135–3.465 V around a ±1.5 % regulator. The TPS3700 (±1.7 %) does not. Q1 grade fitted because the commercial part had zero JLC stock; SBVS344D confirms identical pins, thresholds and delay |
+| Tank RMS | AD8436BRQZ (C652840) | Datasheet bandwidth 65 kHz for 1 % error, the only candidate whose datasheet I could read that covers 55 kHz on our supplies. The LTC1968 is 500 kHz per ADI's product page, but its 4.5–5.5 V supply and unread datasheet ruled it out. **JLC stock 0: consign** |
+| External ADC | MCP3202-CI/SN (C56997) | 2-channel 12-bit SPI at 3.3 V; shares the RTD bus |
+| Encoder/button protection | SN74LVC2G17DBVR (C10429), 1 kΩ series, TLV76050 (C2867465) | 5.5 V-tolerant inputs at 3.3 V; a 5 V supply pin for a 5 V encoder |
 | Bus receiver | OPA2388IDR + LM4040A25 + RT0603 0.1 % | The D-11 circuit as specified |
 | Analog buffers | 2× TLV9062IDR (C398355) | CMOS, 0.5 pA typical bias. Gives the thermal-sense nodes a receiver that stays within their ±1 µA budget and isolates ADC switched-capacitor kick |
 | Read-back isolation | SN74LVC244APWR (C7668) | One part buffers all eight protective read-backs; Ioff |
 | SENSOR_LIVE, AUX | SN74LVC1G08, SN74LVC1G14 | — |
 | Runaway | TLV3201AIDBVR + RT0603 20k/10k 0.1 % | Same comparator as the RTD and thermal blocks |
 | I/O expander | TCA9555PWR (C465732) | Buttons, encoder push, OLED reset, four fault read-backs |
-| J4 | Molex 43045-1612 (C491447) | The same header as native-21, with a 1:1 harness |
+| J4 | Molex 43045-1600 right-angle (C277731) | R27: right edge, mating +X; same Micro-Fit circuit numbering as native-21's 43045-1612. Envelope fit against Molex's drawing is [UNVERIFIED] (drawing not reachable) |
 | Encoder | TE 7-215079-6 (C306122) | Micro-MaTch female-on-board; mates the encoder lead's 7-215083-6 |
 | Other connectors | JST XH (B2B/B3B/B4B/B8B) | The thermal-sense and RTD units already use XH |

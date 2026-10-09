@@ -65,7 +65,8 @@ class Mutations(unittest.TestCase):
         nl = self.load(text)
         rep = vc.Report()
         for fn in (lambda: vc.check_j4(rep, nl, self.n21), lambda: vc.check_adc1(rep, nl, CALCS),
-                   lambda: vc.check_trip(rep, nl, CALCS), lambda: vc.check_misc(rep, nl)):
+                   lambda: vc.check_trip(rep, nl, CALCS), lambda: vc.check_misc(rep, nl),
+                   lambda: vc.check_ct_rms(rep, nl, CALCS), lambda: vc.check_ui_inputs(rep, nl)):
             fn()
         return rep.failed
 
@@ -119,6 +120,29 @@ class Mutations(unittest.TestCase):
         r = self.ref("interlock.ocp_pullup")
         t = drop_node(self.base, r, "2")
         self.assertIn("j4.pin10_bus_fault_into_interlock_ocp_with_pullup", self.run_checks(t))
+
+    def test_rms_adc_input_disconnected_fails(self):
+        adc = self.ref("u_adc")
+        t = move_node(self.base, adc, "2", "selv_gnd")          # CH0 no longer sees the RMS output
+        self.assertIn("ct_rms.rms_output_reaches_adc_ch0_through_series_r", self.run_checks(t))
+
+    def test_rms_clamp_removed_fails(self):
+        d = self.ref("d_rms_clamp")
+        t = drop_node(self.base, d, "3")
+        self.assertIn("ct_rms.adc_ch0_clamped_to_v3v3_and_gnd", self.run_checks(t))
+
+    def test_rms_input_dc_coupled_fails(self):
+        u = self.ref("u_rms")
+        t = move_node(self.base, u, "6", self.base_nl.net_of(self.ref("u_buf1"), "1"))
+        self.assertIn("ct_rms.rms_input_ac_coupled_from_ct_mon_buffer", self.run_checks(t))
+
+    def test_encoder_straight_to_gpio_fails(self):
+        t = move_node(self.base, "J5", "3", "ENC_A")             # bypass series R and 5 V-tolerant buffer
+        self.assertIn("ui.J5.3_ENC_A_5v_safe", self.run_checks(t))
+
+    def test_button_without_series_resistor_fails(self):
+        t = move_node(self.base, "J7", "1", "BTN1")
+        self.assertIn("ui.J7.1_BTN1_5v_safe", self.run_checks(t))
 
     def test_unmodelled_part_on_v3v3_fails_closed(self):
         saved = vc.MODELS.pop("TLV9062IDR")

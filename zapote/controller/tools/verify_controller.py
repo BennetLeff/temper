@@ -73,8 +73,8 @@ MODELS: dict[str, Model] = {
                                      "(TX peak 355 mA, Table 6-4)"),
     "TPS62933FDRLR": _ic([], [4], ins=[1, 2, 8], other=[3, 5, 6, 7]),
     "TPS62933DRLR": _ic([], [4], ins=[1, 2, 8], other=[3, 5, 6, 7]),
-    "TPS3703A4330DSER": _ic([2], [5], ins=[1, 6], ods=[4], other=[3], ma=0.007 + 0.0015,
-                            basis="SBVS249B 7.5: IDD 7 uA; ISENSE 1.5 uA", logic="free:rail_window"),
+    "TPS3703A4330DSERQ1": _ic([2], [5], ins=[1, 6], ods=[4], other=[3], ma=0.007 + 0.0015,
+                            basis="SBVS344D: IDD 7 uA; ISENSE 1.5 uA", logic="free:rail_window"),
     "OPA2388IDR": _ic([8], [4], ins=[2, 3, 5, 6], outs=[1, 7], ma=2 * 2.6,
                       basis="SBOS777D 6.5: IQ 2.6 mA/amp max (5.5 V, -40..125 C)"),
     "TLV9062IDR": _ic([8], [4], ins=[2, 3, 5, 6], outs=[1, 7], ma=2 * 0.8,
@@ -117,6 +117,19 @@ MODELS: dict[str, Model] = {
                            "20": "other"},
                           3.5 + 0.4 + 5.75, "MAX31865 DS: IDD 3.5 mA + 0.4 mA (input > ref) + BIAS IOUT 5.75 mA max"),
     "2N7002": Model({"1": "in", "2": "gnd", "3": "other"}, 0.0, "CJ 2N7002"),
+    # follow-up 2026-10-08: tank RMS channel, external ADC, encoder protection
+    "AD8436BRQZ": Model({"1": "other", "2": "other", "3": "in", "4": "out", "5": "in", "6": "in", "7": "other",
+                         "8": "other", "9": "gnd", "10": "out", "11": "gnd", "12": "other", "13": "in",
+                         "14": "in", "15": "out", "16": "vcc", "17": "vcc", "18": "vcc", "19": "other",
+                         "20": "other"}, 0.0,
+                        "AD8436 Rev. B Table 1: 365 + 200 + 70 uA max, all on v15_selv (not v3v3)"),
+    "MCP3202-CI/SN": _ic([8], [4], ins=[1, 2, 3, 5, 7], outs=[6], ma=0.55,
+                         basis="DS21034F: IDD 550 uA max (5 V, worst case used at 3.3 V)"),
+    "SN74LVC2G17DBVR": _ic([5], [2], ins=[1, 3], outs=[4, 6], ma=0.010,
+                           basis="SCES381N: ICC 10 uA", logic="buf:1>6;buf:3>4"),
+    "TLV76050DBZR": Model({"1": "out", "2": "other", "3": "gnd"}, 0.0, "TLV760: on v15_selv, not v3v3"),
+    "BAT54S-7-F": Model({"1": "other", "2": "other", "3": "other"}, 0.002,
+                        "DS11005: IR 2 uA max (25 V); conducts into v3v3 only on a fault"),
     # native-21 parts on its v3v3 net (pins used: supply only; others conservative)
     "UCC21550BDWKR": _ic([3, 8], [4], ins=[1, 2], ma=4.8, basis="SLUSE89C 6.6: IVCCI 4.8 mA max (VIN=VCC)"),
     "AMC1311BDWVR": _ic([8], [5], ma=7.2, basis="SBAS786C 6.x: IDD2 7.2 mA max (3.0-3.6 V)"),
@@ -320,7 +333,13 @@ def check_j4(rep: Report, nl: Netlist, n21: Netlist):
     theirs = {p: n21.net_of("J4", str(p)) for p in range(1, 17)}
     rep.data("j4", "controller", mine)
     rep.data("j4", "native21", theirs)
-    rep.check("j4", "same_part", nl.mpn["J4"] == n21.mpn["J4"] == "0430451612", (nl.mpn["J4"], n21.mpn["J4"]))
+    # Both ends are Micro-Fit 3.0 2x8 headers (43045-16xx) mated by a 1:1 43025-1600
+    # harness; R27 makes the controller end right-angle (mating +X).
+    family = {"0430451600", "0430451612"}
+    rep.check("j4", "micro_fit_2x8_both_ends", nl.mpn["J4"] in family and n21.mpn["J4"] in family,
+              (nl.mpn["J4"], n21.mpn["J4"]))
+    rep.check("j4", "controller_j4_right_angle_r27", "Horizontal" in nl.footprint.get("J4", ""),
+              nl.footprint.get("J4"))
     for p in range(1, 17):
         rep.check("j4", f"pin{p}_{theirs[p]}", mine[p] == theirs[p] and mine[p] is not None, (mine[p], theirs[p]))
     pn = nl.pin_net()
@@ -349,7 +368,7 @@ def check_j4(rep: Report, nl: Netlist, n21: Netlist):
     rep.check("j4", "pin10_bus_fault_into_interlock_ocp_with_pullup", bool(il_pull) and bool(lat))
     rx = {nl.mpn[r] for r, p in nl.nets["vbus_p"] + nl.nets["vbus_n"]}
     rep.check("j4", "pins11_12_into_d11_receiver_resistors",
-              rx == {"0430451612", "RT0603BRD0720KL"}, sorted(rx))
+              rx == {nl.mpn["J4"], "RT0603BRD0720KL"}, sorted(rx))
     ct = [(r, p, nl.mpn[r]) for r, p in nl.nets["ct_mon"] if r != "J4"]
     buf_in = [x for x in ct if pin_role(nl, x[0], x[1]) == "in"]
     loads = [r for r, p, _ in ct if r.startswith("R")]
@@ -534,8 +553,13 @@ def check_v3v3(rep: Report, nl: Netlist, n21: Netlist, calcs: dict):
     # PS1 (IRM-20-15, 21 W) at the controller; efficiencies are allocations.
     p3 = 3.465 * peak / 1e3 / 0.85
     pfan = 12.22 * 0.63 / 0.90
-    p_total = p3 + pfan
-    rep.data("v3v3", "ps1", {"p_3v3_rail_W": p3, "p_fan_W": pfan, "p_total_W": p_total, "rating_W": 21.0,
+    # Loads straight on v15_selv: AD8436 (365 + 200 + 70 uA max) and the 5 V encoder
+    # option (TLV760 IGND 5 mA max + 30 mA encoder allocation), counted as worst case
+    # even though the encoder allocation also sits in the v3v3 peak.
+    p15 = 15.375 * (0.000635 + 0.005 + 0.030)
+    p_total = p3 + pfan + p15
+    rep.data("v3v3", "ps1", {"p_3v3_rail_W": p3, "p_fan_W": pfan, "p_v15_direct_W": p15,
+                             "p_total_W": p_total, "rating_W": 21.0,
                              "basis": "efficiencies 85 % (3.3 V) / 90 % (12 V) are allocations from the "
                                       "TPS62933 typical curves; IRM-20-15 21 W rated"})
     rep.check("v3v3", "ps1_within_21W_at_peak", p_total <= 21.0, p_total)
@@ -551,6 +575,90 @@ def check_v3v3(rep: Report, nl: Netlist, n21: Netlist, calcs: dict):
     rep.data("v3v3", "native21_rail_V", {"min": lo, "max": hi, "harness": h})
     rep.check("v3v3", "native21_rail_inside_3135_3465", lo >= 3.135 and hi <= 3.465, (lo, hi))
     rep.check("v3v3", "j4_pin3_current_le_contact_rating", i_n21 <= 8.5, i_n21)
+
+
+C0G_MPNS = {"GRM31C5C1H104JA01L", "GRM1885C1H103JA01D", "CL10C102JB8NNNC", "C0603C102J5GACTU"}
+
+
+def check_ct_rms(rep: Report, nl: Netlist, calcs: dict) -> None:
+    """True-RMS channel: ct_mon buffer -> ac coupling -> AD8436 -> gain -> clamp -> MCP3202."""
+    pn = nl.pin_net()
+
+    def ends(ref):
+        return {pn.get((ref, "1"), OPEN), pn.get((ref, "2"), OPEN)}
+
+    def caps_between(a, b):
+        return [r for r in nl.refs if r.startswith("C") and ends(r) == {a, b}]
+    rms = [r for r, m in nl.mpn.items() if m == "AD8436BRQZ"]
+    adc = [r for r, m in nl.mpn.items() if m == "MCP3202-CI/SN"]
+    rep.check("ct_rms", "one_rms_converter_and_one_external_adc", len(rms) == 1 and len(adc) == 1, rms + adc)
+    if len(rms) != 1 or len(adc) != 1:
+        return
+    u, a = rms[0], adc[0]
+    net = lambda r, p: nl.net_of(r, str(p))  # noqa: E731
+    buf = next(r for r in nl.refs if nl.refs[r] == "u_buf1")
+    ct_buf = net(buf, 1)
+    rep.check("ct_rms", "raw_ct_mon_buffer_input_is_j4_14", net(buf, 3) == "ct_mon", net(buf, 3))
+    rep.check("ct_rms", "rms_input_ac_coupled_from_ct_mon_buffer", bool(caps_between(ct_buf, net(u, 6))),
+              (ct_buf, net(u, 6)))
+    rep.check("ct_rms", "input_buffer_unity", net(u, 4) == net(u, 5))
+    rep.check("ct_rms", "core_input_ac_coupled", bool(caps_between(net(u, 4), net(u, 3))))
+    supplies = {net(u, p) for p in (16, 17, 18)}
+    rep.check("ct_rms", "single_supply_v15_vee_gnd", supplies == {"v15_selv"} and net(u, 11) == GND
+              and net(u, 9) == GND, sorted(supplies))
+    cavg = [r for r in nl.refs if r.startswith("C") and net(u, 20) in ends(r)]
+    rep.check("ct_rms", "cavg_is_c0g_not_x7r", bool(cavg) and all(nl.mpn[r] in C0G_MPNS for r in cavg),
+              [(r, nl.mpn[r]) for r in cavg])
+    rep.check("ct_rms", "output_buffer_follows_core_out", net(u, 13) == net(u, 10))
+    series = [r for r in nl.refs if r.startswith("R") and net(u, 15) in ends(r)
+              and net(a, 2) in ends(r)]
+    rep.check("ct_rms", "rms_output_reaches_adc_ch0_through_series_r", bool(series), series)
+    clamp = [r for r, m in nl.mpn.items() if m == "BAT54S-7-F" and net(r, 3) == net(a, 2)]
+    rep.check("ct_rms", "adc_ch0_clamped_to_v3v3_and_gnd",
+              bool(clamp) and net(clamp[0], 1) == GND and net(clamp[0], 2) == V3, clamp)
+    lm = next(r for r, m in nl.mpn.items() if m == "LM4040A25IDBZR")
+    rep.check("ct_rms", "adc_ch1_is_2v5_reference", net(a, 3) == net(lm, 1), net(a, 3))
+    rep.check("ct_rms", "adc_on_rtd_spi_bus", net(a, 7) == "RTD_SCK" and net(a, 5) == "RTD_SDI"
+              and any(net(a, 6) in ends(r) and "RTD_SDO" in ends(r) for r in nl.refs if r.startswith("R")))
+    gm = gpio_map(nl)
+    cs_gpio = [g for g, n in gm.items() if n == net(a, 1)]
+    rep.check("ct_rms", "adc_cs_own_gpio_not_rtd_cs", len(cs_gpio) == 1 and net(a, 1) != "RTD_CS_N", cs_gpio)
+    rep.check("ct_rms", "adc_cs_pulled_up", any(ends(r) == {net(a, 1), V3} for r in nl.refs if r.startswith("R")))
+    rc = calcs["rms_channel"]
+    for k, ok in rc["checks"].items():
+        rep.check("ct_rms", f"calc_{k}", ok)
+    rep.data("ct_rms", "adc_V_at_22A_rms", rc["adc_V_at_22A_rms"])
+
+
+FIVE_V_TOLERANT = {("SN74LVC2G17DBVR", "1"), ("SN74LVC2G17DBVR", "3")}
+
+
+def check_ui_inputs(rep: Report, nl: Netlist) -> None:
+    """Encoder and button lines are safe with a 3.3 V or a 5 V-supplied encoder:
+    every connector signal reaches active silicon only through >= 1 kOhm series and
+    only at a 5.5 V-tolerant input (LVC2G17 input or a TCA9555 port)."""
+    pn = nl.pin_net()
+
+    def other(r, p):
+        return pn.get((r, "2" if p == "1" else "1"), OPEN)
+    lines = [("J5", "3"), ("J5", "4"), ("J5", "5"), ("J7", "1"), ("J7", "2"), ("J8", "1")]
+    for ref, pin in lines:
+        n = nl.net_of(ref, pin)
+        active = [(r, p) for r, p in nl.nets.get(n, []) if pin_role(nl, r, p) not in ("passive", "ext")]
+        downstream = []
+        for r, p in nl.nets.get(n, []):
+            if r.startswith("R") and r != ref:
+                far = other(r, p)
+                val = parse_value(nl.value.get(r))[0] or 0
+                if far not in (V3, GND) and val >= 1e3:
+                    downstream += [(r2, p2, nl.mpn[r2]) for r2, p2 in nl.nets.get(far, [])
+                                   if pin_role(nl, r2, p2) not in ("passive", "ext")]
+        ok = (not active and bool(downstream) and
+              all((m, p2) in FIVE_V_TOLERANT or m == "TCA9555PWR" for _, p2, m in downstream))
+        rep.check("ui", f"{ref}.{pin}_{n}_5v_safe", ok, {"direct": active, "after_series": downstream})
+    v = {nl.net_of("J5", "1"), nl.net_of("J5", "6")}
+    m = Merged(nl)
+    rep.check("ui", "j5_offers_3v3_and_5v", any(m.same(x, V3) for x in v) and "V5_ENC" in v, sorted(v))
 
 
 def check_bom(rep: Report, nl: Netlist):
@@ -621,6 +729,8 @@ def main() -> int:
     check_adc1(rep, nl, calcs)
     check_trip(rep, nl, calcs)
     check_v3v3(rep, nl, n21, calcs)
+    check_ct_rms(rep, nl, calcs)
+    check_ui_inputs(rep, nl)
     check_bom(rep, nl)
     check_misc(rep, nl)
     out = {"schema": "temper.controller.verify.v1",

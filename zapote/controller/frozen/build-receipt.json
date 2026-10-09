@@ -3,12 +3,12 @@
   "build_command": "uv tool run --offline --from atopile==0.2.69 ato --non-interactive build elec/src/controller.ato:SelvController",
   "build_report_failed": false,
   "entry": "elec/src/controller.ato:SelvController",
-  "export_command": "uv tool run --offline --from atopile==0.2.69 python tools/circuit_export.py /Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/controller /Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/controller/build/resolved-components.json --entry-file elec/src/controller.ato --entry SelvController",
+  "export_command": "uv tool run --offline --from atopile==0.2.69 python tools/circuit_export.py /Users/bennet/Desktop/temper/.claude/worktrees/agent-a30043d363cbe14e6/zapote/controller /Users/bennet/Desktop/temper/.claude/worktrees/agent-a30043d363cbe14e6/zapote/controller/build/resolved-components.json --entry-file elec/src/controller.ato --entry SelvController",
   "exporter_sha256": "9068441892e2df3424a383c3682bdf5971527f9d4afa1812ce5171ddf8e36159",
   "frozen_sha256": {
-    "default.csv": "4d08b03d3900c9dde3afb168a6947ce8e66a8b7ef9a3623f445c17a74891dd61",
-    "default.net": "2e0b73ae6e5cf89eeca56c31910a803eb6dda2d651a7f5d0122bdbdbdef68155",
-    "resolved-components.json": "9f4a37a548d024764a28ce44bc49ce2932a70016e440ee49c006bfd0d9b67f08"
+    "default.csv": "c9a675a6ecb0b4ffb042fae90ee3e873d0808059fa871e529ef88eaa3d24dd70",
+    "default.net": "c6666ded892944d29444001726f2f7d42c242b5760049c920dcfc90543bb1b15",
+    "resolved-components.json": "9d0fbc0101e9fdd814e98362be0995fb7462b32cad8bcf9ddd3dfe11e8e41667"
   },
   "normalization": "absolute unit path replaced by 'UNIT'",
   "returncode": 0,
@@ -16,8 +16,8 @@
   "source_sha256": {
     "elec/src/components.ato": "423a7d1377bf6d7500b430e3bd0bf88dec53d74e3be59e2ab1fce5971698553b",
     "elec/src/constraints.ato": "f031aedc6655d61335c6b7ebf3d51eac83a5e66b1302a982299cbf4a6c92e21e",
-    "elec/src/controller.ato": "da72744231f7155ff95ae2df8d614c78ece0c91998853fcee82629fe1eb74cf7",
-    "elec/src/controller_parts.ato": "e167a387d4d6297962ab9051f92f81903e69829bcdc907812908183f4f29ad82",
+    "elec/src/controller.ato": "aba9f7a99173defd05d51a6a95e08de28aa60356a07d0c1d4c2645126a94c9ac",
+    "elec/src/controller_parts.ato": "19dc99a9e5f4e13cfbfc95c157f751d4eb69ddf9f04c31be90661e90af67563f",
     "elec/src/fac_utils.ato": "a71fd9ecc48b2a5ad39ba3e637eef8242ca561de811c23063c18764d62ce3d7b",
     "elec/src/footprints.ato": "ae143ccaddd758fcd6a0cef2b8dcb37a1e32b51b59943c43f5e8fc4a848d7b3a",
     "elec/src/generics/interfaces.ato": "05a3dc1a86605241249c0d4e157d87edd6e23e4a2e25ace5169f9e3e6ff7079f",

@@ -1,4 +1,4 @@
-# Controller → enclosure team: connector list and placement-critical parts
+# Controller → enclosure team: connector list and placement-critical parts (R27)
 
 This is the electrical side of the R25 controller board. The enclosure team owns the outline, holes, landings and height envelope (CONTROLLER-SPEC R25). Nothing here is a layout; it states what a layout must keep. Coordinates are appliance world mm: board X−168…38, Y14…90, bottom at Z21, top copper at ≈ Z22.6, and the height limit Z40 leaves ≈ 17.4 mm above the board.
 
@@ -6,8 +6,8 @@ This is the electrical side of the R25 controller board. The enclosure team owns
 
 | Ref | Part (LCSC) | Pins | Harness | Landing (face, X, Y, Z) | Pin map |
 |---|---|---|---|---|---|
-| J4 | Molex Micro-Fit 3.0 43045-1612, 2×8 vertical (C491447) | 16 | SELV_J4_to_controller, 1:1 to native-21 J4 (43025-1600 both ends) | right, 42.2, 42, 34 | 1 v15_selv, 2/4/15 selv_gnd, 3 v3v3 (out), 5–8 pwm_ha/la/hb/lb, 9 permit, 10 bus_fault, 11/12 vbus_p/n, 13 ct_zc, 14 ct_mon, 16 line_zc |
-| J5 | TE Micro-MaTch 7-215079-6, female-on-board 2×3 (C306122) | 6 | UI_controller_to_encoder: Grayhill factory cable plus extension, mates 7-215083-6 | **right (R25 move), 42.2, 64, 36** | 1 +3.3 V (0 Ω link), 2 GND, 3 A, 4 B, 5 switch, 6 GND. **Pin map to confirm** |
+| J4 | Molex Micro-Fit 3.0 **43045-1600, 2×8 right-angle** THT with PCB pegs (C277731), mating +X | 16 | SELV_J4_to_controller, 1:1 to native-21 J4 (43025-1600 both ends) | right, 42.2, 42, 34 | 1 v15_selv, 2/4/15 selv_gnd, 3 v3v3 (out), 5–8 pwm_ha/la/hb/lb, 9 permit, 10 bus_fault, 11/12 vbus_p/n, 13 ct_zc, 14 ct_mon, 16 line_zc |
+| J5 | TE Micro-MaTch 7-215079-6, female-on-board 2×3 (C306122) | 6 | UI_controller_to_encoder: Grayhill factory cable plus extension, mates 7-215083-6 | **right (R25 move), 42.2, 64, 36** | 1 +3.3 V, 2 GND, 3 A, 4 B, 5 switch, 6 **+5 V** (current-limited). The extension harness wires the encoder to pin 1 or pin 6 to suit its supply; all signal inputs accept 5 V. **Encoder pin map to confirm** |
 | J6 | JST B8B-XH-A(LF)(SN) (C157972) | 8 | UI_controller_to_OLED | top, −35, 70, 42.2 | 1 +3V3, 2 GND, 3 SCLK, 4 SDIN, 5 CS#, 6 D/C, 7 RES#, 8 GND. At the OLED end the harness ties BS1, BS0, R/W, E and D3–D7 to VSS (4-wire SPI) |
 | J7 | JST B3B-XH-A(LF)(SN) (C144394) | 3 | UI_controller_to_buttons, landing 1 | top, −90, 41, 42.2 | 1 BTN1, 2 BTN2, 3 GND (switch closes to GND) |
 | J8 | JST B2B-XH-A(LF)(SN) (C158012) | 2 | UI_controller_to_buttons, landing 2 | top, 5, 41, 42.2 | 1 BTN3, 2 GND |
@@ -18,20 +18,16 @@ This is the electrical side of the R25 controller board. The enclosure team owns
 | J3 | JST B4B-XH-A(LF)(SN) (RTD unit, unchanged) | 4 | pan_RTD_to_controller (SAB 4×AWG28, ≤ 500 mm) | rear, −165, 92, 34 | 1 FORCE+, 2 RTDIN+, 3 RTDIN−, 4 FORCE− |
 | J11 | Wurth 61300811121 1×8, 2.54 mm (C6400764) | 8 | none (bring-up only; may be left unfitted) | any accessible spot | 1 3V3, 2 GND, 3 TXD0, 4 RXD0, 5 EN, 6 IO0, 7 USB D−, 8 USB D+ |
 
-## Landing conflicts found
-**The basis.** This is `tools/controller_calcs.py`'s `landings()`, written to `evidence/controller_calcs.json`. The calculation assumes the connector is centred on its landing, projected onto the board. The keepout it must clear is the spec's Ø8 screw-head area, plus half the connector's body length, with orientation unknown.
-
-| Connector | Landing | Nearest hole | Centre distance | Needed | Note |
-|---|---|---|---|---|---|
-| J3 pan RTD | (−165, 92) | (−164, 86) | 4.1 mm | 10.2 mm | **Conflict.** The landing is at the rear-left corner hole. Move the landing to X ≥ −153, or let the connector sit about 10 mm inboard and route the lead along the edge |
-| J9 M12 probe (R25) | (39.2, 86) | (34, 86) | 4.0 mm | 9.0 mm | **Conflict.** The new landing lines up with the right-rear hole. Suggest Y ≤ 77 (clear of the hole and still above the encoder at Y64), or accept the connector inboard at X ≈ 25 |
-| J1 coil NTC | (−60, 88) | (−65, 86) | 5.4 mm | 7.7 mm | **Conflict, marginal.** Move the landing to X ≥ −57, or offset the connector 2.5 mm right |
-| J10 fan (R25) | (−155, 91.3) | (−164, 86) | 9.9 mm | 9.0 mm | Clear by 0.9 mm with the connector centred on the landing. Keep it there or move it right |
-
-All other landings clear by 6 mm or more.
+## Landings vs mounting holes (R27)
+R27 moved the rear holes to (−164, 80), (−75, 86) and (30, 80); the front holes stay at (−164, 18), (−65, 18) and (34, 18). `tools/controller_calcs.py` `landings()` re-checks every landing with the worst-orientation bound (hole keepout radius 4 mm plus half the connector's longest body dimension):
+- **All clear except J3, which is tight.** J3 (pan RTD) is 10.05 mm from (−164, 80), against a 10.2 mm worst-orientation bound.
+- **J3 with an edge-aligned body:**
+  - Lay the 12.4 × 5.75 mm XH body along the rear edge, centred no further left than X ≈ −161.8 so it stays on the board, which ends at X−168.
+  - Its near side is then about 4.25 mm from the hole, clearing the 4 mm keepout by about 0.25 mm.
+  - Layout must keep that orientation, or shift J3 a few mm to +X.
 
 ## Height and cable exit
-- **J4 (flag).** The vertical Micro-Fit 43045-1612 is 9.91 mm tall (JLC listing). The mated 43025-1600 plug and the 3.5 mm cable then leave vertically, but the landing is a horizontal exit at Z34, about 11.4 mm above the board, and the limit is Z40. Either confirm a tight bend fits under Z40, or switch J4 to the right-angle Micro-Fit 3.0 2×8 header (same pinout; the part number is yet to be selected and checked). Mated height was not available in the sources I read [UNVERIFIED].
+- **J4 (resolved in part).** Now the right-angle 43045-1600, mating +X at the right edge near Y42, per R27. The header, mated plug and lead bend must stay within X38–63, Y32–52, Z ≤ 40, with the plug body above Z30 beyond X50. I could not fetch Molex's drawing (430450201_sd), so header height and plug overhang against that envelope are **[UNVERIFIED]**; check them before layout.
 - **Tallest other parts:**
   - JST XH headers: 7.0 mm body plus the mated housing;
   - C1 EEE-FK1E101P: 6.2 mm;
@@ -61,9 +57,15 @@ All other landings clear by 6 mm or more.
    - Keep them away from the thermal-sense and RTD analog nodes and from the antenna.
    - The 12 V buck near J10 shortens the 0.63 A path.
    - Each buck dissipates on the order of 0.5–1 W in total. Keep them out from under the OLED and buttons.
-8. **ESP32-S3-WROOM-1.**
-   - Put the PCB antenna at a board edge with the module's copper keepout (Espressif WROOM-1 datasheet layout guidance), on the side facing the most open, non-metal part of the enclosure.
-   - **Flag:** Wi-Fi range inside the metal chassis is unqualified.
+8. **ESP32-S3-WROOM-1** (R27).
+   - Place it at the board's front edge between X−80 and X10, antenna end facing the front lens window (X−89…19).
+   - Keep Espressif's antenna copper/metal keep-out clear.
+   - **Wi-Fi: option, unqualified** (enclosure test E4); the fallback is WROOM-1U with an external antenna behind the lens bezel.
    - The EN RC and the 22 µF/100 nF decoupling go at the module.
 9. **M12 probe J9.** Its TVS D1 goes at the connector pin, with a short return to selv_gnd. The probe lead is user-accessible, so ESD current must not cross the analog ground.
 10. **PWM.** The 33 Ω series resistors go at the MCU and the 10 kΩ pull-downs at J4.
+11. **Tank-RMS channel** (U14 AD8436, U15 MCP3202, D2 BAT54S).
+    - Put U14 beside the ct_mon buffer U6 near J4.14, and keep its CAVG/coupling C0G capacitors tight to its pins.
+    - It runs from v15, so keep its output buffer → 1 kΩ → clamp → U15 CH0 path short, with the clamp at U15.
+    - U15 sits on the RTD SPI bus. Place it between the MCU and the RTD front end, not inside the RTD analog area.
+12. **Encoder/button protection.** U17 (LVC2G17), the 1 kΩ series resistors and the pull-ups go near J5/J7/J8. The 5 V LDO U16 and its 2 × 100 Ω droppers (≈ 0.12 W each) go near J5, away from the thermal-sense nodes.

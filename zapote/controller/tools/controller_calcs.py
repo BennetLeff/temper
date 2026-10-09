@@ -25,7 +25,7 @@ SOURCES = {
     "TPS62933": "TI SLUSEA4D 8.5: VFB 788-812 mV (TJ 0-85 C), 784-816 mV (-40-150 C); "
                 "VEN_RISE 1.21 typ/1.28 max, VEN_FALL 1.10 min/1.17 typ; Ip 0.7 uA; Ih 1.4 uA; "
                 "f 450-550 kHz (RT open); tOFF_MIN 140 ns typ; 98 % max duty with foldback",
-    "TPS3703A4330": "TI SBVS249B 7.5: thresholds 3.3 V +/-4 %, accuracy +/-0.7 %, VHYS 0.3-0.8 %, "
+    "TPS3703A4330": "TI SBVS344D (TPS3703A4330DSERQ1, fitted; same as SBVS249B commercial): thresholds 3.3 V +/-4 %, accuracy +/-0.7 %, VHYS 0.3-0.8 %, "
                     "tD 7-13 ms (CT open), UVLO 1.2-1.7 V",
     "IRM-20-15": "Mean Well IRM-20-SPEC 2025-11-21: 15 V, 1.4 A, 21 W, tolerance +/-2.5 % "
                  "(set-up + line + load), ripple 200 mVp-p",
@@ -107,18 +107,21 @@ def rail_3v3() -> dict:
     }
 
 
-def harness(i_v3v3_native_a: float, i_v15_a: float) -> dict:
-    """v3v3 as seen by native-21 through the J4 harness (allocation: <= 1.0 m AWG22)."""
+HARNESS_DEFAULT_M = 1.0            # DEFAULT (owner open item): J4 harness <= 1.0 m AWG22; R27 route is 74 mm
+
+
+def harness(i_v3v3_native_a: float, i_v15_a: float, length_m: float = HARNESS_DEFAULT_M) -> dict:
+    """v3v3 as seen by native-21 through the J4 harness (default allocation <= 1.0 m AWG22)."""
     r_contact = 0.010
-    r_wire = 0.05296 * 1.197 * 1.0
+    r_wire = 0.05296 * 1.197 * length_m
     r_path = 2 * r_contact + r_wire                  # one conductor, two mated contacts
     r_gnd = r_path / 3                               # three selv_gnd contacts
     # Ground current: v15 return flows controller -> native-21; v3v3 return flows back.
     i_gnd_net = i_v15_a - i_v3v3_native_a
     drop_v3v3 = i_v3v3_native_a * r_path
     gnd_shift = i_gnd_net * r_gnd                    # native-21 ground below controller ground
-    return {"source": ["Micro-Fit", "AWG22"],
-            "allocation": "J4 harness <= 1.0 m, AWG22, Micro-Fit 43030 terminals (harness not yet specified)",
+    return {"source": ["Micro-Fit", "AWG22"], "length_m": length_m,
+            "allocation": f"J4 harness <= {length_m} m, AWG22, Micro-Fit 43030 terminals (DEFAULT; harness not yet specified)",
             "r_conductor_ohm": r_path, "r_ground_3pin_ohm": r_gnd,
             "v3v3_drop_V": drop_v3v3, "ground_shift_max_V": max(gnd_shift, 0.0),
             "ground_shift_min_V": min(-i_v3v3_native_a * r_gnd, 0.0)}
@@ -239,16 +242,17 @@ def adc_pattern() -> dict:
 
 
 def landings() -> dict:
-    """R25 harness landings vs the six mounting holes' 8 mm screw-head keepouts.
+    """R27 harness landings vs the six mounting holes' 8 mm screw-head keepouts.
 
-    Board X-168..38, Y14..90 (world mm); holes at X -164/-65/34, Y 18/86, keepout
+    Board X-168..38, Y14..90 (world mm); R27 holes (-164,18) (-164,80) (-65,18)
+    (-75,86) (34,18) (30,80) -- the rear three moved inboard in R27; keepout
     radius 4 mm (CONTROLLER-SPEC). A connector centred on its landing (X/Y
     projected onto the board) needs centre-to-hole >= 4 + half its body length,
     orientation unknown, so the longest body dimension is used (conservative).
     Body lengths: JLC listings of the chosen parts (XH 2/3/4/8-pin 7.4/9.9/12.4/22.4,
     Micro-Fit 2x8 27.65, Micro-MaTch 6-pin 9.7).
     """
-    holes = [(x, y) for x in (-164.0, -65.0, 34.0) for y in (18.0, 86.0)]
+    holes = [(-164.0, 18.0), (-164.0, 80.0), (-65.0, 18.0), (-75.0, 86.0), (34.0, 18.0), (30.0, 80.0)]
     rows = {
         "J4 SELV (right)": ((42.2, 42.0), 27.65),
         "J6 OLED (top)": ((-35.0, 70.0), 22.4),
@@ -269,8 +273,88 @@ def landings() -> dict:
         out[name] = {"landing": (x, y), "on_board": (px, py), "nearest_hole": hole,
                      "distance_mm": round(d, 2), "needed_mm": round(need, 2),
                      "conflict": d < need}
-    return {"source": "CONTROLLER-SPEC R25 harness table and hole list; JLC body lengths",
-            "rows": out, "conflicts": [k for k, v in out.items() if v["conflict"]]}
+    conflicts = [k for k, v in out.items() if v["conflict"]]
+    return {"source": "CONTROLLER-SPEC R27 harness table and hole list; JLC body lengths",
+            "rows": out, "conflicts_orientation_blind": conflicts,
+            "note": "informational (enclosure-owned geometry): the circle bound assumes the worst "
+                    "orientation; an XH body along the rear edge (5.75 mm deep) clears J3's keepout"}
+
+
+def rms_channel() -> dict:
+    """AD8436 tank-RMS channel into the MCP3202 (owner-approved follow-up)."""
+    f_band = (31e3, 55e3)                       # tank frequency band (coordinator)
+    bw_1pct = 65e3                              # AD8436 Rev. B Table 1, 300 mV rms
+    mv_per_a = 15.0                             # 1.5 ohm burden / 100:1 CT
+    gain = 1 + 30e3 / 10e3                      # output buffer, RT0603 0.1 %
+    gain_tol = 2 * 0.001 * (30e3 / 10e3) / gain
+    rms_22 = 22 * mv_per_a / 1e3
+    rms_trip = 55 / math.sqrt(2) * mv_per_a / 1e3
+    out_22, out_trip = rms_22 * gain, rms_trip * gain
+    vdd_min, vdd_max = 3.242, 3.367             # v3v3 band (rail_3v3) = MCP3202 reference
+    # coupling high-passes: 100 nF into the 10 MOhm bias and into the 8 kOhm core input
+    hp_core = 1 / (2 * math.pi * 8e3 * 100e-9)
+    hp_err = 1 - 1 / math.sqrt(1 + (hp_core / f_band[0]) ** 2)
+    lpf = 1 / (2 * math.pi * 16e3 * 10e-9)      # OUT 16 kOhm internal + 10 nF C0G
+    ripple_atten = 1 / math.sqrt(1 + (2 * f_band[0] / lpf) ** 2)
+    # Settling: datasheet gives 0.1 % at CAVG 10 uF = 148 ms rising / 341 ms falling.
+    # ASSUMPTION (bench item): settling scales with CAVG, as for a log-domain core.
+    settle_fall_ms = 341 * (100e-9 / 10e-6)
+    # Fault: output buffer on 15 V can reach VS - 1; 1 k into the BAT54S clamp to v3v3.
+    i_fault = (15.375 - 1 - vdd_max) / 1e3
+    v_clamp_over = 0.500                        # BAT54S VF max at 30 mA (DS11005); fault current < 30 mA
+    leak_err = 2e-6 * 1e3 / out_22              # IR 2 uA (25 V) x 1 kOhm vs 22 A reading
+    lsb = vdd_max / 4096
+    return {"source": "AD8436 Rev. B; MCP3202 DS21034F; BAT54S DS11005; CT transfer 15 mV/A",
+            "bandwidth_1pct_Hz": bw_1pct, "tank_band_Hz": f_band,
+            "gain": gain, "gain_tolerance": gain_tol,
+            "adc_V_at_22A_rms": out_22, "adc_V_at_55A_peak_trip": out_trip,
+            "adc_lsb_V": lsb, "codes_at_22A": out_22 / lsb,
+            "coupling_error_at_31kHz": hp_err, "post_filter_Hz": lpf, "ripple_attenuation_2f": ripple_atten,
+            "settling_0p1pct_fall_ms_assumed": settle_fall_ms,
+            "fault_clamp_current_A": i_fault, "clamp_node_max_over_vdd_V": v_clamp_over,
+            "leakage_error_at_22A": leak_err,
+            "reference": "MCP3202 VREF = v3v3 (3.242-3.367 V); CH1 reads the LM4040A25 (0.1 %) "
+                         "so firmware divides it out",
+            "checks": {"bandwidth_covers_tank_band": bw_1pct >= f_band[1],
+                       "trip_level_inside_adc_range": out_trip < vdd_min,
+                       "coupling_error_lt_0p1pct": hp_err < 1e-3,
+                       "settles_within_half_line_cycle": settle_fall_ms < 8.33,
+                       "clamp_keeps_adc_within_vdd_plus_0p6": v_clamp_over < 0.6 and i_fault <= 0.030,
+                       "leakage_error_lt_0p5pct": leak_err < 0.005}}
+
+
+def encoder_supply() -> dict:
+    """5 V encoder option: v15 -> 2 x 100 ohm -> TLV76050 (DBZ 275.2 C/W)."""
+    i_enc, i_gnd_max = 0.030, 0.005             # encoder allocation [UNVERIFIED]; TLV760 IGND 5 mA max
+    r = 200.0
+    out = {}
+    for label, vin in (("vin_min", 15 * 0.975), ("vin_max", 15 * 1.025)):
+        i = i_enc + i_gnd_max
+        v_ldo_in = vin - i * r
+        p_ldo = (v_ldo_in - 5.0) * i_enc + v_ldo_in * i_gnd_max
+        out[label] = {"ldo_in_V": v_ldo_in, "ldo_W": p_ldo, "per_resistor_W": i * i * r / 2}
+    rise = out["vin_max"]["ldo_W"] * 275.2
+    return {"source": "TI TLV760 datasheet (IGND, dropout 1.2 V, RthJA 275.2 C/W); 1206 = 0.25 W",
+            "rows": out, "ldo_rise_C": rise,
+            "checks": {"ldo_headroom": out["vin_min"]["ldo_in_V"] >= 5.0 + 1.2,
+                       "ldo_tj_le_125C_at_60C_ambient": 60 + rise <= 125,
+                       "resistors_le_half_rating": out["vin_max"]["per_resistor_W"] <= 0.125}}
+
+
+def harness_sensitivity() -> dict:
+    """How far the DEFAULT harness length can grow before native-21's rail leaves 3.135 V.
+
+    Uses the same model as the verifier with the verified native-21 load (49 mA) and the
+    peak 15 V return (0.85 A); the controller's low corner is rail_3v3()'s band minimum.
+    """
+    reg_min = rail_3v3()["vout_band_0_85C_V"][0]
+    lengths = [0.074, 0.5, 1.0, 2.0, 4.0, 8.0]
+    rows = {}
+    for length in lengths:
+        h = harness(0.0493, 0.85, length)
+        rows[f"{length} m"] = reg_min - h["v3v3_drop_V"] + h["ground_shift_min_V"]
+    return {"default_m": HARNESS_DEFAULT_M, "native21_v3v3_min_V_by_length": rows,
+            "checks": {"default_and_r27_route_inside_contract": rows["1.0 m"] >= 3.135 and rows["0.074 m"] >= 3.135}}
 
 
 def main() -> int:
@@ -286,6 +370,9 @@ def main() -> int:
         "ct_mon": ct_mon(),
         "adc_pattern": adc_pattern(),
         "landings": landings(),
+        "rms_channel": rms_channel(),
+        "encoder_supply": encoder_supply(),
+        "harness_sensitivity": harness_sensitivity(),
     }
     failed = [f"{blk}.{name}" for blk, val in result.items() if isinstance(val, dict)
               for name, ok in val.get("checks", {}).items() if not ok]

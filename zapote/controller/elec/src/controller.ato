@@ -32,6 +32,7 @@ from "controller_parts.ato" import Cap100u25Elec, Tps3703Window, Opa2388, Tlv906
 from "controller_parts.ato" import EsdTvs3v3, Tca9555, Lvc244a, Lvc1g14, Nmos2n7002
 from "controller_parts.ato" import SelvHeader16, XhHeader2, XhHeader3, XhHeader8
 from "controller_parts.ato" import MicroMatch6Female, DebugHeader8
+from "controller_parts.ato" import MicroFitRA16, Ad8436Rq, Mcp3202, Lvc2g17, Tlv76050, Bat54s
 
 module SelvController:
     # ---------------------------------------------------------------- nets
@@ -124,7 +125,9 @@ module SelvController:
     m12_adc.override_net_name = "M12_ADC"
 
     # ================================================================ J4
-    j4 = new SelvHeader16
+    # Right-angle Micro-Fit 3.0 (R27: right edge, mating +X near Y42). Same circuit
+    # numbering as native-21's vertical 43045-1612; the harness stays 1:1.
+    j4 = new MicroFitRA16
     j4.designator = "J4"
     j4.p1 ~ v15_selv
     j4.p2 ~ selv_gnd
@@ -751,6 +754,146 @@ module SelvController:
     c_m12_adc.p1 ~ m12_adc
     c_m12_adc.p2 ~ selv_gnd
 
+    # ---- Tank-current RMS (owner-approved follow-up, DECISIONS C19). The raw
+    # ct_mon path above stays for phase/waveform. AD8436 on v15_selv single
+    # supply: inputs biased at IGND (half supply), output current into the
+    # internal 16 k to selv_gnd, so the DC result is ground-referenced
+    # (datasheet "Single Supply"). Input is the buffered ct_mon, ac-coupled.
+    # CAVG 100 nF C0G (datasheet: never X7R for CAVG); 10 nF C0G on OUT (16 k,
+    # ~1 kHz) cuts 2f ripple; output buffer gain 4 (30k/10k) puts 22 A RMS tank
+    # (0.33 V rms) at ~1.3 V. 1 k + BAT54S clamp protects the ADC from a 15 V
+    # fault on the 15 V-powered output buffer.
+    signal rms_in
+    signal rms_ibuf
+    signal rms_core_in
+    signal rms_cavg
+    signal rms_ignd
+    signal rms_out
+    signal rms_obuf
+    signal rms_fb
+    signal ct_rms
+    signal ext_adc_cs_n
+    rms_out.override_net_name = "CT_RMS_CORE"
+    ct_rms.override_net_name = "CT_RMS_ADC"
+    ext_adc_cs_n.override_net_name = "EXT_ADC_CS_N"
+    u_rms = new Ad8436Rq
+    u_rms.designator = "U14"
+    u_rms.VCC ~ v15_selv
+    u_rms.IBUFVP ~ v15_selv
+    u_rms.OBUFVP ~ v15_selv
+    u_rms.VEE ~ selv_gnd
+    u_rms.OGND ~ selv_gnd
+    u_rms.IGND ~ rms_ignd
+    c_rms_in = new Capacitor
+    c_rms_in.value = 100nF +/- 5%
+    c_rms_in.dielectric = "C0G"
+    c_rms_in.mpn = "GRM31C5C1H104JA01L"
+    c_rms_in.footprint = "Capacitor_SMD:C_1206_3216Metric"
+    c_rms_in.p1 ~ ct_buf_out
+    c_rms_in.p2 ~ rms_in
+    r_rms_bias = new Resistor
+    r_rms_bias.value = 10Mohm +/- 1%
+    r_rms_bias.mpn = "RC0603FR-0710ML"
+    r_rms_bias.p1 ~ rms_in
+    r_rms_bias.p2 ~ rms_ignd
+    u_rms.IBUFIN_P ~ rms_in
+    u_rms.IBUFIN_N ~ rms_ibuf
+    u_rms.IBUFOUT ~ rms_ibuf
+    c_rms_core = new Capacitor
+    c_rms_core.value = 100nF +/- 5%
+    c_rms_core.dielectric = "C0G"
+    c_rms_core.mpn = "GRM31C5C1H104JA01L"
+    c_rms_core.footprint = "Capacitor_SMD:C_1206_3216Metric"
+    c_rms_core.p1 ~ rms_ibuf
+    c_rms_core.p2 ~ rms_core_in
+    u_rms.RMS ~ rms_core_in
+    c_rms_avg = new Capacitor
+    c_rms_avg.value = 100nF +/- 5%
+    c_rms_avg.dielectric = "C0G"
+    c_rms_avg.mpn = "GRM31C5C1H104JA01L"
+    c_rms_avg.footprint = "Capacitor_SMD:C_1206_3216Metric"
+    c_rms_avg.p1 ~ rms_cavg
+    c_rms_avg.p2 ~ v15_selv
+    u_rms.CAVG ~ rms_cavg
+    c_rms_ignd = new Capacitor
+    c_rms_ignd.value = 1uF +/- 10%
+    c_rms_ignd.mpn = "CL10A105KB8NNNC"
+    c_rms_ignd.p1 ~ rms_ignd
+    c_rms_ignd.p2 ~ selv_gnd
+    u_rms.OUT ~ rms_out
+    c_rms_lpf = new Capacitor
+    c_rms_lpf.value = 10nF +/- 5%
+    c_rms_lpf.dielectric = "C0G"
+    c_rms_lpf.mpn = "GRM1885C1H103JA01D"
+    c_rms_lpf.p1 ~ rms_out
+    c_rms_lpf.p2 ~ selv_gnd
+    u_rms.OBUFIN_P ~ rms_out
+    u_rms.OBUFIN_N ~ rms_fb
+    u_rms.OBUFOUT ~ rms_obuf
+    r_rms_gf = new Resistor
+    r_rms_gf.value = 30kohm +/- 0.1%
+    r_rms_gf.mpn = "RT0603BRD0730KL"
+    r_rms_gf.p1 ~ rms_obuf
+    r_rms_gf.p2 ~ rms_fb
+    r_rms_gg = new Resistor
+    r_rms_gg.value = 10kohm +/- 0.1%
+    r_rms_gg.mpn = "RT0603BRD0710KL"
+    r_rms_gg.p1 ~ rms_fb
+    r_rms_gg.p2 ~ selv_gnd
+    c_rms_vcc = new Capacitor
+    c_rms_vcc.value = 100nF +/- 10%
+    c_rms_vcc.mpn = "CC0603KRX7R9BB104"
+    c_rms_vcc.p1 ~ v15_selv
+    c_rms_vcc.p2 ~ selv_gnd
+    c_rms_vcc2 = new Capacitor
+    c_rms_vcc2.value = 1uF +/- 10%
+    c_rms_vcc2.mpn = "CL10A105KB8NNNC"
+    c_rms_vcc2.p1 ~ v15_selv
+    c_rms_vcc2.p2 ~ selv_gnd
+    r_rms_adc = new Resistor
+    r_rms_adc.value = 1kohm +/- 1%
+    r_rms_adc.mpn = "RC0603FR-071KL"
+    r_rms_adc.p1 ~ rms_obuf
+    r_rms_adc.p2 ~ ct_rms
+    c_rms_adc = new Capacitor
+    c_rms_adc.value = 10nF +/- 5%
+    c_rms_adc.dielectric = "C0G"
+    c_rms_adc.mpn = "GRM1885C1H103JA01D"
+    c_rms_adc.p1 ~ ct_rms
+    c_rms_adc.p2 ~ selv_gnd
+    d_rms_clamp = new Bat54s
+    d_rms_clamp.A ~ selv_gnd
+    d_rms_clamp.COM ~ ct_rms
+    d_rms_clamp.K ~ v3v3
+
+    # ---- External ADC on the RTD SPI bus (ADC1 is full; ADC2 is unusable while
+    # Wi-Fi runs). CH0 = tank RMS, CH1 = the D-11 LM4040A25 2.5 V 0.1 % node, so
+    # firmware removes the VDD-as-reference error ratiometrically.
+    u_adc = new Mcp3202
+    u_adc.designator = "U15"
+    u_adc.VDD ~ v3v3
+    u_adc.VSS ~ selv_gnd
+    u_adc.CS_N ~ ext_adc_cs_n
+    u_adc.CLK ~ rtd_sck
+    u_adc.DIN ~ rtd_sdi
+    u_adc.CH0 ~ ct_rms
+    u_adc.CH1 ~ ref2v5
+    r_adc_dout = new Resistor
+    r_adc_dout.value = 33ohm +/- 1%
+    r_adc_dout.mpn = "RC0603FR-0733RL"
+    r_adc_dout.p1 ~ u_adc.DOUT
+    r_adc_dout.p2 ~ rtd_sdo
+    r_adc_cs_pu = new Resistor
+    r_adc_cs_pu.value = 10kohm +/- 1%
+    r_adc_cs_pu.mpn = "RC0603FR-0710KL"
+    r_adc_cs_pu.p1 ~ v3v3
+    r_adc_cs_pu.p2 ~ ext_adc_cs_n
+    c_adc = new Capacitor
+    c_adc.value = 1uF +/- 10%
+    c_adc.mpn = "CL10A105KB8NNNC"
+    c_adc.p1 ~ v3v3
+    c_adc.p2 ~ selv_gnd
+
     # ================================================================ MCU
     mcu = new Esp32S3Wroom1N8
     mcu.designator = "U4"
@@ -851,7 +994,9 @@ module SelvController:
     mcu.IO39 ~ line_zc_mcu
     mcu.IO40 ~ oled_sclk
     mcu.IO41 ~ oled_sdin
-    mcu.IO42 ~ oled_cs_n
+    # GPIO42 is the external ADC chip select; the OLED is alone on its SPI bus,
+    # so its CS# moves to the expander (P05, input/pulled-up = deselected at reset).
+    mcu.IO42 ~ ext_adc_cs_n
     mcu.IO45 ~ oled_dc
     mcu.IO46 ~ fan_off
     mcu.IO47 ~ enc_a
@@ -897,6 +1042,7 @@ module SelvController:
     u_io.P02 ~ btn3
     u_io.P03 ~ enc_sw
     u_io.P04 ~ oled_res_n
+    u_io.P05 ~ oled_cs_n
     u_io.P10 ~ latched_fault_rb
     u_io.P11 ~ rtd_fault_rb
     u_io.P12 ~ hs_fault_rb
@@ -920,49 +1066,141 @@ module SelvController:
     j_oled.p7 ~ oled_res_n
     j_oled.p8 ~ selv_gnd
 
-    # ---- Encoder (Grayhill, TE Micro-MaTch 6 way). Pin map is an open item;
-    # 3.3 V supply through a 0 ohm link that can be removed.
+    # ---- Encoder (Grayhill, TE Micro-MaTch 6 way). Part and pin map are open.
+    # Safe for a 3.3 V- OR a 5 V-supplied encoder (DECISIONS C15): J5 offers both
+    # supplies (pin 1 +3.3 V, pin 6 +5 V from a current-limited LDO) and the
+    # extension harness selects one. A/B reach the MCU only through an LVC Schmitt
+    # buffer whose inputs accept 5.5 V at VCC 3.3 V; the switch reaches the 5 V-
+    # tolerant TCA9555. Every line has 1 k series (fault/ESD current) and a 10 k
+    # pull-up to 3.3 V on the connector side (open-collector encoders).
     signal enc_vcc
+    signal v5_enc
+    signal v5_drop
+    signal enc_a_in
+    signal enc_b_in
+    signal enc_sw_in
+    signal enc_a_buf
+    signal enc_b_buf
+    v5_enc.override_net_name = "V5_ENC"
+    enc_a_in.override_net_name = "ENC_A_IN"
+    enc_b_in.override_net_name = "ENC_B_IN"
+    enc_sw_in.override_net_name = "ENC_SW_IN"
     j_enc = new MicroMatch6Female
     j_enc.designator = "J5"
     j_enc.p1 ~ enc_vcc
     j_enc.p2 ~ selv_gnd
-    j_enc.p3 ~ enc_a
-    j_enc.p4 ~ enc_b
-    j_enc.p5 ~ enc_sw
-    j_enc.p6 ~ selv_gnd
+    j_enc.p3 ~ enc_a_in
+    j_enc.p4 ~ enc_b_in
+    j_enc.p5 ~ enc_sw_in
+    j_enc.p6 ~ v5_enc
     r_enc_vcc = new Resistor
     r_enc_vcc.value = 0ohm
     r_enc_vcc.mpn = "RC0603JR-070RL"
     r_enc_vcc.p1 ~ v3v3
     r_enc_vcc.p2 ~ enc_vcc
+    # 5 V: 2 x 100 ohm 1206 dropper shares the 15 V -> 5 V dissipation with the
+    # LDO (TLV760 is 275 C/W; tools/controller_calcs.py encoder_supply()).
+    signal v5_mid
+    r_v5_drop = new Resistor
+    r_v5_drop.value = 100ohm +/- 1%
+    r_v5_drop.mpn = "RC1206FR-07100RL"
+    r_v5_drop.footprint = "Resistor_SMD:R_1206_3216Metric"
+    r_v5_drop.p1 ~ v15_selv
+    r_v5_drop.p2 ~ v5_mid
+    r_v5_drop2 = new Resistor
+    r_v5_drop2.value = 100ohm +/- 1%
+    r_v5_drop2.mpn = "RC1206FR-07100RL"
+    r_v5_drop2.footprint = "Resistor_SMD:R_1206_3216Metric"
+    r_v5_drop2.p1 ~ v5_mid
+    r_v5_drop2.p2 ~ v5_drop
+    u_v5 = new Tlv76050
+    u_v5.designator = "U16"
+    u_v5.IN ~ v5_drop
+    u_v5.OUT ~ v5_enc
+    u_v5.GND ~ selv_gnd
+    c_v5_in = new Capacitor
+    c_v5_in.value = 1uF +/- 10%
+    c_v5_in.mpn = "CL10A105KB8NNNC"
+    c_v5_in.p1 ~ v5_drop
+    c_v5_in.p2 ~ selv_gnd
+    c_v5_out = new Capacitor
+    c_v5_out.value = 1uF +/- 10%
+    c_v5_out.mpn = "CL10A105KB8NNNC"
+    c_v5_out.p1 ~ v5_enc
+    c_v5_out.p2 ~ selv_gnd
     r_enc_a = new Resistor
     r_enc_a.value = 10kohm +/- 1%
     r_enc_a.mpn = "RC0603FR-0710KL"
     r_enc_a.p1 ~ v3v3
-    r_enc_a.p2 ~ enc_a
+    r_enc_a.p2 ~ enc_a_in
     r_enc_b = new Resistor
     r_enc_b.value = 10kohm +/- 1%
     r_enc_b.mpn = "RC0603FR-0710KL"
     r_enc_b.p1 ~ v3v3
-    r_enc_b.p2 ~ enc_b
+    r_enc_b.p2 ~ enc_b_in
     r_enc_sw = new Resistor
     r_enc_sw.value = 10kohm +/- 1%
     r_enc_sw.mpn = "RC0603FR-0710KL"
     r_enc_sw.p1 ~ v3v3
-    r_enc_sw.p2 ~ enc_sw
+    r_enc_sw.p2 ~ enc_sw_in
+    rs_enc_a = new Resistor
+    rs_enc_a.value = 1kohm +/- 1%
+    rs_enc_a.mpn = "RC0603FR-071KL"
+    rs_enc_a.p1 ~ enc_a_in
+    rs_enc_a.p2 ~ enc_a_buf
+    rs_enc_b = new Resistor
+    rs_enc_b.value = 1kohm +/- 1%
+    rs_enc_b.mpn = "RC0603FR-071KL"
+    rs_enc_b.p1 ~ enc_b_in
+    rs_enc_b.p2 ~ enc_b_buf
+    rs_enc_sw = new Resistor
+    rs_enc_sw.value = 1kohm +/- 1%
+    rs_enc_sw.mpn = "RC0603FR-071KL"
+    rs_enc_sw.p1 ~ enc_sw_in
+    rs_enc_sw.p2 ~ enc_sw
+    u_enc = new Lvc2g17
+    u_enc.designator = "U17"
+    u_enc.VCC ~ v3v3
+    u_enc.GND ~ selv_gnd
+    u_enc.A1 ~ enc_a_buf
+    u_enc.Y1 ~ enc_a
+    u_enc.A2 ~ enc_b_buf
+    u_enc.Y2 ~ enc_b
+    c_enc = new Capacitor
+    c_enc.value = 100nF +/- 10%
+    c_enc.mpn = "CC0603KRX7R9BB104"
+    c_enc.p1 ~ v3v3
+    c_enc.p2 ~ selv_gnd
 
     # ---- APEM buttons: two landings on the Y41 trunk (switch to selv_gnd,
-    # TCA9555 internal pull-ups).
+    # TCA9555 internal pull-ups; its I/O is 5 V tolerant). 1 k series per line.
+    signal btn1_in
+    signal btn2_in
+    signal btn3_in
     j_btn_a = new XhHeader3
     j_btn_a.designator = "J7"
-    j_btn_a.p1 ~ btn1
-    j_btn_a.p2 ~ btn2
+    j_btn_a.p1 ~ btn1_in
+    j_btn_a.p2 ~ btn2_in
     j_btn_a.p3 ~ selv_gnd
     j_btn_b = new XhHeader2
     j_btn_b.designator = "J8"
-    j_btn_b.p1 ~ btn3
+    j_btn_b.p1 ~ btn3_in
     j_btn_b.p2 ~ selv_gnd
+    rs_btn1 = new Resistor
+    rs_btn1.value = 1kohm +/- 1%
+    rs_btn1.mpn = "RC0603FR-071KL"
+    rs_btn1.p1 ~ btn1_in
+    rs_btn1.p2 ~ btn1
+    rs_btn2 = new Resistor
+    rs_btn2.value = 1kohm +/- 1%
+    rs_btn2.mpn = "RC0603FR-071KL"
+    rs_btn2.p1 ~ btn2_in
+    rs_btn2.p2 ~ btn2
+    rs_btn3 = new Resistor
+    rs_btn3.value = 1kohm +/- 1%
+    rs_btn3.mpn = "RC0603FR-071KL"
+    rs_btn3.p1 ~ btn3_in
+    rs_btn3.p2 ~ btn3
 
     # ---- Bring-up header (fit for development; USB-Serial-JTAG on 19/20)
     j_dbg = new DebugHeader8

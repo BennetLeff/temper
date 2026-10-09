@@ -120,11 +120,13 @@ component Cap100u25Elec:
     signal n ~ pin 2
 
 component Tps3703Window:
-    """TI TPS3703A4330DSER: 3.3 V fixed window, +/-4 % UV/OV, +/-0.7 % threshold
-    accuracy, CT open = 10 ms release delay, open-drain RESET (LCSC C2861205).
-    SBVS249B Pin Functions (DSE): SENSE1 VDD2 CT3 RESET4 GND5 MR6."""
+    """TI TPS3703A4330DSERQ1 (automotive grade, LCSC C1850327, stocked): 3.3 V fixed
+    window, +/-4 % UV/OV, +/-0.7 % threshold accuracy, VHYS 0.3-0.8 %, CT open =
+    7-13 ms release delay, open-drain RESET. SBVS344D pin functions (DSE):
+    SENSE1 VDD2 CT3 RESET4 GND5 MR6 -- identical to the commercial TPS3703A4330DSER
+    (SBVS249B), which JLC listed at zero stock on 2026-10-08."""
     designator_prefix = "U"
-    mpn = "TPS3703A4330DSER"
+    mpn = "TPS3703A4330DSERQ1"
     manufacturer = "Texas Instruments"
     footprint = "Package_SON:WSON-6_1.5x1.5mm_P0.5mm"
     signal SENSE ~ pin 1
@@ -365,3 +367,119 @@ component DebugHeader8:
     signal p6 ~ pin 6
     signal p7 ~ pin 7
     signal p8 ~ pin 8
+
+# ------------------------------------------------------------------ follow-up 2026-10-08
+
+component MicroFitRA16:
+    """Molex Micro-Fit 3.0 43045-1600, 2x8 right-angle through-hole header with snap-in
+    plastic PCB pegs (LCSC C277731). Replaces the vertical 43045-1612 at J4 (R27: mating
+    axis +X on the right edge). Circuit numbers are the Micro-Fit circuit numbers, so the
+    1:1 43025-1600 harness and the J4 contract are unchanged. KiCad footprint cites
+    Molex drawing 430450201_sd.pdf; drawing not read here [UNVERIFIED envelope fit]."""
+    designator_prefix = "J"
+    mpn = "0430451600"
+    manufacturer = "Molex"
+    footprint = "Connector_Molex:Molex_Micro-Fit_3.0_43045-1600_2x08_P3.00mm_Horizontal"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+    signal p3 ~ pin 3
+    signal p4 ~ pin 4
+    signal p5 ~ pin 5
+    signal p6 ~ pin 6
+    signal p7 ~ pin 7
+    signal p8 ~ pin 8
+    signal p9 ~ pin 9
+    signal p10 ~ pin 10
+    signal p11 ~ pin 11
+    signal p12 ~ pin 12
+    signal p13 ~ pin 13
+    signal p14 ~ pin 14
+    signal p15 ~ pin 15
+    signal p16 ~ pin 16
+
+component Ad8436Rq:
+    """Analog Devices AD8436BRQZ true RMS-to-DC converter, QSOP-20 (RQ-20) (LCSC C652840,
+    JLC stock 0: consign). Datasheet Rev. B Table 1: 65 kHz bandwidth for 1 % additional
+    error and 1 MHz -3 dB at 300 mV rms; single supply 4.8-36 V; ac-coupled output offset 0;
+    B grade +/-10 uV +/-0.25 % rdg. Table 4 (RQ-20): SUM1 DNC2 RMS3 IBUFOUT4 IBUFIN-5
+    IBUFIN+6 IBUFGN7 DNC8 OGND9 OUT10 VEE11 IGND12 OBUFIN+13 OBUFIN-14 OBUFOUT15
+    OBUFV+16 IBUFV+17 VCC18 CCF19 CAVG20."""
+    designator_prefix = "U"
+    mpn = "AD8436BRQZ"
+    manufacturer = "Analog Devices"
+    footprint = "Package_SO:QSOP-20_3.9x8.7mm_P0.635mm"
+    signal SUM ~ pin 1
+    signal DNC2 ~ pin 2
+    signal RMS ~ pin 3
+    signal IBUFOUT ~ pin 4
+    signal IBUFIN_N ~ pin 5
+    signal IBUFIN_P ~ pin 6
+    signal IBUFGN ~ pin 7
+    signal DNC8 ~ pin 8
+    signal OGND ~ pin 9
+    signal OUT ~ pin 10
+    signal VEE ~ pin 11
+    signal IGND ~ pin 12
+    signal OBUFIN_P ~ pin 13
+    signal OBUFIN_N ~ pin 14
+    signal OBUFOUT ~ pin 15
+    signal OBUFVP ~ pin 16
+    signal IBUFVP ~ pin 17
+    signal VCC ~ pin 18
+    signal CCF ~ pin 19
+    signal CAVG ~ pin 20
+
+component Mcp3202:
+    """Microchip MCP3202-CI/SN 12-bit 2-channel SAR ADC, SPI, 2.7-5.5 V, SOIC-8 (LCSC C56997).
+    DS21034F pin table: CS/SHDN1 CH0 2 CH1 3 VSS4 DIN5 DOUT6 CLK7 VDD/VREF8. Inputs
+    VSS..VDD; absolute maximum VDD + 0.6 V. DOUT is high-Z while CS is high."""
+    designator_prefix = "U"
+    mpn = "MCP3202-CI/SN"
+    manufacturer = "Microchip"
+    footprint = "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm"
+    signal CS_N ~ pin 1
+    signal CH0 ~ pin 2
+    signal CH1 ~ pin 3
+    signal VSS ~ pin 4
+    signal DIN ~ pin 5
+    signal DOUT ~ pin 6
+    signal CLK ~ pin 7
+    signal VDD ~ pin 8
+
+component Lvc2g17:
+    """TI SN74LVC2G17DBVR dual Schmitt buffer, inputs accept up to 5.5 V at VCC 3.3 V
+    (SCES381N 'Inputs Accept Voltages to 5.5 V', VI 0-5.5 V), SOT-23-6 (LCSC C10429).
+    Pins: 1A1 GND2 2A3 2Y4 VCC5 1Y6."""
+    designator_prefix = "U"
+    mpn = "SN74LVC2G17DBVR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_TO_SOT_SMD:SOT-23-6"
+    signal A1 ~ pin 1
+    signal GND ~ pin 2
+    signal A2 ~ pin 3
+    signal Y2 ~ pin 4
+    signal VCC ~ pin 5
+    signal Y1 ~ pin 6
+
+component Tlv76050:
+    """TI TLV76050DBZR 5.0 V 100 mA LDO, VIN to 30 V, current limit and thermal shutdown,
+    SOT-23 DBZ (LCSC C2867465). TLV760 pin functions: OUT1 IN2 GND3."""
+    designator_prefix = "U"
+    mpn = "TLV76050DBZR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_TO_SOT_SMD:SOT-23"
+    signal OUT ~ pin 1
+    signal IN ~ pin 2
+    signal GND ~ pin 3
+
+component Bat54s:
+    """Diodes Inc. BAT54S-7-F series Schottky pair, SOT-23 (LCSC C83574). DS11005 Rev 34:
+    pin 1 = anode of D1, pin 3 = D1 cathode / D2 anode (common), pin 2 = cathode of D2.
+    VF <= 320 mV at 1 mA, <= 400 mV at 10 mA; IR <= 2 uA at 25 V."""
+    designator_prefix = "D"
+    mpn = "BAT54S-7-F"
+    manufacturer = "Diodes Incorporated"
+    footprint = "Package_TO_SOT_SMD:SOT-23"
+    signal A ~ pin 1
+    signal K ~ pin 2
+    signal COM ~ pin 3

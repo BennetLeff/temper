@@ -45,6 +45,7 @@ class Netlist:
     nets: dict[str, list[tuple[str, str]]]     # net -> [(ref, pin)]
     mpn: dict[str, str] = field(default_factory=dict)
     value: dict[str, str] = field(default_factory=dict)
+    footprint: dict[str, str] = field(default_factory=dict)
 
     def pin_net(self) -> dict[tuple[str, str], str]:
         return {node: name for name, nodes in self.nets.items() for node in nodes}
@@ -83,6 +84,7 @@ def attach_resolved(nl: Netlist, resolved_path: Path) -> Netlist:
     for ref, path in nl.refs.items():
         nl.mpn[ref] = by_path[path].get("mpn") or ""
         nl.value[ref] = by_path[path].get("value") or ""
+        nl.footprint[ref] = by_path[path].get("footprint") or ""
     return nl
 
 
