@@ -252,3 +252,18 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
 - **Reverses if** the controller moves rearward or the encoder/knob stack moves over the tongue.
 
 **2026-10-08, M6 amendment: upturned coil terminals.** The enclosure's R26 model screened a horizontal lug barrel plus ≥ 10 mm of straight Litz from each stud in all four directions. Every one collides with board parts: board +x runs over C21/C22, −x over the U16/U26 block, +y over T1, and −y over the other stud and J7. The decision's insulation requirement stands: insulated M4 ring, bare ring ≤ 10 mm, ≥ 5.0 mm at any rotation. What changes is the termination: the ring tongue is formed 90° **upward**, with the barrel vertical and offset away from the other stud, so the Litz drops near-vertically within ~10 mm of each stud axis, as the R18 harness intended. The part (a moulded insulated upturned ring, or a bare upturned ring with dual-wall ≥ 150 °C heat-shrink to the ring) is chosen with the coil supplier against the Litz size and the measured stud temperature. TE 2-34853-1 (straight) is withdrawn as the candidate.
+
+**2026-10-08, heatsink HOT↔PE insulation stack (review M11), owner decision** ("approved", on the recommendation in `validation-results/08-manufacturing-package/native-21/owner-items/m11/`).
+- **Problem:** as modelled in R25, the PE-bonded edge sink sat on the board's rear edge. HOT copper was 0.6 mm from it on all four layers and the FET lead pads 1.97 mm; that fails even basic insulation.
+- **Requirement: reinforced.** R38 ties PE to the controller return, and D5-BASIS keeps that barrier reinforced. Per IEC 60335-1 at PD3, IIIa: creepage 8.0 mm, clearance 2.0 mm, solid insulation 2 mm (or 3 layers, or the 29.3.3 test).
+- **Decision:**
+  - the sink is set back **8.0 mm** (world Y ≈ 244), with a **7.8 mm 6061/6082 aluminium spreader bar** whose lowest edge is ≥ 8.0 mm above the board top;
+  - **2.00 mm AlN tiles** (≥ 150 W/mK, Kyocera AN216A class; lapped, flatness ≤ 0.03 mm; two tiles, Q5–Q6 and Q3–Q2–BR1) overhang the tab metal by 6.5 mm and count as reinforced by thickness. A 5 mm relief groove in the bar sits under the tile joint;
+  - **non-conductive** metal-oxide-filled thermal compound on both faces (candidate DOWSIL TC-5622, held until a dielectric figure is confirmed);
+  - a 0.5 mm GAP PAD HC 3.0 behind BR1;
+  - a **stainless comb-spring clamp** screwed to the bar ≥ 14 mm above any tab metal, pressing 60–80 N per device through a 3 mm FR-4/G-10 strip. No screw goes through a TO-247 hole and no metal touches a package.
+  - The enclosure moves the inlet hood, plenum, end cap and seals with the sink; its screen found no conflict.
+- **Thermal:** 0.40–0.63 °C/W per FET against D-36's 0.7 budget; the bar adds ≈ 0.016 °C/W. The new HOT→PE paths measure 8.0–10.4 mm.
+- **Board:** no change. Optional at a re-spin: move BR1 −0.465 mm in y to drop the gap pad.
+- **Tests:** hipot type test 3000 Vac 60 s on the clamped assembly, routine 2000 Vac 1 s (Table 19), plus per-FET case-to-pedestal ΔT and clamp-force checks at bring-up.
+- **Open:** AlN tile quote; a compound dielectric figure; the lab confirming the standard edition and whether earthed ELV allows basic insulation. Even basic needs this geometry.

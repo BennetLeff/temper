@@ -11,7 +11,7 @@ Gerbers: `native-21-gerbers.zip`, SHA-256
 
 **Before ordering the bench prototype lot** (run on an isolated, current-limited supply):
 - the native-21 FEM correction matrices (leg A/B `a21corr` / `b21corr`) land and F6 re-runs on them. A failure would mean a copper change;
-- M11 (heatsink HOT↔PE stack) is approved and its parts are sourced (`../owner-items/m11/`);
+- M11 (heatsink HOT↔PE stack) is approved (DECISIONS.md 2026-10-08). Its parts still need sourcing: AlN tiles (quote), non-conductive compound, gap pad, spreader bar, comb spring, FR-4 strip (`../owner-items/m11/`);
 - procurement of the no-stock parts in `../owner-items/order/ORDER-PACKAGE.md`, incl. UCC21550, ISO7710, T1/T2/T3, C5/C6 and the 942C film caps.
 
 **Before mains-connected or unattended operation, and before product release:**
@@ -20,7 +20,7 @@ Gerbers: `native-21-gerbers.zip`, SHA-256
 - F1 (MDA-25-R): the certifier's confirmation that the 10 kA @ 125 Vac rating covers the 127 V (+6 %) corner (nominal-voltage rule), and Recognized-component / clip acceptance (`../sourcing/F1-J3-PARTS.md`);
 - the certification lab's answer on the tank-voltage RMS convention (M6 reversal condition).
 
-M6 and M10 are decided (DECISIONS.md 2026-10-08).
+M6, M10 and M11 are decided (DECISIONS.md 2026-10-08).
 
 Ordering is a purchase and needs the owner.
 

@@ -59,7 +59,7 @@ conductor), J4's (SELV, ≥ 64 mm from HOT), and the seven M3 fixings below.
 - IEC 60664-4 high-frequency distances (switching 33–40 kHz is above 30 kHz). Expected well below
   8 mm at these peak voltages, but the laboratory confirms the governing table.
 - CST3015's CTI/PD certificate; IRM-20's internal insulation scope; heatsink insulators of the TO-247
-  tabs (HOT drain to the chassis/PE heatsink) and BR1's body.
+  tabs (HOT drain to the chassis/PE heatsink) and BR1's body. These are decided (M11, DECISIONS 2026-10-08): the sink is set back 8 mm, with an Al spreader bar and 2 mm AlN tiles. Their hipot (3000 Vac type test, 2000 Vac routine) is a lab item.
 - Hipot and partial discharge on the assembled board.
 
 **Verdict:** every board-level distance meets the 8.0 mm floor. Insulation is **not qualified**;
