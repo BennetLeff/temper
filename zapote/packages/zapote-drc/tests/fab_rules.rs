@@ -3,6 +3,7 @@ use zapote_drc::fab_rules::{kicad_rules, rules, RULE_PREFIX};
 use zapote_drc::manufacturing::FabricationLimits;
 
 const TWO_LAYER_2OZ: &str = include_str!("../../../fab-profiles/jlcpcb-2layer-2oz.json");
+const FOUR_LAYER_1OZ: &str = include_str!("../../../fab-profiles/jlcpcb-4layer-1oz.json");
 
 #[test]
 fn profile_becomes_named_kicad_rules() {
@@ -33,7 +34,7 @@ fn structured_rules_match_the_text_one_to_one() {
     let limits = parse_profile(TWO_LAYER_2OZ).unwrap();
     let list = rules(&limits);
     let text = kicad_rules(&limits).unwrap();
-    assert_eq!(list.len(), 8);
+    assert_eq!(list.len(), 9);
     assert_eq!(text.lines().count(), list.len() + 1);
     for r in &list {
         assert!(r.name.starts_with(RULE_PREFIX) && text.contains(&r.text), "{r:?}");
@@ -66,4 +67,40 @@ fn unset_limits_emit_nothing() {
     let text = kicad_rules(&limits).unwrap();
     assert_eq!(text.lines().count(), 2, "{text}");
     assert!(text.contains("(min 0.25mm)"));
+}
+
+#[test]
+fn pad_and_inner_layer_rules_follow_the_general_ones() {
+    // KiCad applies the last matching rule: the vendor's pad-specific rows
+    // must come after the general spacing they refine.
+    let list = rules(&parse_profile(FOUR_LAYER_1OZ).unwrap());
+    let names: Vec<_> = list.iter().map(|r| r.name.trim_start_matches("zapote fab ")).collect();
+    assert_eq!(
+        names[..7],
+        [
+            "copper clearance",
+            "pad to track",
+            "SMD pad to pad",
+            "via hole to copper",
+            "NPTH hole to copper",
+            "PTH hole to copper",
+            "inner PTH hole to copper",
+        ]
+    );
+    let text = |n: &str| list.iter().find(|r| r.name.ends_with(n)).unwrap().text.clone();
+    assert_eq!(
+        text("pad to track"),
+        "(rule \"zapote fab pad to track\" (condition \"A.Type == 'Pad' && B.Type == 'Track'\") \
+         (constraint clearance (min 0.1mm)))"
+    );
+    assert_eq!(
+        text("SMD pad to pad"),
+        "(rule \"zapote fab SMD pad to pad\" (condition \"A.Type == 'Pad' && A.Pad_Type == 'SMD' && \
+         B.Type == 'Pad' && B.Pad_Type == 'SMD'\") (constraint clearance (min 0.15mm)))"
+    );
+    assert_eq!(
+        text("inner PTH hole to copper"),
+        "(rule \"zapote fab inner PTH hole to copper\" (layer inner) (condition \"A.Type == 'Pad' && \
+         A.Pad_Type == 'Through-hole'\") (constraint hole_clearance (min 0.3mm)))"
+    );
 }

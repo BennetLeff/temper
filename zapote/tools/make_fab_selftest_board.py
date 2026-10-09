@@ -2,9 +2,11 @@
 
 Every gap on this board is far below any fab-house limit, so each rule the
 fab pass emits must fire on it; a rule that does not was not applied by
-KiCad (a malformed .kicad_dru is ignored silently). Measured gaps:
-copper 0.01 mm, via and PTH hole to copper 0.06 mm, NPTH hole to copper
-0.01 mm, silk text 0.3 mm high and 0.03 mm thick on both silk layers.
+KiCad (a malformed .kicad_dru is ignored silently). Four copper layers, so
+inner-layer rules are exercised too. Measured gaps: copper 0.01 mm (track
+pair, SMD pad pair, pad to track), via and PTH hole to copper 0.06 mm (PTH
+also on In1.Cu), NPTH hole to copper 0.01 mm, silk text 0.3 mm high and
+0.03 mm thick on both silk layers.
 
 With --override-probe it instead builds the local-override probe: an SMD
 pad with a 0.05 mm local clearance 0.10 mm from another net's track. KiCad
@@ -19,6 +21,7 @@ import sys
 import pcbnew
 
 board = pcbnew.BOARD()
+board.SetCopperLayerCount(4)
 
 
 def xy(x, y):
@@ -97,6 +100,26 @@ pth.SetPosition(xy(20, 15))
 pth.SetNet(a)
 fp.Add(pth)
 track(b, pcbnew.B_Cu, 15.66, 17, 23)
+# The same PTH on In1.Cu: track edge 0.01 mm from its copper, 0.06 mm from its hole.
+in1_x = 20 + 0.55 + 0.01 + 0.1
+t = pcbnew.PCB_TRACK(board)
+t.SetStart(xy(in1_x, 12))
+t.SetEnd(xy(in1_x, 18))
+t.SetWidth(pcbnew.FromMM(0.2))
+t.SetLayer(pcbnew.In1_Cu)
+t.SetNet(b)
+board.Add(t)
+# SMD pads 0.5 x 1 mm, 0.01 mm apart.
+for number, x, net in (("2", 10.0, a), ("3", 10.51, b)):
+    smd = pcbnew.PAD(fp)
+    smd.SetNumber(number)
+    smd.SetAttribute(pcbnew.PAD_ATTRIB_SMD)
+    smd.SetLayerSet(pcbnew.PAD.SMDMask())
+    smd.SetShape(pcbnew.PAD_SHAPE_RECT)
+    smd.SetSize(xy(0.5, 1.0))
+    smd.SetPosition(xy(x, 20))
+    smd.SetNet(net)
+    fp.Add(smd)
 # NPTH 1.0 mm; track edge 0.01 mm from the hole.
 npth = pcbnew.PAD(fp)
 npth.SetNumber("")
