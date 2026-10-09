@@ -109,7 +109,7 @@ tank peak is not a sufficient basis for selecting creepage bands. See
 
 | Fault | Path |
 | --- | --- |
-| Hard short or bridge failure | F1 25 A slow-blow ceramic (Littelfuse 0326025.MXP, 400 A @ 250 Vac) in 30 A 01220088Z clips |
+| Hard short or bridge failure | F1 25 A time-delay ceramic (Eaton Bussmann MDA-25-R: 10 kA @ 125 Vac, 1.5 kA @ 250 Vac) in 30 A 01220088Z clips |
 | Shoot-through / MOSFET short | 1 mΩ DC-return shunt → TLV3201 (nominal ≈61 A) → NAND gate → ISO7710 → BUS_FAULT high → interlock latch → PERMIT low → DIS |
 | Elevated DC bus | Bus divider → TLV3201 (nominal ≈280 V) → NAND gate → ISO7710 → BUS_FAULT high → interlock latch → PERMIT low → DIS; this inhibits restart but does not clamp bus voltage |
 | Tank over-current / pan fault | CT (T1) → on-board comparators U10/U11, ORed with the bus fault in U13 → bus_fault → controller interlock latch |

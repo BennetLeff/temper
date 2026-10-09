@@ -4,7 +4,7 @@
  "routed_board_sha256": "d4468ffd355d6d4a4d6d35ed902019698c9c43e503443fd60fdd81b7d345a5ba",
  "copper_json_sha256": "4b0dc3ca1784a90e27220093e9a045b2ccc234ab84364a2a696e38c0a1a3cc3c",
  "schematic_sha256": "e35d75e7c23d70f1f973bcfde751a2ceb68384f7f3de2bfbffe59bcbc587f244",
- "frozen_netlist_sha256": "b434751c4e00199e28787090046cbeddf1ece99a81ec636694abf2778feff93f",
+ "frozen_netlist_sha256": "889157b516795fbba0ee58dccdb64eafdb79b40c63f378eeba1c4b39a02cd5c1",
  "rebuild": "sh native-21/layout/incr_iter.sh native-21/layout/copper.json - [OUTDIR]",
  "components": 351,
  "drc": {
@@ -71,7 +71,7 @@
  },
  "via_in_pad_decision": "order every 0.3 mm via epoxy-filled and capped (POFV); DECISIONS.md 2026-10-08",
  "stage": "8: independent-review fixes (B1 driver decoupling, B2 exposed-pad vias, M1 isolator decoupling, M3 reliefs, M4 nylon holes, M7 J3, M8 F1, M12 silk); routed from stage-6 copper with hand routes in layout/patches21.py add_stage8",
- "board_hash_note": "rebuilds are not byte-identical (KiCad UUIDs / timestamps); copper_json_sha256 is the reproducible identity",
+ "board_hash_note": "rebuilds are not byte-identical (KiCad UUIDs / timestamps); copper_json_sha256 is the reproducible identity. Board d4468ffd still carries F1's earlier MPN in its footprint field; the BOM comes from the frozen netlist (MDA-25-R), and the next rebuild picks it up",
  "r5_current_vias": {
   "R5.1_leg_ret": 10,
   "R5.4_hv_ret": 7,
@@ -95,7 +95,7 @@
  "value_changes_2026_10_08": {
   "R83,R101,R116": "RT0603BRD077K62L (7.62k, not manufactured) -> RT0603BRD077K68L",
   "R51,R52,R55,R56": "RC1206FR-070R68L (no such RC part) -> RL1206FR-070R68L",
-  "F1": "0326020.MXP (20 A; ~14.5 A continuous after Littelfuse's 25 % derating) -> 0326025.MXP; clips 01220088Z (30 A); 125 Vac breaking capacity OPEN",
+  "F1": "0326020.MXP (20 A; ~14.5 A continuous after derating) -> 0326025.MXP (no 125 Vac breaking figure) -> Eaton Bussmann MDA-25-R (10 kA @ 125 Vac, 1.5 kA @ 250 Vac, Eaton TD 2002); clips 01220088Z (30 A). Open: fault current above 125 Vac vs 1.5 kA, Recognized-component acceptance",
   "J3": "B2P-VH (1.26 mm gap) -> B2P3-VH(LF)(SN) (7.92 mm pitch, 5.22 mm gap)",
   "C10,C11,C17,C18": "new: HS driver VDDA-VSSA 100 nF 0603 + 10 uF 0805 (GRM21BZ71E106KE15L) per leg"
  },

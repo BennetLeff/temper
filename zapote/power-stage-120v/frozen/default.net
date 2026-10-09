@@ -13,7 +13,7 @@
     (comp (ref "F1")
       (value "?")
       (footprint "Fuse:Fuseholder_Clip-6.3x32mm_Littelfuse_102_122_Inline_P34.21x7.62mm_D1.98mm_Horizontal")
-      (libsource (lib "lib") (part "0326025.MXP") (description "elec/src/parts.ato:MainsFuse25A"))
+      (libsource (lib "lib") (part "MDA-25-R") (description "elec/src/parts.ato:MainsFuse25A"))
       (sheetpath (names "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::f1") (tstamps "2a6af2ff-667c-054f-530a-8b46d0038438"))
       (tstamps "2a6af2ff-667c-054f-530a-8b46d0038438"))
     (comp (ref "RV1")
@@ -2119,7 +2119,7 @@
       (pins
         (pin (num "1") (name "1") (type "stereo"))
         (pin (num "2") (name "2") (type "stereo"))))
-    (libpart (lib "lib") (part "0326025.MXP")
+    (libpart (lib "lib") (part "MDA-25-R")
       (description "elec/src/parts.ato:MainsFuse25A")
       (docs "~")
       (footprints

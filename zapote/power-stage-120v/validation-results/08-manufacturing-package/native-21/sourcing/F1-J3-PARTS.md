@@ -31,6 +31,30 @@ makers' sites refused automated fetches). [UNVERIFIED] marks a distributor figur
   (Technical Data 2002) refused automated fetches 2026-10-08]. Same clips, so a BOM-only change.
   Close by reading Eaton's sheet, or by asking Littelfuse for 0326025's 125 Vac rating.
 
+### Eaton browser verification, 2026-10-08 (supersedes the unverified MDA claim above)
+
+Read the official [Eaton Technical Data 2002](https://www.eaton.com/content/dam/eaton/products/electronic-components/resources/data-sheet/eaton-mda-time-delay-ceramic-tube-fuses-data-sheet.pdf), effective November 2025, in Chrome's native PDF viewer using computer use. The in-app browser rendered a blank view; Chrome loaded all six pages. Evidence screenshots: [ratings](eaton-browser-2026-10-08/page2-ratings.jpg), [approvals](eaton-browser-2026-10-08/page1-approvals.jpg), [temperature curve](eaton-browser-2026-10-08/page4-derating.jpg).
+
+| Exact cartridge | Interrupting rating, p.2 | Typical melting I²t, p.2 | Agency scope, p.1 |
+| --- | --- | --- | --- |
+| MDA-25-R (proposed F1) | 10,000 A at 125 Vac; 1,500 A at 250 Vac; 10,000 A at 125 Vdc | 734.7 A²s | cULus Recognized, JDYX2/JDYX8, file E19180 |
+| MDA-20-R (comparison) | Same voltage-specific interrupting ratings | 483.5 A²s | cULus Listed, JDYX/JDYX7, file E19180 |
+
+These are primary-source verified values. For these parts, p.2 footnote 4 measures melting I²t at the interrupting rating and rated voltage. It is **typical melting**, not guaranteed total clearing. Page 3 gives a cartridge length of 31.75 ±0.79 mm and diameter of 6.35 ±0.1 mm. Page 4 supplies Eaton's own temperature curve; the earlier Littelfuse curve is not evidence for Eaton's thermal carrying capability.
+
+**Replacement disposition:** datasheet access is resolved, but MDA-25-R remains conditional. The 10 kA AC figure stops at 125 Vac. This appliance includes 127 V operation and higher line corners; do not extrapolate the figure to those conditions. Accept only after the prospective-fault-current requirement at maximum line is bounded against the applicable rating (or Eaton supplies an applicable higher-voltage guarantee), and the Recognized-component/clip conditions, thermal carrying and clearing coordination are checked. No source, BOM export or board swap was made by this verification.
+
+**Adopted, 2026-10-08 (DECISIONS.md, stage-8 entry):** F1 is now MDA-25-R in the source and BOM.
+- It dominates 0326025 at every line voltage: 1.5 kA vs 400 A up to 250 Vac, and 10 kA vs 400 A up to 125 Vac.
+- Eaton's p.4 curve reads ~96 % at 50 °C and ~93 % at 70 °C; with a 25 % continuous margin that is about 18 A at 50 °C.
+- The conditions above stay open on F1 rather than blocking the swap: the fault-current bound at 127 V / high line against 1.5 kA, the Recognized-component and clip acceptance, and coordination with the upstream fuse.
+
+### Plug/current decision, 2026-10-08
+
+The recorded 16.5 A RMS input envelope exceeds a 15 A plug. A 25 A internal fuse does not limit normal appliance current to 15 A. The existing 15 A product target requires a cap on **total appliance RMS mains current**, including auxiliaries, throughout the line/pan envelope and with sensing/control tolerance allowed for. A fixed watt cap alone is insufficient without minimum line and minimum power factor: `P_input <= V_min * PF_min * I_limit`; pan output must additionally allow for losses and auxiliary power. The existing 22 A tank-current ceiling is a separate requirement.
+
+Alternatively, retaining 16.5 A requires a 20 A plug/cord assembly and compatible supply. [Leviton 5366-C](https://leviton.com/products/5366-c), read in the browser, verifies NEMA 5-20P, 20 A, 125 Vac. The owner was asked to choose between the current cap and the changed connection; that choice is pending. Neither path is recorded as owner-approved or implemented here.
+
 ## J3: TCO loop connector (line voltage across the pins when the TCO is open)
 
 - Present JST B2P-VH: 3.96 mm pitch, **1.26 mm** copper gap.

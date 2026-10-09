@@ -1,11 +1,11 @@
 {
   "atopile_version": "0.2.69",
   "build_sha256": {
-    "build/default.csv": "710496a9efd43817553a3d9114fa2969491dddde43279f47f21df725bff36ad2",
+    "build/default.csv": "3a603677c23c91e3997222f256862b7c76a7e22d90f3e2d93abc158d9b448572",
     "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-    "build/default.net": "b434751c4e00199e28787090046cbeddf1ece99a81ec636694abf2778feff93f",
+    "build/default.net": "889157b516795fbba0ee58dccdb64eafdb79b40c63f378eeba1c4b39a02cd5c1",
     "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5",
-    "build/resolved-components.json": "d197b7a9185a5dcd1817a5741d74f687cf0124192867ae5f70232c858db1e211"
+    "build/resolved-components.json": "32f81d833f2fb499ce95aa6932bf44ea870e82080f6bf2f2eccc5da1f17e5462"
   },
   "components": [
     {
@@ -24,8 +24,8 @@
         "designator": "F1",
         "designator_prefix": "F",
         "footprint": "Fuse:Fuseholder_Clip-6.3x32mm_Littelfuse_102_122_Inline_P34.21x7.62mm_D1.98mm_Horizontal",
-        "manufacturer": "Littelfuse",
-        "mpn": "0326025.MXP"
+        "manufacturer": "Eaton Bussmann",
+        "mpn": "MDA-25-R"
       }
     },
     {
@@ -3775,7 +3775,7 @@
   "source_sha256": {
     "elec/src/f6_bias.ato": "877f37a82db45f26957fe1e8db3cae28c797aab99e4ebdd27081f69db8964596",
     "elec/src/f6_parts.ato": "7e202c66e64cae56f8db0f0849ab73e7f9767e8b103134ae7e2112e08418b32c",
-    "elec/src/parts.ato": "d5e3ad6486db702217877bfb28f6e9809a83ae9307f100f428438beba8118b15",
+    "elec/src/parts.ato": "f8e189b21904c6b960a489ed6eee90ab5131b5f58a92b6c5628adbb5c7e3a9f9",
     "elec/src/power_stage_120v.ato": "f6218d54d4776de7e16b2409090de1b0e39fc6fa3b3d345fc0b22966e896901a",
     "prototype-closure/round4/supervisor/generated/supervisor.ato": "1d6674935534a46c6c82f61c4f18890de7fa7cbf81f89c1cb63efb7bfed1b7e3"
   }

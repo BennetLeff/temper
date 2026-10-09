@@ -15,7 +15,7 @@ named), **decision** (recorded in DECISIONS.md), **owner** (needs the owner or t
 | M5 | 8.0 mm barrier has no tolerance margin (minimum 8.047 mm) | Yes | **Decision:** 8.0 mm is the owner-approved provisional floor (D5-BASIS); etch undercut widens copper gaps; the certification lab sets the final distance. Not re-routed |
 | M6 | Coil studs J2/J5 at 15 mm against ASSEMBLY.md's 30 mm target (~540 V peak) | Yes | **Owner:** move J5 (layout change) or adopt insulated ring terminals plus a barrier. Recorded |
 | M7 | J3 TCO loop pins 1.26 mm apart | Yes | **Stage 8:** JST B2P3-VH(LF)(SN), VH with post 2 omitted: 7.92 mm pitch, 5.22 mm copper gap, 250 V 10 A; unshrouded (shrouded doesn't fit); hand-soldered (`sourcing/F1-J3-PARTS.md`) |
-| M8 | F1 clips missing from the BOM and under-rated | Yes | **Stage 8:** 2 × Littelfuse 01220088Z (30 A) on the 34.21 × 7.62 mm pattern; own BOM line (`scripts/apply_lcsc.py`). The fuse was undersized as well (≈ 14.5 A continuous after Littelfuse's 25 % derating): now 0326025.MXP, 25 A |
+| M8 | F1 clips missing from the BOM and under-rated | Yes | **Stage 8:** 2 × Littelfuse 01220088Z (30 A) on the 34.21 × 7.62 mm pattern; own BOM line (`scripts/apply_lcsc.py`). The fuse was undersized as well (≈ 14.5 A continuous after Littelfuse's 25 % derating): now Eaton MDA-25-R, 25 A, 10 kA @ 125 Vac (Eaton TD 2002, owner-read) |
 | M9 | CPL uses footprint origins; T1 has no mount type | Yes | **Fixed:** pad-centre centroids, mount type from pads (`scripts/bom_cpl_jlc.py`); rotations checked in JLC's preview (now meaningful) |
 | M10 | Outline is 290 × 190 (L) against D-36's 290 × 140; J4 on the front of the tongue | Yes; the tongue appeared during routing without a recorded decision | **Owner:** record the L outline (the fit gate passes it) and confirm the J4 harness route in R4 |
 | M11 | Tabs 1.8–2.3 mm inside the edge; HOT↔PE at the heatsink not evaluated | Yes | **Owner / enclosure:** model the sink, insulator and clamp stack; open in D5-AUDIT |
@@ -31,7 +31,7 @@ MINOR items closed in stage 8:
 - **m14:** JLC's 2 oz rule is 0.15/0.15 and the tightest gap is 0.20.
 
 New in stage 8, not from the review:
-- **F1 was undersized.** It's now 25 A. Its 125 Vac breaking capacity is open; the candidate is Bussmann MDA-25-R.
+- **F1 was undersized.** It's now Eaton MDA-25-R (25 A, 10 kA @ 125 Vac). Open: the fault-current bound above 125 Vac (1.5 kA) and Recognized-component acceptance.
 - The thermal-relief step had been failing silently.
 
 **Gates on stage 8** (`d4468ffd`):

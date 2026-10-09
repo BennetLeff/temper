@@ -10,7 +10,7 @@ Gerbers: `native-21-gerbers.zip`, SHA-256
 **This package isn't released for ordering.** These gates are still open:
 - insulation and thermal qualification;
 - the laminate CTI confirmation;
-- F1's 125 Vac breaking capacity (`../sourcing/F1-J3-PARTS.md`);
+- F1 (MDA-25-R): the prospective fault current at the 127 V high-line corner against its 1.5 kA rating above 125 Vac, and Recognized-component / clip acceptance (`../sourcing/F1-J3-PARTS.md`);
 - the owner items in `../REVIEW-TRIAGE.md` (M6, M10, M11).
 
 Ordering is a purchase and needs the owner.
@@ -47,6 +47,7 @@ Assembly:
 - `assembly-drawing.pdf`: F.Fab (all designators, including the 113 with no clear silk spot), silk and outline, scaled to A4.
 
 Deviations and notes:
+- `positions-kicad.csv` is KiCad's export of board `d4468ffd`, whose F1 footprint still reads 0326025.MXP. **The BOM governs: F1 is Eaton Bussmann MDA-25-R.** The next board rebuild carries it through.
 - Plated through-hole pads have lands on both outer layers. Unconnected inner rings are removed on purpose.
 - Accepted DRC warnings, against 0 errors and 0 unconnected:
   - 13 short dangling stubs;
