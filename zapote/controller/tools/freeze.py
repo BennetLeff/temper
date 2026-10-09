@@ -60,7 +60,13 @@ def build() -> dict:
 
 
 def normalized(name: str) -> bytes:
-    return (UNIT / "build" / name).read_bytes().replace(str(UNIT).encode(), b"UNIT")
+    data = (UNIT / "build" / name).read_bytes()
+    if name == "resolved-components.json":
+        # the exporter hashes build/default.net as written, which embeds the checkout's absolute
+        # path; record the hash of the normalized netlist instead, so --check holds in any checkout
+        raw = (UNIT / "build/default.net").read_bytes()
+        data = data.replace(sha(raw).encode(), sha(raw.replace(str(UNIT).encode(), b"UNIT")).encode())
+    return data.replace(str(UNIT).encode(), b"UNIT")
 
 
 def main() -> int:

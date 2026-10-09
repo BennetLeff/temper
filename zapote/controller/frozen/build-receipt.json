@@ -3,12 +3,12 @@
   "build_command": "uv tool run --offline --from atopile==0.2.69 ato --non-interactive build elec/src/controller.ato:SelvController",
   "build_report_failed": false,
   "entry": "elec/src/controller.ato:SelvController",
-  "export_command": "uv tool run --offline --from atopile==0.2.69 python tools/circuit_export.py /Users/bennet/Desktop/temper/.claude/worktrees/agent-a30043d363cbe14e6/zapote/controller /Users/bennet/Desktop/temper/.claude/worktrees/agent-a30043d363cbe14e6/zapote/controller/build/resolved-components.json --entry-file elec/src/controller.ato --entry SelvController",
+  "export_command": "uv tool run --offline --from atopile==0.2.69 python tools/circuit_export.py /Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/controller /Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/controller/build/resolved-components.json --entry-file elec/src/controller.ato --entry SelvController",
   "exporter_sha256": "9068441892e2df3424a383c3682bdf5971527f9d4afa1812ce5171ddf8e36159",
   "frozen_sha256": {
     "default.csv": "4d08b03d3900c9dde3afb168a6947ce8e66a8b7ef9a3623f445c17a74891dd61",
     "default.net": "2e0b73ae6e5cf89eeca56c31910a803eb6dda2d651a7f5d0122bdbdbdef68155",
-    "resolved-components.json": "87cffd1ce650ed6f55b4afefed776aee82f200f6b175213caf10250fed4cb68e"
+    "resolved-components.json": "9f4a37a548d024764a28ce44bc49ce2932a70016e440ee49c006bfd0d9b67f08"
   },
   "normalization": "absolute unit path replaced by 'UNIT'",
   "returncode": 0,
