@@ -19,7 +19,7 @@ This is the electrical side of the R25 controller board. The enclosure team owns
 | J11 | Wurth 61300811121 1×8, 2.54 mm (C6400764) | 8 | none (bring-up only; may be left unfitted) | any accessible spot | 1 3V3, 2 GND, 3 TXD0, 4 RXD0, 5 EN, 6 IO0, 7 USB D−, 8 USB D+ |
 
 ## Landings vs mounting holes (R27)
-R27 moved the rear holes to (−164, 80), (−75, 86) and (30, 80); the front holes stay at (−164, 18), (−65, 18) and (34, 18). `tools/controller_calcs.py` `landings()` re-checks every landing with the worst-orientation bound (hole keepout radius 4 mm plus half the connector's longest body dimension):
+R27 moved the rear holes to (−164, 80), (−75, 86) and (30, 80), and R28 moved the right-rear one to (26, 74); the front holes stay at (−164, 18), (−65, 18) and (34, 18). `tools/controller_calcs.py` `landings()` re-checks every landing with the worst-orientation bound (hole keepout radius 4 mm plus half the connector's longest body dimension):
 - **All clear except J3, which is tight.** J3 (pan RTD) is 10.05 mm from (−164, 80), against a 10.2 mm worst-orientation bound.
 - **J3 with an edge-aligned body:**
   - Lay the 12.4 × 5.75 mm XH body along the rear edge, centred no further left than X ≈ −161.8 so it stays on the board, which ends at X−168.

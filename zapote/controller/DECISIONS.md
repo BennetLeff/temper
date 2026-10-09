@@ -207,7 +207,7 @@ These are DEFAULTS, labelled in the docs and the calcs. The design doesn't break
 
 Binding when the controller PCB is laid out (source: output/temper-manufacturing-r27/design/r27/CONTROLLER-SPEC.md, "R27 answers").
 - **Mounting holes:**
-  - rear holes at world (−164, 80), (−75, 86) and (30, 80), moved by the enclosure to clear the cable landings;
+  - rear holes at world (−164, 80), (−75, 86) and **(26, 74)**, moved by the enclosure to clear the cable landings. The right-rear hole moved again in R28 (from (30, 80)) so their J9 clears; source output/temper-manufacturing-r28/design/r28/CONTROLLER-SPEC.md;
   - front holes unchanged at (−164, 18), (−65, 18) and (34, 18);
   - nearest landings: pan RTD 12.0, fan 14.4, M12 11.0, coil NTC 15.1, sink NTC 12.8 mm.
 - **J4 (harness to native-21):**
@@ -220,3 +220,11 @@ Binding when the controller PCB is laid out (source: output/temper-manufacturing
   - fallback: WROOM-1U with an external antenna behind the lens bezel;
   - range is unqualified (enclosure bench test E4).
 - **Fan:** from the controller's 12 V buck (power-stage D-18 fan clause superseded, commit 307d332af).
+
+### R28 connector-level placements (enclosure, 2026-10-08)
+
+These are layout inputs (output/temper-manufacturing-r28/design/r28/CONTROLLER-SPEC.md). They are the enclosure's names for the ENCLOSURE-HANDOFF connectors, so reconcile the reference designators at layout start.
+- **Connectors:** J1 (−55, 84), J2 (20, 84), J3 (−152, 86), J5 Micro-MaTch (32, 64), J6 (−35, 70), J7 (−88, 41), J8 (5, 41), J9 (33, 86), J10 (−139, 86).
+- **J4:** right-angle Micro-Fit on the right edge (X26–38, Y29.6–54.4, plug to X50).
+- **ESP32 module:** X−54…−36, Y14…39.5, antenna at the front edge.
+- **Holes:** (−164, 18), (−164, 80), (−65, 18), (−75, 86), (34, 18), (26, 74). `controller_calcs.landings()` was re-checked; verify PASS.

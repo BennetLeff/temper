@@ -245,14 +245,14 @@ def landings() -> dict:
     """R27 harness landings vs the six mounting holes' 8 mm screw-head keepouts.
 
     Board X-168..38, Y14..90 (world mm); R27 holes (-164,18) (-164,80) (-65,18)
-    (-75,86) (34,18) (30,80) -- the rear three moved inboard in R27; keepout
+    (-75,86) (34,18) (26,74) -- the rear three moved inboard in R27, the right-rear again in R28 (J9); keepout
     radius 4 mm (CONTROLLER-SPEC). A connector centred on its landing (X/Y
     projected onto the board) needs centre-to-hole >= 4 + half its body length,
     orientation unknown, so the longest body dimension is used (conservative).
     Body lengths: JLC listings of the chosen parts (XH 2/3/4/8-pin 7.4/9.9/12.4/22.4,
     Micro-Fit 2x8 27.65, Micro-MaTch 6-pin 9.7).
     """
-    holes = [(-164.0, 18.0), (-164.0, 80.0), (-65.0, 18.0), (-75.0, 86.0), (34.0, 18.0), (30.0, 80.0)]
+    holes = [(-164.0, 18.0), (-164.0, 80.0), (-65.0, 18.0), (-75.0, 86.0), (34.0, 18.0), (26.0, 74.0)]
     rows = {
         "J4 SELV (right)": ((42.2, 42.0), 27.65),
         "J6 OLED (top)": ((-35.0, 70.0), 22.4),
