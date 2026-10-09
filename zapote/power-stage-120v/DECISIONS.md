@@ -398,3 +398,15 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
   - **C5/C6 (TDK B32656G0275J000):** no stocked equivalent. Ask TDK for samples of J000 or M000; fallback is a deviation to B32676G1905K000.
   - **T2/T3 (Würth 750320775):** ask Würth Midcom for samples or an allocation, 20 pcs for a 5-board lot; fallback is 750315240 with a footprint ECO.
   - **D3 (Microchip MRT130KP295CV):** Microchip samples or brokers; fallback is Littelfuse AK3-380C-Y with a footprint ECO and vendor clamp data.
+
+**2026-10-09, enclosure R31 accepted (true pose) and BR1 interface:**
+- **R31 pose:** `output/temper-manufacturing-r31`, world = (x − 141, 236 − y, 26 + z), built as a whole-assembly mirror about X = 0. The fascia controls are not mirrored (owner).
+  - The stage-13 board STEP (9de60c6a, leads cut at 2.5 mm) sits in the assembly, and the enclosure session's exact-solid all-pairs check is 0 unresolved.
+  - Hole map, checked here against the pose: H1 (144, 101) metal; H2 (−135, 56); H3 (−55, 56); H4 (−117, 162); H5 (−53, 136); H6 (−13, 182); H7 (53, 106).
+  - HOT-edge distances, 3D: bond bolt stack 32.1 mm, lug 33.5 mm, sink brackets 20.1 / 22.4 mm.
+  - Stage 13b changes only C1/C2's MPN (same body), so the check stands.
+- **BR1:** with the tile face at Y 234.47 (+0.3 mm for the TO-247 nominal), BR1's body leaves a 0.67 mm gap (0.47–0.87 mm over its 4.4–4.8 mm thickness).
+  - BR1's GAP PAD HC 3.0 becomes the **1.0 mm (0.040")** grade, compressed by the comb preload.
+  - The FR-4 strip loads the pad and must not push BR1 onto the tile; no lead flex is relied on.
+  - Estimate: about 0.67 mm / (3 W/mK × ~6 cm²) ≈ 0.37 K/W, inside the ≤ 1.0 °C/W interface budget.
+  - The re-spin option to move BR1 toward the sink and drop the pad remains.
