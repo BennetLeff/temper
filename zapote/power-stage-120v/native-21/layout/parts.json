@@ -3548,5 +3548,25 @@
 "ox": 0.0,
 "oy": 0.0,
 "group": "leg_b"
+},
+{
+"ref": "C149",
+"path": "c_vs1_1u",
+"fp": "Capacitor_SMD:C_0805_2012Metric",
+"w": 3.49,
+"h": 2.05,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
+},
+{
+"ref": "C150",
+"path": "c_vs2_1u",
+"fp": "Capacitor_SMD:C_0805_2012Metric",
+"w": 3.49,
+"h": 2.05,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
 }
 ]

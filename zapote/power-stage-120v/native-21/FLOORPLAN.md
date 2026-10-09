@@ -200,6 +200,10 @@ run, and that count is 0. Their inductance effect belongs to the FEM rerun on th
   - Bleed resistors back at their stage-7 spots; the sw_a gate return is 24.1 mm again.
   - Board-only holes and fiducials frozen at the positions the enclosure adopted.
   - Board `e9d1cc4f…`: every gate 0 / PASS (DECISIONS.md "stage 9").
+- **Stage 10 (2026-10-08):** the AMC1311's 1 µF supply caps (TI SBAS786C §10; closure review M1).
+  - C150 (VDD2, SELV) sits 4.9 mm from pin 8.
+  - C149 (VDD1, HOT) went to the nearest free 0805 spot, 13.8 mm by copper with 2 vias; C28's 100 nF stays the HF cap at 7.3 mm.
+  - Board `ef993141…`: every gate 0 / PASS.
 - **Open items:**
   - **Board fixings (stage 8 positions, frozen):** H1 metal-capable, H2-H7 nylon only (H4-H6 need nylon standoffs >= 10 mm, HOT copper near the hole wall); the enclosure must match them
     (verification/D5-AUDIT.md). Bring-up test pads and fiducials: BRINGUP-PROBES.md.

@@ -532,6 +532,16 @@ module PowerStage120V:
     c_vs2.value = 100nF
     c_vs2.p1 ~ V3V3
     c_vs2.p2 ~ SELV_GND
+    # AMC1311 SBAS786C (rev. Jun 2022) section 10: each supply is "decoupled with a low-ESR, 100-nF
+    # capacitor ... parallel to a low-ESR, 1-uF capacitor" (closure review M1, stage 10)
+    c_vs1_1u = new C1u0805
+    c_vs1_1u.value = 1uF
+    c_vs1_1u.p1 ~ HOT5
+    c_vs1_1u.p2 ~ OCP_KELVIN_P
+    c_vs2_1u = new C1u0805
+    c_vs2_1u.value = 1uF
+    c_vs2_1u.p1 ~ V3V3
+    c_vs2_1u.p2 ~ SELV_GND
 
     # ---------------- DC-bus OCP (shoot-through), referenced to LEG_RET.
     # V(OCP_KELVIN_N) = -I*1 mohm. OCP_NODE = 1.25 V + 0.5 * V(KELVIN_N);
@@ -1006,6 +1016,8 @@ module PowerStage120V:
     c_div.designator = "C27"
     c_vs1.designator = "C28"
     c_vs2.designator = "C29"
+    c_vs1_1u.designator = "C149"
+    c_vs2_1u.designator = "C150"
     c_ocp_node.designator = "C30"
     c_th.designator = "C31"
     c_ocp_vcc.designator = "C32"

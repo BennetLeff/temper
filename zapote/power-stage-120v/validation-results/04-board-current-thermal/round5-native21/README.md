@@ -166,6 +166,12 @@ runs rise 1–10 K and remain outside the 22 A envelope.
 - **BUS_P mesh span:** 4.110 %, as before.
 - **B3:** U26's pad cell is 167 / 143 °C nominal at h 10 / 25 (stage 8: 162 / 138), with the same grid caveat. The extreme runs are 352 / 236 °C at 1 mm and 392 / 263 °C at 0.5 mm.
 
+### Stage 10 re-run (2026-10-08, board `ef993141…`)
+
+- **Copper screen:** SW_A and the coil feed are unchanged (4.146 / 0.410 mΩ). SW_B high / low are 7.000 / 7.031 mΩ, +0.3 %, from routing near the LS block.
+- **BUS_P mesh span:** 4.110 %.
+- **B3:** U26's pad cell is 171 / 146 °C nominal at h 10 / 25 (stage 9: 167 / 143), within the grid caveat above.
+
 **Verdict, task 04 on native-21:** nominal operation passes the copper width screen after the SW_B
 fix (SW_A at 18.8 K is the tightest). The board needs a tank-current ceiling (22 A RMS interim).
 Bench IR at nominal power remains the physical gate (D4).

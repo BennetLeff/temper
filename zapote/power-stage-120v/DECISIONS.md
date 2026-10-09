@@ -215,3 +215,9 @@ The rear band (240 × 150) was rejected: the sink cannot be placed without cross
 **Open from the closure review:**
 - **M1:** the AMC1311 has no 1 µF on either supply. The reviewer cites its datasheet; to be checked against TI's sheet before an ECO.
 - **N6:** the D5 audit and the reviewer measure H4's wall-to-HOT distance differently (0.55 vs 1.20 mm). Both are under 8 mm, and the insulating fixing chain covers either.
+
+**2026-10-08, stage 10: AMC1311 1 µF supply caps (closure review M1), decided under the owner's delegation:** TI SBAS786C (rev. Jun 2022) §10 decouples each AMC1311 supply with "a low-ESR, 100-nF capacitor … parallel to a low-ESR, 1-µF capacitor". The board had only the 100 nF. C149 (VDD1, HOT5 → GND1 on ocp_kelvin_p) and C150 (VDD2, V3V3 → SELV_GND) are added, both 1 µF GRM21BR71H105KA12L 0805.
+- **C150** sits 4.9 mm by copper from pin 8.
+- **C149** sits 13.8 mm through 2 vias: there is no closer free 0805 spot on U4's HOT side, and C28's 100 nF (7.3 mm) stays the HF cap. Accepted for a 5 V, ~6 mA supply.
+- **Audit:** C149.2 joins the audited ocp_kelvin_p membership (`audit.rs`). It carries no DC, and the Kelvin budget is unchanged (161.89 mΩ, 47.52–97.98 A).
+- **Board `ef993141…`:** DRC 0 / 0 / parity 0, barrier gates 0, DFM PASS, Gerber review 888/888, D5 PASS, collisions 0, R4 0 hits, source verify PASS (357), audit 74/74.

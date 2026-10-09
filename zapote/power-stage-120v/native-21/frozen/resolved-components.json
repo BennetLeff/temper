@@ -1,11 +1,11 @@
 {
   "atopile_version": "0.2.69",
   "build_sha256": {
-    "build/default.csv": "683d463c54d49bfddb89b5f46303d28e3c9b84a56ce646ed840a04a7489255b6",
+    "build/default.csv": "fb8ebfc0604db5388ea3ee44e724517b85ccfcfd78404c3ffb72ddbc89663ea8",
     "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-    "build/default.net": "3cbd9d76884254fab9bece7895eb717f75a61a644a1e3ee27c00a2331fde4384",
+    "build/default.net": "4a848153742a60167ef230090a2cd056f6f71993b2dd95f8ecdd268dd89d67d3",
     "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5",
-    "build/resolved-components.json": "c8f7b6c7bb81bc61501375c15f25aa6e607dd2394594e9ec1de28d00221983e1"
+    "build/resolved-components.json": "34216a5b444e63d6fc08261dc247513127e8c317ff7423872aa24f475a84fe20"
   },
   "components": [
     {
@@ -1561,6 +1561,28 @@
         "manufacturer": "KEMET",
         "mpn": "C0603C104K5RACTU",
         "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_vs1_1u",
+      "attributes": {
+        "designator": "C149",
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0805_2012Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM21BR71H105KA12L",
+        "value": "1uF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_vs2_1u",
+      "attributes": {
+        "designator": "C150",
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0805_2012Metric",
+        "manufacturer": "Murata",
+        "mpn": "GRM21BR71H105KA12L",
+        "value": "1uF"
       }
     },
     {
@@ -3820,7 +3842,7 @@
     "elec/src/f6_bias.ato": "877f37a82db45f26957fe1e8db3cae28c797aab99e4ebdd27081f69db8964596",
     "elec/src/f6_parts.ato": "7e202c66e64cae56f8db0f0849ab73e7f9767e8b103134ae7e2112e08418b32c",
     "elec/src/parts.ato": "32ab26238214f4b70d16ea9395a216768f7dcc500757b55ad1ada0d76bfd2954",
-    "elec/src/power_stage_120v.ato": "38f8acefdc20c92721ffe297b0eb1d35bdc0cdad86a193520f86a2a50d5a5d1f",
+    "elec/src/power_stage_120v.ato": "f4931aceed480485e054772c4d119e2b41007b9437cfa5951691d86f5dab4998",
     "prototype-closure/round4/supervisor/generated/supervisor.ato": "1d6674935534a46c6c82f61c4f18890de7fa7cbf81f89c1cb63efb7bfed1b7e3"
   }
 }

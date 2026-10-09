@@ -53,7 +53,8 @@ def main() -> None:
               "native21": "76ec8ccae6ca0dbd145b672abc3d18a8f8132875e567cb31ab84325d897a1715",
               "native21s6": "387b753a8d1b8b1097406e9d6643daf21263e44b7ad76becb79edcc5cd46ecda",
               "native21s8": "d4468ffd355d6d4a4d6d35ed902019698c9c43e503443fd60fdd81b7d345a5ba",
-              "native21s9": "e9d1cc4fb1353a79692354a1be93083c4fb12b1842d9dd9b109fd48949dd443e"}
+              "native21s9": "e9d1cc4fb1353a79692354a1be93083c4fb12b1842d9dd9b109fd48949dd443e",
+              "native21s10": "ef993141572fa93ad593c1d0d7fb07424c6e90af78b8bb277e57a48e1887b6df"}
     assert data["board_sha256"] == PINNED[tag], f"{export} is not the pinned {tag} board"
     net = kit.Net(pitch_mm=PITCH, temp_c=TEMP)
     shapes, vias, pads = defaultdict(list), {}, {}

@@ -53,7 +53,7 @@ Board `d4468ffd` was re-reviewed independently. It confirmed B2, M7, M9 and M12 
 | --- | --- |
 | B1 | **Fixed.** 0805 stacks (100 nF + 1 µF, + 10 µF high side) straddle each output pin. Every VDD–VSS loop is 2.07–2.2 mm with no vias, on all four channels, measured with the reviewer's `path.py` |
 | N1 | **Fixed.** The sw_a link from Q2's source to C50 is 24.1 mm, identical to stage 7. Gate loops: +2 nH on every gate diagonal still passes F6 252/252 per leg (`round17/d2/compose_stage9_bound.py`) |
-| M1 | **Partial.** The ISO7710s are fine. AMC1311 1 µF to be checked against TI's datasheet |
+| M1 | **Fixed, with a placement compromise (stage 10).** TI SBAS786C §10 confirms 100 nF ∥ 1 µF on each supply. C149 (VDD1) and C150 (VDD2), 1 µF 0805, are added. VDD2's sits 4.9 mm from its pin. VDD1's is 13.8 mm by copper through 2 vias (no closer free spot on U4's HOT side); C28's 100 nF stays the HF cap |
 | M2 | Unchanged from the FEM record; the gate loops are bounded as above |
 | M4 | **Requirement stated.** The whole fixing chain at H2–H7 is insulating (BRINGUP-PROBES.md, FAB-NOTE). Holes are frozen at the positions the enclosure adopted |
 | N2 | **Fixed.** The legend reads H2–H7 |

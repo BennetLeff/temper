@@ -43,6 +43,8 @@ out += ["", "FET gate/drain/source (VGS, VDS): at the TO-247 package leads with 
         "Fiducials: " + ", ".join(f"{f['ref']} ({f['at'][0]}, {f['at'][1]})" for f in bo["fiducials"])
         + " (1 mm copper, 3 mm mask opening, F side).", "",
         "| Hole | At (mm) | HOT copper from the hole wall | Hardware |", "| --- | --- | --- | --- |"]
+# The enclosure build (temper-manufacturing R24+) parses this table: "| H<n> | x, y | ... |" rows,
+# columns in this order. Changing the format breaks it loudly; tell the enclosure owner first.
 for h in bo["mounting_holes"]:
     d = f"{hot[h['ref']]} mm" if h["ref"] in hot else "—"
     if h["kind"] == "metal":

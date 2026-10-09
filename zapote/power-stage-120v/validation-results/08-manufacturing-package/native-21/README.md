@@ -1,11 +1,11 @@
 # 08 Manufacturing package: native-21 candidate
 
-A **candidate** JLCPCB package for native-21 (stage 9), reviewed independently of KiCad. It
+A **candidate** JLCPCB package for native-21 (stage 10), reviewed independently of KiCad. It
 does not release fabrication: `DECISIONS.md` controls that, and its gates are open
 ([fab/FAB-NOTE.md](fab/FAB-NOTE.md)).
 
-- Board: native-21 stage 9 (independent-review fixes and closure rework, `REVIEW-TRIAGE.md`; rebuilt), SHA-256
-  `e9d1cc4fb1353a79692354a1be93083c4fb12b1842d9dd9b109fd48949dd443e`.
+- Board: native-21 stage 10 (independent-review fixes and closure rework, `REVIEW-TRIAGE.md`; rebuilt), SHA-256
+  `ef993141572fa93ad593c1d0d7fb07424c6e90af78b8bb277e57a48e1887b6df`.
 - Tools: KiCad 10.0.4 `kicad-cli`, gerbv 2.11.1 (independent renderer), Miniforge Python 3.12.
 - Scripts: native-17's `bom_cpl_jlc.py` unchanged; `review_fab.py` with one change, below.
 
@@ -16,7 +16,7 @@ does not release fabrication: `DECISIONS.md` controls that, and its gates are op
 | `gerbers/` and `native-21-gerbers.zip` | F/In1/In2/B copper, paste, silk (mask subtracted), mask, outline; PTH and NPTH Excellon (mm) with Gerber drill maps |
 | `drill-report.txt` | KiCad drill report |
 | `bom-jlcpcb.csv` | 95 source lines plus the F1 clip line, JLCPCB columns plus manufacturer part number, mount type and assembly route (`scripts/apply_lcsc.py`) |
-| `cpl-jlcpcb.csv` | 355 placements (34 THT, 321 SMD/other); pad-centre centroids |
+| `cpl-jlcpcb.csv` | 357 placements (34 THT, 323 SMD/other); pad-centre centroids |
 | `assembly-drawing.pdf` | F.Fab (every designator), silk and outline, A4 fit (review M12) |
 | `positions-kicad.csv` | KiCad's own position export |
 | `FAB-NOTE.md` | Order requirements (including filled and capped vias) and deviations |
@@ -26,8 +26,8 @@ does not release fabrication: `DECISIONS.md` controls that, and its gates are op
 | Check | Result |
 | --- | --- |
 | Outline | 290 × 190 mm |
-| Holes | 882 plated (112 component + 770 via) and 15 non-plated; the board's census is 112 PTH pads + 770 vias |
-| Outer copper around every plated hole, F and B (12 points at drill radius + 0.07 mm) | **882/882 on both sides** |
+| Holes | 888 plated (112 component + 776 via) and 15 non-plated; the board's census is 112 PTH pads + 776 vias |
+| Outer copper around every plated hole, F and B (12 points at drill radius + 0.07 mm) | **888/888 on both sides** |
 | Mask opening over every component hole, both sides | 112/112 |
 | Silk over a component land | 0 |
 | JLCPCB rules (`tools/jlc_dfm_check.py`, `jlc-dfm.json`) | PASS |

@@ -797,6 +797,7 @@ fn audit(m: &Model) -> Vec<String> {
         ("c_ovp_vcc", "2"),
         ("c_th", "2"),
         ("c_vs1", "2"),
+        ("c_vs1_1u", "2"), // AMC1311 VDD1 1 uF beside c_vs1 (SBAS786C section 10; stage 10)
         ("r_div_bot", "2"),
         ("r_hot5_uv_bot", "2"),
         ("r_ovp_bot", "2"),
