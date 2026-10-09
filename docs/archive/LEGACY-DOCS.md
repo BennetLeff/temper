@@ -23,3 +23,12 @@ unchanged at tag `archive/temper-legacy-2026-10-08`:
 ```sh
 git show archive/temper-legacy-2026-10-08:docs/<path>
 ```
+
+## Second pass (2026-10-09)
+
+A further pass removed documents whose code references point *only* at paths
+that no longer exist on main, together with assets under `docs/` that no
+remaining file names. Documents that reference no code paths at all (hardware
+specs, strategy, research notes) were not judged by this rule and stay. The
+manifest above includes this pass, and every file is byte-identical at
+`archive/temper-legacy-2026-10-08`.
