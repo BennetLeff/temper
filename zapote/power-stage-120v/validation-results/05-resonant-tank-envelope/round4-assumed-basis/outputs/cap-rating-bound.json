@@ -1,0 +1,18 @@
+{
+ "status": "ASSUMED conservative bound from the CDE 942C catalogue; NOT a CDE rating",
+ "share_nominal": {
+  "C21": 0.40740740740740744,
+  "C22": 0.40740740740740744,
+  "C23": 0.18518518518518517
+ },
+ "share_worst_10pct": {
+  "C21": 0.45660377358490567,
+  "C22": 0.45660377358490567,
+  "C23": 0.21739130434782605
+ },
+ "hot_70C_over_25C_at_100kHz": {
+  "0.10uF": 0.6375606375606375,
+  "0.33uF": 0.47028644719965795
+ },
+ "doc": "Conservative allowable-current bound for the CDE 942C tank-bank parts at 30-60 kHz, hot.\n\nASSUMED-BASIS evidence; this is a bound derived from the catalogue, not a CDE rating.\n\nInputs (CDE 942C catalogue, ../../sources/942C.pdf, SHA-256 f9939544...):\n  p.1  operating -55..105 C; full rated voltage to 85 C, linear to 50 % at 105 C;\n       1200 Vdc parts are 430 Vac (60 Hz).\n  p.3  1200 Vdc table: I_rms at 70 C / 100 kHz and typical ESR:\n       942C12P1K-F 0.10 uF 9.2 A, 5 mOhm, D19.0 x L34.0 mm\n       942C12P22K-F 0.22 uF 10.3 A, 6 mOhm, D26.5 x L34.0 mm\n       942C12P33K-F 0.33 uF 11.0 A, 6 mOhm, D24.5 x L46.0 mm\n  p.4  1200 Vdc 'RMS Voltage vs Frequency @ 25 C' for 0.1 / 0.33 / 0.9 uF\n       (digitized: outputs/digitized-cde-942c-1200vdc.csv). No 0.22 uF trace.\n\nBound T (thermal, frequency transfer of the 70 C / 100 kHz table value):\n  Allowable self-heating P_max = I_100k^2 * ESR(100k) at CDE's 70 C rating condition.\n  ESR(f) = R_s(f) + DF(f)/(2 pi f C). Metal/terminal R_s does not fall as f rises\n  (skin/proximity), and polypropylene DF does not fall with f in this band, so ESR(f)*f\n  is non-decreasing in f, i.e. ESR(f) <= ESR(100k)*(100k/f) for f <= 100 kHz. Hence\n      I_allow(f, 70 C) >= I_100k * sqrt(f / 100 kHz).\n  This is the worst case 'all ESR is dielectric' assumption: a lower bound.\n\nEstimate S (shape transfer from the 25 C curves of the bracketing parts):\n  I_allow(f, 70 C) ~ I_100k * I_25C(f)/I_25C(100k), using each bracketing part's own\n  25 C curve shape (0.1 uF and 0.33 uF). Below ~40 kHz the 0.1 uF curve is on its\n  430 V voltage limit, so its shape there under-states thermal capacity (conservative).\n  Reported for comparison; the bound used for verdicts is min(T, S).\n\nHot ambient above 70 C (ESTIMATE): with the 105 C category limit taken as the hot-spot\nceiling, I^2 ~ (105 - T_amb), so I(T) = I(70 C) * sqrt((105 - T)/35). Reported at 85 C.\n\nBank sharing: C21 = C22 = 0.22 uF, C23 = 0.10 uF in parallel (same voltage): current\nsplits by capacitance. Nominal share 0.22/0.54 = 40.7 % and 0.10/0.54 = 18.5 %. Worst\nshare under +/-10 % (942C 'K'): the part +10 %, the others -10 %: 45.7 % and 21.7 %.\n"
+}

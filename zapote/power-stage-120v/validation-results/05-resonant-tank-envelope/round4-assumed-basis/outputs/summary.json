@@ -1,0 +1,767 @@
+{
+ "status": "ASSUMED basis / pre-measurement; maxima are over the evaluated cases only",
+ "bands": {
+  "ct_static_trip_a": [
+   50.558,
+   60.014
+  ],
+  "shunt_kelvin_trip_a": [
+   47.52,
+   97.98
+  ]
+ },
+ "grid_main_135": {
+  "n_cases": 135,
+  "status": {
+   "TANK_LIMITED": 41,
+   "MET": 74,
+   "BURST_REQUIRED": 7,
+   "INPUT_LIMITED": 8,
+   "FLOOR_LIMITED": 5
+  },
+  "freq_range_hz": [
+   35000.0,
+   60000.0
+  ],
+  "f_over_fres_min": 1.2307,
+  "fha_phase_min_deg": 54.29,
+  "i_edge_crest_min_a": 18.616,
+  "maxima": {
+   "i_tank_rms_a": {
+    "max": 22.0,
+    "case": "cast_iron-nom-140v-1710w"
+   },
+   "i_tank_rms_crest_a": {
+    "max": 31.055,
+    "case": "enamelled_steel-nom-108v-1710w"
+   },
+   "i_tank_pk_a": {
+    "max": 47.252,
+    "case": "enamelled_steel-low-140v-1710w"
+   },
+   "vc_pk_v": {
+    "max": 367.16,
+    "case": "aluminium_clad_multiply-high-120v-1710w"
+   },
+   "vc_rms_v": {
+    "max": 183.9,
+    "case": "aluminium_clad_multiply-high-120v-1710w"
+   },
+   "p_tank_w": {
+    "max": 1445.9,
+    "case": "cast_iron-high-140v-1710w"
+   },
+   "i_ps_est_a": {
+    "max": 11.105,
+    "case": "cast_iron-nom-120v-1710w"
+   },
+   "ct_sec_pk_v": {
+    "max": 0.7088,
+    "case": "enamelled_steel-low-140v-1710w"
+   }
+  },
+  "cap_bound_70C_worstshare_max_ratio": 1.643,
+  "cap_bound_70C_worstshare_n_over_1": 90,
+  "cap_bound_85C_worstshare_n_over_1": 95,
+  "cap_estimate_70C_nomshare_max_ratio": 1.045,
+  "cap_estimate_70C_nomshare_n_over_1": 30,
+  "vc_crest_window_rms_max_v": 258.7,
+  "vc_crest_over_0.33trace_n": 0,
+  "n_ipk_ge_shunt_trip_min": 0,
+  "n_ipk_ge_ct_trip_min": 0,
+  "min_margin_to_ct_trip_min_a": 3.306,
+  "min_margin_to_shunt_trip_min_a": 0.268
+ },
+ "grid_supplemental_offset_27": {
+  "n_cases": 27,
+  "status": {
+   "TANK_LIMITED": 8,
+   "MET": 9,
+   "FLOOR_LIMITED": 10
+  },
+  "freq_range_hz": [
+   35000.0,
+   43452.7
+  ],
+  "f_over_fres_min": 1.2507,
+  "fha_phase_min_deg": 72.45,
+  "i_edge_crest_min_a": 27.037,
+  "maxima": {
+   "i_tank_rms_a": {
+    "max": 22.0,
+    "case": "offset_or_small_pan_SYNTHETIC-low-140v-1710w"
+   },
+   "i_tank_rms_crest_a": {
+    "max": 31.017,
+    "case": "offset_or_small_pan_SYNTHETIC-nom-140v-1710w"
+   },
+   "i_tank_pk_a": {
+    "max": 47.672,
+    "case": "offset_or_small_pan_SYNTHETIC-low-140v-1710w"
+   },
+   "vc_pk_v": {
+    "max": 362.12,
+    "case": "offset_or_small_pan_SYNTHETIC-low-108v-1710w"
+   },
+   "vc_rms_v": {
+    "max": 182.92,
+    "case": "offset_or_small_pan_SYNTHETIC-low-108v-1710w"
+   },
+   "p_tank_w": {
+    "max": 806.5,
+    "case": "offset_or_small_pan_SYNTHETIC-high-140v-1710w"
+   },
+   "i_ps_est_a": {
+    "max": 6.194,
+    "case": "offset_or_small_pan_SYNTHETIC-high-140v-1710w"
+   },
+   "ct_sec_pk_v": {
+    "max": 0.7151,
+    "case": "offset_or_small_pan_SYNTHETIC-low-140v-1710w"
+   }
+  },
+  "cap_bound_70C_worstshare_max_ratio": 1.638,
+  "cap_bound_70C_worstshare_n_over_1": 23,
+  "cap_bound_85C_worstshare_n_over_1": 27,
+  "cap_estimate_70C_nomshare_max_ratio": 1.044,
+  "cap_estimate_70C_nomshare_n_over_1": 12,
+  "vc_crest_window_rms_max_v": 257.9,
+  "vc_crest_over_0.33trace_n": 0,
+  "n_ipk_ge_shunt_trip_min": 2,
+  "n_ipk_ge_ct_trip_min": 0,
+  "min_margin_to_ct_trip_min_a": 2.886,
+  "min_margin_to_shunt_trip_min_a": -0.152
+ },
+ "power_1710w_request": {
+  "aluminium_clad_multiply@108V": {
+   "total_w_min": 722.9,
+   "total_w_mean": 917.4,
+   "pan_w_min": 638.9,
+   "status": [
+    "TANK_LIMITED",
+    "TANK_LIMITED",
+    "FLOOR_LIMITED"
+   ]
+  },
+  "aluminium_clad_multiply@120V": {
+   "total_w_min": 740.1,
+   "total_w_mean": 995.7,
+   "pan_w_min": 654.7,
+   "status": [
+    "TANK_LIMITED",
+    "TANK_LIMITED",
+    "TANK_LIMITED"
+   ]
+  },
+  "aluminium_clad_multiply@140V": {
+   "total_w_min": 769.7,
+   "total_w_mean": 1033.7,
+   "pan_w_min": 681.9,
+   "status": [
+    "TANK_LIMITED",
+    "TANK_LIMITED",
+    "TANK_LIMITED"
+   ]
+  },
+  "cast_iron@108V": {
+   "total_w_min": 936.4,
+   "total_w_mean": 1042.1,
+   "pan_w_min": 828.6,
+   "status": [
+    "TANK_LIMITED",
+    "INPUT_LIMITED",
+    "FLOOR_LIMITED"
+   ]
+  },
+  "cast_iron@120V": {
+   "total_w_min": 1095.6,
+   "total_w_mean": 1163.7,
+   "pan_w_min": 1012.1,
+   "status": [
+    "TANK_LIMITED",
+    "INPUT_LIMITED",
+    "FLOOR_LIMITED"
+   ]
+  },
+  "cast_iron@140V": {
+   "total_w_min": 1131.3,
+   "total_w_mean": 1287.1,
+   "pan_w_min": 1045.4,
+   "status": [
+    "TANK_LIMITED",
+    "TANK_LIMITED",
+    "INPUT_LIMITED"
+   ]
+  },
+  "enamelled_steel@108V": {
+   "total_w_min": 725.9,
+   "total_w_mean": 943.0,
+   "pan_w_min": 640.9,
+   "status": [
+    "TANK_LIMITED",
+    "TANK_LIMITED",
+    "INPUT_LIMITED"
+   ]
+  },
+  "enamelled_steel@120V": {
+   "total_w_min": 740.1,
+   "total_w_mean": 995.1,
+   "pan_w_min": 653.6,
+   "status": [
+    "TANK_LIMITED",
+    "TANK_LIMITED",
+    "INPUT_LIMITED"
+   ]
+  },
+  "enamelled_steel@140V": {
+   "total_w_min": 763.9,
+   "total_w_mean": 1052.4,
+   "pan_w_min": 674.9,
+   "status": [
+    "TANK_LIMITED",
+    "TANK_LIMITED",
+    "TANK_LIMITED"
+   ]
+  },
+  "offset_or_small_pan_SYNTHETIC@108V": {
+   "total_w_min": 452.3,
+   "total_w_mean": 473.4,
+   "pan_w_min": 376.4,
+   "status": [
+    "TANK_LIMITED",
+    "FLOOR_LIMITED",
+    "FLOOR_LIMITED"
+   ]
+  },
+  "offset_or_small_pan_SYNTHETIC@120V": {
+   "total_w_min": 459.9,
+   "total_w_mean": 551.5,
+   "pan_w_min": 382.8,
+   "status": [
+    "TANK_LIMITED",
+    "FLOOR_LIMITED",
+    "FLOOR_LIMITED"
+   ]
+  },
+  "offset_or_small_pan_SYNTHETIC@140V": {
+   "total_w_min": 472.1,
+   "total_w_mean": 644.0,
+   "pan_w_min": 393.2,
+   "status": [
+    "TANK_LIMITED",
+    "TANK_LIMITED",
+    "FLOOR_LIMITED"
+   ]
+  },
+  "ss1810_ferromagnetic_base@108V": {
+   "total_w_min": 908.9,
+   "total_w_mean": 1023.6,
+   "pan_w_min": 826.5,
+   "status": [
+    "TANK_LIMITED",
+    "TANK_LIMITED",
+    "FLOOR_LIMITED"
+   ]
+  },
+  "ss1810_ferromagnetic_base@120V": {
+   "total_w_min": 927.0,
+   "total_w_mean": 1090.2,
+   "pan_w_min": 843.0,
+   "status": [
+    "TANK_LIMITED",
+    "TANK_LIMITED",
+    "INPUT_LIMITED"
+   ]
+  },
+  "ss1810_ferromagnetic_base@140V": {
+   "total_w_min": 956.2,
+   "total_w_mean": 1166.4,
+   "pan_w_min": 869.9,
+   "status": [
+    "TANK_LIMITED",
+    "TANK_LIMITED",
+    "TANK_LIMITED"
+   ]
+  },
+  "thin_stainless_single_ply@108V": {
+   "total_w_min": 795.7,
+   "total_w_mean": 999.3,
+   "pan_w_min": 710.8,
+   "status": [
+    "TANK_LIMITED",
+    "TANK_LIMITED",
+    "FLOOR_LIMITED"
+   ]
+  },
+  "thin_stainless_single_ply@120V": {
+   "total_w_min": 811.4,
+   "total_w_mean": 1060.6,
+   "pan_w_min": 725.1,
+   "status": [
+    "TANK_LIMITED",
+    "TANK_LIMITED",
+    "INPUT_LIMITED"
+   ]
+  },
+  "thin_stainless_single_ply@140V": {
+   "total_w_min": 837.4,
+   "total_w_mean": 1149.4,
+   "pan_w_min": 748.5,
+   "status": [
+    "TANK_LIMITED",
+    "TANK_LIMITED",
+    "INPUT_LIMITED"
+   ]
+  }
+ },
+ "tol-L0m10-Cm10": {
+  "n_cases": 108,
+  "status": {
+   "TANK_LIMITED": 41,
+   "MET": 41,
+   "BURST_REQUIRED": 16,
+   "INPUT_LIMITED": 10
+  },
+  "freq_range_hz": [
+   36353.7,
+   60000.0
+  ],
+  "f_over_fres_min": 1.2218,
+  "fha_phase_min_deg": 52.84,
+  "i_edge_crest_min_a": 19.31,
+  "maxima": {
+   "i_tank_rms_a": {
+    "max": 22.0,
+    "case": "enamelled_steel-low-140v-1710w"
+   },
+   "i_tank_rms_crest_a": {
+    "max": 31.038,
+    "case": "offset_or_small_pan_SYNTHETIC-high-108v-1710w"
+   },
+   "i_tank_pk_a": {
+    "max": 47.729,
+    "case": "offset_or_small_pan_SYNTHETIC-low-140v-1710w"
+   },
+   "vc_pk_v": {
+    "max": 393.34,
+    "case": "offset_or_small_pan_SYNTHETIC-high-108v-1710w"
+   },
+   "vc_rms_v": {
+    "max": 197.89,
+    "case": "offset_or_small_pan_SYNTHETIC-high-108v-1710w"
+   },
+   "p_tank_w": {
+    "max": 1445.6,
+    "case": "cast_iron-high-140v-1710w"
+   },
+   "i_ps_est_a": {
+    "max": 11.103,
+    "case": "cast_iron-high-108v-1710w"
+   },
+   "ct_sec_pk_v": {
+    "max": 0.7159,
+    "case": "offset_or_small_pan_SYNTHETIC-low-140v-1710w"
+   }
+  },
+  "cap_bound_70C_worstshare_max_ratio": 1.617,
+  "cap_bound_70C_worstshare_n_over_1": 75,
+  "cap_bound_85C_worstshare_n_over_1": 87,
+  "cap_estimate_70C_nomshare_max_ratio": 1.04,
+  "cap_estimate_70C_nomshare_n_over_1": 18,
+  "vc_crest_window_rms_max_v": 279.6,
+  "vc_crest_over_0.33trace_n": 28,
+  "n_ipk_ge_shunt_trip_min": 2,
+  "n_ipk_ge_ct_trip_min": 0,
+  "min_margin_to_ct_trip_min_a": 2.829,
+  "min_margin_to_shunt_trip_min_a": -0.209,
+  "n_floor_set_by_1.05fres": 45,
+  "f_res_max_hz": 37617.0
+ },
+ "tol-L0p10-Cp10": {
+  "n_cases": 108,
+  "status": {
+   "TANK_LIMITED": 23,
+   "MET": 46,
+   "FLOOR_LIMITED": 39
+  },
+  "freq_range_hz": [
+   35000.0,
+   59532.4
+  ],
+  "f_over_fres_min": 1.2499,
+  "fha_phase_min_deg": 58.85,
+  "i_edge_crest_min_a": 18.26,
+  "maxima": {
+   "i_tank_rms_a": {
+    "max": 22.0,
+    "case": "enamelled_steel-low-140v-1710w"
+   },
+   "i_tank_rms_crest_a": {
+    "max": 31.029,
+    "case": "aluminium_clad_multiply-low-120v-1710w"
+   },
+   "i_tank_pk_a": {
+    "max": 47.137,
+    "case": "enamelled_steel-low-140v-1710w"
+   },
+   "vc_pk_v": {
+    "max": 321.0,
+    "case": "cast_iron-low-108v-1710w"
+   },
+   "vc_rms_v": {
+    "max": 160.77,
+    "case": "cast_iron-low-108v-1710w"
+   },
+   "p_tank_w": {
+    "max": 1165.9,
+    "case": "cast_iron-low-140v-1710w"
+   },
+   "i_ps_est_a": {
+    "max": 11.023,
+    "case": "cast_iron-low-108v-1710w"
+   },
+   "ct_sec_pk_v": {
+    "max": 0.7071,
+    "case": "enamelled_steel-low-140v-1710w"
+   }
+  },
+  "cap_bound_70C_worstshare_max_ratio": 1.611,
+  "cap_bound_70C_worstshare_n_over_1": 71,
+  "cap_bound_85C_worstshare_n_over_1": 84,
+  "cap_estimate_70C_nomshare_max_ratio": 1.038,
+  "cap_estimate_70C_nomshare_n_over_1": 24,
+  "vc_crest_window_rms_max_v": 226.7,
+  "vc_crest_over_0.33trace_n": 0,
+  "n_ipk_ge_shunt_trip_min": 0,
+  "n_ipk_ge_ct_trip_min": 0,
+  "min_margin_to_ct_trip_min_a": 3.421,
+  "min_margin_to_shunt_trip_min_a": 0.383,
+  "n_floor_set_by_1.05fres": 0,
+  "f_res_max_hz": 30351.1
+ },
+ "alt_bank_0.50uF": {
+  "0.50uF option: 5 x 942C12P1K-F": {
+   "n_cases": 135,
+   "status": {
+    "TANK_LIMITED": 38,
+    "MET": 73,
+    "BURST_REQUIRED": 9,
+    "INPUT_LIMITED": 15
+   },
+   "freq_range_hz": [
+    35126.2,
+    60000.0
+   ],
+   "f_over_fres_min": 1.2146,
+   "fha_phase_min_deg": 51.55,
+   "i_edge_crest_min_a": 18.451,
+   "maxima": {
+    "i_tank_rms_a": {
+     "max": 21.999,
+     "case": "ss1810_ferromagnetic_base-low-108v-1710w"
+    },
+    "i_tank_rms_crest_a": {
+     "max": 31.04,
+     "case": "thin_stainless_single_ply-low-108v-1710w"
+    },
+    "i_tank_pk_a": {
+     "max": 47.076,
+     "case": "enamelled_steel-low-140v-1710w"
+    },
+    "vc_pk_v": {
+     "max": 381.5,
+     "case": "aluminium_clad_multiply-high-120v-1710w"
+    },
+    "vc_rms_v": {
+     "max": 191.0,
+     "case": "aluminium_clad_multiply-high-120v-1710w"
+    },
+    "p_tank_w": {
+     "max": 1445.3,
+     "case": "cast_iron-high-140v-1710w"
+    },
+    "i_ps_est_a": {
+     "max": 11.105,
+     "case": "cast_iron-high-108v-1710w"
+    },
+    "ct_sec_pk_v": {
+     "max": 0.7061,
+     "case": "enamelled_steel-low-140v-1710w"
+    }
+   },
+   "cap_bound_70C_worstshare_max_ratio": 0.922,
+   "cap_bound_70C_worstshare_n_over_1": 0,
+   "cap_bound_85C_worstshare_n_over_1": 62,
+   "cap_estimate_70C_nomshare_max_ratio": 0.568,
+   "cap_estimate_70C_nomshare_n_over_1": 0,
+   "vc_crest_window_rms_max_v": 268.8,
+   "vc_crest_over_0.33trace_n": 27,
+   "n_ipk_ge_shunt_trip_min": 0,
+   "n_ipk_ge_ct_trip_min": 0,
+   "min_margin_to_ct_trip_min_a": 3.482,
+   "min_margin_to_shunt_trip_min_a": 0.444
+  },
+  "0.50uF option: 5 x 942C16P1K-F": {
+   "n_cases": 135,
+   "status": {
+    "TANK_LIMITED": 38,
+    "MET": 73,
+    "BURST_REQUIRED": 9,
+    "INPUT_LIMITED": 15
+   },
+   "freq_range_hz": [
+    35126.2,
+    60000.0
+   ],
+   "f_over_fres_min": 1.2146,
+   "fha_phase_min_deg": 51.55,
+   "i_edge_crest_min_a": 18.451,
+   "maxima": {
+    "i_tank_rms_a": {
+     "max": 21.999,
+     "case": "ss1810_ferromagnetic_base-low-108v-1710w"
+    },
+    "i_tank_rms_crest_a": {
+     "max": 31.04,
+     "case": "thin_stainless_single_ply-low-108v-1710w"
+    },
+    "i_tank_pk_a": {
+     "max": 47.076,
+     "case": "enamelled_steel-low-140v-1710w"
+    },
+    "vc_pk_v": {
+     "max": 381.5,
+     "case": "aluminium_clad_multiply-high-120v-1710w"
+    },
+    "vc_rms_v": {
+     "max": 191.0,
+     "case": "aluminium_clad_multiply-high-120v-1710w"
+    },
+    "p_tank_w": {
+     "max": 1445.3,
+     "case": "cast_iron-high-140v-1710w"
+    },
+    "i_ps_est_a": {
+     "max": 11.105,
+     "case": "cast_iron-high-108v-1710w"
+    },
+    "ct_sec_pk_v": {
+     "max": 0.7061,
+     "case": "enamelled_steel-low-140v-1710w"
+    }
+   },
+   "cap_bound_70C_worstshare_max_ratio": 0.744,
+   "cap_bound_70C_worstshare_n_over_1": 0,
+   "cap_bound_85C_worstshare_n_over_1": 0,
+   "cap_estimate_70C_nomshare_max_ratio": 0.458,
+   "cap_estimate_70C_nomshare_n_over_1": 0,
+   "vc_crest_window_rms_max_v": 268.8,
+   "vc_crest_over_0.33trace_n": 27,
+   "n_ipk_ge_shunt_trip_min": 0,
+   "n_ipk_ge_ct_trip_min": 0,
+   "min_margin_to_ct_trip_min_a": 3.482,
+   "min_margin_to_shunt_trip_min_a": 0.444
+  },
+  "power_1710w_request": {
+   "aluminium_clad_multiply@108V": {
+    "total_w_min": 740.9,
+    "total_w_mean": 961.3,
+    "pan_w_min": 655.4,
+    "status": [
+     "TANK_LIMITED",
+     "TANK_LIMITED",
+     "INPUT_LIMITED"
+    ]
+   },
+   "aluminium_clad_multiply@120V": {
+    "total_w_min": 757.7,
+    "total_w_mean": 1015.4,
+    "pan_w_min": 670.9,
+    "status": [
+     "TANK_LIMITED",
+     "TANK_LIMITED",
+     "INPUT_LIMITED"
+    ]
+   },
+   "aluminium_clad_multiply@140V": {
+    "total_w_min": 787.0,
+    "total_w_mean": 1057.4,
+    "pan_w_min": 697.8,
+    "status": [
+     "TANK_LIMITED",
+     "TANK_LIMITED",
+     "TANK_LIMITED"
+    ]
+   },
+   "cast_iron@108V": {
+    "total_w_min": 1095.2,
+    "total_w_mean": 1108.5,
+    "pan_w_min": 987.0,
+    "status": [
+     "TANK_LIMITED",
+     "INPUT_LIMITED",
+     "INPUT_LIMITED"
+    ]
+   },
+   "cast_iron@120V": {
+    "total_w_min": 1116.3,
+    "total_w_mean": 1197.6,
+    "pan_w_min": 1031.5,
+    "status": [
+     "TANK_LIMITED",
+     "INPUT_LIMITED",
+     "INPUT_LIMITED"
+    ]
+   },
+   "cast_iron@140V": {
+    "total_w_min": 1151.6,
+    "total_w_mean": 1301.3,
+    "pan_w_min": 1064.3,
+    "status": [
+     "TANK_LIMITED",
+     "TANK_LIMITED",
+     "INPUT_LIMITED"
+    ]
+   },
+   "enamelled_steel@108V": {
+    "total_w_min": 740.1,
+    "total_w_mean": 954.0,
+    "pan_w_min": 653.7,
+    "status": [
+     "TANK_LIMITED",
+     "TANK_LIMITED",
+     "INPUT_LIMITED"
+    ]
+   },
+   "enamelled_steel@120V": {
+    "total_w_min": 753.9,
+    "total_w_mean": 1006.2,
+    "pan_w_min": 666.0,
+    "status": [
+     "TANK_LIMITED",
+     "TANK_LIMITED",
+     "INPUT_LIMITED"
+    ]
+   },
+   "enamelled_steel@140V": {
+    "total_w_min": 777.3,
+    "total_w_mean": 1071.7,
+    "pan_w_min": 686.9,
+    "status": [
+     "TANK_LIMITED",
+     "TANK_LIMITED",
+     "TANK_LIMITED"
+    ]
+   },
+   "offset_or_small_pan_SYNTHETIC@108V": {
+    "total_w_min": 461.5,
+    "total_w_mean": 567.7,
+    "pan_w_min": 384.2,
+    "status": [
+     "TANK_LIMITED",
+     "TANK_LIMITED",
+     "FLOOR_LIMITED"
+    ]
+   },
+   "offset_or_small_pan_SYNTHETIC@120V": {
+    "total_w_min": 468.7,
+    "total_w_mean": 620.5,
+    "pan_w_min": 390.3,
+    "status": [
+     "TANK_LIMITED",
+     "TANK_LIMITED",
+     "FLOOR_LIMITED"
+    ]
+   },
+   "offset_or_small_pan_SYNTHETIC@140V": {
+    "total_w_min": 480.6,
+    "total_w_mean": 675.0,
+    "pan_w_min": 400.4,
+    "status": [
+     "TANK_LIMITED",
+     "TANK_LIMITED",
+     "TANK_LIMITED"
+    ]
+   },
+   "ss1810_ferromagnetic_base@108V": {
+    "total_w_min": 927.4,
+    "total_w_mean": 1050.0,
+    "pan_w_min": 843.4,
+    "status": [
+     "TANK_LIMITED",
+     "TANK_LIMITED",
+     "INPUT_LIMITED"
+    ]
+   },
+   "ss1810_ferromagnetic_base@120V": {
+    "total_w_min": 944.3,
+    "total_w_mean": 1103.1,
+    "pan_w_min": 859.0,
+    "status": [
+     "TANK_LIMITED",
+     "TANK_LIMITED",
+     "INPUT_LIMITED"
+    ]
+   },
+   "ss1810_ferromagnetic_base@140V": {
+    "total_w_min": 973.4,
+    "total_w_mean": 1187.6,
+    "pan_w_min": 885.7,
+    "status": [
+     "TANK_LIMITED",
+     "TANK_LIMITED",
+     "TANK_LIMITED"
+    ]
+   },
+   "thin_stainless_single_ply@108V": {
+    "total_w_min": 811.4,
+    "total_w_mean": 1013.8,
+    "pan_w_min": 725.0,
+    "status": [
+     "TANK_LIMITED",
+     "INPUT_LIMITED",
+     "INPUT_LIMITED"
+    ]
+   },
+   "thin_stainless_single_ply@120V": {
+    "total_w_min": 826.7,
+    "total_w_mean": 1072.7,
+    "pan_w_min": 738.9,
+    "status": [
+     "TANK_LIMITED",
+     "TANK_LIMITED",
+     "INPUT_LIMITED"
+    ]
+   },
+   "thin_stainless_single_ply@140V": {
+    "total_w_min": 852.2,
+    "total_w_mean": 1161.5,
+    "pan_w_min": 762.0,
+    "status": [
+     "TANK_LIMITED",
+     "TANK_LIMITED",
+     "INPUT_LIMITED"
+    ]
+   }
+  }
+ },
+ "option_0.55uF_on_0.54uF_grid": {
+  "cap_bound_70C_worstshare_max_ratio": 1.142,
+  "cap_bound_70C_worstshare_n_over_1": 47,
+  "cap_estimate_70C_nomshare_max_ratio": 0.707
+ },
+ "floor_probe_unregulated": {
+  "n": 84,
+  "max_i_pk": {
+   "max": 295.36,
+   "case": "aluminium_or_nonmagnetic_ss_FAULT-q_min-140.0V-35000.0Hz"
+  },
+  "max_vc_pk_v": 2513.7,
+  "n_capacitive_at_crest_edge": 2,
+  "capacitive_cases": [
+   "aluminium_or_nonmagnetic_ss_FAULT 108.0V 35000.0Hz",
+   "aluminium_or_nonmagnetic_ss_FAULT 140.0V 35000.0Hz"
+  ],
+  "no_pan_max_i_pk": 38.49
+ }
+}

@@ -1,0 +1,55 @@
+source,series,f_khz,R_ohm,L_uH,note
+onsemi_AND9201_p7,no_pan,20,0.182,110.5,
+onsemi_AND9201_p7,no_pan,25,0.2038,110.5,
+onsemi_AND9201_p7,no_pan,30,0.2237,110.4,
+onsemi_AND9201_p7,no_pan,35,0.2407,110.5,
+onsemi_AND9201_p7,no_pan,40,0.2607,110.4,
+onsemi_AND9201_p7,no_pan,45,0.2768,110.5,
+onsemi_AND9201_p7,no_pan,50,0.292,110.4,
+onsemi_AND9201_p7,no_pan,55,0.3059,110.5,
+onsemi_AND9201_p7,no_pan,60,0.3183,110.29,
+onsemi_AND9201_p7,aluminium,20,0.2607,53.93,
+onsemi_AND9201_p7,aluminium,25,0.2824,53.83,
+onsemi_AND9201_p7,aluminium,30,0.3018,53.72,
+onsemi_AND9201_p7,aluminium,35,0.3183,53.61,
+onsemi_AND9201_p7,aluminium,40,0.338,53.51,
+onsemi_AND9201_p7,aluminium,45,0.3541,53.3,
+onsemi_AND9201_p7,aluminium,50,0.3735,53.4,
+onsemi_AND9201_p7,aluminium,55,0.3939,53.3,
+onsemi_AND9201_p7,aluminium,60,0.4099,53.3,
+onsemi_AND9201_p7,five_ply_430_clad,20,1.9454,,L hidden under cast-iron/430 traces (overlaps within line width)
+onsemi_AND9201_p7,five_ply_430_clad,25,2.3753,,L hidden under cast-iron/430 traces (overlaps within line width)
+onsemi_AND9201_p7,five_ply_430_clad,30,2.7867,,L hidden under cast-iron/430 traces (overlaps within line width)
+onsemi_AND9201_p7,five_ply_430_clad,35,3.1834,,L hidden under cast-iron/430 traces (overlaps within line width)
+onsemi_AND9201_p7,five_ply_430_clad,40,3.5647,,L hidden under cast-iron/430 traces (overlaps within line width)
+onsemi_AND9201_p7,five_ply_430_clad,45,3.8868,,L hidden under cast-iron/430 traces (overlaps within line width)
+onsemi_AND9201_p7,five_ply_430_clad,50,4.182,,L hidden under cast-iron/430 traces (overlaps within line width)
+onsemi_AND9201_p7,five_ply_430_clad,55,4.4107,,L hidden under cast-iron/430 traces (overlaps within line width)
+onsemi_AND9201_p7,five_ply_430_clad,60,4.621,,L hidden under cast-iron/430 traces (overlaps within line width)
+onsemi_AND9201_p7,cast_iron,20,2.6422,81.37,
+onsemi_AND9201_p7,cast_iron,25,3.0385,78.73,
+onsemi_AND9201_p7,cast_iron,30,3.4252,76.52,
+onsemi_AND9201_p7,cast_iron,35,3.7847,74.72,
+onsemi_AND9201_p7,cast_iron,40,4.1267,73.25,
+onsemi_AND9201_p7,cast_iron,45,4.4402,71.98,
+onsemi_AND9201_p7,cast_iron,50,4.7457,70.82,
+onsemi_AND9201_p7,cast_iron,55,5.0052,69.97,
+onsemi_AND9201_p7,cast_iron,60,5.2789,69.34,
+onsemi_AND9201_p7,ss304_duxtop,20,2.3912,84.54,
+onsemi_AND9201_p7,ss304_duxtop,25,2.7867,80.53,
+onsemi_AND9201_p7,ss304_duxtop,30,,,L above 25 kHz hidden under ferrous traces; R hidden
+onsemi_AND9201_p7,ss304_duxtop,35,,,L above 25 kHz hidden under ferrous traces; R hidden
+onsemi_AND9201_p7,ss304_duxtop,40,,,L above 25 kHz hidden under ferrous traces; R hidden
+onsemi_AND9201_p7,ss304_duxtop,45,,,L above 25 kHz hidden under ferrous traces; R hidden
+onsemi_AND9201_p7,ss304_duxtop,50,,,L above 25 kHz hidden under ferrous traces; R hidden
+onsemi_AND9201_p7,ss304_duxtop,55,,,L above 25 kHz hidden under ferrous traces; R hidden
+onsemi_AND9201_p7,ss304_duxtop,60,,,L above 25 kHz hidden under ferrous traces; R hidden
+onsemi_AND9201_p7,ss430_midea,20,2.8619,80.21,
+onsemi_AND9201_p7,ss430_midea,25,,77.26,R hidden under cast-iron trace (overlaps within line width)
+onsemi_AND9201_p7,ss430_midea,30,,74.93,R hidden under cast-iron trace (overlaps within line width)
+onsemi_AND9201_p7,ss430_midea,35,,72.82,R hidden under cast-iron trace (overlaps within line width)
+onsemi_AND9201_p7,ss430_midea,40,,71.35,R hidden under cast-iron trace (overlaps within line width)
+onsemi_AND9201_p7,ss430_midea,45,,70.08,R hidden under cast-iron trace (overlaps within line width)
+onsemi_AND9201_p7,ss430_midea,50,,69.13,R hidden under cast-iron trace (overlaps within line width)
+onsemi_AND9201_p7,ss430_midea,55,,68.28,R hidden under cast-iron trace (overlaps within line width)
+onsemi_AND9201_p7,ss430_midea,60,,67.65,R hidden under cast-iron trace (overlaps within line width)

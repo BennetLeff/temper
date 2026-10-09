@@ -1,0 +1,180 @@
+{
+ "status": "ASSUMED / pre-measurement. No Temper coil or pan has been measured.",
+ "model": "(turns-independent ratios, as coil_mc.rs uses):\n  L_eq(f)   = L0 * kl40 * (f/40k)^beta                  (loaded series inductance)\n  R_eq(f)   = L0 * q40 * (f/40k)^gamma                 (coil winding AC resistance)\n            + L0 * r40 * (f/40k)^alpha                 (pan reflected resistance)\n  L0 = no-pan coil inductance; kl40 = L_loaded/L0; r40, q40 in ohm per uH of L0.\nFor a fixed winding geometry L0, R_coil and R_reflected all scale as N^2, so the\nratios transfer between coils of the same geometry with different turn counts; they do\nNOT transfer exactly between different geometries (diameter, ferrite, gap).",
+ "coil": {
+  "L0_uH": {
+   "nom": 70.0,
+   "min": 63.0,
+   "max": 77.0,
+   "basis": "ESTIMATE: 70 uH is the native-21 design value (power-stage README; coil_mc.rs selected design); +/-10 % is the tolerance TANK_COIL_SPECIFICATION.md s.1 row 1 imposes on its 88 uH coil. No 70 uH coil is specified or measured."
+  },
+  "q40_ohm_per_uH": {
+   "nom": 0.0035,
+   "min": 0.0024,
+   "max": 0.0058,
+   "basis": "ANCHOR+ESTIMATE: onsemi no-pan coil 0.0024, Infineon kit coil 0.0041 (digitized, 40 kHz, ~25 C); max = TANK_COIL_SPECIFICATION row 5 ceiling 0.40 ohm/88 uH = 0.0045 x 1.29 for a 100 C winding (Cu +0.393 %/K x 75 K, calculation)"
+  },
+  "gamma_coil": {
+   "nom": 0.55,
+   "min": 0.52,
+   "max": 0.59,
+   "basis": "ANCHOR: R_coil ~ f^gamma, onsemi 0.52, Infineon 0.59 over 30-50 kHz"
+  },
+  "beta_kl": {
+   "nom": -0.13,
+   "min": -0.15,
+   "max": -0.11,
+   "basis": "ANCHOR: L_loaded ~ f^beta, onsemi cast iron -0.15 (30-50 kHz), Infineon vessel -0.11 (30-45 kHz)"
+  }
+ },
+ "pans": {
+  "cast_iron": {
+   "kl40": {
+    "nom": 0.69,
+    "min": 0.62,
+    "max": 0.84
+   },
+   "r40_ohm_per_uH": {
+    "nom": 0.034,
+    "min": 0.029,
+    "max": 0.045
+   },
+   "alpha": 0.62,
+   "basis": "ANCHOR kl: onsemi 0.66, Infineon vessel 0.68, MDPI 0.82; r: onsemi 0.035, Infineon 0.033, MDPI 0.034-0.036. ESTIMATE: min r = lowest anchor -12 % (cold, small-signal, part spread); max r = +30 % for a hot pan (iron resistivity rises with temperature; R_sheet ~ sqrt(rho*mu)); kl min = lowest anchor -6 % for gap/centring."
+  },
+  "enamelled_steel": {
+   "kl40": {
+    "nom": 0.66,
+    "min": 0.58,
+    "max": 0.78
+   },
+   "r40_ohm_per_uH": {
+    "nom": 0.026,
+    "min": 0.018,
+    "max": 0.036
+   },
+   "alpha": 0.62,
+   "basis": "ANCHOR: MDPI Silit Silargan (enamelled steel) kl 0.63, r 0.018-0.020; onsemi 430 kl 0.65. ESTIMATE: nominal between the Silargan point and the ferritic-steel points; max r hot +30 %."
+  },
+  "ss1810_ferromagnetic_base": {
+   "kl40": {
+    "nom": 0.71,
+    "min": 0.62,
+    "max": 0.8
+   },
+   "r40_ohm_per_uH": {
+    "nom": 0.03,
+    "min": 0.024,
+    "max": 0.038
+   },
+   "alpha": 0.62,
+   "basis": "ANCHOR: MDPI stainless kl 0.74, r 0.027-0.029; onsemi Duxtop 18/10 with magnetic base: R within line width of cast iron at >=30 kHz, kl 0.73 at 25 kHz. ESTIMATE: ranges +/-15-25 %."
+  },
+  "thin_stainless_single_ply": {
+   "kl40": {
+    "nom": 0.67,
+    "min": 0.58,
+    "max": 0.8
+   },
+   "r40_ohm_per_uH": {
+    "nom": 0.03,
+    "min": 0.02,
+    "max": 0.04
+   },
+   "alpha": 0.62,
+   "basis": "ANCHOR: onsemi Midea 430 kl 0.65, R within line width of cast iron at >=30 kHz. CALCULATION: skin depth in ferritic 430 at 40 kHz is 0.07-0.2 mm for mu_r 100-700 (rho 0.6 uOhm.m), so a 0.5-1 mm base is electrically thick. ESTIMATE: low kl/r for warped or lifted thin bases. Non-magnetic single-ply 18/10 is NOT in this class (treated as a detection/fault load)."
+  },
+  "aluminium_clad_multiply": {
+   "kl40": {
+    "nom": 0.68,
+    "min": 0.6,
+    "max": 0.8
+   },
+   "r40_ohm_per_uH": {
+    "nom": 0.027,
+    "min": 0.018,
+    "max": 0.034
+   },
+   "alpha": 0.8,
+   "basis": "ANCHOR: onsemi 5-ply (430 exterior, Al core) r 0.030 at 40 kHz, alpha 0.80 (thin ferritic layer); kl hidden under the ferrous traces (taken as ferrous). coil_mc.rs tri-ply GUESS 0.018-0.032 agrees. ESTIMATE: ranges."
+  },
+  "offset_or_small_pan_SYNTHETIC": {
+   "kl40": {
+    "nom": 0.85,
+    "min": 0.8,
+    "max": 0.9
+   },
+   "r40_ohm_per_uH": {
+    "nom": 0.017,
+    "min": 0.012,
+    "max": 0.022
+   },
+   "alpha": 0.62,
+   "basis": "Carried unchanged from coil_mc.rs (synthetic half-coupling construction, no measured anchor)."
+  }
+ },
+ "fault_loads": {
+  "no_pan": {
+   "kl40": 1.0,
+   "r40": 0.0,
+   "alpha": 0.62,
+   "basis": "Coil alone (definition)."
+  },
+  "aluminium_or_nonmagnetic_ss": {
+   "kl40": 0.485,
+   "r40": 0.0007,
+   "alpha": 0.62,
+   "basis": "ANCHOR: onsemi aluminium pan (kl 0.49, reflected R 0.08 ohm on 110 uH). Non-magnetic single-ply 18/10 has no anchor; ESTIMATE: treated as this low-R, low-L load. Must be rejected by pan detection, not heated."
+  }
+ },
+ "resonance_extremes_0.54uF": [
+  {
+   "pan_class": "cast_iron",
+   "f_res_max_kHz (L0-10%, kl min, C-10%)": 36.3,
+   "f_res_nom_kHz": 30.63,
+   "f_res_min_kHz (L0+10%, kl max, C+10%)": 24.9
+  },
+  {
+   "pan_class": "enamelled_steel",
+   "f_res_max_kHz (L0-10%, kl min, C-10%)": 37.62,
+   "f_res_nom_kHz": 31.36,
+   "f_res_min_kHz (L0+10%, kl max, C+10%)": 25.9
+  },
+  {
+   "pan_class": "ss1810_ferromagnetic_base",
+   "f_res_max_kHz (L0-10%, kl min, C-10%)": 36.3,
+   "f_res_nom_kHz": 30.16,
+   "f_res_min_kHz (L0+10%, kl max, C+10%)": 25.56
+  },
+  {
+   "pan_class": "thin_stainless_single_ply",
+   "f_res_max_kHz (L0-10%, kl min, C-10%)": 37.62,
+   "f_res_nom_kHz": 31.11,
+   "f_res_min_kHz (L0+10%, kl max, C+10%)": 25.56
+  },
+  {
+   "pan_class": "aluminium_clad_multiply",
+   "f_res_max_kHz (L0-10%, kl min, C-10%)": 36.94,
+   "f_res_nom_kHz": 30.87,
+   "f_res_min_kHz (L0+10%, kl max, C+10%)": 25.56
+  },
+  {
+   "pan_class": "offset_or_small_pan_SYNTHETIC",
+   "f_res_max_kHz (L0-10%, kl min, C-10%)": 31.67,
+   "f_res_nom_kHz": 27.4,
+   "f_res_min_kHz (L0+10%, kl max, C+10%)": 24.0
+  },
+  {
+   "pan_class": "no_pan (fault/detection)",
+   "f_res_max_kHz (L0-10%, kl min, C-10%)": 28.11,
+   "f_res_nom_kHz": 25.12,
+   "f_res_min_kHz (L0+10%, kl max, C+10%)": 22.68
+  },
+  {
+   "pan_class": "aluminium_or_nonmagnetic_ss (fault/detection)",
+   "f_res_max_kHz (L0-10%, kl min, C-10%)": 41.39,
+   "f_res_nom_kHz": 36.98,
+   "f_res_min_kHz (L0+10%, kl max, C+10%)": 33.4
+  }
+ ]
+}
