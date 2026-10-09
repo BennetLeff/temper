@@ -121,6 +121,20 @@ pub struct FabricationLimits {
     /// Maximum board outline extent, in either orientation.
     #[serde(default)]
     pub maximum_board_mm: Option<[f64; 2]>,
+    // Limits KiCad's own DRC measures; applied by the fab pass (fab_rules.rs),
+    // not by the P2 geometry rules.
+    #[serde(default)]
+    pub minimum_copper_clearance_mm: Option<f64>,
+    #[serde(default)]
+    pub minimum_via_hole_to_copper_mm: Option<f64>,
+    #[serde(default)]
+    pub minimum_pth_hole_to_copper_mm: Option<f64>,
+    #[serde(default)]
+    pub minimum_npth_hole_to_copper_mm: Option<f64>,
+    #[serde(default)]
+    pub minimum_silk_text_height_mm: Option<f64>,
+    #[serde(default)]
+    pub minimum_silk_line_width_mm: Option<f64>,
 }
 
 impl FabricationLimits {
@@ -134,6 +148,12 @@ impl FabricationLimits {
             self.maximum_pth_drill_mm,
             self.minimum_npth_drill_mm,
             self.minimum_copper_to_edge_mm,
+            self.minimum_copper_clearance_mm,
+            self.minimum_via_hole_to_copper_mm,
+            self.minimum_pth_hole_to_copper_mm,
+            self.minimum_npth_hole_to_copper_mm,
+            self.minimum_silk_text_height_mm,
+            self.minimum_silk_line_width_mm,
         ]
         .into_iter()
         .flatten()

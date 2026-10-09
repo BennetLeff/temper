@@ -58,3 +58,16 @@ fn conditional_figures_in_parentheses_do_not_back_a_limit() {
     let err = parse_profile(&v.to_string()).unwrap_err();
     assert!(err.contains("minimum_via_drill_mm"), "{err}");
 }
+
+#[test]
+fn profiles_carry_native_drc_limits() {
+    let two = parse_profile(TWO_LAYER_2OZ).unwrap();
+    assert_eq!(two.minimum_copper_clearance_mm, Some(0.16));
+    assert_eq!(two.minimum_via_hole_to_copper_mm, Some(0.2));
+    assert_eq!(two.minimum_pth_hole_to_copper_mm, Some(0.28));
+    assert_eq!(two.minimum_npth_hole_to_copper_mm, Some(0.2));
+    assert_eq!(two.minimum_silk_text_height_mm, Some(1.0));
+    assert_eq!(two.minimum_silk_line_width_mm, Some(0.15));
+    assert_eq!(parse_profile(FOUR_LAYER_1OZ).unwrap().minimum_copper_clearance_mm, Some(0.09));
+    assert_eq!(parse_profile(FOUR_LAYER_2OZ).unwrap().minimum_copper_clearance_mm, Some(0.15));
+}

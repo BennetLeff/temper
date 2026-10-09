@@ -19,7 +19,7 @@ export KICAD_CLI="/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli"
 
 | Need | Command | Scope / result |
 |---|---|---|
-| Check any saved board | `make -C zapote check-board BOARD=/abs/board.kicad_pcb PROFILE=fab-profiles/jlcpcb-2layer-2oz.json` | Stackup, KiCad ERC/DRC with one finding per violation (type, location, items, actual/required), and fab-house DFM under a [vendor profile](fab-profiles/). Writes `report.json` and `summary.txt`; exit 0 pass, 1 fail, 2 indeterminate, 3 run error. Pass `ASSEMBLY=<process>` to state the assembly process; without it the result is at best indeterminate. |
+| Check any saved board | `make -C zapote check-board BOARD=/abs/board.kicad_pcb PROFILE=fab-profiles/jlcpcb-2layer-2oz.json` | Stackup, KiCad ERC/DRC with one finding per violation (type, location, items, actual/required), and fab-house DFM under a [vendor profile](fab-profiles/): P2 geometry plus the profile's clearance, hole-to-copper and silk limits in KiCad's own DRC (fab pass). Writes `report.json` and `summary.txt`; exit 0 pass, 1 fail, 2 indeterminate, 3 run error. Pass `ASSEMBLY=<process>` to state the assembly process; without it the result is at best indeterminate. |
 | Placement/routing feedback | `make -C zapote check-layout` | Saved copper, paths, pad entries, coupling geometry, courtyards and placement distances; [details](layout-quality/NATIVE.md). |
 | Current sharing, R and loss | `make -C zapote check-current` | Includes layout analysis plus the declared two-terminal DC experiments, layer samples and barrel currents; [assumptions and results](layout-quality/CURRENT.md). |
 | Maintained unit ERC/DRC and engineering checks | `make -C zapote check-units` | Runs the five units in [units.json](validation/units.json), retaining pass/fail/indeterminate results. The full 120 V board is not registered there. |
@@ -70,8 +70,28 @@ recommendation. Rules: annular ring (via/PTH), hole spacing (via/via vs other),
 track width, drill size (via, PTH min/max, NPTH), copper-to-edge, board size, and
 PTH outer lands (every plated through-hole has copper on F.Cu and B.Cu; pad and via copper
 is extracted only on layers KiCad flashes).
-Track *spacing* stays with the board's native KiCad DRC rules. `units.json` names
-a profile per maintained unit.
+`units.json` names a profile per maintained unit.
+
+**Fab pass (`fab` check, `FAB.<type>` findings).** The limits KiCad measures
+better than P2 geometry run in KiCad's own DRC: copper clearance, hole to copper
+for vias, PTH and NPTH, and silkscreen text height and stroke width (both silk
+layers). `zapote-check` copies the board and its `.kicad_pro` into
+`<output>/fab/board/` with a `.kicad_dru` holding only rules named
+`zapote fab …`, so the board's own rules keep running in the native pass and are
+never weakened (KiCad applies the *last* matching custom rule, even a looser one;
+hole rules are written loosest first so a via beside a PTH pad gets the stricter).
+A pad or footprint local clearance overrides every custom rule in KiCad, so the
+copy is written by pcbnew without them ([script](tools/fab_board_copy.py));
+zone clearances do not mask the rules and are kept.
+Only violations KiCad attributes to a `zapote fab` rule become findings. KiCad
+skips a malformed `.kicad_dru` silently, so the same rules first run on a
+committed self-test board that breaks each of them
+([generator](tools/make_fab_selftest_board.py)); a rule that does not fire there,
+or a check the board's project switches off, is a coverage gap, not a pass. A
+profile with none of these limits has no `fab` check. A KiCad or report failure
+is a failing `FAB.REPORT_CONTRACT` finding. Not covered: silkscreen *graphic*
+line width (only text strokes are checked), pad to silkscreen and solder-mask
+bridges (no KiCad custom-rule constraint); `report.json` lists them.
 
 ## Find implementations and evidence
 

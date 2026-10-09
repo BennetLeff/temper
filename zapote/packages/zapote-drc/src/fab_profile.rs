@@ -50,6 +50,18 @@ struct Limits {
     minimum_copper_to_edge_mm: Option<f64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     maximum_board_mm: Option<[f64; 2]>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    minimum_copper_clearance_mm: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    minimum_via_hole_to_copper_mm: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    minimum_pth_hole_to_copper_mm: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    minimum_npth_hole_to_copper_mm: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    minimum_silk_text_height_mm: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    minimum_silk_line_width_mm: Option<f64>,
 }
 
 /// Parse and audit a profile; returns limits marked vendor-qualified.
@@ -112,6 +124,12 @@ pub fn parse_profile(text: &str) -> Result<FabricationLimits, String> {
         minimum_npth_drill_mm: l.minimum_npth_drill_mm,
         minimum_copper_to_edge_mm: l.minimum_copper_to_edge_mm,
         maximum_board_mm: l.maximum_board_mm,
+        minimum_copper_clearance_mm: l.minimum_copper_clearance_mm,
+        minimum_via_hole_to_copper_mm: l.minimum_via_hole_to_copper_mm,
+        minimum_pth_hole_to_copper_mm: l.minimum_pth_hole_to_copper_mm,
+        minimum_npth_hole_to_copper_mm: l.minimum_npth_hole_to_copper_mm,
+        minimum_silk_text_height_mm: l.minimum_silk_text_height_mm,
+        minimum_silk_line_width_mm: l.minimum_silk_line_width_mm,
     })
 }
 

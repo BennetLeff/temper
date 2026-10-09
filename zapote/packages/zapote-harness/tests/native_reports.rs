@@ -272,3 +272,28 @@ fn unknown_severity_fails_the_report_contract() {
         .iter()
         .any(|f| f.rule == "NATIVE.REPORT_CONTRACT" && f.message.contains("severity")));
 }
+
+#[test]
+fn drc_report_parses_a_board_only_report() {
+    let r = zapote_harness::native_reports::drc_report(include_str!("../fixtures/fab_selftest-drc.json"))
+        .expect("board-only DRC report parses");
+    assert_eq!(r.source, "fab_selftest.kicad_pcb");
+    assert!(r.ignored_checks.iter().any(|k| k == "missing_courtyard"), "{:?}", r.ignored_checks);
+    assert_eq!(r.violations.iter().filter(|v| v.kind == "hole_clearance").count(), 3);
+    let count = |c: &str| r.violations.iter().filter(|v| v.category == c).count();
+    assert_eq!((count("DRC"), count("UNCONNECTED")), (19, 5));
+}
+
+#[test]
+fn drc_report_rejects_hidden_severities_and_malformed_entries() {
+    let base = v(include_str!("../fixtures/fab_selftest-drc.json"));
+    let mut hidden = base.clone();
+    hidden["included_severities"] = json!(["error"]);
+    let mut malformed = base.clone();
+    malformed["violations"][0].as_object_mut().unwrap().remove("description");
+    let mut foreign = base;
+    foreign["$schema"] = json!("https://schemas.kicad.org/erc.v1.json");
+    for bad in [hidden, malformed, foreign] {
+        assert!(zapote_harness::native_reports::drc_report(&bad.to_string()).is_err(), "{bad}");
+    }
+}

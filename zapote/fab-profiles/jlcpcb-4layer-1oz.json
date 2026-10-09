@@ -18,7 +18,13 @@
   "maximum_board_mm": [
    663.0,
    593.0
-  ]
+  ],
+  "minimum_copper_clearance_mm": 0.09,
+  "minimum_via_hole_to_copper_mm": 0.2,
+  "minimum_pth_hole_to_copper_mm": 0.28,
+  "minimum_npth_hole_to_copper_mm": 0.2,
+  "minimum_silk_text_height_mm": 1.0,
+  "minimum_silk_line_width_mm": 0.15
  },
  "quotes": {
   "minimum_hole_clearance_mm": "Pad Hole-to-Hole Spacing: 0.45mm",
@@ -31,10 +37,17 @@
   "minimum_track_width_mm": "Trace width/spacing, 1 oz: Multilayer: 0.09 / 0.09 mm (3.5 / 3.5 mil). 3 mil is acceptable in BGA fan-outs.",
   "minimum_pth_drill_mm": "Drill Diameter: Multilayer: 0.15 – 6.3 mm (0.1mm microvias only available for board thickness ≤1mm; ENIG/OSP surface finish required)",
   "maximum_pth_drill_mm": "Drill Diameter: Multilayer: 0.15 – 6.3 mm (0.1mm microvias only available for board thickness ≤1mm; ENIG/OSP surface finish required)",
-  "maximum_board_mm": "Maximum Dimensions: FR4(4-layer): 663 × 593 mm"
+  "maximum_board_mm": "Maximum Dimensions: FR4(4-layer): 663 × 593 mm",
+  "minimum_via_hole_to_copper_mm": "Via hole to Track: 0.2mm",
+  "minimum_pth_hole_to_copper_mm": "PTH to Track: 0.28mm (0.35mm is recommended, minimum 0.28mm)",
+  "minimum_npth_hole_to_copper_mm": "NPTH to Track: 0.2mm",
+  "minimum_silk_line_width_mm": "Legend, Minimum Line Width: ≥0.15mm",
+  "minimum_silk_text_height_mm": "Legend, Minimum text height: 40 mil (1.0mm)",
+  "minimum_copper_clearance_mm": "Trace width/spacing, 1 oz: Multilayer: 0.09 / 0.09 mm (3.5 / 3.5 mil). 3 mil is acceptable in BGA fan-outs."
  },
  "derivations": {
-  "minimum_via_annular_ring_mm": "Via ring = (diameter - hole) / 2 = 0.1 mm / 2 = 0.05 mm (the stated minimum, not the 0.15 mm preferred margin)."
+  "minimum_via_annular_ring_mm": "Via ring = (diameter - hole) / 2 = 0.1 mm / 2 = 0.05 mm (the stated minimum, not the 0.15 mm preferred margin).",
+  "minimum_silk_text_height_mm": "40 mil = 1.016 mm; JLC states 1.0 mm for this row, which is used."
  },
  "notes": [
   "4-layer FR4, 1 oz finished outer copper.",
@@ -42,6 +55,8 @@
   "The 0.254 mm 2 oz figure is JLC's PTH (component-hole) ring; vias have their own rule (diameter >= hole + 0.1 mm), which is the via ring limit here.",
   "Hole spacing: via/via pairs use 'Via Hole-to-Hole Spacing'; every other pair uses 'Pad Hole-to-Hole Spacing'. JLC does not state a via-to-pad hole rule.",
   "Holes above the PTH maximum are not impossible: 'Holes with diameter ≥ 6.3 mm are CNC routed from a smaller drilled hole.' Treat a DRILL_SIZE maximum finding as a process change, not a hard reject.",
-  "Track spacing is enforced by the board's native KiCad DRC rules; this profile checks minimum track width only."
+  "P2 checks minimum track width; track spacing is the fab pass's copper clearance (below).",
+  "Copper spacing, hole-to-copper and silkscreen text limits are applied by zapote-check's fab pass in KiCad's own DRC (a copy of the board with only these rules), not by the P2 geometry rules.",
+  "Not covered: 'Pad To Silkscreen 0.15mm', the solder-mask bridge, and the legend line width for silkscreen graphics (KiCad has no custom-rule constraint for them; minimum_silk_line_width_mm is checked on text strokes only). Pad and footprint local clearances are cleared on the fab pass's copy, since KiCad lets them override every custom rule; PTH-to-track uses the 0.28 mm minimum, not the 0.35 mm recommendation."
  ]
 }
