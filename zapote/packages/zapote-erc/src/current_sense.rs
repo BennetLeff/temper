@@ -464,10 +464,6 @@ fn model_claim_value(
     }
 }
 
-#[allow(dead_code)]
-fn valid_range(range: &NumericRange) -> bool {
-    range.is_valid()
-}
 
 #[cfg(test)]
 mod tests {
