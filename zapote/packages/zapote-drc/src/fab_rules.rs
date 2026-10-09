@@ -15,7 +15,8 @@ use crate::manufacturing::FabricationLimits;
 pub const RULE_PREFIX: &str = "zapote fab";
 
 /// One emitted rule: the KiCad constraint it sets and the violation type
-/// (also the check key) KiCad reports for it.
+/// (also the check key) KiCad reports for it. An empty `text` marks a
+/// board-setup rule: the fab copy sets it in the board, not in `.kicad_dru`.
 #[derive(Clone, Debug, PartialEq)]
 pub struct KicadRule {
     pub name: String,
@@ -88,16 +89,28 @@ pub fn rules(limits: &FabricationLimits) -> Vec<KicadRule> {
         r.violation = "silk_over_copper".into();
         out.push(r);
     }
+    // Solder-mask web: KiCad has no custom-rule constraint for it. The fab copy
+    // sets the board's minimum web width, and KiCad's solder_mask_bridge check
+    // then reports mask openings that merge across different nets (measured on
+    // 10.0.4; with the board's own 0 mm the same pads are not reported).
+    if limits.minimum_solder_mask_web_mm.is_some() {
+        out.push(KicadRule {
+            name: format!("{RULE_PREFIX} solder mask web"),
+            constraint: "solder_mask_min_width".into(),
+            violation: "solder_mask_bridge".into(),
+            text: String::new(),
+        });
+    }
     out
 }
 
-/// The `.kicad_dru` text for [`rules`], or `None` when the profile sets none
-/// of these limits (then the pass is not run).
+/// The `.kicad_dru` text for the custom rules in [`rules`], or `None` when
+/// there are none.
 pub fn kicad_rules(limits: &FabricationLimits) -> Option<String> {
     let list = rules(limits);
-    if list.is_empty() {
+    let body: Vec<_> = list.iter().map(|r| r.text.as_str()).filter(|t| !t.is_empty()).collect();
+    if body.is_empty() {
         return None;
     }
-    let body: Vec<_> = list.iter().map(|r| r.text.as_str()).collect();
     Some(format!("(version 1)\n{}\n", body.join("\n")))
 }

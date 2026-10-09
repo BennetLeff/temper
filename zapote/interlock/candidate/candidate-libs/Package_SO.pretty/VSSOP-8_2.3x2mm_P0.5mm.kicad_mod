@@ -35,7 +35,7 @@
 			)
 		)
 	)
-	(attr smd)
+	(attr smd allow_soldermask_bridges)
 	(duplicate_pad_numbers_are_jumpers no)
 	(fp_line
 		(start -1.105568 -1.185)

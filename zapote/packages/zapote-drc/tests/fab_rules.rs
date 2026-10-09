@@ -34,9 +34,10 @@ fn structured_rules_match_the_text_one_to_one() {
     let limits = parse_profile(TWO_LAYER_2OZ).unwrap();
     let list = rules(&limits);
     let text = kicad_rules(&limits).unwrap();
-    assert_eq!(list.len(), 10);
-    assert_eq!(text.lines().count(), list.len() + 1);
-    for r in &list {
+    assert_eq!(list.len(), 11);
+    let custom: Vec<_> = list.iter().filter(|r| !r.text.is_empty()).collect();
+    assert_eq!(text.lines().count(), custom.len() + 1);
+    for r in custom {
         assert!(r.name.starts_with(RULE_PREFIX) && text.contains(&r.text), "{r:?}");
         assert!(r.text.contains(&format!("(constraint {} ", r.constraint)), "{r:?}");
     }
@@ -118,5 +119,20 @@ fn pad_to_silk_is_a_silk_clearance_rule_reported_as_silk_over_copper() {
          (constraint silk_clearance (min 0.15mm)))"
     );
     assert_eq!((r.constraint.as_str(), r.violation.as_str()), ("silk_clearance", "silk_over_copper"));
-    assert!(list.iter().filter(|r| r.name != "zapote fab pad to silk").all(|r| r.violation == r.constraint));
+    let special = ["zapote fab pad to silk", "zapote fab solder mask web"];
+    assert!(list.iter().filter(|r| !special.contains(&r.name.as_str())).all(|r| r.violation == r.constraint));
+}
+
+#[test]
+fn solder_mask_web_is_a_board_setup_rule_not_rule_text() {
+    // KiCad has no custom-rule constraint for the mask web; the fab copy sets
+    // the board's minimum web and KiCad's solder_mask_bridge check applies it.
+    let limits = parse_profile(TWO_LAYER_2OZ).unwrap();
+    let r = rules(&limits).into_iter().find(|r| r.name == "zapote fab solder mask web").expect("rule");
+    assert!(r.text.is_empty());
+    assert_eq!((r.constraint.as_str(), r.violation.as_str()), ("solder_mask_min_width", "solder_mask_bridge"));
+    assert!(!kicad_rules(&limits).unwrap().contains("solder mask"));
+    let only_web = FabricationLimits { minimum_solder_mask_web_mm: Some(0.2), ..Default::default() };
+    assert_eq!(rules(&only_web).len(), 1);
+    assert!(kicad_rules(&only_web).is_none());
 }

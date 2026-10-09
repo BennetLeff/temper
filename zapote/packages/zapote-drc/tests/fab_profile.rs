@@ -94,3 +94,9 @@ fn profiles_carry_pad_to_silkscreen() {
         assert_eq!(p.minimum_pad_to_silk_mm, Some(0.15), "{}", p.name);
     }
 }
+
+#[test]
+fn profiles_carry_the_solder_mask_web() {
+    let web = |t| parse_profile(t).unwrap().minimum_solder_mask_web_mm;
+    assert_eq!((web(TWO_LAYER_2OZ), web(FOUR_LAYER_1OZ), web(FOUR_LAYER_2OZ)), (Some(0.2), Some(0.1), Some(0.2)));
+}
