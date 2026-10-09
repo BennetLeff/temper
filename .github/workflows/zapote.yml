@@ -41,7 +41,10 @@ jobs:
         working-directory: zapote
         env:
           CARGO_TARGET_DIR: ${{ runner.temp }}/zapote-target
-        run: cargo test --release --locked --workspace -- --ignored
+        # pcbnew extractors create a wx.App, which needs a display: run under Xvfb.
+        run: |
+          command -v xvfb-run > /dev/null || { sudo apt-get update -qq && sudo apt-get install -y -qq xvfb; }
+          xvfb-run -a cargo test --release --locked --workspace --no-fail-fast -- --ignored
       - name: Build and import zapote_bridge (what zapote's unit tools load)
         env:
           CARGO_TARGET_DIR: ${{ runner.temp }}/zapote-target
