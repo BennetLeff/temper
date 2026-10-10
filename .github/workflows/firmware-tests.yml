@@ -100,6 +100,20 @@ jobs:
       - name: Board-derivation coverage drift guard
         run: python3 firmware/tools/check_board_derivation_coverage.py
 
+      # Integrated controller pin map (zapote/controller layout L2): the
+      # firmware map in controller_pins.h / controller_board.c must equal the
+      # GPIO, expander and pull assignments of the controller ato snapshot
+      # (firmware/test/fixtures/controller-layout, blob-pinned), and the host
+      # tests pin duplicates, strap use, RUN_EN low at boot and the UART0
+      # console being off while GPIO44 is UI MISO.
+      - name: Controller pin map (ato cross-check + host tests)
+        run: |
+          python3 firmware/tools/check_controller_pinmap.py
+          python3 -m pytest firmware/tools/test_check_controller_pinmap.py -v --tb=short
+          cmake -B firmware/test/build firmware/test
+          cmake --build firmware/test/build --target test_controller_pins test_thermal_mgmt test_ntc_guard_only test_coil_guard_only
+          ctest --test-dir firmware/test/build -R "controller_pins|thermal_mgmt|ntc_guard|coil_guard" --output-on-failure
+
       - name: Regenerate transition table and check drift
         run: |
           python3 firmware/tools/gen_transition_table.py

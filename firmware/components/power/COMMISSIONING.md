@@ -32,7 +32,7 @@ The firmware pieces are:
 
 The three conditions for `commissioned=true`:
 1. `CONFIG_TEMPER_POWER_CALIBRATED=y`, set in the same reviewed change that enters the commissioning record (end of this document);
-2. the hardware has a firmware run gate (open question **H1**). `n21_hw_esp32.c` passes `run_gate = NULL` today, so COMMISSIONED is refused on the controller as captured;
+2. the hardware has a firmware run gate (open question **H1**). Controller layout L2 adds it (RUN_EN on GPIO14, PERMIT = latch AND RUN_EN through U37, DECISIONS C23), and `n21_hw_esp32.c` now passes `run_gate` on it. On an earlier controller capture without U37 the gate does nothing, so do not select COMMISSIONED there;
 3. steps 1–9 below have passed, with their evidence filed.
 
 **When:** only after step 10's sign-off. Burst mode stays disabled (`burst_enabled=false`) after that too. Enabling it is a separate gate (DECISIONS 2026-10-06: LINE_ZC scheduler, F6 capture, B2).
@@ -46,7 +46,7 @@ The three conditions for `commissioned=true`:
    ctest --test-dir build-host
    ```
 2. Build with ESP-IDF v5.2.x, `CONFIG_TEMPER_POWER_HW_BINDING=y`, mode INHIBITED. `n21_hw_esp32.c` has so far only been syntax-checked against stub headers; this is its first real compile. Fix any API drift without changing the logic in `n21_binding.c`.
-3. Resolve **H3** (RTD service pins and SPI mode) before flashing. Otherwise the MAX31865 bus comes up on the legacy pins, and GPIO8 is M12_ADC on this board.
+3. **H3** is resolved for layout L2: the RTD service uses `controller_pins.h` (SCK 11, SDI 13, SDO 12, CS 10, mode 3) and samples DRDY from TCA9555 P07. Run `python3 firmware/tools/check_controller_pinmap.py` before flashing; it checks the firmware map against the controller ato.
 
 ## Step 1: controller alone (no native-21)
 
@@ -55,7 +55,7 @@ Setup: a bench 15 V, current-limited to 1 A, into J4.1/J4.2. J4 goes to a breako
 1. **Rails:**
    - v3v3 is 3.242–3.367 V.
    - RAIL_OK (GPIO35) reads high.
-   - SUP_RUN_OK (GPIO37) reads high while the WDI heartbeat runs. It drops within 0.9–1.6 s when the heartbeat stops (halt the control task).
+   - SUP_RUN_OK (TCA9555 P14 since R36, DECISIONS C27; read from the expander snapshot) reads high while the WDI (GPIO18) heartbeat runs. It drops within 0.9–1.6 s when the heartbeat stops (halt the control task).
 2. **Pads low at every boot phase.** Scope all four PWM lines through reset, boot ROM, app start and `n21_hw_start`. Expected: low throughout, with no pulse over 0.8 V (D-25, controller misc checks). Repeat with the MCU held in reset and with it unpowered (10 kΩ pull-downs).
 3. **Interlock with J4.10 open:**
    - BUS_FAULT_RB reads high (10 kΩ pull-up) and PERMIT_RB stays low.
@@ -235,9 +235,9 @@ At 28 A the 62 A cap binds: with the peak estimate at 2.17 × RMS, the loop's pe
 
 Then one reviewed change sets `TEMPER_POWER_TANK_CEILING_DA` = 10 × N in the product sdkconfig for that unit or lot, and the record gains a row for N. **Any gate failing:** stay at the previous step (no partial raises); a gate failing at the current step after a hardware change lowers the ceiling back to the last step that passes.
 
-## Step 9: run gate and adapter integration (blocked by H1)
+## Step 9: run gate and adapter integration (H1: RUN_EN, layout L2)
 
-Requires the hardware run gate (H1). After the ECO, implement `run_gate` in `n21_hw_esp32.c`.
+Requires the hardware run gate (H1), fitted on controller layout L2 (RUN_EN, GPIO14, U37). `run_gate` in `n21_hw_esp32.c` drives it through `ctrl_board_set_run_en()`, which reads the pad back and refuses "on" after a firmware safety cut (`ctrl_board_run_en_kill()`, latched until MCU reset).
 
 1. Check that the gate can only remove permission: pads live with the gate low gives driver outputs low with PERMIT high.
 2. Mode COMMISSIONED with `CALIBRATED=y` on the bench, with the variac at 120 V. Expected:
@@ -283,7 +283,7 @@ Then one reviewed change sets `CONFIG_TEMPER_POWER_CALIBRATED=y`, enters the mea
 
 ## Open hardware questions
 
-- **H1. No firmware run gate (blocks COMMISSIONED).**
+- **H1. No firmware run gate (blocked COMMISSIONED; hardware closed by controller layout L2, DECISIONS C23: PERMIT = latch Q AND RUN_EN, RUN_EN on GPIO14 with a 4.7 kΩ pull-down; firmware `run_gate` implemented, bench step 9 still open).**
   - **The conflict:** `fullbridge_apply` qualifies the four PWM captures on every tick, idle included, and gates the drivers through a separate request. That is round 5's REQUEST → supervisor → SUP_RUN_OK path.
   - **This controller:** PERMIT comes only from the interlock latch, and the latch is granted by operator reset. So with PERMIT high, live pads mean a running bridge, and the pads cannot be qualified while idle.
   - **Proposed ECO:** native-21's PERMIT = latch Q AND RUN_EN. Firmware can only *remove* permission with it, never grant it. RUN_EN is pulled down, with a read-back through the LVC244.
@@ -294,7 +294,7 @@ Then one reviewed change sets `CONFIG_TEMPER_POWER_CALIBRATED=y`, enters the mea
   - **Stage 15 (partly closed):** the per-pan frequency loop (`tank_freq.h`) now regulates the tank ceiling, the inlet hold and the peak limit by frequency, from 60 kHz down. The trips stay as the backstop (adapter 15 A inlet bound; binding 1.05 × ceiling on the half-cycle RMS).
   - **Power level:** the adapter's `requested_w` (`power_set_level`) is the loop's power target: input power = min(request, the limit-bound maximum), in a ±6 % dead band (wider than the ~5.7 % power change of one 250 Hz step, so it cannot chatter). Every limit wins over the request; level 0 stops the bridge.
   - **Still open (H12):** below the power the pan draws at 60 kHz the loop caps at 60 kHz and over-delivers.
-- **H3. The RTD service uses the legacy pin map.** `temper_pins.h`: SCLK 8, MOSI 11, MISO 12, DRDY 9, mode 1. This controller uses SCK 11, SDI 13, SDO 12, DRDY 14, and GPIO8 is M12_ADC. The MAX31865 bring-up must move to `n21_pins.h` and mode 3 (C20) before the MCP3202 can share the bus.
+- **H3. The RTD service used the legacy pin map (resolved for layout L2).** It now uses `controller_pins.h`: SCK 11, SDI 13, SDO 12, CS 10, mode 3 (C20). DRDY moved from GPIO14 to TCA9555 P07 (C23); the control task samples it once per 10 ms tick and the service takes a high-to-low transition as completion. A DRDY low pulse shorter than one tick is missed and ends in the 100 ms fail-silent timeout (bench: confirm the MAX31865 DRDY stays low until the data registers are read).
 - **H4. CT_ZC.** Its polarity and the T1 + TLV3201 delay across 31–55 kHz are unspecified, and so is the CT's phase error.
 - **H5. Capture independence and channel count.**
   - The PWM feedback is a loop-back capture of the MCU's own pads. Round 5 used an external capture over JFAST, so this is not independent of the MCU. Confirm it is acceptable to the safety review.

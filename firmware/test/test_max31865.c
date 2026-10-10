@@ -6,7 +6,7 @@
 #include "unity/unity.h"
 
 #include "../components/hal/include/hal.h"
-#include "../components/hal/include/temper_pins.h"
+#include "../components/hal/include/controller_pins.h"
 #include "../components/sensors/include/max31865.h"
 #include "../components/sensors/include/rtd_service.h"
 #include "../config.h"
@@ -18,22 +18,36 @@ extern void mock_spi_set_register(hal_spi_device_t device, uint8_t reg,
 extern uint8_t mock_spi_get_register(hal_spi_device_t device, uint8_t reg);
 extern void mock_spi_fail_next_read(hal_status_t status);
 extern void mock_spi_fail_next_write(hal_status_t status);
-extern void mock_gpio_trigger_interrupt(hal_pin_t pin);
 extern bool mock_gpio_is_initialized(hal_pin_t pin);
 extern void mock_sm_reset(void);
 extern uint32_t mock_sm_get_trigger_shutdown_count(void);
 
 static max31865_device_t sensor;
 
+/* Fake expander DRDY (P07) level source. */
+static struct {
+    bool available;
+    bool low;
+    unsigned polls;
+} drdy;
+
+static bool fake_drdy_level(void *context, bool *drdy_low)
+{
+    (void)context;
+    drdy.polls++;
+    *drdy_low = drdy.low;
+    return drdy.available;
+}
+
 static hal_spi_device_t create_max31865_device(void)
 {
     const hal_spi_config_t config = {
         .clock_hz = 500000u,
-        .mode = 1u,
-        .pin_mosi = 11,
-        .pin_miso = 12,
-        .pin_sclk = 8,
-        .pin_cs = 16,
+        .mode = CTRL_RTD_SPI_MODE,
+        .pin_mosi = CTRL_GPIO_RTD_SDI,
+        .pin_miso = CTRL_GPIO_RTD_SDO,
+        .pin_sclk = CTRL_GPIO_RTD_SCK,
+        .pin_cs = CTRL_GPIO_RTD_CS_N,
         .cs_active_high = false,
     };
     hal_spi_device_t ignored_device;
@@ -55,6 +69,10 @@ void setUp(void)
     TEST_ASSERT_EQUAL(HAL_OK, hal_init_mock());
     mock_sm_reset();
     state_machine_init();
+    drdy.available = true;
+    drdy.low = false;
+    drdy.polls = 0u;
+    rtd_service_set_drdy_source(fake_drdy_level, NULL);
 }
 
 void tearDown(void)
@@ -176,20 +194,25 @@ void test_rtd_service_defers_spi_and_state_mutation_until_drdy_control_tick(void
 {
     TEST_ASSERT_EQUAL(HAL_OK, rtd_service_bootstrap());
     TEST_ASSERT_TRUE(rtd_service_is_ready());
-    TEST_ASSERT_TRUE(mock_gpio_is_initialized(PIN_RTD_DRDY));
+    /* DRDY is expander P07 on layout L2: no GPIO is claimed for it (GPIO14 is RUN_EN). */
+    TEST_ASSERT_FALSE(mock_gpio_is_initialized(CTRL_GPIO_RUN_EN));
+    TEST_ASSERT_EQUAL_UINT32(0, drdy.polls);
 
     /* Device zero is valid in the mock. A changed status alone must not cause
-     * a transfer or state mutation before the DRDY ISR hands work to control. */
+     * a transfer or state mutation before DRDY falls. */
     mock_spi_set_register((hal_spi_device_t)0, MAX31865_REG_FAULT_STATUS,
                           MAX31865_FAULT_HIGH_THRESHOLD);
     rtd_service_control_tick();
     TEST_ASSERT_EQUAL(STATE_INIT, state_machine_get_state());
     TEST_ASSERT_EQUAL_UINT32(0, mock_sm_get_trigger_shutdown_count());
 
-    mock_gpio_trigger_interrupt(PIN_RTD_DRDY);
+    /* A stale expander snapshot reporting low is not an edge. */
+    drdy.available = false;
+    drdy.low = true;
+    rtd_service_control_tick();
     TEST_ASSERT_EQUAL(STATE_INIT, state_machine_get_state());
-    TEST_ASSERT_EQUAL_UINT32(0, mock_sm_get_trigger_shutdown_count());
 
+    drdy.available = true;
     rtd_service_control_tick();
     TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
     TEST_ASSERT_EQUAL(FAULT_PROBE_OPEN, state_machine_get_fault());
@@ -207,6 +230,34 @@ void test_rtd_service_bootstrap_failure_fails_closed_from_control_task(void)
     TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
     TEST_ASSERT_EQUAL(FAULT_PROBE_OPEN, state_machine_get_fault());
     TEST_ASSERT_EQUAL_UINT32(1, mock_sm_get_trigger_shutdown_count());
+}
+
+void test_rtd_service_requires_drdy_source(void)
+{
+    rtd_service_set_drdy_source(NULL, NULL);
+    TEST_ASSERT_EQUAL(HAL_ERROR_NOT_READY, rtd_service_bootstrap());
+    TEST_ASSERT_FALSE(rtd_service_is_ready());
+    rtd_service_control_tick();
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_PROBE_OPEN, state_machine_get_fault());
+}
+
+void test_rtd_service_drdy_held_low_is_one_completion(void)
+{
+    uint8_t tick;
+
+    TEST_ASSERT_EQUAL(HAL_OK, rtd_service_bootstrap());
+    drdy.low = true; /* falls once, then never returns high */
+    rtd_service_control_tick();
+    TEST_ASSERT_EQUAL(STATE_INIT, state_machine_get_state());
+    /* A level stuck low is not a stream of completions: the fail-silent bound still applies. */
+    for (tick = 0u; tick < RTD_DRDY_TIMEOUT_CONTROL_TICKS - 1u; tick++) {
+        rtd_service_control_tick();
+        TEST_ASSERT_EQUAL(STATE_INIT, state_machine_get_state());
+    }
+    rtd_service_control_tick();
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_PROBE_OPEN, state_machine_get_fault());
 }
 
 void test_rtd_service_silent_drdy_fails_closed_within_control_bound(void)
@@ -237,4 +288,6 @@ void run_max31865_tests(void)
     RUN_TEST(test_rtd_service_defers_spi_and_state_mutation_until_drdy_control_tick);
     RUN_TEST(test_rtd_service_bootstrap_failure_fails_closed_from_control_task);
     RUN_TEST(test_rtd_service_silent_drdy_fails_closed_within_control_bound);
+    RUN_TEST(test_rtd_service_requires_drdy_source);
+    RUN_TEST(test_rtd_service_drdy_held_low_is_one_completion);
 }

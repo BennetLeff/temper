@@ -33,6 +33,8 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_log.h"
+#include "esp_timer.h"
+#include "controller_board.h"
 
 static const char *TAG = "safety";
 #endif
@@ -206,8 +208,11 @@ void check_boot_reason(void) {
      * still be low during early boot, or we can check the latch state.
      * Note: This requires the reset signal to also be tied to ESP32 EN pin
      * or for the MCU to read it immediately on startup.
+     * On the controller it is TCA9555 P14: take a fresh snapshot first (app_main, before the
+     * control task owns the I2C polling), so a slow boot cannot read as a watchdog reset.
      */
-    if (gpio_get_level(WDT_RESET_GPIO_NUM) == 0) {
+    (void)ctrl_board_poll_expander();
+    if (!safety_sup_run_ok()) {
         ESP_LOGE(TAG, "Rebooted due to EXTERNAL Hardware Watchdog! Entering SAFE MODE.");
         enter_safe_mode();
     }
@@ -276,7 +281,7 @@ bool check_hardware_interlocks(void) {
     
     /* Check external hardware watchdog state */
 #ifdef ESP_PLATFORM
-    if (gpio_get_level(WDT_RESET_GPIO_NUM) == 0) {
+    if (!safety_sup_run_ok()) {
         ESP_LOGW(TAG, "External watchdog fault active");
         return false;
     }
@@ -367,7 +372,7 @@ safety_status_t run_safety_check(void) {
 
     /* Check external hardware watchdog state */
 #ifdef ESP_PLATFORM
-    if (gpio_get_level(WDT_RESET_GPIO_NUM) == 0) {
+    if (!safety_sup_run_ok()) {
         return SAFETY_INTERLOCK_TRIP;
     }
 #endif
@@ -459,9 +464,20 @@ void trigger_hardware_shutdown(void) {
  * See sim_21_hardware_watchdog.cir for SPICE verification.
  */
 
+#ifdef ESP_PLATFORM
+/* TPS3823 RESET_N through the LVC244 buffer and TCA9555 P14 (DECISIONS C4, C27). */
+bool safety_sup_run_ok(void) {
+    ctrl_exp_cache_t c;
+    (void)ctrl_board_expander(&c);
+    return ctrl_exp_fresh(&c, (uint64_t)esp_timer_get_time(), CTRL_EXP_MAX_AGE_US) &&
+           ctrl_exp_decode(c.raw).sup_run_ok;
+}
+#endif
+
 void watchdog_hardware_init(void) {
 #ifdef ESP_PLATFORM
-    /* Configure WDI output */
+    /* Configure WDI output (preset low; ctrl_board_init already made it a low output) */
+    gpio_set_level(WDI_GPIO_NUM, 0);
     gpio_config_t wdi_conf = {
         .pin_bit_mask = (1ULL << WDI_GPIO_NUM),
         .mode = GPIO_MODE_OUTPUT,
@@ -472,30 +488,12 @@ void watchdog_hardware_init(void) {
     ESP_ERROR_CHECK(gpio_config(&wdi_conf));
     gpio_set_level(WDI_GPIO_NUM, 0);
     
-    /* Configure RESET_N input from TPS3823 */
-    gpio_config_t reset_conf = {
-        .pin_bit_mask = (1ULL << WDT_RESET_GPIO_NUM),
-        .mode = GPIO_MODE_INPUT,
-        .pull_up_en = GPIO_PULLUP_ENABLE,  /* TPS3823 is push-pull, but pullup safe */
-        .pull_down_en = GPIO_PULLDOWN_DISABLE,
-        .intr_type = GPIO_INTR_DISABLE,
-    };
-    ESP_ERROR_CHECK(gpio_config(&reset_conf));
-    
-    /* Configure RUNAWAY_CUT_GPIO output (active HIGH cuts power via OR gate) */
-    gpio_config_t runaway_cut_conf = {
-        .pin_bit_mask = (1ULL << RUNAWAY_CUT_GPIO),
-        .mode = GPIO_MODE_OUTPUT,
-        .pull_up_en = GPIO_PULLUP_DISABLE,
-        .pull_down_en = GPIO_PULLDOWN_ENABLE,  /* Default LOW = power ON */
-        .intr_type = GPIO_INTR_DISABLE,
-    };
-    ESP_ERROR_CHECK(gpio_config(&runaway_cut_conf));
-    gpio_set_level(RUNAWAY_CUT_GPIO, 0);
-    
+    /* RESET_N (SUP_RUN_OK) is read through the TCA9555 (P14) and RUN_EN is owned by the board
+     * layer (controller_board_esp32.c); neither is configured here. */
     wdi_state = false;
-    ESP_LOGI(TAG, "Hardware watchdog WDI on GPIO%d, RESET_N on GPIO%d, RUNAWAY_CUT on GPIO%d", 
-             WDI_GPIO_NUM, WDT_RESET_GPIO_NUM, RUNAWAY_CUT_GPIO);
+    ESP_LOGI(TAG, "Hardware watchdog WDI on GPIO%d; RESET_N via TCA9555 P%u%u; cut via RUN_EN GPIO%d",
+             (int)WDI_GPIO_NUM, (unsigned)(CTRL_EXP_SUP_RUN_OK_RB / 8), (unsigned)(CTRL_EXP_SUP_RUN_OK_RB % 8),
+             CTRL_GPIO_RUN_EN);
 #else
     /* Simulation: just reset state */
     wdi_state = false;

@@ -164,6 +164,7 @@ add_executable(test_state_machine_only
     ${UNITY_SOURCES}
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_machine.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_handlers.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/thermal_mgmt.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/low_temp_control.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pid_control.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/thermal_mass.c
@@ -187,6 +188,7 @@ add_executable(test_max31865_only
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rtd_service.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_machine.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_handlers.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/thermal_mgmt.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/low_temp_control.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pid_control.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/thermal_mass.c
@@ -293,6 +295,7 @@ add_executable(test_integration_only
     ${UNITY_SOURCES}
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_machine.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_handlers.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/thermal_mgmt.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/low_temp_control.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pid_control.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/thermal_mass.c
@@ -352,13 +355,16 @@ add_executable(test_ntc_guard_only
     test_main_ntc_guard.c
     test_ntc_guard.c
     ../components/safety/ntc_guard.c
+    ../components/control/thermal_mgmt.c
 )
 target_include_directories(test_ntc_guard_only PRIVATE 
     ../components/hal/include
     ../components/safety/include
+    ../components/control
     unity
 )
 target_link_libraries(test_ntc_guard_only m)
+add_test(NAME ntc_guard_tests COMMAND test_ntc_guard_only)
 
 # Fan Guard Tests
 add_executable(test_fan_guard_only
@@ -379,13 +385,16 @@ add_executable(test_coil_guard_only
     test_main_coil_guard.c
     test_coil_guard.c
     ../components/safety/coil_guard.c
+    ../components/control/thermal_mgmt.c
 )
 target_include_directories(test_coil_guard_only PRIVATE 
     ../components/hal/include
     ../components/safety/include
+    ../components/control
     unity
 )
 target_link_libraries(test_coil_guard_only m)
+add_test(NAME coil_guard_tests COMMAND test_coil_guard_only)
 
 
 # ============================================================================
@@ -463,6 +472,7 @@ add_executable(test_sil_fault_injection
     ${UNITY_SOURCES}
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_machine.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_handlers.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/thermal_mgmt.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/low_temp_control.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pid_control.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/thermal_mass.c
@@ -532,7 +542,7 @@ add_executable(test_n21_binding test_n21_binding.c
     ../components/power/power_service.c ../components/power/fullbridge_adapter.c
     ../components/power/burst_scheduler.c ../components/power/input_limits.c
     ../components/power/line_zc.c ../components/power/tank_freq.c)
-target_include_directories(test_n21_binding PRIVATE ../components/power/include)
+target_include_directories(test_n21_binding PRIVATE ../components/power/include ../components/hal/include)
 target_link_libraries(test_n21_binding m)
 target_compile_options(test_n21_binding PRIVATE -UNDEBUG -Wall -Wextra -Werror)
 add_test(NAME n21_binding_tests COMMAND test_n21_binding)
@@ -544,3 +554,20 @@ target_include_directories(test_tank_freq PRIVATE ../components/power/include)
 target_link_libraries(test_tank_freq m)
 target_compile_options(test_tank_freq PRIVATE -UNDEBUG -Wall -Wextra -Werror)
 add_test(NAME tank_freq_tests COMMAND test_tank_freq)
+
+# Integrated controller pin map (layout L2 + L3 blower lines): no duplicates, strap rules, RUN_EN
+# low at boot, UART0 console off while GPIO44 is UI MISO, TCA9555 plan. The map is also
+# cross-checked against the controller ato by firmware/tools/test_check_controller_pinmap.py.
+add_executable(test_controller_pins test_controller_pins.c ../components/hal/controller_board.c)
+target_include_directories(test_controller_pins PRIVATE ../components/hal/include ../components/power/include)
+target_compile_definitions(test_controller_pins PRIVATE
+    SDKCONFIG_DEFAULTS_PATH="${CMAKE_CURRENT_SOURCE_DIR}/../sdkconfig.defaults")
+target_compile_options(test_controller_pins PRIVATE -UNDEBUG -Wall -Wextra -Werror)
+add_test(NAME controller_pins_tests COMMAND test_controller_pins)
+
+# Rim NTC conversion, 250 C pan cap, R32 fan law, L3 blower stall hook (pure).
+add_executable(test_thermal_mgmt test_thermal_mgmt.c ../components/control/thermal_mgmt.c)
+target_include_directories(test_thermal_mgmt PRIVATE ../components/control)
+target_link_libraries(test_thermal_mgmt m)
+target_compile_options(test_thermal_mgmt PRIVATE -UNDEBUG -Wall -Wextra -Werror)
+add_test(NAME thermal_mgmt_tests COMMAND test_thermal_mgmt)

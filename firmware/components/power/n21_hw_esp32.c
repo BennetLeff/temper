@@ -30,8 +30,15 @@
  * Group 1: HA, HB, LB. HA is captured in both groups and serves as each group's phase reference
  * (HA rises one dead time after the PWM timer zero), so no cross-group timer sync is needed.
  * Capture interrupts are enabled only for a short snapshot window (a few bridge periods).
+ *
+ * Controller layout L2 (DECISIONS C23, C27): the run gate is RUN_EN on GPIO14 (U37 ANDs it with the
+ * latch, so it can only remove permission), owned by controller_board_esp32.c, which presets it low
+ * at boot. SUP_RUN_OK is TCA9555 P14, read from the expander cache that the control task refreshes;
+ * a stale or failed snapshot reads as "not ok". ADC1 also carries the four thermal channels (HS,
+ * COIL, M12, RIM); their latest frame means are kept for the thermal owner (n21_hw_thermal_mv).
  */
 #include "n21_hw.h"
+#include "controller_board.h"
 #include "driver/gpio.h"
 #include "driver/mcpwm_prelude.h"
 #include "driver/spi_master.h"
@@ -51,6 +58,9 @@ static const char *TAG = "n21_hw";
 
 enum { HA, LA, HB, LB };
 static const int PWM_PIN[4] = {N21_GPIO_PWM_HA, N21_GPIO_PWM_LA, N21_GPIO_PWM_HB, N21_GPIO_PWM_LB};
+#define N21_ADC_PATTERN_LEN 9
+static const int THERMAL_CH[N21_THERMAL_COUNT] = {N21_ADC1_CH_HS, N21_ADC1_CH_COIL, N21_ADC1_CH_M12,
+                                                   N21_ADC1_CH_RIM};
 
 #define CAP_EDGES 8
 typedef struct {
@@ -82,6 +92,9 @@ typedef struct {
     float vbus_mv, ct_mv;
     uint64_t adc_t_us;
     bool adc_fresh;
+    float thermal_mv[N21_THERMAL_COUNT];
+    uint64_t thermal_t_us;
+    bool thermal_fresh;
     /* MCP3202 */
     spi_device_handle_t ext_adc;
     /* LINE_ZC edge ring (ISR producer, acquisition consumer) */
@@ -358,8 +371,8 @@ static void adc_task(void *arg)
             portEXIT_CRITICAL(&hw.adc_mux);
             continue;
         }
-        int64_t vsum = 0;
-        int vn = 0, ct_worst = -1, ct_dev = -1;
+        int64_t vsum = 0, tsum[N21_THERMAL_COUNT] = {0};
+        int vn = 0, ct_worst = -1, ct_dev = -1, tn[N21_THERMAL_COUNT] = {0};
         for (uint32_t i = 0; i + SOC_ADC_DIGI_RESULT_BYTES <= got; i += SOC_ADC_DIGI_RESULT_BYTES) {
             const adc_digi_output_data_t *d = (const adc_digi_output_data_t *)&buf[i];
             int mv = 0;
@@ -370,6 +383,12 @@ static void adc_task(void *arg)
                        adc_cali_raw_to_voltage(hw.cali_atten3, d->type2.data, &mv) == ESP_OK) {
                 int dev = mv > 1650 ? mv - 1650 : 1650 - mv;  /* keep the extreme: peak check */
                 if (dev > ct_dev) { ct_dev = dev; ct_worst = mv; }
+            } else {
+                for (unsigned k = 0; k < N21_THERMAL_COUNT; k++)
+                    if (d->type2.channel == THERMAL_CH[k] &&
+                        adc_cali_raw_to_voltage(hw.cali_atten3, d->type2.data, &mv) == ESP_OK) {
+                        tsum[k] += mv; tn[k]++;
+                    }
             }
         }
         portENTER_CRITICAL(&hw.adc_mux);
@@ -379,6 +398,13 @@ static void adc_task(void *arg)
             hw.ct_mv = (float)ct_worst;
             hw.adc_t_us = (uint64_t)esp_timer_get_time();
         }
+        bool all = true;
+        for (unsigned k = 0; k < N21_THERMAL_COUNT; k++) all = all && tn[k] > 0;
+        if (all) { /* else keep the last means; their age makes them stale */
+            for (unsigned k = 0; k < N21_THERMAL_COUNT; k++) hw.thermal_mv[k] = (float)tsum[k] / (float)tn[k];
+            hw.thermal_t_us = (uint64_t)esp_timer_get_time();
+            hw.thermal_fresh = true;
+        }
         portEXIT_CRITICAL(&hw.adc_mux);
     }
 }
@@ -387,19 +413,21 @@ static bool adc_create(void)
 {
     adc_continuous_handle_cfg_t hc = {.max_store_buf_size = 4 * ADC_FRAME, .conv_frame_size = ADC_FRAME};
     if (adc_continuous_new_handle(&hc, &hw.adc) != ESP_OK) return false;
-    /* DECISIONS C12 pattern at 80 kS/s: VBUS, CT_MON, VBUS, CT_MON, VBUS, HS, COIL, M12. HS/COIL/M12
-     * belong to the thermal owners; they are sampled here only to keep the documented rates.
-     * HIL (C12 flag): repeated channels in one pattern on this IDF version. */
-    static const struct { int ch, atten; } pat[8] = {
+    /* DECISIONS C12 pattern at 80 kS/s, with R36's rim NTC as the ninth slot (C27): VBUS, CT_MON,
+     * VBUS, CT_MON, VBUS, HS, COIL, M12, RIM (VBUS 26.7 kS/s). HS/COIL/M12/RIM belong to the thermal
+     * owner (n21_hw_thermal_mv). HIL (C12 flag): repeated channels in one pattern on this IDF. */
+    static const struct { int ch, atten; } pat[N21_ADC_PATTERN_LEN] = {
         {N21_ADC1_CH_VBUS, ADC_ATTEN_DB_6}, {N21_ADC1_CH_CT_MON, ADC_ATTEN_DB_12},
         {N21_ADC1_CH_VBUS, ADC_ATTEN_DB_6}, {N21_ADC1_CH_CT_MON, ADC_ATTEN_DB_12},
-        {N21_ADC1_CH_VBUS, ADC_ATTEN_DB_6}, {5, ADC_ATTEN_DB_12}, {6, ADC_ATTEN_DB_12}, {7, ADC_ATTEN_DB_12},
+        {N21_ADC1_CH_VBUS, ADC_ATTEN_DB_6}, {N21_ADC1_CH_HS, ADC_ATTEN_DB_12},
+        {N21_ADC1_CH_COIL, ADC_ATTEN_DB_12}, {N21_ADC1_CH_M12, ADC_ATTEN_DB_12},
+        {N21_ADC1_CH_RIM, ADC_ATTEN_DB_12},
     };
-    adc_digi_pattern_config_t p[8];
-    for (unsigned i = 0; i < 8; i++)
+    adc_digi_pattern_config_t p[N21_ADC_PATTERN_LEN];
+    for (unsigned i = 0; i < N21_ADC_PATTERN_LEN; i++)
         p[i] = (adc_digi_pattern_config_t){.atten = pat[i].atten, .channel = pat[i].ch,
                                            .unit = ADC_UNIT_1, .bit_width = SOC_ADC_DIGI_MAX_BITWIDTH};
-    adc_continuous_config_t cfg = {.pattern_num = 8, .adc_pattern = p, .sample_freq_hz = 80000,
+    adc_continuous_config_t cfg = {.pattern_num = N21_ADC_PATTERN_LEN, .adc_pattern = p, .sample_freq_hz = 80000,
                                    .conv_mode = ADC_CONV_SINGLE_UNIT_1,
                                    .format = ADC_DIGI_OUTPUT_FORMAT_TYPE2};
     adc_cali_curve_fitting_config_t c6 = {.unit_id = ADC_UNIT_1, .atten = ADC_ATTEN_DB_6, .bitwidth = ADC_BITWIDTH_DEFAULT};
@@ -420,6 +448,16 @@ static bool hw_read_adc1(void *ctx, float *vbus_mv, float *ct_mv)
     bool ok = hw.adc_fresh && now - hw.adc_t_us <= 2000;
     *vbus_mv = hw.vbus_mv;
     *ct_mv = hw.ct_mv;
+    portEXIT_CRITICAL(&hw.adc_mux);
+    return ok;
+}
+
+bool n21_hw_thermal_mv(float mv[N21_THERMAL_COUNT], uint32_t max_age_us)
+{
+    uint64_t now = (uint64_t)esp_timer_get_time();
+    portENTER_CRITICAL(&hw.adc_mux);
+    bool ok = hw.thermal_fresh && now - hw.thermal_t_us <= max_age_us;
+    for (unsigned k = 0; k < N21_THERMAL_COUNT; k++) mv[k] = hw.thermal_mv[k];
     portEXIT_CRITICAL(&hw.adc_mux);
     return ok;
 }
@@ -492,8 +530,21 @@ static bool hw_read_status(void *ctx, n21_status_rb_t *s)
     s->permit = gpio_get_level(N21_GPIO_PERMIT_RB) == 1;
     s->bus_fault = gpio_get_level(N21_GPIO_BUS_FAULT_RB) == 1;
     s->rail_ok = gpio_get_level(N21_GPIO_RAIL_OK_RB) == 1;
-    s->sup_run_ok = gpio_get_level(N21_GPIO_SUP_RUN_OK_RB) == 1;
-    return true;
+    /* SUP_RUN_OK is expander P14 (C27). A stale or failed snapshot is a failed read, which the
+     * binding treats as an input fault. */
+    ctrl_exp_cache_t c;
+    (void)ctrl_board_expander(&c);
+    bool fresh = ctrl_exp_fresh(&c, (uint64_t)esp_timer_get_time(), CTRL_EXP_MAX_AGE_US);
+    s->sup_run_ok = fresh && ctrl_exp_decode(c.raw).sup_run_ok;
+    return fresh;
+}
+
+/* RUN_EN (GPIO14, C23): ANDed with the interlock latch by U37, so it only removes permission.
+ * Preset low and made an output by ctrl_board_init(); this only changes its level. */
+static bool hw_run_gate(void *ctx, bool on)
+{
+    (void)ctx;
+    return ctrl_board_set_run_en(on);
 }
 
 static bool hw_interlock_reset_pulse(void *ctx)
@@ -509,7 +560,7 @@ static bool hw_interlock_reset_pulse(void *ctx)
 static bool gpio_create(void)
 {
     gpio_config_t in = {.pin_bit_mask = (1ULL << N21_GPIO_PERMIT_RB) | (1ULL << N21_GPIO_BUS_FAULT_RB) |
-                                        (1ULL << N21_GPIO_RAIL_OK_RB) | (1ULL << N21_GPIO_SUP_RUN_OK_RB),
+                                        (1ULL << N21_GPIO_RAIL_OK_RB),
                         .mode = GPIO_MODE_INPUT};
     gpio_config_t zc = {.pin_bit_mask = 1ULL << N21_GPIO_LINE_ZC, .mode = GPIO_MODE_INPUT,
                         .intr_type = GPIO_INTR_ANYEDGE};
@@ -578,8 +629,9 @@ n21_binding_t *n21_hw_binding(void) { return started ? &binding : NULL; }
 n21_init_t n21_hw_start(void)
 {
     if (started) return N21_INIT_ERROR;
-    /* Pads low before any peripheral exists (D-25). */
+    /* Pads low before any peripheral exists (D-25); RUN_EN low (it already is from ctrl_board_init). */
     (void)pads_gpio_low();
+    (void)ctrl_board_set_run_en(false);
     hw.mutex = xSemaphoreCreateMutex();
     hw.cap_mutex = xSemaphoreCreateMutex();
     if (!hw.mutex || !hw.cap_mutex || !gpio_create() || !pwm_create() || !cap_create() ||
@@ -593,7 +645,7 @@ n21_init_t n21_hw_start(void)
         .now_us = hw_now, .lock = hw_lock, .unlock = hw_unlock,
         .pwm_program = hw_pwm_program, .pwm_update = hw_pwm_update, .pwm_outputs = hw_pwm_outputs,
         .pwm_capture = hw_pwm_capture,
-        .run_gate = NULL, /* the controller as captured has no firmware driver enable (H1) */
+        .run_gate = hw_run_gate, /* RUN_EN, GPIO14 (L2, C23; closes the hardware side of H1) */
         .read_status = hw_read_status, .interlock_reset_pulse = hw_interlock_reset_pulse,
         .read_adc1 = hw_read_adc1, .read_ext_adc = hw_read_ext_adc, .read_ct_zc = hw_read_ct_zc,
         .line_zc_edges = hw_line_zc_edges, .ctx = &hw,

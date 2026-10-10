@@ -31,12 +31,12 @@
  *     timer zero); with the bridge stopped, through pwm_program. With the gate off the loop is
  *     reset and the frequency returns to f_max.
  *
- * Hardware gap (see COMMISSIONING.md "Open hardware questions", H1): fullbridge_apply qualifies the
- * four PWM captures on every tick, including idle, and expects a separate request/enable to gate
- * the drivers (round-5 REQUEST -> SUP_RUN_OK). The integrated controller has no firmware-driven
- * driver enable: PERMIT comes only from the interlock latch, so while PERMIT is high, live PWM pads
- * ARE a running bridge. With run_gate == NULL (the controller as captured) the binding therefore
- * refuses N21_MODE_COMMISSIONED. Bench bring-up uses the bounded bench session instead.
+ * Run gate (COMMISSIONING.md H1): fullbridge_apply qualifies the four PWM captures on every tick,
+ * including idle, and expects a separate request/enable to gate the drivers (round-5 REQUEST ->
+ * SUP_RUN_OK). Controller layout L2 provides it: RUN_EN (GPIO14) ANDed with the interlock latch by
+ * U37 (DECISIONS C23), so the gate can only remove permission. With run_gate == NULL (an earlier
+ * capture without U37) the binding refuses N21_MODE_COMMISSIONED; bench bring-up uses the bounded
+ * bench session instead.
  */
 #include "power_service.h"
 #include "line_zc.h"

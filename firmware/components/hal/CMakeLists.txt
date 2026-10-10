@@ -12,6 +12,8 @@ if(CONFIG_IDF_TARGET)
         "${HAL_IMPL_DIR}/hal_pwm_esp32.c"
         "${HAL_IMPL_DIR}/hal_spi_esp32.c"
         "${HAL_IMPL_DIR}/hal_timer_esp32.c"
+        "${HAL_IMPL_DIR}/controller_board_esp32.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/controller_board.c"
     )
     set(HAL_REQUIRES driver esp_timer)
 else()
@@ -24,6 +26,7 @@ else()
         "${HAL_IMPL_DIR}/mock_pwm.c"
         "${HAL_IMPL_DIR}/mock_spi.c"
         "${HAL_IMPL_DIR}/mock_timer.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/controller_board.c"
     )
     set(HAL_REQUIRES "")
 endif()

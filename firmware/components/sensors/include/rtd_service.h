@@ -2,9 +2,11 @@
  * @file rtd_service.h
  * @brief Board-owned MAX31865 SPI2/DRDY service.
  *
- * The DRDY ISR records completion only. `rtd_service_control_tick()` is called
- * by the control task and is the sole owner of MAX31865 SPI transfers and
- * state-machine fault delivery.
+ * DRDY is TCA9555 P07 on the integrated controller (layout L2, DECISIONS C23),
+ * sampled once per control tick through rtd_service_set_drdy_source(); a
+ * high-to-low transition records completion. `rtd_service_control_tick()` is
+ * called by the control task and is the sole owner of MAX31865 SPI transfers
+ * and state-machine fault delivery.
  */
 
 #ifndef RTD_SERVICE_H
@@ -23,7 +25,18 @@ extern "C" {
  * fail-silent bound. */
 #define RTD_DRDY_TIMEOUT_CONTROL_TICKS 10u
 
-/** Configure SPI2, MAX31865 chip-select, DRDY, and start the first cycle. */
+/**
+ * DRDY level source: returns false when no fresh sample is available, else
+ * true with *drdy_low = the pin is low (asserted). Called from the control
+ * task only. On the controller this reads the expander snapshot.
+ */
+typedef bool (*rtd_drdy_level_fn)(void *context, bool *drdy_low);
+
+/** Install the DRDY source; required before rtd_service_bootstrap(). */
+void rtd_service_set_drdy_source(rtd_drdy_level_fn level, void *context);
+
+/** Configure SPI2 and the MAX31865 chip-select, and start the first cycle.
+ * Fails (and the control task then fails closed) without a DRDY source. */
 hal_status_t rtd_service_bootstrap(void);
 
 /**
