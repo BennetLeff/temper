@@ -8,11 +8,14 @@ The h1-only fine recipe is validated against leg A's full three-height recipe in
 (native-17 data) and compares with the committed legA-h0-best.matrix.txt.
 
     compose_leg_best.py --leg B   ->  legB-h0-best-n19.matrix.txt
+    compose_leg_best.py --leg B21 ->  legB21-h0-best.matrix.txt  (native-21, round-18 chain;
+                                      A21's fine h1 uses 0.45 mm edges: 0.35 mm does not fit in RAM)
     compose_leg_best.py --selftest
 """
 import argparse
 import hashlib
 import json
+import os
 from pathlib import Path
 
 import numpy as np
@@ -21,6 +24,7 @@ import run_d2
 
 HERE = Path(__file__).resolve().parent
 M = HERE.parent / "results" / "matrices"
+M21 = HERE.parent.parent / "round18-speedup" / "matrices"
 SETS = {
     "A": {"c0.5": M / "legA-h0p5-e1p0-m10.matrix.txt", "c1": M / "legA-h1-e1p0-m10.matrix.txt",
           "c2": M / "legA-h2-e1p0-m10.matrix.txt", "c3": M / "legA-h3-e1p0-m10.matrix.txt",
@@ -28,8 +32,13 @@ SETS = {
     "B": {"c0.5": M / "legB-h0p5-e1p0-m10-n19.matrix.txt", "c1": M / "legB-h1-e1p0-m10-n19.matrix.txt",
           "c2": M / "legB-h2-e1p0-m10-n19.matrix.txt", "c3": M / "legB-h3-e1p0-m10-n19.matrix.txt",
           "m20": M / "legB-h1-e1p0-m20-n19.matrix.txt", "f1": HERE / "legB-h1-e0p35-n19.matrix.txt"},
+    **{f"{g}21": {"c0.5": M21 / f"leg{g}21-h0p5-e1p0-n21.matrix.txt", "c1": M21 / f"leg{g}21-h1-e1p0-n21.matrix.txt",
+                  "c2": M21 / f"leg{g}21-h2-e1p0-n21.matrix.txt", "c3": M21 / f"leg{g}21-h3-e1p0-n21.matrix.txt",
+                  "m20": M21 / f"leg{g}21-h1-e1p0-m20-a10-n21.matrix.txt",
+                  "f1": M21 / f"leg{g}21-h1-{'e0p45' if g == 'A' else 'e0p35'}-n21.matrix.txt"} for g in "AB"},
 }
 NAMES = {"A": ["P1_C38", "P2_C39", "P3_gate_high", "P4_gate_low"], "B": ["P1_C40", "P2_C41", "P3_gate_high", "P4_gate_low"]}
+NAMES.update({"A21": NAMES["A"], "B21": NAMES["B"]})
 
 
 def L(p):
@@ -47,7 +56,7 @@ def best(leg):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--leg", choices=["A", "B"])
+    ap.add_argument("--leg", choices=["A", "B", "A21", "B21"])
     ap.add_argument("--selftest", action="store_true")
     a = ap.parse_args()
     if a.selftest:
@@ -60,9 +69,10 @@ def main():
     assert eig > 0
     res = {"names": NAMES[a.leg], "L0_nH": np.round(out, 4).tolist(), "min_eigenvalue_nH": eig,
            "recipe": "cubic_coarse(0.5,1,2,3) + (fine_h1 - coarse_h1) + (coarse_m20 - coarse_m10)",
-           "sources": {k: {"path": str(p.relative_to(HERE.parent)), "sha256": hashlib.sha256(p.read_bytes()).hexdigest()}
+           "sources": {k: {"path": os.path.relpath(p, HERE.parent), "sha256": hashlib.sha256(p.read_bytes()).hexdigest()}
                        for k, p in SETS[a.leg].items()}}
-    name = f"leg{a.leg}-h0-best-n19.matrix.txt" if a.leg == "B" else "legA-h0-best-recomposed.matrix.txt"
+    name = {"B": "legB-h0-best-n19.matrix.txt", "A": "legA-h0-best-recomposed.matrix.txt"}.get(
+        a.leg, f"leg{a.leg}-h0-best.matrix.txt")
     (HERE / name).write_text("RESULT " + json.dumps(res) + "\n")
     print(np.round(out, 3), "min eig", round(eig, 3))
 
