@@ -34,21 +34,38 @@ firmware/
 └── test/                  # Host-based unit and integration tests
 ```
 
-## Hardware GPIO requirements (board rev with BusDischarge, PR #217)
+## Controller pin map (zapote/controller, layout L2)
 
-`gpio_init()` in `main.c` is still stubbed; when it is implemented these
-board-imposed contracts MUST be honored:
+The firmware targets the integrated SELV controller. Its single pin map is
+`components/hal/include/controller_pins.h` (numbers) plus the table in
+`components/hal/controller_board.c` (function, owner, pulls, boot level).
+`tools/check_controller_pinmap.py` checks both against the controller ato
+(snapshot in `test/fixtures/controller-layout/`, or `--git-ref controller-layout`),
+and `test/test_controller_pins.c` pins the rules below. Every module GPIO is
+used; there is no spare pin.
 
-- **IO47 = DISCHARGE_CTRL (active-high, fail-safe-low).** Drives the
-  bus-discharge relay coils via a low-side FET. The pin boots Hi-Z and the
-  gate has a 100k pulldown, so reset/crash/brownout = coils dropped = NC
-  contacts closed = bus discharge engaged. Startup sequence: configure as
-  output-low at boot, drive HIGH only after bus precharge completes and
-  BEFORE enabling PWM; drive LOW (or simply stop kicking the watchdog) on
-  any fault requiring safe discharge. Never configure as input/floating
-  during operation.
-- **IO9 = MAX31865 DRDY** (input, already noted in `main.c`).
-- **IO7 = WDT_KICK** — TPS3823 watchdog; state_machine_update() toggles it.
+- **RUN_EN = GPIO14** (DECISIONS C23). PERMIT = interlock latch AND RUN_EN
+  (U37). 4.7 k pull-down, no internal pull-up; preset low before the pad
+  becomes an output. Firmware can only remove permission with it; the
+  safety cut (`ctrl_board_run_en_kill()`) latches it low until MCU reset.
+  There is no RUNAWAY_CUT output on this board (GPIO15 is PWM_HB).
+- **IL_WDI = GPIO18** (TPS3823 heartbeat). SUP_RUN_OK and RTD_DRDY are
+  TCA9555 P14 and P07, polled over I2C every control tick.
+- **I2C**: SDA GPIO37, SCL GPIO0 (SPI-boot strap, 4.7 k pull-up; never an
+  internal pull-down).
+- **UI bus (J7, SPI3)**: SCK 40, MOSI 41, MISO 44, CS_OLED# 47, D/C 45,
+  CS_EXP# 48. GPIO44 is U0RXD, so the console is USB-Serial-JTAG
+  (`sdkconfig.defaults`). GPIO45 is the VDD_SPI strap: never an internal
+  pull-up. The sounder is a self-oscillating buzzer on a UI-board expander
+  output; there is no sounder PWM.
+- **Rim NTC = GPIO9 / ADC1_CH8** (R36, C27), ninth slot of the ADC1 pattern;
+  it feeds the 250 °C pan cap with the pan RTD (`components/control/thermal_mgmt.h`).
+- **Blower (J10, L3)**: GPIO46 PWM (strap, pull-down) and GPIO3 tach are
+  STUBS until controller L3; both are left at reset, which keeps the blower
+  running.
+
+`components/hal/include/temper_pins.h` is the legacy `elec/` board map, kept
+unchanged for the tools that read it; controller firmware must not include it.
 
 ## Building
 

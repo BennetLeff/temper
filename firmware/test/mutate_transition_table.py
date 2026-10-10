@@ -217,6 +217,7 @@ add_executable({TARGET}
     ${{TEST_DIR}}/unity/unity.c
     ${{TEST_DIR}}/../main/state_machine.c
     ${{TEST_DIR}}/../main/state_handlers.c
+    ${{TEST_DIR}}/../components/control/thermal_mgmt.c
     ${{TEST_DIR}}/../components/control/low_temp_control.c
     ${{TEST_DIR}}/../components/control/pid_control.c
     ${{TEST_DIR}}/../components/control/thermal_mass.c

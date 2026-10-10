@@ -160,19 +160,20 @@ void watchdog_hardware_init(void);
 void watchdog_hardware_feed(void);
 
 /**
- * @brief Hardware Watchdog and Runaway Interlock GPIO Configuration
+ * @brief Hardware Watchdog and Runaway Cut on the integrated controller (layout L2)
  *
- * GPIO assignments for safety-critical signals:
- * - WDI_GPIO_NUM: Heartbeat output to TPS3823-33 WDI pin
- * - WDT_RESET_GPIO_NUM: Input from TPS3823-33 RESET_N pin
- * - RUNAWAY_CUT_GPIO: Runaway interlock output to fault OR gate
- *   (asserted HIGH on runaway boundary breach, latched until power-cycle)
+ * - WDI_GPIO_NUM: heartbeat output to the interlock's TPS3823 WDI (IL_WDI, GPIO18).
+ * - The TPS3823 RESET_N read-back (SUP_RUN_OK) is TCA9555 P14 (DECISIONS C27), read from the
+ *   expander snapshot by safety_sup_run_ok(); stale or failed reads count as "not ok".
+ * - There is no RUNAWAY_CUT output on this board (the legacy GPIO15 is PWM_HB here, and the
+ *   hardware runaway producer is the RTD comparator, C6). The firmware cut is RUN_EN (GPIO14),
+ *   ANDed into PERMIT by U37 (C23): ctrl_board_run_en_kill(), latched until MCU reset.
  */
 #ifdef ESP_PLATFORM
 #include "driver/gpio.h"
-#define WDI_GPIO_NUM            GPIO_NUM_7
-#define WDT_RESET_GPIO_NUM      GPIO_NUM_6
-#define RUNAWAY_CUT_GPIO        GPIO_NUM_15
+#include "controller_pins.h"
+#define WDI_GPIO_NUM            ((gpio_num_t)CTRL_GPIO_IL_WDI)
+bool safety_sup_run_ok(void);
 #endif
 
 /* ============================================================================

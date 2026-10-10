@@ -1,0 +1,8 @@
+{
+  "branch": "controller-layout",
+  "commit": "7be30563775898067df7de3815601d0489a21d64",
+  "commit_subject": "controller L3 schematic: adjustable blower supply, NTC input RCs",
+  "path": "zapote/controller/elec/src/controller.ato",
+  "git_blob": "818baaf3812f10177a9b90eb8849223f0eba5624",
+  "note": "Byte-exact copy, read by firmware/tools/check_controller_pinmap.py. Layout L2 (bdddaee88) differs only in GPIO46 (fan_off on L2, fan_pwm on L3) and expander P15 (fan_off, L3 only). Refresh: git show <commit>:<path> > controller.ato, then update commit, commit_subject and git_blob."
+}

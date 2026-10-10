@@ -51,6 +51,8 @@ extern uint32_t mock_sm_get_eeprom_log_count(void);
 extern uint32_t mock_sm_get_trigger_shutdown_count(void);
 extern uint32_t mock_sm_get_power_set_count(void);
 extern uint32_t mock_sm_get_pwm_disable_count(void);
+extern void mock_sm_set_rim_temperature(float temp_c, bool valid);
+extern void mock_sm_set_blower_cap(uint8_t pct);
 
 /* Pan status constants (must match stubs) */
 #define MOCK_PAN_ABSENT  0
@@ -321,6 +323,70 @@ void test_sm_preheat_to_heating_near_target(void) {
     state_machine_update();
     
     TEST_ASSERT_EQUAL(STATE_HEATING, state_machine_get_state());
+}
+
+/* ============================================================================
+ * Test Cases: 250 C pan cap / glass protection and the blower stall hook
+ * ============================================================================ */
+
+static void enter_preheat(void) {
+    setup_test();
+    state_machine_update();  /* INIT -> IDLE */
+    state_machine_set_target_temp(200.0f);
+    mock_sm_press_button(BUTTON_START);
+    mock_sm_advance_time(100);
+    state_machine_update();  /* IDLE -> PAN_DET */
+    mock_sm_release_button(BUTTON_START);
+    mock_sm_set_pan_status(MOCK_PAN_PRESENT);
+    for (int i = 0; i < 5; i++) {
+        mock_sm_advance_time(100);
+        state_machine_update();
+    }
+    TEST_ASSERT_EQUAL(STATE_PREHEAT, state_machine_get_state());
+}
+
+/**
+ * Test: PREHEAT power request passes the rim-NTC cap (R36 glass protection)
+ */
+void test_sm_preheat_rim_at_cap_removes_power(void) {
+    enter_preheat();
+    mock_sm_advance_time(100);
+    state_machine_update();
+    uint32_t uncapped = mock_sm_get_power_level();
+    TEST_ASSERT_TRUE(uncapped > 0);
+
+    mock_sm_set_rim_temperature(251.0f, true);
+    mock_sm_advance_time(100);
+    state_machine_update();
+    TEST_ASSERT_EQUAL(STATE_PREHEAT, state_machine_get_state());
+    TEST_ASSERT_EQUAL_UINT32(0, mock_sm_get_power_level());
+
+    /* Rim cooled: the cap lifts. An invalid rim is not a cap (the RTD still caps). */
+    mock_sm_set_rim_temperature(80.0f, false);
+    mock_sm_advance_time(100);
+    state_machine_update();
+    TEST_ASSERT_EQUAL_UINT32(uncapped, mock_sm_get_power_level());
+}
+
+/**
+ * Test: the blower stall hook (L3 stub) can only lower the power request
+ */
+void test_sm_preheat_blower_stall_derates(void) {
+    enter_preheat();
+    mock_sm_advance_time(100);
+    state_machine_update();
+    uint32_t uncapped = mock_sm_get_power_level();
+    TEST_ASSERT_TRUE(uncapped > 3);
+
+    mock_sm_set_blower_cap(3);
+    mock_sm_advance_time(100);
+    state_machine_update();
+    TEST_ASSERT_EQUAL_UINT32(3, mock_sm_get_power_level());
+
+    mock_sm_set_blower_cap(100);
+    mock_sm_advance_time(100);
+    state_machine_update();
+    TEST_ASSERT_EQUAL_UINT32(uncapped, mock_sm_get_power_level());
 }
 
 /* ============================================================================
@@ -1578,6 +1644,8 @@ void run_state_machine_tests(void) {
     /* PAN_DET -> PREHEAT transition */
     RUN_TEST(test_sm_pan_det_to_preheat_on_pan);
     RUN_TEST(test_sm_preheat_enables_pll);
+    RUN_TEST(test_sm_preheat_rim_at_cap_removes_power);
+    RUN_TEST(test_sm_preheat_blower_stall_derates);
     
     /* PAN_DET timeout */
     RUN_TEST(test_sm_pan_det_timeout_to_idle);

@@ -17,6 +17,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_log.h"
+#include "controller_board.h"
 static const char *TAG = "state_machine";
 #endif
 
@@ -99,18 +100,19 @@ extern void watchdog_feed(void);
 extern void watchdog_hardware_feed(void);
 extern void trigger_hardware_shutdown(void);
 
-/* Route software-detected safety faults into the same active-high hardware
- * runaway-cut input used by the UCC21550 fault latch. This keeps RTD/ADC/fan
- * faults fail-safe even when the firmware state transition is delayed.
+/* Route software-detected safety faults into the hardware permission path.
+ * On the integrated controller (layout L2) that is RUN_EN (GPIO14), ANDed with
+ * the interlock latch by U37 (DECISIONS C23): driving it low drops PERMIT at
+ * native-21 whatever the PWM pads do, and the kill is latched until MCU reset.
+ * The legacy board's RUNAWAY_CUT output does not exist here (its GPIO15 is
+ * PWM_HB); the hardware runaway producer is the RTD comparator (C6).
  *
- * TODO(temper-xxx): Single-point failure risk — gpio_set_level() writes to
- * the GPIO but does not verify pin state. If the output driver is damaged,
- * the fault cut may not be asserted. Consider adding a GPIO read-back
- * verification loop with a watchdog-bounded timeout before falling through
- * to trigger_hardware_shutdown(). */
+ * The final PERMIT is read back on GPIO36 by the n21 binding, so a damaged
+ * RUN_EN driver shows up as PERMIT staying high while the binding expects it
+ * low. trigger_hardware_shutdown() still forces the pads low independently. */
 static void assert_hardware_fault_cut(void) {
 #ifdef ESP_PLATFORM
-    gpio_set_level(RUNAWAY_CUT_GPIO, 1);
+    (void)ctrl_board_run_en_kill();
 #endif
     trigger_hardware_shutdown();
 }
@@ -487,9 +489,9 @@ static void check_runaway_boundary(void) {
     return;
 
 trigger_runaway:
-    /* Hardware-level cut: assert GPIO to OR gate */
+    /* Hardware-level cut: RUN_EN low, latched (PERMIT = latch AND RUN_EN, C23) */
 #ifdef ESP_PLATFORM
-    gpio_set_level(RUNAWAY_CUT_GPIO, 1);
+    (void)ctrl_board_run_en_kill();
 #endif
     /* Software-level cut: disable PWM and power */
     trigger_hardware_shutdown();

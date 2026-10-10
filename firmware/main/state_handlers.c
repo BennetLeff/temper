@@ -9,6 +9,7 @@
 
 #include "state_handlers.h"
 #include "config.h"
+#include "../components/control/thermal_mgmt.h"
 #include <stddef.h>
 #include <math.h>
 
@@ -48,6 +49,25 @@ extern float read_rtd_resistance(void);
 extern bool is_fan_running(void);
 extern void delay_ms(uint32_t ms);
 extern void eeprom_log_fault(fault_code_t code, uint32_t timestamp);
+/* R36 rim NTC (GPIO9, ADC1_CH8): false while no valid reading (open, short, stale). */
+extern bool read_rim_temperature(float *temp_c);
+/* L3 blower stall hook (DECISIONS C28): tank power cap from blower_stall_update(), 0..100.
+ * STUB until the controller L3 blower driver lands: the peripherals layer returns 100. */
+extern uint8_t blower_power_cap_pct(void);
+
+/* Pan temperature cap and glass protection (250 C, R32 / R36): every tank power request in
+ * PREHEAT and HEATING passes through here. The pan RTD and the rim NTC each derate from 240 C to
+ * 0 at 250 C (thermal_mgmt.h); the blower stall hook can only lower the result further. */
+static uint8_t apply_thermal_caps(uint8_t requested, float pan_temp_c)
+{
+    float rim_c = NAN;
+    bool rim_ok = read_rim_temperature(&rim_c);
+    pan_cap_t cap = pan_cap_evaluate(pan_temp_c, isfinite(pan_temp_c), rim_c, rim_ok);
+    uint8_t limit = cap.cap_pct;
+    uint8_t blower = blower_power_cap_pct();
+    if (blower < limit) limit = blower;
+    return requested < limit ? requested : limit;
+}
 
 /* Pan detection stubs */
 typedef enum { PAN_ABSENT, PAN_PRESENT } pan_status_t;
@@ -292,7 +312,7 @@ void state_preheat_update(void) {
 
     float intensity_max[] = {0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f};
     uint8_t clamped_power = (uint8_t)fminf((float)requested_power, intensity_max[sm_get_context()->intensity_level - 1] * 100.0f);
-    power_set_level(clamped_power);
+    power_set_level(apply_thermal_caps(clamped_power, current_temp));
 
     /* Safety checks */
     if (check_safety_interlocks()) {
@@ -384,7 +404,7 @@ void state_heating_update(void) {
         /* low_temp_update(current_temp); */
         /* Use standard PID for now */
         float pid_output = pid_update(sm_get_context()->target_temperature, current_temp);
-        power_set_level((uint8_t)(pid_output * 10));
+        power_set_level(apply_thermal_caps((uint8_t)(pid_output * 10), current_temp));
     } else {
         /* Run standard PID controller */
         float pid_output = pid_update(sm_get_context()->target_temperature, current_temp);
@@ -392,7 +412,7 @@ void state_heating_update(void) {
         /* Apply intensity limiting */
         float intensity_max[] = {0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f};
         float clamped_output = fminf(pid_output, intensity_max[sm_get_context()->intensity_level - 1] * 100.0f);
-        power_set_level((uint8_t)clamped_output);
+        power_set_level(apply_thermal_caps((uint8_t)clamped_output, current_temp));
     }
 
     /* Update PLL for ZVS tracking */

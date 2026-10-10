@@ -36,6 +36,9 @@ static struct {
     float dc_bus_current;
     float rtd_resistance;
     float pan_impedance;
+    float rim_temperature;      /* R36 rim NTC */
+    bool rim_valid;
+    uint8_t blower_cap_pct;     /* L3 blower stall hook */
     
     /* Pan detection */
     pan_status_t pan_status;
@@ -88,6 +91,9 @@ static struct {
     .dc_bus_current = 0.0f,
     .rtd_resistance = 100.0f,  /* PT100 at ~25°C */
     .pan_impedance = 5.0f,
+    .rim_temperature = 25.0f,
+    .rim_valid = true,
+    .blower_cap_pct = 100,
     .pan_status = PAN_ABSENT,
     .button_start_pressed = false,
     .button_stop_pressed = false,
@@ -139,6 +145,18 @@ void mock_sm_reset(void) {
     mock_sm_state.test_rtd_pass = true;
     mock_sm_state.test_display_pass = true;
     mock_sm_state.test_eeprom_pass = true;
+    mock_sm_state.rim_temperature = 25.0f;
+    mock_sm_state.rim_valid = true;
+    mock_sm_state.blower_cap_pct = 100;
+}
+
+void mock_sm_set_rim_temperature(float temp_c, bool valid) {
+    mock_sm_state.rim_temperature = temp_c;
+    mock_sm_state.rim_valid = valid;
+}
+
+void mock_sm_set_blower_cap(uint8_t pct) {
+    mock_sm_state.blower_cap_pct = pct;
 }
 
 void mock_sm_advance_time(uint32_t ms) {
@@ -364,6 +382,15 @@ float read_heatsink_temperature(void) {
 
 float read_dc_bus_current(void) {
     return mock_sm_state.dc_bus_current;
+}
+
+bool read_rim_temperature(float *temp_c) {
+    *temp_c = mock_sm_state.rim_temperature;
+    return mock_sm_state.rim_valid;
+}
+
+uint8_t blower_power_cap_pct(void) {
+    return mock_sm_state.blower_cap_pct;
 }
 
 float read_rtd_resistance(void) {

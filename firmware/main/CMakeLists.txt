@@ -6,6 +6,8 @@ idf_component_register(
         "main.c"
         "state_machine.c"
         "state_handlers.c"
+        "thermal_io.c"
+        "../components/control/thermal_mgmt.c"
         "../components/sensors/max31865.c"
         "../components/sensors/rtd_service.c"
     INCLUDE_DIRS 
