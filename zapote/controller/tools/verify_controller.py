@@ -8,7 +8,7 @@ and native-21's frozen netlist snapshot. Checks, each fail-closed:
              boundary headers; shared library bytes equal the RTD source-04 set
   j4         J4 pin-for-pin against native-21's J4 net names, plus the
              controller-side obligations on each pin
-  adc1       the analog channels sit on five distinct ADC1 pads, nothing
+  adc1       the analog channels sit on six distinct ADC1 pads, nothing
              analog on ADC2, no strap/flash/USB/SPI collision, sample budget
   trip       hardware-only path to PERMIT: structural (no MCU/expander pin can
              drive any net in PERMIT's fan-in cone except the reset request and
@@ -85,6 +85,8 @@ MODELS: dict[str, Model] = {
                       basis="SBOS777D 6.5: IQ 2.6 mA/amp max (5.5 V, -40..125 C)"),
     "TLV9062IDR": _ic([8], [4], ins=[2, 3, 5, 6], outs=[1, 7], ma=2 * 0.8,
                       basis="SBOS839N 7.x: IQ 0.8 mA/amp max (5.5 V, -40..125 C)"),
+    "TLV9061IDBVR": _ic([5], [2], ins=[3, 4], outs=[1], ma=0.8,
+                        basis="SBOS839N 7.x: IQ 0.8 mA/amp max (5.5 V, -40..125 C); DBV pins Table 5-1"),
     "LM4040A25IDBZR": Model({"1": "clamp", "2": "gnd", "3": "gnd"}, 0.0,
                             "SLOS456Q: shunt; current set by r_ref (counted on the resistor)"),
     "ESD5Z3.3T1G": Model({"1": "in", "2": "gnd"}, 0.0001, "onsemi ESD5Z: IR 50 nA at 3.3 V"),
@@ -399,7 +401,7 @@ def check_j4(rep: Report, nl: Netlist, n21: Netlist):
 def check_adc1(rep: Report, nl: Netlist, calcs: dict):
     gm = gpio_map(nl)
     analog = {"VBUS_ADC": "OPA2388IDR", "CT_MON_ADC": "TLV9062IDR", "HS_ADC": "TLV9062IDR",
-              "COIL_ADC": "TLV9062IDR", "M12_ADC": "TLV9062IDR"}
+              "COIL_ADC": "TLV9062IDR", "M12_ADC": "TLV9062IDR", "RIM_ADC": "TLV9061IDBVR"}
     pn = nl.pin_net()
     where = {}
     for net, amp in analog.items():
@@ -411,7 +413,7 @@ def check_adc1(rep: Report, nl: Netlist, calcs: dict):
         ok = any(nl.mpn[r2] == amp and pin_role(nl, r2, p2) == "out" for s in src for r2, p2 in nl.nets.get(s, []))
         rep.check("adc1", f"{net}_driven_by_{amp}_buffer", ok, src)
     used = [g[0] for g in where.values() if g]
-    rep.check("adc1", "five_distinct_channels", len(set(used)) == 5, sorted(used))
+    rep.check("adc1", "six_distinct_channels", len(set(used)) == len(analog), sorted(used))
     for g in sorted(ADC1_GPIO):
         rep.data("adc1", f"GPIO{g}", gm.get(g))
     spare = [g for g in ADC1_GPIO if g not in used and g not in STRAPS]
@@ -422,8 +424,9 @@ def check_adc1(rep: Report, nl: Netlist, calcs: dict):
     rep.check("adc1", "spi_10_13_to_rtd_front_end", all(gm[g] == n for g, n in rtd.items()),
               {g: gm[g] for g in rtd})
     pat = calcs["adc_pattern"]
-    names = {"VBUS": "VBUS_ADC", "CT_MON": "CT_MON_ADC", "HS": "HS_ADC", "COIL": "COIL_ADC", "M12": "M12_ADC"}
-    rep.check("adc1", "sample_pattern_covers_the_five_channels",
+    names = {"VBUS": "VBUS_ADC", "CT_MON": "CT_MON_ADC", "HS": "HS_ADC", "COIL": "COIL_ADC", "M12": "M12_ADC",
+             "RIM": "RIM_ADC"}
+    rep.check("adc1", "sample_pattern_covers_every_channel",
               {names[c] for c in pat["pattern"]} == set(analog))
     for k, ok in pat["checks"].items():
         rep.check("adc1", f"budget_{k}", ok, pat["rates_sps"])

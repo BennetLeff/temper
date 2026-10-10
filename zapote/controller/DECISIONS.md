@@ -208,6 +208,33 @@ Source: output/temper-manufacturing-r33/design/r33/DECISIONS.md §3 ("Controller
 - **Firmware pins.h (C23 + C26):** `R5_RUN_EN 14`; RTD_DRDY on expander P07; UI SPI host: SCK 40, MOSI 41, MISO 44, CS_OLED 47, CS_EXP 48, OLED_DC 45; UART0 RX no longer available.
 - **Not in this re-base (flag):** R32's controller additions (`design/r32/CONTROLLER-SPEC.md`), still in force per R35 HANDOFF: an adjustable 5.5–12 V ≥ 1.5 A blower output in place of the fixed 12 V fan rail, and a differential RC ≤ 1 kHz on the RTD and NTC inputs. The fan buck is still fixed at 12 V (C9). Open item 12.
 
+## C27. Enclosure R36: rim NTC channel and the 6-conductor cartridge cable (2026-10-10)
+Source: coordinator relay of the R36 change. A glass-encapsulated 10 k bead NTC on the sensor cartridge's PEEK rim, read from the glass underside; the cartridge cable is now 6 conductors (4-wire RTD + 2 for the NTC). R36's design folder has no controller spec yet, so the pin map below is mine.
+- **Channel (built like the coil NTC channel):**
+  - 10.0 kΩ 0.1 % pull-up to v3v3 (same 10 k divider form as the coil NTC; 0.1 % as on M12);
+  - 100 nF at the node;
+  - ESD5Z3.3 TVS at the connector pin;
+  - a TLV9061 CMOS follower (same family as the TLV9062 buffers);
+  - 100 Ω / 100 nF into the ADC pad.
+  It is a measurement channel only: no interlock comparator (none was asked for). The R32 differential-RC request for NTC inputs still applies to all NTC channels (open item 12).
+- **ADC choice:** no ADC1 pin was free (GPIO1–10 all used). ADC2 cannot be used while Wi-Fi runs. I freed **GPIO9 (ADC1_CH8)** in two moves:
+  - SUP_RUN_OK_RB moves from GPIO37 to TCA9555 P14. It is still a buffered read-back (C4) and it is not in the trip path. Firmware reads it only to confirm the watchdog state, so the I²C latency is harmless.
+  - I²C SDA moves from GPIO9 to GPIO37 (GPIO matrix; no strap).
+  Sampling: RIM joins the ADC1 pattern as a ninth slot. VBUS still gets 26.7 ksps with a worst gap of 62.5 µs (`controller_calcs.py adc_pattern`). The rejected alternative was an MCP3204 in place of the MCP3202 (a spare CH2, ratiometric to v3v3). It would put a 130 mm analog line from the rear-right cartridge to the front-left converter. GPIO9 is at the module, beside the cartridge connector.
+- **Cartridge connector:** the RTD block's J3 (JST B4B-XH-A) is part of the byte-locked RTD library (`verify_controller.py sources`), so the rim NTC gets its own **J12** (JST B2B-XH-A). The 6-conductor cable ends in two XH housings:
+
+  | Connector | Pin | Net | Cartridge conductor |
+  |---|---|---|---|
+  | J3 | 1 | rtd_force_p (MAX31865 FORCE+) | RTD force + |
+  | J3 | 2 | rtd_sense_p (RTDIN+) | RTD sense + |
+  | J3 | 3 | rtd_sense_n (RTDIN−) | RTD sense − |
+  | J3 | 4 | rtd_force_n (FORCE−) | RTD force − |
+  | J12 | 1 | RIM_SENSE | rim NTC |
+  | J12 | 2 | selv_gnd | rim NTC return |
+
+  J12's landing is **proposed** at world (126, 86) on the rear edge, 13 mm left of J10. **Enclosure to confirm** (`layout/world.py`).
+- **Firmware pins.h:** RIM_ADC = GPIO9 (ADC1_CH8); I2C_SDA = GPIO37; SUP_RUN_OK read through expander P14.
+
 ## FMEA: shared supply, ground and connector (CONTROLLER-SPEC requirement, before layout freeze)
 
 | Failure | Effect | Detection / safe state |
@@ -241,7 +268,7 @@ Source: output/temper-manufacturing-r33/design/r33/DECISIONS.md §3 ("Controller
    - the BIAS-on, settle, reset-request sequence (C6);
    - the WDI ≤ 400 ms heartbeat;
    - the UI bus driver (OLED + polled MCP23S08 on one SPI host, chunked frame writes, C26);
-   - pins.h additions (UI SPI 40/41/44/47/48/45, RUN_EN 14, I²C on 9/0, fan 46/3, ADC on 8; RTD_DRDY on expander P07).
+   - pins.h additions (UI SPI 40/41/44/47/48/45, RUN_EN 14, I²C SDA 37 / SCL 0, fan 46/3, ADC on 8 and rim NTC on 9; RTD_DRDY on expander P07, SUP_RUN_OK on P14).
 9. **Layout stage:**
    - re-run the interlock, thermal-sense and RTD validators on the integrated board;
    - the native KiCad ERC/DRC and Rust stackup gate;

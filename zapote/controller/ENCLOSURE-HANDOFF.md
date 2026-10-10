@@ -4,6 +4,8 @@ This is the electrical side of the R25 controller board. The enclosure team owns
 
 **R33 update (2026-10-10, enclosure R33 DECISIONS §3; R35 unchanged for the controller):** J5, J6 and J8 are deleted; one 12-way JST B12B-XH-A **J7** at X29.8–62.2, Y57.1–62.9 carries the UI bus to the fascia UI board (pin map below, DECISIONS C26). The module is the **ESP32-S3-WROOM-1U-N8** at X141–159, Y50–69.5 with its U.FL at (150, 67) and no antenna keep-out; nothing within 3 mm of the U.FL. The heights below are now from drawings (section "Height and cable exit").
 
+**R36 update (2026-10-10, DECISIONS C27):** the rim NTC adds **J12** (JST B2B-XH-A) for the 6-conductor cartridge cable. Its 4 RTD wires stay on J3 and the NTC pair goes to J12. J12's landing is **proposed** at (126, 86) on the rear edge, 13 mm left of J10; the enclosure must confirm or move it.
+
 **R31 update (2026-10-09):** the enclosure re-posed native-21 by translation, so the whole controller layout is mirrored about X = 0: board X−38…168, J4 on the left edge mating −X, the WROOM at X−20…−2 behind the lens window, and J7 merged into a 4-pin J8 at (15, 41). The R31 coordinates are in `layout/world.py` (the layout's single parameter table) and DECISIONS C25; the coordinates in the tables below are the earlier R25–R28 ones.
 
 **R30 update (2026-10-09):** the board now sits on six snap-in nylon supports in **Ø4.0** holes (same positions, Ø8 free of copper and parts) and is 2 mm higher: bottom Z23, top Z24.6, so ≈ 15.4 mm remain under Z40. The Z values below are R25's; add 2 mm. The layout (LAYOUT.md) implements R30; DECISIONS C24.
@@ -19,6 +21,7 @@ This is the electrical side of the R25 controller board. The enclosure team owns
 | J2 | JST B2B-XH-A(LF)(SN) (thermal-sense, unchanged) | 2 | NTC_sink_to_thermal_sense | top, 20, 88, 42.2 | 1 HS_SENSE, 2 GND |
 | J3 | JST B4B-XH-A(LF)(SN) (RTD unit, unchanged) | 4 | pan_RTD_to_controller (SAB 4×AWG28, ≤ 500 mm) | rear, −165, 92, 34 | 1 FORCE+, 2 RTDIN+, 3 RTDIN−, 4 FORCE− |
 | J7 | JST B12B-XH-A(LF)(SN) (C158027) | 12 | UI jumper to the fascia UI board (R33, 120 mm cut) | top, R33 body X29.8–62.2, Y57.1–62.9 | 1 +5 V (≤ 30 mA), 2 +3V3, 3 GND, 4 SCK, 5 GND, 6 MOSI, 7 MISO, 8 GND, 9 CS_OLED#, 10 OLED D/C, 11 GND, 12 CS_EXP# (DECISIONS C26) |
+| J12 | JST B2B-XH-A(LF)(SN) (C158012) | 2 | sensor cartridge 6-conductor cable, rim NTC pair (R36) | top, **proposed** (126, 86) | 1 RIM_SENSE (NTC), 2 GND (NTC return) |
 | J11 | Wurth 61300811121 1×8, 2.54 mm (C6400764) | 8 | none (bring-up only; may be left unfitted) | any accessible spot | 1 3V3, 2 GND, 3 TXD0, 4 n.c. (R33: GPIO44 is UI MISO), 5 EN, 6 IO0, 7 USB D−, 8 USB D+ |
 
 ## Landings vs mounting holes (R27)

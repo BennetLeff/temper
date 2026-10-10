@@ -3,7 +3,7 @@
   "inputs": {
     "native21_commit": "7c55c9ab81260b396be266861a0f0e8a42f96a5f",
     "netlist": "frozen/default.net",
-    "netlist_sha256": "3ec8ac0ca85077eec0610c4f85ad4ec24bf4dbfe50c217aaefe2e5d77cb35b3d"
+    "netlist_sha256": "f2a92a7413a7d765f78b6444c2e4c4c8b00cb54da62132c0ab4bfe7e23cc0379"
   },
   "schema": "temper.controller.verify.v1",
   "sections": {
@@ -57,6 +57,18 @@
           ],
           "ok": true
         },
+        "RIM_ADC_driven_by_TLV9061IDBVR_buffer": {
+          "detail": [
+            "rim_buf_out"
+          ],
+          "ok": true
+        },
+        "RIM_ADC_on_one_adc1_gpio": {
+          "detail": [
+            9
+          ],
+          "ok": true
+        },
         "VBUS_ADC_driven_by_OPA2388IDR_buffer": {
           "detail": [
             "rx_a_out"
@@ -71,62 +83,57 @@
         },
         "budget_pattern_len_le_24": {
           "detail": {
-            "COIL": 10000.0,
-            "CT_MON": 20000.0,
-            "HS": 10000.0,
-            "M12": 10000.0,
-            "VBUS": 30000.0
+            "COIL": 8888.888888888889,
+            "CT_MON": 17777.777777777777,
+            "HS": 8888.888888888889,
+            "M12": 8888.888888888889,
+            "RIM": 8888.888888888889,
+            "VBUS": 26666.666666666668
           },
           "ok": true
         },
         "budget_total_le_datasheet_100k": {
           "detail": {
-            "COIL": 10000.0,
-            "CT_MON": 20000.0,
-            "HS": 10000.0,
-            "M12": 10000.0,
-            "VBUS": 30000.0
+            "COIL": 8888.888888888889,
+            "CT_MON": 17777.777777777777,
+            "HS": 8888.888888888889,
+            "M12": 8888.888888888889,
+            "RIM": 8888.888888888889,
+            "VBUS": 26666.666666666668
           },
           "ok": true
         },
         "budget_total_le_idf_83333": {
           "detail": {
-            "COIL": 10000.0,
-            "CT_MON": 20000.0,
-            "HS": 10000.0,
-            "M12": 10000.0,
-            "VBUS": 30000.0
+            "COIL": 8888.888888888889,
+            "CT_MON": 17777.777777777777,
+            "HS": 8888.888888888889,
+            "M12": 8888.888888888889,
+            "RIM": 8888.888888888889,
+            "VBUS": 26666.666666666668
           },
           "ok": true
         },
         "budget_vbus_gap_le_150us": {
           "detail": {
-            "COIL": 10000.0,
-            "CT_MON": 20000.0,
-            "HS": 10000.0,
-            "M12": 10000.0,
-            "VBUS": 30000.0
+            "COIL": 8888.888888888889,
+            "CT_MON": 17777.777777777777,
+            "HS": 8888.888888888889,
+            "M12": 8888.888888888889,
+            "RIM": 8888.888888888889,
+            "VBUS": 26666.666666666668
           },
           "ok": true
         },
         "budget_vbus_ge_20k": {
           "detail": {
-            "COIL": 10000.0,
-            "CT_MON": 20000.0,
-            "HS": 10000.0,
-            "M12": 10000.0,
-            "VBUS": 30000.0
+            "COIL": 8888.888888888889,
+            "CT_MON": 17777.777777777777,
+            "HS": 8888.888888888889,
+            "M12": 8888.888888888889,
+            "RIM": 8888.888888888889,
+            "VBUS": 26666.666666666668
           },
-          "ok": true
-        },
-        "five_distinct_channels": {
-          "detail": [
-            1,
-            2,
-            6,
-            7,
-            8
-          ],
           "ok": true
         },
         "no_analog_on_adc2": {
@@ -137,8 +144,19 @@
           "detail": null,
           "ok": true
         },
-        "sample_pattern_covers_the_five_channels": {
+        "sample_pattern_covers_every_channel": {
           "detail": null,
+          "ok": true
+        },
+        "six_distinct_channels": {
+          "detail": [
+            1,
+            2,
+            6,
+            7,
+            8,
+            9
+          ],
           "ok": true
         },
         "spi_10_13_to_rtd_front_end": {
@@ -161,11 +179,10 @@
         "GPIO6": "HS_ADC",
         "GPIO7": "COIL_ADC",
         "GPIO8": "M12_ADC",
-        "GPIO9": "I2C_SDA",
+        "GPIO9": "RIM_ADC",
         "adc1_pins_not_analog": {
           "4": "pwm_ha_mcu",
           "5": "pwm_la_mcu",
-          "9": "I2C_SDA",
           "10": "RTD_CS_N"
         }
       }
@@ -183,8 +200,8 @@
       },
       "data": {
         "count": {
-          "components": 223,
-          "distinct_mpns": 80
+          "components": 231,
+          "distinct_mpns": 81
         },
         "unverified": [
           "0430451600"
@@ -204,7 +221,7 @@
       "checks": {
         "adc_ch0_clamped_to_v3v3_and_gnd": {
           "detail": [
-            "D2"
+            "D3"
           ],
           "ok": true
         },
@@ -253,7 +270,7 @@
         "cavg_is_c0g_not_x7r": {
           "detail": [
             [
-              "C56",
+              "C59",
               "GRM31C5C1H104JA01L"
             ]
           ],
@@ -291,7 +308,7 @@
         },
         "rms_output_reaches_adc_ch0_through_series_r": {
           "detail": [
-            "R83"
+            "R85"
           ],
           "ok": true
         },
@@ -646,7 +663,7 @@
           "GPIO3": "FAN_TACH",
           "GPIO35": "RAIL_OK_RB",
           "GPIO36": "PERMIT_RB",
-          "GPIO37": "SUP_RUN_OK_RB",
+          "GPIO37": "I2C_SDA",
           "GPIO38": "CT_ZC_MCU",
           "GPIO39": "LINE_ZC_MCU",
           "GPIO4": "pwm_ha_mcu",
@@ -663,7 +680,7 @@
           "GPIO6": "HS_ADC",
           "GPIO7": "COIL_ADC",
           "GPIO8": "M12_ADC",
-          "GPIO9": "I2C_SDA"
+          "GPIO9": "RIM_ADC"
         }
       }
     },
@@ -1137,7 +1154,7 @@
       "checks": {
         "J7_CS_EXP_N_deselected_at_reset_pullup": {
           "detail": [
-            "R97"
+            "R99"
           ],
           "ok": true
         },
@@ -1153,7 +1170,7 @@
             "ohm": 100.0,
             "series": [
               [
-                "R94",
+                "R96",
                 "2"
               ]
             ]
@@ -1162,7 +1179,7 @@
         },
         "J7_CS_OLED_N_deselected_at_reset_pullup": {
           "detail": [
-            "R96"
+            "R98"
           ],
           "ok": true
         },
@@ -1178,7 +1195,7 @@
             "ohm": 100.0,
             "series": [
               [
-                "R93",
+                "R95",
                 "2"
               ]
             ]
@@ -1197,7 +1214,7 @@
             "ohm": 100.0,
             "series": [
               [
-                "R95",
+                "R97",
                 "2"
               ]
             ]
@@ -1216,7 +1233,7 @@
             "ohm": 100.0,
             "series": [
               [
-                "R92",
+                "R94",
                 "2"
               ]
             ]
@@ -1235,7 +1252,7 @@
             "ohm": 100.0,
             "series": [
               [
-                "R91",
+                "R93",
                 "2"
               ]
             ]
@@ -1254,7 +1271,7 @@
             "ohm": 100.0,
             "series": [
               [
-                "R90",
+                "R92",
                 "2"
               ]
             ]
@@ -1358,30 +1375,30 @@
         "native21_rail_inside_3135_3465": {
           "detail": [
             3.236896130065459,
-            3.3905826438567215
+            3.390591529785563
           ],
           "ok": true
         },
         "ps1_within_21W_at_peak": {
-          "detail": 13.36371401829065,
+          "detail": 13.368389105731033,
           "ok": true
         },
         "within_inductor_irms_2p45A": {
-          "detail": 1045.4695553526851,
+          "detail": 1046.6164021995319,
           "ok": true
         },
         "within_tps62933_3A": {
-          "detail": 1045.4695553526851,
+          "detail": 1046.6164021995319,
           "ok": true
         }
       },
       "data": {
-        "controller_mA": 536.1241963637367,
+        "controller_mA": 537.2710432105836,
         "native21_on_J4_3_mA": 49.34535898894846,
         "native21_rail_V": {
           "harness": {
             "allocation": "J4 harness <= 1.0 m, AWG22, Micro-Fit 43030 terminals (DEFAULT; harness not yet specified)",
-            "ground_shift_max_V": 0.024028695245816998,
+            "ground_shift_max_V": 0.024037581174658623,
             "ground_shift_min_V": -0.0013716878145361526,
             "length_m": 1.0,
             "r_conductor_ohm": 0.08339312,
@@ -1392,19 +1409,19 @@
             ],
             "v3v3_drop_V": 0.004115063443608458
           },
-          "max": 3.3905826438567215,
+          "max": 3.390591529785563,
           "min": 3.236896130065459
         },
         "oled_off_board_mA": {
           "basis": "Newhaven NHD-3.12-25664UCW2 rev: IDD 340 mA max, 3.3 V, 100 % on, factory jumper (via J7.2, R33)",
           "mA": 340.0
         },
-        "peak_mA": 1045.4695553526851,
+        "peak_mA": 1046.6164021995319,
         "ps1": {
           "basis": "efficiencies 85 % (3.3 V) / 90 % (12 V) are allocations from the TPS62933 typical curves; IRM-20-15 21 W rated",
-          "p_3v3_rail_W": 4.261825893290651,
+          "p_3v3_rail_W": 4.266500980731033,
           "p_fan_W": 8.554,
-          "p_total_W": 13.36371401829065,
+          "p_total_W": 13.368389105731033,
           "p_v15_direct_W": 0.547888125,
           "rating_W": 21.0
         },
@@ -1536,18 +1553,25 @@
             "ref": "R69"
           },
           {
+            "basis": "TLV9061IDBVR: SBOS839N 7.x: IQ 0.8 mA/amp max (5.5 V, -40..125 C); DBV pins Table 5-1",
+            "board": "controller",
+            "mA": 0.8,
+            "path": "u_buf3",
+            "ref": "U36"
+          },
+          {
             "basis": "4.7kohm +/- 1% R + 0 ohm to gnd",
             "board": "controller",
             "mA": 0.7446808510638298,
             "path": "r_scl_pu",
-            "ref": "R88"
+            "ref": "R90"
           },
           {
             "basis": "4.7kohm +/- 1% R + 0 ohm to gnd",
             "board": "controller",
             "mA": 0.7446808510638298,
             "path": "r_sda_pu",
-            "ref": "R89"
+            "ref": "R91"
           },
           {
             "basis": "4.7kohm +/- 1% pull-down driven high by U4",
@@ -1687,28 +1711,28 @@
             "board": "controller",
             "mA": 0.35,
             "path": "r_adc_cs_pu",
-            "ref": "R85"
+            "ref": "R87"
           },
           {
             "basis": "10kohm +/- 1% R + 0 ohm to gnd",
             "board": "controller",
             "mA": 0.35,
             "path": "r_en",
-            "ref": "R86"
+            "ref": "R88"
           },
           {
             "basis": "10kohm +/- 1% R + 0 ohm to gnd",
             "board": "controller",
             "mA": 0.35,
             "path": "r_cs_oled_pu",
-            "ref": "R96"
+            "ref": "R98"
           },
           {
             "basis": "10kohm +/- 1% R + 0 ohm to gnd",
             "board": "controller",
             "mA": 0.35,
             "path": "r_cs_exp_pu",
-            "ref": "R97"
+            "ref": "R99"
           },
           {
             "basis": "10kohm +/- 1% pull-down driven high by U37",
@@ -1737,6 +1761,13 @@
             "mA": 0.3468468468468468,
             "path": "r_m12_pu",
             "ref": "R77"
+          },
+          {
+            "basis": "10kohm +/- 0.1% R + 0 ohm to gnd",
+            "board": "controller",
+            "mA": 0.3468468468468468,
+            "path": "r_rim_pu",
+            "ref": "R80"
           },
           {
             "basis": "3.32kohm R + 9500 ohm to gnd",
@@ -1932,7 +1963,7 @@
             "board": "controller",
             "mA": 0.034999999999999996,
             "path": "r_dc_pd",
-            "ref": "R87"
+            "ref": "R89"
           },
           {
             "basis": "1.21kohm +/- 1% R + 99000 ohm to gnd",
@@ -2086,7 +2117,7 @@
             "board": "controller",
             "mA": 0.002,
             "path": "d_rms_clamp",
-            "ref": "D2"
+            "ref": "D3"
           },
           {
             "basis": "SRV05-4: MSKSEMI SRV05-4 DS: IR 1 uA max at VRWM 5 V (Vcc pin on v3v3)",
@@ -2117,7 +2148,7 @@
             "ref": "D4"
           }
         ],
-        "total_mA": 585.4695553526851,
+        "total_mA": 586.616402199532,
         "ui_board_allocation_mA": {
           "basis": "[UNVERIFIED] J7.2 allocation for the R33 UI board: 30 mA logic + 3.3 V encoder option (MCP23S08, TMP122) and 90 mA for the self-oscillating buzzer; parts not yet chosen",
           "mA": 120.0

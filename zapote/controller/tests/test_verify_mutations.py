@@ -195,6 +195,12 @@ class Mutations(unittest.TestCase):
         finally:
             vc.MODELS["TLV9062IDR"] = saved
 
+    def test_rim_ntc_unbuffered_fails(self):
+        u = self.ref("u_buf3")
+        t = move_node(self.base, u, "1", "RIM_SENSE")          # follower output shorted onto its input node
+        failed = self.run_checks(t)
+        self.assertIn("adc1.RIM_ADC_driven_by_TLV9061IDBVR_buffer", failed)
+
     def test_strap_pullup_on_gpio46_fails(self):
         r = self.ref("r_fan_off_pd")
         t = move_node(self.base, r, "2", "v3v3")

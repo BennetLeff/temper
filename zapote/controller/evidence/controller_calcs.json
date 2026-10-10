@@ -15,14 +15,16 @@
       "VBUS",
       "HS",
       "COIL",
-      "M12"
+      "M12",
+      "RIM"
     ],
     "rates_sps": {
-      "COIL": 10000.0,
-      "CT_MON": 20000.0,
-      "HS": 10000.0,
-      "M12": 10000.0,
-      "VBUS": 30000.0
+      "COIL": 8888.888888888889,
+      "CT_MON": 17777.777777777777,
+      "HS": 8888.888888888889,
+      "M12": 8888.888888888889,
+      "RIM": 8888.888888888889,
+      "VBUS": 26666.666666666668
     },
     "source": [
       "ESP32-S3",
@@ -30,7 +32,7 @@
       "D-11"
     ],
     "total_sps": 80000.0,
-    "vbus_max_gap_us": 50.0
+    "vbus_max_gap_us": 62.5
   },
   "ct_mon": {
     "atten": "ATTEN3 (0-2900 mV)",
@@ -157,6 +159,19 @@
           80.0
         ],
         "needed_mm": 8.95
+      },
+      "J12 rim NTC (R36, proposed)": {
+        "centre": [
+          126.0,
+          86.0
+        ],
+        "conflict": false,
+        "distance_mm": 38.47,
+        "nearest_hole": [
+          164.0,
+          80.0
+        ],
+        "needed_mm": 7.7
       },
       "J2 heatsink NTC": {
         "centre": [

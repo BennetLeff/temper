@@ -31,7 +31,7 @@ It draws power from native-21's J4 header and supplies native-21's 3.3 V logic b
 | `inputs/native-21/` | Frozen native-21 netlist, BOM and resolved export (the J4 and v3v3 counterpart) |
 | `tools/verify_controller.py` | The verification (below); writes `evidence/verify.json` |
 | `tools/controller_calcs.py` | Every numeric claim in these docs; writes `evidence/controller_calcs.json` |
-| `tests/test_verify_mutations.py` | 24 tests. They miswire the frozen netlist and require the owning check to fail |
+| `tests/test_verify_mutations.py` | 25 tests. They miswire the frozen netlist and require the owning check to fail |
 | `layout/` | Board build, router, enclosure/layout check, DFM gate and fab export; `python3 layout/make.py` runs the gates (see [LAYOUT.md](LAYOUT.md)) |
 | `pcb/` | `controller.kicad_pcb` (routed board), `.kicad_pro`, the parity schematic, vendored footprints |
 | `fab/` | Gerbers, drill, BOM/CPL with LCSC codes, assembly drawing, `fab-notes.md` (marked not for order) |
@@ -60,13 +60,13 @@ python3 tools/snapshot_native21.py # re-derive inputs/native-21 from git (read-o
 - **Warnings:** the build emits only atopile's "Implicit Declaration" deprecation warnings for `override_net_name`, the same as the thermal-sense build.
 - **Part identity:** it comes from `resolved-components.json` or the CSV, never from the netlist's `libsource` field. Atopile 0.2.69 aliases parts by footprint there; see the power-stage README.
 
-**Current result** (frozen netlist sha256 `3ec8ac0c…`; 223 components): `VERIFY: PASS` (136 checks), and 24/24 mutation tests pass.
+**Current result** (frozen netlist sha256 `f2a92a74…`; 231 components): `VERIFY: PASS` (138 checks), and 25/25 mutation tests pass.
 
 | Section | Checks | What is asserted |
 |---|---|---|
 | sources | 4/4 | Ports equal their sources minus the boundary lines. Library `modules/components/footprints.ato` hashes equal `zapote/rtd/circuit/rtd_contract.json` |
 | j4 | 35/35 | All 16 pins carry exactly native-21's J4 net names. Both ends are Micro-Fit 3.0 2×8 headers (controller: right-angle 43045-1600 per R27; native-21: vertical 43045-1612) on a 1:1 harness. Pin obligations: J4.3 is the 3.3 V buck output; J4.1 feeds both bucks; each PWM line has a 10 kΩ pull-down and is driven from an MCU GPIO; PERMIT's only driver is the PERMIT gate U37 = latch Q AND RUN_EN (C23); bus_fault enters the interlock OCP input with its 10 kΩ pull-up; 11/12 enter the D-11 receiver; ct_mon sees one buffer input and ≥ 1 MΩ DC; ct_zc/line_zc reach GPIO38/39; returns 2/4/15 are on selv_gnd |
-| adc1 | 20/20 | VBUS, CT_MON, HS, COIL and M12 each on one ADC1 pad, driven by its buffer. Five distinct channels; nothing analog on ADC2 or a strap; SPI 10–13 go to the RTD front end; the sample pattern fits (below) |
+| adc1 | 22/22 | VBUS, CT_MON, HS, COIL, M12 and RIM (R36 rim NTC, GPIO9) each on one ADC1 pad, driven by its buffer. Six distinct channels; nothing analog on ADC2 or a strap; SPI 10–13 go to the RTD front end; the sample pattern fits (below) |
 | trip | 19/19 | The structural and exhaustive interlock checks (below) |
 | v3v3 | 5/5 | Current budget for both boards, regulator, inductor, PS1, and the native-21 rail window |
 | ct_rms | 20/20 | The tank-RMS channel: ct_mon buffer → AC coupling → AD8436 (unity input buffer, AC-coupled core, single supply on v15, C0G CAVG) → gain-4 output buffer → 1 kΩ + BAT54S clamp → MCP3202 CH0. CH1 reads the LM4040 2.5 V reference. The ADC sits on the RTD SPI bus with its own pulled-up CS GPIO; the raw ct_mon ADC1 path is kept |
@@ -131,11 +131,11 @@ native-21 PS1 IRM-20-15 (15 V ±2.5 %, 21 W) ── J4.1 v15_selv ── 100 µF
 
 | Load | mA |
 |---|---|
-| Controller board, all parts on v3v3. Includes the ESP32 at 500 mA (Espressif's ≥ 0.5 A supply requirement; TX peak 355 mA), MAX31865 9.65 mA with BIAS, OPA2388 5.2 mA, the interlock WDI 1 kΩ pull-down 3.5 mA, and pull-ups at full current | 536.1 |
+| Controller board, all parts on v3v3. Includes the ESP32 at 500 mA (Espressif's ≥ 0.5 A supply requirement; TX peak 355 mA), MAX31865 9.65 mA with BIAS, OPA2388 5.2 mA, the interlock WDI 1 kΩ pull-down 3.5 mA, and pull-ups at full current | 537.3 |
 | native-21 on J4.3 and on controller-driven J4 lines (UCC21550 VCCI, AMC1311, 4× ISO7710, DIS pull-ups, INx 50 kΩ min, PERMIT gate networks). Computed from its frozen netlist; every v3v3 part must be modelled or the check fails | 49.4 |
 | OLED NHD-3.12-25664UCW2 on the UI board via J7.2, 100 % on (Newhaven IDD max) | 340 |
 | UI board allocation on J7.2 [UNVERIFIED parts]: 30 mA logic + 3.3 V encoder option, 90 mA buzzer (the 5 V option is also counted on 15 V in the PS1 figure) | 120 |
-| **Peak** | **1045** |
+| **Peak** | **1047** |
 
 - **Converter limits:** the TPS62933F is good for 3 A and SWPA6045S100MT for 2.45 A Irms (3.5 A sat).
 - **PS1 at simultaneous peak:** 13.4 W, against IRM-20-15's 21 W. That is 4.3 W on the 3.3 V rail at an 85 % allocation, 8.6 W for the fan at 90 %, and 0.55 W straight from 15 V (AD8436, the 5 V UI LDO at its 5 mA maximum ground current plus 30 mA).
@@ -170,8 +170,8 @@ native-21 PS1 IRM-20-15 (15 V ±2.5 %, 21 W) ── J4.1 v15_selv ── 100 µF
 The raw ct_mon ADC1 path stays for phase and waveform checks.
 
 **Sampling plan.** It is checked against ESP-IDF v5.2.3 `SOC_ADC_SAMPLE_FREQ_THRES_HIGH` = 83 333 S/s and the datasheet's 100 kS/s.
-- **Continuous pattern** at 80 kS/s: `VBUS, CT_MON, VBUS, CT_MON, VBUS, HS, COIL, M12`.
-- **Resulting rates:** VBUS 30 kS/s (≥ 20 kS/s required) with a largest gap of 50 µs (≤ 150 µs freshness), CT_MON 20 kS/s, and the three temperatures 10 kS/s each.
+- **Continuous pattern** at 80 kS/s: `VBUS, CT_MON, VBUS, CT_MON, VBUS, HS, COIL, M12, RIM` (RIM: R36 rim NTC, C27).
+- **Resulting rates:** VBUS 26.7 kS/s (≥ 20 kS/s required) with a largest gap of 62.5 µs (≤ 150 µs freshness), CT_MON 17.8 kS/s, and the four temperatures 8.9 kS/s each.
 
 **D-11 receiver:**
 - **At the ADC:** 0.248 V at 0 V bus, 0.956 V at 170 V and 1.073 V at 198 V.

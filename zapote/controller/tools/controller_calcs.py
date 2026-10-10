@@ -227,7 +227,7 @@ def ct_mon() -> dict:
 
 def adc_pattern() -> dict:
     total = 80_000.0
-    pattern = ["VBUS", "CT_MON", "VBUS", "CT_MON", "VBUS", "HS", "COIL", "M12"]
+    pattern = ["VBUS", "CT_MON", "VBUS", "CT_MON", "VBUS", "HS", "COIL", "M12", "RIM"]   # RIM: R36 rim NTC
     slot = 1 / total
     rates = {ch: pattern.count(ch) * total / len(pattern) for ch in dict.fromkeys(pattern)}
     idx = [i for i, ch in enumerate(pattern) if ch == "VBUS"]
@@ -262,6 +262,7 @@ def landings() -> dict:
         "J1 coil NTC": ((55.0, 84.0), 7.4),
         "J2 heatsink NTC": ((-20.0, 84.0), 7.4),
         "J3 pan RTD": ((152.0, 86.0), 12.4),
+        "J12 rim NTC (R36, proposed)": ((126.0, 86.0), 7.4),
     }
     out = {}
     for name, ((x, y), length) in rows.items():

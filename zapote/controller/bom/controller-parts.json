@@ -513,6 +513,12 @@
       "basis": "MSKSEMI SRV05-4 datasheet (LCSC C2836319): IO1 1, GND 2, IO2 3, IO3 4, Vcc 5, IO4 6; VRWM 5 V, IR 1 uA, IEC 61000-4-2 +/-12 kV contact, CJ 0.6 pF typ",
       "lcsc": "C2836319",
       "lcsc_stock_2026_10_10": 398140
+    },
+    "TLV9061IDBVR": {
+      "origin": "controller (R36 rim NTC buffer)",
+      "basis": "TI SBOS839N Table 5-1 DBV: OUT 1, V- 2, IN+ 3, IN- 4, V+ 5; IQ 0.8 mA max per amplifier; lcsc.com/product-detail C398358",
+      "lcsc": "C398358",
+      "lcsc_stock_2026_10_10": 171350
     }
   }
 }

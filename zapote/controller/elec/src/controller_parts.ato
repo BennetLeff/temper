@@ -481,3 +481,16 @@ component Srv05_4:
     signal IO3 ~ pin 4
     signal VCC ~ pin 5
     signal IO4 ~ pin 6
+
+component Tlv9061:
+    """TI TLV9061IDBVR single rail-to-rail CMOS op amp, SOT-23-5 (LCSC C398358). SBOS839N
+    Table 5-1 (DBV): OUT 1, V- 2, IN+ 3, IN- 4, V+ 5. Same family as the TLV9062 buffers."""
+    designator_prefix = "U"
+    mpn = "TLV9061IDBVR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    signal OUT ~ pin 1
+    signal VN ~ pin 2
+    signal IN_P ~ pin 3
+    signal IN_N ~ pin 4
+    signal VP ~ pin 5
