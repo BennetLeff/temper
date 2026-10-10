@@ -876,7 +876,8 @@ module Top:
     # instead of a resistor divider off vcc_3v3 -- see OVPComparator's
     # docstring and r_div_bot's comment for the full derivation.
     safety.ovp.vref_ext.line ~ rtd_pan.reference.VREF
-    safety.ovp.vref_ext.line.override_net_name = "OVP_VREF_2V5"
+    # One REF2025 VREF output feeds both comparators; preserve one net identity.
+    safety.ovp.vref_ext.line.override_net_name = "SHARED_REF_2V5"
 
     # OCP-02 REF2025 reference (Option A implementation, 2026-08-07): same
     # pattern as OVP-01 above -- SecondaryOCPComparator's comp.INN is
@@ -886,7 +887,7 @@ module Top:
     # resistor divider off vcc_3v3. See SecondaryOCPComparator's docstring
     # ("WHY REF2025") for the full derivation.
     safety.ocp2.vref_ext.line ~ rtd_pan.reference.VREF
-    safety.ocp2.vref_ext.line.override_net_name = "OCP2_VREF_2V5"
+    safety.ocp2.vref_ext.line.override_net_name = "SHARED_REF_2V5"
 
     # Watchdog
     mcu.wdt_kick.line ~ safety.wdt_kick.line

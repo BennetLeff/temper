@@ -537,6 +537,20 @@ component TPS3700:
     signal VDD ~ pin 5
     signal OUTB ~ pin 6
 
+component TPS3890:
+    """Adjustable single-channel RTD rail supervisor; RESET is low below threshold."""
+    footprint = "Temper_RTD:TPS389001DSER_WSON-6_DSE"
+    mpn = "TPS389001DSER"
+    manufacturer = "Texas Instruments"
+
+    # TI TPS3890 DSE top view: SENSE=1, GND=2, MR=3, VDD=4, CT=5, RESET=6.
+    signal SENSE ~ pin 1
+    signal GND ~ pin 2
+    signal MR ~ pin 3
+    signal VDD ~ pin 4
+    signal CT ~ pin 5
+    signal RESET ~ pin 6
+
 component SN74LVC1G08:
     """Single two-input AND gate with partial-power-down protection."""
     footprint = "Package_TO_SOT_SMD:SOT-23-5"
@@ -740,12 +754,12 @@ component ESP32_S3_WROOM_1:
 component Button:
     """Momentary tactile pushbutton (boot/reset strap access).
 
-    Placeholder 0603 footprint: Button_Switch_SMD is not in the committed
-    fp-lib-table yet. Swap to SW_SPST_B3U-1000P (or similar) once the
-    library is added via tools/setup_kicad_env.py.
+    Panasonic EVQP7A side-actuated switch. The stock footprint matches the
+    manufacturer's straight-terminal land pattern; terminals 1/2 are the
+    normally-open contact. Candidate generation vendors this library.
     """
     designator_prefix = "SW"
-    footprint = "Resistor_SMD:R_0603_1608Metric"
+    footprint = "Button_Switch_SMD:SW_SPST_EVQP7A"
     mpn = "EVQ-P7A01P"
     manufacturer = "Panasonic"
 
