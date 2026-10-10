@@ -1,0 +1,883 @@
+{
+ "status": "ASSUMED / bounded calc (task-02 round-3 corner model, unchanged)",
+ "unit": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v",
+ "envelope_peak_A": {
+  "22": 47.74,
+  "28": 59.17
+ },
+ "pickup_ref": {
+  "key": "pan_bars_31kHz_45Apk|kelvin_A|cluster_drawn|x1.5",
+  "model": 0.3716511870977044,
+  "bound_fem_phase": 1.2832071724996013,
+  "bound_any_phase": 2.997974996096562,
+  "margin_left_model": 2.948348812902296,
+  "margin_left_bound_any": 0.32202500390343847
+ },
+ "pickup_scale": {
+  "22": {
+   "factor": 2.732706419333376,
+   "case": "d228_gap84-L70-C050-I22-pan260|enamelled_steel-low-140v",
+   "i_pk_A": 47.479,
+   "f_hz": 55512.5
+  },
+  "28": {
+   "factor": 3.1066781947541955,
+   "case": "d228_gap84-L70-C050-I28-pan260|enamelled_steel-low-140v",
+   "i_pk_A": 58.603,
+   "f_hz": 51130.0
+  }
+ },
+ "pickup_stacks_A": {
+  "22": {
+   "model_A": 1.0156135847347663,
+   "fem_phase_A": 3.506628477624291,
+   "any_phase_A": 8.192585516834027
+  },
+  "28": {
+   "model_A": 1.15460063901095,
+   "fem_phase_A": 3.9865117421566967,
+   "any_phase_A": 9.313743548791482
+  }
+ },
+ "floors_A": {
+  "A_decisions_unscaled_3A": 64.17,
+  "B_fem_phase_scaled": 65.1565117421567,
+  "C_any_phase_scaled": 70.48374354879148
+ },
+ "kelvin_e_th_mV": {
+  "census": 2.1359,
+  "bound": 2.1978
+ },
+ "baseline_12k4_11k7": {
+  "R34": 12400.0,
+  "R35": 11700.0,
+  "thresh_V": 1.21369,
+  "nominal_A": 72.61,
+  "band_before_A": [
+   49.53,
+   97.77
+  ],
+  "a_per_mV": -1.029,
+  "band_after_census_A": [
+   47.33,
+   97.77
+  ],
+  "band_after_bound_A": [
+   47.27,
+   97.77
+  ],
+  "thevenin_ohm": 6020,
+  "cathode_uA_min": 139.2
+ },
+ "shunt_candidates": [
+  {
+   "R34": 12400.0,
+   "R35": 11700.0,
+   "thresh_V": 1.21369,
+   "nominal_A": 72.61,
+   "band_before_A": [
+    49.53,
+    97.77
+   ],
+   "a_per_mV": -1.029,
+   "band_after_census_A": [
+    47.33,
+    97.77
+   ],
+   "band_after_bound_A": [
+    47.27,
+    97.77
+   ],
+   "thevenin_ohm": 6020,
+   "cathode_uA_min": 139.2,
+   "tag": "R35 kept 11.7k",
+   "meets_A_decisions_unscaled_3A": false,
+   "meets_B_fem_phase_scaled": false,
+   "meets_C_any_phase_scaled": false
+  },
+  {
+   "R34": 12500.0,
+   "R35": 11700.0,
+   "thresh_V": 1.20868,
+   "nominal_A": 82.64,
+   "band_before_A": [
+    59.09,
+    108.3
+   ],
+   "a_per_mV": -1.0331,
+   "band_after_census_A": [
+    56.89,
+    108.3
+   ],
+   "band_after_bound_A": [
+    56.82,
+    108.3
+   ],
+   "thevenin_ohm": 6043,
+   "cathode_uA_min": 139.6,
+   "tag": "R35 kept 11.7k",
+   "meets_A_decisions_unscaled_3A": false,
+   "meets_B_fem_phase_scaled": false,
+   "meets_C_any_phase_scaled": false
+  },
+  {
+   "R34": 10700.000000000002,
+   "R35": 10000.0,
+   "thresh_V": 1.20773,
+   "nominal_A": 84.54,
+   "band_before_A": [
+    60.91,
+    110.28
+   ],
+   "a_per_mV": -1.0338,
+   "band_after_census_A": [
+    58.7,
+    110.28
+   ],
+   "band_after_bound_A": [
+    58.64,
+    110.28
+   ],
+   "thevenin_ohm": 5169,
+   "cathode_uA_min": 122.0,
+   "tag": "E96 pair",
+   "meets_A_decisions_unscaled_3A": false,
+   "meets_B_fem_phase_scaled": false,
+   "meets_C_any_phase_scaled": false
+  },
+  {
+   "R34": 12100.0,
+   "R35": 11299.999999999998,
+   "thresh_V": 1.20726,
+   "nominal_A": 85.47,
+   "band_before_A": [
+    61.79,
+    111.26
+   ],
+   "a_per_mV": -1.0342,
+   "band_after_census_A": [
+    59.58,
+    111.26
+   ],
+   "band_after_bound_A": [
+    59.52,
+    111.26
+   ],
+   "thevenin_ohm": 5843,
+   "cathode_uA_min": 136.0,
+   "tag": "E96 pair",
+   "meets_A_decisions_unscaled_3A": false,
+   "meets_B_fem_phase_scaled": false,
+   "meets_C_any_phase_scaled": false
+  },
+  {
+   "R34": 13300.0,
+   "R35": 12400.0,
+   "thresh_V": 1.20623,
+   "nominal_A": 87.55,
+   "band_before_A": [
+    63.77,
+    113.45
+   ],
+   "a_per_mV": -1.035,
+   "band_after_census_A": [
+    61.56,
+    113.45
+   ],
+   "band_after_bound_A": [
+    61.49,
+    113.45
+   ],
+   "thevenin_ohm": 6417,
+   "cathode_uA_min": 145.7,
+   "tag": "E96 pair",
+   "meets_A_decisions_unscaled_3A": false,
+   "meets_B_fem_phase_scaled": false,
+   "meets_C_any_phase_scaled": false
+  },
+  {
+   "R34": 11799.999999999998,
+   "R35": 11000.0,
+   "thresh_V": 1.20614,
+   "nominal_A": 87.72,
+   "band_before_A": [
+    63.94,
+    113.62
+   ],
+   "a_per_mV": -1.0351,
+   "band_after_census_A": [
+    61.73,
+    113.62
+   ],
+   "band_after_bound_A": [
+    61.66,
+    113.62
+   ],
+   "thevenin_ohm": 5693,
+   "cathode_uA_min": 133.2,
+   "tag": "E96 pair",
+   "meets_A_decisions_unscaled_3A": false,
+   "meets_B_fem_phase_scaled": false,
+   "meets_C_any_phase_scaled": false
+  },
+  {
+   "R34": 13000.0,
+   "R35": 12100.0,
+   "thresh_V": 1.20518,
+   "nominal_A": 89.64,
+   "band_before_A": [
+    65.76,
+    115.65
+   ],
+   "a_per_mV": -1.0359,
+   "band_after_census_A": [
+    63.55,
+    115.65
+   ],
+   "band_after_bound_A": [
+    63.49,
+    115.65
+   ],
+   "thevenin_ohm": 6267,
+   "cathode_uA_min": 143.3,
+   "tag": "E96 pair",
+   "meets_A_decisions_unscaled_3A": false,
+   "meets_B_fem_phase_scaled": false,
+   "meets_C_any_phase_scaled": false
+  },
+  {
+   "R34": 11500.0,
+   "R35": 10700.000000000002,
+   "thresh_V": 1.20495,
+   "nominal_A": 90.09,
+   "band_before_A": [
+    66.2,
+    116.11
+   ],
+   "a_per_mV": -1.036,
+   "band_after_census_A": [
+    63.99,
+    116.11
+   ],
+   "band_after_bound_A": [
+    63.92,
+    116.11
+   ],
+   "thevenin_ohm": 5543,
+   "cathode_uA_min": 130.2,
+   "tag": "E96 pair",
+   "meets_A_decisions_unscaled_3A": false,
+   "meets_B_fem_phase_scaled": false,
+   "meets_C_any_phase_scaled": false
+  },
+  {
+   "R34": 11299.999999999998,
+   "R35": 10500.0,
+   "thresh_V": 1.20413,
+   "nominal_A": 91.74,
+   "band_before_A": [
+    67.78,
+    117.84
+   ],
+   "a_per_mV": -1.0367,
+   "band_after_census_A": [
+    65.56,
+    117.84
+   ],
+   "band_after_bound_A": [
+    65.5,
+    117.84
+   ],
+   "thevenin_ohm": 5443,
+   "cathode_uA_min": 128.1,
+   "tag": "E96 pair",
+   "meets_A_decisions_unscaled_3A": true,
+   "meets_B_fem_phase_scaled": true,
+   "meets_C_any_phase_scaled": false
+  },
+  {
+   "R34": 12700.0,
+   "R35": 11799.999999999998,
+   "thresh_V": 1.20408,
+   "nominal_A": 91.84,
+   "band_before_A": [
+    67.86,
+    117.95
+   ],
+   "a_per_mV": -1.0367,
+   "band_after_census_A": [
+    65.64,
+    117.95
+   ],
+   "band_after_bound_A": [
+    65.58,
+    117.95
+   ],
+   "thevenin_ohm": 6117,
+   "cathode_uA_min": 140.9,
+   "tag": "E96 pair",
+   "meets_A_decisions_unscaled_3A": true,
+   "meets_B_fem_phase_scaled": true,
+   "meets_C_any_phase_scaled": false
+  },
+  {
+   "R34": 12600.0,
+   "R35": 11700.0,
+   "thresh_V": 1.2037,
+   "nominal_A": 92.59,
+   "band_before_A": [
+    68.58,
+    118.74
+   ],
+   "a_per_mV": -1.037,
+   "band_after_census_A": [
+    66.37,
+    118.74
+   ],
+   "band_after_bound_A": [
+    66.3,
+    118.74
+   ],
+   "thevenin_ohm": 6067,
+   "cathode_uA_min": 140.0,
+   "tag": "R35 kept 11.7k",
+   "meets_A_decisions_unscaled_3A": true,
+   "meets_B_fem_phase_scaled": true,
+   "meets_C_any_phase_scaled": false
+  },
+  {
+   "R34": 14000.0,
+   "R35": 13000.0,
+   "thresh_V": 1.2037,
+   "nominal_A": 92.59,
+   "band_before_A": [
+    68.57,
+    118.75
+   ],
+   "a_per_mV": -1.037,
+   "band_after_census_A": [
+    66.36,
+    118.75
+   ],
+   "band_after_bound_A": [
+    66.29,
+    118.75
+   ],
+   "thevenin_ohm": 6741,
+   "cathode_uA_min": 150.4,
+   "tag": "E96 pair",
+   "meets_A_decisions_unscaled_3A": true,
+   "meets_B_fem_phase_scaled": true,
+   "meets_C_any_phase_scaled": false
+  },
+  {
+   "R34": 12400.0,
+   "R35": 11500.0,
+   "thresh_V": 1.20293,
+   "nominal_A": 94.14,
+   "band_before_A": [
+    70.06,
+    120.37
+   ],
+   "a_per_mV": -1.0377,
+   "band_after_census_A": [
+    67.84,
+    120.37
+   ],
+   "band_after_bound_A": [
+    67.78,
+    120.37
+   ],
+   "thevenin_ohm": 5967,
+   "cathode_uA_min": 138.3,
+   "tag": "E96 pair",
+   "meets_A_decisions_unscaled_3A": true,
+   "meets_B_fem_phase_scaled": true,
+   "meets_C_any_phase_scaled": false
+  },
+  {
+   "R34": 11000.0,
+   "R35": 10200.0,
+   "thresh_V": 1.20283,
+   "nominal_A": 94.34,
+   "band_before_A": [
+    70.25,
+    120.57
+   ],
+   "a_per_mV": -1.0377,
+   "band_after_census_A": [
+    68.04,
+    120.57
+   ],
+   "band_after_bound_A": [
+    67.97,
+    120.57
+   ],
+   "thevenin_ohm": 5292,
+   "cathode_uA_min": 124.8,
+   "tag": "E96 pair",
+   "meets_A_decisions_unscaled_3A": true,
+   "meets_B_fem_phase_scaled": true,
+   "meets_C_any_phase_scaled": false
+  },
+  {
+   "R34": 13700.000000000002,
+   "R35": 12700.0,
+   "thresh_V": 1.20265,
+   "nominal_A": 94.7,
+   "band_before_A": [
+    70.58,
+    120.95
+   ],
+   "a_per_mV": -1.0379,
+   "band_after_census_A": [
+    68.37,
+    120.95
+   ],
+   "band_after_bound_A": [
+    68.3,
+    120.95
+   ],
+   "thevenin_ohm": 6591,
+   "cathode_uA_min": 148.3,
+   "tag": "E96 pair",
+   "meets_A_decisions_unscaled_3A": true,
+   "meets_B_fem_phase_scaled": true,
+   "meets_C_any_phase_scaled": false
+  },
+  {
+   "R34": 12700.0,
+   "R35": 11700.0,
+   "thresh_V": 1.19877,
+   "nominal_A": 102.46,
+   "band_before_A": [
+    77.99,
+    129.09
+   ],
+   "a_per_mV": -1.041,
+   "band_after_census_A": [
+    75.77,
+    129.09
+   ],
+   "band_after_bound_A": [
+    75.7,
+    129.09
+   ],
+   "thevenin_ohm": 6090,
+   "cathode_uA_min": 140.4,
+   "tag": "R35 kept 11.7k",
+   "meets_A_decisions_unscaled_3A": true,
+   "meets_B_fem_phase_scaled": true,
+   "meets_C_any_phase_scaled": true
+  },
+  {
+   "R34": 12800.0,
+   "R35": 11700.0,
+   "thresh_V": 1.19388,
+   "nominal_A": 112.24,
+   "band_before_A": [
+    87.32,
+    139.36
+   ],
+   "a_per_mV": -1.0449,
+   "band_after_census_A": [
+    85.09,
+    139.36
+   ],
+   "band_after_bound_A": [
+    85.03,
+    139.36
+   ],
+   "thevenin_ohm": 6113,
+   "cathode_uA_min": 140.9,
+   "tag": "R35 kept 11.7k",
+   "meets_A_decisions_unscaled_3A": true,
+   "meets_B_fem_phase_scaled": true,
+   "meets_C_any_phase_scaled": true
+  }
+ ],
+ "best": {
+  "A_decisions_unscaled_3A": {
+   "single_change_R35_kept": {
+    "R34": 12600.0,
+    "R35": 11700.0,
+    "thresh_V": 1.2037,
+    "nominal_A": 92.59,
+    "band_before_A": [
+     68.58,
+     118.74
+    ],
+    "a_per_mV": -1.037,
+    "band_after_census_A": [
+     66.37,
+     118.74
+    ],
+    "band_after_bound_A": [
+     66.3,
+     118.74
+    ],
+    "thevenin_ohm": 6067,
+    "cathode_uA_min": 140.0,
+    "tag": "R35 kept 11.7k",
+    "meets_A_decisions_unscaled_3A": true,
+    "meets_B_fem_phase_scaled": true,
+    "meets_C_any_phase_scaled": false
+   },
+   "any_pair": {
+    "R34": 11299.999999999998,
+    "R35": 10500.0,
+    "thresh_V": 1.20413,
+    "nominal_A": 91.74,
+    "band_before_A": [
+     67.78,
+     117.84
+    ],
+    "a_per_mV": -1.0367,
+    "band_after_census_A": [
+     65.56,
+     117.84
+    ],
+    "band_after_bound_A": [
+     65.5,
+     117.84
+    ],
+    "thevenin_ohm": 5443,
+    "cathode_uA_min": 128.1,
+    "tag": "E96 pair",
+    "meets_A_decisions_unscaled_3A": true,
+    "meets_B_fem_phase_scaled": true,
+    "meets_C_any_phase_scaled": false
+   }
+  },
+  "B_fem_phase_scaled": {
+   "single_change_R35_kept": {
+    "R34": 12600.0,
+    "R35": 11700.0,
+    "thresh_V": 1.2037,
+    "nominal_A": 92.59,
+    "band_before_A": [
+     68.58,
+     118.74
+    ],
+    "a_per_mV": -1.037,
+    "band_after_census_A": [
+     66.37,
+     118.74
+    ],
+    "band_after_bound_A": [
+     66.3,
+     118.74
+    ],
+    "thevenin_ohm": 6067,
+    "cathode_uA_min": 140.0,
+    "tag": "R35 kept 11.7k",
+    "meets_A_decisions_unscaled_3A": true,
+    "meets_B_fem_phase_scaled": true,
+    "meets_C_any_phase_scaled": false
+   },
+   "any_pair": {
+    "R34": 11299.999999999998,
+    "R35": 10500.0,
+    "thresh_V": 1.20413,
+    "nominal_A": 91.74,
+    "band_before_A": [
+     67.78,
+     117.84
+    ],
+    "a_per_mV": -1.0367,
+    "band_after_census_A": [
+     65.56,
+     117.84
+    ],
+    "band_after_bound_A": [
+     65.5,
+     117.84
+    ],
+    "thevenin_ohm": 5443,
+    "cathode_uA_min": 128.1,
+    "tag": "E96 pair",
+    "meets_A_decisions_unscaled_3A": true,
+    "meets_B_fem_phase_scaled": true,
+    "meets_C_any_phase_scaled": false
+   }
+  },
+  "C_any_phase_scaled": {
+   "single_change_R35_kept": {
+    "R34": 12700.0,
+    "R35": 11700.0,
+    "thresh_V": 1.19877,
+    "nominal_A": 102.46,
+    "band_before_A": [
+     77.99,
+     129.09
+    ],
+    "a_per_mV": -1.041,
+    "band_after_census_A": [
+     75.77,
+     129.09
+    ],
+    "band_after_bound_A": [
+     75.7,
+     129.09
+    ],
+    "thevenin_ohm": 6090,
+    "cathode_uA_min": 140.4,
+    "tag": "R35 kept 11.7k",
+    "meets_A_decisions_unscaled_3A": true,
+    "meets_B_fem_phase_scaled": true,
+    "meets_C_any_phase_scaled": true
+   },
+   "any_pair": {
+    "R34": 12700.0,
+    "R35": 11700.0,
+    "thresh_V": 1.19877,
+    "nominal_A": 102.46,
+    "band_before_A": [
+     77.99,
+     129.09
+    ],
+    "a_per_mV": -1.041,
+    "band_after_census_A": [
+     75.77,
+     129.09
+    ],
+    "band_after_bound_A": [
+     75.7,
+     129.09
+    ],
+    "thevenin_ohm": 6090,
+    "cathode_uA_min": 140.4,
+    "tag": "R35 kept 11.7k",
+    "meets_A_decisions_unscaled_3A": true,
+    "meets_B_fem_phase_scaled": true,
+    "meets_C_any_phase_scaled": true
+   }
+  }
+ },
+ "ct_candidates": [
+  {
+   "R43": 3320.0,
+   "R44": 10000.0,
+   "R45": 10000.0,
+   "R46": 3320.0,
+   "ref_hi_V": 2.4775,
+   "nominal_A": 55.17,
+   "pos_band_A": [
+    50.56,
+    60.01
+   ],
+   "neg_band_A": [
+    50.56,
+    60.01
+   ]
+  },
+  {
+   "R43": 1910.0,
+   "R44": 10000.0,
+   "R45": 10000.0,
+   "R46": 1910.0,
+   "ref_hi_V": 2.7708,
+   "nominal_A": 74.72,
+   "pos_band_A": [
+    68.79,
+    80.94
+   ],
+   "neg_band_A": [
+    68.79,
+    80.94
+   ]
+  },
+  {
+   "R43": 1960.0,
+   "R44": 10000.0,
+   "R45": 10000.0,
+   "R46": 1960.0,
+   "ref_hi_V": 2.7592,
+   "nominal_A": 73.95,
+   "pos_band_A": [
+    68.07,
+    80.12
+   ],
+   "neg_band_A": [
+    68.07,
+    80.12
+   ]
+  },
+  {
+   "R43": 2000.0,
+   "R44": 10000.0,
+   "R45": 10000.0,
+   "R46": 2000.0,
+   "ref_hi_V": 2.75,
+   "nominal_A": 73.33,
+   "pos_band_A": [
+    67.49,
+    79.46
+   ],
+   "neg_band_A": [
+    67.49,
+    79.46
+   ]
+  },
+  {
+   "R43": 2050.0,
+   "R44": 10000.0,
+   "R45": 10000.0,
+   "R46": 2050.0,
+   "ref_hi_V": 2.7386,
+   "nominal_A": 72.57,
+   "pos_band_A": [
+    66.78,
+    78.65
+   ],
+   "neg_band_A": [
+    66.78,
+    78.65
+   ]
+  },
+  {
+   "R43": 2100.0,
+   "R44": 10000.0,
+   "R45": 10000.0,
+   "R46": 2100.0,
+   "ref_hi_V": 2.7273,
+   "nominal_A": 71.82,
+   "pos_band_A": [
+    66.08,
+    77.84
+   ],
+   "neg_band_A": [
+    66.08,
+    77.84
+   ]
+  },
+  {
+   "R43": 2150.0,
+   "R44": 10000.0,
+   "R45": 10000.0,
+   "R46": 2150.0,
+   "ref_hi_V": 2.716,
+   "nominal_A": 71.07,
+   "pos_band_A": [
+    65.38,
+    77.04
+   ],
+   "neg_band_A": [
+    65.38,
+    77.04
+   ]
+  },
+  {
+   "R43": 2210.0,
+   "R44": 10000.0,
+   "R45": 10000.0,
+   "R46": 2210.0,
+   "ref_hi_V": 2.7027,
+   "nominal_A": 70.18,
+   "pos_band_A": [
+    64.55,
+    76.09
+   ],
+   "neg_band_A": [
+    64.55,
+    76.09
+   ]
+  },
+  {
+   "R43": 2260.0,
+   "R44": 10000.0,
+   "R45": 10000.0,
+   "R46": 2260.0,
+   "ref_hi_V": 2.6917,
+   "nominal_A": 69.45,
+   "pos_band_A": [
+    63.87,
+    75.3
+   ],
+   "neg_band_A": [
+    63.87,
+    75.3
+   ]
+  },
+  {
+   "R43": 2320.0,
+   "R44": 10000.0,
+   "R45": 10000.0,
+   "R46": 2320.0,
+   "ref_hi_V": 2.6786,
+   "nominal_A": 68.57,
+   "pos_band_A": [
+    63.05,
+    74.37
+   ],
+   "neg_band_A": [
+    63.05,
+    74.37
+   ]
+  },
+  {
+   "R43": 2370.0,
+   "R44": 10000.0,
+   "R45": 10000.0,
+   "R46": 2370.0,
+   "ref_hi_V": 2.6677,
+   "nominal_A": 67.85,
+   "pos_band_A": [
+    62.38,
+    73.59
+   ],
+   "neg_band_A": [
+    62.38,
+    73.59
+   ]
+  },
+  {
+   "R43": 2430.0,
+   "R44": 10000.0,
+   "R45": 10000.0,
+   "R46": 2430.0,
+   "ref_hi_V": 2.6549,
+   "nominal_A": 66.99,
+   "pos_band_A": [
+    61.58,
+    72.67
+   ],
+   "neg_band_A": [
+    61.58,
+    72.67
+   ]
+  },
+  {
+   "R43": 2490.0,
+   "R44": 10000.0,
+   "R45": 10000.0,
+   "R46": 2490.0,
+   "ref_hi_V": 2.6421,
+   "nominal_A": 66.14,
+   "pos_band_A": [
+    60.79,
+    71.76
+   ],
+   "neg_band_A": [
+    60.79,
+    71.76
+   ]
+  },
+  {
+   "R43": 2550.0,
+   "R44": 10000.0,
+   "R45": 10000.0,
+   "R46": 2550.0,
+   "ref_hi_V": 2.6295,
+   "nominal_A": 65.3,
+   "pos_band_A": [
+    60.0,
+    70.86
+   ],
+   "neg_band_A": [
+    60.0,
+    70.86
+   ]
+  }
+ ]
+}

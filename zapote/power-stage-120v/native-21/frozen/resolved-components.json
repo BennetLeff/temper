@@ -1,11 +1,11 @@
 {
   "atopile_version": "0.2.69",
   "build_sha256": {
-    "build/default.csv": "9c30f2d864818f4ad75362d45e4d21e4a18bf52b89f54ce1b14d7cb94f3dfcfa",
+    "build/default.csv": "36d984a60a382a8af34d28fe7846a10988d6bccb2fa459d2b1a461d5499b03a6",
     "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
     "build/default.net": "e3c228e9d72b9944368cab4b4e7905c0874006405b631c6e6a08fd525c18dfba",
     "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5",
-    "build/resolved-components.json": "9d48de8ad463d34b9411281f3b1a657e2c1561960c6ff58ef2bfacc54e9c2a59"
+    "build/resolved-components.json": "e65bd6d3a950b3e28496da815e81c6528cd01047c754be6ef5cfdeb035faac37"
   },
   "components": [
     {
@@ -1666,8 +1666,8 @@
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
         "manufacturer": "Yageo",
-        "mpn": "RT0603BRD0712K4L",
-        "value": "12.4kohm"
+        "mpn": "RT0603BRD0712K6L",
+        "value": "12.6kohm"
       }
     },
     {
@@ -2054,8 +2054,8 @@
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
         "manufacturer": "Yageo",
-        "mpn": "RT0603BRD073K32L",
-        "value": "3.32kohm"
+        "mpn": "RT0603BRD072K21L",
+        "value": "2.21kohm"
       }
     },
     {
@@ -2087,8 +2087,8 @@
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
         "manufacturer": "Yageo",
-        "mpn": "RT0603BRD073K32L",
-        "value": "3.32kohm"
+        "mpn": "RT0603BRD072K21L",
+        "value": "2.21kohm"
       }
     },
     {
@@ -3779,8 +3779,8 @@
   "source_sha256": {
     "elec/src/f6_bias.ato": "ebe1ff0a3e74d40abfbb9d5f6bddfd9bae374286960e6f06cdf5f9e57fa84d8f",
     "elec/src/f6_parts.ato": "c88358b18d3ee5c72b978c449e455e755dae8547bb3998b516582f9ebfa5ede2",
-    "elec/src/parts.ato": "66eb36e090b8adaec8d7694d2333a4a4fd36aed73e8aff8701baabab3249817c",
-    "elec/src/power_stage_120v.ato": "4489c3f251f81268d16a310dce2758e8610ee33cdd99c6160c9d98f72b81e4bf",
+    "elec/src/parts.ato": "b26471fb9a52920eaf8b8d6aa1344b91008a0cfc6fcb277ad88d875a41c86f54",
+    "elec/src/power_stage_120v.ato": "5e17c4aa00ce629b78695d741e852235b50c312860d6d3de27e486457c4054da",
     "prototype-closure/round4/supervisor/generated/supervisor.ato": "1d6674935534a46c6c82f61c4f18890de7fa7cbf81f89c1cb63efb7bfed1b7e3"
   }
 }

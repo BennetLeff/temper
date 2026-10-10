@@ -20,6 +20,7 @@ is an estimate; the FET's internal gate resistance takes part of it on the heats
 share is overstated.
 """
 import json
+import math
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -40,8 +41,40 @@ def add(ref, nom, worst, basis, note, board=1.0):
 
 
 for p in T03["parts"]:
-    if p["ref"] in ("C21", "C22", "C23", "L1", "R5", "R39", "R22", "R23", "R24", "R25") and p["watts_nominal"]:
+    if p["ref"] in ("L1", "R5", "R39", "R22", "R23", "R24", "R25") and p["watts_nominal"]:
         add(p["ref"], p["watts_nominal"], p["watts_worst"], "task03", f"{p['part']}, task 03 round 3", p["board_fraction"])
+
+# Resonant bank (stage 13, 5 x TDK B32654A1104K000; task 03's CDE 942C rows no longer apply). TDK B3265*A
+# data sheet (MKP_B32651_658.pdf, not committed): p.23 ESR_typ 19.3 mOhm at 100 kHz (I_RMS 7.3 A at 85 C);
+# p.35 tan d upper limits 1.0e-3 at 10 kHz and 3.0e-3 at 100 kHz (27 nF <= C <= 0.1 uF). Worst: those limits
+# fitted as ESR = R_s + D / (2 pi f C) (R_s 35.3 mOhm, D 7.77e-4) at F_WORST. Nominal: ESR_typ held flat
+# below 100 kHz (estimate: a polypropylene film's dielectric term adds a few mOhm at 33-40 kHz). Part current:
+# round 6's worst-share part, 6.55 A of 28 A tank RMS (board_side.py), scaled with the tank current.
+C_RES, ESR_TYP = 0.1e-6, 19.3e-3
+R_S, D_LIM = 35.3e-3, 7.77e-4
+SHARE = 6.55 / 28.0
+I_T = {"nominal": 21.47, "worst": 29.4, "c28": 29.4}      # run_study.py OPS tank RMS (worst: the 1.05 x 28 A trip)
+
+
+def esr_worst(f):
+    return R_S + D_LIM / (2 * math.pi * f * C_RES)
+
+
+# Stage 15: the firmware RMS trip (1.05 x ceiling <= 29.4 A) bounds the sustained tank current, so the worst
+# column moves from round 3's 44.7 A grid extreme to 29.4 A: R5 / R39's task-03 worst rows are re-scaled.
+for r in rows:
+    if r["ref"] == "R5":
+        r["watts_worst"] = I_T["worst"] ** 2 * 1e-3
+    if r["ref"] == "R39":
+        r["watts_worst"] = (I_T["worst"] / 100) ** 2 * 1.5
+BANK = ("C21", "C22", "C23", "C151", "C152")
+# Board fraction 0.3 (estimate): a radial film part sheds most of its heat from its 14 x 24.5 x 31.5 mm body
+# (TDK rates I_RMS by the body's own rise, <= 20 K at 1.0 W typ); the leads carry the rest into the board.
+# The bank's own acceptance is the bench hot-spot gate on TDK's curve (DECISIONS 2026-10-10), not B3.
+for ref in BANK:
+    add(ref, (SHARE * I_T["nominal"]) ** 2 * ESR_TYP, (SHARE * I_T["worst"]) ** 2 * esr_worst(F_WORST), "estimate",
+        f"B32654A1104K000: (worst-share {SHARE:.3f} x I_t)^2 x ESR (typ 19.3 mOhm / tan d limit {esr_worst(F_WORST) * 1e3:.1f} mOhm at 40 kHz)",
+        board=0.3)
 
 # gate drive: two FETs per driver (UCC21550 U1 leg A, U2 leg B), plus 0.1 W quiescent each (estimate)
 for drv, rg, roff in (("U1", ("R10", "R12"), ("R53", "R54")), ("U2", ("R18", "R20"), ("R57", "R58"))):
@@ -67,10 +100,10 @@ add("PS2", 7.45 * (1 / 0.84 - 1), 11.10 * (1 / 0.80 - 1), "estimate",
 add("PS1", 8.0 * (1 / 0.84 - 1), 12.0 * (1 / 0.80 - 1), "estimate",
     "IRM-20-15 SELV supply: 8 W nominal / 12 W worst load (controller allocation not final)", board=0.5)
 
-# bus capacitors: C5/C6 (2.7 µF) take the switching-frequency ripple; the HF 0.1 µF film caps see
-# edge harmonics only (Xc 48 Ω vs 1.8 Ω at 33 kHz)
+# bus capacitors: C5/C6 (9 µF since stage 14) take the switching-frequency ripple; the HF 0.1 µF film caps
+# see edge harmonics only (Xc 48 Ω vs 1.8 Ω at 33 kHz)
 for ref in ("C5", "C6"):
-    add(ref, 0.3, 0.6, "estimate", "B32656 2.7 µF: ~10 A RMS each × ~5 mΩ ESR at 33 kHz (estimate)")
+    add(ref, 0.3, 0.6, "estimate", "B32676G1905K000 9 µF: ~10 A RMS each × ~5 mΩ ESR at 33 kHz (estimate, carried from the 2.7 µF row)")
 for ref in ("C38", "C39", "C40", "C41"):
     add(ref, 0.05, 0.2, "estimate", "B32652 0.1 µF HF film: edge-harmonic current only (estimate, bounded 0.2 W)")
 
@@ -91,6 +124,24 @@ for r in rows:
     r.update(x_mm=round((min(xs) + max(xs)) / 2, 3), y_mm=round((min(ys) + max(ys)) / 2, 3),
              has_unquantified_loss=r["basis"] == "estimate", use_as_complete_b3_heat_source=True,
              part=r["note"].split(":")[0])
+# Stage 15: the 28 A ceiling case (run_study.py OPS "c28": 29.4 A tank RMS = the 1.05 x ceiling firmware
+# trip, 11.1 A line). Its own heat file, with the case watts in watts_nominal: tank-scaled rows (R5 = I^2 x
+# 1 mOhm, R39 = (I/100)^2 x 1.5 Ohm, the bank at ESR_typ, C5/C6 by (I/21.47)^2), L1 by (11.1 / 14.25)^2 (task
+# 03's nominal line current 1710 W / 120 V); bias, gate drive and supplies as nominal (set by f, not by
+# the ceiling).
+C28 = {"R5": I_T["c28"] ** 2 * 1e-3, "R39": (I_T["c28"] / 100) ** 2 * 1.5}
+C28.update({ref: (SHARE * I_T["c28"]) ** 2 * ESR_TYP for ref in BANK})
+C28_SCALE = {"C5": (I_T["c28"] / 21.47) ** 2, "C6": (I_T["c28"] / 21.47) ** 2, "L1": (11.1 / (1710 / 120)) ** 2}
+c28_rows = []
+for r in rows:
+    w = C28.get(r["ref"], r["watts_nominal"] * C28_SCALE.get(r["ref"], 1.0))
+    c28_rows.append({**r, "watts_nominal": w, "watts_worst": w})
+(HERE / "inputs").mkdir(exist_ok=True)
+(HERE / "inputs" / "native21-board-heat-sources-c28.json").write_text(json.dumps(
+    {"status": "native-21 board heat at the 28 A ceiling case (stage 15; watts_nominal = watts_worst = the case)",
+     "parts": c28_rows, "totals_W": {"c28": round(sum(r["watts_nominal"] * r["board_fraction"] for r in c28_rows), 3)}},
+    indent=1) + "\n")
+
 out = {"status": "native-21 board heat: task 03 carry-over + bias sizing + stated estimates (round 5)",
        "parts": rows,
        "totals_W": {m: round(sum(r[f"watts_{m}"] * r["board_fraction"] for r in rows), 3) for m in ("nominal", "worst")}}

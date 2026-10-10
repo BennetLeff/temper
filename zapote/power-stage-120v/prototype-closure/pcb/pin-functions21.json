@@ -1,8 +1,8 @@
 {
  "basis": "Native-21: native-19 reviewed annotations by MPN and pin set; ECO.md manufacturer pin tables for parts added in D-33; remaining parts passive (named after Atopile signals). Connectivity authority: native-21/frozen/default.net. Not datasheet or powered verification.",
  "basis_counts": {
-  "native19-reviewed": 127,
-  "passive-two-terminal": 199,
+  "native19-reviewed": 125,
+  "passive-two-terminal": 201,
   "passive-untyped": 8,
   "eco-pin-table": 17
  },
@@ -2487,7 +2487,7 @@
    }
   },
   "R34": {
-   "mpn": "RT0603BRD0712K4L",
+   "mpn": "RT0603BRD0712K6L",
    "source_instance": "r_th_top",
    "basis": "passive-two-terminal",
    "pins": {
@@ -2592,9 +2592,9 @@
    }
   },
   "R43": {
-   "mpn": "RT0603BRD073K32L",
+   "mpn": "RT0603BRD072K21L",
    "source_instance": "r_ct_hi_top",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -2637,9 +2637,9 @@
    }
   },
   "R46": {
-   "mpn": "RT0603BRD073K32L",
+   "mpn": "RT0603BRD072K21L",
    "source_instance": "r_ct_lo_bot",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",

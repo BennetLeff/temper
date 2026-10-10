@@ -28,11 +28,11 @@ from "parts.ato" import R1k0603, R330R0603, C100n0603, C10u1210, C10u0805, ResB3
 from "parts.ato" import C100n0805, C1u0805
 from "parts.ato" import CST3015_100E, Irm20_15, TcoLoopHeader
 from "parts.ato" import Amc1311, R470k1206, R15k8Thin, C1nC0G0603, C100pC0G0603
-from "parts.ato" import Tlv3201, Ref2V5, R10kThin, R12k4Thin, R11k7Thin, R140kThin, R5k6Bias
+from "parts.ato" import Tlv3201, Ref2V5, R10kThin, R12k6Thin, R11k7Thin, R140kThin, R5k6Bias
 from "parts.ato" import Iso7710, SelvHeader16, Nand3Lvc1g10, FunctionalEarthLink
 from "parts.ato" import Hot5Supervisor, Hot5SchmittBuffer, R105kThin
 from "parts.ato" import BusTvs30kpa150
-from "parts.ato" import Burden1R5, C100nC0G1206, R1kThin, R3k32Thin, R1k1206, ClampBas116h, Or3Lvc1g332
+from "parts.ato" import Burden1R5, C100nC0G1206, R1kThin, R2k21Thin, R1k1206, ClampBas116h, Or3Lvc1g332
 
 from "f6_parts.ato" import HotSupply24, HotLdo, GateDischarge, Gate1R, DisOr, Bias4k99, Bias10u, Bias27k
 from "f6_bias.ato" import BiasReservoir, RegulatedSplit, RailMonitor, HighBias, LineZeroCross
@@ -550,9 +550,10 @@ module PowerStage120V:
 
     # ---------------- DC-bus OCP (shoot-through), referenced to LEG_RET.
     # V(OCP_KELVIN_N) = -I*1 mohm. OCP_NODE = 1.25 V + 0.5 * V(KELVIN_N);
-    # OCP_THRESH = 2.5 * 11.7/(12.4+11.7) = 1.2137 V -> trip at ~73 A nominal
-    # (D-31 / task 02 decision B: corner band 49.53-97.77 A with 12.4k/11.7k, BOM 2026-10-09)
-    # (TLV3201 offset +/-5 mV max = +/-10 A; normal peak <= 45 A). The lower
+    # OCP_THRESH = 2.5 * 11.7/(12.6+11.7) = 1.2037 V -> trip at ~93 A nominal
+    # (stage 15, 28 A hardware, DECISIONS 2026-10-10: corner band 68.58-118.74 A with 12.6k/11.7k,
+    # 66.30 A low corner after the Kelvin shift; was 12.4k, 49.53-97.77 A)
+    # (TLV3201 offset +/-5 mV max = +/-10 A; envelope peak <= 59.2 A at the 28 A ceiling). The lower
     # trip reduces risk; returned tank energy is not bounded: ORACLE-REVIEW.md.
     # Comparator output high = OK. NAND + default-HIGH isolation make
     # BUS_FAULT high on either trip or complete HOT-side power loss.
@@ -575,8 +576,8 @@ module PowerStage120V:
     c_ocp_node.value = 100pF
     c_ocp_node.p1 ~ OCP_NODE
     c_ocp_node.p2 ~ OCP_KELVIN_P
-    r_th_top = new R12k4Thin
-    r_th_top.value = 12.4kohm
+    r_th_top = new R12k6Thin
+    r_th_top.value = 12.6kohm
     r_th_top.p1 ~ REF25
     r_th_top.p2 ~ OCP_THRESH
     r_th_bot = new R11k7Thin
@@ -730,9 +731,9 @@ module PowerStage120V:
     # (validation-results/06-controller-interface). Ported from
     # zapote/current-sense/circuit/current_sense_unit.ato: floating 1.5 ohm
     # burden around a bypassed 1.65 V midpoint (CT_S2), 1 k series input with
-    # low-leakage BAS116H rail clamps, and a comparator per polarity. References 3.32k/10k
-    # put the tank over-current trip at ~55 A (DC corner band 50.9-59.5 A:
-    # tools/ct_detector). A third comparator gives the zero crossing; the
+    # low-leakage BAS116H rail clamps, and a comparator per polarity. References 2.21k/10k
+    # put the tank over-current trip at ~70 A (corner band 64.55-76.09 A, stage 15 28 A
+    # hardware, DECISIONS 2026-10-10; was 3.32k, ~55 A). A third comparator gives the zero crossing; the
     # biased current waveform leaves through 1 k. The trip ORs with the
     # isolated bus fault onto the existing active-high BUS_FAULT line.
     r_ct_burden = new Burden1R5
@@ -765,8 +766,8 @@ module PowerStage120V:
     d_ct_lo = new ClampBas116h
     d_ct_lo.A ~ SELV_GND
     d_ct_lo.K ~ CT_SENSE_MON
-    r_ct_hi_top = new R3k32Thin
-    r_ct_hi_top.value = 3.32kohm
+    r_ct_hi_top = new R2k21Thin
+    r_ct_hi_top.value = 2.21kohm
     r_ct_hi_top.p1 ~ V3V3
     r_ct_hi_top.p2 ~ CT_REF_HI
     r_ct_hi_bot = new R10kThin
@@ -777,8 +778,8 @@ module PowerStage120V:
     r_ct_lo_top.value = 10kohm
     r_ct_lo_top.p1 ~ V3V3
     r_ct_lo_top.p2 ~ CT_REF_LO
-    r_ct_lo_bot = new R3k32Thin
-    r_ct_lo_bot.value = 3.32kohm
+    r_ct_lo_bot = new R2k21Thin
+    r_ct_lo_bot.value = 2.21kohm
     r_ct_lo_bot.p1 ~ CT_REF_LO
     r_ct_lo_bot.p2 ~ SELV_GND
     u_ct_pos = new Tlv3201

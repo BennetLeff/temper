@@ -80,3 +80,5 @@ Files: [plane-native21.json](plane-native21.json), [budget-native21.json](budget
 **Stage 13b** (C1/C2 value-only rebuild; board `6556f536…`; tag `native21s13b`): identical results, R35.2 at 161.79 mΩ and a band of 47.32–97.77 A. Tracks, vias and pads are identical to stage 13; KiCad's zone refill differs by ≤ 8 mm² per pour.
 
 **Stage 14** (RECOM bias modules U41/U42, 9 µF C5/C6, D3/D17 clamp pair; re-routed; board `3eb54216…`; tag `native21s14`): R35.2 at 161.03 mΩ (stage 13b: 161.79), Kelvin trip shift −2.20 A (bound −2.26 A), band 47.33–97.77 A, meets the 44 A minimum. The module re-route reached the Kelvin pair's neighbourhood only through the v24_raw In1 feeds (pour waivers, `patches21.add_stage14`).
+
+**Stage 15** (28 A hardware: R34 12.6 k, SW_A / SW_B widening; board `5b9dbd61…`; tag `native21s15`): R35.2 at 161.03 mΩ, Kelvin shift −2.22 A (bound −2.28 A); band before the shift 68.58–118.74 A, **66.37–118.74 A after** (66.30 A at the bound). `kelvin_budget.py` now also checks the stage's own floor: 64.17 A for the 28 A ceiling (59.17 A envelope peak + 3.0 A pickup + 2 A), met.

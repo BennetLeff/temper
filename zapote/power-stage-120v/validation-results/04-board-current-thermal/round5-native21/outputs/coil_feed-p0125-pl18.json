@@ -1,6 +1,6 @@
 {
-  "board_sha256": "3eb5421677007d9a06d682c5182d9e9fc264e4a50da9e51bbe354a2cedd0dcee",
-  "input_sha256": "cad912b1fc0415155233d4142cd2d38a6ccf119f09b0b75eba8ecffc4301d2fb",
+  "board_sha256": "5b9dbd612d2909c04e393a2273b0cf009e763f609d7e81e03bcbcc9988737fbc",
+  "input_sha256": "2c083f9d0ff5b4fb72b0d8888022587ef9de746d07eb6576e6a4246e90f7173f",
   "kit_sha256": "0c45e6f602bd06f4d8c85410689e32902824855b58cec76eabe20e2aa8e4f03d",
   "script_sha256": "beed119017dda2274357aef4968a2ef2af3c3873d22bd6efd74f9b6b2c2ccca9",
   "net": "coil_feed",
@@ -9,7 +9,7 @@
   "evidence_class": "simulation/model-based",
   "status": "conditional DC experiment",
   "contact_audit": {
-    "radial_contacts_checked": 832,
+    "radial_contacts_checked": 778,
     "uncovered_contacts": []
   },
   "source_pad": [
@@ -123,7 +123,7 @@
       "edge_amps": 0.0,
       "location_mm": [
         126.125,
-        80.88348
+        80.0625
       ],
       "orientation": "x"
     },

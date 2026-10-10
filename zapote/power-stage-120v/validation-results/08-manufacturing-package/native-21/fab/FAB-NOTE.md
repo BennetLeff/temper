@@ -1,11 +1,11 @@
 # Fabrication note: power-stage-120v native-21 (CANDIDATE, not released)
 
-Board: native-21 stage 14 (stage 13b plus one RECOM R24C2T25/R-R isolated bias module per high side, U41/U42, the 9 µF C5/C6 bus film and the 2 × 30KPA150CA series bus clamp D3/D17, DECISIONS.md 2026-10-09 stage 14; stage 13b added the BOM simplification, the 5 × TDK B32654 resonant bank and the C1/C2 X2 swap; stage 12 carried the independent-review fixes, `../REVIEW-TRIAGE.md`), rebuilt from
+Board: native-21 stage 15 (stage 14 plus the 28 A tank hardware: R34 12.6 k, R43/R46 2.21 k and SW_A / SW_B copper widening, DECISIONS.md 2026-10-10 item 13; stage 14 added one RECOM R24C2T25/R-R isolated bias module per high side, U41/U42, the 9 µF C5/C6 bus film and the 2 × 30KPA150CA series bus clamp D3/D17, DECISIONS.md 2026-10-09 stage 14; stage 13b added the BOM simplification, the 5 × TDK B32654 resonant bank and the C1/C2 X2 swap; stage 12 carried the independent-review fixes, `../REVIEW-TRIAGE.md`), rebuilt from
 `native-21/layout/copper.json` by `sh native-21/layout/incr_iter.sh native-21/layout/copper.json - OUTDIR`;
 SHA-256
-`3eb5421677007d9a06d682c5182d9e9fc264e4a50da9e51bbe354a2cedd0dcee`.
+`5b9dbd612d2909c04e393a2273b0cf009e763f609d7e81e03bcbcc9988737fbc`.
 Gerbers: `native-21-gerbers.zip`, SHA-256
-`43801563d754f5b82930aa6abef9585d43bee643bafb5fc452485a0b644c9521`.
+`2c1181e6141d67ed55fc14c271f393ee105ab5a5af44e616a8e05ffd2a60d580`.
 
 **This package isn't released for ordering.** The gates come in two tiers (decision 2026-10-08; PROTOTYPE-LOT.md agrees).
 
@@ -46,7 +46,7 @@ JLC rules (`tools/jlc_dfm_check.py`, capabilities page re-read verbatim 2026-10-
 - Result: **PASS**. 763 vias, 118 plated pads (slot rings checked per axis: 0.60 mm), minimum track 0.2 mm, 0 failures (`../jlc-dfm.json`).
 
 Assembly:
-- **LCSC numbers:** 82 of 91 source lines map to a checked LCSC part (50 exact from the survey, 31 changed or added since, most of them the 2026-10-09 Basic swaps and the stage-14 bias parts, 1 accepted substitute; `../sourcing/`, `../bom-simplification/`). Nine are consigned or hand-assembled: F1 fuse, C1/C2 (KEMET R463N410050N1K, Digi-Key), C5/C6 (TDK B32676G1905K000), U1/U2, T1, the resonant bank C21–C23/C151/C152 (TDK B32654A1104K000), J3, D3/D17 (Good-Ark 30KPA150CA, P600 axial) and U41/U42 (RECOM R24C2T25/R-R). Check stock again before ordering.
+- **LCSC numbers:** 82 of 91 source lines map to a checked LCSC part (49 exact from the survey, 32 changed or added since, most of them the 2026-10-09 Basic swaps and the stage-14 bias parts, 1 accepted substitute; `../sourcing/`, `../bom-simplification/`). Nine are consigned or hand-assembled: F1 fuse, C1/C2 (KEMET R463N410050N1K, Digi-Key), C5/C6 (TDK B32676G1905K000), U1/U2, T1, the resonant bank C21–C23/C151/C152 (TDK B32654A1104K000), J3, D3/D17 (Good-Ark 30KPA150CA, P600 axial) and U41/U42 (RECOM R24C2T25/R-R). Check stock again before ordering.
 - **Lead trim (insulation):** trim every THT lead to ≤ 2.5 mm below the board bottom after soldering (ASSEMBLY.md); trim C1/C2's 25 mm leads to 4 mm before insertion.
 - **Hand assembly:**
   - F1-CLIP (2 × Littelfuse 01250003H, 10 × 38 / Class CC clips, 30 A), soldered into the plated slots;

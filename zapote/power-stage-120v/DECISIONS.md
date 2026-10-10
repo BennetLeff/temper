@@ -530,4 +530,31 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
     - **R_ac estimate** (`validation-results/05-resonant-tank-envelope/coil-litz/litz_rac.py`, on the enclosure's study-09 winding field +30 % for inter-bar leakage): **116–136 mΩ** at 40 kHz / 100 °C, against R_dc 110 mΩ. 0.08 mm strands gain ≤ 9 mΩ.
     - **Coil copper loss of record at 28 A:** 91–107 W expected, 196 W at the 0.25 Ω acceptance limit. The enclosure keeps its 200 W cooling basis; ferrite loss is added on top by the enclosure.
     - **Turns** were raised from 19.9 to 21.9 because 19.9 scales to about 61 µH, outside the 70 µH basis.
+13. **Stage 15: 28 A tank hardware (2026-10-10, board `5b9dbd61…`, copper.json `1755a0cd…`; plan and scripts `validation-results/02-protection-timing/stage15-28A/`).**
+    - **Protection** (value-only):
+      - **R34 12.4 k → 12.6 k** (RT0603BRD0712K6L). The shunt band is 68.58–118.74 A, and 66.37 A after the Kelvin shift (66.30 A at the bound). The floor is 64.17 A: the 59.17 A envelope peak at 28 A, plus the 3.0 A pickup stack, plus 2 A.
+      - **R43/R46 3.32 k → 2.21 k** (RT0603BRD072K21L). The CT band is 64.55–76.09 A.
+      - **FETs at the new high corner:** worst turn-off current 178 A, against I_D,pulse 495 A (2.78×) and D-31's tested 330 A. CT flux is 46 of 638 V·µs.
+      - **audit.rs:** 77/77, with two new tests that fail the stage-14 values.
+    - **Copper** (outline edits, no part moves; `patches21.S15_ADD/S15_TRIM`):
+      - SW_A's leg to T1 goes from 6.99 to 10.8 mm.
+      - SW_B gains the y 46.8–50 band at the bank and 0.4–3.8 mm off the l_filt edge.
+      - Proposal P-B2 is not taken: its l_filt trim cuts that mains pour in two.
+      - SW_B beside the FETs (x 31–76) and SW_A's low-side link (2.83 mm over the Q3.S / Q2.D pads, now modelled as task 04 case `sw_a_low`: 6.69 mΩ against 3.82 mΩ for the high side) stay as they are.
+    - **Gates:** DRC 0 / 0 / 0; barrier gates 0; D5 8.047 / 8.507 mm; fit 0; DFM PASS; Gerber review PASS; BUS_P span 4.130 %.
+    - **B3 at the ceiling** (`b3/ceiling_sweep.py`, h 25, 1.05 × ceiling):
+      - 22 / 24 / 26 A: board peak 133.4 / 133.7 / 133.9 °C, at the same parts as nominal operation.
+      - **28 A: 142.0 °C**, in the FET-row tank copper (x 30–77, y 0–12), which becomes the board peak.
+      - **Call:** this board supports a commissioned ceiling of **26 A**. 28 A requires either the FET-row rework (stage 15b: first the C56 gate-return via out of the SW_B lane, then R5 north; this re-opens the F6 / task 01 loop work) or bench IR of that copper at 28 A.
+      - B3 changes: the bank rows are now TDK B32654 (ESR_typ 19.3 mΩ, tan δ limits, p.23 / p.35, board fraction 0.3). The "extreme" case is now the 29.4 A firmware trip instead of round 3's 44.7 A grid extreme.
+    - **Firmware** (branch `fw/stage15-tank-ceiling`, `35fa8fe23` + `f582832a3`, host tests 23/23):
+      - The trips are derived from the commissioned ceiling: 22 A by default, Kconfig up to 28 A.
+      - Per-pan frequency loop with live PWM retime; the power request is tracked within ±6 %.
+      - A no-pan clamp holds 22 A or less.
+      - The peak ratio caps the effective ceiling at 27.2 A until the bench calibrates it.
+      - **Not for the stage-14 board:** its CT corner at 50.56 A sits under the 50.7 A firmware peak trip.
+      - The minimum continuous power is about 73–175 W at 60 kHz, so burst mode is open item H12.
+    - **Open:**
+      - the pickup basis C (any-phase stack, 70.48 A floor) closes on the bench at 45–55 kHz;
+      - bank over-voltage in a CT-failed double fault (present before stage 15) needs TDK's single-event over-voltage figure or a clamp study.
 

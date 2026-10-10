@@ -93,8 +93,37 @@ def edit_zones(zones):
                 poly = max(getattr(poly, "geoms", [poly]), key=lambda q: q.area)
             z = {**z, "outline": [[round(x, 3), round(y, 3)] for x, y in list(poly.exterior.coords)[:-1]],
                  "holes": [[[round(x, 3), round(y, 3)] for x, y in list(i.coords)[:-1]] for i in poly.interiors]}
+        key = (z["net"], z["layer"])
+        if any(k == key for k, _ in S15_ADD + S15_TRIM):
+            poly = Polygon(z["outline"], z["holes"])
+            for k, b in S15_TRIM:
+                if k == key:
+                    poly = poly.difference(box(*b))
+            poly = max(getattr(poly, "geoms", [poly]), key=lambda q: q.area)
+            for k, b in S15_ADD:
+                if k == key and poly.intersects(box(*b)):
+                    poly = poly.union(box(*b)).simplify(0)
+            poly = max(getattr(poly, "geoms", [poly]), key=lambda q: q.area)
+            z = {**z, "outline": [[round(x, 3), round(y, 3)] for x, y in list(poly.exterior.coords)[:-1]],
+                 "holes": [[[round(x, 3), round(y, 3)] for x, y in list(i.coords)[:-1]] for i in poly.interiors]}
         out.append(z)
     return out
+
+
+# Stage 15 (28 A tank hardware, DECISIONS 2026-10-10): tank copper to >= 9.77 mm (IPC-2221, 70 um, 20 K,
+# 28 A) where it can be had without moving parts. Outline edits only, clearance-checked against the
+# stage-14 copper (scratchpad stage15/proposals.py -> committed with task 04's stage-15 evidence); KiCad's
+# refill keeps the rules. P-A1: SW_A's leg to T1 widens right past J5's bite (6.99 -> 10.79 mm). P-B1:
+# SW_B's band at the bank regains y 46.8-50 where the res_a 5 mm rule allows. P-B1b / P-B3: SW_B
+# gains 0.4-3.8 mm off the l_filt mains pour's edge (l_filt trimmed to match). Proposal P-B2 (SW_B's drop at
+# x 100.5-110, 9.49 mm) is not taken: its l_filt trim at x 112-114 cuts the pour in two. SW_B beside the FETs
+# (x 31-76) can't widen without moving C38/C40 / R5: left to B3's 28 A case.
+S15_ADD = [(("sw_a", "F.Cu"), (148.6, 55.0, 152.4, 101.5)),       # P-A1 (from y 55: the R22 -> C21 res_a tap runs at x 156.5 to y 50)
+           (("sw_b", "B.Cu"), (150.0, 46.8, 188.0, 50.0)),        # P-B1
+           (("sw_b", "B.Cu"), (150.0, 36.8, 188.0, 37.2)),        # P-B1b
+           (("sw_b", "B.Cu"), (83.7, 15.6, 100.5, 19.4))]         # P-B3
+S15_TRIM = [(("l_filt", "B.Cu"), (150.0, 33.4, 188.0, 34.2)),     # for P-B1b
+            (("l_filt", "B.Cu"), (83.0, 12.4, 101.0, 17.0))]      # for P-B3
 R5_PADS = {"leg_ret": "R5.1", "hv_ret": "R5.4"}
 R5_MAX, R5_REACH = 10, 2.6
 

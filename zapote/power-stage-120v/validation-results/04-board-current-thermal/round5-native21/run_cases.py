@@ -16,7 +16,9 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-THIRD = '6.233333333333333'
+# stage 15: the bank is 5 x TDK B32654 (C21-C23, C151, C152, stage 13); the tank cases share across all five
+FIFTH = '3.74'
+BANK = ('C21', 'C22', 'C23', 'C151', 'C152')
 
 # Currents are assumed, conditional resistive experiments. Their signed
 # operating waveforms and capacitor sharing have not been measured.
@@ -39,14 +41,16 @@ CASES = [
     ('leg_a_34', 'leg_ret', ['Q3.3:34'], [], ['R5.1'], '34 A coherent leg A experiment'),
     ('leg_b_34', 'leg_ret', ['Q6.3:34'], [], ['R5.1'], '34 A coherent leg B experiment'),
     ('sw_a', 'sw_a', ['Q2.3:18.7'], [], ['T1.1'], '18.7 A tank path, A high-side state'),
-    ('sw_b_high', 'sw_b', ['Q5.3:18.7'], [], ['C21.2', 'C22.2', 'C23.2'], '18.7 A tank path, B high-side state; capacitor sink equipotential'),
-    ('sw_b_low', 'sw_b', [f'C21.2:{THIRD}', f'C22.2:{THIRD}', f'C23.2:{THIRD}'], [], ['Q6.2'], '18.7 A tank path, B low-side state; equal capacitor sources'),
-    ('res_a', 'res_a', [f'C21.1:{THIRD}', f'C22.1:{THIRD}', f'C23.1:{THIRD}'], [], ['J5.1'], '18.7 A bank-to-J5 path; equal capacitor sources'),
+    # stage 15: the A low-side state (Q3 conducting) reaches T1 through the B.Cu leg-A link over Q3.S / Q2.D
+    ('sw_a_low', 'sw_a', ['Q3.2:18.7'], [], ['T1.1'], '18.7 A tank path, A low-side state'),
+    ('sw_b_high', 'sw_b', ['Q5.3:18.7'], [], [f'{c}.2' for c in BANK], '18.7 A tank path, B high-side state; capacitor sink equipotential'),
+    ('sw_b_low', 'sw_b', [f'{c}.2:{FIFTH}' for c in BANK], [], ['Q6.2'], '18.7 A tank path, B low-side state; equal capacitor sources'),
+    ('res_a', 'res_a', [f'{c}.1:{FIFTH}' for c in BANK], [], ['J5.1'], '18.7 A bank-to-J5 path; equal capacitor sources'),
     ('coil_feed', 'coil_feed', ['T1.2:18.7'], [], ['J2.1'], '18.7 A T1-to-J2 path'),
 ]
 
 PLATING_12 = {'bus_dc_q2', 'bus_mixed_q2', 'bus_mixed_q5', 'hv_dc', 'hv_mixed_a',
-              'hv_mixed_b', 'leg_a_18p7', 'leg_b_18p7', 'sw_a', 'sw_b_high',
+              'hv_mixed_b', 'leg_a_18p7', 'leg_b_18p7', 'sw_a', 'sw_a_low', 'sw_b_high',
               'sw_b_low', 'res_a', 'coil_feed'}
 
 

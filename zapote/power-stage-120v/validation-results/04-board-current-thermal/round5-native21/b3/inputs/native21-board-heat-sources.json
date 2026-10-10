@@ -2,48 +2,6 @@
  "status": "native-21 board heat: task 03 carry-over + bias sizing + stated estimates (round 5)",
  "parts": [
   {
-   "ref": "C21",
-   "watts_nominal": 0.45900407,
-   "watts_worst": 1.98949349,
-   "board_fraction": 1.0,
-   "sink_fraction": 0.0,
-   "basis": "task03",
-   "note": "942C12P22K-F, task 03 round 3",
-   "x_mm": 176.75,
-   "y_mm": 53.2,
-   "has_unquantified_loss": false,
-   "use_as_complete_b3_heat_source": true,
-   "part": "942C12P22K-F, task 03 round 3"
-  },
-  {
-   "ref": "C22",
-   "watts_nominal": 0.45900407,
-   "watts_worst": 1.98949349,
-   "board_fraction": 1.0,
-   "sink_fraction": 0.0,
-   "basis": "task03",
-   "note": "942C12P22K-F, task 03 round 3",
-   "x_mm": 176.75,
-   "y_mm": 67.7,
-   "has_unquantified_loss": false,
-   "use_as_complete_b3_heat_source": true,
-   "part": "942C12P22K-F, task 03 round 3"
-  },
-  {
-   "ref": "C23",
-   "watts_nominal": 0.07902963,
-   "watts_worst": 0.34254364,
-   "board_fraction": 1.0,
-   "sink_fraction": 0.0,
-   "basis": "task03",
-   "note": "942C12P1K-F, task 03 round 3",
-   "x_mm": 176.75,
-   "y_mm": 82.5,
-   "has_unquantified_loss": false,
-   "use_as_complete_b3_heat_source": true,
-   "part": "942C12P1K-F, task 03 round 3"
-  },
-  {
    "ref": "L1",
    "watts_nominal": 2.025,
    "watts_worst": 2.025,
@@ -116,7 +74,7 @@
   {
    "ref": "R39",
    "watts_nominal": 0.06913512,
-   "watts_worst": 0.29965718,
+   "watts_worst": 0.129654,
    "board_fraction": 1.0,
    "sink_fraction": 0.0,
    "basis": "task03",
@@ -130,7 +88,7 @@
   {
    "ref": "R5",
    "watts_nominal": 0.46089935,
-   "watts_worst": 2.04290563,
+   "watts_worst": 0.8643599999999999,
    "board_fraction": 1.0,
    "sink_fraction": 0.0,
    "basis": "task03",
@@ -140,6 +98,76 @@
    "has_unquantified_loss": false,
    "use_as_complete_b3_heat_source": true,
    "part": "WSK2512R0010FEA, task 03 round 3"
+  },
+  {
+   "ref": "C21",
+   "watts_nominal": 0.48684188486788904,
+   "watts_worst": 3.1320100098509593,
+   "board_fraction": 0.3,
+   "sink_fraction": 0.7,
+   "basis": "estimate",
+   "note": "B32654A1104K000: (worst-share 0.234 x I_t)^2 x ESR (typ 19.3 mOhm / tan d limit 66.2 mOhm at 40 kHz)",
+   "x_mm": 176.75,
+   "y_mm": 53.2,
+   "has_unquantified_loss": true,
+   "use_as_complete_b3_heat_source": true,
+   "part": "B32654A1104K000"
+  },
+  {
+   "ref": "C22",
+   "watts_nominal": 0.48684188486788904,
+   "watts_worst": 3.1320100098509593,
+   "board_fraction": 0.3,
+   "sink_fraction": 0.7,
+   "basis": "estimate",
+   "note": "B32654A1104K000: (worst-share 0.234 x I_t)^2 x ESR (typ 19.3 mOhm / tan d limit 66.2 mOhm at 40 kHz)",
+   "x_mm": 176.75,
+   "y_mm": 67.7,
+   "has_unquantified_loss": true,
+   "use_as_complete_b3_heat_source": true,
+   "part": "B32654A1104K000"
+  },
+  {
+   "ref": "C23",
+   "watts_nominal": 0.48684188486788904,
+   "watts_worst": 3.1320100098509593,
+   "board_fraction": 0.3,
+   "sink_fraction": 0.7,
+   "basis": "estimate",
+   "note": "B32654A1104K000: (worst-share 0.234 x I_t)^2 x ESR (typ 19.3 mOhm / tan d limit 66.2 mOhm at 40 kHz)",
+   "x_mm": 176.75,
+   "y_mm": 82.5,
+   "has_unquantified_loss": true,
+   "use_as_complete_b3_heat_source": true,
+   "part": "B32654A1104K000"
+  },
+  {
+   "ref": "C151",
+   "watts_nominal": 0.48684188486788904,
+   "watts_worst": 3.1320100098509593,
+   "board_fraction": 0.3,
+   "sink_fraction": 0.7,
+   "basis": "estimate",
+   "note": "B32654A1104K000: (worst-share 0.234 x I_t)^2 x ESR (typ 19.3 mOhm / tan d limit 66.2 mOhm at 40 kHz)",
+   "x_mm": 176.75,
+   "y_mm": 97.0,
+   "has_unquantified_loss": true,
+   "use_as_complete_b3_heat_source": true,
+   "part": "B32654A1104K000"
+  },
+  {
+   "ref": "C152",
+   "watts_nominal": 0.48684188486788904,
+   "watts_worst": 3.1320100098509593,
+   "board_fraction": 0.3,
+   "sink_fraction": 0.7,
+   "basis": "estimate",
+   "note": "B32654A1104K000: (worst-share 0.234 x I_t)^2 x ESR (typ 19.3 mOhm / tan d limit 66.2 mOhm at 40 kHz)",
+   "x_mm": 176.75,
+   "y_mm": 111.5,
+   "has_unquantified_loss": true,
+   "use_as_complete_b3_heat_source": true,
+   "part": "B32654A1104K000"
   },
   {
    "ref": "U1",
@@ -358,12 +386,12 @@
    "board_fraction": 1.0,
    "sink_fraction": 0.0,
    "basis": "estimate",
-   "note": "B32656 2.7 \u00b5F: ~10 A RMS each \u00d7 ~5 m\u03a9 ESR at 33 kHz (estimate)",
+   "note": "B32676G1905K000 9 \u00b5F: ~10 A RMS each \u00d7 ~5 m\u03a9 ESR at 33 kHz (estimate, carried from the 2.7 \u00b5F row)",
    "x_mm": 224.0,
    "y_mm": 75.6,
    "has_unquantified_loss": true,
    "use_as_complete_b3_heat_source": true,
-   "part": "B32656 2.7 \u00b5F"
+   "part": "B32676G1905K000 9 \u00b5F"
   },
   {
    "ref": "C6",
@@ -372,12 +400,12 @@
    "board_fraction": 1.0,
    "sink_fraction": 0.0,
    "basis": "estimate",
-   "note": "B32656 2.7 \u00b5F: ~10 A RMS each \u00d7 ~5 m\u03a9 ESR at 33 kHz (estimate)",
+   "note": "B32676G1905K000 9 \u00b5F: ~10 A RMS each \u00d7 ~5 m\u03a9 ESR at 33 kHz (estimate, carried from the 2.7 \u00b5F row)",
    "x_mm": 267.0,
    "y_mm": 84.0,
    "has_unquantified_loss": true,
    "use_as_complete_b3_heat_source": true,
-   "part": "B32656 2.7 \u00b5F"
+   "part": "B32676G1905K000 9 \u00b5F"
   },
   {
    "ref": "C38",
@@ -549,7 +577,7 @@
   }
  ],
  "totals_W": {
-  "nominal": 10.167,
-  "worst": 21.101
+  "nominal": 9.9,
+  "worst": 20.129
  }
 }

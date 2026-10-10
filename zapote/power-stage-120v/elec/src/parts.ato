@@ -524,10 +524,10 @@ component R10kThin:
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
-component R12k4Thin:
-    """0.1 % 25 ppm thin film, OCP threshold top leg (LCSC C861102)."""
+component R12k6Thin:
+    """0.1 % 25 ppm thin film, OCP threshold top leg (stage 15, 28 A hardware: LCSC C861103)."""
     designator_prefix = "R"
-    mpn = "RT0603BRD0712K4L"
+    mpn = "RT0603BRD0712K6L"
     manufacturer = "Yageo"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
@@ -710,10 +710,10 @@ component R1kThin:
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
-component R3k32Thin:
-    """0.1 % thin film, CT trip references: 3.3 V * 10/13.32 = 2.477 V."""
+component R2k21Thin:
+    """0.1 % thin film, CT trip references: 3.3 V * 10/12.21 = 2.703 V (stage 15, 28 A hardware: LCSC C705758)."""
     designator_prefix = "R"
-    mpn = "RT0603BRD073K32L"
+    mpn = "RT0603BRD072K21L"
     manufacturer = "Yageo"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance

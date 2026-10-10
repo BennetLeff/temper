@@ -18,7 +18,8 @@ def main() -> None:
     for leg in ('leg_a', 'leg_b'):
         assert parts[f'{leg}.r_dt']['mpn'] == 'RT0603BRD0749K9L'
         assert parts[f'{leg}.r_dis_pu']['mpn'] == '0603WAF3300T5E'
-    assert parts['r_th_top']['mpn'] == 'RT0603BRD0712K4L'
+    assert parts['r_th_top']['mpn'] == 'RT0603BRD0712K6L'   # stage 15, 28 A hardware
+    assert parts['r_ct_hi_top']['mpn'] == parts['r_ct_lo_bot']['mpn'] == 'RT0603BRD072K21L'
     for leg in ('leg_a', 'leg_b'):
         assert parts[f'{leg}.c_hs']['mpn'] == 'CC0805KRX7R9BB104' and parts[f'{leg}.c_hs_bulk']['mpn'] == 'GRM21BZ71E106KE15L'
         assert parts[f'{leg}.c_ls']['mpn'] == 'CC0805KRX7R9BB104'

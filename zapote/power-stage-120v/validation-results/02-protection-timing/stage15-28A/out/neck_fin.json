@@ -1,0 +1,134 @@
+[
+ {
+  "run": "SW_A B.Cu leg-A link, Q3 to Q2",
+  "span": [
+   51.5,
+   60.0
+  ],
+  "length_mm": 8.5,
+  "w_min_mm": 2.83,
+  "current_share": 0.707,
+  "excess_22A_K": 2.0,
+  "excess_28A_K": 3.2
+ },
+ {
+  "run": "SW_A B.Cu leg-A link, Q3 to Q2",
+  "span": [
+   64.0,
+   72.0
+  ],
+  "length_mm": 8.0,
+  "w_min_mm": 2.83,
+  "current_share": 0.707,
+  "excess_22A_K": 1.9,
+  "excess_28A_K": 3.1
+ },
+ {
+  "run": "SW_A F.Cu, corner leg x 103.6-110",
+  "span": [
+   31.0,
+   36.5
+  ],
+  "length_mm": 5.5,
+  "w_min_mm": 6.4,
+  "current_share": 1.0,
+  "excess_22A_K": 0.5,
+  "excess_28A_K": 0.8
+ },
+ {
+  "run": "SW_A F.Cu, leg x 139-148.6 to T1",
+  "span": [
+   49.0,
+   93.0
+  ],
+  "length_mm": 44.0,
+  "w_min_mm": 6.99,
+  "current_share": 1.0,
+  "excess_22A_K": 18.8,
+  "excess_28A_K": 30.4
+ },
+ {
+  "run": "SW_B B.Cu, FET band",
+  "span": [
+   20.5,
+   23.5
+  ],
+  "length_mm": 3.0,
+  "w_min_mm": 8.21,
+  "current_share": 1.0,
+  "excess_22A_K": 0.1,
+  "excess_28A_K": 0.1
+ },
+ {
+  "run": "SW_B B.Cu, FET band",
+  "span": [
+   31.0,
+   50.0
+  ],
+  "length_mm": 19.0,
+  "w_min_mm": 3.1,
+  "current_share": 1.0,
+  "excess_22A_K": 9.5,
+  "excess_28A_K": 15.3
+ },
+ {
+  "run": "SW_B B.Cu, FET band",
+  "span": [
+   57.5,
+   76.5
+  ],
+  "length_mm": 19.0,
+  "w_min_mm": 6.89,
+  "current_share": 1.0,
+  "excess_22A_K": 3.7,
+  "excess_28A_K": 5.9
+ },
+ {
+  "run": "SW_B B.Cu, FET band",
+  "span": [
+   79.0,
+   80.0
+  ],
+  "length_mm": 1.0,
+  "w_min_mm": 9.59,
+  "current_share": 1.0,
+  "excess_22A_K": 0.0,
+  "excess_28A_K": 0.0
+ },
+ {
+  "run": "SW_B B.Cu, FET band",
+  "span": [
+   83.5,
+   100.0
+  ],
+  "length_mm": 16.5,
+  "w_min_mm": 4.57,
+  "current_share": 1.0,
+  "excess_22A_K": 3.6,
+  "excess_28A_K": 5.8
+ },
+ {
+  "run": "SW_B B.Cu, drop x 100.5-110",
+  "span": [
+   28.0,
+   36.5
+  ],
+  "length_mm": 8.5,
+  "w_min_mm": 9.49,
+  "current_share": 1.0,
+  "excess_22A_K": 0.6,
+  "excess_28A_K": 0.9
+ },
+ {
+  "run": "SW_B B.Cu, run y 37-50 to the bank",
+  "span": [
+   150.0,
+   187.5
+  ],
+  "length_mm": 37.5,
+  "w_min_mm": 9.6,
+  "current_share": 1.0,
+  "excess_22A_K": 10.7,
+  "excess_28A_K": 17.4
+ }
+]

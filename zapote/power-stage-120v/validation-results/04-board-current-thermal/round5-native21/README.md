@@ -203,6 +203,25 @@ runs rise 1–10 K and remain outside the 22 A envelope.
   - With U42's primary pour on F.Cu only, U42 was 175.6 °C. Adding B.Cu gave 175.2 °C, because SW_B's B.Cu link cuts that pour. Adding In1 / In2 brought it to 161.9 °C.
   - Watch item: the module is rated −40…100 °C, and the B3 pad cell is not its case temperature. Measure U41/U42 case temperature at first power-up in the enclosure, at 33 and 80 kHz (ALT-BIAS bench gate).
 
+### Stage 15 re-run (2026-10-10, board `5b9dbd61…`): 28 A tank hardware
+
+- **Copper:**
+  - SW_A's F.Cu leg to T1 is widened past J5's bite (P-A1, from y 55).
+  - SW_B gains the y 46.8–50 band at the bank (P-B1) and 0.4–3.8 mm off l_filt (P-B1b, P-B3).
+  - Proposals and widths: `../../02-protection-timing/stage15-28A/`.
+- **New A4 case `sw_a_low`** (Q3 → the B.Cu leg-A link → T1, the A low-side state): **6.69 / 7.00 mΩ** at 18 / 12 µm, against sw_a 3.82 mΩ. B3 now splits SW_A 0.5 / 0.5 like SW_B.
+- **Bank cases:** the bank cases now share across all five TDK parts (C21–C23, C151, C152).
+- **Heat-source fixes** (`b3/make_heat_sources.py`):
+  - The bank rows are TDK B32654: ESR_typ 19.3 mΩ (data sheet p.23) and tan δ limits (p.35), with a board fraction of 0.3.
+  - The `extreme` case is the 29.4 A firmware RMS trip; round 3's 44.7 A grid extreme can no longer be reached.
+  - New `c28` case: 29.4 A tank, 11.1 A line.
+- **B3:**
+  - Nominal h 10 / 25: 163.0 / 133.3 °C.
+  - c28: 202.7 / 142.0 °C. At h 25 the peak is the FET-row tank copper (76.5, 9.5).
+  - `b3/ceiling_sweep.py` (h 25, at 1.05 × ceiling): 22 / 24 / 26 / 28 A → 133.4 / 133.7 / 133.9 / **142.0 °C**. Up to 26 A the peak stays at nominal's parts; at 28 A the FET-row copper takes over.
+  - **Supported commissioned ceiling: 26 A**. 28 A needs the FET-row rework (stage 15b) or bench IR (DECISIONS item 13).
+- **BUS_P mesh span:** 4.130 %.
+
 **Verdict, task 04 on native-21:** nominal operation passes the copper width screen after the SW_B
 fix (SW_A at 18.8 K is the tightest). The board needs a tank-current ceiling (22 A RMS interim).
 Bench IR at nominal power remains the physical gate (D4).

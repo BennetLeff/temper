@@ -1,0 +1,67 @@
+{
+ "sources": {
+  "B3 nominal 21.47 A": {
+   "R5_W": 0.461,
+   "R39_W": 0.0691,
+   "R5_B3_row_nominal_W": 0.46089935,
+   "R39_B3_row_nominal_W": 0.06913512
+  },
+  "22 A (ships)": {
+   "R5_W": 0.484,
+   "R39_W": 0.0726,
+   "R5_B3_row_nominal_W": 0.46089935,
+   "R39_B3_row_nominal_W": 0.06913512
+  },
+  "28 A (ceiling)": {
+   "R5_W": 0.784,
+   "R39_W": 0.1176,
+   "R5_B3_row_nominal_W": 0.46089935,
+   "R39_B3_row_nominal_W": 0.06913512
+  },
+  "29.4 A (RMS trip 1.05x28)": {
+   "R5_W": 0.864,
+   "R39_W": 0.1297,
+   "R5_B3_row_nominal_W": 0.46089935,
+   "R39_B3_row_nominal_W": 0.06913512
+  }
+ },
+ "copper_scale": {
+  "B3 nominal 21.47 A": {
+   "tank_x_vs_B3_nominal": 1.0,
+   "sw_a_case_scale_(I/18.7)^2": 1.318
+  },
+  "22 A (ships)": {
+   "tank_x_vs_B3_nominal": 1.05,
+   "sw_a_case_scale_(I/18.7)^2": 1.384
+  },
+  "28 A (ceiling)": {
+   "tank_x_vs_B3_nominal": 1.701,
+   "sw_a_case_scale_(I/18.7)^2": 2.242
+  },
+  "29.4 A (RMS trip 1.05x28)": {
+   "tank_x_vs_B3_nominal": 1.875,
+   "sw_a_case_scale_(I/18.7)^2": 2.472
+  }
+ },
+ "bank": {
+  "B3_rows_present": {
+   "C21": "942C12P22K-F, task 03 round 3",
+   "C22": "942C12P22K-F, task 03 round 3",
+   "C23": "942C12P1K-F, task 03 round 3"
+  },
+  "B3_rows_missing": [
+   "C151",
+   "C152"
+  ],
+  "round6_worst_part_current_A_by_ceiling": {
+   "22.0": 5.15,
+   "24.0": 5.62,
+   "26.0": 6.08,
+   "28.0": 6.55,
+   "30.0": 7.02
+  }
+ },
+ "notes": [
+  "B3 R5 nominal row equals 21.47^2 x 1 mOhm: 0.461"
+ ]
+}

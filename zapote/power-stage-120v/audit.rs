@@ -317,8 +317,9 @@ const IDENTITY: &[(&str, &str)] = &[
     ("r_ref_bias", "0603WAF5601T5E"),
     ("r_ocp_ref", "RT0603BRD0710KL"),
     ("r_ocp_sense", "RT0603BRD0710KL"),
-    // Trip thresholds: ~61 A OCP (10.5 k / 10.0 k) and ~280 V OVP (10 k / 140 k).
-    ("r_th_top", "RT0603BRD0712K4L"),
+    // Trip thresholds: ~93 A OCP (12.6 k / 11.7 k, stage 15 28 A hardware; band 68.58-118.74 A,
+    // 66.30 A after the Kelvin shift) and ~280 V OVP (10 k / 140 k).
+    ("r_th_top", "RT0603BRD0712K6L"),
     ("r_th_bot", "TNPW060311K7BEEA"),
     ("r_ovp_top", "RT0603BRD0710KL"),
     ("r_ovp_bot", "RT0603BRD07140KL"),
@@ -339,10 +340,10 @@ const IDENTITY: &[(&str, &str)] = &[
     ("r_ct_series", "1206W4F1001T5E"),
     ("d_ct_hi", "BAS116H,115"),
     ("d_ct_lo", "BAS116H,115"),
-    ("r_ct_hi_top", "RT0603BRD073K32L"),
+    ("r_ct_hi_top", "RT0603BRD072K21L"),
     ("r_ct_hi_bot", "RT0603BRD0710KL"),
     ("r_ct_lo_top", "RT0603BRD0710KL"),
-    ("r_ct_lo_bot", "RT0603BRD073K32L"),
+    ("r_ct_lo_bot", "RT0603BRD072K21L"),
     ("u_ct_pos", "TLV3201AIDBVR"),
     ("u_ct_neg", "TLV3201AIDBVR"),
     ("u_ct_zc", "TLV3201AIDBVR"),
@@ -573,8 +574,8 @@ fn min_reference_cathode_current_ua(bias_ohm: f64) -> f64 {
     // shunt. This bounds loading beyond the nominal 51–71 A trip spread;
     // it does not assert that the power path survives a 150 A fault.
     let ocp_offset_load = (ref_max + 0.15) / (20_000.0 * 0.999);
-    // R34 + R35 = 12.4 k + 11.7 k (BOM simplification 2026-10-09; was 10.6 k + 10 k).
-    let ocp_threshold_load = ref_max / (24_100.0 * 0.999);
+    // R34 + R35 = 12.6 k + 11.7 k (stage 15, 2026-10-10; was 12.4 k + 11.7 k, and 10.6 k + 10 k before 2026-10-09).
+    let ocp_threshold_load = ref_max / (24_300.0 * 0.999);
     let ovp_threshold_load = ref_max / (150_000.0 * 0.999);
     (bias_current - ocp_offset_load - ocp_threshold_load - ovp_threshold_load) * 1e6
 }
@@ -1057,7 +1058,7 @@ fn audit(m: &Model) -> Vec<String> {
     expect(&mut e, m, "d_ct_hi", "1", "v3v3");         // cathode
     expect(&mut e, m, "d_ct_lo", "1", "ct_sense_mon"); // cathode
     expect(&mut e, m, "d_ct_lo", "2", "selv_gnd");     // anode
-    // Trip references: REF_HI = 3.3 * 10/13.32, REF_LO = 3.3 * 3.32/13.32.
+    // Trip references: REF_HI = 3.3 * 10/12.21, REF_LO = 3.3 * 2.21/12.21 (stage 15: 64.55-76.09 A band).
     expect(&mut e, m, "r_ct_hi_top", "1", "v3v3");
     expect(&mut e, m, "r_ct_hi_top", "2", "ct_ref_hi");
     expect(&mut e, m, "r_ct_hi_bot", "1", "ct_ref_hi");
@@ -1426,6 +1427,24 @@ mod tests {
         let mut m = built();
         m.rewire("u_iso", "4", "ocp_ok_hot");
         fails(&m, "u_iso.4");
+    }
+
+    #[test]
+    fn stage14_ocp_top_leg_fails() {
+        // 12.4 k puts the shunt low corner at 47.3 A, under the 28 A envelope peak + pickup + margin (64.17 A).
+        let mut m = built();
+        m.set_part("r_th_top", "RT0603BRD0712K4L");
+        fails(&m, "r_th_top is RT0603BRD0712K4L");
+    }
+
+    #[test]
+    fn stage14_ct_references_fail() {
+        // 3.32 k references put the CT trip at 50.56-60.01 A, inside the 28 A envelope (59.2 A peak).
+        for path in ["r_ct_hi_top", "r_ct_lo_bot"] {
+            let mut m = built();
+            m.set_part(path, "RT0603BRD073K32L");
+            fails(&m, &format!("{path} is RT0603BRD073K32L"));
+        }
     }
 
     #[test]

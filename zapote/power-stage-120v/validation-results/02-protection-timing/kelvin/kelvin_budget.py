@@ -41,7 +41,11 @@ CENSUS21 = [row if row[0] != "U3.2" else
              "TI tps709.pdf (native-21/ECO.md sources)") for row in CENSUS]
 
 
-BAND_BEFORE = {"native21s13": (49.53, 97.77), "native21s13b": (49.53, 97.77), "native21s14": (49.53, 97.77)}
+BAND_BEFORE = {"native21s13": (49.53, 97.77), "native21s13b": (49.53, 97.77), "native21s14": (49.53, 97.77),
+               "native21s15": (68.58, 118.74)}   # 12.6 k / 11.7 k (stage 15; scratchpad stage15/ocp_bands.py -> task 02)
+# Low-corner floor after the shift. 44 A until stage 14; stage 15 (28 A ceiling): 59.17 A envelope peak + 3.0 A
+# coil-pickup stack (DECISIONS item 9) + 2 A margin = 64.17 A (round 6 rule; basis A of the stage-15 plan).
+FLOOR = {"native21s15": 64.17}
 
 
 def main():
@@ -65,6 +69,8 @@ def main():
            "band_before_A": [lo, hi],
            "band_after_A": [round(lo + e * a_per_mv, 2), hi],
            "meets_44A_min": lo + e * a_per_mv >= 44.0,
+           "floor_A": FLOOR.get(tag, 44.0),
+           "meets_floor_at_bound": lo + bound * a_per_mv >= FLOOR.get(tag, 44.0),
            "note": "shift ranges from 0 (no load current) to the census value, so it widens the band downward"}
     (HERE / f"budget-{tag}.json").write_text(json.dumps(res, indent=1) + "\n")
     lines = ["| pad | mA (max) | mΩ to R35.2 | mV at R35.2 | what |", "| --- | ---: | ---: | ---: | --- |"]
@@ -72,7 +78,7 @@ def main():
     lines.append(f"| **total** | **{res['total_mA']}** | | **{res['e_th_mV']}** | trip shift **{res['trip_shift_A']} A**; band {res['band_after_A'][0]}–{res['band_after_A'][1]} A |")
     (HERE / f"budget-{tag}.md").write_text("\n".join(lines) + "\n")
     print("\n".join(lines))
-    print(json.dumps({k: res[k] for k in ("total_mA", "e_th_mV", "trip_shift_A", "bound_all_at_max_transfer", "band_after_A", "meets_44A_min")}))
+    print(json.dumps({k: res[k] for k in ("total_mA", "e_th_mV", "trip_shift_A", "bound_all_at_max_transfer", "band_after_A", "meets_44A_min", "floor_A", "meets_floor_at_bound")}))
 
 
 if __name__ == "__main__":
