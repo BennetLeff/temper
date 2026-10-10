@@ -100,6 +100,16 @@ void n21_half_add(n21_half_t *h, uint64_t t, const input_sample_t *s)
     if (isfinite(s->bus_v) && s->bus_v > h->bus_peak_v) h->bus_peak_v = s->bus_v;
 }
 
+void n21_half_note(n21_half_t *h, uint32_t f, bool phi_valid, float phi, float ct)
+{
+    if (!h->open || h->broken) return;
+    if (h->f_lo_hz == 0 || f < h->f_lo_hz) h->f_lo_hz = f;
+    if (f > h->f_hi_hz) h->f_hi_hz = f;
+    h->f_last_hz = f;
+    if (phi_valid && isfinite(phi)) { h->phi_sum += phi; h->phi_n++; }
+    if (isfinite(ct) && ct > h->ct_abs_max_a) h->ct_abs_max_a = ct;
+}
+
 bool n21_half_close(n21_half_t *h, const input_limits_cfg_t *cfg, uint64_t zero, uint32_t max_gap,
                     float drop, n21_half_result_t *r)
 {
@@ -114,6 +124,15 @@ bool n21_half_close(n21_half_t *h, const input_limits_cfg_t *cfg, uint64_t zero,
     if (!input_limits_half_cycle(cfg, h->s, h->n, line, &r->est)) return false;
     r->end_us = zero;
     r->line_rms_v = line;
+    r->f_hz = h->f_last_hz;
+    r->f_lo_hz = h->f_lo_hz;
+    r->f_hi_hz = h->f_hi_hz;
+    r->phi_n = h->phi_n;
+    r->phi_mean_rad = h->phi_n ? h->phi_sum / (float)h->phi_n : NAN;
+    r->ct_abs_max_a = h->ct_abs_max_a;
+    r->rms_sample_max_a = 0;
+    for (size_t j = 0; j < h->n; j++)
+        if (h->s[j].tank_rms_a > r->rms_sample_max_a) r->rms_sample_max_a = h->s[j].tank_rms_a;
     return true;
 }
 

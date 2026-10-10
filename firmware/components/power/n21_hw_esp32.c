@@ -16,6 +16,16 @@
  * bridge_plan_cycle. "Pads off" forces raw HA/HB low and raw LA/LB high, i.e. all four outputs
  * low after the dead-time stage; any API failure falls back to the D-25 GPIO-low teardown.
  *
+ * Live retiming (frequency loop, hw_pwm_update): the timer is created with update_period_on_empty
+ * and the comparators with update_cmp_on_tez, so a new period and half-period compare written while
+ * the bridge runs load from the shadow registers at the next timer zero; every period is whole and
+ * the counter can never be above a shrunken period. Each leg's two outputs come from ONE comparator
+ * through RED / FED+inv, so the leg's non-overlap is independent of when the compare loads; if the
+ * period and a compare land on different TEZs (writes straddling a zero), one period carries a
+ * duty error of at most half the step (<= 1 kHz: <= 32 ticks at 35 kHz), never an overlap. HIL:
+ * confirm the shadow load on a scope across a forced 1 kHz step, and that pwm_program (timer
+ * stopped at zero) still starts with the written period under update_period_on_empty.
+ *
  * Captures: MCPWM capture channels read the pads back (io_loop_back). Group 0: HA, LA, CT_ZC.
  * Group 1: HA, HB, LB. HA is captured in both groups and serves as each group's phase reference
  * (HA rises one dead time after the PWM timer zero), so no cross-group timer sync is needed.
@@ -142,7 +152,7 @@ static bool pwm_create(void)
 {
     mcpwm_timer_config_t tc = {.group_id = 0, .clk_src = MCPWM_TIMER_CLK_SRC_DEFAULT,
                                .resolution_hz = 80000000, .count_mode = MCPWM_TIMER_COUNT_MODE_UP,
-                               .period_ticks = 1600};
+                               .period_ticks = 1600, .flags.update_period_on_empty = true};
     if (mcpwm_new_timer(&tc, &hw.timer) != ESP_OK) return false;
     for (unsigned leg = 0; leg < 2; leg++) {
         mcpwm_operator_config_t oc = {.group_id = 0};
@@ -192,6 +202,27 @@ static bool hw_pwm_program(void *ctx, const bridge_cycle_t *c)
     hw.timer_running = true;
     hw.cycle = *c;
     return true;
+}
+
+/* Live period change while the pads run (frequency loop). Same dead time; the step is bounded by
+ * the binding, re-checked here (<= 1/16 of the period, ~3.7 kHz at 60 kHz). Holds cap_mutex so
+ * hw_read_ct_zc / hw_pwm_capture never pair one period's edges with the other's period. */
+static bool hw_pwm_update(void *ctx, const bridge_cycle_t *c)
+{
+    (void)ctx;
+    if (!c || c->period < 4 || c->period % 2 || c->dead_ticks != hw.cycle.dead_ticks ||
+        !hw.timer_running || !hw.cycle.period)
+        return false;
+    uint32_t d = c->period > hw.cycle.period ? c->period - hw.cycle.period : hw.cycle.period - c->period;
+    if (d * 16u > hw.cycle.period) return false;
+    if (xSemaphoreTake(hw.cap_mutex, pdMS_TO_TICKS(2)) != pdTRUE) return false;
+    bool ok = mcpwm_timer_set_period(hw.timer, c->period) == ESP_OK;
+    for (unsigned leg = 0; ok && leg < 2; leg++)
+        ok = mcpwm_comparator_set_compare_value(hw.cmp[leg], c->period / 2) == ESP_OK;
+    if (ok) hw.cycle = *c;
+    xSemaphoreGive(hw.cap_mutex);
+    if (!ok) { (void)force_off(); (void)pads_gpio_low(); } /* unknown timing: pads away */
+    return ok;
 }
 
 /* ------------------------------------------------------------------ captures */
@@ -521,7 +552,13 @@ static n21_config_t config_from_kconfig(void)
 #if CONFIG_TEMPER_POWER_CALIBRATED
     c.calibrated = true;
 #endif
-    c.frequency_hz = CONFIG_TEMPER_POWER_FREQUENCY_HZ;
+    c.freq.f_max_hz = CONFIG_TEMPER_POWER_F_MAX_HZ;
+    c.freq.f_min_hz = CONFIG_TEMPER_POWER_F_MIN_HZ;
+    c.freq.pan_q_max = CONFIG_TEMPER_POWER_PAN_Q_MAX_X10 * 0.1f;
+    c.freq.pan_r_min_ohm = CONFIG_TEMPER_POWER_PAN_R_MIN_MOHM * 1e-3f;
+    /* Commissioned tank ceiling (COMMISSIONING.md "Raising the commissioned tank ceiling"). Out of
+     * range leaves the config invalid, so init refuses it. */
+    (void)n21_config_set_tank_ceiling(&c, CONFIG_TEMPER_POWER_TANK_CEILING_DA * 0.1f);
     c.limits.est_error = CONFIG_TEMPER_POWER_EST_ERROR_PPM * 1e-6f;
     c.line_zc.cal_offset_us = CONFIG_TEMPER_POWER_LINE_ZC_OFFSET_US;
     c.vsw_delay_ns = CONFIG_TEMPER_POWER_VSW_DELAY_NS;
@@ -554,7 +591,8 @@ n21_init_t n21_hw_start(void)
     }
     const n21_hw_ops_t ops = {
         .now_us = hw_now, .lock = hw_lock, .unlock = hw_unlock,
-        .pwm_program = hw_pwm_program, .pwm_outputs = hw_pwm_outputs, .pwm_capture = hw_pwm_capture,
+        .pwm_program = hw_pwm_program, .pwm_update = hw_pwm_update, .pwm_outputs = hw_pwm_outputs,
+        .pwm_capture = hw_pwm_capture,
         .run_gate = NULL, /* the controller as captured has no firmware driver enable (H1) */
         .read_status = hw_read_status, .interlock_reset_pulse = hw_interlock_reset_pulse,
         .read_adc1 = hw_read_adc1, .read_ext_adc = hw_read_ext_adc, .read_ct_zc = hw_read_ct_zc,

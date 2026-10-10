@@ -9,6 +9,9 @@ typedef struct { uint32_t rise, width; } bridge_pulse_t;
 typedef struct { uint32_t period, dead_ticks; bridge_pulse_t pulse[4]; } bridge_cycle_t;
 typedef struct {
     uint32_t timer_hz, frequency_hz, input_deadtime_ns, capture_age_us;
+    /* 0: fixed frequency_hz (round 5). Otherwise fullbridge_set_frequency may move the bridge
+     * within [frequency_min_hz, frequency_hz]; frequency_hz is then the start (maximum). */
+    uint32_t frequency_min_hz;
     float max_power_w, inlet_target_a, auxiliary_reserve_w;
     /* Disabled until commissioning map and exact controller wiring reviewed. */
     bool commissioned;
@@ -29,6 +32,7 @@ typedef struct {
     bridge_backend_t backend;
     bridge_cycle_t cycle;
     float conductance_s, requested_w;
+    uint32_t frequency_hz; /* live: planned on every fullbridge_apply */
     uint32_t last_line_us, last_capture_serial;
     bool initialized, armed, tripped, have_line, have_capture;
 } fullbridge_adapter_t;
@@ -43,6 +47,9 @@ bool fullbridge_request(fullbridge_adapter_t *, float watts);
  * data re-use. Return false inhibits on invalid/repeated/out-of-range data. */
 bool fullbridge_line_cycle(fullbridge_adapter_t *, uint32_t now_us,
                            float line_rms_v, float inlet_rms_a, float pan_budget_w);
+/* Sets the frequency the next fullbridge_apply plans and applies. Outside the configured window
+ * it trips. Step bounds and the ZVS floor belong to the caller (the binding's frequency loop). */
+bool fullbridge_set_frequency(fullbridge_adapter_t *, uint32_t frequency_hz);
 /* phase_fraction must be exactly 1 (180 degrees). Feedback covers all outputs. */
 bool fullbridge_apply(fullbridge_adapter_t *, uint32_t now_us,
                       const bridge_feedback_t *, float characterized_phase_fraction);

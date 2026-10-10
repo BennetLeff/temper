@@ -9,19 +9,35 @@
 
 n21_config_t n21_config_default(void)
 {
-    return (n21_config_t){
+    n21_config_t c = {
         .mode = N21_MODE_INHIBITED, .calibrated = false,
-        .timer_hz = 80000000u, .frequency_hz = 0u, .input_deadtime_ns = 200u,
+        .timer_hz = 80000000u, .freq = tank_freq_default(), .input_deadtime_ns = 200u,
         .max_power_w = 1800.0f, .inlet_target_a = 13.5f, .auxiliary_reserve_w = 156.0f,
         .limits = input_limits_native21(),
         .vsw_delay_ns = 100, .ct_zc_delay_ns = 0, .ct_zc_inverted = false, .min_lag_deg = 5.0f,
         .line_zc = {.min_width_us = 300, .max_width_us = 4000, .min_half_us = 7833,
                     .max_half_us = 8834, .cal_offset_us = 0},
         .rectifier_drop_v = 0.0f, .startup_budget_w = 300.0f,
-        .tank_rms_trip_a = 23.1f, .tank_peak_trip_a = 45.0f, .cos_phi_min_current_a = 2.0f,
+        .cos_phi_min_current_a = 2.0f,
         .acq_period_us = 625u, .sample_max_age_us = 2000u, .ct_zc_max_age_us = 2000u,
         .capture_age_us = 1000u, .half_max_gap_us = 1500u, .bench_max_ms = 60000u,
     };
+    (void)n21_config_set_tank_ceiling(&c, TANK_CEILING_DEFAULT_A);
+    return c;
+}
+
+bool n21_config_set_tank_ceiling(n21_config_t *c, float a)
+{
+    if (!c) return false;
+    if (!tank_ceiling_ok(a)) {
+        c->limits.tank_limit_a = NAN; /* input_limits_config_ok and config_ok refuse it */
+        return false;
+    }
+    c->limits.tank_limit_a = a;
+    c->tank_rms_trip_a = tank_rms_trip_for(a);
+    c->tank_crest_guard_a = tank_crest_guard_for(a);
+    c->tank_peak_trip_a = tank_peak_trip_for(a);
+    return true;
 }
 
 static void lock(n21_binding_t *b) { if (b->ops.lock) b->ops.lock(b->ops.ctx); }
@@ -47,7 +63,9 @@ static void pads_off(n21_binding_t *b)
 
 static bool config_ok(const n21_config_t *c)
 {
-    return c->timer_hz && c->frequency_hz && c->input_deadtime_ns &&
+    float ceiling = c->limits.tank_limit_a;
+    return c->timer_hz && tank_freq_config_ok(&c->freq) && c->input_deadtime_ns &&
+           tank_ceiling_ok(ceiling) &&
            isfinite(c->max_power_w) && c->max_power_w > 0 &&
            isfinite(c->inlet_target_a) && c->inlet_target_a > 0 && c->inlet_target_a <= 13.5f &&
            isfinite(c->auxiliary_reserve_w) && c->auxiliary_reserve_w >= 0 &&
@@ -58,8 +76,15 @@ static bool config_ok(const n21_config_t *c)
            isfinite(c->rectifier_drop_v) && c->rectifier_drop_v >= 0 && c->rectifier_drop_v < 5 &&
            isfinite(c->startup_budget_w) && c->startup_budget_w >= 0 &&
            isfinite(c->tank_rms_trip_a) && c->tank_rms_trip_a > 0 &&
-           c->tank_rms_trip_a <= c->limits.tank_limit_a * 1.1f &&
-           isfinite(c->tank_peak_trip_a) && c->tank_peak_trip_a > 0 && c->tank_peak_trip_a < 50.9f &&
+           c->tank_rms_trip_a <= ceiling * 1.1f &&
+           /* The guard sits above the crest of the RMS trip (1.41 x) but never above 1.5 x. */
+           isfinite(c->tank_crest_guard_a) && c->tank_crest_guard_a >= c->tank_rms_trip_a &&
+           c->tank_crest_guard_a <= tank_crest_guard_for(ceiling) + 1e-3f &&
+           /* Peak trip: never above the value derived from the ceiling, never at or above the
+            * stage-15 CT band (the hardware trip stays the backstop). */
+           isfinite(c->tank_peak_trip_a) && c->tank_peak_trip_a > 0 &&
+           c->tank_peak_trip_a <= tank_peak_trip_for(ceiling) + 1e-3f &&
+           c->tank_peak_trip_a < TANK_PEAK_TRIP_MAX_A &&
            isfinite(c->cos_phi_min_current_a) && c->cos_phi_min_current_a >= 0 &&
            /* >= 8 samples per half cycle even with one missed period */
            c->acq_period_us >= 100 && c->acq_period_us * 10u <= 7833u &&
@@ -101,6 +126,43 @@ static bool interlock_healthy(const n21_status_rb_t *s)
 }
 
 /* ------------------------------------------------------------------ acquisition context */
+static bool loop_active(const n21_binding_t *b)
+{
+    return b->mode == N21_MODE_COMMISSIONED && b->gate_on && b->pads_live && b->fault == N21_FAULT_NONE;
+}
+
+/* Once per half line cycle, r == NULL when the half failed to close (stale or broken samples). */
+static void half_closed(n21_binding_t *b, const n21_half_result_t *r)
+{
+    /* The envelope trip, on the half-cycle RMS (round 6: per-sample readings are the envelope
+     * crest, ~1.41 x the line-cycle RMS). */
+    if (r && r->est.tank_rms_a > b->cfg.tank_rms_trip_a) latch(b, N21_FAULT_TANK_RMS);
+    if (!loop_active(b)) {
+        tank_freq_reset(&b->tf, &b->cfg.freq);
+        return;
+    }
+    tank_freq_obs_t o = {.valid = false};
+    if (r) {
+        float peak = fmaxf(TANK_PEAK_PER_RMS * r->est.tank_rms_a,
+                           fmaxf(TANK_PEAK_PER_CREST_RMS * r->rms_sample_max_a, r->ct_abs_max_a));
+        o = (tank_freq_obs_t){
+            .valid = true, .phase_valid = r->phi_n >= 4u, .f_hz = r->f_hz,
+            /* Frequency moved by at most one approach step within the half: its lag may feed the
+             * f_res fit, at the mean frequency. */
+            .fit_ok = r->f_lo_hz > 0 && r->f_hi_hz - r->f_lo_hz <= b->cfg.freq.step_down_hz,
+            .f_fit_hz = 0.5f * ((float)r->f_lo_hz + (float)r->f_hi_hz),
+            .phi_rad = r->phi_mean_rad, .tank_rms_a = r->est.tank_rms_a,
+            .inlet_a = r->est.inlet_bound_a, .peak_a = peak, .p_inv_w = r->est.p_inv_w,
+            .p_in_w = r->est.p_in_w,
+        };
+    }
+    tank_freq_limits_t lim = {.ceiling_a = b->cfg.limits.tank_limit_a,
+                              .inlet_max_a = b->cfg.inlet_target_a,
+                              .peak_trip_a = b->cfg.tank_peak_trip_a, .request_w = b->request_w};
+    if (tank_freq_step(&b->tf, &b->cfg.freq, &lim, &o) == TF_FAULT_OVERRUN)
+        latch(b, N21_FAULT_TANK_RMS); /* no-pan clamp (or ceiling) not held: latch */
+}
+
 void n21_acquire_step(n21_binding_t *b)
 {
     if (!b || !b->initialized) return;
@@ -122,8 +184,10 @@ void n21_acquire_step(n21_binding_t *b)
                 b->tm.last_half = r;
                 b->tm.have_half = true;
                 b->tm.halves_ok++;
+                half_closed(b, &r);
             } else {
                 b->tm.halves_bad++;
+                half_closed(b, NULL);
             }
         }
         n21_half_begin(&b->half, zero);
@@ -153,12 +217,13 @@ void n21_acquire_step(n21_binding_t *b)
         latch(b, N21_FAULT_RMS_CHANNEL);
     } else if (n21_tank_rms_from_codes(&b->cfg.analog, code, b->ref_code, &rms, &v3) != N21_SIG_OK) {
         latch(b, N21_FAULT_RMS_CHANNEL);
-    } else if (rms > b->cfg.tank_rms_trip_a) {
-        latch(b, N21_FAULT_TANK_RMS);  /* 22 A envelope, 2026-10-08 */
+    } else if (rms > b->cfg.tank_crest_guard_a) {
+        latch(b, N21_FAULT_TANK_RMS);  /* per-sample crest guard; the trip is on the half RMS */
     }
 
     /* cos(phi): CT_ZC is undefined without tank current; cos = 1 is the conservative bound. */
     float cos_phi = 1.0f, phi = 0.0f;
+    bool phi_valid = false;
     if (isfinite(rms) && rms >= b->cfg.cos_phi_min_current_a && b->pads_live) {
         uint32_t zc = 0;
         uint64_t zt = 0;
@@ -166,12 +231,15 @@ void n21_acquire_step(n21_binding_t *b)
             latch(b, N21_FAULT_CT_ZC_STALE);
         else if (!n21_cos_phi(&b->phase, zc, &cos_phi, &phi))
             latch(b, N21_FAULT_PHASE);
+        else
+            phi_valid = true;
     }
 
     bool good = !invalid && b->fault == N21_FAULT_NONE && isfinite(bus) && isfinite(rms);
     if (good) {
         input_sample_t s = {.bus_v = bus, .tank_rms_a = rms, .cos_phi = cos_phi};
         n21_half_add(&b->half, now, &s);
+        n21_half_note(&b->half, b->cycle_hz, phi_valid, phi, fabsf(ct_a));
     } else {
         b->half.broken = true;  /* a half with a bad sample never closes */
     }
@@ -258,15 +326,45 @@ static bool sample(void *ctx, uint32_t *now32, bridge_feedback_t *f, bool *line,
     return ok;
 }
 
+/* Control context, once per tick before fullbridge_apply: the loop target (f_max while the gate is
+ * off), approached from the programmed frequency by at most step_up_hz. */
+static uint32_t frequency(void *ctx, float requested_w)
+{
+    n21_binding_t *b = ctx;
+    lock(b);
+    b->request_w = isfinite(requested_w) && requested_w > 0 ? requested_w : 0.0f;
+    uint32_t target = loop_active(b) ? b->tf.f_hz : b->cfg.freq.f_max_hz;
+    b->freq_cmd_hz = tank_freq_slew(b->cycle_hz, target, b->cfg.freq.step_up_hz);
+    uint32_t f = b->freq_cmd_hz;
+    unlock(b);
+    return f;
+}
+
 static bool apply_cycle(void *ctx, const bridge_cycle_t *c)
 {
     n21_binding_t *b = ctx;
-    /* Only the fixed 180-degree plan computed at init; no live timing changes. */
-    if (!c || !cycle_equal(c, &b->cycle)) return false;
-    if (b->programmed) return true;
-    if (b->pads_live || !b->ops.pwm_program(b->ops.ctx, c)) return false;
-    b->programmed = true;
-    return true;
+    const tank_freq_cfg_t *fc = &b->cfg.freq;
+    /* Only the 180-degree plan of the frequency last handed out by frequency(), inside
+     * [f_min, f_max] and at most one bounded step from the programmed cycle. */
+    uint32_t f = b->freq_cmd_hz;
+    bridge_cycle_t want;
+    if (!c || f < fc->f_min_hz || f > fc->f_max_hz ||
+        !bridge_plan_cycle(b->cfg.timer_hz, f, b->cfg.input_deadtime_ns, 1.0f, &want) || !cycle_equal(c, &want))
+        return false;
+    if (b->programmed && cycle_equal(c, &b->cycle)) return true;
+    uint32_t step = f > b->cycle_hz ? f - b->cycle_hz : b->cycle_hz - f;
+    if (b->programmed && step > fc->step_up_hz) return false;
+    lock(b); /* the period and the CT_ZC phase reference change together */
+    bool ok = b->pads_live ? (b->ops.pwm_update && b->ops.pwm_update(b->ops.ctx, c))
+                           : b->ops.pwm_program(b->ops.ctx, c);
+    if (ok) {
+        b->cycle = *c;
+        b->cycle_hz = f;
+        b->phase.period_ticks = c->period;
+        b->programmed = true;
+    }
+    unlock(b);
+    return ok;
 }
 
 static bool set_request(void *ctx, bool on)
@@ -317,8 +415,10 @@ n21_init_t n21_binding_init(n21_binding_t *b, const n21_config_t *c, const n21_h
         return b->initialized ? N21_INIT_INHIBITED : N21_INIT_ERROR;
     }
     if (c->mode != N21_MODE_BENCH && c->mode != N21_MODE_COMMISSIONED) return N21_INIT_ERROR;
-    if (!config_ok(c) || !bridge_plan_cycle(c->timer_hz, c->frequency_hz, c->input_deadtime_ns, 1.0f, &b->cycle))
+    if (!config_ok(c) || !bridge_plan_cycle(c->timer_hz, c->freq.f_max_hz, c->input_deadtime_ns, 1.0f, &b->cycle))
         return N21_INIT_ERROR;
+    b->cycle_hz = b->freq_cmd_hz = c->freq.f_max_hz;
+    tank_freq_reset(&b->tf, &c->freq);
     b->phase = (n21_phase_cfg_t){
         .period_ticks = b->cycle.period,
         .vsw_delay_ticks = ns_to_ticks(c->vsw_delay_ns, c->timer_hz),
@@ -329,6 +429,7 @@ n21_init_t n21_binding_init(n21_binding_t *b, const n21_config_t *c, const n21_h
     if (c->mode == N21_MODE_COMMISSIONED) {
         if (!ops->run_gate) return N21_INIT_NO_RUN_GATE;
         if (!c->calibrated) return N21_INIT_NOT_CALIBRATED;
+        if (!ops->pwm_update) return N21_INIT_ERROR; /* the frequency loop needs live retiming */
     }
     if (!ops->pwm_program(ops->ctx, &b->cycle)) return N21_INIT_ERROR;
     b->programmed = true;
@@ -336,7 +437,7 @@ n21_init_t n21_binding_init(n21_binding_t *b, const n21_config_t *c, const n21_h
     if (c->mode == N21_MODE_BENCH) return N21_INIT_BENCH;
     if (!out) return N21_INIT_ERROR;
     out->config = (bridge_config_t){
-        .timer_hz = c->timer_hz, .frequency_hz = c->frequency_hz,
+        .timer_hz = c->timer_hz, .frequency_hz = c->freq.f_max_hz, .frequency_min_hz = c->freq.f_min_hz,
         .input_deadtime_ns = c->input_deadtime_ns, .capture_age_us = c->capture_age_us,
         .max_power_w = c->max_power_w, .inlet_target_a = c->inlet_target_a,
         .auxiliary_reserve_w = c->auxiliary_reserve_w,
@@ -344,6 +445,7 @@ n21_init_t n21_binding_init(n21_binding_t *b, const n21_config_t *c, const n21_h
     };
     out->backend = (bridge_backend_t){apply_cycle, set_request, inhibit, b};
     out->sample = sample;
+    out->frequency = frequency;
     out->context = b;
     /* burst stays zero-initialised: burst_enabled = false */
     return N21_INIT_BIND;
@@ -382,6 +484,14 @@ void n21_telemetry(n21_binding_t *b, n21_telemetry_t *t)
     t->gate_on = b->gate_on;
     t->armed_line = b->armed_line;
     t->bench_active = b->bench_active;
+    t->freq_hz = b->cycle_hz;
+    t->freq_target_hz = b->tf.f_hz;
+    t->floor_hz = b->tf.floor_hz;
+    t->f_res_hz = b->tf.f_res_hz;
+    t->q = b->tf.q;
+    t->ceiling_eff_a = b->tf.ceiling_eff_a;
+    t->pan_present = b->tf.pan_present;
+    t->freq_reason = b->tf.reason;
     unlock(b);
 }
 

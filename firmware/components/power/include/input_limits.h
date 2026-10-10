@@ -22,7 +22,7 @@ typedef struct {
     float eta_min;      /* inverter + bridge efficiency lower bound, 0.5..1 */
     float est_error;    /* estimator relative error bound, 0..0.5 */
     float aux_max_a;    /* auxiliary inlet current allowance (both IRM-20 at full load) */
-    float tank_limit_a; /* tank RMS ceiling, e.g. 22 */
+    float tank_limit_a; /* commissioned tank RMS ceiling: 22 A default, <= 28 A (hardware basis) */
 } input_limits_cfg_t;
 typedef struct {
     float bus_v;      /* VBUS from the isolated AMC1311, V */

@@ -1,5 +1,5 @@
 set(POWER_SRCS "energy_supervisor.c" "fullbridge_adapter.c" "power_service.c" "energy_link.c"
-    "burst_scheduler.c" "line_zc.c" "input_limits.c" "n21_signal.c" "n21_binding.c")
+    "burst_scheduler.c" "line_zc.c" "input_limits.c" "n21_signal.c" "n21_binding.c" "tank_freq.c")
 set(POWER_REQUIRES driver esp_timer)
 # The ESP32 binding is opt-in (Kconfig TEMPER_POWER_HW_BINDING, default n): it has not been
 # compiled against ESP-IDF yet, so it must not break the default image.

@@ -3,7 +3,9 @@
 input_limits_cfg_t input_limits_native21(void)
 {
     /* est_error provisional until bench qualification; aux from IRM-20-SPEC 2025-11-21
-     * (0.6 A typ. at 115 Vac each) scaled to 108 V; tank ceiling from the 2026-10-08 envelope. */
+     * (0.6 A typ. at 115 Vac each) scaled to 108 V; tank ceiling: the 22 A shipping default
+     * (2026-10-08 envelope; DECISIONS 10). The commissioned value replaces it (Kconfig
+     * TEMPER_POWER_TANK_CEILING_DA via n21_config_set_tank_ceiling). */
     return (input_limits_cfg_t){ .eta_min = 0.93f, .est_error = 0.10f, .aux_max_a = 1.3f, .tank_limit_a = 22.0f };
 }
 bool input_limits_config_ok(const input_limits_cfg_t *c)
@@ -11,7 +13,8 @@ bool input_limits_config_ok(const input_limits_cfg_t *c)
     return c && isfinite(c->eta_min) && c->eta_min >= 0.5f && c->eta_min <= 1.0f &&
            isfinite(c->est_error) && c->est_error >= 0 && c->est_error <= 0.5f &&
            isfinite(c->aux_max_a) && c->aux_max_a >= 0 && c->aux_max_a < 5.0f &&
-           isfinite(c->tank_limit_a) && c->tank_limit_a > 0 && c->tank_limit_a <= 44.0f;
+           isfinite(c->tank_limit_a) && c->tank_limit_a > 0 &&
+           c->tank_limit_a <= 28.0f; /* stage-15 hardware sizing basis (DECISIONS 10) */
 }
 bool input_limits_half_cycle(const input_limits_cfg_t *c, const input_sample_t *s, size_t n,
                              float line_rms_v, input_estimate_t *out)

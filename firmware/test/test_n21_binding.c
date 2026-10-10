@@ -14,11 +14,16 @@ typedef struct {
     uint64_t now;
     bool pads_live, gate, has_gate, permit, bus_fault, rail_ok, sup_run_ok;
     bool status_fail, adc_fail, ext_fail, program_fail, outputs_fail, capture_skew;
-    bool line_present, ct_zc_fail, acquiring;
+    bool line_present, ct_zc_fail, acquiring, update_fail;
     float vbus_peak, tank_rms_on, lag_deg, ct_mon_extra_a, vbus_force_mv, ref_v3v3;
     uint16_t ref_code_force;
     bridge_cycle_t programmed;
-    unsigned resets, programs, outputs_on, outputs_off, gate_on_calls;
+    unsigned resets, programs, updates, outputs_on, outputs_off, gate_on_calls;
+    uint32_t min_period, max_period;
+    double max_update_hz;
+    /* Optional first-harmonic series-RLC tank: when model_L > 0, the tank current and the lag
+     * follow the programmed frequency (sample current = 0.9003 x bus / |Z|). */
+    double model_L, model_C, model_R;
     uint64_t next_zero, ct_zc_age;
     int pending; /* 0: next edge rise, 1: next edge fall */
 } fake_t;
@@ -27,6 +32,26 @@ static n21_binding_t B;
 
 static uint64_t f_now(void *c) { (void)c; return F.now; }
 static bool f_program(void *c, const bridge_cycle_t *k) { (void)c; F.programs++; F.programmed = *k; return !F.program_fail; }
+static bool f_update(void *c, const bridge_cycle_t *k)
+{
+    (void)c;
+    if (F.update_fail) return false;
+    assert(F.pads_live && k->dead_ticks == F.programmed.dead_ticks);
+    double d = fabs(80e6 / k->period - 80e6 / F.programmed.period);
+    if (d > F.max_update_hz) F.max_update_hz = d;
+    if (!F.min_period || k->period < F.min_period) F.min_period = k->period;
+    if (k->period > F.max_period) F.max_period = k->period;
+    F.updates++;
+    F.programmed = *k;
+    return true;
+}
+static double model_f(void) { return 80e6 / (double)F.programmed.period; }
+static double model_z(double *lag_deg)
+{
+    double w = 6.283185307179586 * model_f(), x = w * F.model_L - 1.0 / (w * F.model_C);
+    if (lag_deg) *lag_deg = atan2(x, F.model_R) * 57.29577951308232;
+    return hypot(F.model_R, x);
+}
 static bool f_outputs(void *c, bool live)
 {
     (void)c;
@@ -79,7 +104,8 @@ static bool f_ext(void *c, unsigned ch, uint16_t *code)
     uint16_t ref = F.ref_code_force ? F.ref_code_force : (uint16_t)lroundf(2.5f * 4096.0f / F.ref_v3v3);
     if (ch == N21_MCP3202_CH_REF) *code = ref;
     else {
-        float rms = running() ? F.tank_rms_on * fabsf(sinf(6.28318530718f * 60.0f * (float)F.now * 1e-6f)) : 0;
+        float on = F.model_L > 0 ? (float)(0.900316316 * F.vbus_peak / model_z(NULL)) : F.tank_rms_on;
+        float rms = running() ? on * fabsf(sinf(6.28318530718f * 60.0f * (float)F.now * 1e-6f)) : 0;
         float codes = rms * N21_RMS_V_PER_A * ref / 2.5f;
         *code = codes > 4095 ? 4095 : (uint16_t)lroundf(codes);
     }
@@ -89,7 +115,9 @@ static bool f_ct_zc(void *c, uint32_t *zc, uint64_t *t)
 {
     (void)c;
     uint32_t p = F.programmed.period;
-    int32_t ticks = (int32_t)lroundf(F.lag_deg / 360.0f * (float)p) + 8; /* + vsw delay 100 ns */
+    double lag = F.lag_deg;
+    if (F.model_L > 0) (void)model_z(&lag);
+    int32_t ticks = (int32_t)lround(lag / 360.0 * (double)p) + 8; /* + vsw delay 100 ns */
     *zc = (uint32_t)((ticks % (int32_t)p + (int32_t)p) % (int32_t)p);
     *t = F.now - F.ct_zc_age;
     return !F.ct_zc_fail;
@@ -110,8 +138,11 @@ static size_t f_edges(void *c, uint64_t *t, bool *lv, size_t max)
     if (!F.line_present) while (F.next_zero + 1000 <= F.now) F.next_zero += 8333;
     return n;
 }
-static const n21_hw_ops_t OPS = {f_now, NULL, NULL, f_program, f_outputs, f_capture, f_gate,
-                                 f_status, f_reset, f_adc1, f_ext, f_ct_zc, f_edges, NULL};
+static const n21_hw_ops_t OPS = {
+    .now_us = f_now, .pwm_program = f_program, .pwm_update = f_update, .pwm_outputs = f_outputs,
+    .pwm_capture = f_capture, .run_gate = f_gate, .read_status = f_status, .interlock_reset_pulse = f_reset,
+    .read_adc1 = f_adc1, .read_ext_adc = f_ext, .read_ct_zc = f_ct_zc, .line_zc_edges = f_edges,
+};
 
 static void fake_reset(bool with_gate)
 {
@@ -139,7 +170,7 @@ static n21_config_t commissioned_cfg(void)
     n21_config_t c = n21_config_default();
     c.mode = N21_MODE_COMMISSIONED;
     c.calibrated = true;
-    c.frequency_hz = 50000;
+    c.freq.f_max_hz = 50000; /* loop start; the fixed 30 deg fake lag (< 45 deg) holds it there */
     return c;
 }
 /* Advance simulated time; acquisition every 625 us, control tick every 10 ms. Returns false if the
@@ -376,7 +407,11 @@ static void test_default_is_inhibited(void)
 {
     fake_reset(true);
     n21_config_t c = n21_config_default();
-    assert(c.mode == N21_MODE_INHIBITED && !c.calibrated && c.frequency_hz == 0);
+    assert(c.mode == N21_MODE_INHIBITED && !c.calibrated);
+    /* Shipping tank ceiling 22 A and its derived trips; the loop starts at 60 kHz. */
+    assert(c.limits.tank_limit_a == 22.0f && NEAR(c.tank_rms_trip_a, 23.1, 1e-4) &&
+           NEAR(c.tank_peak_trip_a, 50.74, 1e-4) && NEAR(c.tank_crest_guard_a, 33.0, 1e-4));
+    assert(c.freq.f_max_hz == 60000 && c.freq.f_min_hz == 35000);
     power_binding_t pb;
     n21_hw_ops_t o = ops();
     F.pads_live = true; F.gate = true;              /* whatever state the pins were in */
@@ -398,11 +433,15 @@ static void test_default_is_inhibited(void)
     assert(n21_binding_init(&B, &c, &o, &pb) == N21_INIT_NO_RUN_GATE && !pb.config.commissioned && inhibited());
     fake_reset(true);
     o = ops();
-    c.frequency_hz = 0;
+    c.freq.f_max_hz = 0;
     assert(n21_binding_init(&B, &c, &o, &pb) == N21_INIT_ERROR);
     c = commissioned_cfg();
-    c.tank_peak_trip_a = 60;                        /* above the hardware band: refused */
+    c.tank_peak_trip_a = 60;                        /* above the 22 A derivation (50.74 A): refused */
     assert(n21_binding_init(&B, &c, &o, &pb) == N21_INIT_ERROR);
+    c = commissioned_cfg();
+    o.pwm_update = NULL;                            /* the loop needs live retiming */
+    assert(n21_binding_init(&B, &c, &o, &pb) == N21_INIT_ERROR);
+    o = ops();
     c = commissioned_cfg();
     c.acq_period_us = 1000;                         /* < 8 samples per half cycle */
     assert(n21_binding_init(&B, &c, &o, &pb) == N21_INIT_ERROR);
@@ -448,10 +487,12 @@ static void inj_status_fail(void) { F.status_fail = true; }
 static void inj_vbus_over(void) { F.vbus_force_mv = 1215; }
 static void inj_vbus_invalid(void) { F.vbus_force_mv = 50; }
 static void inj_adc_fail(void) { F.adc_fail = true; }
-static void inj_ct_peak(void) { F.ct_mon_extra_a = 47; }
+static void inj_ct_peak(void) { F.ct_mon_extra_a = 52; } /* > 50.74 A */
 static void inj_spi(void) { F.ext_fail = true; }
 static void inj_ref(void) { F.ref_code_force = 2800; }
-static void inj_tank_rms(void) { F.tank_rms_on = 26; F.lag_deg = 80; } /* > 23.1 A, low power */
+/* Half-cycle RMS 32.9 / sqrt 2 = 23.26 A > 23.1 A, every sample under the 33 A crest guard. */
+static void inj_tank_rms(void) { F.tank_rms_on = 32.9f; F.lag_deg = 80; }
+static void inj_crest(void) { F.tank_rms_on = 34.0f; F.lag_deg = 80; } /* one sample > 33 A */
 static void inj_capacitive(void) { F.lag_deg = -10; }
 static void inj_ct_zc_stale(void) { F.ct_zc_age = 5000; }
 static void inj_ct_zc_fail(void) { F.ct_zc_fail = true; }
@@ -471,7 +512,8 @@ static void test_any_fault_inhibits(void)
         {"vbus invalid", inj_vbus_invalid, N21_FAULT_NONE}, {"adc1 read", inj_adc_fail, N21_FAULT_NONE},
         {"ct_mon peak", inj_ct_peak, N21_FAULT_TANK_PEAK}, {"mcp3202 spi", inj_spi, N21_FAULT_RMS_CHANNEL},
         {"lm4040 ref", inj_ref, N21_FAULT_RMS_CHANNEL},
-        {"tank rms > 22 A envelope", inj_tank_rms, N21_FAULT_TANK_RMS},
+        {"half-cycle tank rms > 1.05 x 22 A", inj_tank_rms, N21_FAULT_TANK_RMS},
+        {"tank rms sample > 1.5 x 22 A crest guard", inj_crest, N21_FAULT_TANK_RMS},
         {"capacitive phase", inj_capacitive, N21_FAULT_PHASE},
         {"ct_zc stale", inj_ct_zc_stale, N21_FAULT_CT_ZC_STALE},
         {"ct_zc missing", inj_ct_zc_fail, N21_FAULT_CT_ZC_STALE},
@@ -561,7 +603,7 @@ static void test_bench_session(void)
     fake_reset(false);                              /* controller as captured */
     n21_config_t c = n21_config_default();
     c.mode = N21_MODE_BENCH;
-    c.frequency_hz = 50000;
+    c.freq.f_max_hz = 50000;
     n21_hw_ops_t o = ops();
     power_binding_t pb;
     assert(n21_binding_init(&B, &c, &o, &pb) == N21_INIT_BENCH && !pb.config.commissioned && pb.sample == NULL);
@@ -619,6 +661,196 @@ static void test_hw_failures(void)
     tests++;
 }
 
+/* ============================================================ stage 15: tank ceiling and loop */
+static void test_tank_ceiling_config(void)
+{
+    fake_reset(true);
+    n21_hw_ops_t o = ops();
+    power_binding_t pb;
+    /* Each commissioning step's ceiling binds with its derived trips (PLAN section 4). */
+    static const struct { float a, peak, rms; } step[] = {{22, 50.74f, 23.1f}, {24, 55.08f, 25.2f},
+                                                          {26, 59.42f, 27.3f}, {28, 62.0f, 29.4f}};
+    for (unsigned i = 0; i < 4; i++) {
+        n21_config_t c = commissioned_cfg();
+        assert(n21_config_set_tank_ceiling(&c, step[i].a));
+        assert(NEAR(c.tank_peak_trip_a, step[i].peak, 1e-3) && NEAR(c.tank_rms_trip_a, step[i].rms, 1e-3));
+        assert(NEAR(c.tank_crest_guard_a, 1.5 * step[i].a, 1e-3) && c.limits.tank_limit_a == step[i].a);
+        assert(n21_binding_init(&B, &c, &o, &pb) == N21_INIT_BIND);
+    }
+    n21_config_t c = commissioned_cfg();
+    assert(n21_config_set_tank_ceiling(&c, 28));
+    c.tank_peak_trip_a = 62;                        /* 28 A: 62 A accepted */
+    assert(n21_binding_init(&B, &c, &o, &pb) == N21_INIT_BIND);
+    c.tank_peak_trip_a = 65;                        /* at/above the 64.5 A cap (CT band 64.55 A) */
+    assert(n21_binding_init(&B, &c, &o, &pb) == N21_INIT_ERROR);
+    c.tank_peak_trip_a = 45;                        /* a bench may lower a trip, never raise it */
+    c.tank_rms_trip_a = 20;
+    c.tank_crest_guard_a = 30;
+    assert(n21_binding_init(&B, &c, &o, &pb) == N21_INIT_BIND);
+    c = commissioned_cfg();
+    c.tank_peak_trip_a = 62;                        /* 62 A with a 22 A ceiling: refused */
+    assert(n21_binding_init(&B, &c, &o, &pb) == N21_INIT_ERROR);
+    c = commissioned_cfg();
+    c.tank_rms_trip_a = 25;                         /* > 1.1 x 22 A */
+    assert(n21_binding_init(&B, &c, &o, &pb) == N21_INIT_ERROR);
+    c = commissioned_cfg();
+    c.tank_crest_guard_a = 34;                      /* > 1.5 x 22 A */
+    assert(n21_binding_init(&B, &c, &o, &pb) == N21_INIT_ERROR);
+    c = commissioned_cfg();
+    assert(!n21_config_set_tank_ceiling(&c, 28.5f)); /* above the hardware basis: config made invalid */
+    assert(n21_binding_init(&B, &c, &o, &pb) == N21_INIT_ERROR);
+    c = commissioned_cfg();
+    c.limits.tank_limit_a = 30;                     /* bypassing the setter is refused too */
+    assert(n21_binding_init(&B, &c, &o, &pb) == N21_INIT_ERROR);
+    c = commissioned_cfg();
+    c.freq.f_res_margin = 1.0f;                     /* loop config is part of config_ok */
+    assert(n21_binding_init(&B, &c, &o, &pb) == N21_INIT_ERROR);
+    tests++;
+}
+
+static void test_rms_trip_is_half_cycle(void)
+{
+    /* Envelope crest 30 A per sample (the old per-sample 23.1 A trip would latch) but the half-cycle
+     * RMS is 30 / sqrt 2 = 21.2 A: runs. */
+    fake_reset(true);
+    F.tank_rms_on = 30.0f;
+    F.lag_deg = 80; /* low power: inside the 15 A inlet trip */
+    assert(bind_commissioned(commissioned_cfg()));
+    power_set_level(80);
+    run_ms(1000);
+    n21_telemetry_t t;
+    n21_telemetry(&B, &t);
+    assert(F.gate && test_pwm_generation() && t.fault == N21_FAULT_NONE);
+    assert(NEAR(t.last_half.est.tank_rms_a, 21.2, 0.4) && t.last_half.rms_sample_max_a > 29);
+    tests++;
+}
+
+/* Pan on the RLC fake: L 55 uH, C 0.5 uF, R 1.4 ohm (f_res 30.35 kHz, Q 7.5). */
+static void model_pan(void) { F.model_L = 55e-6; F.model_C = 0.5e-6; F.model_R = 1.4; }
+
+static n21_config_t loop_cfg(float ceiling)
+{
+    n21_config_t c = commissioned_cfg();
+    c.freq.f_max_hz = 60000;
+    assert(n21_config_set_tank_ceiling(&c, ceiling));
+    return c;
+}
+
+static void test_freq_loop_live(void)
+{
+    fake_reset(true);
+    model_pan();
+    assert(bind_commissioned(loop_cfg(24)));
+    run_ms(100);
+    assert(F.pads_live && !F.gate && F.programmed.period == 1334 && F.updates == 0); /* 60 kHz, idle */
+    power_set_level(100);
+    run_ms(2500);
+    n21_telemetry_t t;
+    n21_telemetry(&B, &t);
+    assert(F.gate && test_pwm_generation() && t.fault == N21_FAULT_NONE);
+    /* Descended from 60 kHz through live updates, each <= step_up (1 kHz, plus even-period rounding). */
+    assert(F.updates > 50 && F.max_update_hz <= 1100 && F.programs == 1);
+    bridge_cycle_t want;
+    assert(t.freq_hz < 40000 && t.freq_hz >= 35000 && bridge_plan_cycle(80000000u, t.freq_hz, 200, 1.0f, &want) &&
+           F.programmed.period == want.period);
+    /* Pan identified, f_res estimate within 2 %, settled on the 24 A ceiling (half-cycle RMS). */
+    assert(t.pan_present && t.ceiling_eff_a == 24.0f && NEAR(t.f_res_hz, 30350, 600) && t.q < 10);
+    assert(t.last_half.est.tank_rms_a <= 24.0f * 1.005f && t.last_half.est.tank_rms_a >= 24.0f * 0.93f);
+    assert(t.freq_hz >= 1.05 * 30350 && t.floor_hz >= 35000);
+    /* Never below the floor or above f_max at any update. */
+    assert(80e6 / F.max_period >= 35000 - 1 && 80e6 / F.min_period <= 60000 + 1);
+    /* Gate off: the loop resets and the frequency walks back to f_max in bounded steps, no trip. */
+    power_set_level(0);
+    unsigned before = F.updates;
+    run_ms(500);
+    n21_telemetry(&B, &t);
+    assert(!F.gate && F.pads_live && test_pwm_generation() && t.fault == N21_FAULT_NONE);
+    assert(t.freq_hz == 60000 && F.programmed.period == 1334 && F.updates > before + 20);
+    assert(F.max_update_hz <= 1100 && F.resets == 0);
+    tests++;
+}
+
+static void test_no_pan_clamp_live(void)
+{
+    /* Empty coil (R 0.2 ohm, 66.5 uH, bank at its -10 % corner 0.45 uF): with a 28 A ceiling
+     * configured the tank stays <= 22 A. */
+    fake_reset(true);
+    F.model_L = 66.5e-6; F.model_C = 0.45e-6; F.model_R = 0.2;
+    F.vbus_peak = 190.0f; /* enough drive that the empty coil would pass 22 A at the floor */
+    assert(bind_commissioned(loop_cfg(28)));
+    power_set_level(100);
+    float worst = 0;
+    for (int k = 0; k < 30; k++) {
+        run_ms(100);
+        n21_telemetry_t t;
+        n21_telemetry(&B, &t);
+        assert(!t.pan_present && t.ceiling_eff_a == 22.0f && t.fault == N21_FAULT_NONE);
+        if (t.have_half && t.last_half.est.tank_rms_a > worst) worst = t.last_half.est.tank_rms_a;
+    }
+    assert(worst <= 22.0f * 1.005f && worst > 19.0f && test_pwm_generation());
+    /* The empty coil really would exceed 22 A at the 35 kHz floor. */
+    F.programmed.period = 2286;
+    assert(0.900316316 * 190.0 / sqrt(2.0) / model_z(NULL) > 22.5);
+    tests++;
+}
+
+static void test_power_level_live(void)
+{
+    /* power_set_level -> adapter requested_w -> the loop's power target (input-side watts). */
+    fake_reset(true);
+    model_pan();
+    assert(bind_commissioned(loop_cfg(24)));
+    n21_telemetry_t t;
+    float p[3];
+    const uint8_t level[3] = {20, 35, 15}; /* 360, 630, 270 W of the 1800 W max_power_w */
+    for (unsigned i = 0; i < 3; i++) {
+        power_set_level(level[i]);
+        run_ms(2500);
+        n21_telemetry(&B, &t);
+        float req = 1800.0f * level[i] / 100.0f;
+        p[i] = t.last_half.est.p_in_w;
+        assert(F.gate && test_pwm_generation() && t.fault == N21_FAULT_NONE);
+        assert(p[i] >= 0.94f * req * 0.98f && p[i] <= 1.06f * req * 1.02f); /* band + half jitter */
+        assert(t.freq_reason == TF_HOLD_POWER && t.last_half.est.tank_rms_a < 24 * 0.98f);
+    }
+    assert(F.max_update_hz <= 1100 && F.resets == 0);
+    /* Full level: the 24 A limit wins over the 1800 W request. */
+    power_set_level(100);
+    run_ms(2500);
+    n21_telemetry(&B, &t);
+    assert(t.last_half.est.tank_rms_a <= 24 * 1.005f && t.last_half.est.tank_rms_a > 22 &&
+           t.last_half.est.p_in_w < 1800 * 0.9f && t.freq_reason != TF_HOLD_POWER);
+    /* Below the 60 kHz minimum (~73 W for this pan): capped at 60 kHz, still running. */
+    power_set_level(2); /* 36 W */
+    run_ms(2500);
+    n21_telemetry(&B, &t);
+    assert(t.freq_hz == 60000 && t.freq_reason == TF_POWER_AT_FMAX && F.gate && test_pwm_generation());
+    /* Zero stops the bridge, as before. */
+    power_set_level(0);
+    run_ms(200);
+    assert(!F.gate && test_pwm_generation());
+    tests++;
+}
+
+static void test_freq_update_failure(void)
+{
+    /* A failed live retime: the adapter trips, pads low, latched. */
+    fake_reset(true);
+    model_pan();
+    assert(bind_commissioned(loop_cfg(22)));
+    power_set_level(100);
+    run_ms(300);
+    assert(F.gate && F.updates > 0);
+    F.update_fail = true;
+    run_ms(100);
+    assert(inhibited() && !test_pwm_generation());
+    F.update_fail = false;
+    power_set_level(100);
+    run_ms(200);
+    assert(inhibited() && F.resets == 0);
+    tests++;
+}
+
 int main(void)
 {
     test_scaling();
@@ -633,6 +865,12 @@ int main(void)
     test_reset_rate_limit();
     test_bench_session();
     test_hw_failures();
+    test_tank_ceiling_config();
+    test_rms_trip_is_half_cycle();
+    test_freq_loop_live();
+    test_no_pan_clamp_live();
+    test_freq_update_failure();
+    test_power_level_live();
     printf("n21 binding: %u tests passed\n", tests);
     return 0;
 }

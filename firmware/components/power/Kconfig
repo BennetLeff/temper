@@ -32,11 +32,41 @@ config TEMPER_POWER_CALIBRATED
     depends on TEMPER_POWER_HW_BINDING
     default n
 
-config TEMPER_POWER_FREQUENCY_HZ
-    int "Fixed bridge frequency, Hz (0 = not set; bench step 6)"
+config TEMPER_POWER_TANK_CEILING_DA
+    int "Commissioned tank RMS ceiling, 0.1 A (220 = 22 A ships; raise only per COMMISSIONING.md)"
     depends on TEMPER_POWER_HW_BINDING
-    range 0 60000
-    default 0
+    range 100 280
+    default 220
+    help
+        The one tank-current parameter. The hardware (stage 15) is sized for 28 A; the firmware
+        ships at 22 A. Raise 220 -> 240 -> 260 -> 280 only after each step's bench gates pass
+        (COMMISSIONING.md "Raising the commissioned tank ceiling"). Derived from it: half-cycle
+        RMS trip 1.05 x, per-sample crest guard 1.5 x, peak trip min(2.17 x + 3, 62) A. With no pan
+        established the loop holds the tank at or below 22 A whatever this is set to.
+
+config TEMPER_POWER_F_MAX_HZ
+    int "Frequency loop start / maximum, Hz (bench sessions run here)"
+    depends on TEMPER_POWER_HW_BINDING
+    range 35000 60000
+    default 60000
+
+config TEMPER_POWER_F_MIN_HZ
+    int "Frequency loop absolute floor, Hz (the ZVS floor 1.05 f_res is applied on top)"
+    depends on TEMPER_POWER_HW_BINDING
+    range 35000 60000
+    default 35000
+
+config TEMPER_POWER_PAN_Q_MAX_X10
+    int "Pan established: loaded Q from the f_res fit at most this / 10 (bench-tunable)"
+    depends on TEMPER_POWER_HW_BINDING
+    range 20 300
+    default 100
+
+config TEMPER_POWER_PAN_R_MIN_MOHM
+    int "Pan established: p_inv / I_rms^2 at least this, milliohm (bench-tunable)"
+    depends on TEMPER_POWER_HW_BINDING
+    range 100 5000
+    default 800
 
 config TEMPER_POWER_EST_ERROR_PPM
     int "Inlet estimator error bound e_est, ppm (bench step 8; provisional 100000 = 10 %)"

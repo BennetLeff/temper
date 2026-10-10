@@ -531,8 +531,16 @@ add_executable(test_n21_binding test_n21_binding.c
     ../components/power/n21_signal.c ../components/power/n21_binding.c
     ../components/power/power_service.c ../components/power/fullbridge_adapter.c
     ../components/power/burst_scheduler.c ../components/power/input_limits.c
-    ../components/power/line_zc.c)
+    ../components/power/line_zc.c ../components/power/tank_freq.c)
 target_include_directories(test_n21_binding PRIVATE ../components/power/include)
 target_link_libraries(test_n21_binding m)
 target_compile_options(test_n21_binding PRIVATE -UNDEBUG -Wall -Wextra -Werror)
 add_test(NAME n21_binding_tests COMMAND test_n21_binding)
+
+# Stage-15 tank ceiling: trip derivation, config caps, f_res fit, no-pan clamp and the bounded
+# per-pan frequency loop (pure), against a first-harmonic series-RLC tank model.
+add_executable(test_tank_freq test_tank_freq.c ../components/power/tank_freq.c)
+target_include_directories(test_tank_freq PRIVATE ../components/power/include)
+target_link_libraries(test_tank_freq m)
+target_compile_options(test_tank_freq PRIVATE -UNDEBUG -Wall -Wextra -Werror)
+add_test(NAME tank_freq_tests COMMAND test_tank_freq)
