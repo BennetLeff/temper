@@ -1,6 +1,6 @@
 # Temper IC datasheet guidance for PCB design and assembly
 
-Reviewed 2026-10-10. This companion to [the PCB design rubric](PCB_DESIGN_RUBRIC.md) translates manufacturer guidance into reviewable layout and assembly checks. It records applicability and evidence; it does not certify any physical assembly.
+Reviewed 2026-10-10. This companion to [the PCB design rubric](PCB_DESIGN_RUBRIC.md) translates manufacturer guidance into reviewable layout and assembly checks. It records applicability and evidence; it does not certify any physical assembly. The [applied review](PCB_DESIGN_REVIEW_2026-10-10.md) records the actual source/layout findings, including the TPS709 EN violation and three decoupling deviations.
 
 ## Current design inventory and evidence basis
 
@@ -114,6 +114,7 @@ The IC identifiers are stable across this research expansion; gaps in numbering 
 | IC-79 | SN74LVC1G32, SN74LVC1G10, SN74LVC1G332 and SN74LVC1G17: give each device local 0.1 uF bypass with short return, define all inputs, and check operating voltage/logic thresholds across powered and unpowered states. | Per-IC bypass, voltage-domain and unused-pin review | D35/D46/D47/D48, power supply/layout sections |
 | IC-80 | TPS70950: retain 1.5–47 uF effective output capacitance with 0–0.2 ohm ESR; 0.1–2.2 uF local input bypass is recommended and is necessary for anticipated line transients above 10 V. | Biased capacitor/ESR corners and input-transient envelope | D39, section 8.1.1 |
 | IC-81 | TPS709: place input/output capacitors on the IC side with short supply/ground traces; compute junction temperature from linear loss and actual copper, including simultaneous bias-channel loads. | Capacitor-loop overlay and thermal corner calculation | D39, section 10.1, p16; thermal information |
+| IC-123 | TPS70950DBVR: keep EN relative to its own GND within 0–6.5 V recommended and below the 7 V absolute maximum; do not tie EN to a higher-voltage IN rail. Floating EN enables through the internal pullup. Verify the exact DBV variant pin map and partial-power/transient cases. | Compiled pin/net stress audit for U3/U37–U39; corrected source/ECO and startup/brownout captures | D39, sections 5, 6.1/6.3 and 7.4, pp3–4/13 |
 | IC-82 | TPS7A4700: retain at least 1 uF input, 10 uF output and 10 nF NR capacitance; manufacturer performance defaults are 10 uF input, 47 uF output, 1 uF NR. | Effective capacitance and startup/noise measurements | D40, pin functions pp3–4; capacitor recommendations |
 | IC-83 | TPS7A4700: place capacitors on the same side with a shared low-impedance ground and solder the exposed pad to ground/cooling copper; preserve isolation boundaries. | RGW package/pad audit, solder process and junction estimate | D40, section 9.1, p20; RGW appendices |
 | IC-84 | TPS7A4700: unused ANY-OUT voltage-setting pins stay floating; selected pins connect only to GND. Include NR-dependent startup in bias sequencing. | Exact pin/net audit and loaded startup sequence | D40, pin functions and ANY-OUT/startup sections |

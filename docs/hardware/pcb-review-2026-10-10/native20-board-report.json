@@ -1,0 +1,968 @@
+{
+  "schema": "zapote.board-check.v1",
+  "board": "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/section.kicad_pcb",
+  "board_sha256": "27657a0ebce66140b6ea6a0b84940dba420b3a187199798bce3c3d122abf9dae",
+  "schematic": "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/section.kicad_sch",
+  "profile": {
+    "name": "jlcpcb-4layer-2oz",
+    "path": "fab-profiles/jlcpcb-4layer-2oz.json",
+    "sha256": "efd97738b0a0bbf9d3d851ad9f44f479ef05a8a86b3bd94cbf2ca234e378f342"
+  },
+  "status": "fail",
+  "checks": [
+    {
+      "name": "stackup",
+      "report": {
+        "status": "pass",
+        "findings": [
+          {
+            "rule": "DRC.BOARD.STACKUP",
+            "severity": "info",
+            "status": "pass",
+            "message": "4 copper layers; copper + dielectric + mask = 1.653000 mm, declared 1.653000 mm",
+            "object": "board.setup.stackup",
+            "actual": null,
+            "required": null
+          }
+        ],
+        "checked_rules": [
+          "DRC.BOARD.STACKUP"
+        ],
+        "coverage_gaps": []
+      }
+    },
+    {
+      "name": "native",
+      "report": {
+        "status": "fail",
+        "findings": [
+          {
+            "rule": "NATIVE.ERC",
+            "severity": "error",
+            "status": "fail",
+            "message": "16 reported findings, including exclusions",
+            "object": "native report",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.DRC",
+            "severity": "error",
+            "status": "fail",
+            "message": "39 reported findings, including exclusions",
+            "object": "native report",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.UNCONNECTED",
+            "severity": "info",
+            "status": "pass",
+            "message": "0 reported findings across all requested severities",
+            "object": "native report",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.SCHEMATIC_PARITY",
+            "severity": "info",
+            "status": "pass",
+            "message": "0 reported findings across all requested severities",
+            "object": "native report",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.ERC.isolated_pin_label",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Label connected to only one pin",
+            "object": "sheet /: Global Label 'leg_a.driver-nc_7' @ (0.483, 2.184) [2e22d6b4]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.ERC.isolated_pin_label",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Label connected to only one pin",
+            "object": "sheet /: Global Label 'leg_b.driver-nc_7' @ (1.626, 2.184) [ba9c5fdd]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.ERC.isolated_pin_label",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Label connected to only one pin",
+            "object": "sheet /: Global Label 'outb' @ (1.930, 7.163) [04720bd3]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.ERC.ground_pin_not_ground",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Pin GND1 not connected to ground net",
+            "object": "sheet /: Symbol U4 Pin 4 [GND1, Power input, Line] @ (2.769, 6.680) [1df81e4a]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.ERC.ground_pin_not_ground",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Pin GND1 not connected to ground net",
+            "object": "sheet /: Symbol U9 Pin 1 [GND1, Power input, Line] @ (2.769, 6.934) [84b51fb8]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.ERC.isolated_pin_label",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Label connected to only one pin",
+            "object": "sheet /: Global Label 'nc2' @ (2.769, 6.985) [08e6ae37]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.ERC.isolated_pin_label",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Label connected to only one pin",
+            "object": "sheet /: Global Label 'nc5' @ (2.769, 7.137) [6fac7aa3]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.ERC.isolated_pin_label",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Label connected to only one pin",
+            "object": "sheet /: Global Label 'nc6' @ (2.769, 7.188) [433ca9d1]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.ERC.ground_pin_not_ground",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Pin GND1B not connected to ground net",
+            "object": "sheet /: Symbol U9 Pin 7 [GND1B, Power input, Line] @ (2.769, 7.239) [c52645fb]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.ERC.isolated_pin_label",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Label connected to only one pin",
+            "object": "sheet /: Global Label 'nc8' @ (2.769, 7.290) [5c572b96]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.ERC.isolated_pin_label",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Label connected to only one pin",
+            "object": "sheet /: Global Label 'nc10' @ (3.073, 6.985) [0e1ace00]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.ERC.isolated_pin_label",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Label connected to only one pin",
+            "object": "sheet /: Global Label 'nc11' @ (3.073, 7.036) [7dc9387b]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.ERC.isolated_pin_label",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Label connected to only one pin",
+            "object": "sheet /: Global Label 'nc12' @ (3.073, 7.087) [2e85fde6]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.ERC.isolated_pin_label",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Label connected to only one pin",
+            "object": "sheet /: Global Label 'nc15' @ (3.073, 7.239) [e277265f]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.ERC.isolated_pin_label",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Label connected to only one pin",
+            "object": "sheet /: Global Label 'u_hot5_schmitt-nc' @ (9.627, 6.553) [1e596862]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.ERC.isolated_pin_label",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Label connected to only one pin",
+            "object": "sheet /: Global Label 'u_ref-nc' @ (9.931, 3.048) [fbb3d870]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.DRC.lib_footprint_mismatch",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Footprint 'Converter_ACDC_MeanWell_IRM-05-xx_THT' does not match copy in library 'Converter_ACDC'",
+            "object": "Footprint PS2 @ (5.000, 84.000) [07115d07]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.DRC.lib_footprint_mismatch",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Footprint 'D_DO-41_SOD81_P10.16mm_Horizontal' does not match copy in library 'Diode_THT'",
+            "object": "Footprint D1 @ (131.500, 40.000) [0f30a6d4]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.DRC.lib_footprint_mismatch",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Footprint 'TO-247-3_Vertical' does not match copy in library 'Package_TO_SOT_THT'",
+            "object": "Footprint Q5 @ (92.550, 4.215) [0f8526fa]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.DRC.lib_footprint_mismatch",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Footprint 'CDE_942C_D26.5_L34.0_Axial_ReviewOnly' does not match copy in library 'temper'",
+            "object": "Footprint C21 @ (234.250, 97.000) [12d9def7]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.DRC.lib_footprint_mismatch",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Footprint 'TerminalBlock_Phoenix_MKDS-3-2-5.08_1x02_P5.08mm_Horizontal' does not match copy in library 'TerminalBlock_Phoenix'",
+            "object": "Footprint J1 @ (6.700, 150.455) [24178bfa]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.DRC.lib_footprint_mismatch",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Footprint 'Molex_Micro-Fit_3.0_43045-1612_2x08_P3.00mm_Vertical' does not match copy in library 'Connector_Molex'",
+            "object": "Footprint J4 @ (112.500, 64.080) [29848aab]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.DRC.lib_footprint_mismatch",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Footprint 'TDK_B32652A0104K000_P15.00_ReviewOnly' does not match copy in library 'temper'",
+            "object": "Footprint C39 @ (164.600, 22.000) [410720d5]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.DRC.lib_footprint_mismatch",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Footprint 'TDK_B32652A0104K000_P15.00_ReviewOnly' does not match copy in library 'temper'",
+            "object": "Footprint C40 @ (109.000, 22.000) [4f6195da]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.DRC.lib_footprint_mismatch",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Footprint 'Diode_Bridge_GBJ2510' does not match copy in library 'temper'",
+            "object": "Footprint BR1 @ (16.300, 4.600) [52bba33a]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.DRC.lib_footprint_mismatch",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Footprint 'JST_VH_B2P-VH_1x02_P3.96mm_Vertical' does not match copy in library 'Connector_JST'",
+            "object": "Footprint J3 @ (36.450, 105.280) [552d0158]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.DRC.lib_footprint_mismatch",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Footprint 'Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR' does not match copy in library 'TerminalBlock_Wuerth'",
+            "object": "Footprint J2 @ (231.000, 70.500) [5b0dfffa]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.DRC.lib_footprint_mismatch",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Footprint 'Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly' does not match copy in library 'temper'",
+            "object": "Footprint C3 @ (138.500, 93.000) [5ecbcf0b]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.DRC.lib_footprint_mismatch",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Footprint 'Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR' does not match copy in library 'TerminalBlock_Wuerth'",
+            "object": "Footprint J7 @ (13.000, 17.500) [5f4a2327]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.DRC.lib_footprint_mismatch",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Footprint 'Converter_ACDC_MeanWell_IRM-20-xx_THT' does not match copy in library 'Converter_ACDC'",
+            "object": "Footprint PS1 @ (76.000, 116.000) [6064a8f0]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.DRC.lib_footprint_mismatch",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Footprint 'CDE_942C_D19.0_L34.0_Axial_ReviewOnly' does not match copy in library 'temper'",
+            "object": "Footprint C23 @ (212.500, 53.250) [6bebbe17]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.DRC.lib_footprint_mismatch",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Footprint 'Fuseholder_Clip-6.3x32mm_Littelfuse_102071_Inline_P34.70x7.60mm_D2.00mm_Horizontal' does not match copy in library 'Fuse'",
+            "object": "Footprint F1 @ (19.150, 153.000) [6e9b5ab6]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.DRC.lib_footprint_mismatch",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Footprint 'Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR' does not match copy in library 'TerminalBlock_Wuerth'",
+            "object": "Footprint J10 @ (47.000, 30.500) [76461ea4]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.DRC.lib_footprint_mismatch",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Footprint 'MRT130KP_Axial_P20.00mm_ReviewOnly' does not match copy in library 'temper'",
+            "object": "Footprint D3 @ (58.000, 64.950) [83a936f3]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.DRC.lib_footprint_mismatch",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Footprint 'KEMET_R463N410000N1M_P22.50_ReviewOnly' does not match copy in library 'temper'",
+            "object": "Footprint C1 @ (52.750, 127.500) [89b9e7ff]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.DRC.lib_footprint_mismatch",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Footprint 'Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly' does not match copy in library 'temper'",
+            "object": "Footprint C4 @ (145.500, 93.000) [930b305f]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.DRC.lib_footprint_mismatch",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Footprint 'Phoenix_KDS3_1704004_1Pos_2Pin_ReviewOnly' does not match copy in library 'temper'",
+            "object": "Footprint J6 @ (110.600, 79.500) [939de721]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.DRC.lib_footprint_mismatch",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Footprint 'TMOV20RP_ReviewOnly' does not match copy in library 'temper'",
+            "object": "Footprint RV1 @ (64.451, 147.000) [94ea3f06]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.DRC.lib_footprint_mismatch",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Footprint 'KEMET_R463N410000N1M_P22.50_ReviewOnly' does not match copy in library 'temper'",
+            "object": "Footprint C2 @ (30.000, 34.850) [9bb77573]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.DRC.lib_footprint_mismatch",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Footprint 'B82726S2_ReviewOnly' does not match copy in library 'temper'",
+            "object": "Footprint L1 @ (29.000, 135.500) [9f54aaa0]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.DRC.lib_footprint_mismatch",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Footprint 'Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR' does not match copy in library 'TerminalBlock_Wuerth'",
+            "object": "Footprint J8 @ (13.000, 30.500) [a1dd639e]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.DRC.lib_footprint_mismatch",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Footprint 'Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR' does not match copy in library 'TerminalBlock_Wuerth'",
+            "object": "Footprint J9 @ (47.000, 17.500) [a9d0b4ef]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.DRC.lib_footprint_mismatch",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Footprint 'TDK_B32656G0275J000_4Pin_P37.50_P20.30_ReviewOnly' does not match copy in library 'temper'",
+            "object": "Footprint C6 @ (174.350, 50.750) [af103b15]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.DRC.lib_footprint_mismatch",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Footprint 'CDE_942C_D26.5_L34.0_Axial_ReviewOnly' does not match copy in library 'temper'",
+            "object": "Footprint C22 @ (234.250, 125.500) [af148a3b]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.DRC.lib_footprint_mismatch",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Footprint 'TO-247-3_Vertical' does not match copy in library 'Package_TO_SOT_THT'",
+            "object": "Footprint Q3 @ (132.550, 4.215) [bb062963]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.DRC.lib_footprint_mismatch",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Footprint 'TDK_B32656G0275J000_4Pin_P37.50_P20.30_ReviewOnly' does not match copy in library 'temper'",
+            "object": "Footprint C5 @ (13.000, 43.950) [c271cf12]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.DRC.lib_footprint_mismatch",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Footprint 'TO-247-3_Vertical' does not match copy in library 'Package_TO_SOT_THT'",
+            "object": "Footprint Q6 @ (110.550, 4.215) [c61cd457]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.DRC.lib_footprint_mismatch",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Footprint 'TDK_B32652A0104K000_P15.00_ReviewOnly' does not match copy in library 'temper'",
+            "object": "Footprint C38 @ (144.000, 22.000) [d5d1cafa]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.DRC.lib_footprint_mismatch",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Footprint 'D_DO-41_SOD81_P10.16mm_Horizontal' does not match copy in library 'Diode_THT'",
+            "object": "Footprint D2 @ (98.580, 34.000) [e06a73ae]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.DRC.lib_footprint_mismatch",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Footprint 'TO-247-3_Vertical' does not match copy in library 'Package_TO_SOT_THT'",
+            "object": "Footprint Q2 @ (150.550, 4.215) [e29f782d]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.DRC.lib_footprint_mismatch",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Footprint 'TDK_B32652A0104K000_P15.00_ReviewOnly' does not match copy in library 'temper'",
+            "object": "Footprint C41 @ (88.400, 22.000) [e4b873dc]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.DRC.lib_footprint_mismatch",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Footprint 'Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR' does not match copy in library 'TerminalBlock_Wuerth'",
+            "object": "Footprint J5 @ (225.000, 151.000) [ffb1d71b]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.DRC.silk_overlap",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Silkscreen clearance",
+            "object": "Segment of L1 on F.Silkscreen @ (1.500, 108.150) [6866174d]; Segment of J3 on F.Silkscreen @ (36.150, 108.140) [eba45bb3]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.DRC.silk_overlap",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Silkscreen clearance",
+            "object": "Segment of L1 on F.Silkscreen @ (1.500, 108.150) [6866174d]; Segment of J3 on F.Silkscreen @ (36.450, 107.540) [c8bae073]",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "NATIVE.DRC.silk_overlap",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Silkscreen clearance",
+            "object": "Segment of L1 on F.Silkscreen @ (1.500, 108.150) [6866174d]; Segment of J3 on F.Silkscreen @ (36.750, 108.140) [7fa1ea59]",
+            "actual": null,
+            "required": null
+          }
+        ],
+        "checked_rules": [
+          "NATIVE.REPORT_CONTRACT",
+          "NATIVE.ERC",
+          "NATIVE.DRC",
+          "NATIVE.UNCONNECTED",
+          "NATIVE.SCHEMATIC_PARITY"
+        ],
+        "coverage_gaps": []
+      }
+    },
+    {
+      "name": "manufacturing",
+      "report": {
+        "status": "indeterminate",
+        "findings": [],
+        "checked_rules": [
+          "DRC.P2.BODY_COLLISION",
+          "DRC.P2.ANNULAR_RING",
+          "DRC.P2.DRILL_CONFLICT",
+          "DRC.P2.COPPER_OUTLINE",
+          "DRC.P2.SUPPORTED_ANGLE",
+          "DRC.P2.PTH_OUTER_LAND",
+          "DRC.P2.TRACK_WIDTH",
+          "DRC.P2.DRILL_SIZE",
+          "DRC.P2.EDGE_CLEARANCE",
+          "DRC.P2.BOARD_SIZE"
+        ],
+        "coverage_gaps": [
+          "unsupported native geometry: D1: open F.Fab detail lines are not a closed body polygon",
+          "unsupported native geometry: D2: open F.Fab detail lines are not a closed body polygon",
+          "unsupported native geometry: D3: open F.Fab detail lines are not a closed body polygon",
+          "unsupported native geometry: D4: open F.Fab detail lines are not a closed body polygon",
+          "unsupported native geometry: D5: open F.Fab detail lines are not a closed body polygon",
+          "unsupported native geometry: F1: open F.Fab detail lines are not a closed body polygon",
+          "unsupported native geometry: J1: 5eb43399-a197-4858-bcfc-4935b7ddacbf: F.Fab Circle detail/body role requires reviewed library semantics",
+          "unsupported native geometry: J1: e90a4499-6df8-4d21-a021-fdbddc3c3b32: F.Fab Circle detail/body role requires reviewed library semantics",
+          "unsupported native geometry: J1: no closed native F.Fab body polygon",
+          "unsupported native geometry: J1: open F.Fab detail lines are not a closed body polygon",
+          "unsupported native geometry: J3: open F.Fab detail lines are not a closed body polygon",
+          "unsupported native geometry: J4: no closed native F.Fab body polygon",
+          "unsupported native geometry: J4: open F.Fab detail lines are not a closed body polygon",
+          "unsupported native geometry: PS2: open F.Fab detail lines are not a closed body polygon",
+          "unsupported native geometry: Q2: open F.Fab detail lines are not a closed body polygon",
+          "unsupported native geometry: Q3: open F.Fab detail lines are not a closed body polygon",
+          "unsupported native geometry: Q5: open F.Fab detail lines are not a closed body polygon",
+          "unsupported native geometry: Q6: open F.Fab detail lines are not a closed body polygon",
+          "unsupported native geometry: R5: no closed native F.Fab body polygon",
+          "unsupported native geometry: R5: open F.Fab detail lines are not a closed body polygon",
+          "unsupported native geometry: RV1: 05baa13b-479c-4efa-83e3-80f2c8b128fc: F.Fab Circle detail/body role requires reviewed library semantics",
+          "unsupported native geometry: RV1: no closed native F.Fab body polygon",
+          "assembly process is required"
+        ]
+      }
+    },
+    {
+      "name": "fab",
+      "report": {
+        "status": "fail",
+        "findings": [
+          {
+            "rule": "FAB.clearance",
+            "severity": "info",
+            "status": "pass",
+            "message": "0 violations of 'zapote fab copper clearance'",
+            "object": "board",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "FAB.clearance",
+            "severity": "info",
+            "status": "pass",
+            "message": "0 violations of 'zapote fab SMD pad to pad'",
+            "object": "board",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "FAB.hole_clearance",
+            "severity": "info",
+            "status": "pass",
+            "message": "0 violations of 'zapote fab via hole to copper'",
+            "object": "board",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "FAB.hole_clearance",
+            "severity": "info",
+            "status": "pass",
+            "message": "0 violations of 'zapote fab NPTH hole to copper'",
+            "object": "board",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "FAB.hole_clearance",
+            "severity": "info",
+            "status": "pass",
+            "message": "0 violations of 'zapote fab PTH hole to copper'",
+            "object": "board",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "FAB.hole_clearance",
+            "severity": "info",
+            "status": "pass",
+            "message": "0 violations of 'zapote fab inner PTH hole to copper'",
+            "object": "board",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "FAB.text_height",
+            "severity": "info",
+            "status": "pass",
+            "message": "0 violations of 'zapote fab silk text height'",
+            "object": "board",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "FAB.text_thickness",
+            "severity": "info",
+            "status": "pass",
+            "message": "0 violations of 'zapote fab silk text thickness'",
+            "object": "board",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "FAB.text_height",
+            "severity": "info",
+            "status": "pass",
+            "message": "0 violations of 'zapote fab silk text height B'",
+            "object": "board",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "FAB.text_thickness",
+            "severity": "info",
+            "status": "pass",
+            "message": "0 violations of 'zapote fab silk text thickness B'",
+            "object": "board",
+            "actual": null,
+            "required": null
+          },
+          {
+            "rule": "FAB.silk_over_copper",
+            "severity": "warning",
+            "status": "fail",
+            "message": "Silkscreen clipped by solder mask (rule 'zapote fab pad to silk' clearance 0.1500 mm; actual 0.0107 mm)",
+            "object": "Reference field of R31 @ (84.525, 22.000) [f82ac11a]; Pad 2 [ref25] of R31 on F.Cu @ (82.825, 22.000) [2df5c6e9]",
+            "actual": "0.0107 mm",
+            "required": "0.1500 mm"
+          },
+          {
+            "rule": "FAB.solder_mask_bridge",
+            "severity": "info",
+            "status": "pass",
+            "message": "0 violations of 'zapote fab solder mask web'",
+            "object": "board",
+            "actual": null,
+            "required": null
+          }
+        ],
+        "checked_rules": [
+          "FAB.REPORT_CONTRACT",
+          "FAB.clearance",
+          "FAB.hole_clearance",
+          "FAB.silk_over_copper",
+          "FAB.solder_mask_bridge",
+          "FAB.text_height",
+          "FAB.text_thickness"
+        ],
+        "coverage_gaps": []
+      }
+    }
+  ],
+  "native_commands": [
+    {
+      "argv": [
+        "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+        "sch",
+        "erc",
+        "--severity-all",
+        "--format",
+        "json",
+        "--output",
+        "/tmp/temper-pcb-rubric-review/native20-board/native/erc.json",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/section.kicad_sch"
+      ],
+      "returncode": 0,
+      "input_sha256": "c7bd767e56127dd202ce908bcb940f76148c139c80eeb0cfb376c6233ab69b87",
+      "report_sha256": "53b443e00c562896974d0e6e43280a7e207490f456a02a532537281792ef6d47",
+      "report_path": "/tmp/temper-pcb-rubric-review/native20-board/native/erc.json",
+      "dependency_hashes": {
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/Capacitor_SMD.pretty/C_0603_1608Metric.kicad_mod": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/Capacitor_SMD.pretty/C_1206_3216Metric.kicad_mod": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/Capacitor_SMD.pretty/C_1210_3225Metric.kicad_mod": "e1dae516e079b70c4736d001fb81bfb4ef5f9c2a37c8175223a44f83a04ff75f",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/Connector_JST.pretty/JST_VH_B2P-VH_1x02_P3.96mm_Vertical.kicad_mod": "db267aa991d5a9d6f37a7118ea3649762027773687cf65df88339d984a25edb3",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/Connector_Molex.pretty/Molex_Micro-Fit_3.0_43045-1612_2x08_P3.00mm_Vertical.kicad_mod": "ebc0a18ce161d289004c2bbb907bbaede2b3edc73e38f9c0039d9e401920e518",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/Converter_ACDC.pretty/Converter_ACDC_MeanWell_IRM-05-xx_THT.kicad_mod": "75bfa42b4d9bd0d4ceeaedd8026f49e3cd0e35b9bc322d9a6419d201541b4dea",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/Converter_ACDC.pretty/Converter_ACDC_MeanWell_IRM-20-xx_THT.kicad_mod": "f5312e0c533a4a0edb84fb0a8affe6a1a6e6109c9689eedb472d169ca3d38e58",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/Diode_SMD.pretty/D_SOD-123F.kicad_mod": "8be1e25f240367187beafa1e339963dfdf4aa4f3e671731970e7f2e8491b6246",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/Diode_THT.pretty/D_DO-41_SOD81_P10.16mm_Horizontal.kicad_mod": "f7a156e9b80a77d5d232d68b3f1b1e81b7bf99703017f9124da667d1d31af41e",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/Fuse.pretty/Fuseholder_Clip-6.3x32mm_Littelfuse_102071_Inline_P34.70x7.60mm_D2.00mm_Horizontal.kicad_mod": "3d55e69ec8640014f147db094fbf2828efa3b35b27b58b1d200a8d134d1d8845",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/Package_SO.pretty/SOIC-8_7.5x5.85mm_P1.27mm.kicad_mod": "7777b11b9db34603382247b6ee1e6a9ea220eb67ad4e8f6943abd40c2d096941",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/Package_TO_SOT_SMD.pretty/SOT-23-5.kicad_mod": "455a3f7c3e5eb5b8847eaa5df23e18651e78ab9f75afd09a0883758a0d901761",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/Package_TO_SOT_SMD.pretty/SOT-23-6.kicad_mod": "f341c73aac9dcb553456f68bf3fee3d26eb14acf6d8a1cae82b50418fe1d71ca",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/Package_TO_SOT_SMD.pretty/SOT-23.kicad_mod": "0d88c86c1b6d8c1aae4aa8c09386264c089d4451a128b6ccd63ed253f4300b15",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/Package_TO_SOT_SMD.pretty/SOT-89-3.kicad_mod": "0b8db9f4a8f2547a53e80e3d400798979e84b4e0b2972160ddaca99c1f659b93",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/Package_TO_SOT_THT.pretty/TO-247-3_Vertical.kicad_mod": "cac3a8e76febdf6a0b8b2110c0b15a822ad80b1d17afca625e0d0ea824e3898f",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/Resistor_SMD.pretty/R_0603_1608Metric.kicad_mod": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/Resistor_SMD.pretty/R_1206_3216Metric.kicad_mod": "c7320668dc81bbb954cb4f15e4e7a766c120059343d43551468c8f7ccc8fde37",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/Resistor_SMD.pretty/R_Shunt_Vishay_WSK2512_6332Metric_T1.19mm.kicad_mod": "49f6162b76753dfe22cff076fe37c57282fa7e65118d7a5970436cbd59b78275",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/Resistor_SMD.pretty/R_Shunt_Vishay_WSK2512_6332Metric_T2.21mm.kicad_mod": "7505ff54c1f0d454dd36b05cd091d8127d796d953ca41a9913794c2add0f3182",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/TerminalBlock_Phoenix.pretty/TerminalBlock_Phoenix_MKDS-3-2-5.08_1x02_P5.08mm_Horizontal.kicad_mod": "e3b06eda34b6c80468fef8b320e1710a8d768cdb078443257022da58112e71fe",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/TerminalBlock_Wuerth.pretty/Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR.kicad_mod": "601e74f87995c22e112206015f6ea4a4cc42fc8dd3879ef5d8d94a6791800dd8",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/lib.pretty/SOIC16W_DW0016B_HV.kicad_mod": "0122bebb19f2a697a3ee831907d6d402e7e27cb63b13b483b7a1b176db4091b0",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/lib.pretty/SOIC16W_Isolated.kicad_mod": "9e7dde8e635f41eb35de9cc01ab03629dcabc80b5e3edce53098ced058baa2a3",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/temper.pretty/B82726S2_ReviewOnly.kicad_mod": "e8c7a8faa69dc90b0ade3ec0eb3930abf7295bcf4a77f93696ca69d01f592d67",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/temper.pretty/CDE_942C_D19.0_L34.0_Axial_ReviewOnly.kicad_mod": "587e95529a9d370383f4ed43185803496c23f72418c8deeb04ab0a1a379a5473",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/temper.pretty/CDE_942C_D26.5_L34.0_Axial_ReviewOnly.kicad_mod": "bad1891a78d5c7f934f13cc8dea511810fba739c3f4882d5516a1f4ef01ff06c",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/temper.pretty/CST3015.kicad_mod": "3c79ad69b9d37b4252ef7affa7774dcd55d613ce957b110e455523168ddb3621",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/temper.pretty/Diode_Bridge_GBJ2510.kicad_mod": "a4ef38e48747d09cefd6e964686dd5b2c88c4a91127031952a20d3eb23543c5c",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/temper.pretty/KEMET_R463N410000N1M_P22.50_ReviewOnly.kicad_mod": "935eb63a1326c560dccf37bd13a828e84ee029c931f4e4af7d68ed862c0343b8",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/temper.pretty/MRT130KP_Axial_P20.00mm_ReviewOnly.kicad_mod": "834fd22e3ef0102bb6895591110641bb20bf410ccfe6ccfcfbbcc39949e607ef",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/temper.pretty/Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly.kicad_mod": "5ccb71103b01a699a5daba33b6bb19e27df1287f552bb2c7d1f587fe993d2b32",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/temper.pretty/Phoenix_KDS3_1704004_1Pos_2Pin_ReviewOnly.kicad_mod": "d5211b40ad46eddff4568412234d58b79e4cb9cf4b374da8cc293f4013ab5485",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/temper.pretty/TDK_B32652A0104K000_P15.00_ReviewOnly.kicad_mod": "45595807deb41189f9c86db29979a21033797b9d4be2f031e1bdf5805d2aa55f",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/temper.pretty/TDK_B32656G0275J000_4Pin_P37.50_P20.30_ReviewOnly.kicad_mod": "224675481fc4cc529d41ec25aba2274208f340270407963b870c2a8111c07c14",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/temper.pretty/TMOV20RP_ReviewOnly.kicad_mod": "6d8ff131617aa7aacd71dd52a05d03b33366496b25b463a865371dc3b0a33eda",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/fp-lib-table": "ac59eca45543a25f5dfbda5fe8da4806b45997b84b650bf3a1624fa74309585d",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/native19.kicad_sym": "cc345078c4f3efafa4e66115723d5c627173572e9de913c3ff51172d21d06c22",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/section.kicad_dru": "b7457980ca28db98fba0365a8a0e7affee17a390d2e841e5cfda919ce709eabf",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/section.kicad_pcb": "27657a0ebce66140b6ea6a0b84940dba420b3a187199798bce3c3d122abf9dae",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/section.kicad_pro": "260dcdfa0eacb03aa7625aeb3a6c282e32eca79b3243563156e5357b0c634a68",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/section.kicad_sch": "c7bd767e56127dd202ce908bcb940f76148c139c80eeb0cfb376c6233ab69b87",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/sym-lib-table": "df8c6906b6c3642b6df5a4c473df2e9ebd14246273cf78318d6dadd2ab1639e5"
+      },
+      "tool_version": "10.0.4"
+    },
+    {
+      "argv": [
+        "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+        "pcb",
+        "drc",
+        "--severity-all",
+        "--all-track-errors",
+        "--schematic-parity",
+        "--format",
+        "json",
+        "--output",
+        "/tmp/temper-pcb-rubric-review/native20-board/native/drc.json",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/section.kicad_pcb"
+      ],
+      "returncode": 0,
+      "input_sha256": "27657a0ebce66140b6ea6a0b84940dba420b3a187199798bce3c3d122abf9dae",
+      "report_sha256": "d3a9d0019c8e23ef2e23a250ab745bcb7c2cf9bb4e6a6901699fca31ec729bc1",
+      "report_path": "/tmp/temper-pcb-rubric-review/native20-board/native/drc.json",
+      "dependency_hashes": {
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/Capacitor_SMD.pretty/C_0603_1608Metric.kicad_mod": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/Capacitor_SMD.pretty/C_1206_3216Metric.kicad_mod": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/Capacitor_SMD.pretty/C_1210_3225Metric.kicad_mod": "e1dae516e079b70c4736d001fb81bfb4ef5f9c2a37c8175223a44f83a04ff75f",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/Connector_JST.pretty/JST_VH_B2P-VH_1x02_P3.96mm_Vertical.kicad_mod": "db267aa991d5a9d6f37a7118ea3649762027773687cf65df88339d984a25edb3",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/Connector_Molex.pretty/Molex_Micro-Fit_3.0_43045-1612_2x08_P3.00mm_Vertical.kicad_mod": "ebc0a18ce161d289004c2bbb907bbaede2b3edc73e38f9c0039d9e401920e518",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/Converter_ACDC.pretty/Converter_ACDC_MeanWell_IRM-05-xx_THT.kicad_mod": "75bfa42b4d9bd0d4ceeaedd8026f49e3cd0e35b9bc322d9a6419d201541b4dea",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/Converter_ACDC.pretty/Converter_ACDC_MeanWell_IRM-20-xx_THT.kicad_mod": "f5312e0c533a4a0edb84fb0a8affe6a1a6e6109c9689eedb472d169ca3d38e58",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/Diode_SMD.pretty/D_SOD-123F.kicad_mod": "8be1e25f240367187beafa1e339963dfdf4aa4f3e671731970e7f2e8491b6246",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/Diode_THT.pretty/D_DO-41_SOD81_P10.16mm_Horizontal.kicad_mod": "f7a156e9b80a77d5d232d68b3f1b1e81b7bf99703017f9124da667d1d31af41e",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/Fuse.pretty/Fuseholder_Clip-6.3x32mm_Littelfuse_102071_Inline_P34.70x7.60mm_D2.00mm_Horizontal.kicad_mod": "3d55e69ec8640014f147db094fbf2828efa3b35b27b58b1d200a8d134d1d8845",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/Package_SO.pretty/SOIC-8_7.5x5.85mm_P1.27mm.kicad_mod": "7777b11b9db34603382247b6ee1e6a9ea220eb67ad4e8f6943abd40c2d096941",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/Package_TO_SOT_SMD.pretty/SOT-23-5.kicad_mod": "455a3f7c3e5eb5b8847eaa5df23e18651e78ab9f75afd09a0883758a0d901761",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/Package_TO_SOT_SMD.pretty/SOT-23-6.kicad_mod": "f341c73aac9dcb553456f68bf3fee3d26eb14acf6d8a1cae82b50418fe1d71ca",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/Package_TO_SOT_SMD.pretty/SOT-23.kicad_mod": "0d88c86c1b6d8c1aae4aa8c09386264c089d4451a128b6ccd63ed253f4300b15",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/Package_TO_SOT_SMD.pretty/SOT-89-3.kicad_mod": "0b8db9f4a8f2547a53e80e3d400798979e84b4e0b2972160ddaca99c1f659b93",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/Package_TO_SOT_THT.pretty/TO-247-3_Vertical.kicad_mod": "cac3a8e76febdf6a0b8b2110c0b15a822ad80b1d17afca625e0d0ea824e3898f",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/Resistor_SMD.pretty/R_0603_1608Metric.kicad_mod": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/Resistor_SMD.pretty/R_1206_3216Metric.kicad_mod": "c7320668dc81bbb954cb4f15e4e7a766c120059343d43551468c8f7ccc8fde37",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/Resistor_SMD.pretty/R_Shunt_Vishay_WSK2512_6332Metric_T1.19mm.kicad_mod": "49f6162b76753dfe22cff076fe37c57282fa7e65118d7a5970436cbd59b78275",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/Resistor_SMD.pretty/R_Shunt_Vishay_WSK2512_6332Metric_T2.21mm.kicad_mod": "7505ff54c1f0d454dd36b05cd091d8127d796d953ca41a9913794c2add0f3182",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/TerminalBlock_Phoenix.pretty/TerminalBlock_Phoenix_MKDS-3-2-5.08_1x02_P5.08mm_Horizontal.kicad_mod": "e3b06eda34b6c80468fef8b320e1710a8d768cdb078443257022da58112e71fe",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/TerminalBlock_Wuerth.pretty/Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR.kicad_mod": "601e74f87995c22e112206015f6ea4a4cc42fc8dd3879ef5d8d94a6791800dd8",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/lib.pretty/SOIC16W_DW0016B_HV.kicad_mod": "0122bebb19f2a697a3ee831907d6d402e7e27cb63b13b483b7a1b176db4091b0",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/lib.pretty/SOIC16W_Isolated.kicad_mod": "9e7dde8e635f41eb35de9cc01ab03629dcabc80b5e3edce53098ced058baa2a3",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/temper.pretty/B82726S2_ReviewOnly.kicad_mod": "e8c7a8faa69dc90b0ade3ec0eb3930abf7295bcf4a77f93696ca69d01f592d67",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/temper.pretty/CDE_942C_D19.0_L34.0_Axial_ReviewOnly.kicad_mod": "587e95529a9d370383f4ed43185803496c23f72418c8deeb04ab0a1a379a5473",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/temper.pretty/CDE_942C_D26.5_L34.0_Axial_ReviewOnly.kicad_mod": "bad1891a78d5c7f934f13cc8dea511810fba739c3f4882d5516a1f4ef01ff06c",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/temper.pretty/CST3015.kicad_mod": "3c79ad69b9d37b4252ef7affa7774dcd55d613ce957b110e455523168ddb3621",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/temper.pretty/Diode_Bridge_GBJ2510.kicad_mod": "a4ef38e48747d09cefd6e964686dd5b2c88c4a91127031952a20d3eb23543c5c",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/temper.pretty/KEMET_R463N410000N1M_P22.50_ReviewOnly.kicad_mod": "935eb63a1326c560dccf37bd13a828e84ee029c931f4e4af7d68ed862c0343b8",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/temper.pretty/MRT130KP_Axial_P20.00mm_ReviewOnly.kicad_mod": "834fd22e3ef0102bb6895591110641bb20bf410ccfe6ccfcfbbcc39949e607ef",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/temper.pretty/Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly.kicad_mod": "5ccb71103b01a699a5daba33b6bb19e27df1287f552bb2c7d1f587fe993d2b32",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/temper.pretty/Phoenix_KDS3_1704004_1Pos_2Pin_ReviewOnly.kicad_mod": "d5211b40ad46eddff4568412234d58b79e4cb9cf4b374da8cc293f4013ab5485",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/temper.pretty/TDK_B32652A0104K000_P15.00_ReviewOnly.kicad_mod": "45595807deb41189f9c86db29979a21033797b9d4be2f031e1bdf5805d2aa55f",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/temper.pretty/TDK_B32656G0275J000_4Pin_P37.50_P20.30_ReviewOnly.kicad_mod": "224675481fc4cc529d41ec25aba2274208f340270407963b870c2a8111c07c14",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/candidate-libs/temper.pretty/TMOV20RP_ReviewOnly.kicad_mod": "6d8ff131617aa7aacd71dd52a05d03b33366496b25b463a865371dc3b0a33eda",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/fp-lib-table": "ac59eca45543a25f5dfbda5fe8da4806b45997b84b650bf3a1624fa74309585d",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/native19.kicad_sym": "cc345078c4f3efafa4e66115723d5c627173572e9de913c3ff51172d21d06c22",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/section.kicad_dru": "b7457980ca28db98fba0365a8a0e7affee17a390d2e841e5cfda919ce709eabf",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/section.kicad_pcb": "27657a0ebce66140b6ea6a0b84940dba420b3a187199798bce3c3d122abf9dae",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/section.kicad_pro": "260dcdfa0eacb03aa7625aeb3a6c282e32eca79b3243563156e5357b0c634a68",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/section.kicad_sch": "c7bd767e56127dd202ce908bcb940f76148c139c80eeb0cfb376c6233ab69b87",
+        "/Users/bennet/.codex/worktrees/pcb-design-rubric/temper/zapote/power-stage-120v/native-20/sym-lib-table": "df8c6906b6c3642b6df5a4c473df2e9ebd14246273cf78318d6dadd2ab1639e5"
+      },
+      "tool_version": "10.0.4"
+    }
+  ],
+  "manufacturing": {
+    "census": {
+      "footprints": 142,
+      "pads": 442,
+      "tracks": 725,
+      "vias": 192,
+      "zones": 25
+    },
+    "extractor_sha256": "9be5668339578f7186d7e36310115ad45f94cb9161263d02d2577756de9e6292",
+    "python": "/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/3.9/Resources/Python.app/Contents/MacOS/Python",
+    "receipt_sha256": "1d10c09310f3a3f22b04a5efa9ea54004e8070feca8a941613134624c0ece03e"
+  },
+  "fab": {
+    "board_copy": {
+      "python": "/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/3.9/Resources/Python.app/Contents/MacOS/Python",
+      "returncode": 0,
+      "solder_mask_min_web_mm": {
+        "applied": 0.2,
+        "board": 0.0
+      }
+    },
+    "board_copy_script_sha256": "3a3f7d737d1f2c421743fc633ae18d34fa51b721cfa4d6d19760fa989c122776",
+    "board_copy_sha256": "aa000318474d2a3aa878615b3b12d915a51410651a348a76c73e880bbd30dbef",
+    "board_run": {
+      "argv": [
+        "pcb",
+        "drc",
+        "--severity-all",
+        "--all-track-errors",
+        "--format",
+        "json",
+        "--output",
+        "/tmp/temper-pcb-rubric-review/native20-board/fab/board/drc.json",
+        "/tmp/temper-pcb-rubric-review/native20-board/fab/board/section.kicad_pcb"
+      ],
+      "report_sha256": "b2bc899fedfcac8b5125491bc8be20f91653843c6d31d06ec6588b4c7ac5c08a",
+      "returncode": 0
+    },
+    "board_sha256": "27657a0ebce66140b6ea6a0b84940dba420b3a187199798bce3c3d122abf9dae",
+    "cleared_overrides": [],
+    "kicad_version": "10.0.4",
+    "not_covered": [
+      "silkscreen graphic line width (JLC scopes its legend line width to characters, which are checked)"
+    ],
+    "project": "copied beside the board",
+    "project_sha256": "260dcdfa0eacb03aa7625aeb3a6c282e32eca79b3243563156e5357b0c634a68",
+    "rules": [
+      "zapote fab copper clearance",
+      "zapote fab SMD pad to pad",
+      "zapote fab via hole to copper",
+      "zapote fab NPTH hole to copper",
+      "zapote fab PTH hole to copper",
+      "zapote fab inner PTH hole to copper",
+      "zapote fab silk text height",
+      "zapote fab silk text thickness",
+      "zapote fab silk text height B",
+      "zapote fab silk text thickness B",
+      "zapote fab pad to silk",
+      "zapote fab solder mask web"
+    ],
+    "rules_sha256": "95a1fbf92a3e8edda8394fd22c0fe8ef19e9c462df35d4b4d6acd16e611b6c43",
+    "self_test": {
+      "argv": [
+        "pcb",
+        "drc",
+        "--severity-all",
+        "--all-track-errors",
+        "--format",
+        "json",
+        "--output",
+        "/tmp/temper-pcb-rubric-review/native20-board/fab/self-test/drc.json",
+        "/tmp/temper-pcb-rubric-review/native20-board/fab/self-test/fab_selftest.kicad_pcb"
+      ],
+      "report_sha256": "d883f5414beb0c66e5466bebe8b60d17fb4c238819addd627b27e9b323ff26c3",
+      "returncode": 0
+    },
+    "self_test_copy": {
+      "python": "/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/3.9/Resources/Python.app/Contents/MacOS/Python",
+      "returncode": 0,
+      "solder_mask_min_web_mm": {
+        "applied": 0.2,
+        "board": 0.0
+      }
+    }
+  },
+  "scope": "stackup, KiCad ERC/DRC, and P2 manufacturing under the named fab profile, plus its KiCad fab rules when the profile sets them (`fab` check); unit electrical, current, thermal and assembly checks are not included"
+}

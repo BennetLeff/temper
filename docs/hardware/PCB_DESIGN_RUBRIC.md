@@ -4,7 +4,7 @@ Date: 2026-10-10. Scope: circuit design, placement, routing, thermal performance
 
 Use this rubric to decide whether a PCB will perform its function across operating conditions and can be built repeatedly. Its 160 checks ask for evidence, not just an attractive layout or a zero violation count. The most consequential checks are conductor heating, switching and gate loops, protection latency, insulation across the assembled product, and sensing integrity.
 
-This is a proposed engineering review method. It does not assign a passing score to any existing Temper board. Numerical project targets below require adoption against the actual requirements; manufacturer limits and applicable product requirements take precedence.
+This is a proposed engineering review method. Its first [applied review of the current sources and six routed boards](PCB_DESIGN_REVIEW_2026-10-10.md) includes all 160 scores, findings and closure evidence. It does not assign a passing score to any existing Temper board. Numerical project targets below require adoption against the actual requirements; manufacturer limits and applicable product requirements take precedence.
 
 ## Design identity and applicability
 

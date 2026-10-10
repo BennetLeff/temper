@@ -1,0 +1,234 @@
+{
+  "hash_algorithm": "sha256",
+  "scope": "All packet files except this manifest itself; source inputs have separate identities.json hashes.",
+  "files": [
+    {
+      "path": ".gitattributes",
+      "sha256": "43228a2123408fa525a680c07f3b7e91175b971f4c5e0dc255b24d485a469963"
+    },
+    {
+      "path": "README.md",
+      "sha256": "f67f3c848cf1f28f3d578b55dfceb648b13a95d044f8054124401d80811ec5cd"
+    },
+    {
+      "path": "geometry/current-sense.json",
+      "sha256": "1217f359c73e8ea296c36e6fadcd9afddffce0ca6e272a3ed78fd46c8d1a3613"
+    },
+    {
+      "path": "geometry/gate-drive.json",
+      "sha256": "a2796670e9310f618b95c01b7acd5f1964d6a987363a25293fe92427b4ac672a"
+    },
+    {
+      "path": "geometry/interlock.json",
+      "sha256": "e25ad5a6fc20062bae54bd7e21f5c67a3bd2d9dd4b5cf12b86b22e7eeeb0b0ea"
+    },
+    {
+      "path": "geometry/power-native20.json",
+      "sha256": "33071c7644f95ea9f101e04ad6295a570bd0c3d3bea01c50cb711e10c7398cb0"
+    },
+    {
+      "path": "geometry/rtd.json",
+      "sha256": "8fbe2c651c90db0796c259b5940e86dbc9d84db7b2f04d308eabba2b13892626"
+    },
+    {
+      "path": "geometry/thermal-sense.json",
+      "sha256": "eb67c98145706b80d0891613e7d1288a48a221d2267987b63c6622dc120f6d51"
+    },
+    {
+      "path": "identities.json",
+      "sha256": "c066f6a63c7569371177095f465571f734e1495bd3c5c8bcfb396922d159f42c"
+    },
+    {
+      "path": "native-pad-oracle.json",
+      "sha256": "490f82f9914d6bb8bdbf806d154bb6eb466f41474248d5fd50cef1931029e749"
+    },
+    {
+      "path": "native20-board-report.json",
+      "sha256": "deb9e96ec7bf868516b8a6cb2528a6a32069bf9bdd5f84abc7beae76e05f5c07"
+    },
+    {
+      "path": "native20-current-command.json",
+      "sha256": "6f52390772b5e60dc406729823fa5485127fe95ed44851db85d82b90a992c6a6"
+    },
+    {
+      "path": "native20-current-failure.json",
+      "sha256": "efd9f41253a44022a87f2cafd3bae6bd3503b2ce84ff077a71ab0b354718b65d"
+    },
+    {
+      "path": "native20-current-run.log",
+      "sha256": "94aad9de1d520e0a0e1ceb3b38431cba648c0cf2aa43cd7a34f4f0080aa7773b"
+    },
+    {
+      "path": "native21-netfacts.json",
+      "sha256": "ff212d6bc6059a6ecb18b983a89eea150d0333c2866bcd5a6ecfe7dc8ba297e0"
+    },
+    {
+      "path": "renders/current-sense-bcu-complete.png",
+      "sha256": "2dc71cb2691e4110eff61a37f37fa40b341c9d7dc1052c0e4ff7a2f9cf93e7da"
+    },
+    {
+      "path": "renders/current-sense-bcu.svg",
+      "sha256": "ce83c131aeb8fef1b8078333bb287588be6ab75300a1fc5489aa9a080ed19956"
+    },
+    {
+      "path": "renders/current-sense-fcu-complete.png",
+      "sha256": "7e605f27a0f8ec9b0f52db3a09155835bc1d70b18c1ffad122a372af3450bd9c"
+    },
+    {
+      "path": "renders/current-sense-fcu.svg",
+      "sha256": "89d7d433851af377c681c99f1c8154c2ba88ea7e181e1ded2c8a7ffe59174774"
+    },
+    {
+      "path": "renders/gate-drive-bcu-complete.png",
+      "sha256": "06dfc41cab5c997a8300c5dd25023f4d6eec6f56d4e649421944390f12fc16cf"
+    },
+    {
+      "path": "renders/gate-drive-bcu.svg",
+      "sha256": "9f746ecf5032e893e7294032e03e3b8607b08ce0d67708b9a9b9b6a4449a4a1d"
+    },
+    {
+      "path": "renders/gate-drive-fcu-complete.png",
+      "sha256": "d140adc46533aa788d7eb051d804a7d3eee104dbb159c7bccd2a11c7c7457c28"
+    },
+    {
+      "path": "renders/gate-drive-fcu.svg",
+      "sha256": "87ff48de93564ae4556e1a54b3a13a54386c31efa8ece79e983151826c576eaf"
+    },
+    {
+      "path": "renders/interlock-bcu-complete.png",
+      "sha256": "cba55a1e58b27d8334d1b31e222e593e0450be6a61520e06d10075514ef6a73d"
+    },
+    {
+      "path": "renders/interlock-bcu.svg",
+      "sha256": "bf7edcb7ea079c7c7fb95878b515023294d735252ba7f4b4354cf2aa3d660364"
+    },
+    {
+      "path": "renders/interlock-fcu-complete.png",
+      "sha256": "fa62ac6f9c09fe5cc84ab15ad8fd92bf39159a1078f2a911079fbf25819bb40b"
+    },
+    {
+      "path": "renders/interlock-fcu.svg",
+      "sha256": "4d2de40c378cd9c0854c6e5e25ecf0f664e8fcc854391d37c9ce569d05340df2"
+    },
+    {
+      "path": "renders/native20-bcu-complete.png",
+      "sha256": "a549844768c081012981aee6e484352996d72df0d5ac62b2e20eefa4df2fff31"
+    },
+    {
+      "path": "renders/native20-bcu.svg",
+      "sha256": "0d396083ee4670044f069d4cfa269baebfe5b961623e812779cbb7029842b73a"
+    },
+    {
+      "path": "renders/native20-fcu-full-complete.png",
+      "sha256": "0f52d2727740bcc582ac17ffdfc2438d49716837fb75dbdc0298004f26a7fb7c"
+    },
+    {
+      "path": "renders/native20-fcu-full.svg",
+      "sha256": "7d2f4513271db1bc5595f6f5e764717b769ddaa95afd63ffa73d84a54ee7f96b"
+    },
+    {
+      "path": "renders/native20-in1-complete.png",
+      "sha256": "0fcd1685736af67960e3d1a231fdb9b6d9373c58127dbbf28e591849ff595c8c"
+    },
+    {
+      "path": "renders/native20-in1.svg",
+      "sha256": "fe530dc7aecb14f1e1f837687e1444ffb486f21fabe4facfcb1037abd0d0050f"
+    },
+    {
+      "path": "renders/native20-in2-complete.png",
+      "sha256": "78b0e2fba8186df18a3c1daf294e4db12e94a44ecddad5c4e94e603469c08f2c"
+    },
+    {
+      "path": "renders/native20-in2.svg",
+      "sha256": "fcea101be11e1f1996daff3fe38df9e613d884b9a81fca90d18d3388a7184d18"
+    },
+    {
+      "path": "renders/native20-top-3d.png",
+      "sha256": "eb5bacab3b4cfcdf950b134e778051c95cd63834c87584572c6012efd805b261"
+    },
+    {
+      "path": "renders/rtd-bcu-complete.png",
+      "sha256": "661b6f348a6d5e9ebd065be2b5b5ce01987f068832415fe82ac430db9eb7cfc1"
+    },
+    {
+      "path": "renders/rtd-bcu.svg",
+      "sha256": "19ef50f77196c94070975486416b1378fb152dfbcb15f7b71aa4950d201ba577"
+    },
+    {
+      "path": "renders/rtd-fcu-complete.png",
+      "sha256": "48f3a6f55005d9a095a23b8d9a7bf8b7dcd45b849c8ef61a613a3444f8b8c6dc"
+    },
+    {
+      "path": "renders/rtd-fcu.svg",
+      "sha256": "affc3d9d09196b7732e6c0929d47e8a721e1ecacaf2aa442f75a2baf54b9fcd6"
+    },
+    {
+      "path": "renders/rtd-in1cu-complete.png",
+      "sha256": "62a4985a8de8b6f7da86d0479c0f76847732a5cc5b92e30687cac77d6ecb3471"
+    },
+    {
+      "path": "renders/rtd-in1cu.svg",
+      "sha256": "a2e1e738d5e02dc5594317ca6224ad1cf06841207d6a3debd4487209123d15f3"
+    },
+    {
+      "path": "renders/rtd-in2cu-complete.png",
+      "sha256": "741aab6527e1cf7e36426b034e2061c3b7a4a0b34f87d5d153fe15e2c5901d16"
+    },
+    {
+      "path": "renders/rtd-in2cu.svg",
+      "sha256": "1bc263b18133fdf434ebfc34db6e4d8c68314dedc49b28aa714243aa07c33b4d"
+    },
+    {
+      "path": "renders/thermal-sense-bcu-complete.png",
+      "sha256": "810490946f2cb8b2f236a7b9ce79adb4402c2de8ee79cc27798f6ee51c8c25f9"
+    },
+    {
+      "path": "renders/thermal-sense-bcu.svg",
+      "sha256": "d48c465f8b212209c53864effd569c3001638c151dfd6aa82652daf9353a0894"
+    },
+    {
+      "path": "renders/thermal-sense-fcu-complete.png",
+      "sha256": "492e2bf042c9ee90c36e3576fe4902e7aff55e1e44afe556390237bfe9ad4279"
+    },
+    {
+      "path": "renders/thermal-sense-fcu.svg",
+      "sha256": "50af52dbab73f0c40910f090e04b3baa7464a8a0a81f623b488d95cbe7b483da"
+    },
+    {
+      "path": "score-summary.json",
+      "sha256": "68a3f73edfed223cb8c7b3539fc3125695f8b3f157d649f161f6443fdcf6b6ee"
+    },
+    {
+      "path": "scorecard.csv",
+      "sha256": "6e2fa3bf0aeb9cd3421a6b49532c615cd9593585f5a017ea75c31985e46059c2"
+    },
+    {
+      "path": "supply-inventory.json",
+      "sha256": "70b39d38b6c23d6a5f1d45893d9d4acd77ffe6c12ec670b305dda234e9cda118"
+    },
+    {
+      "path": "unit-summary.json",
+      "sha256": "95d4348f6b45054682e7722348cccf0fbfd841d277c8d85f6edb0c56f8208e09"
+    },
+    {
+      "path": "units/current-sense.json",
+      "sha256": "5b0bbbcb2447e867773b5d1205399652d3fc4f9606b732499048125b390eab55"
+    },
+    {
+      "path": "units/gate-drive.json",
+      "sha256": "7f77c7fff51fdb364a46a9409aae9249e8bc2d2dd4c01641417fb33829c433ce"
+    },
+    {
+      "path": "units/interlock.json",
+      "sha256": "a898df539ef8ed0308b6327c886a3ad39a0badfe6f6528be555ee53c5e4e7e81"
+    },
+    {
+      "path": "units/rtd.json",
+      "sha256": "75605c277332c279616c7b660fca8d3cd779b78583d189debb0a63de062221a9"
+    },
+    {
+      "path": "units/thermal-sense.json",
+      "sha256": "1827d01e600a542c6b1e0d71f78f2e96c1c7975a06196a9390eae9c90f4c8ab0"
+    }
+  ]
+}

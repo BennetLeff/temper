@@ -1,0 +1,3 @@
+# Preserve exact native generated SVG and log bytes; review PNGs and receipts.
+renders/*.svg binary
+*.log binary

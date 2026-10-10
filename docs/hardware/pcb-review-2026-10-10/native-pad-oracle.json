@@ -1,0 +1,50 @@
+[
+  {
+    "board": "zapote/power-stage-120v/native-20/section.kicad_pcb",
+    "board_sha256": "27657a0ebce66140b6ea6a0b84940dba420b3a187199798bce3c3d122abf9dae",
+    "tool_version": "10.0.4",
+    "native_pad_count": 442,
+    "position_tolerance_mm": 1e-06,
+    "mismatched_references": []
+  },
+  {
+    "board": "zapote/interlock/candidate/section.kicad_pcb",
+    "board_sha256": "a35795d61950f11707565b7b0ecaaa06556306ca63551e4dff7634fcbfeb549e",
+    "tool_version": "10.0.4",
+    "native_pad_count": 110,
+    "position_tolerance_mm": 1e-06,
+    "mismatched_references": []
+  },
+  {
+    "board": "zapote/thermal-sense/candidate/section.kicad_pcb",
+    "board_sha256": "a1db814f43b7b2eb3c2bafe0ff6183addcf9401328eddf56342ab5bd1a9c5159",
+    "tool_version": "10.0.4",
+    "native_pad_count": 76,
+    "position_tolerance_mm": 1e-06,
+    "mismatched_references": []
+  },
+  {
+    "board": "zapote/current-sense/candidate/section.kicad_pcb",
+    "board_sha256": "c13fddcf3655a5bd6e0399e20009baaec0eb60bad7d2407823e99680fcd73a21",
+    "tool_version": "10.0.4",
+    "native_pad_count": 64,
+    "position_tolerance_mm": 1e-06,
+    "mismatched_references": []
+  },
+  {
+    "board": "zapote/gate-drive/candidate/section.kicad_pcb",
+    "board_sha256": "3f8dc637fed68e4906c574675d374344d467dcc4094d1aab963aeb56417eb425",
+    "tool_version": "10.0.4",
+    "native_pad_count": 55,
+    "position_tolerance_mm": 1e-06,
+    "mismatched_references": []
+  },
+  {
+    "board": "zapote/rtd/unit/candidate/section.kicad_pcb",
+    "board_sha256": "ae230701bda771d8c424f26bda865c15d8f6d15862872824781322b05cf5f965",
+    "tool_version": "10.0.4",
+    "native_pad_count": 119,
+    "position_tolerance_mm": 1e-06,
+    "mismatched_references": []
+  }
+]

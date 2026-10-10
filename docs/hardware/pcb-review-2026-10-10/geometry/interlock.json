@@ -1,0 +1,2075 @@
+{
+  "tool_version": "10.0.4",
+  "board_path": "zapote/interlock/candidate/section.kicad_pcb",
+  "board_sha256": "a35795d61950f11707565b7b0ecaaa06556306ca63551e4dff7634fcbfeb549e",
+  "components": [
+    {
+      "ref": "C1",
+      "value": "C0603C104K5RACTU",
+      "footprint": "C_0603_1608Metric",
+      "xy_mm": [
+        36.5,
+        21.2
+      ],
+      "angle_deg": 0.0,
+      "side": "F.Cu",
+      "pads": [
+        {
+          "pin": "1",
+          "net": "vcc",
+          "xy_mm": [
+            35.725,
+            21.2
+          ],
+          "size_mm": [
+            0.9,
+            0.95
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "2",
+          "net": "gnd",
+          "xy_mm": [
+            37.275,
+            21.2
+          ],
+          "size_mm": [
+            0.9,
+            0.95
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        }
+      ],
+      "models": [
+        "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_0603_1608Metric.step"
+      ]
+    },
+    {
+      "ref": "C2",
+      "value": "C0603C104K5RACTU",
+      "footprint": "C_0603_1608Metric",
+      "xy_mm": [
+        36.5,
+        39.2
+      ],
+      "angle_deg": 0.0,
+      "side": "F.Cu",
+      "pads": [
+        {
+          "pin": "1",
+          "net": "vcc",
+          "xy_mm": [
+            35.725,
+            39.2
+          ],
+          "size_mm": [
+            0.9,
+            0.95
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "2",
+          "net": "gnd",
+          "xy_mm": [
+            37.275,
+            39.2
+          ],
+          "size_mm": [
+            0.9,
+            0.95
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        }
+      ],
+      "models": [
+        "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_0603_1608Metric.step"
+      ]
+    },
+    {
+      "ref": "C3",
+      "value": "C0603C104K5RACTU",
+      "footprint": "C_0603_1608Metric",
+      "xy_mm": [
+        55.0,
+        23.05
+      ],
+      "angle_deg": 0.0,
+      "side": "F.Cu",
+      "pads": [
+        {
+          "pin": "1",
+          "net": "vcc",
+          "xy_mm": [
+            54.225,
+            23.05
+          ],
+          "size_mm": [
+            0.9,
+            0.95
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "2",
+          "net": "gnd",
+          "xy_mm": [
+            55.775,
+            23.05
+          ],
+          "size_mm": [
+            0.9,
+            0.95
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        }
+      ],
+      "models": [
+        "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_0603_1608Metric.step"
+      ]
+    },
+    {
+      "ref": "C4",
+      "value": "C0603C104K5RACTU",
+      "footprint": "C_0603_1608Metric",
+      "xy_mm": [
+        70.0,
+        40.0
+      ],
+      "angle_deg": 0.0,
+      "side": "F.Cu",
+      "pads": [
+        {
+          "pin": "1",
+          "net": "vcc",
+          "xy_mm": [
+            69.225,
+            40.0
+          ],
+          "size_mm": [
+            0.9,
+            0.95
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "2",
+          "net": "gnd",
+          "xy_mm": [
+            70.775,
+            40.0
+          ],
+          "size_mm": [
+            0.9,
+            0.95
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        }
+      ],
+      "models": [
+        "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_0603_1608Metric.step"
+      ]
+    },
+    {
+      "ref": "C5",
+      "value": "C0603C104K5RACTU",
+      "footprint": "C_0603_1608Metric",
+      "xy_mm": [
+        70.0,
+        14.0
+      ],
+      "angle_deg": 0.0,
+      "side": "F.Cu",
+      "pads": [
+        {
+          "pin": "1",
+          "net": "vcc",
+          "xy_mm": [
+            69.225,
+            14.0
+          ],
+          "size_mm": [
+            0.9,
+            0.95
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "2",
+          "net": "gnd",
+          "xy_mm": [
+            70.775,
+            14.0
+          ],
+          "size_mm": [
+            0.9,
+            0.95
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        }
+      ],
+      "models": [
+        "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_0603_1608Metric.step"
+      ]
+    },
+    {
+      "ref": "C6",
+      "value": "C0603C104K5RACTU",
+      "footprint": "C_0603_1608Metric",
+      "xy_mm": [
+        53.0,
+        42.05
+      ],
+      "angle_deg": 0.0,
+      "side": "F.Cu",
+      "pads": [
+        {
+          "pin": "1",
+          "net": "vcc",
+          "xy_mm": [
+            52.225,
+            42.05
+          ],
+          "size_mm": [
+            0.9,
+            0.95
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "2",
+          "net": "gnd",
+          "xy_mm": [
+            53.775,
+            42.05
+          ],
+          "size_mm": [
+            0.9,
+            0.95
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        }
+      ],
+      "models": [
+        "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_0603_1608Metric.step"
+      ]
+    },
+    {
+      "ref": "J1",
+      "value": "B8B-XH-A(LF)(SN)",
+      "footprint": "JST_XH_B8B-XH-A_1x08_P2.50mm_Vertical",
+      "xy_mm": [
+        8.0,
+        32.0
+      ],
+      "angle_deg": 90.0,
+      "side": "F.Cu",
+      "pads": [
+        {
+          "pin": "1",
+          "net": "gnd",
+          "xy_mm": [
+            8.0,
+            32.0
+          ],
+          "size_mm": [
+            1.7,
+            1.95
+          ],
+          "layers": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "pin": "2",
+          "net": "ocp_fault",
+          "xy_mm": [
+            8.0,
+            29.5
+          ],
+          "size_mm": [
+            1.7,
+            1.95
+          ],
+          "layers": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "pin": "3",
+          "net": "ovp_fault",
+          "xy_mm": [
+            8.0,
+            27.0
+          ],
+          "size_mm": [
+            1.7,
+            1.95
+          ],
+          "layers": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "pin": "4",
+          "net": "hs_fault",
+          "xy_mm": [
+            8.0,
+            24.5
+          ],
+          "size_mm": [
+            1.7,
+            1.95
+          ],
+          "layers": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "pin": "5",
+          "net": "coil_fault",
+          "xy_mm": [
+            8.0,
+            22.0
+          ],
+          "size_mm": [
+            1.7,
+            1.95
+          ],
+          "layers": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "pin": "6",
+          "net": "rtd_fault",
+          "xy_mm": [
+            8.0,
+            19.5
+          ],
+          "size_mm": [
+            1.7,
+            1.95
+          ],
+          "layers": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "pin": "7",
+          "net": "runaway_fault",
+          "xy_mm": [
+            8.0,
+            17.0
+          ],
+          "size_mm": [
+            1.7,
+            1.95
+          ],
+          "layers": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "pin": "8",
+          "net": "aux_fault",
+          "xy_mm": [
+            8.0,
+            14.5
+          ],
+          "size_mm": [
+            1.7,
+            1.95
+          ],
+          "layers": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        }
+      ],
+      "models": [
+        "${KICAD10_3DMODEL_DIR}/Connector_JST.3dshapes/JST_XH_B8B-XH-A_1x08_P2.50mm_Vertical.step"
+      ]
+    },
+    {
+      "ref": "J2",
+      "value": "B8B-XH-A(LF)(SN)",
+      "footprint": "JST_XH_B8B-XH-A_1x08_P2.50mm_Vertical",
+      "xy_mm": [
+        92.0,
+        32.0
+      ],
+      "angle_deg": -90.0,
+      "side": "F.Cu",
+      "pads": [
+        {
+          "pin": "1",
+          "net": "vcc",
+          "xy_mm": [
+            92.0,
+            32.0
+          ],
+          "size_mm": [
+            1.7,
+            1.95
+          ],
+          "layers": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "pin": "2",
+          "net": "gnd",
+          "xy_mm": [
+            92.0,
+            34.5
+          ],
+          "size_mm": [
+            1.7,
+            1.95
+          ],
+          "layers": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "pin": "3",
+          "net": "wdi",
+          "xy_mm": [
+            92.0,
+            37.0
+          ],
+          "size_mm": [
+            1.7,
+            1.95
+          ],
+          "layers": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "pin": "4",
+          "net": "reset_n",
+          "xy_mm": [
+            92.0,
+            39.5
+          ],
+          "size_mm": [
+            1.7,
+            1.95
+          ],
+          "layers": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "pin": "5",
+          "net": "sensor_live",
+          "xy_mm": [
+            92.0,
+            42.0
+          ],
+          "size_mm": [
+            1.7,
+            1.95
+          ],
+          "layers": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "pin": "6",
+          "net": "permit",
+          "xy_mm": [
+            92.0,
+            44.5
+          ],
+          "size_mm": [
+            1.7,
+            1.95
+          ],
+          "layers": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "pin": "7",
+          "net": "latched_fault",
+          "xy_mm": [
+            92.0,
+            47.0
+          ],
+          "size_mm": [
+            1.7,
+            1.95
+          ],
+          "layers": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        },
+        {
+          "pin": "8",
+          "net": "wdt_good",
+          "xy_mm": [
+            92.0,
+            49.5
+          ],
+          "size_mm": [
+            1.7,
+            1.95
+          ],
+          "layers": [
+            "F.Cu",
+            "B.Cu"
+          ]
+        }
+      ],
+      "models": [
+        "${KICAD10_3DMODEL_DIR}/Connector_JST.3dshapes/JST_XH_B8B-XH-A_1x08_P2.50mm_Vertical.step"
+      ]
+    },
+    {
+      "ref": "R1",
+      "value": "RC0603FR-0710KL",
+      "footprint": "R_0603_1608Metric",
+      "xy_mm": [
+        18.0,
+        17.0
+      ],
+      "angle_deg": 0.0,
+      "side": "F.Cu",
+      "pads": [
+        {
+          "pin": "1",
+          "net": "vcc",
+          "xy_mm": [
+            17.175,
+            17.0
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "2",
+          "net": "ocp_fault",
+          "xy_mm": [
+            18.825,
+            17.0
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        }
+      ],
+      "models": [
+        "${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_0603_1608Metric.step"
+      ]
+    },
+    {
+      "ref": "R10",
+      "value": "RC0603FR-0710KL",
+      "footprint": "R_0603_1608Metric",
+      "xy_mm": [
+        43.0,
+        51.0
+      ],
+      "angle_deg": 90.0,
+      "side": "F.Cu",
+      "pads": [
+        {
+          "pin": "1",
+          "net": "sensor_live",
+          "xy_mm": [
+            43.0,
+            51.825
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "2",
+          "net": "gnd",
+          "xy_mm": [
+            43.0,
+            50.175
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        }
+      ],
+      "models": [
+        "${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_0603_1608Metric.step"
+      ]
+    },
+    {
+      "ref": "R11",
+      "value": "RC0603FR-0710KL",
+      "footprint": "R_0603_1608Metric",
+      "xy_mm": [
+        76.0,
+        43.0
+      ],
+      "angle_deg": 90.0,
+      "side": "F.Cu",
+      "pads": [
+        {
+          "pin": "1",
+          "net": "permit",
+          "xy_mm": [
+            76.0,
+            43.825
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "2",
+          "net": "gnd",
+          "xy_mm": [
+            76.0,
+            42.175
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        }
+      ],
+      "models": [
+        "${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_0603_1608Metric.step"
+      ]
+    },
+    {
+      "ref": "R2",
+      "value": "RC0603FR-0710KL",
+      "footprint": "R_0603_1608Metric",
+      "xy_mm": [
+        18.0,
+        21.0
+      ],
+      "angle_deg": 0.0,
+      "side": "F.Cu",
+      "pads": [
+        {
+          "pin": "1",
+          "net": "vcc",
+          "xy_mm": [
+            17.175,
+            21.0
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "2",
+          "net": "ovp_fault",
+          "xy_mm": [
+            18.825,
+            21.0
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        }
+      ],
+      "models": [
+        "${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_0603_1608Metric.step"
+      ]
+    },
+    {
+      "ref": "R3",
+      "value": "RC0603FR-0710KL",
+      "footprint": "R_0603_1608Metric",
+      "xy_mm": [
+        18.0,
+        25.0
+      ],
+      "angle_deg": 0.0,
+      "side": "F.Cu",
+      "pads": [
+        {
+          "pin": "1",
+          "net": "vcc",
+          "xy_mm": [
+            17.175,
+            25.0
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "2",
+          "net": "hs_fault",
+          "xy_mm": [
+            18.825,
+            25.0
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        }
+      ],
+      "models": [
+        "${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_0603_1608Metric.step"
+      ]
+    },
+    {
+      "ref": "R4",
+      "value": "RC0603FR-0710KL",
+      "footprint": "R_0603_1608Metric",
+      "xy_mm": [
+        18.0,
+        29.0
+      ],
+      "angle_deg": 0.0,
+      "side": "F.Cu",
+      "pads": [
+        {
+          "pin": "1",
+          "net": "vcc",
+          "xy_mm": [
+            17.175,
+            29.0
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "2",
+          "net": "coil_fault",
+          "xy_mm": [
+            18.825,
+            29.0
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        }
+      ],
+      "models": [
+        "${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_0603_1608Metric.step"
+      ]
+    },
+    {
+      "ref": "R5",
+      "value": "RC0603FR-0710KL",
+      "footprint": "R_0603_1608Metric",
+      "xy_mm": [
+        18.0,
+        33.0
+      ],
+      "angle_deg": 0.0,
+      "side": "F.Cu",
+      "pads": [
+        {
+          "pin": "1",
+          "net": "vcc",
+          "xy_mm": [
+            17.175,
+            33.0
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "2",
+          "net": "rtd_fault",
+          "xy_mm": [
+            18.825,
+            33.0
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        }
+      ],
+      "models": [
+        "${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_0603_1608Metric.step"
+      ]
+    },
+    {
+      "ref": "R6",
+      "value": "RC0603FR-0710KL",
+      "footprint": "R_0603_1608Metric",
+      "xy_mm": [
+        18.0,
+        37.0
+      ],
+      "angle_deg": 0.0,
+      "side": "F.Cu",
+      "pads": [
+        {
+          "pin": "1",
+          "net": "vcc",
+          "xy_mm": [
+            17.175,
+            37.0
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "2",
+          "net": "runaway_fault",
+          "xy_mm": [
+            18.825,
+            37.0
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        }
+      ],
+      "models": [
+        "${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_0603_1608Metric.step"
+      ]
+    },
+    {
+      "ref": "R7",
+      "value": "RC0603FR-0710KL",
+      "footprint": "R_0603_1608Metric",
+      "xy_mm": [
+        18.0,
+        41.0
+      ],
+      "angle_deg": 0.0,
+      "side": "F.Cu",
+      "pads": [
+        {
+          "pin": "1",
+          "net": "vcc",
+          "xy_mm": [
+            17.175,
+            41.0
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "2",
+          "net": "aux_fault",
+          "xy_mm": [
+            18.825,
+            41.0
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        }
+      ],
+      "models": [
+        "${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_0603_1608Metric.step"
+      ]
+    },
+    {
+      "ref": "R8",
+      "value": "RC0603FR-0710KL",
+      "footprint": "R_0603_1608Metric",
+      "xy_mm": [
+        40.0,
+        51.0
+      ],
+      "angle_deg": 90.0,
+      "side": "F.Cu",
+      "pads": [
+        {
+          "pin": "1",
+          "net": "vcc",
+          "xy_mm": [
+            40.0,
+            51.825
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "2",
+          "net": "reset_n",
+          "xy_mm": [
+            40.0,
+            50.175
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        }
+      ],
+      "models": [
+        "${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_0603_1608Metric.step"
+      ]
+    },
+    {
+      "ref": "R9",
+      "value": "RC0603FR-071KL",
+      "footprint": "R_0603_1608Metric",
+      "xy_mm": [
+        58.0,
+        10.0
+      ],
+      "angle_deg": 90.0,
+      "side": "F.Cu",
+      "pads": [
+        {
+          "pin": "1",
+          "net": "wdi",
+          "xy_mm": [
+            58.0,
+            10.825
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "2",
+          "net": "gnd",
+          "xy_mm": [
+            58.0,
+            9.175
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        }
+      ],
+      "models": [
+        "${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_0603_1608Metric.step"
+      ]
+    },
+    {
+      "ref": "U1",
+      "value": "SN74LVC14ADR",
+      "footprint": "SOIC-14_3.9x8.7mm_P1.27mm",
+      "xy_mm": [
+        31.0,
+        25.0
+      ],
+      "angle_deg": 0.0,
+      "side": "F.Cu",
+      "pads": [
+        {
+          "pin": "1",
+          "net": "ocp_fault",
+          "xy_mm": [
+            28.525,
+            21.19
+          ],
+          "size_mm": [
+            1.95,
+            0.6
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "2",
+          "net": "ocp_healthy",
+          "xy_mm": [
+            28.525,
+            22.46
+          ],
+          "size_mm": [
+            1.95,
+            0.6
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "3",
+          "net": "ovp_fault",
+          "xy_mm": [
+            28.525,
+            23.73
+          ],
+          "size_mm": [
+            1.95,
+            0.6
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "4",
+          "net": "ovp_healthy",
+          "xy_mm": [
+            28.525,
+            25.0
+          ],
+          "size_mm": [
+            1.95,
+            0.6
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "5",
+          "net": "hs_fault",
+          "xy_mm": [
+            28.525,
+            26.27
+          ],
+          "size_mm": [
+            1.95,
+            0.6
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "6",
+          "net": "hs_healthy",
+          "xy_mm": [
+            28.525,
+            27.54
+          ],
+          "size_mm": [
+            1.95,
+            0.6
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "7",
+          "net": "gnd",
+          "xy_mm": [
+            28.525,
+            28.81
+          ],
+          "size_mm": [
+            1.95,
+            0.6
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "8",
+          "net": "coil_healthy",
+          "xy_mm": [
+            33.475,
+            28.81
+          ],
+          "size_mm": [
+            1.95,
+            0.6
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "9",
+          "net": "coil_fault",
+          "xy_mm": [
+            33.475,
+            27.54
+          ],
+          "size_mm": [
+            1.95,
+            0.6
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "10",
+          "net": "rtd_healthy",
+          "xy_mm": [
+            33.475,
+            26.27
+          ],
+          "size_mm": [
+            1.95,
+            0.6
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "11",
+          "net": "rtd_fault",
+          "xy_mm": [
+            33.475,
+            25.0
+          ],
+          "size_mm": [
+            1.95,
+            0.6
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "12",
+          "net": "runaway_healthy",
+          "xy_mm": [
+            33.475,
+            23.73
+          ],
+          "size_mm": [
+            1.95,
+            0.6
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "13",
+          "net": "runaway_fault",
+          "xy_mm": [
+            33.475,
+            22.46
+          ],
+          "size_mm": [
+            1.95,
+            0.6
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "14",
+          "net": "vcc",
+          "xy_mm": [
+            33.475,
+            21.19
+          ],
+          "size_mm": [
+            1.95,
+            0.6
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        }
+      ],
+      "models": [
+        "${KICAD10_3DMODEL_DIR}/Package_SO.3dshapes/SOIC-14_3.9x8.7mm_P1.27mm.step"
+      ]
+    },
+    {
+      "ref": "U2",
+      "value": "SN74LVC14ADR",
+      "footprint": "SOIC-14_3.9x8.7mm_P1.27mm",
+      "xy_mm": [
+        31.0,
+        43.0
+      ],
+      "angle_deg": 0.0,
+      "side": "F.Cu",
+      "pads": [
+        {
+          "pin": "1",
+          "net": "aux_fault",
+          "xy_mm": [
+            28.525,
+            39.19
+          ],
+          "size_mm": [
+            1.95,
+            0.6
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "2",
+          "net": "aux_healthy",
+          "xy_mm": [
+            28.525,
+            40.46
+          ],
+          "size_mm": [
+            1.95,
+            0.6
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "3",
+          "net": "any_fault",
+          "xy_mm": [
+            28.525,
+            41.73
+          ],
+          "size_mm": [
+            1.95,
+            0.6
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "4",
+          "net": "all_good",
+          "xy_mm": [
+            28.525,
+            43.0
+          ],
+          "size_mm": [
+            1.95,
+            0.6
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "5",
+          "net": "reset_n",
+          "xy_mm": [
+            28.525,
+            44.27
+          ],
+          "size_mm": [
+            1.95,
+            0.6
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "6",
+          "net": "reset_clock",
+          "xy_mm": [
+            28.525,
+            45.54
+          ],
+          "size_mm": [
+            1.95,
+            0.6
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "7",
+          "net": "gnd",
+          "xy_mm": [
+            28.525,
+            46.81
+          ],
+          "size_mm": [
+            1.95,
+            0.6
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "8",
+          "net": "live_n",
+          "xy_mm": [
+            33.475,
+            46.81
+          ],
+          "size_mm": [
+            1.95,
+            0.6
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "9",
+          "net": "sensor_live",
+          "xy_mm": [
+            33.475,
+            45.54
+          ],
+          "size_mm": [
+            1.95,
+            0.6
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "10",
+          "net": "live_buf",
+          "xy_mm": [
+            33.475,
+            44.27
+          ],
+          "size_mm": [
+            1.95,
+            0.6
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "11",
+          "net": "live_n",
+          "xy_mm": [
+            33.475,
+            43.0
+          ],
+          "size_mm": [
+            1.95,
+            0.6
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "12",
+          "net": "y6",
+          "xy_mm": [
+            33.475,
+            41.73
+          ],
+          "size_mm": [
+            1.95,
+            0.6
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "13",
+          "net": "gnd",
+          "xy_mm": [
+            33.475,
+            40.46
+          ],
+          "size_mm": [
+            1.95,
+            0.6
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "14",
+          "net": "vcc",
+          "xy_mm": [
+            33.475,
+            39.19
+          ],
+          "size_mm": [
+            1.95,
+            0.6
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        }
+      ],
+      "models": [
+        "${KICAD10_3DMODEL_DIR}/Package_SO.3dshapes/SOIC-14_3.9x8.7mm_P1.27mm.step"
+      ]
+    },
+    {
+      "ref": "U3",
+      "value": "CD74HC30PWR",
+      "footprint": "TSSOP-14_4.4x5mm_P0.65mm",
+      "xy_mm": [
+        49.0,
+        25.0
+      ],
+      "angle_deg": 0.0,
+      "side": "F.Cu",
+      "pads": [
+        {
+          "pin": "1",
+          "net": "ocp_healthy",
+          "xy_mm": [
+            46.1375,
+            23.05
+          ],
+          "size_mm": [
+            1.475,
+            0.4
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "2",
+          "net": "ovp_healthy",
+          "xy_mm": [
+            46.1375,
+            23.7
+          ],
+          "size_mm": [
+            1.475,
+            0.4
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "3",
+          "net": "hs_healthy",
+          "xy_mm": [
+            46.1375,
+            24.35
+          ],
+          "size_mm": [
+            1.475,
+            0.4
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "4",
+          "net": "coil_healthy",
+          "xy_mm": [
+            46.1375,
+            25.0
+          ],
+          "size_mm": [
+            1.475,
+            0.4
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "5",
+          "net": "rtd_healthy",
+          "xy_mm": [
+            46.1375,
+            25.65
+          ],
+          "size_mm": [
+            1.475,
+            0.4
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "6",
+          "net": "runaway_healthy",
+          "xy_mm": [
+            46.1375,
+            26.3
+          ],
+          "size_mm": [
+            1.475,
+            0.4
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "7",
+          "net": "gnd",
+          "xy_mm": [
+            46.1375,
+            26.95
+          ],
+          "size_mm": [
+            1.475,
+            0.4
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "8",
+          "net": "any_fault",
+          "xy_mm": [
+            51.8625,
+            26.95
+          ],
+          "size_mm": [
+            1.475,
+            0.4
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "9",
+          "net": "nc9",
+          "xy_mm": [
+            51.8625,
+            26.3
+          ],
+          "size_mm": [
+            1.475,
+            0.4
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "10",
+          "net": "nc10",
+          "xy_mm": [
+            51.8625,
+            25.65
+          ],
+          "size_mm": [
+            1.475,
+            0.4
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "11",
+          "net": "aux_healthy",
+          "xy_mm": [
+            51.8625,
+            25.0
+          ],
+          "size_mm": [
+            1.475,
+            0.4
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "12",
+          "net": "common_good",
+          "xy_mm": [
+            51.8625,
+            24.35
+          ],
+          "size_mm": [
+            1.475,
+            0.4
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "13",
+          "net": "nc13",
+          "xy_mm": [
+            51.8625,
+            23.7
+          ],
+          "size_mm": [
+            1.475,
+            0.4
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "14",
+          "net": "vcc",
+          "xy_mm": [
+            51.8625,
+            23.05
+          ],
+          "size_mm": [
+            1.475,
+            0.4
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        }
+      ],
+      "models": [
+        "${KICAD10_3DMODEL_DIR}/Package_SO.3dshapes/TSSOP-14_4.4x5mm_P0.65mm.step"
+      ]
+    },
+    {
+      "ref": "U4",
+      "value": "SN74LVC1G74DCUR",
+      "footprint": "VSSOP-8_2.3x2mm_P0.5mm",
+      "xy_mm": [
+        66.0,
+        43.0
+      ],
+      "angle_deg": 0.0,
+      "side": "F.Cu",
+      "pads": [
+        {
+          "pin": "1",
+          "net": "reset_clock",
+          "xy_mm": [
+            64.6,
+            42.25
+          ],
+          "size_mm": [
+            1.25,
+            0.35
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "2",
+          "net": "vcc",
+          "xy_mm": [
+            64.6,
+            42.75
+          ],
+          "size_mm": [
+            1.25,
+            0.35
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "3",
+          "net": "latched_fault",
+          "xy_mm": [
+            64.6,
+            43.25
+          ],
+          "size_mm": [
+            1.25,
+            0.35
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "4",
+          "net": "gnd",
+          "xy_mm": [
+            64.6,
+            43.75
+          ],
+          "size_mm": [
+            1.25,
+            0.35
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "5",
+          "net": "permit",
+          "xy_mm": [
+            67.4,
+            43.75
+          ],
+          "size_mm": [
+            1.25,
+            0.35
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "6",
+          "net": "all_good",
+          "xy_mm": [
+            67.4,
+            43.25
+          ],
+          "size_mm": [
+            1.25,
+            0.35
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "7",
+          "net": "vcc",
+          "xy_mm": [
+            67.4,
+            42.75
+          ],
+          "size_mm": [
+            1.25,
+            0.35
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "8",
+          "net": "vcc",
+          "xy_mm": [
+            67.4,
+            42.25
+          ],
+          "size_mm": [
+            1.25,
+            0.35
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        }
+      ],
+      "models": [
+        "${KICAD10_3DMODEL_DIR}/Package_SO.3dshapes/VSSOP-8_2.3x2mm_P0.5mm.step"
+      ]
+    },
+    {
+      "ref": "U5",
+      "value": "TPS3823-33DBVR",
+      "footprint": "SOT-23-5",
+      "xy_mm": [
+        66.0,
+        16.0
+      ],
+      "angle_deg": 0.0,
+      "side": "F.Cu",
+      "pads": [
+        {
+          "pin": "1",
+          "net": "wdt_good",
+          "xy_mm": [
+            64.8625,
+            15.05
+          ],
+          "size_mm": [
+            1.325,
+            0.6
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "2",
+          "net": "gnd",
+          "xy_mm": [
+            64.8625,
+            16.0
+          ],
+          "size_mm": [
+            1.325,
+            0.6
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "3",
+          "net": "vcc",
+          "xy_mm": [
+            64.8625,
+            16.95
+          ],
+          "size_mm": [
+            1.325,
+            0.6
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "4",
+          "net": "wdi",
+          "xy_mm": [
+            67.1375,
+            16.95
+          ],
+          "size_mm": [
+            1.325,
+            0.6
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "5",
+          "net": "vcc",
+          "xy_mm": [
+            67.1375,
+            15.05
+          ],
+          "size_mm": [
+            1.325,
+            0.6
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        }
+      ],
+      "models": [
+        "${KICAD10_3DMODEL_DIR}/Package_TO_SOT_SMD.3dshapes/SOT-23-5.step"
+      ]
+    },
+    {
+      "ref": "U6",
+      "value": "SN74LVC1G08DBVR",
+      "footprint": "SOT-23-5",
+      "xy_mm": [
+        49.0,
+        43.0
+      ],
+      "angle_deg": 0.0,
+      "side": "F.Cu",
+      "pads": [
+        {
+          "pin": "1",
+          "net": "wdt_good",
+          "xy_mm": [
+            47.8625,
+            42.05
+          ],
+          "size_mm": [
+            1.325,
+            0.6
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "2",
+          "net": "live_buf",
+          "xy_mm": [
+            47.8625,
+            43.0
+          ],
+          "size_mm": [
+            1.325,
+            0.6
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "3",
+          "net": "gnd",
+          "xy_mm": [
+            47.8625,
+            43.95
+          ],
+          "size_mm": [
+            1.325,
+            0.6
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "4",
+          "net": "common_good",
+          "xy_mm": [
+            50.1375,
+            43.95
+          ],
+          "size_mm": [
+            1.325,
+            0.6
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        },
+        {
+          "pin": "5",
+          "net": "vcc",
+          "xy_mm": [
+            50.1375,
+            42.05
+          ],
+          "size_mm": [
+            1.325,
+            0.6
+          ],
+          "layers": [
+            "F.Cu"
+          ]
+        }
+      ],
+      "models": [
+        "${KICAD10_3DMODEL_DIR}/Package_TO_SOT_SMD.3dshapes/SOT-23-5.step"
+      ]
+    }
+  ],
+  "track_count": 347,
+  "zone_count": 2
+}

@@ -1,0 +1,41 @@
+{
+  "status": "NOT EVALUATED",
+  "runner_exit_code": 2,
+  "error": "invalid native track dimensions",
+  "extractor_returncode": 0,
+  "board_sha256": "27657a0ebce66140b6ea6a0b84940dba420b3a187199798bce3c3d122abf9dae",
+  "extractor_sha256": "77ae157c5400977abe98152b87ee6a0ebb24a7724cff5834b57a57d1a1495784",
+  "tool_version": "10.0.4",
+  "tracks": 725,
+  "vias": 192,
+  "zone_count": 25,
+  "pads": 434,
+  "extractor_gaps": [],
+  "offending_tracks": [
+    {
+      "uuid": "0a617554-d01f-5c77-bbc6-cf8dcedb8f1f",
+      "net": "hot5",
+      "layer": "F.Cu",
+      "start_mm": [
+        55.175,
+        28
+      ],
+      "end_mm": [
+        55.175,
+        28
+      ],
+      "width_mm": 0.25,
+      "length_mm": 0,
+      "pad_contacts": [
+        "388f1bee-362b-5e71-9c10-0d927b306622"
+      ],
+      "start_contacts": [
+        "388f1bee-362b-5e71-9c10-0d927b306622"
+      ],
+      "end_contacts": [
+        "388f1bee-362b-5e71-9c10-0d927b306622"
+      ]
+    }
+  ],
+  "interpretation": "Input/solver eligibility failure. No native-20 resistance, ampacity, I2R, or temperature result was produced; no board edit or filtering performed."
+}

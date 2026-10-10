@@ -1,0 +1,11 @@
+cargo run --release --quiet --locked --bin zapote-layout-quality -- --native "power-stage-120v/native-20/section.kicad_pcb" --python "/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/3.9/Resources/Python.app/Contents/MacOS/Python" --output "/tmp/temper-pcb-rubric-review/current-native20-repeat" --current-profile a4-two-terminal.v1 
+warning: unused import: `NumericRange`
+ --> packages/zapote-erc/src/current_sense.rs:4:53
+  |
+4 | use zapote_core::current_sense::{CurrentSenseInput, NumericRange};
+  |                                                     ^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+invalid native track dimensions
+make: *** [check-current] Error 2

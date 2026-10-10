@@ -1,0 +1,8218 @@
+{
+  "netlist_sha256": "e3fb7cddff3d78b2319eb9b541d03016ec2661d77779b256adda814d75a051f1",
+  "device_pins": [
+    {
+      "designator": "U3",
+      "designator_prefix": "U",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "manufacturer": "Texas Instruments",
+      "mpn": "TPS70950DBVR",
+      "instance": "u_ldo",
+      "pins": [
+        {
+          "pin": "2",
+          "net": "ocp_kelvin_p"
+        },
+        {
+          "pin": "1",
+          "net": "v15_ls"
+        },
+        {
+          "pin": "3",
+          "net": "v15_ls"
+        },
+        {
+          "pin": "5",
+          "net": "hot5"
+        },
+        {
+          "pin": "4",
+          "net": "u_ldo-nc"
+        }
+      ]
+    },
+    {
+      "designator": "U37",
+      "designator_prefix": "U",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "manufacturer": "Texas Instruments",
+      "mpn": "TPS70950DBVR",
+      "instance": "monitor_ls.ldo5",
+      "pins": [
+        {
+          "pin": "1",
+          "net": "v15_ls"
+        },
+        {
+          "pin": "3",
+          "net": "v15_ls"
+        },
+        {
+          "pin": "2",
+          "net": "n_ls"
+        },
+        {
+          "pin": "5",
+          "net": "monitor_ls-v5"
+        },
+        {
+          "pin": "4",
+          "net": "monitor_ls.ldo5-nc"
+        }
+      ]
+    },
+    {
+      "designator": "U38",
+      "designator_prefix": "U",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "manufacturer": "Texas Instruments",
+      "mpn": "TPS70950DBVR",
+      "instance": "bias_ha.monitor.ldo5",
+      "pins": [
+        {
+          "pin": "1",
+          "net": "p_ha"
+        },
+        {
+          "pin": "3",
+          "net": "p_ha"
+        },
+        {
+          "pin": "2",
+          "net": "n_ha"
+        },
+        {
+          "pin": "5",
+          "net": "bias_ha.monitor-v5"
+        },
+        {
+          "pin": "4",
+          "net": "bias_ha.monitor.ldo5-nc"
+        }
+      ]
+    },
+    {
+      "designator": "U39",
+      "designator_prefix": "U",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "manufacturer": "Texas Instruments",
+      "mpn": "TPS70950DBVR",
+      "instance": "bias_hb.monitor.ldo5",
+      "pins": [
+        {
+          "pin": "1",
+          "net": "p_hb"
+        },
+        {
+          "pin": "3",
+          "net": "p_hb"
+        },
+        {
+          "pin": "2",
+          "net": "n_hb"
+        },
+        {
+          "pin": "5",
+          "net": "bias_hb.monitor-v5"
+        },
+        {
+          "pin": "4",
+          "net": "bias_hb.monitor.ldo5-nc"
+        }
+      ]
+    }
+  ],
+  "components": [
+    {
+      "designator": "J1",
+      "designator_prefix": "J",
+      "footprint": "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-3-2-5.08_1x02_P5.08mm_Horizontal",
+      "manufacturer": "Phoenix Contact",
+      "mpn": "1711725",
+      "instance": "j_mains"
+    },
+    {
+      "designator": "F1",
+      "designator_prefix": "F",
+      "footprint": "Fuse:Fuseholder_Clip-6.3x32mm_Littelfuse_102071_Inline_P34.70x7.60mm_D2.00mm_Horizontal",
+      "manufacturer": "Littelfuse",
+      "mpn": "0326020.MXP",
+      "instance": "f1"
+    },
+    {
+      "designator": "RV1",
+      "designator_prefix": "RV",
+      "footprint": "temper:TMOV20RP_ReviewOnly",
+      "manufacturer": "Littelfuse",
+      "mpn": "TMOV20RP175E",
+      "instance": "rv1"
+    },
+    {
+      "designator": "C1",
+      "designator_prefix": "C",
+      "footprint": "temper:KEMET_R463N410000N1M_P22.50_ReviewOnly",
+      "manufacturer": "KEMET",
+      "mpn": "R463N410000N1M",
+      "instance": "cx1"
+    },
+    {
+      "designator": "R1",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC1206FR-07120KL",
+      "value": "120kohm",
+      "instance": "rb1a"
+    },
+    {
+      "designator": "R2",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC1206FR-07120KL",
+      "value": "120kohm",
+      "instance": "rb1b"
+    },
+    {
+      "designator": "L1",
+      "designator_prefix": "L",
+      "footprint": "temper:B82726S2_ReviewOnly",
+      "manufacturer": "TDK",
+      "mpn": "B82726S2203A020",
+      "instance": "l1"
+    },
+    {
+      "designator": "C2",
+      "designator_prefix": "C",
+      "footprint": "temper:KEMET_R463N410000N1M_P22.50_ReviewOnly",
+      "manufacturer": "KEMET",
+      "mpn": "R463N410000N1M",
+      "instance": "cx2"
+    },
+    {
+      "designator": "C3",
+      "designator_prefix": "C",
+      "footprint": "temper:Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly",
+      "manufacturer": "Murata",
+      "mpn": "DE1E3RA222MA4BP01F",
+      "instance": "cy1"
+    },
+    {
+      "designator": "C4",
+      "designator_prefix": "C",
+      "footprint": "temper:Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly",
+      "manufacturer": "Murata",
+      "mpn": "DE1E3RA222MA4BP01F",
+      "instance": "cy2"
+    },
+    {
+      "designator": "BR1",
+      "designator_prefix": "BR",
+      "footprint": "temper:Diode_Bridge_GBJ2510",
+      "manufacturer": "Diodes Incorporated",
+      "mpn": "GBJ2510-F",
+      "instance": "br1"
+    },
+    {
+      "designator": "C5",
+      "designator_prefix": "C",
+      "footprint": "temper:TDK_B32656G0275J000_4Pin_P37.50_P20.30_ReviewOnly",
+      "manufacturer": "TDK",
+      "mpn": "B32656G0275J000",
+      "instance": "c_bus1"
+    },
+    {
+      "designator": "C6",
+      "designator_prefix": "C",
+      "footprint": "temper:TDK_B32656G0275J000_4Pin_P37.50_P20.30_ReviewOnly",
+      "manufacturer": "TDK",
+      "mpn": "B32656G0275J000",
+      "instance": "c_bus2"
+    },
+    {
+      "designator": "R3",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC1206FR-07220KL",
+      "value": "220kohm",
+      "instance": "r_bus1"
+    },
+    {
+      "designator": "R4",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC1206FR-07220KL",
+      "value": "220kohm",
+      "instance": "r_bus2"
+    },
+    {
+      "designator": "R5",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_Shunt_Vishay_WSK2512_6332Metric_T2.21mm",
+      "manufacturer": "Vishay Dale",
+      "mpn": "WSK25121L000FEA",
+      "instance": "r_shunt"
+    },
+    {
+      "designator": "U1",
+      "designator_prefix": "U",
+      "footprint": "lib:SOIC16W_Isolated",
+      "manufacturer": "Texas Instruments",
+      "mpn": "UCC21550BDWKR",
+      "instance": "leg_a.driver"
+    },
+    {
+      "designator": "C7",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "instance": "leg_a.c_vcci"
+    },
+    {
+      "designator": "Q1",
+      "designator_prefix": "Q",
+      "footprint": "Package_TO_SOT_SMD:SOT-23",
+      "manufacturer": "Alpha & Omega Semiconductor",
+      "mpn": "AO3400A",
+      "instance": "leg_a.permit_fet"
+    },
+    {
+      "designator": "R6",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC0603FR-07100RL",
+      "value": "100ohm",
+      "instance": "leg_a.r_permit"
+    },
+    {
+      "designator": "R7",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC0603FR-07100KL",
+      "value": "100kohm",
+      "instance": "leg_a.r_permit_pd"
+    },
+    {
+      "designator": "R8",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC0603FR-07330RL",
+      "value": "330ohm",
+      "instance": "leg_a.r_dis_pu"
+    },
+    {
+      "designator": "R9",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD0749K9L",
+      "value": "49.9kohm",
+      "instance": "leg_a.r_dt"
+    },
+    {
+      "designator": "C8",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "instance": "leg_a.c_ls"
+    },
+    {
+      "designator": "C9",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "manufacturer": "Murata",
+      "mpn": "GRM32ER71H106KA12L",
+      "value": "10uF",
+      "instance": "leg_a.c_ls_bulk"
+    },
+    {
+      "designator": "C90",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "manufacturer": "Taiyo Yuden",
+      "mpn": "UMK325AB7106KM-T",
+      "value": "10uF",
+      "instance": "leg_a.bias_h.clocal1"
+    },
+    {
+      "designator": "C91",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "manufacturer": "Taiyo Yuden",
+      "mpn": "UMK325AB7106KM-T",
+      "value": "10uF",
+      "instance": "leg_a.bias_h.clocal2"
+    },
+    {
+      "designator": "C50",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "Murata",
+      "mpn": "GRM188R71E105KA12D",
+      "value": "1uF",
+      "instance": "leg_a.bias_h.cmid1"
+    },
+    {
+      "designator": "C51",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "Murata",
+      "mpn": "GRM188R71E105KA12D",
+      "value": "1uF",
+      "instance": "leg_a.bias_h.cmid2"
+    },
+    {
+      "designator": "C110",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0402_1005Metric",
+      "manufacturer": "Murata",
+      "mpn": "GRM155R71E104KE14D",
+      "value": "100nF",
+      "instance": "leg_a.bias_h.chf1"
+    },
+    {
+      "designator": "C111",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0402_1005Metric",
+      "manufacturer": "Murata",
+      "mpn": "GRM155R71E104KE14D",
+      "value": "100nF",
+      "instance": "leg_a.bias_h.chf2"
+    },
+    {
+      "designator": "C112",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0402_1005Metric",
+      "manufacturer": "Murata",
+      "mpn": "GRM155R71E104KE14D",
+      "value": "100nF",
+      "instance": "leg_a.bias_h.chf3"
+    },
+    {
+      "designator": "C113",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0402_1005Metric",
+      "manufacturer": "Murata",
+      "mpn": "GRM155R71E104KE14D",
+      "value": "100nF",
+      "instance": "leg_a.bias_h.chf4"
+    },
+    {
+      "designator": "R51",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC1206FR-070R68L",
+      "value": "0.68ohm",
+      "instance": "leg_a.bias_h.rdamp"
+    },
+    {
+      "designator": "C126",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:CP_Elec_6.3x5.9",
+      "manufacturer": "Panasonic",
+      "mpn": "6SVPC220M",
+      "value": "220uF",
+      "instance": "leg_a.bias_h.cbulk"
+    },
+    {
+      "designator": "R71",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD074K99L",
+      "value": "4.99kohm",
+      "instance": "leg_a.bias_h.rbleed"
+    },
+    {
+      "designator": "C92",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "manufacturer": "Taiyo Yuden",
+      "mpn": "UMK325AB7106KM-T",
+      "value": "10uF",
+      "instance": "leg_a.bias_l.clocal1"
+    },
+    {
+      "designator": "C93",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "manufacturer": "Taiyo Yuden",
+      "mpn": "UMK325AB7106KM-T",
+      "value": "10uF",
+      "instance": "leg_a.bias_l.clocal2"
+    },
+    {
+      "designator": "C52",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "Murata",
+      "mpn": "GRM188R71E105KA12D",
+      "value": "1uF",
+      "instance": "leg_a.bias_l.cmid1"
+    },
+    {
+      "designator": "C53",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "Murata",
+      "mpn": "GRM188R71E105KA12D",
+      "value": "1uF",
+      "instance": "leg_a.bias_l.cmid2"
+    },
+    {
+      "designator": "C114",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0402_1005Metric",
+      "manufacturer": "Murata",
+      "mpn": "GRM155R71E104KE14D",
+      "value": "100nF",
+      "instance": "leg_a.bias_l.chf1"
+    },
+    {
+      "designator": "C115",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0402_1005Metric",
+      "manufacturer": "Murata",
+      "mpn": "GRM155R71E104KE14D",
+      "value": "100nF",
+      "instance": "leg_a.bias_l.chf2"
+    },
+    {
+      "designator": "C116",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0402_1005Metric",
+      "manufacturer": "Murata",
+      "mpn": "GRM155R71E104KE14D",
+      "value": "100nF",
+      "instance": "leg_a.bias_l.chf3"
+    },
+    {
+      "designator": "C117",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0402_1005Metric",
+      "manufacturer": "Murata",
+      "mpn": "GRM155R71E104KE14D",
+      "value": "100nF",
+      "instance": "leg_a.bias_l.chf4"
+    },
+    {
+      "designator": "R52",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC1206FR-070R68L",
+      "value": "0.68ohm",
+      "instance": "leg_a.bias_l.rdamp"
+    },
+    {
+      "designator": "C127",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:CP_Elec_6.3x5.9",
+      "manufacturer": "Panasonic",
+      "mpn": "6SVPC220M",
+      "value": "220uF",
+      "instance": "leg_a.bias_l.cbulk"
+    },
+    {
+      "designator": "R72",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD074K99L",
+      "value": "4.99kohm",
+      "instance": "leg_a.bias_l.rbleed"
+    },
+    {
+      "designator": "U22",
+      "designator_prefix": "U",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "manufacturer": "Texas Instruments",
+      "mpn": "SN74LVC1G32DBVR",
+      "instance": "leg_a.dis_or"
+    },
+    {
+      "designator": "C54",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "instance": "leg_a.c_dis_or"
+    },
+    {
+      "designator": "R73",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC0603FR-0710KL",
+      "value": "10kohm",
+      "instance": "leg_a.r_driver_dis"
+    },
+    {
+      "designator": "R10",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC1206FR-073R9L",
+      "value": "3.9ohm",
+      "instance": "leg_a.r_gh"
+    },
+    {
+      "designator": "R11",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC0603FR-0710KL",
+      "value": "10kohm",
+      "instance": "leg_a.r_gh_pd"
+    },
+    {
+      "designator": "R12",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC1206FR-073R9L",
+      "value": "3.9ohm",
+      "instance": "leg_a.r_gl"
+    },
+    {
+      "designator": "R13",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC0603FR-0710KL",
+      "value": "10kohm",
+      "instance": "leg_a.r_gl_pd"
+    },
+    {
+      "designator": "C55",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C102J5GACTU",
+      "value": "1nF",
+      "instance": "leg_a.cgs_h"
+    },
+    {
+      "designator": "D6",
+      "designator_prefix": "D",
+      "footprint": "Diode_SMD:D_SOD-128",
+      "manufacturer": "Nexperia",
+      "mpn": "PMEG6030EP,115",
+      "instance": "leg_a.doff_h"
+    },
+    {
+      "designator": "R53",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC1206FR-071RL",
+      "value": "1ohm",
+      "instance": "leg_a.roff_h"
+    },
+    {
+      "designator": "C56",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C102J5GACTU",
+      "value": "1nF",
+      "instance": "leg_a.cgs_l"
+    },
+    {
+      "designator": "D7",
+      "designator_prefix": "D",
+      "footprint": "Diode_SMD:D_SOD-128",
+      "manufacturer": "Nexperia",
+      "mpn": "PMEG6030EP,115",
+      "instance": "leg_a.doff_l"
+    },
+    {
+      "designator": "R54",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC1206FR-071RL",
+      "value": "1ohm",
+      "instance": "leg_a.roff_l"
+    },
+    {
+      "designator": "Q2",
+      "designator_prefix": "Q",
+      "footprint": "Package_TO_SOT_THT:TO-247-3_Vertical",
+      "manufacturer": "Infineon",
+      "mpn": "IPW65R018CFD7",
+      "instance": "leg_a.q_high"
+    },
+    {
+      "designator": "Q3",
+      "designator_prefix": "Q",
+      "footprint": "Package_TO_SOT_THT:TO-247-3_Vertical",
+      "manufacturer": "Infineon",
+      "mpn": "IPW65R018CFD7",
+      "instance": "leg_a.q_low"
+    },
+    {
+      "designator": "C12",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "manufacturer": "Murata",
+      "mpn": "GRM31A5C3A102JW01D",
+      "instance": "leg_a.c_snub_h"
+    },
+    {
+      "designator": "C13",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "manufacturer": "Murata",
+      "mpn": "GRM31A5C3A102JW01D",
+      "instance": "leg_a.c_snub_l"
+    },
+    {
+      "designator": "U2",
+      "designator_prefix": "U",
+      "footprint": "lib:SOIC16W_Isolated",
+      "manufacturer": "Texas Instruments",
+      "mpn": "UCC21550BDWKR",
+      "instance": "leg_b.driver"
+    },
+    {
+      "designator": "C14",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "instance": "leg_b.c_vcci"
+    },
+    {
+      "designator": "Q4",
+      "designator_prefix": "Q",
+      "footprint": "Package_TO_SOT_SMD:SOT-23",
+      "manufacturer": "Alpha & Omega Semiconductor",
+      "mpn": "AO3400A",
+      "instance": "leg_b.permit_fet"
+    },
+    {
+      "designator": "R14",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC0603FR-07100RL",
+      "value": "100ohm",
+      "instance": "leg_b.r_permit"
+    },
+    {
+      "designator": "R15",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC0603FR-07100KL",
+      "value": "100kohm",
+      "instance": "leg_b.r_permit_pd"
+    },
+    {
+      "designator": "R16",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC0603FR-07330RL",
+      "value": "330ohm",
+      "instance": "leg_b.r_dis_pu"
+    },
+    {
+      "designator": "R17",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD0749K9L",
+      "value": "49.9kohm",
+      "instance": "leg_b.r_dt"
+    },
+    {
+      "designator": "C15",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "instance": "leg_b.c_ls"
+    },
+    {
+      "designator": "C16",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "manufacturer": "Murata",
+      "mpn": "GRM32ER71H106KA12L",
+      "value": "10uF",
+      "instance": "leg_b.c_ls_bulk"
+    },
+    {
+      "designator": "C94",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "manufacturer": "Taiyo Yuden",
+      "mpn": "UMK325AB7106KM-T",
+      "value": "10uF",
+      "instance": "leg_b.bias_h.clocal1"
+    },
+    {
+      "designator": "C95",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "manufacturer": "Taiyo Yuden",
+      "mpn": "UMK325AB7106KM-T",
+      "value": "10uF",
+      "instance": "leg_b.bias_h.clocal2"
+    },
+    {
+      "designator": "C57",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "Murata",
+      "mpn": "GRM188R71E105KA12D",
+      "value": "1uF",
+      "instance": "leg_b.bias_h.cmid1"
+    },
+    {
+      "designator": "C58",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "Murata",
+      "mpn": "GRM188R71E105KA12D",
+      "value": "1uF",
+      "instance": "leg_b.bias_h.cmid2"
+    },
+    {
+      "designator": "C118",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0402_1005Metric",
+      "manufacturer": "Murata",
+      "mpn": "GRM155R71E104KE14D",
+      "value": "100nF",
+      "instance": "leg_b.bias_h.chf1"
+    },
+    {
+      "designator": "C119",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0402_1005Metric",
+      "manufacturer": "Murata",
+      "mpn": "GRM155R71E104KE14D",
+      "value": "100nF",
+      "instance": "leg_b.bias_h.chf2"
+    },
+    {
+      "designator": "C120",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0402_1005Metric",
+      "manufacturer": "Murata",
+      "mpn": "GRM155R71E104KE14D",
+      "value": "100nF",
+      "instance": "leg_b.bias_h.chf3"
+    },
+    {
+      "designator": "C121",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0402_1005Metric",
+      "manufacturer": "Murata",
+      "mpn": "GRM155R71E104KE14D",
+      "value": "100nF",
+      "instance": "leg_b.bias_h.chf4"
+    },
+    {
+      "designator": "R55",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC1206FR-070R68L",
+      "value": "0.68ohm",
+      "instance": "leg_b.bias_h.rdamp"
+    },
+    {
+      "designator": "C128",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:CP_Elec_6.3x5.9",
+      "manufacturer": "Panasonic",
+      "mpn": "6SVPC220M",
+      "value": "220uF",
+      "instance": "leg_b.bias_h.cbulk"
+    },
+    {
+      "designator": "R74",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD074K99L",
+      "value": "4.99kohm",
+      "instance": "leg_b.bias_h.rbleed"
+    },
+    {
+      "designator": "C96",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "manufacturer": "Taiyo Yuden",
+      "mpn": "UMK325AB7106KM-T",
+      "value": "10uF",
+      "instance": "leg_b.bias_l.clocal1"
+    },
+    {
+      "designator": "C97",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "manufacturer": "Taiyo Yuden",
+      "mpn": "UMK325AB7106KM-T",
+      "value": "10uF",
+      "instance": "leg_b.bias_l.clocal2"
+    },
+    {
+      "designator": "C59",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "Murata",
+      "mpn": "GRM188R71E105KA12D",
+      "value": "1uF",
+      "instance": "leg_b.bias_l.cmid1"
+    },
+    {
+      "designator": "C60",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "Murata",
+      "mpn": "GRM188R71E105KA12D",
+      "value": "1uF",
+      "instance": "leg_b.bias_l.cmid2"
+    },
+    {
+      "designator": "C122",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0402_1005Metric",
+      "manufacturer": "Murata",
+      "mpn": "GRM155R71E104KE14D",
+      "value": "100nF",
+      "instance": "leg_b.bias_l.chf1"
+    },
+    {
+      "designator": "C123",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0402_1005Metric",
+      "manufacturer": "Murata",
+      "mpn": "GRM155R71E104KE14D",
+      "value": "100nF",
+      "instance": "leg_b.bias_l.chf2"
+    },
+    {
+      "designator": "C124",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0402_1005Metric",
+      "manufacturer": "Murata",
+      "mpn": "GRM155R71E104KE14D",
+      "value": "100nF",
+      "instance": "leg_b.bias_l.chf3"
+    },
+    {
+      "designator": "C125",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0402_1005Metric",
+      "manufacturer": "Murata",
+      "mpn": "GRM155R71E104KE14D",
+      "value": "100nF",
+      "instance": "leg_b.bias_l.chf4"
+    },
+    {
+      "designator": "R56",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC1206FR-070R68L",
+      "value": "0.68ohm",
+      "instance": "leg_b.bias_l.rdamp"
+    },
+    {
+      "designator": "C129",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:CP_Elec_6.3x5.9",
+      "manufacturer": "Panasonic",
+      "mpn": "6SVPC220M",
+      "value": "220uF",
+      "instance": "leg_b.bias_l.cbulk"
+    },
+    {
+      "designator": "R75",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD074K99L",
+      "value": "4.99kohm",
+      "instance": "leg_b.bias_l.rbleed"
+    },
+    {
+      "designator": "U23",
+      "designator_prefix": "U",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "manufacturer": "Texas Instruments",
+      "mpn": "SN74LVC1G32DBVR",
+      "instance": "leg_b.dis_or"
+    },
+    {
+      "designator": "C61",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "instance": "leg_b.c_dis_or"
+    },
+    {
+      "designator": "R76",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC0603FR-0710KL",
+      "value": "10kohm",
+      "instance": "leg_b.r_driver_dis"
+    },
+    {
+      "designator": "R18",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC1206FR-073R9L",
+      "value": "3.9ohm",
+      "instance": "leg_b.r_gh"
+    },
+    {
+      "designator": "R19",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC0603FR-0710KL",
+      "value": "10kohm",
+      "instance": "leg_b.r_gh_pd"
+    },
+    {
+      "designator": "R20",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC1206FR-073R9L",
+      "value": "3.9ohm",
+      "instance": "leg_b.r_gl"
+    },
+    {
+      "designator": "R21",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC0603FR-0710KL",
+      "value": "10kohm",
+      "instance": "leg_b.r_gl_pd"
+    },
+    {
+      "designator": "C62",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C102J5GACTU",
+      "value": "1nF",
+      "instance": "leg_b.cgs_h"
+    },
+    {
+      "designator": "D8",
+      "designator_prefix": "D",
+      "footprint": "Diode_SMD:D_SOD-128",
+      "manufacturer": "Nexperia",
+      "mpn": "PMEG6030EP,115",
+      "instance": "leg_b.doff_h"
+    },
+    {
+      "designator": "R57",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC1206FR-071RL",
+      "value": "1ohm",
+      "instance": "leg_b.roff_h"
+    },
+    {
+      "designator": "C63",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C102J5GACTU",
+      "value": "1nF",
+      "instance": "leg_b.cgs_l"
+    },
+    {
+      "designator": "D9",
+      "designator_prefix": "D",
+      "footprint": "Diode_SMD:D_SOD-128",
+      "manufacturer": "Nexperia",
+      "mpn": "PMEG6030EP,115",
+      "instance": "leg_b.doff_l"
+    },
+    {
+      "designator": "R58",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC1206FR-071RL",
+      "value": "1ohm",
+      "instance": "leg_b.roff_l"
+    },
+    {
+      "designator": "Q5",
+      "designator_prefix": "Q",
+      "footprint": "Package_TO_SOT_THT:TO-247-3_Vertical",
+      "manufacturer": "Infineon",
+      "mpn": "IPW65R018CFD7",
+      "instance": "leg_b.q_high"
+    },
+    {
+      "designator": "Q6",
+      "designator_prefix": "Q",
+      "footprint": "Package_TO_SOT_THT:TO-247-3_Vertical",
+      "manufacturer": "Infineon",
+      "mpn": "IPW65R018CFD7",
+      "instance": "leg_b.q_low"
+    },
+    {
+      "designator": "C19",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "manufacturer": "Murata",
+      "mpn": "GRM31A5C3A102JW01D",
+      "instance": "leg_b.c_snub_h"
+    },
+    {
+      "designator": "C20",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "manufacturer": "Murata",
+      "mpn": "GRM31A5C3A102JW01D",
+      "instance": "leg_b.c_snub_l"
+    },
+    {
+      "designator": "T1",
+      "designator_prefix": "T",
+      "footprint": "temper:CST3015",
+      "manufacturer": "Coilcraft",
+      "mpn": "CST3015-100ED",
+      "instance": "t_ct"
+    },
+    {
+      "designator": "J2",
+      "designator_prefix": "J",
+      "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+      "manufacturer": "Wuerth Elektronik",
+      "mpn": "74650074",
+      "instance": "j_coil"
+    },
+    {
+      "designator": "C21",
+      "designator_prefix": "C",
+      "footprint": "temper:CDE_942C_D26.5_L34.0_Axial_ReviewOnly",
+      "manufacturer": "Cornell Dubilier",
+      "mpn": "942C12P22K-F",
+      "instance": "c_res1"
+    },
+    {
+      "designator": "C22",
+      "designator_prefix": "C",
+      "footprint": "temper:CDE_942C_D26.5_L34.0_Axial_ReviewOnly",
+      "manufacturer": "Cornell Dubilier",
+      "mpn": "942C12P22K-F",
+      "instance": "c_res2"
+    },
+    {
+      "designator": "C23",
+      "designator_prefix": "C",
+      "footprint": "temper:CDE_942C_D19.0_L34.0_Axial_ReviewOnly",
+      "manufacturer": "Cornell Dubilier",
+      "mpn": "942C12P1K-F",
+      "instance": "c_res3"
+    },
+    {
+      "designator": "R22",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC1206FR-07470KL",
+      "value": "470kohm",
+      "instance": "r_crb1"
+    },
+    {
+      "designator": "R23",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC1206FR-07470KL",
+      "value": "470kohm",
+      "instance": "r_crb2"
+    },
+    {
+      "designator": "R24",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC1206FR-07470KL",
+      "value": "470kohm",
+      "instance": "r_crb3"
+    },
+    {
+      "designator": "R25",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC1206FR-07470KL",
+      "value": "470kohm",
+      "instance": "r_crb4"
+    },
+    {
+      "designator": "PS1",
+      "designator_prefix": "PS",
+      "footprint": "Converter_ACDC:Converter_ACDC_MeanWell_IRM-20-xx_THT",
+      "manufacturer": "MEAN WELL",
+      "mpn": "IRM-20-15",
+      "instance": "ps_selv"
+    },
+    {
+      "designator": "J3",
+      "designator_prefix": "J",
+      "footprint": "Connector_JST:JST_VH_B2P-VH_1x02_P3.96mm_Vertical",
+      "manufacturer": "JST",
+      "mpn": "B2P-VH(LF)(SN)",
+      "instance": "j_tco"
+    },
+    {
+      "designator": "PS2",
+      "designator_prefix": "PS",
+      "footprint": "Converter_ACDC:Converter_ACDC_MeanWell_IRM-20-xx_THT",
+      "manufacturer": "Mean Well",
+      "mpn": "IRM-20-24",
+      "instance": "ps_gate"
+    },
+    {
+      "designator": "C24",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "manufacturer": "Murata",
+      "mpn": "GRM32ER71H106KA12L",
+      "value": "10uF",
+      "instance": "c_v15"
+    },
+    {
+      "designator": "U3",
+      "designator_prefix": "U",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "manufacturer": "Texas Instruments",
+      "mpn": "TPS70950DBVR",
+      "instance": "u_ldo"
+    },
+    {
+      "designator": "C25",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "instance": "c_ldo_in"
+    },
+    {
+      "designator": "C26",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "manufacturer": "Murata",
+      "mpn": "GRM32ER71H106KA12L",
+      "value": "10uF",
+      "instance": "c_ldo_out"
+    },
+    {
+      "designator": "R26",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC1206FR-07470KL",
+      "value": "470kohm",
+      "instance": "r_div1"
+    },
+    {
+      "designator": "R27",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC1206FR-07470KL",
+      "value": "470kohm",
+      "instance": "r_div2"
+    },
+    {
+      "designator": "R28",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC1206FR-07470KL",
+      "value": "470kohm",
+      "instance": "r_div3"
+    },
+    {
+      "designator": "R29",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC1206FR-07470KL",
+      "value": "470kohm",
+      "instance": "r_div4"
+    },
+    {
+      "designator": "R30",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD0715K8L",
+      "value": "15.8kohm",
+      "instance": "r_div_bot"
+    },
+    {
+      "designator": "C27",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C102J5GACTU",
+      "value": "1nF",
+      "instance": "c_div"
+    },
+    {
+      "designator": "U4",
+      "designator_prefix": "U",
+      "footprint": "Package_SO:SOIC-8_7.5x5.85mm_P1.27mm",
+      "manufacturer": "Texas Instruments",
+      "mpn": "AMC1311BDWVR",
+      "instance": "u_vsense"
+    },
+    {
+      "designator": "C28",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "instance": "c_vs1"
+    },
+    {
+      "designator": "C29",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "instance": "c_vs2"
+    },
+    {
+      "designator": "R31",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC0603FR-075K6L",
+      "value": "5.6kohm",
+      "instance": "r_ref_bias"
+    },
+    {
+      "designator": "U5",
+      "designator_prefix": "U",
+      "footprint": "Package_TO_SOT_SMD:SOT-23",
+      "manufacturer": "Texas Instruments",
+      "mpn": "LM4040A25IDBZR",
+      "instance": "u_ref"
+    },
+    {
+      "designator": "R32",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD0710KL",
+      "value": "10kohm",
+      "instance": "r_ocp_ref"
+    },
+    {
+      "designator": "R33",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD0710KL",
+      "value": "10kohm",
+      "instance": "r_ocp_sense"
+    },
+    {
+      "designator": "C30",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C101J5GACTU",
+      "value": "100pF",
+      "instance": "c_ocp_node"
+    },
+    {
+      "designator": "R34",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD0710K6L",
+      "value": "10.6kohm",
+      "instance": "r_th_top"
+    },
+    {
+      "designator": "R35",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD0710KL",
+      "value": "10kohm",
+      "instance": "r_th_bot"
+    },
+    {
+      "designator": "C31",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C102J5GACTU",
+      "value": "1nF",
+      "instance": "c_th"
+    },
+    {
+      "designator": "U6",
+      "designator_prefix": "U",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "manufacturer": "Texas Instruments",
+      "mpn": "TLV3201AIDBVR",
+      "instance": "u_ocp"
+    },
+    {
+      "designator": "C32",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "instance": "c_ocp_vcc"
+    },
+    {
+      "designator": "R36",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD0710KL",
+      "value": "10kohm",
+      "instance": "r_ovp_top"
+    },
+    {
+      "designator": "R37",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD07140KL",
+      "value": "140kohm",
+      "instance": "r_ovp_bot"
+    },
+    {
+      "designator": "C33",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C102J5GACTU",
+      "value": "1nF",
+      "instance": "c_ovp_th"
+    },
+    {
+      "designator": "U7",
+      "designator_prefix": "U",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "manufacturer": "Texas Instruments",
+      "mpn": "TLV3201AIDBVR",
+      "instance": "u_ovp"
+    },
+    {
+      "designator": "C34",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "instance": "c_ovp_vcc"
+    },
+    {
+      "designator": "U8",
+      "designator_prefix": "U",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+      "manufacturer": "Texas Instruments",
+      "mpn": "SN74LVC1G10DBVR",
+      "instance": "u_nand"
+    },
+    {
+      "designator": "C35",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "instance": "c_nand_vcc"
+    },
+    {
+      "designator": "U9",
+      "designator_prefix": "U",
+      "footprint": "lib:SOIC16W_DW0016B_HV",
+      "manufacturer": "Texas Instruments",
+      "mpn": "ISO7710DWR",
+      "instance": "u_iso"
+    },
+    {
+      "designator": "C36",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "instance": "c_iso1"
+    },
+    {
+      "designator": "C37",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "instance": "c_iso2"
+    },
+    {
+      "designator": "J4",
+      "designator_prefix": "J",
+      "footprint": "Connector_Molex:Molex_Micro-Fit_3.0_43045-1612_2x08_P3.00mm_Vertical",
+      "manufacturer": "Molex",
+      "mpn": "0430451612",
+      "instance": "j_selv"
+    },
+    {
+      "designator": "R38",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC0603JR-070RL",
+      "value": "0ohm",
+      "instance": "r_fe"
+    },
+    {
+      "designator": "D3",
+      "designator_prefix": "D",
+      "footprint": "temper:MRT130KP_Axial_P20.00mm_ReviewOnly",
+      "manufacturer": "Microchip Technology",
+      "mpn": "MRT130KP295CV",
+      "instance": "tvs_bus"
+    },
+    {
+      "designator": "J5",
+      "designator_prefix": "J",
+      "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+      "manufacturer": "Wuerth Elektronik",
+      "mpn": "74650074",
+      "instance": "j_coil_return"
+    },
+    {
+      "designator": "J6",
+      "designator_prefix": "J",
+      "footprint": "temper:Phoenix_KDS3_1704004_1Pos_2Pin_ReviewOnly",
+      "manufacturer": "Phoenix Contact",
+      "mpn": "1704004",
+      "instance": "j_pe"
+    },
+    {
+      "designator": "C38",
+      "designator_prefix": "C",
+      "footprint": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+      "manufacturer": "TDK",
+      "mpn": "B32652A0104K000",
+      "instance": "c_hf_a1"
+    },
+    {
+      "designator": "C39",
+      "designator_prefix": "C",
+      "footprint": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+      "manufacturer": "TDK",
+      "mpn": "B32652A0104K000",
+      "instance": "c_hf_a2"
+    },
+    {
+      "designator": "C40",
+      "designator_prefix": "C",
+      "footprint": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+      "manufacturer": "TDK",
+      "mpn": "B32652A0104K000",
+      "instance": "c_hf_b1"
+    },
+    {
+      "designator": "C41",
+      "designator_prefix": "C",
+      "footprint": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+      "manufacturer": "TDK",
+      "mpn": "B32652A0104K000",
+      "instance": "c_hf_b2"
+    },
+    {
+      "designator": "J7",
+      "designator_prefix": "J",
+      "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+      "manufacturer": "Wuerth Elektronik",
+      "mpn": "74650074",
+      "instance": "link_pos.terminal_rect"
+    },
+    {
+      "designator": "J8",
+      "designator_prefix": "J",
+      "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+      "manufacturer": "Wuerth Elektronik",
+      "mpn": "74650074",
+      "instance": "link_pos.terminal_bus"
+    },
+    {
+      "designator": "J9",
+      "designator_prefix": "J",
+      "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+      "manufacturer": "Wuerth Elektronik",
+      "mpn": "74650074",
+      "instance": "link_neg.terminal_rect"
+    },
+    {
+      "designator": "J10",
+      "designator_prefix": "J",
+      "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+      "manufacturer": "Wuerth Elektronik",
+      "mpn": "74650074",
+      "instance": "link_neg.terminal_bus"
+    },
+    {
+      "designator": "R39",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC1206FR-071R5L",
+      "value": "1.5ohm",
+      "instance": "r_ct_burden"
+    },
+    {
+      "designator": "C42",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "manufacturer": "Murata",
+      "mpn": "GRM31C5C1H104JA01L",
+      "value": "100nF",
+      "instance": "c_ct_burden"
+    },
+    {
+      "designator": "R40",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD071KL",
+      "value": "1kohm",
+      "instance": "r_ct_bias_top"
+    },
+    {
+      "designator": "R41",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD071KL",
+      "value": "1kohm",
+      "instance": "r_ct_bias_bot"
+    },
+    {
+      "designator": "C43",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "manufacturer": "Murata",
+      "mpn": "GRM31C5C1H104JA01L",
+      "value": "100nF",
+      "instance": "c_ct_bias"
+    },
+    {
+      "designator": "R42",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC1206FR-071KL",
+      "value": "1kohm",
+      "instance": "r_ct_series"
+    },
+    {
+      "designator": "D4",
+      "designator_prefix": "D",
+      "footprint": "Diode_SMD:D_SOD-123F",
+      "manufacturer": "Nexperia",
+      "mpn": "BAS116H,115",
+      "instance": "d_ct_hi"
+    },
+    {
+      "designator": "D5",
+      "designator_prefix": "D",
+      "footprint": "Diode_SMD:D_SOD-123F",
+      "manufacturer": "Nexperia",
+      "mpn": "BAS116H,115",
+      "instance": "d_ct_lo"
+    },
+    {
+      "designator": "R43",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD073K32L",
+      "value": "3.32kohm",
+      "instance": "r_ct_hi_top"
+    },
+    {
+      "designator": "R44",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD0710KL",
+      "value": "10kohm",
+      "instance": "r_ct_hi_bot"
+    },
+    {
+      "designator": "R45",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD0710KL",
+      "value": "10kohm",
+      "instance": "r_ct_lo_top"
+    },
+    {
+      "designator": "R46",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD073K32L",
+      "value": "3.32kohm",
+      "instance": "r_ct_lo_bot"
+    },
+    {
+      "designator": "U10",
+      "designator_prefix": "U",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "manufacturer": "Texas Instruments",
+      "mpn": "TLV3201AIDBVR",
+      "instance": "u_ct_pos"
+    },
+    {
+      "designator": "C44",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "instance": "c_ct_pos"
+    },
+    {
+      "designator": "U11",
+      "designator_prefix": "U",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "manufacturer": "Texas Instruments",
+      "mpn": "TLV3201AIDBVR",
+      "instance": "u_ct_neg"
+    },
+    {
+      "designator": "C45",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "instance": "c_ct_neg"
+    },
+    {
+      "designator": "U12",
+      "designator_prefix": "U",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "manufacturer": "Texas Instruments",
+      "mpn": "TLV3201AIDBVR",
+      "instance": "u_ct_zc"
+    },
+    {
+      "designator": "C46",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "instance": "c_ct_zc"
+    },
+    {
+      "designator": "U13",
+      "designator_prefix": "U",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+      "manufacturer": "Texas Instruments",
+      "mpn": "SN74LVC1G332DBVR",
+      "instance": "u_fault_or"
+    },
+    {
+      "designator": "C47",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "instance": "c_fault_or"
+    },
+    {
+      "designator": "R47",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC0603FR-071KL",
+      "value": "1kohm",
+      "instance": "r_ct_mon"
+    },
+    {
+      "designator": "U14",
+      "designator_prefix": "U",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+      "manufacturer": "Texas Instruments",
+      "mpn": "TPS3700DDCR",
+      "instance": "u_hot5_uv"
+    },
+    {
+      "designator": "R48",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD07105KL",
+      "value": "105kohm",
+      "instance": "r_hot5_uv_top"
+    },
+    {
+      "designator": "R49",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD0710KL",
+      "value": "10kohm",
+      "instance": "r_hot5_uv_bot"
+    },
+    {
+      "designator": "R50",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD0710KL",
+      "value": "10kohm",
+      "instance": "r_hot5_uv_pull"
+    },
+    {
+      "designator": "C48",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "instance": "c_hot5_uv"
+    },
+    {
+      "designator": "U15",
+      "designator_prefix": "U",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "manufacturer": "Texas Instruments",
+      "mpn": "SN74LVC1G17DBVR",
+      "instance": "u_hot5_schmitt"
+    },
+    {
+      "designator": "C49",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "instance": "c_hot5_schmitt"
+    },
+    {
+      "designator": "U26",
+      "designator_prefix": "U",
+      "footprint": "Package_DFN_QFN:Texas_RGW0020A_VQFN-20-1EP_5x5mm_P0.65mm_EP3.15x3.15mm",
+      "manufacturer": "Texas Instruments",
+      "mpn": "TPS7A4700RGWR",
+      "instance": "bias_ls.ldo"
+    },
+    {
+      "designator": "C64",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "Murata",
+      "mpn": "GRM188R71E105KA12D",
+      "value": "1uF",
+      "instance": "bias_ls.cnr"
+    },
+    {
+      "designator": "C98",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "manufacturer": "Taiyo Yuden",
+      "mpn": "UMK325AB7106KM-T",
+      "value": "10uF",
+      "instance": "bias_ls.cin"
+    },
+    {
+      "designator": "C99",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "manufacturer": "Taiyo Yuden",
+      "mpn": "UMK325AB7106KM-T",
+      "value": "10uF",
+      "instance": "bias_ls.cout1"
+    },
+    {
+      "designator": "C100",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "manufacturer": "Taiyo Yuden",
+      "mpn": "UMK325AB7106KM-T",
+      "value": "10uF",
+      "instance": "bias_ls.cout2"
+    },
+    {
+      "designator": "C65",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "instance": "bias_ls.chf"
+    },
+    {
+      "designator": "U16",
+      "designator_prefix": "U",
+      "footprint": "Package_TO_SOT_SMD:SOT-23",
+      "manufacturer": "Texas Instruments",
+      "mpn": "TLVH431BQDBZR",
+      "instance": "bias_ls.shunt"
+    },
+    {
+      "designator": "R77",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD076K12L",
+      "value": "6.12kohm",
+      "instance": "bias_ls.rtop"
+    },
+    {
+      "designator": "R78",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD0710KL",
+      "value": "10kohm",
+      "instance": "bias_ls.rbot"
+    },
+    {
+      "designator": "U17",
+      "designator_prefix": "U",
+      "footprint": "Package_TO_SOT_SMD:SOT-23",
+      "manufacturer": "Texas Instruments",
+      "mpn": "TL431AIDBZR",
+      "instance": "monitor_ls.reference"
+    },
+    {
+      "designator": "R59",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC1206FR-072K2L",
+      "value": "2.2kohm",
+      "instance": "monitor_ls.rref"
+    },
+    {
+      "designator": "R79",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD0710KL",
+      "value": "10kohm",
+      "instance": "monitor_ls.rhalf_top"
+    },
+    {
+      "designator": "R80",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD0710KL",
+      "value": "10kohm",
+      "instance": "monitor_ls.rhalf_bot"
+    },
+    {
+      "designator": "R81",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD074K42L",
+      "value": "4.42kohm",
+      "instance": "monitor_ls.ruv_top"
+    },
+    {
+      "designator": "R82",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD0710KL",
+      "value": "10kohm",
+      "instance": "monitor_ls.ruv_bot"
+    },
+    {
+      "designator": "R83",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD077K62L",
+      "value": "7.62kohm",
+      "instance": "monitor_ls.rov_top"
+    },
+    {
+      "designator": "R84",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD0710KL",
+      "value": "10kohm",
+      "instance": "monitor_ls.rov_bot"
+    },
+    {
+      "designator": "R85",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD07120KL",
+      "value": "120kohm",
+      "instance": "monitor_ls.rspanuv_top"
+    },
+    {
+      "designator": "R86",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD0710KL",
+      "value": "10kohm",
+      "instance": "monitor_ls.rspanuv_bot"
+    },
+    {
+      "designator": "R87",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD07133KL",
+      "value": "133kohm",
+      "instance": "monitor_ls.rspanov_top"
+    },
+    {
+      "designator": "R88",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD0710KL",
+      "value": "10kohm",
+      "instance": "monitor_ls.rspanov_bot"
+    },
+    {
+      "designator": "U29",
+      "designator_prefix": "U",
+      "footprint": "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm",
+      "manufacturer": "Texas Instruments",
+      "mpn": "LM339BIDR",
+      "instance": "monitor_ls.monitor"
+    },
+    {
+      "designator": "R89",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC0603FR-071KL",
+      "value": "1kohm",
+      "instance": "monitor_ls.rnotice"
+    },
+    {
+      "designator": "D14",
+      "designator_prefix": "D",
+      "footprint": "Diode_SMD:D_SOD-123",
+      "manufacturer": "Diodes Incorporated",
+      "mpn": "1N4148W-7-F",
+      "instance": "monitor_ls.dnotice"
+    },
+    {
+      "designator": "Q7",
+      "designator_prefix": "Q",
+      "footprint": "Package_TO_SOT_SMD:SOT-23",
+      "manufacturer": "Diodes Incorporated",
+      "mpn": "MMBT3904-7-F",
+      "instance": "monitor_ls.qnotice"
+    },
+    {
+      "designator": "R90",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC0603FR-0710KL",
+      "value": "10kohm",
+      "instance": "monitor_ls.rbase"
+    },
+    {
+      "designator": "U37",
+      "designator_prefix": "U",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "manufacturer": "Texas Instruments",
+      "mpn": "TPS70950DBVR",
+      "instance": "monitor_ls.ldo5"
+    },
+    {
+      "designator": "C131",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "instance": "monitor_ls.cldo_in"
+    },
+    {
+      "designator": "C132",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "manufacturer": "Murata",
+      "mpn": "GRM32ER71H106KA12L",
+      "value": "10uF",
+      "instance": "monitor_ls.cldo_out"
+    },
+    {
+      "designator": "R91",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC0603FR-0710KL",
+      "value": "10kohm",
+      "instance": "monitor_ls.rpull"
+    },
+    {
+      "designator": "U32",
+      "designator_prefix": "U",
+      "footprint": "lib:SOIC16W_DW0016B_HV",
+      "manufacturer": "Texas Instruments",
+      "mpn": "ISO7710DWR",
+      "instance": "monitor_ls.iso"
+    },
+    {
+      "designator": "C133",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "instance": "monitor_ls.civcc1"
+    },
+    {
+      "designator": "C134",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "instance": "monitor_ls.civcc2"
+    },
+    {
+      "designator": "C66",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C102J5GACTU",
+      "value": "1nF",
+      "instance": "monitor_ls.cuv"
+    },
+    {
+      "designator": "C67",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C102J5GACTU",
+      "value": "1nF",
+      "instance": "monitor_ls.cov"
+    },
+    {
+      "designator": "C68",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C102J5GACTU",
+      "value": "1nF",
+      "instance": "monitor_ls.cspanuv"
+    },
+    {
+      "designator": "C69",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C102J5GACTU",
+      "value": "1nF",
+      "instance": "monitor_ls.cspanov"
+    },
+    {
+      "designator": "C70",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "instance": "monitor_ls.cmonitor"
+    },
+    {
+      "designator": "U35",
+      "designator_prefix": "U",
+      "footprint": "Package_SO:HVSSOP-10-1EP_3x3mm_P0.5mm_EP1.83x1.89mm",
+      "manufacturer": "Texas Instruments",
+      "mpn": "SN6507DGQR",
+      "instance": "bias_driver"
+    },
+    {
+      "designator": "R92",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD0718K2L",
+      "value": "18.2kohm",
+      "instance": "bias_rclk"
+    },
+    {
+      "designator": "R93",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD0730K1L",
+      "value": "30.1kohm",
+      "instance": "bias_rlim"
+    },
+    {
+      "designator": "C130",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "manufacturer": "Murata",
+      "mpn": "GRM31CR71H475KA12L",
+      "value": "4.7uF",
+      "instance": "bias_css"
+    },
+    {
+      "designator": "R94",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD074K99L",
+      "value": "4.99kohm",
+      "instance": "bias_rsr"
+    },
+    {
+      "designator": "C101",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "manufacturer": "Taiyo Yuden",
+      "mpn": "UMK325AB7106KM-T",
+      "value": "10uF",
+      "instance": "bias_cin"
+    },
+    {
+      "designator": "C71",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "instance": "bias_chf"
+    },
+    {
+      "designator": "R61",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC1206FR-07680RL",
+      "value": "680ohm",
+      "instance": "bias_rsn1"
+    },
+    {
+      "designator": "C72",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C101J5GACTU",
+      "value": "100pF",
+      "instance": "bias_csn1"
+    },
+    {
+      "designator": "R62",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC1206FR-07680RL",
+      "value": "680ohm",
+      "instance": "bias_rsn2"
+    },
+    {
+      "designator": "C73",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C101J5GACTU",
+      "value": "100pF",
+      "instance": "bias_csn2"
+    },
+    {
+      "designator": "T2",
+      "designator_prefix": "T",
+      "footprint": "temper:WE_750320775_EP7HV_ReviewOnly",
+      "manufacturer": "Wurth Elektronik",
+      "mpn": "750320775",
+      "instance": "bias_ha.transformer"
+    },
+    {
+      "designator": "D10",
+      "designator_prefix": "D",
+      "footprint": "Diode_SMD:D_SOD-128",
+      "manufacturer": "Nexperia",
+      "mpn": "PMEG10030ELPX",
+      "instance": "bias_ha.da"
+    },
+    {
+      "designator": "D11",
+      "designator_prefix": "D",
+      "footprint": "Diode_SMD:D_SOD-128",
+      "manufacturer": "Nexperia",
+      "mpn": "PMEG10030ELPX",
+      "instance": "bias_ha.db"
+    },
+    {
+      "designator": "L2",
+      "designator_prefix": "L",
+      "footprint": "temper:WE_74404064101_6x6_ReviewOnly",
+      "manufacturer": "Wurth Elektronik",
+      "mpn": "74404064101",
+      "value": "100uH",
+      "instance": "bias_ha.filter"
+    },
+    {
+      "designator": "C102",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "manufacturer": "Taiyo Yuden",
+      "mpn": "UMK325AB7106KM-T",
+      "value": "10uF",
+      "instance": "bias_ha.craw"
+    },
+    {
+      "designator": "U27",
+      "designator_prefix": "U",
+      "footprint": "Package_DFN_QFN:Texas_RGW0020A_VQFN-20-1EP_5x5mm_P0.65mm_EP3.15x3.15mm",
+      "manufacturer": "Texas Instruments",
+      "mpn": "TPS7A4700RGWR",
+      "instance": "bias_ha.split.ldo"
+    },
+    {
+      "designator": "C74",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "Murata",
+      "mpn": "GRM188R71E105KA12D",
+      "value": "1uF",
+      "instance": "bias_ha.split.cnr"
+    },
+    {
+      "designator": "C103",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "manufacturer": "Taiyo Yuden",
+      "mpn": "UMK325AB7106KM-T",
+      "value": "10uF",
+      "instance": "bias_ha.split.cin"
+    },
+    {
+      "designator": "C104",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "manufacturer": "Taiyo Yuden",
+      "mpn": "UMK325AB7106KM-T",
+      "value": "10uF",
+      "instance": "bias_ha.split.cout1"
+    },
+    {
+      "designator": "C105",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "manufacturer": "Taiyo Yuden",
+      "mpn": "UMK325AB7106KM-T",
+      "value": "10uF",
+      "instance": "bias_ha.split.cout2"
+    },
+    {
+      "designator": "C75",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "instance": "bias_ha.split.chf"
+    },
+    {
+      "designator": "U18",
+      "designator_prefix": "U",
+      "footprint": "Package_TO_SOT_SMD:SOT-23",
+      "manufacturer": "Texas Instruments",
+      "mpn": "TLVH431BQDBZR",
+      "instance": "bias_ha.split.shunt"
+    },
+    {
+      "designator": "R95",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD076K12L",
+      "value": "6.12kohm",
+      "instance": "bias_ha.split.rtop"
+    },
+    {
+      "designator": "R96",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD0710KL",
+      "value": "10kohm",
+      "instance": "bias_ha.split.rbot"
+    },
+    {
+      "designator": "U19",
+      "designator_prefix": "U",
+      "footprint": "Package_TO_SOT_SMD:SOT-23",
+      "manufacturer": "Texas Instruments",
+      "mpn": "TL431AIDBZR",
+      "instance": "bias_ha.monitor.reference"
+    },
+    {
+      "designator": "R63",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC1206FR-072K2L",
+      "value": "2.2kohm",
+      "instance": "bias_ha.monitor.rref"
+    },
+    {
+      "designator": "R97",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD0710KL",
+      "value": "10kohm",
+      "instance": "bias_ha.monitor.rhalf_top"
+    },
+    {
+      "designator": "R98",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD0710KL",
+      "value": "10kohm",
+      "instance": "bias_ha.monitor.rhalf_bot"
+    },
+    {
+      "designator": "R99",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD074K42L",
+      "value": "4.42kohm",
+      "instance": "bias_ha.monitor.ruv_top"
+    },
+    {
+      "designator": "R100",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD0710KL",
+      "value": "10kohm",
+      "instance": "bias_ha.monitor.ruv_bot"
+    },
+    {
+      "designator": "R101",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD077K62L",
+      "value": "7.62kohm",
+      "instance": "bias_ha.monitor.rov_top"
+    },
+    {
+      "designator": "R102",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD0710KL",
+      "value": "10kohm",
+      "instance": "bias_ha.monitor.rov_bot"
+    },
+    {
+      "designator": "R103",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD07120KL",
+      "value": "120kohm",
+      "instance": "bias_ha.monitor.rspanuv_top"
+    },
+    {
+      "designator": "R104",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD0710KL",
+      "value": "10kohm",
+      "instance": "bias_ha.monitor.rspanuv_bot"
+    },
+    {
+      "designator": "R105",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD07133KL",
+      "value": "133kohm",
+      "instance": "bias_ha.monitor.rspanov_top"
+    },
+    {
+      "designator": "R106",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD0710KL",
+      "value": "10kohm",
+      "instance": "bias_ha.monitor.rspanov_bot"
+    },
+    {
+      "designator": "U30",
+      "designator_prefix": "U",
+      "footprint": "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm",
+      "manufacturer": "Texas Instruments",
+      "mpn": "LM339BIDR",
+      "instance": "bias_ha.monitor.monitor"
+    },
+    {
+      "designator": "R107",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC0603FR-071KL",
+      "value": "1kohm",
+      "instance": "bias_ha.monitor.rnotice"
+    },
+    {
+      "designator": "D15",
+      "designator_prefix": "D",
+      "footprint": "Diode_SMD:D_SOD-123",
+      "manufacturer": "Diodes Incorporated",
+      "mpn": "1N4148W-7-F",
+      "instance": "bias_ha.monitor.dnotice"
+    },
+    {
+      "designator": "Q8",
+      "designator_prefix": "Q",
+      "footprint": "Package_TO_SOT_SMD:SOT-23",
+      "manufacturer": "Diodes Incorporated",
+      "mpn": "MMBT3904-7-F",
+      "instance": "bias_ha.monitor.qnotice"
+    },
+    {
+      "designator": "R108",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC0603FR-0710KL",
+      "value": "10kohm",
+      "instance": "bias_ha.monitor.rbase"
+    },
+    {
+      "designator": "U38",
+      "designator_prefix": "U",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "manufacturer": "Texas Instruments",
+      "mpn": "TPS70950DBVR",
+      "instance": "bias_ha.monitor.ldo5"
+    },
+    {
+      "designator": "C135",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "instance": "bias_ha.monitor.cldo_in"
+    },
+    {
+      "designator": "C136",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "manufacturer": "Murata",
+      "mpn": "GRM32ER71H106KA12L",
+      "value": "10uF",
+      "instance": "bias_ha.monitor.cldo_out"
+    },
+    {
+      "designator": "R109",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC0603FR-0710KL",
+      "value": "10kohm",
+      "instance": "bias_ha.monitor.rpull"
+    },
+    {
+      "designator": "U33",
+      "designator_prefix": "U",
+      "footprint": "lib:SOIC16W_DW0016B_HV",
+      "manufacturer": "Texas Instruments",
+      "mpn": "ISO7710DWR",
+      "instance": "bias_ha.monitor.iso"
+    },
+    {
+      "designator": "C137",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "instance": "bias_ha.monitor.civcc1"
+    },
+    {
+      "designator": "C138",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "instance": "bias_ha.monitor.civcc2"
+    },
+    {
+      "designator": "C76",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C102J5GACTU",
+      "value": "1nF",
+      "instance": "bias_ha.monitor.cuv"
+    },
+    {
+      "designator": "C77",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C102J5GACTU",
+      "value": "1nF",
+      "instance": "bias_ha.monitor.cov"
+    },
+    {
+      "designator": "C78",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C102J5GACTU",
+      "value": "1nF",
+      "instance": "bias_ha.monitor.cspanuv"
+    },
+    {
+      "designator": "C79",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C102J5GACTU",
+      "value": "1nF",
+      "instance": "bias_ha.monitor.cspanov"
+    },
+    {
+      "designator": "C80",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "instance": "bias_ha.monitor.cmonitor"
+    },
+    {
+      "designator": "T3",
+      "designator_prefix": "T",
+      "footprint": "temper:WE_750320775_EP7HV_ReviewOnly",
+      "manufacturer": "Wurth Elektronik",
+      "mpn": "750320775",
+      "instance": "bias_hb.transformer"
+    },
+    {
+      "designator": "D12",
+      "designator_prefix": "D",
+      "footprint": "Diode_SMD:D_SOD-128",
+      "manufacturer": "Nexperia",
+      "mpn": "PMEG10030ELPX",
+      "instance": "bias_hb.da"
+    },
+    {
+      "designator": "D13",
+      "designator_prefix": "D",
+      "footprint": "Diode_SMD:D_SOD-128",
+      "manufacturer": "Nexperia",
+      "mpn": "PMEG10030ELPX",
+      "instance": "bias_hb.db"
+    },
+    {
+      "designator": "L3",
+      "designator_prefix": "L",
+      "footprint": "temper:WE_74404064101_6x6_ReviewOnly",
+      "manufacturer": "Wurth Elektronik",
+      "mpn": "74404064101",
+      "value": "100uH",
+      "instance": "bias_hb.filter"
+    },
+    {
+      "designator": "C106",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "manufacturer": "Taiyo Yuden",
+      "mpn": "UMK325AB7106KM-T",
+      "value": "10uF",
+      "instance": "bias_hb.craw"
+    },
+    {
+      "designator": "U28",
+      "designator_prefix": "U",
+      "footprint": "Package_DFN_QFN:Texas_RGW0020A_VQFN-20-1EP_5x5mm_P0.65mm_EP3.15x3.15mm",
+      "manufacturer": "Texas Instruments",
+      "mpn": "TPS7A4700RGWR",
+      "instance": "bias_hb.split.ldo"
+    },
+    {
+      "designator": "C81",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "Murata",
+      "mpn": "GRM188R71E105KA12D",
+      "value": "1uF",
+      "instance": "bias_hb.split.cnr"
+    },
+    {
+      "designator": "C107",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "manufacturer": "Taiyo Yuden",
+      "mpn": "UMK325AB7106KM-T",
+      "value": "10uF",
+      "instance": "bias_hb.split.cin"
+    },
+    {
+      "designator": "C108",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "manufacturer": "Taiyo Yuden",
+      "mpn": "UMK325AB7106KM-T",
+      "value": "10uF",
+      "instance": "bias_hb.split.cout1"
+    },
+    {
+      "designator": "C109",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "manufacturer": "Taiyo Yuden",
+      "mpn": "UMK325AB7106KM-T",
+      "value": "10uF",
+      "instance": "bias_hb.split.cout2"
+    },
+    {
+      "designator": "C82",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "instance": "bias_hb.split.chf"
+    },
+    {
+      "designator": "U20",
+      "designator_prefix": "U",
+      "footprint": "Package_TO_SOT_SMD:SOT-23",
+      "manufacturer": "Texas Instruments",
+      "mpn": "TLVH431BQDBZR",
+      "instance": "bias_hb.split.shunt"
+    },
+    {
+      "designator": "R110",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD076K12L",
+      "value": "6.12kohm",
+      "instance": "bias_hb.split.rtop"
+    },
+    {
+      "designator": "R111",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD0710KL",
+      "value": "10kohm",
+      "instance": "bias_hb.split.rbot"
+    },
+    {
+      "designator": "U21",
+      "designator_prefix": "U",
+      "footprint": "Package_TO_SOT_SMD:SOT-23",
+      "manufacturer": "Texas Instruments",
+      "mpn": "TL431AIDBZR",
+      "instance": "bias_hb.monitor.reference"
+    },
+    {
+      "designator": "R65",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC1206FR-072K2L",
+      "value": "2.2kohm",
+      "instance": "bias_hb.monitor.rref"
+    },
+    {
+      "designator": "R112",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD0710KL",
+      "value": "10kohm",
+      "instance": "bias_hb.monitor.rhalf_top"
+    },
+    {
+      "designator": "R113",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD0710KL",
+      "value": "10kohm",
+      "instance": "bias_hb.monitor.rhalf_bot"
+    },
+    {
+      "designator": "R114",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD074K42L",
+      "value": "4.42kohm",
+      "instance": "bias_hb.monitor.ruv_top"
+    },
+    {
+      "designator": "R115",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD0710KL",
+      "value": "10kohm",
+      "instance": "bias_hb.monitor.ruv_bot"
+    },
+    {
+      "designator": "R116",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD077K62L",
+      "value": "7.62kohm",
+      "instance": "bias_hb.monitor.rov_top"
+    },
+    {
+      "designator": "R117",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD0710KL",
+      "value": "10kohm",
+      "instance": "bias_hb.monitor.rov_bot"
+    },
+    {
+      "designator": "R118",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD07120KL",
+      "value": "120kohm",
+      "instance": "bias_hb.monitor.rspanuv_top"
+    },
+    {
+      "designator": "R119",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD0710KL",
+      "value": "10kohm",
+      "instance": "bias_hb.monitor.rspanuv_bot"
+    },
+    {
+      "designator": "R120",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD07133KL",
+      "value": "133kohm",
+      "instance": "bias_hb.monitor.rspanov_top"
+    },
+    {
+      "designator": "R121",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RT0603BRD0710KL",
+      "value": "10kohm",
+      "instance": "bias_hb.monitor.rspanov_bot"
+    },
+    {
+      "designator": "U31",
+      "designator_prefix": "U",
+      "footprint": "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm",
+      "manufacturer": "Texas Instruments",
+      "mpn": "LM339BIDR",
+      "instance": "bias_hb.monitor.monitor"
+    },
+    {
+      "designator": "R122",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC0603FR-071KL",
+      "value": "1kohm",
+      "instance": "bias_hb.monitor.rnotice"
+    },
+    {
+      "designator": "D16",
+      "designator_prefix": "D",
+      "footprint": "Diode_SMD:D_SOD-123",
+      "manufacturer": "Diodes Incorporated",
+      "mpn": "1N4148W-7-F",
+      "instance": "bias_hb.monitor.dnotice"
+    },
+    {
+      "designator": "Q9",
+      "designator_prefix": "Q",
+      "footprint": "Package_TO_SOT_SMD:SOT-23",
+      "manufacturer": "Diodes Incorporated",
+      "mpn": "MMBT3904-7-F",
+      "instance": "bias_hb.monitor.qnotice"
+    },
+    {
+      "designator": "R123",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC0603FR-0710KL",
+      "value": "10kohm",
+      "instance": "bias_hb.monitor.rbase"
+    },
+    {
+      "designator": "U39",
+      "designator_prefix": "U",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "manufacturer": "Texas Instruments",
+      "mpn": "TPS70950DBVR",
+      "instance": "bias_hb.monitor.ldo5"
+    },
+    {
+      "designator": "C139",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "instance": "bias_hb.monitor.cldo_in"
+    },
+    {
+      "designator": "C140",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "manufacturer": "Murata",
+      "mpn": "GRM32ER71H106KA12L",
+      "value": "10uF",
+      "instance": "bias_hb.monitor.cldo_out"
+    },
+    {
+      "designator": "R124",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC0603FR-0710KL",
+      "value": "10kohm",
+      "instance": "bias_hb.monitor.rpull"
+    },
+    {
+      "designator": "U34",
+      "designator_prefix": "U",
+      "footprint": "lib:SOIC16W_DW0016B_HV",
+      "manufacturer": "Texas Instruments",
+      "mpn": "ISO7710DWR",
+      "instance": "bias_hb.monitor.iso"
+    },
+    {
+      "designator": "C141",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "instance": "bias_hb.monitor.civcc1"
+    },
+    {
+      "designator": "C142",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "instance": "bias_hb.monitor.civcc2"
+    },
+    {
+      "designator": "C83",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C102J5GACTU",
+      "value": "1nF",
+      "instance": "bias_hb.monitor.cuv"
+    },
+    {
+      "designator": "C84",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C102J5GACTU",
+      "value": "1nF",
+      "instance": "bias_hb.monitor.cov"
+    },
+    {
+      "designator": "C85",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C102J5GACTU",
+      "value": "1nF",
+      "instance": "bias_hb.monitor.cspanuv"
+    },
+    {
+      "designator": "C86",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C102J5GACTU",
+      "value": "1nF",
+      "instance": "bias_hb.monitor.cspanov"
+    },
+    {
+      "designator": "C87",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "instance": "bias_hb.monitor.cmonitor"
+    },
+    {
+      "designator": "U25",
+      "designator_prefix": "U",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+      "manufacturer": "Texas Instruments",
+      "mpn": "SN74LVC1G332DBVR",
+      "instance": "bias_or"
+    },
+    {
+      "designator": "R126",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC0603FR-0710KL",
+      "value": "10kohm",
+      "instance": "r_bias_flt"
+    },
+    {
+      "designator": "C143",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C102J5GACTU",
+      "value": "1nF",
+      "instance": "c_bias_flt"
+    },
+    {
+      "designator": "U40",
+      "designator_prefix": "U",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "manufacturer": "Texas Instruments",
+      "mpn": "SN74LVC1G17DBVR",
+      "instance": "u_bias_flt"
+    },
+    {
+      "designator": "C144",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "instance": "c_bias_flt_vcc"
+    },
+    {
+      "designator": "C88",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "instance": "bias_c_or"
+    },
+    {
+      "designator": "R67",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC1206FR-0716K5L",
+      "value": "16.5kohm",
+      "instance": "line_zc.r1"
+    },
+    {
+      "designator": "R68",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC1206FR-0716K5L",
+      "value": "16.5kohm",
+      "instance": "line_zc.r2"
+    },
+    {
+      "designator": "U36",
+      "designator_prefix": "U",
+      "footprint": "temper:VOL628A_LSOP4_ReviewOnly",
+      "manufacturer": "Vishay",
+      "mpn": "VOL628A-3X001T",
+      "instance": "line_zc.opto"
+    },
+    {
+      "designator": "R69",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC1206FR-0716K5L",
+      "value": "16.5kohm",
+      "instance": "line_zc.r3"
+    },
+    {
+      "designator": "R70",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC1206FR-0716K5L",
+      "value": "16.5kohm",
+      "instance": "line_zc.r4"
+    },
+    {
+      "designator": "R125",
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "manufacturer": "Yageo",
+      "mpn": "RC0603FR-0733KL",
+      "value": "33kohm",
+      "instance": "line_zc.pullup"
+    },
+    {
+      "designator": "U24",
+      "designator_prefix": "U",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "manufacturer": "Texas Instruments",
+      "mpn": "SN74LVC1G17DBVR",
+      "instance": "line_zc.buffer"
+    },
+    {
+      "designator": "C89",
+      "designator_prefix": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "manufacturer": "KEMET",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF",
+      "instance": "line_zc.cbuffer"
+    }
+  ],
+  "nets": [
+    {
+      "name": "ac_l_in",
+      "nodes": [
+        {
+          "ref": "J1",
+          "pin": "1"
+        },
+        {
+          "ref": "F1",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "ac_n_in",
+      "nodes": [
+        {
+          "ref": "J1",
+          "pin": "2"
+        },
+        {
+          "ref": "RV1",
+          "pin": "2"
+        },
+        {
+          "ref": "C1",
+          "pin": "2"
+        },
+        {
+          "ref": "R2",
+          "pin": "2"
+        },
+        {
+          "ref": "L1",
+          "pin": "2"
+        }
+      ]
+    },
+    {
+      "name": "pe",
+      "nodes": [
+        {
+          "ref": "C3",
+          "pin": "2"
+        },
+        {
+          "ref": "C4",
+          "pin": "2"
+        },
+        {
+          "ref": "R38",
+          "pin": "1"
+        },
+        {
+          "ref": "J6",
+          "pin": "1"
+        },
+        {
+          "ref": "J6",
+          "pin": "2"
+        }
+      ]
+    },
+    {
+      "name": "l_f",
+      "nodes": [
+        {
+          "ref": "F1",
+          "pin": "2"
+        },
+        {
+          "ref": "RV1",
+          "pin": "1"
+        },
+        {
+          "ref": "C1",
+          "pin": "1"
+        },
+        {
+          "ref": "R1",
+          "pin": "1"
+        },
+        {
+          "ref": "L1",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "xbleed_mid",
+      "nodes": [
+        {
+          "ref": "R1",
+          "pin": "2"
+        },
+        {
+          "ref": "R2",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "l_filt",
+      "nodes": [
+        {
+          "ref": "L1",
+          "pin": "4"
+        },
+        {
+          "ref": "C2",
+          "pin": "1"
+        },
+        {
+          "ref": "C3",
+          "pin": "1"
+        },
+        {
+          "ref": "BR1",
+          "pin": "2"
+        },
+        {
+          "ref": "PS1",
+          "pin": "1"
+        },
+        {
+          "ref": "J3",
+          "pin": "1"
+        },
+        {
+          "ref": "R67",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "n_filt",
+      "nodes": [
+        {
+          "ref": "L1",
+          "pin": "3"
+        },
+        {
+          "ref": "C2",
+          "pin": "2"
+        },
+        {
+          "ref": "C4",
+          "pin": "1"
+        },
+        {
+          "ref": "BR1",
+          "pin": "3"
+        },
+        {
+          "ref": "PS1",
+          "pin": "2"
+        },
+        {
+          "ref": "PS2",
+          "pin": "2"
+        },
+        {
+          "ref": "R70",
+          "pin": "2"
+        }
+      ]
+    },
+    {
+      "name": "rect_p",
+      "nodes": [
+        {
+          "ref": "BR1",
+          "pin": "1"
+        },
+        {
+          "ref": "J7",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "rect_n",
+      "nodes": [
+        {
+          "ref": "BR1",
+          "pin": "4"
+        },
+        {
+          "ref": "J9",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "bus_p",
+      "nodes": [
+        {
+          "ref": "C5",
+          "pin": "1"
+        },
+        {
+          "ref": "C5",
+          "pin": "2"
+        },
+        {
+          "ref": "C6",
+          "pin": "1"
+        },
+        {
+          "ref": "C6",
+          "pin": "2"
+        },
+        {
+          "ref": "R3",
+          "pin": "1"
+        },
+        {
+          "ref": "Q2",
+          "pin": "2"
+        },
+        {
+          "ref": "C12",
+          "pin": "1"
+        },
+        {
+          "ref": "Q5",
+          "pin": "2"
+        },
+        {
+          "ref": "C19",
+          "pin": "1"
+        },
+        {
+          "ref": "R26",
+          "pin": "1"
+        },
+        {
+          "ref": "D3",
+          "pin": "1"
+        },
+        {
+          "ref": "C38",
+          "pin": "1"
+        },
+        {
+          "ref": "C39",
+          "pin": "1"
+        },
+        {
+          "ref": "C40",
+          "pin": "1"
+        },
+        {
+          "ref": "C41",
+          "pin": "1"
+        },
+        {
+          "ref": "J8",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "hv_ret",
+      "nodes": [
+        {
+          "ref": "C5",
+          "pin": "3"
+        },
+        {
+          "ref": "C5",
+          "pin": "4"
+        },
+        {
+          "ref": "C6",
+          "pin": "3"
+        },
+        {
+          "ref": "C6",
+          "pin": "4"
+        },
+        {
+          "ref": "R4",
+          "pin": "2"
+        },
+        {
+          "ref": "R5",
+          "pin": "4"
+        },
+        {
+          "ref": "D3",
+          "pin": "2"
+        },
+        {
+          "ref": "C38",
+          "pin": "2"
+        },
+        {
+          "ref": "C39",
+          "pin": "2"
+        },
+        {
+          "ref": "C40",
+          "pin": "2"
+        },
+        {
+          "ref": "C41",
+          "pin": "2"
+        },
+        {
+          "ref": "J10",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "busbleed_mid",
+      "nodes": [
+        {
+          "ref": "R3",
+          "pin": "2"
+        },
+        {
+          "ref": "R4",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "leg_ret",
+      "nodes": [
+        {
+          "ref": "R5",
+          "pin": "1"
+        },
+        {
+          "ref": "C92",
+          "pin": "1"
+        },
+        {
+          "ref": "C93",
+          "pin": "1"
+        },
+        {
+          "ref": "C52",
+          "pin": "1"
+        },
+        {
+          "ref": "C53",
+          "pin": "1"
+        },
+        {
+          "ref": "C114",
+          "pin": "1"
+        },
+        {
+          "ref": "C115",
+          "pin": "1"
+        },
+        {
+          "ref": "C116",
+          "pin": "1"
+        },
+        {
+          "ref": "C117",
+          "pin": "1"
+        },
+        {
+          "ref": "R52",
+          "pin": "1"
+        },
+        {
+          "ref": "R72",
+          "pin": "2"
+        },
+        {
+          "ref": "R13",
+          "pin": "2"
+        },
+        {
+          "ref": "C56",
+          "pin": "2"
+        },
+        {
+          "ref": "Q3",
+          "pin": "3"
+        },
+        {
+          "ref": "C13",
+          "pin": "2"
+        },
+        {
+          "ref": "C96",
+          "pin": "1"
+        },
+        {
+          "ref": "C97",
+          "pin": "1"
+        },
+        {
+          "ref": "C59",
+          "pin": "1"
+        },
+        {
+          "ref": "C60",
+          "pin": "1"
+        },
+        {
+          "ref": "C122",
+          "pin": "1"
+        },
+        {
+          "ref": "C123",
+          "pin": "1"
+        },
+        {
+          "ref": "C124",
+          "pin": "1"
+        },
+        {
+          "ref": "C125",
+          "pin": "1"
+        },
+        {
+          "ref": "R56",
+          "pin": "1"
+        },
+        {
+          "ref": "R75",
+          "pin": "2"
+        },
+        {
+          "ref": "R21",
+          "pin": "2"
+        },
+        {
+          "ref": "C63",
+          "pin": "2"
+        },
+        {
+          "ref": "Q6",
+          "pin": "3"
+        },
+        {
+          "ref": "C20",
+          "pin": "2"
+        },
+        {
+          "ref": "U16",
+          "pin": "2"
+        },
+        {
+          "ref": "R77",
+          "pin": "1"
+        },
+        {
+          "ref": "R81",
+          "pin": "1"
+        },
+        {
+          "ref": "R83",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "ocp_kelvin_p",
+      "nodes": [
+        {
+          "ref": "R5",
+          "pin": "2"
+        },
+        {
+          "ref": "U3",
+          "pin": "2"
+        },
+        {
+          "ref": "C25",
+          "pin": "2"
+        },
+        {
+          "ref": "C26",
+          "pin": "2"
+        },
+        {
+          "ref": "R30",
+          "pin": "2"
+        },
+        {
+          "ref": "C27",
+          "pin": "2"
+        },
+        {
+          "ref": "U4",
+          "pin": "4"
+        },
+        {
+          "ref": "U4",
+          "pin": "3"
+        },
+        {
+          "ref": "C28",
+          "pin": "2"
+        },
+        {
+          "ref": "U5",
+          "pin": "2"
+        },
+        {
+          "ref": "C30",
+          "pin": "2"
+        },
+        {
+          "ref": "R35",
+          "pin": "2"
+        },
+        {
+          "ref": "C31",
+          "pin": "2"
+        },
+        {
+          "ref": "U6",
+          "pin": "2"
+        },
+        {
+          "ref": "C32",
+          "pin": "2"
+        },
+        {
+          "ref": "R37",
+          "pin": "2"
+        },
+        {
+          "ref": "C33",
+          "pin": "2"
+        },
+        {
+          "ref": "U7",
+          "pin": "2"
+        },
+        {
+          "ref": "C34",
+          "pin": "2"
+        },
+        {
+          "ref": "U8",
+          "pin": "2"
+        },
+        {
+          "ref": "C35",
+          "pin": "2"
+        },
+        {
+          "ref": "U9",
+          "pin": "1"
+        },
+        {
+          "ref": "U9",
+          "pin": "7"
+        },
+        {
+          "ref": "C36",
+          "pin": "2"
+        },
+        {
+          "ref": "U14",
+          "pin": "2"
+        },
+        {
+          "ref": "U14",
+          "pin": "4"
+        },
+        {
+          "ref": "R49",
+          "pin": "2"
+        },
+        {
+          "ref": "C48",
+          "pin": "2"
+        },
+        {
+          "ref": "U15",
+          "pin": "3"
+        },
+        {
+          "ref": "C49",
+          "pin": "2"
+        }
+      ]
+    },
+    {
+      "name": "sw_a",
+      "nodes": [
+        {
+          "ref": "C90",
+          "pin": "1"
+        },
+        {
+          "ref": "C91",
+          "pin": "1"
+        },
+        {
+          "ref": "C50",
+          "pin": "1"
+        },
+        {
+          "ref": "C51",
+          "pin": "1"
+        },
+        {
+          "ref": "C110",
+          "pin": "1"
+        },
+        {
+          "ref": "C111",
+          "pin": "1"
+        },
+        {
+          "ref": "C112",
+          "pin": "1"
+        },
+        {
+          "ref": "C113",
+          "pin": "1"
+        },
+        {
+          "ref": "R51",
+          "pin": "1"
+        },
+        {
+          "ref": "R71",
+          "pin": "2"
+        },
+        {
+          "ref": "R11",
+          "pin": "2"
+        },
+        {
+          "ref": "C55",
+          "pin": "2"
+        },
+        {
+          "ref": "Q2",
+          "pin": "3"
+        },
+        {
+          "ref": "Q3",
+          "pin": "2"
+        },
+        {
+          "ref": "C12",
+          "pin": "2"
+        },
+        {
+          "ref": "C13",
+          "pin": "1"
+        },
+        {
+          "ref": "T1",
+          "pin": "1"
+        },
+        {
+          "ref": "U18",
+          "pin": "2"
+        },
+        {
+          "ref": "R95",
+          "pin": "1"
+        },
+        {
+          "ref": "R99",
+          "pin": "1"
+        },
+        {
+          "ref": "R101",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "sw_b",
+      "nodes": [
+        {
+          "ref": "C94",
+          "pin": "1"
+        },
+        {
+          "ref": "C95",
+          "pin": "1"
+        },
+        {
+          "ref": "C57",
+          "pin": "1"
+        },
+        {
+          "ref": "C58",
+          "pin": "1"
+        },
+        {
+          "ref": "C118",
+          "pin": "1"
+        },
+        {
+          "ref": "C119",
+          "pin": "1"
+        },
+        {
+          "ref": "C120",
+          "pin": "1"
+        },
+        {
+          "ref": "C121",
+          "pin": "1"
+        },
+        {
+          "ref": "R55",
+          "pin": "1"
+        },
+        {
+          "ref": "R74",
+          "pin": "2"
+        },
+        {
+          "ref": "R19",
+          "pin": "2"
+        },
+        {
+          "ref": "C62",
+          "pin": "2"
+        },
+        {
+          "ref": "Q5",
+          "pin": "3"
+        },
+        {
+          "ref": "Q6",
+          "pin": "2"
+        },
+        {
+          "ref": "C19",
+          "pin": "2"
+        },
+        {
+          "ref": "C20",
+          "pin": "1"
+        },
+        {
+          "ref": "C21",
+          "pin": "2"
+        },
+        {
+          "ref": "C22",
+          "pin": "2"
+        },
+        {
+          "ref": "C23",
+          "pin": "2"
+        },
+        {
+          "ref": "R25",
+          "pin": "2"
+        },
+        {
+          "ref": "U20",
+          "pin": "2"
+        },
+        {
+          "ref": "R110",
+          "pin": "1"
+        },
+        {
+          "ref": "R114",
+          "pin": "1"
+        },
+        {
+          "ref": "R116",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "coil_feed",
+      "nodes": [
+        {
+          "ref": "T1",
+          "pin": "2"
+        },
+        {
+          "ref": "J2",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "res_a",
+      "nodes": [
+        {
+          "ref": "C21",
+          "pin": "1"
+        },
+        {
+          "ref": "C22",
+          "pin": "1"
+        },
+        {
+          "ref": "C23",
+          "pin": "1"
+        },
+        {
+          "ref": "R22",
+          "pin": "1"
+        },
+        {
+          "ref": "J5",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "crbleed_1",
+      "nodes": [
+        {
+          "ref": "R22",
+          "pin": "2"
+        },
+        {
+          "ref": "R23",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "crbleed_2",
+      "nodes": [
+        {
+          "ref": "R23",
+          "pin": "2"
+        },
+        {
+          "ref": "R24",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "crbleed_3",
+      "nodes": [
+        {
+          "ref": "R24",
+          "pin": "2"
+        },
+        {
+          "ref": "R25",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "tco_l",
+      "nodes": [
+        {
+          "ref": "J3",
+          "pin": "2"
+        },
+        {
+          "ref": "PS2",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "v15_ls",
+      "nodes": [
+        {
+          "ref": "U1",
+          "pin": "11"
+        },
+        {
+          "ref": "C8",
+          "pin": "1"
+        },
+        {
+          "ref": "C9",
+          "pin": "1"
+        },
+        {
+          "ref": "R72",
+          "pin": "1"
+        },
+        {
+          "ref": "U2",
+          "pin": "11"
+        },
+        {
+          "ref": "C15",
+          "pin": "1"
+        },
+        {
+          "ref": "C16",
+          "pin": "1"
+        },
+        {
+          "ref": "R75",
+          "pin": "1"
+        },
+        {
+          "ref": "C24",
+          "pin": "1"
+        },
+        {
+          "ref": "U3",
+          "pin": "1"
+        },
+        {
+          "ref": "U3",
+          "pin": "3"
+        },
+        {
+          "ref": "C25",
+          "pin": "1"
+        },
+        {
+          "ref": "U14",
+          "pin": "5"
+        },
+        {
+          "ref": "C48",
+          "pin": "1"
+        },
+        {
+          "ref": "U26",
+          "pin": "1"
+        },
+        {
+          "ref": "U26",
+          "pin": "3"
+        },
+        {
+          "ref": "U26",
+          "pin": "20"
+        },
+        {
+          "ref": "C99",
+          "pin": "1"
+        },
+        {
+          "ref": "C100",
+          "pin": "1"
+        },
+        {
+          "ref": "C65",
+          "pin": "1"
+        },
+        {
+          "ref": "R59",
+          "pin": "1"
+        },
+        {
+          "ref": "R85",
+          "pin": "1"
+        },
+        {
+          "ref": "R87",
+          "pin": "1"
+        },
+        {
+          "ref": "U29",
+          "pin": "3"
+        },
+        {
+          "ref": "U37",
+          "pin": "1"
+        },
+        {
+          "ref": "U37",
+          "pin": "3"
+        },
+        {
+          "ref": "C131",
+          "pin": "1"
+        },
+        {
+          "ref": "C70",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "n_ls",
+      "nodes": [
+        {
+          "ref": "U1",
+          "pin": "9"
+        },
+        {
+          "ref": "C8",
+          "pin": "2"
+        },
+        {
+          "ref": "C9",
+          "pin": "2"
+        },
+        {
+          "ref": "C92",
+          "pin": "2"
+        },
+        {
+          "ref": "C93",
+          "pin": "2"
+        },
+        {
+          "ref": "C52",
+          "pin": "2"
+        },
+        {
+          "ref": "C53",
+          "pin": "2"
+        },
+        {
+          "ref": "C114",
+          "pin": "2"
+        },
+        {
+          "ref": "C115",
+          "pin": "2"
+        },
+        {
+          "ref": "C116",
+          "pin": "2"
+        },
+        {
+          "ref": "C117",
+          "pin": "2"
+        },
+        {
+          "ref": "C127",
+          "pin": "2"
+        },
+        {
+          "ref": "U2",
+          "pin": "9"
+        },
+        {
+          "ref": "C15",
+          "pin": "2"
+        },
+        {
+          "ref": "C16",
+          "pin": "2"
+        },
+        {
+          "ref": "C96",
+          "pin": "2"
+        },
+        {
+          "ref": "C97",
+          "pin": "2"
+        },
+        {
+          "ref": "C59",
+          "pin": "2"
+        },
+        {
+          "ref": "C60",
+          "pin": "2"
+        },
+        {
+          "ref": "C122",
+          "pin": "2"
+        },
+        {
+          "ref": "C123",
+          "pin": "2"
+        },
+        {
+          "ref": "C124",
+          "pin": "2"
+        },
+        {
+          "ref": "C125",
+          "pin": "2"
+        },
+        {
+          "ref": "C129",
+          "pin": "2"
+        },
+        {
+          "ref": "PS2",
+          "pin": "3"
+        },
+        {
+          "ref": "C24",
+          "pin": "2"
+        },
+        {
+          "ref": "U26",
+          "pin": "4"
+        },
+        {
+          "ref": "U26",
+          "pin": "5"
+        },
+        {
+          "ref": "U26",
+          "pin": "7"
+        },
+        {
+          "ref": "U26",
+          "pin": "8"
+        },
+        {
+          "ref": "U26",
+          "pin": "9"
+        },
+        {
+          "ref": "U26",
+          "pin": "10"
+        },
+        {
+          "ref": "U26",
+          "pin": "21"
+        },
+        {
+          "ref": "C64",
+          "pin": "2"
+        },
+        {
+          "ref": "C98",
+          "pin": "2"
+        },
+        {
+          "ref": "C99",
+          "pin": "2"
+        },
+        {
+          "ref": "C100",
+          "pin": "2"
+        },
+        {
+          "ref": "C65",
+          "pin": "2"
+        },
+        {
+          "ref": "U16",
+          "pin": "3"
+        },
+        {
+          "ref": "R78",
+          "pin": "2"
+        },
+        {
+          "ref": "U17",
+          "pin": "3"
+        },
+        {
+          "ref": "R80",
+          "pin": "2"
+        },
+        {
+          "ref": "R82",
+          "pin": "2"
+        },
+        {
+          "ref": "R84",
+          "pin": "2"
+        },
+        {
+          "ref": "R86",
+          "pin": "2"
+        },
+        {
+          "ref": "R88",
+          "pin": "2"
+        },
+        {
+          "ref": "U29",
+          "pin": "12"
+        },
+        {
+          "ref": "Q7",
+          "pin": "2"
+        },
+        {
+          "ref": "R90",
+          "pin": "2"
+        },
+        {
+          "ref": "U37",
+          "pin": "2"
+        },
+        {
+          "ref": "C131",
+          "pin": "2"
+        },
+        {
+          "ref": "C132",
+          "pin": "2"
+        },
+        {
+          "ref": "U32",
+          "pin": "1"
+        },
+        {
+          "ref": "U32",
+          "pin": "7"
+        },
+        {
+          "ref": "C133",
+          "pin": "2"
+        },
+        {
+          "ref": "C66",
+          "pin": "2"
+        },
+        {
+          "ref": "C67",
+          "pin": "2"
+        },
+        {
+          "ref": "C68",
+          "pin": "2"
+        },
+        {
+          "ref": "C69",
+          "pin": "2"
+        },
+        {
+          "ref": "C70",
+          "pin": "2"
+        },
+        {
+          "ref": "U35",
+          "pin": "2"
+        },
+        {
+          "ref": "U35",
+          "pin": "9"
+        },
+        {
+          "ref": "U35",
+          "pin": "11"
+        },
+        {
+          "ref": "R92",
+          "pin": "2"
+        },
+        {
+          "ref": "R93",
+          "pin": "2"
+        },
+        {
+          "ref": "C130",
+          "pin": "2"
+        },
+        {
+          "ref": "R94",
+          "pin": "2"
+        },
+        {
+          "ref": "C101",
+          "pin": "2"
+        },
+        {
+          "ref": "C71",
+          "pin": "2"
+        }
+      ]
+    },
+    {
+      "name": "v24_raw",
+      "nodes": [
+        {
+          "ref": "PS2",
+          "pin": "4"
+        },
+        {
+          "ref": "U26",
+          "pin": "13"
+        },
+        {
+          "ref": "U26",
+          "pin": "15"
+        },
+        {
+          "ref": "U26",
+          "pin": "16"
+        },
+        {
+          "ref": "C98",
+          "pin": "1"
+        },
+        {
+          "ref": "U35",
+          "pin": "3"
+        },
+        {
+          "ref": "U35",
+          "pin": "4"
+        },
+        {
+          "ref": "C101",
+          "pin": "1"
+        },
+        {
+          "ref": "C71",
+          "pin": "1"
+        },
+        {
+          "ref": "C72",
+          "pin": "2"
+        },
+        {
+          "ref": "C73",
+          "pin": "2"
+        },
+        {
+          "ref": "T2",
+          "pin": "2"
+        },
+        {
+          "ref": "T2",
+          "pin": "3"
+        },
+        {
+          "ref": "T3",
+          "pin": "2"
+        },
+        {
+          "ref": "T3",
+          "pin": "3"
+        }
+      ]
+    },
+    {
+      "name": "p_ha",
+      "nodes": [
+        {
+          "ref": "U1",
+          "pin": "16"
+        },
+        {
+          "ref": "R71",
+          "pin": "1"
+        },
+        {
+          "ref": "U27",
+          "pin": "1"
+        },
+        {
+          "ref": "U27",
+          "pin": "3"
+        },
+        {
+          "ref": "U27",
+          "pin": "20"
+        },
+        {
+          "ref": "C104",
+          "pin": "1"
+        },
+        {
+          "ref": "C105",
+          "pin": "1"
+        },
+        {
+          "ref": "C75",
+          "pin": "1"
+        },
+        {
+          "ref": "R63",
+          "pin": "1"
+        },
+        {
+          "ref": "R103",
+          "pin": "1"
+        },
+        {
+          "ref": "R105",
+          "pin": "1"
+        },
+        {
+          "ref": "U30",
+          "pin": "3"
+        },
+        {
+          "ref": "U38",
+          "pin": "1"
+        },
+        {
+          "ref": "U38",
+          "pin": "3"
+        },
+        {
+          "ref": "C135",
+          "pin": "1"
+        },
+        {
+          "ref": "C80",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "n_ha",
+      "nodes": [
+        {
+          "ref": "U1",
+          "pin": "14"
+        },
+        {
+          "ref": "C90",
+          "pin": "2"
+        },
+        {
+          "ref": "C91",
+          "pin": "2"
+        },
+        {
+          "ref": "C50",
+          "pin": "2"
+        },
+        {
+          "ref": "C51",
+          "pin": "2"
+        },
+        {
+          "ref": "C110",
+          "pin": "2"
+        },
+        {
+          "ref": "C111",
+          "pin": "2"
+        },
+        {
+          "ref": "C112",
+          "pin": "2"
+        },
+        {
+          "ref": "C113",
+          "pin": "2"
+        },
+        {
+          "ref": "C126",
+          "pin": "2"
+        },
+        {
+          "ref": "T2",
+          "pin": "6"
+        },
+        {
+          "ref": "T2",
+          "pin": "7"
+        },
+        {
+          "ref": "C102",
+          "pin": "2"
+        },
+        {
+          "ref": "U27",
+          "pin": "4"
+        },
+        {
+          "ref": "U27",
+          "pin": "5"
+        },
+        {
+          "ref": "U27",
+          "pin": "7"
+        },
+        {
+          "ref": "U27",
+          "pin": "8"
+        },
+        {
+          "ref": "U27",
+          "pin": "9"
+        },
+        {
+          "ref": "U27",
+          "pin": "10"
+        },
+        {
+          "ref": "U27",
+          "pin": "21"
+        },
+        {
+          "ref": "C74",
+          "pin": "2"
+        },
+        {
+          "ref": "C103",
+          "pin": "2"
+        },
+        {
+          "ref": "C104",
+          "pin": "2"
+        },
+        {
+          "ref": "C105",
+          "pin": "2"
+        },
+        {
+          "ref": "C75",
+          "pin": "2"
+        },
+        {
+          "ref": "U18",
+          "pin": "3"
+        },
+        {
+          "ref": "R96",
+          "pin": "2"
+        },
+        {
+          "ref": "U19",
+          "pin": "3"
+        },
+        {
+          "ref": "R98",
+          "pin": "2"
+        },
+        {
+          "ref": "R100",
+          "pin": "2"
+        },
+        {
+          "ref": "R102",
+          "pin": "2"
+        },
+        {
+          "ref": "R104",
+          "pin": "2"
+        },
+        {
+          "ref": "R106",
+          "pin": "2"
+        },
+        {
+          "ref": "U30",
+          "pin": "12"
+        },
+        {
+          "ref": "Q8",
+          "pin": "2"
+        },
+        {
+          "ref": "R108",
+          "pin": "2"
+        },
+        {
+          "ref": "U38",
+          "pin": "2"
+        },
+        {
+          "ref": "C135",
+          "pin": "2"
+        },
+        {
+          "ref": "C136",
+          "pin": "2"
+        },
+        {
+          "ref": "U33",
+          "pin": "1"
+        },
+        {
+          "ref": "U33",
+          "pin": "7"
+        },
+        {
+          "ref": "C137",
+          "pin": "2"
+        },
+        {
+          "ref": "C76",
+          "pin": "2"
+        },
+        {
+          "ref": "C77",
+          "pin": "2"
+        },
+        {
+          "ref": "C78",
+          "pin": "2"
+        },
+        {
+          "ref": "C79",
+          "pin": "2"
+        },
+        {
+          "ref": "C80",
+          "pin": "2"
+        }
+      ]
+    },
+    {
+      "name": "p_hb",
+      "nodes": [
+        {
+          "ref": "U2",
+          "pin": "16"
+        },
+        {
+          "ref": "R74",
+          "pin": "1"
+        },
+        {
+          "ref": "U28",
+          "pin": "1"
+        },
+        {
+          "ref": "U28",
+          "pin": "3"
+        },
+        {
+          "ref": "U28",
+          "pin": "20"
+        },
+        {
+          "ref": "C108",
+          "pin": "1"
+        },
+        {
+          "ref": "C109",
+          "pin": "1"
+        },
+        {
+          "ref": "C82",
+          "pin": "1"
+        },
+        {
+          "ref": "R65",
+          "pin": "1"
+        },
+        {
+          "ref": "R118",
+          "pin": "1"
+        },
+        {
+          "ref": "R120",
+          "pin": "1"
+        },
+        {
+          "ref": "U31",
+          "pin": "3"
+        },
+        {
+          "ref": "U39",
+          "pin": "1"
+        },
+        {
+          "ref": "U39",
+          "pin": "3"
+        },
+        {
+          "ref": "C139",
+          "pin": "1"
+        },
+        {
+          "ref": "C87",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "n_hb",
+      "nodes": [
+        {
+          "ref": "U2",
+          "pin": "14"
+        },
+        {
+          "ref": "C94",
+          "pin": "2"
+        },
+        {
+          "ref": "C95",
+          "pin": "2"
+        },
+        {
+          "ref": "C57",
+          "pin": "2"
+        },
+        {
+          "ref": "C58",
+          "pin": "2"
+        },
+        {
+          "ref": "C118",
+          "pin": "2"
+        },
+        {
+          "ref": "C119",
+          "pin": "2"
+        },
+        {
+          "ref": "C120",
+          "pin": "2"
+        },
+        {
+          "ref": "C121",
+          "pin": "2"
+        },
+        {
+          "ref": "C128",
+          "pin": "2"
+        },
+        {
+          "ref": "T3",
+          "pin": "6"
+        },
+        {
+          "ref": "T3",
+          "pin": "7"
+        },
+        {
+          "ref": "C106",
+          "pin": "2"
+        },
+        {
+          "ref": "U28",
+          "pin": "4"
+        },
+        {
+          "ref": "U28",
+          "pin": "5"
+        },
+        {
+          "ref": "U28",
+          "pin": "7"
+        },
+        {
+          "ref": "U28",
+          "pin": "8"
+        },
+        {
+          "ref": "U28",
+          "pin": "9"
+        },
+        {
+          "ref": "U28",
+          "pin": "10"
+        },
+        {
+          "ref": "U28",
+          "pin": "21"
+        },
+        {
+          "ref": "C81",
+          "pin": "2"
+        },
+        {
+          "ref": "C107",
+          "pin": "2"
+        },
+        {
+          "ref": "C108",
+          "pin": "2"
+        },
+        {
+          "ref": "C109",
+          "pin": "2"
+        },
+        {
+          "ref": "C82",
+          "pin": "2"
+        },
+        {
+          "ref": "U20",
+          "pin": "3"
+        },
+        {
+          "ref": "R111",
+          "pin": "2"
+        },
+        {
+          "ref": "U21",
+          "pin": "3"
+        },
+        {
+          "ref": "R113",
+          "pin": "2"
+        },
+        {
+          "ref": "R115",
+          "pin": "2"
+        },
+        {
+          "ref": "R117",
+          "pin": "2"
+        },
+        {
+          "ref": "R119",
+          "pin": "2"
+        },
+        {
+          "ref": "R121",
+          "pin": "2"
+        },
+        {
+          "ref": "U31",
+          "pin": "12"
+        },
+        {
+          "ref": "Q9",
+          "pin": "2"
+        },
+        {
+          "ref": "R123",
+          "pin": "2"
+        },
+        {
+          "ref": "U39",
+          "pin": "2"
+        },
+        {
+          "ref": "C139",
+          "pin": "2"
+        },
+        {
+          "ref": "C140",
+          "pin": "2"
+        },
+        {
+          "ref": "U34",
+          "pin": "1"
+        },
+        {
+          "ref": "U34",
+          "pin": "7"
+        },
+        {
+          "ref": "C141",
+          "pin": "2"
+        },
+        {
+          "ref": "C83",
+          "pin": "2"
+        },
+        {
+          "ref": "C84",
+          "pin": "2"
+        },
+        {
+          "ref": "C85",
+          "pin": "2"
+        },
+        {
+          "ref": "C86",
+          "pin": "2"
+        },
+        {
+          "ref": "C87",
+          "pin": "2"
+        }
+      ]
+    },
+    {
+      "name": "bias_bad",
+      "nodes": [
+        {
+          "ref": "U22",
+          "pin": "2"
+        },
+        {
+          "ref": "U23",
+          "pin": "2"
+        },
+        {
+          "ref": "U40",
+          "pin": "4"
+        }
+      ]
+    },
+    {
+      "name": "bias_bad_raw",
+      "nodes": [
+        {
+          "ref": "U25",
+          "pin": "4"
+        },
+        {
+          "ref": "R126",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "bias_bad_flt",
+      "nodes": [
+        {
+          "ref": "R126",
+          "pin": "2"
+        },
+        {
+          "ref": "C143",
+          "pin": "1"
+        },
+        {
+          "ref": "U40",
+          "pin": "2"
+        }
+      ]
+    },
+    {
+      "name": "bias_ls_bad",
+      "nodes": [
+        {
+          "ref": "U32",
+          "pin": "13"
+        },
+        {
+          "ref": "U25",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "bias_ha_bad",
+      "nodes": [
+        {
+          "ref": "U33",
+          "pin": "13"
+        },
+        {
+          "ref": "U25",
+          "pin": "3"
+        }
+      ]
+    },
+    {
+      "name": "bias_hb_bad",
+      "nodes": [
+        {
+          "ref": "U34",
+          "pin": "13"
+        },
+        {
+          "ref": "U25",
+          "pin": "6"
+        }
+      ]
+    },
+    {
+      "name": "line_zc",
+      "nodes": [
+        {
+          "ref": "J4",
+          "pin": "16"
+        },
+        {
+          "ref": "U24",
+          "pin": "4"
+        }
+      ]
+    },
+    {
+      "name": "bias_sw1",
+      "nodes": [
+        {
+          "ref": "U35",
+          "pin": "1"
+        },
+        {
+          "ref": "R61",
+          "pin": "1"
+        },
+        {
+          "ref": "T2",
+          "pin": "1"
+        },
+        {
+          "ref": "T3",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "bias_sw2",
+      "nodes": [
+        {
+          "ref": "U35",
+          "pin": "10"
+        },
+        {
+          "ref": "R62",
+          "pin": "1"
+        },
+        {
+          "ref": "T2",
+          "pin": "4"
+        },
+        {
+          "ref": "T3",
+          "pin": "4"
+        }
+      ]
+    },
+    {
+      "name": "hot5",
+      "nodes": [
+        {
+          "ref": "U3",
+          "pin": "5"
+        },
+        {
+          "ref": "C26",
+          "pin": "1"
+        },
+        {
+          "ref": "U4",
+          "pin": "1"
+        },
+        {
+          "ref": "C28",
+          "pin": "1"
+        },
+        {
+          "ref": "R31",
+          "pin": "1"
+        },
+        {
+          "ref": "U6",
+          "pin": "5"
+        },
+        {
+          "ref": "C32",
+          "pin": "1"
+        },
+        {
+          "ref": "U7",
+          "pin": "5"
+        },
+        {
+          "ref": "C34",
+          "pin": "1"
+        },
+        {
+          "ref": "U8",
+          "pin": "5"
+        },
+        {
+          "ref": "C35",
+          "pin": "1"
+        },
+        {
+          "ref": "U9",
+          "pin": "3"
+        },
+        {
+          "ref": "C36",
+          "pin": "1"
+        },
+        {
+          "ref": "R48",
+          "pin": "1"
+        },
+        {
+          "ref": "R50",
+          "pin": "1"
+        },
+        {
+          "ref": "U15",
+          "pin": "5"
+        },
+        {
+          "ref": "C49",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "vdiv_1",
+      "nodes": [
+        {
+          "ref": "R26",
+          "pin": "2"
+        },
+        {
+          "ref": "R27",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "vdiv_2",
+      "nodes": [
+        {
+          "ref": "R27",
+          "pin": "2"
+        },
+        {
+          "ref": "R28",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "vdiv_3",
+      "nodes": [
+        {
+          "ref": "R28",
+          "pin": "2"
+        },
+        {
+          "ref": "R29",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "vsense_in",
+      "nodes": [
+        {
+          "ref": "R29",
+          "pin": "2"
+        },
+        {
+          "ref": "R30",
+          "pin": "1"
+        },
+        {
+          "ref": "C27",
+          "pin": "1"
+        },
+        {
+          "ref": "U4",
+          "pin": "2"
+        },
+        {
+          "ref": "U7",
+          "pin": "4"
+        }
+      ]
+    },
+    {
+      "name": "ref25",
+      "nodes": [
+        {
+          "ref": "R31",
+          "pin": "2"
+        },
+        {
+          "ref": "U5",
+          "pin": "1"
+        },
+        {
+          "ref": "R32",
+          "pin": "1"
+        },
+        {
+          "ref": "R34",
+          "pin": "1"
+        },
+        {
+          "ref": "R36",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "ocp_kelvin_n",
+      "nodes": [
+        {
+          "ref": "R5",
+          "pin": "3"
+        },
+        {
+          "ref": "R33",
+          "pin": "2"
+        }
+      ]
+    },
+    {
+      "name": "ocp_node",
+      "nodes": [
+        {
+          "ref": "R32",
+          "pin": "2"
+        },
+        {
+          "ref": "R33",
+          "pin": "1"
+        },
+        {
+          "ref": "C30",
+          "pin": "1"
+        },
+        {
+          "ref": "U6",
+          "pin": "3"
+        }
+      ]
+    },
+    {
+      "name": "ocp_thresh",
+      "nodes": [
+        {
+          "ref": "R34",
+          "pin": "2"
+        },
+        {
+          "ref": "R35",
+          "pin": "1"
+        },
+        {
+          "ref": "C31",
+          "pin": "1"
+        },
+        {
+          "ref": "U6",
+          "pin": "4"
+        }
+      ]
+    },
+    {
+      "name": "ocp_ok_hot",
+      "nodes": [
+        {
+          "ref": "U6",
+          "pin": "1"
+        },
+        {
+          "ref": "U8",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "ovp_thresh",
+      "nodes": [
+        {
+          "ref": "R36",
+          "pin": "2"
+        },
+        {
+          "ref": "R37",
+          "pin": "1"
+        },
+        {
+          "ref": "C33",
+          "pin": "1"
+        },
+        {
+          "ref": "U7",
+          "pin": "3"
+        }
+      ]
+    },
+    {
+      "name": "ovp_ok_hot",
+      "nodes": [
+        {
+          "ref": "U7",
+          "pin": "1"
+        },
+        {
+          "ref": "U8",
+          "pin": "3"
+        }
+      ]
+    },
+    {
+      "name": "hot5_uv_sense",
+      "nodes": [
+        {
+          "ref": "U14",
+          "pin": "3"
+        },
+        {
+          "ref": "R48",
+          "pin": "2"
+        },
+        {
+          "ref": "R49",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "hot5_uv_raw",
+      "nodes": [
+        {
+          "ref": "U14",
+          "pin": "1"
+        },
+        {
+          "ref": "R50",
+          "pin": "2"
+        },
+        {
+          "ref": "U15",
+          "pin": "2"
+        }
+      ]
+    },
+    {
+      "name": "hot5_ok_hot",
+      "nodes": [
+        {
+          "ref": "U8",
+          "pin": "6"
+        },
+        {
+          "ref": "U15",
+          "pin": "4"
+        }
+      ]
+    },
+    {
+      "name": "bus_fault_hot",
+      "nodes": [
+        {
+          "ref": "U8",
+          "pin": "4"
+        },
+        {
+          "ref": "U9",
+          "pin": "4"
+        }
+      ]
+    },
+    {
+      "name": "v15_selv",
+      "nodes": [
+        {
+          "ref": "PS1",
+          "pin": "4"
+        },
+        {
+          "ref": "J4",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "selv_gnd",
+      "nodes": [
+        {
+          "ref": "U1",
+          "pin": "4"
+        },
+        {
+          "ref": "C7",
+          "pin": "2"
+        },
+        {
+          "ref": "R7",
+          "pin": "2"
+        },
+        {
+          "ref": "Q1",
+          "pin": "2"
+        },
+        {
+          "ref": "R9",
+          "pin": "2"
+        },
+        {
+          "ref": "U22",
+          "pin": "3"
+        },
+        {
+          "ref": "C54",
+          "pin": "2"
+        },
+        {
+          "ref": "U2",
+          "pin": "4"
+        },
+        {
+          "ref": "C14",
+          "pin": "2"
+        },
+        {
+          "ref": "R15",
+          "pin": "2"
+        },
+        {
+          "ref": "Q4",
+          "pin": "2"
+        },
+        {
+          "ref": "R17",
+          "pin": "2"
+        },
+        {
+          "ref": "U23",
+          "pin": "3"
+        },
+        {
+          "ref": "C61",
+          "pin": "2"
+        },
+        {
+          "ref": "PS1",
+          "pin": "3"
+        },
+        {
+          "ref": "U4",
+          "pin": "5"
+        },
+        {
+          "ref": "C29",
+          "pin": "2"
+        },
+        {
+          "ref": "U9",
+          "pin": "9"
+        },
+        {
+          "ref": "U9",
+          "pin": "16"
+        },
+        {
+          "ref": "C37",
+          "pin": "2"
+        },
+        {
+          "ref": "J4",
+          "pin": "2"
+        },
+        {
+          "ref": "J4",
+          "pin": "4"
+        },
+        {
+          "ref": "J4",
+          "pin": "15"
+        },
+        {
+          "ref": "R38",
+          "pin": "2"
+        },
+        {
+          "ref": "R41",
+          "pin": "2"
+        },
+        {
+          "ref": "C43",
+          "pin": "2"
+        },
+        {
+          "ref": "D5",
+          "pin": "2"
+        },
+        {
+          "ref": "R44",
+          "pin": "2"
+        },
+        {
+          "ref": "R46",
+          "pin": "2"
+        },
+        {
+          "ref": "U10",
+          "pin": "2"
+        },
+        {
+          "ref": "C44",
+          "pin": "2"
+        },
+        {
+          "ref": "U11",
+          "pin": "2"
+        },
+        {
+          "ref": "C45",
+          "pin": "2"
+        },
+        {
+          "ref": "U12",
+          "pin": "2"
+        },
+        {
+          "ref": "C46",
+          "pin": "2"
+        },
+        {
+          "ref": "U13",
+          "pin": "2"
+        },
+        {
+          "ref": "C47",
+          "pin": "2"
+        },
+        {
+          "ref": "U32",
+          "pin": "9"
+        },
+        {
+          "ref": "U32",
+          "pin": "16"
+        },
+        {
+          "ref": "C134",
+          "pin": "2"
+        },
+        {
+          "ref": "U33",
+          "pin": "9"
+        },
+        {
+          "ref": "U33",
+          "pin": "16"
+        },
+        {
+          "ref": "C138",
+          "pin": "2"
+        },
+        {
+          "ref": "U34",
+          "pin": "9"
+        },
+        {
+          "ref": "U34",
+          "pin": "16"
+        },
+        {
+          "ref": "C142",
+          "pin": "2"
+        },
+        {
+          "ref": "C143",
+          "pin": "2"
+        },
+        {
+          "ref": "U40",
+          "pin": "3"
+        },
+        {
+          "ref": "C144",
+          "pin": "2"
+        },
+        {
+          "ref": "U25",
+          "pin": "2"
+        },
+        {
+          "ref": "C88",
+          "pin": "2"
+        },
+        {
+          "ref": "U36",
+          "pin": "3"
+        },
+        {
+          "ref": "U24",
+          "pin": "3"
+        },
+        {
+          "ref": "C89",
+          "pin": "2"
+        }
+      ]
+    },
+    {
+      "name": "v3v3",
+      "nodes": [
+        {
+          "ref": "U1",
+          "pin": "3"
+        },
+        {
+          "ref": "U1",
+          "pin": "8"
+        },
+        {
+          "ref": "C7",
+          "pin": "1"
+        },
+        {
+          "ref": "R8",
+          "pin": "2"
+        },
+        {
+          "ref": "U22",
+          "pin": "5"
+        },
+        {
+          "ref": "C54",
+          "pin": "1"
+        },
+        {
+          "ref": "R73",
+          "pin": "1"
+        },
+        {
+          "ref": "U2",
+          "pin": "3"
+        },
+        {
+          "ref": "U2",
+          "pin": "8"
+        },
+        {
+          "ref": "C14",
+          "pin": "1"
+        },
+        {
+          "ref": "R16",
+          "pin": "2"
+        },
+        {
+          "ref": "U23",
+          "pin": "5"
+        },
+        {
+          "ref": "C61",
+          "pin": "1"
+        },
+        {
+          "ref": "R76",
+          "pin": "1"
+        },
+        {
+          "ref": "U4",
+          "pin": "8"
+        },
+        {
+          "ref": "C29",
+          "pin": "1"
+        },
+        {
+          "ref": "U9",
+          "pin": "14"
+        },
+        {
+          "ref": "C37",
+          "pin": "1"
+        },
+        {
+          "ref": "J4",
+          "pin": "3"
+        },
+        {
+          "ref": "R40",
+          "pin": "1"
+        },
+        {
+          "ref": "D4",
+          "pin": "1"
+        },
+        {
+          "ref": "R43",
+          "pin": "1"
+        },
+        {
+          "ref": "R45",
+          "pin": "1"
+        },
+        {
+          "ref": "U10",
+          "pin": "5"
+        },
+        {
+          "ref": "C44",
+          "pin": "1"
+        },
+        {
+          "ref": "U11",
+          "pin": "5"
+        },
+        {
+          "ref": "C45",
+          "pin": "1"
+        },
+        {
+          "ref": "U12",
+          "pin": "5"
+        },
+        {
+          "ref": "C46",
+          "pin": "1"
+        },
+        {
+          "ref": "U13",
+          "pin": "5"
+        },
+        {
+          "ref": "C47",
+          "pin": "1"
+        },
+        {
+          "ref": "U32",
+          "pin": "14"
+        },
+        {
+          "ref": "C134",
+          "pin": "1"
+        },
+        {
+          "ref": "U33",
+          "pin": "14"
+        },
+        {
+          "ref": "C138",
+          "pin": "1"
+        },
+        {
+          "ref": "U34",
+          "pin": "14"
+        },
+        {
+          "ref": "C142",
+          "pin": "1"
+        },
+        {
+          "ref": "U40",
+          "pin": "5"
+        },
+        {
+          "ref": "C144",
+          "pin": "1"
+        },
+        {
+          "ref": "U25",
+          "pin": "5"
+        },
+        {
+          "ref": "C88",
+          "pin": "1"
+        },
+        {
+          "ref": "R125",
+          "pin": "1"
+        },
+        {
+          "ref": "U24",
+          "pin": "5"
+        },
+        {
+          "ref": "C89",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "pwm_ha",
+      "nodes": [
+        {
+          "ref": "U1",
+          "pin": "1"
+        },
+        {
+          "ref": "J4",
+          "pin": "5"
+        }
+      ]
+    },
+    {
+      "name": "pwm_la",
+      "nodes": [
+        {
+          "ref": "U1",
+          "pin": "2"
+        },
+        {
+          "ref": "J4",
+          "pin": "6"
+        }
+      ]
+    },
+    {
+      "name": "pwm_hb",
+      "nodes": [
+        {
+          "ref": "U2",
+          "pin": "1"
+        },
+        {
+          "ref": "J4",
+          "pin": "7"
+        }
+      ]
+    },
+    {
+      "name": "pwm_lb",
+      "nodes": [
+        {
+          "ref": "U2",
+          "pin": "2"
+        },
+        {
+          "ref": "J4",
+          "pin": "8"
+        }
+      ]
+    },
+    {
+      "name": "permit",
+      "nodes": [
+        {
+          "ref": "R6",
+          "pin": "1"
+        },
+        {
+          "ref": "R14",
+          "pin": "1"
+        },
+        {
+          "ref": "J4",
+          "pin": "9"
+        }
+      ]
+    },
+    {
+      "name": "bus_fault",
+      "nodes": [
+        {
+          "ref": "J4",
+          "pin": "10"
+        },
+        {
+          "ref": "U13",
+          "pin": "4"
+        }
+      ]
+    },
+    {
+      "name": "vbus_p",
+      "nodes": [
+        {
+          "ref": "U4",
+          "pin": "7"
+        },
+        {
+          "ref": "J4",
+          "pin": "11"
+        }
+      ]
+    },
+    {
+      "name": "vbus_n",
+      "nodes": [
+        {
+          "ref": "U4",
+          "pin": "6"
+        },
+        {
+          "ref": "J4",
+          "pin": "12"
+        }
+      ]
+    },
+    {
+      "name": "ct_s1",
+      "nodes": [
+        {
+          "ref": "T1",
+          "pin": "3"
+        },
+        {
+          "ref": "R39",
+          "pin": "1"
+        },
+        {
+          "ref": "C42",
+          "pin": "1"
+        },
+        {
+          "ref": "R42",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "ct_s2",
+      "nodes": [
+        {
+          "ref": "T1",
+          "pin": "4"
+        },
+        {
+          "ref": "R39",
+          "pin": "2"
+        },
+        {
+          "ref": "C42",
+          "pin": "2"
+        },
+        {
+          "ref": "R40",
+          "pin": "2"
+        },
+        {
+          "ref": "R41",
+          "pin": "1"
+        },
+        {
+          "ref": "C43",
+          "pin": "1"
+        },
+        {
+          "ref": "U12",
+          "pin": "4"
+        }
+      ]
+    },
+    {
+      "name": "ct_sense_mon",
+      "nodes": [
+        {
+          "ref": "R42",
+          "pin": "2"
+        },
+        {
+          "ref": "D4",
+          "pin": "2"
+        },
+        {
+          "ref": "D5",
+          "pin": "1"
+        },
+        {
+          "ref": "U10",
+          "pin": "3"
+        },
+        {
+          "ref": "U11",
+          "pin": "4"
+        },
+        {
+          "ref": "U12",
+          "pin": "3"
+        },
+        {
+          "ref": "R47",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "ct_ref_hi",
+      "nodes": [
+        {
+          "ref": "R43",
+          "pin": "2"
+        },
+        {
+          "ref": "R44",
+          "pin": "1"
+        },
+        {
+          "ref": "U10",
+          "pin": "4"
+        }
+      ]
+    },
+    {
+      "name": "ct_ref_lo",
+      "nodes": [
+        {
+          "ref": "R45",
+          "pin": "2"
+        },
+        {
+          "ref": "R46",
+          "pin": "1"
+        },
+        {
+          "ref": "U11",
+          "pin": "3"
+        }
+      ]
+    },
+    {
+      "name": "ct_oc_pos",
+      "nodes": [
+        {
+          "ref": "U10",
+          "pin": "1"
+        },
+        {
+          "ref": "U13",
+          "pin": "3"
+        }
+      ]
+    },
+    {
+      "name": "ct_oc_neg",
+      "nodes": [
+        {
+          "ref": "U11",
+          "pin": "1"
+        },
+        {
+          "ref": "U13",
+          "pin": "6"
+        }
+      ]
+    },
+    {
+      "name": "ct_zc",
+      "nodes": [
+        {
+          "ref": "J4",
+          "pin": "13"
+        },
+        {
+          "ref": "U12",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "ct_mon",
+      "nodes": [
+        {
+          "ref": "J4",
+          "pin": "14"
+        },
+        {
+          "ref": "R47",
+          "pin": "2"
+        }
+      ]
+    },
+    {
+      "name": "bus_fault_iso",
+      "nodes": [
+        {
+          "ref": "U9",
+          "pin": "13"
+        },
+        {
+          "ref": "U13",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "leg_a-dis",
+      "nodes": [
+        {
+          "ref": "R8",
+          "pin": "1"
+        },
+        {
+          "ref": "Q1",
+          "pin": "3"
+        },
+        {
+          "ref": "U22",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "leg_a-driver_dis",
+      "nodes": [
+        {
+          "ref": "U1",
+          "pin": "5"
+        },
+        {
+          "ref": "U22",
+          "pin": "4"
+        },
+        {
+          "ref": "R73",
+          "pin": "2"
+        }
+      ]
+    },
+    {
+      "name": "leg_a-gate_h",
+      "nodes": [
+        {
+          "ref": "R10",
+          "pin": "2"
+        },
+        {
+          "ref": "R11",
+          "pin": "1"
+        },
+        {
+          "ref": "C55",
+          "pin": "1"
+        },
+        {
+          "ref": "D6",
+          "pin": "2"
+        },
+        {
+          "ref": "Q2",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "leg_a-gate_l",
+      "nodes": [
+        {
+          "ref": "R12",
+          "pin": "2"
+        },
+        {
+          "ref": "R13",
+          "pin": "1"
+        },
+        {
+          "ref": "C56",
+          "pin": "1"
+        },
+        {
+          "ref": "D7",
+          "pin": "2"
+        },
+        {
+          "ref": "Q3",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "leg_a-out_h",
+      "nodes": [
+        {
+          "ref": "U1",
+          "pin": "15"
+        },
+        {
+          "ref": "R10",
+          "pin": "1"
+        },
+        {
+          "ref": "R53",
+          "pin": "2"
+        }
+      ]
+    },
+    {
+      "name": "leg_a-out_l",
+      "nodes": [
+        {
+          "ref": "U1",
+          "pin": "10"
+        },
+        {
+          "ref": "R12",
+          "pin": "1"
+        },
+        {
+          "ref": "R54",
+          "pin": "2"
+        }
+      ]
+    },
+    {
+      "name": "leg_a-permit_gate",
+      "nodes": [
+        {
+          "ref": "R7",
+          "pin": "1"
+        },
+        {
+          "ref": "Q1",
+          "pin": "1"
+        },
+        {
+          "ref": "R6",
+          "pin": "2"
+        }
+      ]
+    },
+    {
+      "name": "leg_a.driver-dt",
+      "nodes": [
+        {
+          "ref": "U1",
+          "pin": "6"
+        },
+        {
+          "ref": "R9",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "leg_a.driver-nc_7",
+      "nodes": [
+        {
+          "ref": "U1",
+          "pin": "7"
+        }
+      ]
+    },
+    {
+      "name": "leg_a.bias_h-damp",
+      "nodes": [
+        {
+          "ref": "R51",
+          "pin": "2"
+        },
+        {
+          "ref": "C126",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "leg_a.bias_l-damp",
+      "nodes": [
+        {
+          "ref": "R52",
+          "pin": "2"
+        },
+        {
+          "ref": "C127",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "leg_a-off_h",
+      "nodes": [
+        {
+          "ref": "D6",
+          "pin": "1"
+        },
+        {
+          "ref": "R53",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "leg_a-off_l",
+      "nodes": [
+        {
+          "ref": "D7",
+          "pin": "1"
+        },
+        {
+          "ref": "R54",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "leg_b-dis",
+      "nodes": [
+        {
+          "ref": "R16",
+          "pin": "1"
+        },
+        {
+          "ref": "Q4",
+          "pin": "3"
+        },
+        {
+          "ref": "U23",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "leg_b-driver_dis",
+      "nodes": [
+        {
+          "ref": "U2",
+          "pin": "5"
+        },
+        {
+          "ref": "U23",
+          "pin": "4"
+        },
+        {
+          "ref": "R76",
+          "pin": "2"
+        }
+      ]
+    },
+    {
+      "name": "leg_b-gate_h",
+      "nodes": [
+        {
+          "ref": "R18",
+          "pin": "2"
+        },
+        {
+          "ref": "R19",
+          "pin": "1"
+        },
+        {
+          "ref": "C62",
+          "pin": "1"
+        },
+        {
+          "ref": "D8",
+          "pin": "2"
+        },
+        {
+          "ref": "Q5",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "leg_b-gate_l",
+      "nodes": [
+        {
+          "ref": "R20",
+          "pin": "2"
+        },
+        {
+          "ref": "R21",
+          "pin": "1"
+        },
+        {
+          "ref": "C63",
+          "pin": "1"
+        },
+        {
+          "ref": "D9",
+          "pin": "2"
+        },
+        {
+          "ref": "Q6",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "leg_b-out_h",
+      "nodes": [
+        {
+          "ref": "U2",
+          "pin": "15"
+        },
+        {
+          "ref": "R18",
+          "pin": "1"
+        },
+        {
+          "ref": "R57",
+          "pin": "2"
+        }
+      ]
+    },
+    {
+      "name": "leg_b-out_l",
+      "nodes": [
+        {
+          "ref": "U2",
+          "pin": "10"
+        },
+        {
+          "ref": "R20",
+          "pin": "1"
+        },
+        {
+          "ref": "R58",
+          "pin": "2"
+        }
+      ]
+    },
+    {
+      "name": "leg_b-permit_gate",
+      "nodes": [
+        {
+          "ref": "R15",
+          "pin": "1"
+        },
+        {
+          "ref": "Q4",
+          "pin": "1"
+        },
+        {
+          "ref": "R14",
+          "pin": "2"
+        }
+      ]
+    },
+    {
+      "name": "leg_b.driver-dt",
+      "nodes": [
+        {
+          "ref": "U2",
+          "pin": "6"
+        },
+        {
+          "ref": "R17",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "leg_b.driver-nc_7",
+      "nodes": [
+        {
+          "ref": "U2",
+          "pin": "7"
+        }
+      ]
+    },
+    {
+      "name": "leg_b.bias_h-damp",
+      "nodes": [
+        {
+          "ref": "R55",
+          "pin": "2"
+        },
+        {
+          "ref": "C128",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "leg_b.bias_l-damp",
+      "nodes": [
+        {
+          "ref": "R56",
+          "pin": "2"
+        },
+        {
+          "ref": "C129",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "leg_b-off_h",
+      "nodes": [
+        {
+          "ref": "D8",
+          "pin": "1"
+        },
+        {
+          "ref": "R57",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "leg_b-off_l",
+      "nodes": [
+        {
+          "ref": "D9",
+          "pin": "1"
+        },
+        {
+          "ref": "R58",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "u_ldo-nc",
+      "nodes": [
+        {
+          "ref": "U3",
+          "pin": "4"
+        }
+      ]
+    },
+    {
+      "name": "u_ref-nc",
+      "nodes": [
+        {
+          "ref": "U5",
+          "pin": "3"
+        }
+      ]
+    },
+    {
+      "name": "u_iso-nc2",
+      "nodes": [
+        {
+          "ref": "U9",
+          "pin": "2"
+        }
+      ]
+    },
+    {
+      "name": "u_iso-nc5",
+      "nodes": [
+        {
+          "ref": "U9",
+          "pin": "5"
+        }
+      ]
+    },
+    {
+      "name": "u_iso-nc6",
+      "nodes": [
+        {
+          "ref": "U9",
+          "pin": "6"
+        }
+      ]
+    },
+    {
+      "name": "u_iso-nc8",
+      "nodes": [
+        {
+          "ref": "U9",
+          "pin": "8"
+        }
+      ]
+    },
+    {
+      "name": "u_iso-nc10",
+      "nodes": [
+        {
+          "ref": "U9",
+          "pin": "10"
+        }
+      ]
+    },
+    {
+      "name": "u_iso-nc11",
+      "nodes": [
+        {
+          "ref": "U9",
+          "pin": "11"
+        }
+      ]
+    },
+    {
+      "name": "u_iso-nc12",
+      "nodes": [
+        {
+          "ref": "U9",
+          "pin": "12"
+        }
+      ]
+    },
+    {
+      "name": "u_iso-nc15",
+      "nodes": [
+        {
+          "ref": "U9",
+          "pin": "15"
+        }
+      ]
+    },
+    {
+      "name": "outb",
+      "nodes": [
+        {
+          "ref": "U14",
+          "pin": "6"
+        }
+      ]
+    },
+    {
+      "name": "u_hot5_schmitt-nc",
+      "nodes": [
+        {
+          "ref": "U15",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "bias_ls-fb",
+      "nodes": [
+        {
+          "ref": "U16",
+          "pin": "1"
+        },
+        {
+          "ref": "R77",
+          "pin": "2"
+        },
+        {
+          "ref": "R78",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "bias_ls-nr",
+      "nodes": [
+        {
+          "ref": "U26",
+          "pin": "14"
+        },
+        {
+          "ref": "C64",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "bias_ls.ldo-p2",
+      "nodes": [
+        {
+          "ref": "U26",
+          "pin": "2"
+        }
+      ]
+    },
+    {
+      "name": "bias_ls.ldo-p6",
+      "nodes": [
+        {
+          "ref": "U26",
+          "pin": "6"
+        }
+      ]
+    },
+    {
+      "name": "bias_ls.ldo-p11",
+      "nodes": [
+        {
+          "ref": "U26",
+          "pin": "11"
+        }
+      ]
+    },
+    {
+      "name": "bias_ls.ldo-p12",
+      "nodes": [
+        {
+          "ref": "U26",
+          "pin": "12"
+        }
+      ]
+    },
+    {
+      "name": "bias_ls.ldo-p17",
+      "nodes": [
+        {
+          "ref": "U26",
+          "pin": "17"
+        }
+      ]
+    },
+    {
+      "name": "bias_ls.ldo-p18",
+      "nodes": [
+        {
+          "ref": "U26",
+          "pin": "18"
+        }
+      ]
+    },
+    {
+      "name": "bias_ls.ldo-p19",
+      "nodes": [
+        {
+          "ref": "U26",
+          "pin": "19"
+        }
+      ]
+    },
+    {
+      "name": "monitor_ls-ref",
+      "nodes": [
+        {
+          "ref": "U17",
+          "pin": "1"
+        },
+        {
+          "ref": "U17",
+          "pin": "2"
+        },
+        {
+          "ref": "R59",
+          "pin": "2"
+        },
+        {
+          "ref": "R79",
+          "pin": "1"
+        },
+        {
+          "ref": "R89",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "monitor_ls-halfref",
+      "nodes": [
+        {
+          "ref": "R79",
+          "pin": "2"
+        },
+        {
+          "ref": "R80",
+          "pin": "1"
+        },
+        {
+          "ref": "U29",
+          "pin": "5"
+        },
+        {
+          "ref": "U29",
+          "pin": "6"
+        },
+        {
+          "ref": "U29",
+          "pin": "8"
+        },
+        {
+          "ref": "U29",
+          "pin": "11"
+        }
+      ]
+    },
+    {
+      "name": "monitor_ls-good",
+      "nodes": [
+        {
+          "ref": "U29",
+          "pin": "1"
+        },
+        {
+          "ref": "U29",
+          "pin": "2"
+        },
+        {
+          "ref": "U29",
+          "pin": "13"
+        },
+        {
+          "ref": "U29",
+          "pin": "14"
+        },
+        {
+          "ref": "R89",
+          "pin": "2"
+        },
+        {
+          "ref": "D14",
+          "pin": "2"
+        }
+      ]
+    },
+    {
+      "name": "monitor_ls-base",
+      "nodes": [
+        {
+          "ref": "D14",
+          "pin": "1"
+        },
+        {
+          "ref": "Q7",
+          "pin": "1"
+        },
+        {
+          "ref": "R90",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "monitor_ls-isoin",
+      "nodes": [
+        {
+          "ref": "Q7",
+          "pin": "3"
+        },
+        {
+          "ref": "R91",
+          "pin": "2"
+        },
+        {
+          "ref": "U32",
+          "pin": "4"
+        }
+      ]
+    },
+    {
+      "name": "monitor_ls-v5",
+      "nodes": [
+        {
+          "ref": "U37",
+          "pin": "5"
+        },
+        {
+          "ref": "C132",
+          "pin": "1"
+        },
+        {
+          "ref": "R91",
+          "pin": "1"
+        },
+        {
+          "ref": "U32",
+          "pin": "3"
+        },
+        {
+          "ref": "C133",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "monitor_ls-uv",
+      "nodes": [
+        {
+          "ref": "R81",
+          "pin": "2"
+        },
+        {
+          "ref": "R82",
+          "pin": "1"
+        },
+        {
+          "ref": "U29",
+          "pin": "7"
+        },
+        {
+          "ref": "C66",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "monitor_ls-ov",
+      "nodes": [
+        {
+          "ref": "R83",
+          "pin": "2"
+        },
+        {
+          "ref": "R84",
+          "pin": "1"
+        },
+        {
+          "ref": "U29",
+          "pin": "4"
+        },
+        {
+          "ref": "C67",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "monitor_ls-spanuv",
+      "nodes": [
+        {
+          "ref": "R85",
+          "pin": "2"
+        },
+        {
+          "ref": "R86",
+          "pin": "1"
+        },
+        {
+          "ref": "U29",
+          "pin": "9"
+        },
+        {
+          "ref": "C68",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "monitor_ls-spanov",
+      "nodes": [
+        {
+          "ref": "R87",
+          "pin": "2"
+        },
+        {
+          "ref": "R88",
+          "pin": "1"
+        },
+        {
+          "ref": "U29",
+          "pin": "10"
+        },
+        {
+          "ref": "C69",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "monitor_ls.ldo5-nc",
+      "nodes": [
+        {
+          "ref": "U37",
+          "pin": "4"
+        }
+      ]
+    },
+    {
+      "name": "monitor_ls.iso-nc2",
+      "nodes": [
+        {
+          "ref": "U32",
+          "pin": "2"
+        }
+      ]
+    },
+    {
+      "name": "monitor_ls.iso-nc5",
+      "nodes": [
+        {
+          "ref": "U32",
+          "pin": "5"
+        }
+      ]
+    },
+    {
+      "name": "monitor_ls.iso-nc6",
+      "nodes": [
+        {
+          "ref": "U32",
+          "pin": "6"
+        }
+      ]
+    },
+    {
+      "name": "monitor_ls.iso-nc8",
+      "nodes": [
+        {
+          "ref": "U32",
+          "pin": "8"
+        }
+      ]
+    },
+    {
+      "name": "monitor_ls.iso-nc10",
+      "nodes": [
+        {
+          "ref": "U32",
+          "pin": "10"
+        }
+      ]
+    },
+    {
+      "name": "monitor_ls.iso-nc11",
+      "nodes": [
+        {
+          "ref": "U32",
+          "pin": "11"
+        }
+      ]
+    },
+    {
+      "name": "monitor_ls.iso-nc12",
+      "nodes": [
+        {
+          "ref": "U32",
+          "pin": "12"
+        }
+      ]
+    },
+    {
+      "name": "monitor_ls.iso-nc15",
+      "nodes": [
+        {
+          "ref": "U32",
+          "pin": "15"
+        }
+      ]
+    },
+    {
+      "name": "dc",
+      "nodes": [
+        {
+          "ref": "U35",
+          "pin": "5"
+        }
+      ]
+    },
+    {
+      "name": "sr",
+      "nodes": [
+        {
+          "ref": "U35",
+          "pin": "6"
+        },
+        {
+          "ref": "R94",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "clk",
+      "nodes": [
+        {
+          "ref": "U35",
+          "pin": "7"
+        },
+        {
+          "ref": "R92",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "ss",
+      "nodes": [
+        {
+          "ref": "U35",
+          "pin": "8"
+        },
+        {
+          "ref": "R93",
+          "pin": "1"
+        },
+        {
+          "ref": "C130",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "bias_sn1",
+      "nodes": [
+        {
+          "ref": "R61",
+          "pin": "2"
+        },
+        {
+          "ref": "C72",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "bias_sn2",
+      "nodes": [
+        {
+          "ref": "R62",
+          "pin": "2"
+        },
+        {
+          "ref": "C73",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "bias_ha-sa",
+      "nodes": [
+        {
+          "ref": "T2",
+          "pin": "5"
+        },
+        {
+          "ref": "D10",
+          "pin": "2"
+        }
+      ]
+    },
+    {
+      "name": "bias_ha-sb",
+      "nodes": [
+        {
+          "ref": "T2",
+          "pin": "8"
+        },
+        {
+          "ref": "D11",
+          "pin": "2"
+        }
+      ]
+    },
+    {
+      "name": "bias_ha-rect",
+      "nodes": [
+        {
+          "ref": "D10",
+          "pin": "1"
+        },
+        {
+          "ref": "D11",
+          "pin": "1"
+        },
+        {
+          "ref": "L2",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "bias_ha-raw",
+      "nodes": [
+        {
+          "ref": "L2",
+          "pin": "2"
+        },
+        {
+          "ref": "C102",
+          "pin": "1"
+        },
+        {
+          "ref": "U27",
+          "pin": "13"
+        },
+        {
+          "ref": "U27",
+          "pin": "15"
+        },
+        {
+          "ref": "U27",
+          "pin": "16"
+        },
+        {
+          "ref": "C103",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "bias_ha.split-fb",
+      "nodes": [
+        {
+          "ref": "U18",
+          "pin": "1"
+        },
+        {
+          "ref": "R95",
+          "pin": "2"
+        },
+        {
+          "ref": "R96",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "bias_ha.split-nr",
+      "nodes": [
+        {
+          "ref": "U27",
+          "pin": "14"
+        },
+        {
+          "ref": "C74",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "bias_ha.split.ldo-p2",
+      "nodes": [
+        {
+          "ref": "U27",
+          "pin": "2"
+        }
+      ]
+    },
+    {
+      "name": "bias_ha.split.ldo-p6",
+      "nodes": [
+        {
+          "ref": "U27",
+          "pin": "6"
+        }
+      ]
+    },
+    {
+      "name": "bias_ha.split.ldo-p11",
+      "nodes": [
+        {
+          "ref": "U27",
+          "pin": "11"
+        }
+      ]
+    },
+    {
+      "name": "bias_ha.split.ldo-p12",
+      "nodes": [
+        {
+          "ref": "U27",
+          "pin": "12"
+        }
+      ]
+    },
+    {
+      "name": "bias_ha.split.ldo-p17",
+      "nodes": [
+        {
+          "ref": "U27",
+          "pin": "17"
+        }
+      ]
+    },
+    {
+      "name": "bias_ha.split.ldo-p18",
+      "nodes": [
+        {
+          "ref": "U27",
+          "pin": "18"
+        }
+      ]
+    },
+    {
+      "name": "bias_ha.split.ldo-p19",
+      "nodes": [
+        {
+          "ref": "U27",
+          "pin": "19"
+        }
+      ]
+    },
+    {
+      "name": "bias_ha.monitor-ref",
+      "nodes": [
+        {
+          "ref": "U19",
+          "pin": "1"
+        },
+        {
+          "ref": "U19",
+          "pin": "2"
+        },
+        {
+          "ref": "R63",
+          "pin": "2"
+        },
+        {
+          "ref": "R97",
+          "pin": "1"
+        },
+        {
+          "ref": "R107",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "bias_ha.monitor-halfref",
+      "nodes": [
+        {
+          "ref": "R97",
+          "pin": "2"
+        },
+        {
+          "ref": "R98",
+          "pin": "1"
+        },
+        {
+          "ref": "U30",
+          "pin": "5"
+        },
+        {
+          "ref": "U30",
+          "pin": "6"
+        },
+        {
+          "ref": "U30",
+          "pin": "8"
+        },
+        {
+          "ref": "U30",
+          "pin": "11"
+        }
+      ]
+    },
+    {
+      "name": "bias_ha.monitor-good",
+      "nodes": [
+        {
+          "ref": "U30",
+          "pin": "1"
+        },
+        {
+          "ref": "U30",
+          "pin": "2"
+        },
+        {
+          "ref": "U30",
+          "pin": "13"
+        },
+        {
+          "ref": "U30",
+          "pin": "14"
+        },
+        {
+          "ref": "R107",
+          "pin": "2"
+        },
+        {
+          "ref": "D15",
+          "pin": "2"
+        }
+      ]
+    },
+    {
+      "name": "bias_ha.monitor-base",
+      "nodes": [
+        {
+          "ref": "D15",
+          "pin": "1"
+        },
+        {
+          "ref": "Q8",
+          "pin": "1"
+        },
+        {
+          "ref": "R108",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "bias_ha.monitor-isoin",
+      "nodes": [
+        {
+          "ref": "Q8",
+          "pin": "3"
+        },
+        {
+          "ref": "R109",
+          "pin": "2"
+        },
+        {
+          "ref": "U33",
+          "pin": "4"
+        }
+      ]
+    },
+    {
+      "name": "bias_ha.monitor-v5",
+      "nodes": [
+        {
+          "ref": "U38",
+          "pin": "5"
+        },
+        {
+          "ref": "C136",
+          "pin": "1"
+        },
+        {
+          "ref": "R109",
+          "pin": "1"
+        },
+        {
+          "ref": "U33",
+          "pin": "3"
+        },
+        {
+          "ref": "C137",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "bias_ha.monitor-uv",
+      "nodes": [
+        {
+          "ref": "R99",
+          "pin": "2"
+        },
+        {
+          "ref": "R100",
+          "pin": "1"
+        },
+        {
+          "ref": "U30",
+          "pin": "7"
+        },
+        {
+          "ref": "C76",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "bias_ha.monitor-ov",
+      "nodes": [
+        {
+          "ref": "R101",
+          "pin": "2"
+        },
+        {
+          "ref": "R102",
+          "pin": "1"
+        },
+        {
+          "ref": "U30",
+          "pin": "4"
+        },
+        {
+          "ref": "C77",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "bias_ha.monitor-spanuv",
+      "nodes": [
+        {
+          "ref": "R103",
+          "pin": "2"
+        },
+        {
+          "ref": "R104",
+          "pin": "1"
+        },
+        {
+          "ref": "U30",
+          "pin": "9"
+        },
+        {
+          "ref": "C78",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "bias_ha.monitor-spanov",
+      "nodes": [
+        {
+          "ref": "R105",
+          "pin": "2"
+        },
+        {
+          "ref": "R106",
+          "pin": "1"
+        },
+        {
+          "ref": "U30",
+          "pin": "10"
+        },
+        {
+          "ref": "C79",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "bias_ha.monitor.ldo5-nc",
+      "nodes": [
+        {
+          "ref": "U38",
+          "pin": "4"
+        }
+      ]
+    },
+    {
+      "name": "bias_ha.monitor.iso-nc2",
+      "nodes": [
+        {
+          "ref": "U33",
+          "pin": "2"
+        }
+      ]
+    },
+    {
+      "name": "bias_ha.monitor.iso-nc5",
+      "nodes": [
+        {
+          "ref": "U33",
+          "pin": "5"
+        }
+      ]
+    },
+    {
+      "name": "bias_ha.monitor.iso-nc6",
+      "nodes": [
+        {
+          "ref": "U33",
+          "pin": "6"
+        }
+      ]
+    },
+    {
+      "name": "bias_ha.monitor.iso-nc8",
+      "nodes": [
+        {
+          "ref": "U33",
+          "pin": "8"
+        }
+      ]
+    },
+    {
+      "name": "bias_ha.monitor.iso-nc10",
+      "nodes": [
+        {
+          "ref": "U33",
+          "pin": "10"
+        }
+      ]
+    },
+    {
+      "name": "bias_ha.monitor.iso-nc11",
+      "nodes": [
+        {
+          "ref": "U33",
+          "pin": "11"
+        }
+      ]
+    },
+    {
+      "name": "bias_ha.monitor.iso-nc12",
+      "nodes": [
+        {
+          "ref": "U33",
+          "pin": "12"
+        }
+      ]
+    },
+    {
+      "name": "bias_ha.monitor.iso-nc15",
+      "nodes": [
+        {
+          "ref": "U33",
+          "pin": "15"
+        }
+      ]
+    },
+    {
+      "name": "bias_hb-sa",
+      "nodes": [
+        {
+          "ref": "T3",
+          "pin": "5"
+        },
+        {
+          "ref": "D12",
+          "pin": "2"
+        }
+      ]
+    },
+    {
+      "name": "bias_hb-sb",
+      "nodes": [
+        {
+          "ref": "T3",
+          "pin": "8"
+        },
+        {
+          "ref": "D13",
+          "pin": "2"
+        }
+      ]
+    },
+    {
+      "name": "bias_hb-rect",
+      "nodes": [
+        {
+          "ref": "D12",
+          "pin": "1"
+        },
+        {
+          "ref": "D13",
+          "pin": "1"
+        },
+        {
+          "ref": "L3",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "bias_hb-raw",
+      "nodes": [
+        {
+          "ref": "L3",
+          "pin": "2"
+        },
+        {
+          "ref": "C106",
+          "pin": "1"
+        },
+        {
+          "ref": "U28",
+          "pin": "13"
+        },
+        {
+          "ref": "U28",
+          "pin": "15"
+        },
+        {
+          "ref": "U28",
+          "pin": "16"
+        },
+        {
+          "ref": "C107",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "bias_hb.split-fb",
+      "nodes": [
+        {
+          "ref": "U20",
+          "pin": "1"
+        },
+        {
+          "ref": "R110",
+          "pin": "2"
+        },
+        {
+          "ref": "R111",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "bias_hb.split-nr",
+      "nodes": [
+        {
+          "ref": "U28",
+          "pin": "14"
+        },
+        {
+          "ref": "C81",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "bias_hb.split.ldo-p2",
+      "nodes": [
+        {
+          "ref": "U28",
+          "pin": "2"
+        }
+      ]
+    },
+    {
+      "name": "bias_hb.split.ldo-p6",
+      "nodes": [
+        {
+          "ref": "U28",
+          "pin": "6"
+        }
+      ]
+    },
+    {
+      "name": "bias_hb.split.ldo-p11",
+      "nodes": [
+        {
+          "ref": "U28",
+          "pin": "11"
+        }
+      ]
+    },
+    {
+      "name": "bias_hb.split.ldo-p12",
+      "nodes": [
+        {
+          "ref": "U28",
+          "pin": "12"
+        }
+      ]
+    },
+    {
+      "name": "bias_hb.split.ldo-p17",
+      "nodes": [
+        {
+          "ref": "U28",
+          "pin": "17"
+        }
+      ]
+    },
+    {
+      "name": "bias_hb.split.ldo-p18",
+      "nodes": [
+        {
+          "ref": "U28",
+          "pin": "18"
+        }
+      ]
+    },
+    {
+      "name": "bias_hb.split.ldo-p19",
+      "nodes": [
+        {
+          "ref": "U28",
+          "pin": "19"
+        }
+      ]
+    },
+    {
+      "name": "bias_hb.monitor-ref",
+      "nodes": [
+        {
+          "ref": "U21",
+          "pin": "1"
+        },
+        {
+          "ref": "U21",
+          "pin": "2"
+        },
+        {
+          "ref": "R65",
+          "pin": "2"
+        },
+        {
+          "ref": "R112",
+          "pin": "1"
+        },
+        {
+          "ref": "R122",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "bias_hb.monitor-halfref",
+      "nodes": [
+        {
+          "ref": "R112",
+          "pin": "2"
+        },
+        {
+          "ref": "R113",
+          "pin": "1"
+        },
+        {
+          "ref": "U31",
+          "pin": "5"
+        },
+        {
+          "ref": "U31",
+          "pin": "6"
+        },
+        {
+          "ref": "U31",
+          "pin": "8"
+        },
+        {
+          "ref": "U31",
+          "pin": "11"
+        }
+      ]
+    },
+    {
+      "name": "bias_hb.monitor-good",
+      "nodes": [
+        {
+          "ref": "U31",
+          "pin": "1"
+        },
+        {
+          "ref": "U31",
+          "pin": "2"
+        },
+        {
+          "ref": "U31",
+          "pin": "13"
+        },
+        {
+          "ref": "U31",
+          "pin": "14"
+        },
+        {
+          "ref": "R122",
+          "pin": "2"
+        },
+        {
+          "ref": "D16",
+          "pin": "2"
+        }
+      ]
+    },
+    {
+      "name": "bias_hb.monitor-base",
+      "nodes": [
+        {
+          "ref": "D16",
+          "pin": "1"
+        },
+        {
+          "ref": "Q9",
+          "pin": "1"
+        },
+        {
+          "ref": "R123",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "bias_hb.monitor-isoin",
+      "nodes": [
+        {
+          "ref": "Q9",
+          "pin": "3"
+        },
+        {
+          "ref": "R124",
+          "pin": "2"
+        },
+        {
+          "ref": "U34",
+          "pin": "4"
+        }
+      ]
+    },
+    {
+      "name": "bias_hb.monitor-v5",
+      "nodes": [
+        {
+          "ref": "U39",
+          "pin": "5"
+        },
+        {
+          "ref": "C140",
+          "pin": "1"
+        },
+        {
+          "ref": "R124",
+          "pin": "1"
+        },
+        {
+          "ref": "U34",
+          "pin": "3"
+        },
+        {
+          "ref": "C141",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "bias_hb.monitor-uv",
+      "nodes": [
+        {
+          "ref": "R114",
+          "pin": "2"
+        },
+        {
+          "ref": "R115",
+          "pin": "1"
+        },
+        {
+          "ref": "U31",
+          "pin": "7"
+        },
+        {
+          "ref": "C83",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "bias_hb.monitor-ov",
+      "nodes": [
+        {
+          "ref": "R116",
+          "pin": "2"
+        },
+        {
+          "ref": "R117",
+          "pin": "1"
+        },
+        {
+          "ref": "U31",
+          "pin": "4"
+        },
+        {
+          "ref": "C84",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "bias_hb.monitor-spanuv",
+      "nodes": [
+        {
+          "ref": "R118",
+          "pin": "2"
+        },
+        {
+          "ref": "R119",
+          "pin": "1"
+        },
+        {
+          "ref": "U31",
+          "pin": "9"
+        },
+        {
+          "ref": "C85",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "bias_hb.monitor-spanov",
+      "nodes": [
+        {
+          "ref": "R120",
+          "pin": "2"
+        },
+        {
+          "ref": "R121",
+          "pin": "1"
+        },
+        {
+          "ref": "U31",
+          "pin": "10"
+        },
+        {
+          "ref": "C86",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "bias_hb.monitor.ldo5-nc",
+      "nodes": [
+        {
+          "ref": "U39",
+          "pin": "4"
+        }
+      ]
+    },
+    {
+      "name": "bias_hb.monitor.iso-nc2",
+      "nodes": [
+        {
+          "ref": "U34",
+          "pin": "2"
+        }
+      ]
+    },
+    {
+      "name": "bias_hb.monitor.iso-nc5",
+      "nodes": [
+        {
+          "ref": "U34",
+          "pin": "5"
+        }
+      ]
+    },
+    {
+      "name": "bias_hb.monitor.iso-nc6",
+      "nodes": [
+        {
+          "ref": "U34",
+          "pin": "6"
+        }
+      ]
+    },
+    {
+      "name": "bias_hb.monitor.iso-nc8",
+      "nodes": [
+        {
+          "ref": "U34",
+          "pin": "8"
+        }
+      ]
+    },
+    {
+      "name": "bias_hb.monitor.iso-nc10",
+      "nodes": [
+        {
+          "ref": "U34",
+          "pin": "10"
+        }
+      ]
+    },
+    {
+      "name": "bias_hb.monitor.iso-nc11",
+      "nodes": [
+        {
+          "ref": "U34",
+          "pin": "11"
+        }
+      ]
+    },
+    {
+      "name": "bias_hb.monitor.iso-nc12",
+      "nodes": [
+        {
+          "ref": "U34",
+          "pin": "12"
+        }
+      ]
+    },
+    {
+      "name": "bias_hb.monitor.iso-nc15",
+      "nodes": [
+        {
+          "ref": "U34",
+          "pin": "15"
+        }
+      ]
+    },
+    {
+      "name": "u_bias_flt-nc",
+      "nodes": [
+        {
+          "ref": "U40",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "r1mid",
+      "nodes": [
+        {
+          "ref": "R67",
+          "pin": "2"
+        },
+        {
+          "ref": "R68",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "led1",
+      "nodes": [
+        {
+          "ref": "R68",
+          "pin": "2"
+        },
+        {
+          "ref": "U36",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "led2",
+      "nodes": [
+        {
+          "ref": "U36",
+          "pin": "2"
+        },
+        {
+          "ref": "R69",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "r2mid",
+      "nodes": [
+        {
+          "ref": "R69",
+          "pin": "2"
+        },
+        {
+          "ref": "R70",
+          "pin": "1"
+        }
+      ]
+    },
+    {
+      "name": "line_zc-raw",
+      "nodes": [
+        {
+          "ref": "U36",
+          "pin": "4"
+        },
+        {
+          "ref": "R125",
+          "pin": "2"
+        },
+        {
+          "ref": "U24",
+          "pin": "2"
+        }
+      ]
+    },
+    {
+      "name": "line_zc.buffer-nc",
+      "nodes": [
+        {
+          "ref": "U24",
+          "pin": "1"
+        }
+      ]
+    }
+  ]
+}

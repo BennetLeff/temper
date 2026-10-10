@@ -1,0 +1,391 @@
+[
+  {
+    "unit": "rtd",
+    "status": "indeterminate",
+    "categories": [
+      {
+        "name": "common_checks",
+        "status": "pass",
+        "nonpassing": {},
+        "gaps": []
+      },
+      {
+        "name": "fab_checks",
+        "status": "pass",
+        "nonpassing": {},
+        "gaps": []
+      },
+      {
+        "name": "manufacturing_checks",
+        "status": "indeterminate",
+        "nonpassing": {},
+        "gaps": [
+          "unsupported native geometry: J1: open F.Fab detail lines are not a closed body polygon",
+          "assembly process is required"
+        ]
+      },
+      {
+        "name": "native_checks",
+        "status": "pass",
+        "nonpassing": {},
+        "gaps": []
+      },
+      {
+        "name": "qualification",
+        "status": "indeterminate",
+        "nonpassing": {
+          "QUALIFICATION.HARDWARE": {
+            "count": 1,
+            "first": "powered hardware qualification has not been performed; other model, implementation and input gaps are preserved separately"
+          }
+        },
+        "gaps": [
+          "hardware not run"
+        ]
+      },
+      {
+        "name": "unit_checks",
+        "status": "indeterminate",
+        "nonpassing": {
+          "ERC.RTD.MODEL_DEVICE_APPLICABILITY": {
+            "count": 1,
+            "first": "passive network certificate is valid; comparator hysteresis, common-mode/input-capacitance conditions, MAX31865 force-path idealization, and brownout hardware applicability remain unqualified"
+          },
+          "ERC.RTD.FAULT_CORNERS": {
+            "count": 1,
+            "first": "static rail detector is proven, but guaranteed worst-case brownout timing was not physically measured"
+          }
+        },
+        "gaps": [
+          "device applicability remains indeterminate",
+          "local_rtd_avdd_loss has conditional nominal timing only; guaranteed maximum remains a physical integration obligation"
+        ]
+      }
+    ]
+  },
+  {
+    "unit": "current-sense",
+    "status": "indeterminate",
+    "categories": [
+      {
+        "name": "common_checks",
+        "status": "pass",
+        "nonpassing": {},
+        "gaps": []
+      },
+      {
+        "name": "fab_checks",
+        "status": "pass",
+        "nonpassing": {},
+        "gaps": []
+      },
+      {
+        "name": "manufacturing_checks",
+        "status": "indeterminate",
+        "nonpassing": {},
+        "gaps": [
+          "unsupported native geometry: D1: open F.Fab detail lines are not a closed body polygon",
+          "unsupported native geometry: D2: open F.Fab detail lines are not a closed body polygon",
+          "unsupported native geometry: J1: no closed native F.Fab body polygon",
+          "unsupported native geometry: J2: open F.Fab detail lines are not a closed body polygon",
+          "assembly process is required"
+        ]
+      },
+      {
+        "name": "native_checks",
+        "status": "pass",
+        "nonpassing": {},
+        "gaps": []
+      },
+      {
+        "name": "operating_checks",
+        "status": "indeterminate",
+        "nonpassing": {
+          "ERC.P3.THERMAL_OPERATING_LIMIT": {
+            "count": 1,
+            "first": "device loss and thermal-path inputs are required"
+          },
+          "ERC.P3.SHUTDOWN_TIMING_BOUND": {
+            "count": 1,
+            "first": "shutdown timing inputs are required"
+          }
+        },
+        "gaps": [
+          "no device operating point supplied",
+          "no shutdown timing contract supplied"
+        ]
+      },
+      {
+        "name": "qualification",
+        "status": "indeterminate",
+        "nonpassing": {
+          "QUALIFICATION.HARDWARE": {
+            "count": 1,
+            "first": "powered hardware qualification has not been performed; other model, implementation and input gaps are preserved separately"
+          }
+        },
+        "gaps": [
+          "hardware not run"
+        ]
+      },
+      {
+        "name": "unit_checks",
+        "status": "indeterminate",
+        "nonpassing": {
+          "ERC.CURRENT_SENSE.APPLICABILITY": {
+            "count": 7,
+            "first": "both_polarities applicability is unsupported: PASS_CONDITIONAL_BOUNDED_DC"
+          }
+        },
+        "gaps": [
+          "both_polarities applicability is unsupported: PASS_CONDITIONAL_BOUNDED_DC",
+          "comparator_to_latch_timing applicability is unsupported: INDETERMINATE",
+          "ct_saturation_and_thermal applicability is unsupported: INDETERMINATE",
+          "hardware applicability is unsupported: NOT_RUN",
+          "pd3_reinforced_12_6mm_isolation applicability is unsupported: INDETERMINATE",
+          "primary_copper_and_terminal applicability is unsupported: NOT_RUN",
+          "rust_analytical_trip applicability is unsupported: PASS_CONDITIONAL_BOUNDED_DC"
+        ]
+      }
+    ]
+  },
+  {
+    "unit": "thermal-sense",
+    "status": "indeterminate",
+    "categories": [
+      {
+        "name": "common_checks",
+        "status": "pass",
+        "nonpassing": {},
+        "gaps": []
+      },
+      {
+        "name": "fab_checks",
+        "status": "pass",
+        "nonpassing": {},
+        "gaps": []
+      },
+      {
+        "name": "manufacturing_checks",
+        "status": "indeterminate",
+        "nonpassing": {},
+        "gaps": [
+          "unsupported native geometry: J1: open F.Fab detail lines are not a closed body polygon",
+          "unsupported native geometry: J2: open F.Fab detail lines are not a closed body polygon",
+          "unsupported native geometry: J3: open F.Fab detail lines are not a closed body polygon",
+          "assembly process is required"
+        ]
+      },
+      {
+        "name": "native_checks",
+        "status": "pass",
+        "nonpassing": {},
+        "gaps": []
+      },
+      {
+        "name": "qualification",
+        "status": "indeterminate",
+        "nonpassing": {
+          "QUALIFICATION.HARDWARE": {
+            "count": 1,
+            "first": "powered hardware qualification has not been performed; other model, implementation and input gaps are preserved separately"
+          }
+        },
+        "gaps": [
+          "hardware not run"
+        ]
+      },
+      {
+        "name": "unit_checks",
+        "status": "indeterminate",
+        "nonpassing": {
+          "ERC.THERMAL.QUALIFICATION": {
+            "count": 7,
+            "first": "TLV3201 common-mode, output swing, offset and internal hysteresis applicability across the 3.135–3.465 V monitor rail"
+          }
+        },
+        "gaps": []
+      }
+    ]
+  },
+  {
+    "unit": "interlock",
+    "status": "indeterminate",
+    "categories": [
+      {
+        "name": "common_checks",
+        "status": "pass",
+        "nonpassing": {},
+        "gaps": []
+      },
+      {
+        "name": "fab_checks",
+        "status": "pass",
+        "nonpassing": {},
+        "gaps": []
+      },
+      {
+        "name": "manufacturing_checks",
+        "status": "indeterminate",
+        "nonpassing": {},
+        "gaps": [
+          "unsupported native geometry: J1: open F.Fab detail lines are not a closed body polygon",
+          "unsupported native geometry: J2: open F.Fab detail lines are not a closed body polygon",
+          "assembly process is required"
+        ]
+      },
+      {
+        "name": "native_checks",
+        "status": "pass",
+        "nonpassing": {},
+        "gaps": []
+      },
+      {
+        "name": "operating_checks",
+        "status": "indeterminate",
+        "nonpassing": {
+          "ERC.P3.THERMAL_OPERATING_LIMIT": {
+            "count": 1,
+            "first": "device loss and thermal-path inputs are required"
+          },
+          "ERC.P3.SHUTDOWN_TIMING_BOUND": {
+            "count": 1,
+            "first": "shutdown timing inputs are required"
+          }
+        },
+        "gaps": [
+          "no device operating point supplied",
+          "no shutdown timing contract supplied"
+        ]
+      },
+      {
+        "name": "qualification",
+        "status": "indeterminate",
+        "nonpassing": {
+          "QUALIFICATION.HARDWARE": {
+            "count": 1,
+            "first": "powered hardware qualification has not been performed; other model, implementation and input gaps are preserved separately"
+          }
+        },
+        "gaps": [
+          "hardware not run"
+        ]
+      },
+      {
+        "name": "unit_checks",
+        "status": "indeterminate",
+        "nonpassing": {
+          "ERC.INTERLOCK.QUALIFICATION": {
+            "count": 5,
+            "first": "SENSOR_LIVE producer and remote power-off injection"
+          }
+        },
+        "gaps": []
+      }
+    ]
+  },
+  {
+    "unit": "gate-drive",
+    "status": "indeterminate",
+    "categories": [
+      {
+        "name": "common_checks",
+        "status": "pass",
+        "nonpassing": {},
+        "gaps": []
+      },
+      {
+        "name": "fab_checks",
+        "status": "pass",
+        "nonpassing": {},
+        "gaps": []
+      },
+      {
+        "name": "manufacturing_checks",
+        "status": "indeterminate",
+        "nonpassing": {},
+        "gaps": [
+          "unsupported native geometry: D1: open F.Fab detail lines are not a closed body polygon",
+          "unsupported native geometry: J1: open F.Fab detail lines are not a closed body polygon",
+          "assembly process is required"
+        ]
+      },
+      {
+        "name": "native_checks",
+        "status": "pass",
+        "nonpassing": {},
+        "gaps": []
+      },
+      {
+        "name": "operating_checks",
+        "status": "indeterminate",
+        "nonpassing": {
+          "DRC.P3.SWITCHING_LOOP_AREA": {
+            "count": 2,
+            "first": "unscoped net extent bbox area=137.562 mm² for driver.15, gate_h.1 -> driver.14 (return); area is not a loop or inductance claim; requested bound None mm² cannot be evaluated"
+          },
+          "DRC.P3.AGGRESSOR_VICTIM_SPACING": {
+            "count": 4,
+            "first": "measured same-layer parallel overlap 0.000 mm; authored spacing/overlap limits are required"
+          },
+          "ERC.P3.THERMAL_OPERATING_LIMIT": {
+            "count": 1,
+            "first": "device loss and thermal-path inputs are required"
+          },
+          "ERC.P3.SHUTDOWN_TIMING_BOUND": {
+            "count": 1,
+            "first": "shutdown timing inputs are required"
+          }
+        },
+        "gaps": [
+          "no device operating point supplied",
+          "no shutdown timing contract supplied",
+          "path high-side gate drive has no proven commutation-loop geometry",
+          "path low-side gate drive has no proven commutation-loop geometry"
+        ]
+      },
+      {
+        "name": "power_checks",
+        "status": "indeterminate",
+        "nonpassing": {
+          "DRC.POWER.PATH_AMPACITY": {
+            "count": 102,
+            "first": "actual trace geometry evaluated, but branch RMS current is unproven"
+          },
+          "DRC.POWER.ISOLATION_POPULATION": {
+            "count": 1,
+            "first": "required barrier has no evidence record"
+          }
+        },
+        "gaps": [
+          "Net and via candidates use nominal saved outer copper and an assumed 20 C rise. Branch extraction, exact pad-entry geometry, and surface-path modeling remain software gaps. Reviewed RMS/peak waveforms, plating/sharing, and material/cutout inputs are also absent."
+        ]
+      },
+      {
+        "name": "qualification",
+        "status": "indeterminate",
+        "nonpassing": {
+          "QUALIFICATION.HARDWARE": {
+            "count": 1,
+            "first": "powered hardware qualification has not been performed; other model, implementation and input gaps are preserved separately"
+          }
+        },
+        "gaps": [
+          "hardware not run"
+        ]
+      },
+      {
+        "name": "unit_checks",
+        "status": "indeterminate",
+        "nonpassing": {},
+        "gaps": [
+          "unlisted native nets are out of scope: ctrl_gnd, dis, dt, g, nc_7, permit, pwm_h, pwm_l, v3v3",
+          "Spacing thresholds are prototype requirements; insulation system certification is not established.",
+          "Dead-time interpolation uses an assumed characterization envelope; measured timing is NOT RUN.",
+          "Bootstrap effective capacitance, diode recovery, gate charge, ringing and loaded thermal performance are NOT RUN.",
+          "Native ERC/DRC reports must additionally pass zapote-native-reports with their command receipts."
+        ]
+      }
+    ]
+  }
+]

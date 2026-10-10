@@ -1,0 +1,2547 @@
+[
+  {
+    "board": "rtd",
+    "board_sha256": "ae230701bda771d8c424f26bda865c15d8f6d15862872824781322b05cf5f965",
+    "ref": "U1",
+    "mpn": "MAX31865AAP+",
+    "pin": "2",
+    "label": "DVDD",
+    "supply_net": "+3V3",
+    "return_pins": [
+      "18"
+    ],
+    "return_nets": [
+      "gnd"
+    ],
+    "candidates": [
+      {
+        "ref": "C2",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 2.9027799175962326,
+        "return_pad_distance_mm": 9.251528589914212
+      },
+      {
+        "ref": "C4",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 20.65328984084618,
+        "return_pad_distance_mm": 20.020852410674227
+      },
+      {
+        "ref": "C8",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 29.28314585644787,
+        "return_pad_distance_mm": 23.048823858279626
+      },
+      {
+        "ref": "C9",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 38.90389930649626,
+        "return_pad_distance_mm": 33.091079330387515
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "rtd",
+    "board_sha256": "ae230701bda771d8c424f26bda865c15d8f6d15862872824781322b05cf5f965",
+    "ref": "U1",
+    "mpn": "MAX31865AAP+",
+    "pin": "3",
+    "label": "AVDD",
+    "supply_net": "RTD_AVDD",
+    "return_pins": [
+      "13",
+      "19"
+    ],
+    "return_nets": [
+      "gnd"
+    ],
+    "candidates": [
+      {
+        "ref": "C1",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 2.262914326703508,
+        "return_pad_distance_mm": 8.977757584720141
+      },
+      {
+        "ref": "C5",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 23.184467456683148,
+        "return_pad_distance_mm": 17.098158709346457
+      },
+      {
+        "ref": "C7",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 31.38103776566352,
+        "return_pad_distance_mm": 24.328934034396163
+      },
+      {
+        "ref": "C6",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 30.97409451864574,
+        "return_pad_distance_mm": 25.63341630079768
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "rtd",
+    "board_sha256": "ae230701bda771d8c424f26bda865c15d8f6d15862872824781322b05cf5f965",
+    "ref": "U2",
+    "mpn": "REF2025AIDDCR",
+    "pin": "4",
+    "label": "VIN",
+    "supply_net": "+3V3",
+    "return_pins": [
+      "2"
+    ],
+    "return_nets": [
+      "gnd"
+    ],
+    "candidates": [
+      {
+        "ref": "C4",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 1.7382192755806116,
+        "return_pad_distance_mm": 2.6746787190240235
+      },
+      {
+        "ref": "C8",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 26.680239059086404,
+        "return_pad_distance_mm": 23.557008643925915
+      },
+      {
+        "ref": "C2",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 24.51392780135407,
+        "return_pad_distance_mm": 26.267568525655356
+      },
+      {
+        "ref": "C9",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 30.92042458068776,
+        "return_pad_distance_mm": 27.137707276960597
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "rtd",
+    "board_sha256": "ae230701bda771d8c424f26bda865c15d8f6d15862872824781322b05cf5f965",
+    "ref": "U2",
+    "mpn": "REF2025AIDDCR",
+    "pin": "5",
+    "label": "VREF",
+    "supply_net": "SHARED_REF_2V5",
+    "return_pins": [
+      "2"
+    ],
+    "return_nets": [
+      "gnd"
+    ],
+    "candidates": [],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "rtd",
+    "board_sha256": "ae230701bda771d8c424f26bda865c15d8f6d15862872824781322b05cf5f965",
+    "ref": "U2",
+    "mpn": "REF2025AIDDCR",
+    "pin": "1",
+    "label": "VBIAS",
+    "supply_net": "vbias",
+    "return_pins": [
+      "2"
+    ],
+    "return_nets": [
+      "gnd"
+    ],
+    "candidates": [],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "rtd",
+    "board_sha256": "ae230701bda771d8c424f26bda865c15d8f6d15862872824781322b05cf5f965",
+    "ref": "U3",
+    "mpn": "TLV3201AIDBVR",
+    "pin": "5",
+    "label": "VCC",
+    "supply_net": "RTD_AVDD",
+    "return_pins": [
+      "2"
+    ],
+    "return_nets": [
+      "gnd"
+    ],
+    "candidates": [
+      {
+        "ref": "C5",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 1.7382192755806116,
+        "return_pad_distance_mm": 2.6746787190240235
+      },
+      {
+        "ref": "C6",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 7.308994886439589,
+        "return_pad_distance_mm": 6.3603385326568915
+      },
+      {
+        "ref": "C7",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 9.642168130145834,
+        "return_pad_distance_mm": 10.382865994030745
+      },
+      {
+        "ref": "C1",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 26.417870963610977,
+        "return_pad_distance_mm": 26.76156584077247
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "rtd",
+    "board_sha256": "ae230701bda771d8c424f26bda865c15d8f6d15862872824781322b05cf5f965",
+    "ref": "U4",
+    "mpn": "TLV3201AIDBVR",
+    "pin": "5",
+    "label": "VCC",
+    "supply_net": "RTD_AVDD",
+    "return_pins": [
+      "2"
+    ],
+    "return_nets": [
+      "gnd"
+    ],
+    "candidates": [
+      {
+        "ref": "C6",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 1.7382192755806116,
+        "return_pad_distance_mm": 2.6746787190240235
+      },
+      {
+        "ref": "C5",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 10.706138718043956,
+        "return_pad_distance_mm": 11.655638388779911
+      },
+      {
+        "ref": "C7",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 12.983505160394857,
+        "return_pad_distance_mm": 14.159940192317197
+      },
+      {
+        "ref": "C1",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 34.026517692088326,
+        "return_pad_distance_mm": 34.542458022700124
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "rtd",
+    "board_sha256": "ae230701bda771d8c424f26bda865c15d8f6d15862872824781322b05cf5f965",
+    "ref": "U5",
+    "mpn": "SN74LVC1G08DBVR",
+    "pin": "5",
+    "label": "VCC",
+    "supply_net": "RTD_AVDD",
+    "return_pins": [
+      "3"
+    ],
+    "return_nets": [
+      "gnd"
+    ],
+    "candidates": [
+      {
+        "ref": "C7",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 1.7382192755806123,
+        "return_pad_distance_mm": 3.6182048380377823
+      },
+      {
+        "ref": "C6",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 11.639218455291582,
+        "return_pad_distance_mm": 10.21965783429171
+      },
+      {
+        "ref": "C5",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 11.003245259922187,
+        "return_pad_distance_mm": 11.146362915767634
+      },
+      {
+        "ref": "C1",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 34.71820712896909,
+        "return_pad_distance_mm": 35.48850386040528
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "rtd",
+    "board_sha256": "ae230701bda771d8c424f26bda865c15d8f6d15862872824781322b05cf5f965",
+    "ref": "U6",
+    "mpn": "TPS389001DSER",
+    "pin": "3",
+    "label": "VDD",
+    "supply_net": "+3V3",
+    "return_pins": [
+      "2"
+    ],
+    "return_nets": [
+      "gnd"
+    ],
+    "candidates": [
+      {
+        "ref": "C8",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 2.42706097986845,
+        "return_pad_distance_mm": 2.506117515201552
+      },
+      {
+        "ref": "C9",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 13.119189189885175,
+        "return_pad_distance_mm": 12.75747329999166
+      },
+      {
+        "ref": "C4",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 25.18140434924152,
+        "return_pad_distance_mm": 23.97421792259343
+      },
+      {
+        "ref": "C2",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 29.950886881693503,
+        "return_pad_distance_mm": 31.1624072401347
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "rtd",
+    "board_sha256": "ae230701bda771d8c424f26bda865c15d8f6d15862872824781322b05cf5f965",
+    "ref": "U7",
+    "mpn": "SN74LVC1G38DBVR",
+    "pin": "5",
+    "label": "VCC",
+    "supply_net": "+3V3",
+    "return_pins": [
+      "3"
+    ],
+    "return_nets": [
+      "gnd"
+    ],
+    "candidates": [
+      {
+        "ref": "C9",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 1.7382192755806123,
+        "return_pad_distance_mm": 3.6182048380377823
+      },
+      {
+        "ref": "C8",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 12.320061130124316,
+        "return_pad_distance_mm": 13.666890877225882
+      },
+      {
+        "ref": "C4",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 31.030189433034405,
+        "return_pad_distance_mm": 27.475309939107145
+      },
+      {
+        "ref": "C2",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 43.045980140426586,
+        "return_pad_distance_mm": 43.61755846273378
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "current-sense",
+    "board_sha256": "c13fddcf3655a5bd6e0399e20009baaec0eb60bad7d2407823e99680fcd73a21",
+    "ref": "U1",
+    "mpn": "TLV3201AIDBVR",
+    "pin": "5",
+    "label": "VCC",
+    "supply_net": "+3V3",
+    "return_pins": [
+      "2"
+    ],
+    "return_nets": [
+      "gnd"
+    ],
+    "candidates": [
+      {
+        "ref": "C3",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 2.228823961195679,
+        "return_pad_distance_mm": 5.392601992544974
+      },
+      {
+        "ref": "C4",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 8.161466243880446,
+        "return_pad_distance_mm": 5.862553304661713
+      },
+      {
+        "ref": "C5",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 12.106874338573103,
+        "return_pad_distance_mm": 11.716181385161295
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "current-sense",
+    "board_sha256": "c13fddcf3655a5bd6e0399e20009baaec0eb60bad7d2407823e99680fcd73a21",
+    "ref": "U2",
+    "mpn": "TLV3201AIDBVR",
+    "pin": "5",
+    "label": "VCC",
+    "supply_net": "+3V3",
+    "return_pins": [
+      "2"
+    ],
+    "return_nets": [
+      "gnd"
+    ],
+    "candidates": [
+      {
+        "ref": "C5",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 3.3168367837444164,
+        "return_pad_distance_mm": 4.2004650040203915
+      },
+      {
+        "ref": "C4",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 2.9299370727030953,
+        "return_pad_distance_mm": 5.137560826890522
+      },
+      {
+        "ref": "C3",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 11.785272854287252,
+        "return_pad_distance_mm": 15.721169048451838
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "current-sense",
+    "board_sha256": "c13fddcf3655a5bd6e0399e20009baaec0eb60bad7d2407823e99680fcd73a21",
+    "ref": "U3",
+    "mpn": "CD74HC4075M96",
+    "pin": "14",
+    "label": "VCC",
+    "supply_net": "+3V3",
+    "return_pins": [
+      "7"
+    ],
+    "return_nets": [
+      "gnd"
+    ],
+    "candidates": [
+      {
+        "ref": "C5",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 2.5500196077677493,
+        "return_pad_distance_mm": 11.824322390733437
+      },
+      {
+        "ref": "C4",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 2.7908511246571317,
+        "return_pad_distance_mm": 12.437316832822106
+      },
+      {
+        "ref": "C3",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 9.761050148421536,
+        "return_pad_distance_mm": 10.74960929522557
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "thermal-sense",
+    "board_sha256": "a1db814f43b7b2eb3c2bafe0ff6183addcf9401328eddf56342ab5bd1a9c5159",
+    "ref": "U1",
+    "mpn": "TLV3201AIDBVR",
+    "pin": "5",
+    "label": "VCC",
+    "supply_net": "+3V3",
+    "return_pins": [
+      "2"
+    ],
+    "return_nets": [
+      "gnd"
+    ],
+    "candidates": [
+      {
+        "ref": "C2",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 3.872277269256423,
+        "return_pad_distance_mm": 6.735690851724123
+      },
+      {
+        "ref": "C4",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 18.140962798319165,
+        "return_pad_distance_mm": 16.415527138962066
+      },
+      {
+        "ref": "C5",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 22.177568199647133,
+        "return_pad_distance_mm": 24.168564939813873
+      },
+      {
+        "ref": "C6",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 30.821170179764426,
+        "return_pad_distance_mm": 30.858054560357495
+      },
+      {
+        "ref": "C7",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 42.863382172315795,
+        "return_pad_distance_mm": 45.22272140473194
+      },
+      {
+        "ref": "C8",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 46.38285816171746,
+        "return_pad_distance_mm": 47.63606334753115
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "thermal-sense",
+    "board_sha256": "a1db814f43b7b2eb3c2bafe0ff6183addcf9401328eddf56342ab5bd1a9c5159",
+    "ref": "U2",
+    "mpn": "TLV3201AIDBVR",
+    "pin": "5",
+    "label": "VCC",
+    "supply_net": "+3V3",
+    "return_pins": [
+      "2"
+    ],
+    "return_nets": [
+      "gnd"
+    ],
+    "candidates": [
+      {
+        "ref": "C4",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 3.872277269256423,
+        "return_pad_distance_mm": 6.735690851724122
+      },
+      {
+        "ref": "C2",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 18.67871867259636,
+        "return_pad_distance_mm": 21.662629832271058
+      },
+      {
+        "ref": "C6",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 22.177568199647133,
+        "return_pad_distance_mm": 24.168564939813873
+      },
+      {
+        "ref": "C5",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 26.11023805425756,
+        "return_pad_distance_mm": 29.394209144829873
+      },
+      {
+        "ref": "C8",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 42.863382172315795,
+        "return_pad_distance_mm": 45.22272140473194
+      },
+      {
+        "ref": "C7",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 46.595810232788104,
+        "return_pad_distance_mm": 49.68897796544018
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "thermal-sense",
+    "board_sha256": "a1db814f43b7b2eb3c2bafe0ff6183addcf9401328eddf56342ab5bd1a9c5159",
+    "ref": "U3",
+    "mpn": "TLV9031DBVR",
+    "pin": "5",
+    "label": "VCC",
+    "supply_net": "+3V3",
+    "return_pins": [
+      "2"
+    ],
+    "return_nets": [
+      "gnd"
+    ],
+    "candidates": [
+      {
+        "ref": "C5",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 4.697821968742534,
+        "return_pad_distance_mm": 5.2815273595807515
+      },
+      {
+        "ref": "C2",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 15.139997729524271,
+        "return_pad_distance_mm": 13.158439544642059
+      },
+      {
+        "ref": "C6",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 21.91277096238629,
+        "return_pad_distance_mm": 19.899611334144193
+      },
+      {
+        "ref": "C4",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 23.3092155863298,
+        "return_pad_distance_mm": 19.930994236364626
+      },
+      {
+        "ref": "C7",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 23.86408454665714,
+        "return_pad_distance_mm": 26.28439710645843
+      },
+      {
+        "ref": "C8",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 29.725318017642802,
+        "return_pad_distance_mm": 30.24846328741347
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "thermal-sense",
+    "board_sha256": "a1db814f43b7b2eb3c2bafe0ff6183addcf9401328eddf56342ab5bd1a9c5159",
+    "ref": "U4",
+    "mpn": "TLV9031DBVR",
+    "pin": "5",
+    "label": "VCC",
+    "supply_net": "+3V3",
+    "return_pins": [
+      "2"
+    ],
+    "return_nets": [
+      "gnd"
+    ],
+    "candidates": [
+      {
+        "ref": "C6",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 4.697821968742533,
+        "return_pad_distance_mm": 5.2815273595807515
+      },
+      {
+        "ref": "C4",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 15.139997729524271,
+        "return_pad_distance_mm": 13.158439544642059
+      },
+      {
+        "ref": "C5",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 14.559173439793895,
+        "return_pad_distance_mm": 17.544073963877374
+      },
+      {
+        "ref": "C2",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 23.730139722513226,
+        "return_pad_distance_mm": 24.434494700116066
+      },
+      {
+        "ref": "C8",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 23.86408454665714,
+        "return_pad_distance_mm": 26.28439710645843
+      },
+      {
+        "ref": "C7",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 30.056522274707696,
+        "return_pad_distance_mm": 33.38816453850077
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "thermal-sense",
+    "board_sha256": "a1db814f43b7b2eb3c2bafe0ff6183addcf9401328eddf56342ab5bd1a9c5159",
+    "ref": "U5",
+    "mpn": "SN74LVC1G32DBVR",
+    "pin": "5",
+    "label": "VCC",
+    "supply_net": "+3V3",
+    "return_pins": [
+      "3"
+    ],
+    "return_nets": [
+      "gnd"
+    ],
+    "candidates": [
+      {
+        "ref": "C7",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 3.872277269256423,
+        "return_pad_distance_mm": 7.179452015996766
+      },
+      {
+        "ref": "C5",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 17.537660369901115,
+        "return_pad_distance_mm": 14.865043937035637
+      },
+      {
+        "ref": "C8",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 18.140962798319165,
+        "return_pad_distance_mm": 15.53848548765291
+      },
+      {
+        "ref": "C6",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 27.67073420149888,
+        "return_pad_distance_mm": 23.555668771019853
+      },
+      {
+        "ref": "C2",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 35.13857611301289,
+        "return_pad_distance_mm": 33.07294258529168
+      },
+      {
+        "ref": "C4",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 39.35504454641107,
+        "return_pad_distance_mm": 35.82903196082752
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "thermal-sense",
+    "board_sha256": "a1db814f43b7b2eb3c2bafe0ff6183addcf9401328eddf56342ab5bd1a9c5159",
+    "ref": "U6",
+    "mpn": "SN74LVC1G32DBVR",
+    "pin": "5",
+    "label": "VCC",
+    "supply_net": "+3V3",
+    "return_pins": [
+      "3"
+    ],
+    "return_nets": [
+      "gnd"
+    ],
+    "candidates": [
+      {
+        "ref": "C8",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 3.872277269256423,
+        "return_pad_distance_mm": 7.179452015996765
+      },
+      {
+        "ref": "C6",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 17.537660369901115,
+        "return_pad_distance_mm": 14.865043937035637
+      },
+      {
+        "ref": "C7",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 18.67871867259636,
+        "return_pad_distance_mm": 22.575307999006352
+      },
+      {
+        "ref": "C5",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 22.304025001106865,
+        "return_pad_distance_mm": 23.13157001264722
+      },
+      {
+        "ref": "C4",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 35.13857611301289,
+        "return_pad_distance_mm": 33.07294258529168
+      },
+      {
+        "ref": "C2",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 39.60580173724552,
+        "return_pad_distance_mm": 39.39440989848686
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "interlock",
+    "board_sha256": "a35795d61950f11707565b7b0ecaaa06556306ca63551e4dff7634fcbfeb549e",
+    "ref": "U1",
+    "mpn": "SN74LVC14ADR",
+    "pin": "14",
+    "label": "VCC",
+    "supply_net": "vcc",
+    "return_pins": [
+      "7"
+    ],
+    "return_nets": [
+      "gnd"
+    ],
+    "candidates": [
+      {
+        "ref": "C1",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 2.2500222221124835,
+        "return_pad_distance_mm": 11.596318381279465
+      },
+      {
+        "ref": "C2",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 18.150002754820726,
+        "return_pad_distance_mm": 13.583615130001295
+      },
+      {
+        "ref": "C3",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 20.833197066221018,
+        "return_pad_distance_mm": 27.852111230569218
+      },
+      {
+        "ref": "C6",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 28.048210281584808,
+        "return_pad_distance_mm": 28.510701499612388
+      },
+      {
+        "ref": "C5",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 36.46585526214899,
+        "return_pad_distance_mm": 44.77051038351026
+      },
+      {
+        "ref": "C4",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 40.39651717660818,
+        "return_pad_distance_mm": 43.706734034928765
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "interlock",
+    "board_sha256": "a35795d61950f11707565b7b0ecaaa06556306ca63551e4dff7634fcbfeb549e",
+    "ref": "U2",
+    "mpn": "SN74LVC14ADR",
+    "pin": "14",
+    "label": "VCC",
+    "supply_net": "vcc",
+    "return_pins": [
+      "7"
+    ],
+    "return_nets": [
+      "gnd"
+    ],
+    "candidates": [
+      {
+        "ref": "C2",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 2.2500222221124844,
+        "return_pad_distance_mm": 11.596318381279465
+      },
+      {
+        "ref": "C6",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 18.96686848164451,
+        "return_pad_distance_mm": 25.69474849069358
+      },
+      {
+        "ref": "C1",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 18.130157197332842,
+        "return_pad_distance_mm": 27.063528964272198
+      },
+      {
+        "ref": "C3",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 26.288060027320387,
+        "return_pad_distance_mm": 36.15383935351818
+      },
+      {
+        "ref": "C4",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 35.759175046412906,
+        "return_pad_distance_mm": 42.79531049075354
+      },
+      {
+        "ref": "C5",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 43.73326651417659,
+        "return_pad_distance_mm": 53.49353792749177
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "interlock",
+    "board_sha256": "a35795d61950f11707565b7b0ecaaa06556306ca63551e4dff7634fcbfeb549e",
+    "ref": "U3",
+    "mpn": "CD74HC30PWR",
+    "pin": "14",
+    "label": "VCC",
+    "supply_net": "vcc",
+    "return_pins": [
+      "7"
+    ],
+    "return_nets": [
+      "gnd"
+    ],
+    "candidates": [
+      {
+        "ref": "C3",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 2.3625000000000043,
+        "return_pad_distance_mm": 10.39670170053945
+      },
+      {
+        "ref": "C1",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 16.243195690811582,
+        "return_pad_distance_mm": 10.56439332143593
+      },
+      {
+        "ref": "C6",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 19.003457744579006,
+        "return_pad_distance_mm": 16.921625402129663
+      },
+      {
+        "ref": "C2",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 22.83071190852357,
+        "return_pad_distance_mm": 15.119735654104545
+      },
+      {
+        "ref": "C5",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 19.579553269929317,
+        "return_pad_distance_mm": 27.833593125035083
+      },
+      {
+        "ref": "C4",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 24.264354643179775,
+        "return_pad_distance_mm": 27.88026015391535
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "interlock",
+    "board_sha256": "a35795d61950f11707565b7b0ecaaa06556306ca63551e4dff7634fcbfeb549e",
+    "ref": "U4",
+    "mpn": "SN74LVC1G74DCUR",
+    "pin": "8",
+    "label": "VCC",
+    "supply_net": "vcc",
+    "return_pins": [
+      "4"
+    ],
+    "return_nets": [
+      "gnd"
+    ],
+    "candidates": [
+      {
+        "ref": "C4",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 2.8970890562769998,
+        "return_pad_distance_mm": 7.224480950213664
+      },
+      {
+        "ref": "C6",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 15.176317899938711,
+        "return_pad_distance_mm": 10.95767425140937
+      },
+      {
+        "ref": "C3",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 23.28563129915099,
+        "return_pad_distance_mm": 22.502680395899503
+      },
+      {
+        "ref": "C5",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 28.30888773865904,
+        "return_pad_distance_mm": 30.38409328908796
+      },
+      {
+        "ref": "C2",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 31.821504128497764,
+        "return_pad_distance_mm": 27.70122966584696
+      },
+      {
+        "ref": "C1",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 38.03167265582728,
+        "return_pad_distance_mm": 35.42821086366061
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "interlock",
+    "board_sha256": "a35795d61950f11707565b7b0ecaaa06556306ca63551e4dff7634fcbfeb549e",
+    "ref": "U5",
+    "mpn": "TPS3823-33DBVR",
+    "pin": "5",
+    "label": "VDD",
+    "supply_net": "vcc",
+    "return_pins": [
+      "2"
+    ],
+    "return_nets": [
+      "gnd"
+    ],
+    "candidates": [
+      {
+        "ref": "C5",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 2.336697723283858,
+        "return_pad_distance_mm": 6.241606864422022
+      },
+      {
+        "ref": "C3",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 15.189886643750837,
+        "return_pad_distance_mm": 11.501528431039068
+      },
+      {
+        "ref": "C4",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 25.037175484666797,
+        "return_pad_distance_mm": 24.717557651394287
+      },
+      {
+        "ref": "C6",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 30.844491505777814,
+        "return_pad_distance_mm": 28.311396225725073
+      },
+      {
+        "ref": "C1",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 32.00886840002314,
+        "return_pad_distance_mm": 28.073299703632987
+      },
+      {
+        "ref": "C2",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 39.622817368910056,
+        "return_pad_distance_mm": 36.045945073614035
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "interlock",
+    "board_sha256": "a35795d61950f11707565b7b0ecaaa06556306ca63551e4dff7634fcbfeb549e",
+    "ref": "U6",
+    "mpn": "SN74LVC1G08DBVR",
+    "pin": "5",
+    "label": "VCC",
+    "supply_net": "vcc",
+    "return_pins": [
+      "3"
+    ],
+    "return_nets": [
+      "gnd"
+    ],
+    "candidates": [
+      {
+        "ref": "C6",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 2.0874999999999986,
+        "return_pad_distance_mm": 6.210286325927335
+      },
+      {
+        "ref": "C2",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 14.6915845384356,
+        "return_pad_distance_mm": 11.604208557674236
+      },
+      {
+        "ref": "C3",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 19.43470237101664,
+        "return_pad_distance_mm": 22.347654379151294
+      },
+      {
+        "ref": "C4",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 19.19726949985335,
+        "return_pad_distance_mm": 23.25048722607766
+      },
+      {
+        "ref": "C1",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 25.3464525377813,
+        "return_pad_distance_mm": 25.09298021857906
+      },
+      {
+        "ref": "C5",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 33.928382753234786,
+        "return_pad_distance_mm": 37.709218451858696
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "gate-drive",
+    "board_sha256": "3f8dc637fed68e4906c574675d374344d467dcc4094d1aab963aeb56417eb425",
+    "ref": "U1",
+    "mpn": "UCC21550BDWKR",
+    "pin": "3",
+    "label": "VCCI3",
+    "supply_net": "v3v3",
+    "return_pins": [
+      "4"
+    ],
+    "return_nets": [
+      "ctrl_gnd"
+    ],
+    "candidates": [
+      {
+        "ref": "C1",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 2.625,
+        "return_pad_distance_mm": 2.639891096238631
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "gate-drive",
+    "board_sha256": "3f8dc637fed68e4906c574675d374344d467dcc4094d1aab963aeb56417eb425",
+    "ref": "U1",
+    "mpn": "UCC21550BDWKR",
+    "pin": "8",
+    "label": "VCCI8",
+    "supply_net": "v3v3",
+    "return_pins": [
+      "4"
+    ],
+    "return_nets": [
+      "ctrl_gnd"
+    ],
+    "candidates": [
+      {
+        "ref": "C1",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 6.871180757337126,
+        "return_pad_distance_mm": 2.639891096238631
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "gate-drive",
+    "board_sha256": "3f8dc637fed68e4906c574675d374344d467dcc4094d1aab963aeb56417eb425",
+    "ref": "U1",
+    "mpn": "UCC21550BDWKR",
+    "pin": "11",
+    "label": "VDDB",
+    "supply_net": "v15_ls",
+    "return_pins": [
+      "9"
+    ],
+    "return_nets": [
+      "gate_l_kelvin"
+    ],
+    "candidates": [
+      {
+        "ref": "C2",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 3.056718011200905,
+        "return_pad_distance_mm": 5.713670011472487
+      },
+      {
+        "ref": "C3",
+        "mpn": "GRM32ER71H106KA12L",
+        "supply_pad_distance_mm": 10.228955225241723,
+        "return_pad_distance_mm": 8.84522611355979
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "gate-drive",
+    "board_sha256": "3f8dc637fed68e4906c574675d374344d467dcc4094d1aab963aeb56417eb425",
+    "ref": "U1",
+    "mpn": "UCC21550BDWKR",
+    "pin": "16",
+    "label": "VDDA",
+    "supply_net": "vdda",
+    "return_pins": [
+      "14"
+    ],
+    "return_nets": [
+      "gate_h_kelvin"
+    ],
+    "candidates": [
+      {
+        "ref": "C4",
+        "mpn": "GRM32ER71H106KA12L",
+        "supply_pad_distance_mm": 3.6811037746849777,
+        "return_pad_distance_mm": 7.570932901565037
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "power-native20",
+    "board_sha256": "27657a0ebce66140b6ea6a0b84940dba420b3a187199798bce3c3d122abf9dae",
+    "ref": "U1",
+    "mpn": "UCC21550BDWKR",
+    "pin": "3",
+    "label": "VCCI3",
+    "supply_net": "v3v3",
+    "return_pins": [
+      "4"
+    ],
+    "return_nets": [
+      "selv_gnd"
+    ],
+    "candidates": [
+      {
+        "ref": "C7",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 8.498089491173888,
+        "return_pad_distance_mm": 8.290278945849774
+      },
+      {
+        "ref": "C45",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 28.025640492234967,
+        "return_pad_distance_mm": 28.23635466911408
+      },
+      {
+        "ref": "C44",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 32.30691141226596,
+        "return_pad_distance_mm": 32.48987111393335
+      },
+      {
+        "ref": "C46",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 37.06799866461636,
+        "return_pad_distance_mm": 37.22756673488076
+      },
+      {
+        "ref": "C47",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 48.403832751136555,
+        "return_pad_distance_mm": 48.940777731866916
+      },
+      {
+        "ref": "C14",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 50.68310887268065,
+        "return_pad_distance_mm": 50.40484822911383
+      },
+      {
+        "ref": "C37",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 64.11721707154796,
+        "return_pad_distance_mm": 63.83830139500894
+      },
+      {
+        "ref": "C29",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 80.7097207590263,
+        "return_pad_distance_mm": 81.41231924592249
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "power-native20",
+    "board_sha256": "27657a0ebce66140b6ea6a0b84940dba420b3a187199798bce3c3d122abf9dae",
+    "ref": "U1",
+    "mpn": "UCC21550BDWKR",
+    "pin": "8",
+    "label": "VCCI8",
+    "supply_net": "v3v3",
+    "return_pins": [
+      "4"
+    ],
+    "return_nets": [
+      "selv_gnd"
+    ],
+    "candidates": [
+      {
+        "ref": "C7",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 13.908235869440809,
+        "return_pad_distance_mm": 8.290278945849774
+      },
+      {
+        "ref": "C45",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 23.636370808565353,
+        "return_pad_distance_mm": 28.23635466911408
+      },
+      {
+        "ref": "C44",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 28.582827449361975,
+        "return_pad_distance_mm": 32.48987111393335
+      },
+      {
+        "ref": "C46",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 33.871492807374175,
+        "return_pad_distance_mm": 37.22756673488076
+      },
+      {
+        "ref": "C47",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 54.22840607098829,
+        "return_pad_distance_mm": 48.940777731866916
+      },
+      {
+        "ref": "C14",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 56.99823703413992,
+        "return_pad_distance_mm": 50.40484822911383
+      },
+      {
+        "ref": "C37",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 70.44493612034864,
+        "return_pad_distance_mm": 63.83830139500894
+      },
+      {
+        "ref": "C29",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 86.7224770460346,
+        "return_pad_distance_mm": 81.41231924592249
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "power-native20",
+    "board_sha256": "27657a0ebce66140b6ea6a0b84940dba420b3a187199798bce3c3d122abf9dae",
+    "ref": "U1",
+    "mpn": "UCC21550BDWKR",
+    "pin": "11",
+    "label": "VDDB",
+    "supply_net": "v15_ls",
+    "return_pins": [
+      "9"
+    ],
+    "return_nets": [
+      "leg_ret"
+    ],
+    "candidates": [
+      {
+        "ref": "C8",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 5.055494535651278,
+        "return_pad_distance_mm": 4.122441630878488
+      },
+      {
+        "ref": "C9",
+        "mpn": "GRM32ER71H106KA12L",
+        "supply_pad_distance_mm": 6.892026189735499,
+        "return_pad_distance_mm": 7.144685087531849
+      },
+      {
+        "ref": "C15",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 39.20966749412702,
+        "return_pad_distance_mm": 40.198936864051504
+      },
+      {
+        "ref": "C16",
+        "mpn": "GRM32ER71H106KA12L",
+        "supply_pad_distance_mm": 40.26089945592373,
+        "return_pad_distance_mm": 39.85481809016321
+      },
+      {
+        "ref": "C24",
+        "mpn": "GRM32ER71H106KA12L",
+        "supply_pad_distance_mm": 86.16911584204634,
+        "return_pad_distance_mm": 89.39632556766524
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "power-native20",
+    "board_sha256": "27657a0ebce66140b6ea6a0b84940dba420b3a187199798bce3c3d122abf9dae",
+    "ref": "U1",
+    "mpn": "UCC21550BDWKR",
+    "pin": "16",
+    "label": "VDDA",
+    "supply_net": "leg_a-boot",
+    "return_pins": [
+      "14"
+    ],
+    "return_nets": [
+      "sw_a"
+    ],
+    "candidates": [
+      {
+        "ref": "C11",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 2.6545291484555213,
+        "return_pad_distance_mm": 5.62610211425281
+      },
+      {
+        "ref": "C10",
+        "mpn": "GRM32ER71H106KA12L",
+        "supply_pad_distance_mm": 7.263024507737808,
+        "return_pad_distance_mm": 6.8669516526621965
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "power-native20",
+    "board_sha256": "27657a0ebce66140b6ea6a0b84940dba420b3a187199798bce3c3d122abf9dae",
+    "ref": "U10",
+    "mpn": "TLV3201AIDBVR",
+    "pin": "5",
+    "label": "VCC",
+    "supply_net": "v3v3",
+    "return_pins": [
+      "2"
+    ],
+    "return_nets": [
+      "selv_gnd"
+    ],
+    "candidates": [
+      {
+        "ref": "C44",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 1.6500473478055022,
+        "return_pad_distance_mm": 4.614667512399996
+      },
+      {
+        "ref": "C46",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 4.350017959733048,
+        "return_pad_distance_mm": 5.108341829791741
+      },
+      {
+        "ref": "C45",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 7.650010212411475,
+        "return_pad_distance_mm": 9.407186415182805
+      },
+      {
+        "ref": "C7",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 34.26000082092818,
+        "return_pad_distance_mm": 31.915829242712782
+      },
+      {
+        "ref": "C47",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 65.19378445258411,
+        "return_pad_distance_mm": 63.20652285365807
+      },
+      {
+        "ref": "C14",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 74.31048146964196,
+        "return_pad_distance_mm": 70.92474995549861
+      },
+      {
+        "ref": "C37",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 87.3638091903621,
+        "return_pad_distance_mm": 83.88940729466384
+      },
+      {
+        "ref": "C29",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 97.14020553432033,
+        "return_pad_distance_mm": 94.87910481897477
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "power-native20",
+    "board_sha256": "27657a0ebce66140b6ea6a0b84940dba420b3a187199798bce3c3d122abf9dae",
+    "ref": "U11",
+    "mpn": "TLV3201AIDBVR",
+    "pin": "5",
+    "label": "VCC",
+    "supply_net": "v3v3",
+    "return_pins": [
+      "2"
+    ],
+    "return_nets": [
+      "selv_gnd"
+    ],
+    "candidates": [
+      {
+        "ref": "C45",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 1.6500473478055022,
+        "return_pad_distance_mm": 4.614667512399996
+      },
+      {
+        "ref": "C44",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 4.350017959733048,
+        "return_pad_distance_mm": 5.108341829791741
+      },
+      {
+        "ref": "C46",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 10.350007548306435,
+        "return_pad_distance_mm": 10.143724969161974
+      },
+      {
+        "ref": "C7",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 31.03462028525562,
+        "return_pad_distance_mm": 28.224460247274884
+      },
+      {
+        "ref": "C47",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 64.93788979671267,
+        "return_pad_distance_mm": 62.70378402656415
+      },
+      {
+        "ref": "C14",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 72.87967930946184,
+        "return_pad_distance_mm": 69.34205186068553
+      },
+      {
+        "ref": "C37",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 86.1500734546988,
+        "return_pad_distance_mm": 82.5556337038848
+      },
+      {
+        "ref": "C29",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 97.37001351160426,
+        "return_pad_distance_mm": 94.95654022367286
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "power-native20",
+    "board_sha256": "27657a0ebce66140b6ea6a0b84940dba420b3a187199798bce3c3d122abf9dae",
+    "ref": "U12",
+    "mpn": "TLV3201AIDBVR",
+    "pin": "5",
+    "label": "VCC",
+    "supply_net": "v3v3",
+    "return_pins": [
+      "2"
+    ],
+    "return_nets": [
+      "selv_gnd"
+    ],
+    "candidates": [
+      {
+        "ref": "C46",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 1.6500473478055022,
+        "return_pad_distance_mm": 4.614667512399996
+      },
+      {
+        "ref": "C44",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 7.650010212411475,
+        "return_pad_distance_mm": 9.407186415182805
+      },
+      {
+        "ref": "C45",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 13.650005723442016,
+        "return_pad_distance_mm": 15.089571108881783
+      },
+      {
+        "ref": "C7",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 38.162123319464285,
+        "return_pad_distance_mm": 36.230100141318964
+      },
+      {
+        "ref": "C47",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 65.99643574656133,
+        "return_pad_distance_mm": 64.26791214323055
+      },
+      {
+        "ref": "C14",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 76.18823830651289,
+        "return_pad_distance_mm": 72.96793923532444
+      },
+      {
+        "ref": "C37",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 88.96648333080272,
+        "return_pad_distance_mm": 85.62378557532948
+      },
+      {
+        "ref": "C29",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 97.28062258872522,
+        "return_pad_distance_mm": 95.18058904655928
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "power-native20",
+    "board_sha256": "27657a0ebce66140b6ea6a0b84940dba420b3a187199798bce3c3d122abf9dae",
+    "ref": "U13",
+    "mpn": "SN74LVC1G332DBVR",
+    "pin": "5",
+    "label": "VCC",
+    "supply_net": "v3v3",
+    "return_pins": [
+      "2"
+    ],
+    "return_nets": [
+      "selv_gnd"
+    ],
+    "candidates": [
+      {
+        "ref": "C47",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 4.603208799305107,
+        "return_pad_distance_mm": 2.391554149501956
+      },
+      {
+        "ref": "C14",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 17.812219296033835,
+        "return_pad_distance_mm": 15.737221999133137
+      },
+      {
+        "ref": "C37",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 28.228755839568983,
+        "return_pad_distance_mm": 24.979444674571933
+      },
+      {
+        "ref": "C29",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 37.4508949325647,
+        "return_pad_distance_mm": 34.934789698093226
+      },
+      {
+        "ref": "C7",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 35.83538971812641,
+        "return_pad_distance_mm": 39.38477061314437
+      },
+      {
+        "ref": "C45",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 60.39751779874734,
+        "return_pad_distance_mm": 64.22192115041406
+      },
+      {
+        "ref": "C44",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 60.585973263206725,
+        "return_pad_distance_mm": 64.39918599058531
+      },
+      {
+        "ref": "C46",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 61.363345380202354,
+        "return_pad_distance_mm": 65.13106137819344
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "power-native20",
+    "board_sha256": "27657a0ebce66140b6ea6a0b84940dba420b3a187199798bce3c3d122abf9dae",
+    "ref": "U14",
+    "mpn": "TPS3700DDCR",
+    "pin": "5",
+    "label": "VDD",
+    "supply_net": "v15_ls",
+    "return_pins": [
+      "2"
+    ],
+    "return_nets": [
+      "ocp_kelvin_p"
+    ],
+    "candidates": [
+      {
+        "ref": "C48",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 5.406607647129577,
+        "return_pad_distance_mm": 5.918733500504988
+      },
+      {
+        "ref": "C25",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 16.500232005944643,
+        "return_pad_distance_mm": 16.957525062638123
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "power-native20",
+    "board_sha256": "27657a0ebce66140b6ea6a0b84940dba420b3a187199798bce3c3d122abf9dae",
+    "ref": "U15",
+    "mpn": "SN74LVC1G17DBVR",
+    "pin": "5",
+    "label": "VCC",
+    "supply_net": "hot5",
+    "return_pins": [
+      "3"
+    ],
+    "return_nets": [
+      "ocp_kelvin_p"
+    ],
+    "candidates": [
+      {
+        "ref": "C49",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 4.843568544988295,
+        "return_pad_distance_mm": 3.1874999999999987
+      },
+      {
+        "ref": "C35",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 12.889924602184454,
+        "return_pad_distance_mm": 16.850227186895737
+      },
+      {
+        "ref": "C32",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 15.71496599582703,
+        "return_pad_distance_mm": 19.70178053501765
+      },
+      {
+        "ref": "C26",
+        "mpn": "GRM32ER71H106KA12L",
+        "supply_pad_distance_mm": 15.99412489791173,
+        "return_pad_distance_mm": 20.470394017946997
+      },
+      {
+        "ref": "C36",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 21.229346580853584,
+        "return_pad_distance_mm": 24.918570509762404
+      },
+      {
+        "ref": "C28",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 47.904013727974835,
+        "return_pad_distance_mm": 44.314157232762525
+      },
+      {
+        "ref": "C34",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 60.12526637155131,
+        "return_pad_distance_mm": 58.656394845319305
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "power-native20",
+    "board_sha256": "27657a0ebce66140b6ea6a0b84940dba420b3a187199798bce3c3d122abf9dae",
+    "ref": "U2",
+    "mpn": "UCC21550BDWKR",
+    "pin": "3",
+    "label": "VCCI3",
+    "supply_net": "v3v3",
+    "return_pins": [
+      "4"
+    ],
+    "return_nets": [
+      "selv_gnd"
+    ],
+    "candidates": [
+      {
+        "ref": "C14",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 8.498089491173888,
+        "return_pad_distance_mm": 8.290278945849764
+      },
+      {
+        "ref": "C47",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 20.40027021879858,
+        "return_pad_distance_mm": 18.885966350706013
+      },
+      {
+        "ref": "C37",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 20.650848045540414,
+        "return_pad_distance_mm": 20.381578079236153
+      },
+      {
+        "ref": "C7",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 38.048094893174344,
+        "return_pad_distance_mm": 38.32504044355336
+      },
+      {
+        "ref": "C29",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 41.8771897934902,
+        "return_pad_distance_mm": 41.90281285307705
+      },
+      {
+        "ref": "C45",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 67.61713188978071,
+        "return_pad_distance_mm": 67.88646201563316
+      },
+      {
+        "ref": "C44",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 69.50091024583779,
+        "return_pad_distance_mm": 69.76296814929825
+      },
+      {
+        "ref": "C46",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 71.83784883332741,
+        "return_pad_distance_mm": 72.0914122832949
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "power-native20",
+    "board_sha256": "27657a0ebce66140b6ea6a0b84940dba420b3a187199798bce3c3d122abf9dae",
+    "ref": "U2",
+    "mpn": "UCC21550BDWKR",
+    "pin": "8",
+    "label": "VCCI8",
+    "supply_net": "v3v3",
+    "return_pins": [
+      "4"
+    ],
+    "return_nets": [
+      "selv_gnd"
+    ],
+    "candidates": [
+      {
+        "ref": "C14",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 13.908235869440809,
+        "return_pad_distance_mm": 8.290278945849764
+      },
+      {
+        "ref": "C47",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 21.334479721802452,
+        "return_pad_distance_mm": 18.885966350706013
+      },
+      {
+        "ref": "C37",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 26.816581157932866,
+        "return_pad_distance_mm": 20.381578079236153
+      },
+      {
+        "ref": "C7",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 31.78174043377738,
+        "return_pad_distance_mm": 38.32504044355336
+      },
+      {
+        "ref": "C29",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 46.921509193545766,
+        "return_pad_distance_mm": 41.90281285307705
+      },
+      {
+        "ref": "C45",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 61.5346896067576,
+        "return_pad_distance_mm": 67.88646201563316
+      },
+      {
+        "ref": "C44",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 63.598883834545404,
+        "return_pad_distance_mm": 69.76296814929825
+      },
+      {
+        "ref": "C46",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 66.14467495573625,
+        "return_pad_distance_mm": 72.0914122832949
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "power-native20",
+    "board_sha256": "27657a0ebce66140b6ea6a0b84940dba420b3a187199798bce3c3d122abf9dae",
+    "ref": "U2",
+    "mpn": "UCC21550BDWKR",
+    "pin": "11",
+    "label": "VDDB",
+    "supply_net": "v15_ls",
+    "return_pins": [
+      "9"
+    ],
+    "return_nets": [
+      "leg_ret"
+    ],
+    "candidates": [
+      {
+        "ref": "C15",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 5.055494535651278,
+        "return_pad_distance_mm": 4.122441630878488
+      },
+      {
+        "ref": "C16",
+        "mpn": "GRM32ER71H106KA12L",
+        "supply_pad_distance_mm": 6.892026189735499,
+        "return_pad_distance_mm": 7.144685087531849
+      },
+      {
+        "ref": "C24",
+        "mpn": "GRM32ER71H106KA12L",
+        "supply_pad_distance_mm": 44.96083323293731,
+        "return_pad_distance_mm": 48.62656706986418
+      },
+      {
+        "ref": "C8",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 48.84381255594202,
+        "return_pad_distance_mm": 47.85430518772581
+      },
+      {
+        "ref": "C9",
+        "mpn": "GRM32ER71H106KA12L",
+        "supply_pad_distance_mm": 48.43614378746516,
+        "return_pad_distance_mm": 48.843490098476785
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "power-native20",
+    "board_sha256": "27657a0ebce66140b6ea6a0b84940dba420b3a187199798bce3c3d122abf9dae",
+    "ref": "U2",
+    "mpn": "UCC21550BDWKR",
+    "pin": "16",
+    "label": "VDDA",
+    "supply_net": "leg_b-boot",
+    "return_pins": [
+      "14"
+    ],
+    "return_nets": [
+      "sw_b"
+    ],
+    "candidates": [
+      {
+        "ref": "C18",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 2.6545291484555213,
+        "return_pad_distance_mm": 5.62610211425281
+      },
+      {
+        "ref": "C17",
+        "mpn": "GRM32ER71H106KA12L",
+        "supply_pad_distance_mm": 7.263024507737808,
+        "return_pad_distance_mm": 6.8669516526621965
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "power-native20",
+    "board_sha256": "27657a0ebce66140b6ea6a0b84940dba420b3a187199798bce3c3d122abf9dae",
+    "ref": "U3",
+    "mpn": "MC78L05ACHT1G",
+    "pin": "3",
+    "label": "IN",
+    "supply_net": "v15_ls",
+    "return_pins": [
+      "2"
+    ],
+    "return_nets": [
+      "ocp_kelvin_p"
+    ],
+    "candidates": [
+      {
+        "ref": "C25",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 6.557295555333767,
+        "return_pad_distance_mm": 6.111835342186503
+      },
+      {
+        "ref": "C48",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 6.47673721869276,
+        "return_pad_distance_mm": 6.553016957859945
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "power-native20",
+    "board_sha256": "27657a0ebce66140b6ea6a0b84940dba420b3a187199798bce3c3d122abf9dae",
+    "ref": "U3",
+    "mpn": "MC78L05ACHT1G",
+    "pin": "1",
+    "label": "OUT",
+    "supply_net": "hot5",
+    "return_pins": [
+      "2"
+    ],
+    "return_nets": [
+      "ocp_kelvin_p"
+    ],
+    "candidates": [
+      {
+        "ref": "C26",
+        "mpn": "GRM32ER71H106KA12L",
+        "supply_pad_distance_mm": 3.005099831952343,
+        "return_pad_distance_mm": 5.429217830406145
+      },
+      {
+        "ref": "C32",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 11.236019090407414,
+        "return_pad_distance_mm": 11.310041169244263
+      },
+      {
+        "ref": "C49",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 19.89090558521658,
+        "return_pad_distance_mm": 19.97509777823378
+      },
+      {
+        "ref": "C35",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 20.30881889721803,
+        "return_pad_distance_mm": 20.407401384056715
+      },
+      {
+        "ref": "C36",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 28.117576798152427,
+        "return_pad_distance_mm": 28.211780008535445
+      },
+      {
+        "ref": "C28",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 63.221955244993815,
+        "return_pad_distance_mm": 61.86488427411789
+      },
+      {
+        "ref": "C34",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 75.53094150743786,
+        "return_pad_distance_mm": 75.62170344054674
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "power-native20",
+    "board_sha256": "27657a0ebce66140b6ea6a0b84940dba420b3a187199798bce3c3d122abf9dae",
+    "ref": "U4",
+    "mpn": "AMC1311BDWVR",
+    "pin": "1",
+    "label": "VDD1",
+    "supply_net": "hot5",
+    "return_pins": [
+      "3",
+      "4"
+    ],
+    "return_nets": [
+      "ocp_kelvin_p"
+    ],
+    "candidates": [
+      {
+        "ref": "C28",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 3.2470024638118145,
+        "return_pad_distance_mm": 4.659262280662042
+      },
+      {
+        "ref": "C34",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 14.047829903582972,
+        "return_pad_distance_mm": 11.538155181830417
+      },
+      {
+        "ref": "C49",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 42.60559264932246,
+        "return_pad_distance_mm": 45.138987859720565
+      },
+      {
+        "ref": "C35",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 49.28122893151104,
+        "return_pad_distance_mm": 52.16020729445006
+      },
+      {
+        "ref": "C36",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 49.74853289294067,
+        "return_pad_distance_mm": 52.71307451666996
+      },
+      {
+        "ref": "C32",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 60.119227581531675,
+        "return_pad_distance_mm": 62.909722817701244
+      },
+      {
+        "ref": "C26",
+        "mpn": "GRM32ER71H106KA12L",
+        "supply_pad_distance_mm": 62.677109258484464,
+        "return_pad_distance_mm": 68.16250967357351
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "power-native20",
+    "board_sha256": "27657a0ebce66140b6ea6a0b84940dba420b3a187199798bce3c3d122abf9dae",
+    "ref": "U4",
+    "mpn": "AMC1311BDWVR",
+    "pin": "8",
+    "label": "VDD2",
+    "supply_net": "v3v3",
+    "return_pins": [
+      "5"
+    ],
+    "return_nets": [
+      "selv_gnd"
+    ],
+    "candidates": [
+      {
+        "ref": "C29",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 4.3980705997061875,
+        "return_pad_distance_mm": 9.715092639805352
+      },
+      {
+        "ref": "C37",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 28.018994004068023,
+        "return_pad_distance_mm": 32.130305398486335
+      },
+      {
+        "ref": "C47",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 33.188296506449376,
+        "return_pad_distance_mm": 35.30131760997031
+      },
+      {
+        "ref": "C14",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 35.70873877638357,
+        "return_pad_distance_mm": 39.55068299031004
+      },
+      {
+        "ref": "C7",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 73.50043554292722,
+        "return_pad_distance_mm": 76.3403990361591
+      },
+      {
+        "ref": "C46",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 96.30250788530898,
+        "return_pad_distance_mm": 97.95364988095136
+      },
+      {
+        "ref": "C44",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 96.5324454522934,
+        "return_pad_distance_mm": 98.41228340507092
+      },
+      {
+        "ref": "C45",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 97.13317159961369,
+        "return_pad_distance_mm": 99.23224035060382
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "power-native20",
+    "board_sha256": "27657a0ebce66140b6ea6a0b84940dba420b3a187199798bce3c3d122abf9dae",
+    "ref": "U5",
+    "mpn": "LM4040A25IDBZR",
+    "pin": "1",
+    "label": "REF",
+    "supply_net": "ref25",
+    "return_pins": [
+      "2"
+    ],
+    "return_nets": [
+      "ocp_kelvin_p"
+    ],
+    "candidates": [],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "power-native20",
+    "board_sha256": "27657a0ebce66140b6ea6a0b84940dba420b3a187199798bce3c3d122abf9dae",
+    "ref": "U6",
+    "mpn": "TLV3201AIDBVR",
+    "pin": "5",
+    "label": "VCC",
+    "supply_net": "hot5",
+    "return_pins": [
+      "2"
+    ],
+    "return_nets": [
+      "ocp_kelvin_p"
+    ],
+    "candidates": [
+      {
+        "ref": "C32",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 5.306614386781842,
+        "return_pad_distance_mm": 4.433695552245331
+      },
+      {
+        "ref": "C26",
+        "mpn": "GRM32ER71H106KA12L",
+        "supply_pad_distance_mm": 15.702293821286116,
+        "return_pad_distance_mm": 13.589776718180469
+      },
+      {
+        "ref": "C35",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 16.773495647896414,
+        "return_pad_distance_mm": 16.48780325725656
+      },
+      {
+        "ref": "C36",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 21.46823598365734,
+        "return_pad_distance_mm": 22.560643967981065
+      },
+      {
+        "ref": "C49",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 25.56677837057301,
+        "return_pad_distance_mm": 22.84748686945678
+      },
+      {
+        "ref": "C28",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 66.70640547391234,
+        "return_pad_distance_mm": 63.75044730235232
+      },
+      {
+        "ref": "C34",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 77.30619416482746,
+        "return_pad_distance_mm": 76.08462496621772
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "power-native20",
+    "board_sha256": "27657a0ebce66140b6ea6a0b84940dba420b3a187199798bce3c3d122abf9dae",
+    "ref": "U7",
+    "mpn": "TLV3201AIDBVR",
+    "pin": "5",
+    "label": "VCC",
+    "supply_net": "hot5",
+    "return_pins": [
+      "2"
+    ],
+    "return_nets": [
+      "ocp_kelvin_p"
+    ],
+    "candidates": [
+      {
+        "ref": "C34",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 2.7563846338999864,
+        "return_pad_distance_mm": 6.4125000000000085
+      },
+      {
+        "ref": "C28",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 12.837232227002824,
+        "return_pad_distance_mm": 14.306275939251282
+      },
+      {
+        "ref": "C49",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 54.69012850826006,
+        "return_pad_distance_mm": 55.500068975182366
+      },
+      {
+        "ref": "C36",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 59.68446327353542,
+        "return_pad_distance_mm": 61.896951914048245
+      },
+      {
+        "ref": "C35",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 60.24201321544624,
+        "return_pad_distance_mm": 61.97174885582946
+      },
+      {
+        "ref": "C32",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 71.50881173848437,
+        "return_pad_distance_mm": 72.97881648978695
+      },
+      {
+        "ref": "C26",
+        "mpn": "GRM32ER71H106KA12L",
+        "supply_pad_distance_mm": 74.78777995936233,
+        "return_pad_distance_mm": 78.54700523412717
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "power-native20",
+    "board_sha256": "27657a0ebce66140b6ea6a0b84940dba420b3a187199798bce3c3d122abf9dae",
+    "ref": "U8",
+    "mpn": "SN74LVC1G10DBVR",
+    "pin": "5",
+    "label": "VCC",
+    "supply_net": "hot5",
+    "return_pins": [
+      "2"
+    ],
+    "return_nets": [
+      "ocp_kelvin_p"
+    ],
+    "candidates": [
+      {
+        "ref": "C35",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 4.433695552245325,
+        "return_pad_distance_mm": 4.433695552245331
+      },
+      {
+        "ref": "C36",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 6.420487228396294,
+        "return_pad_distance_mm": 10.195717544636091
+      },
+      {
+        "ref": "C49",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 16.72715326198693,
+        "return_pad_distance_mm": 12.906496668344975
+      },
+      {
+        "ref": "C32",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 16.48780325725656,
+        "return_pad_distance_mm": 15.824906200353919
+      },
+      {
+        "ref": "C26",
+        "mpn": "GRM32ER71H106KA12L",
+        "supply_pad_distance_mm": 26.70949327954388,
+        "return_pad_distance_mm": 27.520938051781588
+      },
+      {
+        "ref": "C28",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 47.87932258553791,
+        "return_pad_distance_mm": 45.579814954100016
+      },
+      {
+        "ref": "C34",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 57.12035675877734,
+        "return_pad_distance_mm": 56.56182596283469
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "power-native20",
+    "board_sha256": "27657a0ebce66140b6ea6a0b84940dba420b3a187199798bce3c3d122abf9dae",
+    "ref": "U9",
+    "mpn": "ISO7710DWR",
+    "pin": "3",
+    "label": "VCC1",
+    "supply_net": "hot5",
+    "return_pins": [
+      "1",
+      "7"
+    ],
+    "return_nets": [
+      "ocp_kelvin_p"
+    ],
+    "candidates": [
+      {
+        "ref": "C36",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 4.508106587027422,
+        "return_pad_distance_mm": 5.158442109784689
+      },
+      {
+        "ref": "C35",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 12.584912594054831,
+        "return_pad_distance_mm": 7.620244418652202
+      },
+      {
+        "ref": "C32",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 22.708104830654634,
+        "return_pad_distance_mm": 19.447830855907814
+      },
+      {
+        "ref": "C49",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 25.731362672816225,
+        "return_pad_distance_mm": 19.11918212162853
+      },
+      {
+        "ref": "C26",
+        "mpn": "GRM32ER71H106KA12L",
+        "supply_pad_distance_mm": 34.925012884750664,
+        "return_pad_distance_mm": 33.21995823296592
+      },
+      {
+        "ref": "C28",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 50.13393586184912,
+        "return_pad_distance_mm": 46.14098638954308
+      },
+      {
+        "ref": "C34",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 57.18730650240488,
+        "return_pad_distance_mm": 55.31743057120422
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  },
+  {
+    "board": "power-native20",
+    "board_sha256": "27657a0ebce66140b6ea6a0b84940dba420b3a187199798bce3c3d122abf9dae",
+    "ref": "U9",
+    "mpn": "ISO7710DWR",
+    "pin": "14",
+    "label": "VCC2",
+    "supply_net": "v3v3",
+    "return_pins": [
+      "9",
+      "16"
+    ],
+    "return_nets": [
+      "selv_gnd"
+    ],
+    "candidates": [
+      {
+        "ref": "C37",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 6.230812547332815,
+        "return_pad_distance_mm": 6.716362482772942
+      },
+      {
+        "ref": "C14",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 12.194794996226868,
+        "return_pad_distance_mm": 11.325613669907703
+      },
+      {
+        "ref": "C47",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 26.74466348638547,
+        "return_pad_distance_mm": 23.938097773214984
+      },
+      {
+        "ref": "C29",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 30.753357946734866,
+        "return_pad_distance_mm": 26.75463557965236
+      },
+      {
+        "ref": "C7",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 55.10783088636314,
+        "return_pad_distance_mm": 54.12309604041514
+      },
+      {
+        "ref": "C45",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 84.28110123272002,
+        "return_pad_distance_mm": 83.3155959289736
+      },
+      {
+        "ref": "C44",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 85.79979035522173,
+        "return_pad_distance_mm": 84.85156760484747
+      },
+      {
+        "ref": "C46",
+        "mpn": "C0603C104K5RACTU",
+        "supply_pad_distance_mm": 87.70350064279076,
+        "return_pad_distance_mm": 86.77608267835097
+      }
+    ],
+    "interpretation": "Euclidean pad-center screening distances only. Not routed length, loop area, inductance, or a pass threshold."
+  }
+]
