@@ -31,10 +31,10 @@ from "parts.ato" import Amc1311, R470k1206, R15k8Thin, C1nC0G0603, C100pC0G0603
 from "parts.ato" import Tlv3201, Ref2V5, R10kThin, R12k4Thin, R11k7Thin, R140kThin, R5k6Bias
 from "parts.ato" import Iso7710, SelvHeader16, Nand3Lvc1g10, FunctionalEarthLink
 from "parts.ato" import Hot5Supervisor, Hot5SchmittBuffer, R105kThin
-from "parts.ato" import BusTvsMrt130kp295
+from "parts.ato" import BusTvs30kpa150
 from "parts.ato" import Burden1R5, C100nC0G1206, R1kThin, R3k32Thin, R1k1206, ClampBas116h, Or3Lvc1g332
 
-from "f6_parts.ato" import HotSupply24, HotLdo, GateDischarge, Gate1R, DisOr, BiasPushPull, Bias18k, Bias30k, Bias4k99, Bias4u7, Bias680, Bias10u
+from "f6_parts.ato" import HotSupply24, HotLdo, GateDischarge, Gate1R, DisOr, Bias4k99, Bias10u, Bias27k
 from "f6_bias.ato" import BiasReservoir, RegulatedSplit, RailMonitor, HighBias, LineZeroCross
 
 module BusBringupLink:
@@ -274,8 +274,6 @@ module PowerStage120V:
     signal BIAS_HA_BAD
     signal BIAS_HB_BAD
     signal LINE_ZC
-    signal BIAS_SW1
-    signal BIAS_SW2
     signal HOT5
     signal VDIV_1
     signal VDIV_2
@@ -685,9 +683,14 @@ module PowerStage120V:
     # Place the bidirectional TVS at the DC-link capacitor terminals. This
     # source join specifies protection topology, not the surge/energy rating
     # of the assembled commutation loop.
-    tvs_bus = new BusTvsMrt130kp295
+    # Stage 14: two 30KPA150CA in series; the string midpoint is the R3/R4 bleed midpoint, which
+    # also equalises their leakage (ALT-D3 2.4).
+    tvs_bus = new BusTvs30kpa150
     tvs_bus.p1 ~ BUS_P
-    tvs_bus.p2 ~ HV_RET
+    tvs_bus.p2 ~ BUSBLEED_MID
+    tvs_bus_b = new BusTvs30kpa150
+    tvs_bus_b.p1 ~ BUSBLEED_MID
+    tvs_bus_b.p2 ~ HV_RET
 
     # Separate coil return stud; external coil connects j_coil to this stud.
     j_coil_return = new PowerTerminalM4
@@ -873,63 +876,13 @@ module PowerStage120V:
     monitor_ls.selv_v ~ V3V3
     monitor_ls.selv_gnd ~ SELV_GND
     monitor_ls.bad ~ BIAS_LS_BAD
-    bias_driver = new BiasPushPull
-    bias_driver.VCC ~ V24_RAW
-    bias_driver.EN ~ V24_RAW
-    bias_driver.GND1 ~ N_LS
-    bias_driver.GND2 ~ N_LS
-    bias_driver.EP ~ N_LS
-    bias_driver.SW1 ~ BIAS_SW1
-    bias_driver.SW2 ~ BIAS_SW2
-    # DC is intentionally open: no duty-cycle control. External clock unused.
-    bias_rclk = new Bias18k
-    bias_rclk.value = 18kohm
-    bias_rclk.p1 ~ bias_driver.CLK
-    bias_rclk.p2 ~ N_LS
-    bias_rlim = new Bias30k
-    bias_rlim.value = 30kohm
-    bias_rlim.p1 ~ bias_driver.SS
-    bias_rlim.p2 ~ N_LS
-    bias_css = new Bias4u7
-    bias_css.value = 4.7uF
-    bias_css.p1 ~ bias_driver.SS
-    bias_css.p2 ~ N_LS
-    bias_rsr = new Bias4k99
-    bias_rsr.value = 4.99kohm
-    bias_rsr.p1 ~ bias_driver.SR
-    bias_rsr.p2 ~ N_LS
-    bias_cin = new Bias10u
-    bias_cin.value = 10uF
-    bias_cin.p1 ~ V24_RAW
-    bias_cin.p2 ~ N_LS
-    bias_chf = new C100n0603
-    bias_chf.value = 100nF
-    bias_chf.p1 ~ V24_RAW
-    bias_chf.p2 ~ N_LS
-    signal BIAS_SN1
-    bias_rsn1 = new Bias680
-    bias_rsn1.value = 680ohm
-    bias_rsn1.p1 ~ BIAS_SW1
-    bias_rsn1.p2 ~ BIAS_SN1
-    bias_csn1 = new C100pC0G0603
-    bias_csn1.value = 100pF
-    bias_csn1.p1 ~ BIAS_SN1
-    bias_csn1.p2 ~ V24_RAW
-    signal BIAS_SN2
-    bias_rsn2 = new Bias680
-    bias_rsn2.value = 680ohm
-    bias_rsn2.p1 ~ BIAS_SW2
-    bias_rsn2.p2 ~ BIAS_SN2
-    bias_csn2 = new C100pC0G0603
-    bias_csn2.value = 100pF
-    bias_csn2.p1 ~ BIAS_SN2
-    bias_csn2.p2 ~ V24_RAW
+    # Stage 14: the SN6507 / T2 / T3 push-pull is replaced by one isolated module per high side
+    # (f6_bias.ato HighBias), each with its own enable divider.
     bias_ha = new HighBias
     bias_ha.p ~ P_HA
     bias_ha.n ~ N_HA
     bias_ha.raw24 ~ V24_RAW
-    bias_ha.sw1 ~ BIAS_SW1
-    bias_ha.sw2 ~ BIAS_SW2
+    bias_ha.nls ~ N_LS
     bias_ha.src ~ SW_A
     bias_ha.selv_v ~ V3V3
     bias_ha.selv_gnd ~ SELV_GND
@@ -938,8 +891,7 @@ module PowerStage120V:
     bias_hb.p ~ P_HB
     bias_hb.n ~ N_HB
     bias_hb.raw24 ~ V24_RAW
-    bias_hb.sw1 ~ BIAS_SW1
-    bias_hb.sw2 ~ BIAS_SW2
+    bias_hb.nls ~ N_LS
     bias_hb.src ~ SW_B
     bias_hb.selv_v ~ V3V3
     bias_hb.selv_gnd ~ SELV_GND
@@ -1124,6 +1076,7 @@ module PowerStage120V:
     u_iso.designator = "U9"
     j_selv.designator = "J4"
     tvs_bus.designator = "D3"
+    tvs_bus_b.designator = "D17"
     j_pe.designator = "J6"
     c_hf_a1.designator = "C38"
     c_hf_a2.designator = "C39"
@@ -1142,8 +1095,6 @@ module PowerStage120V:
     leg_b.roff_h.designator = "R57"
     leg_b.roff_l.designator = "R58"
     monitor_ls.rref.designator = "R59"
-    bias_rsn1.designator = "R61"
-    bias_rsn2.designator = "R62"
     bias_ha.monitor.rref.designator = "R63"
     bias_hb.monitor.rref.designator = "R65"
     line_zc.r1.designator = "R67"
@@ -1171,17 +1122,12 @@ module PowerStage120V:
     monitor_ls.cspanuv.designator = "C68"
     monitor_ls.cspanov.designator = "C69"
     monitor_ls.cmonitor.designator = "C70"
-    bias_chf.designator = "C71"
-    bias_csn1.designator = "C72"
-    bias_csn2.designator = "C73"
-    bias_ha.split.cnr.designator = "C74"
     bias_ha.split.chf.designator = "C75"
     bias_ha.monitor.cuv.designator = "C76"
     bias_ha.monitor.cov.designator = "C77"
     bias_ha.monitor.cspanuv.designator = "C78"
     bias_ha.monitor.cspanov.designator = "C79"
     bias_ha.monitor.cmonitor.designator = "C80"
-    bias_hb.split.cnr.designator = "C81"
     bias_hb.split.chf.designator = "C82"
     bias_hb.monitor.cuv.designator = "C83"
     bias_hb.monitor.cov.designator = "C84"
@@ -1220,9 +1166,6 @@ module PowerStage120V:
     monitor_ls.rnotice.designator = "R89"
     monitor_ls.rbase.designator = "R90"
     monitor_ls.rpull.designator = "R91"
-    bias_rclk.designator = "R92"
-    bias_rlim.designator = "R93"
-    bias_rsr.designator = "R94"
     bias_ha.split.rtop.designator = "R95"
     bias_ha.split.rbot.designator = "R96"
     bias_ha.monitor.rhalf_top.designator = "R97"
@@ -1265,15 +1208,8 @@ module PowerStage120V:
     bias_ls.cin.designator = "C98"
     bias_ls.cout1.designator = "C99"
     bias_ls.cout2.designator = "C100"
-    bias_cin.designator = "C101"
-    bias_ha.craw.designator = "C102"
-    bias_ha.split.cin.designator = "C103"
     bias_ha.split.cout1.designator = "C104"
-    bias_ha.split.cout2.designator = "C105"
-    bias_hb.craw.designator = "C106"
-    bias_hb.split.cin.designator = "C107"
     bias_hb.split.cout1.designator = "C108"
-    bias_hb.split.cout2.designator = "C109"
     leg_a.bias_h.chf1.designator = "C110"
     leg_a.bias_h.chf2.designator = "C111"
     leg_a.bias_h.chf3.designator = "C112"
@@ -1301,15 +1237,8 @@ module PowerStage120V:
     leg_a.doff_l.designator = "D7"
     leg_b.doff_h.designator = "D8"
     leg_b.doff_l.designator = "D9"
-    bias_ha.da.designator = "D10"
-    bias_ha.db.designator = "D11"
-    bias_hb.da.designator = "D12"
-    bias_hb.db.designator = "D13"
-    bias_css.designator = "C130"
     bias_or.designator = "U25"
     bias_ls.ldo.designator = "U26"
-    bias_ha.split.ldo.designator = "U27"
-    bias_hb.split.ldo.designator = "U28"
     monitor_ls.monitor.designator = "U29"
     bias_ha.monitor.monitor.designator = "U30"
     bias_hb.monitor.monitor.designator = "U31"
@@ -1318,12 +1247,27 @@ module PowerStage120V:
     bias_hb.monitor.dnotice.designator = "D16"
     monitor_ls.iso.designator = "U32"
     bias_ha.monitor.iso.designator = "U33"
+    bias_ha.iso.designator = "U41"
+    bias_hb.iso.designator = "U42"
+    bias_ha.cin1.designator = "C102"
+    bias_ha.cin2.designator = "C103"
+    bias_ha.cinhf.designator = "C74"
+    bias_ha.cavin.designator = "C105"
+    bias_ha.cfb.designator = "C71"
+    bias_hb.cin1.designator = "C106"
+    bias_hb.cin2.designator = "C107"
+    bias_hb.cinhf.designator = "C81"
+    bias_hb.cavin.designator = "C109"
+    bias_hb.cfb.designator = "C72"
+    bias_ha.rfbt.designator = "R92"
+    bias_ha.rfbb.designator = "R93"
+    bias_hb.rfbt.designator = "R94"
+    bias_hb.rfbb.designator = "R61"
+    bias_ha.ren_top.designator = "R62"
+    bias_ha.ren_bot.designator = "R127"
+    bias_hb.ren_top.designator = "R128"
+    bias_hb.ren_bot.designator = "R129"
     bias_hb.monitor.iso.designator = "U34"
-    bias_driver.designator = "U35"
-    bias_ha.transformer.designator = "T2"
-    bias_hb.transformer.designator = "T3"
-    bias_ha.filter.designator = "L2"
-    bias_hb.filter.designator = "L3"
     line_zc.opto.designator = "U36"
     # Monitor crossings changed to ISO7710 (CMTI); R60/R64/R66 vacated.
     monitor_ls.ldo5.designator = "U37"

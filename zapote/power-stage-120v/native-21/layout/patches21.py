@@ -34,7 +34,7 @@ HANDLED = ()
 # a small F.Cu island and R5.1 (LEG_RET) through three at x 40.9. Up to 18 A in one via in the
 # coherent return case, where native-17 had three 0.8 mm vias per side. Six filled 0.3 mm vias in
 # each current pad take the layer transfer at the pad (a shunt's current pads carry their own vias).
-IN_PAD = ("R5", "U26", "U27", "U28", "U35")
+IN_PAD = ("R5", "U26")   # stage 14: U27 / U28 / U35 removed
 # SW_B's B.Cu outline reaches under R5, but its fill never does (0 mm² in this box on the stage-5
 # board): the outline alone kept HV_RET vias out of R5.4. Clip it there.
 SWB_CLIP = (34.0, 12.0, 42.0, 18.0)
@@ -54,7 +54,7 @@ MAINS_POURS = {("ac_l_in", "F.Cu"): [[257.0, 0.6], [257.0, 9.1], [283.0, 9.1], [
 # Stage 13: resonant bank becomes 5 radial TDK B32654 (pins x 163.0 / 190.5, rows y 53.2-111.5). The B.Cu
 # res_a strip widens to x 166 and spans y 52.0-112.9; the sw_b band's lower edge rises from y 50 to 46.8
 # between x 150 and 188 (5 mm tank rule to the res_a strip), and the sw_b strip widens to x 188 and
-# reaches y 112.9. The last pad edges stay >= 8 mm from the SELV line_zc-raw run (B.Cu, y 121.1).
+# reaches y 112.9. The last pad edges stay >= 8 mm from the SELV line_zc_raw run (B.Cu, y 121.1).
 RES_A_STRIP = (150.0, 52.0, 166.0, 112.9)
 SWB_STRIP = (188.0, 46.8, 200.6, 112.9)
 SWB_BAND_TRIM = (150.0, 46.8, 188.0, 50.1)
@@ -102,7 +102,7 @@ R5_MAX, R5_REACH = 10, 2.6
 # Exposed-pad thermal vias (independent review 2026-10-08, B2): the TPS7A4700 LDOs (U26 LS ~0.95 W,
 # U27 / U28 HS) and the SN6507 (U35) had none. Filled, capped 0.6 / 0.3 vias on a grid in each pad,
 # into the part's own plane (n_ls / n_ha / n_hb); pitch 1.0 / 0.9 mm keeps merge_close_vias off them.
-EP_VIAS = {"U26.21": (3, 1.0), "U27.21": (3, 1.0), "U28.21": (3, 1.0), "U35.11": (2, 0.9)}
+EP_VIAS = {"U26.21": (3, 1.0)}   # stage 14: the HS TPS7A47s (U27/U28) and the SN6507 (U35) are gone
 
 
 def add_ep(g):
@@ -159,6 +159,7 @@ def add(g):
     add_stack(g)
     add_stage8(g)
     add_stage13(g)
+    add_stage14(g)
 
 
 # Output polylines (base copper), with the y where each leaves 0.6 / 0.5 mm for the 0.3 mm neck
@@ -207,6 +208,105 @@ def add_stage13(g):
     put()'s check waives that partner and the final DRC decides. The B.Cu sw_b band is another layer."""
     from patches21_v1 import put
     put(g, "res_a", "F.Cu", 0.4, "R22.1", [156.54, 50.0], "C21.1", escape="crbleed_1")
+
+
+# Stage 14: the module primary feeds and the bus-clamp midpoint. Every run ends on a pad (through a
+# via and a short F.Cu stub) so nothing dangles: the incremental pass treated the renamed base trunks
+# as stale and prunes dangling copper.
+# - V24_RAW: from the LS-block via at (101.9, 87.5) on In1 (route21's T_LINES band, y 45.5) to a drop
+#   beside C102 (U41's input cap) and, past the west end of the In1 n_ls run (x 10.6), to C106 (U42).
+# - Enable: each module has its own divider beside its CTRL pin (no shared run).
+# - BUSBLEED_MID: R3 - the D3 / D17 midpoint - R4 along y 100.8 (ALT-D3 4.2), with the 1.0 mm
+#   midpoint link between the two TVS.
+FEEDS = [("v24_raw", [(101.9, 87.5), (101.9, 45.5), (54.6, 45.5), (52.6, 47.5), (52.6, 58.1)], "C102.1"),
+         ("v24_raw", [(54.6, 45.5), (8.0, 45.5), (7.0, 46.5), (7.0, 53.1)], "C106.1"),
+]
+
+
+def add_stage14(g):
+    from patches21_v1 import put
+    for net, pts, pad in FEEDS:
+        # In1 crosses the ocp_kelvin_p protection pour and the hv_ret trunk pour (pours only, checked: no
+        # tracks), as route21's T_LINES did; KiCad refills both round it
+        put(g, net, "In1.Cu", 0.4, *[list(q) for q in pts], escape=("ocp_kelvin_p", "hv_ret"))
+        drill(g, net, *pts[-1])
+        put(g, net, "F.Cu", 0.25, list(pts[-1]), pad)
+    put(g, "busbleed_mid", "F.Cu", 1.0, "D3.2", "D17.1")
+    # the base bleed route's own geometry: R3 / R4 each span bus_p or hv_ret and the midpoint, so their
+    # pads are bounded pad escapes (DRU); the final DRC judges the clearance
+    # into R4 pad 1 from above and out of pad 2 from below, ending at the pads' outer edges (not their
+    # centres) so the two runs stay >= 3.2 mm apart across R4
+    put(g, "busbleed_mid", "F.Cu", 0.4, "R3.2", [248.04, 100.8], [288.0, 100.8], [288.0, 101.4], escape=("bus_p", "hv_ret"))
+    put(g, "busbleed_mid", "F.Cu", 0.4, [268.57, 106.0], [268.57, 100.8])
+    put(g, "hv_ret", "F.Cu", 0.6, [288.0, 105.6], [287.4, 106.2], "D17.2", escape="busbleed_mid")
+    # Module heat (about 1.1 W each, ALT-BIAS 3.2) leaves through its pins: RECOM R24C2T25/R p.12 asks
+    # for copper pours with vias on PGND and VOUT-. Each module gets an N_LS pour under its primary half
+    # and an N_Hx pour under its secondary half, on F.Cu and B.Cu, stitched with vias; the two halves
+    # stay >= 3.2 mm apart (HOT groups), the pours refill round everything else.
+    from shapely.geometry import Point as _Pt
+    for (mx, my), nsec, tag in (((56.5, 66.2), "n_ha", "U41"), ((10.2, 61.2), "n_hb", "U42")):
+        # primary pour over the PGND pins 8-18 only (x <= mx + 0.9), clear of PVIN / AVIN / CTRL (pins 4-7).
+        # Both modules get both pours on F.Cu and B.Cu: with U42's primary on F.Cu only, B3 put U42
+        # 40 K above U41 (175.6 vs 135.5 C, nominal h10); P_HB now runs on In2, and SW_B re-routes round it.
+        pri = (mx - 7.8, my - 10.2, mx + 0.9, my - 1.9)
+        sec = (mx - 7.8, my + 1.9, mx + 7.0, my + 9.8)
+        for net, rect in (("n_ls", pri), (nsec, sec)):
+            for lay in ("F.Cu", "B.Cu"):
+                g["zone"](net, lay, rect, name=f"{net} {tag} heat-spread")
+            x0, y0, x1, y1 = rect
+            y = y0 + 1.0
+            while y < y1 - 0.8:
+                x = x0 + 1.0
+                while x < x1 - 0.8:
+                    if not g["GEO"].conflicts(net, CU, _Pt(x, y).buffer(0.3), limit=1, via=True):
+                        g["via"](net, round(x, 3), round(y, 3), size=0.6)
+                    x += 1.6
+                y += 1.6
+        if tag == "U42":
+            # U42's N_LS island sits at the board edge, and SW_B's B.Cu link cuts its B.Cu pour: B3 still
+            # had it at 175 C (nominal h10) against U41's 136. In1 / In2 are empty there, so its primary
+            # also spreads on both inner layers (priority 2 over the hv_ret / bus_p trunks' edge; the
+            # primary stitching vias above join all four layers).
+            for lay in ("In1.Cu", "In2.Cu"):
+                g["zone"]("n_ls", lay, (1.0, 48.0, 13.6, 56.6), priority=2, name=f"n_ls {tag} heat-spread inner")
+    put(g, "p_hb", "F.Cu", 0.25, "U42.28", "U42.29")      # the module's two VOUT+ pins
+    put(g, "p_ha", "F.Cu", 0.25, "U41.28", "U41.29")
+    # Driver-side links the router can't find (spots probed against the stage-14 copper): the U2 / U1
+    # driver banks meet the modules only through narrow corridors, 8 mm from the SELV driver inputs and
+    # 3.2 mm from the LS / v24 copper. P_HB leaves U2's supply caps north of the In1 LOW runs and takes
+    # In2 down x = 19 to R94; the N_HB bank tail joins U42's B.Cu pour; the N_HA bank tail drops on In1
+    # into the U41 In1 pour.
+    drill(g, "p_hb", 27.6, 37.6)
+    put(g, "p_hb", "F.Cu", 0.3, [27.6, 37.6], [28.88, 38.88], "C18.1")
+    # In2 crosses the bus_p trunk pour's edge (a pour: KiCad refills round it)
+    put(g, "p_hb", "In2.Cu", 0.3, [27.6, 37.6], [25.9, 37.6], [19.3, 44.2], [19.3, 72.6], [12.2, 72.6], escape="bus_p")
+    drill(g, "p_hb", 12.2, 72.6)
+    put(g, "p_hb", "F.Cu", 0.3, [12.2, 72.6], [11.4, 71.8], "R94.1")
+    put(g, "n_hb", "B.Cu", 0.5, [18.6, 61.6], [16.6, 64.0])
+    put(g, "n_ha", "B.Cu", 0.6, [64.8, 47.5], [64.8, 50.0])
+    drill(g, "n_ha", 64.8, 50.0)
+    put(g, "n_ha", "In1.Cu", 0.25, [64.8, 50.0], [63.6, 52.0], [61.8, 53.8], [61.8, 61.0], [60.4, 62.4], [60.4, 67.0],
+        escape="hv_ret")   # the hv_ret trunk pour's edge (a pour: KiCad refills round it)
+    # Local re-links round the modules (the base copper that served U27 / U28 / T2 / T3 is gone):
+    # each module's enable divider, the U41 input caps on the far side of its PGND pins, P_HA from the
+    # module and the island to the driver bank (U1.16), P_HB to U31's supply, and SW_B to U20 (the
+    # leg-B split shunt's cathode).
+    from patches21_v1 import route_group
+    route_group(g, [("bias_ha-en", CU, (57.0, 57.0, 68.0, 67.0), 0.25, ["U41.4", "R62.2", "R127.1"]),
+                    ("bias_hb-en", CU, (11.0, 53.0, 22.0, 62.0), 0.25, ["U42.4", "R128.2", "R129.1"]),
+                    ("v24_raw", CU, (52.0, 56.0, 67.0, 60.4), 0.3, ["C74.1", "C105.1", "C103.1"]),
+                    ("p_ha", CU, (44.0, 34.0, 79.0, 92.0), 0.3, ["U41.28", "R92.1", "U30.3", "C104.1", "U1.16"]),
+                    ("p_hb", CU, (0.6, 60.0, 20.0, 84.0), 0.3, ["U42.29", "R94.1", "U31.3"]),
+                    ("n_ls", CU, (55.0, 56.0, 67.0, 66.0), 0.3, ["U41.1", "U41.5", "U41.8", "R127.2"]),
+                    ("n_ls", CU, (8.0, 44.0, 22.0, 58.0), 0.3, ["C107.2", "U42.1"]),
+                    ("n_ls", CU, (8.0, 40.0, 42.0, 54.0), 0.3, ["C107.2", "U2.9"]),
+                    ("v24_raw", CU, (8.0, 50.0, 20.0, 58.5), 0.3, ["U42.7", "C81.1", "C106.1", "C109.1", "C107.1", "R128.1"]),
+                    ("v24_raw", CU, (60.0, 56.0, 68.0, 63.0), 0.3, ["R62.1", "C103.1"]),
+                    ("v24_raw", CU, (52.0, 56.5, 60.0, 60.0), 0.3, ["C102.1", "C74.1"]),
+                    ("v24_raw", CU, (55.0, 56.5, 61.0, 62.2), 0.25, ["U41.7", "U41.6", "C74.1"]),
+                    ("n_ha", CU, (44.0, 64.0, 66.0, 86.0), 0.3, ["U41.19", "U30.12"]),
+                    ("bias_ha-fbm", CU, (55.0, 68.0, 64.0, 78.0), 0.2, ["U41.34", "U41.33", "R92.2", "R93.1", "C71.1"]),
+                    ("sw_b", CU, (0.6, 40.0, 30.0, 95.0), 0.3, ["U20.2", "C95.1"])])
 
 
 def add_r5(g):

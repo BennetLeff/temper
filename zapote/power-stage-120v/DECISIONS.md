@@ -348,7 +348,7 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
   - 942C12P22K-F also has no distributor stock (24-week lead time).
 - **Choice:** 5 × TDK B32654A1104K000 in parallel.
   - The part is 0.10 µF MKP, 1600 Vdc / 500 Vac, 14 × 24.5 × 31.5 mm, P27.5 (B3265*A data sheet pp. 3 and 22).
-  - It is rated **7.3 A at 85 °C / 100 kHz**, and **0.86×** on TDK's own I_RMS-vs-f curve at 85 °C, read by eye (±10 %).
+  - It is rated **7.3 A at 85 °C / 100 kHz**, and **0.86×** on TDK's own I_RMS-vs-f curve at 85 °C, read by eye (±10 %). *Corrected 2026-10-10:* digitized from the curve, it is **0.89×** at 22 A (`05-resonant-tank-envelope/round6-full-power/scripts/digitize_tdk_p57.py`).
   - Stock: 2,669 at DigiKey on 2026-10-09.
 - **Rejected:** 942C16P1K-F × 5, which clears even the √f bound but needs 39 mm more than the slot.
 - **Resonance:** 0.50 µF raises resonance 3.9 %. Round 4's 0.50 µF run gives a minimum f/f_res of 1.21 and no floor-limited cases. The bleed τ becomes 0.94 s.
@@ -425,3 +425,109 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
 4. **Unmodelled clamp case (ALT-D3):** gate-off at the line crest while the mains source inductance keeps driving current into the bus reaches about 578 V with no clamp (assumed 500 µH / 30 A). It sets the longest D3 pulse.
    - DC-LINK-CLAMP.md and ORACLE-ANSWER.md do not cover it.
    - **D3 is required before any bus above 150 V.** Bench bring-up without a qualified clamp stays at ≤ 150 V DC.
+
+**2026-10-09, stage 14: bias modules, 9 µF bus capacitors, two-TVS bus clamp (owner approved: "approved, go ahead with stage 14").** Basis: `validation-results/08-manufacturing-package/native-21/sourcing/alt-circuits-2026-10-09/`.
+1. **High-side bias: one RECOM R24C2T25/R-R per high side** (U41, U42), replacing the SN6507 (U35), T2/T3, D10–D13, L2/L3 and the HS TPS7A47s (U27/U28) with their passives.
+   - **Circuit:**
+     - the module's primary is on V24_RAW / N_LS, the same TCO-switched PS2 domain the SN6507 used;
+     - a shared enable, CTRL = 24 V × 27/127 = 5.10 V (R62 100 k / R127 27 k);
+     - its secondary gives a single 17 V output, 2.5 V × (1 + 63.4/11) = 16.91 V (RECOM p.4 values, 0.1 % resistors), into the unchanged TLVH431 split, reservoir and rail monitor;
+     - COM and PG are left open (single-output configuration).
+   - **Why it is not D-12 again** (the 2026-10-06 entries): D-12's rejected set was four SELV-fed modules, negative LDOs and a second AC-DC. This uses two modules on the existing TCO-switched HOT-side supply, so the TCO cut is kept, and it is a net reduction of 10 parts.
+   - **Barrier:** coupling capacitance has a datasheet maximum (3.5 pF), against 750320775's 3 pF *typical*. It is reinforced (5 kVAC / 1.4 kVDC working), with CMTI 150 kV/µs.
+   - **Evidence (ALT-BIAS):** the periodic rail campaign with the module as the source passes 128/128, worst −1.889 V (committed case −1.888 V). Startup reaches power-good at 6–13 ms against the module's 16 ms time-out with one split output cap dropped, which this design does.
+   - **Open (bench):**
+     - module temperature at the 60 kHz control-window maximum (~1.4 W) and at the 80 kHz F6 allocation (1.71 W against the 1.7 W typical, D-12's old concern);
+     - the startup time;
+     - the module's 10–16 MHz spread-spectrum emissions;
+     - the edge-replay rail campaign including barrier coupling (finding 2 above).
+   - **Netlist:** atopile now names three nets differently, `line_zc_raw`, `ldo_nr` and the LS TPS7A47's unused ANY-OUT pins `p2…p19`. They are mapped in the audit, the rules and the copper (`native-21/layout/stage14_migrate.py`).
+2. **C5/C6: TDK B32676G1905K000** (9 µF ±10 %, 750 VDC, same pads; bus 18.4 µF).
+   - **F6 with explicit bulk (ALT-C5C6):** 168/168 pass. Worst die VDS falls from 466/482 to 455/461 V, and off-gate from 0.53/0.78 to 0.13/0.51 V, from the lower ESL (12 against 19.2 nH).
+   - **Costs:** about 80 % of TDK's self-heating allowance at an 85 °C case ambient. Bench: case temperature at 22 A.
+   - **Changed behaviour:** the burst-power bus valley is 106 V against 33 V; bleed time ×3.3; inrush I²t ×6 (≤ 1.8 % of F1).
+3. **D3 + D17: two Good-Ark 30KPA150CA in series**, midpoint on BUSBLEED_MID.
+   - **Ratings:** clamp 466.8 V at 129.8 A, ≤ 520 V target; standoff 300 V against the 286 V corner (ALT-D3).
+   - **Rule:** DC-LINK-CLAMP's no-silent-substitution rule is satisfied by this owner approval.
+   - **Open:** the bench pulse qualification (ALT-D3 §5). Until it passes, the bench bus stays ≤ 150 V DC.
+   - **Board:** D3 pads at 254.00 / 266.70; D17 at 270.54 / 283.24; R4 moves to (288.0, 103.5), 270° (pad-escape rects updated in `stage14_migrate.py`).
+4. **Layout method:** every part that survives from stage 13b keeps its stage-13b pose (`native-21/layout/placement-stage13b.json`). The modules take T2/T3's spots, rotated 270° (primary up to the existing In1 trunk, whose bias_sw1/bias_sw2 tracks become n_ls/en_hs). Only the new parts are placed fresh.
+
+**2026-10-09, enclosure R32 package (output/temper-r32-studies/R32-PLAN.md §4): power-stage dispositions.**
+1. **Sink S8:** accepted. 6063, 8 mm base, 15 × 1.5 mm fins on a 3.0 mm gap; machined front face; 4 × M4 blind bond holes in the dry band; chem film, no masks.
+   - §28.1 (enclosure position, clause intent): it restricts the screw material, not the threaded part. So it is **tapped 6063 with stainless ISO 4762 M4 screws**, about 7 mm engagement, with DIN 6797 locking (§28.3). **The certifier is to confirm.** Wire-thread inserts are held in reserve against Table 14 or E1b failures.
+   - SINK-DRAWING-NOTES are updated to S8.
+2. **D-18 requirement:** **R_SA ≤ 0.29 °C/W at ≥ 13 CFM delivered** replaces "0.15 at ≥ 20 CFM". The 0.15 was an allocation, and `requirement.py` reproduces the 0.2915 limit with 125.9 W, Tj 125 °C, 50 °C air and the M11 interface. Push blower (Delta BFB1012VH-F00) on PS1.
+3. **Clamp stack:**
+   - a seat-before-solder fixture (tab faces coplanar within 0.05 mm, square within 0.3°, with a 0.665 mm step at BR1);
+   - comb acceptance 45–102 N per TO-247 (Infineon body A 4.70–5.30 mm), capped at Infineon's published maximum clip force if lower;
+   - BR1 keeps the 1.0 mm Gap Pad, which retires the BR1-move re-spin;
+   - the sink floats and is locked after the comb torque;
+   - comb screws are 3 × M3 into the bar (clamp only).
+4. **EMI below 150 kHz (new gap in D-22):** the 2f bus-ripple line screens at −4 to −25 dB at 9–150 kHz. The inlet module adds **≥ 100 µH DM**: ≥ 80 % at 15 A DC bias, rated 20 A, its heat stated against the module allowance.
+   - Power-stage follow-up: damping of the ~16 kHz DM/X-cap resonance, and the LINE_ZC phase shift.
+   - First powered unit: a conducted pre-scan from 9 kHz.
+5. **Coil:** tuning and acceptance use the **installed** inductance: **R32 66.34 µH no-pan** (66.28 µH with the 1.27 mm walls). The seat ring stays one closed loop (joints ≤ 0.2 mΩ), because broken rings fail the 30 m field limit. Comb force stays 45–102 N: Infineon "Recommendations for Assembly of TO Packages" §4.3.2 limits only the pressure on the plastic, and 0.52 N/mm² is far below its 150 N/mm².
+   - **Coil loss of record:** I²·R_ac with round 4's basis is **≈ 119 W at 22 A nominal, ≤ ≈ 198 W hot**; design for 200 W. Round 3's 48 W and the coil spec's 150–200 W are both superseded. The coil needs a ventilation bleed.
+6. **Open (power stage):** magnetic pickup under the coil (140–640 µT at 31 kHz) on the R5 Kelvin, CT and LINE_ZC loops. At about 1 A per mV at R35.2, the loop area matters. To be computed from the R32 field map.
+7. **Confirmed:**
+   - RES_A / coil to SELV is 242 V rms / 640 V pk working (ORACLE Q2);
+   - J6 stays: H1 is a bare NPTH, so the board's PE comes only through J6;
+   - H2–H7 keep nylon pan heads (PEEK socket heads if V-0 is ever required);
+   - chem film finish on the bar and sink, with the E1b ≤ 0.1 Ω / 25 A test.
+8. **Coil cooling and coil requirements (R32 study 02 follow-up, `02-cooling-acoustics-venting/coil_thermal.py`):**
+   - **Cooling:** one push blower serves the sink and, through a ~27 % bleed, a sealed jet plenum under the coil (135 × Ø3 jets).
+   - **Results:** typical 17 A gives a 102.5 °C winding. At 22 A with maximum R_ac and 50 °C inlet the winding reaches 140.7 °C; at 0.6× heat-transfer coefficient full speed holds 21.3 A at maximum R. Limits: mean winding ≤ 150 °C, ferrite ≤ 140 °C.
+   - **Firmware (open):** fan drive = max(sink loop, coil loop); the coil loop holds the coil NTC (controller ADC1 "COIL") at 140 °C and derates tank current above 150 °C.
+   - **Coil procurement requirements:**
+     - Litz thermal class ≥ 200 °C;
+     - R_ac ≤ 0.25 Ω at 40 kHz with the winding at 100 °C, with a measured curve (this retires the 0.41 Ω corner);
+     - N87/N97-class ferrite bars, radial, leaving the 14 mm jet lanes clear.
+   - **Pan-temperature cap: 250 °C (482 °F), owner decision 2026-10-09** ("250 c or 482 f is fine"). The firmware enforces it from the pan RTD by derating tank power, and it bounds the hot-glass hold that drives coil temperature. The 260 °C empty-pan case is a transient only.
+9. **Coil-field pickup on the sense loops (R32 field map, `validation-results/02-protection-timing/coil-pickup/PICKUP.md`):** no fix needed. Figures are peak EMF at 31.1 A peak, pan / no-pan, from the stage-13b copper.
+   - **OCP Kelvin pair:** 214 mm², 1.14 / 2.75 mV. At the tank-current peak the field is mostly in quadrature, so the shift there is 0.25 A in the model and 0.37 A at +50 % field.
+   - **OCP most pessimistic stack:** 3.0 A, which still leaves 0.32 A of the 47.32 A low corner's margin to the 44 A minimum.
+   - **CT loops:** 0.05 mV in the model (the sense/return layer swap cancels), 5.2 mV worst case, i.e. 0.35 A and 57 ns.
+   - **LINE_ZC:** 16 ns or less.
+   - **Coupling to the coil spec:** an air-core coil (2–5× field) would break only the most pessimistic OCP stack, so the ferrite-bar coil specification is also an OCP-margin item.
+   - **Optional at a re-spin:** KELVIN_N's last 30 mm on In2 under the KELVIN_P pour (−56 % EMF), and C30/C31 at U6's pins.
+10. **Full-power yield and the tank ceiling (2026-10-10; task 05 round 6, 18318042c, ASSUMED basis: no measured coil or pan).** At the 22 A ceiling, 13 % of pan cases reach the 1239 W hold (120 V, pooled). At 28 A, 85 % do (89 % on 220 mm pans).
+   - **Firmware first, at any ceiling.** Today's firmware reaches the hold on about 0.2 % of pans, for three reasons:
+     - it runs one commissioned frequency;
+     - the 45 A peak trip caps the line RMS near 21 A;
+     - the RMS trip compares per-sample AD8436 readings.
+     Required changes:
+     - **RMS trip:** use the half-cycle RMS from `input_limits`.
+     - **Per-pan frequency loop:** approach from 60 kHz down and stop at the lowest f that keeps f ≥ max(35 kHz, 1.05 f_res), line RMS ≤ ceiling, inlet ≤ 11.1 A and peak ≤ trip − 3 A.
+     - **Peak trip:** scale it with the ceiling, and lift the 50.9 A cap in `config_ok()`.
+   - **Hardware is sized for 28 A (stage 15). The commissioned ceiling is a firmware parameter.** It ships at 22 A and rises in steps to 28 A only after bench evidence:
+     - the bank hot-spot temperature; at 28 A the bank is 1.12× TDK's 85 °C curve;
+     - the coil R_ac and winding temperature;
+     - the switching loss.
+     Each of these items is ASSUMED today.
+   - **Kept:** the 70 µH coil and the 0.50 µF bank.
+     - At 28 A, 80 and 90 µH lose yield to the 35 kHz floor (81 % and 59 %).
+     - No smaller bank that fits the slot carries more than about 22 A.
+   - **Stage 15 board changes, for 28 A (envelope peak 59.2 A):**
+     - OCP trip floor ≥ 64 A, with the CT band about 64–76 A and the shunt band's low corner ≥ 64 A.
+     - The shunt high corner (about 133 A) must be checked against the FET pulsed rating before release.
+     - SW_A and SW_B copper ≥ 9.8 mm wide; SW_B needs a layout pass beside the FETs.
+     - CT T1 and R5 are adequate.
+   - **Coil RFQ:** target R_ac ≤ 0.23 Ω at 40 kHz / 100 °C (0.25 Ω holds 27.2 A at full blower); 0.25 Ω stays the acceptance limit.
+   - **Sink:** unchanged until the switching loss is measured. The conservative basis would need R_SA ≤ 0.233 °C/W; the ZVS estimate gives Tj 82 °C.
+11. **Stage 14 board complete (2026-10-10, board `3eb54216…`, copper.json `5a51cb0e…`).** The RECOM modules, C5/C6 and D3/D17 are routed.
+    - **Gates:** DRC 0 / 0 / 0; barrier21 and the Rust gate 0 (5607 items); D5 8.047 / 8.507 mm; enclosure fit 0; JLC DFM PASS; Gerber review PASS (877 round holes plus 4 slots); Kelvin band 47.33–97.77 A.
+    - **Hand links** (`patches21.add_stage14`, spots probed against the copper): three driver-to-module links the router could not find.
+      - P_HB runs from U2's caps on In2 down x = 19.3, to R94.
+      - The N_HB bank tail joins U42's B.Cu pour.
+      - The N_HA bank tail drops on In1 into U41's In1 pour.
+      - Each passes 8 mm from the SELV driver inputs and 3.2 mm from LS / v24 copper.
+      - Two dead T3-era In2 runs were dropped (`stage14_migrate.py`).
+    - **Module heat:** both modules have N_LS and N_Hx heat-spread pours on F.Cu and B.Cu. U42 also has In1 / In2 under its primary, because its edge island had it at 175 °C. B3 nominal h 10 / 25 is now U42 161.9 / 128.9 °C and U41 135.6 / 102.6 °C, so the board peak is unchanged from stage 13b.
+    - **Bench gate:** module case temperature in the enclosure at 33 / 80 kHz (ALT-BIAS).
+12. **R36 coil Litz and coil loss of record (2026-10-10; owner: first coils wound in-house on a G11 former, winder RFQ in parallel).**
+    - **Litz confirmed:** 270 × 0.10 mm, type 2, grade-200 enamel, Nomex/PTFE serve, Ø2.4 bundle (2.12 mm² Cu), 21.9 turns, about 9.9 m.
+    - **R_ac estimate** (`validation-results/05-resonant-tank-envelope/coil-litz/litz_rac.py`, on the enclosure's study-09 winding field +30 % for inter-bar leakage): **116–136 mΩ** at 40 kHz / 100 °C, against R_dc 110 mΩ. 0.08 mm strands gain ≤ 9 mΩ.
+    - **Coil copper loss of record at 28 A:** 91–107 W expected, 196 W at the 0.25 Ω acceptance limit. The enclosure keeps its 200 W cooling basis; ferrite loss is added on top by the enclosure.
+    - **Turns** were raised from 19.9 to 21.9 because 19.9 scales to about 61 µH, outside the 70 µH basis.
+

@@ -14,35 +14,35 @@ differential or isolated probes (D-8 equipment table), never a grounded scope gr
 | --- | --- | --- | --- | --- | --- | --- |
 | TP1 | leg_a-out_l | B | 82.0, 37.0 | TP21 | n_ls | leg A low-side driver output vs VSSB |
 | TP2 | n_ls | B | 113.5, 82.6 | TP22 | leg_ret | LS -2 V rail vs low-side sources (F6 rail at the edge) |
-| TP3 | v15_ls | B | 108.0, 111.6 | TP23 | leg_ret | LS +15 V rail |
-| TP4 | v24_raw | F | 54.6, 48.0 | TP24 | n_ls | 24 V HOT supply |
+| TP3 | v15_ls | F | 107.5, 92.1 | TP23 | leg_ret | LS +15 V rail |
+| TP4 | v24_raw | F | 101.9, 87.5 | TP24 | n_ls | 24 V HOT supply |
 | TP5 | ocp_node | B | 116.8, 71.0 | TP25 | ocp_kelvin_p | OCP comparator input (D4 condition 2) |
 | TP6 | hot5 | F | 116.4, 63.6 | TP26 | ocp_kelvin_p | HOT5 protection rail |
 | TP7 | bus_fault_hot | B | 120.2, 54.7 | TP27 | ocp_kelvin_p | OCP fault, HOT side |
-| TP8 | n_ha | B | 58.7, 74.0 | TP28 | sw_a | HS-A -2 V rail vs switch node (F6 rail at the edge) |
-| TP9 | p_ha | F | 67.1, 51.7 | TP29 | sw_a | HS-A +15 V rail |
-| TP10 | n_hb | F | 18.6, 52.0 | TP30 | sw_b | HS-B -2 V rail vs switch node |
-| TP11 | p_hb | F | 24.7, 47.0 | TP30 | sw_b | HS-B +15 V rail |
-| TP12 | v15_selv | B | 134.0, 131.7 | TP31 | selv_gnd | SELV 15 V |
-| TP13 | v3v3 | B | 55.0, 130.0 | TP32 | selv_gnd | SELV 3.3 V |
-| TP14 | pwm_ha | B | 78.3, 105.9 | TP33 | selv_gnd | PWM A high |
-| TP15 | pwm_la | B | 79.8, 60.8 | TP34 | selv_gnd | PWM A low |
-| TP16 | pwm_hb | B | 56.2, 132.2 | TP32 | selv_gnd | PWM B high |
-| TP17 | permit | B | 44.3, 132.9 | TP35 | selv_gnd | PERMIT |
-| TP18 | bias_bad | B | 14.4, 130.3 | TP36 | selv_gnd | BIAS_BAD (rail monitors) |
-| TP19 | bus_fault | B | 35.2, 133.6 | TP35 | selv_gnd | OCP fault, SELV side |
-| TP20 | ct_mon | B | 23.8, 134.6 | TP36 | selv_gnd | tank CT monitor |
+| TP8 | n_ha | F | 64.8, 50.0 | TP28 | sw_a | HS-A -2 V rail vs switch node (F6 rail at the edge) |
+| TP9 | p_ha | F | 56.1, 90.9 | TP29 | sw_a | HS-A +15 V rail |
+| TP10 | n_hb | B | 4.3, 115.8 | TP30 | sw_b | HS-B -2 V rail vs switch node |
+| TP11 | p_hb | B | 14.3, 114.6 | TP31 | sw_b | HS-B +15 V rail |
+| TP12 | v15_selv | B | 134.0, 131.7 | TP32 | selv_gnd | SELV 15 V |
+| TP13 | v3v3 | B | 55.0, 130.0 | TP33 | selv_gnd | SELV 3.3 V |
+| TP14 | pwm_ha | B | 78.3, 105.9 | TP34 | selv_gnd | PWM A high |
+| TP15 | pwm_la | B | 79.8, 60.8 | TP35 | selv_gnd | PWM A low |
+| TP16 | pwm_hb | B | 56.2, 132.2 | TP33 | selv_gnd | PWM B high |
+| TP17 | permit | B | 44.3, 132.9 | TP36 | selv_gnd | PERMIT |
+| TP18 | bias_bad | B | 14.4, 130.3 | TP37 | selv_gnd | BIAS_BAD (rail monitors) |
+| TP19 | bus_fault | B | 35.2, 133.6 | TP36 | selv_gnd | OCP fault, SELV side |
+| TP20 | ct_mon | B | 23.8, 134.6 | TP37 | selv_gnd | tank CT monitor |
 
 ## Probed elsewhere (no legal test-pad spot)
 
 | Net | Probe at |
 | --- | --- |
 | leg_b-out_l | component pad R58.2 / R20.1 / U2.10 (no legal test-pad spot) |
-| leg_a-out_h | component pad R10.1 / U1.15 / R53.2 (no legal test-pad spot) |
+| leg_a-out_h | component pad U1.15 / R53.2 / R10.1 (no legal test-pad spot) |
 | leg_b-out_h | component pad R57.2 / R18.1 / U2.15 (no legal test-pad spot) |
 | pwm_lb | J4.8 (bottom), ground J4.2 / J4.4 / J4.15 |
-| leg_a-dis | component pad U22.1 / R8.1 / Q1.3 (no legal test-pad spot) |
-| leg_b-dis | component pad Q4.3 / R16.1 / U23.1 (no legal test-pad spot) |
+| leg_a-dis | component pad R8.1 / U22.1 / Q1.3 (no legal test-pad spot) |
+| leg_b-dis | component pad U23.1 / R16.1 / Q4.3 (no legal test-pad spot) |
 | line_zc | J4.16 (bottom), ground J4.2 / J4.4 / J4.15 |
 | ct_zc | J4.13 (bottom), ground J4.2 / J4.4 / J4.15 |
 

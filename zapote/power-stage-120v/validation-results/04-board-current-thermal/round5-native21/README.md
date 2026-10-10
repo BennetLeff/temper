@@ -193,6 +193,16 @@ runs rise 1–10 K and remain outside the 22 A envelope.
 - **BUS_P mesh span:** 4.111 % (unchanged).
 - **B3:** 162.2 / 138.0 °C at U26, within 0.6 K of stage 12.
 
+### Stage 14 re-run (2026-10-10, board `3eb54216…`)
+
+- **Change:** one RECOM R24C2T25/R-R module per high side (U41/U42) replaces the SN6507 / T2 / T3 bias. Each module has N_LS / N_Hx heat-spread pours on F.Cu and B.Cu with stitching vias, and U42's primary also spreads on In1 / In2. C5/C6 are now 9 µF, and D3/D17 are a series clamp pair. Tank copper is untouched.
+- **Heat sources:** U41/U42 are 1.09 W each to the board. That is the 40 kHz module-loss allocation (ALT-BIAS 3.2), and it applies to the nominal case too, so it is conservative there. The SN6507 / T2 / T3 / LDO-split sources are gone (`b3/make_heat_sources.py`).
+- **BUS_P mesh span:** 4.130 % (stage 13: 4.111 %).
+- **B3, nominal h 10 / 25:**
+  - U42's pad cell is **161.9 / 128.9 °C** and U41's is **135.6 / 102.6 °C**. The board peak at h 10 equals stage 13b's (U26, 162.2 °C).
+  - With U42's primary pour on F.Cu only, U42 was 175.6 °C. Adding B.Cu gave 175.2 °C, because SW_B's B.Cu link cuts that pour. Adding In1 / In2 brought it to 161.9 °C.
+  - Watch item: the module is rated −40…100 °C, and the B3 pad cell is not its case temperature. Measure U41/U42 case temperature at first power-up in the enclosure, at 33 and 80 kHz (ALT-BIAS bench gate).
+
 **Verdict, task 04 on native-21:** nominal operation passes the copper width screen after the SW_B
 fix (SW_A at 18.8 K is the tightest). The board needs a tank-current ceiling (22 A RMS interim).
 Bench IR at nominal power remains the physical gate (D4).

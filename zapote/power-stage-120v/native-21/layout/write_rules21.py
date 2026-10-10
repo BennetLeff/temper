@@ -41,7 +41,11 @@ def side1_nc(n):
 
 groups = {k: set(v) for k, v in wr.HOT_GROUPS.items()}
 groups["LOW"] |= {"ocp_kelvin_p", "n_ls", "v24_raw", "bias_sw1", "bias_sw2", "bias_sn1", "bias_sn2",
-                  "hot5_ok_hot", "hot5_uv_raw", "hot5_uv_sense", "ocp_kelvin_n"}
+                  "hot5_ok_hot", "hot5_uv_raw", "hot5_uv_sense", "ocp_kelvin_n",
+                  # stage 14: module enable, the LS TPS7A47's NR node and unused ANY-OUT pins (unique names
+                  # now that only the LS split has an LDO), and each bias module's primary-side PG pin
+                  "bias_ha-en", "bias_hb-en", "ldo_nr", "p2", "p6", "p11", "p12", "p17", "p18", "p19",
+                  "bias_ha.iso-p3", "bias_hb.iso-p3"}
 for n in nets:
     if n in SELV or n in wr.SELV_NC or re.search(r"\.iso-nc(10|11|12|15)$", n):
         continue
@@ -50,7 +54,7 @@ for n in nets:
         groups["LOW"].add(n)
     for leg in ("a", "b"):
         if n in (f"p_h{leg}", f"n_h{leg}", f"leg_{leg}-off_h", f"leg_{leg}.bias_h-damp") or \
-                (n.startswith(f"bias_h{leg}") and not n.endswith("_bad")):
+                (n.startswith(f"bias_h{leg}") and not n.endswith(("_bad", ".iso-p3", "-en"))):
             groups[f"SW_{leg.upper()}"].add(n)
 for n in nets:
     if n.startswith("line_zc-") and n not in SELV or n in ("r1mid", "r2mid"):

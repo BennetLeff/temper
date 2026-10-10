@@ -290,54 +290,6 @@ component SpanRegulator:
     signal p20 ~ pin 20
     signal p21 ~ pin 21
 
-component BiasPushPull:
-    designator_prefix = "U"
-    mpn = "SN6507DGQR"
-    manufacturer = "Texas Instruments"
-    footprint = "Package_SO:HVSSOP-10-1EP_3x3mm_P0.5mm_EP1.83x1.89mm"
-    signal SW1 ~ pin 1
-    signal GND1 ~ pin 2
-    signal VCC ~ pin 3
-    signal EN ~ pin 4
-    signal DC ~ pin 5
-    signal SR ~ pin 6
-    signal CLK ~ pin 7
-    signal SS ~ pin 8
-    signal GND2 ~ pin 9
-    signal SW2 ~ pin 10
-    signal EP ~ pin 11
-
-component BiasTransformer:
-    designator_prefix = "T"
-    mpn = "750320775"
-    manufacturer = "Wurth Elektronik"
-    footprint = "temper:WE_750320775_EP7HV_ReviewOnly"
-    signal p1 ~ pin 1
-    signal p2 ~ pin 2
-    signal p3 ~ pin 3
-    signal p4 ~ pin 4
-    signal p5 ~ pin 5
-    signal p6 ~ pin 6
-    signal p7 ~ pin 7
-    signal p8 ~ pin 8
-
-component BiasRectifier:
-    designator_prefix = "D"
-    mpn = "PMEG10030ELPX"
-    manufacturer = "Nexperia"
-    footprint = "Diode_SMD:D_SOD-128"
-    signal K ~ pin 1
-    signal A ~ pin 2
-
-component BiasFilter:
-    designator_prefix = "L"
-    mpn = "74404064101"
-    manufacturer = "Wurth Elektronik"
-    footprint = "temper:WE_74404064101_6x6_ReviewOnly"
-    value: inductance
-    signal p1 ~ pin 1
-    signal p2 ~ pin 2
-
 component HotLdo:
     designator_prefix = "U"
     mpn = "TPS70950DBVR"
@@ -369,3 +321,86 @@ component LineOpto:
     signal AC2 ~ pin 2
     signal E ~ pin 3
     signal C ~ pin 4
+
+component IsoBiasModule:
+    """RECOM R24C2T25/R-R isolated gate-drive bias module (stage 14, DECISIONS 2026-10-09; ALT-BIAS option A1).
+    21-27 V in, single 17 V output (FBVOUT- tied to FBVOUT+, COM open; R24C2T25/R Rev.1-2024 p.4),
+    2 W, reinforced 5 kVAC / 1.4 kVDC working, Cio 3.5 pF max, CMTI 150 kV/us, 36-SSOP 12.83 x 7.5 mm.
+    Pins (p.12): 1,2,5,8-18 PGND; 3 PG; 4 CTRL; 6 AVIN; 7 PVIN; 19-27,30,31,36 VOUT-; 28,29 VOUT+;
+    32 COM; 33 FBVOUT-; 34 FBVOUT+; 35 FBCOM. Pin-compatible second source TI UCC14241QDWNRQ1."""
+    designator_prefix = "U"
+    mpn = "R24C2T25/R-R"
+    manufacturer = "RECOM"
+    footprint = "temper:RECOM_SSOP-36_7.5x12.83mm_P0.65mm_ReviewOnly"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+    signal p3 ~ pin 3
+    signal p4 ~ pin 4
+    signal p5 ~ pin 5
+    signal p6 ~ pin 6
+    signal p7 ~ pin 7
+    signal p8 ~ pin 8
+    signal p9 ~ pin 9
+    signal p10 ~ pin 10
+    signal p11 ~ pin 11
+    signal p12 ~ pin 12
+    signal p13 ~ pin 13
+    signal p14 ~ pin 14
+    signal p15 ~ pin 15
+    signal p16 ~ pin 16
+    signal p17 ~ pin 17
+    signal p18 ~ pin 18
+    signal p19 ~ pin 19
+    signal p20 ~ pin 20
+    signal p21 ~ pin 21
+    signal p22 ~ pin 22
+    signal p23 ~ pin 23
+    signal p24 ~ pin 24
+    signal p25 ~ pin 25
+    signal p26 ~ pin 26
+    signal p27 ~ pin 27
+    signal p28 ~ pin 28
+    signal p29 ~ pin 29
+    signal p30 ~ pin 30
+    signal p31 ~ pin 31
+    signal p32 ~ pin 32
+    signal p33 ~ pin 33
+    signal p34 ~ pin 34
+    signal p35 ~ pin 35
+    signal p36 ~ pin 36
+
+component BiasFb63k4:
+    designator_prefix = "R"
+    mpn = "RT0603BRD0763K4L"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component BiasFb11k:
+    designator_prefix = "R"
+    mpn = "RT0603BRD0711KL"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Bias27k:
+    designator_prefix = "R"
+    mpn = "0603WAF2702T5E"
+    manufacturer = "UNI-ROYAL(Uniroyal Elec)"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component C330pC0G0603:
+    designator_prefix = "C"
+    mpn = "CL10C331JB8NNNC"
+    manufacturer = "Samsung Electro-Mechanics"
+    footprint = "Capacitor_SMD:C_0603_1608Metric"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2

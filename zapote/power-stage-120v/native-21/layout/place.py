@@ -140,31 +140,24 @@ for leg, x in DRV.items():
          x - 5.0, 59.0, x + 5.0, 82.0)
 
 # ---------------- HS bias islands (left of each driver tongue) ----------------
-put("bias_hb.transformer", 10.2, 61.2, 270)   # primary (LOW) up toward the core
-pack(group("bias_hb", exclude=("bias_hb.monitor.iso", "bias_hb.monitor.civcc2")), 0.8, 68.9, 19.4, 118.0, gap=1.0)
+# Stage 14: the isolated bias module takes the transformer's spot, rotated 270 so its primary row
+# (pins 1-18, V24_RAW / N_LS / EN_HS) faces up to the trunk drops and its secondary row (19-36) faces
+# down into the island. Its primary decoupling sits above the primary row (DECOUPLE below).
+HS_PRIMARY = ("cin1", "cin2", "cinhf", "cavin")
+put("bias_hb.iso", 10.2, 61.2, 270)
+pack(group("bias_hb", exclude=("bias_hb.monitor.iso", "bias_hb.monitor.civcc2", "bias_hb.iso")
+           + tuple(f"bias_hb.{c}" for c in HS_PRIMARY)), 0.8, 68.9, 19.4, 118.0, gap=1.0)
 put("bias_hb.monitor.iso", 25.6, 110.0, 0)
 put("bias_hb.monitor.civcc2", 35.0, 112.0, 90)       # straddles the leg-B tongue's left edge
-put("bias_ha.transformer", 56.5, 66.2, 270)   # secondary down into the island
-pack(group("bias_ha", exclude=("bias_ha.monitor.iso", "bias_ha.monitor.civcc2")), 46.4, 73.9, 64.6, 118.0, gap=0.7)
+put("bias_ha.iso", 56.5, 66.2, 270)
+pack(group("bias_ha", exclude=("bias_ha.monitor.iso", "bias_ha.monitor.civcc2", "bias_ha.iso")
+           + tuple(f"bias_ha.{c}" for c in HS_PRIMARY)), 46.4, 73.9, 64.6, 118.0, gap=0.7)
 put("bias_ha.monitor.iso", 70.6, 110.0, 0)
 put("bias_ha.monitor.civcc2", 76.0, 121.0, 0)       # straddles the leg-A tongue's left edge
 # Leg-A -2 V bleed resistor beside U1.16's column, clear of the decoupling cluster: P_HA reaches it
 # straight up from U1.16 and its SW_A end meets the feed from above, so neither cages the cluster.
 POSE["leg_a.bias_h.rbleed"] = (75.6, 34.6, 90.0)    # just below C39's courtyard (y 33.0)
-# Each TPS7A47's NR/SS cap beside its pin 14 (the packer had put it ~35 mm away, at the island
-# foot); the rail monitor's 5 V LDO that sat there moves to the next free spot in its island.
-for leg, isl in (("hb", (0.8, 68.9, 19.4, 118.0)), ("ha", (46.4, 73.9, 64.6, 118.0))):
-    lx, ly, _ = POSE[f"bias_{leg}.split.ldo"]
-    POSE[f"bias_{leg}.monitor.ldo5"] = (-100.0, -100.0, 0.0)
-    POSE[f"bias_{leg}.split.cnr"] = (lx + 4.9, ly - 0.65, 0.0)     # pad 1 faces pin 14
-    for gap, ang in ((0.7, 0.0), (0.7, 90.0), (0.5, 0.0), (0.5, 90.0), (0.4, 0.0), (0.4, 90.0)):
-        try:
-            relocate(f"bias_{leg}.monitor.ldo5", *isl, ang=ang, gap=gap)
-            break
-        except ValueError:
-            continue
-    else:
-        raise ValueError(f"bias_{leg}.monitor.ldo5: no room in its island")
+# (Stage 14: the HS TPS7A47s are gone; the rail monitor's 5 V LDO keeps its packed spot.)
 
 # ---------------- SELV island (bottom band + board tongue) --------------------
 put("j_selv", 45.0, 182.0)
@@ -204,7 +197,7 @@ put("j_mains", 283.5, 7.2)
 # Resonant bank (stage 13): 5 x TDK B32654A1104K000 radials, P27.5, RES_A pins at x 163.0 and SW_B pins at
 # x 190.5. Rows are bounded by copper: pin 1 >= 5 mm (tank rule) below the sw_b band (B.Cu edge y 47.5),
 # no pin within 5 mm + pad of the In1 n_ls / v24_raw runs at y 74.8-76.2, and the last pad >= 8 mm from
-# the SELV line_zc-raw run (B.Cu, y 121.1). Courtyards are +/-7.2 (0.2 beyond the maximum body), pitch >= 14.5.
+# the SELV line_zc_raw run (B.Cu, y 121.1). Courtyards are +/-7.2 (0.2 beyond the maximum body), pitch >= 14.5.
 # Coil terminals beside T1: J5 (RES_A) over J2 (COIL_FEED), 15 mm apart.
 for i, y in enumerate((53.2, 67.7, 82.5, 97.0, 111.5), 1):
     put(f"c_res{i}", 176.75, y)
@@ -230,7 +223,11 @@ put("cy1", 220.0, 102.8, 180)
 put("cy2", 220.0, 109.1, 180)
 put("c_bus1", 224.0, 75.6)
 put("c_bus2", 267.0, 84.0)
-put("tvs_bus", 264.0, 106.0)
+# Stage 14: the bus clamp is two P600 TVS in series (ALT-D3 4.2): D3 pads (254.00 / 266.70), D17 pads
+# (270.54 / 283.24), 1.3 mm right of the study's sketch so the two courtyards do not overlap; R4
+# moves up-right to (286.5, 103.5) to clear D17's hv_ret pad.
+put("tvs_bus", 260.35, 106.0)
+put("tvs_bus_b", 276.89, 106.0)
 put("ps_selv", 233.0, 126.0, 180)               # SELV pins left (x 210.8), mains pins right
 put("line_zc.opto", 220.0, 95.0, 180)
 # String L_FILT-r1-r2-LED-r3-r4-N_FILT folded so each LED node lands beside its opto pin: the
@@ -241,15 +238,14 @@ put("line_zc.r2", 233.0, 101.5, 180)
 put("line_zc.r3", 233.0, 95.5, 0)
 put("line_zc.r4", 241.5, 95.5, 0)
 # LS bias, SN6507 and LS monitor (N_LS / LEG_RET domain) beside PS2
-pack(group("bias_ls", "monitor_ls", "bias_driver", "bias_rclk", "bias_rlim", "bias_css", "bias_rsr",
-           "bias_cin", "bias_chf", "bias_rsn1", "bias_rsn2", "bias_csn1", "bias_csn2",
+pack(group("bias_ls", "monitor_ls", "r_en_top", "r_en_bot",
            exclude=("monitor_ls.iso", "monitor_ls.civcc2")), 101.0, 75.6, 121.5, 112.5, gap=0.55)
 # 3 mm right of the first cut: its HOT pins set the right side of the SELV neck below the leg-A
 # pocket (island A's barrier sets the left); at x 92 that neck was 1.3 mm, now ~4.3 mm.
 put("monitor_ls.iso", 95.0, 121.0, 270)
 put("monitor_ls.civcc2", 95.0, 131.0, 0)
 put("r_bus1", 249.5, 106.0, 180)
-put("r_bus2", 283.0, 106.0)
+put("r_bus2", 288.0, 103.5, 270)   # busbleed_mid pad up (y 102.0), hv_ret pad down (y 105.0) beside D17.2
 # bus divider for AMC1311: 4 x 470 k chain, taps 9 mm apart (vertical), in the corridor between
 # U1's SELV moat (x >= 92.5) and the LOW blocks; top end via to BUS_P on the In2 trunk
 for i, n in enumerate(("r_div1", "r_div2", "r_div3", "r_div4")):
@@ -311,6 +307,17 @@ DECOUPLE += [("c_vs1", 106.6, 113.4),                   # AMC1311 U4 VDD1 (pin 1
              ("bias_ha.monitor.civcc2", 77.9, 108.5),   # U33 VCC2 (pin 14, 75.5 / 108.1)
              ("bias_hb.monitor.civcc1", 18.3, 108.5),   # U34 VCC1 (pin 3, 20.7 / 108.1)
              ("bias_hb.monitor.civcc2", 32.9, 108.5)]   # U34 VCC2 (pin 14, 30.5 / 108.1)
+# Stage 14 bias modules (rot 270, measured from the build: primary row at y - 4.97 with PVIN / AVIN
+# (7 / 6) at x + 1.6 / + 2.3 and PGND either side; secondary row at y + 4.97 with VOUT+ (28 / 29) at
+# x + 0.3 / + 1.0 and FBVOUT (33 / 34) at x + 3.6 / + 4.2).
+STAGE14_TARGETS = []
+for b, (mx, my) in (("bias_ha", (56.5, 66.2)), ("bias_hb", (10.2, 61.2))):
+    STAGE14_TARGETS += [(f"{b}.cinhf", mx + 2.0, my - 7.0), (f"{b}.cavin", mx + 3.7, my - 7.0),
+                        (f"{b}.cin1", mx - 0.8, my - 8.6), (f"{b}.cin2", mx + 4.6, my - 8.8),
+                        (f"{b}.cfb", mx + 4.0, my + 7.0), (f"{b}.rfbb", mx + 5.7, my + 7.0),
+                        (f"{b}.rfbt", mx + 2.2, my + 8.8)]
+STAGE14_TARGETS += [("bias_ha.ren_top", 63.5, 61.0), ("bias_ha.ren_bot", 63.5, 63.4),   # beside U41 CTRL (pin 4, x 60.1)
+                    ("bias_hb.ren_top", 18.4, 57.0), ("bias_hb.ren_bot", 18.4, 59.4)]   # beside U42 CTRL (pin 4, x 13.8)
 POSE.pop("j_tco", None)
 nearest_free("j_tco", 218.2, 7.6, angs=(90.0,), rect=(211.0, 1.0, 226.0, 30.0))
 for path, *_ in DECOUPLE:
@@ -326,6 +333,22 @@ for path, tx, ty, *rect in DECOUPLE:
     nearest_free(path, tx, ty,
                  rect=rect[0] if rect else (1.0, 1.0, 289.0, 189.0), avoid=OUT_LANES)
 
+# Stage 14: every part that survives from stage 13b keeps its stage-13b pose (the packs above would
+# otherwise re-pack the LS block and both HS islands round the removed parts and invalidate their
+# copper). Only the new parts and the explicitly moved ones (modules, bus clamp, R4) take new poses;
+# the new ones go to the nearest free spot by their pins.
+OLD = json.loads((HERE / "placement-stage13b.json").read_text())
+STAGE14_PLACED = {"bias_ha.iso", "bias_hb.iso", "tvs_bus", "tvs_bus_b", "r_bus2"} | {t[0] for t in STAGE14_TARGETS}
+for path, (x, y, ang) in OLD.items():
+    if path in PARTS and path not in STAGE14_PLACED:
+        q = PARTS[path]
+        a = math.radians(ang)
+        POSE[path] = (round(x + q["ox"] * math.cos(a) + q["oy"] * math.sin(a), 3),
+                      round(y - q["ox"] * math.sin(a) + q["oy"] * math.cos(a), 3), ang)
+for path, tx, ty in STAGE14_TARGETS:
+    POSE.pop(path, None)
+for path, tx, ty in STAGE14_TARGETS:
+    nearest_free(path, tx, ty, avoid=OUT_LANES)
 
 missing = sorted(set(PARTS) - set(POSE))
 if missing:

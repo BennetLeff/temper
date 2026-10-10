@@ -44,7 +44,7 @@ NET, SINK, PROBE = "ocp_kelvin_p", "R5.2", "R35.2"
 R34, R35, RS = 10.6e3, 10.0e3, 1e-3
 # From stage 13 the divider is 12.4 k / 11.7 k (stocked 0.1 % parts, BOM simplification 2026-10-09;
 # ../../08-manufacturing-package/native-21/bom-simplification/). k changes from 0.48544 to 0.48548.
-DIVIDER = {"native21s13": (12.4e3, 11.7e3), "native21s13b": (12.4e3, 11.7e3)}
+DIVIDER = {"native21s13": (12.4e3, 11.7e3), "native21s13b": (12.4e3, 11.7e3), "native21s14": (12.4e3, 11.7e3)}
 PLATING_UM, PITCH, TEMP = 18.0, 0.1, 125.0
 
 
@@ -61,7 +61,8 @@ def main() -> None:
               "native21s11": "e85a4c829ccfade2df791d7890856fc6ca2a86a9df3fbe8cc5ed17ea5fb798ac",
               "native21s12": "fc3863213b670163e4d4e78685b91683afdb9992a02ee59f8a8a12b142bc00ee",
               "native21s13": "d7baa28a9ed9173bcc32eb1184f7424ccfd1736eae6b42885c0284d6d94a6905",
-              "native21s13b": "6556f53612f4623e729360190ca06a9bbeeedc445e4a2ae26288433b76471a37"}
+              "native21s13b": "6556f53612f4623e729360190ca06a9bbeeedc445e4a2ae26288433b76471a37",
+              "native21s14": "3eb5421677007d9a06d682c5182d9e9fc264e4a50da9e51bbe354a2cedd0dcee"}
     assert data["board_sha256"] == PINNED[tag], f"{export} is not the pinned {tag} board"
     net = kit.Net(pitch_mm=PITCH, temp_c=TEMP)
     shapes, vias, pads = defaultdict(list), {}, {}

@@ -282,102 +282,32 @@
    "part": "1 \u03a9 F6 turn-off resistor"
   },
   {
-   "ref": "U35",
-   "watts_nominal": 0.24336,
-   "watts_worst": 0.26999999999999996,
+   "ref": "U41",
+   "watts_nominal": 1.09,
+   "watts_worst": 1.71,
    "board_fraction": 1.0,
    "sink_fraction": 0.0,
    "basis": "bias",
-   "note": "push-pull conversion loss share 30% (30 % of driver input)",
-   "x_mm": 104.175,
-   "y_mm": 87.195,
-   "has_unquantified_loss": false,
-   "use_as_complete_b3_heat_source": true,
-   "part": "push-pull conversion loss share 30% (30 % of driver input)"
-  },
-  {
-   "ref": "T2",
-   "watts_nominal": 0.16224000000000002,
-   "watts_worst": 0.18,
-   "board_fraction": 1.0,
-   "sink_fraction": 0.0,
-   "basis": "bias",
-   "note": "push-pull conversion loss share 20% (30 % of driver input)",
+   "note": "R24C2T25/R module loss (ALT-BIAS 3.2; 40 / 80 kHz allocation)",
    "x_mm": 56.5,
    "y_mm": 66.2,
    "has_unquantified_loss": false,
    "use_as_complete_b3_heat_source": true,
-   "part": "push-pull conversion loss share 20% (30 % of driver input)"
+   "part": "R24C2T25/R module loss (ALT-BIAS 3.2; 40 / 80 kHz allocation)"
   },
   {
-   "ref": "T3",
-   "watts_nominal": 0.16224000000000002,
-   "watts_worst": 0.18,
+   "ref": "U42",
+   "watts_nominal": 1.09,
+   "watts_worst": 1.71,
    "board_fraction": 1.0,
    "sink_fraction": 0.0,
    "basis": "bias",
-   "note": "push-pull conversion loss share 20% (30 % of driver input)",
+   "note": "R24C2T25/R module loss (ALT-BIAS 3.2; 40 / 80 kHz allocation)",
    "x_mm": 10.2,
    "y_mm": 61.2,
    "has_unquantified_loss": false,
    "use_as_complete_b3_heat_source": true,
-   "part": "push-pull conversion loss share 20% (30 % of driver input)"
-  },
-  {
-   "ref": "D10",
-   "watts_nominal": 0.06084,
-   "watts_worst": 0.06749999999999999,
-   "board_fraction": 1.0,
-   "sink_fraction": 0.0,
-   "basis": "bias",
-   "note": "push-pull conversion loss share 8% (30 % of driver input)",
-   "x_mm": 54.985,
-   "y_mm": 100.625,
-   "has_unquantified_loss": false,
-   "use_as_complete_b3_heat_source": true,
-   "part": "push-pull conversion loss share 8% (30 % of driver input)"
-  },
-  {
-   "ref": "D11",
-   "watts_nominal": 0.06084,
-   "watts_worst": 0.06749999999999999,
-   "board_fraction": 1.0,
-   "sink_fraction": 0.0,
-   "basis": "bias",
-   "note": "push-pull conversion loss share 8% (30 % of driver input)",
-   "x_mm": 49.595,
-   "y_mm": 104.615,
-   "has_unquantified_loss": false,
-   "use_as_complete_b3_heat_source": true,
-   "part": "push-pull conversion loss share 8% (30 % of driver input)"
-  },
-  {
-   "ref": "D12",
-   "watts_nominal": 0.06084,
-   "watts_worst": 0.06749999999999999,
-   "board_fraction": 1.0,
-   "sink_fraction": 0.0,
-   "basis": "bias",
-   "note": "push-pull conversion loss share 8% (30 % of driver input)",
-   "x_mm": 9.685,
-   "y_mm": 96.825,
-   "has_unquantified_loss": false,
-   "use_as_complete_b3_heat_source": true,
-   "part": "push-pull conversion loss share 8% (30 % of driver input)"
-  },
-  {
-   "ref": "D13",
-   "watts_nominal": 0.06084,
-   "watts_worst": 0.06749999999999999,
-   "board_fraction": 1.0,
-   "sink_fraction": 0.0,
-   "basis": "bias",
-   "note": "push-pull conversion loss share 8% (30 % of driver input)",
-   "x_mm": 3.995,
-   "y_mm": 101.115,
-   "has_unquantified_loss": false,
-   "use_as_complete_b3_heat_source": true,
-   "part": "push-pull conversion loss share 8% (30 % of driver input)"
+   "part": "R24C2T25/R module loss (ALT-BIAS 3.2; 40 / 80 kHz allocation)"
   },
   {
    "ref": "U26",
@@ -394,46 +324,18 @@
    "part": "TPS7A4700 low-side span LDO"
   },
   {
-   "ref": "U27",
-   "watts_nominal": 0.14196,
-   "watts_worst": 0.1575,
-   "board_fraction": 1.0,
-   "sink_fraction": 0.0,
-   "basis": "bias",
-   "note": "TPS7A4700 high-side span LDO: (20 - 17 V) \u00d7 load",
-   "x_mm": 49.575,
-   "y_mm": 87.025,
-   "has_unquantified_loss": false,
-   "use_as_complete_b3_heat_source": true,
-   "part": "TPS7A4700 high-side span LDO"
-  },
-  {
-   "ref": "U28",
-   "watts_nominal": 0.14196,
-   "watts_worst": 0.1575,
-   "board_fraction": 1.0,
-   "sink_fraction": 0.0,
-   "basis": "bias",
-   "note": "TPS7A4700 high-side span LDO: (20 - 17 V) \u00d7 load",
-   "x_mm": 3.975,
-   "y_mm": 82.325,
-   "has_unquantified_loss": false,
-   "use_as_complete_b3_heat_source": true,
-   "part": "TPS7A4700 high-side span LDO"
-  },
-  {
    "ref": "PS2",
-   "watts_nominal": 1.1304761904761904,
-   "watts_worst": 1.62,
+   "watts_nominal": 1.4190476190476191,
+   "watts_worst": 2.775,
    "board_fraction": 0.5,
    "sink_fraction": 0.5,
    "basis": "estimate",
-   "note": "IRM-20-24 at bias_sizing's HOT allocation; \u03b7 0.84 nominal / 0.80 worst",
+   "note": "IRM-20-24 at the stage-14 HOT allocation (ALT-BIAS budget.py: 7.45 W at 40 kHz, 11.10 W at 80 kHz); \u03b7 0.84 nominal / 0.80 worst",
    "x_mm": 186.2,
    "y_mm": 14.0,
    "has_unquantified_loss": true,
    "use_as_complete_b3_heat_source": true,
-   "part": "IRM-20-24 at bias_sizing's HOT allocation; \u03b7 0.84 nominal / 0.80 worst"
+   "part": "IRM-20-24 at the stage-14 HOT allocation (ALT-BIAS budget.py"
   },
   {
    "ref": "PS1",
@@ -647,7 +549,7 @@
   }
  ],
  "totals_W": {
-  "nominal": 8.938,
-  "worst": 18.318
+  "nominal": 10.167,
+  "worst": 21.101
  }
 }

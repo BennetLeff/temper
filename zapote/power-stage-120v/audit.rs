@@ -246,7 +246,7 @@ const SELV_NETS: &[&str] = &[
     "bus_fault", "vbus_p", "vbus_n", "ct_s1", "ct_s2",
     "ct_sense_mon", "ct_ref_hi", "ct_ref_lo", "ct_oc_pos", "ct_oc_neg", "ct_zc", "ct_mon",
     "bus_fault_iso", "bias_bad", "bias_bad_raw", "bias_bad_flt", "bias_ls_bad", "bias_ha_bad", "bias_hb_bad",
-    "line_zc", "line_zc-raw", "leg_a-driver_dis", "leg_b-driver_dis",
+    "line_zc", "line_zc_raw", "leg_a-driver_dis", "leg_b-driver_dis",
     "leg_a-dis", "leg_a-permit_gate", "leg_a.driver-dt",
     "leg_b-dis", "leg_b-permit_gate", "leg_b.driver-dt",
 ];
@@ -275,8 +275,8 @@ const IDENTITY: &[(&str, &str)] = &[
     ("link_pos.terminal_bus", "74650074"),
     ("link_neg.terminal_rect", "74650074"),
     ("link_neg.terminal_bus", "74650074"),
-    ("c_bus1", "B32656G0275J000"),
-    ("c_bus2", "B32656G0275J000"),
+    ("c_bus1", "B32676G1905K000"),
+    ("c_bus2", "B32676G1905K000"),
     ("c_hf_a1", "B32652A0104K000"),
     ("c_hf_a2", "B32652A0104K000"),
     ("c_hf_b1", "B32652A0104K000"),
@@ -288,7 +288,12 @@ const IDENTITY: &[(&str, &str)] = &[
     ("f1", "KLDR025.TXP"),
     ("rv1", "TMOV20RP175E"),
     ("br1", "GBJ2510-F"),
-    ("tvs_bus", "MRT130KP295CV"),
+    ("tvs_bus", "30KPA150CA"),
+    ("tvs_bus_b", "30KPA150CA"),
+    ("bias_ha.ren_top", "0603WAF1003T5E"),
+    ("bias_ha.ren_bot", "0603WAF2702T5E"),
+    ("bias_hb.ren_top", "0603WAF1003T5E"),
+    ("bias_hb.ren_bot", "0603WAF2702T5E"),
     ("r_shunt", "WSK25121L000FEA"),
     // DECISIONS.md 2026-10-03: dead-time resistors (native-18 onward).
     ("leg_a.r_dt", "RT0603BRD0749K9L"),
@@ -447,27 +452,15 @@ const IDENTITY: &[(&str, &str)] = &[
     ("monitor_ls.cspanuv", "C0603C102J5GACTU"),
     ("monitor_ls.cspanov", "C0603C102J5GACTU"),
     ("monitor_ls.cmonitor", "CC0603KRX7R9BB104"),
-    ("bias_driver", "SN6507DGQR"),
-    ("bias_rclk", "0603WAF1802T5E"),
-    ("bias_rlim", "0603WAF3002T5E"),
-    ("bias_css", "1206B475K500NT"),
-    ("bias_rsr", "0603WAF4991T5E"),
-    ("bias_cin", "UMK325AB7106KM-T"),
-    ("bias_chf", "CC0603KRX7R9BB104"),
-    ("bias_rsn1", "RC1206FR-07680RL"),
-    ("bias_csn1", "CL10C101JB8NNNC"),
-    ("bias_rsn2", "RC1206FR-07680RL"),
-    ("bias_csn2", "CL10C101JB8NNNC"),
-    ("bias_ha.transformer", "750320775"),
-    ("bias_ha.da", "PMEG10030ELPX"),
-    ("bias_ha.db", "PMEG10030ELPX"),
-    ("bias_ha.filter", "74404064101"),
-    ("bias_ha.craw", "UMK325AB7106KM-T"),
-    ("bias_ha.split.ldo", "TPS7A4700RGWR"),
-    ("bias_ha.split.cnr", "GRM188R71E105KA12D"),
-    ("bias_ha.split.cin", "UMK325AB7106KM-T"),
+    ("bias_ha.iso", "R24C2T25/R-R"),
     ("bias_ha.split.cout1", "UMK325AB7106KM-T"),
-    ("bias_ha.split.cout2", "UMK325AB7106KM-T"),
+    ("bias_ha.cin1", "UMK325AB7106KM-T"),
+    ("bias_ha.cin2", "UMK325AB7106KM-T"),
+    ("bias_ha.cinhf", "CC0603KRX7R9BB104"),
+    ("bias_ha.cavin", "CL10C331JB8NNNC"),
+    ("bias_ha.rfbt", "RT0603BRD0763K4L"),
+    ("bias_ha.rfbb", "RT0603BRD0711KL"),
+    ("bias_ha.cfb", "CL10C331JB8NNNC"),
     ("bias_ha.split.chf", "CC0603KRX7R9BB104"),
     ("bias_ha.split.shunt", "TLVH431BQDBZR"),
     ("bias_ha.split.rtop", "RT0603BRD076K2L"),
@@ -497,16 +490,15 @@ const IDENTITY: &[(&str, &str)] = &[
     ("bias_ha.monitor.cspanuv", "C0603C102J5GACTU"),
     ("bias_ha.monitor.cspanov", "C0603C102J5GACTU"),
     ("bias_ha.monitor.cmonitor", "CC0603KRX7R9BB104"),
-    ("bias_hb.transformer", "750320775"),
-    ("bias_hb.da", "PMEG10030ELPX"),
-    ("bias_hb.db", "PMEG10030ELPX"),
-    ("bias_hb.filter", "74404064101"),
-    ("bias_hb.craw", "UMK325AB7106KM-T"),
-    ("bias_hb.split.ldo", "TPS7A4700RGWR"),
-    ("bias_hb.split.cnr", "GRM188R71E105KA12D"),
-    ("bias_hb.split.cin", "UMK325AB7106KM-T"),
+    ("bias_hb.iso", "R24C2T25/R-R"),
     ("bias_hb.split.cout1", "UMK325AB7106KM-T"),
-    ("bias_hb.split.cout2", "UMK325AB7106KM-T"),
+    ("bias_hb.cin1", "UMK325AB7106KM-T"),
+    ("bias_hb.cin2", "UMK325AB7106KM-T"),
+    ("bias_hb.cinhf", "CC0603KRX7R9BB104"),
+    ("bias_hb.cavin", "CL10C331JB8NNNC"),
+    ("bias_hb.rfbt", "RT0603BRD0763K4L"),
+    ("bias_hb.rfbb", "RT0603BRD0711KL"),
+    ("bias_hb.cfb", "CL10C331JB8NNNC"),
     ("bias_hb.split.chf", "CC0603KRX7R9BB104"),
     ("bias_hb.split.shunt", "TLVH431BQDBZR"),
     ("bias_hb.split.rtop", "RT0603BRD076K2L"),
@@ -754,13 +746,16 @@ fn audit(m: &Model) -> Vec<String> {
     }
     // The TVS must protect the capacitor side of the shunt, not bridge the
     // shunt and hide a fault current from the DC return measurement.
+    // Stage 14: two TVS in series; the midpoint is the R3/R4 bleed midpoint.
     expect(&mut e, m, "tvs_bus", "1", "bus_p");
-    expect(&mut e, m, "tvs_bus", "2", "hv_ret");
+    expect(&mut e, m, "tvs_bus", "2", "busbleed_mid");
+    expect(&mut e, m, "tvs_bus_b", "1", "busbleed_mid");
+    expect(&mut e, m, "tvs_bus_b", "2", "hv_ret");
     let hv = members(m, "hv_ret");
     let want: BTreeSet<(String, String)> = [
         ("c_bus1", "3"), ("c_bus1", "4"),
         ("c_bus2", "3"), ("c_bus2", "4"),
-        ("r_bus2", "2"), ("r_shunt", "4"), ("tvs_bus", "2"),
+        ("r_bus2", "2"), ("r_shunt", "4"), ("tvs_bus_b", "2"),
         ("c_hf_a1", "2"), ("c_hf_a2", "2"),
         ("c_hf_b1", "2"), ("c_hf_b2", "2"),
         ("link_neg.terminal_bus", "1"),
@@ -1463,8 +1458,8 @@ mod tests {
     #[test]
     fn wrong_bus_tvs_mpn_fails() {
         let mut m = built();
-        m.set_part("tvs_bus", "MRT130KP300CV");
-        fails(&m, "tvs_bus is MRT130KP300CV");
+        m.set_part("tvs_bus", "30KPA160CA");
+        fails(&m, "tvs_bus is 30KPA160CA");
     }
 
     #[test]
@@ -1477,8 +1472,8 @@ mod tests {
     #[test]
     fn bus_tvs_bypassing_shunt_fails() {
         let mut m = built();
-        m.rewire("tvs_bus", "2", "leg_ret");
-        fails(&m, "tvs_bus.2");
+        m.rewire("tvs_bus_b", "2", "leg_ret");
+        fails(&m, "tvs_bus_b.2");
     }
 
     #[test]

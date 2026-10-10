@@ -52,19 +52,18 @@ for drv, rg, roff in (("U1", ("R10", "R12"), ("R53", "R54")), ("U2", ("R18", "R2
     for r in roff:
         add(r, 0.25 * GATE_NOM, 0.25 * GATE_WORST, "bias", "1 Ω F6 turn-off resistor: 25 % of one FET's gate loss (estimate)")
 
-# isolated push-pull: 30 % of the transformer-driver input (bias_sizing 70 % efficiency allocation),
-# split SN6507 30 %, each transformer 20 %, each high-side rectifier pair 15 %
-PP_NOM, PP_WORST = 2.704 * 0.30, 3.000 * 0.30
-for ref, share in (("U35", 0.30), ("T2", 0.20), ("T3", 0.20), ("D10", 0.075), ("D11", 0.075), ("D12", 0.075), ("D13", 0.075)):
-    add(ref, PP_NOM * share, PP_WORST * share, "bias", f"push-pull conversion loss share {share:.0%} (30 % of driver input)")
+# stage 14: one isolated bias module per high side (RECOM R24C2T25/R-R, U41 / U42). Module loss
+# 1.09 W at 40 kHz / 1.71 W at the 80 kHz F6 allocation (ALT-BIAS 3.2, 45 % efficiency allocation);
+# the HS TPS7A47s and the SN6507 / T2 / T3 push-pull are gone.
+for ref in ("U41", "U42"):
+    add(ref, 1.09, 1.71, "bias", "R24C2T25/R module loss (ALT-BIAS 3.2; 40 / 80 kHz allocation)")
 add("U26", 0.87248, 0.945, "bias", "TPS7A4700 low-side span LDO: (24 - 17 V) × load")
-for ref in ("U27", "U28"):
-    add(ref, 0.28392 / 2, 0.315 / 2, "bias", "TPS7A4700 high-side span LDO: (20 - 17 V) × load")
 
 # AC-DC modules: loss = Pout (1/η - 1), η 0.84 (IRM-20 typical ~86 %); half to the board (pins,
 # body on the board, the rest convects from the case) - estimate
-add("PS2", 5.935 * (1 / 0.84 - 1), 6.48 * (1 / 0.80 - 1), "estimate",
-    "IRM-20-24 at bias_sizing's HOT allocation; η 0.84 nominal / 0.80 worst", board=0.5)
+add("PS2", 7.45 * (1 / 0.84 - 1), 11.10 * (1 / 0.80 - 1), "estimate",
+    "IRM-20-24 at the stage-14 HOT allocation (ALT-BIAS budget.py: 7.45 W at 40 kHz, 11.10 W at 80 kHz); "
+    "η 0.84 nominal / 0.80 worst", board=0.5)
 add("PS1", 8.0 * (1 / 0.84 - 1), 12.0 * (1 / 0.80 - 1), "estimate",
     "IRM-20-15 SELV supply: 8 W nominal / 12 W worst load (controller allocation not final)", board=0.5)
 

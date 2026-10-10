@@ -123,11 +123,13 @@ component BridgeGbj2510:
     signal MINUS ~ pin 4
 
 component BusFilm2u7:
-    """TDK 2.7 uF +/-5%, 1000 VDC, four-pin radial polypropylene.
-    Drawing B1: pairs at each x end share an electrode; numbers are local
-    pad assignments. 22.8 A RMS at 85 C / 100 kHz, not an all-frequency rating."""
+    """TDK B32676G1905K000 9 uF +/-10 %, 750 VDC (85 C), four-pin radial MKP DC link, 30 x 45 x 42 mm,
+    P1 20.3 / e 37.5 / d1 1.2, ESL ~12 nH (B3267* data sheet). Stage 14 (DECISIONS 2026-10-09): replaces
+    B32656G0275J000 (2.7 uF, no stock); bus 18.4 uF. Same pads: pairs at each x end share an electrode;
+    numbers are local pad assignments. Self-heating ~80 % of TDK's allowance at 85 C (ALT-C5C6): check
+    the case temperature at first power."""
     designator_prefix = "C"
-    mpn = "B32656G0275J000"
+    mpn = "B32676G1905K000"
     manufacturer = "TDK"
     footprint = "temper:TDK_B32656G0275J000_4Pin_P37.50_P20.30_ReviewOnly"
     signal p1 ~ pin 1
@@ -145,14 +147,15 @@ component LocalBus100n:
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
-component BusTvsMrt130kp295:
-    """Microchip MRT130KP295CV bidirectional axial TVS across the DC link.
-    The footprint's formed lead pitch is an assembly selection; surge energy,
-    temperature and loop inductance still need hardware qualification."""
+component BusTvs30kpa150:
+    """Good-Ark 30KPA150CA bidirectional 30 kW P600 axial TVS; two in series across the DC link
+    (stage 14, DECISIONS 2026-10-09, ALT-D3): standoff 2 x 150 V, VBR min 2 x 167.5 V, clamp
+    2 x 233.4 V max at 129.8 A (10/1000 us; Good-Ark data sheet p.3). Replaces MRT130KP295CV
+    (42 weeks). Surge energy, temperature and loop still need the bench pulse qualification."""
     designator_prefix = "D"
-    mpn = "MRT130KP295CV"
-    manufacturer = "Microchip Technology"
-    footprint = "temper:MRT130KP_Axial_P20.00mm_ReviewOnly"
+    mpn = "30KPA150CA"
+    manufacturer = "Good-Ark Semiconductor"
+    footprint = "temper:P600_Axial_P12.70mm_ReviewOnly"
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 

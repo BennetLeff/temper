@@ -77,12 +77,8 @@ fn connections() -> Vec<(String, String, String)> {
             add(&format!("{leg}.{cap}"), "2", "n_ls");
         }
     }
-    // TPS7A4700 ANY-OUT = 17 V above N. TLVH431 DBZ differs from TL431 DBZ!
-    for (base, raw, p, n, src) in [
-        ("bias_ls", "v24_raw", "v15_ls", "n_ls", "leg_ret"),
-        ("bias_ha.split", "bias_ha-raw", "p_ha", "n_ha", "sw_a"),
-        ("bias_hb.split", "bias_hb-raw", "p_hb", "n_hb", "sw_b"),
-    ] {
+    // TPS7A4700 ANY-OUT = 17 V above N (low side only since stage 14). TLVH431 DBZ differs from TL431 DBZ!
+    for (base, raw, p, n) in [("bias_ls", "v24_raw", "v15_ls", "n_ls")] {
         for pin in ["1", "3", "20"] {
             add(&format!("{base}.ldo"), pin, p);
         }
@@ -92,17 +88,25 @@ fn connections() -> Vec<(String, String, String)> {
         for pin in ["13", "15", "16"] {
             add(&format!("{base}.ldo"), pin, raw);
         }
-        add(&format!("{base}.ldo"), "14", &format!("{base}-nr"));
+        add(&format!("{base}.ldo"), "14", "ldo_nr");
+        for (part, a, b) in [("cnr", "ldo_nr", n), ("cin", raw, n), ("cout2", p, n)] {
+            add(&format!("{base}.{part}"), "1", a);
+            add(&format!("{base}.{part}"), "2", b);
+        }
+    }
+    // Every split: TLVH431 shunt midpoint plus the P-N output caps.
+    for (base, p, n, src) in [
+        ("bias_ls", "v15_ls", "n_ls", "leg_ret"),
+        ("bias_ha.split", "p_ha", "n_ha", "sw_a"),
+        ("bias_hb.split", "p_hb", "n_hb", "sw_b"),
+    ] {
         add(&format!("{base}.shunt"), "1", &format!("{base}-fb"));
         add(&format!("{base}.shunt"), "2", src);
         add(&format!("{base}.shunt"), "3", n);
         for (part, a, b) in [
             ("rtop", src, format!("{base}-fb")),
             ("rbot", &format!("{base}-fb"), n.into()),
-            ("cnr", &format!("{base}-nr"), n.into()),
-            ("cin", raw, n.into()),
             ("cout1", p, n.into()),
-            ("cout2", p, n.into()),
             ("chf", p, n.into()),
         ] {
             add(&format!("{base}.{part}"), "1", a);
@@ -196,52 +200,36 @@ fn connections() -> Vec<(String, String, String)> {
         add(&format!("{base}.civcc2"), "1", "v3v3");
         add(&format!("{base}.civcc2"), "2", "selv_gnd");
     }
-    for (base, n) in [("bias_ha", "n_ha"), ("bias_hb", "n_hb")] {
-        for (pin, net) in [
-            ("1", "bias_sw1"),
-            ("2", "v24_raw"),
-            ("3", "v24_raw"),
-            ("4", "bias_sw2"),
-            ("5", &format!("{base}-sa")),
-            ("6", n),
-            ("7", n),
-            ("8", &format!("{base}-sb")),
-        ] {
-            add(&format!("{base}.transformer"), pin, net);
+    // Stage 14: one RECOM R24C2T25/R-R per high side (R24C2T25/R Rev.1-2024 p.12 pin map). Primary on
+    // V24_RAW / N_LS; secondary P-N single 17 V output (FBVOUT- tied to FBVOUT+, COM and PG open).
+    for (base, p, n) in [("bias_ha", "p_ha", "n_ha"), ("bias_hb", "p_hb", "n_hb")] {
+        let fbm = format!("{base}-fbm");
+        let en = format!("{base}-en");
+        add(&format!("{base}.ren_top"), "1", "v24_raw");
+        add(&format!("{base}.ren_top"), "2", &en);
+        add(&format!("{base}.ren_bot"), "1", &en);
+        add(&format!("{base}.ren_bot"), "2", "n_ls");
+        for pin in ["1", "2", "5", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18"] {
+            add(&format!("{base}.iso"), pin, "n_ls");
         }
-        for (part, anode) in [("da", "sa"), ("db", "sb")] {
-            add(&format!("{base}.{part}"), "2", &format!("{base}-{anode}"));
-            add(&format!("{base}.{part}"), "1", &format!("{base}-rect"));
+        add(&format!("{base}.iso"), "4", &en);
+        add(&format!("{base}.iso"), "6", "v24_raw");
+        add(&format!("{base}.iso"), "7", "v24_raw");
+        for pin in ["19", "20", "21", "22", "23", "24", "25", "26", "27", "30", "31", "36", "35"] {
+            add(&format!("{base}.iso"), pin, n);
         }
-        add(&format!("{base}.filter"), "1", &format!("{base}-rect"));
-        add(&format!("{base}.filter"), "2", &format!("{base}-raw"));
-        add(&format!("{base}.craw"), "1", &format!("{base}-raw"));
-        add(&format!("{base}.craw"), "2", n);
-    }
-    for (pin, net) in [
-        ("1", "bias_sw1"),
-        ("2", "n_ls"),
-        ("3", "v24_raw"),
-        ("4", "v24_raw"),
-        ("6", "sr"),
-        ("7", "clk"),
-        ("8", "ss"),
-        ("9", "n_ls"),
-        ("10", "bias_sw2"),
-        ("11", "n_ls"),
-    ] {
-        add("bias_driver", pin, net);
-    }
-    for (part, net) in [
-        ("bias_rclk", "clk"),
-        ("bias_rlim", "ss"),
-        ("bias_css", "ss"),
-        ("bias_rsr", "sr"),
-        ("bias_cin", "v24_raw"),
-        ("bias_chf", "v24_raw"),
-    ] {
-        add(part, "1", net);
-        add(part, "2", "n_ls");
+        add(&format!("{base}.iso"), "28", p);
+        add(&format!("{base}.iso"), "29", p);
+        add(&format!("{base}.iso"), "33", &fbm);
+        add(&format!("{base}.iso"), "34", &fbm);
+        for cap in ["cin1", "cin2", "cinhf", "cavin"] {
+            add(&format!("{base}.{cap}"), "1", "v24_raw");
+            add(&format!("{base}.{cap}"), "2", "n_ls");
+        }
+        for (part, a, b) in [("rfbt", p, fbm.as_str()), ("rfbb", fbm.as_str(), n), ("cfb", fbm.as_str(), n)] {
+            add(&format!("{base}.{part}"), "1", a);
+            add(&format!("{base}.{part}"), "2", b);
+        }
     }
     for (pin, net) in [
         ("1", "bias_ls_bad"),
@@ -258,7 +246,7 @@ fn connections() -> Vec<(String, String, String)> {
         ("r2", "r1mid", "led1"),
         ("r3", "led2", "r2mid"),
         ("r4", "r2mid", "n_filt"),
-        ("pullup", "v3v3", "line_zc-raw"),
+        ("pullup", "v3v3", "line_zc_raw"),
         ("cbuffer", "v3v3", "selv_gnd"),
     ] {
         add(&format!("line_zc.{part}"), "1", a);
@@ -268,12 +256,12 @@ fn connections() -> Vec<(String, String, String)> {
         ("1", "led1"),
         ("2", "led2"),
         ("3", "selv_gnd"),
-        ("4", "line_zc-raw"),
+        ("4", "line_zc_raw"),
     ] {
         add("line_zc.opto", pin, net);
     }
     for (pin, net) in [
-        ("2", "line_zc-raw"),
+        ("2", "line_zc_raw"),
         ("3", "selv_gnd"),
         ("4", "line_zc"),
         ("5", "v3v3"),
@@ -307,13 +295,21 @@ pub(super) fn audit_f6(m: &Model, errors: &mut Vec<String>) {
             }
         }
     }
-    for base in ["bias_ls", "bias_ha.split", "bias_hb.split"] {
+    for base in ["bias_ls"] {
         for pin in ["6", "11", "12"] {
             let path = format!("{base}.ldo");
             if m.net_of(&path, pin)
                 .is_some_and(|net| members(m, &net).len() > 1)
             {
                 errors.push(format!("{path}.{pin}: unused ANY-OUT bit must float"));
+            }
+        }
+    }
+    // Single-output module configuration: COM (32) and PG (3) must stay open.
+    for base in ["bias_ha.iso", "bias_hb.iso"] {
+        for pin in ["3", "32"] {
+            if m.net_of(base, pin).is_some_and(|net| members(m, &net).len() > 1) {
+                errors.push(format!("{base}.{pin}: must be left open (single-output module)"));
             }
         }
     }
@@ -412,17 +408,32 @@ mod tests {
     #[test]
     fn line_resistor_cannot_cross_to_selv() {
         let mut changed = crate::tests::built();
-        changed.rewire("line_zc.r2", "2", "line_zc-raw");
+        changed.rewire("line_zc.r2", "2", "line_zc_raw");
         let mut errors = Vec::new();
         audit_f6(&changed, &mut errors);
         assert!(errors.iter().any(|e| e.contains("only line_zc.opto")));
     }
     #[test]
+    fn bias_module_single_output_and_pins_are_enforced() {
+        // COM tied anywhere breaks the single-output configuration.
+        let mut changed = crate::tests::built();
+        changed.rewire("bias_ha.iso", "32", "n_ha");
+        assert!(crate::audit(&changed).iter().any(|e| e.contains("bias_ha.iso.32")));
+        // VOUT+ on the primary ground is a miswire.
+        let mut changed = crate::tests::built();
+        changed.rewire("bias_hb.iso", "28", "n_ls");
+        assert!(crate::audit(&changed).iter().any(|e| e.contains("bias_hb.iso")));
+        // The feedback divider must sense P-N of its own side.
+        let mut changed = crate::tests::built();
+        changed.rewire("bias_ha.rfbt", "1", "p_hb");
+        assert!(crate::audit(&changed).iter().any(|e| e.contains("bias_ha.rfbt")));
+    }
+    #[test]
     fn bias_source_cannot_move_to_ps1() {
         for (part, pin) in [
-            ("bias_driver", "3"),
+            ("bias_ha.iso", "7"),
             ("bias_ls.ldo", "15"),
-            ("bias_ha.transformer", "2"),
+            ("bias_hb.iso", "6"),
         ] {
             let mut changed = crate::tests::built();
             changed.rewire(part, pin, "v15_selv");

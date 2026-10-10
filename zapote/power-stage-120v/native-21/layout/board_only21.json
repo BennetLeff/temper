@@ -33,14 +33,14 @@
   {
    "net": "v15_ls",
    "at": [
-    107.95,
-    111.635
+    107.47,
+    92.095
    ],
-   "side": "B",
+   "side": "F",
    "ref_net": "leg_ret",
    "ref_at": [
-    109.7,
-    113.235
+    111.0,
+    98.035
    ],
    "purpose": "LS +15 V rail",
    "ref": "TP3"
@@ -48,14 +48,14 @@
   {
    "net": "v24_raw",
    "at": [
-    54.6,
-    48.0
+    101.9,
+    87.5
    ],
    "side": "F",
    "ref_net": "n_ls",
    "ref_at": [
-    50.82,
-    47.896
+    105.125,
+    86.595
    ],
    "purpose": "24 V HOT supply",
    "ref": "TP4"
@@ -108,23 +108,8 @@
   {
    "net": "n_ha",
    "at": [
-    58.679,
-    73.972
-   ],
-   "side": "B",
-   "ref_net": "sw_a",
-   "ref_at": [
-    60.888,
-    73.8
-   ],
-   "purpose": "HS-A -2 V rail vs switch node (F6 rail at the edge)",
-   "ref": "TP8"
-  },
-  {
-   "net": "p_ha",
-   "at": [
-    67.069999,
-    51.725
+    64.8,
+    50.0
    ],
    "side": "F",
    "ref_net": "sw_a",
@@ -132,20 +117,35 @@
     62.487,
     49.9
    ],
+   "purpose": "HS-A -2 V rail vs switch node (F6 rail at the edge)",
+   "ref": "TP8"
+  },
+  {
+   "net": "p_ha",
+   "at": [
+    56.107,
+    90.932
+   ],
+   "side": "F",
+   "ref_net": "sw_a",
+   "ref_at": [
+    56.188,
+    88.6
+   ],
    "purpose": "HS-A +15 V rail",
    "ref": "TP9"
   },
   {
    "net": "n_hb",
    "at": [
-    18.6,
-    52.0
+    4.312,
+    115.797
    ],
-   "side": "F",
+   "side": "B",
    "ref_net": "sw_b",
    "ref_at": [
-    17.2,
-    49.9
+    2.0,
+    112.085
    ],
    "purpose": "HS-B -2 V rail vs switch node",
    "ref": "TP10"
@@ -153,14 +153,14 @@
   {
    "net": "p_hb",
    "at": [
-    24.736,
-    46.989
+    14.35,
+    114.585
    ],
-   "side": "F",
+   "side": "B",
    "ref_net": "sw_b",
    "ref_at": [
-    17.2,
-    49.9
+    14.476,
+    118.011
    ],
    "purpose": "HS-B +15 V rail",
    "ref": "TP11"
@@ -323,18 +323,18 @@
   {
    "net": "leg_ret",
    "at": [
-    109.7,
-    113.235
+    111.0,
+    98.035
    ],
-   "side": "B",
+   "side": "F",
    "ref": "TP23",
    "purpose": "leg_ret reference"
   },
   {
    "net": "n_ls",
    "at": [
-    50.82,
-    47.896
+    105.125,
+    86.595
    ],
    "side": "F",
    "ref": "TP24",
@@ -373,18 +373,18 @@
   {
    "net": "sw_a",
    "at": [
-    60.888,
-    73.8
+    62.487,
+    49.9
    ],
-   "side": "B",
+   "side": "F",
    "ref": "TP28",
    "purpose": "sw_a reference"
   },
   {
    "net": "sw_a",
    "at": [
-    62.487,
-    49.9
+    56.188,
+    88.6
    ],
    "side": "F",
    "ref": "TP29",
@@ -393,11 +393,21 @@
   {
    "net": "sw_b",
    "at": [
-    17.2,
-    49.9
+    2.0,
+    112.085
    ],
-   "side": "F",
+   "side": "B",
    "ref": "TP30",
+   "purpose": "sw_b reference"
+  },
+  {
+   "net": "sw_b",
+   "at": [
+    14.476,
+    118.011
+   ],
+   "side": "B",
+   "ref": "TP31",
    "purpose": "sw_b reference"
   },
   {
@@ -407,7 +417,7 @@
     128.584
    ],
    "side": "B",
-   "ref": "TP31",
+   "ref": "TP32",
    "purpose": "selv_gnd reference"
   },
   {
@@ -417,7 +427,7 @@
     130.287
    ],
    "side": "B",
-   "ref": "TP32",
+   "ref": "TP33",
    "purpose": "selv_gnd reference"
   },
   {
@@ -427,7 +437,7 @@
     104.268
    ],
    "side": "B",
-   "ref": "TP33",
+   "ref": "TP34",
    "purpose": "selv_gnd reference"
   },
   {
@@ -437,7 +447,7 @@
     63.02
    ],
    "side": "B",
-   "ref": "TP34",
+   "ref": "TP35",
    "purpose": "selv_gnd reference"
   },
   {
@@ -447,7 +457,7 @@
     129.961999
    ],
    "side": "B",
-   "ref": "TP35",
+   "ref": "TP36",
    "purpose": "selv_gnd reference"
   },
   {
@@ -457,7 +467,7 @@
     134.359
    ],
    "side": "B",
-   "ref": "TP36",
+   "ref": "TP37",
    "purpose": "selv_gnd reference"
   }
  ],
@@ -472,7 +482,7 @@
    "net": "leg_a-out_h",
    "ref": "n_ha",
    "why": "no legal via pair within 10 mm",
-   "probe": "component pad R10.1 / U1.15 / R53.2 (no legal test-pad spot)"
+   "probe": "component pad U1.15 / R53.2 / R10.1 (no legal test-pad spot)"
   },
   {
    "net": "leg_b-out_h",
@@ -490,13 +500,13 @@
    "net": "leg_a-dis",
    "ref": "selv_gnd",
    "why": "no legal via pair within 10 mm",
-   "probe": "component pad U22.1 / R8.1 / Q1.3 (no legal test-pad spot)"
+   "probe": "component pad R8.1 / U22.1 / Q1.3 (no legal test-pad spot)"
   },
   {
    "net": "leg_b-dis",
    "ref": "selv_gnd",
    "why": "no legal via pair within 10 mm",
-   "probe": "component pad Q4.3 / R16.1 / U23.1 (no legal test-pad spot)"
+   "probe": "component pad U23.1 / R16.1 / Q4.3 (no legal test-pad spot)"
   },
   {
    "net": "line_zc",

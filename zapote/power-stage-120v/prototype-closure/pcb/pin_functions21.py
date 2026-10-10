@@ -48,17 +48,17 @@ TABLES = {
 }
 
 
-# Rails whose physical source is typed passive above (TPS7A4700 / transformer / IRM return /
+# Rails whose physical source is typed passive above (TPS7A4700 / bias module / IRM return /
 # shunt Kelvin pad). Each assertion names the source pins; the builder rejects it if the
 # netlist disagrees. ERC supply assertions only: they do not qualify the supplies.
 SUPPLIES = [
-    ("p_ha", [("U27", "1"), ("U27", "3"), ("U27", "20")], "Leg-A span regulator U27 (TPS7A4700) OUT pins."),
-    ("p_hb", [("U28", "1"), ("U28", "3"), ("U28", "20")], "Leg-B span regulator U28 (TPS7A4700) OUT pins."),
+    ("p_ha", [("U41", "28"), ("U41", "29")], "Leg-A isolated bias module U41 (R24C2T25/R) VOUT+ pins (stage 14)."),
+    ("p_hb", [("U42", "28"), ("U42", "29")], "Leg-B isolated bias module U42 (R24C2T25/R) VOUT+ pins (stage 14)."),
     ("v15_ls", [("U26", "1"), ("U26", "3"), ("U26", "20")], "Low-side span regulator U26 (TPS7A4700) OUT pins."),
-    ("n_ha", [("T2", "6"), ("T2", "7"), ("U18", "3")],
-     "Leg-A span bottom: T2 secondary return, held -2 V from SW_A by TLVH431 U18 (anode)."),
-    ("n_hb", [("T3", "6"), ("T3", "7"), ("U20", "3")],
-     "Leg-B span bottom: T3 secondary return, held -2 V from SW_B by TLVH431 U20 (anode)."),
+    ("n_ha", [("U41", "19"), ("U41", "20"), ("U18", "3")],
+     "Leg-A span bottom: U41 VOUT-, held -2 V from SW_A by TLVH431 U18 (anode)."),
+    ("n_hb", [("U42", "19"), ("U42", "20"), ("U20", "3")],
+     "Leg-B span bottom: U42 VOUT-, held -2 V from SW_B by TLVH431 U20 (anode)."),
     ("n_ls", [("PS2", "3"), ("U16", "3")], "Low-side bias return: IRM-20-24 PS2 VN, TLVH431 U16 anode."),
     ("ocp_kelvin_p", [("R5", "2")], "Protection reference: shunt R5 Kelvin pad on the HV_RET side."),
 ]

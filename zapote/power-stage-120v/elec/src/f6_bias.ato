@@ -1,5 +1,5 @@
-from "f6_parts.ato" import Bias10u, BiasComparator, BiasReference, BiasOpto, BiasNpn, BiasSilicon, GateDischarge, Bias4k42, Bias7k68, Bias120k, Bias133k, Bias2k2, Bias2k7, Gate1R, Bias6k2, Bias4k99, Bias18k, Bias30k, BiasDamping, Bias680, Line16k5, Line33k, Bias1u, Bias100n, Bias220u, Bias4u7, HotSupply24, NegativeShunt, SpanRegulator, BiasPushPull, BiasTransformer, BiasRectifier, BiasFilter, HotLdo, DisOr, LineOpto
-from "parts.ato" import C100n0603, C1nC0G0603, R10kThin, R1k0603, R10k0603, C100pC0G0603, Hot5SchmittBuffer, Iso7710, C10u1210
+from "f6_parts.ato" import Bias10u, BiasComparator, BiasReference, BiasOpto, BiasNpn, BiasSilicon, GateDischarge, Bias4k42, Bias7k68, Bias120k, Bias133k, Bias2k2, Bias2k7, Gate1R, Bias6k2, Bias4k99, Bias18k, Bias30k, BiasDamping, Bias680, Line16k5, Line33k, Bias1u, Bias100n, Bias220u, Bias4u7, HotSupply24, NegativeShunt, SpanRegulator, HotLdo, DisOr, LineOpto, IsoBiasModule, BiasFb63k4, BiasFb11k, C330pC0G0603, Bias27k
+from "parts.ato" import C100n0603, C1nC0G0603, R10kThin, R1k0603, R10k0603, C100pC0G0603, Hot5SchmittBuffer, Iso7710, C10u1210, R100k0603
 
 module BiasReservoir:
     signal src
@@ -58,7 +58,7 @@ module RegulatedSplit:
     signal n
     signal src
     signal fb
-    signal nr
+    signal ldo_nr
     # 17.0 V = 1.4 + 6.4 + 6.4 + 1.6 + 0.8 + 0.4, relative to N.
     ldo = new SpanRegulator
     ldo.p4 ~ n
@@ -74,10 +74,10 @@ module RegulatedSplit:
     ldo.p1 ~ p
     ldo.p3 ~ p
     ldo.p20 ~ p
-    ldo.p14 ~ nr
+    ldo.p14 ~ ldo_nr
     cnr = new Bias1u
     cnr.value = 1uF
-    cnr.p1 ~ nr
+    cnr.p1 ~ ldo_nr
     cnr.p2 ~ n
     cin = new Bias10u
     cin.value = 10uF
@@ -263,45 +263,124 @@ module RailMonitor:
     cmonitor.p1 ~ p
     cmonitor.p2 ~ n
 
+module HsSplit:
+    """High-side split behind the stage-14 isolated module: the module regulates P-N to 17.0 V, the
+    TLVH431 shunt fixes the midpoint (src) at ~2 V above N. Same shunt/rtop/rbot as RegulatedSplit;
+    one 10 uF + 100 nF at the module pins (the second 10 uF is dropped for the module's 16 ms
+    soft-start time-out, ALT-BIAS 3.4)."""
+    signal p
+    signal n
+    signal src
+    signal fb
+    cout1 = new Bias10u
+    cout1.value = 10uF
+    cout1.p1 ~ p
+    cout1.p2 ~ n
+    chf = new C100n0603
+    chf.value = 100nF
+    chf.p1 ~ p
+    chf.p2 ~ n
+    shunt = new NegativeShunt
+    shunt.K ~ src
+    shunt.A ~ n
+    shunt.REF ~ fb
+    rtop = new Bias6k2
+    rtop.value = 6.2kohm
+    rtop.p1 ~ src
+    rtop.p2 ~ fb
+    rbot = new R10kThin
+    rbot.value = 10kohm
+    rbot.p1 ~ fb
+    rbot.p2 ~ n
+
 module HighBias:
+    """Stage 14: one RECOM R24C2T25/R-R per high side, primary on V24_RAW / N_LS (the domain the
+    SN6507 used), secondary 17.0 V P-N into the unchanged split, reservoir and monitor."""
     signal raw24
-    signal sw1
-    signal sw2
+    signal nls
+    signal en
     signal src
     signal p
     signal n
     signal selv_v
     signal selv_gnd
     signal bad
-    signal sa
-    signal sb
-    signal rect
-    signal raw
-    transformer = new BiasTransformer
-    transformer.p1 ~ sw1
-    transformer.p2 ~ raw24
-    transformer.p3 ~ raw24
-    transformer.p4 ~ sw2
-    transformer.p5 ~ sa
-    transformer.p6 ~ n
-    transformer.p7 ~ n
-    transformer.p8 ~ sb
-    da = new BiasRectifier
-    da.A ~ sa
-    da.K ~ rect
-    db = new BiasRectifier
-    db.A ~ sb
-    db.K ~ rect
-    filter = new BiasFilter
-    filter.value = 100uH
-    filter.p1 ~ rect
-    filter.p2 ~ raw
-    craw = new Bias10u
-    craw.value = 10uF
-    craw.p1 ~ raw
-    craw.p2 ~ n
-    split = new RegulatedSplit
-    split.raw ~ raw
+    signal fbm
+    iso = new IsoBiasModule
+    iso.p1 ~ nls
+    iso.p2 ~ nls
+    iso.p5 ~ nls
+    iso.p8 ~ nls
+    iso.p9 ~ nls
+    iso.p10 ~ nls
+    iso.p11 ~ nls
+    iso.p12 ~ nls
+    iso.p13 ~ nls
+    iso.p14 ~ nls
+    iso.p15 ~ nls
+    iso.p16 ~ nls
+    iso.p17 ~ nls
+    iso.p18 ~ nls
+    iso.p4 ~ en
+    iso.p6 ~ raw24
+    iso.p7 ~ raw24
+    iso.p19 ~ n
+    iso.p20 ~ n
+    iso.p21 ~ n
+    iso.p22 ~ n
+    iso.p23 ~ n
+    iso.p24 ~ n
+    iso.p25 ~ n
+    iso.p26 ~ n
+    iso.p27 ~ n
+    iso.p30 ~ n
+    iso.p31 ~ n
+    iso.p36 ~ n
+    iso.p28 ~ p
+    iso.p29 ~ p
+    iso.p33 ~ fbm
+    iso.p34 ~ fbm
+    iso.p35 ~ n
+    # PG (3) and COM (32) are left open (single-output configuration; PG unused).
+    # Own enable divider per module: CTRL = 24 V x 27/127 = 5.10 V (4.97-5.23 V; abs max 5.5 V).
+    ren_top = new R100k0603
+    ren_top.value = 100kohm
+    ren_top.p1 ~ raw24
+    ren_top.p2 ~ en
+    ren_bot = new Bias27k
+    ren_bot.value = 27kohm
+    ren_bot.p1 ~ en
+    ren_bot.p2 ~ nls
+    cin1 = new Bias10u
+    cin1.value = 10uF
+    cin1.p1 ~ raw24
+    cin1.p2 ~ nls
+    cin2 = new Bias10u
+    cin2.value = 10uF
+    cin2.p1 ~ raw24
+    cin2.p2 ~ nls
+    cinhf = new C100n0603
+    cinhf.value = 100nF
+    cinhf.p1 ~ raw24
+    cinhf.p2 ~ nls
+    cavin = new C330pC0G0603
+    cavin.value = 330pF
+    cavin.p1 ~ raw24
+    cavin.p2 ~ nls
+    # 2.5 V x (1 + 63.4/11) = 16.91 V (RECOM p.4 table: 17 V -> 63k4 / 11k)
+    rfbt = new BiasFb63k4
+    rfbt.value = 63.4kohm
+    rfbt.p1 ~ p
+    rfbt.p2 ~ fbm
+    rfbb = new BiasFb11k
+    rfbb.value = 11kohm
+    rfbb.p1 ~ fbm
+    rfbb.p2 ~ n
+    cfb = new C330pC0G0603
+    cfb.value = 330pF
+    cfb.p1 ~ fbm
+    cfb.p2 ~ n
+    split = new HsSplit
     split.p ~ p
     split.n ~ n
     split.src ~ src
@@ -323,7 +402,7 @@ module LineZeroCross:
     signal led1
     signal led2
     signal r2mid
-    signal raw
+    signal line_zc_raw
     r1 = new Line16k5
     r1.value = 16.5kohm
     r1.p1 ~ line
@@ -336,7 +415,7 @@ module LineZeroCross:
     opto.AC1 ~ led1
     opto.AC2 ~ led2
     opto.E ~ selv_gnd
-    opto.C ~ raw
+    opto.C ~ line_zc_raw
     r3 = new Line16k5
     r3.value = 16.5kohm
     r3.p1 ~ led2
@@ -348,9 +427,9 @@ module LineZeroCross:
     pullup = new Line33k
     pullup.value = 33kohm
     pullup.p1 ~ selv_v
-    pullup.p2 ~ raw
+    pullup.p2 ~ line_zc_raw
     buffer = new Hot5SchmittBuffer
-    buffer.A ~ raw
+    buffer.A ~ line_zc_raw
     buffer.Y ~ out
     buffer.VCC ~ selv_v
     buffer.GND ~ selv_gnd

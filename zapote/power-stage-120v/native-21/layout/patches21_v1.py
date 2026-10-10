@@ -29,7 +29,7 @@ REMOVE += [{"net": "l_filt", "box": [229.9, 59.9, 230.1, 92.6], "layer": "F.Cu"}
 # SELV reference planes (In1 V3V3, In2 SELV_GND) were sliced into strips, and the pocket columns
 # under the isolators cut off the band, by long SELV signals the router had put on In1 / In2
 # along the band (> 600 mm in all). Those nets go back to F / B; inner layers stay planes.
-SELV_OUTER = {"v15_selv": ["PS1.4", "J4.1"], "line_zc-raw": ["U36.4", "R125.2", "U24.2"],
+SELV_OUTER = {"v15_selv": ["PS1.4", "J4.1"], "line_zc_raw": ["U36.4", "R125.2", "U24.2"],
               "ct_sense_mon": ["U10.3", "R42.2", "D4.2", "D5.1", "R47.1", "U12.3", "U11.4"],
               "bus_fault_iso": ["U9.13", "U13.1"], "bias_bad_raw": ["U25.4", "R126.1"],
               "bias_bad_flt": ["R126.2", "C143.1", "U40.2"], "bias_ls_bad": ["U25.1", "U32.13"]}

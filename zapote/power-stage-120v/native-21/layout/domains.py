@@ -29,7 +29,7 @@ def domain(net: str) -> str:
     if net == "pe":
         return "PE"
     for leg, sw, b in (("a", "sw_a", "bias_ha"), ("b", "sw_b", "bias_hb")):
-        if net in (sw, f"p_h{leg}", f"n_h{leg}") or (net.startswith(b) and not net.endswith("_bad")) \
+        if net in (sw, f"p_h{leg}", f"n_h{leg}") or (net.startswith(b) and not net.endswith(("_bad", ".iso-p3", "-en"))) \
                 or net in (f"leg_{leg}-gate_h", f"leg_{leg}-out_h", f"leg_{leg}-off_h", f"leg_{leg}.bias_h-damp"):
             return f"SW_{leg.upper()}"
     if net.startswith(MAINS_PREFIX) or net in ("l_mid", "n_mid"):

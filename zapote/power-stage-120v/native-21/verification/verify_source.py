@@ -7,7 +7,7 @@ import json
 def main() -> None:
     root = Path(__file__).resolve().parents[2]
     resolved = json.loads((root / 'frozen/resolved-components.json').read_text())
-    assert len(resolved['components']) == 359   # + c_hs / c_hs_bulk per leg (review B1), + c_hs_1u / c_ls_1u per leg (stage 9), + c_vs1_1u / c_vs2_1u (stage 10), + c_res4 / c_res5 (stage 13)
+    assert len(resolved['components']) == 351   # stage 14: -8 (bias modules replace SN6507/T2/T3 path; +1 bus TVS); + c_hs / c_hs_bulk per leg (review B1), + c_hs_1u / c_ls_1u per leg (stage 9), + c_vs1_1u / c_vs2_1u (stage 10), + c_res4 / c_res5 (stage 13)
     for filename, expected in resolved['source_sha256'].items():
         assert hashlib.sha256((root / filename).read_bytes()).hexdigest() == expected, filename
     for filename in ('default.csv', 'default.net', 'resolved-components.json',
@@ -23,14 +23,18 @@ def main() -> None:
         assert parts[f'{leg}.c_hs']['mpn'] == 'CC0805KRX7R9BB104' and parts[f'{leg}.c_hs_bulk']['mpn'] == 'GRM21BZ71E106KE15L'
         assert parts[f'{leg}.c_ls']['mpn'] == 'CC0805KRX7R9BB104'
         assert parts[f'{leg}.c_hs_1u']['mpn'] == parts[f'{leg}.c_ls_1u']['mpn'] == 'CL21B105KBFNNNE'
-    assert not any('RECOM' in str(part) for part in parts.values())
+    # Stage 14: RECOM appears only as the two high-side bias modules on V24_RAW (TCO-switched PS2), not
+    # as D-12's SELV-fed module set (DECISIONS 2026-10-06 / 2026-10-09).
+    assert {path for path, part in parts.items() if 'RECOM' in str(part)} == {'bias_ha.iso', 'bias_hb.iso'}
+    assert parts['c_bus1']['mpn'] == parts['c_bus2']['mpn'] == 'B32676G1905K000'
+    assert parts['tvs_bus']['mpn'] == parts['tvs_bus_b']['mpn'] == '30KPA150CA'
     assert not any('.d_boot' in path or '.c_boot' in path for path in parts)
     for base in ('monitor_ls', 'bias_ha.monitor', 'bias_hb.monitor'):
         assert parts[f'{base}.iso']['mpn'] == 'ISO7710DWR'
         assert not any(path.startswith(base + '.') and part.get('mpn') == 'VO617A-3X017T' for path, part in parts.items())
     result = {'components': len(parts), 'source_hashes_match': True,
               'two_frozen_exports_identical': True, 'native20_protection_parts_retained': True,
-              'no_RECOM_or_bootstrap': True, 'monitor_crossings_ISO7710': True, 'source_sha256': resolved['source_sha256']}
+              'RECOM_only_hs_bias_modules': True, 'no_bootstrap': True, 'monitor_crossings_ISO7710': True, 'source_sha256': resolved['source_sha256']}
     (Path(__file__).parent / 'source-check.json').write_text(json.dumps(result, indent=2) + '\n')
     print(json.dumps(result, indent=2))
 
