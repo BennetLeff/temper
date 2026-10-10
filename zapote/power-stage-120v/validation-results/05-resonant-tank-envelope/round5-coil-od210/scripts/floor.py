@@ -43,7 +43,8 @@ def main():
     out["fixed_floor"] = {"f_res_max_Hz": round(f1, 1), "L_loaded_min_uH": round(L_for(f1, C_WORST) * 1e6, 2)}
     # 2. x_reg from the round-5 grid, Ø228 and Ø240 at 66.34 uH, all pan diameters (non-burst cases)
     x = 0.0
-    for p in glob.glob(str(OUT / "grid5-d2[24]*-pan*-cases.csv")):
+    paths = glob.glob(str(OUT / "grid5-d2[24]*-pan*-cases.csv")) + glob.glob(str(OUT / "grid5-gap84-pan*-cases.csv"))
+    for p in paths:
         if "-L" in Path(p).name:
             continue
         for r in csv.DictReader(open(p)):
@@ -81,6 +82,15 @@ def main():
             "ratio_screen_high (cast-iron kl max)": round(INST_OVER_FREE * kl_ref_max, 3),
         }
     out["designs"] = rows
+    # addendum: same transfer with the as-modelled gap-84 R34 layout's f_k (220 mm, mu 100)
+    fk84, _ = G.factors("d228_gap84", 220)
+    kl84 = lambda k: 1 - (1 - k) * fk84  # noqa: E731
+    r84 = min(kl84(p["kl40"][1]) for p in pans.values()) / kl84(pans["cast_iron"]["kl40"][0])
+    out["gap84_variant"] = {"f_k_220mm": fk84, "kl_ref_nom": round(kl84(pans["cast_iron"]["kl40"][0]), 4),
+                            "ratio_pop": round(r84, 4), "L_loaded_min_reference_pan_uH": round(Lpop / r84 * 1e6, 2),
+                            "L_loaded_ref_70uH_nom": round(66.5 * kl84(pans["cast_iron"]["kl40"][0]), 2),
+                            "L_loaded_ref_70uH_minus10": round(0.9 * 66.5 * kl84(pans["cast_iron"]["kl40"][0]), 2),
+                            "L_loaded_ref_80uH_minus10": round(0.9 * 76.6 * kl84(pans["cast_iron"]["kl40"][0]), 2)}
     (OUT / "floor.json").write_text(json.dumps(out, indent=1) + "\n")
     print(json.dumps(out, indent=1))
 

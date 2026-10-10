@@ -130,5 +130,104 @@
   "n_cases": 45,
   "n_sims": 585,
   "t_s": 73
+ },
+ "gap84-pan180": {
+  "geom": "d228_gap84",
+  "pan_d_mm": 180,
+  "L0_installed_uH": 66.5,
+  "f_k": 1.0573,
+  "f_r": 0.8019,
+  "C_bank_uF": 0.5,
+  "n_cases": 45,
+  "n_sims": 584,
+  "t_s": 73
+ },
+ "gap84-pan220": {
+  "geom": "d228_gap84",
+  "pan_d_mm": 220,
+  "L0_installed_uH": 66.5,
+  "f_k": 1.165,
+  "f_r": 0.9,
+  "C_bank_uF": 0.5,
+  "n_cases": 45,
+  "n_sims": 585,
+  "t_s": 73
+ },
+ "gap84-pan260": {
+  "geom": "d228_gap84",
+  "pan_d_mm": 260,
+  "L0_installed_uH": 66.5,
+  "f_k": 1.1751,
+  "f_r": 0.9284,
+  "C_bank_uF": 0.5,
+  "n_cases": 45,
+  "n_sims": 585,
+  "t_s": 74
+ },
+ "gap84-L76-pan180": {
+  "geom": "d228_gap84",
+  "pan_d_mm": 180,
+  "L0_installed_uH": 76.0,
+  "f_k": 1.0573,
+  "f_r": 0.8019,
+  "C_bank_uF": 0.5,
+  "n_cases": 45,
+  "n_sims": 472,
+  "t_s": 76
+ },
+ "gap84-L76-pan220": {
+  "geom": "d228_gap84",
+  "pan_d_mm": 220,
+  "L0_installed_uH": 76.0,
+  "f_k": 1.165,
+  "f_r": 0.9,
+  "C_bank_uF": 0.5,
+  "n_cases": 45,
+  "n_sims": 524,
+  "t_s": 74
+ },
+ "gap84-L76-pan260": {
+  "geom": "d228_gap84",
+  "pan_d_mm": 260,
+  "L0_installed_uH": 76.0,
+  "f_k": 1.1751,
+  "f_r": 0.9284,
+  "C_bank_uF": 0.5,
+  "n_cases": 45,
+  "n_sims": 534,
+  "t_s": 66
+ },
+ "d228-L76-pan180": {
+  "geom": "d228_2sec",
+  "pan_d_mm": 180,
+  "L0_installed_uH": 76.0,
+  "f_k": 1.0485,
+  "f_r": 0.7269,
+  "C_bank_uF": 0.5,
+  "n_cases": 45,
+  "n_sims": 503,
+  "t_s": 60
+ },
+ "d228-L76-pan220": {
+  "geom": "d228_2sec",
+  "pan_d_mm": 220,
+  "L0_installed_uH": 76.0,
+  "f_k": 1.191,
+  "f_r": 0.8828,
+  "C_bank_uF": 0.5,
+  "n_cases": 45,
+  "n_sims": 534,
+  "t_s": 66
+ },
+ "d228-L76-pan260": {
+  "geom": "d228_2sec",
+  "pan_d_mm": 260,
+  "L0_installed_uH": 76.0,
+  "f_k": 1.2045,
+  "f_r": 0.9211,
+  "C_bank_uF": 0.5,
+  "n_cases": 45,
+  "n_sims": 534,
+  "t_s": 87
  }
 }

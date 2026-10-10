@@ -45,5 +45,14 @@
    "ratio_screen_low (floor at L +10 %)": 0.472,
    "ratio_screen_high (cast-iron kl max)": 0.769
   }
+ },
+ "gap84_variant": {
+  "f_k_220mm": 1.165,
+  "kl_ref_nom": 0.6388,
+  "ratio_pop": 0.7994,
+  "L_loaded_min_reference_pan_uH": 41.12,
+  "L_loaded_ref_70uH_nom": 42.48,
+  "L_loaded_ref_70uH_minus10": 38.24,
+  "L_loaded_ref_80uH_minus10": 44.04
  }
 }

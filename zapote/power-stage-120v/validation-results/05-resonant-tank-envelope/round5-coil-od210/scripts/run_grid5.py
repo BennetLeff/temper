@@ -58,6 +58,17 @@ CONFIGS = {
     "d228-L82-pan220": ("d228_2sec", 220, 82.0),
     # Ø210 (ruled out by cooling, R33 study 09): one comparison row
     "d210-2sec-pan220": ("d210_2sec", 220, L_INST),
+    # Addendum: as-modelled R34 with the gap at r 84-92 (scripts/addendum_gap84.py); 70 uH (66.5 installed,
+    # enclosure study 09) and the 80 uH alternate (~76 installed); plus the r 68-76 case at 76 uH to compare
+    "gap84-pan180": ("d228_gap84", 180, 66.5),
+    "gap84-pan220": ("d228_gap84", 220, 66.5),
+    "gap84-pan260": ("d228_gap84", 260, 66.5),
+    "gap84-L76-pan180": ("d228_gap84", 180, 76.0),
+    "gap84-L76-pan220": ("d228_gap84", 220, 76.0),
+    "gap84-L76-pan260": ("d228_gap84", 260, 76.0),
+    "d228-L76-pan180": ("d228_2sec", 180, 76.0),
+    "d228-L76-pan220": ("d228_2sec", 220, 76.0),
+    "d228-L76-pan260": ("d228_2sec", 260, 76.0),
 }
 
 def factors(geom, pan_d):

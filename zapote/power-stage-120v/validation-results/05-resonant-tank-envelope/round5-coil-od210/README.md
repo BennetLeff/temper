@@ -183,11 +183,59 @@ Nominal 80 µH coil: 47.94 µH; at −10 %: 43.15 µH, passes.
 2. **R_ac(f) hot (100 °C),** checked against the 0.25 Ω requirement.
 3. **Tank peak against the real shunt trip** at 22 A on the lowest-R pan (unchanged from round 4).
 
+## Addendum (2026-10-10): R34 as modelled by the enclosure, gap at r 84–92
+
+**Why the layout changed.** The enclosure moved the gap so that native-21's J5 centre lead can drop through it.
+
+**Layout as modelled:**
+- inner spiral r 27.4–82.6 (14.4 turns), outer r 93.4–112.6 (4.5 turns), 18.9 turns, bundle Ø2.7;
+- 8 bars 20 × 4 at r 32–118.
+
+**Enclosure study 09:** 66.5 µH installed no-pan, 37.0 µH with pan.
+
+**Method.** `scripts/addendum_gap84.py` runs the same FEM, adds geometry `d228_gap84` to `coupling.{json,csv}`, and reruns the grid and MC at 66.5 µH (70 µH) and 76 µH (80 µH alternate).
+- Our FEM gives installed/free 0.957 and 20.4 turns for 70 µH free-air (21.8 for 80 µH). Its absolute L at 18.9 turns (57 µH) differs from the enclosure model because the turn and bar modelling differ. Only ratios are used here.
+
+**Coupling against R32 uniform r 22–116** (µ 30–100):
+
+| Pan Ø | Reflected R per µH | L-drop |
+|---|---|---|
+| 180 mm | 1.05–1.06× | 0.97–0.99× |
+| 220 mm | 1.01× | 0.95–0.96× |
+| 260 mm | 1.00–1.01× | 0.95–0.96× |
+
+Against the r 68–76 case it is better on small pans: f_r 0.80 against 0.73 at 180 mm (µ 100), because more turns sit at small radius. It is equal within 2 % on pans of 220 mm and up.
+
+**MC full-power yield at 120 V** (mean over the five classes; cast iron in brackets):
+
+| Layout | L installed | 180 mm | 220 mm | 260 mm |
+|---|---|---|---|---|
+| **Gap r 84–92** | 66.5 | 2.9 % (13 %) | 15.3 % (45 %) | 20.1 % (53 %) |
+| Gap r 68–76 | 66.34 | 0.2 % (1 %) | 13.0 % (41 %) | 20.0 % (52 %) |
+| R32 uniform | 66.34 | 1.0 % (5 %) | 15.7 % (45 %) | 23.3 % (55 %) |
+| **Gap r 84–92** | 76 (80 µH alt.) | 7.2 % (26 %) | 24.9 % (54 %) | 30.9 % (61 %) |
+| Gap r 68–76 | 76 | 1.8 % (8 %) | 23.2 % (53 %) | 31.4 % (62 %) |
+
+**Resonance and stress (gap r 84–92):**
+- At 66.5 µH: nominal 33.5–35.2 kHz on 220 mm, ZVS floor ≤ 45.5 kHz; tank peak ≤ 47.74 A; capacitor 0.86×; no burst.
+- At 76 µH: 31.2–32.8 kHz, peak ≤ 47.40 A; 3–9 of 45 floor-limited cases.
+
+**Floor (`floor.py`).** x_reg stays 1.45. With this layout's f_k the reference-pan floor is 41.1 µH, against 41.5 µH for r 68–76.
+- **Row 3 stays 41.5 µH**, the stricter of the two.
+- A nominal 70 µH coil reads about 42.5 µH and passes; at −10 % it reads 38.2 µH and fails. The 80 µH alternate reads 44.0 µH at −10 % and passes.
+- **No number in the coil spec changes.**
+
+**Verdict.**
+- The r 84–92 gap holds: it is equal to or slightly better than r 68–76, and equal to R32 within the model's resolution.
+- It is about 3 points behind R32 on 260 mm pans and ahead of it on 180 mm pans.
+- Recommendations unchanged: 0.50 µF, 70 µH base with an 80 µH alternate, and CT_ZC and the 45 A peak limit required.
+
 ## Reproduce
 
 ```sh
 python3 scripts/coupling.py          # FEM, ~15-25 min single-threaded
-python3 scripts/run_grid5.py         # 12 configs x 45 cases, 4 ngspice workers, ~15 min
+python3 scripts/addendum_gap84.py    # appends the gap r 84-92 layout to coupling.{json,csv}
+python3 scripts/run_grid5.py         # 21 configs x 45 cases, 4 ngspice workers, ~15 min
 python3 scripts/analyze5.py          # summary5.json, yield-mc.csv, l-sweep-mc.csv (seeded MC)
 python3 scripts/floor.py             # floor.json
 ```
