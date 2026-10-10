@@ -1,0 +1,212 @@
+{
+ "c0_refill|h25": {
+  "fet_row_max_c": 136.6,
+  "at": [
+   50.5,
+   4.5,
+   2
+  ],
+  "lanes_max_c": 123.58,
+  "board_peak": 136.6,
+  "peak_at": [
+   50.5,
+   4.5,
+   "In1.Cu"
+  ]
+ },
+ "c0_refill|h10": {
+  "fet_row_max_c": 204.04,
+  "at": [
+   50.5,
+   4.5,
+   2
+  ],
+  "lanes_max_c": 184.91,
+  "board_peak": 204.04,
+  "peak_at": [
+   50.5,
+   4.5,
+   "In1.Cu"
+  ]
+ },
+ "c1_f_corner|h25": {
+  "fet_row_max_c": 136.27,
+  "at": [
+   50.5,
+   4.5,
+   2
+  ],
+  "lanes_max_c": 123.48,
+  "board_peak": 136.27,
+  "peak_at": [
+   50.5,
+   4.5,
+   "In1.Cu"
+  ]
+ },
+ "c1_f_corner|h10": {
+  "fet_row_max_c": 203.33,
+  "at": [
+   50.5,
+   4.5,
+   2
+  ],
+  "lanes_max_c": 184.61,
+  "board_peak": 203.33,
+  "peak_at": [
+   50.5,
+   4.5,
+   "In1.Cu"
+  ]
+ },
+ "c2a_link_q3|h25": {
+  "fet_row_max_c": 133.33,
+  "at": [
+   50.5,
+   4.5,
+   2
+  ],
+  "lanes_max_c": 125.59,
+  "board_peak": 134.15,
+  "peak_at": [
+   109.5,
+   77.5,
+   "F.Cu"
+  ]
+ },
+ "c2a_link_q3|h10": {
+  "fet_row_max_c": 199.98,
+  "at": [
+   50.5,
+   4.5,
+   2
+  ],
+  "lanes_max_c": 186.25,
+  "board_peak": 199.98,
+  "peak_at": [
+   50.5,
+   4.5,
+   "In1.Cu"
+  ]
+ },
+ "c2c_link_all1|h25": {
+  "fet_row_max_c": 131.84,
+  "at": [
+   50.5,
+   4.5,
+   2
+  ],
+  "lanes_max_c": 125.38,
+  "board_peak": 134.15,
+  "peak_at": [
+   109.5,
+   77.5,
+   "F.Cu"
+  ]
+ },
+ "c2c_link_all1|h10": {
+  "fet_row_max_c": 197.59,
+  "at": [
+   50.5,
+   4.5,
+   2
+  ],
+  "lanes_max_c": 185.5,
+  "board_peak": 197.59,
+  "peak_at": [
+   50.5,
+   4.5,
+   "In1.Cu"
+  ]
+ },
+ "c2f_link_e1|h25": {
+  "fet_row_max_c": 132.72,
+  "at": [
+   50.5,
+   4.5,
+   2
+  ],
+  "lanes_max_c": 123.82,
+  "board_peak": 134.15,
+  "peak_at": [
+   109.5,
+   77.5,
+   "F.Cu"
+  ]
+ },
+ "c2f_link_e1|h10": {
+  "fet_row_max_c": 198.56,
+  "at": [
+   50.5,
+   4.5,
+   2
+  ],
+  "lanes_max_c": 184.53,
+  "board_peak": 198.56,
+  "peak_at": [
+   50.5,
+   4.5,
+   "In1.Cu"
+  ]
+ },
+ "c2g_link_q3_15|h25": {
+  "fet_row_max_c": 133.21,
+  "at": [
+   50.5,
+   4.5,
+   2
+  ],
+  "lanes_max_c": 124.45,
+  "board_peak": 134.15,
+  "peak_at": [
+   109.5,
+   77.5,
+   "F.Cu"
+  ]
+ },
+ "c2g_link_q3_15|h10": {
+  "fet_row_max_c": 199.64,
+  "at": [
+   50.5,
+   4.5,
+   2
+  ],
+  "lanes_max_c": 185.39,
+  "board_peak": 199.64,
+  "peak_at": [
+   50.5,
+   4.5,
+   "In1.Cu"
+  ]
+ },
+ "c2h_link_e1_notie|h25": {
+  "fet_row_max_c": 132.91,
+  "at": [
+   50.5,
+   4.5,
+   2
+  ],
+  "lanes_max_c": 123.87,
+  "board_peak": 134.15,
+  "peak_at": [
+   109.5,
+   77.5,
+   "F.Cu"
+  ]
+ },
+ "c2h_link_e1_notie|h10": {
+  "fet_row_max_c": 198.87,
+  "at": [
+   50.5,
+   4.5,
+   2
+  ],
+  "lanes_max_c": 184.6,
+  "board_peak": 198.87,
+  "peak_at": [
+   50.5,
+   4.5,
+   "In1.Cu"
+  ]
+ }
+}

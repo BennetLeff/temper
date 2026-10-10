@@ -222,6 +222,17 @@ runs rise 1–10 K and remain outside the 22 A envelope.
   - **Supported commissioned ceiling: 26 A**. 28 A needs the FET-row rework (stage 15b) or bench IR (DECISIONS item 13).
 - **BUS_P mesh span:** 4.130 %.
 
+### Stage 15b re-run (2026-10-10, board `9a9c43c6…`): 28 A supported
+
+- **Study:** `stage15b/` (PLAN-15b.md; `run_all.sh` reruns it).
+- **Stage 15's 142.0 °C peak:** mostly a mesh artefact. A copper-less 1.0 mm cell received A4 pour-edge heat.
+  - `stage15b/b3-model/thermal_snap.py` conserves energy onto copper cells; with it, the FET row is 136.6 °C at 1.0 mm and 126.9 / 128.6 °C at 0.5 / 0.25 mm.
+  - Gating stays on the committed thermal.py.
+- **Fix c2h:** the B.Cu leg-A link is raised to y 13.5 over x 50.5–70, SW_B's lane drops to 16.7, and the Q2.3 / BR1.1 F.Cu corner is filled.
+- **Paths:** sw_a 3.75, **sw_a_low 6.37** (was 6.69), sw_b_high 6.65 mΩ (+1.2 %).
+- **Ceiling sweep** (h 25, committed model): 22 / 24 / 26 / 28 A → 133.4 / 133.7 / 133.9 / **134.1 °C**, all at U26. **28 A is supported.**
+- **h 10** (fan failure) at 28 A is 198.0 °C, which the controller's blower-stall derate has to own.
+
 **Verdict, task 04 on native-21:** nominal operation passes the copper width screen after the SW_B
 fix (SW_A at 18.8 K is the tightest). The board needs a tank-current ceiling (22 A RMS interim).
 Bench IR at nominal power remains the physical gate (D4).

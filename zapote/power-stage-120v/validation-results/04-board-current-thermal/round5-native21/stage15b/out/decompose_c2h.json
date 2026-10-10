@@ -1,0 +1,1437 @@
+{
+ "geometry": "kicad/c2h_link_e1_notie/all-copper.json.gz",
+ "a4_dir": "a4/c2h_link_e1_notie",
+ "op": {
+  "I_t": 29.4,
+  "I_line": 11.1,
+  "parts": "nominal",
+  "heat": "c28",
+  "basis": "28 A tank ceiling, 1.05 x firmware RMS trip; 11.1 A inlet hold (round 6)"
+ },
+ "h": {
+  "25": {
+   "peak": {
+    "temperature_c": 134.14408126194098,
+    "rise_k": 84.14408126194098,
+    "x_mm": 109.5,
+    "y_mm": 77.5,
+    "layer": "F.Cu"
+   },
+   "superposition_max_error_k": 5.3080903894553444e-08,
+   "fet_row_profile": [
+    {
+     "x_mm": 0.5,
+     "max_c": 86.59,
+     "y_at_max": 12.5,
+     "layer": "In2.Cu"
+    },
+    {
+     "x_mm": 1.5,
+     "max_c": 92.76,
+     "y_at_max": 12.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 2.5,
+     "max_c": 92.89,
+     "y_at_max": 12.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 3.5,
+     "max_c": 93.11,
+     "y_at_max": 12.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 4.5,
+     "max_c": 94.78,
+     "y_at_max": 12.5,
+     "layer": "In2.Cu"
+    },
+    {
+     "x_mm": 5.5,
+     "max_c": 95.9,
+     "y_at_max": 10.5,
+     "layer": "In2.Cu"
+    },
+    {
+     "x_mm": 6.5,
+     "max_c": 96.32,
+     "y_at_max": 10.5,
+     "layer": "In2.Cu"
+    },
+    {
+     "x_mm": 7.5,
+     "max_c": 98.0,
+     "y_at_max": 9.5,
+     "layer": "In2.Cu"
+    },
+    {
+     "x_mm": 8.5,
+     "max_c": 100.26,
+     "y_at_max": 8.5,
+     "layer": "In2.Cu"
+    },
+    {
+     "x_mm": 9.5,
+     "max_c": 107.96,
+     "y_at_max": 4.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 10.5,
+     "max_c": 107.73,
+     "y_at_max": 4.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 11.5,
+     "max_c": 103.98,
+     "y_at_max": 6.5,
+     "layer": "In2.Cu"
+    },
+    {
+     "x_mm": 12.5,
+     "max_c": 102.3,
+     "y_at_max": 9.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 13.5,
+     "max_c": 103.15,
+     "y_at_max": 8.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 14.5,
+     "max_c": 108.72,
+     "y_at_max": 4.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 15.5,
+     "max_c": 108.91,
+     "y_at_max": 4.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 16.5,
+     "max_c": 108.74,
+     "y_at_max": 4.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 17.5,
+     "max_c": 107.1,
+     "y_at_max": 4.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 18.5,
+     "max_c": 95.93,
+     "y_at_max": 11.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 19.5,
+     "max_c": 96.21,
+     "y_at_max": 11.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 20.5,
+     "max_c": 96.63,
+     "y_at_max": 11.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 21.5,
+     "max_c": 97.99,
+     "y_at_max": 12.5,
+     "layer": "d3"
+    },
+    {
+     "x_mm": 22.5,
+     "max_c": 104.87,
+     "y_at_max": 12.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 23.5,
+     "max_c": 106.91,
+     "y_at_max": 10.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 24.5,
+     "max_c": 107.47,
+     "y_at_max": 10.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 25.5,
+     "max_c": 109.36,
+     "y_at_max": 9.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 26.5,
+     "max_c": 111.48,
+     "y_at_max": 8.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 27.5,
+     "max_c": 119.96,
+     "y_at_max": 4.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 28.5,
+     "max_c": 119.69,
+     "y_at_max": 4.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 29.5,
+     "max_c": 114.28,
+     "y_at_max": 6.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 30.5,
+     "max_c": 110.71,
+     "y_at_max": 9.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 31.5,
+     "max_c": 112.77,
+     "y_at_max": 8.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 32.5,
+     "max_c": 117.47,
+     "y_at_max": 10.5,
+     "layer": "F.Cu"
+    },
+    {
+     "x_mm": 33.5,
+     "max_c": 117.85,
+     "y_at_max": 11.5,
+     "layer": "F.Cu"
+    },
+    {
+     "x_mm": 34.5,
+     "max_c": 118.19,
+     "y_at_max": 11.5,
+     "layer": "F.Cu"
+    },
+    {
+     "x_mm": 35.5,
+     "max_c": 118.76,
+     "y_at_max": 11.5,
+     "layer": "F.Cu"
+    },
+    {
+     "x_mm": 36.5,
+     "max_c": 119.54,
+     "y_at_max": 11.5,
+     "layer": "F.Cu"
+    },
+    {
+     "x_mm": 37.5,
+     "max_c": 120.66,
+     "y_at_max": 9.5,
+     "layer": "F.Cu"
+    },
+    {
+     "x_mm": 38.5,
+     "max_c": 121.78,
+     "y_at_max": 10.5,
+     "layer": "F.Cu"
+    },
+    {
+     "x_mm": 39.5,
+     "max_c": 122.16,
+     "y_at_max": 11.5,
+     "layer": "F.Cu"
+    },
+    {
+     "x_mm": 40.5,
+     "max_c": 121.46,
+     "y_at_max": 11.5,
+     "layer": "F.Cu"
+    },
+    {
+     "x_mm": 41.5,
+     "max_c": 121.13,
+     "y_at_max": 11.5,
+     "layer": "F.Cu"
+    },
+    {
+     "x_mm": 42.5,
+     "max_c": 120.98,
+     "y_at_max": 11.5,
+     "layer": "F.Cu"
+    },
+    {
+     "x_mm": 43.5,
+     "max_c": 119.44,
+     "y_at_max": 10.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 44.5,
+     "max_c": 119.4,
+     "y_at_max": 9.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 45.5,
+     "max_c": 119.56,
+     "y_at_max": 9.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 46.5,
+     "max_c": 119.95,
+     "y_at_max": 9.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 47.5,
+     "max_c": 123.62,
+     "y_at_max": 9.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 48.5,
+     "max_c": 125.02,
+     "y_at_max": 8.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 49.5,
+     "max_c": 131.92,
+     "y_at_max": 4.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 50.5,
+     "max_c": 132.23,
+     "y_at_max": 4.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 51.5,
+     "max_c": 129.91,
+     "y_at_max": 6.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 52.5,
+     "max_c": 127.65,
+     "y_at_max": 8.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 53.5,
+     "max_c": 125.66,
+     "y_at_max": 8.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 54.5,
+     "max_c": 126.48,
+     "y_at_max": 9.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 55.5,
+     "max_c": 125.68,
+     "y_at_max": 7.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 56.5,
+     "max_c": 125.63,
+     "y_at_max": 8.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 57.5,
+     "max_c": 124.5,
+     "y_at_max": 6.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 58.5,
+     "max_c": 118.66,
+     "y_at_max": 12.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 59.5,
+     "max_c": 118.14,
+     "y_at_max": 12.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 60.5,
+     "max_c": 117.75,
+     "y_at_max": 12.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 61.5,
+     "max_c": 117.54,
+     "y_at_max": 12.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 62.5,
+     "max_c": 117.5,
+     "y_at_max": 12.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 63.5,
+     "max_c": 117.59,
+     "y_at_max": 12.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 64.5,
+     "max_c": 117.79,
+     "y_at_max": 12.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 65.5,
+     "max_c": 118.09,
+     "y_at_max": 12.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 66.5,
+     "max_c": 118.45,
+     "y_at_max": 11.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 67.5,
+     "max_c": 123.07,
+     "y_at_max": 4.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 68.5,
+     "max_c": 123.34,
+     "y_at_max": 4.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 69.5,
+     "max_c": 122.2,
+     "y_at_max": 6.5,
+     "layer": "In2.Cu"
+    },
+    {
+     "x_mm": 70.5,
+     "max_c": 119.81,
+     "y_at_max": 9.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 71.5,
+     "max_c": 119.87,
+     "y_at_max": 8.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 72.5,
+     "max_c": 124.12,
+     "y_at_max": 6.5,
+     "layer": "F.Cu"
+    },
+    {
+     "x_mm": 73.5,
+     "max_c": 120.01,
+     "y_at_max": 5.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 74.5,
+     "max_c": 119.82,
+     "y_at_max": 6.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 75.5,
+     "max_c": 119.67,
+     "y_at_max": 6.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 76.5,
+     "max_c": 117.17,
+     "y_at_max": 6.5,
+     "layer": "F.Cu"
+    },
+    {
+     "x_mm": 77.5,
+     "max_c": 106.47,
+     "y_at_max": 9.5,
+     "layer": "F.Cu"
+    },
+    {
+     "x_mm": 78.5,
+     "max_c": 102.63,
+     "y_at_max": 9.5,
+     "layer": "F.Cu"
+    },
+    {
+     "x_mm": 79.5,
+     "max_c": 99.23,
+     "y_at_max": 10.5,
+     "layer": "F.Cu"
+    }
+   ],
+   "points": {
+    "hot_h25 (76.5, 9.5)": {
+     "cell": [
+      76.5,
+      9.5
+     ],
+     "layer_index": 0,
+     "temperature_c": 108.36,
+     "rise_by_source_k": {
+      "sw_a_low-p00625-pl18": 20.92,
+      "sw_a-p00625-pl18": 9.67,
+      "sw_b_low-p00625-pl18": 6.16,
+      "sw_b_high-p00625-pl18": 6.11,
+      "bus_mixed_q2-p0125-pl18": 5.79,
+      "parts (A6 c28)": 3.32,
+      "leg_a_18p7-p00625-pl18": 2.05,
+      "hv_mixed_a-p00625-pl18": 1.61,
+      "bus_mixed_q5-p0125-pl18": 1.32,
+      "hv_mixed_b-p00625-pl18": 1.2,
+      "leg_b_18p7-p00625-pl18": 0.16,
+      "res_a-p0125-pl18": 0.04,
+      "coil_feed-p0125-pl18": 0.0,
+      "ac_n_main-p0125-pl18": 0.0,
+      "ac_l_main-p0125-pl18": 0.0
+     }
+    },
+    "hot_h10 (50.5, 4.5)": {
+     "cell": [
+      50.5,
+      4.5
+     ],
+     "layer_index": 2,
+     "temperature_c": 132.23,
+     "rise_by_source_k": {
+      "sw_a_low-p00625-pl18": 40.64,
+      "leg_a_18p7-p00625-pl18": 10.25,
+      "parts (A6 c28)": 6.77,
+      "sw_b_low-p00625-pl18": 6.69,
+      "sw_b_high-p00625-pl18": 6.48,
+      "bus_mixed_q2-p0125-pl18": 3.9,
+      "bus_mixed_q5-p0125-pl18": 1.99,
+      "hv_mixed_a-p00625-pl18": 1.96,
+      "sw_a-p00625-pl18": 1.49,
+      "hv_mixed_b-p00625-pl18": 1.3,
+      "leg_b_18p7-p00625-pl18": 0.77,
+      "res_a-p0125-pl18": 0.01,
+      "coil_feed-p0125-pl18": 0.0,
+      "ac_n_main-p0125-pl18": 0.0,
+      "ac_l_main-p0125-pl18": 0.0
+     }
+    },
+    "Q3.2 sw_a (50.05, 4.2)": {
+     "cell": [
+      50.5,
+      4.5
+     ],
+     "layer_index": 2,
+     "temperature_c": 132.23,
+     "rise_by_source_k": {
+      "sw_a_low-p00625-pl18": 40.64,
+      "leg_a_18p7-p00625-pl18": 10.25,
+      "parts (A6 c28)": 6.77,
+      "sw_b_low-p00625-pl18": 6.69,
+      "sw_b_high-p00625-pl18": 6.48,
+      "bus_mixed_q2-p0125-pl18": 3.9,
+      "bus_mixed_q5-p0125-pl18": 1.99,
+      "hv_mixed_a-p00625-pl18": 1.96,
+      "sw_a-p00625-pl18": 1.49,
+      "hv_mixed_b-p00625-pl18": 1.3,
+      "leg_b_18p7-p00625-pl18": 0.77,
+      "res_a-p0125-pl18": 0.01,
+      "coil_feed-p0125-pl18": 0.0,
+      "ac_n_main-p0125-pl18": 0.0,
+      "ac_l_main-p0125-pl18": 0.0
+     }
+    },
+    "Q2.3 sw_a (73.5, 4.2)": {
+     "cell": [
+      73.5,
+      4.5
+     ],
+     "layer_index": 4,
+     "temperature_c": 119.91,
+     "rise_by_source_k": {
+      "sw_a_low-p00625-pl18": 31.37,
+      "sw_a-p00625-pl18": 8.47,
+      "bus_mixed_q2-p0125-pl18": 7.73,
+      "sw_b_low-p00625-pl18": 5.9,
+      "sw_b_high-p00625-pl18": 5.84,
+      "parts (A6 c28)": 3.52,
+      "leg_a_18p7-p00625-pl18": 2.71,
+      "hv_mixed_a-p00625-pl18": 1.62,
+      "bus_mixed_q5-p0125-pl18": 1.36,
+      "hv_mixed_b-p00625-pl18": 1.16,
+      "leg_b_18p7-p00625-pl18": 0.2,
+      "res_a-p0125-pl18": 0.03,
+      "coil_feed-p0125-pl18": 0.0,
+      "ac_n_main-p0125-pl18": 0.0,
+      "ac_l_main-p0125-pl18": 0.0
+     }
+    },
+    "link neck Q3.3 (55.5, 9.5)": {
+     "cell": [
+      55.5,
+      9.5
+     ],
+     "layer_index": 2,
+     "temperature_c": 125.27,
+     "rise_by_source_k": {
+      "leg_a_18p7-p00625-pl18": 27.55,
+      "sw_a_low-p00625-pl18": 14.02,
+      "parts (A6 c28)": 7.85,
+      "sw_b_low-p00625-pl18": 7.18,
+      "sw_b_high-p00625-pl18": 6.92,
+      "bus_mixed_q2-p0125-pl18": 3.69,
+      "bus_mixed_q5-p0125-pl18": 2.17,
+      "hv_mixed_a-p00625-pl18": 2.13,
+      "sw_a-p00625-pl18": 1.41,
+      "hv_mixed_b-p00625-pl18": 1.41,
+      "leg_b_18p7-p00625-pl18": 0.94,
+      "res_a-p0125-pl18": 0.01,
+      "coil_feed-p0125-pl18": 0.0,
+      "ac_n_main-p0125-pl18": 0.0,
+      "ac_l_main-p0125-pl18": 0.0
+     }
+    },
+    "link neck Q2.2 (68.0, 9.5)": {
+     "cell": [
+      68.5,
+      9.5
+     ],
+     "layer_index": 6,
+     "temperature_c": 120.14,
+     "rise_by_source_k": {
+      "sw_a_low-p00625-pl18": 24.29,
+      "bus_mixed_q2-p0125-pl18": 14.76,
+      "sw_b_low-p00625-pl18": 6.92,
+      "sw_b_high-p00625-pl18": 6.84,
+      "parts (A6 c28)": 4.39,
+      "sw_a-p00625-pl18": 3.86,
+      "leg_a_18p7-p00625-pl18": 3.73,
+      "hv_mixed_a-p00625-pl18": 1.99,
+      "bus_mixed_q5-p0125-pl18": 1.71,
+      "hv_mixed_b-p00625-pl18": 1.37,
+      "leg_b_18p7-p00625-pl18": 0.27,
+      "res_a-p0125-pl18": 0.02,
+      "coil_feed-p0125-pl18": 0.0,
+      "ac_n_main-p0125-pl18": 0.0,
+      "ac_l_main-p0125-pl18": 0.0
+     }
+    },
+    "Q5.3 sw_b (15.4, 4.2)": {
+     "cell": [
+      15.5,
+      4.5
+     ],
+     "layer_index": 2,
+     "temperature_c": 108.91,
+     "rise_by_source_k": {
+      "sw_b_high-p00625-pl18": 29.69,
+      "bus_mixed_q5-p0125-pl18": 8.73,
+      "parts (A6 c28)": 7.34,
+      "sw_b_low-p00625-pl18": 6.25,
+      "hv_mixed_a-p00625-pl18": 1.73,
+      "leg_a_18p7-p00625-pl18": 1.44,
+      "hv_mixed_b-p00625-pl18": 1.32,
+      "sw_a_low-p00625-pl18": 1.28,
+      "bus_mixed_q2-p0125-pl18": 0.54,
+      "leg_b_18p7-p00625-pl18": 0.37,
+      "sw_a-p00625-pl18": 0.22,
+      "res_a-p0125-pl18": 0.0,
+      "coil_feed-p0125-pl18": 0.0,
+      "ac_n_main-p0125-pl18": 0.0,
+      "ac_l_main-p0125-pl18": 0.0
+     }
+    },
+    "Q6.2 sw_b (27.95, 4.2)": {
+     "cell": [
+      27.5,
+      4.5
+     ],
+     "layer_index": 2,
+     "temperature_c": 119.96,
+     "rise_by_source_k": {
+      "sw_b_low-p00625-pl18": 33.18,
+      "parts (A6 c28)": 10.1,
+      "sw_b_high-p00625-pl18": 9.93,
+      "bus_mixed_q5-p0125-pl18": 4.98,
+      "leg_a_18p7-p00625-pl18": 3.0,
+      "hv_mixed_a-p00625-pl18": 2.51,
+      "sw_a_low-p00625-pl18": 2.28,
+      "hv_mixed_b-p00625-pl18": 1.86,
+      "bus_mixed_q2-p0125-pl18": 0.89,
+      "leg_b_18p7-p00625-pl18": 0.87,
+      "sw_a-p00625-pl18": 0.36,
+      "res_a-p0125-pl18": 0.0,
+      "coil_feed-p0125-pl18": 0.0,
+      "ac_n_main-p0125-pl18": 0.0,
+      "ac_l_main-p0125-pl18": 0.0
+     }
+    }
+   },
+   "strip_heat_w": {
+    "sw_a_low-p00625-pl18": 1.3036,
+    "leg_a_18p7-p00625-pl18": 0.748,
+    "parts (A6 c28)": 0.4978,
+    "sw_b_high-p00625-pl18": 0.3808,
+    "bus_mixed_q2-p0125-pl18": 0.377,
+    "sw_b_low-p00625-pl18": 0.3757,
+    "bus_mixed_q5-p0125-pl18": 0.3634,
+    "sw_a-p00625-pl18": 0.2073,
+    "leg_b_18p7-p00625-pl18": 0.1073,
+    "hv_mixed_b-p00625-pl18": 0.0018,
+    "hv_mixed_a-p00625-pl18": 0.0014,
+    "res_a-p0125-pl18": 0.0,
+    "coil_feed-p0125-pl18": 0.0,
+    "ac_n_main-p0125-pl18": 0.0,
+    "ac_l_main-p0125-pl18": 0.0
+   },
+   "strip_heat_total_w": 4.364
+  },
+  "10": {
+   "peak": {
+    "temperature_c": 198.17640193670437,
+    "rise_k": 148.17640193670437,
+    "x_mm": 50.5,
+    "y_mm": 4.5,
+    "layer": "In1.Cu"
+   },
+   "superposition_max_error_k": 1.2694646045474656e-07,
+   "fet_row_profile": [
+    {
+     "x_mm": 0.5,
+     "max_c": 144.25,
+     "y_at_max": 12.5,
+     "layer": "d3"
+    },
+    {
+     "x_mm": 1.5,
+     "max_c": 151.23,
+     "y_at_max": 12.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 2.5,
+     "max_c": 151.38,
+     "y_at_max": 12.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 3.5,
+     "max_c": 151.63,
+     "y_at_max": 12.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 4.5,
+     "max_c": 153.33,
+     "y_at_max": 12.5,
+     "layer": "In2.Cu"
+    },
+    {
+     "x_mm": 5.5,
+     "max_c": 154.52,
+     "y_at_max": 10.5,
+     "layer": "In2.Cu"
+    },
+    {
+     "x_mm": 6.5,
+     "max_c": 154.98,
+     "y_at_max": 10.5,
+     "layer": "In2.Cu"
+    },
+    {
+     "x_mm": 7.5,
+     "max_c": 156.74,
+     "y_at_max": 9.5,
+     "layer": "In2.Cu"
+    },
+    {
+     "x_mm": 8.5,
+     "max_c": 159.09,
+     "y_at_max": 8.5,
+     "layer": "In2.Cu"
+    },
+    {
+     "x_mm": 9.5,
+     "max_c": 167.07,
+     "y_at_max": 4.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 10.5,
+     "max_c": 166.85,
+     "y_at_max": 4.5,
+     "layer": "F.Cu"
+    },
+    {
+     "x_mm": 11.5,
+     "max_c": 163.82,
+     "y_at_max": 6.5,
+     "layer": "In2.Cu"
+    },
+    {
+     "x_mm": 12.5,
+     "max_c": 161.6,
+     "y_at_max": 9.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 13.5,
+     "max_c": 163.4,
+     "y_at_max": 7.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 14.5,
+     "max_c": 169.31,
+     "y_at_max": 4.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 15.5,
+     "max_c": 169.49,
+     "y_at_max": 4.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 16.5,
+     "max_c": 169.33,
+     "y_at_max": 4.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 17.5,
+     "max_c": 167.54,
+     "y_at_max": 4.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 18.5,
+     "max_c": 156.49,
+     "y_at_max": 5.5,
+     "layer": "d3"
+    },
+    {
+     "x_mm": 19.5,
+     "max_c": 156.69,
+     "y_at_max": 11.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 20.5,
+     "max_c": 157.35,
+     "y_at_max": 11.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 21.5,
+     "max_c": 158.5,
+     "y_at_max": 12.5,
+     "layer": "d3"
+    },
+    {
+     "x_mm": 22.5,
+     "max_c": 165.33,
+     "y_at_max": 12.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 23.5,
+     "max_c": 167.79,
+     "y_at_max": 10.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 24.5,
+     "max_c": 168.42,
+     "y_at_max": 10.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 25.5,
+     "max_c": 170.59,
+     "y_at_max": 9.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 26.5,
+     "max_c": 173.0,
+     "y_at_max": 8.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 27.5,
+     "max_c": 182.87,
+     "y_at_max": 4.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 28.5,
+     "max_c": 182.62,
+     "y_at_max": 4.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 29.5,
+     "max_c": 178.56,
+     "y_at_max": 6.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 30.5,
+     "max_c": 174.56,
+     "y_at_max": 9.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 31.5,
+     "max_c": 177.77,
+     "y_at_max": 8.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 32.5,
+     "max_c": 183.63,
+     "y_at_max": 10.5,
+     "layer": "F.Cu"
+    },
+    {
+     "x_mm": 33.5,
+     "max_c": 184.01,
+     "y_at_max": 11.5,
+     "layer": "F.Cu"
+    },
+    {
+     "x_mm": 34.5,
+     "max_c": 184.35,
+     "y_at_max": 11.5,
+     "layer": "F.Cu"
+    },
+    {
+     "x_mm": 35.5,
+     "max_c": 184.93,
+     "y_at_max": 11.5,
+     "layer": "F.Cu"
+    },
+    {
+     "x_mm": 36.5,
+     "max_c": 185.71,
+     "y_at_max": 11.5,
+     "layer": "F.Cu"
+    },
+    {
+     "x_mm": 37.5,
+     "max_c": 186.85,
+     "y_at_max": 9.5,
+     "layer": "F.Cu"
+    },
+    {
+     "x_mm": 38.5,
+     "max_c": 187.92,
+     "y_at_max": 10.5,
+     "layer": "F.Cu"
+    },
+    {
+     "x_mm": 39.5,
+     "max_c": 188.28,
+     "y_at_max": 11.5,
+     "layer": "F.Cu"
+    },
+    {
+     "x_mm": 40.5,
+     "max_c": 187.58,
+     "y_at_max": 11.5,
+     "layer": "F.Cu"
+    },
+    {
+     "x_mm": 41.5,
+     "max_c": 187.24,
+     "y_at_max": 11.5,
+     "layer": "F.Cu"
+    },
+    {
+     "x_mm": 42.5,
+     "max_c": 187.09,
+     "y_at_max": 11.5,
+     "layer": "F.Cu"
+    },
+    {
+     "x_mm": 43.5,
+     "max_c": 184.63,
+     "y_at_max": 9.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 44.5,
+     "max_c": 184.42,
+     "y_at_max": 8.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 45.5,
+     "max_c": 184.33,
+     "y_at_max": 8.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 46.5,
+     "max_c": 184.35,
+     "y_at_max": 8.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 47.5,
+     "max_c": 187.28,
+     "y_at_max": 9.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 48.5,
+     "max_c": 188.94,
+     "y_at_max": 8.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 49.5,
+     "max_c": 197.89,
+     "y_at_max": 4.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 50.5,
+     "max_c": 198.18,
+     "y_at_max": 4.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 51.5,
+     "max_c": 197.18,
+     "y_at_max": 6.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 52.5,
+     "max_c": 193.24,
+     "y_at_max": 8.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 53.5,
+     "max_c": 190.62,
+     "y_at_max": 8.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 54.5,
+     "max_c": 191.5,
+     "y_at_max": 6.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 55.5,
+     "max_c": 191.47,
+     "y_at_max": 7.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 56.5,
+     "max_c": 191.4,
+     "y_at_max": 7.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 57.5,
+     "max_c": 190.79,
+     "y_at_max": 6.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 58.5,
+     "max_c": 180.98,
+     "y_at_max": 12.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 59.5,
+     "max_c": 180.34,
+     "y_at_max": 12.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 60.5,
+     "max_c": 179.79,
+     "y_at_max": 12.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 61.5,
+     "max_c": 179.39,
+     "y_at_max": 12.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 62.5,
+     "max_c": 179.09,
+     "y_at_max": 12.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 63.5,
+     "max_c": 178.89,
+     "y_at_max": 12.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 64.5,
+     "max_c": 178.76,
+     "y_at_max": 12.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 65.5,
+     "max_c": 178.77,
+     "y_at_max": 10.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 66.5,
+     "max_c": 178.87,
+     "y_at_max": 10.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 67.5,
+     "max_c": 183.63,
+     "y_at_max": 4.5,
+     "layer": "F.Cu"
+    },
+    {
+     "x_mm": 68.5,
+     "max_c": 183.88,
+     "y_at_max": 4.5,
+     "layer": "In1.Cu"
+    },
+    {
+     "x_mm": 69.5,
+     "max_c": 182.9,
+     "y_at_max": 6.5,
+     "layer": "In2.Cu"
+    },
+    {
+     "x_mm": 70.5,
+     "max_c": 178.78,
+     "y_at_max": 9.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 71.5,
+     "max_c": 178.48,
+     "y_at_max": 9.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 72.5,
+     "max_c": 182.45,
+     "y_at_max": 6.5,
+     "layer": "F.Cu"
+    },
+    {
+     "x_mm": 73.5,
+     "max_c": 177.95,
+     "y_at_max": 7.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 74.5,
+     "max_c": 177.74,
+     "y_at_max": 7.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 75.5,
+     "max_c": 177.58,
+     "y_at_max": 7.5,
+     "layer": "B.Cu"
+    },
+    {
+     "x_mm": 76.5,
+     "max_c": 172.97,
+     "y_at_max": 6.5,
+     "layer": "F.Cu"
+    },
+    {
+     "x_mm": 77.5,
+     "max_c": 158.81,
+     "y_at_max": 9.5,
+     "layer": "F.Cu"
+    },
+    {
+     "x_mm": 78.5,
+     "max_c": 154.45,
+     "y_at_max": 9.5,
+     "layer": "F.Cu"
+    },
+    {
+     "x_mm": 79.5,
+     "max_c": 149.26,
+     "y_at_max": 10.5,
+     "layer": "F.Cu"
+    }
+   ],
+   "points": {
+    "hot_h25 (76.5, 9.5)": {
+     "cell": [
+      76.5,
+      9.5
+     ],
+     "layer_index": 6,
+     "temperature_c": 162.85,
+     "rise_by_source_k": {
+      "sw_a_low-p00625-pl18": 33.98,
+      "sw_b_high-p00625-pl18": 13.7,
+      "sw_b_low-p00625-pl18": 13.67,
+      "sw_a-p00625-pl18": 11.75,
+      "bus_mixed_q2-p0125-pl18": 11.32,
+      "parts (A6 c28)": 10.81,
+      "leg_a_18p7-p00625-pl18": 5.58,
+      "hv_mixed_a-p00625-pl18": 4.23,
+      "bus_mixed_q5-p0125-pl18": 3.86,
+      "hv_mixed_b-p00625-pl18": 3.11,
+      "leg_b_18p7-p00625-pl18": 0.53,
+      "res_a-p0125-pl18": 0.25,
+      "coil_feed-p0125-pl18": 0.06,
+      "ac_n_main-p0125-pl18": 0.0,
+      "ac_l_main-p0125-pl18": 0.0
+     }
+    },
+    "hot_h10 (50.5, 4.5)": {
+     "cell": [
+      50.5,
+      4.5
+     ],
+     "layer_index": 2,
+     "temperature_c": 198.18,
+     "rise_by_source_k": {
+      "sw_a_low-p00625-pl18": 53.75,
+      "parts (A6 c28)": 17.59,
+      "leg_a_18p7-p00625-pl18": 16.95,
+      "sw_b_low-p00625-pl18": 15.73,
+      "sw_b_high-p00625-pl18": 15.62,
+      "bus_mixed_q2-p0125-pl18": 8.11,
+      "bus_mixed_q5-p0125-pl18": 5.7,
+      "hv_mixed_a-p00625-pl18": 5.18,
+      "sw_a-p00625-pl18": 4.24,
+      "hv_mixed_b-p00625-pl18": 3.58,
+      "leg_b_18p7-p00625-pl18": 1.56,
+      "res_a-p0125-pl18": 0.13,
+      "coil_feed-p0125-pl18": 0.03,
+      "ac_n_main-p0125-pl18": 0.0,
+      "ac_l_main-p0125-pl18": 0.0
+     }
+    },
+    "Q3.2 sw_a (50.05, 4.2)": {
+     "cell": [
+      50.5,
+      4.5
+     ],
+     "layer_index": 2,
+     "temperature_c": 198.18,
+     "rise_by_source_k": {
+      "sw_a_low-p00625-pl18": 53.75,
+      "parts (A6 c28)": 17.59,
+      "leg_a_18p7-p00625-pl18": 16.95,
+      "sw_b_low-p00625-pl18": 15.73,
+      "sw_b_high-p00625-pl18": 15.62,
+      "bus_mixed_q2-p0125-pl18": 8.11,
+      "bus_mixed_q5-p0125-pl18": 5.7,
+      "hv_mixed_a-p00625-pl18": 5.18,
+      "sw_a-p00625-pl18": 4.24,
+      "hv_mixed_b-p00625-pl18": 3.58,
+      "leg_b_18p7-p00625-pl18": 1.56,
+      "res_a-p0125-pl18": 0.13,
+      "coil_feed-p0125-pl18": 0.03,
+      "ac_n_main-p0125-pl18": 0.0,
+      "ac_l_main-p0125-pl18": 0.0
+     }
+    },
+    "Q2.3 sw_a (73.5, 4.2)": {
+     "cell": [
+      73.5,
+      4.5
+     ],
+     "layer_index": 6,
+     "temperature_c": 177.32,
+     "rise_by_source_k": {
+      "sw_a_low-p00625-pl18": 43.66,
+      "sw_b_high-p00625-pl18": 14.01,
+      "sw_b_low-p00625-pl18": 13.99,
+      "bus_mixed_q2-p0125-pl18": 12.86,
+      "sw_a-p00625-pl18": 12.38,
+      "parts (A6 c28)": 11.45,
+      "leg_a_18p7-p00625-pl18": 6.38,
+      "hv_mixed_a-p00625-pl18": 4.4,
+      "bus_mixed_q5-p0125-pl18": 4.08,
+      "hv_mixed_b-p00625-pl18": 3.2,
+      "leg_b_18p7-p00625-pl18": 0.6,
+      "res_a-p0125-pl18": 0.24,
+      "coil_feed-p0125-pl18": 0.05,
+      "ac_n_main-p0125-pl18": 0.0,
+      "ac_l_main-p0125-pl18": 0.0
+     }
+    },
+    "link neck Q3.3 (55.5, 9.5)": {
+     "cell": [
+      55.5,
+      9.5
+     ],
+     "layer_index": 6,
+     "temperature_c": 190.36,
+     "rise_by_source_k": {
+      "sw_a_low-p00625-pl18": 35.2,
+      "leg_a_18p7-p00625-pl18": 26.94,
+      "parts (A6 c28)": 17.41,
+      "sw_b_low-p00625-pl18": 15.93,
+      "sw_b_high-p00625-pl18": 15.84,
+      "bus_mixed_q2-p0125-pl18": 8.39,
+      "bus_mixed_q5-p0125-pl18": 5.72,
+      "hv_mixed_a-p00625-pl18": 5.28,
+      "sw_a-p00625-pl18": 4.38,
+      "hv_mixed_b-p00625-pl18": 3.64,
+      "leg_b_18p7-p00625-pl18": 1.47,
+      "res_a-p0125-pl18": 0.14,
+      "coil_feed-p0125-pl18": 0.03,
+      "ac_n_main-p0125-pl18": 0.0,
+      "ac_l_main-p0125-pl18": 0.0
+     }
+    },
+    "link neck Q2.2 (68.0, 9.5)": {
+     "cell": [
+      68.5,
+      9.5
+     ],
+     "layer_index": 6,
+     "temperature_c": 179.53,
+     "rise_by_source_k": {
+      "sw_a_low-p00625-pl18": 36.01,
+      "bus_mixed_q2-p0125-pl18": 20.06,
+      "sw_b_high-p00625-pl18": 15.37,
+      "sw_b_low-p00625-pl18": 15.34,
+      "parts (A6 c28)": 13.06,
+      "leg_a_18p7-p00625-pl18": 7.82,
+      "sw_a-p00625-pl18": 7.6,
+      "hv_mixed_a-p00625-pl18": 5.0,
+      "bus_mixed_q5-p0125-pl18": 4.74,
+      "hv_mixed_b-p00625-pl18": 3.54,
+      "leg_b_18p7-p00625-pl18": 0.73,
+      "res_a-p0125-pl18": 0.2,
+      "coil_feed-p0125-pl18": 0.04,
+      "ac_n_main-p0125-pl18": 0.0,
+      "ac_l_main-p0125-pl18": 0.0
+     }
+    },
+    "Q5.3 sw_b (15.4, 4.2)": {
+     "cell": [
+      15.5,
+      4.5
+     ],
+     "layer_index": 2,
+     "temperature_c": 169.49,
+     "rise_by_source_k": {
+      "sw_b_high-p00625-pl18": 42.47,
+      "parts (A6 c28)": 20.9,
+      "bus_mixed_q5-p0125-pl18": 16.56,
+      "sw_b_low-p00625-pl18": 15.5,
+      "sw_a_low-p00625-pl18": 5.85,
+      "hv_mixed_a-p00625-pl18": 4.93,
+      "leg_a_18p7-p00625-pl18": 4.74,
+      "hv_mixed_b-p00625-pl18": 3.62,
+      "bus_mixed_q2-p0125-pl18": 2.45,
+      "sw_a-p00625-pl18": 1.39,
+      "leg_b_18p7-p00625-pl18": 1.03,
+      "res_a-p0125-pl18": 0.05,
+      "coil_feed-p0125-pl18": 0.01,
+      "ac_n_main-p0125-pl18": 0.0,
+      "ac_l_main-p0125-pl18": 0.0
+     }
+    },
+    "Q6.2 sw_b (27.95, 4.2)": {
+     "cell": [
+      27.5,
+      4.5
+     ],
+     "layer_index": 2,
+     "temperature_c": 182.87,
+     "rise_by_source_k": {
+      "sw_b_low-p00625-pl18": 44.61,
+      "parts (A6 c28)": 24.05,
+      "sw_b_high-p00625-pl18": 20.76,
+      "bus_mixed_q5-p0125-pl18": 11.27,
+      "sw_a_low-p00625-pl18": 7.92,
+      "leg_a_18p7-p00625-pl18": 7.18,
+      "hv_mixed_a-p00625-pl18": 5.94,
+      "hv_mixed_b-p00625-pl18": 4.31,
+      "bus_mixed_q2-p0125-pl18": 3.2,
+      "sw_a-p00625-pl18": 1.81,
+      "leg_b_18p7-p00625-pl18": 1.73,
+      "res_a-p0125-pl18": 0.06,
+      "coil_feed-p0125-pl18": 0.01,
+      "ac_n_main-p0125-pl18": 0.0,
+      "ac_l_main-p0125-pl18": 0.0
+     }
+    }
+   },
+   "strip_heat_w": {
+    "sw_a_low-p00625-pl18": 1.3036,
+    "leg_a_18p7-p00625-pl18": 0.748,
+    "parts (A6 c28)": 0.4978,
+    "sw_b_high-p00625-pl18": 0.3808,
+    "bus_mixed_q2-p0125-pl18": 0.377,
+    "sw_b_low-p00625-pl18": 0.3757,
+    "bus_mixed_q5-p0125-pl18": 0.3634,
+    "sw_a-p00625-pl18": 0.2073,
+    "leg_b_18p7-p00625-pl18": 0.1073,
+    "hv_mixed_b-p00625-pl18": 0.0018,
+    "hv_mixed_a-p00625-pl18": 0.0014,
+    "res_a-p0125-pl18": 0.0,
+    "coil_feed-p0125-pl18": 0.0,
+    "ac_n_main-p0125-pl18": 0.0,
+    "ac_l_main-p0125-pl18": 0.0
+   },
+   "strip_heat_total_w": 4.364
+  }
+ }
+}

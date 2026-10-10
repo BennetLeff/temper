@@ -1,0 +1,139 @@
+{
+ "G_upper_W_per_K": 0.11396103896103892,
+ "Tc_C": {
+  "basis_B_78.3C": 78.27919999999999,
+  "basis_A_130.4C": 130.4484
+ },
+ "rows": [
+  {
+   "h": 25,
+   "case": "no lead path (as committed)",
+   "board_peak": {
+    "temperature_c": 142.03244438256564,
+    "rise_k": 92.03244438256563,
+    "x_mm": 76.5,
+    "y_mm": 9.5,
+    "layer": "F.Cu"
+   },
+   "fet_row_max_c": 142.03,
+   "lead_w_to_package": 0.0
+  },
+  {
+   "h": 25,
+   "case": "basis_B_78.3C, drain, G 0.114 W/K",
+   "board_peak": {
+    "temperature_c": 136.41224802623412,
+    "rise_k": 86.41224802623411,
+    "x_mm": 76.5,
+    "y_mm": 9.5,
+    "layer": "F.Cu"
+   },
+   "fet_row_max_c": 136.41,
+   "lead_w_to_package": 1.38
+  },
+  {
+   "h": 25,
+   "case": "basis_B_78.3C, all, G 0.114 W/K",
+   "board_peak": {
+    "temperature_c": 134.08704590564275,
+    "rise_k": 84.08704590564275,
+    "x_mm": 109.5,
+    "y_mm": 77.5,
+    "layer": "F.Cu"
+   },
+   "fet_row_max_c": 124.05,
+   "lead_w_to_package": 2.712
+  },
+  {
+   "h": 25,
+   "case": "basis_A_130.4C, drain, G 0.114 W/K",
+   "board_peak": {
+    "temperature_c": 142.4929660562425,
+    "rise_k": 92.49296605624251,
+    "x_mm": 76.5,
+    "y_mm": 9.5,
+    "layer": "F.Cu"
+   },
+   "fet_row_max_c": 142.49,
+   "lead_w_to_package": -0.283
+  },
+  {
+   "h": 25,
+   "case": "basis_A_130.4C, all, G 0.114 W/K",
+   "board_peak": {
+    "temperature_c": 144.91859492162862,
+    "rise_k": 94.91859492162862,
+    "x_mm": 76.5,
+    "y_mm": 9.5,
+    "layer": "F.Cu"
+   },
+   "fet_row_max_c": 144.92,
+   "lead_w_to_package": -1.167
+  },
+  {
+   "h": 10,
+   "case": "no lead path (as committed)",
+   "board_peak": {
+    "temperature_c": 202.73818941387864,
+    "rise_k": 152.73818941387864,
+    "x_mm": 50.5,
+    "y_mm": 4.5,
+    "layer": "In1.Cu"
+   },
+   "fet_row_max_c": 202.74,
+   "lead_w_to_package": 0.0
+  },
+  {
+   "h": 10,
+   "case": "basis_B_78.3C, drain, G 0.114 W/K",
+   "board_peak": {
+    "temperature_c": 176.8596838530392,
+    "rise_k": 126.85968385303919,
+    "x_mm": 76.5,
+    "y_mm": 9.5,
+    "layer": "F.Cu"
+   },
+   "fet_row_max_c": 176.86,
+   "lead_w_to_package": 2.747
+  },
+  {
+   "h": 10,
+   "case": "basis_B_78.3C, all, G 0.114 W/K",
+   "board_peak": {
+    "temperature_c": 162.78669361350984,
+    "rise_k": 112.78669361350984,
+    "x_mm": 14.5,
+    "y_mm": 56.5,
+    "layer": "F.Cu"
+   },
+   "fet_row_max_c": 145.35,
+   "lead_w_to_package": 4.978
+  },
+  {
+   "h": 10,
+   "case": "basis_A_130.4C, drain, G 0.114 W/K",
+   "board_peak": {
+    "temperature_c": 187.21834863495505,
+    "rise_k": 137.21834863495505,
+    "x_mm": 76.5,
+    "y_mm": 9.5,
+    "layer": "F.Cu"
+   },
+   "fet_row_max_c": 187.22,
+   "lead_w_to_package": 1.396
+  },
+  {
+   "h": 10,
+   "case": "basis_A_130.4C, all, G 0.114 W/K",
+   "board_peak": {
+    "temperature_c": 172.46292211205366,
+    "rise_k": 122.46292211205368,
+    "x_mm": 14.5,
+    "y_mm": 56.5,
+    "layer": "F.Cu"
+   },
+   "fet_row_max_c": 172.02,
+   "lead_w_to_package": 2.37
+  }
+ ]
+}

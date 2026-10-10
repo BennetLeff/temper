@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Round 5 B3: native-21 board temperature at 50 °C ambient (stage 15 board since 2026-10-10).
+"""Round 5 B3: native-21 board temperature at 50 °C ambient (stage 15b board since 2026-10-10).
 
 Copper Joule heat: round-5 A4 cases at 18 µm plating, each scaled to an operating point by
 (I_operating / I_case)^2 and summed. Distinct nets add exactly; time-disjoint paths on one net
@@ -17,7 +17,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 OUT = HERE / "outputs"
 UNIT = HERE.parents[3]
-GEOM = UNIT / "native-21/verification/native21s15-all-copper.json.gz"
+GEOM = UNIT / "native-21/verification/native21s15b-all-copper.json.gz"
 HEAT = HERE / "inputs/native21-board-heat-sources.json"
 HEAT_C28 = HERE / "inputs/native21-board-heat-sources-c28.json"   # make_heat_sources.py, stage 15
 # Operating points (task 05 round 3 / task 03 round 3): tank RMS I_t through the bridge, R5 and

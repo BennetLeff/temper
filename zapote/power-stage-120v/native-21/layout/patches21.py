@@ -124,6 +124,14 @@ S15_ADD = [(("sw_a", "F.Cu"), (148.6, 55.0, 152.4, 101.5)),       # P-A1 (from y
            (("sw_b", "B.Cu"), (83.7, 15.6, 100.5, 19.4))]         # P-B3
 S15_TRIM = [(("l_filt", "B.Cu"), (150.0, 33.4, 188.0, 34.2)),     # for P-B1b
             (("l_filt", "B.Cu"), (83.0, 12.4, 101.0, 17.0))]      # for P-B3
+# Stage 15b (28 A thermal, DECISIONS item 14; validation-results/04-board-current-thermal/round5-native21/stage15b/):
+# B3 put the 28 A FET-row peak in SW_A's A-low-side path: the B.Cu leg-A link (2.83 mm over the Q3.3 / Q2.2
+# keep-outs) and the F.Cu neck right of Q2.3. Candidate c2h: raise the link's top 12.5 -> 13.5 over x 50.5-70
+# and drop SW_B's lane bottom 15.7 -> 16.7 to keep the 3.2 mm gap (stops short of the C55 tie via at 73.1);
+# fill the Q2.3 / BR1.1 corner on F.Cu (refill keeps 3.2 mm from BR1.1). No part moves, inner layers untouched.
+S15_ADD += [(("sw_a", "F.Cu"), (76.5, 0.6, 81.7, 9.8)),
+            (("sw_a", "B.Cu"), (50.5, 12.4, 70.0, 13.5))]
+S15_TRIM += [(("sw_b", "B.Cu"), (50.5, 12.5, 70.0, 16.7))]
 R5_PADS = {"leg_ret": "R5.1", "hv_ret": "R5.4"}
 R5_MAX, R5_REACH = 10, 2.6
 

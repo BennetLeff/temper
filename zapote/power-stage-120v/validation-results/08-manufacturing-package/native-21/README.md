@@ -1,11 +1,11 @@
 # 08 Manufacturing package: native-21 candidate
 
-A **candidate** JLCPCB package for native-21 (stage 15), reviewed independently of KiCad. It
+A **candidate** JLCPCB package for native-21 (stage 15b), reviewed independently of KiCad. It
 does not release fabrication: `DECISIONS.md` controls that, and its gates are open
 ([fab/FAB-NOTE.md](fab/FAB-NOTE.md)).
 
-- Board: native-21 stage 15 (stage 14 + 28 A protection values R34 / R43 / R46 and SW_A / SW_B widening; DECISIONS item 13), SHA-256
-  `5b9dbd612d2909c04e393a2273b0cf009e763f609d7e81e03bcbcc9988737fbc`.
+- Board: native-21 stage 15b (stage 14 + 28 A protection values R34 / R43 / R46 and SW_A / SW_B widening, DECISIONS items 13-14), SHA-256
+  `9a9c43c63f63d383c89b9dc1d4d03a34d4390cfa1c26bbe802d71e169c6ddf94`.
 - Tools: KiCad 10.0.4 `kicad-cli`, gerbv 2.11.1 (independent renderer), Miniforge Python 3.12.
 - Scripts: native-17's `bom_cpl_jlc.py` unchanged; `review_fab.py` with one change, below.
 

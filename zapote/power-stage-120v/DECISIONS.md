@@ -557,4 +557,22 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
     - **Open:**
       - the pickup basis C (any-phase stack, 70.48 A floor) closes on the bench at 45–55 kHz;
       - bank over-voltage in a CT-failed double fault (present before stage 15) needs TDK's single-event over-voltage figure or a clamp study.
+14. **Stage 15b: the board thermally supports the 28 A ceiling (2026-10-10, board `9a9c43c6…`, copper.json `a831e90c…`; study `validation-results/04-board-current-thermal/round5-native21/stage15b/`).**
+    - **Root cause of stage 15's 142.0 °C at 28 A:**
+      - **Mostly a B3 meshing artefact.** At the 1.0 mm mesh, the cell at (76.5, 9.5) has no copper, yet it received A4 copper heat from a pour edge inside it.
+        - The energy-conserving fix (`stage15b/b3-model/thermal_snap.py`) puts the stage-15 FET row at 136.6 °C.
+        - That result depends on the mesh: 126.9 °C at 0.5 mm and 128.6 °C at 0.25 mm.
+      - **The real driver is SW_A's low-side path:** the B.Cu leg-A link (2.83 mm over the Q3.3 / Q2.2 keep-outs) and the F.Cu neck right of Q2.3.
+    - **Fix c2h** (patches21 `S15_ADD/S15_TRIM`; no part moves; inner layers, R5, C38/C40 and the gate loops untouched):
+      - the leg-A link's top goes 12.5 → 13.5 over x 50.5–70, and SW_B's lane bottom goes 15.7 → 16.7, keeping the 3.2 mm gap and stopping short of the C55 tie via;
+      - the Q2.3 / BR1.1 F.Cu corner is filled.
+      - **Task 01 / F6 stay closed.** The commutation-loop conductor widens only on its far edge, so a re-extraction is optional confirmation.
+    - **Paths:** sw_a 3.75 mΩ, sw_a_low 6.37 mΩ (was 6.69), sw_b_high 6.65 mΩ (+1.2 %).
+    - **Gates:** DRC 0 / 0 / 0; barrier gates 0; D5 8.047 / 8.507 mm; fit 0; DFM and Gerber review PASS; Kelvin 66.37–118.74 A (floor met at the bound).
+    - **B3, committed thermal.py, h 25** (`b3/ceiling_sweep.py`): 22 / 24 / 26 / 28 A → 133.4 / 133.7 / 133.9 / **134.1 °C**, all at U26, the nominal peak part. **28 A is thermally supported.**
+    - **Still open:**
+      - h 10 (fan failure): the FET row is 198 °C at 28 A. The blower stall detection and derate own this (controller L3).
+      - At the 0.25 mm mesh, R5's pad cell is 149 °C at 28 A (nominal 140 °C), which predates 15b. R5 runs at 0.86 W of its 1 W rating, so its derating needs a check.
+      - Lead conduction to the heatsink is −5.6 / +0.5 K (ZVS / conservative switching). Its sign closes with the bench switching-loss measurement.
+      - Bench list: FET-row IR at 28 A.
 
