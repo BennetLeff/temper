@@ -794,6 +794,44 @@ static void test_no_pan_clamp_live(void)
     tests++;
 }
 
+static void test_power_level_live(void)
+{
+    /* power_set_level -> adapter requested_w -> the loop's power target (input-side watts). */
+    fake_reset(true);
+    model_pan();
+    assert(bind_commissioned(loop_cfg(24)));
+    n21_telemetry_t t;
+    float p[3];
+    const uint8_t level[3] = {20, 35, 15}; /* 360, 630, 270 W of the 1800 W max_power_w */
+    for (unsigned i = 0; i < 3; i++) {
+        power_set_level(level[i]);
+        run_ms(2500);
+        n21_telemetry(&B, &t);
+        float req = 1800.0f * level[i] / 100.0f;
+        p[i] = t.last_half.est.p_in_w;
+        assert(F.gate && test_pwm_generation() && t.fault == N21_FAULT_NONE);
+        assert(p[i] >= 0.94f * req * 0.98f && p[i] <= 1.06f * req * 1.02f); /* band + half jitter */
+        assert(t.freq_reason == TF_HOLD_POWER && t.last_half.est.tank_rms_a < 24 * 0.98f);
+    }
+    assert(F.max_update_hz <= 1100 && F.resets == 0);
+    /* Full level: the 24 A limit wins over the 1800 W request. */
+    power_set_level(100);
+    run_ms(2500);
+    n21_telemetry(&B, &t);
+    assert(t.last_half.est.tank_rms_a <= 24 * 1.005f && t.last_half.est.tank_rms_a > 22 &&
+           t.last_half.est.p_in_w < 1800 * 0.9f && t.freq_reason != TF_HOLD_POWER);
+    /* Below the 60 kHz minimum (~73 W for this pan): capped at 60 kHz, still running. */
+    power_set_level(2); /* 36 W */
+    run_ms(2500);
+    n21_telemetry(&B, &t);
+    assert(t.freq_hz == 60000 && t.freq_reason == TF_POWER_AT_FMAX && F.gate && test_pwm_generation());
+    /* Zero stops the bridge, as before. */
+    power_set_level(0);
+    run_ms(200);
+    assert(!F.gate && test_pwm_generation());
+    tests++;
+}
+
 static void test_freq_update_failure(void)
 {
     /* A failed live retime: the adapter trips, pads low, latched. */
@@ -832,6 +870,7 @@ int main(void)
     test_freq_loop_live();
     test_no_pan_clamp_live();
     test_freq_update_failure();
+    test_power_level_live();
     printf("n21 binding: %u tests passed\n", tests);
     return 0;
 }

@@ -153,11 +153,12 @@ static void half_closed(n21_binding_t *b, const n21_half_result_t *r)
             .f_fit_hz = 0.5f * ((float)r->f_lo_hz + (float)r->f_hi_hz),
             .phi_rad = r->phi_mean_rad, .tank_rms_a = r->est.tank_rms_a,
             .inlet_a = r->est.inlet_bound_a, .peak_a = peak, .p_inv_w = r->est.p_inv_w,
+            .p_in_w = r->est.p_in_w,
         };
     }
     tank_freq_limits_t lim = {.ceiling_a = b->cfg.limits.tank_limit_a,
                               .inlet_max_a = b->cfg.inlet_target_a,
-                              .peak_trip_a = b->cfg.tank_peak_trip_a};
+                              .peak_trip_a = b->cfg.tank_peak_trip_a, .request_w = b->request_w};
     if (tank_freq_step(&b->tf, &b->cfg.freq, &lim, &o) == TF_FAULT_OVERRUN)
         latch(b, N21_FAULT_TANK_RMS); /* no-pan clamp (or ceiling) not held: latch */
 }
@@ -327,10 +328,11 @@ static bool sample(void *ctx, uint32_t *now32, bridge_feedback_t *f, bool *line,
 
 /* Control context, once per tick before fullbridge_apply: the loop target (f_max while the gate is
  * off), approached from the programmed frequency by at most step_up_hz. */
-static uint32_t frequency(void *ctx)
+static uint32_t frequency(void *ctx, float requested_w)
 {
     n21_binding_t *b = ctx;
     lock(b);
+    b->request_w = isfinite(requested_w) && requested_w > 0 ? requested_w : 0.0f;
     uint32_t target = loop_active(b) ? b->tf.f_hz : b->cfg.freq.f_max_hz;
     b->freq_cmd_hz = tank_freq_slew(b->cycle_hz, target, b->cfg.freq.step_up_hz);
     uint32_t f = b->freq_cmd_hz;

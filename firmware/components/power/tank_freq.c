@@ -22,6 +22,7 @@ tank_freq_cfg_t tank_freq_default(void)
         .pan_q_max = 10.0f, .pan_r_min_ohm = 0.8f, .pan_min_rms_a = 4.0f,
         .pan_confirm_halves = 6u, .overrun_halves = 12u, /* 50 ms / 100 ms */
         .block_halves = 120u,                             /* 1 s */
+        .power_band = 0.06f,  /* 12 % dead band > the ~5.7 % power change of one 250 Hz step */
     };
 }
 
@@ -41,7 +42,8 @@ bool tank_freq_config_ok(const tank_freq_cfg_t *c)
            isfinite(c->pan_r_min_ohm) && c->pan_r_min_ohm > 0 && c->pan_r_min_ohm <= 10.0f &&
            isfinite(c->pan_min_rms_a) && c->pan_min_rms_a >= 1.0f && c->pan_min_rms_a <= 20.0f &&
            c->pan_confirm_halves >= 1u && c->pan_confirm_halves <= 120u &&
-           c->overrun_halves >= 1u && c->overrun_halves <= 60u && c->block_halves <= 1200u;
+           c->overrun_halves >= 1u && c->overrun_halves <= 60u && c->block_halves <= 1200u &&
+           isfinite(c->power_band) && c->power_band >= 0.03f && c->power_band <= 0.2f;
 }
 
 void tank_freq_reset(tank_freq_t *t, const tank_freq_cfg_t *c)
@@ -137,7 +139,7 @@ tank_freq_reason_t tank_freq_step(tank_freq_t *t, const tank_freq_cfg_t *c, cons
     if (!t || !c) return TF_UP_INVALID;
     bool ok = lim && o && o->valid && o->f_hz >= c->f_min_hz && o->f_hz <= c->f_max_hz &&
               isfinite(o->tank_rms_a) && o->tank_rms_a >= 0 && isfinite(o->inlet_a) &&
-              isfinite(o->peak_a) && isfinite(o->p_inv_w) &&
+              isfinite(o->peak_a) && isfinite(o->p_inv_w) && isfinite(o->p_in_w) && isfinite(lim->request_w) &&
               isfinite(lim->ceiling_a) && lim->ceiling_a > 0 && isfinite(lim->inlet_max_a) &&
               isfinite(lim->peak_trip_a) && (!o->phase_valid || isfinite(o->phi_rad)) &&
               (!o->fit_ok || (isfinite(o->f_fit_hz) && o->f_fit_hz > 0));
@@ -182,9 +184,18 @@ tank_freq_reason_t tank_freq_step(tank_freq_t *t, const tank_freq_cfg_t *c, cons
     if (o->tank_rms_a > ceiling) return over(t, c, f, o->tank_rms_a <= kx * ceiling, TF_UP_RMS);
     if (o->inlet_a > lim->inlet_max_a) return over(t, c, f, o->inlet_a <= kx * lim->inlet_max_a, TF_UP_INLET);
     if (o->peak_a > peak_max) return over(t, c, f, o->peak_a <= kx * peak_max, TF_UP_PEAK);
+    /* The request, last: every limit above wins over it. */
+    float req = lim->request_w;
+    if (req > t->last_request_w * (1.0f + c->power_band)) t->block_left = 0; /* raised: re-approach */
+    t->last_request_w = req;
+    if (o->p_in_w > (1.0f + c->power_band) * req) {
+        if (f >= c->f_max_hz) { t->f_hz = c->f_max_hz; return t->reason = TF_POWER_AT_FMAX; }
+        return over(t, c, f, o->p_in_w <= (1.0f + 2.0f * c->power_band) * req, TF_UP_POWER);
+    }
 
     t->f_hz = f;
     if (t->block_left) t->block_left--;
+    if (o->p_in_w >= (1.0f - c->power_band) * req) return t->reason = TF_HOLD_POWER;
     uint32_t next = f - c->step_down_hz < floor ? floor : f - c->step_down_hz;
     if (o->tank_rms_a > k * ceiling || o->inlet_a > k * lim->inlet_max_a || o->peak_a > k * peak_max ||
         o->phi_rad < kx * lag_min || (t->block_left && next <= t->block_hz && next < f))

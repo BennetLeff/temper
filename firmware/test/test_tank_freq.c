@@ -21,13 +21,15 @@ static tank_freq_obs_t observe(const tank_t *k, uint32_t f)
     return (tank_freq_obs_t){
         .valid = true, .phase_valid = true, .fit_ok = true, .f_hz = f, .f_fit_hz = (float)f, .phi_rad = (float)atan2(x, k->R),
         .tank_rms_a = (float)i, .inlet_a = (float)(p / 0.93 / 120.0 * 1.10 + 1.3),
-        .peak_a = (float)(2.17 * i), .p_inv_w = (float)p,
+        .peak_a = (float)(2.17 * i), .p_inv_w = (float)p, .p_in_w = (float)(p / 0.93),
     };
 }
 
 static tank_freq_limits_t limits(float ceiling)
 {
-    return (tank_freq_limits_t){.ceiling_a = ceiling, .inlet_max_a = 13.5f, .peak_trip_a = tank_peak_trip_for(ceiling)};
+    /* request: far above anything the stage can draw, so only the hardware limits bind */
+    return (tank_freq_limits_t){.ceiling_a = ceiling, .inlet_max_a = 13.5f, .peak_trip_a = tank_peak_trip_for(ceiling),
+                                .request_w = 1e6f};
 }
 
 /* Runs `halves` closed half cycles with the actuator following the target at once. Checks on every
@@ -100,6 +102,8 @@ static void test_config_caps(void)
     c = d; c.pan_r_min_ohm = NAN; assert(!tank_freq_config_ok(&c));
     c = d; c.overrun_halves = 0; assert(!tank_freq_config_ok(&c));
     c = d; c.block_halves = 1201; assert(!tank_freq_config_ok(&c));
+    c = d; c.power_band = 0.02f; assert(!tank_freq_config_ok(&c));        /* narrower than one step */
+    c = d; c.power_band = NAN; assert(!tank_freq_config_ok(&c));
     tests++;
 }
 
@@ -396,6 +400,129 @@ static void test_no_pan_clamp(void)
     tests++;
 }
 
+/* ------------------------------------------------------------------ power request */
+static const tank_t PAN = {.L = 55e-6, .C = 0.5e-6, .R = 1.4, .v1 = 108}; /* 120 V line */
+
+static bool in_band(float p, float req) { return p >= (1 - C.power_band) * req && p <= (1 + C.power_band) * req; }
+
+static void test_power_tracking(void)
+{
+    tank_freq_limits_t lim = limits(22);
+    /* Limit-bound maximum for this pan at 22 A (the RMS stop). */
+    tank_freq_reset(&T, &C);
+    (void)run(&PAN, &C, &lim, &T, 400, NULL);
+    uint32_t f_lim = T.f_hz;
+    float p_max = observe(&PAN, f_lim).p_in_w;
+    assert(p_max > 650 && p_max < 750);
+    /* Mid request: 400 W tracked inside the dead band, above the limit-bound frequency. */
+    lim.request_w = 400;
+    tank_freq_reset(&T, &C);
+    assert(run(&PAN, &C, &lim, &T, 400, NULL) == TF_HOLD_POWER);
+    assert(in_band(observe(&PAN, T.f_hz).p_in_w, 400) && T.f_hz > f_lim);
+    assert(observe(&PAN, T.f_hz).tank_rms_a < 22 * 0.98f);
+    /* Request above the limit-bound maximum: the limits win, same stop as no request. */
+    lim.request_w = 1500;
+    tank_freq_reset(&T, &C);
+    tank_freq_reason_t r = run(&PAN, &C, &lim, &T, 400, NULL);
+    assert(r != TF_HOLD_POWER && T.f_hz == f_lim && observe(&PAN, T.f_hz).p_in_w < 1500 * 0.94f);
+    tests++;
+}
+
+static void test_power_steps(void)
+{
+    tank_freq_limits_t lim = limits(22);
+    lim.request_w = 300;
+    tank_freq_reset(&T, &C);
+    (void)run(&PAN, &C, &lim, &T, 400, NULL);
+    uint32_t f300 = T.f_hz;
+    assert(in_band(observe(&PAN, f300).p_in_w, 300));
+    /* Step up to 600 W while running: bounded steps down in f (run() checks each), settles. */
+    lim.request_w = 600;
+    unsigned n = 0;
+    while (!in_band(observe(&PAN, T.f_hz).p_in_w, 600) && n < 400) { (void)run(&PAN, &C, &lim, &T, 1, NULL); n++; }
+    assert(n < 400 && T.f_hz < f300);
+    (void)run(&PAN, &C, &lim, &T, 200, NULL);
+    assert(in_band(observe(&PAN, T.f_hz).p_in_w, 600));
+    uint32_t f600 = T.f_hz;
+    /* Step down to 200 W: retreats up in f with the same bounded steps, settles in band. */
+    lim.request_w = 200;
+    for (n = 0; n < 400 && !in_band(observe(&PAN, T.f_hz).p_in_w, 200); n++) {
+        uint32_t f0 = T.f_hz;
+        (void)run(&PAN, &C, &lim, &T, 1, NULL);
+        assert(T.f_hz >= f0 && T.f_hz - f0 <= C.step_up_hz);
+    }
+    assert(n < 400 && T.f_hz > f600);
+    (void)run(&PAN, &C, &lim, &T, 400, NULL);
+    assert(in_band(observe(&PAN, T.f_hz).p_in_w, 200));
+    /* Step back up after the retreat: the raised request clears the re-approach block. */
+    lim.request_w = 500;
+    (void)run(&PAN, &C, &lim, &T, 300, NULL);
+    assert(in_band(observe(&PAN, T.f_hz).p_in_w, 500));
+    /* An RMS limit still wins over a request that is raised further. */
+    lim.ceiling_a = 15;
+    lim.request_w = 1500;
+    tank_freq_reset(&T, &C); /* a ceiling cut below the running current would trip: restart */
+    (void)run(&PAN, &C, &lim, &T, 400, NULL);
+    assert(observe(&PAN, T.f_hz).tank_rms_a <= 15.0f * 1.001f && observe(&PAN, T.f_hz).tank_rms_a > 14);
+    tests++;
+}
+
+static void test_power_no_chatter(void)
+{
+    /* Across the whole range of requests, on a low-R pan (2.8 % current per step near the floor)
+     * and a nominal one: once settled, 600 more halves without a single frequency change. */
+    static const tank_t pans[] = {{55e-6, 0.5e-6, 1.4, 108}, {55e-6, 0.5e-6, 1.0, 108}, {60e-6, 0.5e-6, 2.5, 108}};
+    unsigned cases = 0;
+    for (unsigned k = 0; k < 3; k++) {
+        for (float req = 100; req <= 1300; req += 37) {
+            tank_freq_limits_t lim = limits(22);
+            lim.request_w = req;
+            tank_freq_reset(&T, &C);
+            (void)run(&pans[k], &C, &lim, &T, 600, NULL);
+            uint32_t f = T.f_hz;
+            unsigned changes = 0;
+            for (unsigned h = 0; h < 600; h++) {
+                uint32_t f0 = T.f_hz;
+                (void)run(&pans[k], &C, &lim, &T, 1, NULL);
+                if (T.f_hz != f0) changes++;
+            }
+            /* a block retry (once per block_halves) is the only change allowed at a hard limit */
+            assert(changes <= 2 * (600 / C.block_halves + 1));
+            if (T.reason == TF_HOLD_POWER) { assert(changes == 0 && T.f_hz == f); cases++; }
+        }
+    }
+    assert(cases > 20);
+    tests++;
+}
+
+static void test_power_below_fmax_minimum(void)
+{
+    /* The minimum continuous input power at 60 kHz (FHA model, 120 V line; 132 V is x1.21). */
+    static const struct { tank_t k; const char *name; } pans[] = {
+        {{55e-6, 0.5e-6, 1.4, 108}, "low-R pan (1.4 ohm)"},
+        {{55e-6, 0.5e-6, 2.0, 108}, "typical pan (2.0 ohm)"},
+        {{55e-6, 0.5e-6, 3.5, 108}, "high-R pan (3.5 ohm)"},
+    };
+    for (unsigned i = 0; i < 3; i++) {
+        float p_min = observe(&pans[i].k, 60000).p_in_w;
+        printf("  min continuous power at 60 kHz, %s: %.0f W in (%.1f A tank)\n", pans[i].name, p_min,
+               observe(&pans[i].k, 60000).tank_rms_a);
+        tank_freq_limits_t lim = limits(22);
+        lim.request_w = 0.5f * p_min;          /* below what 60 kHz delivers */
+        tank_freq_reset(&T, &C);
+        assert(run(&pans[i].k, &C, &lim, &T, 50, NULL) == TF_POWER_AT_FMAX && T.f_hz == 60000);
+        /* From a running point, a request cut below the minimum walks back up and caps at f_max. */
+        lim.request_w = 800;
+        (void)run(&pans[i].k, &C, &lim, &T, 300, NULL);
+        assert(T.f_hz < 50000);
+        lim.request_w = 10;
+        assert(run(&pans[i].k, &C, &lim, &T, 300, NULL) == TF_POWER_AT_FMAX && T.f_hz == 60000);
+        lim.request_w = 0;                     /* zero (the adapter stops the bridge anyway) */
+        assert(run(&pans[i].k, &C, &lim, &T, 5, NULL) == TF_POWER_AT_FMAX && T.f_hz == 60000);
+    }
+    tests++;
+}
+
 static void test_reset(void)
 {
     tank_t k = {.L = 55e-6, .C = 0.5e-6, .R = 1.4, .v1 = 108};
@@ -421,6 +548,10 @@ int main(void)
     test_up_on_violation();
     test_fault_inputs();
     test_no_pan_clamp();
+    test_power_tracking();
+    test_power_steps();
+    test_power_no_chatter();
+    test_power_below_fmax_minimum();
     test_reset();
     printf("tank_freq: %u tests passed\n", tests);
     return 0;

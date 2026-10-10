@@ -65,7 +65,7 @@ void power_service_tick(void)
         return;
     }
     if (owner.burst.burst_enabled && !bridge.armed) burst.on = false;
-    if (owner.frequency && !fullbridge_set_frequency(&bridge, owner.frequency(owner.context))) {
+    if (owner.frequency && !fullbridge_set_frequency(&bridge, owner.frequency(owner.context, bridge.requested_w))) {
         pwm_disable_all(); bridge.tripped = true; return;
     }
     if (!fullbridge_apply(&bridge, now, &f, 1.0f)) return;

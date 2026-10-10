@@ -53,6 +53,16 @@
  * once (fail safe to the lower limit). Both criteria are bench-tunable ESTIMATES (empty coil:
  * R ~ 0.12-0.25 ohm, Q ~ 50-100, lag ~ 88 deg; a pan that needs 28 A for the 1239 W hold:
  * R ~ 1.4 ohm, Q ~ 4-8).
+ * Power request. The user's setting (adapter requested_w, input-side watts) is the fifth limit,
+ * the softest: the loop targets input power = min(request, the limit-bound maximum). It stops
+ * stepping down once input power reaches (1 - power_band) x request and steps up when it exceeds
+ * (1 + power_band) x request (marginal retreat + block, as for any limit). Power goes as I^2, so
+ * one 250 Hz step moves it by up to ~5.7 % on a low-R pan near the floor (2.8 % in current); the
+ * dead band (2 x 6 % = 12 %) is wider than one step, so the loop cannot jump across it and chatter.
+ * A request raised by more than the band clears the re-approach block. Every other limit wins over
+ * the request. A request below what the pan draws at f_max cannot be met continuously: the loop
+ * holds f_max (TF_POWER_AT_FMAX) and delivers that minimum (pulse-skipping / burst is not
+ * implemented). A request of 0 stops the bridge in the adapter (gate off, loop reset).
  * Regulation overrun: more than overrun_halves consecutive halves above 1.05 x the effective
  * ceiling returns TF_FAULT_OVERRUN, which the binding latches as N21_FAULT_TANK_RMS.
  */
@@ -92,12 +102,14 @@ typedef struct {
     float pan_q_max, pan_r_min_ohm, pan_min_rms_a;
     uint32_t pan_confirm_halves, overrun_halves;
     uint32_t block_halves;        /* re-approach lock-out after a limit was exceeded */
+    float power_band;             /* relative half-width of the power dead band, 0.03..0.2 */
 } tank_freq_cfg_t;
 
 typedef struct {
     float ceiling_a;   /* commissioned tank RMS ceiling */
     float inlet_max_a; /* hold on est.inlet_bound_a (adapter inlet_target_a) */
     float peak_trip_a; /* firmware peak trip */
+    float request_w;   /* requested input power (adapter requested_w); <= 0 retreats */
 } tank_freq_limits_t;
 
 typedef struct {
@@ -108,6 +120,7 @@ typedef struct {
     float f_fit_hz;    /* mean frequency over the half (the fit's abscissa) */
     float phi_rad;     /* mean lag of the tank current behind the bridge voltage */
     float tank_rms_a, inlet_a, peak_a, p_inv_w;
+    float p_in_w;      /* input-side power estimate (input_limits p_in_w) */
 } tank_freq_obs_t;
 
 typedef enum {
@@ -122,6 +135,9 @@ typedef enum {
     TF_UP_RMS,
     TF_UP_INLET,
     TF_UP_PEAK,
+    TF_UP_POWER,       /* input power above (1 + power_band) x request */
+    TF_HOLD_POWER,     /* input power inside the request's dead band */
+    TF_POWER_AT_FMAX,  /* request below the f_max minimum: capped at f_max */
     TF_FAULT_OVERRUN,  /* effective ceiling exceeded for too long: latch */
 } tank_freq_reason_t;
 
@@ -135,6 +151,7 @@ typedef struct {
     float ceiling_eff_a;
     uint32_t pan_count, overrun;
     uint32_t block_hz, block_left; /* no step down to <= block_hz while block_left > 0 */
+    float last_request_w;
     tank_freq_reason_t reason;
 } tank_freq_t;
 

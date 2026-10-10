@@ -26,6 +26,7 @@
  *   - Frequency (COMMISSIONED only): the per-pan loop (tank_freq_step, once per closed half while
  *     the gate is on) sets a target in [f_min, f_max]; the control tick slews the live frequency
  *     towards it by at most step_up_hz per tick, and apply_cycle refuses any other plan or step.
+ *     The loop's power target is the adapter's requested_w, handed over by that same tick.
  *     A live change goes through ops.pwm_update (period and compares from shadow registers at
  *     timer zero); with the bridge stopped, through pwm_program. With the gate off the loop is
  *     reset and the frequency returns to f_max.
@@ -137,6 +138,7 @@ typedef struct {
     tank_freq_t tf;             /* loop state (acquisition context, under lock) */
     uint32_t cycle_hz;          /* frequency of the programmed cycle */
     uint32_t freq_cmd_hz;       /* frequency last handed to the adapter */
+    float request_w;            /* adapter requested power, the loop's power target */
     uint64_t last_sample_us, last_report_us, last_reset_us, bench_until_us;
     uint32_t serial, samples;
     uint16_t ref_code;
