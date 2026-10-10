@@ -1,0 +1,18 @@
+{
+ "source": "TDK B3265*A/G/J/T data sheet 6/26, p.57 right chart (1600 V DC / 500 V AC), T_A <= 85 C, dT <= 20 K",
+ "pdf_sha256": "c32e3754787fa19b2e256e007c98a24755ae18eb52830cce430ffd6b177afdd3",
+ "render": "pdftoppm -r 130",
+ "grid_px": {
+  "x_1e2": 614,
+  "x_1e5": 958,
+  "y_100A": 334,
+  "y_0.01A": 774
+ },
+ "check_99kHz_over_p22_table_100kHz": {
+  "I_220nF": 1.006,
+  "I_150nF": 0.999,
+  "I_100nF": 0.99,
+  "I_47nF": 1.002
+ },
+ "resolution": "about +/-3 % in current (1 px = 2.1 % at 110 px/decade); curve line width ~3 px"
+}

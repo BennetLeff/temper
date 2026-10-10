@@ -1,0 +1,63 @@
+{
+ "status": "ASSUMED / estimates",
+ "ipc2221_width_for_20K_mm": {
+  "22A": 7.01,
+  "24A": 7.9,
+  "26A": 8.82,
+  "28A": 9.77,
+  "30A": 10.75
+ },
+ "copper_loss_W": {
+  "SW_A": {
+   "22A": 2.01,
+   "24A": 2.39,
+   "26A": 2.8,
+   "28A": 3.25,
+   "30A": 3.73
+  },
+  "SW_B (high)": {
+   "22A": 3.43,
+   "24A": 4.08,
+   "26A": 4.79,
+   "28A": 5.55,
+   "30A": 6.37
+  },
+  "RES_A": {
+   "22A": 0.32,
+   "24A": 0.38,
+   "26A": 0.45,
+   "28A": 0.52,
+   "30A": 0.6
+  },
+  "coil feed": {
+   "22A": 0.2,
+   "24A": 0.24,
+   "26A": 0.28,
+   "28A": 0.32,
+   "30A": 0.37
+  }
+ },
+ "coil_model_check": {
+  "full_speed_op": {
+   "drive": 1.0,
+   "total_cfm": 26.69,
+   "sink_cfm": 19.77,
+   "coil_cfm": 6.92,
+   "bleed_fraction": 0.259,
+   "branch_dp_Pa": 79.5,
+   "R_SA": 0.2581,
+   "noise_dBA_est": 58.0
+  },
+  "check_22A_R25_0.318": {
+   "T_winding_C": 151.1,
+   "T_ferrite_C_est": 114.6,
+   "T_air_out_C": 106.3,
+   "Q_gen_W": 230.2,
+   "Q_from_glass_W": -28.7,
+   "Q_to_air_W": 201.5,
+   "h_W_m2K": 153.0,
+   "jet_Re": 570,
+   "jet_v_m_s": 3.42
+  }
+ }
+}
