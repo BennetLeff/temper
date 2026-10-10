@@ -1,0 +1,58 @@
+{
+ "rounds": [
+  {
+   "round": 1,
+   "open_before": 301
+  },
+  {
+   "round": 2,
+   "open_before": 4
+  },
+  {
+   "round": 3,
+   "open_before": 3
+  },
+  {
+   "repair": 0,
+   "radius_mm": 3.0,
+   "open_before": 3,
+   "first": "BUS_FAULT_RB,PERMIT_RB,v3v3"
+  },
+  {
+   "round": 4,
+   "open_before": 48,
+   "first": "BUS_FAULT_RB,PERMIT_RB,v3v3"
+  },
+  {
+   "round": 5,
+   "open_before": 6
+  },
+  {
+   "round": 6,
+   "open_before": 3
+  },
+  {
+   "repair": 1,
+   "radius_mm": 5.0,
+   "open_before": 2,
+   "first": "SUP_RUN_OK_RB,v3v3"
+  },
+  {
+   "round": 7,
+   "open_before": 49,
+   "first": "SUP_RUN_OK_RB,v3v3"
+  },
+  {
+   "round": 8,
+   "open_before": 0
+  },
+  {
+   "cleanup": true
+  },
+  {
+   "round": 9,
+   "open_before": 0
+  }
+ ],
+ "final_open": 0
+}

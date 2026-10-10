@@ -29,7 +29,7 @@ python3 tools/verify_controller.py # schematic verification
 | `layout/build_board.py` | Board from the netlist: stack-up, outline, holes and Ø8 keep-outs, placement (explicit + anchored passives, nothing within 3 mm of the U.FL), planes, buck pours, plane fan-out, silk text, project rules |
 | `layout/fanout.py` | A via beside every SMD pad on `selv_gnd` / `v3v3` into its plane, keeping an escape lane for each neighbouring signal pin |
 | `layout/build_schematic.py` | A netlist rendering (`pcb/controller.kicad_sch`) so KiCad's DRC can run schematic parity |
-| `layout/route.py` | Routing driver (hash seed fixed, so the same placed board routes the same way): KiCad DRC gives the open pairs, `export_geom.py` dumps the copper, `gridroute.py` routes; up to three rounds. Then the **repair** step: for each pair still open it rips the unlocked copper within 3, then 5, then 8 mm of its ends and routes the stuck nets first. Then `cleanup.py`, more rounds if needed, and finally the outer GND pours and the designators |
+| `layout/route.py` | Routing driver: KiCad DRC gives the open pairs, `export_geom.py` dumps the copper, `gridroute.py` routes; up to three rounds. Then the **repair** step: for each pair still open it rips the unlocked copper within 3, then 5, then 8 mm of its ends and routes the stuck nets first. Then `cleanup.py`, more rounds if needed, and finally the outer GND pours and the designators |
 | `layout/plane_islands.py` | Turns KiCad's "zone to zone" unconnected reports (the In2 v3v3 pour cut into islands by In2 tracks) into routable pairs: the nearest v3v3 vias of two islands |
 | `layout/cleanup.py` | Removes copper that partial rips leave. The graph pass treats each track piece as a hyperedge on everything its ends lie in, as KiCad does; it deletes pieces that only close a loop and peels dangling chains. A second pass deletes exactly what KiCad's DRC lists as via/track dangling. Plane and pour nets are left alone |
 | `layout/export_geom.py`, `layout/gridroute.py` | Copper dump (KiCad Python) and the router: F.Cu/In2.Cu/B.Cu on a 0.1 mm raster (preferred directions F along X, B along Y), clearance maps per width, A* with through vias and no corner cutting, exact shapely checks on pad escapes and pulled-tight segments, transactional negotiated rip-up, and a final exact legalisation of every segment and via against all copper, keep-outs and holes. The interlock block's box is a keep-out for MCU nets |
@@ -149,6 +149,12 @@ Every IC supply pin (the "vcc" pins of `verify_controller.py`'s part models) has
 - **`plane_islands.py`:** it turns KiCad's "zone to zone" reports (In2 v3v3 islands) into routable via pairs.
 - **`cleanup.py`:** it removes the loops and dangling chains that partial rips leave. KiCad's own dangling list is the last word on dangling items.
 
+**Convergence (honest record).** The committed board is full run 5, and its round-by-round log is `evidence/route-log.json`. Runs vary because KiCad's DRC lists unconnected pairs in varying order, which breaks ties in the router's pair order.
+- Of four full runs of this flow, runs 3, 4 and 5 closed the board.
+- Run 6 left 2 pairs open. A test with three further repair-and-cleanup cycles on its board stayed at 2–7 open.
+- The stuck nets are always module nets at the module's front and right pins: the U9 read-backs, UI_DC, the I²C clock and the RTD SPI.
+- A run that does not close stops `make.py` with "DRC not clean"; it never produces a fab package.
+
 **Enclosure constraints (R31 + R33 + R36 proposal), all checked by `layout/check_layout.py`:**
 - outline X−38…168 / Y14…90, 1.6 mm, 4 layers: exact;
 - six Ø4.0 holes at the R31 positions: exact; Ø8 keep-outs free of courtyards, pads, tracks, vias and fills;
@@ -170,4 +176,5 @@ Every IC supply pin (the "vcc" pins of `verify_controller.py`'s part models) has
 8. **Block validators:** re-run the interlock, thermal-sense and RTD validators on this layout (DECISIONS item 9); not done here (no Rust builds in this task).
 9. **Long lines:** RUN_EN and the RTD trip inputs cross most of the board (Interlock trip path). All fail safe on a break; a bench noise check on them is worth adding.
 10. **In2 use:** In2 carries some signal tracks where F/B were full; the v3v3 pour refills around them, and `plane_islands.py` re-joins any v3v3 island; DRC shows v3v3 as one connected net.
-11. **Firmware pins.h:** RUN_EN 14; RTD_DRDY expander P07; SUP_RUN_OK expander P14; UI SPI 40/41/44/47/48/45; I²C SDA 37 / SCL 0; RIM_ADC 9.
+11. **Routing margin at the module:** three of four full runs close the board (Results, Convergence). For a flow that always closes, give the module's front pins more room. Move U8 and the module's anchored RCs further from the front and right pin rows, or let the module's right-column nets use the strip at X 159–168 as a dedicated channel.
+12. **Firmware pins.h:** RUN_EN 14; RTD_DRDY expander P07; SUP_RUN_OK expander P14; UI SPI 40/41/44/47/48/45; I²C SDA 37 / SCL 0; RIM_ADC 9.

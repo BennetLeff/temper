@@ -11,13 +11,14 @@ Steps:
      nets selv_gnd/v3v3 are already complete through their fan-out vias and the In1/In2 planes);
   3. the routes are added to the board (finish(), below);
   4. if KiCad still reports open pairs, steps 1-3 repeat on the routed board (up to 3 rounds);
-  5. repair (up to 3 passes, only while pairs stay open): the unlocked copper of other nets within
+  5. repair (3 passes per cycle, only while pairs stay open): the unlocked copper of other nets within
      REPAIR_R mm of each open pair's ends is deleted, then gridroute routes the stuck nets first
      (GRIDROUTE_FIRST) and the ripped links after them, followed by normal rounds. Unlike --eco this
      frees only the stuck pins' surroundings, so it cannot cascade across the board;
   6. layout/cleanup.py removes copper that partial rips left behind: track segments that only close
      a loop and dangling chains (graph passes until none), then whatever KiCad's DRC still lists as
-     via_dangling / track_dangling; if that left a pair open, normal rounds run again;
+     via_dangling / track_dangling; normal rounds follow, and if a pair is still open the repair
+     cycle (5-6) runs again, up to REPAIR_CYCLES times;
   7. the outer selv_gnd pours and the designators (layout/silk.py) are added and zones refilled.
 
 Every DRC report the router reads first goes through layout/plane_islands.py, which turns KiCad's
@@ -64,6 +65,7 @@ def drc(board, report):
 
 
 REPAIR_R = (3.0, 5.0, 8.0)      # mm around each open pair's ends, one radius per repair pass
+REPAIR_CYCLES = 3               # repair passes + cleanup, repeated while pairs stay open
 
 
 def rip_around(board, report, radius):
@@ -212,8 +214,10 @@ def route_rounds(work, log, rnd, n_rounds, env=None):
 
 def main():
     import os
-    # determinism: every step runs in a child Python; a fixed hash seed fixes set/dict iteration
-    # order of net names inside them, so the same placed board always routes the same way
+    # a fixed hash seed removes one source of run-to-run variation (set/dict order of net names in
+    # the child Pythons). The routed result still varies between runs: KiCad's DRC lists unconnected
+    # pairs in varying order, which breaks ties in gridroute.py's pair order. Every run is gated by
+    # the DRC in layout/make.py (0 errors, 0 unconnected, parity 0) rather than by a fixed outcome.
     os.environ["PYTHONHASHSEED"] = "0"
     WORK.mkdir(exist_ok=True)
     work = WORK / "work.kicad_pcb"
@@ -222,30 +226,35 @@ def main():
     shutil.copy2(PCB / "controller.kicad_pro", WORK / "work.kicad_pro")
     log = {"rounds": []}
     rnd, n_open = route_rounds(work, log, 0, 3)
-    for k, radius in enumerate(REPAIR_R):
+    # repair and cleanup alternate: cleanup can reopen a pair (it removes copper), so the repair
+    # passes run again after it, up to REPAIR_CYCLES times, until the board is closed and clean
+    for cycle in range(REPAIR_CYCLES):
+        for k, radius in enumerate(REPAIR_R):
+            if n_open == 0:
+                break
+            rep_json = WORK / f"drc-repair{cycle}-{k}.json"
+            drc(work, rep_json)
+            out = run([KPY, __file__, "rip", str(work), str(rep_json), str(radius)])
+            print(out, flush=True)
+            first = next(l[6:] for l in out.splitlines() if l.startswith("FIRST="))
+            log["rounds"].append({"repair": f"{cycle}.{k}", "radius_mm": radius, "open_before": n_open, "first": first})
+            rnd, n_open = route_rounds(work, log, rnd, 3, env=first)
+        for _ in range(8):
+            out = run([KPY, str(HERE / "cleanup.py"), str(work)])
+            print(next((l for l in out.splitlines() if l.startswith("cleanup")), out[-200:]), flush=True)
+            if "removed=0" in out:
+                break
+        for k in range(5):
+            rep_json = WORK / f"drc-dangling{cycle}-{k}.json"
+            drc(work, rep_json)
+            out = run([KPY, str(HERE / "cleanup.py"), str(work), "--dangling", str(rep_json)])
+            print(next((l for l in out.splitlines() if l.startswith("cleanup")), out[-200:]), flush=True)
+            if "removed=0" in out:
+                break
+        log["rounds"].append({"cleanup": cycle})
+        rnd, n_open = route_rounds(work, log, rnd, 3)
         if n_open == 0:
             break
-        rep_json = WORK / f"drc-repair{k}.json"
-        drc(work, rep_json)
-        out = run([KPY, __file__, "rip", str(work), str(rep_json), str(radius)])
-        print(out, flush=True)
-        first = next(l[6:] for l in out.splitlines() if l.startswith("FIRST="))
-        log["rounds"].append({"repair": k, "radius_mm": radius, "open_before": n_open, "first": first})
-        rnd, n_open = route_rounds(work, log, rnd, 3, env=first)
-    for _ in range(8):
-        out = run([KPY, str(HERE / "cleanup.py"), str(work)])
-        print(next((l for l in out.splitlines() if l.startswith("cleanup")), out[-200:]), flush=True)
-        if "removed=0" in out:
-            break
-    for k in range(5):
-        rep_json = WORK / f"drc-dangling{k}.json"
-        drc(work, rep_json)
-        out = run([KPY, str(HERE / "cleanup.py"), str(work), "--dangling", str(rep_json)])
-        print(next((l for l in out.splitlines() if l.startswith("cleanup")), out[-200:]), flush=True)
-        if "removed=0" in out:
-            break
-    log["rounds"].append({"cleanup": True})
-    rnd, n_open = route_rounds(work, log, rnd, 3)
     print(run([KPY, __file__, "finish", str(work), "-", "1"]), flush=True)
     shutil.copy2(work, PCB / "controller-routed.kicad_pcb")
     shutil.copy2(PCB / "controller.kicad_pro", PCB / "controller-routed.kicad_pro")
