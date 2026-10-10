@@ -1,0 +1,29 @@
+{
+ "limits": {
+  "annular_ring_mm": 0.2,
+  "via_ring_mm": 0.15,
+  "track_mm": 0.15,
+  "via_drill_mm": 0.3,
+  "pth_drill_mm": [
+   0.15,
+   6.3
+  ],
+  "npth_drill_mm": 0.5,
+  "board_max_mm": [
+   663.0,
+   593.0
+  ],
+  "copper": "1 oz outer (0.035 mm), 0.5 oz inner, JLC04161H-7628"
+ },
+ "vias": 677,
+ "tracks": 2638,
+ "plated_pads": 68,
+ "npth_pads": 3,
+ "board_mm": [
+  206.1,
+  76.1
+ ],
+ "min_track_mm": 0.15,
+ "failures": [],
+ "status": "PASS"
+}

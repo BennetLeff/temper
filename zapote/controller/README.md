@@ -1,6 +1,6 @@
 # Integrated SELV controller (schematic capture)
 
-This is the induction cooktop's low-voltage controller, captured in atopile and ready for PCB layout. **It has no layout yet.** The board integrates:
+This is the induction cooktop's low-voltage controller, captured in atopile and laid out (layout L1, enclosure R31: see [LAYOUT.md](LAYOUT.md)). The board integrates:
 - an ESP32-S3-WROOM-1-N8;
 - the interlock and thermal-sense circuits, ported unchanged;
 - the RTD front end;
@@ -11,7 +11,7 @@ This is the induction cooktop's low-voltage controller, captured in atopile and 
 
 It draws power from native-21's J4 header and supplies native-21's 3.3 V logic back through J4.3.
 
-**Status:** schematic source and frozen netlist only, with no layout and no physical test. Open items and decisions are in [DECISIONS.md](DECISIONS.md). The connector list and placement note for the enclosure team are in [ENCLOSURE-HANDOFF.md](ENCLOSURE-HANDOFF.md).
+**Status:** schematic source, frozen netlist and a placed and mostly routed layout with a JLC fab package ([LAYOUT.md](LAYOUT.md)). **Six connections are still unrouted**, so the board is not DRC-clean and must not be ordered (0 DRC errors, parity 0, DFM PASS, enclosure checks PASS). Not fabricated, no physical test. Open items and decisions are in [DECISIONS.md](DECISIONS.md). The connector list and placement note for the enclosure team are in [ENCLOSURE-HANDOFF.md](ENCLOSURE-HANDOFF.md).
 
 **Requirement inputs** (read-only):
 - `output/temper-manufacturing-r25/design/r25/CONTROLLER-ARCHITECTURE.md` and `CONTROLLER-SPEC.md`. They supersede r24 only in the harness landings.
@@ -32,6 +32,9 @@ It draws power from native-21's J4 header and supplies native-21's 3.3 V logic b
 | `tools/verify_controller.py` | The verification (below); writes `evidence/verify.json` |
 | `tools/controller_calcs.py` | Every numeric claim in these docs; writes `evidence/controller_calcs.json` |
 | `tests/test_verify_mutations.py` | 20 tests. They miswire the frozen netlist and require the owning check to fail |
+| `layout/` | Board build, router, enclosure/layout check, DFM gate and fab export; `python3 layout/make.py` runs the gates (see [LAYOUT.md](LAYOUT.md)) |
+| `pcb/` | `controller.kicad_pcb` (routed board), `.kicad_pro`, the parity schematic, vendored footprints |
+| `fab/` | Gerbers, drill, BOM/CPL with LCSC codes, assembly drawing, `fab-notes.md` (marked not for order) |
 
 **What "ported unchanged" means here:** `tools/port_blocks.py` copies `zapote/interlock/source-build-02/.../interlock_unit.ato` and `zapote/thermal-sense/source-build-02/.../thermal_sense_unit.ato` with one line filter. It drops only:
 - the standalone inter-board headers (interlock J1/J2, thermal-sense J3);
@@ -57,7 +60,7 @@ python3 tools/snapshot_native21.py # re-derive inputs/native-21 from git (read-o
 - **Warnings:** the build emits only atopile's "Implicit Declaration" deprecation warnings for `override_net_name`, the same as the thermal-sense build.
 - **Part identity:** it comes from `resolved-components.json` or the CSV, never from the netlist's `libsource` field. Atopile 0.2.69 aliases parts by footprint there; see the power-stage README.
 
-**Current result** (frozen netlist sha256 `dd21424c…`; 226 components): `VERIFY: PASS` (118 checks), and 20/20 mutation tests pass.
+**Current result** (frozen netlist sha256 `4f49b249…`; 225 components): `VERIFY: PASS` (118 checks), and 20/20 mutation tests pass.
 
 | Section | Checks | What is asserted |
 |---|---|---|

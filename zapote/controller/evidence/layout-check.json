@@ -1,0 +1,674 @@
+{
+ "board": "controller.kicad_pcb",
+ "revision": "R31",
+ "source": "output/temper-manufacturing-r31/design/r31/CONTROLLER-SPEC.md (R31 section; R30 mounting/height)",
+ "transform": "kx = X + 58, ky = 110 - Y (layout/world.py)",
+ "checks": {
+  "outline": {
+   "ok": true,
+   "world_bbox": [
+    -38.05,
+    13.95,
+    168.05,
+    90.05
+   ],
+   "edge_segments": 4,
+   "copper_layers": 4,
+   "thickness_mm": 1.6
+  },
+  "holes": {
+   "ok": true,
+   "holes": [
+    {
+     "hole": [
+      164.0,
+      18.0
+     ],
+     "found": [
+      164.0,
+      18.0
+     ],
+     "d": 4.0
+    },
+    {
+     "hole": [
+      164.0,
+      80.0
+     ],
+     "found": [
+      164.0,
+      80.0
+     ],
+     "d": 4.0
+    },
+    {
+     "hole": [
+      65.0,
+      18.0
+     ],
+     "found": [
+      65.0,
+      18.0
+     ],
+     "d": 4.0
+    },
+    {
+     "hole": [
+      75.0,
+      86.0
+     ],
+     "found": [
+      75.0,
+      86.0
+     ],
+     "d": 4.0
+    },
+    {
+     "hole": [
+      -34.0,
+      18.0
+     ],
+     "found": [
+      -34.0,
+      18.0
+     ],
+     "d": 4.0
+    },
+    {
+     "hole": [
+      -26.0,
+      74.0
+     ],
+     "found": [
+      -26.0,
+      74.0
+     ],
+     "d": 4.0
+    }
+   ],
+   "cutouts": 6
+  },
+  "hole_keepout": {
+   "ok": true,
+   "radius_mm": 4.0,
+   "intrusions": []
+  },
+  "connectors": {
+   "ok": true,
+   "tolerance_mm": 0.5,
+   "rows": [
+    {
+     "ref": "J1",
+     "spec": [
+      55.0,
+      84.0
+     ],
+     "body_centre": [
+      55.0,
+      84.0
+     ],
+     "error_mm": 0.0,
+     "body_on_board": true
+    },
+    {
+     "ref": "J2",
+     "spec": [
+      -20.0,
+      84.0
+     ],
+     "body_centre": [
+      -20.0,
+      84.0
+     ],
+     "error_mm": 0.0,
+     "body_on_board": true
+    },
+    {
+     "ref": "J3",
+     "spec": [
+      152.0,
+      86.0
+     ],
+     "body_centre": [
+      152.0,
+      86.0
+     ],
+     "error_mm": 0.0,
+     "body_on_board": true
+    },
+    {
+     "ref": "J5",
+     "spec": [
+      -32.0,
+      64.0
+     ],
+     "body_centre": [
+      -32.0,
+      64.0
+     ],
+     "error_mm": 0.0,
+     "body_on_board": true
+    },
+    {
+     "ref": "J6",
+     "spec": [
+      35.0,
+      70.0
+     ],
+     "body_centre": [
+      35.0,
+      70.0
+     ],
+     "error_mm": 0.0,
+     "body_on_board": true
+    },
+    {
+     "ref": "J8",
+     "spec": [
+      15.0,
+      41.0
+     ],
+     "body_centre": [
+      15.0,
+      41.0
+     ],
+     "error_mm": 0.0,
+     "body_on_board": true
+    },
+    {
+     "ref": "J9",
+     "spec": [
+      -33.0,
+      86.0
+     ],
+     "body_centre": [
+      -33.0,
+      86.0
+     ],
+     "error_mm": 0.0,
+     "body_on_board": true
+    },
+    {
+     "ref": "J10",
+     "spec": [
+      139.0,
+      86.0
+     ],
+     "body_centre": [
+      139.0,
+      86.0
+     ],
+     "error_mm": 0.0,
+     "body_on_board": true
+    }
+   ],
+   "j3_body_along_rear_edge": true
+  },
+  "j4": {
+   "ok": true,
+   "courtyard_world": [
+    -38.01,
+    27.795,
+    -24.29,
+    57.005
+   ],
+   "spec": [
+    -38.0,
+    27.8,
+    -24.3,
+    57.0
+   ],
+   "max_edge_error_mm": 0.01,
+   "mating": "-X",
+   "mating_required": "-X",
+   "at_board_edge": true,
+   "pin1_world": [
+    -28.565,
+    31.9
+   ]
+  },
+  "wroom": {
+   "ok": true,
+   "body_world": [
+    -20.05,
+    14.0,
+    -1.95,
+    39.6
+   ],
+   "spec": [
+    -20.0,
+    14.0,
+    -2.0,
+    39.5
+   ],
+   "max_edge_error_mm": 0.1,
+   "antenna_end": "front",
+   "keepout_world": [
+    -35.0,
+    -0.95,
+    13.0,
+    20.05
+   ],
+   "keepout_rule_flags_ok": true,
+   "copper_in_keepout": [],
+   "enclosure_conflicts": [
+    {
+     "hole": [
+      -34.0,
+      18.0
+     ],
+     "module_side_to_hole_centre_mm": 13.95,
+     "note": "hole is a copper-free milled cutout and its R30 support is an all-nylon snap-in, so the keep-out holds no copper and no metal; enclosure to confirm, or move the hole >= 19 mm from the module side"
+    }
+   ]
+  },
+  "height": {
+   "ok": true,
+   "allowance_mm": 15.4,
+   "parts": {
+    "JST XH (J1-J3, J6, J8-J10)": {
+     "height_mm": 7.0,
+     "limit_mm": 15.4
+    },
+    "C1 EEE-FK1E101P": {
+     "height_mm": 6.2,
+     "limit_mm": 6.4
+    },
+    "L1/L2 SWPA6045": {
+     "height_mm": 4.5,
+     "limit_mm": 6.4
+    },
+    "U4 ESP32-S3-WROOM-1": {
+     "height_mm": 3.25,
+     "limit_mm": 6.4
+    },
+    "J5 Micro-MaTch 215079-6": {
+     "height_mm": 4.3,
+     "limit_mm": 15.4
+    }
+   },
+   "not_checked": [
+    "J4 43045-1600 and mated plug (Molex drawing not read; R31: plug to X-50, Z<=40)",
+    "J11 1x8 2.54 mm header (bring-up only, may be unfitted)",
+    "mated XH plugs and cable bends"
+   ]
+  },
+  "decoupling": {
+   "ok": true,
+   "limit_mm": 5.0,
+   "pins": [
+    {
+     "pin": "U10.5",
+     "net": "v3v3",
+     "cap": "C43",
+     "distance_mm": 1.98,
+     "ok": true
+    },
+    {
+     "pin": "U11.5",
+     "net": "v3v3",
+     "cap": "C41",
+     "distance_mm": 2.0,
+     "ok": true
+    },
+    {
+     "pin": "U12.5",
+     "net": "v3v3",
+     "cap": "C40",
+     "distance_mm": 2.0,
+     "ok": true
+    },
+    {
+     "pin": "U14.16",
+     "net": "v15_selv",
+     "cap": "C59",
+     "distance_mm": 2.56,
+     "ok": true
+    },
+    {
+     "pin": "U14.17",
+     "net": "v15_selv",
+     "cap": "C59",
+     "distance_mm": 2.31,
+     "ok": true
+    },
+    {
+     "pin": "U14.18",
+     "net": "v15_selv",
+     "cap": "C59",
+     "distance_mm": 2.22,
+     "ok": true
+    },
+    {
+     "pin": "U15.8",
+     "net": "v3v3",
+     "cap": "C62",
+     "distance_mm": 1.98,
+     "ok": true
+    },
+    {
+     "pin": "U17.5",
+     "net": "v3v3",
+     "cap": "C69",
+     "distance_mm": 2.94,
+     "ok": true
+    },
+    {
+     "pin": "U18.5",
+     "net": "v3v3",
+     "cap": "C18",
+     "distance_mm": 2.21,
+     "ok": true
+    },
+    {
+     "pin": "U19.5",
+     "net": "v3v3",
+     "cap": "C20",
+     "distance_mm": 2.21,
+     "ok": true
+    },
+    {
+     "pin": "U20.8",
+     "net": "v3v3",
+     "cap": "C37",
+     "distance_mm": 1.71,
+     "ok": true
+    },
+    {
+     "pin": "U21.5",
+     "net": "v3v3",
+     "cap": "C38",
+     "distance_mm": 2.21,
+     "ok": true
+    },
+    {
+     "pin": "U22.14",
+     "net": "v3v3",
+     "cap": "C36",
+     "distance_mm": 1.97,
+     "ok": true
+    },
+    {
+     "pin": "U23.14",
+     "net": "v3v3",
+     "cap": "C34",
+     "distance_mm": 2.26,
+     "ok": true
+    },
+    {
+     "pin": "U24.14",
+     "net": "v3v3",
+     "cap": "C35",
+     "distance_mm": 2.04,
+     "ok": true
+    },
+    {
+     "pin": "U25.5",
+     "net": "v3v3",
+     "cap": "C39",
+     "distance_mm": 2.21,
+     "ok": true
+    },
+    {
+     "pin": "U26.5",
+     "net": "v3v3",
+     "cap": "C21",
+     "distance_mm": 1.98,
+     "ok": true
+    },
+    {
+     "pin": "U27.5",
+     "net": "v3v3",
+     "cap": "C22",
+     "distance_mm": 1.98,
+     "ok": true
+    },
+    {
+     "pin": "U28.5",
+     "net": "v3v3",
+     "cap": "C23",
+     "distance_mm": 2.21,
+     "ok": true
+    },
+    {
+     "pin": "U29.5",
+     "net": "v3v3",
+     "cap": "C24",
+     "distance_mm": 2.21,
+     "ok": true
+    },
+    {
+     "pin": "U3.2",
+     "net": "v3v3",
+     "cap": "C16",
+     "distance_mm": 1.86,
+     "ok": true
+    },
+    {
+     "pin": "U30.2",
+     "net": "v3v3",
+     "cap": "C26",
+     "distance_mm": 2.27,
+     "ok": true
+    },
+    {
+     "pin": "U30.3",
+     "net": "RTD_AVDD",
+     "cap": "C25",
+     "distance_mm": 2.19,
+     "ok": true
+    },
+    {
+     "pin": "U31.4",
+     "net": "v3v3",
+     "cap": "C28",
+     "distance_mm": 1.98,
+     "ok": true
+    },
+    {
+     "pin": "U32.5",
+     "net": "RTD_AVDD",
+     "cap": "C29",
+     "distance_mm": 1.98,
+     "ok": true
+    },
+    {
+     "pin": "U33.5",
+     "net": "RTD_AVDD",
+     "cap": "C30",
+     "distance_mm": 1.98,
+     "ok": true
+    },
+    {
+     "pin": "U34.5",
+     "net": "RTD_AVDD",
+     "cap": "C31",
+     "distance_mm": 1.98,
+     "ok": true
+    },
+    {
+     "pin": "U35.4",
+     "net": "v3v3",
+     "cap": "C32",
+     "distance_mm": 1.73,
+     "ok": true
+    },
+    {
+     "pin": "U36.5",
+     "net": "v3v3",
+     "cap": "C33",
+     "distance_mm": 1.98,
+     "ok": true
+    },
+    {
+     "pin": "U37.5",
+     "net": "v3v3",
+     "cap": "C70",
+     "distance_mm": 1.99,
+     "ok": true
+    },
+    {
+     "pin": "U4.2",
+     "net": "v3v3",
+     "cap": "C63",
+     "distance_mm": 2.05,
+     "ok": true
+    },
+    {
+     "pin": "U5.8",
+     "net": "v3v3",
+     "cap": "C46",
+     "distance_mm": 2.04,
+     "ok": true
+    },
+    {
+     "pin": "U6.8",
+     "net": "v3v3",
+     "cap": "C48",
+     "distance_mm": 2.04,
+     "ok": true
+    },
+    {
+     "pin": "U7.8",
+     "net": "v3v3",
+     "cap": "C50",
+     "distance_mm": 1.98,
+     "ok": true
+    },
+    {
+     "pin": "U8.24",
+     "net": "v3v3",
+     "cap": "C66",
+     "distance_mm": 1.81,
+     "ok": true
+    },
+    {
+     "pin": "U9.20",
+     "net": "v3v3",
+     "cap": "C44",
+     "distance_mm": 1.81,
+     "ok": true
+    }
+   ]
+  },
+  "interlock": {
+   "ok": true,
+   "regions_world": {
+    "latch block": [
+     -20.6,
+     57.77,
+     23.11,
+     70.88
+    ],
+    "PERMIT gate": [
+     -37.16,
+     22.42,
+     -25.83,
+     26.89
+    ]
+   },
+   "mcu_tracks_crossing": [],
+   "mcu_nets_ending_inside": [
+    "BUS_FAULT_RB",
+    "IL_RESET_N",
+    "IL_WDI",
+    "PERMIT_RB",
+    "RAIL_OK_RB",
+    "RUN_EN",
+    "SUP_RUN_OK_RB"
+   ],
+   "route_length_mm": {
+    "permit": 62.4,
+    "PERMIT_LATCH": 50.2,
+    "RUN_EN": 32.1,
+    "bus_fault": 47.0,
+    "all_good": 38.5,
+    "reset_clock": 48.3,
+    "latched_fault": 19.4,
+    "HS_FAULT": 46.2,
+    "COIL_FAULT": 75.6,
+    "line": 204.7,
+    "RUNAWAY_FAULT": 176.0,
+    "RAIL_FAULT": 30.9,
+    "SENSOR_LIVE": 17.1
+   }
+  },
+  "thermal_relief": {
+   "ok": true,
+   "zones": [
+    "VIN_3V3",
+    "SW_12",
+    "SW_3V3",
+    "GND_F",
+    "VIN_12",
+    "GND_B",
+    "GND_plane",
+    "V3V3_plane"
+   ],
+   "solid_connect_zones_with_tht": [],
+   "note": "GND/v3v3 planes and pours use 'thermal reliefs for PTH' (SMD solid); the buck SW/VIN pours touch SMD pads only"
+  },
+  "partition": {
+   "ok": true,
+   "rule": "L2 >= 10 mm from the RTD analog section (ENCLOSURE-HANDOFF item 6); others reported",
+   "separations_mm": {
+    "L2/U2 (12 V fan buck) -> RTD front end": {
+     "mm": 12.5,
+     "nearest": [
+      "L2",
+      "R43"
+     ]
+    },
+    "L2/U2 (12 V fan buck) -> thermal-sense": {
+     "mm": 77.1,
+     "nearest": [
+      "U2",
+      "R27"
+     ]
+    },
+    "L2/U2 (12 V fan buck) -> J4 analog": {
+     "mm": 98.8,
+     "nearest": [
+      "U2",
+      "R81"
+     ]
+    },
+    "L1/U1 (3.3 V buck) -> RTD front end": {
+     "mm": 94.7,
+     "nearest": [
+      "L1",
+      "R48"
+     ]
+    },
+    "L1/U1 (3.3 V buck) -> thermal-sense": {
+     "mm": 52.0,
+     "nearest": [
+      "U1",
+      "R28"
+     ]
+    },
+    "L1/U1 (3.3 V buck) -> J4 analog": {
+     "mm": 9.6,
+     "nearest": [
+      "U1",
+      "R81"
+     ]
+    }
+   }
+  }
+ },
+ "summary": {
+  "outline": true,
+  "holes": true,
+  "hole_keepout": true,
+  "connectors": true,
+  "j4": true,
+  "wroom": true,
+  "height": true,
+  "decoupling": true,
+  "interlock": true,
+  "thermal_relief": true,
+  "partition": true
+ },
+ "status": "PASS"
+}

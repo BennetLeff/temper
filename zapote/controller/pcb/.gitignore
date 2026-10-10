@@ -1,0 +1,7 @@
+route/
+*.kicad_prl
+controller-routed.*
+_shell.kicad_pcb
+*-backups/
+_shell.kicad_pro
+~*.lck

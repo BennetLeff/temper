@@ -1,0 +1,25 @@
+{
+ "pth_hits": 745,
+ "npth_hits": 3,
+ "pth_by_function": {
+  "ComponentDrill": 68,
+  "ViaDrill": 677
+ },
+ "tented_via_sides": 1270,
+ "outline_mm": [
+  206.0,
+  76.0
+ ],
+ "render": {
+  "tool": "gerbv",
+  "dpi": 1000,
+  "ring_offset_mm": 0.07,
+  "angles": 12
+ },
+ "failures": {
+  "no_outer_copper": [],
+  "no_mask_opening": [],
+  "silk_on_land": []
+ },
+ "status": "PASS"
+}
