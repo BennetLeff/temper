@@ -68,13 +68,25 @@ bool fullbridge_init(fullbridge_adapter_t *b, const bridge_config_t *c, const br
         !isfinite(c->max_power_w) || c->max_power_w <= 0 ||
         !isfinite(c->inlet_target_a) || c->inlet_target_a <= 0 || c->inlet_target_a > 13.5f ||
         !isfinite(c->auxiliary_reserve_w) || c->auxiliary_reserve_w < 0 ||
+        (c->frequency_min_hz && (c->frequency_min_hz < 35000 || c->frequency_min_hz > c->frequency_hz)) ||
         !bridge_plan_cycle(c->timer_hz, c->frequency_hz, c->input_deadtime_ns, 1, &b->cycle))
         return fail(b);
     b->cfg = *c;
+    b->frequency_hz = c->frequency_hz;
     /* Fixed 180 degrees, PERMIT inhibited: qualify captures before RUN. */
     if (!ops->set_request(ops->context, false) || !ops->apply_cycle(ops->context, &b->cycle))
         return fail(b);
     b->initialized = true;
+    return true;
+}
+bool fullbridge_set_frequency(fullbridge_adapter_t *b, uint32_t hz)
+{
+    if (!b || !b->initialized || b->tripped)
+        return false;
+    uint32_t lo = b->cfg.frequency_min_hz ? b->cfg.frequency_min_hz : b->cfg.frequency_hz;
+    if (hz < lo || hz > b->cfg.frequency_hz)
+        return fail(b);
+    b->frequency_hz = hz;
     return true;
 }
 bool fullbridge_request(fullbridge_adapter_t *b, float w)
@@ -163,7 +175,8 @@ bool fullbridge_apply(fullbridge_adapter_t *b, uint32_t now, const bridge_feedba
      */
     if (b->armed && !f->sup_run_ok)
         return fail(b);
-    if (!bridge_plan_cycle(b->cfg.timer_hz, b->cfg.frequency_hz, b->cfg.input_deadtime_ns, phase, &b->cycle) ||
+    /* Captures above were checked against the cycle last applied; plan the live frequency next. */
+    if (!bridge_plan_cycle(b->cfg.timer_hz, b->frequency_hz, b->cfg.input_deadtime_ns, phase, &b->cycle) ||
         !b->backend.apply_cycle(b->backend.context, &b->cycle) ||
         !b->backend.set_request(b->backend.context, run))
         return fail(b);

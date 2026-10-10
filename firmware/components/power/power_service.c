@@ -65,6 +65,9 @@ void power_service_tick(void)
         return;
     }
     if (owner.burst.burst_enabled && !bridge.armed) burst.on = false;
+    if (owner.frequency && !fullbridge_set_frequency(&bridge, owner.frequency(owner.context))) {
+        pwm_disable_all(); bridge.tripped = true; return;
+    }
     if (!fullbridge_apply(&bridge, now, &f, 1.0f)) return;
     if (owner.burst.burst_enabled && was_on != burst.on &&
         !owner.set_burst_gate(owner.context, burst.on)) {
@@ -106,8 +109,10 @@ bool test_pwm_generation(void)
 }
 bool power_service_frequency(uint32_t hz)
 {
-    /* First prototype uses one reviewed fixed frequency; no raw PLL timer edits. */
-    return bound && !bridge.tripped && hz == owner.config.frequency_hz;
+    /* No raw PLL timer edits: the binding's frequency loop owns the live frequency. The legacy
+     * 44-50 kHz PLL table is retired for native-21 (round 6). */
+    uint32_t lo = owner.config.frequency_min_hz ? owner.config.frequency_min_hz : owner.config.frequency_hz;
+    return bound && !bridge.tripped && hz >= lo && hz <= owner.config.frequency_hz;
 }
 bool power_service_pan_pulse(uint32_t duration_us)
 {

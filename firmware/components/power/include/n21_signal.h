@@ -92,16 +92,27 @@ typedef struct {
     uint64_t max_gap_us;
     size_t n;
     float bus_peak_v;
+    /* Frequency loop inputs (n21_half_note): bridge frequency, CT_ZC lag, raw CT_MON peak. */
+    uint32_t f_lo_hz, f_hi_hz, f_last_hz, phi_n;
+    float phi_sum, ct_abs_max_a;
     bool open, broken;
 } n21_half_t;
 typedef struct {
     uint64_t end_us;
     float line_rms_v;
     input_estimate_t est;
+    uint32_t f_hz;          /* bridge frequency at the last sample */
+    uint32_t f_lo_hz, f_hi_hz; /* frequency range over the half */
+    uint32_t phi_n;         /* samples with a CT_ZC lag */
+    float phi_mean_rad;     /* NAN when phi_n == 0 */
+    float ct_abs_max_a;     /* largest |CT_MON| sample */
+    float rms_sample_max_a; /* largest AD8436 sample (the envelope crest) */
 } n21_half_result_t;
 void n21_half_begin(n21_half_t *, uint64_t zero_us);
 /* Out-of-order, overflow or not-open marks the half broken (it will not close). */
 void n21_half_add(n21_half_t *, uint64_t t_us, const input_sample_t *);
+/* Per-sample loop inputs: the live bridge frequency, the lag when CT_ZC measured one, |CT_MON|. */
+void n21_half_note(n21_half_t *, uint32_t f_hz, bool phi_valid, float phi_rad, float ct_abs_a);
 bool n21_half_close(n21_half_t *, const input_limits_cfg_t *, uint64_t zero_us,
                     uint32_t max_gap_us, float rectifier_drop_v, n21_half_result_t *);
 
