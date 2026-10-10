@@ -16,6 +16,8 @@ and native-21's frozen netlist snapshot. Checks, each fail-closed:
              and exhaustive logic simulation of the captured gates
   v3v3       current budget of every part on v3v3 on both boards, from
              datasheet maxima, with the regulator, inductor and PS1 limits
+  ui         J7 (R33 UI bus): pin map, a GND beside every signal, series R and ESD
+             on every line, its own SPI host apart from the RTD / MCP3202 bus
   bom        every resolved MPN is in bom/controller-parts.json with a source
   misc       PWM pull-downs <= 10 kOhm, strap pins safe at reset
 
@@ -41,6 +43,7 @@ ZAPOTE = UNIT.parent
 VMAX = 3.465                       # v3v3 contract maximum: every current bound uses it
 GND = "selv_gnd"
 V3 = "v3v3"
+MCU_MPN = "ESP32-S3-WROOM-1U-N8"     # R33: WROOM-1U (U.FL) replaces the WROOM-1 (same pinout)
 OPEN = "__open__"                 # the far side of a dangling resistor pin
 
 
@@ -69,9 +72,11 @@ def _ic(vcc, gnd, ins=(), outs=(), ods=(), ma=0.0, basis="", logic=None, other=(
 
 ESP_IO_PADS = [p for p in range(4, 40) if p not in (1, 2, 3, 40)]
 MODELS: dict[str, Model] = {
-    "ESP32-S3-WROOM-1-N8": _ic([2], [1, 40, 41], ins=[3], outs=ESP_IO_PADS, ma=500.0,
-                               basis="WROOM-1 DS v1.8 Table 5-2 IVDD >= 0.5 A supply requirement "
-                                     "(TX peak 355 mA, Table 6-4)"),
+    MCU_MPN: _ic([2], [1, 40, 41], ins=[3], outs=ESP_IO_PADS, ma=500.0,
+                 basis="WROOM-1/-1U DS v1.8 Table 5-2 IVDD >= 0.5 A supply requirement "
+                       "(TX peak 355 mA, Table 6-4)"),
+    "SRV05-4": Model({"1": "in", "2": "gnd", "3": "in", "4": "in", "5": "vcc", "6": "in"}, 0.001,
+                     "MSKSEMI SRV05-4 DS: IR 1 uA max at VRWM 5 V (Vcc pin on v3v3)"),
     "TPS62933FDRLR": _ic([], [4], ins=[1, 2, 8], other=[3, 5, 6, 7]),
     "TPS62933DRLR": _ic([], [4], ins=[1, 2, 8], other=[3, 5, 6, 7]),
     "TPS3703A4330DSERQ1": _ic([2], [5], ins=[1, 6], ods=[4], other=[3], ma=0.007 + 0.0015,
@@ -118,7 +123,7 @@ MODELS: dict[str, Model] = {
                            "20": "other"},
                           3.5 + 0.4 + 5.75, "MAX31865 DS: IDD 3.5 mA + 0.4 mA (input > ref) + BIAS IOUT 5.75 mA max"),
     "2N7002": Model({"1": "in", "2": "gnd", "3": "other"}, 0.0, "CJ 2N7002"),
-    # follow-up 2026-10-08: tank RMS channel, external ADC, encoder protection
+    # follow-up 2026-10-08: tank RMS channel, external ADC
     "AD8436BRQZ": Model({"1": "other", "2": "other", "3": "in", "4": "out", "5": "in", "6": "in", "7": "other",
                          "8": "other", "9": "gnd", "10": "out", "11": "gnd", "12": "other", "13": "in",
                          "14": "in", "15": "out", "16": "vcc", "17": "vcc", "18": "vcc", "19": "other",
@@ -126,8 +131,6 @@ MODELS: dict[str, Model] = {
                         "AD8436 Rev. B Table 1: 365 + 200 + 70 uA max, all on v15_selv (not v3v3)"),
     "MCP3202-CI/SN": _ic([8], [4], ins=[1, 2, 3, 5, 7], outs=[6], ma=0.55,
                          basis="DS21034F: IDD 550 uA max (5 V, worst case used at 3.3 V)"),
-    "SN74LVC2G17DBVR": _ic([5], [2], ins=[1, 3], outs=[4, 6], ma=0.010,
-                           basis="SCES381N: ICC 10 uA", logic="buf:1>6;buf:3>4"),
     "TLV76050DBZR": Model({"1": "out", "2": "other", "3": "gnd"}, 0.0, "TLV760: on v15_selv, not v3v3"),
     "BAT54S-7-F": Model({"1": "other", "2": "other", "3": "other"}, 0.002,
                         "DS11005: IR 2 uA max (25 V); conducts into v3v3 only on a fault"),
@@ -316,14 +319,14 @@ def check_sources(rep: Report):
 MODULE_PAD_GPIO = {4: 4, 5: 5, 6: 6, 7: 7, 8: 15, 9: 16, 10: 17, 11: 18, 12: 8, 13: 19, 14: 20, 15: 3,
                    16: 46, 17: 9, 18: 10, 19: 11, 20: 12, 21: 13, 22: 14, 23: 21, 24: 47, 25: 48, 26: 45,
                    27: 0, 28: 35, 29: 36, 30: 37, 31: 38, 32: 39, 33: 40, 34: 41, 35: 42, 36: 44, 37: 43,
-                   38: 2, 39: 1}       # ESP32-S3-WROOM-1 DS v1.8 Table 3-1
+                   38: 2, 39: 1}       # ESP32-S3-WROOM-1/-1U DS v1.8 Table 3-1
 ADC1_GPIO = set(range(1, 11))          # ADC1_CH0..CH9
 ADC2_GPIO = set(range(11, 21))
 STRAPS = {0, 3, 45, 46}
 
 
 def gpio_map(nl: Netlist) -> dict[int, str]:
-    mcu = [r for r, mpn in nl.mpn.items() if mpn == "ESP32-S3-WROOM-1-N8"]
+    mcu = [r for r, mpn in nl.mpn.items() if mpn == MCU_MPN]
     if len(mcu) != 1:
         raise ValueError(f"expected one ESP32 module, found {mcu}")
     return {g: nl.net_of(mcu[0], str(pad)) for pad, g in MODULE_PAD_GPIO.items()}
@@ -463,7 +466,7 @@ def check_trip(rep: Report, nl: Netlist, calcs: dict | None = None) -> None:
     from trip_sim import HEALTHY_LEVEL, Sim, build_logic, exhaustive, fan_in_cone
     m = Merged(nl)
     f = m.find
-    gates, free = build_logic(nl, m, MODELS, {"ESP32-S3-WROOM-1-N8", "TCA9555PWR"},
+    gates, free = build_logic(nl, m, MODELS, {MCU_MPN, "TCA9555PWR"},
                               [("J4", "10", "j4:bus_fault")])
     pull: dict[str, int] = {}
     pn = nl.pin_net()
@@ -515,7 +518,7 @@ def check_trip(rep: Report, nl: Netlist, calcs: dict | None = None) -> None:
     pd = [r for r, p in nl.nets["permit"] if r.startswith("R") and pn.get((r, "2" if p == "1" else "1"), OPEN) == GND]
     rep.check("trip", "permit_has_pulldown_at_controller", bool(pd), pd)
     bad = [(n, r, p) for n in cone - {reset, run_en, f(GND), f(V3)} for r, p in m.nodes(n)
-           if nl.mpn.get(r) in ("ESP32-S3-WROOM-1-N8", "TCA9555PWR")]
+           if nl.mpn.get(r) in (MCU_MPN, "TCA9555PWR")]
     rep.check("trip", "no_mcu_or_expander_pin_in_cone_except_reset_and_run_en", not bad, bad)
     sources = sorted(n for n in cone if n in free and n not in (reset, run_en))
     unknown = [free[n] for n in sources if free[n] not in HEALTHY_LEVEL]
@@ -575,20 +578,21 @@ def check_v3v3(rep: Report, nl: Netlist, n21: Netlist, calcs: dict):
     oled_ma = 340.0
     total_with_oled = total + oled_ma
     rep.data("v3v3", "oled_off_board_mA", {"mA": oled_ma, "basis": "Newhaven NHD-3.12-25664UCW2 rev: "
-                                           "IDD 340 mA max, 3.3 V, 100 % on, factory jumper"})
-    enc_ma = 30.0
-    rep.data("v3v3", "encoder_allocation_mA", {"mA": enc_ma, "basis": "[UNVERIFIED] Grayhill encoder supply "
-                                               "allocation; pin map and part not yet fixed"})
-    peak = total_with_oled + enc_ma
+                                           "IDD 340 mA max, 3.3 V, 100 % on, factory jumper (via J7.2, R33)"})
+    ui_ma = 30.0 + 90.0
+    rep.data("v3v3", "ui_board_allocation_mA", {"mA": ui_ma, "basis": "[UNVERIFIED] J7.2 allocation for the R33 "
+                                                "UI board: 30 mA logic + 3.3 V encoder option (MCP23S08, TMP122) "
+                                                "and 90 mA for the self-oscillating buzzer; parts not yet chosen"})
+    peak = total_with_oled + ui_ma
     rep.data("v3v3", "peak_mA", peak)
     rep.check("v3v3", "within_tps62933_3A", peak <= 3000.0, peak)
     rep.check("v3v3", "within_inductor_irms_2p45A", peak <= 2450.0, peak)
     # PS1 (IRM-20-15, 21 W) at the controller; efficiencies are allocations.
     p3 = 3.465 * peak / 1e3 / 0.85
     pfan = 12.22 * 0.63 / 0.90
-    # Loads straight on v15_selv: AD8436 (365 + 200 + 70 uA max) and the 5 V encoder
-    # option (TLV760 IGND 5 mA max + 30 mA encoder allocation), counted as worst case
-    # even though the encoder allocation also sits in the v3v3 peak.
+    # Loads straight on v15_selv: AD8436 (365 + 200 + 70 uA max) and the J7 +5 V
+    # (TLV760 IGND 5 mA max + 30 mA UI allocation), counted as worst case even though
+    # the UI allocation also sits in the v3v3 peak.
     p15 = 15.375 * (0.000635 + 0.005 + 0.030)
     p_total = p3 + pfan + p15
     rep.data("v3v3", "ps1", {"p_3v3_rail_W": p3, "p_fan_W": pfan, "p_v15_direct_W": p15,
@@ -663,35 +667,70 @@ def check_ct_rms(rep: Report, nl: Netlist, calcs: dict) -> None:
     rep.data("ct_rms", "adc_V_at_22A_rms", rc["adc_V_at_22A_rms"])
 
 
-FIVE_V_TOLERANT = {("SN74LVC2G17DBVR", "1"), ("SN74LVC2G17DBVR", "3")}
+# R33 J7 UI bus (DECISIONS C26): pin -> net, and each signal's ESP32 GPIO
+J7_MAP = {1: "V5_UI", 2: V3, 3: GND, 4: "J7_SCK", 5: GND, 6: "J7_MOSI", 7: "J7_MISO", 8: GND,
+          9: "J7_CS_OLED_N", 10: "J7_DC", 11: GND, 12: "J7_CS_EXP_N"}
+UI_GPIO = {"J7_SCK": 40, "J7_MOSI": 41, "J7_MISO": 44, "J7_CS_OLED_N": 47, "J7_CS_EXP_N": 48, "J7_DC": 45}
+RTD_BUS_GPIO = {10, 11, 12, 13, 42}     # RTD SPI CS/CLK/MISO/MOSI + MCP3202 CS (C2, C19)
+UI_SERIES_OHM = (33.0, 100.0)           # coordinator: 33-100 ohm at the controller end
 
 
-def check_ui_inputs(rep: Report, nl: Netlist) -> None:
-    """Encoder and button lines are safe with a 3.3 V or a 5 V-supplied encoder:
-    every connector signal reaches active silicon only through >= 1 kOhm series and
-    only at a 5.5 V-tolerant input (LVC2G17 input or a TCA9555 port)."""
+def check_ui_bus(rep: Report, nl: Netlist, calcs: dict | None = None) -> None:
+    """J7: the 12-way UI bus to the fascia board. Exact pin map with a GND beside every
+    signal; each signal reaches its GPIO through one 33-100 ohm series resistor and is
+    clamped by an SRV05-4 at the connector; the bus uses its own GPIOs, disjoint from
+    the RTD / MCP3202 SPI bus, and never touches that bus's nets."""
     pn = nl.pin_net()
+    m = Merged(nl)
+    gm = gpio_map(nl)
 
     def other(r, p):
         return pn.get((r, "2" if p == "1" else "1"), OPEN)
-    lines = [("J5", "3"), ("J5", "4"), ("J5", "5"), ("J8", "1"), ("J8", "2"), ("J8", "3")]
-    for ref, pin in lines:
-        n = nl.net_of(ref, pin)
-        active = [(r, p) for r, p in nl.nets.get(n, []) if pin_role(nl, r, p) not in ("passive", "ext")]
-        downstream = []
-        for r, p in nl.nets.get(n, []):
-            if r.startswith("R") and r != ref:
-                far = other(r, p)
-                val = parse_value(nl.value.get(r))[0] or 0
-                if far not in (V3, GND) and val >= 1e3:
-                    downstream += [(r2, p2, nl.mpn[r2]) for r2, p2 in nl.nets.get(far, [])
-                                   if pin_role(nl, r2, p2) not in ("passive", "ext")]
-        ok = (not active and bool(downstream) and
-              all((m, p2) in FIVE_V_TOLERANT or m == "TCA9555PWR" for _, p2, m in downstream))
-        rep.check("ui", f"{ref}.{pin}_{n}_5v_safe", ok, {"direct": active, "after_series": downstream})
-    v = {nl.net_of("J5", "1"), nl.net_of("J5", "6")}
-    m = Merged(nl)
-    rep.check("ui", "j5_offers_3v3_and_5v", any(m.same(x, V3) for x in v) and "V5_ENC" in v, sorted(v))
+    rep.check("ui", "j7_is_b12b_xh", nl.mpn.get("J7") == "B12B-XH-A(LF)(SN)", nl.mpn.get("J7"))
+    got = {p: nl.net_of("J7", str(p)) for p in range(1, 13)}
+    rep.data("ui", "j7_pins", got)
+    rep.check("ui", "j7_pin_map", all(got[p] is not None and m.same(got[p], n) for p, n in J7_MAP.items()),
+              {p: (got[p], n) for p, n in J7_MAP.items() if got[p] != n})
+    gnds = [p for p in got if got[p] and m.same(got[p], GND)]
+    rep.check("ui", "j7_at_least_3_gnd", len(gnds) >= 3, gnds)
+    sig_pins = [p for p, n in J7_MAP.items() if n in UI_GPIO]
+    lonely = [p for p in sig_pins if not any(got.get(q) and m.same(got[q], GND) for q in (p - 1, p + 1))]
+    rep.check("ui", "every_j7_signal_beside_a_gnd", not lonely, lonely)
+    srv = [r for r, mp in nl.mpn.items() if mp == "SRV05-4"]
+    rep.check("ui", "esd_arrays_on_v3v3_and_gnd",
+              bool(srv) and all(nl.net_of(r, "5") == V3 and nl.net_of(r, "2") == GND for r in srv), srv)
+    ui_nets = set()
+    for net, g in UI_GPIO.items():
+        nodes = nl.nets.get(net, [])
+        series = [(r, p) for r, p in nodes if r.startswith("R") and other(r, p) not in (V3, GND)]
+        active = [(r, p) for r, p in nodes if pin_role(nl, r, p) not in ("passive", "ext")
+                  and nl.mpn.get(r) != "SRV05-4"]
+        val = parse_value(nl.value.get(series[0][0]))[0] if len(series) == 1 else None
+        far = other(*series[0]) if len(series) == 1 else None
+        ok = (len(series) == 1 and val is not None and UI_SERIES_OHM[0] <= val <= UI_SERIES_OHM[1]
+              and far == gm.get(g) and not active)
+        rep.check("ui", f"{net}_series_33_100_ohm_to_gpio{g}", ok,
+                  {"series": series, "ohm": val, "gpio_net": gm.get(g), "far": far, "direct_active": active})
+        rep.check("ui", f"{net}_esd_clamped", any(nl.mpn.get(r) == "SRV05-4" and p in ("1", "3", "4", "6")
+                                                  for r, p in nodes), net)
+        ui_nets |= {m.find(net)} | ({m.find(far)} if far and far != OPEN else set())
+    rtd_nets = {m.find(gm[g]) for g in RTD_BUS_GPIO if gm.get(g)}
+    ui_gpio = {g for g, n in gm.items() if n and m.find(n) in ui_nets}
+    rep.check("ui", "ui_bus_separate_from_rtd_adc_spi",
+              not (ui_nets & rtd_nets) and not (ui_gpio & RTD_BUS_GPIO)
+              and sorted(ui_gpio) == sorted(UI_GPIO.values()),
+              {"ui_gpio": sorted(ui_gpio), "rtd_gpio": sorted(RTD_BUS_GPIO)})
+    rtd_off_board = sorted({(n, r) for n in rtd_nets for r, _ in m.nodes(n) if r.startswith("J") and r != "J11"})
+    rep.check("ui", "rtd_adc_spi_stays_on_board", not rtd_off_board, rtd_off_board)
+    for net in ("J7_CS_OLED_N", "J7_CS_EXP_N"):
+        gnet = gm.get(UI_GPIO[net])
+        ups = [r for r, p in nl.nets.get(gnet, []) if r.startswith("R") and other(r, p) == V3]
+        rep.check("ui", f"{net}_deselected_at_reset_pullup", bool(ups), ups)
+    ldo = [r for r, p in nl.nets.get("V5_UI", []) if nl.mpn.get(r) == "TLV76050DBZR" and p == "1"]
+    rep.check("ui", "j7_5v_from_tlv76050", len(ldo) == 1, ldo)
+    if calcs is not None and "ui_5v_supply" in calcs:
+        for k, ok in calcs["ui_5v_supply"]["checks"].items():
+            rep.check("ui", f"ui_5v_{k}", ok)
 
 
 def check_bom(rep: Report, nl: Netlist):
@@ -763,7 +802,7 @@ def main() -> int:
     check_trip(rep, nl, calcs)
     check_v3v3(rep, nl, n21, calcs)
     check_ct_rms(rep, nl, calcs)
-    check_ui_inputs(rep, nl)
+    check_ui_bus(rep, nl, calcs)
     check_bom(rep, nl)
     check_misc(rep, nl)
     out = {"schema": "temper.controller.verify.v1",

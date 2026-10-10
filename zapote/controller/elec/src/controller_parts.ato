@@ -8,14 +8,16 @@
 
 # ------------------------------------------------------------------ MCU
 
-component Esp32S3Wroom1N8:
-    """Espressif ESP32-S3-WROOM-1-N8 (8 MB quad flash, no PSRAM), LCSC C2913198.
-    Pin numbers: ESP32-S3-WROOM-1 & -1U datasheet v1.8, Table 3-1 (41 pins,
-    pin 41 = EPAD = GND). No octal PSRAM, so IO35/36/37 are free (note b)."""
+component Esp32S3Wroom1UN8:
+    """Espressif ESP32-S3-WROOM-1U-N8 (8 MB quad flash, no PSRAM, U.FL antenna connector),
+    LCSC C2980297. Enclosure R33: the antenna is an off-board 2450AT18A100 chip-antenna
+    board on a 150 mm 1.13 mm coax, so there is no on-board antenna or keep-out.
+    Pin numbers: ESP32-S3-WROOM-1 & -1U datasheet v1.8, Table 3-1 (the -1 and -1U share
+    the 41-pin pinout, pin 41 = EPAD = GND). No octal PSRAM, so IO35/36/37 are free (note b)."""
     designator_prefix = "U"
-    mpn = "ESP32-S3-WROOM-1-N8"
+    mpn = "ESP32-S3-WROOM-1U-N8"
     manufacturer = "Espressif Systems"
-    footprint = "RF_Module:ESP32-S3-WROOM-1"
+    footprint = "RF_Module:ESP32-S3-WROOM-1U"
     signal GND1 ~ pin 1
     signal V3V3 ~ pin 2
     signal EN ~ pin 3
@@ -323,46 +325,8 @@ component XhHeader3:
     signal p2 ~ pin 2
     signal p3 ~ pin 3
 
-component XhHeader4:
-    """JST B4B-XH-A(LF)(SN), 4-pin 2.50 mm vertical (LCSC C144395)."""
-    designator_prefix = "J"
-    mpn = "B4B-XH-A(LF)(SN)"
-    manufacturer = "JST"
-    footprint = "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical"
-    signal p1 ~ pin 1
-    signal p2 ~ pin 2
-    signal p3 ~ pin 3
-    signal p4 ~ pin 4
 
-component XhHeader8:
-    """JST B8B-XH-A(LF)(SN), 8-pin 2.50 mm vertical (LCSC C157972)."""
-    designator_prefix = "J"
-    mpn = "B8B-XH-A(LF)(SN)"
-    manufacturer = "JST"
-    footprint = "Connector_JST:JST_XH_B8B-XH-A_1x08_P2.50mm_Vertical"
-    signal p1 ~ pin 1
-    signal p2 ~ pin 2
-    signal p3 ~ pin 3
-    signal p4 ~ pin 4
-    signal p5 ~ pin 5
-    signal p6 ~ pin 6
-    signal p7 ~ pin 7
-    signal p8 ~ pin 8
 
-component MicroMatch6Female:
-    """TE 7-215079-6 Micro-MaTch female-on-board, 6 pos, top entry, THT (LCSC C306122).
-    Mates the encoder lead's TE 7-215083-6 cable-mount male (CONTROLLER-ARCHITECTURE
-    'TE 7-215083-6 mate'). Pin map to the Grayhill encoder is an open item."""
-    designator_prefix = "J"
-    mpn = "7-215079-6"
-    manufacturer = "TE Connectivity"
-    footprint = "Connector_TE-Connectivity:TE_Micro-MaTch_215079-6_2x03_P1.27mm_Vertical"
-    signal p1 ~ pin 1
-    signal p2 ~ pin 2
-    signal p3 ~ pin 3
-    signal p4 ~ pin 4
-    signal p5 ~ pin 5
-    signal p6 ~ pin 6
 
 component DebugHeader8:
     """Wurth 61300811121, 1x8 2.54 mm pin header (LCSC C6400764); fit for bring-up only."""
@@ -457,20 +421,6 @@ component Mcp3202:
     signal CLK ~ pin 7
     signal VDD ~ pin 8
 
-component Lvc2g17:
-    """TI SN74LVC2G17DBVR dual Schmitt buffer, inputs accept up to 5.5 V at VCC 3.3 V
-    (SCES381N 'Inputs Accept Voltages to 5.5 V', VI 0-5.5 V), SOT-23-6 (LCSC C10429).
-    Pins: 1A1 GND2 2A3 2Y4 VCC5 1Y6."""
-    designator_prefix = "U"
-    mpn = "SN74LVC2G17DBVR"
-    manufacturer = "Texas Instruments"
-    footprint = "Package_TO_SOT_SMD:SOT-23-6"
-    signal A1 ~ pin 1
-    signal GND ~ pin 2
-    signal A2 ~ pin 3
-    signal Y2 ~ pin 4
-    signal VCC ~ pin 5
-    signal Y1 ~ pin 6
 
 component Tlv76050:
     """TI TLV76050DBZR 5.0 V 100 mA LDO, VIN to 30 V, current limit and thermal shutdown,
@@ -494,3 +444,40 @@ component Bat54s:
     signal A ~ pin 1
     signal K ~ pin 2
     signal COM ~ pin 3
+
+component XhHeader12:
+    """JST B12B-XH-A(LF)(SN), 12-pin 2.50 mm vertical (LCSC C158027). JST eXH.pdf: body
+    (n-1) x 2.5 + 4.9 = 32.4 mm long, 5.75 mm deep, 7.0 mm above the board; 9.8 mm mated
+    (assembled) height with the XHP-12 housing. Enclosure R33 J7: UI bus to the fascia board."""
+    designator_prefix = "J"
+    mpn = "B12B-XH-A(LF)(SN)"
+    manufacturer = "JST"
+    footprint = "Connector_JST:JST_XH_B12B-XH-A_1x12_P2.50mm_Vertical"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+    signal p3 ~ pin 3
+    signal p4 ~ pin 4
+    signal p5 ~ pin 5
+    signal p6 ~ pin 6
+    signal p7 ~ pin 7
+    signal p8 ~ pin 8
+    signal p9 ~ pin 9
+    signal p10 ~ pin 10
+    signal p11 ~ pin 11
+    signal p12 ~ pin 12
+
+component Srv05_4:
+    """MSKSEMI SRV05-4 4-line ESD array, SOT-23-6 (LCSC C2836319). Datasheet "Pin
+    Configuration and Functions": IO1 1, GND 2, IO2 3, IO3 4, Vcc 5, IO4 6. VRWM 5 V,
+    VBR >= 6 V, IR <= 1 uA at 5 V, IEC 61000-4-2 +/-12 kV contact, CJ 0.6 pF typ (I/O-GND).
+    Vcc ties to the 3.3 V rail, so the steering diodes clamp each line to v3v3 + VF."""
+    designator_prefix = "U"
+    mpn = "SRV05-4"
+    manufacturer = "MSKSEMI"
+    footprint = "Package_TO_SOT_SMD:SOT-23-6"
+    signal IO1 ~ pin 1
+    signal GND ~ pin 2
+    signal IO2 ~ pin 3
+    signal IO3 ~ pin 4
+    signal VCC ~ pin 5
+    signal IO4 ~ pin 6

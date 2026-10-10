@@ -66,7 +66,7 @@ class Mutations(unittest.TestCase):
         rep = vc.Report()
         for fn in (lambda: vc.check_j4(rep, nl, self.n21), lambda: vc.check_adc1(rep, nl, CALCS),
                    lambda: vc.check_trip(rep, nl, CALCS), lambda: vc.check_misc(rep, nl),
-                   lambda: vc.check_ct_rms(rep, nl, CALCS), lambda: vc.check_ui_inputs(rep, nl)):
+                   lambda: vc.check_ct_rms(rep, nl, CALCS), lambda: vc.check_ui_bus(rep, nl, CALCS)):
             fn()
         return rep.failed
 
@@ -159,13 +159,33 @@ class Mutations(unittest.TestCase):
         t = move_node(self.base, u, "6", self.base_nl.net_of(self.ref("u_buf1"), "1"))
         self.assertIn("ct_rms.rms_input_ac_coupled_from_ct_mon_buffer", self.run_checks(t))
 
-    def test_encoder_straight_to_gpio_fails(self):
-        t = move_node(self.base, "J5", "3", "ENC_A")             # bypass series R and 5 V-tolerant buffer
-        self.assertIn("ui.J5.3_ENC_A_5v_safe", self.run_checks(t))
+    # ---- R33 J7 UI bus
+    def test_j7_signal_straight_to_gpio_fails(self):
+        t = move_node(self.base, "U4", "33", "J7_SCK")           # GPIO40 pad wired to the connector side
+        self.assertIn("ui.J7_SCK_series_33_100_ohm_to_gpio40", self.run_checks(t))
 
-    def test_button_without_series_resistor_fails(self):
-        t = move_node(self.base, "J8", "1", "BTN1")
-        self.assertIn("ui.J8.1_BTN1_5v_safe", self.run_checks(t))
+    def test_j7_pin_swap_fails(self):
+        t = move_node(self.base, "J7", "4", "selv_gnd")
+        t = move_node(t, "J7", "5", "J7_SCK")
+        self.assertIn("ui.j7_pin_map", self.run_checks(t))
+
+    def test_j7_signal_without_gnd_neighbour_fails(self):
+        t = move_node(self.base, "J7", "8", "v3v3")              # MISO (7) and CS_OLED (9) lose their GND
+        failed = self.run_checks(t)
+        self.assertIn("ui.every_j7_signal_beside_a_gnd", failed)
+
+    def test_ui_bus_on_rtd_spi_fails(self):
+        r = self.ref("rs_ui_sck")
+        t = move_node(self.base, r, "1", "RTD_SCK")              # UI clock taken from the RTD/ADC bus
+        self.assertIn("ui.ui_bus_separate_from_rtd_adc_spi", self.run_checks(t))
+
+    def test_j7_esd_removed_fails(self):
+        t = drop_node(self.base, self.ref("u_esd_ui1"), "1")
+        self.assertIn("ui.J7_SCK_esd_clamped", self.run_checks(t))
+
+    def test_ui_cs_pullup_removed_fails(self):
+        t = drop_node(self.base, self.ref("r_cs_oled_pu"), "2")
+        self.assertIn("ui.J7_CS_OLED_N_deselected_at_reset_pullup", self.run_checks(t))
 
     def test_unmodelled_part_on_v3v3_fails_closed(self):
         saved = vc.MODELS.pop("TLV9062IDR")

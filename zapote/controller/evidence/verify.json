@@ -3,7 +3,7 @@
   "inputs": {
     "native21_commit": "7c55c9ab81260b396be266861a0f0e8a42f96a5f",
     "netlist": "frozen/default.net",
-    "netlist_sha256": "4f49b249bf4c5693114c3792c56809d2bfed838e1fc51a6d747bebd414814035"
+    "netlist_sha256": "3ec8ac0ca85077eec0610c4f85ad4ec24bf4dbfe50c217aaefe2e5d77cb35b3d"
   },
   "schema": "temper.controller.verify.v1",
   "sections": {
@@ -183,8 +183,8 @@
       },
       "data": {
         "count": {
-          "components": 225,
-          "distinct_mpns": 81
+          "components": 223,
+          "distinct_mpns": 80
         },
         "unverified": [
           "0430451600"
@@ -650,15 +650,15 @@
           "GPIO38": "CT_ZC_MCU",
           "GPIO39": "LINE_ZC_MCU",
           "GPIO4": "pwm_ha_mcu",
-          "GPIO40": "OLED_SCLK",
-          "GPIO41": "OLED_SDIN",
+          "GPIO40": "UI_SCK",
+          "GPIO41": "UI_MOSI",
           "GPIO42": "EXT_ADC_CS_N",
           "GPIO43": "UART0_TX",
-          "GPIO44": "UART0_RX",
-          "GPIO45": "OLED_DC",
+          "GPIO44": "UI_MISO",
+          "GPIO45": "UI_DC",
           "GPIO46": "FAN_OFF",
-          "GPIO47": "ENC_A",
-          "GPIO48": "ENC_B",
+          "GPIO47": "UI_CS_OLED_N",
+          "GPIO48": "UI_CS_EXP_N",
           "GPIO5": "pwm_la_mcu",
           "GPIO6": "HS_ADC",
           "GPIO7": "COIL_ADC",
@@ -1135,93 +1135,219 @@
     },
     "ui": {
       "checks": {
-        "J5.3_ENC_A_IN_5v_safe": {
-          "detail": {
-            "after_series": [
-              [
-                "U17",
-                "1",
-                "SN74LVC2G17DBVR"
-              ]
-            ],
-            "direct": []
-          },
-          "ok": true
-        },
-        "J5.4_ENC_B_IN_5v_safe": {
-          "detail": {
-            "after_series": [
-              [
-                "U17",
-                "3",
-                "SN74LVC2G17DBVR"
-              ]
-            ],
-            "direct": []
-          },
-          "ok": true
-        },
-        "J5.5_ENC_SW_IN_5v_safe": {
-          "detail": {
-            "after_series": [
-              [
-                "U8",
-                "7",
-                "TCA9555PWR"
-              ]
-            ],
-            "direct": []
-          },
-          "ok": true
-        },
-        "J8.1_btn1_in_5v_safe": {
-          "detail": {
-            "after_series": [
-              [
-                "U8",
-                "4",
-                "TCA9555PWR"
-              ]
-            ],
-            "direct": []
-          },
-          "ok": true
-        },
-        "J8.2_btn2_in_5v_safe": {
-          "detail": {
-            "after_series": [
-              [
-                "U8",
-                "5",
-                "TCA9555PWR"
-              ]
-            ],
-            "direct": []
-          },
-          "ok": true
-        },
-        "J8.3_btn3_in_5v_safe": {
-          "detail": {
-            "after_series": [
-              [
-                "U8",
-                "6",
-                "TCA9555PWR"
-              ]
-            ],
-            "direct": []
-          },
-          "ok": true
-        },
-        "j5_offers_3v3_and_5v": {
+        "J7_CS_EXP_N_deselected_at_reset_pullup": {
           "detail": [
-            "V5_ENC",
-            "enc_vcc"
+            "R97"
           ],
+          "ok": true
+        },
+        "J7_CS_EXP_N_esd_clamped": {
+          "detail": "J7_CS_EXP_N",
+          "ok": true
+        },
+        "J7_CS_EXP_N_series_33_100_ohm_to_gpio48": {
+          "detail": {
+            "direct_active": [],
+            "far": "UI_CS_EXP_N",
+            "gpio_net": "UI_CS_EXP_N",
+            "ohm": 100.0,
+            "series": [
+              [
+                "R94",
+                "2"
+              ]
+            ]
+          },
+          "ok": true
+        },
+        "J7_CS_OLED_N_deselected_at_reset_pullup": {
+          "detail": [
+            "R96"
+          ],
+          "ok": true
+        },
+        "J7_CS_OLED_N_esd_clamped": {
+          "detail": "J7_CS_OLED_N",
+          "ok": true
+        },
+        "J7_CS_OLED_N_series_33_100_ohm_to_gpio47": {
+          "detail": {
+            "direct_active": [],
+            "far": "UI_CS_OLED_N",
+            "gpio_net": "UI_CS_OLED_N",
+            "ohm": 100.0,
+            "series": [
+              [
+                "R93",
+                "2"
+              ]
+            ]
+          },
+          "ok": true
+        },
+        "J7_DC_esd_clamped": {
+          "detail": "J7_DC",
+          "ok": true
+        },
+        "J7_DC_series_33_100_ohm_to_gpio45": {
+          "detail": {
+            "direct_active": [],
+            "far": "UI_DC",
+            "gpio_net": "UI_DC",
+            "ohm": 100.0,
+            "series": [
+              [
+                "R95",
+                "2"
+              ]
+            ]
+          },
+          "ok": true
+        },
+        "J7_MISO_esd_clamped": {
+          "detail": "J7_MISO",
+          "ok": true
+        },
+        "J7_MISO_series_33_100_ohm_to_gpio44": {
+          "detail": {
+            "direct_active": [],
+            "far": "UI_MISO",
+            "gpio_net": "UI_MISO",
+            "ohm": 100.0,
+            "series": [
+              [
+                "R92",
+                "2"
+              ]
+            ]
+          },
+          "ok": true
+        },
+        "J7_MOSI_esd_clamped": {
+          "detail": "J7_MOSI",
+          "ok": true
+        },
+        "J7_MOSI_series_33_100_ohm_to_gpio41": {
+          "detail": {
+            "direct_active": [],
+            "far": "UI_MOSI",
+            "gpio_net": "UI_MOSI",
+            "ohm": 100.0,
+            "series": [
+              [
+                "R91",
+                "2"
+              ]
+            ]
+          },
+          "ok": true
+        },
+        "J7_SCK_esd_clamped": {
+          "detail": "J7_SCK",
+          "ok": true
+        },
+        "J7_SCK_series_33_100_ohm_to_gpio40": {
+          "detail": {
+            "direct_active": [],
+            "far": "UI_SCK",
+            "gpio_net": "UI_SCK",
+            "ohm": 100.0,
+            "series": [
+              [
+                "R90",
+                "2"
+              ]
+            ]
+          },
+          "ok": true
+        },
+        "esd_arrays_on_v3v3_and_gnd": {
+          "detail": [
+            "U38",
+            "U39"
+          ],
+          "ok": true
+        },
+        "every_j7_signal_beside_a_gnd": {
+          "detail": [],
+          "ok": true
+        },
+        "j7_5v_from_tlv76050": {
+          "detail": [
+            "U16"
+          ],
+          "ok": true
+        },
+        "j7_at_least_3_gnd": {
+          "detail": [
+            3,
+            5,
+            8,
+            11
+          ],
+          "ok": true
+        },
+        "j7_is_b12b_xh": {
+          "detail": "B12B-XH-A(LF)(SN)",
+          "ok": true
+        },
+        "j7_pin_map": {
+          "detail": {},
+          "ok": true
+        },
+        "rtd_adc_spi_stays_on_board": {
+          "detail": [],
+          "ok": true
+        },
+        "ui_5v_ldo_headroom": {
+          "detail": null,
+          "ok": true
+        },
+        "ui_5v_ldo_tj_le_125C_at_60C_ambient": {
+          "detail": null,
+          "ok": true
+        },
+        "ui_5v_resistors_le_half_rating": {
+          "detail": null,
+          "ok": true
+        },
+        "ui_bus_separate_from_rtd_adc_spi": {
+          "detail": {
+            "rtd_gpio": [
+              10,
+              11,
+              12,
+              13,
+              42
+            ],
+            "ui_gpio": [
+              40,
+              41,
+              44,
+              45,
+              47,
+              48
+            ]
+          },
           "ok": true
         }
       },
-      "data": {}
+      "data": {
+        "j7_pins": {
+          "1": "V5_UI",
+          "2": "v3v3",
+          "3": "selv_gnd",
+          "4": "J7_SCK",
+          "5": "selv_gnd",
+          "6": "J7_MOSI",
+          "7": "J7_MISO",
+          "8": "selv_gnd",
+          "9": "J7_CS_OLED_N",
+          "10": "J7_DC",
+          "11": "selv_gnd",
+          "12": "J7_CS_EXP_N"
+        }
+      }
     },
     "v3v3": {
       "checks": {
@@ -1232,34 +1358,30 @@
         "native21_rail_inside_3135_3465": {
           "detail": [
             3.236896130065459,
-            3.3898880851757514
+            3.3905826438567215
           ],
           "ok": true
         },
         "ps1_within_21W_at_peak": {
-          "detail": 12.998291041820064,
+          "detail": 13.36371401829065,
           "ok": true
         },
         "within_inductor_irms_2p45A": {
-          "detail": 955.8275553526851,
+          "detail": 1045.4695553526851,
           "ok": true
         },
         "within_tps62933_3A": {
-          "detail": 955.8275553526851,
+          "detail": 1045.4695553526851,
           "ok": true
         }
       },
       "data": {
-        "controller_mA": 536.4821963637366,
-        "encoder_allocation_mA": {
-          "basis": "[UNVERIFIED] Grayhill encoder supply allocation; pin map and part not yet fixed",
-          "mA": 30.0
-        },
+        "controller_mA": 536.1241963637367,
         "native21_on_J4_3_mA": 49.34535898894846,
         "native21_rail_V": {
           "harness": {
             "allocation": "J4 harness <= 1.0 m, AWG22, Micro-Fit 43030 terminals (DEFAULT; harness not yet specified)",
-            "ground_shift_max_V": 0.02333413656484677,
+            "ground_shift_max_V": 0.024028695245816998,
             "ground_shift_min_V": -0.0013716878145361526,
             "length_m": 1.0,
             "r_conductor_ohm": 0.08339312,
@@ -1270,25 +1392,25 @@
             ],
             "v3v3_drop_V": 0.004115063443608458
           },
-          "max": 3.3898880851757514,
+          "max": 3.3905826438567215,
           "min": 3.236896130065459
         },
         "oled_off_board_mA": {
-          "basis": "Newhaven NHD-3.12-25664UCW2 rev: IDD 340 mA max, 3.3 V, 100 % on, factory jumper",
+          "basis": "Newhaven NHD-3.12-25664UCW2 rev: IDD 340 mA max, 3.3 V, 100 % on, factory jumper (via J7.2, R33)",
           "mA": 340.0
         },
-        "peak_mA": 955.8275553526851,
+        "peak_mA": 1045.4695553526851,
         "ps1": {
           "basis": "efficiencies 85 % (3.3 V) / 90 % (12 V) are allocations from the TPS62933 typical curves; IRM-20-15 21 W rated",
-          "p_3v3_rail_W": 3.8964029168200627,
+          "p_3v3_rail_W": 4.261825893290651,
           "p_fan_W": 8.554,
-          "p_total_W": 12.998291041820064,
+          "p_total_W": 13.36371401829065,
           "p_v15_direct_W": 0.547888125,
           "rating_W": 21.0
         },
         "rows": [
           {
-            "basis": "ESP32-S3-WROOM-1-N8: WROOM-1 DS v1.8 Table 5-2 IVDD >= 0.5 A supply requirement (TX peak 355 mA, Table 6-4)",
+            "basis": "ESP32-S3-WROOM-1U-N8: WROOM-1/-1U DS v1.8 Table 5-2 IVDD >= 0.5 A supply requirement (TX peak 355 mA, Table 6-4)",
             "board": "controller",
             "mA": 500.0,
             "path": "mcu",
@@ -1446,7 +1568,7 @@
             "board": "controller",
             "mA": 0.43,
             "path": "rtd_pan.reference",
-            "ref": "U31"
+            "ref": "U29"
           },
           {
             "basis": "10kohm R + 0 ohm to gnd",
@@ -1578,22 +1700,15 @@
             "basis": "10kohm +/- 1% R + 0 ohm to gnd",
             "board": "controller",
             "mA": 0.35,
-            "path": "r_enc_a",
-            "ref": "R93"
+            "path": "r_cs_oled_pu",
+            "ref": "R96"
           },
           {
             "basis": "10kohm +/- 1% R + 0 ohm to gnd",
             "board": "controller",
             "mA": 0.35,
-            "path": "r_enc_b",
-            "ref": "R94"
-          },
-          {
-            "basis": "10kohm +/- 1% R + 0 ohm to gnd",
-            "board": "controller",
-            "mA": 0.35,
-            "path": "r_enc_sw",
-            "ref": "R95"
+            "path": "r_cs_exp_pu",
+            "ref": "R97"
           },
           {
             "basis": "10kohm +/- 1% pull-down driven high by U37",
@@ -1705,14 +1820,14 @@
             "board": "controller",
             "mA": 0.065,
             "path": "thermal.hs_comp",
-            "ref": "U18"
+            "ref": "U17"
           },
           {
             "basis": "TLV3201AIDBVR: SBOS561C: IQ 65 uA (-40..125 C)",
             "board": "controller",
             "mA": 0.065,
             "path": "thermal.coil_comp",
-            "ref": "U19"
+            "ref": "U18"
           },
           {
             "basis": "TLV3201AIDBVR: SBOS561C: IQ 65 uA (-40..125 C)",
@@ -1726,14 +1841,14 @@
             "board": "controller",
             "mA": 0.065,
             "path": "rtd_pan.low_window",
-            "ref": "U32"
+            "ref": "U31"
           },
           {
             "basis": "TLV3201AIDBVR: SBOS561C: IQ 65 uA (-40..125 C)",
             "board": "controller",
             "mA": 0.065,
             "path": "rtd_pan.high_window",
-            "ref": "U33"
+            "ref": "U32"
           },
           {
             "basis": "TLV3201AIDBVR: SBOS561C: IQ 65 uA (-40..125 C)",
@@ -1789,14 +1904,14 @@
             "board": "controller",
             "mA": 0.035,
             "path": "thermal.hs_open_comp",
-            "ref": "U26"
+            "ref": "U19"
           },
           {
             "basis": "TLV9031DBVR: SNOSDA3H: IQ 35 uA (-40..125 C)",
             "board": "controller",
             "mA": 0.035,
             "path": "thermal.coil_open_comp",
-            "ref": "U27"
+            "ref": "U26"
           },
           {
             "basis": "100kohm +/- 1% pull-down driven high by U4",
@@ -1806,7 +1921,7 @@
             "ref": "R17"
           },
           {
-            "basis": "100kohm +/- 1% pull-down driven high by U34",
+            "basis": "100kohm +/- 1% pull-down driven high by U33",
             "board": "controller",
             "mA": 0.034999999999999996,
             "path": "rtd_pan.r_window_ok_pulldown",
@@ -1845,21 +1960,21 @@
             "board": "controller",
             "mA": 0.01,
             "path": "thermal.hs_or",
-            "ref": "U28"
+            "ref": "U27"
           },
           {
             "basis": "SN74LVC1G32DBVR: SCES219W: ICC 10 uA",
             "board": "controller",
             "mA": 0.01,
             "path": "thermal.coil_or",
-            "ref": "U29"
+            "ref": "U28"
           },
           {
             "basis": "SN74LVC1G38DBVR: SCES538H: ICC 10 uA",
             "board": "controller",
             "mA": 0.01,
             "path": "rtd_pan.fault_nand",
-            "ref": "U36"
+            "ref": "U35"
           },
           {
             "basis": "SN74LVC1G74DCUR: SCES794G: ICC 10 uA",
@@ -1904,18 +2019,11 @@
             "ref": "U9"
           },
           {
-            "basis": "SN74LVC2G17DBVR: SCES381N: ICC 10 uA",
-            "board": "controller",
-            "mA": 0.01,
-            "path": "u_enc",
-            "ref": "U17"
-          },
-          {
             "basis": "SN74LVC1G08DBVR: SCES217AA: ICC 10 uA",
             "board": "controller",
             "mA": 0.01,
             "path": "rtd_pan.window_and",
-            "ref": "U34"
+            "ref": "U33"
           },
           {
             "basis": "SN74LVC1G32DBVR: SCES219W: ICC 10 uA",
@@ -1971,7 +2079,7 @@
             "board": "controller",
             "mA": 0.006,
             "path": "rtd_pan.rail_monitor",
-            "ref": "U35"
+            "ref": "U34"
           },
           {
             "basis": "BAT54S-7-F: DS11005: IR 2 uA max (25 V); conducts into v3v3 only on a fault",
@@ -1979,6 +2087,20 @@
             "mA": 0.002,
             "path": "d_rms_clamp",
             "ref": "D2"
+          },
+          {
+            "basis": "SRV05-4: MSKSEMI SRV05-4 DS: IR 1 uA max at VRWM 5 V (Vcc pin on v3v3)",
+            "board": "controller",
+            "mA": 0.001,
+            "path": "u_esd_ui1",
+            "ref": "U38"
+          },
+          {
+            "basis": "SRV05-4: MSKSEMI SRV05-4 DS: IR 1 uA max at VRWM 5 V (Vcc pin on v3v3)",
+            "board": "controller",
+            "mA": 0.001,
+            "path": "u_esd_ui2",
+            "ref": "U39"
           },
           {
             "basis": "1kohm +/- 1% no DC return",
@@ -1995,7 +2117,11 @@
             "ref": "D4"
           }
         ],
-        "total_mA": 585.8275553526851
+        "total_mA": 585.4695553526851,
+        "ui_board_allocation_mA": {
+          "basis": "[UNVERIFIED] J7.2 allocation for the R33 UI board: 30 mA logic + 3.3 V encoder option (MCP23S08, TMP122) and 90 mA for the self-oscillating buzzer; parts not yet chosen",
+          "mA": 120.0
+        }
       }
     }
   }

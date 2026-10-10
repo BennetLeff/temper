@@ -182,6 +182,32 @@ Source: output/temper-manufacturing-r31/design/r31/CONTROLLER-SPEC.md, "R31" sec
 - **Other connectors:** J1 (55, 84), J2 (−20, 84), J3 (152, 86), J5 (−32, 64), J6 (35, 70), J9 (−33, 86), J10 (139, 86).
 - **Layout parameterisation:** every enclosure number is in `layout/world.py`; `layout/floorplan.py` reads the connector, J4 and module poses from it and places the circuit regions; `layout/check_layout.py` checks the built board against it. `tools/controller_calcs.py landings()` uses the R31 table.
 
+## C26. Enclosure R33: WROOM-1U, one 12-way UI bus J7, J5/J6/J8 deleted (2026-10-10)
+Source: output/temper-manufacturing-r33/design/r33/DECISIONS.md §3 ("Controller spec delta (CONTROLLER-SPEC R33)"); R35 HANDOFF "Controller layout" restates it unchanged (R35 governs; no controller difference). Supersedes C3 (OLED wiring), C15 (encoder), C16/C25 (buttons) and the C21 module choice.
+- **Module:** ESP32-S3-WROOM-1U-N8 (LCSC C2980297), same 41-pin pinout as the -1 (Espressif DS v1.8 Table 3-1), at world X141–159, Y50–69.5, U.FL at (150, 67). The antenna is an off-board 2450AT18A100 chip-antenna board on a 150 mm 1.13 mm coax, so **there is no antenna keep-out on this board**. Layout keeps the U.FL reachable: no other part within 3 mm of it.
+- **Deleted:** J5 (encoder), J6 (OLED), J8 (buttons), the encoder Schmitt buffer U17 (LVC2G17), its pull-ups and 1 kΩ series parts, the button series resistors. Nothing in the interlock, trip glue or read-back path moved or changed.
+- **Kept:** the TLV76050 +5 V (U16, now `V5_UI`) for J7.1, with the same 30 mA budget (`controller_calcs.py ui_5v_supply()`); the TCA9555 (fault read-backs, RTD_DRDY), whose P00–P06 and P14–P17 are now spare.
+- **J7 pin map** (JST B12B-XH-A, LCSC C158027):
+
+  | Pin | Net | Pin | Net |
+  |---|---|---|---|
+  | 1 | +5 V (V5_UI, ≤ 30 mA) | 7 | MISO |
+  | 2 | +3V3 | 8 | GND |
+  | 3 | GND | 9 | CS_OLED# |
+  | 4 | SCK | 10 | OLED D/C |
+  | 5 | GND | 11 | GND |
+  | 6 | MOSI | 12 | CS_EXP# |
+
+  - **Why this map:** the UI board's MCP23S08 is an SPI part, so the bus is SCK, MOSI, MISO, CS_OLED#, CS_EXP#, D/C: six signals plus +5 V, +3V3 = 8 pins, leaving 4 for GND. With four GNDs every signal pin has a GND beside it, and SCK, the fastest edge, has GND on both sides. The owner's sounder decision (relayed 2026-10-10: self-oscillating buzzer on a UI-board expander output) removed the SOUNDER_PWM request, so the twelfth pin goes to GND as the coordinator suggested.
+  - **No EXP_INT:** the expander is polled. Firmware reads it over the UI bus at ≥ 1 kHz and splits OLED frame writes into ≤ 512-byte chunks (≈ 0.4 ms at 10 MHz), so encoder edges are not starved. An interrupt line would cost the fourth GND.
+  - **Not I²C:** extending the controller's I²C bus (which carries the TCA9555 fault read-backs) 120 mm off-board would let a UI-board fault hang the read-back bus. The UI bus is SPI only.
+  - **Separate from the RTD bus:** the UI bus has its own GPIOs (an SPI host through the GPIO matrix); the RTD / MCP3202 bus on GPIO10–13 + 42 never leaves the board. `verify_controller.py` checks both (`ui_bus_separate_from_rtd_adc_spi`, `rtd_adc_spi_stays_on_board`).
+- **GPIOs:** SCK 40, MOSI 41, MISO 44 (U0RXD), CS_OLED# 47, CS_EXP# 48, D/C 45. Removing the OLED and encoder freed 40, 41, 45, 47, 48 (five); the sixth is U0RXD. The console and downloads use USB-Serial-JTAG on 19/20, so J11 pin 4 (UART RX) is now unconnected; UART TX stays on J11.3 for the ROM log. GPIO45 keeps its 100 kΩ pull-down (VDD_SPI strap), so **the UI board must not pull D/C up**. CS_OLED# and CS_EXP# have 10 kΩ pull-ups here, so both devices are deselected while GPIO47/48 float during reset.
+- **Protection:** 100 Ω in series at the controller end of every signal (source termination for the 120 mm jumper; it also limits ESD current into the GPIO) and two SRV05-4 arrays (LCSC C2836319, ±12 kV contact) at J7, Vcc pin on v3v3.
+- **UI-board notes for its designer:** the MCP23S08 has eight I/O for 3 buttons, encoder A/B/switch and the buzzer (7), plus one of OLED RES# or the TMP122 CS. Use an RC power-on reset for the SSD1322 or an MCP23S17; the TMP122 CS can come from the expander. OLED 3.3 V jumper option, ≤ 340 mA, on J7.2. UI-board 3.3 V allocation 120 mA (logic, 3.3 V encoder option, buzzer), budgeted in `verify_controller.py v3v3`.
+- **Firmware pins.h (C23 + C26):** `R5_RUN_EN 14`; RTD_DRDY on expander P07; UI SPI host: SCK 40, MOSI 41, MISO 44, CS_OLED 47, CS_EXP 48, OLED_DC 45; UART0 RX no longer available.
+- **Not in this re-base (flag):** R32's controller additions (`design/r32/CONTROLLER-SPEC.md`), still in force per R35 HANDOFF: an adjustable 5.5–12 V ≥ 1.5 A blower output in place of the fixed 12 V fan rail, and a differential RC ≤ 1 kHz on the RTD and NTC inputs. The fan buck is still fixed at 12 V (C9). Open item 12.
+
 ## FMEA: shared supply, ground and connector (CONTROLLER-SPEC requirement, before layout freeze)
 
 | Failure | Effect | Detection / safe state |
@@ -205,7 +231,7 @@ Source: output/temper-manufacturing-r31/design/r31/CONTROLLER-SPEC.md, "R31" sec
 ## Open items (need the owner or the enclosure team)
 1. **Owner:** confirm D-18 is superseded, so the fan can sit on PS1 through the controller (C9).
 2. **Owner:** M12 probe type and pin map (C14).
-3. **Owner/UI:** the Grayhill encoder part, its supply voltage and the 6-way pin map (C15). Also the APEM switch contact form, and whether STOP should be a hardware trip (C16).
+3. **UI board (R33, C26):** the encoder part and its supply (3.3 V, or 5 V within J7.1's 30 mA), the buzzer part (≤ 90 mA on J7.2), and whether STOP should be a hardware trip. The UI board must not pull D/C up (GPIO45 strap).
 4. **Owner:** the runaway band. **DEFAULT** 296.6–319.1 °C (C6). It is set only by the 20k/10k ratio, so a new band is one resistor change. `verify_controller.py` checks that the fitted ratio equals `controller_calcs.py`, and `runaway()` reports the band. The BIAS-on start-up sequence for firmware stays.
 5. **Bench:** the AD8436 settling with CAVG = 100 nF (the linear scaling from the datasheet's 10 µF figure is an assumption), and the envelope-tracking error over a half line cycle (C19).
 6. **Power-stage:** the J4 harness spec. **DEFAULT:** ≤ 1 m AWG22 (R27's route is 74 mm). `controller_calcs.py harness_sensitivity()` shows native-21 still sees ≥ 3.208 V even at 8 m, so the design does not depend on this default. D-11's ≤ 400 pF/≤ 200 pF capacitance limits apply.
@@ -214,8 +240,8 @@ Source: output/temper-manufacturing-r31/design/r31/CONTROLLER-SPEC.md, "R31" sec
    - repeated ADC1 channels in one continuous pattern (C12);
    - the BIAS-on, settle, reset-request sequence (C6);
    - the WDI ≤ 400 ms heartbeat;
-   - the OLED SPI driver;
-   - pins.h additions (OLED, I²C on 9/0, fan 46/3, ADC on 8).
+   - the UI bus driver (OLED + polled MCP23S08 on one SPI host, chunked frame writes, C26);
+   - pins.h additions (UI SPI 40/41/44/47/48/45, RUN_EN 14, I²C on 9/0, fan 46/3, ADC on 8; RTD_DRDY on expander P07).
 9. **Layout stage:**
    - re-run the interlock, thermal-sense and RTD validators on the integrated board;
    - the native KiCad ERC/DRC and Rust stackup gate;
@@ -227,6 +253,7 @@ Source: output/temper-manufacturing-r31/design/r31/CONTROLLER-SPEC.md, "R31" sec
     - fan start at the PS1 low corner;
     - D-11 accuracy and ct_mon estimation.
 11. **Enclosure:** connector-versus-hole and height conflicts. See [ENCLOSURE-HANDOFF.md](ENCLOSURE-HANDOFF.md).
+12. **Owner / power stage (R32 delta, not yet designed in):** an adjustable 5.5–12 V ≥ 1.5 A blower output for the Delta BFB1012VH (the fixed 12 V fan buck, C9, is rated 3 A but has no adjust input or free PWM pin), and differential RC ≤ 1 kHz low-pass filters on the RTD and NTC inputs (study 06). Both change the schematic and need their own pass.
 
 ## Layout inputs from the enclosure (R27, 2026-10-08)
 

@@ -242,22 +242,21 @@ def adc_pattern() -> dict:
 
 
 def landings() -> dict:
-    """R31 connector centres vs the six snap-in holes' 8 mm keep-outs.
+    """R33 connector centres vs the six snap-in holes' 8 mm keep-outs.
 
     R31 (output/temper-manufacturing-r31/design/r31/CONTROLLER-SPEC.md, "R31" section) mirrors
     the assembly about X = 0: board X-38..168, Y14..90; Ø4.0 snap-in holes (164,18) (164,80)
-    (65,18) (75,86) (-34,18) (-26,74); keep-out radius 4 mm. A connector centred on its R31 centre
-    needs centre-to-hole >= 4 + half its body length, orientation unknown, so the longest body
-    dimension is used (conservative). Body lengths: JLC listings of the chosen parts (XH 2/3/4/8-pin
-    7.4/9.9/12.4/22.4, Micro-Fit 2x8 27.65, Micro-MaTch 6-pin 9.7). layout/check_layout.py checks
-    the real bodies on the board.
+    (65,18) (75,86) (-34,18) (-26,74); keep-out radius 4 mm. R33 (temper-manufacturing-r33
+    design/r33/DECISIONS.md section 3, R35 HANDOFF "Controller layout") deletes J5/J6/J8 and adds
+    the 12-way J7 at X29.8-62.2, Y57.1-62.9. A connector centred on its centre needs
+    centre-to-hole >= 4 + half its body length, orientation unknown, so the longest body dimension
+    is used (conservative). Body lengths: JLC listings / JST eXH.pdf (XH 2/3/4/12-pin
+    7.4/9.9/12.4/32.4, Micro-Fit 2x8 27.65). layout/check_layout.py checks the real bodies.
     """
     holes = [(164.0, 18.0), (164.0, 80.0), (65.0, 18.0), (75.0, 86.0), (-34.0, 18.0), (-26.0, 74.0)]
     rows = {
         "J4 SELV (left edge, mating -X)": ((-31.15, 42.4), 27.65),
-        "J6 OLED": ((35.0, 70.0), 22.4),
-        "J8 buttons (4-pin, R31)": ((15.0, 41.0), 12.4),
-        "J5 encoder": ((-32.0, 64.0), 9.7),
+        "J7 UI bus (12-pin, R33)": ((46.0, 60.0), 32.4),
         "J9 M12 probe": ((-33.0, 86.0), 9.9),
         "J10 fan": ((139.0, 86.0), 9.9),
         "J1 coil NTC": ((55.0, 84.0), 7.4),
@@ -271,7 +270,7 @@ def landings() -> dict:
         out[name] = {"centre": (x, y), "nearest_hole": hole, "distance_mm": round(d, 2),
                      "needed_mm": round(need, 2), "conflict": d < need}
     conflicts = [k for k, v in out.items() if v["conflict"]]
-    return {"source": "CONTROLLER-SPEC R31 connector table and hole list; JLC body lengths",
+    return {"source": "CONTROLLER-SPEC R31 connector table and hole list, R33 J7; JLC/JST body lengths",
             "rows": out, "conflicts_orientation_blind": conflicts,
             "note": "informational (enclosure-owned geometry): the circle bound assumes the worst "
                     "orientation; layout/check_layout.py checks the placed bodies"}
@@ -320,9 +319,10 @@ def rms_channel() -> dict:
                        "leakage_error_lt_0p5pct": leak_err < 0.005}}
 
 
-def encoder_supply() -> dict:
-    """5 V encoder option: v15 -> 2 x 100 ohm -> TLV76050 (DBZ 275.2 C/W)."""
-    i_enc, i_gnd_max = 0.030, 0.005             # encoder allocation [UNVERIFIED]; TLV760 IGND 5 mA max
+def ui_5v_supply() -> dict:
+    """J7.1 +5 V for the UI board (R33; 5 V encoder option): v15 -> 2 x 100 ohm -> TLV76050
+    (DBZ 275.2 C/W). The 30 mA allocation is the J7 +5 V budget the UI board must stay within."""
+    i_enc, i_gnd_max = 0.030, 0.005             # UI +5 V allocation [UNVERIFIED]; TLV760 IGND 5 mA max
     r = 200.0
     out = {}
     for label, vin in (("vin_min", 15 * 0.975), ("vin_max", 15 * 1.025)):
@@ -368,7 +368,7 @@ def main() -> int:
         "adc_pattern": adc_pattern(),
         "landings": landings(),
         "rms_channel": rms_channel(),
-        "encoder_supply": encoder_supply(),
+        "ui_5v_supply": ui_5v_supply(),
         "harness_sensitivity": harness_sensitivity(),
     }
     failed = [f"{blk}.{name}" for blk, val in result.items() if isinstance(val, dict)

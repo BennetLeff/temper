@@ -24,7 +24,8 @@
       "origin": "controller (new)",
       "basis": "TE Micro-MaTch female-on-board 6 pos top entry; mates 7-215083-6 (TE/Future listing)",
       "lcsc": "C306122",
-      "jlc_stock_2026_10_08": 567
+      "jlc_stock_2026_10_08": 567,
+      "removed": "R33 (2026-10-10): no longer on the controller"
     },
     "AD8436BRQZ": {
       "origin": "controller (follow-up 2026-10-08)",
@@ -55,7 +56,8 @@
       "origin": "controller (new)",
       "basis": "JST eXH.pdf",
       "lcsc": "C157972",
-      "jlc_stock_2026_10_08": 9993
+      "jlc_stock_2026_10_08": 9993,
+      "removed": "R33 (2026-10-10): no longer on the controller"
     },
     "BAT54S-7-F": {
       "origin": "controller (follow-up 2026-10-08)",
@@ -170,7 +172,8 @@
       "origin": "controller (new)",
       "basis": "Espressif ESP32-S3-WROOM-1/-1U datasheet v1.8, Table 3-1 pins, 5.x supply",
       "lcsc": "C2913198",
-      "jlc_stock_2026_10_08": 278
+      "jlc_stock_2026_10_08": 278,
+      "removed": "R33 (2026-10-10): no longer on the controller"
     },
     "GRM1885C1H103JA01D": {
       "origin": "controller (follow-up 2026-10-08)",
@@ -417,7 +420,8 @@
       "origin": "controller (follow-up 2026-10-08)",
       "basis": "TI SCES381N: inputs accept 5.5 V; pins 1A1 GND2 2A3 2Y4 VCC5 1Y6",
       "lcsc": "C10429",
-      "jlc_stock_2026_10_08": 44616
+      "jlc_stock_2026_10_08": 44616,
+      "removed": "R33 (2026-10-10): no longer on the controller"
     },
     "SWPA6045S100MT": {
       "origin": "controller (new)",
@@ -491,6 +495,24 @@
       "basis": "TI SLUSEA4D (FCCM variant), pins Fig 7-1, 8.5 electrical",
       "lcsc": "C5219272",
       "jlc_stock_2026_10_08": 1965
+    },
+    "ESP32-S3-WROOM-1U-N8": {
+      "origin": "controller (R33: replaces ESP32-S3-WROOM-1-N8)",
+      "basis": "Espressif ESP32-S3-WROOM-1/-1U datasheet v1.8, Table 3-1 pins (shared pinout), 5.x supply; U.FL antenna connector; lcsc.com/product-detail/C2980297.html",
+      "lcsc": "C2980297",
+      "lcsc_stock_2026_10_10": 1581
+    },
+    "B12B-XH-A(LF)(SN)": {
+      "origin": "controller (R33 J7 UI bus)",
+      "basis": "JST eXH.pdf (2025-07-29): body 7.0 mm above board, 9.8 mm mated; lcsc.com/product-detail/C158027.html",
+      "lcsc": "C158027",
+      "lcsc_stock_2026_10_10": 2215
+    },
+    "SRV05-4": {
+      "origin": "controller (R33 J7 ESD)",
+      "basis": "MSKSEMI SRV05-4 datasheet (LCSC C2836319): IO1 1, GND 2, IO2 3, IO3 4, Vcc 5, IO4 6; VRWM 5 V, IR 1 uA, IEC 61000-4-2 +/-12 kV contact, CJ 0.6 pF typ",
+      "lcsc": "C2836319",
+      "lcsc_stock_2026_10_10": 398140
     }
   }
 }

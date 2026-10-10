@@ -90,27 +90,6 @@
     "start_typ_V": 10.9426801980198,
     "stop_min_V": 9.802991089108911
   },
-  "encoder_supply": {
-    "checks": {
-      "ldo_headroom": true,
-      "ldo_tj_le_125C_at_60C_ambient": true,
-      "resistors_le_half_rating": true
-    },
-    "ldo_rise_C": 39.388,
-    "rows": {
-      "vin_max": {
-        "ldo_W": 0.143125,
-        "ldo_in_V": 8.375,
-        "per_resistor_W": 0.12249999999999997
-      },
-      "vin_min": {
-        "ldo_W": 0.11687500000000003,
-        "ldo_in_V": 7.625000000000001,
-        "per_resistor_W": 0.12249999999999997
-      }
-    },
-    "source": "TI TLV760 datasheet (IGND, dropout 1.2 V, RthJA 275.2 C/W); 1206 = 0.25 W"
-  },
   "failed_checks": [],
   "fan_buck": {
     "checks": {
@@ -218,44 +197,18 @@
         ],
         "needed_mm": 17.82
       },
-      "J5 encoder": {
+      "J7 UI bus (12-pin, R33)": {
         "centre": [
-          -32.0,
-          64.0
+          46.0,
+          60.0
         ],
         "conflict": false,
-        "distance_mm": 11.66,
-        "nearest_hole": [
-          -26.0,
-          74.0
-        ],
-        "needed_mm": 8.85
-      },
-      "J6 OLED": {
-        "centre": [
-          35.0,
-          70.0
-        ],
-        "conflict": false,
-        "distance_mm": 43.08,
+        "distance_mm": 38.95,
         "nearest_hole": [
           75.0,
           86.0
         ],
-        "needed_mm": 15.2
-      },
-      "J8 buttons (4-pin, R31)": {
-        "centre": [
-          15.0,
-          41.0
-        ],
-        "conflict": false,
-        "distance_mm": 52.63,
-        "nearest_hole": [
-          -26.0,
-          74.0
-        ],
-        "needed_mm": 10.2
+        "needed_mm": 20.2
       },
       "J9 M12 probe": {
         "centre": [
@@ -271,7 +224,7 @@
         "needed_mm": 8.95
       }
     },
-    "source": "CONTROLLER-SPEC R31 connector table and hole list; JLC body lengths"
+    "source": "CONTROLLER-SPEC R31 connector table and hole list, R33 J7; JLC/JST body lengths"
   },
   "rail_3v3": {
     "checks": {
@@ -379,5 +332,26 @@
     "TLV3201": "TI SBOS561C: VIO 5 mV max at 25 C, 4 mV max -40..125 C row; 1.2 mV input hysteresis",
     "TPS3703A4330": "TI SBVS344D (TPS3703A4330DSERQ1, fitted; same as SBVS249B commercial): thresholds 3.3 V +/-4 %, accuracy +/-0.7 %, VHYS 0.3-0.8 %, tD 7-13 ms (CT open), UVLO 1.2-1.7 V",
     "TPS62933": "TI SLUSEA4D 8.5: VFB 788-812 mV (TJ 0-85 C), 784-816 mV (-40-150 C); VEN_RISE 1.21 typ/1.28 max, VEN_FALL 1.10 min/1.17 typ; Ip 0.7 uA; Ih 1.4 uA; f 450-550 kHz (RT open); tOFF_MIN 140 ns typ; 98 % max duty with foldback"
+  },
+  "ui_5v_supply": {
+    "checks": {
+      "ldo_headroom": true,
+      "ldo_tj_le_125C_at_60C_ambient": true,
+      "resistors_le_half_rating": true
+    },
+    "ldo_rise_C": 39.388,
+    "rows": {
+      "vin_max": {
+        "ldo_W": 0.143125,
+        "ldo_in_V": 8.375,
+        "per_resistor_W": 0.12249999999999997
+      },
+      "vin_min": {
+        "ldo_W": 0.11687500000000003,
+        "ldo_in_V": 7.625000000000001,
+        "per_resistor_W": 0.12249999999999997
+      }
+    },
+    "source": "TI TLV760 datasheet (IGND, dropout 1.2 V, RthJA 275.2 C/W); 1206 = 0.25 W"
   }
 }
