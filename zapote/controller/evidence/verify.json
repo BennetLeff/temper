@@ -366,7 +366,7 @@
       "data": {
         "count": {
           "components": 244,
-          "distinct_mpns": 82
+          "distinct_mpns": 84
         },
         "unverified": [
           "0430451600"
@@ -1540,30 +1540,30 @@
         "native21_rail_inside_3135_3465": {
           "detail": [
             3.236896130065459,
-            3.3933426507856845
+            3.3933668375440793
           ],
           "ok": true
         },
         "ps1_within_21W_at_r32_blower_cap": {
-          "detail": 14.815815870436914,
+          "detail": 14.828541069165055,
           "ok": true
         },
         "within_inductor_irms_2p45A": {
-          "detail": 1046.9664021995318,
+          "detail": 1050.0880238211535,
           "ok": true
         },
         "within_tps62933_3A": {
-          "detail": 1046.9664021995318,
+          "detail": 1050.0880238211535,
           "ok": true
         }
       },
       "data": {
-        "controller_mA": 537.6210432105835,
+        "controller_mA": 540.7426648322052,
         "native21_on_J4_3_mA": 49.34535898894846,
         "native21_rail_V": {
           "harness": {
             "allocation": "J4 harness <= 1.0 m, AWG22, Micro-Fit 43030 terminals (DEFAULT; harness not yet specified)",
-            "ground_shift_max_V": 0.026788702174780094,
+            "ground_shift_max_V": 0.026812888933174614,
             "ground_shift_min_V": -0.0013716878145361526,
             "length_m": 1.0,
             "r_conductor_ohm": 0.08339312,
@@ -1574,22 +1574,22 @@
             ],
             "v3v3_drop_V": 0.004115063443608458
           },
-          "max": 3.3933426507856845,
+          "max": 3.3933668375440793,
           "min": 3.236896130065459
         },
         "oled_off_board_mA": {
           "basis": "Newhaven NHD-3.12-25664UCW2 rev: IDD 340 mA max, 3.3 V, 100 % on, factory jumper (via J7.2, R33)",
           "mA": 340.0
         },
-        "peak_mA": 1046.9664021995318,
+        "peak_mA": 1050.0880238211535,
         "ps1": {
           "OWNER_FLAG": "at full blower speed (17.04 W typ, 32.4 W max, Delta spec) PS1's 21 W rating is exceeded; DECISIONS C28 / open item 13",
           "basis": "efficiencies 85 % (3.3 V) / 90 % (blower buck) are allocations from the TPS62933 typical curves; IRM-20-15 21 W rated",
-          "p_3v3_rail_W": 4.267927745436914,
+          "p_3v3_rail_W": 4.280652944165055,
           "p_blower_W_at_r32_cap": 10.0,
-          "p_total_W": 14.815815870436914,
-          "p_total_W_blower_full_max": 40.815815870436914,
-          "p_total_W_blower_full_typ": 23.749149203770248,
+          "p_total_W": 14.828541069165055,
+          "p_total_W_blower_full_max": 40.828541069165055,
+          "p_total_W_blower_full_typ": 23.76187440249839,
           "p_v15_direct_W": 0.547888125,
           "rating_W": 21.0
         },
@@ -1663,6 +1663,13 @@
             "mA": 3.5,
             "path": "interlock.wdi_pulldown",
             "ref": "R63"
+          },
+          {
+            "basis": "1kohm +/- 0.1% R + 0 ohm to gnd",
+            "board": "controller",
+            "mA": 3.468468468468468,
+            "path": "r_rim_pu",
+            "ref": "R86"
           },
           {
             "basis": "TLV9062IDR: SBOS839N 7.x: IQ 0.8 mA/amp max (5.5 V, -40..125 C)",
@@ -1938,13 +1945,6 @@
             "ref": "R83"
           },
           {
-            "basis": "10kohm +/- 0.1% R + 0 ohm to gnd",
-            "board": "controller",
-            "mA": 0.3468468468468468,
-            "path": "r_rim_pu",
-            "ref": "R86"
-          },
-          {
             "basis": "3.32kohm R + 9500 ohm to gnd",
             "board": "native21",
             "mA": 0.27382645803698435,
@@ -2025,6 +2025,20 @@
             "basis": "TLV3201AIDBVR: SBOS561C: IQ 65 uA (-40..125 C)",
             "board": "controller",
             "mA": 0.065,
+            "path": "rtd_pan.low_window",
+            "ref": "U31"
+          },
+          {
+            "basis": "TLV3201AIDBVR: SBOS561C: IQ 65 uA (-40..125 C)",
+            "board": "controller",
+            "mA": 0.065,
+            "path": "rtd_pan.high_window",
+            "ref": "U32"
+          },
+          {
+            "basis": "TLV3201AIDBVR: SBOS561C: IQ 65 uA (-40..125 C)",
+            "board": "controller",
+            "mA": 0.065,
             "path": "thermal.hs_comp",
             "ref": "U17"
           },
@@ -2041,20 +2055,6 @@
             "mA": 0.065,
             "path": "u_runaway",
             "ref": "U10"
-          },
-          {
-            "basis": "TLV3201AIDBVR: SBOS561C: IQ 65 uA (-40..125 C)",
-            "board": "controller",
-            "mA": 0.065,
-            "path": "rtd_pan.low_window",
-            "ref": "U31"
-          },
-          {
-            "basis": "TLV3201AIDBVR: SBOS561C: IQ 65 uA (-40..125 C)",
-            "board": "controller",
-            "mA": 0.065,
-            "path": "rtd_pan.high_window",
-            "ref": "U32"
           },
           {
             "basis": "TLV3201AIDBVR: SBOS561C: IQ 65 uA (-40..125 C)",
@@ -2162,6 +2162,13 @@
             "ref": "U22"
           },
           {
+            "basis": "SN74LVC1G08DBVR: SCES217AA: ICC 10 uA",
+            "board": "controller",
+            "mA": 0.01,
+            "path": "rtd_pan.window_and",
+            "ref": "U33"
+          },
+          {
             "basis": "SN74LVC1G32DBVR: SCES219W: ICC 10 uA",
             "board": "controller",
             "mA": 0.01,
@@ -2223,13 +2230,6 @@
             "mA": 0.01,
             "path": "u_rb",
             "ref": "U9"
-          },
-          {
-            "basis": "SN74LVC1G08DBVR: SCES217AA: ICC 10 uA",
-            "board": "controller",
-            "mA": 0.01,
-            "path": "rtd_pan.window_and",
-            "ref": "U33"
           },
           {
             "basis": "SN74LVC1G32DBVR: SCES219W: ICC 10 uA",
@@ -2323,7 +2323,7 @@
             "ref": "D4"
           }
         ],
-        "total_mA": 586.9664021995319,
+        "total_mA": 590.0880238211536,
         "ui_board_allocation_mA": {
           "basis": "[UNVERIFIED] J7.2 allocation for the R33 UI board: 30 mA logic + 3.3 V encoder option (MCP23S08, TMP122) and 90 mA for the self-oscillating buzzer; parts not yet chosen",
           "mA": 120.0

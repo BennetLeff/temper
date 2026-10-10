@@ -405,6 +405,55 @@ def blower_supply() -> dict:
                        "j10_xh_3A_ge_2p70A": 3.0 >= i_max}}
 
 
+# Semitec GT-2 series datasheet (semitec.co.jp "GT-2シリーズ.pdf", 2023-08-01), R-T table in kOhm.
+# 104GT-2: 100 k +/-3 % at 25 C, B25/85 4267 K +/-2 %, -50..+300 C; 103GT-2 (10 k) is rated
+# -50..+200 C. Dissipation constant ~0.6 mW/C, time constant ~7 s (still air), 3.0 mW rated.
+GT2_104 = {20: 126.8, 25: 100.0, 30: 79.36, 190: 0.5408, 200: 0.4393, 210: 0.3597, 240: 0.2065,
+           250: 0.1740, 260: 0.1475, 270: 0.1258, 280: 0.1079, 290: 0.09305}
+GT2_103 = {20: 12.64, 25: 10.00, 30: 7.968, 190: 0.07186, 200: 0.05960, 210: 0.04986, 240: 0.03059,
+           250: 0.02640}
+
+
+def rim_ntc() -> dict:
+    """Rim NTC divider (L3, DECISIONS C31): node voltage and slope at 25/200/250/280 C for the
+    chosen 104GT-2 with a 1.00 k pull-up, against the C27 10 k bead with a 10 k pull-up."""
+    vdd = 3.3
+
+    def node(rt_k, rpu_k):
+        return vdd * rt_k / (rt_k + rpu_k)
+
+    def table(rt, rpu_k, temps):
+        out = {}
+        for t in temps:
+            if t - 10 not in rt and t - 5 not in rt or t not in rt:
+                continue
+            lo, hi = (t - 5, t + 5) if t == 25 else (t - 10, t + 10)
+            if hi not in rt:              # end of the table: one-sided difference
+                hi = t
+            if lo not in rt:
+                continue
+            slope = (node(rt[lo], rpu_k) - node(rt[hi], rpu_k)) / (hi - lo) * 1e3
+            out[t] = {"R_ohm": rt[t] * 1e3, "V": node(rt[t], rpu_k), "mV_per_K": slope}
+        return out
+    chosen = table(GT2_104, 1.0, (25, 200, 250, 280))
+    old = table(GT2_103, 10.0, (25, 200, 250))
+    # self-heating: power in the NTC peaks where R_ntc = R_pu (V^2 / 4R); dissipation 0.6 mW/C
+    p_peak = vdd ** 2 / (4 * 1.0e3)
+    p250 = (vdd / ((GT2_104[250] + 1.0) * 1e3)) ** 2 * GT2_104[250] * 1e3
+    p280 = (vdd / ((GT2_104[280] + 1.0) * 1e3)) ** 2 * GT2_104[280] * 1e3
+    i_max = vdd / 1.0e3
+    return {"source": "Semitec GT-2 series datasheet (2023-08-01) R-T table; dissipation 0.6 mW/C",
+            "chosen_104GT2_1k_pullup": chosen, "previous_10k_bead_10k_pullup": old,
+            "self_heating_K": {"peak_at_R_eq_Rpu": p_peak * 1e3 / 0.6, "at_250C": p250 * 1e3 / 0.6,
+                               "at_280C": p280 * 1e3 / 0.6},
+            "ntc_power_peak_mW": p_peak * 1e3, "rail_current_max_mA": i_max * 1e3,
+            "checks": {"node_250C_between_0p3_and_1p0V": 0.3 <= chosen[250]["V"] <= 1.0,
+                       "slope_250C_ge_5mV_per_K": chosen[250]["mV_per_K"] >= 5.0,
+                       "slope_280C_ge_3mV_per_K": chosen[280]["mV_per_K"] >= 3.0,
+                       "ntc_power_le_3mW_rated": p_peak * 1e3 <= 3.0,
+                       "self_heating_250C_le_3K": p250 * 1e3 / 0.6 <= 3.0}}
+
+
 def harness_sensitivity() -> dict:
     """How far the DEFAULT harness length can grow before native-21's rail leaves 3.135 V.
 
@@ -437,6 +486,7 @@ def main() -> int:
         "rms_channel": rms_channel(),
         "ui_5v_supply": ui_5v_supply(),
         "blower_supply": blower_supply(),
+        "rim_ntc": rim_ntc(),
         "harness_sensitivity": harness_sensitivity(),
     }
     failed = [f"{blk}.{name}" for blk, val in result.items() if isinstance(val, dict)

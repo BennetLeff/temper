@@ -4,6 +4,8 @@ This is the electrical side of the R25 controller board. The enclosure team owns
 
 **R33 update (2026-10-10, enclosure R33 DECISIONS §3; R35 unchanged for the controller):** J5, J6 and J8 are deleted; one 12-way JST B12B-XH-A **J7** at X29.8–62.2, Y57.1–62.9 carries the UI bus to the fascia UI board (pin map below, DECISIONS C26). The module is the **ESP32-S3-WROOM-1U-N8** at X141–159, Y50–69.5 with its U.FL at (150, 67) and no antenna keep-out; nothing within 3 mm of the U.FL. The heights below are now from drawings (section "Height and cable exit").
 
+**L3 rim NTC (2026-10-10, DECISIONS C31):** the cartridge's rim sensor should be a **100 k / 300 °C glass NTC (Semitec 104GT-2 class)**, not a 10 k bead. The 10 k GT-2 part is rated only to 200 °C, and it gave 0.14 mV/K at 250 °C. Please fit the R36 rim boss for that bead.
+
 **L3 update (2026-10-10, DECISIONS C28):** J10 now supplies the R32 blower at 5.5–12 V (adjustable, ≥ 1.5 A) with its FG tach on pin 3; same part and position. The blower buck's inductor is 6.0 mm tall (heights table).
 
 **R36 update (2026-10-10, DECISIONS C27):** the rim NTC adds **J12** (JST B2B-XH-A) for the 6-conductor cartridge cable. Its 4 RTD wires stay on J3 and the NTC pair goes to J12. J12's landing is **proposed** at (126, 86) on the rear edge, 13 mm left of J10; the enclosure must confirm or move it.

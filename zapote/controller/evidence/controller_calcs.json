@@ -327,6 +327,62 @@
       3.1901759999999992
     ]
   },
+  "rim_ntc": {
+    "checks": {
+      "node_250C_between_0p3_and_1p0V": true,
+      "ntc_power_le_3mW_rated": true,
+      "self_heating_250C_le_3K": true,
+      "slope_250C_ge_5mV_per_K": true,
+      "slope_280C_ge_3mV_per_K": true
+    },
+    "chosen_104GT2_1k_pullup": {
+      "25": {
+        "R_ohm": 100000.0,
+        "V": 3.267326732673267,
+        "mV_per_K": 1.5243610326301837
+      },
+      "200": {
+        "R_ohm": 439.3,
+        "V": 1.0072187869103035,
+        "mV_per_K": 14.26307044549181
+      },
+      "250": {
+        "R_ohm": 174.0,
+        "V": 0.48909710391822825,
+        "mV_per_K": 7.031628786339786
+      },
+      "280": {
+        "R_ohm": 107.89999999999999,
+        "V": 0.32139182236663955,
+        "mV_per_K": 4.391308775306221
+      }
+    },
+    "ntc_power_peak_mW": 2.7224999999999997,
+    "previous_10k_bead_10k_pullup": {
+      "25": {
+        "R_ohm": 10000.0,
+        "V": 1.65,
+        "mV_per_K": 37.90012240056131
+      },
+      "200": {
+        "R_ohm": 59.6,
+        "V": 0.019551473219611117,
+        "mV_per_K": 0.358622003760441
+      },
+      "250": {
+        "R_ohm": 26.4,
+        "V": 0.008689060879278702,
+        "mV_per_K": 0.13748536063098815
+      }
+    },
+    "rail_current_max_mA": 3.3,
+    "self_heating_K": {
+      "at_250C": 2.291340776448258,
+      "at_280C": 1.5955005172096017,
+      "peak_at_R_eq_Rpu": 4.5375
+    },
+    "source": "Semitec GT-2 series datasheet (2023-08-01) R-T table; dissipation 0.6 mW/C"
+  },
   "rms_channel": {
     "adc_V_at_22A_rms": 1.32,
     "adc_V_at_55A_peak_trip": 2.3334523779156067,

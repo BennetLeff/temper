@@ -6,7 +6,7 @@ This is the induction cooktop's low-voltage controller, captured in atopile and 
 - the RTD front end;
 - the D-11 bus-voltage receiver;
 - the buffers for the ADC channels;
-- the 3.3 V and 12 V fan supplies;
+- the 3.3 V supply and the adjustable 5.5–12 V blower supply with tach (L3, DECISIONS C28);
 - the probe connectors and one 12-way UI bus (J7, R33) to the fascia UI board, which carries the OLED, buttons, encoder and buzzer.
 
 It draws power from native-21's J4 header and supplies native-21's 3.3 V logic back through J4.3.
@@ -31,7 +31,7 @@ It draws power from native-21's J4 header and supplies native-21's 3.3 V logic b
 | `inputs/native-21/` | Frozen native-21 netlist, BOM and resolved export (the J4 and v3v3 counterpart) |
 | `tools/verify_controller.py` | The verification (below); writes `evidence/verify.json` |
 | `tools/controller_calcs.py` | Every numeric claim in these docs; writes `evidence/controller_calcs.json` |
-| `tests/test_verify_mutations.py` | 25 tests. They miswire the frozen netlist and require the owning check to fail |
+| `tests/test_verify_mutations.py` | 28 tests. They miswire the frozen netlist and require the owning check to fail |
 | `layout/` | Board build, router, enclosure/layout check, DFM gate and fab export; `python3 layout/make.py` runs the gates (see [LAYOUT.md](LAYOUT.md)) |
 | `pcb/` | `controller.kicad_pcb` (routed board), `.kicad_pro`, the parity schematic, vendored footprints |
 | `fab/` | Gerbers, drill, BOM/CPL with LCSC codes, assembly drawing, `fab-notes.md` (candidate, not released) |
@@ -60,15 +60,16 @@ python3 tools/snapshot_native21.py # re-derive inputs/native-21 from git (read-o
 - **Warnings:** the build emits only atopile's "Implicit Declaration" deprecation warnings for `override_net_name`, the same as the thermal-sense build.
 - **Part identity:** it comes from `resolved-components.json` or the CSV, never from the netlist's `libsource` field. Atopile 0.2.69 aliases parts by footprint there; see the power-stage README.
 
-**Current result** (frozen netlist sha256 `f2a92a74…`; 231 components): `VERIFY: PASS` (138 checks), and 25/25 mutation tests pass.
+**Current result** (frozen netlist sha256 `20e343ee…`; 244 components): `VERIFY: PASS` (155 checks), and 28/28 mutation tests pass.
 
 | Section | Checks | What is asserted |
 |---|---|---|
 | sources | 4/4 | Ports equal their sources minus the boundary lines. Library `modules/components/footprints.ato` hashes equal `zapote/rtd/circuit/rtd_contract.json` |
 | j4 | 35/35 | All 16 pins carry exactly native-21's J4 net names. Both ends are Micro-Fit 3.0 2×8 headers (controller: right-angle 43045-1600 per R27; native-21: vertical 43045-1612) on a 1:1 harness. Pin obligations: J4.3 is the 3.3 V buck output; J4.1 feeds both bucks; each PWM line has a 10 kΩ pull-down and is driven from an MCU GPIO; PERMIT's only driver is the PERMIT gate U37 = latch Q AND RUN_EN (C23); bus_fault enters the interlock OCP input with its 10 kΩ pull-up; 11/12 enter the D-11 receiver; ct_mon sees one buffer input and ≥ 1 MΩ DC; ct_zc/line_zc reach GPIO38/39; returns 2/4/15 are on selv_gnd |
-| adc1 | 22/22 | VBUS, CT_MON, HS, COIL, M12 and RIM (R36 rim NTC, GPIO9) each on one ADC1 pad, driven by its buffer. Six distinct channels; nothing analog on ADC2 or a strap; SPI 10–13 go to the RTD front end; the sample pattern fits (below) |
+| adc1 | 26/26 | VBUS, CT_MON, HS, COIL, M12 and RIM (R36 rim NTC, GPIO9) each on one ADC1 pad, driven by its buffer; each NTC buffer input is an RC ≤ 1 kHz (C29). Six distinct channels; nothing analog on ADC2 or a strap; SPI 10–13 go to the RTD front end; the sample pattern fits (below) |
 | trip | 19/19 | The structural and exhaustive interlock checks (below) |
-| v3v3 | 5/5 | Current budget for both boards, regulator, inductor, PS1, and the native-21 rail window |
+| v3v3 | 5/5 | Current budget for both boards, regulator, inductor, PS1 (at R32's blower drive cap; full blower speed is reported, over the rating), and the native-21 rail window |
+| blower | 13/13 | J10 = V_BLOWER / GND / FG; FG pull-up, TVS and series R into GPIO3; GPIO46 PWM filtered into the blower buck's FB with full speed at reset; switch-off from expander P15 with the blower running at power-up; the `blower_supply()` sizing checks (C28) |
 | ct_rms | 20/20 | The tank-RMS channel: ct_mon buffer → AC coupling → AD8436 (unity input buffer, AC-coupled core, single supply on v15, C0G CAVG) → gain-4 output buffer → 1 kΩ + BAT54S clamp → MCP3202 CH0. CH1 reads the LM4040 2.5 V reference. The ADC sits on the RTD SPI bus with its own pulled-up CS GPIO; the raw ct_mon ADC1 path is kept |
 | ui | 25/25 | J7 (R33 UI bus, DECISIONS C26): exact 12-pin map with a GND beside every signal; each signal reaches its GPIO through one 33–100 Ω series resistor with nothing active on the connector side, and has an SRV05-4 clamp; the UI bus GPIOs (40/41/44/47/48/45) are disjoint from the RTD / MCP3202 SPI bus, which never reaches a connector; both chip selects pulled up; +5 V from the TLV76050 within its budget |
 | bom | 2/2 | Every resolved MPN is in `bom/controller-parts.json` with a basis |
@@ -121,8 +122,8 @@ native-21 PS1 IRM-20-15 (15 V ±2.5 %, 21 W) ── J4.1 v15_selv ── 100 µF
   │         ├─ interlock / thermal-sense / RTD blocks (RTD analogue behind its ferrite → RTD_AVDD)
   │         ├─ U3 TPS3703A4330-Q1 window supervisor (SENSE via 1 k / 1 µF) → RAIL_OK
   │         └─ J4.3 → native-21 SELV logic (u_fault_or, 4× ISO7710, AMC1311 VDD2, UCC21550 VCCI …)
-  └─ U2 TPS62933 (500 kHz), 22 µH, 2×22 µF → v12_fan 11.78–12.22 V → J10 fan (0.63 A)
-       EN defaults on; firmware can only switch the fan off (Q1 on GPIO46)
+  └─ U2 TPS62933 (500 kHz), 10 µH SWRB1205S, 2×22 µF → V_BLOWER 5.0–12.4 V (PWM into FB) → J10 blower (1.42 A typ, 2.70 A max)
+       EN defaults on; firmware sets speed (GPIO46 PWM, full speed by default) and can switch it off (Q1 from expander P15)
   ├─ U14 AD8436 tank-RMS converter (single supply, ≈ 0.64 mA)
   └─ 2 × 100 Ω → U16 TLV76050 → V5_UI (J7 pin 1, ≤ 30 mA for a 5 V encoder; current-limited)
 ```
@@ -138,7 +139,7 @@ native-21 PS1 IRM-20-15 (15 V ±2.5 %, 21 W) ── J4.1 v15_selv ── 100 µF
 | **Peak** | **1047** |
 
 - **Converter limits:** the TPS62933F is good for 3 A and SWPA6045S100MT for 2.45 A Irms (3.5 A sat).
-- **PS1 at simultaneous peak:** 13.4 W, against IRM-20-15's 21 W. That is 4.3 W on the 3.3 V rail at an 85 % allocation, 8.6 W for the fan at 90 %, and 0.55 W straight from 15 V (AD8436, the 5 V UI LDO at its 5 mA maximum ground current plus 30 mA).
+- **PS1 at simultaneous peak:** 14.8 W at R32's blower drive cap (0.8, about 9 W), against IRM-20-15's 21 W. That is 4.3 W on the 3.3 V rail at an 85 % allocation, 10 W for the blower at 90 %, and 0.55 W straight from 15 V (AD8436, the 5 V UI LDO at its 5 mA maximum ground current plus 30 mA). **At full blower speed it is 23.7 W (Delta typical) to 40.8 W (Delta maximum), over the rating: owner item 13 (DECISIONS C28).**
 - **Own load:** with the fan excluded, the controller's own load stays under the spec's ≈ 4 W even at peak.
 - **Native-21's rail:** it sees 3.237–3.389 V at its J4.3. That covers regulator tolerance, the J4 harness (≤ 1 m AWG22, two 10 mΩ contacts per conductor; an allocation, because the harness isn't specified) and ground shift from the 15 V return. This is inside the 3.135–3.465 V contract.
 
@@ -183,7 +184,7 @@ The raw ct_mon ADC1 path stays for phase and waveform checks.
 |---|---|---|
 | MCU | ESP32-S3-WROOM-1U-N8 (C2980297) | Required family (the round-5 firmware targets the S3-WROOM-1-N8; the -1U has the same pins). No octal PSRAM, so GPIO35–37 are free. R33: U.FL to the off-board chip antenna |
 | 3.3 V | TPS62933FDRLR (C5219272) | 3.8–30 V, 3 A, ±1.5 % VFB. Forced-CCM gives predictable ripple. Shares a die with the fan buck |
-| 12 V fan | TPS62933DRLR (C3200405) | 98 % duty with frequency foldback. 0.846 duty is needed at 14.5 V in, under the 0.923 limit without foldback |
+| Blower supply | TPS62933DRLR (C3200405) + SWRB1205S-100MT 10 µH (C169383) | 3 A class, 4.2–5.8 A high-side limit; the 4 A-rated inductor carries the blower's 2.70 A maximum. Speed by PWM into FB; full speed by default (C28) |
 | Rail window | TPS3703A4330DSERQ1 (C1850327) | ±0.7 % fixed ±4 % window, the only class that fits inside 3.135–3.465 V around a ±1.5 % regulator. The TPS3700 (±1.7 %) does not. Q1 grade fitted because the commercial part had zero JLC stock; SBVS344D confirms identical pins, thresholds and delay |
 | Tank RMS | AD8436BRQZ (C652840) | Datasheet bandwidth 65 kHz for 1 % error, the only candidate whose datasheet I could read that covers 55 kHz on our supplies. The LTC1968 is 500 kHz per ADI's product page, but its 4.5–5.5 V supply and unread datasheet ruled it out. **JLC stock 0: consign** |
 | External ADC | MCP3202-CI/SN (C56997) | 2-channel 12-bit SPI at 3.3 V; shares the RTD bus |

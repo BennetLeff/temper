@@ -210,7 +210,7 @@ Source: output/temper-manufacturing-r33/design/r33/DECISIONS.md §3 ("Controller
 
 ## C27. Enclosure R36: rim NTC channel and the 6-conductor cartridge cable (2026-10-10)
 Source: coordinator relay of the R36 change. A glass-encapsulated 10 k bead NTC on the sensor cartridge's PEEK rim, read from the glass underside; the cartridge cable is now 6 conductors (4-wire RTD + 2 for the NTC). R36's design folder has no controller spec yet, so the pin map below is mine.
-- **Channel (built like the coil NTC channel):**
+- **Channel (built like the coil NTC channel):** *(L3: the pull-up is now 1.00 k for a 100 k / 300 °C NTC, C31; the RC moved before the buffer, C29)*
   - 10.0 kΩ 0.1 % pull-up to v3v3 (same 10 k divider form as the coil NTC; 0.1 % as on M12);
   - 100 nF at the node;
   - ESD5Z3.3 TVS at the connector pin;
@@ -280,6 +280,24 @@ Source: R32 CONTROLLER-SPEC "R32 additions" (blower output 5.5–12 V ≥ 1.5 A 
   2. native exports of `pcb/controller.kicad_pcb`, filtered to each block's parts and re-mapped from the controller's prefixed instance paths (`interlock.*`, `thermal.*`, `rtd_pan.*`) to the unit names;
   3. for the RTD, a controller profile in place of `rtd/unit/profile.json`.
 - **Coverage today:** `verify_controller.py` covers the netlist-level parts: the ports are byte-equal to their sources, and the trip-path logic is simulated exhaustively. The validators' layout checks (clearance, bypass locality) are partly covered by the KiCad DRC and the decoupling check. The validators themselves have not been re-run (open item 9).
+
+## C31. Rim NTC: a 100 k / 300 °C glass NTC with a 1.00 k pull-up (L3, firmware pin-map finding, 2026-10-10)
+Finding (relayed by the coordinator): the C27 channel, a 10 k bead into a 10 k pull-up, sits at the bottom of the ADC range near the 250 °C pan cap. Numbers below come from `tools/controller_calcs.py rim_ntc()`, using the Semitec GT-2 series datasheet R-T table (2023-08-01).
+
+| °C | 104GT-2, R | Node V (1.00 k pull-up) | mV/K | Old: 10 k bead (103GT-2), 10 k pull-up |
+|---|---|---|---|---|
+| 25 | 100 kΩ | 3.267 | 1.5 | 1.650 V, 37.9 mV/K |
+| 200 | 439.3 Ω | 1.007 | 14.3 | 19.6 mV, 0.36 mV/K |
+| 250 | 174.0 Ω | 0.489 | 7.0 | 8.7 mV, 0.14 mV/K |
+| 280 | 107.9 Ω | 0.321 | 4.4 | outside the 10 k part's range |
+
+- **Choice:** a 100 k glass NTC rated to 300 °C. The reference part is the **Semitec 104GT-2**: 100 kΩ ± 3 % at 25 °C, B25/85 4267 K ± 2 %, −50…+300 °C, ≈ 0.6 mW/°C, ≈ 7 s in still air, 3.0 mW rated. It is paired with a **1.00 kΩ 0.1 %** pull-up (RT0603BRD071KL, C110776).
+  - The node sits at 0.49 V and 7.0 mV/K at 250 °C, about 50× the old slope.
+  - The 25 °C end stays near the top of the range, but the rim channel exists for the hot end.
+- **Why not the alternative** (keep the 10 k bead and drop the pull-up to 200–330 Ω): the GT-2 10 k part (103GT-2) is rated only to +200 °C, so it is out of rating at the 250 °C cap whatever the pull-up. A 270 Ω pull-up would also push up to 12 mA from v3v3 and up to 10 mW into the bead, over its 3 mW rating.
+- **Self-heating:** NTC power peaks at 2.7 mW where it equals the pull-up (≈ 157 °C), within the 3 mW rating. In still air that is ≤ 4.5 K; it is 2.3 K at 250 °C and 1.6 K at 280 °C. Mounted against the glass in the rim boss it will be lower. Firmware can correct with the known current. The v3v3 load is ≤ 3.3 mA.
+- **Enclosure (R36 rim boss):** the cartridge's NTC becomes a 100 k / 300 °C glass bead (104GT-2 class; body and lead dimensions per the Semitec GT-2 drawing). This replaces "glass 10 k bead". The part and its potting must be agreed with the enclosure session for the rim boss.
+- **Filter and ADC path:** unchanged: TVS at J12, 10 k / 100 nF (159 Hz) into the TLV9061 follower, then GPIO9. The 10 k series resistor still dominates the RC, so the C29 corner holds.
 
 ## FMEA: shared supply, ground and connector (CONTROLLER-SPEC requirement, before layout freeze)
 
