@@ -416,7 +416,7 @@
       },
       {
         "netclass": "Supply",
-        "pattern": "V5_ENC"
+        "pattern": "V5_UI"
       },
       {
         "netclass": "Supply",
@@ -429,10 +429,6 @@
       {
         "netclass": "Supply",
         "pattern": "RTD_AVDD"
-      },
-      {
-        "netclass": "Supply",
-        "pattern": "enc_vcc"
       },
       {
         "netclass": "Analog",

@@ -71,18 +71,20 @@ def main():
                                    "poly": polys(z.Outline())})
     # CONTROLLER-SPEC: no MCU traces through the interlock block. The block's courtyard box is a
     # keep-out for every MCU net except the requests that end in it and the read-back outputs.
+    # Parts are selected by atopile path (SourceInstance), which survives designator renumbering.
     fps = {f.GetReference(): f for f in b.GetFootprints()}
-    block = ["U20", "U21", "U22", "U23", "U24", "U25", "R51", "R52", "R53", "R54", "R55", "R56", "R57", "R58",
-             "R59", "R60", "R61", "C34", "C35", "C36", "C37", "C38", "C39"]
+    path = {r_: f.GetFieldText("SourceInstance") for r_, f in fps.items()}
+    block = sorted(r_ for r_ in fps if path[r_].startswith("interlock."))
+    rb = [r_ for r_ in fps if path[r_] == "u_rb"]
     xs, ys = [], []
-    for r_ in block[:6]:          # the region is the box of the six logic ICs
+    for r_ in [r_ for r_ in block if r_.startswith("U")]:     # the region is the box of the six logic ICs
         for g in fps[r_].GraphicalItems():
             if g.GetLayer() == pcbnew.F_CrtYd:
                 bb = g.GetBoundingBox()
                 xs += [mm(bb.GetLeft()), mm(bb.GetRight())]
                 ys += [mm(bb.GetTop()), mm(bb.GetBottom())]
     mcu = {p.GetNetname() for p in fps["U4"].Pads()} - {"selv_gnd", "v3v3", ""}
-    allowed = {p.GetNetname() for r_ in block + ["U9"] for p in fps[r_].Pads()}
+    allowed = {p.GetNetname() for r_ in block + rb for p in fps[r_].Pads()}
     d["forbid"] = [{"rect": [min(xs), min(ys), max(xs), max(ys)], "nets": sorted(mcu - allowed),
                     "why": "interlock block: no MCU traces through it"}]
     eb = b.GetBoardEdgesBoundingBox()

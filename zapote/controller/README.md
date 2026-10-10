@@ -1,6 +1,6 @@
 # Integrated SELV controller (schematic capture)
 
-This is the induction cooktop's low-voltage controller, captured in atopile and laid out (layout L1, enclosure R31: see [LAYOUT.md](LAYOUT.md)). The board integrates:
+This is the induction cooktop's low-voltage controller, captured in atopile and laid out (layout L2: enclosure R33 delta on the R31 outline, plus the R36 rim NTC; see [LAYOUT.md](LAYOUT.md)). The board integrates:
 - an ESP32-S3-WROOM-1U-N8 (U.FL to an off-board chip antenna, enclosure R33);
 - the interlock and thermal-sense circuits, ported unchanged;
 - the RTD front end;
@@ -11,7 +11,7 @@ This is the induction cooktop's low-voltage controller, captured in atopile and 
 
 It draws power from native-21's J4 header and supplies native-21's 3.3 V logic back through J4.3.
 
-**Status:** schematic source, frozen netlist and a placed and mostly routed layout with a JLC fab package ([LAYOUT.md](LAYOUT.md)). **Six connections are still unrouted**, so the board is not DRC-clean and must not be ordered (0 DRC errors, parity 0, DFM PASS, enclosure checks PASS). Not fabricated, no physical test. Open items and decisions are in [DECISIONS.md](DECISIONS.md). The connector list and placement note for the enclosure team are in [ENCLOSURE-HANDOFF.md](ENCLOSURE-HANDOFF.md).
+**Status:** schematic source, frozen netlist and a routed, DRC-clean layout candidate (0 errors, 0 unconnected, schematic parity 0; DFM, enclosure checks and fab review PASS) with a JLC fab package ([LAYOUT.md](LAYOUT.md)). **Candidate, not released**: ordering is the owner's decision. Not fabricated, no physical test. Open items and decisions are in [DECISIONS.md](DECISIONS.md). The connector list and placement note for the enclosure team are in [ENCLOSURE-HANDOFF.md](ENCLOSURE-HANDOFF.md).
 
 **Requirement inputs** (read-only):
 - `output/temper-manufacturing-r25/design/r25/CONTROLLER-ARCHITECTURE.md` and `CONTROLLER-SPEC.md`. They supersede r24 only in the harness landings.
@@ -34,7 +34,7 @@ It draws power from native-21's J4 header and supplies native-21's 3.3 V logic b
 | `tests/test_verify_mutations.py` | 25 tests. They miswire the frozen netlist and require the owning check to fail |
 | `layout/` | Board build, router, enclosure/layout check, DFM gate and fab export; `python3 layout/make.py` runs the gates (see [LAYOUT.md](LAYOUT.md)) |
 | `pcb/` | `controller.kicad_pcb` (routed board), `.kicad_pro`, the parity schematic, vendored footprints |
-| `fab/` | Gerbers, drill, BOM/CPL with LCSC codes, assembly drawing, `fab-notes.md` (marked not for order) |
+| `fab/` | Gerbers, drill, BOM/CPL with LCSC codes, assembly drawing, `fab-notes.md` (candidate, not released) |
 
 **What "ported unchanged" means here:** `tools/port_blocks.py` copies `zapote/interlock/source-build-02/.../interlock_unit.ato` and `zapote/thermal-sense/source-build-02/.../thermal_sense_unit.ato` with one line filter. It drops only:
 - the standalone inter-board headers (interlock J1/J2, thermal-sense J3);

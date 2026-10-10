@@ -3,11 +3,15 @@
 Every enclosure-owned number the layout uses is in this file; layout/floorplan.py places the
 circuit against it and layout/check_layout.py checks the built board against it.
 
-Source (read-only): output/temper-manufacturing-r31/design/r31/CONTROLLER-SPEC.md, "R31" section
-(authority over R27-R30). R31 mirrors the assembly about X = 0 so native-21 sits in its true
-pose; the controller moves with it, J4 mates toward -X, J7 merges into a 4-pin J8, and the
-ESP32 sits behind the fixed lens window. R30 still sets the mounting (snap-in nylon supports in
-Ø4.0 holes, Ø8 free of copper and parts) and the height (board bottom Z23, top Z24.6).
+Sources (read-only):
+- output/temper-manufacturing-r31/design/r31/CONTROLLER-SPEC.md, "R31" section: outline, holes,
+  J1-J4, J9, J10 (R31 mirrors the assembly about X = 0, so J4 mates toward -X).
+- output/temper-manufacturing-r33/design/r33/DECISIONS.md section 3 (R33 controller delta,
+  restated unchanged in the R35 HANDOFF "Controller layout"): J5/J6/J8 deleted; 12-way J7 at
+  X29.8..62.2, Y57.1..62.9; ESP32-S3-WROOM-1U at X141..159, Y50..69.5 with its U.FL at (150, 67);
+  no antenna keep-out (off-board chip antenna on a 150 mm coax).
+- R30 still sets the mounting (snap-in nylon supports in Ø4.0 holes, Ø8 free of copper and parts)
+  and the height (board bottom Z23, top Z24.6).
 All coordinates are appliance world mm: X right, Y rear, Z up.
 
 Transform (recorded in LAYOUT.md): the board is drawn in KiCad's frame, viewed from above (top
@@ -22,7 +26,7 @@ above) equals a KiCad orientation angle (CCW on screen).
 """
 from __future__ import annotations
 
-REVISION = "R31"
+REVISION = "R33"
 OX, OY = 58.0, 110.0
 
 
@@ -42,23 +46,26 @@ BOARD_BOTTOM_Z = 23.0
 Z_LIMIT = 40.0
 
 # Holes (R31 positions, R30 diameter): six 4.0 mm holes for dual-locking snap-in nylon supports,
-# an 8 mm area free of copper and parts around each.
+# an 8 mm area free of copper and parts around each. The (-34, 18) support is all-nylon 6/6 V-0
+# (R33 coordinator note): no action.
 HOLES = [(164.0, 18.0), (164.0, 80.0), (65.0, 18.0), (75.0, 86.0), (-34.0, 18.0), (-26.0, 74.0)]
 HOLE_D = 4.0
 HOLE_KEEPOUT_D = 8.0
 
-# Connector centres (R31 table, "Centre"); body centre = F.Fab outline centre.
+# Connector centres (R31 table "Centre"; J7 = centre of its R33 body box); body centre = F.Fab
+# outline centre.
 CONNECTORS = {
     "J1": (55.0, 84.0),     # coil NTC, JST B2B-XH-A
     "J2": (-20.0, 84.0),    # sink NTC, JST B2B-XH-A
     "J3": (152.0, 86.0),    # pan RTD, JST B4B-XH-A
-    "J5": (-32.0, 64.0),    # encoder, TE Micro-MaTch 7-215079-6
-    "J6": (35.0, 70.0),     # OLED, JST B8B-XH-A
-    "J8": (15.0, 41.0),     # all three buttons + common, JST B4B-XH-A (R31: J7 deleted)
+    "J7": (46.0, 60.0),     # UI bus, JST B12B-XH-A (R33)
     "J9": (-33.0, 86.0),    # M12 probe, JST B3B-XH-A
     "J10": (139.0, 86.0),   # fan, JST B3B-XH-A
+    "J12": (126.0, 86.0),   # rim NTC, JST B2B-XH-A (R36; PROPOSED landing, enclosure to confirm)
 }
 CONNECTOR_TOL = 0.5
+# R33 gives J7 as a body box: checked edge by edge as well.
+J7_BODY = (29.8, 57.1, 62.2, 62.9)
 
 # J4: right-angle Molex 43045-1600 on the LEFT edge, mating -X (R31). Body (courtyard) envelope
 # X-38..-24.3 / Y27.8..57.0 (R31 spec: header X-38..-26, Y29.6..54.4, plug to X-50; it mates
@@ -66,10 +73,14 @@ CONNECTOR_TOL = 0.5
 J4_BODY = (-38.0, 27.8, -24.3, 57.0)
 J4_MATING = "-X"
 
-# ESP32-S3-WROOM-1 (R31): X-20..-2, Y14..39.5, antenna end at the front edge (Y14), behind the
-# fixed lens window (X-89..19).
-WROOM = (-20.0, 14.0, -2.0, 39.5)
-# Espressif antenna keep-out as carried by KiCad's RF_Module:ESP32-S3-WROOM-1 rule area: 15 mm beyond
-# the module's antenna end and both sides, back to 6.05 mm from the antenna end (module frame
-# -24..24 x -27.75..-6.75 about the module centre, module body 18 x 25.6).
-WROOM_KEEPOUT_FP = (-24.0, -27.75, 24.0, -6.75)
+# ESP32-S3-WROOM-1U-N8 (R33): body box X141..159, Y50..69.5. The module is 18.0 x 19.2 (Espressif
+# WROOM-1/-1U DS v1.8 Table 1-2), so it sits with its U.FL end on the box's rear edge (Y69.5).
+WROOM = (141.0, 50.0, 159.0, 69.5)
+WROOM_BODY_YSPAN = 19.2
+# U.FL: R33 gives (150, 67). Espressif DS v1.8 Figure 10-2 puts the receptacle 3.0 mm from the
+# module's right edge and 2.46 mm from its antenna-end edge (KiCad footprint: (+6.0, -7.14) from
+# the body centre), so with the body on the R33 box it lands at about (156.0, 67.0); the 6 mm X
+# difference is reported to the enclosure (LAYOUT.md). Nothing else within UFL_CLEAR_R of it.
+UFL_SPEC = (150.0, 67.0)
+UFL_FP = (6.0, -7.14)
+UFL_CLEAR_R = 3.0

@@ -1,7 +1,7 @@
 {
  "board": "controller.kicad_pcb",
- "revision": "R31",
- "source": "output/temper-manufacturing-r31/design/r31/CONTROLLER-SPEC.md (R31 section; R30 mounting/height)",
+ "revision": "R33",
+ "source": "output/temper-manufacturing-r31/design/r31/CONTROLLER-SPEC.md (R31 section; R30 mounting/height) + output/temper-manufacturing-r33/design/r33/DECISIONS.md section 3 (R33 delta; R35 unchanged)",
  "transform": "kx = X + 58, ky = 110 - Y (layout/world.py)",
  "checks": {
   "outline": {
@@ -137,40 +137,14 @@
      "body_on_board": true
     },
     {
-     "ref": "J5",
+     "ref": "J7",
      "spec": [
-      -32.0,
-      64.0
+      46.0,
+      60.0
      ],
      "body_centre": [
-      -32.0,
-      64.0
-     ],
-     "error_mm": 0.0,
-     "body_on_board": true
-    },
-    {
-     "ref": "J6",
-     "spec": [
-      35.0,
-      70.0
-     ],
-     "body_centre": [
-      35.0,
-      70.0
-     ],
-     "error_mm": 0.0,
-     "body_on_board": true
-    },
-    {
-     "ref": "J8",
-     "spec": [
-      15.0,
-      41.0
-     ],
-     "body_centre": [
-      15.0,
-      41.0
+      46.0,
+      60.0
      ],
      "error_mm": 0.0,
      "body_on_board": true
@@ -200,9 +174,35 @@
      ],
      "error_mm": 0.0,
      "body_on_board": true
+    },
+    {
+     "ref": "J12",
+     "spec": [
+      126.0,
+      86.0
+     ],
+     "body_centre": [
+      126.0,
+      86.0
+     ],
+     "error_mm": 0.0,
+     "body_on_board": true
     }
    ],
-   "j3_body_along_rear_edge": true
+   "j3_body_along_rear_edge": true,
+   "j7_body_world": [
+    29.75,
+    57.026,
+    62.25,
+    62.974
+   ],
+   "j7_spec": [
+    29.8,
+    57.1,
+    62.2,
+    62.9
+   ],
+   "j7_max_edge_error_mm": 0.074
   },
   "j4": {
    "ok": true,
@@ -229,36 +229,44 @@
   },
   "wroom": {
    "ok": true,
+   "part": "ESP32-S3-WROOM-1U-N8",
    "body_world": [
-    -20.05,
-    14.0,
-    -1.95,
-    39.6
+    140.95,
+    50.25,
+    159.05,
+    69.55
    ],
    "spec": [
-    -20.0,
-    14.0,
-    -2.0,
-    39.5
+    141.0,
+    50.0,
+    159.0,
+    69.5
    ],
-   "max_edge_error_mm": 0.1,
-   "antenna_end": "front",
-   "keepout_world": [
-    -35.0,
-    -0.95,
-    13.0,
-    20.05
+   "max_edge_error_mm": 0.25,
+   "body_inside_box": true,
+   "ufl_world": [
+    156.0,
+    67.04
    ],
-   "keepout_rule_flags_ok": true,
-   "copper_in_keepout": [],
+   "ufl_end": "rear",
+   "parts_within_ufl_clear_radius": [],
+   "ufl_clear_radius_mm": 3.0,
    "enclosure_conflicts": [
     {
-     "hole": [
-      -34.0,
-      18.0
+     "item": "U.FL position",
+     "r33_spec": [
+      150.0,
+      67.0
      ],
-     "module_side_to_hole_centre_mm": 13.95,
-     "note": "hole is a copper-free milled cutout and its R30 support is an all-nylon snap-in, so the keep-out holds no copper and no metal; enclosure to confirm, or move the hole >= 19 mm from the module side"
+     "drawing_based": [
+      156.0,
+      67.04
+     ],
+     "delta_mm": [
+      6.0,
+      0.04
+     ],
+     "note": "Espressif WROOM-1/-1U DS v1.8 Figure 10-2: the U.FL is 3.0 mm from the module's right edge and 2.46 mm from its antenna-end edge, not on the centreline; with the body on the R33 box the receptacle is at the drawing-based point. Enclosure to move the coax entry"
     }
    ]
   },
@@ -266,8 +274,16 @@
    "ok": true,
    "allowance_mm": 15.4,
    "parts": {
-    "JST XH (J1-J3, J6, J8-J10)": {
-     "height_mm": 7.0,
+    "JST XH mated (J1-J3, J7, J9, J10, J12; JST eXH.pdf 9.8 assembled)": {
+     "height_mm": 9.8,
+     "limit_mm": 15.4
+    },
+    "J4 43045-1600 + 43025-1600 mated (Molex 43045 series part data 10.29)": {
+     "height_mm": 10.29,
+     "limit_mm": 15.4
+    },
+    "J11 61300811121 pin tips (Wurth DS rev 003, 11.54 - 3.0)": {
+     "height_mm": 8.54,
      "limit_mm": 15.4
     },
     "C1 EEE-FK1E101P": {
@@ -278,19 +294,15 @@
      "height_mm": 4.5,
      "limit_mm": 6.4
     },
-    "U4 ESP32-S3-WROOM-1": {
-     "height_mm": 3.25,
+    "U4 ESP32-S3-WROOM-1U (Espressif DS v1.8 Table 1-2)": {
+     "height_mm": 3.2,
      "limit_mm": 6.4
-    },
-    "J5 Micro-MaTch 215079-6": {
-     "height_mm": 4.3,
-     "limit_mm": 15.4
     }
    },
    "not_checked": [
-    "J4 43045-1600 and mated plug (Molex drawing not read; R31: plug to X-50, Z<=40)",
-    "J11 1x8 2.54 mm header (bring-up only, may be unfitted)",
-    "mated XH plugs and cable bends"
+    "J4 plug overhang beyond the board edge (R31: to X-50); the 43045-1600 sales drawing itself was not readable from this network, the mated height is the 43045 series figure",
+    "cable bends above the mated XH housings (harness)",
+    "a socket mated on J11"
    ]
   },
   "decoupling": {
@@ -308,63 +320,63 @@
      "pin": "U11.5",
      "net": "v3v3",
      "cap": "C41",
-     "distance_mm": 2.0,
+     "distance_mm": 1.98,
      "ok": true
     },
     {
      "pin": "U12.5",
      "net": "v3v3",
      "cap": "C40",
-     "distance_mm": 2.0,
+     "distance_mm": 1.98,
      "ok": true
     },
     {
      "pin": "U14.16",
      "net": "v15_selv",
-     "cap": "C59",
-     "distance_mm": 2.56,
+     "cap": "C62",
+     "distance_mm": 2.53,
      "ok": true
     },
     {
      "pin": "U14.17",
      "net": "v15_selv",
-     "cap": "C59",
-     "distance_mm": 2.31,
+     "cap": "C62",
+     "distance_mm": 2.34,
      "ok": true
     },
     {
      "pin": "U14.18",
      "net": "v15_selv",
-     "cap": "C59",
-     "distance_mm": 2.22,
+     "cap": "C62",
+     "distance_mm": 2.31,
      "ok": true
     },
     {
      "pin": "U15.8",
      "net": "v3v3",
-     "cap": "C62",
+     "cap": "C65",
      "distance_mm": 1.98,
      "ok": true
     },
     {
      "pin": "U17.5",
      "net": "v3v3",
-     "cap": "C69",
-     "distance_mm": 2.94,
+     "cap": "C18",
+     "distance_mm": 2.21,
      "ok": true
     },
     {
      "pin": "U18.5",
      "net": "v3v3",
-     "cap": "C18",
+     "cap": "C20",
      "distance_mm": 2.21,
      "ok": true
     },
     {
      "pin": "U19.5",
      "net": "v3v3",
-     "cap": "C20",
-     "distance_mm": 2.21,
+     "cap": "C21",
+     "distance_mm": 1.98,
      "ok": true
     },
     {
@@ -378,7 +390,7 @@
      "pin": "U21.5",
      "net": "v3v3",
      "cap": "C38",
-     "distance_mm": 2.21,
+     "distance_mm": 1.98,
      "ok": true
     },
     {
@@ -406,35 +418,35 @@
      "pin": "U25.5",
      "net": "v3v3",
      "cap": "C39",
-     "distance_mm": 2.21,
-     "ok": true
-    },
-    {
-     "pin": "U26.5",
-     "net": "v3v3",
-     "cap": "C21",
      "distance_mm": 1.98,
      "ok": true
     },
     {
-     "pin": "U27.5",
+     "pin": "U26.5",
      "net": "v3v3",
      "cap": "C22",
      "distance_mm": 1.98,
      "ok": true
     },
     {
-     "pin": "U28.5",
+     "pin": "U27.5",
      "net": "v3v3",
      "cap": "C23",
      "distance_mm": 2.21,
      "ok": true
     },
     {
-     "pin": "U29.5",
+     "pin": "U28.5",
      "net": "v3v3",
      "cap": "C24",
      "distance_mm": 2.21,
+     "ok": true
+    },
+    {
+     "pin": "U29.4",
+     "net": "v3v3",
+     "cap": "C28",
+     "distance_mm": 1.98,
      "ok": true
     },
     {
@@ -448,7 +460,7 @@
      "pin": "U30.2",
      "net": "v3v3",
      "cap": "C26",
-     "distance_mm": 2.27,
+     "distance_mm": 2.37,
      "ok": true
     },
     {
@@ -459,44 +471,44 @@
      "ok": true
     },
     {
-     "pin": "U31.4",
-     "net": "v3v3",
-     "cap": "C28",
-     "distance_mm": 1.98,
-     "ok": true
-    },
-    {
-     "pin": "U32.5",
+     "pin": "U31.5",
      "net": "RTD_AVDD",
      "cap": "C29",
      "distance_mm": 1.98,
      "ok": true
     },
     {
-     "pin": "U33.5",
+     "pin": "U32.5",
      "net": "RTD_AVDD",
      "cap": "C30",
-     "distance_mm": 1.98,
+     "distance_mm": 2.0,
      "ok": true
     },
     {
-     "pin": "U34.5",
+     "pin": "U33.5",
      "net": "RTD_AVDD",
      "cap": "C31",
      "distance_mm": 1.98,
      "ok": true
     },
     {
-     "pin": "U35.4",
+     "pin": "U34.4",
      "net": "v3v3",
      "cap": "C32",
      "distance_mm": 1.73,
      "ok": true
     },
     {
-     "pin": "U36.5",
+     "pin": "U35.5",
      "net": "v3v3",
      "cap": "C33",
+     "distance_mm": 2.21,
+     "ok": true
+    },
+    {
+     "pin": "U36.5",
+     "net": "v3v3",
+     "cap": "C55",
      "distance_mm": 1.98,
      "ok": true
     },
@@ -508,10 +520,24 @@
      "ok": true
     },
     {
+     "pin": "U38.5",
+     "net": "v3v3",
+     "cap": "C71",
+     "distance_mm": 2.21,
+     "ok": true
+    },
+    {
+     "pin": "U39.5",
+     "net": "v3v3",
+     "cap": "C72",
+     "distance_mm": 2.21,
+     "ok": true
+    },
+    {
      "pin": "U4.2",
      "net": "v3v3",
-     "cap": "C63",
-     "distance_mm": 2.05,
+     "cap": "C66",
+     "distance_mm": 2.06,
      "ok": true
     },
     {
@@ -538,7 +564,7 @@
     {
      "pin": "U8.24",
      "net": "v3v3",
-     "cap": "C66",
+     "cap": "C69",
      "distance_mm": 1.81,
      "ok": true
     },
@@ -574,33 +600,32 @@
     "IL_WDI",
     "PERMIT_RB",
     "RAIL_OK_RB",
-    "RUN_EN",
-    "SUP_RUN_OK_RB"
+    "RUN_EN"
    ],
    "route_length_mm": {
-    "permit": 62.4,
-    "PERMIT_LATCH": 50.2,
-    "RUN_EN": 32.1,
-    "bus_fault": 47.0,
-    "all_good": 38.5,
-    "reset_clock": 48.3,
-    "latched_fault": 19.4,
-    "HS_FAULT": 46.2,
-    "COIL_FAULT": 75.6,
-    "line": 204.7,
-    "RUNAWAY_FAULT": 176.0,
-    "RAIL_FAULT": 30.9,
+    "permit": 72.4,
+    "PERMIT_LATCH": 49.3,
+    "RUN_EN": 233.8,
+    "bus_fault": 89.2,
+    "all_good": 37.0,
+    "reset_clock": 41.6,
+    "latched_fault": 54.4,
+    "HS_FAULT": 91.3,
+    "COIL_FAULT": 97.3,
+    "line": 176.9,
+    "RUNAWAY_FAULT": 148.4,
+    "RAIL_FAULT": 34.1,
     "SENSOR_LIVE": 17.1
    }
   },
   "thermal_relief": {
    "ok": true,
    "zones": [
-    "VIN_3V3",
-    "SW_12",
-    "SW_3V3",
     "GND_F",
     "VIN_12",
+    "SW_3V3",
+    "SW_12",
+    "VIN_3V3",
     "GND_B",
     "GND_plane",
     "V3V3_plane"
@@ -613,31 +638,31 @@
    "rule": "L2 >= 10 mm from the RTD analog section (ENCLOSURE-HANDOFF item 6); others reported",
    "separations_mm": {
     "L2/U2 (12 V fan buck) -> RTD front end": {
-     "mm": 12.5,
+     "mm": 10.1,
      "nearest": [
       "L2",
-      "R43"
+      "R64"
      ]
     },
     "L2/U2 (12 V fan buck) -> thermal-sense": {
-     "mm": 77.1,
+     "mm": 54.1,
      "nearest": [
       "U2",
       "R27"
      ]
     },
     "L2/U2 (12 V fan buck) -> J4 analog": {
-     "mm": 98.8,
+     "mm": 75.9,
      "nearest": [
       "U2",
-      "R81"
+      "U7"
      ]
     },
     "L1/U1 (3.3 V buck) -> RTD front end": {
-     "mm": 94.7,
+     "mm": 78.7,
      "nearest": [
       "L1",
-      "R48"
+      "R64"
      ]
     },
     "L1/U1 (3.3 V buck) -> thermal-sense": {
@@ -648,10 +673,10 @@
      ]
     },
     "L1/U1 (3.3 V buck) -> J4 analog": {
-     "mm": 9.6,
+     "mm": 36.0,
      "nearest": [
       "U1",
-      "R81"
+      "U15"
      ]
     }
    }

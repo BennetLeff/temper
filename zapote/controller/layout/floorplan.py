@@ -1,4 +1,4 @@
-"""Floorplan (R31): explicit poses for connectors, ICs and the power stages, plus anchor rules for passives.
+"""Floorplan (R33): explicit poses for connectors, ICs and the power stages, plus anchor rules for passives.
 
 World mm (layout/world.py holds every enclosure-owned number; the connector, J4 and WROOM poses
 below are read from it, so an enclosure revision is one edit there). Each explicit entry is
@@ -8,18 +8,21 @@ and "crtyd" the courtyard centre (J4's body envelope). Everything not listed is 
 by layout/build_board.py next to its anchor pin (ANCHOR below, else the IC/connector pin on its
 most specific net).
 
-Regions (R31, world X-38..168; LAYOUT.md "Floorplan" has the picture):
-  left edge    J4 (mating -X, pins 9/10 at the front end); the PERMIT gate U37 in the strip between
-               J4 and the WROOM, at J4.9
-  left         D-11 receiver at J4.11/12, ct_mon buffer at J4.14 (Y41..56)
-  front-mid    AD8436 + MCP3202 right of the module (the area behind the module stays a routing
-               highway for the module's rear-row pins)
-  left-rear    interlock block (Y57..70) and trip glue; U9 read-back buffer towards the MCU; the
-               encoder buffer/LDO beside J5
-  front-left   ESP32-S3-WROOM-1 behind the lens window (fixed); expander behind it
-  rear-mid     thermal-sense block between J2 (X-20) and J1 (X55)
-  front-mid    3.3 V buck (X 28..50, outside the antenna keep-out)
-  right        12 V fan buck beside J10; RTD front end beside J3 (L2 >= 10 mm from the RTD analog parts)
+Keys are atopile instance paths (the footprint's SourceInstance field), except connectors and the
+module, whose designators are fixed in elec/src/controller.ato. Paths do not change when a
+schematic edit renumbers the auto-assigned designators (R33 shifted 16 of them); build_board.py
+resolves them through the frozen netlist and fails on an unknown key.
+
+Regions (R33, world X-38..168; LAYOUT.md "Floorplan" has the picture):
+  left edge    J4 (mating -X, pins 9/10 at the front end); the PERMIT gate in front of J4 at J4.9
+  left         D-11 receiver at J4.11/12, ct_mon buffer at J4.14 (Y41..56); the tank-RMS converter
+               and its MCP3202 in the front-left corner the R31 module used to occupy
+  left-rear    interlock block (Y57..71), trip glue to its right; the read-back buffer in front of it (X22)
+  rear-mid     thermal-sense block between J2 (X-20) and J1 (X55); J7 UI bus (R33) X30..62
+  front-mid    3.3 V buck (X 28..50); free routing field X 40..120 between the halves
+  rear-right   12 V fan buck at X 87..102 (moved off the RTD side); RTD front end X 120..156 between
+               the module and J3 (L2 >= 10 mm from it); fan header J10 and RTD header J3 fixed
+  right        ESP32-S3-WROOM-1U (R33 box), U.FL at its rear-right corner kept clear 3 mm
 """
 from __future__ import annotations
 
@@ -30,104 +33,126 @@ PLACE = {
     **{ref: (x, y, 0, "fab") for ref, (x, y) in world.CONNECTORS.items()},
     "J4": ((world.J4_BODY[0] + world.J4_BODY[2]) / 2, (world.J4_BODY[1] + world.J4_BODY[3]) / 2,
            90 if world.J4_MATING == "-X" else -90, "crtyd"),
-    "U4": ((world.WROOM[0] + world.WROOM[2]) / 2, world.WROOM[1] + 12.8, 180, "fab"),
-    "J11": (84.0, 19.5, 90, "fab"),
-    # ---- PERMIT gate at J4.9: in front of J4 (the strip between J4 and the module is the escape
-    #      channel for the module's left-side pins)
-    "U37": (-32.0, 24.5, 90),
-    "U9": (-4.5, 66.5, 0),         # read-back buffer: inside the interlock block row, outputs to the MCU
+    # WROOM-1U: antenna/U.FL end (footprint -y) toward world +Y, body top edge on the R33 box's rear edge
+    "U4": ((world.WROOM[0] + world.WROOM[2]) / 2, world.WROOM[3] - world.WROOM_BODY_YSPAN / 2, 0, "fab"),
+    "J11": (138.0, 19.0, 90, "fab"),                # bring-up header, next to the module's USB pins
+    # ---- PERMIT gate at J4.9, in front of J4
+    "u_permit": (-32.0, 24.5, 90),
     # ---- J4 analog
-    "U5": (-13.0, 44.0, 0),
-    "U13": (-19.4, 48.4, 90),
-    "U6": (-13.0, 52.5, 0),
-    "U14": (18.0, 25.5, 0),
-    "U15": (8.0, 24.5, 0),
-    # ---- MCU support
-
-    "U8": (36.0, 50.0, 0),
-    # ---- interlock block and trip glue
-    "U20": (-18.0, 59.5, 0),
-    "U21": (-10.0, 59.5, 0),
-    "U25": (-2.0, 59.5, 0),
-    "U23": (-16.0, 67.0, 90),
-    "U22": (8.0, 67.0, 90),
-    "U24": (18.5, 66.0, 90),
-    "U3": (28.0, 58.0, 0),
-    "U11": (28.0, 62.5, 0),
-    "U12": (34.0, 62.5, 0),
-    # ---- encoder buffer / 5 V LDO beside J5
-    "U17": (-18.0, 74.0, 0),
-    "U16": (-12.0, 76.0, 0),
+    "u_rx": (-13.0, 44.0, 0),
+    "u_ref": (-19.4, 48.4, 90),
+    "u_buf1": (-13.0, 52.5, 0),
+    "u_rms": (-11.0, 31.0, 0),
+    "u_adc": (-1.0, 29.0, 0),
+    # ---- interlock block (U20-U25) with the read-back buffer, and the trip glue
+    "interlock.latch": (-18.0, 59.5, 0),
+    "interlock.watchdog": (-10.0, 59.5, 0),
+    "interlock.common": (-2.0, 59.5, 0),
+    "interlock.fault_inv": (-16.0, 67.0, 90),
+    "interlock.aggregate": (8.0, 67.0, 90),
+    "interlock.control_inv": (18.5, 66.0, 90),
+    "u_rb": (22.0, 50.0, 0),       # read-back buffer: in front of the block, outputs toward the module
+    "u_rail": (27.0, 68.5, 0),
+    "u_live": (33.0, 68.5, 0),
+    "u_rail_inv": (39.0, 68.5, 0),
+    # ---- MCU support: expander between the read-back buffer and the module
+    "u_io": (118.0, 44.0, 0),
+    # ---- J7 UI bus (R33): ESD arrays in front of the header, +5 V LDO beside it
+    "u_esd_ui1": (40.0, 53.5, 0),
+    "u_esd_ui2": (52.0, 53.5, 0),
+    "u_v5": (68.0, 62.0, 0),
     # ---- thermal-sense block
-    "U18": (-6.0, 81.0, 0),
-    "U26": (2.0, 81.0, 0),
-    "U28": (-6.0, 86.5, 0),
-    "U19": (30.0, 81.0, 0),
-    "U27": (21.0, 81.0, 0),
-    "U29": (30.0, 86.5, 0),
-    "U7": (11.0, 76.0, 0),
+    "thermal.hs_comp": (-6.0, 81.0, 0),
+    "thermal.hs_open_comp": (2.0, 81.0, 0),
+    "thermal.hs_or": (-6.0, 86.5, 0),
+    "thermal.coil_comp": (30.0, 81.0, 0),
+    "thermal.coil_open_comp": (21.0, 81.0, 0),
+    "thermal.coil_or": (30.0, 86.5, 0),
+    "u_buf2": (11.0, 76.0, 0),
     # ---- 3.3 V buck (cluster: L right of U, SW pour band below; input caps and bulk to the left)
-    "U1": (40.0, 22.75, 0),
-    "L1": (46.3, 18.4, 0),
-    "C3": (42.1, 21.7, -90),
-    "C5": (37.8, 20.1, -90),
-    "C4": (35.8, 19.9, -90),
-    "C1": (28.0, 21.0, 180),
-    # ---- 12 V fan buck beside J10 (same cluster)
-    "U2": (115.0, 80.75, 0),
-    "L2": (121.3, 76.4, 0),
-    "C10": (117.1, 79.7, -90),
-    "C12": (112.8, 78.1, -90),
-    "C11": (110.8, 77.9, -90),
-    # ---- RTD front end (rtd_pan) and the runaway comparator beside J3
-    "U30": (152.0, 72.0, 90),
-    "U31": (142.0, 66.0, 0),
-    "U32": (160.0, 58.0, 0),
-    "U33": (152.0, 58.0, 0),
-    "U34": (160.0, 50.0, 0),
-    "U36": (152.0, 50.0, 0),
-    "U35": (143.0, 54.0, 0),
-    "U10": (142.0, 74.0, 0),
+    "u_3v3": (40.0, 22.75, 0),
+    "l_3v3": (46.3, 18.4, 0),
+    "c_bst_3v3": (42.1, 21.7, -90),
+    "c_in3b": (37.8, 20.1, -90),
+    "c_in3a": (35.8, 19.9, -90),
+    "c_in_bulk": (28.0, 21.0, 180),
+    # ---- 12 V fan buck (same cluster), X 90..105 so L2 stays >= 10 mm from the RTD front end
+    "u_12": (92.0, 80.75, 0),
+    "l_12": (98.3, 76.4, 0),
+    "c_bst_12": (94.1, 79.7, -90),
+    "c_in12b": (89.8, 78.1, -90),
+    "c_in12a": (87.8, 77.9, -90),
+    # ---- RTD front end (rtd_pan) and the runaway comparator, between the module and J3
+    "rtd_pan.adc": (149.0, 76.5, 90),
+    "rtd_pan.reference": (140.0, 78.5, 0),
+    "rtd_pan.low_window": (138.0, 70.5, 0),
+    "rtd_pan.high_window": (131.0, 70.5, 0),
+    "rtd_pan.fault_nand": (124.0, 70.5, 0),
+    "rtd_pan.window_and": (131.0, 77.5, 0),
+    "rtd_pan.rail_monitor": (124.0, 77.5, 0),
+    "u_runaway": (118.0, 74.0, 0),
+    # ---- rim NTC (R36): follower beside J12; divider and filter at its input, ADC RC at the module
+    "u_buf3": (119.5, 81.5, 0),
 }
 
-# Board text (world mm, size): ID and SELV mark on F.Silkscreen in the free front-right area
-SILK = [("TEMPER CONTROLLER", 110.0, 24.0, 2.5), ("SELV  15 V max  -  NO MAINS", 110.0, 20.0, 1.5),
-        ("zapote/controller  rev L1 (enclosure R31)", 110.0, 30.0, 1.2)]
+# Board text (world mm, size): ID and SELV mark on F.Silkscreen in the free front-middle area
+SILK = [("TEMPER CONTROLLER", 98.0, 24.0, 2.5), ("SELV  15 V max  -  NO MAINS", 98.0, 20.0, 1.5),
+        ("zapote/controller  rev L2 (enclosure R33)", 98.0, 30.0, 1.2)]
 
 # Passive -> anchor IC/connector (pin chosen automatically: the anchor pin on the passive's
 # non-ground net). Listed where the automatic "most specific net" choice would pick the wrong
 # end (decoupling, ADC RC filters at the MCU, interlock pull-ups at the interlock, etc.).
 ANCHOR = {
     # decoupling at every IC supply pin
-    "C6": "L1", "C7": "L1", "C8": "L1",
-    "C13": "L2", "C14": "L2",
-    "C16": "U3", "C18": "U18", "C20": "U19", "C21": "U26", "C22": "U27", "C23": "U28", "C24": "U29",
-    "C25": "U30", "C26": "U30", "C28": "U31", "C29": "U32", "C30": "U33", "C31": "U34", "C32": "U35",
-    "C33": "U36", "C34": "U23", "C35": "U24", "C36": "U22", "C37": "U20", "C38": "U21", "C39": "U25",
-    "C40": "U12", "C41": "U11", "C43": "U10", "C44": "U9", "C46": "U5", "C48": "U6", "C50": "U7",
-    "C59": "U14", "C60": "U14", "C62": "U15", "C63": "U4", "C64": "U4", "C66": "U8", "C69": "U17",
-    "C67": "U16", "C68": "U16",
-    # thermal-sense node parts stay in the block (the net also reaches U6 at J4)
-    "R23": "U18", "C17": "U18", "R27": "U19", "C19": "U19",
+    "c_out3a": "l_3v3", "c_out3b": "l_3v3", "c_out3c": "l_3v3",
+    "c_out12a": "l_12", "c_out12b": "l_12",
+    "c_rail": "u_rail",
+    "thermal.hs_bypass": "thermal.hs_comp", "thermal.coil_bypass": "thermal.coil_comp",
+    "thermal.hs_open_bypass": "thermal.hs_open_comp", "thermal.coil_open_bypass": "thermal.coil_open_comp",
+    "thermal.hs_or_bypass": "thermal.hs_or", "thermal.coil_or_bypass": "thermal.coil_or",
+    "rtd_pan.c_vdd": "rtd_pan.adc", "rtd_pan.c_dvdd": "rtd_pan.adc",
+    "rtd_pan.c_reference": "rtd_pan.reference", "rtd_pan.c_low_window": "rtd_pan.low_window",
+    "rtd_pan.c_high_window": "rtd_pan.high_window", "rtd_pan.c_window_and": "rtd_pan.window_and",
+    "rtd_pan.c_rail_monitor": "rtd_pan.rail_monitor", "rtd_pan.c_fault_nand": "rtd_pan.fault_nand",
+    "interlock.fault_inv_bypass": "interlock.fault_inv", "interlock.control_inv_bypass": "interlock.control_inv",
+    "interlock.aggregate_bypass": "interlock.aggregate", "interlock.latch_bypass": "interlock.latch",
+    "interlock.watchdog_bypass": "interlock.watchdog", "interlock.common_bypass": "interlock.common",
+    "c_rail_inv": "u_rail_inv", "c_live": "u_live", "c_runaway": "u_runaway", "c_rb": "u_rb",
+    "c_rx": "u_rx", "c_buf1": "u_buf1", "c_buf2": "u_buf2",
+    "c_rms_vcc": "u_rms", "c_rms_vcc2": "u_rms", "c_adc": "u_adc",
+    "c_mcu_bulk": "U4", "c_mcu_hf": "U4", "c_io": "u_io",
+    "c_v5_in": "u_v5", "c_v5_out": "u_v5",
+    "c_esd_ui1": "u_esd_ui1", "c_esd_ui2": "u_esd_ui2", "c_buf3": "u_buf3",
+    "d_rim": "J12", "r_rim_pu": "u_buf3", "c_rim_filt": "u_buf3", "r_rim_adc": "U4",
+    # thermal-sense node parts stay in the block (the net also reaches the buffer at J4)
+    "thermal.hs_fixed": "thermal.hs_comp", "thermal.hs_filter": "thermal.hs_comp",
+    "thermal.coil_fixed": "thermal.coil_comp", "thermal.coil_filter": "thermal.coil_comp",
     # series / pull parts at the connector end
-    "R9": "J4", "R10": "J4", "R20": "J10", "R17": "Q1", "Q1": "U2",
+    "r_ct_zc": "J4", "r_line_zc": "J4", "r_tach_pu": "J10", "r_fan_off_pd": "q_fan_off", "q_fan_off": "u_12",
+    # J7 (R33): 100 ohm series at the connector end; CS pull-ups at the module
+    "rs_ui_sck": "J7", "rs_ui_mosi": "J7", "rs_ui_miso": "J7", "rs_ui_cs_oled": "J7", "rs_ui_cs_exp": "J7",
+    "rs_ui_dc": "J7", "r_cs_oled_pu": "U4", "r_cs_exp_pu": "U4",
     # RTD SPI 33 ohm series resistors belong to the RTD block (at the MAX31865)
-    "R36": "U30", "R37": "U30", "R38": "U30", "R39": "U30",
-    "R99": "J8", "R100": "J8", "R101": "J8",
+    "rtd_pan.r_sclk": "rtd_pan.adc", "rtd_pan.r_mosi": "rtd_pan.adc", "rtd_pan.r_cs": "rtd_pan.adc",
+    "rtd_pan.r_miso": "rtd_pan.adc",
     # ADC anti-kick RC at the ESP32 pad
-    "R72": "U4", "R75": "U4", "R76": "U4", "R79": "U4",
+    "r_vbus_adc": "U4", "r_hs_adc": "U4", "r_coil_adc": "U4", "r_m12_adc": "U4",
     # interlock pull-ups / pull-downs in the interlock region
-    "R51": "U23", "R52": "U23", "R53": "U23", "R54": "U23", "R55": "U23", "R56": "U23",
-    "R57": "U24", "R58": "U24", "R60": "U24", "R61": "U20", "R59": "U21",
-    "R22": "U3", "R21": "U3",
+    "interlock.ocp_pullup": "interlock.fault_inv", "interlock.ovp_pullup": "interlock.fault_inv",
+    "interlock.hs_pullup": "interlock.fault_inv", "interlock.coil_pullup": "interlock.fault_inv",
+    "interlock.rtd_pullup": "interlock.fault_inv", "interlock.runaway_pullup": "interlock.fault_inv",
+    "interlock.aux_pullup": "interlock.control_inv", "interlock.reset_pullup": "interlock.control_inv",
+    "interlock.live_pulldown": "interlock.control_inv", "interlock.permit_pulldown": "interlock.latch",
+    "interlock.wdi_pulldown": "interlock.watchdog",
+    "r_rail_pu": "u_rail", "r_rail_sense": "u_rail",
     # PERMIT gate (C23): bypass at the gate, RUN_EN pull-down at the gate, PERMIT pull-down at J4.9
-    "C70": "U37", "R102": "U37", "R103": "U37",
-    # 5 V encoder LDO droppers next to the LDO
-    "R92": "U16", "R91": "R92",
-    "R88": "U8", "R89": "U8", "R87": "U4", "R86": "U4", "R85": "U15", "D2": "U15", "R83": "U15",
+    "c_permit": "u_permit", "r_run_en_pd": "u_permit", "r_permit_pd": "u_permit",
+    # +5 V UI LDO droppers next to the LDO
+    "r_v5_drop2": "u_v5", "r_v5_drop": "r_v5_drop2",
+    "r_scl_pu": "u_io", "r_sda_pu": "u_io", "r_dc_pd": "U4", "r_en": "U4",
+    "r_adc_cs_pu": "u_adc", "d_rms_clamp": "u_adc", "r_rms_adc": "u_adc",
 }
 
-# Routing channels kept free of auto-placed parts (world rects): the strip between J4 and the
-# module is the only escape for the module's left-side pins.
-CHANNELS = [(-24.3, 27.8, -20.5, 40.0),    # J4 - module strip
-            (-9.0, 40.2, 8.0, 55.0)]      # behind the module: highway for its rear-row pins
+# Routing channels kept free of auto-placed parts (world rects). R33 moved the module to the
+# right, so the R31 channels around it are gone; none are needed now.
+CHANNELS: list[tuple[float, float, float, float]] = []

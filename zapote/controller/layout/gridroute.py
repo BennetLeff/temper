@@ -622,7 +622,11 @@ def main():
                 ls = ("F",)
             ends.append((p, ls))
         pairs.append((net, ends))
-    pairs.sort(key=lambda q: math.dist(q[1][0][0], q[1][1][0]))
+    # shortest first; nets named in GRIDROUTE_FIRST (route.py's repair step: the nets that were left
+    # open) go ahead of everything, so the copper ripped around their ends is theirs to use
+    import os
+    first = set(filter(None, os.environ.get("GRIDROUTE_FIRST", "").split(",")))
+    pairs.sort(key=lambda q: (q[0] not in first, math.dist(q[1][0][0], q[1][1][0])))
     queue = list(range(len(pairs)))
     ripped_count = {}
     rip_events = 0

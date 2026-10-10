@@ -1,0 +1,72 @@
+#!/usr/bin/env python3
+"""Make KiCad's "zone to zone" unconnected items routable (KiCad Python).
+
+    KICAD_PY layout/plane_islands.py <board.kicad_pcb> <drc.json>     (rewrites drc.json in place)
+
+When In2 signal tracks cut the In2 v3v3 pour into islands, KiCad reports the plane net as
+"Zone ... -> Zone ..." with both positions at the zone's first corner, which gives the router
+nothing to aim at. This replaces every such item with a real pair: for each island that is
+not the largest, the closest two v3v3 vias (or through-hole pads) of that island and of the
+rest of the net, written as through-hole items so gridroute.py may join them on any layer.
+The board must have filled zones (the DRC run with --refill-zones --save-board does that).
+"""
+import json
+import math
+import sys
+
+import pcbnew
+
+mm = pcbnew.ToMM
+
+
+def main():
+    b = pcbnew.LoadBoard(sys.argv[1])
+    path = sys.argv[2]
+    d = json.load(open(path))
+    zone_items = [u for u in d["unconnected_items"]
+                  if all(e["description"].startswith("Zone") for e in u["items"])]
+    if not zone_items:
+        return
+    keep = [u for u in d["unconnected_items"] if u not in zone_items]
+    for net in sorted({__import__("re").search(r"\[([^\]]+)\]", u["items"][0]["description"]).group(1)
+                       for u in zone_items}):
+        # through-copper anchors of this net: vias and PTH pads
+        anchors = [(mm(t.GetPosition().x), mm(t.GetPosition().y), "via")
+                   for t in b.GetTracks() if t.Type() == pcbnew.PCB_VIA_T and t.GetNetname() == net]
+        anchors += [(mm(p.GetPosition().x), mm(p.GetPosition().y), "pad")
+                    for f in b.GetFootprints() for p in f.Pads()
+                    if p.GetNetname() == net and p.GetAttribute() == pcbnew.PAD_ATTRIB_PTH]
+        islands = []
+        for z in b.Zones():
+            if z.GetNetname() != net or z.GetIsRuleArea():
+                continue
+            for lay in z.GetLayerSet().Seq():
+                fill = z.GetFilledPolysList(lay)
+                for i in range(fill.OutlineCount()):
+                    poly = pcbnew.SHAPE_POLY_SET()
+                    poly.AddOutline(fill.Outline(i))
+                    members = [a for a in anchors
+                               if poly.Contains(pcbnew.VECTOR2I(pcbnew.FromMM(a[0]), pcbnew.FromMM(a[1])))]
+                    if members:
+                        islands.append((poly.Area(), members))
+        if len(islands) < 2:
+            continue
+        islands.sort(key=lambda t: -t[0])
+        main_set = islands[0][1]
+        for _, members in islands[1:]:
+            best = min(((math.dist(a[:2], m[:2]), a, m) for a in members for m in main_set if a[:2] != m[:2]),
+                       default=None)
+            if best is None:
+                continue
+            _, a, m = best
+            keep.append({"description": "plane island (plane_islands.py)", "items": [
+                {"description": f"Via [{net}] on F.Cu - B.Cu", "pos": {"x": a[0], "y": a[1]}},
+                {"description": f"Via [{net}] on F.Cu - B.Cu", "pos": {"x": m[0], "y": m[1]}}]})
+            main_set = main_set + members
+    d["unconnected_items"] = keep
+    json.dump(d, open(path, "w"), indent=1)
+    print(f"plane islands: {len(zone_items)} zone items replaced")
+
+
+if __name__ == "__main__":
+    main()

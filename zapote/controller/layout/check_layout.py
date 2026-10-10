@@ -3,16 +3,18 @@
 
     KICAD_PY layout/check_layout.py [pcb/controller.kicad_pcb]   -> evidence/layout-check.json, exit 1 on FAIL
 
-Enclosure (output/temper-manufacturing-r31/design/r31/CONTROLLER-SPEC.md, R31 section, via layout/world.py):
-  outline     Edge.Cuts is exactly the X-168..38 / Y14..90 rectangle, 1.6 mm board, 4 copper layers
-  holes       six 4.0 mm holes (R30) at the R28 positions (+-0.05 mm), nothing else cut
+Enclosure (R31 CONTROLLER-SPEC section + R33 DECISIONS section 3 delta, via layout/world.py):
+  outline     Edge.Cuts is exactly the X-38..168 / Y14..90 rectangle, 1.6 mm board, 4 copper layers
+  holes       six 4.0 mm holes (R30) at the R31 positions (+-0.05 mm), nothing else cut
   hole_keepout  no courtyard, pad, track, via or copper fill inside the 8 mm snap-in head circle
-  connectors  J1-J3, J5, J6, J8-J10 body (F.Fab) centre within 0.5 mm of the R31 centre; J3 body along the rear edge
+  connectors  J1-J3, J7, J9, J10, J12 body (F.Fab) centre within 0.5 mm of the spec centre (J12: the
+              proposed R36 landing in world.py), J7's body edges
+              within 0.5 mm of its R33 box; J3 body along the rear edge
   j4          courtyard within 0.5 mm of world.J4_BODY, mating face (pegs) toward world.J4_MATING at that edge
-  wroom       body within 0.5 mm of X-54..-36 / Y14..39.5, antenna end at the front edge, the footprint's
-              Espressif keep-out rule area intact and free of copper on every layer
+  wroom       WROOM-1U body inside the R33 box with every edge within 0.5 mm, U.FL end at the rear;
+              no other courtyard within 3 mm of the U.FL (drawing position reported against R33's)
   height      tallest parts against the 15.4 mm allowance (Z40 - Z23 - 1.6, R30) and R28's 6.4 mm
-              allocation for non-connector parts (heights: ENCLOSURE-HANDOFF.md list)
+              allocation for non-connector parts (heights and sources: ENCLOSURE-HANDOFF.md table)
 Layout rules (brief):
   decoupling  every IC supply pin (the 'vcc' pins of verify_controller's part models) has a capacitor to
               selv_gnd on the same net within 5 mm (pad to pad)
@@ -35,14 +37,15 @@ import world  # noqa: E402
 
 mm = pcbnew.ToMM
 TOL = world.CONNECTOR_TOL
-GATE = ["U37", "C70", "R102", "R103"]
-INTERLOCK = ["U20", "U21", "U22", "U23", "U24", "U25", "R51", "R52", "R53", "R54", "R55", "R56", "R57", "R58",
-             "R59", "R60", "R61", "C34", "C35", "C36", "C37", "C38", "C39", "U37", "C70", "R102", "R103"]
-# Part heights above the board, mm (ENCLOSURE-HANDOFF.md "Height and cable exit"; J4 and J11 from the
-# KiCad footprint/3D model family, flagged in LAYOUT.md as not checked against a drawing)
-HEIGHTS = {"JST XH (J1-J3, J6, J8-J10)": 7.0, "C1 EEE-FK1E101P": 6.2, "L1/L2 SWPA6045": 4.5,
-           "U4 ESP32-S3-WROOM-1": 3.25, "J5 Micro-MaTch 215079-6": 4.3}
-CONNECTOR_PARTS = {"JST XH (J1-J3, J6, J8-J10)", "J5 Micro-MaTch 215079-6"}
+# Groups by atopile path (footprint SourceInstance): stable when a schematic edit renumbers designators
+GATE_PATHS = ["u_permit", "c_permit", "r_run_en_pd", "r_permit_pd"]
+# Part heights above the board, mm, with their drawing sources (ENCLOSURE-HANDOFF.md "Height and cable exit")
+HEIGHTS = {"JST XH mated (J1-J3, J7, J9, J10, J12; JST eXH.pdf 9.8 assembled)": 9.8,
+           "J4 43045-1600 + 43025-1600 mated (Molex 43045 series part data 10.29)": 10.29,
+           "J11 61300811121 pin tips (Wurth DS rev 003, 11.54 - 3.0)": 8.54,
+           "C1 EEE-FK1E101P": 6.2, "L1/L2 SWPA6045": 4.5,
+           "U4 ESP32-S3-WROOM-1U (Espressif DS v1.8 Table 1-2)": 3.2}
+CONNECTOR_PARTS = {k for k in HEIGHTS if k.startswith(("JST", "J4", "J11"))}
 
 
 def wbox(b):
@@ -82,6 +85,12 @@ def main():
     path = sys.argv[1] if len(sys.argv) > 1 else str(UNIT / "pcb/controller.kicad_pcb")
     b = pcbnew.LoadBoard(path)
     fps = {f.GetReference(): f for f in b.GetFootprints()}
+    path_ref = {f.GetFieldText("SourceInstance"): r_ for r_, f in fps.items()}
+    INTERLOCK = sorted(r_ for r_, f in fps.items() if f.GetFieldText("SourceInstance").startswith("interlock."))
+    LATCH_ICS = [r_ for r_ in INTERLOCK if r_.startswith("U")]
+    GATE = [path_ref[p_] for p_ in GATE_PATHS]
+    INTERLOCK += GATE
+    RB = path_ref["u_rb"]
     res = {}
 
     def put(name, ok, **kw):
@@ -159,7 +168,10 @@ def main():
                      "body_on_board": inside})
     j3 = wbox(layer_bbox(fps["J3"], pcbnew.F_Fab))
     j3_along = (j3[2] - j3[0]) > (j3[3] - j3[1])
-    put("connectors", ok and j3_along, tolerance_mm=TOL, rows=rows, j3_body_along_rear_edge=j3_along)
+    j7 = wbox(layer_bbox(fps["J7"], pcbnew.F_Fab))
+    j7_err = max(abs(a - s_) for a, s_ in zip(j7, world.J7_BODY))
+    put("connectors", ok and j3_along and j7_err <= TOL, tolerance_mm=TOL, rows=rows, j3_body_along_rear_edge=j3_along,
+        j7_body_world=[round(v, 3) for v in j7], j7_spec=list(world.J7_BODY), j7_max_edge_error_mm=round(j7_err, 3))
 
     # ---- J4
     j4 = fps["J4"]
@@ -178,71 +190,49 @@ def main():
         mating=mating, mating_required=world.J4_MATING, at_board_edge=edge_ok,
         pin1_world=[round(v, 3) for v in world.to_w(mm(pin1.GetPosition().x), mm(pin1.GetPosition().y))])
 
-    # ---- WROOM + antenna keep-out
+    # ---- WROOM-1U (R33): body in its box, U.FL end at the rear, U.FL clear of other parts
     u4 = fps["U4"]
     fb = wbox(layer_bbox(u4, pcbnew.F_Fab))
-    e = max(abs(a - s) for a, s in zip(fb, world.WROOM))
-    ras = [z for z in u4.Zones() if z.GetIsRuleArea()]
-    ko = None
-    if ras:
-        zb = ras[0].GetBoundingBox()
-        ko = wbox((mm(zb.GetLeft()), mm(zb.GetTop()), mm(zb.GetRight()), mm(zb.GetBottom())))
-    antenna_front = ko is not None and (ko[1] + ko[3]) / 2 < (fb[1] + fb[3]) / 2
-    ko_size_ok = ko is not None and abs((ko[2] - ko[0]) - 48.0) < 0.05 and abs((ko[3] - ko[1]) - 21.0) < 0.05
-    flags = ras[0] if ras else None
-    flags_ok = flags is not None and all([flags.GetDoNotAllowTracks(), flags.GetDoNotAllowVias(), flags.GetDoNotAllowPads(),
-                                         flags.GetDoNotAllowZoneFills(), flags.GetDoNotAllowFootprints()]) \
-        and flags.GetLayerSet().Contains(pcbnew.In1_Cu) and flags.GetLayerSet().Contains(pcbnew.In2_Cu)
-    copper = []
-    if ko:
-        kb = (ko[0], max(ko[1], world.BOARD[1]), ko[2], ko[3])
-        k0 = world.to_k(kb[0], kb[3])
-        k1 = world.to_k(kb[2], kb[1])
-        rect = pcbnew.SHAPE_POLY_SET()
-        rect.NewOutline()
-        for x, y in ((k0[0], k0[1]), (k1[0], k0[1]), (k1[0], k1[1]), (k0[0], k1[1])):
-            rect.Append(pcbnew.FromMM(x), pcbnew.FromMM(y))
-        for t in b.GetTracks():
-            tb = t.GetBoundingBox()
-            if not (mm(tb.GetRight()) < k0[0] or mm(tb.GetLeft()) > k1[0] or mm(tb.GetBottom()) < k0[1] or mm(tb.GetTop()) > k1[1]):
-                copper.append(f"track/via {t.GetNetname()}")
-        for f in b.GetFootprints():
-            for p in f.Pads():
-                pb = p.GetBoundingBox()
-                if not (mm(pb.GetRight()) < k0[0] or mm(pb.GetLeft()) > k1[0] or mm(pb.GetBottom()) < k0[1] or mm(pb.GetTop()) > k1[1]):
-                    copper.append(f"pad {f.GetReference()}.{p.GetNumber()}")
-        for z in b.Zones():
-            if z.GetIsRuleArea():
-                continue
-            for lay in z.GetLayerSet().Seq():
-                fill = pcbnew.SHAPE_POLY_SET(z.GetFilledPolysList(lay))
-                if fill.OutlineCount():
-                    fill.BooleanIntersection(rect)
-                    if fill.OutlineCount() and fill.Area() > 1e6 * 0.01:     # > 0.01 mm^2
-                        copper.append(f"fill {z.GetZoneName()} {pcbnew.LayerName(lay)}")
-    # enclosure-owned conflict: holes inside Espressif's 15 mm lateral clearance (no copper; nylon at board level)
-    conflicts = []
-    if ko:
-        for hx, hy in world.HOLES:
-            if ko[0] <= hx <= ko[2] and ko[1] <= hy <= ko[3]:
-                conflicts.append({"hole": [hx, hy], "module_side_to_hole_centre_mm": round(min(abs(hx - fb[0]), abs(hx - fb[2])), 2),
-                                  "note": "hole is a copper-free milled cutout and its R30 support is an all-nylon snap-in, "
-                                          "so the keep-out holds no copper and no metal; enclosure to confirm, or move "
-                                          "the hole >= 19 mm from the module side"})
-    put("wroom", e <= TOL and antenna_front and ko_size_ok and flags_ok and not copper,
-        body_world=[round(v, 3) for v in fb], spec=list(world.WROOM), max_edge_error_mm=round(e, 3),
-        antenna_end="front" if antenna_front else "rear", keepout_world=[round(v, 3) for v in ko] if ko else None,
-        keepout_rule_flags_ok=flags_ok, copper_in_keepout=copper, enclosure_conflicts=conflicts)
+    e = max(abs(a_ - s_) for a_, s_ in zip(fb, world.WROOM))
+    inside = fb[0] >= world.WROOM[0] - 0.06 and fb[1] >= world.WROOM[1] - 0.06 and fb[2] <= world.WROOM[2] + 0.06 \
+        and fb[3] <= world.WROOM[3] + 0.06      # F.Fab outline line width 0.1 widens the bbox 0.05
+    ang = math.radians(u4.GetOrientationDegrees())
+    fx, fy = world.UFL_FP
+    ukx = mm(u4.GetPosition().x) + fx * math.cos(ang) + fy * math.sin(ang)
+    uky = mm(u4.GetPosition().y) - fx * math.sin(ang) + fy * math.cos(ang)
+    ufl = world.to_w(ukx, uky)
+    ufl_rear = ufl[1] > (fb[1] + fb[3]) / 2
+    c = pcbnew.VECTOR2I(pcbnew.FromMM(ukx), pcbnew.FromMM(uky))
+    near = []
+    for ref, f in fps.items():
+        if ref == "U4":
+            continue
+        cy = f.GetCourtyard(pcbnew.F_CrtYd)
+        if cy.OutlineCount() and cy.Collide(c, pcbnew.FromMM(world.UFL_CLEAR_R)):
+            near.append(ref)
+    ufl_delta = [round(ufl[0] - world.UFL_SPEC[0], 2), round(ufl[1] - world.UFL_SPEC[1], 2)]
+    put("wroom", e <= TOL and inside and ufl_rear and not near,
+        part=u4.GetFieldText("MPN"), body_world=[round(v, 3) for v in fb], spec=list(world.WROOM),
+        max_edge_error_mm=round(e, 3), body_inside_box=inside,
+        ufl_world=[round(v, 2) for v in ufl], ufl_end="rear" if ufl_rear else "front",
+        parts_within_ufl_clear_radius=near, ufl_clear_radius_mm=world.UFL_CLEAR_R,
+        enclosure_conflicts=[{"item": "U.FL position", "r33_spec": list(world.UFL_SPEC), "drawing_based": [round(v, 2) for v in ufl],
+                              "delta_mm": ufl_delta,
+                              "note": "Espressif WROOM-1/-1U DS v1.8 Figure 10-2: the U.FL is 3.0 mm from the module's right "
+                                      "edge and 2.46 mm from its antenna-end edge, not on the centreline; with the body "
+                                      "on the R33 box the receptacle is at the drawing-based point. Enclosure to move the "
+                                      "coax entry"}] if abs(ufl_delta[0]) > TOL or abs(ufl_delta[1]) > TOL else [])
 
     # ---- height
     allowance = world.Z_LIMIT - world.BOARD_BOTTOM_Z - world.THICKNESS
     rows = {k: {"height_mm": v, "limit_mm": allowance if k in CONNECTOR_PARTS else 6.4} for k, v in HEIGHTS.items()}
     put("height", all(v["height_mm"] <= v["limit_mm"] for v in rows.values()), allowance_mm=round(allowance, 2),
-        parts=rows, not_checked=["J4 43045-1600 and mated plug (Molex drawing not read; R31: plug to X-50, Z<=40)",
-                                 "J11 1x8 2.54 mm header (bring-up only, may be unfitted)", "mated XH plugs and cable bends"])
+        parts=rows, not_checked=["J4 plug overhang beyond the board edge (R31: to X-50); the 43045-1600 sales drawing "
+                                 "itself was not readable from this network, the mated height is the 43045 series figure",
+                                 "cable bends above the mated XH housings (harness)", "a socket mated on J11"])
 
     # ---- decoupling
-    supplies = {"v3v3", "v15_selv", "RTD_AVDD", "V5_ENC", "v5_drop", "v12_fan"}
+    supplies = {"v3v3", "v15_selv", "RTD_AVDD", "V5_UI", "v5_drop", "v12_fan"}
     caps = [f for r_, f in fps.items() if r_.startswith("C")]
     # supply pins = the "vcc" pins of the part models in tools/verify_controller.py (datasheet pin
     # tables); parts without a model: every pin on a supply net
@@ -279,9 +269,9 @@ def main():
     mcu_nets = {p.GetNetname() for p in fps["U4"].Pads()} - {"selv_gnd", "v3v3", ""}
     # MCU nets that end in a region by design (requests into the interlock: IL_RESET_N, IL_WDI,
     # RUN_EN; the read-back outputs of U9) are allowed in; any other MCU net crossing fails
-    ends_inside = {p.GetNetname() for ref in INTERLOCK + ["U9"] for p in fps[ref].Pads()}
+    ends_inside = {p.GetNetname() for ref in INTERLOCK + [RB] for p in fps[ref].Pads()}
     regions = {}
-    for name, refs in (("latch block", ["U20", "U21", "U22", "U23", "U24", "U25"]), ("PERMIT gate", GATE)):
+    for name, refs in (("latch block", LATCH_ICS), ("PERMIT gate", GATE)):
         xs, ys = [], []
         for ref in refs:
             x0, y0, x1, y1 = layer_bbox(fps[ref], pcbnew.F_CrtYd)
@@ -341,11 +331,15 @@ def main():
         dy = max(rb[1] - ra[3], ra[1] - rb[3], 0)
         return math.hypot(dx, dy)
     rtd_analog = [r for r in fps if fps[r].GetFieldText("SourceInstance").startswith("rtd_pan.")
-                  and not r.startswith("J")] + ["U10", "R63", "R64", "C42"]
+                  and not r.startswith("J")] + [path_ref[p_] for p_ in ("u_runaway", "r_runaway_top", "r_runaway_bot",
+                                                                         "c_runaway_th")]
     thermal = [r for r in fps if fps[r].GetFieldText("SourceInstance").startswith("thermal.") and not r.startswith("J")]
-    analog_j4 = ["U5", "U6", "U7", "U13", "U14", "U15", "R65", "R66", "R67", "R68", "R70", "R71", "R73", "R80",
-                 "R81", "R82", "C54", "C55", "C56", "C57", "C58"]
-    sw = {"L2/U2 (12 V fan buck)": ["L2", "U2"], "L1/U1 (3.3 V buck)": ["L1", "U1"]}
+    analog_j4 = [path_ref[p_] for p_ in ("u_rx", "u_buf1", "u_buf2", "u_ref", "u_rms", "u_adc", "r_rx_n", "r_rx_p",
+                                         "r_rx_f", "r_rx_b", "r_bias_top", "r_bias_bot", "r_ct_mon_def", "r_rms_bias",
+                                         "r_rms_gf", "r_rms_gg", "c_rms_in", "c_rms_core", "c_rms_avg", "c_rms_ignd",
+                                         "c_rms_lpf")]
+    sw = {"L2/U2 (12 V fan buck)": [path_ref["l_12"], path_ref["u_12"]],
+          "L1/U1 (3.3 V buck)": [path_ref["l_3v3"], path_ref["u_3v3"]]}
     sep = {}
     for name, parts in sw.items():
         for grp_name, grp in (("RTD front end", rtd_analog), ("thermal-sense", thermal), ("J4 analog", analog_j4)):
@@ -356,7 +350,8 @@ def main():
 
     status = "PASS" if all(v["ok"] for v in res.values()) else "FAIL"
     out = {"board": str(Path(path).name), "revision": world.REVISION,
-           "source": "output/temper-manufacturing-r31/design/r31/CONTROLLER-SPEC.md (R31 section; R30 mounting/height)",
+           "source": "output/temper-manufacturing-r31/design/r31/CONTROLLER-SPEC.md (R31 section; R30 mounting/height) "
+                     "+ output/temper-manufacturing-r33/design/r33/DECISIONS.md section 3 (R33 delta; R35 unchanged)",
            "transform": f"kx = X + {world.OX:g}, ky = {world.OY:g} - Y (layout/world.py)", "checks": res,
            "summary": {k: v["ok"] for k, v in res.items()}, "status": status}
     (UNIT / "evidence").mkdir(exist_ok=True)

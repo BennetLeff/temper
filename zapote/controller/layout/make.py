@@ -7,8 +7,9 @@
 Steps (each fails the run on error):
   1. layout/build_board.py      placed board, planes, pours, keep-outs, plane fan-out  (KiCad Python)
   2. layout/build_schematic.py  netlist rendering for schematic parity
-  3. layout/route.py            grid router (layout/gridroute.py) rounds until KiCad reports no open pair,
-                                then the outer GND pours and designators
+  3. layout/route.py            grid router (layout/gridroute.py) rounds, the local repair step for pairs
+                                left open, layout/cleanup.py (loops and dangling copper), then the outer
+                                GND pours and designators
   4. kicad-cli pcb drc --schematic-parity --refill-zones  -> evidence/drc.json  (0 errors, 0 unconnected, parity 0)
   5. layout/jlc_dfm_check.py    -> evidence/jlc-dfm.json
   6. layout/check_layout.py     -> evidence/layout-check.json

@@ -51,7 +51,7 @@ CLASSES = {
     "Analog": {"track_width": 0.15, "clearance": 0.15, "via_diameter": 0.6, "via_drill": 0.3},
 }
 POWER_NETS = [V15, "v12_fan", "sw_3v3", "sw_12"]
-SUPPLY_NETS = ["V5_ENC", "v5_drop", "v5_mid", "RTD_AVDD", "enc_vcc"]
+SUPPLY_NETS = ["V5_UI", "v5_drop", "v5_mid", "RTD_AVDD"]
 ANALOG_NETS = ["HS_SENSE", "COIL_SENSE", "rtd_sense_p", "rtd_sense_n", "rtd_force_p", "rtd_force_n", "vbus_p",
                "vbus_n", "ct_mon", "ct_buf_out", "m12_node", "m12_filt", "p1", "refin_n", "rms_in", "rms_ibuf",
                "rms_ignd", "CT_RMS_CORE", "rms_core_in", "rms_cavg", "rms_obuf", "rms_fb", "CT_RMS_ADC",
@@ -206,19 +206,23 @@ def pose(fp, x, y, rot, ref_layer=None):
 
 
 def forbidden_rects():
-    """KiCad-frame rects no auto-placed part may touch: hole keep-outs, antenna keep-out."""
+    """KiCad-frame rects no auto-placed part or fan-out via may touch: the hole keep-outs. (R33: the
+    WROOM-1U has no on-board antenna, so there is no antenna keep-out.)"""
     out = []
     r = world.HOLE_KEEPOUT_D / 2 + 0.3
     for hx, hy in world.HOLES:
         kx, ky = world.to_k(hx, hy)
         out.append((kx - r, ky - r, kx + r, ky + r))
-    wx0, wy0, wx1, wy1 = world.WROOM
-    cx = (wx0 + wx1) / 2
-    cy = world.WROOM[1] + 12.8                      # module centre; antenna (footprint -y) faces world -Y
-    k0 = world.to_k(cx + world.WROOM_KEEPOUT_FP[0], cy + world.WROOM_KEEPOUT_FP[3] + 0.3)
-    k1 = world.to_k(cx + world.WROOM_KEEPOUT_FP[2], world.WROOM[1])
-    out.append((min(k0[0], k1[0]), min(k0[1], k1[1]), max(k0[0], k1[0]), max(k0[1], k1[1]) + 1))
     return out
+
+
+def ufl_world(u4):
+    """U.FL receptacle centre in world mm (Espressif Figure 10-2 / footprint offset world.UFL_FP)."""
+    a = math.radians(u4.GetOrientationDegrees())
+    fx, fy = world.UFL_FP
+    kx = pcbnew.ToMM(u4.GetPosition().x) + fx * math.cos(a) + fy * math.sin(a)
+    ky = pcbnew.ToMM(u4.GetPosition().y) - fx * math.sin(a) + fy * math.cos(a)
+    return world.to_w(kx, ky)
 
 
 def channel_rects():
@@ -302,9 +306,23 @@ def main():
         f'  (lib (name "{lib}") (type "KiCad") (uri "${{KIPRJMOD}}/libs/{lib}.pretty") (options "") (descr ""))\n'
         for lib in sorted(libs)) + ")\n")
 
+    # ---- floorplan keys: atopile instance paths (stable across designator renumbering) or the
+    # fixed designators of connectors and the module; anything else is an error
+    by_path = {c["path"]: r for r, c in comps.items()}
+
+    def R(key):
+        if key in by_path:
+            return by_path[key]
+        if key in comps and (key.startswith("J") or key == "U4"):
+            return key
+        raise SystemExit(f"floorplan key {key!r} is neither an atopile path in frozen/default.net nor a "
+                         f"fixed connector/module designator")
+    PLACE = {R(k): v for k, v in floorplan.PLACE.items()}
+    ANCHOR = {R(k): R(v) for k, v in floorplan.ANCHOR.items()}
+
     # ---- explicit poses
     placed = {}
-    for ref, spec in floorplan.PLACE.items():
+    for ref, spec in PLACE.items():
         x, y, rot = spec[:3]
         mode = spec[3] if len(spec) > 3 else None
         layer = {"fab": pcbnew.F_Fab, "crtyd": pcbnew.F_CrtYd, None: None}[mode]
@@ -394,15 +412,15 @@ def main():
         v.SetNet(board.FindNet(GND))
         v.SetLocked(True)
         board.Add(v)
-    buck_pours("U1", "L1", "3v3")
-    buck_pours("U2", "L2", "12")
+    buck_pours(R("u_3v3"), R("l_3v3"), "3v3")
+    buck_pours(R("u_12"), R("l_12"), "12")
 
     # ---- anchored passives
     is_active = lambda r: r[0] in "UJ" or r == "Q1" or r.startswith("L")  # noqa: E731
     def anchor_of(ref):
         fp = fps[ref]
         my_nets = [p.GetNetname() for p in fp.Pads() if p.GetNetname()]
-        want = floorplan.ANCHOR.get(ref)
+        want = ANCHOR.get(ref)
         if want:
             # the supply pin is the highest-numbered pad on the shared net (VCC is the last pin of every
             # IC package used here; lower pads on v3v3 are tied-high logic inputs)
@@ -434,10 +452,14 @@ def main():
         return r, next(q for q in fps[r].Pads() if q.GetNumber() == p)
 
     forbid = forbidden_rects()
+    # U.FL (R33): nothing else within world.UFL_CLEAR_R of the receptacle, so the plug stays reachable
+    ux, uy = ufl_world(fps["U4"])
+    k0, k1 = world.to_k(ux - world.UFL_CLEAR_R, uy + world.UFL_CLEAR_R), world.to_k(ux + world.UFL_CLEAR_R, uy - world.UFL_CLEAR_R)
+    forbid.append((k0[0], k0[1], k1[0], k1[1]))
     channels = channel_rects()
     pending = [r for r in comps if r not in placed]
     # decoupling (explicit anchors) first, then by net specificity
-    pending.sort(key=lambda r: (r not in floorplan.ANCHOR, r))
+    pending.sort(key=lambda r: (r not in ANCHOR, r))
     passes = 0
     while pending and passes < 5:
         passes += 1
@@ -449,7 +471,7 @@ def main():
                 continue
             aref, apad = a
             # decoupling caps sit tight to their pin; everything else keeps a routing channel
-            gap_ref = 0.4 if ref.startswith("C") and ref in floorplan.ANCHOR else GAP
+            gap_ref = 0.4 if ref.startswith("C") and ref in ANCHOR else GAP
             fp = fps[ref]
             ax, ay = pcbnew.ToMM(apad.GetPosition().x), pcbnew.ToMM(apad.GetPosition().y)
             target_net = apad.GetNetname()
@@ -465,8 +487,7 @@ def main():
                         fp.SetOrientationDegrees(rot)
                         fp.SetPosition(pcbnew.VECTOR2I(mm(px), mm(py)))
                         r = crt_rect(fp)
-                        # the module's own pin parts (ADC RCs, EN RC, decoupling) may sit in its escape channel
-                        blocked_by = forbid if aref in ("U4", "U9", "U37") else forbid + channels
+                        blocked_by = forbid + channels
                         if not inside_board(r) or any(overlap(r, f) for f in blocked_by):
                             continue
                         if any(overlap(r, q, gap_ref) for q in placed.values()):
@@ -558,7 +579,7 @@ def main():
         X, Y = world.to_w(pcbnew.ToMM(p.x), pcbnew.ToMM(p.y))
         placement[ref] = [round(X, 3), round(Y, 3), round(fp.GetOrientationDegrees(), 1)]
     (PCB / "placement.json").write_text(json.dumps(placement, indent=1) + "\n")
-    print(json.dumps({"footprints": len(fps), "nets": len(nets), "auto_placed": len(comps) - len(floorplan.PLACE),
+    print(json.dumps({"footprints": len(fps), "nets": len(nets), "auto_placed": len(comps) - len(PLACE),
                       "plane_fanout_vias": n_fan}))
 
 
