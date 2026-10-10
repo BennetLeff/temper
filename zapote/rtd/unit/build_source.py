@@ -15,7 +15,7 @@ def run(output: Path) -> None:
     if output.exists():
         raise ValueError('refusing to overwrite a retained source build: ' + str(output))
     (output / 'elec').mkdir(parents=True)
-    shutil.copytree(REPO / 'elec/src', output / 'elec/src')
+    shutil.copytree(REPO / 'zapote/elec-base/src', output / 'elec/src')
     (output / 'ato.yaml').write_text('ato-version: 0.2.69\nbuilds:\n  default:\n    entry: elec/src/rtd_unit.ato:RTDUnit\n')
     proc = block_source.run_atopile_build(output, 'elec/src/rtd_unit.ato', 'RTDUnit')
     (output / 'stdout.txt').write_text(proc.stdout)

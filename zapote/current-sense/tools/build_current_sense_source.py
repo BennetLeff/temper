@@ -36,7 +36,8 @@ def load_block_source(repo: Path):
 
 
 def build(repo: Path, output: Path, entry_file: str = ENTRY_FILE, entry_module: str = ENTRY_MODULE) -> None:
-    source = repo / entry_file
+    # Unit sources live in the shared electrical base (zapote/elec-base/src).
+    source = repo / "zapote" / "elec-base" / entry_file.removeprefix("elec/")
     if not source.is_file():
         raise FileNotFoundError(
             f"pending source entry is absent: {source}; refusing pretend build"
