@@ -2,6 +2,10 @@
 
 This is the electrical side of the R25 controller board. The enclosure team owns the outline, holes, landings and height envelope (CONTROLLER-SPEC R25). Nothing here is a layout; it states what a layout must keep. Coordinates are appliance world mm: board X−168…38, Y14…90, bottom at Z21, top copper at ≈ Z22.6, and the height limit Z40 leaves ≈ 17.4 mm above the board.
 
+**R31 update (2026-10-09):** the enclosure re-posed native-21 by translation, so the whole controller layout is mirrored about X = 0: board X−38…168, J4 on the left edge mating −X, the WROOM at X−20…−2 behind the lens window, and J7 merged into a 4-pin J8 at (15, 41). The R31 coordinates are in `layout/world.py` (the layout's single parameter table) and DECISIONS C25; the coordinates in the tables below are the earlier R25–R28 ones.
+
+**R30 update (2026-10-09):** the board now sits on six snap-in nylon supports in **Ø4.0** holes (same positions, Ø8 free of copper and parts) and is 2 mm higher: bottom Z23, top Z24.6, so ≈ 15.4 mm remain under Z40. The Z values below are R25's; add 2 mm. The layout (LAYOUT.md) implements R30; DECISIONS C24.
+
 ## Connector list (R25 landings)
 
 | Ref | Part (LCSC) | Pins | Harness | Landing (face, X, Y, Z) | Pin map |
@@ -9,8 +13,7 @@ This is the electrical side of the R25 controller board. The enclosure team owns
 | J4 | Molex Micro-Fit 3.0 **43045-1600, 2×8 right-angle** THT with PCB pegs (C277731), mating +X | 16 | SELV_J4_to_controller, 1:1 to native-21 J4 (43025-1600 both ends) | right, 42.2, 42, 34 | 1 v15_selv, 2/4/15 selv_gnd, 3 v3v3 (out), 5–8 pwm_ha/la/hb/lb, 9 permit, 10 bus_fault, 11/12 vbus_p/n, 13 ct_zc, 14 ct_mon, 16 line_zc |
 | J5 | TE Micro-MaTch 7-215079-6, female-on-board 2×3 (C306122) | 6 | UI_controller_to_encoder: Grayhill factory cable plus extension, mates 7-215083-6 | **right (R25 move), 42.2, 64, 36** | 1 +3.3 V, 2 GND, 3 A, 4 B, 5 switch, 6 **+5 V** (current-limited). The extension harness wires the encoder to pin 1 or pin 6 to suit its supply; all signal inputs accept 5 V. **Encoder pin map to confirm** |
 | J6 | JST B8B-XH-A(LF)(SN) (C157972) | 8 | UI_controller_to_OLED | top, −35, 70, 42.2 | 1 +3V3, 2 GND, 3 SCLK, 4 SDIN, 5 CS#, 6 D/C, 7 RES#, 8 GND. At the OLED end the harness ties BS1, BS0, R/W, E and D3–D7 to VSS (4-wire SPI) |
-| J7 | JST B3B-XH-A(LF)(SN) (C144394) | 3 | UI_controller_to_buttons, landing 1 | top, −90, 41, 42.2 | 1 BTN1, 2 BTN2, 3 GND (switch closes to GND) |
-| J8 | JST B2B-XH-A(LF)(SN) (C158012) | 2 | UI_controller_to_buttons, landing 2 | top, 5, 41, 42.2 | 1 BTN3, 2 GND |
+| J8 | JST B4B-XH-A(LF)(SN) (C144395) | 4 | UI_controller_to_buttons (R31: the only landing; J7 deleted) | top, R31 centre (15, 41) | 1 BTN1, 2 BTN2, 3 BTN3, 4 GND (switches close to GND) |
 | J9 | JST B3B-XH-A(LF)(SN) (C144394) | 3 | probe_M12_to_controller | **right (R25 move), 39.2, 86, 35** | 1 probe sense (NTC to GND assumed), 2 GND, 3 shield/drain. **Probe type to confirm** |
 | J10 | JST B3B-XH-A(LF)(SN) (C144394) | 3 | fan_to_controller (Delta PFB0612EHE-F00, 3-wire) | **rear (R25 move), −155, 91.3, 30** | 1 +12 V, 2 GND, 3 tach |
 | J1 | JST B2B-XH-A(LF)(SN) (thermal-sense, unchanged) | 2 | NTC_coil_to_thermal_sense | top, −60, 88, 42.2 | 1 COIL_SENSE, 2 GND (polarity-free NTC) |
@@ -68,4 +71,4 @@ R27 moved the rear holes to (−164, 80), (−75, 86) and (30, 80), and R28 move
     - Put U14 beside the ct_mon buffer U6 near J4.14, and keep its CAVG/coupling C0G capacitors tight to its pins.
     - It runs from v15, so keep its output buffer → 1 kΩ → clamp → U15 CH0 path short, with the clamp at U15.
     - U15 sits on the RTD SPI bus. Place it between the MCU and the RTD front end, not inside the RTD analog area.
-12. **Encoder/button protection.** U17 (LVC2G17), the 1 kΩ series resistors and the pull-ups go near J5/J7/J8. The 5 V LDO U16 and its 2 × 100 Ω droppers (≈ 0.12 W each) go near J5, away from the thermal-sense nodes.
+12. **Encoder/button protection.** U17 (LVC2G17), the 1 kΩ series resistors and the pull-ups go near J5/J8. The 5 V LDO U16 and its 2 × 100 Ω droppers (≈ 0.12 W each) go near J5, away from the thermal-sense nodes.

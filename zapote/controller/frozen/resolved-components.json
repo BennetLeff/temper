@@ -1,9 +1,9 @@
 {
   "atopile_version": "0.2.69",
   "build_sha256": {
-    "build/default.csv": "81760ed4a54c525a6833b1b4c3937f6e43775c677dcf785a989e340db43270fd",
+    "build/default.csv": "67f18abfe3910589af3491aeb626861ecad7b08e7a066ea77c6d13db95200a15",
     "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-    "build/default.net": "dd21424c7dc0da5d43af1a7180dae929738e04acc820d2a75b6c3f7bcefbcd4c",
+    "build/default.net": "4f49b249bf4c5693114c3792c56809d2bfed838e1fc51a6d747bebd414814035",
     "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5"
   },
   "components": [
@@ -2374,23 +2374,13 @@
       }
     },
     {
-      "address": "UNIT/elec/src/controller.ato:SelvController::j_btn_a",
-      "attributes": {
-        "designator": "J7",
-        "designator_prefix": "J",
-        "footprint": "Connector_JST:JST_XH_B3B-XH-A_1x03_P2.50mm_Vertical",
-        "manufacturer": "JST",
-        "mpn": "B3B-XH-A(LF)(SN)"
-      }
-    },
-    {
-      "address": "UNIT/elec/src/controller.ato:SelvController::j_btn_b",
+      "address": "UNIT/elec/src/controller.ato:SelvController::j_btn",
       "attributes": {
         "designator": "J8",
         "designator_prefix": "J",
-        "footprint": "Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical",
+        "footprint": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical",
         "manufacturer": "JST",
-        "mpn": "B2B-XH-A(LF)(SN)"
+        "mpn": "B4B-XH-A(LF)(SN)"
       }
     },
     {
@@ -2442,8 +2432,8 @@
   "source_sha256": {
     "elec/src/components.ato": "423a7d1377bf6d7500b430e3bd0bf88dec53d74e3be59e2ab1fce5971698553b",
     "elec/src/constraints.ato": "f031aedc6655d61335c6b7ebf3d51eac83a5e66b1302a982299cbf4a6c92e21e",
-    "elec/src/controller.ato": "76cdcc05d796b2cfb61a9dc21a758661c1cfcc8e92b696d7162e0e7286be2c7d",
-    "elec/src/controller_parts.ato": "19dc99a9e5f4e13cfbfc95c157f751d4eb69ddf9f04c31be90661e90af67563f",
+    "elec/src/controller.ato": "356cb5b6c68bdefb8d344f46810f4aec7caaf17ffaeffe4281e898c5efeb2e99",
+    "elec/src/controller_parts.ato": "b04ef96fa2a4955f66bc486425bbcf5f6c8008b8c4180e92ad88f70f19238e25",
     "elec/src/fac_utils.ato": "a71fd9ecc48b2a5ad39ba3e637eef8242ca561de811c23063c18764d62ce3d7b",
     "elec/src/footprints.ato": "ae143ccaddd758fcd6a0cef2b8dcb37a1e32b51b59943c43f5e8fc4a848d7b3a",
     "elec/src/generics/interfaces.ato": "05a3dc1a86605241249c0d4e157d87edd6e23e4a2e25ace5169f9e3e6ff7079f",

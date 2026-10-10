@@ -164,8 +164,8 @@ class Mutations(unittest.TestCase):
         self.assertIn("ui.J5.3_ENC_A_5v_safe", self.run_checks(t))
 
     def test_button_without_series_resistor_fails(self):
-        t = move_node(self.base, "J7", "1", "BTN1")
-        self.assertIn("ui.J7.1_BTN1_5v_safe", self.run_checks(t))
+        t = move_node(self.base, "J8", "1", "BTN1")
+        self.assertIn("ui.J8.1_BTN1_5v_safe", self.run_checks(t))
 
     def test_unmodelled_part_on_v3v3_fails_closed(self):
         saved = vc.MODELS.pop("TLV9062IDR")

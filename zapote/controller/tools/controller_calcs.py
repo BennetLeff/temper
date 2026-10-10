@@ -242,42 +242,39 @@ def adc_pattern() -> dict:
 
 
 def landings() -> dict:
-    """R27 harness landings vs the six mounting holes' 8 mm screw-head keepouts.
+    """R31 connector centres vs the six snap-in holes' 8 mm keep-outs.
 
-    Board X-168..38, Y14..90 (world mm); R27 holes (-164,18) (-164,80) (-65,18)
-    (-75,86) (34,18) (26,74) -- the rear three moved inboard in R27, the right-rear again in R28 (J9); keepout
-    radius 4 mm (CONTROLLER-SPEC). A connector centred on its landing (X/Y
-    projected onto the board) needs centre-to-hole >= 4 + half its body length,
-    orientation unknown, so the longest body dimension is used (conservative).
-    Body lengths: JLC listings of the chosen parts (XH 2/3/4/8-pin 7.4/9.9/12.4/22.4,
-    Micro-Fit 2x8 27.65, Micro-MaTch 6-pin 9.7).
+    R31 (output/temper-manufacturing-r31/design/r31/CONTROLLER-SPEC.md, "R31" section) mirrors
+    the assembly about X = 0: board X-38..168, Y14..90; Ø4.0 snap-in holes (164,18) (164,80)
+    (65,18) (75,86) (-34,18) (-26,74); keep-out radius 4 mm. A connector centred on its R31 centre
+    needs centre-to-hole >= 4 + half its body length, orientation unknown, so the longest body
+    dimension is used (conservative). Body lengths: JLC listings of the chosen parts (XH 2/3/4/8-pin
+    7.4/9.9/12.4/22.4, Micro-Fit 2x8 27.65, Micro-MaTch 6-pin 9.7). layout/check_layout.py checks
+    the real bodies on the board.
     """
-    holes = [(-164.0, 18.0), (-164.0, 80.0), (-65.0, 18.0), (-75.0, 86.0), (34.0, 18.0), (26.0, 74.0)]
+    holes = [(164.0, 18.0), (164.0, 80.0), (65.0, 18.0), (75.0, 86.0), (-34.0, 18.0), (-26.0, 74.0)]
     rows = {
-        "J4 SELV (right)": ((42.2, 42.0), 27.65),
-        "J6 OLED (top)": ((-35.0, 70.0), 22.4),
-        "J7 buttons A (top)": ((-90.0, 41.0), 9.9),
-        "J8 button B (top)": ((5.0, 41.0), 7.4),
-        "J5 encoder (right, R25)": ((42.2, 64.0), 9.7),
-        "J9 M12 probe (right, R25)": ((39.2, 86.0), 9.9),
-        "J10 fan (rear, R25)": ((-155.0, 91.3), 9.9),
-        "J1 coil NTC (top)": ((-60.0, 88.0), 7.4),
-        "J2 heatsink NTC (top)": ((20.0, 88.0), 7.4),
-        "J3 pan RTD (rear)": ((-165.0, 92.0), 12.4),
+        "J4 SELV (left edge, mating -X)": ((-31.15, 42.4), 27.65),
+        "J6 OLED": ((35.0, 70.0), 22.4),
+        "J8 buttons (4-pin, R31)": ((15.0, 41.0), 12.4),
+        "J5 encoder": ((-32.0, 64.0), 9.7),
+        "J9 M12 probe": ((-33.0, 86.0), 9.9),
+        "J10 fan": ((139.0, 86.0), 9.9),
+        "J1 coil NTC": ((55.0, 84.0), 7.4),
+        "J2 heatsink NTC": ((-20.0, 84.0), 7.4),
+        "J3 pan RTD": ((152.0, 86.0), 12.4),
     }
     out = {}
     for name, ((x, y), length) in rows.items():
-        px, py = min(max(x, -168.0), 38.0), min(max(y, 14.0), 90.0)
-        d, hole = min((math.hypot(px - hx, py - hy), (hx, hy)) for hx, hy in holes)
+        d, hole = min((math.hypot(x - hx, y - hy), (hx, hy)) for hx, hy in holes)
         need = 4.0 + length / 2
-        out[name] = {"landing": (x, y), "on_board": (px, py), "nearest_hole": hole,
-                     "distance_mm": round(d, 2), "needed_mm": round(need, 2),
-                     "conflict": d < need}
+        out[name] = {"centre": (x, y), "nearest_hole": hole, "distance_mm": round(d, 2),
+                     "needed_mm": round(need, 2), "conflict": d < need}
     conflicts = [k for k, v in out.items() if v["conflict"]]
-    return {"source": "CONTROLLER-SPEC R27 harness table and hole list; JLC body lengths",
+    return {"source": "CONTROLLER-SPEC R31 connector table and hole list; JLC body lengths",
             "rows": out, "conflicts_orientation_blind": conflicts,
             "note": "informational (enclosure-owned geometry): the circle bound assumes the worst "
-                    "orientation; an XH body along the rear edge (5.75 mm deep) clears J3's keepout"}
+                    "orientation; layout/check_layout.py checks the placed bodies"}
 
 
 def rms_channel() -> dict:

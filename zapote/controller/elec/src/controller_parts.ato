@@ -323,6 +323,17 @@ component XhHeader3:
     signal p2 ~ pin 2
     signal p3 ~ pin 3
 
+component XhHeader4:
+    """JST B4B-XH-A(LF)(SN), 4-pin 2.50 mm vertical (LCSC C144395)."""
+    designator_prefix = "J"
+    mpn = "B4B-XH-A(LF)(SN)"
+    manufacturer = "JST"
+    footprint = "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+    signal p3 ~ pin 3
+    signal p4 ~ pin 4
+
 component XhHeader8:
     """JST B8B-XH-A(LF)(SN), 8-pin 2.50 mm vertical (LCSC C157972)."""
     designator_prefix = "J"

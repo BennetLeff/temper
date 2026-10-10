@@ -30,7 +30,7 @@ import ThermalSenseUnit from "thermal_block.ato"
 from "controller_parts.ato" import Esp32S3Wroom1N8, Tps62933F, Tps62933, Ind10u, Ind22u
 from "controller_parts.ato" import Cap100u25Elec, Tps3703Window, Opa2388, Tlv9062, Lm4040A25
 from "controller_parts.ato" import EsdTvs3v3, Tca9555, Lvc244a, Lvc1g14, Nmos2n7002
-from "controller_parts.ato" import SelvHeader16, XhHeader2, XhHeader3, XhHeader8
+from "controller_parts.ato" import SelvHeader16, XhHeader2, XhHeader3, XhHeader4, XhHeader8
 from "controller_parts.ato" import MicroMatch6Female, DebugHeader8
 from "controller_parts.ato" import MicroFitRA16, Ad8436Rq, Mcp3202, Lvc2g17, Tlv76050, Bat54s
 
@@ -1212,20 +1212,19 @@ module SelvController:
     c_enc.p1 ~ v3v3
     c_enc.p2 ~ selv_gnd
 
-    # ---- APEM buttons: two landings on the Y41 trunk (switch to selv_gnd,
+    # ---- APEM buttons: one landing (J8) on the Y41 trunk (switch to selv_gnd,
     # TCA9555 internal pull-ups; its I/O is 5 V tolerant). 1 k series per line.
     signal btn1_in
     signal btn2_in
     signal btn3_in
-    j_btn_a = new XhHeader3
-    j_btn_a.designator = "J7"
-    j_btn_a.p1 ~ btn1_in
-    j_btn_a.p2 ~ btn2_in
-    j_btn_a.p3 ~ selv_gnd
-    j_btn_b = new XhHeader2
-    j_btn_b.designator = "J8"
-    j_btn_b.p1 ~ btn3_in
-    j_btn_b.p2 ~ selv_gnd
+    # R31 (enclosure, 2026-10-09): one 4-pin landing J8 at (15, 41) carries all three switches and
+    # their common; J7 is deleted (one trunk runs from J8 to the switches).
+    j_btn = new XhHeader4
+    j_btn.designator = "J8"
+    j_btn.p1 ~ btn1_in
+    j_btn.p2 ~ btn2_in
+    j_btn.p3 ~ btn3_in
+    j_btn.p4 ~ selv_gnd
     rs_btn1 = new Resistor
     rs_btn1.value = 1kohm +/- 1%
     rs_btn1.mpn = "RC0603FR-071KL"

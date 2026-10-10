@@ -674,7 +674,7 @@ def check_ui_inputs(rep: Report, nl: Netlist) -> None:
 
     def other(r, p):
         return pn.get((r, "2" if p == "1" else "1"), OPEN)
-    lines = [("J5", "3"), ("J5", "4"), ("J5", "5"), ("J7", "1"), ("J7", "2"), ("J8", "1")]
+    lines = [("J5", "3"), ("J5", "4"), ("J5", "5"), ("J8", "1"), ("J8", "2"), ("J8", "3")]
     for ref, pin in lines:
         n = nl.net_of(ref, pin)
         active = [(r, p) for r, p in nl.nets.get(n, []) if pin_role(nl, r, p) not in ("passive", "ext")]

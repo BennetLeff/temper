@@ -167,6 +167,21 @@ These are DEFAULTS, labelled in the docs and the calcs. The design doesn't break
 - **No firmware shortcut:** `verify_controller.py` proves PERMIT is the AND of the latch and RUN_EN, that RUN_EN feeds nothing but that gate, and, over all 32 768 cases, that PERMIT is never high while any source is unhealthy, the latch is tripped or RUN_EN is low. Mutation tests: RUN_EN bypassing the gate, RUN_EN onto the latch, RUN_EN without its pull-down, and RUN_EN pulled up each fail their check.
 - **GPIO / expander map change:** GPIO14 = RUN_EN (output, push-pull; high = permitted). TCA9555 P07 = RTD_DRDY (input, active low). Firmware pins.h: `R5_RUN_EN 14`; the RTD driver polls DRDY via the expander or uses the conversion period.
 
+## C24. Enclosure R30: snap-in supports, Ø4.0 holes, board 2 mm higher (2026-10-09)
+Source: output/temper-manufacturing-r30/design/r30/CONTROLLER-SPEC.md "R30 mounting change", which supersedes R27/R28 for mounting.
+- **Mounting:** six dual-locking snap-in nylon supports (12 mm, UL94 V-0) at the unchanged six positions replace the standoffs and twelve screws. The board holes are **Ø4.0** (were Ø3.2); a Ø8 area around each stays free of copper and parts. Layout: `layout/world.py` (HOLE_D 4.0), milled Edge.Cuts holes, Ø8 rule areas on every copper layer; `layout/check_layout.py` checks diameter, position and the Ø8 keep-out.
+- **Height:** board bottom Z23, top Z24.6 (was Z21/Z22.6). The allowance under Z40 is now 15.4 mm; JST XH (7.0 mm) mated sits at about Z35 per R30. The J4 header and plug envelope rises 2 mm with the board; the R27 "plug above Z30 beyond X50" rule is easier to meet, and the Molex drawing check (C17) stays open.
+- **Antenna keep-out:** the hole at (−65, 18) still lies inside Espressif's 15 mm lateral keep-out of the WROOM; with R30 the support there is all-nylon, so the keep-out holds no copper and no metal. Recorded in LAYOUT.md open items.
+
+## C25. Enclosure R31: mirrored pose, one button landing, ESP32 behind the lens (2026-10-09)
+Source: output/temper-manufacturing-r31/design/r31/CONTROLLER-SPEC.md, "R31" section (authority over R27–R30; R30 mounting and heights still apply). R4–R30 had modelled native-21 as a mirror image; R31 re-poses it, and the controller moves with it.
+- **Outline and holes:** board X−38…168, Y14…90, bottom Z23. Ø4.0 snap-in holes at (164, 18), (164, 80), (65, 18), (75, 86), (−34, 18), (−26, 74), Ø8 keep-outs.
+- **J4:** right-angle 43045-1600 on the **left** edge, body X−38…−24.3 / Y27.8…57.0, mating **−X** (it mates native-21's J4 at X−109…−83 through the 1:1 harness). Pins 9/10 (PERMIT, bus_fault) now sit at the front end of the header, so the PERMIT gate U37 and R103 sit in the strip between J4 and the module, at J4.9.
+- **ESP32-S3-WROOM-1:** X−20…−2, Y14…39.5, behind the fixed lens window. Its Espressif keep-out (15 mm each side) again contains a hole, (−34, 18), 14 mm from the module side; the support is all-nylon and the layout keeps the area free of copper. Enclosure to confirm (LAYOUT.md open item).
+- **Buttons (schematic change):** J7 is deleted and J8 becomes a 4-pin JST B4B-XH-A (already on the BOM as the RTD connector, C144395): 1 BTN1, 2 BTN2, 3 BTN3, 4 GND. Each line keeps its 1 kΩ series resistor into the TCA9555. `verify_controller.py` ui section and its mutation test now name J8.1–3. The part count drops to 225.
+- **Other connectors:** J1 (55, 84), J2 (−20, 84), J3 (152, 86), J5 (−32, 64), J6 (35, 70), J9 (−33, 86), J10 (139, 86).
+- **Layout parameterisation:** every enclosure number is in `layout/world.py`; `layout/floorplan.py` reads the connector, J4 and module poses from it and places the circuit regions; `layout/check_layout.py` checks the built board against it. `tools/controller_calcs.py landings()` uses the R31 table.
+
 ## FMEA: shared supply, ground and connector (CONTROLLER-SPEC requirement, before layout freeze)
 
 | Failure | Effect | Detection / safe state |

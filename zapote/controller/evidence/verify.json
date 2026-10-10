@@ -3,7 +3,7 @@
   "inputs": {
     "native21_commit": "7c55c9ab81260b396be266861a0f0e8a42f96a5f",
     "netlist": "frozen/default.net",
-    "netlist_sha256": "dd21424c7dc0da5d43af1a7180dae929738e04acc820d2a75b6c3f7bcefbcd4c"
+    "netlist_sha256": "4f49b249bf4c5693114c3792c56809d2bfed838e1fc51a6d747bebd414814035"
   },
   "schema": "temper.controller.verify.v1",
   "sections": {
@@ -183,7 +183,7 @@
       },
       "data": {
         "count": {
-          "components": 226,
+          "components": 225,
           "distinct_mpns": 81
         },
         "unverified": [
@@ -1174,7 +1174,7 @@
           },
           "ok": true
         },
-        "J7.1_btn1_in_5v_safe": {
+        "J8.1_btn1_in_5v_safe": {
           "detail": {
             "after_series": [
               [
@@ -1187,7 +1187,7 @@
           },
           "ok": true
         },
-        "J7.2_btn2_in_5v_safe": {
+        "J8.2_btn2_in_5v_safe": {
           "detail": {
             "after_series": [
               [
@@ -1200,7 +1200,7 @@
           },
           "ok": true
         },
-        "J8.1_btn3_in_5v_safe": {
+        "J8.3_btn3_in_5v_safe": {
           "detail": {
             "after_series": [
               [
