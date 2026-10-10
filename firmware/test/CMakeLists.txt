@@ -355,13 +355,16 @@ add_executable(test_ntc_guard_only
     test_main_ntc_guard.c
     test_ntc_guard.c
     ../components/safety/ntc_guard.c
+    ../components/control/thermal_mgmt.c
 )
 target_include_directories(test_ntc_guard_only PRIVATE 
     ../components/hal/include
     ../components/safety/include
+    ../components/control
     unity
 )
 target_link_libraries(test_ntc_guard_only m)
+add_test(NAME ntc_guard_tests COMMAND test_ntc_guard_only)
 
 # Fan Guard Tests
 add_executable(test_fan_guard_only
@@ -382,13 +385,16 @@ add_executable(test_coil_guard_only
     test_main_coil_guard.c
     test_coil_guard.c
     ../components/safety/coil_guard.c
+    ../components/control/thermal_mgmt.c
 )
 target_include_directories(test_coil_guard_only PRIVATE 
     ../components/hal/include
     ../components/safety/include
+    ../components/control
     unity
 )
 target_link_libraries(test_coil_guard_only m)
+add_test(NAME coil_guard_tests COMMAND test_coil_guard_only)
 
 
 # ============================================================================

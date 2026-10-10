@@ -15,13 +15,100 @@ static void test_ntc_round_trip(void)
     for (unsigned i = 0; i < 3; i++)
         for (float t = 0.0f; t <= 250.0f; t += 10.0f) {
             float mv = ntc_channel_mv_at(ch[i], t), back = -999.0f;
-            if (mv <= ch[i]->v_short_mv || mv >= ch[i]->v_open_mv) continue;
+            if (t <= ch[i]->t_open_c || t >= ch[i]->t_short_c) continue;
             assert(ntc_channel_temp_c(ch[i], mv, &back) == NTC_OK);
-            assert(NEAR(back, t, 0.05));
+            assert(NEAR(back, t, 0.1)); /* Vishay: the two formulae agree to 0.015 C, -40..125 C */
         }
     /* 10 k on 10 k: half supply at 25 C. */
     float t = 0.0f;
     assert(ntc_channel_temp_c(&THERMAL_NTC_RIM, 1652.0f, &t) == NTC_OK && NEAR(t, 25.0, 0.01));
+}
+
+/* Vishay NTCLE100E3104 R-T table (doc 29049, rev. 07-May-2025, p. 12), the 100 k / 4190 K
+ * +/- 1.5 % curve used for the coil and sink NTCALUG01A104GA. */
+static void test_vishay_curve_against_rt_table(void)
+{
+    static const struct { float t_c, r_kohm; } tab[] = {
+        {-20, 1041}, {0, 340.9}, {25, 100.0}, {50, 34.31}, {85, 9.496}, {100, 5.835},
+        {120, 3.206}, {140, 1.854}, {150, 1.434}};
+    for (unsigned i = 0; i < sizeof tab / sizeof tab[0]; i++) {
+        float r = ntc_channel_r_at(&THERMAL_NTC_COIL, tab[i].t_c) / 1000.0f;
+        assert(fabs(r / tab[i].r_kohm - 1.0) < 0.002); /* table is printed to 4 digits */
+        float t = -999.0f;
+        float mv = 3304.0f * tab[i].r_kohm / (tab[i].r_kohm + 10.0f);
+        if (tab[i].t_c > -20.0f) {
+            assert(ntc_channel_temp_c(&THERMAL_NTC_COIL, mv, &t) == NTC_OK);
+            assert(NEAR(t, tab[i].t_c, 0.1));
+        }
+    }
+    /* Divider voltages at the check points (10.0 k pull-up, 3.304 V). */
+    const float pts[] = {25.0f, 100.0f, 140.0f, 150.0f};
+    for (unsigned i = 0; i < 4; i++) {
+        float mv = ntc_channel_mv_at(&THERMAL_NTC_COIL, pts[i]), t = 0.0f;
+        assert(ntc_channel_temp_c(&THERMAL_NTC_SINK, mv, &t) == NTC_OK && NEAR(t, pts[i], 0.01));
+        printf("  coil/sink node %5.1f C = %7.1f mV\n", pts[i], mv);
+    }
+    /* The plain B model this replaces is 9.8 % high in R at 150 C (about 3.5 K). */
+    ntc_channel_t beta = THERMAL_NTC_COIL;
+    beta.curve = NULL;
+    float r_beta = ntc_channel_r_at(&beta, 150.0f);
+    assert(r_beta / 1434.0f > 1.09f);
+}
+
+static void test_coil_sink_open_short_fail_safe(void)
+{
+    const ntc_channel_t *ch[] = {&THERMAL_NTC_COIL, &THERMAL_NTC_SINK};
+    for (unsigned i = 0; i < 2; i++) {
+        float t;
+        assert(ntc_channel_temp_c(ch[i], 3304.0f, &t) == NTC_OPEN);
+        assert(ntc_channel_temp_c(ch[i], ntc_channel_mv_at(ch[i], -20.5f), &t) == NTC_OPEN);
+        assert(ntc_channel_temp_c(ch[i], ntc_channel_mv_at(ch[i], -19.0f), &t) == NTC_OK);
+        assert(ntc_channel_temp_c(ch[i], 0.0f, &t) == NTC_SHORT);
+        assert(ntc_channel_temp_c(ch[i], ntc_channel_mv_at(ch[i], 201.0f), &t) == NTC_SHORT);
+        assert(ntc_channel_temp_c(ch[i], ntc_channel_mv_at(ch[i], 190.0f), &t) == NTC_OK);
+        assert(ntc_channel_temp_c(ch[i], NAN, &t) == NTC_BAD_ARG);
+    }
+    /* An open or shorted coil sensor gives no tank power and full fan (fail safe). */
+    assert(coil_tank_cap_pct(NAN) == 0);
+    fan_law_t f;
+    fan_law_init(&f);
+    fan_law_step(&f, 30.0f, NAN, 0.1f, false);
+    assert(f.on && f.drive == 1.0f && f.tank_cap_pct == 0);
+}
+
+static void test_rim_parameterised(void)
+{
+    /* Thresholds follow R / B: a drop-in pull-up or NTC change needs no other edit. */
+    ntc_channel_t rim = THERMAL_NTC_RIM;
+    assert(rim.r_pullup_ohm == RIM_NTC_R_PULLUP_OHM && rim.r25_ohm == RIM_NTC_R25_OHM &&
+           rim.beta_k == RIM_NTC_BETA_K && rim.curve == NULL);
+    rim.r_pullup_ohm = 1000.0f; /* e.g. a lower pull-up for resolution at 250 C */
+    float t;
+    float mv250 = ntc_channel_mv_at(&rim, 250.0f);
+    assert(mv250 > ntc_channel_mv_at(&THERMAL_NTC_RIM, 250.0f) * 5.0f);
+    assert(ntc_channel_temp_c(&rim, mv250, &t) == NTC_OK && NEAR(t, 250.0, 0.1));
+    assert(ntc_channel_temp_c(&rim, ntc_channel_mv_at(&rim, -21.0f), &t) == NTC_OPEN);
+    assert(ntc_channel_temp_c(&rim, ntc_channel_mv_at(&rim, 321.0f), &t) == NTC_SHORT);
+    rim.beta_k = 3500.0f;
+    assert(ntc_channel_temp_c(&rim, ntc_channel_mv_at(&rim, 250.0f), &t) == NTC_OK && NEAR(t, 250.0, 0.1));
+}
+
+/* Evidence only (not a pass/fail on the design): the thermal-sense block's hardware hot trips,
+ * from its resistor values (controller-layout thermal_block.ato: 10 k pull-up; HS ref 9.09 k /
+ * 11.5 k with 34.8 k hysteresis; coil ref 20 k / 8.06 k with 42.2 k; TLV3201 output low before
+ * the trip), through the same R-T model. Reported because they sit below R32's fan-law setpoints. */
+static void test_hardware_trip_points_recorded(void)
+{
+    double hs_lo = 1.0 / (1.0 / 11.5 + 1.0 / 34.8), coil_lo = 1.0 / (1.0 / 8.06 + 1.0 / 42.2);
+    float hs_mv = (float)(3304.0 * hs_lo / (9.09 + hs_lo));
+    float coil_mv = (float)(3304.0 * coil_lo / (20.0 + coil_lo));
+    float hs_c = 0.0f, coil_c = 0.0f;
+    assert(ntc_channel_temp_c(&THERMAL_NTC_SINK, hs_mv, &hs_c) == NTC_OK);
+    assert(ntc_channel_temp_c(&THERMAL_NTC_COIL, coil_mv, &coil_c) == NTC_OK);
+    printf("  hardware hot trip: heatsink %.1f C (fan sink setpoint %.1f C), coil %.1f C "
+           "(fan coil setpoint %.1f C, derate %.1f C)\n",
+           hs_c, FAN_SINK_SETPOINT_C, coil_c, FAN_COIL_SETPOINT_C, FAN_COIL_LIMIT_C);
+    assert(hs_c > 80.0f && hs_c < 90.0f && coil_c > 110.0f && coil_c < 125.0f);
 }
 
 static void test_rim_open_short_and_hot_end(void)
@@ -36,7 +123,7 @@ static void test_rim_open_short_and_hot_end(void)
     float mv240 = ntc_channel_mv_at(&THERMAL_NTC_RIM, 240.0f);
     printf("  rim node: 240 C = %.2f mV, 250 C = %.2f mV, slope %.3f mV/K\n", mv240, mv250,
            (mv240 - mv250) / 10.0f);
-    assert(mv250 > THERMAL_NTC_RIM.v_short_mv);
+    assert(mv250 > ntc_channel_mv_at(&THERMAL_NTC_RIM, THERMAL_NTC_RIM.t_short_c));
     assert(ntc_channel_temp_c(&THERMAL_NTC_RIM, mv250, &t) == NTC_OK && NEAR(t, 250.0, 0.1));
     /* Coil at its 150 C limit is far from both rails. */
     float coil150 = ntc_channel_mv_at(&THERMAL_NTC_COIL, 150.0f);
@@ -166,6 +253,10 @@ static void test_blower_duty_stub(void)
 int main(void)
 {
     TEST(test_ntc_round_trip);
+    TEST(test_vishay_curve_against_rt_table);
+    TEST(test_coil_sink_open_short_fail_safe);
+    TEST(test_rim_parameterised);
+    TEST(test_hardware_trip_points_recorded);
     TEST(test_rim_open_short_and_hot_end);
     TEST(test_pan_cap);
     TEST(test_fan_law_on_off_hysteresis);

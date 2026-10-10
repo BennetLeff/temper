@@ -13,6 +13,7 @@
 #define NTC_GUARD_H
 
 #include "hal_types.h"
+#include "../../control/thermal_mgmt.h"
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -20,13 +21,21 @@
 extern "C" {
 #endif
 
-// Safety limits (ADC raw counts, 12-bit)
-#define NTC_ADC_MIN 100     // Below this = Short to GND
-#define NTC_ADC_MAX 3900    // Above this = Open/Short to VCC
+/*
+ * Fitted parts (integrated controller, thermal-sense block): Vishay NTCALUG01A104GA, 100 kOhm,
+ * B25/85 4190 K, on a 10.0 kOhm pull-up to v3v3, for both the coil and the heatsink. The R-T model
+ * is Vishay's (thermal_mgmt.h, NTC_CURVE_VISHAY_MAT_D_4190), shared with the fan law and the coil
+ * guard, so every consumer converts a reading the same way.
+ *
+ * Raw counts are taken as ratiometric to v3v3 (12 bit, 4095 = v3v3), as before. Open and short
+ * thresholds follow the model: a node colder than -20 C reads OPEN, hotter than 200 C reads SHORT
+ * (thermal_mgmt.c), so an unplugged sensor can never pass as a cool one.
+ */
+#define NTC_ADC_FULL_SCALE 4095.0f
 
-// Physical limits
+// Physical limits (equal to the channel's open / short temperatures)
 #define NTC_TEMP_MIN_C -20.0f
-#define NTC_TEMP_MAX_C 150.0f
+#define NTC_TEMP_MAX_C 200.0f
 #define NTC_MAX_RATE_C_PER_SEC 10.0f
 
 /**
@@ -47,6 +56,7 @@ typedef enum {
  */
 typedef struct {
     hal_adc_channel_t adc_channel;
+    const ntc_channel_t *part;     /* divider + R-T model; THERMAL_NTC_SINK by default */
     float last_temp_c;
     uint32_t last_read_ms;
     bool valid;
@@ -58,6 +68,10 @@ typedef struct {
  * @param channel ADC channel
  */
 void ntc_guard_init(ntc_guard_t *ctx, hal_adc_channel_t channel);
+/* As ntc_guard_init(), for a given divider (THERMAL_NTC_COIL, THERMAL_NTC_SINK). */
+void ntc_guard_init_part(ntc_guard_t *ctx, hal_adc_channel_t channel, const ntc_channel_t *part);
+/* Raw 12-bit counts -> temperature through ctx->part, with the open / short classification. */
+ntc_guard_status_t ntc_guard_convert(const ntc_guard_t *ctx, uint16_t raw, float *temp_c);
 
 /**
  * @brief Read temperature with safety checks

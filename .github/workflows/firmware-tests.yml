@@ -111,8 +111,8 @@ jobs:
           python3 firmware/tools/check_controller_pinmap.py
           python3 -m pytest firmware/tools/test_check_controller_pinmap.py -v --tb=short
           cmake -B firmware/test/build firmware/test
-          cmake --build firmware/test/build --target test_controller_pins test_thermal_mgmt
-          ctest --test-dir firmware/test/build -R "controller_pins|thermal_mgmt" --output-on-failure
+          cmake --build firmware/test/build --target test_controller_pins test_thermal_mgmt test_ntc_guard_only test_coil_guard_only
+          ctest --test-dir firmware/test/build -R "controller_pins|thermal_mgmt|ntc_guard|coil_guard" --output-on-failure
 
       - name: Regenerate transition table and check drift
         run: |
