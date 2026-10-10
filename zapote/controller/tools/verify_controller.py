@@ -16,6 +16,8 @@ and native-21's frozen netlist snapshot. Checks, each fail-closed:
              and exhaustive logic simulation of the captured gates
   v3v3       current budget of every part on v3v3 on both boards, from
              datasheet maxima, with the regulator, inductor and PS1 limits
+  blower     L3 blower supply on J10: pin map, FG tach path, PWM-into-FB speed control with a
+             full-speed fail-safe, expander switch-off with a run-at-reset default, sizing calcs
   ui         J7 (R33 UI bus): pin map, a GND beside every signal, series R and ESD
              on every line, its own SPI host apart from the RTD / MCP3202 bus
   bom        every resolved MPN is in bom/controller-parts.json with a source
@@ -412,6 +414,32 @@ def check_adc1(rep: Report, nl: Netlist, calcs: dict):
         src = [pn.get((r, "2" if p == "1" else "1"), OPEN) for r, p in nl.nets.get(net, []) if r in rs]
         ok = any(nl.mpn[r2] == amp and pin_role(nl, r2, p2) == "out" for s in src for r2, p2 in nl.nets.get(s, []))
         rep.check("adc1", f"{net}_driven_by_{amp}_buffer", ok, src)
+    # L3 (R32 / study 06, DECISIONS C29): every NTC channel's buffer input is a series-R /
+    # shunt-C node with a corner <= 1 kHz, independent of the NTC's resistance
+    import math
+    for net in ("HS_ADC", "COIL_ADC", "M12_ADC", "RIM_ADC"):
+        rs = [r for r, p in nl.nets.get(net, []) if r.startswith("R")]
+        src = [pn.get((r, "2" if p == "1" else "1"), OPEN) for r, p in nl.nets.get(net, []) if r in rs]
+        amp = [(r2, p2) for s_ in src for r2, p2 in nl.nets.get(s_, []) if pin_role(nl, r2, p2) == "out"]
+        f = None
+        detail = {"buffer_out": src}
+        if amp:
+            r_amp, p_out = amp[0]
+            ins = [p for p, role in MODELS[nl.mpn[r_amp]].pins.items() if role == "in"]
+            # the non-inverting input is the one not tied to this output
+            inp = [nl.net_of(r_amp, p) for p in ins if nl.net_of(r_amp, p) not in (src[0],)
+                   and abs(int(p) - int(p_out)) <= 3]
+            for n_in in inp:
+                caps = [r for r, p in nl.nets.get(n_in, []) if r.startswith("C")
+                        and pn.get((r, "2" if p == "1" else "1")) == GND]
+                ser = [r for r, p in nl.nets.get(n_in, []) if r.startswith("R")
+                       and pn.get((r, "2" if p == "1" else "1")) not in (V3, GND)]
+                if caps and len(ser) == 1:
+                    rv = parse_value(nl.value[ser[0]])[0]
+                    cv = sum(parse_value(nl.value[c])[0] for c in caps)
+                    f = 1 / (2 * math.pi * rv * cv)
+                    detail.update({"input": n_in, "R": ser[0], "C": caps, "f_Hz": round(f, 1)})
+        rep.check("adc1", f"{net}_input_rc_le_1kHz", f is not None and f <= 1000.0, detail)
     used = [g[0] for g in where.values() if g]
     rep.check("adc1", "six_distinct_channels", len(set(used)) == len(analog), sorted(used))
     for g in sorted(ADC1_GPIO):
@@ -592,17 +620,22 @@ def check_v3v3(rep: Report, nl: Netlist, n21: Netlist, calcs: dict):
     rep.check("v3v3", "within_inductor_irms_2p45A", peak <= 2450.0, peak)
     # PS1 (IRM-20-15, 21 W) at the controller; efficiencies are allocations.
     p3 = 3.465 * peak / 1e3 / 0.85
-    pfan = 12.22 * 0.63 / 0.90
+    blower = calcs["blower_supply"]["ps1_blower_input_W"]
+    pfan = blower["r32_cap"]                 # R32: drive cap 0.8 (about 9 W) except in a fault
     # Loads straight on v15_selv: AD8436 (365 + 200 + 70 uA max) and the J7 +5 V
     # (TLV760 IGND 5 mA max + 30 mA UI allocation), counted as worst case even though
     # the UI allocation also sits in the v3v3 peak.
     p15 = 15.375 * (0.000635 + 0.005 + 0.030)
     p_total = p3 + pfan + p15
-    rep.data("v3v3", "ps1", {"p_3v3_rail_W": p3, "p_fan_W": pfan, "p_v15_direct_W": p15,
+    p_full = p3 + blower["full_typ"] + p15
+    rep.data("v3v3", "ps1", {"p_3v3_rail_W": p3, "p_blower_W_at_r32_cap": pfan, "p_v15_direct_W": p15,
                              "p_total_W": p_total, "rating_W": 21.0,
-                             "basis": "efficiencies 85 % (3.3 V) / 90 % (12 V) are allocations from the "
+                             "p_total_W_blower_full_typ": p_full, "p_total_W_blower_full_max": p3 + blower["full_max"] + p15,
+                             "OWNER_FLAG": "at full blower speed (17.04 W typ, 32.4 W max, Delta spec) PS1's 21 W "
+                                           "rating is exceeded; DECISIONS C28 / open item 13",
+                             "basis": "efficiencies 85 % (3.3 V) / 90 % (blower buck) are allocations from the "
                                       "TPS62933 typical curves; IRM-20-15 21 W rated"})
-    rep.check("v3v3", "ps1_within_21W_at_peak", p_total <= 21.0, p_total)
+    rep.check("v3v3", "ps1_within_21W_at_r32_blower_cap", p_total <= 21.0, p_total)
     # J4.3 current and native-21 rail with the harness allocation.
     i_n21 = (theirs_total + cross_total) / 1e3
     i_v15 = p_total / (15 * 0.975)
@@ -736,6 +769,56 @@ def check_ui_bus(rep: Report, nl: Netlist, calcs: dict | None = None) -> None:
             rep.check("ui", f"ui_5v_{k}", ok)
 
 
+def check_blower(rep: Report, nl: Netlist, calcs: dict) -> None:
+    """L3 blower supply (DECISIONS C28): J10 = +V_BLOWER / GND / FG; FG reaches GPIO3 through a
+    series R with a pull-up and TVS at the connector; speed is a filtered GPIO46 PWM injected
+    into the blower buck's FB (GPIO46 low = full speed, the cooling fail-safe); switch-off is the
+    expander's P15 driving the EN FET, with a gate pull-down strong enough to keep the blower on
+    while the expander powers up as an input with its 100 k pull-up."""
+    pn = nl.pin_net()
+    gm = gpio_map(nl)
+
+    def other(r, p):
+        return pn.get((r, "2" if p == "1" else "1"), OPEN)
+    j10 = {p: nl.net_of("J10", str(p)) for p in (1, 2, 3)}
+    rep.check("blower", "j10_pin_map", j10[1] == "V_BLOWER" and j10[2] == GND and j10[3] == "J10_FG", j10)
+    fg = nl.nets.get("J10_FG", [])
+    pu = [r for r, p in fg if r.startswith("R") and other(r, p) == V3]
+    tvs = [r for r, p in fg if nl.mpn.get(r) == "ESD5Z3.3T1G"]
+    ser = [(r, other(r, p)) for r, p in fg if r.startswith("R") and other(r, p) not in (V3, GND)]
+    rep.check("blower", "fg_pullup_tvs_series_to_gpio3", bool(pu) and bool(tvs) and len(ser) == 1
+              and ser[0][1] == gm.get(3), {"pullup": pu, "tvs": tvs, "series": ser, "gpio3": gm.get(3)})
+    reg = [r for r, mp in nl.mpn.items() if mp == "TPS62933DRLR"]
+    fb = nl.net_of(reg[0], "8") if reg else None      # TPS62933 pin 8 = FB
+    pwm = gm.get(46)
+    # PWM -> series R -> filter node (C to GND) -> injection R -> FB
+    chain = None
+    for r, p in nl.nets.get(pwm, []):
+        if r.startswith("R") and other(r, p) not in (V3, GND):
+            node = other(r, p)
+            caps = [c for c, q in nl.nets.get(node, []) if c.startswith("C") and other(c, q) == GND]
+            inj = [x for x, q in nl.nets.get(node, []) if x.startswith("R") and x != r and other(x, q) == fb]
+            if caps and inj:
+                chain = {"filter_R": r, "node": node, "C": caps, "inj_R": inj}
+    rep.check("blower", "pwm_gpio46_filtered_into_fb", chain is not None and fb is not None, chain)
+    downs = [r for r, p in nl.nets.get(pwm, []) if r.startswith("R") and other(r, p) == GND]
+    ups = [r for r, p in nl.nets.get(pwm, []) if r.startswith("R") and other(r, p) == V3]
+    rep.check("blower", "gpio46_low_at_reset_is_full_speed", bool(downs) and not ups, {"pulldown": downs})
+    en = nl.net_of(reg[0], "2") if reg else None      # TPS62933 pin 2 = EN
+    fets = [r for r, p in nl.nets.get(en, []) if nl.mpn.get(r) == "2N7002" and p == "3"]
+    gate = nl.net_of(fets[0], "1") if fets else None
+    drv = [(r, p) for r, p in nl.nets.get(gate, []) if nl.mpn.get(r) == "TCA9555PWR"]
+    gpd = [parse_value(nl.value[r])[0] for r, p in nl.nets.get(gate, []) if r.startswith("R") and other(r, p) == GND]
+    # TCA9555 power-up: input with 100 k pull-up (SCPS200E); 2N7002 VGS(th) >= 1.0 V (CJ 2N7002)
+    v_gate = 3.465 * min(gpd) / (min(gpd) + 100e3) if gpd else None
+    rep.check("blower", "switch_off_from_expander_runs_at_reset", bool(drv) and v_gate is not None and v_gate < 1.0,
+              {"fet": fets, "gate": gate, "driver": drv, "gate_V_at_reset": v_gate})
+    for k, ok in calcs["blower_supply"]["checks"].items():
+        rep.check("blower", f"calc_{k}", ok)
+    rep.data("blower", "vout_duty0_V", calcs["blower_supply"]["vout_duty0_V"])
+    rep.data("blower", "vout_duty100_V", calcs["blower_supply"]["vout_duty100_V"])
+
+
 def check_bom(rep: Report, nl: Netlist):
     table = json.loads((UNIT / "bom/controller-parts.json").read_text())["parts"]
     mpns = sorted(set(nl.mpn.values()))
@@ -806,6 +889,7 @@ def main() -> int:
     check_v3v3(rep, nl, n21, calcs)
     check_ct_rms(rep, nl, calcs)
     check_ui_bus(rep, nl, calcs)
+    check_blower(rep, nl, calcs)
     check_bom(rep, nl)
     check_misc(rep, nl)
     out = {"schema": "temper.controller.verify.v1",

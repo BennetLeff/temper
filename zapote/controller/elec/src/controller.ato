@@ -6,7 +6,7 @@
 # open items: ../../DECISIONS.md. Verification: ../../tools/verify_controller.py.
 #
 # Sheets (one module each, so layout can give each its own region):
-#   power      15 V (J4.1) -> 3.3 V buck (also sources J4.3) and 12 V fan buck
+#   power      15 V (J4.1) -> 3.3 V buck (also sources J4.3) and the 5.5-12 V blower buck
 #   interlock  zapote/interlock InterlockUnit, ported (interlock_block.ato)
 #   thermal    zapote/thermal-sense ThermalSenseUnit, ported (thermal_block.ato)
 #   rtd_pan    zapote/rtd RTDSensing (modules.ato, byte-identical library copy)
@@ -27,11 +27,11 @@ import RTDSensing from "modules.ato"
 import InterlockUnit from "interlock_block.ato"
 import ThermalSenseUnit from "thermal_block.ato"
 
-from "controller_parts.ato" import Esp32S3Wroom1UN8, Tps62933F, Tps62933, Ind10u, Ind22u
+from "controller_parts.ato" import Esp32S3Wroom1UN8, Tps62933F, Tps62933, Ind10u
 from "controller_parts.ato" import Cap100u25Elec, Tps3703Window, Opa2388, Tlv9062, Lm4040A25
 from "controller_parts.ato" import EsdTvs3v3, Tca9555, Lvc244a, Lvc1g14, Nmos2n7002
 from "controller_parts.ato" import SelvHeader16, XhHeader2, XhHeader3, XhHeader12, Srv05_4
-from "controller_parts.ato" import DebugHeader8, Tlv9061
+from "controller_parts.ato" import DebugHeader8, Tlv9061, IndSwrb1205_10u
 from "controller_parts.ato" import MicroFitRA16, Ad8436Rq, Mcp3202, Tlv76050, Bat54s
 
 module SelvController:
@@ -52,7 +52,7 @@ module SelvController:
     signal ct_mon
     signal line_zc
     # rails
-    signal v12_fan
+    signal v_blower
     # MCU-side PWM before the series resistors
     signal pwm_ha_mcu
     signal pwm_la_mcu
@@ -104,7 +104,7 @@ module SelvController:
     ct_zc.override_net_name = "ct_zc"
     ct_mon.override_net_name = "ct_mon"
     line_zc.override_net_name = "line_zc"
-    v12_fan.override_net_name = "v12_fan"
+    v_blower.override_net_name = "V_BLOWER"
     ovp_tie.override_net_name = "OVP_TIE"
     rail_ok.override_net_name = "RAIL_OK"
     rail_fault.override_net_name = "RAIL_FAULT"
@@ -295,9 +295,14 @@ module SelvController:
     c_out3c.p1 ~ v3v3
     c_out3c.p2 ~ selv_gnd
 
-    # ---- 12 V fan: TPS62933, 500 kHz, Vout = 0.8 * (1 + 140k/10k) = 12.0 V.
-    # EN floats high (fan ON by default, the fail-safe state for cooling);
-    # firmware can only turn it OFF, through q_fan_off on GPIO46.
+    # ---- Blower supply (R32: Delta BFB1012VH-F00, 5.5-13.2 V, 1.42 A typ / 2.70 A max;
+    # DECISIONS C28): TPS62933, 500 kHz, adjustable 5.5-12 V by a filtered PWM injected into FB.
+    #   Vout = 0.8 + 140k * (0.8/11.5k - (Vctl - 0.8)/(56.2k + 12.1k))
+    #   GPIO46 low (reset, MCU off, duty 0) -> Vctl 0 -> ~12.2 V: full speed is the fail-safe;
+    #   duty 100 % -> ~5.4 V (tools/controller_calcs.py blower_supply()).
+    # EN floats high (blower ON by default); firmware can switch it off through q_fan_off,
+    # now driven from expander P15 (its 10 k gate pull-down beats the expander's 100 k
+    # power-up pull-up, so the blower runs while the expander is still an input).
     signal sw_12
     signal bst_12
     signal fb_12
@@ -305,6 +310,11 @@ module SelvController:
     signal en_12
     signal fan_off
     signal fan_tach
+    signal fan_pwm
+    signal fan_ctl
+    signal fan_fg
+    fan_pwm.override_net_name = "FAN_PWM"
+    fan_fg.override_net_name = "J10_FG"
     u_12 = new Tps62933
     u_12.designator = "U2"
     u_12.VIN ~ v15_selv
@@ -329,10 +339,32 @@ module SelvController:
     q_fan_off.S ~ selv_gnd
     q_fan_off.G ~ fan_off
     r_fan_off_pd = new Resistor
-    r_fan_off_pd.value = 100kohm +/- 1%
-    r_fan_off_pd.mpn = "RC0603FR-07100KL"
+    r_fan_off_pd.value = 10kohm +/- 1%
+    r_fan_off_pd.mpn = "RC0603FR-0710KL"
     r_fan_off_pd.p1 ~ fan_off
     r_fan_off_pd.p2 ~ selv_gnd
+    # speed: GPIO46 PWM (LEDC) -> 12.1 k / 1 uF (13 Hz) -> 56.2 k into FB. GPIO46 is a strap
+    # (must read 0 at reset): its 100 k pull-down stays.
+    r_fan_pwm_pd = new Resistor
+    r_fan_pwm_pd.value = 100kohm +/- 1%
+    r_fan_pwm_pd.mpn = "RC0603FR-07100KL"
+    r_fan_pwm_pd.p1 ~ fan_pwm
+    r_fan_pwm_pd.p2 ~ selv_gnd
+    r_fan_pwm_filt = new Resistor
+    r_fan_pwm_filt.value = 12.1kohm +/- 1%
+    r_fan_pwm_filt.mpn = "RC0603FR-0712K1L"
+    r_fan_pwm_filt.p1 ~ fan_pwm
+    r_fan_pwm_filt.p2 ~ fan_ctl
+    c_fan_ctl = new Capacitor
+    c_fan_ctl.value = 1uF +/- 10%
+    c_fan_ctl.mpn = "CL10A105KB8NNNC"
+    c_fan_ctl.p1 ~ fan_ctl
+    c_fan_ctl.p2 ~ selv_gnd
+    r_fan_inj = new Resistor
+    r_fan_inj.value = 56.2kohm +/- 1%
+    r_fan_inj.mpn = "RC0603FR-0756K2L"
+    r_fan_inj.p1 ~ fan_ctl
+    r_fan_inj.p2 ~ fb_12
     c_ss_12 = new Capacitor
     c_ss_12.value = 10nF +/- 10%
     c_ss_12.mpn = "CL10B103KB8NNNC"
@@ -343,17 +375,17 @@ module SelvController:
     c_bst_12.mpn = "CC0603KRX7R9BB104"
     c_bst_12.p1 ~ bst_12
     c_bst_12.p2 ~ sw_12
-    l_12 = new Ind22u
+    l_12 = new IndSwrb1205_10u
     l_12.p1 ~ sw_12
-    l_12.p2 ~ v12_fan
+    l_12.p2 ~ v_blower
     r_fb12_top = new Resistor
     r_fb12_top.value = 140kohm +/- 0.1%
     r_fb12_top.mpn = "RT0603BRD07140KL"
-    r_fb12_top.p1 ~ v12_fan
+    r_fb12_top.p1 ~ v_blower
     r_fb12_top.p2 ~ fb_12
     r_fb12_bot = new Resistor
-    r_fb12_bot.value = 10kohm +/- 0.1%
-    r_fb12_bot.mpn = "RT0603BRD0710KL"
+    r_fb12_bot.value = 11.5kohm +/- 0.1%
+    r_fb12_bot.mpn = "RT0603BRD0711K5L"
     r_fb12_bot.p1 ~ fb_12
     r_fb12_bot.p2 ~ selv_gnd
     c_in12a = new Capacitor
@@ -367,30 +399,52 @@ module SelvController:
     c_in12b.mpn = "CC0603KRX7R9BB104"
     c_in12b.p1 ~ v15_selv
     c_in12b.p2 ~ selv_gnd
+    c_in12c = new Capacitor
+    c_in12c.value = 10uF +/- 10%
+    c_in12c.mpn = "CL31A106KAHNNNE"
+    c_in12c.footprint = "Capacitor_SMD:C_1206_3216Metric"
+    c_in12c.p1 ~ v15_selv
+    c_in12c.p2 ~ selv_gnd
     c_out12a = new Capacitor
     c_out12a.value = 22uF +/- 10%
     c_out12a.mpn = "CL31A226KAHNNNE"
     c_out12a.footprint = "Capacitor_SMD:C_1206_3216Metric"
-    c_out12a.p1 ~ v12_fan
+    c_out12a.p1 ~ v_blower
     c_out12a.p2 ~ selv_gnd
     c_out12b = new Capacitor
     c_out12b.value = 22uF +/- 10%
     c_out12b.mpn = "CL31A226KAHNNNE"
     c_out12b.footprint = "Capacitor_SMD:C_1206_3216Metric"
-    c_out12b.p1 ~ v12_fan
+    c_out12b.p1 ~ v_blower
     c_out12b.p2 ~ selv_gnd
 
-    # Fan connector (Delta PFB0612EHE-F00 is 3-wire: +12 V, GND, tach).
+    # Blower connector (Delta BFB1012VH-F00 spec page 2: red +, black -, blue FG). J10 stays a
+    # JST B3B-XH-A: 3 A per contact with AWG22 crimps (JST eXH.pdf) covers the 2.70 A maximum.
+    # FG is open collector: 10 k pull-up to 3.3 V at the connector, TVS, then 1 k / 1 nF
+    # (160 kHz) into GPIO3 (PCNT). A stopped or locked blower, or an open FG wire, reads 0 Hz.
     j_fan = new XhHeader3
     j_fan.designator = "J10"
-    j_fan.p1 ~ v12_fan
+    j_fan.p1 ~ v_blower
     j_fan.p2 ~ selv_gnd
-    j_fan.p3 ~ fan_tach
+    j_fan.p3 ~ fan_fg
     r_tach_pu = new Resistor
     r_tach_pu.value = 10kohm +/- 1%
     r_tach_pu.mpn = "RC0603FR-0710KL"
     r_tach_pu.p1 ~ v3v3
-    r_tach_pu.p2 ~ fan_tach
+    r_tach_pu.p2 ~ fan_fg
+    d_tach = new EsdTvs3v3
+    d_tach.K ~ fan_fg
+    d_tach.A ~ selv_gnd
+    r_tach_series = new Resistor
+    r_tach_series.value = 1kohm +/- 1%
+    r_tach_series.mpn = "RC0603FR-071KL"
+    r_tach_series.p1 ~ fan_fg
+    r_tach_series.p2 ~ fan_tach
+    c_tach = new Capacitor
+    c_tach.value = 1nF +/- 5%
+    c_tach.mpn = "CL10C102JB8NNNC"
+    c_tach.p1 ~ fan_tach
+    c_tach.p2 ~ selv_gnd
 
     # ---- 3.3 V window supervisor -> RAIL_OK (open drain, pulled to v3v3).
     # +/-4 % window, +/-0.7 %: UV trips 3.146-3.190 V, OV trips 3.408-3.456 V,
@@ -713,7 +767,21 @@ module SelvController:
     c_ct_adc.p2 ~ selv_gnd
     # ---- thermal-sense receivers: the qualified HS_SENSE / COIL_SENSE load is
     # this buffer only (CMOS input, pA bias) -- no ADC switched-capacitor load.
-    u_buf1.INB_P ~ thermal.hs_sense
+    # L3 (R32 / study 06, DECISIONS C29): 10 k / 100 nF (159 Hz) between the thermal-sense node
+    # and the buffer, outside the ported block, so the MCU reading is filtered <= 1 kHz at any NTC
+    # resistance; the block's own trip comparators keep the block's validated node filter.
+    signal hs_filt
+    r_hs_filt = new Resistor
+    r_hs_filt.value = 10kohm +/- 1%
+    r_hs_filt.mpn = "RC0603FR-0710KL"
+    r_hs_filt.p1 ~ thermal.hs_sense
+    r_hs_filt.p2 ~ hs_filt
+    c_hs_filt = new Capacitor
+    c_hs_filt.value = 100nF +/- 10%
+    c_hs_filt.mpn = "CC0603KRX7R9BB104"
+    c_hs_filt.p1 ~ hs_filt
+    c_hs_filt.p2 ~ selv_gnd
+    u_buf1.INB_P ~ hs_filt
     u_buf1.INB_N ~ hs_buf_out
     u_buf1.OUTB ~ hs_buf_out
     c_buf1 = new Capacitor
@@ -735,7 +803,18 @@ module SelvController:
     u_buf2.designator = "U7"
     u_buf2.VP ~ v3v3
     u_buf2.VN ~ selv_gnd
-    u_buf2.INA_P ~ thermal.coil_sense
+    signal coil_filt
+    r_coil_filt = new Resistor
+    r_coil_filt.value = 10kohm +/- 1%
+    r_coil_filt.mpn = "RC0603FR-0710KL"
+    r_coil_filt.p1 ~ thermal.coil_sense
+    r_coil_filt.p2 ~ coil_filt
+    c_coil_filt = new Capacitor
+    c_coil_filt.value = 100nF +/- 10%
+    c_coil_filt.mpn = "CC0603KRX7R9BB104"
+    c_coil_filt.p1 ~ coil_filt
+    c_coil_filt.p2 ~ selv_gnd
+    u_buf2.INA_P ~ coil_filt
     u_buf2.INA_N ~ coil_buf_out
     u_buf2.OUTA ~ coil_buf_out
     c_buf2 = new Capacitor
@@ -794,10 +873,11 @@ module SelvController:
     c_m12_adc.p2 ~ selv_gnd
 
     # ---- Rim NTC (enclosure R36, DECISIONS C27): glass 10 k bead on the sensor cartridge's PEEK
-    # rim, on the cartridge's 6-conductor cable (J3 4-wire RTD + J12). Built as the coil NTC
-    # channel: 10.0 k pull-up to v3v3, 100 nF at the node, TVS at the connector, CMOS follower,
-    # 100 ohm / 100 nF into ADC1 (GPIO9, ADC1_CH8).
+    # rim, on the cartridge's 6-conductor cable (J3 4-wire RTD + J12). Built as the coil / M12
+    # NTC channels: 10.0 k pull-up to v3v3, TVS at the connector, 10 k / 100 nF (159 Hz, C29)
+    # into a CMOS follower, 100 ohm / 100 nF into ADC1 (GPIO9, ADC1_CH8).
     signal rim_sense
+    signal rim_filt
     signal rim_buf_out
     rim_sense.override_net_name = "RIM_SENSE"
     j_rim = new XhHeader2
@@ -812,15 +892,20 @@ module SelvController:
     r_rim_pu.mpn = "RT0603BRD0710KL"
     r_rim_pu.p1 ~ v3v3
     r_rim_pu.p2 ~ rim_sense
+    r_rim_filt = new Resistor
+    r_rim_filt.value = 10kohm +/- 1%
+    r_rim_filt.mpn = "RC0603FR-0710KL"
+    r_rim_filt.p1 ~ rim_sense
+    r_rim_filt.p2 ~ rim_filt
     c_rim_filt = new Capacitor
     c_rim_filt.value = 100nF +/- 10%
     c_rim_filt.mpn = "CC0603KRX7R9BB104"
-    c_rim_filt.p1 ~ rim_sense
+    c_rim_filt.p1 ~ rim_filt
     c_rim_filt.p2 ~ selv_gnd
     u_buf3 = new Tlv9061
     u_buf3.VP ~ v3v3
     u_buf3.VN ~ selv_gnd
-    u_buf3.IN_P ~ rim_sense
+    u_buf3.IN_P ~ rim_filt
     u_buf3.IN_N ~ rim_buf_out
     u_buf3.OUT ~ rim_buf_out
     c_buf3 = new Capacitor
@@ -1078,7 +1163,7 @@ module SelvController:
     mcu.IO48 ~ ui_cs_exp_n
     mcu.IO45 ~ ui_dc
     mcu.IO42 ~ ext_adc_cs_n
-    mcu.IO46 ~ fan_off
+    mcu.IO46 ~ fan_pwm
     mcu.IO37 ~ i2c_sda
     mcu.IO9 ~ rim_adc
     mcu.IO0 ~ boot_io0
@@ -1120,6 +1205,7 @@ module SelvController:
     # second MAX31865 CS (C14).
     u_io.P07 ~ rtd_drdy
     u_io.P14 ~ sup_run_ok_rb
+    u_io.P15 ~ fan_off
     u_io.P10 ~ latched_fault_rb
     u_io.P11 ~ rtd_fault_rb
     u_io.P12 ~ hs_fault_rb

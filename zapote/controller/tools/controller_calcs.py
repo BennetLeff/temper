@@ -339,6 +339,72 @@ def ui_5v_supply() -> dict:
                        "resistors_le_half_rating": out["vin_max"]["per_resistor_W"] <= 0.125}}
 
 
+def blower_supply() -> dict:
+    """Adjustable blower supply (L3, DECISIONS C28): TPS62933 with a filtered PWM injected into FB.
+
+    Sources: Delta BFB1012VH-F00 spec (operating 5.5-13.2 V, input current 1.42 A typ / 2.70 A
+    max, 17.04 W typ / 32.40 W max); TI SLUSEA4D (VFB 788-812 mV at 0-85 C, RDSON 76/32 mOhm at
+    25 C, IHS_LIMIT 4.2-5.8 A, RthJA 112.2 C/W JEDEC and 60.2 C/W on TI's 2-layer EVM);
+    Sunlord SWRB-S datasheet (SWRB1205S-100MT 10 uH +/-20 %, 4.0 A rated, 25 mOhm max, -40..105 C
+    incl. self-heating); JST eXH.pdf (3 A per contact with AWG22). R32 CONTROLLER-SPEC: drive
+    cap 0.8 (about 9 W) except in a fault.
+    """
+    rtop, rbot, rinj = 140e3, 11.5e3, 56.2e3 + 12.1e3      # injection 56.2 k + PWM filter 12.1 k
+    tol = {"rtop": 0.001, "rbot": 0.001, "rinj": 0.01}
+    vfb = (0.788, 0.812)
+    vh = (3.242, 3.367)                         # GPIO high = v3v3 band (rail_3v3)
+
+    def vout(vctl, f, rt, rb, ri):
+        return f + rt * (f / rb - (vctl - f) / ri)
+    corners = []
+    for f in vfb:
+        for st in (-1, 1):
+            for sb in (-1, 1):
+                for si in (-1, 1):
+                    rt, rb, ri = rtop * (1 + st * tol["rtop"]), rbot * (1 + sb * tol["rbot"]), rinj * (1 + si * tol["rinj"])
+                    corners.append((f, rt, rb, ri))
+    vmax = [vout(0.0, *c) for c in corners]
+    vmin = [vout(v, *c) for c in corners for v in vh]
+    # inductor ripple and peak, worst case: L -20 %, fsw 500 kHz nominal (-10 % allowance), Vin 15.375
+    L, fsw, vin = 10e-6 * 0.8, 500e3 * 0.9, 15 * 1.025
+    ripple = {v: (vin - v) * v / (vin * L * fsw) for v in (max(vmax), 9.0, min(vmin))}
+    i_typ, i_max = 1.42, 2.70
+    peak_max = i_max + max(ripple.values()) / 2
+    # converter loss at the blower's full current, hot RDSON (x1.4 at 125 C, typical MOSFET
+    # tempco allowance), plus switching (10 ns edges) and the inductor DCR
+    def loss(i, vo):
+        d = vo / vin
+        cond = d * i * i * 0.076 * 1.4 + (1 - d) * i * i * 0.032 * 1.4
+        sw = 0.5 * vin * i * 20e-9 * 500e3
+        return cond + sw + 0.03, i * i * 0.025
+    p_ic_typ, p_l_typ = loss(i_typ, 12.0)
+    p_ic_max, p_l_max = loss(i_max, 12.0)
+    ta = 60.0
+    tj = {"typ_jedec": ta + p_ic_typ * 112.2, "max_jedec": ta + p_ic_max * 112.2,
+          "typ_evm": ta + p_ic_typ * 60.2, "max_evm": ta + p_ic_max * 60.2}
+    # PS1 (IRM-20-15, 21 W) at the blower's normal cap and at full speed
+    p_cap = 9.0 / 0.90
+    p_full_typ = 17.04 / 0.90
+    p_full_max = 32.40 / 0.90
+    return {"source": "Delta BFB1012VH-F00 spec; TI SLUSEA4D; Sunlord SWRB-S; JST eXH.pdf; R32 CONTROLLER-SPEC",
+            "vout_duty0_V": [min(vmax), max(vmax)], "vout_duty100_V": [min(vmin), max(vmin)],
+            "inductor_ripple_pp_A": {f"{k:.1f}V": r for k, r in ripple.items()},
+            "inductor_peak_at_2p70A": peak_max, "ic_loss_W": {"typ": p_ic_typ, "max": p_ic_max},
+            "inductor_loss_W": {"typ": p_l_typ, "max": p_l_max}, "tj_C_at_60C": tj,
+            "ps1_blower_input_W": {"r32_cap": p_cap, "full_typ": p_full_typ, "full_max": p_full_max},
+            "checks": {"duty0_le_13p2V_fan_max": max(vmax) <= 13.2,
+                       "duty0_ge_11p5V": min(vmax) >= 11.5,
+                       # full duty spans the blower's 5.5 V floor; firmware closes the speed loop on FG
+                       "duty100_le_6p0V": max(vmin) <= 6.0,
+                       "duty100_ge_5p0V": min(vmin) >= 5.0,
+                       "inductor_peak_within_4A_rating": peak_max <= 4.0,
+                       # continuous: 1.42 A typ on the JEDEC figure; 2.70 A is the start-up / lock
+                       # peak (the blower shuts down on a locked rotor), checked on TI's EVM figure
+                       "tj_le_125C_continuous_jedec": tj["typ_jedec"] <= 125,
+                       "tj_le_125C_peak_evm": tj["max_evm"] <= 125,
+                       "j10_xh_3A_ge_2p70A": 3.0 >= i_max}}
+
+
 def harness_sensitivity() -> dict:
     """How far the DEFAULT harness length can grow before native-21's rail leaves 3.135 V.
 
@@ -370,6 +436,7 @@ def main() -> int:
         "landings": landings(),
         "rms_channel": rms_channel(),
         "ui_5v_supply": ui_5v_supply(),
+        "blower_supply": blower_supply(),
         "harness_sensitivity": harness_sensitivity(),
     }
     failed = [f"{blk}.{name}" for blk, val in result.items() if isinstance(val, dict)

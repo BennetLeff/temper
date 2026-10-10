@@ -433,7 +433,8 @@
       "origin": "controller (new)",
       "basis": "Sunlord SWPA6045S series: 22 uH, Isat 2.2 A, Irms 1.8 A, 89 mOhm (catalogue)",
       "lcsc": "C83454",
-      "jlc_stock_2026_10_08": 41720
+      "jlc_stock_2026_10_08": 41720,
+      "removed": "L3 (2026-10-10): blower inductor is SWRB1205S-100MT"
     },
     "TCA9555PWR": {
       "origin": "controller (new)",
@@ -519,6 +520,24 @@
       "basis": "TI SBOS839N Table 5-1 DBV: OUT 1, V- 2, IN+ 3, IN- 4, V+ 5; IQ 0.8 mA max per amplifier; lcsc.com/product-detail C398358",
       "lcsc": "C398358",
       "lcsc_stock_2026_10_10": 171350
+    },
+    "SWRB1205S-100MT": {
+      "origin": "controller (L3 blower buck inductor, C28)",
+      "basis": "Sunlord SWRB-S datasheet rev 2017/04/15: 10 uH +/-20 %, DCR 25 mOhm max, rated 4.0 A, 12.5x12.5x6.0 mm max, land 2.9 x 5.4 mm pads with 7.0 mm gap; jlcpcb.com/partdetail/C169383",
+      "lcsc": "C169383",
+      "lcsc_stock_2026_10_10": null
+    },
+    "RC0603FR-0756K2L": {
+      "origin": "controller (L3 blower FB injection, C28)",
+      "basis": "Yageo RC_L 1 % 0603, 56.2 kOhm; jlcpcb.com/partdetail/C482887",
+      "lcsc": "C482887",
+      "lcsc_stock_2026_10_10": null
+    },
+    "RT0603BRD0711K5L": {
+      "origin": "controller (L3 blower FB bottom, C28)",
+      "basis": "Yageo RT 0.1 % 0603, 11.5 kOhm; jlcpcb.com/partdetail/C705719",
+      "lcsc": "C705719",
+      "lcsc_stock_2026_10_10": null
     }
   }
 }

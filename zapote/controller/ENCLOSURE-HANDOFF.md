@@ -4,6 +4,8 @@ This is the electrical side of the R25 controller board. The enclosure team owns
 
 **R33 update (2026-10-10, enclosure R33 DECISIONS §3; R35 unchanged for the controller):** J5, J6 and J8 are deleted; one 12-way JST B12B-XH-A **J7** at X29.8–62.2, Y57.1–62.9 carries the UI bus to the fascia UI board (pin map below, DECISIONS C26). The module is the **ESP32-S3-WROOM-1U-N8** at X141–159, Y50–69.5 with its U.FL at (150, 67) and no antenna keep-out; nothing within 3 mm of the U.FL. The heights below are now from drawings (section "Height and cable exit").
 
+**L3 update (2026-10-10, DECISIONS C28):** J10 now supplies the R32 blower at 5.5–12 V (adjustable, ≥ 1.5 A) with its FG tach on pin 3; same part and position. The blower buck's inductor is 6.0 mm tall (heights table).
+
 **R36 update (2026-10-10, DECISIONS C27):** the rim NTC adds **J12** (JST B2B-XH-A) for the 6-conductor cartridge cable. Its 4 RTD wires stay on J3 and the NTC pair goes to J12. J12's landing is **proposed** at (126, 86) on the rear edge, 13 mm left of J10; the enclosure must confirm or move it.
 
 **R31 update (2026-10-09):** the enclosure re-posed native-21 by translation, so the whole controller layout is mirrored about X = 0: board X−38…168, J4 on the left edge mating −X, the WROOM at X−20…−2 behind the lens window, and J7 merged into a 4-pin J8 at (15, 41). The R31 coordinates are in `layout/world.py` (the layout's single parameter table) and DECISIONS C25; the coordinates in the tables below are the earlier R25–R28 ones.
@@ -16,7 +18,7 @@ This is the electrical side of the R25 controller board. The enclosure team owns
 |---|---|---|---|---|---|
 | J4 | Molex Micro-Fit 3.0 **43045-1600, 2×8 right-angle** THT with PCB pegs (C277731), mating +X | 16 | SELV_J4_to_controller, 1:1 to native-21 J4 (43025-1600 both ends) | right, 42.2, 42, 34 | 1 v15_selv, 2/4/15 selv_gnd, 3 v3v3 (out), 5–8 pwm_ha/la/hb/lb, 9 permit, 10 bus_fault, 11/12 vbus_p/n, 13 ct_zc, 14 ct_mon, 16 line_zc |
 | J9 | JST B3B-XH-A(LF)(SN) (C144394) | 3 | probe_M12_to_controller | **right (R25 move), 39.2, 86, 35** | 1 probe sense (NTC to GND assumed), 2 GND, 3 shield/drain. **Probe type to confirm** |
-| J10 | JST B3B-XH-A(LF)(SN) (C144394) | 3 | fan_to_controller (Delta PFB0612EHE-F00, 3-wire) | **rear (R25 move), −155, 91.3, 30** | 1 +12 V, 2 GND, 3 tach |
+| J10 | JST B3B-XH-A(LF)(SN) (C144394) | 3 | fan_to_controller (R32: Delta BFB1012VH-F00 blower, 3-wire; extension AWG22 at the XHP-3, 3 A per contact) | R31 centre (139, 86), unchanged | 1 V_BLOWER 5.5–12 V adjustable (1.42 A typ, 2.70 A max), 2 GND, 3 FG tach (blower red / black / blue). The blower has no PWM wire: speed is set by the supply voltage (DECISIONS C28) |
 | J1 | JST B2B-XH-A(LF)(SN) (thermal-sense, unchanged) | 2 | NTC_coil_to_thermal_sense | top, −60, 88, 42.2 | 1 COIL_SENSE, 2 GND (polarity-free NTC) |
 | J2 | JST B2B-XH-A(LF)(SN) (thermal-sense, unchanged) | 2 | NTC_sink_to_thermal_sense | top, 20, 88, 42.2 | 1 HS_SENSE, 2 GND |
 | J3 | JST B4B-XH-A(LF)(SN) (RTD unit, unchanged) | 4 | pan_RTD_to_controller (SAB 4×AWG28, ≤ 500 mm) | rear, −165, 92, 34 | 1 FORCE+, 2 RTDIN+, 3 RTDIN−, 4 FORCE− |
@@ -41,7 +43,8 @@ Heights above the board's top surface (bottom Z23, top Z24.6 since R30; Z40 leav
 | J4 Molex 43045-1600 right-angle + mated 43025-1600 | **10.29 mm mated** above the board | Molex part data for 43045-2001 (same right-angle THT snap-in-peg 43045 series, 20 circuits), "Mated Height 10.29mm" (Molex product sheet, generated 2026-03-06, farnell.com/datasheets/4740236.pdf). The 43045-1600 sales drawing itself (430451600_sd.pdf) could not be fetched (molex.com refuses this network), so the 16-circuit figure is by series, and the plug's −X overhang (R31: to X−50) is still unread |
 | J11 Würth 61300811121 (bring-up only) | 8.54 mm (pin tips; 11.54 pin − 3.0 tail); a mated 2.54 mm socket adds its own height | Würth WR-PHD 61300811121 datasheet rev 003.000 (2023-01-08) |
 | C1 EEE-FK1E101P | 6.2 mm | Panasonic FK series, 8 × 6.2 |
-| L1/L2 SWPA6045 | 4.5 mm | Sunlord SWPA6045 |
+| L1 SWPA6045 | 4.5 mm | Sunlord SWPA6045 |
+| L2 SWRB1205S-100MT (L3 blower buck) | 6.0 mm max | Sunlord SWRB-S datasheet rev 2017/04/15 |
 | U4 ESP32-S3-WROOM-1U-N8 | 3.2 ± 0.15 mm module; the U.FL plug adds ≤ 2.5 mm above its receptacle | Espressif WROOM-1/-1U DS v1.8 §10.1 |
 
 - **Mounting holes:** the six Ø3.2 holes and Ø8 keepouts are honoured by layout, with no parts inside them.

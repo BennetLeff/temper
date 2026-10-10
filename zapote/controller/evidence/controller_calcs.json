@@ -34,6 +34,52 @@
     "total_sps": 80000.0,
     "vbus_max_gap_us": 62.5
   },
+  "blower_supply": {
+    "checks": {
+      "duty0_ge_11p5V": true,
+      "duty0_le_13p2V_fan_max": true,
+      "duty100_ge_5p0V": true,
+      "duty100_le_6p0V": true,
+      "inductor_peak_within_4A_rating": true,
+      "j10_xh_3A_ge_2p70A": true,
+      "tj_le_125C_continuous_jedec": true,
+      "tj_le_125C_peak_evm": true
+    },
+    "ic_loss_W": {
+      "max": 0.9146434756097562,
+      "typ": 0.3264417975609756
+    },
+    "inductor_loss_W": {
+      "max": 0.18225000000000002,
+      "typ": 0.05041
+    },
+    "inductor_peak_at_2p70A": 3.2182926829268292,
+    "inductor_ripple_pp_A": {
+      "12.4V": 0.6664991335695222,
+      "5.0V": 0.9398682934051985,
+      "9.0V": 1.0365853658536583
+    },
+    "ps1_blower_input_W": {
+      "full_max": 36.0,
+      "full_typ": 18.933333333333334,
+      "r32_cap": 10.0
+    },
+    "source": "Delta BFB1012VH-F00 spec; TI SLUSEA4D; Sunlord SWRB-S; JST eXH.pdf; R32 CONTROLLER-SPEC",
+    "tj_C_at_60C": {
+      "max_evm": 115.06153723170732,
+      "max_jedec": 162.62299796341466,
+      "typ_evm": 79.65179621317073,
+      "typ_jedec": 96.62676968634146
+    },
+    "vout_duty0_V": [
+      11.959511917660768,
+      12.399922859520029
+    ],
+    "vout_duty100_V": [
+      5.027434923724186,
+      5.780426139716281
+    ]
+  },
   "ct_mon": {
     "atten": "ATTEN3 (0-2900 mV)",
     "checks": {

@@ -57,7 +57,7 @@ Through a removable 0 Ω link (`r_ovp_tie`) to selv_gnd. bus_fault already ORs D
 - **Supervisor:** the TPS3703A4330 senses through 1 kΩ/1 µF (τ = 1 ms), so µs-scale ESP32-TX and OLED load steps can't nuisance-latch the interlock. Real rail faults are ms-scale.
 - **Part (follow-up):** fitted as **TPS3703A4330DSERQ1** (C1850327), because JLC showed 0 stock for the commercial TPS3703A4330DSER. The Q1 datasheet (SBVS344D) gives the same DSE pinout (SENSE1 VDD2 CT3 RESET4 GND5 MR6), ±0.7 % accuracy, 0.3–0.8 % hysteresis, 7–13 ms delay and supply/SENSE currents, so every calculation is unchanged.
 
-## C9. Fan supply: a regulator on the controller, on by default (spec R19 L1, R24)
+## C9. Fan supply: a regulator on the controller, on by default (spec R19 L1, R24; superseded by C28)
 - **Converter:** 15 V → 12.0 V with a TPS62933 (11.78–12.22 V, inside the Delta PFB0612EHE-F00's 7–13.2 V). At 14.5 V input the duty is 0.846, against a 0.923 typical limit without foldback, and foldback allows 98 %.
 - **Default state:** the fan is on (EN floats high). Firmware can only switch it off, via the 2N7002 on GPIO46.
 - **Connector:** the fan is 3-wire, so the 3-pin header carries +12 V, GND and tach. Tach has a 10 kΩ pull-up to 3.3 V into GPIO3. There is no PWM pin; the spec makes it optional.
@@ -235,6 +235,52 @@ Source: coordinator relay of the R36 change. A glass-encapsulated 10 k bead NTC 
   J12's landing is **proposed** at world (126, 86) on the rear edge, 13 mm left of J10. **Enclosure to confirm** (`layout/world.py`).
 - **Firmware pins.h:** RIM_ADC = GPIO9 (ADC1_CH8); I2C_SDA = GPIO37; SUP_RUN_OK read through expander P14.
 
+## C28. Blower supply: adjustable 5.5–12 V on J10, tach-supervised (L3, R32 requirement, 2026-10-10)
+Source: R32 CONTROLLER-SPEC "R32 additions" (blower output 5.5–12 V ≥ 1.5 A for the Delta BFB1012VH-F00 plus its tach; J10 stays the fan header; fan law and tach-loss derate). Blower data: Delta spec BFB1012VH-F00, sample rev 01: operating 5.5–13.2 V, 1.42 A typical (2.70 A maximum), 17.04 W (32.4 W maximum), lead wires red +, black −, blue FG, current shutdown on a locked rotor. Numbers: `tools/controller_calcs.py blower_supply()`.
+- **Converter:** the existing TPS62933 (U2, 3 A class, high-side limit 4.2–5.8 A, SLUSEA4D) with a new inductor. The 22 µH SWPA6045 (Isat 2.2 A) is replaced by a **Sunlord SWRB1205S-100MT**: 10 µH, 4.0 A rated, 25 mΩ, 12.5 × 12.5 × 6.0 mm (C169383). It carries the blower's 2.70 A maximum plus ripple (peak 3.2 A at the worst corner). A third 10 µF input capacitor is added.
+- **Speed control: PWM injected into FB.**
+  - GPIO46 (LEDC PWM) → 12.1 k / 1 µF (13 Hz) → 56.2 k into FB, with FB set by 140 k (0.1 %) / 11.5 k (0.1 %).
+  - Duty 0 gives 11.96–12.40 V; duty 100 % gives 5.03–5.78 V, over the VFB, resistor and 3.3 V-rail corners.
+  - Firmware closes the speed loop on the tach, so the absolute voltage only needs to span the blower's 5.5 V floor.
+  - **Fail-safe direction:** GPIO46 is a strap with a 100 k pull-down, so at reset, with the MCU off or with duty 0 the blower runs at full speed. A PWM pin stuck high gives the lowest speed, which the tach sees.
+- **Switch-off (fan law "off below 50 °C"):** the 2N7002 on the buck's EN is now driven by expander P15. Its gate pull-down is now 10 k, so while the TCA9555 powers up as an input with its 100 k pull-up the gate sits at ≤ 0.32 V. That is below the 2N7002's 1.0 V minimum threshold, so the blower runs by default.
+- **Tach (FG):**
+  - The blower's FG is open collector: 10 k pull-up to 3.3 V and an ESD5Z3.3 at J10, then 1 k / 1 nF into GPIO3 (PCNT).
+  - A stalled, locked (Delta shuts the current down) or unplugged blower, or a broken FG wire, all read 0 Hz.
+  - **Firmware (fan law, R32):** drive = max(sink loop, coil loop); coil derate above 150 °C. Tach below a speed threshold for > 1 s while driven means blower failed: derate tank power at once, and stop if the sink or coil keeps rising.
+  - This is a firmware path. A hardware tach-loss trip into the interlock would need a retriggerable monostable feeding a spare interlock input; it is not added here and is listed as an option.
+  - No current sense: ADC1 is full and the tach already covers stall, lock and open circuit.
+- **Connector J10** (fixed at (139, 86), R31/R32): JST **B3B-XH-A**, unchanged. XH is rated 3 A per contact with AWG22 crimps (JST eXH.pdf), which covers the 2.70 A maximum.
+  - Pin map: **1 V_BLOWER (5.5–12 V), 2 GND, 3 FG**. The blower is 3-wire with no PWM input, so R32's spec and harness list keep a 3-pin J10 and a 3-core extension.
+  - The extension must be AWG22 at the XHP-3 housing.
+- **Thermal:** U2 at the blower's 1.42 A typical runs at ≈ 97 °C on the JEDEC 112.2 °C/W figure at 60 °C ambient. The 2.70 A start/lock peak gives ≈ 115 °C on TI's EVM figure (60.2 °C/W). The inductor loss is 0.05 W typical.
+- **Layout:** the buck moves to X 81–102 so its larger inductor still keeps L2 ≥ 10 mm from the RTD front end. V_BLOWER and v15_selv are routed 0.8 mm wide.
+- **Supply budget (OWNER / power-stage flag, open item 13):** PS1 (IRM-20-15, 21 W) carries the controller at the R32 drive cap: 14.8 W, `verify_controller.py v3v3`. At full blower speed the total is 23.7 W with the Delta typical 17.04 W, and 40.8 W at its 32.4 W maximum. Both exceed the 21 W rating, and R32's fan law asks for full speed in a fault. Either PS1 grows (≥ 30 W class) or the blower gets its own SELV supply, as power-stage D-18 originally said. The controller design does not change either way.
+
+## C29. Filtering on the NTC and RTD inputs (L3, R32 / study 06 "differential RC ≤ 1 kHz")
+- **NTC channels (HS, COIL, M12, RIM):** every MCU reading passes a series 10 k into 100 nF before its CMOS buffer, a 159 Hz corner. The node source impedance only adds to the R, so the corner stays ≤ 159 Hz whatever the NTC resistance.
+  - **HS and COIL:** the RC is added at the top level, between the thermal-sense node and the buffer, outside the ported block.
+  - **M12:** already had it.
+  - **RIM:** now built the same way, with the node holding only the pull-up and the TVS.
+  - **Why it counts as differential:** the NTC return conductor lands on selv_gnd at the connector, so pickup on the twisted pair appears as a differential voltage at the node, and the RC acts on exactly that.
+  - **Trip path untouched:** the thermal-sense block's own trip comparators keep the block's validated node filter (100 nF at the node, inside the ported block), so the hardware trip timing is unchanged.
+  - `verify_controller.py adc1` checks each corner (≤ 1 kHz) and a mutation test removes one capacitor.
+- **RTD (byte-locked library, no stage added):**
+  - J3 and RTDIN± are inside the locked RTDSensing module, so a series element can't be inserted between them without editing that library (`verify_controller.py sources`).
+  - A ≤ 1 kHz differential RC also conflicts with the RTD unit's own requirement. Its comment in `modules.ato` explains that the 1 MΩ open-lead pull-ups with a larger C miss the 100 ms open-lead response (τ = 1 MΩ × C; a 2 × 1 kΩ / 80 nF 1 kHz filter gives τ ≈ 80 ms, 10.5 τ ≈ 0.84 s).
+  - The existing protection is the RTD unit's 1 nF C0G differential capacitor at the converter plus the MAX31865's own conversion filter.
+  - **Change request to the RTD unit owner:** if bench EM2/S3 show 31 kHz pickup in the RTD reading, add the filter in the RTD unit source and re-run its validator.
+- **Wiring note:** NTC and RTD leads under the coil stay twisted pairs (R32).
+
+## C30. Block validators (interlock, thermal-sense, RTD): what a re-run on this layout needs
+- **Build:** all three are binaries of the Cargo workspace crate `zapote-harness` (`zapote/Cargo.toml`). Their logic sits in `zapote-erc`, `zapote-drc` and `zapote-core`, with crates.io dependencies (anyhow, serde, serde_json, sha2, thiserror; libc and flate2 via `zapote-thermal`). None is a single-file `rustc` program, so they need a workspace build, which this task excluded.
+- **Inputs:** each consumes its unit's own source manifest, a native KiCad export (`current-sense/tools/extract_current_sense_native.py`; for the RTD, `rtd/native_measure.py` plus `rtd/unit/bind_native.py`) and its contract. Each also checks an exact component census of its standalone board: 25 parts for interlock, 27 for thermal-sense, 36 for RTD.
+- **To run them on the controller:**
+  1. a workspace build;
+  2. native exports of `pcb/controller.kicad_pcb`, filtered to each block's parts and re-mapped from the controller's prefixed instance paths (`interlock.*`, `thermal.*`, `rtd_pan.*`) to the unit names;
+  3. for the RTD, a controller profile in place of `rtd/unit/profile.json`.
+- **Coverage today:** `verify_controller.py` covers the netlist-level parts: the ports are byte-equal to their sources, and the trip-path logic is simulated exhaustively. The validators' layout checks (clearance, bypass locality) are partly covered by the KiCad DRC and the decoupling check. The validators themselves have not been re-run (open item 9).
+
 ## FMEA: shared supply, ground and connector (CONTROLLER-SPEC requirement, before layout freeze)
 
 | Failure | Effect | Detection / safe state |
@@ -268,7 +314,8 @@ Source: coordinator relay of the R36 change. A glass-encapsulated 10 k bead NTC 
    - the BIAS-on, settle, reset-request sequence (C6);
    - the WDI ≤ 400 ms heartbeat;
    - the UI bus driver (OLED + polled MCP23S08 on one SPI host, chunked frame writes, C26);
-   - pins.h additions (UI SPI 40/41/44/47/48/45, RUN_EN 14, I²C SDA 37 / SCL 0, fan 46/3, ADC on 8 and rim NTC on 9; RTD_DRDY on expander P07, SUP_RUN_OK on P14).
+   - pins.h additions (UI SPI 40/41/44/47/48/45, RUN_EN 14, I²C SDA 37 / SCL 0, blower PWM 46 and tach 3, ADC on 8 and rim NTC on 9; expander: RTD_DRDY P07, SUP_RUN_OK P14, FAN_OFF P15);
+   - the blower fan law and tach supervision (C28).
 9. **Layout stage:**
    - re-run the interlock, thermal-sense and RTD validators on the integrated board;
    - the native KiCad ERC/DRC and Rust stackup gate;
@@ -280,7 +327,8 @@ Source: coordinator relay of the R36 change. A glass-encapsulated 10 k bead NTC 
     - fan start at the PS1 low corner;
     - D-11 accuracy and ct_mon estimation.
 11. **Enclosure:** connector-versus-hole and height conflicts. See [ENCLOSURE-HANDOFF.md](ENCLOSURE-HANDOFF.md).
-12. **Owner / power stage (R32 delta, not yet designed in):** an adjustable 5.5–12 V ≥ 1.5 A blower output for the Delta BFB1012VH (the fixed 12 V fan buck, C9, is rated 3 A but has no adjust input or free PWM pin), and differential RC ≤ 1 kHz low-pass filters on the RTD and NTC inputs (study 06). Both change the schematic and need their own pass.
+12. **R32 delta:** the blower output (C28) and the NTC filtering (C29) are designed in. The RTD filter is a change request to the RTD unit (C29).
+13. **Owner / power stage: PS1 at full blower speed (C28).** IRM-20-15 (21 W) is exceeded when the blower runs at full speed: 23.7 W typical, 40.8 W at the blower's maximum. Choose a larger PS1, or give the blower its own SELV supply.
 
 ## Layout inputs from the enclosure (R27, 2026-10-08)
 

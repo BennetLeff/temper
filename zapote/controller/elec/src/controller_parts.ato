@@ -494,3 +494,15 @@ component Tlv9061:
     signal IN_P ~ pin 3
     signal IN_N ~ pin 4
     signal VP ~ pin 5
+
+component IndSwrb1205_10u:
+    """Sunlord SWRB1205S-100MT, 10 uH +/-20 %, rated 4.0 A (25 % L drop or temperature rise),
+    DCR 25 mOhm max, 12.5 x 12.5 x 6.0 mm max (Sunlord SWRB-S datasheet, rev 2017/04/15;
+    LCSC/JLC C169383). Blower buck inductor (L3, DECISIONS C28): covers the blower's 2.70 A
+    maximum input current with margin. Operating -40..105 C including self-heating."""
+    designator_prefix = "L"
+    mpn = "SWRB1205S-100MT"
+    manufacturer = "Sunlord"
+    footprint = "Temper_Controller:L_Sunlord_SWRB1205S"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2

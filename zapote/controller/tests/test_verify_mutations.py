@@ -66,7 +66,7 @@ class Mutations(unittest.TestCase):
         rep = vc.Report()
         for fn in (lambda: vc.check_j4(rep, nl, self.n21), lambda: vc.check_adc1(rep, nl, CALCS),
                    lambda: vc.check_trip(rep, nl, CALCS), lambda: vc.check_misc(rep, nl),
-                   lambda: vc.check_ct_rms(rep, nl, CALCS), lambda: vc.check_ui_bus(rep, nl, CALCS)):
+                   lambda: vc.check_ct_rms(rep, nl, CALCS), lambda: vc.check_ui_bus(rep, nl, CALCS), lambda: vc.check_blower(rep, nl, CALCS)):
             fn()
         return rep.failed
 
@@ -202,9 +202,25 @@ class Mutations(unittest.TestCase):
         self.assertIn("adc1.RIM_ADC_driven_by_TLV9061IDBVR_buffer", failed)
 
     def test_strap_pullup_on_gpio46_fails(self):
-        r = self.ref("r_fan_off_pd")
+        r = self.ref("r_fan_pwm_pd")
         t = move_node(self.base, r, "2", "v3v3")
         self.assertIn("misc.gpio46_reads_0_at_reset", self.run_checks(t))
+
+
+    # ---- L3 blower and NTC-filter checks (DECISIONS C28/C29)
+    def test_blower_pwm_pullup_breaks_full_speed_failsafe(self):
+        t = add_node(self.base, self.ref("r_fan_pwm_pd"), "2", "v3v3")
+        t = drop_node(t, self.ref("r_fan_pwm_pd"), "2")
+        failed = self.run_checks(t)
+        self.assertIn("blower.gpio46_low_at_reset_is_full_speed", failed)
+
+    def test_fg_straight_to_gpio_fails(self):
+        t = move_node(self.base, "J10", "3", "FAN_TACH")
+        self.assertIn("blower.j10_pin_map", self.run_checks(t))
+
+    def test_ntc_filter_cap_removed_fails(self):
+        t = drop_node(self.base, self.ref("c_coil_filt"), "1")
+        self.assertIn("adc1.COIL_ADC_input_rc_le_1kHz", self.run_checks(t))
 
 
 if __name__ == "__main__":
