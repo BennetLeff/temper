@@ -578,6 +578,13 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
     - **Still open:**
       - h 10 (fan failure): the FET row is 198 °C at 28 A. The blower stall detection and derate own this (controller L3).
       - At the 0.25 mm mesh, R5's pad cell is 149 °C at 28 A (nominal 140 °C), which predates 15b. R5 runs at 0.86 W of its 1 W rating, so its derating needs a check.
+        - **Checked 2026-10-12: FAIL** (`round5-native21/r5-derating/`, rerun reproduced).
+          - WSK25121L000FEA (Vishay 30108) is 1 W at 70 °C, derating to 0 W at 170 °C.
+          - 0.864 W is the dissipation at the 29.4 A trip; at 28 A it is 0.784 W.
+          - With the pads at 149.2 °C max / 122.7 °C mean, the derated rating is 0.208 / 0.473 W.
+          - The TCR keeps the trip floor: the low edge is 65.49 A against 64.17 A.
+          - Item 4's fallback (a ≥ 2 W four-terminal shunt) is taken: stage 17, plan in `round5-native21/stage17-r5/`.
+          - Item 4's "local ambient ≤ 100 °C" gate was too loose for this part.
       - Lead conduction to the heatsink is −5.6 / +0.5 K (ZVS / conservative switching). Its sign closes with the bench switching-loss measurement.
       - Bench list: FET-row IR at 28 A.
 15. **Sink contingency and blower supply at 28 A (2026-10-12; enclosure R33 studies 10 and 11).**
