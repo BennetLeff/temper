@@ -1,0 +1,20 @@
+1. IRM-60 on the tongue at board (45,145): world [-140.5, 64, 27.6, -51.5, 118, 58.1]
+   hits: ['controls_ui_board', 'controls_ui_board_connectors'] (+ native-21 bodies: True )
+   controls_ui_board bottom z 43.407856521161 -> headroom over the board top (27.6) 15.8 mm vs 30.5 needed
+
+2. IRM-60-xxST chassis envelope, floor z 10.0: 1193 clear grid positions
+   (plan gap to the coil ferrite bars: negative = under the coil)
+   flat, long y    centre (-141.5, 69.5) x -170..-114 y 3..136 z 32.5-70.0  ferrite gap +6.9 mm  over native-21  harness AABBs: ['probe_M12_to_controller', 'fan_to_controller']
+   flat, long y    centre (-141.5, 72.0) x -170..-114 y 6..138 z 32.5-70.0  ferrite gap +4.4 mm  over native-21  harness AABBs: ['probe_M12_to_controller', 'fan_to_controller']
+   flat, long x    centre (-115.5, 118.5) x -182..-49 y 90..146 z 32.5-70.0  ferrite gap -3.6 mm  over native-21  harness AABBs: ['probe_M12_to_controller', 'fan_to_controller', 'NTC_sink_to_thermal_sense']
+   flat, long x    centre (-108.0, 118.5) x -174..-42 y 90..146 z 32.5-70.0  ferrite gap -3.6 mm  over native-21  harness AABBs: ['probe_M12_to_controller', 'fan_to_controller', 'NTC_sink_to_thermal_sense']
+   flat, long x    centre (-88.0, 118.5) x -154..-22 y 90..146 z 32.5-70.0  ferrite gap -3.6 mm  over native-21  harness AABBs: ['coil_lead_to_J2', 'probe_M12_to_controller', 'fan_to_controller', 'NTC_sink_to_thermal_sense']
+   flat, long y    centre (-141.5, 92.0) x -170..-114 y 26..158 z 32.5-70.0  ferrite gap -6.2 mm  over native-21  harness AABBs: ['probe_M12_to_controller', 'fan_to_controller']
+   flat, long y    centre (-141.5, 112.0) x -170..-114 y 46..178 z 32.5-70.0  ferrite gap -6.2 mm  over native-21  harness AABBs: ['probe_M12_to_controller', 'fan_to_controller']
+   flat, long x    centre (-115.5, 131.0) x -182..-49 y 103..159 z 32.5-70.0  ferrite gap -16.1 mm  over native-21  harness AABBs: ['fan_to_controller', 'NTC_sink_to_thermal_sense']
+   flat, long x    centre (-108.0, 131.0) x -174..-42 y 103..159 z 32.5-70.0  ferrite gap -16.1 mm  over native-21  harness AABBs: ['fan_to_controller', 'NTC_sink_to_thermal_sense']
+   flat, long x    centre (-88.0, 131.0) x -154..-22 y 103..159 z 32.5-70.0  ferrite gap -16.1 mm  over native-21  harness AABBs: ['coil_lead_to_J2', 'fan_to_controller', 'NTC_sink_to_thermal_sense']
+   flat, long x    centre (-115.5, 151.0) x -182..-49 y 123..179 z 32.5-70.0  ferrite gap -36.1 mm  over native-21  harness AABBs: ['fan_to_controller', 'NTC_sink_to_thermal_sense']
+   flat, long x    centre (-108.0, 151.0) x -174..-42 y 123..179 z 32.5-70.0  ferrite gap -36.1 mm  over native-21  harness AABBs: ['coil_lead_to_J5', 'fan_to_controller', 'NTC_sink_to_thermal_sense']
+   flat, long x    centre (-88.0, 151.0) x -154..-22 y 123..179 z 32.5-70.0  ferrite gap -36.1 mm  over native-21  harness AABBs: ['coil_lead_to_J2', 'coil_lead_to_J5', 'fan_to_controller', 'NTC_sink_to_thermal_sense']
+   flat, long x    centre (-85.5, 171.0) x -152..-19 y 143..199 z 35.0-72.5  ferrite gap -56.1 mm  over native-21  harness AABBs: ['coil_lead_to_J2', 'coil_lead_to_J5', 'fan_to_controller', 'NTC_sink_to_thermal_sense']

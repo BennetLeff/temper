@@ -1,0 +1,18 @@
+== IRM-60/45 (87 x 52): 31521 in-outline positions, 0 collide with no courtyard
+  displaced   199 mm2 / 26 parts, long-x centre (45,145): C143 C144 C43 C44 C45 C46 C47 C88 C89 R125 R126 R38 ...; copper under (mm2): {'SW_A': 11, 'SW_B': 10, 'SELV': 4070, 'PE': 41}
+  displaced   227 mm2 / 32 parts, long-x centre (45,143): C143 C144 C43 C44 C45 C46 C47 C75 C82 C88 C89 R110 ...; copper under (mm2): {'SW_A': 56, 'SW_B': 52, 'SELV': 3915, 'PE': 41}
+  displaced   297 mm2 / 28 parts, long-x centre (45,150): C143 C144 C43 C44 C45 C46 C47 C88 C89 H2 H3 R125 ...; copper under (mm2): {'SELV': 4446, 'PE': 41}
+  best main-body spot (off the tongue): 92 parts / 940 mm2 at (45,110) long-x: C104 C108 C135 C136 C137 C138 C139 C140 C141 C142 C143 C144 C43 C44 C45 C46 C47 C75 C76 C77 C78 C79 C80 C82 C83 C84 C85 C86 C87 C88 C89 D15 D16 H5 Q8 R100 R101 R102 R103 R104 R105 R106 R107 R108 R109 R110 R111 R112 R113 R114 R115 R116 R117 R118 R119 R120 R121 R122 R123 R124 R125 R126 R38 R40 R41 R43 R44 R45 R46 R47 R63 R65 R95 R96 R97 R98 R99 U10 U11 U12 U13 U18 U19 U20 U21 U24 U25 U33 U34 U38 U39 U40
+== IRM-30 (69.5 x 39): 42213 in-outline positions, 60 collide with no courtyard (all on the SELV tongue: centres x 36-55, y 154-156)
+  displaced     0 mm2 /  0 parts, long-x centre (36,154): ; copper under (mm2): {'SELV': 2820, 'PE': 32}
+  displaced    14 mm2 /  3 parts, long-x centre (52,152): R38 R45 R47; copper under (mm2): {'SELV': 2820, 'PE': 40}
+  displaced    19 mm2 /  4 parts, long-x centre (48,152): R38 R45 R46 R47; copper under (mm2): {'SELV': 2820, 'PE': 39}
+  best main-body spot (off the tongue): 28 parts / 377 mm2 at (124,45) long-x: C114 C116 C127 C24 C25 C26 C27 C30 C32 C35 C48 C49 C52 C53 C9 C92 C93 H6 R22 R26 R52 U14 U15 U3 U5 U6 U7 U8
+== IRM-20 (52.4 x 27.2): 53049 in-outline positions, 536 collide with no courtyard (all on the SELV tongue: centres x 28-63, y 145-162)
+  displaced     0 mm2 /  0 parts, long-x centre (62,145): ; copper under (mm2): {'SELV': 1506, 'PE': 18}
+  displaced     5 mm2 /  1 parts, long-x centre (51,146): R38; copper under (mm2): {'SELV': 1506, 'PE': 27}
+  displaced     9 mm2 /  2 parts, long-x centre (47,146): R38 R47; copper under (mm2): {'SELV': 1506, 'PE': 26}
+  best main-body spot (off the tongue): 5 parts / 104 mm2 at (133,39) long-x: H6 R22 U14 U3 U8
+== option (c): 88 x 53 courtyard in PS1's corner (x >= 150, touching the y 139.5 edge band)
+  long-x centre (194.0,104.5): displaces 10 parts besides PS1: C151 C152 C23 C3 C4 C5 H7 R68 R69 U36
+  long-y centre (176.5,87.0): displaces 7 parts besides PS1: C151 C152 C21 C22 C23 C5 H7
