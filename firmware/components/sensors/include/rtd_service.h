@@ -13,6 +13,7 @@
 #define RTD_SERVICE_H
 
 #include <stdbool.h>
+#include <stdint.h>
 
 #include "hal_types.h"
 
@@ -47,6 +48,16 @@ void rtd_service_control_tick(void);
 
 /** True only after successful board-owned SPI/MAX31865 bootstrap. */
 bool rtd_service_is_ready(void);
+
+/**
+ * Latest RTD data word (MAX31865 registers 01h/02h), read by rtd_service_control_tick() on each
+ * DRDY completion, before the fault cycle is serviced (the read also releases DRDY). Returns
+ * false - no usable sample - unless the service is ready, a word has been read since bootstrap,
+ * the last data read succeeded and it is at most RTD_DRDY_TIMEOUT_CONTROL_TICKS control ticks
+ * old (the same fail-silent bound as DRDY). *age_ticks: control ticks since the read (0 = this
+ * tick). Control-task context only, like every other rtd_service call.
+ */
+bool rtd_service_latest_word(uint16_t *rtd_word, uint8_t *age_ticks);
 
 #ifdef __cplusplus
 }

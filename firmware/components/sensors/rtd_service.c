@@ -31,6 +31,10 @@ static bool s_ready;
 static bool s_bootstrap_failed;
 static bool s_bootstrap_failure_reported;
 static uint8_t s_drdy_wait_ticks;
+/* Latest RTD data word, read on each DRDY completion (rtd_service_latest_word). */
+static uint16_t s_rtd_word;
+static bool s_rtd_word_valid;
+static uint8_t s_rtd_word_age_ticks;
 
 void rtd_service_set_drdy_source(rtd_drdy_level_fn level, void *context)
 {
@@ -81,6 +85,9 @@ hal_status_t rtd_service_bootstrap(void)
     s_bootstrap_failed = false;
     s_bootstrap_failure_reported = false;
     s_drdy_wait_ticks = 0u;
+    s_rtd_word = 0u;
+    s_rtd_word_valid = false;
+    s_rtd_word_age_ticks = 0u;
 
     if (hal_spi == NULL || s_drdy_level == NULL) {
         s_bootstrap_failed = true;
@@ -115,6 +122,10 @@ hal_status_t rtd_service_bootstrap(void)
 
 void rtd_service_control_tick(void)
 {
+    if (s_rtd_word_age_ticks < UINT8_MAX) {
+        s_rtd_word_age_ticks++;
+    }
+
     if (s_bootstrap_failed) {
         /* Bootstrap runs before the control task. Report the failure here so
          * only the control task changes state-machine context. */
@@ -141,6 +152,12 @@ void rtd_service_control_tick(void)
 
     s_drdy_complete = false;
     s_drdy_wait_ticks = 0u;
+    /* The RTD data word for read_rtd_resistance() / read_pan_temperature(). A failed read only
+     * invalidates the sample (its readers then return their fault sentinels); the fault-status
+     * path below is unchanged. */
+    s_rtd_word_valid =
+        max31865_read_rtd_word(&s_max31865, &s_rtd_word) == HAL_OK;
+    s_rtd_word_age_ticks = 0u;
     if (max31865_service_fault_cycle(&s_max31865,
                                      state_machine_report_rtd_device_fault,
                                      NULL) != HAL_OK) {
@@ -153,4 +170,19 @@ void rtd_service_control_tick(void)
 bool rtd_service_is_ready(void)
 {
     return s_ready;
+}
+
+bool rtd_service_latest_word(uint16_t *rtd_word, uint8_t *age_ticks)
+{
+    if (!s_ready || !s_rtd_word_valid ||
+        s_rtd_word_age_ticks > RTD_DRDY_TIMEOUT_CONTROL_TICKS) {
+        return false;
+    }
+    if (rtd_word != NULL) {
+        *rtd_word = s_rtd_word;
+    }
+    if (age_ticks != NULL) {
+        *age_ticks = s_rtd_word_age_ticks;
+    }
+    return true;
 }

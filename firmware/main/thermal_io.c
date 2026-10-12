@@ -41,6 +41,8 @@
 #include "esp_timer.h"
 #include "../components/control/thermal_mgmt.h"
 #include "blower_aux.h"
+#include "platform_logic.h"
+#include "platform/platform_esp32.h"
 #if CONFIG_TEMPER_POWER_HW_BINDING
 #include "n21_hw.h"
 #endif
@@ -179,6 +181,9 @@ void thermal_blower_tick(void)
     bool tach_ok = ctrl_board_blower_tach_count(&count);
     uint32_t now_ms = ms_since_boot();
     blower_cmd_t cmd = blower_ctrl_decide(&s_blower, sink_c, coil_c, fault, BLOWER_TICK_S);
+    /* State-machine request (fan_set_speed(FAN_SPEED_MAX), platform/platform_esp32.c): a full-speed
+     * floor under the fan law's command, before the inlet schedule below; it never lowers it. */
+    platform_blower_apply_floor(platform_fan_full_speed_requested(), &cmd.on, &cmd.duty);
     /* Inlet allowance first, then the blower (blower_aux.h). The fan law's fault path (any fault
      * or an invalid sink / coil reading) is urgent: full speed at once. */
     blower_aux_in_t ai = {.on = cmd.on, .duty = cmd.duty,

@@ -1,6 +1,6 @@
 # ESP-IDF build evidence (firmware/, ESP32-S3)
 
-Date: 2026-10-12. Branch `build/esp-idf`. Reproduce with `./build.sh` (needs the IDF install below).
+Date: 2026-10-12. Branches `build/esp-idf` (first compile) and `fw/platform` (platform layer, strict link). Reproduce with `./build.sh` (needs the IDF install below).
 
 ## Toolchain
 
@@ -14,41 +14,42 @@ Date: 2026-10-12. Branch `build/esp-idf`. Reproduce with `./build.sh` (needs the
 
 ## Pass criterion
 
-Clean build: every esp32 glue file compiled AND linked, `idf.py build` exit 0.
+Clean build: every esp32 glue file compiled AND linked, `idf.py build` exit 0, with no diagnostic stubs.
 
-## Result
+## Result (2026-10-12, branch `fw/platform`)
 
 | Stage | Result |
 |---|---|
 | Configure (`set-target`) | PASS |
-| Compile, all 12 glue files + all other firmware sources | **PASS** (0 errors; see `compiled-glue-files.txt`) |
-| Link, strict (`build-strict.trimmed.log`) | **FAIL: 26 undefined references**, all to functions with no production implementation (`undefined-symbols.txt`) |
-| Link, diagnostic (`build-diag-link.trimmed.log`) | PASS only with `diag_stubs/` (abort() stubs for those 26 symbols). NOT flashable, NOT a pass. |
+| Compile, all glue files + all other firmware sources | **PASS** (0 errors, no new warnings; `compiled-glue-files.txt`, now 14 files incl. `main/platform/`) |
+| Link, strict (`build-strict.trimmed.log`) | **PASS, exit 0** (`build.sh` prints `STRICT build exit code: 0`; the DIAG step did not run) |
+| The 26 formerly undefined symbols (`undefined-symbols.txt`) | all `DEFINED` (type `T`) in `induction_cooker.elf`, each from `platform_esp32.c.obj` or `ui_esp32.c.obj`; 0 `diag_stubs` references in the link map (`platform-symbols-nm.txt`) |
+| Host tests (`ctest-summary.txt`) | **29/29** (was 28; new `platform_logic_tests`, plus 3 new cases in `max31865_tests`) |
 
-**Verdict: PARTIAL. All glue compiles; the firmware image does not link.** The strict build fails at
-link for a reason that is not a glue bug: `main/state_machine.c`, `main/state_handlers.c` and `main/main.c` call
-26 platform functions that exist only as host test doubles in `firmware/test/state_machine_stubs.c`:
+**Verdict: PASS.** The 26 platform functions now have production implementations for the integrated controller
+(`main/platform/`, decisions in `components/platform/platform_logic.c`). Per-function hardware path, mapping source and
+failure behaviour: **[PLATFORM.md](PLATFORM.md)**. Four are documented unsupported-safe (no hardware):
+`read_dc_bus_current` (always `+INFINITY`, so PREHEAT latches FAULT_IGBT_SHORT: this image cannot heat until the owner
+re-points that interlock, PLATFORM.md P1), `peripherals_enter_low_power`, `peripherals_exit_low_power`, `led_set_pattern`.
+Bench-level open items (RTD conversions not commanded, provisional UI-board bit map) are listed there too.
 
-`button_is_pressed button_set_enabled buzzer_beep buzzer_beep_continuous buzzer_stop display_show_fault display_show_message display_update_countdown display_update_temperature eeprom_log_fault fan_set_auto_mode fan_set_speed get_time_ms led_set_pattern peripherals_enter_low_power peripherals_exit_low_power peripherals_init read_dc_bus_current read_pan_temperature read_rtd_resistance test_adc_calibration test_display_communication test_eeprom_read test_fan_operation test_hardware_comparators test_rtd_sensor`
+History: at 4168c046a (branch `build/esp-idf`) the strict link failed with these 26 undefined references and a
+non-flashable image was linked only with `diag_stubs/` (abort() stubs). That diagnostic path is still in `build.sh` for a
+future link failure; it is not used now.
 
-Inventing these would mean choosing hardware behaviour (thermistor read path, fan, display, EEPROM, self-tests),
-which this task excludes, so they are reported, not fixed. `read_pan_temperature`, `read_rtd_resistance` and
-`read_dc_bus_current` feed the safety interlocks in `state_machine.c`, so they matter most for review.
+### Size (strict image, `size.txt`, `size-components.txt`, `bin-size.txt`)
 
-### Size (diagnostic image, `size.txt`, `size-components.txt`)
-
-`induction_cooker.bin` = 380448 bytes (0x5ce20), 82 % of the 2 MB app partition free. Flash code 203264, flash
-data 87096, DIRAM 79163 (23 %), IRAM 16383 / 16384 (this is the IDF-reserved non-cache IRAM bank; normal for
-esp32s3). Per-archive sizes are in `size-components.txt` (project archives: libpower 23981, libmain 15880
-[main + control + safety + config + sensors], libtemper_hal 11083). `libdiag_stubs.a` (234 B) is the diagnostic stubs.
-The figures include the 234 B of stubs.
+`induction_cooker.bin` = **409312 bytes** (0x63ee0), 80 % of the 2 MB app partition free. Flash code 229404, flash data
+89736, DIRAM 87699 (25.66 %), IRAM 16383 / 16384 (the IDF-reserved non-cache IRAM bank; normal for esp32s3). Project
+archives: libmain 30812 (incl. the platform layer and its 8 KB OLED framebuffer in .bss), libpower 23965, libtemper_hal 11083.
 
 ### Proof the glue compiled and linked
 
 - `compiled-glue-files.txt`: entries from `build/compile_commands.json` for every file under `components/*/esp32/`, `main/`
   and `components/power/n21_hw_esp32.c` (12 files, with object paths).
-- `linked-glue-objects.txt`: the same 12 objects with their non-zero input-section sizes in the final link map
-  (diagnostic image), so they are linked in, not just compiled.
+- `linked-glue-objects.txt`: the glue objects plus the platform layer (`platform_esp32`, `ui_esp32`, `platform_logic`,
+  `rtd_service`, `max31865`) with their non-zero input-section sizes in the strict image's link map, so they are linked in,
+  not just compiled.
 
 ### Warnings from project code (clean full build; IDF's own code produced none that matter)
 
@@ -82,18 +83,36 @@ Configure-time notes (not code warnings): `jinja2` is not in the system Python, 
 | `components/hal/esp32/hal_{adc,spi,timer}_esp32.c` | `(int)` casts on `%d` log arguments (`int32_t` is `long` on xtensa) | `-Werror=format`; log text only |
 | `config.c` | `strtof(s, NULL, 10)` -> `strtof(s, NULL)` (6x), `#include <stdio.h>`, `(unsigned)` cast on one `%u` | `strtof` takes 2 arguments (the radix was invalid C); `printf` undeclared; format mismatch |
 
+### Platform layer (branch `fw/platform`)
+
+| File | Change |
+|---|---|
+| `main/platform/platform_esp32.{c,h}`, `main/platform/ui_esp32.c`, `main/platform/ui_board_map.h` (new) | production implementations of the 26 functions (PLATFORM.md) |
+| `components/platform/platform_logic.c`, `include/platform_logic.h` (new) | pure logic, host-tested by `test/test_platform_logic.c` |
+| `components/sensors/max31865.{c,h}` | `MAX31865_RREF_OHM` (430 ohm, board r_ref), `max31865_read_rtd_word()`, `max31865_rtd_word_to_ohm()` |
+| `components/sensors/rtd_service.{c,h}` | reads the RTD data word on each DRDY completion (before the unchanged fault-cycle service); `rtd_service_latest_word()` |
+| `main/thermal_io.c` | the state machine's FAN_SPEED_MAX request is a full-speed floor on the fan law's command (one call, line 186) |
+| `main/CMakeLists.txt` | the platform sources and include dirs |
+| `test/CMakeLists.txt`, `test/test_platform_logic.c`, `test/test_max31865.c` | new ctest + 3 new cases; `test/state_machine_stubs.c` (host doubles) unchanged |
+| `build.sh`, `mapsum.py` | nm proof + bin size on a strict pass; build-dir paths normalised to `<BUILD>`; map summary includes the platform objects |
+
 ## Control: host tests after the changes
 
 Fresh dir `firmware/build-host-ctest` (`cmake -S firmware/test`):
 
+At 4168c046a: `100% tests passed, 0 tests failed out of 28`. After the platform layer (`ctest-summary.txt`, fresh build
+dir outside the repo):
+
 ```
-100% tests passed, 0 tests failed out of 28
-Total Test time (real) = 5.00 sec
+100% tests passed out of 29
+Total Test time (real) =   5.11 sec
 ```
 
 ## Files here
 
-`build.sh` (reproduce), `build-strict.trimmed.log`, `build-diag-link.trimmed.log`, `undefined-symbols.txt`,
-`size.txt`, `size-components.txt`, `compiled-glue-files.txt`, `linked-glue-objects.txt`, `mapsum.py`, `sdkconfig.evidence`,
-`diag_stubs/` (diagnostic only). Not committed: `firmware/build/`, ESP-IDF, `ui.c` is not built (it needs
-`hal_encoder`/`hal_led`, which only have mock implementations; `main.c` has its `ui_update()` call commented out).
+`build.sh` (reproduce; `BUILD_DIR=... ./build.sh`), `PLATFORM.md` (per-function mapping), `build-strict.trimmed.log`,
+`platform-symbols-nm.txt`, `bin-size.txt`, `ctest-summary.txt`, `undefined-symbols.txt` (the 26 symbols missing at
+4168c046a; input of the nm proof), `size.txt`, `size-components.txt`, `compiled-glue-files.txt`, `linked-glue-objects.txt`,
+`mapsum.py`, `sdkconfig.evidence`, `diag_stubs/` (diagnostic fallback only, unused by a passing build). Not committed: the
+build directory, ESP-IDF. `ui.c` is still not built (it needs `hal_encoder`/`hal_led`, which only have mock
+implementations; the UI board is driven by `main/platform/ui_esp32.c` instead).
