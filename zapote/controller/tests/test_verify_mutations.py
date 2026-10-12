@@ -66,7 +66,8 @@ class Mutations(unittest.TestCase):
         rep = vc.Report()
         for fn in (lambda: vc.check_j4(rep, nl, self.n21), lambda: vc.check_adc1(rep, nl, CALCS),
                    lambda: vc.check_trip(rep, nl, CALCS), lambda: vc.check_misc(rep, nl),
-                   lambda: vc.check_ct_rms(rep, nl, CALCS), lambda: vc.check_ui_bus(rep, nl, CALCS), lambda: vc.check_blower(rep, nl, CALCS)):
+                   lambda: vc.check_ct_rms(rep, nl, CALCS), lambda: vc.check_ui_bus(rep, nl, CALCS), lambda: vc.check_blower(rep, nl, CALCS),
+                   lambda: vc.check_v3v3(rep, nl, self.n21, CALCS), lambda: vc.check_blwin(rep, nl, CALCS)):
             fn()
         return rep.failed
 
@@ -230,6 +231,28 @@ class Mutations(unittest.TestCase):
     def test_ntc_filter_cap_removed_fails(self):
         t = drop_node(self.base, self.ref("c_coil_filt"), "1")
         self.assertIn("adc1.COIL_ADC_input_rc_le_1kHz", self.run_checks(t))
+
+    # ---- stage 16 blower supply from PS3 (DECISIONS C33)
+    def test_u2_back_on_logic_15v_fails(self):
+        t = move_node(self.base, "U2", "3", "v15_selv")
+        failed = self.run_checks(t)
+        self.assertIn("blwin.u2_vin_en_caps_on_v15_blw", failed)
+        self.assertIn("j4.pin1_feeds_3v3_buck_only", failed)
+
+    def test_part_bridging_v15_blw_and_v15_selv_fails(self):
+        t = move_node(self.base, self.ref("c_blw_bulk"), "2", "v15_selv")
+        failed = self.run_checks(t)
+        self.assertIn("blwin.no_part_bridges_v15_blw_and_v15_selv", failed)
+        self.assertIn("blwin.bulk_cap_on_v15_blw", failed)
+
+    def test_j13_pins_swapped_fails(self):
+        t = move_node(self.base, "J13", "1", "selv_gnd")
+        t = move_node(t, "J13", "2", "V15_BLW")
+        self.assertIn("blwin.j13_pin_map", self.run_checks(t))
+
+    def test_blw_pg_off_p16_fails(self):
+        t = move_node(self.base, self.ref("u_io"), "19", "selv_gnd")
+        self.assertIn("blwin.blw_pg_divider_into_p16", self.run_checks(t))
 
 
 if __name__ == "__main__":

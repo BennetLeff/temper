@@ -153,7 +153,7 @@ def en_uvlo() -> dict:
         out[name] = ven * (1 + hi / lo) - ip * hi
     out["checks"] = {"starts_below_irm_min": out["start_max_V"] < 15 * 0.975,
                      "stops_above_8V": out["stop_min_V"] > 8.0}
-    out["source"] = ["TPS62933", "IRM-20-15"]
+    out["source"] = ["TPS62933", "IRM-20-15 (3.3 V buck)", "IRM-60-15ST (blower buck, stage 16): same 15 V +/-2.5 %"]
     return out
 
 
@@ -405,6 +405,80 @@ def blower_supply() -> dict:
                        "j10_xh_3A_ge_2p70A": 3.0 >= i_max}}
 
 
+def ps3_budget() -> dict:
+    """Stage 16 (DECISIONS C33): PS3 = Mean Well IRM-60-15ST feeds the blower buck through J13.
+
+    Sources: IRM-60-SPEC 2025-11-21 p.2 (15 V 4 A, 60 W, +/-2.5 %, OVP 15.75-20.25 V, overload
+    115-160 % hiccup) and p.3 derating (100 % to 50 C, 75 % at 60 C, read from the graph);
+    Delta BFB1012VH-F00 (32.4 W / 2.70 A max at 12.0 V); fan law P ~ V^3 to the buck's 12.40 V
+    duty-0 corner (estimate, as PLAN-16 sec. 1.1); JST eVH.pdf p.1 (VH 10 A with AWG16, 7 A with
+    AWG18 on the shrouded header: the lower figure is used); AWG18 20.95 mOhm/m;
+    TI SLUSEA4D IHS_LIMIT 4.2-5.8 A, VIN 3.8-30 V.
+    """
+    v_hi = blower_supply()["vout_duty0_V"][1]
+    p_blower = 32.4 * (v_hi / 12.0) ** 3
+    i_blower = p_blower / v_hi
+    eta = 0.90                                     # buck allocation, as blower_supply()
+    p_out = p_blower / eta
+    v_lo = 15 * 0.975
+    i_out = p_out / v_lo
+    loop_ohm = 2 * 0.450 * 20.95e-3                # 450 mm twisted pair, out and back
+    drop = i_out * loop_ohm
+    vin_u2 = v_lo - drop
+    # start: U2 at its high-side limit, 12.40 V out -> 15 V draw
+    i_start = [ilim * v_hi / eta / v_lo for ilim in (4.2, 5.8)]
+    ocp_lo_a = 60 * 1.15 / 15
+    derate = {"50C": 60.0, "60C": 45.0}
+    # TPS62933 duty without foldback (fan_buck(): 1 - tOFF_MIN x f, typ) sets the VIN U2 needs
+    dmax = 1 - 140e-9 * 550e3
+    vin_need = (v_hi + i_blower * 0.025 * 1.3) / dmax
+    return {"source": ["IRM-60-SPEC 2025-11-21 p.2/p.3", "Delta BFB1012VH-F00", "JST eVH.pdf p.1",
+                       "TI SLUSEA4D", "PLAN-16 (power-stage stage16-blower-supply)"],
+            "blower_W_at_duty0_corner": p_blower, "blower_A": i_blower,
+            "ps3_out_W": p_out, "ps3_out_A_at_low_corner": i_out, "rating_W": 60.0,
+            "derated_W": derate, "harness_loop_ohm": loop_ohm, "harness_drop_V": drop,
+            "u2_vin_min_V": vin_u2, "u2_vin_needed_V": vin_need,
+            "start_draw_A_at_u2_limit": i_start, "ps3_ocp_low_A": ocp_lo_a,
+            "checks": {"ps3_within_60W": p_out <= 60.0,
+                       "ps3_within_derated_60C": p_out <= derate["60C"],
+                       "j13_vh_7A_ge_load": 7.0 >= i_out,
+                       "j13_vh_7A_ge_start_bound": 7.0 >= max(i_start),
+                       "u2_headroom_at_duty0": vin_u2 >= vin_need,
+                       "c_blw_bulk_25V_above_ovp": 25.0 > 20.25,
+                       # TPS62933 operating VIN 3.8-30 V (controller_parts.ato / SLUSEA4D)
+                       "u2_vin_range_covers_ovp": 20.25 <= 30.0}}
+
+
+def blw_pg() -> dict:
+    """BLW_PG (DECISIONS C33): 20 k / 4.7 k (1 %) from V15_BLW into TCA9555 P16.
+
+    TI SCPS200E: P-port VIH 0.7 x VCC, VIL 0.3 x VCC, 5 V tolerant I/O (abs max 6 V), internal
+    pull-up 100 k typical (bounded here at 50 k as a conservative allowance). v3v3 3.135-3.465 V.
+    PS3 absent is modelled with V15_BLW open (no path to ground other than the divider), which
+    is the worst case: U2's EN divider only pulls it lower.
+    """
+    rt, rb, tol = 20e3, 4.7e3, 0.01
+    vcc = (3.135, 3.465)
+    rpu = (50e3, 100e3)
+
+    def node(vin, rt_, rb_, rpu_, vcc_):
+        # Thevenin of the divider, then the pull-up to VCC
+        vth = vin * rb_ / (rt_ + rb_)
+        rth = rt_ * rb_ / (rt_ + rb_)
+        return vth + (vcc_ - vth) * rth / (rth + rpu_)
+    hi_min = node(15 * 0.975, rt * (1 + tol), rb * (1 - tol), 1e12, vcc[1])
+    hi_ovp = node(20.25, rt * (1 - tol), rb * (1 + tol), rpu[0], vcc[1])
+    # absent: V15_BLW open -> only rb to ground; pull-up at its strongest
+    lo_abs = vcc[1] * rb * (1 + tol) / (rb * (1 + tol) + rpu[0])
+    return {"source": ["TI SCPS200E", "IRM-60-SPEC 2025-11-21 p.2"],
+            "present_min_V": hi_min, "present_ovp_V": hi_ovp, "absent_max_V": lo_abs,
+            "vih_V": 0.7 * vcc[1], "vil_V": 0.3 * vcc[0],
+            "divider_mA_at_15V": 15 / (rt + rb) * 1e3,
+            "checks": {"present_reads_high": hi_min >= 0.7 * vcc[1],
+                       "absent_reads_low": lo_abs <= 0.3 * vcc[0],
+                       "ovp_within_5V5_tolerant_input": hi_ovp <= 5.5}}
+
+
 # Semitec GT-2 series datasheet (semitec.co.jp "GT-2シリーズ.pdf", 2023-08-01), R-T table in kOhm.
 # 104GT-2: 100 k +/-3 % at 25 C, B25/85 4267 K +/-2 %, -50..+300 C; 103GT-2 (10 k) is rated
 # -50..+200 C. Dissipation constant ~0.6 mW/C, time constant ~7 s (still air), 3.0 mW rated.
@@ -607,6 +681,8 @@ def main() -> int:
         "rms_channel": rms_channel(),
         "ui_5v_supply": ui_5v_supply(),
         "blower_supply": blower_supply(),
+        "ps3_budget": ps3_budget(),
+        "blw_pg": blw_pg(),
         "rim_ntc": rim_ntc(),
         "thermal_trips": thermal_trips(),
         "harness_sensitivity": harness_sensitivity(),

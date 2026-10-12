@@ -31,7 +31,7 @@ from "controller_parts.ato" import Esp32S3Wroom1UN8, Tps62933F, Tps62933, Ind10u
 from "controller_parts.ato" import Cap100u25Elec, Tps3703Window, Opa2388, Tlv9062, Lm4040A25
 from "controller_parts.ato" import EsdTvs3v3, Tca9555, Lvc244a, Lvc1g14, Nmos2n7002
 from "controller_parts.ato" import SelvHeader16, XhHeader2, XhHeader3, XhHeader12, Srv05_4
-from "controller_parts.ato" import DebugHeader8, Tlv9061, IndSwrb1205_10u
+from "controller_parts.ato" import DebugHeader8, Tlv9061, IndSwrb1205_10u, VhHeader2
 from "controller_parts.ato" import MicroFitRA16, Ad8436Rq, Mcp3202, Tlv76050, Bat54s
 
 module SelvController:
@@ -315,9 +315,39 @@ module SelvController:
     signal fan_fg
     fan_pwm.override_net_name = "FAN_PWM"
     fan_fg.override_net_name = "J10_FG"
+    # Stage 16 (DECISIONS C33): the blower buck runs from its own SELV supply PS3 (Mean Well
+    # IRM-60-15ST, chassis-mounted, Class II, 15 V +/-2.5 %, OVP 15.75-20.25 V) through J13, so a
+    # blower start or stall cannot brown out v15_selv / the logic. PS3's -V is referenced to
+    # selv_gnd at J13.2 only (beside U2's input caps); PS3 has no FG, so there is no second path.
+    # Missing PS3 -> U2 off -> FG 0 Hz -> the existing derate; BLW_PG on expander P16 tells the
+    # two apart.
+    signal v15_blw
+    v15_blw.override_net_name = "V15_BLW"
+    j_blw = new VhHeader2
+    j_blw.designator = "J13"
+    j_blw.p1 ~ v15_blw
+    j_blw.p2 ~ selv_gnd
+    c_blw_bulk = new Cap100u25Elec
+    c_blw_bulk.p ~ v15_blw
+    c_blw_bulk.n ~ selv_gnd
+    # BLW_PG: 20 k / 4.7 k from V15_BLW into expander P16 (5 V tolerant input).
+    # 14.63 V -> 2.74 V min (> VIH 2.43 V); PS3 absent -> 0.30 V max against the TCA9555's
+    # internal pull-up (< VIL 0.94 V); 20.25 V OVP -> 3.88 V (tools/controller_calcs.py blw_pg()).
+    signal blw_pg
+    blw_pg.override_net_name = "BLW_PG"
+    r_blw_pg_top = new Resistor
+    r_blw_pg_top.value = 20kohm +/- 1%
+    r_blw_pg_top.mpn = "RC0603FR-0720KL"
+    r_blw_pg_top.p1 ~ v15_blw
+    r_blw_pg_top.p2 ~ blw_pg
+    r_blw_pg_bot = new Resistor
+    r_blw_pg_bot.value = 4.7kohm +/- 1%
+    r_blw_pg_bot.mpn = "RC0603FR-074K7L"
+    r_blw_pg_bot.p1 ~ blw_pg
+    r_blw_pg_bot.p2 ~ selv_gnd
     u_12 = new Tps62933
     u_12.designator = "U2"
-    u_12.VIN ~ v15_selv
+    u_12.VIN ~ v15_blw
     u_12.GND ~ selv_gnd
     u_12.SW ~ sw_12
     u_12.BST ~ bst_12
@@ -327,7 +357,7 @@ module SelvController:
     r_en12_top = new Resistor
     r_en12_top.value = 100kohm +/- 1%
     r_en12_top.mpn = "RC0603FR-07100KL"
-    r_en12_top.p1 ~ v15_selv
+    r_en12_top.p1 ~ v15_blw
     r_en12_top.p2 ~ en_12
     r_en12_bot = new Resistor
     r_en12_bot.value = 12.1kohm +/- 1%
@@ -392,18 +422,18 @@ module SelvController:
     c_in12a.value = 10uF +/- 10%
     c_in12a.mpn = "CL31A106KAHNNNE"
     c_in12a.footprint = "Capacitor_SMD:C_1206_3216Metric"
-    c_in12a.p1 ~ v15_selv
+    c_in12a.p1 ~ v15_blw
     c_in12a.p2 ~ selv_gnd
     c_in12b = new Capacitor
     c_in12b.value = 100nF +/- 10%
     c_in12b.mpn = "CC0603KRX7R9BB104"
-    c_in12b.p1 ~ v15_selv
+    c_in12b.p1 ~ v15_blw
     c_in12b.p2 ~ selv_gnd
     c_in12c = new Capacitor
     c_in12c.value = 10uF +/- 10%
     c_in12c.mpn = "CL31A106KAHNNNE"
     c_in12c.footprint = "Capacitor_SMD:C_1206_3216Metric"
-    c_in12c.p1 ~ v15_selv
+    c_in12c.p1 ~ v15_blw
     c_in12c.p2 ~ selv_gnd
     c_out12a = new Capacitor
     c_out12a.value = 22uF +/- 10%
@@ -1203,12 +1233,13 @@ module SelvController:
     u_io.SCL ~ boot_io0
     u_io.SDA ~ i2c_sda
     # Used: P07 RTD_DRDY (C23), P10-P13 fault read-backs, P14 SUP_RUN_OK_RB (C27),
-    # P15 FAN_OFF (C28). Spare: P00-P05 and P16-P17 (R33 moved the buttons, encoder and OLED
+    # P15 FAN_OFF (C28), P16 BLW_PG (C33). Spare: P00-P05 and P17 (R33 moved the buttons, encoder and OLED
     # to the UI board); the TCA9555's 100 k pull-ups hold them high. P06 stays reserved for a
     # second MAX31865 CS (C14).
     u_io.P07 ~ rtd_drdy
     u_io.P14 ~ sup_run_ok_rb
     u_io.P15 ~ fan_off
+    u_io.P16 ~ blw_pg
     u_io.P10 ~ latched_fault_rb
     u_io.P11 ~ rtd_fault_rb
     u_io.P12 ~ hs_fault_rb

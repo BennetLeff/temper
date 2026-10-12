@@ -3,7 +3,7 @@
   "inputs": {
     "native21_commit": "7c55c9ab81260b396be266861a0f0e8a42f96a5f",
     "netlist": "frozen/default.net",
-    "netlist_sha256": "20e343eec111b6052b953a46992eb2bf8bb7abeb4fd4fe693665ecc28dff9f5c"
+    "netlist_sha256": "305b209a80737e8ea63a11e4ee12df23e8bfde05f0a372b7f92d4f3f46185332"
   },
   "schema": "temper.controller.verify.v1",
   "sections": {
@@ -18,9 +18,9 @@
         "COIL_ADC_input_rc_le_1kHz": {
           "detail": {
             "C": [
-              "C54"
+              "C55"
             ],
-            "R": "R81",
+            "R": "R83",
             "buffer_out": [
               "coil_buf_out"
             ],
@@ -56,9 +56,9 @@
         "HS_ADC_input_rc_le_1kHz": {
           "detail": {
             "C": [
-              "C51"
+              "C52"
             ],
-            "R": "R79",
+            "R": "R81",
             "buffer_out": [
               "hs_buf_out"
             ],
@@ -82,9 +82,9 @@
         "M12_ADC_input_rc_le_1kHz": {
           "detail": {
             "C": [
-              "C57"
+              "C58"
             ],
-            "R": "R84",
+            "R": "R86",
             "buffer_out": [
               "m12_buf_out"
             ],
@@ -108,9 +108,9 @@
         "RIM_ADC_input_rc_le_1kHz": {
           "detail": {
             "C": [
-              "C59"
+              "C60"
             ],
-            "R": "R87",
+            "R": "R89",
             "buffer_out": [
               "rim_buf_out"
             ],
@@ -281,11 +281,11 @@
           "detail": {
             "gpio3": "FAN_TACH",
             "pullup": [
-              "R23"
+              "R25"
             ],
             "series": [
               [
-                "R24",
+                "R26",
                 "FAN_TACH"
               ]
             ],
@@ -298,7 +298,7 @@
         "gpio46_low_at_reset_is_full_speed": {
           "detail": {
             "pulldown": [
-              "R18"
+              "R20"
             ]
           },
           "ok": true
@@ -314,11 +314,11 @@
         "pwm_gpio46_filtered_into_fb": {
           "detail": {
             "C": [
-              "C9"
+              "C10"
             ],
-            "filter_R": "R19",
+            "filter_R": "R21",
             "inj_R": [
-              "R20"
+              "R22"
             ],
             "node": "fan_ctl"
           },
@@ -352,6 +352,151 @@
         ]
       }
     },
+    "blwin": {
+      "checks": {
+        "blw_pg_divider_into_p16": {
+          "detail": {
+            "bottom": [
+              "R16"
+            ],
+            "p16": "BLW_PG",
+            "top": [
+              "R15"
+            ],
+            "values": [
+              20000.0,
+              4700.0
+            ]
+          },
+          "ok": true
+        },
+        "bulk_cap_on_v15_blw": {
+          "detail": [
+            "C9"
+          ],
+          "ok": true
+        },
+        "calc_blw_pg_absent_reads_low": {
+          "detail": null,
+          "ok": true
+        },
+        "calc_blw_pg_ovp_within_5V5_tolerant_input": {
+          "detail": null,
+          "ok": true
+        },
+        "calc_blw_pg_present_reads_high": {
+          "detail": null,
+          "ok": true
+        },
+        "calc_ps3_budget_c_blw_bulk_25V_above_ovp": {
+          "detail": null,
+          "ok": true
+        },
+        "calc_ps3_budget_j13_vh_7A_ge_load": {
+          "detail": null,
+          "ok": true
+        },
+        "calc_ps3_budget_j13_vh_7A_ge_start_bound": {
+          "detail": null,
+          "ok": true
+        },
+        "calc_ps3_budget_ps3_within_60W": {
+          "detail": null,
+          "ok": true
+        },
+        "calc_ps3_budget_ps3_within_derated_60C": {
+          "detail": null,
+          "ok": true
+        },
+        "calc_ps3_budget_u2_headroom_at_duty0": {
+          "detail": null,
+          "ok": true
+        },
+        "calc_ps3_budget_u2_vin_range_covers_ovp": {
+          "detail": null,
+          "ok": true
+        },
+        "j13_pin_map": {
+          "detail": {
+            "mpn": "B2P-VH(LF)(SN)",
+            "pins": {
+              "1": "V15_BLW",
+              "2": "selv_gnd"
+            }
+          },
+          "ok": true
+        },
+        "no_part_bridges_v15_blw_and_v15_selv": {
+          "detail": [],
+          "ok": true
+        },
+        "ps3_within_rating_at_design_load": {
+          "detail": 39.72059201793256,
+          "ok": true
+        },
+        "u2_vin_en_caps_on_v15_blw": {
+          "detail": {
+            "caps": [
+              "C9",
+              "C14",
+              "C13",
+              "C15"
+            ],
+            "en_top": [
+              "R17"
+            ],
+            "u2_vin": "V15_BLW"
+          },
+          "ok": true
+        }
+      },
+      "data": {
+        "blw_pg": {
+          "absent_max_V": 0.3004430379746835,
+          "divider_mA_at_15V": 0.6072874493927126,
+          "present_min_V": 2.738105060488524,
+          "present_ovp_V": 3.8839455390987,
+          "source": [
+            "TI SCPS200E",
+            "IRM-60-SPEC 2025-11-21 p.2"
+          ],
+          "vih_V": 2.4254999999999995,
+          "vil_V": 0.9404999999999999
+        },
+        "j13": {
+          "part": "JST B2P-VH(LF)(SN)",
+          "pin1": "V15_BLW",
+          "pin2": "selv_gnd"
+        },
+        "ps3_budget": {
+          "blower_A": 2.8829641297883883,
+          "blower_W_at_duty0_corner": 35.7485328161393,
+          "derated_W": {
+            "50C": 60.0,
+            "60C": 45.0
+          },
+          "harness_drop_V": 0.05120900940158075,
+          "harness_loop_ohm": 0.018855,
+          "ps3_ocp_low_A": 4.6,
+          "ps3_out_A_at_low_corner": 2.7159379157560726,
+          "ps3_out_W": 39.72059201793256,
+          "rating_W": 60.0,
+          "source": [
+            "IRM-60-SPEC 2025-11-21 p.2/p.3",
+            "Delta BFB1012VH-F00",
+            "JST eVH.pdf p.1",
+            "TI SLUSEA4D",
+            "PLAN-16 (power-stage stage16-blower-supply)"
+          ],
+          "start_draw_A_at_u2_limit": [
+            3.9566705420690687,
+            5.463973605714428
+          ],
+          "u2_vin_min_V": 14.57379099059842,
+          "u2_vin_needed_V": 13.535882116726057
+        }
+      }
+    },
     "bom": {
       "checks": {
         "every_mpn_in_parts_table": {
@@ -365,8 +510,8 @@
       },
       "data": {
         "count": {
-          "components": 244,
-          "distinct_mpns": 81
+          "components": 248,
+          "distinct_mpns": 83
         },
         "unverified": [
           "0430451600"
@@ -435,7 +580,7 @@
         "cavg_is_c0g_not_x7r": {
           "detail": [
             [
-              "C64",
+              "C65",
               "GRM31C5C1H104JA01L"
             ]
           ],
@@ -473,7 +618,7 @@
         },
         "rms_output_reaches_adc_ch0_through_series_r": {
           "detail": [
-            "R92"
+            "R94"
           ],
           "ok": true
         },
@@ -579,8 +724,10 @@
           ],
           "ok": true
         },
-        "pin1_feeds_both_bucks": {
-          "detail": null,
+        "pin1_feeds_3v3_buck_only": {
+          "detail": [
+            "TPS62933FDRLR"
+          ],
           "ok": true
         },
         "pin1_v15_selv": {
@@ -1037,7 +1184,7 @@
         },
         "rail_supervisor_senses_v3v3": {
           "detail": [
-            "R25"
+            "R27"
           ],
           "ok": true
         },
@@ -1432,7 +1579,7 @@
       "checks": {
         "J7_CS_EXP_N_deselected_at_reset_pullup": {
           "detail": [
-            "R108"
+            "R110"
           ],
           "ok": true
         },
@@ -1448,7 +1595,7 @@
             "ohm": 100.0,
             "series": [
               [
-                "R105",
+                "R107",
                 "2"
               ]
             ]
@@ -1457,7 +1604,7 @@
         },
         "J7_CS_OLED_N_deselected_at_reset_pullup": {
           "detail": [
-            "R107"
+            "R109"
           ],
           "ok": true
         },
@@ -1473,7 +1620,7 @@
             "ohm": 100.0,
             "series": [
               [
-                "R104",
+                "R106",
                 "2"
               ]
             ]
@@ -1492,7 +1639,7 @@
             "ohm": 100.0,
             "series": [
               [
-                "R106",
+                "R108",
                 "2"
               ]
             ]
@@ -1511,7 +1658,7 @@
             "ohm": 100.0,
             "series": [
               [
-                "R101",
+                "R105",
                 "2"
               ]
             ]
@@ -1530,7 +1677,7 @@
             "ohm": 100.0,
             "series": [
               [
-                "R100",
+                "R104",
                 "2"
               ]
             ]
@@ -1549,7 +1696,7 @@
             "ohm": 100.0,
             "series": [
               [
-                "R99",
+                "R101",
                 "2"
               ]
             ]
@@ -1653,30 +1800,30 @@
         "native21_rail_inside_3135_3465": {
           "detail": [
             3.236896130065459,
-            3.393366073393153
+            3.3743648643665582
           ],
           "ok": true
         },
-        "ps1_within_21W_at_r32_blower_cap": {
-          "detail": 14.82813903213992,
+        "ps1_within_21W_at_full_blower": {
+          "detail": 4.831174701726902,
           "ok": true
         },
         "within_inductor_irms_2p45A": {
-          "detail": 1049.9894000198938,
+          "detail": 1050.7340808709573,
           "ok": true
         },
         "within_tps62933_3A": {
-          "detail": 1049.9894000198938,
+          "detail": 1050.7340808709573,
           "ok": true
         }
       },
       "data": {
-        "controller_mA": 540.6440410309452,
+        "controller_mA": 541.388721882009,
         "native21_on_J4_3_mA": 49.34535898894846,
         "native21_rail_V": {
           "harness": {
             "allocation": "J4 harness <= 1.0 m, AWG22, Micro-Fit 43030 terminals (DEFAULT; harness not yet specified)",
-            "ground_shift_max_V": 0.02681212478224854,
+            "ground_shift_max_V": 0.007810915755653608,
             "ground_shift_min_V": -0.0013716878145361526,
             "length_m": 1.0,
             "r_conductor_ohm": 0.08339312,
@@ -1687,22 +1834,23 @@
             ],
             "v3v3_drop_V": 0.004115063443608458
           },
-          "max": 3.393366073393153,
+          "max": 3.3743648643665582,
           "min": 3.236896130065459
         },
         "oled_off_board_mA": {
           "basis": "Newhaven NHD-3.12-25664UCW2 rev: IDD 340 mA max, 3.3 V, 100 % on, factory jumper (via J7.2, R33)",
           "mA": 340.0
         },
-        "peak_mA": 1049.9894000198938,
+        "peak_mA": 1050.7340808709573,
         "ps1": {
-          "OWNER_FLAG": "at full blower speed (17.04 W typ, 32.4 W max, Delta spec) PS1's 21 W rating is exceeded; DECISIONS C28 / open item 13",
-          "basis": "efficiencies 85 % (3.3 V) / 90 % (blower buck) are allocations from the TPS62933 typical curves; IRM-20-15 21 W rated",
-          "p_3v3_rail_W": 4.280250907139919,
-          "p_blower_W_at_r32_cap": 10.0,
-          "p_total_W": 14.82813903213992,
-          "p_total_W_blower_full_max": 40.828139032139916,
-          "p_total_W_blower_full_typ": 23.761472365473253,
+          "basis": "efficiency 85 % (3.3 V) is an allocation from the TPS62933 typical curves; IRM-20-15 21 W rated; blower on PS3 (check_blwin)",
+          "blower_input_W_now_on_ps3": {
+            "full_max": 36.0,
+            "full_typ": 18.933333333333334,
+            "r32_cap": 10.0
+          },
+          "p_3v3_rail_W": 4.283286576726902,
+          "p_total_W": 4.831174701726902,
           "p_v15_direct_W": 0.547888125,
           "rating_W": 21.0
         },
@@ -1775,14 +1923,14 @@
             "board": "controller",
             "mA": 3.5,
             "path": "interlock.wdi_pulldown",
-            "ref": "R63"
+            "ref": "R65"
           },
           {
             "basis": "1kohm +/- 0.1% R + 0 ohm to gnd",
             "board": "controller",
             "mA": 3.468468468468468,
             "path": "r_rim_pu",
-            "ref": "R86"
+            "ref": "R88"
           },
           {
             "basis": "TLV9062IDR: SBOS839N 7.x: IQ 0.8 mA/amp max (5.5 V, -40..125 C)",
@@ -1838,7 +1986,7 @@
             "board": "controller",
             "mA": 0.9772727272727271,
             "path": "r_ref",
-            "ref": "R73"
+            "ref": "R75"
           },
           {
             "basis": "TLV9061IDBVR: SBOS839N 7.x: IQ 0.8 mA/amp max (5.5 V, -40..125 C); DBV pins Table 5-1",
@@ -1852,14 +2000,14 @@
             "board": "controller",
             "mA": 0.7446808510638298,
             "path": "r_scl_pu",
-            "ref": "R97"
+            "ref": "R99"
           },
           {
             "basis": "4.7kohm +/- 1% R + 0 ohm to gnd",
             "board": "controller",
             "mA": 0.7446808510638298,
             "path": "r_sda_pu",
-            "ref": "R98"
+            "ref": "R100"
           },
           {
             "basis": "4.7kohm +/- 1% pull-down driven high by U4",
@@ -1867,6 +2015,13 @@
             "mA": 0.7446808510638298,
             "path": "r_run_en_pd",
             "ref": "R102"
+          },
+          {
+            "basis": "4.7kohm +/- 1% pull-down driven high by U8",
+            "board": "controller",
+            "mA": 0.7446808510638298,
+            "path": "r_blw_pg_bot",
+            "ref": "R16"
           },
           {
             "basis": "MCP3202-CI/SN: DS21034F: IDD 550 uA max (5 V, worst case used at 3.3 V)",
@@ -1901,126 +2056,126 @@
             "board": "controller",
             "mA": 0.35,
             "path": "r_tach_pu",
-            "ref": "R23"
+            "ref": "R25"
           },
           {
             "basis": "10kohm +/- 1% R + 0 ohm to gnd",
             "board": "controller",
             "mA": 0.35,
             "path": "r_rail_pu",
-            "ref": "R26"
+            "ref": "R28"
           },
           {
             "basis": "10kohm +/- 1% R + 0 ohm to gnd",
             "board": "controller",
             "mA": 0.35,
             "path": "thermal.hs_fixed",
-            "ref": "R27"
+            "ref": "R29"
           },
           {
             "basis": "10kohm +/- 1% R + 0 ohm to gnd",
             "board": "controller",
             "mA": 0.35,
             "path": "thermal.coil_fixed",
-            "ref": "R31"
+            "ref": "R33"
           },
           {
             "basis": "10kohm +/- 1% R + 0 ohm to gnd",
             "board": "controller",
             "mA": 0.35,
             "path": "rtd_pan.r_fault_pullup",
-            "ref": "R54"
-          },
-          {
-            "basis": "10kohm +/- 1% R + 0 ohm to gnd",
-            "board": "controller",
-            "mA": 0.35,
-            "path": "rtd_pan.r_rail_ok_pullup",
-            "ref": "R53"
-          },
-          {
-            "basis": "10kohm +/- 1% R + 0 ohm to gnd",
-            "board": "controller",
-            "mA": 0.35,
-            "path": "interlock.reset_pullup",
-            "ref": "R62"
-          },
-          {
-            "basis": "10kohm +/- 1% R + 0 ohm to gnd",
-            "board": "controller",
-            "mA": 0.35,
-            "path": "interlock.aux_pullup",
-            "ref": "R61"
-          },
-          {
-            "basis": "10kohm +/- 1% R + 0 ohm to gnd",
-            "board": "controller",
-            "mA": 0.35,
-            "path": "interlock.runaway_pullup",
-            "ref": "R60"
-          },
-          {
-            "basis": "10kohm +/- 1% R + 0 ohm to gnd",
-            "board": "controller",
-            "mA": 0.35,
-            "path": "interlock.rtd_pullup",
-            "ref": "R59"
-          },
-          {
-            "basis": "10kohm +/- 1% R + 0 ohm to gnd",
-            "board": "controller",
-            "mA": 0.35,
-            "path": "interlock.coil_pullup",
-            "ref": "R58"
-          },
-          {
-            "basis": "10kohm +/- 1% R + 0 ohm to gnd",
-            "board": "controller",
-            "mA": 0.35,
-            "path": "interlock.hs_pullup",
-            "ref": "R57"
-          },
-          {
-            "basis": "10kohm +/- 1% R + 0 ohm to gnd",
-            "board": "controller",
-            "mA": 0.35,
-            "path": "interlock.ovp_pullup",
             "ref": "R56"
           },
           {
             "basis": "10kohm +/- 1% R + 0 ohm to gnd",
             "board": "controller",
             "mA": 0.35,
-            "path": "interlock.ocp_pullup",
+            "path": "rtd_pan.r_rail_ok_pullup",
             "ref": "R55"
           },
           {
             "basis": "10kohm +/- 1% R + 0 ohm to gnd",
             "board": "controller",
             "mA": 0.35,
+            "path": "interlock.reset_pullup",
+            "ref": "R64"
+          },
+          {
+            "basis": "10kohm +/- 1% R + 0 ohm to gnd",
+            "board": "controller",
+            "mA": 0.35,
+            "path": "interlock.aux_pullup",
+            "ref": "R63"
+          },
+          {
+            "basis": "10kohm +/- 1% R + 0 ohm to gnd",
+            "board": "controller",
+            "mA": 0.35,
+            "path": "interlock.runaway_pullup",
+            "ref": "R62"
+          },
+          {
+            "basis": "10kohm +/- 1% R + 0 ohm to gnd",
+            "board": "controller",
+            "mA": 0.35,
+            "path": "interlock.rtd_pullup",
+            "ref": "R61"
+          },
+          {
+            "basis": "10kohm +/- 1% R + 0 ohm to gnd",
+            "board": "controller",
+            "mA": 0.35,
+            "path": "interlock.coil_pullup",
+            "ref": "R60"
+          },
+          {
+            "basis": "10kohm +/- 1% R + 0 ohm to gnd",
+            "board": "controller",
+            "mA": 0.35,
+            "path": "interlock.hs_pullup",
+            "ref": "R59"
+          },
+          {
+            "basis": "10kohm +/- 1% R + 0 ohm to gnd",
+            "board": "controller",
+            "mA": 0.35,
+            "path": "interlock.ovp_pullup",
+            "ref": "R58"
+          },
+          {
+            "basis": "10kohm +/- 1% R + 0 ohm to gnd",
+            "board": "controller",
+            "mA": 0.35,
+            "path": "interlock.ocp_pullup",
+            "ref": "R57"
+          },
+          {
+            "basis": "10kohm +/- 1% R + 0 ohm to gnd",
+            "board": "controller",
+            "mA": 0.35,
             "path": "r_adc_cs_pu",
-            "ref": "R94"
+            "ref": "R96"
           },
           {
             "basis": "10kohm +/- 1% R + 0 ohm to gnd",
             "board": "controller",
             "mA": 0.35,
             "path": "r_en",
-            "ref": "R95"
+            "ref": "R97"
           },
           {
             "basis": "10kohm +/- 1% R + 0 ohm to gnd",
             "board": "controller",
             "mA": 0.35,
             "path": "r_cs_oled_pu",
-            "ref": "R107"
+            "ref": "R109"
           },
           {
             "basis": "10kohm +/- 1% R + 0 ohm to gnd",
             "board": "controller",
             "mA": 0.35,
             "path": "r_cs_exp_pu",
-            "ref": "R108"
+            "ref": "R110"
           },
           {
             "basis": "10kohm +/- 1% pull-down driven high by U37",
@@ -2034,28 +2189,28 @@
             "board": "controller",
             "mA": 0.35,
             "path": "interlock.live_pulldown",
-            "ref": "R64"
+            "ref": "R66"
           },
           {
             "basis": "10kohm +/- 1% pull-down driven high by U20",
             "board": "controller",
             "mA": 0.35,
             "path": "interlock.permit_pulldown",
-            "ref": "R65"
+            "ref": "R67"
           },
           {
             "basis": "10kohm +/- 1% pull-down driven high by U8",
             "board": "controller",
             "mA": 0.35,
             "path": "r_fan_off_pd",
-            "ref": "R17"
+            "ref": "R19"
           },
           {
             "basis": "10kohm +/- 0.1% R + 0 ohm to gnd",
             "board": "controller",
             "mA": 0.3468468468468468,
             "path": "r_m12_pu",
-            "ref": "R83"
+            "ref": "R85"
           },
           {
             "basis": "3.32kohm R + 9500 ohm to gnd",
@@ -2076,14 +2231,14 @@
             "board": "controller",
             "mA": 0.19396724499533216,
             "path": "thermal.hs_top",
-            "ref": "R28"
+            "ref": "R30"
           },
           {
             "basis": "16.5kohm +/- 0.1% R + 9990 ohm to gnd",
             "board": "controller",
             "mA": 0.1308856025837158,
             "path": "rtd_pan.r_avdd_top",
-            "ref": "R51"
+            "ref": "R53"
           },
           {
             "basis": "22.1kohm +/- 0.1% R + 7053 ohm to gnd",
@@ -2216,7 +2371,7 @@
             "board": "controller",
             "mA": 0.035529917899527474,
             "path": "thermal.coil_top",
-            "ref": "R32"
+            "ref": "R34"
           },
           {
             "basis": "TLV9031DBVR: SNOSDA3H: IQ 35 uA (-40..125 C)",
@@ -2237,28 +2392,28 @@
             "board": "controller",
             "mA": 0.034999999999999996,
             "path": "r_fan_pwm_pd",
-            "ref": "R18"
+            "ref": "R20"
           },
           {
             "basis": "100kohm +/- 1% pull-down driven high by U33",
             "board": "controller",
             "mA": 0.034999999999999996,
             "path": "rtd_pan.r_window_ok_pulldown",
-            "ref": "R50"
+            "ref": "R52"
           },
           {
             "basis": "100kohm +/- 1% pull-down driven high by U4",
             "board": "controller",
             "mA": 0.034999999999999996,
             "path": "r_dc_pd",
-            "ref": "R96"
+            "ref": "R98"
           },
           {
             "basis": "1.21kohm +/- 1% R + 99000 ohm to gnd",
             "board": "controller",
             "mA": 0.034581563086651515,
             "path": "thermal.open_top",
-            "ref": "R35"
+            "ref": "R37"
           },
           {
             "basis": "TPS3823-33DBVR: SLVS165O: IDD 25 uA",
@@ -2426,7 +2581,7 @@
             "board": "controller",
             "mA": 0.0,
             "path": "r_rail_sense",
-            "ref": "R25"
+            "ref": "R27"
           },
           {
             "basis": "BAS116H,115: clamp diode; conducts only into v3v3",
@@ -2436,7 +2591,7 @@
             "ref": "D4"
           }
         ],
-        "total_mA": 589.9894000198937,
+        "total_mA": 590.7340808709574,
         "ui_board_allocation_mA": {
           "basis": "[UNVERIFIED] J7.2 allocation for the R33 UI board: 30 mA logic + 3.3 V encoder option (MCP23S08, TMP122) and 90 mA for the self-oscillating buzzer; parts not yet chosen",
           "mA": 120.0

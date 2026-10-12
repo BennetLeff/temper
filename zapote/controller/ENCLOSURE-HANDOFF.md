@@ -10,6 +10,8 @@ This is the electrical side of the R25 controller board. The enclosure team owns
 
 **L3 update (2026-10-10, DECISIONS C28):** J10 now supplies the R32 blower at 5.5–12 V (adjustable, ≥ 1.5 A) with its FG tach on pin 3; same part and position. The blower buck's inductor is 6.0 mm tall (heights table).
 
+**Stage 16 update (2026-10-12, DECISIONS C33):** the blower buck now runs from a separate chassis-mounted SELV supply **PS3** (Mean Well IRM-60-15ST at world (−139, 95), enclosure R41). It connects through the new **J13**, a JST B2P-VH 2-pos 3.96 mm top-entry header at body centre (88, 85.65), on the R41-approved spot (88, 86) at the rear edge with posts along X. The 8.5 mm-deep body (8.70 mm F.Fab outline) is pulled 0.35 mm forward so it does not overhang the edge. The harness is an 18 AWG twisted pair, about 450 mm, routed over the controller (R41). J13's 16.5 mm mated height (JST eVH p.1) uses R41's local allowance: "J13 local, Z ≤ 54 within ±6 mm of (88, 86)".
+
 **R36 update (2026-10-10, DECISIONS C27):** the rim NTC adds **J12** (JST B2B-XH-A) for the 6-conductor cartridge cable. Its 4 RTD wires stay on J3 and the NTC pair goes to J12. J12's landing is **proposed** at (126, 86) on the rear edge, 13 mm left of J10; the enclosure must confirm or move it.
 
 **R31 update (2026-10-09):** the enclosure re-posed native-21 by translation, so the whole controller layout is mirrored about X = 0: board X−38…168, J4 on the left edge mating −X, the WROOM at X−20…−2 behind the lens window, and J7 merged into a 4-pin J8 at (15, 41). The R31 coordinates are in `layout/world.py` (the layout's single parameter table) and DECISIONS C25; the coordinates in the tables below are the earlier R25–R28 ones.
@@ -28,6 +30,7 @@ This is the electrical side of the R25 controller board. The enclosure team owns
 | J3 | JST B4B-XH-A(LF)(SN) (RTD unit, unchanged) | 4 | pan_RTD_to_controller (SAB 4×AWG28, ≤ 500 mm) | rear, −165, 92, 34 | 1 FORCE+, 2 RTDIN+, 3 RTDIN−, 4 FORCE− |
 | J7 | JST B12B-XH-A(LF)(SN) (C158027) | 12 | UI jumper to the fascia UI board (R33, 120 mm cut) | top, R33 body X29.8–62.2, Y57.1–62.9 | 1 +5 V (≤ 30 mA), 2 +3V3, 3 GND, 4 SCK, 5 GND, 6 MOSI, 7 MISO, 8 GND, 9 CS_OLED#, 10 OLED D/C, 11 GND, 12 CS_EXP# (DECISIONS C26) |
 | J12 | JST B2B-XH-A(LF)(SN) (C158012) | 2 | sensor cartridge 6-conductor cable, rim NTC pair (R36) | top, **proposed** (126, 86) | 1 RIM_SENSE (NTC), 2 GND (NTC return) |
+| J13 | JST B2P-VH(LF)(SN) (C20571196, per PLAN-16), top entry | 2 | PS3 → controller, 18 AWG twisted pair ≈ 450 mm, VHR-2N + SVH-21T-P1.1 at J13, ferrules at PS3 (stage 16) | top, body centre (88, 85.65) (R41: (88, 86)), posts along X | 1 V15_BLW (PS3 +V, 15 V, 2.72 A design), 2 return (PS3 −V; tied to selv_gnd here only) |
 | J11 | Wurth 61300811121 1×8, 2.54 mm (C6400764) | 8 | none (bring-up only; may be left unfitted) | any accessible spot | 1 3V3, 2 GND, 3 TXD0, 4 n.c. (R33: GPIO44 is UI MISO), 5 EN, 6 IO0, 7 USB D−, 8 USB D+ |
 
 ## Landings vs mounting holes (R27)
@@ -46,7 +49,8 @@ Heights above the board's top surface (bottom Z23, top Z24.6 since R30; Z40 leav
 | J1–J3, J7, J9, J10 JST XH header (B2B/B3B/B4B/B12B-XH-A) | 7.0 mm body; **9.8 mm mated** with the XHP housing (before the cable bend) | JST eXH.pdf (catalogue dated 2025-07-29): header drawing "7" above the board, "assembled board height of 9.8 mm" (p. 1) and assembly layout (9.8) (p. 2) |
 | J4 Molex 43045-1600 right-angle + mated 43025-1600 | **10.29 mm mated** above the board | Molex part data for 43045-2001 (same right-angle THT snap-in-peg 43045 series, 20 circuits), "Mated Height 10.29mm" (Molex product sheet, generated 2026-03-06, farnell.com/datasheets/4740236.pdf). The 43045-1600 sales drawing itself (430451600_sd.pdf) could not be fetched (molex.com refuses this network), so the 16-circuit figure is by series, and the plug's −X overhang (R31: to X−50) is still unread |
 | J11 Würth 61300811121 (bring-up only) | 8.54 mm (pin tips; 11.54 pin − 3.0 tail); a mated 2.54 mm socket adds its own height | Würth WR-PHD 61300811121 datasheet rev 003.000 (2023-01-08) |
-| C1 EEE-FK1E101P | 6.2 mm | Panasonic FK series, 8 × 6.2 |
+| J13 JST B2P-VH (stage 16) | **16.5 mm mounting height** (mated, before the 18 AWG bend); body 7.86 × 8.5 mm | JST eVH.pdf p.1 and p.3; above the 15.4 mm board-wide allowance, inside R41's local allowance (Z ≤ 54 within ±6 mm of (88, 86)) |
+| C1, C9 EEE-FK1E101P | 6.2 mm | Panasonic FK series, 8 × 6.2 |
 | L1 SWPA6045 | 4.5 mm | Sunlord SWPA6045 |
 | L2 SWRB1205S-100MT (L3 blower buck) | 6.0 mm max | Sunlord SWRB-S datasheet rev 2017/04/15 |
 | U4 ESP32-S3-WROOM-1U-N8 | 3.2 ± 0.15 mm module; the U.FL plug adds ≤ 2.5 mm above its receptacle | Espressif WROOM-1/-1U DS v1.8 §10.1 |

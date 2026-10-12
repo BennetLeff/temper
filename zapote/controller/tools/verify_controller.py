@@ -359,9 +359,11 @@ def check_j4(rep: Report, nl: Netlist, n21: Netlist):
     reg = [r for r, mp in nl.mpn.items() if mp == "TPS62933FDRLR"]
     rep.check("j4", "pin3_v3v3_is_regulator_output",
               any(nl.net_of(l, "2") == V3 for l in nl.refs if nl.mpn.get(l) == "SWPA6045S100MT") and len(reg) == 1)
-    rep.check("j4", "pin1_feeds_both_bucks",
-              {nl.mpn[r] for r, p in nl.nets["v15_selv"] if pin_role(nl, r, p) == "other"} >=
-              {"TPS62933FDRLR", "TPS62933DRLR"})
+    # Stage 16 (DECISIONS C33): J4.1 (PS1) feeds the 3.3 V buck only; the blower buck runs from
+    # PS3 through J13 (check_blwin).
+    on_v15 = {nl.mpn[r] for r, p in nl.nets["v15_selv"] if pin_role(nl, r, p) == "other"}
+    rep.check("j4", "pin1_feeds_3v3_buck_only",
+              "TPS62933FDRLR" in on_v15 and "TPS62933DRLR" not in on_v15, sorted(on_v15 & {"TPS62933FDRLR", "TPS62933DRLR"}))
     for net in ("pwm_ha", "pwm_la", "pwm_hb", "pwm_lb"):
         pulls = [r for r, p in nl.nets[net] if r.startswith("R")
                  and pn.get((r, "2" if p == "1" else "1"), OPEN) == GND]
@@ -628,16 +630,15 @@ def check_v3v3(rep: Report, nl: Netlist, n21: Netlist, calcs: dict):
     # (TLV760 IGND 5 mA max + 30 mA UI allocation), counted as worst case even though
     # the UI allocation also sits in the v3v3 peak.
     p15 = 15.375 * (0.000635 + 0.005 + 0.030)
-    p_total = p3 + pfan + p15
-    p_full = p3 + blower["full_typ"] + p15
-    rep.data("v3v3", "ps1", {"p_3v3_rail_W": p3, "p_blower_W_at_r32_cap": pfan, "p_v15_direct_W": p15,
-                             "p_total_W": p_total, "rating_W": 21.0,
-                             "p_total_W_blower_full_typ": p_full, "p_total_W_blower_full_max": p3 + blower["full_max"] + p15,
-                             "OWNER_FLAG": "at full blower speed (17.04 W typ, 32.4 W max, Delta spec) PS1's 21 W "
-                                           "rating is exceeded; DECISIONS C28 / open item 13",
-                             "basis": "efficiencies 85 % (3.3 V) / 90 % (blower buck) are allocations from the "
-                                      "TPS62933 typical curves; IRM-20-15 21 W rated"})
-    rep.check("v3v3", "ps1_within_21W_at_r32_blower_cap", p_total <= 21.0, p_total)
+    # Stage 16 (DECISIONS C33): the blower buck is on PS3 (V15_BLW), so PS1 carries the logic
+    # only, whatever the blower speed. pfan stays as data (what PS1 would carry without PS3).
+    p_total = p3 + p15
+    rep.data("v3v3", "ps1", {"p_3v3_rail_W": p3, "p_v15_direct_W": p15, "p_total_W": p_total, "rating_W": 21.0,
+                             "blower_input_W_now_on_ps3": {"r32_cap": pfan, "full_typ": blower["full_typ"],
+                                                            "full_max": blower["full_max"]},
+                             "basis": "efficiency 85 % (3.3 V) is an allocation from the TPS62933 typical "
+                                      "curves; IRM-20-15 21 W rated; blower on PS3 (check_blwin)"})
+    rep.check("v3v3", "ps1_within_21W_at_full_blower", p_total <= 21.0, p_total)
     # J4.3 current and native-21 rail with the harness allocation.
     i_n21 = (theirs_total + cross_total) / 1e3
     i_v15 = p_total / (15 * 0.975)
@@ -842,6 +843,50 @@ def check_blower(rep: Report, nl: Netlist, calcs: dict) -> None:
     rep.data("blower", "vout_duty100_V", calcs["blower_supply"]["vout_duty100_V"])
 
 
+def check_blwin(rep: Report, nl: Netlist, calcs: dict) -> None:
+    """Stage 16 (DECISIONS C33): blower buck input from PS3. J13 = V15_BLW / selv_gnd; U2's VIN,
+    EN-divider top and input caps on V15_BLW; a 100 uF bulk cap on V15_BLW; nothing joins
+    V15_BLW to v15_selv; BLW_PG divider from V15_BLW into expander P16."""
+    pn = nl.pin_net()
+    BLW = "V15_BLW"
+
+    def ends(r):
+        return {pn.get((r, "1"), OPEN), pn.get((r, "2"), OPEN)}
+    j13 = {p: nl.net_of("J13", str(p)) for p in (1, 2)}
+    rep.check("blwin", "j13_pin_map", j13[1] == BLW and j13[2] == GND and nl.mpn.get("J13") == "B2P-VH(LF)(SN)",
+              {"pins": j13, "mpn": nl.mpn.get("J13")})
+    reg = [r for r, mp in nl.mpn.items() if mp == "TPS62933DRLR"]
+    u2 = reg[0] if len(reg) == 1 else None
+    vin = nl.net_of(u2, "3") if u2 else None          # TPS62933 pin 3 = VIN
+    en = nl.net_of(u2, "2") if u2 else None           # pin 2 = EN
+    en_top = [r for r in nl.refs if r.startswith("R") and ends(r) == {BLW, en}]
+    caps_in = [r for r in nl.refs if r.startswith("C") and ends(r) == {BLW, GND}]
+    rep.check("blwin", "u2_vin_en_caps_on_v15_blw", vin == BLW and len(en_top) == 1 and len(caps_in) >= 3,
+              {"u2_vin": vin, "en_top": en_top, "caps": caps_in})
+    parts_blw = {r for r, p in nl.nets.get(BLW, [])}
+    parts_v15 = {r for r, p in nl.nets.get("v15_selv", [])}
+    bridges = sorted(parts_blw & parts_v15)
+    rep.check("blwin", "no_part_bridges_v15_blw_and_v15_selv", not bridges and BLW in nl.nets, bridges)
+    bulk = [r for r in nl.refs if nl.mpn.get(r) == "EEE-FK1E101P" and nl.net_of(r, "1") == BLW
+            and nl.net_of(r, "2") == GND]
+    rep.check("blwin", "bulk_cap_on_v15_blw", len(bulk) == 1, bulk)
+    io = [r for r, mp in nl.mpn.items() if mp == "TCA9555PWR"]
+    pg = nl.net_of(io[0], "19") if io else None         # TCA9555 pin 19 = P16 (SCPS200E)
+    top = [r for r in nl.refs if r.startswith("R") and ends(r) == {BLW, pg}]
+    bot = [r for r in nl.refs if r.startswith("R") and ends(r) == {pg, GND}]
+    vals = (parse_value(nl.value[top[0]])[0], parse_value(nl.value[bot[0]])[0]) if len(top) == 1 and len(bot) == 1 else None
+    rep.check("blwin", "blw_pg_divider_into_p16", pg == "BLW_PG" and vals == (20e3, 4.7e3),
+              {"p16": pg, "top": top, "bottom": bot, "values": vals})
+    for blk in ("ps3_budget", "blw_pg"):
+        for k, ok in calcs[blk]["checks"].items():
+            rep.check("blwin", f"calc_{blk}_{k}", ok)
+    rep.check("blwin", "ps3_within_rating_at_design_load", calcs["ps3_budget"]["ps3_out_W"] <= 60.0,
+              calcs["ps3_budget"]["ps3_out_W"])
+    rep.data("blwin", "j13", {"pin1": BLW, "pin2": GND, "part": "JST B2P-VH(LF)(SN)"})
+    rep.data("blwin", "ps3_budget", {k: v for k, v in calcs["ps3_budget"].items() if k != "checks"})
+    rep.data("blwin", "blw_pg", {k: v for k, v in calcs["blw_pg"].items() if k != "checks"})
+
+
 def check_bom(rep: Report, nl: Netlist):
     table = json.loads((UNIT / "bom/controller-parts.json").read_text())["parts"]
     mpns = sorted(set(nl.mpn.values()))
@@ -913,6 +958,7 @@ def main() -> int:
     check_ct_rms(rep, nl, calcs)
     check_ui_bus(rep, nl, calcs)
     check_blower(rep, nl, calcs)
+    check_blwin(rep, nl, calcs)
     check_thermal(rep, nl)
     check_bom(rep, nl)
     check_misc(rep, nl)

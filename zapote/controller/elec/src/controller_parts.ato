@@ -328,6 +328,18 @@ component XhHeader3:
 
 
 
+component VhHeader2:
+    """JST B2P-VH(LF)(SN), 2-pin 3.96 mm top-entry header (LCSC C20571196, per stage-16 PLAN-16 sec. 3).
+    JST eVH.pdf p.1: 10 A AC/DC with AWG16 (7 A with AWG18 on the shrouded header), 250 V,
+    AWG22-16, mounting height 16.5 mm; p.3: body 7.86 x 8.5 mm. Mates VHR-2N + SVH-21T-P1.1."""
+    designator_prefix = "J"
+    mpn = "B2P-VH(LF)(SN)"
+    manufacturer = "JST"
+    footprint = "Connector_JST:JST_VH_B2P-VH_1x02_P3.96mm_Vertical"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+
 component DebugHeader8:
     """Wurth 61300811121, 1x8 2.54 mm pin header (LCSC C6400764); fit for bring-up only."""
     designator_prefix = "J"

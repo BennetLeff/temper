@@ -255,7 +255,7 @@ Source: R32 CONTROLLER-SPEC "R32 additions" (blower output 5.5–12 V ≥ 1.5 A 
   - The extension must be AWG22 at the XHP-3 housing.
 - **Thermal:** U2 at the blower's 1.42 A typical runs at ≈ 97 °C on the JEDEC 112.2 °C/W figure at 60 °C ambient. The 2.70 A start/lock peak gives ≈ 115 °C on TI's EVM figure (60.2 °C/W). The inductor loss is 0.05 W typical.
 - **Layout:** the buck moves to X 81–102 so its larger inductor still keeps L2 ≥ 10 mm from the RTD front end. V_BLOWER and v15_selv are routed 0.8 mm wide.
-- **Supply budget (OWNER / power-stage flag, open item 13):** PS1 (IRM-20-15, 21 W) carries the controller at the R32 drive cap: 14.8 W, `verify_controller.py v3v3`. At full blower speed the total is 23.7 W with the Delta typical 17.04 W, and 40.8 W at its 32.4 W maximum. Both exceed the 21 W rating, and R32's fan law asks for full speed in a fault. Either PS1 grows (≥ 30 W class) or the blower gets its own SELV supply, as power-stage D-18 originally said. The controller design does not change either way.
+- **Supply budget (superseded by C33: the blower buck now runs from PS3 via J13; open item 13 closed):** PS1 (IRM-20-15, 21 W) carries the controller at the R32 drive cap: 14.8 W, `verify_controller.py v3v3`. At full blower speed the total is 23.7 W with the Delta typical 17.04 W, and 40.8 W at its 32.4 W maximum. Both exceed the 21 W rating, and R32's fan law asks for full speed in a fault. Either PS1 grows (≥ 30 W class) or the blower gets its own SELV supply, as power-stage D-18 originally said. The controller design does not change either way.
 
 ## C29. Filtering on the NTC and RTD inputs (L3, R32 / study 06 "differential RC ≤ 1 kHz")
 - **NTC channels (HS, COIL, M12, RIM):** every MCU reading passes a series 10 k into 100 nF before its CMOS buffer, a 159 Hz corner. The node source impedance only adds to the R, so the corner stays ≤ 159 Hz whatever the NTC resistance.
@@ -359,6 +359,49 @@ Finding (relayed by the coordinator): the C27 channel, a 10 k bead into a 10 k p
 | RTD_AVDD lost | MAX31865 off | TPS389001 gives RTD_HW_FAULT and SENSOR_LIVE low |
 | Interlock 3.3 V shared with the MCU (common-cause) | One regulator feeds both | Accepted: every rail fault takes PERMIT low (rows above). The architecture asked for its own region and decoupling, not its own regulator |
 
+## C33. Blower buck input from a separate SELV supply PS3 via J13 (stage 16, 2026-10-12)
+Source: power-stage stage-16 plan `validation-results/08-manufacturing-package/native-21/stage16-blower-supply/PLAN-16.md` (commit 7ed77d61b, §3/§4) and the coordinator's relay; enclosure R41 approved J13's position and height. Numbers: `tools/controller_calcs.py ps3_budget()` and `blw_pg()`; checks: `verify_controller.py` section `blwin`.
+- **Why:** C28's open item 13. With the blower at full speed PS1 (IRM-20-15, 21 W) would carry 23.7 W typical and 40.8 W at the blower maximum. The owner wants a blower start or stall unable to brown out the logic rail.
+- **Topology:** PS3 is a Mean Well IRM-60-15ST, chassis-mounted at world (−139, 95) (enclosure R41; not on this board). It feeds the existing TPS62933 blower buck U2 over its own 18 AWG twisted pair (about 450 mm).
+  - U2's VIN, the top of its EN divider (100 k / 12.1 k) and its three input capacitors move from v15_selv to the new net **V15_BLW**.
+  - A 100 µF 25 V electrolytic (EEE-FK1E101P, same part as the v15_selv bulk) sits on V15_BLW to damp the harness against the ceramics. 25 V is above PS3's 20.25 V OVP maximum.
+  - The EN UVLO (start ≤ 12.07 V, stop ≥ 9.80 V, `en_uvlo()`) now follows PS3. PS3 has the same 15 V ±2.5 % output as PS1.
+  - Unchanged: the FB network and GPIO46 speed injection, FAN_OFF on P15, J10 and its FG path, and every C28 fail-safe direction.
+  - New case: PS3 missing → U2 off → FG reads 0 Hz → the existing tach-loss derate.
+- **Connector J13:** JST **B2P-VH(LF)(SN)**, 2-position, 3.96 mm, top entry, posts along X (LCSC C20571196 from PLAN-16; not re-queried here).
+  - **Pin 1 V15_BLW, pin 2 return (selv_gnd).**
+  - Rating (JST eVH.pdf p.1): 10 A with AWG16, 7 A with AWG18 on the shrouded header. Against the lower 7 A figure: the 2.72 A design load and the 5.46 A start bound (U2 at its 5.8 A high-side limit) both fit.
+  - Mates VHR-2N + SVH-21T-P1.1.
+  - **Position:** enclosure R41 approved body centre (88, 86) at the rear edge. The 8.5 mm VH body (eVH p.3; KiCad F.Fab outline 8.70 mm) would overhang the Y90 edge there, so the body centre is (88, 85.65), flush with the edge and 0.35 mm from R41's point (connector tolerance 0.5 mm).
+  - **Height:** eVH p.1 gives a 16.5 mm mounting height, above the board-wide 15.4 mm. R41 grants a local allowance, "J13 local, Z ≤ 54 within ±6 mm of (88, 86)", which is 29.4 mm above the board top and includes the 18 AWG bend. `check_layout.py` checks that J13's body lies inside that square.
+- **Return path and ground (decision):** PS3's −V is tied to selv_gnd at **one point only, J13.2**, which sits about 10 mm behind U2's input capacitors (J13 pins at Y ≈ 86, input capacitors at Y 72–78).
+  - PS3 is Class II with no FG terminal (IRM-60-SPEC p.1), so no second path exists through PE or the chassis. selv_gnd stays referenced to earth through native-21's R_FE as before.
+  - PS1's return enters at J4 (far left); PS3's at J13. The two supplies share only the solid In1 plane. Neither output is earthed elsewhere, so the two returns form no loop that encloses mains or tank current.
+  - **Loop:** PS3+ → J13.1 → V15_BLW pour/bulk/input caps → U2 → L2 → V_BLOWER → J10.1 → blower → J10.2 → In1 plane → U2/input-cap ground vias → J13.2 → PS3−.
+    - The switching loop (input caps, U2, ground via) is unchanged from L3 and local to the buck.
+    - The blower's DC return crosses the plane from J10 to the buck, as in L3.
+    - What changes: the 15 V supply current no longer crosses the board from J4. It enters and leaves at J13 beside the buck, about 120 mm shorter.
+  - The harness loop area is kept small by the twisted pair.
+- **BLW_PG (recommended option, taken):** 20 k / 4.7 k (1 %) from V15_BLW into expander **P16**, as signal BLW_PG. The divider sits at J13, so only a ≤ 3.9 V node runs to the expander.
+  - PS3 present at 14.63 V gives ≥ 2.74 V, above VIH (0.7 × 3.465 = 2.43 V).
+  - PS3 absent, with V15_BLW open and the TCA9555 pull-up bounded at 50 k, gives ≤ 0.30 V, below VIL 0.94 V.
+  - At the 20.25 V OVP it gives 3.88 V, within the 5 V-tolerant input (TI SCPS200E). Divider current is 0.61 mA.
+  - **Firmware:** read P16 as an input. P16 = 1 means PS3 is present. FG at 0 Hz with P16 = 0 means "PS3 absent". FG at 0 Hz with P16 = 1 while driven means "blower failed". Both derate as C28.
+- **PS1 after the split:** 3.3 V rail plus the direct v15 loads = **4.83 W of 21 W** (`verify_controller.py` `ps1_within_21W_at_full_blower`), whatever the blower speed.
+- **PS3 budget** (`ps3_budget()`):
+  - The blower draws 35.7 W / 2.88 A at the buck's 12.40 V duty-0 corner (fan law from Delta's 32.4 W at 12 V, an estimate as PLAN-16). At η 0.90 that is a **39.7 W PS3 output**, 2.72 A at 14.63 V.
+  - That is 66 % of 60 W, inside the 45 W derated figure at 60 °C (IRM-60-SPEC p.3 curve).
+  - The harness drops 51 mV (18.9 mΩ loop), leaving ≥ 14.57 V at U2 against the 13.54 V it needs for 12.40 V out without foldback.
+  - At start-up, U2's 4.2–5.8 A limit bounds the 15 V draw at 3.96–5.46 A, against PS3's 4.6 A low OCP corner. PLAN-16 bench gate G-B1 measures the blower's start current.
+- **Layout:**
+  - The buck cluster moved 5.5 mm forward, so J13 sits at the rear edge behind U2. The FB divider and injection resistor sit in the strip between U2/L2 and J13, beside the FB pin.
+  - The PS3 current never depends on a routed track. V15_BLW runs in F.Cu pours (`floorplan.py` BLW_FEED):
+    - a 1.7 mm band from J13.1 (thermal-relieved, 0.6 mm spokes) down the left of U2 into the VIN pour;
+    - a 2.0 mm strip across the bulk capacitor's + pad and the three input capacitors.
+  - `check_layout.py` `power_widths` fails unless J13.1, the bulk + pad and every input-capacitor V15_BLW pad lie in one filled V15_BLW region. The only routed V15_BLW tracks are the EN-divider and BLW_PG branches (mA).
+  - The router never necks V_BLOWER or the blower SW node to 0.25 mm (`gridroute.py` NO_NECK). V_BLOWER is checked at ≥ 0.8 mm.
+- **Supersedes:** C28's supply-budget bullet. Open item 13 is closed.
+
 ## Open items (need the owner or the enclosure team)
 1. **Owner:** confirm D-18 is superseded, so the fan can sit on PS1 through the controller (C9).
 2. **Owner:** M12 probe type and pin map (C14).
@@ -372,7 +415,7 @@ Finding (relayed by the coordinator): the C27 channel, a 10 k bead into a 10 k p
    - the BIAS-on, settle, reset-request sequence (C6);
    - the WDI ≤ 400 ms heartbeat;
    - the UI bus driver (OLED + polled MCP23S08 on one SPI host, chunked frame writes, C26);
-   - pins.h additions (UI SPI 40/41/44/47/48/45, RUN_EN 14, I²C SDA 37 / SCL 0, blower PWM 46 and tach 3, ADC on 8 and rim NTC on 9; expander: RTD_DRDY P07, SUP_RUN_OK P14, FAN_OFF P15);
+   - pins.h additions (UI SPI 40/41/44/47/48/45, RUN_EN 14, I²C SDA 37 / SCL 0, blower PWM 46 and tach 3, ADC on 8 and rim NTC on 9; expander: RTD_DRDY P07, SUP_RUN_OK P14, FAN_OFF P15, BLW_PG P16 (C33));
    - the blower fan law and tach supervision (C28).
 9. **Layout stage:**
    - re-run the interlock, thermal-sense and RTD validators on the integrated board;
@@ -386,7 +429,7 @@ Finding (relayed by the coordinator): the C27 channel, a 10 k bead into a 10 k p
     - D-11 accuracy and ct_mon estimation.
 11. **Enclosure:** connector-versus-hole and height conflicts. See [ENCLOSURE-HANDOFF.md](ENCLOSURE-HANDOFF.md).
 12. **R32 delta:** the blower output (C28) and the NTC filtering (C29) are designed in. The RTD filter is a change request to the RTD unit (C29).
-13. **Owner / power stage: PS1 at full blower speed (C28).** IRM-20-15 (21 W) is exceeded when the blower runs at full speed: 23.7 W typical, 40.8 W at the blower's maximum. Choose a larger PS1, or give the blower its own SELV supply.
+13. ~~**Owner / power stage: PS1 at full blower speed (C28).**~~ **Closed by C33 (stage 16):** the blower buck runs from PS3 (IRM-60-15ST) through J13; PS1 now carries 4.83 W of 21 W.
 
 ## Layout inputs from the enclosure (R27, 2026-10-08)
 

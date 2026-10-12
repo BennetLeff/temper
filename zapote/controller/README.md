@@ -6,7 +6,7 @@ This is the induction cooktop's low-voltage controller, captured in atopile and 
 - the RTD front end;
 - the D-11 bus-voltage receiver;
 - the buffers for the ADC channels;
-- the 3.3 V supply and the adjustable 5.5–12 V blower supply with tach (L3, DECISIONS C28);
+- the 3.3 V supply and the adjustable 5.5–12 V blower supply with tach (L3, DECISIONS C28), the blower buck fed from its own 15 V supply PS3 through J13 (stage 16, C33);
 - the probe connectors and one 12-way UI bus (J7, R33) to the fascia UI board, which carries the OLED, buttons, encoder and buzzer.
 
 It draws power from native-21's J4 header and supplies native-21's 3.3 V logic back through J4.3.
@@ -60,16 +60,17 @@ python3 tools/snapshot_native21.py # re-derive inputs/native-21 from git (read-o
 - **Warnings:** the build emits only atopile's "Implicit Declaration" deprecation warnings for `override_net_name`, the same as the thermal-sense build.
 - **Part identity:** it comes from `resolved-components.json` or the CSV, never from the netlist's `libsource` field. Atopile 0.2.69 aliases parts by footprint there; see the power-stage README.
 
-**Current result** (frozen netlist sha256 `20e343ee…`; 244 components): `VERIFY: PASS` (166 checks), and 29/29 mutation tests pass.
+**Current result** (frozen netlist sha256 `305b209a…`; 248 components): `VERIFY: PASS` (182 checks), and 33/33 mutation tests pass.
 
 | Section | Checks | What is asserted |
 |---|---|---|
 | sources | 4/4 | Ports equal their sources minus the boundary lines. Library `modules/components/footprints.ato` hashes equal `zapote/rtd/circuit/rtd_contract.json` |
-| j4 | 35/35 | All 16 pins carry exactly native-21's J4 net names. Both ends are Micro-Fit 3.0 2×8 headers (controller: right-angle 43045-1600 per R27; native-21: vertical 43045-1612) on a 1:1 harness. Pin obligations: J4.3 is the 3.3 V buck output; J4.1 feeds both bucks; each PWM line has a 10 kΩ pull-down and is driven from an MCU GPIO; PERMIT's only driver is the PERMIT gate U37 = latch Q AND RUN_EN (C23); bus_fault enters the interlock OCP input with its 10 kΩ pull-up; 11/12 enter the D-11 receiver; ct_mon sees one buffer input and ≥ 1 MΩ DC; ct_zc/line_zc reach GPIO38/39; returns 2/4/15 are on selv_gnd |
+| j4 | 35/35 | All 16 pins carry exactly native-21's J4 net names. Both ends are Micro-Fit 3.0 2×8 headers (controller: right-angle 43045-1600 per R27; native-21: vertical 43045-1612) on a 1:1 harness. Pin obligations: J4.3 is the 3.3 V buck output; J4.1 feeds the 3.3 V buck only (stage 16: the blower buck is on PS3); each PWM line has a 10 kΩ pull-down and is driven from an MCU GPIO; PERMIT's only driver is the PERMIT gate U37 = latch Q AND RUN_EN (C23); bus_fault enters the interlock OCP input with its 10 kΩ pull-up; 11/12 enter the D-11 receiver; ct_mon sees one buffer input and ≥ 1 MΩ DC; ct_zc/line_zc reach GPIO38/39; returns 2/4/15 are on selv_gnd |
 | adc1 | 26/26 | VBUS, CT_MON, HS, COIL, M12 and RIM (R36 rim NTC, GPIO9) each on one ADC1 pad, driven by its buffer; each NTC buffer input is an RC ≤ 1 kHz (C29). Six distinct channels; nothing analog on ADC2 or a strap; SPI 10–13 go to the RTD front end; the sample pattern fits (below) |
 | trip | 19/19 | The structural and exhaustive interlock checks (below) |
-| v3v3 | 5/5 | Current budget for both boards, regulator, inductor, PS1 (at R32's blower drive cap; full blower speed is reported, over the rating), and the native-21 rail window |
+| v3v3 | 5/5 | Current budget for both boards, regulator, inductor, PS1 (logic only since stage 16: 4.83 W of 21 W at any blower speed), and the native-21 rail window |
 | blower | 13/13 | J10 = V_BLOWER / GND / FG; FG pull-up, TVS and series R into GPIO3; GPIO46 PWM filtered into the blower buck's FB with full speed at reset; switch-off from expander P15 with the blower running at power-up; the `blower_supply()` sizing checks (C28) |
+| blwin | 16/16 | Stage 16 (C33): J13 = V15_BLW / selv_gnd on a B2P-VH; U2's VIN, EN-divider top and input caps on V15_BLW; no part joins V15_BLW to v15_selv; 100 µF bulk on V15_BLW; BLW_PG 20 k / 4.7 k into expander P16; the `ps3_budget()` and `blw_pg()` checks (PS3 39.7 W of 60 W) |
 | thermal | 11/11 | The thermal-sense comparator trips from the netlist resistor values, 64 corners (a port of the zapote-erc method): heatsink 101.4 °C (98.3–104.6) above the 95 °C firmware trip and with Tj ≤ 135 °C; coil 175.7 °C (169.7–182.0) above the 165 °C firmware trip; open/short margins (C32) |
 | ct_rms | 20/20 | The tank-RMS channel: ct_mon buffer → AC coupling → AD8436 (unity input buffer, AC-coupled core, single supply on v15, C0G CAVG) → gain-4 output buffer → 1 kΩ + BAT54S clamp → MCP3202 CH0. CH1 reads the LM4040 2.5 V reference. The ADC sits on the RTD SPI bus with its own pulled-up CS GPIO; the raw ct_mon ADC1 path is kept |
 | ui | 25/25 | J7 (R33 UI bus, DECISIONS C26): exact 12-pin map with a GND beside every signal; each signal reaches its GPIO through one 33–100 Ω series resistor with nothing active on the connector side, and has an SRV05-4 clamp; the UI bus GPIOs (40/41/44/47/48/45) are disjoint from the RTD / MCP3202 SPI bus, which never reaches a connector; both chip selects pulled up; +5 V from the TLV76050 within its budget |
@@ -116,17 +117,20 @@ The simulation treats the sources as independent. Physical paths that make sever
 ## Power tree
 
 ```
-native-21 PS1 IRM-20-15 (15 V ±2.5 %, 21 W) ── J4.1 v15_selv ── 100 µF + 2×(10 µF‖100 nF)
+native-21 PS1 IRM-20-15 (15 V ±2.5 %, 21 W) ── J4.1 v15_selv ── 100 µF + 2×(10 µF‖100 nF)    [logic only, 4.83 W]
   ├─ U1 TPS62933F (FCCM, 500 kHz, EN UVLO on 10.9–12.1 V, off ≥ 9.8 V), 10 µH, 3×22 µF
   │    └─ v3v3 3.304 V nom (3.242–3.367 V, 0–85 °C)
   │         ├─ ESP32-S3-WROOM-1U-N8, J7.2 to the UI board (OLED, expander, encoder, buzzer), expander, buffers, D-11 receiver, MCP3202
   │         ├─ interlock / thermal-sense / RTD blocks (RTD analogue behind its ferrite → RTD_AVDD)
   │         ├─ U3 TPS3703A4330-Q1 window supervisor (SENSE via 1 k / 1 µF) → RAIL_OK
   │         └─ J4.3 → native-21 SELV logic (u_fault_or, 4× ISO7710, AMC1311 VDD2, UCC21550 VCCI …)
-  └─ U2 TPS62933 (500 kHz), 10 µH SWRB1205S, 2×22 µF → V_BLOWER 5.0–12.4 V (PWM into FB) → J10 blower (1.42 A typ, 2.70 A max)
-       EN defaults on; firmware sets speed (GPIO46 PWM, full speed by default) and can switch it off (Q1 from expander P15)
   ├─ U14 AD8436 tank-RMS converter (single supply, ≈ 0.64 mA)
   └─ 2 × 100 Ω → U16 TLV76050 → V5_UI (J7 pin 1, ≤ 30 mA for a 5 V encoder; current-limited)
+
+PS3 IRM-60-15ST (chassis, 15 V ±2.5 %, 60 W; stage 16, C33) ── J13 (B2P-VH) V15_BLW ── 100 µF + 3 input caps
+  ├─ 20 k / 4.7 k → BLW_PG → expander P16 (PS3 present)
+  └─ U2 TPS62933 (500 kHz), 10 µH SWRB1205S, 2×22 µF → V_BLOWER 5.0–12.4 V (PWM into FB) → J10 blower (1.42 A typ, 2.70 A max)
+       EN defaults on (UVLO follows PS3); firmware sets speed (GPIO46 PWM, full speed by default) and can switch it off (Q1 from expander P15)
 ```
 
 **v3v3 budget**, from datasheet maxima at 3.465 V (`evidence/verify.json`, rows per part):

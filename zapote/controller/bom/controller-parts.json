@@ -544,6 +544,12 @@
       "basis": "Yageo RT 0.1 % 0603, 1.00 kOhm; jlcpcb.com/partdetail/C110776",
       "lcsc": "C110776",
       "lcsc_stock_2026_10_10": null
+    },
+    "B2P-VH(LF)(SN)": {
+      "origin": "controller (stage 16 J13, PS3 blower feed, C33)",
+      "basis": "JST eVH.pdf p.1 (10 A AWG16 / 7 A AWG18 shrouded, 250 V, 16.5 mm mounting height) and p.3 (B2P-VH 7.86 x 8.5 mm)",
+      "lcsc": "C20571196",
+      "lcsc_basis": "power-stage PLAN-16 sec. 3 (stage16 JLC lookup, 2026-10-12); not re-queried by this session"
     }
   }
 }
