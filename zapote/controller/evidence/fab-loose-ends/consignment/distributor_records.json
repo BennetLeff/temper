@@ -1,0 +1,27 @@
+{
+ "_comment": "Hand-recorded read-only look-ups (WebFetch page extraction by a small model, or web-search result summaries) made on 2026-10-12 between about 16:20 and 17:10 UTC. No login, cart or order. WebFetch extractions are secondary readings of the page: treat each number as 'as reported', re-check on the vendor page before any purchase. 'aggregator' rows are search-engine summaries of third-party snapshot pages with NO page date and are stale-risk (the LCSC aggregator figure of 28 AD8436BRQZ contradicts LCSC's own live API reading of 0 taken the same day).",
+ "fetch_failures": [
+  {"site": "mouser.com", "url": "https://www.mouser.com/c/?q=AD8436BRQZ", "result": "curl: 'Access to this page has been denied' (bot wall); WebFetch: timeout (60 s) on three attempts incl. /ProductDetail/584-AD8436BRQZ"},
+  {"site": "digikey.com detail pages", "url": "https://www.digikey.com/en/products/result?keywords=...", "result": "search result pages readable, but stock was not shown on the AD8436BRQZ, CD74HC30PWR, 74HC30PW,118 and RG2012V-431-W-T1 pages"},
+  {"site": "farnell.com / newark.com / rs-online.com / octopart.com / findchips.com", "result": "HTTP 403 to curl and WebFetch"},
+  {"site": "arrow.com", "result": "WebFetch timeout"},
+  {"site": "molex.com", "result": "no connection (curl code 000), WebFetch timeout; the 43045-1600 sales drawing could not be read"}
+ ],
+ "records": [
+  {"mpn": "AD8436BRQZ", "site": "DigiKey", "url": "https://www.digikey.com/en/products/result?keywords=AD8436BRQZ", "date": "2026-10-12", "stock": null, "price_qty1_usd": 28.28, "lead_time": null, "note": "listed as exact match, stock and lead time not shown on this page"},
+  {"mpn": "AD8436BRQZ", "site": "DigiKey + Mouser + LCSC (aggregator summary, undated)", "url": "https://www.findchips.com/search/8436", "date": "undated", "stock": "DigiKey tube 505-AD8436BRQZ-ND about 75; Mouser tube 584-AD8436BRQZ about 202; reels 0 (2,500 MOQ); LCSC about 28 (contradicted by live LCSC=0)", "price_qty1_usd": "23.93 (DigiKey), 24.01 (Mouser)", "lead_time": "DigiKey 10 weeks listed beside the stock figure", "note": "unverified third-party snapshot; do not rely on stock without checking the vendor page"},
+  {"mpn": "TPS3703A4330DSERQ1", "site": "DigiKey", "url": "https://www.digikey.com/en/products/result?keywords=TPS3703A4330DSERQ1", "date": "2026-10-12", "stock": 0, "price_qty1_usd": 2.61, "lead_time": "factory standard 26 weeks; 2,835 expected 2026-11-30 and 165 expected 2026-12-21", "note": "Cut tape / Digi-Reel; reel MOQ 3,000"},
+  {"mpn": "TPS3703A4330DSER (non-Q1, same device without AEC-Q100 marking)", "site": "DigiKey", "url": "https://www.digikey.com/en/products/result?keywords=TPS3703A4330DSERQ1", "date": "2026-10-12", "stock": 2954, "price_qty1_usd": 2.16, "lead_time": null, "note": "listed as a parametric substitute on the Q1 search page"},
+  {"mpn": "ERA-3AEB1652V", "site": "DigiKey", "url": "https://www.digikey.com/en/products/result?keywords=ERA-3AEB1652V", "date": "2026-10-12", "stock": 0, "price_qty1_usd": 0.10, "lead_time": "factory standard 49 weeks; 5,000 expected 2026-11-05", "note": "reel MOQ 5,000"},
+  {"mpn": "RT0603BRD0716K5L (Yageo, ERA-3AEB1652V substitute)", "site": "DigiKey", "url": "https://www.digikey.com/en/products/result?keywords=ERA-3AEB1652V", "date": "2026-10-12", "stock": 12211, "price_qty1_usd": 0.10, "lead_time": null, "note": "listed as 'Direct' substitute"},
+  {"mpn": "RG1608P-1652-B-T5 (Susumu, ERA-3AEB1652V substitute)", "site": "DigiKey", "url": "https://www.digikey.com/en/products/result?keywords=ERA-3AEB1652V", "date": "2026-10-12", "stock": 6980, "price_qty1_usd": 0.12, "lead_time": null, "note": "listed as 'Direct' substitute"},
+  {"mpn": "RG2012V-431-W-T1", "site": "DigiKey", "url": "https://www.digikey.com/en/products/result?keywords=RG2012V-431-W-T1", "date": "2026-10-12", "stock": null, "price_qty1_usd": null, "lead_time": "factory standard 22 weeks", "note": "only price break shown is 3,000 pcs at $1.23745 (reel, $3,712.35); no cut-tape price or stock on the page"},
+  {"mpn": "CD74HC30PWR", "site": "DigiKey", "url": "https://www.digikey.com/en/products/result?keywords=CD74HC30PWR", "date": "2026-10-12", "stock": null, "price_qty1_usd": 0.60, "lead_time": null, "note": "listing found; stock and lead time not shown on this page"},
+  {"mpn": "74HC30PW,118", "site": "DigiKey", "url": "https://www.digikey.com/en/products/result?keywords=74HC30PW%2C118", "date": "2026-10-12", "stock": null, "price_qty1_usd": 0.31, "lead_time": null, "note": "Nexperia listing found; stock not shown on this page"},
+  {"mpn": "43025-1600 (J4 mating housing)", "site": "DigiKey", "url": "https://www.digikey.com/en/products/result?keywords=43025-1600", "date": "2026-10-12", "stock": null, "price_qty1_usd": null, "lead_time": "factory standard 10 weeks", "note": "housing 0430251600, 16 positions, 2 rows, contacts sold separately; related crimp sockets 0430300001 (20-24 AWG tin) and 0430300008 (20-24 AWG gold)"}
+ ],
+ "jlc_consignment_source": {
+  "overseas_consignment_steps": "https://jlcpcb.com/help/article/how-to-consign-parts-to-jlcpcb (page says 'Last updated: Sep 09, 2026'; read 2026-10-12)",
+  "global_sourcing": "https://jlcpcb.com/help/article/60-how-to-use-jlcpcb-global-sourcing-parts-service and https://api.jlcpcb.com/help/article/pcba-parts-sourcing-instruction (read only as a web-search summary 2026-10-12: JLC buys from global distributors, 9-15 day lead time, payment final / no cancel or return, not shipped separately)"
+ }
+}
