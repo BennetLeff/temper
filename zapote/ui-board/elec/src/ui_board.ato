@@ -1,0 +1,502 @@
+# Temper fascia UI board (schematic capture, no layout). One board parallel to the fascia
+# (enclosure R33 DECISIONS 3, R41 r33_world.py): the NHD-3.12-25664UCW2 OLED on a 1x20
+# socket, three APEM IPR3PAD2 IP67 buttons, the Grayhill 62VG15-H9S-030C encoder's 6-pin
+# socket, an MCP23S08 SPI expander, a TMP122 temperature sensor and a self-oscillating
+# buzzer, with one 12-way JST XH jumper to controller J7.
+#
+# Contract (read-only): zapote/controller DECISIONS C26 and ENCLOSURE-HANDOFF.md (J7 pin
+# map), firmware ui_board_map.h at 780eaab89 (expander bit map). Decisions: ../../DECISIONS.md.
+# Verification: ../../tools/verify_ui.py.
+#
+# J7:  1 +5V (V5_UI, <= 30 mA)  2 +3V3  3 GND  4 SCK  5 GND  6 MOSI  7 MISO  8 GND
+#      9 CS_OLED#  10 OLED D/C  11 GND  12 CS_EXP#
+# MCP23S08 (opcode 0x40, A1 = A0 = 0):
+#      GP0 START  GP1 STOP  GP2 BACK/RESET  GP3 ENC_A  GP4 ENC_B  GP5 ENC_SW
+#      GP6 buzzer (high = on)  GP7 TMP122 CS#
+
+#pragma experiment("MODULE_TEMPLATING")
+#pragma experiment("TRAITS")
+
+from "ui_parts.ato" import Resistor, Capacitor, Capacitor0805, Diode1n4148ws, Bead0603
+from "ui_parts.ato" import Mcp23s08, Tmp122, Tlv3202, Srv05_4, Ao3400a, BuzzerGsd9605
+from "ui_parts.ato" import XhHeader12, MicroMatch6, OledSocket20, PushbuttonIpr3pad2
+
+module UiBoard:
+    # ------------------------------------------------------------------ nets
+    signal gnd
+    signal v3v3
+    signal v5_ui
+    signal v3v3_enc
+    gnd.override_net_name = "GND"
+    v3v3.override_net_name = "V3V3"
+    v5_ui.override_net_name = "V5_UI"
+    v3v3_enc.override_net_name = "V3V3_ENC"
+    # J7-side bus nets (the controller's own net names)
+    signal j7_sck
+    signal j7_mosi
+    signal j7_miso
+    signal j7_cs_oled_n
+    signal j7_dc
+    signal j7_cs_exp_n
+    j7_sck.override_net_name = "J7_SCK"
+    j7_mosi.override_net_name = "J7_MOSI"
+    j7_miso.override_net_name = "J7_MISO"
+    j7_cs_oled_n.override_net_name = "J7_CS_OLED_N"
+    j7_dc.override_net_name = "J7_DC"
+    j7_cs_exp_n.override_net_name = "J7_CS_EXP_N"
+    # board-local nets
+    signal miso_local
+    signal btn_start_raw
+    signal btn_stop_raw
+    signal btn_back_raw
+    signal btn_start
+    signal btn_stop
+    signal btn_back
+    signal enc_a_raw
+    signal enc_b_raw
+    signal enc_sw_raw
+    signal enc_a_in
+    signal enc_b_in
+    signal enc_a
+    signal enc_b
+    signal enc_sw
+    signal enc_ref
+    signal buz_drv
+    signal buz_n
+    signal buz_gate
+    signal tmp_cs_n
+    signal exp_reset
+    signal oled_res_n
+    miso_local.override_net_name = "MISO_LOCAL"
+    btn_start_raw.override_net_name = "BTN_START_RAW"
+    btn_stop_raw.override_net_name = "BTN_STOP_RAW"
+    btn_back_raw.override_net_name = "BTN_BACK_RAW"
+    btn_start.override_net_name = "GP0_BTN_START"
+    btn_stop.override_net_name = "GP1_BTN_STOP"
+    btn_back.override_net_name = "GP2_BTN_BACK"
+    enc_a_raw.override_net_name = "ENC_A_RAW"
+    enc_b_raw.override_net_name = "ENC_B_RAW"
+    enc_sw_raw.override_net_name = "ENC_SW_RAW"
+    enc_a_in.override_net_name = "ENC_A_IN"
+    enc_b_in.override_net_name = "ENC_B_IN"
+    enc_a.override_net_name = "GP3_ENC_A"
+    enc_b.override_net_name = "GP4_ENC_B"
+    enc_sw.override_net_name = "GP5_ENC_SW"
+    enc_ref.override_net_name = "ENC_REF"
+    buz_drv.override_net_name = "GP6_BUZZER"
+    buz_n.override_net_name = "BUZ_N"
+    buz_gate.override_net_name = "BUZ_GATE"
+    tmp_cs_n.override_net_name = "GP7_TMP_CS_N"
+    exp_reset.override_net_name = "EXP_RESET"
+    oled_res_n.override_net_name = "OLED_RES_N"
+
+    # ------------------------------------------------------------ J7 and power
+    j_ui = new XhHeader12
+    j_ui.designator = "J7"
+    j_ui.p1 ~ v5_ui
+    j_ui.p2 ~ v3v3
+    j_ui.p3 ~ gnd
+    j_ui.p4 ~ j7_sck
+    j_ui.p5 ~ gnd
+    j_ui.p6 ~ j7_mosi
+    j_ui.p7 ~ j7_miso
+    j_ui.p8 ~ gnd
+    j_ui.p9 ~ j7_cs_oled_n
+    j_ui.p10 ~ j7_dc
+    j_ui.p11 ~ gnd
+    j_ui.p12 ~ j7_cs_exp_n
+
+    # 3V3 entry: bulk for the OLED boost start-up and the buzzer, plus HF.
+    c_3v3_bulk = new Capacitor0805
+    c_3v3_bulk.designator = "C1"
+    c_3v3_bulk.value = 22uF +/- 20%
+    c_3v3_bulk.mpn = "CL21A226MAQNNNE"
+    c_3v3_bulk.p1 ~ v3v3
+    c_3v3_bulk.p2 ~ gnd
+    c_3v3_hf = new Capacitor
+    c_3v3_hf.designator = "C2"
+    c_3v3_hf.value = 100nF +/- 10%
+    c_3v3_hf.mpn = "CC0603KRX7R9BB104"
+    c_3v3_hf.p1 ~ v3v3
+    c_3v3_hf.p2 ~ gnd
+    # V5_UI is not used (DECISIONS U3: the OLED boost needs 170 mA at 5 V, the budget is 30 mA); the
+    # pin ends in a capacitor and a bleed so the controller's TLV76050 sees a defined output.
+    c_v5 = new Capacitor
+    c_v5.designator = "C11"
+    c_v5.value = 100nF +/- 10%
+    c_v5.mpn = "CC0603KRX7R9BB104"
+    c_v5.p1 ~ v5_ui
+    c_v5.p2 ~ gnd
+    # 0.5 mA bleed so the unused 5 V output is never left floating at no load.
+    r_v5_bleed = new Resistor
+    r_v5_bleed.designator = "R23"
+    r_v5_bleed.value = 10kohm +/- 1%
+    r_v5_bleed.mpn = "0603WAF1002T5E"
+    r_v5_bleed.p1 ~ v5_ui
+    r_v5_bleed.p2 ~ gnd
+
+    # ---------------------------------------------------------- ESD at J7 entry
+    # Controller end already has 100 ohm in series on every signal (C26). Here: SRV05-4
+    # clamps (Vcc on V3V3) at the connector. MISO is driven from this board, so it
+    # gets its own 100 ohm source termination (R20) between the chips and J7.
+    u_esd_j7a = new Srv05_4
+    u_esd_j7a.designator = "U4"
+    u_esd_j7a.VCC ~ v3v3
+    u_esd_j7a.GND ~ gnd
+    u_esd_j7a.IO1 ~ j7_sck
+    u_esd_j7a.IO2 ~ j7_mosi
+    u_esd_j7a.IO3 ~ j7_miso
+    u_esd_j7a.IO4 ~ j7_cs_oled_n
+    u_esd_j7b = new Srv05_4
+    u_esd_j7b.designator = "U5"
+    u_esd_j7b.VCC ~ v3v3
+    u_esd_j7b.GND ~ gnd
+    u_esd_j7b.IO1 ~ j7_dc
+    u_esd_j7b.IO2 ~ j7_cs_exp_n
+    r_miso = new Resistor
+    r_miso.designator = "R20"
+    r_miso.value = 100ohm +/- 1%
+    r_miso.mpn = "0603WAF1000T5E"
+    r_miso.p1 ~ miso_local
+    r_miso.p2 ~ j7_miso
+
+    # ------------------------------------------------------------- expander U1
+    u_exp = new Mcp23s08
+    u_exp.designator = "U1"
+    u_exp.VDD ~ v3v3
+    u_exp.VSS ~ gnd
+    u_exp.A0 ~ gnd
+    u_exp.A1 ~ gnd
+    u_exp.SCK ~ j7_sck
+    u_exp.SI ~ j7_mosi
+    u_exp.SO ~ miso_local
+    u_exp.CS ~ j7_cs_exp_n
+    u_exp.RESET ~ exp_reset
+    u_exp.GP0 ~ btn_start
+    u_exp.GP1 ~ btn_stop
+    u_exp.GP2 ~ btn_back
+    u_exp.GP3 ~ enc_a
+    u_exp.GP4 ~ enc_b
+    u_exp.GP5 ~ enc_sw
+    u_exp.GP6 ~ buz_drv
+    u_exp.GP7 ~ tmp_cs_n
+    c_exp = new Capacitor
+    c_exp.designator = "C3"
+    c_exp.value = 100nF +/- 10%
+    c_exp.mpn = "CC0603KRX7R9BB104"
+    c_exp.p1 ~ v3v3
+    c_exp.p2 ~ gnd
+    # No reset line on J7: tie RESET high through 10 k (DS Table 1-1: "must be biased externally").
+    r_exp_reset = new Resistor
+    r_exp_reset.designator = "R18"
+    r_exp_reset.value = 10kohm +/- 1%
+    r_exp_reset.mpn = "0603WAF1002T5E"
+    r_exp_reset.p1 ~ v3v3
+    r_exp_reset.p2 ~ exp_reset
+
+    # ---------------------------------------------------------- temperature U2
+    u_tmp = new Tmp122
+    u_tmp.designator = "U2"
+    u_tmp.VP ~ v3v3
+    u_tmp.GND ~ gnd
+    u_tmp.SCK ~ j7_sck
+    u_tmp.CS ~ tmp_cs_n
+    u_tmp.SIO ~ miso_local
+    c_tmp = new Capacitor
+    c_tmp.designator = "C4"
+    c_tmp.value = 100nF +/- 10%
+    c_tmp.mpn = "CC0603KRX7R9BB104"
+    c_tmp.p1 ~ v3v3
+    c_tmp.p2 ~ gnd
+    r_tmp_cs = new Resistor
+    r_tmp_cs.designator = "R17"
+    r_tmp_cs.value = 10kohm +/- 1%
+    r_tmp_cs.mpn = "0603WAF1002T5E"
+    r_tmp_cs.p1 ~ v3v3
+    r_tmp_cs.p2 ~ tmp_cs_n
+
+    # --------------------------------------------------- OLED socket J3 (SSD1322)
+    # 4-wire SPI (BS1 = BS0 = 0). Pins per NHD rev 7 p.4: 1 VSS, 2 VDD, 3 BC_VDD (NC),
+    # 4 D/C, 5-6 R/W, E tied low, 7 SCLK, 8 SDIN, 9 NC, 10-14 D3-D7 tied low, 15 VCC (NC),
+    # 16 /RES, 17 /CS, 18 G_VDD (NC), 19 BS1, 20 BS0. Default jumpers: the module makes its
+    # 12 V panel supply itself from VDD (rev 7 p.6), so pins 3, 15 and 18 stay open.
+    # D/C goes straight to J7.10: the controller's GPIO45 is a strap pin, nothing here pulls it up.
+    j_oled = new OledSocket20
+    j_oled.designator = "J3"
+    j_oled.p1 ~ gnd
+    j_oled.p2 ~ v3v3
+    j_oled.p4 ~ j7_dc
+    j_oled.p5 ~ gnd
+    j_oled.p6 ~ gnd
+    j_oled.p7 ~ j7_sck
+    j_oled.p8 ~ j7_mosi
+    j_oled.p10 ~ gnd
+    j_oled.p11 ~ gnd
+    j_oled.p12 ~ gnd
+    j_oled.p13 ~ gnd
+    j_oled.p14 ~ gnd
+    j_oled.p16 ~ oled_res_n
+    j_oled.p17 ~ j7_cs_oled_n
+    j_oled.p19 ~ gnd
+    j_oled.p20 ~ gnd
+    c_oled_bulk = new Capacitor0805
+    c_oled_bulk.designator = "C6"
+    c_oled_bulk.value = 22uF +/- 20%
+    c_oled_bulk.mpn = "CL21A226MAQNNNE"
+    c_oled_bulk.p1 ~ v3v3
+    c_oled_bulk.p2 ~ gnd
+    c_oled_hf = new Capacitor
+    c_oled_hf.designator = "C7"
+    c_oled_hf.value = 100nF +/- 10%
+    c_oled_hf.mpn = "CC0603KRX7R9BB104"
+    c_oled_hf.p1 ~ v3v3
+    c_oled_hf.p2 ~ gnd
+    # Power-on reset: RES# is held low while 10 k charges 1 uF, and D2 discharges the
+    # capacitor when V3V3 drops, so every power cycle resets the display.
+    r_res = new Resistor
+    r_res.designator = "R19"
+    r_res.value = 10kohm +/- 1%
+    r_res.mpn = "0603WAF1002T5E"
+    r_res.p1 ~ v3v3
+    r_res.p2 ~ oled_res_n
+    c_res = new Capacitor
+    c_res.designator = "C12"
+    c_res.value = 1uF +/- 10%
+    c_res.mpn = "CL10A105KB8NNNC"
+    c_res.p1 ~ oled_res_n
+    c_res.p2 ~ gnd
+    d_res = new Diode1n4148ws
+    d_res.designator = "D2"
+    d_res.A ~ oled_res_n
+    d_res.K ~ v3v3
+
+    # ----------------------------------------------------------------- buttons
+    # SW1 select/start (U-35), SW2 stop (U5), SW3 back/reset (U-75): normally open, close to GND.
+    # Per line: switch pin -> [SRV05-4 clamp + 10 k pull-up] -> 1 k -> expander pin.
+    sw_start = new PushbuttonIpr3pad2
+    sw_start.designator = "SW1"
+    sw_start.A ~ btn_start_raw
+    sw_start.B ~ gnd
+    sw_stop = new PushbuttonIpr3pad2
+    sw_stop.designator = "SW2"
+    sw_stop.A ~ btn_stop_raw
+    sw_stop.B ~ gnd
+    sw_back = new PushbuttonIpr3pad2
+    sw_back.designator = "SW3"
+    sw_back.A ~ btn_back_raw
+    sw_back.B ~ gnd
+    r_pu_start = new Resistor
+    r_pu_start.designator = "R4"
+    r_pu_start.value = 10kohm +/- 1%
+    r_pu_start.mpn = "0603WAF1002T5E"
+    r_pu_start.p1 ~ v3v3
+    r_pu_start.p2 ~ btn_start_raw
+    r_pu_stop = new Resistor
+    r_pu_stop.designator = "R5"
+    r_pu_stop.value = 10kohm +/- 1%
+    r_pu_stop.mpn = "0603WAF1002T5E"
+    r_pu_stop.p1 ~ v3v3
+    r_pu_stop.p2 ~ btn_stop_raw
+    r_pu_back = new Resistor
+    r_pu_back.designator = "R6"
+    r_pu_back.value = 10kohm +/- 1%
+    r_pu_back.mpn = "0603WAF1002T5E"
+    r_pu_back.p1 ~ v3v3
+    r_pu_back.p2 ~ btn_back_raw
+    r_se_start = new Resistor
+    r_se_start.designator = "R1"
+    r_se_start.value = 1kohm +/- 1%
+    r_se_start.mpn = "0603WAF1001T5E"
+    r_se_start.p1 ~ btn_start_raw
+    r_se_start.p2 ~ btn_start
+    r_se_stop = new Resistor
+    r_se_stop.designator = "R2"
+    r_se_stop.value = 1kohm +/- 1%
+    r_se_stop.mpn = "0603WAF1001T5E"
+    r_se_stop.p1 ~ btn_stop_raw
+    r_se_stop.p2 ~ btn_stop
+    r_se_back = new Resistor
+    r_se_back.designator = "R3"
+    r_se_back.value = 1kohm +/- 1%
+    r_se_back.mpn = "0603WAF1001T5E"
+    r_se_back.p1 ~ btn_back_raw
+    r_se_back.p2 ~ btn_back
+
+    # ------------------------------------------------------------------ encoder
+    # Grayhill 62VG15-H9S-030C (3.30 +/- 0.125 V, 30 mA max, open-collector A/B that need
+    # a 10 k pull-up and <= 1 nF; low <= 1.0 V, high >= 2.0 V; NO push contact on pins 2-3).
+    # J2: 1 GND, 2 push contact (to GND), 3 push contact, 4 B, 5 A, 6 +3.3 V.
+    j_enc = new MicroMatch6
+    j_enc.designator = "J2"
+    j_enc.p1 ~ gnd
+    j_enc.p2 ~ gnd
+    j_enc.p3 ~ enc_sw_raw
+    j_enc.p4 ~ enc_b_raw
+    j_enc.p5 ~ enc_a_raw
+    j_enc.p6 ~ v3v3_enc
+    fb_enc = new Bead0603
+    fb_enc.designator = "FB1"
+    fb_enc.p1 ~ v3v3
+    fb_enc.p2 ~ v3v3_enc
+    c_enc_bulk = new Capacitor
+    c_enc_bulk.designator = "C8"
+    c_enc_bulk.value = 10uF +/- 10%
+    c_enc_bulk.mpn = "CL10A106KP8NNNC"
+    c_enc_bulk.p1 ~ v3v3_enc
+    c_enc_bulk.p2 ~ gnd
+    c_enc_hf = new Capacitor
+    c_enc_hf.designator = "C9"
+    c_enc_hf.value = 100nF +/- 10%
+    c_enc_hf.mpn = "CC0603KRX7R9BB104"
+    c_enc_hf.p1 ~ v3v3_enc
+    c_enc_hf.p2 ~ gnd
+    # Pull-ups (Grayhill: required) and noise capacitors (< 1000 pF) at the connector.
+    r_pu_a = new Resistor
+    r_pu_a.designator = "R9"
+    r_pu_a.value = 10kohm +/- 1%
+    r_pu_a.mpn = "0603WAF1002T5E"
+    r_pu_a.p1 ~ v3v3_enc
+    r_pu_a.p2 ~ enc_a_raw
+    r_pu_b = new Resistor
+    r_pu_b.designator = "R10"
+    r_pu_b.value = 10kohm +/- 1%
+    r_pu_b.mpn = "0603WAF1002T5E"
+    r_pu_b.p1 ~ v3v3_enc
+    r_pu_b.p2 ~ enc_b_raw
+    r_pu_sw = new Resistor
+    r_pu_sw.designator = "R8"
+    r_pu_sw.value = 10kohm +/- 1%
+    r_pu_sw.mpn = "0603WAF1002T5E"
+    r_pu_sw.p1 ~ v3v3_enc
+    r_pu_sw.p2 ~ enc_sw_raw
+    c_nf_a = new Capacitor
+    c_nf_a.designator = "C13"
+    c_nf_a.value = 470pF +/- 10%
+    c_nf_a.mpn = "0603B471K500NT"
+    c_nf_a.p1 ~ enc_a_raw
+    c_nf_a.p2 ~ gnd
+    c_nf_b = new Capacitor
+    c_nf_b.designator = "C14"
+    c_nf_b.value = 470pF +/- 10%
+    c_nf_b.mpn = "0603B471K500NT"
+    c_nf_b.p1 ~ enc_b_raw
+    c_nf_b.p2 ~ gnd
+    r_se_sw = new Resistor
+    r_se_sw.designator = "R7"
+    r_se_sw.value = 1kohm +/- 1%
+    r_se_sw.mpn = "0603WAF1001T5E"
+    r_se_sw.p1 ~ enc_sw_raw
+    r_se_sw.p2 ~ enc_sw
+    # The encoder's guaranteed levels (low <= 1.0 V, high >= 2.0 V) do not meet the
+    # MCP23S08's VIL = 0.2 VDD = 0.66 V, so A and B pass a comparator with its threshold
+    # at 1.5 V (U3, hysteresis ~70 mV from R13/R14 over R11/R12).
+    u_cmp = new Tlv3202
+    u_cmp.designator = "U3"
+    u_cmp.VCC ~ v3v3
+    u_cmp.GND ~ gnd
+    u_cmp.IN1P ~ enc_a_in
+    u_cmp.IN1N ~ enc_ref
+    u_cmp.OUT1 ~ enc_a
+    u_cmp.IN2P ~ enc_b_in
+    u_cmp.IN2N ~ enc_ref
+    u_cmp.OUT2 ~ enc_b
+    c_cmp = new Capacitor
+    c_cmp.designator = "C5"
+    c_cmp.value = 100nF +/- 10%
+    c_cmp.mpn = "CC0603KRX7R9BB104"
+    c_cmp.p1 ~ v3v3
+    c_cmp.p2 ~ gnd
+    r_in_a = new Resistor
+    r_in_a.designator = "R11"
+    r_in_a.value = 10kohm +/- 1%
+    r_in_a.mpn = "0603WAF1002T5E"
+    r_in_a.p1 ~ enc_a_raw
+    r_in_a.p2 ~ enc_a_in
+    r_in_b = new Resistor
+    r_in_b.designator = "R12"
+    r_in_b.value = 10kohm +/- 1%
+    r_in_b.mpn = "0603WAF1002T5E"
+    r_in_b.p1 ~ enc_b_raw
+    r_in_b.p2 ~ enc_b_in
+    r_hy_a = new Resistor
+    r_hy_a.designator = "R13"
+    r_hy_a.value = 470kohm +/- 1%
+    r_hy_a.mpn = "0603WAF4703T5E"
+    r_hy_a.p1 ~ enc_a
+    r_hy_a.p2 ~ enc_a_in
+    r_hy_b = new Resistor
+    r_hy_b.designator = "R14"
+    r_hy_b.value = 470kohm +/- 1%
+    r_hy_b.mpn = "0603WAF4703T5E"
+    r_hy_b.p1 ~ enc_b
+    r_hy_b.p2 ~ enc_b_in
+    r_ref_top = new Resistor
+    r_ref_top.designator = "R15"
+    r_ref_top.value = 12kohm +/- 1%
+    r_ref_top.mpn = "0603WAF1202T5E"
+    r_ref_top.p1 ~ v3v3_enc
+    r_ref_top.p2 ~ enc_ref
+    r_ref_bot = new Resistor
+    r_ref_bot.designator = "R16"
+    r_ref_bot.value = 10kohm +/- 1%
+    r_ref_bot.mpn = "0603WAF1002T5E"
+    r_ref_bot.p1 ~ enc_ref
+    r_ref_bot.p2 ~ gnd
+    c_ref = new Capacitor
+    c_ref.designator = "C15"
+    c_ref.value = 100nF +/- 10%
+    c_ref.mpn = "CC0603KRX7R9BB104"
+    c_ref.p1 ~ enc_ref
+    c_ref.p2 ~ gnd
+
+    # ---------------------------------------------------- ESD at the controls
+    u_esd_ctl_a = new Srv05_4
+    u_esd_ctl_a.designator = "U6"
+    u_esd_ctl_a.VCC ~ v3v3
+    u_esd_ctl_a.GND ~ gnd
+    u_esd_ctl_a.IO1 ~ btn_start_raw
+    u_esd_ctl_a.IO2 ~ btn_stop_raw
+    u_esd_ctl_a.IO3 ~ btn_back_raw
+    u_esd_ctl_a.IO4 ~ enc_sw_raw
+    u_esd_ctl_b = new Srv05_4
+    u_esd_ctl_b.designator = "U7"
+    u_esd_ctl_b.VCC ~ v3v3
+    u_esd_ctl_b.GND ~ gnd
+    u_esd_ctl_b.IO1 ~ enc_a_raw
+    u_esd_ctl_b.IO2 ~ enc_b_raw
+
+    # ------------------------------------------------------------------- buzzer
+    # Self-oscillating electromagnetic buzzer on V3V3, low-side switched by Q1. GP6 is an
+    # input (high impedance) at reset and R22 holds the gate low, so the buzzer is off until
+    # firmware sets IODIR.6 = 0 and OLAT.6 = 1. D1 clamps the coil kick.
+    bz = new BuzzerGsd9605
+    bz.designator = "BZ1"
+    bz.P ~ v3v3
+    bz.N ~ buz_n
+    q_buz = new Ao3400a
+    q_buz.designator = "Q1"
+    q_buz.D ~ buz_n
+    q_buz.S ~ gnd
+    q_buz.G ~ buz_gate
+    d_buz = new Diode1n4148ws
+    d_buz.designator = "D1"
+    d_buz.A ~ buz_n
+    d_buz.K ~ v3v3
+    r_gate = new Resistor
+    r_gate.designator = "R21"
+    r_gate.value = 100ohm +/- 1%
+    r_gate.mpn = "0603WAF1000T5E"
+    r_gate.p1 ~ buz_drv
+    r_gate.p2 ~ buz_gate
+    r_gate_pd = new Resistor
+    r_gate_pd.designator = "R22"
+    r_gate_pd.value = 100kohm +/- 1%
+    r_gate_pd.mpn = "0603WAF1003T5E"
+    r_gate_pd.p1 ~ buz_gate
+    r_gate_pd.p2 ~ gnd
+    c_buz = new Capacitor
+    c_buz.designator = "C10"
+    c_buz.value = 10uF +/- 10%
+    c_buz.mpn = "CL10A106KP8NNNC"
+    c_buz.p1 ~ v3v3
+    c_buz.p2 ~ gnd

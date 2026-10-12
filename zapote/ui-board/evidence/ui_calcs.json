@@ -1,0 +1,367 @@
+{
+  "failed_checks": [],
+  "schema": "temper.ui-board.calcs.v1",
+  "sections": {
+    "buzzer_drive": {
+      "buzzer_current_A": 0.0315,
+      "checks": {
+        "buzzer_within_90mA_allocation": true,
+        "clamp_voltage_le_q1_vds": true,
+        "gate_at_reset_below_vth_min": true,
+        "gate_drive_above_vth_max_by_0p5V": true,
+        "vds_on_le_20mV": true
+      },
+      "flyback": "D1 1N4148WS across the buzzer (cathode V3V3): Vds clamps at VMAX + 0.8 V = 4.3 V against Q1's 30 V",
+      "gate_at_reset_V": 0.1,
+      "gate_drive_V": 2.435,
+      "q1_power_W": 4.76e-05,
+      "sources": "Inghai GSD9605YB-3V2800 spec sheet V1.1 p.1-2 (electromagnetic, built-in driver, 2-5 V, 30 mA max at 3.3 V); AO3400A (LCSC C20917 listing: 1.45 V max threshold, 48 mohm at 2.5 V); Microchip DS20001919F p.22 D060/D090",
+      "vds_on_V": 0.00151,
+      "vth_max_V": 1.45,
+      "vth_min_V": 0.65
+    },
+    "debounce_and_poll": {
+      "button_bounce_ms": 10.0,
+      "checks": {
+        "firmware_debounce_covers_bounce": false,
+        "polling_oversamples_encoder_4x": true
+      },
+      "debounce_polls_in_firmware": 10,
+      "encoder_state_period_ms_at_100rpm": 6.25,
+      "expander_read_us_at_5MHz": 4.8,
+      "expander_read_us_at_8MHz": 3.0,
+      "min_polls_for_10ms_bounce": 11,
+      "note": "the last check is expected to be False: 10 identical polls (10 ms) only just reach the 10 ms bounce limit; see DECISIONS U14 (recommendation: 15 polls). It is excluded from the pass/fail gate.",
+      "oled_frame_ms_at_8MHz": 8.192,
+      "poll_ms": 1.0,
+      "sources": "APEM IP series p.2 (contact bounce 10 ms); Grayhill 62AG/VG p.3 (bounce < 4 ms make, < 10 ms break; max 100 rpm, 24 detents); firmware ui_board_map.h (1 kHz poll, 10 identical reads)"
+    },
+    "encoder_comparator": {
+      "checks": {
+        "high_margin_ge_0p3V": true,
+        "hysteresis_positive_at_every_corner": true,
+        "low_margin_ge_0p3V": true,
+        "without_comparator_would_fail": true
+      },
+      "direct_to_mcp23s08_margin_V": -0.373,
+      "encoder_voh_min_V": 2.0,
+      "encoder_vol_max_V": 1.0,
+      "hysteresis_nominal_V": 0.0702,
+      "margin_high_V": 0.3859,
+      "margin_low_V": 0.3807,
+      "mcp23s08_vil_V": 0.627,
+      "min_hysteresis_over_corners_V": 0.0688,
+      "note": "the comparator outputs swing to V3V3 and are far inside the MCP23S08 VIL/VIH (0.66 V / 2.64 V)",
+      "sources": "Grayhill 62AG/VG Rev. 02/2024 p.3 (open-collector outputs, VG logic low <= 1.0 V, high >= 2.0 V, 10 k pull-up required, <1000 pF noise capacitor); TI SBOS561C p.6 (VIO <= 6 mV over temperature, rail-to-rail inputs); Microchip DS20001919F p.22 D031 (VIL 0.2 VDD)",
+      "trip_down_range_V": [
+        1.3807,
+        1.5439
+      ],
+      "trip_up_range_V": [
+        1.4511,
+        1.6141
+      ],
+      "vref_nominal_V": 1.5
+    },
+    "esd": {
+      "arrays": {
+        "U4": "J7 SCK, MOSI, MISO, CS_OLED#",
+        "U5": "J7 D/C, CS_EXP# (2 spare)",
+        "U6": "BTN START, STOP, BACK, ENC_SW",
+        "U7": "ENC A, ENC B (2 spare)"
+      },
+      "checks": {
+        "button_residual_le_20mA": true,
+        "comparator_residual_le_10mA": true
+      },
+      "clamp_V_assumed": 12.0,
+      "note": "the residual currents are for the SRV05-4 clamp assumed; replace the clamp value with the datasheet VC at IPP when the document is read",
+      "residual_into_comparator_mA": 0.81,
+      "residual_into_mcp_button_mA": 8.1,
+      "sources": "MSKSEMI SRV05-4 (controller DECISIONS C26: +/-12 kV contact, Vcc on 3V3); Microchip DS20001919F p.21 (input clamp current 20 mA); TI SBOS561C p.4 (input current +/-10 mA)"
+    },
+    "harness_drop": {
+      "current_A": 0.4119,
+      "drop_V": 0.0397,
+      "r_feed_ohm": 0.0723,
+      "r_return_ohm": 0.0241,
+      "sources": "[ALLOCATION] AWG28 7/36 resistance 232.5 mohm/m and the JST XH contact resistance 20 mohm per mated contact are table values from memory, not re-read in this session; replace with the cited spec lines when the harness is specified",
+      "ui_v3v3_max_V": 3.367,
+      "ui_v3v3_min_V": 3.2023
+    },
+    "oled_reset": {
+      "checks": {
+        "low_pulse_ge_100us": true,
+        "release_after_1ms": true,
+        "release_before_30ms": true
+      },
+      "firmware_rule": "do not write the OLED within 30 ms of UI power-up (RES# is released 13-18 ms after V3V3)",
+      "release_to_0p8vdd_ms": [
+        12.7467,
+        17.8809
+      ],
+      "sources": "Solomon Systech SSD1322 Rev 0.10 p.48 (tRES >= 2 us), p.29 power-on sequence (wait >= 1 ms after VCI, RES# low >= 100 us then high); Newhaven rev. 7 p.4 (/RES active low)",
+      "tau_nominal_ms": 10.0
+    },
+    "oled_supply_options": {
+      "answer": "no on-board boost is needed: the module has one and the factory jumper powers it from 3V3; the 5 V path cannot carry the panel (170 mA at 5 V vs a 30 mA budget)",
+      "checks": {
+        "chosen_is_default_jumper": true,
+        "option1_at_5v_exceeds_budget": true
+      },
+      "options": [
+        {
+          "basis": "rev. 7 p.6 (default R14 closed) and p.7 (IDD 340 mA max, 100 % on)",
+          "chosen": true,
+          "fits_30mA_5V": null,
+          "mA_max": 340.0,
+          "mA_typ": 310.0,
+          "option": "default jumpers: boost + logic + panel from VDD (pin 2) at 3.3 V",
+          "supply": "J7.2 3V3"
+        },
+        {
+          "basis": "rev. 7 p.7: BC_IDD 170 mA max at BC_VDD = 5 V, 100 % on; 5.7x the 30 mA budget",
+          "chosen": false,
+          "fits_30mA_5V": false,
+          "mA_max": 170.0,
+          "mA_typ": 150.0,
+          "option": "#1: boost from BC_VDD (pin 3) at 5 V (R14 open, R15 closed)",
+          "supply": "J7.1 V5_UI"
+        },
+        {
+          "basis": "rev. 7 p.7: 70 mA max at 12 V; J7 carries no 12 V",
+          "chosen": false,
+          "fits_30mA_5V": null,
+          "mA_max": 70.0,
+          "mA_typ": 55.0,
+          "option": "#1 at 12 V BC_VDD",
+          "supply": "none on J7"
+        },
+        {
+          "basis": "rev. 7 p.7: ICC 55 mA max at 12 V. A 12 V boost from 3.3 V (85 % efficient, allocation) would draw 235 mA from 3V3 vs 340 mA, but adds an IC and inductor to save ~100 mA",
+          "chosen": false,
+          "fits_30mA_5V": null,
+          "mA_max": 55.0,
+          "mA_typ": 45.0,
+          "option": "#2: external 12 V on VCC (pin 15), boost unused",
+          "supply": "needs a new 12 V boost on this board"
+        }
+      ],
+      "sources": "Newhaven NHD-3.12-25664UCW2 product specification rev. 7 (2024-08-25) pp.4, 6, 7"
+    },
+    "power_budget": {
+      "checks": {
+        "v3v3_total_le_460mA": true,
+        "v3v3_without_oled_le_120mA": true,
+        "v5_le_30mA": true
+      },
+      "controller_allocation_with_oled_mA": 460.0,
+      "controller_allocation_without_oled_mA": 120.0,
+      "sources": "see rows",
+      "v3v3_rows": [
+        {
+          "basis": "Newhaven product specification rev. 7 (2024-08-25) p.7: IDD 340 mA max at VDD = 3.3 V; scaled x VMAX/3.3 would give 357 mA, but the controller budgets 340 mA, so the contract value is kept",
+          "load": "OLED NHD-3.12-25664UCW2 (factory jumper, 100 % pixels on)",
+          "mA": 340.0
+        },
+        {
+          "basis": "Grayhill 62AG/VG Rev. 02/2024 p.3: supply current 30 mA maximum (VG style)",
+          "load": "Encoder Grayhill 62VG15-H9S-030C",
+          "mA": 30.0
+        },
+        {
+          "basis": "Inghai spec sheet V1.1 p.2: 30 mA max at the 3.3 V rated voltage, scaled linearly to 3.465 V [ALLOCATION]",
+          "load": "Buzzer GSD9605YB-3V2800",
+          "mA": 31.5
+        },
+        {
+          "basis": "Microchip DS20001919F p.22 D004: IDD 1 mA max at SCK = 1 MHz; 8 MHz bound by linear scaling [ALLOCATION]",
+          "load": "MCP23S08",
+          "mA": 8.0
+        },
+        {
+          "basis": "TI SBOS272B p.3: quiescent current 75 uA max",
+          "load": "TMP122",
+          "mA": 0.075
+        },
+        {
+          "basis": "TI SBOS561C p.6: IQ 60 uA max over temperature, per device, doubled [ALLOCATION]",
+          "load": "TLV3202 (2 channels)",
+          "mA": 0.12
+        },
+        {
+          "basis": "6 x 10 k to 3.465 V: 3 buttons, encoder switch, A and B",
+          "load": "pull-ups to V3V3, all lines low at once (R4-R6, R8-R10, R17-R19 high)",
+          "mA": 2.079
+        },
+        {
+          "basis": "3.465 V / 22 k",
+          "load": "encoder reference divider R15+R16",
+          "mA": 0.1575
+        },
+        {
+          "basis": "MSKSEMI SRV05-4: IR 1 uA max at 5 V",
+          "load": "SRV05-4 x4 leakage",
+          "mA": 0.004
+        }
+      ],
+      "v3v3_total_mA": 411.9355,
+      "v3v3_without_oled_mA": 71.9355,
+      "v5_budget_mA": 30.0,
+      "v5_rows": [
+        {
+          "basis": "X7R MLCC, negligible",
+          "load": "C11 100 nF ceramic (leakage < 1 uA)",
+          "mA": 0.001
+        },
+        {
+          "basis": "5.1 V (TLV76050 5 V +2 %) / 10 k; no other part connects to V5_UI",
+          "load": "R23 10 k bleed",
+          "mA": 0.5099999999999999
+        }
+      ],
+      "v5_total_mA": 0.5109999999999999
+    },
+    "pullups": {
+      "button_high_level_V": 3.124,
+      "button_vih_V": 2.508,
+      "checks": {
+        "button_contact_current_le_rating": true,
+        "button_high_above_vih": true,
+        "wetting_ge_0p3mA": true
+      },
+      "internal": {
+        "gppu_internal_uA": "40-115 (DS20001919F p.22 D070, at 5 V), ~75 uA typ",
+        "note": "external 10 k pull-ups make the internal GPPU optional; the firmware map enables GPPU too, which is harmless"
+      },
+      "lines": {
+        "EXP_RESET": {
+          "ohm": 10000.0,
+          "pullup": "R18",
+          "wetting_mA_when_closed": 0.3465
+        },
+        "GP0_BTN_START": {
+          "ohm": 10000.0,
+          "pullup": "R4",
+          "wetting_mA_when_closed": 0.3465
+        },
+        "GP1_BTN_STOP": {
+          "ohm": 10000.0,
+          "pullup": "R5",
+          "wetting_mA_when_closed": 0.3465
+        },
+        "GP2_BTN_BACK": {
+          "ohm": 10000.0,
+          "pullup": "R6",
+          "wetting_mA_when_closed": 0.3465
+        },
+        "GP3_ENC_A": {
+          "ohm": 10000.0,
+          "pullup": "R9 (at the raw node; the comparator output is push-pull)",
+          "wetting_mA_when_closed": 0.3465
+        },
+        "GP4_ENC_B": {
+          "ohm": 10000.0,
+          "pullup": "R10 (same)",
+          "wetting_mA_when_closed": 0.3465
+        },
+        "GP5_ENC_SW": {
+          "ohm": 10000.0,
+          "pullup": "R8",
+          "wetting_mA_when_closed": 0.3465
+        },
+        "GP7_TMP_CS_N": {
+          "ohm": 10000.0,
+          "pullup": "R17",
+          "wetting_mA_when_closed": 0.3465
+        },
+        "OLED_RES_N": {
+          "ohm": 10000.0,
+          "pullup": "R19",
+          "wetting_mA_when_closed": 0.3465
+        }
+      },
+      "sources": "Microchip DS20001919F p.22 D031/D060/D070; APEM IP series p.2 (200 mA 50 VDC, silver gold-plated); Grayhill 62AG/VG p.3"
+    },
+    "spi_timing": {
+      "assumptions": {
+        "cable_pF_per_m": 70,
+        "gpio_matrix_input_delay_ns": 25
+      },
+      "checks": {
+        "forward_clock_high_ge_45ns_at_8MHz": true,
+        "miso_8MHz_margin_is_reported": true,
+        "miso_ok_at_5MHz_with_matrix_delay": true,
+        "ssd1322_tcycle_ok_at_8MHz": true,
+        "tmp122_period_ok_at_8MHz": true
+      },
+      "forward": {
+        "clock_high_margin_ns": 12.385,
+        "half_period_ns": 62.5,
+        "mcp_thi_ns": 45.0,
+        "rise_10_90_ns": 10.23,
+        "tau_ns": 4.65
+      },
+      "miso": {
+        "5MHz": {
+          "half_period_ns": 100.0,
+          "margin_after_matrix_delay_ns": 26.5155,
+          "margin_before_matrix_delay_ns": 51.5155,
+          "miso_valid_ns": 48.4845
+        },
+        "8MHz": {
+          "half_period_ns": 62.5,
+          "margin_after_matrix_delay_ns": -10.9845,
+          "margin_before_matrix_delay_ns": 14.0155,
+          "miso_valid_ns": 48.4845
+        }
+      },
+      "recommendation": "OLED writes at 8 MHz (no MISO). Expander and TMP122 reads at <= 5 MHz as a separate device configuration: at 8 MHz the MCP23S08 output (45 ns) plus the line leaves little of the 62.5 ns half-period before the ESP32 sampling edge.",
+      "sources": "Microchip DS20001919F p.27-28 Table 2-2 (2.7-5.5 V I-temp: fCLK 10 MHz, THI/TLO 45 ns, TV 45 ns); TI SBOS272B p.9 (SCK period 100 ns min, SO output delay 30 ns); Solomon Systech SSD1322 Rev 0.10 p.51 Table 13-4 (4-wire SPI tcycle 100 ns, tCLKL/H 20 ns); controller C26 (100 ohm at the controller end of every signal)"
+    },
+    "v3v3_at_load": {
+      "checks": {
+        "encoder_within_3p30_pm_0p125": true,
+        "ics_within_2p7_5p5": true,
+        "oled_within_2p8_3p5": true
+      },
+      "encoder_pin_min_V": 3.2008,
+      "limits": {
+        "buzzer": [
+          2.0,
+          5.0
+        ],
+        "encoder": [
+          3.175,
+          3.425
+        ],
+        "mcp23s08": [
+          2.7,
+          5.5
+        ],
+        "oled": [
+          2.8,
+          3.5
+        ],
+        "tlv3202": [
+          2.7,
+          5.5
+        ],
+        "tmp122": [
+          2.7,
+          5.5
+        ]
+      },
+      "margins_V": {
+        "encoder_high": 0.058,
+        "encoder_low": 0.0258,
+        "oled_high": 0.133,
+        "oled_low": 0.4023
+      },
+      "note": "the encoder's low-side margin is tight (see margins_V): the bead FB1 is a 50 mohm part for that reason",
+      "sources": "controller verify_controller.py v3v3 band 3.242-3.367 V; Grayhill 62AG/VG p.3 (3.30 +/- 0.125 V); Newhaven rev. 7 p.7 (VDD 2.8-3.5 V); MCP23S08 DS p.22 (1.8-5.5 V); TMP122 p.3 (2.7-5.5 V); TLV3202 p.6",
+      "ui_rail_max_V": 3.367,
+      "ui_rail_min_V": 3.2023
+    }
+  }
+}

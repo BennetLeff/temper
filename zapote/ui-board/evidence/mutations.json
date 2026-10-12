@@ -1,0 +1,342 @@
+{
+  "schema": "temper.ui-board.mutations.v1",
+  "baseline_failed": [],
+  "mutations": 21,
+  "caught": 21,
+  "results": [
+    {
+      "name": "swap_j7_sck_mosi",
+      "what": "swap J7 pins 4 and 6 (SCK <-> MOSI)",
+      "expected_to_fail": [
+        "j7.j7_pin_map_equals_controller_c26_table",
+        "j7.j7_pin_map_equals_controller_enclosure_handoff",
+        "j7.j7_pin_map_equals_controller_frozen_netlist",
+        "j7.j7_pin_map_equals_controller_verify_J7_MAP"
+      ],
+      "caught": [
+        "j7.j7_pin_map_equals_controller_c26_table",
+        "j7.j7_pin_map_equals_controller_enclosure_handoff",
+        "j7.j7_pin_map_equals_controller_frozen_netlist",
+        "j7.j7_pin_map_equals_controller_verify_J7_MAP"
+      ],
+      "ok": true,
+      "all_failures": [
+        "j7.j7_pin_map_equals_controller_c26_table",
+        "j7.j7_pin_map_equals_controller_enclosure_handoff",
+        "j7.j7_pin_map_equals_controller_frozen_netlist",
+        "j7.j7_pin_map_equals_controller_verify_J7_MAP",
+        "j7.j7_pin_map_equals_contract_literal"
+      ]
+    },
+    {
+      "name": "swap_j7_miso_cs_exp",
+      "what": "swap J7 pins 7 and 12 (MISO <-> CS_EXP#)",
+      "expected_to_fail": [
+        "j7.j7_pin_map_equals_controller_c26_table"
+      ],
+      "caught": [
+        "j7.j7_pin_map_equals_controller_c26_table"
+      ],
+      "ok": true,
+      "all_failures": [
+        "j7.j7_pin_map_equals_controller_c26_table",
+        "j7.j7_pin_map_equals_controller_enclosure_handoff",
+        "j7.j7_pin_map_equals_controller_frozen_netlist",
+        "j7.j7_pin_map_equals_controller_verify_J7_MAP",
+        "j7.j7_pin_map_equals_contract_literal"
+      ]
+    },
+    {
+      "name": "drop_encoder_a_pullup",
+      "what": "remove the pull-up on encoder A (R9 loses its rail pin)",
+      "expected_to_fail": [
+        "inputs.gp3_has_external_pullup_le_47k",
+        "encoder.enc_a_pullup_10k_to_encoder_rail"
+      ],
+      "caught": [
+        "inputs.gp3_has_external_pullup_le_47k",
+        "encoder.enc_a_pullup_10k_to_encoder_rail"
+      ],
+      "ok": true,
+      "all_failures": [
+        "inputs.gp3_has_external_pullup_le_47k",
+        "encoder.enc_a_pullup_10k_to_encoder_rail"
+      ]
+    },
+    {
+      "name": "drop_stop_button_pullup",
+      "what": "remove the STOP button pull-up (R5)",
+      "expected_to_fail": [
+        "inputs.gp1_has_external_pullup_le_47k"
+      ],
+      "caught": [
+        "inputs.gp1_has_external_pullup_le_47k"
+      ],
+      "ok": true,
+      "all_failures": [
+        "inputs.gp1_has_external_pullup_le_47k"
+      ]
+    },
+    {
+      "name": "drop_tmp_cs_pullup",
+      "what": "remove the TMP122 chip-select pull-up (R17)",
+      "expected_to_fail": [
+        "inputs.gp7_has_external_pullup_le_47k"
+      ],
+      "caught": [
+        "inputs.gp7_has_external_pullup_le_47k"
+      ],
+      "ok": true,
+      "all_failures": [
+        "inputs.gp7_has_external_pullup_le_47k"
+      ]
+    },
+    {
+      "name": "invert_buzzer_default",
+      "what": "buzzer gate resistor pulls up instead of down (on at reset)",
+      "expected_to_fail": [
+        "buzzer.default_off_at_reset"
+      ],
+      "caught": [
+        "buzzer.default_off_at_reset"
+      ],
+      "ok": true,
+      "all_failures": [
+        "buzzer.default_off_at_reset"
+      ]
+    },
+    {
+      "name": "buzzer_on_5v",
+      "what": "buzzer supplied from V5_UI: 47 mA at 5.1 V against a 30 mA budget",
+      "expected_to_fail": [
+        "power.v5_budget_le_30mA",
+        "buzzer.buzzer_between_3v3_and_q1_drain"
+      ],
+      "caught": [
+        "power.v5_budget_le_30mA",
+        "buzzer.buzzer_between_3v3_and_q1_drain"
+      ],
+      "ok": true,
+      "all_failures": [
+        "j7.j7_5v_not_on_an_ic",
+        "buzzer.buzzer_between_3v3_and_q1_drain",
+        "power.v5_budget_le_30mA",
+        "power.netlist_total_within_5pct_of_calcs"
+      ]
+    },
+    {
+      "name": "remove_expander_decoupling",
+      "what": "remove U1's 100 nF (C3)",
+      "expected_to_fail": [
+        "decoup.u_exp_has_100nF_between_supply_and_ground"
+      ],
+      "caught": [
+        "decoup.u_exp_has_100nF_between_supply_and_ground"
+      ],
+      "ok": true,
+      "all_failures": [
+        "decoup.u_exp_has_100nF_between_supply_and_ground"
+      ]
+    },
+    {
+      "name": "remove_comparator_decoupling",
+      "what": "remove U3's 100 nF (C5)",
+      "expected_to_fail": [
+        "decoup.u_cmp_has_100nF_between_supply_and_ground"
+      ],
+      "caught": [
+        "decoup.u_cmp_has_100nF_between_supply_and_ground"
+      ],
+      "ok": true,
+      "all_failures": [
+        "decoup.u_cmp_has_100nF_between_supply_and_ground"
+      ]
+    },
+    {
+      "name": "swap_gp_map",
+      "what": "swap GP1 and GP2 on the expander (STOP <-> BACK)",
+      "expected_to_fail": [
+        "gpmap.fw_btn_stop_lands_on_its_gp",
+        "gpmap.fw_btn_reset_lands_on_its_gp"
+      ],
+      "caught": [
+        "gpmap.fw_btn_stop_lands_on_its_gp",
+        "gpmap.fw_btn_reset_lands_on_its_gp"
+      ],
+      "ok": true,
+      "all_failures": [
+        "gpmap.fw_btn_stop_lands_on_its_gp",
+        "gpmap.fw_btn_reset_lands_on_its_gp"
+      ]
+    },
+    {
+      "name": "firmware_map_moved",
+      "what": "firmware swaps START and STOP bits (the board no longer matches ui_board_map.h)",
+      "expected_to_fail": [
+        "gpmap.fw_btn_start_lands_on_its_gp",
+        "gpmap.fw_btn_stop_lands_on_its_gp"
+      ],
+      "caught": [
+        "gpmap.fw_btn_start_lands_on_its_gp",
+        "gpmap.fw_btn_stop_lands_on_its_gp"
+      ],
+      "ok": true,
+      "all_failures": [
+        "gpmap.fw_btn_start_lands_on_its_gp",
+        "gpmap.fw_btn_stop_lands_on_its_gp"
+      ]
+    },
+    {
+      "name": "remove_lcsc",
+      "what": "delete U1's LCSC code from the BOM",
+      "expected_to_fail": [
+        "bom.every_part_has_an_lcsc_code"
+      ],
+      "caught": [
+        "bom.every_part_has_an_lcsc_code"
+      ],
+      "ok": true,
+      "all_failures": [
+        "bom.every_part_has_an_lcsc_code",
+        "bom.csv_equals_json"
+      ]
+    },
+    {
+      "name": "zero_stock",
+      "what": "TMP122 stock recorded as 0",
+      "expected_to_fail": [
+        "bom.stock_covers_one_board"
+      ],
+      "caught": [
+        "bom.stock_covers_one_board"
+      ],
+      "ok": true,
+      "all_failures": [
+        "bom.stock_and_check_date_recorded",
+        "bom.stock_covers_one_board"
+      ]
+    },
+    {
+      "name": "pullup_on_oled_dc",
+      "what": "a pull-up lands on OLED D/C (GPIO45 strap must read low at reset)",
+      "expected_to_fail": [
+        "j7.j7_dc_has_no_resistor_or_pull"
+      ],
+      "caught": [
+        "j7.j7_dc_has_no_resistor_or_pull"
+      ],
+      "ok": true,
+      "all_failures": [
+        "j7.j7_dc_has_no_resistor_or_pull",
+        "inputs.gp7_has_external_pullup_le_47k"
+      ]
+    },
+    {
+      "name": "swap_encoder_a_b",
+      "what": "encoder A and B swapped at J2",
+      "expected_to_fail": [
+        "encoder.j2_pin_map_per_grayhill_vg",
+        "gpmap.fw_enc_a_lands_on_its_gp",
+        "gpmap.fw_enc_b_lands_on_its_gp"
+      ],
+      "caught": [
+        "encoder.j2_pin_map_per_grayhill_vg",
+        "gpmap.fw_enc_a_lands_on_its_gp",
+        "gpmap.fw_enc_b_lands_on_its_gp"
+      ],
+      "ok": true,
+      "all_failures": [
+        "gpmap.fw_enc_a_lands_on_its_gp",
+        "gpmap.fw_enc_b_lands_on_its_gp",
+        "encoder.j2_pin_map_per_grayhill_vg"
+      ]
+    },
+    {
+      "name": "remove_button_esd",
+      "what": "SRV05-4 U6 loses the START button channel",
+      "expected_to_fail": [
+        "esd.every_external_facing_line_has_srv05_clamp"
+      ],
+      "caught": [
+        "esd.every_external_facing_line_has_srv05_clamp"
+      ],
+      "ok": true,
+      "all_failures": [
+        "esd.every_external_facing_line_has_srv05_clamp"
+      ]
+    },
+    {
+      "name": "short_miso_termination",
+      "what": "MISO source resistor R20 shorted (no termination at the UI end)",
+      "expected_to_fail": [
+        "j7.miso_source_termination_100_ohm"
+      ],
+      "caught": [
+        "j7.miso_source_termination_100_ohm"
+      ],
+      "ok": true,
+      "all_failures": [
+        "j7.miso_source_termination_100_ohm"
+      ]
+    },
+    {
+      "name": "esd_vcc_to_gnd",
+      "what": "SRV05-4 U4 Vcc pin grounded (no rail steering)",
+      "expected_to_fail": [
+        "j7.srv05_vcc_on_3v3_and_gnd"
+      ],
+      "caught": [
+        "j7.srv05_vcc_on_3v3_and_gnd"
+      ],
+      "ok": true,
+      "all_failures": [
+        "j7.srv05_vcc_on_3v3_and_gnd"
+      ]
+    },
+    {
+      "name": "remove_oled_reset_cap",
+      "what": "OLED RES# capacitor C12 removed (no power-on reset)",
+      "expected_to_fail": [
+        "oled.res_n_rc_power_on_reset"
+      ],
+      "caught": [
+        "oled.res_n_rc_power_on_reset"
+      ],
+      "ok": true,
+      "all_failures": [
+        "oled.res_n_rc_power_on_reset"
+      ]
+    },
+    {
+      "name": "oled_bs0_floating",
+      "what": "OLED BS0 (pin 20) left open: the interface mode is undefined",
+      "expected_to_fail": [
+        "oled.bs1_bs0_tied_low",
+        "oled.nhd_4wire_spi_pin_map"
+      ],
+      "caught": [
+        "oled.bs1_bs0_tied_low",
+        "oled.nhd_4wire_spi_pin_map"
+      ],
+      "ok": true,
+      "all_failures": [
+        "oled.nhd_4wire_spi_pin_map",
+        "oled.bs1_bs0_tied_low"
+      ]
+    },
+    {
+      "name": "bad_comparator_reference",
+      "what": "R16 20 k: the encoder threshold rises to 2.1 V, above the encoder's worst high",
+      "expected_to_fail": [
+        "encoder.comparator_high_margin_ge_0p3V"
+      ],
+      "caught": [
+        "encoder.comparator_high_margin_ge_0p3V"
+      ],
+      "ok": true,
+      "all_failures": [
+        "encoder.comparator_high_margin_ge_0p3V"
+      ]
+    }
+  ]
+}

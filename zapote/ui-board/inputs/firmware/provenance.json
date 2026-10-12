@@ -1,0 +1,6 @@
+{
+  "commit": "780eaab89",
+  "path": "firmware/main/platform/ui_board_map.h",
+  "sha256": "01233356a9c4a39bfebc57a88561d4726fa9598c5c3121b5babd0ebf679811b3",
+  "note": "read-only copy of the firmware's provisional UI-board expander map; `git show <commit>:<path>` must equal it (verify_ui.py checks both). Firmware is not modified by this unit."
+}
