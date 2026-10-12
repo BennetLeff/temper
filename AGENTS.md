@@ -1,5 +1,17 @@
 # Instructions for AI Agents
 
+## Current hardware baseline — mandatory before engineering review
+
+The current candidate is **native-21 stage19b**, not the legacy half-bridge (`pcb/`, root
+`elec/`, removed from main on 2026-10-08 and kept at tag `archive/temper-legacy-2026-10-08`). Start at
+[hardware/README.md](hardware/README.md) and run `make hardware-baseline-check`.
+Use the hash-pinned `hardware/native21-stage19b/section.kicad_pro` and routed
+PCB. Check a selected copy with `sh scripts/check_hardware_baseline.sh --board PATH`.
+Stop on a mismatch; do not silently repin, select the nearest filename, or
+transfer findings between revisions. Producer worktree `native-21/section.kicad_pcb`
+is placement-only; its `routed/` output and enclosure snapshots may be stale.
+The snapshot is a digital candidate, not a manufacturing or mains release.
+
 ## Project Context
 
 Temper is an ESP32-S3 induction cooker. The repository holds:

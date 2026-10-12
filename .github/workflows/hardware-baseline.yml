@@ -1,0 +1,37 @@
+name: Hardware Baseline
+
+on:
+  push:
+    branches: [main]
+    paths: ['hardware/**', 'scripts/check_hardware_baseline.*', '.github/workflows/hardware-baseline.yml', 'Makefile', 'AGENTS.md']
+  pull_request:
+    paths: ['hardware/**', 'scripts/check_hardware_baseline.*', '.github/workflows/hardware-baseline.yml', 'Makefile', 'AGENTS.md']
+
+permissions:
+  contents: read
+
+jobs:
+  identity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - name: Reject missing or changed current hardware
+        run: make hardware-baseline-check
+      - name: Test manifest rejection cases
+        run: |
+          rustc --edition=2021 --test -D warnings scripts/check_hardware_baseline.rs -o /tmp/hardware-baseline-tests
+          /tmp/hardware-baseline-tests
+      - name: Reject boards that are not the pinned current candidate
+        run: |
+          # a path that does not exist, and the stage 19b board with one byte changed, must both be refused
+          if sh scripts/check_hardware_baseline.sh --board pcb/temper.kicad_pcb; then
+            echo 'ERROR: the legacy PCB path was accepted as current'
+            exit 1
+          fi
+          cp hardware/native21-stage19b/section.kicad_pcb /tmp/modified.kicad_pcb
+          printf ' ' >> /tmp/modified.kicad_pcb
+          if sh scripts/check_hardware_baseline.sh --board /tmp/modified.kicad_pcb; then
+            echo 'ERROR: a modified board was accepted as current'
+            exit 1
+          fi

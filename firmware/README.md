@@ -1,3 +1,14 @@
+# firmware: baseline scope notice
+
+**Do not use this directory's legacy half-bridge design, defaults or measurements
+as the current Temper hardware baseline.** Native-21 stage19b is selected in
+[hardware/README.md](../hardware/README.md); run `make hardware-baseline-check`
+before current-design work. Historical files remain for regression and reference.
+Their component references, operating limits, firmware bindings and test results
+require explicit reconciliation before applying them to native-21.
+
+---
+
 # Temper Induction Cooktop Firmware
 
 ESP32-S3 based firmware for the Temper induction cooktop, implementing a state machine-driven control system with comprehensive safety features.
