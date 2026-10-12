@@ -468,7 +468,15 @@ To apply to the BOM after the C34 layout stage lands; none changes a footprint o
 - **J13** BOM code C20571196 (not found) → **C160315**. Same MPN, code fix.
 - **R39** (MAX31865 RREF) RG2012V-431-W-T1 0.05 % (0 stock; no equal part in stock) → **RT0805BRD07430RL**, 0.1 %, ±25 ppm, for the prototype lot.
   - The extra 0.05 % is about 0.13–0.26 °C over 0–250 °C (PT100: 0.05 % of 100–194 Ω at 0.39–0.37 Ω/K). The 10 Ω / 300 Ω fault thresholds are unaffected.
-- **U14** AD8436BRQZ (0 stock): this is an owner decision.
-  - Either consign 4 BRQZ (about $113 at DigiKey qty-1 prices), or fit AD8436ARQZ-R7 (C495329, 106 in stock; 0.5 % vs 0.25 %, ±500 vs ±250 µV offset) on the prototypes after an RMS-trip error-budget check.
+- **U14 → AD8436ARQZ-R7** (C495329, 106 in stock) for the prototypes, decided 2026-10-12 after the owner questioned the cost (`evidence/rms-alternatives/`, rerun reproduced).
+  - It costs $15.04 against $30.24 for the BRQZ chain at qty 4.
+  - The grade difference is an initial gain error, which the COMMISSIONING step-1 trim removes. The converter's worst case is −1.5 to +0.8 %, inside the ±3 % criterion.
+  - **Production direction:** delete U14, U15 (MCP3202) and the buffers (18 parts, about $30 per board) and compute tank RMS from the existing raw CT_MON ADC1 path, with the sample clock chosen per half cycle. The model gives −3.1 to +3.0 % with assumed ESP32 ADC drift.
+    - Before that is adopted: the retiming, a crest-guard rewrite, a stuck-low plausibility check, and a bench check of ESP32-S3 ADC drift and INL.
+    - The prototypes carry both paths, so bench firmware can compare a shadow CT_MON RMS against the AD8436 and a current probe.
+  - Rejected:
+    - the precision rectifier: it reads 2–4.8 % low at 40–55 kHz and at 4 A;
+    - LTC1968: $14, 17 in stock.
+  - Found on the way, applies to every option: the 13–14-slot half-cycle estimator scatters −2.95 to +1.14 % with slot phase (from code reading), and a stuck-low RMS is not detected today. Both are firmware fixes.
 - **CPL:** 15 rotations are corrected in `cpl-jlcpcb.proposed.csv`. Fold them into the fab output with the C34 regeneration, after re-auditing any part C34 moves. The 37 NEEDS-PREVIEW lines are checked in JLC's preview, one designator per LCSC code.
 - **J4 drawing:** Molex 43045-1600 sales drawing still unread (molex.com refuses this network); `evidence/fab-loose-ends/j4/j4-interface.svg` is the interface drawing; the height and −X overhang stay [UNVERIFIED] until the owner fetches the drawing.
