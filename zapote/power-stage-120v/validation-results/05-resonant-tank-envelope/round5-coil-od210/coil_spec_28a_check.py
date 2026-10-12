@@ -28,7 +28,7 @@ CT_BAND = (64.55, 76.09)       # DECISIONS item 13
 ENVELOPE_PEAK_28 = 59.17       # DECISIONS item 13
 PEAK_PER_RMS, PEAK_PICKUP, PEAK_MAX = 2.17, 3.0, 62.0   # firmware/components/power/include/tank_freq.h:75-80, Kconfig:44
 RMS_TRIP_K = 1.05              # Kconfig:44, DECISIONS item 10
-U_PK, U_RMS = 640.0, 242.0     # DECISIONS item 7 (ORACLE Q2)
+U_PK, U_RMS = 791.1, 361.7     # trip-envelope U_rp (owner-items/m6m10/coil-selv-28a/results.json); normal use 297 / 656
 OLD_R_MAX = 0.41               # R32 study 02 old maximum R_ac (DECISIONS item 8 case)
 OLD_T_140 = 140.7              # DECISIONS item 8: 22 A, old max R, 50 C inlet
 TURNS_70 = 21.9                # DECISIONS item 12 (R36)
@@ -105,9 +105,10 @@ rec("peak_trip_28A_uncapped", PEAK_PER_RMS * 28 + PEAK_PICKUP, f"{PEAK_PER_RMS *
 assert trip(28) < CT_BAND[0] < trip(28) + 3         # trip below CT band low corner
 assert CT_BAND[1] < SHUNT_BAND[0] * 1.2 and SHUNT_BAND[0] > ENVELOPE_PEAK_28
 # insulation levels
-rec("pd_lower_V", 1.5 * U_PK, f"{1.5 * U_PK:.0f} V peak")
-rec("pd_raise_V", 1.875 * U_PK, f"{1.875 * U_PK:.0f} V peak")
-assert 125 < U_RMS <= 250    # IEC 60335-1 Table 17 band: reinforced PD3 IIIa = 8.0 mm (ORACLE-ANSWER Q3)
+rec("pd_lower_V", 1.5 * U_PK, f"1.5 × U_rp = {math.ceil(1.5 * U_PK / 100) / 10:.1f} kV peak")
+rec("pd_raise_V", 1.875 * U_PK, f"raised first to **{math.ceil(1.875 * U_PK / 500) * 0.5:.1f} kV peak")
+U_RMS_NORMAL = 297.0          # normal-use working voltage (coil-selv-28a)
+assert 250 < U_RMS_NORMAL <= 400 and 250 < U_RMS <= 400   # Table 17 band >250-400 V: reinforced PD3 IIIa = 12.6 mm (2 x 6.3)
 # alternate B turns (L ~ N^2)
 tb = TURNS_70 * math.sqrt(80 / 70)
 rec("altB_turns", tb, f"{tb:.1f} turns")
