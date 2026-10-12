@@ -76,6 +76,11 @@ fp-info-cache
 # Temper Specific
 .onboard/
 firmware/build/
+# ESP-IDF generated: sdkconfig.defaults is the source of config
+firmware/sdkconfig
+firmware/sdkconfig.old
+firmware/managed_components/
+firmware/dependencies.lock
 firmware/test/build/
 temper-placer/.pytest_cache/
 temper-placer/.ruff_cache/

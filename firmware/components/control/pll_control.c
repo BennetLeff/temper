@@ -29,6 +29,7 @@
 #include "../power/include/power_service.h"
 #include "esp_timer.h"
 #include "esp_log.h"
+#include "esp_attr.h" /* IRAM_ATTR */
 static const char *TAG = "pll_control";
 #endif
 

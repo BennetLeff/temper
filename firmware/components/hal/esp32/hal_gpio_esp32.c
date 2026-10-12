@@ -8,6 +8,7 @@
 
 #include "../include/hal_gpio.h"
 #include "driver/gpio.h"
+#include "esp_attr.h" /* IRAM_ATTR */
 #include "esp_log.h"
 #include <string.h>
 
