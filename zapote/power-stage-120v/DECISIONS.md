@@ -620,5 +620,11 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
         - The PS3 inlet allowance is never reduced on BLW_PG = 0.
       - Accepted: if PS3 drops mid-cook while the fan law has the blower off (sink and coil below 50 °C), nothing derates until the fan law asks for the blower. The stall path then fires within about 1 s, far below the 88.6 °C fan setpoint and the 101.4 °C hardware trip. Derating directly on BLW_PG would let a stuck-low sense line derate falsely, and it cannot be checked for plausibility while the blower is idle.
       - Bench: a BLW_PG stuck low blocks starts until serviced (the conservative side). COMMISSIONING checks P16 high with PS3 on and low with it unplugged.
+      - Enclosure R41 (temper-f7, `output/temper-manufacturing-r41/design/r41/DECISIONS.md`, `evidence/ps3/ps3-clearances.json`):
+        - PS3 moved to (−139, 98), case Z36.5–70 (was (−139, 95), Z32.5–70), on an earthed 2.03 mm 5052 shelf bracket clearing native-21's parts up to Z30.4.
+        - Clearances (housing-to-housing lower bounds): DC block to HOT 9.35 mm (≥ 8), AC block to HOT 7.14 mm (≥ 3.2), AC block to SELV 48.7 mm (≥ 8), J13 pair to HOT 8.65 mm (≥ 8), J11 lead to SELV 18.0 mm (no sleeve needed), bracket to native-21 parts 2.93 mm (≥ 2.0 basic).
+        - Harness: J13 pair 2 × UL1007 18 AWG, 292 mm. J11 lead 2 × UL1015 18 AWG, 322 mm; its tie points move to R42.
+        - The controller's J13 drop is rebased on contacts and copper at 80 °C: 172 mV, U2 headroom 0.92 V (controller-layout 0207a6974).
+        - Coil field at PS3: 453–573 µT rms at the coil-side corner (study 12). Added bench item: PS3 ripple and stability at 28 A.
     - **Gate scripts** are now committed in `native-21/layout/gates/` (the scratchpad copies were lost).
 
