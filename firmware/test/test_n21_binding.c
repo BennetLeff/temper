@@ -1015,8 +1015,8 @@ static unsigned plaus_run(unsigned max_ms)
 }
 static void test_rms_plausibility(void)
 {
-    /* The rule itself: 2.17 x 1.05 = 2.2785, judged only above 6 A of CT_MON peak. */
-    assert(!tank_rms_implausible(10.0f, 22.7f) && tank_rms_implausible(10.0f, 22.9f));
+    /* The rule itself: 2.17 x 1.20 = 2.604, judged only above 6 A of CT_MON peak. */
+    assert(!tank_rms_implausible(10.0f, 25.9f) && tank_rms_implausible(10.0f, 26.2f));
     assert(!tank_rms_implausible(0.0f, 5.9f) && tank_rms_implausible(0.0f, 6.1f)); /* floor */
     assert(!tank_rms_implausible(0.0f, 0.0f) && !tank_rms_implausible(20.0f, 28.0f));
     assert(tank_rms_implausible(NAN, 10.0f) && tank_rms_implausible(10.0f, NAN));
@@ -1033,13 +1033,20 @@ static void test_rms_plausibility(void)
     plaus_start();
     F.ct_scale = 2.17f / 2.0f; F.ct_lock = true;
     assert(plaus_run(2000) == 0);
-    /* Just inside the 5 % margin (2.24 < 2.2785) still runs; beyond it (2.34) latches. */
+    /* Margin 1.20 (threshold 2.60): 2.34 and 2.55, locked on the crest, still run; 2.70 latches. */
+    static const float ok_crest[] = {2.24f, 2.34f, 2.55f};
+    for (unsigned k = 0; k < 3; k++) {
+        plaus_start();
+        F.ct_scale = ok_crest[k] / 2.0f; F.ct_lock = true;
+        assert(plaus_run(2000) == 0);
+    }
     plaus_start();
-    F.ct_scale = 2.24f / 2.0f; F.ct_lock = true;
-    assert(plaus_run(2000) == 0);
-    plaus_start();
-    F.ct_scale = 2.34f / 2.0f; F.ct_lock = true;
+    F.ct_scale = 2.70f / 2.0f; F.ct_lock = true;
     assert(plaus_run(2000) > 0 && B.fault == N21_FAULT_RMS_CHANNEL);
+    /* ADC-lock case: the study's 2.30 crest with every CT_MON sample on the crest phase, 20+ halves. */
+    plaus_start();
+    F.ct_scale = 2.30f / 2.0f; F.ct_lock = true;
+    assert(plaus_run(250) == 0 && B.fault == N21_FAULT_NONE && F.gate);
 
     /* Stuck low: the AD8436 chain reads 0 while the tank runs. Latched as the RMS-channel fault,
      * after the debounce (6 halves = 50 ms, +- the half in progress) and before the 100 ms overrun. */

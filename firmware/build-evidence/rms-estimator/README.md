@@ -59,9 +59,9 @@ it compiles against both headers.
 
 ## 2. Stuck-low plausibility
 
-Rule (`tank_rms_implausible()`, `tank_freq.c:10-14`; constants `tank_freq.h:97-99`):
+Rule (margin raised from 1.05 to 1.20 by the design lead after review, see below; `tank_rms_implausible()`, `tank_freq.c:10-14`; constants `tank_freq.h:102-104`):
 
-    implausible  <=>  max|CT_MON| over the half >= 6 A   and   half RMS x (2.17 x 1.05) < max|CT_MON|
+    implausible  <=>  max|CT_MON| over the half >= 6 A   and   half RMS x (2.17 x 1.20) < max|CT_MON|      (threshold ratio 2.604)
 
 Latch `N21_FAULT_RMS_CHANNEL` (the fault a failed MCP3202 or LM4040 reference read already takes, so it
 inhibits the bridge through the same path as a lost CT_MON channel) when 6 consecutive closed halves are
@@ -77,13 +77,16 @@ A half that fails to close neither counts nor clears.
 * The firmware already uses it as the healthy peak/RMS ratio twice: the peak trip `min(2.17 x ceiling + 3, 62)`
   (`tank_freq.c:8`) and the peak estimate `2.17 x half RMS` that feeds the loop (`n21_binding.c:175`).
   The check asserts the same ratio from the other side.
-* 1.05 margin: CT gain vs AD8436 gain after the Step 1 trim 2 %, converter droop 0.7 %, estimator now
-  0.5 %, rounded up to 5 %. `max|CT_MON|` is a sample of the carrier, so it can only be below the true
-  peak: errors on that side cannot cause a nuisance latch.
-* **Caveat, not hidden.** The study's synthetic series-RLC waveforms (not measured data, no ZVS ringing)
-  reach a true peak/RMS of 2.30 at 50-55 kHz (`scatter.txt`, list at the bottom: 2.303, 2.301, 2.273).
-  Round 6 (the committed simulation the 2.17 comes from) does not. If the bench shows a real ratio above
-  2.28 on some pan, then `TANK_PEAK_PER_RMS` is also too low for the peak estimate and must be raised;
+* 1.20 margin (first cut was 1.05): at the ADC phase-lock frequencies (40 kHz, k x 8.889 kHz, e.g.
+  53.33 kHz) the CT_MON samples land on the same tank phases every half; near the crest, max|CT_MON| equals
+  the true crest in all 6 halves. The study's synthetic crest is 2.30 at 50-55 kHz, which 2.28 would
+  nuisance-latch. The check only has to catch gross failures (stuck at 0, half-scale reading: ratio >= 4),
+  and 2.60 catches those with a wide margin. `max|CT_MON|` is a sample of the carrier, so it can only be
+  below the true peak.
+* **Caveat.** The study's synthetic series-RLC waveforms (not measured data, no ZVS ringing)
+  reach a true peak/RMS of 2.30 at 50-55 kHz (`scatter.txt`, list at the bottom: 2.303, 2.301, 2.273),
+  now inside the 2.60 threshold. Round 6 (the committed simulation the 2.17 comes from) does not reach it. If the bench shows a real ratio above
+  2.60 on some pan, or above 2.17, then `TANK_PEAK_PER_RMS` is also too low for the peak estimate and must be raised;
   the plausibility margin should follow it, not be loosened on its own (COMMISSIONING Step 6 item 4
   has the bench measurement). Even then a latch needs six consecutive halves each sampling within 1 % of
   the true crest, and 13 slot samples per half rarely do.
@@ -100,7 +103,7 @@ A half that fails to close neither counts nor clears.
 * **6 A floor** on `max|CT_MON|`: above the CT_MON offset/noise floor (2 LSB noise, `cos_phi_min_current_a`
   is 2 A) so an idle or tiny-current bridge cannot judge. A stuck channel at < 6 A of real current is
   not caught by this rule (the 4 A no-pan evidence is the frequency loop's job).
-* Sensitivity: with crest 2.0 a channel reading more than about 12 % low (ratio above 2.28) is caught;
+* Sensitivity: with crest 2.0 a channel reading more than about 23 % low (ratio above 2.60) is caught;
   one 10 % low is not (tested), that remains the Step 6.1 current-probe gate.
 
 ## 3. Bench-only shadow RMS (option C2)
@@ -152,14 +155,14 @@ New or changed, all in the host suite (`cmake -S firmware/test -B <dir>`; `ctest
 |---|---|
 | `test_rms_estimator` (`rms_estimator_tests`, **new suite**) | `test_slot_phase_scatter` (+-0.5 % over 3 half lengths x 25 phases x 3 amplitudes), `test_slot_phase_invariance` (5 us steps) |
 | `test_rms_shadow` (`rms_shadow_tests`, **new suite**) | `test_clock_table`, `test_lock_case` (40 kHz and k x 8.889 kHz: as-built clock locked, selection avoids it), `test_scan` (481 bins, hold/reselect), `test_accumulator`, `test_telemetry_only` (binding unchanged by 0/22/900 A shadow, invalid shadow) |
-| `test_n21_binding` (`n21_binding_tests`) | `test_rms_plausibility`: rule table; healthy sine (crest 2.0, 3 s); worst healthy crest 2.17 with every sample on the crest; 2.24 passes, 2.34 latches (the 5 % margin edge); stuck-at-0 latches `N21_FAULT_RMS_CHANNEL` in 54 ms (40-75 ms asserted), inhibits, no auto reset; half-scale reading latches; 10 % low does not; 4-half excursion does not latch; 8 halves does; bursts 4/4, 2/2, 12/6 with half-scale edge halves do not latch; stuck inside a 12-half ON run latches; near resonance on the series-RLC fake (loop at 1.05 f_res, 24 A) does not latch and a stuck channel there does |
+| `test_n21_binding` (`n21_binding_tests`) | `test_rms_plausibility`: rule table; healthy sine (crest 2.0, 3 s); worst healthy crest 2.17 with every sample on the crest; 2.24, 2.34 and 2.55 pass, 2.70 latches (margin 1.20); the study's 2.30 crest with every sample locked on the crest runs 250 ms (30 halves) without latching; stuck-at-0 latches `N21_FAULT_RMS_CHANNEL` in 54 ms (40-75 ms asserted), inhibits, no auto reset; half-scale reading latches; 10 % low does not; 4-half excursion does not latch; 8 halves does; bursts 4/4, 2/2, 12/6 with half-scale edge halves do not latch; stuck inside a 12-half ON run latches; near resonance on the series-RLC fake (loop at 1.05 f_res, 24 A) does not latch and a stuck channel there does |
 | `test_input_limits` (`input_limits_tests`) | `test_time_weights`: weighted RMS and power, scale invariance, all-zero = equal, zero weights drop out, negative/NaN/inf refused |
 
 The fake HAL gained CT_MON that follows the tank (carrier crest, lock to crest), AD8436-only faults
 (stuck, gain), and burst gating. Pre-existing initialisers of `input_sample_t` got the new field.
 
 Stuck-low test sanity: with the latch condition disabled (threshold raised to 1e6 halves) the suite
-aborts at the 2.34-crest assertion, i.e. the plausibility cases are not vacuous; they cannot be run on
+aborts at the 2.70-crest assertion, i.e. the plausibility cases are not vacuous; they cannot be run on
 `93276ac80` at all (no `tank_rms_implausible`, no CT-following fake).
 
 Host suite: `ctest-summary.txt`, **31/31 passed** (was 29/29; +2 suites, +1 binding test, +1 input_limits

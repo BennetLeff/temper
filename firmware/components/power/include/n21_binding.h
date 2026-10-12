@@ -24,7 +24,7 @@
  *     <= 28 A), set with n21_config_set_tank_ceiling(), which derives the RMS trip (1.05 x, on the
  *     half-cycle RMS), the per-sample crest guard (1.5 x) and the peak trip (min(2.17 x + 3, 62)).
  *   - The half-cycle RMS is time weighted (n21_half_close); a stuck-low AD8436 channel (RMS below
- *     max|CT_MON| / (1.05 x 2.17) for 6 halves while the bridge runs) latches N21_FAULT_RMS_CHANNEL
+ *     max|CT_MON| / (1.20 x 2.17) for 6 halves while the bridge runs) latches N21_FAULT_RMS_CHANNEL
  *     (tank_freq.h). The bench shadow RMS (rms_shadow.h) is telemetry only.
  *   - Frequency (COMMISSIONED only): the per-pan loop (tank_freq_step, once per closed half while
  *     the gate is on) sets a target in [f_min, f_max]; the control tick slews the live frequency
