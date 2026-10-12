@@ -213,7 +213,7 @@ What changed from L2, where three of four runs closed:
    - Depth is 12.24 mm overall (mating face to tail rear), with a body of 9.91 mm.
    - Housing height above the PCB is 7.37 mm, 8.77 mm at the latch ramp (+1.40). Tails 3.18 mm, pegs Ø3.00 ±0.05 holes, recommended PCB 1.57 mm, LCP UL94 V-0.
    - The layout courtyard (`world.J4_BODY`, Y27.8–57.0 = 29.2 mm, X−38 to −24.3 = 13.7 mm) contains it.
-   - **The enclosure's R31 header envelope (Y29.6–54.4 = 24.8 mm) is 2.85 mm narrower than the real header** and must grow (relayed to the enclosure session).
+   - The pin field is centred at world Y42.40 (pads Y31.90–52.90), so the header spans Y28.575–56.225, inside the enclosure's current body envelope (R43: Y27.8–57.0, 10.4 mm tall). The Y29.6–54.4 figure in `world.py`'s comment is stale R31 text and does not reflect the enclosure source.
    - Still unread: the mated height (10.29 mm is Molex's series figure) and the plug's −X overhang (R31: to X−50). Both need the **43025-1600 plug** drawing.
 8. **CPL rotations:** KiCad's rotations are written as-is; check each package in JLC's placement preview before ordering.
 9. **Consigned / low-stock parts** (DECISIONS open item 7): AD8436BRQZ (JLC stock 0) and the near-zero-stock ported parts; `fab/fab-notes.md` lists them.
