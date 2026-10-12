@@ -9,7 +9,7 @@ static void half_cycle(input_sample_t *s, float vpk, float ipk_rms, float cos_ph
 {
     for (int j = 0; j < N; j++) {
         float x = fabsf(sinf(3.14159265f * (j + 0.5f) / N));
-        s[j] = (input_sample_t){ vpk * x, ipk_rms * x, cos_phi };
+        s[j] = (input_sample_t){ vpk * x, ipk_rms * x, cos_phi, 0.0f };
     }
 }
 static void test_config(void)
@@ -52,7 +52,7 @@ static void test_tank_ceiling(void)
 {
     input_limits_cfg_t c = input_limits_native21();
     input_sample_t s[N]; input_estimate_t e;
-    for (int j = 0; j < N; j++) s[j] = (input_sample_t){ 160.0f, 25.0f, 0.9f };
+    for (int j = 0; j < N; j++) s[j] = (input_sample_t){ 160.0f, 25.0f, 0.9f, 0.0f };
     assert(input_limits_half_cycle(&c, s, N, 120.0f, &e));
     assert(e.tank_ceiling_w < e.p_inv_w);                                   /* above 22 A: cut */
     assert(fabsf(e.tank_ceiling_w - e.p_inv_w * (22.0f / 25.0f) * (22.0f / 25.0f)) < 0.01f * e.p_inv_w);
@@ -115,6 +115,36 @@ static void test_aux_allowance(void)
     bad = c; bad.aux_min_a = -0.1f; assert(!input_limits_config_ok(&bad));
     tests++;
 }
+static void test_time_weights(void)
+{
+    /* Weights are the time each reading stands for: two readings, 3 A for 1 unit and 9 A for 3 units
+     * (a long gap after the second), eight of them to satisfy n >= 8. */
+    input_limits_cfg_t c = input_limits_native21();
+    input_sample_t s[8]; input_estimate_t e, u;
+    for (int j = 0; j < 8; j++) s[j] = (input_sample_t){ 100.0f, j < 4 ? 3.0f : 9.0f, 1.0f, 0.0f };
+    assert(input_limits_half_cycle(&c, s, 8, 120.0f, &u));                       /* all w = 0: equal */
+    assert(fabsf(u.tank_rms_a - sqrtf((4 * 9.0f + 4 * 81.0f) / 8)) < 1e-4f);
+    for (int j = 0; j < 8; j++) s[j].w = j < 4 ? 1.0f : 3.0f;
+    assert(input_limits_half_cycle(&c, s, 8, 120.0f, &e));
+    assert(fabsf(e.tank_rms_a - sqrtf((4 * 1.0f * 9.0f + 4 * 3.0f * 81.0f) / 16)) < 1e-4f);
+    /* power is weighted the same way */
+    assert(fabsf(e.p_inv_w - 0.900316316f * 100.0f * (4 * 1.0f * 3.0f + 4 * 3.0f * 9.0f) / 16) < 0.01f);
+    /* scale of the weights does not matter */
+    for (int j = 0; j < 8; j++) s[j].w *= 625.0f;
+    assert(input_limits_half_cycle(&c, s, 8, 120.0f, &u) && fabsf(u.tank_rms_a - e.tank_rms_a) < 1e-4f);
+    /* equal non-zero weights == no weights */
+    for (int j = 0; j < 8; j++) s[j].w = 5.0f;
+    assert(input_limits_half_cycle(&c, s, 8, 120.0f, &u));
+    for (int j = 0; j < 8; j++) s[j].w = 0.0f;
+    assert(input_limits_half_cycle(&c, s, 8, 120.0f, &e) && fabsf(u.tank_rms_a - e.tank_rms_a) < 1e-4f);
+    /* zero-weight readings drop out; negative, NaN or infinite weights are refused */
+    for (int j = 0; j < 8; j++) s[j].w = j < 4 ? 0.0f : 2.0f;
+    assert(input_limits_half_cycle(&c, s, 8, 120.0f, &e) && fabsf(e.tank_rms_a - 9.0f) < 1e-4f);
+    s[2].w = -1.0f; assert(!input_limits_half_cycle(&c, s, 8, 120.0f, &e));
+    s[2].w = NAN; assert(!input_limits_half_cycle(&c, s, 8, 120.0f, &e));
+    s[2].w = INFINITY; assert(!input_limits_half_cycle(&c, s, 8, 120.0f, &e));
+    tests++;
+}
 static void test_operating_limit(void)
 {
     /* The adapter regulates the reported inlet current at inlet_target_a <= 13.5 A (trip 15 A).
@@ -138,6 +168,7 @@ int main(void)
     test_regeneration_floor();
     test_aux_allowance();
     test_operating_limit();
+    test_time_weights();
     printf("input_limits: %u tests passed\n", tests);
     return 0;
 }

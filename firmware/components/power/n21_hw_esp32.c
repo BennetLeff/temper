@@ -38,6 +38,7 @@
  * COIL, M12, RIM); their latest frame means are kept for the thermal owner (n21_hw_thermal_mv).
  */
 #include "n21_hw.h"
+#include "rms_shadow.h"
 #include "controller_board.h"
 #include "driver/gpio.h"
 #include "driver/mcpwm_prelude.h"
@@ -52,6 +53,7 @@
 #include "freertos/semphr.h"
 #include "freertos/task.h"
 #include "sdkconfig.h"
+#include <math.h>
 #include <string.h>
 
 static const char *TAG = "n21_hw";
@@ -92,6 +94,10 @@ typedef struct {
     float vbus_mv, ct_mv;
     uint64_t adc_t_us;
     bool adc_fresh;
+    /* Bench shadow RMS (CONFIG_TEMPER_POWER_SHADOW_RMS): ADC task accumulates, acquisition closes. */
+    rms_shadow_t shadow;
+    uint32_t shadow_fs_cur, shadow_fs_req;
+    bool shadow_dirty;
     float thermal_mv[N21_THERMAL_COUNT];
     uint64_t thermal_t_us;
     bool thermal_fresh;
@@ -359,6 +365,36 @@ static bool hw_read_ct_zc(void *ctx, uint32_t *zc, uint64_t *t)
 
 /* ------------------------------------------------------------------ ADC1 continuous (C12) */
 #define ADC_FRAME 256
+static bool adc_configure(uint32_t fs_hz);
+#if CONFIG_TEMPER_POWER_SHADOW_RMS
+/* Bench shadow RMS: move the ADC1 sample clock to the one the acquisition context asked for
+ * (rms_shadow_hold_fs). adc_continuous_config() needs the stream stopped, so this costs a restart;
+ * the half that straddles it is discarded. If the new clock cannot be set, the as-built 80 kS/s is
+ * restored; if the stream cannot restart, adc_fresh stays false and the binding fails safe. */
+static void shadow_apply_clock(void)
+{
+    uint32_t req;
+    portENTER_CRITICAL(&hw.adc_mux);
+    req = hw.shadow_fs_req;
+    portEXIT_CRITICAL(&hw.adc_mux);
+    if (req == hw.shadow_fs_cur || req == 0) return;
+    uint32_t got = req;
+    bool ok = adc_continuous_stop(hw.adc) == ESP_OK;
+    if (ok && !adc_configure(req)) {
+        got = RMS_SHADOW_FS_NOMINAL_HZ;
+        (void)adc_configure(got);
+    }
+    if (adc_continuous_start(hw.adc) != ESP_OK) {
+        portENTER_CRITICAL(&hw.adc_mux);
+        hw.adc_fresh = false;
+        portEXIT_CRITICAL(&hw.adc_mux);
+    }
+    portENTER_CRITICAL(&hw.adc_mux);
+    hw.shadow_fs_cur = got;
+    hw.shadow_dirty = true;
+    portEXIT_CRITICAL(&hw.adc_mux);
+}
+#endif
 static void adc_task(void *arg)
 {
     (void)arg;
@@ -371,6 +407,10 @@ static void adc_task(void *arg)
             portEXIT_CRITICAL(&hw.adc_mux);
             continue;
         }
+#if CONFIG_TEMPER_POWER_SHADOW_RMS
+        double sh_sumsq = 0;
+        uint32_t sh_n = 0;
+#endif
         int64_t vsum = 0, tsum[N21_THERMAL_COUNT] = {0};
         int vn = 0, ct_worst = -1, ct_dev = -1, tn[N21_THERMAL_COUNT] = {0};
         for (uint32_t i = 0; i + SOC_ADC_DIGI_RESULT_BYTES <= got; i += SOC_ADC_DIGI_RESULT_BYTES) {
@@ -381,6 +421,14 @@ static void adc_task(void *arg)
                 vsum += mv; vn++;
             } else if (d->type2.channel == N21_ADC1_CH_CT_MON &&
                        adc_cali_raw_to_voltage(hw.cali_atten3, d->type2.data, &mv) == ESP_OK) {
+#if CONFIG_TEMPER_POWER_SHADOW_RMS
+                {
+                    float zero = CONFIG_TEMPER_POWER_CT_MON_ZERO_MV ? (float)CONFIG_TEMPER_POWER_CT_MON_ZERO_MV : 1650.0f;
+                    float a = ((float)mv - zero) * (1e-3f / N21_CT_MON_V_PER_A);
+                    sh_sumsq += (double)a * a;
+                    sh_n++;
+                }
+#endif
                 int dev = mv > 1650 ? mv - 1650 : 1650 - mv;  /* keep the extreme: peak check */
                 if (dev > ct_dev) { ct_dev = dev; ct_worst = mv; }
             } else {
@@ -398,6 +446,9 @@ static void adc_task(void *arg)
             hw.ct_mv = (float)ct_worst;
             hw.adc_t_us = (uint64_t)esp_timer_get_time();
         }
+#if CONFIG_TEMPER_POWER_SHADOW_RMS
+        rms_shadow_add_sum(&hw.shadow, sh_sumsq, sh_n);
+#endif
         bool all = true;
         for (unsigned k = 0; k < N21_THERMAL_COUNT; k++) all = all && tn[k] > 0;
         if (all) { /* else keep the last means; their age makes them stale */
@@ -406,16 +457,14 @@ static void adc_task(void *arg)
             hw.thermal_fresh = true;
         }
         portEXIT_CRITICAL(&hw.adc_mux);
+#if CONFIG_TEMPER_POWER_SHADOW_RMS
+        shadow_apply_clock();
+#endif
     }
 }
 
-static bool adc_create(void)
+static bool adc_configure(uint32_t fs_hz)
 {
-    adc_continuous_handle_cfg_t hc = {.max_store_buf_size = 4 * ADC_FRAME, .conv_frame_size = ADC_FRAME};
-    if (adc_continuous_new_handle(&hc, &hw.adc) != ESP_OK) return false;
-    /* DECISIONS C12 pattern at 80 kS/s, with R36's rim NTC as the ninth slot (C27): VBUS, CT_MON,
-     * VBUS, CT_MON, VBUS, HS, COIL, M12, RIM (VBUS 26.7 kS/s). HS/COIL/M12/RIM belong to the thermal
-     * owner (n21_hw_thermal_mv). HIL (C12 flag): repeated channels in one pattern on this IDF. */
     static const struct { int ch, atten; } pat[N21_ADC_PATTERN_LEN] = {
         {N21_ADC1_CH_VBUS, ADC_ATTEN_DB_6}, {N21_ADC1_CH_CT_MON, ADC_ATTEN_DB_12},
         {N21_ADC1_CH_VBUS, ADC_ATTEN_DB_6}, {N21_ADC1_CH_CT_MON, ADC_ATTEN_DB_12},
@@ -427,12 +476,23 @@ static bool adc_create(void)
     for (unsigned i = 0; i < N21_ADC_PATTERN_LEN; i++)
         p[i] = (adc_digi_pattern_config_t){.atten = pat[i].atten, .channel = pat[i].ch,
                                            .unit = ADC_UNIT_1, .bit_width = SOC_ADC_DIGI_MAX_BITWIDTH};
-    adc_continuous_config_t cfg = {.pattern_num = N21_ADC_PATTERN_LEN, .adc_pattern = p, .sample_freq_hz = 80000,
+    adc_continuous_config_t cfg = {.pattern_num = N21_ADC_PATTERN_LEN, .adc_pattern = p, .sample_freq_hz = fs_hz,
                                    .conv_mode = ADC_CONV_SINGLE_UNIT_1,
                                    .format = ADC_DIGI_OUTPUT_FORMAT_TYPE2};
+    return adc_continuous_config(hw.adc, &cfg) == ESP_OK;
+}
+
+static bool adc_create(void)
+{
+    adc_continuous_handle_cfg_t hc = {.max_store_buf_size = 4 * ADC_FRAME, .conv_frame_size = ADC_FRAME};
+    if (adc_continuous_new_handle(&hc, &hw.adc) != ESP_OK) return false;
+    /* DECISIONS C12 pattern at 80 kS/s, with R36's rim NTC as the ninth slot (C27): VBUS, CT_MON,
+     * VBUS, CT_MON, VBUS, HS, COIL, M12, RIM (VBUS 26.7 kS/s). HS/COIL/M12/RIM belong to the thermal
+     * owner (n21_hw_thermal_mv). HIL (C12 flag): repeated channels in one pattern on this IDF. */
     adc_cali_curve_fitting_config_t c6 = {.unit_id = ADC_UNIT_1, .atten = ADC_ATTEN_DB_6, .bitwidth = ADC_BITWIDTH_DEFAULT};
     adc_cali_curve_fitting_config_t c12 = {.unit_id = ADC_UNIT_1, .atten = ADC_ATTEN_DB_12, .bitwidth = ADC_BITWIDTH_DEFAULT};
-    if (adc_continuous_config(hw.adc, &cfg) != ESP_OK ||
+    hw.shadow_fs_cur = hw.shadow_fs_req = RMS_SHADOW_FS_NOMINAL_HZ;
+    if (!adc_configure(RMS_SHADOW_FS_NOMINAL_HZ) ||
         adc_cali_create_scheme_curve_fitting(&c6, &hw.cali_vbus) != ESP_OK ||
         adc_cali_create_scheme_curve_fitting(&c12, &hw.cali_atten3) != ESP_OK ||
         adc_continuous_start(hw.adc) != ESP_OK)
@@ -451,6 +511,26 @@ static bool hw_read_adc1(void *ctx, float *vbus_mv, float *ct_mv)
     portEXIT_CRITICAL(&hw.adc_mux);
     return ok;
 }
+
+#if CONFIG_TEMPER_POWER_SHADOW_RMS
+/* Once per closed line half (acquisition context): hand back the shadow RMS of the half that just
+ * ended and ask for the ADC clock the next half should run at. Telemetry only. */
+static bool hw_shadow_half(void *ctx, uint32_t next_f_hz, float *rms_a, uint32_t *fs_hz)
+{
+    (void)ctx;
+    portENTER_CRITICAL(&hw.adc_mux);
+    bool ok = rms_shadow_close(&hw.shadow, rms_a) && !hw.shadow_dirty;
+    hw.shadow_dirty = false;
+    *fs_hz = hw.shadow_fs_cur;
+    portEXIT_CRITICAL(&hw.adc_mux);
+    uint32_t want = rms_shadow_hold_fs((float)next_f_hz, *fs_hz);
+    portENTER_CRITICAL(&hw.adc_mux);
+    hw.shadow_fs_req = want;
+    portEXIT_CRITICAL(&hw.adc_mux);
+    if (!ok) *rms_a = NAN;
+    return ok;
+}
+#endif
 
 bool n21_hw_thermal_mv(float mv[N21_THERMAL_COUNT], uint32_t max_age_us)
 {
@@ -587,6 +667,16 @@ static void acq_task(void *arg)
     for (;;) {
         ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
         n21_acquire_step(&binding);
+#if CONFIG_TEMPER_POWER_SHADOW_RMS
+        static unsigned shadow_log_n;
+        if (++shadow_log_n % 1600u == 0) { /* about 1 s at the 625 us acquisition period */
+            n21_telemetry_t t;
+            n21_telemetry(&binding, &t);
+            ESP_LOGI(TAG, "tank rms: ad8436 %.2f A, shadow %.2f A (%s, adc %u S/s), f %u Hz",
+                     (double)t.last_half.est.tank_rms_a, (double)t.shadow_rms_a,
+                     t.shadow_valid ? "valid" : "invalid", (unsigned)t.shadow_fs_hz, (unsigned)t.freq_hz);
+        }
+#endif
     }
 }
 
@@ -648,7 +738,11 @@ n21_init_t n21_hw_start(void)
         .run_gate = hw_run_gate, /* RUN_EN, GPIO14 (L2, C23; closes the hardware side of H1) */
         .read_status = hw_read_status, .interlock_reset_pulse = hw_interlock_reset_pulse,
         .read_adc1 = hw_read_adc1, .read_ext_adc = hw_read_ext_adc, .read_ct_zc = hw_read_ct_zc,
-        .line_zc_edges = hw_line_zc_edges, .ctx = &hw,
+        .line_zc_edges = hw_line_zc_edges,
+#if CONFIG_TEMPER_POWER_SHADOW_RMS
+        .shadow_half = hw_shadow_half,
+#endif
+        .ctx = &hw,
     };
     const n21_config_t cfg = config_from_kconfig();
     power_binding_t pb;

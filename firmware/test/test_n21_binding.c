@@ -25,6 +25,14 @@ typedef struct {
      * follow the programmed frequency (sample current = 0.9003 x bus / |Z|). */
     double model_L, model_C, model_R;
     uint64_t next_zero, ct_zc_age;
+    /* CT_MON that follows the tank (default off: CT_MON idle). ct_scale: crest of the carrier
+     * relative to sqrt2 x the envelope reading; ct_lock: every sample at the carrier crest (worst
+     * case), else a quasi-random phase. rms_gain/rms_stuck: faults of the AD8436 chain only.
+     * burst_period/burst_on: tank on for burst_on of every burst_period half cycles. edge_low: the
+     * first and last ON half read at half scale (converter still settling). */
+    bool ct_follow, ct_lock, rms_stuck, edge_low;
+    float ct_scale, rms_gain;
+    unsigned burst_period, burst_on;
     int pending; /* 0: next edge rise, 1: next edge fall */
 } fake_t;
 static fake_t F;
@@ -90,12 +98,34 @@ static float bus_at(uint64_t t)
     return F.vbus_peak * fabsf(sinf(6.28318530718f * 60.0f * (float)t * 1e-6f));
 }
 static bool running(void) { return F.pads_live && F.gate; }
+static uint64_t half_index(void) { return F.now >= 1003000 ? (F.now - 1003000) / 8333 : 0; }
+static bool burst_on(void)
+{
+    return !F.burst_period || half_index() % F.burst_period < F.burst_on;
+}
+static bool burst_edge(void)
+{
+    if (!F.burst_period) return false;
+    unsigned k = (unsigned)(half_index() % F.burst_period);
+    return k == 0 || k == F.burst_on - 1;
+}
+/* True tank-current envelope now (the AD8436 would read it), A RMS over a carrier period. */
+static float env_a(void)
+{
+    float on = F.model_L > 0 ? (float)(0.900316316 * F.vbus_peak / model_z(NULL)) : F.tank_rms_on;
+    return running() && burst_on() ? on * fabsf(sinf(6.28318530718f * 60.0f * (float)F.now * 1e-6f)) : 0;
+}
 static bool f_adc1(void *c, float *vbus_mv, float *ct_mv)
 {
     (void)c;
     *vbus_mv = F.vbus_force_mv != 0 ? F.vbus_force_mv
                                     : (N21_VBUS_BIAS_V + N21_VBUS_V_PER_V * bus_at(F.now)) * 1e3f;
-    *ct_mv = 1650.0f + F.ct_mon_extra_a * 15.0f;
+    float carrier = 0;
+    if (F.ct_follow) {
+        float ph = F.ct_lock ? 1.0f : sinf(6.28318530718f * (float)fmod((double)F.now * 0.6180339887, 1.0));
+        carrier = 1.41421356f * F.ct_scale * env_a() * ph;
+    }
+    *ct_mv = 1650.0f + (F.ct_mon_extra_a + carrier) * 15.0f;
     return !F.adc_fail;
 }
 static bool f_ext(void *c, unsigned ch, uint16_t *code)
@@ -104,8 +134,8 @@ static bool f_ext(void *c, unsigned ch, uint16_t *code)
     uint16_t ref = F.ref_code_force ? F.ref_code_force : (uint16_t)lroundf(2.5f * 4096.0f / F.ref_v3v3);
     if (ch == N21_MCP3202_CH_REF) *code = ref;
     else {
-        float on = F.model_L > 0 ? (float)(0.900316316 * F.vbus_peak / model_z(NULL)) : F.tank_rms_on;
-        float rms = running() ? on * fabsf(sinf(6.28318530718f * 60.0f * (float)F.now * 1e-6f)) : 0;
+        float rms = F.rms_stuck ? 0 : env_a() * F.rms_gain;
+        if (F.edge_low && F.burst_period && burst_edge()) rms *= 0.5f;
         float codes = rms * N21_RMS_V_PER_A * ref / 2.5f;
         *code = codes > 4095 ? 4095 : (uint16_t)lroundf(codes);
     }
@@ -163,6 +193,7 @@ static void fake_reset(bool with_gate)
     F.tank_rms_on = 20.0f;  /* RMS envelope peak; well inside the 22 A ceiling on average */
     F.lag_deg = 30.0f;
     F.ref_v3v3 = 3.30f;
+    F.ct_scale = F.rms_gain = 1.0f;
 }
 static n21_hw_ops_t ops(void)
 {
@@ -284,7 +315,7 @@ static void fill_half(n21_half_t *h, uint64_t zero, unsigned n, float vpk, float
     n21_half_begin(h, zero);
     for (unsigned j = 0; j < n; j++) {
         float x = fabsf(sinf(3.14159265f * (j + 0.5f) / n));
-        input_sample_t s = {vpk * x, ipk * x, cp};
+        input_sample_t s = {vpk * x, ipk * x, cp, 0.0f};
         n21_half_add(h, zero + (uint64_t)((j + 0.5) * 8333.0 / n), &s);
     }
 }
@@ -314,13 +345,13 @@ static void test_half_cycle(void)
     n21_half_begin(&h, 1000);
     for (unsigned j = 0; j < 13; j++) {
         if (j == 6 || j == 7 || j == 8) continue;
-        input_sample_t s = {160, 10, 0.9f};
+        input_sample_t s = {160, 10, 0.9f, 0.0f};
         n21_half_add(&h, 1000 + 300 + j * 620, &s);
     }
     assert(!n21_half_close(&h, &lim, 1000 + 8333, 1500, 0, &r));
     /* Out-of-order or overflow breaks the half */
     fill_half(&h, 1000, 13, 170, 30, 0.9f);
-    input_sample_t s = {160, 10, 0.9f};
+    input_sample_t s = {160, 10, 0.9f, 0.0f};
     n21_half_add(&h, 1500, &s);
     assert(h.broken && !n21_half_close(&h, &lim, 9333, 1500, 0, &r));
     n21_half_begin(&h, 0);
@@ -760,8 +791,10 @@ static void test_freq_loop_live(void)
     bridge_cycle_t want;
     assert(t.freq_hz < 40000 && t.freq_hz >= 35000 && bridge_plan_cycle(80000000u, t.freq_hz, 200, 1.0f, &want) &&
            F.programmed.period == want.period);
-    /* Pan identified, f_res estimate within 2 %, settled on the 24 A ceiling (half-cycle RMS). */
-    assert(t.pan_present && t.ceiling_eff_a == 24.0f && NEAR(t.f_res_hz, 30350, 600) && t.q < 10);
+    /* Pan identified, f_res estimate within ~2 % (the fake's fit sits 1.9-2.0 % low whatever the
+     * RMS estimator: 29759 Hz before the time-weighted half RMS, 29749 Hz after; hence 650 Hz); settled on the
+     * 24 A ceiling (half-cycle RMS). */
+    assert(t.pan_present && t.ceiling_eff_a == 24.0f && NEAR(t.f_res_hz, 30350, 650) && t.q < 10);
     assert(t.last_half.est.tank_rms_a <= 24.0f * 1.005f && t.last_half.est.tank_rms_a >= 24.0f * 0.93f);
     assert(t.freq_hz >= 1.05 * 30350 && t.floor_hz >= 35000);
     /* Never below the floor or above f_max at any update. */
@@ -960,6 +993,121 @@ static void test_aux_allowance_live(void)
     tests++;
 }
 
+/* ============================================================ stuck-low RMS plausibility */
+/* A commissioned run at 60 % power with CT_MON following the tank and the half-cycle RMS healthy. */
+static void plaus_start(void)
+{
+    fake_reset(true);
+    F.ct_follow = true;
+    assert(bind_commissioned(commissioned_cfg()));
+    power_set_level(60);
+    run_ms(300);
+    assert(F.gate && test_pwm_generation() && B.fault == N21_FAULT_NONE);
+}
+/* Runs up to max_ms; returns the time to the first latch, or 0 when none happened. */
+static unsigned plaus_run(unsigned max_ms)
+{
+    for (unsigned ms = 1; ms <= max_ms; ms++) {
+        run_ms(1);
+        if (B.fault != N21_FAULT_NONE) return ms;
+    }
+    return 0;
+}
+static void test_rms_plausibility(void)
+{
+    /* The rule itself: 2.17 x 1.05 = 2.2785, judged only above 6 A of CT_MON peak. */
+    assert(!tank_rms_implausible(10.0f, 22.7f) && tank_rms_implausible(10.0f, 22.9f));
+    assert(!tank_rms_implausible(0.0f, 5.9f) && tank_rms_implausible(0.0f, 6.1f)); /* floor */
+    assert(!tank_rms_implausible(0.0f, 0.0f) && !tank_rms_implausible(20.0f, 28.0f));
+    assert(tank_rms_implausible(NAN, 10.0f) && tank_rms_implausible(10.0f, NAN));
+
+    /* Healthy sine envelope (crest 2.0): half-cycle RMS 14.1 A, CT peak up to 28.3 A. */
+    plaus_start();
+    assert(plaus_run(3000) == 0);
+    n21_telemetry_t t;
+    n21_telemetry(&B, &t);
+    assert(NEAR(t.last_half.est.tank_rms_a, 20 / sqrtf(2), 0.4) && t.last_half.ct_abs_max_a > 20.0f &&
+           t.last_half.ct_abs_max_a <= 28.5f);
+
+    /* Worst healthy crest the firmware allows for, 2.17, with every sample on the carrier crest. */
+    plaus_start();
+    F.ct_scale = 2.17f / 2.0f; F.ct_lock = true;
+    assert(plaus_run(2000) == 0);
+    /* Just inside the 5 % margin (2.24 < 2.2785) still runs; beyond it (2.34) latches. */
+    plaus_start();
+    F.ct_scale = 2.24f / 2.0f; F.ct_lock = true;
+    assert(plaus_run(2000) == 0);
+    plaus_start();
+    F.ct_scale = 2.34f / 2.0f; F.ct_lock = true;
+    assert(plaus_run(2000) > 0 && B.fault == N21_FAULT_RMS_CHANNEL);
+
+    /* Stuck low: the AD8436 chain reads 0 while the tank runs. Latched as the RMS-channel fault,
+     * after the debounce (6 halves = 50 ms, +- the half in progress) and before the 100 ms overrun. */
+    plaus_start();
+    F.rms_stuck = true;
+    unsigned ms = plaus_run(300);
+    assert(ms >= 40 && ms <= 75 && B.fault == N21_FAULT_RMS_CHANNEL);
+    run_ms(60);
+    assert(inhibited() && !test_pwm_generation() && F.resets == 0);
+    /* A channel that reads half the true RMS (ratio 4.0) is caught too. */
+    plaus_start();
+    F.rms_gain = 0.5f;
+    ms = plaus_run(300);
+    assert(ms >= 40 && ms <= 75 && B.fault == N21_FAULT_RMS_CHANNEL);
+    /* ... and one 10 % low is not implausible by this rule (it needs the bench trim, Step 6.1). */
+    plaus_start();
+    F.rms_gain = 0.9f;
+    assert(plaus_run(2000) == 0);
+
+    /* Debounce: a short excursion of 4 halves (33 ms, at most 5 touched) never latches ... */
+    plaus_start();
+    F.rms_stuck = true;
+    run_ms(33);
+    F.rms_stuck = false;
+    assert(plaus_run(1000) == 0);
+    /* ... and stuck for 8 halves does. */
+    plaus_start();
+    F.rms_stuck = true;
+    assert(plaus_run(66) > 0 || (run_ms(10), B.fault != N21_FAULT_NONE));
+
+    /* Burst edges: 4 on / 4 off, and 2 on / 2 off (every ON half is an edge), with the first and
+     * last ON half read at half scale because the converter is still settling: no latch. */
+    static const unsigned pat[][2] = {{8, 4}, {4, 2}, {12, 6}};
+    for (unsigned k = 0; k < 3; k++) {
+        plaus_start();
+        F.burst_period = pat[k][0]; F.burst_on = pat[k][1]; F.edge_low = true;
+        assert(plaus_run(3000) == 0);
+        assert(F.gate && test_pwm_generation());
+    }
+    /* A stuck-low channel is still caught inside a long burst (ON run of 12 halves). */
+    plaus_start();
+    F.burst_period = 24; F.burst_on = 12; F.rms_stuck = true;
+    assert(plaus_run(1000) > 0 && B.fault == N21_FAULT_RMS_CHANNEL);
+
+    /* Near resonance on the series-RLC fake: the loop walks down to 1.05 f_res and holds the
+     * 24 A ceiling with CT_MON following the same current: no latch. */
+    fake_reset(true);
+    model_pan();
+    F.ct_follow = true;
+    assert(bind_commissioned(loop_cfg(24)));
+    run_ms(100);
+    power_set_level(100);
+    assert(plaus_run(2500) == 0);
+    n21_telemetry(&B, &t);
+    assert(F.gate && t.pan_present && t.freq_hz < 40000 && t.fault == N21_FAULT_NONE);
+    /* The same pan with a stuck-low channel is caught. */
+    fake_reset(true);
+    model_pan();
+    F.ct_follow = true;
+    assert(bind_commissioned(loop_cfg(24)));
+    run_ms(100);
+    power_set_level(100);
+    run_ms(1500);
+    F.rms_stuck = true;
+    assert(plaus_run(300) > 0 && B.fault == N21_FAULT_RMS_CHANNEL);
+    tests++;
+}
+
 int main(void)
 {
     test_scaling();
@@ -982,6 +1130,7 @@ int main(void)
     test_freq_update_failure();
     test_power_level_live();
     test_aux_allowance_live();
+    test_rms_plausibility();
     printf("n21 binding: %u tests passed\n", tests);
     return 0;
 }

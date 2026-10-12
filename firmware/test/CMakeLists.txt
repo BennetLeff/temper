@@ -595,3 +595,22 @@ target_include_directories(test_platform_logic PRIVATE ../components/platform/in
 target_link_libraries(test_platform_logic m)
 target_compile_options(test_platform_logic PRIVATE -UNDEBUG -Wall -Wextra -Werror)
 add_test(NAME platform_logic_tests COMMAND test_platform_logic)
+
+# Half-cycle RMS estimator scatter vs slot phase (evidence: build-evidence/rms-estimator)
+add_executable(test_rms_estimator test_rms_estimator.c
+    ../components/power/n21_signal.c ../components/power/input_limits.c ../components/power/blower_aux.c)
+target_include_directories(test_rms_estimator PRIVATE ../components/power/include ../components/hal/include)
+target_link_libraries(test_rms_estimator m)
+target_compile_options(test_rms_estimator PRIVATE -UNDEBUG -Wall -Wextra -Werror)
+add_test(NAME rms_estimator_tests COMMAND test_rms_estimator)
+
+# Bench-only shadow tank RMS (pure computation, lock case, telemetry-only) (evidence: build-evidence/rms-estimator)
+add_executable(test_rms_shadow test_rms_shadow.c
+    ../components/power/rms_shadow.c ../components/power/n21_signal.c ../components/power/n21_binding.c
+    ../components/power/power_service.c ../components/power/fullbridge_adapter.c
+    ../components/power/burst_scheduler.c ../components/power/input_limits.c
+    ../components/power/blower_aux.c ../components/power/line_zc.c ../components/power/tank_freq.c)
+target_include_directories(test_rms_shadow PRIVATE ../components/power/include ../components/hal/include)
+target_link_libraries(test_rms_shadow m)
+target_compile_options(test_rms_shadow PRIVATE -UNDEBUG -Wall -Wextra -Werror)
+add_test(NAME rms_shadow_tests COMMAND test_rms_shadow)

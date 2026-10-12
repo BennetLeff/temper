@@ -1,0 +1,7 @@
+# ESP-IDF v5.3.6, esp32s3, firmware/build-evidence/esp-idf/build.sh (strict; BUILD_DIR outside the tree), sdkconfig.evidence (HW binding on)
+# base 93276ac80:   induction_cooker.bin 410000 bytes (build-evidence/esp-idf/bin-size.txt before this change)
+STRICT build exit code: 0
+induction_cooker.bin 410800 bytes
+# same, plus CONFIG_TEMPER_POWER_SHADOW_RMS=y (compile proof of the bench shadow path; not a committed config)
+SHADOW-ON build exit code: 0
+induction_cooker.bin 417952 bytes

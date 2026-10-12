@@ -152,6 +152,17 @@ static float aux_for_half(n21_binding_t *b, uint64_t now)
 /* Once per half line cycle, r == NULL when the half failed to close (stale or broken samples). */
 static void half_closed(n21_binding_t *b, const n21_half_result_t *r)
 {
+    /* Stuck-low plausibility (tank_freq.h): the AD8436 chain reading far below what the raw CT_MON
+     * peak allows, with the bridge running through the whole half, for several halves in a row.
+     * The fault is the RMS-channel one: the same latch that a failed MCP3202 or reference read
+     * takes, which inhibits the bridge. A half that failed to close is no evidence either way. */
+    if (r) {
+        if (b->half_live && tank_rms_implausible(r->est.tank_rms_a, r->ct_abs_max_a)) {
+            if (++b->rms_implaus_n >= TANK_RMS_PLAUS_HALVES) latch(b, N21_FAULT_RMS_CHANNEL);
+        } else {
+            b->rms_implaus_n = 0;
+        }
+    }
     /* The envelope trip, on the half-cycle RMS (round 6: per-sample readings are the envelope
      * crest, ~1.41 x the line-cycle RMS). */
     if (r && r->est.tank_rms_a > b->cfg.tank_rms_trip_a) latch(b, N21_FAULT_TANK_RMS);
@@ -211,7 +222,16 @@ void n21_acquire_step(n21_binding_t *b)
                 half_closed(b, NULL);
             }
         }
+        if (b->ops.shadow_half) {
+            /* Bench shadow RMS (telemetry only: nothing below reads tm.shadow_*). */
+            float v = NAN;
+            uint32_t fs = 0;
+            b->tm.shadow_valid = b->ops.shadow_half(b->ops.ctx, b->cycle_hz, &v, &fs);
+            b->tm.shadow_rms_a = b->tm.shadow_valid ? v : NAN;
+            b->tm.shadow_fs_hz = fs;
+        }
         n21_half_begin(&b->half, zero);
+        b->half_live = b->pads_live;
     }
     b->tm.zc_locked = b->zc.locked;
 
@@ -256,6 +276,7 @@ void n21_acquire_step(n21_binding_t *b)
             phi_valid = true;
     }
 
+    b->half_live = b->half_live && b->pads_live;
     bool good = !invalid && b->fault == N21_FAULT_NONE && isfinite(bus) && isfinite(rms);
     if (good) {
         input_sample_t s = {.bus_v = bus, .tank_rms_a = rms, .cos_phi = cos_phi};

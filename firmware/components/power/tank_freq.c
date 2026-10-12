@@ -6,6 +6,12 @@
 #define TAN_MAX 1000.0f /* lag within 0.06 deg of 90 (or beyond): treat as 90 */
 
 float tank_peak_trip_for(float c) { return fminf(TANK_PEAK_PER_RMS * c + TANK_PEAK_PICKUP_A, TANK_PEAK_TRIP_CAP_A); }
+bool tank_rms_implausible(float rms, float ct_abs_max)
+{
+    if (!isfinite(rms) || rms < 0 || !isfinite(ct_abs_max)) return true; /* nothing credible: fail safe */
+    return ct_abs_max >= TANK_RMS_PLAUS_MIN_CT_A &&
+           rms * (TANK_PEAK_PER_RMS * TANK_RMS_PLAUS_MARGIN) < ct_abs_max;
+}
 float tank_rms_trip_for(float c) { return TANK_RMS_TRIP_RATIO * c; }
 float tank_crest_guard_for(float c) { return TANK_CREST_GUARD_RATIO * c; }
 bool tank_ceiling_ok(float c) { return isfinite(c) && c >= TANK_CEILING_MIN_A && c <= TANK_CEILING_MAX_A; }

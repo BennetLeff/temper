@@ -1,0 +1,10 @@
+=== pre-fix (93276ac80) ===
+Assertion failed: (lo >= -TOL_PCT && hi <= TOL_PCT), function test_slot_phase_scatter, file test_rms_estimator.c, line 47.
+half-cycle RMS scatter vs slot phase and half length: -3.12 % .. +2.65 %
+build-evidence/rms-estimator/run_against_prefix.sh: line 15: 85661 Abort trap: 6              "$WORK/bin_$1" 2>&1
+exit code: 134
+=== fixed (working tree) ===
+half-cycle RMS scatter vs slot phase and half length: -0.03 % .. +0.27 %
+slot phase only (5 us steps, 8333.3 us half): span 0.210 %
+rms estimator: 2 tests passed
+exit code: 0

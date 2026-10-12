@@ -84,10 +84,14 @@ bool n21_cos_phi(const n21_phase_cfg_t *, uint32_t zc_ticks, float *cos_phi, flo
 /* ---- Half-line-cycle assembly ------------------------------------------------------------------
  * Samples between two consecutive LINE_ZC predicted zeros. Close() requires the D-11 half-cycle
  * spacing (7833-8834 us), >= 8 samples, no gap longer than max_gap_us (including from the opening
- * zero and to the closing one), then calls input_limits_half_cycle with V_line from the bus peak. */
+ * zero and to the closing one), weights each reading by its share of the half (mid-point rule
+ * between neighbouring readings, the first and last held to the zero crossings: the 625 us slot
+ * grid does not divide the half cycle, so equal weights scatter the RMS -3 % .. +2.7 % with slot
+ * phase), then calls input_limits_half_cycle with V_line from the bus peak. */
 #define N21_HALF_MAX_SAMPLES 48
 typedef struct {
     input_sample_t s[N21_HALF_MAX_SAMPLES];
+    uint64_t t_us[N21_HALF_MAX_SAMPLES];   /* acquisition time of s[j], for the time weights */
     uint64_t start_us, last_us;
     uint64_t max_gap_us;
     size_t n;

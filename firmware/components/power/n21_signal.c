@@ -96,6 +96,7 @@ void n21_half_add(n21_half_t *h, uint64_t t, const input_sample_t *s)
     if (!s || t < h->last_us || h->n >= N21_HALF_MAX_SAMPLES) { h->broken = true; return; }
     if (t - h->last_us > h->max_gap_us) h->max_gap_us = t - h->last_us;
     h->last_us = t;
+    h->t_us[h->n] = t;
     h->s[h->n++] = *s;
     if (isfinite(s->bus_v) && s->bus_v > h->bus_peak_v) h->bus_peak_v = s->bus_v;
 }
@@ -126,6 +127,13 @@ bool n21_half_close_aux(n21_half_t *h, const input_limits_cfg_t *cfg, float aux_
     uint64_t tail = zero - h->last_us;
     if (half < 7833 || half > 8834 || h->n < 8 || h->max_gap_us > max_gap || tail > max_gap)
         return false;
+    /* Time weights: each reading stands for the interval between the mid-points to its neighbours;
+     * the first reaches back to the opening zero and the last forward to the closing one. */
+    for (size_t j = 0; j < h->n; j++) {
+        double lo = j == 0 ? (double)h->start_us : 0.5 * ((double)h->t_us[j - 1] + (double)h->t_us[j]);
+        double hi = j + 1 == h->n ? (double)zero : 0.5 * ((double)h->t_us[j] + (double)h->t_us[j + 1]);
+        h->s[j].w = (float)(hi - lo);
+    }
     float line = n21_line_rms_from_bus_peak(h->bus_peak_v, drop);
     if (!input_limits_half_cycle_aux(cfg, h->s, h->n, line, aux_a, &r->est)) return false;
     r->end_us = zero;
