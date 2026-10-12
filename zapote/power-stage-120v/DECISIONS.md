@@ -648,3 +648,43 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
         - Coil field at PS3: 453–573 µT rms at the coil-side corner (study 12). Added bench item: PS3 ripple and stability at 28 A.
     - **Gate scripts** are now committed in `native-21/layout/gates/` (the scratchpad copies were lost).
 
+17. **Stage 17: R5 = Bourns CSS2H-2512R-1L00F (2026-10-12, commit `65160f4b3`, board `e40f1e27…`, copper.json `4b6a5262…`, Gerber ZIP `b60ef50c…`; plan and evidence `validation-results/04-board-current-thermal/round5-native21/stage17-r5/`).**
+    - **Why:** item 14's check failed the WSK25121L000FEA (0.864 W at the 29.4 A trip against 0.2084 W derated at 149.16 °C), and it has no JLC / LCSC stock. Item 4's fallback, a ≥ 2 W Kelvin shunt, is taken with PLAN-17's rank-1 part. BVS-M-R001-1.0 stays the unused fallback.
+    - **Part:** Bourns CSS2H-2512R-1L00F, LCSC C4175647 (JLC Extended, 1,482 in stock on 2026-10-12). 1 mΩ ±1 %, 5 W at 70 °C terminal (linear to 0 at 170 °C), ±75 ppm/°C, AEC-Q200, H 0.78 mm max.
+      - It stays 1 mΩ, so R34 12.6 k / R35 11.7 k, the reference and the CT dividers are unchanged.
+    - **Land** (`libraries/temper.pretty/R_Shunt_Bourns_CSS2H-2512_Kelvin.kicad_mod`, measured from the datasheet p.2 drawing at 600 dpi):
+      - two 1.80 × 3.40 mm current pads (pads 1 LEG_RET / 4 HV_RET) with a 3.40 mm gap;
+      - a 0.40 mm sense lobe from each pad's inner edge into a 0.40 mm finger (pads 2 OCP_KELVIN_P / 3 OCP_KELVIN_N), 0.60 mm apart, running 1.50 mm past the pads to the west;
+      - fingers net-tied to their current pad in the footprint (`net_tie_pad_groups`); the netlist keeps four nets. Pad numbers and nets are the WSK's, so audit.rs pin checks and `kelvin_plane.py` (sink R5.2) stand.
+    - **Source:** `parts.ato` Shunt1m (MPN, maker, footprint); frozen exports from atopile 0.2.69, path-normalised to the ps-integrate tree (only R5's lines change; netlist `bd395b0b…`); `verify_source.py` asserts the MPN and footprint (353 parts); `audit.rs` **79/79** with a new test failing the WSK identity, and its footprint test now fails the WSK land (`stage17-r5/audit17.txt`).
+    - **Copper** (`patches21.add_stage17`; no part moves):
+      - The Kelvin pair leaves R5 as a tight pair from the finger tips (vias at (35.0, 12.1) / (35.0, 13.1)), runs on In1 under R5 to the stage-16 KP_MID / KN_MID, and keeps the stage-16 route from there (incr21 drops the old run as stale once R5's pads change; the patch re-lays it unchanged).
+      - add_r5 judges R5's custom sense pads on their true outline (GEO knows only their bounding boxes).
+      - Vias: LEG_RET 10 (unchanged count); HV_RET 6, was 9 (the pad's east half sits within 3.2 mm of SW_B's B.Cu lane, and the N finger takes the old north row). Worst R5 via at 34 A coherent: 8.78 A (was 7.27).
+    - **Gates (board `e40f1e275bbaff8a5e61e224974fd401a44bcad2acefa0b92d50f85b6ce81ecd`):**
+      - DRC 0 errors / 0 unconnected / schematic parity 0; plane splits 0 (warnings as stage 16, 9 dangling-track warnings).
+      - barrier21 0; Rust barrier gate 0 violations over 5,626 items (existing `target-shared` binary, not rebuilt).
+      - D5: HOT–SELV 8.047 mm, HOT–PE 8.507 mm (unchanged).
+      - JLC DFM PASS (759 vias, 120 plated pads, minimum track 0.2 mm); Gerber review PASS (875/875 round holes + 4 slots; 0 silk on land); R5 box rendered from the Gerbers (`stage17-r5/r5-gerber-review.png`): paste only on the current pads, fingers mask-open.
+      - Enclosure fit: 405 solids, 0 overlaps, 407 bodies in R4, 0 hits. R5 is a 0.78 mm envelope (no 3D model), z 1.6–2.38 mm, +0.13 mm over the WSK.
+      - Kelvin (`budget-native21s17.json`): R35.2 157.80 mΩ (was 161.03), shift −2.17 A (bound −2.23 A).
+      - OCP band (`stage17-r5/ocp_band17.py`, R5 at 75 ppm/°C; the 250 ppm control reproduces 68.58–118.74 A): 69.89–116.44 A before the Kelvin shift, **67.72–116.44 A after**, 67.66 A at the bound. Floor 64.17 A met (+3.49 A).
+      - B3 (h 25, 1.0 mm): 22 / 24 / 26 / 28 A → 130.2 / 131.1 / 132.1 / **135.9 °C**. 22–26 A peak at U42; **28 A now peaks at R5.4** (stage 16: 133.9 °C at U26). Nominal h 10 / h 25: 163.2 / 129.1 °C. BUS_P span 4.129 %.
+    - **G6, R5 derating (go/no-go): PASS** (`stage17-r5/g6.json`, `g6_r5_derating.py`; c28, 0.25 mm, h 25, 50 °C):
+      - Heat: 0.864 W at the 29.4 A trip, on the current pads only (`thermal.py` `pad_numbers`; the fingers are not part terminals).
+      - R5 pad cells: 134.81 °C max, 125.99 °C mean. Derated 1.759 W, so **margin 50.9 %** against the 20 % rule (a 20 % margin needs ≤ 148.4 °C). Worst case (1 % + 75 ppm at the pad max): 0.880 W, 50.0 %. Pad ≤ 160 °C; trip floor 67.48 A with the B3 rise.
+      - Controls: the WSK's FAIL (0.864 W against 0.2084 W at 149.16 °C, −314.7 %) and the stage-16 solve (149.16 °C) both reproduce.
+      - Sensitivity: heat on all four pads gives 134.34 °C (51.5 %). The stage-16 WSK board with heat on its current pads only is 123.43 °C, so most of item 14's 149 °C was heat put into the WSK's isolated sense pad. The WSK still fails there (0.47 W derated); the swap stands.
+    - **Not re-run:** the commutation-loop FEM (PLAN-17 G8). The land span shrinks 8.26 → 7.0 mm on a return-path part with parallel copper; F6 stays closed on that basis until the next extraction.
+    - **Found:** U26 reads 7 K lower than in stage 16 (126.1 against 133.0 °C, nominal h 25) with identical copper near it. The In1 `n_ls LS block` and `ocp_kelvin_p protection` pours have the same priority and abut at y 75.3, so the 0.3 mm boundary strip goes to whichever fills first. It is rebuild fill order, not stage 17. Read U26 as up to 133 °C until the priorities differ.
+    - **Records:**
+      - `round3/thresholds.py` keeps the WSK tuple as its default, because eight committed band records import it; it adds `SHUNT_CSS2H` for stage-17 and later calculations.
+      - Item 4's "local ambient ≤ 100 °C" gate is superseded by G6's terminal-temperature rule. Item 14's "0.86 W at 28 A" is the 29.4 A trip value (0.784 W at 28 A).
+      - The CPL centroid of an SMD part with paste-free pads now comes from its pasted pads, so R5 stays at (38.5, 12.6); no other placement moved.
+    - **Open, Bourns (owner; not contacted):**
+      - the rating basis: which point of the copper terminal "terminal temperature" means, and whether the older 5 W / 3 W two-curve copy still applies;
+      - where the part's own sense contact sits relative to the recommended fingers, which leave the pad lobe, so lobe copper is in the sense path;
+      - the element-to-terminal thermal resistance (no figure in the datasheet).
+    - **Open, other:**
+      - JLC placement preview of C4175647 on the project land (rotation and centroid);
+      - bench IR of R5 at 28 A.
