@@ -575,4 +575,12 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
       - At the 0.25 mm mesh, R5's pad cell is 149 °C at 28 A (nominal 140 °C), which predates 15b. R5 runs at 0.86 W of its 1 W rating, so its derating needs a check.
       - Lead conduction to the heatsink is −5.6 / +0.5 K (ZVS / conservative switching). Its sign closes with the bench switching-loss measurement.
       - Bench list: FET-row IR at 28 A.
+15. **Sink contingency and blower supply at 28 A (2026-10-12; enclosure R33 studies 10 and 11).**
+    - **Sink load at 28 A** (round 6 `board-side-fets.csv`): basis A is 132.8 / 141.3 / 149.9 W at 40 / 45 / 50 kHz; basis B (ZVS) is 67.8 W. S8 plus the Delta BFB1012VH-F00 blower holds about 130 W at the 88.6 °C base.
+    - **K1 sink:** skived or bonded fin, 1.0 / 2.5 mm, 20 fins, in S8's envelope. R_SA 0.214 °C/W holds 150 W at 0.75 drive.
+      - Tj at K1, basis A, worst FET: **118.9 / 123.8 / 128.7 °C** at 40 / 45 / 50 kHz.
+      - **Trigger:** keep S8 for the prototype. Go to K1 if the bench switching-loss measurement puts the 28 A sink load above **125 W**, before the commissioned ceiling rises past 26 A. K2 (2.0 mm gap) only if K1 measures short.
+    - **Blower supply:** the blower is BFB1012VH-F00 (12 V, 1.42 A typical / 2.70 A maximum, 17 / 32.4 W). The coil at its 196 W acceptance limit needs about 0.9 drive, so the rail is budgeted for full speed: 33.5 W plus start-up.
+      - That overloads PS1 (IRM-20-15) through the controller's blower buck, so **a separate blower supply** goes on the power board (stage 16, planning). Blower start or stall then cannot brown out the controller logic.
+    - **Coil and rim NTCs:** Semitec 104GT-2 (GT-2 sheet p.18): Ø1.35 ± 0.15 mm glass bead; 100 kΩ ±3 %; B 4267 K ±2 %; −50…+300 °C; 0.6 mW/°C. Mounts are in enclosure R40. Rim self-heating is about 2.6 K at 250 °C, in the safe direction.
 
