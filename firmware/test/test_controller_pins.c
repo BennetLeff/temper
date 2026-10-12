@@ -168,12 +168,27 @@ static void test_strap_pins_used_only_as_allowed(void)
             assert(!(o->op == 'C' && o->pull == CTRL_PULL_UP));
             assert(!(o->op == 'L' && o->arg != 0));
         }
-        /* GPIO0 and GPIO3 belong to the I2C / PCNT drivers; GPIO46 is left at reset (L3 stub). */
+        /* GPIO0, GPIO3 and GPIO46 belong to the I2C, PCNT and LEDC drivers, not the boot table. */
         assert(o->gpio != 0 && o->gpio != 3 && o->gpio != 46);
     }
 }
 
 /* ------------------------------------------------------------------ RUN_EN */
+/* L3 blower pins (C28): GPIO46 is LEDC with the strap pull-down and a low initial level (duty 0 =
+ * full speed, the reset direction); GPIO3 is the PCNT tach input with the board's FG pull-up. */
+static void test_blower_pins(void)
+{
+    const ctrl_pin_t *pwm = ctrl_pin_find(CTRL_GPIO_FAN_PWM), *tach = ctrl_pin_find(CTRL_GPIO_FAN_TACH);
+    assert(pwm && pwm->gpio == 46 && pwm->fn == CTRL_FN_LEDC && pwm->owner == CTRL_OWNER_BLOWER);
+    assert(pwm->external_pull == CTRL_PULL_DOWN && pwm->internal_pull != CTRL_PULL_UP);
+    assert(pwm->init_level == 0 && !pwm->boot_apply);
+    assert(tach && tach->gpio == 3 && tach->fn == CTRL_FN_PCNT && tach->owner == CTRL_OWNER_BLOWER);
+    assert(tach->external_pull == CTRL_PULL_UP && !tach->boot_apply);
+    /* LEDC timing fits the S3's 80 MHz source at the chosen resolution. */
+    assert((80000000u / CTRL_BLOWER_LEDC_FREQ_HZ) >= (1u << CTRL_BLOWER_LEDC_RES_BITS));
+    assert(CTRL_BLOWER_TACH_GLITCH_NS <= 12700u);
+}
+
 static void test_run_en_defaults_low(void)
 {
     const ctrl_pin_t *p = ctrl_pin_find(CTRL_GPIO_RUN_EN);
@@ -284,6 +299,10 @@ static void test_expander_plan_and_decode(void)
         if (w[i].reg == TCA9555_REG_CONFIG0) assert(w[i].value == 0xFF);    /* P07 DRDY stays an input */
     }
     assert(out1 >= 0 && conf1 > out1);
+    /* FAN_OFF requests: only P15 changes; "on" is the value the init plan latches. */
+    assert(ctrl_exp_output1(false) == w[out1].value);
+    assert(ctrl_exp_output1(true) == 0xFF);
+    assert((ctrl_exp_output1(true) ^ ctrl_exp_output1(false)) == (1u << (CTRL_EXP_FAN_OFF - 8)));
 
     /* Decode: idle board (all pulled high, DRDY high) = run ok, no faults, no DRDY. */
     ctrl_exp_inputs_t in = ctrl_exp_decode(0xFFFF & ~(CTRL_EXP_BIT(CTRL_EXP_LATCHED_FAULT_RB) |
@@ -312,6 +331,7 @@ int main(void)
     TEST(test_expander_bits_unique);
     TEST(test_l2_moves);
     TEST(test_strap_pins_used_only_as_allowed);
+    TEST(test_blower_pins);
     TEST(test_run_en_defaults_low);
     TEST(test_boot_outputs_preset_before_enable);
     TEST(test_uart0_console_disabled_when_gpio44_is_spi);

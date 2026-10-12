@@ -542,7 +542,7 @@ void test_fault_thermal_igbt(void) {
     mock_sm_advance_time(100);
     state_machine_update();  /* PREHEAT -> HEATING */
     
-    /* Inject IGBT over-temperature (heatsink >80C) */
+    /* Inject power-stage over-temperature (heatsink > 95 C, L3 ladder) */
     mock_sm_set_heatsink_temperature(110.0f);
     mock_sm_advance_time(100);
     state_machine_update();

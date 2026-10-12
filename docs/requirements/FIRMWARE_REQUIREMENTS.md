@@ -170,16 +170,17 @@ Software watchdog SHALL trigger shutdown within 10 seconds of system hang.
 **Priority:** P0  
 **Status:** VERIFIED
 
-System SHALL shutdown when heatsink temperature exceeds 80°C.
+System SHALL shutdown when heatsink temperature exceeds 95°C or coil temperature reaches 165°C, or when either reading is invalid.
 
 | Parameter | Value |
 |-----------|-------|
-| Threshold | 80°C heatsink |
-| Action | Immediate FAULT transition |
-| Hysteresis | 10°C (restart at 70°C) |
+| Threshold | 95°C heatsink (`OVER_TEMP_THRESHOLD`); 165°C coil (`COIL_FW_TRIP_C`) |
+| Action | Immediate FAULT transition (hardware-latched); an invalid (NaN) reading trips |
+| Recovery | heatsink < 70°C and coil < 140°C (below the hardware release bands 83.0–88.2°C / 147.4–157.7°C) |
+| Ladder | sink: fan 88.6 < firmware 95 < hardware 98.3–104.6 (101.4 nominal); coil: fan 140 < derate 150–160 < firmware 165 < hardware 169.7–182.0 (175.7 nominal) |
 
-**Validation:** `test_sm_fault_on_over_temperature` (firmware/test/test_state_machine.c)
-**Linked Issues:** Per thermal threshold decision (#1233): 80°C is 5°C below hardware THM-01 latch (85°C); 100°C was dead code — hardware always fired first. See docs/evidence/2026-08-15-thermal-threshold-decision.md (committed aaa0af2dd).
+**Validation:** `test_sm_fault_on_over_temperature`, `test_sm_heatsink_at_fan_setpoint_does_not_trip`, `test_sm_invalid_heatsink_reading_trips`, `test_sm_coil_hard_trip_165`, `test_sm_invalid_coil_reading_trips` (firmware/test/test_state_machine.c); `test_trip_ladder_order`, `test_hardware_trip_points_from_resistors` (firmware/test/test_thermal_mgmt.c)
+**Linked Issues:** L3 trip ladder (zapote/controller DECISIONS C32, coordinator decision 2026-10-12): docs/evidence/2026-10-12-thermal-trip-ladder-l3.md. **Supersedes** #1233 (80°C, 5°C below an 85°C THM-01 latch; docs/evidence/2026-08-15-thermal-threshold-decision.md), which was argued for the retired IGBT IKW40N120H3 and sat below the 88.6°C full-power sink temperature of the R32 air path.
 
 ---
 

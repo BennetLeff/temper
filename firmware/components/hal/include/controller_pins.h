@@ -6,8 +6,8 @@
  *
  * Source: branch controller-layout, zapote/controller/elec/src/controller.ato (U4 "GPIO map" and
  * U8 expander blocks), DECISIONS C2, C3, C20, C23 (RUN_EN), C26 (R33 UI bus), C27 (R36 rim NTC)
- * and C28 (L3 blower). Layout L2 = R33 rebase + R36 rim NTC; the L3 schematic delta (blower PWM
- * on GPIO46, FAN_OFF on expander P15) is included and marked L3.
+ * and C28 (L3 blower). Layout L2 = R33 rebase + R36 rim NTC; the L3 delta (blower PWM on GPIO46,
+ * tach on GPIO3, FAN_OFF on expander P15) is included and marked L3.
  *
  * Naming rule (checked by firmware/tools/check_controller_pinmap.py against the ato):
  *   CTRL_GPIO_<NET>  = GPIO number of the ato net <net> on the module (mcu.IOn / RXD0 / TXD0)
@@ -24,9 +24,9 @@
  *   GPIO3  Blower tach input. JTAG-select strap only with the STRAP_JTAG_SEL eFuse burnt (never).
  *   GPIO45 UI OLED D/C. 100 k external pull-down: VDD_SPI must read 0 (3.3 V flash). NEVER an
  *          internal pull-up, and the UI board must not pull D/C up.
- *   GPIO46 L3 blower PWM (L2: fan-off gate). 100 k external pull-down: ROM log / boot strap 0.
- *          Never an internal pull-up. Left untouched (reset input, pulled down) until the L3
- *          blower driver lands, which is the fail-safe "fan running" state on both L2 and L3.
+ *   GPIO46 L3 blower PWM. 100 k external pull-down: ROM log / boot strap 0. Never an internal
+ *          pull-up. Low (and reset / brown-out: input, pulled down) = blower at (near) full
+ *          speed; the LEDC driver starts at duty 0 with idle level 0 (thermal_mgmt.h).
  */
 
 /* ---------------------------------------------------------------- J4 bridge drive (C2) */

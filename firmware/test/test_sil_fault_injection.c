@@ -585,7 +585,7 @@ static void sm_boilerplate_to_origin(system_state_t origin, bool self_test_pass)
 #define INV_MAX_TEMP_RISE_RATE     15.0f   /* C/s */
 #define INV_MAX_DC_CURRENT_40A     40.0f
 #define INV_MAX_DC_CURRENT_50A     50.0f
-#define INV_MAX_HEATSINK_TEMP      80.0f
+#define INV_MAX_HEATSINK_TEMP      OVER_TEMP_THRESHOLD /* config.yaml, 95 C (L3 ladder) */
 #define INV_DT_MS                  100     /* DT_MS from SIL test */
 
 static int check_trace_invariants(const csvrow_t *rows, int row_count,

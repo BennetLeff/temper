@@ -51,21 +51,22 @@ extern void delay_ms(uint32_t ms);
 extern void eeprom_log_fault(fault_code_t code, uint32_t timestamp);
 /* R36 rim NTC (GPIO9, ADC1_CH8): false while no valid reading (open, short, stale). */
 extern bool read_rim_temperature(float *temp_c);
-/* L3 blower stall hook (DECISIONS C28): tank power cap from blower_stall_update(), 0..100.
- * STUB until the controller L3 blower driver lands: the peripherals layer returns 100. */
-extern uint8_t blower_power_cap_pct(void);
+/* L3 thermal power cap (DECISIONS C28, C32), 0..100: min(coil derate 150-160 C, blower stall
+ * derate). Computed by the blower controller tick (thermal_io.c, blower_ctrl_step()). */
+extern uint8_t thermal_power_cap_pct(void);
 
 /* Pan temperature cap and glass protection (250 C, R32 / R36): every tank power request in
  * PREHEAT and HEATING passes through here. The pan RTD and the rim NTC each derate from 240 C to
- * 0 at 250 C (thermal_mgmt.h); the blower stall hook can only lower the result further. */
+ * 0 at 250 C (thermal_mgmt.h); the coil derate and the blower stall derate can only lower the
+ * result further. */
 static uint8_t apply_thermal_caps(uint8_t requested, float pan_temp_c)
 {
     float rim_c = NAN;
     bool rim_ok = read_rim_temperature(&rim_c);
     pan_cap_t cap = pan_cap_evaluate(pan_temp_c, isfinite(pan_temp_c), rim_c, rim_ok);
     uint8_t limit = cap.cap_pct;
-    uint8_t blower = blower_power_cap_pct();
-    if (blower < limit) limit = blower;
+    uint8_t thermal = thermal_power_cap_pct();
+    if (thermal < limit) limit = thermal;
     return requested < limit ? requested : limit;
 }
 

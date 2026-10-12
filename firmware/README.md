@@ -34,7 +34,7 @@ firmware/
 └── test/                  # Host-based unit and integration tests
 ```
 
-## Controller pin map (zapote/controller, layout L2)
+## Controller pin map (zapote/controller, layout L2 + L3 blower)
 
 The firmware targets the integrated SELV controller. Its single pin map is
 `components/hal/include/controller_pins.h` (numbers) plus the table in
@@ -58,11 +58,37 @@ used; there is no spare pin.
   (`sdkconfig.defaults`). GPIO45 is the VDD_SPI strap: never an internal
   pull-up. The sounder is a self-oscillating buzzer on a UI-board expander
   output; there is no sounder PWM.
-- **Rim NTC = GPIO9 / ADC1_CH8** (R36, C27), ninth slot of the ADC1 pattern;
-  it feeds the 250 °C pan cap with the pan RTD (`components/control/thermal_mgmt.h`).
-- **Blower (J10, L3)**: GPIO46 PWM (strap, pull-down) and GPIO3 tach are
-  STUBS until controller L3; both are left at reset, which keeps the blower
-  running.
+- **Rim NTC = GPIO9 / ADC1_CH8** (R36, C27, C31), ninth slot of the ADC1 pattern;
+  Semitec 104GT-2 on a 1.00 k pull-up (0.489 V, 7.0 mV/K at 250 °C). It feeds
+  the 250 °C pan cap with the pan RTD (`components/control/thermal_mgmt.h`).
+- **Blower (J10, L3, C28)**: 3-wire (V, GND, FG). Speed: GPIO46 LEDC, 20 kHz,
+  into the buck FB; **duty 0 = full speed** (12.2 V), capped at 85 % (≥ 6.07 V
+  at every corner, above the blower's 5.5 V floor). Reset / brown-out leaves
+  GPIO46 an input on its 100 k strap pull-down: 11.0–11.4 V, still near full
+  speed. On/off: expander P15 FAN_OFF (latch written 0 = on before it becomes
+  an output). Tach: FG → GPIO3 PCNT; pulses per revolution is
+  `BLOWER_TACH_PULSES_PER_REV` in `config.yaml` (unverified, default 2). A
+  stopped, locked or unplugged blower or an open FG wire reads 0 rpm and
+  derates tank power after 1 s (`blower_ctrl_step()`).
+
+## Thermal trip ladder (L3, DECISIONS C32)
+
+| | Fan law | Firmware derate | Firmware trip | Hardware trip (band) |
+|---|---|---|---|---|
+| Heatsink (Vishay NTCALUG01A104GA) | 88.6 °C | — | 95 °C (`OVER_TEMP_THRESHOLD`) | 101.4 °C (98.3–104.6) |
+| Coil (Semitec 104GT-2, 100 k / 300 °C) | 140 °C | 150–160 °C | 165 °C (`COIL_FW_TRIP_C`) | 175.7 °C (169.7–182.0) |
+
+Source: `docs/evidence/2026-10-12-thermal-trip-ladder-l3.md`, which supersedes
+the IGBT-era 80 °C trip of `2026-08-15-thermal-threshold-decision.md`.
+`test/test_thermal_mgmt.c` fails if any rung is reordered. Every NTC input has
+a 10 k / 100 nF filter (C29): readings are used only after it has settled
+(`ntc_input_settled()`, ≤ 28 ms from power-up), and its ≤ 3.3 ms lag is
+negligible next to the 100 ms thermal ticks. The ESP32-S3 ADC reads only up
+to ~3.1 V, so on a 10 k pull-up a 100 k NTC colder than ~15 °C (or open)
+reads as the range floor: the interlocks treat it as cool, the blower runs
+full speed, and the thermal-sense OPEN_REF comparator latches a real open.
+The rim (1.00 k pull-up) resolves only above ~70 °C; below that, or open, it
+gives no rim cap and the pan RTD still caps at 250 °C.
 
 `components/hal/include/temper_pins.h` is the legacy `elec/` board map, kept
 unchanged for the tools that read it; controller firmware must not include it.

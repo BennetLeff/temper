@@ -51,7 +51,9 @@ const ctrl_pin_t ctrl_pins[] = {
     ROW(CTRL_GPIO_UI_CS_OLED_N, "ui_cs_oled_n", CTRL_FN_SPI, CTRL_OWNER_UI, CTRL_PULL_NONE, CTRL_PULL_UP, -1, false),
     ROW(CTRL_GPIO_UI_CS_EXP_N, "ui_cs_exp_n", CTRL_FN_SPI, CTRL_OWNER_UI, CTRL_PULL_NONE, CTRL_PULL_UP, -1, false),
     ROW(CTRL_GPIO_UI_DC, "ui_dc", CTRL_FN_GPIO_OUT, CTRL_OWNER_UI, CTRL_PULL_NONE, CTRL_PULL_DOWN, 0, true),
-    /* Blower J10 (L3): STUB, both pins left in their reset state (see controller_pins.h). */
+    /* Blower J10 (L3, C28): owned by the LEDC / PCNT drivers in controller_board_esp32.c, not
+     * boot_apply. GPIO46 (strap, 100 k pull-down): LEDC starts at duty 0 = low = full speed, never
+     * an internal pull-up. GPIO3: FG via 10 k pull-up, ESD5Z3.3 and 1 k / 1 nF; input only. */
     ROW(CTRL_GPIO_FAN_PWM, "fan_pwm", CTRL_FN_LEDC, CTRL_OWNER_BLOWER, CTRL_PULL_NONE, CTRL_PULL_DOWN, 0, false),
     ROW(CTRL_GPIO_FAN_TACH, "fan_tach", CTRL_FN_PCNT, CTRL_OWNER_BLOWER, CTRL_PULL_NONE, CTRL_PULL_UP, -1, false),
     /* Console and ROM log: USB-Serial-JTAG; UART0 TX only for the ROM log. */
@@ -114,6 +116,12 @@ bool ctrl_run_en_kill(ctrl_run_en_t *st, const ctrl_gpio_ops_t *ops)
     return ops && ops->set_level && ops->set_level(ops->ctx, CTRL_GPIO_RUN_EN, 0);
 }
 
+uint8_t ctrl_exp_output1(bool fan_off)
+{
+    uint8_t bit = (uint8_t)(1u << (CTRL_EXP_FAN_OFF - 8));
+    return fan_off ? (uint8_t)0xFFu : (uint8_t)(0xFFu & ~bit);
+}
+
 size_t ctrl_exp_init_writes(bool fan_off_output, ctrl_i2c_write_t out[6])
 {
     size_t n = 0;
@@ -122,8 +130,7 @@ size_t ctrl_exp_init_writes(bool fan_off_output, ctrl_i2c_write_t out[6])
     out[n++] = (ctrl_i2c_write_t){TCA9555_REG_POLARITY1, 0x00};
     if (fan_off_output) {
         /* FAN_OFF = 0 (blower on) latched before P15 becomes an output; others stay 1. */
-        out[n++] = (ctrl_i2c_write_t){TCA9555_REG_OUTPUT1,
-                                      (uint8_t)(0xFFu & ~(1u << (CTRL_EXP_FAN_OFF - 8)))};
+        out[n++] = (ctrl_i2c_write_t){TCA9555_REG_OUTPUT1, ctrl_exp_output1(false)};
         out[n++] = (ctrl_i2c_write_t){TCA9555_REG_CONFIG0, 0xFF};
         out[n++] = (ctrl_i2c_write_t){TCA9555_REG_CONFIG1,
                                       (uint8_t)(0xFFu & ~(1u << (CTRL_EXP_FAN_OFF - 8)))};

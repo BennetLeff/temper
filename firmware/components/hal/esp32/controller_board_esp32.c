@@ -15,11 +15,17 @@
  *    installed.
  *  - The expander is polled by the control task (ctrl_board_poll_expander, every 10 ms). Readers in
  *    other tasks take a copy of the cache; a failed or stale read is "not ok" for every consumer.
+ *  - L3 blower (DECISIONS C28): LEDC on GPIO46 (duty 0 = full speed; the channel is configured at
+ *    duty 0 and every failure stops it at idle level 0), PCNT on GPIO3 (FG rising edges), and
+ *    expander P15 FAN_OFF (latch written 0 = on before the pin becomes an output). The speed and
+ *    on/off decisions are blower_ctrl_step() in components/control/thermal_mgmt.c.
  */
 #include "controller_board.h"
 #include "driver/gpio.h"
 #include "driver/i2c_master.h"
 #include "driver/spi_master.h"
+#include "driver/ledc.h"
+#include "driver/pulse_cnt.h"
 #include "esp_log.h"
 #include "esp_timer.h"
 #include "freertos/FreeRTOS.h"
@@ -33,6 +39,15 @@ static ctrl_exp_cache_t s_exp_cache;
 static bool s_pins_ok;
 static ctrl_run_en_t s_run_en;
 static portMUX_TYPE s_run_en_mux = portMUX_INITIALIZER_UNLOCKED;
+static bool s_fan_off_output;  /* P15 configured as an output (latch 0 first) */
+static bool s_fan_off_written; /* last FAN_OFF write succeeded */
+static bool s_fan_off_last;
+static bool s_ledc_ok;
+static pcnt_unit_handle_t s_tach;
+static uint16_t s_tach_total;
+#define BLOWER_LEDC_MODE    LEDC_LOW_SPEED_MODE
+#define BLOWER_LEDC_TIMER   LEDC_TIMER_0
+#define BLOWER_LEDC_CHANNEL LEDC_CHANNEL_0
 
 static bool esp_set_level(void *ctx, int gpio, int level)
 {
@@ -76,12 +91,14 @@ static bool i2c_create(void)
     i2c_device_config_t dc = {.dev_addr_length = I2C_ADDR_BIT_LEN_7,
                               .device_address = CTRL_TCA9555_ADDR, .scl_speed_hz = CTRL_I2C_HZ};
     if (i2c_master_bus_add_device(s_i2c_bus, &dc, &s_exp) != ESP_OK) return false;
-    /* L3 blower driver is a stub: FAN_OFF stays an input, so the 10 k gate pull-down keeps the
-     * blower running (C28). */
+    /* L3: FAN_OFF (P15) becomes an output with its latch written 0 (blower on) first (C28). */
     ctrl_i2c_write_t w[6];
-    size_t n = ctrl_exp_init_writes(false, w);
+    size_t n = ctrl_exp_init_writes(true, w);
     for (size_t i = 0; i < n; i++)
         if (!exp_write(w[i].reg, w[i].value)) return false;
+    s_fan_off_output = true;
+    s_fan_off_written = true;
+    s_fan_off_last = false;
     return true;
 }
 
@@ -96,6 +113,33 @@ static bool ui_bus_create(void)
     return gpio_pullup_en((gpio_num_t)CTRL_GPIO_UI_MISO) == ESP_OK;
 }
 
+static bool blower_create(void)
+{
+    /* LEDC at duty 0 = GPIO46 low = full speed: the same direction as reset (100 k pull-down). If
+     * this fails the pad stays an input with the pull-down: the blower still runs (~11.2 V). */
+    ledc_timer_config_t tc = {.speed_mode = BLOWER_LEDC_MODE, .duty_resolution = CTRL_BLOWER_LEDC_RES_BITS,
+                              .timer_num = BLOWER_LEDC_TIMER, .freq_hz = CTRL_BLOWER_LEDC_FREQ_HZ,
+                              .clk_cfg = LEDC_AUTO_CLK};
+    ledc_channel_config_t cc = {.gpio_num = CTRL_GPIO_FAN_PWM, .speed_mode = BLOWER_LEDC_MODE,
+                                .channel = BLOWER_LEDC_CHANNEL, .intr_type = LEDC_INTR_DISABLE,
+                                .timer_sel = BLOWER_LEDC_TIMER, .duty = 0, .hpoint = 0};
+    s_ledc_ok = ledc_timer_config(&tc) == ESP_OK && ledc_channel_config(&cc) == ESP_OK;
+    /* PCNT: count FG rising edges; read and cleared every blower tick into a 16-bit total. */
+    pcnt_unit_config_t uc = {.high_limit = 32767, .low_limit = -1};
+    pcnt_glitch_filter_config_t fc = {.max_glitch_ns = CTRL_BLOWER_TACH_GLITCH_NS};
+    pcnt_chan_config_t chc = {.edge_gpio_num = CTRL_GPIO_FAN_TACH, .level_gpio_num = -1};
+    pcnt_channel_handle_t ch = NULL;
+    bool tach_ok = pcnt_new_unit(&uc, &s_tach) == ESP_OK &&
+                   pcnt_unit_set_glitch_filter(s_tach, &fc) == ESP_OK &&
+                   pcnt_new_channel(s_tach, &chc, &ch) == ESP_OK &&
+                   pcnt_channel_set_edge_action(ch, PCNT_CHANNEL_EDGE_ACTION_INCREASE,
+                                                PCNT_CHANNEL_EDGE_ACTION_HOLD) == ESP_OK &&
+                   pcnt_unit_enable(s_tach) == ESP_OK && pcnt_unit_clear_count(s_tach) == ESP_OK &&
+                   pcnt_unit_start(s_tach) == ESP_OK;
+    if (!tach_ok) s_tach = NULL; /* no tach: blower_ctrl_step() sees count_ok=false = stalled */
+    return s_ledc_ok && tach_ok;
+}
+
 bool ctrl_board_init(void)
 {
     s_pins_ok = ctrl_board_apply_pins(&s_ops);
@@ -104,7 +148,9 @@ bool ctrl_board_init(void)
     if (!i2c_ok) ESP_LOGE(TAG, "TCA9555 setup failed: SUP_RUN_OK and RTD_DRDY read as not ok");
     bool ui_ok = ui_bus_create();
     if (!ui_ok) ESP_LOGE(TAG, "UI SPI3 bus setup failed");
-    return s_pins_ok && i2c_ok && ui_ok;
+    bool blower_ok = blower_create();
+    if (!blower_ok) ESP_LOGE(TAG, "blower LEDC/PCNT setup failed: blower at its full-speed default");
+    return s_pins_ok && i2c_ok && ui_ok && blower_ok;
 }
 
 bool ctrl_board_set_run_en(bool on)
@@ -150,19 +196,34 @@ bool ctrl_board_expander(ctrl_exp_cache_t *out)
     return out->valid;
 }
 
-/* ---------------------------------------------------------------- blower (STUB, controller L3) */
-bool ctrl_board_blower_drive(bool on, float drive)
+/* ---------------------------------------------------------------- blower (L3, C28) */
+bool ctrl_board_blower_apply(bool on, uint32_t ledc_counts)
 {
-    (void)on;
-    (void)drive;
-    /* TODO(controller L3): LEDC on CTRL_GPIO_FAN_PWM (never an internal pull-up: strap) and the
-     * expander FAN_OFF bit via ctrl_exp_init_writes(true, ...), output latch written first. */
-    return false;
+    bool ok = s_ledc_ok;
+    if (s_ledc_ok) {
+        uint32_t counts = on ? ledc_counts : 0u; /* off: duty 0, so a failed FAN_OFF runs full */
+        if (ledc_set_duty(BLOWER_LEDC_MODE, BLOWER_LEDC_CHANNEL, counts) != ESP_OK ||
+            ledc_update_duty(BLOWER_LEDC_MODE, BLOWER_LEDC_CHANNEL) != ESP_OK) {
+            (void)ledc_stop(BLOWER_LEDC_MODE, BLOWER_LEDC_CHANNEL, 0); /* idle low = full speed */
+            ok = false;
+        }
+    }
+    /* FAN_OFF only when explicitly asked; rewrite on change or after a failed write. */
+    bool off = !on;
+    if (s_fan_off_output && s_exp && (!s_fan_off_written || off != s_fan_off_last)) {
+        s_fan_off_written = exp_write(TCA9555_REG_OUTPUT1, ctrl_exp_output1(off));
+        s_fan_off_last = off;
+    }
+    return ok && s_fan_off_output && s_fan_off_written;
 }
 
-bool ctrl_board_blower_tach_hz(float *hz)
+bool ctrl_board_blower_tach_count(uint16_t *count)
 {
-    /* TODO(controller L3): PCNT on CTRL_GPIO_FAN_TACH (strap only with an eFuse; input only). */
-    *hz = 0.0f;
-    return false;
+    int v = 0;
+    if (!s_tach || pcnt_unit_get_count(s_tach, &v) != ESP_OK || pcnt_unit_clear_count(s_tach) != ESP_OK)
+        return false;
+    s_tach_total = (uint16_t)(s_tach_total + (uint16_t)v); /* a pulse between get and clear is
+                                                          * lost: the error reads slow (safe) */
+    *count = s_tach_total;
+    return true;
 }

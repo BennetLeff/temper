@@ -109,24 +109,28 @@ void test_cross_check_pass(void) {
         ntc_guard_cross_check(20.0f, 30.0f, false));
 }
 
-/* Conversion at the coordinator's check points, against the Vishay R-T table (doc 29049 p. 12):
- * 25 C 100.0 k, 100 C 5.835 k, 140 C 1.854 k, 150 C 1.434 k. The tolerance covers the 12-bit
- * count rounding (worst near 25 C, where the node sits at 91 % of v3v3). */
+/* Conversion at the check points through each fitted part (L3, DECISIONS C32):
+ *  - heatsink, Vishay R-T table (doc 29049 p. 12): 100 C 5.835 k, 140 C 1.854 k, 150 C 1.434 k;
+ *  - coil, Semitec 104GT-2 table (GT-2 data sheet 2023-08-01): 100 C 5.556 k, 140 C 1.758 k,
+ *    150 C 1.360 k, 170 C 0.8414 k.
+ * 25 C (100 k on both) sits above the ADC's 3.1 V range on a 10 k pull-up (3.004 V is inside;
+ * it is checked too). The tolerance covers the 12-bit count rounding. */
 void test_conversion_points_fitted_part(void) {
-    static const struct { float t_c, r_ohm, tol_k; } pts[] = {
-        {25.0f, 100000.0f, 0.15f}, {100.0f, 5835.0f, 0.1f}, {140.0f, 1854.0f, 0.1f}, {150.0f, 1434.0f, 0.1f}};
-    ntc_guard_t coil, sink;
-    ntc_guard_init_part(&coil, 0, &THERMAL_NTC_COIL);
-    ntc_guard_init_part(&sink, 1, &THERMAL_NTC_SINK);
+    static const struct { const ntc_channel_t *part; float t_c, r_ohm, tol_k; } pts[] = {
+        {&THERMAL_NTC_SINK, 25.0f, 100000.0f, 0.15f}, {&THERMAL_NTC_SINK, 100.0f, 5835.0f, 0.1f},
+        {&THERMAL_NTC_SINK, 140.0f, 1854.0f, 0.1f}, {&THERMAL_NTC_SINK, 150.0f, 1434.0f, 0.1f},
+        {&THERMAL_NTC_COIL, 25.0f, 100000.0f, 0.15f}, {&THERMAL_NTC_COIL, 100.0f, 5556.0f, 0.1f},
+        {&THERMAL_NTC_COIL, 140.0f, 1758.0f, 0.1f}, {&THERMAL_NTC_COIL, 150.0f, 1360.0f, 0.1f},
+        {&THERMAL_NTC_COIL, 170.0f, 841.4f, 0.15f}};
     for (unsigned i = 0; i < sizeof pts / sizeof pts[0]; i++) {
+        ntc_guard_t g;
+        ntc_guard_init_part(&g, 0, pts[i].part);
         float t = -999.0f;
-        TEST_ASSERT_EQUAL(NTC_GUARD_OK, ntc_guard_convert(&coil, counts_for_r(pts[i].r_ohm), &t));
-        TEST_ASSERT_FLOAT_WITHIN(pts[i].tol_k, pts[i].t_c, t);
-        TEST_ASSERT_EQUAL(NTC_GUARD_OK, ntc_guard_convert(&sink, counts_for_r(pts[i].r_ohm), &t));
+        TEST_ASSERT_EQUAL(NTC_GUARD_OK, ntc_guard_convert(&g, counts_for_r(pts[i].r_ohm), &t));
         TEST_ASSERT_FLOAT_WITHIN(pts[i].tol_k, pts[i].t_c, t);
         /* Same answer as the fan law's converter: one model for every consumer. */
         float t2 = -999.0f;
-        TEST_ASSERT_EQUAL(NTC_OK, ntc_channel_temp_c(&THERMAL_NTC_COIL,
+        TEST_ASSERT_EQUAL(NTC_OK, ntc_channel_temp_c(pts[i].part,
             (float)counts_for_r(pts[i].r_ohm) * 3304.0f / 4095.0f, &t2));
         TEST_ASSERT_FLOAT_WITHIN(1e-4f, t2, t);
     }
@@ -138,9 +142,14 @@ void test_open_and_short_fail_safe(void) {
     ntc_guard_t ctx;
     ntc_guard_init_part(&ctx, 0, &THERMAL_NTC_COIL);
     float t = 0.0f;
-    /* Open: node at the rail, and anything colder than -20 C. */
-    for (uint16_t raw = counts_for_r(1041000.0f) + 1u; raw <= 4095u; raw++)  /* -20 C: 1041 k */
+    /* Open: node at the rail, and anything colder than -20 C. Above the ADC's 3.1 V range
+     * (colder than ~15 C, or open) is ERR_RANGE: never a plausible "cool" reading. */
+    for (uint16_t raw = counts_for_r(1200000.0f) + 1u; raw <= 4095u; raw++)  /* < -20 C */
         TEST_ASSERT_EQUAL(NTC_GUARD_ERR_OPEN, ntc_guard_convert(&ctx, raw, &t));
+    for (uint16_t raw = (uint16_t)ceilf(THERMAL_ADC_MEAS_MAX_MV * 4095.0f / 3304.0f); raw <= 4095u; raw++) {
+        ntc_guard_status_t st = ntc_guard_convert(&ctx, raw, &t);
+        TEST_ASSERT_TRUE(st == NTC_GUARD_ERR_OPEN || st == NTC_GUARD_ERR_RANGE);
+    }
     /* Short: node at ground, and anything hotter than 200 C. */
     for (uint16_t raw = 0u; raw <= 170u; raw++)
         TEST_ASSERT_EQUAL(NTC_GUARD_ERR_SHORT, ntc_guard_convert(&ctx, raw, &t));
