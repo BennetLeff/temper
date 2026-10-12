@@ -467,7 +467,7 @@ To apply to the BOM after the C34 layout stage lands; none changes a footprint o
 - **R31** RC0603FR-078K06L (3 in stock) → **C861587** (8.06 k 1 % 0603). The match rests on parametric data only, so read the datasheet before applying.
 - **J13** BOM code C20571196 (not found) → **C160315**. Same MPN, code fix.
 - **R39** (MAX31865 RREF) RG2012V-431-W-T1 0.05 % (0 stock; no equal part in stock) → **RT0805BRD07430RL**, 0.1 %, ±25 ppm, for the prototype lot.
-  - The extra 0.05 % is about 0.13 °C at the pan's operating point. The 10 Ω / 300 Ω fault thresholds are unaffected.
+  - The extra 0.05 % is about 0.13–0.26 °C over 0–250 °C (PT100: 0.05 % of 100–194 Ω at 0.39–0.37 Ω/K). The 10 Ω / 300 Ω fault thresholds are unaffected.
 - **U14** AD8436BRQZ (0 stock): this is an owner decision.
   - Either consign 4 BRQZ (about $113 at DigiKey qty-1 prices), or fit AD8436ARQZ-R7 (C495329, 106 in stock; 0.5 % vs 0.25 %, ±500 vs ±250 µV offset) on the prototypes after an RMS-trip error-budget check.
 - **CPL:** 15 rotations are corrected in `cpl-jlcpcb.proposed.csv`. Fold them into the fab output with the C34 regeneration, after re-auditing any part C34 moves. The 37 NEEDS-PREVIEW lines are checked in JLC's preview, one designator per LCSC code.
