@@ -612,6 +612,13 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
 
         - The 1239 W hold of item 10 is met only with the blower off. With the blower running it is 6–10 % lower.
         - The round-6 yield figures assumed 11.1 A. The bench (COMMISSIONING step 8c) replaces the V³ model constants.
-      - The controller J13 / V15_BLW change is in progress on controller-layout.
+      - Controller: done on controller-layout (6e4cac49f, 2597045de; controller DECISIONS C33). J13 B2P-VH at (88, 85.65), confirmed by the enclosure session for R41; J13 pair 18 AWG (matches the JST 7 A AWG18 rating used in the controller check).
+      - Firmware: BLW_PG on expander P16 (fw/blw-pg 21f053a15, merged).
+        - A debounced PS3-absent blocks heating start ("NO BLOWER PWR").
+        - A blower stall while driven is labelled "PS3 absent" or "blower failed"; both take the C28 derate and `FAULT_FAN_FAILURE`.
+        - BLW_PG low while the tach turns latches a sense fault; BLW_PG is then ignored.
+        - The PS3 inlet allowance is never reduced on BLW_PG = 0.
+      - Accepted: if PS3 drops mid-cook while the fan law has the blower off (sink and coil below 50 °C), nothing derates until the fan law asks for the blower. The stall path then fires within about 1 s, far below the 88.6 °C fan setpoint and the 101.4 °C hardware trip. Derating directly on BLW_PG would let a stuck-low sense line derate falsely, and it cannot be checked for plausibility while the blower is idle.
+      - Bench: a BLW_PG stuck low blocks starts until serviced (the conservative side). COMMISSIONING checks P16 high with PS3 on and low with it unplugged.
     - **Gate scripts** are now committed in `native-21/layout/gates/` (the scratchpad copies were lost).
 
