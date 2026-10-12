@@ -622,7 +622,9 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
       - Bench: a BLW_PG stuck low blocks starts until serviced (the conservative side). COMMISSIONING checks P16 high with PS3 on and low with it unplugged.
       - Enclosure R41 (temper-f7, `output/temper-manufacturing-r41/design/r41/DECISIONS.md`, `evidence/ps3/ps3-clearances.json`):
         - PS3 moved to (−139, 98), case Z36.5–70 (was (−139, 95), Z32.5–70), on an earthed 2.03 mm 5052 shelf bracket clearing native-21's parts up to Z30.4.
-        - Clearances (housing-to-housing lower bounds): DC block to HOT 9.35 mm (≥ 8), AC block to HOT 7.14 mm (≥ 3.2), AC block to SELV 48.7 mm (≥ 8), J13 pair to HOT 8.65 mm (≥ 8), J11 lead to SELV 18.0 mm (no sleeve needed), bracket to native-21 parts 2.93 mm (≥ 2.0 basic).
+        - Clearances after the IRM-60-SPEC p.4 block model (blocks as scaled housings): DC block to HOT 9.01 mm (≥ 8), AC block to HOT 6.39 mm (≥ 3.2), AC block to SELV 40.0 mm (≥ 8), J13 pair to HOT 8.65 mm (≥ 8), J11 lead to SELV 15.8 mm (no sleeve needed), bracket to native-21 parts 2.93 mm (≥ 2.0 basic).
+        - The DC-block margin is 1.0 mm against a block size scaled from the drawing (±2 mm): measure a PS3 sample before the enclosure release.
+        - Screws: 4 × ISO 4762 M3×10 in PEM CLS-M3-2 nuts (M3×12 would come within 1.1 mm of native-21's parts).
         - Harness: J13 pair 2 × UL1007 18 AWG, 292 mm. J11 lead 2 × UL1015 18 AWG, 322 mm; its tie points move to R42.
         - The controller's J13 drop is rebased on contacts and copper at 80 °C: 172 mV, U2 headroom 0.92 V (controller-layout 0207a6974).
         - Coil field at PS3: 453–573 µT rms at the coil-side corner (study 12). Added bench item: PS3 ripple and stability at 28 A.
