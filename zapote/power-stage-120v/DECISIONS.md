@@ -481,7 +481,12 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
    - **Coil loss of record:** I²·R_ac with round 4's basis is **≈ 119 W at 22 A nominal, ≤ ≈ 198 W hot**; design for 200 W. Round 3's 48 W and the coil spec's 150–200 W are both superseded. The coil needs a ventilation bleed.
 6. **Open (power stage):** magnetic pickup under the coil (140–640 µT at 31 kHz) on the R5 Kelvin, CT and LINE_ZC loops. At about 1 A per mV at R35.2, the loop area matters. To be computed from the R32 field map.
 7. **Confirmed:**
-   - RES_A / coil to SELV is 242 V rms / 640 V pk working (ORACLE Q2);
+   - RES_A / coil to SELV is 242 V rms / 640 V pk working (ORACLE Q2). **Superseded 2026-10-12** (`owner-items/m6m10/coil-selv-28a/`, rerun reproduced): ORACLE Q2 assumed in-phase tank current.
+     - At 28 A the working voltage is **297 V rms / 656 V pk in normal use**, and 362 V rms / 791 V pk at the 29.4 A trip envelope.
+     - Reinforced creepage at PD3 / IIIa in the >250–400 V band is **12.6 mm** (8.0 mm at PD2). The board-wide 8.0 mm HOT/SELV/PE floor therefore holds only for nets at ≤ 250 V rms. RES_A and the coil winding need 12.6 mm on outer-surface paths. Paths through the inner-layer laminate are solid insulation.
+     - Stage-17b board measurement (outer layers, plan view): RES_A to SELV/PE is 8.14 mm to LINE_ZC_RAW and 9.40 mm to V15_SELV on B.Cu. Everything on F.Cu is ≥ 12.6 mm, and COIL_FEED has no outer-layer pair under 12.6 mm.
+     - **Stage 18 fixes the two B.Cu gaps** (reroute, or a slot), adds a 12.6 mm RES_A-specific floor to the barrier gate, and checks T1's (CT) primary–secondary rating at 297 V rms reinforced and 35–60 kHz.
+     - Coil spec row 12b is updated to match. Certifier questions: PD2 for the potted winding system, and line-cycle RMS vs carrier-crest RMS.
    - J6 stays: H1 is a bare NPTH, so the board's PE comes only through J6;
    - H2–H7 keep nylon pan heads (PEEK socket heads if V-0 is ever required);
    - chem film finish on the bar and sink, with the E1b ≤ 0.1 Ω / 25 A test.

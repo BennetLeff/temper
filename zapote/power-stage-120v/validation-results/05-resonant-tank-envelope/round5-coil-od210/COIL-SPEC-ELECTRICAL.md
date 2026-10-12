@@ -18,7 +18,7 @@ with line numbers at this commit. Every changed number is recomputed by `coil_sp
 | 5 AC resistance | 0.25 Ω hot at 40 kHz; 60 kHz point 0.241 Ω at 25 °C | **≤ 0.23 Ω hot at 40 kHz (0.178 Ω at 25 °C), and ≤ 0.2551 Ω hot (0.197 Ω at 25 °C) at every frequency 20–60 kHz**; the cap binds above about 48.3 kHz. 60 kHz point 0.197 Ω at 25 °C | 28 A needs R_ac ≤ about 0.23 Ω (DEC item 10 l. 516); 200 W / 28² cap (DEC item 5 l. 471, item 12 l. 531). R36 passes with margin |
 | 6 continuous current | 22 A RMS | **28 A RMS**, 35–60 kHz, plenum; commissioned in steps from 22 A | DEC item 10 l. 503–510, item 13 l. 551–554 |
 | 7 peak current | 98 A (stage-13 band top 97.77 A) | **117 A** (stage-17 band top 116.44 A) | DEC item 17 l. 687 |
-| 12b (new) insulation | none in this copy | winding insulation: reinforced, with test levels | DEC item 7 l. 474; `r43/COIL-PROTOTYPE-BUILD.md` l. 48–52; `ORACLE-ANSWER.md` Q3 |
+| 12b (new) insulation | none in this copy | winding insulation: reinforced at 300 V rms / 660 V pk (28 A), creepage 12.6 mm PD3, PD 1.2 kV pk; with test levels | DEC item 7 l. 474; `r43/COIL-PROTOTYPE-BUILD.md` l. 48–52; `ORACLE-ANSWER.md` Q3 |
 | §2 window-top bound | "hold 22 A", x_reg 1.45 | ceiling-independent: 1.45 still bounds 22–28 A (round-6 grid max 1.434 at 22 A, 1.321 at 28 A); floor 41.5 µH unchanged | `round6-full-power/outputs/grid6-*-I2*-cases.csv` |
 | §2 below-floor text, 47.32 A corner | shunt corner 47.32 A | dated as round 5 at 22 A; band is now 67.72–116.44 A | DEC item 17 l. 687 |
 | §2 resistance note | coil loss 121 W / 151 W at 22 A | 180 W at 40 kHz and 200 W at 60 kHz at 28 A; the earlier 0.25 Ω (196 W) form and its 245 W at 60 kHz are shown for the record | `coil_spec_28a_check.json` |
@@ -50,7 +50,19 @@ with line numbers at this commit. Every changed number is recomputed by `coil_sp
 | 10 | **Terminations** | Two leads in the winding's own Litz, terminated per row 15. Termination resistance is included in row 4 | Visual; row 4 |
 | 11 | **Temperature class** | Litz, strand enamel, serving and any impregnant rated **≥ 200 °C** continuous (thermal class 200). Former and carrier per row 13. Pan temperature is capped at 250 °C. The glass underside reaches 230–250 °C in the fry and empty-pan hold cases (R32 study 02) | Datasheet / CoC |
 | 12 | **Ferrite backing** | MnZn power ferrite, **N87/N97 class** (or equal: µi ≥ 2000, Curie ≥ 210 °C), **radial bars**, ≥ 8 × 20 mm wide, leaving the **≥ 14 mm cooling-jet lanes** between bars clear. Geometry per row 16. A plate or an air core is not acceptable: cooling, plus field pickup at the OCP Kelvin loop | Drawing check; rows 3 and 7 verify it electrically |
-| 12b | **Winding insulation (tank to SELV and PE)** | Working voltage of the winding against SELV and PE parts: **242 V rms / 640 V peak**, 33–60 kHz. Insulation to those parts is **reinforced**: creepage ≥ 8.0 mm (PD3, material group IIIa, >125–250 V band), clearance ≥ 3.0 mm, and the IEC 60664-4 distances above 30 kHz where larger. Test levels (proposed by the power stage; the certifier confirms): dielectric strength, winding to the ferrite, carrier screws and NTC leads, **3000 V rms for 1 min** after the humidity treatment, no breakdown; partial discharge **< 10 pC at 1.5 × U_rp = 960 V peak** (raised first to 1.875 × U_rp = 1200 V peak), at 50/60 Hz and, if a source is available, at about 40 kHz; production **3000 V for 1 s** | Hipot and PD test, CoC; creepage and clearance by drawing check |
+| 12b | **Winding insulation (tank to SELV and PE)** | Working voltage of the winding against SELV and PE parts:
+  - **300 V rms / 660 V peak** in normal use (28 A with a pan, 22 A without), at 35–60 kHz;
+  - up to **362 V rms / 791 V peak** at the 29.4 A trip envelope (fault).
+  - Evidence: `owner-items/m6m10/coil-selv-28a/`. That study supersedes 242 V rms / 640 V peak, which assumed in-phase tank current at 22 A.
+
+Insulation to those parts is **reinforced**:
+  - creepage **≥ 12.6 mm** (PD3, material group IIIa, >250–400 V band). 8.0 mm applies only if the certifier accepts PD2 for a sealed or potted winding system;
+  - clearance **≥ 3.0 mm** (verify);
+  - the IEC 60664-4 distances above 30 kHz, where those are larger.
+
+Test levels (proposed by the power stage; the certifier confirms). Dielectric strength is tested winding to the ferrite, the carrier screws and the NTC leads:
+  - **3000 V rms for 1 min** after the humidity treatment, with no breakdown;
+  - partial discharge **< 10 pC at 1.5 × U_rp = 1.2 kV peak** (U_rp = 791 V, the trip envelope), raised first to **1.5 kV peak**, at 50/60 Hz and, if a source is available, at about 40 kHz; production **3000 V for 1 s** | Hipot and PD test, CoC; creepage and clearance by drawing check |
 
 Row 12b sources: DECISIONS item 7 (l. 474, working voltage); `ORACLE-ANSWER.md` Q3 (reinforced 8.0 mm in the >125–250 V band; clearance about 3 mm from Table 16, marked "verify"); `D5-BASIS.md` l. 33–37 (IEC 60664-4 above 30 kHz);
 `r43/COIL-PROTOTYPE-BUILD.md` l. 48–52 (test levels). The DECISIONS 2026-10-08 M11 entry's hipot figures (l. 256–268) (type 3000 Vac 60 s, routine 2000 Vac 1 s, clearance 2.0 mm) belong to the mains-HOT-to-sink stack, not to this winding.
