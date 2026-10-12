@@ -1,0 +1,3301 @@
+{
+ "analytic_bound": [
+  {
+   "Xc_ohm": 9.428,
+   "ceiling_A": 22.0,
+   "corners": "orig: C 0.54 uF, f>=31.3 kHz (as M6)",
+   "crest_rms": 430.8,
+   "line_V": 108,
+   "t18_crest_extrapolated": false,
+   "t18_crest_mm": 5.4,
+   "t18_line_mm": 3.86,
+   "vpk_rho2": 609.3,
+   "vpk_rho2.113": 632.7,
+   "vrms_line": 304.6
+  },
+  {
+   "Xc_ohm": 9.428,
+   "ceiling_A": 22.0,
+   "corners": "orig: C 0.54 uF, f>=31.3 kHz (as M6)",
+   "crest_rms": 446.1,
+   "line_V": 120,
+   "t18_crest_extrapolated": false,
+   "t18_crest_mm": 5.6,
+   "t18_line_mm": 3.99,
+   "vpk_rho2": 630.9,
+   "vpk_rho2.113": 654.4,
+   "vrms_line": 315.4
+  },
+  {
+   "Xc_ohm": 9.428,
+   "ceiling_A": 22.0,
+   "corners": "orig: C 0.54 uF, f>=31.3 kHz (as M6)",
+   "crest_rms": 461.4,
+   "line_V": 132,
+   "t18_crest_extrapolated": false,
+   "t18_crest_mm": 5.8,
+   "t18_line_mm": 4.11,
+   "vpk_rho2": 652.5,
+   "vpk_rho2.113": 676.0,
+   "vrms_line": 326.2
+  },
+  {
+   "Xc_ohm": 9.428,
+   "ceiling_A": 22.0,
+   "corners": "orig: C 0.54 uF, f>=31.3 kHz (as M6)",
+   "crest_rms": 471.6,
+   "line_V": 140,
+   "t18_crest_extrapolated": false,
+   "t18_crest_mm": 5.93,
+   "t18_line_mm": 4.2,
+   "vpk_rho2": 666.9,
+   "vpk_rho2.113": 690.4,
+   "vrms_line": 333.4
+  },
+  {
+   "Xc_ohm": 9.428,
+   "ceiling_A": 27.2,
+   "corners": "orig: C 0.54 uF, f>=31.3 kHz (as M6)",
+   "crest_rms": 500.2,
+   "line_V": 108,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 6.3,
+   "t18_line_mm": 4.44,
+   "vpk_rho2": 707.4,
+   "vpk_rho2.113": 736.3,
+   "vrms_line": 353.6
+  },
+  {
+   "Xc_ohm": 9.428,
+   "ceiling_A": 27.2,
+   "corners": "orig: C 0.54 uF, f>=31.3 kHz (as M6)",
+   "crest_rms": 515.5,
+   "line_V": 120,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 6.5,
+   "t18_line_mm": 4.57,
+   "vpk_rho2": 729.0,
+   "vpk_rho2.113": 757.9,
+   "vrms_line": 364.4
+  },
+  {
+   "Xc_ohm": 9.428,
+   "ceiling_A": 27.2,
+   "corners": "orig: C 0.54 uF, f>=31.3 kHz (as M6)",
+   "crest_rms": 530.7,
+   "line_V": 132,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 6.7,
+   "t18_line_mm": 4.7,
+   "vpk_rho2": 750.6,
+   "vpk_rho2.113": 779.5,
+   "vrms_line": 375.2
+  },
+  {
+   "Xc_ohm": 9.428,
+   "ceiling_A": 27.2,
+   "corners": "orig: C 0.54 uF, f>=31.3 kHz (as M6)",
+   "crest_rms": 540.9,
+   "line_V": 140,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 6.83,
+   "t18_line_mm": 4.79,
+   "vpk_rho2": 765.0,
+   "vpk_rho2.113": 794.0,
+   "vrms_line": 382.4
+  },
+  {
+   "Xc_ohm": 9.428,
+   "ceiling_A": 28.0,
+   "corners": "orig: C 0.54 uF, f>=31.3 kHz (as M6)",
+   "crest_rms": 510.8,
+   "line_V": 108,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 6.44,
+   "t18_line_mm": 4.53,
+   "vpk_rho2": 722.4,
+   "vpk_rho2.113": 752.3,
+   "vrms_line": 361.2
+  },
+  {
+   "Xc_ohm": 9.428,
+   "ceiling_A": 28.0,
+   "corners": "orig: C 0.54 uF, f>=31.3 kHz (as M6)",
+   "crest_rms": 526.1,
+   "line_V": 120,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 6.64,
+   "t18_line_mm": 4.66,
+   "vpk_rho2": 744.0,
+   "vpk_rho2.113": 773.9,
+   "vrms_line": 372.0
+  },
+  {
+   "Xc_ohm": 9.428,
+   "ceiling_A": 28.0,
+   "corners": "orig: C 0.54 uF, f>=31.3 kHz (as M6)",
+   "crest_rms": 541.4,
+   "line_V": 132,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 6.84,
+   "t18_line_mm": 4.79,
+   "vpk_rho2": 765.7,
+   "vpk_rho2.113": 795.5,
+   "vrms_line": 382.8
+  },
+  {
+   "Xc_ohm": 9.428,
+   "ceiling_A": 28.0,
+   "corners": "orig: C 0.54 uF, f>=31.3 kHz (as M6)",
+   "crest_rms": 551.6,
+   "line_V": 140,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 6.97,
+   "t18_line_mm": 4.88,
+   "vpk_rho2": 780.1,
+   "vpk_rho2.113": 809.9,
+   "vrms_line": 390.0
+  },
+  {
+   "Xc_ohm": 9.428,
+   "ceiling_A": 29.4,
+   "corners": "orig: C 0.54 uF, f>=31.3 kHz (as M6)",
+   "crest_rms": 529.5,
+   "line_V": 108,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 6.68,
+   "t18_line_mm": 4.69,
+   "vpk_rho2": 748.8,
+   "vpk_rho2.113": 780.2,
+   "vrms_line": 374.4
+  },
+  {
+   "Xc_ohm": 9.428,
+   "ceiling_A": 29.4,
+   "corners": "orig: C 0.54 uF, f>=31.3 kHz (as M6)",
+   "crest_rms": 544.8,
+   "line_V": 120,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 6.88,
+   "t18_line_mm": 4.82,
+   "vpk_rho2": 770.4,
+   "vpk_rho2.113": 801.8,
+   "vrms_line": 385.2
+  },
+  {
+   "Xc_ohm": 9.428,
+   "ceiling_A": 29.4,
+   "corners": "orig: C 0.54 uF, f>=31.3 kHz (as M6)",
+   "crest_rms": 560.1,
+   "line_V": 132,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 7.08,
+   "t18_line_mm": 4.95,
+   "vpk_rho2": 792.1,
+   "vpk_rho2.113": 823.4,
+   "vrms_line": 396.0
+  },
+  {
+   "Xc_ohm": 9.428,
+   "ceiling_A": 29.4,
+   "corners": "orig: C 0.54 uF, f>=31.3 kHz (as M6)",
+   "crest_rms": 570.3,
+   "line_V": 140,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 7.21,
+   "t18_line_mm": 5.04,
+   "vpk_rho2": 806.5,
+   "vpk_rho2.113": 837.8,
+   "vrms_line": 403.2
+  },
+  {
+   "Xc_ohm": 9.095,
+   "ceiling_A": 22.0,
+   "corners": "design: C 0.50 uF nominal, f>=35 kHz floor",
+   "crest_rms": 420.5,
+   "line_V": 108,
+   "t18_crest_extrapolated": false,
+   "t18_crest_mm": 5.27,
+   "t18_line_mm": 3.77,
+   "vpk_rho2": 594.6,
+   "vpk_rho2.113": 617.2,
+   "vrms_line": 297.3
+  },
+  {
+   "Xc_ohm": 9.095,
+   "ceiling_A": 22.0,
+   "corners": "design: C 0.50 uF nominal, f>=35 kHz floor",
+   "crest_rms": 435.7,
+   "line_V": 120,
+   "t18_crest_extrapolated": false,
+   "t18_crest_mm": 5.46,
+   "t18_line_mm": 3.9,
+   "vpk_rho2": 616.2,
+   "vpk_rho2.113": 638.8,
+   "vrms_line": 308.1
+  },
+  {
+   "Xc_ohm": 9.095,
+   "ceiling_A": 22.0,
+   "corners": "design: C 0.50 uF nominal, f>=35 kHz floor",
+   "crest_rms": 451.0,
+   "line_V": 132,
+   "t18_crest_extrapolated": false,
+   "t18_crest_mm": 5.66,
+   "t18_line_mm": 4.03,
+   "vpk_rho2": 637.8,
+   "vpk_rho2.113": 660.5,
+   "vrms_line": 318.9
+  },
+  {
+   "Xc_ohm": 9.095,
+   "ceiling_A": 22.0,
+   "corners": "design: C 0.50 uF nominal, f>=35 kHz floor",
+   "crest_rms": 461.2,
+   "line_V": 140,
+   "t18_crest_extrapolated": false,
+   "t18_crest_mm": 5.8,
+   "t18_line_mm": 4.11,
+   "vpk_rho2": 652.2,
+   "vpk_rho2.113": 674.9,
+   "vrms_line": 326.1
+  },
+  {
+   "Xc_ohm": 9.095,
+   "ceiling_A": 27.2,
+   "corners": "design: C 0.50 uF nominal, f>=35 kHz floor",
+   "crest_rms": 487.3,
+   "line_V": 108,
+   "t18_crest_extrapolated": false,
+   "t18_crest_mm": 6.14,
+   "t18_line_mm": 4.33,
+   "vpk_rho2": 689.2,
+   "vpk_rho2.113": 717.2,
+   "vrms_line": 344.6
+  },
+  {
+   "Xc_ohm": 9.095,
+   "ceiling_A": 27.2,
+   "corners": "design: C 0.50 uF nominal, f>=35 kHz floor",
+   "crest_rms": 502.6,
+   "line_V": 120,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 6.33,
+   "t18_line_mm": 4.46,
+   "vpk_rho2": 710.8,
+   "vpk_rho2.113": 738.8,
+   "vrms_line": 355.4
+  },
+  {
+   "Xc_ohm": 9.095,
+   "ceiling_A": 27.2,
+   "corners": "design: C 0.50 uF nominal, f>=35 kHz floor",
+   "crest_rms": 517.9,
+   "line_V": 132,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 6.53,
+   "t18_line_mm": 4.59,
+   "vpk_rho2": 732.4,
+   "vpk_rho2.113": 760.4,
+   "vrms_line": 366.2
+  },
+  {
+   "Xc_ohm": 9.095,
+   "ceiling_A": 27.2,
+   "corners": "design: C 0.50 uF nominal, f>=35 kHz floor",
+   "crest_rms": 528.1,
+   "line_V": 140,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 6.67,
+   "t18_line_mm": 4.68,
+   "vpk_rho2": 746.8,
+   "vpk_rho2.113": 774.8,
+   "vrms_line": 373.4
+  },
+  {
+   "Xc_ohm": 9.095,
+   "ceiling_A": 28.0,
+   "corners": "design: C 0.50 uF nominal, f>=35 kHz floor",
+   "crest_rms": 497.6,
+   "line_V": 108,
+   "t18_crest_extrapolated": false,
+   "t18_crest_mm": 6.27,
+   "t18_line_mm": 4.42,
+   "vpk_rho2": 703.8,
+   "vpk_rho2.113": 732.5,
+   "vrms_line": 351.8
+  },
+  {
+   "Xc_ohm": 9.095,
+   "ceiling_A": 28.0,
+   "corners": "design: C 0.50 uF nominal, f>=35 kHz floor",
+   "crest_rms": 512.9,
+   "line_V": 120,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 6.47,
+   "t18_line_mm": 4.55,
+   "vpk_rho2": 725.4,
+   "vpk_rho2.113": 754.1,
+   "vrms_line": 362.6
+  },
+  {
+   "Xc_ohm": 9.095,
+   "ceiling_A": 28.0,
+   "corners": "design: C 0.50 uF nominal, f>=35 kHz floor",
+   "crest_rms": 528.2,
+   "line_V": 132,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 6.67,
+   "t18_line_mm": 4.68,
+   "vpk_rho2": 747.0,
+   "vpk_rho2.113": 775.8,
+   "vrms_line": 373.4
+  },
+  {
+   "Xc_ohm": 9.095,
+   "ceiling_A": 28.0,
+   "corners": "design: C 0.50 uF nominal, f>=35 kHz floor",
+   "crest_rms": 538.4,
+   "line_V": 140,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 6.8,
+   "t18_line_mm": 4.77,
+   "vpk_rho2": 761.4,
+   "vpk_rho2.113": 790.2,
+   "vrms_line": 380.6
+  },
+  {
+   "Xc_ohm": 9.095,
+   "ceiling_A": 29.4,
+   "corners": "design: C 0.50 uF nominal, f>=35 kHz floor",
+   "crest_rms": 515.6,
+   "line_V": 108,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 6.5,
+   "t18_line_mm": 4.57,
+   "vpk_rho2": 729.2,
+   "vpk_rho2.113": 759.4,
+   "vrms_line": 364.6
+  },
+  {
+   "Xc_ohm": 9.095,
+   "ceiling_A": 29.4,
+   "corners": "design: C 0.50 uF nominal, f>=35 kHz floor",
+   "crest_rms": 530.9,
+   "line_V": 120,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 6.7,
+   "t18_line_mm": 4.7,
+   "vpk_rho2": 750.8,
+   "vpk_rho2.113": 781.1,
+   "vrms_line": 375.4
+  },
+  {
+   "Xc_ohm": 9.095,
+   "ceiling_A": 29.4,
+   "corners": "design: C 0.50 uF nominal, f>=35 kHz floor",
+   "crest_rms": 546.2,
+   "line_V": 132,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 6.9,
+   "t18_line_mm": 4.83,
+   "vpk_rho2": 772.4,
+   "vpk_rho2.113": 802.7,
+   "vrms_line": 386.2
+  },
+  {
+   "Xc_ohm": 9.095,
+   "ceiling_A": 29.4,
+   "corners": "design: C 0.50 uF nominal, f>=35 kHz floor",
+   "crest_rms": 556.4,
+   "line_V": 140,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 7.03,
+   "t18_line_mm": 4.92,
+   "vpk_rho2": 786.8,
+   "vpk_rho2.113": 817.1,
+   "vrms_line": 393.4
+  },
+  {
+   "Xc_ohm": 10.105,
+   "ceiling_A": 22.0,
+   "corners": "design worst: C 0.45 uF (-10 %), f>=35 kHz floor",
+   "crest_rms": 451.9,
+   "line_V": 108,
+   "t18_crest_extrapolated": false,
+   "t18_crest_mm": 5.67,
+   "t18_line_mm": 4.03,
+   "vpk_rho2": 639.1,
+   "vpk_rho2.113": 664.2,
+   "vrms_line": 319.5
+  },
+  {
+   "Xc_ohm": 10.105,
+   "ceiling_A": 22.0,
+   "corners": "design worst: C 0.45 uF (-10 %), f>=35 kHz floor",
+   "crest_rms": 467.2,
+   "line_V": 120,
+   "t18_crest_extrapolated": false,
+   "t18_crest_mm": 5.87,
+   "t18_line_mm": 4.16,
+   "vpk_rho2": 660.7,
+   "vpk_rho2.113": 685.8,
+   "vrms_line": 330.3
+  },
+  {
+   "Xc_ohm": 10.105,
+   "ceiling_A": 22.0,
+   "corners": "design worst: C 0.45 uF (-10 %), f>=35 kHz floor",
+   "crest_rms": 482.5,
+   "line_V": 132,
+   "t18_crest_extrapolated": false,
+   "t18_crest_mm": 6.07,
+   "t18_line_mm": 4.29,
+   "vpk_rho2": 682.3,
+   "vpk_rho2.113": 707.4,
+   "vrms_line": 341.1
+  },
+  {
+   "Xc_ohm": 10.105,
+   "ceiling_A": 22.0,
+   "corners": "design worst: C 0.45 uF (-10 %), f>=35 kHz floor",
+   "crest_rms": 492.6,
+   "line_V": 140,
+   "t18_crest_extrapolated": false,
+   "t18_crest_mm": 6.2,
+   "t18_line_mm": 4.38,
+   "vpk_rho2": 696.7,
+   "vpk_rho2.113": 721.8,
+   "vrms_line": 348.3
+  },
+  {
+   "Xc_ohm": 10.105,
+   "ceiling_A": 27.2,
+   "corners": "design worst: C 0.45 uF (-10 %), f>=35 kHz floor",
+   "crest_rms": 526.2,
+   "line_V": 108,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 6.64,
+   "t18_line_mm": 4.66,
+   "vpk_rho2": 744.2,
+   "vpk_rho2.113": 775.2,
+   "vrms_line": 372.1
+  },
+  {
+   "Xc_ohm": 10.105,
+   "ceiling_A": 27.2,
+   "corners": "design worst: C 0.45 uF (-10 %), f>=35 kHz floor",
+   "crest_rms": 541.5,
+   "line_V": 120,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 6.84,
+   "t18_line_mm": 4.79,
+   "vpk_rho2": 765.8,
+   "vpk_rho2.113": 796.9,
+   "vrms_line": 382.9
+  },
+  {
+   "Xc_ohm": 10.105,
+   "ceiling_A": 27.2,
+   "corners": "design worst: C 0.45 uF (-10 %), f>=35 kHz floor",
+   "crest_rms": 556.8,
+   "line_V": 132,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 7.04,
+   "t18_line_mm": 4.92,
+   "vpk_rho2": 787.4,
+   "vpk_rho2.113": 818.5,
+   "vrms_line": 393.7
+  },
+  {
+   "Xc_ohm": 10.105,
+   "ceiling_A": 27.2,
+   "corners": "design worst: C 0.45 uF (-10 %), f>=35 kHz floor",
+   "crest_rms": 567.0,
+   "line_V": 140,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 7.17,
+   "t18_line_mm": 5.01,
+   "vpk_rho2": 801.8,
+   "vpk_rho2.113": 832.9,
+   "vrms_line": 400.9
+  },
+  {
+   "Xc_ohm": 10.105,
+   "ceiling_A": 28.0,
+   "corners": "design worst: C 0.45 uF (-10 %), f>=35 kHz floor",
+   "crest_rms": 537.7,
+   "line_V": 108,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 6.79,
+   "t18_line_mm": 4.76,
+   "vpk_rho2": 760.4,
+   "vpk_rho2.113": 792.3,
+   "vrms_line": 380.1
+  },
+  {
+   "Xc_ohm": 10.105,
+   "ceiling_A": 28.0,
+   "corners": "design worst: C 0.45 uF (-10 %), f>=35 kHz floor",
+   "crest_rms": 552.9,
+   "line_V": 120,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 6.99,
+   "t18_line_mm": 4.89,
+   "vpk_rho2": 782.0,
+   "vpk_rho2.113": 813.9,
+   "vrms_line": 390.9
+  },
+  {
+   "Xc_ohm": 10.105,
+   "ceiling_A": 28.0,
+   "corners": "design worst: C 0.45 uF (-10 %), f>=35 kHz floor",
+   "crest_rms": 568.2,
+   "line_V": 132,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 7.19,
+   "t18_line_mm": 5.02,
+   "vpk_rho2": 803.6,
+   "vpk_rho2.113": 835.5,
+   "vrms_line": 401.7
+  },
+  {
+   "Xc_ohm": 10.105,
+   "ceiling_A": 28.0,
+   "corners": "design worst: C 0.45 uF (-10 %), f>=35 kHz floor",
+   "crest_rms": 578.4,
+   "line_V": 140,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 7.32,
+   "t18_line_mm": 5.12,
+   "vpk_rho2": 818.0,
+   "vpk_rho2.113": 849.9,
+   "vrms_line": 408.9
+  },
+  {
+   "Xc_ohm": 10.105,
+   "ceiling_A": 29.4,
+   "corners": "design worst: C 0.45 uF (-10 %), f>=35 kHz floor",
+   "crest_rms": 557.7,
+   "line_V": 108,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 7.05,
+   "t18_line_mm": 4.93,
+   "vpk_rho2": 788.6,
+   "vpk_rho2.113": 822.2,
+   "vrms_line": 394.3
+  },
+  {
+   "Xc_ohm": 10.105,
+   "ceiling_A": 29.4,
+   "corners": "design worst: C 0.45 uF (-10 %), f>=35 kHz floor",
+   "crest_rms": 572.9,
+   "line_V": 120,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 7.25,
+   "t18_line_mm": 5.07,
+   "vpk_rho2": 810.3,
+   "vpk_rho2.113": 843.8,
+   "vrms_line": 405.1
+  },
+  {
+   "Xc_ohm": 10.105,
+   "ceiling_A": 29.4,
+   "corners": "design worst: C 0.45 uF (-10 %), f>=35 kHz floor",
+   "crest_rms": 588.2,
+   "line_V": 132,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 7.45,
+   "t18_line_mm": 5.21,
+   "vpk_rho2": 831.9,
+   "vpk_rho2.113": 865.4,
+   "vrms_line": 415.9
+  },
+  {
+   "Xc_ohm": 10.105,
+   "ceiling_A": 29.4,
+   "corners": "design worst: C 0.45 uF (-10 %), f>=35 kHz floor",
+   "crest_rms": 598.4,
+   "line_V": 140,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 7.58,
+   "t18_line_mm": 5.3,
+   "vpk_rho2": 846.3,
+   "vpk_rho2.113": 879.8,
+   "vrms_line": 423.1
+  },
+  {
+   "Xc_ohm": 11.314,
+   "ceiling_A": 22.0,
+   "corners": "below-floor fault corner: C 0.45 uF, f>=31.3 kHz",
+   "crest_rms": 489.5,
+   "line_V": 108,
+   "t18_crest_extrapolated": false,
+   "t18_crest_mm": 6.16,
+   "t18_line_mm": 4.35,
+   "vpk_rho2": 692.3,
+   "vpk_rho2.113": 720.4,
+   "vrms_line": 346.1
+  },
+  {
+   "Xc_ohm": 11.314,
+   "ceiling_A": 22.0,
+   "corners": "below-floor fault corner: C 0.45 uF, f>=31.3 kHz",
+   "crest_rms": 504.8,
+   "line_V": 120,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 6.36,
+   "t18_line_mm": 4.48,
+   "vpk_rho2": 713.9,
+   "vpk_rho2.113": 742.0,
+   "vrms_line": 356.9
+  },
+  {
+   "Xc_ohm": 11.314,
+   "ceiling_A": 22.0,
+   "corners": "below-floor fault corner: C 0.45 uF, f>=31.3 kHz",
+   "crest_rms": 520.1,
+   "line_V": 132,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 6.56,
+   "t18_line_mm": 4.61,
+   "vpk_rho2": 735.5,
+   "vpk_rho2.113": 763.6,
+   "vrms_line": 367.7
+  },
+  {
+   "Xc_ohm": 11.314,
+   "ceiling_A": 22.0,
+   "corners": "below-floor fault corner: C 0.45 uF, f>=31.3 kHz",
+   "crest_rms": 530.3,
+   "line_V": 140,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 6.69,
+   "t18_line_mm": 4.7,
+   "vpk_rho2": 749.9,
+   "vpk_rho2.113": 778.0,
+   "vrms_line": 374.9
+  },
+  {
+   "Xc_ohm": 11.314,
+   "ceiling_A": 27.2,
+   "corners": "below-floor fault corner: C 0.45 uF, f>=31.3 kHz",
+   "crest_rms": 572.7,
+   "line_V": 108,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 7.25,
+   "t18_line_mm": 5.06,
+   "vpk_rho2": 809.9,
+   "vpk_rho2.113": 844.7,
+   "vrms_line": 404.9
+  },
+  {
+   "Xc_ohm": 11.314,
+   "ceiling_A": 27.2,
+   "corners": "below-floor fault corner: C 0.45 uF, f>=31.3 kHz",
+   "crest_rms": 588.0,
+   "line_V": 120,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 7.44,
+   "t18_line_mm": 5.2,
+   "vpk_rho2": 831.5,
+   "vpk_rho2.113": 866.3,
+   "vrms_line": 415.7
+  },
+  {
+   "Xc_ohm": 11.314,
+   "ceiling_A": 27.2,
+   "corners": "below-floor fault corner: C 0.45 uF, f>=31.3 kHz",
+   "crest_rms": 603.3,
+   "line_V": 132,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 7.64,
+   "t18_line_mm": 5.34,
+   "vpk_rho2": 853.1,
+   "vpk_rho2.113": 887.9,
+   "vrms_line": 426.5
+  },
+  {
+   "Xc_ohm": 11.314,
+   "ceiling_A": 27.2,
+   "corners": "below-floor fault corner: C 0.45 uF, f>=31.3 kHz",
+   "crest_rms": 613.5,
+   "line_V": 140,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 7.77,
+   "t18_line_mm": 5.44,
+   "vpk_rho2": 867.6,
+   "vpk_rho2.113": 902.3,
+   "vrms_line": 433.7
+  },
+  {
+   "Xc_ohm": 11.314,
+   "ceiling_A": 28.0,
+   "corners": "below-floor fault corner: C 0.45 uF, f>=31.3 kHz",
+   "crest_rms": 585.5,
+   "line_V": 108,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 7.41,
+   "t18_line_mm": 5.18,
+   "vpk_rho2": 828.0,
+   "vpk_rho2.113": 863.8,
+   "vrms_line": 414.0
+  },
+  {
+   "Xc_ohm": 11.314,
+   "ceiling_A": 28.0,
+   "corners": "below-floor fault corner: C 0.45 uF, f>=31.3 kHz",
+   "crest_rms": 600.8,
+   "line_V": 120,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 7.61,
+   "t18_line_mm": 5.32,
+   "vpk_rho2": 849.6,
+   "vpk_rho2.113": 885.4,
+   "vrms_line": 424.8
+  },
+  {
+   "Xc_ohm": 11.314,
+   "ceiling_A": 28.0,
+   "corners": "below-floor fault corner: C 0.45 uF, f>=31.3 kHz",
+   "crest_rms": 616.1,
+   "line_V": 132,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 7.81,
+   "t18_line_mm": 5.46,
+   "vpk_rho2": 871.3,
+   "vpk_rho2.113": 907.0,
+   "vrms_line": 435.6
+  },
+  {
+   "Xc_ohm": 11.314,
+   "ceiling_A": 28.0,
+   "corners": "below-floor fault corner: C 0.45 uF, f>=31.3 kHz",
+   "crest_rms": 626.3,
+   "line_V": 140,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 7.94,
+   "t18_line_mm": 5.56,
+   "vpk_rho2": 885.7,
+   "vpk_rho2.113": 921.5,
+   "vrms_line": 442.8
+  },
+  {
+   "Xc_ohm": 11.314,
+   "ceiling_A": 29.4,
+   "corners": "below-floor fault corner: C 0.45 uF, f>=31.3 kHz",
+   "crest_rms": 607.9,
+   "line_V": 108,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 7.7,
+   "t18_line_mm": 5.39,
+   "vpk_rho2": 859.7,
+   "vpk_rho2.113": 897.3,
+   "vrms_line": 429.8
+  },
+  {
+   "Xc_ohm": 11.314,
+   "ceiling_A": 29.4,
+   "corners": "below-floor fault corner: C 0.45 uF, f>=31.3 kHz",
+   "crest_rms": 623.2,
+   "line_V": 120,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 7.9,
+   "t18_line_mm": 5.53,
+   "vpk_rho2": 881.3,
+   "vpk_rho2.113": 918.9,
+   "vrms_line": 440.6
+  },
+  {
+   "Xc_ohm": 11.314,
+   "ceiling_A": 29.4,
+   "corners": "below-floor fault corner: C 0.45 uF, f>=31.3 kHz",
+   "crest_rms": 638.5,
+   "line_V": 132,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 8.1,
+   "t18_line_mm": 5.67,
+   "vpk_rho2": 902.9,
+   "vpk_rho2.113": 940.5,
+   "vrms_line": 451.4
+  },
+  {
+   "Xc_ohm": 11.314,
+   "ceiling_A": 29.4,
+   "corners": "below-floor fault corner: C 0.45 uF, f>=31.3 kHz",
+   "crest_rms": 648.7,
+   "line_V": 140,
+   "t18_crest_extrapolated": true,
+   "t18_crest_mm": 8.23,
+   "t18_line_mm": 5.76,
+   "vpk_rho2": 917.3,
+   "vpk_rho2.113": 954.9,
+   "vrms_line": 458.6
+  }
+ ],
+ "bus280_screen": {
+  "22.0": {
+   "note": "D-31 OVP fault screen (bus 280 V, flat); not a working voltage, flagged only",
+   "vpk": 801.1,
+   "vrms_line_if_pk_over_2": 400.6
+  },
+  "28.0": {
+   "note": "D-31 OVP fault screen (bus 280 V, flat); not a working voltage, flagged only",
+   "vpk": 922.4,
+   "vrms_line_if_pk_over_2": 461.2
+  }
+ },
+ "ceiling_for_400V_rms": {
+  "below-floor fault corner: C 0.45 uF, f>=31.3 kHz": {
+   "108": 26.76,
+   "120": 25.81,
+   "132": 24.85,
+   "140": 24.22
+  },
+  "design worst: C 0.45 uF (-10 %), f>=35 kHz floor": {
+   "108": 29.97,
+   "120": 28.9,
+   "132": 27.83,
+   "140": 27.12
+  },
+  "design: C 0.50 uF nominal, f>=35 kHz floor": {
+   "108": 33.29,
+   "120": 32.11,
+   "132": 30.92,
+   "140": 30.13
+  },
+  "orig: C 0.54 uF, f>=31.3 kHz (as M6)": {
+   "108": 32.12,
+   "120": 30.97,
+   "132": 29.83,
+   "140": 29.06
+  }
+ },
+ "constants": {
+  "L_installed_uH": [
+   59.85,
+   66.5,
+   73.15
+  ],
+  "bank_C_uF": [
+   0.45,
+   0.5,
+   0.55
+  ],
+  "clearance_mm_repo": 1.3,
+  "f_floor_kHz": 35.0,
+  "lines_V": [
+   108.0,
+   120.0,
+   132.0,
+   140.0
+  ],
+  "table18_rows_V_mm": [
+   [
+    250.0,
+    3.2
+   ],
+   [
+    400.0,
+    5.0
+   ],
+   [
+    500.0,
+    6.3
+   ]
+  ],
+  "zvs_ratio": 1.05
+ },
+ "controls": {
+  "C1_original_bound_22A": {
+   "132": {
+    "t18_mm": 4.11,
+    "vpk": 652.5,
+    "vrms": 326.2
+   },
+   "140": {
+    "t18_mm": 4.2,
+    "vpk": 666.9,
+    "vrms": 333.4
+   },
+   "PASS": true,
+   "Xc_ohm": 9.428,
+   "f_res_kHz": 31.26
+  },
+  "C2_retained_cases": {
+   "PASS": true,
+   "crest_rms_of_vpk_max": 449.9,
+   "t18_crest_mm": 5.65,
+   "vpk_max": 636.2,
+   "vrms_max": 320.5,
+   "vrms_min": 304.7
+  },
+  "C3_stage15_bank_peak": {
+   "22": {
+    "bank_vpk_csv": 470.7,
+    "bank_vpk_recomputed": 466.62,
+    "bank_vrms_csv": 235.54,
+    "n_cases": 630
+   },
+   "28": {
+    "bank_vpk_csv": 483.72,
+    "bank_vpk_recomputed": 492.43,
+    "bank_vrms_csv": 243.11,
+    "n_cases": 405
+   },
+   "PASS": true,
+   "note": "483.72 V is the C21-C23 BANK voltage (RES_A to SW_B), not the coil voltage; fault_check.py's 'bank_Vpk' columns (1247-2038 V) are the OCP-fault bank peaks, a different quantity. Same round6 FHA case model as used below."
+  },
+  "model_drive_residual_max_rel": 0.058
+ },
+ "f_floor_for_400V_28A_140V_C0p45_kHz": 36.14,
+ "gap_verdicts": {
+  "28.0": [
+   {
+    "actual_mm": 5.0,
+    "clearance_ok": true,
+    "crest_rms_V": 583.0,
+    "gap": "RES_A-COIL_FEED (J5/J2 copper, F/B.Cu plan view)",
+    "line_rms_V": 412.2,
+    "orig_corner_line_rms_V": 389.7,
+    "orig_corner_req_line_mm": 4.88,
+    "pair": "SW_A_RES_A",
+    "pan_model_L70_line_rms_V": 352.3,
+    "pan_model_L70_req_line_mm": 4.43,
+    "pan_model_L70_verdict": "PASS",
+    "pk_V": 762.4,
+    "req_crest_extrapolated": true,
+    "req_crest_mm": 7.38,
+    "req_line_mm": 5.16,
+    "verdict_crest_rms": "FAIL",
+    "verdict_line_rms": "FAIL"
+   },
+   {
+    "actual_mm": 5.0,
+    "clearance_ok": true,
+    "crest_rms_V": 583.0,
+    "gap": "RES_A-SW_A (F.Cu lane, 74 mm of edge; incl. T1 1-turn drop, neglected)",
+    "line_rms_V": 412.2,
+    "orig_corner_line_rms_V": 389.7,
+    "orig_corner_req_line_mm": 4.88,
+    "pair": "SW_A_RES_A",
+    "pan_model_L70_line_rms_V": 352.3,
+    "pan_model_L70_req_line_mm": 4.43,
+    "pan_model_L70_verdict": "PASS",
+    "pk_V": 762.4,
+    "req_crest_extrapolated": true,
+    "req_crest_mm": 7.38,
+    "req_line_mm": 5.16,
+    "verdict_crest_rms": "FAIL",
+    "verdict_line_rms": "FAIL"
+   },
+   {
+    "actual_mm": 5.0,
+    "clearance_ok": true,
+    "crest_rms_V": 583.0,
+    "gap": "J2-J5 insulated ring to ring (any rotation)",
+    "line_rms_V": 412.2,
+    "orig_corner_line_rms_V": 389.7,
+    "orig_corner_req_line_mm": 4.88,
+    "pair": "SW_A_RES_A",
+    "pan_model_L70_line_rms_V": 352.3,
+    "pan_model_L70_req_line_mm": 4.43,
+    "pan_model_L70_verdict": "PASS",
+    "pk_V": 762.4,
+    "req_crest_extrapolated": true,
+    "req_crest_mm": 7.38,
+    "req_line_mm": 5.16,
+    "verdict_crest_rms": "FAIL",
+    "verdict_line_rms": "FAIL"
+   },
+   {
+    "actual_mm": 8.0,
+    "clearance_ok": true,
+    "crest_rms_V": 583.0,
+    "gap": "J2-J5 REDCUBE body to body (15 mm pitch)",
+    "line_rms_V": 412.2,
+    "orig_corner_line_rms_V": 389.7,
+    "orig_corner_req_line_mm": 4.88,
+    "pair": "SW_A_RES_A",
+    "pan_model_L70_line_rms_V": 352.3,
+    "pan_model_L70_req_line_mm": 4.43,
+    "pan_model_L70_verdict": "PASS",
+    "pk_V": 762.4,
+    "req_crest_extrapolated": true,
+    "req_crest_mm": 7.38,
+    "req_line_mm": 5.16,
+    "verdict_crest_rms": "PASS",
+    "verdict_line_rms": "PASS"
+   },
+   {
+    "actual_mm": 5.002,
+    "clearance_ok": true,
+    "crest_rms_V": 399.9,
+    "gap": "RES_A-SW_B (B.Cu, resonant-capacitor voltage)",
+    "line_rms_V": 282.8,
+    "orig_corner_line_rms_V": 264.0,
+    "orig_corner_req_line_mm": 3.37,
+    "pair": "RES_A_SW_B",
+    "pan_model_L70_line_rms_V": 228.7,
+    "pan_model_L70_req_line_mm": 3.2,
+    "pan_model_L70_verdict": "PASS",
+    "pk_V": 565.6,
+    "req_crest_extrapolated": false,
+    "req_crest_mm": 5.0,
+    "req_line_mm": 3.59,
+    "verdict_crest_rms": "PASS",
+    "verdict_line_rms": "PASS"
+   },
+   {
+    "actual_mm": 5.002,
+    "clearance_ok": true,
+    "crest_rms_V": 499.6,
+    "gap": "RES_A-N_LS (In1; LOW group, LEG_RET-referenced)",
+    "line_rms_V": 353.3,
+    "orig_corner_line_rms_V": 331.6,
+    "orig_corner_req_line_mm": 4.18,
+    "pair": "RES_A",
+    "pan_model_L70_line_rms_V": 297.0,
+    "pan_model_L70_req_line_mm": 3.76,
+    "pan_model_L70_verdict": "PASS",
+    "pk_V": 762.4,
+    "req_crest_extrapolated": false,
+    "req_crest_mm": 6.29,
+    "req_line_mm": 4.44,
+    "verdict_crest_rms": "FAIL",
+    "verdict_line_rms": "PASS"
+   },
+   {
+    "actual_mm": 5.9,
+    "clearance_ok": true,
+    "crest_rms_V": 499.6,
+    "gap": "RES_A-HV_RET (In1)",
+    "line_rms_V": 353.3,
+    "orig_corner_line_rms_V": 331.6,
+    "orig_corner_req_line_mm": 4.18,
+    "pair": "RES_A",
+    "pan_model_L70_line_rms_V": 297.0,
+    "pan_model_L70_req_line_mm": 3.76,
+    "pan_model_L70_verdict": "PASS",
+    "pk_V": 762.4,
+    "req_crest_extrapolated": false,
+    "req_crest_mm": 6.29,
+    "req_line_mm": 4.44,
+    "verdict_crest_rms": "FAIL",
+    "verdict_line_rms": "PASS"
+   },
+   {
+    "actual_mm": 5.9,
+    "clearance_ok": true,
+    "crest_rms_V": 499.6,
+    "gap": "RES_A-BUS_P (In2)",
+    "line_rms_V": 353.3,
+    "orig_corner_line_rms_V": 331.6,
+    "orig_corner_req_line_mm": 4.18,
+    "pair": "BUS_P_RES_A",
+    "pan_model_L70_line_rms_V": 297.0,
+    "pan_model_L70_req_line_mm": 3.76,
+    "pan_model_L70_verdict": "PASS",
+    "pk_V": 762.4,
+    "req_crest_extrapolated": false,
+    "req_crest_mm": 6.29,
+    "req_line_mm": 4.44,
+    "verdict_crest_rms": "FAIL",
+    "verdict_line_rms": "PASS"
+   },
+   {
+    "actual_mm": 30.0,
+    "clearance_ok": true,
+    "crest_rms_V": 198.0,
+    "gap": "COIL_FEED-SW_B (bridge output, B.Cu)",
+    "line_rms_V": 140.0,
+    "orig_corner_line_rms_V": 140.0,
+    "orig_corner_req_line_mm": 3.2,
+    "pair": "SW_A_SW_B",
+    "pan_model_L70_line_rms_V": 140.0,
+    "pan_model_L70_req_line_mm": 3.2,
+    "pan_model_L70_verdict": "PASS",
+    "pk_V": 198.0,
+    "req_crest_extrapolated": false,
+    "req_crest_mm": 3.2,
+    "req_line_mm": 3.2,
+    "verdict_crest_rms": "PASS",
+    "verdict_line_rms": "PASS"
+   }
+  ],
+  "29.4": [
+   {
+    "actual_mm": 5.0,
+    "clearance_ok": true,
+    "crest_rms_V": 589.4,
+    "gap": "RES_A-COIL_FEED (J5/J2 copper, F/B.Cu plan view)",
+    "line_rms_V": 416.7,
+    "orig_corner_line_rms_V": 404.9,
+    "orig_corner_req_line_mm": 5.06,
+    "pair": "SW_A_RES_A",
+    "pan_model_L70_line_rms_V": 369.9,
+    "pan_model_L70_req_line_mm": 4.64,
+    "pan_model_L70_verdict": "PASS",
+    "pk_V": 791.1,
+    "req_crest_extrapolated": true,
+    "req_crest_mm": 7.46,
+    "req_line_mm": 5.22,
+    "verdict_crest_rms": "FAIL",
+    "verdict_line_rms": "FAIL"
+   },
+   {
+    "actual_mm": 5.0,
+    "clearance_ok": true,
+    "crest_rms_V": 589.4,
+    "gap": "RES_A-SW_A (F.Cu lane, 74 mm of edge; incl. T1 1-turn drop, neglected)",
+    "line_rms_V": 416.7,
+    "orig_corner_line_rms_V": 404.9,
+    "orig_corner_req_line_mm": 5.06,
+    "pair": "SW_A_RES_A",
+    "pan_model_L70_line_rms_V": 369.9,
+    "pan_model_L70_req_line_mm": 4.64,
+    "pan_model_L70_verdict": "PASS",
+    "pk_V": 791.1,
+    "req_crest_extrapolated": true,
+    "req_crest_mm": 7.46,
+    "req_line_mm": 5.22,
+    "verdict_crest_rms": "FAIL",
+    "verdict_line_rms": "FAIL"
+   },
+   {
+    "actual_mm": 5.0,
+    "clearance_ok": true,
+    "crest_rms_V": 589.4,
+    "gap": "J2-J5 insulated ring to ring (any rotation)",
+    "line_rms_V": 416.7,
+    "orig_corner_line_rms_V": 404.9,
+    "orig_corner_req_line_mm": 5.06,
+    "pair": "SW_A_RES_A",
+    "pan_model_L70_line_rms_V": 369.9,
+    "pan_model_L70_req_line_mm": 4.64,
+    "pan_model_L70_verdict": "PASS",
+    "pk_V": 791.1,
+    "req_crest_extrapolated": true,
+    "req_crest_mm": 7.46,
+    "req_line_mm": 5.22,
+    "verdict_crest_rms": "FAIL",
+    "verdict_line_rms": "FAIL"
+   },
+   {
+    "actual_mm": 8.0,
+    "clearance_ok": true,
+    "crest_rms_V": 589.4,
+    "gap": "J2-J5 REDCUBE body to body (15 mm pitch)",
+    "line_rms_V": 416.7,
+    "orig_corner_line_rms_V": 404.9,
+    "orig_corner_req_line_mm": 5.06,
+    "pair": "SW_A_RES_A",
+    "pan_model_L70_line_rms_V": 369.9,
+    "pan_model_L70_req_line_mm": 4.64,
+    "pan_model_L70_verdict": "PASS",
+    "pk_V": 791.1,
+    "req_crest_extrapolated": true,
+    "req_crest_mm": 7.46,
+    "req_line_mm": 5.22,
+    "verdict_crest_rms": "PASS",
+    "verdict_line_rms": "PASS"
+   },
+   {
+    "actual_mm": 5.002,
+    "clearance_ok": true,
+    "crest_rms_V": 419.5,
+    "gap": "RES_A-SW_B (B.Cu, resonant-capacitor voltage)",
+    "line_rms_V": 296.6,
+    "orig_corner_line_rms_V": 277.2,
+    "orig_corner_req_line_mm": 3.53,
+    "pair": "RES_A_SW_B",
+    "pan_model_L70_line_rms_V": 240.1,
+    "pan_model_L70_req_line_mm": 3.2,
+    "pan_model_L70_verdict": "PASS",
+    "pk_V": 593.3,
+    "req_crest_extrapolated": false,
+    "req_crest_mm": 5.25,
+    "req_line_mm": 3.76,
+    "verdict_crest_rms": "FAIL",
+    "verdict_line_rms": "PASS"
+   },
+   {
+    "actual_mm": 5.002,
+    "clearance_ok": true,
+    "crest_rms_V": 511.5,
+    "gap": "RES_A-N_LS (In1; LOW group, LEG_RET-referenced)",
+    "line_rms_V": 361.7,
+    "orig_corner_line_rms_V": 346.8,
+    "orig_corner_req_line_mm": 4.36,
+    "pair": "RES_A",
+    "pan_model_L70_line_rms_V": 311.9,
+    "pan_model_L70_req_line_mm": 3.94,
+    "pan_model_L70_verdict": "PASS",
+    "pk_V": 791.1,
+    "req_crest_extrapolated": true,
+    "req_crest_mm": 6.45,
+    "req_line_mm": 4.54,
+    "verdict_crest_rms": "FAIL",
+    "verdict_line_rms": "PASS"
+   },
+   {
+    "actual_mm": 5.9,
+    "clearance_ok": true,
+    "crest_rms_V": 511.5,
+    "gap": "RES_A-HV_RET (In1)",
+    "line_rms_V": 361.7,
+    "orig_corner_line_rms_V": 346.8,
+    "orig_corner_req_line_mm": 4.36,
+    "pair": "RES_A",
+    "pan_model_L70_line_rms_V": 311.9,
+    "pan_model_L70_req_line_mm": 3.94,
+    "pan_model_L70_verdict": "PASS",
+    "pk_V": 791.1,
+    "req_crest_extrapolated": true,
+    "req_crest_mm": 6.45,
+    "req_line_mm": 4.54,
+    "verdict_crest_rms": "FAIL",
+    "verdict_line_rms": "PASS"
+   },
+   {
+    "actual_mm": 5.9,
+    "clearance_ok": true,
+    "crest_rms_V": 511.5,
+    "gap": "RES_A-BUS_P (In2)",
+    "line_rms_V": 361.7,
+    "orig_corner_line_rms_V": 346.8,
+    "orig_corner_req_line_mm": 4.36,
+    "pair": "BUS_P_RES_A",
+    "pan_model_L70_line_rms_V": 311.9,
+    "pan_model_L70_req_line_mm": 3.94,
+    "pan_model_L70_verdict": "PASS",
+    "pk_V": 791.1,
+    "req_crest_extrapolated": true,
+    "req_crest_mm": 6.45,
+    "req_line_mm": 4.54,
+    "verdict_crest_rms": "FAIL",
+    "verdict_line_rms": "PASS"
+   },
+   {
+    "actual_mm": 30.0,
+    "clearance_ok": true,
+    "crest_rms_V": 198.0,
+    "gap": "COIL_FEED-SW_B (bridge output, B.Cu)",
+    "line_rms_V": 140.0,
+    "orig_corner_line_rms_V": 140.0,
+    "orig_corner_req_line_mm": 3.2,
+    "pair": "SW_A_SW_B",
+    "pan_model_L70_line_rms_V": 147.0,
+    "pan_model_L70_req_line_mm": 3.2,
+    "pan_model_L70_verdict": "PASS",
+    "pk_V": 198.0,
+    "req_crest_extrapolated": false,
+    "req_crest_mm": 3.2,
+    "req_line_mm": 3.2,
+    "verdict_crest_rms": "PASS",
+    "verdict_line_rms": "PASS"
+   }
+  ]
+ },
+ "line_for_400V_rms_design_worst": {
+  "22.0": 197.4,
+  "27.2": 139.0,
+  "28.0": 130.1,
+  "29.4": 114.3
+ },
+ "pan_29p4A_linear_scale": {
+  "vcoil_crest_rms": 517.5,
+  "vcoil_line_rms": 361.7,
+  "vcoil_pk": 731.9
+ },
+ "pan_cases": {
+  "22A | L70 design tank": {
+   "I_pk_A": 45.62,
+   "I_rms_A": 22.0,
+   "L_eq_uH": 52.4,
+   "R_eq_ohm": 2.074,
+   "case": "d228_gap84-L70-C050-I22-pan180|aluminium_clad_multiply-high-140v",
+   "f_kHz": 40.26,
+   "n_cases": 180,
+   "nodes": {
+    "BUS_P_RES_A": {
+     "crest_rms": 356.4,
+     "line_rms": 252.0,
+     "pk": 558.7
+    },
+    "RES_A": {
+     "crest_rms": 356.4,
+     "line_rms": 252.0,
+     "pk": 558.7
+    },
+    "RES_A_SW_B": {
+     "crest_rms": 255.0,
+     "line_rms": 180.3,
+     "pk": 360.7
+    },
+    "SW_A": {
+     "crest_rms": 140.0,
+     "line_rms": 99.0,
+     "pk": 198.0
+    },
+    "SW_A_RES_A": {
+     "crest_rms": 434.8,
+     "line_rms": 307.4,
+     "pk": 558.7
+    },
+    "SW_A_SW_B": {
+     "crest_rms": 198.0,
+     "line_rms": 140.0,
+     "pk": 198.0
+    },
+    "SW_B": {
+     "crest_rms": 140.0,
+     "line_rms": 99.0,
+     "pk": 198.0
+    }
+   },
+   "res_a_to_hv_ret_crest_rms": 356.4,
+   "res_a_to_hv_ret_line_rms": 252.0,
+   "res_a_to_hv_ret_pk": 558.7,
+   "status": "TANK_LIMITED",
+   "sw_line_rms": 99.0,
+   "sw_pk": 198.0,
+   "vcap_line_rms": 173.9,
+   "vcap_pk": 360.7,
+   "vcoil_crest_rms": 432.8,
+   "vcoil_line_rms": 295.1,
+   "vcoil_max_over_cases_line_rms": 300.4,
+   "vcoil_pk": 612.1
+  },
+  "22A | all L (70/80/90 uH)": {
+   "I_pk_A": 43.99,
+   "I_rms_A": 21.99,
+   "L_eq_uH": 66.1,
+   "R_eq_ohm": 2.732,
+   "case": "d228_gap84-L90-C040-I22-pan220|aluminium_clad_multiply-high-140v",
+   "f_kHz": 37.61,
+   "n_cases": 630,
+   "nodes": {
+    "BUS_P_RES_A": {
+     "crest_rms": 423.6,
+     "line_rms": 299.6,
+     "pk": 663.4
+    },
+    "RES_A": {
+     "crest_rms": 423.6,
+     "line_rms": 299.6,
+     "pk": 663.4
+    },
+    "RES_A_SW_B": {
+     "crest_rms": 329.1,
+     "line_rms": 232.7,
+     "pk": 465.4
+    },
+    "SW_A": {
+     "crest_rms": 140.0,
+     "line_rms": 99.0,
+     "pk": 198.0
+    },
+    "SW_A_RES_A": {
+     "crest_rms": 500.6,
+     "line_rms": 354.0,
+     "pk": 663.4
+    },
+    "SW_A_SW_B": {
+     "crest_rms": 198.0,
+     "line_rms": 140.0,
+     "pk": 198.0
+    },
+    "SW_B": {
+     "crest_rms": 140.0,
+     "line_rms": 99.0,
+     "pk": 198.0
+    }
+   },
+   "res_a_to_hv_ret_crest_rms": 423.6,
+   "res_a_to_hv_ret_line_rms": 299.6,
+   "res_a_to_hv_ret_pk": 663.4,
+   "status": "TANK_LIMITED",
+   "sw_line_rms": 99.0,
+   "sw_pk": 198.0,
+   "vcap_line_rms": 232.6,
+   "vcap_pk": 465.4,
+   "vcoil_crest_rms": 493.3,
+   "vcoil_line_rms": 348.8,
+   "vcoil_max_over_cases_line_rms": 348.8,
+   "vcoil_pk": 697.7
+  },
+  "28A | L70 design tank": {
+   "I_pk_A": 54.62,
+   "I_rms_A": 27.0,
+   "L_eq_uH": 52.8,
+   "R_eq_ohm": 1.984,
+   "case": "d228_gap84-L70-C050-I28-pan180|aluminium_clad_multiply-high-140v",
+   "f_kHz": 38.01,
+   "n_cases": 135,
+   "nodes": {
+    "BUS_P_RES_A": {
+     "crest_rms": 420.1,
+     "line_rms": 297.0,
+     "pk": 655.5
+    },
+    "RES_A": {
+     "crest_rms": 420.1,
+     "line_rms": 297.0,
+     "pk": 655.5
+    },
+    "RES_A_SW_B": {
+     "crest_rms": 323.5,
+     "line_rms": 228.7,
+     "pk": 457.5
+    },
+    "SW_A": {
+     "crest_rms": 140.0,
+     "line_rms": 99.0,
+     "pk": 198.0
+    },
+    "SW_A_RES_A": {
+     "crest_rms": 498.3,
+     "line_rms": 352.3,
+     "pk": 655.5
+    },
+    "SW_A_SW_B": {
+     "crest_rms": 198.0,
+     "line_rms": 140.0,
+     "pk": 198.0
+    },
+    "SW_B": {
+     "crest_rms": 140.0,
+     "line_rms": 99.0,
+     "pk": 198.0
+    }
+   },
+   "res_a_to_hv_ret_crest_rms": 420.1,
+   "res_a_to_hv_ret_line_rms": 297.0,
+   "res_a_to_hv_ret_pk": 655.5,
+   "status": "INPUT_LIMITED",
+   "sw_line_rms": 99.0,
+   "sw_pk": 198.0,
+   "vcap_line_rms": 226.1,
+   "vcap_pk": 457.5,
+   "vcoil_crest_rms": 492.9,
+   "vcoil_line_rms": 344.5,
+   "vcoil_max_over_cases_line_rms": 344.5,
+   "vcoil_pk": 697.0
+  },
+  "28A | all L (70/80/90 uH)": {
+   "I_pk_A": 55.78,
+   "I_rms_A": 27.56,
+   "L_eq_uH": 57.3,
+   "R_eq_ohm": 1.902,
+   "case": "d228_gap84-L90-C050-I28-pan180|aluminium_clad_multiply-nom-140v",
+   "f_kHz": 36.06,
+   "n_cases": 405,
+   "nodes": {
+    "BUS_P_RES_A": {
+     "crest_rms": 444.2,
+     "line_rms": 314.1,
+     "pk": 690.4
+    },
+    "RES_A": {
+     "crest_rms": 444.2,
+     "line_rms": 314.1,
+     "pk": 690.4
+    },
+    "RES_A_SW_B": {
+     "crest_rms": 348.2,
+     "line_rms": 246.2,
+     "pk": 492.4
+    },
+    "SW_A": {
+     "crest_rms": 140.0,
+     "line_rms": 99.0,
+     "pk": 198.0
+    },
+    "SW_A_RES_A": {
+     "crest_rms": 522.8,
+     "line_rms": 369.7,
+     "pk": 690.4
+    },
+    "SW_A_SW_B": {
+     "crest_rms": 198.0,
+     "line_rms": 140.0,
+     "pk": 198.0
+    },
+    "SW_B": {
+     "crest_rms": 140.0,
+     "line_rms": 99.0,
+     "pk": 198.0
+    }
+   },
+   "res_a_to_hv_ret_crest_rms": 444.2,
+   "res_a_to_hv_ret_line_rms": 314.1,
+   "res_a_to_hv_ret_pk": 690.4,
+   "status": "INPUT_LIMITED",
+   "sw_line_rms": 99.0,
+   "sw_pk": 198.0,
+   "vcap_line_rms": 243.3,
+   "vcap_pk": 492.4,
+   "vcoil_crest_rms": 517.8,
+   "vcoil_line_rms": 361.9,
+   "vcoil_max_over_cases_line_rms": 361.9,
+   "vcoil_pk": 732.3
+  },
+  "30A | L70 design tank": {
+   "I_pk_A": 54.62,
+   "I_rms_A": 27.0,
+   "L_eq_uH": 52.8,
+   "R_eq_ohm": 1.984,
+   "case": "d228_gap84-L70-C050-I30-pan180|aluminium_clad_multiply-high-140v",
+   "f_kHz": 38.01,
+   "n_cases": 135,
+   "nodes": {
+    "BUS_P_RES_A": {
+     "crest_rms": 420.1,
+     "line_rms": 297.0,
+     "pk": 655.5
+    },
+    "RES_A": {
+     "crest_rms": 420.1,
+     "line_rms": 297.0,
+     "pk": 655.5
+    },
+    "RES_A_SW_B": {
+     "crest_rms": 323.5,
+     "line_rms": 228.7,
+     "pk": 457.5
+    },
+    "SW_A": {
+     "crest_rms": 140.0,
+     "line_rms": 99.0,
+     "pk": 198.0
+    },
+    "SW_A_RES_A": {
+     "crest_rms": 498.3,
+     "line_rms": 352.3,
+     "pk": 655.5
+    },
+    "SW_A_SW_B": {
+     "crest_rms": 198.0,
+     "line_rms": 140.0,
+     "pk": 198.0
+    },
+    "SW_B": {
+     "crest_rms": 140.0,
+     "line_rms": 99.0,
+     "pk": 198.0
+    }
+   },
+   "res_a_to_hv_ret_crest_rms": 420.1,
+   "res_a_to_hv_ret_line_rms": 297.0,
+   "res_a_to_hv_ret_pk": 655.5,
+   "status": "INPUT_LIMITED",
+   "sw_line_rms": 99.0,
+   "sw_pk": 198.0,
+   "vcap_line_rms": 226.1,
+   "vcap_pk": 457.5,
+   "vcoil_crest_rms": 492.9,
+   "vcoil_line_rms": 344.5,
+   "vcoil_max_over_cases_line_rms": 344.5,
+   "vcoil_pk": 697.0
+  },
+  "30A | all L (70/80/90 uH)": {
+   "I_pk_A": 61.88,
+   "I_rms_A": 29.99,
+   "L_eq_uH": 49.5,
+   "R_eq_ohm": 1.375,
+   "case": "d228_gap84-L90-C050-I30-pan180|aluminium_clad_multiply-low-140v",
+   "f_kHz": 39.01,
+   "n_cases": 405,
+   "nodes": {
+    "BUS_P_RES_A": {
+     "crest_rms": 455.2,
+     "line_rms": 321.9,
+     "pk": 702.9
+    },
+    "RES_A": {
+     "crest_rms": 455.2,
+     "line_rms": 321.9,
+     "pk": 702.9
+    },
+    "RES_A_SW_B": {
+     "crest_rms": 357.0,
+     "line_rms": 252.5,
+     "pk": 504.9
+    },
+    "SW_A": {
+     "crest_rms": 140.0,
+     "line_rms": 99.0,
+     "pk": 198.0
+    },
+    "SW_A_RES_A": {
+     "crest_rms": 535.7,
+     "line_rms": 378.8,
+     "pk": 702.9
+    },
+    "SW_A_SW_B": {
+     "crest_rms": 198.0,
+     "line_rms": 140.0,
+     "pk": 198.0
+    },
+    "SW_B": {
+     "crest_rms": 140.0,
+     "line_rms": 99.0,
+     "pk": 198.0
+    }
+   },
+   "res_a_to_hv_ret_crest_rms": 455.2,
+   "res_a_to_hv_ret_line_rms": 321.9,
+   "res_a_to_hv_ret_pk": 702.9,
+   "status": "TANK_LIMITED",
+   "sw_line_rms": 99.0,
+   "sw_pk": 198.0,
+   "vcap_line_rms": 244.7,
+   "vcap_pk": 504.9,
+   "vcoil_crest_rms": 534.3,
+   "vcoil_line_rms": 366.2,
+   "vcoil_max_over_cases_line_rms": 366.2,
+   "vcoil_pk": 755.7
+  }
+ },
+ "requirement_if_fail": {
+  "28.0": {
+   "coil_crest_rms_V": 583.0,
+   "coil_line_rms_V": 412.2,
+   "crest_extrapolated": true,
+   "needs_mm_crest": 7.38,
+   "needs_mm_line": 5.16
+  },
+  "29.4": {
+   "coil_crest_rms_V": 589.4,
+   "coil_line_rms_V": 416.7,
+   "crest_extrapolated": true,
+   "needs_mm_crest": 7.46,
+   "needs_mm_line": 5.22
+  }
+ },
+ "rule_5mm_check_analytic_bound": {
+  "below-floor fault corner: C 0.45 uF, f>=31.3 kHz|22.0": {
+   "t18_line_mm": 4.7,
+   "vrms_line": 374.9,
+   "within_400V_rms_rule": true
+  },
+  "below-floor fault corner: C 0.45 uF, f>=31.3 kHz|28.0": {
+   "t18_line_mm": 5.56,
+   "vrms_line": 442.8,
+   "within_400V_rms_rule": false
+  },
+  "below-floor fault corner: C 0.45 uF, f>=31.3 kHz|29.4": {
+   "t18_line_mm": 5.76,
+   "vrms_line": 458.6,
+   "within_400V_rms_rule": false
+  },
+  "design worst: C 0.45 uF (-10 %), f>=35 kHz floor|22.0": {
+   "t18_line_mm": 4.38,
+   "vrms_line": 348.3,
+   "within_400V_rms_rule": true
+  },
+  "design worst: C 0.45 uF (-10 %), f>=35 kHz floor|28.0": {
+   "t18_line_mm": 5.12,
+   "vrms_line": 408.9,
+   "within_400V_rms_rule": false
+  },
+  "design worst: C 0.45 uF (-10 %), f>=35 kHz floor|29.4": {
+   "t18_line_mm": 5.3,
+   "vrms_line": 423.1,
+   "within_400V_rms_rule": false
+  },
+  "design: C 0.50 uF nominal, f>=35 kHz floor|22.0": {
+   "t18_line_mm": 4.11,
+   "vrms_line": 326.1,
+   "within_400V_rms_rule": true
+  },
+  "design: C 0.50 uF nominal, f>=35 kHz floor|28.0": {
+   "t18_line_mm": 4.77,
+   "vrms_line": 380.6,
+   "within_400V_rms_rule": true
+  },
+  "design: C 0.50 uF nominal, f>=35 kHz floor|29.4": {
+   "t18_line_mm": 4.92,
+   "vrms_line": 393.4,
+   "within_400V_rms_rule": true
+  },
+  "orig: C 0.54 uF, f>=31.3 kHz (as M6)|22.0": {
+   "t18_line_mm": 4.2,
+   "vrms_line": 333.4,
+   "within_400V_rms_rule": true
+  },
+  "orig: C 0.54 uF, f>=31.3 kHz (as M6)|28.0": {
+   "t18_line_mm": 4.88,
+   "vrms_line": 390.0,
+   "within_400V_rms_rule": true
+  },
+  "orig: C 0.54 uF, f>=31.3 kHz (as M6)|29.4": {
+   "t18_line_mm": 5.04,
+   "vrms_line": 403.2,
+   "within_400V_rms_rule": false
+  }
+ },
+ "sweep": [
+  {
+   "ceiling_A": 22.0,
+   "corners": "design",
+   "n_points": 1328,
+   "nodes": {
+    "BUS_P_RES_A": {
+     "corner": {
+      "C_uF": 0.45,
+      "I_pk_A": 44.0,
+      "L_eq_uH": 72.0,
+      "R_eq_ohm": 0.168,
+      "f_kHz": 35.0,
+      "line_V": 140.0,
+      "phase_deg": 88.3
+     },
+     "crest_rms": 417.6,
+     "line_rms": 295.3,
+     "pk": 642.5
+    },
+    "RES_A": {
+     "corner": {
+      "C_uF": 0.45,
+      "I_pk_A": 44.0,
+      "L_eq_uH": 72.0,
+      "R_eq_ohm": 0.168,
+      "f_kHz": 35.0,
+      "line_V": 140.0,
+      "phase_deg": 88.3
+     },
+     "crest_rms": 417.6,
+     "line_rms": 295.3,
+     "pk": 642.5
+    },
+    "RES_A_SW_B": {
+     "corner": {
+      "C_uF": 0.45,
+      "I_pk_A": 44.0,
+      "L_eq_uH": 66.0,
+      "R_eq_ohm": 0.25,
+      "f_kHz": 35.01,
+      "line_V": 108.0,
+      "phase_deg": 86.8
+     },
+     "crest_rms": 314.4,
+     "line_rms": 222.3,
+     "pk": 444.6
+    },
+    "SW_A": {
+     "corner": {
+      "C_uF": 0.45,
+      "I_pk_A": 44.0,
+      "L_eq_uH": 59.9,
+      "R_eq_ohm": 0.168,
+      "f_kHz": 39.21,
+      "line_V": 140.0,
+      "phase_deg": 88.3
+     },
+     "crest_rms": 140.0,
+     "line_rms": 99.0,
+     "pk": 198.0
+    },
+    "SW_A_RES_A": {
+     "corner": {
+      "C_uF": 0.45,
+      "I_pk_A": 44.0,
+      "L_eq_uH": 72.0,
+      "R_eq_ohm": 0.168,
+      "f_kHz": 35.0,
+      "line_V": 140.0,
+      "phase_deg": 88.3
+     },
+     "crest_rms": 500.0,
+     "line_rms": 353.5,
+     "pk": 642.5
+    },
+    "SW_A_SW_B": {
+     "corner": {
+      "C_uF": 0.45,
+      "I_pk_A": 44.0,
+      "L_eq_uH": 59.9,
+      "R_eq_ohm": 0.168,
+      "f_kHz": 39.21,
+      "line_V": 140.0,
+      "phase_deg": 88.3
+     },
+     "crest_rms": 198.0,
+     "line_rms": 140.0,
+     "pk": 198.0
+    },
+    "SW_B": {
+     "corner": {
+      "C_uF": 0.45,
+      "I_pk_A": 44.0,
+      "L_eq_uH": 59.9,
+      "R_eq_ohm": 0.168,
+      "f_kHz": 39.21,
+      "line_V": 140.0,
+      "phase_deg": 88.3
+     },
+     "crest_rms": 140.0,
+     "line_rms": 99.0,
+     "pk": 198.0
+    }
+   },
+   "rho_pk_over_rms": 2.0,
+   "vcap_corner": {
+    "C_uF": 0.45,
+    "I_pk_A": 44.0,
+    "L_eq_uH": 66.0,
+    "R_eq_ohm": 0.25,
+    "f_kHz": 35.01,
+    "line_V": 108.0,
+    "phase_deg": 86.8
+   },
+   "vcap_crest_rms": 314.4,
+   "vcap_line_rms": 222.3,
+   "vcap_pk": 444.6,
+   "vcoil_corner": {
+    "C_uF": 0.45,
+    "I_pk_A": 44.0,
+    "L_eq_uH": 72.0,
+    "R_eq_ohm": 0.168,
+    "f_kHz": 35.0,
+    "line_V": 140.0,
+    "phase_deg": 88.3
+   },
+   "vcoil_crest_rms": 492.5,
+   "vcoil_line_rms": 348.3,
+   "vcoil_pk": 696.5
+  },
+  {
+   "ceiling_A": 22.0,
+   "corners": "orig-corner",
+   "n_points": 444,
+   "nodes": {
+    "BUS_P_RES_A": {
+     "corner": {
+      "C_uF": 0.54,
+      "I_pk_A": 44.0,
+      "L_eq_uH": 72.0,
+      "R_eq_ohm": 3.0,
+      "f_kHz": 31.48,
+      "line_V": 140.0,
+      "phase_deg": 58.4
+     },
+     "crest_rms": 385.6,
+     "line_rms": 272.6,
+     "pk": 609.9
+    },
+    "RES_A": {
+     "corner": {
+      "C_uF": 0.54,
+      "I_pk_A": 44.0,
+      "L_eq_uH": 72.0,
+      "R_eq_ohm": 3.0,
+      "f_kHz": 31.48,
+      "line_V": 140.0,
+      "phase_deg": 58.4
+     },
+     "crest_rms": 385.6,
+     "line_rms": 272.6,
+     "pk": 609.9
+    },
+    "RES_A_SW_B": {
+     "corner": {
+      "C_uF": 0.54,
+      "I_pk_A": 44.0,
+      "L_eq_uH": 72.0,
+      "R_eq_ohm": 1.0,
+      "f_kHz": 31.39,
+      "line_V": 120.0,
+      "phase_deg": 78.3
+     },
+     "crest_rms": 292.2,
+     "line_rms": 206.6,
+     "pk": 413.2
+    },
+    "SW_A": {
+     "corner": {
+      "C_uF": 0.54,
+      "I_pk_A": 44.0,
+      "L_eq_uH": 59.9,
+      "R_eq_ohm": 0.168,
+      "f_kHz": 36.63,
+      "line_V": 140.0,
+      "phase_deg": 88.3
+     },
+     "crest_rms": 140.0,
+     "line_rms": 99.0,
+     "pk": 198.0
+    },
+    "SW_A_RES_A": {
+     "corner": {
+      "C_uF": 0.54,
+      "I_pk_A": 44.0,
+      "L_eq_uH": 72.0,
+      "R_eq_ohm": 3.0,
+      "f_kHz": 31.48,
+      "line_V": 140.0,
+      "phase_deg": 58.4
+     },
+     "crest_rms": 461.0,
+     "line_rms": 326.0,
+     "pk": 609.9
+    },
+    "SW_A_SW_B": {
+     "corner": {
+      "C_uF": 0.54,
+      "I_pk_A": 44.0,
+      "L_eq_uH": 59.9,
+      "R_eq_ohm": 0.168,
+      "f_kHz": 36.63,
+      "line_V": 140.0,
+      "phase_deg": 88.3
+     },
+     "crest_rms": 198.0,
+     "line_rms": 140.0,
+     "pk": 198.0
+    },
+    "SW_B": {
+     "corner": {
+      "C_uF": 0.54,
+      "I_pk_A": 44.0,
+      "L_eq_uH": 59.9,
+      "R_eq_ohm": 0.168,
+      "f_kHz": 36.63,
+      "line_V": 140.0,
+      "phase_deg": 88.3
+     },
+     "crest_rms": 140.0,
+     "line_rms": 99.0,
+     "pk": 198.0
+    }
+   },
+   "rho_pk_over_rms": 2.0,
+   "vcap_corner": {
+    "C_uF": 0.54,
+    "I_pk_A": 44.0,
+    "L_eq_uH": 72.0,
+    "R_eq_ohm": 1.0,
+    "f_kHz": 31.39,
+    "line_V": 120.0,
+    "phase_deg": 78.3
+   },
+   "vcap_crest_rms": 292.2,
+   "vcap_line_rms": 206.6,
+   "vcap_pk": 413.2,
+   "vcoil_corner": {
+    "C_uF": 0.54,
+    "I_pk_A": 44.0,
+    "L_eq_uH": 73.2,
+    "R_eq_ohm": 0.168,
+    "f_kHz": 32.31,
+    "line_V": 140.0,
+    "phase_deg": 88.3
+   },
+   "vcoil_crest_rms": 462.0,
+   "vcoil_line_rms": 326.7,
+   "vcoil_pk": 653.4
+  },
+  {
+   "ceiling_A": 22.0,
+   "corners": "design",
+   "n_points": 1330,
+   "nodes": {
+    "BUS_P_RES_A": {
+     "corner": {
+      "C_uF": 0.45,
+      "I_pk_A": 46.5,
+      "L_eq_uH": 66.0,
+      "R_eq_ohm": 3.0,
+      "f_kHz": 35.15,
+      "line_V": 140.0,
+      "phase_deg": 56.4
+     },
+     "crest_rms": 422.0,
+     "line_rms": 298.4,
+     "pk": 665.7
+    },
+    "RES_A": {
+     "corner": {
+      "C_uF": 0.45,
+      "I_pk_A": 46.5,
+      "L_eq_uH": 66.0,
+      "R_eq_ohm": 3.0,
+      "f_kHz": 35.15,
+      "line_V": 140.0,
+      "phase_deg": 56.4
+     },
+     "crest_rms": 422.0,
+     "line_rms": 298.4,
+     "pk": 665.7
+    },
+    "RES_A_SW_B": {
+     "corner": {
+      "C_uF": 0.45,
+      "I_pk_A": 46.5,
+      "L_eq_uH": 69.0,
+      "R_eq_ohm": 0.5,
+      "f_kHz": 35.03,
+      "line_V": 132.0,
+      "phase_deg": 84.4
+     },
+     "crest_rms": 331.9,
+     "line_rms": 234.7,
+     "pk": 469.4
+    },
+    "SW_A": {
+     "corner": {
+      "C_uF": 0.45,
+      "I_pk_A": 46.5,
+      "L_eq_uH": 59.9,
+      "R_eq_ohm": 0.168,
+      "f_kHz": 38.71,
+      "line_V": 140.0,
+      "phase_deg": 88.2
+     },
+     "crest_rms": 140.0,
+     "line_rms": 99.0,
+     "pk": 198.0
+    },
+    "SW_A_RES_A": {
+     "corner": {
+      "C_uF": 0.45,
+      "I_pk_A": 46.5,
+      "L_eq_uH": 66.0,
+      "R_eq_ohm": 3.0,
+      "f_kHz": 35.15,
+      "line_V": 140.0,
+      "phase_deg": 56.4
+     },
+     "crest_rms": 496.8,
+     "line_rms": 351.3,
+     "pk": 665.7
+    },
+    "SW_A_SW_B": {
+     "corner": {
+      "C_uF": 0.45,
+      "I_pk_A": 46.5,
+      "L_eq_uH": 59.9,
+      "R_eq_ohm": 0.168,
+      "f_kHz": 38.71,
+      "line_V": 140.0,
+      "phase_deg": 88.2
+     },
+     "crest_rms": 198.0,
+     "line_rms": 140.0,
+     "pk": 198.0
+    },
+    "SW_B": {
+     "corner": {
+      "C_uF": 0.45,
+      "I_pk_A": 46.5,
+      "L_eq_uH": 59.9,
+      "R_eq_ohm": 0.168,
+      "f_kHz": 38.71,
+      "line_V": 140.0,
+      "phase_deg": 88.2
+     },
+     "crest_rms": 140.0,
+     "line_rms": 99.0,
+     "pk": 198.0
+    }
+   },
+   "rho_pk_over_rms": 2.113,
+   "vcap_corner": {
+    "C_uF": 0.45,
+    "I_pk_A": 46.5,
+    "L_eq_uH": 69.0,
+    "R_eq_ohm": 0.5,
+    "f_kHz": 35.03,
+    "line_V": 132.0,
+    "phase_deg": 84.4
+   },
+   "vcap_crest_rms": 331.9,
+   "vcap_line_rms": 222.1,
+   "vcap_pk": 469.4,
+   "vcoil_corner": {
+    "C_uF": 0.45,
+    "I_pk_A": 46.5,
+    "L_eq_uH": 69.0,
+    "R_eq_ohm": 0.168,
+    "f_kHz": 35.49,
+    "line_V": 140.0,
+    "phase_deg": 88.2
+   },
+   "vcoil_crest_rms": 505.8,
+   "vcoil_line_rms": 338.5,
+   "vcoil_pk": 715.3
+  },
+  {
+   "ceiling_A": 22.0,
+   "corners": "orig-corner",
+   "n_points": 444,
+   "nodes": {
+    "BUS_P_RES_A": {
+     "corner": {
+      "C_uF": 0.54,
+      "I_pk_A": 46.5,
+      "L_eq_uH": 72.0,
+      "R_eq_ohm": 2.0,
+      "f_kHz": 31.7,
+      "line_V": 140.0,
+      "phase_deg": 68.4
+     },
+     "crest_rms": 404.6,
+     "line_rms": 286.1,
+     "pk": 630.2
+    },
+    "RES_A": {
+     "corner": {
+      "C_uF": 0.54,
+      "I_pk_A": 46.5,
+      "L_eq_uH": 72.0,
+      "R_eq_ohm": 2.0,
+      "f_kHz": 31.7,
+      "line_V": 140.0,
+      "phase_deg": 68.4
+     },
+     "crest_rms": 404.6,
+     "line_rms": 286.1,
+     "pk": 630.2
+    },
+    "RES_A_SW_B": {
+     "corner": {
+      "C_uF": 0.54,
+      "I_pk_A": 46.5,
+      "L_eq_uH": 66.0,
+      "R_eq_ohm": 3.0,
+      "f_kHz": 31.28,
+      "line_V": 120.0,
+      "phase_deg": 49.8
+     },
+     "crest_rms": 309.7,
+     "line_rms": 219.0,
+     "pk": 438.0
+    },
+    "SW_A": {
+     "corner": {
+      "C_uF": 0.54,
+      "I_pk_A": 46.5,
+      "L_eq_uH": 59.9,
+      "R_eq_ohm": 0.168,
+      "f_kHz": 36.12,
+      "line_V": 140.0,
+      "phase_deg": 88.2
+     },
+     "crest_rms": 140.0,
+     "line_rms": 99.0,
+     "pk": 198.0
+    },
+    "SW_A_RES_A": {
+     "corner": {
+      "C_uF": 0.54,
+      "I_pk_A": 46.5,
+      "L_eq_uH": 72.0,
+      "R_eq_ohm": 2.0,
+      "f_kHz": 31.7,
+      "line_V": 140.0,
+      "phase_deg": 68.4
+     },
+     "crest_rms": 483.6,
+     "line_rms": 342.0,
+     "pk": 630.2
+    },
+    "SW_A_SW_B": {
+     "corner": {
+      "C_uF": 0.54,
+      "I_pk_A": 46.5,
+      "L_eq_uH": 59.9,
+      "R_eq_ohm": 0.168,
+      "f_kHz": 36.12,
+      "line_V": 140.0,
+      "phase_deg": 88.2
+     },
+     "crest_rms": 198.0,
+     "line_rms": 140.0,
+     "pk": 198.0
+    },
+    "SW_B": {
+     "corner": {
+      "C_uF": 0.54,
+      "I_pk_A": 46.5,
+      "L_eq_uH": 59.9,
+      "R_eq_ohm": 0.168,
+      "f_kHz": 36.12,
+      "line_V": 140.0,
+      "phase_deg": 88.2
+     },
+     "crest_rms": 140.0,
+     "line_rms": 99.0,
+     "pk": 198.0
+    }
+   },
+   "rho_pk_over_rms": 2.113,
+   "vcap_corner": {
+    "C_uF": 0.54,
+    "I_pk_A": 46.5,
+    "L_eq_uH": 66.0,
+    "R_eq_ohm": 3.0,
+    "f_kHz": 31.28,
+    "line_V": 120.0,
+    "phase_deg": 49.8
+   },
+   "vcap_crest_rms": 309.7,
+   "vcap_line_rms": 207.3,
+   "vcap_pk": 438.0,
+   "vcoil_corner": {
+    "C_uF": 0.54,
+    "I_pk_A": 46.5,
+    "L_eq_uH": 73.2,
+    "R_eq_ohm": 0.168,
+    "f_kHz": 31.9,
+    "line_V": 140.0,
+    "phase_deg": 88.2
+   },
+   "vcoil_crest_rms": 481.9,
+   "vcoil_line_rms": 322.5,
+   "vcoil_pk": 681.5
+  },
+  {
+   "ceiling_A": 28.0,
+   "corners": "design",
+   "n_points": 1332,
+   "nodes": {
+    "BUS_P_RES_A": {
+     "corner": {
+      "C_uF": 0.45,
+      "I_pk_A": 56.0,
+      "L_eq_uH": 66.0,
+      "R_eq_ohm": 0.5,
+      "f_kHz": 35.09,
+      "line_V": 140.0,
+      "phase_deg": 83.6
+     },
+     "crest_rms": 499.6,
+     "line_rms": 353.3,
+     "pk": 762.4
+    },
+    "RES_A": {
+     "corner": {
+      "C_uF": 0.45,
+      "I_pk_A": 56.0,
+      "L_eq_uH": 66.0,
+      "R_eq_ohm": 0.5,
+      "f_kHz": 35.09,
+      "line_V": 140.0,
+      "phase_deg": 83.6
+     },
+     "crest_rms": 499.6,
+     "line_rms": 353.3,
+     "pk": 762.4
+    },
+    "RES_A_SW_B": {
+     "corner": {
+      "C_uF": 0.45,
+      "I_pk_A": 56.0,
+      "L_eq_uH": 57.0,
+      "R_eq_ohm": 3.0,
+      "f_kHz": 35.0,
+      "line_V": 120.0,
+      "phase_deg": 39.0
+     },
+     "crest_rms": 399.9,
+     "line_rms": 282.8,
+     "pk": 565.6
+    },
+    "SW_A": {
+     "corner": {
+      "C_uF": 0.45,
+      "I_pk_A": 56.0,
+      "L_eq_uH": 59.9,
+      "R_eq_ohm": 0.168,
+      "f_kHz": 37.23,
+      "line_V": 140.0,
+      "phase_deg": 87.9
+     },
+     "crest_rms": 140.0,
+     "line_rms": 99.0,
+     "pk": 198.0
+    },
+    "SW_A_RES_A": {
+     "corner": {
+      "C_uF": 0.45,
+      "I_pk_A": 56.0,
+      "L_eq_uH": 66.0,
+      "R_eq_ohm": 0.5,
+      "f_kHz": 35.09,
+      "line_V": 140.0,
+      "phase_deg": 83.6
+     },
+     "crest_rms": 583.0,
+     "line_rms": 412.2,
+     "pk": 762.4
+    },
+    "SW_A_SW_B": {
+     "corner": {
+      "C_uF": 0.45,
+      "I_pk_A": 56.0,
+      "L_eq_uH": 59.9,
+      "R_eq_ohm": 0.168,
+      "f_kHz": 37.23,
+      "line_V": 140.0,
+      "phase_deg": 87.9
+     },
+     "crest_rms": 198.0,
+     "line_rms": 140.0,
+     "pk": 198.0
+    },
+    "SW_B": {
+     "corner": {
+      "C_uF": 0.45,
+      "I_pk_A": 56.0,
+      "L_eq_uH": 59.9,
+      "R_eq_ohm": 0.168,
+      "f_kHz": 37.23,
+      "line_V": 140.0,
+      "phase_deg": 87.9
+     },
+     "crest_rms": 140.0,
+     "line_rms": 99.0,
+     "pk": 198.0
+    }
+   },
+   "rho_pk_over_rms": 2.0,
+   "vcap_corner": {
+    "C_uF": 0.45,
+    "I_pk_A": 56.0,
+    "L_eq_uH": 57.0,
+    "R_eq_ohm": 3.0,
+    "f_kHz": 35.0,
+    "line_V": 120.0,
+    "phase_deg": 39.0
+   },
+   "vcap_crest_rms": 399.9,
+   "vcap_line_rms": 282.8,
+   "vcap_pk": 565.6,
+   "vcoil_corner": {
+    "C_uF": 0.45,
+    "I_pk_A": 56.0,
+    "L_eq_uH": 66.0,
+    "R_eq_ohm": 0.168,
+    "f_kHz": 35.13,
+    "line_V": 140.0,
+    "phase_deg": 87.9
+   },
+   "vcoil_crest_rms": 576.9,
+   "vcoil_line_rms": 407.9,
+   "vcoil_pk": 815.8
+  },
+  {
+   "ceiling_A": 28.0,
+   "corners": "orig-corner",
+   "n_points": 444,
+   "nodes": {
+    "BUS_P_RES_A": {
+     "corner": {
+      "C_uF": 0.54,
+      "I_pk_A": 56.0,
+      "L_eq_uH": 69.0,
+      "R_eq_ohm": 1.0,
+      "f_kHz": 31.62,
+      "line_V": 140.0,
+      "phase_deg": 77.2
+     },
+     "crest_rms": 469.0,
+     "line_rms": 331.6,
+     "pk": 719.9
+    },
+    "RES_A": {
+     "corner": {
+      "C_uF": 0.54,
+      "I_pk_A": 56.0,
+      "L_eq_uH": 69.0,
+      "R_eq_ohm": 1.0,
+      "f_kHz": 31.62,
+      "line_V": 140.0,
+      "phase_deg": 77.2
+     },
+     "crest_rms": 469.0,
+     "line_rms": 331.6,
+     "pk": 719.9
+    },
+    "RES_A_SW_B": {
+     "corner": {
+      "C_uF": 0.54,
+      "I_pk_A": 56.0,
+      "L_eq_uH": 69.0,
+      "R_eq_ohm": 1.0,
+      "f_kHz": 31.26,
+      "line_V": 132.0,
+      "phase_deg": 76.4
+     },
+     "crest_rms": 373.3,
+     "line_rms": 264.0,
+     "pk": 528.0
+    },
+    "SW_A": {
+     "corner": {
+      "C_uF": 0.54,
+      "I_pk_A": 56.0,
+      "L_eq_uH": 59.9,
+      "R_eq_ohm": 0.168,
+      "f_kHz": 34.61,
+      "line_V": 140.0,
+      "phase_deg": 87.9
+     },
+     "crest_rms": 140.0,
+     "line_rms": 99.0,
+     "pk": 198.0
+    },
+    "SW_A_RES_A": {
+     "corner": {
+      "C_uF": 0.54,
+      "I_pk_A": 56.0,
+      "L_eq_uH": 69.0,
+      "R_eq_ohm": 1.0,
+      "f_kHz": 31.62,
+      "line_V": 140.0,
+      "phase_deg": 77.2
+     },
+     "crest_rms": 551.1,
+     "line_rms": 389.7,
+     "pk": 719.9
+    },
+    "SW_A_SW_B": {
+     "corner": {
+      "C_uF": 0.54,
+      "I_pk_A": 56.0,
+      "L_eq_uH": 59.9,
+      "R_eq_ohm": 0.168,
+      "f_kHz": 34.61,
+      "line_V": 140.0,
+      "phase_deg": 87.9
+     },
+     "crest_rms": 198.0,
+     "line_rms": 140.0,
+     "pk": 198.0
+    },
+    "SW_B": {
+     "corner": {
+      "C_uF": 0.54,
+      "I_pk_A": 56.0,
+      "L_eq_uH": 59.9,
+      "R_eq_ohm": 0.168,
+      "f_kHz": 34.61,
+      "line_V": 140.0,
+      "phase_deg": 87.9
+     },
+     "crest_rms": 140.0,
+     "line_rms": 99.0,
+     "pk": 198.0
+    }
+   },
+   "rho_pk_over_rms": 2.0,
+   "vcap_corner": {
+    "C_uF": 0.54,
+    "I_pk_A": 56.0,
+    "L_eq_uH": 69.0,
+    "R_eq_ohm": 1.0,
+    "f_kHz": 31.26,
+    "line_V": 132.0,
+    "phase_deg": 76.4
+   },
+   "vcap_crest_rms": 373.3,
+   "vcap_line_rms": 264.0,
+   "vcap_pk": 528.0,
+   "vcoil_corner": {
+    "C_uF": 0.54,
+    "I_pk_A": 56.0,
+    "L_eq_uH": 69.0,
+    "R_eq_ohm": 0.168,
+    "f_kHz": 31.77,
+    "line_V": 140.0,
+    "phase_deg": 87.9
+   },
+   "vcoil_crest_rms": 545.5,
+   "vcoil_line_rms": 385.7,
+   "vcoil_pk": 771.4
+  },
+  {
+   "ceiling_A": 28.0,
+   "corners": "design",
+   "n_points": 1332,
+   "nodes": {
+    "BUS_P_RES_A": {
+     "corner": {
+      "C_uF": 0.45,
+      "I_pk_A": 59.2,
+      "L_eq_uH": 63.0,
+      "R_eq_ohm": 2.0,
+      "f_kHz": 35.02,
+      "line_V": 140.0,
+      "phase_deg": 62.0
+     },
+     "crest_rms": 514.4,
+     "line_rms": 363.7,
+     "pk": 795.5
+    },
+    "RES_A": {
+     "corner": {
+      "C_uF": 0.45,
+      "I_pk_A": 59.2,
+      "L_eq_uH": 63.0,
+      "R_eq_ohm": 2.0,
+      "f_kHz": 35.02,
+      "line_V": 140.0,
+      "phase_deg": 62.0
+     },
+     "crest_rms": 514.4,
+     "line_rms": 363.7,
+     "pk": 795.5
+    },
+    "RES_A_SW_B": {
+     "corner": {
+      "C_uF": 0.45,
+      "I_pk_A": 59.2,
+      "L_eq_uH": 63.0,
+      "R_eq_ohm": 2.0,
+      "f_kHz": 35.02,
+      "line_V": 140.0,
+      "phase_deg": 62.0
+     },
+     "crest_rms": 422.5,
+     "line_rms": 298.8,
+     "pk": 597.5
+    },
+    "SW_A": {
+     "corner": {
+      "C_uF": 0.45,
+      "I_pk_A": 59.2,
+      "L_eq_uH": 59.9,
+      "R_eq_ohm": 0.168,
+      "f_kHz": 36.85,
+      "line_V": 140.0,
+      "phase_deg": 87.7
+     },
+     "crest_rms": 140.0,
+     "line_rms": 99.0,
+     "pk": 198.0
+    },
+    "SW_A_RES_A": {
+     "corner": {
+      "C_uF": 0.45,
+      "I_pk_A": 59.2,
+      "L_eq_uH": 63.0,
+      "R_eq_ohm": 2.0,
+      "f_kHz": 35.02,
+      "line_V": 140.0,
+      "phase_deg": 62.0
+     },
+     "crest_rms": 592.2,
+     "line_rms": 418.8,
+     "pk": 795.5
+    },
+    "SW_A_SW_B": {
+     "corner": {
+      "C_uF": 0.45,
+      "I_pk_A": 59.2,
+      "L_eq_uH": 59.9,
+      "R_eq_ohm": 0.168,
+      "f_kHz": 36.85,
+      "line_V": 140.0,
+      "phase_deg": 87.7
+     },
+     "crest_rms": 198.0,
+     "line_rms": 140.0,
+     "pk": 198.0
+    },
+    "SW_B": {
+     "corner": {
+      "C_uF": 0.45,
+      "I_pk_A": 59.2,
+      "L_eq_uH": 59.9,
+      "R_eq_ohm": 0.168,
+      "f_kHz": 36.85,
+      "line_V": 140.0,
+      "phase_deg": 87.7
+     },
+     "crest_rms": 140.0,
+     "line_rms": 99.0,
+     "pk": 198.0
+    }
+   },
+   "rho_pk_over_rms": 2.113,
+   "vcap_corner": {
+    "C_uF": 0.45,
+    "I_pk_A": 59.2,
+    "L_eq_uH": 63.0,
+    "R_eq_ohm": 2.0,
+    "f_kHz": 35.02,
+    "line_V": 140.0,
+    "phase_deg": 62.0
+   },
+   "vcap_crest_rms": 422.5,
+   "vcap_line_rms": 282.8,
+   "vcap_pk": 597.5,
+   "vcoil_corner": {
+    "C_uF": 0.45,
+    "I_pk_A": 59.2,
+    "L_eq_uH": 63.0,
+    "R_eq_ohm": 0.168,
+    "f_kHz": 35.75,
+    "line_V": 140.0,
+    "phase_deg": 87.7
+   },
+   "vcoil_crest_rms": 592.0,
+   "vcoil_line_rms": 396.3,
+   "vcoil_pk": 837.3
+  },
+  {
+   "ceiling_A": 28.0,
+   "corners": "orig-corner",
+   "n_points": 444,
+   "nodes": {
+    "BUS_P_RES_A": {
+     "corner": {
+      "C_uF": 0.54,
+      "I_pk_A": 59.2,
+      "L_eq_uH": 69.0,
+      "R_eq_ohm": 1.0,
+      "f_kHz": 31.28,
+      "line_V": 140.0,
+      "phase_deg": 76.4
+     },
+     "crest_rms": 493.2,
+     "line_rms": 348.7,
+     "pk": 755.4
+    },
+    "RES_A": {
+     "corner": {
+      "C_uF": 0.54,
+      "I_pk_A": 59.2,
+      "L_eq_uH": 69.0,
+      "R_eq_ohm": 1.0,
+      "f_kHz": 31.28,
+      "line_V": 140.0,
+      "phase_deg": 76.4
+     },
+     "crest_rms": 493.2,
+     "line_rms": 348.7,
+     "pk": 755.4
+    },
+    "RES_A_SW_B": {
+     "corner": {
+      "C_uF": 0.54,
+      "I_pk_A": 59.2,
+      "L_eq_uH": 66.5,
+      "R_eq_ohm": 0.25,
+      "f_kHz": 31.27,
+      "line_V": 120.0,
+      "phase_deg": 86.1
+     },
+     "crest_rms": 394.3,
+     "line_rms": 278.8,
+     "pk": 557.6
+    },
+    "SW_A": {
+     "corner": {
+      "C_uF": 0.54,
+      "I_pk_A": 59.2,
+      "L_eq_uH": 59.9,
+      "R_eq_ohm": 0.168,
+      "f_kHz": 34.22,
+      "line_V": 140.0,
+      "phase_deg": 87.7
+     },
+     "crest_rms": 140.0,
+     "line_rms": 99.0,
+     "pk": 198.0
+    },
+    "SW_A_RES_A": {
+     "corner": {
+      "C_uF": 0.54,
+      "I_pk_A": 59.2,
+      "L_eq_uH": 69.0,
+      "R_eq_ohm": 1.0,
+      "f_kHz": 31.28,
+      "line_V": 140.0,
+      "phase_deg": 76.4
+     },
+     "crest_rms": 575.4,
+     "line_rms": 406.9,
+     "pk": 755.4
+    },
+    "SW_A_SW_B": {
+     "corner": {
+      "C_uF": 0.54,
+      "I_pk_A": 59.2,
+      "L_eq_uH": 59.9,
+      "R_eq_ohm": 0.168,
+      "f_kHz": 34.22,
+      "line_V": 140.0,
+      "phase_deg": 87.7
+     },
+     "crest_rms": 198.0,
+     "line_rms": 140.0,
+     "pk": 198.0
+    },
+    "SW_B": {
+     "corner": {
+      "C_uF": 0.54,
+      "I_pk_A": 59.2,
+      "L_eq_uH": 59.9,
+      "R_eq_ohm": 0.168,
+      "f_kHz": 34.22,
+      "line_V": 140.0,
+      "phase_deg": 87.7
+     },
+     "crest_rms": 140.0,
+     "line_rms": 99.0,
+     "pk": 198.0
+    }
+   },
+   "rho_pk_over_rms": 2.113,
+   "vcap_corner": {
+    "C_uF": 0.54,
+    "I_pk_A": 59.2,
+    "L_eq_uH": 66.5,
+    "R_eq_ohm": 0.25,
+    "f_kHz": 31.27,
+    "line_V": 120.0,
+    "phase_deg": 86.1
+   },
+   "vcap_crest_rms": 394.3,
+   "vcap_line_rms": 263.9,
+   "vcap_pk": 557.6,
+   "vcoil_corner": {
+    "C_uF": 0.54,
+    "I_pk_A": 59.2,
+    "L_eq_uH": 69.0,
+    "R_eq_ohm": 0.168,
+    "f_kHz": 31.44,
+    "line_V": 140.0,
+    "phase_deg": 87.7
+   },
+   "vcoil_crest_rms": 570.3,
+   "vcoil_line_rms": 381.7,
+   "vcoil_pk": 806.5
+  },
+  {
+   "ceiling_A": 29.4,
+   "corners": "design",
+   "n_points": 1332,
+   "nodes": {
+    "BUS_P_RES_A": {
+     "corner": {
+      "C_uF": 0.45,
+      "I_pk_A": 58.8,
+      "L_eq_uH": 63.0,
+      "R_eq_ohm": 2.0,
+      "f_kHz": 35.06,
+      "line_V": 140.0,
+      "phase_deg": 62.2
+     },
+     "crest_rms": 511.5,
+     "line_rms": 361.7,
+     "pk": 791.1
+    },
+    "RES_A": {
+     "corner": {
+      "C_uF": 0.45,
+      "I_pk_A": 58.8,
+      "L_eq_uH": 63.0,
+      "R_eq_ohm": 2.0,
+      "f_kHz": 35.06,
+      "line_V": 140.0,
+      "phase_deg": 62.2
+     },
+     "crest_rms": 511.5,
+     "line_rms": 361.7,
+     "pk": 791.1
+    },
+    "RES_A_SW_B": {
+     "corner": {
+      "C_uF": 0.45,
+      "I_pk_A": 58.7,
+      "L_eq_uH": 60.0,
+      "R_eq_ohm": 2.0,
+      "f_kHz": 35.0,
+      "line_V": 120.0,
+      "phase_deg": 57.1
+     },
+     "crest_rms": 419.5,
+     "line_rms": 296.6,
+     "pk": 593.3
+    },
+    "SW_A": {
+     "corner": {
+      "C_uF": 0.45,
+      "I_pk_A": 58.8,
+      "L_eq_uH": 59.9,
+      "R_eq_ohm": 0.168,
+      "f_kHz": 36.89,
+      "line_V": 140.0,
+      "phase_deg": 87.8
+     },
+     "crest_rms": 140.0,
+     "line_rms": 99.0,
+     "pk": 198.0
+    },
+    "SW_A_RES_A": {
+     "corner": {
+      "C_uF": 0.45,
+      "I_pk_A": 58.8,
+      "L_eq_uH": 63.0,
+      "R_eq_ohm": 2.0,
+      "f_kHz": 35.06,
+      "line_V": 140.0,
+      "phase_deg": 62.2
+     },
+     "crest_rms": 589.4,
+     "line_rms": 416.7,
+     "pk": 791.1
+    },
+    "SW_A_SW_B": {
+     "corner": {
+      "C_uF": 0.45,
+      "I_pk_A": 58.8,
+      "L_eq_uH": 59.9,
+      "R_eq_ohm": 0.168,
+      "f_kHz": 36.89,
+      "line_V": 140.0,
+      "phase_deg": 87.8
+     },
+     "crest_rms": 198.0,
+     "line_rms": 140.0,
+     "pk": 198.0
+    },
+    "SW_B": {
+     "corner": {
+      "C_uF": 0.45,
+      "I_pk_A": 58.8,
+      "L_eq_uH": 59.9,
+      "R_eq_ohm": 0.168,
+      "f_kHz": 36.89,
+      "line_V": 140.0,
+      "phase_deg": 87.8
+     },
+     "crest_rms": 140.0,
+     "line_rms": 99.0,
+     "pk": 198.0
+    }
+   },
+   "rho_pk_over_rms": 2.0,
+   "vcap_corner": {
+    "C_uF": 0.45,
+    "I_pk_A": 58.7,
+    "L_eq_uH": 60.0,
+    "R_eq_ohm": 2.0,
+    "f_kHz": 35.0,
+    "line_V": 120.0,
+    "phase_deg": 57.1
+   },
+   "vcap_crest_rms": 419.5,
+   "vcap_line_rms": 296.6,
+   "vcap_pk": 593.3,
+   "vcoil_corner": {
+    "C_uF": 0.45,
+    "I_pk_A": 58.8,
+    "L_eq_uH": 63.0,
+    "R_eq_ohm": 0.168,
+    "f_kHz": 35.79,
+    "line_V": 140.0,
+    "phase_deg": 87.8
+   },
+   "vcoil_crest_rms": 589.1,
+   "vcoil_line_rms": 416.5,
+   "vcoil_pk": 833.0
+  },
+  {
+   "ceiling_A": 29.4,
+   "corners": "orig-corner",
+   "n_points": 444,
+   "nodes": {
+    "BUS_P_RES_A": {
+     "corner": {
+      "C_uF": 0.54,
+      "I_pk_A": 58.8,
+      "L_eq_uH": 69.0,
+      "R_eq_ohm": 1.0,
+      "f_kHz": 31.32,
+      "line_V": 140.0,
+      "phase_deg": 76.5
+     },
+     "crest_rms": 490.4,
+     "line_rms": 346.8,
+     "pk": 751.3
+    },
+    "RES_A": {
+     "corner": {
+      "C_uF": 0.54,
+      "I_pk_A": 58.8,
+      "L_eq_uH": 69.0,
+      "R_eq_ohm": 1.0,
+      "f_kHz": 31.32,
+      "line_V": 140.0,
+      "phase_deg": 76.5
+     },
+     "crest_rms": 490.4,
+     "line_rms": 346.8,
+     "pk": 751.3
+    },
+    "RES_A_SW_B": {
+     "corner": {
+      "C_uF": 0.54,
+      "I_pk_A": 58.8,
+      "L_eq_uH": 66.0,
+      "R_eq_ohm": 1.0,
+      "f_kHz": 31.26,
+      "line_V": 120.0,
+      "phase_deg": 74.2
+     },
+     "crest_rms": 392.0,
+     "line_rms": 277.2,
+     "pk": 554.4
+    },
+    "SW_A": {
+     "corner": {
+      "C_uF": 0.54,
+      "I_pk_A": 58.8,
+      "L_eq_uH": 59.9,
+      "R_eq_ohm": 0.168,
+      "f_kHz": 34.27,
+      "line_V": 140.0,
+      "phase_deg": 87.8
+     },
+     "crest_rms": 140.0,
+     "line_rms": 99.0,
+     "pk": 198.0
+    },
+    "SW_A_RES_A": {
+     "corner": {
+      "C_uF": 0.54,
+      "I_pk_A": 58.8,
+      "L_eq_uH": 69.0,
+      "R_eq_ohm": 1.0,
+      "f_kHz": 31.32,
+      "line_V": 140.0,
+      "phase_deg": 76.5
+     },
+     "crest_rms": 572.6,
+     "line_rms": 404.9,
+     "pk": 751.3
+    },
+    "SW_A_SW_B": {
+     "corner": {
+      "C_uF": 0.54,
+      "I_pk_A": 58.8,
+      "L_eq_uH": 59.9,
+      "R_eq_ohm": 0.168,
+      "f_kHz": 34.27,
+      "line_V": 140.0,
+      "phase_deg": 87.8
+     },
+     "crest_rms": 198.0,
+     "line_rms": 140.0,
+     "pk": 198.0
+    },
+    "SW_B": {
+     "corner": {
+      "C_uF": 0.54,
+      "I_pk_A": 58.8,
+      "L_eq_uH": 59.9,
+      "R_eq_ohm": 0.168,
+      "f_kHz": 34.27,
+      "line_V": 140.0,
+      "phase_deg": 87.8
+     },
+     "crest_rms": 140.0,
+     "line_rms": 99.0,
+     "pk": 198.0
+    }
+   },
+   "rho_pk_over_rms": 2.0,
+   "vcap_corner": {
+    "C_uF": 0.54,
+    "I_pk_A": 58.8,
+    "L_eq_uH": 66.0,
+    "R_eq_ohm": 1.0,
+    "f_kHz": 31.26,
+    "line_V": 120.0,
+    "phase_deg": 74.2
+   },
+   "vcap_crest_rms": 392.0,
+   "vcap_line_rms": 277.2,
+   "vcap_pk": 554.4,
+   "vcoil_corner": {
+    "C_uF": 0.54,
+    "I_pk_A": 58.8,
+    "L_eq_uH": 69.0,
+    "R_eq_ohm": 0.168,
+    "f_kHz": 31.48,
+    "line_V": 140.0,
+    "phase_deg": 87.8
+   },
+   "vcoil_crest_rms": 567.5,
+   "vcoil_line_rms": 401.3,
+   "vcoil_pk": 802.5
+  },
+  {
+   "ceiling_A": 29.4,
+   "corners": "design",
+   "n_points": 1332,
+   "nodes": {
+    "BUS_P_RES_A": {
+     "corner": {
+      "C_uF": 0.45,
+      "I_pk_A": 62.1,
+      "L_eq_uH": 63.0,
+      "R_eq_ohm": 1.0,
+      "f_kHz": 35.27,
+      "line_V": 140.0,
+      "phase_deg": 75.7
+     },
+     "crest_rms": 538.3,
+     "line_rms": 380.6,
+     "pk": 821.0
+    },
+    "RES_A": {
+     "corner": {
+      "C_uF": 0.45,
+      "I_pk_A": 62.1,
+      "L_eq_uH": 63.0,
+      "R_eq_ohm": 1.0,
+      "f_kHz": 35.27,
+      "line_V": 140.0,
+      "phase_deg": 75.7
+     },
+     "crest_rms": 538.3,
+     "line_rms": 380.6,
+     "pk": 821.0
+    },
+    "RES_A_SW_B": {
+     "corner": {
+      "C_uF": 0.45,
+      "I_pk_A": 62.1,
+      "L_eq_uH": 60.0,
+      "R_eq_ohm": 0.5,
+      "f_kHz": 35.0,
+      "line_V": 108.0,
+      "phase_deg": 80.8
+     },
+     "crest_rms": 443.9,
+     "line_rms": 313.9,
+     "pk": 627.7
+    },
+    "SW_A": {
+     "corner": {
+      "C_uF": 0.45,
+      "I_pk_A": 62.1,
+      "L_eq_uH": 59.9,
+      "R_eq_ohm": 0.168,
+      "f_kHz": 36.53,
+      "line_V": 140.0,
+      "phase_deg": 87.6
+     },
+     "crest_rms": 140.0,
+     "line_rms": 99.0,
+     "pk": 198.0
+    },
+    "SW_A_RES_A": {
+     "corner": {
+      "C_uF": 0.45,
+      "I_pk_A": 62.1,
+      "L_eq_uH": 63.0,
+      "R_eq_ohm": 1.0,
+      "f_kHz": 35.27,
+      "line_V": 140.0,
+      "phase_deg": 75.7
+     },
+     "crest_rms": 620.8,
+     "line_rms": 439.0,
+     "pk": 821.0
+    },
+    "SW_A_SW_B": {
+     "corner": {
+      "C_uF": 0.45,
+      "I_pk_A": 62.1,
+      "L_eq_uH": 59.9,
+      "R_eq_ohm": 0.168,
+      "f_kHz": 36.53,
+      "line_V": 140.0,
+      "phase_deg": 87.6
+     },
+     "crest_rms": 198.0,
+     "line_rms": 140.0,
+     "pk": 198.0
+    },
+    "SW_B": {
+     "corner": {
+      "C_uF": 0.45,
+      "I_pk_A": 62.1,
+      "L_eq_uH": 59.9,
+      "R_eq_ohm": 0.168,
+      "f_kHz": 36.53,
+      "line_V": 140.0,
+      "phase_deg": 87.6
+     },
+     "crest_rms": 140.0,
+     "line_rms": 99.0,
+     "pk": 198.0
+    }
+   },
+   "rho_pk_over_rms": 2.113,
+   "vcap_corner": {
+    "C_uF": 0.45,
+    "I_pk_A": 62.1,
+    "L_eq_uH": 60.0,
+    "R_eq_ohm": 0.5,
+    "f_kHz": 35.0,
+    "line_V": 108.0,
+    "phase_deg": 80.8
+   },
+   "vcap_crest_rms": 443.9,
+   "vcap_line_rms": 297.1,
+   "vcap_pk": 627.7,
+   "vcoil_corner": {
+    "C_uF": 0.45,
+    "I_pk_A": 62.1,
+    "L_eq_uH": 63.0,
+    "R_eq_ohm": 0.168,
+    "f_kHz": 35.45,
+    "line_V": 140.0,
+    "phase_deg": 87.6
+   },
+   "vcoil_crest_rms": 616.4,
+   "vcoil_line_rms": 412.6,
+   "vcoil_pk": 871.7
+  },
+  {
+   "ceiling_A": 29.4,
+   "corners": "orig-corner",
+   "n_points": 444,
+   "nodes": {
+    "BUS_P_RES_A": {
+     "corner": {
+      "C_uF": 0.54,
+      "I_pk_A": 62.1,
+      "L_eq_uH": 66.0,
+      "R_eq_ohm": 2.0,
+      "f_kHz": 31.26,
+      "line_V": 140.0,
+      "phase_deg": 60.5
+     },
+     "crest_rms": 504.9,
+     "line_rms": 357.0,
+     "pk": 783.1
+    },
+    "RES_A": {
+     "corner": {
+      "C_uF": 0.54,
+      "I_pk_A": 62.1,
+      "L_eq_uH": 66.0,
+      "R_eq_ohm": 2.0,
+      "f_kHz": 31.26,
+      "line_V": 140.0,
+      "phase_deg": 60.5
+     },
+     "crest_rms": 504.9,
+     "line_rms": 357.0,
+     "pk": 783.1
+    },
+    "RES_A_SW_B": {
+     "corner": {
+      "C_uF": 0.54,
+      "I_pk_A": 62.1,
+      "L_eq_uH": 60.0,
+      "R_eq_ohm": 3.0,
+      "f_kHz": 31.29,
+      "line_V": 132.0,
+      "phase_deg": 38.4
+     },
+     "crest_rms": 413.8,
+     "line_rms": 292.6,
+     "pk": 585.2
+    },
+    "SW_A": {
+     "corner": {
+      "C_uF": 0.54,
+      "I_pk_A": 62.1,
+      "L_eq_uH": 59.9,
+      "R_eq_ohm": 0.168,
+      "f_kHz": 33.9,
+      "line_V": 140.0,
+      "phase_deg": 87.6
+     },
+     "crest_rms": 140.0,
+     "line_rms": 99.0,
+     "pk": 198.0
+    },
+    "SW_A_RES_A": {
+     "corner": {
+      "C_uF": 0.54,
+      "I_pk_A": 62.1,
+      "L_eq_uH": 66.0,
+      "R_eq_ohm": 2.0,
+      "f_kHz": 31.26,
+      "line_V": 140.0,
+      "phase_deg": 60.5
+     },
+     "crest_rms": 582.0,
+     "line_rms": 411.6,
+     "pk": 783.1
+    },
+    "SW_A_SW_B": {
+     "corner": {
+      "C_uF": 0.54,
+      "I_pk_A": 62.1,
+      "L_eq_uH": 59.9,
+      "R_eq_ohm": 0.168,
+      "f_kHz": 33.9,
+      "line_V": 140.0,
+      "phase_deg": 87.6
+     },
+     "crest_rms": 198.0,
+     "line_rms": 140.0,
+     "pk": 198.0
+    },
+    "SW_B": {
+     "corner": {
+      "C_uF": 0.54,
+      "I_pk_A": 62.1,
+      "L_eq_uH": 59.9,
+      "R_eq_ohm": 0.168,
+      "f_kHz": 33.9,
+      "line_V": 140.0,
+      "phase_deg": 87.6
+     },
+     "crest_rms": 140.0,
+     "line_rms": 99.0,
+     "pk": 198.0
+    }
+   },
+   "rho_pk_over_rms": 2.113,
+   "vcap_corner": {
+    "C_uF": 0.54,
+    "I_pk_A": 62.1,
+    "L_eq_uH": 60.0,
+    "R_eq_ohm": 3.0,
+    "f_kHz": 31.29,
+    "line_V": 132.0,
+    "phase_deg": 38.4
+   },
+   "vcap_crest_rms": 413.8,
+   "vcap_line_rms": 277.0,
+   "vcap_pk": 585.2,
+   "vcoil_corner": {
+    "C_uF": 0.54,
+    "I_pk_A": 61.1,
+    "L_eq_uH": 69.0,
+    "R_eq_ohm": 0.168,
+    "f_kHz": 31.26,
+    "line_V": 140.0,
+    "phase_deg": 87.7
+   },
+   "vcoil_crest_rms": 585.2,
+   "vcoil_line_rms": 391.7,
+   "vcoil_pk": 827.7
+  }
+ ]
+}
