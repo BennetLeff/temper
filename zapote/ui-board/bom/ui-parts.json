@@ -2,14 +2,14 @@
   "schema": "temper.ui-board.parts.v1",
   "checked": "stock, JLC library type and price read from the public JLCPCB parts search (see jlc_stock_checked), read-only; datasheets are scratch copies outside the repo, cited by document and page in each part's basis",
   "summary": {
-    "bom_lines": 23,
-    "lcsc_lines": 22,
-    "basic": 14,
-    "extended": 8,
+    "bom_lines": 22,
+    "lcsc_lines": 21,
+    "basic": 11,
+    "extended": 10,
     "no_lcsc": [
-      "IPR3PAD2"
+      "Y31B13136FPLFG"
     ],
-    "placements": 56
+    "placements": 51
   },
   "parts": {
     "B12B-XH-A(LF)(SN)": {
@@ -27,20 +27,21 @@
       "footprint": "Connector_JST:JST_XH_B12B-XH-A_1x12_P2.50mm_Vertical",
       "qty": 1
     },
-    "7-215079-6": {
-      "lcsc": "C306122",
-      "role": "J2: encoder socket, mates the 7-215083-6 on the Grayhill lead",
-      "basis": "Grayhill 62AG/VG Rev. 02/2024 p.1 (connector is AMP 7-215083-6); enclosure R33 DECISIONS 3 (TE 7-215079-6)",
+    "SM10B-SRSS-TB(LF)(SN)": {
+      "lcsc": "C160409",
+      "role": "J8 (UI board) and J9 (sensor tab): 10-way JST SH harness headers",
+      "basis": "JST SH series; LCSC listing (1.00 mm, side entry SMD); the drawing was not fetched, the envelope in the floorplan is [UNVERIFIED]",
       "jlc_library": "extended",
-      "jlc_stock": 1077,
-      "jlc_price_usd_qty1": 1.4105,
-      "jlc_model": "7-215079-6",
+      "jlc_stock": 84949,
+      "jlc_price_usd_qty1": 0.4317,
+      "jlc_model": "SM10B-SRSS-TB(LF)(SN)",
       "jlc_stock_checked": "2026-10-12",
       "designators": [
-        "J2"
+        "J8",
+        "J9"
       ],
-      "footprint": "Temper_UI:TE_Micro-MaTch_7-215079-6_2x03_P1.27mm",
-      "qty": 1
+      "footprint": "Connector_JST:JST_SH_SM10B-SRSS-TB_1x10-1MP_P1.00mm_Horizontal",
+      "qty": 2
     },
     "PM254V-11-20-H85": {
       "lcsc": "C46595982",
@@ -51,7 +52,7 @@
           "lcsc": "C2905423",
           "mpn": "KH-2.54FH-1X20P-H8.5",
           "jlc_library": "extended",
-          "jlc_stock": 4589
+          "jlc_stock": 4402
         },
         {
           "lcsc": "C41417332",
@@ -74,7 +75,7 @@
     "MCP23S08-E/SO": {
       "lcsc": "C152205",
       "role": "U1: SPI I/O expander, opcode 0x40",
-      "basis": "Microchip DS20001919F p.4, p.22, p.27-28 (1.8-5.5 V, 10 MHz at 2.7-5.5 V I-temp). The JLC listing says 4.5-5.5 V; the datasheet governs",
+      "basis": "Microchip DS20001919F p.4, p.22, p.27-29 (1.8-5.5 V, 10 MHz at 2.7-5.5 V I-temp). The JLC listing says 4.5-5.5 V; the datasheet governs",
       "alternates": [
         {
           "lcsc": "C631462",
@@ -96,7 +97,7 @@
     },
     "TMP122AIDBVR": {
       "lcsc": "C2877606",
-      "role": "U2: temperature near the OLED (FW-UI-1 derate)",
+      "role": "U2: temperature near the OLED (FW-UI-1 derate); CS# qualified by U10 (DECISIONS U20)",
       "basis": "TI SBOS272B p.2-3, p.9. Low stock at JLC: buy before the board run",
       "jlc_library": "extended",
       "jlc_stock": 17,
@@ -109,24 +110,54 @@
       "footprint": "Package_TO_SOT_SMD:SOT-23-6",
       "qty": 1
     },
-    "TLV3202AIDR": {
-      "lcsc": "C129325",
-      "role": "U3: encoder A/B level restorer (threshold 1.5 V)",
-      "basis": "TI SBOS561C p.3 (pins), p.6 (electrical)",
+    "TMAG5170A1QDGKR": {
+      "lcsc": "C5220642",
+      "role": "U8: 3-axis Hall sensor on the sensor tab (knob angle, push, removal)",
+      "basis": "TI SBASAF4 p.4-6 (pins, ranges), p.16 (Hall location), p.28-29 (frames); exact active orderable per the owner's SOURCES.md (the DGKT is obsolete)",
       "jlc_library": "extended",
-      "jlc_stock": 7417,
-      "jlc_price_usd_qty1": 1.0994,
-      "jlc_model": "TLV3202AIDR",
+      "jlc_stock": 4342,
+      "jlc_price_usd_qty1": 2.3095,
+      "jlc_model": "TMAG5170A1QDGKR",
       "jlc_stock_checked": "2026-10-12",
       "designators": [
-        "U3"
+        "U8"
       ],
-      "footprint": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+      "footprint": "Package_SO:VSSOP-8_3.0x3.0mm_P0.65mm",
+      "qty": 1
+    },
+    "SN74LVC1G00DBVR": {
+      "lcsc": "C7826",
+      "role": "U9: BUS_BUSY = NAND(CS_EXP#, CS_OLED#)",
+      "basis": "TI SCES212 pin functions p.3, switching p.6 (tpd 4.7 ns max at 3.3 V, 5.0 ns to 125 C)",
+      "jlc_library": "extended",
+      "jlc_stock": 5336,
+      "jlc_price_usd_qty1": 0.1224,
+      "jlc_model": "SN74LVC1G00DBVR",
+      "jlc_stock_checked": "2026-10-12",
+      "designators": [
+        "U9"
+      ],
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "qty": 1
+    },
+    "SN74LVC2G32DCUR": {
+      "lcsc": "C91874",
+      "role": "U10: dual OR, CS_TMAG# and CS_TMP# = GPx OR BUS_BUSY",
+      "basis": "TI SCES201N pins p.3, switching p.6 (tpd 3.8 ns max at 3.3 V, 4.8 ns to 125 C)",
+      "jlc_library": "extended",
+      "jlc_stock": 9631,
+      "jlc_price_usd_qty1": 0.5473,
+      "jlc_model": "SN74LVC2G32DCUR",
+      "jlc_stock_checked": "2026-10-12",
+      "designators": [
+        "U10"
+      ],
+      "footprint": "Package_SO:VSSOP-8_2.3x2mm_P0.5mm",
       "qty": 1
     },
     "SRV05-4": {
       "lcsc": "C2836319",
-      "role": "U4-U7: ESD arrays (J7, buttons, encoder); same part as the controller's J7",
+      "role": "U4-U7: ESD arrays (J7 x2, buttons, sensor tab); same part as the controller's J7",
       "basis": "MSKSEMI SRV05-4; controller DECISIONS C26",
       "jlc_library": "extended",
       "jlc_stock": 401990,
@@ -142,30 +173,30 @@
       "footprint": "Package_TO_SOT_SMD:SOT-23-6",
       "qty": 4
     },
-    "GSD9605YB-3V2800": {
-      "lcsc": "C255327",
-      "role": "BZ1: self-oscillating electromagnetic buzzer, 3.3 V rated (-20..+70 C)",
-      "basis": "Inghai spec sheet V1.1 p.1-2",
+    "GSD9605YB-5V2800": {
+      "lcsc": "C530415",
+      "role": "BZ1: self-oscillating electromagnetic buzzer, 2-12 V, -30..+85 C (replaces the 70 C part)",
+      "basis": "LCSC C530415 listing (the spec sheet could not be fetched: access denied); DECISIONS U28",
       "alternates": [
-        {
-          "lcsc": "C530415",
-          "mpn": "GSD9605YB-5V2800",
-          "note": "-30..+85 C, 5 V rated, 2-12 V operating; same 9.6 x 9.6 footprint; SPL at 3.3 V not specified",
-          "jlc_library": "extended",
-          "jlc_stock": 280
-        },
         {
           "lcsc": "C42420997",
           "mpn": "SMD-9650-3327",
-          "note": "-20..+80 C, 3.3 V rated",
+          "note": "-20..+80 C, 3.3 V rated: fails the 80 C board case",
           "jlc_library": "extended",
-          "jlc_stock": 4675
+          "jlc_stock": 4650
+        },
+        {
+          "lcsc": "C255327",
+          "mpn": "GSD9605YB-3V2800",
+          "note": "-20..+70 C: the replaced part",
+          "jlc_library": "extended",
+          "jlc_stock": 11495
         }
       ],
       "jlc_library": "extended",
-      "jlc_stock": 11495,
-      "jlc_price_usd_qty1": 0.6971,
-      "jlc_model": "GSD9605YB-3V2800",
+      "jlc_stock": 280,
+      "jlc_price_usd_qty1": 0.7199,
+      "jlc_model": "GSD9605YB-5V2800",
       "jlc_stock_checked": "2026-10-12",
       "designators": [
         "BZ1"
@@ -178,7 +209,7 @@
       "role": "Q1: buzzer low-side switch",
       "basis": "LCSC C20917 listing (30 V, 1.45 V max Vth, 48 mohm at 2.5 V)",
       "jlc_library": "basic",
-      "jlc_stock": 784624,
+      "jlc_stock": 784376,
       "jlc_price_usd_qty1": 0.089,
       "jlc_model": "AO3400A",
       "jlc_stock_checked": "2026-10-12",
@@ -193,7 +224,7 @@
       "role": "D1 buzzer flyback; D2 OLED RES# discharge",
       "basis": "LCSC C2128 listing (100 V, 150 mA, 4 ns)",
       "jlc_library": "basic",
-      "jlc_stock": 2943901,
+      "jlc_stock": 2943745,
       "jlc_price_usd_qty1": 0.0155,
       "jlc_model": "1N4148WS",
       "jlc_stock_checked": "2026-10-12",
@@ -204,27 +235,12 @@
       "footprint": "Diode_SMD:D_SOD-323",
       "qty": 2
     },
-    "BLM18PG121SN1D": {
-      "lcsc": "C14709",
-      "role": "FB1: encoder supply bead (50 mohm max)",
-      "basis": "LCSC C14709 listing (120 ohm at 100 MHz, 2 A, 50 mohm)",
-      "jlc_library": "basic",
-      "jlc_stock": 1442747,
-      "jlc_price_usd_qty1": 0.0146,
-      "jlc_model": "BLM18PG121SN1D",
-      "jlc_stock_checked": "2026-10-12",
-      "designators": [
-        "FB1"
-      ],
-      "footprint": "Inductor_SMD:L_0603_1608Metric",
-      "qty": 1
-    },
     "0603WAF1000T5E": {
       "lcsc": "C22775",
       "role": "100 ohm 1 %: MISO source termination, buzzer gate",
       "basis": "UNI-ROYAL 0603 1 %",
       "jlc_library": "basic",
-      "jlc_stock": 10207313,
+      "jlc_stock": 10202406,
       "jlc_price_usd_qty1": 0.0031,
       "jlc_model": "0603WAF1000T5E",
       "jlc_stock_checked": "2026-10-12",
@@ -235,30 +251,44 @@
       "footprint": "Resistor_SMD:R_0603_1608Metric",
       "qty": 2
     },
-    "0603WAF1001T5E": {
-      "lcsc": "C21190",
-      "role": "1 kohm 1 %: button / encoder-switch series",
+    "0603WAF3900T5E": {
+      "lcsc": "C23151",
+      "role": "390 ohm 1 %: TMAG5170 SDO series (limits a double select below 10 mA)",
       "basis": "UNI-ROYAL 0603 1 %",
       "jlc_library": "basic",
-      "jlc_stock": 26270630,
+      "jlc_stock": 2433386,
+      "jlc_price_usd_qty1": 0.0016,
+      "jlc_model": "0603WAF3900T5E",
+      "jlc_stock_checked": "2026-10-12",
+      "designators": [
+        "R28"
+      ],
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "qty": 1
+    },
+    "0603WAF1001T5E": {
+      "lcsc": "C21190",
+      "role": "1 kohm 1 %: button series",
+      "basis": "UNI-ROYAL 0603 1 %",
+      "jlc_library": "basic",
+      "jlc_stock": 26268812,
       "jlc_price_usd_qty1": 0.0026,
       "jlc_model": "0603WAF1001T5E",
       "jlc_stock_checked": "2026-10-12",
       "designators": [
         "R1",
         "R2",
-        "R3",
-        "R7"
+        "R3"
       ],
       "footprint": "Resistor_SMD:R_0603_1608Metric",
-      "qty": 4
+      "qty": 3
     },
     "0603WAF1002T5E": {
       "lcsc": "C25804",
-      "role": "10 kohm 1 %: pull-ups, comparator input and divider",
+      "role": "10 kohm 1 %: pull-ups (buttons, GP3-GP5, GP7, CS#, ALERT, resets)",
       "basis": "UNI-ROYAL 0603 1 %",
       "jlc_library": "basic",
-      "jlc_stock": 32799942,
+      "jlc_stock": 32797240,
       "jlc_price_usd_qty1": 0.0022,
       "jlc_model": "0603WAF1002T5E",
       "jlc_stock_checked": "2026-10-12",
@@ -266,26 +296,25 @@
         "R4",
         "R5",
         "R6",
-        "R8",
-        "R9",
-        "R10",
-        "R11",
-        "R12",
-        "R16",
         "R17",
         "R18",
         "R19",
-        "R23"
+        "R23",
+        "R24",
+        "R25",
+        "R26",
+        "R27",
+        "R29"
       ],
       "footprint": "Resistor_SMD:R_0603_1608Metric",
-      "qty": 13
+      "qty": 12
     },
     "0603WAF1003T5E": {
       "lcsc": "C25803",
       "role": "100 kohm 1 %: buzzer gate pull-down",
       "basis": "UNI-ROYAL 0603 1 %",
       "jlc_library": "basic",
-      "jlc_stock": 20518207,
+      "jlc_stock": 20517594,
       "jlc_price_usd_qty1": 0.0031,
       "jlc_model": "0603WAF1003T5E",
       "jlc_stock_checked": "2026-10-12",
@@ -295,43 +324,12 @@
       "footprint": "Resistor_SMD:R_0603_1608Metric",
       "qty": 1
     },
-    "0603WAF1202T5E": {
-      "lcsc": "C22790",
-      "role": "12 kohm 1 %: comparator reference top",
-      "basis": "UNI-ROYAL 0603 1 %",
-      "jlc_library": "basic",
-      "jlc_stock": 1071109,
-      "jlc_price_usd_qty1": 0.0031,
-      "jlc_model": "0603WAF1202T5E",
-      "jlc_stock_checked": "2026-10-12",
-      "designators": [
-        "R15"
-      ],
-      "footprint": "Resistor_SMD:R_0603_1608Metric",
-      "qty": 1
-    },
-    "0603WAF4703T5E": {
-      "lcsc": "C23178",
-      "role": "470 kohm 1 %: comparator hysteresis",
-      "basis": "UNI-ROYAL 0603 1 %",
-      "jlc_library": "basic",
-      "jlc_stock": 1383105,
-      "jlc_price_usd_qty1": 0.003,
-      "jlc_model": "0603WAF4703T5E",
-      "jlc_stock_checked": "2026-10-12",
-      "designators": [
-        "R13",
-        "R14"
-      ],
-      "footprint": "Resistor_SMD:R_0603_1608Metric",
-      "qty": 2
-    },
     "CC0603KRX7R9BB104": {
       "lcsc": "C14663",
       "role": "100 nF 50 V X7R: decoupling",
       "basis": "Yageo 0603 X7R",
       "jlc_library": "basic",
-      "jlc_stock": 54640957,
+      "jlc_stock": 54634730,
       "jlc_price_usd_qty1": 0.014,
       "jlc_model": "CC0603KRX7R9BB104",
       "jlc_stock_checked": "2026-10-12",
@@ -339,11 +337,11 @@
         "C2",
         "C3",
         "C4",
-        "C5",
         "C7",
-        "C9",
         "C11",
-        "C15"
+        "C16",
+        "C17",
+        "C18"
       ],
       "footprint": "Capacitor_SMD:C_0603_1608Metric",
       "qty": 8
@@ -353,7 +351,7 @@
       "role": "1 uF 50 V X5R: OLED RES# timing",
       "basis": "Samsung 0603 X5R",
       "jlc_library": "basic",
-      "jlc_stock": 8303259,
+      "jlc_stock": 8300891,
       "jlc_price_usd_qty1": 0.0163,
       "jlc_model": "CL10A105KB8NNNC",
       "jlc_stock_checked": "2026-10-12",
@@ -365,26 +363,25 @@
     },
     "CL10A106KP8NNNC": {
       "lcsc": "C19702",
-      "role": "10 uF 10 V X5R: encoder and buzzer bulk",
+      "role": "10 uF 10 V X5R: buzzer bulk",
       "basis": "Samsung 0603 X5R",
       "jlc_library": "basic",
-      "jlc_stock": 9591485,
+      "jlc_stock": 9592654,
       "jlc_price_usd_qty1": 0.0305,
       "jlc_model": "CL10A106KP8NNNC",
       "jlc_stock_checked": "2026-10-12",
       "designators": [
-        "C8",
         "C10"
       ],
       "footprint": "Capacitor_SMD:C_0603_1608Metric",
-      "qty": 2
+      "qty": 1
     },
     "CL21A226MAQNNNE": {
       "lcsc": "C45783",
       "role": "22 uF 25 V X5R 0805: J7 and OLED bulk",
       "basis": "Samsung 0805 X5R",
       "jlc_library": "basic",
-      "jlc_stock": 3590912,
+      "jlc_stock": 3590644,
       "jlc_price_usd_qty1": 0.2369,
       "jlc_model": "CL21A226MAQNNNE",
       "jlc_stock_checked": "2026-10-12",
@@ -395,33 +392,22 @@
       "footprint": "Capacitor_SMD:C_0805_2012Metric",
       "qty": 2
     },
-    "0603B471K500NT": {
-      "lcsc": "C1620",
-      "role": "470 pF 50 V X7R: encoder noise capacitor (< 1 nF per Grayhill)",
-      "basis": "Grayhill 62AG/VG p.3",
-      "jlc_library": "basic",
-      "jlc_stock": 833474,
-      "jlc_price_usd_qty1": 0.0079,
-      "jlc_model": "0603B471K500NT",
-      "jlc_stock_checked": "2026-10-12",
-      "designators": [
-        "C13",
-        "C14"
-      ],
-      "footprint": "Capacitor_SMD:C_0603_1608Metric",
-      "qty": 2
-    },
-    "IPR3PAD2": {
+    "Y31B13136FPLFG": {
       "lcsc": null,
-      "lcsc_exception": "hand-fitted IP67 panel pushbutton (APEM IP series, straight PC pins); no LCSC listing; bought with the enclosure controls BOM (controls-apem-*) and soldered after PCBA",
-      "role": "SW1-SW3: START / STOP / BACK buttons",
-      "basis": "APEM IP series catalogue p.2, p.5",
+      "listed": "C2798957",
+      "lcsc_exception": "C&K KSC223G LFG gold tact (current orderable Y31B13136FPLFG): JLC lists C2798957 with 0 stock on the check date; consign the parts or hand-fit them after PCBA, no LCSC code can be ordered today",
+      "role": "SW1-SW3: START / STOP / BACK tact switches under the owner's metal caps",
+      "basis": "UI-BOARD-REQUIREMENTS (KSC2 drawing figures as quoted); the drawing was not fetched (access denied)",
+      "listed_stock": 0,
+      "listed_library": "extended",
+      "listed_price_usd_qty1": 0.4194,
+      "listed_stock_checked": "2026-10-12",
       "designators": [
         "SW1",
         "SW2",
         "SW3"
       ],
-      "footprint": "Temper_UI:APEM_IPR3PAD2_PC_P5.08mm",
+      "footprint": "Temper_UI:CK_KSC2_G_gullwing_6.2x6.2mm",
       "qty": 3
     }
   },
@@ -432,13 +418,23 @@
       "lcsc": null
     },
     {
-      "item": "Encoder Grayhill 62VG15-H9S-030C with 3 in lead and AMP 7-215083-6 plug",
-      "source": "enclosure controls BOM (controls-encoder)",
+      "item": "Jumper to controller J7: JST XHP-12 housing x2 + SXH-001T-P0.6 contacts x24, AWG28, 120 mm cut",
+      "source": "enclosure harness_UI_fascia_to_controller",
       "lcsc": null
     },
     {
-      "item": "Jumper: JST XHP-12 housing x2 + SXH-001T-P0.6 contacts x24, AWG28, 120 mm cut",
-      "source": "enclosure harness_UI_fascia_to_controller",
+      "item": "Sensor-tab harness: JST SHR-10V-S housing x2 + SSH-003T-P0.2 contacts x20, AWG28-30, about 150 mm, 1:1",
+      "source": "enclosure BOM (to be added, R44)",
+      "lcsc": null
+    },
+    {
+      "item": "Magnet dia 10 x 5 diametric Sm2Co17 (RECOMA 35E candidate), metal knob, owned caps, FKM diaphragms",
+      "source": "enclosure controls BOM (R44)",
+      "lcsc": null
+    },
+    {
+      "item": "Non-magnetic low-conductivity standoffs x3, 1.78 mm, M2.5, for the sensor tab",
+      "source": "enclosure BOM (to be added, R44)",
       "lcsc": null
     }
   ]

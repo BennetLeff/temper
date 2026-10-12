@@ -1,8 +1,8 @@
 {
   "schema": "temper.ui-board.mutations.v1",
   "baseline_failed": [],
-  "mutations": 21,
-  "caught": 21,
+  "mutations": 38,
+  "caught": 38,
   "results": [
     {
       "name": "swap_j7_sck_mosi",
@@ -47,23 +47,6 @@
       ]
     },
     {
-      "name": "drop_encoder_a_pullup",
-      "what": "remove the pull-up on encoder A (R9 loses its rail pin)",
-      "expected_to_fail": [
-        "inputs.gp3_has_external_pullup_le_47k",
-        "encoder.enc_a_pullup_10k_to_encoder_rail"
-      ],
-      "caught": [
-        "inputs.gp3_has_external_pullup_le_47k",
-        "encoder.enc_a_pullup_10k_to_encoder_rail"
-      ],
-      "ok": true,
-      "all_failures": [
-        "inputs.gp3_has_external_pullup_le_47k",
-        "encoder.enc_a_pullup_10k_to_encoder_rail"
-      ]
-    },
-    {
       "name": "drop_stop_button_pullup",
       "what": "remove the STOP button pull-up (R5)",
       "expected_to_fail": [
@@ -74,21 +57,25 @@
       ],
       "ok": true,
       "all_failures": [
-        "inputs.gp1_has_external_pullup_le_47k"
+        "inputs.gp1_has_external_pullup_le_47k",
+        "tact.sw_stop_active_low_to_gnd_with_10k_pullup"
       ]
     },
     {
       "name": "drop_tmp_cs_pullup",
-      "what": "remove the TMP122 chip-select pull-up (R17)",
+      "what": "remove the TMP122 select pull-up (R17): GP7 floats at reset",
       "expected_to_fail": [
-        "inputs.gp7_has_external_pullup_le_47k"
+        "inputs.gp7_has_external_pullup_le_47k",
+        "cs.tmp_cs_deselected_at_reset"
       ],
       "caught": [
-        "inputs.gp7_has_external_pullup_le_47k"
+        "inputs.gp7_has_external_pullup_le_47k",
+        "cs.tmp_cs_deselected_at_reset"
       ],
       "ok": true,
       "all_failures": [
-        "inputs.gp7_has_external_pullup_le_47k"
+        "inputs.gp7_has_external_pullup_le_47k",
+        "cs.tmp_cs_deselected_at_reset"
       ]
     },
     {
@@ -107,7 +94,7 @@
     },
     {
       "name": "buzzer_on_5v",
-      "what": "buzzer supplied from V5_UI: 47 mA at 5.1 V against a 30 mA budget",
+      "what": "buzzer supplied from V5_UI: its current against a 30 mA budget",
       "expected_to_fail": [
         "power.v5_budget_le_30mA",
         "buzzer.buzzer_between_3v3_and_q1_drain"
@@ -136,20 +123,6 @@
       "ok": true,
       "all_failures": [
         "decoup.u_exp_has_100nF_between_supply_and_ground"
-      ]
-    },
-    {
-      "name": "remove_comparator_decoupling",
-      "what": "remove U3's 100 nF (C5)",
-      "expected_to_fail": [
-        "decoup.u_cmp_has_100nF_between_supply_and_ground"
-      ],
-      "caught": [
-        "decoup.u_cmp_has_100nF_between_supply_and_ground"
-      ],
-      "ok": true,
-      "all_failures": [
-        "decoup.u_cmp_has_100nF_between_supply_and_ground"
       ]
     },
     {
@@ -217,6 +190,21 @@
       ]
     },
     {
+      "name": "zero_tmag_stock",
+      "what": "TMAG5170 stock recorded as 0",
+      "expected_to_fail": [
+        "bom.stock_covers_one_board"
+      ],
+      "caught": [
+        "bom.stock_covers_one_board"
+      ],
+      "ok": true,
+      "all_failures": [
+        "bom.stock_and_check_date_recorded",
+        "bom.stock_covers_one_board"
+      ]
+    },
+    {
       "name": "pullup_on_oled_dc",
       "what": "a pull-up lands on OLED D/C (GPIO45 strap must read low at reset)",
       "expected_to_fail": [
@@ -228,27 +216,8 @@
       "ok": true,
       "all_failures": [
         "j7.j7_dc_has_no_resistor_or_pull",
-        "inputs.gp7_has_external_pullup_le_47k"
-      ]
-    },
-    {
-      "name": "swap_encoder_a_b",
-      "what": "encoder A and B swapped at J2",
-      "expected_to_fail": [
-        "encoder.j2_pin_map_per_grayhill_vg",
-        "gpmap.fw_enc_a_lands_on_its_gp",
-        "gpmap.fw_enc_b_lands_on_its_gp"
-      ],
-      "caught": [
-        "encoder.j2_pin_map_per_grayhill_vg",
-        "gpmap.fw_enc_a_lands_on_its_gp",
-        "gpmap.fw_enc_b_lands_on_its_gp"
-      ],
-      "ok": true,
-      "all_failures": [
-        "gpmap.fw_enc_a_lands_on_its_gp",
-        "gpmap.fw_enc_b_lands_on_its_gp",
-        "encoder.j2_pin_map_per_grayhill_vg"
+        "inputs.gp7_has_external_pullup_le_47k",
+        "cs.tmp_cs_deselected_at_reset"
       ]
     },
     {
@@ -263,6 +232,20 @@
       "ok": true,
       "all_failures": [
         "esd.every_external_facing_line_has_srv05_clamp"
+      ]
+    },
+    {
+      "name": "remove_tab_esd",
+      "what": "SRV05-4 U7 loses the sensor-tab CS# channel",
+      "expected_to_fail": [
+        "esd.sensor_tab_inputs_have_srv05_clamp"
+      ],
+      "caught": [
+        "esd.sensor_tab_inputs_have_srv05_clamp"
+      ],
+      "ok": true,
+      "all_failures": [
+        "esd.sensor_tab_inputs_have_srv05_clamp"
       ]
     },
     {
@@ -325,17 +308,376 @@
       ]
     },
     {
-      "name": "bad_comparator_reference",
-      "what": "R16 20 k: the encoder threshold rises to 2.1 V, above the encoder's worst high",
+      "name": "drop_qualifying_gate_tmag",
+      "what": "TMAG5170 CS# wired straight to GP3 (the gate is bypassed)",
       "expected_to_fail": [
-        "encoder.comparator_high_margin_ge_0p3V"
+        "cs.tmag_cs_truth_table_8_of_8",
+        "cs.miso_drivers_high_z_unless_qualified_selected",
+        "gpmap.gp3_reaches_the_tmag_chip_select_only_through_the_gate"
       ],
       "caught": [
-        "encoder.comparator_high_margin_ge_0p3V"
+        "cs.tmag_cs_truth_table_8_of_8",
+        "cs.miso_drivers_high_z_unless_qualified_selected",
+        "gpmap.gp3_reaches_the_tmag_chip_select_only_through_the_gate"
       ],
       "ok": true,
       "all_failures": [
-        "encoder.comparator_high_margin_ge_0p3V"
+        "gpmap.gp3_reaches_the_tmag_chip_select_only_through_the_gate",
+        "cs.tmag_cs_truth_table_8_of_8",
+        "cs.miso_drivers_high_z_unless_qualified_selected",
+        "cs.at_most_one_miso_driver_except_double_select_of_both_gps",
+        "cs.tmag5170_pin_map_and_test_grounded"
+      ]
+    },
+    {
+      "name": "drop_qualifying_gate_tmp",
+      "what": "TMP122 CS# wired straight to GP7 (the gate is bypassed)",
+      "expected_to_fail": [
+        "cs.tmp_cs_truth_table_8_of_8",
+        "cs.miso_drivers_high_z_unless_qualified_selected"
+      ],
+      "caught": [
+        "cs.tmp_cs_truth_table_8_of_8",
+        "cs.miso_drivers_high_z_unless_qualified_selected"
+      ],
+      "ok": true,
+      "all_failures": [
+        "cs.tmp122_sio_on_miso_local_cs_from_the_gate_sck_on_bus",
+        "cs.tmp_cs_truth_table_8_of_8",
+        "cs.miso_drivers_high_z_unless_qualified_selected",
+        "cs.at_most_one_miso_driver_except_double_select_of_both_gps"
+      ]
+    },
+    {
+      "name": "wrong_gate_polarity",
+      "what": "BUS_BUSY gate is an AND instead of a NAND (SN74LVC1G08 in place of the 1G00)",
+      "expected_to_fail": [
+        "cs.tmag_cs_truth_table_8_of_8",
+        "cs.tmp_cs_truth_table_8_of_8",
+        "cs.gate_parts_are_nand_and_dual_or"
+      ],
+      "caught": [
+        "cs.tmag_cs_truth_table_8_of_8",
+        "cs.tmp_cs_truth_table_8_of_8",
+        "cs.gate_parts_are_nand_and_dual_or"
+      ],
+      "ok": true,
+      "all_failures": [
+        "power.no_unmodelled_load_on_rails",
+        "cs.gate_parts_are_nand_and_dual_or",
+        "cs.tmag_cs_truth_table_8_of_8",
+        "cs.tmp_cs_truth_table_8_of_8",
+        "cs.miso_drivers_high_z_unless_qualified_selected",
+        "cs.at_most_one_miso_driver_except_double_select_of_both_gps",
+        "bom.every_netlist_mpn_is_in_the_bom"
+      ]
+    },
+    {
+      "name": "gate_ignores_cs_oled",
+      "what": "the NAND's CS_OLED# input is tied high: an OLED frame no longer deselects the sensor",
+      "expected_to_fail": [
+        "cs.tmag_cs_truth_table_8_of_8",
+        "cs.tmp_cs_truth_table_8_of_8",
+        "cs.bus_busy_is_nand_of_cs_exp_and_cs_oled"
+      ],
+      "caught": [
+        "cs.tmag_cs_truth_table_8_of_8",
+        "cs.tmp_cs_truth_table_8_of_8",
+        "cs.bus_busy_is_nand_of_cs_exp_and_cs_oled"
+      ],
+      "ok": true,
+      "all_failures": [
+        "cs.bus_busy_is_nand_of_cs_exp_and_cs_oled",
+        "cs.tmag_cs_truth_table_8_of_8",
+        "cs.tmp_cs_truth_table_8_of_8",
+        "cs.miso_drivers_high_z_unless_qualified_selected",
+        "cs.at_most_one_miso_driver_except_double_select_of_both_gps"
+      ]
+    },
+    {
+      "name": "gate_ignores_cs_exp",
+      "what": "the NAND's CS_EXP# input is tied high: an expander write no longer deselects the sensor",
+      "expected_to_fail": [
+        "cs.tmag_cs_truth_table_8_of_8",
+        "cs.tmp_cs_truth_table_8_of_8",
+        "cs.bus_busy_is_nand_of_cs_exp_and_cs_oled"
+      ],
+      "caught": [
+        "cs.tmag_cs_truth_table_8_of_8",
+        "cs.tmp_cs_truth_table_8_of_8",
+        "cs.bus_busy_is_nand_of_cs_exp_and_cs_oled"
+      ],
+      "ok": true,
+      "all_failures": [
+        "cs.bus_busy_is_nand_of_cs_exp_and_cs_oled",
+        "cs.tmag_cs_truth_table_8_of_8",
+        "cs.tmp_cs_truth_table_8_of_8",
+        "cs.miso_drivers_high_z_unless_qualified_selected",
+        "cs.at_most_one_miso_driver_except_double_select_of_both_gps"
+      ]
+    },
+    {
+      "name": "missing_cs_pullup_tmag",
+      "what": "remove the sensor's CS# pull-up (R24): CS# floats if the gate is unpowered or the harness unplugged",
+      "expected_to_fail": [
+        "cs.tmag_cs_has_pullup_le_47k"
+      ],
+      "caught": [
+        "cs.tmag_cs_has_pullup_le_47k"
+      ],
+      "ok": true,
+      "all_failures": [
+        "cs.tmag_cs_has_pullup_le_47k"
+      ]
+    },
+    {
+      "name": "missing_cs_pullup_tmp",
+      "what": "remove the TMP122's CS# pull-up (R29)",
+      "expected_to_fail": [
+        "cs.tmp_cs_has_pullup_le_47k"
+      ],
+      "caught": [
+        "cs.tmp_cs_has_pullup_le_47k"
+      ],
+      "ok": true,
+      "all_failures": [
+        "cs.tmp_cs_has_pullup_le_47k"
+      ]
+    },
+    {
+      "name": "tmag_select_on_wrong_gp",
+      "what": "the TMAG select gate input moved from GP3 to GP2 (the BACK button line)",
+      "expected_to_fail": [
+        "gpmap.gp3_is_tmag_select_to_the_qualification_gate",
+        "gpmap.tmag_select_not_on_a_fixed_gp",
+        "cs.tmag_cs_truth_table_8_of_8"
+      ],
+      "caught": [
+        "gpmap.gp3_is_tmag_select_to_the_qualification_gate",
+        "gpmap.tmag_select_not_on_a_fixed_gp",
+        "cs.tmag_cs_truth_table_8_of_8"
+      ],
+      "ok": true,
+      "all_failures": [
+        "gpmap.gp3_is_tmag_select_to_the_qualification_gate",
+        "gpmap.gp3_reaches_the_tmag_chip_select_only_through_the_gate",
+        "gpmap.tmag_select_not_on_a_fixed_gp",
+        "cs.tmag_cs_truth_table_8_of_8",
+        "cs.tmag_cs_deselected_at_reset",
+        "cs.miso_drivers_high_z_unless_qualified_selected",
+        "cs.at_most_one_miso_driver_except_double_select_of_both_gps",
+        "cs.no_miso_driver_enabled_at_reset_and_idle"
+      ]
+    },
+    {
+      "name": "sensor_selected_at_reset",
+      "what": "GP3's pull-up becomes a pull-down: the sensor is selected whenever the bus is idle at reset",
+      "expected_to_fail": [
+        "cs.tmag_cs_deselected_at_reset",
+        "inputs.gp3_has_external_pullup_le_47k"
+      ],
+      "caught": [
+        "cs.tmag_cs_deselected_at_reset",
+        "inputs.gp3_has_external_pullup_le_47k"
+      ],
+      "ok": true,
+      "all_failures": [
+        "inputs.gp3_has_external_pullup_le_47k",
+        "cs.tmag_cs_deselected_at_reset"
+      ]
+    },
+    {
+      "name": "tmp_always_selected",
+      "what": "TMP122 CS# tied to GND: it drives MISO all the time",
+      "expected_to_fail": [
+        "cs.miso_drivers_high_z_unless_qualified_selected",
+        "cs.no_miso_driver_enabled_at_reset_and_idle",
+        "cs.tmp_cs_truth_table_8_of_8"
+      ],
+      "caught": [
+        "cs.miso_drivers_high_z_unless_qualified_selected",
+        "cs.no_miso_driver_enabled_at_reset_and_idle",
+        "cs.tmp_cs_truth_table_8_of_8"
+      ],
+      "ok": true,
+      "all_failures": [
+        "gpmap.fw_local_lands_on_its_gp",
+        "cs.tmp122_sio_on_miso_local_cs_from_the_gate_sck_on_bus",
+        "cs.tmp_cs_truth_table_8_of_8",
+        "cs.tmp_cs_deselected_at_reset",
+        "cs.tmp_cs_has_pullup_le_47k",
+        "cs.miso_drivers_high_z_unless_qualified_selected",
+        "cs.at_most_one_miso_driver_except_double_select_of_both_gps",
+        "cs.no_miso_driver_enabled_at_reset_and_idle"
+      ]
+    },
+    {
+      "name": "tmag_sdo_resistor_too_small",
+      "what": "R28 (TMAG SDO series) replaced by 33 ohm: a double select could exceed 10 mA",
+      "expected_to_fail": [
+        "cs.tmag_sdo_series_resistor_limits_double_select_below_10mA"
+      ],
+      "caught": [
+        "cs.tmag_sdo_series_resistor_limits_double_select_below_10mA"
+      ],
+      "ok": true,
+      "all_failures": [
+        "cs.tmag_sdo_series_resistor_limits_double_select_below_10mA"
+      ]
+    },
+    {
+      "name": "tmag_test_pin_floating",
+      "what": "TMAG5170 TEST (pin 7) left open instead of grounded",
+      "expected_to_fail": [
+        "cs.tmag5170_pin_map_and_test_grounded"
+      ],
+      "caught": [
+        "cs.tmag5170_pin_map_and_test_grounded"
+      ],
+      "ok": true,
+      "all_failures": [
+        "cs.tmag5170_pin_map_and_test_grounded"
+      ]
+    },
+    {
+      "name": "harness_cs_alert_swapped",
+      "what": "J9 pins 1 and 9 swapped (CS# <-> ALERT) on the sensor tab",
+      "expected_to_fail": [
+        "tab.J9_pin_map_1to1_harness"
+      ],
+      "caught": [
+        "tab.J9_pin_map_1to1_harness"
+      ],
+      "ok": true,
+      "all_failures": [
+        "tab.J9_pin_map_1to1_harness"
+      ]
+    },
+    {
+      "name": "buzzer_too_hot",
+      "what": "the 70 C buzzer (GSD9605YB-3V2800) is back: no margin at the predicted body temperature",
+      "expected_to_fail": [
+        "buzzer.buzzer_rating_covers_predicted_worst_case_temperature",
+        "removed.removed_mpns_absent_from_the_netlist"
+      ],
+      "caught": [
+        "buzzer.buzzer_rating_covers_predicted_worst_case_temperature",
+        "removed.removed_mpns_absent_from_the_netlist"
+      ],
+      "ok": true,
+      "all_failures": [
+        "buzzer.buzzer_rating_covers_predicted_worst_case_temperature",
+        "removed.removed_mpns_absent_from_the_netlist",
+        "bom.every_netlist_mpn_is_in_the_bom"
+      ]
+    },
+    {
+      "name": "apem_button_returns",
+      "what": "SW1 is an APEM IPR3PAD2 again",
+      "expected_to_fail": [
+        "removed.removed_mpns_absent_from_the_netlist",
+        "tact.three_tact_switches_y31b13136fplfg"
+      ],
+      "caught": [
+        "removed.removed_mpns_absent_from_the_netlist",
+        "tact.three_tact_switches_y31b13136fplfg"
+      ],
+      "ok": true,
+      "all_failures": [
+        "tact.three_tact_switches_y31b13136fplfg",
+        "removed.removed_mpns_absent_from_the_netlist",
+        "bom.every_netlist_mpn_is_in_the_bom",
+        "bom.bom_designators_equal_netlist",
+        "bom.summary_counts_match"
+      ]
+    },
+    {
+      "name": "encoder_socket_returns",
+      "what": "J8 is the Micro-MaTch encoder socket again",
+      "expected_to_fail": [
+        "removed.removed_mpns_absent_from_the_netlist",
+        "tab.harness_connectors_are_sm10b_srss"
+      ],
+      "caught": [
+        "removed.removed_mpns_absent_from_the_netlist",
+        "tab.harness_connectors_are_sm10b_srss"
+      ],
+      "ok": true,
+      "all_failures": [
+        "power.no_unmodelled_load_on_rails",
+        "removed.removed_mpns_absent_from_the_netlist",
+        "tab.harness_connectors_are_sm10b_srss",
+        "bom.every_netlist_mpn_is_in_the_bom",
+        "bom.bom_designators_equal_netlist",
+        "bom.summary_counts_match"
+      ]
+    },
+    {
+      "name": "wrong_tact_part",
+      "what": "SW2 is a KSC243G LFG (the stronger tact), not the specified KSC223G LFG",
+      "expected_to_fail": [
+        "tact.three_tact_switches_y31b13136fplfg"
+      ],
+      "caught": [
+        "tact.three_tact_switches_y31b13136fplfg"
+      ],
+      "ok": true,
+      "all_failures": [
+        "tact.three_tact_switches_y31b13136fplfg",
+        "bom.every_netlist_mpn_is_in_the_bom",
+        "bom.bom_designators_equal_netlist",
+        "bom.summary_counts_match"
+      ]
+    },
+    {
+      "name": "chassis_net_added",
+      "what": "the signal-ground net is bonded to the fascia (modelled by renaming GND to FASCIA_PE): discharge through signal ground",
+      "expected_to_fail": [
+        "esd.no_chassis_or_pe_net_in_the_netlist_discharge_path_is_mechanical"
+      ],
+      "caught": [
+        "esd.no_chassis_or_pe_net_in_the_netlist_discharge_path_is_mechanical"
+      ],
+      "ok": true,
+      "all_failures": [
+        "j7.j7_pin_map_equals_controller_c26_table",
+        "j7.j7_pin_map_equals_controller_enclosure_handoff",
+        "j7.j7_pin_map_equals_controller_frozen_netlist",
+        "j7.j7_pin_map_equals_controller_verify_J7_MAP",
+        "j7.j7_pin_map_equals_contract_literal",
+        "j7.j7_four_gnd",
+        "j7.every_j7_signal_beside_a_gnd",
+        "j7.every_j7_signal_has_srv05_clamp",
+        "j7.srv05_vcc_on_3v3_and_gnd",
+        "gpmap.opcode_0x40_a1_a0_low",
+        "buzzer.q1_low_side_source_on_gnd",
+        "buzzer.default_off_at_reset",
+        "esd.no_chassis_or_pe_net_in_the_netlist_discharge_path_is_mechanical",
+        "oled.nhd_4wire_spi_pin_map",
+        "oled.bs1_bs0_tied_low",
+        "oled.res_n_rc_power_on_reset",
+        "cs.tmag5170_pin_map_and_test_grounded",
+        "tact.sw_start_active_low_to_gnd_with_10k_pullup",
+        "tact.sw_stop_active_low_to_gnd_with_10k_pullup",
+        "tact.sw_back_active_low_to_gnd_with_10k_pullup",
+        "tab.J8_pin_map_1to1_harness",
+        "tab.J9_pin_map_1to1_harness",
+        "decoup.c_3v3_bulk_ge_10uF_on_3v3",
+        "decoup.c_oled_bulk_ge_10uF_on_3v3"
+      ]
+    },
+    {
+      "name": "remove_gate_decoupling",
+      "what": "remove U10's 100 nF (C18)",
+      "expected_to_fail": [
+        "decoup.u_sel_has_100nF_between_supply_and_ground"
+      ],
+      "caught": [
+        "decoup.u_sel_has_100nF_between_supply_and_ground"
+      ],
+      "ok": true,
+      "all_failures": [
+        "decoup.u_sel_has_100nF_between_supply_and_ground"
       ]
     }
   ]

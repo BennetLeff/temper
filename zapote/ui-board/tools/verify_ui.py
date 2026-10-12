@@ -7,16 +7,22 @@ unit's J7 contract, the firmware's expander map and the BOM. Sections:
   j7        pin map equal to the controller (DECISIONS C26 table, ENCLOSURE-HANDOFF row, frozen
             netlist, verify_controller.py J7_MAP); a GND beside every signal; ESD on every J7
             signal; MISO source termination; no pull-up on OLED D/C or the chip selects
-  gpmap     MCP23S08 GP0-GP7 equal to firmware ui_board_map.h (committed copy checked against
-            git), opcode 0x40, buzzer the only output
-  inputs    every expander input has a pull-up path, and the encoder levels reach the expander
-  buzzer    default off at reset, low-side N-FET, flyback, current in the allocation
+  gpmap     MCP23S08 GP0-GP7: the fixed roles equal firmware ui_board_map.h (committed copy checked
+            against git), opcode 0x40, buzzer the only firmware output; GP3 = TMAG select,
+            GP4 = ALERT, GP5 spare (the encoder bits of the header are repurposed)
+  inputs    every expander input has a pull-up path
+  cs        CS qualification: exhaustive truth table of each gated device over (GPx, CS_EXP#,
+            CS_OLED#) read from the netlist, deselected at reset, pull-ups, MISO driver table
+            (high-Z unless qualified-selected), TMAG5170 pin map, SDO series resistor, timing
+  tact      three KSC223G LFG tact switches on GP0-GP2
+  removed   the encoder, its comparator, the APEM buttons and the 70 C buzzer are gone
+  tab       the sensor-tab harness (J8 to J9) and its clamp
+  buzzer    default off at reset, low-side N-FET, flyback, current in the allocation, rating
+            above the predicted worst-case body temperature
   power     3V3 and V5_UI budgets from the netlist (5 V <= 30 mA, 3V3 within the controller
-            allocation) and the calcs they come from
-  esd       every external-facing element is clamped
+            allocation, headroom) and the calcs they come from
+  esd       every external-facing element is clamped; no chassis net in the netlist
   oled      the 4-wire SPI pin map of the NHD-3.12-25664UCW2, unused jumper pins open, RC reset
-  encoder   J2 pin map per the Grayhill drawing; comparator thresholds recomputed from the
-            netlist values
   decoup    every IC has its own decoupling capacitor (c_<name> for u_<name>)
   bom       every MPN in the netlist has an LCSC code (one named exception), stock recorded,
             CSV equal to the JSON
@@ -44,8 +50,8 @@ import ui_calcs  # noqa: E402
 
 UNIT = Path(__file__).resolve().parents[1]
 CONTROLLER = UNIT.parent / "controller"
-GND, V3, V3E, V5 = "GND", "V3V3", "V3V3_ENC", "V5_UI"
-RAILS = {GND, V3, V3E, V5}
+GND, V3, V5 = "GND", "V3V3", "V5_UI"
+RAILS = {GND, V3, V5}
 VMAX = 3.465
 V5MAX = 5.1                        # TLV76050 5 V +/- 2 % (controller ui_5v_supply)
 
@@ -59,23 +65,39 @@ NET_TO_CANON = {"V5_UI": "V5", "V3V3": "V3V3", "GND": "GND", "J7_SCK": "SCK", "J
 TEXT_TO_CANON = [("+5 V", "V5"), ("+3V3", "V3V3"), ("GND", "GND"), ("SCK", "SCK"), ("MOSI", "MOSI"), ("MISO", "MISO"),
                  ("CS_OLED#", "CS_OLED"), ("OLED D/C", "DC"), ("CS_EXP#", "CS_EXP")]
 
-# Firmware roles (ui_board_map.h UI_BIT_*) -> where each must land on the board
+# Firmware roles (ui_board_map.h UI_BIT_*) -> where each must land on the board. The header's ENC_A/B/SW bits (3-5) are
+# repurposed by the owner's decision of 2026-10-12 (DECISIONS U19) and are checked by check_cs.
 FW_ROLE_TARGET = {
     "BTN_START": ("sw_start", "1"), "BTN_STOP": ("sw_stop", "1"), "BTN_RESET": ("sw_back", "1"),
-    "ENC_A": ("j_enc", "5"), "ENC_B": ("j_enc", "4"), "ENC_SW": ("j_enc", "3"),
     "BUZZER": ("q_buz", "1"), "LOCAL": ("u_tmp", "5"),
 }
-GRAYHILL_J2 = {1: GND, 2: GND, 3: "ENC_SW_RAW", 4: "ENC_B_RAW", 5: "ENC_A_RAW", 6: V3E}   # Grayhill 62AG/VG p.3 (VG style)
+FIXED_GP_BITS = {0, 1, 2, 6, 7}        # owner's fixed map: buttons, buzzer, TMP122 select
 # NHD-3.12-25664UCW2 rev. 7 p.4, 4-wire serial; None = must be open
 NHD_PINS = {1: GND, 2: V3, 3: None, 4: "J7_DC", 5: GND, 6: GND, 7: "J7_SCK", 8: "J7_MOSI", 9: None, 10: GND, 11: GND,
             12: GND, 13: GND, 14: GND, 15: None, 16: "OLED_RES_N", 17: "J7_CS_OLED_N", 18: None, 19: GND, 20: GND}
-IC_POWER = {"MCP23S08-E/SO": ("18", "9"), "TMP122AIDBVR": ("3", "2"), "TLV3202AIDR": ("8", "4")}
+IC_POWER = {"MCP23S08-E/SO": ("18", "9"), "TMP122AIDBVR": ("3", "2"), "TMAG5170A1QDGKR": ("5", "6"),
+            "SN74LVC1G00DBVR": ("5", "3"), "SN74LVC2G32DCUR": ("8", "4")}
+# logic cells: mpn -> output pin -> (function, (input pins))   (TI SCES212 DBV, SCES201N DCU pin tables)
+GATES = {
+    "SN74LVC1G00DBVR": {"4": ("nand", ("1", "2"))},
+    "SN74LVC2G32DCUR": {"7": ("or", ("1", "2")), "3": ("or", ("5", "6"))},
+    "SN74LVC1G08DBVR": {"4": ("and", ("1", "2"))},          # not on the board: a wrong-polarity mutant swaps it in
+    "SN74LVC1G32DBVR": {"4": ("or", ("1", "2"))},
+}
+GATE_FN = {"nand": lambda a, b: 1 - (a & b), "and": lambda a, b: a & b, "or": lambda a, b: a | b}
+# parts that must NOT be on the board any more (DECISIONS U19, U28)
+REMOVED_MPNS = {"IPR3PAD2": "APEM IPR3PAD2 button", "7-215079-6": "encoder socket J2", "TLV3202AIDR": "encoder comparator",
+                "BLM18PG121SN1D": "encoder supply bead", "GSD9605YB-3V2800": "70 C buzzer (replaced, U28)"}
+REMOVED_INSTANCES = {"j_enc", "u_cmp", "fb_enc", "u_esd_ctl_b", "c_enc_bulk", "c_enc_hf", "r_pu_a", "r_pu_b", "r_pu_sw", "c_nf_a", "c_nf_b",
+                     "r_se_sw", "r_in_a", "r_in_b", "r_hy_a", "r_hy_b", "r_ref_top", "r_ref_bot", "c_ref", "c_cmp"}
+TACT_MPN = "Y31B13136FPLFG"
 # supply current per device at VMAX, from ui_calcs.py's rows
-MODEL_MA = {"MCP23S08-E/SO": 8.0, "TMP122AIDBVR": 0.075, "TLV3202AIDR": 0.120, "SRV05-4": 0.001,
-            "BLM18PG121SN1D": 0.0, "1N4148WS": 0.0, "AO3400A": 0.0, "PM254V-11-20-H85": ui_calcs.OLED_MA,
-            "7-215079-6": 30.0, "B12B-XH-A(LF)(SN)": 0.0, "IPR3PAD2": 0.0,
-            "GSD9605YB-3V2800": 30.0 * VMAX / 3.3}
-BUZZER_MA_AT_5V = 30.0 * V5MAX / 3.3          # the buzzer's operating range is 2-5 V; linear scaling [ALLOCATION]
+MODEL_MA = {"MCP23S08-E/SO": 8.0, "TMP122AIDBVR": 0.075, "TMAG5170A1QDGKR": ui_calcs.TMAG_MA, "SN74LVC1G00DBVR": 0.010,
+            "SN74LVC2G32DCUR": 0.010, "SRV05-4": 0.001, "1N4148WS": 0.0, "AO3400A": 0.0, "PM254V-11-20-H85": ui_calcs.OLED_MA,
+            "B12B-XH-A(LF)(SN)": 0.0, "SM10B-SRSS-TB(LF)(SN)": 0.0, TACT_MPN: 0.0,
+            "GSD9605YB-5V2800": ui_calcs.BUZZER_MA, "GSD9605YB-3V2800": ui_calcs.BUZZER_MA}
+BUZZER_MPNS = ("GSD9605YB-5V2800", "GSD9605YB-3V2800")
+BUZZER_MA_AT_5V = ui_calcs.BUZZER_MA * V5MAX / 5.0     # allocation: the listed 30 mA at the 5 V rating
 
 
 class Report:
@@ -130,9 +152,9 @@ class Net:
                 out.append(r)
         return out
 
-    def reach(self, start: str, hop_comparator: bool = True) -> tuple[set[str], set[tuple[str, str]]]:
-        """Nets reachable from `start` through series resistors and the comparator channels
-        (OUT->IN+), never through a supply rail. Returns (nets, nodes)."""
+    def reach(self, start: str, hop_gate: bool = True) -> tuple[set[str], set[tuple[str, str]]]:
+        """Nets reachable from `start` through series resistors and, when hop_gate, through the first input of a
+        qualification OR gate (A -> Y), never through a supply rail. Returns (nets, nodes)."""
         seen, todo, nodes = set(), [start], set()
         while todo:
             n = todo.pop()
@@ -145,13 +167,44 @@ class Net:
                     o = self.other(r, p)
                     if o:
                         todo.append(o)
-                elif hop_comparator and self.mpn(r) == "TLV3202AIDR":
-                    pair = {"1": "3", "7": "5", "3": "1", "5": "7"}.get(p)
-                    if pair:
-                        o = self.pn.get((r, pair))
+                elif hop_gate and self.mpn(r) == "SN74LVC2G32DCUR":
+                    out = {"1": "7", "5": "3"}.get(p)               # the GP-side input of each OR gate
+                    if out:
+                        o = self.pn.get((r, out))
                         if o:
                             todo.append(o)
         return seen, nodes
+
+    # ---- tiny logic evaluator over the netlist (used for the qualification truth tables)
+    def eval_net(self, net: str, env: dict[str, int], _depth: int = 0) -> int:
+        """Logic level of `net`: env (primary inputs), rails, or the output of exactly one gate on it."""
+        if net in env:
+            return env[net]
+        if net == GND:
+            return 0
+        if net == V3:
+            return 1
+        if _depth > 6:
+            raise ValueError(f"logic loop at {net}")
+        drivers = [(r, p) for r, p in self.nodes(net) if p in GATES.get(self.mpn(r), {})]
+        if len(drivers) != 1:
+            raise ValueError(f"net {net}: {len(drivers)} gate drivers, no primary input")
+        r, p = drivers[0]
+        fn, (ia, ib) = GATES[self.mpn(r)][p]
+        a = self.eval_net(self.pn.get((r, ia), ""), env, _depth + 1)
+        b = self.eval_net(self.pn.get((r, ib), ""), env, _depth + 1)
+        return GATE_FN[fn](a, b)
+
+    def pull_level(self, net: str) -> int | None:
+        """Level of an undriven (high-impedance) net set by a resistor to a rail: 1, 0 or None (floating or fought)."""
+        lv = set()
+        for r, p in self.passives(net, "R"):
+            o = self.other(r, p)
+            if o == V3:
+                lv.add(1)
+            elif o == GND:
+                lv.add(0)
+        return lv.pop() if len(lv) == 1 else None
 
 
 def parse_c26_table(text: str) -> dict[int, str]:
@@ -241,8 +294,8 @@ def check_j7(rep: Report, n: Net) -> None:
     vals = [n.value(r) for r in rs]
     rep.check("j7", "miso_source_termination_100_ohm", len(rs) == 1 and vals[0] is not None and 50 <= vals[0] <= 150, vals)
     # no pull-ups: D/C (controller GPIO45 strap) and both chip selects
-    for net, allowed in (("J7_DC", {"j_ui", "u_esd_j7b", "j_oled"}), ("J7_CS_OLED_N", {"j_ui", "u_esd_j7a", "j_oled"}),
-                         ("J7_CS_EXP_N", {"j_ui", "u_esd_j7b", "u_exp"})):
+    for net, allowed in (("J7_DC", {"j_ui", "u_esd_j7b", "j_oled"}), ("J7_CS_OLED_N", {"j_ui", "u_esd_j7a", "j_oled", "u_busy"}),
+                         ("J7_CS_EXP_N", {"j_ui", "u_esd_j7b", "u_exp", "u_busy"})):
         owners = {nl.refs[r] for r, _ in n.nodes(net)}
         rep.check("j7", f"{net.lower()}_has_no_resistor_or_pull", owners <= allowed and not n.passives(net, "R"), sorted(owners))
     # V5_UI reaches no active pin
@@ -270,6 +323,9 @@ def check_gpmap(rep: Report, n: Net, fw_text: str) -> None:
     for role, bit in fw["bits"].items():
         tgt = FW_ROLE_TARGET.get(role)
         gp_net = n.net("u_exp", str(10 + bit))
+        if role.startswith("ENC_"):
+            results[role] = "repurposed (U19)"
+            continue
         if not tgt or gp_net is None:
             results[role] = None
             continue
@@ -278,7 +334,23 @@ def check_gpmap(rep: Report, n: Net, fw_text: str) -> None:
         results[role] = bool(tr and (tr, tgt[1]) in nodes)
     rep.data("gpmap", "role_on_named_gp", results)
     for role, ok in results.items():
+        if role.startswith("ENC_"):
+            continue
         rep.check("gpmap", f"fw_{role.lower()}_lands_on_its_gp", bool(ok), {"gp": fw['bits'][role], "gp_net": n.net("u_exp", str(10 + fw['bits'][role]))})
+    # the header's ENC_A/B/SW bits (3-5) are repurposed on this board
+    gp3, gp4, gp5 = (n.net("u_exp", str(10 + b)) for b in (3, 4, 5))
+    _, gp3_nodes = n.reach(gp3 or "")
+    _, gp4_nodes = n.reach(gp4 or "", hop_gate=False)
+    rep.check("gpmap", "gp3_is_tmag_select_to_the_qualification_gate", bool(n.ref("u_sel")) and (n.ref("u_sel"), "1") in n.nodes(gp3 or ""), gp3)
+    rep.check("gpmap", "gp3_reaches_the_tmag_chip_select_only_through_the_gate",
+              (n.ref("u_tmag"), "4") in gp3_nodes and (n.ref("u_tmag"), "4") not in n.nodes(gp3 or ""), gp3)
+    rep.check("gpmap", "gp4_is_tmag_alert_input", (n.ref("u_tmag"), "8") in gp4_nodes, gp4)
+    rep.check("gpmap", "gp5_spare_has_no_load_other_than_its_pullup", {nl.refs[r] for r, _ in n.nodes(gp5 or "")} == {"u_exp", "r_gp5_pu"}, gp5)
+    sel_a1 = n.net("u_sel", "1")
+    fixed_nets = {n.net("u_exp", str(10 + b)) for b in FIXED_GP_BITS}
+    rep.check("gpmap", "tmag_select_not_on_a_fixed_gp", sel_a1 is not None and sel_a1 not in fixed_nets, (sel_a1, sorted(x or "?" for x in fixed_nets)))
+    rep.check("gpmap", "fixed_gps_0_1_2_6_not_touched_by_the_gates",
+              all(n.net("u_exp", str(10 + b)) not in (n.net("u_sel", "2"), n.net("u_sel", "6"), n.net("u_busy", "4")) for b in (0, 1, 2, 6)), None)
     # buzzer: the single output; the pins firmware leaves as inputs must not be the buzzer net
     rep.check("gpmap", "buzzer_is_only_output", fw["output"] == "BUZZER", fw["output"])
     rep.check("gpmap", "gppu_never_on_buzzer_bit", "BUZZER" not in fw["gppu"], fw["gppu"])
@@ -299,11 +371,11 @@ def check_inputs(rep: Report, n: Net, fw_text: str) -> None:
         if bit == out_bit:
             continue
         gp = n.net("u_exp", str(10 + bit))
-        nets, _ = n.reach(gp)
+        nets, _ = n.reach(gp, hop_gate=False)
         pu = []
         for net in nets:
             for r, p in n.passives(net, "R"):
-                if n.other(r, p) in (V3, V3E):
+                if n.other(r, p) == V3:
                     v = n.value(r)
                     if v is not None and v <= 47e3:
                         pu.append((r, v))
@@ -313,16 +385,17 @@ def check_inputs(rep: Report, n: Net, fw_text: str) -> None:
     # other expander pins that must be biased: RESET high, chip select of the TMP122 high (GP7 covers it)
     rep.check("inputs", "expander_reset_pulled_high", any(n.other(r, p) == V3 for r, p in n.passives(n.net("u_exp", "6") or "", "R")),
               n.net("u_exp", "6"))
-    # the encoder levels (low <= 1.0 V, high >= 2.0 V) must be restored by the comparator
-    for ch, (out_pin, in_pin) in {"A": ("1", "3"), "B": ("7", "5")}.items():
-        out_net, in_net = n.net("u_cmp", out_pin), n.net("u_cmp", in_pin)
-        gp = n.net("u_exp", str(10 + fw["bits"][f"ENC_{ch}"]))
-        rep.check("inputs", f"enc_{ch.lower()}_reaches_gp_through_comparator", out_net == gp and out_net != in_net, (out_net, gp))
 
 
-def check_buzzer(rep: Report, n: Net) -> None:
+def check_buzzer(rep: Report, n: Net, calcs_thermal: dict) -> None:
     nl = n.nl
     q, bz, d1 = n.ref("q_buz"), n.ref("bz"), n.ref("d_buz")
+    bzm = nl.mpn.get(bz or "", "")
+    tw = calcs_thermal["buzzer_body_C"]["board_at_80C_design_limit"]
+    rating = ui_calcs.BUZZER_RATING_C.get(bzm)
+    rep.data("buzzer", "predicted_body_C", calcs_thermal["buzzer_body_C"])
+    rep.check("buzzer", "buzzer_rating_covers_predicted_worst_case_temperature",
+              rating is not None and rating[1] - tw >= ui_calcs.BUZZER_MARGIN_K, {"mpn": bzm, "rating_C": rating, "predicted_worst_C": tw})
     rep.check("buzzer", "q1_is_n_fet_ao3400a", bool(q) and nl.mpn.get(q) == "AO3400A", nl.mpn.get(q or ""))
     gate = n.net("q_buz", "1")
     src, drn = n.net("q_buz", "2"), n.net("q_buz", "3")
@@ -332,14 +405,14 @@ def check_buzzer(rep: Report, n: Net) -> None:
               (n.net("d_buz", "2"), n.net("d_buz", "1")))
     # reset model: GP6 is high impedance (IODIR resets to 0xFF); the gate level is set by its resistors
     pd = [(r, n.value(r)) for r, p in n.passives(gate, "R") if n.other(r, p) == GND]
-    pu = [(r, n.value(r)) for r, p in n.passives(gate, "R") if n.other(r, p) in (V3, V3E, V5)]
+    pu = [(r, n.value(r)) for r, p in n.passives(gate, "R") if n.other(r, p) in (V3, V5)]
     other_active = [nl.refs[r] for r, p in n.nodes(gate) if not r.startswith("R") and nl.refs[r] != "q_buz"]
     off = bool(pd) and not pu and not other_active and all(v is not None and v <= 220e3 for _, v in pd)
     rep.check("buzzer", "default_off_at_reset", off, {"pulldown": pd, "pullup": pu, "other_drivers": other_active})
     series = n.resistors_between(n.net("u_exp", "16") or "", gate)
     rep.check("buzzer", "gp6_drives_gate_through_series_r", len(series) == 1, series)
     # current within the controller's 90 mA buzzer allocation
-    rep.check("buzzer", "buzzer_within_90mA_allocation", MODEL_MA["GSD9605YB-3V2800"] <= 90.0, MODEL_MA["GSD9605YB-3V2800"])
+    rep.check("buzzer", "buzzer_within_90mA_allocation", ui_calcs.BUZZER_MA <= 90.0, ui_calcs.BUZZER_MA)
 
 
 def rail_load(n: Net, nets: tuple[str, ...], vmax: float, buz_ma: float) -> tuple[float, list, list]:
@@ -358,12 +431,12 @@ def rail_load(n: Net, nets: tuple[str, ...], vmax: float, buz_ma: float) -> tupl
             elif ref.startswith("C"):
                 rows.append((nl.refs[ref], 0.001))
                 seen.add(ref)
-            elif mpn == "GSD9605YB-3V2800":
+            elif mpn in BUZZER_MPNS:
                 rows.append((nl.refs[ref], buz_ma))
                 seen.add(ref)
             elif mpn in MODEL_MA:
                 # the source connector J7 and the bead FB1 pass current, they are not loads
-                if mpn == "B12B-XH-A(LF)(SN)" or mpn == "BLM18PG121SN1D":
+                if mpn in ("B12B-XH-A(LF)(SN)", "SM10B-SRSS-TB(LF)(SN)"):
                     continue
                 rows.append((nl.refs[ref], MODEL_MA[mpn]))
                 seen.add(ref)
@@ -374,7 +447,7 @@ def rail_load(n: Net, nets: tuple[str, ...], vmax: float, buz_ma: float) -> tupl
 
 
 def check_power(rep: Report, n: Net, calcs: dict) -> None:
-    t3, rows3, unk3 = rail_load(n, (V3, V3E), VMAX, MODEL_MA["GSD9605YB-3V2800"])
+    t3, rows3, unk3 = rail_load(n, (V3,), VMAX, ui_calcs.BUZZER_MA)
     t5, rows5, unk5 = rail_load(n, (V5,), V5MAX, BUZZER_MA_AT_5V)
     rep.data("power", "v3v3_rows_mA", [(a, round(b, 3)) for a, b in rows3 if b])
     rep.data("power", "v3v3_total_mA", round(t3, 3))
@@ -384,6 +457,9 @@ def check_power(rep: Report, n: Net, calcs: dict) -> None:
     rep.check("power", "v5_budget_le_30mA", t5 <= ui_calcs.V5_BUDGET_MA, round(t5, 3))
     rep.check("power", "v3v3_total_le_controller_allocation_460mA", t3 <= ui_calcs.OLED_MA + ui_calcs.UI_ALLOC_MA, round(t3, 3))
     rep.check("power", "v3v3_without_oled_le_120mA", t3 - ui_calcs.OLED_MA <= ui_calcs.UI_ALLOC_MA, round(t3 - ui_calcs.OLED_MA, 3))
+    rep.check("power", "headroom_without_oled_ge_70mA", ui_calcs.UI_ALLOC_MA - (t3 - ui_calcs.OLED_MA) >= 70.0,
+              round(ui_calcs.UI_ALLOC_MA - (t3 - ui_calcs.OLED_MA), 3))
+    rep.data("power", "headroom_without_oled_mA", round(ui_calcs.UI_ALLOC_MA - (t3 - ui_calcs.OLED_MA), 3))
     cal = calcs["sections"]["power_budget"]["v3v3_total_mA"]
     rep.check("power", "netlist_total_within_5pct_of_calcs", abs(t3 - cal) <= 0.05 * cal, (round(t3, 3), cal))
     h = calcs["sections"]["v3v3_at_load"]
@@ -395,22 +471,21 @@ def check_power(rep: Report, n: Net, calcs: dict) -> None:
 
 def check_esd(rep: Report, n: Net) -> None:
     nl = n.nl
-    ext = {f"{p}.{pin}": n.net(p, pin) for p, pin in (("sw_start", "1"), ("sw_stop", "1"), ("sw_back", "1"),
-                                                      ("j_enc", "3"), ("j_enc", "4"), ("j_enc", "5"))}
+    ext = {f"{p}.{pin}": n.net(p, pin) for p, pin in (("sw_start", "1"), ("sw_stop", "1"), ("sw_back", "1"))}
     bad = {k: v for k, v in ext.items() if not any(nl.mpn.get(r) == "SRV05-4" and p in ("1", "3", "4", "6") for r, p in n.nodes(v or ""))}
     rep.check("esd", "every_external_facing_line_has_srv05_clamp", not bad, bad)
-    # series resistance between each external line and its first active input
-    for name, (path, pin) in {"btn_start": ("sw_start", "1"), "btn_stop": ("sw_stop", "1"), "btn_back": ("sw_back", "1"),
-                              "enc_sw": ("j_enc", "3")}.items():
+    # series resistance between each switch and its expander pin
+    for name, (path, pin) in {"btn_start": ("sw_start", "1"), "btn_stop": ("sw_stop", "1"), "btn_back": ("sw_back", "1")}.items():
         net = n.net(path, pin)
         series = [r for r, p in n.passives(net, "R") if n.other(r, p) not in RAILS and n.value(r) and n.value(r) >= 1e3]
         rep.check("esd", f"{name}_series_ge_1k_to_expander", bool(series), [(r, n.value(r)) for r in series])
-    for ch in ("A", "B"):
-        net = n.net("j_enc", "5" if ch == "A" else "4")
-        series = [r for r, p in n.passives(net, "R") if n.other(r, p) not in RAILS and (n.value(r) or 0) >= 10e3]
-        rep.check("esd", f"enc_{ch.lower()}_series_ge_10k_to_comparator", bool(series), series)
-    rep.check("esd", "grayhill_noise_cap_below_1nF", all((n.value(r) or 0) < 1e-9 for r, _ in
-              [p for net in (n.net("j_enc", "4"), n.net("j_enc", "5")) for p in n.passives(net, "C")]), None)
+    # the sensor tab's four inputs toward the sensor are clamped
+    tab = {"SCK": "J7_SCK", "MOSI": "J7_MOSI", "CS": "CS_TMAG_N", "ALERT": "GP4_TMAG_ALERT"}
+    unc = [k for k, net in tab.items() if not any(nl.refs[r] == "u_esd_tab" and p in ("1", "3", "4", "6") for r, p in n.nodes(net))]
+    rep.check("esd", "sensor_tab_inputs_have_srv05_clamp", not unc, unc)
+    # contact discharge must reach the bonded fascia, never signal ground: no chassis / PE / fascia net on this board
+    chassis = [k for k in nl.nets if re.search(r"(?i)chassis|\bPE\b|fascia|shield|earth", k)]
+    rep.check("esd", "no_chassis_or_pe_net_in_the_netlist_discharge_path_is_mechanical", not chassis, chassis)
     for k, ok in ui_calcs.esd()["checks"].items():
         rep.check("esd", f"calc_{k}", ok)
 
@@ -442,44 +517,147 @@ def check_oled(rep: Report, n: Net) -> None:
         rep.check("oled", f"calc_{k}", ok)
 
 
-def check_encoder(rep: Report, n: Net) -> None:
-    got = {p: n.net("j_enc", str(p)) for p in range(1, 7)}
-    rep.check("encoder", "j2_pin_map_per_grayhill_vg", got == GRAYHILL_J2, {p: (got[p], GRAYHILL_J2[p]) for p in got if got[p] != GRAYHILL_J2[p]})
-    # supply through the bead, 10 k pull-ups on A, B and the switch to the encoder rail
-    for name, net in (("A", "ENC_A_RAW"), ("B", "ENC_B_RAW"), ("SW", "ENC_SW_RAW")):
-        pu = [(r, n.value(r)) for r, p in n.passives(net, "R") if n.other(r, p) == V3E]
-        rep.check("encoder", f"enc_{name.lower()}_pullup_10k_to_encoder_rail", len(pu) == 1 and pu[0][1] == 10e3, pu)
-    fb = [r for r, m in n.nl.mpn.items() if m == "BLM18PG121SN1D"]
-    rep.check("encoder", "encoder_rail_from_3v3_through_bead",
-              len(fb) == 1 and {n.pn.get((fb[0], "1")), n.pn.get((fb[0], "2"))} == {V3, V3E}, fb)
-    # recompute the comparator thresholds from the netlist values
-    vals = {k: n.value(n.ref(p) or "") for k, p in {"rt": "r_ref_top", "rb": "r_ref_bot", "ri_a": "r_in_a", "ri_b": "r_in_b",
-                                                    "rh_a": "r_hy_a", "rh_b": "r_hy_b"}.items()}
-    if all(vals.values()):
-        worst = {"down_margin": 9e9, "up_margin": 9e9, "hyst": 9e9}
-        import itertools
-        for vs, ts, ch in itertools.product((3.175, 3.425), (-0.01, 0.01), ("a", "b")):
-            for off in (-0.006, 0.006):
-                up, down = ui_calcs._thresholds(vs, vals["rt"] * (1 + ts), vals["rb"] * (1 - ts), vals["ri_" + ch], vals["rh_" + ch], off)
-                worst["down_margin"] = min(worst["down_margin"], down - 1.0)
-                worst["up_margin"] = min(worst["up_margin"], 2.0 - up)
-                worst["hyst"] = min(worst["hyst"], up - down)
-        rep.data("encoder", "comparator_margins_V", {k: round(v, 4) for k, v in worst.items()})
-        rep.check("encoder", "comparator_low_margin_ge_0p3V", worst["down_margin"] >= 0.3, round(worst["down_margin"], 4))
-        rep.check("encoder", "comparator_high_margin_ge_0p3V", worst["up_margin"] >= 0.3, round(worst["up_margin"], 4))
-        rep.check("encoder", "comparator_hysteresis_positive", worst["hyst"] > 0, round(worst["hyst"], 4))
-    else:
-        rep.check("encoder", "comparator_values_readable", False, vals)
-    for k, ok in ui_calcs.encoder_comparator()["checks"].items():
-        rep.check("encoder", f"calc_{k}", ok)
-
-
 def check_tmp(rep: Report, n: Net) -> None:
-    rep.check("encoder", "tmp122_sio_on_miso_local_cs_on_gp7_sck_on_bus",
-              n.net("u_tmp", "6") == "MISO_LOCAL" and n.net("u_tmp", "5") == n.net("u_exp", "17") and n.net("u_tmp", "4") == "J7_SCK",
-              (n.net("u_tmp", "6"), n.net("u_tmp", "5"), n.net("u_tmp", "4")))
-    rep.check("encoder", "chip_selects_not_shared", n.net("u_exp", "7") == "J7_CS_EXP_N" and n.net("j_oled", "17") == "J7_CS_OLED_N"
+    rep.check("cs", "tmp122_sio_on_miso_local_cs_from_the_gate_sck_on_bus",
+              n.net("u_tmp", "6") == "MISO_LOCAL" and n.net("u_tmp", "5") == n.net("u_sel", "3") and n.net("u_sel", "5") == n.net("u_exp", "17")
+              and n.net("u_tmp", "4") == "J7_SCK", (n.net("u_tmp", "6"), n.net("u_tmp", "5"), n.net("u_sel", "5"), n.net("u_tmp", "4")))
+    rep.check("cs", "chip_selects_not_shared", n.net("u_exp", "7") == "J7_CS_EXP_N" and n.net("j_oled", "17") == "J7_CS_OLED_N"
               and n.net("u_exp", "7") != n.net("j_oled", "17"), None)
+
+
+def check_cs(rep: Report, n: Net, calcs: dict) -> None:
+    nl = n.nl
+    cse, cso = "J7_CS_EXP_N", "J7_CS_OLED_N"
+    gp = {"tmag": n.net("u_exp", "13"), "tmp": n.net("u_exp", "17")}
+    csnet = {"tmag": n.net("u_tmag", "4"), "tmp": n.net("u_tmp", "5")}
+    # --- structure of the gate network
+    rep.check("cs", "gate_parts_are_nand_and_dual_or", n.mpn(n.ref("u_busy") or "") == "SN74LVC1G00DBVR" and n.mpn(n.ref("u_sel") or "") == "SN74LVC2G32DCUR",
+              (n.mpn(n.ref("u_busy") or ""), n.mpn(n.ref("u_sel") or "")))
+    rep.check("cs", "bus_busy_is_nand_of_cs_exp_and_cs_oled",
+              {n.net("u_busy", "1"), n.net("u_busy", "2")} == {cse, cso} and bool(n.net("u_busy", "4")), (n.net("u_busy", "1"), n.net("u_busy", "2")))
+    # --- exhaustive truth table per device, evaluated from the netlist
+    results = {}
+    for dev in ("tmag", "tmp"):
+        rows, bad = [], []
+        try:
+            for g in (0, 1):
+                for e in (0, 1):
+                    for o in (0, 1):
+                        env = {gp[dev]: g, cse: e, cso: o}
+                        for other in gp.values():
+                            env.setdefault(other, 1)                # the other device's request is idle
+                        v = n.eval_net(csnet[dev], env)
+                        want = ui_calcs.cs_expected(g, e, o)
+                        rows.append((g, e, o, v))
+                        if v != want:
+                            bad.append({"GPx": g, "CS_EXP_N": e, "CS_OLED_N": o, "got": v, "want": want})
+            ok = not bad
+            detail = bad or "8 of 8 rows match: low only for (0,1,1)"
+        except ValueError as exc:
+            ok, detail, rows = False, str(exc), []
+        results[dev] = rows
+        rep.check("cs", f"{dev}_cs_truth_table_8_of_8", ok, detail)
+    rep.data("cs", "truth_table_rows_GPx_CSEXP_CSOLED_CSdev", results)
+    # --- reset: the expander pins are inputs (high-Z); the pull-up must hold the request idle, whatever the chip selects do
+    for dev in ("tmag", "tmp"):
+        lvl = n.pull_level(gp[dev] or "")
+        ok = lvl == 1
+        if ok:
+            try:
+                ok = all(n.eval_net(csnet[dev], {gp[dev]: 1, cse: e, cso: o, **{g: 1 for g in gp.values()}}) == 1 for e in (0, 1) for o in (0, 1))
+            except ValueError as exc:
+                ok = False
+                lvl = str(exc)
+        rep.check("cs", f"{dev}_cs_deselected_at_reset", ok, {"gp_net": gp[dev], "pull_level": lvl})
+        # the device-side pull-up keeps CS# high if the gate is unpowered or the harness is unplugged
+        pu = [(r, n.value(r)) for r, p in n.passives(csnet[dev] or "", "R") if n.other(r, p) == V3 and (n.value(r) or 1e9) <= 47e3]
+        rep.check("cs", f"{dev}_cs_has_pullup_le_47k", bool(pu), pu)
+    # --- MISO: every driver high-Z unless qualified-selected (16 rows over GP3, GP7, CS_EXP#, CS_OLED#)
+    drivers = {"MCP23S08": n.net("u_exp", "7"), "TMAG5170": csnet["tmag"], "TMP122": csnet["tmp"]}
+    bad_rows, multi, tbl, err = [], [], [], None
+    try:
+        for g3 in (0, 1):
+            for g7 in (0, 1):
+                for e in (0, 1):
+                    for o in (0, 1):
+                        env = {gp["tmag"]: g3, gp["tmp"]: g7, cse: e, cso: o}
+                        en = {k: n.eval_net(net, env) == 0 for k, net in drivers.items()}
+                        want = {"MCP23S08": e == 0, "TMAG5170": ui_calcs.cs_expected(g3, e, o) == 0, "TMP122": ui_calcs.cs_expected(g7, e, o) == 0}
+                        tbl.append({"GP3": g3, "GP7": g7, "CS_EXP_N": e, "CS_OLED_N": o, "enabled": [k for k, v in en.items() if v]})
+                        extra = [k for k in en if en[k] and not want[k]]
+                        if extra or en != want:
+                            bad_rows.append({"row": (g3, g7, e, o), "enabled": [k for k, v in en.items() if v], "extra": extra})
+                        if sum(en.values()) > 1 and not (g3 == 0 and g7 == 0 and e == 1 and o == 1):
+                            multi.append((g3, g7, e, o))
+    except ValueError as exc:
+        err = str(exc)
+    rep.data("cs", "miso_driver_table", tbl)
+    rep.check("cs", "miso_drivers_high_z_unless_qualified_selected", err is None and not bad_rows, err or bad_rows)
+    rep.check("cs", "at_most_one_miso_driver_except_double_select_of_both_gps", err is None and not multi, err or multi)
+    try:
+        idle = {gp["tmag"]: 1, gp["tmp"]: 1, cse: 1, cso: 1}
+        none_at_idle = all(n.eval_net(net, idle) == 1 for net in drivers.values())
+    except ValueError:
+        none_at_idle = False
+    rep.check("cs", "no_miso_driver_enabled_at_reset_and_idle", none_at_idle, None)
+    # --- TMAG5170 wiring (SBASAF4 p.4 Table 5-1)
+    want = {"1": "J7_SCK", "2": "J7_MOSI", "4": "CS_TMAG_N", "5": V3, "6": GND, "7": GND, "8": "GP4_TMAG_ALERT"}
+    got = {pin: n.net("u_tmag", pin) for pin in want}
+    rep.check("cs", "tmag5170_pin_map_and_test_grounded", got == want, {k: (got[k], want[k]) for k in want if got[k] != want[k]})
+    sdo = n.net("u_tmag", "3")
+    rs = n.resistors_between(sdo or "", "MISO_LOCAL")
+    v = n.value(rs[0]) if len(rs) == 1 else None
+    need = ui_calcs.VMAX / 10e-3        # 3.465 V against the sensor's 10 mA absolute-maximum output current
+    rep.check("cs", "tmag_sdo_series_resistor_limits_double_select_below_10mA", v is not None and v >= need, {"R": v, "min": round(need, 1)})
+    rep.check("cs", "tmag_sdo_reaches_miso_only_through_that_resistor", len(n.nodes(sdo or "")) == 2, [nl.refs[r] for r, _ in n.nodes(sdo or "")])
+    # --- timing and firmware sequence (calcs)
+    for k, ok in calcs["sections"]["cs_qualification"]["checks"].items():
+        rep.check("cs", f"calc_{k}", ok)
+    for k, ok in calcs["sections"]["spi_timing"]["checks"].items():
+        if k.startswith("tmag"):
+            rep.check("cs", f"calc_{k}", ok)
+
+
+def check_tact(rep: Report, n: Net, calcs: dict) -> None:
+    nl = n.nl
+    sws = [r for r in nl.mpn if nl.refs[r].startswith("sw_")]
+    rep.check("tact", "three_tact_switches_y31b13136fplfg", len(sws) == 3 and all(nl.mpn[r] == TACT_MPN for r in sws), [(r, nl.mpn[r]) for r in sws])
+    rep.check("tact", "tact_footprint_is_the_ksc2_manufacturer_pattern", all("KSC2" in nl.footprint[r] for r in sws), [nl.footprint[r] for r in sws])
+    for nm, path in (("start", "sw_start"), ("stop", "sw_stop"), ("back", "sw_back")):
+        a, b = n.net(path, "1"), n.net(path, "2")
+        pu = [(r, n.value(r)) for r, p in n.passives(a or "", "R") if n.other(r, p) == V3 and n.value(r) == 10e3]
+        rep.check("tact", f"sw_{nm}_active_low_to_gnd_with_10k_pullup", b == GND and len(pu) == 1, {"A": a, "B": b, "pullup": pu})
+    for k, ok in calcs["sections"]["pullups"]["checks"].items():
+        rep.check("tact", f"calc_{k}", ok)
+    for k, ok in calcs["sections"]["tact_switch"]["checks"].items():
+        rep.check("tact", f"calc_{k}", ok)
+
+
+def check_removed(rep: Report, n: Net, bom: dict) -> None:
+    nl = n.nl
+    present = {m: why for m, why in REMOVED_MPNS.items() if m in set(nl.mpn.values())}
+    rep.check("removed", "removed_mpns_absent_from_the_netlist", not present, present)
+    inst = sorted(set(nl.refs.values()) & REMOVED_INSTANCES)
+    rep.check("removed", "removed_instances_absent", not inst, inst)
+    nets = [k for k in nl.nets if k.startswith("ENC_") or k == "V3V3_ENC"]
+    rep.check("removed", "no_encoder_nets", not nets, nets)
+    inbom = sorted(set(bom["parts"]) & set(REMOVED_MPNS))
+    rep.check("removed", "removed_mpns_absent_from_the_bom", not inbom, inbom)
+    text = json.dumps(bom["parts"]) + json.dumps(bom.get("off_board", []))
+    rep.check("removed", "no_grayhill_or_apem_in_the_bom", not re.search(r"(?i)grayhill|apem|62VG15", text), None)
+    conns = sorted(r for r in nl.refs if r.startswith("J"))
+    rep.check("removed", "connectors_are_j3_j7_j8_j9_only", conns == ["J3", "J7", "J8", "J9"], conns)
+
+
+def check_tab(rep: Report, n: Net) -> None:
+    want = {1: "CS_TMAG_N", 2: GND, 3: "J7_SCK", 4: GND, 5: "J7_MOSI", 6: GND, 7: "MISO_LOCAL", 8: GND, 9: "GP4_TMAG_ALERT", 10: V3}
+    for path, name in (("j_tab", "J8"), ("j_tabr", "J9")):
+        got = {p: n.net(path, str(p)) for p in range(1, 11)}
+        rep.check("tab", f"{name}_pin_map_1to1_harness", got == want, {p: (got[p], want[p]) for p in want if got[p] != want[p]})
+    sig = [p for p, v in want.items() if v not in (V3, GND)]
+    lonely = [p for p in sig if not any(want.get(q) == GND for q in (p - 1, p + 1))]
+    rep.check("tab", "every_harness_signal_beside_a_gnd", not lonely, lonely)
+    rep.check("tab", "harness_connectors_are_sm10b_srss", n.mpn(n.ref("j_tab") or "") == n.mpn(n.ref("j_tabr") or "") == "SM10B-SRSS-TB(LF)(SN)", None)
 
 
 def check_decoup(rep: Report, n: Net) -> None:
@@ -522,7 +700,7 @@ def check_bom(rep: Report, n: Net, bom: dict, csv_path: Path) -> None:
         else:
             missing.append(m)
     rep.check("bom", "every_part_has_an_lcsc_code", not missing, missing)
-    rep.check("bom", "only_the_panel_buttons_are_off_lcsc", exceptions == ["IPR3PAD2"], exceptions)
+    rep.check("bom", "only_the_tact_switches_are_off_lcsc", exceptions == [TACT_MPN], exceptions)
     nostock = [m for m in mpns & set(parts) if parts[m].get("lcsc") and not (parts[m].get("jlc_stock") and parts[m].get("jlc_stock_checked"))]
     rep.check("bom", "stock_and_check_date_recorded", not nostock, nostock)
     lowstock = [m for m in mpns & set(parts) if parts[m].get("lcsc") and (parts[m].get("jlc_stock") or 0) < sum(1 for v in nl.mpn.values() if v == m)]
@@ -591,12 +769,15 @@ def build_report(build: Path, bom_path: Path | None = None, csv_path: Path | Non
     check_j7(rep, n)
     check_gpmap(rep, n, fw)
     check_inputs(rep, n, fw)
-    check_buzzer(rep, n)
+    check_buzzer(rep, n, calcs["sections"]["buzzer_thermal"])
     check_power(rep, n, calcs)
     check_esd(rep, n)
     check_oled(rep, n)
-    check_encoder(rep, n)
     check_tmp(rep, n)
+    check_cs(rep, n, calcs)
+    check_tact(rep, n, calcs)
+    check_removed(rep, n, bom)
+    check_tab(rep, n)
     check_decoup(rep, n)
     check_bom(rep, n, bom, csv_path or UNIT / "bom/ui-parts.csv")
     check_floorplan(rep)

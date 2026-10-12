@@ -1,8 +1,11 @@
-# Temper fascia UI board (schematic capture, no layout). One board parallel to the fascia
-# (enclosure R33 DECISIONS 3, R41 r33_world.py): the NHD-3.12-25664UCW2 OLED on a 1x20
-# socket, three APEM IPR3PAD2 IP67 buttons, the Grayhill 62VG15-H9S-030C encoder's 6-pin
-# socket, an MCP23S08 SPI expander, a TMP122 temperature sensor and a self-oscillating
-# buzzer, with one 12-way JST XH jumper to controller J7.
+# Temper fascia UI board, revision 2 (2026-10-12 owner decision: owned controls). Schematic
+# capture, no layout. One board parallel to the fascia (enclosure R33 DECISIONS 3, R41
+# r33_world.py): the NHD-3.12-25664UCW2 OLED on a 1x20 socket, three C&K KSC223G LFG tactile
+# switches under owned metal caps, an MCP23S08 SPI expander, a TMP122 temperature sensor, a
+# self-oscillating buzzer, a TMAG5170A1 Hall sensor on a sensor tab (read through the 3 mm
+# fascia, die plane 9.2 mm in front of this board) and the CS qualification gates, with one
+# 12-way JST XH jumper to controller J7. Removed: Grayhill encoder socket J2, its comparator
+# and pull-ups, the APEM IPR3PAD2 buttons (DECISIONS U19).
 #
 # Contract (read-only): zapote/controller DECISIONS C26 and ENCLOSURE-HANDOFF.md (J7 pin
 # map), firmware ui_board_map.h at 780eaab89 (expander bit map). Decisions: ../../DECISIONS.md.
@@ -11,26 +14,28 @@
 # J7:  1 +5V (V5_UI, <= 30 mA)  2 +3V3  3 GND  4 SCK  5 GND  6 MOSI  7 MISO  8 GND
 #      9 CS_OLED#  10 OLED D/C  11 GND  12 CS_EXP#
 # MCP23S08 (opcode 0x40, A1 = A0 = 0):
-#      GP0 START  GP1 STOP  GP2 BACK/RESET  GP3 ENC_A  GP4 ENC_B  GP5 ENC_SW
-#      GP6 buzzer (high = on)  GP7 TMP122 CS#
+#      GP0 START  GP1 STOP  GP2 BACK/RESET  GP3 TMAG select (low = select)
+#      GP4 TMAG ALERT (input)  GP5 spare (input)  GP6 buzzer (high = on)
+#      GP7 TMP122 select (low = select)
+# CS qualification (DECISIONS U20): CS_dev# = GPx OR NAND(CS_EXP#, CS_OLED#). A device is
+# selected only when its GP is low AND CS_EXP# is high AND CS_OLED# is high.
 
 #pragma experiment("MODULE_TEMPLATING")
 #pragma experiment("TRAITS")
 
-from "ui_parts.ato" import Resistor, Capacitor, Capacitor0805, Diode1n4148ws, Bead0603
-from "ui_parts.ato" import Mcp23s08, Tmp122, Tlv3202, Srv05_4, Ao3400a, BuzzerGsd9605
-from "ui_parts.ato" import XhHeader12, MicroMatch6, OledSocket20, PushbuttonIpr3pad2
+from "ui_parts.ato" import Resistor, Capacitor, Capacitor0805, Diode1n4148ws
+from "ui_parts.ato" import Mcp23s08, Tmp122, Srv05_4, Ao3400a, BuzzerGsd9605Yb5v
+from "ui_parts.ato" import XhHeader12, OledSocket20, TactKsc223g
+from "ui_parts.ato" import Tmag5170, Nand2, Or2x2, ShHeader10
 
 module UiBoard:
     # ------------------------------------------------------------------ nets
     signal gnd
     signal v3v3
     signal v5_ui
-    signal v3v3_enc
     gnd.override_net_name = "GND"
     v3v3.override_net_name = "V3V3"
     v5_ui.override_net_name = "V5_UI"
-    v3v3_enc.override_net_name = "V3V3_ENC"
     # J7-side bus nets (the controller's own net names)
     signal j7_sck
     signal j7_mosi
@@ -52,19 +57,17 @@ module UiBoard:
     signal btn_start
     signal btn_stop
     signal btn_back
-    signal enc_a_raw
-    signal enc_b_raw
-    signal enc_sw_raw
-    signal enc_a_in
-    signal enc_b_in
-    signal enc_a
-    signal enc_b
-    signal enc_sw
-    signal enc_ref
     signal buz_drv
     signal buz_n
     signal buz_gate
-    signal tmp_cs_n
+    signal gp3_tmag_sel_n
+    signal gp4_tmag_alert
+    signal gp5_spare
+    signal gp7_tmp_sel_n
+    signal bus_busy
+    signal cs_tmag_n
+    signal cs_tmp_n
+    signal tmag_sdo
     signal exp_reset
     signal oled_res_n
     miso_local.override_net_name = "MISO_LOCAL"
@@ -74,19 +77,17 @@ module UiBoard:
     btn_start.override_net_name = "GP0_BTN_START"
     btn_stop.override_net_name = "GP1_BTN_STOP"
     btn_back.override_net_name = "GP2_BTN_BACK"
-    enc_a_raw.override_net_name = "ENC_A_RAW"
-    enc_b_raw.override_net_name = "ENC_B_RAW"
-    enc_sw_raw.override_net_name = "ENC_SW_RAW"
-    enc_a_in.override_net_name = "ENC_A_IN"
-    enc_b_in.override_net_name = "ENC_B_IN"
-    enc_a.override_net_name = "GP3_ENC_A"
-    enc_b.override_net_name = "GP4_ENC_B"
-    enc_sw.override_net_name = "GP5_ENC_SW"
-    enc_ref.override_net_name = "ENC_REF"
     buz_drv.override_net_name = "GP6_BUZZER"
     buz_n.override_net_name = "BUZ_N"
     buz_gate.override_net_name = "BUZ_GATE"
-    tmp_cs_n.override_net_name = "GP7_TMP_CS_N"
+    gp3_tmag_sel_n.override_net_name = "GP3_TMAG_SEL_N"
+    gp4_tmag_alert.override_net_name = "GP4_TMAG_ALERT"
+    gp5_spare.override_net_name = "GP5_SPARE"
+    gp7_tmp_sel_n.override_net_name = "GP7_TMP_SEL_N"
+    bus_busy.override_net_name = "BUS_BUSY"
+    cs_tmag_n.override_net_name = "CS_TMAG_N"
+    cs_tmp_n.override_net_name = "CS_TMP_N"
+    tmag_sdo.override_net_name = "TMAG_SDO"
     exp_reset.override_net_name = "EXP_RESET"
     oled_res_n.override_net_name = "OLED_RES_N"
 
@@ -175,11 +176,11 @@ module UiBoard:
     u_exp.GP0 ~ btn_start
     u_exp.GP1 ~ btn_stop
     u_exp.GP2 ~ btn_back
-    u_exp.GP3 ~ enc_a
-    u_exp.GP4 ~ enc_b
-    u_exp.GP5 ~ enc_sw
+    u_exp.GP3 ~ gp3_tmag_sel_n
+    u_exp.GP4 ~ gp4_tmag_alert
+    u_exp.GP5 ~ gp5_spare
     u_exp.GP6 ~ buz_drv
-    u_exp.GP7 ~ tmp_cs_n
+    u_exp.GP7 ~ gp7_tmp_sel_n
     c_exp = new Capacitor
     c_exp.designator = "C3"
     c_exp.value = 100nF +/- 10%
@@ -200,7 +201,7 @@ module UiBoard:
     u_tmp.VP ~ v3v3
     u_tmp.GND ~ gnd
     u_tmp.SCK ~ j7_sck
-    u_tmp.CS ~ tmp_cs_n
+    u_tmp.CS ~ cs_tmp_n
     u_tmp.SIO ~ miso_local
     c_tmp = new Capacitor
     c_tmp.designator = "C4"
@@ -208,12 +209,21 @@ module UiBoard:
     c_tmp.mpn = "CC0603KRX7R9BB104"
     c_tmp.p1 ~ v3v3
     c_tmp.p2 ~ gnd
+    # GP7 (expander side of the qualification gate) is an input with this pull-up at reset:
+    # high = TMP122 not requested. The device-side pull-up R29 holds CS# high if the gate is
+    # unpowered.
     r_tmp_cs = new Resistor
     r_tmp_cs.designator = "R17"
     r_tmp_cs.value = 10kohm +/- 1%
     r_tmp_cs.mpn = "0603WAF1002T5E"
     r_tmp_cs.p1 ~ v3v3
-    r_tmp_cs.p2 ~ tmp_cs_n
+    r_tmp_cs.p2 ~ gp7_tmp_sel_n
+    r_tmp_cs_dev = new Resistor
+    r_tmp_cs_dev.designator = "R29"
+    r_tmp_cs_dev.value = 10kohm +/- 1%
+    r_tmp_cs_dev.mpn = "0603WAF1002T5E"
+    r_tmp_cs_dev.p1 ~ v3v3
+    r_tmp_cs_dev.p2 ~ cs_tmp_n
 
     # --------------------------------------------------- OLED socket J3 (SSD1322)
     # 4-wire SPI (BS1 = BS0 = 0). Pins per NHD rev 7 p.4: 1 VSS, 2 VDD, 3 BC_VDD (NC),
@@ -271,17 +281,18 @@ module UiBoard:
     d_res.K ~ v3v3
 
     # ----------------------------------------------------------------- buttons
-    # SW1 select/start (U-35), SW2 stop (U5), SW3 back/reset (U-75): normally open, close to GND.
+    # SW1 select/start (u -35), SW2 stop (u 5), SW3 back/reset (u -75): C&K KSC223G LFG tactile,
+    # normally open, close to GND, under owned metal caps (enclosure R44).
     # Per line: switch pin -> [SRV05-4 clamp + 10 k pull-up] -> 1 k -> expander pin.
-    sw_start = new PushbuttonIpr3pad2
+    sw_start = new TactKsc223g
     sw_start.designator = "SW1"
     sw_start.A ~ btn_start_raw
     sw_start.B ~ gnd
-    sw_stop = new PushbuttonIpr3pad2
+    sw_stop = new TactKsc223g
     sw_stop.designator = "SW2"
     sw_stop.A ~ btn_stop_raw
     sw_stop.B ~ gnd
-    sw_back = new PushbuttonIpr3pad2
+    sw_back = new TactKsc223g
     sw_back.designator = "SW3"
     sw_back.A ~ btn_back_raw
     sw_back.B ~ gnd
@@ -322,134 +333,10 @@ module UiBoard:
     r_se_back.p1 ~ btn_back_raw
     r_se_back.p2 ~ btn_back
 
-    # ------------------------------------------------------------------ encoder
-    # Grayhill 62VG15-H9S-030C (3.30 +/- 0.125 V, 30 mA max, open-collector A/B that need
-    # a 10 k pull-up and <= 1 nF; low <= 1.0 V, high >= 2.0 V; NO push contact on pins 2-3).
-    # J2: 1 GND, 2 push contact (to GND), 3 push contact, 4 B, 5 A, 6 +3.3 V.
-    j_enc = new MicroMatch6
-    j_enc.designator = "J2"
-    j_enc.p1 ~ gnd
-    j_enc.p2 ~ gnd
-    j_enc.p3 ~ enc_sw_raw
-    j_enc.p4 ~ enc_b_raw
-    j_enc.p5 ~ enc_a_raw
-    j_enc.p6 ~ v3v3_enc
-    fb_enc = new Bead0603
-    fb_enc.designator = "FB1"
-    fb_enc.p1 ~ v3v3
-    fb_enc.p2 ~ v3v3_enc
-    c_enc_bulk = new Capacitor
-    c_enc_bulk.designator = "C8"
-    c_enc_bulk.value = 10uF +/- 10%
-    c_enc_bulk.mpn = "CL10A106KP8NNNC"
-    c_enc_bulk.p1 ~ v3v3_enc
-    c_enc_bulk.p2 ~ gnd
-    c_enc_hf = new Capacitor
-    c_enc_hf.designator = "C9"
-    c_enc_hf.value = 100nF +/- 10%
-    c_enc_hf.mpn = "CC0603KRX7R9BB104"
-    c_enc_hf.p1 ~ v3v3_enc
-    c_enc_hf.p2 ~ gnd
-    # Pull-ups (Grayhill: required) and noise capacitors (< 1000 pF) at the connector.
-    r_pu_a = new Resistor
-    r_pu_a.designator = "R9"
-    r_pu_a.value = 10kohm +/- 1%
-    r_pu_a.mpn = "0603WAF1002T5E"
-    r_pu_a.p1 ~ v3v3_enc
-    r_pu_a.p2 ~ enc_a_raw
-    r_pu_b = new Resistor
-    r_pu_b.designator = "R10"
-    r_pu_b.value = 10kohm +/- 1%
-    r_pu_b.mpn = "0603WAF1002T5E"
-    r_pu_b.p1 ~ v3v3_enc
-    r_pu_b.p2 ~ enc_b_raw
-    r_pu_sw = new Resistor
-    r_pu_sw.designator = "R8"
-    r_pu_sw.value = 10kohm +/- 1%
-    r_pu_sw.mpn = "0603WAF1002T5E"
-    r_pu_sw.p1 ~ v3v3_enc
-    r_pu_sw.p2 ~ enc_sw_raw
-    c_nf_a = new Capacitor
-    c_nf_a.designator = "C13"
-    c_nf_a.value = 470pF +/- 10%
-    c_nf_a.mpn = "0603B471K500NT"
-    c_nf_a.p1 ~ enc_a_raw
-    c_nf_a.p2 ~ gnd
-    c_nf_b = new Capacitor
-    c_nf_b.designator = "C14"
-    c_nf_b.value = 470pF +/- 10%
-    c_nf_b.mpn = "0603B471K500NT"
-    c_nf_b.p1 ~ enc_b_raw
-    c_nf_b.p2 ~ gnd
-    r_se_sw = new Resistor
-    r_se_sw.designator = "R7"
-    r_se_sw.value = 1kohm +/- 1%
-    r_se_sw.mpn = "0603WAF1001T5E"
-    r_se_sw.p1 ~ enc_sw_raw
-    r_se_sw.p2 ~ enc_sw
-    # The encoder's guaranteed levels (low <= 1.0 V, high >= 2.0 V) do not meet the
-    # MCP23S08's VIL = 0.2 VDD = 0.66 V, so A and B pass a comparator with its threshold
-    # at 1.5 V (U3, hysteresis ~70 mV from R13/R14 over R11/R12).
-    u_cmp = new Tlv3202
-    u_cmp.designator = "U3"
-    u_cmp.VCC ~ v3v3
-    u_cmp.GND ~ gnd
-    u_cmp.IN1P ~ enc_a_in
-    u_cmp.IN1N ~ enc_ref
-    u_cmp.OUT1 ~ enc_a
-    u_cmp.IN2P ~ enc_b_in
-    u_cmp.IN2N ~ enc_ref
-    u_cmp.OUT2 ~ enc_b
-    c_cmp = new Capacitor
-    c_cmp.designator = "C5"
-    c_cmp.value = 100nF +/- 10%
-    c_cmp.mpn = "CC0603KRX7R9BB104"
-    c_cmp.p1 ~ v3v3
-    c_cmp.p2 ~ gnd
-    r_in_a = new Resistor
-    r_in_a.designator = "R11"
-    r_in_a.value = 10kohm +/- 1%
-    r_in_a.mpn = "0603WAF1002T5E"
-    r_in_a.p1 ~ enc_a_raw
-    r_in_a.p2 ~ enc_a_in
-    r_in_b = new Resistor
-    r_in_b.designator = "R12"
-    r_in_b.value = 10kohm +/- 1%
-    r_in_b.mpn = "0603WAF1002T5E"
-    r_in_b.p1 ~ enc_b_raw
-    r_in_b.p2 ~ enc_b_in
-    r_hy_a = new Resistor
-    r_hy_a.designator = "R13"
-    r_hy_a.value = 470kohm +/- 1%
-    r_hy_a.mpn = "0603WAF4703T5E"
-    r_hy_a.p1 ~ enc_a
-    r_hy_a.p2 ~ enc_a_in
-    r_hy_b = new Resistor
-    r_hy_b.designator = "R14"
-    r_hy_b.value = 470kohm +/- 1%
-    r_hy_b.mpn = "0603WAF4703T5E"
-    r_hy_b.p1 ~ enc_b
-    r_hy_b.p2 ~ enc_b_in
-    r_ref_top = new Resistor
-    r_ref_top.designator = "R15"
-    r_ref_top.value = 12kohm +/- 1%
-    r_ref_top.mpn = "0603WAF1202T5E"
-    r_ref_top.p1 ~ v3v3_enc
-    r_ref_top.p2 ~ enc_ref
-    r_ref_bot = new Resistor
-    r_ref_bot.designator = "R16"
-    r_ref_bot.value = 10kohm +/- 1%
-    r_ref_bot.mpn = "0603WAF1002T5E"
-    r_ref_bot.p1 ~ enc_ref
-    r_ref_bot.p2 ~ gnd
-    c_ref = new Capacitor
-    c_ref.designator = "C15"
-    c_ref.value = 100nF +/- 10%
-    c_ref.mpn = "CC0603KRX7R9BB104"
-    c_ref.p1 ~ enc_ref
-    c_ref.p2 ~ gnd
-
     # ---------------------------------------------------- ESD at the controls
+    # Contact discharge from a cap or the knob goes to the bonded fascia through the enclosure's
+    # deliberate contacts, never through this board's ground (DECISIONS U26). The clamps are for
+    # whatever gets through to the switch pins. Channel 4 is spare.
     u_esd_ctl_a = new Srv05_4
     u_esd_ctl_a.designator = "U6"
     u_esd_ctl_a.VCC ~ v3v3
@@ -457,19 +344,13 @@ module UiBoard:
     u_esd_ctl_a.IO1 ~ btn_start_raw
     u_esd_ctl_a.IO2 ~ btn_stop_raw
     u_esd_ctl_a.IO3 ~ btn_back_raw
-    u_esd_ctl_a.IO4 ~ enc_sw_raw
-    u_esd_ctl_b = new Srv05_4
-    u_esd_ctl_b.designator = "U7"
-    u_esd_ctl_b.VCC ~ v3v3
-    u_esd_ctl_b.GND ~ gnd
-    u_esd_ctl_b.IO1 ~ enc_a_raw
-    u_esd_ctl_b.IO2 ~ enc_b_raw
 
     # ------------------------------------------------------------------- buzzer
+    # GSD9605YB-5V2800 (85 C part; the 70 C 3V2800 was replaced, DECISIONS U28).
     # Self-oscillating electromagnetic buzzer on V3V3, low-side switched by Q1. GP6 is an
     # input (high impedance) at reset and R22 holds the gate low, so the buzzer is off until
     # firmware sets IODIR.6 = 0 and OLAT.6 = 1. D1 clamps the coil kick.
-    bz = new BuzzerGsd9605
+    bz = new BuzzerGsd9605Yb5v
     bz.designator = "BZ1"
     bz.P ~ v3v3
     bz.N ~ buz_n
@@ -500,3 +381,130 @@ module UiBoard:
     c_buz.mpn = "CL10A106KP8NNNC"
     c_buz.p1 ~ v3v3
     c_buz.p2 ~ gnd
+
+    # ------------------------------------------------- CS qualification (DECISIONS U20)
+    # BUS_BUSY = NAND(CS_EXP#, CS_OLED#): high while the expander or the OLED is being accessed.
+    # CS_dev# = GPx OR BUS_BUSY: low (selected) only when GPx is low AND CS_EXP# is high AND
+    # CS_OLED# is high. GP3 and GP7 are inputs with pull-ups at reset, so both devices are
+    # deselected until firmware drives a GP low (R26 and R17), and the device-side pull-ups
+    # (R24 at the sensor, R29 at the TMP122) hold CS# high if a gate is unpowered.
+    u_busy = new Nand2
+    u_busy.designator = "U9"
+    u_busy.VCC ~ v3v3
+    u_busy.GND ~ gnd
+    u_busy.A ~ j7_cs_exp_n
+    u_busy.B ~ j7_cs_oled_n
+    u_busy.Y ~ bus_busy
+    c_busy = new Capacitor
+    c_busy.designator = "C17"
+    c_busy.value = 100nF +/- 10%
+    c_busy.mpn = "CC0603KRX7R9BB104"
+    c_busy.p1 ~ v3v3
+    c_busy.p2 ~ gnd
+    u_sel = new Or2x2
+    u_sel.designator = "U10"
+    u_sel.VCC ~ v3v3
+    u_sel.GND ~ gnd
+    u_sel.A1 ~ gp3_tmag_sel_n
+    u_sel.B1 ~ bus_busy
+    u_sel.Y1 ~ cs_tmag_n
+    u_sel.A2 ~ gp7_tmp_sel_n
+    u_sel.B2 ~ bus_busy
+    u_sel.Y2 ~ cs_tmp_n
+    c_sel = new Capacitor
+    c_sel.designator = "C18"
+    c_sel.value = 100nF +/- 10%
+    c_sel.mpn = "CC0603KRX7R9BB104"
+    c_sel.p1 ~ v3v3
+    c_sel.p2 ~ gnd
+    r_gp3_pu = new Resistor
+    r_gp3_pu.designator = "R26"
+    r_gp3_pu.value = 10kohm +/- 1%
+    r_gp3_pu.mpn = "0603WAF1002T5E"
+    r_gp3_pu.p1 ~ v3v3
+    r_gp3_pu.p2 ~ gp3_tmag_sel_n
+    # GP4 reads the sensor's ALERT (open-drain class output, polled with the buttons); GP5 is spare.
+    r_alert_pu = new Resistor
+    r_alert_pu.designator = "R25"
+    r_alert_pu.value = 10kohm +/- 1%
+    r_alert_pu.mpn = "0603WAF1002T5E"
+    r_alert_pu.p1 ~ v3v3
+    r_alert_pu.p2 ~ gp4_tmag_alert
+    r_gp5_pu = new Resistor
+    r_gp5_pu.designator = "R27"
+    r_gp5_pu.value = 10kohm +/- 1%
+    r_gp5_pu.mpn = "0603WAF1002T5E"
+    r_gp5_pu.p1 ~ v3v3
+    r_gp5_pu.p2 ~ gp5_spare
+
+    # ------------------------------------------- sensor tab harness, main-board end (J8)
+    # 10-way JST SH, 1:1 to J9 on the sensor tab. GND beside every signal.
+    # 1 CS_TMAG#, 2 GND, 3 SCK, 4 GND, 5 MOSI, 6 GND, 7 MISO (via R28 at the sensor), 8 GND,
+    # 9 ALERT, 10 V3V3.
+    j_tab = new ShHeader10
+    j_tab.designator = "J8"
+    j_tab.p1 ~ cs_tmag_n
+    j_tab.p2 ~ gnd
+    j_tab.p3 ~ j7_sck
+    j_tab.p4 ~ gnd
+    j_tab.p5 ~ j7_mosi
+    j_tab.p6 ~ gnd
+    j_tab.p7 ~ miso_local
+    j_tab.p8 ~ gnd
+    j_tab.p9 ~ gp4_tmag_alert
+    j_tab.p10 ~ v3v3
+
+    # ----------------------------------------------------------- SENSOR TAB (separate PCB)
+    # A 60 x 32 mm tab behind the fascia, die plane at w = -4.00 (DECISIONS U26), connected to J8
+    # by a 1:1 harness. Everything below is on the tab.
+    j_tabr = new ShHeader10
+    j_tabr.designator = "J9"
+    j_tabr.p1 ~ cs_tmag_n
+    j_tabr.p2 ~ gnd
+    j_tabr.p3 ~ j7_sck
+    j_tabr.p4 ~ gnd
+    j_tabr.p5 ~ j7_mosi
+    j_tabr.p6 ~ gnd
+    j_tabr.p7 ~ miso_local
+    j_tabr.p8 ~ gnd
+    j_tabr.p9 ~ gp4_tmag_alert
+    j_tabr.p10 ~ v3v3
+    u_tmag = new Tmag5170
+    u_tmag.designator = "U8"
+    u_tmag.VCC ~ v3v3
+    u_tmag.GND ~ gnd
+    u_tmag.TEST ~ gnd
+    u_tmag.SCK ~ j7_sck
+    u_tmag.SDI ~ j7_mosi
+    u_tmag.SDO ~ tmag_sdo
+    u_tmag.CS ~ cs_tmag_n
+    u_tmag.ALERT ~ gp4_tmag_alert
+    c_tmag = new Capacitor
+    c_tmag.designator = "C16"
+    c_tmag.value = 100nF +/- 10%
+    c_tmag.mpn = "CC0603KRX7R9BB104"
+    c_tmag.p1 ~ v3v3
+    c_tmag.p2 ~ gnd
+    # 390 ohm in the sensor's SDO: with two drivers enabled by a firmware error the shorted
+    # current stays under the sensor's 10 mA absolute maximum (3.465 V / 390 ohm = 8.9 mA).
+    r_sdo = new Resistor
+    r_sdo.designator = "R28"
+    r_sdo.value = 390ohm +/- 1%
+    r_sdo.mpn = "0603WAF3900T5E"
+    r_sdo.p1 ~ tmag_sdo
+    r_sdo.p2 ~ miso_local
+    r_cs_tmag_pu = new Resistor
+    r_cs_tmag_pu.designator = "R24"
+    r_cs_tmag_pu.value = 10kohm +/- 1%
+    r_cs_tmag_pu.mpn = "0603WAF1002T5E"
+    r_cs_tmag_pu.p1 ~ v3v3
+    r_cs_tmag_pu.p2 ~ cs_tmag_n
+    # SRV05-4 on the tab's four inputs toward the sensor (SCK, MOSI, CS#, ALERT); MISO has R28.
+    u_esd_tab = new Srv05_4
+    u_esd_tab.designator = "U7"
+    u_esd_tab.VCC ~ v3v3
+    u_esd_tab.GND ~ gnd
+    u_esd_tab.IO1 ~ j7_sck
+    u_esd_tab.IO2 ~ j7_mosi
+    u_esd_tab.IO3 ~ cs_tmag_n
+    u_esd_tab.IO4 ~ gp4_tmag_alert

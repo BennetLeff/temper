@@ -3,7 +3,7 @@
   "schema": "temper.ui-board.calcs.v1",
   "sections": {
     "buzzer_drive": {
-      "buzzer_current_A": 0.0315,
+      "buzzer_current_A": 0.03,
       "checks": {
         "buzzer_within_90mA_allocation": true,
         "clamp_voltage_le_q1_vds": true,
@@ -14,80 +14,488 @@
       "flyback": "D1 1N4148WS across the buzzer (cathode V3V3): Vds clamps at VMAX + 0.8 V = 4.3 V against Q1's 30 V",
       "gate_at_reset_V": 0.1,
       "gate_drive_V": 2.435,
-      "q1_power_W": 4.76e-05,
-      "sources": "Inghai GSD9605YB-3V2800 spec sheet V1.1 p.1-2 (electromagnetic, built-in driver, 2-5 V, 30 mA max at 3.3 V); AO3400A (LCSC C20917 listing: 1.45 V max threshold, 48 mohm at 2.5 V); Microchip DS20001919F p.22 D060/D090",
-      "vds_on_V": 0.00151,
+      "q1_power_W": 4.32e-05,
+      "sources": "Inghai GSD9605YB-5V2800 (LCSC C530415 listing: electromagnetic, built-in driver, 2-12 V, 30 mA); the 3V2800 spec sheet V1.1 p.1-2 for the earlier part; AO3400A (LCSC C20917 listing: 1.45 V max threshold, 48 mohm at 2.5 V); Microchip DS20001919F p.22 D060/D090",
+      "vds_on_V": 0.00144,
       "vth_max_V": 1.45,
       "vth_min_V": 0.65
+    },
+    "buzzer_thermal": {
+      "buzzer_body_C": {
+        "board_at_75C": 79.3,
+        "board_at_80C_design_limit": 83.9,
+        "board_at_air_65C": 69.9
+      },
+      "buzzer_power_W": 0.1039,
+      "checks": {
+        "chosen_part_rating_covers_worst_with_margin": true,
+        "fascia_coupling_is_minor": true,
+        "old_part_rating_fails_at_75C_board": true
+      },
+      "coupling_W_per_K": {
+        "air": 0.001536,
+        "board": 0.037648,
+        "fascia": 0.001289
+      },
+      "decision": "GSD9605YB-5V2800 (85 C): the 70 C part has no margin at the 65 C internal air of the 40 C ambient case and fails at a 75 C board",
+      "location": "front face, centre (u, v) = (-95.0, 24.0): lowest v on the board (coolest fascia strip in the owner's table), 21 mm from the OLED's lower-left corner and 10 mm from the nearest tact bezel",
+      "model": "one node: top face to the fascia (radiation, e_eff 0.72, plus 6 mm air gap), sides to internal air (h 8 W/m2K), bottom and pads to the board (0.1 mm air film + 0.01 W/K); self-heating 30 mA x 3.465 V [ALLOCATION: h, emissivity, film thickness]",
+      "ratings": {
+        "GSD9605YB-3V2800": {
+          "margin_at_65C_board_K": 0.1,
+          "margin_at_80C_board_K": -13.9,
+          "max_C": 70.0,
+          "min_C": -20.0
+        },
+        "GSD9605YB-5V2800": {
+          "margin_at_65C_board_K": 15.1,
+          "margin_at_80C_board_K": 1.1,
+          "max_C": 85.0,
+          "min_C": -30.0
+        },
+        "SMD-9650-3327": {
+          "margin_at_65C_board_K": 10.1,
+          "margin_at_80C_board_K": -3.9,
+          "max_C": 80.0,
+          "min_C": -20.0
+        }
+      },
+      "sources": "owner's FIELD-THERMAL.md thermal table (fascia at v = 26: 139.73 C, internal air 65 C, 40 C ambient, pushed pan 300), board design limit 80 C (SPEC); LCSC listings C255327 (-20..70 C), C530415 (-30..85 C), C42420997 (-20..80 C)"
+    },
+    "cs_qualification": {
+      "checks": {
+        "deselect_before_first_expander_clock": true,
+        "double_select_current_le_10mA_abs_max": true,
+        "double_select_only_when_both_gps_low": true,
+        "exactly_one_selected_row_per_device": true,
+        "miso_handover_margin_ge_1us": true,
+        "no_miso_contention_when_firmware_obeys_the_sequence": true,
+        "no_zero_clock_glitch_with_posttrans3": true,
+        "select_setup_ge_t5_tmp122_with_1us_wait": true,
+        "select_setup_ge_tsu_cs_with_1us_wait": true,
+        "sensor_hold_th_cs_met": true,
+        "truth_table_matches_function": true,
+        "tw_cs_between_frames_ge_100ns": true,
+        "zero_clock_glitch_exists_without_posttrans": true
+      },
+      "double_select_current_mA": 8.8846,
+      "expander_read_cannot_corrupt_sensor": "a sensor armed (GP3 low) during an expander or OLED frame is deselected by BUS_BUSY 18.8 ns after the frame's chip select falls, 31.2 ns before its first clock (the frame is lost, nothing is decoded or driven)",
+      "firmware_sequence": [
+        "0. UI power-up: wait >= 30 ms (OLED rule, U12); expander at reset has every GP an input, pulled high: both devices deselected; write OLAT bits 3 and 7 = 1 BEFORE writing IODIR bits 3 and 7 = 0 (OLAT resets to 0 and would drive the pins low).",
+        "1. Expander device configuration for these accesses: mode 0, <= 5 MHz, cs_ena_posttrans >= 3 bit cycles (CS_EXP# stays low >= 600 ns after the last clock, so the GP output has settled before CS_EXP# rises).",
+        "2. Lock the whole SPI bus (OLED chunk transfers cannot interleave).",
+        "3. Write OLAT with GP3 low (select request). CS_EXP# and CS_OLED# are idle high after the write.",
+        "4. Wait >= 1 us. Clock exactly 32 bits (TMAG5170) or 16 bits (TMP122) with NO hardware chip select (spics_io_num = -1): CS_EXP# and CS_OLED# stay high, so the gate holds the selection. SCK <= 5 MHz (1 MHz first; 2.5 MHz recommended cap).",
+        "5. Wait >= 1 us. Write OLAT with GP3 high (release). The first CS_EXP# edge deselects the sensor before the first expander clock.",
+        "6. Unlock the bus. Never leave GP3 or GP7 low outside steps 3-5; never set both low.",
+        "7. Each sensor frame needs its own select/release pair (CS must toggle between 32-clock frames: SBASAF4 p.28)."
+      ],
+      "function": "CS_dev# = GPx OR NAND(CS_EXP#, CS_OLED#); selected only when GPx = 0 AND CS_EXP# = 1 AND CS_OLED# = 1",
+      "miso_driver_table": [
+        {
+          "CS_EXP_N": 0,
+          "CS_OLED_N": 0,
+          "GP3": 0,
+          "GP7": 0,
+          "count": 1,
+          "drivers_enabled": [
+            "MCP23S08"
+          ]
+        },
+        {
+          "CS_EXP_N": 0,
+          "CS_OLED_N": 1,
+          "GP3": 0,
+          "GP7": 0,
+          "count": 1,
+          "drivers_enabled": [
+            "MCP23S08"
+          ]
+        },
+        {
+          "CS_EXP_N": 1,
+          "CS_OLED_N": 0,
+          "GP3": 0,
+          "GP7": 0,
+          "count": 0,
+          "drivers_enabled": []
+        },
+        {
+          "CS_EXP_N": 1,
+          "CS_OLED_N": 1,
+          "GP3": 0,
+          "GP7": 0,
+          "count": 2,
+          "drivers_enabled": [
+            "TMAG5170",
+            "TMP122"
+          ]
+        },
+        {
+          "CS_EXP_N": 0,
+          "CS_OLED_N": 0,
+          "GP3": 0,
+          "GP7": 1,
+          "count": 1,
+          "drivers_enabled": [
+            "MCP23S08"
+          ]
+        },
+        {
+          "CS_EXP_N": 0,
+          "CS_OLED_N": 1,
+          "GP3": 0,
+          "GP7": 1,
+          "count": 1,
+          "drivers_enabled": [
+            "MCP23S08"
+          ]
+        },
+        {
+          "CS_EXP_N": 1,
+          "CS_OLED_N": 0,
+          "GP3": 0,
+          "GP7": 1,
+          "count": 0,
+          "drivers_enabled": []
+        },
+        {
+          "CS_EXP_N": 1,
+          "CS_OLED_N": 1,
+          "GP3": 0,
+          "GP7": 1,
+          "count": 1,
+          "drivers_enabled": [
+            "TMAG5170"
+          ]
+        },
+        {
+          "CS_EXP_N": 0,
+          "CS_OLED_N": 0,
+          "GP3": 1,
+          "GP7": 0,
+          "count": 1,
+          "drivers_enabled": [
+            "MCP23S08"
+          ]
+        },
+        {
+          "CS_EXP_N": 0,
+          "CS_OLED_N": 1,
+          "GP3": 1,
+          "GP7": 0,
+          "count": 1,
+          "drivers_enabled": [
+            "MCP23S08"
+          ]
+        },
+        {
+          "CS_EXP_N": 1,
+          "CS_OLED_N": 0,
+          "GP3": 1,
+          "GP7": 0,
+          "count": 0,
+          "drivers_enabled": []
+        },
+        {
+          "CS_EXP_N": 1,
+          "CS_OLED_N": 1,
+          "GP3": 1,
+          "GP7": 0,
+          "count": 1,
+          "drivers_enabled": [
+            "TMP122"
+          ]
+        },
+        {
+          "CS_EXP_N": 0,
+          "CS_OLED_N": 0,
+          "GP3": 1,
+          "GP7": 1,
+          "count": 1,
+          "drivers_enabled": [
+            "MCP23S08"
+          ]
+        },
+        {
+          "CS_EXP_N": 0,
+          "CS_OLED_N": 1,
+          "GP3": 1,
+          "GP7": 1,
+          "count": 1,
+          "drivers_enabled": [
+            "MCP23S08"
+          ]
+        },
+        {
+          "CS_EXP_N": 1,
+          "CS_OLED_N": 0,
+          "GP3": 1,
+          "GP7": 1,
+          "count": 0,
+          "drivers_enabled": []
+        },
+        {
+          "CS_EXP_N": 1,
+          "CS_OLED_N": 1,
+          "GP3": 1,
+          "GP7": 1,
+          "count": 0,
+          "drivers_enabled": []
+        }
+      ],
+      "nominal_edges_ns": [
+        {
+          "event": "fall",
+          "signal": "CS_EXP#",
+          "t_ns": 0.0
+        },
+        {
+          "event": "rise",
+          "signal": "BUS_BUSY",
+          "t_ns": 3.0
+        },
+        {
+          "event": "fall",
+          "signal": "GP3",
+          "t_ns": 5150.0
+        },
+        {
+          "event": "rise",
+          "signal": "CS_EXP#",
+          "t_ns": 5600.0
+        },
+        {
+          "event": "fall",
+          "signal": "BUS_BUSY",
+          "t_ns": 5603.0
+        },
+        {
+          "event": "fall",
+          "signal": "CS_TMAG#",
+          "t_ns": 5606.0
+        },
+        {
+          "event": "first rise",
+          "signal": "SCK sensor frame (32 clocks at 1 MHz)",
+          "t_ns": 6600.0
+        },
+        {
+          "event": "last fall",
+          "signal": "SCK sensor frame",
+          "t_ns": 38100.0
+        },
+        {
+          "event": "fall",
+          "signal": "CS_EXP#",
+          "t_ns": 39600.0
+        },
+        {
+          "event": "rise",
+          "signal": "BUS_BUSY",
+          "t_ns": 39603.0
+        },
+        {
+          "event": "rise",
+          "signal": "CS_TMAG#",
+          "t_ns": 39606.0
+        }
+      ],
+      "sources": "TI SN74LVC1G00 (SCES212) p.6 and SN74LVC2G32 (SCES201N) p.6 tpd; TI TMAG5170 SBASAF4 p.10-11 (tsu_cs 45 ns, th_cs 45 ns, tw_cs 100 ns, SDO enable 45 ns, SDO disable 55 ns, 32-bit frames p.28-29); TI TMP122 SBOS272B p.9 (t5 40 ns, t7 30 ns); Microchip DS20001919F p.27-29 (TCSS 50, TCSH 50, TDIS 100, TGPOV 500 ns, SO high-Z during writes)",
+      "timing_ns": {
+        "J7_line_to_gate_input": 4.0,
+        "cs_exp_rise_after_last_data_clock_min_posttrans0": 150.0,
+        "cs_exp_rise_after_last_data_clock_min_posttrans3": 700.0,
+        "deselect_after_cs_exp_fall_max": 18.800000000000004,
+        "deselect_after_cs_exp_fall_min": 2.0,
+        "deselect_margin_to_first_expander_clock": 31.199999999999996,
+        "firmware_wait_before_sensor_frame": 1000.0,
+        "gate_to_sensor_cable": 5.0,
+        "gate_tpd_min_max": {
+          "nand": [
+            1.0,
+            5.0
+          ],
+          "or": [
+            1.0,
+            4.8
+          ]
+        },
+        "mcp_so_first_drive_after_cs_exp_fall_min": 3200.0,
+        "min_wait_needed_tmag": 63.800000000000004,
+        "miso_handover_margin": 3126.2,
+        "overlap_if_gp_armed_during_an_expander_read_ns": 97.99999999999999,
+        "select_cs_dev_falls_after_cs_exp_rise_max_posttrans0": 359.79999999999995,
+        "select_cs_dev_falls_after_cs_exp_rise_max_posttrans3": 18.800000000000004,
+        "select_setup_margin_tmag_tsu_cs": 936.2,
+        "select_setup_margin_tmp_t5": 941.1999999999999,
+        "sensor_hold_margin_th_cs": 956.9999999999999,
+        "tgpov_max": 500.0,
+        "tmag_sdo_hiz_after_cs_exp_fall_max": 73.80000000000001,
+        "tw_cs_between_sensor_frames_min": 11599.999999999998,
+        "zero_clock_select_glitch_ns_posttrans0": 354.79999999999995,
+        "zero_clock_select_glitch_ns_posttrans3": 0.0
+      },
+      "tmag_sdo_abs_max_mA": 10.0,
+      "truth_table_per_device": [
+        {
+          "BUS_BUSY": 1,
+          "CS_EXP_N": 0,
+          "CS_OLED_N": 0,
+          "CS_dev_N": 1,
+          "GPx": 0,
+          "device_selected": false,
+          "expected_CS_dev_N": 1
+        },
+        {
+          "BUS_BUSY": 1,
+          "CS_EXP_N": 0,
+          "CS_OLED_N": 1,
+          "CS_dev_N": 1,
+          "GPx": 0,
+          "device_selected": false,
+          "expected_CS_dev_N": 1
+        },
+        {
+          "BUS_BUSY": 1,
+          "CS_EXP_N": 1,
+          "CS_OLED_N": 0,
+          "CS_dev_N": 1,
+          "GPx": 0,
+          "device_selected": false,
+          "expected_CS_dev_N": 1
+        },
+        {
+          "BUS_BUSY": 0,
+          "CS_EXP_N": 1,
+          "CS_OLED_N": 1,
+          "CS_dev_N": 0,
+          "GPx": 0,
+          "device_selected": true,
+          "expected_CS_dev_N": 0
+        },
+        {
+          "BUS_BUSY": 1,
+          "CS_EXP_N": 0,
+          "CS_OLED_N": 0,
+          "CS_dev_N": 1,
+          "GPx": 1,
+          "device_selected": false,
+          "expected_CS_dev_N": 1
+        },
+        {
+          "BUS_BUSY": 1,
+          "CS_EXP_N": 0,
+          "CS_OLED_N": 1,
+          "CS_dev_N": 1,
+          "GPx": 1,
+          "device_selected": false,
+          "expected_CS_dev_N": 1
+        },
+        {
+          "BUS_BUSY": 1,
+          "CS_EXP_N": 1,
+          "CS_OLED_N": 0,
+          "CS_dev_N": 1,
+          "GPx": 1,
+          "device_selected": false,
+          "expected_CS_dev_N": 1
+        },
+        {
+          "BUS_BUSY": 0,
+          "CS_EXP_N": 1,
+          "CS_OLED_N": 1,
+          "CS_dev_N": 1,
+          "GPx": 1,
+          "device_selected": false,
+          "expected_CS_dev_N": 1
+        }
+      ]
     },
     "debounce_and_poll": {
       "button_bounce_ms": 10.0,
       "checks": {
-        "firmware_debounce_covers_bounce": false,
-        "polling_oversamples_encoder_4x": true
+        "firmware_debounce_covers_bounce": false
       },
       "debounce_polls_in_firmware": 10,
-      "encoder_state_period_ms_at_100rpm": 6.25,
       "expander_read_us_at_5MHz": 4.8,
       "expander_read_us_at_8MHz": 3.0,
       "min_polls_for_10ms_bounce": 11,
-      "note": "the last check is expected to be False: 10 identical polls (10 ms) only just reach the 10 ms bounce limit; see DECISIONS U14 (recommendation: 15 polls). It is excluded from the pass/fail gate.",
+      "note": "the check is expected to be False: 10 identical polls (10 ms) only just reach a 10 ms bounce; see DECISIONS U14 (recommendation: 15 polls) and U27 (the KSC2 bounce must be taken from its drawing). Excluded from the pass/fail gate.",
       "oled_frame_ms_at_8MHz": 8.192,
       "poll_ms": 1.0,
-      "sources": "APEM IP series p.2 (contact bounce 10 ms); Grayhill 62AG/VG p.3 (bounce < 4 ms make, < 10 ms break; max 100 rpm, 24 detents); firmware ui_board_map.h (1 kHz poll, 10 identical reads)"
-    },
-    "encoder_comparator": {
-      "checks": {
-        "high_margin_ge_0p3V": true,
-        "hysteresis_positive_at_every_corner": true,
-        "low_margin_ge_0p3V": true,
-        "without_comparator_would_fail": true
-      },
-      "direct_to_mcp23s08_margin_V": -0.373,
-      "encoder_voh_min_V": 2.0,
-      "encoder_vol_max_V": 1.0,
-      "hysteresis_nominal_V": 0.0702,
-      "margin_high_V": 0.3859,
-      "margin_low_V": 0.3807,
-      "mcp23s08_vil_V": 0.627,
-      "min_hysteresis_over_corners_V": 0.0688,
-      "note": "the comparator outputs swing to V3V3 and are far inside the MCP23S08 VIL/VIH (0.66 V / 2.64 V)",
-      "sources": "Grayhill 62AG/VG Rev. 02/2024 p.3 (open-collector outputs, VG logic low <= 1.0 V, high >= 2.0 V, 10 k pull-up required, <1000 pF noise capacitor); TI SBOS561C p.6 (VIO <= 6 mV over temperature, rail-to-rail inputs); Microchip DS20001919F p.22 D031 (VIL 0.2 VDD)",
-      "trip_down_range_V": [
-        1.3807,
-        1.5439
-      ],
-      "trip_up_range_V": [
-        1.4511,
-        1.6141
-      ],
-      "vref_nominal_V": 1.5
+      "sources": "C&K KSC2 (bounce is not in the figures quoted by the owner; the APEM 10 ms is kept as the allocation); firmware ui_board_map.h (1 kHz poll, 10 identical reads); UI-BOARD-REQUIREMENTS (1 kHz button service)"
     },
     "esd": {
       "arrays": {
         "U4": "J7 SCK, MOSI, MISO, CS_OLED#",
         "U5": "J7 D/C, CS_EXP# (2 spare)",
-        "U6": "BTN START, STOP, BACK, ENC_SW",
-        "U7": "ENC A, ENC B (2 spare)"
+        "U6": "BTN START, STOP, BACK (1 spare)",
+        "U7": "sensor tab: SCK, MOSI, CS_TMAG#, ALERT"
       },
       "checks": {
-        "button_residual_le_20mA": true,
-        "comparator_residual_le_10mA": true
+        "alert_residual_le_10mA": true,
+        "button_residual_le_20mA": true
       },
       "clamp_V_assumed": 12.0,
       "note": "the residual currents are for the SRV05-4 clamp assumed; replace the clamp value with the datasheet VC at IPP when the document is read",
-      "residual_into_comparator_mA": 0.81,
+      "residual_into_alert_path_mA": 0.81,
       "residual_into_mcp_button_mA": 8.1,
-      "sources": "MSKSEMI SRV05-4 (controller DECISIONS C26: +/-12 kV contact, Vcc on 3V3); Microchip DS20001919F p.21 (input clamp current 20 mA); TI SBOS561C p.4 (input current +/-10 mA)"
+      "sources": "MSKSEMI SRV05-4 (controller DECISIONS C26: +/-12 kV contact, Vcc on 3V3); Microchip DS20001919F p.21 (input clamp current 20 mA); TI SBASAF4 p.4 (ALERT/SDO output current +/-10 mA abs max)"
     },
     "harness_drop": {
-      "current_A": 0.4119,
-      "drop_V": 0.0397,
+      "current_A": 0.3853,
+      "drop_V": 0.0371,
       "r_feed_ohm": 0.0723,
       "r_return_ohm": 0.0241,
       "sources": "[ALLOCATION] AWG28 7/36 resistance 232.5 mohm/m and the JST XH contact resistance 20 mohm per mated contact are table values from memory, not re-read in this session; replace with the cited spec lines when the harness is specified",
       "ui_v3v3_max_V": 3.367,
-      "ui_v3v3_min_V": 3.2023
+      "ui_v3v3_min_V": 3.2049
+    },
+    "magnet_field": {
+      "angle_quantisation_deg": 0.00371,
+      "b_max_assumptions": "pushed 0.5 mm and gap -0.2 mm (4.3 mm), -40 C (+2.1 %), Br +5 % [ALLOCATION]; b_min: gap +0.2 mm, 176 C, Br -5 %",
+      "b_max_mT": 72.95,
+      "b_min_mT": 47.32,
+      "b_nominal_176C_mT": 52.685,
+      "b_nominal_20C_mT": 55.728,
+      "checks": {
+        "model_reproduces_owner_15mm_6p384": true,
+        "model_reproduces_owner_176C_52p685": true,
+        "model_reproduces_owner_5mm_55p728": true,
+        "model_reproduces_owner_9mm_20p106": true,
+        "model_reproduces_owner_push_15p29pct": true,
+        "range_100mT_max_field_le_80pct": true,
+        "range_50mT_clips": true,
+        "removal_threshold_below_min_seated_field": true
+      },
+      "lsb_uT_100mT": 3.067,
+      "model_reproduces_owner_table": {
+        "15mm_20C_mT": 6.384,
+        "5mm_176C_mT": 52.685,
+        "5mm_20C_mT": 55.728,
+        "9mm_20C_mT": 20.106,
+        "gap_minus_0p2_pct": 5.82,
+        "gap_plus_0p2_pct": -5.46,
+        "push_0p5mm_pct": 15.29
+      },
+      "push_detection": {
+        "gap_tolerance_pct": [
+          5.82,
+          -5.46
+        ],
+        "push_0p5mm_change_pct": 15.29,
+        "rule": "relative change of |B| against a slow baseline (time constant >> 1 s), threshold 8 %; absolute |B| cannot separate push from gap tolerance and temperature (owner's own caveat); a separate push actuator remains an option",
+        "temperature_change_20_to_176C_pct": -5.46
+      },
+      "range_100mT_headroom_pct": 27.0,
+      "range_100mT_within_80pct_of_full_scale": true,
+      "range_50mT_would_clip": true,
+      "range_choice_mT": 100,
+      "range_register": "X_RANGE = Y_RANGE = Z_RANGE = 10b (+/-100 mT, A1 device)",
+      "removal_detected_at_gap_mm": 7.85,
+      "removal_threshold_mT": 23.7,
+      "sources": "owner's UI-BOARD-REQUIREMENTS table and FIELD-THERMAL.md (ideal-cylinder closed form, Br 1.19 T, -0.035 %/C); TI SBASAF4 p.6 (ranges +/-25, +/-50, +/-100 mT; 1308, 654, 326 LSB/mT) and p.8 (angle error specified at 80 % of full range)"
     },
     "oled_reset": {
       "checks": {
@@ -151,12 +559,22 @@
     },
     "power_budget": {
       "checks": {
+        "headroom_ge_70mA": true,
         "v3v3_total_le_460mA": true,
         "v3v3_without_oled_le_120mA": true,
         "v5_le_30mA": true
       },
       "controller_allocation_with_oled_mA": 460.0,
       "controller_allocation_without_oled_mA": 120.0,
+      "headroom_without_oled_mA": 74.6895,
+      "owner_bridge": {
+        "note": "the owner's 71.9 mA counted six pull-ups and no R17-R19 (GP7, reset, OLED RES#), and 31.5 mA for the buzzer; this budget counts every 10 k pull-up on the netlist, adds the sensor (3.4 mA), the two gate ICs and five new pull-ups, and takes the buzzer at 30 mA",
+        "owner_after_encoder_removal_mA": 41.900000000000006,
+        "owner_headroom_mA": 78.1,
+        "owner_non_oled_before_removal_mA": 71.9,
+        "this_board_headroom_mA": 74.6895,
+        "this_board_non_oled_mA": 45.3105
+      },
       "sources": "see rows",
       "v3v3_rows": [
         {
@@ -165,14 +583,9 @@
           "mA": 340.0
         },
         {
-          "basis": "Grayhill 62AG/VG Rev. 02/2024 p.3: supply current 30 mA maximum (VG style)",
-          "load": "Encoder Grayhill 62VG15-H9S-030C",
+          "basis": "LCSC C530415 listing: 30 mA (5 V rated, 2-12 V operating); at 3.465 V the draw is lower, not scaled [ALLOCATION]",
+          "load": "Buzzer GSD9605YB-5V2800",
           "mA": 30.0
-        },
-        {
-          "basis": "Inghai spec sheet V1.1 p.2: 30 mA max at the 3.3 V rated voltage, scaled linearly to 3.465 V [ALLOCATION]",
-          "load": "Buzzer GSD9605YB-3V2800",
-          "mA": 31.5
         },
         {
           "basis": "Microchip DS20001919F p.22 D004: IDD 1 mA max at SCK = 1 MHz; 8 MHz bound by linear scaling [ALLOCATION]",
@@ -185,19 +598,19 @@
           "mA": 0.075
         },
         {
-          "basis": "TI SBOS561C p.6: IQ 60 uA max over temperature, per device, doubled [ALLOCATION]",
-          "load": "TLV3202 (2 channels)",
-          "mA": 0.12
+          "basis": "TI SBASAF4 p.5: IACT 3.4 mA max, CS high, VCC 5.5 V",
+          "load": "TMAG5170A1 (continuous measure mode)",
+          "mA": 3.4
         },
         {
-          "basis": "6 x 10 k to 3.465 V: 3 buttons, encoder switch, A and B",
-          "load": "pull-ups to V3V3, all lines low at once (R4-R6, R8-R10, R17-R19 high)",
-          "mA": 2.079
+          "basis": "TI SCES212 / SCES201N: ICC 10 uA max each (static)",
+          "load": "SN74LVC1G00 + SN74LVC2G32",
+          "mA": 0.02
         },
         {
-          "basis": "3.465 V / 22 k",
-          "load": "encoder reference divider R15+R16",
-          "mA": 0.1575
+          "basis": "11 x 10 k to 3.465 V: 3 buttons, GP7, expander reset, OLED RES#, sensor CS#, ALERT, GP3, GP5, TMP CS#",
+          "load": "pull-ups to V3V3, all lines low at once (R4-R6, R17-R19, R24-R27, R29)",
+          "mA": 3.8115
         },
         {
           "basis": "MSKSEMI SRV05-4: IR 1 uA max at 5 V",
@@ -205,8 +618,8 @@
           "mA": 0.004
         }
       ],
-      "v3v3_total_mA": 411.9355,
-      "v3v3_without_oled_mA": 71.9355,
+      "v3v3_total_mA": 385.3105,
+      "v3v3_without_oled_mA": 45.3105,
       "v5_budget_mA": 30.0,
       "v5_rows": [
         {
@@ -226,15 +639,25 @@
       "button_high_level_V": 3.124,
       "button_vih_V": 2.508,
       "checks": {
-        "button_contact_current_le_rating": true,
         "button_high_above_vih": true,
-        "wetting_ge_0p3mA": true
+        "tact_contact_current_le_10mA": true,
+        "wetting_ge_0p1mA_ksc2_minimum": true
       },
       "internal": {
         "gppu_internal_uA": "40-115 (DS20001919F p.22 D070, at 5 V), ~75 uA typ",
-        "note": "external 10 k pull-ups make the internal GPPU optional; the firmware map enables GPPU too, which is harmless"
+        "note": "external 10 k pull-ups make the internal GPPU optional; the firmware map enables GPPU on bits 3-5 and 7 too, which is harmless"
       },
       "lines": {
+        "CS_TMAG_N": {
+          "ohm": 10000.0,
+          "pullup": "R24 (at the sensor)",
+          "wetting_mA_when_closed": 0.3465
+        },
+        "CS_TMP_N": {
+          "ohm": 10000.0,
+          "pullup": "R29",
+          "wetting_mA_when_closed": 0.3465
+        },
         "EXP_RESET": {
           "ohm": 10000.0,
           "pullup": "R18",
@@ -255,22 +678,22 @@
           "pullup": "R6",
           "wetting_mA_when_closed": 0.3465
         },
-        "GP3_ENC_A": {
+        "GP3_TMAG_SEL_N": {
           "ohm": 10000.0,
-          "pullup": "R9 (at the raw node; the comparator output is push-pull)",
+          "pullup": "R26",
           "wetting_mA_when_closed": 0.3465
         },
-        "GP4_ENC_B": {
+        "GP4_TMAG_ALERT": {
           "ohm": 10000.0,
-          "pullup": "R10 (same)",
+          "pullup": "R25",
           "wetting_mA_when_closed": 0.3465
         },
-        "GP5_ENC_SW": {
+        "GP5_SPARE": {
           "ohm": 10000.0,
-          "pullup": "R8",
+          "pullup": "R27",
           "wetting_mA_when_closed": 0.3465
         },
-        "GP7_TMP_CS_N": {
+        "GP7_TMP_SEL_N": {
           "ohm": 10000.0,
           "pullup": "R17",
           "wetting_mA_when_closed": 0.3465
@@ -281,26 +704,54 @@
           "wetting_mA_when_closed": 0.3465
         }
       },
-      "sources": "Microchip DS20001919F p.22 D031/D060/D070; APEM IP series p.2 (200 mA 50 VDC, silver gold-plated); Grayhill 62AG/VG p.3"
+      "sources": "Microchip DS20001919F p.22 D031/D060/D070; C&K KSC2 series (min 0.1 mA, 20 mV; 10 mA, 32 V max; as quoted by UI-BOARD-REQUIREMENTS / the owner's SOURCES.md, drawing not fetched here)",
+      "tact_contact_current_mA": {
+        "ksc2_max_mA": 10.0,
+        "ksc2_min_mA": 0.1,
+        "max_at_3.465V_1pct_low": 0.35,
+        "min_at_3.135V_1pct_high": 0.2822
+      }
+    },
+    "sensor_thermal": {
+      "checks": {
+        "die_below_125C_target": true,
+        "die_below_150C_rating": true
+      },
+      "coupling_W_per_K": {
+        "air": 0.03072,
+        "fascia": 0.05326,
+        "ratio": 1.734
+      },
+      "design_target_C": 125.0,
+      "die_C": 120.2,
+      "model": "tab as an isothermal plate 60 x 32 mm between the fascia rear (1.78 mm air gap + radiation) and internal air; spacers of low-conductivity material assumed (their conduction is not counted: a stiff spacer would add to g_fascia) [ALLOCATION]",
+      "open": "the margin to 125 C is small (see die_C): the tab's thermal separation (spacer material and height, a window in the fascia carrier) is the owner's thermal proof; a larger gap lowers g_fascia",
+      "owner_relation": "(T_sensor - T_air) / (T_fascia - T_sensor) = G_fascia / G_air; allowed ratio for 125 C: 2.38",
+      "rating_C": 150.0,
+      "sources": "owner's FIELD-THERMAL.md (knob fascia 150.23 C, internal air 65 C in the hot case; TMAG5170 150 C rating, 125 C design target)",
+      "tab_C": 119.1
     },
     "spi_timing": {
       "assumptions": {
         "cable_pF_per_m": 70,
-        "gpio_matrix_input_delay_ns": 25
+        "gpio_matrix_input_delay_ns": 25,
+        "tab_harness_mm": 150
       },
       "checks": {
         "forward_clock_high_ge_45ns_at_8MHz": true,
         "miso_8MHz_margin_is_reported": true,
         "miso_ok_at_5MHz_with_matrix_delay": true,
         "ssd1322_tcycle_ok_at_8MHz": true,
+        "tmag_miso_ok_at_1MHz": true,
+        "tmag_miso_ok_at_2p5MHz": true,
         "tmp122_period_ok_at_8MHz": true
       },
       "forward": {
-        "clock_high_margin_ns": 12.385,
+        "clock_high_margin_ns": 10.064,
         "half_period_ns": 62.5,
         "mcp_thi_ns": 45.0,
-        "rise_10_90_ns": 10.23,
-        "tau_ns": 4.65
+        "rise_10_90_ns": 14.872,
+        "tau_ns": 6.76
       },
       "miso": {
         "5MHz": {
@@ -317,23 +768,253 @@
         }
       },
       "recommendation": "OLED writes at 8 MHz (no MISO). Expander and TMP122 reads at <= 5 MHz as a separate device configuration: at 8 MHz the MCP23S08 output (45 ns) plus the line leaves little of the 62.5 ns half-period before the ESP32 sampling edge.",
-      "sources": "Microchip DS20001919F p.27-28 Table 2-2 (2.7-5.5 V I-temp: fCLK 10 MHz, THI/TLO 45 ns, TV 45 ns); TI SBOS272B p.9 (SCK period 100 ns min, SO output delay 30 ns); Solomon Systech SSD1322 Rev 0.10 p.51 Table 13-4 (4-wire SPI tcycle 100 ns, tCLKL/H 20 ns); controller C26 (100 ohm at the controller end of every signal)"
+      "sources": "Microchip DS20001919F p.27-28 Table 2-2 (2.7-5.5 V I-temp: fCLK 10 MHz, THI/TLO 45 ns, TV 45 ns); TI SBOS272B p.9 (SCK period 100 ns min, SO output delay 30 ns); Solomon Systech SSD1322 Rev 0.10 p.51 Table 13-4 (4-wire SPI tcycle 100 ns, tCLKL/H 20 ns); controller C26 (100 ohm at the controller end of every signal)",
+      "tmag_max_sck_MHz_with_10ns_margin": 5.154,
+      "tmag_miso": {
+        "1MHz": {
+          "half_period_ns": 500.0,
+          "margin_after_matrix_delay_ns": 412.995,
+          "sdo_valid_ns": 62.0051
+        },
+        "2.5MHz": {
+          "half_period_ns": 200.0,
+          "margin_after_matrix_delay_ns": 112.9949,
+          "sdo_valid_ns": 62.0051
+        },
+        "5MHz": {
+          "half_period_ns": 100.0,
+          "margin_after_matrix_delay_ns": 12.9949,
+          "sdo_valid_ns": 62.0051
+        }
+      }
+    },
+    "stray_field": {
+      "absolute_error_budget_deg": 1.0,
+      "angle_noise_1sigma_deg": 0.0489,
+      "angle_noise_peak_3p5sigma_deg": 0.1713,
+      "angle_noise_pp_10s_deg": 0.3426,
+      "angle_noise_pp_by_avg_deg": {
+        "1": 1.446,
+        "16": 0.343,
+        "2": 1.028,
+        "32": 0.259,
+        "4": 0.723,
+        "8": 0.472
+      },
+      "block_average_gain": {
+        "31kHz": {
+          "gain_at_25us": 0.0915,
+          "max_gain_over_oscillator_tolerance": 0.1335
+        },
+        "40kHz": {
+          "gain_at_25us": 1.0,
+          "max_gain_over_oscillator_tolerance": 1.0
+        },
+        "55kHz": {
+          "gain_at_25us": 0.0,
+          "max_gain_over_oscillator_tolerance": 0.0808
+        },
+        "60kHz": {
+          "gain_at_25us": 0.0,
+          "max_gain_over_oscillator_tolerance": 0.0667
+        }
+      },
+      "cases": {
+        "nopan_60000_bare": {
+          "B_peak_uT": 158.733,
+          "B_rms_uT": 112.241,
+          "angle_error_peak_deg": 0.17262,
+          "jitter_pp_with_noise_deg": 0.6878,
+          "nonrepeatable_error_peak_deg": 0.4026,
+          "stray_pp_deg": 0.34525
+        },
+        "nopan_60000_base_roof": {
+          "B_peak_uT": 25.026,
+          "B_rms_uT": 17.696,
+          "angle_error_peak_deg": 0.02722,
+          "jitter_pp_with_noise_deg": 0.397,
+          "nonrepeatable_error_peak_deg": 0.2572,
+          "stray_pp_deg": 0.05443
+        },
+        "pan_31000_bare": {
+          "B_peak_uT": 46.96,
+          "B_rms_uT": 33.206,
+          "angle_error_peak_deg": 0.05107,
+          "jitter_pp_with_noise_deg": 0.4447,
+          "nonrepeatable_error_peak_deg": 0.2811,
+          "stray_pp_deg": 0.10214
+        },
+        "pan_31000_base_roof": {
+          "B_peak_uT": 1.358,
+          "B_rms_uT": 0.96,
+          "angle_error_peak_deg": 0.00148,
+          "jitter_pp_with_noise_deg": 0.3455,
+          "nonrepeatable_error_peak_deg": 0.2315,
+          "stray_pp_deg": 0.00295
+        }
+      },
+      "checks": {
+        "assembled_stray_peak_error_le_0p06deg": true,
+        "conversion_set_fits_5ms": true,
+        "jitter_pp_all_cases_le_1deg_hysteresis": true,
+        "jitter_pp_assembled_cases_le_0p5deg": true,
+        "jitter_pp_bare_nopan_exceeds_0p5deg": true,
+        "noise_pp_10s_le_0p5deg_at_16x": true,
+        "nonrepeatable_error_all_cases_le_0p5deg": true,
+        "worst_stray_peak_error_le_0p25deg": true
+      },
+      "conv_avg_choice": 16,
+      "conv_avg_register": "CONV_AVG = 100b (16x)",
+      "conversion_set_period_ms": 1.25,
+      "conversion_set_rate_sps": 800,
+      "filtering_claim": "none: the sensor samples one axis every ~25 us (40 ksps); a coil tone aliases, and a 16-sample average passes it unattenuated near 40 kHz (inside the 31-55 kHz tank range) once the 3.0-3.5 MHz oscillator tolerance is included. The error is therefore bounded by the unfiltered amplitude, which is what the table gives, and by the amplitude at 55 kHz, which is not computed (bounded below)",
+      "gain_ge_half_window_Hz_in_tank_range": [
+        38500,
+        41500
+      ],
+      "gap_55kHz": {
+        "bound_with_pan": "<= 33.206 uT rms (31 kHz pan case; eddy screening by the pan grows with frequency) [ASSUMPTION]",
+        "bound_without_pan": "<= 112.241 uT rms (60 kHz bare case at the same 45 A peak; the quasi-static coil field does not grow with frequency) [ASSUMPTION]",
+        "error_at_the_bounds_deg": {
+          "no_pan": 0.17262,
+          "pan": 0.05107
+        },
+        "no_solver_result_at_55kHz": true,
+        "to_close": "bench: log raw X/Y/Z with the coil running through 31-55 kHz and its harmonics (owner's VALIDATION)"
+      },
+      "headroom_bare_nopan_to_0p25deg": 1.45,
+      "jitter_budget_pp_deg": 0.5,
+      "noise_per_axis_uT_1sigma": 45.0,
+      "noise_table_uT": {
+        "1": 190.0,
+        "2": 135.0,
+        "4": 95.0,
+        "8": 62.0,
+        "16": 45.0,
+        "32": 34.0
+      },
+      "reported_not_gated": [
+        "jitter_pp_bare_nopan_exceeds_0p5deg"
+      ],
+      "signal_basis": "hot magnet (176 C, reversible only), the weakest design field, so the stray error is a maximum",
+      "signal_mT_used": 52.685,
+      "sources": "owner's UI-BOARD-REQUIREMENTS / FIELD-THERMAL.md (incident coil field at die w = -4 mm, 45 A peak, 31 kHz with pan, 60 kHz without pan, bare and with base/roof; no finite-fascia result; none at 55 kHz); TI SBASAF4 p.6-7 (noise), p.12 Fig. 6-8, p.8 (X-Y angle error +/-0.4 deg at 25 C, 50 mT range), p.17 (update rates)",
+      "step_hysteresis_deg": 1.0,
+      "tolerable_stray_rms_uT": {
+        "0.25deg": 162.6,
+        "1deg": 650.2
+      },
+      "worst_case": "nopan_60000_bare (no pan, no base/roof, 60 kHz)",
+      "worst_gain_over_31_to_60kHz_and_oscillator_tolerance": 1.0,
+      "worst_stray_peak_error_deg": 0.17262
+    },
+    "tact_switch": {
+      "actuator_top_above_pcb_mm": 3.5,
+      "body_mm": [
+        6.2,
+        6.2
+      ],
+      "centres_uv_mm": {
+        "back_GP2": [
+          -75.0,
+          26.0
+        ],
+        "select_start_GP0": [
+          -35.0,
+          26.0
+        ],
+        "stop_GP1": [
+          5.0,
+          26.0
+        ]
+      },
+      "checks": {
+        "contact_current_inside_ksc2_envelope": true
+      },
+      "electrical_travel_mm": [
+        0.19999999999999998,
+        0.6
+      ],
+      "force_N": [
+        1.7,
+        2.8
+      ],
+      "min_contact_load": "0.1 mA, 20 mV",
+      "min_tactile_ratio_pct": 10,
+      "note": "the 10 % minimum tactile ratio does not guarantee the assembled 25 % snap (SPEC); that is a mechanism question for the cap stack",
+      "part": "C&K (Littelfuse) KSC223G LFG = Y31B13136FPLFG, gold contacts, G (gullwing) terminals",
+      "sources": "UI-BOARD-REQUIREMENTS (KSC2 drawing figures as quoted); the drawing itself could not be fetched here"
+    },
+    "tmag_sensing": {
+      "DEVICE_CONFIG": {
+        "CONV_AVG": "100b (16x: 0.8 ksps for XYZ, 1.25 ms per set)",
+        "MAG_TEMPCO": "10b (SmCo, 0.03 %/C)",
+        "OPERATING_MODE": "010b",
+        "T_CH_EN": 1,
+        "T_RATE": "1 (temperature once per conversion set)",
+        "hex": "0x422C"
+      },
+      "SENSOR_CONFIG": {
+        "ANGLE_EN": "00b (raw XYZ, angle by atan2 in firmware: the CORDIC angle is 0.25 deg effective)",
+        "MAG_CH_EN": "0111b (X, Y, Z)",
+        "X_RANGE/Y_RANGE/Z_RANGE": "10b (+/-100 mT)",
+        "hex": "0x01EA"
+      },
+      "SYSTEM_CONFIG": {
+        "CRC": "enabled (default; never write CRC_DIS)",
+        "DATA_TYPE": "000b (16-bit register frames)",
+        "DIAG": "AFE diagnostics run by firmware once a second and at power-up (DIAG_EN/DIAG_SEL), not every set",
+        "hex": "0x0000"
+      },
+      "bus_time_per_update": {
+        "1MHz": {
+          "one_frame_group_us": 103.6,
+          "share_of_5ms_pct": 6.22,
+          "three_frame_read_us": 310.8
+        },
+        "2.5MHz": {
+          "one_frame_group_us": 84.4,
+          "share_of_5ms_pct": 5.06,
+          "three_frame_read_us": 253.2
+        },
+        "5MHz": {
+          "one_frame_group_us": 78.0,
+          "share_of_5ms_pct": 4.68,
+          "three_frame_read_us": 234.0
+        }
+      },
+      "checks": {
+        "conversion_set_faster_than_update": true,
+        "device_config_word_computed": true,
+        "sensor_current_in_allocation": true,
+        "update_period_covers_bus_time_at_1MHz": true,
+        "worst_data_age_le_5ms": true
+      },
+      "inhibit": "no valid set for 100 ms (20 missed updates), or any invalid/stale set: inhibit; replacement: 200 ms stable + explicit Start",
+      "mode": "OPERATING_MODE = 010b (continuous conversion) after SENSOR_CONFIG and SYSTEM_CONFIG are written in configuration mode",
+      "oled_chunk_ms": 0.512,
+      "read_per_update": "3 frames per set (X, Y, Z results), each a separate select/release pair; the response to a read command arrives in the next frame; every response carries conversion status and the set count, and a set is accepted only when the three responses carry the same set count, CRC is good, and no ERROR_STAT / CRC_STAT / FRAME_STAT / conversion-status flag is set",
+      "sck_policy": "1 MHz first; <= 2.5 MHz after the MISO scope check; 5 MHz only if the bench shows >= 10 ns more than the calc below",
+      "sources": "TI SBASAF4 p.34-37 (DEVICE_CONFIG, SENSOR_CONFIG, SYSTEM_CONFIG), p.17 (update rates), p.28-29 (32-bit SPI frames, CRC), p.5 (IACT)",
+      "temperature": "TEMP_RESULT read once per set group for diagnostics and gain-mismatch correction (25 C code 17522, 60 LSB/C, p.6)",
+      "update_period_ms": 5.0,
+      "update_rate_Hz": 200,
+      "worst_data_age_ms": 2.073
     },
     "v3v3_at_load": {
       "checks": {
-        "encoder_within_3p30_pm_0p125": true,
         "ics_within_2p7_5p5": true,
-        "oled_within_2p8_3p5": true
+        "oled_within_2p8_3p5": true,
+        "tmag_within_2p3_5p5": true
       },
-      "encoder_pin_min_V": 3.2008,
       "limits": {
         "buzzer": [
           2.0,
-          5.0
+          12.0
         ],
-        "encoder": [
-          3.175,
-          3.425
+        "lvc_gates": [
+          1.65,
+          5.5
         ],
         "mcp23s08": [
           2.7,
@@ -343,8 +1024,8 @@
           2.8,
           3.5
         ],
-        "tlv3202": [
-          2.7,
+        "tmag5170": [
+          2.3,
           5.5
         ],
         "tmp122": [
@@ -353,15 +1034,14 @@
         ]
       },
       "margins_V": {
-        "encoder_high": 0.058,
-        "encoder_low": 0.0258,
         "oled_high": 0.133,
-        "oled_low": 0.4023
+        "oled_low": 0.4049,
+        "tmag_low": 0.9049
       },
-      "note": "the encoder's low-side margin is tight (see margins_V): the bead FB1 is a 50 mohm part for that reason",
-      "sources": "controller verify_controller.py v3v3 band 3.242-3.367 V; Grayhill 62AG/VG p.3 (3.30 +/- 0.125 V); Newhaven rev. 7 p.7 (VDD 2.8-3.5 V); MCP23S08 DS p.22 (1.8-5.5 V); TMP122 p.3 (2.7-5.5 V); TLV3202 p.6",
+      "note": "the encoder's 26 mV low-side margin (old U5) is gone with the encoder; the OLED's 0.13 V high-side margin is now the tightest",
+      "sources": "controller verify_controller.py v3v3 band 3.242-3.367 V; Newhaven rev. 7 p.7 (VDD 2.8-3.5 V); MCP23S08 DS p.22 (1.8-5.5 V); TMP122 p.3 (2.7-5.5 V); TMAG5170 SBASAF4 p.4-5 (2.3-5.5 V); SN74LVC1G00 / 2G32 (1.65-5.5 V)",
       "ui_rail_max_V": 3.367,
-      "ui_rail_min_V": 3.2023
+      "ui_rail_min_V": 3.2049
     }
   }
 }
