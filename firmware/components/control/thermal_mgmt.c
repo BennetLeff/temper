@@ -225,6 +225,31 @@ pan_cap_t pan_cap_evaluate(float pan_rtd_c, bool rtd_valid, float rim_c, bool ri
     return r;
 }
 
+/* ---------------------------------------------------------------- sensor plausibility */
+void thermal_plaus_init(thermal_plaus_t *p) { memset(p, 0, sizeof *p); }
+
+void thermal_plaus_update(thermal_plaus_t *p, uint32_t now_ms, bool rim_cold_or_open,
+                          float pan_rtd_c, bool rtd_valid, float coil_c, uint8_t power_pct)
+{
+    uint32_t dt = 0;
+    if (p->primed) {
+        dt = now_ms - p->last_ms;
+        if (dt > THERMAL_PLAUS_MAX_STEP_MS) dt = THERMAL_PLAUS_MAX_STEP_MS;
+    }
+    p->primed = true;
+    p->last_ms = now_ms;
+
+    bool rim_cond = rim_cold_or_open && rtd_valid && pan_rtd_c > RIM_PLAUS_PAN_HOT_C;
+    p->rim_ms = rim_cond ? p->rim_ms + dt : 0u;
+    if (p->rim_ms > RIM_PLAUS_TIME_MS) p->rim_fault = true;
+
+    if (isfinite(coil_c)) {
+        if (coil_c >= COIL_PLAUS_COLD_C) p->coil_ms = 0u; /* the sensor shows warming */
+        else if (power_pct > COIL_PLAUS_POWER_PCT) p->coil_ms += dt;
+    }
+    if (p->coil_ms > COIL_PLAUS_TIME_MS) p->coil_fault = true;
+}
+
 /* ---------------------------------------------------------------- fan law */
 void fan_law_init(fan_law_t *f)
 {

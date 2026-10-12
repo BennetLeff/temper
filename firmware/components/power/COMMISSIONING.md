@@ -195,6 +195,22 @@ At 120 V and the highest power inside the envelope, run 10 min sessions with hea
 - no nuisance `N21_FAULT_*` latches;
 - no RAIL_OK trips from combined Wi-Fi/OLED load steps (controller bench item).
 
+## Step 8b: controller L3 thermal and blower (firmware side of C28 / C32)
+
+Firmware: `components/control/thermal_mgmt.{c,h}` (host-tested by `test/test_thermal_mgmt.c`), glue in `main/thermal_io.c` and `components/hal/esp32/controller_board_esp32.c`. Decisions recorded here (coordinator, 2026-10-12):
+- **Blower duty cap 85 % (firmware side of C28).** Duty 0 = full speed (11.96–12.40 V). 100 % duty gives 5.03–5.78 V, below the Delta blower's 5.5 V floor at a corner, so the firmware never commands more than `BLOWER_PWM_DUTY_MAX` = 0.85 (≥ 6.07 V at every VFB / resistor / v3v3 corner).
+- **Reset / brown-out speed accepted as fail-safe.** GPIO46 floats on its 100 kΩ strap pull-down: 11.0–11.4 V, near full speed.
+- **Rim / coil plausibility (ADC top ~3.1 V: a cold NTC and an open one read alike).** Latched until MCU reset, shown on the display, all PROVISIONAL:
+  - rim below its range (< ~70 °C, or open) while the pan RTD reads > 150 °C for > 30 s → rim-sensor fault; the 250 °C cap runs on the pan RTD alone;
+  - coil below 25 °C after > 5 min (cumulative) at > 50 % power → coil-sensor fault; the tank ceiling is clamped to 22 A (`n21_set_thermal_tank_limit()`) and the blower runs full speed. A true open coil NTC is still latched by the thermal-sense OPEN_REF comparator.
+
+Bench (record below):
+1. FG pulses per revolution (`BLOWER_TACH_PULSES_PER_REV`, `config.yaml`): FG frequency against an optical rpm at fixed V_BLOWER.
+2. V_BLOWER at duty 0, at 85 % and with the MCU held in reset; blower start at 85 % from standstill at the PS1 low corner.
+3. Stall: lock the rotor, then unplug J10 and then open FG alone, each while driven: `power_cap_pct` falls to 25 % after > 1 s, then 0 if the sink or coil keeps rising (`BLOWER_STALL_RPM`, `BLOWER_STALL_POWER_CAP_PCT`, `BLOWER_STALL_RISE_K`).
+4. ADC top: the calibrated reading of HS / COIL / RIM with the NTC open and with a 100 kΩ resistor in its place; confirm the ~3.1 V `THERMAL_ADC_MEAS_MAX_MV`.
+5. Plausibility: unplug J12 with the pan above 150 °C (rim fault after 30 s); unplug the coil NTC (hardware OPEN_REF latch) and, separately, replace it with a 100 kΩ resistor (coil fault after 5 min at > 50 %). Tune the four constants from logged cold starts.
+
 ## Step 9a: per-pan frequency loop and no-pan clamp (COMMISSIONED, needs H1)
 
 The loop (`tank_freq.h`) starts at F_MAX (60 kHz), steps down 250 Hz per closed half line cycle while every limit holds with 2 % to spare, holds in the band, and retreats (1 kHz, or 250 Hz for a marginal excess) when one is exceeded, blocking that frequency for 1 s. Limits: lag ≥ 45° and f ≥ 1.05 f_res (ZVS), f ≥ F_MIN, half-cycle RMS ≤ effective ceiling, inlet bound ≤ `inlet_target_a`, peak estimate ≤ peak trip − 3 A. A missing CT_ZC lag or a stale half steps up. Each live period change goes through `pwm_update` (MCPWM shadow registers, loaded at timer zero) and is ≤ 1 kHz per control tick.
@@ -280,6 +296,11 @@ Then one reviewed change sets `CONFIG_TEMPER_POWER_CALIBRATED=y`, enters the mea
 | Estimator error e_est | `EST_ERROR_PPM` | 100000 | | 7 |
 | Resulting hold / trip (A) | — | 11.1 / 12.45 | | 7 |
 | η_min check | (`input_limits_native21`) | 0.93 | | 7 |
+| Blower FG pulses / rev | (`BLOWER_TACH_PULSES_PER_REV`, config.yaml) | 2 | | 8b.1 |
+| Blower stall threshold (rpm) | (`BLOWER_STALL_RPM`) | 300 | | 8b.3 |
+| ADC measurable top (mV) | (`THERMAL_ADC_MEAS_MAX_MV`) | 3100 | | 8b.4 |
+| Rim plausibility: pan RTD, time | (`RIM_PLAUS_PAN_HOT_C`, `RIM_PLAUS_TIME_MS`) | 150 °C, 30 s | | 8b.5 |
+| Coil plausibility: cold, power, time | (`COIL_PLAUS_*`) | 25 °C, 50 %, 5 min | | 8b.5 |
 
 ## Open hardware questions
 
@@ -306,3 +327,4 @@ Then one reviewed change sets `CONFIG_TEMPER_POWER_CALIBRATED=y`, enters the mea
 - **H10. Live MCPWM retiming.** `hw_pwm_update` relies on `update_period_on_empty` and `update_cmp_on_tez` shadow loading; never compiled against ESP-IDF or scoped (step 9a.1). Per-leg non-overlap does not depend on the load timing (one comparator per leg), but a period and its compares landing on different timer zeros gives one period of up to half-step duty error.
 - **H11. Peak and f_res estimates.** The peak estimate is max(2.17 × half RMS, 1.485 × crest AD8436 sample, max |CT_MON| sample) and the f_res fit assumes a series RLC with constant L and R across a 2 kHz span; both are pre-measurement (ceiling gate 5, step 9a.2).
 - **H12. Low-power operation.** The loop's lowest continuous power is what the pan draws at 60 kHz. The FHA model (120 V, 55 µH / 0.5 µF) gives about 73 W into a 1.4 Ω pan, 104 W at 2.0 Ω and 175 W at 3.5 Ω (×1.21 at 132 V). Requests below that are capped at 60 kHz and over-delivered (`TF_POWER_AT_FMAX`). Pulse-skipping or LINE_ZC burst (`burst_scheduler`, disabled) is out of scope here; the temperature PID above it sees the over-delivery.
+- **H13. Blower off through an MCU-only hang (controller L3, accepted 2026-10-12).** Expander P15 FAN_OFF is a TCA9555 output latch, which an MCU reset or hang does not clear, so a hang while the fan law had the blower off leaves it off. Accepted: the TPS3823 watchdog drops PERMIT, so the tank is off too; a hang means blower off and tank off, which is safe (only residual heat). Open hardware options if that is ever not enough: a TCA9539 (the TCA9555 with a RESET pin) with RESET tied to the MCU's EN, so every MCU reset returns FAN_OFF to an input (blower on); or a hardware tach-loss trip (retriggerable monostable on FG into a spare interlock input, DECISIONS C28).

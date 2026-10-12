@@ -180,6 +180,9 @@ void state_machine_init(void) {
     /* Reset profile */
     profile_init_status(&sm_ctx.profile);
 
+    /* L3 rim / coil sensor plausibility */
+    state_handlers_thermal_plaus_reset();
+
     /* Reset message display state */
     sm_ctx.message_pending = false;
     sm_ctx.message_next_state = STATE_INIT;

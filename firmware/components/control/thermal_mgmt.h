@@ -85,8 +85,8 @@ typedef struct ntc_channel {
  *
  * Self-heating (documented, deliberately not corrected): the NTC dissipates V^2 R / (R + R_pu)^2,
  * 1.38 mW at 250 C (3.304 V, 174 Ohm, 1.00 k), i.e. ~2.3 K high in still air at 0.6 mW/K
- * (controller_calcs.py rim_ntc(): 2.3 K; the coordinator's 1.6 mW / ~2.6 K figure is the same
- * order); peak 2.7 mW at R = R_pu (~157 C). It reads hot, which brings the 250 C cap in earlier:
+ * (controller_calcs.py rim_ntc(): 2.3 K; from the transcribed R-T table, superseding an earlier
+ * B-model estimate of 1.6 mW / ~2.6 K); peak 2.7 mW at R = R_pu (~157 C). It reads hot, which brings the 250 C cap in earlier:
  * the safe side. Mounted on the glass in the R36 rim boss it is lower than in still air. */
 #ifndef RIM_NTC_R_PULLUP_OHM
 #define RIM_NTC_R_PULLUP_OHM   1000.0f
@@ -177,6 +177,39 @@ typedef struct {
 /* An invalid pan RTD gives cap 0 (the RTD path has its own faults; this only refuses heat). An
  * invalid rim gives no rim cap: it is the backup path, and the RTD still caps. */
 pan_cap_t pan_cap_evaluate(float pan_rtd_c, bool rtd_valid, float rim_c, bool rim_valid);
+
+/* ---------------------------------------------------------------- sensor plausibility */
+/* The ESP32-S3 ADC cannot see the node near v3v3, so a cold NTC and an open one read alike
+ * (NTC_BELOW_RANGE). Coordinator decision 2026-10-12: resolve it in firmware by plausibility,
+ * latched until MCU reset; no hardware change. All values PROVISIONAL (bench-tunable).
+ *  - Rim: below its range (cold, < ~70 C, or open) while the pan RTD reads > 150 C for > 30 s ->
+ *    rim-sensor fault: the rim is dropped from the 250 C cap (pan-RTD-only cap) and the user is
+ *    told.
+ *  - Coil: below 25 C after > 5 min (cumulative) of heating at > 50 % power -> coil-sensor fault:
+ *    the tank is clamped to COIL_SENSOR_FAULT_TANK_MAX_A and the blower runs full speed. A true
+ *    open is still latched in hardware by the thermal-sense OPEN_REF comparator. */
+#define RIM_PLAUS_PAN_HOT_C          150.0f
+#define RIM_PLAUS_TIME_MS            30000u
+#define COIL_PLAUS_COLD_C             25.0f
+#define COIL_PLAUS_POWER_PCT             50u
+#define COIL_PLAUS_TIME_MS          300000u
+#define COIL_SENSOR_FAULT_TANK_MAX_A  22.0f
+#define THERMAL_PLAUS_MAX_STEP_MS       200u /* a gap between calls (not heating) does not count */
+
+typedef struct {
+    bool primed;
+    uint32_t last_ms;
+    uint32_t rim_ms;  /* continuous time the rim condition has held */
+    uint32_t coil_ms; /* cumulative heating time at > 50 % power with the coil reading cold */
+    bool rim_fault, coil_fault; /* latched */
+} thermal_plaus_t;
+
+void thermal_plaus_init(thermal_plaus_t *p);
+/* Call every control tick while heating. rim_cold_or_open: the rim node is NTC_BELOW_RANGE or
+ * NTC_OPEN. coil_c: the coil reading (the range floor when below range; NaN is handled by the
+ * over-temperature interlock and ignored here). power_pct: the tank power level applied. */
+void thermal_plaus_update(thermal_plaus_t *p, uint32_t now_ms, bool rim_cold_or_open,
+                          float pan_rtd_c, bool rtd_valid, float coil_c, uint8_t power_pct);
 
 /* ---------------------------------------------------------------- fan law */
 #define FAN_SINK_SETPOINT_C     88.6f

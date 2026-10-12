@@ -561,6 +561,67 @@ static void test_blower_ctrl_coil_cap(void)
     assert(o.power_cap_pct == 50 && o.on && o.duty < BLOWER_PWM_DUTY_MAX);
 }
 
+/* ---------------------------------------------------------------- sensor plausibility */
+static void test_rim_plausibility(void)
+{
+    thermal_plaus_t p;
+    thermal_plaus_init(&p);
+    uint32_t t = 0;
+    /* Rim cold/open, pan 160 C: 30 s is not enough, > 30 s latches. */
+    for (; t <= RIM_PLAUS_TIME_MS; t += 100) thermal_plaus_update(&p, t, true, 160.0f, true, 60.0f, 80);
+    assert(!p.rim_fault && p.rim_ms == RIM_PLAUS_TIME_MS);
+    thermal_plaus_update(&p, t, true, 160.0f, true, 60.0f, 80);
+    assert(p.rim_fault && !p.coil_fault);
+    /* Latched: a good rim later does not clear it. */
+    thermal_plaus_update(&p, t + 100, false, 160.0f, true, 60.0f, 80);
+    assert(p.rim_fault);
+    /* Interruptions restart the 30 s: pan at 150 C (not above), RTD invalid, rim reading. */
+    const struct { bool rim; float pan; bool rtd; } brk[] = {{true, 150.0f, true}, {true, 200.0f, false},
+                                                            {false, 200.0f, true}};
+    for (unsigned k = 0; k < 3; k++) {
+        thermal_plaus_init(&p);
+        for (t = 0; t < 20000; t += 100) thermal_plaus_update(&p, t, true, 200.0f, true, 60.0f, 80);
+        thermal_plaus_update(&p, t, brk[k].rim, brk[k].pan, brk[k].rtd, 60.0f, 80);
+        for (t += 100; t < 45000; t += 100) thermal_plaus_update(&p, t, true, 200.0f, true, 60.0f, 80);
+        assert(!p.rim_fault);
+    }
+    /* A long gap between calls (not heating) counts at most THERMAL_PLAUS_MAX_STEP_MS. */
+    thermal_plaus_init(&p);
+    thermal_plaus_update(&p, 0, true, 200.0f, true, 60.0f, 80);
+    thermal_plaus_update(&p, 60000, true, 200.0f, true, 60.0f, 80);
+    assert(!p.rim_fault && p.rim_ms == THERMAL_PLAUS_MAX_STEP_MS);
+}
+
+static void test_coil_plausibility(void)
+{
+    thermal_plaus_t p;
+    thermal_plaus_init(&p);
+    uint32_t t = 0;
+    /* Coil at 15 C (the ADC floor: cold or open) at 80 % power: > 5 min latches. */
+    for (; t <= COIL_PLAUS_TIME_MS; t += 100) thermal_plaus_update(&p, t, false, 100.0f, true, 15.0f, 80);
+    assert(!p.coil_fault);
+    thermal_plaus_update(&p, t, false, 100.0f, true, 15.0f, 80);
+    assert(p.coil_fault && !p.rim_fault);
+    thermal_plaus_update(&p, t + 100, false, 100.0f, true, 90.0f, 80);
+    assert(p.coil_fault); /* latched */
+    /* Time at <= 50 % power does not count, but does not clear either (cumulative). */
+    thermal_plaus_init(&p);
+    for (t = 0; t < 200000; t += 100) thermal_plaus_update(&p, t, false, 100.0f, true, 15.0f, 80);
+    for (; t < 800000; t += 100) thermal_plaus_update(&p, t, false, 100.0f, true, 15.0f, COIL_PLAUS_POWER_PCT);
+    assert(!p.coil_fault && p.coil_ms == 199900u); /* first call primes (dt 0) */
+    for (; t < 902000; t += 100) thermal_plaus_update(&p, t, false, 100.0f, true, 15.0f, 51);
+    assert(p.coil_fault);
+    /* A reading at or above 25 C restarts it; NaN (the interlock's case) is ignored. */
+    thermal_plaus_init(&p);
+    for (t = 0; t < 250000; t += 100) thermal_plaus_update(&p, t, false, 100.0f, true, 20.0f, 100);
+    thermal_plaus_update(&p, t, false, 100.0f, true, COIL_PLAUS_COLD_C, 100);
+    assert(p.coil_ms == 0u);
+    for (t += 100; t < 500000; t += 100) thermal_plaus_update(&p, t, false, 100.0f, true, NAN, 100);
+    assert(!p.coil_fault && p.coil_ms == 0u);
+    /* The clamp the fault applies is the shipping commissioned ceiling. */
+    assert(COIL_SENSOR_FAULT_TANK_MAX_A <= 22.0f);
+}
+
 int main(void)
 {
     TEST(test_ntc_round_trip);
@@ -581,6 +642,8 @@ int main(void)
     TEST(test_blower_tach);
     TEST(test_tach_zero_derates);
     TEST(test_blower_ctrl_coil_cap);
+    TEST(test_rim_plausibility);
+    TEST(test_coil_plausibility);
     printf("thermal management: %u tests passed\n", tests);
     return 0;
 }

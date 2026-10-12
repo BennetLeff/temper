@@ -17,6 +17,7 @@
 #include "test_common.h"
 #include "../main/state_machine.h"
 #include "../config.h"
+#include "../components/control/thermal_mgmt.h"
 #include <string.h>
 #include <math.h>
 
@@ -54,6 +55,10 @@ extern uint32_t mock_sm_get_trigger_shutdown_count(void);
 extern uint32_t mock_sm_get_power_set_count(void);
 extern uint32_t mock_sm_get_pwm_disable_count(void);
 extern void mock_sm_set_rim_temperature(float temp_c, bool valid);
+extern void mock_sm_set_rim_cold_or_open(void);
+extern bool mock_sm_get_rim_sensor_fault(void);
+extern bool mock_sm_get_coil_sensor_fault(void);
+extern const char* mock_sm_get_last_display_message(void);
 extern void mock_sm_set_thermal_cap(uint8_t pct);
 
 /* Pan status constants (must match stubs) */
@@ -345,6 +350,96 @@ static void enter_preheat(void) {
         state_machine_update();
     }
     TEST_ASSERT_EQUAL(STATE_PREHEAT, state_machine_get_state());
+}
+
+/* Hold the pan at about pan_c for ms (100 ms ticks), wobbling 0.2 C so the ADC-stuck detector
+ * does not fire; returns false if the machine left PREHEAT/HEATING. */
+static bool run_hot_pan(float pan_c, uint32_t ms)
+{
+    for (uint32_t t = 0; t < ms; t += 100) {
+        mock_sm_set_pan_temperature(pan_c + ((t / 100u) & 1u ? 0.2f : 0.0f));
+        mock_sm_advance_time(100);
+        state_machine_update();
+        system_state_t st = state_machine_get_state();
+        if (st != STATE_PREHEAT && st != STATE_HEATING) return false;
+    }
+    return true;
+}
+
+static void reach_hot_pan(float pan_c)
+{
+    enter_preheat();
+    state_machine_set_target_temp(250.0f);
+    /* Ramp at 10 C/s (below the 15 C/s runaway limit) to the hot pan. */
+    for (float p = 25.0f; p < pan_c; p += 1.0f) {
+        mock_sm_set_pan_temperature(p);
+        mock_sm_advance_time(100);
+        state_machine_update();
+    }
+}
+
+/* Rim below its range (cold or open: alike at the ADC's top) while the pan RTD reads > 150 C for
+ * > 30 s: rim-sensor fault, latched, shown; the rim is dropped and the pan RTD alone caps. */
+void test_sm_rim_sensor_plausibility_fault(void) {
+    reach_hot_pan(160.0f);
+    mock_sm_set_rim_cold_or_open();
+    TEST_ASSERT_TRUE(run_hot_pan(160.0f, 29000));
+    TEST_ASSERT_FALSE(mock_sm_get_rim_sensor_fault());
+    TEST_ASSERT_TRUE(run_hot_pan(160.0f, 2000));
+    TEST_ASSERT_TRUE(mock_sm_get_rim_sensor_fault());
+    TEST_ASSERT_EQUAL_STRING("RIM SENSOR FAULT", mock_sm_get_last_display_message());
+    /* Latched: a rim that now reads (even at the 250 C cap) no longer caps; the RTD still does. */
+    mock_sm_set_rim_temperature(251.0f, true);
+    TEST_ASSERT_TRUE(run_hot_pan(160.0f, 300));
+    TEST_ASSERT_TRUE(mock_sm_get_power_level() > 0);
+    TEST_ASSERT_TRUE(mock_sm_get_rim_sensor_fault());
+    for (int i = 0; i < 3; i++) { /* the handler acts on the previous tick's reading */
+        mock_sm_set_pan_temperature(250.5f);
+        state_machine_reset_temp_baseline();
+        mock_sm_advance_time(100);
+        state_machine_update();
+    }
+    TEST_ASSERT_EQUAL_UINT32(0, mock_sm_get_power_level());
+}
+
+/* A cool pan (RTD <= 150 C) with the rim below range is normal: no fault. */
+void test_sm_rim_below_range_cool_pan_no_fault(void) {
+    reach_hot_pan(140.0f);
+    mock_sm_set_rim_cold_or_open();
+    TEST_ASSERT_TRUE(run_hot_pan(140.0f, 60000));
+    TEST_ASSERT_FALSE(mock_sm_get_rim_sensor_fault());
+}
+
+/* Coil reading below 25 C after > 5 min of heating at > 50 % power: coil-sensor fault, latched,
+ * handed to the thermal glue (tank <= 22 A, blower full speed) and shown. */
+void test_sm_coil_sensor_plausibility_fault(void) {
+    reach_hot_pan(120.0f);
+    mock_sm_set_coil_temperature(20.0f);
+    TEST_ASSERT_TRUE(run_hot_pan(120.0f, 100));
+    TEST_ASSERT_TRUE(mock_sm_get_power_level() > COIL_PLAUS_POWER_PCT);
+    TEST_ASSERT_TRUE(run_hot_pan(120.0f, 299000));
+    TEST_ASSERT_FALSE(mock_sm_get_coil_sensor_fault());
+    TEST_ASSERT_TRUE(run_hot_pan(120.0f, 2000));
+    TEST_ASSERT_TRUE(mock_sm_get_coil_sensor_fault());
+    TEST_ASSERT_EQUAL_STRING("COIL SENSOR FAULT", mock_sm_get_last_display_message());
+    /* A derate, not a stop: heating continues (the tank clamp is the binding's). */
+    TEST_ASSERT_TRUE(run_hot_pan(120.0f, 500));
+    TEST_ASSERT_TRUE(mock_sm_get_power_level() > 0);
+    /* Reset at re-init. */
+    setup_test();
+    TEST_ASSERT_FALSE(mock_sm_get_coil_sensor_fault());
+}
+
+/* A coil that warms past 25 C clears the evidence: no fault however long the session. */
+void test_sm_coil_warming_no_sensor_fault(void) {
+    reach_hot_pan(120.0f);
+    mock_sm_set_coil_temperature(20.0f);
+    TEST_ASSERT_TRUE(run_hot_pan(120.0f, 200000));
+    mock_sm_set_coil_temperature(40.0f);
+    TEST_ASSERT_TRUE(run_hot_pan(120.0f, 10000));
+    mock_sm_set_coil_temperature(20.0f);
+    TEST_ASSERT_TRUE(run_hot_pan(120.0f, 200000));
+    TEST_ASSERT_FALSE(mock_sm_get_coil_sensor_fault());
 }
 
 /**
@@ -1724,6 +1819,10 @@ void run_state_machine_tests(void) {
     RUN_TEST(test_sm_pan_det_to_preheat_on_pan);
     RUN_TEST(test_sm_preheat_enables_pll);
     RUN_TEST(test_sm_preheat_rim_at_cap_removes_power);
+    RUN_TEST(test_sm_rim_sensor_plausibility_fault);
+    RUN_TEST(test_sm_rim_below_range_cool_pan_no_fault);
+    RUN_TEST(test_sm_coil_sensor_plausibility_fault);
+    RUN_TEST(test_sm_coil_warming_no_sensor_fault);
     RUN_TEST(test_sm_preheat_blower_stall_derates);
     
     /* PAN_DET timeout */

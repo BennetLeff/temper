@@ -11,6 +11,9 @@
  *   the fan law runs full speed) and the rim reads invalid (no rim cap; the pan RTD still caps).
  *   A reading is used only after the C29 input RC has settled (ntc_input_settled(); the MCU runs
  *   from v3v3, so time since boot is a lower bound on time since the rail came up).
+ * - Sensor plausibility (coordinator 2026-10-12): the state handlers latch rim / coil sensor faults
+ *   (thermal_plaus_t) and hand them here; a coil-sensor fault clamps the native-21 tank ceiling to
+ *   COIL_SENSOR_FAULT_TANK_MAX_A (22 A) and runs the blower at full speed.
  * - Blower (DECISIONS C28): thermal_blower_tick(), every MONITOR tick (100 ms): fan law -> FAN_OFF
  *   and the GPIO46 duty (duty 0 = full speed), FG tach -> rpm -> stall detector, and the tank
  *   power cap min(coil derate, stall derate) that thermal_power_cap_pct() hands the state
@@ -55,7 +58,7 @@ static bool read_ntc(unsigned idx, const ntc_channel_t *ch, bool below_range_ok,
     if (!n21_hw_thermal_mv(mv, THERMAL_MAX_AGE_US)) return false;
     float t = NAN;
     ntc_status_t st = ntc_channel_temp_c(ch, mv[idx], &t);
-    if (below_range) *below_range = st == NTC_BELOW_RANGE;
+    if (below_range) *below_range = st == NTC_BELOW_RANGE || st == NTC_OPEN; /* cold or open */
     if (st == NTC_OK || (below_range_ok && st == NTC_BELOW_RANGE)) {
         *temp_c = t;
         return true;
@@ -79,10 +82,17 @@ static bool read_ntc(unsigned idx, const ntc_channel_t *ch, bool below_range_ok,
 #define IDX_RIM  0u
 #endif
 
-/* The rim has no hardware open detect: below range (cold, or open) is "no rim reading". */
+/* The rim has no hardware open detect: below range (cold, or open) is "no rim reading", and the
+ * state handlers' plausibility check (thermal_plaus_t) latches a rim-sensor fault when it lasts
+ * while the pan RTD reads hot. */
+bool read_rim_temperature_status(float *temp_c, bool *cold_or_open)
+{
+    return read_ntc(IDX_RIM, &THERMAL_NTC_RIM, false, temp_c, cold_or_open);
+}
+
 bool read_rim_temperature(float *temp_c)
 {
-    return read_ntc(IDX_RIM, &THERMAL_NTC_RIM, false, temp_c, NULL);
+    return read_rim_temperature_status(temp_c, NULL);
 }
 
 static float read_sink(bool *below_range)
@@ -109,6 +119,14 @@ static bool s_blower_init;
  * atomic. Until the first tick the cap is 0 (no tank power on an unknown thermal state). */
 static volatile uint8_t s_power_cap_pct;
 static volatile bool s_blower_failed;
+/* Latched by the state handlers' plausibility check (control task). */
+static volatile bool s_rim_sensor_fault, s_coil_sensor_fault;
+
+void thermal_set_sensor_faults(bool rim_fault, bool coil_fault)
+{
+    s_rim_sensor_fault = rim_fault;
+    s_coil_sensor_fault = coil_fault;
+}
 
 void thermal_blower_tick(void)
 {
@@ -125,7 +143,16 @@ void thermal_blower_tick(void)
     bool exp_ok = ctrl_board_expander(&c) && ctrl_exp_fresh(&c, (uint64_t)esp_timer_get_time(),
                                                             CTRL_EXP_MAX_AGE_US);
     ctrl_exp_inputs_t in = ctrl_exp_decode(c.raw);
-    bool fault = !exp_ok || in.hs_fault || in.coil_fault || in.latched_fault || sink_low || coil_low;
+    bool coil_sensor_fault = s_coil_sensor_fault;
+    bool fault = !exp_ok || in.hs_fault || in.coil_fault || in.latched_fault || sink_low || coil_low ||
+                 coil_sensor_fault;
+#if CONFIG_TEMPER_POWER_HW_BINDING
+    /* Coil-sensor fault: the tank RMS ceiling is clamped to <= 22 A (n21 frequency loop). */
+    n21_binding_t *b = n21_hw_binding();
+    if (b && b->thermal_limited != coil_sensor_fault &&
+        !n21_set_thermal_tank_limit(b, coil_sensor_fault, COIL_SENSOR_FAULT_TANK_MAX_A))
+        ESP_LOGE(TAG, "coil-sensor tank clamp not applied");
+#endif
 
     uint16_t count = 0;
     bool tach_ok = ctrl_board_blower_tach_count(&count);

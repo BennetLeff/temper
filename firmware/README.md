@@ -90,6 +90,14 @@ full speed, and the thermal-sense OPEN_REF comparator latches a real open.
 The rim (1.00 k pull-up) resolves only above ~70 °C; below that, or open, it
 gives no rim cap and the pan RTD still caps at 250 °C.
 
+Because cold and open read alike, a plausibility check (`thermal_plaus_t`,
+run on every heating tick) latches a **rim-sensor fault** when the rim stays
+below range for > 30 s while the pan RTD reads > 150 °C (rim dropped from the
+cap; the pan RTD alone caps), and a **coil-sensor fault** when the coil reads
+< 25 °C after > 5 min at > 50 % power (tank clamped to 22 A, blower full
+speed). Both are shown on the display and held until MCU reset; the
+constants are bench-tunable (`components/power/COMMISSIONING.md` step 8b).
+
 `components/hal/include/temper_pins.h` is the legacy `elec/` board map, kept
 unchanged for the tools that read it; controller firmware must not include it.
 
