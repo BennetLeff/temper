@@ -561,6 +561,40 @@ static void test_blower_ctrl_coil_cap(void)
     assert(o.power_cap_pct == 50 && o.on && o.duty < BLOWER_PWM_DUTY_MAX);
 }
 
+/* Stage 16 split tick: decide() + finish(applied) equals blower_ctrl_step() when the command is
+ * applied as is, and a start held back by the PS3 inlet schedule (blower_aux.h) is not a stall:
+ * the stall detector runs on the state actually applied. */
+static void test_blower_ctrl_split(void)
+{
+    blower_ctrl_t a, b;
+    blower_ctrl_init(&a);
+    blower_ctrl_init(&b);
+    uint16_t cnt = 0;
+    for (uint32_t now = 0; now <= 3000; now += 100, cnt = (uint16_t)(cnt + (now > 1500 ? 0 : 8))) {
+        float sink = 60.0f + now * 0.01f, coil = 120.0f;
+        blower_cmd_t x = blower_ctrl_step(&a, sink, coil, false, true, cnt, now, 0.1f, 2);
+        blower_cmd_t y = blower_ctrl_decide(&b, sink, coil, false, 0.1f);
+        blower_ctrl_finish(&b, &y, y.on, sink, coil, true, cnt, now, 2);
+        assert(x.on == y.on && x.duty == y.duty && x.power_cap_pct == y.power_cap_pct &&
+               x.blower_failed == y.blower_failed && (x.rpm == y.rpm || (isnan(x.rpm) && isnan(y.rpm))));
+    }
+    /* Commanded on (sink 60 C) but held off for 3 s: tach 0 throughout, no stall derate. */
+    blower_ctrl_init(&b);
+    for (uint32_t now = 0; now <= 3000; now += 100) {
+        blower_cmd_t y = blower_ctrl_decide(&b, 60.0f, 60.0f, false, 0.1f);
+        assert(y.on);
+        blower_ctrl_finish(&b, &y, false, 60.0f, 60.0f, true, 0, now, 2);
+        assert(y.power_cap_pct == 100 && !b.stall.stalled);
+    }
+    /* Applied on and still 0 rpm: the stall detector runs as before (> 1 s). */
+    blower_cmd_t y = {0};
+    for (uint32_t now = 3100; now <= 4200; now += 100) {
+        y = blower_ctrl_decide(&b, 60.0f, 60.0f, false, 0.1f);
+        blower_ctrl_finish(&b, &y, true, 60.0f, 60.0f, true, 0, now, 2);
+    }
+    assert(b.stall.stalled && y.power_cap_pct == BLOWER_STALL_POWER_CAP_PCT);
+}
+
 /* ---------------------------------------------------------------- sensor plausibility */
 static void test_rim_plausibility(void)
 {
@@ -642,6 +676,7 @@ int main(void)
     TEST(test_blower_tach);
     TEST(test_tach_zero_derates);
     TEST(test_blower_ctrl_coil_cap);
+    TEST(test_blower_ctrl_split);
     TEST(test_rim_plausibility);
     TEST(test_coil_plausibility);
     printf("thermal management: %u tests passed\n", tests);

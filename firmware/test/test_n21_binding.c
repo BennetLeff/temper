@@ -144,8 +144,13 @@ static const n21_hw_ops_t OPS = {
     .read_adc1 = f_adc1, .read_ext_adc = f_ext, .read_ct_zc = f_ct_zc, .line_zc_edges = f_edges,
 };
 
+/* Blower-schedule allowance handed to the binding every 100 ms by run_ms() (thermal_io.c does it
+ * every blower tick). The fixed-operating-point scenarios below run with the blower off (stopped):
+ * PS1 + PS2 + PS3 idle, 1.35 A. NAN: no schedule (the binding stays at the worst case). */
+static float G_aux;
 static void fake_reset(bool with_gate)
 {
+    G_aux = 1.35f;
     memset(&F, 0, sizeof F);
     F.now = 1000000;
     F.next_zero = 1003000;
@@ -179,6 +184,7 @@ static void run_ms(unsigned ms)
 {
     for (unsigned k = 0; k < ms * 8; k++) {   /* 125 us steps */
         F.now += 125;
+        if (isfinite(G_aux) && F.now % 100000 == 0) (void)n21_set_aux_allowance(&B, G_aux);
         if (F.acquiring && F.now % 625 == 0) n21_acquire_step(&B);
         if (F.now % 10000 == 0) power_service_tick();
     }
@@ -189,6 +195,7 @@ static bool bind_commissioned(n21_config_t c)
     power_binding_t pb;
     n21_hw_ops_t o = ops();
     if (n21_binding_init(&B, &c, &o, &pb) != N21_INIT_BIND) return false;
+    if (isfinite(G_aux)) (void)n21_set_aux_allowance(&B, G_aux);
     return power_service_bind(&pb);
 }
 static bool inhibited(void) { return !F.pads_live && !F.gate; }
@@ -886,6 +893,73 @@ static void test_freq_update_failure(void)
     tests++;
 }
 
+/* Stage 16: the auxiliary allowance in force. Worst case (PS3 at full blower) until the blower
+ * schedule reports; a fresh value is followed down at once and up by aux_slew_a per closed half;
+ * a stale or invalid one goes back to the worst case; the idle inlet bound is the allowance. */
+static void test_aux_allowance_live(void)
+{
+    fake_reset(true);
+    G_aux = NAN;
+    n21_config_t c = commissioned_cfg();
+    float worst = c.limits.aux_max_a;
+    assert(NEAR(worst, 2.569, 0.002) && c.limits.aux_min_a == 1.3f && c.aux_slew_a == 0.05f);
+    assert(bind_commissioned(c));
+    n21_telemetry_t t;
+    n21_telemetry(&B, &t);
+    assert(t.aux_a == worst);
+    run_ms(100);
+    n21_telemetry(&B, &t);
+    assert(t.aux_a == worst && t.have_half && NEAR(t.last_half.est.inlet_bound_a, worst, 1e-4)); /* idle */
+    /* Blower off: down at once. */
+    assert(n21_set_aux_allowance(&B, 1.35f));
+    run_ms(20);
+    n21_telemetry(&B, &t);
+    assert(t.aux_a == 1.35f && NEAR(t.last_half.est.inlet_bound_a, 1.35, 1e-4));
+    /* Speed-up scheduled to 2.4 A: 0.05 A per half, never a step. */
+    assert(n21_set_aux_allowance(&B, 2.4f));
+    uint32_t h0 = t.halves_ok, h_start = t.halves_ok;
+    float prev = t.aux_a;
+    for (unsigned k = 0; k < 40; k++) {
+        run_ms(5);
+        n21_telemetry(&B, &t);
+        unsigned dh = t.halves_ok - h0;
+        assert(t.aux_a - prev <= 0.05f * (float)dh + 1e-4f);
+        assert(t.aux_a <= 1.35f + 0.05f * (float)(t.halves_ok - h_start) + 1e-4f);
+        h0 = t.halves_ok;
+        prev = t.aux_a;
+    }
+    assert(t.aux_a == 2.4f);
+    /* Out of range or NaN: the worst case. */
+    const float bad[] = {1.0f, 3.0f, NAN, INFINITY};
+    for (unsigned k = 0; k < 4; k++) {
+        assert(n21_set_aux_allowance(&B, 1.35f));
+        run_ms(20);
+        assert(n21_set_aux_allowance(&B, bad[k]));
+        run_ms(300);
+        n21_telemetry(&B, &t);
+        assert(t.aux_a == worst);
+    }
+    /* Stale: no update for > aux_max_age_us (the thermal task stopped): back to the worst case. */
+    assert(n21_set_aux_allowance(&B, 1.35f));
+    run_ms(400);
+    n21_telemetry(&B, &t);
+    assert(t.aux_a == 1.35f);
+    run_ms(200 + 300);
+    n21_telemetry(&B, &t);
+    assert(t.aux_a == worst);
+    assert(!n21_set_aux_allowance(NULL, 1.35f));
+    /* Default config: the knobs are validated. */
+    c = commissioned_cfg();
+    power_binding_t pb;
+    n21_hw_ops_t o = ops();
+    c.aux_slew_a = 0;
+    assert(n21_binding_init(&B, &c, &o, &pb) == N21_INIT_ERROR);
+    c = commissioned_cfg();
+    c.aux_max_age_us = 5000000u;
+    assert(n21_binding_init(&B, &c, &o, &pb) == N21_INIT_ERROR);
+    tests++;
+}
+
 int main(void)
 {
     test_scaling();
@@ -907,6 +981,7 @@ int main(void)
     test_no_pan_clamp_live();
     test_freq_update_failure();
     test_power_level_live();
+    test_aux_allowance_live();
     printf("n21 binding: %u tests passed\n", tests);
     return 0;
 }

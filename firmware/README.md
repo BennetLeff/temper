@@ -70,6 +70,13 @@ used; there is no spare pin.
   `BLOWER_TACH_PULSES_PER_REV` in `config.yaml` (unverified, default 2). A
   stopped, locked or unplugged blower or an open FG wire reads 0 rpm and
   derates tank power after 1 s (`blower_ctrl_step()`).
+- **Blower supply and the inlet limit (stage 16)**: the blower runs from PS3
+  (IRM-60-15ST, power-board tap F2 / J11), so the inlet estimate's auxiliary
+  allowance is PS1 + PS2 (1.3 A) + PS3 scheduled from the commanded drive
+  (`components/power/blower_aux.h`): 1.35 A off, 2.03 A typical, 2.57 A at full
+  speed or whenever the drive is unknown. A speed-up takes the allowance first
+  and moves the blower 300 ms later; a fault goes to full speed at once. The
+  regulated inlet total stays 13.5 A (COMMISSIONING.md step 8c).
 
 ## Thermal trip ladder (L3, DECISIONS C32)
 

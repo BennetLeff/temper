@@ -513,7 +513,8 @@ add_executable(test_pwm_esp32_only ${UNITY_SOURCES} test_pwm_esp32.c
 target_include_directories(test_pwm_esp32_only PRIVATE pwm_sdk_stub ${INCLUDE_DIRS})
 target_link_libraries(test_pwm_esp32_only m)
 add_test(NAME pwm_esp32_tests COMMAND test_pwm_esp32_only)
-add_executable(test_input_limits test_input_limits.c ../components/power/input_limits.c)
+add_executable(test_input_limits test_input_limits.c ../components/power/input_limits.c
+    ../components/power/blower_aux.c)
 target_include_directories(test_input_limits PRIVATE ../components/power/include)
 target_link_libraries(test_input_limits m)
 target_compile_options(test_input_limits PRIVATE -UNDEBUG -Wall -Wextra -Werror)
@@ -541,7 +542,7 @@ add_executable(test_n21_binding test_n21_binding.c
     ../components/power/n21_signal.c ../components/power/n21_binding.c
     ../components/power/power_service.c ../components/power/fullbridge_adapter.c
     ../components/power/burst_scheduler.c ../components/power/input_limits.c
-    ../components/power/line_zc.c ../components/power/tank_freq.c)
+    ../components/power/blower_aux.c ../components/power/line_zc.c ../components/power/tank_freq.c)
 target_include_directories(test_n21_binding PRIVATE ../components/power/include ../components/hal/include)
 target_link_libraries(test_n21_binding m)
 target_compile_options(test_n21_binding PRIVATE -UNDEBUG -Wall -Wextra -Werror)
@@ -554,6 +555,17 @@ target_include_directories(test_tank_freq PRIVATE ../components/power/include)
 target_link_libraries(test_tank_freq m)
 target_compile_options(test_tank_freq PRIVATE -UNDEBUG -Wall -Wextra -Werror)
 add_test(NAME tank_freq_tests COMMAND test_tank_freq)
+
+# Stage-16 blower supply (PS3): inlet allowance scheduled from the blower drive, its model against
+# the C28 drive map and the Delta / IRM-60 data, the allowance-first speed-up in closed loop with
+# the frequency loop, and the resulting tank holds at 108 / 120 / 132 V.
+add_executable(test_blower_aux test_blower_aux.c ../components/power/blower_aux.c
+    ../components/power/input_limits.c ../components/power/tank_freq.c
+    ../components/control/thermal_mgmt.c)
+target_include_directories(test_blower_aux PRIVATE ../components/power/include ../components/control)
+target_link_libraries(test_blower_aux m)
+target_compile_options(test_blower_aux PRIVATE -UNDEBUG -Wall -Wextra -Werror)
+add_test(NAME blower_aux_tests COMMAND test_blower_aux)
 
 # Integrated controller pin map (layout L2 + L3 blower lines): no duplicates, strap rules, RUN_EN
 # low at boot, UART0 console off while GPIO44 is UI MISO, TCA9555 plan. The map is also
