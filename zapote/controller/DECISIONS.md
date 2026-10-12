@@ -459,3 +459,16 @@ These are layout inputs (output/temper-manufacturing-r28/design/r28/CONTROLLER-S
 - **J4:** right-angle Micro-Fit on the right edge (X26–38, Y29.6–54.4, plug to X50).
 - **ESP32 module:** X−54…−36, Y14…39.5, antenna at the front edge.
 - **Holes:** (−164, 18), (−164, 80), (−65, 18), (−75, 86), (34, 18), (26, 74). `controller_calcs.landings()` was re-checked; verify PASS.
+
+## C35. Prototype-lot sourcing swaps (2026-10-12; evidence `evidence/fab-loose-ends/consignment/`, JLC/LCSC stock read 2026-10-12)
+To apply to the BOM after the C34 layout stage lands; none changes a footprint or a net.
+- **R53** ERA-3AEB1652V (0 stock) → **RT0603BRD0716K5L** (C728584): 16.5 k, 0.1 %, ±25 ppm, 0603, 0.1 W; drop-in.
+- **U22** CD74HC30PWR (2 in stock) → **74HC30PW,118** (C546857): the same TSSOP-14 pinout and 2–6 V HC family. The interlock validator's exact-MPN check gets a waiver line.
+- **R31** RC0603FR-078K06L (3 in stock) → **C861587** (8.06 k 1 % 0603). The match rests on parametric data only, so read the datasheet before applying.
+- **J13** BOM code C20571196 (not found) → **C160315**. Same MPN, code fix.
+- **R39** (MAX31865 RREF) RG2012V-431-W-T1 0.05 % (0 stock; no equal part in stock) → **RT0805BRD07430RL**, 0.1 %, ±25 ppm, for the prototype lot.
+  - The extra 0.05 % is about 0.13 °C at the pan's operating point. The 10 Ω / 300 Ω fault thresholds are unaffected.
+- **U14** AD8436BRQZ (0 stock): this is an owner decision.
+  - Either consign 4 BRQZ (about $113 at DigiKey qty-1 prices), or fit AD8436ARQZ-R7 (C495329, 106 in stock; 0.5 % vs 0.25 %, ±500 vs ±250 µV offset) on the prototypes after an RMS-trip error-budget check.
+- **CPL:** 15 rotations are corrected in `cpl-jlcpcb.proposed.csv`. Fold them into the fab output with the C34 regeneration, after re-auditing any part C34 moves. The 37 NEEDS-PREVIEW lines are checked in JLC's preview, one designator per LCSC code.
+- **J4 drawing:** Molex 43045-1600 sales drawing still unread (molex.com refuses this network); `evidence/fab-loose-ends/j4/j4-interface.svg` is the interface drawing; the height and −X overhang stay [UNVERIFIED] until the owner fetches the drawing.
