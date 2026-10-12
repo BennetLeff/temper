@@ -275,7 +275,7 @@ float blower_tach_update(blower_tach_t *t, bool count_ok, uint16_t count, uint32
 /* ---------------------------------------------------------------- blower stall (L3, C28) */
 #define BLOWER_STALL_RPM         300.0f /* PROVISIONAL: below this while driven = stalled */
 #define BLOWER_STALL_TIME_MS      1000u /* R32 / C28: > 1 s */
-#define BLOWER_STALL_POWER_CAP_PCT  25u /* PROVISIONAL: "derate tank power at once" */
+#define BLOWER_STALL_POWER_CAP_PCT  10u /* "derate tank power at once"; 10 % per power-stage h10-stall study (25 % left U42 2.6 K over at h 10) */
 #define BLOWER_STALL_RISE_K        2.0f /* PROVISIONAL: "stop if the sink or coil keeps rising" */
 
 typedef struct {

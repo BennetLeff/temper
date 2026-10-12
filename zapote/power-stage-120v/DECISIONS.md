@@ -577,6 +577,12 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
     - **B3, committed thermal.py, h 25** (`b3/ceiling_sweep.py`): 22 / 24 / 26 / 28 A → 133.4 / 133.7 / 133.9 / **134.1 °C**, all at U26, the nominal peak part. **28 A is thermally supported.**
     - **Still open:**
       - h 10 (fan failure): the FET row is 198 °C at 28 A. The blower stall detection and derate own this (controller L3).
+        - **Checked 2026-10-12** (`round5-native21/h10-stall/`, rerun reproduced).
+          - The stall response owns the FET row: 92.8 °C at a 25 % hold, 65.1 °C stopped.
+          - The lumped bound gives a true sink peak of 96.5 °C, under the 98.3 °C trip low corner, and a worst-FET Tj of 130.7 °C (≤ 140.6 °C across 36 sensitivity runs).
+          - A persistent 25 % hold leaves the U42 pad cell at 152.6 °C, 2.6 K over the 150 °C limit; at 15 % or below it is ≤ 149.4 °C.
+          - **Decision:** `BLOWER_STALL_POWER_CAP_PCT` goes from 25 to 10 % (149.1 °C). The hold only bridges the 8–23 s before the 2 K rule stops the tank.
+          - The idle h 10 board (148.7 °C) is pessimistic: the bias rows are held at their 28 A values while the bridge is stopped. Bench IR at h 10 confirms it.
       - At the 0.25 mm mesh, R5's pad cell is 149 °C at 28 A (nominal 140 °C), which predates 15b. R5 runs at 0.86 W of its 1 W rating, so its derating needs a check.
         - **Checked 2026-10-12: FAIL** (`round5-native21/r5-derating/`, rerun reproduced).
           - WSK25121L000FEA (Vishay 30108) is 1 W at 70 °C, derating to 0 W at 170 °C.

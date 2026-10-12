@@ -208,7 +208,7 @@ Firmware: `components/control/thermal_mgmt.{c,h}` (host-tested by `test/test_the
 Bench (record below):
 1. FG pulses per revolution (`BLOWER_TACH_PULSES_PER_REV`, `config.yaml`): FG frequency against an optical rpm at fixed V_BLOWER.
 2. V_BLOWER at duty 0, at 85 % and with the MCU held in reset; blower start at 85 % from standstill at the PS1 low corner.
-3. Stall: lock the rotor, then unplug J10 and then open FG alone, each while driven: `power_cap_pct` falls to 25 % after > 1 s, then 0 if the sink or coil keeps rising (`BLOWER_STALL_RPM`, `BLOWER_STALL_POWER_CAP_PCT`, `BLOWER_STALL_RISE_K`).
+3. Stall: lock the rotor, then unplug J10 and then open FG alone, each while driven: `power_cap_pct` falls to 10 % after > 1 s, then 0 if the sink or coil keeps rising (`BLOWER_STALL_RPM`, `BLOWER_STALL_POWER_CAP_PCT`, `BLOWER_STALL_RISE_K`).
 4. ADC top: the calibrated reading of HS / COIL / RIM with the NTC open and with a 100 kΩ resistor in its place; confirm the ~3.1 V `THERMAL_ADC_MEAS_MAX_MV`.
 5. Plausibility: unplug J12 with the pan above 150 °C (rim fault after 30 s); unplug the coil NTC (hardware OPEN_REF latch) and, separately, replace it with a 100 kΩ resistor (coil fault after 5 min at > 50 %). Tune the four constants from logged cold starts.
 
