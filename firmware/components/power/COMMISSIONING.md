@@ -239,6 +239,12 @@ Procedure:
    Re-run `test_blower_aux`; update its pinned numbers and the hold table in DECISIONS.
 5. **Step-up on the bench (COMMISSIONED, after 9a):** at the inlet hold on the 120 V nominal pan, force the fan law from off to 0.8 drive, then a fault (full speed at once). With the analyser at 10 ms resolution, the inlet stays ≤ 13.5 A on the normal step and < 15 A on the fault step, with no `freq_reason` other than UP_INLET / HOLD_LIMIT and no adapter trip.
 6. **Blower start (G-B1):** at a full-voltage enable, record PS3's output and input peak, and confirm no IRM-60 hiccup.
+7. **BLW_PG (expander P16, controller C33):**
+   - With PS3 on, P16 reads 1 and the diagnosis is clear.
+   - Unplug J13 (PS3 output) with the bridge idle. P16 reads 0 after the 3-poll debounce, the start button stays in IDLE showing "NO BLOWER PWR", and no power is applied.
+   - Unplug J13 with the blower forced on. After the > 1 s stall it is labelled "PS3 absent" and the C28 derate applies.
+   - Unplug only J10 (blower) with PS3 on. The stall is labelled "blower failed".
+   - Hold P16 low with a 1 k pull-down while the blower turns. After 3 s the BLW_PG sense fault latches and the firmware falls back to stall-only behaviour. Remove the pull-down and reset.
 
 ## Step 9a: per-pan frequency loop and no-pan clamp (COMMISSIONED, needs H1)
 
