@@ -99,12 +99,9 @@
   },
   "controller-interlock": {
     "exit_code": 1,
-    "fail": 6,
+    "fail": 5,
     "indeterminate": 5,
     "non_pass_by_rule": {
-      "fail DRC.BOARD.STACKUP": {
-        "stackup sum 1.606200 mm differs from general thickness 1.600000 mm (rounding allowance 0.000001 mm)": 1
-      },
       "fail ERC.INTERLOCK.CONNECTIVITY": {
         "one native connectivity cluster per authored net with exact node sets": 1
       },
@@ -126,20 +123,14 @@
         "physical fault tests NOT RUN": 1
       }
     },
-    "pass": 69,
+    "pass": 70,
     "status": "fail"
   },
   "controller-rtd": {
     "exit_code": 1,
-    "fail": 165,
-    "indeterminate": 6,
+    "fail": 18,
+    "indeterminate": 5,
     "non_pass_by_rule": {
-      "fail DRC.RTD.LOCAL_DECOUPLING": {
-        "differential filter rtd_pan.c_rtd_input is outside 3 mm locality of rtd_pan.adc": 1
-      },
-      "fail DRC.RTD.NATIVE_GEOMETRY": {
-        "analog_return signal trace <uuid> exits the filled return corridor or crosses a zone hole": 146
-      },
       "fail ERC.RTD.FIRMWARE_GPIO_CORRESPONDENCE": {
         "RTD_DRDY uses GPIO 65535; GPIO 9 is source-defined": 1
       },
@@ -166,7 +157,6 @@
       },
       "indeterminate DRC.RTD.NATIVE_GEOMETRY": {
         "native filled-zone evidence lacks +3V3 on B.Cu": 1,
-        "native filled-zone evidence lacks RTD_AVDD on F.Cu": 1,
         "native filled-zone evidence lacks gnd on In2.Cu": 1
       },
       "indeterminate ERC.RTD.FAULT_CORNERS": {
@@ -184,18 +174,9 @@
   },
   "controller-thermal": {
     "exit_code": 1,
-    "fail": 14,
+    "fail": 9,
     "indeterminate": 7,
     "non_pass_by_rule": {
-      "fail DRC.BOARD.STACKUP": {
-        "stackup sum 1.606200 mm differs from general thickness 1.600000 mm (rounding allowance 0.000001 mm)": 1
-      },
-      "fail DRC.NATIVE.CLEARANCE": {
-        "pad/trace clearance 0.182602 mm is below 0.200000 mm": 1,
-        "pad/trace clearance 0.198755 mm is below 0.200000 mm": 1,
-        "trace/via clearance 0.180379 mm is below 0.200000 mm": 1,
-        "trace/via clearance 0.199883 mm is below 0.200000 mm": 1
-      },
       "fail ERC.THERMAL.CONNECTIVITY": {
         "one native connectivity cluster per authored net with exact node sets": 1
       },
@@ -223,17 +204,59 @@
         "sensor harness open/short behavior and downstream latch integration": 1
       }
     },
-    "pass": 86,
+    "pass": 88,
+    "status": "fail"
+  },
+  "informative-controller-rtd-layer-roles": {
+    "exit_code": 1,
+    "fail": 92,
+    "indeterminate": 3,
+    "non_pass_by_rule": {
+      "fail DRC.RTD.NATIVE_GEOMETRY": {
+        "clock_return signal trace <uuid> exits the filled return corridor or crosses a zone hole": 74
+      },
+      "fail ERC.RTD.FIRMWARE_GPIO_CORRESPONDENCE": {
+        "RTD_DRDY uses GPIO 65535; GPIO 9 is source-defined": 1
+      },
+      "fail ERC.RTD.SPI_SERIES_PLACEMENT": {
+        "RTD_DRDY lacks the source-derived GPIO/ADC pin/series resistor binding": 1,
+        "unit_io.4 has no RTD_SCK source connection": 1,
+        "unit_io.5 has no RTD_SDI source connection": 1,
+        "unit_io.6 has no RTD_SDO source connection": 1,
+        "unit_io.7 has no RTD_CS_N source connection": 1,
+        "unit_io.8 has no RTD_DRDY source connection": 1
+      },
+      "fail ERC.RTD.UNIT_INTERFACE": {
+        "unit host connector source component is absent from native board": 1,
+        "unit_io pad 1 is not connected to authored source net +3V3": 1,
+        "unit_io pad 10 is not connected to authored source net SHARED_REF_2V5": 1,
+        "unit_io pad 2 is not connected to authored source net GND": 1,
+        "unit_io pad 3 is not connected to authored source net GND": 1,
+        "unit_io pad 4 is not connected to authored source net RTD_SCK": 1,
+        "unit_io pad 5 is not connected to authored source net RTD_SDI": 1,
+        "unit_io pad 6 is not connected to authored source net RTD_SDO": 1,
+        "unit_io pad 7 is not connected to authored source net RTD_CS_N": 1,
+        "unit_io pad 8 is not connected to authored source net RTD_DRDY": 1,
+        "unit_io pad 9 is not connected to authored source net RTD_HW_FAULT": 1
+      },
+      "indeterminate ERC.RTD.FAULT_CORNERS": {
+        "static rail detector is proven, but guaranteed worst-case brownout timing was not physically measured": 1
+      },
+      "indeterminate ERC.RTD.MODEL_DEVICE_APPLICABILITY": {
+        "passive network certificate is valid; comparator hysteresis, common-mode/input-capacitance conditions, MAX31865 force-path idealization, and brownout hardware applicability remain unqualified": 1
+      },
+      "indeterminate ERC.RTD.UNIT_INTERFACE": {
+        "unit_io connector MPN and source pin map are pending qualification": 1
+      }
+    },
+    "pass": 5,
     "status": "fail"
   },
   "negative-interlock-drop-aggregate_bypass": {
     "exit_code": 1,
-    "fail": 8,
+    "fail": 7,
     "indeterminate": 5,
     "non_pass_by_rule": {
-      "fail DRC.BOARD.STACKUP": {
-        "stackup sum 1.606200 mm differs from general thickness 1.600000 mm (rounding allowance 0.000001 mm)": 1
-      },
       "fail DRC.INTERLOCK.LOCALITY": {
         "aggregate_bypass.1 to aggregate.14: None mm; required <=5 mm": 1
       },
@@ -259,17 +282,14 @@
         "physical fault tests NOT RUN": 1
       }
     },
-    "pass": 67,
+    "pass": 68,
     "status": "fail"
   },
   "negative-interlock-swap-fault_inv_bypass-pad1-to-gnd": {
     "exit_code": 1,
-    "fail": 8,
+    "fail": 7,
     "indeterminate": 5,
     "non_pass_by_rule": {
-      "fail DRC.BOARD.STACKUP": {
-        "stackup sum 1.606200 mm differs from general thickness 1.600000 mm (rounding allowance 0.000001 mm)": 1
-      },
       "fail DRC.NATIVE.CLEARANCE": {
         "pad/trace clearance 0.000000 mm is below 0.150000 mm": 1,
         "pad/via clearance 0.000000 mm is below 0.150000 mm": 1
@@ -295,21 +315,17 @@
         "physical fault tests NOT RUN": 1
       }
     },
-    "pass": 68,
+    "pass": 69,
     "status": "fail"
   },
   "negative-rtd-drop-c_dvdd-declared-absent": {
     "exit_code": 1,
-    "fail": 168,
-    "indeterminate": 7,
+    "fail": 21,
+    "indeterminate": 6,
     "non_pass_by_rule": {
       "fail DRC.RTD.LOCAL_DECOUPLING": {
         "board capacitor rtd_pan.c_dvdd is not connected to +3V3 and gnd": 1,
-        "differential filter rtd_pan.c_rtd_input is outside 3 mm locality of rtd_pan.adc": 1,
         "rtd_pan.c_dvdd is not a board capacitor bound to rtd_pan.adc": 1
-      },
-      "fail DRC.RTD.NATIVE_GEOMETRY": {
-        "analog_return signal trace <uuid> exits the filled return corridor or crosses a zone hole": 146
       },
       "fail DRC.RTD.UNIT_PAD_GEOMETRY": {
         "unit adc_dvdd source component rtd_pan.c_dvdd is absent from native board": 1
@@ -343,7 +359,6 @@
       },
       "indeterminate DRC.RTD.NATIVE_GEOMETRY": {
         "native filled-zone evidence lacks +3V3 on B.Cu": 1,
-        "native filled-zone evidence lacks RTD_AVDD on F.Cu": 1,
         "native filled-zone evidence lacks gnd on In2.Cu": 1
       },
       "indeterminate ERC.RTD.FAULT_CORNERS": {
@@ -361,18 +376,9 @@
   },
   "negative-thermal-drop-hs_bypass": {
     "exit_code": 1,
-    "fail": 16,
+    "fail": 11,
     "indeterminate": 7,
     "non_pass_by_rule": {
-      "fail DRC.BOARD.STACKUP": {
-        "stackup sum 1.606200 mm differs from general thickness 1.600000 mm (rounding allowance 0.000001 mm)": 1
-      },
-      "fail DRC.NATIVE.CLEARANCE": {
-        "pad/trace clearance 0.182602 mm is below 0.200000 mm": 1,
-        "pad/trace clearance 0.198755 mm is below 0.200000 mm": 1,
-        "trace/via clearance 0.180379 mm is below 0.200000 mm": 1,
-        "trace/via clearance 0.199883 mm is below 0.200000 mm": 1
-      },
       "fail DRC.THERMAL.LOCALITY": {
         "hs_bypass.1 to hs_comp.5 pad-centre locality None mm; required <=5 mm": 1
       },
@@ -404,24 +410,17 @@
         "sensor harness open/short behavior and downstream latch integration": 1
       }
     },
-    "pass": 84,
+    "pass": 86,
     "status": "fail"
   },
   "negative-thermal-swap-hs_bypass-pad1-to-COIL_REF": {
     "exit_code": 1,
-    "fail": 16,
+    "fail": 11,
     "indeterminate": 7,
     "non_pass_by_rule": {
-      "fail DRC.BOARD.STACKUP": {
-        "stackup sum 1.606200 mm differs from general thickness 1.600000 mm (rounding allowance 0.000001 mm)": 1
-      },
       "fail DRC.NATIVE.CLEARANCE": {
         "pad/trace clearance 0.000000 mm is below 0.200000 mm": 1,
-        "pad/trace clearance 0.182602 mm is below 0.200000 mm": 1,
-        "pad/trace clearance 0.198755 mm is below 0.200000 mm": 1,
-        "pad/via clearance 0.000000 mm is below 0.200000 mm": 1,
-        "trace/via clearance 0.180379 mm is below 0.200000 mm": 1,
-        "trace/via clearance 0.199883 mm is below 0.200000 mm": 1
+        "pad/via clearance 0.000000 mm is below 0.200000 mm": 1
       },
       "fail ERC.THERMAL.CONNECTIVITY": {
         "one native connectivity cluster per authored net with exact node sets": 1
@@ -450,7 +449,7 @@
         "sensor harness open/short behavior and downstream latch integration": 1
       }
     },
-    "pass": 86,
+    "pass": 87,
     "status": "fail"
   }
 }

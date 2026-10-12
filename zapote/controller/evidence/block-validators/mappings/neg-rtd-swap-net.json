@@ -3,13 +3,13 @@
     "unit_io"
   ],
   "block": "rtd_pan",
-  "controller_board": "/Users/bennet/Desktop/temper/worktrees/build-validators/zapote/controller/pcb/controller.kicad_pcb",
+  "controller_board": "/Users/bennet/Desktop/temper/worktrees/controller-l4/zapote/controller/pcb/controller.kicad_pcb",
   "controller_census": 35,
   "dropped_items": {
     "footprint": 213,
     "graphics": 16,
-    "segment": 2293,
-    "via": 434,
+    "segment": 2235,
+    "via": 444,
     "zone": 13
   },
   "extra_controller_instances": [],
@@ -60,6 +60,6 @@
   },
   "unit_census": 36,
   "unit_name_collisions_with_unmapped_controller_nets": [],
-  "unit_source_manifest": "/Users/bennet/Desktop/temper/worktrees/build-validators/zapote/rtd/unit/candidate/source-manifest.json",
+  "unit_source_manifest": "/Users/bennet/Desktop/temper/worktrees/controller-l4/zapote/rtd/unit/candidate/source-manifest.json",
   "unmapped_controller_nets_on_kept_pads": []
 }

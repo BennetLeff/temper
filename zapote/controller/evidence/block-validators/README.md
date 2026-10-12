@@ -1,4 +1,35 @@
-# Block validators re-run on the controller layout (DECISIONS C30)
+# Block validators re-run on the controller layout (DECISIONS C30, C34)
+
+## C34 rerun (current results)
+
+`results/`, `mappings/`, `summary.json` and the `*.sha256` files are now from the **C34 board**
+(`pcb/controller.kicad_pcb`, sha256 `187cc5e5aaa8176047392705da45ecf8e58f9bb9055f9ace1e6eeb4f408b9228`, convergence run 3), with the same binaries, exporters,
+filter, binder and profiles as the C30 run below. `summary-before-C34.json` keeps the C30 counts.
+
+| Validator | C30 (pass / fail / indet) | C34 | Remaining non-pass |
+|---|---|---|---|
+| Interlock | 69 / 6 / 5 | **70 / 5 / 5** | host connectors absent (5); standalone indeterminates (5) |
+| Thermal-sense | 86 / 14 / 7 | **88 / 9 / 7** | host connector absent (4), C32 trip resistors (5); standalone indeterminates (7) |
+| RTD | 5 / 165 / 6 | **5 / 18 / 5** | `unit_io` absent (16 + 1 indet), DRDY on the expander (2); unit layer roles gnd In2 / +3V3 B.Cu (2 indet); standalone indeterminates (2) |
+
+Every one of them is justified in **`WAIVERS.md`**. Gone: the stackup sum, the four thermal clearances
+below 0.20 mm, the RTD filter locality, the 146 analog-return corridor failures and the RTD_AVDD-zone gap
+(the layout changes are DECISIONS C34). The negative controls still trip (drop / swap cases add FAIL
+findings over the new baseline), and the pipeline / standalone controls are unchanged.
+
+The same counts came out on each of the three convergence boards (`run.sh` takes `BOARD=<file>`;
+`layout/convergence.py` now keeps each run's board).
+
+**Informative run** (not the verdict): `results/informative-controller-rtd-layer-roles.json`, the RTD
+validator with `profile-controller-roles.json` (the controller's planes as the return-plane roles:
+analog and clock return selv_gnd In1.Cu, upstream +3V3 In2.Cu). It shows what the two layer-role
+indeterminates hide: the RTD SPI nets' clock return on B.Cu (WAIVERS W4, DECISIONS open item 14).
+
+Rerun: as below, plus `KICAD_PY` for the exporters; about 45 s given the binaries.
+
+---
+
+## C30 run (history; the counts below are the C30 board's)
 
 Re-run of the three Rust block validators of `zapote-harness` (interlock, thermal-sense, RTD) on
 `zapote/controller/pcb/controller.kicad_pcb` (sha256 `45b962b1c61ab569d47c1450454225f8bea7015fc2c87bbf53b11623c92cfa06`),

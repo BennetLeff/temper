@@ -633,9 +633,9 @@
     },
     {
       "rule": "DRC.BOARD.STACKUP",
-      "severity": "error",
-      "status": "fail",
-      "message": "stackup sum 1.606200 mm differs from general thickness 1.600000 mm (rounding allowance 0.000001 mm)",
+      "severity": "info",
+      "status": "pass",
+      "message": "4 copper layers; copper + dielectric + mask = 1.600000 mm, declared 1.600000 mm",
       "object": "board.setup.stackup",
       "actual": null,
       "required": null
@@ -708,7 +708,7 @@
       "severity": "error",
       "status": "fail",
       "message": "pad/trace clearance 0.000000 mm is below 0.150000 mm",
-      "object": "fault_inv_bypass.1 / 8c8f712b-8a49-42c6-a768-1909753d1583",
+      "object": "fault_inv_bypass.1 / 4cca53c1-5143-410f-842e-8d3ad674bd2a",
       "actual": null,
       "required": null
     },
@@ -717,7 +717,7 @@
       "severity": "error",
       "status": "fail",
       "message": "pad/via clearance 0.000000 mm is below 0.150000 mm",
-      "object": "fault_inv_bypass.1 / 00471805-c1ba-4357-8397-6f9c1e5e81e8",
+      "object": "fault_inv_bypass.1 / c6ec6bbb-50f1-4ac4-a53f-ec41c22a8c8b",
       "actual": null,
       "required": null
     },

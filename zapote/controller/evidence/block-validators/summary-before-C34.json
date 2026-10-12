@@ -1,0 +1,456 @@
+{
+  "control-pipeline-interlock": {
+    "exit_code": 1,
+    "fail": 0,
+    "indeterminate": 5,
+    "non_pass_by_rule": {
+      "indeterminate ERC.INTERLOCK.QUALIFICATION": {
+        "AUX producer and downstream active-high PERMIT receiver": 1,
+        "HC30 threshold applicability at actual rail, harness transients and component failures": 1,
+        "SENSOR_LIVE producer and remote power-off injection": 1,
+        "actual watchdog timing, power ramps, propagation and clock/clear recovery/removal": 1,
+        "physical fault tests NOT RUN": 1
+      }
+    },
+    "pass": 75,
+    "status": "indeterminate"
+  },
+  "control-pipeline-rtd": {
+    "exit_code": 1,
+    "fail": 0,
+    "indeterminate": 2,
+    "non_pass_by_rule": {
+      "indeterminate ERC.RTD.FAULT_CORNERS": {
+        "static rail detector is proven, but guaranteed worst-case brownout timing was not physically measured": 1
+      },
+      "indeterminate ERC.RTD.MODEL_DEVICE_APPLICABILITY": {
+        "passive network certificate is valid; comparator hysteresis, common-mode/input-capacitance conditions, MAX31865 force-path idealization, and brownout hardware applicability remain unqualified": 1
+      }
+    },
+    "pass": 5,
+    "status": "indeterminate"
+  },
+  "control-pipeline-thermal": {
+    "exit_code": 1,
+    "fail": 0,
+    "indeterminate": 7,
+    "non_pass_by_rule": {
+      "indeterminate ERC.THERMAL.QUALIFICATION": {
+        "SN74LVC1G32 input/output thresholds and rail applicability across the 3.135\u20133.465 V monitor rail": 1,
+        "TLV3201 common-mode, output swing, offset and internal hysteresis applicability across the 3.135\u20133.465 V monitor rail": 1,
+        "TLV9031 input common-mode, output swing, offset and leakage applicability across the 3.135\u20133.465 V monitor rail": 1,
+        "beta extrapolation to coil 120\u00b0C and comparator hysteresis": 1,
+        "external connector 85\u00b0C limit, mounting, thermal coupling, and self-heating": 1,
+        "power-off behavior and system integration": 1,
+        "sensor harness open/short behavior and downstream latch integration": 1
+      }
+    },
+    "pass": 97,
+    "status": "indeterminate"
+  },
+  "control-standalone-interlock": {
+    "exit_code": 1,
+    "fail": 0,
+    "indeterminate": 5,
+    "non_pass_by_rule": {
+      "indeterminate ERC.INTERLOCK.QUALIFICATION": {
+        "AUX producer and downstream active-high PERMIT receiver": 1,
+        "HC30 threshold applicability at actual rail, harness transients and component failures": 1,
+        "SENSOR_LIVE producer and remote power-off injection": 1,
+        "actual watchdog timing, power ramps, propagation and clock/clear recovery/removal": 1,
+        "physical fault tests NOT RUN": 1
+      }
+    },
+    "pass": 75,
+    "status": "indeterminate"
+  },
+  "control-standalone-rtd": {
+    "exit_code": 1,
+    "fail": 0,
+    "indeterminate": 2,
+    "non_pass_by_rule": {
+      "indeterminate ERC.RTD.FAULT_CORNERS": {
+        "static rail detector is proven, but guaranteed worst-case brownout timing was not physically measured": 1
+      },
+      "indeterminate ERC.RTD.MODEL_DEVICE_APPLICABILITY": {
+        "passive network certificate is valid; comparator hysteresis, common-mode/input-capacitance conditions, MAX31865 force-path idealization, and brownout hardware applicability remain unqualified": 1
+      }
+    },
+    "pass": 5,
+    "status": "indeterminate"
+  },
+  "control-standalone-thermal": {
+    "exit_code": 1,
+    "fail": 0,
+    "indeterminate": 7,
+    "non_pass_by_rule": {
+      "indeterminate ERC.THERMAL.QUALIFICATION": {
+        "SN74LVC1G32 input/output thresholds and rail applicability across the 3.135\u20133.465 V monitor rail": 1,
+        "TLV3201 common-mode, output swing, offset and internal hysteresis applicability across the 3.135\u20133.465 V monitor rail": 1,
+        "TLV9031 input common-mode, output swing, offset and leakage applicability across the 3.135\u20133.465 V monitor rail": 1,
+        "beta extrapolation to coil 120\u00b0C and comparator hysteresis": 1,
+        "external connector 85\u00b0C limit, mounting, thermal coupling, and self-heating": 1,
+        "power-off behavior and system integration": 1,
+        "sensor harness open/short behavior and downstream latch integration": 1
+      }
+    },
+    "pass": 97,
+    "status": "indeterminate"
+  },
+  "controller-interlock": {
+    "exit_code": 1,
+    "fail": 6,
+    "indeterminate": 5,
+    "non_pass_by_rule": {
+      "fail DRC.BOARD.STACKUP": {
+        "stackup sum 1.606200 mm differs from general thickness 1.600000 mm (rounding allowance 0.000001 mm)": 1
+      },
+      "fail ERC.INTERLOCK.CONNECTIVITY": {
+        "one native connectivity cluster per authored net with exact node sets": 1
+      },
+      "fail ERC.INTERLOCK.NATIVE_COMPONENTS": {
+        "exact 25-component native census": 1
+      },
+      "fail ERC.INTERLOCK.PARTS": {
+        "exact MPN faults: B8B-XH-A(LF)(SN)": 1,
+        "exact MPN host: B8B-XH-A(LF)(SN)": 1
+      },
+      "fail ERC.INTERLOCK.TOPOLOGY": {
+        "native pads and connections equal complete pin/net intent": 1
+      },
+      "indeterminate ERC.INTERLOCK.QUALIFICATION": {
+        "AUX producer and downstream active-high PERMIT receiver": 1,
+        "HC30 threshold applicability at actual rail, harness transients and component failures": 1,
+        "SENSOR_LIVE producer and remote power-off injection": 1,
+        "actual watchdog timing, power ramps, propagation and clock/clear recovery/removal": 1,
+        "physical fault tests NOT RUN": 1
+      }
+    },
+    "pass": 69,
+    "status": "fail"
+  },
+  "controller-rtd": {
+    "exit_code": 1,
+    "fail": 165,
+    "indeterminate": 6,
+    "non_pass_by_rule": {
+      "fail DRC.RTD.LOCAL_DECOUPLING": {
+        "differential filter rtd_pan.c_rtd_input is outside 3 mm locality of rtd_pan.adc": 1
+      },
+      "fail DRC.RTD.NATIVE_GEOMETRY": {
+        "analog_return signal trace <uuid> exits the filled return corridor or crosses a zone hole": 146
+      },
+      "fail ERC.RTD.FIRMWARE_GPIO_CORRESPONDENCE": {
+        "RTD_DRDY uses GPIO 65535; GPIO 9 is source-defined": 1
+      },
+      "fail ERC.RTD.SPI_SERIES_PLACEMENT": {
+        "RTD_DRDY lacks the source-derived GPIO/ADC pin/series resistor binding": 1,
+        "unit_io.4 has no RTD_SCK source connection": 1,
+        "unit_io.5 has no RTD_SDI source connection": 1,
+        "unit_io.6 has no RTD_SDO source connection": 1,
+        "unit_io.7 has no RTD_CS_N source connection": 1,
+        "unit_io.8 has no RTD_DRDY source connection": 1
+      },
+      "fail ERC.RTD.UNIT_INTERFACE": {
+        "unit host connector source component is absent from native board": 1,
+        "unit_io pad 1 is not connected to authored source net +3V3": 1,
+        "unit_io pad 10 is not connected to authored source net SHARED_REF_2V5": 1,
+        "unit_io pad 2 is not connected to authored source net GND": 1,
+        "unit_io pad 3 is not connected to authored source net GND": 1,
+        "unit_io pad 4 is not connected to authored source net RTD_SCK": 1,
+        "unit_io pad 5 is not connected to authored source net RTD_SDI": 1,
+        "unit_io pad 6 is not connected to authored source net RTD_SDO": 1,
+        "unit_io pad 7 is not connected to authored source net RTD_CS_N": 1,
+        "unit_io pad 8 is not connected to authored source net RTD_DRDY": 1,
+        "unit_io pad 9 is not connected to authored source net RTD_HW_FAULT": 1
+      },
+      "indeterminate DRC.RTD.NATIVE_GEOMETRY": {
+        "native filled-zone evidence lacks +3V3 on B.Cu": 1,
+        "native filled-zone evidence lacks RTD_AVDD on F.Cu": 1,
+        "native filled-zone evidence lacks gnd on In2.Cu": 1
+      },
+      "indeterminate ERC.RTD.FAULT_CORNERS": {
+        "static rail detector is proven, but guaranteed worst-case brownout timing was not physically measured": 1
+      },
+      "indeterminate ERC.RTD.MODEL_DEVICE_APPLICABILITY": {
+        "passive network certificate is valid; comparator hysteresis, common-mode/input-capacitance conditions, MAX31865 force-path idealization, and brownout hardware applicability remain unqualified": 1
+      },
+      "indeterminate ERC.RTD.UNIT_INTERFACE": {
+        "unit_io connector MPN and source pin map are pending qualification": 1
+      }
+    },
+    "pass": 5,
+    "status": "fail"
+  },
+  "controller-thermal": {
+    "exit_code": 1,
+    "fail": 14,
+    "indeterminate": 7,
+    "non_pass_by_rule": {
+      "fail DRC.BOARD.STACKUP": {
+        "stackup sum 1.606200 mm differs from general thickness 1.600000 mm (rounding allowance 0.000001 mm)": 1
+      },
+      "fail DRC.NATIVE.CLEARANCE": {
+        "pad/trace clearance 0.182602 mm is below 0.200000 mm": 1,
+        "pad/trace clearance 0.198755 mm is below 0.200000 mm": 1,
+        "trace/via clearance 0.180379 mm is below 0.200000 mm": 1,
+        "trace/via clearance 0.199883 mm is below 0.200000 mm": 1
+      },
+      "fail ERC.THERMAL.CONNECTIVITY": {
+        "one native connectivity cluster per authored net with exact node sets": 1
+      },
+      "fail ERC.THERMAL.NATIVE_COMPONENTS": {
+        "exact 27-component native census": 1
+      },
+      "fail ERC.THERMAL.PARTS": {
+        "exact MPN coil_bottom: RC0603FR-078K06L": 1,
+        "exact MPN coil_hyst: RC0603FR-0742K2L": 1,
+        "exact MPN coil_top: RC0603FR-0720KL": 1,
+        "exact MPN host: B6B-XH-A(LF)(SN)": 1,
+        "exact MPN hs_bottom: RC0603FR-0711K5L": 1,
+        "exact MPN hs_top: RC0603FR-079K09L": 1
+      },
+      "fail ERC.THERMAL.TOPOLOGY": {
+        "native pads and connections equal complete pin/net intent": 1
+      },
+      "indeterminate ERC.THERMAL.QUALIFICATION": {
+        "SN74LVC1G32 input/output thresholds and rail applicability across the 3.135\u20133.465 V monitor rail": 1,
+        "TLV3201 common-mode, output swing, offset and internal hysteresis applicability across the 3.135\u20133.465 V monitor rail": 1,
+        "TLV9031 input common-mode, output swing, offset and leakage applicability across the 3.135\u20133.465 V monitor rail": 1,
+        "beta extrapolation to coil 120\u00b0C and comparator hysteresis": 1,
+        "external connector 85\u00b0C limit, mounting, thermal coupling, and self-heating": 1,
+        "power-off behavior and system integration": 1,
+        "sensor harness open/short behavior and downstream latch integration": 1
+      }
+    },
+    "pass": 86,
+    "status": "fail"
+  },
+  "negative-interlock-drop-aggregate_bypass": {
+    "exit_code": 1,
+    "fail": 8,
+    "indeterminate": 5,
+    "non_pass_by_rule": {
+      "fail DRC.BOARD.STACKUP": {
+        "stackup sum 1.606200 mm differs from general thickness 1.600000 mm (rounding allowance 0.000001 mm)": 1
+      },
+      "fail DRC.INTERLOCK.LOCALITY": {
+        "aggregate_bypass.1 to aggregate.14: None mm; required <=5 mm": 1
+      },
+      "fail ERC.INTERLOCK.CONNECTIVITY": {
+        "one native connectivity cluster per authored net with exact node sets": 1
+      },
+      "fail ERC.INTERLOCK.NATIVE_COMPONENTS": {
+        "exact 25-component native census": 1
+      },
+      "fail ERC.INTERLOCK.PARTS": {
+        "exact MPN aggregate_bypass: C0603C104K5RACTU": 1,
+        "exact MPN faults: B8B-XH-A(LF)(SN)": 1,
+        "exact MPN host: B8B-XH-A(LF)(SN)": 1
+      },
+      "fail ERC.INTERLOCK.TOPOLOGY": {
+        "native pads and connections equal complete pin/net intent": 1
+      },
+      "indeterminate ERC.INTERLOCK.QUALIFICATION": {
+        "AUX producer and downstream active-high PERMIT receiver": 1,
+        "HC30 threshold applicability at actual rail, harness transients and component failures": 1,
+        "SENSOR_LIVE producer and remote power-off injection": 1,
+        "actual watchdog timing, power ramps, propagation and clock/clear recovery/removal": 1,
+        "physical fault tests NOT RUN": 1
+      }
+    },
+    "pass": 67,
+    "status": "fail"
+  },
+  "negative-interlock-swap-fault_inv_bypass-pad1-to-gnd": {
+    "exit_code": 1,
+    "fail": 8,
+    "indeterminate": 5,
+    "non_pass_by_rule": {
+      "fail DRC.BOARD.STACKUP": {
+        "stackup sum 1.606200 mm differs from general thickness 1.600000 mm (rounding allowance 0.000001 mm)": 1
+      },
+      "fail DRC.NATIVE.CLEARANCE": {
+        "pad/trace clearance 0.000000 mm is below 0.150000 mm": 1,
+        "pad/via clearance 0.000000 mm is below 0.150000 mm": 1
+      },
+      "fail ERC.INTERLOCK.CONNECTIVITY": {
+        "one native connectivity cluster per authored net with exact node sets": 1
+      },
+      "fail ERC.INTERLOCK.NATIVE_COMPONENTS": {
+        "exact 25-component native census": 1
+      },
+      "fail ERC.INTERLOCK.PARTS": {
+        "exact MPN faults: B8B-XH-A(LF)(SN)": 1,
+        "exact MPN host: B8B-XH-A(LF)(SN)": 1
+      },
+      "fail ERC.INTERLOCK.TOPOLOGY": {
+        "native pads and connections equal complete pin/net intent": 1
+      },
+      "indeterminate ERC.INTERLOCK.QUALIFICATION": {
+        "AUX producer and downstream active-high PERMIT receiver": 1,
+        "HC30 threshold applicability at actual rail, harness transients and component failures": 1,
+        "SENSOR_LIVE producer and remote power-off injection": 1,
+        "actual watchdog timing, power ramps, propagation and clock/clear recovery/removal": 1,
+        "physical fault tests NOT RUN": 1
+      }
+    },
+    "pass": 68,
+    "status": "fail"
+  },
+  "negative-rtd-drop-c_dvdd-declared-absent": {
+    "exit_code": 1,
+    "fail": 168,
+    "indeterminate": 7,
+    "non_pass_by_rule": {
+      "fail DRC.RTD.LOCAL_DECOUPLING": {
+        "board capacitor rtd_pan.c_dvdd is not connected to +3V3 and gnd": 1,
+        "differential filter rtd_pan.c_rtd_input is outside 3 mm locality of rtd_pan.adc": 1,
+        "rtd_pan.c_dvdd is not a board capacitor bound to rtd_pan.adc": 1
+      },
+      "fail DRC.RTD.NATIVE_GEOMETRY": {
+        "analog_return signal trace <uuid> exits the filled return corridor or crosses a zone hole": 146
+      },
+      "fail DRC.RTD.UNIT_PAD_GEOMETRY": {
+        "unit adc_dvdd source component rtd_pan.c_dvdd is absent from native board": 1
+      },
+      "fail ERC.RTD.FIRMWARE_GPIO_CORRESPONDENCE": {
+        "RTD_DRDY uses GPIO 65535; GPIO 9 is source-defined": 1
+      },
+      "fail ERC.RTD.SPI_SERIES_PLACEMENT": {
+        "RTD_DRDY lacks the source-derived GPIO/ADC pin/series resistor binding": 1,
+        "unit_io.4 has no RTD_SCK source connection": 1,
+        "unit_io.5 has no RTD_SDI source connection": 1,
+        "unit_io.6 has no RTD_SDO source connection": 1,
+        "unit_io.7 has no RTD_CS_N source connection": 1,
+        "unit_io.8 has no RTD_DRDY source connection": 1
+      },
+      "fail ERC.RTD.UNIT_INTERFACE": {
+        "unit host connector source component is absent from native board": 1,
+        "unit_io pad 1 is not connected to authored source net +3V3": 1,
+        "unit_io pad 10 is not connected to authored source net SHARED_REF_2V5": 1,
+        "unit_io pad 2 is not connected to authored source net GND": 1,
+        "unit_io pad 3 is not connected to authored source net GND": 1,
+        "unit_io pad 4 is not connected to authored source net RTD_SCK": 1,
+        "unit_io pad 5 is not connected to authored source net RTD_SDI": 1,
+        "unit_io pad 6 is not connected to authored source net RTD_SDO": 1,
+        "unit_io pad 7 is not connected to authored source net RTD_CS_N": 1,
+        "unit_io pad 8 is not connected to authored source net RTD_DRDY": 1,
+        "unit_io pad 9 is not connected to authored source net RTD_HW_FAULT": 1
+      },
+      "indeterminate DRC.RTD.LOCAL_DECOUPLING": {
+        "rtd_pan.c_dvdd lacks complete native rail/return pad geometry": 1
+      },
+      "indeterminate DRC.RTD.NATIVE_GEOMETRY": {
+        "native filled-zone evidence lacks +3V3 on B.Cu": 1,
+        "native filled-zone evidence lacks RTD_AVDD on F.Cu": 1,
+        "native filled-zone evidence lacks gnd on In2.Cu": 1
+      },
+      "indeterminate ERC.RTD.FAULT_CORNERS": {
+        "static rail detector is proven, but guaranteed worst-case brownout timing was not physically measured": 1
+      },
+      "indeterminate ERC.RTD.MODEL_DEVICE_APPLICABILITY": {
+        "passive network certificate is valid; comparator hysteresis, common-mode/input-capacitance conditions, MAX31865 force-path idealization, and brownout hardware applicability remain unqualified": 1
+      },
+      "indeterminate ERC.RTD.UNIT_INTERFACE": {
+        "unit_io connector MPN and source pin map are pending qualification": 1
+      }
+    },
+    "pass": 5,
+    "status": "fail"
+  },
+  "negative-thermal-drop-hs_bypass": {
+    "exit_code": 1,
+    "fail": 16,
+    "indeterminate": 7,
+    "non_pass_by_rule": {
+      "fail DRC.BOARD.STACKUP": {
+        "stackup sum 1.606200 mm differs from general thickness 1.600000 mm (rounding allowance 0.000001 mm)": 1
+      },
+      "fail DRC.NATIVE.CLEARANCE": {
+        "pad/trace clearance 0.182602 mm is below 0.200000 mm": 1,
+        "pad/trace clearance 0.198755 mm is below 0.200000 mm": 1,
+        "trace/via clearance 0.180379 mm is below 0.200000 mm": 1,
+        "trace/via clearance 0.199883 mm is below 0.200000 mm": 1
+      },
+      "fail DRC.THERMAL.LOCALITY": {
+        "hs_bypass.1 to hs_comp.5 pad-centre locality None mm; required <=5 mm": 1
+      },
+      "fail ERC.THERMAL.CONNECTIVITY": {
+        "one native connectivity cluster per authored net with exact node sets": 1
+      },
+      "fail ERC.THERMAL.NATIVE_COMPONENTS": {
+        "exact 27-component native census": 1
+      },
+      "fail ERC.THERMAL.PARTS": {
+        "exact MPN coil_bottom: RC0603FR-078K06L": 1,
+        "exact MPN coil_hyst: RC0603FR-0742K2L": 1,
+        "exact MPN coil_top: RC0603FR-0720KL": 1,
+        "exact MPN host: B6B-XH-A(LF)(SN)": 1,
+        "exact MPN hs_bottom: RC0603FR-0711K5L": 1,
+        "exact MPN hs_bypass: C0603C104K5RACTU": 1,
+        "exact MPN hs_top: RC0603FR-079K09L": 1
+      },
+      "fail ERC.THERMAL.TOPOLOGY": {
+        "native pads and connections equal complete pin/net intent": 1
+      },
+      "indeterminate ERC.THERMAL.QUALIFICATION": {
+        "SN74LVC1G32 input/output thresholds and rail applicability across the 3.135\u20133.465 V monitor rail": 1,
+        "TLV3201 common-mode, output swing, offset and internal hysteresis applicability across the 3.135\u20133.465 V monitor rail": 1,
+        "TLV9031 input common-mode, output swing, offset and leakage applicability across the 3.135\u20133.465 V monitor rail": 1,
+        "beta extrapolation to coil 120\u00b0C and comparator hysteresis": 1,
+        "external connector 85\u00b0C limit, mounting, thermal coupling, and self-heating": 1,
+        "power-off behavior and system integration": 1,
+        "sensor harness open/short behavior and downstream latch integration": 1
+      }
+    },
+    "pass": 84,
+    "status": "fail"
+  },
+  "negative-thermal-swap-hs_bypass-pad1-to-COIL_REF": {
+    "exit_code": 1,
+    "fail": 16,
+    "indeterminate": 7,
+    "non_pass_by_rule": {
+      "fail DRC.BOARD.STACKUP": {
+        "stackup sum 1.606200 mm differs from general thickness 1.600000 mm (rounding allowance 0.000001 mm)": 1
+      },
+      "fail DRC.NATIVE.CLEARANCE": {
+        "pad/trace clearance 0.000000 mm is below 0.200000 mm": 1,
+        "pad/trace clearance 0.182602 mm is below 0.200000 mm": 1,
+        "pad/trace clearance 0.198755 mm is below 0.200000 mm": 1,
+        "pad/via clearance 0.000000 mm is below 0.200000 mm": 1,
+        "trace/via clearance 0.180379 mm is below 0.200000 mm": 1,
+        "trace/via clearance 0.199883 mm is below 0.200000 mm": 1
+      },
+      "fail ERC.THERMAL.CONNECTIVITY": {
+        "one native connectivity cluster per authored net with exact node sets": 1
+      },
+      "fail ERC.THERMAL.NATIVE_COMPONENTS": {
+        "exact 27-component native census": 1
+      },
+      "fail ERC.THERMAL.PARTS": {
+        "exact MPN coil_bottom: RC0603FR-078K06L": 1,
+        "exact MPN coil_hyst: RC0603FR-0742K2L": 1,
+        "exact MPN coil_top: RC0603FR-0720KL": 1,
+        "exact MPN host: B6B-XH-A(LF)(SN)": 1,
+        "exact MPN hs_bottom: RC0603FR-0711K5L": 1,
+        "exact MPN hs_top: RC0603FR-079K09L": 1
+      },
+      "fail ERC.THERMAL.TOPOLOGY": {
+        "native pads and connections equal complete pin/net intent": 1
+      },
+      "indeterminate ERC.THERMAL.QUALIFICATION": {
+        "SN74LVC1G32 input/output thresholds and rail applicability across the 3.135\u20133.465 V monitor rail": 1,
+        "TLV3201 common-mode, output swing, offset and internal hysteresis applicability across the 3.135\u20133.465 V monitor rail": 1,
+        "TLV9031 input common-mode, output swing, offset and leakage applicability across the 3.135\u20133.465 V monitor rail": 1,
+        "beta extrapolation to coil 120\u00b0C and comparator hysteresis": 1,
+        "external connector 85\u00b0C limit, mounting, thermal coupling, and self-heating": 1,
+        "power-off behavior and system integration": 1,
+        "sensor harness open/short behavior and downstream latch integration": 1
+      }
+    },
+    "pass": 86,
+    "status": "fail"
+  }
+}

@@ -858,9 +858,9 @@
     },
     {
       "rule": "DRC.BOARD.STACKUP",
-      "severity": "error",
-      "status": "fail",
-      "message": "stackup sum 1.606200 mm differs from general thickness 1.600000 mm (rounding allowance 0.000001 mm)",
+      "severity": "info",
+      "status": "pass",
+      "message": "4 copper layers; copper + dielectric + mask = 1.600000 mm, declared 1.600000 mm",
       "object": "board.setup.stackup",
       "actual": null,
       "required": null
@@ -932,26 +932,8 @@
       "rule": "DRC.NATIVE.CLEARANCE",
       "severity": "error",
       "status": "fail",
-      "message": "pad/trace clearance 0.198755 mm is below 0.200000 mm",
-      "object": "hs_or.3 / 4989621c-361b-4978-9e81-d0958bb64399",
-      "actual": null,
-      "required": null
-    },
-    {
-      "rule": "DRC.NATIVE.CLEARANCE",
-      "severity": "error",
-      "status": "fail",
-      "message": "pad/trace clearance 0.182602 mm is below 0.200000 mm",
-      "object": "hs_comp.5 / 75b33291-10f7-4446-b7d8-fb35a36ca7a3",
-      "actual": null,
-      "required": null
-    },
-    {
-      "rule": "DRC.NATIVE.CLEARANCE",
-      "severity": "error",
-      "status": "fail",
       "message": "pad/trace clearance 0.000000 mm is below 0.200000 mm",
-      "object": "hs_bypass.1 / 1719abeb-7a9c-45e1-b372-99644b3a0d68",
+      "object": "hs_bypass.1 / 5a31f8fb-54a1-41e5-9e26-aa5ae4e57301",
       "actual": null,
       "required": null
     },
@@ -960,25 +942,7 @@
       "severity": "error",
       "status": "fail",
       "message": "pad/via clearance 0.000000 mm is below 0.200000 mm",
-      "object": "hs_bypass.1 / 2d49b2d3-b292-4e5f-a8ed-5260f03945ed",
-      "actual": null,
-      "required": null
-    },
-    {
-      "rule": "DRC.NATIVE.CLEARANCE",
-      "severity": "error",
-      "status": "fail",
-      "message": "trace/via clearance 0.180379 mm is below 0.200000 mm",
-      "object": "0c234128-115e-4bec-9ac2-91d04486466a / ca6ff946-00d1-46a9-bf1b-651af973f3b9",
-      "actual": null,
-      "required": null
-    },
-    {
-      "rule": "DRC.NATIVE.CLEARANCE",
-      "severity": "error",
-      "status": "fail",
-      "message": "trace/via clearance 0.199883 mm is below 0.200000 mm",
-      "object": "4e257382-521e-4d2a-9cc5-4483cbf3b137 / f275bc04-7bf3-4d71-9672-58ab5df475e5",
+      "object": "hs_bypass.1 / e6efb89b-334c-4cc8-ab69-a06c72a5467c",
       "actual": null,
       "required": null
     }

@@ -405,6 +405,28 @@ Source: power-stage stage-16 plan `validation-results/08-manufacturing-package/n
   - The router never necks V_BLOWER or the blower SW node to 0.25 mm (`gridroute.py` NO_NECK). V_BLOWER is checked at ≥ 0.8 mm.
 - **Supersedes:** C28's supply-budget bullet. Open item 13 is closed.
 
+## C34. Layout fixes from the block-validator re-run (L4, 2026-10-12)
+Source: the C30 re-run of the interlock, thermal-sense and RTD validators (`evidence/block-validators/`, commit 5dca3ef62). Its failures split into contract deviations of the integration (host connectors absent, the C32 trip resistors, DRDY on the expander) and four layout findings. C34 fixes the four in the generator; the rest are justified line by line in `evidence/block-validators/WAIVERS.md`. No validator, contract or unit profile was changed.
+
+| Finding (before) | Fix | After |
+|---|---|---|
+| `DRC.BOARD.STACKUP`: layers sum to 1.6062 mm, board 1.6 mm (interlock, thermal) | `build_board.py` STACKUP: core 1.065 → **1.0588 mm**, so copper + dielectric + mask = 1.6000 mm | pass |
+| Thermal `DRC.NATIVE.CLEARANCE` ×4 below the unit's 0.20 mm (0.1826, 0.1804, 0.1988, 0.1999 mm) | Net class **Thermal** (0.20 mm) on every thermal-block net, selected as the validator's filter selects them (each net on a `thermal.*` pad, less selv_gnd/v3v3): COIL_/HS_ FAULT, HOT, OPEN, REF, SENSE and OPEN_REF. KiCad's DRC enforces it (the larger class clearance wins, pours included); `gridroute.py` routes to it (cover radius and exact checks per net pair). The validator also sees the shared plane nets' whole copper, so a first closing run still failed on one selv_gnd / v3v3 pair (0.19 mm, 70 mm from the block): a KiCad custom rule (`pcb/controller.kicad_dru`, from `floorplan.PAIR_CLEARANCE`) and the router's exact check now hold **selv_gnd to v3v3 ≥ 0.20 mm** board-wide (it touched only routed v3v3 links; the plane fan-out already kept 0.20) | pass |
+| RTD `DRC.RTD.LOCAL_DECOUPLING`: `c_rtd_input` 10.0 / 14.0 mm from the MAX31865 inputs (rule ≤ 3 mm) | `floorplan.py` places it across the ADC's RTDIN+/RTDIN− end, (154.5, 76.5) rot 90: pad 1 → pin 10 and pad 2 → pin 11 about 2.1 mm, pad to pad | pass |
+| RTD `DRC.RTD.NATIVE_GEOMETRY` ×146 "analog_return trace exits the filled return corridor" | see "Analog return" below | pass (0) |
+| RTD indeterminate: no RTD_AVDD zone on F.Cu | a local **RTD_AVDD F.Cu pour** (`route.py`, zone RTD_AVDD_F) over the MAX31865 VDD pin and the RTD_AVDD pads within 6 mm (its bypass), above GND_F | pass |
+
+**Analog return (decision: fix it in the layout rather than ask for a controller profile).** The 146 failures were real: 72 RTD analog trace pieces ran on B.Cu, whose nearest plane is the In2 **v3v3** plane, and the other 74 left their own vias through an In1 antipad of 0.25 mm clearance (wider than the unit's 0.20 mm terminal envelope) or had no ground via within 3 mm of the layer change. The analog family is the unit's `sensitive_nets` (rtd_sense_p/n, rtd_force_p/n, bias = `p1`, refin_n, window_rtdin_p = `rtd_pan.low_window-inp`, vbias; `floorplan.py` RTD_ANALOG_NETS). Now:
+- **Layers:** the router keeps them on **F.Cu and In2.Cu**, the two layers whose reference is the solid selv_gnd plane on In1.Cu. B.Cu is closed to them.
+- **In1 plane clearance 0.25 → 0.20 mm**, so each via's antipad is the via + 0.20 mm, the unit's terminal envelope.
+- **No track over an In1 hole:** an analog track avoids every other item's In1 antipad, including two antipads closer than the plane's 0.25 mm minimum width (they merge into one hole); every via of another net keeps its antipad ≥ 0.125 mm from analog copper; analog vias keep 1.2 mm drill-to-drill.
+- **Return beside every layer change:** an analog via is placed only within 2.5 mm of a selv_gnd plane via (the unit asks ≤ 3 mm). `fanout.py` adds a **stitching grid** of selv_gnd vias (3 mm pitch, where none sits within 1.5 mm already and the spot is legal) over the RTD region, world X 115–167, Y 55–89, not under the module: 96 vias on this board.
+- **Not adopted:** making In2 ground under the RTD block (as the unit board does) would cut the v3v3 plane feeding the decoupling there, and a B.Cu +3V3 pour would duplicate the In2 plane. Those two unit layer roles stay indeterminate (WAIVERS W4). An informative run with the controller's own roles (`results/informative-controller-rtd-layer-roles.json`) shows the remaining gap: the RTD SPI nets run partly on B.Cu over the v3v3 plane. SPI is ≤ 5 MHz with 33 Ω series resistors and does not share the analog corridor; putting it under the same rule is a follow-up (open item 14).
+
+**Parts moved (CPL rotation audit; `fab/cpl-jlcpcb.csv`, rotations as KiCad writes them):** C31 `rtd_pan.c_rtd_input` (explicit pose; 0° → **90°**). Auto-placed parts that moved with it: C18 `c_tach` (90° → **180°**), C51 `c_ct_adc` (270° → **90°**), R43 `rtd_pan.r_mosi` (90° → **180°**), R44 `rtd_pan.r_cs` (90° → **180°**), R45 `rtd_pan.r_miso` (270° → **0°**); position only, rotation unchanged: R39 `rtd_pan.r_ref`, R40 `rtd_pan.r_rtdin_p_bias`, R42 `rtd_pan.r_sclk`, R80 `r_ct_adc`. Nothing else moved (`pcb/placement.json`). All are 0603 passives.
+
+**Gates** (all from `layout/make.py`, unchanged thresholds): DRC 0 errors / 0 unconnected / parity 0; JLC DFM PASS; `check_layout.py` 12/12; fab review PASS; `verify_controller.py` 182/182 and 33/33 mutation tests (schematic unchanged). Convergence and the validator counts: LAYOUT.md "Results" and `evidence/block-validators/README.md`.
+
 ## Open items (need the owner or the enclosure team)
 1. **Owner:** confirm D-18 is superseded, so the fan can sit on PS1 through the controller (C9).
 2. **Owner:** M12 probe type and pin map (C14).
@@ -421,7 +443,7 @@ Source: power-stage stage-16 plan `validation-results/08-manufacturing-package/n
    - pins.h additions (UI SPI 40/41/44/47/48/45, RUN_EN 14, I²C SDA 37 / SCL 0, blower PWM 46 and tach 3, ADC on 8 and rim NTC on 9; expander: RTD_DRDY P07, SUP_RUN_OK P14, FAN_OFF P15, BLW_PG P16 (C33));
    - the blower fan law and tach supervision (C28).
 9. **Layout stage:**
-   - re-run the interlock, thermal-sense and RTD validators on the integrated board;
+   - ~~re-run the interlock, thermal-sense and RTD validators on the integrated board~~ done (C30 run, C34 fixes; remaining findings waived in `evidence/block-validators/WAIVERS.md`);
    - the native KiCad ERC/DRC and Rust stackup gate;
    - TPS389001 uses the RTD unit's `Temper_RTD` footprint library.
 10. **Bench:**
@@ -433,6 +455,7 @@ Source: power-stage stage-16 plan `validation-results/08-manufacturing-package/n
 11. **Enclosure:** connector-versus-hole and height conflicts. See [ENCLOSURE-HANDOFF.md](ENCLOSURE-HANDOFF.md).
 12. **R32 delta:** the blower output (C28) and the NTC filtering (C29) are designed in. The RTD filter is a change request to the RTD unit (C29).
 13. ~~**Owner / power stage: PS1 at full blower speed (C28).**~~ **Closed by C33 (stage 16):** the blower buck runs from PS3 (IRM-60-15ST) through J13; PS1 now carries 4.83 W of 21 W.
+14. **RTD unit / layout (C34):** the RTD SPI nets' return. Under the controller's own layer roles the RTD validator fails them where they run on B.Cu over the v3v3 plane (WAIVERS W4). Either route them like the RTD analog nets (F/In2, return vias) or accept the v3v3 image; and a per-board `return_planes` in the RTD profile (a change for the RTD unit's owner) would make that check part of the verdict.
 
 ## Layout inputs from the enclosure (R27, 2026-10-08)
 

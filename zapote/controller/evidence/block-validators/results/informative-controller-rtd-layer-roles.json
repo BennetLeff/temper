@@ -1,0 +1,940 @@
+{
+  "status": "fail",
+  "findings": [
+    {
+      "rule": "ERC.RTD.MODEL_QUALIFICATION",
+      "severity": "info",
+      "status": "pass",
+      "message": "Rust reconstructed the closed five-case full-network energy certificate from the fixed topology and complete envelope",
+      "object": "model_qualification",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.MODEL_DEVICE_APPLICABILITY",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "passive network certificate is valid; comparator hysteresis, common-mode/input-capacitance conditions, MAX31865 force-path idealization, and brownout hardware applicability remain unqualified",
+      "object": "model_qualification.device_applicability",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.UNIT_INTERFACE",
+      "severity": "error",
+      "status": "fail",
+      "message": "unit host connector source component is absent from native board",
+      "object": "unit_io",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.UNIT_INTERFACE",
+      "severity": "error",
+      "status": "fail",
+      "message": "unit_io pad 1 is not connected to authored source net +3V3",
+      "object": "unit_io.1",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.UNIT_INTERFACE",
+      "severity": "error",
+      "status": "fail",
+      "message": "unit_io pad 2 is not connected to authored source net GND",
+      "object": "unit_io.2",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.UNIT_INTERFACE",
+      "severity": "error",
+      "status": "fail",
+      "message": "unit_io pad 3 is not connected to authored source net GND",
+      "object": "unit_io.3",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.UNIT_INTERFACE",
+      "severity": "error",
+      "status": "fail",
+      "message": "unit_io pad 4 is not connected to authored source net RTD_SCK",
+      "object": "unit_io.4",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.UNIT_INTERFACE",
+      "severity": "error",
+      "status": "fail",
+      "message": "unit_io pad 5 is not connected to authored source net RTD_SDI",
+      "object": "unit_io.5",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.UNIT_INTERFACE",
+      "severity": "error",
+      "status": "fail",
+      "message": "unit_io pad 6 is not connected to authored source net RTD_SDO",
+      "object": "unit_io.6",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.UNIT_INTERFACE",
+      "severity": "error",
+      "status": "fail",
+      "message": "unit_io pad 7 is not connected to authored source net RTD_CS_N",
+      "object": "unit_io.7",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.UNIT_INTERFACE",
+      "severity": "error",
+      "status": "fail",
+      "message": "unit_io pad 8 is not connected to authored source net RTD_DRDY",
+      "object": "unit_io.8",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.UNIT_INTERFACE",
+      "severity": "error",
+      "status": "fail",
+      "message": "unit_io pad 9 is not connected to authored source net RTD_HW_FAULT",
+      "object": "unit_io.9",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.UNIT_INTERFACE",
+      "severity": "error",
+      "status": "fail",
+      "message": "unit_io pad 10 is not connected to authored source net SHARED_REF_2V5",
+      "object": "unit_io.10",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.UNIT_INTERFACE",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "unit_io connector MPN and source pin map are pending qualification",
+      "object": "unit_io",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.UNIT_MODEL",
+      "severity": "info",
+      "status": "pass",
+      "message": "source-derived local load 8.448898 mA and reference boundary 100.000 uA/10.000 nF are within contract",
+      "object": "RTD_LOCAL_10MA",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.FIRMWARE_GPIO_CORRESPONDENCE",
+      "severity": "error",
+      "status": "fail",
+      "message": "RTD_DRDY uses GPIO 65535; GPIO 9 is source-defined",
+      "object": "RTD_DRDY",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.SPI_SERIES_PLACEMENT",
+      "severity": "error",
+      "status": "fail",
+      "message": "RTD_DRDY lacks the source-derived GPIO/ADC pin/series resistor binding",
+      "object": "RTD_DRDY",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.SPI_SERIES_PLACEMENT",
+      "severity": "error",
+      "status": "fail",
+      "message": "unit_io.4 has no RTD_SCK source connection",
+      "object": "unit_io.4",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.SPI_SERIES_PLACEMENT",
+      "severity": "error",
+      "status": "fail",
+      "message": "unit_io.5 has no RTD_SDI source connection",
+      "object": "unit_io.5",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.SPI_SERIES_PLACEMENT",
+      "severity": "error",
+      "status": "fail",
+      "message": "unit_io.6 has no RTD_SDO source connection",
+      "object": "unit_io.6",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.SPI_SERIES_PLACEMENT",
+      "severity": "error",
+      "status": "fail",
+      "message": "unit_io.7 has no RTD_CS_N source connection",
+      "object": "unit_io.7",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.SPI_SERIES_PLACEMENT",
+      "severity": "error",
+      "status": "fail",
+      "message": "unit_io.8 has no RTD_DRDY source connection",
+      "object": "unit_io.8",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.FAULT_CORNERS",
+      "severity": "info",
+      "status": "pass",
+      "message": "TPS389001 threshold/NAND ownership and powered-comparator static truth are observed",
+      "object": "local_rtd_avdd_loss",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.FAULT_CORNERS",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "static rail detector is proven, but guaranteed worst-case brownout timing was not physically measured",
+      "object": "local_rtd_avdd_loss",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.DOMAIN_BOUNDARY_CONNECTIONS",
+      "severity": "info",
+      "status": "pass",
+      "message": "standalone RTD unit has no external HV/domain boundary population; cooker crossings are out of scope",
+      "object": "RTDUnit-applicability",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 3d38ee67-88c6-42cf-9564-292422cee8d5 exits the filled return corridor or crosses a zone hole",
+      "object": "3d38ee67-88c6-42cf-9564-292422cee8d5",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 00b4da2f-8c89-44a7-a8f3-7e68126b2844 exits the filled return corridor or crosses a zone hole",
+      "object": "00b4da2f-8c89-44a7-a8f3-7e68126b2844",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 0db3d173-c3bc-41b6-bbab-6a5b9a840706 exits the filled return corridor or crosses a zone hole",
+      "object": "0db3d173-c3bc-41b6-bbab-6a5b9a840706",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 1d49e3c4-9264-493d-a25c-95ccb087c943 exits the filled return corridor or crosses a zone hole",
+      "object": "1d49e3c4-9264-493d-a25c-95ccb087c943",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 397388a2-2bc8-4432-a4dc-d6c654538054 exits the filled return corridor or crosses a zone hole",
+      "object": "397388a2-2bc8-4432-a4dc-d6c654538054",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 4bdc23dc-779f-4fe1-aad1-d423be4b0faf exits the filled return corridor or crosses a zone hole",
+      "object": "4bdc23dc-779f-4fe1-aad1-d423be4b0faf",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 4d38b06a-6ca2-4533-9493-4336c3d58b1b exits the filled return corridor or crosses a zone hole",
+      "object": "4d38b06a-6ca2-4533-9493-4336c3d58b1b",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 567e5a82-f2e7-4a01-9961-221c6bb03d04 exits the filled return corridor or crosses a zone hole",
+      "object": "567e5a82-f2e7-4a01-9961-221c6bb03d04",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 8a7c4da4-9fa2-4354-ab9e-288d35dcd9c5 exits the filled return corridor or crosses a zone hole",
+      "object": "8a7c4da4-9fa2-4354-ab9e-288d35dcd9c5",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace be583d2a-a53b-4d0c-a38c-9e7815d1bf56 exits the filled return corridor or crosses a zone hole",
+      "object": "be583d2a-a53b-4d0c-a38c-9e7815d1bf56",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace c0c341a8-cdb2-405a-a8da-9871b884f531 exits the filled return corridor or crosses a zone hole",
+      "object": "c0c341a8-cdb2-405a-a8da-9871b884f531",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace e8e4b7bf-630e-4d90-8d1a-ef213a08c937 exits the filled return corridor or crosses a zone hole",
+      "object": "e8e4b7bf-630e-4d90-8d1a-ef213a08c937",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 56732ae6-3758-4e2c-887d-afacef36487b exits the filled return corridor or crosses a zone hole",
+      "object": "56732ae6-3758-4e2c-887d-afacef36487b",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 02abf64e-c312-407b-9ab3-ea9f574eb94f exits the filled return corridor or crosses a zone hole",
+      "object": "02abf64e-c312-407b-9ab3-ea9f574eb94f",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 22ccdc5c-16ad-4a25-99e1-9adc4931b28a exits the filled return corridor or crosses a zone hole",
+      "object": "22ccdc5c-16ad-4a25-99e1-9adc4931b28a",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 2ce07f58-654a-41b2-b720-2abe37d8ca57 exits the filled return corridor or crosses a zone hole",
+      "object": "2ce07f58-654a-41b2-b720-2abe37d8ca57",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 38cf6f22-4911-4afc-b24f-b08d630217f9 exits the filled return corridor or crosses a zone hole",
+      "object": "38cf6f22-4911-4afc-b24f-b08d630217f9",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 4cf8aa66-ca1c-4945-9fae-74223fe6befd exits the filled return corridor or crosses a zone hole",
+      "object": "4cf8aa66-ca1c-4945-9fae-74223fe6befd",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 51200f66-4331-4c5f-9d9e-5c0ba36fcb35 exits the filled return corridor or crosses a zone hole",
+      "object": "51200f66-4331-4c5f-9d9e-5c0ba36fcb35",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 55d30719-a33f-4e18-9ce6-f759921a92fd exits the filled return corridor or crosses a zone hole",
+      "object": "55d30719-a33f-4e18-9ce6-f759921a92fd",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 5773155d-d2d2-410f-9b93-e3714708254a exits the filled return corridor or crosses a zone hole",
+      "object": "5773155d-d2d2-410f-9b93-e3714708254a",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 5ea08aaf-5411-450c-bf14-0bb7f9c7b2ba exits the filled return corridor or crosses a zone hole",
+      "object": "5ea08aaf-5411-450c-bf14-0bb7f9c7b2ba",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 741a3e3b-a5ea-4b51-9e2d-1bc4096fc578 exits the filled return corridor or crosses a zone hole",
+      "object": "741a3e3b-a5ea-4b51-9e2d-1bc4096fc578",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 98359b4c-78c7-4f05-96bf-fce047d879da exits the filled return corridor or crosses a zone hole",
+      "object": "98359b4c-78c7-4f05-96bf-fce047d879da",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace b593cfa5-20d8-4fd1-9cbc-750185c1b327 exits the filled return corridor or crosses a zone hole",
+      "object": "b593cfa5-20d8-4fd1-9cbc-750185c1b327",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace c3bb8e0d-83be-481e-9819-394aece5777f exits the filled return corridor or crosses a zone hole",
+      "object": "c3bb8e0d-83be-481e-9819-394aece5777f",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace c650d7d2-5488-4517-94c5-17777717eeff exits the filled return corridor or crosses a zone hole",
+      "object": "c650d7d2-5488-4517-94c5-17777717eeff",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace d4f75269-ff7c-4447-9d0e-ddbb1d302b54 exits the filled return corridor or crosses a zone hole",
+      "object": "d4f75269-ff7c-4447-9d0e-ddbb1d302b54",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace dcfe5f2c-1d3e-49e1-83c6-323c011f4d59 exits the filled return corridor or crosses a zone hole",
+      "object": "dcfe5f2c-1d3e-49e1-83c6-323c011f4d59",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace efb0a6a3-dd00-4c5c-9778-79e71af913e5 exits the filled return corridor or crosses a zone hole",
+      "object": "efb0a6a3-dd00-4c5c-9778-79e71af913e5",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace f9b64e49-db5b-4795-8198-cdcf6a1c160a exits the filled return corridor or crosses a zone hole",
+      "object": "f9b64e49-db5b-4795-8198-cdcf6a1c160a",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 9f1eea2e-d85d-482b-bccd-21987f156a14 exits the filled return corridor or crosses a zone hole",
+      "object": "9f1eea2e-d85d-482b-bccd-21987f156a14",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace abc06fab-1ee9-460e-b4b0-8ce3515b11b9 exits the filled return corridor or crosses a zone hole",
+      "object": "abc06fab-1ee9-460e-b4b0-8ce3515b11b9",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace e4902a27-94e4-4765-afae-543b4f8febb0 exits the filled return corridor or crosses a zone hole",
+      "object": "e4902a27-94e4-4765-afae-543b4f8febb0",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 8a8e5d75-8d0e-4c40-8334-fbe5c78dbb33 exits the filled return corridor or crosses a zone hole",
+      "object": "8a8e5d75-8d0e-4c40-8334-fbe5c78dbb33",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace faf54ea2-9eaa-426e-9da1-5a14f6203d82 exits the filled return corridor or crosses a zone hole",
+      "object": "faf54ea2-9eaa-426e-9da1-5a14f6203d82",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 7143176b-6514-4e51-973b-e3ff344e4436 exits the filled return corridor or crosses a zone hole",
+      "object": "7143176b-6514-4e51-973b-e3ff344e4436",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace c0f3d4af-e719-4abf-87f7-0a99db817c6d exits the filled return corridor or crosses a zone hole",
+      "object": "c0f3d4af-e719-4abf-87f7-0a99db817c6d",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace ffd3cece-c55b-45db-903b-a0e82b934a72 exits the filled return corridor or crosses a zone hole",
+      "object": "ffd3cece-c55b-45db-903b-a0e82b934a72",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 1274ab32-6adc-4997-9d0a-40cd37597209 exits the filled return corridor or crosses a zone hole",
+      "object": "1274ab32-6adc-4997-9d0a-40cd37597209",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 3c3f755a-bd91-4bac-8817-eead1ed9f46d exits the filled return corridor or crosses a zone hole",
+      "object": "3c3f755a-bd91-4bac-8817-eead1ed9f46d",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 516f531d-51a6-4fce-9c7b-c4b29a78b548 exits the filled return corridor or crosses a zone hole",
+      "object": "516f531d-51a6-4fce-9c7b-c4b29a78b548",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 610647e6-eb86-44a1-902c-3ffe0f75a7a8 exits the filled return corridor or crosses a zone hole",
+      "object": "610647e6-eb86-44a1-902c-3ffe0f75a7a8",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace a5d3288e-9118-47ca-a4b4-71b5cd040610 exits the filled return corridor or crosses a zone hole",
+      "object": "a5d3288e-9118-47ca-a4b4-71b5cd040610",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace ae0b9d5f-b62f-4475-8e68-46eaf6cce1ab exits the filled return corridor or crosses a zone hole",
+      "object": "ae0b9d5f-b62f-4475-8e68-46eaf6cce1ab",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace b353e2a6-7dfe-4485-82c4-d9a42d5e5c61 exits the filled return corridor or crosses a zone hole",
+      "object": "b353e2a6-7dfe-4485-82c4-d9a42d5e5c61",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace d55cd704-0771-4f05-a5ad-61f6d6580899 exits the filled return corridor or crosses a zone hole",
+      "object": "d55cd704-0771-4f05-a5ad-61f6d6580899",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace d8b4e1e1-7547-4db8-af69-3d47c0cacebe exits the filled return corridor or crosses a zone hole",
+      "object": "d8b4e1e1-7547-4db8-af69-3d47c0cacebe",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace e3b03b90-b54d-45fc-8bce-edbc4cb7ddb9 exits the filled return corridor or crosses a zone hole",
+      "object": "e3b03b90-b54d-45fc-8bce-edbc4cb7ddb9",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace e8fc2299-8e01-49a4-b4a8-d371e5e0530d exits the filled return corridor or crosses a zone hole",
+      "object": "e8fc2299-8e01-49a4-b4a8-d371e5e0530d",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace f56d77d7-c636-43cf-a9a3-aaf6904038e9 exits the filled return corridor or crosses a zone hole",
+      "object": "f56d77d7-c636-43cf-a9a3-aaf6904038e9",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 06b42287-300b-4aef-97da-bf34a479341c exits the filled return corridor or crosses a zone hole",
+      "object": "06b42287-300b-4aef-97da-bf34a479341c",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 30860c8b-0b12-4ee5-a045-9577f1bffa17 exits the filled return corridor or crosses a zone hole",
+      "object": "30860c8b-0b12-4ee5-a045-9577f1bffa17",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace ab74e62a-017f-4109-bda1-b67304490286 exits the filled return corridor or crosses a zone hole",
+      "object": "ab74e62a-017f-4109-bda1-b67304490286",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace d5164203-dd15-4980-823f-b2f2192966a5 exits the filled return corridor or crosses a zone hole",
+      "object": "d5164203-dd15-4980-823f-b2f2192966a5",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace f7f4d8b2-fe13-484d-966e-4d22d608d5a9 exits the filled return corridor or crosses a zone hole",
+      "object": "f7f4d8b2-fe13-484d-966e-4d22d608d5a9",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 08033c40-61c4-49d0-b81d-18eb39a20396 exits the filled return corridor or crosses a zone hole",
+      "object": "08033c40-61c4-49d0-b81d-18eb39a20396",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 12dca940-d110-4af3-8c5e-fe7aaf80be52 exits the filled return corridor or crosses a zone hole",
+      "object": "12dca940-d110-4af3-8c5e-fe7aaf80be52",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 1581973d-6702-4096-9c51-63e4c8864879 exits the filled return corridor or crosses a zone hole",
+      "object": "1581973d-6702-4096-9c51-63e4c8864879",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 1c69daa1-6102-4a86-ab1f-23e8f17404ea exits the filled return corridor or crosses a zone hole",
+      "object": "1c69daa1-6102-4a86-ab1f-23e8f17404ea",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 30b8fd9c-a038-4f6b-8c35-1a039e12bf0e exits the filled return corridor or crosses a zone hole",
+      "object": "30b8fd9c-a038-4f6b-8c35-1a039e12bf0e",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 3a2510d0-52dd-43e4-b7af-e157f126f4f8 exits the filled return corridor or crosses a zone hole",
+      "object": "3a2510d0-52dd-43e4-b7af-e157f126f4f8",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 4206cce3-6d9f-40ee-b584-fcfd84837108 exits the filled return corridor or crosses a zone hole",
+      "object": "4206cce3-6d9f-40ee-b584-fcfd84837108",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 4a3bc99d-6788-4b77-863e-c79b8e9adb30 exits the filled return corridor or crosses a zone hole",
+      "object": "4a3bc99d-6788-4b77-863e-c79b8e9adb30",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 591bde33-9f64-4c3d-9415-13afc18b9783 exits the filled return corridor or crosses a zone hole",
+      "object": "591bde33-9f64-4c3d-9415-13afc18b9783",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 5aec0c9e-1549-4076-bf17-c755ef40bbbb exits the filled return corridor or crosses a zone hole",
+      "object": "5aec0c9e-1549-4076-bf17-c755ef40bbbb",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 69fef19a-da12-44b8-9616-0003a9efd388 exits the filled return corridor or crosses a zone hole",
+      "object": "69fef19a-da12-44b8-9616-0003a9efd388",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 6cc0ff0c-d906-4450-8087-05dee9b37156 exits the filled return corridor or crosses a zone hole",
+      "object": "6cc0ff0c-d906-4450-8087-05dee9b37156",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 74e70d67-b6f7-45dc-9df9-684b11d5f077 exits the filled return corridor or crosses a zone hole",
+      "object": "74e70d67-b6f7-45dc-9df9-684b11d5f077",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace 99028ab6-de72-4d3c-a160-18e2daef13c3 exits the filled return corridor or crosses a zone hole",
+      "object": "99028ab6-de72-4d3c-a160-18e2daef13c3",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace af068f02-4874-4191-8f96-3fd07a4df1f1 exits the filled return corridor or crosses a zone hole",
+      "object": "af068f02-4874-4191-8f96-3fd07a4df1f1",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace bad5cca0-cd89-4f97-8553-ffba41c573ad exits the filled return corridor or crosses a zone hole",
+      "object": "bad5cca0-cd89-4f97-8553-ffba41c573ad",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace c4fb5a34-c2de-4bfa-8f29-0c020c23455f exits the filled return corridor or crosses a zone hole",
+      "object": "c4fb5a34-c2de-4bfa-8f29-0c020c23455f",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.NATIVE_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "clock_return signal trace e5d212fc-f6da-4c3d-8ccc-3fde973b19fe exits the filled return corridor or crosses a zone hole",
+      "object": "e5d212fc-f6da-4c3d-8ccc-3fde973b19fe",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.LOCAL_ESCAPE_ELIGIBILITY",
+      "severity": "info",
+      "status": "pass",
+      "message": "standalone RTD unit has no local-escape exception population; external cooker paths are out of scope",
+      "object": "RTDUnit-applicability",
+      "actual": null,
+      "required": null
+    }
+  ],
+  "checked_rules": [
+    "DRC.RTD.DOMAIN_BOUNDARY_CONNECTIONS",
+    "DRC.RTD.FERRITE_SEMANTICS",
+    "DRC.RTD.LOCAL_DECOUPLING",
+    "DRC.RTD.LOCAL_ESCAPE_ELIGIBILITY",
+    "DRC.RTD.NATIVE_GEOMETRY",
+    "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+    "DRC.RTD.UPSTREAM_POST_FERRITE_RAILS",
+    "ERC.RTD.ADC_PIN_NETS",
+    "ERC.RTD.BOARD_COMPONENT_BINDING",
+    "ERC.RTD.EXACT_COMPONENTS",
+    "ERC.RTD.FAULT_CORNERS",
+    "ERC.RTD.FAULT_OUTPUT",
+    "ERC.RTD.FIRMWARE_GPIO_CORRESPONDENCE",
+    "ERC.RTD.FIRMWARE_THRESHOLD_ENCODING",
+    "ERC.RTD.FORCE_SENSE_SEPARATION",
+    "ERC.RTD.FOUR_WIRE_PINOUT",
+    "ERC.RTD.MODEL_DEVICE_APPLICABILITY",
+    "ERC.RTD.MODEL_QUALIFICATION",
+    "ERC.RTD.NATIVE_CONNECTIVITY",
+    "ERC.RTD.RREF_IDENTITY",
+    "ERC.RTD.RREF_TO_REFERENCE_NETWORK",
+    "ERC.RTD.SHARED_REFERENCE",
+    "ERC.RTD.SPI_SERIES_PLACEMENT",
+    "ERC.RTD.UNIT_COMPONENT_MPN",
+    "ERC.RTD.UNIT_CONNECTIONS",
+    "ERC.RTD.UNIT_FIRMWARE",
+    "ERC.RTD.UNIT_INTERFACE",
+    "ERC.RTD.UNIT_MODEL",
+    "ERC.RTD.UNIT_SOURCE_BINDING"
+  ],
+  "coverage_gaps": [
+    "device applicability remains indeterminate",
+    "local_rtd_avdd_loss has conditional nominal timing only; guaranteed maximum remains a physical integration obligation"
+  ]
+}
