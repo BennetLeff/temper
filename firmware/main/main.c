@@ -39,11 +39,13 @@
 static const char *TAG = "main";
 
 /* MAX31865 DRDY is TCA9555 P07 on the controller (layout L2, DECISIONS C23). The control task
- * refreshes the expander snapshot first thing every tick; only a snapshot from this tick counts. */
-static bool expander_drdy_level(void *context, bool *drdy_low)
+ * refreshes the expander snapshot first thing every tick; only a snapshot from this tick counts.
+ * refresh: re-poll the expander now (control task, after a data read, to confirm DRDY released). */
+static bool expander_drdy_level(void *context, bool refresh, bool *drdy_low)
 {
     (void)context;
     ctrl_exp_cache_t c;
+    if (refresh && !ctrl_board_poll_expander()) return false;
     (void)ctrl_board_expander(&c);
     if (!ctrl_exp_fresh(&c, (uint64_t)esp_timer_get_time(), 10000u)) return false;
     *drdy_low = ctrl_exp_decode(c.raw).rtd_drdy;

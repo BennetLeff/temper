@@ -32,7 +32,8 @@ extern void  mock_sm_reset(void);
 extern void  mock_sm_advance_time(uint32_t ms);
 extern void  mock_sm_set_pan_temperature(float temp_c);
 extern void  mock_sm_set_heatsink_temperature(float temp_c);
-extern void  mock_sm_set_dc_bus_current(float amps);
+extern void  mock_sm_set_power_bus_fault(bool tripped);
+extern void  mock_sm_set_power_tank_trip(bool tripped);
 extern void  mock_sm_set_rtd_resistance(float ohms);
 extern void  mock_sm_set_pan_status(int status);
 extern void  mock_sm_set_fan_running(bool running);
@@ -483,8 +484,14 @@ static int parse_manifest(manifest_entry_t *entries, int max_entries) {
  * CSV parsing
  * --------------------------------------------------------------------------- */
 
-typedef float csvrow_t[7]; /* 0=tick, 1=hs_temp, 2=pan_temp, 3=dc_cur,
+typedef float csvrow_t[7]; /* 0=tick, 1=hs_temp, 2=pan_temp, 3=power_trip,
                               4=rtd, 5=pan_imp, 6=fan_run */
+/* power_trip (native-21 over-current sources, design lead decision 2026-10-12): 0 = healthy,
+ * 1 = n21 binding CT peak / RMS trip (FAULT_OVER_CURRENT), 2 = BUS_FAULT read-back or PERMIT drop
+ * while running (FAULT_IGBT_SHORT). Replaces the legacy dc_current column (> 40 A -> 1,
+ * > 50 A -> 2), which the state machine no longer reads. */
+#define POWER_TRIP_TANK 1.0f
+#define POWER_TRIP_BUS  2.0f
 
 static int load_csv(const char *path, csvrow_t *rows, int max_rows) {
     FILE *f = fopen(path, "r");
@@ -512,7 +519,7 @@ static int load_csv(const char *path, csvrow_t *rows, int max_rows) {
             &rows[count][6]);
 
         if (parsed >= 6) {
-            if (parsed < 7) rows[count][6] = rows[count][3] > 0.1f ? 1.0f : 0.0f;
+            if (parsed < 7) rows[count][6] = 1.0f; /* fan running unless the trace says otherwise */
             count++;
         }
     }
@@ -583,8 +590,6 @@ static void sm_boilerplate_to_origin(system_state_t origin, bool self_test_pass)
  * staged MAX31865 guard window. */
 #define INV_MAX_ABSOLUTE_TEMP_C    300.0f
 #define INV_MAX_TEMP_RISE_RATE     15.0f   /* C/s */
-#define INV_MAX_DC_CURRENT_40A     40.0f
-#define INV_MAX_DC_CURRENT_50A     50.0f
 #define INV_MAX_HEATSINK_TEMP      OVER_TEMP_THRESHOLD /* config.yaml, 95 C (L3 ladder) */
 #define INV_DT_MS                  100     /* DT_MS from SIL test */
 
@@ -618,15 +623,9 @@ static int check_trace_invariants(const csvrow_t *rows, int row_count,
             }
         }
 
-        /* Base case 3: over-current (>50A = IGBT short, >40A = over-current) */
-        if (curr > INV_MAX_DC_CURRENT_50A) {
-            printf("  [INV] tick %d: current %.1f > %.1f (IGBT short)\n",
-                   t, curr, INV_MAX_DC_CURRENT_50A);
-            violations++;
-        }
-        if (curr > INV_MAX_DC_CURRENT_40A) {
-            printf("  [INV] tick %d: current %.1f > %.1f (over-current)\n",
-                   t, curr, INV_MAX_DC_CURRENT_40A);
+        /* Base case 3: no power-stage over-current trip before the perturbation */
+        if (curr != 0.0f) {
+            printf("  [INV] tick %d: power_trip %.0f before the perturbation\n", t, curr);
             violations++;
         }
 
@@ -873,7 +872,8 @@ static void run_sil_test(const manifest_entry_t *entry) {
         /* Set sensor values from CSV */
         mock_sm_set_heatsink_temperature(rows[t][1]);
         mock_sm_set_pan_temperature(rows[t][2]);
-        mock_sm_set_dc_bus_current(rows[t][3]);
+        mock_sm_set_power_tank_trip(rows[t][3] >= POWER_TRIP_TANK);
+        mock_sm_set_power_bus_fault(rows[t][3] >= POWER_TRIP_BUS);
         mock_sm_set_rtd_resistance(rows[t][4]);
 
         /* At tick 0: establish the trace's starting temperature as the

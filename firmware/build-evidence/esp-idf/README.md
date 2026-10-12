@@ -23,14 +23,16 @@ Clean build: every esp32 glue file compiled AND linked, `idf.py build` exit 0, w
 | Configure (`set-target`) | PASS |
 | Compile, all glue files + all other firmware sources | **PASS** (0 errors, no new warnings; `compiled-glue-files.txt`, now 14 files incl. `main/platform/`) |
 | Link, strict (`build-strict.trimmed.log`) | **PASS, exit 0** (`build.sh` prints `STRICT build exit code: 0`; the DIAG step did not run) |
-| The 26 formerly undefined symbols (`undefined-symbols.txt`) | all `DEFINED` (type `T`) in `induction_cooker.elf`, each from `platform_esp32.c.obj` or `ui_esp32.c.obj`; 0 `diag_stubs` references in the link map (`platform-symbols-nm.txt`) |
-| Host tests (`ctest-summary.txt`) | **29/29** (was 28; new `platform_logic_tests`, plus 3 new cases in `max31865_tests`) |
+| The 26 formerly undefined symbols (`undefined-symbols.txt`) | 25 `DEFINED` (type `T`) in `induction_cooker.elf`, each from `platform_esp32.c.obj` or `ui_esp32.c.obj`; `read_dc_bus_current` `UNREFERENCED` (defined in `platform_esp32.c.obj`, dropped by `--gc-sections` because decision D1 removed its last caller); 0 `diag_stubs` references in the link map (`platform-symbols-nm.txt`) |
+| Host tests (`ctest-summary.txt`) | **29/29** ctest targets (was 28 before the platform layer; `platform_logic_tests` 17, `max31865_tests` 20, `state_machine_tests` 75, `sil_fault_tests` 23 scenarios) |
 
 **Verdict: PASS.** The 26 platform functions now have production implementations for the integrated controller
 (`main/platform/`, decisions in `components/platform/platform_logic.c`). Per-function hardware path, mapping source and
 failure behaviour: **[PLATFORM.md](PLATFORM.md)**. Four are documented unsupported-safe (no hardware):
-`read_dc_bus_current` (always `+INFINITY`, so PREHEAT latches FAULT_IGBT_SHORT: this image cannot heat until the owner
-re-points that interlock, PLATFORM.md P1), `peripherals_enter_low_power`, `peripherals_exit_low_power`, `led_set_pattern`.
+`read_dc_bus_current` (always `+INFINITY`, and since the design lead's decision D1 no longer called by the state machine,
+which reads BUS_FAULT / PERMIT and the n21 tank trips instead), `peripherals_enter_low_power`,
+`peripherals_exit_low_power`, `led_set_pattern`. Decision D2 runs the MAX31865 in 4-wire / 60 Hz conversion mode with the
+fault cycle at startup and every 1 s (PLATFORM.md "Decisions (by the design lead)").
 Bench-level open items (RTD conversions not commanded, provisional UI-board bit map) are listed there too.
 
 History: at 4168c046a (branch `build/esp-idf`) the strict link failed with these 26 undefined references and a
@@ -39,9 +41,9 @@ future link failure; it is not used now.
 
 ### Size (strict image, `size.txt`, `size-components.txt`, `bin-size.txt`)
 
-`induction_cooker.bin` = **409312 bytes** (0x63ee0), 80 % of the 2 MB app partition free. Flash code 229404, flash data
-89736, DIRAM 87699 (25.66 %), IRAM 16383 / 16384 (the IDF-reserved non-cache IRAM bank; normal for esp32s3). Project
-archives: libmain 30812 (incl. the platform layer and its 8 KB OLED framebuffer in .bss), libpower 23965, libtemper_hal 11083.
+`induction_cooker.bin` = **410000 bytes** (0x64190), 80 % of the 2 MB app partition free. Flash code 230264, flash data
+89560, DIRAM 87707 (25.66 %), IRAM 16383 / 16384 (the IDF-reserved non-cache IRAM bank; normal for esp32s3). Project
+archives: libmain 31506 (incl. the platform layer and its 8 KB OLED framebuffer in .bss), libpower 24103, libtemper_hal 11083.
 
 ### Proof the glue compiled and linked
 
@@ -92,6 +94,9 @@ Configure-time notes (not code warnings): `jinja2` is not in the system Python, 
 | `components/sensors/max31865.{c,h}` | `MAX31865_RREF_OHM` (430 ohm, board r_ref), `max31865_read_rtd_word()`, `max31865_rtd_word_to_ohm()` |
 | `components/sensors/rtd_service.{c,h}` | reads the RTD data word on each DRDY completion (before the unchanged fault-cycle service); `rtd_service_latest_word()` |
 | `main/thermal_io.c` | the state machine's FAN_SPEED_MAX request is a full-speed floor on the fan law's command (one call, line 186) |
+| `main/state_machine.c`, `main/state_handlers.c` (decision D1) | over-current interlocks read `power_bus_fault_tripped()` (FAULT_IGBT_SHORT) and `power_tank_overcurrent_tripped()` (FAULT_OVER_CURRENT) instead of `read_dc_bus_current()` |
+| `components/sensors/max31865.{c,h}`, `rtd_service.{c,h}`, `main/main.c` (decision D2) | 4-wire / 60 Hz continuous conversions, fault cycle at startup and every 1 s, CONFIG-polled cycle completion, DRDY re-poll after each data read |
+| `test/state_machine_stubs.c`, `test/gen_transition_table.py` (+ regenerated `test_transition_table_generated.c`), `test/test_sil_fault_injection.c`, `test/traces/*` | new host doubles for the two over-current sources (existing doubles unchanged); SIL column `dc_current` -> `power_trip` |
 | `main/CMakeLists.txt` | the platform sources and include dirs |
 | `test/CMakeLists.txt`, `test/test_platform_logic.c`, `test/test_max31865.c` | new ctest + 3 new cases; `test/state_machine_stubs.c` (host doubles) unchanged |
 | `build.sh`, `mapsum.py` | nm proof + bin size on a strict pass; build-dir paths normalised to `<BUILD>`; map summary includes the platform objects |

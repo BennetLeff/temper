@@ -4,6 +4,7 @@
  * UI-board input decoding. Assertions are the oracle (built with -UNDEBUG). */
 #include "platform_logic.h"
 #include "max31865.h"
+#include "n21_binding.h"
 #include "../config.h"
 #include <assert.h>
 #include <math.h>
@@ -98,6 +99,38 @@ static void test_pan_and_rtd_sentinels(void)
     assert(!(nan > RTD_GROSS_OPEN_DIAGNOSTIC_OHM) && !(nan >= RTD_OPEN_FAULT_OHM) && !(nan <= RTD_SHORT_FAULT_OHM));
     assert(INFINITY > IGBT_SHORT_CURRENT_THRESHOLD && !isfinite(INFINITY));
     assert(isnan(pt100_ohm_to_c(INFINITY)) && isnan(pt100_ohm_to_c(NAN)) && isnan(pt100_ohm_to_c(-1.0f)));
+}
+
+/* ---------------------------------------------------------------- native-21 over-current sources */
+static void test_power_bus_trip(void)
+{
+    /* healthy: BUS_FAULT low; PERMIT low before the bridge runs is normal (latched at power-up) */
+    assert(!platform_power_bus_trip(true, false, false, false));
+    assert(!platform_power_bus_trip(true, false, true, false));
+    assert(!platform_power_bus_trip(true, false, true, true));
+    /* BUS_FAULT high: always tripped */
+    assert(platform_power_bus_trip(true, true, true, true));
+    assert(platform_power_bus_trip(true, true, false, false));
+    /* PERMIT dropped while running */
+    assert(platform_power_bus_trip(true, false, false, true));
+    /* read-back unknown (no binding): tripped whatever the levels */
+    assert(platform_power_bus_trip(false, false, true, false));
+}
+
+static void test_power_tank_trip(void)
+{
+    assert(!platform_power_tank_trip(true, N21_FAULT_NONE));
+    assert(platform_power_tank_trip(true, N21_FAULT_TANK_PEAK));
+    assert(platform_power_tank_trip(true, N21_FAULT_TANK_RMS));
+    assert(platform_power_tank_trip(true, N21_FAULT_CT_MON));      /* current unknown */
+    assert(platform_power_tank_trip(true, N21_FAULT_RMS_CHANNEL)); /* current unknown */
+    /* other binding faults are not over-current (the binding inhibits power on its own) */
+    assert(!platform_power_tank_trip(true, N21_FAULT_HW));
+    assert(!platform_power_tank_trip(true, N21_FAULT_VBUS_OVERRANGE));
+    assert(!platform_power_tank_trip(true, N21_FAULT_PHASE));
+    assert(!platform_power_tank_trip(true, N21_FAULT_CT_ZC_STALE));
+    assert(!platform_power_tank_trip(true, N21_FAULT_PWM));
+    assert(platform_power_tank_trip(false, N21_FAULT_NONE)); /* unknown: tripped */
 }
 
 /* ---------------------------------------------------------------- blower floor */
@@ -267,6 +300,8 @@ int main(void)
     TEST(test_pt100_round_trip_and_table);
     TEST(test_pt100_below_zero_error);
     TEST(test_pan_and_rtd_sentinels);
+    TEST(test_power_bus_trip);
+    TEST(test_power_tank_trip);
     TEST(test_blower_floor_never_lowers_speed);
     TEST(test_fan_requests);
     TEST(test_fault_log_ring);

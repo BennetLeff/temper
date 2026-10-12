@@ -44,7 +44,6 @@ extern void fan_set_speed(fan_speed_t speed);
 extern void fan_set_auto_mode(bool enabled);
 extern float read_pan_temperature(void);
 extern float read_heatsink_temperature(void);
-extern float read_dc_bus_current(void);
 extern float read_rtd_resistance(void);
 extern bool is_fan_running(void);
 extern void delay_ms(uint32_t ms);

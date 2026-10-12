@@ -45,7 +45,14 @@ if [ "$STRICT_RC" -eq 0 ]; then
       obj=$("$NM" -A --defined-only "$BUILD/esp-idf/main/libmain.a" 2>/dev/null | awk -v s="$s" '$NF==s {split($1,a,":"); print a[2]}' | head -1)
       case "$line" in
         *" T "*|*" t "*) echo "DEFINED | $line | ${obj:-?}" ;;
-        *) echo "MISSING | $s | -" ;;
+        *)
+          # Intentionally unreferenced (design lead 2026-10-12: the state machine no longer reads
+          # DC bus current): compiled into libmain.a, dropped from the ELF by --gc-sections.
+          if [ "$s" = "read_dc_bus_current" ] && [ -n "$obj" ]; then
+            echo "UNREFERENCED | $s (in libmain.a, removed by --gc-sections: no caller) | $obj"
+          else
+            echo "MISSING | $s | -"
+          fi ;;
       esac
     done < "$HERE/undefined-symbols.txt"
     echo "# diag_stubs references in the link map: $(grep -c diag_stubs "$BUILD/induction_cooker.map" || true)"

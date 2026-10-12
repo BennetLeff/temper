@@ -43,6 +43,19 @@ float platform_rtd_resistance(bool have_word, uint16_t rtd_word, float rref_ohm)
 /* read_pan_temperature(): NaN whenever platform_rtd_resistance() is not finite or out of range. */
 float platform_pan_temperature(bool have_word, uint16_t rtd_word, float rref_ohm);
 
+/* ---------------------------------------------------------------- native-21 over-current sources */
+/* Design lead decision 2026-10-12: DC bus current is not measured on this hardware; the state
+ * machine's over-current interlocks read these instead.
+ * FAULT_IGBT_SHORT: status_known = the read-back could be taken (n21 hardware binding started);
+ * bus_fault = BUS_FAULT read-back high (GPIO21); permit = PERMIT read-back high (GPIO36);
+ * bridge_running = the binding has the bridge live (pads live and run gate on). Unknown status,
+ * BUS_FAULT, or PERMIT low while running: tripped. */
+bool platform_power_bus_trip(bool status_known, bool bus_fault, bool permit, bool bridge_running);
+/* FAULT_OVER_CURRENT: known = the n21 binding exists; n21_fault = its latched n21_fault_t. Tripped
+ * for N21_FAULT_TANK_PEAK / N21_FAULT_TANK_RMS (CT peak / RMS trips) and for a failed current
+ * channel (N21_FAULT_CT_MON, N21_FAULT_RMS_CHANNEL: the current is unknown), or when unknown. */
+bool platform_power_tank_trip(bool known, int n21_fault);
+
 /* ---------------------------------------------------------------- blower request (C28) */
 /* The state machine's fan_set_speed()/fan_set_auto_mode() requests. The fan law in thermal_mgmt.c
  * owns the blower (DECISIONS C28). The only thing a request can do is put a full-speed floor under

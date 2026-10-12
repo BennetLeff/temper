@@ -35,8 +35,7 @@ static void report_fault(max31865_fault_sink_t fault_sink, uint8_t status,
 
 hal_status_t max31865_start_fault_detection(const max31865_device_t *device)
 {
-    const uint8_t config = MAX31865_CONFIG_VBIAS |
-                           MAX31865_CONFIG_FAULT_CYCLE_AUTOMATIC;
+    const uint8_t config = MAX31865_CONFIG_FAULT_CYCLE;
 
     if (!device_ready(device)) {
         return HAL_ERROR_INVALID_ARG;
@@ -95,29 +94,88 @@ hal_status_t max31865_read_fault_status(const max31865_device_t *device,
                             fault_status, 1u);
 }
 
-hal_status_t max31865_service_fault_cycle(const max31865_device_t *device,
-                                          max31865_fault_sink_t fault_sink,
-                                          void *context)
+hal_status_t max31865_start_conversions(const max31865_device_t *device)
+{
+    const uint8_t config = MAX31865_CONFIG_CONVERTING;
+
+    if (!device_ready(device)) {
+        return HAL_ERROR_INVALID_ARG;
+    }
+    return HAL_SPI_WRITE_REG(device->spi_device, MAX31865_REG_CONFIG,
+                             &config, 1u);
+}
+
+hal_status_t max31865_fault_cycle_done(const max31865_device_t *device, bool *done)
+{
+    uint8_t config = 0u;
+    hal_status_t status;
+
+    if (!device_ready(device) || done == NULL) {
+        return HAL_ERROR_INVALID_ARG;
+    }
+    status = HAL_SPI_READ_REG(device->spi_device, MAX31865_REG_CONFIG, &config, 1u);
+    if (status == HAL_OK) {
+        *done = (config & MAX31865_CONFIG_FAULT_CYCLE_MASK) == 0u;
+    }
+    return status;
+}
+
+hal_status_t max31865_complete_fault_cycle(const max31865_device_t *device,
+                                           max31865_fault_sink_t fault_sink,
+                                           void *context, bool *fault_reported)
 {
     uint8_t fault_status = 0u;
     hal_status_t status = max31865_read_fault_status(device, &fault_status);
 
+    if (fault_reported != NULL) {
+        *fault_reported = false;
+    }
     if (status != HAL_OK) {
         /* The MCU cannot distinguish a missing/open RTD path from an SPI
          * transport failure safely, so surface it through the same terminal
          * open/out-of-range path. */
         if (fault_sink != NULL) {
             fault_sink(false, true, context);
+            if (fault_reported != NULL) *fault_reported = true;
         }
         return status;
     }
 
-    report_fault(fault_sink, fault_status, context);
-    status = max31865_start_fault_detection(device);
+    if (fault_status != 0u && fault_sink != NULL) {
+        report_fault(fault_sink, fault_status, context);
+        if (fault_reported != NULL) *fault_reported = true;
+    }
+    status = max31865_start_conversions(device);
     if (status != HAL_OK && fault_status == 0u && fault_sink != NULL) {
-        /* A good completed cycle is not enough if the next cycle cannot be
-         * armed: continuing operation would leave the RTD path unmonitored. */
+        /* A good completed cycle is not enough if conversions cannot be
+         * resumed: continuing operation would leave the RTD path unmonitored. */
         fault_sink(false, true, context);
+        if (fault_reported != NULL) *fault_reported = true;
+    }
+    return status;
+}
+
+hal_status_t max31865_service_fault_cycle(const max31865_device_t *device,
+                                          max31865_fault_sink_t fault_sink,
+                                          void *context)
+{
+    return max31865_complete_fault_cycle(device, fault_sink, context, NULL);
+}
+
+hal_status_t max31865_report_conversion_fault(const max31865_device_t *device,
+                                              max31865_fault_sink_t fault_sink,
+                                              void *context)
+{
+    uint8_t fault_status = 0u;
+    hal_status_t status = max31865_read_fault_status(device, &fault_status);
+
+    if (fault_sink == NULL) {
+        return status;
+    }
+    if (status != HAL_OK || fault_status == 0u) {
+        fault_sink(false, true, context);
+    } else {
+        report_fault(fault_sink, fault_status, context);
     }
     return status;
 }

@@ -1,29 +1,29 @@
 # xtensa-esp32s3-elf-nm over the strict image (induction_cooker.elf) and libmain.a; input: undefined-symbols.txt
 # columns: status | ELF address type symbol | defining object
-DEFINED | 4200db94 T button_is_pressed | ui_esp32.c.obj
-DEFINED | 4200dc20 T button_set_enabled | ui_esp32.c.obj
-DEFINED | 4200db2c T buzzer_beep | ui_esp32.c.obj
-DEFINED | 4200db54 T buzzer_beep_continuous | ui_esp32.c.obj
-DEFINED | 4200db74 T buzzer_stop | ui_esp32.c.obj
-DEFINED | 4200dab0 T display_show_fault | ui_esp32.c.obj
-DEFINED | 4200d94c T display_show_message | ui_esp32.c.obj
-DEFINED | 4200da24 T display_update_countdown | ui_esp32.c.obj
-DEFINED | 4200d998 T display_update_temperature | ui_esp32.c.obj
-DEFINED | 4200cdb4 T eeprom_log_fault | platform_esp32.c.obj
-DEFINED | 4200cd6c T fan_set_auto_mode | platform_esp32.c.obj
-DEFINED | 4200cd40 T fan_set_speed | platform_esp32.c.obj
-DEFINED | 4200ccbc T get_time_ms | platform_esp32.c.obj
-DEFINED | 4200dc64 T led_set_pattern | ui_esp32.c.obj
-DEFINED | 42030aa8 T peripherals_enter_low_power | platform_esp32.c.obj
-DEFINED | 42030ab0 T peripherals_exit_low_power | platform_esp32.c.obj
-DEFINED | 4200ce2c T peripherals_init | platform_esp32.c.obj
-DEFINED | 4200cd0c T read_dc_bus_current | platform_esp32.c.obj
-DEFINED | 4200ccf0 T read_pan_temperature | platform_esp32.c.obj
-DEFINED | 4200ccd4 T read_rtd_resistance | platform_esp32.c.obj
-DEFINED | 4200cec0 T test_adc_calibration | platform_esp32.c.obj
-DEFINED | 4200d0ac T test_display_communication | platform_esp32.c.obj
-DEFINED | 4200d0d0 T test_eeprom_read | platform_esp32.c.obj
-DEFINED | 4200cf60 T test_fan_operation | platform_esp32.c.obj
-DEFINED | 4200cf9c T test_hardware_comparators | platform_esp32.c.obj
-DEFINED | 4200d018 T test_rtd_sensor | platform_esp32.c.obj
+DEFINED | 4200dcec T button_is_pressed | ui_esp32.c.obj
+DEFINED | 4200dd78 T button_set_enabled | ui_esp32.c.obj
+DEFINED | 4200dc84 T buzzer_beep | ui_esp32.c.obj
+DEFINED | 4200dcac T buzzer_beep_continuous | ui_esp32.c.obj
+DEFINED | 4200dccc T buzzer_stop | ui_esp32.c.obj
+DEFINED | 4200dc08 T display_show_fault | ui_esp32.c.obj
+DEFINED | 4200daa4 T display_show_message | ui_esp32.c.obj
+DEFINED | 4200db7c T display_update_countdown | ui_esp32.c.obj
+DEFINED | 4200daf0 T display_update_temperature | ui_esp32.c.obj
+DEFINED | 4200cf0c T eeprom_log_fault | platform_esp32.c.obj
+DEFINED | 4200cec4 T fan_set_auto_mode | platform_esp32.c.obj
+DEFINED | 4200ce98 T fan_set_speed | platform_esp32.c.obj
+DEFINED | 4200cdbc T get_time_ms | platform_esp32.c.obj
+DEFINED | 4200ddbc T led_set_pattern | ui_esp32.c.obj
+DEFINED | 42030dc4 T peripherals_enter_low_power | platform_esp32.c.obj
+DEFINED | 42030dcc T peripherals_exit_low_power | platform_esp32.c.obj
+DEFINED | 4200cf84 T peripherals_init | platform_esp32.c.obj
+UNREFERENCED | read_dc_bus_current (in libmain.a, removed by --gc-sections: no caller) | platform_esp32.c.obj
+DEFINED | 4200cdf0 T read_pan_temperature | platform_esp32.c.obj
+DEFINED | 4200cdd4 T read_rtd_resistance | platform_esp32.c.obj
+DEFINED | 4200d018 T test_adc_calibration | platform_esp32.c.obj
+DEFINED | 4200d204 T test_display_communication | platform_esp32.c.obj
+DEFINED | 4200d228 T test_eeprom_read | platform_esp32.c.obj
+DEFINED | 4200d0b8 T test_fan_operation | platform_esp32.c.obj
+DEFINED | 4200d0f4 T test_hardware_comparators | platform_esp32.c.obj
+DEFINED | 4200d170 T test_rtd_sensor | platform_esp32.c.obj
 # diag_stubs references in the link map: 0

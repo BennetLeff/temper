@@ -1,10 +1,10 @@
 Executing action: size
 Running make in directory <BUILD>
 Executing "make -j 14 all"...
-[  0%] Built target partition_table_bin
 [  0%] Built target sections.ld.in
-[  0%] Built target custom_bundle
 [  0%] Built target memory.ld
+[  0%] Built target partition_table_bin
+[  0%] Built target custom_bundle
 [  1%] Built target _project_elf_src
 [  1%] Performing build step for 'bootloader'
 [  1%] Built target __idf_esp_https_ota
@@ -17,8 +17,8 @@ Executing "make -j 14 all"...
 [ 17%] Built target __idf_esp_common
 [  3%] Built target __idf_esp_eth
 [ 27%] Built target __idf_esp_hw_support
-[ 28%] Built target __idf_esp_system
 [  4%] Built target __idf_esp_adc
+[ 28%] Built target __idf_esp_system
 [ 37%] Built target __idf_efuse
 [  4%] Built target __idf_esp-tls
 [  4%] Built target __idf_http_parser
@@ -40,12 +40,12 @@ Executing "make -j 14 all"...
 Bootloader binary size 0x5950 bytes. 0x26b0 bytes (30%) free.
 [100%] Built target bootloader_check_size
 [100%] Built target app
-[ 13%] No install step for 'bootloader'
 [ 21%] Built target __idf_lwip
-[ 21%] Completed 'bootloader'
+[ 21%] No install step for 'bootloader'
 [ 21%] Built target __idf_vfs
-[ 21%] Built target bootloader
+[ 21%] Completed 'bootloader'
 [ 21%] Built target __idf_esp_vfs_console
+[ 21%] Built target bootloader
 [ 21%] Built target __idf_esp_phy
 [ 23%] Built target __idf_driver
 [ 23%] Built target __idf_esp_driver_usb_serial_jtag
@@ -96,36 +96,36 @@ Bootloader binary size 0x5950 bytes. 0x26b0 bytes (30%) free.
 [ 79%] Built target __idf_esp_pm
 [ 80%] Built target __idf_esp_driver_gpio
 [ 80%] Built target __idf_xtensa
+[ 80%] Built target __idf_esp_driver_cam
+[ 80%] Built target __idf_json
+[ 80%] Built target __idf_esp_https_server
+[ 80%] Built target __idf_nvs_sec_provider
 [ 81%] Built target __idf_protobuf-c
-[ 81%] Built target __idf_json
-[ 81%] Built target __idf_nvs_sec_provider
-[ 81%] Built target __idf_esp_https_server
-[ 82%] Built target __idf_wear_levelling
-[ 82%] Built target __idf_perfmon
-[ 82%] Built target __idf_touch_element
 [ 82%] Built target __idf_app_trace
-[ 82%] Built target __idf_mqtt
-[ 82%] Built target __idf_spiffs
-[ 83%] Built target __idf_espcoredump
-[ 84%] Built target __idf_usb
+[ 83%] Built target __idf_wear_levelling
+[ 84%] Built target __idf_esp_hid
+[ 84%] Built target __idf_unity
+[ 84%] Built target __idf_perfmon
+[ 84%] Built target __idf_mqtt
+[ 86%] Built target __idf_console
 [ 88%] Built target __idf_esp_lcd
-[ 88%] Built target __idf_console
-[ 88%] Built target __idf_esp_driver_cam
-[ 89%] Built target __idf_esp_hid
+[ 89%] Built target __idf_espcoredump
+[ 89%] Built target __idf_spiffs
+[ 89%] Built target __idf_cmock
+[ 89%] Built target __idf_touch_element
 [ 90%] Built target __idf_temper_hal
-[ 91%] Built target __idf_unity
+[ 91%] Built target __idf_usb
 [ 92%] Built target __idf_fatfs
 [ 93%] Built target __idf_protocomm
-[ 93%] Built target __idf_cmock
-[ 94%] Built target __idf_power
-[ 95%] Built target __idf_webui
+[ 94%] Built target __idf_webui
+[ 95%] Built target __idf_power
 [ 95%] Built target __idf_esp_local_ctrl
 [ 96%] Built target __idf_wifi_provisioning
 [100%] Built target __idf_main
 [100%] Built target __ldgen_output_sections.ld
 [100%] Built target induction_cooker.elf
 [100%] Built target gen_project_binary
-induction_cooker.bin binary size 0x63ee0 bytes. Smallest app partition is 0x200000 bytes. 0x19c120 bytes (80%) free.
+induction_cooker.bin binary size 0x64190 bytes. Smallest app partition is 0x200000 bytes. 0x19be70 bytes (80%) free.
 [100%] Built target app_check_size
 [100%] Built target app
 Running make in directory <BUILD>
@@ -134,14 +134,14 @@ Executing "make -j 14 size"...
 ┏━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
 ┃ Memory Type/Section ┃ Used [bytes] ┃ Used [%] ┃ Remain [bytes] ┃ Total [bytes] ┃
 ┡━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩
-│ Flash Code          │       229404 │          │                │               │
-│    .text            │       229404 │          │                │               │
-│ Flash Data          │        89736 │          │                │               │
-│    .rodata          │        89480 │          │                │               │
+│ Flash Code          │       230264 │          │                │               │
+│    .text            │       230264 │          │                │               │
+│ Flash Data          │        89560 │          │                │               │
+│    .rodata          │        89304 │          │                │               │
 │    .appdesc         │          256 │          │                │               │
-│ DIRAM               │        87699 │    25.66 │         254061 │        341760 │
+│ DIRAM               │        87707 │    25.66 │         254053 │        341760 │
 │    .text            │        60283 │    17.64 │                │               │
-│    .bss             │        14024 │      4.1 │                │               │
+│    .bss             │        14032 │     4.11 │                │               │
 │    .data            │        13392 │     3.92 │                │               │
 │ IRAM                │        16383 │    99.99 │              1 │         16384 │
 │    .text            │        15356 │    93.73 │                │               │
@@ -151,6 +151,6 @@ Executing "make -j 14 size"...
 │ RTC SLOW            │            4 │     0.05 │           8188 │          8192 │
 │    .force_slow      │            4 │     0.05 │                │               │
 └─────────────────────┴──────────────┴──────────┴────────────────┴───────────────┘
-Total image size: 409202 bytes (.bin may be padded larger)
+Total image size: 409886 bytes (.bin may be padded larger)
 Note: The reported total sizes may be smaller than those in the technical reference manual due to reserved memory and application configuration. The total flash size available for the application is not included by default, as it cannot be reliably determined due to the presence of other data like the bootloader, partition table, and application partition size.
 Built target size

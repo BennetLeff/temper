@@ -12,6 +12,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "driver/gpio.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include "esp_timer.h"
@@ -29,6 +30,7 @@
 #include "state_machine.h"
 #include "../components/control/thermal_mgmt.h"
 #if CONFIG_TEMPER_POWER_HW_BINDING
+#include "n21_binding.h"
 #include "n21_hw.h"
 #endif
 
@@ -67,11 +69,11 @@ float read_pan_temperature(void)
 /* DC bus current: this hardware has no DC-bus current measurement. Native-21's 1 mOhm DC-return
  * shunt feeds only a comparator (~61 A) whose output is ORed into BUS_FAULT (J4.10 -> GPIO21 and the
  * interlock latch, which drops PERMIT in hardware): zapote/power-stage-120v/README.md:79 and :113,
- * controller DECISIONS C5. The ADC channels are VBUS (bus voltage) and CT_MON / the AD8436 RMS (tank
- * current, not bus current; DECISIONS C11, C19), which the n21 binding already trips on. No
- * measurement is fabricated from them: the documented "unavailable" sentinel is returned, +INFINITY,
- * which check_safety_interlocks() latches as FAULT_IGBT_SHORT (> IGBT_SHORT_CURRENT_THRESHOLD) and
- * safety.c as SAFETY_OVER_CURRENT (!isfinite). */
+ * controller DECISIONS C5. UNUSED since the design lead's 2026-10-12 decision: the state machine
+ * reads power_bus_fault_tripped() / power_tank_overcurrent_tripped() instead. The only remaining
+ * callers are safety.c check_hardware_interlocks() / run_safety_check(), reached on target only
+ * from safety.c's example task_control_loop(), which no task runs (main.c creates control_task).
+ * Kept returning the "unavailable" sentinel +INFINITY so any future caller fails closed. */
 float read_dc_bus_current(void)
 {
     static bool s_logged;
@@ -81,6 +83,45 @@ float read_dc_bus_current(void)
                       "(native-21 shunt -> comparator -> BUS_FAULT only); returning +inf (fault)");
     }
     return INFINITY;
+}
+
+/* ---------------------------------------------------------------- over-current sources */
+/* FAULT_IGBT_SHORT source. BUS_FAULT_RB GPIO21 (controller_pins.h:45, high = fault: shunt OCP, bus
+ * OVP, tank-CT comparators, HOT5; power-stage-120v/README.md:79) and PERMIT_RB GPIO36
+ * (controller_pins.h:47, the final PERMIT after U37). Both pads are configured as inputs by the n21
+ * binding (n21_hw_esp32.c:562) and read the same way as its own status read
+ * (n21_hw_esp32.c:530-531). "Running": the binding has the bridge live (telemetry pads_live and
+ * gate_on), so a PERMIT drop then is a hardware trip; before that PERMIT is normally low (latched
+ * at power-up until the reset request). No binding: the read-back is unknown -> tripped. */
+bool power_bus_fault_tripped(void)
+{
+#if CONFIG_TEMPER_POWER_HW_BINDING
+    n21_binding_t *b = n21_hw_binding();
+    if (b == NULL) return platform_power_bus_trip(false, false, false, false);
+    n21_telemetry_t t;
+    n21_telemetry(b, &t);
+    bool bus_fault = gpio_get_level((gpio_num_t)CTRL_GPIO_BUS_FAULT_RB) == 1;
+    bool permit = gpio_get_level((gpio_num_t)CTRL_GPIO_PERMIT_RB) == 1;
+    return platform_power_bus_trip(true, bus_fault, permit, t.pads_live && t.gate_on);
+#else
+    return platform_power_bus_trip(false, false, false, false);
+#endif
+}
+
+/* FAULT_OVER_CURRENT source: the n21 binding's latched fault (n21_binding.c latch(): CT_MON peak
+ * trip :227-229, half-cycle RMS trip :157 and :183, crest guard :242), read through
+ * n21_telemetry() (n21_binding.c:522). No binding: unknown -> tripped. */
+bool power_tank_overcurrent_tripped(void)
+{
+#if CONFIG_TEMPER_POWER_HW_BINDING
+    n21_binding_t *b = n21_hw_binding();
+    if (b == NULL) return platform_power_tank_trip(false, 0);
+    n21_telemetry_t t;
+    n21_telemetry(b, &t);
+    return platform_power_tank_trip(true, (int)t.fault);
+#else
+    return platform_power_tank_trip(false, 0);
+#endif
 }
 
 /* ---------------------------------------------------------------- blower request (C28) */
