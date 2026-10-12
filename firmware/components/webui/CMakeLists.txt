@@ -10,5 +10,5 @@ set(webui_embed_files
 
 idf_component_register(SRCS ${webui_srcs}
                        INCLUDE_DIRS "include"
-                       PRIV_REQUIRES esp_http_server esp_vfs_fat json
+                       PRIV_REQUIRES esp_http_server fatfs json
                        EMBED_FILES ${webui_embed_files})
