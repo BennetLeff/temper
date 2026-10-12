@@ -214,7 +214,10 @@ What changed from L2, where three of four runs closed:
    - Housing height above the PCB is 7.37 mm, 8.77 mm at the latch ramp (+1.40). Tails 3.18 mm, pegs Ø3.00 ±0.05 holes, recommended PCB 1.57 mm, LCP UL94 V-0.
    - The layout courtyard (`world.J4_BODY`, Y27.8–57.0 = 29.2 mm, X−38 to −24.3 = 13.7 mm) contains it.
    - The pin field is centred at world Y42.40 (pads Y31.90–52.90), so the header spans Y28.575–56.225, inside the enclosure's current body envelope (R43: Y27.8–57.0, 10.4 mm tall). The Y29.6–54.4 figure in `world.py`'s comment is stale R31 text and does not reflect the enclosure source.
-   - Still unread: the mated height (10.29 mm is Molex's series figure) and the plug's −X overhang (R31: to X−50). Both need the **43025-1600 plug** drawing.
+   - **Plug (43025-1600, Molex catalog page F-125 via Jameco 883000, owner-supplied 2026-10-12):** 24.85 mm wide, 6.86 mm tall, 14.00 mm long without wires.
+     - It sits inside the header's 7.37 mm body, so the mated height is ≤ the series 10.29 mm.
+     - Insertion depth isn't on the catalog page. The conservative bound (zero insertion) puts the plug end at X ≥ −52.0, against the enclosure's X−50.
+     - The enclosure either allows X−52 plus wire bend room, or the 430251600_sd product drawing is needed.
 8. **CPL rotations:** KiCad's rotations are written as-is; check each package in JLC's placement preview before ordering.
 9. **Consigned / low-stock parts** (DECISIONS open item 7): AD8436BRQZ (JLC stock 0) and the near-zero-stock ported parts; `fab/fab-notes.md` lists them.
 10. **Long lines:** RUN_EN and the RTD trip inputs cross most of the board (Interlock trip path). All fail safe on a break; a bench noise check on them is worth adding.
