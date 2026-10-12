@@ -26,31 +26,48 @@
 #define MCP23S08_OLAT  0x0Au
 
 /* GP bit map (PROVISIONAL, see above). Buttons and encoder switch: active low. */
-#define UI_BIT_BTN_START  (1u << 0) /* BTN1 */
-#define UI_BIT_BTN_STOP   (1u << 1) /* BTN2 */
-#define UI_BIT_BTN_RESET  (1u << 2) /* BTN3: fault reset */
+#define UI_BIT_BTN_START  (1u << 0) /* GP0: select/start button (UI board U6) */
+#define UI_BIT_BTN_STOP   (1u << 1) /* GP1: stop button */
+#define UI_BIT_BTN_BACK   (1u << 2) /* GP2: back button; firmware's BUTTON_BACK, also the fault reset (U6) */
+/* GP3-GP5 (encoder A/B/switch) are pending the knob-sensor redesign (UI board revision, owner
+ * decision 2026-10-12: tactile switches + magnetic knob on an SPI absolute-angle sensor; one of these
+ * bits is probably the sensor CS#). Left as is; do not extend encoder handling. */
 #define UI_BIT_ENC_A      (1u << 3)
 #define UI_BIT_ENC_B      (1u << 4)
 #define UI_BIT_ENC_SW     (1u << 5) /* read, not used by the state machine */
 #define UI_BIT_BUZZER     (1u << 6) /* output, high = self-oscillating buzzer on */
-#define UI_BIT_LOCAL      (1u << 7) /* OLED RES# or TMP122 CS (C26): left an input with pull-up */
+#define UI_BIT_TMP_CS     (1u << 7) /* output, TMP122 CS#, idle high = deselected (U6, U10; OLED RES# is an RC) */
 
-#define UI_EXP_IODIR ((uint8_t)(0xFFu & ~UI_BIT_BUZZER))
-#define UI_EXP_GPPU  ((uint8_t)(UI_BIT_BTN_START | UI_BIT_BTN_STOP | UI_BIT_BTN_RESET | UI_BIT_ENC_A | \
-                                UI_BIT_ENC_B | UI_BIT_ENC_SW | UI_BIT_LOCAL))
+/* GP7 is an output driven HIGH (TMP122 deselected). OLAT is written with UI_EXP_OLAT_IDLE before
+ * IODIR makes GP7 an output, so the pin never drives low; at power-up/reset it is an input and the
+ * board's 10 kohm (R17) holds CS# high. No TMP122 driver exists yet. */
+#define UI_EXP_OLAT_IDLE ((uint8_t)UI_BIT_TMP_CS)
+#define UI_EXP_IODIR ((uint8_t)(0xFFu & ~(UI_BIT_BUZZER | UI_BIT_TMP_CS)))
+#define UI_EXP_GPPU  ((uint8_t)(UI_BIT_BTN_START | UI_BIT_BTN_STOP | UI_BIT_BTN_BACK | UI_BIT_ENC_A | \
+                                UI_BIT_ENC_B | UI_BIT_ENC_SW))
 
-/* UI bus timing. 8 MHz: under both parts' 10 MHz maximum (SSD1322 serial clock cycle >= 100 ns,
- * MCP23S08 10 MHz) with margin for the 120 mm jumper and its 100 ohm source terminations (C26).
- * Mode 0 suits both (SSD1322 samples SDIN on SCLK rising edges; MCP23S08 modes 0,0 / 1,1). */
-#define UI_SPI_CLOCK_HZ   8000000
+/* UI bus timing (zapote/ui-board DECISIONS U13, U14).
+ * OLED SSD1322: 8 MHz (cycle >= 100 ns; 62.5 ns half period vs 20 ns min high/low).
+ * Expander MCP23S08 (CS_EXP#) and TMP122: at most 5 MHz. At 8 MHz the MISO budget (SO valid 45 ns
+ * after SCK fall + ~4 ns RC) leaves 14 ns of the 62.5 ns half period before the ESP32 GPIO-matrix
+ * input delay (~25 ns, U13 [UNVERIFIED]) = -11 ns; at 5 MHz (100 ns half period) it is +27 ns.
+ * Mode 0 suits all three (SSD1322 samples SDIN on SCLK rising edges; MCP23S08 modes 0,0 / 1,1). */
+#define UI_OLED_SPI_CLOCK_HZ 8000000
+#define UI_EXP_SPI_CLOCK_HZ  5000000 /* expander and TMP122 (U13); never above this */
 #define UI_SPI_MODE       0
 /* Frame writes in <= 512-byte chunks, one per UI poll, so input polling is never starved (C26;
  * the SPI3 bus is created with max_transfer_sz = 512 in controller_board_esp32.c). */
 #define UI_FRAME_CHUNK    512u
 #define UI_POLL_PERIOD_MS 1u    /* C26: the expander is polled at >= 1 kHz */
-#define UI_DEBOUNCE_POLLS 10u   /* 10 ms of identical reads */
+#define UI_DEBOUNCE_POLLS 15u   /* 15 ms of identical reads: APEM contact bounce is 10 ms (U8, U14.1) */
 #define UI_FRAME_MIN_MS   50u   /* at most 20 screen updates per second */
-#define UI_PRESENCE_MS    1000u /* re-verify (or re-acquire) the UI board once a second */
+#define UI_PRESENCE_MS    1000u /* re-acquire (re-configure) a lost UI board once a second */
+/* UI-lost rule (U14.2, U15): the expander is read (GPIO and IODIR read-back) every poll; with no valid
+ * read for MORE than this the UI counts as a STOP (BUTTON_STOP reads pressed). */
+#define UI_LOST_STOP_MS   100u
+/* OLED: no write within 30 ms of UI power-up (RES# is an on-board RC released 13..18 ms after power,
+ * U12); applied before the first oled_init(). */
+#define UI_OLED_POWERUP_WAIT_MS 30u
 
 /* SSD1322 window of the NHD-3.12-25664 (256 x 64): column addresses 0x1C..0x5B (4 px each). */
 #define SSD1322_COL_START 0x1Cu

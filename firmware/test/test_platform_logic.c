@@ -6,6 +6,7 @@
 #include "max31865.h"
 #include "n21_binding.h"
 #include "../config.h"
+#include "main/platform/ui_board_map.h"
 #include <assert.h>
 #include <math.h>
 #include <stdio.h>
@@ -292,6 +293,133 @@ static void test_buzzer(void)
     assert(!platform_buzzer_output(&b, 100001));
 }
 
+/* ---------------------------------------------------------------- UI board (zapote/ui-board) */
+/* U13 / item 1: expander + TMP122 <= 5 MHz, OLED 8 MHz, separate constants. */
+static void test_ui_spi_clocks(void)
+{
+    assert(UI_EXP_SPI_CLOCK_HZ <= 5000000);
+    assert(UI_OLED_SPI_CLOCK_HZ == 8000000);
+    assert(UI_EXP_SPI_CLOCK_HZ < UI_OLED_SPI_CLOCK_HZ);
+}
+
+/* U8 / U14.1 / item 2: APEM bounce is 10 ms at a 1 ms poll -> at least 15 identical polls. */
+static void test_ui_debounce_covers_contact_bounce(void)
+{
+    assert(UI_POLL_PERIOD_MS == 1u && UI_DEBOUNCE_POLLS >= 15u);
+    platform_debounce_t d;
+    platform_debounce_init(&d);
+    assert(platform_debounce_step(&d, 0xFF, UI_DEBOUNCE_POLLS) == 0xFF);
+    /* 10 ms of bounce (alternating) then a held press: not reported before 15 identical reads. */
+    for (int i = 0; i < 10; i++) assert(platform_debounce_step(&d, (i & 1) ? 0xFF : 0xFE, UI_DEBOUNCE_POLLS) == 0xFF);
+    for (unsigned i = 0; i < UI_DEBOUNCE_POLLS - 1u; i++) assert(platform_debounce_step(&d, 0xFE, UI_DEBOUNCE_POLLS) == 0xFF);
+    assert(platform_debounce_step(&d, 0xFE, UI_DEBOUNCE_POLLS) == 0xFE);
+}
+
+/* U12 / U14.3 / item 3: no OLED write within 30 ms of UI power-up. */
+static void test_ui_oled_powerup_wait(void)
+{
+    assert(UI_OLED_POWERUP_WAIT_MS >= 30u);
+    assert(platform_ui_powerup_wait_remaining_ms(0u, 0u, UI_OLED_POWERUP_WAIT_MS) == 30u);
+    assert(platform_ui_powerup_wait_remaining_ms(10u, 0u, UI_OLED_POWERUP_WAIT_MS) == 20u);
+    assert(platform_ui_powerup_wait_remaining_ms(29u, 0u, UI_OLED_POWERUP_WAIT_MS) == 1u);
+    assert(platform_ui_powerup_wait_remaining_ms(30u, 0u, UI_OLED_POWERUP_WAIT_MS) == 0u);
+    assert(platform_ui_powerup_wait_remaining_ms(5u, 0xFFFFFFFBu, UI_OLED_POWERUP_WAIT_MS) == 20u); /* wrap */
+}
+
+/* U6 / U10 / item 4: GP7 = TMP122 CS#, an output idling high (deselected); buzzer output idles low;
+ * the idle OLAT is written before IODIR, so GP7 is never driven low. */
+static void test_ui_gp7_deselected_output(void)
+{
+    assert(UI_BIT_TMP_CS == 0x80u);
+    assert((UI_EXP_IODIR & UI_BIT_TMP_CS) == 0u);   /* output */
+    assert((UI_EXP_IODIR & UI_BIT_BUZZER) == 0u);
+    assert(UI_EXP_IODIR == 0x3Fu);
+    assert((UI_EXP_OLAT_IDLE & UI_BIT_TMP_CS) != 0u); /* CS# high = deselected */
+    assert((UI_EXP_OLAT_IDLE & UI_BIT_BUZZER) == 0u); /* buzzer off */
+    assert((UI_EXP_GPPU & UI_BIT_TMP_CS) == 0u);
+    /* every buzzer write keeps GP7 high */
+    assert(((UI_EXP_OLAT_IDLE | UI_BIT_BUZZER) & UI_BIT_TMP_CS) != 0u);
+}
+
+/* U6 / item 5: GP0 select/start, GP1 stop, GP2 back (= the old RESET, still the fault reset). */
+static void test_ui_button_bits(void)
+{
+    assert(UI_BIT_BTN_START == 0x01u && UI_BIT_BTN_STOP == 0x02u && UI_BIT_BTN_BACK == 0x04u);
+}
+
+/* U14.2 / U15 / item 6, driven at the 1 kHz poll. */
+static bool run_polls(platform_ui_link_t *l, uint32_t *t, uint32_t from_good_end, bool ok, uint32_t n, bool *stop_seen)
+{
+    (void)from_good_end;
+    bool lost = false;
+    for (uint32_t i = 0; i < n; i++) {
+        (*t) += UI_POLL_PERIOD_MS;
+        lost = platform_ui_link_poll(l, *t, ok, UI_LOST_STOP_MS);
+        if (platform_ui_link_take_stop(l)) *stop_seen = true;
+    }
+    return lost;
+}
+
+static void test_ui_lost_50ms_does_not_stop(void)
+{
+    platform_ui_link_t l; uint32_t t = 1000; bool stop = false;
+    platform_ui_link_init(&l, t);
+    run_polls(&l, &t, 0, true, 20, &stop);
+    run_polls(&l, &t, 0, false, 50, &stop); /* 50 ms of failed polls */
+    assert(!stop && !l.stop_latched);
+    run_polls(&l, &t, 0, true, 5, &stop);    /* recovers */
+    assert(!stop && !l.stop_latched && !platform_ui_link_take_stop(&l));
+}
+
+static void test_ui_lost_exactly_100ms_does_not_stop_101_does(void)
+{
+    platform_ui_link_t l; uint32_t t = 0; bool stop = false;
+    platform_ui_link_init(&l, t);
+    run_polls(&l, &t, 0, false, 100, &stop); /* 100 ms since the last good read: not "more than" */
+    assert(!stop);
+    run_polls(&l, &t, 0, false, 1, &stop);   /* 101 ms */
+    assert(stop && l.stop_latched);
+}
+
+static void test_ui_lost_over_100ms_stops_and_recovery_does_not_restart(void)
+{
+    platform_ui_link_t l; uint32_t t = 5000; bool stop = false;
+    platform_ui_link_init(&l, t);
+    assert(run_polls(&l, &t, 0, false, 150, &stop));
+    assert(stop);
+    /* still lost: STOP keeps reading pressed */
+    assert(platform_ui_link_take_stop(&l) && platform_ui_link_take_stop(&l));
+    /* board comes back (re-configured): the STOP is reported once more, then released; no START is ever
+     * produced by the link logic */
+    platform_ui_link_reacquired(&l, t);
+    assert(platform_ui_link_take_stop(&l));
+    assert(!platform_ui_link_take_stop(&l));
+}
+
+static void test_ui_lost_short_outage_between_samples_still_reported(void)
+{
+    /* The control task only samples take_stop() every few ms; a loss that has latched and recovered in
+     * between must still be reported once. */
+    platform_ui_link_t l; uint32_t t = 0; bool unused = false;
+    platform_ui_link_init(&l, t);
+    for (uint32_t i = 0; i < 120; i++) { t++; (void)platform_ui_link_poll(&l, t, false, UI_LOST_STOP_MS); }
+    (void)unused;
+    platform_ui_link_reacquired(&l, t);
+    (void)platform_ui_link_poll(&l, ++t, true, UI_LOST_STOP_MS);
+    assert(platform_ui_link_take_stop(&l));
+    assert(!platform_ui_link_take_stop(&l));
+}
+
+static void test_ui_lost_clock_wrap(void)
+{
+    platform_ui_link_t l; uint32_t t = 0xFFFFFFC0u; bool stop = false;
+    platform_ui_link_init(&l, t);
+    run_polls(&l, &t, 0, false, 100, &stop);
+    assert(!stop);
+    run_polls(&l, &t, 0, false, 1, &stop);
+    assert(stop);
+}
+
 int main(void)
 {
     TEST(test_word_to_ohm);
@@ -311,6 +439,16 @@ int main(void)
     TEST(test_debounce);
     TEST(test_quadrature);
     TEST(test_buzzer);
+    TEST(test_ui_spi_clocks);
+    TEST(test_ui_debounce_covers_contact_bounce);
+    TEST(test_ui_oled_powerup_wait);
+    TEST(test_ui_gp7_deselected_output);
+    TEST(test_ui_button_bits);
+    TEST(test_ui_lost_50ms_does_not_stop);
+    TEST(test_ui_lost_exactly_100ms_does_not_stop_101_does);
+    TEST(test_ui_lost_over_100ms_stops_and_recovery_does_not_restart);
+    TEST(test_ui_lost_short_outage_between_samples_still_reported);
+    TEST(test_ui_lost_clock_wrap);
     printf("%u platform logic tests passed\n", tests);
     return 0;
 }

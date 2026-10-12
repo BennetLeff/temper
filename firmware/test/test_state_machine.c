@@ -664,6 +664,47 @@ void test_sm_cooldown_disables_power_and_pll(void) {
     TEST_ASSERT_FALSE(mock_sm_get_pll_enabled());
 }
 
+/**
+ * Test: UI-lost STOP (UI board DECISIONS U14.2/U15). ui_esp32.c makes button_is_pressed(BUTTON_STOP)
+ * true once the expander has been unreadable for > 100 ms (pure rule: test_platform_logic.c
+ * test_ui_lost_*). The state machine must take its existing stop path: HEATING -> COOLDOWN with the
+ * power off, and the end of the lost condition (STOP no longer pressed) must not restart heating.
+ */
+void test_sm_ui_lost_stop_ends_heating_and_does_not_restart(void) {
+    setup_test();
+    state_machine_update();  /* INIT -> IDLE */
+    state_machine_set_target_temp(100.0f);
+    mock_sm_press_button(BUTTON_START);
+    mock_sm_advance_time(100);
+    state_machine_update();  /* IDLE -> PAN_DET */
+    mock_sm_release_button(BUTTON_START);
+    mock_sm_set_pan_status(MOCK_PAN_PRESENT);
+    for (int i = 0; i < 5; i++) {
+        mock_sm_advance_time(100);
+        state_machine_update();
+    }
+    mock_sm_set_pan_temperature(92.0f);
+    state_machine_reset_temp_baseline();
+    mock_sm_advance_time(100);
+    state_machine_update();  /* PREHEAT -> HEATING */
+    TEST_ASSERT_EQUAL(STATE_HEATING, state_machine_get_state());
+
+    mock_sm_press_button(BUTTON_STOP);   /* UI lost > 100 ms */
+    mock_sm_advance_time(100);
+    state_machine_update();
+    TEST_ASSERT_EQUAL(STATE_COOLDOWN, state_machine_get_state());
+    TEST_ASSERT_EQUAL(0, mock_sm_get_power_level());
+
+    mock_sm_release_button(BUTTON_STOP); /* UI recovered; START is not pressed */
+    mock_sm_set_heatsink_temperature(45.0f);
+    for (int i = 0; i < 20; i++) {
+        mock_sm_advance_time(100);
+        state_machine_update();
+    }
+    TEST_ASSERT_EQUAL(STATE_IDLE, state_machine_get_state());
+    TEST_ASSERT_EQUAL(0, mock_sm_get_power_level());
+}
+
 /* ============================================================================
  * Test Cases: STATE_COOLDOWN -> STATE_IDLE (cooled down)
  * ============================================================================ */
@@ -1402,7 +1443,7 @@ void test_sm_reset_rejected_while_fault_active(void) {
     state_machine_update();  /* -> FAULT */
     
     /* Fault condition still active - reset should be rejected */
-    mock_sm_press_button(BUTTON_RESET);
+    mock_sm_press_button(BUTTON_BACK);
     mock_sm_advance_time(100);
     state_machine_update();
     
@@ -1427,7 +1468,7 @@ void test_sm_reset_rejected_while_rtd_open_guard_active(void) {
     TEST_ASSERT_EQUAL(FAULT_PROBE_OPEN, state_machine_get_fault());
 
     /* The fault input remains active, so RESET must be rejected. */
-    mock_sm_press_button(BUTTON_RESET);
+    mock_sm_press_button(BUTTON_BACK);
     mock_sm_advance_time(100);
     state_machine_update();
 
@@ -1467,7 +1508,7 @@ void test_sm_reset_accepted_when_fault_cleared(void) {
     mock_sm_set_heatsink_temperature(65.0f);
     
     /* Press reset */
-    mock_sm_press_button(BUTTON_RESET);
+    mock_sm_press_button(BUTTON_BACK);
     mock_sm_advance_time(100);
     state_machine_update();
     
@@ -1971,6 +2012,7 @@ void run_state_machine_tests(void) {
     
     /* COOLDOWN -> IDLE transition */
     RUN_TEST(test_sm_cooldown_to_idle_when_cool);
+    RUN_TEST(test_sm_ui_lost_stop_ends_heating_and_does_not_restart);
     
     /* Safety interlocks -> FAULT */
     RUN_TEST(test_sm_fault_on_over_temperature);

@@ -139,12 +139,16 @@ static const event_name_entry_t event_name_table[] = {
 /**
  * @brief Button identifiers
  */
+/* UI board naming (zapote/ui-board DECISIONS U6): BUTTON_START = select/start (GP0),
+ * BUTTON_STOP = stop (GP1), BUTTON_BACK = back (GP2). BUTTON_BACK is the button that was called RESET
+ * before the UI board existed; it still performs the fault reset in the FAULT states (behaviour
+ * unchanged), and is the enclosure's "back" button. */
 typedef enum {
     BUTTON_START,
     BUTTON_STOP,
     BUTTON_TEMP_UP,
     BUTTON_TEMP_DOWN,
-    BUTTON_RESET
+    BUTTON_BACK
 } button_id_t;
 
 /**

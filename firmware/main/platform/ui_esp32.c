@@ -54,6 +54,7 @@ static uint8_t s_fb[PLATFORM_OLED_FB_BYTES];
 static platform_debounce_t s_deb;
 static platform_quad_t s_quad;
 static bool s_buzz_written, s_buzz_last;
+static platform_ui_link_t s_link;    /* UI-lost tracker, under s_mux (UI task polls, control task takes the STOP) */
 
 /* ---------------------------------------------------------------- MCP23S08 */
 static bool exp_write(uint8_t reg, uint8_t v)
@@ -76,22 +77,18 @@ static bool exp_read(uint8_t reg, uint8_t *v)
  * absent board reads 0xFF on every register (MISO pull-up), which never matches UI_EXP_IODIR. */
 static bool exp_configure(void)
 {
-    uint8_t iodir = 0, gppu = 0;
-    bool ok = exp_write(MCP23S08_IOCON, 0x00u) && exp_write(MCP23S08_OLAT, 0x00u) &&
+    uint8_t iodir = 0, gppu = 0, olat = 0;
+    /* OLAT first: buzzer 0, GP7 (TMP122 CS#) high, so neither output ever starts in the wrong level. */
+    bool ok = exp_write(MCP23S08_IOCON, 0x00u) && exp_write(MCP23S08_OLAT, UI_EXP_OLAT_IDLE) &&
               exp_write(MCP23S08_IPOL, 0x00u) && exp_write(MCP23S08_GPPU, UI_EXP_GPPU) &&
               exp_write(MCP23S08_IODIR, UI_EXP_IODIR) && exp_read(MCP23S08_IODIR, &iodir) &&
-              exp_read(MCP23S08_GPPU, &gppu);
-    bool present = ok && iodir == UI_EXP_IODIR && gppu == UI_EXP_GPPU;
+              exp_read(MCP23S08_GPPU, &gppu) && exp_read(MCP23S08_OLAT, &olat);
+    bool present = ok && iodir == UI_EXP_IODIR && gppu == UI_EXP_GPPU && olat == UI_EXP_OLAT_IDLE;
     s_buzz_written = present;
     s_buzz_last = false;
     return present;
 }
 
-static bool exp_still_present(void)
-{
-    uint8_t iodir = 0;
-    return exp_read(MCP23S08_IODIR, &iodir) && iodir == UI_EXP_IODIR;
-}
 
 /* ---------------------------------------------------------------- SSD1322 */
 static bool oled_tx(bool data, const uint8_t *p, size_t n)
@@ -162,6 +159,8 @@ static void ui_io_task(void *arg)
     size_t frame_off = 0;
     bool frame_busy = false;
     bool present = false;
+    bool oled_pending = false; /* re-acquired: wait UI_OLED_POWERUP_WAIT_MS before the first OLED write */
+    uint32_t oled_ready_at = 0;
 
     portENTER_CRITICAL(&s_mux);
     present = s_ui.present;
@@ -170,34 +169,52 @@ static void ui_io_task(void *arg)
     for (;;) {
         uint32_t now = get_time_ms();
 
-        if (now - last_presence >= UI_PRESENCE_MS) {
+        /* Lost board: try to re-acquire once per UI_PRESENCE_MS. Loss itself is detected per poll below. */
+        if (!present && now - last_presence >= UI_PRESENCE_MS) {
             last_presence = now;
-            bool was = present;
-            present = present ? exp_still_present() : exp_configure();
-            if (present && !was) {
+            present = exp_configure();
+            if (present) {
                 platform_debounce_init(&s_deb);
                 platform_quad_init(&s_quad);
-                (void)oled_init();
-                frame_busy = false;
                 portENTER_CRITICAL(&s_mux);
-                s_ui.dirty = true;
+                platform_ui_link_reacquired(&s_link, now); /* keeps a latched STOP until it is taken */
                 portEXIT_CRITICAL(&s_mux);
+                oled_pending = true; /* U12/U14.3: the OLED RC reset may be fresh */
+                oled_ready_at = now + UI_OLED_POWERUP_WAIT_MS;
+                frame_busy = false;
                 ESP_LOGI(TAG, "UI board present");
-            } else if (!present && was) {
-                ESP_LOGE(TAG, "UI board lost: buttons read released");
             }
+        }
+        if (present && oled_pending && (int32_t)(now - oled_ready_at) >= 0) {
+            (void)oled_init();
+            oled_pending = false;
+            portENTER_CRITICAL(&s_mux);
+            s_ui.dirty = true;
+            portEXIT_CRITICAL(&s_mux);
         }
 
         uint8_t stable = 0xFFu;
         int steps = 0;
         bool buzz = false;
         if (present) {
-            uint8_t raw = 0xFFu;
-            if (exp_read(MCP23S08_GPIO, &raw)) {
+            /* A valid poll = the GPIO read worked AND the IODIR read-back is the configured value (a
+             * power loss resets it to 0xFF; a stuck MISO reads 0x00 / 0xFF). One bad poll only skips
+             * the sample; UI_LOST_STOP_MS without a good one is "UI lost". */
+            uint8_t raw = 0xFFu, iodir = 0xFFu;
+            bool ok = exp_read(MCP23S08_GPIO, &raw) && exp_read(MCP23S08_IODIR, &iodir) &&
+                      iodir == UI_EXP_IODIR;
+            portENTER_CRITICAL(&s_mux);
+            bool lost = platform_ui_link_poll(&s_link, now, ok, UI_LOST_STOP_MS);
+            portEXIT_CRITICAL(&s_mux);
+            if (ok) {
                 stable = platform_debounce_step(&s_deb, raw, UI_DEBOUNCE_POLLS);
                 steps = platform_quad_step(&s_quad, (raw & UI_BIT_ENC_A) != 0, (raw & UI_BIT_ENC_B) != 0);
+            } else if (lost) {
+                present = false; /* lost: buttons read released, STOP request latched */
+                ESP_LOGE(TAG, "UI board lost > %u ms: STOP requested", (unsigned)UI_LOST_STOP_MS);
+                last_presence = now;
             } else {
-                present = false;
+                stable = s_ui.inputs; /* keep the last debounced state through a short glitch */
             }
         }
 
@@ -215,12 +232,12 @@ static void ui_io_task(void *arg)
         portEXIT_CRITICAL(&s_mux);
 
         if (present && (!s_buzz_written || buzz != s_buzz_last)) {
-            s_buzz_written = exp_write(MCP23S08_OLAT, buzz ? UI_BIT_BUZZER : 0x00u);
+            s_buzz_written = exp_write(MCP23S08_OLAT, (uint8_t)(UI_EXP_OLAT_IDLE | (buzz ? UI_BIT_BUZZER : 0x00u)));
             s_buzz_last = buzz;
         }
 
         /* Screen: render when dirty, then one chunk per poll. */
-        if (present && !frame_busy && now - last_frame >= UI_FRAME_MIN_MS) {
+        if (present && !oled_pending && !frame_busy && now - last_frame >= UI_FRAME_MIN_MS) {
             char l1[32], l2[32];
             bool dirty;
             portENTER_CRITICAL(&s_mux);
@@ -235,7 +252,7 @@ static void ui_io_task(void *arg)
                 frame_off = 0;
                 last_frame = now;
             }
-        } else if (present && frame_busy) {
+        } else if (present && !oled_pending && frame_busy) {
             size_t n = sizeof s_fb - frame_off;
             if (n > UI_FRAME_CHUNK) n = UI_FRAME_CHUNK;
             if (!oled_tx(true, &s_fb[frame_off], n)) {
@@ -258,9 +275,10 @@ bool platform_ui_init(void)
     if (s_init_done) return platform_ui_present();
     s_init_done = true;
 
-    spi_device_interface_config_t oled = {.mode = UI_SPI_MODE, .clock_speed_hz = UI_SPI_CLOCK_HZ,
+    spi_device_interface_config_t oled = {.mode = UI_SPI_MODE, .clock_speed_hz = UI_OLED_SPI_CLOCK_HZ,
                                           .spics_io_num = CTRL_GPIO_UI_CS_OLED_N, .queue_size = 1};
-    spi_device_interface_config_t exp = {.mode = UI_SPI_MODE, .clock_speed_hz = UI_SPI_CLOCK_HZ,
+    /* Expander (and a future TMP122) at <= 5 MHz, OLED at 8 MHz (U13). */
+    spi_device_interface_config_t exp = {.mode = UI_SPI_MODE, .clock_speed_hz = UI_EXP_SPI_CLOCK_HZ,
                                          .spics_io_num = CTRL_GPIO_UI_CS_EXP_N, .queue_size = 1};
     if (spi_bus_add_device(SPI3_HOST, &oled, &s_oled) != ESP_OK) s_oled = NULL;
     if (spi_bus_add_device(SPI3_HOST, &exp, &s_exp) != ESP_OK) s_exp = NULL;
@@ -273,11 +291,16 @@ bool platform_ui_init(void)
     if (present) {
         platform_debounce_init(&s_deb);
         platform_quad_init(&s_quad);
+        /* U12/U14.3: first OLED write no earlier than 30 ms after UI power-up; the UI rail is on from
+         * controller power-up, so time since boot is a lower bound. */
+        uint32_t wait = platform_ui_powerup_wait_remaining_ms(get_time_ms(), 0u, UI_OLED_POWERUP_WAIT_MS);
+        if (wait > 0u) vTaskDelay(pdMS_TO_TICKS(wait) + 1u);
         if (!oled_init()) ESP_LOGE(TAG, "SSD1322 init transfer failed");
     } else {
         ESP_LOGE(TAG, "MCP23S08 not answering on CS_EXP# (GPIO%d): UI board absent", CTRL_GPIO_UI_CS_EXP_N);
     }
     portENTER_CRITICAL(&s_mux);
+    platform_ui_link_init(&s_link, get_time_ms());
     s_ui.present = present;
     s_ui.dirty = true;
     portEXIT_CRITICAL(&s_mux);
@@ -378,11 +401,16 @@ bool button_is_pressed(button_id_t button)
     portENTER_CRITICAL(&s_mux);
     uint8_t in = s_ui.inputs;
     bool enabled = (s_ui.enabled & (1u << (unsigned)button)) != 0;
-    if (s_ui.present && enabled) {
+    /* UI lost for > UI_LOST_STOP_MS: STOP reads pressed (even if disabled) until the loss has been
+     * reported once after recovery; the state machine's existing stop path ends heating and START
+     * still needs a deliberate press (never an auto-restart). */
+    if (button == BUTTON_STOP && platform_ui_link_take_stop(&s_link)) {
+        pressed = true;
+    } else if (s_ui.present && enabled) {
         switch (button) {
         case BUTTON_START: pressed = (in & UI_BIT_BTN_START) == 0; break;
         case BUTTON_STOP: pressed = (in & UI_BIT_BTN_STOP) == 0; break;
-        case BUTTON_RESET: pressed = (in & UI_BIT_BTN_RESET) == 0; break;
+        case BUTTON_BACK: pressed = (in & UI_BIT_BTN_BACK) == 0; break;
         /* One encoder detent = one TEMP_UP / TEMP_DOWN press, consumed by the read. */
         case BUTTON_TEMP_UP:
             if (s_ui.enc_steps > 0) { s_ui.enc_steps--; pressed = true; }

@@ -141,6 +141,26 @@ typedef struct {
 void platform_quad_init(platform_quad_t *q);
 int platform_quad_step(platform_quad_t *q, bool a, bool b);
 
+/* UI link supervision (UI board DECISIONS U14.2 / U15: a UI that cannot be read is a STOP).
+ * poll(): ok = this poll got a valid expander read (GPIO read worked and the IODIR read-back matched).
+ * Once MORE than lost_ms has passed since the last valid read, a STOP is latched (returns true while
+ * lost). The latch is only released by take_stop() after the link is valid again, and is reported at
+ * least once, so a loss that ends before the control task samples still stops the cooker. A recovery
+ * never produces a START: it only keeps/clears the STOP request. */
+typedef struct {
+    uint32_t last_good_ms;
+    bool ok;
+    bool stop_latched;
+} platform_ui_link_t;
+void platform_ui_link_init(platform_ui_link_t *l, uint32_t now_ms);
+bool platform_ui_link_poll(platform_ui_link_t *l, uint32_t now_ms, bool ok, uint32_t lost_ms);
+/* The board answered again (re-configured): link valid, a latched STOP is kept. */
+void platform_ui_link_reacquired(platform_ui_link_t *l, uint32_t now_ms);
+/* BUTTON_STOP request: true while latched; the latch clears on the first call made while the link is ok. */
+bool platform_ui_link_take_stop(platform_ui_link_t *l);
+/* Milliseconds still to wait so that `wait_ms` have passed since `since_ms` (wrap-safe, 0 = done). */
+uint32_t platform_ui_powerup_wait_remaining_ms(uint32_t now_ms, uint32_t since_ms, uint32_t wait_ms);
+
 /* Buzzer (self-oscillating, on an expander output: on/off only). */
 typedef enum { PLATFORM_BUZZ_OFF = 0, PLATFORM_BUZZ_TIMED, PLATFORM_BUZZ_CONTINUOUS } platform_buzz_mode_t;
 typedef struct {
