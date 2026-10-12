@@ -14,6 +14,7 @@ import json
 import os
 import math
 import platform
+import subprocess
 from collections import defaultdict
 from pathlib import Path
 
@@ -51,6 +52,22 @@ K_CU = 390.0
 K_FR4 = 0.3
 TAMB_C = 50.0
 
+
+
+def git_state():
+    """Actual source revision and dirty flag at run time (repo convention: provenance {commit, dirty}).
+    Dirty = any tracked file differs from HEAD, so a receipt written from an uncommitted working tree says so.
+    The commit is the script's own repository HEAD, not a pinned literal."""
+    here = Path(__file__).resolve().parent
+
+    def run(*cmd):
+        return subprocess.run(["git", "-C", str(here), *cmd], capture_output=True, text=True, check=True).stdout
+    try:
+        commit = run("rev-parse", "HEAD").strip()
+        dirty = bool(run("status", "--porcelain", "--untracked-files=no").strip())
+    except (OSError, subprocess.CalledProcessError):
+        return {"commit": "UNKNOWN", "dirty": "UNKNOWN"}
+    return {"commit": commit, "dirty": dirty}
 
 def sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -440,7 +457,8 @@ def run(args):
     fig.tight_layout()
     fig.savefig(out.with_suffix(".png"), dpi=150)
     plt.close(fig)
-    receipt = {"status": "conditional_experiment", "source_revision": "44417ae1489fd00e2d652fd3b2c1582b76d17630",
+    git = git_state()
+    receipt = {"status": "conditional_experiment", "source_revision": git["commit"], "source_dirty": git["dirty"],
                "board_sha256": data["board_sha256"], "stackup_sha256": sha(STACKUP_PATH),
                "geometry_sha256": sha(geometry), "kicad_version": data["kicad_version"],
                "runtime": {"python": platform.python_version(), "numpy": np.__version__,
