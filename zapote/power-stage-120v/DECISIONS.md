@@ -648,6 +648,17 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
           - Primary: an insulating barrier (polycarbonate or Formex GK class, ≥ 0.4 mm, UL94 V-0, ≥ 105 °C). It is mounted on the enclosure or a standoff and sized so that a freed end's path around its edge to HOT is ≥ 8 mm. Modelled in R43, with the retention check extended.
           - Secondary basis for the certifier: the latched VHR housing plus the crimp.
         - Bench and R43: the mains lead runs 315 mm unsupported at 4.99 mm from the native-21 envelope, and its sag is not modelled. Add a mid-span tie if SELV parts lie there.
+        - **R43 (closed):** the barrier is R43-J13-BARRIER, Formex GK-62, 1.575 mm, at X60–124, Y92.2–93.8, Z11–56, snapped into base slots. It also carries tie T_J13 through a die-cut slot 1.0 mm above the plug.
+          - With the tie, the freed end stays ≥ 18.5 mm from HOT (geodesic); the flag alone would fail at 228.7 mm against the 297.4 mm needed.
+          - ITW lists GK-62 as UL94 V-0 with an RTI of 115 °C.
+          - Modelled flag temperature: 62 °C expected (40 °C kitchen), 96 °C with all allowances stacked (`output/temper-r33-studies/14-j13-flag-thermal/`).
+          - Conditions:
+            1. Yellow card for GK-62 (owner).
+            2. Heat-stabilised PA66 tie rated ≥ 120 °C.
+            3. Bench soak at 40 °C and 28 A, with thermocouples on the PS1 face, on the flag at the tie and in bay air, plus a 10 N hot pull test.
+          - The span is HOT-to-HOT, 11.1 mm from SELV after worst-case droop, so it needs no mid-span support.
+          - **PS1 margin:** the IRM-20 derating allows 5.4 W at the modelled 78 °C bay air, against the controller's 4.83 W (controller verify `ps1.p_total_W`). That is only 11 % margin. If the soak shows bay air above ~78 °C, PS1 moves to a cooler spot or goes up to the IRM-30 class.
+          - Certifier question: can the courtyard of potted PS1 be replaced by its pins and solder joints as the clearance reference? Until the certifier answers, the conservative envelope stays.
         - Harness: J13 pair 2 × UL1007 18 AWG, 292 mm. J11 lead 2 × UL1015 18 AWG, 322 mm; its tie points move to R42.
         - The controller's J13 drop is rebased on contacts and copper at 80 °C: 172 mV, U2 headroom 0.92 V (controller-layout 0207a6974).
         - Coil field at PS3: 453–573 µT rms at the coil-side corner (study 12). Added bench item: PS3 ripple and stability at 28 A.
