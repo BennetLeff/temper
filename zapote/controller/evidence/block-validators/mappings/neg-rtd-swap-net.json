@@ -1,0 +1,65 @@
+{
+  "absent_unit_instances": [
+    "unit_io"
+  ],
+  "block": "rtd_pan",
+  "controller_board": "/Users/bennet/Desktop/temper/worktrees/build-validators/zapote/controller/pcb/controller.kicad_pcb",
+  "controller_census": 35,
+  "dropped_items": {
+    "footprint": 213,
+    "graphics": 16,
+    "segment": 2293,
+    "via": 434,
+    "zone": 13
+  },
+  "extra_controller_instances": [],
+  "negative_control": {
+    "drop": [],
+    "swap": [
+      "rtd_pan.c_dvdd:1:gnd"
+    ]
+  },
+  "net_map_conflicts": [],
+  "net_map_controller_to_unit": {
+    "RTD_AVDD": "RTD_AVDD",
+    "RTD_CS_N": "RTD_CS_N",
+    "RTD_DRDY": "RTD_DRDY",
+    "RTD_RAIL_OK": "reset",
+    "RTD_SCK": "RTD_SCK",
+    "RTD_SDI": "RTD_SDI",
+    "RTD_SDO": "RTD_SDO",
+    "cs_n": "cs_n",
+    "inn": "inn",
+    "line": "RTD_HW_FAULT",
+    "nc3": "nc3",
+    "p1": "bias",
+    "refin_n": "refin_n",
+    "rtd_force_n": "rtd_force_n",
+    "rtd_force_p": "rtd_force_p",
+    "rtd_pan.high_window-out": "rtd_pan.high_window-out",
+    "rtd_pan.low_window-inp": "window_rtdin_p",
+    "rtd_pan.low_window-out": "rtd_pan.low_window-out",
+    "rtd_pan.r_high_top-inp": "inp",
+    "rtd_pan.rail_monitor-ct": "ct",
+    "rtd_sense_n": "rtd_sense_n",
+    "rtd_sense_p": "rtd_sense_p",
+    "sclk": "sclk",
+    "sdi": "sdi",
+    "sdo": "sdo",
+    "selv_gnd": "gnd",
+    "sense": "sense",
+    "v3v3": "+3V3",
+    "vbias": "vbias",
+    "vref": "SHARED_REF_2V5",
+    "y": "y"
+  },
+  "pad_net_equivalence_with_unit_netlist": {
+    "controller_pad_connected_but_not_in_unit_netlist": [],
+    "pads_compared": 109,
+    "unit_pad_missing_or_on_other_net": []
+  },
+  "unit_census": 36,
+  "unit_name_collisions_with_unmapped_controller_nets": [],
+  "unit_source_manifest": "/Users/bennet/Desktop/temper/worktrees/build-validators/zapote/rtd/unit/candidate/source-manifest.json",
+  "unmapped_controller_nets_on_kept_pads": []
+}

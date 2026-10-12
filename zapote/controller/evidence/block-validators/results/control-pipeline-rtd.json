@@ -1,0 +1,103 @@
+{
+  "status": "indeterminate",
+  "findings": [
+    {
+      "rule": "ERC.RTD.MODEL_QUALIFICATION",
+      "severity": "info",
+      "status": "pass",
+      "message": "Rust reconstructed the closed five-case full-network energy certificate from the fixed topology and complete envelope",
+      "object": "model_qualification",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.MODEL_DEVICE_APPLICABILITY",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "passive network certificate is valid; comparator hysteresis, common-mode/input-capacitance conditions, MAX31865 force-path idealization, and brownout hardware applicability remain unqualified",
+      "object": "model_qualification.device_applicability",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.UNIT_MODEL",
+      "severity": "info",
+      "status": "pass",
+      "message": "source-derived local load 8.448898 mA and reference boundary 100.000 uA/10.000 nF are within contract",
+      "object": "RTD_LOCAL_10MA",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.FAULT_CORNERS",
+      "severity": "info",
+      "status": "pass",
+      "message": "TPS389001 threshold/NAND ownership and powered-comparator static truth are observed",
+      "object": "local_rtd_avdd_loss",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.FAULT_CORNERS",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "static rail detector is proven, but guaranteed worst-case brownout timing was not physically measured",
+      "object": "local_rtd_avdd_loss",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.DOMAIN_BOUNDARY_CONNECTIONS",
+      "severity": "info",
+      "status": "pass",
+      "message": "standalone RTD unit has no external HV/domain boundary population; cooker crossings are out of scope",
+      "object": "RTDUnit-applicability",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.LOCAL_ESCAPE_ELIGIBILITY",
+      "severity": "info",
+      "status": "pass",
+      "message": "standalone RTD unit has no local-escape exception population; external cooker paths are out of scope",
+      "object": "RTDUnit-applicability",
+      "actual": null,
+      "required": null
+    }
+  ],
+  "checked_rules": [
+    "DRC.RTD.DOMAIN_BOUNDARY_CONNECTIONS",
+    "DRC.RTD.FERRITE_SEMANTICS",
+    "DRC.RTD.LOCAL_DECOUPLING",
+    "DRC.RTD.LOCAL_ESCAPE_ELIGIBILITY",
+    "DRC.RTD.NATIVE_GEOMETRY",
+    "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+    "DRC.RTD.UPSTREAM_POST_FERRITE_RAILS",
+    "ERC.RTD.ADC_PIN_NETS",
+    "ERC.RTD.BOARD_COMPONENT_BINDING",
+    "ERC.RTD.EXACT_COMPONENTS",
+    "ERC.RTD.FAULT_CORNERS",
+    "ERC.RTD.FAULT_OUTPUT",
+    "ERC.RTD.FIRMWARE_GPIO_CORRESPONDENCE",
+    "ERC.RTD.FIRMWARE_THRESHOLD_ENCODING",
+    "ERC.RTD.FORCE_SENSE_SEPARATION",
+    "ERC.RTD.FOUR_WIRE_PINOUT",
+    "ERC.RTD.MODEL_DEVICE_APPLICABILITY",
+    "ERC.RTD.MODEL_QUALIFICATION",
+    "ERC.RTD.NATIVE_CONNECTIVITY",
+    "ERC.RTD.RREF_IDENTITY",
+    "ERC.RTD.RREF_TO_REFERENCE_NETWORK",
+    "ERC.RTD.SHARED_REFERENCE",
+    "ERC.RTD.SPI_SERIES_PLACEMENT",
+    "ERC.RTD.UNIT_COMPONENT_MPN",
+    "ERC.RTD.UNIT_CONNECTIONS",
+    "ERC.RTD.UNIT_FIRMWARE",
+    "ERC.RTD.UNIT_INTERFACE",
+    "ERC.RTD.UNIT_MODEL",
+    "ERC.RTD.UNIT_SOURCE_BINDING"
+  ],
+  "coverage_gaps": [
+    "device applicability remains indeterminate",
+    "local_rtd_avdd_loss has conditional nominal timing only; guaranteed maximum remains a physical integration obligation"
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "absent_unit_instances": [
+    "host"
+  ],
+  "block": "thermal",
+  "controller_board": "/Users/bennet/Desktop/temper/worktrees/build-validators/zapote/controller/pcb/controller.kicad_pcb",
+  "controller_census": 26,
+  "dropped_items": {
+    "footprint": 222,
+    "graphics": 16,
+    "segment": 2759,
+    "via": 509,
+    "zone": 13
+  },
+  "extra_controller_instances": [],
+  "negative_control": {
+    "drop": [],
+    "swap": []
+  },
+  "net_map_conflicts": [],
+  "net_map_controller_to_unit": {
+    "COIL_FAULT": "COIL_FAULT",
+    "COIL_HOT": "COIL_HOT",
+    "COIL_OPEN": "COIL_OPEN",
+    "COIL_REF": "COIL_REF",
+    "COIL_SENSE": "COIL_SENSE",
+    "HS_FAULT": "HS_FAULT",
+    "HS_HOT": "HS_HOT",
+    "HS_OPEN": "HS_OPEN",
+    "HS_REF": "HS_REF",
+    "HS_SENSE": "HS_SENSE",
+    "OPEN_REF": "OPEN_REF",
+    "selv_gnd": "gnd",
+    "v3v3": "+3V3"
+  },
+  "pad_net_equivalence_with_unit_netlist": {
+    "controller_pad_connected_but_not_in_unit_netlist": [],
+    "pads_compared": 70,
+    "unit_pad_missing_or_on_other_net": []
+  },
+  "unit_census": 27,
+  "unit_name_collisions_with_unmapped_controller_nets": [],
+  "unit_source_manifest": "/Users/bennet/Desktop/temper/worktrees/build-validators/zapote/thermal-sense/candidate/source-manifest.json",
+  "unmapped_controller_nets_on_kept_pads": []
+}

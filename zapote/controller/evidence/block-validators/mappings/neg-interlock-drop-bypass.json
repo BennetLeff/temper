@@ -1,0 +1,68 @@
+{
+  "absent_unit_instances": [
+    "aggregate_bypass",
+    "faults",
+    "host"
+  ],
+  "block": "interlock",
+  "controller_board": "/Users/bennet/Desktop/temper/worktrees/build-validators/zapote/controller/pcb/controller.kicad_pcb",
+  "controller_census": 22,
+  "dropped_items": {
+    "footprint": 226,
+    "graphics": 16,
+    "segment": 2367,
+    "via": 448,
+    "zone": 13
+  },
+  "extra_controller_instances": [],
+  "negative_control": {
+    "drop": [
+      "aggregate_bypass"
+    ],
+    "swap": []
+  },
+  "net_map_conflicts": [],
+  "net_map_controller_to_unit": {
+    "COIL_FAULT": "coil_fault",
+    "HS_FAULT": "hs_fault",
+    "IL_RESET_N": "reset_n",
+    "IL_WDI": "wdi",
+    "OVP_TIE": "ovp_fault",
+    "PERMIT_LATCH": "permit",
+    "RAIL_FAULT": "aux_fault",
+    "RUNAWAY_FAULT": "runaway_fault",
+    "SENSOR_LIVE": "sensor_live",
+    "all_good": "all_good",
+    "any_fault": "any_fault",
+    "aux_healthy": "aux_healthy",
+    "bus_fault": "ocp_fault",
+    "coil_healthy": "coil_healthy",
+    "common_good": "common_good",
+    "hs_healthy": "hs_healthy",
+    "latched_fault": "latched_fault",
+    "line": "rtd_fault",
+    "live_buf": "live_buf",
+    "live_n": "live_n",
+    "nc10": "nc10",
+    "nc13": "nc13",
+    "nc9": "nc9",
+    "ocp_healthy": "ocp_healthy",
+    "ovp_healthy": "ovp_healthy",
+    "reset_clock": "reset_clock",
+    "rtd_healthy": "rtd_healthy",
+    "runaway_healthy": "runaway_healthy",
+    "selv_gnd": "gnd",
+    "v3v3": "vcc",
+    "wdt_good": "wdt_good",
+    "y6": "y6"
+  },
+  "pad_net_equivalence_with_unit_netlist": {
+    "controller_pad_connected_but_not_in_unit_netlist": [],
+    "pads_compared": 92,
+    "unit_pad_missing_or_on_other_net": []
+  },
+  "unit_census": 25,
+  "unit_name_collisions_with_unmapped_controller_nets": [],
+  "unit_source_manifest": "/Users/bennet/Desktop/temper/worktrees/build-validators/zapote/interlock/candidate/source-manifest.json",
+  "unmapped_controller_nets_on_kept_pads": []
+}

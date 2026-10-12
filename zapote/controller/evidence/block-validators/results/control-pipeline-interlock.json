@@ -1,0 +1,742 @@
+{
+  "status": "indeterminate",
+  "findings": [
+    {
+      "rule": "ERC.INTERLOCK.SOURCE",
+      "severity": "info",
+      "status": "pass",
+      "message": "source attribute binding fault_inv_bypass",
+      "object": "fault_inv_bypass",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.SOURCE",
+      "severity": "info",
+      "status": "pass",
+      "message": "source attribute binding control_inv_bypass",
+      "object": "control_inv_bypass",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.SOURCE",
+      "severity": "info",
+      "status": "pass",
+      "message": "source attribute binding aggregate_bypass",
+      "object": "aggregate_bypass",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.SOURCE",
+      "severity": "info",
+      "status": "pass",
+      "message": "source attribute binding latch_bypass",
+      "object": "latch_bypass",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.SOURCE",
+      "severity": "info",
+      "status": "pass",
+      "message": "source attribute binding watchdog_bypass",
+      "object": "watchdog_bypass",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.SOURCE",
+      "severity": "info",
+      "status": "pass",
+      "message": "source attribute binding common_bypass",
+      "object": "common_bypass",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.SOURCE",
+      "severity": "info",
+      "status": "pass",
+      "message": "source attribute binding faults",
+      "object": "faults",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.SOURCE",
+      "severity": "info",
+      "status": "pass",
+      "message": "source attribute binding host",
+      "object": "host",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.SOURCE",
+      "severity": "info",
+      "status": "pass",
+      "message": "source attribute binding ocp_pullup",
+      "object": "ocp_pullup",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.SOURCE",
+      "severity": "info",
+      "status": "pass",
+      "message": "source attribute binding live_pulldown",
+      "object": "live_pulldown",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.SOURCE",
+      "severity": "info",
+      "status": "pass",
+      "message": "source attribute binding permit_pulldown",
+      "object": "permit_pulldown",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.SOURCE",
+      "severity": "info",
+      "status": "pass",
+      "message": "source attribute binding ovp_pullup",
+      "object": "ovp_pullup",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.SOURCE",
+      "severity": "info",
+      "status": "pass",
+      "message": "source attribute binding hs_pullup",
+      "object": "hs_pullup",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.SOURCE",
+      "severity": "info",
+      "status": "pass",
+      "message": "source attribute binding coil_pullup",
+      "object": "coil_pullup",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.SOURCE",
+      "severity": "info",
+      "status": "pass",
+      "message": "source attribute binding rtd_pullup",
+      "object": "rtd_pullup",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.SOURCE",
+      "severity": "info",
+      "status": "pass",
+      "message": "source attribute binding runaway_pullup",
+      "object": "runaway_pullup",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.SOURCE",
+      "severity": "info",
+      "status": "pass",
+      "message": "source attribute binding aux_pullup",
+      "object": "aux_pullup",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.SOURCE",
+      "severity": "info",
+      "status": "pass",
+      "message": "source attribute binding reset_pullup",
+      "object": "reset_pullup",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.SOURCE",
+      "severity": "info",
+      "status": "pass",
+      "message": "source attribute binding wdi_pulldown",
+      "object": "wdi_pulldown",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.SOURCE",
+      "severity": "info",
+      "status": "pass",
+      "message": "source attribute binding fault_inv",
+      "object": "fault_inv",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.SOURCE",
+      "severity": "info",
+      "status": "pass",
+      "message": "source attribute binding control_inv",
+      "object": "control_inv",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.SOURCE",
+      "severity": "info",
+      "status": "pass",
+      "message": "source attribute binding aggregate",
+      "object": "aggregate",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.SOURCE",
+      "severity": "info",
+      "status": "pass",
+      "message": "source attribute binding latch",
+      "object": "latch",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.SOURCE",
+      "severity": "info",
+      "status": "pass",
+      "message": "source attribute binding watchdog",
+      "object": "watchdog",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.SOURCE",
+      "severity": "info",
+      "status": "pass",
+      "message": "source attribute binding common",
+      "object": "common",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.SOURCE",
+      "severity": "info",
+      "status": "pass",
+      "message": "exact 25-component source census",
+      "object": "InterlockUnit",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.NATIVE_COMPONENTS",
+      "severity": "info",
+      "status": "pass",
+      "message": "exact 25-component native census",
+      "object": "native",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.PARTS",
+      "severity": "info",
+      "status": "pass",
+      "message": "exact MPN fault_inv_bypass: C0603C104K5RACTU",
+      "object": "fault_inv_bypass",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.PARTS",
+      "severity": "info",
+      "status": "pass",
+      "message": "exact MPN control_inv_bypass: C0603C104K5RACTU",
+      "object": "control_inv_bypass",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.PARTS",
+      "severity": "info",
+      "status": "pass",
+      "message": "exact MPN aggregate_bypass: C0603C104K5RACTU",
+      "object": "aggregate_bypass",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.PARTS",
+      "severity": "info",
+      "status": "pass",
+      "message": "exact MPN latch_bypass: C0603C104K5RACTU",
+      "object": "latch_bypass",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.PARTS",
+      "severity": "info",
+      "status": "pass",
+      "message": "exact MPN watchdog_bypass: C0603C104K5RACTU",
+      "object": "watchdog_bypass",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.PARTS",
+      "severity": "info",
+      "status": "pass",
+      "message": "exact MPN common_bypass: C0603C104K5RACTU",
+      "object": "common_bypass",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.PARTS",
+      "severity": "info",
+      "status": "pass",
+      "message": "exact MPN faults: B8B-XH-A(LF)(SN)",
+      "object": "faults",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.PARTS",
+      "severity": "info",
+      "status": "pass",
+      "message": "exact MPN host: B8B-XH-A(LF)(SN)",
+      "object": "host",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.PARTS",
+      "severity": "info",
+      "status": "pass",
+      "message": "exact MPN ocp_pullup: RC0603FR-0710KL",
+      "object": "ocp_pullup",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.PARTS",
+      "severity": "info",
+      "status": "pass",
+      "message": "exact MPN live_pulldown: RC0603FR-0710KL",
+      "object": "live_pulldown",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.PARTS",
+      "severity": "info",
+      "status": "pass",
+      "message": "exact MPN permit_pulldown: RC0603FR-0710KL",
+      "object": "permit_pulldown",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.PARTS",
+      "severity": "info",
+      "status": "pass",
+      "message": "exact MPN ovp_pullup: RC0603FR-0710KL",
+      "object": "ovp_pullup",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.PARTS",
+      "severity": "info",
+      "status": "pass",
+      "message": "exact MPN hs_pullup: RC0603FR-0710KL",
+      "object": "hs_pullup",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.PARTS",
+      "severity": "info",
+      "status": "pass",
+      "message": "exact MPN coil_pullup: RC0603FR-0710KL",
+      "object": "coil_pullup",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.PARTS",
+      "severity": "info",
+      "status": "pass",
+      "message": "exact MPN rtd_pullup: RC0603FR-0710KL",
+      "object": "rtd_pullup",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.PARTS",
+      "severity": "info",
+      "status": "pass",
+      "message": "exact MPN runaway_pullup: RC0603FR-0710KL",
+      "object": "runaway_pullup",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.PARTS",
+      "severity": "info",
+      "status": "pass",
+      "message": "exact MPN aux_pullup: RC0603FR-0710KL",
+      "object": "aux_pullup",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.PARTS",
+      "severity": "info",
+      "status": "pass",
+      "message": "exact MPN reset_pullup: RC0603FR-0710KL",
+      "object": "reset_pullup",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.PARTS",
+      "severity": "info",
+      "status": "pass",
+      "message": "exact MPN wdi_pulldown: RC0603FR-071KL",
+      "object": "wdi_pulldown",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.PARTS",
+      "severity": "info",
+      "status": "pass",
+      "message": "exact MPN fault_inv: SN74LVC14ADR",
+      "object": "fault_inv",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.PARTS",
+      "severity": "info",
+      "status": "pass",
+      "message": "exact MPN control_inv: SN74LVC14ADR",
+      "object": "control_inv",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.PARTS",
+      "severity": "info",
+      "status": "pass",
+      "message": "exact MPN aggregate: CD74HC30PWR",
+      "object": "aggregate",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.PARTS",
+      "severity": "info",
+      "status": "pass",
+      "message": "exact MPN latch: SN74LVC1G74DCUR",
+      "object": "latch",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.PARTS",
+      "severity": "info",
+      "status": "pass",
+      "message": "exact MPN watchdog: TPS3823-33DBVR",
+      "object": "watchdog",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.PARTS",
+      "severity": "info",
+      "status": "pass",
+      "message": "exact MPN common: SN74LVC1G08DBVR",
+      "object": "common",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.TOPOLOGY",
+      "severity": "info",
+      "status": "pass",
+      "message": "compiled source equals complete pin/net intent",
+      "object": "InterlockUnit",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.TOPOLOGY",
+      "severity": "info",
+      "status": "pass",
+      "message": "native pads and connections equal complete pin/net intent",
+      "object": "native",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.STRICT_PIN_MAP",
+      "severity": "info",
+      "status": "pass",
+      "message": "strict source pin map validates reference, pin/pad identity, uniqueness, and complete coverage",
+      "object": "source",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.CONNECTIVITY",
+      "severity": "info",
+      "status": "pass",
+      "message": "one native connectivity cluster per authored net with exact node sets",
+      "object": "native",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.CONNECTIVITY",
+      "severity": "info",
+      "status": "pass",
+      "message": "native routed copper exists",
+      "object": "native",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.OPEN_MARGIN",
+      "severity": "info",
+      "status": "pass",
+      "message": "ocp_pullup: open input minimum 2.933000 V, Schmitt rising maximum 2.0 V",
+      "object": "ocp_pullup",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.OPEN_MARGIN",
+      "severity": "info",
+      "status": "pass",
+      "message": "ovp_pullup: open input minimum 2.933000 V, Schmitt rising maximum 2.0 V",
+      "object": "ovp_pullup",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.OPEN_MARGIN",
+      "severity": "info",
+      "status": "pass",
+      "message": "hs_pullup: open input minimum 2.933000 V, Schmitt rising maximum 2.0 V",
+      "object": "hs_pullup",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.OPEN_MARGIN",
+      "severity": "info",
+      "status": "pass",
+      "message": "coil_pullup: open input minimum 2.933000 V, Schmitt rising maximum 2.0 V",
+      "object": "coil_pullup",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.OPEN_MARGIN",
+      "severity": "info",
+      "status": "pass",
+      "message": "rtd_pullup: open input minimum 2.933000 V, Schmitt rising maximum 2.0 V",
+      "object": "rtd_pullup",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.OPEN_MARGIN",
+      "severity": "info",
+      "status": "pass",
+      "message": "runaway_pullup: open input minimum 2.933000 V, Schmitt rising maximum 2.0 V",
+      "object": "runaway_pullup",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.OPEN_MARGIN",
+      "severity": "info",
+      "status": "pass",
+      "message": "aux_pullup: open input minimum 2.933000 V, Schmitt rising maximum 2.0 V",
+      "object": "aux_pullup",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.DIGITAL_MODEL",
+      "severity": "info",
+      "status": "pass",
+      "message": "4096/4096 compiled gate/state/clock vectors agree with requirement oracle",
+      "object": "graph",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.QUALIFICATION",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "SENSOR_LIVE producer and remote power-off injection",
+      "object": "InterlockUnit",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.QUALIFICATION",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "AUX producer and downstream active-high PERMIT receiver",
+      "object": "InterlockUnit",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.QUALIFICATION",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "actual watchdog timing, power ramps, propagation and clock/clear recovery/removal",
+      "object": "InterlockUnit",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.QUALIFICATION",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "HC30 threshold applicability at actual rail, harness transients and component failures",
+      "object": "InterlockUnit",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.QUALIFICATION",
+      "severity": "warning",
+      "status": "indeterminate",
+      "message": "physical fault tests NOT RUN",
+      "object": "InterlockUnit",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.BOARD.STACKUP",
+      "severity": "info",
+      "status": "pass",
+      "message": "2 copper layers; copper + dielectric + mask = 1.600000 mm, declared 1.600000 mm",
+      "object": "board.setup.stackup",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.NATIVE.DOCUMENT_BINDING",
+      "severity": "info",
+      "status": "pass",
+      "message": "component/MPN/pad-net, straight trace and via census match saved board bytes",
+      "object": "native",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.INTERLOCK.LOCALITY",
+      "severity": "info",
+      "status": "pass",
+      "message": "fault_inv_bypass.1 to fault_inv.14: Some(2.250022222112484) mm",
+      "object": "fault_inv_bypass",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.INTERLOCK.LOCALITY",
+      "severity": "info",
+      "status": "pass",
+      "message": "control_inv_bypass.1 to control_inv.14: Some(2.250022222112484) mm",
+      "object": "control_inv_bypass",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.INTERLOCK.LOCALITY",
+      "severity": "info",
+      "status": "pass",
+      "message": "aggregate_bypass.1 to aggregate.14: Some(2.3625000000000043) mm",
+      "object": "aggregate_bypass",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.INTERLOCK.LOCALITY",
+      "severity": "info",
+      "status": "pass",
+      "message": "latch_bypass.1 to latch.8: Some(2.897089056277) mm",
+      "object": "latch_bypass",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.INTERLOCK.LOCALITY",
+      "severity": "info",
+      "status": "pass",
+      "message": "watchdog_bypass.1 to watchdog.5: Some(2.336697723283858) mm",
+      "object": "watchdog_bypass",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.INTERLOCK.LOCALITY",
+      "severity": "info",
+      "status": "pass",
+      "message": "common_bypass.1 to common.5: Some(2.0874999999999986) mm",
+      "object": "common_bypass",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.NATIVE.CLEARANCE",
+      "severity": "info",
+      "status": "pass",
+      "message": "native copper clears 0.15 mm fabrication floor",
+      "object": "native",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.INTERLOCK.INTERFACE_CONTRACT",
+      "severity": "info",
+      "status": "pass",
+      "message": "reviewed supply, leakage, timing and interface assumptions are unchanged",
+      "object": "contract",
+      "actual": null,
+      "required": null
+    }
+  ],
+  "checked_rules": [
+    "ERC.INTERLOCK.CONNECTIVITY",
+    "ERC.INTERLOCK.DIGITAL_MODEL",
+    "ERC.INTERLOCK.NATIVE_COMPONENTS",
+    "ERC.INTERLOCK.OPEN_MARGIN",
+    "ERC.INTERLOCK.PARTS",
+    "ERC.INTERLOCK.QUALIFICATION",
+    "ERC.INTERLOCK.SOURCE",
+    "ERC.INTERLOCK.STRICT_PIN_MAP",
+    "ERC.INTERLOCK.TOPOLOGY",
+    "DRC.BOARD.STACKUP",
+    "DRC.NATIVE.DOCUMENT_BINDING",
+    "DRC.INTERLOCK.LOCALITY",
+    "DRC.NATIVE.CLEARANCE",
+    "ERC.INTERLOCK.INTERFACE_CONTRACT"
+  ],
+  "coverage_gaps": []
+}
