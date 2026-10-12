@@ -115,6 +115,9 @@ void n21_half_add(n21_half_t *, uint64_t t_us, const input_sample_t *);
 void n21_half_note(n21_half_t *, uint32_t f_hz, bool phi_valid, float phi_rad, float ct_abs_a);
 bool n21_half_close(n21_half_t *, const input_limits_cfg_t *, uint64_t zero_us,
                     uint32_t max_gap_us, float rectifier_drop_v, n21_half_result_t *);
+/* As n21_half_close with the auxiliary allowance in force for this half (input_limits_aux()). */
+bool n21_half_close_aux(n21_half_t *, const input_limits_cfg_t *, float aux_a, uint64_t zero_us,
+                        uint32_t max_gap_us, float rectifier_drop_v, n21_half_result_t *);
 
 /* ---- Line-cycle report -----------------------------------------------------------------------
  * fullbridge_line_cycle wants one complete line record every 14-22 ms. The binding reports every

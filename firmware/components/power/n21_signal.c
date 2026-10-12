@@ -113,6 +113,12 @@ void n21_half_note(n21_half_t *h, uint32_t f, bool phi_valid, float phi, float c
 bool n21_half_close(n21_half_t *h, const input_limits_cfg_t *cfg, uint64_t zero, uint32_t max_gap,
                     float drop, n21_half_result_t *r)
 {
+    return n21_half_close_aux(h, cfg, cfg ? cfg->aux_max_a : NAN, zero, max_gap, drop, r);
+}
+
+bool n21_half_close_aux(n21_half_t *h, const input_limits_cfg_t *cfg, float aux_a, uint64_t zero,
+                        uint32_t max_gap, float drop, n21_half_result_t *r)
+{
     bool was_open = h->open && !h->broken;
     h->open = false;
     if (!was_open || !r || zero < h->last_us) return false;
@@ -121,7 +127,7 @@ bool n21_half_close(n21_half_t *h, const input_limits_cfg_t *cfg, uint64_t zero,
     if (half < 7833 || half > 8834 || h->n < 8 || h->max_gap_us > max_gap || tail > max_gap)
         return false;
     float line = n21_line_rms_from_bus_peak(h->bus_peak_v, drop);
-    if (!input_limits_half_cycle(cfg, h->s, h->n, line, &r->est)) return false;
+    if (!input_limits_half_cycle_aux(cfg, h->s, h->n, line, aux_a, &r->est)) return false;
     r->end_us = zero;
     r->line_rms_v = line;
     r->f_hz = h->f_last_hz;

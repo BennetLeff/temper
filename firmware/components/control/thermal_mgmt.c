@@ -400,18 +400,33 @@ void blower_ctrl_init(blower_ctrl_t *c)
     blower_stall_init(&c->stall);
 }
 
-blower_cmd_t blower_ctrl_step(blower_ctrl_t *c, float sink_c, float coil_c, bool fault,
-                              bool tach_ok, uint16_t tach_count, uint32_t now_ms, float dt_s,
-                              unsigned pulses_per_rev)
+blower_cmd_t blower_ctrl_decide(blower_ctrl_t *c, float sink_c, float coil_c, bool fault, float dt_s)
 {
     blower_cmd_t o;
     fan_law_step(&c->law, sink_c, coil_c, dt_s, fault);
     o.on = c->law.on;
     /* Off: duty 0 anyway, so if FAN_OFF fails to switch the buck off the blower runs full. */
     o.duty = o.on ? blower_pwm_duty_from_drive(c->law.drive) : 0.0f;
-    o.rpm = blower_tach_update(&c->tach, tach_ok, tach_count, now_ms, pulses_per_rev);
-    uint8_t stall_cap = blower_stall_update(&c->stall, o.on, o.rpm, now_ms, sink_c, coil_c);
-    o.power_cap_pct = c->law.tank_cap_pct < stall_cap ? c->law.tank_cap_pct : stall_cap;
+    o.rpm = c->tach.rpm;
+    o.power_cap_pct = c->law.tank_cap_pct;
     o.blower_failed = c->stall.stopped;
+    return o;
+}
+
+void blower_ctrl_finish(blower_ctrl_t *c, blower_cmd_t *o, bool applied_on, float sink_c, float coil_c,
+                        bool tach_ok, uint16_t tach_count, uint32_t now_ms, unsigned pulses_per_rev)
+{
+    o->rpm = blower_tach_update(&c->tach, tach_ok, tach_count, now_ms, pulses_per_rev);
+    uint8_t stall_cap = blower_stall_update(&c->stall, applied_on, o->rpm, now_ms, sink_c, coil_c);
+    o->power_cap_pct = c->law.tank_cap_pct < stall_cap ? c->law.tank_cap_pct : stall_cap;
+    o->blower_failed = c->stall.stopped;
+}
+
+blower_cmd_t blower_ctrl_step(blower_ctrl_t *c, float sink_c, float coil_c, bool fault,
+                              bool tach_ok, uint16_t tach_count, uint32_t now_ms, float dt_s,
+                              unsigned pulses_per_rev)
+{
+    blower_cmd_t o = blower_ctrl_decide(c, sink_c, coil_c, fault, dt_s);
+    blower_ctrl_finish(c, &o, o.on, sink_c, coil_c, tach_ok, tach_count, now_ms, pulses_per_rev);
     return o;
 }

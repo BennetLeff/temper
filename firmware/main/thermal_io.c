@@ -19,6 +19,11 @@
  *   power cap min(coil derate, stall derate) that thermal_power_cap_pct() hands the state
  *   handlers. is_fan_running() is false once the stall detector has stopped the tank (the blower
  *   failed and the sink or coil kept rising), which the state machine latches as FAULT_FAN_FAILURE.
+ * - Blower supply inlet allowance (stage 16, power/blower_aux.h): between the fan law and the
+ *   hardware, blower_aux_step() schedules PS3's inlet allowance from the commanded drive and hands
+ *   it to the native-21 binding (n21_set_aux_allowance()) BEFORE the blower write; a speed-up is
+ *   held until its allowance is in force, a fault or unknown state goes at once at the worst case.
+ *   The stall detector runs on the state actually applied (blower_ctrl_finish()).
  */
 #include <math.h>
 #include <stdbool.h>
@@ -31,6 +36,7 @@
 #include "esp_log.h"
 #include "esp_timer.h"
 #include "../components/control/thermal_mgmt.h"
+#include "blower_aux.h"
 #if CONFIG_TEMPER_POWER_HW_BINDING
 #include "n21_hw.h"
 #endif
@@ -115,6 +121,9 @@ float read_coil_temperature(void) { return read_coil(NULL); }
 /* ---------------------------------------------------------------- blower */
 static blower_ctrl_t s_blower;
 static bool s_blower_init;
+static blower_aux_cfg_t s_aux_cfg;
+static blower_aux_t s_aux;
+static bool s_blower_write_ok; /* last LEDC / FAN_OFF write took effect; false until the first */
 /* Written by the monitor task, read by the control task: single bytes, so the accesses are
  * atomic. Until the first tick the cap is 0 (no tank power on an unknown thermal state). */
 static volatile uint8_t s_power_cap_pct;
@@ -132,6 +141,9 @@ void thermal_blower_tick(void)
 {
     if (!s_blower_init) {
         blower_ctrl_init(&s_blower);
+        s_aux_cfg = blower_aux_native21();
+        blower_aux_init(&s_aux, &s_aux_cfg);
+        s_blower_write_ok = false;
         s_blower_init = true;
     }
     bool sink_low = false, coil_low = false;
@@ -156,10 +168,24 @@ void thermal_blower_tick(void)
 
     uint16_t count = 0;
     bool tach_ok = ctrl_board_blower_tach_count(&count);
-    blower_cmd_t cmd = blower_ctrl_step(&s_blower, sink_c, coil_c, fault, tach_ok, count,
-                                        ms_since_boot(), BLOWER_TICK_S, BLOWER_TACH_PULSES_PER_REV);
-    if (!ctrl_board_blower_apply(cmd.on, blower_ledc_counts(cmd.duty, CTRL_BLOWER_LEDC_RES_BITS)))
+    uint32_t now_ms = ms_since_boot();
+    blower_cmd_t cmd = blower_ctrl_decide(&s_blower, sink_c, coil_c, fault, BLOWER_TICK_S);
+    /* Inlet allowance first, then the blower (blower_aux.h). The fan law's fault path (any fault
+     * or an invalid sink / coil reading) is urgent: full speed at once. */
+    blower_aux_in_t ai = {.on = cmd.on, .duty = cmd.duty,
+                          .urgent = fault || !isfinite(sink_c) || !isfinite(coil_c),
+                          .known = s_blower_write_ok && !s_blower.stall.stalled,
+                          .tach_rpm = s_blower.tach.rpm};
+    blower_aux_out_t ao = blower_aux_step(&s_aux, &s_aux_cfg, &ai, now_ms);
+#if CONFIG_TEMPER_POWER_HW_BINDING
+    if (b && !n21_set_aux_allowance(b, ao.allowance_a))
+        ESP_LOGE(TAG, "aux allowance not applied: binding stays at the worst case");
+#endif
+    s_blower_write_ok = ctrl_board_blower_apply(ao.on, blower_ledc_counts(ao.duty, CTRL_BLOWER_LEDC_RES_BITS));
+    if (!s_blower_write_ok)
         ESP_LOGW(TAG, "blower drive not applied (LEDC / FAN_OFF): blower at its full-speed default");
+    blower_ctrl_finish(&s_blower, &cmd, ao.on, sink_c, coil_c, tach_ok, count, now_ms,
+                       BLOWER_TACH_PULSES_PER_REV);
     s_power_cap_pct = cmd.power_cap_pct;
     s_blower_failed = cmd.blower_failed;
 }

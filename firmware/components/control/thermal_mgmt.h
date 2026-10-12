@@ -330,5 +330,13 @@ void blower_ctrl_init(blower_ctrl_t *c);
 blower_cmd_t blower_ctrl_step(blower_ctrl_t *c, float sink_c, float coil_c, bool fault,
                               bool tach_ok, uint16_t tach_count, uint32_t now_ms, float dt_s,
                               unsigned pulses_per_rev);
+/* The same tick in two halves, for a gate between the decision and the hardware (stage 16: the
+ * PS3 inlet schedule, power/blower_aux.h, holds a speed-up until its inlet allowance is in force):
+ * decide() runs the fan law and returns the commanded on/duty; finish() runs the tach and the
+ * stall detector against the state actually applied (applied_on), so a held start is not a stall,
+ * and fills rpm, power_cap_pct and blower_failed. blower_ctrl_step() = decide + finish(o.on). */
+blower_cmd_t blower_ctrl_decide(blower_ctrl_t *c, float sink_c, float coil_c, bool fault, float dt_s);
+void blower_ctrl_finish(blower_ctrl_t *c, blower_cmd_t *o, bool applied_on, float sink_c, float coil_c,
+                        bool tach_ok, uint16_t tach_count, uint32_t now_ms, unsigned pulses_per_rev);
 
 #endif

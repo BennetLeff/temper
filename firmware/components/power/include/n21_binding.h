@@ -69,6 +69,12 @@ typedef struct {
     float cos_phi_min_current_a; /* below this CT_ZC is undefined: cos(phi) := 1 (conservative) */
     uint32_t acq_period_us, sample_max_age_us, ct_zc_max_age_us, capture_age_us, half_max_gap_us;
     uint32_t bench_max_ms;
+    /* Auxiliary allowance schedule (stage 16, blower_aux.h). The allowance in force starts at the
+     * worst case (limits.aux_max_a) and follows n21_set_aux_allowance(): up by at most aux_slew_a
+     * per closed half line cycle, down at once (the scheduler already delays releases). A value
+     * older than aux_max_age_us, or outside [aux_min_a, aux_max_a], means the worst case. */
+    float aux_slew_a;
+    uint32_t aux_max_age_us;
 } n21_config_t;
 
 typedef struct {
@@ -122,6 +128,7 @@ typedef struct {
     float f_res_hz, q, ceiling_eff_a;
     bool pan_present;
     tank_freq_reason_t freq_reason;
+    float aux_a;               /* auxiliary allowance in force (inlet_bound_a includes it) */
 } n21_telemetry_t;
 
 typedef struct {
@@ -145,6 +152,10 @@ typedef struct {
     float pan_model_w;
     float thermal_limit_a;      /* thermal tank RMS clamp (coil-sensor fault), if thermal_limited */
     bool thermal_limited;
+    float aux_set_a;            /* last scheduled allowance (n21_set_aux_allowance) */
+    uint64_t aux_set_us;
+    bool have_aux;
+    float aux_now_a;            /* allowance in force, ramped per half */
     bool initialized, programmed, pads_live, gate_on, armed_line, invalid, have_sample;
     bool have_reset, bench_active;
 } n21_binding_t;
@@ -162,6 +173,9 @@ bool n21_set_pan_model(n21_binding_t *, float watts);
  * min(commissioned ceiling, clamp); the derived trips stay those of the commissioned ceiling.
  * limited=true needs a finite a >= TANK_CEILING_MIN_A (else false, nothing changes); false clears. */
 bool n21_set_thermal_tank_limit(n21_binding_t *, bool limited, float a);
+/* Auxiliary inlet allowance scheduled from the blower drive (blower_aux_step(), every blower
+ * tick). Out of range or NaN is stored as is and read as the worst case. False only for NULL. */
+bool n21_set_aux_allowance(n21_binding_t *, float aux_a);
 bool n21_request_interlock_reset(n21_binding_t *, bool operator_confirmed);
 void n21_telemetry(n21_binding_t *, n21_telemetry_t *);
 /* Bench sessions (N21_MODE_BENCH only, adapter not bound): bounded live PWM with every fault

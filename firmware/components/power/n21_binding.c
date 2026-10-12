@@ -21,6 +21,9 @@ n21_config_t n21_config_default(void)
         .cos_phi_min_current_a = 2.0f,
         .acq_period_us = 625u, .sample_max_age_us = 2000u, .ct_zc_max_age_us = 2000u,
         .capture_age_us = 1000u, .half_max_gap_us = 1500u, .bench_max_ms = 60000u,
+        /* 0.05 A per half = 6 A/s: a 0.4 A blower-tick step lands over 8 halves, and the
+         * frequency loop (one retreat per half) follows the bound up. 5 blower ticks of age. */
+        .aux_slew_a = 0.05f, .aux_max_age_us = 500000u,
     };
     (void)n21_config_set_tank_ceiling(&c, TANK_CEILING_DEFAULT_A);
     return c;
@@ -92,7 +95,9 @@ static bool config_ok(const n21_config_t *c)
            c->sample_max_age_us >= c->acq_period_us && c->sample_max_age_us <= 5000u &&
            c->ct_zc_max_age_us && c->ct_zc_max_age_us <= 5000u &&
            c->capture_age_us && c->capture_age_us <= 1000u &&
-           c->bench_max_ms && c->bench_max_ms <= 600000u;
+           c->bench_max_ms && c->bench_max_ms <= 600000u &&
+           isfinite(c->aux_slew_a) && c->aux_slew_a > 0 && c->aux_slew_a <= 0.2f &&
+           c->aux_max_age_us >= 100000u && c->aux_max_age_us <= 2000000u;
 }
 
 static int32_t ns_to_ticks(int32_t ns, uint32_t hz)
@@ -129,6 +134,19 @@ static bool interlock_healthy(const n21_status_rb_t *s)
 static bool loop_active(const n21_binding_t *b)
 {
     return b->mode == N21_MODE_COMMISSIONED && b->gate_on && b->pads_live && b->fault == N21_FAULT_NONE;
+}
+
+/* Once per half line cycle: the auxiliary allowance in force for the closing half. A fresh schedule
+ * is followed up by at most aux_slew_a and down at once; no schedule, a stale one or an invalid
+ * value ramps towards the worst case. */
+static float aux_for_half(n21_binding_t *b, uint64_t now)
+{
+    const input_limits_cfg_t *l = &b->cfg.limits;
+    bool fresh = b->have_aux && now >= b->aux_set_us && now - b->aux_set_us <= b->cfg.aux_max_age_us;
+    float target = fresh ? input_limits_aux(l, b->aux_set_a) : l->aux_max_a;
+    b->aux_now_a = input_limits_aux_ramp(l, b->aux_now_a, target, b->cfg.aux_slew_a);
+    b->tm.aux_a = b->aux_now_a;
+    return b->aux_now_a;
 }
 
 /* Once per half line cycle, r == NULL when the half failed to close (stale or broken samples). */
@@ -180,8 +198,9 @@ void n21_acquire_step(n21_binding_t *b)
     while (line_zc_poll(&b->zc, now, &zero)) {
         if (b->half.open) {
             n21_half_result_t r;
-            if (n21_half_close(&b->half, &b->cfg.limits, zero, b->cfg.half_max_gap_us,
-                               b->cfg.rectifier_drop_v, &r)) {
+            float aux = aux_for_half(b, now);
+            if (n21_half_close_aux(&b->half, &b->cfg.limits, aux, zero, b->cfg.half_max_gap_us,
+                                   b->cfg.rectifier_drop_v, &r)) {
                 n21_line_agg_add(&b->agg, &r);
                 b->tm.last_half = r;
                 b->tm.have_half = true;
@@ -410,6 +429,8 @@ n21_init_t n21_binding_init(n21_binding_t *b, const n21_config_t *c, const n21_h
     b->cfg = *c;
     b->mode = c->mode;
     b->pan_model_w = c->max_power_w;
+    b->aux_now_a = c->limits.aux_max_a; /* worst case until the blower schedule reports */
+    b->tm.aux_a = b->aux_now_a;
     line_zc_init(&b->zc, &c->line_zc);
     if (c->mode == N21_MODE_INHIBITED) {
         /* Telemetry only. Phase/limits still need a sane config to evaluate. */
@@ -468,6 +489,18 @@ bool n21_set_thermal_tank_limit(n21_binding_t *b, bool limited, float a)
     lock(b);
     b->thermal_limited = limited;
     b->thermal_limit_a = limited ? a : 0.0f;
+    unlock(b);
+    return true;
+}
+
+bool n21_set_aux_allowance(n21_binding_t *b, float a)
+{
+    if (!b) return false;
+    uint64_t now = b->ops.now_us ? now_us(b) : 0;
+    lock(b);
+    b->aux_set_a = a;
+    b->aux_set_us = now;
+    b->have_aux = b->ops.now_us != NULL;
     unlock(b);
     return true;
 }

@@ -39,7 +39,12 @@ static void test_power_and_bound(void)
     assert(fabs(e.p_inv_w - p) < 0.01 * p);
     assert(fabs(e.p_in_w - e.p_inv_w / c.eta_min) < 1e-3f * e.p_in_w);
     assert(fabs(e.i_ps_a - e.p_in_w / 120.0f) < 1e-4f);
-    assert(fabs(e.inlet_bound_a - (e.i_ps_a * 1.10f + 1.3f)) < 1e-4f);
+    assert(fabs(e.inlet_bound_a - (e.i_ps_a * 1.10f + c.aux_max_a)) < 1e-4f);
+    /* A scheduled allowance (stage 16) replaces the worst case inside [aux_min_a, aux_max_a]. */
+    input_estimate_t e2;
+    assert(input_limits_half_cycle_aux(&c, s, N, 120.0f, 2.0f, &e2));
+    assert(fabsf(e2.inlet_bound_a - (e.i_ps_a * 1.10f + 2.0f)) < 1e-4f && e2.i_ps_a == e.i_ps_a);
+    assert(input_limits_half_cycle_aux(&c, s, N, 120.0f, NAN, &e2) && e2.inlet_bound_a == e.inlet_bound_a);
     assert(fabs(e.tank_rms_a - 30.0f / sqrtf(2.0f)) < 0.05f);
     tests++;
 }
@@ -90,14 +95,38 @@ static void test_regeneration_floor(void)
     assert(e.p_inv_w == 0 && e.i_ps_a == 0 && fabsf(e.inlet_bound_a - c.aux_max_a) < 1e-6f);
     tests++;
 }
+static void test_aux_allowance(void)
+{
+    /* Stage 16: PS1 + PS2 static 1.3 A (the pre-stage-16 basis), worst case + PS3 at full blower. */
+    input_limits_cfg_t c = input_limits_native21();
+    assert(c.aux_min_a == 1.3f && fabsf(c.aux_max_a - 2.569f) < 0.002f);
+    assert(input_limits_aux(&c, 2.0f) == 2.0f && input_limits_aux(&c, c.aux_min_a) == c.aux_min_a);
+    assert(input_limits_aux(&c, c.aux_max_a) == c.aux_max_a);
+    /* Below the static part, above the worst case, or not a number: the worst case. */
+    assert(input_limits_aux(&c, 1.0f) == c.aux_max_a && input_limits_aux(&c, 3.0f) == c.aux_max_a);
+    assert(input_limits_aux(&c, NAN) == c.aux_max_a && input_limits_aux(&c, -INFINITY) == c.aux_max_a);
+    /* Ramp: up by at most the step per half, down at once; an invalid target ramps to the worst. */
+    assert(fabsf(input_limits_aux_ramp(&c, 1.35f, 2.4f, 0.05f) - 1.40f) < 1e-6f);
+    assert(input_limits_aux_ramp(&c, 2.4f, 1.35f, 0.05f) == 1.35f);
+    assert(fabsf(input_limits_aux_ramp(&c, 1.35f, NAN, 0.05f) - 1.40f) < 1e-6f);
+    assert(input_limits_aux_ramp(&c, NAN, 1.35f, 0.05f) == 1.35f);
+    assert(input_limits_aux_ramp(&c, 1.35f, 2.4f, NAN) == 2.4f);
+    input_limits_cfg_t bad = c; bad.aux_max_a = 5.0f; assert(!input_limits_config_ok(&bad));
+    bad = c; bad.aux_min_a = -0.1f; assert(!input_limits_config_ok(&bad));
+    tests++;
+}
 static void test_operating_limit(void)
 {
     /* The adapter regulates the reported inlet current at inlet_target_a <= 13.5 A (trip 15 A).
-     * With the provisional config that holds the power stage to (13.5 - 1.3) / 1.1 = 11.09 A, and
-     * the 15 A trip sits at 12.45 A, the DECISIONS.md boundary. */
+     * The power stage is held to (13.5 - I_aux) / (1 + e_est) and the 15 A trip sits at
+     * (15 - I_aux) / (1 + e_est). PS1 + PS2 only (blower allowance released): 11.09 / 12.45 A, the
+     * DECISIONS.md boundary; full blower or unknown (static worst case): 9.94 / 11.30 A. */
     input_limits_cfg_t c = input_limits_native21();
-    float hold = (13.5f - c.aux_max_a) / (1 + c.est_error), trip = (15.0f - c.aux_max_a) / (1 + c.est_error);
+    float hold = (13.5f - c.aux_min_a) / (1 + c.est_error), trip = (15.0f - c.aux_min_a) / (1 + c.est_error);
     assert(fabsf(hold - 11.09f) < 0.01f && fabsf(trip - 12.45f) < 0.01f);
+    hold = (13.5f - c.aux_max_a) / (1 + c.est_error);
+    trip = (15.0f - c.aux_max_a) / (1 + c.est_error);
+    assert(fabsf(hold - 9.94f) < 0.01f && fabsf(trip - 11.30f) < 0.01f);
     tests++;
 }
 int main(void)
@@ -107,6 +136,7 @@ int main(void)
     test_tank_ceiling();
     test_rejects();
     test_regeneration_floor();
+    test_aux_allowance();
     test_operating_limit();
     printf("input_limits: %u tests passed\n", tests);
     return 0;
