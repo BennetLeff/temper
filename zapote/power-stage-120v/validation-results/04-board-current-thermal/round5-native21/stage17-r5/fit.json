@@ -1,0 +1,329 @@
+{
+ "centre_mm": [
+  38.5,
+  12.6
+ ],
+ "rotation_deg": -90,
+ "candidates": {
+  "WSK25121L000FEA (control, current part)": {
+   "courtyard_board_bbox_mm": [
+    36.555,
+    8.175,
+    40.445,
+    17.025
+   ],
+   "courtyard_size_mm": [
+    3.89,
+    8.85
+   ],
+   "pad_area_mm2": {
+    "1": 6.7,
+    "4": 6.7,
+    "2": 1.06,
+    "3": 1.06
+   },
+   "stage16_vias_inside_new_pads": {
+    "1": 5,
+    "4": 7,
+    "2": 0,
+    "3": 0
+   },
+   "other_r5_net_copper_within_0p2_of_new_shapes": [],
+   "in_place_courtyard_conflicts": {},
+   "in_place_foreign_fcu_copper_in_pads_plus_0p2": [],
+   "foreign_fcu_copper_nets": [],
+   "min_translation_clearing_all_courtyards_mm": {
+    "dx": 0.0,
+    "dy": 0.0,
+    "dist": 0.0
+   }
+  },
+  "CSS2H-2512R-1L00F (Bourns)": {
+   "courtyard_board_bbox_mm": [
+    35.05,
+    8.85,
+    40.45,
+    16.35
+   ],
+   "courtyard_size_mm": [
+    5.4,
+    7.5
+   ],
+   "pad_area_mm2": {
+    "IA": 6.12,
+    "IB": 6.12,
+    "SA": 1.38,
+    "SB": 1.38
+   },
+   "stage16_vias_inside_new_pads": {
+    "IA": 5,
+    "IB": 4,
+    "SA": 0,
+    "SB": 0
+   },
+   "other_r5_net_copper_within_0p2_of_new_shapes": [
+    [
+     "IA",
+     "ocp_kelvin_p",
+     "track",
+     36.61,
+     8.58
+    ],
+    [
+     "IB",
+     "ocp_kelvin_n",
+     "track",
+     40.53,
+     15.61
+    ],
+    [
+     "SB",
+     "hv_ret",
+     "via",
+     35.8,
+     13.9
+    ],
+    [
+     "SB",
+     "hv_ret",
+     "via",
+     37.1,
+     13.68
+    ],
+    [
+     "SB",
+     "hv_ret",
+     "via",
+     38.6,
+     13.68
+    ]
+   ],
+   "in_place_courtyard_conflicts": {},
+   "in_place_foreign_fcu_copper_in_pads_plus_0p2": [],
+   "foreign_fcu_copper_nets": [],
+   "min_translation_clearing_all_courtyards_mm": {
+    "dx": 0.0,
+    "dy": 0.0,
+    "dist": 0.0
+   }
+  },
+  "CSS4J-4026R-1L00F (Bourns, 4-terminal)": {
+   "courtyard_board_bbox_mm": [
+    33.75,
+    7.05,
+    41.55,
+    18.15
+   ],
+   "courtyard_size_mm": [
+    7.8,
+    11.1
+   ],
+   "pad_area_mm2": {
+    "IA": 14.28,
+    "IB": 14.28,
+    "SA": 2.04,
+    "SB": 2.04
+   },
+   "stage16_vias_inside_new_pads": {
+    "IA": 5,
+    "IB": 1,
+    "SA": 0,
+    "SB": 0
+   },
+   "other_r5_net_copper_within_0p2_of_new_shapes": [
+    [
+     "IA",
+     "ocp_kelvin_p",
+     "track",
+     36.61,
+     8.58
+    ],
+    [
+     "IA",
+     "ocp_kelvin_p",
+     "via",
+     36.0,
+     8.0
+    ],
+    [
+     "IB",
+     "ocp_kelvin_n",
+     "track",
+     40.53,
+     15.61
+    ],
+    [
+     "IB",
+     "ocp_kelvin_n",
+     "via",
+     41.3,
+     15.2
+    ]
+   ],
+   "in_place_courtyard_conflicts": {
+    "Q6": 0.39,
+    "R13": 1.3,
+    "R58": 2.96
+   },
+   "in_place_foreign_fcu_copper_in_pads_plus_0p2": [
+    {
+     "kind": "pad",
+     "net": "leg_b-out_l",
+     "ref": "R58.2",
+     "layer": "F.Cu",
+     "at": [
+      34.96,
+      17.9
+     ]
+    },
+    {
+     "kind": "track",
+     "net": "leg_b-out_l",
+     "ref": null,
+     "layer": "F.Cu",
+     "at": [
+      35.0,
+      17.4
+     ]
+    },
+    {
+     "kind": "track",
+     "net": "leg_b-out_l",
+     "ref": null,
+     "layer": "F.Cu",
+     "at": [
+      35.0,
+      18.4
+     ]
+    },
+    {
+     "kind": "track",
+     "net": "leg_b-out_l",
+     "ref": null,
+     "layer": "F.Cu",
+     "at": [
+      34.25,
+      15.6
+     ]
+    }
+   ],
+   "foreign_fcu_copper_nets": [
+    "leg_b-out_l"
+   ],
+   "min_translation_clearing_all_courtyards_mm": null
+  },
+  "BVS-M-R001-1.0 (Isabellenhuette, 3920)": {
+   "courtyard_board_bbox_mm": [
+    34.55,
+    6.85,
+    41.85,
+    18.35
+   ],
+   "courtyard_size_mm": [
+    7.3,
+    11.5
+   ],
+   "pad_area_mm2": {
+    "IA": 16.74,
+    "IB": 16.74,
+    "SA": 0.48,
+    "SB": 0.48
+   },
+   "stage16_vias_inside_new_pads": {
+    "IA": 5,
+    "IB": 1,
+    "SA": 0,
+    "SB": 0
+   },
+   "other_r5_net_copper_within_0p2_of_new_shapes": [
+    [
+     "IA",
+     "ocp_kelvin_p",
+     "track",
+     36.61,
+     8.58
+    ],
+    [
+     "IA",
+     "ocp_kelvin_p",
+     "via",
+     36.0,
+     8.0
+    ],
+    [
+     "IB",
+     "ocp_kelvin_n",
+     "track",
+     40.53,
+     15.61
+    ],
+    [
+     "IB",
+     "ocp_kelvin_n",
+     "via",
+     41.3,
+     15.2
+    ],
+    [
+     "SB",
+     "hv_ret",
+     "via",
+     35.8,
+     15.3
+    ]
+   ],
+   "in_place_courtyard_conflicts": {
+    "Q3": 0.02,
+    "Q6": 0.59,
+    "R13": 2.21,
+    "R58": 2.07
+   },
+   "in_place_foreign_fcu_copper_in_pads_plus_0p2": [
+    {
+     "kind": "pad",
+     "net": "leg_b-out_l",
+     "ref": "R58.2",
+     "layer": "F.Cu",
+     "at": [
+      34.96,
+      17.9
+     ]
+    },
+    {
+     "kind": "track",
+     "net": "leg_b-out_l",
+     "ref": null,
+     "layer": "F.Cu",
+     "at": [
+      35.0,
+      17.4
+     ]
+    },
+    {
+     "kind": "track",
+     "net": "leg_b-out_l",
+     "ref": null,
+     "layer": "F.Cu",
+     "at": [
+      35.0,
+      18.4
+     ]
+    },
+    {
+     "kind": "track",
+     "net": "leg_b-out_l",
+     "ref": null,
+     "layer": "F.Cu",
+     "at": [
+      34.25,
+      15.6
+     ]
+    }
+   ],
+   "foreign_fcu_copper_nets": [
+    "leg_b-out_l"
+   ],
+   "min_translation_clearing_all_courtyards_mm": null
+  }
+ }
+}
