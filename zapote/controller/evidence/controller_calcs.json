@@ -450,6 +450,57 @@
     "TPS3703A4330": "TI SBVS344D (TPS3703A4330DSERQ1, fitted; same as SBVS249B commercial): thresholds 3.3 V +/-4 %, accuracy +/-0.7 %, VHYS 0.3-0.8 %, tD 7-13 ms (CT open), UVLO 1.2-1.7 V",
     "TPS62933": "TI SLUSEA4D 8.5: VFB 788-812 mV (TJ 0-85 C), 784-816 mV (-40-150 C); VEN_RISE 1.21 typ/1.28 max, VEN_FALL 1.10 min/1.17 typ; Ip 0.7 uA; Ih 1.4 uA; f 450-550 kHz (RT open); tOFF_MIN 140 ns typ; 98 % max duty with foldback"
   },
+  "thermal_trips": {
+    "checks": {
+      "coil_release_band_below_trip_band": true,
+      "coil_trip_low_corner_above_fw_165": true,
+      "coil_trip_within_sensor_rating": true,
+      "hs_release_band_below_trip_band": true,
+      "hs_trip_high_corner_tj_le_135C": true,
+      "hs_trip_low_corner_above_fw_95_plus_sensor_tol": true,
+      "hs_trip_within_sensor_rating": true,
+      "open_cold_margin_coil": true,
+      "open_cold_margin_hs": true,
+      "open_detect_margin_coil": true,
+      "open_detect_margin_hs": true
+    },
+    "coil": {
+      "release_band_C": [
+        147.43424820057282,
+        157.72672262786767
+      ],
+      "release_nominal_C": 152.43929237229526,
+      "trip_band_C": [
+        169.71450300600083,
+        182.02908009333606
+      ],
+      "trip_nominal_C": 175.72613195377022
+    },
+    "hs": {
+      "release_band_C": [
+        82.98174688522712,
+        88.2409351542191
+      ],
+      "release_nominal_C": 85.55723701376226,
+      "trip_band_C": [
+        98.34470879885524,
+        104.57500599505991
+      ],
+      "trip_nominal_C": 101.39225775413931
+    },
+    "open_coil": {
+      "cold_0C_margin_V": 0.042621326280234406,
+      "comparator_error_V": 0.014,
+      "open_margin_V": 0.026646513382368564
+    },
+    "open_hs": {
+      "cold_0C_margin_V": 0.04212743775120087,
+      "comparator_error_V": 0.014,
+      "open_margin_V": 0.026646513382368564
+    },
+    "source": "port of zapote-erc thermal_sense.rs 64-corner method; sensor-contract.json; Semitec GT-2; power-stage board_side.py (18318042c) theta_jc 0.28 + theta_cs 0.634",
+    "tj_at_hs_trip_high_corner_C": 132.37500599505992
+  },
   "ui_5v_supply": {
     "checks": {
       "ldo_headroom": true,

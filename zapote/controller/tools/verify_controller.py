@@ -16,6 +16,8 @@ and native-21's frozen netlist snapshot. Checks, each fail-closed:
              and exhaustive logic simulation of the captured gates
   v3v3       current budget of every part on v3v3 on both boards, from
              datasheet maxima, with the regulator, inductor and PS1 limits
+  thermal    L3 thermal-sense comparator trips from the netlist values: 64-corner bands (a port of
+             the zapote-erc thermal-sense method) against the fan-law / firmware / FET ladder
   blower     L3 blower supply on J10: pin map, FG tach path, PWM-into-FB speed control with a
              full-speed fail-safe, expander switch-off with a run-at-reset default, sizing calcs
   ui         J7 (R33 UI bus): pin map, a GND beside every signal, series R and ESD
@@ -769,6 +771,27 @@ def check_ui_bus(rep: Report, nl: Netlist, calcs: dict | None = None) -> None:
             rep.check("ui", f"ui_5v_{k}", ok)
 
 
+def check_thermal(rep: Report, nl: Netlist) -> None:
+    """L3 (DECISIONS C32): the ported thermal-sense comparators' trip bands, computed from the
+    resistor values in this netlist (by instance path), must respect the trip ladder."""
+    sys.path.insert(0, str(UNIT / "tools"))
+    from controller_calcs import thermal_trips  # noqa: E402
+    vals = {}
+    for ch in ("hs", "coil"):
+        vals[ch] = {}
+        for part in ("fixed", "top", "bottom", "hyst"):
+            ref = nl.ref_of(f"thermal.{ch}_{part}")
+            v, tol = parse_value(nl.value[ref])
+            vals[ch][part] = (v, tol or 0.05)
+    res = thermal_trips(vals)
+    for k, ok in res["checks"].items():
+        rep.check("thermal", k, ok)
+    rep.data("thermal", "values", {ch: {k: list(x) for k, x in d.items()} for ch, d in vals.items()})
+    rep.data("thermal", "hs", res["hs"])
+    rep.data("thermal", "coil", res["coil"])
+    rep.data("thermal", "tj_at_hs_trip_high_corner_C", res["tj_at_hs_trip_high_corner_C"])
+
+
 def check_blower(rep: Report, nl: Netlist, calcs: dict) -> None:
     """L3 blower supply (DECISIONS C28): J10 = +V_BLOWER / GND / FG; FG reaches GPIO3 through a
     series R with a pull-up and TVS at the connector; speed is a filtered GPIO46 PWM injected
@@ -890,6 +913,7 @@ def main() -> int:
     check_ct_rms(rep, nl, calcs)
     check_ui_bus(rep, nl, calcs)
     check_blower(rep, nl, calcs)
+    check_thermal(rep, nl)
     check_bom(rep, nl)
     check_misc(rep, nl)
     out = {"schema": "temper.controller.verify.v1",

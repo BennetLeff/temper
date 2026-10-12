@@ -454,6 +454,127 @@ def rim_ntc() -> dict:
                        "self_heating_250C_le_3K": p250 * 1e3 / 0.6 <= 3.0}}
 
 
+# ---- thermal-sense comparator trips (L3, DECISIONS C32): a Python port of the 64-corner method of
+# zapote/packages/zapote-erc/src/thermal_sense.rs (corners: sensor B and R25 at their limits x each
+# resistor at its tolerance), applied to the controller's values. Comparator: INP = reference with
+# hysteresis to the output, INN = NTC node (10 k pull-up); hot when the node falls below INP.
+GT2_104_HOT = {0: 353.7, 10: 208.6, 20: 126.8, 25: 100.0, 100: 5.556, 110: 4.082, 120: 3.043, 130: 2.298,
+               140: 1.758, 150: 1.360, 160: 1.064, 170: 0.8414, 180: 0.6714, 190: 0.5408, 200: 0.4393,
+               210: 0.3597}                      # kOhm, Semitec GT-2 table (104GT-2)
+SENSORS = {
+    # Vishay NTCALUG01A104GA as the thermal-sense validator models it (sensor-contract.json:
+    # r25 100 k +/-2 %, beta 4190 K +/-1.5 %, -55..150 C)
+    "vishay_ntcalug01a104ga": {"kind": "beta", "r25": 100e3, "r25_tol": 0.02, "beta": 4190.0, "beta_tol": 0.015,
+                               "t_max": 150.0},
+    # Semitec 104GT-2 (GT-2 datasheet: 100 k +/-3 %, B25/85 4267 K +/-2 %, -50..300 C)
+    "semitec_104gt2": {"kind": "table", "table": GT2_104_HOT, "r25_tol": 0.03, "beta": 4267.0, "beta_tol": 0.02,
+                       "t_max": 300.0},
+}
+
+
+def ntc_r(sensor, t, r25_scale=1.0, beta_scale=1.0):
+    sp = SENSORS[sensor]
+    tk = t + 273.15
+    if sp["kind"] == "beta":
+        return sp["r25"] * r25_scale * math.exp(sp["beta"] * beta_scale * (1 / tk - 1 / 298.15))
+    tab = sp["table"]
+    ks = sorted(tab)
+    for a, b in zip(ks, ks[1:]):
+        if a <= t <= b:
+            la, lb = math.log(tab[a]), math.log(tab[b])
+            r = math.exp(la + (lb - la) * (t - a) / (b - a)) * 1e3
+            break
+    else:
+        raise ValueError(f"{sensor}: {t} C outside the table")
+    return r * r25_scale * math.exp(sp["beta"] * (beta_scale - 1) * (1 / tk - 1 / 298.15))
+
+
+def _temp_at(sensor, r, rs, bs, lo, hi):
+    for _ in range(70):
+        mid = (lo + hi) / 2
+        if ntc_r(sensor, mid, rs, bs) > r:
+            lo = mid
+        else:
+            hi = mid
+    return (lo + hi) / 2
+
+
+def comparator_trip(sensor, rfix, rtop, rbot, rhyst, rs=1.0, bs=1.0, lo=0.0, hi=210.0):
+    par = lambda a, b: a * b / (a + b)  # noqa: E731
+    k_trip = par(rbot, rhyst) / (rtop + par(rbot, rhyst))          # output low before the trip
+    k_rel = rbot / (rbot + par(rtop, rhyst))                        # output high while hot
+    return (_temp_at(sensor, rfix * k_trip / (1 - k_trip), rs, bs, lo, hi),
+            _temp_at(sensor, rfix * k_rel / (1 - k_rel), rs, bs, lo, hi))
+
+
+def trip_band(sensor, parts):
+    """parts: {"fixed": (ohm, tol), "top": ..., "bottom": ..., "hyst": ...} -> nominal and 64 corners."""
+    import itertools
+    sp = SENSORS[sensor]
+    nom = comparator_trip(sensor, *(parts[k][0] for k in ("fixed", "top", "bottom", "hyst")))
+    trips, rels = [], []
+    for sb, sr, s1, s2, s3, s4 in itertools.product((-1, 1), repeat=6):
+        vals = [parts[k][0] * (1 + sgn * parts[k][1]) for k, sgn in zip(("fixed", "top", "bottom", "hyst"), (s1, s2, s3, s4))]
+        t, r = comparator_trip(sensor, *vals, rs=1 + sr * sp["r25_tol"], bs=1 + sb * sp["beta_tol"])
+        trips.append(t)
+        rels.append(r)
+    return {"trip_nominal_C": nom[0], "release_nominal_C": nom[1], "trip_band_C": [min(trips), max(trips)],
+            "release_band_C": [min(rels), max(rels)]}
+
+
+def open_margins(sensor, rfix=(10e3, 0.01), otop=(1.21e3, 0.01), obot=(100e3, 0.01), vcc=(3.135, 3.465),
+                 t_valid_min=0.0, leak=1e-6, comp_err=0.014):
+    """Open detection (contract: valid down to 0 C, comparator error 14 mV, sense leakage 1 uA):
+    no false 'open' at 0 C, and a real open lifts the node above OPEN_REF."""
+    sp = SENSORS[sensor]
+    worst_cold, worst_open = 1e9, 1e9
+    for v in vcc:
+        for f in (-1, 1):
+            for a in (-1, 1):
+                for b in (-1, 1):
+                    rf = rfix[0] * (1 + f * rfix[1])
+                    ref = v * obot[0] * (1 + b * obot[1]) / (obot[0] * (1 + b * obot[1]) + otop[0] * (1 + a * otop[1]))
+                    r0 = ntc_r(sensor, t_valid_min, 1 + sp["r25_tol"], 1 + sp["beta_tol"])
+                    v0 = v * r0 / (r0 + rf)
+                    worst_cold = min(worst_cold, ref - v0)
+                    worst_open = min(worst_open, (v - leak * rf) - ref)
+    return {"cold_0C_margin_V": worst_cold, "open_margin_V": worst_open, "comparator_error_V": comp_err}
+
+
+def thermal_trips(values=None) -> dict:
+    """Controller thermal-sense thresholds (L3, C32) and the trip ladder they must respect."""
+    v = values or {"hs": {"fixed": (10e3, 0.01), "top": (11.5e3, 0.01), "bottom": (8.06e3, 0.01), "hyst": (34.8e3, 0.01)},
+                   "coil": {"fixed": (10e3, 0.01), "top": (90.9e3, 0.001), "bottom": (7.06e3, 0.001),
+                            "hyst": (140e3, 0.001)}}
+    hs = trip_band("vishay_ntcalug01a104ga", v["hs"])
+    coil = trip_band("semitec_104gt2", v["coil"])
+    # Ladder (coordinator decision 2026-10-12; firmware thermal_mgmt / coil_guard on fw/controller-l2-pins):
+    # sink: fan 88.6 < firmware trip 95 < hardware; coil: fan 140 < derate 150-160 < firmware trip 165 < hardware.
+    # FET: IPW65R018CFD7, theta_jc 0.28 + theta_cs 0.634 C/W; Tj ~= T_sink + 27.8 K at 28 A, basis A
+    # (power-stage task 05 round 6 board_side.py, commit 18318042c; requirement.py:37 Tj target 125 C,
+    # datasheet Tj max 150 C).
+    sensor_tol_95 = 2.0                       # K, Vishay r25 2 % / beta 1.5 % at 95 C (firmware reading)
+    tj_hot = hs["trip_band_C"][1] + 27.8
+    om_hs = open_margins("vishay_ntcalug01a104ga")
+    om_coil = open_margins("semitec_104gt2")
+    return {"source": "port of zapote-erc thermal_sense.rs 64-corner method; sensor-contract.json; Semitec GT-2; "
+                      "power-stage board_side.py (18318042c) theta_jc 0.28 + theta_cs 0.634",
+            "hs": hs, "coil": coil, "tj_at_hs_trip_high_corner_C": tj_hot,
+            "open_hs": om_hs, "open_coil": om_coil,
+            "checks": {"hs_trip_low_corner_above_fw_95_plus_sensor_tol": hs["trip_band_C"][0] >= 95.0 + sensor_tol_95,
+                       "hs_trip_high_corner_tj_le_135C": tj_hot <= 135.0,
+                       # the interlock latches a trip; release only re-arms the comparator after cooling
+                       "hs_release_band_below_trip_band": hs["release_band_C"][1] < hs["trip_band_C"][0],
+                       "coil_release_band_below_trip_band": coil["release_band_C"][1] < coil["trip_band_C"][0],
+                       "coil_trip_low_corner_above_fw_165": coil["trip_band_C"][0] > 165.0,
+                       "coil_trip_within_sensor_rating": coil["trip_band_C"][1] < SENSORS["semitec_104gt2"]["t_max"],
+                       "hs_trip_within_sensor_rating": hs["trip_band_C"][1] < SENSORS["vishay_ntcalug01a104ga"]["t_max"],
+                       "open_cold_margin_hs": om_hs["cold_0C_margin_V"] >= om_hs["comparator_error_V"],
+                       "open_cold_margin_coil": om_coil["cold_0C_margin_V"] >= om_coil["comparator_error_V"],
+                       "open_detect_margin_hs": om_hs["open_margin_V"] >= om_hs["comparator_error_V"],
+                       "open_detect_margin_coil": om_coil["open_margin_V"] >= om_coil["comparator_error_V"]}}
+
+
 def harness_sensitivity() -> dict:
     """How far the DEFAULT harness length can grow before native-21's rail leaves 3.135 V.
 
@@ -487,6 +608,7 @@ def main() -> int:
         "ui_5v_supply": ui_5v_supply(),
         "blower_supply": blower_supply(),
         "rim_ntc": rim_ntc(),
+        "thermal_trips": thermal_trips(),
         "harness_sensitivity": harness_sensitivity(),
     }
     failed = [f"{blk}.{name}" for blk, val in result.items() if isinstance(val, dict)

@@ -1367,6 +1367,22 @@ module SelvController:
     j_dbg.p8 ~ usb_dp
 
     # Designators for the parts named in the placement note
+    # L3 (DECISIONS C32): controller thresholds for the ported thermal-sense comparators, set here
+    # so the port stays byte-identical to zapote/thermal-sense. Trip ladder: fan law < firmware
+    # derate < firmware trip < these hardware trips. tools/controller_calcs.py thermal_trips()
+    # and verify_controller.py "thermal" give the 64-corner bands.
+    #   heatsink (Vishay NTCALUG01A104GA, 10 k pull-up): trip 101.4 C / release 85.6 C
+    thermal.hs_top.value = 11.5kohm +/- 1%
+    thermal.hs_top.mpn = "RC0603FR-0711K5L"
+    thermal.hs_bottom.value = 8.06kohm +/- 1%
+    thermal.hs_bottom.mpn = "RC0603FR-078K06L"
+    #   coil (100 k / 300 C glass NTC, Semitec 104GT-2 class, 10 k pull-up): trip 175.7 C / release 152.4 C
+    thermal.coil_top.value = 90.9kohm +/- 0.1%
+    thermal.coil_top.mpn = "RT0603BRD0790K9L"
+    thermal.coil_bottom.value = 7.06kohm +/- 0.1%
+    thermal.coil_bottom.mpn = "RT0603BRD077K06L"
+    thermal.coil_hyst.value = 140kohm +/- 0.1%
+    thermal.coil_hyst.mpn = "RT0603BRD07140KL"
     interlock.latch.designator = "U20"
     interlock.watchdog.designator = "U21"
     interlock.aggregate.designator = "U22"

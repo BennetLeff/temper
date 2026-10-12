@@ -2,6 +2,8 @@
 
 # Thermal threshold hierarchy — data-driven decision (2026-08-15)
 
+> **Superseded for the integrated controller (2026-10-12):** see `2026-10-12-thermal-trip-ladder-l3.md`. This document argues from the retired IGBT IKW40N120H3 and an 85 °C hardware latch; the power stage now uses IPW65R018CFD7 and the sink runs at 88.6 °C.
+
 **Branch:** `investigate/thermal-threshold-decision` (base `origin/main` @ `7f6a6bd5c`)
 **Method:** read-only survey of every temperature-bearing site in the repo
 (firmware, schematic constraints, placer thermal metrics, thermal design docs,

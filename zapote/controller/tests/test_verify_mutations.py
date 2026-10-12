@@ -207,6 +207,15 @@ class Mutations(unittest.TestCase):
         self.assertIn("misc.gpio46_reads_0_at_reset", self.run_checks(t))
 
 
+    # ---- L3 thermal ladder (DECISIONS C32): restoring the old 120 C coil reference must fail
+    def test_coil_trip_below_firmware_trip_fails(self):
+        nl = self.load(self.base)
+        nl.value[nl.ref_of("thermal.coil_top")] = "20kohm +/- 1%"
+        nl.value[nl.ref_of("thermal.coil_bottom")] = "8.06kohm +/- 1%"
+        rep = vc.Report()
+        vc.check_thermal(rep, nl)
+        self.assertIn("thermal.coil_trip_low_corner_above_fw_165", rep.failed)
+
     # ---- L3 blower and NTC-filter checks (DECISIONS C28/C29)
     def test_blower_pwm_pullup_breaks_full_speed_failsafe(self):
         t = add_node(self.base, self.ref("r_fan_pwm_pd"), "2", "v3v3")

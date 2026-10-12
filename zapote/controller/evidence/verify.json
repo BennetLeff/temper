@@ -366,7 +366,7 @@
       "data": {
         "count": {
           "components": 244,
-          "distinct_mpns": 84
+          "distinct_mpns": 81
         },
         "unverified": [
           "0430451600"
@@ -869,6 +869,119 @@
         }
       },
       "data": {}
+    },
+    "thermal": {
+      "checks": {
+        "coil_release_band_below_trip_band": {
+          "detail": null,
+          "ok": true
+        },
+        "coil_trip_low_corner_above_fw_165": {
+          "detail": null,
+          "ok": true
+        },
+        "coil_trip_within_sensor_rating": {
+          "detail": null,
+          "ok": true
+        },
+        "hs_release_band_below_trip_band": {
+          "detail": null,
+          "ok": true
+        },
+        "hs_trip_high_corner_tj_le_135C": {
+          "detail": null,
+          "ok": true
+        },
+        "hs_trip_low_corner_above_fw_95_plus_sensor_tol": {
+          "detail": null,
+          "ok": true
+        },
+        "hs_trip_within_sensor_rating": {
+          "detail": null,
+          "ok": true
+        },
+        "open_cold_margin_coil": {
+          "detail": null,
+          "ok": true
+        },
+        "open_cold_margin_hs": {
+          "detail": null,
+          "ok": true
+        },
+        "open_detect_margin_coil": {
+          "detail": null,
+          "ok": true
+        },
+        "open_detect_margin_hs": {
+          "detail": null,
+          "ok": true
+        }
+      },
+      "data": {
+        "coil": {
+          "release_band_C": [
+            147.43424820057282,
+            157.72672262786767
+          ],
+          "release_nominal_C": 152.43929237229526,
+          "trip_band_C": [
+            169.71450300600083,
+            182.02908009333606
+          ],
+          "trip_nominal_C": 175.72613195377022
+        },
+        "hs": {
+          "release_band_C": [
+            82.98174688522712,
+            88.2409351542191
+          ],
+          "release_nominal_C": 85.55723701376226,
+          "trip_band_C": [
+            98.34470879885524,
+            104.57500599505991
+          ],
+          "trip_nominal_C": 101.39225775413931
+        },
+        "tj_at_hs_trip_high_corner_C": 132.37500599505992,
+        "values": {
+          "coil": {
+            "bottom": [
+              7060.0,
+              0.001
+            ],
+            "fixed": [
+              10000.0,
+              0.01
+            ],
+            "hyst": [
+              140000.0,
+              0.001
+            ],
+            "top": [
+              90900.0,
+              0.001
+            ]
+          },
+          "hs": {
+            "bottom": [
+              8060.000000000001,
+              0.01
+            ],
+            "fixed": [
+              10000.0,
+              0.01
+            ],
+            "hyst": [
+              34800.0,
+              0.01
+            ],
+            "top": [
+              11500.0,
+              0.01
+            ]
+          }
+        }
+      }
     },
     "trip": {
       "checks": {
@@ -1540,30 +1653,30 @@
         "native21_rail_inside_3135_3465": {
           "detail": [
             3.236896130065459,
-            3.3933668375440793
+            3.393366073393153
           ],
           "ok": true
         },
         "ps1_within_21W_at_r32_blower_cap": {
-          "detail": 14.828541069165055,
+          "detail": 14.82813903213992,
           "ok": true
         },
         "within_inductor_irms_2p45A": {
-          "detail": 1050.0880238211535,
+          "detail": 1049.9894000198938,
           "ok": true
         },
         "within_tps62933_3A": {
-          "detail": 1050.0880238211535,
+          "detail": 1049.9894000198938,
           "ok": true
         }
       },
       "data": {
-        "controller_mA": 540.7426648322052,
+        "controller_mA": 540.6440410309452,
         "native21_on_J4_3_mA": 49.34535898894846,
         "native21_rail_V": {
           "harness": {
             "allocation": "J4 harness <= 1.0 m, AWG22, Micro-Fit 43030 terminals (DEFAULT; harness not yet specified)",
-            "ground_shift_max_V": 0.026812888933174614,
+            "ground_shift_max_V": 0.02681212478224854,
             "ground_shift_min_V": -0.0013716878145361526,
             "length_m": 1.0,
             "r_conductor_ohm": 0.08339312,
@@ -1574,22 +1687,22 @@
             ],
             "v3v3_drop_V": 0.004115063443608458
           },
-          "max": 3.3933668375440793,
+          "max": 3.393366073393153,
           "min": 3.236896130065459
         },
         "oled_off_board_mA": {
           "basis": "Newhaven NHD-3.12-25664UCW2 rev: IDD 340 mA max, 3.3 V, 100 % on, factory jumper (via J7.2, R33)",
           "mA": 340.0
         },
-        "peak_mA": 1050.0880238211535,
+        "peak_mA": 1049.9894000198938,
         "ps1": {
           "OWNER_FLAG": "at full blower speed (17.04 W typ, 32.4 W max, Delta spec) PS1's 21 W rating is exceeded; DECISIONS C28 / open item 13",
           "basis": "efficiencies 85 % (3.3 V) / 90 % (blower buck) are allocations from the TPS62933 typical curves; IRM-20-15 21 W rated",
-          "p_3v3_rail_W": 4.280652944165055,
+          "p_3v3_rail_W": 4.280250907139919,
           "p_blower_W_at_r32_cap": 10.0,
-          "p_total_W": 14.828541069165055,
-          "p_total_W_blower_full_max": 40.828541069165055,
-          "p_total_W_blower_full_typ": 23.76187440249839,
+          "p_total_W": 14.82813903213992,
+          "p_total_W_blower_full_max": 40.828139032139916,
+          "p_total_W_blower_full_typ": 23.761472365473253,
           "p_v15_direct_W": 0.547888125,
           "rating_W": 21.0
         },
@@ -1959,9 +2072,9 @@
             "ref": "R45"
           },
           {
-            "basis": "9.09kohm +/- 1% R + 8557 ohm to gnd",
+            "basis": "11.5kohm +/- 1% R + 6479 ohm to gnd",
             "board": "controller",
-            "mA": 0.1973651358537123,
+            "mA": 0.19396724499533216,
             "path": "thermal.hs_top",
             "ref": "R28"
           },
@@ -1971,13 +2084,6 @@
             "mA": 0.1308856025837158,
             "path": "rtd_pan.r_avdd_top",
             "ref": "R51"
-          },
-          {
-            "basis": "20kohm +/- 1% R + 6700 ohm to gnd",
-            "board": "controller",
-            "mA": 0.13075582830111823,
-            "path": "thermal.coil_top",
-            "ref": "R32"
           },
           {
             "basis": "22.1kohm +/- 0.1% R + 7053 ohm to gnd",
@@ -2025,20 +2131,6 @@
             "basis": "TLV3201AIDBVR: SBOS561C: IQ 65 uA (-40..125 C)",
             "board": "controller",
             "mA": 0.065,
-            "path": "rtd_pan.low_window",
-            "ref": "U31"
-          },
-          {
-            "basis": "TLV3201AIDBVR: SBOS561C: IQ 65 uA (-40..125 C)",
-            "board": "controller",
-            "mA": 0.065,
-            "path": "rtd_pan.high_window",
-            "ref": "U32"
-          },
-          {
-            "basis": "TLV3201AIDBVR: SBOS561C: IQ 65 uA (-40..125 C)",
-            "board": "controller",
-            "mA": 0.065,
             "path": "thermal.hs_comp",
             "ref": "U17"
           },
@@ -2055,6 +2147,20 @@
             "mA": 0.065,
             "path": "u_runaway",
             "ref": "U10"
+          },
+          {
+            "basis": "TLV3201AIDBVR: SBOS561C: IQ 65 uA (-40..125 C)",
+            "board": "controller",
+            "mA": 0.065,
+            "path": "rtd_pan.low_window",
+            "ref": "U31"
+          },
+          {
+            "basis": "TLV3201AIDBVR: SBOS561C: IQ 65 uA (-40..125 C)",
+            "board": "controller",
+            "mA": 0.065,
+            "path": "rtd_pan.high_window",
+            "ref": "U32"
           },
           {
             "basis": "TLV3201AIDBVR: SBOS561C: IQ 65 uA (-40..125 C)",
@@ -2104,6 +2210,13 @@
             "mA": 0.03643724696356275,
             "path": "permit gate network",
             "ref": "R14"
+          },
+          {
+            "basis": "90.9kohm +/- 0.1% R + 6714 ohm to gnd",
+            "board": "controller",
+            "mA": 0.035529917899527474,
+            "path": "thermal.coil_top",
+            "ref": "R32"
           },
           {
             "basis": "TLV9031DBVR: SNOSDA3H: IQ 35 uA (-40..125 C)",
@@ -2160,13 +2273,6 @@
             "mA": 0.02,
             "path": "interlock.aggregate",
             "ref": "U22"
-          },
-          {
-            "basis": "SN74LVC1G08DBVR: SCES217AA: ICC 10 uA",
-            "board": "controller",
-            "mA": 0.01,
-            "path": "rtd_pan.window_and",
-            "ref": "U33"
           },
           {
             "basis": "SN74LVC1G32DBVR: SCES219W: ICC 10 uA",
@@ -2230,6 +2336,13 @@
             "mA": 0.01,
             "path": "u_rb",
             "ref": "U9"
+          },
+          {
+            "basis": "SN74LVC1G08DBVR: SCES217AA: ICC 10 uA",
+            "board": "controller",
+            "mA": 0.01,
+            "path": "rtd_pan.window_and",
+            "ref": "U33"
           },
           {
             "basis": "SN74LVC1G32DBVR: SCES219W: ICC 10 uA",
@@ -2323,7 +2436,7 @@
             "ref": "D4"
           }
         ],
-        "total_mA": 590.0880238211536,
+        "total_mA": 589.9894000198937,
         "ui_board_allocation_mA": {
           "basis": "[UNVERIFIED] J7.2 allocation for the R33 UI board: 30 mA logic + 3.3 V encoder option (MCP23S08, TMP122) and 90 mA for the self-oscillating buzzer; parts not yet chosen",
           "mA": 120.0

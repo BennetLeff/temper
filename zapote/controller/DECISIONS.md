@@ -299,6 +299,46 @@ Finding (relayed by the coordinator): the C27 channel, a 10 k bead into a 10 k p
 - **Enclosure (R36 rim boss):** the cartridge's NTC becomes a 100 k / 300 °C glass bead (104GT-2 class; body and lead dimensions per the Semitec GT-2 drawing). This replaces "glass 10 k bead". The part and its potting must be agreed with the enclosure session for the rim boss.
 - **Filter and ADC path:** unchanged: TVS at J12, 10 k / 100 nF (159 Hz) into the TLV9061 follower, then GPIO9. The 10 k series resistor still dominates the RC, so the C29 corner holds.
 
+## C32. Thermal trip ladder: hardware comparators above the firmware trips (L3, coordinator decision 2026-10-12)
+**Finding** (firmware `thermal_mgmt` / `coil_guard`): the ported thermal-sense comparators tripped below the R32 fan-law operating points.
+- **Heatsink:** 85 °C hardware trip (64-corner 82.4–87.6 °C) against the 88.6 °C sink fan setpoint. The sink runs at 88.6 °C at R_SA 0.29 in normal full-power operation (R32 airflow REPORT), so both the hardware latch and the firmware's 80 °C `OVER_TEMP_THRESHOLD` would trip in normal use.
+- **Coil:** 120 °C hardware trip (116.0–123.4 °C) against the 140 °C coil fan setpoint and the 150–160 °C derate band.
+
+**Required ladder:** fan-law control point < firmware derate < firmware hard trip < hardware comparator trip (the independent backstop).
+
+| | Fan law | Firmware derate | Firmware trip | Hardware trip, nominal (64-corner band) | Release, nominal (band) |
+|---|---|---|---|---|---|
+| Heatsink | 88.6 °C | — | **95 °C** | **101.4 °C (98.3–104.6)** | 85.6 °C (83.0–88.2) |
+| Coil | 140 °C | 150–160 °C | **165 °C** | **175.7 °C (169.7–182.0)** | 152.4 °C (147.4–157.7) |
+
+**Resistors:** set by top-level overrides in `controller.ato`, so the port stays byte-identical to `zapote/thermal-sense` (`port_blocks.py --check` OK). The 10 k pull-ups and the open-detect divider are unchanged.
+- **Heatsink:** top 9.09 k → **11.5 k** 1 % (RC0603FR-0711K5L); bottom 11.5 k → **8.06 k** 1 % (RC0603FR-078K06L); hysteresis 34.8 k unchanged.
+- **Coil:** top 20 k → **90.9 k** 0.1 % (RT0603BRD0790K9L); bottom 8.06 k → **7.06 k** 0.1 % (RT0603BRD077K06L); hysteresis 42.2 k → **140 k** 0.1 % (RT0603BRD07140KL).
+- All values are already on the BOM.
+
+**Sensors:**
+- **Heatsink:** Vishay NTCALUG01A104GA is unchanged (rated −55…+150 °C; the 104.6 °C high corner is inside its rating).
+- **Coil:** changes to a **100 k glass NTC rated to 300 °C, Semitec 104GT-2 class**: 100 kΩ ± 3 %, B25/85 4267 K ± 2 %, −50…+300 °C, from the Semitec GT-2 datasheet. It is the same part family as the rim NTC (C31). The lug NTC's 150 °C rating does not cover the coil band (165 °C firmware trip).
+  - Its mount on the coil (a high-temperature lug or bonded sleeve, replacing the NTCALUG01 lug) is for the enclosure session, under the R32/R36 coil-NTC spec.
+  - The coil's ADC curve changes with it: firmware `thermal_mgmt` must switch `THERMAL_NTC_COIL` from Vishay curve 11 to the Semitec 104GT-2 table.
+
+**Margins** (`tools/controller_calcs.py thermal_trips()`, checked from the netlist values by `verify_controller.py` "thermal"; a mutation test restores the old coil reference and must fail):
+- **Heatsink, low corner:** 98.3 °C is above 95 °C + 2 K (the Vishay sensor tolerance at 95 °C). Firmware and comparator read the same NTC, so the sensor tolerance moves both together; the relative margin is set by the resistors and the comparator.
+- **Heatsink, high corner and the FETs:** at 104.6 °C, Tj ≈ T_sink + 27.8 K = **132.4 °C** for the IPW65R018CFD7 at 28 A (basis A). That is ≤ 135 °C, keeping ≥ 15 K to the 150 °C datasheet maximum.
+  - Inputs: θjc 0.28 °C/W (task 03 round 3 README, datasheet RθJC max) and θcs 0.634 °C/W (2 mm AlN plus 2× grease), from power-stage task 05 round 6 `board_side.py` / `requirement.py` (commit 18318042c).
+  - The firmware trip at 95 °C gives Tj ≈ 123 °C, inside the 125 °C design target.
+- **Coil, low corner:** 169.7 °C is above the firmware's 165 °C trip by 4.7 K. Most of the band is the sensor (R25 ± 3 %, B ± 2 % at 175 °C); the 0.1 % resistors keep the circuit's share small. The trip sits at 175.7 °C nominal rather than 170 °C because of that sensor spread. A tighter-tolerance 300 °C NTC would let it come down.
+- **Open and short detection:** unchanged and still met with both sensors.
+  - Open margins: no false "open" at 0 °C with ≥ 0.042 V margin, and a real open clears OPEN_REF by ≥ 0.027 V. Both exceed the contract's 14 mV comparator error.
+  - Short: a shorted NTC reads hot and trips.
+  - The hot-or-open FAULT and the interlock latch are unchanged.
+
+**The interlock config chain (`OVER_TEMP_THRESHOLD` 80 °C):** this is a firmware compile-time constant (`firmware/config.yaml`, which generates `config.h`), not a hardware or zapote contract value. Its rationale (`docs/evidence/2026-08-15-thermal-threshold-decision.md`) argues from the retired IGBT IKW40N120H3 and from an 85 °C hardware latch.
+- The new evidence is `docs/evidence/2026-10-12-thermal-trip-ladder-l3.md` (IPW65R018CFD7, θjc/θcs, this ladder). The old file now points to it.
+- The firmware change is **not made on this branch**: `OVER_TEMP_THRESHOLD` must go 80 → 95 °C. Firmware tests pin 80 °C in `test_safety.c:41`, `test_state_machine.c:922` and `test_sil_fault_injection.c:588`, and the legacy `fan_guard.c` has `T_MAX 80`. The firmware session's merged `thermal_mgmt` branch owns those files, so the edit belongs there to avoid a conflicting merge (change request in the evidence file).
+
+**Validators:** the thermal-sense Rust validator cannot be re-run here; it needs a workspace build (C30). Its contract (`sensor-contract.json`: 85/120 °C, Vishay sensor) describes the standalone unit, not these controller values. The Python port in `controller_calcs.py` reproduces its 64-corner method for the controller and is what this commit checks. Updating the unit's contract and validator constants for the controller values is a change request to the thermal-sense unit.
+
 ## FMEA: shared supply, ground and connector (CONTROLLER-SPEC requirement, before layout freeze)
 
 | Failure | Effect | Detection / safe state |
