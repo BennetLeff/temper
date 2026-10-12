@@ -1,0 +1,186 @@
+Executing action: size-components
+Running make in directory /Users/bennet/Desktop/temper/worktrees/build-esp-idf/firmware/build
+Executing "make -j 14 all"...
+[  0%] Built target custom_bundle
+[  0%] Built target memory.ld
+[  0%] Built target sections.ld.in
+[  0%] Built target partition_table_bin
+[  1%] Built target _project_elf_src
+[  1%] Performing build step for 'bootloader'
+[  1%] Built target __idf_esp_https_ota
+[  1%] Built target __idf_esp_http_server
+[  1%] Built target _project_elf_src
+[  5%] Built target __idf_log
+[  2%] Built target __idf_esp_http_client
+[ 15%] Built target __idf_esp_rom
+[  3%] Built target __idf_tcp_transport
+[ 17%] Built target __idf_esp_common
+[  4%] Built target __idf_esp_eth
+[ 27%] Built target __idf_esp_hw_support
+[  5%] Built target __idf_esp_adc
+[ 28%] Built target __idf_esp_system
+[  5%] Built target __idf_esp-tls
+[ 37%] Built target __idf_efuse
+[  5%] Built target __idf_http_parser
+[ 57%] Built target __idf_bootloader_support
+[  6%] Built target __idf_esp_gdbstub
+[ 58%] Built target __idf_esp_bootloader_format
+[  7%] Built target __idf_esp_wifi
+[ 60%] Built target __idf_spi_flash
+[  7%] Built target __idf_esp_coex
+[ 67%] Built target __idf_hal
+[ 68%] Built target __idf_micro-ecc
+[ 15%] Built target __idf_wpa_supplicant
+[ 91%] Built target __idf_soc
+[ 16%] Built target __idf_esp_netif
+[ 94%] Built target __idf_xtensa
+[ 96%] Built target __idf_main
+[ 24%] Built target __idf_lwip
+[ 98%] Built target bootloader.elf
+[ 24%] Built target __idf_vfs
+[100%] Built target gen_project_binary
+[ 24%] Built target __idf_esp_vfs_console
+Bootloader binary size 0x5950 bytes. 0x26b0 bytes (30%) free.
+[ 25%] Built target __idf_esp_phy
+[100%] Built target bootloader_check_size
+[100%] Built target app
+[ 27%] Built target __idf_driver
+[ 27%] No install step for 'bootloader'
+[ 27%] Built target __idf_esp_driver_usb_serial_jtag
+[ 27%] Completed 'bootloader'
+[ 28%] Built target __idf_esp_driver_ledc
+[ 28%] Built target bootloader
+[ 29%] Built target __idf_esp_driver_i2c
+[ 29%] Built target __idf_esp_driver_sdm
+[ 30%] Built target __idf_esp_driver_tsens
+[ 30%] Built target __idf_esp_driver_rmt
+[ 31%] Built target __idf_esp_driver_sdspi
+[ 31%] Built target __idf_esp_driver_sdmmc
+[ 32%] Built target __idf_sdmmc
+[ 32%] Built target __idf_esp_driver_i2s
+[ 32%] Built target __idf_esp_driver_mcpwm
+[ 32%] Built target __idf_esp_driver_spi
+[ 33%] Built target __idf_esp_driver_pcnt
+[ 35%] Built target __idf_nvs_flash
+[ 35%] Built target __idf_esp_event
+[ 35%] Built target __idf_esp_driver_uart
+[ 35%] Built target __idf_esp_ringbuf
+[ 35%] Built target __idf_esp_driver_gptimer
+[ 36%] Built target __idf_esp_timer
+[ 36%] Built target __idf_cxx
+[ 36%] Built target __idf_pthread
+[ 38%] Built target __idf_newlib
+[ 39%] Built target __idf_freertos
+[ 44%] Built target __idf_esp_hw_support
+[ 47%] Built target __idf_soc
+[ 48%] Built target __idf_heap
+[ 48%] Built target __idf_log
+[ 53%] Built target __idf_hal
+[ 54%] Built target __idf_esp_rom
+[ 54%] Built target __idf_esp_common
+[ 58%] Built target __idf_esp_system
+[ 60%] Built target __idf_spi_flash
+[ 61%] Built target __idf_esp_mm
+[ 63%] Built target __idf_bootloader_support
+[ 64%] Built target __idf_efuse
+[ 64%] Built target __idf_esp_partition
+[ 64%] Built target __idf_app_update
+[ 64%] Built target __idf_esp_bootloader_format
+[ 65%] Built target __idf_esp_app_format
+[ 67%] Built target mbedtls
+[ 68%] Built target mbedx509
+[ 78%] Built target mbedcrypto
+[ 78%] Built target p256m
+[ 79%] Built target everest
+[ 79%] Built target __idf_mbedtls
+[ 79%] Built target __idf_esp_pm
+[ 79%] Built target __idf_esp_driver_gpio
+[ 79%] Built target __idf_xtensa
+[ 79%] Built target __idf_app_trace
+[ 80%] Built target __idf_protobuf-c
+[ 81%] Built target __idf_json
+[ 82%] Built target __idf_unity
+[ 83%] Built target __idf_nvs_sec_provider
+[ 83%] Built target __idf_wear_levelling
+[ 84%] Built target __idf_esp_https_server
+[ 84%] Built target __idf_esp_hid
+[ 84%] Built target __idf_perfmon
+[ 85%] Built target __idf_esp_driver_cam
+[ 87%] Built target __idf_mqtt
+[ 87%] Built target __idf_console
+[ 88%] Built target __idf_esp_lcd
+[ 89%] Built target __idf_espcoredump
+[ 89%] Built target __idf_diag_stubs
+[ 89%] Built target __idf_spiffs
+[ 90%] Built target __idf_temper_hal
+[ 90%] Built target __idf_touch_element
+[ 90%] Built target __idf_cmock
+[ 91%] Built target __idf_usb
+[ 92%] Built target __idf_fatfs
+[ 93%] Built target __idf_protocomm
+[ 94%] Built target __idf_power
+[ 95%] Built target __idf_webui
+[ 95%] Built target __idf_esp_local_ctrl
+[ 96%] Built target __idf_wifi_provisioning
+[100%] Built target __idf_main
+[100%] Built target __ldgen_output_sections.ld
+[100%] Built target induction_cooker.elf
+[100%] Built target gen_project_binary
+induction_cooker.bin binary size 0x5ce20 bytes. Smallest app partition is 0x200000 bytes. 0x1a31e0 bytes (82%) free.
+[100%] Built target app_check_size
+[100%] Built target app
+Running make in directory /Users/bennet/Desktop/temper/worktrees/build-esp-idf/firmware/build
+Executing "make -j 14 size-components"...
+                                                                                       Per-archive contributions to ELF file                                                                                        
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━┳━━━━━━━┳━━━━━━━━━━┳━━━━━━━┳━━━━━━┳━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━┓
+┃ Archive File                    ┃ Total Size ┃ IRAM ┃ .text ┃ .vectors ┃ DIRAM ┃ .bss ┃ .data ┃ .text ┃ Flash Code ┃ .text ┃ Flash Data ┃ .rodata ┃ .appdesc ┃ RTC FAST ┃ .rtc_reserved ┃ RTC SLOW ┃ .force_slow ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━╇━━━━━━━╇━━━━━━━━━━╇━━━━━━━╇━━━━━━╇━━━━━━━╇━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━┩
+│ libesp_app_format.a             │      64442 │    0 │     0 │        0 │    10 │   10 │     0 │     0 │        394 │   394 │      64038 │   63782 │      256 │        0 │             0 │        0 │           0 │
+│ libesp_hw_support.a             │      31591 │ 1657 │  1657 │        0 │  7376 │  186 │   349 │  6841 │      21115 │ 21115 │       1418 │    1418 │        0 │       24 │            24 │        1 │           1 │
+│ libc.a                          │      26209 │    0 │     0 │        0 │   584 │  320 │   264 │     0 │      23704 │ 23704 │       1921 │    1921 │        0 │        0 │             0 │        0 │           0 │
+│ libhal.a                        │      25873 │  590 │   590 │        0 │ 14490 │    4 │  3999 │ 10487 │      10617 │ 10617 │        176 │     176 │        0 │        0 │             0 │        0 │           0 │
+│ libpower.a                      │      23981 │  120 │   120 │        0 │  2426 │ 1726 │   640 │    60 │      21023 │ 21023 │        412 │     412 │        0 │        0 │             0 │        0 │           0 │
+│ libfreertos.a                   │      19576 │  878 │   878 │        0 │ 16720 │  757 │  3108 │ 12855 │        829 │   829 │       1149 │    1149 │        0 │        0 │             0 │        0 │           0 │
+│ libmain.a                       │      15880 │    0 │     0 │        0 │   655 │  394 │   261 │     0 │      14313 │ 14313 │        912 │     912 │        0 │        0 │             0 │        0 │           0 │
+│ libesp_system.a                 │      15840 │ 3916 │  3916 │        0 │  1226 │  305 │   508 │   413 │       9948 │  9948 │        750 │     750 │        0 │        0 │             0 │        0 │           0 │
+│ libm.a                          │      15010 │    0 │     0 │        0 │     0 │    0 │     0 │     0 │      13898 │ 13898 │       1112 │    1112 │        0 │        0 │             0 │        0 │           0 │
+│ libspi_flash.a                  │      14710 │  924 │   924 │        0 │ 12168 │   24 │  2140 │ 10004 │       1173 │  1173 │        445 │     445 │        0 │        0 │             0 │        0 │           0 │
+│ libesp_driver_mcpwm.a           │      14127 │   44 │    44 │        0 │   541 │   20 │     0 │   521 │      12278 │ 12278 │       1264 │    1264 │        0 │        0 │             0 │        0 │           0 │
+│ libtemper_hal.a                 │      11083 │  108 │   108 │        0 │   925 │  909 │    16 │     0 │       8712 │  8712 │       1338 │    1338 │        0 │        0 │             0 │        0 │           0 │
+│ libesp_driver_spi.a             │      11080 │  212 │   212 │        0 │  3841 │   12 │   108 │  3721 │       6519 │  6519 │        508 │     508 │        0 │        0 │             0 │        0 │           0 │
+│ libheap.a                       │      10312 │ 1526 │  1526 │        0 │  4619 │    8 │     4 │  4607 │       3271 │  3271 │        896 │     896 │        0 │        0 │             0 │        0 │           0 │
+│ libesp_driver_i2c.a             │      10129 │   32 │    32 │        0 │  3149 │   28 │     0 │  3121 │       6621 │  6621 │        327 │     327 │        0 │        0 │             0 │        0 │           0 │
+│ libnvs_flash.a                  │       8497 │    0 │     0 │        0 │    20 │   20 │     0 │     0 │       8409 │  8409 │         68 │      68 │        0 │        0 │             0 │        0 │           0 │
+│ libesp_driver_gpio.a            │       8442 │  374 │   374 │        0 │   375 │    0 │    36 │   339 │       6881 │  6881 │        812 │     812 │        0 │        0 │             0 │        0 │           0 │
+│ libesp_adc.a                    │       6395 │   16 │    16 │        0 │   236 │   18 │     0 │   218 │       4899 │  4899 │       1244 │    1244 │        0 │        0 │             0 │        0 │           0 │
+│ libesp_ringbuf.a                │       4217 │  276 │   276 │        0 │  3469 │    0 │     0 │  3469 │          0 │     0 │        472 │     472 │        0 │        0 │             0 │        0 │           0 │
+│ libesp_driver_ledc.a            │       4172 │    0 │     0 │        0 │    52 │   44 │     8 │     0 │       3878 │  3878 │        242 │     242 │        0 │        0 │             0 │        0 │           0 │
+│ libesp_driver_pcnt.a            │       4052 │    0 │     0 │        0 │   223 │   12 │     0 │   211 │       3604 │  3604 │        225 │     225 │        0 │        0 │             0 │        0 │           0 │
+│ libesp_driver_gptimer.a         │       3801 │    0 │     0 │        0 │   154 │   20 │     0 │   134 │       3394 │  3394 │        253 │     253 │        0 │        0 │             0 │        0 │           0 │
+│ libxtensa.a                     │       3690 │ 2028 │  1604 │      424 │  1513 │    0 │  1060 │   453 │        101 │   101 │         48 │      48 │        0 │        0 │             0 │        0 │           0 │
+│ libnewlib.a                     │       3561 │ 1206 │  1206 │        0 │   986 │  200 │   172 │   614 │       1258 │  1258 │        111 │     111 │        0 │        0 │             0 │        0 │           0 │
+│ libesp_mm.a                     │       3094 │  533 │   533 │        0 │   377 │   48 │    87 │   242 │       2018 │  2018 │        166 │     166 │        0 │        0 │             0 │        0 │           0 │
+│ libvfs.a                        │       2805 │    0 │     0 │        0 │   232 │   40 │   192 │     0 │       2558 │  2558 │         15 │      15 │        0 │        0 │             0 │        0 │           0 │
+│ libsoc.a                        │       2610 │    0 │     0 │        0 │     0 │    0 │     0 │     0 │          0 │     0 │       2610 │    2610 │        0 │        0 │             0 │        0 │           0 │
+│ libefuse.a                      │       2489 │    0 │     0 │        0 │   140 │    4 │   136 │     0 │       1954 │  1954 │        395 │     395 │        0 │        0 │             0 │        0 │           0 │
+│ libesp_driver_usb_serial_jtag.a │       2316 │  103 │   103 │        0 │    65 │   17 │    48 │     0 │       1919 │  1919 │        229 │     229 │        0 │        0 │             0 │        0 │           0 │
+│ libstdc++.a                     │       1875 │    0 │     0 │        0 │    21 │   17 │     4 │     0 │       1296 │  1296 │        558 │     558 │        0 │        0 │             0 │        0 │           0 │
+│ libesp_timer.a                  │       1852 │  225 │   225 │        0 │   369 │   36 │    32 │   301 │       1206 │  1206 │         52 │      52 │        0 │        0 │             0 │        0 │           0 │
+│ libesp_common.a                 │       1797 │    0 │     0 │        0 │     0 │    0 │     0 │     0 │         47 │    47 │       1750 │    1750 │        0 │        0 │             0 │        0 │           0 │
+│ libesp_partition.a              │       1721 │    0 │     0 │        0 │     8 │    8 │     0 │     0 │       1545 │  1545 │        168 │     168 │        0 │        0 │             0 │        0 │           0 │
+│ liblog.a                        │       1020 │   16 │    16 │        0 │   525 │  272 │     8 │   245 │        458 │   458 │         21 │      21 │        0 │        0 │             0 │        0 │           0 │
+│ libbootloader_support.a         │        842 │  768 │   768 │        0 │     0 │    0 │     0 │     0 │         34 │    34 │         40 │      40 │        0 │        0 │             0 │        0 │           0 │
+│ libpthread.a                    │        789 │    0 │     0 │        0 │    20 │   12 │     8 │     0 │        715 │   715 │         54 │      54 │        0 │        0 │             0 │        0 │           0 │
+│ libesp_vfs_console.a            │        608 │    0 │     0 │        0 │    16 │   16 │     0 │     0 │        420 │   420 │        172 │     172 │        0 │        0 │             0 │        0 │           0 │
+│ libesp_rom.a                    │        502 │   86 │    86 │        0 │   344 │    0 │     0 │   344 │         72 │    72 │          0 │       0 │        0 │        0 │             0 │        0 │           0 │
+│ libxt_hal.a                     │        437 │    0 │     0 │        0 │   405 │    0 │     0 │   405 │          0 │     0 │         32 │      32 │        0 │        0 │             0 │        0 │           0 │
+│ libdiag_stubs.a                 │        234 │    0 │     0 │        0 │     0 │    0 │     0 │     0 │        234 │   234 │          0 │       0 │        0 │        0 │             0 │        0 │           0 │
+│ libapp_update.a                 │        192 │    0 │     0 │        0 │     4 │    4 │     0 │     0 │        158 │   158 │         30 │      30 │        0 │        0 │             0 │        0 │           0 │
+│ libgcc.a                        │         98 │    0 │     0 │        0 │     0 │    0 │     0 │     0 │         98 │    98 │          0 │       0 │        0 │        0 │             0 │        0 │           0 │
+│ libcxx.a                        │         46 │    0 │     0 │        0 │     0 │    0 │     0 │     0 │         46 │    46 │          0 │       0 │        0 │        0 │             0 │        0 │           0 │
+│ libesp_pm.a                     │         24 │    0 │     0 │        0 │    16 │    0 │     0 │    16 │          8 │     8 │          0 │       0 │        0 │        0 │             0 │        0 │           0 │
+│ libesp_phy.a                    │          5 │    0 │     0 │        0 │     0 │    0 │     0 │     0 │          5 │     5 │          0 │       0 │        0 │        0 │             0 │        0 │           0 │
+│ libnvs_sec_provider.a           │          5 │    0 │     0 │        0 │     0 │    0 │     0 │     0 │          5 │     5 │          0 │       0 │        0 │        0 │             0 │        0 │           0 │
+│ (exe)                           │          3 │    3 │     0 │        3 │     0 │    0 │     0 │     0 │          0 │     0 │          0 │       0 │        0 │        0 │             0 │        0 │           0 │
+└─────────────────────────────────┴────────────┴──────┴───────┴──────────┴───────┴──────┴───────┴───────┴────────────┴───────┴────────────┴─────────┴──────────┴──────────┴───────────────┴──────────┴─────────────┘
+Built target size-components

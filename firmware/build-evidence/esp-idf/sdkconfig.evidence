@@ -1,0 +1,2 @@
+# Evidence build only: also compile the opt-in native-21 binding (n21_hw_esp32.c)
+CONFIG_TEMPER_POWER_HW_BINDING=y
