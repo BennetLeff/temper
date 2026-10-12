@@ -1,0 +1,19 @@
+# Negative control: stage-17b board (runs-native21/s17/s17b/section.kicad_pcb, 96501e7d...) with its own section.kicad_dru
+# plus the stage-18 rule appended; kicad-cli pcb drc --format json (no refill).
+errors by rule: {'RES_A to SELV/PE: reinforced 12.6 mm, outer layers (stage 18)': 16}
+  clearance actual 10.1090 mm | Track [line_zc_raw] on B.Cu, length 0.8485 mm / Zone 'res_a J5-C21..C23' [res_a] on B.Cu, priority 1
+  clearance actual 10.7000 mm | PTH pad 1 [res_a] of C152 / Track [v15_selv] on B.Cu, length 68.7000 mm
+  clearance actual 10.9471 mm | Track [line_zc_raw] on B.Cu, length 19.2000 mm / Zone 'res_a J5-C21..C23' [res_a] on B.Cu, priority 1
+  clearance actual 12.2901 mm | Track [v15_selv] on B.Cu, length 19.2333 mm / Zone 'res_a J5-C21..C23' [res_a] on B.Cu, priority 1
+  clearance actual 8.1450 mm | Track [line_zc_raw] on B.Cu, length 19.4000 mm / Zone 'res_a J5-C21..C23' [res_a] on B.Cu, priority 1
+  clearance actual 8.2450 mm | Track [line_zc_raw] on B.Cu, length 0.8485 mm / Zone 'res_a J5-C21..C23' [res_a] on B.Cu, priority 1
+  clearance actual 8.2450 mm | Track [line_zc_raw] on B.Cu, length 38.2000 mm / Zone 'res_a J5-C21..C23' [res_a] on B.Cu, priority 1
+  clearance actual 8.2922 mm | Track [line_zc_raw] on B.Cu, length 0.5657 mm / Zone 'res_a J5-C21..C23' [res_a] on B.Cu, priority 1
+  clearance actual 8.2922 mm | Track [line_zc_raw] on B.Cu, length 0.6000 mm / Zone 'res_a J5-C21..C23' [res_a] on B.Cu, priority 1
+  clearance actual 8.4890 mm | PTH pad 1 [res_a] of C152 / Track [line_zc_raw] on B.Cu, length 0.8485 mm
+  clearance actual 8.4890 mm | PTH pad 1 [res_a] of C152 / Track [line_zc_raw] on B.Cu, length 38.2000 mm
+  clearance actual 9.0450 mm | PTH pad 1 [res_a] of C152 / Track [line_zc_raw] on B.Cu, length 0.5657 mm
+  clearance actual 9.0450 mm | PTH pad 1 [res_a] of C152 / Track [line_zc_raw] on B.Cu, length 0.6000 mm
+  clearance actual 9.4000 mm | Track [v15_selv] on B.Cu, length 68.7000 mm / Zone 'res_a J5-C21..C23' [res_a] on B.Cu, priority 1
+  clearance actual 9.4450 mm | PTH pad 1 [res_a] of C152 / Track [line_zc_raw] on B.Cu, length 19.4000 mm
+  creepage actual 8.1450 mm | Track [line_zc_raw] on B.Cu, length 19.4000 mm / Zone 'res_a J5-C21..C23' [res_a] on B.Cu, priority 1

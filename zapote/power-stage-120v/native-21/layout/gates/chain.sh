@@ -32,7 +32,9 @@ python3 $E/body_collisions.py $E/native21-boxes.json $E/native21-courtyards.json
 python3 $E/board_in_enclosure.py $E/native21-boxes.json $E/native21-courtyards.json $E/native21-envelopes.json > $E/native21-in-r4.json 2>&1 || echo "R4 FAIL"
 python3 -c "import json;a=json.load(open('$E/native21-body-collisions.json'));b=json.load(open('$E/native21-in-r4.json'));print('FIT',a['solids'],a['unattributed'],len(a['part_overlaps']),b['bodies'],len(b['hits']))"
 sh $G/regate.sh "$B" | tail -1
-python3 -c "import json;g=json.load(open('$B/barrier-gate-rust.json'));print('RUST',g['violations'],g['board_sha256'][:12],g['census']['items']);d=json.load(open('$B/jlc-dfm.json'));print('DFM',d['status'],d['vias'],d['min_track_mm'])"
+python3 -c "import json;g=json.load(open('$B/barrier-gate-rust.json'));print('RUST',g['violations'],g['board_sha256'][:12],g['census']['items'],'RES_A outer 12.6',g['res_a_outer_violations'],{l:r['census']['items'] for l,r in g['res_a_outer'].items()});d=json.load(open('$B/jlc-dfm.json'));print('DFM',d['status'],d['vias'],d['min_track_mm'])"
+# stage 18: RES_A to SELV / PE per outer layer (12.6 mm), from the copper dump (evidence folder script)
+python3 validation-results/08-manufacturing-package/native-21/stage18-res-a-creepage/res_a_creepage18.py "$B/copper-dump.json" --json "$B/res-a-creepage.json" | tail -1
 cp "$B/native21-all-copper.json.gz" native-21/verification/$TAG-all-copper.json.gz
 python3 - "$H" "$TAG" <<'PY'
 import re, sys

@@ -1,6 +1,6 @@
 {
-  "board_sha256": "96501e7d0e9b4903a145aa3bd0e45003a4fafe37ceef5259a7502bc9b11225a9",
-  "input_sha256": "1b15a98dad0e9e0cbb57cc02d94fab640e271df67f68599e3a1259f1199d0b8d",
+  "board_sha256": "3768a12675f8d61f91fc4a96dd267522e68f454f8f300634aca2ae16afc6dd1a",
+  "input_sha256": "3ce92b434e5819a5d0b62800db57fa0d91b0d1dd445976357fad4b5cb331947b",
   "kit_sha256": "0c45e6f602bd06f4d8c85410689e32902824855b58cec76eabe20e2aa8e4f03d",
   "script_sha256": "beed119017dda2274357aef4968a2ef2af3c3873d22bd6efd74f9b6b2c2ccca9",
   "net": "bus_p",
@@ -60,6 +60,84 @@
   "via_currents": [
     {
       "xy": [
+        24.2,
+        28.2
+      ],
+      "hop_amps": [
+        9.567298440326617e-13,
+        1.6266571895713696e-12,
+        -2.759797627017294e-13
+      ],
+      "amps": 1.6266571895713696e-12,
+      "status": "solved"
+    },
+    {
+      "xy": [
+        254.0,
+        106.0
+      ],
+      "hop_amps": [
+        -5.383578825332318e-13,
+        8.304373171015775e-13,
+        9.298908880119461e-13
+      ],
+      "amps": 9.298908880119461e-13,
+      "status": "solved"
+    },
+    {
+      "xy": [
+        9.95,
+        4.215
+      ],
+      "hop_amps": [
+        -3.6265380302745976e-12,
+        -4.550540544723497e-12,
+        1.5607885193586878e-12
+      ],
+      "amps": -4.550540544723497e-12,
+      "status": "solved"
+    },
+    {
+      "xy": [
+        61.0,
+        28.2
+      ],
+      "hop_amps": [
+        1.8398650846781956e-13,
+        4.929264210822332e-13,
+        -1.4718920677425568e-13
+      ],
+      "amps": 4.929264210822332e-13,
+      "status": "solved"
+    },
+    {
+      "xy": [
+        205.25,
+        65.45
+      ],
+      "hop_amps": [
+        -4.4561168021186e-12,
+        6.8290644568283535e-12,
+        7.316833761503382e-12
+      ],
+      "amps": 7.316833761503382e-12,
+      "status": "solved"
+    },
+    {
+      "xy": [
+        205.25,
+        85.75
+      ],
+      "hop_amps": [
+        -9.792454207124824e-12,
+        -6.042985094891277e-12,
+        9.682426631763874e-12
+      ],
+      "amps": -9.792454207124824e-12,
+      "status": "solved"
+    },
+    {
+      "xy": [
         68.05,
         4.215
       ],
@@ -69,6 +147,32 @@
         -1.205020548034281e-13
       ],
       "amps": -14.99999999709823,
+      "status": "solved"
+    },
+    {
+      "xy": [
+        248.25,
+        73.85
+      ],
+      "hop_amps": [
+        -9.462371481041965e-12,
+        -5.207775772833133e-12,
+        1.3698433132438662e-11
+      ],
+      "amps": 1.3698433132438662e-11,
+      "status": "solved"
+    },
+    {
+      "xy": [
+        248.25,
+        94.15
+      ],
+      "hop_amps": [
+        2.420606657940968e-12,
+        9.825992024213459e-14,
+        -9.40735769336149e-12
+      ],
+      "amps": -9.40735769336149e-12,
       "status": "solved"
     },
     {
@@ -125,58 +229,6 @@
     },
     {
       "xy": [
-        254.0,
-        106.0
-      ],
-      "hop_amps": [
-        -5.383578825332318e-13,
-        8.304373171015775e-13,
-        9.298908880119461e-13
-      ],
-      "amps": 9.298908880119461e-13,
-      "status": "solved"
-    },
-    {
-      "xy": [
-        205.25,
-        65.45
-      ],
-      "hop_amps": [
-        -4.4561168021186e-12,
-        6.8290644568283535e-12,
-        7.316833761503382e-12
-      ],
-      "amps": 7.316833761503382e-12,
-      "status": "solved"
-    },
-    {
-      "xy": [
-        205.25,
-        85.75
-      ],
-      "hop_amps": [
-        -9.792454207124824e-12,
-        -6.042985094891277e-12,
-        9.682426631763874e-12
-      ],
-      "amps": -9.792454207124824e-12,
-      "status": "solved"
-    },
-    {
-      "xy": [
-        24.2,
-        28.2
-      ],
-      "hop_amps": [
-        9.567298440326617e-13,
-        1.6266571895713696e-12,
-        -2.759797627017294e-13
-      ],
-      "amps": 1.6266571895713696e-12,
-      "status": "solved"
-    },
-    {
-      "xy": [
         82.8,
         28.2
       ],
@@ -199,58 +251,6 @@
         2.391824610081655e-13
       ],
       "amps": -9.199325423390978e-13,
-      "status": "solved"
-    },
-    {
-      "xy": [
-        9.95,
-        4.215
-      ],
-      "hop_amps": [
-        -3.6265380302745976e-12,
-        -4.550540544723497e-12,
-        1.5607885193586878e-12
-      ],
-      "amps": -4.550540544723497e-12,
-      "status": "solved"
-    },
-    {
-      "xy": [
-        248.25,
-        73.85
-      ],
-      "hop_amps": [
-        -9.462371481041965e-12,
-        -5.207775772833133e-12,
-        1.3698433132438662e-11
-      ],
-      "amps": 1.3698433132438662e-11,
-      "status": "solved"
-    },
-    {
-      "xy": [
-        248.25,
-        94.15
-      ],
-      "hop_amps": [
-        2.420606657940968e-12,
-        9.825992024213459e-14,
-        -9.40735769336149e-12
-      ],
-      "amps": -9.40735769336149e-12,
-      "status": "solved"
-    },
-    {
-      "xy": [
-        61.0,
-        28.2
-      ],
-      "hop_amps": [
-        1.8398650846781956e-13,
-        4.929264210822332e-13,
-        -1.4718920677425568e-13
-      ],
-      "amps": 4.929264210822332e-13,
       "status": "solved"
     },
     {
@@ -307,8 +307,242 @@
   },
   "sheet_joule_w": 0.7293685565120106,
   "vertical_barrel_joule_w": 0.09164018793167618,
-  "barrel_network_joule_w": 0.09594009073011224,
+  "barrel_network_joule_w": 0.09594009073011223,
   "barrel_hop_heat": [
+    {
+      "xy_mm": [
+        24.2,
+        28.2
+      ],
+      "filled_lead": true,
+      "from_layer": "F.Cu",
+      "to_layer": "In1.Cu",
+      "amps": 9.567298440326617e-13,
+      "joule_w": 1.726048189435531e-28,
+      "drill_mm": 1.2,
+      "plating_um": 12.0
+    },
+    {
+      "xy_mm": [
+        24.2,
+        28.2
+      ],
+      "filled_lead": true,
+      "from_layer": "In1.Cu",
+      "to_layer": "In2.Cu",
+      "amps": 1.6266571895713696e-12,
+      "joule_w": 5.587164819949502e-28,
+      "drill_mm": 1.2,
+      "plating_um": 12.0
+    },
+    {
+      "xy_mm": [
+        24.2,
+        28.2
+      ],
+      "filled_lead": true,
+      "from_layer": "In2.Cu",
+      "to_layer": "B.Cu",
+      "amps": -2.759797627017294e-13,
+      "joule_w": 1.4362457197595954e-29,
+      "drill_mm": 1.2,
+      "plating_um": 12.0
+    },
+    {
+      "xy_mm": [
+        254.0,
+        106.0
+      ],
+      "filled_lead": true,
+      "from_layer": "F.Cu",
+      "to_layer": "In1.Cu",
+      "amps": -5.383578825332318e-13,
+      "joule_w": 4.1091690521532703e-29,
+      "drill_mm": 1.6,
+      "plating_um": 12.0
+    },
+    {
+      "xy_mm": [
+        254.0,
+        106.0
+      ],
+      "filled_lead": true,
+      "from_layer": "In1.Cu",
+      "to_layer": "In2.Cu",
+      "amps": 8.304373171015775e-13,
+      "joule_w": 1.09484012307051e-28,
+      "drill_mm": 1.6,
+      "plating_um": 12.0
+    },
+    {
+      "xy_mm": [
+        254.0,
+        106.0
+      ],
+      "filled_lead": true,
+      "from_layer": "In2.Cu",
+      "to_layer": "B.Cu",
+      "amps": 9.298908880119461e-13,
+      "joule_w": 1.2259587006837449e-28,
+      "drill_mm": 1.6,
+      "plating_um": 12.0
+    },
+    {
+      "xy_mm": [
+        9.95,
+        4.215
+      ],
+      "filled_lead": true,
+      "from_layer": "F.Cu",
+      "to_layer": "In1.Cu",
+      "amps": -3.6265380302745976e-12,
+      "joule_w": 1.9879688478142506e-27,
+      "drill_mm": 1.5,
+      "plating_um": 12.0
+    },
+    {
+      "xy_mm": [
+        9.95,
+        4.215
+      ],
+      "filled_lead": true,
+      "from_layer": "In1.Cu",
+      "to_layer": "In2.Cu",
+      "amps": -4.550540544723497e-12,
+      "joule_w": 3.5049047030243654e-27,
+      "drill_mm": 1.5,
+      "plating_um": 12.0
+    },
+    {
+      "xy_mm": [
+        9.95,
+        4.215
+      ],
+      "filled_lead": true,
+      "from_layer": "In2.Cu",
+      "to_layer": "B.Cu",
+      "amps": 1.5607885193586878e-12,
+      "joule_w": 3.682249620370572e-28,
+      "drill_mm": 1.5,
+      "plating_um": 12.0
+    },
+    {
+      "xy_mm": [
+        61.0,
+        28.2
+      ],
+      "filled_lead": true,
+      "from_layer": "F.Cu",
+      "to_layer": "In1.Cu",
+      "amps": 1.8398650846781956e-13,
+      "joule_w": 6.383314310042644e-30,
+      "drill_mm": 1.2,
+      "plating_um": 12.0
+    },
+    {
+      "xy_mm": [
+        61.0,
+        28.2
+      ],
+      "filled_lead": true,
+      "from_layer": "In1.Cu",
+      "to_layer": "In2.Cu",
+      "amps": 4.929264210822332e-13,
+      "joule_w": 5.130546207483473e-29,
+      "drill_mm": 1.2,
+      "plating_um": 12.0
+    },
+    {
+      "xy_mm": [
+        61.0,
+        28.2
+      ],
+      "filled_lead": true,
+      "from_layer": "In2.Cu",
+      "to_layer": "B.Cu",
+      "amps": -1.4718920677425568e-13,
+      "joule_w": 4.085321158427293e-30,
+      "drill_mm": 1.2,
+      "plating_um": 12.0
+    },
+    {
+      "xy_mm": [
+        205.25,
+        65.45
+      ],
+      "filled_lead": true,
+      "from_layer": "F.Cu",
+      "to_layer": "In1.Cu",
+      "amps": -4.4561168021186e-12,
+      "joule_w": 2.5045622587788656e-27,
+      "drill_mm": 1.8,
+      "plating_um": 12.0
+    },
+    {
+      "xy_mm": [
+        205.25,
+        65.45
+      ],
+      "filled_lead": true,
+      "from_layer": "In1.Cu",
+      "to_layer": "In2.Cu",
+      "amps": 6.8290644568283535e-12,
+      "joule_w": 6.586675368313734e-27,
+      "drill_mm": 1.8,
+      "plating_um": 12.0
+    },
+    {
+      "xy_mm": [
+        205.25,
+        65.45
+      ],
+      "filled_lead": true,
+      "from_layer": "In2.Cu",
+      "to_layer": "B.Cu",
+      "amps": 7.316833761503382e-12,
+      "joule_w": 6.75250751341859e-27,
+      "drill_mm": 1.8,
+      "plating_um": 12.0
+    },
+    {
+      "xy_mm": [
+        205.25,
+        85.75
+      ],
+      "filled_lead": true,
+      "from_layer": "F.Cu",
+      "to_layer": "In1.Cu",
+      "amps": -9.792454207124824e-12,
+      "joule_w": 1.2094886542775425e-26,
+      "drill_mm": 1.8,
+      "plating_um": 12.0
+    },
+    {
+      "xy_mm": [
+        205.25,
+        85.75
+      ],
+      "filled_lead": true,
+      "from_layer": "In1.Cu",
+      "to_layer": "In2.Cu",
+      "amps": -6.042985094891277e-12,
+      "joule_w": 5.157590789670229e-27,
+      "drill_mm": 1.8,
+      "plating_um": 12.0
+    },
+    {
+      "xy_mm": [
+        205.25,
+        85.75
+      ],
+      "filled_lead": true,
+      "from_layer": "In2.Cu",
+      "to_layer": "B.Cu",
+      "amps": 9.682426631763874e-12,
+      "joule_w": 1.182461827891086e-26,
+      "drill_mm": 1.8,
+      "plating_um": 12.0
+    },
     {
       "xy_mm": [
         68.05,
@@ -346,6 +580,84 @@
       "amps": -1.205020548034281e-13,
       "joule_w": 2.1948963053949806e-30,
       "drill_mm": 1.5,
+      "plating_um": 12.0
+    },
+    {
+      "xy_mm": [
+        248.25,
+        73.85
+      ],
+      "filled_lead": true,
+      "from_layer": "F.Cu",
+      "to_layer": "In1.Cu",
+      "amps": -9.462371481041965e-12,
+      "joule_w": 1.1293243387244923e-26,
+      "drill_mm": 1.8,
+      "plating_um": 12.0
+    },
+    {
+      "xy_mm": [
+        248.25,
+        73.85
+      ],
+      "filled_lead": true,
+      "from_layer": "In1.Cu",
+      "to_layer": "In2.Cu",
+      "amps": -5.207775772833133e-12,
+      "joule_w": 3.8304375776809225e-27,
+      "drill_mm": 1.8,
+      "plating_um": 12.0
+    },
+    {
+      "xy_mm": [
+        248.25,
+        73.85
+      ],
+      "filled_lead": true,
+      "from_layer": "In2.Cu",
+      "to_layer": "B.Cu",
+      "amps": 1.3698433132438662e-11,
+      "joule_w": 2.3667941564784097e-26,
+      "drill_mm": 1.8,
+      "plating_um": 12.0
+    },
+    {
+      "xy_mm": [
+        248.25,
+        94.15
+      ],
+      "filled_lead": true,
+      "from_layer": "F.Cu",
+      "to_layer": "In1.Cu",
+      "amps": 2.420606657940968e-12,
+      "joule_w": 7.390386424319286e-28,
+      "drill_mm": 1.8,
+      "plating_um": 12.0
+    },
+    {
+      "xy_mm": [
+        248.25,
+        94.15
+      ],
+      "filled_lead": true,
+      "from_layer": "In1.Cu",
+      "to_layer": "In2.Cu",
+      "amps": 9.825992024213459e-14,
+      "joule_w": 1.3636303231331163e-30,
+      "drill_mm": 1.8,
+      "plating_um": 12.0
+    },
+    {
+      "xy_mm": [
+        248.25,
+        94.15
+      ],
+      "filled_lead": true,
+      "from_layer": "In2.Cu",
+      "to_layer": "B.Cu",
+      "amps": -9.40735769336149e-12,
+      "joule_w": 1.116230833850828e-26,
+      "drill_mm": 1.8,
       "plating_um": 12.0
     },
     {
@@ -506,162 +818,6 @@
     },
     {
       "xy_mm": [
-        254.0,
-        106.0
-      ],
-      "filled_lead": true,
-      "from_layer": "F.Cu",
-      "to_layer": "In1.Cu",
-      "amps": -5.383578825332318e-13,
-      "joule_w": 4.1091690521532703e-29,
-      "drill_mm": 1.6,
-      "plating_um": 12.0
-    },
-    {
-      "xy_mm": [
-        254.0,
-        106.0
-      ],
-      "filled_lead": true,
-      "from_layer": "In1.Cu",
-      "to_layer": "In2.Cu",
-      "amps": 8.304373171015775e-13,
-      "joule_w": 1.09484012307051e-28,
-      "drill_mm": 1.6,
-      "plating_um": 12.0
-    },
-    {
-      "xy_mm": [
-        254.0,
-        106.0
-      ],
-      "filled_lead": true,
-      "from_layer": "In2.Cu",
-      "to_layer": "B.Cu",
-      "amps": 9.298908880119461e-13,
-      "joule_w": 1.2259587006837449e-28,
-      "drill_mm": 1.6,
-      "plating_um": 12.0
-    },
-    {
-      "xy_mm": [
-        205.25,
-        65.45
-      ],
-      "filled_lead": true,
-      "from_layer": "F.Cu",
-      "to_layer": "In1.Cu",
-      "amps": -4.4561168021186e-12,
-      "joule_w": 2.5045622587788656e-27,
-      "drill_mm": 1.8,
-      "plating_um": 12.0
-    },
-    {
-      "xy_mm": [
-        205.25,
-        65.45
-      ],
-      "filled_lead": true,
-      "from_layer": "In1.Cu",
-      "to_layer": "In2.Cu",
-      "amps": 6.8290644568283535e-12,
-      "joule_w": 6.586675368313734e-27,
-      "drill_mm": 1.8,
-      "plating_um": 12.0
-    },
-    {
-      "xy_mm": [
-        205.25,
-        65.45
-      ],
-      "filled_lead": true,
-      "from_layer": "In2.Cu",
-      "to_layer": "B.Cu",
-      "amps": 7.316833761503382e-12,
-      "joule_w": 6.75250751341859e-27,
-      "drill_mm": 1.8,
-      "plating_um": 12.0
-    },
-    {
-      "xy_mm": [
-        205.25,
-        85.75
-      ],
-      "filled_lead": true,
-      "from_layer": "F.Cu",
-      "to_layer": "In1.Cu",
-      "amps": -9.792454207124824e-12,
-      "joule_w": 1.2094886542775425e-26,
-      "drill_mm": 1.8,
-      "plating_um": 12.0
-    },
-    {
-      "xy_mm": [
-        205.25,
-        85.75
-      ],
-      "filled_lead": true,
-      "from_layer": "In1.Cu",
-      "to_layer": "In2.Cu",
-      "amps": -6.042985094891277e-12,
-      "joule_w": 5.157590789670229e-27,
-      "drill_mm": 1.8,
-      "plating_um": 12.0
-    },
-    {
-      "xy_mm": [
-        205.25,
-        85.75
-      ],
-      "filled_lead": true,
-      "from_layer": "In2.Cu",
-      "to_layer": "B.Cu",
-      "amps": 9.682426631763874e-12,
-      "joule_w": 1.182461827891086e-26,
-      "drill_mm": 1.8,
-      "plating_um": 12.0
-    },
-    {
-      "xy_mm": [
-        24.2,
-        28.2
-      ],
-      "filled_lead": true,
-      "from_layer": "F.Cu",
-      "to_layer": "In1.Cu",
-      "amps": 9.567298440326617e-13,
-      "joule_w": 1.726048189435531e-28,
-      "drill_mm": 1.2,
-      "plating_um": 12.0
-    },
-    {
-      "xy_mm": [
-        24.2,
-        28.2
-      ],
-      "filled_lead": true,
-      "from_layer": "In1.Cu",
-      "to_layer": "In2.Cu",
-      "amps": 1.6266571895713696e-12,
-      "joule_w": 5.587164819949502e-28,
-      "drill_mm": 1.2,
-      "plating_um": 12.0
-    },
-    {
-      "xy_mm": [
-        24.2,
-        28.2
-      ],
-      "filled_lead": true,
-      "from_layer": "In2.Cu",
-      "to_layer": "B.Cu",
-      "amps": -2.759797627017294e-13,
-      "joule_w": 1.4362457197595954e-29,
-      "drill_mm": 1.2,
-      "plating_um": 12.0
-    },
-    {
-      "xy_mm": [
         82.8,
         28.2
       ],
@@ -740,162 +896,6 @@
     },
     {
       "xy_mm": [
-        9.95,
-        4.215
-      ],
-      "filled_lead": true,
-      "from_layer": "F.Cu",
-      "to_layer": "In1.Cu",
-      "amps": -3.6265380302745976e-12,
-      "joule_w": 1.9879688478142506e-27,
-      "drill_mm": 1.5,
-      "plating_um": 12.0
-    },
-    {
-      "xy_mm": [
-        9.95,
-        4.215
-      ],
-      "filled_lead": true,
-      "from_layer": "In1.Cu",
-      "to_layer": "In2.Cu",
-      "amps": -4.550540544723497e-12,
-      "joule_w": 3.5049047030243654e-27,
-      "drill_mm": 1.5,
-      "plating_um": 12.0
-    },
-    {
-      "xy_mm": [
-        9.95,
-        4.215
-      ],
-      "filled_lead": true,
-      "from_layer": "In2.Cu",
-      "to_layer": "B.Cu",
-      "amps": 1.5607885193586878e-12,
-      "joule_w": 3.682249620370572e-28,
-      "drill_mm": 1.5,
-      "plating_um": 12.0
-    },
-    {
-      "xy_mm": [
-        248.25,
-        73.85
-      ],
-      "filled_lead": true,
-      "from_layer": "F.Cu",
-      "to_layer": "In1.Cu",
-      "amps": -9.462371481041965e-12,
-      "joule_w": 1.1293243387244923e-26,
-      "drill_mm": 1.8,
-      "plating_um": 12.0
-    },
-    {
-      "xy_mm": [
-        248.25,
-        73.85
-      ],
-      "filled_lead": true,
-      "from_layer": "In1.Cu",
-      "to_layer": "In2.Cu",
-      "amps": -5.207775772833133e-12,
-      "joule_w": 3.8304375776809225e-27,
-      "drill_mm": 1.8,
-      "plating_um": 12.0
-    },
-    {
-      "xy_mm": [
-        248.25,
-        73.85
-      ],
-      "filled_lead": true,
-      "from_layer": "In2.Cu",
-      "to_layer": "B.Cu",
-      "amps": 1.3698433132438662e-11,
-      "joule_w": 2.3667941564784097e-26,
-      "drill_mm": 1.8,
-      "plating_um": 12.0
-    },
-    {
-      "xy_mm": [
-        248.25,
-        94.15
-      ],
-      "filled_lead": true,
-      "from_layer": "F.Cu",
-      "to_layer": "In1.Cu",
-      "amps": 2.420606657940968e-12,
-      "joule_w": 7.390386424319286e-28,
-      "drill_mm": 1.8,
-      "plating_um": 12.0
-    },
-    {
-      "xy_mm": [
-        248.25,
-        94.15
-      ],
-      "filled_lead": true,
-      "from_layer": "In1.Cu",
-      "to_layer": "In2.Cu",
-      "amps": 9.825992024213459e-14,
-      "joule_w": 1.3636303231331163e-30,
-      "drill_mm": 1.8,
-      "plating_um": 12.0
-    },
-    {
-      "xy_mm": [
-        248.25,
-        94.15
-      ],
-      "filled_lead": true,
-      "from_layer": "In2.Cu",
-      "to_layer": "B.Cu",
-      "amps": -9.40735769336149e-12,
-      "joule_w": 1.116230833850828e-26,
-      "drill_mm": 1.8,
-      "plating_um": 12.0
-    },
-    {
-      "xy_mm": [
-        61.0,
-        28.2
-      ],
-      "filled_lead": true,
-      "from_layer": "F.Cu",
-      "to_layer": "In1.Cu",
-      "amps": 1.8398650846781956e-13,
-      "joule_w": 6.383314310042644e-30,
-      "drill_mm": 1.2,
-      "plating_um": 12.0
-    },
-    {
-      "xy_mm": [
-        61.0,
-        28.2
-      ],
-      "filled_lead": true,
-      "from_layer": "In1.Cu",
-      "to_layer": "In2.Cu",
-      "amps": 4.929264210822332e-13,
-      "joule_w": 5.130546207483473e-29,
-      "drill_mm": 1.2,
-      "plating_um": 12.0
-    },
-    {
-      "xy_mm": [
-        61.0,
-        28.2
-      ],
-      "filled_lead": true,
-      "from_layer": "In2.Cu",
-      "to_layer": "B.Cu",
-      "amps": -1.4718920677425568e-13,
-      "joule_w": 4.085321158427293e-30,
-      "drill_mm": 1.2,
-      "plating_um": 12.0
-    },
-    {
-      "xy_mm": [
         95.2,
         60.5
       ],
@@ -937,6 +937,96 @@
   "barrel_heat_by_layer": [
     {
       "xy_mm": [
+        24.2,
+        28.2
+      ],
+      "filled_lead": true,
+      "drill_mm": 1.2,
+      "plating_um": 12.0,
+      "layer_joule_w": {
+        "F.Cu": 8.869730589804811e-29,
+        "In1.Cu": 3.6697946373164844e-28,
+        "In2.Cu": 1.3386132408563564e-18,
+        "B.Cu": 1.0354853565754237e-29
+      }
+    },
+    {
+      "xy_mm": [
+        254.0,
+        106.0
+      ],
+      "filled_lead": true,
+      "drill_mm": 1.6,
+      "plating_um": 12.0,
+      "layer_joule_w": {
+        "F.Cu": 7.223578982778627e-29,
+        "In1.Cu": 1.0113284098272973e-28,
+        "In2.Cu": 8.475473465700484e-26,
+        "B.Cu": 8.88295670669777e-29
+      }
+    },
+    {
+      "xy_mm": [
+        9.95,
+        4.215
+      ],
+      "filled_lead": true,
+      "drill_mm": 1.5,
+      "plating_um": 12.0,
+      "layer_joule_w": {
+        "F.Cu": 1.009414927613633e-27,
+        "In1.Cu": 2.749833176384065e-27,
+        "In2.Cu": 2.5213972128339666e-27,
+        "B.Cu": 1.97967864490997e-28
+      }
+    },
+    {
+      "xy_mm": [
+        61.0,
+        28.2
+      ],
+      "filled_lead": true,
+      "drill_mm": 1.2,
+      "plating_um": 12.0,
+      "layer_joule_w": {
+        "F.Cu": 5.808713156912925e-30,
+        "In1.Cu": 3.310072874810656e-29,
+        "In2.Cu": 2.7196710850453575e-05,
+        "B.Cu": 5.724556063906921e-30
+      }
+    },
+    {
+      "xy_mm": [
+        205.25,
+        65.45
+      ],
+      "filled_lead": true,
+      "drill_mm": 1.8,
+      "plating_um": 12.0,
+      "layer_joule_w": {
+        "F.Cu": 1.2879543360822089e-27,
+        "In1.Cu": 4.727086926411396e-27,
+        "In2.Cu": 5.041328760796457e-15,
+        "B.Cu": 3.410301282105496e-27
+      }
+    },
+    {
+      "xy_mm": [
+        205.25,
+        85.75
+      ],
+      "filled_lead": true,
+      "drill_mm": 1.8,
+      "plating_um": 12.0,
+      "layer_joule_w": {
+        "F.Cu": 6.075921668023637e-27,
+        "In1.Cu": 8.668759649764991e-27,
+        "In2.Cu": 1.7519863302680645e-19,
+        "B.Cu": 5.940249318097552e-27
+      }
+    },
+    {
+      "xy_mm": [
         68.05,
         4.215
       ],
@@ -948,6 +1038,36 @@
         "In1.Cu": 0.036046608978075545,
         "In2.Cu": 0.02034050561236382,
         "B.Cu": 1.5870684278641138e-30
+      }
+    },
+    {
+      "xy_mm": [
+        248.25,
+        73.85
+      ],
+      "filled_lead": true,
+      "drill_mm": 1.8,
+      "plating_um": 12.0,
+      "layer_joule_w": {
+        "F.Cu": 5.6991988508337165e-27,
+        "In1.Cu": 7.605322995350268e-27,
+        "In2.Cu": 1.4914690367687252e-24,
+        "B.Cu": 1.1890552054666077e-26
+      }
+    },
+    {
+      "xy_mm": [
+        248.25,
+        94.15
+      ],
+      "filled_lead": true,
+      "drill_mm": 1.8,
+      "plating_um": 12.0,
+      "layer_joule_w": {
+        "F.Cu": 5.367767217050395e-28,
+        "In1.Cu": 3.979937669443724e-28,
+        "In2.Cu": 8.35984275801885e-25,
+        "B.Cu": 5.617452874212122e-27
       }
     },
     {
@@ -1012,66 +1132,6 @@
     },
     {
       "xy_mm": [
-        254.0,
-        106.0
-      ],
-      "filled_lead": true,
-      "drill_mm": 1.6,
-      "plating_um": 12.0,
-      "layer_joule_w": {
-        "F.Cu": 7.223578982778627e-29,
-        "In1.Cu": 1.0113284098272973e-28,
-        "In2.Cu": 8.475473465700484e-26,
-        "B.Cu": 8.88295670669777e-29
-      }
-    },
-    {
-      "xy_mm": [
-        205.25,
-        65.45
-      ],
-      "filled_lead": true,
-      "drill_mm": 1.8,
-      "plating_um": 12.0,
-      "layer_joule_w": {
-        "F.Cu": 1.2879543360822089e-27,
-        "In1.Cu": 4.727086926411396e-27,
-        "In2.Cu": 5.041328760796457e-15,
-        "B.Cu": 3.410301282105496e-27
-      }
-    },
-    {
-      "xy_mm": [
-        205.25,
-        85.75
-      ],
-      "filled_lead": true,
-      "drill_mm": 1.8,
-      "plating_um": 12.0,
-      "layer_joule_w": {
-        "F.Cu": 6.075921668023637e-27,
-        "In1.Cu": 8.668759649764991e-27,
-        "In2.Cu": 1.7519863302680645e-19,
-        "B.Cu": 5.940249318097552e-27
-      }
-    },
-    {
-      "xy_mm": [
-        24.2,
-        28.2
-      ],
-      "filled_lead": true,
-      "drill_mm": 1.2,
-      "plating_um": 12.0,
-      "layer_joule_w": {
-        "F.Cu": 8.869730589804811e-29,
-        "In1.Cu": 3.6697946373164844e-28,
-        "In2.Cu": 1.3386132408563564e-18,
-        "B.Cu": 1.0354853565754237e-29
-      }
-    },
-    {
-      "xy_mm": [
         82.8,
         28.2
       ],
@@ -1098,66 +1158,6 @@
         "In1.Cu": 1.3826548621853774e-28,
         "In2.Cu": 1.0689004945717245e-22,
         "B.Cu": 1.1556626992396848e-29
-      }
-    },
-    {
-      "xy_mm": [
-        9.95,
-        4.215
-      ],
-      "filled_lead": true,
-      "drill_mm": 1.5,
-      "plating_um": 12.0,
-      "layer_joule_w": {
-        "F.Cu": 1.009414927613633e-27,
-        "In1.Cu": 2.749833176384065e-27,
-        "In2.Cu": 2.5213972128339666e-27,
-        "B.Cu": 1.97967864490997e-28
-      }
-    },
-    {
-      "xy_mm": [
-        248.25,
-        73.85
-      ],
-      "filled_lead": true,
-      "drill_mm": 1.8,
-      "plating_um": 12.0,
-      "layer_joule_w": {
-        "F.Cu": 5.6991988508337165e-27,
-        "In1.Cu": 7.605322995350268e-27,
-        "In2.Cu": 1.4914690367687252e-24,
-        "B.Cu": 1.1890552054666077e-26
-      }
-    },
-    {
-      "xy_mm": [
-        248.25,
-        94.15
-      ],
-      "filled_lead": true,
-      "drill_mm": 1.8,
-      "plating_um": 12.0,
-      "layer_joule_w": {
-        "F.Cu": 5.367767217050395e-28,
-        "In1.Cu": 3.979937669443724e-28,
-        "In2.Cu": 8.35984275801885e-25,
-        "B.Cu": 5.617452874212122e-27
-      }
-    },
-    {
-      "xy_mm": [
-        61.0,
-        28.2
-      ],
-      "filled_lead": true,
-      "drill_mm": 1.2,
-      "plating_um": 12.0,
-      "layer_joule_w": {
-        "F.Cu": 5.808713156912925e-30,
-        "In1.Cu": 3.310072874810656e-29,
-        "In2.Cu": 2.7196710850453575e-05,
-        "B.Cu": 5.724556063906921e-30
       }
     },
     {

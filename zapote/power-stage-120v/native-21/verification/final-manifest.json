@@ -1,8 +1,8 @@
 {
  "schema": "temper.native21.engineering-candidate.v1",
  "status": "DIGITAL_CANDIDATE_NOT_MANUFACTURING_RELEASE",
- "routed_board_sha256": "96501e7d0e9b4903a145aa3bd0e45003a4fafe37ceef5259a7502bc9b11225a9",
- "copper_json_sha256": "b2107cd00b3a659d082cd3c2b7ad30d0025bba1d0cb1df68ab79a98e3b7bb9f2",
+ "routed_board_sha256": "3768a12675f8d61f91fc4a96dd267522e68f454f8f300634aca2ae16afc6dd1a",
+ "copper_json_sha256": "e6ad813b963ce3a8fffafbc90bfa99f1cbb1ae982981c60642cc501727137a99",
  "schematic_sha256": "40652300cba54a02665c2f54d80956b8ceb05602d3e9562edb927a559b9ac471",
  "frozen_netlist_sha256": "bd395b0b407ec4f1542ec3f3085e16e295a14a301c03ed90054ebe250a3905d3",
  "rebuild": "sh native-21/layout/incr_iter.sh native-21/layout/copper.json - [OUTDIR]",
@@ -69,7 +69,7 @@
   }
  },
  "via_in_pad_decision": "order every 0.3 mm via epoxy-filled and capped (POFV); DECISIONS.md 2026-10-08",
- "stage": "17b: stage 17 (R5 = Bourns CSS2H-2512R-1L00F, DECISIONS item 17) + declared pour priorities for every contested pour pair (deterministic fill; gates/zone_priority_gate.py)",
+ "stage": "18: stage 17b + LINE_ZC_RAW / V15_SELV B.Cu re-laid >= 12.6 mm from RES_A (DECISIONS item 18); RES_A 12.6 mm outer-layer rule in DRU, barrier21, Rust gate",
  "board_hash_note": "rebuilds are not byte-identical (KiCad UUIDs / timestamps); copper_json_sha256 is the reproducible identity",
  "r5_current_vias": {
   "R5.1_leg_ret": 10,
@@ -83,9 +83,9 @@
   "worst_via_wall_estimate_c": 133.31,
   "criterion": "validation-plan/04-board-current-thermal.md:114 (report current and rise; >3 A is a flag, no rated limit)"
  },
- "kelvin_evidence": "validation-results/02-protection-timing/kelvin/budget-native21s17b.json (R35.2 157.80 mOhm; band before 69.89-116.44 A with R5 75 ppm, after 67.72-116.44 A, 67.66 A at the bound; floor 64.17 A met)",
- "board_current_screen": "task 04 round 5 on stage 17b: BUS_P span 4.129 %; B3 h25 ceiling sweep 22/24/26/28 A -> 130.2/131.1/132.1/136.0 C (22-26 A at U42, 28 A at R5.4); U26 126.3/126.6/127.0/127.4 C; nominal h10/h25 163.2/129.1 C (U26 126.1 C at nominal h25, its In1 n_ls pour now owns the boundary strip by priority)",
- "fab_package": "validation-results/08-manufacturing-package/native-21 (candidate; review PASS 875 round holes + 4 slots; DFM PASS)",
+ "kelvin_evidence": "validation-results/02-protection-timing/kelvin/budget-native21s18.json (R35.2 157.80 mOhm; band after 67.72-116.44 A, 67.66 A at the bound; floor 64.17 A met; unchanged from 17b)",
+ "board_current_screen": "task 04 round 5 on stage 18: BUS_P span 4.129 %; B3 h25 ceiling sweep 22/24/26/28 A -> 130.2/131.1/132.1/136.0 C (22-26 A at U42, 28 A at R5.4); every B3 case within 0.01 K of stage 17b; nominal h10/h25 163.2/129.1 C",
+ "fab_package": "validation-results/08-manufacturing-package/native-21 (candidate; review PASS 875 round holes + 4 slots; DFM PASS; Gerber ZIP 021bf8fdebcd1840a418b5dad74cf142118ca06bbe15b94aa2c0d996fb4561bc)",
  "tank_path_width_screen": {
   "SW_B_long_section_mm": "8.1-9.3 (was 4.4-5.6 over x 58-74)",
   "SW_A_long_section_mm": 7.0,
@@ -161,5 +161,23 @@
   "zone_priority_gate": "0 equal-priority pairs of 25 contested",
   "three_builds_max_symdiff_mm2_per_net": 0.0381,
   "evidence": "validation-results/04-board-current-thermal/round5-native21/stage17-r5/fill17b.txt"
+ },
+ "res_a_outer_12p6mm": {
+  "rule": "RES_A to SELV/PE, F.Cu / B.Cu, 12.6 mm clearance + creepage (section.kicad_dru last rule); inner layers solid insulation, 8.0 mm plan view",
+  "min_mm": {
+   "F.Cu": 20.393,
+   "B.Cu": 13.375
+  },
+  "stage17b_min_mm": {
+   "B.Cu line_zc_raw": 8.145,
+   "B.Cu v15_selv": 9.4
+  },
+  "barrier21": 0,
+  "rust_gate_per_outer_layer": {
+   "F.Cu": 0,
+   "B.Cu": 0
+  },
+  "inner_reported_mm": 9.694,
+  "evidence": "validation-results/08-manufacturing-package/native-21/stage18-res-a-creepage/ (res_a_creepage18.py, control17b.txt, drc-control17b.txt)"
  }
 }

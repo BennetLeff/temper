@@ -40,7 +40,9 @@ if sys.argv[1] == "--dump":
         for p in f.Pads():
             poly = p.GetEffectivePolygon(pcbnew.F_Cu if p.IsOnLayer(pcbnew.F_Cu) else pcbnew.B_Cu)
             ol = poly.Outline(0)
+            # stage 18: the copper layers the pad is on (SMD side), for per-layer creepage checks
             out["pads"].append({"net": p.GetNetname(), "ref": f.GetReference(), "tht": p.GetAttribute() == pcbnew.PAD_ATTRIB_PTH,
+                                "layers": [b.GetLayerName(lid) for lid in p.GetLayerSet().CuStack()],
                                 "pts": [[mm(ol.CPoint(k).x), mm(ol.CPoint(k).y)] for k in range(ol.PointCount())]})
     for d in b.GetDrawings():
         if d.GetLayer() == pcbnew.Edge_Cuts:

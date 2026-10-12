@@ -8,6 +8,11 @@ tools/barrier_check.py classifies nets with the native-19 rule writer; native-21
 own net set, so this passes the same Rust checker the native-21 domains instead
 (write_rules21.py via rules21: SELV, PE and every HOT potential group). Evidence format,
 staleness checks and verdict are tools/barrier_check.py's.
+
+Stage 18 (DECISIONS items 7, 18): the same Rust checker also runs once per OUTER layer at 12.6 mm with
+HOT = RES_A only, on a subset of the verified evidence (that layer's RES_A / SELV / PE items, census
+recounted), so every reported pair is same-layer surface copper. Output: the 8.0 mm report with
+"res_a_outer" {layer: report} and "res_a_outer_violations" added.
 """
 from __future__ import annotations
 
@@ -45,11 +50,29 @@ def main() -> None:
     command = [binary] if binary else ["cargo", "run", "--quiet", "--locked", "--manifest-path",
                                        str(barrier_check.ZAPOTE / "Cargo.toml"), "-p", "zapote-harness",
                                        "--bin", "zapote-power-barrier"]
-    result = subprocess.run(command, input=json.dumps(payload, allow_nan=False), text=True,
-                            capture_output=True, check=False)
-    if result.returncode != 0:
-        raise SystemExit(f"Rust barrier check rejected copper: {result.stderr.strip()}")
-    print(result.stdout.strip())
+
+    def run(p):
+        result = subprocess.run(command, input=json.dumps(p, allow_nan=False), text=True,
+                                capture_output=True, check=False)
+        if result.returncode != 0:
+            raise SystemExit(f"Rust barrier check rejected copper: {result.stderr.strip()}")
+        return json.loads(result.stdout)
+
+    report = run(payload)
+    barrier = rules21.SELV | rules21.PE
+    report["res_a_outer"] = {}
+    for lay in rules21.OUTER:
+        sub = [{**it, "layers": [lay]} for it in items if lay in it["layers"]
+               and (it["net"] in rules21.RES_A_NETS or it["net"] in barrier)]
+        kinds = {k: sum(it["kind"] == k for it in sub) for k in ("pad", "track", "via", "zone")}
+        census = {**evidence["census"], "pads": kinds["pad"], "tracks": kinds["track"], "vias": kinds["via"],
+                  "zones": kinds["zone"], "filled_zone_polygons": kinds["zone"], "items": len(sub)}
+        ev = {**evidence, "copper_layers": [lay], "census": census, "items": sub}
+        nets = {it["net"] for it in sub}
+        dom = {"selv": sorted(rules21.SELV & nets), "hot": sorted(rules21.RES_A_NETS & nets), "pe": sorted(rules21.PE)}
+        report["res_a_outer"][lay] = run({"evidence": ev, "floor_mm": rules21.RES_A_CREEPAGE, "domains": dom})
+    report["res_a_outer_violations"] = sum(r["violations"] for r in report["res_a_outer"].values())
+    print(json.dumps(report))
 
 
 if __name__ == "__main__":

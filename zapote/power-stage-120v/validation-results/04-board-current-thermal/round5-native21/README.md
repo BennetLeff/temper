@@ -277,6 +277,12 @@ runs rise 1–10 K and remain outside the 22 A envelope.
   7.7 A/mm), 7.59 A at the 29.4 A trip, barrel Joule 0.029 W, mid-wall rise 0.28 K over its planes, B3 cell 133.04 °C,
   wall estimate 133.31 °C, under the R5 pad maximum and G6's 148.39 °C terminal bound. 10 of 18 R5 vias are flagged.
 
+### Stage 18 re-run (2026-10-12, board `3768a126…`; RES_A creepage, DECISIONS item 18)
+
+- **Change:** two SELV signal tracks on B.Cu (LINE_ZC_RAW, V15_SELV) moved 5–6 mm south under the bank; no power copper.
+- **B3:** every case within 0.01 K of 17b (h 25: 130.2 / 131.1 / 132.1 / 136.0 °C at 22 / 24 / 26 / 28 A; nominal h 10 / h 25
+  163.2 / 129.1 °C). BUS_P span 4.129 %. G6 not re-run (R5 copper unchanged; R5.4 peak 135.96 vs 135.97 °C).
+
 **Verdict, task 04 on native-21:** nominal operation passes the copper width screen after the SW_B
 fix (SW_A at 18.8 K is the tightest). The board needs a tank-current ceiling (22 A RMS interim).
 Bench IR at nominal power remains the physical gate (D4).

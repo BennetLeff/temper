@@ -1,0 +1,4570 @@
+{
+ "dump": "runs-native21/s18/s18/copper-dump.json",
+ "floor_mm": 12.6,
+ "hv_nets": [
+  "res_a"
+ ],
+ "violations": [],
+ "pairs_under_25mm": [
+  {
+   "layer": "B.Cu",
+   "hv_net": "res_a",
+   "barrier_net": "line_zc_raw",
+   "domain": "SELV",
+   "mm": 13.375,
+   "hv_item": "pour",
+   "barrier_item": "track",
+   "at_hv": [
+    150.14,
+    114.0
+   ],
+   "at_barrier": [
+    150.14,
+    127.38
+   ],
+   "floor_mm": 12.6,
+   "gated": true,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "res_a",
+   "barrier_net": "v15_selv",
+   "domain": "SELV",
+   "mm": 14.4,
+   "hv_item": "pour",
+   "barrier_item": "track",
+   "at_hv": [
+    150.14,
+    114.0
+   ],
+   "at_barrier": [
+    150.14,
+    128.4
+   ],
+   "floor_mm": 12.6,
+   "gated": true,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "res_a",
+   "barrier_net": "pe",
+   "domain": "PE",
+   "mm": 19.204,
+   "hv_item": "pour",
+   "barrier_item": "pad",
+   "at_hv": [
+    150.7,
+    114.0
+   ],
+   "at_barrier": [
+    150.7,
+    133.2
+   ],
+   "floor_mm": 12.6,
+   "gated": true,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "res_a",
+   "barrier_net": "ct_s2",
+   "domain": "SELV",
+   "mm": 20.393,
+   "hv_item": "pad",
+   "barrier_item": "pad",
+   "at_hv": [
+    161.8,
+    112.7
+   ],
+   "at_barrier": [
+    143.38,
+    121.45
+   ],
+   "floor_mm": 12.6,
+   "gated": true,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "res_a",
+   "barrier_net": "pe",
+   "domain": "PE",
+   "mm": 20.562,
+   "hv_item": "pad",
+   "barrier_item": "pad",
+   "at_hv": [
+    164.2,
+    112.7
+   ],
+   "at_barrier": [
+    165.74,
+    133.2
+   ],
+   "floor_mm": 12.6,
+   "gated": true,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "res_a",
+   "barrier_net": "ct_s2",
+   "domain": "SELV",
+   "mm": 22.215,
+   "hv_item": "pour",
+   "barrier_item": "via",
+   "at_hv": [
+    150.03,
+    113.95
+   ],
+   "at_barrier": [
+    134.63,
+    129.96
+   ],
+   "floor_mm": 12.6,
+   "gated": true,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "res_a",
+   "barrier_net": "selv_gnd",
+   "domain": "SELV",
+   "mm": 23.752,
+   "hv_item": "pour",
+   "barrier_item": "pad",
+   "at_hv": [
+    150.03,
+    113.95
+   ],
+   "at_barrier": [
+    131.09,
+    128.28
+   ],
+   "floor_mm": 12.6,
+   "gated": true,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "line_zc_raw",
+   "domain": "SELV",
+   "mm": 8.145,
+   "hv_item": "pour",
+   "barrier_item": "track",
+   "at_hv": [
+    192.14,
+    113.0
+   ],
+   "at_barrier": [
+    192.14,
+    121.14
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "bias_bad",
+   "domain": "SELV",
+   "mm": 8.34,
+   "hv_item": "track",
+   "barrier_item": "track",
+   "at_hv": [
+    55.5,
+    118.73
+   ],
+   "at_barrier": [
+    55.5,
+    127.08
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "permit",
+   "domain": "SELV",
+   "mm": 8.915,
+   "hv_item": "track",
+   "barrier_item": "track",
+   "at_hv": [
+    53.3,
+    118.73
+   ],
+   "at_barrier": [
+    53.3,
+    127.65
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "selv_gnd",
+   "domain": "SELV",
+   "mm": 9.058,
+   "hv_item": "pour",
+   "barrier_item": "pad",
+   "at_hv": [
+    200.59,
+    112.89
+   ],
+   "at_barrier": [
+    209.34,
+    115.25
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "bias_hb_bad",
+   "domain": "SELV",
+   "mm": 9.104,
+   "hv_item": "via",
+   "barrier_item": "track",
+   "at_hv": [
+    14.48,
+    118.31
+   ],
+   "at_barrier": [
+    14.48,
+    127.41
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "v3v3",
+   "domain": "SELV",
+   "mm": 9.594,
+   "hv_item": "pad",
+   "barrier_item": "via",
+   "at_hv": [
+    14.54,
+    118.51
+   ],
+   "at_barrier": [
+    15.98,
+    127.99
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "pwm_ha",
+   "domain": "SELV",
+   "mm": 9.625,
+   "hv_item": "track",
+   "barrier_item": "pad",
+   "at_hv": [
+    72.26,
+    45.94
+   ],
+   "at_barrier": [
+    75.35,
+    55.06
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "pwm_hb",
+   "domain": "SELV",
+   "mm": 9.64,
+   "hv_item": "track",
+   "barrier_item": "via",
+   "at_hv": [
+    55.16,
+    118.73
+   ],
+   "at_barrier": [
+    55.16,
+    128.38
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "pwm_hb",
+   "domain": "SELV",
+   "mm": 9.65,
+   "hv_item": "track",
+   "barrier_item": "pad",
+   "at_hv": [
+    25.26,
+    45.92
+   ],
+   "at_barrier": [
+    28.35,
+    55.06
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "v3v3",
+   "domain": "SELV",
+   "mm": 9.795,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    14.53,
+    118.31
+   ],
+   "at_barrier": [
+    15.98,
+    127.99
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "bus_fault_iso",
+   "domain": "SELV",
+   "mm": 9.801,
+   "hv_item": "track",
+   "barrier_item": "via",
+   "at_hv": [
+    53.28,
+    118.73
+   ],
+   "at_barrier": [
+    51.56,
+    128.38
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "pwm_la",
+   "domain": "SELV",
+   "mm": 10.103,
+   "hv_item": "track",
+   "barrier_item": "pad",
+   "at_hv": [
+    72.29,
+    45.93
+   ],
+   "at_barrier": [
+    76.62,
+    55.06
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "pwm_lb",
+   "domain": "SELV",
+   "mm": 10.128,
+   "hv_item": "track",
+   "barrier_item": "pad",
+   "at_hv": [
+    25.28,
+    45.91
+   ],
+   "at_barrier": [
+    29.62,
+    55.06
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "u_bias_flt-nc",
+   "domain": "SELV",
+   "mm": 10.281,
+   "hv_item": "via",
+   "barrier_item": "pad",
+   "at_hv": [
+    14.45,
+    118.31
+   ],
+   "at_barrier": [
+    13.05,
+    128.5
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "v15_selv",
+   "domain": "SELV",
+   "mm": 10.4,
+   "hv_item": "pour",
+   "barrier_item": "track",
+   "at_hv": [
+    192.14,
+    113.0
+   ],
+   "at_barrier": [
+    192.14,
+    123.4
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "ct_oc_neg",
+   "domain": "SELV",
+   "mm": 10.441,
+   "hv_item": "via",
+   "barrier_item": "pad",
+   "at_hv": [
+    14.53,
+    118.31
+   ],
+   "at_barrier": [
+    16.76,
+    128.51
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "v3v3",
+   "domain": "SELV",
+   "mm": 10.59,
+   "hv_item": "track",
+   "barrier_item": "pad",
+   "at_hv": [
+    59.55,
+    117.71
+   ],
+   "at_barrier": [
+    59.59,
+    128.3
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "selv_gnd",
+   "domain": "SELV",
+   "mm": 10.607,
+   "hv_item": "track",
+   "barrier_item": "pad",
+   "at_hv": [
+    60.56,
+    117.71
+   ],
+   "at_barrier": [
+    61.15,
+    128.3
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "ct_oc_neg",
+   "domain": "SELV",
+   "mm": 10.652,
+   "hv_item": "pad",
+   "barrier_item": "via",
+   "at_hv": [
+    14.67,
+    118.47
+   ],
+   "at_barrier": [
+    18.24,
+    128.51
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "pwm_hb",
+   "domain": "SELV",
+   "mm": 10.703,
+   "hv_item": "via",
+   "barrier_item": "track",
+   "at_hv": [
+    57.41,
+    116.92
+   ],
+   "at_barrier": [
+    54.2,
+    127.13
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "v3v3",
+   "domain": "SELV",
+   "mm": 10.802,
+   "hv_item": "track",
+   "barrier_item": "via",
+   "at_hv": [
+    54.98,
+    118.73
+   ],
+   "at_barrier": [
+    54.98,
+    129.54
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "bias_bad",
+   "domain": "SELV",
+   "mm": 11.028,
+   "hv_item": "pad",
+   "barrier_item": "via",
+   "at_hv": [
+    14.41,
+    118.51
+   ],
+   "at_barrier": [
+    13.94,
+    129.52
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "selv_gnd",
+   "domain": "SELV",
+   "mm": 11.067,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    14.51,
+    118.31
+   ],
+   "at_barrier": [
+    15.6,
+    129.32
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "selv_gnd",
+   "domain": "SELV",
+   "mm": 11.127,
+   "hv_item": "track",
+   "barrier_item": "via",
+   "at_hv": [
+    53.44,
+    118.73
+   ],
+   "at_barrier": [
+    53.44,
+    129.86
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "bias_bad_flt",
+   "domain": "SELV",
+   "mm": 11.223,
+   "hv_item": "via",
+   "barrier_item": "pad",
+   "at_hv": [
+    14.45,
+    118.31
+   ],
+   "at_barrier": [
+    13.05,
+    129.44
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "bias_bad",
+   "domain": "SELV",
+   "mm": 11.227,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    14.48,
+    118.31
+   ],
+   "at_barrier": [
+    13.94,
+    129.52
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "bias_bad_flt",
+   "domain": "SELV",
+   "mm": 11.288,
+   "hv_item": "pad",
+   "barrier_item": "track",
+   "at_hv": [
+    14.41,
+    118.51
+   ],
+   "at_barrier": [
+    12.62,
+    129.65
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "bias_bad_flt",
+   "domain": "SELV",
+   "mm": 11.292,
+   "hv_item": "track",
+   "barrier_item": "track",
+   "at_hv": [
+    50.87,
+    117.83
+   ],
+   "at_barrier": [
+    47.66,
+    128.66
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "line_zc.buffer-nc",
+   "domain": "SELV",
+   "mm": 11.869,
+   "hv_item": "via",
+   "barrier_item": "pad",
+   "at_hv": [
+    14.33,
+    118.28
+   ],
+   "at_barrier": [
+    8.32,
+    128.51
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "bias_ha.monitor.iso-nc10",
+   "domain": "SELV",
+   "mm": 12.175,
+   "hv_item": "pad",
+   "barrier_item": "pad",
+   "at_hv": [
+    62.5,
+    114.11
+   ],
+   "at_barrier": [
+    74.65,
+    113.33
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "leg_a-driver_dis",
+   "domain": "SELV",
+   "mm": 12.192,
+   "hv_item": "pad",
+   "barrier_item": "pad",
+   "at_hv": [
+    73.16,
+    45.27
+   ],
+   "at_barrier": [
+    80.38,
+    55.09
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "leg_b-driver_dis",
+   "domain": "SELV",
+   "mm": 12.192,
+   "hv_item": "pad",
+   "barrier_item": "pad",
+   "at_hv": [
+    26.16,
+    45.27
+   ],
+   "at_barrier": [
+    33.38,
+    55.09
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "ct_ref_lo",
+   "domain": "SELV",
+   "mm": 12.303,
+   "hv_item": "via",
+   "barrier_item": "pad",
+   "at_hv": [
+    14.53,
+    118.31
+   ],
+   "at_barrier": [
+    16.82,
+    130.4
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "bias_ha.monitor.iso-nc11",
+   "domain": "SELV",
+   "mm": 12.323,
+   "hv_item": "pad",
+   "barrier_item": "pad",
+   "at_hv": [
+    62.5,
+    114.11
+   ],
+   "at_barrier": [
+    74.65,
+    112.06
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "ct_oc_pos",
+   "domain": "SELV",
+   "mm": 12.355,
+   "hv_item": "via",
+   "barrier_item": "pad",
+   "at_hv": [
+    14.64,
+    118.26
+   ],
+   "at_barrier": [
+    21.51,
+    128.53
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "line_zc_raw",
+   "domain": "SELV",
+   "mm": 12.367,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    14.36,
+    118.29
+   ],
+   "at_barrier": [
+    9.07,
+    129.47
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "bus_fault_iso",
+   "domain": "SELV",
+   "mm": 12.511,
+   "hv_item": "via",
+   "barrier_item": "track",
+   "at_hv": [
+    57.36,
+    116.9
+   ],
+   "at_barrier": [
+    51.16,
+    127.76
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "bias_ha.monitor.iso-nc12",
+   "domain": "SELV",
+   "mm": 12.588,
+   "hv_item": "pad",
+   "barrier_item": "pad",
+   "at_hv": [
+    62.48,
+    114.03
+   ],
+   "at_barrier": [
+    74.66,
+    110.84
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "line_zc",
+   "domain": "SELV",
+   "mm": 12.69,
+   "hv_item": "via",
+   "barrier_item": "pad",
+   "at_hv": [
+    14.39,
+    118.3
+   ],
+   "at_barrier": [
+    10.59,
+    130.41
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "ct_sense_mon",
+   "domain": "SELV",
+   "mm": 12.907,
+   "hv_item": "via",
+   "barrier_item": "pad",
+   "at_hv": [
+    14.59,
+    118.29
+   ],
+   "at_barrier": [
+    19.03,
+    130.41
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "leg_a-dis",
+   "domain": "SELV",
+   "mm": 12.966,
+   "hv_item": "track",
+   "barrier_item": "via",
+   "at_hv": [
+    72.26,
+    45.94
+   ],
+   "at_barrier": [
+    75.46,
+    58.51
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "bias_ha_bad",
+   "domain": "SELV",
+   "mm": 12.968,
+   "hv_item": "pad",
+   "barrier_item": "pad",
+   "at_hv": [
+    62.48,
+    114.03
+   ],
+   "at_barrier": [
+    74.66,
+    109.57
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "leg_a.driver-dt",
+   "domain": "SELV",
+   "mm": 12.985,
+   "hv_item": "pad",
+   "barrier_item": "pad",
+   "at_hv": [
+    73.16,
+    45.27
+   ],
+   "at_barrier": [
+    81.65,
+    55.09
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "leg_b.driver-dt",
+   "domain": "SELV",
+   "mm": 12.985,
+   "hv_item": "pad",
+   "barrier_item": "pad",
+   "at_hv": [
+    26.16,
+    45.27
+   ],
+   "at_barrier": [
+    34.65,
+    55.09
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "leg_b-dis",
+   "domain": "SELV",
+   "mm": 12.991,
+   "hv_item": "track",
+   "barrier_item": "via",
+   "at_hv": [
+    25.26,
+    45.92
+   ],
+   "at_barrier": [
+    28.46,
+    58.51
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "bias_ha_bad",
+   "domain": "SELV",
+   "mm": 13.108,
+   "hv_item": "pad",
+   "barrier_item": "track",
+   "at_hv": [
+    14.41,
+    118.51
+   ],
+   "at_barrier": [
+    14.41,
+    131.61
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "pwm_lb",
+   "domain": "SELV",
+   "mm": 13.213,
+   "hv_item": "via",
+   "barrier_item": "track",
+   "at_hv": [
+    49.59,
+    112.09
+   ],
+   "at_barrier": [
+    36.38,
+    112.09
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "permit",
+   "domain": "SELV",
+   "mm": 13.491,
+   "hv_item": "track",
+   "barrier_item": "via",
+   "at_hv": [
+    60.64,
+    117.67
+   ],
+   "at_barrier": [
+    69.79,
+    127.59
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "bias_bad",
+   "domain": "SELV",
+   "mm": 13.554,
+   "hv_item": "track",
+   "barrier_item": "via",
+   "at_hv": [
+    62.25,
+    116.05
+   ],
+   "at_barrier": [
+    73.75,
+    123.23
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "pe",
+   "domain": "PE",
+   "mm": 13.654,
+   "hv_item": "pour",
+   "barrier_item": "pad",
+   "at_hv": [
+    200.6,
+    109.03
+   ],
+   "at_barrier": [
+    214.25,
+    109.03
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "leg_a.driver-nc_7",
+   "domain": "SELV",
+   "mm": 13.849,
+   "hv_item": "pad",
+   "barrier_item": "pad",
+   "at_hv": [
+    73.16,
+    45.27
+   ],
+   "at_barrier": [
+    82.92,
+    55.09
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "leg_b.driver-nc_7",
+   "domain": "SELV",
+   "mm": 13.849,
+   "hv_item": "pad",
+   "barrier_item": "pad",
+   "at_hv": [
+    26.16,
+    45.27
+   ],
+   "at_barrier": [
+    35.92,
+    55.09
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "ct_s2",
+   "domain": "SELV",
+   "mm": 13.94,
+   "hv_item": "track",
+   "barrier_item": "track",
+   "at_hv": [
+    59.55,
+    117.71
+   ],
+   "at_barrier": [
+    59.55,
+    131.65
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "pwm_ha",
+   "domain": "SELV",
+   "mm": 14.043,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    62.76,
+    50.51
+   ],
+   "at_barrier": [
+    75.62,
+    56.16
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "bias_ha.monitor.iso-nc15",
+   "domain": "SELV",
+   "mm": 14.046,
+   "hv_item": "pad",
+   "barrier_item": "pad",
+   "at_hv": [
+    62.48,
+    114.03
+   ],
+   "at_barrier": [
+    74.66,
+    107.03
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "leg_a-dis",
+   "domain": "SELV",
+   "mm": 14.231,
+   "hv_item": "track",
+   "barrier_item": "via",
+   "at_hv": [
+    61.01,
+    58.8
+   ],
+   "at_barrier": [
+    75.24,
+    58.8
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "ct_ref_hi",
+   "domain": "SELV",
+   "mm": 14.263,
+   "hv_item": "pad",
+   "barrier_item": "track",
+   "at_hv": [
+    14.41,
+    118.51
+   ],
+   "at_barrier": [
+    14.41,
+    132.77
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "ct_ref_hi",
+   "domain": "SELV",
+   "mm": 14.317,
+   "hv_item": "via",
+   "barrier_item": "pad",
+   "at_hv": [
+    14.42,
+    118.31
+   ],
+   "at_barrier": [
+    11.85,
+    132.39
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "bias_ha_bad",
+   "domain": "SELV",
+   "mm": 14.335,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    14.59,
+    118.29
+   ],
+   "at_barrier": [
+    19.69,
+    131.69
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "leg_a-permit_gate",
+   "domain": "SELV",
+   "mm": 14.387,
+   "hv_item": "track",
+   "barrier_item": "via",
+   "at_hv": [
+    61.01,
+    70.31
+   ],
+   "at_barrier": [
+    75.4,
+    70.31
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "ct_sense_mon",
+   "domain": "SELV",
+   "mm": 14.483,
+   "hv_item": "pad",
+   "barrier_item": "track",
+   "at_hv": [
+    14.78,
+    118.41
+   ],
+   "at_barrier": [
+    24.86,
+    128.81
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "leg_b-dis",
+   "domain": "SELV",
+   "mm": 14.639,
+   "hv_item": "track",
+   "barrier_item": "via",
+   "at_hv": [
+    13.74,
+    56.81
+   ],
+   "at_barrier": [
+    28.25,
+    58.77
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "bias_ls_bad",
+   "domain": "SELV",
+   "mm": 14.641,
+   "hv_item": "pad",
+   "barrier_item": "pad",
+   "at_hv": [
+    13.31,
+    117.6
+   ],
+   "at_barrier": [
+    3.58,
+    128.54
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "ct_sense_mon",
+   "domain": "SELV",
+   "mm": 14.76,
+   "hv_item": "track",
+   "barrier_item": "track",
+   "at_hv": [
+    59.55,
+    117.71
+   ],
+   "at_barrier": [
+    59.55,
+    132.47
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "leg_a.driver-dt",
+   "domain": "SELV",
+   "mm": 14.787,
+   "hv_item": "track",
+   "barrier_item": "via",
+   "at_hv": [
+    61.01,
+    67.67
+   ],
+   "at_barrier": [
+    75.8,
+    67.67
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "bias_hb.monitor.iso-nc10",
+   "domain": "SELV",
+   "mm": 14.815,
+   "hv_item": "via",
+   "barrier_item": "pad",
+   "at_hv": [
+    15.02,
+    115.65
+   ],
+   "at_barrier": [
+    29.65,
+    113.33
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "bias_bad_raw",
+   "domain": "SELV",
+   "mm": 14.828,
+   "hv_item": "via",
+   "barrier_item": "pad",
+   "at_hv": [
+    14.31,
+    118.26
+   ],
+   "at_barrier": [
+    5.85,
+    130.44
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "ct_s2",
+   "domain": "SELV",
+   "mm": 14.904,
+   "hv_item": "track",
+   "barrier_item": "track",
+   "at_hv": [
+    50.84,
+    117.81
+   ],
+   "at_barrier": [
+    41.08,
+    129.08
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "pwm_hb",
+   "domain": "SELV",
+   "mm": 14.917,
+   "hv_item": "track",
+   "barrier_item": "via",
+   "at_hv": [
+    13.74,
+    55.88
+   ],
+   "at_barrier": [
+    28.65,
+    55.88
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "bias_hb_bad",
+   "domain": "SELV",
+   "mm": 15.059,
+   "hv_item": "via",
+   "barrier_item": "track",
+   "at_hv": [
+    15.02,
+    115.71
+   ],
+   "at_barrier": [
+    30.08,
+    115.71
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "bias_hb.monitor.iso-nc11",
+   "domain": "SELV",
+   "mm": 15.065,
+   "hv_item": "via",
+   "barrier_item": "pad",
+   "at_hv": [
+    15.02,
+    115.65
+   ],
+   "at_barrier": [
+    29.66,
+    112.11
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "bias_ls_bad",
+   "domain": "SELV",
+   "mm": 15.129,
+   "hv_item": "pad",
+   "barrier_item": "track",
+   "at_hv": [
+    14.08,
+    118.32
+   ],
+   "at_barrier": [
+    3.09,
+    128.71
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "bias_hb.monitor.iso-nc12",
+   "domain": "SELV",
+   "mm": 15.41,
+   "hv_item": "via",
+   "barrier_item": "pad",
+   "at_hv": [
+    15.01,
+    115.62
+   ],
+   "at_barrier": [
+    29.66,
+    110.84
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "ct_zc",
+   "domain": "SELV",
+   "mm": 15.524,
+   "hv_item": "via",
+   "barrier_item": "pad",
+   "at_hv": [
+    14.71,
+    118.2
+   ],
+   "at_barrier": [
+    26.29,
+    128.54
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "bias_ha_bad",
+   "domain": "SELV",
+   "mm": 15.658,
+   "hv_item": "track",
+   "barrier_item": "via",
+   "at_hv": [
+    50.84,
+    117.82
+   ],
+   "at_barrier": [
+    41.97,
+    130.72
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "ct_zc",
+   "domain": "SELV",
+   "mm": 15.658,
+   "hv_item": "pad",
+   "barrier_item": "via",
+   "at_hv": [
+    14.87,
+    118.32
+   ],
+   "at_barrier": [
+    26.68,
+    128.6
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "leg_a-permit_gate",
+   "domain": "SELV",
+   "mm": 15.702,
+   "hv_item": "track",
+   "barrier_item": "pad",
+   "at_hv": [
+    72.29,
+    45.93
+   ],
+   "at_barrier": [
+    80.18,
+    59.51
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "leg_b-permit_gate",
+   "domain": "SELV",
+   "mm": 15.727,
+   "hv_item": "track",
+   "barrier_item": "pad",
+   "at_hv": [
+    25.28,
+    45.91
+   ],
+   "at_barrier": [
+    33.18,
+    59.51
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "ct_mon",
+   "domain": "SELV",
+   "mm": 16.094,
+   "hv_item": "via",
+   "barrier_item": "pad",
+   "at_hv": [
+    14.62,
+    118.28
+   ],
+   "at_barrier": [
+    22.32,
+    132.41
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "bias_bad_flt",
+   "domain": "SELV",
+   "mm": 16.14,
+   "hv_item": "track",
+   "barrier_item": "track",
+   "at_hv": [
+    59.55,
+    117.71
+   ],
+   "at_barrier": [
+    59.55,
+    133.85
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "line_zc_raw",
+   "domain": "SELV",
+   "mm": 16.508,
+   "hv_item": "track",
+   "barrier_item": "via",
+   "at_hv": [
+    62.25,
+    116.06
+   ],
+   "at_barrier": [
+    74.97,
+    126.58
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "pwm_la",
+   "domain": "SELV",
+   "mm": 16.687,
+   "hv_item": "track",
+   "barrier_item": "via",
+   "at_hv": [
+    61.01,
+    58.8
+   ],
+   "at_barrier": [
+    77.7,
+    58.8
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "bias_hb_bad",
+   "domain": "SELV",
+   "mm": 16.714,
+   "hv_item": "track",
+   "barrier_item": "via",
+   "at_hv": [
+    48.0,
+    114.71
+   ],
+   "at_barrier": [
+    32.14,
+    109.45
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "bias_hb.monitor.iso-nc15",
+   "domain": "SELV",
+   "mm": 16.975,
+   "hv_item": "via",
+   "barrier_item": "pad",
+   "at_hv": [
+    14.99,
+    115.57
+   ],
+   "at_barrier": [
+    29.66,
+    107.03
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "pe",
+   "domain": "PE",
+   "mm": 17.14,
+   "hv_item": "via",
+   "barrier_item": "pad",
+   "at_hv": [
+    14.64,
+    118.26
+   ],
+   "at_barrier": [
+    24.26,
+    132.45
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "ct_s2",
+   "domain": "SELV",
+   "mm": 17.141,
+   "hv_item": "via",
+   "barrier_item": "pad",
+   "at_hv": [
+    14.31,
+    118.26
+   ],
+   "at_barrier": [
+    4.69,
+    132.45
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "leg_b-driver_dis",
+   "domain": "SELV",
+   "mm": 17.216,
+   "hv_item": "track",
+   "barrier_item": "via",
+   "at_hv": [
+    13.74,
+    56.83
+   ],
+   "at_barrier": [
+    30.52,
+    60.64
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "ct_mon",
+   "domain": "SELV",
+   "mm": 17.223,
+   "hv_item": "pad",
+   "barrier_item": "via",
+   "at_hv": [
+    14.67,
+    118.47
+   ],
+   "at_barrier": [
+    23.26,
+    133.4
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "bias_hb_bad",
+   "domain": "SELV",
+   "mm": 17.336,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    49.39,
+    107.52
+   ],
+   "at_barrier": [
+    32.15,
+    109.34
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "ct_sense_mon",
+   "domain": "SELV",
+   "mm": 17.496,
+   "hv_item": "track",
+   "barrier_item": "via",
+   "at_hv": [
+    50.84,
+    117.81
+   ],
+   "at_barrier": [
+    39.3,
+    130.96
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "leg_a-driver_dis",
+   "domain": "SELV",
+   "mm": 17.719,
+   "hv_item": "track",
+   "barrier_item": "via",
+   "at_hv": [
+    61.01,
+    62.49
+   ],
+   "at_barrier": [
+    78.73,
+    62.49
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "leg_b.driver-dt",
+   "domain": "SELV",
+   "mm": 17.824,
+   "hv_item": "track",
+   "barrier_item": "via",
+   "at_hv": [
+    13.71,
+    56.88
+   ],
+   "at_barrier": [
+    28.45,
+    66.91
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "permit",
+   "domain": "SELV",
+   "mm": 18.052,
+   "hv_item": "pad",
+   "barrier_item": "via",
+   "at_hv": [
+    14.97,
+    118.08
+   ],
+   "at_barrier": [
+    32.9,
+    120.17
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "bias_hb.monitor.iso-nc15",
+   "domain": "SELV",
+   "mm": 18.095,
+   "hv_item": "via",
+   "barrier_item": "pad",
+   "at_hv": [
+    49.39,
+    107.5
+   ],
+   "at_barrier": [
+    31.3,
+    106.97
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "permit",
+   "domain": "SELV",
+   "mm": 18.252,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    14.77,
+    118.04
+   ],
+   "at_barrier": [
+    32.9,
+    120.17
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "bias_hb.monitor.iso-nc11",
+   "domain": "SELV",
+   "mm": 18.288,
+   "hv_item": "via",
+   "barrier_item": "pad",
+   "at_hv": [
+    49.59,
+    112.09
+   ],
+   "at_barrier": [
+    31.3,
+    112.06
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "bias_hb.monitor.iso-nc10",
+   "domain": "SELV",
+   "mm": 18.312,
+   "hv_item": "via",
+   "barrier_item": "pad",
+   "at_hv": [
+    49.59,
+    112.12
+   ],
+   "at_barrier": [
+    31.3,
+    113.03
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "bias_hb.monitor.iso-nc12",
+   "domain": "SELV",
+   "mm": 18.33,
+   "hv_item": "via",
+   "barrier_item": "pad",
+   "at_hv": [
+    49.39,
+    107.55
+   ],
+   "at_barrier": [
+    31.3,
+    110.48
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "leg_b-permit_gate",
+   "domain": "SELV",
+   "mm": 18.708,
+   "hv_item": "track",
+   "barrier_item": "via",
+   "at_hv": [
+    13.71,
+    56.88
+   ],
+   "at_barrier": [
+    29.45,
+    67.0
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "ct_s2",
+   "domain": "SELV",
+   "mm": 18.709,
+   "hv_item": "pad",
+   "barrier_item": "via",
+   "at_hv": [
+    14.87,
+    118.32
+   ],
+   "at_barrier": [
+    29.15,
+    130.4
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "ct_oc_neg",
+   "domain": "SELV",
+   "mm": 19.168,
+   "hv_item": "track",
+   "barrier_item": "via",
+   "at_hv": [
+    48.02,
+    115.2
+   ],
+   "at_barrier": [
+    33.76,
+    128.0
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "leg_a.driver-dt",
+   "domain": "SELV",
+   "mm": 19.172,
+   "hv_item": "pour",
+   "barrier_item": "via",
+   "at_hv": [
+    100.5,
+    49.9
+   ],
+   "at_barrier": [
+    82.73,
+    57.08
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "bus_fault_iso",
+   "domain": "SELV",
+   "mm": 19.358,
+   "hv_item": "via",
+   "barrier_item": "pad",
+   "at_hv": [
+    14.73,
+    118.18
+   ],
+   "at_barrier": [
+    31.05,
+    128.59
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "bias_bad_raw",
+   "domain": "SELV",
+   "mm": 19.642,
+   "hv_item": "track",
+   "barrier_item": "track",
+   "at_hv": [
+    60.6,
+    117.7
+   ],
+   "at_barrier": [
+    68.55,
+    135.66
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "line_zc_raw",
+   "domain": "SELV",
+   "mm": 19.707,
+   "hv_item": "via",
+   "barrier_item": "track",
+   "at_hv": [
+    57.75,
+    116.8
+   ],
+   "at_barrier": [
+    74.3,
+    127.51
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "bias_bad_raw",
+   "domain": "SELV",
+   "mm": 19.773,
+   "hv_item": "pad",
+   "barrier_item": "track",
+   "at_hv": [
+    14.41,
+    118.51
+   ],
+   "at_barrier": [
+    11.42,
+    138.05
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "coil_feed",
+   "barrier_net": "ct_s1",
+   "domain": "SELV",
+   "mm": 20.45,
+   "hv_item": "pour",
+   "barrier_item": "pad",
+   "at_hv": [
+    126.62,
+    101.0
+   ],
+   "at_barrier": [
+    126.62,
+    121.45
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "bias_ls_bad",
+   "domain": "SELV",
+   "mm": 20.478,
+   "hv_item": "track",
+   "barrier_item": "track",
+   "at_hv": [
+    60.6,
+    117.7
+   ],
+   "at_barrier": [
+    68.75,
+    136.48
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "bus_fault",
+   "domain": "SELV",
+   "mm": 20.593,
+   "hv_item": "track",
+   "barrier_item": "via",
+   "at_hv": [
+    48.75,
+    115.92
+   ],
+   "at_barrier": [
+    34.18,
+    130.48
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "v15_selv",
+   "domain": "SELV",
+   "mm": 20.933,
+   "hv_item": "pad",
+   "barrier_item": "pad",
+   "at_hv": [
+    191.52,
+    112.13
+   ],
+   "at_barrier": [
+    209.52,
+    122.82
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "coil_feed",
+   "barrier_net": "ct_s2",
+   "domain": "SELV",
+   "mm": 21.053,
+   "hv_item": "pour",
+   "barrier_item": "pad",
+   "at_hv": [
+    135.4,
+    101.0
+   ],
+   "at_barrier": [
+    140.38,
+    121.45
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "leg_a-driver_dis",
+   "domain": "SELV",
+   "mm": 21.324,
+   "hv_item": "pour",
+   "barrier_item": "via",
+   "at_hv": [
+    100.5,
+    49.9
+   ],
+   "at_barrier": [
+    81.11,
+    58.76
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "bus_fault_iso",
+   "domain": "SELV",
+   "mm": 21.341,
+   "hv_item": "pad",
+   "barrier_item": "via",
+   "at_hv": [
+    14.94,
+    118.2
+   ],
+   "at_barrier": [
+    34.03,
+    127.73
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "ct_s1",
+   "domain": "SELV",
+   "mm": 21.481,
+   "hv_item": "pad",
+   "barrier_item": "track",
+   "at_hv": [
+    138.18,
+    102.95
+   ],
+   "at_barrier": [
+    132.37,
+    123.63
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "coil_feed",
+   "barrier_net": "line_zc_raw",
+   "domain": "SELV",
+   "mm": 21.745,
+   "hv_item": "pour",
+   "barrier_item": "track",
+   "at_hv": [
+    126.14,
+    101.0
+   ],
+   "at_barrier": [
+    126.14,
+    122.75
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "ct_oc_neg",
+   "domain": "SELV",
+   "mm": 22.159,
+   "hv_item": "via",
+   "barrier_item": "pad",
+   "at_hv": [
+    49.68,
+    112.31
+   ],
+   "at_barrier": [
+    34.59,
+    128.54
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "bus_fault",
+   "domain": "SELV",
+   "mm": 22.301,
+   "hv_item": "via",
+   "barrier_item": "pad",
+   "at_hv": [
+    14.73,
+    118.18
+   ],
+   "at_barrier": [
+    33.32,
+    130.49
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "bus_fault",
+   "domain": "SELV",
+   "mm": 22.461,
+   "hv_item": "pad",
+   "barrier_item": "via",
+   "at_hv": [
+    14.87,
+    118.32
+   ],
+   "at_barrier": [
+    33.72,
+    130.53
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "pwm_la",
+   "domain": "SELV",
+   "mm": 22.565,
+   "hv_item": "pour",
+   "barrier_item": "track",
+   "at_hv": [
+    100.53,
+    49.95
+   ],
+   "at_barrier": [
+    81.92,
+    62.72
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "pe",
+   "domain": "PE",
+   "mm": 23.566,
+   "hv_item": "track",
+   "barrier_item": "track",
+   "at_hv": [
+    60.62,
+    117.69
+   ],
+   "at_barrier": [
+    73.69,
+    137.3
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "bus_fault",
+   "domain": "SELV",
+   "mm": 23.585,
+   "hv_item": "via",
+   "barrier_item": "pad",
+   "at_hv": [
+    49.7,
+    112.33
+   ],
+   "at_barrier": [
+    34.59,
+    130.44
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "coil_feed",
+   "barrier_net": "selv_gnd",
+   "domain": "SELV",
+   "mm": 24.014,
+   "hv_item": "pad",
+   "barrier_item": "pad",
+   "at_hv": [
+    127.02,
+    102.95
+   ],
+   "at_barrier": [
+    117.65,
+    125.06
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "F.Cu",
+   "hv_net": "coil_feed",
+   "barrier_net": "u_iso-nc15",
+   "domain": "SELV",
+   "mm": 24.537,
+   "hv_item": "pad",
+   "barrier_item": "pad",
+   "at_hv": [
+    127.02,
+    102.95
+   ],
+   "at_barrier": [
+    116.38,
+    125.06
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "pwm_ha",
+   "domain": "SELV",
+   "mm": 24.581,
+   "hv_item": "pour",
+   "barrier_item": "track",
+   "at_hv": [
+    100.5,
+    49.9
+   ],
+   "at_barrier": [
+    77.04,
+    57.23
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "B.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "ct_zc",
+   "domain": "SELV",
+   "mm": 24.814,
+   "hv_item": "track",
+   "barrier_item": "via",
+   "at_hv": [
+    48.02,
+    115.19
+   ],
+   "at_barrier": [
+    27.16,
+    128.63
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "res_a",
+   "barrier_net": "v3v3",
+   "domain": "SELV",
+   "mm": 9.694,
+   "hv_item": "pad",
+   "barrier_item": "pour",
+   "at_hv": [
+    161.8,
+    112.7
+   ],
+   "at_barrier": [
+    159.89,
+    122.21
+   ],
+   "floor_mm": 12.6,
+   "gated": false,
+   "pass": false
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "res_a",
+   "barrier_net": "selv_gnd",
+   "domain": "SELV",
+   "mm": 9.694,
+   "hv_item": "pad",
+   "barrier_item": "pour",
+   "at_hv": [
+    161.8,
+    112.7
+   ],
+   "at_barrier": [
+    159.89,
+    122.21
+   ],
+   "floor_mm": 12.6,
+   "gated": false,
+   "pass": false
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "res_a",
+   "barrier_net": "pe",
+   "domain": "PE",
+   "mm": 20.562,
+   "hv_item": "pad",
+   "barrier_item": "pad",
+   "at_hv": [
+    164.2,
+    112.7
+   ],
+   "at_barrier": [
+    165.74,
+    133.2
+   ],
+   "floor_mm": 12.6,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "res_a",
+   "barrier_net": "pe",
+   "domain": "PE",
+   "mm": 20.562,
+   "hv_item": "pad",
+   "barrier_item": "pad",
+   "at_hv": [
+    164.2,
+    112.7
+   ],
+   "at_barrier": [
+    165.74,
+    133.2
+   ],
+   "floor_mm": 12.6,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "selv_gnd",
+   "domain": "SELV",
+   "mm": 8.889,
+   "hv_item": "via",
+   "barrier_item": "pour",
+   "at_hv": [
+    14.48,
+    118.31
+   ],
+   "at_barrier": [
+    14.48,
+    127.2
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "v3v3",
+   "domain": "SELV",
+   "mm": 8.889,
+   "hv_item": "via",
+   "barrier_item": "pour",
+   "at_hv": [
+    14.48,
+    118.31
+   ],
+   "at_barrier": [
+    14.48,
+    127.2
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "v3v3",
+   "domain": "SELV",
+   "mm": 9.795,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    14.53,
+    118.31
+   ],
+   "at_barrier": [
+    15.98,
+    127.99
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "selv_gnd",
+   "domain": "SELV",
+   "mm": 10.265,
+   "hv_item": "via",
+   "barrier_item": "pour",
+   "at_hv": [
+    57.5,
+    116.94
+   ],
+   "at_barrier": [
+    57.5,
+    127.2
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "v3v3",
+   "domain": "SELV",
+   "mm": 10.265,
+   "hv_item": "via",
+   "barrier_item": "pour",
+   "at_hv": [
+    57.5,
+    116.94
+   ],
+   "at_barrier": [
+    57.5,
+    127.2
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "ct_oc_neg",
+   "domain": "SELV",
+   "mm": 10.795,
+   "hv_item": "via",
+   "barrier_item": "track",
+   "at_hv": [
+    14.59,
+    118.29
+   ],
+   "at_barrier": [
+    18.68,
+    128.28
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "ct_oc_neg",
+   "domain": "SELV",
+   "mm": 10.852,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    14.56,
+    118.3
+   ],
+   "at_barrier": [
+    18.22,
+    128.52
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "selv_gnd",
+   "domain": "SELV",
+   "mm": 11.067,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    14.51,
+    118.31
+   ],
+   "at_barrier": [
+    15.6,
+    129.32
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "bias_bad",
+   "domain": "SELV",
+   "mm": 11.227,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    14.48,
+    118.31
+   ],
+   "at_barrier": [
+    13.94,
+    129.52
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "bias_bad",
+   "domain": "SELV",
+   "mm": 11.227,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    14.48,
+    118.31
+   ],
+   "at_barrier": [
+    13.94,
+    129.52
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "bias_bad_flt",
+   "domain": "SELV",
+   "mm": 11.55,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    14.39,
+    118.3
+   ],
+   "at_barrier": [
+    11.41,
+    129.46
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "bias_bad_flt",
+   "domain": "SELV",
+   "mm": 11.55,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    14.39,
+    118.3
+   ],
+   "at_barrier": [
+    11.41,
+    129.46
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "pwm_hb",
+   "domain": "SELV",
+   "mm": 11.666,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    57.44,
+    116.93
+   ],
+   "at_barrier": [
+    55.21,
+    128.38
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "pwm_hb",
+   "domain": "SELV",
+   "mm": 11.666,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    57.44,
+    116.93
+   ],
+   "at_barrier": [
+    55.21,
+    128.38
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "line_zc_raw",
+   "domain": "SELV",
+   "mm": 12.367,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    14.36,
+    118.29
+   ],
+   "at_barrier": [
+    9.07,
+    129.47
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "line_zc_raw",
+   "domain": "SELV",
+   "mm": 12.367,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    14.36,
+    118.29
+   ],
+   "at_barrier": [
+    9.07,
+    129.47
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "v3v3",
+   "domain": "SELV",
+   "mm": 12.65,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    57.53,
+    116.93
+   ],
+   "at_barrier": [
+    58.59,
+    129.54
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "bias_ls_bad",
+   "domain": "SELV",
+   "mm": 12.736,
+   "hv_item": "track",
+   "barrier_item": "via",
+   "at_hv": [
+    6.35,
+    116.6
+   ],
+   "at_barrier": [
+    1.86,
+    128.52
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "bus_fault_iso",
+   "domain": "SELV",
+   "mm": 12.853,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    57.36,
+    116.9
+   ],
+   "at_barrier": [
+    51.64,
+    128.41
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "bus_fault_iso",
+   "domain": "SELV",
+   "mm": 12.853,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    57.36,
+    116.9
+   ],
+   "at_barrier": [
+    51.64,
+    128.41
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "selv_gnd",
+   "domain": "SELV",
+   "mm": 12.933,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    57.5,
+    116.94
+   ],
+   "at_barrier": [
+    57.09,
+    129.86
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "pwm_ha",
+   "domain": "SELV",
+   "mm": 14.043,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    62.76,
+    50.51
+   ],
+   "at_barrier": [
+    75.62,
+    56.16
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "pwm_ha",
+   "domain": "SELV",
+   "mm": 14.043,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    62.76,
+    50.51
+   ],
+   "at_barrier": [
+    75.62,
+    56.16
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "bias_ha_bad",
+   "domain": "SELV",
+   "mm": 14.335,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    14.59,
+    118.29
+   ],
+   "at_barrier": [
+    19.69,
+    131.69
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "bias_ha_bad",
+   "domain": "SELV",
+   "mm": 14.335,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    14.59,
+    118.29
+   ],
+   "at_barrier": [
+    19.69,
+    131.69
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "ct_sense_mon",
+   "domain": "SELV",
+   "mm": 14.775,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    14.64,
+    118.26
+   ],
+   "at_barrier": [
+    22.38,
+    130.85
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "ct_sense_mon",
+   "domain": "SELV",
+   "mm": 14.775,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    14.64,
+    118.26
+   ],
+   "at_barrier": [
+    22.38,
+    130.85
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "leg_a-dis",
+   "domain": "SELV",
+   "mm": 14.924,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    62.74,
+    50.57
+   ],
+   "at_barrier": [
+    75.29,
+    58.63
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "leg_a-dis",
+   "domain": "SELV",
+   "mm": 14.924,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    62.74,
+    50.57
+   ],
+   "at_barrier": [
+    75.29,
+    58.63
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "bias_hb_bad",
+   "domain": "SELV",
+   "mm": 15.432,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    14.77,
+    118.07
+   ],
+   "at_barrier": [
+    29.94,
+    120.91
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "bias_hb_bad",
+   "domain": "SELV",
+   "mm": 15.432,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    14.77,
+    118.07
+   ],
+   "at_barrier": [
+    29.94,
+    120.91
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "permit",
+   "domain": "SELV",
+   "mm": 15.472,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    49.59,
+    112.12
+   ],
+   "at_barrier": [
+    34.25,
+    114.14
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "permit",
+   "domain": "SELV",
+   "mm": 15.472,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    49.59,
+    112.12
+   ],
+   "at_barrier": [
+    34.25,
+    114.14
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "ct_ref_hi",
+   "domain": "SELV",
+   "mm": 15.5,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    14.67,
+    118.24
+   ],
+   "at_barrier": [
+    24.2,
+    130.46
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "ct_ref_hi",
+   "domain": "SELV",
+   "mm": 15.5,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    14.67,
+    118.24
+   ],
+   "at_barrier": [
+    24.2,
+    130.46
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "ct_zc",
+   "domain": "SELV",
+   "mm": 15.857,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    14.71,
+    118.2
+   ],
+   "at_barrier": [
+    26.68,
+    128.6
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "ct_zc",
+   "domain": "SELV",
+   "mm": 15.857,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    14.71,
+    118.2
+   ],
+   "at_barrier": [
+    26.68,
+    128.6
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "bias_ls_bad",
+   "domain": "SELV",
+   "mm": 16.085,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    14.24,
+    118.2
+   ],
+   "at_barrier": [
+    1.98,
+    128.6
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "bias_hb_bad",
+   "domain": "SELV",
+   "mm": 16.839,
+   "hv_item": "track",
+   "barrier_item": "via",
+   "at_hv": [
+    48.99,
+    109.1
+   ],
+   "at_barrier": [
+    32.15,
+    109.36
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "bias_bad_flt",
+   "domain": "SELV",
+   "mm": 17.017,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    49.8,
+    112.38
+   ],
+   "at_barrier": [
+    44.31,
+    128.49
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "bias_bad_flt",
+   "domain": "SELV",
+   "mm": 17.017,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    49.8,
+    112.38
+   ],
+   "at_barrier": [
+    44.31,
+    128.49
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "pwm_la",
+   "domain": "SELV",
+   "mm": 17.041,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    62.75,
+    50.54
+   ],
+   "at_barrier": [
+    77.74,
+    58.66
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "pwm_la",
+   "domain": "SELV",
+   "mm": 17.041,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    62.75,
+    50.54
+   ],
+   "at_barrier": [
+    77.74,
+    58.66
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "bias_bad",
+   "domain": "SELV",
+   "mm": 17.233,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    57.78,
+    116.75
+   ],
+   "at_barrier": [
+    73.72,
+    123.29
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "bias_bad",
+   "domain": "SELV",
+   "mm": 17.233,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    57.78,
+    116.75
+   ],
+   "at_barrier": [
+    73.72,
+    123.29
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "bias_hb_bad",
+   "domain": "SELV",
+   "mm": 17.336,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    49.39,
+    107.52
+   ],
+   "at_barrier": [
+    32.15,
+    109.34
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "ct_mon",
+   "domain": "SELV",
+   "mm": 17.419,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    14.62,
+    118.28
+   ],
+   "at_barrier": [
+    23.26,
+    133.4
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "ct_mon",
+   "domain": "SELV",
+   "mm": 17.419,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    14.62,
+    118.28
+   ],
+   "at_barrier": [
+    23.26,
+    133.4
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "permit",
+   "domain": "SELV",
+   "mm": 18.252,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    14.77,
+    118.04
+   ],
+   "at_barrier": [
+    32.9,
+    120.17
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "permit",
+   "domain": "SELV",
+   "mm": 18.252,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    14.77,
+    118.04
+   ],
+   "at_barrier": [
+    32.9,
+    120.17
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "ct_s2",
+   "domain": "SELV",
+   "mm": 18.908,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    14.71,
+    118.2
+   ],
+   "at_barrier": [
+    29.15,
+    130.4
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "ct_s2",
+   "domain": "SELV",
+   "mm": 18.908,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    14.71,
+    118.2
+   ],
+   "at_barrier": [
+    29.15,
+    130.4
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "leg_a-driver_dis",
+   "domain": "SELV",
+   "mm": 19.052,
+   "hv_item": "via",
+   "barrier_item": "track",
+   "at_hv": [
+    62.74,
+    50.57
+   ],
+   "at_barrier": [
+    78.93,
+    60.61
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "leg_a-driver_dis",
+   "domain": "SELV",
+   "mm": 19.609,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    62.76,
+    50.51
+   ],
+   "at_barrier": [
+    80.56,
+    58.76
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "leg_a.driver-dt",
+   "domain": "SELV",
+   "mm": 19.745,
+   "hv_item": "via",
+   "barrier_item": "track",
+   "at_hv": [
+    62.77,
+    50.49
+   ],
+   "at_barrier": [
+    81.78,
+    55.84
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "bias_ha_bad",
+   "domain": "SELV",
+   "mm": 19.774,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    57.79,
+    116.69
+   ],
+   "at_barrier": [
+    77.31,
+    119.91
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "bias_ha_bad",
+   "domain": "SELV",
+   "mm": 19.774,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    57.79,
+    116.69
+   ],
+   "at_barrier": [
+    77.31,
+    119.91
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "line_zc_raw",
+   "domain": "SELV",
+   "mm": 19.799,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    57.76,
+    116.78
+   ],
+   "at_barrier": [
+    74.94,
+    126.63
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "line_zc_raw",
+   "domain": "SELV",
+   "mm": 19.799,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    57.76,
+    116.78
+   ],
+   "at_barrier": [
+    74.94,
+    126.63
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "ct_s2",
+   "domain": "SELV",
+   "mm": 19.954,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    57.29,
+    116.85
+   ],
+   "at_barrier": [
+    43.81,
+    131.56
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "ct_s2",
+   "domain": "SELV",
+   "mm": 19.954,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    57.29,
+    116.85
+   ],
+   "at_barrier": [
+    43.81,
+    131.56
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "bias_bad_raw",
+   "domain": "SELV",
+   "mm": 20.055,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    14.42,
+    118.31
+   ],
+   "at_barrier": [
+    10.06,
+    137.88
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "bias_bad_raw",
+   "domain": "SELV",
+   "mm": 20.055,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    14.42,
+    118.31
+   ],
+   "at_barrier": [
+    10.06,
+    137.88
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "pwm_hb",
+   "domain": "SELV",
+   "mm": 20.381,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    14.77,
+    118.04
+   ],
+   "at_barrier": [
+    35.06,
+    120.05
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "pwm_hb",
+   "domain": "SELV",
+   "mm": 20.381,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    14.77,
+    118.04
+   ],
+   "at_barrier": [
+    35.06,
+    120.05
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "leg_a.driver-dt",
+   "domain": "SELV",
+   "mm": 20.488,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    62.77,
+    50.49
+   ],
+   "at_barrier": [
+    82.16,
+    57.11
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "leg_b-dis",
+   "domain": "SELV",
+   "mm": 20.805,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    7.69,
+    63.03
+   ],
+   "at_barrier": [
+    28.4,
+    64.97
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "leg_b-dis",
+   "domain": "SELV",
+   "mm": 20.805,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    7.69,
+    63.03
+   ],
+   "at_barrier": [
+    28.4,
+    64.97
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "leg_b.driver-dt",
+   "domain": "SELV",
+   "mm": 20.862,
+   "hv_item": "track",
+   "barrier_item": "via",
+   "at_hv": [
+    7.54,
+    67.08
+   ],
+   "at_barrier": [
+    28.4,
+    67.08
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "v15_selv",
+   "domain": "SELV",
+   "mm": 20.933,
+   "hv_item": "pad",
+   "barrier_item": "pad",
+   "at_hv": [
+    191.52,
+    112.13
+   ],
+   "at_barrier": [
+    209.52,
+    122.82
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "v15_selv",
+   "domain": "SELV",
+   "mm": 20.933,
+   "hv_item": "pad",
+   "barrier_item": "pad",
+   "at_hv": [
+    191.52,
+    112.13
+   ],
+   "at_barrier": [
+    209.52,
+    122.82
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "leg_b.driver-dt",
+   "domain": "SELV",
+   "mm": 21.098,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    7.68,
+    63.06
+   ],
+   "at_barrier": [
+    28.41,
+    67.02
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "ct_sense_mon",
+   "domain": "SELV",
+   "mm": 21.333,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    49.75,
+    112.36
+   ],
+   "at_barrier": [
+    39.25,
+    130.93
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "ct_sense_mon",
+   "domain": "SELV",
+   "mm": 21.333,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    49.75,
+    112.36
+   ],
+   "at_barrier": [
+    39.25,
+    130.93
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "bus_fault_iso",
+   "domain": "SELV",
+   "mm": 21.54,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    14.74,
+    118.15
+   ],
+   "at_barrier": [
+    34.03,
+    127.73
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "bus_fault_iso",
+   "domain": "SELV",
+   "mm": 21.54,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    14.74,
+    118.15
+   ],
+   "at_barrier": [
+    34.03,
+    127.73
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "leg_a-permit_gate",
+   "domain": "SELV",
+   "mm": 21.563,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    61.08,
+    86.57
+   ],
+   "at_barrier": [
+    75.51,
+    70.55
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "leg_a-permit_gate",
+   "domain": "SELV",
+   "mm": 21.563,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    61.08,
+    86.57
+   ],
+   "at_barrier": [
+    75.51,
+    70.55
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "leg_b-permit_gate",
+   "domain": "SELV",
+   "mm": 21.862,
+   "hv_item": "track",
+   "barrier_item": "via",
+   "at_hv": [
+    7.54,
+    67.17
+   ],
+   "at_barrier": [
+    29.4,
+    67.17
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "leg_b-permit_gate",
+   "domain": "SELV",
+   "mm": 22.097,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    7.68,
+    63.06
+   ],
+   "at_barrier": [
+    29.41,
+    67.11
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "ct_oc_neg",
+   "domain": "SELV",
+   "mm": 22.353,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    49.68,
+    112.31
+   ],
+   "at_barrier": [
+    33.74,
+    127.98
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "ct_oc_neg",
+   "domain": "SELV",
+   "mm": 22.353,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    49.68,
+    112.31
+   ],
+   "at_barrier": [
+    33.74,
+    127.98
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "bus_fault",
+   "domain": "SELV",
+   "mm": 22.659,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    14.73,
+    118.18
+   ],
+   "at_barrier": [
+    33.72,
+    130.53
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "bus_fault",
+   "domain": "SELV",
+   "mm": 22.659,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    14.73,
+    118.18
+   ],
+   "at_barrier": [
+    33.72,
+    130.53
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "pe",
+   "domain": "PE",
+   "mm": 22.668,
+   "hv_item": "pad",
+   "barrier_item": "pad",
+   "at_hv": [
+    191.7,
+    111.41
+   ],
+   "at_barrier": [
+    214.25,
+    109.17
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "pe",
+   "domain": "PE",
+   "mm": 22.668,
+   "hv_item": "pad",
+   "barrier_item": "pad",
+   "at_hv": [
+    191.7,
+    111.41
+   ],
+   "at_barrier": [
+    214.25,
+    109.17
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "leg_b-driver_dis",
+   "domain": "SELV",
+   "mm": 22.944,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    7.69,
+    62.97
+   ],
+   "at_barrier": [
+    30.52,
+    60.73
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_b",
+   "barrier_net": "leg_b-driver_dis",
+   "domain": "SELV",
+   "mm": 22.944,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    7.69,
+    62.97
+   ],
+   "at_barrier": [
+    30.52,
+    60.73
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "bus_fault",
+   "domain": "SELV",
+   "mm": 23.88,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    49.7,
+    112.33
+   ],
+   "at_barrier": [
+    34.16,
+    130.46
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "sw_a",
+   "barrier_net": "bus_fault",
+   "domain": "SELV",
+   "mm": 23.88,
+   "hv_item": "via",
+   "barrier_item": "via",
+   "at_hv": [
+    49.7,
+    112.33
+   ],
+   "at_barrier": [
+    34.16,
+    130.46
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In1.Cu",
+   "hv_net": "coil_feed",
+   "barrier_net": "v3v3",
+   "domain": "SELV",
+   "mm": 23.97,
+   "hv_item": "pad",
+   "barrier_item": "pour",
+   "at_hv": [
+    134.81,
+    90.03
+   ],
+   "at_barrier": [
+    134.81,
+    114.0
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  },
+  {
+   "layer": "In2.Cu",
+   "hv_net": "coil_feed",
+   "barrier_net": "selv_gnd",
+   "domain": "SELV",
+   "mm": 23.97,
+   "hv_item": "pad",
+   "barrier_item": "pour",
+   "at_hv": [
+    134.81,
+    90.03
+   ],
+   "at_barrier": [
+    134.81,
+    114.0
+   ],
+   "floor_mm": 8.0,
+   "gated": false,
+   "pass": true
+  }
+ ]
+}

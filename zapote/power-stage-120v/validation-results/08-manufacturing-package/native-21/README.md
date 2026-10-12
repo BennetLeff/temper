@@ -1,11 +1,11 @@
 # 08 Manufacturing package: native-21 candidate
 
-A **candidate** JLCPCB package for native-21 (stage 17b), reviewed independently of KiCad. It
+A **candidate** JLCPCB package for native-21 (stage 18), reviewed independently of KiCad. It
 does not release fabrication: `DECISIONS.md` controls that, and its gates are open
 ([fab/FAB-NOTE.md](fab/FAB-NOTE.md)).
 
-- Board: native-21 stage 17b (stage 16 + R5 = Bourns CSS2H-2512R-1L00F on a Kelvin land + declared pour priorities, DECISIONS item 17 / 17b), SHA-256
-  `96501e7d0e9b4903a145aa3bd0e45003a4fafe37ceef5259a7502bc9b11225a9`.
+- Board: native-21 stage 18 (stage 17b + the SELV LINE_ZC_RAW / V15_SELV B.Cu runs re-laid ≥ 12.6 mm from RES_A, DECISIONS item 18, `stage18-res-a-creepage/`; 17b was stage 16 + R5 = Bourns CSS2H-2512R-1L00F on a Kelvin land + declared pour priorities, item 17 / 17b), SHA-256
+  `3768a12675f8d61f91fc4a96dd267522e68f454f8f300634aca2ae16afc6dd1a`; Gerber ZIP `021bf8fdebcd1840a418b5dad74cf142118ca06bbe15b94aa2c0d996fb4561bc`.
 - Tools: KiCad 10.0.4 `kicad-cli`, gerbv 2.11.1 (independent renderer), Miniforge Python 3.12.
 - Scripts: native-17's `bom_cpl_jlc.py` (stage 17: an SMD part with paste-free pads takes its centroid from the pasted pads, so R5's sense fingers do not shift it; no other placement moved); `review_fab.py` with one change, below.
 
