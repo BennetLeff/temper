@@ -75,7 +75,7 @@ def solve(geom, heat, env_a4=None):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--tag", default="native21s17")
+    ap.add_argument("--tag", default="native21s17b")
     ap.add_argument("--control-a4", help="stage-16 A4 outputs dir (*-heat.npz) for solver control B")
     a = ap.parse_args()
     scr = load("screen", HERE / "screen.py")

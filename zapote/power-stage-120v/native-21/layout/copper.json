@@ -686,7 +686,7 @@
   {
    "net": "rect_p",
    "layer": "In1.Cu",
-   "priority": 1,
+   "priority": 2,
    "name": "rect_p BR1.1-J7",
    "outline": [
     [
@@ -849,7 +849,7 @@
   {
    "net": "l_filt",
    "layer": "B.Cu",
-   "priority": 1,
+   "priority": 3,
    "name": "l_filt BR1.2-L1",
    "outline": [
     [
@@ -930,7 +930,7 @@
   {
    "net": "sw_a",
    "layer": "F.Cu",
-   "priority": 1,
+   "priority": 2,
    "name": "sw_a Q2.3-T1.1",
    "outline": [
     [
@@ -1019,7 +1019,7 @@
   {
    "net": "sw_a",
    "layer": "B.Cu",
-   "priority": 1,
+   "priority": 3,
    "name": "sw_a leg-A link",
    "outline": [
     [
@@ -1060,7 +1060,7 @@
   {
    "net": "sw_b",
    "layer": "B.Cu",
-   "priority": 1,
+   "priority": 2,
    "name": "sw_b leg B-C21..C23",
    "outline": [
     [
@@ -1391,7 +1391,7 @@
   {
    "net": "coil_feed",
    "layer": "B.Cu",
-   "priority": 1,
+   "priority": 2,
    "name": "coil_feed J2-T1.2",
    "outline": [
     [
@@ -1807,7 +1807,7 @@
   {
    "net": "l_f",
    "layer": "F.Cu",
-   "priority": 1,
+   "priority": 2,
    "name": "l_f F1-C1-L1-RV1",
    "outline": [
     [
@@ -2541,7 +2541,7 @@
   {
    "net": "n_ls",
    "layer": "In1.Cu",
-   "priority": 1,
+   "priority": 2,
    "name": "n_ls LS block",
    "outline": [
     [
@@ -6068,7 +6068,7 @@
   {
    "net": "hv_ret",
    "layer": "B.Cu",
-   "priority": 2,
+   "priority": 4,
    "name": "hv_ret trunk bridge",
    "outline": [
     [
@@ -6218,7 +6218,7 @@
   {
    "net": "n_ls",
    "layer": "B.Cu",
-   "priority": 1,
+   "priority": 2,
    "name": "n_ls U42 heat-spread",
    "outline": [
     [
@@ -31937,7 +31937,7 @@
   },
   {
    "net": "bias_ha.monitor-spanuv",
-   "layer": "F.Cu",
+   "layer": "In2.Cu",
    "width": 0.2,
    "points": [
     [
@@ -31952,7 +31952,7 @@
   },
   {
    "net": "bias_ha.monitor-spanuv",
-   "layer": "In2.Cu",
+   "layer": "F.Cu",
    "width": 0.2,
    "points": [
     [
@@ -33006,7 +33006,7 @@
   },
   {
    "net": "p_ha",
-   "layer": "F.Cu",
+   "layer": "In2.Cu",
    "width": 0.3,
    "points": [
     [
@@ -33021,7 +33021,7 @@
   },
   {
    "net": "p_ha",
-   "layer": "In2.Cu",
+   "layer": "F.Cu",
    "width": 0.3,
    "points": [
     [
@@ -35621,7 +35621,7 @@
   },
   {
    "net": "bias_hb.monitor-isoin",
-   "layer": "F.Cu",
+   "layer": "In2.Cu",
    "width": 0.25,
    "points": [
     [
@@ -35636,7 +35636,7 @@
   },
   {
    "net": "bias_hb.monitor-isoin",
-   "layer": "In2.Cu",
+   "layer": "F.Cu",
    "width": 0.25,
    "points": [
     [

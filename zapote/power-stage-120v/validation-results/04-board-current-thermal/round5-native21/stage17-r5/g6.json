@@ -15,10 +15,10 @@
   "pitch_mm": 0.25,
   "h_w_m2k": 25,
   "ambient_c": 50.0,
-  "geometry": "native-21/verification/native21s17-all-copper.json.gz",
-  "geometry_sha256": "67ec629050b3e08572b5ba92b11a57f6497f439feb4b241221a14352697d5726",
-  "board_sha256": "e40f1e275bbaff8a5e61e224974fd401a44bcad2acefa0b92d50f85b6ce81ecd",
-  "power_copper_board_sha256": "e40f1e275bbaff8a5e61e224974fd401a44bcad2acefa0b92d50f85b6ce81ecd",
+  "geometry": "native-21/verification/native21s17b-all-copper.json.gz",
+  "geometry_sha256": "a6d40d84566dab8bf9cc8d4f260ce472c15ac16c24bc69a7914028d11d0b4b36",
+  "board_sha256": "96501e7d0e9b4903a145aa3bd0e45003a4fafe37ceef5259a7502bc9b11225a9",
+  "power_copper_board_sha256": "96501e7d0e9b4903a145aa3bd0e45003a4fafe37ceef5259a7502bc9b11225a9",
   "heat_file": "validation-results/04-board-current-thermal/round5-native21/b3/inputs/native21-board-heat-sources-c28.json",
   "heat_sha256": "9c8c47dc218e6cb760d7443ce0b04f96a616204b78b99586dab593c195afef8d",
   "a4_npz_sha256": {
@@ -32,28 +32,28 @@
    "bus_hf_q5-p0125-pl18-heat.npz": "baa06b78d1497e9183eeeb2f7599454be2820b12d47844439e17b96a7129ceab",
    "bus_mixed_q2-p0125-pl18-heat.npz": "c469c45e3b0fc989ce70e93abed91b41a1915d3bd0ee3818ef8a6c521b8cf86b",
    "bus_mixed_q5-p0125-pl18-heat.npz": "dd4e76667aa10c07b8ac3368315d40da41d358c595d6c6095d59e609a2ab378e",
-   "coil_feed-p0125-pl18-heat.npz": "d20bf129da11f80eed5430d527b528867ce0c5b823fc723fc6ba7ca5fcf27018",
-   "hv_dc-p00625-pl18-heat.npz": "7a7496290255594843bc41f1e99f1e8dadf9de2f2158fd438501520a190c78df",
-   "hv_hf_a-p00625-pl18-heat.npz": "15bd5838a6516d5a3a35842fbce4ea563dea2d5218d948c9206a5a9cbd0b778d",
-   "hv_hf_b-p00625-pl18-heat.npz": "d8b13d335b98954c14456d99fc130836ca7c4b428c741634eb917d80d3d586d6",
-   "hv_mixed_a-p00625-pl18-heat.npz": "5ef64a13c8dd04ef17b46f1a04a9109e66a3c8c573eb00b7d4d62e76e5e999d8",
-   "hv_mixed_b-p00625-pl18-heat.npz": "6b1d56bbfb42e3c0a3eae5752a6ea7c0c9183f4a56da2238d8d7e9310af62380",
-   "leg_a_15-p00625-pl18-heat.npz": "725e7d180e08a9e5a78ba3d080298933c901d78e49a4f5294a19710bb42e1636",
-   "leg_a_18p7-p00625-pl18-heat.npz": "8512f908a52fddd345fe723daab79fac9ffccb34e0acc5e2ecb6791697807176",
-   "leg_a_19-p00625-pl18-heat.npz": "344329abc613cc6260784d933374e4e3ab734ade15e7cae38107165767483e25",
-   "leg_a_34-p00625-pl18-heat.npz": "b1d4902a0b2d2d99977ffcfb09321cd41dfd2951e2131f5c852bd2a30b7d167a",
-   "leg_b_18p7-p00625-pl18-heat.npz": "a2cc7117441a92d9ef12b5bf306d550a8da41d49422b2a0e30eadf01f013b813",
-   "leg_b_34-p00625-pl18-heat.npz": "d5211f265b78c087a29fcb2f4564eee3cdeb5557b6422a1e3a5f6c3f289ee259",
-   "res_a-p0125-pl18-heat.npz": "550585ea13b5f63ee2553a4694256555f179aba633dfe42195bb50ac20465a09",
-   "sw_a-p00625-pl18-heat.npz": "92d0be2c71347297915657b5cdf103d76e62fd1aea3a05fb56dd54fbe7bd6e40",
-   "sw_a_low-p00625-pl18-heat.npz": "992b06064f032e543e2b261b88f56b1b802709ea4509b8ce24159df83d9269b2",
-   "sw_b_high-p00625-pl18-heat.npz": "4e28d089196aece46f159ab3bf726c59330189a0b04b6531e566ca056eea97a6",
-   "sw_b_low-p00625-pl18-heat.npz": "57119b4e14861f22bf6253d1aa8670f7aff9ebdc89622eebf53b81decb128665"
+   "coil_feed-p0125-pl18-heat.npz": "f30107a88583e84b5e3caf2c0dc701bcb7e08ed5bdb51d5a6d2cad1da18d2aee",
+   "hv_dc-p00625-pl18-heat.npz": "50b9a8d00c9c7f217816063cbba4ea5ad7d68424d748e7f7797c67275a20938b",
+   "hv_hf_a-p00625-pl18-heat.npz": "44912022f33d92a512a3882af2fefcab3cf0dd29132594ed553af4947f321860",
+   "hv_hf_b-p00625-pl18-heat.npz": "5ba6227fed412f83402d8a29337032757704a57df533f94facf669a834fb1563",
+   "hv_mixed_a-p00625-pl18-heat.npz": "66299b200be2bfeee38d5f63c8c1ebc2354423cbabdafe946e6626e06a4a1903",
+   "hv_mixed_b-p00625-pl18-heat.npz": "62adbd2927bb2c88396e47fbaafc28c4e7f899a8644bac68bc2f1a3a45be4d74",
+   "leg_a_15-p00625-pl18-heat.npz": "374f8cc99365621b8c386475405acfc1696109e17fb1c027732457b1c2877ac3",
+   "leg_a_18p7-p00625-pl18-heat.npz": "2c72480513d46c635149e00c65d6c4a43e96cde319c4e76c71600d4acf8912fa",
+   "leg_a_19-p00625-pl18-heat.npz": "b37f48fb9e896ec00431a406171a6489f1d9716358673260c3ed0a171af8c8cb",
+   "leg_a_34-p00625-pl18-heat.npz": "10f35b581cfc316d2862d1f2b353feda3ebdbcbdc5daf78b4eb83696fe6ab128",
+   "leg_b_18p7-p00625-pl18-heat.npz": "a7fb9d740ce2a9dd1ab575a2ec4a74782108f8e41bae725fcbee189e112d4806",
+   "leg_b_34-p00625-pl18-heat.npz": "cb001b30e0d57d1790f7acffd0d4a31d544fdf52c05fb78b228be58b8a95c029",
+   "res_a-p0125-pl18-heat.npz": "d298ccee176dde012b4b755c4c5b966101536f5ce7dd0d69408ef5d6c14a151d",
+   "sw_a-p00625-pl18-heat.npz": "67e7e8c7ff3385ff20c65954e6296c4b713b2207a8b3f3353bd1edfe995fce58",
+   "sw_a_low-p00625-pl18-heat.npz": "d160e3f6543617b30bdbeea0d5053aa9f74c36b880ef6b511474a5a7d5d0b362",
+   "sw_b_high-p00625-pl18-heat.npz": "23f21bb2c71029c046394bf54e84b082854b518f1af644c46f1f797e54600e7f",
+   "sw_b_low-p00625-pl18-heat.npz": "b5811ce76c80015b515192e17fa889333cc13b24a52ad74368e2f26481bce3ef"
   },
-  "balance_w": -4.127780783846902e-09,
+  "balance_w": -4.188084545830861e-09,
   "board_peak": {
-   "temperature_c": 142.7416744896476,
-   "rise_k": 92.74167448964761,
+   "temperature_c": 142.74671451376588,
+   "rise_k": 92.74671451376587,
    "x_mm": 14.875,
    "y_mm": 56.625,
    "layer": "F.Cu"
@@ -66,29 +66,29 @@
    "4"
   ],
   "pad_cell_count": 210,
-  "pad_cell_max_c": 134.81,
-  "pad_cell_mean_c": 125.99,
+  "pad_cell_max_c": 134.87,
+  "pad_cell_mean_c": 126.03,
   "vs_stage16_wsk_pad_max_c": 149.1572602111822
  },
  "p_diss_w": {
   "at_trip_29p4A": 0.86436,
   "at_28A": 0.784,
   "worst_1pct_tol_and_75ppm_at_pad_max": 0.8802,
-  "worst_margin_pct_authoritative": 50.0
+  "worst_margin_pct_authoritative": 49.9
  },
  "derating": {
   "current_rev (Bourns site Jan-2026 and LCSC 2023 PDF: 5 W @70 C terminal, 0 at 170 C)": {
    "p_rated_w": 5.0,
-   "derated_w_at_pad_max": 1.7594,
-   "margin_pct_at_pad_max": 50.9,
-   "derated_w_at_pad_mean": 2.2006,
+   "derated_w_at_pad_max": 1.7567,
+   "margin_pct_at_pad_max": 50.8,
+   "derated_w_at_pad_mean": 2.1987,
    "margin_pct_at_pad_mean": 60.7,
    "t_ref_for_20pct_margin_c": 148.39,
    "meets_20pct": true
   },
   "older_rev_copy (CERN-hosted copy: 3 W @130 C curve, 0 at 170 C; not on the current Bourns/LCSC PDFs)": {
    "p_rated_w": 3.0,
-   "derated_w_at_pad_max": 2.639,
+   "derated_w_at_pad_max": 2.635,
    "margin_pct_at_pad_max": 67.2,
    "derated_w_at_pad_mean": 3.0,
    "margin_pct_at_pad_mean": 71.2,
@@ -97,10 +97,10 @@
   }
  },
  "authoritative_curve": "current_rev (Bourns site Jan-2026 and LCSC 2023 PDF: 5 W @70 C terminal, 0 at 170 C)",
- "g6_margin_pct": 50.9,
+ "g6_margin_pct": 50.8,
  "trip_band": {
   "tcr_ppm": 75.0,
-  "r5_rise_k": 84.81,
+  "r5_rise_k": 84.87,
   "before_kelvin_a": [
    69.71,
    116.74
@@ -108,7 +108,7 @@
   "kelvin": {
    "e_bound": 2.1538,
    "a_per_mv": -1.037,
-   "source": "02-protection-timing/kelvin/budget-native21s17.json, plane-native21s17.json"
+   "source": "02-protection-timing/kelvin/budget-native21s17b.json, plane-native21s17b.json"
   },
   "low_after_kelvin_bound_a": 67.48,
   "floor_a": 64.17
@@ -121,8 +121,8 @@
  "verdict": "PASS",
  "heat_semantics_sensitivity": {
   "stage17_board_heat_on_all_four_pads": {
-   "pad_max_c": 134.34,
-   "pad_mean_c": 126.31,
+   "pad_max_c": 134.39,
+   "pad_mean_c": 126.34,
    "css2h_margin_pct": 51.5
   },
   "stage16_board_wsk_heat_on_current_pads_1_4": {

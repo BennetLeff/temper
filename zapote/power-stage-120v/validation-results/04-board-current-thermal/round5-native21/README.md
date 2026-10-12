@@ -260,6 +260,23 @@ runs rise 1–10 K and remain outside the 22 A envelope.
   all four pads 134.34 °C (51.5 %); the stage-16 WSK board with heat on its current pads only is 123.43 °C, so
   most of stage 16's 149 °C was its isolated sense pad (the WSK still fails there: 0.47 W derated). `stage17-r5/g6.json`.
 
+### Stage 17b re-run (2026-10-12, board `96501e7d…`; deterministic pour fill)
+
+- **Change:** pour priorities only (`patches21.ZONE_WINNERS` / `resolve_zone_priorities`, gate
+  `native-21/layout/gates/zone_priority_gate.py`). Seven different-net pour pairs sat closer than their clearance at
+  equal priority, and three more exactly at it; KiCad's fill order gave the contested copper to either side. Between
+  stages 14 and 17 that flipped In1 n_ls / ocp_kelvin_p (3.5 mm²), B.Cu sw_b / res_a at the bank (48 mm²), sw_a / sw_b,
+  l_filt / sw_b and res_a / coil_feed. Winners: In1 n_ls (review call); the rest keep stage 15b's fill, the board
+  DECISIONS 14 accepted for 28 A. Three builds (one after deleting every build product) agree within 0.04 mm² per
+  net (`stage17-r5/fill17b.txt`).
+- **B3 ceiling sweep** (h 25): 130.2 / 131.1 / 132.1 / **136.0 °C** at 22 / 24 / 26 / 28 A (22–26 A at U42, 28 A at R5.4).
+  **U26 126.3 / 126.6 / 127.0 / 127.4 °C**; R5 115.5 / 121.8 / 128.6 / 136.0 °C. Nominal h 10 / h 25: 163.2 / 129.1 °C (U26 126.1).
+- **G6:** PASS, R5 pad cells 134.87 °C max / 126.03 °C mean, 1.757 W derated, **margin 50.8 %**; controls reproduce.
+- **R5 vias** (`stage17-r5/r5_vias17.py`; criterion `validation-plan/04-board-current-thermal.md:114`: report current and
+  rise, > 3 A is a flag, no rated limit): worst 8.78 A at 34 A coherent (9.32 A/mm of barrel; stage 6 accepted 7.27 A,
+  7.7 A/mm), 7.59 A at the 29.4 A trip, barrel Joule 0.029 W, mid-wall rise 0.28 K over its planes, B3 cell 133.04 °C,
+  wall estimate 133.31 °C, under the R5 pad maximum and G6's 148.39 °C terminal bound. 10 of 18 R5 vias are flagged.
+
 **Verdict, task 04 on native-21:** nominal operation passes the copper width screen after the SW_B
 fix (SW_A at 18.8 K is the tightest). The board needs a tank-current ceiling (22 A RMS interim).
 Bench IR at nominal power remains the physical gate (D4).

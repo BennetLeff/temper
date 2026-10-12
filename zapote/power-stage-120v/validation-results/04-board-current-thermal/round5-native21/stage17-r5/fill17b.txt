@@ -1,0 +1,15 @@
+# stage 17b fill determinism: three builds of copper.json b2107cd00b3a (chain build s17b, then two from clean: native-21 build products deleted before each)
+# python3 native-21/layout/gates/zone_priority_gate.py native-21/layout/copper.json
+{"contested_pairs": 25, "equal_priority": []}
+# python3 native-21/layout/gates/fill_hash.py s17b s17b2 s17b3   (exit 0 = every (layer, net) within 0.1 mm2)
+{"build": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s17/s17b", "area_hash": "43b675288ecc60d1", "symdiff_total_mm2": 0.0, "symdiff_worst_mm2": 0.0, "worst": "B.Cu|ac_n_in"}
+{"build": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s17/s17b2", "area_hash": "43b675288ecc60d1", "symdiff_total_mm2": 0.0957, "symdiff_worst_mm2": 0.0381, "worst": "In1.Cu|n_ha"}
+{"build": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s17/s17b3", "area_hash": "43b675288ecc60d1", "symdiff_total_mm2": 0.1598, "symdiff_worst_mm2": 0.0381, "worst": "In1.Cu|n_ha"}
+exit 0
+# stage 17 (before 17b) against 17b: the flips the priorities settle
+{"build": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s17/s17", "area_hash": "c108727d6d0a8063", "symdiff_total_mm2": 0.0, "symdiff_worst_mm2": 0.0, "worst": "B.Cu|ac_n_in"}
+{"build": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s17/s17b", "area_hash": "43b675288ecc60d1", "symdiff_total_mm2": 23.6345, "symdiff_worst_mm2": 8.4069, "worst": "B.Cu|res_a"}
+exit 1
+s17b board 96501e7d0e9b4903 drc_errors 0 parity 0 unconnected 0
+s17b2 board 32c8984fa191c102 drc_errors 0 parity 0 unconnected 0
+s17b3 board fb09a087d1c4717c drc_errors 0 parity 0 unconnected 0

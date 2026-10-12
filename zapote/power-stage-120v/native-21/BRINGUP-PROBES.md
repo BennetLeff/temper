@@ -24,10 +24,10 @@ differential or isolated probes (D-8 equipment table), never a grounded scope gr
 | TP10 | n_hb | B | 4.3, 115.8 | TP30 | sw_b | HS-B -2 V rail vs switch node |
 | TP11 | p_hb | B | 14.3, 114.6 | TP31 | sw_b | HS-B +15 V rail |
 | TP12 | v15_selv | B | 134.0, 131.7 | TP32 | selv_gnd | SELV 15 V |
-| TP13 | v3v3 | B | 58.6, 130.0 | TP33 | selv_gnd | SELV 3.3 V |
+| TP13 | v3v3 | B | 55.0, 130.0 | TP33 | selv_gnd | SELV 3.3 V |
 | TP14 | pwm_ha | B | 78.3, 105.9 | TP34 | selv_gnd | PWM A high |
 | TP15 | pwm_la | B | 79.8, 60.8 | TP35 | selv_gnd | PWM A low |
-| TP16 | pwm_hb | B | 56.2, 131.2 | TP33 | selv_gnd | PWM B high |
+| TP16 | pwm_hb | B | 56.2, 132.2 | TP33 | selv_gnd | PWM B high |
 | TP17 | permit | B | 44.3, 132.9 | TP36 | selv_gnd | PERMIT |
 | TP18 | bias_bad | B | 14.4, 130.3 | TP37 | selv_gnd | BIAS_BAD (rail monitors) |
 | TP19 | bus_fault | B | 35.2, 133.6 | TP36 | selv_gnd | OCP fault, SELV side |
@@ -37,12 +37,12 @@ differential or isolated probes (D-8 equipment table), never a grounded scope gr
 
 | Net | Probe at |
 | --- | --- |
-| leg_b-out_l | component pad R58.2 / R20.1 / U2.10 (no legal test-pad spot) |
-| leg_a-out_h | component pad U1.15 / R53.2 / R10.1 (no legal test-pad spot) |
-| leg_b-out_h | component pad R18.1 / U2.15 / R57.2 (no legal test-pad spot) |
+| leg_b-out_l | component pad R58.2 / U2.10 / R20.1 (no legal test-pad spot) |
+| leg_a-out_h | component pad U1.15 / R10.1 / R53.2 (no legal test-pad spot) |
+| leg_b-out_h | component pad R57.2 / U2.15 / R18.1 (no legal test-pad spot) |
 | pwm_lb | J4.8 (bottom), ground J4.2 / J4.4 / J4.15 |
-| leg_a-dis | component pad Q1.3 / U22.1 / R8.1 (no legal test-pad spot) |
-| leg_b-dis | component pad Q4.3 / R16.1 / U23.1 (no legal test-pad spot) |
+| leg_a-dis | component pad U22.1 / Q1.3 / R8.1 (no legal test-pad spot) |
+| leg_b-dis | component pad Q4.3 / U23.1 / R16.1 (no legal test-pad spot) |
 | line_zc | J4.16 (bottom), ground J4.2 / J4.4 / J4.15 |
 | ct_zc | J4.13 (bottom), ground J4.2 / J4.4 / J4.15 |
 

@@ -1,11 +1,11 @@
 # Fabrication note: power-stage-120v native-21 (CANDIDATE, not released)
 
-Board: native-21 stage 17 (stage 16 with R5 = Bourns CSS2H-2512R-1L00F on its Kelvin land, DECISIONS.md 2026-10-12 item 17; stage 16 was stage 15b plus the F2 / J11 blower-supply mains tap, item 16; stage 15b was stage 14 plus the 28 A tank hardware: R34 12.6 k, R43/R46 2.21 k and SW_A / SW_B copper widening, DECISIONS.md 2026-10-10 items 13-14; stage 14 added one RECOM R24C2T25/R-R isolated bias module per high side, U41/U42, the 9 µF C5/C6 bus film and the 2 × 30KPA150CA series bus clamp D3/D17, DECISIONS.md 2026-10-09 stage 14; stage 13b added the BOM simplification, the 5 × TDK B32654 resonant bank and the C1/C2 X2 swap; stage 12 carried the independent-review fixes, `../REVIEW-TRIAGE.md`), rebuilt from
+Board: native-21 stage 17b (stage 16 with R5 = Bourns CSS2H-2512R-1L00F on its Kelvin land and declared pour priorities so the fill no longer depends on KiCad's fill order, DECISIONS.md 2026-10-12 item 17 / 17b; stage 16 was stage 15b plus the F2 / J11 blower-supply mains tap, item 16; stage 15b was stage 14 plus the 28 A tank hardware: R34 12.6 k, R43/R46 2.21 k and SW_A / SW_B copper widening, DECISIONS.md 2026-10-10 items 13-14; stage 14 added one RECOM R24C2T25/R-R isolated bias module per high side, U41/U42, the 9 µF C5/C6 bus film and the 2 × 30KPA150CA series bus clamp D3/D17, DECISIONS.md 2026-10-09 stage 14; stage 13b added the BOM simplification, the 5 × TDK B32654 resonant bank and the C1/C2 X2 swap; stage 12 carried the independent-review fixes, `../REVIEW-TRIAGE.md`), rebuilt from
 `native-21/layout/copper.json` by `sh native-21/layout/incr_iter.sh native-21/layout/copper.json - OUTDIR`;
 SHA-256
-`e40f1e275bbaff8a5e61e224974fd401a44bcad2acefa0b92d50f85b6ce81ecd`.
+`96501e7d0e9b4903a145aa3bd0e45003a4fafe37ceef5259a7502bc9b11225a9`.
 Gerbers: `native-21-gerbers.zip`, SHA-256
-`b60ef50cc819261137c2120230d1c445256133d302a3462e930a2235b08e30f7`.
+`897e581e78db51731264589f028ff2f2933d8b2a916012eeb4656fc42b556b9a`.
 
 **This package isn't released for ordering.** The gates come in two tiers (decision 2026-10-08; PROTOTYPE-LOT.md agrees).
 

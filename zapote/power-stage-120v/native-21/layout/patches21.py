@@ -218,6 +218,70 @@ def add(g):
     add_stage13(g)
     add_stage14(g)
     add_stage16(g)
+    resolve_zone_priorities(g["ZONES"])
+
+
+# Stage 17b: deterministic pour fill. Two different-net pours on one layer, closer than their clearance and at the
+# SAME priority, let KiCad's fill order decide who gets the contested copper; rebuilds of identical copper.json
+# flipped it (In1 n_ls / ocp_kelvin_p at y 75.3: U26 133.0 vs 126.1 C at nominal h 25; B.Cu sw_b / res_a 48 mm2 at
+# the bank, sw_a / sw_b, l_filt / sw_b, res_a / coil_feed between stages 14-17). Every such pair now has a declared
+# winner; strict orders already in copper.json are kept, and gates/zone_priority_gate.py fails any unresolved pair.
+# Winners: In1 n_ls (stage-17b review call); the rest keep stage 15b's fill (the board DECISIONS 14 accepted for 28 A).
+ZONE_WINNERS = [("In1.Cu", "n_ls LS block", "ocp_kelvin_p protection"),
+                ("In1.Cu", "rect_p BR1.1-J7", "hv_ret trunk"),
+                ("B.Cu", "l_filt BR1.2-L1", "sw_b leg B-C21..C23"),
+                ("B.Cu", "sw_a leg-A link", "sw_b leg B-C21..C23"),
+                ("B.Cu", "sw_b leg B-C21..C23", "res_a J5-C21..C23"),
+                ("B.Cu", "coil_feed J2-T1.2", "res_a J5-C21..C23"),
+                ("B.Cu", "n_ls U42 heat-spread", "n_hb bank"),
+                # outlines exactly 3.2 mm apart: only a ~5 um boundary sliver moves, but it moved between rebuilds
+                ("F.Cu", "sw_a Q2.3-T1.1", "n_filt BR1.3-L1-C2"),
+                ("B.Cu", "sw_b leg B-C21..C23", "n_ls LS-A bank"),
+                ("F.Cu", "l_f F1-C1-L1-RV1", "ac_l_in J1-F1")]
+
+
+def contested_pairs(zones):
+    """(i, j, need) for different-net pours on one layer whose outlines are closer than their clearance."""
+    from shapely.geometry import Polygon
+    import rules21
+    polys = [Polygon(z["outline"], z["holes"]) for z in zones]
+    out = []
+    for i, a in enumerate(zones):
+        for j in range(i + 1, len(zones)):
+            b = zones[j]
+            if a["layer"] != b["layer"] or a["net"] == b["net"]:
+                continue
+            need = rules21.clearance(a["net"], b["net"])
+            if polys[i].distance(polys[j]) < need + 1e-3:   # outlines exactly at the clearance still trade a ~5 um sliver
+                out.append((i, j, need))
+    return out
+
+
+def resolve_zone_priorities(zones):
+    win = {(lay, w, l_) for lay, w, l_ in ZONE_WINNERS}
+    cons, bad = [], []
+    for i, j, _ in contested_pairs(zones):
+        a, b = zones[i], zones[j]
+        pa, pb = a.get("priority", 1), b.get("priority", 1)
+        if pa != pb:
+            cons.append((i, j) if pa > pb else (j, i))
+        elif (a["layer"], a.get("name"), b.get("name")) in win:
+            cons.append((i, j))
+        elif (a["layer"], b.get("name"), a.get("name")) in win:
+            cons.append((j, i))
+        else:
+            bad.append((a["layer"], a.get("name"), b.get("name")))
+    if bad:
+        raise SystemExit(f"equal-priority pours closer than clearance, no declared winner: {bad}")
+    for _ in range(len(zones) + 1):
+        changed = False
+        for hi, lo in cons:
+            if zones[hi].get("priority", 1) <= zones[lo].get("priority", 1):
+                zones[hi]["priority"] = zones[lo].get("priority", 1) + 1
+                changed = True
+        if not changed:
+            return
+    raise SystemExit("pour priority constraints are cyclic")
 
 
 # Output polylines (base copper), with the y where each leaves 0.6 / 0.5 mm for the 0.3 mm neck

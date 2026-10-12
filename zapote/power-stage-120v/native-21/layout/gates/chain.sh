@@ -12,6 +12,7 @@ KC=/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli
 E=validation-plan/enclosure-fit; O=validation-results/08-manufacturing-package/native-21/fab
 cd "$U"
 python3 native-21/layout/plan_board_only21.py "$PASS/copper-dump.json" | grep -E "TPs|^holes|fiducials" | cut -c1-200
+python3 $G/zone_priority_gate.py native-21/layout/copper.json   # stage 17b: no fill-order-dependent pours
 mkdir -p "$B"; sh native-21/layout/incr_iter.sh native-21/layout/copper.json - "$B" > "$B.log" 2>&1
 grep -E "^unconnected|thermal reliefs|labels|plane splits" "$B.log"; head -1 "$B/barrier.txt"
 echo "errors $(python3 $G/count_errors.py $B/drc.json)"; tail -3 "$B.log" | grep violations

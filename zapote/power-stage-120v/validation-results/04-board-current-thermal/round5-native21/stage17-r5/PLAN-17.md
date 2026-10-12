@@ -183,6 +183,11 @@ with 50.9 % margin. DECISIONS item 17 has the numbers and commits. Files added h
 | `ocp_band17.py` → `ocp_band17.json` | G7: band before the Kelvin shift with R5 75 ppm/°C (69.89–116.44 A); control: stage-16 250 ppm → 68.58–118.74 A |
 | `audit17.txt` | `audit.rs` 79/79 tests and the frozen-netlist PASS (rustc single file, no workspace build) |
 | `r5-gerber-review.png` | gerbv render of the R5 box: F.Cu, F.Mask, F.Paste, In1, B.Cu, drills |
+| `r5_vias17.py` → `r5_vias17.json` | stage 17b: every R5 current via against the task-04 via criterion (current, A/mm, c28 barrel heat and rise, B3 cell, wall estimate) |
+| `fill17b.txt` | stage 17b: zone-priority gate and three-build fill comparison (`native-21/layout/gates/zone_priority_gate.py`, `fill_hash.py`) |
+
+Stage 17b (2026-10-12): pour priorities declared (DECISIONS 17b); `g6.json` and `r5_vias17.json` are on board `native21s17b`
+(`python3 g6_r5_derating.py`, `python3 r5_vias17.py`; defaults to that tag).
 
 Measured land (footprint creation, section 3 asked for it): the 600 dpi drawing gives 1.80 × 3.40 pads with a 3.40 gap (as
 dimensioned); sense lobes 0.40 tall centred on each pad, running in to |x| 0.30; fingers 0.40 wide at |x| 0.30–0.70, from
