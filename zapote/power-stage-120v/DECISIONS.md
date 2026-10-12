@@ -556,7 +556,12 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
       - The minimum continuous power is about 73–175 W at 60 kHz, so burst mode is open item H12.
     - **Open:**
       - the pickup basis C (any-phase stack, 70.48 A floor) closes on the bench at 45–55 kHz;
-      - bank over-voltage in a CT-failed double fault (present before stage 15) needs TDK's single-event over-voltage figure or a clamp study.
+      - ~~bank over-voltage in a CT-failed double fault~~ **closed 2026-10-12** (`validation-results/02-protection-timing/bank-ov-double-fault/`, verdict INCONCLUSIVE as a bare number, accepted as follows). Bank: 5 × TDK B32654A1104K000, 1600 V DC rated, 2560 V factory test; TDK gives no single-event figure.
+        - With the CT trips (and the CT-fed firmware peak/RMS trips) dead, only the shunt OCP (≤ 118.74 A) is left. Driven open-loop down to 15 kHz, the bank reaches 1702.4 V (1.064 × V_R).
+        - The firmware already holds f ≥ 35 kHz in two places: `tank_freq` rejects configs with f_min < 35 kHz, and `n21_binding` refuses any retime below f_min before `pwm_update`.
+        - With that floor, the CT-failed + loop-runaway case peaks at 1494.8 V (time-domain) and 1178.4 V (quasi-steady), both under 1600 V.
+        - Getting below 35 kHz needs a third, independent fault (MCU program-flow or corrupted timer config) on top of the CT failure. That is outside IEC 60335-1 19.11's one-fault-at-a-time analysis, and even then the 1702 V stays under the 2560 V factory test.
+        - No hardware change. Owner item (non-blocking): ask TDK for the single-event over-voltage rating of B32654A1104K000.
 14. **Stage 15b: the board thermally supports the 28 A ceiling (2026-10-10, board `9a9c43c6…`, copper.json `a831e90c…`; study `validation-results/04-board-current-thermal/round5-native21/stage15b/`).**
     - **Root cause of stage 15's 142.0 °C at 28 A:**
       - **Mostly a B3 meshing artefact.** At the 1.0 mm mesh, the cell at (76.5, 9.5) has no copper, yet it received A4 copper heat from a pour edge inside it.
