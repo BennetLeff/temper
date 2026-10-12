@@ -690,7 +690,7 @@ void state_fault_update(void) {
     display_show_message(state_machine_get_fault_string(sm_get_context()->fault_code));
 
     /* Check for user reset */
-    if (button_is_pressed(BUTTON_RESET)) {
+    if (button_is_pressed(BUTTON_BACK)) {
         if (fault_cleared()) {
             /* Fault condition has cleared: reinitialize */
             sm_get_context()->fault_code = FAULT_NONE;
@@ -747,7 +747,7 @@ void state_runaway_fault_update(void) {
     watchdog_feed();
 
     /* Check for user reset attempt */
-    if (button_is_pressed(BUTTON_RESET)) {
+    if (button_is_pressed(BUTTON_BACK)) {
         if (fault_cleared()) {
             sm_get_context()->fault_code = FAULT_NONE;
             sm_get_context()->runaway_latched = false;

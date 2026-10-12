@@ -301,3 +301,45 @@ bool platform_buzzer_output(platform_buzzer_t *b, uint32_t now_ms)
     if (b->mode == PLATFORM_BUZZ_TIMED && (int32_t)(now_ms - b->until_ms) >= 0) b->mode = PLATFORM_BUZZ_OFF;
     return b->mode != PLATFORM_BUZZ_OFF;
 }
+
+/* ---------------------------------------------------------------- UI link supervision */
+void platform_ui_link_init(platform_ui_link_t *l, uint32_t now_ms)
+{
+    l->last_good_ms = now_ms;
+    l->ok = true;
+    l->stop_latched = false;
+}
+
+bool platform_ui_link_poll(platform_ui_link_t *l, uint32_t now_ms, bool ok, uint32_t lost_ms)
+{
+    if (ok) {
+        l->last_good_ms = now_ms;
+        l->ok = true;
+        return false;
+    }
+    l->ok = false;
+    if ((uint32_t)(now_ms - l->last_good_ms) > lost_ms) {
+        l->stop_latched = true;
+        return true;
+    }
+    return false;
+}
+
+void platform_ui_link_reacquired(platform_ui_link_t *l, uint32_t now_ms)
+{
+    l->last_good_ms = now_ms;
+    l->ok = true;
+}
+
+bool platform_ui_link_take_stop(platform_ui_link_t *l)
+{
+    if (!l->stop_latched) return false;
+    if (l->ok) l->stop_latched = false;
+    return true;
+}
+
+uint32_t platform_ui_powerup_wait_remaining_ms(uint32_t now_ms, uint32_t since_ms, uint32_t wait_ms)
+{
+    uint32_t elapsed = now_ms - since_ms;
+    return elapsed >= wait_ms ? 0u : wait_ms - elapsed;
+}

@@ -55,7 +55,7 @@ static struct {
     bool button_stop_pressed;
     bool button_temp_up_pressed;
     bool button_temp_down_pressed;
-    bool button_reset_pressed;
+    bool button_back_pressed;
     bool button_start_enabled;
     
     /* System states */
@@ -108,7 +108,7 @@ static struct {
     .button_stop_pressed = false,
     .button_temp_up_pressed = false,
     .button_temp_down_pressed = false,
-    .button_reset_pressed = false,
+    .button_back_pressed = false,
     .button_start_enabled = true,
     .fan_running = true,
     .power_level = 0,
@@ -239,7 +239,7 @@ void mock_sm_press_button(button_id_t button) {
         case BUTTON_STOP: mock_sm_state.button_stop_pressed = true; break;
         case BUTTON_TEMP_UP: mock_sm_state.button_temp_up_pressed = true; break;
         case BUTTON_TEMP_DOWN: mock_sm_state.button_temp_down_pressed = true; break;
-        case BUTTON_RESET: mock_sm_state.button_reset_pressed = true; break;
+        case BUTTON_BACK: mock_sm_state.button_back_pressed = true; break;
     }
 }
 
@@ -249,7 +249,7 @@ void mock_sm_release_button(button_id_t button) {
         case BUTTON_STOP: mock_sm_state.button_stop_pressed = false; break;
         case BUTTON_TEMP_UP: mock_sm_state.button_temp_up_pressed = false; break;
         case BUTTON_TEMP_DOWN: mock_sm_state.button_temp_down_pressed = false; break;
-        case BUTTON_RESET: mock_sm_state.button_reset_pressed = false; break;
+        case BUTTON_BACK: mock_sm_state.button_back_pressed = false; break;
     }
 }
 
@@ -258,7 +258,7 @@ void mock_sm_release_all_buttons(void) {
     mock_sm_state.button_stop_pressed = false;
     mock_sm_state.button_temp_up_pressed = false;
     mock_sm_state.button_temp_down_pressed = false;
-    mock_sm_state.button_reset_pressed = false;
+    mock_sm_state.button_back_pressed = false;
 }
 
 void mock_sm_set_selftest_results(bool adc, bool pwm, bool fan, bool comp, bool rtd, bool disp, bool eeprom) {
@@ -365,7 +365,7 @@ bool button_is_pressed(button_id_t button) {
         case BUTTON_STOP: return mock_sm_state.button_stop_pressed;
         case BUTTON_TEMP_UP: return mock_sm_state.button_temp_up_pressed;
         case BUTTON_TEMP_DOWN: return mock_sm_state.button_temp_down_pressed;
-        case BUTTON_RESET: return mock_sm_state.button_reset_pressed;
+        case BUTTON_BACK: return mock_sm_state.button_back_pressed;
         default: return false;
     }
 }

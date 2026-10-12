@@ -120,11 +120,11 @@ EVENT_STUBS = {
     "COOLDOWN_OVERHEAT": "mock_sm_set_heatsink_temperature(105.0f);",
     "FAULT_RESET_CLEARED": (
         "mock_sm_set_heatsink_temperature(65.0f);\n"
-        "    mock_sm_press_button(BUTTON_RESET);"
+        "    mock_sm_press_button(BUTTON_BACK);"
     ),
     "FAULT_RESET_PERSISTS": (
         "mock_sm_set_heatsink_temperature(105.0f);\n"
-        "    mock_sm_press_button(BUTTON_RESET);"
+        "    mock_sm_press_button(BUTTON_BACK);"
     ),
     "RUNAWAY_ABSOLUTE_TEMP": "mock_sm_set_pan_temperature(310.0f);",
     "RUNAWAY_RISE_RATE": (

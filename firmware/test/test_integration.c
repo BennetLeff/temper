@@ -727,7 +727,7 @@ void test_fault_recovery_after_condition_cleared(void) {
     mock_sm_set_heatsink_temperature(65.0f);
     
     /* Press reset button */
-    mock_sm_press_button(BUTTON_RESET);
+    mock_sm_press_button(BUTTON_BACK);
     mock_sm_advance_time(100);
     state_machine_update();
     
@@ -764,7 +764,7 @@ void test_fault_reset_rejected_while_active(void) {
     TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
     
     /* Try reset while condition still active */
-    mock_sm_press_button(BUTTON_RESET);
+    mock_sm_press_button(BUTTON_BACK);
     mock_sm_advance_time(100);
     state_machine_update();
     

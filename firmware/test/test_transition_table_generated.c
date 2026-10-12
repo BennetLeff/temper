@@ -171,12 +171,12 @@ static void apply_event_stubs(const char *event) {
     }
     if (strcmp(event, "FAULT_RESET_CLEARED") == 0) {
         mock_sm_set_heatsink_temperature(65.0f);
-        mock_sm_press_button(BUTTON_RESET);
+        mock_sm_press_button(BUTTON_BACK);
         return;
     }
     if (strcmp(event, "FAULT_RESET_PERSISTS") == 0) {
         mock_sm_set_heatsink_temperature(105.0f);
-        mock_sm_press_button(BUTTON_RESET);
+        mock_sm_press_button(BUTTON_BACK);
         return;
     }
     if (strcmp(event, "RUNAWAY_ABSOLUTE_TEMP") == 0) {
