@@ -391,7 +391,10 @@ Source: power-stage stage-16 plan `validation-results/08-manufacturing-package/n
 - **PS3 budget** (`ps3_budget()`):
   - The blower draws 35.7 W / 2.88 A at the buck's 12.40 V duty-0 corner (fan law from Delta's 32.4 W at 12 V, an estimate as PLAN-16). At η 0.90 that is a **39.7 W PS3 output**, 2.72 A at 14.63 V.
   - That is 66 % of 60 W, inside the 45 W derated figure at 60 °C (IRM-60-SPEC p.3 curve).
-  - The harness drops 51 mV (18.9 mΩ loop), leaving ≥ 14.57 V at U2 against the 13.54 V it needs for 12.40 V out without foldback.
+  - The harness drops 172 mV (63.3 mΩ loop), leaving ≥ 14.45 V at U2 against the 13.54 V it needs for 12.40 V out without foldback.
+    - The loop is 450 mm of AWG18 out and back at 80 °C, plus four 10 mΩ interfaces: the two J13 VH contacts (JST eVH, initial maximum) and PS3's two screw terminals (assumed equal to the VH figure).
+    - Enclosure R41 routes the pair in 292 mm of 18 AWG; 450 mm is kept as the envelope.
+    - Before 2026-10-12 this was 51 mV, which counted the wire at 20 °C only.
   - At start-up, U2's 4.2–5.8 A limit bounds the 15 V draw at 3.96–5.46 A, against PS3's 4.6 A low OCP corner. PLAN-16 bench gate G-B1 measures the blower's start current.
 - **Layout:**
   - The buck cluster moved 5.5 mm forward, so J13 sits at the rear edge behind U2. The FB divider and injection resistor sit in the strip between U2/L2 and J13, beside the FB pin.

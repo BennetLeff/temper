@@ -412,7 +412,8 @@ def ps3_budget() -> dict:
     115-160 % hiccup) and p.3 derating (100 % to 50 C, 75 % at 60 C, read from the graph);
     Delta BFB1012VH-F00 (32.4 W / 2.70 A max at 12.0 V); fan law P ~ V^3 to the buck's 12.40 V
     duty-0 corner (estimate, as PLAN-16 sec. 1.1); JST eVH.pdf p.1 (VH 10 A with AWG16, 7 A with
-    AWG18 on the shrouded header: the lower figure is used); AWG18 20.95 mOhm/m;
+    AWG18 on the shrouded header: the lower figure is used; contact resistance 10 mOhm max initial);
+    AWG18 20.95 mOhm/m at 20 C;
     TI SLUSEA4D IHS_LIMIT 4.2-5.8 A, VIN 3.8-30 V.
     """
     v_hi = blower_supply()["vout_duty0_V"][1]
@@ -422,7 +423,10 @@ def ps3_budget() -> dict:
     p_out = p_blower / eta
     v_lo = 15 * 0.975
     i_out = p_out / v_lo
-    loop_ohm = 2 * 0.450 * 20.95e-3                # 450 mm twisted pair, out and back
+    # 450 mm twisted pair out and back (enclosure R41 routes 292 mm; 450 kept as the envelope), AWG18
+    # at 80 C (copper +0.393 %/K), plus 4 interfaces at 10 mOhm: the two VH contact pairs at J13 (JST
+    # eVH p.1, initial maximum) and PS3's two screw terminals, assumed equal to the VH figure.
+    loop_ohm = 2 * 0.450 * 20.95e-3 * (1 + 0.00393 * 60) + 4 * 10e-3
     drop = i_out * loop_ohm
     vin_u2 = v_lo - drop
     # start: U2 at its high-side limit, 12.40 V out -> 15 V draw
