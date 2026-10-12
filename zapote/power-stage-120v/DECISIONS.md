@@ -643,6 +643,11 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
         - Clearances after the IRM-60-SPEC p.4 block model (blocks as scaled housings): DC block to HOT 9.01 mm (≥ 8), AC block to HOT 6.39 mm (≥ 3.2), AC block to SELV 40.0 mm (≥ 8), J13 pair to HOT 8.65 mm (≥ 8), J11 lead to SELV 15.8 mm (no sleeve needed), bracket to native-21 parts 2.93 mm (≥ 2.0 basic).
         - The DC-block margin is 1.0 mm against a block size scaled from the drawing (±2 mm): measure a PS3 sample before the enclosure release.
         - Screws: 4 × ISO 4762 M3×10 in PEM CLS-M3-2 nuts (M3×12 would come within 1.1 mm of native-21's parts).
+      - Enclosure R42 (`output/temper-manufacturing-r42`, `evidence/ps3/check_ps3_retention.py`) adds cable ties at the J11 anchor and at both PS3 blocks. With each conductor end freed at its terminal, the margin to the other voltage class is +4.5 mm at J11, +33.1 mm at PS3 AC and +6.1 mm at PS3 DC.
+        - **J13 end (decided 2026-10-12):** no tie fits there; the exit is 10.75 mm from the native-21 HOT block.
+          - Primary: an insulating barrier (polycarbonate or Formex GK class, ≥ 0.4 mm, UL94 V-0, ≥ 105 °C). It is mounted on the enclosure or a standoff and sized so that a freed end's path around its edge to HOT is ≥ 8 mm. Modelled in R43, with the retention check extended.
+          - Secondary basis for the certifier: the latched VHR housing plus the crimp.
+        - Bench and R43: the mains lead runs 315 mm unsupported at 4.99 mm from the native-21 envelope, and its sag is not modelled. Add a mid-span tie if SELV parts lie there.
         - Harness: J13 pair 2 × UL1007 18 AWG, 292 mm. J11 lead 2 × UL1015 18 AWG, 322 mm; its tie points move to R42.
         - The controller's J13 drop is rebased on contacts and copper at 80 °C: 172 mV, U2 headroom 0.92 V (controller-layout 0207a6974).
         - Coil field at PS3: 453–573 µT rms at the coil-side corner (study 12). Added bench item: PS3 ripple and stability at 28 A.
