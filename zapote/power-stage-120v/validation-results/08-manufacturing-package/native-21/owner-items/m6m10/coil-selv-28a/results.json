@@ -1,0 +1,832 @@
+{
+ "assessment": [
+  {
+   "a_board_8mm": "PASS",
+   "b_clearance_3mm": "PASS (impulse-set; recurring peak below the 2.5 kV step)",
+   "b_creepage_row12b": "PASS",
+   "b_pd_level_in_row12b": "PASS",
+   "b_pd_test_1p5_urp_V_pk": 959.0,
+   "b_pd_test_1p875_urp_V_pk": 1199.0,
+   "band_upper_V": 250,
+   "c_hipot_3000V": "PASS",
+   "c_hipot_pk_over_urp": 6.63,
+   "crest_rms_V": 452.3,
+   "label": "22 A control: ORACLE/DECISIONS item 7 as recorded",
+   "pk_V": 639.6,
+   "reinforced_creepage_PD2_mm_line_rms": 5.0,
+   "reinforced_creepage_PD3_mm_crest_rms": 16.0,
+   "reinforced_creepage_PD3_mm_line_rms": 8.0,
+   "rms_V": 242.1
+  },
+  {
+   "a_board_8mm": "FAIL",
+   "b_clearance_3mm": "PASS (impulse-set; recurring peak below the 2.5 kV step)",
+   "b_creepage_row12b": "FAIL",
+   "b_pd_level_in_row12b": "PASS",
+   "b_pd_test_1p5_urp_V_pk": 936.0,
+   "b_pd_test_1p875_urp_V_pk": 1169.0,
+   "band_upper_V": 400,
+   "c_hipot_3000V": "PASS",
+   "c_hipot_pk_over_urp": 6.8,
+   "crest_rms_V": 441.0,
+   "label": "22 A no-pan clamp (normal use), this model",
+   "pk_V": 623.7,
+   "reinforced_creepage_PD2_mm_line_rms": 8.0,
+   "reinforced_creepage_PD3_mm_crest_rms": 16.0,
+   "reinforced_creepage_PD3_mm_line_rms": 12.6,
+   "rms_V": 286.2
+  },
+  {
+   "a_board_8mm": "FAIL",
+   "b_clearance_3mm": "PASS (impulse-set; recurring peak below the 2.5 kV step)",
+   "b_creepage_row12b": "FAIL",
+   "b_pd_level_in_row12b": "FAIL (row 12b level below 1.5 x U_rp)",
+   "b_pd_test_1p5_urp_V_pk": 983.0,
+   "b_pd_test_1p875_urp_V_pk": 1229.0,
+   "band_upper_V": 400,
+   "c_hipot_3000V": "PASS",
+   "c_hipot_pk_over_urp": 6.47,
+   "crest_rms_V": 463.5,
+   "label": "28 A with a pan (normal use)",
+   "pk_V": 655.5,
+   "reinforced_creepage_PD2_mm_line_rms": 8.0,
+   "reinforced_creepage_PD3_mm_crest_rms": 16.0,
+   "reinforced_creepage_PD3_mm_line_rms": 12.6,
+   "rms_V": 297.0
+  },
+  {
+   "a_board_8mm": "FAIL",
+   "b_clearance_3mm": "PASS (impulse-set; recurring peak below the 2.5 kV step)",
+   "b_creepage_row12b": "FAIL",
+   "b_pd_level_in_row12b": "FAIL (row 12b level below 1.5 x U_rp)",
+   "b_pd_test_1p5_urp_V_pk": 983.0,
+   "b_pd_test_1p875_urp_V_pk": 1229.0,
+   "band_upper_V": 400,
+   "c_hipot_3000V": "PASS",
+   "c_hipot_pk_over_urp": 6.47,
+   "crest_rms_V": 463.5,
+   "label": "NORMAL-USE ENVELOPE (max of the two above)",
+   "pk_V": 655.5,
+   "reinforced_creepage_PD2_mm_line_rms": 8.0,
+   "reinforced_creepage_PD3_mm_crest_rms": 16.0,
+   "reinforced_creepage_PD3_mm_line_rms": 12.6,
+   "rms_V": 297.0
+  },
+  {
+   "a_board_8mm": "FAIL",
+   "b_clearance_3mm": "PASS (impulse-set; recurring peak below the 2.5 kV step)",
+   "b_creepage_row12b": "FAIL",
+   "b_pd_level_in_row12b": "FAIL (row 12b level below 1.5 x U_rp)",
+   "b_pd_test_1p5_urp_V_pk": 1144.0,
+   "b_pd_test_1p875_urp_V_pk": 1430.0,
+   "band_upper_V": 400,
+   "c_hipot_3000V": "PASS",
+   "c_hipot_pk_over_urp": 5.56,
+   "crest_rms_V": 539.1,
+   "label": "28 A envelope of all tank states (clamp failed, fault)",
+   "pk_V": 762.4,
+   "reinforced_creepage_PD2_mm_line_rms": 8.0,
+   "reinforced_creepage_PD3_mm_crest_rms": 20.0,
+   "reinforced_creepage_PD3_mm_line_rms": 12.6,
+   "rms_V": 353.3
+  },
+  {
+   "a_board_8mm": "FAIL",
+   "b_clearance_3mm": "PASS (impulse-set; recurring peak below the 2.5 kV step)",
+   "b_creepage_row12b": "FAIL",
+   "b_pd_level_in_row12b": "FAIL (row 12b level below 1.5 x U_rp)",
+   "b_pd_test_1p5_urp_V_pk": 1187.0,
+   "b_pd_test_1p875_urp_V_pk": 1483.0,
+   "band_upper_V": 400,
+   "c_hipot_3000V": "PASS",
+   "c_hipot_pk_over_urp": 5.36,
+   "crest_rms_V": 559.4,
+   "label": "29.4 A envelope of all tank states (RMS trip, fault)",
+   "pk_V": 791.1,
+   "reinforced_creepage_PD2_mm_line_rms": 8.0,
+   "reinforced_creepage_PD3_mm_crest_rms": 20.0,
+   "reinforced_creepage_PD3_mm_line_rms": 12.6,
+   "rms_V": 361.7
+  }
+ ],
+ "constants": {
+  "L_unloaded_uH": [
+   59.85,
+   66.5,
+   73.15
+  ],
+  "board_floor_mm": 8.0,
+  "caps_uF": [
+   0.45,
+   0.5,
+   0.55
+  ],
+  "f_floor_kHz": 35.0,
+  "lines_V": [
+   108.0,
+   120.0,
+   132.0,
+   140.0
+  ],
+  "rho_crest_over_rms": 2.0,
+  "row12b": {
+   "clearance_mm": 3.0,
+   "creepage_mm": 8.0,
+   "hipot_vrms": 3000.0,
+   "pd_pC": 10.0,
+   "pd_raised_V_pk": 1200.0,
+   "pd_test_V_pk": 960.0,
+   "pd_test_x_urp": 1.5,
+   "vpk": 640.0,
+   "vrms": 242.0
+  },
+  "table17_PD2_IIIa_basic_V_mm": [
+   [
+    50,
+    1.2
+   ],
+   [
+    125,
+    1.5
+   ],
+   [
+    250,
+    2.5
+   ],
+   [
+    400,
+    4.0
+   ],
+   [
+    500,
+    5.0
+   ],
+   [
+    800,
+    6.3
+   ],
+   [
+    1000,
+    8.0
+   ]
+  ],
+  "table17_PD3_IIIa_basic_V_mm": [
+   [
+    50,
+    1.9
+   ],
+   [
+    125,
+    2.4
+   ],
+   [
+    250,
+    4.0
+   ],
+   [
+    400,
+    6.3
+   ],
+   [
+    500,
+    8.0
+   ],
+   [
+    800,
+    10.0
+   ],
+   [
+    1000,
+    12.5
+   ]
+  ]
+ },
+ "controls": {
+  "C1_oracle_Q2_reproduced_from_its_inputs": {
+   "127 V +10 %, 48 uH": {
+    "RES_A_pk": 639.6,
+    "RES_A_rms": 242.1,
+    "oracle": [
+     242.0,
+     640.0
+    ]
+   },
+   "127 V, 48 uH": {
+    "RES_A_pk": 581.6,
+    "RES_A_rms": 220.1,
+    "oracle": [
+     220.0,
+     582.0
+    ]
+   },
+   "127 V, 70 uH": {
+    "RES_A_pk": 456.6,
+    "RES_A_rms": 165.1,
+    "oracle": [
+     165.0,
+     457.0
+    ]
+   },
+   "PASS": true,
+   "basis": "RES_A to earth, N at earth, bus = |v_line|, in-phase tank current (phi = 0), line-cycle rms"
+  },
+  "C1b_crest_shortcut_equals_line_cycle_integral": {
+   "PASS": true,
+   "line_cycle": [
+    293.9,
+    639.56
+   ],
+   "shortcut": [
+    293.9,
+    639.57
+   ]
+  },
+  "C1c_oracle_script_tools_bus_voltage_sim": {
+   "PASS": true,
+   "RES_A_pk": 639.55,
+   "RES_A_rms": 242.1
+  },
+  "C2_442V_is_the_22A_ceiling": {
+   "I_crest_A": 44.0,
+   "PASS": true,
+   "V_Cr_crest": 444.6,
+   "Xc_ohm_35kHz_0p45uF": 10.105,
+   "oracle_input": 442.0
+  },
+  "C3_prior_study_RES_A_rows": {
+   "22.0": {
+    "prior_results_json": [
+     295.3,
+     642.5
+    ],
+    "this_script_line_rms_pk": [
+     295.3,
+     642.5
+    ]
+   },
+   "28.0": {
+    "prior_results_json": [
+     353.3,
+     762.4
+    ],
+    "this_script_line_rms_pk": [
+     353.3,
+     762.4
+    ]
+   },
+   "29.4": {
+    "prior_results_json": [
+     361.7,
+     791.1
+    ],
+    "this_script_line_rms_pk": [
+     361.7,
+     791.1
+    ]
+   },
+   "PASS": true,
+   "note": "RES_A to HV_RET at the line crest equals RES_A to earth (HV_RET is earth there); line rms = crest rms / sqrt 2"
+  }
+ },
+ "headline": {
+  "no_pan_22A_clamp": {
+   "pk": 623.7,
+   "rms": 286.2
+  },
+  "no_pan_28A_fault": {
+   "basis": "worst over the unloaded and loaded equivalent-circuit sweeps (R_eq 0.168-5 ohm), as the earlier study's design-worst RES_A row",
+   "pk": 762.4,
+   "rms": 353.3
+  },
+  "no_pan_29p4A_trip": {
+   "basis": "worst over the unloaded and loaded equivalent-circuit sweeps (R_eq 0.168-5 ohm), as the earlier study's design-worst RES_A row",
+   "pk": 791.1,
+   "rms": 361.7
+  },
+  "normal_use_envelope": {
+   "governed_by": "pan 28 A",
+   "pk": 655.5,
+   "rms": 297.0
+  },
+  "oracle_242_640_control": {
+   "pk": 639.6,
+   "rms": 242.1
+  },
+  "pan_22A_for_reference": {
+   "pk": 663.4,
+   "rms": 299.6
+  },
+  "pan_28A": {
+   "basis": "round-6 grid, L70, all C / gap variants, 108-140 V lines",
+   "grid_L70_C050": [
+    297.0,
+    655.5
+   ],
+   "grid_all_L_70_80_90": [
+    314.1,
+    690.4
+   ],
+   "pk": 655.5,
+   "rms": 297.0,
+   "sensitivity_loaded_sweep_R0p5_to_5": [
+    353.3,
+    762.4
+   ]
+  }
+ },
+ "pan_grid": {
+  "22A_all_configs": {
+   "n": 630,
+   "pk_max": 663.4,
+   "pk_max_case": {
+    "I_rms_A": 21.992,
+    "L_uH": 66.1,
+    "RES_A_pk": 663.3668377420033,
+    "RES_A_rms": 299.5535127544641,
+    "R_ohm": 2.732,
+    "case": "d228_gap84-L90-C040-I22-pan220|aluminium_clad_multiply-high-140v",
+    "f_kHz": 37.61,
+    "line_V": 140.0,
+    "phase_deg": 61.6,
+    "status": "TANK_LIMITED"
+   },
+   "rms_max": 299.6,
+   "rms_max_case": {
+    "I_rms_A": 21.992,
+    "L_uH": 66.1,
+    "RES_A_pk": 663.3668377420033,
+    "RES_A_rms": 299.5535127544641,
+    "R_ohm": 2.732,
+    "case": "d228_gap84-L90-C040-I22-pan220|aluminium_clad_multiply-high-140v",
+    "f_kHz": 37.61,
+    "line_V": 140.0,
+    "phase_deg": 61.6,
+    "status": "TANK_LIMITED"
+   }
+  },
+  "22A_design_tank_L70_C050": {
+   "n": 180,
+   "pk_max": 566.3,
+   "pk_max_case": {
+    "I_rms_A": 21.998,
+    "L_uH": 55.5,
+    "RES_A_pk": 566.2850976046282,
+    "RES_A_rms": 253.8338259983525,
+    "R_ohm": 2.585,
+    "case": "d228_gap84-L70-C050-I22-pan180|cast_iron-high-140v",
+    "f_kHz": 38.42,
+    "line_V": 140.0,
+    "phase_deg": 63.2,
+    "status": "TANK_LIMITED"
+   },
+   "rms_max": 253.8,
+   "rms_max_case": {
+    "I_rms_A": 21.998,
+    "L_uH": 55.5,
+    "RES_A_pk": 566.2850976046282,
+    "RES_A_rms": 253.8338259983525,
+    "R_ohm": 2.585,
+    "case": "d228_gap84-L70-C050-I22-pan180|cast_iron-high-140v",
+    "f_kHz": 38.42,
+    "line_V": 140.0,
+    "phase_deg": 63.2,
+    "status": "TANK_LIMITED"
+   }
+  },
+  "28A_L70_any_C_and_gap": {
+   "n": 135,
+   "pk_max": 655.5,
+   "pk_max_case": {
+    "I_rms_A": 27.0,
+    "L_uH": 52.8,
+    "RES_A_pk": 655.4641829127722,
+    "RES_A_rms": 297.026656631694,
+    "R_ohm": 1.984,
+    "case": "d228_gap84-L70-C050-I28-pan180|aluminium_clad_multiply-high-140v",
+    "f_kHz": 38.01,
+    "line_V": 140.0,
+    "phase_deg": 64.9,
+    "status": "INPUT_LIMITED"
+   },
+   "rms_max": 297.0,
+   "rms_max_case": {
+    "I_rms_A": 27.0,
+    "L_uH": 52.8,
+    "RES_A_pk": 655.4641829127722,
+    "RES_A_rms": 297.026656631694,
+    "R_ohm": 1.984,
+    "case": "d228_gap84-L70-C050-I28-pan180|aluminium_clad_multiply-high-140v",
+    "f_kHz": 38.01,
+    "line_V": 140.0,
+    "phase_deg": 64.9,
+    "status": "INPUT_LIMITED"
+   }
+  },
+  "28A_all_configs": {
+   "n": 405,
+   "pk_max": 690.4,
+   "pk_max_case": {
+    "I_rms_A": 27.564,
+    "L_uH": 57.3,
+    "RES_A_pk": 690.4234705532095,
+    "RES_A_rms": 314.08584358127274,
+    "R_ohm": 1.902,
+    "case": "d228_gap84-L90-C050-I28-pan180|aluminium_clad_multiply-nom-140v",
+    "f_kHz": 36.06,
+    "line_V": 140.0,
+    "phase_deg": 65.4,
+    "status": "INPUT_LIMITED"
+   },
+   "rms_max": 314.1,
+   "rms_max_case": {
+    "I_rms_A": 27.564,
+    "L_uH": 57.3,
+    "RES_A_pk": 690.4234705532095,
+    "RES_A_rms": 314.08584358127274,
+    "R_ohm": 1.902,
+    "case": "d228_gap84-L90-C050-I28-pan180|aluminium_clad_multiply-nom-140v",
+    "f_kHz": 36.06,
+    "line_V": 140.0,
+    "phase_deg": 65.4,
+    "status": "INPUT_LIMITED"
+   }
+  },
+  "28A_design_tank_L70_C050": {
+   "n": 135,
+   "pk_max": 655.5,
+   "pk_max_case": {
+    "I_rms_A": 27.0,
+    "L_uH": 52.8,
+    "RES_A_pk": 655.4641829127722,
+    "RES_A_rms": 297.026656631694,
+    "R_ohm": 1.984,
+    "case": "d228_gap84-L70-C050-I28-pan180|aluminium_clad_multiply-high-140v",
+    "f_kHz": 38.01,
+    "line_V": 140.0,
+    "phase_deg": 64.9,
+    "status": "INPUT_LIMITED"
+   },
+   "rms_max": 297.0,
+   "rms_max_case": {
+    "I_rms_A": 27.0,
+    "L_uH": 52.8,
+    "RES_A_pk": 655.4641829127722,
+    "RES_A_rms": 297.026656631694,
+    "R_ohm": 1.984,
+    "case": "d228_gap84-L70-C050-I28-pan180|aluminium_clad_multiply-high-140v",
+    "f_kHz": 38.01,
+    "line_V": 140.0,
+    "phase_deg": 64.9,
+    "status": "INPUT_LIMITED"
+   }
+  }
+ },
+ "recommended_row_12b": {
+  "fault_no_pan_29p4A_pk_V": 791.1,
+  "fault_no_pan_29p4A_rms_V": 361.7,
+  "fault_pd_1p5_urp_V_pk": 1187.0,
+  "pd_test_1p5_urp_V_pk": 983.0,
+  "pd_test_raised_1p875_urp_V_pk": 1229.0,
+  "reinforced_creepage_mm_PD2_IIIa": 8.0,
+  "reinforced_creepage_mm_PD3_IIIa": 12.6,
+  "working_voltage_normal_use_pk_V": 655.5,
+  "working_voltage_normal_use_rms_V": 297.0
+ },
+ "sweep": {
+  "22.0": {
+   "no_pan": {
+    "RES_A": {
+     "pk_max": 623.7,
+     "pk_max_corner": {
+      "C_uF": 0.45,
+      "I_crest_A": 42.1,
+      "L_uH": 73.2,
+      "R_ohm": 0.168,
+      "f_kHz": 35.0,
+      "line_V": 140.0,
+      "phase_deg": 88.4
+     },
+     "rms_and_pk_at_pk_corner": [
+      286.2,
+      623.7
+     ],
+     "rms_max": 286.2,
+     "rms_max_corner": {
+      "C_uF": 0.45,
+      "I_crest_A": 42.1,
+      "L_uH": 73.2,
+      "R_ohm": 0.168,
+      "f_kHz": 35.0,
+      "line_V": 140.0,
+      "phase_deg": 88.4
+     }
+    },
+    "SW_A": {
+     "pk_max": 198.0,
+     "pk_max_corner": {
+      "C_uF": 0.45,
+      "I_crest_A": 44.0,
+      "L_uH": 59.9,
+      "R_ohm": 0.168,
+      "f_kHz": 39.21,
+      "line_V": 140.0,
+      "phase_deg": 88.3
+     },
+     "rms_and_pk_at_pk_corner": [
+      99.0,
+      198.0
+     ],
+     "rms_max": 99.0,
+     "rms_max_corner": {
+      "C_uF": 0.45,
+      "I_crest_A": 44.0,
+      "L_uH": 59.9,
+      "R_ohm": 0.168,
+      "f_kHz": 39.21,
+      "line_V": 140.0,
+      "phase_deg": 88.3
+     }
+    }
+   },
+   "pan_equivalent_circuit": {
+    "RES_A": {
+     "pk_max": 642.5,
+     "pk_max_corner": {
+      "C_uF": 0.45,
+      "I_crest_A": 44.0,
+      "L_uH": 72.0,
+      "R_ohm": 0.168,
+      "f_kHz": 35.0,
+      "line_V": 140.0,
+      "phase_deg": 88.3
+     },
+     "rms_and_pk_at_pk_corner": [
+      295.3,
+      642.5
+     ],
+     "rms_max": 295.3,
+     "rms_max_corner": {
+      "C_uF": 0.45,
+      "I_crest_A": 44.0,
+      "L_uH": 72.0,
+      "R_ohm": 0.168,
+      "f_kHz": 35.0,
+      "line_V": 140.0,
+      "phase_deg": 88.3
+     }
+    },
+    "SW_A": {
+     "pk_max": 198.0,
+     "pk_max_corner": {
+      "C_uF": 0.45,
+      "I_crest_A": 44.0,
+      "L_uH": 30.0,
+      "R_ohm": 2.0,
+      "f_kHz": 59.84,
+      "line_V": 140.0,
+      "phase_deg": 69.6
+     },
+     "rms_and_pk_at_pk_corner": [
+      99.0,
+      198.0
+     ],
+     "rms_max": 99.0,
+     "rms_max_corner": {
+      "C_uF": 0.45,
+      "I_crest_A": 44.0,
+      "L_uH": 30.0,
+      "R_ohm": 2.0,
+      "f_kHz": 59.84,
+      "line_V": 140.0,
+      "phase_deg": 69.6
+     }
+    }
+   }
+  },
+  "28.0": {
+   "no_pan": {
+    "RES_A": {
+     "pk_max": 761.3,
+     "pk_max_corner": {
+      "C_uF": 0.45,
+      "I_crest_A": 55.7,
+      "L_uH": 66.5,
+      "R_ohm": 0.168,
+      "f_kHz": 35.0,
+      "line_V": 140.0,
+      "phase_deg": 87.9
+     },
+     "rms_and_pk_at_pk_corner": [
+      353.0,
+      761.3
+     ],
+     "rms_max": 353.0,
+     "rms_max_corner": {
+      "C_uF": 0.45,
+      "I_crest_A": 55.7,
+      "L_uH": 66.5,
+      "R_ohm": 0.168,
+      "f_kHz": 35.0,
+      "line_V": 140.0,
+      "phase_deg": 87.9
+     }
+    },
+    "SW_A": {
+     "pk_max": 198.0,
+     "pk_max_corner": {
+      "C_uF": 0.45,
+      "I_crest_A": 56.0,
+      "L_uH": 59.9,
+      "R_ohm": 0.168,
+      "f_kHz": 37.23,
+      "line_V": 140.0,
+      "phase_deg": 87.9
+     },
+     "rms_and_pk_at_pk_corner": [
+      99.0,
+      198.0
+     ],
+     "rms_max": 99.0,
+     "rms_max_corner": {
+      "C_uF": 0.45,
+      "I_crest_A": 56.0,
+      "L_uH": 59.9,
+      "R_ohm": 0.168,
+      "f_kHz": 37.23,
+      "line_V": 140.0,
+      "phase_deg": 87.9
+     }
+    }
+   },
+   "pan_equivalent_circuit": {
+    "RES_A": {
+     "pk_max": 762.4,
+     "pk_max_corner": {
+      "C_uF": 0.45,
+      "I_crest_A": 56.0,
+      "L_uH": 66.0,
+      "R_ohm": 0.5,
+      "f_kHz": 35.09,
+      "line_V": 140.0,
+      "phase_deg": 83.6
+     },
+     "rms_and_pk_at_pk_corner": [
+      353.3,
+      762.4
+     ],
+     "rms_max": 353.3,
+     "rms_max_corner": {
+      "C_uF": 0.45,
+      "I_crest_A": 56.0,
+      "L_uH": 66.0,
+      "R_ohm": 0.168,
+      "f_kHz": 35.13,
+      "line_V": 140.0,
+      "phase_deg": 87.9
+     }
+    },
+    "SW_A": {
+     "pk_max": 198.0,
+     "pk_max_corner": {
+      "C_uF": 0.45,
+      "I_crest_A": 56.0,
+      "L_uH": 30.0,
+      "R_ohm": 0.168,
+      "f_kHz": 56.86,
+      "line_V": 140.0,
+      "phase_deg": 87.9
+     },
+     "rms_and_pk_at_pk_corner": [
+      99.0,
+      198.0
+     ],
+     "rms_max": 99.0,
+     "rms_max_corner": {
+      "C_uF": 0.45,
+      "I_crest_A": 56.0,
+      "L_uH": 30.0,
+      "R_ohm": 0.168,
+      "f_kHz": 56.86,
+      "line_V": 140.0,
+      "phase_deg": 87.9
+     }
+    }
+   }
+  },
+  "29.4": {
+   "no_pan": {
+    "RES_A": {
+     "pk_max": 761.9,
+     "pk_max_corner": {
+      "C_uF": 0.45,
+      "I_crest_A": 58.8,
+      "L_uH": 59.9,
+      "R_ohm": 0.25,
+      "f_kHz": 36.88,
+      "line_V": 140.0,
+      "phase_deg": 86.7
+     },
+     "rms_and_pk_at_pk_corner": [
+      353.2,
+      761.9
+     ],
+     "rms_max": 353.2,
+     "rms_max_corner": {
+      "C_uF": 0.45,
+      "I_crest_A": 58.8,
+      "L_uH": 59.9,
+      "R_ohm": 0.168,
+      "f_kHz": 36.89,
+      "line_V": 140.0,
+      "phase_deg": 87.8
+     }
+    },
+    "SW_A": {
+     "pk_max": 198.0,
+     "pk_max_corner": {
+      "C_uF": 0.45,
+      "I_crest_A": 58.8,
+      "L_uH": 59.9,
+      "R_ohm": 0.168,
+      "f_kHz": 36.89,
+      "line_V": 140.0,
+      "phase_deg": 87.8
+     },
+     "rms_and_pk_at_pk_corner": [
+      99.0,
+      198.0
+     ],
+     "rms_max": 99.0,
+     "rms_max_corner": {
+      "C_uF": 0.45,
+      "I_crest_A": 58.8,
+      "L_uH": 59.9,
+      "R_ohm": 0.168,
+      "f_kHz": 36.89,
+      "line_V": 140.0,
+      "phase_deg": 87.8
+     }
+    }
+   },
+   "pan_equivalent_circuit": {
+    "RES_A": {
+     "pk_max": 791.1,
+     "pk_max_corner": {
+      "C_uF": 0.45,
+      "I_crest_A": 58.8,
+      "L_uH": 63.0,
+      "R_ohm": 2.0,
+      "f_kHz": 35.06,
+      "line_V": 140.0,
+      "phase_deg": 62.2
+     },
+     "rms_and_pk_at_pk_corner": [
+      361.7,
+      791.1
+     ],
+     "rms_max": 361.7,
+     "rms_max_corner": {
+      "C_uF": 0.45,
+      "I_crest_A": 58.8,
+      "L_uH": 63.0,
+      "R_ohm": 0.168,
+      "f_kHz": 35.79,
+      "line_V": 140.0,
+      "phase_deg": 87.8
+     }
+    },
+    "SW_A": {
+     "pk_max": 198.0,
+     "pk_max_corner": {
+      "C_uF": 0.45,
+      "I_crest_A": 58.8,
+      "L_uH": 30.0,
+      "R_ohm": 0.168,
+      "f_kHz": 56.15,
+      "line_V": 140.0,
+      "phase_deg": 87.8
+     },
+     "rms_and_pk_at_pk_corner": [
+      99.0,
+      198.0
+     ],
+     "rms_max": 99.0,
+     "rms_max_corner": {
+      "C_uF": 0.45,
+      "I_crest_A": 58.8,
+      "L_uH": 30.0,
+      "R_ohm": 0.168,
+      "f_kHz": 56.15,
+      "line_V": 140.0,
+      "phase_deg": 87.8
+     }
+    }
+   }
+  }
+ },
+ "sweep_points": {
+  "22.0": 72,
+  "28.0": 72,
+  "29.4": 72
+ }
+}
