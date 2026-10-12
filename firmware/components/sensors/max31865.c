@@ -7,6 +7,8 @@
 
 #include "config.h"
 
+#include <math.h>
+
 static bool device_ready(const max31865_device_t *device)
 {
     /* Mock SPI represents its first device by handle zero. Production HAL
@@ -118,4 +120,31 @@ hal_status_t max31865_service_fault_cycle(const max31865_device_t *device,
         fault_sink(false, true, context);
     }
     return status;
+}
+
+hal_status_t max31865_read_rtd_word(const max31865_device_t *device,
+                                    uint16_t *rtd_word)
+{
+    uint8_t raw[2] = {0u, 0u};
+    hal_status_t status;
+
+    if (!device_ready(device) || rtd_word == NULL) {
+        return HAL_ERROR_INVALID_ARG;
+    }
+
+    status = HAL_SPI_READ_REG(device->spi_device, MAX31865_REG_RTD_MSB, raw,
+                              sizeof(raw));
+    if (status == HAL_OK) {
+        *rtd_word = (uint16_t)(((uint16_t)raw[0] << 8) | raw[1]);
+    }
+    return status;
+}
+
+float max31865_rtd_word_to_ohm(uint16_t rtd_word, float rref_ohm)
+{
+    if ((rtd_word & MAX31865_RTD_WORD_FAULT) != 0u || !(rref_ohm > 0.0f) ||
+        !isfinite(rref_ohm)) {
+        return INFINITY;
+    }
+    return (float)(rtd_word >> 1) * rref_ohm / 32768.0f;
 }

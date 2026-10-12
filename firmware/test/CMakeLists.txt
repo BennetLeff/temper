@@ -583,3 +583,15 @@ target_include_directories(test_thermal_mgmt PRIVATE ../components/control)
 target_link_libraries(test_thermal_mgmt m)
 target_compile_options(test_thermal_mgmt PRIVATE -UNDEBUG -Wall -Wextra -Werror)
 add_test(NAME thermal_mgmt_tests COMMAND test_thermal_mgmt)
+
+# ESP32 platform layer, pure part (components/platform): MAX31865 word -> ohm -> PT100 with the
+# fail-safe sentinels, blower full-speed floor, NVS fault-log ring, display text, UI-board inputs.
+add_executable(test_platform_logic test_platform_logic.c ../components/platform/platform_logic.c
+    ../components/sensors/max31865.c ../components/hal/mock/hal_init_mock.c ../components/hal/mock/mock_gpio.c
+    ../components/hal/mock/mock_adc.c ../components/hal/mock/mock_pwm.c ../components/hal/mock/mock_spi.c
+    ../components/hal/mock/mock_timer.c)
+target_include_directories(test_platform_logic PRIVATE ../components/platform/include
+    ../components/sensors/include ../components/hal/include ..)
+target_link_libraries(test_platform_logic m)
+target_compile_options(test_platform_logic PRIVATE -UNDEBUG -Wall -Wextra -Werror)
+add_test(NAME platform_logic_tests COMMAND test_platform_logic)

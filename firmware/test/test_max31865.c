@@ -277,6 +277,63 @@ void test_rtd_service_silent_drdy_fails_closed_within_control_bound(void)
     TEST_ASSERT_FALSE(rtd_service_is_ready());
 }
 
+/* The RTD data word behind read_rtd_resistance()/read_pan_temperature(): read on a DRDY completion,
+ * exposed only while the service is ready and the word is no older than the DRDY bound. */
+void test_rtd_service_latest_word_follows_drdy_and_ages_out(void)
+{
+    uint16_t word = 0u;
+    uint8_t age = 0xFFu;
+    uint8_t tick;
+
+    TEST_ASSERT_EQUAL(HAL_OK, rtd_service_bootstrap());
+    TEST_ASSERT_FALSE(rtd_service_latest_word(&word, &age)); /* nothing read yet */
+
+    mock_spi_set_register((hal_spi_device_t)0, MAX31865_REG_RTD_MSB, 0x2Au);
+    mock_spi_set_register((hal_spi_device_t)0, MAX31865_REG_RTD_MSB + 1u, 0x3Cu);
+    drdy.low = true;
+    rtd_service_control_tick();
+    TEST_ASSERT_EQUAL(STATE_INIT, state_machine_get_state());
+    TEST_ASSERT_TRUE(rtd_service_latest_word(&word, &age));
+    TEST_ASSERT_EQUAL_HEX16(0x2A3Cu, word);
+    TEST_ASSERT_EQUAL_UINT8(0u, age);
+
+    /* No new completion: the word ages, and the DRDY timeout ends the service (fail closed). */
+    drdy.low = true;
+    for (tick = 1u; tick < RTD_DRDY_TIMEOUT_CONTROL_TICKS; tick++) {
+        rtd_service_control_tick();
+        TEST_ASSERT_TRUE(rtd_service_latest_word(&word, &age));
+        TEST_ASSERT_EQUAL_UINT8(tick, age);
+    }
+    rtd_service_control_tick();
+    TEST_ASSERT_FALSE(rtd_service_is_ready());
+    TEST_ASSERT_FALSE(rtd_service_latest_word(&word, &age));
+    TEST_ASSERT_EQUAL(FAULT_PROBE_OPEN, state_machine_get_fault());
+}
+
+void test_rtd_service_failed_data_read_invalidates_word_only(void)
+{
+    uint16_t word = 0u;
+
+    TEST_ASSERT_EQUAL(HAL_OK, rtd_service_bootstrap());
+    drdy.low = true;
+    mock_spi_fail_next_read(HAL_ERROR); /* the RTD data read, first in the completion */
+    rtd_service_control_tick();
+    TEST_ASSERT_FALSE(rtd_service_latest_word(&word, NULL));
+    /* The fault-status read that follows still succeeds: no fault, service still ready. */
+    TEST_ASSERT_TRUE(rtd_service_is_ready());
+    TEST_ASSERT_EQUAL(STATE_INIT, state_machine_get_state());
+}
+
+void test_max31865_rref_matches_threshold_words(void)
+{
+    const float lsb = MAX31865_RREF_OHM / 32768.0f;
+
+    TEST_ASSERT_FLOAT_WITHIN(lsb, RTD_SHORT_FAULT_OHM,
+        max31865_rtd_word_to_ohm(MAX31865_LOW_THRESHOLD_WORD, MAX31865_RREF_OHM));
+    TEST_ASSERT_FLOAT_WITHIN(lsb, RTD_OPEN_FAULT_OHM,
+        max31865_rtd_word_to_ohm(MAX31865_HIGH_THRESHOLD_WORD, MAX31865_RREF_OHM));
+}
+
 void run_max31865_tests(void)
 {
     RUN_TEST(test_max31865_init_writes_encoded_threshold_words_and_starts_async_cycle);
@@ -290,4 +347,7 @@ void run_max31865_tests(void)
     RUN_TEST(test_rtd_service_silent_drdy_fails_closed_within_control_bound);
     RUN_TEST(test_rtd_service_requires_drdy_source);
     RUN_TEST(test_rtd_service_drdy_held_low_is_one_completion);
+    RUN_TEST(test_rtd_service_latest_word_follows_drdy_and_ages_out);
+    RUN_TEST(test_rtd_service_failed_data_read_invalidates_word_only);
+    RUN_TEST(test_max31865_rref_matches_threshold_words);
 }

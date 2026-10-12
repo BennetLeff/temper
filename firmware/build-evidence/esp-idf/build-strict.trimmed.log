@@ -15,22 +15,22 @@ CMake Warning at CMakeLists.txt:26 (message):
 
 
 Executing action: all (aliases: build)
-Running cmake in directory build
-Executing "cmake -G 'Unix Makefiles' -DPYTHON_DEPS_CHECKED=1 -DPYTHON=/Users/bennet/.espressif/python_env/idf5.3_py3.12_env/bin/python -DESP_PLATFORM=1 -DSDKCONFIG=build/sdkconfig -DCCACHE_ENABLE=0 /Users/bennet/Desktop/temper/worktrees/bui
+Running cmake in directory <BUILD>
+Executing "cmake -G 'Unix Makefiles' -DPYTHON_DEPS_CHECKED=1 -DPYTHON=/Users/bennet/.espressif/python_env/idf5.3_py3.12_env/bin/python -DESP_PLATFORM=1 -DSDKCONFIG=<BUILD>/sdkconfig -DCCACHE_ENABLE=0 /Users/bennet/Desktop/temper/worktrees/f
 -- IDF_TARGET is not set, guessed 'esp32s3' from sdkconfig 'sdkconfig.defaults'
 -- The C compiler identification is GNU 13.2.0
 -- The CXX compiler identification is GNU 13.2.0
 -- The ASM compiler identification is GNU
 -- Building ESP-IDF components for target esp32s3
--- Project sdkconfig file build/sdkconfig
+-- Project sdkconfig file <BUILD>/sdkconfig
 Loading defaults file sdkconfig.defaults...
 sdkconfig.defaults:16 CONFIG_ESP_TASK_WDT was replaced with CONFIG_ESP_TASK_WDT_INIT 
 Loading defaults file build-evidence/esp-idf/sdkconfig.evidence...
 -- Compiler supported targets: xtensa-esp-elf
 -- USING O3
 -- App "induction_cooker" version: ps120-validation-round3-raw-v1-
--- Build files have been written to: build
-Running make in directory build
+-- Build files have been written to: <BUILD>
+Running make in directory <BUILD>
 Executing "make -j 14 all"...
 Partition table binary generated. Contents:
 *******************************************************************************
@@ -53,106 +53,100 @@ storage,data,spiffs,0x210000,1M,
 -- The C compiler identification is GNU 13.2.0
 -- The CXX compiler identification is GNU 13.2.0
 -- The ASM compiler identification is GNU
-[  4%] Linking C static library libesp_eth.a
-[  5%] Linking C static library libesp_adc.a
+[  3%] Linking C static library libesp_eth.a
+[  4%] Linking C static library libesp_adc.a
 -- Building ESP-IDF components for target esp32s3
-[  5%] Linking C static library libesp-tls.a
-[  5%] Linking C static library libhttp_parser.a
--- Project sdkconfig file build/sdkconfig
+[  4%] Linking C static library libesp-tls.a
+-- Project sdkconfig file <BUILD>/sdkconfig
+[  4%] Linking C static library libhttp_parser.a
 -- Compiler supported targets: xtensa-esp-elf
-[  6%] Linking C static library libesp_gdbstub.a
 -- Bootloader project name: "bootloader" version: 1
-[  7%] Linking C static library libesp_wifi.a
--- Build files have been written to: build/bootloader
-[  7%] Performing build step for 'bootloader'
+[  4%] Linking C static library libesp_gdbstub.a
+-- Build files have been written to: <BUILD>/bootloader
+[  5%] Performing build step for 'bootloader'
+[  5%] Linking C static library libesp_wifi.a
 [  5%] Linking C static library liblog.a
-[  7%] Linking C static library libesp_coex.a
+[  5%] Linking C static library libesp_coex.a
 [ 15%] Linking C static library libesp_rom.a
 [ 17%] Linking C static library libesp_common.a
 [ 27%] Linking C static library libesp_hw_support.a
 [ 28%] Linking C static library libesp_system.a
 [ 37%] Linking C static library libefuse.a
-[ 15%] Linking C static library libwpa_supplicant.a
+[ 13%] Linking C static library libwpa_supplicant.a
 [ 57%] Linking C static library libbootloader_support.a
 [ 58%] Linking C static library libesp_bootloader_format.a
 [ 60%] Linking C static library libspi_flash.a
-[ 16%] Linking C static library libesp_netif.a
 [ 67%] Linking C static library libhal.a
+[ 13%] Linking C static library libesp_netif.a
 [ 68%] Linking C static library libmicro-ecc.a
 [ 91%] Linking C static library libsoc.a
 [ 94%] Linking C static library libxtensa.a
 [ 96%] Linking C static library libmain.a
-[ 24%] Linking C static library liblwip.a
 [ 98%] Linking C executable bootloader.elf
+[ 21%] Linking C static library liblwip.a
 esptool.py v4.12.0
 Creating esp32s3 image...
 Merged 2 ELF sections
 Successfully created esp32s3 image.
-Generated build/bootloader/bootloader.bin
+Generated <BUILD>/bootloader/bootloader.bin
 Bootloader binary size 0x5950 bytes. 0x26b0 bytes (30%) free.
-[ 24%] No install step for 'bootloader'
-[ 24%] Completed 'bootloader'
-[ 24%] Linking C static library libvfs.a
-[ 25%] Linking C static library libesp_vfs_console.a
-[ 25%] Linking C static library libesp_phy.a
-[ 27%] Linking C static library libdriver.a
-[ 27%] Linking C static library libesp_driver_usb_serial_jtag.a
-[ 27%] Linking C static library libesp_driver_ledc.a
-[ 28%] Linking C static library libesp_driver_i2c.a
-[ 28%] Linking C static library libesp_driver_sdm.a
-[ 28%] Linking C static library libesp_driver_tsens.a
-[ 29%] Linking C static library libesp_driver_rmt.a
-[ 30%] Linking C static library libesp_driver_sdspi.a
-[ 30%] Linking C static library libesp_driver_sdmmc.a
-[ 31%] Linking C static library libsdmmc.a
-[ 31%] Linking C static library libesp_driver_i2s.a
-[ 32%] Linking C static library libesp_driver_mcpwm.a
-[ 32%] Linking C static library libesp_driver_spi.a
-[ 32%] Linking C static library libesp_driver_pcnt.a
-[ 34%] Linking C static library libnvs_flash.a
-[ 34%] Linking C static library libesp_event.a
-[ 35%] Linking C static library libesp_driver_uart.a
-[ 35%] Linking C static library libesp_ringbuf.a
-[ 35%] Linking C static library libesp_driver_gptimer.a
-[ 35%] Linking C static library libesp_timer.a
-[ 35%] Linking C static library libcxx.a
-[ 35%] Linking C static library libpthread.a
-[ 37%] Linking C static library libnewlib.a
-[ 39%] Linking C static library libfreertos.a
-[ 44%] Linking C static library libesp_hw_support.a
-[ 47%] Linking C static library libsoc.a
-[ 48%] Linking C static library libheap.a
-[ 49%] Linking C static library liblog.a
-[ 54%] Linking C static library libhal.a
-[ 55%] Linking C static library libesp_rom.a
-[ 55%] Linking C static library libesp_common.a
-[ 59%] Linking C static library libesp_system.a
-[ 61%] Linking C static library libspi_flash.a
-[ 62%] Linking C static library libesp_mm.a
-[ 64%] Linking C static library libbootloader_support.a
-[ 65%] Linking C static library libefuse.a
-[ 65%] Linking C static library libesp_partition.a
-[ 65%] Linking C static library libapp_update.a
-[ 66%] Linking C static library libesp_bootloader_format.a
-[ 66%] Linking C static library libesp_app_format.a
-[ 68%] Linking CXX static library libmbedtls.a
-[ 69%] Linking CXX static library libmbedx509.a
-[ 79%] Linking CXX static library libmbedcrypto.a
-[ 79%] Linking CXX static library libp256m.a
-[ 80%] Linking CXX static library libeverest.a
-[ 81%] Linking C static library libmbedtls.a
-[ 82%] Linking C static library libesp_pm.a
-[ 83%] Linking C static library libesp_driver_gpio.a
-[ 83%] Linking C static library libxtensa.a
-[ 84%] Linking C static library libnvs_sec_provider.a
-[ 84%] Linking C static library libesp_driver_cam.a
-[ 84%] Linking C static library libesp_https_server.a
-[ 84%] Linking C static library libperfmon.a
-[ 85%] Linking C static library libesp_hid.a
-[ 85%] Linking C static library libapp_trace.a
-[ 85%] Linking C static library libjson.a
-[ 87%] Linking C static library libespcoredump.a
-[ 87%] Linking C static library libwear_levelling.a
+[ 21%] No install step for 'bootloader'
+[ 21%] Completed 'bootloader'
+[ 21%] Linking C static library libvfs.a
+[ 21%] Linking C static library libesp_vfs_console.a
+[ 21%] Linking C static library libesp_phy.a
+[ 23%] Linking C static library libdriver.a
+[ 23%] Linking C static library libesp_driver_usb_serial_jtag.a
+[ 23%] Linking C static library libesp_driver_ledc.a
+[ 24%] Linking C static library libesp_driver_i2c.a
+[ 24%] Linking C static library libesp_driver_sdm.a
+[ 24%] Linking C static library libesp_driver_tsens.a
+[ 25%] Linking C static library libesp_driver_rmt.a
+[ 26%] Linking C static library libesp_driver_sdspi.a
+[ 26%] Linking C static library libesp_driver_sdmmc.a
+[ 27%] Linking C static library libsdmmc.a
+[ 27%] Linking C static library libesp_driver_i2s.a
+[ 28%] Linking C static library libesp_driver_mcpwm.a
+[ 28%] Linking C static library libesp_driver_spi.a
+[ 28%] Linking C static library libesp_driver_pcnt.a
+[ 30%] Linking C static library libnvs_flash.a
+[ 31%] Linking C static library libesp_event.a
+[ 32%] Linking C static library libesp_driver_uart.a
+[ 32%] Linking C static library libesp_ringbuf.a
+[ 32%] Linking C static library libesp_driver_gptimer.a
+[ 32%] Linking C static library libesp_timer.a
+[ 32%] Linking C static library libcxx.a
+[ 32%] Linking C static library libpthread.a
+[ 34%] Linking C static library libnewlib.a
+[ 36%] Linking C static library libfreertos.a
+[ 41%] Linking C static library libesp_hw_support.a
+[ 44%] Linking C static library libsoc.a
+[ 45%] Linking C static library libheap.a
+[ 46%] Linking C static library liblog.a
+[ 51%] Linking C static library libhal.a
+[ 52%] Linking C static library libesp_rom.a
+[ 52%] Linking C static library libesp_common.a
+[ 56%] Linking C static library libesp_system.a
+[ 58%] Linking C static library libspi_flash.a
+[ 59%] Linking C static library libesp_mm.a
+[ 61%] Linking C static library libbootloader_support.a
+[ 62%] Linking C static library libefuse.a
+[ 63%] Linking C static library libesp_partition.a
+[ 63%] Linking C static library libapp_update.a
+[ 64%] Linking C static library libesp_bootloader_format.a
+[ 64%] Linking C static library libesp_app_format.a
+[ 66%] Linking CXX static library libmbedtls.a
+[ 67%] Linking CXX static library libmbedx509.a
+[ 77%] Linking CXX static library libmbedcrypto.a
+[ 77%] Linking CXX static library libp256m.a
+[ 78%] Linking CXX static library libeverest.a
+[ 78%] Linking C static library libmbedtls.a
+[ 79%] Linking C static library libesp_pm.a
+[ 80%] Linking C static library libesp_driver_gpio.a
+[ 80%] Linking C static library libxtensa.a
+[ 82%] Linking C static library libnvs_sec_provider.a
+[ 83%] Linking C static library libperfmon.a
+[ 83%] Linking C static library libesp_https_server.a
 components/hal/esp32/hal_adc_esp32.c: In function 'map_atten':
 components/hal/esp32/hal_adc_esp32.c:57:9: warning: 'ADC_ATTEN_DB_11' is deprecated [-Wdeprecated-declarations]
    57 |         default:                    return ADC_ATTEN_DB_11;
@@ -162,22 +156,35 @@ In file included from /Users/bennet/esp/esp-idf-v5.3.6/components/esp_adc/includ
 /Users/bennet/esp/esp-idf-v5.3.6/components/hal/include/hal/adc_types.h:51:5: note: declared here
    51 |     ADC_ATTEN_DB_11 __attribute__((deprecated)) = ADC_ATTEN_DB_12,  ///<This is deprecated, it behaves the same as `ADC_ATTEN_DB_12`
       |     ^~~~~~~~~~~~~~~
-[ 87%] Linking C static library libmqtt.a
-[ 89%] Linking C static library libunity.a
-[ 89%] Linking C static library libprotobuf-c.a
+[ 83%] Linking C static library libapp_trace.a
+[ 85%] Linking C static library libjson.a
+[ 85%] Linking C static library libesp_driver_cam.a
+[ 86%] Linking C static library libespcoredump.a
 components/hal/esp32/hal_timer_esp32.c:41:26: warning: 's_capture_contexts' defined but not used [-Wunused-variable]
    41 | static capture_context_t s_capture_contexts[MAX_TIMERS];
       |                          ^~~~~~~~~~~~~~~~~~
-[ 90%] Linking C static library libtouch_element.a
-[ 90%] Linking C static library libcmock.a
-[ 91%] Linking C static library libtemper_hal.a
+[ 86%] Linking C static library libwear_levelling.a
+[ 88%] Linking C static library libtouch_element.a
+[ 88%] Linking C static library libesp_hid.a
+[ 89%] Linking C static library libtemper_hal.a
+[ 90%] Linking C static library libprotobuf-c.a
+[ 90%] Linking C static library libunity.a
+[ 90%] Linking C static library libmqtt.a
+[ 92%] Linking C static library libcmock.a
+[ 92%] Linking C static library libspiffs.a
 [ 92%] Linking C static library libusb.a
-[ 93%] Linking C static library libconsole.a
-[ 93%] Linking C static library libspiffs.a
+[ 92%] Linking C static library libconsole.a
 [ 93%] Linking C static library libesp_lcd.a
-[ 94%] Linking C static library libpower.a
-[ 95%] Linking C static library libfatfs.a
-[ 96%] Linking C static library libprotocomm.a
+[ 93%] Linking C static library libpower.a
+[ 94%] Linking C static library libfatfs.a
+main/state_handlers.c: In function 'state_pan_det_update':
+main/state_handlers.c:282:10: warning: unused variable 'estimation_complete' [-Wunused-variable]
+  282 |     bool estimation_complete = thermal_mass_update(&sm_get_context()->thermal_mass, current_temp, current_time);
+      |          ^~~~~~~~~~~~~~~~~~~
+main/state_handlers.c: At top level:
+main/state_handlers.c:21:20: warning: 'TAG' defined but not used [-Wunused-variable]
+   21 | static const char *TAG = "state_handlers";
+      |                    ^~~
 components/control/pll_control.c: In function 'pll_update_loop':
 components/control/pll_control.c:357:11: warning: unused variable 'abs_error' [-Wunused-variable]
   357 |     float abs_error = fabsf(error);
@@ -189,155 +196,24 @@ components/control/pll_control.c:203:23: warning: 'zcd_edge_cb' defined but not 
 components/control/pll_control.c:193:23: warning: 'pwm_edge_cb' defined but not used [-Wunused-function]
   193 | static bool IRAM_ATTR pwm_edge_cb(mcpwm_cap_channel_handle_t cap_chan,
       |                       ^~~~~~~~~~~
-main/state_handlers.c: In function 'state_pan_det_update':
-main/state_handlers.c:282:10: warning: unused variable 'estimation_complete' [-Wunused-variable]
-  282 |     bool estimation_complete = thermal_mass_update(&sm_get_context()->thermal_mass, current_temp, current_time);
-      |          ^~~~~~~~~~~~~~~~~~~
-main/state_handlers.c: At top level:
-main/state_handlers.c:21:20: warning: 'TAG' defined but not used [-Wunused-variable]
-   21 | static const char *TAG = "state_handlers";
-      |                    ^~~
-[ 98%] Linking C static library libmain.a
-[ 98%] Linking C static library libwebui.a
+[ 96%] Linking C static library libprotocomm.a
+[ 97%] Linking C static library libwebui.a
+[100%] Linking C static library libmain.a
 [100%] Linking C static library libesp_local_ctrl.a
 [100%] Linking C static library libwifi_provisioning.a
 [100%] Linking CXX executable induction_cooker.elf
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_machine.c.obj):(.literal.run_self_test+0x0): undefined ref
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_machine.c.obj):(.literal.run_self_test+0x4): undefined ref
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_machine.c.obj):(.literal.run_self_test+0x8): undefined ref
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_machine.c.obj):(.literal.run_self_test+0xc): undefined ref
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_machine.c.obj):(.literal.run_self_test+0x10): undefined re
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_machine.c.obj):(.literal.run_self_test+0x14): undefined re
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_machine.c.obj):(.literal.transition_to+0x10): undefined re
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_machine.c.obj):(.literal.state_machine_update+0xc): undefi
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_machine.c.obj):(.literal.check_safety_interlocks+0x1c): un
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_machine.c.obj):(.literal.check_safety_interlocks+0x20): un
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_machine.c.obj):(.literal.show_message_then_transition+0x0)
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_machine.c.obj): in function `run_self_test':
-main/state_machine.c:335:(.text.run_self_test+0x3): undefined reference to `test_adc_calibration'
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_machine.c:338:(.text.run_self_test+0x17): undefined reference to `test_fan_o
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_machine.c:340:(.text.run_self_test+0x20): undefined reference to `test_hardw
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_machine.c:342:(.text.run_self_test+0x29): undefined reference to `test_rtd_s
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_machine.c:344:(.text.run_self_test+0x32): undefined reference to `test_displ
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_machine.c:346:(.text.run_self_test+0x3b): undefined reference to `test_eepro
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_machine.c.obj): in function `transition_to':
-main/state_machine.c:367:(.text.transition_to+0x22): undefined reference to `get_time_ms'
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_machine.c.obj): in function `state_machine_init':
-main/state_machine.c:207:(.text.state_machine_update+0x3): undefined reference to `get_time_ms'
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_machine.c.obj): in function `check_runaway_boundary':
-main/state_machine.c:467:(.text.state_machine_update+0x1e): undefined reference to `read_pan_temperature'
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_machine.c:469:(.text.state_machine_update+0x26): undefined reference to `get
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_machine.c.obj): in function `enter_hardware_latched_fault'
-main/state_machine.c:128:(.text.check_safety_interlocks+0x34): undefined reference to `read_dc_bus_current'
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_machine.c:128:(.text.check_safety_interlocks+0x51): undefined reference to `
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_machine.c:131:(.text.check_safety_interlocks+0x87): undefined reference to `
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_machine.c.obj): in function `assert_hardware_fault_cut':
-main/state_machine.c:118:(.text.check_safety_interlocks+0xd3): undefined reference to `read_pan_temperature'
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_machine.c.obj): in function `fault_cleared':
-main/state_machine.c:539:(.text.fault_cleared+0x61): undefined reference to `read_rtd_resistance'
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_machine.c.obj): in function `show_message_then_transition'
-main/state_machine.c:570:(.text.show_message_then_transition+0x6): undefined reference to `display_show_message'
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_machine.c:573:(.text.show_message_then_transition+0x17): undefined reference
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_handlers.c.obj):(.literal.state_init_entry+0x8): undefined
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_handlers.c.obj):(.literal.state_init_entry+0xc): undefined
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_handlers.c.obj):(.literal.state_idle_entry+0x4): undefined
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_handlers.c.obj):(.literal.state_idle_entry+0x8): undefined
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_handlers.c.obj):(.literal.state_idle_entry+0xc): undefined
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_handlers.c.obj):(.literal.state_idle_update+0x10): undefin
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_handlers.c.obj):(.literal.state_idle_update+0x14): undefin
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_handlers.c.obj):(.literal.state_pan_det_entry+0x4): undefi
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_handlers.c.obj):(.literal.state_heating_entry+0x14): undef
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_handlers.c.obj):(.literal.state_heating_update+0x4): undef
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_handlers.c.obj):(.literal.state_no_pan_update+0x4): undefi
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_handlers.c.obj):(.literal.state_fault_entry+0x0): undefine
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_handlers.c.obj):(.literal.state_fault_entry+0x4): undefine
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_handlers.c.obj):(.literal.state_fault_entry+0x8): undefine
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_handlers.c.obj):(.literal.state_fault_update+0x8): undefin
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_handlers.c.obj): in function `apply_thermal_caps':
-main/state_handlers.c:89:(.text.apply_thermal_caps+0x63): undefined reference to `get_time_ms'
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:99:(.text.apply_thermal_caps+0xb0): undefined reference to `displ
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_handlers.c.obj): in function `state_handlers_thermal_plaus
-main/state_handlers.c:76:(.text.state_init_entry+0x3): undefined reference to `peripherals_init'
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_handlers.c.obj): in function `state_init_entry':
-main/state_handlers.c:144:(.text.state_init_entry+0x1e): undefined reference to `led_set_pattern'
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:147:(.text.state_init_entry+0x27): undefined reference to `displa
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_handlers.c.obj): in function `state_idle_entry':
-main/state_handlers.c:173:(.text.state_idle_entry+0xf): undefined reference to `fan_set_speed'
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:176:(.text.state_idle_entry+0x17): undefined reference to `led_se
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:179:(.text.state_idle_entry+0x20): undefined reference to `displa
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:180:(.text.state_idle_entry+0x2a): undefined reference to `button
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:183:(.text.state_idle_entry+0x30): undefined reference to `periph
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:189:(.text.state_idle_update+0x6): undefined reference to `button
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_handlers.c.obj): in function `state_idle_update':
-main/state_handlers.c:196:(.text.state_idle_update+0x29): undefined reference to `display_show_message'
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:201:(.text.state_idle_update+0x43): undefined reference to `butto
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:209:(.text.state_idle_update+0x80): undefined reference to `displ
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:211:(.text.state_idle_update+0x88): undefined reference to `butto
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:216:(.text.state_idle_update+0xc2): undefined reference to `displ
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_handlers.c.obj): in function `state_pan_det_entry':
-main/state_handlers.c:219:(.text.state_pan_det_entry+0x3): undefined reference to `peripherals_exit_low_power'
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:223:(.text.state_pan_det_entry+0x15): undefined reference to `dis
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:248:(.text.state_pan_det_entry+0x31): undefined reference to `dis
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:255:(.text.state_pan_det_entry+0x39): undefined reference to `led
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:256:(.text.state_pan_det_entry+0x54): undefined reference to `rea
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_handlers.c.obj): in function `state_pan_det_update':
-main/state_handlers.c:272:(.text.state_pan_det_update+0x1f): undefined reference to `read_pan_temperature'
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:277:(.text.state_pan_det_update+0x28): undefined reference to `ge
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:297:(.text.state_pan_det_update+0xb9): undefined reference to `bu
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_handlers.c.obj): in function `state_preheat_entry':
-main/state_handlers.c:306:(.text.state_preheat_entry+0x18): undefined reference to `display_show_message'
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:307:(.text.state_preheat_entry+0x21): undefined reference to `led
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:311:(.text.state_preheat_entry+0x29): undefined reference to `fan
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:317:(.text.state_preheat_update+0x3): undefined reference to `rea
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_handlers.c.obj): in function `state_preheat_update':
-main/state_handlers.c:370:(.text.state_preheat_update+0xb9): undefined reference to `button_is_pressed'
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:379:(.text.state_preheat_update+0xce): undefined reference to `di
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_handlers.c.obj): in function `state_heating_entry':
-main/state_handlers.c:408:(.text.state_heating_entry+0x3b): undefined reference to `display_show_message'
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:409:(.text.state_heating_entry+0x44): undefined reference to `led
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:413:(.text.state_heating_entry+0x4c): undefined reference to `fan
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:420:(.text.state_heating_update+0x3): undefined reference to `rea
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:423:(.text.state_heating_update+0xb): undefined reference to `get
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_handlers.c.obj): in function `state_heating_update':
-main/state_handlers.c:435:(.text.state_heating_update+0x3b): undefined reference to `buzzer_beep'
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:483:(.text.state_heating_update+0x155): undefined reference to `b
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:490:(.text.state_heating_update+0x16c): undefined reference to `b
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:498:(.text.state_heating_update+0x1a3): undefined reference to `b
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:511:(.text.state_heating_update+0x1fa): undefined reference to `d
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_handlers.c.obj): in function `state_no_pan_entry':
-main/state_handlers.c:516:(.text.state_no_pan_entry+0xb): undefined reference to `display_show_message'
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:516:(.text.state_no_pan_entry+0x13): undefined reference to `led_
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:517:(.text.state_no_pan_entry+0x1c): undefined reference to `buzz
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_handlers.c.obj): in function `state_no_pan_update':
-main/state_handlers.c:594:(.text.state_no_pan_update+0x99): undefined reference to `display_update_countdown'
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:594:(.text.state_no_pan_update+0xa1): undefined reference to `but
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_handlers.c.obj): in function `state_cooldown_entry':
-main/state_handlers.c:598:(.text.state_cooldown_entry+0x12): undefined reference to `fan_set_speed'
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:623:(.text.state_cooldown_entry+0x27): undefined reference to `di
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:623:(.text.state_cooldown_entry+0x2f): undefined reference to `le
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:626:(.text.state_cooldown_entry+0x39): undefined reference to `bu
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_handlers.c.obj): in function `state_cooldown_update':
-main/state_handlers.c:649:(.text.state_cooldown_update+0x4a): undefined reference to `display_update_temperature'
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_handlers.c.obj): in function `state_fault_entry':
-main/state_handlers.c:669:(.text.state_fault_entry+0x12): undefined reference to `fan_set_speed'
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:672:(.text.state_fault_entry+0x1b): undefined reference to `led_s
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:675:(.text.state_fault_entry+0x26): undefined reference to `displ
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:676:(.text.state_fault_entry+0x2c): undefined reference to `buzze
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:677:(.text.state_fault_entry+0x37): undefined reference to `get_t
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:680:(.text.state_fault_entry+0x41): undefined reference to `eepro
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_handlers.c.obj): in function `state_fault_update':
-main/state_handlers.c:691:(.text.state_fault_update+0x12): undefined reference to `display_show_message'
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:691:(.text.state_fault_update+0x1b): undefined reference to `butt
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:695:(.text.state_fault_update+0x2f): undefined reference to `buzz
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:698:(.text.state_fault_update+0x40): undefined reference to `disp
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:699:(.text.state_fault_update+0x49): undefined reference to `buzz
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/main/libmain.a(state_handlers.c.obj): in function `state_runaway_fault_update':
-main/state_handlers.c:715:(.text.state_runaway_fault_update+0x8): undefined reference to `button_is_pressed'
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:753:(.text.state_runaway_fault_update+0x22): undefined reference 
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:755:(.text.state_runaway_fault_update+0x33): undefined reference 
-/Users/bennet/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20250707/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/13.2.0/../../../../xtensa-esp-elf/bin/ld: main/state_handlers.c:756:(.text.state_runaway_fault_update+0x3c): undefined reference 
-collect2: error: ld returned 1 exit status
-make[2]: *** [induction_cooker.elf] Error 1
-make[1]: *** [CMakeFiles/induction_cooker.elf.dir/all] Error 2
-make: *** [all] Error 2
-make failed with exit code 2, output of the command is in the build/log/idf_py_stderr_output_37438 and build/log/idf_py_stdout_output_37438
+esptool.py v4.12.0
+Creating esp32s3 image...
+Merged 2 ELF sections
+Successfully created esp32s3 image.
+Generated <BUILD>/induction_cooker.bin
+induction_cooker.bin binary size 0x63ee0 bytes. Smallest app partition is 0x200000 bytes. 0x19c120 bytes (80%) free.
+
+Project build complete. To flash, run:
+ idf.py flash
+or
+ idf.py -p PORT flash
+or
+ python -m esptool --chip esp32s3 -b 460800 --before default_reset --after hard_reset write_flash --flash_mode dio --flash_size 4MB --flash_freq 80m 0x0 ../../../../../../..<BUILD>/bootloader/bootloader.bin 0x8000 ../../../../../../..<BUILD
+or from the "<BUILD>" directory
+ python -m esptool --chip esp32s3 -b 460800 --before default_reset --after hard_reset write_flash "@flash_args"

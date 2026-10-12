@@ -22,6 +22,7 @@ extern "C" {
 
 /* MAX31865 register map. */
 #define MAX31865_REG_CONFIG             0x00u
+#define MAX31865_REG_RTD_MSB            0x01u /* RTD data, 01h MSB / 02h LSB; LSB bit 0 = fault */
 #define MAX31865_REG_HIGH_THRESHOLD_MSB 0x03u
 #define MAX31865_REG_LOW_THRESHOLD_MSB  0x05u
 #define MAX31865_REG_FAULT_STATUS       0x07u
@@ -33,6 +34,17 @@ extern "C" {
 /* Fault-status bits from register 07h. */
 #define MAX31865_FAULT_HIGH_THRESHOLD 0x80u
 #define MAX31865_FAULT_LOW_THRESHOLD  0x40u
+
+/* Reference resistor of the pan RTD channel: RTDSensing.r_ref = 430 ohm +/- 0.05 %
+ * (zapote/controller/elec/src/modules.ato:1823 on branch controller-layout, 4-wire network,
+ * datasheet Figure 4). The same value derives MAX31865_{LOW,HIGH}_THRESHOLD_WORD in config.yaml
+ * (firmware/tools/board_derivations.yaml), so the conversion below and the hardware thresholds
+ * cannot use different references (checked by test_max31865.c). */
+#define MAX31865_RREF_OHM 430.0f
+
+/* RTD data register fault flag (LSB bit 0): set while the code is outside the programmed
+ * threshold window (or any other fault-status bit is latched). */
+#define MAX31865_RTD_WORD_FAULT 0x0001u
 
 typedef struct {
     hal_spi_device_t spi_device;
@@ -71,6 +83,21 @@ hal_status_t max31865_read_fault_status(const max31865_device_t *device,
 hal_status_t max31865_service_fault_cycle(const max31865_device_t *device,
                                           max31865_fault_sink_t fault_sink,
                                           void *context);
+
+/** Read the 16-bit RTD data word (registers 01h/02h, MSB first). Reading it also releases DRDY
+ * (datasheet: DRDY returns high when the RTD data registers are read). */
+hal_status_t max31865_read_rtd_word(const max31865_device_t *device,
+                                    uint16_t *rtd_word);
+
+/**
+ * Pure conversion of an RTD data word to ohms: code = word >> 1 (15 bits),
+ * R = code * rref_ohm / 32768. Fail-safe sentinel: +INFINITY when the word's
+ * fault bit is set or rref_ohm is not a positive finite value. +INFINITY trips
+ * every RTD consumer (state_machine.c "> RTD_GROSS_OPEN_DIAGNOSTIC_OHM" ->
+ * FAULT_PROBE_OPEN; safety.c "!isfinite" -> sensor fault); NaN would pass the
+ * state machine's ordered comparisons, so it is never returned.
+ */
+float max31865_rtd_word_to_ohm(uint16_t rtd_word, float rref_ohm);
 
 #ifdef __cplusplus
 }

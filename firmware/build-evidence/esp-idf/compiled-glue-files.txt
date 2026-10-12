@@ -7,6 +7,8 @@ components/hal/esp32/hal_spi_esp32.c -> CMakeFiles/__idf_temper_hal.dir/__/hal/e
 components/hal/esp32/hal_timer_esp32.c -> CMakeFiles/__idf_temper_hal.dir/__/hal/esp32/hal_timer_esp32.c.obj
 components/power/n21_hw_esp32.c -> CMakeFiles/__idf_power.dir/n21_hw_esp32.c.obj
 main/main.c -> CMakeFiles/__idf_main.dir/main.c.obj
+main/platform/platform_esp32.c -> CMakeFiles/__idf_main.dir/platform/platform_esp32.c.obj
+main/platform/ui_esp32.c -> CMakeFiles/__idf_main.dir/platform/ui_esp32.c.obj
 main/state_handlers.c -> CMakeFiles/__idf_main.dir/state_handlers.c.obj
 main/state_machine.c -> CMakeFiles/__idf_main.dir/state_machine.c.obj
 main/thermal_io.c -> CMakeFiles/__idf_main.dir/thermal_io.c.obj

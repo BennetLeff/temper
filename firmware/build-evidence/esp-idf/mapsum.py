@@ -8,5 +8,5 @@ for l in txt[start:]:
     m=rx.match(l)
     if m and int(m.group(2),16): sizes[(m.group(3).split('/')[-1],m.group(4))]+=int(m.group(2),16)
 for (a,o),s in sorted(sizes.items()):
-    if a in('libmain.a','libtemper_hal.a','libpower.a') and (o.startswith(('main','state_','thermal_io','hal_','controller_board_esp32','n21_hw_esp32'))):
+    if a in('libmain.a','libtemper_hal.a','libpower.a') and (o.startswith(('main','state_','thermal_io','hal_','controller_board_esp32','n21_hw_esp32','platform_','ui_esp32','rtd_service','max31865'))):
         print(f"{a}({o})  {s} bytes")
