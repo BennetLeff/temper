@@ -19,7 +19,7 @@ BIN="${1:-$REPO/.target-validators/release}"
 KICAD_PY="${KICAD_PY:-/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python3}"
 WORK="${WORK:-$(mktemp -d)}"
 OUT="${OUT:-$HERE}"
-BOARD="$Z/controller/pcb/controller.kicad_pcb"
+BOARD="${BOARD:-$Z/controller/pcb/controller.kicad_pcb}"   # override: validate another copy (e.g. a convergence run)
 RES="$OUT/results"; MAPS="$OUT/mappings"
 mkdir -p "$RES" "$MAPS" "$WORK/repo/harness-lab" "$WORK/repo/zapote/rtd"
 rm -f "${RES:?}"/* "${MAPS:?}"/* "${OUT:?}/intermediates.sha256"
@@ -33,7 +33,7 @@ cp "$Z/rtd/native_measure.py" "$WORK/repo/zapote/rtd/native_measure.py"
 ( cd "$BIN" && shasum -a 256 zapote-interlock zapote-thermal zapote-rtd ) > "$OUT/binaries.sha256"
 shasum -a 256 "$Z/current-sense/tools/extract_current_sense_native.py" "$Z/rtd/native_measure.py" \
   "$Z/rtd/unit/bind_native.py" "$HERE/filter_block.py" "$HERE/bind_controller_rtd.py" \
-  "$HERE/profile-controller.json" "$HERE/controller_pins.h" "$HERE/vendor/harness-lab/assembly_geometry.py" \
+  "$HERE/profile-controller.json" "$HERE/profile-controller-roles.json" "$HERE/controller_pins.h" "$HERE/vendor/harness-lab/assembly_geometry.py" \
   "$BOARD" > "$OUT/inputs.sha256"
 
 record() { # name, then command...: stdout -> results/name.json, exit -> results/name.exit
@@ -90,6 +90,15 @@ rtd_native "$WORK/rtd_pan.kicad_pcb" "$WORK/rtd_pan-native.json"
 rtd_bind "$WORK/rtd_pan-native.json" "$WORK/rtd_pan.kicad_pcb" "$HERE/profile-controller.json" "$WORK/rtd_pan-input.json" \
   --firmware-pins "$HERE/controller_pins.h" --absent-instance unit_io
 run_rtd controller-rtd "$WORK/rtd_pan-input.json"
+
+echo "== informative (not the verdict): RTD with the controller's own layer roles (DECISIONS C34)"
+# profile-controller-roles.json = profile-controller.json with return_planes naming the controller's
+# planes (analog and clock return selv_gnd In1.Cu, upstream +3V3 In2.Cu) instead of the unit's
+# (clock return gnd In2.Cu, +3V3 B.Cu). It shows what the two "zone absent" indeterminates of the
+# verdict run hide; see WAIVERS.md.
+rtd_bind "$WORK/rtd_pan-native.json" "$WORK/rtd_pan.kicad_pcb" "$HERE/profile-controller-roles.json" "$WORK/rtd_pan-roles-input.json" \
+  --firmware-pins "$HERE/controller_pins.h" --absent-instance unit_io
+run_rtd informative-controller-rtd-layer-roles "$WORK/rtd_pan-roles-input.json"
 
 echo "== negative controls on the filtered controller exports"
 filter interlock "$Z/interlock/candidate" neg-interlock-drop-bypass --drop-footprint aggregate_bypass

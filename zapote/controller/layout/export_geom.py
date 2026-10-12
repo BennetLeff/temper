@@ -28,7 +28,7 @@ def polys(ps):
 
 def main():
     b = pcbnew.LoadBoard(sys.argv[1])
-    d = {"pads": [], "tracks": [], "vias": [], "drills": [], "zones": [], "rules": []}
+    d = {"pads": [], "tracks": [], "vias": [], "drills": [], "drill_nets": [], "zones": [], "rules": []}
     for fp in b.GetFootprints():
         for p in fp.Pads():
             for ln, l in LAYERS.items():
@@ -38,6 +38,7 @@ def main():
             if p.GetDrillSize().x > 0:
                 r = mm(max(p.GetDrillSize().x, p.GetDrillSize().y)) / 2
                 d["drills"].append([mm(p.GetPosition().x), mm(p.GetPosition().y), r])
+                d["drill_nets"].append(p.GetNetname())
                 if p.GetAttribute() == pcbnew.PAD_ATTRIB_NPTH:
                     # a bare hole: tracks keep the 0.25 mm hole clearance -> a foreign "copper" disc of
                     # radius r + 0.10 (the router adds its 0.15 mm copper clearance)
@@ -48,6 +49,7 @@ def main():
             d["vias"].append({"net": t.GetNetname(), "at": [mm(t.GetPosition().x), mm(t.GetPosition().y)],
                               "r": mm(t.GetWidth(pcbnew.F_Cu)) / 2, "locked": t.IsLocked()})
             d["drills"].append([mm(t.GetPosition().x), mm(t.GetPosition().y), mm(t.GetDrillValue()) / 2])
+            d["drill_nets"].append(t.GetNetname())
         else:
             ln = {pcbnew.F_Cu: "F", pcbnew.In2_Cu: "In2", pcbnew.B_Cu: "B"}.get(t.GetLayer())
             if ln:
@@ -87,6 +89,18 @@ def main():
     allowed = {p.GetNetname() for r_ in block + rb for p in fps[r_].Pads()}
     d["forbid"] = [{"rect": [min(xs), min(ys), max(xs), max(ys)], "nets": sorted(mcu - allowed),
                     "why": "interlock block: no MCU traces through it"}]
+    # C34: per-net copper clearance above the board's 0.15 mm (net classes in the board's .kicad_pro,
+    # exact-name patterns as build_board.py writes them), and the RTD analog family (floorplan.py)
+    import pathlib
+    sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+    import floorplan
+    pro = json.loads(pathlib.Path(sys.argv[1]).with_suffix(".kicad_pro").read_text())["net_settings"]
+    cls = {c["name"]: c["clearance"] for c in pro["classes"]}
+    d["clearance"] = {pt["pattern"]: cls[pt["netclass"]] for pt in pro["netclass_patterns"]
+                      if cls[pt["netclass"]] > 0.15 + 1e-9}
+    d["pair_clearance"] = [list(x) for x in floorplan.PAIR_CLEARANCE]
+    d["rtd_analog"] = list(floorplan.RTD_ANALOG_NETS)
+    d["rtd_return_via_mm"] = floorplan.RTD_RETURN_VIA_MM
     eb = b.GetBoardEdgesBoundingBox()
     d["edge"] = [mm(eb.GetLeft()), mm(eb.GetTop()), mm(eb.GetRight()), mm(eb.GetBottom())]
     d["circles"] = [[mm(s.GetCenter().x), mm(s.GetCenter().y), mm(s.GetRadius())] for s in b.GetDrawings()

@@ -633,9 +633,9 @@
     },
     {
       "rule": "DRC.BOARD.STACKUP",
-      "severity": "error",
-      "status": "fail",
-      "message": "stackup sum 1.606200 mm differs from general thickness 1.600000 mm (rounding allowance 0.000001 mm)",
+      "severity": "info",
+      "status": "pass",
+      "message": "4 copper layers; copper + dielectric + mask = 1.600000 mm, declared 1.600000 mm",
       "object": "board.setup.stackup",
       "actual": null,
       "required": null

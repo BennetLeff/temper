@@ -6,7 +6,7 @@
 
 A clean start means `pcb/route/` (the router's working files) is moved away before each run, so no
 run reuses an earlier run's copper. Each run keeps its make log, DRC report and route log in
-<dir>/runI/. The summary records, per run, make.py's exit code and last line, the wall time, the
+<dir>/runI/ (C34: and the run's board, so each run can be put through the block validators). The summary records, per run, make.py's exit code and last line, the wall time, the
 DRC error / unconnected / parity counts, and the DRC violation types (warnings included).
 The board left in pcb/ and fab/ is the last run's.
 """
@@ -40,7 +40,8 @@ def run_all(n: int, out: Path) -> None:
                                 stdout=log, stderr=subprocess.STDOUT).returncode
         (d / "seconds").write_text(f"{time.time() - t0:.0f}\n")
         (d / "rc").write_text(f"{rc}\n")
-        for src, dst in ((EV / "drc.json", "drc.json"), (route / "route-log.json", "route-log.json")):
+        for src, dst in ((EV / "drc.json", "drc.json"), (route / "route-log.json", "route-log.json"),
+                         (UNIT / "pcb" / "controller.kicad_pcb", "controller.kicad_pcb")):   # C34: per-run board
             if src.exists():
                 shutil.copy(src, d / dst)
         print(f"RUN {i} rc={rc}", flush=True)

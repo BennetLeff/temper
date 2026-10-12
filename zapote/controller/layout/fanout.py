@@ -47,8 +47,11 @@ def _seg_seg_dist(a, b, c, d):
     return min(pt(a, c, d), pt(b, c, d), pt(c, a, b), pt(d, a, b))
 
 
-def run(board, forbid_rects, edge_rect):
-    """forbid_rects: KiCad-frame mm rects (rule areas: antenna, hole keep-outs) vias must avoid."""
+def run(board, forbid_rects, edge_rect, stitch=None):
+    """forbid_rects: KiCad-frame mm rects (rule areas: antenna, hole keep-outs) vias must avoid.
+    stitch: optional (rects, pitch, avoid_rects) in KiCad mm: after the pad fan-out, a selv_gnd plane
+    via at every legal node of a pitch grid inside the rects (outside avoid_rects) that has no
+    selv_gnd via within pitch / 2 already (C34: return transitions beside the RTD analog vias)."""
     obstacles = {pcbnew.F_Cu: [], pcbnew.B_Cu: []}    # (kind, geom, net)
     drills = []
     for fp in board.GetFootprints():
@@ -208,4 +211,31 @@ def run(board, forbid_rects, edge_rect):
             obstacles[lay].append(("circle", (c, VIA_D / 2), net))
         drills.append((c, VIA_DRILL / 2))
         done += 1
-    return done, missed
+    n_stitch = 0
+    if stitch:
+        rects, pitch, avoid = stitch
+        gnd_vias = [g[0] for g in (o[1] for o in obstacles[pcbnew.B_Cu] if o[0] == "circle" and o[2] == "selv_gnd")]
+        obstacles[pcbnew.F_Cu].extend(lanes)
+        for x0, y0, x1, y1 in rects:
+            nx_, ny_ = int((x1 - x0) / pitch) + 1, int((y1 - y0) / pitch) + 1
+            for i in range(nx_):
+                for j in range(ny_):
+                    c = (x0 + i * pitch, y0 + j * pitch)
+                    if any(a[0] - VIA_D / 2 - CLR <= c[0] <= a[2] + VIA_D / 2 + CLR and
+                           a[1] - VIA_D / 2 - CLR <= c[1] <= a[3] + VIA_D / 2 + CLR for a in avoid):
+                        continue
+                    if any(math.dist(c, g) < pitch / 2 for g in gnd_vias) or not legal_via(c, "selv_gnd"):
+                        continue
+                    v = pcbnew.PCB_VIA(board)
+                    v.SetPosition(pcbnew.VECTOR2I(pcbnew.FromMM(c[0]), pcbnew.FromMM(c[1])))
+                    v.SetWidth(pcbnew.FromMM(VIA_D))
+                    v.SetDrill(pcbnew.FromMM(VIA_DRILL))
+                    v.SetNet(board.FindNet("selv_gnd"))
+                    v.SetLocked(True)
+                    board.Add(v)
+                    for lay in obstacles:
+                        obstacles[lay].append(("circle", (c, VIA_D / 2), "selv_gnd"))
+                    drills.append((c, VIA_DRILL / 2))
+                    gnd_vias.append(c)
+                    n_stitch += 1
+    return done + n_stitch, missed

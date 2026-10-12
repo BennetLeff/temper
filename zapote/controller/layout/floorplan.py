@@ -100,6 +100,9 @@ PLACE = {
     "rtd_pan.window_and": (131.0, 77.5, 0),
     "rtd_pan.rail_monitor": (124.0, 77.5, 0),
     "u_runaway": (118.0, 74.0, 0),
+    # C34: the 1 nF differential filter across the MAX31865's RTDIN+ (pin 10) / RTDIN- (pin 11) end,
+    # pad 1 (rtd_sense_p) toward pin 10; the RTD unit's locality rule is <= 3 mm pad to pin
+    "rtd_pan.c_rtd_input": (154.5, 76.5, 90),
     # ---- rim NTC (R36): follower beside J12; divider and filter at its input, ADC RC at the module
     "u_buf3": (119.5, 81.5, 0),
 }
@@ -188,3 +191,23 @@ CHANNELS: list[tuple[float, float, float, float]] = [
 BLW_FEED: list[tuple[float, float, float, float]] = [(82.6, 74.6, 84.3, 84.6),   # band down the left of U2
                                                      (81.4, 84.4, 86.6, 87.8),   # top: J13.1 and the BLW_PG top R
                                                      (74.0, 72.9, 82.6, 74.9)]   # strip: bulk + and input caps
+
+# C34: the RTD unit's analog signal family (zapote/rtd unit profile geometry.sensitive_nets, mapped to the
+# controller's net names by evidence/block-validators/mappings/rtd_pan.json). The router keeps them on
+# F.Cu and In2.Cu, the two layers whose reference plane is the solid selv_gnd plane on In1.Cu (B.Cu's
+# neighbour In2 is the v3v3 plane), and lets them change layer only at a via that has a selv_gnd plane
+# via within RTD_RETURN_VIA_MM: the analog return then stays in one filled In1 corridor (the unit's
+# DRC.RTD.NATIVE_GEOMETRY "analog_return" check).
+RTD_ANALOG_NETS = ["rtd_sense_p", "rtd_sense_n", "rtd_force_p", "rtd_force_n", "p1", "refin_n",
+                   "rtd_pan.low_window-inp", "vbias"]
+RTD_RETURN_VIA_MM = 2.5          # the unit's required_locality_mm is 3.0
+# C34: selv_gnd stitching vias on a pitch grid over the RTD analog region (world rects), where no plane
+# via sits within half a pitch already: every point of the region then has a return via within reach
+# of RTD_RETURN_VIA_MM, so the analog nets can change layer next to one (the module body is skipped)
+RTD_STITCH: list[tuple[float, float, float, float]] = [(115.0, 55.0, 167.0, 89.0)]
+RTD_STITCH_PITCH = 3.0
+
+# C34: net-pair clearances above the net classes (KiCad custom rules, pcb/controller.kicad_dru, and the
+# router). The block validators see the shared plane nets' whole copper, so the thermal-sense unit's
+# 0.20 mm floor applies to every selv_gnd / v3v3 pair on the board, not only inside its block.
+PAIR_CLEARANCE: list[tuple[str, str, float]] = [("selv_gnd", "v3v3", 0.20)]
