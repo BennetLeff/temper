@@ -197,6 +197,7 @@ def add(g):
     add_stage8(g)
     add_stage13(g)
     add_stage14(g)
+    add_stage16(g)
 
 
 # Output polylines (base copper), with the y where each leaves 0.6 / 0.5 mm for the 0.3 mm neck
@@ -236,6 +237,17 @@ def add_stage8(g):
     route_group(g, [("bias_ha.monitor-v5", ("F.Cu", "B.Cu"), (56.0, 96.0, 68.0, 114.0), 0.25, ["C137.1", "U33.3"]),
                     ("bias_ha.monitor-spanuv", CU, (44.0, 78.0, 58.0, 116.0), 0.2, ["U30.9", "C78.1"]),
                     ("bias_hb.monitor-ov", CU, (0.6, 70.0, 20.0, 114.0), 0.2, ["U31.4", "C84.1"])])
+
+
+def add_stage16(g):
+    """Stage 16 (DECISIONS 16): the blower-supply mains tap. L_FILT from PS1.1 into F2, F2 out (BLW_L) to
+    J11.1, N_FILT from PS1.2 to J11.2; 1.0 mm, since F2 (3.15 A T) rather than F1 protects this branch.
+    The three groups (L_F, BLW_L, MAINS_N) keep 3.2 mm from each other; the router chooses layers."""
+    from patches21_v1 import route_group
+    box = (248.0, 108.0, 282.0, 140.0)
+    route_group(g, [("l_filt", CU, box, 1.0, ["PS1.1", "F2.1"]),
+                    ("blw_l", CU, box, 1.0, ["F2.2", "J11.1"]),
+                    ("n_filt", CU, box, 1.0, ["PS1.2", "J11.2"])])
 
 
 def add_stage13(g):

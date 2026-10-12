@@ -350,6 +350,12 @@ for path, tx, ty in STAGE14_TARGETS:
 for path, tx, ty in STAGE14_TARGETS:
     nearest_free(path, tx, ty, avoid=OUT_LANES)
 
+# Stage 16 (DECISIONS 16): the blower-supply mains tap beside PS1's AC pins, the only legal spot
+# (stage16-blower-supply/tap_spot.py: 9.3 mm to SELV / PE / H1's screw head, 3.4 mm to HOT, 8.8 mm to
+# other mains groups). No part moves.
+put("f_blw", 266.5, 118.4, 0)
+put("j_blw_ac", 266.5, 125.8, 0)
+
 missing = sorted(set(PARTS) - set(POSE))
 if missing:
     raise SystemExit(f"{len(missing)} unplaced: {missing}")

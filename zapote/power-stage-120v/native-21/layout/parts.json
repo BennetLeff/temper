@@ -3508,5 +3508,25 @@
 "ox": 0.0,
 "oy": 0.0,
 "group": "bias_hb"
+},
+{
+"ref": "F2",
+"path": "f_blw",
+"fp": "Fuse:Fuse_Schurter_UMT250",
+"w": 11.49,
+"h": 4.35,
+"ox": 0.0,
+"oy": 0.0,
+"group": "mains"
+},
+{
+"ref": "J11",
+"path": "j_blw_ac",
+"fp": "Connector_JST:JST_VH_B2P3-VH_1x02_P7.92mm_Vertical",
+"w": 12.91,
+"h": 9.59,
+"ox": 3.96,
+"oy": 0.55,
+"group": "mains"
 }
 ]

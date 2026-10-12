@@ -1,12 +1,12 @@
 {
  "schema": "temper.native21.engineering-candidate.v1",
  "status": "DIGITAL_CANDIDATE_NOT_MANUFACTURING_RELEASE",
- "routed_board_sha256": "9a9c43c63f63d383c89b9dc1d4d03a34d4390cfa1c26bbe802d71e169c6ddf94",
- "copper_json_sha256": "a831e90c8a266401440ae12fc661d70d5e1531d86e90e006860e62e7bea04f4b",
- "schematic_sha256": "2c84b9c635655f9ff33796db300c029e1e6cfcbfacab78aedc4cff9758cfabf3",
- "frozen_netlist_sha256": "e3c228e9d72b9944368cab4b4e7905c0874006405b631c6e6a08fd525c18dfba",
+ "routed_board_sha256": "e9481ed6d183594a466d657bff09de525ad84457cbd13080a55b1b589b314bcd",
+ "copper_json_sha256": "4d062fd6ff9a2594eecc611fa7207f59c0d174514cdcc6a46aec8000d4773ff6",
+ "schematic_sha256": "746f8ab957bb0601b03cb3f5fb2acb6c49cd49140b218fcf77175eb11de243d3",
+ "frozen_netlist_sha256": "66a516f26091d68546d35ffdda4b4921f64718704f915319984819066840201c",
  "rebuild": "sh native-21/layout/incr_iter.sh native-21/layout/copper.json - [OUTDIR]",
- "components": 351,
+ "components": 353,
  "drc": {
   "errors": 0,
   "unconnected": 0,
@@ -30,16 +30,16 @@
  "barrier_plan_view_8mm": {
   "barrier21": 0,
   "rust_gate_violations": 0,
-  "rust_gate_items": 5607
+  "rust_gate_items": 5629
  },
  "body_collisions": {
-  "solids": 403,
+  "solids": 405,
   "unattributed": 0,
   "part_overlaps": 0,
-  "envelopes": "J3 25 mm, F1 20 mm, U41/U42 3.6 mm, D3/D17 9.1 mm (no stock 3D model); resonant bank TDK B32654 has a dimensioned STEP"
+  "envelopes": "J3 25 mm, F1 20 mm, U41/U42 3.6 mm, D3/D17 9.1 mm (no stock 3D model); resonant bank TDK B32654 has a dimensioned STEP; J11 25 mm, F2 4.0 mm (estimate, no 3D model)"
  },
  "board_in_R4": {
-  "bodies": 405,
+  "bodies": 407,
   "hits": 0
  },
  "kelvin_ocp_band_A": [
@@ -48,8 +48,8 @@
  ],
  "kelvin_meets_44A": true,
  "reference_labels": {
-  "silk": 308,
-  "fab_only": 90
+  "silk": 309,
+  "fab_only": 91
  },
  "via_in_pad_remaining": {
   "drill_fully_inside_smd_pad": 72,
@@ -69,7 +69,7 @@
   }
  },
  "via_in_pad_decision": "order every 0.3 mm via epoxy-filled and capped (POFV); DECISIONS.md 2026-10-08",
- "stage": "15b: stage 15 + SW_A low-side link / Q2.3 corner copper (c2h; DECISIONS item 14); 28 A ceiling thermally supported in B3",
+ "stage": "16: stage 15b + blower-supply mains tap F2 (3.15 A T) / J11 for the chassis-mounted PS3 IRM-60-15ST (DECISIONS item 16)",
  "board_hash_note": "rebuilds are not byte-identical (KiCad UUIDs / timestamps); copper_json_sha256 is the reproducible identity",
  "r5_current_vias": {
   "R5.1_leg_ret": 10,
@@ -77,9 +77,9 @@
   "worst_via_A_coherent_34A": 7.27,
   "evidence": "validation-results/04-board-current-thermal/round5-native21"
  },
- "kelvin_evidence": "validation-results/02-protection-timing/kelvin/budget-native21s15b.json (R35.2 161.03 mOhm; 12.6k/11.7k; band 66.37-118.74 A, floor 64.17 A met at the bound)",
- "board_current_screen": "task 04 round 5 on stage 15b: sw_a 3.75, sw_a_low 6.37, sw_b_high 6.65 mOhm; BUS_P span 4.130 %; B3 h25 ceiling sweep 22/24/26/28 A -> 133.4/133.7/133.9/134.1 C at U26 (nominal peak part); nominal h10/h25 163.0/133.3 C",
- "fab_package": "validation-results/08-manufacturing-package/native-21 (candidate; review PASS 877 round holes + 4 slots; DFM PASS)",
+ "kelvin_evidence": "validation-results/02-protection-timing/kelvin/budget-native21s16.json (R35.2 161.03 mOhm; band 66.37-118.74 A)",
+ "board_current_screen": "task 04 round 5 on stage 16: sw_a 3.75, sw_a_low 6.37, sw_b_high 6.65 mOhm; BUS_P span 4.130 %; B3 h25 ceiling sweep 22/24/26/28 A -> 133.4/133.7/133.9/134.1 C at U26 (nominal peak part); nominal h10/h25 163.0/133.3 C; stage 16 B3 28 A 133.9 C (U26)",
+ "fab_package": "validation-results/08-manufacturing-package/native-21 (candidate; review PASS 878 round holes + 4 slots; DFM PASS)",
  "tank_path_width_screen": {
   "SW_B_long_section_mm": "8.1-9.3 (was 4.4-5.6 over x 58-74)",
   "SW_A_long_section_mm": 7.0,

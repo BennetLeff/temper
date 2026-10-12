@@ -28,721 +28,721 @@
  "runs": {
   "nominal_h10_p1p0": {
    "peak": {
-    "temperature_c": 162.98000783239618,
-    "rise_k": 112.98000783239618,
+    "temperature_c": 162.984250534748,
+    "rise_k": 112.98425053474801,
     "x_mm": 14.5,
     "y_mm": 56.5,
     "layer": "F.Cu"
    },
    "balance": {
-    "source_w": 18.653028905330526,
-    "convection_w": 18.65302890524789,
+    "source_w": 18.684032497729575,
+    "convection_w": 18.68403249806014,
     "fixed_end_w": 0.0,
     "fixed_bottom_w": 0.0,
-    "balance_w": 8.263612016889965e-11,
-    "cg_iterations": 1295,
-    "relative_residual": 9.815075326754564e-10
+    "balance_w": -3.305657969576714e-10,
+    "cg_iterations": 1296,
+    "relative_residual": 9.802993199697154e-10
    },
    "hottest_parts": [
     {
      "ref": "U42",
      "watts_to_board": 1.09,
-     "conditional_pad_cell_max_c": 162.98000783239618
-    },
-    {
-     "ref": "PS1",
-     "watts_to_board": 0.7619047619047619,
-     "conditional_pad_cell_max_c": 158.43883465207819
+     "conditional_pad_cell_max_c": 162.984250534748
     },
     {
      "ref": "U26",
      "watts_to_board": 0.87248,
-     "conditional_pad_cell_max_c": 153.69356902762564
+     "conditional_pad_cell_max_c": 153.4241874910171
     },
     {
      "ref": "PS2",
      "watts_to_board": 0.7095238095238096,
-     "conditional_pad_cell_max_c": 151.42725849714753
+     "conditional_pad_cell_max_c": 151.44890846937065
     },
     {
      "ref": "U37",
      "watts_to_board": 0.05,
-     "conditional_pad_cell_max_c": 140.48851009374812
+     "conditional_pad_cell_max_c": 140.36863112906528
     },
     {
      "ref": "U41",
      "watts_to_board": 1.09,
-     "conditional_pad_cell_max_c": 136.25994454246944
+     "conditional_pad_cell_max_c": 136.26654196509642
     },
     {
      "ref": "L1",
      "watts_to_board": 2.025,
-     "conditional_pad_cell_max_c": 133.03774757130077
+     "conditional_pad_cell_max_c": 133.04589602332612
     },
     {
      "ref": "R5",
      "watts_to_board": 0.46089935,
-     "conditional_pad_cell_max_c": 128.08176362010823
+     "conditional_pad_cell_max_c": 128.11505550826183
+    },
+    {
+     "ref": "PS1",
+     "watts_to_board": 0.7619047619047619,
+     "conditional_pad_cell_max_c": 127.70121428585658
     }
    ]
   },
   "nominal_h10_p0p5": {
    "peak": {
-    "temperature_c": 214.74473897493928,
-    "rise_k": 164.74473897493928,
+    "temperature_c": 214.78214899118117,
+    "rise_k": 164.78214899118117,
     "x_mm": 58.75,
     "y_mm": 61.25,
     "layer": "F.Cu"
    },
    "balance": {
-    "source_w": 18.653028905330526,
-    "convection_w": 18.653028905560515,
+    "source_w": 18.68403249772958,
+    "convection_w": 18.68403249819571,
     "fixed_end_w": 0.0,
     "fixed_bottom_w": 0.0,
-    "balance_w": -2.2998847271082923e-10,
-    "cg_iterations": 2570,
-    "relative_residual": 9.993871120612058e-10
+    "balance_w": -4.661302455133409e-10,
+    "cg_iterations": 2569,
+    "relative_residual": 9.888562353481402e-10
    },
    "hottest_parts": [
     {
      "ref": "U41",
      "watts_to_board": 1.09,
-     "conditional_pad_cell_max_c": 214.74473897493928
+     "conditional_pad_cell_max_c": 214.78214899118117
     },
     {
      "ref": "U42",
      "watts_to_board": 1.09,
-     "conditional_pad_cell_max_c": 182.21300123152918
+     "conditional_pad_cell_max_c": 182.25771533955415
     },
     {
      "ref": "PS2",
      "watts_to_board": 0.7095238095238096,
-     "conditional_pad_cell_max_c": 143.88497401336764
+     "conditional_pad_cell_max_c": 143.90755854091148
     },
     {
      "ref": "R5",
      "watts_to_board": 0.46089935,
-     "conditional_pad_cell_max_c": 138.11197465809062
+     "conditional_pad_cell_max_c": 138.1191923496749
     },
     {
      "ref": "L1",
      "watts_to_board": 2.025,
-     "conditional_pad_cell_max_c": 131.5790293049822
-    },
-    {
-     "ref": "PS1",
-     "watts_to_board": 0.7619047619047619,
-     "conditional_pad_cell_max_c": 127.27292397889472
+     "conditional_pad_cell_max_c": 131.58244161236127
     },
     {
      "ref": "R58",
      "watts_to_board": 0.0328185,
-     "conditional_pad_cell_max_c": 124.01710696080838
+     "conditional_pad_cell_max_c": 124.02249887360223
     },
     {
      "ref": "R12",
      "watts_to_board": 0.0328185,
-     "conditional_pad_cell_max_c": 122.26187029428864
+     "conditional_pad_cell_max_c": 122.27246212877296
+    },
+    {
+     "ref": "R10",
+     "watts_to_board": 0.0328185,
+     "conditional_pad_cell_max_c": 119.92577071848216
     }
    ]
   },
   "nominal_h25_p1p0": {
    "peak": {
-    "temperature_c": 133.2569598144747,
-    "rise_k": 83.2569598144747,
+    "temperature_c": 133.02207555276783,
+    "rise_k": 83.02207555276784,
     "x_mm": 109.5,
     "y_mm": 77.5,
     "layer": "F.Cu"
    },
    "balance": {
-    "source_w": 18.653028905330526,
-    "convection_w": 18.653028912230223,
+    "source_w": 18.684032497729575,
+    "convection_w": 18.684032505827577,
     "fixed_end_w": 0.0,
     "fixed_bottom_w": 0.0,
-    "balance_w": -6.8996968138890225e-09,
-    "cg_iterations": 904,
-    "relative_residual": 9.822809932674353e-10
+    "balance_w": -8.09800226875268e-09,
+    "cg_iterations": 902,
+    "relative_residual": 9.907341456235448e-10
    },
    "hottest_parts": [
     {
      "ref": "U26",
      "watts_to_board": 0.87248,
-     "conditional_pad_cell_max_c": 133.2569598144747
+     "conditional_pad_cell_max_c": 133.02207555276783
     },
     {
      "ref": "U42",
      "watts_to_board": 1.09,
-     "conditional_pad_cell_max_c": 129.08443590062666
-    },
-    {
-     "ref": "PS1",
-     "watts_to_board": 0.7619047619047619,
-     "conditional_pad_cell_max_c": 123.78219275799513
+     "conditional_pad_cell_max_c": 129.0843891091372
     },
     {
      "ref": "PS2",
      "watts_to_board": 0.7095238095238096,
-     "conditional_pad_cell_max_c": 121.8621586313648
+     "conditional_pad_cell_max_c": 121.86523471306667
     },
     {
      "ref": "U37",
      "watts_to_board": 0.05,
-     "conditional_pad_cell_max_c": 121.17810312058397
+     "conditional_pad_cell_max_c": 121.09424274631058
     },
     {
      "ref": "L1",
      "watts_to_board": 2.025,
-     "conditional_pad_cell_max_c": 108.87829438877233
+     "conditional_pad_cell_max_c": 108.87931052303298
+    },
+    {
+     "ref": "PS1",
+     "watts_to_board": 0.7619047619047619,
+     "conditional_pad_cell_max_c": 102.73398189069809
     },
     {
      "ref": "U41",
      "watts_to_board": 1.09,
-     "conditional_pad_cell_max_c": 102.70468570457587
+     "conditional_pad_cell_max_c": 102.70186625079589
     },
     {
      "ref": "R5",
      "watts_to_board": 0.46089935,
-     "conditional_pad_cell_max_c": 91.32810128604243
+     "conditional_pad_cell_max_c": 91.3331825811332
     }
    ]
   },
   "nominal_h25_p0p5": {
    "peak": {
-    "temperature_c": 180.77958248508412,
-    "rise_k": 130.77958248508412,
+    "temperature_c": 180.806563504115,
+    "rise_k": 130.806563504115,
     "x_mm": 58.75,
     "y_mm": 61.25,
     "layer": "F.Cu"
    },
    "balance": {
-    "source_w": 18.653028905330526,
-    "convection_w": 18.653028909066546,
+    "source_w": 18.68403249772958,
+    "convection_w": 18.68403250187817,
     "fixed_end_w": 0.0,
     "fixed_bottom_w": 0.0,
-    "balance_w": -3.7360194937718916e-09,
-    "cg_iterations": 1800,
-    "relative_residual": 9.869716764606757e-10
+    "balance_w": -4.148592580577315e-09,
+    "cg_iterations": 1795,
+    "relative_residual": 9.972686118750824e-10
    },
    "hottest_parts": [
     {
      "ref": "U41",
      "watts_to_board": 1.09,
-     "conditional_pad_cell_max_c": 180.77958248508412
+     "conditional_pad_cell_max_c": 180.806563504115
     },
     {
      "ref": "U42",
      "watts_to_board": 1.09,
-     "conditional_pad_cell_max_c": 148.36849116430085
+     "conditional_pad_cell_max_c": 148.38988748987867
     },
     {
      "ref": "PS2",
      "watts_to_board": 0.7095238095238096,
-     "conditional_pad_cell_max_c": 116.4189331163907
+     "conditional_pad_cell_max_c": 116.4238365137192
     },
     {
      "ref": "L1",
      "watts_to_board": 2.025,
-     "conditional_pad_cell_max_c": 108.3207465415999
-    },
-    {
-     "ref": "PS1",
-     "watts_to_board": 0.7619047619047619,
-     "conditional_pad_cell_max_c": 105.02710827047875
+     "conditional_pad_cell_max_c": 108.32147377230515
     },
     {
      "ref": "R5",
      "watts_to_board": 0.46089935,
-     "conditional_pad_cell_max_c": 102.16962087407916
+     "conditional_pad_cell_max_c": 102.16974577209616
     },
     {
      "ref": "U3",
      "watts_to_board": 0.1,
-     "conditional_pad_cell_max_c": 94.13945696970694
+     "conditional_pad_cell_max_c": 94.13907695281503
+    },
+    {
+     "ref": "PS1",
+     "watts_to_board": 0.7619047619047619,
+     "conditional_pad_cell_max_c": 89.81014279137743
     },
     {
      "ref": "U2",
      "watts_to_board": 0.231274,
-     "conditional_pad_cell_max_c": 89.57741600878039
+     "conditional_pad_cell_max_c": 89.5663663839428
     }
    ]
   },
   "extreme_h10_p1p0": {
    "peak": {
-    "temperature_c": 263.4359825775315,
-    "rise_k": 213.4359825775315,
-    "x_mm": 256.5,
-    "y_mm": 137.5,
+    "temperature_c": 247.26657415129498,
+    "rise_k": 197.26657415129498,
+    "x_mm": 209.5,
+    "y_mm": 17.5,
     "layer": "F.Cu"
    },
    "balance": {
-    "source_w": 36.15624480355844,
-    "convection_w": 36.15624480454479,
+    "source_w": 36.21438025361181,
+    "convection_w": 36.214380255943034,
     "fixed_end_w": 0.0,
     "fixed_bottom_w": 0.0,
-    "balance_w": -9.863541095000983e-10,
+    "balance_w": -2.3312267671826703e-09,
     "cg_iterations": 1296,
-    "relative_residual": 9.987893347079156e-10
+    "relative_residual": 9.84002372612227e-10
    },
    "hottest_parts": [
     {
-     "ref": "PS1",
-     "watts_to_board": 1.5,
-     "conditional_pad_cell_max_c": 263.4359825775315
-    },
-    {
      "ref": "PS2",
      "watts_to_board": 1.3875,
-     "conditional_pad_cell_max_c": 247.2174792758009
+     "conditional_pad_cell_max_c": 247.26657415129498
     },
     {
      "ref": "U42",
      "watts_to_board": 1.71,
-     "conditional_pad_cell_max_c": 239.61181730963548
+     "conditional_pad_cell_max_c": 239.6223539664822
     },
     {
      "ref": "R54",
      "watts_to_board": 0.1258,
-     "conditional_pad_cell_max_c": 214.92201786183375
+     "conditional_pad_cell_max_c": 215.04418880720337
     },
     {
      "ref": "R12",
      "watts_to_board": 0.1258,
-     "conditional_pad_cell_max_c": 208.49585263394303
+     "conditional_pad_cell_max_c": 208.57212446181828
     },
     {
      "ref": "R58",
      "watts_to_board": 0.1258,
-     "conditional_pad_cell_max_c": 205.3486653179879
+     "conditional_pad_cell_max_c": 205.4087217048329
     },
     {
      "ref": "R5",
      "watts_to_board": 0.8643599999999999,
-     "conditional_pad_cell_max_c": 205.28878216865
+     "conditional_pad_cell_max_c": 205.35866749508233
     },
     {
      "ref": "U37",
      "watts_to_board": 0.1,
-     "conditional_pad_cell_max_c": 204.90656628095158
+     "conditional_pad_cell_max_c": 204.87652188770625
+    },
+    {
+     "ref": "PS1",
+     "watts_to_board": 1.5,
+     "conditional_pad_cell_max_c": 202.85125239822446
     }
    ]
   },
   "extreme_h10_p0p5": {
    "peak": {
-    "temperature_c": 313.55288744984955,
-    "rise_k": 263.55288744984955,
+    "temperature_c": 313.61230078261383,
+    "rise_k": 263.61230078261383,
     "x_mm": 58.75,
     "y_mm": 61.25,
     "layer": "F.Cu"
    },
    "balance": {
-    "source_w": 36.15624480355844,
-    "convection_w": 36.156244803607514,
+    "source_w": 36.21438025361181,
+    "convection_w": 36.2143802544116,
     "fixed_end_w": 0.0,
     "fixed_bottom_w": 0.0,
-    "balance_w": -4.907718675895012e-11,
-    "cg_iterations": 2566,
-    "relative_residual": 9.98313879523831e-10
+    "balance_w": -7.997940087989264e-10,
+    "cg_iterations": 2560,
+    "relative_residual": 9.940021198243765e-10
    },
    "hottest_parts": [
     {
      "ref": "U41",
      "watts_to_board": 1.71,
-     "conditional_pad_cell_max_c": 313.55288744984955
+     "conditional_pad_cell_max_c": 313.61230078261383
     },
     {
      "ref": "U42",
      "watts_to_board": 1.71,
-     "conditional_pad_cell_max_c": 268.8370731013052
+     "conditional_pad_cell_max_c": 268.9014660144713
     },
     {
      "ref": "PS2",
      "watts_to_board": 1.3875,
-     "conditional_pad_cell_max_c": 232.5630248551231
+     "conditional_pad_cell_max_c": 232.62135198033414
     },
     {
      "ref": "R5",
      "watts_to_board": 0.8643599999999999,
-     "conditional_pad_cell_max_c": 224.78749976690165
+     "conditional_pad_cell_max_c": 224.81247513311362
     },
     {
      "ref": "R58",
      "watts_to_board": 0.1258,
-     "conditional_pad_cell_max_c": 214.5305063355168
+     "conditional_pad_cell_max_c": 214.55070771339746
     },
     {
      "ref": "U2",
      "watts_to_board": 0.6032,
-     "conditional_pad_cell_max_c": 206.1218859071915
+     "conditional_pad_cell_max_c": 206.10427445546094
     },
     {
      "ref": "R57",
      "watts_to_board": 0.1258,
-     "conditional_pad_cell_max_c": 201.75100424602954
+     "conditional_pad_cell_max_c": 201.76723368418263
     },
     {
-     "ref": "PS1",
-     "watts_to_board": 1.5,
-     "conditional_pad_cell_max_c": 201.3642796649766
+     "ref": "U1",
+     "watts_to_board": 0.6032,
+     "conditional_pad_cell_max_c": 200.42369410501686
     }
    ]
   },
   "extreme_h25_p1p0": {
    "peak": {
-    "temperature_c": 195.2567284546767,
-    "rise_k": 145.2567284546767,
-    "x_mm": 256.5,
-    "y_mm": 137.5,
+    "temperature_c": 190.35817479631558,
+    "rise_k": 140.35817479631558,
+    "x_mm": 209.5,
+    "y_mm": 17.5,
     "layer": "F.Cu"
    },
    "balance": {
-    "source_w": 36.15624480355844,
-    "convection_w": 36.15624481693504,
+    "source_w": 36.21438025361181,
+    "convection_w": 36.21438026967946,
     "fixed_end_w": 0.0,
     "fixed_bottom_w": 0.0,
-    "balance_w": -1.337660648914607e-08,
+    "balance_w": -1.6067652097717655e-08,
     "cg_iterations": 906,
-    "relative_residual": 9.868053470155636e-10
+    "relative_residual": 9.953186691567482e-10
    },
    "hottest_parts": [
     {
-     "ref": "PS1",
-     "watts_to_board": 1.5,
-     "conditional_pad_cell_max_c": 195.2567284546767
-    },
-    {
      "ref": "PS2",
      "watts_to_board": 1.3875,
-     "conditional_pad_cell_max_c": 190.35155435827076
+     "conditional_pad_cell_max_c": 190.35817479631558
     },
     {
      "ref": "U37",
      "watts_to_board": 0.1,
-     "conditional_pad_cell_max_c": 177.45079735378266
+     "conditional_pad_cell_max_c": 177.38176818880675
     },
     {
      "ref": "U42",
      "watts_to_board": 1.71,
-     "conditional_pad_cell_max_c": 177.20420870423482
+     "conditional_pad_cell_max_c": 177.2039788980164
+    },
+    {
+     "ref": "PS1",
+     "watts_to_board": 1.5,
+     "conditional_pad_cell_max_c": 153.8117067262342
     },
     {
      "ref": "R54",
      "watts_to_board": 0.1258,
-     "conditional_pad_cell_max_c": 145.84006580134275
+     "conditional_pad_cell_max_c": 145.86789969976178
     },
     {
      "ref": "U26",
      "watts_to_board": 0.945,
-     "conditional_pad_cell_max_c": 142.6006502278998
+     "conditional_pad_cell_max_c": 142.36810922582515
     },
     {
      "ref": "C21",
      "watts_to_board": 0.9396030029552878,
-     "conditional_pad_cell_max_c": 138.7527724874309
+     "conditional_pad_cell_max_c": 133.77941039633367
     },
     {
      "ref": "U41",
      "watts_to_board": 1.71,
-     "conditional_pad_cell_max_c": 133.56029498065143
+     "conditional_pad_cell_max_c": 133.5566778906982
     }
    ]
   },
   "extreme_h25_p0p5": {
    "peak": {
-    "temperature_c": 256.1903819285601,
-    "rise_k": 206.1903819285601,
+    "temperature_c": 256.23242397932245,
+    "rise_k": 206.23242397932245,
     "x_mm": 58.75,
     "y_mm": 61.25,
     "layer": "F.Cu"
    },
    "balance": {
-    "source_w": 36.15624480355844,
-    "convection_w": 36.156244810218155,
+    "source_w": 36.21438025361181,
+    "convection_w": 36.21438026060746,
     "fixed_end_w": 0.0,
     "fixed_bottom_w": 0.0,
-    "balance_w": -6.659718110313406e-09,
-    "cg_iterations": 1802,
-    "relative_residual": 9.901207769850047e-10
+    "balance_w": -6.995655610353424e-09,
+    "cg_iterations": 1799,
+    "relative_residual": 9.946633567570118e-10
    },
    "hottest_parts": [
     {
      "ref": "U41",
      "watts_to_board": 1.71,
-     "conditional_pad_cell_max_c": 256.1903819285601
+     "conditional_pad_cell_max_c": 256.23242397932245
     },
     {
      "ref": "U42",
      "watts_to_board": 1.71,
-     "conditional_pad_cell_max_c": 207.2096994374444
+     "conditional_pad_cell_max_c": 207.23977305199162
     },
     {
      "ref": "PS2",
      "watts_to_board": 1.3875,
-     "conditional_pad_cell_max_c": 179.6816586518411
-    },
-    {
-     "ref": "PS1",
-     "watts_to_board": 1.5,
-     "conditional_pad_cell_max_c": 158.13946379214445
+     "conditional_pad_cell_max_c": 179.6929069296597
     },
     {
      "ref": "U3",
      "watts_to_board": 0.26,
-     "conditional_pad_cell_max_c": 156.0136804790352
+     "conditional_pad_cell_max_c": 156.04810072155726
     },
     {
      "ref": "R5",
      "watts_to_board": 0.8643599999999999,
-     "conditional_pad_cell_max_c": 152.64750988558987
+     "conditional_pad_cell_max_c": 152.64929410533693
     },
     {
      "ref": "U2",
      "watts_to_board": 0.6032,
-     "conditional_pad_cell_max_c": 145.70632927986725
+     "conditional_pad_cell_max_c": 145.6903261354169
     },
     {
      "ref": "U1",
      "watts_to_board": 0.6032,
-     "conditional_pad_cell_max_c": 144.102370324393
+     "conditional_pad_cell_max_c": 144.0830119909579
+    },
+    {
+     "ref": "R58",
+     "watts_to_board": 0.1258,
+     "conditional_pad_cell_max_c": 142.97649207266838
     }
    ]
   },
   "c28_h10_p1p0": {
    "peak": {
-    "temperature_c": 198.02000509597417,
-    "rise_k": 148.02000509597417,
+    "temperature_c": 198.10746751812644,
+    "rise_k": 148.10746751812644,
     "x_mm": 50.5,
     "y_mm": 4.5,
     "layer": "In1.Cu"
    },
    "balance": {
-    "source_w": 26.38150789289064,
-    "convection_w": 26.381507891363917,
+    "source_w": 26.43964334294401,
+    "convection_w": 26.439643342524416,
     "fixed_end_w": 0.0,
     "fixed_bottom_w": 0.0,
-    "balance_w": 1.5267218600456545e-09,
-    "cg_iterations": 1284,
-    "relative_residual": 9.882783192636556e-10
+    "balance_w": 4.1959324903473316e-10,
+    "cg_iterations": 1282,
+    "relative_residual": 9.908658498056968e-10
    },
    "hottest_parts": [
     {
      "ref": "R5",
      "watts_to_board": 0.8643599999999999,
-     "conditional_pad_cell_max_c": 188.30179949034718
+     "conditional_pad_cell_max_c": 188.36280777439706
     },
     {
      "ref": "R12",
      "watts_to_board": 0.0328185,
-     "conditional_pad_cell_max_c": 183.82452893940575
+     "conditional_pad_cell_max_c": 183.89116910096118
     },
     {
      "ref": "U42",
      "watts_to_board": 1.09,
-     "conditional_pad_cell_max_c": 180.10244463043784
+     "conditional_pad_cell_max_c": 180.11291001113966
     },
     {
      "ref": "R58",
      "watts_to_board": 0.0328185,
-     "conditional_pad_cell_max_c": 178.55688185546026
+     "conditional_pad_cell_max_c": 178.61165547376757
     },
     {
      "ref": "R10",
      "watts_to_board": 0.0328185,
-     "conditional_pad_cell_max_c": 173.66983251760615
+     "conditional_pad_cell_max_c": 173.77179991057585
     },
     {
      "ref": "R54",
      "watts_to_board": 0.0328185,
-     "conditional_pad_cell_max_c": 171.30057008277072
+     "conditional_pad_cell_max_c": 171.4075704789298
     },
     {
      "ref": "R20",
      "watts_to_board": 0.0328185,
-     "conditional_pad_cell_max_c": 164.45235759904898
+     "conditional_pad_cell_max_c": 164.50036960246635
     },
     {
      "ref": "C40",
      "watts_to_board": 0.05,
-     "conditional_pad_cell_max_c": 158.74930938621264
+     "conditional_pad_cell_max_c": 158.81291644481655
     }
    ]
   },
   "c28_h10_p0p5": {
    "peak": {
-    "temperature_c": 221.95415061240638,
-    "rise_k": 171.95415061240638,
+    "temperature_c": 221.98808785502106,
+    "rise_k": 171.98808785502106,
     "x_mm": 58.75,
     "y_mm": 61.25,
     "layer": "F.Cu"
    },
    "balance": {
-    "source_w": 26.38150789289064,
-    "convection_w": 26.381507893363846,
+    "source_w": 26.43964334294401,
+    "convection_w": 26.439643343992167,
     "fixed_end_w": 0.0,
     "fixed_bottom_w": 0.0,
-    "balance_w": -4.732072511615115e-10,
-    "cg_iterations": 2560,
-    "relative_residual": 9.932649355767412e-10
+    "balance_w": -1.0481571166565118e-09,
+    "cg_iterations": 2559,
+    "relative_residual": 9.9333650895883e-10
    },
    "hottest_parts": [
     {
      "ref": "U41",
      "watts_to_board": 1.09,
-     "conditional_pad_cell_max_c": 221.95415061240638
+     "conditional_pad_cell_max_c": 221.98808785502106
     },
     {
      "ref": "R5",
      "watts_to_board": 0.8643599999999999,
-     "conditional_pad_cell_max_c": 205.6841476151886
+     "conditional_pad_cell_max_c": 205.70338942000157
     },
     {
      "ref": "U42",
      "watts_to_board": 1.09,
-     "conditional_pad_cell_max_c": 197.78028857123917
+     "conditional_pad_cell_max_c": 197.81532898827533
     },
     {
      "ref": "R12",
      "watts_to_board": 0.0328185,
-     "conditional_pad_cell_max_c": 174.7722671407281
+     "conditional_pad_cell_max_c": 174.79762980086218
     },
     {
      "ref": "R58",
      "watts_to_board": 0.0328185,
-     "conditional_pad_cell_max_c": 174.66982812726002
+     "conditional_pad_cell_max_c": 174.68767955922146
     },
     {
      "ref": "R10",
      "watts_to_board": 0.0328185,
-     "conditional_pad_cell_max_c": 171.30108070495535
+     "conditional_pad_cell_max_c": 171.35466932361612
     },
     {
      "ref": "R54",
      "watts_to_board": 0.0328185,
-     "conditional_pad_cell_max_c": 169.1417197663241
+     "conditional_pad_cell_max_c": 169.1787979761251
     },
     {
      "ref": "R20",
      "watts_to_board": 0.0328185,
-     "conditional_pad_cell_max_c": 158.37899609031243
+     "conditional_pad_cell_max_c": 158.39262094276262
     }
    ]
   },
   "c28_h25_p1p0": {
    "peak": {
-    "temperature_c": 134.14495629681198,
-    "rise_k": 84.14495629681197,
+    "temperature_c": 133.921925667852,
+    "rise_k": 83.92192566785202,
     "x_mm": 109.5,
     "y_mm": 77.5,
     "layer": "F.Cu"
    },
    "balance": {
-    "source_w": 26.38150789289064,
-    "convection_w": 26.381507899691243,
+    "source_w": 26.43964334294401,
+    "convection_w": 26.439643351615388,
     "fixed_end_w": 0.0,
     "fixed_bottom_w": 0.0,
-    "balance_w": -6.800604523959919e-09,
-    "cg_iterations": 906,
-    "relative_residual": 9.834738717194717e-10
+    "balance_w": -8.671378282087971e-09,
+    "cg_iterations": 904,
+    "relative_residual": 9.964018974536878e-10
    },
    "hottest_parts": [
     {
      "ref": "U26",
      "watts_to_board": 0.87248,
-     "conditional_pad_cell_max_c": 134.14495629681198
+     "conditional_pad_cell_max_c": 133.921925667852
     },
     {
      "ref": "U42",
      "watts_to_board": 1.09,
-     "conditional_pad_cell_max_c": 133.0487491996343
-    },
-    {
-     "ref": "PS1",
-     "watts_to_board": 0.7619047619047619,
-     "conditional_pad_cell_max_c": 123.78339768549391
+     "conditional_pad_cell_max_c": 133.04865833044425
     },
     {
      "ref": "R5",
      "watts_to_board": 0.8643599999999999,
-     "conditional_pad_cell_max_c": 123.58365635807554
+     "conditional_pad_cell_max_c": 123.59275757251787
     },
     {
      "ref": "PS2",
      "watts_to_board": 0.7095238095238096,
-     "conditional_pad_cell_max_c": 121.90995661667174
+     "conditional_pad_cell_max_c": 121.91565390128542
     },
     {
      "ref": "U37",
      "watts_to_board": 0.05,
-     "conditional_pad_cell_max_c": 121.82904645752664
+     "conditional_pad_cell_max_c": 121.75769628963344
     },
     {
      "ref": "R12",
      "watts_to_board": 0.0328185,
-     "conditional_pad_cell_max_c": 117.70879643450168
+     "conditional_pad_cell_max_c": 117.72022355248625
     },
     {
      "ref": "R58",
      "watts_to_board": 0.0328185,
-     "conditional_pad_cell_max_c": 117.60830224868727
+     "conditional_pad_cell_max_c": 117.61726991941147
+    },
+    {
+     "ref": "R54",
+     "watts_to_board": 0.0328185,
+     "conditional_pad_cell_max_c": 112.20070071033635
     }
    ]
   },
   "c28_h25_p0p5": {
    "peak": {
-    "temperature_c": 182.20761587391135,
-    "rise_k": 132.20761587391135,
+    "temperature_c": 182.2334154026721,
+    "rise_k": 132.2334154026721,
     "x_mm": 58.75,
     "y_mm": 61.25,
     "layer": "F.Cu"
    },
    "balance": {
-    "source_w": 26.38150789289064,
-    "convection_w": 26.38150789706083,
+    "source_w": 26.43964334294401,
+    "convection_w": 26.439643347482406,
     "fixed_end_w": 0.0,
     "fixed_bottom_w": 0.0,
-    "balance_w": -4.170189527030743e-09,
-    "cg_iterations": 1794,
-    "relative_residual": 9.955001142897806e-10
+    "balance_w": -4.538396325415306e-09,
+    "cg_iterations": 1791,
+    "relative_residual": 9.891961277442772e-10
    },
    "hottest_parts": [
     {
      "ref": "U41",
      "watts_to_board": 1.09,
-     "conditional_pad_cell_max_c": 182.20761587391135
+     "conditional_pad_cell_max_c": 182.2334154026721
     },
     {
      "ref": "U42",
      "watts_to_board": 1.09,
-     "conditional_pad_cell_max_c": 151.96316669100688
+     "conditional_pad_cell_max_c": 151.9801401025796
     },
     {
      "ref": "R5",
      "watts_to_board": 0.8643599999999999,
-     "conditional_pad_cell_max_c": 144.4792239487075
+     "conditional_pad_cell_max_c": 144.48070454328496
     },
     {
      "ref": "PS2",
      "watts_to_board": 0.7095238095238096,
-     "conditional_pad_cell_max_c": 116.55406798940729
+     "conditional_pad_cell_max_c": 116.56351169016412
     },
     {
      "ref": "R58",
      "watts_to_board": 0.0328185,
-     "conditional_pad_cell_max_c": 114.3914979423171
+     "conditional_pad_cell_max_c": 114.39260842326067
     },
     {
      "ref": "R12",
      "watts_to_board": 0.0328185,
-     "conditional_pad_cell_max_c": 112.86845355633056
+     "conditional_pad_cell_max_c": 112.871545662921
     },
     {
      "ref": "R10",
      "watts_to_board": 0.0328185,
-     "conditional_pad_cell_max_c": 110.09691146821694
+     "conditional_pad_cell_max_c": 110.10711061871766
     },
     {
      "ref": "R54",
      "watts_to_board": 0.0328185,
-     "conditional_pad_cell_max_c": 109.77921215780833
+     "conditional_pad_cell_max_c": 109.78538989430464
     }
    ]
   }

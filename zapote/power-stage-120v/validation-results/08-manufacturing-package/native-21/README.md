@@ -1,11 +1,11 @@
 # 08 Manufacturing package: native-21 candidate
 
-A **candidate** JLCPCB package for native-21 (stage 15b), reviewed independently of KiCad. It
+A **candidate** JLCPCB package for native-21 (stage 16), reviewed independently of KiCad. It
 does not release fabrication: `DECISIONS.md` controls that, and its gates are open
 ([fab/FAB-NOTE.md](fab/FAB-NOTE.md)).
 
-- Board: native-21 stage 15b (stage 14 + 28 A protection values R34 / R43 / R46 and SW_A / SW_B widening, DECISIONS items 13-14), SHA-256
-  `9a9c43c63f63d383c89b9dc1d4d03a34d4390cfa1c26bbe802d71e169c6ddf94`.
+- Board: native-21 stage 16 (stage 15b + the F2 / J11 blower-supply mains tap, DECISIONS item 16), SHA-256
+  `e9481ed6d183594a466d657bff09de525ad84457cbd13080a55b1b589b314bcd`.
 - Tools: KiCad 10.0.4 `kicad-cli`, gerbv 2.11.1 (independent renderer), Miniforge Python 3.12.
 - Scripts: native-17's `bom_cpl_jlc.py` unchanged; `review_fab.py` with one change, below.
 
@@ -15,8 +15,8 @@ does not release fabrication: `DECISIONS.md` controls that, and its gates are op
 | --- | --- |
 | `gerbers/` and `native-21-gerbers.zip` | F/In1/In2/B copper, paste, silk (mask subtracted), mask, outline; PTH and NPTH Excellon (mm) with Gerber drill maps |
 | `drill-report.txt` | KiCad drill report |
-| `bom-jlcpcb.csv` | 91 source lines plus the F1 clip line, JLCPCB columns plus manufacturer part number, mount type and assembly route (`scripts/apply_lcsc.py`) |
-| `cpl-jlcpcb.csv` | 351 placements (37 THT, 314 SMD/other); pad-centre centroids |
+| `bom-jlcpcb.csv` | 92 source lines plus the F1 clip line, JLCPCB columns plus manufacturer part number, mount type and assembly route (`scripts/apply_lcsc.py`) |
+| `cpl-jlcpcb.csv` | 353 placements (38 THT, 315 SMD/other); pad-centre centroids |
 | `assembly-drawing.pdf` | F.Fab (every designator), silk and outline, A4 fit (review M12) |
 | `positions-kicad.csv` | KiCad's own position export |
 | `FAB-NOTE.md` | Order requirements (including filled and capped vias) and deviations |
@@ -26,8 +26,8 @@ does not release fabrication: `DECISIONS.md` controls that, and its gates are op
 | Check | Result |
 | --- | --- |
 | Outline | 290 × 190 mm |
-| Holes | 881 plated (118 component incl. 4 F1 slots + 763 via) and 15 non-plated; the board's census is 118 PTH pads + 763 vias |
-| Outer copper around every plated hole, F and B (12 points at drill radius + 0.07 mm) | **877/877 round holes on both sides.** The 4 F1 slots (G85) are outside the script's parser and were checked in the drill file |
+| Holes | 882 plated (120 component incl. 4 F1 slots + 762 via) and 15 non-plated; the board's census is 120 PTH pads + 762 vias |
+| Outer copper around every plated hole, F and B (12 points at drill radius + 0.07 mm) | **878/878 round holes on both sides.** The 4 F1 slots (G85) are outside the script's parser and were checked in the drill file |
 | Mask opening over every component hole, both sides | 112/112 round (+ 4 slots) |
 | Silk over a component land | 0 |
 | JLCPCB rules (`tools/jlc_dfm_check.py`, `jlc-dfm.json`) | PASS |

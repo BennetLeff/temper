@@ -42,10 +42,10 @@ CENSUS21 = [row if row[0] != "U3.2" else
 
 
 BAND_BEFORE = {"native21s13": (49.53, 97.77), "native21s13b": (49.53, 97.77), "native21s14": (49.53, 97.77),
-               "native21s15": (68.58, 118.74), "native21s15b": (68.58, 118.74)}   # 12.6 k / 11.7 k (stage 15; scratchpad stage15/ocp_bands.py -> task 02)
+               "native21s15": (68.58, 118.74), "native21s15b": (68.58, 118.74), "native21s16": (68.58, 118.74)}   # 12.6 k / 11.7 k (stage 15; scratchpad stage15/ocp_bands.py -> task 02)
 # Low-corner floor after the shift. 44 A until stage 14; stage 15 (28 A ceiling): 59.17 A envelope peak + 3.0 A
 # coil-pickup stack (DECISIONS item 9) + 2 A margin = 64.17 A (round 6 rule; basis A of the stage-15 plan).
-FLOOR = {"native21s15": 64.17, "native21s15b": 64.17}
+FLOOR = {"native21s15": 64.17, "native21s15b": 64.17, "native21s16": 64.17}
 
 
 def main():

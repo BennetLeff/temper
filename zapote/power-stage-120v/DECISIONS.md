@@ -583,4 +583,25 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
     - **Blower supply:** the blower is BFB1012VH-F00 (12 V, 1.42 A typical / 2.70 A maximum, 17 / 32.4 W). The coil at its 196 W acceptance limit needs about 0.9 drive, so the rail is budgeted for full speed: 33.5 W plus start-up.
       - That overloads PS1 (IRM-20-15) through the controller's blower buck, so **a separate blower supply** goes on the power board (stage 16, planning). Blower start or stall then cannot brown out the controller logic.
     - **Coil and rim NTCs:** Semitec 104GT-2 (GT-2 sheet p.18): Ø1.35 ± 0.15 mm glass bead; 100 kΩ ±3 %; B 4267 K ±2 %; −50…+300 °C; 0.6 mW/°C. Mounts are in enclosure R40. Rim self-heating is about 2.6 K at 250 °C, in the safe direction.
+16. **Stage 16: separate blower supply (2026-10-12, board `e9481ed6…`, copper.json `4d062fd6…`; plan `validation-results/08-manufacturing-package/native-21/stage16-blower-supply/PLAN-16.md`).**
+    - **PS3 = Mean Well IRM-60-15ST:**
+      - 60 W, Class II, 62368-1 / 60335-1;
+      - IRM-60-SPEC 2025-11-21: 109 × 52 × 33.5 mm, 4 × Ø3.5 holes on 98 × 33;
+      - chassis-mounted at enclosure world (−139, 95) (R41).
+      - It feeds the controller's blower buck through J13 (B2P-VH, controller (88, 86)). PS1 drops to about 4.8 W of its 21 W.
+    - **Rejected options:**
+      - a direct 12 V rail: the buck can't make 12.4 V from it, and PWM-ing a 3-wire blower's supply loses the tach;
+      - upsizing PS1: it displaces 7–10 parts and keeps the blower on the logic rail.
+    - **Power board:** a fused mains tap only.
+      - **F2** (Schurter UMT 250 3403.0171, 3.15 A T, 200 A at 250 VAC) at (266.5, 118.4) takes L_FILT to the new net `blw_l`. **J11** (B2P3-VH) at (266.5, 125.8) carries blw_l / N_FILT.
+      - blw_l is its own MAINS group (F2 can open). The three 1.0 mm tap tracks were laid by the router. No part moves.
+      - Audit 78/78, with a new test failing F2 ahead of the filter, a J11 that bypasses F2, or the wrong fuse.
+    - **Gates:** DRC 0 / 0 / 0; barrier21 and the Rust gate 0; D5 8.047 / 8.507 mm (unchanged); fit 0; DFM and Gerber review PASS; Kelvin 66.37–118.74 A; B3 at 28 A 133.9 °C (U26).
+    - **Open:**
+      - F2's breaking capacity is under the prospective fault at 127 V + 10 %. F1 is the backup; this is a certifier item, as F1 was.
+      - Blower start current (bench G-B1).
+      - The F2 height envelope is a 4.0 mm estimate (no 3D model).
+      - The firmware inlet limit must count PS3: up to 2.55 A at full blower speed, scheduled with blower drive.
+      - The controller J13 / V15_BLW change is in progress on controller-layout.
+    - **Gate scripts** are now committed in `native-21/layout/gates/` (the scratchpad copies were lost).
 

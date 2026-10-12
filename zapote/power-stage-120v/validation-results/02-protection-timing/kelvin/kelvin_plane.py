@@ -45,7 +45,8 @@ R34, R35, RS = 10.6e3, 10.0e3, 1e-3
 # From stage 13 the divider is 12.4 k / 11.7 k (stocked 0.1 % parts, BOM simplification 2026-10-09;
 # ../../08-manufacturing-package/native-21/bom-simplification/). k changes from 0.48544 to 0.48548.
 DIVIDER = {"native21s13": (12.4e3, 11.7e3), "native21s13b": (12.4e3, 11.7e3), "native21s14": (12.4e3, 11.7e3),
-           "native21s15": (12.6e3, 11.7e3), "native21s15b": (12.6e3, 11.7e3)}   # stage 15, 28 A hardware (DECISIONS 2026-10-10)
+           "native21s15": (12.6e3, 11.7e3), "native21s15b": (12.6e3, 11.7e3),
+           "native21s16": (12.6e3, 11.7e3)}   # stage 15, 28 A hardware (DECISIONS 2026-10-10)
 PLATING_UM, PITCH, TEMP = 18.0, 0.1, 125.0
 
 
@@ -65,7 +66,8 @@ def main() -> None:
               "native21s13b": "6556f53612f4623e729360190ca06a9bbeeedc445e4a2ae26288433b76471a37",
               "native21s14": "3eb5421677007d9a06d682c5182d9e9fc264e4a50da9e51bbe354a2cedd0dcee",
               "native21s15": "5b9dbd612d2909c04e393a2273b0cf009e763f609d7e81e03bcbcc9988737fbc",
-              "native21s15b": "9a9c43c63f63d383c89b9dc1d4d03a34d4390cfa1c26bbe802d71e169c6ddf94"}
+              "native21s15b": "9a9c43c63f63d383c89b9dc1d4d03a34d4390cfa1c26bbe802d71e169c6ddf94",
+              "native21s16": "e9481ed6d183594a466d657bff09de525ad84457cbd13080a55b1b589b314bcd"}
     assert data["board_sha256"] == PINNED[tag], f"{export} is not the pinned {tag} board"
     net = kit.Net(pitch_mm=PITCH, temp_c=TEMP)
     shapes, vias, pads = defaultdict(list), {}, {}

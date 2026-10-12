@@ -18,7 +18,7 @@ def selv_nets():
 
 
 SELV = selv_nets()
-MAINS_PREFIX = ("ac_l_in", "ac_n_in", "l_f", "n_f", "l_filt", "n_filt", "tco_l", "led1", "led2",
+MAINS_PREFIX = ("ac_l_in", "ac_n_in", "l_f", "n_f", "l_filt", "n_filt", "tco_l", "blw_l", "led1", "led2",
                 "line_zc-r", "busbleed")
 
 

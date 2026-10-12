@@ -84,3 +84,5 @@ Files: [plane-native21.json](plane-native21.json), [budget-native21.json](budget
 **Stage 15** (28 A hardware: R34 12.6 k, SW_A / SW_B widening; board `5b9dbd61…`; tag `native21s15`): R35.2 at 161.03 mΩ, Kelvin shift −2.22 A (bound −2.28 A); band before the shift 68.58–118.74 A, **66.37–118.74 A after** (66.30 A at the bound). `kelvin_budget.py` now also checks the stage's own floor: 64.17 A for the 28 A ceiling (59.17 A envelope peak + 3.0 A pickup + 2 A), met.
 
 **Stage 15b** (SW_A link / Q2.3 corner copper only; board `9a9c43c6…`; tag `native21s15b`): identical Kelvin result, R35.2 161.03 mΩ, band 66.37–118.74 A, floor met at the bound.
+
+**Stage 16** (F2 / J11 blower-supply mains tap at the far mains corner; board `e9481ed6…`; tag `native21s16`): identical, R35.2 161.03 mΩ, band 66.37–118.74 A.

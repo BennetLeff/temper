@@ -54,6 +54,30 @@ component MainsFuse25A:
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
+component BranchFuseT3A15:
+    """Schurter UMT 250 3403.0171: SMD 3.15 A time-lag (T), 250 VAC / 125 VDC, ceramic, 10.1 x 3.1 mm;
+    breaking capacity 200 A at 250 VAC (IEC; UMT 250 data sheet). Fuses the blower-supply mains tap
+    (stage 16, DECISIONS 15-16): the branch to PS3 (IRM-60-15ST) after F1 and the EMI filter. Its 200 A
+    is below the cord-limited prospective fault current at 127 V + 10 %; F1 (Class CC, 200 kA) is the
+    backup, a certifier item as F1 was."""
+    designator_prefix = "F"
+    mpn = "3403.0171"
+    manufacturer = "Schurter"
+    footprint = "Fuse:Fuse_Schurter_UMT250"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component MainsTapHeader:
+    """JST B2P3-VH(LF)(SN) (as TcoLoopHeader): the blower-supply mains tap J11 to the chassis-mounted
+    PS3 (stage 16). 7.92 mm between the two posts (post 2 omitted), 250 V / 10 A; mates VHR-3N with
+    cavity 2 empty, SVH-21T-P1.1 crimps, 18 AWG. Cannot cross-mate the controller's 3.96 mm J13."""
+    designator_prefix = "J"
+    mpn = "B2P3-VH(LF)(SN)"
+    manufacturer = "JST"
+    footprint = "Connector_JST:JST_VH_B2P3-VH_1x02_P7.92mm_Vertical"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
 component Tmov175:
     """Littelfuse TMOV20RP175E thermally protected MOV, 175 Vrms, Vc 455 V."""
     designator_prefix = "RV"

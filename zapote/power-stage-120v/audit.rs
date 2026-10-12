@@ -286,6 +286,9 @@ const IDENTITY: &[(&str, &str)] = &[
     ("cx1", "R463N410050N1K"),
     ("cx2", "R463N410050N1K"),
     ("f1", "KLDR025.TXP"),
+    // Stage 16 (DECISIONS 16): blower-supply mains tap, F2 3.15 A T then J11 to the chassis PS3.
+    ("f_blw", "3403.0171"),
+    ("j_blw_ac", "B2P3-VH(LF)(SN)"),
     ("rv1", "TMOV20RP175E"),
     ("br1", "GBJ2510-F"),
     ("tvs_bus", "30KPA150CA"),
@@ -856,6 +859,15 @@ fn audit(m: &Model) -> Vec<String> {
     let tco: BTreeSet<String> = members(m, "tco_l").into_iter().map(|(p, _)| p).collect();
     if tco != ["j_tco", "ps_gate"].iter().map(|s| s.to_string()).collect() {
         e.push(format!("tco_l must join only the TCO header and PS2, found {:?}", tco));
+    }
+    // Blower-supply tap (stage 16): fused after F1 and the filter, a branch of its own to J11.
+    expect(&mut e, m, "f_blw", "1", "l_filt");
+    expect(&mut e, m, "f_blw", "2", "blw_l");
+    expect(&mut e, m, "j_blw_ac", "1", "blw_l");
+    expect(&mut e, m, "j_blw_ac", "2", "n_filt");
+    let blw: BTreeSet<String> = members(m, "blw_l").into_iter().map(|(p, _)| p).collect();
+    if blw != ["f_blw", "j_blw_ac"].iter().map(|s| s.to_string()).collect() {
+        e.push(format!("blw_l must join only F2 and J11, found {:?}", blw));
     }
     expect(&mut e, m, "ps_selv", "1", "l_filt"); // IRM-20 pin 1 = AC/L
     expect(&mut e, m, "ps_selv", "2", "n_filt");
@@ -1445,6 +1457,20 @@ mod tests {
             m.set_part(path, "RT0603BRD073K32L");
             fails(&m, &format!("{path} is RT0603BRD073K32L"));
         }
+    }
+
+    #[test]
+    fn blower_tap_must_be_fused_after_the_filter() {
+        // F2 ahead of F1 / the EMI filter, or J11 bypassing F2, must fail.
+        let mut m = built();
+        m.rewire("f_blw", "1", "ac_l_in");
+        fails(&m, "f_blw.1");
+        let mut m = built();
+        m.rewire("j_blw_ac", "1", "l_filt");
+        fails(&m, "j_blw_ac.1");
+        let mut m = built();
+        m.set_part("f_blw", "3403.0201");
+        fails(&m, "f_blw is 3403.0201");
     }
 
     #[test]

@@ -1,5 +1,5 @@
 {
-  "board_sha256": "9a9c43c63f63d383c89b9dc1d4d03a34d4390cfa1c26bbe802d71e169c6ddf94",
+  "board_sha256": "e9481ed6d183594a466d657bff09de525ad84457cbd13080a55b1b589b314bcd",
   "pitch_mm": 0.0625,
   "kit": "sheet_solver.py",
   "layers": {
@@ -11,7 +11,7 @@
       "grid_components_spanning_two_physical": 0
     },
     "ac_l_in/F.Cu": {
-      "grid_nodes": 54655,
+      "grid_nodes": 54657,
       "grid_components": 1,
       "physical_components": 1,
       "dropped_edges": 0,
@@ -81,21 +81,21 @@
       "grid_components_spanning_two_physical": 0
     },
     "bus_p/In2.Cu": {
-      "grid_nodes": 2062765,
+      "grid_nodes": 2062668,
       "grid_components": 3,
       "physical_components": 3,
       "dropped_edges": 3,
       "grid_components_spanning_two_physical": 0
     },
     "coil_feed/B.Cu": {
-      "grid_nodes": 46070,
+      "grid_nodes": 44215,
       "grid_components": 1,
       "physical_components": 1,
       "dropped_edges": 0,
       "grid_components_spanning_two_physical": 0
     },
     "coil_feed/F.Cu": {
-      "grid_nodes": 48457,
+      "grid_nodes": 48451,
       "grid_components": 1,
       "physical_components": 1,
       "dropped_edges": 0,
@@ -130,7 +130,7 @@
       "grid_components_spanning_two_physical": 0
     },
     "hv_ret/In1.Cu": {
-      "grid_nodes": 2168410,
+      "grid_nodes": 2168322,
       "grid_components": 4,
       "physical_components": 4,
       "dropped_edges": 1,
@@ -151,7 +151,7 @@
       "grid_components_spanning_two_physical": 0
     },
     "l_f/F.Cu": {
-      "grid_nodes": 139435,
+      "grid_nodes": 139434,
       "grid_components": 1,
       "physical_components": 1,
       "dropped_edges": 0,
@@ -179,10 +179,10 @@
       "grid_components_spanning_two_physical": 0
     },
     "l_filt/F.Cu": {
-      "grid_nodes": 30063,
+      "grid_nodes": 36765,
       "grid_components": 6,
       "physical_components": 6,
-      "dropped_edges": 0,
+      "dropped_edges": 1,
       "grid_components_spanning_two_physical": 0
     },
     "l_filt/In1.Cu": {
@@ -228,30 +228,30 @@
       "grid_components_spanning_two_physical": 0
     },
     "n_filt/B.Cu": {
-      "grid_nodes": 30150,
+      "grid_nodes": 37089,
       "grid_components": 4,
       "physical_components": 4,
       "dropped_edges": 1,
       "grid_components_spanning_two_physical": 0
     },
     "n_filt/F.Cu": {
-      "grid_nodes": 465978,
-      "grid_components": 4,
-      "physical_components": 4,
+      "grid_nodes": 466851,
+      "grid_components": 5,
+      "physical_components": 5,
       "dropped_edges": 0,
       "grid_components_spanning_two_physical": 0
     },
     "n_filt/In1.Cu": {
-      "grid_nodes": 8633,
-      "grid_components": 7,
-      "physical_components": 7,
+      "grid_nodes": 9515,
+      "grid_components": 8,
+      "physical_components": 8,
       "dropped_edges": 0,
       "grid_components_spanning_two_physical": 0
     },
     "n_filt/In2.Cu": {
-      "grid_nodes": 8633,
-      "grid_components": 7,
-      "physical_components": 7,
+      "grid_nodes": 9515,
+      "grid_components": 8,
+      "physical_components": 8,
       "dropped_edges": 0,
       "grid_components_spanning_two_physical": 0
     },
@@ -312,7 +312,7 @@
       "grid_components_spanning_two_physical": 0
     },
     "res_a/B.Cu": {
-      "grid_nodes": 306215,
+      "grid_nodes": 302374,
       "grid_components": 1,
       "physical_components": 1,
       "dropped_edges": 0,
@@ -347,7 +347,7 @@
       "grid_components_spanning_two_physical": 0
     },
     "sw_a/F.Cu": {
-      "grid_nodes": 459705,
+      "grid_nodes": 459692,
       "grid_components": 11,
       "physical_components": 11,
       "dropped_edges": 9,
@@ -368,7 +368,7 @@
       "grid_components_spanning_two_physical": 0
     },
     "sw_b/B.Cu": {
-      "grid_nodes": 845266,
+      "grid_nodes": 834956,
       "grid_components": 10,
       "physical_components": 10,
       "dropped_edges": 1,

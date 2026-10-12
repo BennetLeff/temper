@@ -1,11 +1,11 @@
 # Fabrication note: power-stage-120v native-21 (CANDIDATE, not released)
 
-Board: native-21 stage 15b (stage 14 plus the 28 A tank hardware: R34 12.6 k, R43/R46 2.21 k and SW_A / SW_B copper widening, DECISIONS.md 2026-10-10 items 13-14; stage 14 added one RECOM R24C2T25/R-R isolated bias module per high side, U41/U42, the 9 µF C5/C6 bus film and the 2 × 30KPA150CA series bus clamp D3/D17, DECISIONS.md 2026-10-09 stage 14; stage 13b added the BOM simplification, the 5 × TDK B32654 resonant bank and the C1/C2 X2 swap; stage 12 carried the independent-review fixes, `../REVIEW-TRIAGE.md`), rebuilt from
+Board: native-21 stage 16 (stage 15b plus the F2 / J11 blower-supply mains tap, DECISIONS.md 2026-10-12 item 16; stage 15b was stage 14 plus the 28 A tank hardware: R34 12.6 k, R43/R46 2.21 k and SW_A / SW_B copper widening, DECISIONS.md 2026-10-10 items 13-14; stage 14 added one RECOM R24C2T25/R-R isolated bias module per high side, U41/U42, the 9 µF C5/C6 bus film and the 2 × 30KPA150CA series bus clamp D3/D17, DECISIONS.md 2026-10-09 stage 14; stage 13b added the BOM simplification, the 5 × TDK B32654 resonant bank and the C1/C2 X2 swap; stage 12 carried the independent-review fixes, `../REVIEW-TRIAGE.md`), rebuilt from
 `native-21/layout/copper.json` by `sh native-21/layout/incr_iter.sh native-21/layout/copper.json - OUTDIR`;
 SHA-256
-`9a9c43c63f63d383c89b9dc1d4d03a34d4390cfa1c26bbe802d71e169c6ddf94`.
+`e9481ed6d183594a466d657bff09de525ad84457cbd13080a55b1b589b314bcd`.
 Gerbers: `native-21-gerbers.zip`, SHA-256
-`c7d1354598cf1a75e03e6faa8c7e08f87273718a092660751fde3a6f0225d6b7`.
+`0cd1a54ba3398dacf9ed654928c0aeed33dc9d2f100adc275939a6af0742cc5d`.
 
 **This package isn't released for ordering.** The gates come in two tiers (decision 2026-10-08; PROTOTYPE-LOT.md agrees).
 
@@ -35,7 +35,7 @@ Ordering is a purchase and needs the owner.
 | Impedance control | None |
 | Order number | **Remove** (JLC's "remove order number" option); the silk carries the board ID instead |
 | **Via covering** | **Epoxy-filled and capped (POFV) for all 753 × 0.3 mm vias, no exceptions.** 72 sit fully inside SMD pads and 67 more overlap a pad edge (`native-21/verification/via_in_pad.py`), including the R5 shunt current-pad arrays and the exposed-pad thermal fields (U26–U28 3 × 3, U35 2 × 2). The ten 1.6/0.8 current vias stay tented (JLC fills holes ≤ 0.5 mm only). The KiCad file says `filling/capping no`; this note is the requirement. Select "Confirm production files" |
-| Drills | 881 plated (763 vias, 118 component holes, 4 of them **plated slots 1.2 × 2.5 mm** for F1's 10 × 38 clips: routed slots, G85 in the PTH drill file), 15 non-plated (8 connector holes, 7 M3 fixings) |
+| Drills | 882 plated (762 vias, 120 component holes, 4 of them **plated slots 1.2 × 2.5 mm** for F1's 10 × 38 clips: routed slots, G85 in the PTH drill file), 15 non-plated (8 connector holes, 7 M3 fixings) |
 | Board-only parts | 36 bring-up test pads (bare copper), 3 fiducials (1 mm, 3 mm mask opening), 7 M3 holes at the positions the enclosure adopted; none in BOM/CPL. **H2–H7: the whole fixing chain is insulating** (nylon screw, washer and standoff; no metal screw, nut or insert within 10 mm of the board), with outer copper clear under the 7 mm washer. H1 may take metal hardware (native-21/BRINGUP-PROBES.md). Enclosure R30: male-female standoffs threaded into the tapped base (nylon at H2–H7 with a nylon top screw and washer, ≥ 10 mm; brass at H1). H1 is a bare NPTH, so its metal hardware bonds the chassis only; the board's PE comes in at J6 |
 
 JLC rules (`tools/jlc_dfm_check.py`, capabilities page re-read verbatim 2026-10-08):
@@ -43,10 +43,10 @@ JLC rules (`tools/jlc_dfm_check.py`, capabilities page re-read verbatim 2026-10-
 - Via diameter ≥ hole + 0.1 mm; our floor is a 0.15 mm ring.
 - Track/space at 2 oz multilayer: JLC allows 0.15/0.15 mm. Our floor is 0.2/0.2 mm, and the tightest gap is the U41/U42 modules' 0.20 mm pad-to-pad (0.45 mm pads at 0.65 mm pitch).
 - Via drill ≥ 0.15 mm.
-- Result: **PASS**. 763 vias, 118 plated pads (slot rings checked per axis: 0.60 mm), minimum track 0.2 mm, 0 failures (`../jlc-dfm.json`).
+- Result: **PASS**. 762 vias, 120 plated pads (slot rings checked per axis: 0.60 mm), minimum track 0.2 mm, 0 failures (`../jlc-dfm.json`).
 
 Assembly:
-- **LCSC numbers:** 82 of 91 source lines map to a checked LCSC part (49 exact from the survey, 32 changed or added since, most of them the 2026-10-09 Basic swaps and the stage-14 bias parts, 1 accepted substitute; `../sourcing/`, `../bom-simplification/`). Nine are consigned or hand-assembled: F1 fuse, C1/C2 (KEMET R463N410050N1K, Digi-Key), C5/C6 (TDK B32676G1905K000), U1/U2, T1, the resonant bank C21–C23/C151/C152 (TDK B32654A1104K000), J3, D3/D17 (Good-Ark 30KPA150CA, P600 axial) and U41/U42 (RECOM R24C2T25/R-R). Check stock again before ordering.
+- **LCSC numbers:** 82 of 92 source lines map to a checked LCSC part (49 exact from the survey, 32 changed or added since, most of them the 2026-10-09 Basic swaps and the stage-14 bias parts, 1 accepted substitute; `../sourcing/`, `../bom-simplification/`). Ten are consigned or hand-assembled: F1 fuse, F2 (Schurter 3403.0171 UMT 250, blower-supply tap), C1/C2 (KEMET R463N410050N1K, Digi-Key), C5/C6 (TDK B32676G1905K000), U1/U2, T1, the resonant bank C21–C23/C151/C152 (TDK B32654A1104K000), J3, D3/D17 (Good-Ark 30KPA150CA, P600 axial) and U41/U42 (RECOM R24C2T25/R-R). Check stock again before ordering.
 - **Lead trim (insulation):** trim every THT lead to ≤ 2.5 mm below the board bottom after soldering (ASSEMBLY.md); trim C1/C2's 25 mm leads to 4 mm before insertion.
 - **Hand assembly:**
   - F1-CLIP (2 × Littelfuse 01250003H, 10 × 38 / Class CC clips, 30 A), soldered into the plated slots;

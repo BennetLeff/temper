@@ -7,7 +7,7 @@ import json
 def main() -> None:
     root = Path(__file__).resolve().parents[2]
     resolved = json.loads((root / 'frozen/resolved-components.json').read_text())
-    assert len(resolved['components']) == 351   # stage 14: -8 (bias modules replace SN6507/T2/T3 path; +1 bus TVS); + c_hs / c_hs_bulk per leg (review B1), + c_hs_1u / c_ls_1u per leg (stage 9), + c_vs1_1u / c_vs2_1u (stage 10), + c_res4 / c_res5 (stage 13)
+    assert len(resolved['components']) == 353   # stage 16: + f_blw / j_blw_ac (blower-supply tap); stage 14: -8 (bias modules replace SN6507/T2/T3 path; +1 bus TVS); + c_hs / c_hs_bulk per leg (review B1), + c_hs_1u / c_ls_1u per leg (stage 9), + c_vs1_1u / c_vs2_1u (stage 10), + c_res4 / c_res5 (stage 13)
     for filename, expected in resolved['source_sha256'].items():
         assert hashlib.sha256((root / filename).read_bytes()).hexdigest() == expected, filename
     for filename in ('default.csv', 'default.net', 'resolved-components.json',
@@ -19,6 +19,7 @@ def main() -> None:
         assert parts[f'{leg}.r_dt']['mpn'] == 'RT0603BRD0749K9L'
         assert parts[f'{leg}.r_dis_pu']['mpn'] == '0603WAF3300T5E'
     assert parts['r_th_top']['mpn'] == 'RT0603BRD0712K6L'   # stage 15, 28 A hardware
+    assert parts['f_blw']['mpn'] == '3403.0171' and parts['j_blw_ac']['mpn'] == 'B2P3-VH(LF)(SN)'   # stage 16
     assert parts['r_ct_hi_top']['mpn'] == parts['r_ct_lo_bot']['mpn'] == 'RT0603BRD072K21L'
     for leg in ('leg_a', 'leg_b'):
         assert parts[f'{leg}.c_hs']['mpn'] == 'CC0805KRX7R9BB104' and parts[f'{leg}.c_hs_bulk']['mpn'] == 'GRM21BZ71E106KE15L'

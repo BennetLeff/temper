@@ -233,6 +233,12 @@ runs rise 1–10 K and remain outside the 22 A envelope.
 - **Ceiling sweep** (h 25, committed model): 22 / 24 / 26 / 28 A → 133.4 / 133.7 / 133.9 / **134.1 °C**, all at U26. **28 A is supported.**
 - **h 10** (fan failure) at 28 A is 198.0 °C, which the controller's blower-stall derate has to own.
 
+### Stage 16 re-run (2026-10-12, board `e9481ed6…`)
+
+- **Change:** the F2 / J11 blower-supply mains tap beside PS1; tank copper is unchanged.
+- **BUS_P span:** 4.129 %.
+- **B3 ceiling sweep** (h 25): 133.2 / 133.4 / 133.7 / **133.9 °C** at 22 / 24 / 26 / 28 A, all at U26.
+
 **Verdict, task 04 on native-21:** nominal operation passes the copper width screen after the SW_B
 fix (SW_A at 18.8 K is the tightest). The board needs a tank-current ceiling (22 A RMS interim).
 Bench IR at nominal power remains the physical gate (D4).
