@@ -27,13 +27,6 @@
       "jlc_stock_2026_10_08": 567,
       "removed": "R33 (2026-10-10): no longer on the controller"
     },
-    "AD8436BRQZ": {
-      "origin": "controller (follow-up 2026-10-08)",
-      "basis": "ADI AD8436 Rev. B: 65 kHz for 1 % additional error, single supply 4.8-36 V, RQ-20 pin table (Table 4)",
-      "lcsc": "C652840",
-      "jlc_stock_2026_10_08": 0,
-      "procurement": "JLC stock 0 on 2026-10-08: order from ADI/distributor or consign"
-    },
     "B2B-XH-A(LF)(SN)": {
       "origin": "ported: zapote/thermal-sense + controller",
       "basis": "JST eXH.pdf",
@@ -89,12 +82,6 @@
       "lcsc": "C14663",
       "jlc_stock_2026_10_08": 59198566
     },
-    "CD74HC30PWR": {
-      "origin": "ported: zapote/interlock",
-      "basis": "TI SCHS121E; zapote/interlock BOM.md",
-      "lcsc": "C2866074",
-      "jlc_stock_2026_10_08": 7
-    },
     "CL10A105KB8NNNC": {
       "origin": "controller (new)",
       "basis": "Samsung 1 uF 50 V X5R 0603",
@@ -142,13 +129,6 @@
       "basis": "Panasonic ERA-3A 0.1 %; RTD unit BOM",
       "lcsc": "C190610",
       "jlc_stock_2026_10_08": 74539
-    },
-    "ERA-3AEB1652V": {
-      "origin": "ported: zapote/rtd (RTDSensing)",
-      "basis": "Panasonic ERA-3A 0.1 %; RTD unit BOM",
-      "lcsc": "C2074586",
-      "jlc_stock_2026_10_08": 0,
-      "procurement": "JLC stock 0 on 2026-10-08: order from TI/distributor or consign"
     },
     "ERA-3AEB5901V": {
       "origin": "ported: zapote/rtd (RTDSensing)",
@@ -289,12 +269,6 @@
       "lcsc": "C99782",
       "jlc_stock_2026_10_08": 9524530
     },
-    "RC0603FR-078K06L": {
-      "origin": "ported: zapote/thermal-sense",
-      "basis": "Yageo RC_L; thermal-sense BOM",
-      "lcsc": "C131052",
-      "jlc_stock_2026_10_08": 163
-    },
     "RC0603FR-079K09L": {
       "origin": "ported: zapote/thermal-sense",
       "basis": "Yageo RC_L; thermal-sense BOM",
@@ -324,13 +298,6 @@
       "basis": "TI REF20xx; RTD unit BOM",
       "lcsc": "C962078",
       "jlc_stock_2026_10_08": 5205
-    },
-    "RG2012V-431-W-T1": {
-      "origin": "ported: zapote/rtd (RTDSensing)",
-      "basis": "Susumu RG2012 430 ohm 0.05 %; RTD unit BOM",
-      "lcsc": "C4260028",
-      "jlc_stock_2026_10_08": 0,
-      "procurement": "JLC stock 0 on 2026-10-08: order from TI/distributor or consign"
     },
     "RT0603BRD0710KL": {
       "origin": "controller (new)",
@@ -548,8 +515,39 @@
     "B2P-VH(LF)(SN)": {
       "origin": "controller (stage 16 J13, PS3 blower feed, C33)",
       "basis": "JST eVH.pdf p.1 (10 A AWG16 / 7 A AWG18 shrouded, 250 V, 16.5 mm mounting height) and p.3 (B2P-VH 7.86 x 8.5 mm)",
-      "lcsc": "C20571196",
-      "lcsc_basis": "power-stage PLAN-16 sec. 3 (stage16 JLC lookup, 2026-10-12); not re-queried by this session"
+      "lcsc": "C160315",
+      "lcsc_basis": "C35: C20571196 not found at JLC; same MPN is C160315 (JLC 283,039 in stock 2026-10-12, evidence/fab-loose-ends/consignment/)",
+      "jlc_stock_2026_10_12": 283039
+    },
+    "RT0603BRD078K06L": {
+      "origin": "controller C35 (R31 swap, was RC0603FR-078K06L C131052 stock 3)",
+      "basis": "Yageo RT series: ordering code RT0603 B(0.1 %) R D(25 ppm/C) 07 8K06 L = 8.06 kOhm; LCSC C861587 '8.06k 100mW 75V thin film +/-25ppm +/-0.1% 0603'; TCR 25 <= 100 ppm; datasheet read 2026-10-12, not committed",
+      "lcsc": "C861587",
+      "jlc_stock_2026_10_12": 2718
+    },
+    "RT0603BRD0716K5L": {
+      "origin": "controller C35 (R53 swap, was ERA-3AEB1652V)",
+      "basis": "Yageo RT 16.5 k 0.1 % 25 ppm 0603 0.1 W; LCSC C728584 (consignment sheet)",
+      "lcsc": "C728584",
+      "jlc_stock_2026_10_12": 18103
+    },
+    "RT0805BRD07430RL": {
+      "origin": "controller C35 (R39 swap, was RG2012V-431-W-T1 0.05 %)",
+      "basis": "Yageo RT 430 R 0.1 % 25 ppm 0805; LCSC C865488; 0.05 % lost, about 0.13-0.26 C over 0-250 C (DECISIONS C35)",
+      "lcsc": "C865488",
+      "jlc_stock_2026_10_12": 656
+    },
+    "74HC30PW,118": {
+      "origin": "controller C35 (U22 swap, was CD74HC30PWR)",
+      "basis": "Nexperia 74HC30PW TSSOP-14, same 8-input NAND pinout as CD74HC30; LCSC C546857",
+      "lcsc": "C546857",
+      "jlc_stock_2026_10_12": 144
+    },
+    "AD8436ARQZ-R7": {
+      "origin": "controller C35 (U14 swap, was AD8436BRQZ C652840 stock 0)",
+      "basis": "ADI AD8436 A grade, RQ-20 pin-identical; larger initial gain error trimmed by COMMISSIONING step 1 (DECISIONS C35, evidence/rms-alternatives/)",
+      "lcsc": "C495329",
+      "jlc_stock_2026_10_12": 106
     }
   }
 }

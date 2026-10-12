@@ -101,17 +101,18 @@ def main():
     recs = []
     for row in cpl:
         ref = row["Designator"]
-        rot = float(row["Rotation"]) % 360
         b = bom[ref]
         fp = fps[ref]
+        # Input rotation is the board's KiCad rotation, so the audit is idempotent once fab.py has folded the
+        # corrections into the CPL (the CPL value is then KiCad + offset, compared in cpl_vs_proposed below).
+        rot = fp["rot"] % 360
+        cpl_rot = float(row["Rotation"]) % 360
         fpname = fp["name"].split(":")[-1]
         dbrule = db_lookup(rules, fpname)
         d = None if dbrule is None else dbrule["rot"] % 360
         e = ee.get(b["LCSC Part #"])
         c, rms, gstat = (None, {}, "no EasyEDA footprint data") if not e else geometry(fp["pads"], e["pads"])
         notes = []
-        if abs((fp["rot"] % 360) - rot) > 0.01:
-            notes.append("CPL rotation %.1f differs from board footprint rotation %.1f" % (rot, fp["rot"] % 360))
         if fp["layer"] != "F.Cu":
             notes.append("not on top layer")
         sym = is_symmetric_nonpolar(ref, fpname, len(fp["pads"]))
@@ -155,7 +156,7 @@ def main():
             centroid = (round(sum(p["x"] for p in kp) / len(kp), 3), round(sum(p["y"] for p in kp) / len(kp), 3))
         recs.append({
             "ref": ref, "mpn": b["Manufacturer Part Number"], "lcsc": b["LCSC Part #"], "kicad_footprint": fpname,
-            "mount": row["Mount"], "rot_in": rot, "db_pattern": dbrule and dbrule["pattern"], "db_offset": d,
+            "mount": row["Mount"], "rot_in": rot, "cpl_rot": cpl_rot, "db_pattern": dbrule and dbrule["pattern"], "db_offset": d,
             "geom_offset": c, "geom_rms_mm": {str(k): round(v, 3) for k, v in rms.items()}, "geom_status": gstat,
             "symmetric_nonpolar": sym, "class": cls, "applied_offset": corr, "rot_proposed": new_rot,
             "basis": basis, "candidate_rotations": cand, "notes": notes, "kicad_pad_centroid_mm": centroid})
@@ -170,6 +171,7 @@ def main():
                                "pass": all(r["db_offset"] == 270 and r["class"] in ("CORRECTED", "NEEDS-PREVIEW") for r in sot)},
     }
     json.dump({"meta": {"cpl": str(CPL.relative_to(CTRL)), "cpl_lines": len(cpl),
+                         "cpl_lines_equal_to_proposed": sum(1 for r in recs if abs(r["cpl_rot"] - r["rot_proposed"] % 360) < 0.01),
                         "db_sha256": hashlib.sha256(db_bytes).hexdigest(), "db_rules": len(rules),
                         "counts": dict(collections.Counter(r["class"] for r in recs)), "controls": controls},
                "rules_used": sorted({r["db_pattern"] for r in recs if r["db_pattern"]}),

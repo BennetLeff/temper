@@ -109,8 +109,8 @@ MODELS: dict[str, Model] = {
     "SN74LVC14ADR": _ic([14], [7], ins=[1, 3, 5, 9, 11, 13], outs=[2, 4, 6, 8, 10, 12], ma=0.040,
                         basis="SCAS285AC: ICC 40 uA (-40..125 C)",
                         logic="inv:1>2;inv:3>4;inv:5>6;inv:9>8;inv:11>10;inv:13>12"),
-    "CD74HC30PWR": _ic([14], [7], ins=[1, 2, 3, 4, 5, 6, 11, 12], outs=[8], other=[9, 10, 13], ma=0.020,
-                       basis="SCHS121E: ICC 20 uA (-40..85 C, 6 V)", logic="nand:1,2,3,4,5,6,11,12>8"),
+    "74HC30PW,118": _ic([14], [7], ins=[1, 2, 3, 4, 5, 6, 11, 12], outs=[8], other=[9, 10, 13], ma=0.020,
+                       basis="Nexperia 74HC30 (C35 swap for CD74HC30PWR, same pin table): ICC 20 uA (-40..85 C, 6 V), the SCHS121E budget", logic="nand:1,2,3,4,5,6,11,12>8"),
     "SN74LVC1G74DCUR": _ic([8], [4], ins=[1, 2, 6, 7], outs=[3, 5], ma=0.010,
                            basis="SCES794G: ICC 10 uA", logic="dff"),
     "TPS3823-33DBVR": _ic([5], [2], ins=[3, 4], outs=[1], ma=0.025,
@@ -130,7 +130,7 @@ MODELS: dict[str, Model] = {
                           3.5 + 0.4 + 5.75, "MAX31865 DS: IDD 3.5 mA + 0.4 mA (input > ref) + BIAS IOUT 5.75 mA max"),
     "2N7002": Model({"1": "in", "2": "gnd", "3": "other"}, 0.0, "CJ 2N7002"),
     # follow-up 2026-10-08: tank RMS channel, external ADC
-    "AD8436BRQZ": Model({"1": "other", "2": "other", "3": "in", "4": "out", "5": "in", "6": "in", "7": "other",
+    "AD8436ARQZ-R7": Model({"1": "other", "2": "other", "3": "in", "4": "out", "5": "in", "6": "in", "7": "other",
                          "8": "other", "9": "gnd", "10": "out", "11": "gnd", "12": "other", "13": "in",
                          "14": "in", "15": "out", "16": "vcc", "17": "vcc", "18": "vcc", "19": "other",
                          "20": "other"}, 0.0,
@@ -665,7 +665,7 @@ def check_ct_rms(rep: Report, nl: Netlist, calcs: dict) -> None:
 
     def caps_between(a, b):
         return [r for r in nl.refs if r.startswith("C") and ends(r) == {a, b}]
-    rms = [r for r, m in nl.mpn.items() if m == "AD8436BRQZ"]
+    rms = [r for r, m in nl.mpn.items() if m == "AD8436ARQZ-R7"]
     adc = [r for r, m in nl.mpn.items() if m == "MCP3202-CI/SN"]
     rep.check("ct_rms", "one_rms_converter_and_one_external_adc", len(rms) == 1 and len(adc) == 1, rms + adc)
     if len(rms) != 1 or len(adc) != 1:

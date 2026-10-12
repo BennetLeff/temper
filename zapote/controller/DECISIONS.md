@@ -484,7 +484,7 @@ These are layout inputs (output/temper-manufacturing-r28/design/r28/CONTROLLER-S
 - **Holes:** (−164, 18), (−164, 80), (−65, 18), (−75, 86), (34, 18), (26, 74). `controller_calcs.landings()` was re-checked; verify PASS.
 
 ## C35. Prototype-lot sourcing swaps (2026-10-12; evidence `evidence/fab-loose-ends/consignment/`, JLC/LCSC stock read 2026-10-12)
-To apply to the BOM after the C34 layout stage lands; none changes a footprint or a net.
+Applied by C36. None changes a footprint or a net.
 - **R53** ERA-3AEB1652V (0 stock) → **RT0603BRD0716K5L** (C728584): 16.5 k, 0.1 %, ±25 ppm, 0603, 0.1 W; drop-in.
 - **U22** CD74HC30PWR (2 in stock) → **74HC30PW,118** (C546857): the same TSSOP-14 pinout and 2–6 V HC family. The interlock validator's exact-MPN check gets a waiver line.
 - **R31** RC0603FR-078K06L (3 in stock) → **C861587** (8.06 k 1 % 0603). The match rests on parametric data only, so read the datasheet before applying.
@@ -503,3 +503,21 @@ To apply to the BOM after the C34 layout stage lands; none changes a footprint o
   - Found on the way, applies to every option: the 13–14-slot half-cycle estimator scatters −2.95 to +1.14 % with slot phase (from code reading), and a stuck-low RMS is not detected today. Both are firmware fixes.
 - **CPL:** 15 rotations are corrected in `cpl-jlcpcb.proposed.csv`. Fold them into the fab output with the C34 regeneration, after re-auditing any part C34 moves. The 37 NEEDS-PREVIEW lines are checked in JLC's preview, one designator per LCSC code.
 - **J4 drawing:** Molex 43045-1600 sales drawing still unread (molex.com refuses this network); `evidence/fab-loose-ends/j4/j4-interface.svg` is the interface drawing; the height and −X overhang stay [UNVERIFIED] until the owner fetches the drawing.
+
+## C36. C35 sourcing swaps applied, CPL rotations folded (2026-10-12, branch controller-release; evidence `evidence/release-proto/`)
+Applied on the C34 board without a re-route: `layout/refresh_parts.py` re-stamps the Value/MPN fields from `frozen/`, and `evidence/release-proto/geom_hash.py` shows footprint, pad, track, via, zone-fill and drawing hashes identical before and after. No footprint, net or copper changed. The block validators were not re-run (no Rust build); their expected exact-MPN findings are pre-waived in `evidence/block-validators/WAIVERS.md` (W2 note, W6).
+
+| Ref | Was (LCSC) | Now (LCSC) | Where |
+|---|---|---|---|
+| R53 | ERA-3AEB1652V (C2074586) | RT0603BRD0716K5L (C728584) | `controller.ato` `rtd_pan.r_avdd_top.mpn` |
+| U22 | CD74HC30PWR (C2866074) | 74HC30PW,118 (C546857) | `controller.ato` `interlock.aggregate.mpn` |
+| R31 | RC0603FR-078K06L (C131052) | RT0603BRD078K06L (C861587) | `controller.ato` `thermal.hs_bottom.mpn` |
+| J13 | B2P-VH(LF)(SN) (C20571196) | same MPN, C160315 | `bom/controller-parts.json` |
+| R39 | RG2012V-431-W-T1 (C4260028) | RT0805BRD07430RL (C865488), 0.1 % | `controller.ato` `rtd_pan.r_ref.mpn`/`.value` |
+| U14 | AD8436BRQZ (C652840) | AD8436ARQZ-R7 (C495329) | `controller_parts.ato` `Ad8436Rq.mpn` |
+
+- **R31 datasheet check:** the Yageo RT series datasheet (ordering-code table) decodes RT0603 B R D 07 8K06 L as 8.06 kOhm, 0.1 %, D = 25 ppm/C, 0603, 0.1 W; LCSC C861587 reads "8.06k 100mW 75V thin film +/-25ppm +/-0.1% 0603". 25 ppm is within the 100 ppm limit. The only datasheet reachable here was the 2004 series issue (Yageo's own site 404s from this network), so the per-part TCR rests on that code table plus the LCSC listing; stock 2,718 at JLC.
+- Library copies (`modules.ato`, `interlock_block.ato`, `thermal_block.ato`) stay byte-identical: the swaps are overrides in `controller.ato`; only `Ad8436Rq` (a controller-owned part) changed in place. `thermal_block.ato`'s own `coil_bottom` default (8.06 k, old MPN) is overridden by the controller to 7.06 k, so R31 (`hs_bottom`) is the only 8.06 k part.
+- `verify_controller.py`: HC30 and AD8436 models are keyed by the new MPNs (same pin tables and budgets); VERIFY PASS, 33/33 mutation tests.
+- **CPL:** `CPL_ROTATION_OFFSET` in `layout/fab.py` (keyed by LCSC code) folds the 15 audited corrections (U5-U9, U15, U20-U24, U30, U36, U38, U39) into `fab/cpl-jlcpcb.csv`; `fab/cpl-jlcpcb.csv` equals the audit's proposed CPL. The audit was re-run on the C34 board (it moved C31, C18, C51, R43-R45, all symmetric passives, class OK): 197 OK / 15 CORRECTED / 36 NEEDS-PREVIEW (the old 37 included J13, now resolved by the new code). `audit.py` now reads the KiCad rotation from the board so re-running it after the fold is idempotent. The 36 NEEDS-PREVIEW lines are in `fab/fab-notes.md`.
+- **New fab hashes:** frozen netlist sha256 `2f5c40d238bed1f67dfe88a3701d25ba4480784209620a033c7ddc5614d98d1f`; `fab/controller-gerbers.zip` sha256 `9331ee6de5c5e192f582c8d0f38cbce5e7a00d2b60313f38b4fb09085d61938d` (the Gerber files differ from C34 only in their creation-date lines); `fab/bom-jlcpcb.csv` `ca5aa070...`; `fab/cpl-jlcpcb.csv` `b575b4d5...`. Gates: DRC 0 errors / 0 unconnected / parity 0, DFM PASS, layout check 12/12, fab review PASS.

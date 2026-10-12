@@ -59,12 +59,14 @@ def main():
     raw = pathlib.Path(a.raw_dir)
     raw.mkdir(parents=True, exist_ok=True)
     codes = sorted({r["LCSC Part #"] for r in csv.DictReader(open(BOM))})
+    # keep already-distilled footprints (the raw JSON is never committed); fetch only what is missing
+    prev = json.load(open(a.out)) if os.path.exists(a.out) else {}
+    out = {c: prev[c] for c in codes if c in prev}
     if a.fetch:
-        fetch(raw, codes)
-    out = {}
+        fetch(raw, [c for c in codes if c not in out])
     for c in codes:
         p = raw / f"{c}.json"
-        if p.exists() and p.stat().st_size > 1000:
+        if c not in out and p.exists() and p.stat().st_size > 1000:
             out[c] = distil(p)
     json.dump(out, open(a.out, "w"), indent=1, sort_keys=True)
     print(len(out), "of", len(codes), "footprints distilled ->", a.out)

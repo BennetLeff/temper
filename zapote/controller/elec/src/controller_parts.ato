@@ -392,7 +392,7 @@ component Ad8436Rq:
     IBUFIN+6 IBUFGN7 DNC8 OGND9 OUT10 VEE11 IGND12 OBUFIN+13 OBUFIN-14 OBUFOUT15
     OBUFV+16 IBUFV+17 VCC18 CCF19 CAVG20."""
     designator_prefix = "U"
-    mpn = "AD8436BRQZ"
+    mpn = "AD8436ARQZ-R7"   # C35: A grade (C495329, 106 in stock) for the prototype lot; was AD8436BRQZ (C652840, 0 stock)
     manufacturer = "Analog Devices"
     footprint = "Package_SO:QSOP-20_3.9x8.7mm_P0.635mm"
     signal SUM ~ pin 1

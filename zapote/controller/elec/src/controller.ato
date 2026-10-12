@@ -520,6 +520,10 @@ module SelvController:
     rtd_pan.power.vcc ~ v3v3
     rtd_pan.power.gnd ~ selv_gnd
     rtd_pan.rail_monitor.RESET ~ rtd_rail_ok
+    # C35 prototype-lot sourcing swaps (no footprint or net change; the library copy stays byte-identical)
+    rtd_pan.r_avdd_top.mpn = "RT0603BRD0716K5L"   # R53: ERA-3AEB1652V (0 stock) -> C728584, 16.5 k 0.1 % 25 ppm
+    rtd_pan.r_ref.value = 430ohm +/- 0.1%
+    rtd_pan.r_ref.mpn = "RT0805BRD07430RL"        # R39: RG2012V-431-W-T1 0.05 % (0 stock) -> C865488, 0.1 % 25 ppm
     rtd_pan.fb_power.p2.override_net_name = "RTD_AVDD"
     signal rtd_cs_n
     signal rtd_sck
@@ -539,6 +543,7 @@ module SelvController:
 
     # ================================================================ interlock
     interlock = new InterlockUnit
+    interlock.aggregate.mpn = "74HC30PW,118"      # U22: CD74HC30PWR (2 in stock) -> C546857, same TSSOP-14 pinout
     interlock.vcc ~ v3v3
     interlock.gnd ~ selv_gnd
     # Fault inputs (active high, 10 k pull-ups inside the block)
@@ -1406,7 +1411,7 @@ module SelvController:
     thermal.hs_top.value = 11.5kohm +/- 1%
     thermal.hs_top.mpn = "RC0603FR-0711K5L"
     thermal.hs_bottom.value = 8.06kohm +/- 1%
-    thermal.hs_bottom.mpn = "RC0603FR-078K06L"
+    thermal.hs_bottom.mpn = "RT0603BRD078K06L"   # C35: C131052 stock 3 -> C861587 (8.06 k 0.1 %, 25 ppm)
     #   coil (100 k / 300 C glass NTC, Semitec 104GT-2 class, 10 k pull-up): trip 175.7 C / release 152.4 C
     thermal.coil_top.value = 90.9kohm +/- 0.1%
     thermal.coil_top.mpn = "RT0603BRD0790K9L"

@@ -54,6 +54,10 @@ validator's constants are the standalone unit's 85 / 120 °C trips; the controll
 `verify_controller.py` section `thermal` (11/11, with a mutation test). Updating the unit contract is a
 change request to `zapote/thermal-sense` (C32).
 
+*C36 note:* `hs_bottom` (R31) is now RT0603BRD078K06L (Yageo RT 8.06 k 0.1 %, 25 ppm, LCSC C861587) instead of
+RC0603FR-078K06L; same value, 0603 footprint and net, so the 64-corner trip bands are unchanged (the 1 % tolerance
+in `thermal_trips()` bounds the tighter part). The exact-MPN finding for `hs_bottom` stays waived under W2.
+
 ## W3. RTD_DRDY is on the TCA9555 expander, not a GPIO (2 findings)
 
 `ERC.RTD.FIRMWARE_GPIO_CORRESPONDENCE` ("RTD_DRDY uses GPIO 65535; GPIO 9 is source-defined") and
@@ -104,3 +108,17 @@ Identical to each unit's own standalone control (`results/control-standalone-*.j
 (device applicability across the monitor rail, beta extrapolation, connector / mounting / harness,
 power-off), RTD 2 (`ERC.RTD.FAULT_CORNERS` brownout timing not measured; `ERC.RTD.MODEL_DEVICE_APPLICABILITY`).
 They are open by the validators' design (physical tests and device qualification), not layout findings.
+
+## W6. Prototype-lot sourcing swaps (C35/C36): exact-MPN findings on 74HC30PW,118 and the RTD resistors
+
+Validators were **not re-run** for C36 (no Rust workspace build in that session). Expected new findings, waived
+here in advance and to be confirmed on the next validator run:
+
+- `ERC.INTERLOCK.PARTS` exact MPN for `aggregate` (U22): the unit contract names CD74HC30PWR (TI); the
+  controller fits **74HC30PW,118** (Nexperia, LCSC C546857) because CD74HC30PWR had 2 in stock at JLC on
+  2026-10-12. Same 8-input NAND, same TSSOP-14 pinout and 2-6 V HC family; the footprint, the net list and
+  `verify_controller.py`'s HC30 model (pin table identical, 20 uA budget kept) are unchanged. 
+- Any RTD `PARTS`-type exact-MPN finding for `r_avdd_top` (R53: ERA-3AEB1652V -> RT0603BRD0716K5L, same
+  16.5 k 0.1 % 25 ppm 0603) and `r_ref` (R39: RG2012V-431-W-T1 0.05 % -> RT0805BRD07430RL 0.1 % 25 ppm, 0805;
+  about 0.13-0.26 C more PT100 error over 0-250 C, DECISIONS C35). The 10 / 300 ohm fault thresholds are unaffected.
+- No validator, contract or unit profile was edited.

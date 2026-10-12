@@ -3,7 +3,7 @@
   "inputs": {
     "native21_commit": "7c55c9ab81260b396be266861a0f0e8a42f96a5f",
     "netlist": "frozen/default.net",
-    "netlist_sha256": "305b209a80737e8ea63a11e4ee12df23e8bfde05f0a372b7f92d4f3f46185332"
+    "netlist_sha256": "2f5c40d238bed1f67dfe88a3701d25ba4480784209620a033c7ddc5614d98d1f"
   },
   "schema": "temper.controller.verify.v1",
   "sections": {
@@ -2423,7 +2423,7 @@
             "ref": "U21"
           },
           {
-            "basis": "CD74HC30PWR: SCHS121E: ICC 20 uA (-40..85 C, 6 V)",
+            "basis": "74HC30PW,118: Nexperia 74HC30 (C35 swap for CD74HC30PWR, same pin table): ICC 20 uA (-40..85 C, 6 V), the SCHS121E budget",
             "board": "controller",
             "mA": 0.02,
             "path": "interlock.aggregate",

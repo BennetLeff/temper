@@ -60,7 +60,7 @@ python3 tools/snapshot_native21.py # re-derive inputs/native-21 from git (read-o
 - **Warnings:** the build emits only atopile's "Implicit Declaration" deprecation warnings for `override_net_name`, the same as the thermal-sense build.
 - **Part identity:** it comes from `resolved-components.json` or the CSV, never from the netlist's `libsource` field. Atopile 0.2.69 aliases parts by footprint there; see the power-stage README.
 
-**Current result** (frozen netlist sha256 `305b209a…`; 248 components): `VERIFY: PASS` (182 checks), and 33/33 mutation tests pass.
+**Current result** (frozen netlist sha256 `2f5c40d2…`; 248 components): `VERIFY: PASS` (182 checks), and 33/33 mutation tests pass.
 
 | Section | Checks | What is asserted |
 |---|---|---|

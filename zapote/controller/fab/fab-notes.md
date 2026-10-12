@@ -8,11 +8,43 @@
 - **Coordinates:** Gerbers/drill in KiCad's plot frame. World (appliance) mm: X = kx - 58,
   Y = 110 - ky = 110 + (Gerber Y). Board lower-left corner = world (-38, 14) = Gerber (20, -96).
 - **Assembly:** all parts on the top side. BOM lines 83, placements 248
-  (11 THT). CPL rotations are KiCad's; check each package in JLC's
-  placement preview (JLC's zero orientation differs for some footprints).
+  (11 THT). CPL rotations are KiCad's plus the audited JLC offset
+  (`CPL_ROTATION_OFFSET` in layout/fab.py; evidence/fab-loose-ends/cpl-rotation): 15 lines corrected
+  (U5, U6, U7, U8, U9, U15, U20, U21, U22, U23, U24, U30, U36, U38, U39).
+- **NEEDS-PREVIEW (owner checks these in JLC's placement preview before paying; one designator per LCSC code
+  is enough, the rest of the code follows; the CPL carries KiCad's rotation for them):**
+  - C10096 SN74LVC1G32DBVR (SOT-23-5): U27, U28
+  - C105188 TLV3201AIDBVR (SOT-23-5): U10, U17, U18, U31, U32
+  - C144395 B4B-XH-A(LF)(SN) (JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical): J3
+  - C158012 B2B-XH-A(LF)(SN) (JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical): J1, J2, J12
+  - C158027 B12B-XH-A(LF)(SN) (JST_XH_B12B-XH-A_1x12_P2.50mm_Vertical): J7
+  - C178539 EEE-FK1E101P (CP_Elec_8x6.2): C1, C9
+  - C1850327 TPS3703A4330DSERQ1 (WSON-6_1.5x1.5mm_P0.5mm): U3
+  - C277731 0430451600 (Molex_Micro-Fit_3.0_43045-1600_2x08_P3.00mm_Horizontal): J4
+  - C2867465 TLV76050DBZR (SOT-23): U16
+  - C2867613 SN74LVC1G38DBVR (SOT-23-5): U35
+  - C29777121 TLV9031DBVR (SOT-23-5): U19, U26
+  - C3200405 TPS62933DRLR (SOT-583-8): U2
+  - C495329 AD8436ARQZ-R7 (QSOP-20_3.9x8.7mm_P0.635mm): U14
+  - C5219272 TPS62933FDRLR (SOT-583-8): U1
+  - C61148 ESD5Z3.3T1G (D_SOD-523): D1, D2, D3
+  - C6400764 61300811121 (PinHeader_1x08_P2.54mm_Vertical): J11
+  - C7666 SN74LVC1G08DBVR (SOT-23-5): U11, U25, U33, U37
+  - C7835 SN74LVC1G14DBVR (SOT-23-5): U12
+  - C83574 BAT54S-7-F (SOT-23): D4
+  - C8545 2N7002 (SOT-23): Q1
+  - C9421 LM4040A25IDBZR (SOT-23): U13
+  - C962078 REF2025AIDDCR (SOT-23-5): U29
 - **LCSC numbers:** from bom/controller-parts.json; missing: none.
-- **Consign / stock:** stock 0 (JLC 2026-10-08, or LCSC 2026-10-10 for the R33 parts): ['AD8436BRQZ', 'ERA-3AEB1652V', 'RG2012V-431-W-T1']; stock below 10x the quantity:
-  ['CD74HC30PWR'] (DECISIONS open item 7).
+- **Consign / stock:** nothing is consigned for the 2-board prototype lot after the C35/C36 swaps. Stock 0
+  (JLC 2026-10-08, swapped parts 2026-10-12): none; stock below 10x the quantity:
+  none (DECISIONS open item 7).
+- **Sourcing swaps (DECISIONS C35/C36):** R53 RT0603BRD0716K5L (C728584), U22 74HC30PW,118 (C546857),
+  R31 RT0603BRD078K06L (C861587), J13 code C160315 (same MPN), R39 RT0805BRD07430RL (C865488, 0.1 % instead
+  of 0.05 %), U14 AD8436ARQZ-R7 (C495329).
+- **U14 is the AD8436 A grade (ARQZ), not the B grade:** its larger initial gain error is removed by the
+  COMMISSIONING step-1 trim; the converter's worst case is -1.5 to +0.8 %, inside the +/-3 % criterion.
+  Production direction (DECISIONS C35): delete U14, U15 and the buffers and compute tank RMS from the CT_MON ADC1 path.
 - **J11** (debug header) may be left unfitted in production.
 - **U4** is the ESP32-S3-WROOM-1U-N8 (enclosure R33): the 150 mm U.FL coax and the chip-antenna board are
   separate items, not on this board's BOM.

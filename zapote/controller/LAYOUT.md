@@ -233,7 +233,7 @@ What changed from L2, where three of four runs closed:
      - Insertion depth isn't on the catalog page. The conservative bound (zero insertion) puts the plug end at X ≥ −52.0, against the enclosure's X−50.
      - The enclosure either allows X−52 plus wire bend room, or the 430251600_sd product drawing is needed.
 8. **CPL rotations:** KiCad's rotations are written as-is; check each package in JLC's placement preview before ordering.
-9. **Consigned / low-stock parts** (DECISIONS open item 7): AD8436BRQZ (JLC stock 0) and the near-zero-stock ported parts; `fab/fab-notes.md` lists them.
+9. **Consigned / low-stock parts** (DECISIONS open item 7): none after the C35/C36 sourcing swaps (R31, R39, R53, U14 A grade, U22; J13 code fix); `fab/fab-notes.md` lists the swaps and the NEEDS-PREVIEW CPL lines. Fab ZIP sha256 `9331ee6d…`, frozen netlist `2f5c40d2…` (DECISIONS C36).
 10. **Long lines:** RUN_EN and the RTD trip inputs cross most of the board (Interlock trip path). All fail safe on a break; a bench noise check on them is worth adding.
 11. **In2 use:** In2 carries some signal tracks where F/B were full; the v3v3 pour refills around them, and `plane_islands.py` re-joins any v3v3 island; DRC shows v3v3 as one connected net.
 12. **Firmware pins.h:** RUN_EN 14; RTD_DRDY expander P07; SUP_RUN_OK expander P14; FAN_OFF expander P15; BLW_PG expander P16 (input, 1 = PS3 present); FAN_PWM GPIO46 (feedback injection, duty 0 = full speed); FAN_TACH (J10 FG) GPIO3 (PCNT); UI SPI 40/41/44/47/48/45; I²C SDA 37 / SCL 0; RIM_ADC 9.
