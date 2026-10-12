@@ -15,6 +15,8 @@
  *    installed.
  *  - The expander is polled by the control task (ctrl_board_poll_expander, every 10 ms). Readers in
  *    other tasks take a copy of the cache; a failed or stale read is "not ok" for every consumer.
+ *    BLW_PG (P16, C33) is debounced on each poll (ctrl_blw_pg_update) and kept in the cache; a
+ *    failed read makes it UNKNOWN (ctrl_exp_blw_pg() also returns UNKNOWN for a stale snapshot).
  *  - L3 blower (DECISIONS C28): LEDC on GPIO46 (duty 0 = full speed; the channel is configured at
  *    duty 0 and every failure stops it at idle level 0), PCNT on GPIO3 (FG rising edges), and
  *    expander P15 FAN_OFF (latch written 0 = on before the pin becomes an output). The speed and
@@ -36,6 +38,7 @@ static i2c_master_bus_handle_t s_i2c_bus;
 static i2c_master_dev_handle_t s_exp;
 static portMUX_TYPE s_exp_mux = portMUX_INITIALIZER_UNLOCKED;
 static ctrl_exp_cache_t s_exp_cache;
+static ctrl_blw_pg_debounce_t s_blw_pg; /* zero = UNKNOWN; owned by the polling (control) task */
 static bool s_pins_ok;
 static ctrl_run_en_t s_run_en;
 static portMUX_TYPE s_run_en_mux = portMUX_INITIALIZER_UNLOCKED;
@@ -178,12 +181,17 @@ bool ctrl_board_poll_expander(void)
     uint64_t now = (uint64_t)esp_timer_get_time();
     portENTER_CRITICAL(&s_exp_mux);
     /* A failed read keeps the last snapshot and its time stamp, so one bus glitch is tolerated
-     * and a sustained failure ages out past CTRL_EXP_MAX_AGE_US (consumers then read "not ok"). */
+     * and a sustained failure ages out past CTRL_EXP_MAX_AGE_US (consumers then read "not ok").
+     * BLW_PG (C33) is stricter: a failed read makes it UNKNOWN at once (never "present") and it
+     * needs CTRL_BLW_PG_DEBOUNCE_POLLS good reads to return. */
+    uint16_t raw = (uint16_t)(rx[0] | (rx[1] << 8));
+    ctrl_blw_pg_t pg = ctrl_blw_pg_update(&s_blw_pg, ok, raw);
     if (ok) {
-        s_exp_cache.raw = (uint16_t)(rx[0] | (rx[1] << 8));
+        s_exp_cache.raw = raw;
         s_exp_cache.t_us = now;
         s_exp_cache.valid = true;
     }
+    s_exp_cache.blw_pg = pg;
     portEXIT_CRITICAL(&s_exp_mux);
     return ok;
 }

@@ -150,7 +150,38 @@ ctrl_exp_inputs_t ctrl_exp_decode(uint16_t raw)
         .hs_fault = (raw & CTRL_EXP_BIT(CTRL_EXP_HS_FAULT_RB)) != 0,
         .coil_fault = (raw & CTRL_EXP_BIT(CTRL_EXP_COIL_FAULT_RB)) != 0,
         .sup_run_ok = (raw & CTRL_EXP_BIT(CTRL_EXP_SUP_RUN_OK_RB)) != 0,
+        .blw_pg = (raw & CTRL_EXP_BIT(CTRL_EXP_BLW_PG)) != 0,
     };
+}
+
+void ctrl_blw_pg_init(ctrl_blw_pg_debounce_t *d)
+{
+    memset(d, 0, sizeof *d);
+    d->state = CTRL_BLW_PG_UNKNOWN;
+}
+
+ctrl_blw_pg_t ctrl_blw_pg_update(ctrl_blw_pg_debounce_t *d, bool read_ok, uint16_t raw)
+{
+    if (!d) return CTRL_BLW_PG_UNKNOWN;
+    if (!read_ok) {
+        ctrl_blw_pg_init(d); /* never "present" (nor "absent") on a bus we cannot read */
+        return d->state;
+    }
+    bool level = (raw & CTRL_EXP_BIT(CTRL_EXP_BLW_PG)) != 0;
+    if (d->run == 0u || level != d->last_level) {
+        d->last_level = level;
+        d->run = 1u;
+    } else if (d->run < 0xFFu) {
+        d->run++;
+    }
+    if (d->run >= CTRL_BLW_PG_DEBOUNCE_POLLS)
+        d->state = level ? CTRL_BLW_PG_PRESENT : CTRL_BLW_PG_ABSENT;
+    return d->state;
+}
+
+ctrl_blw_pg_t ctrl_exp_blw_pg(const ctrl_exp_cache_t *c, uint64_t now_us, uint64_t max_age_us)
+{
+    return ctrl_exp_fresh(c, now_us, max_age_us) ? c->blw_pg : CTRL_BLW_PG_UNKNOWN;
 }
 
 bool ctrl_exp_fresh(const ctrl_exp_cache_t *c, uint64_t now_us, uint64_t max_age_us)

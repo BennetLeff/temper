@@ -392,12 +392,59 @@ uint32_t blower_ledc_counts(float duty, unsigned res_bits)
     return (uint32_t)lroundf(clamp01(duty) * full);
 }
 
+/* ---------------------------------------------------------------- blower supply (C33) */
+void blw_pg_plaus_init(blw_pg_plaus_t *p) { memset(p, 0, sizeof *p); }
+
+blower_supply_t blw_pg_plaus_update(blw_pg_plaus_t *p, blower_supply_t pg, float tach_rpm,
+                                    uint32_t now_ms)
+{
+    bool turning = tach_rpm >= BLOWER_STALL_RPM; /* NaN: no tach, no contradiction */
+    bool contra = pg == BLOWER_SUPPLY_ABSENT && turning;
+    if (!contra) {
+        p->contra = false;
+    } else if (!p->contra) {
+        p->contra = true;
+        p->contra_since_ms = now_ms;
+    } else if (now_ms - p->contra_since_ms > BLW_PG_PLAUS_TIME_MS) {
+        p->sense_fault = true;
+    }
+    return p->sense_fault ? BLOWER_SUPPLY_UNKNOWN : pg;
+}
+
+blower_diag_t blower_diagnose(bool stalled, blower_supply_t supply, bool turning)
+{
+    if (stalled) {
+        if (supply == BLOWER_SUPPLY_ABSENT) return BLOWER_DIAG_PS3_ABSENT;
+        if (supply == BLOWER_SUPPLY_PRESENT) return BLOWER_DIAG_BLOWER_FAILED;
+        return BLOWER_DIAG_STALL;
+    }
+    /* Not stalled: either undriven (fan law off) or turning. PS3 absent with the rotor still is a
+     * real "no cooling"; with it turning it is a pending plausibility contradiction, not a fault. */
+    if (supply == BLOWER_SUPPLY_ABSENT && !turning) return BLOWER_DIAG_PS3_ABSENT;
+    return BLOWER_DIAG_OK;
+}
+
+bool blower_start_permitted(blower_supply_t supply) { return supply != BLOWER_SUPPLY_ABSENT; }
+
 /* ---------------------------------------------------------------- blower controller */
 void blower_ctrl_init(blower_ctrl_t *c)
 {
     fan_law_init(&c->law);
     blower_tach_init(&c->tach);
     blower_stall_init(&c->stall);
+    blw_pg_plaus_init(&c->pg);
+    c->supply = BLOWER_SUPPLY_UNKNOWN;
+    c->diag = BLOWER_DIAG_OK;
+}
+
+void blower_ctrl_supply(blower_ctrl_t *c, blower_cmd_t *o, blower_supply_t blw_pg, uint32_t now_ms)
+{
+    float rpm = c->tach.rpm;
+    c->supply = blw_pg_plaus_update(&c->pg, blw_pg, rpm, now_ms);
+    c->diag = blower_diagnose(c->stall.stalled, c->supply, rpm >= BLOWER_STALL_RPM);
+    o->diag = c->diag;
+    o->blw_pg_sense_fault = c->pg.sense_fault;
+    o->start_permitted = blower_start_permitted(c->supply);
 }
 
 blower_cmd_t blower_ctrl_decide(blower_ctrl_t *c, float sink_c, float coil_c, bool fault, float dt_s)
@@ -410,6 +457,9 @@ blower_cmd_t blower_ctrl_decide(blower_ctrl_t *c, float sink_c, float coil_c, bo
     o.rpm = c->tach.rpm;
     o.power_cap_pct = c->law.tank_cap_pct;
     o.blower_failed = c->stall.stopped;
+    o.diag = c->diag;
+    o.blw_pg_sense_fault = c->pg.sense_fault;
+    o.start_permitted = blower_start_permitted(c->supply);
     return o;
 }
 

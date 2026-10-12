@@ -1,8 +1,8 @@
 {
   "branch": "controller-layout",
-  "commit": "4bed3716a8575b1b4745aab6bf1c8ba070365ca0",
-  "commit_subject": "controller layout L3: blower buck, NTC filters, thermal ladder; 3/3 closing runs",
+  "commit": "6e4cac49f20689ea87d3587be26a3697c3b5dcd4",
+  "commit_subject": "controller stage 16: blower buck fed from PS3 via J13 (V15_BLW), BLW_PG on P16",
   "path": "zapote/controller/elec/src/controller.ato",
-  "git_blob": "7809cc1c05d53cf9bd3d65088ad5446616ffaa1d",
-  "note": "Byte-exact copy, read by firmware/tools/check_controller_pinmap.py. Layout L3 head (pin map unchanged from the L3 schematic 7be305637; C31 rim 1.00 k pull-up and C32 trip resistors are not pin-map facts). Layout L2 (bdddaee88) differs only in GPIO46 (fan_off on L2, fan_pwm on L3) and expander P15 (fan_off, L3 only). Refresh: git show <commit>:<path> > controller.ato, then update commit, commit_subject and git_blob."
+  "git_blob": "69b30a296ee2280beab64b9910ac176e18eb36e4",
+  "note": "Byte-exact copy, read by firmware/tools/check_controller_pinmap.py. Stage 16 head (C33): the only pin-map change from layout L3 (4bed3716a) is expander P16 = blw_pg; V15_BLW / J13 are not pin-map facts. Layout L2 (bdddaee88) differs from L3 only in GPIO46 (fan_off on L2, fan_pwm on L3) and expander P15 (fan_off, L3 only). Refresh: git show <commit>:<path> > controller.ato, then update commit, commit_subject and git_blob."
 }

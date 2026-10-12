@@ -42,6 +42,7 @@ static struct {
     bool rim_cold_or_open;      /* rim node above the ADC range (cold) or open */
     bool rim_sensor_fault, coil_sensor_fault; /* last thermal_set_sensor_faults() */
     uint8_t thermal_cap_pct;    /* L3 coil derate + blower stall cap */
+    bool blower_start_permitted; /* stage 16 (C33): false = PS3 absent */
     float coil_temperature;     /* L3 coil NTC (Semitec 104GT-2) */
     
     /* Pan detection */
@@ -98,6 +99,7 @@ static struct {
     .rim_temperature = 25.0f,
     .rim_valid = true,
     .thermal_cap_pct = 100,
+    .blower_start_permitted = true,
     .coil_temperature = 25.0f,
     .pan_status = PAN_ABSENT,
     .button_start_pressed = false,
@@ -153,7 +155,12 @@ void mock_sm_reset(void) {
     mock_sm_state.rim_temperature = 25.0f;
     mock_sm_state.rim_valid = true;
     mock_sm_state.thermal_cap_pct = 100;
+    mock_sm_state.blower_start_permitted = true;
     mock_sm_state.coil_temperature = 25.0f;
+}
+
+void mock_sm_set_blower_start_permitted(bool permitted) {
+    mock_sm_state.blower_start_permitted = permitted;
 }
 
 void mock_sm_set_rim_temperature(float temp_c, bool valid) {
@@ -426,6 +433,10 @@ float read_coil_temperature(void) {
 
 uint8_t thermal_power_cap_pct(void) {
     return mock_sm_state.thermal_cap_pct;
+}
+
+bool thermal_blower_start_permitted(void) {
+    return mock_sm_state.blower_start_permitted;
 }
 
 float read_rtd_resistance(void) {

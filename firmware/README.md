@@ -34,7 +34,7 @@ firmware/
 └── test/                  # Host-based unit and integration tests
 ```
 
-## Controller pin map (zapote/controller, layout L2 + L3 blower)
+## Controller pin map (zapote/controller, layout L2 + L3 blower + stage 16 BLW_PG)
 
 The firmware targets the integrated SELV controller. Its single pin map is
 `components/hal/include/controller_pins.h` (numbers) plus the table in
@@ -51,6 +51,11 @@ used; there is no spare pin.
   There is no RUNAWAY_CUT output on this board (GPIO15 is PWM_HB).
 - **IL_WDI = GPIO18** (TPS3823 heartbeat). SUP_RUN_OK and RTD_DRDY are
   TCA9555 P14 and P07, polled over I2C every control tick.
+- **TCA9555 (U8) bits**: P07 RTD_DRDY (low = ready), P10 LATCHED_FAULT_RB,
+  P11 RTD_FAULT_RB, P12 HS_FAULT_RB, P13 COIL_FAULT_RB, P14 SUP_RUN_OK_RB,
+  P15 FAN_OFF (L3, the only output), **P16 BLW_PG** (stage 16, C33: high = PS3
+  present; input only), P06 reserved (second MAX31865 CS). `CTRL_EXP_<NET>` =
+  8 × port + bit.
 - **I2C**: SDA GPIO37, SCL GPIO0 (SPI-boot strap, 4.7 k pull-up; never an
   internal pull-down).
 - **UI bus (J7, SPI3)**: SCK 40, MOSI 41, MISO 44, CS_OLED# 47, D/C 45,
@@ -77,6 +82,24 @@ used; there is no spare pin.
   speed or whenever the drive is unknown. A speed-up takes the allowance first
   and moves the blower 300 ms later; a fault goes to full speed at once. The
   regulated inlet total stays 13.5 A (COMMISSIONING.md step 8c).
+- **BLW_PG, PS3 present (expander P16, controller C33)**: 20 k / 4.7 k from
+  V15_BLW at J13, ≥ 2.74 V with PS3 on, ≤ 0.30 V without it. Debounced in the
+  expander poll: 3 equal reads at 10 ms before it is "present" or "absent"; a
+  failed or stale expander read is **unknown**, never "present"
+  (`ctrl_blw_pg_update()`, `ctrl_exp_blw_pg()`). Use (`blower_ctrl_supply()`):
+  - FG at 0 Hz while driven (the stall path) is labelled for the UI / log:
+    BLW_PG 0 → **PS3 absent**, BLW_PG 1 → **blower failed**, unknown → the
+    plain stall. All three take the same C28 derate (and stop on a rising sink).
+  - **Start interlock**: PS3 absent before heating starts → no start (IDLE
+    shows "NO BLOWER PWR"; PAN_DET, which every start path enters, applies no
+    power and returns to IDLE). Unknown does not block: the stall path still
+    protects.
+  - **Plausibility**: BLW_PG 0 while the tach shows the blower turning for
+    > 3 s (`BLW_PG_PLAUS_TIME_MS`, provisional) latches a BLW_PG sense fault
+    until reset; BLW_PG is then ignored (stall-only behaviour). No derate on
+    that alone.
+  - The PS3 inlet allowance never drops on BLW_PG 0: PS3's AC side may still
+    draw with a failed output (`blower_aux.h`).
 
 ## Thermal trip ladder (L3, DECISIONS C32)
 

@@ -9,7 +9,8 @@
  *  - closed loop with the real frequency loop (tank_freq.c) on a first-harmonic RLC pan held at the
  *    inlet limit: a blower step-up never takes the real inlet over 13.5 A, never puts the PS3 draw
  *    above the allowance in force, and never trips the adapter's 15 A bound;
- *  - the tank hold at typical and full blower, 108 / 120 / 132 V. */
+ *  - the tank hold at typical and full blower, 108 / 120 / 132 V;
+ *  - C33: BLW_PG = 0 (PS3 absent) never lowers the allowance. */
 #include "blower_aux.h"
 #include "input_limits.h"
 #include "tank_freq.h"
@@ -368,6 +369,48 @@ static void test_tank_hold(void)
     tests++;
 }
 
+/* Stage 16 C33: BLW_PG = 0 never lowers PS3's allowance. PS3's AC side can still draw with its
+ * output failed (or BLW_PG can be wrong), so the schedule has no BLW_PG input at all: the glue
+ * (thermal_io.c) runs it from the commanded drive with known = write ok && !stalled, exactly as
+ * before C33. Here: a blower at a settled drive loses PS3 (tach 0, BLW_PG absent). Until the stall
+ * the allowance holds the commanded level; at the stall ("PS3 absent") it goes to the worst case. */
+static void test_ps3_absent_keeps_allowance(void)
+{
+    blower_ctrl_t bc;
+    blower_ctrl_init(&bc);
+    blower_aux_t s;
+    blower_aux_init(&s, &C);
+    uint16_t cnt = 0;
+    uint32_t t = 0;
+    blower_aux_out_t o = {0};
+    blower_cmd_t cmd = {0};
+    /* Settle: sink 90 C (fan on, below the 0.8 cap), PS3 present, blower turning. */
+    for (unsigned n = 0; n < 200; n++, t += 100, cnt = (uint16_t)(cnt + 8)) {
+        cmd = blower_ctrl_decide(&bc, 90.0f, 100.0f, false, 0.1f);
+        blower_aux_in_t in = {.on = cmd.on, .duty = cmd.duty, .urgent = false,
+                              .known = !bc.stall.stalled, .tach_rpm = bc.tach.rpm};
+        o = blower_aux_step(&s, &C, &in, t);
+        blower_ctrl_finish(&bc, &cmd, o.on, 90.0f, 100.0f, true, cnt, t, 2);
+        blower_ctrl_supply(&bc, &cmd, BLOWER_SUPPLY_PRESENT, t);
+    }
+    float settled = o.allowance_a, worst = blower_aux_worst_a(&C);
+    assert(cmd.on && settled < worst && settled >= blower_aux_level_a(&C, true, cmd.duty) - 1e-5f);
+    /* PS3 lost: FG stops, BLW_PG absent. The allowance never falls below the settled level. */
+    bool saw_diag = false;
+    for (unsigned n = 0; n < 40; n++, t += 100) {
+        cmd = blower_ctrl_decide(&bc, 90.0f, 100.0f, false, 0.1f);
+        blower_aux_in_t in = {.on = cmd.on, .duty = cmd.duty, .urgent = false,
+                              .known = !bc.stall.stalled, .tach_rpm = bc.tach.rpm};
+        o = blower_aux_step(&s, &C, &in, t);
+        assert(o.allowance_a >= settled - 1e-5f);
+        blower_ctrl_finish(&bc, &cmd, o.on, 90.0f, 100.0f, true, cnt, t, 2);
+        blower_ctrl_supply(&bc, &cmd, BLOWER_SUPPLY_ABSENT, t);
+        saw_diag = saw_diag || cmd.diag == BLOWER_DIAG_PS3_ABSENT;
+    }
+    assert(saw_diag && bc.stall.stalled && o.allowance_a == worst);
+    tests++;
+}
+
 int main(void)
 {
     C = blower_aux_native21();
@@ -377,6 +420,7 @@ int main(void)
     test_schedule();
     test_closed_loop_step_up();
     test_tank_hold();
+    test_ps3_absent_keeps_allowance();
     printf("blower_aux: %u tests passed\n", tests);
     return 0;
 }
