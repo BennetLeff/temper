@@ -143,6 +143,8 @@ typedef struct {
     uint32_t serial, samples;
     uint16_t ref_code;
     float pan_model_w;
+    float thermal_limit_a;      /* thermal tank RMS clamp (coil-sensor fault), if thermal_limited */
+    bool thermal_limited;
     bool initialized, programmed, pads_live, gate_on, armed_line, invalid, have_sample;
     bool have_reset, bench_active;
 } n21_binding_t;
@@ -155,6 +157,11 @@ n21_init_t n21_binding_init(n21_binding_t *, const n21_config_t *, const n21_hw_
                             power_binding_t *out);
 void n21_acquire_step(n21_binding_t *);
 bool n21_set_pan_model(n21_binding_t *, float watts);
+/* Thermal clamp on the tank RMS ceiling (controller L3: a latched coil-sensor fault derates the
+ * tank to <= 22 A, thermal_mgmt.h COIL_SENSOR_FAULT_TANK_MAX_A). The frequency loop holds
+ * min(commissioned ceiling, clamp); the derived trips stay those of the commissioned ceiling.
+ * limited=true needs a finite a >= TANK_CEILING_MIN_A (else false, nothing changes); false clears. */
+bool n21_set_thermal_tank_limit(n21_binding_t *, bool limited, float a);
 bool n21_request_interlock_reset(n21_binding_t *, bool operator_confirmed);
 void n21_telemetry(n21_binding_t *, n21_telemetry_t *);
 /* Bench sessions (N21_MODE_BENCH only, adapter not bound): bounded live PWM with every fault

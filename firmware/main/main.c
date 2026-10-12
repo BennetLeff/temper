@@ -129,6 +129,8 @@ static void ui_task(void *arg) {
  * - Fan status
  * - Safety interlocks
  */
+extern void thermal_blower_tick(void); /* thermal_io.c */
+
 static void monitor_task(void *arg) {
     ESP_LOGI(TAG, "Monitor task started");
     
@@ -136,6 +138,10 @@ static void monitor_task(void *arg) {
     const TickType_t xFrequency = pdMS_TO_TICKS(MONITOR_LOOP_PERIOD_MS);
     
     while (1) {
+        /* L3 blower (DECISIONS C28): fan law, GPIO46 duty, FG tach, stall derate, coil derate
+         * (thermal_io.c / thermal_mgmt.c blower_ctrl_step()). 100 ms = its BLOWER_TICK_S. */
+        thermal_blower_tick();
+
         /* Run safety checks */
         /* safety_monitor_update(); */
         

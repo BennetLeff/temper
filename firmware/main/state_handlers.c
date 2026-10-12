@@ -49,24 +49,52 @@ extern float read_rtd_resistance(void);
 extern bool is_fan_running(void);
 extern void delay_ms(uint32_t ms);
 extern void eeprom_log_fault(fault_code_t code, uint32_t timestamp);
-/* R36 rim NTC (GPIO9, ADC1_CH8): false while no valid reading (open, short, stale). */
-extern bool read_rim_temperature(float *temp_c);
-/* L3 blower stall hook (DECISIONS C28): tank power cap from blower_stall_update(), 0..100.
- * STUB until the controller L3 blower driver lands: the peripherals layer returns 100. */
-extern uint8_t blower_power_cap_pct(void);
+/* R36 rim NTC (GPIO9, ADC1_CH8): false while no valid reading (open, short, stale, or below the
+ * ADC's range). cold_or_open: the node is above the ADC's range (cold, < ~70 C) or open. */
+extern bool read_rim_temperature_status(float *temp_c, bool *cold_or_open);
+extern float read_coil_temperature(void);
+/* L3 sensor-plausibility faults to the thermal glue: coil -> tank clamp <= 22 A, blower full. */
+extern void thermal_set_sensor_faults(bool rim_fault, bool coil_fault);
+/* L3 thermal power cap (DECISIONS C28, C32), 0..100: min(coil derate 150-160 C, blower stall
+ * derate). Computed by the blower controller tick (thermal_io.c, blower_ctrl_step()). */
+extern uint8_t thermal_power_cap_pct(void);
 
 /* Pan temperature cap and glass protection (250 C, R32 / R36): every tank power request in
  * PREHEAT and HEATING passes through here. The pan RTD and the rim NTC each derate from 240 C to
- * 0 at 250 C (thermal_mgmt.h); the blower stall hook can only lower the result further. */
+ * 0 at 250 C (thermal_mgmt.h); the coil derate and the blower stall derate can only lower the
+ * result further. */
+static thermal_plaus_t s_plaus;
+
+void state_handlers_thermal_plaus_reset(void)
+{
+    thermal_plaus_init(&s_plaus);
+    thermal_set_sensor_faults(false, false);
+}
+
+bool state_handlers_rim_sensor_fault(void) { return s_plaus.rim_fault; }
+bool state_handlers_coil_sensor_fault(void) { return s_plaus.coil_fault; }
+
 static uint8_t apply_thermal_caps(uint8_t requested, float pan_temp_c)
 {
     float rim_c = NAN;
-    bool rim_ok = read_rim_temperature(&rim_c);
-    pan_cap_t cap = pan_cap_evaluate(pan_temp_c, isfinite(pan_temp_c), rim_c, rim_ok);
+    bool rim_cold_or_open = false;
+    bool rim_ok = read_rim_temperature_status(&rim_c, &rim_cold_or_open);
+    /* A latched rim-sensor fault drops the rim: the pan RTD alone caps at 250 C. */
+    pan_cap_t cap = pan_cap_evaluate(pan_temp_c, isfinite(pan_temp_c), rim_c, rim_ok && !s_plaus.rim_fault);
     uint8_t limit = cap.cap_pct;
-    uint8_t blower = blower_power_cap_pct();
-    if (blower < limit) limit = blower;
-    return requested < limit ? requested : limit;
+    uint8_t thermal = thermal_power_cap_pct();
+    if (thermal < limit) limit = thermal;
+    uint8_t out = requested < limit ? requested : limit;
+
+    /* Plausibility of the rim and coil NTCs (cold and open read alike at the ADC's top). */
+    bool rim_was = s_plaus.rim_fault, coil_was = s_plaus.coil_fault;
+    thermal_plaus_update(&s_plaus, get_time_ms(), rim_cold_or_open, pan_temp_c, isfinite(pan_temp_c),
+                         read_coil_temperature(), out);
+    if (s_plaus.rim_fault != rim_was || s_plaus.coil_fault != coil_was) {
+        thermal_set_sensor_faults(s_plaus.rim_fault, s_plaus.coil_fault);
+        display_show_message(s_plaus.coil_fault && !coil_was ? "COIL SENSOR FAULT" : "RIM SENSOR FAULT");
+    }
+    return out;
 }
 
 /* Pan detection stubs */

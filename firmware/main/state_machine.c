@@ -9,6 +9,7 @@
 #include "state_machine.h"
 #include "state_handlers.h"
 #include "config.h"
+#include "../components/control/thermal_mgmt.h"
 #include <stddef.h>
 #include <math.h>
 
@@ -73,6 +74,8 @@ extern void fan_set_speed(fan_speed_t speed);
 extern void fan_set_auto_mode(bool enabled);
 extern float read_pan_temperature(void);
 extern float read_heatsink_temperature(void);
+/* Coil NTC, deg C; NaN when the reading is invalid (open, short, stale, not yet settled). */
+extern float read_coil_temperature(void);
 extern float read_dc_bus_current(void);
 extern float read_rtd_resistance(void);
 extern bool is_fan_running(void);
@@ -176,6 +179,9 @@ void state_machine_init(void) {
     
     /* Reset profile */
     profile_init_status(&sm_ctx.profile);
+
+    /* L3 rim / coil sensor plausibility */
+    state_handlers_thermal_plaus_reset();
 
     /* Reset message display state */
     sm_ctx.message_pending = false;
@@ -389,8 +395,13 @@ void transition_to(system_state_t new_state) {
 }
 
 bool check_safety_interlocks(void) {
-    /* Over-temperature check — threshold from config.yaml (interlocks:) */
-    if (read_heatsink_temperature() > OVER_TEMP_THRESHOLD) {
+    /* Over-temperature, L3 trip ladder (DECISIONS C32): heatsink above OVER_TEMP_THRESHOLD
+     * (config.yaml, 95 C) or coil at or above COIL_FW_TRIP_C (165 C), both below the hardware
+     * comparators. Written as !(t <= limit) so an invalid (NaN) reading trips: it must never pass
+     * as "cool". */
+    float hs_c = read_heatsink_temperature();
+    float coil_c = read_coil_temperature();
+    if (!(hs_c <= OVER_TEMP_THRESHOLD) || !(coil_c < COIL_FW_TRIP_C)) {
         enter_hardware_latched_fault(FAULT_OVER_TEMP);
         return true;
     }
@@ -520,7 +531,9 @@ bool fault_cleared(void) {
     
     switch (sm_ctx.fault_code) {
         case FAULT_OVER_TEMP:
-            return (read_heatsink_temperature() < 70.0f);
+            /* Both below the hardware release bands (sink 83.0-88.2 C, coil 147.4-157.7 C). */
+            return (read_heatsink_temperature() < 70.0f) &&
+                   (read_coil_temperature() < COIL_FW_RECOVER_C);
 
         case FAULT_FAN_FAILURE:
             return is_fan_running();

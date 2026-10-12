@@ -156,7 +156,9 @@ static void half_closed(n21_binding_t *b, const n21_half_result_t *r)
             .p_in_w = r->est.p_in_w,
         };
     }
-    tank_freq_limits_t lim = {.ceiling_a = b->cfg.limits.tank_limit_a,
+    float ceiling = b->cfg.limits.tank_limit_a;
+    if (b->thermal_limited && b->thermal_limit_a < ceiling) ceiling = b->thermal_limit_a;
+    tank_freq_limits_t lim = {.ceiling_a = ceiling,
                               .inlet_max_a = b->cfg.inlet_target_a,
                               .peak_trip_a = b->cfg.tank_peak_trip_a, .request_w = b->request_w};
     if (tank_freq_step(&b->tf, &b->cfg.freq, &lim, &o) == TF_FAULT_OVERRUN)
@@ -456,6 +458,16 @@ bool n21_set_pan_model(n21_binding_t *b, float w)
     if (!b || !isfinite(w) || w < 0) return false;
     lock(b);
     b->pan_model_w = fminf(w, b->cfg.max_power_w);
+    unlock(b);
+    return true;
+}
+
+bool n21_set_thermal_tank_limit(n21_binding_t *b, bool limited, float a)
+{
+    if (!b || (limited && !(isfinite(a) && a >= TANK_CEILING_MIN_A))) return false;
+    lock(b);
+    b->thermal_limited = limited;
+    b->thermal_limit_a = limited ? a : 0.0f;
     unlock(b);
     return true;
 }

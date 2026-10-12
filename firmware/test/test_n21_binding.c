@@ -770,6 +770,41 @@ static void test_freq_loop_live(void)
     tests++;
 }
 
+/* Controller L3 coil-sensor fault: the thermal clamp lowers the ceiling the loop holds (24 -> 22 A
+ * here) at run time, without a trip; clearing it restores the commissioned ceiling. */
+static void test_thermal_tank_limit_live(void)
+{
+    fake_reset(true);
+    model_pan();
+    assert(bind_commissioned(loop_cfg(24)));
+    assert(!n21_set_thermal_tank_limit(&B, true, NAN) && !n21_set_thermal_tank_limit(&B, true, 5.0f));
+    assert(!n21_set_thermal_tank_limit(NULL, true, 22.0f) && !B.thermal_limited);
+    run_ms(100);
+    power_set_level(100);
+    run_ms(2500);
+    n21_telemetry_t t;
+    n21_telemetry(&B, &t);
+    assert(t.pan_present && t.ceiling_eff_a == 24.0f && t.fault == N21_FAULT_NONE);
+    assert(n21_set_thermal_tank_limit(&B, true, 22.0f));
+    float worst = 0;
+    for (int k = 0; k < 20; k++) {
+        run_ms(100);
+        n21_telemetry(&B, &t);
+        assert(t.fault == N21_FAULT_NONE);
+        if (k >= 5 && t.have_half && t.last_half.est.tank_rms_a > worst) worst = t.last_half.est.tank_rms_a;
+    }
+    assert(t.ceiling_eff_a == 22.0f && worst <= 22.0f * 1.005f && worst > 19.0f);
+    /* A clamp above the commissioned ceiling changes nothing; clearing restores 24 A. */
+    assert(n21_set_thermal_tank_limit(&B, true, 26.0f));
+    run_ms(200);
+    n21_telemetry(&B, &t);
+    assert(t.ceiling_eff_a == 24.0f);
+    assert(n21_set_thermal_tank_limit(&B, false, 0.0f) && !B.thermal_limited);
+    power_set_level(0);
+    run_ms(500);
+    tests++;
+}
+
 static void test_no_pan_clamp_live(void)
 {
     /* Empty coil (R 0.2 ohm, 66.5 uH, bank at its -10 % corner 0.45 uF): with a 28 A ceiling
@@ -868,6 +903,7 @@ int main(void)
     test_tank_ceiling_config();
     test_rms_trip_is_half_cycle();
     test_freq_loop_live();
+    test_thermal_tank_limit_live();
     test_no_pan_clamp_live();
     test_freq_update_failure();
     test_power_level_live();

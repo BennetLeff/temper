@@ -15,6 +15,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include <math.h>
 #include "../main/state_machine.h"
 #include "../main/state_handlers.h"
 #include "../config.h"
@@ -38,7 +39,10 @@ static struct {
     float pan_impedance;
     float rim_temperature;      /* R36 rim NTC */
     bool rim_valid;
-    uint8_t blower_cap_pct;     /* L3 blower stall hook */
+    bool rim_cold_or_open;      /* rim node above the ADC range (cold) or open */
+    bool rim_sensor_fault, coil_sensor_fault; /* last thermal_set_sensor_faults() */
+    uint8_t thermal_cap_pct;    /* L3 coil derate + blower stall cap */
+    float coil_temperature;     /* L3 coil NTC (Semitec 104GT-2) */
     
     /* Pan detection */
     pan_status_t pan_status;
@@ -93,7 +97,8 @@ static struct {
     .pan_impedance = 5.0f,
     .rim_temperature = 25.0f,
     .rim_valid = true,
-    .blower_cap_pct = 100,
+    .thermal_cap_pct = 100,
+    .coil_temperature = 25.0f,
     .pan_status = PAN_ABSENT,
     .button_start_pressed = false,
     .button_stop_pressed = false,
@@ -147,16 +152,32 @@ void mock_sm_reset(void) {
     mock_sm_state.test_eeprom_pass = true;
     mock_sm_state.rim_temperature = 25.0f;
     mock_sm_state.rim_valid = true;
-    mock_sm_state.blower_cap_pct = 100;
+    mock_sm_state.thermal_cap_pct = 100;
+    mock_sm_state.coil_temperature = 25.0f;
 }
 
 void mock_sm_set_rim_temperature(float temp_c, bool valid) {
     mock_sm_state.rim_temperature = temp_c;
     mock_sm_state.rim_valid = valid;
+    mock_sm_state.rim_cold_or_open = false;
 }
 
-void mock_sm_set_blower_cap(uint8_t pct) {
-    mock_sm_state.blower_cap_pct = pct;
+/* Rim node above the ADC's range: cold (< ~70 C) or open - indistinguishable, reading invalid. */
+void mock_sm_set_rim_cold_or_open(void) {
+    mock_sm_state.rim_temperature = NAN;
+    mock_sm_state.rim_valid = false;
+    mock_sm_state.rim_cold_or_open = true;
+}
+
+bool mock_sm_get_rim_sensor_fault(void) { return mock_sm_state.rim_sensor_fault; }
+bool mock_sm_get_coil_sensor_fault(void) { return mock_sm_state.coil_sensor_fault; }
+
+void mock_sm_set_thermal_cap(uint8_t pct) {
+    mock_sm_state.thermal_cap_pct = pct;
+}
+
+void mock_sm_set_coil_temperature(float temp_c) {
+    mock_sm_state.coil_temperature = temp_c;
 }
 
 void mock_sm_advance_time(uint32_t ms) {
@@ -389,8 +410,22 @@ bool read_rim_temperature(float *temp_c) {
     return mock_sm_state.rim_valid;
 }
 
-uint8_t blower_power_cap_pct(void) {
-    return mock_sm_state.blower_cap_pct;
+bool read_rim_temperature_status(float *temp_c, bool *cold_or_open) {
+    if (cold_or_open) *cold_or_open = mock_sm_state.rim_cold_or_open;
+    return read_rim_temperature(temp_c);
+}
+
+void thermal_set_sensor_faults(bool rim_fault, bool coil_fault) {
+    mock_sm_state.rim_sensor_fault = rim_fault;
+    mock_sm_state.coil_sensor_fault = coil_fault;
+}
+
+float read_coil_temperature(void) {
+    return mock_sm_state.coil_temperature;
+}
+
+uint8_t thermal_power_cap_pct(void) {
+    return mock_sm_state.thermal_cap_pct;
 }
 
 float read_rtd_resistance(void) {

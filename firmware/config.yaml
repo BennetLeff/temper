@@ -208,6 +208,18 @@ misc:
     doc: "Non-blocking message display time"
     legacy_define_only: true
 
+  - c_symbol: BLOWER_TACH_PULSES_PER_REV
+    value: 2
+    c_type: uint8_t
+    units: "pulses/rev"
+    doc: >-
+      J10 blower FG pulses per revolution (DECISIONS C28: Delta BFB1012VH-F00,
+      FG open collector into GPIO3 / PCNT). UNVERIFIED: the Delta sample spec
+      does not state it; 2 is the common DC-blower value. Measure on the bench
+      (FG frequency vs a strobe / optical rpm at a fixed V_BLOWER) and set it
+      here; the stall threshold (thermal_mgmt.h BLOWER_STALL_RPM) is in rpm.
+    legacy_define_only: true
+
 runaway:
   - c_symbol: RUNAWAY_MAX_ABSOLUTE_TEMP_C
     field: max_absolute_temp_c
@@ -242,6 +254,9 @@ runaway:
 #     IEC 60335-1 clause. Both were labelled UNCITED in the audit; the
 #     data-driven decisions that resolve them landed on main as #1233
 #     (thermal 100->80C) and #1234 (OCP 35->40A peak), applied here.
+#   - 2026-10-12: OVER_TEMP_THRESHOLD 80 -> 95 C, superseding #1233 for the
+#     integrated controller (IPW65R018CFD7 power stage, L3 trip ladder):
+#     docs/evidence/2026-10-12-thermal-trip-ladder-l3.md.
 #   - IGBT_SHORT_CURRENT_THRESHOLD and FAULT_STATE_MAX_TEMP_C were hardcoded
 #     literals with the same lack of citation; they are single-sourced here so
 #     the whole interlock family has one home instead of four.
@@ -257,16 +272,21 @@ runaway:
 # design, and inventing one would imply a sensing channel that is not fielded.
 interlocks:
   - c_symbol: OVER_TEMP_THRESHOLD
-    value: 80.0
+    value: 95.0
     c_type: float
     units: "°C"
     doc: >-
-      Heatsink over-temperature interlock (firmware trip). Per thermal
-      threshold decision (#1233): 80°C is 5°C below hardware THM-01 latch
-      (85°C). 100°C was dead code — hardware always fired first. Decision
-      ladder: 75°C warn/derate → 80°C firmware shutdown → 85°C hardware
-      latch → 125°C fault-state backstop (docs/evidence/2026-08-15-thermal-
-      threshold-decision.md; committed aaa0af2dd).
+      Heatsink over-temperature interlock (firmware hard trip), L3 trip ladder
+      (zapote/controller DECISIONS C32, coordinator decision 2026-10-12;
+      docs/evidence/2026-10-12-thermal-trip-ladder-l3.md): fan-law sink
+      setpoint 88.6°C < firmware trip 95°C < hardware comparator trip 101.4°C
+      nominal (64-corner band 98.3-104.6°C, release 85.6°C). 98.3°C is above
+      95°C + 2 K (Vishay NTCALUG01A104GA tolerance at 95°C). IPW65R018CFD7 at
+      28 A: Tj ~= T_sink + 27.8 K = 123°C at 95°C (125°C design target).
+      SUPERSEDES the IGBT-era 80°C (#1233, docs/evidence/2026-08-15-thermal-
+      threshold-decision.md: IKW40N120H3 and an 85°C hardware latch), which
+      sat below the 88.6°C normal full-power sink temperature and would trip
+      in normal operation. Order checked by firmware/test/test_thermal_mgmt.c.
     legacy_define_only: true
 
   - c_symbol: OVER_CURRENT_THRESHOLD
@@ -308,5 +328,7 @@ interlocks:
       triggers trigger_hardware_shutdown(). UNCITED: hardcoded literal, no
       citation. Above the IKW40N120H3 Tc(max recommended) = 100°C; a
       last-resort backup that only matters if the normal interlock paths are
-      already broken.
+      already broken. L3 (2026-10-12): still above the whole trip ladder (95°C
+      firmware, 104.6°C hardware high corner) and below the IPW65R018CFD7's
+      150°C Tj max with the tank off.
     legacy_define_only: true

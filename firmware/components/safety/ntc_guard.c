@@ -29,6 +29,9 @@ ntc_guard_status_t ntc_guard_convert(const ntc_guard_t *ctx, uint16_t raw, float
     float mv = (float)raw * ctx->part->v_ref_mv / NTC_ADC_FULL_SCALE;
     switch (ntc_channel_temp_c(ctx->part, mv, temp_c)) {
     case NTC_OK: return NTC_GUARD_OK;
+    /* Above the ADC's measurable range: colder than ~15 C, or open. The two cannot be told
+     * apart, so this guard never reports it as a plausible ("cool") temperature. */
+    case NTC_BELOW_RANGE: return NTC_GUARD_ERR_RANGE;
     case NTC_OPEN: return NTC_GUARD_ERR_OPEN;
     case NTC_SHORT: return NTC_GUARD_ERR_SHORT;
     default: return NTC_GUARD_ERR_NULL;

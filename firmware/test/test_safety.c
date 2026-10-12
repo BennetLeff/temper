@@ -30,7 +30,7 @@ static void test_safety_ok_normal_conditions(void) {
 
 static void test_safety_over_temp_detection(void) {
     safety_sim_reset();
-    safety_sim_set_temp(81.0f);  /* Over 80°C threshold */
+    safety_sim_set_temp(95.1f);  /* Over the 95°C L3 firmware trip (DECISIONS C32) */
     
     safety_status_t status = run_safety_check();
     TEST_ASSERT_EQUAL_INT(SAFETY_OVER_TEMP, status);
@@ -38,7 +38,7 @@ static void test_safety_over_temp_detection(void) {
 
 static void test_safety_temp_at_threshold(void) {
     safety_sim_reset();
-    safety_sim_set_temp(80.0f);  /* Exactly at threshold */
+    safety_sim_set_temp(95.0f);  /* Exactly at threshold */
     
     /* At threshold should still be OK (> not >=) */
     safety_status_t status = run_safety_check();

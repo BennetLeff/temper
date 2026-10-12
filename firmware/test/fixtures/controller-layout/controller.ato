@@ -872,10 +872,12 @@ module SelvController:
     c_m12_adc.p1 ~ m12_adc
     c_m12_adc.p2 ~ selv_gnd
 
-    # ---- Rim NTC (enclosure R36, DECISIONS C27): glass 10 k bead on the sensor cartridge's PEEK
-    # rim, on the cartridge's 6-conductor cable (J3 4-wire RTD + J12). Built as the coil / M12
-    # NTC channels: 10.0 k pull-up to v3v3, TVS at the connector, 10 k / 100 nF (159 Hz, C29)
-    # into a CMOS follower, 100 ohm / 100 nF into ADC1 (GPIO9, ADC1_CH8).
+    # ---- Rim NTC (enclosure R36, DECISIONS C27, C31): a 100 k glass NTC rated to 300 C (Semitec
+    # 104GT-2 class: 100 k +/-3 % at 25 C, B25/85 4267 K) on the sensor cartridge's PEEK rim, on
+    # the cartridge's 6-conductor cable (J3 4-wire RTD + J12). 1.00 k 0.1 % pull-up to v3v3 puts
+    # the node at ~0.49 V and ~7 mV/K at 250 C (tools/controller_calcs.py rim_ntc()); TVS at the
+    # connector, 10 k / 100 nF (159 Hz, C29) into a CMOS follower, 100 ohm / 100 nF into ADC1
+    # (GPIO9, ADC1_CH8).
     signal rim_sense
     signal rim_filt
     signal rim_buf_out
@@ -888,8 +890,8 @@ module SelvController:
     d_rim.K ~ rim_sense
     d_rim.A ~ selv_gnd
     r_rim_pu = new Resistor
-    r_rim_pu.value = 10kohm +/- 0.1%
-    r_rim_pu.mpn = "RT0603BRD0710KL"
+    r_rim_pu.value = 1kohm +/- 0.1%
+    r_rim_pu.mpn = "RT0603BRD071KL"
     r_rim_pu.p1 ~ v3v3
     r_rim_pu.p2 ~ rim_sense
     r_rim_filt = new Resistor
@@ -1200,8 +1202,9 @@ module SelvController:
     u_io.A2 ~ selv_gnd
     u_io.SCL ~ boot_io0
     u_io.SDA ~ i2c_sda
-    # P00-P06 and P14-P17 are spare (R33: buttons, encoder and OLED moved to the UI
-    # board); the TCA9555's 100 k pull-ups hold them high. P06 stays reserved for a
+    # Used: P07 RTD_DRDY (C23), P10-P13 fault read-backs, P14 SUP_RUN_OK_RB (C27),
+    # P15 FAN_OFF (C28). Spare: P00-P05 and P16-P17 (R33 moved the buttons, encoder and OLED
+    # to the UI board); the TCA9555's 100 k pull-ups hold them high. P06 stays reserved for a
     # second MAX31865 CS (C14).
     u_io.P07 ~ rtd_drdy
     u_io.P14 ~ sup_run_ok_rb
@@ -1364,6 +1367,22 @@ module SelvController:
     j_dbg.p8 ~ usb_dp
 
     # Designators for the parts named in the placement note
+    # L3 (DECISIONS C32): controller thresholds for the ported thermal-sense comparators, set here
+    # so the port stays byte-identical to zapote/thermal-sense. Trip ladder: fan law < firmware
+    # derate < firmware trip < these hardware trips. tools/controller_calcs.py thermal_trips()
+    # and verify_controller.py "thermal" give the 64-corner bands.
+    #   heatsink (Vishay NTCALUG01A104GA, 10 k pull-up): trip 101.4 C / release 85.6 C
+    thermal.hs_top.value = 11.5kohm +/- 1%
+    thermal.hs_top.mpn = "RC0603FR-0711K5L"
+    thermal.hs_bottom.value = 8.06kohm +/- 1%
+    thermal.hs_bottom.mpn = "RC0603FR-078K06L"
+    #   coil (100 k / 300 C glass NTC, Semitec 104GT-2 class, 10 k pull-up): trip 175.7 C / release 152.4 C
+    thermal.coil_top.value = 90.9kohm +/- 0.1%
+    thermal.coil_top.mpn = "RT0603BRD0790K9L"
+    thermal.coil_bottom.value = 7.06kohm +/- 0.1%
+    thermal.coil_bottom.mpn = "RT0603BRD077K06L"
+    thermal.coil_hyst.value = 140kohm +/- 0.1%
+    thermal.coil_hyst.mpn = "RT0603BRD07140KL"
     interlock.latch.designator = "U20"
     interlock.watchdog.designator = "U21"
     interlock.aggregate.designator = "U22"

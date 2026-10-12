@@ -22,14 +22,18 @@ extern "C" {
 #endif
 
 /*
- * Fitted parts (integrated controller, thermal-sense block): Vishay NTCALUG01A104GA, 100 kOhm,
- * B25/85 4190 K, on a 10.0 kOhm pull-up to v3v3, for both the coil and the heatsink. The R-T model
- * is Vishay's (thermal_mgmt.h, NTC_CURVE_VISHAY_MAT_D_4190), shared with the fan law and the coil
- * guard, so every consumer converts a reading the same way.
+ * Fitted parts (integrated controller, layout L3, DECISIONS C32): heatsink Vishay NTCALUG01A104GA
+ * (100 k, B25/85 4190 K) and coil Semitec 104GT-2 class (100 k, B25/85 4267 K, -50..+300 C), both
+ * on a 10.0 kOhm pull-up to v3v3. The R-T models are in thermal_mgmt.h (THERMAL_NTC_SINK,
+ * THERMAL_NTC_COIL), shared with the fan law and the coil guard, so every consumer converts a
+ * reading the same way. ntc_guard_init() defaults to the heatsink part.
  *
  * Raw counts are taken as ratiometric to v3v3 (12 bit, 4095 = v3v3), as before. Open and short
  * thresholds follow the model: a node colder than -20 C reads OPEN, hotter than 200 C reads SHORT
- * (thermal_mgmt.c), so an unplugged sensor can never pass as a cool one.
+ * (thermal_mgmt.c). A node above the ESP32-S3 ADC's ~3.1 V range (colder than ~15 C) is
+ * NTC_GUARD_ERR_RANGE: there an open sensor and a cold one look alike to the ADC, so it is never
+ * passed on as "cool". (Open HS / COIL sensors are also latched in hardware by the thermal-sense
+ * block's OPEN_REF comparator.)
  */
 #define NTC_ADC_FULL_SCALE 4095.0f
 

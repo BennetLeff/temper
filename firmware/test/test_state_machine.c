@@ -17,7 +17,9 @@
 #include "test_common.h"
 #include "../main/state_machine.h"
 #include "../config.h"
+#include "../components/control/thermal_mgmt.h"
 #include <string.h>
+#include <math.h>
 
 /* Forward declare mock control functions from state_machine_stubs.c */
 extern void mock_sm_reset(void);
@@ -26,6 +28,7 @@ extern void mock_sm_set_time(uint32_t ms);
 extern void mock_sm_set_pan_temperature(float temp_c);
 extern void state_machine_reset_temp_baseline(void);
 extern void mock_sm_set_heatsink_temperature(float temp_c);
+extern void mock_sm_set_coil_temperature(float temp_c);
 extern void mock_sm_set_dc_bus_current(float amps);
 extern void mock_sm_set_rtd_resistance(float ohms);
 extern void mock_sm_set_pan_status(int status);  /* 0=ABSENT, 1=PRESENT */
@@ -52,7 +55,11 @@ extern uint32_t mock_sm_get_trigger_shutdown_count(void);
 extern uint32_t mock_sm_get_power_set_count(void);
 extern uint32_t mock_sm_get_pwm_disable_count(void);
 extern void mock_sm_set_rim_temperature(float temp_c, bool valid);
-extern void mock_sm_set_blower_cap(uint8_t pct);
+extern void mock_sm_set_rim_cold_or_open(void);
+extern bool mock_sm_get_rim_sensor_fault(void);
+extern bool mock_sm_get_coil_sensor_fault(void);
+extern const char* mock_sm_get_last_display_message(void);
+extern void mock_sm_set_thermal_cap(uint8_t pct);
 
 /* Pan status constants (must match stubs) */
 #define MOCK_PAN_ABSENT  0
@@ -345,6 +352,96 @@ static void enter_preheat(void) {
     TEST_ASSERT_EQUAL(STATE_PREHEAT, state_machine_get_state());
 }
 
+/* Hold the pan at about pan_c for ms (100 ms ticks), wobbling 0.2 C so the ADC-stuck detector
+ * does not fire; returns false if the machine left PREHEAT/HEATING. */
+static bool run_hot_pan(float pan_c, uint32_t ms)
+{
+    for (uint32_t t = 0; t < ms; t += 100) {
+        mock_sm_set_pan_temperature(pan_c + ((t / 100u) & 1u ? 0.2f : 0.0f));
+        mock_sm_advance_time(100);
+        state_machine_update();
+        system_state_t st = state_machine_get_state();
+        if (st != STATE_PREHEAT && st != STATE_HEATING) return false;
+    }
+    return true;
+}
+
+static void reach_hot_pan(float pan_c)
+{
+    enter_preheat();
+    state_machine_set_target_temp(250.0f);
+    /* Ramp at 10 C/s (below the 15 C/s runaway limit) to the hot pan. */
+    for (float p = 25.0f; p < pan_c; p += 1.0f) {
+        mock_sm_set_pan_temperature(p);
+        mock_sm_advance_time(100);
+        state_machine_update();
+    }
+}
+
+/* Rim below its range (cold or open: alike at the ADC's top) while the pan RTD reads > 150 C for
+ * > 30 s: rim-sensor fault, latched, shown; the rim is dropped and the pan RTD alone caps. */
+void test_sm_rim_sensor_plausibility_fault(void) {
+    reach_hot_pan(160.0f);
+    mock_sm_set_rim_cold_or_open();
+    TEST_ASSERT_TRUE(run_hot_pan(160.0f, 29000));
+    TEST_ASSERT_FALSE(mock_sm_get_rim_sensor_fault());
+    TEST_ASSERT_TRUE(run_hot_pan(160.0f, 2000));
+    TEST_ASSERT_TRUE(mock_sm_get_rim_sensor_fault());
+    TEST_ASSERT_EQUAL_STRING("RIM SENSOR FAULT", mock_sm_get_last_display_message());
+    /* Latched: a rim that now reads (even at the 250 C cap) no longer caps; the RTD still does. */
+    mock_sm_set_rim_temperature(251.0f, true);
+    TEST_ASSERT_TRUE(run_hot_pan(160.0f, 300));
+    TEST_ASSERT_TRUE(mock_sm_get_power_level() > 0);
+    TEST_ASSERT_TRUE(mock_sm_get_rim_sensor_fault());
+    for (int i = 0; i < 3; i++) { /* the handler acts on the previous tick's reading */
+        mock_sm_set_pan_temperature(250.5f);
+        state_machine_reset_temp_baseline();
+        mock_sm_advance_time(100);
+        state_machine_update();
+    }
+    TEST_ASSERT_EQUAL_UINT32(0, mock_sm_get_power_level());
+}
+
+/* A cool pan (RTD <= 150 C) with the rim below range is normal: no fault. */
+void test_sm_rim_below_range_cool_pan_no_fault(void) {
+    reach_hot_pan(140.0f);
+    mock_sm_set_rim_cold_or_open();
+    TEST_ASSERT_TRUE(run_hot_pan(140.0f, 60000));
+    TEST_ASSERT_FALSE(mock_sm_get_rim_sensor_fault());
+}
+
+/* Coil reading below 25 C after > 5 min of heating at > 50 % power: coil-sensor fault, latched,
+ * handed to the thermal glue (tank <= 22 A, blower full speed) and shown. */
+void test_sm_coil_sensor_plausibility_fault(void) {
+    reach_hot_pan(120.0f);
+    mock_sm_set_coil_temperature(20.0f);
+    TEST_ASSERT_TRUE(run_hot_pan(120.0f, 100));
+    TEST_ASSERT_TRUE(mock_sm_get_power_level() > COIL_PLAUS_POWER_PCT);
+    TEST_ASSERT_TRUE(run_hot_pan(120.0f, 299000));
+    TEST_ASSERT_FALSE(mock_sm_get_coil_sensor_fault());
+    TEST_ASSERT_TRUE(run_hot_pan(120.0f, 2000));
+    TEST_ASSERT_TRUE(mock_sm_get_coil_sensor_fault());
+    TEST_ASSERT_EQUAL_STRING("COIL SENSOR FAULT", mock_sm_get_last_display_message());
+    /* A derate, not a stop: heating continues (the tank clamp is the binding's). */
+    TEST_ASSERT_TRUE(run_hot_pan(120.0f, 500));
+    TEST_ASSERT_TRUE(mock_sm_get_power_level() > 0);
+    /* Reset at re-init. */
+    setup_test();
+    TEST_ASSERT_FALSE(mock_sm_get_coil_sensor_fault());
+}
+
+/* A coil that warms past 25 C clears the evidence: no fault however long the session. */
+void test_sm_coil_warming_no_sensor_fault(void) {
+    reach_hot_pan(120.0f);
+    mock_sm_set_coil_temperature(20.0f);
+    TEST_ASSERT_TRUE(run_hot_pan(120.0f, 200000));
+    mock_sm_set_coil_temperature(40.0f);
+    TEST_ASSERT_TRUE(run_hot_pan(120.0f, 10000));
+    mock_sm_set_coil_temperature(20.0f);
+    TEST_ASSERT_TRUE(run_hot_pan(120.0f, 200000));
+    TEST_ASSERT_FALSE(mock_sm_get_coil_sensor_fault());
+}
+
 /**
  * Test: PREHEAT power request passes the rim-NTC cap (R36 glass protection)
  */
@@ -369,7 +466,7 @@ void test_sm_preheat_rim_at_cap_removes_power(void) {
 }
 
 /**
- * Test: the blower stall hook (L3 stub) can only lower the power request
+ * Test: the L3 thermal cap (coil derate / blower stall) can only lower the power request
  */
 void test_sm_preheat_blower_stall_derates(void) {
     enter_preheat();
@@ -378,12 +475,12 @@ void test_sm_preheat_blower_stall_derates(void) {
     uint32_t uncapped = mock_sm_get_power_level();
     TEST_ASSERT_TRUE(uncapped > 3);
 
-    mock_sm_set_blower_cap(3);
+    mock_sm_set_thermal_cap(3);
     mock_sm_advance_time(100);
     state_machine_update();
     TEST_ASSERT_EQUAL_UINT32(3, mock_sm_get_power_level());
 
-    mock_sm_set_blower_cap(100);
+    mock_sm_set_thermal_cap(100);
     mock_sm_advance_time(100);
     state_machine_update();
     TEST_ASSERT_EQUAL_UINT32(uncapped, mock_sm_get_power_level());
@@ -544,6 +641,29 @@ void test_sm_cooldown_to_idle_when_cool(void) {
  * Test Cases: STATE_HEATING -> STATE_FAULT (safety interlocks)
  * ============================================================================ */
 
+static void reach_heating_for_interlock(void) {
+    /* Set up to reach HEATING state */
+    setup_test();
+    state_machine_update();  /* INIT -> IDLE */
+    state_machine_set_target_temp(100.0f);
+    mock_sm_press_button(BUTTON_START);
+    mock_sm_advance_time(100);
+    state_machine_update();  /* IDLE -> PAN_DET */
+    mock_sm_release_button(BUTTON_START);
+    mock_sm_set_pan_status(MOCK_PAN_PRESENT);
+    
+    for (int i = 0; i < 5; i++) {
+        mock_sm_advance_time(100);
+        state_machine_update();
+    }
+    
+    mock_sm_set_pan_temperature(92.0f);
+    state_machine_reset_temp_baseline();
+    mock_sm_advance_time(100);
+    state_machine_update();  /* PREHEAT -> HEATING */
+    
+}
+
 /**
  * Test: Over-temperature triggers FAULT
  */
@@ -568,11 +688,65 @@ void test_sm_fault_on_over_temperature(void) {
     mock_sm_advance_time(100);
     state_machine_update();  /* PREHEAT -> HEATING */
     
-    /* Trigger over-temperature (>80°C heatsink) */
-    mock_sm_set_heatsink_temperature(85.0f);
+    /* Trigger over-temperature (> 95 C heatsink, L3 ladder) */
+    mock_sm_set_heatsink_temperature(96.0f);
     mock_sm_advance_time(100);
     state_machine_update();
     
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_OVER_TEMP, state_machine_get_fault());
+}
+
+/* L3 trip ladder (DECISIONS C32): the heatsink firmware trip is 95 C, above the 88.6 C fan-law
+ * setpoint where the sink runs at full power; the IGBT-era 80 C would trip in normal use. */
+void test_sm_heatsink_at_fan_setpoint_does_not_trip(void) {
+    reach_heating_for_interlock();
+    TEST_ASSERT_EQUAL(STATE_HEATING, state_machine_get_state());
+    mock_sm_set_heatsink_temperature(88.6f);
+    mock_sm_advance_time(100);
+    state_machine_update();
+    mock_sm_set_heatsink_temperature(95.0f); /* at the threshold: still running (> not >=) */
+    mock_sm_advance_time(100);
+    state_machine_update();
+    TEST_ASSERT_EQUAL(STATE_HEATING, state_machine_get_state());
+    mock_sm_set_heatsink_temperature(95.1f);
+    mock_sm_advance_time(100);
+    state_machine_update();
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_OVER_TEMP, state_machine_get_fault());
+}
+
+/* An invalid heatsink reading (NaN: open, short, stale, unsettled) trips; NaN > x is false, so
+ * the old comparison let it pass as cool. */
+void test_sm_invalid_heatsink_reading_trips(void) {
+    reach_heating_for_interlock();
+    mock_sm_set_heatsink_temperature(NAN);
+    mock_sm_advance_time(100);
+    state_machine_update();
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_OVER_TEMP, state_machine_get_fault());
+}
+
+/* Coil firmware hard trip 165 C (derate 150-160 C before it; hardware 169.7 C low corner after). */
+void test_sm_coil_hard_trip_165(void) {
+    reach_heating_for_interlock();
+    mock_sm_set_coil_temperature(164.9f);
+    mock_sm_advance_time(100);
+    state_machine_update();
+    TEST_ASSERT_EQUAL(STATE_HEATING, state_machine_get_state());
+    mock_sm_set_coil_temperature(165.0f);
+    mock_sm_advance_time(100);
+    state_machine_update();
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_OVER_TEMP, state_machine_get_fault());
+    TEST_ASSERT_TRUE(mock_sm_get_trigger_shutdown_count() >= 1);
+}
+
+void test_sm_invalid_coil_reading_trips(void) {
+    reach_heating_for_interlock();
+    mock_sm_set_coil_temperature(NAN);
+    mock_sm_advance_time(100);
+    state_machine_update();
     TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
     TEST_ASSERT_EQUAL(FAULT_OVER_TEMP, state_machine_get_fault());
 }
@@ -1645,6 +1819,10 @@ void run_state_machine_tests(void) {
     RUN_TEST(test_sm_pan_det_to_preheat_on_pan);
     RUN_TEST(test_sm_preheat_enables_pll);
     RUN_TEST(test_sm_preheat_rim_at_cap_removes_power);
+    RUN_TEST(test_sm_rim_sensor_plausibility_fault);
+    RUN_TEST(test_sm_rim_below_range_cool_pan_no_fault);
+    RUN_TEST(test_sm_coil_sensor_plausibility_fault);
+    RUN_TEST(test_sm_coil_warming_no_sensor_fault);
     RUN_TEST(test_sm_preheat_blower_stall_derates);
     
     /* PAN_DET timeout */
@@ -1665,6 +1843,10 @@ void run_state_machine_tests(void) {
     
     /* Safety interlocks -> FAULT */
     RUN_TEST(test_sm_fault_on_over_temperature);
+    RUN_TEST(test_sm_heatsink_at_fan_setpoint_does_not_trip);
+    RUN_TEST(test_sm_invalid_heatsink_reading_trips);
+    RUN_TEST(test_sm_coil_hard_trip_165);
+    RUN_TEST(test_sm_invalid_coil_reading_trips);
     RUN_TEST(test_sm_fault_on_over_current);
     RUN_TEST(test_sm_fault_on_fan_failure);
     RUN_TEST(test_sm_fault_on_probe_open);

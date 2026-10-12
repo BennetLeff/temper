@@ -41,7 +41,7 @@ typedef enum {
     CTRL_OWNER_UI,        /* UI bus on SPI3 */
     CTRL_OWNER_I2C,       /* TCA9555 I2C master */
     CTRL_OWNER_THERMAL,   /* ADC1 thermal channels */
-    CTRL_OWNER_BLOWER,    /* L3 blower: STUB, pins left at reset */
+    CTRL_OWNER_BLOWER,    /* L3 blower: LEDC (GPIO46) and PCNT (GPIO3) drivers, not boot_apply */
     CTRL_OWNER_ROM,       /* console / ROM log: never reconfigured */
 } ctrl_owner_t;
 
@@ -94,11 +94,13 @@ enum {
 
 typedef struct { uint8_t reg, value; } ctrl_i2c_write_t;
 
-/* Register writes, in order, for the expander. With fan_off_output=false (today: the L3 blower
- * driver is a stub) every pin stays an input, as at power-up. With true, OUTPUT1 is written with
- * FAN_OFF = 0 (blower on) BEFORE CONFIG1 makes P15 an output: the TCA9555 output register powers
- * up as 1s, so the reverse order would switch the blower off. Returns the count (<= 6). */
+/* Register writes, in order, for the expander. With fan_off_output=true (L3) OUTPUT1 is written
+ * with FAN_OFF = 0 (blower on) BEFORE CONFIG1 makes P15 an output: the TCA9555 output register
+ * powers up as 1s, so the reverse order would switch the blower off. With false every pin stays an
+ * input, as at power-up (the 10 k gate pull-down keeps the blower running). Returns the count. */
 size_t ctrl_exp_init_writes(bool fan_off_output, ctrl_i2c_write_t out[6]);
+/* OUTPUT1 value for a FAN_OFF request: only P15 is an output, the other port-1 bits stay 1. */
+uint8_t ctrl_exp_output1(bool fan_off);
 
 typedef struct {
     bool rtd_drdy;      /* P07 low: a MAX31865 conversion is ready */
@@ -126,6 +128,13 @@ bool ctrl_exp_fresh(const ctrl_exp_cache_t *c, uint64_t now_us, uint64_t max_age
 /* Snapshot age limit for SUP_RUN_OK consumers: five 10 ms control ticks. */
 #define CTRL_EXP_MAX_AGE_US 50000u
 
+/* L3 blower PWM (GPIO46, LEDC): 20 kHz behind the 12.1 k / 1 uF (13 Hz) filter leaves < 10 mV of
+ * ripple at the buck output; 10-bit duty (LEDC: 80 MHz / 20 kHz allows up to 11 bits). */
+#define CTRL_BLOWER_LEDC_FREQ_HZ  20000u
+#define CTRL_BLOWER_LEDC_RES_BITS    10u
+/* PCNT glitch filter on the FG input (S3 maximum ~12.7 us); FG pulses are milliseconds long. */
+#define CTRL_BLOWER_TACH_GLITCH_NS 10000u
+
 /* ---------------------------------------------------------------- ESP32 glue (target only) */
 #if defined(ESP_PLATFORM)
 bool ctrl_board_init(void);                       /* pins, I2C + expander, UI SPI3 bus */
@@ -133,12 +142,15 @@ bool ctrl_board_set_run_en(bool on);              /* GPIO14; "on" refused after 
 bool ctrl_board_run_en_kill(void);                /* latched until MCU reset */
 bool ctrl_board_poll_expander(void);              /* control task, every tick */
 bool ctrl_board_expander(ctrl_exp_cache_t *out);  /* copy of the cache (any task) */
-/* STUB, controller L3 (hardware in progress): blower on J10. on=false -> FAN_OFF (P15) high;
- * drive 0..1 -> GPIO46 LEDC duty via blower_pwm_duty_from_drive(). Tach: GPIO3 PCNT in Hz.
- * Both return false (not implemented) and touch no pin, which leaves the blower at its hardware
- * default: running (L2: fan-off gate pulled down; L3: full speed with GPIO46 pulled down). */
-bool ctrl_board_blower_drive(bool on, float drive);
-bool ctrl_board_blower_tach_hz(float *hz);
+/* L3 blower on J10 (DECISIONS C28). The decisions are blower_ctrl_step() (thermal_mgmt.c); these
+ * only move bits.
+ *  - ctrl_board_blower_apply(): GPIO46 LEDC compare counts (blower_ledc_counts(); 0 = full speed)
+ *    and expander P15 FAN_OFF.
+ *    Any LEDC failure stops the channel at idle level 0 = full speed; FAN_OFF is only ever set
+ *    high on an explicit off request, and every reset leaves it an input (blower on).
+ *  - ctrl_board_blower_tach_count(): GPIO3 PCNT rising edges, as a free-running 16-bit count. */
+bool ctrl_board_blower_apply(bool on, uint32_t ledc_counts);
+bool ctrl_board_blower_tach_count(uint16_t *count);
 #endif
 
 #endif
