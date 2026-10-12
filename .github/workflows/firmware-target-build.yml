@@ -47,7 +47,7 @@ jobs:
     # Bump tag and digest together:
     #   docker buildx imagetools inspect espressif/idf:<tag>
     container:
-      image: espressif/idf:v5.3.2@sha256:5b8f58d9d9caa45b689a31a0b6a0cc53b84594e0ba5fdd8d28eeef7d6123242a
+      image: espressif/idf:v5.3.6@sha256:cee52f0c4fdaf088992a7a739f5993154e95cf1d3ab61c24f5b40e6d56a3a070
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
