@@ -27,6 +27,10 @@ REMOVE = [{"net": "sw_a", "box": [72.9, 15.6, 73.3, 16.0], "kind": "via"},
 REMOVE += [{"net": n, "box": [x - 0.5, 45.5, x + 0.5, 46.5], "kind": "track", "layer": "F.Cu", "touch": True}
            for n, x in (("leg_a-out_h", 76.87), ("leg_a-out_l", 83.22), ("leg_b-out_h", 29.82), ("leg_b-out_l", 36.17))]
 REMOVE += [{"net": "leg_ret", "box": [55.5, 39.9, 95.5, 40.1], "kind": "track", "layer": "In1.Cu"}]
+# Stage 18 (DECISIONS 18): the SELV line_zc_raw / v15_selv B.Cu runs under the bank (y 121.3-123.6) are re-laid
+# by add_stage18; these boxes hold exactly those two base polylines (their other B.Cu pieces lie at x < 80).
+REMOVE += [{"net": "line_zc_raw", "box": [89.0, 100.0, 210.0, 130.0], "kind": "track", "layer": "B.Cu"},
+           {"net": "v15_selv", "box": [76.0, 120.0, 211.0, 140.0], "kind": "track", "layer": "B.Cu"}]
 REMOVE_ESCAPES = [("J3", "1"), ("J3", "2")]   # the 3.96 mm J3 pin escapes; the 7.92 mm B2P3-VH needs none (M7)
 HANDLED = ()
 
@@ -218,7 +222,28 @@ def add(g):
     add_stage13(g)
     add_stage14(g)
     add_stage16(g)
+    add_stage18(g)
     resolve_zone_priorities(g["ZONES"])
+
+
+# Stage 18 (DECISIONS items 7 and 18): RES_A is 297 V rms / 656 V pk to earth at 28 A, so it needs 12.6 mm
+# reinforced creepage to SELV / PE on the outer layers (rules21.RES_A_CREEPAGE). On stage 17b two SELV runs on
+# B.Cu passed under the bank's res_a strip (edge y 114.0 at x 150-161, y 112.9 at x 161-166): line_zc_raw at
+# y 121.27-122.87 (8.145 mm) and v15_selv at y 123.6 (9.40 mm). Both keep their base geometry outside the bank
+# and drop into lanes south of it: line_zc_raw at y 127.5 (edge 13.375 mm from the strip), v15_selv at y 128.6
+# (14.4 mm), on 45-degree doglegs (3.5 mm apart) east at x 177-187 and west at x 136-141. B.Cu is otherwise empty
+# there; no part, pour or other net moves. put() checks the 12.6 mm rule (geom21 -> rules21.clearance_on).
+S18_LINE_ZC = [[209.07, 102.47], [209.07, 102.67], [208.87, 102.87], [208.87, 116.47], [205.27, 120.07],
+               [204.87, 120.07], [204.27, 120.67], [203.87, 120.67], [203.27, 121.27], [184.0, 121.27],
+               [177.77, 127.5], [141.23, 127.5], [136.6, 122.87], [124.27, 122.87], [118.07, 129.07], [89.87, 129.07]]
+S18_V15 = [[210.8, 123.6], [186.6, 123.6], [181.6, 128.6], [137.1, 128.6], [128.5, 137.2], [127.1, 137.2],
+           [125.7, 138.6], [124.3, 138.6], [123.7, 139.2], [76.7, 139.2]]
+
+
+def add_stage18(g):
+    from patches21_v1 import put
+    put(g, "line_zc_raw", "B.Cu", 0.25, *S18_LINE_ZC)
+    put(g, "v15_selv", "B.Cu", 0.4, *S18_V15)
 
 
 # Stage 17b: deterministic pour fill. Two different-net pours on one layer, closer than their clearance and at the

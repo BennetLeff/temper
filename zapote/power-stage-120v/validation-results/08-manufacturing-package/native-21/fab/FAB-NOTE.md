@@ -1,11 +1,11 @@
 # Fabrication note: power-stage-120v native-21 (CANDIDATE, not released)
 
-Board: native-21 stage 17b (stage 16 with R5 = Bourns CSS2H-2512R-1L00F on its Kelvin land and declared pour priorities so the fill no longer depends on KiCad's fill order, DECISIONS.md 2026-10-12 item 17 / 17b; stage 16 was stage 15b plus the F2 / J11 blower-supply mains tap, item 16; stage 15b was stage 14 plus the 28 A tank hardware: R34 12.6 k, R43/R46 2.21 k and SW_A / SW_B copper widening, DECISIONS.md 2026-10-10 items 13-14; stage 14 added one RECOM R24C2T25/R-R isolated bias module per high side, U41/U42, the 9 µF C5/C6 bus film and the 2 × 30KPA150CA series bus clamp D3/D17, DECISIONS.md 2026-10-09 stage 14; stage 13b added the BOM simplification, the 5 × TDK B32654 resonant bank and the C1/C2 X2 swap; stage 12 carried the independent-review fixes, `../REVIEW-TRIAGE.md`), rebuilt from
+Board: native-21 stage 18 (stage 17b with the SELV LINE_ZC_RAW / V15_SELV B.Cu runs re-laid ≥ 12.6 mm from RES_A, DECISIONS.md 2026-10-12 item 18; stage 17b was stage 16 with R5 = Bourns CSS2H-2512R-1L00F on its Kelvin land and declared pour priorities so the fill no longer depends on KiCad's fill order, DECISIONS.md 2026-10-12 item 17 / 17b; stage 16 was stage 15b plus the F2 / J11 blower-supply mains tap, item 16; stage 15b was stage 14 plus the 28 A tank hardware: R34 12.6 k, R43/R46 2.21 k and SW_A / SW_B copper widening, DECISIONS.md 2026-10-10 items 13-14; stage 14 added one RECOM R24C2T25/R-R isolated bias module per high side, U41/U42, the 9 µF C5/C6 bus film and the 2 × 30KPA150CA series bus clamp D3/D17, DECISIONS.md 2026-10-09 stage 14; stage 13b added the BOM simplification, the 5 × TDK B32654 resonant bank and the C1/C2 X2 swap; stage 12 carried the independent-review fixes, `../REVIEW-TRIAGE.md`), rebuilt from
 `native-21/layout/copper.json` by `sh native-21/layout/incr_iter.sh native-21/layout/copper.json - OUTDIR`;
 SHA-256
-`96501e7d0e9b4903a145aa3bd0e45003a4fafe37ceef5259a7502bc9b11225a9`.
+`3768a12675f8d61f91fc4a96dd267522e68f454f8f300634aca2ae16afc6dd1a`.
 Gerbers: `native-21-gerbers.zip`, SHA-256
-`897e581e78db51731264589f028ff2f2933d8b2a916012eeb4656fc42b556b9a`.
+`021bf8fdebcd1840a418b5dad74cf142118ca06bbe15b94aa2c0d996fb4561bc`.
 
 **This package isn't released for ordering.** The gates come in two tiers (decision 2026-10-08; PROTOTYPE-LOT.md agrees).
 
@@ -18,7 +18,8 @@ Gerbers: `native-21-gerbers.zip`, SHA-256
 - insulation and thermal qualification (PD3, IEC 60664-4, hipot, partial discharge);
 - the laminate CTI written confirmation (`../sourcing/inquiries/CTI-JLC.md`; send it with the order);
 - F1 (Littelfuse KLDR025.TXP, UL Class CC, 600 Vac / 200 kA): the open-clip (01250003H) acceptance and the clip's voltage rating and agency file (`../owner-items/f1cc/`). The nameplate is 120–127 V~ 60 Hz, and there is no inlet fuse (DECISIONS.md 2026-10-09);
-- the certification lab's answer on the tank-voltage RMS convention (M6 reversal condition).
+- the certification lab's answer on the tank-voltage RMS convention (M6 reversal condition);
+- RES_A (297 V rms at 28 A) is held at 12.6 mm reinforced creepage to SELV/PE on the outer layers (item 18); the lab confirms that same-layer inner paths count as solid insulation (C152's inner rings are 9.694 mm from the SELV inner islands).
 
 M6, M10 and M11 are decided (DECISIONS.md 2026-10-08).
 

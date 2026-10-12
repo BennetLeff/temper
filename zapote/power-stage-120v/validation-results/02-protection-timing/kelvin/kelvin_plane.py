@@ -47,7 +47,7 @@ R34, R35, RS = 10.6e3, 10.0e3, 1e-3
 DIVIDER = {"native21s13": (12.4e3, 11.7e3), "native21s13b": (12.4e3, 11.7e3), "native21s14": (12.4e3, 11.7e3),
            "native21s15": (12.6e3, 11.7e3), "native21s15b": (12.6e3, 11.7e3),
            "native21s16": (12.6e3, 11.7e3), "native21s17": (12.6e3, 11.7e3),
-           "native21s17b": (12.6e3, 11.7e3)}   # stage 15, 28 A hardware (DECISIONS 2026-10-10)
+           "native21s17b": (12.6e3, 11.7e3), "native21s18": (12.6e3, 11.7e3)}   # stage 15, 28 A hardware (DECISIONS 2026-10-10)
 PLATING_UM, PITCH, TEMP = 18.0, 0.1, 125.0
 
 
@@ -70,7 +70,8 @@ def main() -> None:
               "native21s15b": "9a9c43c63f63d383c89b9dc1d4d03a34d4390cfa1c26bbe802d71e169c6ddf94",
               "native21s16": "e9481ed6d183594a466d657bff09de525ad84457cbd13080a55b1b589b314bcd",
               "native21s17": "e40f1e275bbaff8a5e61e224974fd401a44bcad2acefa0b92d50f85b6ce81ecd",
-              "native21s17b": "96501e7d0e9b4903a145aa3bd0e45003a4fafe37ceef5259a7502bc9b11225a9"}
+              "native21s17b": "96501e7d0e9b4903a145aa3bd0e45003a4fafe37ceef5259a7502bc9b11225a9",
+              "native21s18": "3768a12675f8d61f91fc4a96dd267522e68f454f8f300634aca2ae16afc6dd1a"}
     assert data["board_sha256"] == PINNED[tag], f"{export} is not the pinned {tag} board"
     net = kit.Net(pitch_mm=PITCH, temp_c=TEMP)
     shapes, vias, pads = defaultdict(list), {}, {}

@@ -84,11 +84,12 @@ class Geometry:
             out.append(("edge", None))
         for lay in layers:
             tree, items = self._tree(lay)
-            for i in tree.query(geom.buffer(8.5)):
+            for i in tree.query(geom.buffer(rules21.RES_A_CREEPAGE + 0.1 if net in rules21.RES_A_NETS or
+                                            rules21.domain(net) in ("SELV", "PE") else 8.5)):
                 g, other = items[i]
                 if other == net or (via and id(g) in self.via_permeable):
                     continue
-                need = 0.3 if other == "<npth>" else rules21.clearance(net, other)
+                need = 0.3 if other == "<npth>" else rules21.clearance_on(net, other, lay)
                 if g.distance(geom) < need + 0.03:
                     out.append((lay, other))
                     if len(out) >= limit:

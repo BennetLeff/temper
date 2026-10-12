@@ -16,3 +16,7 @@ re-plans them.
 layer sit closer than their clearance at the same priority, since KiCad's fill order would then decide the contested
 copper. `patches21.ZONE_WINNERS` declares each such pair's winner; `resolve_zone_priorities` keeps every existing order.
 `fill_hash.py BUILDDIR...` hashes the filled pours of builds (copper-dump.json) to show two rebuilds fill identically.
+
+Stage 18 (DECISIONS item 18): RES_A to SELV / PE is 12.6 mm on F.Cu / B.Cu (`rules21.RES_A_CREEPAGE`). `barrier21.py`'s
+first line reports it per outer layer, `barrier_gate21.py` adds a per-outer-layer Rust run (`res_a_outer`), and
+`chain.sh` runs `validation-results/08-manufacturing-package/native-21/stage18-res-a-creepage/res_a_creepage18.py`.

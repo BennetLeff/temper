@@ -43,6 +43,21 @@ def clearance(a, b):
 
 
 BARRIER = _m.wr.REINFORCED_MM
+# stage 18: RES_A to SELV/PE on outer layers (DECISIONS item 7): 12.6 mm; inner layers keep BARRIER
+RES_A_NETS = set(_m.RES_A_NETS)
+RES_A_CREEPAGE = _m.RES_A_CREEPAGE_MM
+OUTER = ("F.Cu", "B.Cu")
+
+
+def res_a_pair(a, b):
+    """True for RES_A against SELV / PE (the 12.6 mm outer-layer creepage pair)."""
+    return (a in RES_A_NETS and domain(b) in ("SELV", "PE")) or (b in RES_A_NETS and domain(a) in ("SELV", "PE"))
+
+
+def clearance_on(a, b, layer):
+    """clearance(a, b) on one copper layer: RES_A to SELV / PE is 12.6 mm on the outer layers."""
+    c = clearance(a, b)
+    return max(c, RES_A_CREEPAGE) if layer in OUTER and res_a_pair(a, b) else c
 
 
 def barrier(a, b):

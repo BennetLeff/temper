@@ -17,6 +17,11 @@ unchanged (same group only when joined by a conductor/low impedance and within
   rectifier, split, monitor HOT side) and the high-side F6 nodes.
 - Line zero-cross resistor-string taps are separate groups (like divider taps); the AC-input
   opto's two LED nodes (LED1, LED2) share one group (they differ by one LED drop).
+- Stage 18 (DECISIONS items 7, 18): RES_A is 297 V rms / 656 V pk to earth in normal use at 28 A,
+  so its reinforced creepage to SELV/PE at PD3 / IIIa is 12.6 mm (Table 17 x 2, >250-400 V band).
+  A last rule raises RES_A to SELV/PE to 12.6 mm clearance and creepage on the OUTER layers only;
+  inner-layer copper is embedded in laminate (solid insulation) and keeps the 8.0 mm floor. Every
+  other HOT net is <= 250 V rms and keeps 8.0 mm.
 """
 import importlib.util
 import re
@@ -32,6 +37,8 @@ sys.path.insert(0, str(HERE))
 from domains import SELV  # noqa: E402
 
 BOARD = UNIT / "native-21/section.kicad_pcb"
+RES_A_NETS = {"res_a"}
+RES_A_CREEPAGE_MM = 12.6     # IEC 60335-1 Table 17 x 2, PD3, IIIa, >250-400 V (DECISIONS item 7)
 nets = wr.board_nets(BOARD.read_text())
 
 
@@ -58,7 +65,7 @@ for n in nets:
         if n in (f"p_h{leg}", f"n_h{leg}", f"leg_{leg}-off_h", f"leg_{leg}.bias_h-damp") or \
                 (n.startswith(f"bias_h{leg}") and not n.endswith(("_bad", ".iso-p3", "-en"))):
             groups[f"SW_{leg.upper()}"].add(n)
-for n in nets:
+for n in sorted(nets):   # sorted: group order (hence the DRU text) must not follow the hash seed
     if n.startswith("line_zc-") and n not in SELV or n in ("r1mid", "r2mid"):
         groups[f"ZC_{n}"] = {n}
 # The VOL628A is an AC-input opto (pins AC1/AC2, f6_parts.ato LineOpto): antiparallel LEDs, so
@@ -86,5 +93,12 @@ if unknown:
     sys.exit(1)
 if __name__ == "__main__":
     text = wr.rules(BOARD.read_text(), SELV)
+    barrier = (SELV | wr.SELV_NC | wr.PE) & nets
+    # last rule wins in KiCad, so this follows the SELV/PE floors and every component exception
+    text += ('\n(rule "RES_A to SELV/PE: reinforced 12.6 mm, outer layers (stage 18)"\n'
+             '  (layer outer)\n'
+             f'  (condition "{wr.any_of("A", RES_A_NETS & nets)} && {wr.any_of("B", barrier)}")\n'
+             f'  (constraint clearance (min {RES_A_CREEPAGE_MM}mm))\n'
+             f'  (constraint creepage (min {RES_A_CREEPAGE_MM}mm)))\n')
     (UNIT / "native-21/section.kicad_dru").write_text(text)
     print("wrote section.kicad_dru:", len(groups), "HOT groups,", len(nets), "nets")

@@ -485,7 +485,7 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
      - At 28 A the working voltage is **297 V rms / 656 V pk in normal use**, and 362 V rms / 791 V pk at the 29.4 A trip envelope.
      - Reinforced creepage at PD3 / IIIa in the >250–400 V band is **12.6 mm** (8.0 mm at PD2). The board-wide 8.0 mm HOT/SELV/PE floor therefore holds only for nets at ≤ 250 V rms. RES_A and the coil winding need 12.6 mm on outer-surface paths. Paths through the inner-layer laminate are solid insulation.
      - Stage-17b board measurement (outer layers, plan view): RES_A to SELV/PE is 8.14 mm to LINE_ZC_RAW and 9.40 mm to V15_SELV on B.Cu. Everything on F.Cu is ≥ 12.6 mm, and COIL_FEED has no outer-layer pair under 12.6 mm.
-     - **Stage 18 fixes the two B.Cu gaps** (reroute, or a slot), adds a 12.6 mm RES_A-specific floor to the barrier gate, and checks T1's (CT) primary–secondary rating at 297 V rms reinforced and 35–60 kHz.
+     - **Stage 18 fixes the two B.Cu gaps** (reroute, or a slot), adds a 12.6 mm RES_A-specific floor to the barrier gate, and checks T1's (CT) primary–secondary rating at 297 V rms reinforced and 35–60 kHz. **Done, item 18** (reroute: 13.375 / 14.400 mm; T1 sits on the SW_A end at 99 V rms, PASS).
      - Coil spec row 12b is updated to match. Certifier questions: PD2 for the potted winding system, and line-cycle RMS vs carrier-crest RMS.
    - J6 stays: H1 is a bare NPTH, so the board's PE comes only through J6;
    - H2–H7 keep nylon pan heads (PEEK socket heads if V-0 is ever required);
@@ -740,3 +740,26 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
         - Its B3 c28 cell is 133.04 °C, so the wall estimate is 133.31 °C: under the R5 pad maximum and G6's 148.39 °C terminal bound. 10 of 18 R5 vias are flagged (> 3 A).
         - **Meets the criterion; no via change.** More HV_RET vias would need SW_B's B.Cu lane (3.2 mm rule) pulled back from under R5's east / south edges, which costs tank copper.
       - **Not fixed:** `write_rules21.py` emits its DRU rule conditions in a different order per run. Same rules, so it doesn't affect the board; noted for a later cleanup.
+
+18. **Stage 18: RES_A to SELV/PE at 12.6 mm on the outer layers (2026-10-12, board `3768a12675f8d61f91fc4a96dd267522e68f454f8f300634aca2ae16afc6dd1a`, copper.json `e6ad813b963ce3a8fffafbc90bfa99f1cbb1ae982981c60642cc501727137a99`, Gerber ZIP `021bf8fdebcd1840a418b5dad74cf142118ca06bbe15b94aa2c0d996fb4561bc`; evidence `validation-results/08-manufacturing-package/native-21/stage18-res-a-creepage/`).**
+    - **Why:** item 7. RES_A is 297 V rms / 656 V pk to earth at 28 A, so reinforced creepage at PD3 / IIIa is 12.6 mm. Every other HOT net is ≤ 250 V rms and keeps 8.0 mm (`tank_taps18.py`: CRBLEED_1 242.5 V rms with the L70 coil, 255.1 V for any L 70–90 µH; CRBLEED_2/3 ≤ 198 V; SW_A / SW_B / COIL_FEED 99 V).
+    - **Change:** the SELV LINE_ZC_RAW and V15_SELV runs on B.Cu leave the bank's RES_A strip (edge y 114.0 / 112.9) for lanes at y 127.5 / 128.6 between x ≈ 137 and 187, with 45° doglegs; base geometry elsewhere, same widths, ends and vias (`patches21.add_stage18`). copper.json differs from 17b in exactly these two tracks. No slot, no part, pour or via moves.
+    - **Distances (outer layers, `res_a_creepage18.py`):**
+
+      | Pair (B.Cu) | 17b | 18 |
+      |---|---:|---:|
+      | RES_A – LINE_ZC_RAW | 8.145 mm | **13.375 mm** |
+      | RES_A – V15_SELV | 9.400 mm | **14.400 mm** |
+
+      F.Cu min 20.393 mm (incl. the J5 ring lug, 5 mm radius); RES_A – PE 19.204 mm. The script's `--control` on the 17b dump reports exactly the two pairs.
+    - **Gates added:** `rules21.RES_A_CREEPAGE` 12.6 / `clearance_on()` (authoring and routing on F.Cu / B.Cu); a last DRU rule `RES_A to SELV/PE ... (layer outer)` at 12.6 mm clearance and creepage (control: the 17b board with its own DRU plus this rule gives 16 errors, all this rule, all on the two runs); `barrier21.py` reports RES_A per outer layer; `barrier_gate21.py` runs the existing Rust binary per outer layer at 12.6 mm on the verified evidence subset (17b: B.Cu 15, F.Cu 0); `chain.sh` runs the evidence script. `write_rules21.py` builds its groups from `sorted(nets)`, closing 17b's DRU-order item.
+    - **Inner layers:** treated as solid insulation (item 7; reinforced solid insulation 2 mm per IEC 60335-1 29.3, M11). All inner RES_A copper is ≥ 8.0 mm in plan view from SELV/PE on every layer. **Certifier question added:** is a same-layer inner path a cemented joint? If not, C152.1's inner rings are 9.694 mm from the In1 v3v3 / In2 selv_gnd islands (needs ~3 mm pull-back or ring removal).
+    - **Straddling parts (datasheets read, not committed):** no footprint joins RES_A and SELV/PE. T1 CST3015-100ED is on the SW_A end of the coil (99 V rms / 198 V pk): Coilcraft states reinforced, ≥ 8 mm creepage/clearance, 5 kV rms 1 min, but no working voltage, CTI or HF / PD rating, so PASS at its own voltage and HF rating stays a Coilcraft question; it would not meet 12.6 mm on RES_A. UCC21550 / ISO7710 / AMC1311: reinforced, VIOWM 1500 V rms, VIORM 2120–2121 V pk, ≥ 8 mm, CTI ≥ 600. VOL628A 8.0 mm VDE (repo record), IRM-20 Class II 4.2 kV ac: mains only. H6 (nylon) is 8.40 mm from RES_A; with the ≥ 10 mm nylon standoff the path to chassis is ≈ 17 mm. **No rating fails; no part changes.**
+    - **Gates on board `3768a126…` (tag `native21s18`):**
+      - zone_priority_gate 25 contested, 0 equal; DRC 0 errors / 0 unconnected / parity 0, plane splits 0 (warnings as 17b);
+      - barrier21 0 (8.0 mm) + RES_A outer 0 (min F.Cu 20.393, B.Cu 13.375); Rust gate 0 over 5,626 items, RES_A outer 0 / 0 (956 / 560 items; existing `target-shared` binary, not rebuilt);
+      - D5 8.047 / 8.507 mm; fit 405 solids, 0 overlaps, 407 bodies in R4, 0 hits;
+      - JLC DFM PASS (759 vias, 120 plated pads, 0.2 mm); Gerber review PASS (875/875 + 4 slots, 0 silk on land);
+      - Kelvin unchanged: R35.2 157.80 mΩ, band 67.72–116.44 A, 67.66 A at the bound;
+      - B3 h 25 22 / 24 / 26 / 28 A → 130.2 / 131.1 / 132.1 / 136.0 °C, every case within 0.01 K of 17b. G6 not re-run: no copper near R5 or any power part changed (B3 R5.4 peak 135.96 vs 135.97 °C);
+      - audit.rs 79/79 and frozen-netlist PASS (rustc single file, `f46573fe79fd`); verify_source PASS (353 parts, hashes match).
