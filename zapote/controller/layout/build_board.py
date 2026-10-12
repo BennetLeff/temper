@@ -50,7 +50,8 @@ CLASSES = {
     "Supply": {"track_width": 0.3, "clearance": 0.15, "via_diameter": 0.6, "via_drill": 0.3},
     "Analog": {"track_width": 0.15, "clearance": 0.15, "via_diameter": 0.6, "via_drill": 0.3},
 }
-POWER_NETS = [V15, "V_BLOWER", "sw_3v3", "sw_12"]
+V15B = "V15_BLW"          # stage 16 (C33): blower buck input from PS3 via J13
+POWER_NETS = [V15, V15B, "V_BLOWER", "sw_3v3", "sw_12"]
 SUPPLY_NETS = ["V5_UI", "v5_drop", "v5_mid", "RTD_AVDD"]
 ANALOG_NETS = ["HS_SENSE", "COIL_SENSE", "rtd_sense_p", "rtd_sense_n", "rtd_force_p", "rtd_force_n", "vbus_p",
                "vbus_n", "ct_mon", "ct_buf_out", "m12_node", "m12_filt", "p1", "refin_n", "rms_in", "rms_ibuf",
@@ -382,7 +383,7 @@ def main():
         t.SetLocked(True)
         board.Add(t)
 
-    def buck_pours(u, ind, tag):
+    def buck_pours(u, ind, tag, vin_net):
         """SOT-583 converter (pins 1-4 left, 5-8 right, 0.5 mm pitch): a 0.3 mm stub leaves each
         power pin straight outward (it is as wide as the pad), and the wide pour starts 0.25 mm
         clear of the pin row, so the 0.2 mm pin gaps never carry pour."""
@@ -399,8 +400,8 @@ def main():
         # VIN (pin 3): stub to -x, input pour to the left of the pin row
         x0, y0, x1, y1 = pad_box(f"{u}.3")
         cy = (y0 + y1) / 2
-        stub(V15, (x0 + x1) / 2, cy, x0 - 0.7, cy)
-        plane(V15, pcbnew.F_Cu, 5, f"VIN_{tag.upper()}", (x0 - 4.0, cy, x0 - 0.25, cy + 2.6),
+        stub(vin_net, (x0 + x1) / 2, cy, x0 - 0.7, cy)
+        plane(vin_net, pcbnew.F_Cu, 5, f"VIN_{tag.upper()}", (x0 - 4.0, cy, x0 - 0.25, cy + 2.6),
               pad_conn=pcbnew.ZONE_CONNECTION_FULL)
         # GND (pin 4, the lower-left corner pin): stub straight down to a plane via
         x0, y0, x1, y1 = pad_box(f"{u}.4")
@@ -414,8 +415,30 @@ def main():
         v.SetNet(board.FindNet(GND))
         v.SetLocked(True)
         board.Add(v)
-    buck_pours(R("u_3v3"), R("l_3v3"), "3v3")
-    buck_pours(R("u_12"), R("l_12"), "12")
+    buck_pours(R("u_3v3"), R("l_3v3"), "3v3", V15)
+    buck_pours(R("u_12"), R("l_12"), "12", V15B)
+    # Stage 16 (C33): J13.1 -> blower buck VIN pour as an F.Cu feed band (2.72 A design load), so
+    # the PS3 feed never depends on a routed track. World rectangles from floorplan.BLW_FEED (rectangles, because fanout.py treats a zone as its bbox); THT
+    # pads (J13.1) get thermal reliefs, SMD pads connect solid.
+    for k_, poly in enumerate(floorplan.BLW_FEED):
+        zf = pcbnew.ZONE(board)
+        zf.SetLayer(pcbnew.F_Cu)
+        zf.SetNet(board.FindNet(V15B))
+        zf.SetAssignedPriority(6 + k_)        # distinct: overlapping same-net zones need distinct priorities (DRC)
+        zf.SetZoneName(f"BLW_FEED{k_}")
+        zf.SetPadConnection(pcbnew.ZONE_CONNECTION_THT_THERMAL)
+        zf.SetMinThickness(mm(0.25))
+        zf.SetThermalReliefGap(mm(0.3))
+        zf.SetThermalReliefSpokeWidth(mm(0.6))
+        zf.SetLocalClearance(mm(0.25))
+        zf.SetIslandRemovalMode(pcbnew.ISLAND_REMOVAL_MODE_ALWAYS)
+        olf = zf.Outline()
+        olf.NewOutline()
+        x0_, y0_, x1_, y1_ = poly
+        for wx, wy in ((x0_, y0_), (x1_, y0_), (x1_, y1_), (x0_, y1_)):
+            kx_, ky_ = world.to_k(wx, wy)
+            olf.Append(mm(kx_), mm(ky_))
+        board.Add(zf)
 
     # ---- anchored passives
     is_active = lambda r: r[0] in "UJ" or r == "Q1" or r.startswith("L")  # noqa: E731
@@ -441,7 +464,7 @@ def main():
             cands = [(r, p) for r, p in nodes if r != ref and is_active(r)]
             if not cands:
                 continue
-            key = (len(nodes) if n not in (V3, V15) else 99, cands[0][0][0] != "U")
+            key = (len(nodes) if n not in (V3, V15, V15B) else 99, cands[0][0][0] != "U")
             if best is None or key < best[0]:
                 best = (key, cands[0])
         if best is None:

@@ -63,7 +63,10 @@ class Crop:
             out[a0 - i0:a1 - i0, b0 - j0:b1 - j0] = self.a[a0 - self.i0:a1 - self.i0, b0 - self.j0:b1 - self.j0]
         return out
 SIG_W = 0.15
-POWER = {"v15_selv": 0.8, "V_BLOWER": 0.8, "sw_3v3": 0.4, "sw_12": 0.8, "v3v3": 0.3}   # L3: blower 1.42 A typ
+POWER = {"v15_selv": 0.8, "V15_BLW": 1.0, "V_BLOWER": 0.8, "sw_3v3": 0.4, "sw_12": 0.8, "v3v3": 0.3}   # L3: blower 1.42 A typ
+# High-current routed nets never fall back to a 0.25 mm neck (blower 2.70 A peak). V15_BLW (PS3 feed,
+# 2.72 A) runs J13 -> bulk -> input caps -> U2 in F.Cu pours; its routed tracks are the EN/BLW_PG branches.
+NO_NECK = {"V_BLOWER", "sw_12"}   # V15_BLW carries its current in the BLW_FEED pours
 LAYERS = ("F", "In2", "B")    # In2 carries signals where needed; the v3v3 pour refills around them
 
 
@@ -646,7 +649,7 @@ def main():
     def attempt(idx, margins):
         net, ((a, la), (b, lb)) = pairs[idx]
         tries = [(POWER.get(net, SIG_W), m) for m in margins]
-        if net in POWER:
+        if net in POWER and net not in NO_NECK:
             tries += [(0.25, m) for m in margins]
         why = ""
         for w, m in tries:
@@ -687,7 +690,7 @@ def main():
             net, ((a, la), (b, lb)) = pairs[idx]
             committed = False
             for w_, m_ in [(POWER.get(net, SIG_W), m) for m in (6.0, 15.0, 40.0)] + \
-                    ([(0.25, m) for m in (6.0, 15.0)] if net in POWER else []):
+                    ([(0.25, m) for m in (6.0, 15.0)] if net in POWER and net not in NO_NECK else []):
                 res, why = R.route(net, a, b, la, lb, w_, m_, soft=True)
                 if not res:
                     continue

@@ -7,7 +7,7 @@ Enclosure (R31 CONTROLLER-SPEC section + R33 DECISIONS section 3 delta, via layo
   outline     Edge.Cuts is exactly the X-38..168 / Y14..90 rectangle, 1.6 mm board, 4 copper layers
   holes       six 4.0 mm holes (R30) at the R31 positions (+-0.05 mm), nothing else cut
   hole_keepout  no courtyard, pad, track, via or copper fill inside the 8 mm snap-in head circle
-  connectors  J1-J3, J7, J9, J10, J12 body (F.Fab) centre within 0.5 mm of the spec centre (J12: the
+  connectors  J1-J3, J7, J9, J10, J12, J13 body (F.Fab) centre within 0.5 mm of the spec centre (J12: the
               proposed R36 landing in world.py), J7's body edges
               within 0.5 mm of its R33 box; J3 body along the rear edge
   j4          courtyard within 0.5 mm of world.J4_BODY, mating face (pegs) toward world.J4_MATING at that edge
@@ -20,6 +20,7 @@ Layout rules (brief):
               selv_gnd on the same net within 5 mm (pad to pad)
   interlock   no track of an MCU (U4) net crosses the interlock region; PERMIT path latch->J4.9 length
   thermal_relief  every through-hole pad that a pour reaches is thermal-relieved (zone setting)
+  power_widths  V_BLOWER routed >= 0.8 mm; V15_BLW's J13.1, bulk and input-cap pads in one F.Cu pour region
 """
 from __future__ import annotations
 
@@ -41,11 +42,13 @@ TOL = world.CONNECTOR_TOL
 GATE_PATHS = ["u_permit", "c_permit", "r_run_en_pd", "r_permit_pd"]
 # Part heights above the board, mm, with their drawing sources (ENCLOSURE-HANDOFF.md "Height and cable exit")
 HEIGHTS = {"JST XH mated (J1-J3, J7, J9, J10, J12; JST eXH.pdf 9.8 assembled)": 9.8,
+           "J13 B2P-VH mated (JST eVH.pdf p.1 mounting height 16.5)": 16.5,
            "J4 43045-1600 + 43025-1600 mated (Molex 43045 series part data 10.29)": 10.29,
            "J11 61300811121 pin tips (Wurth DS rev 003, 11.54 - 3.0)": 8.54,
            "C1 EEE-FK1E101P": 6.2, "L1 SWPA6045": 4.5, "L2 SWRB1205S (Sunlord SWRB-S, 6.0 max)": 6.0,
            "U4 ESP32-S3-WROOM-1U (Espressif DS v1.8 Table 1-2)": 3.2}
-CONNECTOR_PARTS = {k for k in HEIGHTS if k.startswith(("JST", "J4", "J11"))}
+CONNECTOR_PARTS = {k for k in HEIGHTS if k.startswith(("JST", "J4", "J11", "J13"))}
+LOCAL_PARTS = {"J13 B2P-VH mated (JST eVH.pdf p.1 mounting height 16.5)": "J13"}
 
 
 def wbox(b):
@@ -226,13 +229,23 @@ def main():
     # ---- height
     allowance = world.Z_LIMIT - world.BOARD_BOTTOM_Z - world.THICKNESS
     rows = {k: {"height_mm": v, "limit_mm": allowance if k in CONNECTOR_PARTS else 6.4} for k, v in HEIGHTS.items()}
-    put("height", all(v["height_mm"] <= v["limit_mm"] for v in rows.values()), allowance_mm=round(allowance, 2),
+    # enclosure-granted local allowances: the part's body must lie inside the granted square
+    local_ok = True
+    for k, ref in LOCAL_PARTS.items():
+        lim = next(l for l in world.LOCAL_Z if l[0] == ref)
+        (lx, ly), half, zmax, src = lim[1], lim[2], lim[3], lim[4]
+        fb = wbox(layer_bbox(fps[ref], pcbnew.F_Fab))
+        inside = fb[0] >= lx - half and fb[2] <= lx + half and fb[1] >= ly - half and fb[3] <= ly + half
+        local_ok &= inside
+        rows[k] = {"height_mm": HEIGHTS[k], "limit_mm": round(zmax - world.BOARD_BOTTOM_Z - world.THICKNESS, 2),
+                   "local_allowance": src, "body_world": [round(v, 3) for v in fb], "body_inside_allowance": inside}
+    put("height", local_ok and all(v["height_mm"] <= v["limit_mm"] for v in rows.values()), allowance_mm=round(allowance, 2),
         parts=rows, not_checked=["J4 plug overhang beyond the board edge (R31: to X-50); the 43045-1600 sales drawing "
                                  "itself was not readable from this network, the mated height is the 43045 series figure",
-                                 "cable bends above the mated XH housings (harness)", "a socket mated on J11"])
+                                 "cable bends above the mated XH housings (harness); J13's 18 AWG bend is inside R41's local allowance", "a socket mated on J11"])
 
     # ---- decoupling
-    supplies = {"v3v3", "v15_selv", "RTD_AVDD", "V5_UI", "v5_drop", "V_BLOWER"}
+    supplies = {"v3v3", "v15_selv", "V15_BLW", "RTD_AVDD", "V5_UI", "v5_drop", "V_BLOWER"}
     caps = [f for r_, f in fps.items() if r_.startswith("C")]
     # supply pins = the "vcc" pins of the part models in tools/verify_controller.py (datasheet pin
     # tables); parts without a model: every pin on a supply net
@@ -320,6 +333,54 @@ def main():
                             tht_in_buck_pours.append(f"{f.GetReference()}.{p.GetNumber()}")
     put("thermal_relief", not bad and not tht_in_buck_pours, zones=[n for n, _ in zs], solid_connect_zones_with_tht=bad + tht_in_buck_pours,
         note="GND/v3v3 planes and pours use 'thermal reliefs for PTH' (SMD solid); the buck SW/VIN pours touch SMD pads only")
+
+    # ---- high-current paths (stage 16). V_BLOWER routed >= 0.8 mm (L3); pin stubs <= 1.0 mm long are
+    # listed, not failed. V15_BLW (2.72 A, PLAN-16 sec. 3) must carry its current in F.Cu pours: J13.1, the
+    # bulk + pad, every input-cap V15_BLW pad and U2's VIN pour must lie in one connected filled V15_BLW
+    # region; its routed tracks (EN / BLW_PG divider branches, mA) are reported only.
+    need = {"V_BLOWER": 0.8}
+    pw, pw_ok = {}, True
+    for n, w_req in need.items():
+        ts = [t for t in b.GetTracks() if t.GetNetname() == n and t.Type() == pcbnew.PCB_TRACE_T]
+        long_ = [t for t in ts if mm(t.GetLength()) > 1.0]
+        narrow = [round(mm(t.GetWidth()), 3) for t in long_ if mm(t.GetWidth()) < w_req - 1e-6]
+        vias = [t for t in b.GetTracks() if t.GetNetname() == n and t.Type() == pcbnew.PCB_VIA_T]
+        pw[n] = {"required_mm": w_req, "min_width_mm": round(min((mm(t.GetWidth()) for t in long_), default=0), 3),
+                 "narrow_segments": narrow, "stubs": len(ts) - len(long_), "vias": len(vias),
+                 "length_mm": round(sum(mm(t.GetLength()) for t in ts), 1)}
+        pw_ok &= not narrow
+    filler = pcbnew.ZONE_FILLER(b)
+    filler.Fill(b.Zones())
+    feed = pcbnew.SHAPE_POLY_SET()
+    for z in b.Zones():
+        if z.GetNetname() == "V15_BLW" and z.GetLayer() == pcbnew.F_Cu:
+            feed.BooleanAdd(z.GetFilledPolysList(pcbnew.F_Cu))
+    feed.Simplify()
+    must = []
+    for f in b.GetFootprints():
+        src = f.GetFieldText("SourceInstance")
+        for p in f.Pads():
+            if p.GetNetname() == "V15_BLW" and (f.GetReference() == "J13" or src in
+                                                ("c_blw_bulk", "c_in12a", "c_in12b", "c_in12c")):
+                must.append((f.GetReference(), p.GetNumber(), p))
+    def region_of(pad):
+        """Index of the filled V15_BLW region that overlaps the pad's copper (a thermal pad's spokes count)."""
+        pp = pad.GetEffectivePolygon(pcbnew.F_Cu, pcbnew.ERROR_INSIDE)
+        for i in range(feed.OutlineCount()):
+            one = pcbnew.SHAPE_POLY_SET()
+            one.AddOutline(feed.Outline(i))
+            inter = pcbnew.SHAPE_POLY_SET(pp)
+            inter.BooleanIntersection(one)
+            if inter.Area() > 0:
+                return i
+        return None
+    hits = {f"{r}.{n}": region_of(pad) for r, n, pad in must}
+    one = len(must) >= 5 and None not in hits.values() and len(set(hits.values())) == 1
+    blw_tracks = [t for t in b.GetTracks() if t.GetNetname() == "V15_BLW" and t.Type() == pcbnew.PCB_TRACE_T]
+    pw["V15_BLW"] = {"pour_outline_per_pad": hits, "one_pour_region": one, "pour_regions": feed.OutlineCount(),
+                     "routed_branch_tracks": len(blw_tracks),
+                     "routed_branch_min_width_mm": round(min((mm(t.GetWidth()) for t in blw_tracks), default=0), 3)}
+    put("power_widths", pw_ok and one, nets=pw)
 
     # ---- analog partition: courtyard-to-courtyard separations (ENCLOSURE-HANDOFF placement notes)
     def crt(ref):

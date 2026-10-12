@@ -396,6 +396,10 @@
       },
       {
         "netclass": "Power",
+        "pattern": "V15_BLW"
+      },
+      {
+        "netclass": "Power",
         "pattern": "V_BLOWER"
       },
       {

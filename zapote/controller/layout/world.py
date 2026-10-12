@@ -44,6 +44,9 @@ THICKNESS = 1.6
 # Height (R30): components and mated connectors below Z40; board bottom Z23 -> 15.4 mm above the top face.
 BOARD_BOTTOM_Z = 23.0
 Z_LIMIT = 40.0
+# Local allowances (enclosure-granted): (ref, world centre, half-size mm, Z limit, source).
+# J13: 16.5 mm mated VH (JST eVH p.1) plus the 18 AWG bend.
+LOCAL_Z = [("J13", (88.0, 86.0), 6.0, 54.0, "R41 enclosure: J13 local, Z <= 54 within +-6 mm of (88, 86)")]
 
 # Holes (R31 positions, R30 diameter): six 4.0 mm holes for dual-locking snap-in nylon supports,
 # an 8 mm area free of copper and parts around each. The (-34, 18) support is all-nylon 6/6 V-0
@@ -61,8 +64,16 @@ CONNECTORS = {
     "J7": (46.0, 60.0),     # UI bus, JST B12B-XH-A (R33)
     "J9": (-33.0, 86.0),    # M12 probe, JST B3B-XH-A
     "J10": (139.0, 86.0),   # fan, JST B3B-XH-A
-    "J12": (126.0, 86.0),   # rim NTC, JST B2B-XH-A (R36; PROPOSED landing, enclosure to confirm)
+    "J12": (126.0, 86.0),   # rim NTC, JST B2B-XH-A (R36; accepted R38)
+    # J13 PS3 blower feed, JST B2P-VH top entry, posts along X (stage 16, C33). Enclosure R41
+    # approved body centre (88, 86); the VH body is 8.5 mm deep (JST eVH p.3), so at Y86 it would
+    # overhang the rear edge. Its F.Fab outline is 8.70 mm deep, so the body centre is pulled 0.35 mm
+    # forward to sit flush with Y90.
+    "J13": (88.0, 85.65),
 }
+# Enclosure-approved spot for J13 (R41) and its local height allowance (below).
+J13_R41 = (88.0, 86.0)
+
 CONNECTOR_TOL = 0.5
 # R33 gives J7 as a body box: checked edge by edge as well.
 J7_BODY = (29.8, 57.1, 62.2, 62.9)

@@ -4,48 +4,51 @@
    "run": "run1",
    "make_last_line": "ALL GATES PASS",
    "errors": 0,
-   "warnings": 22,
+   "warnings": 28,
    "unconnected": 0,
    "schematic_parity": 0,
    "violation_types": {
-    "connection_width": 11,
+    "connection_width": 13,
+    "copper_sliver": 1,
     "lib_footprint_mismatch": 2,
-    "silk_edge_clearance": 9
+    "silk_edge_clearance": 12
    },
    "rc": 0,
-   "seconds": 753,
+   "seconds": 1490,
    "closed": true
   },
   {
    "run": "run2",
    "make_last_line": "ALL GATES PASS",
    "errors": 0,
-   "warnings": 22,
+   "warnings": 29,
    "unconnected": 0,
    "schematic_parity": 0,
    "violation_types": {
-    "connection_width": 11,
+    "connection_width": 14,
+    "copper_sliver": 1,
     "lib_footprint_mismatch": 2,
-    "silk_edge_clearance": 9
+    "silk_edge_clearance": 12
    },
    "rc": 0,
-   "seconds": 753,
+   "seconds": 1485,
    "closed": true
   },
   {
    "run": "run3",
    "make_last_line": "ALL GATES PASS",
    "errors": 0,
-   "warnings": 22,
+   "warnings": 29,
    "unconnected": 0,
    "schematic_parity": 0,
    "violation_types": {
-    "connection_width": 11,
+    "connection_width": 14,
+    "copper_sliver": 1,
     "lib_footprint_mismatch": 2,
-    "silk_edge_clearance": 9
+    "silk_edge_clearance": 12
    },
    "rc": 0,
-   "seconds": 753,
+   "seconds": 1467,
    "closed": true
   }
  ],

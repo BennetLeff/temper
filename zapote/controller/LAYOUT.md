@@ -1,8 +1,8 @@
-# Controller PCB layout (L3: enclosure R33, R36 rim NTC, blower supply, thermal trip ladder)
+# Controller PCB layout (L3 + stage 16: enclosure R33/R41, R36 rim NTC, blower supply from PS3, thermal trip ladder)
 
-This is the layout of the integrated SELV controller: 244 parts, 4 layers, 206 × 76 mm, placed and routed by scripts from `frozen/default.net`, with a JLCPCB fab package. Nothing was drawn by hand in the KiCad GUI.
+This is the layout of the integrated SELV controller: 248 parts, 4 layers, 206 × 76 mm, placed and routed by scripts from `frozen/default.net`, with a JLCPCB fab package. Nothing was drawn by hand in the KiCad GUI.
 
-**Status: DRC-clean candidate, not released** (ordering is the owner's decision). KiCad DRC: 0 errors, 0 unconnected, schematic parity 0; JLC DFM PASS; all 11 enclosure/layout checks PASS; gerbv fab review PASS. Not fabricated. Every number below comes from a file in `evidence/` that `python3 layout/make.py` regenerates: `drc.json`, `jlc-dfm.json`, `layout-check.json`, `fab-review.json`, `silk-designators.json`, `verify.json`; the routing-robustness proof is `evidence/convergence.json` (`layout/convergence.py`).
+**Status: DRC-clean candidate, not released** (ordering is the owner's decision). KiCad DRC: 0 errors, 0 unconnected, schematic parity 0; JLC DFM PASS; all 12 enclosure/layout checks PASS; gerbv fab review PASS. Not fabricated. Every number below comes from a file in `evidence/` that `python3 layout/make.py` regenerates: `drc.json`, `jlc-dfm.json`, `layout-check.json`, `fab-review.json`, `silk-designators.json`, `verify.json`; the routing-robustness proof is `evidence/convergence.json` (`layout/convergence.py`).
 
 **Enclosure revision:** R31 outline, holes and connectors (`output/temper-manufacturing-r31/design/r31/CONTROLLER-SPEC.md`, "R31" section, with R30's mounting and heights) plus the **R33 controller delta** (`output/temper-manufacturing-r33/design/r33/DECISIONS.md` §3; the R35 HANDOFF restates it unchanged):
 - J5, J6 and J8 are deleted; one 12-way JST B12B-XH-A **J7** at X29.8–62.2, Y57.1–62.9 carries the UI bus (DECISIONS C26);
@@ -15,6 +15,14 @@ This is the layout of the integrated SELV controller: 244 parts, 4 layers, 206 �
 - **NTC filters (C29):** 10 k / 100 nF (159 Hz) on the heatsink, coil and rim NTC inputs, ahead of the buffers. The RTD front end is unchanged (byte-locked library; change request in C29).
 - **Rim NTC (C31):** 100 k / 300 °C glass NTC with a 1.00 kΩ 0.1 % pull-up.
 - **Thermal trip ladder (C32):** heatsink comparator 11.5 k / 8.06 k (trip 101.4 °C nominal), coil comparator 90.9 k / 7.06 k / 140 k at 0.1 % with a 104GT-2 class coil NTC (trip 175.7 °C nominal). Evidence: `docs/evidence/2026-10-12-thermal-trip-ladder-l3.md`.
+
+**Stage 16 (DECISIONS C33, 2026-10-12):** the blower buck U2 now runs from a separate chassis-mounted SELV supply, PS3 (Mean Well IRM-60-15ST at world (−139, 95), enclosure R41).
+- **J13** (JST B2P-VH, 2-pos, 3.96 mm, top entry) is at body centre (88, 85.65), flush with the edge, 0.35 mm from R41's approved (88, 86) at the rear edge.
+  - Pin 1 V15_BLW, pin 2 return.
+  - Its 16.5 mm mated height uses R41's local allowance, Z ≤ 54 within ±6 mm of (88, 86).
+- U2's VIN, EN-divider top and input capacitors moved from v15_selv to V15_BLW, and a 100 µF bulk capacitor is added.
+- PS3's return ties to selv_gnd at J13.2 only.
+- A 20 k / 4.7 k BLW_PG divider feeds expander P16.
 
 **All enclosure numbers live in one table, `layout/world.py`**; a new revision is an edit there plus a re-run. The L1 layout (R31) is in git history at `97c36e2a9`.
 
@@ -106,7 +114,13 @@ JLC figures re-read 2026-10-09 from jlcpcb.com/capabilities/pcb-capabilities (mu
 - **3.3 V buck** (U1, L1) at the front (X 28…50); v15 runs to it from J4.1 and the v3v3 plane carries its output back to J4.3.
 - **Thermal-sense block** between J2 (X−20) and J1 (X55) at the rear, with its buffer U7.
 - **RTD front end** (MAX31865, REF2025, window comparators, TPS389001, Rref) between the module and J3, with the runaway comparator U10.
-- **Blower buck** (U2, L2 = SWRB1205S, C28) at X 81…102 (U2 at (86, 80.75), L2 at (95.75, 76.4)), behind the +5 V LDO. Its feedback divider (0.1 %), the speed-injection RC from GPIO46 and the FAN_OFF transistor sit at U2's FB pin; V_BLOWER runs at 0.8 mm to J10. A keep-apart band X 102.8…112.8 (`floorplan.py` CHANNELS) holds parts out so L2 stays ≥ 10 mm from the RTD analog parts. The tach pull-up (10 k), TVS and 1 k / 1 nF RC into GPIO3 sit at J10.
+- **Blower buck** (U2, L2 = SWRB1205S, C28) at X 81…102 (stage 16: U2 at (86, 75.25), L2 at (95.75, 70.9), 5.5 mm further forward than L3 so J13 fits at the rear edge behind U2), behind the +5 V LDO. Its feedback divider (0.1 %) and the 56.2 k injection resistor sit in the strip between U2/L2 and J13, beside the FB pin. The GPIO46 filter RC and the FAN_OFF transistor are auto-placed nearby; V_BLOWER runs at 0.8 mm to J10. A keep-apart band X 102.8…112.8 (`floorplan.py` CHANNELS) holds parts out so L2 stays ≥ 10 mm from the RTD analog parts. The tach pull-up (10 k), TVS and 1 k / 1 nF RC into GPIO3 sit at J10.
+- **PS3 feed (stage 16, C33):** V15_BLW runs entirely in F.Cu pours (`floorplan.py` BLW_FEED), so the 2.72 A PS3 current never depends on a routed track:
+  - a 1.7 mm band from J13.1 (thermal-relieved, 0.6 mm spokes) down the left of U2 into its VIN pour;
+  - a 2.0 mm strip over the 100 µF bulk capacitor's + pad (C9, at (72.6, 72)) and the three input capacitors.
+  - Routing channels keep auto-placed parts out of both.
+  - The BLW_PG divider sits at J13, so only its ≤ 3.9 V node runs to the expander.
+  - **Return:** J13.2 drops into the In1 plane beside the buck. The 15 V supply current enters and leaves there, instead of crossing the board from J4 as in L3.
 - **Rim NTC channel** (R36/C31): TVS at J12; the 1.00 k pull-up, the 10 k / 100 nF filter and the TLV9061 follower (u_buf3) at (119.5, 81.5) beside it; the ADC anti-kick RC at the module.
 - **Module channels (L3):** a band in front of the module (X 137…163, Y 41…49.6) and a strip along its left pin column (X 134.5…140.4) are kept free of auto-placed parts except decoupling capacitors. The module's right-column nets all leave to the left round its front edge; the nets that stayed open in L2's failed runs were all module nets at these pins.
 
@@ -114,14 +128,14 @@ JLC figures re-read 2026-10-09 from jlcpcb.com/capabilities/pcb-capabilities (mu
 
 | Separation (courtyard to courtyard, `evidence/layout-check.json` partition) | mm |
 |---|---|
-| Blower buck (L2/U2) → RTD front end (required ≥ 10, ENCLOSURE-HANDOFF item 6) | 10.4 |
-| Blower buck → thermal-sense block | 48.1 |
+| Blower buck (L2/U2) → RTD front end (required ≥ 10, ENCLOSURE-HANDOFF item 6) | 10.5 |
+| Blower buck → thermal-sense block | 48.2 |
 | Blower buck → J4 analog (D-11, ct_mon, AD8436) | 69.9 |
 | 3.3 V buck (L1/U1) → RTD front end | 76.7 |
 | 3.3 V buck → thermal-sense block | 52.0 |
 | 3.3 V buck → J4 analog | 36.0 |
 
-L2 (10.1 mm) → L3 (10.4 mm) for the blower buck to the RTD parts, with the larger SWRB1205S inductor: the keep-apart band holds it. The blower buck is 48.1 mm from the thermal-sense block (L2: 54.1 mm) because it is wider; the thermal-sense nodes now also have the 159 Hz RC ahead of their buffers.
+L2 (10.1 mm) → L3 (10.4 mm) → stage 16 (10.5 mm) for the blower buck to the RTD parts, with the larger SWRB1205S inductor: the keep-apart band holds it. The blower buck is 48.2 mm from the thermal-sense block (L2: 54.1 mm) because it is wider; the thermal-sense nodes now also have the 159 Hz RC ahead of their buffers.
 
 - **Switchers:** both bucks are compact. The VIN pour holds the input capacitors' supply pads against the VIN pin; the GND pin drops through its own via into In1 beside the input capacitors' ground vias; the SW node leaves its corner pin straight down into a pour band that runs to the inductor, so the BST/SS/FB pins keep their side free for the bootstrap capacitor and the SS/FB parts.
 - **Blower speed input:** the GPIO46 PWM is filtered to DC (12.1 k / 1 µF) before it reaches the 56.2 k injection resistor at the FB node, so no PWM edge reaches the feedback pin; the FB divider is at the pin.
@@ -130,7 +144,7 @@ L2 (10.1 mm) → L3 (10.4 mm) for the blower buck to the RTD parts, with the lar
 
 ## Interlock trip path
 
-Routed lengths (`evidence/layout-check.json` interlock): PERMIT 70.6 mm (U37 → J4.9 plus the read-back branch to U9), PERMIT_LATCH 49.3, bus_fault 94.2, all_good 37.2, reset_clock 43.2, latched_fault 55.6, RAIL_FAULT 34.5, SENSOR_LIVE 17.0, HS_FAULT 88.4, COIL_FAULT 95.1, RTD_HW_FAULT (`line`) 190.2, RUNAWAY_FAULT 149.0, RUN_EN 208.6 mm.
+Routed lengths (`evidence/layout-check.json` interlock): PERMIT 70.6 mm (U37 → J4.9 plus the read-back branch to U9), PERMIT_LATCH 49.3, bus_fault 93.7, all_good 36.9, reset_clock 43.1, latched_fault 56.2, RAIL_FAULT 34.3, SENSOR_LIVE 17.0, HS_FAULT 88.2, COIL_FAULT 97.6, RTD_HW_FAULT (`line`) 195.0, RUNAWAY_FAULT 148.9, RUN_EN 208.6 mm.
 
 The latch block's internal nets stay short. The long ones each have a geometric reason:
 - the RTD trip inputs (RTD_HW_FAULT, RUNAWAY_FAULT) come from the RTD block beside J3 at the far right, and the thermal trip inputs from the thermal block;
@@ -149,15 +163,21 @@ Every IC supply pin (the "vcc" pins of `verify_controller.py`'s part models) has
 | KiCad DRC errors | **0** | `evidence/drc.json` |
 | Unconnected items | **0** | `evidence/drc.json` |
 | Schematic parity | 0 | `evidence/drc.json` |
-| DRC warnings | 22: connection_width 11, silk_edge_clearance 9, lib_footprint_mismatch 2. connection_width is thin necks in zone fills; silk_edge_clearance is designators near the board edge; lib_footprint_mismatch is the two intended footprint edits (U20 pads, WROOM courtyard). No dangling track or via | `evidence/drc.json` |
-| JLC DFM (1 oz limits) | PASS: 745 vias, 2889 tracks, 64 plated pads, 2 NPTH, min track 0.15 mm | `evidence/jlc-dfm.json` |
-| Enclosure + layout check | PASS on all 11 checks | `evidence/layout-check.json` |
-| Fab review (gerbv) | PASS: 809 PTH hits (64 component, 745 via), 2 NPTH, outline 206.0 × 76.0 mm | `evidence/fab-review.json` |
-| Designators | 181 on silk, 63 on F.Fab only (all on the assembly drawing) | `evidence/silk-designators.json` |
-| `tools/verify_controller.py` | PASS, 166 checks in 12 sections; 29/29 mutation tests (`tests/test_verify_mutations.py`) | `evidence/verify.json` |
+| DRC warnings | 29: connection_width 14, silk_edge_clearance 12, lib_footprint_mismatch 2, copper_sliver 1. connection_width is thin necks in zone fills; silk_edge_clearance is designators near the board edge; lib_footprint_mismatch is the two intended footprint edits (U20 pads, WROOM courtyard); copper_sliver is one acute corner in a ground pour. No dangling track or via | `evidence/drc.json` |
+| JLC DFM (1 oz limits) | PASS: 811 vias, 3246 tracks, 66 plated pads, 2 NPTH, min track 0.15 mm | `evidence/jlc-dfm.json` |
+| Enclosure + layout check | PASS on all 12 checks (stage 16 adds power_widths: V_BLOWER ≥ 0.8 mm; V15_BLW's J13.1, bulk and input-cap pads in one F.Cu pour region) | `evidence/layout-check.json` |
+| Fab review (gerbv) | PASS: 877 PTH hits (66 component, 811 via), 2 NPTH, outline 206.0 × 76.0 mm | `evidence/fab-review.json` |
+| Designators | 186 on silk, 62 on F.Fab only (all on the assembly drawing) | `evidence/silk-designators.json` |
+| `tools/verify_controller.py` | PASS, 182 checks in 13 sections; 33/33 mutation tests (`tests/test_verify_mutations.py`) | `evidence/verify.json` |
 | Routing robustness | **3/3 consecutive full runs from a clean start close the board** with all gates passing | `evidence/convergence.json` |
 
-**Convergence (routing robustness).** `python3 layout/convergence.py --runs 3 --out <dir>` moves `pcb/route/` away before each run, so no run reuses copper, then runs the whole `make.py`. Result (`evidence/convergence.json`): runs 1, 2 and 3 each ended "ALL GATES PASS" (exit 0, about 753 s each), each with 0 errors, 0 unconnected, parity 0, and the same 22 warnings listed above. The committed board is run 3; its round log is `evidence/route-log.json` (315 open pairs after placement and fan-out; 8 after round 1; 2 after rounds 2 and 3; one 3 mm repair with HS_FAULT_RB and runaway_healthy first, after which round 4 re-routed the 36 ripped pairs; one pair reopened by the final cleanup and closed in round 6; 0 open at the end; the run-to-run logs were identical). The boards differ slightly between runs (KiCad's DRC lists pairs in varying order), but all close.
+**Convergence (routing robustness).** `python3 layout/convergence.py --runs 3 --out <dir>` moves `pcb/route/` away before each run, so no run reuses copper, then runs the whole `make.py`. Result (`evidence/convergence.json`): runs 1, 2 and 3 each ended "ALL GATES PASS" (exit 0, about 753 s each), each with 0 errors, 0 unconnected, parity 0, and the same 22 warnings listed above. That L3 proof's committed board was run 3 (315 open pairs after placement; one 3 mm repair; closed in round 7; the three runs' logs were identical). The boards differ slightly between runs (KiCad's DRC lists pairs in varying order), but all close.
+
+**Stage 16 convergence** (`evidence/convergence.json`, same tool, after the J13 / V15_BLW change): runs 1, 2 and 3 each ended "ALL GATES PASS" (exit 0; 1490, 1485 and 1467 s), each with 0 errors, 0 unconnected, parity 0. Warnings were 28, 29 and 29, all of the four kinds above. The committed board is run 3. Its round log (`evidence/route-log.json`):
+- 315 pairs open after placement; 18 after round 1; 4 after round 2.
+- A 3 mm repair, then a 5 mm repair (HS_FAULT_RB, the thermal comparator input `inn`, v3v3).
+- 0 open after round 8. The final cleanup reopened 3, which rounds 10–11 closed.
+Runs take about twice as long as L3's because of the extra repair cycles around the moved buck cluster.
 
 What changed from L2, where three of four runs closed:
 - **Long pairs first:** `gridroute.py` routes pairs ≥ 60 mm (the PWM lines, read-backs and trip inputs that cross the board) first, longest first, before the short local ones fill the channels. An earlier L3 set without this left pwm_hb open in one of three runs.
@@ -173,12 +193,17 @@ What changed from L2, where three of four runs closed:
 - J4 courtyard X-38.01…-24.29 / Y27.795…57.005, mating −X at the left edge;
 - WROOM-1U body X140.95…159.05 / Y50.25…69.55 (inside the R33 box, max edge offset 0.25 mm), U.FL end at the rear, no other part within 3.0 mm of the U.FL;
 - **U.FL position:** Espressif Figure 10-2 puts the receptacle at (156.0, 67.04) on the R33 body box, not R33's (150, 67). R38 accepted (156, 67); `layout-check.json` still lists the R33 figure as an enclosure delta for traceability;
-- heights (drawing-based, ENCLOSURE-HANDOFF table): mated XH 9.8 mm, J4 + plug 10.29 mm (series figure), J11 8.54 mm, all under the 15.4 mm allowance; C1 6.2, L1 4.5, L2 (SWRB1205S) 6.0, WROOM-1U 3.2 mm under the 6.4 mm allocation.
+- J13 (stage 16): body centre (88, 85.65), 0.35 mm from R41's (88, 86) and flush with the rear edge;
+- heights (drawing-based, ENCLOSURE-HANDOFF table): mated XH 9.8 mm, J4 + plug 10.29 mm (series figure), J11 8.54 mm, all under the 15.4 mm allowance; J13 mated 16.5 mm (JST eVH p.1) inside R41's local allowance (29.4 mm above the board within ±6 mm of (88, 86)); C1 6.2, L1 4.5, L2 (SWRB1205S) 6.0, WROOM-1U 3.2 mm under the 6.4 mm allocation.
 
 ## Open items
 
 1. **Release:** the board is a candidate, not released. Ordering is the owner's call.
-2. **PS1 at full blower speed** (DECISIONS open item 13): PS1 (IRM-20-15, 21 W) is within rating at the R32 blower cap (`verify_controller.py` ps1_within_21W_at_r32_blower_cap) but exceeded when the blower runs at full speed (23.7 W typical, 40.8 W at the blower's maximum); the check reports it as an OWNER_FLAG. Choose a larger PS1, or give the blower its own SELV supply.
+2. **PS3 (stage 16, C33)** replaces DECISIONS open item 13: PS1 now carries 4.83 W of 21 W. PS3's own items are in the power-stage PLAN-16 §6, chiefly:
+   - bench gate G-B1: blower start current and PS3 hiccup margin;
+   - the inlet `aux_max_a` change in firmware;
+   - the BLW-AC mains harness's reinforced routing.
+   J13's LCSC number C20571196 comes from PLAN-16 and was not re-queried here.
 3. **Firmware change requests** (`docs/evidence/2026-10-12-thermal-trip-ladder-l3.md`): OVER_TEMP_THRESHOLD 80 → 95 °C with its tests; the coil and rim NTC curves to the 104GT-2 table; the blower PWM sense (duty 0 = full speed) and FAN_OFF on P15; a dead tach forces a derate.
 4. **Block validators** (DECISIONS C30): the interlock, thermal-sense and RTD validators need a workspace build, which this task does not do. The thermal-sense 64-corner method is ported into `verify_controller.py` (check_thermal) and passes on the L3 values; the Rust validators should still be re-run in a workspace build.
 5. **RTD filter** (C29): the RTD library is byte-locked, so its differential RC is a change request to the RTD block, not a layout change here.
@@ -188,5 +213,5 @@ What changed from L2, where three of four runs closed:
 9. **Consigned / low-stock parts** (DECISIONS open item 7): AD8436BRQZ (JLC stock 0) and the near-zero-stock ported parts; `fab/fab-notes.md` lists them.
 10. **Long lines:** RUN_EN and the RTD trip inputs cross most of the board (Interlock trip path). All fail safe on a break; a bench noise check on them is worth adding.
 11. **In2 use:** In2 carries some signal tracks where F/B were full; the v3v3 pour refills around them, and `plane_islands.py` re-joins any v3v3 island; DRC shows v3v3 as one connected net.
-12. **Firmware pins.h:** RUN_EN 14; RTD_DRDY expander P07; SUP_RUN_OK expander P14; FAN_OFF expander P15; FAN_PWM GPIO46 (feedback injection, duty 0 = full speed); FAN_TACH (J10 FG) GPIO3 (PCNT); UI SPI 40/41/44/47/48/45; I²C SDA 37 / SCL 0; RIM_ADC 9.
+12. **Firmware pins.h:** RUN_EN 14; RTD_DRDY expander P07; SUP_RUN_OK expander P14; FAN_OFF expander P15; BLW_PG expander P16 (input, 1 = PS3 present); FAN_PWM GPIO46 (feedback injection, duty 0 = full speed); FAN_TACH (J10 FG) GPIO3 (PCNT); UI SPI 40/41/44/47/48/45; I²C SDA 37 / SCL 0; RIM_ADC 9.
 

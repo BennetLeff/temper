@@ -78,11 +78,19 @@ PLACE = {
     "c_in_bulk": (28.0, 21.0, 180),
     # ---- blower buck (C28, same cluster; 12.5 mm SWRB1205S inductor), X 81..102 so L2 stays
     #      >= 10 mm from the RTD front end
-    "u_12": (86.0, 80.75, 0),
-    "l_12": (95.75, 76.4, 0),
-    "c_bst_12": (88.1, 79.7, -90),
-    "c_in12b": (83.8, 78.1, -90),
-    "c_in12a": (81.8, 77.9, -90),
+    #      stage 16: the cluster moved 5.5 mm forward so J13 (PS3 feed) sits at the rear edge behind
+    #      U2; the 100 uF bulk sits left of the input caps, between J13 and U2
+    "u_12": (86.0, 75.25, 0),
+    "l_12": (95.75, 70.9, 0),
+    "c_bst_12": (88.1, 74.2, -90),
+    "c_in12b": (83.8, 72.6, -90),
+    "c_in12a": (81.8, 72.4, -90),
+    "c_blw_bulk": (72.6, 72.0, 180),       # + pad toward the input caps (feed strip)
+    "c_in12c": (79.4, 72.4, -90),
+    # FB divider in the strip between U2/L2 and J13, next to the FB pin (pin 8, rear-right)
+    "r_fb12_bot": (88.9, 78.45, 0),
+    "r_fb12_top": (88.9, 80.05, 0),
+    "r_fan_inj": (92.1, 80.05, 0),
     # ---- RTD front end (rtd_pan) and the runaway comparator, between the module and J3
     "rtd_pan.adc": (149.0, 76.5, 90),
     "rtd_pan.reference": (140.0, 78.5, 0),
@@ -126,6 +134,8 @@ ANCHOR = {
     "c_esd_ui1": "u_esd_ui1", "c_esd_ui2": "u_esd_ui2", "c_buf3": "u_buf3", "c_in12c": "u_12",
     # blower speed injection at the FB pin; tach parts at J10 (C28)
     "r_fan_inj": "u_12", "c_fan_ctl": "r_fan_inj", "r_fan_pwm_filt": "c_fan_ctl",
+    # stage 16 BLW_PG divider at J13, so only the 3.9 V-max node runs to the expander
+    "r_blw_pg_top": "J13", "r_blw_pg_bot": "r_blw_pg_top",
     "r_tach_pu": "J10", "d_tach": "J10", "r_tach_series": "J10", "c_tach": "r_tach_series",
     # NTC input RCs at their buffers (C29)
     "r_hs_filt": "u_buf1", "c_hs_filt": "u_buf1", "r_coil_filt": "u_buf2", "c_coil_filt": "u_buf2",
@@ -168,4 +178,13 @@ CHANNELS: list[tuple[float, float, float, float]] = [
     (137.0, 41.0, 163.0, 49.6),     # in front of the module (its pin row is at Y ~50.3)
     (134.5, 49.6, 140.4, 68.0),     # along its left pin column (X 141)
     (102.8, 64.0, 112.8, 85.0),     # keep-apart band: blower buck L2 >= 10 mm from the RTD parts
+    (82.3, 75.4, 84.6, 84.4),       # stage 16: the J13 -> VIN feed band (BLW_FEED below)
+    (74.0, 72.9, 80.6, 74.9),       # stage 16: the feed strip over the bulk/input-cap + pads
 ]
+
+# Stage 16 (C33): F.Cu V15_BLW feed band from J13.1 (world ~(86.0, 86.35)) down the left of U2 into the
+# blower buck VIN pour (world Y ~72.4-75.0, left of U2). 1.7 mm wide along X 82.6-84.3; the top
+# reaches J13.1. The CHANNELS entry above keeps auto-placed parts out of it.
+BLW_FEED: list[tuple[float, float, float, float]] = [(82.6, 74.6, 84.3, 84.6),   # band down the left of U2
+                                                     (81.4, 84.4, 86.6, 87.8),   # top: J13.1 and the BLW_PG top R
+                                                     (74.0, 72.9, 82.6, 74.9)]   # strip: bulk + and input caps

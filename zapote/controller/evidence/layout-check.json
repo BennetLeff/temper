@@ -187,6 +187,19 @@
      ],
      "error_mm": 0.0,
      "body_on_board": true
+    },
+    {
+     "ref": "J13",
+     "spec": [
+      88.0,
+      85.65
+     ],
+     "body_centre": [
+      88.0,
+      85.65
+     ],
+     "error_mm": 0.0,
+     "body_on_board": true
     }
    ],
    "j3_body_along_rear_edge": true,
@@ -278,6 +291,18 @@
      "height_mm": 9.8,
      "limit_mm": 15.4
     },
+    "J13 B2P-VH mated (JST eVH.pdf p.1 mounting height 16.5)": {
+     "height_mm": 16.5,
+     "limit_mm": 29.4,
+     "local_allowance": "R41 enclosure: J13 local, Z <= 54 within +-6 mm of (88, 86)",
+     "body_world": [
+      84.02,
+      81.301,
+      91.98,
+      89.999
+     ],
+     "body_inside_allowance": true
+    },
     "J4 43045-1600 + 43025-1600 mated (Molex 43045 series part data 10.29)": {
      "height_mm": 10.29,
      "limit_mm": 15.4
@@ -305,7 +330,7 @@
    },
    "not_checked": [
     "J4 plug overhang beyond the board edge (R31: to X-50); the 43045-1600 sales drawing itself was not readable from this network, the mated height is the 43045 series figure",
-    "cable bends above the mated XH housings (harness)",
+    "cable bends above the mated XH housings (harness); J13's 18 AWG bend is inside R41's local allowance",
     "a socket mated on J11"
    ]
   },
@@ -316,203 +341,203 @@
     {
      "pin": "U10.5",
      "net": "v3v3",
-     "cap": "C46",
+     "cap": "C47",
      "distance_mm": 1.98,
      "ok": true
     },
     {
      "pin": "U11.5",
      "net": "v3v3",
-     "cap": "C44",
+     "cap": "C45",
      "distance_mm": 1.98,
      "ok": true
     },
     {
      "pin": "U12.5",
      "net": "v3v3",
-     "cap": "C43",
+     "cap": "C44",
      "distance_mm": 1.98,
      "ok": true
     },
     {
      "pin": "U14.16",
      "net": "v15_selv",
-     "cap": "C67",
+     "cap": "C68",
      "distance_mm": 2.53,
      "ok": true
     },
     {
      "pin": "U14.17",
      "net": "v15_selv",
-     "cap": "C67",
+     "cap": "C68",
      "distance_mm": 2.34,
      "ok": true
     },
     {
      "pin": "U14.18",
      "net": "v15_selv",
-     "cap": "C67",
+     "cap": "C68",
      "distance_mm": 2.31,
      "ok": true
     },
     {
      "pin": "U15.8",
      "net": "v3v3",
-     "cap": "C71",
+     "cap": "C72",
      "distance_mm": 1.98,
      "ok": true
     },
     {
      "pin": "U17.5",
      "net": "v3v3",
-     "cap": "C21",
+     "cap": "C22",
      "distance_mm": 2.21,
      "ok": true
     },
     {
      "pin": "U18.5",
      "net": "v3v3",
-     "cap": "C23",
+     "cap": "C24",
      "distance_mm": 2.21,
      "ok": true
     },
     {
      "pin": "U19.5",
      "net": "v3v3",
-     "cap": "C24",
+     "cap": "C25",
      "distance_mm": 1.98,
      "ok": true
     },
     {
      "pin": "U20.8",
      "net": "v3v3",
-     "cap": "C40",
+     "cap": "C41",
      "distance_mm": 1.71,
      "ok": true
     },
     {
      "pin": "U21.5",
      "net": "v3v3",
-     "cap": "C41",
+     "cap": "C42",
      "distance_mm": 1.98,
      "ok": true
     },
     {
      "pin": "U22.14",
      "net": "v3v3",
-     "cap": "C39",
+     "cap": "C40",
      "distance_mm": 1.97,
      "ok": true
     },
     {
      "pin": "U23.14",
      "net": "v3v3",
-     "cap": "C37",
+     "cap": "C38",
      "distance_mm": 2.26,
      "ok": true
     },
     {
      "pin": "U24.14",
      "net": "v3v3",
-     "cap": "C38",
+     "cap": "C39",
      "distance_mm": 2.04,
      "ok": true
     },
     {
      "pin": "U25.5",
      "net": "v3v3",
-     "cap": "C42",
+     "cap": "C43",
      "distance_mm": 1.98,
      "ok": true
     },
     {
      "pin": "U26.5",
      "net": "v3v3",
-     "cap": "C25",
+     "cap": "C26",
      "distance_mm": 1.98,
      "ok": true
     },
     {
      "pin": "U27.5",
      "net": "v3v3",
-     "cap": "C26",
+     "cap": "C27",
      "distance_mm": 2.21,
      "ok": true
     },
     {
      "pin": "U28.5",
      "net": "v3v3",
-     "cap": "C27",
+     "cap": "C28",
      "distance_mm": 2.21,
      "ok": true
     },
     {
      "pin": "U29.4",
      "net": "v3v3",
-     "cap": "C31",
+     "cap": "C32",
      "distance_mm": 1.98,
      "ok": true
     },
     {
      "pin": "U3.2",
      "net": "v3v3",
-     "cap": "C19",
+     "cap": "C20",
      "distance_mm": 1.86,
      "ok": true
     },
     {
      "pin": "U30.2",
      "net": "v3v3",
-     "cap": "C29",
+     "cap": "C30",
      "distance_mm": 2.37,
      "ok": true
     },
     {
      "pin": "U30.3",
      "net": "RTD_AVDD",
-     "cap": "C28",
+     "cap": "C29",
      "distance_mm": 2.19,
      "ok": true
     },
     {
      "pin": "U31.5",
      "net": "RTD_AVDD",
-     "cap": "C32",
+     "cap": "C33",
      "distance_mm": 1.98,
      "ok": true
     },
     {
      "pin": "U32.5",
      "net": "RTD_AVDD",
-     "cap": "C33",
+     "cap": "C34",
      "distance_mm": 2.0,
      "ok": true
     },
     {
      "pin": "U33.5",
      "net": "RTD_AVDD",
-     "cap": "C34",
+     "cap": "C35",
      "distance_mm": 1.98,
      "ok": true
     },
     {
      "pin": "U34.4",
      "net": "v3v3",
-     "cap": "C35",
+     "cap": "C36",
      "distance_mm": 1.73,
      "ok": true
     },
     {
      "pin": "U35.5",
      "net": "v3v3",
-     "cap": "C36",
+     "cap": "C37",
      "distance_mm": 2.21,
      "ok": true
     },
     {
      "pin": "U36.5",
      "net": "v3v3",
-     "cap": "C60",
+     "cap": "C61",
      "distance_mm": 1.98,
      "ok": true
     },
@@ -526,56 +551,56 @@
     {
      "pin": "U38.5",
      "net": "v3v3",
-     "cap": "C76",
+     "cap": "C77",
      "distance_mm": 2.21,
      "ok": true
     },
     {
      "pin": "U39.5",
      "net": "v3v3",
-     "cap": "C77",
+     "cap": "C78",
      "distance_mm": 2.21,
      "ok": true
     },
     {
      "pin": "U4.2",
      "net": "v3v3",
-     "cap": "C72",
+     "cap": "C73",
      "distance_mm": 2.06,
      "ok": true
     },
     {
      "pin": "U5.8",
      "net": "v3v3",
-     "cap": "C49",
+     "cap": "C50",
      "distance_mm": 2.04,
      "ok": true
     },
     {
      "pin": "U6.8",
      "net": "v3v3",
-     "cap": "C52",
+     "cap": "C53",
      "distance_mm": 2.04,
      "ok": true
     },
     {
      "pin": "U7.8",
      "net": "v3v3",
-     "cap": "C55",
+     "cap": "C56",
      "distance_mm": 1.98,
      "ok": true
     },
     {
      "pin": "U8.24",
      "net": "v3v3",
-     "cap": "C75",
+     "cap": "C76",
      "distance_mm": 1.81,
      "ok": true
     },
     {
      "pin": "U9.20",
      "net": "v3v3",
-     "cap": "C47",
+     "cap": "C48",
      "distance_mm": 1.81,
      "ok": true
     }
@@ -610,26 +635,29 @@
     "permit": 70.6,
     "PERMIT_LATCH": 49.3,
     "RUN_EN": 208.6,
-    "bus_fault": 94.2,
-    "all_good": 37.2,
-    "reset_clock": 43.2,
-    "latched_fault": 55.6,
-    "HS_FAULT": 88.4,
-    "COIL_FAULT": 95.1,
-    "line": 190.2,
-    "RUNAWAY_FAULT": 149.0,
-    "RAIL_FAULT": 34.5,
+    "bus_fault": 93.7,
+    "all_good": 36.9,
+    "reset_clock": 43.1,
+    "latched_fault": 56.2,
+    "HS_FAULT": 88.2,
+    "COIL_FAULT": 97.6,
+    "line": 195.0,
+    "RUNAWAY_FAULT": 148.9,
+    "RAIL_FAULT": 34.3,
     "SENSOR_LIVE": 17.0
    }
   },
   "thermal_relief": {
    "ok": true,
    "zones": [
-    "VIN_3V3",
+    "BLW_FEED1",
+    "VIN_12",
+    "BLW_FEED0",
     "SW_12",
     "GND_F",
+    "VIN_3V3",
     "SW_3V3",
-    "VIN_12",
+    "BLW_FEED2",
     "GND_B",
     "GND_plane",
     "V3V3_plane"
@@ -637,22 +665,48 @@
    "solid_connect_zones_with_tht": [],
    "note": "GND/v3v3 planes and pours use 'thermal reliefs for PTH' (SMD solid); the buck SW/VIN pours touch SMD pads only"
   },
+  "power_widths": {
+   "ok": true,
+   "nets": {
+    "V_BLOWER": {
+     "required_mm": 0.8,
+     "min_width_mm": 0.8,
+     "narrow_segments": [],
+     "stubs": 10,
+     "vias": 6,
+     "length_mm": 65.6
+    },
+    "V15_BLW": {
+     "pour_outline_per_pad": {
+      "C15.1": 0,
+      "C9.1": 0,
+      "C14.1": 0,
+      "C13.1": 0,
+      "J13.1": 0
+     },
+     "one_pour_region": true,
+     "pour_regions": 1,
+     "routed_branch_tracks": 4,
+     "routed_branch_min_width_mm": 0.25
+    }
+   }
+  },
   "partition": {
    "ok": true,
    "rule": "L2 >= 10 mm from the RTD analog section (ENCLOSURE-HANDOFF item 6); others reported",
    "separations_mm": {
     "L2/U2 (12 V fan buck) -> RTD front end": {
-     "mm": 10.4,
+     "mm": 10.5,
      "nearest": [
       "L2",
-      "R52"
+      "R54"
      ]
     },
     "L2/U2 (12 V fan buck) -> thermal-sense": {
-     "mm": 48.1,
+     "mm": 48.2,
      "nearest": [
       "U2",
-      "R31"
+      "R33"
      ]
     },
     "L2/U2 (12 V fan buck) -> J4 analog": {
@@ -666,14 +720,14 @@
      "mm": 76.7,
      "nearest": [
       "L1",
-      "R68"
+      "R70"
      ]
     },
     "L1/U1 (3.3 V buck) -> thermal-sense": {
      "mm": 52.0,
      "nearest": [
       "U1",
-      "R32"
+      "R34"
      ]
     },
     "L1/U1 (3.3 V buck) -> J4 analog": {
@@ -697,6 +751,7 @@
   "decoupling": true,
   "interlock": true,
   "thermal_relief": true,
+  "power_widths": true,
   "partition": true
  },
  "status": "PASS"
