@@ -86,3 +86,7 @@ Files: [plane-native21.json](plane-native21.json), [budget-native21.json](budget
 **Stage 15b** (SW_A link / Q2.3 corner copper only; board `9a9c43c6…`; tag `native21s15b`): identical Kelvin result, R35.2 161.03 mΩ, band 66.37–118.74 A, floor met at the bound.
 
 **Stage 16** (F2 / J11 blower-supply mains tap at the far mains corner; board `e9481ed6…`; tag `native21s16`): identical, R35.2 161.03 mΩ, band 66.37–118.74 A.
+
+**Stage 17** (R5 = Bourns CSS2H-2512R-1L00F on a Kelvin land; both sense fingers leave on the west side, 1.0 mm apart, and the pair rejoins the stage-16 KP_MID / KN_MID on In1; board `e40f1e27…`; tag `native21s17`): R5.2 is now the P finger tip. R35.2 at 157.80 mΩ (was 161.03), Kelvin shift −2.17 A (bound −2.23 A). The band before the shift uses R5's own 75 ppm/°C (`round5-native21/stage17-r5/ocp_band17.py`: 69.89–116.44 A; the stage-16 250 ppm control reproduces 68.58–118.74 A), so **67.72–116.44 A after** (67.66 A at the bound), floor 64.17 A met. `round3/thresholds.py` keeps the WSK tuple as its default (eight committed records import it) and adds `SHUNT_CSS2H`.
+
+**Stage 17b** (declared pour priorities, In1 `n_ls LS block` above `ocp_kelvin_p protection`; board `96501e7d…`; tag `native21s17b`): identical, R35.2 157.80 mΩ, band 67.72–116.44 A (67.66 A at the bound). The pour's top 0.3 mm strip at y 75.3 now always goes to n_ls; stage 17's own build had already filled it that way.

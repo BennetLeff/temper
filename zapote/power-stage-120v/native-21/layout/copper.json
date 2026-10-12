@@ -686,7 +686,7 @@
   {
    "net": "rect_p",
    "layer": "In1.Cu",
-   "priority": 1,
+   "priority": 2,
    "name": "rect_p BR1.1-J7",
    "outline": [
     [
@@ -849,7 +849,7 @@
   {
    "net": "l_filt",
    "layer": "B.Cu",
-   "priority": 1,
+   "priority": 3,
    "name": "l_filt BR1.2-L1",
    "outline": [
     [
@@ -930,7 +930,7 @@
   {
    "net": "sw_a",
    "layer": "F.Cu",
-   "priority": 1,
+   "priority": 2,
    "name": "sw_a Q2.3-T1.1",
    "outline": [
     [
@@ -1019,7 +1019,7 @@
   {
    "net": "sw_a",
    "layer": "B.Cu",
-   "priority": 1,
+   "priority": 3,
    "name": "sw_a leg-A link",
    "outline": [
     [
@@ -1060,7 +1060,7 @@
   {
    "net": "sw_b",
    "layer": "B.Cu",
-   "priority": 1,
+   "priority": 2,
    "name": "sw_b leg B-C21..C23",
    "outline": [
     [
@@ -1391,7 +1391,7 @@
   {
    "net": "coil_feed",
    "layer": "B.Cu",
-   "priority": 1,
+   "priority": 2,
    "name": "coil_feed J2-T1.2",
    "outline": [
     [
@@ -1807,7 +1807,7 @@
   {
    "net": "l_f",
    "layer": "F.Cu",
-   "priority": 1,
+   "priority": 2,
    "name": "l_f F1-C1-L1-RV1",
    "outline": [
     [
@@ -2541,7 +2541,7 @@
   {
    "net": "n_ls",
    "layer": "In1.Cu",
-   "priority": 1,
+   "priority": 2,
    "name": "n_ls LS block",
    "outline": [
     [
@@ -6068,7 +6068,7 @@
   {
    "net": "hv_ret",
    "layer": "B.Cu",
-   "priority": 2,
+   "priority": 4,
    "name": "hv_ret trunk bridge",
    "outline": [
     [
@@ -6218,7 +6218,7 @@
   {
    "net": "n_ls",
    "layer": "B.Cu",
-   "priority": 1,
+   "priority": 2,
    "name": "n_ls U42 heat-spread",
    "outline": [
     [
@@ -7168,30 +7168,6 @@
    ]
   },
   {
-   "net": "ocp_kelvin_p",
-   "layer": "F.Cu",
-   "width": 0.3,
-   "points": [
-    "R5.2",
-    [
-     36.0,
-     8.0
-    ]
-   ]
-  },
-  {
-   "net": "ocp_kelvin_n",
-   "layer": "F.Cu",
-   "width": 0.3,
-   "points": [
-    "R5.3",
-    [
-     41.3,
-     15.2
-    ]
-   ]
-  },
-  {
    "net": "n_ls",
    "layer": "In1.Cu",
    "width": 0.4,
@@ -7353,18 +7329,6 @@
      109.0,
      60.0
     ]
-   ]
-  },
-  {
-   "net": "ocp_kelvin_n",
-   "layer": "F.Cu",
-   "width": 0.3,
-   "points": [
-    [
-     119.95,
-     72.4
-    ],
-    "R33.2"
    ]
   },
   {
@@ -19619,45 +19583,6 @@
    ]
   },
   {
-   "net": "ocp_kelvin_p",
-   "layer": "In1.Cu",
-   "width": 0.2,
-   "points": [
-    [
-     108.248,
-     57.5
-    ],
-    [
-     108.248,
-     56.3
-    ],
-    [
-     107.547,
-     55.6
-    ],
-    [
-     107.547,
-     55.1
-    ],
-    [
-     108.148,
-     54.5
-    ],
-    [
-     108.148,
-     43.1
-    ],
-    [
-     107.748,
-     42.7
-    ],
-    [
-     107.6,
-     42.6
-    ]
-   ]
-  },
-  {
    "net": "n_ls",
    "layer": "F.Cu",
    "width": 0.4,
@@ -23422,155 +23347,6 @@
     [
      71.0,
      34.538
-    ]
-   ]
-  },
-  {
-   "net": "ocp_kelvin_p",
-   "layer": "In1.Cu",
-   "width": 0.3,
-   "points": [
-    [
-     36.0,
-     8.0
-    ],
-    [
-     39.4,
-     11.4
-    ],
-    [
-     42.2,
-     11.4
-    ],
-    [
-     42.2,
-     30.8
-    ]
-   ]
-  },
-  {
-   "net": "ocp_kelvin_p",
-   "layer": "In2.Cu",
-   "width": 0.3,
-   "points": [
-    [
-     42.2,
-     30.8
-    ],
-    [
-     42.2,
-     36.4
-    ],
-    [
-     40.4,
-     38.2
-    ]
-   ]
-  },
-  {
-   "net": "ocp_kelvin_p",
-   "layer": "In1.Cu",
-   "width": 0.3,
-   "points": [
-    [
-     40.4,
-     38.2
-    ],
-    [
-     42.2,
-     40.0
-    ],
-    [
-     42.2,
-     42.6
-    ],
-    [
-     107.6,
-     42.6
-    ],
-    [
-     107.6,
-     53.5
-    ]
-   ]
-  },
-  {
-   "net": "ocp_kelvin_n",
-   "layer": "In1.Cu",
-   "width": 0.3,
-   "points": [
-    [
-     41.3,
-     15.2
-    ],
-    [
-     41.3,
-     31.8
-    ]
-   ]
-  },
-  {
-   "net": "ocp_kelvin_n",
-   "layer": "In2.Cu",
-   "width": 0.3,
-   "points": [
-    [
-     41.3,
-     31.8
-    ],
-    [
-     41.3,
-     35.5
-    ],
-    [
-     39.4,
-     37.4
-    ],
-    [
-     39.4,
-     40.6
-    ]
-   ]
-  },
-  {
-   "net": "ocp_kelvin_n",
-   "layer": "In1.Cu",
-   "width": 0.3,
-   "points": [
-    [
-     39.4,
-     40.6
-    ],
-    [
-     41.3,
-     40.6
-    ],
-    [
-     41.3,
-     43.4
-    ]
-   ]
-  },
-  {
-   "net": "ocp_kelvin_n",
-   "layer": "In1.Cu",
-   "width": 0.3,
-   "points": [
-    [
-     41.3,
-     43.4
-    ],
-    [
-     106.6,
-     43.4
-    ],
-    [
-     106.6,
-     72.4
-    ],
-    [
-     119.95,
-     72.4
     ]
    ]
   },
@@ -31523,6 +31299,230 @@
    ]
   },
   {
+   "net": "ocp_kelvin_p",
+   "layer": "F.Cu",
+   "width": 0.3,
+   "points": [
+    "R5.2",
+    [
+     35.0,
+     12.1
+    ]
+   ]
+  },
+  {
+   "net": "ocp_kelvin_n",
+   "layer": "F.Cu",
+   "width": 0.3,
+   "points": [
+    "R5.3",
+    [
+     35.0,
+     13.1
+    ]
+   ]
+  },
+  {
+   "net": "ocp_kelvin_p",
+   "layer": "In1.Cu",
+   "width": 0.3,
+   "points": [
+    [
+     35.0,
+     12.1
+    ],
+    [
+     42.2,
+     12.1
+    ],
+    [
+     42.2,
+     30.8
+    ]
+   ]
+  },
+  {
+   "net": "ocp_kelvin_n",
+   "layer": "In1.Cu",
+   "width": 0.3,
+   "points": [
+    [
+     35.0,
+     13.1
+    ],
+    [
+     41.3,
+     13.1
+    ],
+    [
+     41.3,
+     31.8
+    ]
+   ]
+  },
+  {
+   "net": "ocp_kelvin_p",
+   "layer": "In2.Cu",
+   "width": 0.3,
+   "points": [
+    [
+     42.2,
+     30.8
+    ],
+    [
+     42.2,
+     36.4
+    ],
+    [
+     40.4,
+     38.2
+    ]
+   ]
+  },
+  {
+   "net": "ocp_kelvin_p",
+   "layer": "In1.Cu",
+   "width": 0.3,
+   "points": [
+    [
+     40.4,
+     38.2
+    ],
+    [
+     42.2,
+     40.0
+    ],
+    [
+     42.2,
+     42.6
+    ],
+    [
+     107.6,
+     42.6
+    ],
+    [
+     107.6,
+     53.5
+    ]
+   ]
+  },
+  {
+   "net": "ocp_kelvin_p",
+   "layer": "In1.Cu",
+   "width": 0.2,
+   "points": [
+    [
+     108.248,
+     57.5
+    ],
+    [
+     108.248,
+     56.3
+    ],
+    [
+     107.547,
+     55.6
+    ],
+    [
+     107.547,
+     55.1
+    ],
+    [
+     108.148,
+     54.5
+    ],
+    [
+     108.148,
+     43.1
+    ],
+    [
+     107.748,
+     42.7
+    ],
+    [
+     107.6,
+     42.6
+    ]
+   ]
+  },
+  {
+   "net": "ocp_kelvin_n",
+   "layer": "In2.Cu",
+   "width": 0.3,
+   "points": [
+    [
+     41.3,
+     31.8
+    ],
+    [
+     41.3,
+     35.5
+    ],
+    [
+     39.4,
+     37.4
+    ],
+    [
+     39.4,
+     40.6
+    ]
+   ]
+  },
+  {
+   "net": "ocp_kelvin_n",
+   "layer": "In1.Cu",
+   "width": 0.3,
+   "points": [
+    [
+     39.4,
+     40.6
+    ],
+    [
+     41.3,
+     40.6
+    ],
+    [
+     41.3,
+     43.4
+    ]
+   ]
+  },
+  {
+   "net": "ocp_kelvin_n",
+   "layer": "In1.Cu",
+   "width": 0.3,
+   "points": [
+    [
+     41.3,
+     43.4
+    ],
+    [
+     106.6,
+     43.4
+    ],
+    [
+     106.6,
+     72.4
+    ],
+    [
+     119.95,
+     72.4
+    ]
+   ]
+  },
+  {
+   "net": "ocp_kelvin_n",
+   "layer": "F.Cu",
+   "width": 0.3,
+   "points": [
+    [
+     119.95,
+     72.4
+    ],
+    "R33.2"
+   ]
+  },
+  {
    "net": "leg_a-out_h",
    "layer": "F.Cu",
    "width": 0.6,
@@ -31937,7 +31937,7 @@
   },
   {
    "net": "bias_ha.monitor-spanuv",
-   "layer": "F.Cu",
+   "layer": "In2.Cu",
    "width": 0.2,
    "points": [
     [
@@ -31952,7 +31952,7 @@
   },
   {
    "net": "bias_ha.monitor-spanuv",
-   "layer": "In2.Cu",
+   "layer": "F.Cu",
    "width": 0.2,
    "points": [
     [
@@ -33006,7 +33006,7 @@
   },
   {
    "net": "p_ha",
-   "layer": "F.Cu",
+   "layer": "In2.Cu",
    "width": 0.3,
    "points": [
     [
@@ -33021,7 +33021,7 @@
   },
   {
    "net": "p_ha",
-   "layer": "In2.Cu",
+   "layer": "F.Cu",
    "width": 0.3,
    "points": [
     [
@@ -33503,7 +33503,7 @@
   },
   {
    "net": "n_ls",
-   "layer": "In1.Cu",
+   "layer": "F.Cu",
    "width": 0.2,
    "points": [
     [
@@ -33518,7 +33518,7 @@
   },
   {
    "net": "n_ls",
-   "layer": "F.Cu",
+   "layer": "In1.Cu",
    "width": 0.2,
    "points": [
     [
@@ -33934,21 +33934,6 @@
   },
   {
    "net": "n_ls",
-   "layer": "In1.Cu",
-   "width": 0.2,
-   "points": [
-    [
-     9.725,
-     55.425
-    ],
-    [
-     9.8,
-     55.2
-    ]
-   ]
-  },
-  {
-   "net": "n_ls",
    "layer": "F.Cu",
    "width": 0.2,
    "points": [
@@ -33965,6 +33950,21 @@
   {
    "net": "n_ls",
    "layer": "In1.Cu",
+   "width": 0.2,
+   "points": [
+    [
+     9.725,
+     55.425
+    ],
+    [
+     9.8,
+     55.2
+    ]
+   ]
+  },
+  {
+   "net": "n_ls",
+   "layer": "F.Cu",
    "width": 0.2,
    "points": [
     [
@@ -33979,7 +33979,7 @@
   },
   {
    "net": "n_ls",
-   "layer": "F.Cu",
+   "layer": "In1.Cu",
    "width": 0.2,
    "points": [
     [
@@ -35621,7 +35621,7 @@
   },
   {
    "net": "bias_hb.monitor-isoin",
-   "layer": "F.Cu",
+   "layer": "In2.Cu",
    "width": 0.25,
    "points": [
     [
@@ -35636,7 +35636,7 @@
   },
   {
    "net": "bias_hb.monitor-isoin",
-   "layer": "In2.Cu",
+   "layer": "F.Cu",
    "width": 0.25,
    "points": [
     [
@@ -36723,15 +36723,6 @@
    "net": "hv_ret",
    "at": [
     35.8,
-    13.9
-   ],
-   "size": 0.85,
-   "drill": 0.3
-  },
-  {
-   "net": "hv_ret",
-   "at": [
-    35.8,
     15.3
    ],
    "size": 0.85,
@@ -36751,24 +36742,6 @@
    "at": [
     193.0,
     44.0
-   ],
-   "size": 0.85,
-   "drill": 0.3
-  },
-  {
-   "net": "ocp_kelvin_p",
-   "at": [
-    36.0,
-    8.0
-   ],
-   "size": 0.85,
-   "drill": 0.3
-  },
-  {
-   "net": "ocp_kelvin_n",
-   "at": [
-    41.3,
-    15.2
    ],
    "size": 0.85,
    "drill": 0.3
@@ -36798,15 +36771,6 @@
     40.8
    ],
    "size": 0.6,
-   "drill": 0.3
-  },
-  {
-   "net": "ocp_kelvin_n",
-   "at": [
-    119.95,
-    72.4
-   ],
-   "size": 0.85,
    "drill": 0.3
   },
   {
@@ -40455,42 +40419,6 @@
    "drill": 0.8
   },
   {
-   "net": "ocp_kelvin_p",
-   "at": [
-    42.2,
-    30.8
-   ],
-   "size": 0.6,
-   "drill": 0.3
-  },
-  {
-   "net": "ocp_kelvin_p",
-   "at": [
-    40.4,
-    38.2
-   ],
-   "size": 0.6,
-   "drill": 0.3
-  },
-  {
-   "net": "ocp_kelvin_n",
-   "at": [
-    41.3,
-    31.8
-   ],
-   "size": 0.6,
-   "drill": 0.3
-  },
-  {
-   "net": "ocp_kelvin_n",
-   "at": [
-    39.4,
-    40.6
-   ],
-   "size": 0.6,
-   "drill": 0.3
-  },
-  {
    "net": "l_filt",
    "at": [
     230.0,
@@ -42075,10 +42003,73 @@
    "drill": 0.3
   },
   {
+   "net": "ocp_kelvin_p",
+   "at": [
+    35.0,
+    12.1
+   ],
+   "size": 0.6,
+   "drill": 0.3
+  },
+  {
+   "net": "ocp_kelvin_n",
+   "at": [
+    35.0,
+    13.1
+   ],
+   "size": 0.6,
+   "drill": 0.3
+  },
+  {
+   "net": "ocp_kelvin_p",
+   "at": [
+    42.2,
+    30.8
+   ],
+   "size": 0.6,
+   "drill": 0.3
+  },
+  {
+   "net": "ocp_kelvin_p",
+   "at": [
+    40.4,
+    38.2
+   ],
+   "size": 0.6,
+   "drill": 0.3
+  },
+  {
+   "net": "ocp_kelvin_n",
+   "at": [
+    41.3,
+    31.8
+   ],
+   "size": 0.6,
+   "drill": 0.3
+  },
+  {
+   "net": "ocp_kelvin_n",
+   "at": [
+    39.4,
+    40.6
+   ],
+   "size": 0.6,
+   "drill": 0.3
+  },
+  {
+   "net": "ocp_kelvin_n",
+   "at": [
+    119.95,
+    72.4
+   ],
+   "size": 0.85,
+   "drill": 0.3
+  },
+  {
    "net": "leg_ret",
    "at": [
-    39.12,
-    10.07
+    38.55,
+    9.95
    ],
    "size": 0.6,
    "drill": 0.3
@@ -42086,8 +42077,8 @@
   {
    "net": "leg_ret",
    "at": [
-    39.87,
-    10.52
+    37.8,
+    10.4
    ],
    "size": 0.6,
    "drill": 0.3
@@ -42095,8 +42086,8 @@
   {
    "net": "leg_ret",
    "at": [
-    39.87,
-    9.62
+    37.8,
+    9.5
    ],
    "size": 0.6,
    "drill": 0.3
@@ -42104,8 +42095,8 @@
   {
    "net": "leg_ret",
    "at": [
-    38.67,
-    9.32
+    39.3,
+    10.4
    ],
    "size": 0.6,
    "drill": 0.3
@@ -42113,8 +42104,8 @@
   {
    "net": "leg_ret",
    "at": [
-    39.42,
-    8.87
+    39.0,
+    9.2
    ],
    "size": 0.6,
    "drill": 0.3
@@ -42122,8 +42113,8 @@
   {
    "net": "leg_ret",
    "at": [
-    38.07,
-    11.12
+    38.25,
+    8.75
    ],
    "size": 0.6,
    "drill": 0.3
@@ -42131,8 +42122,8 @@
   {
    "net": "leg_ret",
    "at": [
-    40.62,
-    10.07
+    39.75,
+    9.65
    ],
    "size": 0.6,
    "drill": 0.3
@@ -42140,8 +42131,8 @@
   {
    "net": "leg_ret",
    "at": [
-    40.32,
-    8.87
+    37.05,
+    9.95
    ],
    "size": 0.6,
    "drill": 0.3
@@ -42149,8 +42140,8 @@
   {
    "net": "leg_ret",
    "at": [
-    38.67,
-    8.42
+    39.3,
+    11.3
    ],
    "size": 0.6,
    "drill": 0.3
@@ -42158,8 +42149,8 @@
   {
    "net": "leg_ret",
    "at": [
-    37.32,
-    10.52
+    37.65,
+    11.3
    ],
    "size": 0.6,
    "drill": 0.3
@@ -42167,8 +42158,8 @@
   {
    "net": "hv_ret",
    "at": [
-    37.85,
-    15.03
+    38.1,
+    15.0
    ],
    "size": 0.6,
    "drill": 0.3
@@ -42176,8 +42167,8 @@
   {
    "net": "hv_ret",
    "at": [
-    37.1,
-    15.48
+    37.35,
+    15.45
    ],
    "size": 0.6,
    "drill": 0.3
@@ -42185,8 +42176,8 @@
   {
    "net": "hv_ret",
    "at": [
-    38.6,
-    14.58
+    37.65,
+    14.25
    ],
    "size": 0.6,
    "drill": 0.3
@@ -42194,8 +42185,8 @@
   {
    "net": "hv_ret",
    "at": [
-    37.1,
-    14.58
+    36.9,
+    14.7
    ],
    "size": 0.6,
    "drill": 0.3
@@ -42203,26 +42194,8 @@
   {
    "net": "hv_ret",
    "at": [
-    37.85,
-    14.13
-   ],
-   "size": 0.6,
-   "drill": 0.3
-  },
-  {
-   "net": "hv_ret",
-   "at": [
-    38.6,
-    13.68
-   ],
-   "size": 0.6,
-   "drill": 0.3
-  },
-  {
-   "net": "hv_ret",
-   "at": [
-    37.1,
-    13.68
+    36.45,
+    13.95
    ],
    "size": 0.6,
    "drill": 0.3

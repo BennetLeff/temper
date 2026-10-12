@@ -43,7 +43,10 @@ CHANGED.update({"UMK325AB7106KM-T": "C386167", "RT0603BRD0712K4L": "C861102", "T
                 "RT0603BRD0763K4L": "C326723", "RT0603BRD0711KL": "C728581",
                 # stage 15 (28 A hardware): R34 12.6 k and the CT references R43/R46 2.21 k, 0.1 % (read 2026-10-10,
                 # scratchpad stage15/jlc_lookup.py: 1,202 / 4,358 in stock)
-                "RT0603BRD0712K6L": "C861103", "RT0603BRD072K21L": "C705758"})
+                "RT0603BRD0712K6L": "C861103", "RT0603BRD072K21L": "C705758",
+                # stage 17 (R5 derating, DECISIONS 17): Bourns CSS2H-2512R-1L00F replaces WSK25121L000FEA
+                # (JLC Extended, 1,482 in stock on 2026-10-12; round5-native21/stage17-r5/screen.json)
+                "CSS2H-2512R-1L00F": "C4175647"})
 ACCEPT_ALT = {"GRM31A5C3A102JW01D"}
 bom_path = HERE / "fab" / "bom-jlcpcb.csv"
 rows = list(csv.DictReader(open(bom_path)))

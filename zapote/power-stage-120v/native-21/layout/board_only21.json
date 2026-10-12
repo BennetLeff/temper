@@ -183,13 +183,13 @@
   {
    "net": "v3v3",
    "at": [
-    58.633,
+    54.983,
     129.961999
    ],
    "side": "B",
    "ref_net": "selv_gnd",
    "ref_at": [
-    64.394,
+    60.744,
     130.287
    ],
    "purpose": "SELV 3.3 V",
@@ -229,12 +229,12 @@
    "net": "pwm_hb",
    "at": [
     56.155,
-    131.175
+    132.175
    ],
    "side": "B",
    "ref_net": "selv_gnd",
    "ref_at": [
-    64.394,
+    60.744,
     130.287
    ],
    "purpose": "PWM B high",
@@ -423,7 +423,7 @@
   {
    "net": "selv_gnd",
    "at": [
-    64.394,
+    60.744,
     130.287
    ],
    "side": "B",
@@ -476,7 +476,7 @@
    "net": "leg_b-out_l",
    "ref": "n_ls",
    "why": "no legal via pair within 10 mm",
-   "probe": "component pad U2.10 / R58.2 / R20.1 (no legal test-pad spot)"
+   "probe": "component pad R58.2 / U2.10 / R20.1 (no legal test-pad spot)"
   },
   {
    "net": "leg_a-out_h",
@@ -488,7 +488,7 @@
    "net": "leg_b-out_h",
    "ref": "n_hb",
    "why": "no legal via pair within 10 mm",
-   "probe": "component pad U2.15 / R18.1 / R57.2 (no legal test-pad spot)"
+   "probe": "component pad R57.2 / U2.15 / R18.1 (no legal test-pad spot)"
   },
   {
    "net": "pwm_lb",
@@ -500,13 +500,13 @@
    "net": "leg_a-dis",
    "ref": "selv_gnd",
    "why": "no legal via pair within 10 mm",
-   "probe": "component pad Q1.3 / U22.1 / R8.1 (no legal test-pad spot)"
+   "probe": "component pad U22.1 / Q1.3 / R8.1 (no legal test-pad spot)"
   },
   {
    "net": "leg_b-dis",
    "ref": "selv_gnd",
    "why": "no legal via pair within 10 mm",
-   "probe": "component pad U23.1 / Q4.3 / R16.1 (no legal test-pad spot)"
+   "probe": "component pad Q4.3 / U23.1 / R16.1 (no legal test-pad spot)"
   },
   {
    "net": "line_zc",

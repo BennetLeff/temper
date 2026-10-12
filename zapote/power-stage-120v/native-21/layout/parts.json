@@ -442,11 +442,11 @@
 {
 "ref": "R5",
 "path": "r_shunt",
-"fp": "Resistor_SMD:R_Shunt_Vishay_WSK2512_6332Metric_T2.21mm",
-"w": 8.85,
-"h": 3.89,
+"fp": "temper:R_Shunt_Bourns_CSS2H-2512_Kelvin",
+"w": 7.59,
+"h": 5.49,
 "ox": 0.0,
-"oy": 0.0,
+"oy": 0.75,
 "group": "power_misc"
 },
 {

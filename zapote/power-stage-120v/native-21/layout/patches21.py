@@ -134,6 +134,25 @@ S15_ADD += [(("sw_a", "F.Cu"), (76.5, 0.6, 81.7, 9.8)),
 S15_TRIM += [(("sw_b", "B.Cu"), (50.5, 12.5, 70.0, 16.7))]
 R5_PADS = {"leg_ret": "R5.1", "hv_ret": "R5.4"}
 R5_MAX, R5_REACH = 10, 2.6
+# Stage 17: R5.2 / R5.3 are custom pads (lobe + finger, footprint temper:R_Shunt_Bourns_CSS2H-2512_Kelvin);
+# GEO only knows their bounding boxes, which overlap the current pads' first via rows. add_r5 checks those
+# two nets against the true outlines (footprint-local polygons, R5 at (38.5, 12.6), -90 deg; asserted
+# against the dumped pad boxes).
+R5_AT = (38.5, 12.6)
+R5_SENSE_LOCAL = {"ocp_kelvin_p": ("R5.2", [(-1.8, -0.2), (-0.3, -0.2), (-0.3, 3.2), (-0.7, 3.2), (-0.7, 0.2), (-1.8, 0.2)]),
+                  "ocp_kelvin_n": ("R5.3", [(1.8, -0.2), (0.3, -0.2), (0.3, 3.2), (0.7, 3.2), (0.7, 0.2), (1.8, 0.2)])}
+
+
+def r5_sense(G):
+    """True board outlines of R5's sense pads {net: Polygon}; board = (x0 - ly, y0 + lx) for -90 deg."""
+    from shapely.geometry import Polygon
+    out = {}
+    for net, (ref_pad, pts) in R5_SENSE_LOCAL.items():
+        poly = Polygon([(R5_AT[0] - ly, R5_AT[1] + lx) for lx, ly in pts])
+        box_ = G.pad(ref_pad)["box"]
+        assert all(abs(a - b) < 1e-3 for a, b in zip(poly.bounds, box_)), (ref_pad, poly.bounds, box_)
+        out[net] = poly
+    return out
 
 
 # Exposed-pad thermal vias (independent review 2026-10-08, B2): the TPS7A4700 LDOs (U26 LS ~0.95 W,
@@ -191,6 +210,7 @@ def add(g):
     from patches21_v1 import put
     drill(g, "sw_a", *TIE)
     put(g, "sw_a", "B.Cu", 0.4, list(TIE), [TIE[0], 12.0])
+    add_stage17(g)          # before add_r5: the Kelvin pair's In1 run under R5 is laid first
     add_r5(g)
     add_ep(g)
     add_stack(g)
@@ -198,6 +218,70 @@ def add(g):
     add_stage13(g)
     add_stage14(g)
     add_stage16(g)
+    resolve_zone_priorities(g["ZONES"])
+
+
+# Stage 17b: deterministic pour fill. Two different-net pours on one layer, closer than their clearance and at the
+# SAME priority, let KiCad's fill order decide who gets the contested copper; rebuilds of identical copper.json
+# flipped it (In1 n_ls / ocp_kelvin_p at y 75.3: U26 133.0 vs 126.1 C at nominal h 25; B.Cu sw_b / res_a 48 mm2 at
+# the bank, sw_a / sw_b, l_filt / sw_b, res_a / coil_feed between stages 14-17). Every such pair now has a declared
+# winner; strict orders already in copper.json are kept, and gates/zone_priority_gate.py fails any unresolved pair.
+# Winners: In1 n_ls (stage-17b review call); the rest keep stage 15b's fill (the board DECISIONS 14 accepted for 28 A).
+ZONE_WINNERS = [("In1.Cu", "n_ls LS block", "ocp_kelvin_p protection"),
+                ("In1.Cu", "rect_p BR1.1-J7", "hv_ret trunk"),
+                ("B.Cu", "l_filt BR1.2-L1", "sw_b leg B-C21..C23"),
+                ("B.Cu", "sw_a leg-A link", "sw_b leg B-C21..C23"),
+                ("B.Cu", "sw_b leg B-C21..C23", "res_a J5-C21..C23"),
+                ("B.Cu", "coil_feed J2-T1.2", "res_a J5-C21..C23"),
+                ("B.Cu", "n_ls U42 heat-spread", "n_hb bank"),
+                # outlines exactly 3.2 mm apart: only a ~5 um boundary sliver moves, but it moved between rebuilds
+                ("F.Cu", "sw_a Q2.3-T1.1", "n_filt BR1.3-L1-C2"),
+                ("B.Cu", "sw_b leg B-C21..C23", "n_ls LS-A bank"),
+                ("F.Cu", "l_f F1-C1-L1-RV1", "ac_l_in J1-F1")]
+
+
+def contested_pairs(zones):
+    """(i, j, need) for different-net pours on one layer whose outlines are closer than their clearance."""
+    from shapely.geometry import Polygon
+    import rules21
+    polys = [Polygon(z["outline"], z["holes"]) for z in zones]
+    out = []
+    for i, a in enumerate(zones):
+        for j in range(i + 1, len(zones)):
+            b = zones[j]
+            if a["layer"] != b["layer"] or a["net"] == b["net"]:
+                continue
+            need = rules21.clearance(a["net"], b["net"])
+            if polys[i].distance(polys[j]) < need + 1e-3:   # outlines exactly at the clearance still trade a ~5 um sliver
+                out.append((i, j, need))
+    return out
+
+
+def resolve_zone_priorities(zones):
+    win = {(lay, w, l_) for lay, w, l_ in ZONE_WINNERS}
+    cons, bad = [], []
+    for i, j, _ in contested_pairs(zones):
+        a, b = zones[i], zones[j]
+        pa, pb = a.get("priority", 1), b.get("priority", 1)
+        if pa != pb:
+            cons.append((i, j) if pa > pb else (j, i))
+        elif (a["layer"], a.get("name"), b.get("name")) in win:
+            cons.append((i, j))
+        elif (a["layer"], b.get("name"), a.get("name")) in win:
+            cons.append((j, i))
+        else:
+            bad.append((a["layer"], a.get("name"), b.get("name")))
+    if bad:
+        raise SystemExit(f"equal-priority pours closer than clearance, no declared winner: {bad}")
+    for _ in range(len(zones) + 1):
+        changed = False
+        for hi, lo in cons:
+            if zones[hi].get("priority", 1) <= zones[lo].get("priority", 1):
+                zones[hi]["priority"] = zones[lo].get("priority", 1) + 1
+                changed = True
+        if not changed:
+            return
+    raise SystemExit("pour priority constraints are cyclic")
 
 
 # Output polylines (base copper), with the y where each leaves 0.6 / 0.5 mm for the 0.3 mm neck
@@ -358,13 +442,59 @@ def add_stage14(g):
                     ("sw_b", CU, (0.6, 40.0, 30.0, 95.0), 0.3, ["U20.2", "C95.1"])])
 
 
+# Stage 17 (DECISIONS 17): R5 is a Bourns CSS2H-2512R-1L00F on Bourns' Kelvin land (footprint
+# temper:R_Shunt_Bourns_CSS2H-2512_Kelvin). Both sense fingers leave the part on the WEST side, 1.0 mm
+# apart (R5.2 / OCP_KELVIN_P at y 12.1, R5.3 / OCP_KELVIN_N at y 13.1, finger tips at x 35.3), so the
+# pair now leaves R5 as a tight pair instead of from opposite ends. The pads changed, so incr21 treats
+# R5 as moved: the stage-16 F.Cu stubs R5.2 -> (36.0, 8.0) / R5.3 -> (41.3, 15.2) are stale, and
+# prune_dangling then drops the whole base Kelvin run down to the sense cluster (vias (36.0, 8.0),
+# (41.3, 15.2), KP/KN_MID, KP/KN_VIA, (119.95, 72.4), the In1 / In2 legs and the U14-side In1 tail);
+# the base HV_RET via at (35.8, 13.9) meets the new R5.3 lobe and goes too. Everything from the new
+# finger vias onward is re-laid here: the two In1 legs under R5 to the stage-16 KP_MID / KN_MID, then
+# the stage-16 geometry unchanged (patches21_v1 KP_* / KN_* and the base tails, byte for byte).
+K17_P, K17_N = (35.0, 12.1), (35.0, 13.1)      # finger-tip vias (0.6 / 0.3), 0.4 mm apart edge to edge
+K17_P_IN1 = [list(K17_P), [42.2, 12.1], [42.2, 30.8]]          # to KP_MID
+K17_N_IN1 = [list(K17_N), [41.3, 13.1], [41.3, 31.8]]          # to KN_MID
+
+
+def add_stage17(g):
+    from patches21_v1 import KN_MID, KN_VIA, KP_MID, KP_VIA, put
+    put(g, "ocp_kelvin_p", "F.Cu", 0.3, "R5.2", list(K17_P))
+    drill(g, "ocp_kelvin_p", *K17_P)
+    put(g, "ocp_kelvin_n", "F.Cu", 0.3, "R5.3", list(K17_N))
+    drill(g, "ocp_kelvin_n", *K17_N)
+    # In1 under R5: P crosses the LEG_RET sources pour, N the HV_RET trunk (pours: KiCad refills round them)
+    put(g, "ocp_kelvin_p", "In1.Cu", 0.3, *K17_P_IN1, escape=("hv_ret", "leg_ret"))
+    put(g, "ocp_kelvin_n", "In1.Cu", 0.3, *K17_N_IN1, escape=("hv_ret", "leg_ret"))
+    # stage-16 geometry from here on
+    drill(g, "ocp_kelvin_p", *KP_MID)
+    put(g, "ocp_kelvin_p", "In2.Cu", 0.3, list(KP_MID), [42.2, 36.4], list(KP_VIA), escape="bus_p")
+    drill(g, "ocp_kelvin_p", *KP_VIA)
+    put(g, "ocp_kelvin_p", "In1.Cu", 0.3, list(KP_VIA), [42.2, 40.0], [42.2, 42.6], [107.6, 42.6], [107.6, 53.5],
+        escape="hv_ret")
+    put(g, "ocp_kelvin_p", "In1.Cu", 0.2, [108.248, 57.5], [108.248, 56.3], [107.547, 55.6], [107.547, 55.1],
+        [108.148, 54.5], [108.148, 43.1], [107.748, 42.7], [107.6, 42.6], escape="hv_ret")
+    drill(g, "ocp_kelvin_n", *KN_MID)
+    put(g, "ocp_kelvin_n", "In2.Cu", 0.3, list(KN_MID), [41.3, 35.5], [39.4, 37.4], list(KN_VIA), escape="bus_p")
+    drill(g, "ocp_kelvin_n", *KN_VIA)
+    put(g, "ocp_kelvin_n", "In1.Cu", 0.3, list(KN_VIA), [41.3, 40.6], [41.3, 43.4], escape="hv_ret")
+    # the stage-16 N run crosses the In1 ocp_kelvin_p protection pour (a pour; the base copper did the same,
+    # DRC-clean in stage 16, and the pour split is in the Kelvin budget)
+    put(g, "ocp_kelvin_n", "In1.Cu", 0.3, [41.3, 43.4], [106.6, 43.4], [106.6, 72.4], [119.95, 72.4],
+        escape=("hv_ret", "ocp_kelvin_p"))
+    drill(g, "ocp_kelvin_n", 119.95, 72.4, size=0.85)
+    put(g, "ocp_kelvin_n", "F.Cu", 0.3, [119.95, 72.4], "R33.2")
+
+
 def add_r5(g):
     """Up to R5_MAX legal 0.6 / 0.3 vias per R5 current pad, 0.85 mm apart (so merge_close_vias
     keeps them), on a 0.15 mm grid in the pad and in the same-net F.Cu copper within R5_REACH of it,
     nearest the pad centre first. Every spot is checked against all copper on every layer (the
     Kelvin pair runs under R5.1 on In1). Vias inside the pad are filled and capped."""
     from shapely.geometry import Point, Polygon, box as _box
+    import rules21
     G = g["GEO"]
+    sense = r5_sense(G)
     for net, ref_pad in R5_PADS.items():
         pd = G.pad(ref_pad)
         x0, y0, x1, y1 = pd["box"]
@@ -385,8 +515,13 @@ def add_r5(g):
                 break
             if any(c.distance(q) < 0.85 for q in placed + own):
                 continue
-            if G.conflicts(net, CU, c.buffer(0.3), limit=1, via=True):
+            bad = G.conflicts(net, CU, c.buffer(0.3), limit=8, via=True)
+            # a conflict with an R5 sense pad's bounding box only: judge it on the true outline
+            if bad and all(lay == "F.Cu" and o in sense for lay, o in bad) and \
+                    all(sense[o].distance(c) >= 0.3 + rules21.clearance(net, o) + 0.03 for _, o in bad):
+                bad = []
+            if bad:
                 continue
-            drill(g, net, c.x, c.y, size=0.6)
+            g["via"](net, c.x, c.y, size=0.6)
             placed.append(c)
         print(f"R5 {ref_pad}: {len(placed)} vias ({sum(pad.contains(q) for q in placed)} in the pad)")

@@ -92,12 +92,16 @@
    "board_fraction": 1.0,
    "sink_fraction": 0.0,
    "basis": "task03",
-   "note": "WSK2512R0010FEA, task 03 round 3",
-   "x_mm": 38.5,
+   "note": "CSS2H-2512R-1L00F (stage 17), I^2 x 1 mOhm; heat on current pads 1 / 4 only",
+   "pad_numbers": [
+    "1",
+    "4"
+   ],
+   "x_mm": 37.75,
    "y_mm": 12.6,
    "has_unquantified_loss": false,
    "use_as_complete_b3_heat_source": true,
-   "part": "WSK2512R0010FEA, task 03 round 3"
+   "part": "CSS2H-2512R-1L00F (stage 17), I^2 x 1 mOhm; heat on current pads 1 / 4 only"
   },
   {
    "ref": "C21",

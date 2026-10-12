@@ -11,6 +11,7 @@ import argparse
 import gzip
 import hashlib
 import json
+import os
 import math
 import platform
 from collections import defaultdict
@@ -32,6 +33,9 @@ ROUND3 = HERE.parent
 UNIT = HERE.parents[3]  # zapote/power-stage-120v
 # Round 5: native-21 stage-6 A4 cases (../outputs); several cases (one per net) may be summed.
 A4 = HERE.parent / "outputs"
+# Stage 17: B3_A4_DIR points the solve at another A4 output set (the G6 control re-solves the stage-16 board).
+if os.environ.get("B3_A4_DIR"):
+    A4 = Path(os.environ["B3_A4_DIR"])
 LAYER_NAMES = ("F.Cu", "dielectric 1", "In1.Cu", "dielectric 2",
                "In2.Cu", "dielectric 3", "B.Cu")
 CU_INDEX = {"F.Cu": 0, "In1.Cu": 2, "In2.Cu": 4, "B.Cu": 6}
@@ -93,6 +97,7 @@ def grid_geometry(data: dict, pitch_mm: float):
             pmask = np.zeros_like(board)
             raster_polygon(shape, x, y, pmask)
             pads[ref][layer].update(map(int, np.flatnonzero(pmask)))
+            pads[item["ref"]][layer].update(map(int, np.flatnonzero(pmask)))   # per pad ("R5.1"), stage 17
         if kind in ("pad", "via"):
             drill = item.get("drill_mm", 0)
             if isinstance(drill, list):
@@ -295,6 +300,9 @@ def add_part_heat(path: Path, mode: str, x, y, board, pads, heat, copper=None):
         ref = part["ref"]
         layer = "F.Cu" if pads[ref].get("F.Cu") or not pads[ref].get("B.Cu") else "B.Cu"
         cells = sorted(pads[ref].get(layer, ()))
+        if part.get("pad_numbers"):
+            # stage 17: heat only on the part's terminal pads (R5's CSS2H sense fingers are land, not terminals)
+            cells = sorted(set().union(*(pads[f"{ref}.{n}"].get(layer, set()) for n in part["pad_numbers"])))
         fallback = False
         if not cells:
             # Round 5: an SMD pad smaller than a cell lands on the nearest F.Cu copper cell (round 4

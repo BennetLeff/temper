@@ -194,13 +194,15 @@ component R220k1206:
     signal p2 ~ pin 2
 
 component Shunt1m:
-    """Vishay WSK25121L000FEA 1 mOhm 4-terminal. KiCad pads 1/4 current I1/I2, 2/3 sense E1/E2.
-    Vishay doc 30108: 1 mOhm uses T=2.21 mm and low-ohm L marking.
-    Same-end terminal relationships are internal to the part, not PCB joins."""
+    """Bourns CSS2H-2512R-1L00F 1 mOhm, 5 W @70 C terminal, +/-75 ppm/C, AEC-Q200 (stage 17, DECISIONS 17;
+    replaces Vishay WSK25121L000FEA, which failed derating at 28 A). Two-terminal part on Bourns' Kelvin
+    land (datasheet p.2): KiCad pads 1/4 current I_A/I_B, 2/3 sense fingers. The sense fingers are
+    net-tied to their current pad in the footprint (net_tie_pad_groups 1,2 / 3,4); the netlist keeps
+    the four nets separate, as for the WSK."""
     designator_prefix = "R"
-    mpn = "WSK25121L000FEA"
-    manufacturer = "Vishay Dale"
-    footprint = "Resistor_SMD:R_Shunt_Vishay_WSK2512_6332Metric_T2.21mm"
+    mpn = "CSS2H-2512R-1L00F"
+    manufacturer = "Bourns"
+    footprint = "temper:R_Shunt_Bourns_CSS2H-2512_Kelvin"
     signal I1 ~ pin 1
     signal S1 ~ pin 2
     signal S2 ~ pin 3

@@ -65,6 +65,10 @@ def esr_worst(f):
 for r in rows:
     if r["ref"] == "R5":
         r["watts_worst"] = I_T["worst"] ** 2 * 1e-3
+        # Stage 17 (DECISIONS 17): R5 is a Bourns CSS2H-2512R-1L00F, still 1 mOhm, so the I^2 R rows stand. Its land
+        # carries two sense fingers (pads 2 / 3) that are not part terminals: the heat goes into the current pads only.
+        r["note"] = "CSS2H-2512R-1L00F (stage 17), I^2 x 1 mOhm; heat on current pads 1 / 4 only"
+        r["pad_numbers"] = ["1", "4"]
     if r["ref"] == "R39":
         r["watts_worst"] = (I_T["worst"] / 100) ** 2 * 1.5
 BANK = ("C21", "C22", "C23", "C151", "C152")
