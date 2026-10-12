@@ -36,6 +36,8 @@ static struct {
     float heatsink_temperature;
     float dc_bus_current;
     float rtd_resistance;
+    bool power_bus_fault;        /* BUS_FAULT / PERMIT drop (native-21) */
+    bool power_tank_trip;        /* n21 CT peak / RMS trip latched */
     float pan_impedance;
     float rim_temperature;      /* R36 rim NTC */
     bool rim_valid;
@@ -209,6 +211,14 @@ void mock_sm_set_dc_bus_current(float amps) {
 
 void mock_sm_set_rtd_resistance(float ohms) {
     mock_sm_state.rtd_resistance = ohms;
+}
+
+void mock_sm_set_power_bus_fault(bool tripped) {
+    mock_sm_state.power_bus_fault = tripped;
+}
+
+void mock_sm_set_power_tank_trip(bool tripped) {
+    mock_sm_state.power_tank_trip = tripped;
 }
 
 void mock_sm_set_pan_status(pan_status_t status) {
@@ -410,6 +420,15 @@ float read_heatsink_temperature(void) {
 
 float read_dc_bus_current(void) {
     return mock_sm_state.dc_bus_current;
+}
+
+/* Native-21 over-current sources (state_machine.c check_safety_interlocks). */
+bool power_bus_fault_tripped(void) {
+    return mock_sm_state.power_bus_fault;
+}
+
+bool power_tank_overcurrent_tripped(void) {
+    return mock_sm_state.power_tank_trip;
 }
 
 bool read_rim_temperature(float *temp_c) {

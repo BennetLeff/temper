@@ -16,7 +16,8 @@ extern void mock_sm_reset(void);
 extern void mock_sm_advance_time(uint32_t ms);
 extern void mock_sm_set_pan_temperature(float temp_c);
 extern void mock_sm_set_heatsink_temperature(float temp_c);
-extern void mock_sm_set_dc_bus_current(float amps);
+extern void mock_sm_set_power_bus_fault(bool tripped);
+extern void mock_sm_set_power_tank_trip(bool tripped);
 extern void mock_sm_set_rtd_resistance(float ohms);
 extern void mock_sm_set_pan_status(int status);
 extern void mock_sm_set_pan_impedance(float impedance);
@@ -113,7 +114,7 @@ static void apply_event_stubs(const char *event) {
         return;
     }
     if (strcmp(event, "OVER_CURRENT") == 0) {
-        mock_sm_set_dc_bus_current(45.0f);
+        mock_sm_set_power_tank_trip(true);
         return;
     }
     if (strcmp(event, "FAN_FAILURE") == 0) {
@@ -198,7 +199,8 @@ static void trigger_fault_entry(fault_code_t code) {
     mock_sm_set_pan_status(MOCK_PAN_PRESENT);
     mock_sm_set_pan_temperature(25.0f);
     mock_sm_set_fan_running(true);
-    mock_sm_set_dc_bus_current(0.0f);
+    mock_sm_set_power_bus_fault(false);
+    mock_sm_set_power_tank_trip(false);
     mock_sm_set_rtd_resistance(100.0f);
     switch (code) {
     case FAULT_OVER_TEMP:

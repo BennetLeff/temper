@@ -30,6 +30,8 @@ extern void state_machine_reset_temp_baseline(void);
 extern void mock_sm_set_heatsink_temperature(float temp_c);
 extern void mock_sm_set_coil_temperature(float temp_c);
 extern void mock_sm_set_dc_bus_current(float amps);
+extern void mock_sm_set_power_bus_fault(bool tripped);
+extern void mock_sm_set_power_tank_trip(bool tripped);
 extern void mock_sm_set_rtd_resistance(float ohms);
 extern void mock_sm_set_pan_status(int status);  /* 0=ABSENT, 1=PRESENT */
 extern void mock_sm_set_pan_impedance(float impedance);
@@ -841,13 +843,15 @@ void test_sm_fault_on_over_current(void) {
     mock_sm_advance_time(100);
     state_machine_update();  /* PREHEAT -> HEATING */
     
-    /* Trigger over-current (>40A) */
-    mock_sm_set_dc_bus_current(45.0f);
+    /* n21 binding latched its CT peak / RMS trip */
+    TEST_ASSERT_EQUAL(STATE_HEATING, state_machine_get_state());
+    mock_sm_set_power_tank_trip(true);
     mock_sm_advance_time(100);
     state_machine_update();
     
     TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
     TEST_ASSERT_EQUAL(FAULT_OVER_CURRENT, state_machine_get_fault());
+    TEST_ASSERT_EQUAL_UINT32(1, mock_sm_get_trigger_shutdown_count());
 }
 
 /**
@@ -873,17 +877,19 @@ void test_sm_fault_on_igbt_short(void) {
     mock_sm_advance_time(100);
     state_machine_update();  /* PREHEAT -> HEATING */
     
-    /* Trigger IGBT short (>50A) */
-    mock_sm_set_dc_bus_current(55.0f);
+    /* BUS_FAULT read-back high (or PERMIT dropped while running) */
+    TEST_ASSERT_EQUAL(STATE_HEATING, state_machine_get_state());
+    mock_sm_set_power_bus_fault(true);
     mock_sm_advance_time(100);
     state_machine_update();
     
     TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
     TEST_ASSERT_EQUAL(FAULT_IGBT_SHORT, state_machine_get_fault());
+    TEST_ASSERT_EQUAL_UINT32(1, mock_sm_get_trigger_shutdown_count());
 }
 
 /**
- * Test: IGBT short does NOT trigger at 40A (should be FAULT_OVER_CURRENT)
+ * Test: both sources at once -> the hardware bus fault (FAULT_IGBT_SHORT) wins
  */
 void test_sm_fault_on_igbt_short_is_distinct(void) {
     setup_test();
@@ -905,11 +911,68 @@ void test_sm_fault_on_igbt_short_is_distinct(void) {
     mock_sm_advance_time(100);
     state_machine_update();  /* PREHEAT -> HEATING */
     
-    /* 45A triggers FAULT_OVER_CURRENT, not FAULT_IGBT_SHORT (>50A) */
-    mock_sm_set_dc_bus_current(45.0f);
+    mock_sm_set_power_tank_trip(true);
+    mock_sm_set_power_bus_fault(true);
     mock_sm_advance_time(100);
     state_machine_update();
     
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_IGBT_SHORT, state_machine_get_fault());
+}
+
+/* Drive IDLE -> PAN_DET -> PREHEAT with a healthy system (helper for the tests below). */
+static void drive_to_preheat(void) {
+    setup_test();
+    state_machine_update();  /* INIT -> IDLE */
+    state_machine_set_target_temp(100.0f);
+    mock_sm_press_button(BUTTON_START);
+    mock_sm_advance_time(100);
+    state_machine_update();  /* IDLE -> PAN_DET */
+    mock_sm_release_button(BUTTON_START);
+    mock_sm_set_pan_status(MOCK_PAN_PRESENT);
+    for (int i = 0; i < 5 && state_machine_get_state() != STATE_PREHEAT; i++) {
+        mock_sm_advance_time(100);
+        state_machine_update();
+    }
+}
+
+/**
+ * Test: a healthy native-21 system (no bus fault, no tank trip) enters and stays in PREHEAT.
+ * The legacy DC bus current is no longer read: even an absurd value has no effect.
+ */
+void test_sm_healthy_power_stage_enters_preheat_without_fault(void) {
+    drive_to_preheat();
+    TEST_ASSERT_EQUAL(STATE_PREHEAT, state_machine_get_state());
+    mock_sm_set_dc_bus_current(1000.0f);
+    for (int i = 0; i < 5; i++) {
+        mock_sm_advance_time(100);
+        mock_sm_set_pan_temperature(30.0f + (float)i); /* not stuck, far below target */
+        state_machine_reset_temp_baseline();
+        state_machine_update();
+    }
+    TEST_ASSERT_EQUAL(STATE_PREHEAT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_NONE, state_machine_get_fault());
+    TEST_ASSERT_EQUAL_UINT32(0, mock_sm_get_trigger_shutdown_count());
+}
+
+/** Test: each source latches its fault in PREHEAT too. */
+void test_sm_preheat_bus_fault_latches_igbt_short(void) {
+    drive_to_preheat();
+    TEST_ASSERT_EQUAL(STATE_PREHEAT, state_machine_get_state());
+    mock_sm_set_power_bus_fault(true);
+    mock_sm_advance_time(100);
+    state_machine_update();
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_IGBT_SHORT, state_machine_get_fault());
+    TEST_ASSERT_EQUAL_UINT32(1, mock_sm_get_trigger_shutdown_count());
+}
+
+void test_sm_preheat_tank_trip_latches_over_current(void) {
+    drive_to_preheat();
+    TEST_ASSERT_EQUAL(STATE_PREHEAT, state_machine_get_state());
+    mock_sm_set_power_tank_trip(true);
+    mock_sm_advance_time(100);
+    state_machine_update();
     TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
     TEST_ASSERT_EQUAL(FAULT_OVER_CURRENT, state_machine_get_fault());
 }
@@ -1924,6 +1987,9 @@ void run_state_machine_tests(void) {
     RUN_TEST(test_sm_fault_on_thermal_runaway);
     RUN_TEST(test_sm_fault_on_igbt_short);
     RUN_TEST(test_sm_fault_on_igbt_short_is_distinct);
+    RUN_TEST(test_sm_healthy_power_stage_enters_preheat_without_fault);
+    RUN_TEST(test_sm_preheat_bus_fault_latches_igbt_short);
+    RUN_TEST(test_sm_preheat_tank_trip_latches_over_current);
     RUN_TEST(test_sm_fault_on_adc_stuck);
     RUN_TEST(test_sm_preheat_interlock_is_terminal_and_cuts_hardware);
     RUN_TEST(test_sm_heating_runaway_is_terminal_and_cuts_hardware);

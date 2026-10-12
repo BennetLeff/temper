@@ -23,6 +23,7 @@ extern void mock_sm_set_time(uint32_t ms);
 extern void mock_sm_set_pan_temperature(float temp_c);
 extern void mock_sm_set_heatsink_temperature(float temp_c);
 extern void mock_sm_set_dc_bus_current(float amps);
+extern void mock_sm_set_power_tank_trip(bool tripped);
 extern void mock_sm_set_rtd_resistance(float ohms);
 extern void mock_sm_set_pan_status(int status);  /* 0=ABSENT, 1=PRESENT */
 extern void mock_sm_set_pan_impedance(float impedance);
@@ -479,8 +480,8 @@ void test_fault_ocp_during_heating(void) {
     mock_sm_advance_time(100);
     state_machine_update();  /* PREHEAT -> HEATING */
     
-    /* Inject over-current condition (>40A) */
-    mock_sm_set_dc_bus_current(45.0f);
+    /* Inject over-current: the n21 binding's CT peak / RMS trip (native-21) */
+    mock_sm_set_power_tank_trip(true);
     mock_sm_advance_time(100);
     state_machine_update();
     

@@ -8,6 +8,7 @@
 #include <string.h>
 
 #include "max31865.h"
+#include "n21_binding.h"
 
 /* ---------------------------------------------------------------- pan RTD */
 float pt100_r_at(float t_c)
@@ -35,6 +36,26 @@ float platform_rtd_resistance(bool have_word, uint16_t rtd_word, float rref_ohm)
 float platform_pan_temperature(bool have_word, uint16_t rtd_word, float rref_ohm)
 {
     return pt100_ohm_to_c(platform_rtd_resistance(have_word, rtd_word, rref_ohm));
+}
+
+/* ---------------------------------------------------------------- native-21 over-current sources */
+bool platform_power_bus_trip(bool status_known, bool bus_fault, bool permit, bool bridge_running)
+{
+    return !status_known || bus_fault || (bridge_running && !permit);
+}
+
+bool platform_power_tank_trip(bool known, int n21_fault)
+{
+    if (!known) return true;
+    switch (n21_fault) {
+    case N21_FAULT_TANK_PEAK:
+    case N21_FAULT_TANK_RMS:
+    case N21_FAULT_CT_MON:
+    case N21_FAULT_RMS_CHANNEL:
+        return true;
+    default:
+        return false;
+    }
 }
 
 /* ---------------------------------------------------------------- blower request */

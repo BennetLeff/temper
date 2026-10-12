@@ -76,7 +76,15 @@ extern float read_pan_temperature(void);
 extern float read_heatsink_temperature(void);
 /* Coil NTC, deg C; NaN when the reading is invalid (open, short, stale, not yet settled). */
 extern float read_coil_temperature(void);
-extern float read_dc_bus_current(void);
+/* Over-current sources on native-21 (design lead decision 2026-10-12; DC bus current is not
+ * measured on this hardware, so the legacy 40 / 50 A read_dc_bus_current() checks are retired):
+ *  - power_bus_fault_tripped(): BUS_FAULT read-back high (shunt OCP, bus OVP, tank-CT comparators,
+ *    HOT5) or PERMIT dropped while the binding runs the bridge -> FAULT_IGBT_SHORT;
+ *  - power_tank_overcurrent_tripped(): the n21 binding latched its CT peak / RMS trip (or lost the
+ *    current-sense channel) -> FAULT_OVER_CURRENT.
+ * Both return true whenever the status cannot be read (fail closed). */
+extern bool power_bus_fault_tripped(void);
+extern bool power_tank_overcurrent_tripped(void);
 extern float read_rtd_resistance(void);
 extern bool is_fan_running(void);
 extern void delay_ms(uint32_t ms);
@@ -406,15 +414,14 @@ bool check_safety_interlocks(void) {
         return true;
     }
 
-    /* Over-current check — IGBT short (> IGBT_SHORT_CURRENT_THRESHOLD) takes
-     * priority over over-current (> OVER_CURRENT_THRESHOLD). Both thresholds
-     * come from config.yaml (interlocks:); see
-     * docs/evidence/2026-08-15-firmware-interlock-citations.md. */
-    if (read_dc_bus_current() > IGBT_SHORT_CURRENT_THRESHOLD) {
+    /* Over-current: the hardware bus fault / PERMIT drop (FAULT_IGBT_SHORT) takes priority over
+     * the n21 binding's tank-current trip (FAULT_OVER_CURRENT). The trip levels are the hardware
+     * comparators' and the binding's (n21_config_t tank_peak_trip_a / tank_rms_trip_a). */
+    if (power_bus_fault_tripped()) {
         enter_hardware_latched_fault(FAULT_IGBT_SHORT);
         return true;
     }
-    if (read_dc_bus_current() > OVER_CURRENT_THRESHOLD) {
+    if (power_tank_overcurrent_tripped()) {
         enter_hardware_latched_fault(FAULT_OVER_CURRENT);
         return true;
     }

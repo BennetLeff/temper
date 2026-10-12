@@ -591,7 +591,7 @@ add_executable(test_platform_logic test_platform_logic.c ../components/platform/
     ../components/hal/mock/mock_adc.c ../components/hal/mock/mock_pwm.c ../components/hal/mock/mock_spi.c
     ../components/hal/mock/mock_timer.c)
 target_include_directories(test_platform_logic PRIVATE ../components/platform/include
-    ../components/sensors/include ../components/hal/include ..)
+    ../components/sensors/include ../components/hal/include ../components/power/include ..)
 target_link_libraries(test_platform_logic m)
 target_compile_options(test_platform_logic PRIVATE -UNDEBUG -Wall -Wextra -Werror)
 add_test(NAME platform_logic_tests COMMAND test_platform_logic)

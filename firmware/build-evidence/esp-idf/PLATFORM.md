@@ -16,15 +16,82 @@ Each now has a production implementation for the integrated SELV controller (`za
 | `components/sensors/max31865.c`, `rtd_service.c` | target and host | added: RTD data-word read (`01h/02h`) on each DRDY completion, `rtd_service_latest_word()`, `max31865_rtd_word_to_ohm()`, `MAX31865_RREF_OHM` |
 | `main/thermal_io.c` | ESP-IDF only | one added line: the state machine's full-speed request applied to the fan law's command (`thermal_io.c:186`) |
 
-Host tests: `test/test_platform_logic.c` (new ctest `platform_logic_tests`, 15 tests) and 3 new Unity tests in
-`test/test_max31865.c` (RTD word capture, ageing, failed data read, RREF vs threshold words). `ctest`: 29/29.
+Host tests: `test/test_platform_logic.c` (ctest `platform_logic_tests`, 17 tests), `test/test_max31865.c` (20 Unity
+tests: driver contract, RTD conversion / fault-cycle schedule, staleness, mid-conversion fault), `test/test_state_machine.c`
+(75, incl. the native-21 over-current sources), SIL (23 scenarios). `ctest`: 29/29.
+
+Update 2026-10-12 (second commit on `fw/platform`): the two design calls below replaced the DC-bus-current interlock and
+turned on MAX31865 conversions; the image can now reach PREHEAT on a healthy system.
+
+## Decisions (by the design lead)
+
+**D1. DC bus current is removed from the legacy safety interlocks.** On native-21 over-current is protected by the
+hardware shunt comparator (BUS_FAULT, which drops PERMIT on its own) and by the n21 binding's CT peak and RMS trips.
+`check_safety_interlocks()` (`main/state_machine.c`) now reads, instead of `read_dc_bus_current()`:
+
+| Fault | Source (extern, `state_machine.c`) | Signal the controller reads | Where |
+|---|---|---|---|
+| FAULT_IGBT_SHORT (priority) | `power_bus_fault_tripped()` | BUS_FAULT_RB **GPIO21** high (shunt OCP ~61 A, bus OVP ~280 V, tank-CT comparators, HOT5), or PERMIT_RB **GPIO36** low while the binding has the bridge live (telemetry `pads_live && gate_on`) | `controller_pins.h:45` (BUS_FAULT_RB), `controller_pins.h:47` (PERMIT_RB); read as in `n21_hw_esp32.c:530-531`, pads configured `n21_hw_esp32.c:562`; meaning `power-stage-120v/README.md:79`, `:113` |
+| FAULT_OVER_CURRENT | `power_tank_overcurrent_tripped()` | the n21 binding's latched fault via `n21_telemetry()` (`n21_binding.c:522`): `N21_FAULT_TANK_PEAK` (CT_MON peak trip / over-range, `n21_binding.c:227-229`), `N21_FAULT_TANK_RMS` (half-cycle RMS trip `:157`, ceiling `:183`, crest guard `:242`); also `N21_FAULT_CT_MON` / `N21_FAULT_RMS_CHANNEL` (current-sense channel lost: current unknown) | `platform_power_tank_trip()` |
+
+- Implementation: `main/platform/platform_esp32.c` (`power_bus_fault_tripped`, `power_tank_overcurrent_tripped`); the
+  decisions are `platform_power_bus_trip()` / `platform_power_tank_trip()` (`components/platform/platform_logic.c`,
+  host-tested). Unknown status (no n21 binding, i.e. `CONFIG_TEMPER_POWER_HW_BINDING=n` or `n21_hw_start()` failed) =
+  tripped. PERMIT is not required before the bridge runs: it is latched low at power-up until the reset request (C6).
+- Not used: the expander bits. LATCHED_FAULT (P10) is the interlock latch itself (set at power-up, not an over-current
+  indication); SUP_RUN_OK (P14) is the TPS3823 watchdog, not in the trip path (`controller_pins.h:108`). Both are already
+  inputs to the n21 binding's `interlock_healthy()` gate.
+- `read_dc_bus_current()` is **no longer called by the state machine** (its `extern`s are removed from `state_machine.c`
+  and `state_handlers.c`). The platform function stays, returning `+INFINITY`, documented as unused; the only remaining
+  callers are safety.c `check_hardware_interlocks()` / `run_safety_check()`, reachable on target only from safety.c's
+  example `task_control_loop()`, which no task runs. In the strict image it is removed by `--gc-sections`
+  (`platform-symbols-nm.txt`: `UNREFERENCED`, defined in `platform_esp32.c.obj`).
+- Fault list and transition table unchanged (FAULT_IGBT_SHORT / FAULT_OVER_CURRENT and their events already exist; the
+  committed generators reproduce the headers byte for byte). Tests that injected a DC bus current now inject the new
+  sources: `test_state_machine.c`, `test_integration.c`, the transition-table test (generator
+  `test/gen_transition_table.py` updated, `test_transition_table_generated.c` regenerated), and the SIL traces: column
+  `dc_current` became `power_trip` (0 healthy, 1 = n21 tank trip, 2 = BUS_FAULT / PERMIT drop; mechanically converted,
+  > 40 A -> 1, > 50 A -> 2) with the manifest sensor renamed to `power_trip`. New tests: a healthy system enters and stays
+  in PREHEAT (even with an absurd legacy DC current injected), BUS_FAULT -> FAULT_IGBT_SHORT and tank trip ->
+  FAULT_OVER_CURRENT in both PREHEAT and HEATING, both at once -> FAULT_IGBT_SHORT, and the truth tables of the two
+  decisions (`test_power_bus_trip`, `test_power_tank_trip`). Python checks (SIL coverage, codegen, tools: 175; mutation
+  sweep: 13) pass.
+
+**D2. MAX31865 in normal conversion mode, with the fault cycle at startup and periodically.**
+- Wiring **4-wire** (CONFIG D4 = 0): RTDSensing uses the datasheet 4-wire topology with FORCE+/RTDIN+ and FORCE-/RTDIN-
+  on separate conductors (`zapote/controller/elec/src/modules.ato:2122-2128`, branch controller-layout; DECISIONS C27
+  cartridge table). Filter **60 Hz** (D0 = 0): the product is 120-127 V~ 60 Hz
+  (`zapote/power-stage-120v/DECISIONS.md:299`). Converting CONFIG = `0xC0` (bias, auto conversion); fault cycle CONFIG =
+  `0x84` (`100X010Xb`, conversions off) - `max31865.h`.
+- Sequence (`components/sensors/rtd_service.c`, control task, 10 ms tick): bootstrap writes the thresholds and starts
+  the **startup fault-detection cycle**; each tick CONFIG is read until D3:D2 return to 00 (the datasheet's completion
+  indication), then the latched status is reported and conversions start. While converting, DRDY (expander P07, the
+  existing poll path: the per-tick snapshot) low = a conversion: the data word is read (which releases DRDY) and DRDY
+  is re-polled (`ctrl_board_poll_expander()`, control task) to confirm the release before the next low is accepted; a
+  DRDY stuck low gives one conversion and then the fail-silent timeout. Every **1 s** (`RTD_FAULT_CYCLE_PERIOD_TICKS` =
+  100), right after a conversion has been read, conversions pause and a fault cycle runs; they resume when it finishes.
+- Why 1 s: open and short of the element are caught on every conversion (16.7 ms at 60 Hz) by the threshold faults,
+  which set the data word's fault bit; the periodic cycle adds the lead / force-path diagnoses. Each pause costs about
+  one tick plus the first conversion after the restart (~52 ms, single-conversion time), i.e. < 7 % of conversions at
+  1 s, and the word never ages past the 100 ms bound across a pause (`test_rtd_service_periodic_fault_cycle_schedule`:
+  age <= 3 ticks throughout). A shorter period would only trade more conversion gaps for faster lead-fault detection.
+- Faults: a fault-cycle status, a conversion word with the fault bit (status read and reported at once; a clean status
+  despite the bit = open, fail closed), a fault cycle that does not finish within 100 ms, no conversion for 100 ms, or
+  an SPI failure all report to the state machine (FAULT_PROBE_SHORT for the low threshold, else FAULT_PROBE_OPEN) and end
+  the service (terminal: RUN_EN is killed until MCU reset anyway). `read_rtd_resistance()` / `read_pan_temperature()`
+  return `+INFINITY` / NaN exactly as before for a faulted, stale (> 10 ticks), failed or missing word.
+- Tests (`test_max31865.c`): config words 4-wire / 60 Hz; startup fault cycle then conversions; startup fault reported;
+  fault cycle never finishing; conversion read releases DRDY (a stale snapshot is not a conversion); periodic schedule
+  over 300 ticks (cycles at t = 100 and 202, conversions off during the cycle, DRDY lows not consumed); word ages out
+  when conversions stop; fault in the middle of a conversion (short reported once, service ends); fault bit with clean
+  status; DRDY stuck low; failed data read.
 
 ## Sentinels: what the callers already treat as a fault
 
 | Quantity | Sentinel | Why this value (caller, file:line) |
 |---|---|---|
-| resistance, current | `+INFINITY` | `state_machine.c:413/417/432` compare with `>`, so `+inf` trips FAULT_IGBT_SHORT / FAULT_PROBE_OPEN; `safety.c:267/304/359` test `!isfinite()`. **NaN would pass every ordered comparison in `state_machine.c`** (asserted in `test_pan_and_rtd_sentinels`), so NaN is never returned for these. |
-| temperature | `NaN` | `check_runaway_boundary()` `state_machine.c:473`: `!isfinite(temp)` = immediate breach; the state handlers pass `isfinite(pan)` as "valid" to the pan cap. Same convention as `read_coil_temperature()` / `read_heatsink_temperature()` in `thermal_io.c`. |
+| resistance (and the unused DC current) | `+INFINITY` | `state_machine.c:439` compares with `>`, so `+inf` trips FAULT_PROBE_OPEN; `safety.c` tests `!isfinite()`. **NaN would pass every ordered comparison in `state_machine.c`** (asserted in `test_pan_and_rtd_sentinels`), so NaN is never returned for these. |
+| temperature | `NaN` | `check_runaway_boundary()` `state_machine.c:480`: `!isfinite(temp)` = immediate breach; the state handlers pass `isfinite(pan)` as "valid" to the pan cap. Same convention as `read_coil_temperature()` / `read_heatsink_temperature()` in `thermal_io.c`. |
 | self-test | `false` | `run_self_test()` -> FAULT_SELF_TEST_FAILED, retried by `fault_cleared()` on RESET. |
 
 ## Per function
@@ -32,33 +99,24 @@ Host tests: `test/test_platform_logic.c` (new ctest `platform_logic_tests`, 15 t
 ### Safety-relevant reads
 
 **`read_rtd_resistance()`** - implemented.
-- Path: PT100 `rtd_pan` (RTDSensing) -> MAX31865 on SPI2 (SCK 11, SDI 13, SDO 12, CS 10, mode 3; DECISIONS C20) ->
-  DRDY on TCA9555 P07 (C23) -> `rtd_service_control_tick()` (control task) reads the RTD word `01h/02h` on each DRDY
-  completion, before servicing the fault cycle (`rtd_service.c`). R = (word >> 1) x RREF / 32768 with RREF = 430 ohm
-  (`modules.ato:1823`, `r_ref.value = 430ohm +/- 0.05%`, 4-wire network). The same RREF derives
-  `MAX31865_{LOW,HIGH}_THRESHOLD_WORD` (`config.yaml`, `board_derivations.yaml`); both host suites assert those words decode
-  to 10 / 300 ohm within 1 LSB, so the conversion and the hardware thresholds cannot use different references.
-- Failure: `+INFINITY` when the service is not ready (bootstrap failed, DRDY timeout, fault reported), no word read yet, the
-  last data read failed, the word is older than `RTD_DRDY_TIMEOUT_CONTROL_TICKS` (100 ms, the existing DRDY bound), or the
-  word's MAX31865 fault bit (D0) is set. Callers: FAULT_PROBE_OPEN (`state_machine.c:432`), sensor fault (`safety.c:304`).
+- Path: PT100 `rtd_pan` (RTDSensing) -> MAX31865 on SPI2 (SCK 11, SDI 13, SDO 12, CS 10, mode 3; DECISIONS C20),
+  continuous conversions 4-wire / 60 Hz with a fault cycle at startup and every 1 s (D2 above); DRDY on TCA9555 P07
+  (C23). R = (word >> 1) x RREF / 32768 with RREF = 430 ohm (`modules.ato:1823`, `r_ref.value = 430ohm +/- 0.05%`). The
+  same RREF derives `MAX31865_{LOW,HIGH}_THRESHOLD_WORD` (`config.yaml`, `board_derivations.yaml`); both host suites assert
+  those words decode to 10 / 300 ohm within 1 LSB.
+- Failure: `+INFINITY` when the service is not ready (bootstrap failed, a fault reported, a timeout), no word read yet,
+  the last data read failed, the word is older than `RTD_DRDY_TIMEOUT_CONTROL_TICKS` (100 ms), or the word's fault bit
+  (D0) is set. Callers: FAULT_PROBE_OPEN (`state_machine.c`, `> RTD_GROSS_OPEN_DIAGNOSTIC_OHM`), sensor fault (`safety.c`).
 
 **`read_pan_temperature()`** - implemented.
 - Path: the same RTD word, then IEC 60751 Callendar-Van Dusen (A = 3.9083e-3, B = -5.775e-7, R0 = 100 ohm). Exact for
   T >= 0 C; below 0 C the C term is ignored (< 0.03 K to -50 C, `test_pt100_below_zero_error`).
 - Failure: `NaN` whenever `read_rtd_resistance()` would be non-finite, and for a resistance outside the standard's
-  -200..850 C range (e.g. a shorted or never-converted register, 0 ohm). Caller: runaway boundary breach (`state_machine.c:473`).
+  -200..850 C range. Caller: runaway boundary breach (`check_runaway_boundary()`).
 
-**`read_dc_bus_current()`** - **unsupported-safe: no such measurement exists on this hardware; returns `+INFINITY`.**
-- What exists: native-21 has a 1 mOhm DC-return shunt, but it feeds only a TLV3201 comparator (~61 A) whose output is ORed
-  into BUS_FAULT (`zapote/power-stage-120v/README.md:79`, `:113`); BUS_FAULT reaches GPIO21 and the interlock latch, which
-  drops PERMIT in hardware (controller DECISIONS C5). The MCU's ADC channels are VBUS (bus voltage, C10), CT_MON and the
-  AD8436 RMS (tank current through CT T1, C11/C19), which the n21 binding already trips on (tank peak / RMS trips). None is
-  the DC bus current, and none is converted into one here: that would fabricate the measurement the 40 A / 50 A
-  interlocks (`config.yaml` `OVER_CURRENT_THRESHOLD`, `IGBT_SHORT_CURRENT_THRESHOLD`, legacy IGBT board) expect.
-- Failure behaviour: always `+INFINITY` (one `ESP_LOGE` at first call). **Consequence:** `check_safety_interlocks()` runs
-  in PREHEAT and HEATING (`state_handlers.c:373`, `:477`) and latches FAULT_IGBT_SHORT on the first pass, so this image
-  cannot heat. That is the intended fail-safe; re-pointing that interlock at a signal that exists (BUS_FAULT read-back,
-  n21 telemetry) is a control-logic change for the owner (open item P1 below).
+**`read_dc_bus_current()`** - **unsupported-safe and unused** (D1): no DC-bus current measurement exists (native-21's
+1 mOhm shunt feeds only a comparator into BUS_FAULT, `power-stage-120v/README.md:79`, `:113`, DECISIONS C5; the ADC
+channels are bus voltage and tank current). Returns `+INFINITY`; the state machine no longer calls it.
 
 ### Time, storage, peripherals
 
@@ -144,22 +202,16 @@ diagnostics; the OLED carries the state text.
 | display_show_message, display_update_temperature, display_update_countdown, display_show_fault | implemented (SSD1322) |
 | button_is_pressed, button_set_enabled, buzzer_beep, buzzer_beep_continuous, buzzer_stop | implemented, UI-board bit map provisional |
 | test_adc_calibration, test_fan_operation, test_hardware_comparators, test_rtd_sensor, test_display_communication, test_eeprom_read | implemented (read-back / presence tests, see table) |
-| read_dc_bus_current | unsupported-safe: no measurement exists, `+INFINITY` |
+| read_dc_bus_current | unsupported-safe and unused (D1): no measurement exists, `+INFINITY`, no caller in the state machine |
 | peripherals_enter_low_power, peripherals_exit_low_power, led_set_pattern | unsupported-safe: documented no-ops |
 
 ## Open items found doing this (not changed: control logic / owner decisions)
 
-- **P1 (blocks heating).** `check_safety_interlocks()` needs a DC bus current that this hardware does not measure. With the
-  sentinel the image latches FAULT_IGBT_SHORT on entering PREHEAT. The owner has to re-point the 40 / 50 A interlock (e.g. to
-  the BUS_FAULT read-back and the n21 binding's tank-current trips) or retire it for native-21.
-- **P2 (RTD conversions).** `rtd_service` arms only automatic fault-detection cycles (`CONFIG = 0x84`, VBIAS + fault
-  cycle, conversion mode off, no 1-shot). The MAX31865 updates the RTD data register only on a conversion, so unless bench
-  bring-up shows DRDY / data in this mode, there is no pan temperature: `read_pan_temperature()` returns NaN and the
-  runaway boundary latches on the first control tick (fail-safe, but the cooker cannot leave the fault). The service now
-  reads the RTD data registers on each completion, which per the datasheet also returns DRDY high; before this change
-  nothing read them, so DRDY could stay low after the first cycle and only ever give one completion (the existing
-  `test_rtd_service_drdy_held_low_is_one_completion` documents that outcome). Adding conversions (1-shot after each fault
-  cycle, or auto mode) changes the RTD sequence in `SAFETY_TEST_CHECKLIST.md` and is left to its owner.
+- **P1, P2: resolved** by the design lead's decisions D1 and D2 above.
+- **P2a (bench).** Confirm on hardware: the automatic fault cycle's completion (CONFIG D3:D2 -> 00) within a tick, the
+  first-conversion time after each restart (assumed ~52 ms, inside the 100 ms bound), and that the datasheet's automatic
+  fault-cycle timing suits this front end's input RC (1 nF C0G with the 1 MOhm open-lead bias, `modules.ato:1842-1856`);
+  if it does not, the datasheet's manual cycle is the fallback.
 - **P3 (UI board).** The MCP23S08 bit map, buzzer polarity, encoder detent ratio and OLED RES# source are provisional until
   the UI board is captured (DECISIONS open item 3); update `ui_board_map.h` from its schematic. The SSD1322 init sequence and
   nibble order follow the Newhaven example and need a bench check.
