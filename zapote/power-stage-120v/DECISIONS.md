@@ -648,7 +648,7 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
         - Coil field at PS3: 453–573 µT rms at the coil-side corner (study 12). Added bench item: PS3 ripple and stability at 28 A.
     - **Gate scripts** are now committed in `native-21/layout/gates/` (the scratchpad copies were lost).
 
-17. **Stage 17: R5 = Bourns CSS2H-2512R-1L00F (2026-10-12, commit `65160f4b3`, board `e40f1e27…`, copper.json `4b6a5262…`, Gerber ZIP `b60ef50c…`; plan and evidence `validation-results/04-board-current-thermal/round5-native21/stage17-r5/`).**
+17. **Stage 17: R5 = Bourns CSS2H-2512R-1L00F (2026-10-12, commit `65160f4b3`, board `e40f1e27…`, copper.json `4b6a5262…`, Gerber ZIP `b60ef50c…`; superseded as the board of record by 17b below: commit `866282334`, board `96501e7d…`, copper.json `b2107cd0…`, Gerber ZIP `897e581e…`; plan and evidence `validation-results/04-board-current-thermal/round5-native21/stage17-r5/`).** The gate values below are stage 17's; 17b lists the ones that moved.
     - **Why:** item 14's check failed the WSK25121L000FEA (0.864 W at the 29.4 A trip against 0.2084 W derated at 149.16 °C), and it has no JLC / LCSC stock. Item 4's fallback, a ≥ 2 W Kelvin shunt, is taken with PLAN-17's rank-1 part. BVS-M-R001-1.0 stays the unused fallback.
     - **Part:** Bourns CSS2H-2512R-1L00F, LCSC C4175647 (JLC Extended, 1,482 in stock on 2026-10-12). 1 mΩ ±1 %, 5 W at 70 °C terminal (linear to 0 at 170 °C), ±75 ppm/°C, AEC-Q200, H 0.78 mm max.
       - It stays 1 mΩ, so R34 12.6 k / R35 11.7 k, the reference and the CT dividers are unchanged.
@@ -676,7 +676,7 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
       - Controls: the WSK's FAIL (0.864 W against 0.2084 W at 149.16 °C, −314.7 %) and the stage-16 solve (149.16 °C) both reproduce.
       - Sensitivity: heat on all four pads gives 134.34 °C (51.5 %). The stage-16 WSK board with heat on its current pads only is 123.43 °C, so most of item 14's 149 °C was heat put into the WSK's isolated sense pad. The WSK still fails there (0.47 W derated); the swap stands.
     - **Not re-run:** the commutation-loop FEM (PLAN-17 G8). The land span shrinks 8.26 → 7.0 mm on a return-path part with parallel copper; F6 stays closed on that basis until the next extraction.
-    - **Found:** U26 reads 7 K lower than in stage 16 (126.1 against 133.0 °C, nominal h 25) with identical copper near it. The In1 `n_ls LS block` and `ocp_kelvin_p protection` pours have the same priority and abut at y 75.3, so the 0.3 mm boundary strip goes to whichever fills first. It is rebuild fill order, not stage 17. Read U26 as up to 133 °C until the priorities differ.
+    - **Found:** U26 reads 7 K lower than in stage 16 (126.1 against 133.0 °C, nominal h 25) with identical copper near it. The In1 `n_ls LS block` and `ocp_kelvin_p protection` pours have the same priority and abut at y 75.3, so the 0.3 mm boundary strip goes to whichever fills first. It is rebuild fill order, not stage 17. **Closed in 17b** (n_ls declared the winner; U26 126.1–127.4 °C on every build).
     - **Records:**
       - `round3/thresholds.py` keeps the WSK tuple as its default, because eight committed band records import it; it adds `SHUNT_CSS2H` for stage-17 and later calculations.
       - Item 4's "local ambient ≤ 100 °C" gate is superseded by G6's terminal-temperature rule. Item 14's "0.86 W at 28 A" is the 29.4 A trip value (0.784 W at 28 A).
@@ -688,3 +688,24 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
     - **Open, other:**
       - JLC placement preview of C4175647 on the project land (rotation and centroid);
       - bench IR of R5 at 28 A.
+    - **17b, deterministic pour fill and the R5 via check (2026-10-12, commit `866282334`, board `96501e7d0e9b4903a145aa3bd0e45003a4fafe37ceef5259a7502bc9b11225a9`, copper.json `b2107cd0…`, Gerber ZIP `897e581e78db51731264589f028ff2f2933d8b2a916012eeb4656fc42b556b9a`; design-lead review follow-ups):**
+      - **Fill order.** Seven different-net pour pairs were closer than their clearance at equal priority, and three more sat exactly at it. KiCad's fill order then chose the contested copper.
+        - Between stages 14 and 17 that flipped In1 n_ls / ocp_kelvin_p (3.5 mm²) and four B.Cu pairs: sw_b / res_a at the bank (48 mm²), sw_a / sw_b, l_filt / sw_b and res_a / coil_feed.
+        - `patches21.ZONE_WINNERS` now names each winner: In1 n_ls over the Kelvin pour (review call); the rest keep stage 15b's fill, the board item 14 accepted for 28 A. `resolve_zone_priorities` raises only what it must, keeping every existing order.
+        - New gate `native-21/layout/gates/zone_priority_gate.py` (run first by `chain.sh`): 25 contested pairs, 0 at equal priority.
+        - Three builds (the chain build and two after deleting every build product) agree within 0.038 mm² per net (`fill_hash.py`, `stage17-r5/fill17b.txt`); stage 17's own build differs from 17b by 23.6 mm² total.
+        - The copper changed only in priorities; tracks and vias are the same.
+      - **Gates on board `96501e7d…`:**
+        - DRC 0 / 0 / parity 0 on all three builds; barrier21 0; Rust gate 0 over 5,626 items; D5 8.047 / 8.507 mm.
+        - Fit 0 (405 solids, 407 bodies in R4, 0 hits); DFM PASS (759 vias); Gerber review PASS (875 + 4 slots).
+        - Kelvin unchanged: R35.2 157.80 mΩ, band 67.72–116.44 A, 67.66 A at the bound.
+        - B3 h 25: 22 / 24 / 26 / 28 A → 130.2 / 131.1 / 132.1 / **136.0 °C** (22–26 A at U42, 28 A at R5.4).
+        - **U26 126.3 / 126.6 / 127.0 / 127.4 °C**; R5 115.5 / 121.8 / 128.6 / 136.0 °C (1.0 mm). Nominal h 10 / h 25: 163.2 / 129.1 °C.
+        - **G6 PASS:** R5 pad cells 134.87 °C max / 126.03 °C mean (0.25 mm), 1.757 W derated, **margin 50.8 %**. The WSK FAIL and stage-16 149.16 °C controls reproduce.
+      - **R5 HV_RET via current** (`stage17-r5/r5_vias17.py`, `r5_vias17.json`).
+        - The criterion is `validation-plan/04-board-current-thermal.md:114`: report the maximum per-via current and the via temperature rise; > 3 A is a flag, not a fail; there's no rated limit.
+        - Round 5 (`round5-native21/README.md:37-47`) accepted stage 6's 7.27 A (7.7 A per mm of barrel) as the coherent 34 A experiment; nothing in DECISIONS sets a limit.
+        - Worst via (38.1, 15.0): 8.78 A at 34 A coherent (9.32 A/mm), 7.59 A at the 29.4 A trip. Barrel Joule heat is 0.029 W, mid-wall 0.28 K over the planes it joins.
+        - Its B3 c28 cell is 133.04 °C, so the wall estimate is 133.31 °C: under the R5 pad maximum and G6's 148.39 °C terminal bound. 10 of 18 R5 vias are flagged (> 3 A).
+        - **Meets the criterion; no via change.** More HV_RET vias would need SW_B's B.Cu lane (3.2 mm rule) pulled back from under R5's east / south edges, which costs tank copper.
+      - **Not fixed:** `write_rules21.py` emits its DRU rule conditions in a different order per run. Same rules, so it doesn't affect the board; noted for a later cleanup.
