@@ -1,0 +1,25 @@
+{
+  "atopile": "0.2.69",
+  "build_command": "uv tool run --offline --from atopile==0.2.69 ato --non-interactive build elec/src/ui_board.ato:UiBoard",
+  "build_report_failed": false,
+  "entry": "elec/src/ui_board.ato:UiBoard",
+  "export_command": "uv tool run --offline --from atopile==0.2.69 python tools/circuit_export.py /Users/bennet/Desktop/temper/worktrees/ui-board/zapote/ui-board /Users/bennet/Desktop/temper/worktrees/ui-board/zapote/ui-board/build/resolved-components.json --entry-file elec/src/ui_board.ato --entry UiBoard",
+  "exporter_sha256": "9068441892e2df3424a383c3682bdf5971527f9d4afa1812ce5171ddf8e36159",
+  "frozen_sha256": {
+    "default.csv": "77d203adf6055926d4a0302282acfda62d801caaf86b6535f79e2f43c3f14f07",
+    "default.net": "1b877841b8db065673e35e979fcef098a0d66bc7245dd14ec6d5f1b35bac7eb6",
+    "resolved-components.json": "ed997c3f78414d09d5e7c47dabc0e3d14fbee82156ea400eba18b2d78b5716d2"
+  },
+  "normalization": "absolute unit path replaced by 'UNIT'",
+  "returncode": 0,
+  "schema": "temper.ui-board.source-build.v1",
+  "source_sha256": {
+    "elec/src/ui_board.ato": "ffd8c39d1c046be6600be383419c428545d687e2cdb0b7c4093476399a7bd60a",
+    "elec/src/ui_parts.ato": "4a3aebbeee0ba60b8ca3d192591bc3936bd441d40616b8549b796b819df9ac42"
+  },
+  "warning_kinds": [
+    "... forgoing more \"Implicit Declaration Future errors.py:209",
+    "Implicit Declaration Future Deprecation Warning errors.py:81"
+  ],
+  "warning_lines": 5
+}

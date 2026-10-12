@@ -1,0 +1,104 @@
+{
+  "checks": {
+    "board_outline_matches_source": true,
+    "button_pitch_ge_diameter_plus_3mm": true,
+    "buttons_clear_of_holes_ge_3mm": true,
+    "buttons_inside_outline": true,
+    "buttons_match_source": true,
+    "catalog_bbox_x_equals_board_u": true,
+    "connectors_clear_of_holes_ge_3mm": true,
+    "connectors_match_source": true,
+    "cutout_inside_outline": true,
+    "enclosure_source_present": true,
+    "encoder_cable_reaches_with_strain_relief": true,
+    "encoder_outside_board": true,
+    "holes_do_not_overlap": true,
+    "holes_inside_outline": true,
+    "holes_match_source": true,
+    "j7_clear_of_cutout": true,
+    "j7_j2_gap_ge_1mm": true,
+    "j7_j2_inside_outline": true,
+    "oled_lens_encoder_match_source": true,
+    "oled_m2_clear_of_ui_holes": true,
+    "stacker_clear_of_holes_ge_3mm": true,
+    "stacker_inside_oled_shadow": true,
+    "stacker_inside_outline": true,
+    "stacker_matches_source": true
+  },
+  "data": {
+    "buttons": {
+      "back": {
+        "edge_mm": 2.25,
+        "nearest_hole_gap_mm": 14.58
+      },
+      "select_start": {
+        "edge_mm": 2.25,
+        "nearest_hole_gap_mm": 52.87
+      },
+      "stop": {
+        "edge_mm": 2.25,
+        "nearest_hole_gap_mm": 14.58
+      }
+    },
+    "catalog_bbox_x": [
+      -106.0,
+      64.0
+    ],
+    "connector_to_hole_clear_mm": {
+      "J2": 14.3,
+      "J7": 5.16
+    },
+    "enclosure_findings": [
+      {
+        "ask": "move the boss >= 3 mm inboard or notch the outline",
+        "id": "E1",
+        "item": "boss@-104,60: FR-4 wall between the hole and the board edge is 0.3 mm (< 1 mm); the carrier boss (\u00d86) overhangs the edge"
+      },
+      {
+        "ask": "open the UI-board to OLED gap to 8.5 mm (taller carrier bosses) or approve a soldered low-profile header",
+        "id": "E2",
+        "item": "the OLED stacker is modelled 3.0 mm high; a 1x20 2.54 mm female socket on LCSC is 8.5 mm (5.5 mm too tall)"
+      },
+      {
+        "ask": "confirm plug clearance at layout",
+        "id": "E3",
+        "item": "J7 and J2 envelopes are 1.42 mm apart; the mated XHP-12 and Micro-MaTch plug housings are larger than the header bodies"
+      },
+      {
+        "ask": "a \u00d8>=2 mm hole or gap in front of BZ1 (front face, u -104..-90, v 17..29), or an acoustic path",
+        "id": "E4",
+        "item": "no sound port is modelled in the fascia for the buzzer"
+      }
+    ],
+    "enclosure_source": "/Users/bennet/Desktop/temper/output/temper-manufacturing-r41",
+    "encoder_cable_mm": 76.2,
+    "encoder_gap_mm": 50.0,
+    "hole_edge_distance_mm": {
+      "boss@-104,60": 0.3,
+      "boss@-75,92": 2.3,
+      "boss@34,60": 28.3,
+      "boss@5,92": 2.3,
+      "stud@-99,38": 3.5,
+      "stud@-99,82": 3.5,
+      "stud@29,38": 19.5,
+      "stud@29,82": 10.5
+    },
+    "j2_box": [
+      50.0,
+      60.0,
+      53.8,
+      62.2
+    ],
+    "j7_box": [
+      29.8,
+      62.2,
+      46.62,
+      52.38
+    ],
+    "j7_j2_gap_mm": 1.42,
+    "oled_socket_height_mm": 8.5,
+    "stacker_conflict_mm": 5.5,
+    "stacker_gap_mm": 3.0,
+    "stacker_top_w_source": -10.5
+  }
+}

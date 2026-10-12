@@ -1,0 +1,592 @@
+{
+  "atopile_version": "0.2.69",
+  "build_sha256": {
+    "build/default.csv": "77d203adf6055926d4a0302282acfda62d801caaf86b6535f79e2f43c3f14f07",
+    "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "build/default.net": "1b877841b8db065673e35e979fcef098a0d66bc7245dd14ec6d5f1b35bac7eb6",
+    "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5"
+  },
+  "components": [
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::j_ui",
+      "attributes": {
+        "designator": "J7",
+        "designator_prefix": "J",
+        "footprint": "Connector_JST:JST_XH_B12B-XH-A_1x12_P2.50mm_Vertical",
+        "manufacturer": "JST",
+        "mpn": "B12B-XH-A(LF)(SN)"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::c_3v3_bulk",
+      "attributes": {
+        "designator": "C1",
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0805_2012Metric",
+        "mpn": "CL21A226MAQNNNE",
+        "value": "22uF +/- 20%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::c_3v3_hf",
+      "attributes": {
+        "designator": "C2",
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "CC0603KRX7R9BB104",
+        "value": "100nF +/- 10%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::c_v5",
+      "attributes": {
+        "designator": "C11",
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "CC0603KRX7R9BB104",
+        "value": "100nF +/- 10%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::r_v5_bleed",
+      "attributes": {
+        "designator": "R23",
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "0603WAF1002T5E",
+        "value": "10kohm +/- 1%"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::u_esd_j7a",
+      "attributes": {
+        "designator": "U4",
+        "designator_prefix": "U",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+        "manufacturer": "MSKSEMI",
+        "mpn": "SRV05-4"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::u_esd_j7b",
+      "attributes": {
+        "designator": "U5",
+        "designator_prefix": "U",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+        "manufacturer": "MSKSEMI",
+        "mpn": "SRV05-4"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::r_miso",
+      "attributes": {
+        "designator": "R20",
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "0603WAF1000T5E",
+        "value": "100ohm +/- 1%"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::u_exp",
+      "attributes": {
+        "designator": "U1",
+        "designator_prefix": "U",
+        "footprint": "Package_SO:SOIC-18W_7.5x11.6mm_P1.27mm",
+        "manufacturer": "Microchip",
+        "mpn": "MCP23S08-E/SO"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::c_exp",
+      "attributes": {
+        "designator": "C3",
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "CC0603KRX7R9BB104",
+        "value": "100nF +/- 10%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::r_exp_reset",
+      "attributes": {
+        "designator": "R18",
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "0603WAF1002T5E",
+        "value": "10kohm +/- 1%"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::u_tmp",
+      "attributes": {
+        "designator": "U2",
+        "designator_prefix": "U",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+        "manufacturer": "Texas Instruments",
+        "mpn": "TMP122AIDBVR"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::c_tmp",
+      "attributes": {
+        "designator": "C4",
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "CC0603KRX7R9BB104",
+        "value": "100nF +/- 10%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::r_tmp_cs",
+      "attributes": {
+        "designator": "R17",
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "0603WAF1002T5E",
+        "value": "10kohm +/- 1%"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::j_oled",
+      "attributes": {
+        "designator": "J3",
+        "designator_prefix": "J",
+        "footprint": "Connector_PinSocket_2.54mm:PinSocket_1x20_P2.54mm_Vertical",
+        "manufacturer": "Boom Precision",
+        "mpn": "PM254V-11-20-H85"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::c_oled_bulk",
+      "attributes": {
+        "designator": "C6",
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0805_2012Metric",
+        "mpn": "CL21A226MAQNNNE",
+        "value": "22uF +/- 20%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::c_oled_hf",
+      "attributes": {
+        "designator": "C7",
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "CC0603KRX7R9BB104",
+        "value": "100nF +/- 10%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::r_res",
+      "attributes": {
+        "designator": "R19",
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "0603WAF1002T5E",
+        "value": "10kohm +/- 1%"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::c_res",
+      "attributes": {
+        "designator": "C12",
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "CL10A105KB8NNNC",
+        "value": "1uF +/- 10%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::d_res",
+      "attributes": {
+        "designator": "D2",
+        "designator_prefix": "D",
+        "footprint": "Diode_SMD:D_SOD-323",
+        "manufacturer": "Jiangsu Changjing Electronics",
+        "mpn": "1N4148WS"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::sw_start",
+      "attributes": {
+        "designator": "SW1",
+        "designator_prefix": "SW",
+        "footprint": "Temper_UI:APEM_IPR3PAD2_PC_P5.08mm",
+        "manufacturer": "APEM",
+        "mpn": "IPR3PAD2"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::sw_stop",
+      "attributes": {
+        "designator": "SW2",
+        "designator_prefix": "SW",
+        "footprint": "Temper_UI:APEM_IPR3PAD2_PC_P5.08mm",
+        "manufacturer": "APEM",
+        "mpn": "IPR3PAD2"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::sw_back",
+      "attributes": {
+        "designator": "SW3",
+        "designator_prefix": "SW",
+        "footprint": "Temper_UI:APEM_IPR3PAD2_PC_P5.08mm",
+        "manufacturer": "APEM",
+        "mpn": "IPR3PAD2"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::r_pu_start",
+      "attributes": {
+        "designator": "R4",
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "0603WAF1002T5E",
+        "value": "10kohm +/- 1%"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::r_pu_stop",
+      "attributes": {
+        "designator": "R5",
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "0603WAF1002T5E",
+        "value": "10kohm +/- 1%"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::r_pu_back",
+      "attributes": {
+        "designator": "R6",
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "0603WAF1002T5E",
+        "value": "10kohm +/- 1%"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::r_se_start",
+      "attributes": {
+        "designator": "R1",
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "0603WAF1001T5E",
+        "value": "1kohm +/- 1%"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::r_se_stop",
+      "attributes": {
+        "designator": "R2",
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "0603WAF1001T5E",
+        "value": "1kohm +/- 1%"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::r_se_back",
+      "attributes": {
+        "designator": "R3",
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "0603WAF1001T5E",
+        "value": "1kohm +/- 1%"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::j_enc",
+      "attributes": {
+        "designator": "J2",
+        "designator_prefix": "J",
+        "footprint": "Temper_UI:TE_Micro-MaTch_7-215079-6_2x03_P1.27mm",
+        "manufacturer": "TE Connectivity",
+        "mpn": "7-215079-6"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::fb_enc",
+      "attributes": {
+        "designator": "FB1",
+        "designator_prefix": "FB",
+        "footprint": "Inductor_SMD:L_0603_1608Metric",
+        "manufacturer": "Murata",
+        "mpn": "BLM18PG121SN1D"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::c_enc_bulk",
+      "attributes": {
+        "designator": "C8",
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "CL10A106KP8NNNC",
+        "value": "10uF +/- 10%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::c_enc_hf",
+      "attributes": {
+        "designator": "C9",
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "CC0603KRX7R9BB104",
+        "value": "100nF +/- 10%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::r_pu_a",
+      "attributes": {
+        "designator": "R9",
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "0603WAF1002T5E",
+        "value": "10kohm +/- 1%"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::r_pu_b",
+      "attributes": {
+        "designator": "R10",
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "0603WAF1002T5E",
+        "value": "10kohm +/- 1%"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::r_pu_sw",
+      "attributes": {
+        "designator": "R8",
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "0603WAF1002T5E",
+        "value": "10kohm +/- 1%"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::c_nf_a",
+      "attributes": {
+        "designator": "C13",
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "0603B471K500NT",
+        "value": "470pF +/- 10%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::c_nf_b",
+      "attributes": {
+        "designator": "C14",
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "0603B471K500NT",
+        "value": "470pF +/- 10%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::r_se_sw",
+      "attributes": {
+        "designator": "R7",
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "0603WAF1001T5E",
+        "value": "1kohm +/- 1%"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::u_cmp",
+      "attributes": {
+        "designator": "U3",
+        "designator_prefix": "U",
+        "footprint": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "TLV3202AIDR"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::c_cmp",
+      "attributes": {
+        "designator": "C5",
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "CC0603KRX7R9BB104",
+        "value": "100nF +/- 10%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::r_in_a",
+      "attributes": {
+        "designator": "R11",
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "0603WAF1002T5E",
+        "value": "10kohm +/- 1%"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::r_in_b",
+      "attributes": {
+        "designator": "R12",
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "0603WAF1002T5E",
+        "value": "10kohm +/- 1%"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::r_hy_a",
+      "attributes": {
+        "designator": "R13",
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "0603WAF4703T5E",
+        "value": "470kohm +/- 1%"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::r_hy_b",
+      "attributes": {
+        "designator": "R14",
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "0603WAF4703T5E",
+        "value": "470kohm +/- 1%"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::r_ref_top",
+      "attributes": {
+        "designator": "R15",
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "0603WAF1202T5E",
+        "value": "12kohm +/- 1%"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::r_ref_bot",
+      "attributes": {
+        "designator": "R16",
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "0603WAF1002T5E",
+        "value": "10kohm +/- 1%"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::c_ref",
+      "attributes": {
+        "designator": "C15",
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "CC0603KRX7R9BB104",
+        "value": "100nF +/- 10%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::u_esd_ctl_a",
+      "attributes": {
+        "designator": "U6",
+        "designator_prefix": "U",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+        "manufacturer": "MSKSEMI",
+        "mpn": "SRV05-4"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::u_esd_ctl_b",
+      "attributes": {
+        "designator": "U7",
+        "designator_prefix": "U",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+        "manufacturer": "MSKSEMI",
+        "mpn": "SRV05-4"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::bz",
+      "attributes": {
+        "designator": "BZ1",
+        "designator_prefix": "BZ",
+        "footprint": "Buzzer_Beeper:Buzzer_9.6x9.6mm_SMD",
+        "manufacturer": "Inghai",
+        "mpn": "GSD9605YB-3V2800"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::q_buz",
+      "attributes": {
+        "designator": "Q1",
+        "designator_prefix": "Q",
+        "footprint": "Package_TO_SOT_SMD:SOT-23",
+        "manufacturer": "Alpha & Omega",
+        "mpn": "AO3400A"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::d_buz",
+      "attributes": {
+        "designator": "D1",
+        "designator_prefix": "D",
+        "footprint": "Diode_SMD:D_SOD-323",
+        "manufacturer": "Jiangsu Changjing Electronics",
+        "mpn": "1N4148WS"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::r_gate",
+      "attributes": {
+        "designator": "R21",
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "0603WAF1000T5E",
+        "value": "100ohm +/- 1%"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::r_gate_pd",
+      "attributes": {
+        "designator": "R22",
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "0603WAF1003T5E",
+        "value": "100kohm +/- 1%"
+      }
+    },
+    {
+      "address": "UNIT/elec/src/ui_board.ato:UiBoard::c_buz",
+      "attributes": {
+        "designator": "C10",
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "CL10A106KP8NNNC",
+        "value": "10uF +/- 10%",
+        "voltage_rating": null
+      }
+    }
+  ],
+  "entry": "UNIT/elec/src/ui_board.ato:UiBoard",
+  "schema": "temper.circuit-export.v1",
+  "source_sha256": {
+    "elec/src/ui_board.ato": "ffd8c39d1c046be6600be383419c428545d687e2cdb0b7c4093476399a7bd60a",
+    "elec/src/ui_parts.ato": "4a3aebbeee0ba60b8ca3d192591bc3936bd441d40616b8549b796b819df9ac42"
+  }
+}

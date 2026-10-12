@@ -1,0 +1,1166 @@
+{
+  "checks_passed": 128,
+  "checks_total": 128,
+  "failed": [],
+  "netlist": "frozen/default.net",
+  "netlist_sha256": "1b877841b8db065673e35e979fcef098a0d66bc7245dd14ec6d5f1b35bac7eb6",
+  "schema": "temper.ui-board.verify.v1",
+  "sections": {
+    "bom": {
+      "checks": {
+        "bom_designators_equal_netlist": {
+          "detail": {},
+          "ok": true
+        },
+        "csv_equals_json": {
+          "detail": [],
+          "ok": true
+        },
+        "every_netlist_mpn_is_in_the_bom": {
+          "detail": [],
+          "ok": true
+        },
+        "every_part_has_an_lcsc_code": {
+          "detail": [],
+          "ok": true
+        },
+        "ext_parts_listed_basic_preferred": {
+          "detail": [
+            "B12B-XH-A(LF)(SN)",
+            "7-215079-6",
+            "PM254V-11-20-H85",
+            "MCP23S08-E/SO",
+            "TMP122AIDBVR",
+            "TLV3202AIDR",
+            "SRV05-4",
+            "GSD9605YB-3V2800"
+          ],
+          "ok": true
+        },
+        "jlc_library_type_recorded": {
+          "detail": [],
+          "ok": true
+        },
+        "only_the_panel_buttons_are_off_lcsc": {
+          "detail": [
+            "IPR3PAD2"
+          ],
+          "ok": true
+        },
+        "stock_and_check_date_recorded": {
+          "detail": [],
+          "ok": true
+        },
+        "stock_covers_one_board": {
+          "detail": [],
+          "ok": true
+        },
+        "summary_counts_match": {
+          "detail": {
+            "basic": 14,
+            "bom_lines": 23,
+            "extended": 8,
+            "lcsc_lines": 22,
+            "no_lcsc": [
+              "IPR3PAD2"
+            ],
+            "placements": 56
+          },
+          "ok": true
+        }
+      },
+      "data": {
+        "summary": {
+          "basic": 14,
+          "bom_lines": 23,
+          "extended": 8,
+          "lcsc_lines": 22,
+          "no_lcsc": [
+            "IPR3PAD2"
+          ],
+          "placements": 56
+        }
+      }
+    },
+    "buzzer": {
+      "checks": {
+        "buzzer_between_3v3_and_q1_drain": {
+          "detail": [
+            "V3V3",
+            "BUZ_N",
+            "BUZ_N"
+          ],
+          "ok": true
+        },
+        "buzzer_within_90mA_allocation": {
+          "detail": 31.5,
+          "ok": true
+        },
+        "default_off_at_reset": {
+          "detail": {
+            "other_drivers": [],
+            "pulldown": [
+              [
+                "R22",
+                100000.0
+              ]
+            ],
+            "pullup": []
+          },
+          "ok": true
+        },
+        "flyback_diode_across_buzzer": {
+          "detail": [
+            "BUZ_N",
+            "V3V3"
+          ],
+          "ok": true
+        },
+        "gp6_drives_gate_through_series_r": {
+          "detail": [
+            "R21"
+          ],
+          "ok": true
+        },
+        "q1_is_n_fet_ao3400a": {
+          "detail": "AO3400A",
+          "ok": true
+        },
+        "q1_low_side_source_on_gnd": {
+          "detail": "GND",
+          "ok": true
+        }
+      },
+      "data": {}
+    },
+    "calcs": {
+      "checks": {
+        "ui_calcs_pass": {
+          "detail": [],
+          "ok": true
+        }
+      },
+      "data": {}
+    },
+    "decoup": {
+      "checks": {
+        "c_3v3_bulk_ge_10uF_on_3v3": {
+          "detail": 2.2e-05,
+          "ok": true
+        },
+        "c_oled_bulk_ge_10uF_on_3v3": {
+          "detail": 2.2e-05,
+          "ok": true
+        },
+        "u_cmp_has_100nF_between_supply_and_ground": {
+          "detail": [
+            "C5",
+            1.0000000000000001e-07,
+            [
+              "GND",
+              "V3V3"
+            ]
+          ],
+          "ok": true
+        },
+        "u_exp_has_100nF_between_supply_and_ground": {
+          "detail": [
+            "C3",
+            1.0000000000000001e-07,
+            [
+              "GND",
+              "V3V3"
+            ]
+          ],
+          "ok": true
+        },
+        "u_tmp_has_100nF_between_supply_and_ground": {
+          "detail": [
+            "C4",
+            1.0000000000000001e-07,
+            [
+              "GND",
+              "V3V3"
+            ]
+          ],
+          "ok": true
+        }
+      },
+      "data": {
+        "ics": [
+          "u_tmp",
+          "u_exp",
+          "u_cmp"
+        ]
+      }
+    },
+    "encoder": {
+      "checks": {
+        "calc_high_margin_ge_0p3V": {
+          "detail": null,
+          "ok": true
+        },
+        "calc_hysteresis_positive_at_every_corner": {
+          "detail": null,
+          "ok": true
+        },
+        "calc_low_margin_ge_0p3V": {
+          "detail": null,
+          "ok": true
+        },
+        "calc_without_comparator_would_fail": {
+          "detail": null,
+          "ok": true
+        },
+        "chip_selects_not_shared": {
+          "detail": null,
+          "ok": true
+        },
+        "comparator_high_margin_ge_0p3V": {
+          "detail": 0.3866,
+          "ok": true
+        },
+        "comparator_hysteresis_positive": {
+          "detail": 0.0702,
+          "ok": true
+        },
+        "comparator_low_margin_ge_0p3V": {
+          "detail": 0.3815,
+          "ok": true
+        },
+        "enc_a_pullup_10k_to_encoder_rail": {
+          "detail": [
+            [
+              "R9",
+              10000.0
+            ]
+          ],
+          "ok": true
+        },
+        "enc_b_pullup_10k_to_encoder_rail": {
+          "detail": [
+            [
+              "R10",
+              10000.0
+            ]
+          ],
+          "ok": true
+        },
+        "enc_sw_pullup_10k_to_encoder_rail": {
+          "detail": [
+            [
+              "R8",
+              10000.0
+            ]
+          ],
+          "ok": true
+        },
+        "encoder_rail_from_3v3_through_bead": {
+          "detail": [
+            "FB1"
+          ],
+          "ok": true
+        },
+        "j2_pin_map_per_grayhill_vg": {
+          "detail": {},
+          "ok": true
+        },
+        "tmp122_sio_on_miso_local_cs_on_gp7_sck_on_bus": {
+          "detail": [
+            "MISO_LOCAL",
+            "GP7_TMP_CS_N",
+            "J7_SCK"
+          ],
+          "ok": true
+        }
+      },
+      "data": {
+        "comparator_margins_V": {
+          "down_margin": 0.3815,
+          "hyst": 0.0702,
+          "up_margin": 0.3866
+        }
+      }
+    },
+    "esd": {
+      "checks": {
+        "btn_back_series_ge_1k_to_expander": {
+          "detail": [
+            [
+              "R3",
+              1000.0
+            ]
+          ],
+          "ok": true
+        },
+        "btn_start_series_ge_1k_to_expander": {
+          "detail": [
+            [
+              "R1",
+              1000.0
+            ]
+          ],
+          "ok": true
+        },
+        "btn_stop_series_ge_1k_to_expander": {
+          "detail": [
+            [
+              "R2",
+              1000.0
+            ]
+          ],
+          "ok": true
+        },
+        "calc_button_residual_le_20mA": {
+          "detail": null,
+          "ok": true
+        },
+        "calc_comparator_residual_le_10mA": {
+          "detail": null,
+          "ok": true
+        },
+        "enc_a_series_ge_10k_to_comparator": {
+          "detail": [
+            "R11"
+          ],
+          "ok": true
+        },
+        "enc_b_series_ge_10k_to_comparator": {
+          "detail": [
+            "R12"
+          ],
+          "ok": true
+        },
+        "enc_sw_series_ge_1k_to_expander": {
+          "detail": [
+            [
+              "R7",
+              1000.0
+            ]
+          ],
+          "ok": true
+        },
+        "every_external_facing_line_has_srv05_clamp": {
+          "detail": {},
+          "ok": true
+        },
+        "grayhill_noise_cap_below_1nF": {
+          "detail": null,
+          "ok": true
+        }
+      },
+      "data": {}
+    },
+    "floorplan": {
+      "checks": {
+        "board_outline_matches_source": {
+          "detail": null,
+          "ok": true
+        },
+        "button_pitch_ge_diameter_plus_3mm": {
+          "detail": null,
+          "ok": true
+        },
+        "buttons_clear_of_holes_ge_3mm": {
+          "detail": null,
+          "ok": true
+        },
+        "buttons_inside_outline": {
+          "detail": null,
+          "ok": true
+        },
+        "buttons_match_source": {
+          "detail": null,
+          "ok": true
+        },
+        "catalog_bbox_x_equals_board_u": {
+          "detail": null,
+          "ok": true
+        },
+        "connectors_clear_of_holes_ge_3mm": {
+          "detail": null,
+          "ok": true
+        },
+        "connectors_match_source": {
+          "detail": null,
+          "ok": true
+        },
+        "cutout_inside_outline": {
+          "detail": null,
+          "ok": true
+        },
+        "enclosure_source_present_or_skipped": {
+          "detail": "present",
+          "ok": true
+        },
+        "encoder_cable_reaches_with_strain_relief": {
+          "detail": null,
+          "ok": true
+        },
+        "encoder_outside_board": {
+          "detail": null,
+          "ok": true
+        },
+        "holes_do_not_overlap": {
+          "detail": null,
+          "ok": true
+        },
+        "holes_inside_outline": {
+          "detail": null,
+          "ok": true
+        },
+        "holes_match_source": {
+          "detail": null,
+          "ok": true
+        },
+        "j7_clear_of_cutout": {
+          "detail": null,
+          "ok": true
+        },
+        "j7_j2_gap_ge_1mm": {
+          "detail": null,
+          "ok": true
+        },
+        "j7_j2_inside_outline": {
+          "detail": null,
+          "ok": true
+        },
+        "oled_lens_encoder_match_source": {
+          "detail": null,
+          "ok": true
+        },
+        "oled_m2_clear_of_ui_holes": {
+          "detail": null,
+          "ok": true
+        },
+        "stacker_clear_of_holes_ge_3mm": {
+          "detail": null,
+          "ok": true
+        },
+        "stacker_inside_oled_shadow": {
+          "detail": null,
+          "ok": true
+        },
+        "stacker_inside_outline": {
+          "detail": null,
+          "ok": true
+        },
+        "stacker_matches_source": {
+          "detail": null,
+          "ok": true
+        }
+      },
+      "data": {
+        "enclosure_findings": [
+          {
+            "ask": "move the boss >= 3 mm inboard or notch the outline",
+            "id": "E1",
+            "item": "boss@-104,60: FR-4 wall between the hole and the board edge is 0.3 mm (< 1 mm); the carrier boss (\u00d86) overhangs the edge"
+          },
+          {
+            "ask": "open the UI-board to OLED gap to 8.5 mm (taller carrier bosses) or approve a soldered low-profile header",
+            "id": "E2",
+            "item": "the OLED stacker is modelled 3.0 mm high; a 1x20 2.54 mm female socket on LCSC is 8.5 mm (5.5 mm too tall)"
+          },
+          {
+            "ask": "confirm plug clearance at layout",
+            "id": "E3",
+            "item": "J7 and J2 envelopes are 1.42 mm apart; the mated XHP-12 and Micro-MaTch plug housings are larger than the header bodies"
+          },
+          {
+            "ask": "a \u00d8>=2 mm hole or gap in front of BZ1 (front face, u -104..-90, v 17..29), or an acoustic path",
+            "id": "E4",
+            "item": "no sound port is modelled in the fascia for the buzzer"
+          }
+        ],
+        "enclosure_source": "/Users/bennet/Desktop/temper/output/temper-manufacturing-r41",
+        "numbers": {
+          "buttons": {
+            "back": {
+              "edge_mm": 2.25,
+              "nearest_hole_gap_mm": 14.58
+            },
+            "select_start": {
+              "edge_mm": 2.25,
+              "nearest_hole_gap_mm": 52.87
+            },
+            "stop": {
+              "edge_mm": 2.25,
+              "nearest_hole_gap_mm": 14.58
+            }
+          },
+          "catalog_bbox_x": [
+            -106.0,
+            64.0
+          ],
+          "connector_to_hole_clear_mm": {
+            "J2": 14.3,
+            "J7": 5.16
+          },
+          "enclosure_source": "/Users/bennet/Desktop/temper/output/temper-manufacturing-r41",
+          "encoder_cable_mm": 76.2,
+          "encoder_gap_mm": 50.0,
+          "hole_edge_distance_mm": {
+            "boss@-104,60": 0.3,
+            "boss@-75,92": 2.3,
+            "boss@34,60": 28.3,
+            "boss@5,92": 2.3,
+            "stud@-99,38": 3.5,
+            "stud@-99,82": 3.5,
+            "stud@29,38": 19.5,
+            "stud@29,82": 10.5
+          },
+          "j2_box": [
+            50.0,
+            60.0,
+            53.8,
+            62.2
+          ],
+          "j7_box": [
+            29.8,
+            62.2,
+            46.62,
+            52.38
+          ],
+          "j7_j2_gap_mm": 1.42,
+          "oled_socket_height_mm": 8.5,
+          "stacker_conflict_mm": 5.5,
+          "stacker_gap_mm": 3.0,
+          "stacker_top_w_source": -10.5
+        }
+      }
+    },
+    "frozen": {
+      "checks": {
+        "ato_sources_match_receipt": {
+          "detail": [],
+          "ok": true
+        },
+        "frozen_files_match_receipt": {
+          "detail": null,
+          "ok": true
+        }
+      },
+      "data": {}
+    },
+    "gpmap": {
+      "checks": {
+        "buzzer_is_only_output": {
+          "detail": "BUZZER",
+          "ok": true
+        },
+        "expander_is_mcp23s08": {
+          "detail": "MCP23S08-E/SO",
+          "ok": true
+        },
+        "firmware_copy_equals_git_object": {
+          "detail": "780eaab89",
+          "ok": true
+        },
+        "firmware_copy_matches_provenance_hash": {
+          "detail": "780eaab89",
+          "ok": true
+        },
+        "fw_btn_reset_lands_on_its_gp": {
+          "detail": {
+            "gp": 2,
+            "gp_net": "GP2_BTN_BACK"
+          },
+          "ok": true
+        },
+        "fw_btn_start_lands_on_its_gp": {
+          "detail": {
+            "gp": 0,
+            "gp_net": "GP0_BTN_START"
+          },
+          "ok": true
+        },
+        "fw_btn_stop_lands_on_its_gp": {
+          "detail": {
+            "gp": 1,
+            "gp_net": "GP1_BTN_STOP"
+          },
+          "ok": true
+        },
+        "fw_buzzer_lands_on_its_gp": {
+          "detail": {
+            "gp": 6,
+            "gp_net": "GP6_BUZZER"
+          },
+          "ok": true
+        },
+        "fw_enc_a_lands_on_its_gp": {
+          "detail": {
+            "gp": 3,
+            "gp_net": "GP3_ENC_A"
+          },
+          "ok": true
+        },
+        "fw_enc_b_lands_on_its_gp": {
+          "detail": {
+            "gp": 4,
+            "gp_net": "GP4_ENC_B"
+          },
+          "ok": true
+        },
+        "fw_enc_sw_lands_on_its_gp": {
+          "detail": {
+            "gp": 5,
+            "gp_net": "GP5_ENC_SW"
+          },
+          "ok": true
+        },
+        "fw_local_lands_on_its_gp": {
+          "detail": {
+            "gp": 7,
+            "gp_net": "GP7_TMP_CS_N"
+          },
+          "ok": true
+        },
+        "gppu_never_on_buzzer_bit": {
+          "detail": [
+            "BTN_START",
+            "BTN_STOP",
+            "BTN_RESET",
+            "ENC_A",
+            "ENC_B",
+            "ENC_SW",
+            "LOCAL"
+          ],
+          "ok": true
+        },
+        "opcode_0x40_a1_a0_low": {
+          "detail": {
+            "A0": "GND",
+            "A1": "GND",
+            "opcode": "0x40"
+          },
+          "ok": true
+        },
+        "stop_reaches_only_expander_and_clamp": {
+          "detail": [
+            "r_pu_stop",
+            "r_se_stop",
+            "sw_stop",
+            "u_esd_ctl_a",
+            "u_exp"
+          ],
+          "ok": true
+        }
+      },
+      "data": {
+        "firmware_bits": {
+          "BTN_RESET": 2,
+          "BTN_START": 0,
+          "BTN_STOP": 1,
+          "BUZZER": 6,
+          "ENC_A": 3,
+          "ENC_B": 4,
+          "ENC_SW": 5,
+          "LOCAL": 7
+        },
+        "role_on_named_gp": {
+          "BTN_RESET": true,
+          "BTN_START": true,
+          "BTN_STOP": true,
+          "BUZZER": true,
+          "ENC_A": true,
+          "ENC_B": true,
+          "ENC_SW": true,
+          "LOCAL": true
+        },
+        "stop_path_instances": [
+          "r_pu_stop",
+          "r_se_stop",
+          "sw_stop",
+          "u_esd_ctl_a",
+          "u_exp"
+        ]
+      }
+    },
+    "inputs": {
+      "checks": {
+        "enc_a_reaches_gp_through_comparator": {
+          "detail": [
+            "GP3_ENC_A",
+            "GP3_ENC_A"
+          ],
+          "ok": true
+        },
+        "enc_b_reaches_gp_through_comparator": {
+          "detail": [
+            "GP4_ENC_B",
+            "GP4_ENC_B"
+          ],
+          "ok": true
+        },
+        "expander_reset_pulled_high": {
+          "detail": "EXP_RESET",
+          "ok": true
+        },
+        "gp0_has_external_pullup_le_47k": {
+          "detail": [
+            [
+              "R4",
+              10000.0
+            ]
+          ],
+          "ok": true
+        },
+        "gp1_has_external_pullup_le_47k": {
+          "detail": [
+            [
+              "R5",
+              10000.0
+            ]
+          ],
+          "ok": true
+        },
+        "gp2_has_external_pullup_le_47k": {
+          "detail": [
+            [
+              "R6",
+              10000.0
+            ]
+          ],
+          "ok": true
+        },
+        "gp3_has_external_pullup_le_47k": {
+          "detail": [
+            [
+              "R9",
+              10000.0
+            ]
+          ],
+          "ok": true
+        },
+        "gp4_has_external_pullup_le_47k": {
+          "detail": [
+            [
+              "R10",
+              10000.0
+            ]
+          ],
+          "ok": true
+        },
+        "gp5_has_external_pullup_le_47k": {
+          "detail": [
+            [
+              "R8",
+              10000.0
+            ]
+          ],
+          "ok": true
+        },
+        "gp7_has_external_pullup_le_47k": {
+          "detail": [
+            [
+              "R17",
+              10000.0
+            ]
+          ],
+          "ok": true
+        }
+      },
+      "data": {
+        "pullups": {
+          "GP0": [
+            [
+              "R4",
+              10000.0
+            ]
+          ],
+          "GP1": [
+            [
+              "R5",
+              10000.0
+            ]
+          ],
+          "GP2": [
+            [
+              "R6",
+              10000.0
+            ]
+          ],
+          "GP3": [
+            [
+              "R9",
+              10000.0
+            ]
+          ],
+          "GP4": [
+            [
+              "R10",
+              10000.0
+            ]
+          ],
+          "GP5": [
+            [
+              "R8",
+              10000.0
+            ]
+          ],
+          "GP7": [
+            [
+              "R17",
+              10000.0
+            ]
+          ]
+        }
+      }
+    },
+    "j7": {
+      "checks": {
+        "every_j7_signal_beside_a_gnd": {
+          "detail": [],
+          "ok": true
+        },
+        "every_j7_signal_has_srv05_clamp": {
+          "detail": [],
+          "ok": true
+        },
+        "j7_5v_not_on_an_ic": {
+          "detail": [
+            "j_ui",
+            "c_v5",
+            "r_v5_bleed"
+          ],
+          "ok": true
+        },
+        "j7_cs_exp_n_has_no_resistor_or_pull": {
+          "detail": [
+            "j_ui",
+            "u_esd_j7b",
+            "u_exp"
+          ],
+          "ok": true
+        },
+        "j7_cs_oled_n_has_no_resistor_or_pull": {
+          "detail": [
+            "j_oled",
+            "j_ui",
+            "u_esd_j7a"
+          ],
+          "ok": true
+        },
+        "j7_dc_has_no_resistor_or_pull": {
+          "detail": [
+            "j_oled",
+            "j_ui",
+            "u_esd_j7b"
+          ],
+          "ok": true
+        },
+        "j7_four_gnd": {
+          "detail": [
+            3,
+            5,
+            8,
+            11
+          ],
+          "ok": true
+        },
+        "j7_is_b12b_xh": {
+          "detail": "B12B-XH-A(LF)(SN)",
+          "ok": true
+        },
+        "j7_pin_map_equals_contract_literal": {
+          "detail": {},
+          "ok": true
+        },
+        "j7_pin_map_equals_controller_c26_table": {
+          "detail": {},
+          "ok": true
+        },
+        "j7_pin_map_equals_controller_enclosure_handoff": {
+          "detail": {},
+          "ok": true
+        },
+        "j7_pin_map_equals_controller_frozen_netlist": {
+          "detail": {},
+          "ok": true
+        },
+        "j7_pin_map_equals_controller_verify_J7_MAP": {
+          "detail": {},
+          "ok": true
+        },
+        "miso_source_termination_100_ohm": {
+          "detail": [
+            100.0
+          ],
+          "ok": true
+        },
+        "srv05_vcc_on_3v3_and_gnd": {
+          "detail": [],
+          "ok": true
+        }
+      },
+      "data": {
+        "controller_c26_table": {
+          "1": "V5",
+          "2": "V3V3",
+          "3": "GND",
+          "4": "SCK",
+          "5": "GND",
+          "6": "MOSI",
+          "7": "MISO",
+          "8": "GND",
+          "9": "CS_OLED",
+          "10": "DC",
+          "11": "GND",
+          "12": "CS_EXP"
+        },
+        "ui_pins": {
+          "1": "V5",
+          "2": "V3V3",
+          "3": "GND",
+          "4": "SCK",
+          "5": "GND",
+          "6": "MOSI",
+          "7": "MISO",
+          "8": "GND",
+          "9": "CS_OLED",
+          "10": "DC",
+          "11": "GND",
+          "12": "CS_EXP"
+        }
+      }
+    },
+    "oled": {
+      "checks": {
+        "bs1_bs0_tied_low": {
+          "detail": [
+            "GND",
+            "GND"
+          ],
+          "ok": true
+        },
+        "calc_low_pulse_ge_100us": {
+          "detail": null,
+          "ok": true
+        },
+        "calc_release_after_1ms": {
+          "detail": null,
+          "ok": true
+        },
+        "calc_release_before_30ms": {
+          "detail": null,
+          "ok": true
+        },
+        "nhd_4wire_spi_pin_map": {
+          "detail": {},
+          "ok": true
+        },
+        "res_n_rc_power_on_reset": {
+          "detail": {
+            "C": [
+              [
+                "C12",
+                1e-06
+              ]
+            ],
+            "D": [
+              "D2"
+            ],
+            "R": [
+              [
+                "R19",
+                10000.0
+              ]
+            ]
+          },
+          "ok": true
+        },
+        "res_release_between_1ms_and_30ms": {
+          "detail": [
+            12.74,
+            17.88
+          ],
+          "ok": true
+        }
+      },
+      "data": {
+        "res_release_ms": [
+          12.74,
+          17.88
+        ]
+      }
+    },
+    "power": {
+      "checks": {
+        "netlist_total_within_5pct_of_calcs": {
+          "detail": [
+            413.116,
+            411.9355
+          ],
+          "ok": true
+        },
+        "no_unmodelled_load_on_rails": {
+          "detail": [],
+          "ok": true
+        },
+        "rail_encoder_within_3p30_pm_0p125": {
+          "detail": null,
+          "ok": true
+        },
+        "rail_ics_within_2p7_5p5": {
+          "detail": null,
+          "ok": true
+        },
+        "rail_oled_within_2p8_3p5": {
+          "detail": null,
+          "ok": true
+        },
+        "v3v3_total_le_controller_allocation_460mA": {
+          "detail": 413.116,
+          "ok": true
+        },
+        "v3v3_without_oled_le_120mA": {
+          "detail": 73.116,
+          "ok": true
+        },
+        "v5_budget_le_30mA": {
+          "detail": 0.511,
+          "ok": true
+        }
+      },
+      "data": {
+        "oled_supply": "no on-board boost is needed: the module has one and the factory jumper powers it from 3V3; the 5 V path cannot carry the panel (170 mA at 5 V vs a 30 mA budget)",
+        "v3v3_rows_mA": [
+          [
+            "c_3v3_bulk",
+            0.001
+          ],
+          [
+            "c_3v3_hf",
+            0.001
+          ],
+          [
+            "u_esd_j7a",
+            0.001
+          ],
+          [
+            "u_esd_j7b",
+            0.001
+          ],
+          [
+            "u_exp",
+            8.0
+          ],
+          [
+            "c_exp",
+            0.001
+          ],
+          [
+            "r_exp_reset",
+            0.346
+          ],
+          [
+            "u_tmp",
+            0.075
+          ],
+          [
+            "c_tmp",
+            0.001
+          ],
+          [
+            "r_tmp_cs",
+            0.346
+          ],
+          [
+            "j_oled",
+            340.0
+          ],
+          [
+            "c_oled_bulk",
+            0.001
+          ],
+          [
+            "c_oled_hf",
+            0.001
+          ],
+          [
+            "r_res",
+            0.346
+          ],
+          [
+            "r_pu_start",
+            0.346
+          ],
+          [
+            "r_pu_stop",
+            0.346
+          ],
+          [
+            "r_pu_back",
+            0.346
+          ],
+          [
+            "u_cmp",
+            0.12
+          ],
+          [
+            "c_cmp",
+            0.001
+          ],
+          [
+            "u_esd_ctl_a",
+            0.001
+          ],
+          [
+            "u_esd_ctl_b",
+            0.001
+          ],
+          [
+            "bz",
+            31.5
+          ],
+          [
+            "c_buz",
+            0.001
+          ],
+          [
+            "j_enc",
+            30.0
+          ],
+          [
+            "c_enc_bulk",
+            0.001
+          ],
+          [
+            "c_enc_hf",
+            0.001
+          ],
+          [
+            "r_pu_a",
+            0.346
+          ],
+          [
+            "r_pu_b",
+            0.346
+          ],
+          [
+            "r_pu_sw",
+            0.346
+          ],
+          [
+            "r_ref_top",
+            0.289
+          ]
+        ],
+        "v3v3_total_mA": 413.116,
+        "v5_rows_mA": [
+          [
+            "c_v5",
+            0.001
+          ],
+          [
+            "r_v5_bleed",
+            0.51
+          ]
+        ],
+        "v5_total_mA": 0.511
+      }
+    }
+  }
+}
