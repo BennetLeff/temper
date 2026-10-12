@@ -84,6 +84,26 @@
  * bench calibration (PLAN section 4). */
 #define TANK_PEAK_PER_CREST_RMS (1.41421356f * 1.05f)
 
+/* Stuck-low plausibility of the AD8436 tank-RMS channel (n21_binding.c, evidence
+ * build-evidence/rms-estimator). The CT_MON sample peak cannot exceed the half-cycle RMS by more
+ * than the firmware's own crest bound TANK_PEAK_PER_RMS (2.17: round 6, 13 configs at 22 A, the
+ * same ratio that sets the peak trip and the peak estimate) times a margin of 1.20, so the latch
+ * threshold is 2.17 x 1.20 = 2.60. The margin is wide on purpose: at the ADC phase-lock frequencies
+ * (40 kHz and k x 8.889 kHz, e.g. 53.33 kHz) the CT_MON samples land on the same tank phases every
+ * half, and if those phases are near the crest max|CT_MON| equals the true crest in all
+ * TANK_RMS_PLAUS_HALVES halves in a row. The study's synthetic crest is 2.30 at 50-55 kHz, which a
+ * 5 % margin (2.28) would nuisance-latch. The check only has to catch gross failures (stuck at 0, a
+ * half-scale reading: ratio 4 or more); 2.60 does, with a wide margin. A reading below
+ * max|CT_MON| / (1.20 x 2.17) is impossible for a working channel.
+ * It is only judged while the bridge runs and the tank current is clearly above the CT_MON noise
+ * and offset floor (TANK_RMS_PLAUS_MIN_CT_A: > 3 x cos_phi_min_current_a), and only fires after
+ * TANK_RMS_PLAUS_HALVES consecutive implausible halves: burst edges (a half that starts or ends
+ * the bridge, the converter still settling) are single halves between plausible or idle ones. */
+#define TANK_RMS_PLAUS_MARGIN    1.20f
+#define TANK_RMS_PLAUS_MIN_CT_A  6.0f
+#define TANK_RMS_PLAUS_HALVES    6u /* 50 ms; the 100 ms overrun latch is 12 halves */
+bool tank_rms_implausible(float half_rms_a, float ct_abs_max_a);
+
 float tank_peak_trip_for(float ceiling_a);
 float tank_rms_trip_for(float ceiling_a);
 float tank_crest_guard_for(float ceiling_a);

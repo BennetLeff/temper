@@ -16,7 +16,7 @@ CMake Warning at CMakeLists.txt:26 (message):
 
 Executing action: all (aliases: build)
 Running cmake in directory <BUILD>
-Executing "cmake -G 'Unix Makefiles' -DPYTHON_DEPS_CHECKED=1 -DPYTHON=/Users/bennet/.espressif/python_env/idf5.3_py3.12_env/bin/python -DESP_PLATFORM=1 -DSDKCONFIG=<BUILD>/sdkconfig -DCCACHE_ENABLE=0 /Users/bennet/Desktop/temper/worktrees/f
+Executing "cmake -G 'Unix Makefiles' -DPYTHON_DEPS_CHECKED=1 -DPYTHON=/Users/bennet/.espressif/python_env/idf5.3_py3.12_env/bin/python -DESP_PLATFORM=1 -DSDKCONFIG=<BUILD>/sdkconfig -DCCACHE_ENABLE=0 /Users/bennet/Desktop/temper/worktrees/p
 -- IDF_TARGET is not set, guessed 'esp32s3' from sdkconfig 'sdkconfig.defaults'
 -- The C compiler identification is GNU 13.2.0
 -- The CXX compiler identification is GNU 13.2.0
@@ -25,7 +25,7 @@ Executing "cmake -G 'Unix Makefiles' -DPYTHON_DEPS_CHECKED=1 -DPYTHON=/Users/ben
 -- Project sdkconfig file <BUILD>/sdkconfig
 Loading defaults file sdkconfig.defaults...
 sdkconfig.defaults:16 CONFIG_ESP_TASK_WDT was replaced with CONFIG_ESP_TASK_WDT_INIT 
-Loading defaults file <BUILD>-evidence/esp-idf/sdkconfig.evidence...
+Loading defaults file build-evidence/esp-idf/sdkconfig.evidence...
 -- Compiler supported targets: xtensa-esp-elf
 -- USING O3
 -- App "induction_cooker" version: ps120-validation-round3-raw-v1-
@@ -49,8 +49,8 @@ storage,data,spiffs,0x210000,1M,
 [  1%] Linking C static library libesp_https_ota.a
 [  2%] Linking C static library libesp_http_server.a
 [  2%] Linking C static library libesp_http_client.a
--- The C compiler identification is GNU 13.2.0
 [  3%] Linking C static library libtcp_transport.a
+-- The C compiler identification is GNU 13.2.0
 -- The CXX compiler identification is GNU 13.2.0
 -- The ASM compiler identification is GNU
 [  3%] Linking C static library libesp_eth.a
@@ -66,8 +66,8 @@ storage,data,spiffs,0x210000,1M,
 [  5%] Performing build step for 'bootloader'
 [  5%] Linking C static library libesp_wifi.a
 [  5%] Linking C static library liblog.a
-[ 15%] Linking C static library libesp_rom.a
 [  5%] Linking C static library libesp_coex.a
+[ 15%] Linking C static library libesp_rom.a
 [ 17%] Linking C static library libesp_common.a
 [ 27%] Linking C static library libesp_hw_support.a
 [ 28%] Linking C static library libesp_system.a
@@ -76,14 +76,14 @@ storage,data,spiffs,0x210000,1M,
 [ 57%] Linking C static library libbootloader_support.a
 [ 58%] Linking C static library libesp_bootloader_format.a
 [ 60%] Linking C static library libspi_flash.a
-[ 67%] Linking C static library libhal.a
 [ 13%] Linking C static library libesp_netif.a
+[ 67%] Linking C static library libhal.a
 [ 68%] Linking C static library libmicro-ecc.a
 [ 91%] Linking C static library libsoc.a
 [ 94%] Linking C static library libxtensa.a
 [ 96%] Linking C static library libmain.a
-[ 98%] Linking C executable bootloader.elf
 [ 21%] Linking C static library liblwip.a
+[ 98%] Linking C executable bootloader.elf
 esptool.py v4.12.0
 Creating esp32s3 image...
 Merged 2 ELF sections
@@ -140,12 +140,16 @@ Bootloader binary size 0x5950 bytes. 0x26b0 bytes (30%) free.
 [ 77%] Linking CXX static library libmbedcrypto.a
 [ 77%] Linking CXX static library libp256m.a
 [ 78%] Linking CXX static library libeverest.a
-[ 78%] Linking C static library libmbedtls.a
-[ 79%] Linking C static library libesp_pm.a
-[ 80%] Linking C static library libesp_driver_gpio.a
-[ 80%] Linking C static library libxtensa.a
+[ 79%] Linking C static library libmbedtls.a
+[ 80%] Linking C static library libesp_pm.a
+[ 81%] Linking C static library libesp_driver_gpio.a
+[ 81%] Linking C static library libxtensa.a
 [ 83%] Linking C static library libnvs_sec_provider.a
-[ 83%] Linking C static library libesp_driver_cam.a
+[ 85%] Linking C static library libesp_https_server.a
+[ 85%] Linking C static library libesp_driver_cam.a
+[ 85%] Linking C static library libperfmon.a
+[ 85%] Linking C static library libapp_trace.a
+[ 85%] Linking C static library libesp_hid.a
 components/hal/esp32/hal_adc_esp32.c: In function 'map_atten':
 components/hal/esp32/hal_adc_esp32.c:57:9: warning: 'ADC_ATTEN_DB_11' is deprecated [-Wdeprecated-declarations]
    57 |         default:                    return ADC_ATTEN_DB_11;
@@ -155,35 +159,24 @@ In file included from /Users/bennet/esp/esp-idf-v5.3.6/components/esp_adc/includ
 /Users/bennet/esp/esp-idf-v5.3.6/components/hal/include/hal/adc_types.h:51:5: note: declared here
    51 |     ADC_ATTEN_DB_11 __attribute__((deprecated)) = ADC_ATTEN_DB_12,  ///<This is deprecated, it behaves the same as `ADC_ATTEN_DB_12`
       |     ^~~~~~~~~~~~~~~
-[ 84%] Linking C static library libesp_https_server.a
-[ 84%] Linking C static library libperfmon.a
-[ 84%] Linking C static library libesp_hid.a
-[ 84%] Linking C static library libapp_trace.a
+[ 87%] Linking C static library libespcoredump.a
+[ 87%] Linking C static library libwear_levelling.a
+[ 87%] Linking C static library libmqtt.a
+[ 88%] Linking C static library libjson.a
 components/hal/esp32/hal_timer_esp32.c:41:26: warning: 's_capture_contexts' defined but not used [-Wunused-variable]
    41 | static capture_context_t s_capture_contexts[MAX_TIMERS];
       |                          ^~~~~~~~~~~~~~~~~~
-[ 85%] Linking C static library libespcoredump.a
-[ 87%] Linking C static library libtemper_hal.a
-[ 87%] Linking C static library libjson.a
-[ 87%] Linking C static library libwear_levelling.a
-[ 87%] Linking C static library libunity.a
-[ 87%] Linking C static library libcmock.a
-[ 88%] Linking C static library libmqtt.a
-[ 90%] Linking C static library libtouch_element.a
+[ 89%] Linking C static library libtemper_hal.a
+[ 89%] Linking C static library libunity.a
+[ 89%] Linking C static library libtouch_element.a
 [ 91%] Linking C static library libprotobuf-c.a
-[ 92%] Linking C static library libusb.a
-[ 92%] Linking C static library libpower.a
-[ 92%] Linking C static library libconsole.a
-[ 93%] Linking C static library libesp_lcd.a
+[ 91%] Linking C static library libcmock.a
+[ 93%] Linking C static library libusb.a
 [ 93%] Linking C static library libspiffs.a
-main/state_handlers.c: In function 'state_pan_det_update':
-main/state_handlers.c:281:10: warning: unused variable 'estimation_complete' [-Wunused-variable]
-  281 |     bool estimation_complete = thermal_mass_update(&sm_get_context()->thermal_mass, current_temp, current_time);
-      |          ^~~~~~~~~~~~~~~~~~~
-main/state_handlers.c: At top level:
-main/state_handlers.c:21:20: warning: 'TAG' defined but not used [-Wunused-variable]
-   21 | static const char *TAG = "state_handlers";
-      |                    ^~~
+[ 94%] Linking C static library libesp_lcd.a
+[ 94%] Linking C static library libconsole.a
+[ 94%] Linking C static library libpower.a
+[ 95%] Linking C static library libfatfs.a
 components/control/pll_control.c: In function 'pll_update_loop':
 components/control/pll_control.c:357:11: warning: unused variable 'abs_error' [-Wunused-variable]
   357 |     float abs_error = fabsf(error);
@@ -195,10 +188,17 @@ components/control/pll_control.c:203:23: warning: 'zcd_edge_cb' defined but not 
 components/control/pll_control.c:193:23: warning: 'pwm_edge_cb' defined but not used [-Wunused-function]
   193 | static bool IRAM_ATTR pwm_edge_cb(mcpwm_cap_channel_handle_t cap_chan,
       |                       ^~~~~~~~~~~
-[ 96%] Linking C static library libfatfs.a
-[ 96%] Linking C static library libprotocomm.a
-[ 98%] Linking C static library libmain.a
+main/state_handlers.c: In function 'state_pan_det_update':
+main/state_handlers.c:281:10: warning: unused variable 'estimation_complete' [-Wunused-variable]
+  281 |     bool estimation_complete = thermal_mass_update(&sm_get_context()->thermal_mass, current_temp, current_time);
+      |          ^~~~~~~~~~~~~~~~~~~
+main/state_handlers.c: At top level:
+main/state_handlers.c:21:20: warning: 'TAG' defined but not used [-Wunused-variable]
+   21 | static const char *TAG = "state_handlers";
+      |                    ^~~
 [ 98%] Linking C static library libwebui.a
+[ 98%] Linking C static library libmain.a
+[ 98%] Linking C static library libprotocomm.a
 [100%] Linking C static library libesp_local_ctrl.a
 [100%] Linking C static library libwifi_provisioning.a
 [100%] Linking CXX executable induction_cooker.elf
@@ -207,13 +207,13 @@ Creating esp32s3 image...
 Merged 2 ELF sections
 Successfully created esp32s3 image.
 Generated <BUILD>/induction_cooker.bin
-induction_cooker.bin binary size 0x64350 bytes. Smallest app partition is 0x200000 bytes. 0x19bcb0 bytes (80%) free.
+induction_cooker.bin binary size 0x64680 bytes. Smallest app partition is 0x200000 bytes. 0x19b980 bytes (80%) free.
 
 Project build complete. To flash, run:
  idf.py flash
 or
  idf.py -p PORT flash
 or
- python -m esptool --chip esp32s3 -b 460800 --before default_reset --after hard_reset write_flash --flash_mode dio --flash_size 4MB --flash_freq 80m 0x0 build/bootloader/bootloader.bin 0x8000 build/partition_table/partition-table.bin 0x1000
+ python -m esptool --chip esp32s3 -b 460800 --before default_reset --after hard_reset write_flash --flash_mode dio --flash_size 4MB --flash_freq 80m 0x0 ../../../../../../..<BUILD>/bootloader/bootloader.bin 0x8000 ../../../../../../..<BUILD
 or from the "<BUILD>" directory
  python -m esptool --chip esp32s3 -b 460800 --before default_reset --after hard_reset write_flash "@flash_args"

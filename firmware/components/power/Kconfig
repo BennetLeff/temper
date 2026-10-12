@@ -121,4 +121,21 @@ config TEMPER_POWER_RMS_GAIN_PPM
     range 0 1100000
     default 0
 
+config TEMPER_POWER_SHADOW_RMS
+    bool "Bench shadow tank RMS from raw CT_MON (never ships)"
+    depends on TEMPER_POWER_HW_BINDING
+    default n
+    help
+        Computes a second tank RMS from the ADC1 continuous CT_MON samples (rms_shadow.h, option C2 of
+        zapote/controller/evidence/rms-alternatives/) and logs it next to the AD8436 reading, once a
+        second, and in n21_telemetry_t.shadow_*. It never feeds a limit, a trip, the frequency loop or
+        the power estimate. To avoid sampling phase lock it re-selects the ADC sample clock
+        (72.1-80 kS/s) when the commanded bridge frequency makes the current clock worse than
+        RMS_SHADOW_LOCK_HOLD; each re-selection stops and restarts the ADC1 stream (about a frame,
+        under 2 ms), which can make the VBUS / CT_MON snapshot stale for that long. The binding fails
+        safe on a stale snapshot (inhibit), so keep this off on anything but the comparison bench
+        (COMMISSIONING.md Step 6.1a). The half boundary is taken at the ADC frame that contains the
+        LINE_ZC edge: up to one 64-result frame (about 0.8 ms) of smear, which moves the shadow RMS
+        by less than 0.2 %.
+
 endmenu

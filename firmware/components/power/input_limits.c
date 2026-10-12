@@ -43,22 +43,29 @@ bool input_limits_half_cycle_aux(const input_limits_cfg_t *c, const input_sample
         !isfinite(line_rms_v) || line_rms_v < 100 || line_rms_v > 140)
         return false;
     const float k = 0.900316316f; /* 2*sqrt(2)/pi: RMS fundamental of a full-bridge square wave */
-    double p = 0, i2 = 0;
+    bool weighted = false;
+    for (size_t j = 0; j < n; j++)
+        if (s[j].w != 0.0f) weighted = true;
+    double p = 0, i2 = 0, wsum = 0;
     for (size_t j = 0; j < n; j++) {
         if (!isfinite(s[j].bus_v) || s[j].bus_v < 0 || s[j].bus_v > 220 ||
             !isfinite(s[j].tank_rms_a) || s[j].tank_rms_a < 0 || s[j].tank_rms_a > 100 ||
-            !isfinite(s[j].cos_phi) || s[j].cos_phi < -1 || s[j].cos_phi > 1)
+            !isfinite(s[j].cos_phi) || s[j].cos_phi < -1 || s[j].cos_phi > 1 ||
+            !isfinite(s[j].w) || s[j].w < 0)
             return false;
-        p += (double)k * s[j].bus_v * s[j].tank_rms_a * s[j].cos_phi;
-        i2 += (double)s[j].tank_rms_a * s[j].tank_rms_a;
+        double w = weighted ? (double)s[j].w : 1.0;
+        p += w * k * s[j].bus_v * s[j].tank_rms_a * s[j].cos_phi;
+        i2 += w * s[j].tank_rms_a * s[j].tank_rms_a;
+        wsum += w;
     }
+    if (!(wsum > 0)) return false;
     /* Net regeneration does not reduce the inlet current bound below zero. */
-    float p_inv = (float)fmax(0, p / n);
+    float p_inv = (float)fmax(0, p / wsum);
     out->p_inv_w = p_inv;
     out->p_in_w = p_inv / c->eta_min;
     out->i_ps_a = out->p_in_w / line_rms_v;
     out->inlet_bound_a = out->i_ps_a * (1 + c->est_error) + input_limits_aux(c, aux_a);
-    out->tank_rms_a = (float)sqrt(i2 / n);
+    out->tank_rms_a = (float)sqrt(i2 / wsum);
     /* For a given pan, power scales with tank current squared: the power that would put the
      * tank at its ceiling. With no tank current there is no evidence, so no ceiling (INFINITY). */
     out->tank_ceiling_w = out->tank_rms_a > 0.5f

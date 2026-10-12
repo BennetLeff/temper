@@ -352,7 +352,7 @@ static void test_tank_hold(void)
             /* A flat half at V_line: p_inv = hold x eta x V. */
             input_sample_t smp[16];
             float p = hold * l.eta_min * lines[j];
-            for (unsigned n = 0; n < 16; n++) smp[n] = (input_sample_t){lines[j], p / (0.900316316f * lines[j]), 1.0f};
+            for (unsigned n = 0; n < 16; n++) smp[n] = (input_sample_t){lines[j], p / (0.900316316f * lines[j]), 1.0f, 0.0f};
             input_estimate_t e;
             assert(input_limits_half_cycle_aux(&l, smp, 16, lines[j], st[k].aux, &e));
             assert(NEAR(e.inlet_bound_a, 13.5, 2e-3) && NEAR(e.p_inv_w, p, 0.5));

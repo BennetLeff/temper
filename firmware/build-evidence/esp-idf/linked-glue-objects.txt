@@ -7,7 +7,7 @@ libmain.a(state_handlers.c.obj)  2745 bytes
 libmain.a(state_machine.c.obj)  2152 bytes
 libmain.a(thermal_io.c.obj)  2026 bytes
 libmain.a(ui_esp32.c.obj)  3919 bytes
-libpower.a(n21_hw_esp32.c.obj)  5124 bytes
+libpower.a(n21_hw_esp32.c.obj)  5268 bytes
 libtemper_hal.a(controller_board_esp32.c.obj)  1890 bytes
 libtemper_hal.a(hal_adc_esp32.c.obj)  2140 bytes
 libtemper_hal.a(hal_gpio_esp32.c.obj)  1550 bytes

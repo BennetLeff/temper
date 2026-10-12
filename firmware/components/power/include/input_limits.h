@@ -39,6 +39,13 @@ typedef struct {
     float bus_v;      /* VBUS from the isolated AMC1311, V */
     float tank_rms_a; /* tank current RMS over the switching period (CT T1, ct_mon), A */
     float cos_phi;    /* cos of tank current lag behind the bridge voltage (ct_zc vs gate edges) */
+    /* Time the reading stands for (any unit, finite, >= 0). All zero (the default) means equal
+     * weights; any non-zero weight switches the whole half to time weighting, and then the sum must
+     * be positive. n21_half_close() fills it with the sample's share of the half line cycle
+     * (mid-point rule, the end samples held to the zero crossings), because the 625 us slot grid
+     * does not divide the half cycle: 13 or 14 readings fall in it, and an unweighted mean of them
+     * scatters about -3 % .. +2.7 % in RMS with slot phase (build-evidence/rms-estimator). */
+    float w;
 } input_sample_t;
 typedef struct {
     float p_inv_w, p_in_w, i_ps_a, inlet_bound_a, tank_rms_a, tank_ceiling_w;

@@ -1,11 +1,11 @@
 Executing action: size-components
-Running make in directory /Users/bennet/Desktop/temper/worktrees/fw-ui/firmware/build
+Running make in directory /private/tmp/claude-501/-Users-bennet-Desktop-temper/5a71b9c0-fe6f-4b0a-a3af-0c109a4e3165/scratchpad/idf-int
 Executing "make -j 14 all"...
-[  0%] Built target partition_table_bin
-[  0%] Built target sections.ld.in
+[  0%] Built target custom_bundle
 [  1%] Built target _project_elf_src
+[  1%] Built target sections.ld.in
 [  1%] Built target memory.ld
-[  1%] Built target custom_bundle
+[  1%] Built target partition_table_bin
 [  1%] Performing build step for 'bootloader'
 [  1%] Built target __idf_esp_https_ota
 [  2%] Built target __idf_esp_http_server
@@ -40,8 +40,8 @@ Executing "make -j 14 all"...
 [ 21%] Built target __idf_vfs
 [100%] Built target gen_project_binary
 [ 21%] Built target __idf_esp_vfs_console
-[ 21%] Built target __idf_esp_phy
 Bootloader binary size 0x5950 bytes. 0x26b0 bytes (30%) free.
+[ 21%] Built target __idf_esp_phy
 [100%] Built target bootloader_check_size
 [ 23%] Built target __idf_driver
 [100%] Built target app
@@ -92,43 +92,43 @@ Bootloader binary size 0x5950 bytes. 0x26b0 bytes (30%) free.
 [ 77%] Built target mbedcrypto
 [ 77%] Built target p256m
 [ 78%] Built target everest
-[ 78%] Built target __idf_mbedtls
-[ 79%] Built target __idf_esp_pm
-[ 80%] Built target __idf_esp_driver_gpio
-[ 80%] Built target __idf_xtensa
-[ 80%] Built target __idf_json
-[ 81%] Built target __idf_wear_levelling
-[ 82%] Built target __idf_temper_hal
-[ 84%] Built target __idf_console
-[ 86%] Built target __idf_esp_hid
-[ 86%] Built target __idf_unity
-[ 86%] Built target __idf_esp_https_server
-[ 86%] Built target __idf_esp_driver_cam
-[ 86%] Built target __idf_app_trace
-[ 87%] Built target __idf_protobuf-c
-[ 88%] Built target __idf_espcoredump
-[ 88%] Built target __idf_nvs_sec_provider
+[ 79%] Built target __idf_mbedtls
+[ 80%] Built target __idf_esp_pm
+[ 81%] Built target __idf_esp_driver_gpio
+[ 81%] Built target __idf_xtensa
+[ 81%] Built target __idf_esp_driver_cam
+[ 81%] Built target __idf_esp_https_server
+[ 82%] Built target __idf_protobuf-c
+[ 83%] Built target __idf_unity
+[ 84%] Built target __idf_wear_levelling
+[ 85%] Built target __idf_esp_hid
+[ 85%] Built target __idf_app_trace
+[ 86%] Built target __idf_espcoredump
+[ 86%] Built target __idf_perfmon
+[ 88%] Built target __idf_esp_lcd
 [ 88%] Built target __idf_mqtt
-[ 90%] Built target __idf_esp_lcd
-[ 90%] Built target __idf_perfmon
-[ 90%] Built target __idf_touch_element
-[ 90%] Built target __idf_spiffs
-[ 91%] Built target __idf_cmock
-[ 91%] Built target __idf_power
-[ 92%] Built target __idf_usb
+[ 90%] Built target __idf_console
+[ 90%] Built target __idf_json
+[ 90%] Built target __idf_nvs_sec_provider
+[ 91%] Built target __idf_usb
+[ 91%] Built target __idf_spiffs
+[ 92%] Built target __idf_temper_hal
 [ 93%] Built target __idf_fatfs
+[ 93%] Built target __idf_touch_element
+[ 93%] Built target __idf_cmock
 [ 94%] Built target __idf_protocomm
-[ 97%] Built target __idf_main
-[ 98%] Built target __idf_webui
-[100%] Built target __idf_wifi_provisioning
-[100%] Built target __idf_esp_local_ctrl
+[ 95%] Built target __idf_webui
+[ 96%] Built target __idf_power
+[ 96%] Built target __idf_esp_local_ctrl
+[ 97%] Built target __idf_wifi_provisioning
+[100%] Built target __idf_main
 [100%] Built target __ldgen_output_sections.ld
 [100%] Built target induction_cooker.elf
 [100%] Built target gen_project_binary
-induction_cooker.bin binary size 0x64350 bytes. Smallest app partition is 0x200000 bytes. 0x19bcb0 bytes (80%) free.
+induction_cooker.bin binary size 0x64680 bytes. Smallest app partition is 0x200000 bytes. 0x19b980 bytes (80%) free.
 [100%] Built target app_check_size
 [100%] Built target app
-Running make in directory /Users/bennet/Desktop/temper/worktrees/fw-ui/firmware/build
+Running make in directory /private/tmp/claude-501/-Users-bennet-Desktop-temper/5a71b9c0-fe6f-4b0a-a3af-0c109a4e3165/scratchpad/idf-int
 Executing "make -j 14 size-components"...
                                                                                        Per-archive contributions to ELF file                                                                                        
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━┳━━━━━━━┳━━━━━━━━━━┳━━━━━━━┳━━━━━━┳━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━┓
@@ -137,10 +137,10 @@ Executing "make -j 14 size-components"...
 │ libesp_app_format.a             │      65866 │    0 │     0 │        0 │    10 │   10 │     0 │     0 │        394 │   394 │      65462 │   65206 │      256 │        0 │             0 │        0 │           0 │
 │ libc.a                          │      40378 │    0 │     0 │        0 │   584 │  320 │   264 │     0 │      37297 │ 37297 │       2497 │    2497 │        0 │        0 │             0 │        0 │           0 │
 │ libmain.a                       │      31953 │    0 │     0 │        0 │  9193 │ 8828 │   365 │     0 │      21489 │ 21489 │       1271 │    1271 │        0 │        0 │             0 │        0 │           0 │
-│ libesp_hw_support.a             │      31591 │ 1657 │  1657 │        0 │  7376 │  186 │   349 │  6841 │      21115 │ 21115 │       1418 │    1418 │        0 │       24 │            24 │        1 │           1 │
-│ libhal.a                        │      25881 │  590 │   590 │        0 │ 14490 │    4 │  3999 │ 10487 │      10625 │ 10625 │        176 │     176 │        0 │        0 │             0 │        0 │           0 │
-│ libpower.a                      │      24103 │  120 │   120 │        0 │  2426 │ 1726 │   640 │    60 │      21145 │ 21145 │        412 │     412 │        0 │        0 │             0 │        0 │           0 │
-│ libfreertos.a                   │      19592 │  878 │   878 │        0 │ 16720 │  757 │  3108 │ 12855 │        845 │   845 │       1149 │    1149 │        0 │        0 │             0 │        0 │           0 │
+│ libesp_hw_support.a             │      31599 │ 1657 │  1657 │        0 │  7376 │  186 │   349 │  6841 │      21123 │ 21123 │       1418 │    1418 │        0 │       24 │            24 │        1 │           1 │
+│ libhal.a                        │      25893 │  590 │   590 │        0 │ 14490 │    4 │  3999 │ 10487 │      10637 │ 10637 │        176 │     176 │        0 │        0 │             0 │        0 │           0 │
+│ libpower.a                      │      25493 │  120 │   120 │        0 │  3050 │ 2318 │   672 │    60 │      21971 │ 21971 │        352 │     352 │        0 │        0 │             0 │        0 │           0 │
+│ libfreertos.a                   │      19588 │  878 │   878 │        0 │ 16720 │  757 │  3108 │ 12855 │        841 │   841 │       1149 │    1149 │        0 │        0 │             0 │        0 │           0 │
 │ libesp_system.a                 │      15840 │ 3916 │  3916 │        0 │  1226 │  305 │   508 │   413 │       9948 │  9948 │        750 │     750 │        0 │        0 │             0 │        0 │           0 │
 │ libnvs_flash.a                  │      15236 │    0 │     0 │        0 │    24 │   24 │     0 │     0 │      15080 │ 15080 │        132 │     132 │        0 │        0 │             0 │        0 │           0 │
 │ libm.a                          │      15010 │    0 │     0 │        0 │     0 │    0 │     0 │     0 │      13898 │ 13898 │       1112 │    1112 │        0 │        0 │             0 │        0 │           0 │

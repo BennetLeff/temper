@@ -23,6 +23,9 @@
  *   - Tank ceiling (tank_freq.h): one commissioned value, limits.tank_limit_a (22 A default,
  *     <= 28 A), set with n21_config_set_tank_ceiling(), which derives the RMS trip (1.05 x, on the
  *     half-cycle RMS), the per-sample crest guard (1.5 x) and the peak trip (min(2.17 x + 3, 62)).
+ *   - The half-cycle RMS is time weighted (n21_half_close); a stuck-low AD8436 channel (RMS below
+ *     max|CT_MON| / (1.20 x 2.17) for 6 halves while the bridge runs) latches N21_FAULT_RMS_CHANNEL
+ *     (tank_freq.h). The bench shadow RMS (rms_shadow.h) is telemetry only.
  *   - Frequency (COMMISSIONED only): the per-pan loop (tank_freq_step, once per closed half while
  *     the gate is on) sets a target in [f_min, f_max]; the control tick slews the live frequency
  *     towards it by at most step_up_hz per tick, and apply_cycle refuses any other plan or step.
@@ -99,6 +102,11 @@ typedef struct {
     bool (*read_ext_adc)(void *, unsigned channel, uint16_t *code); /* MCP3202 under bus lock */
     bool (*read_ct_zc)(void *, uint32_t *zc_ticks, uint64_t *t_us);
     size_t (*line_zc_edges)(void *, uint64_t *t_us, bool *level, size_t max);
+    /* Optional, bench-only (Kconfig TEMPER_POWER_SHADOW_RMS; NULL otherwise). Called once per closed
+     * line half in the acquisition context: returns the shadow tank RMS of the half just ended and the
+     * ADC clock it ran at, and is told the commanded bridge frequency for the next half's clock
+     * choice (rms_shadow.h). The result goes into telemetry only; it never reaches a limit or trip. */
+    bool (*shadow_half)(void *, uint32_t next_f_hz, float *rms_a, uint32_t *fs_hz);
     void *ctx;
 } n21_hw_ops_t;
 
@@ -129,6 +137,11 @@ typedef struct {
     bool pan_present;
     tank_freq_reason_t freq_reason;
     float aux_a;               /* auxiliary allowance in force (inlet_bound_a includes it) */
+    /* Bench shadow RMS from raw CT_MON (rms_shadow.h), next to the AD8436 reading in last_half.est:
+     * telemetry only. shadow_valid false when absent or the half had too few samples. */
+    bool shadow_valid;
+    float shadow_rms_a;
+    uint32_t shadow_fs_hz;
 } n21_telemetry_t;
 
 typedef struct {
@@ -158,6 +171,8 @@ typedef struct {
     float aux_now_a;            /* allowance in force, ramped per half */
     bool initialized, programmed, pads_live, gate_on, armed_line, invalid, have_sample;
     bool have_reset, bench_active;
+    bool half_live;             /* pads live at every sample of the open half */
+    uint32_t rms_implaus_n;     /* consecutive stuck-low halves (tank_rms_implausible) */
 } n21_binding_t;
 
 n21_config_t n21_config_default(void);
