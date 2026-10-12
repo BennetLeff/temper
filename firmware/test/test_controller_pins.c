@@ -79,7 +79,7 @@ static void test_expander_bits_unique(void)
 {
     const int bits[] = {CTRL_EXP_RTD_DRDY, CTRL_EXP_LATCHED_FAULT_RB, CTRL_EXP_RTD_FAULT_RB,
                         CTRL_EXP_HS_FAULT_RB, CTRL_EXP_COIL_FAULT_RB, CTRL_EXP_SUP_RUN_OK_RB,
-                        CTRL_EXP_FAN_OFF, CTRL_EXP_RTD2_CS_RESERVED};
+                        CTRL_EXP_FAN_OFF, CTRL_EXP_BLW_PG, CTRL_EXP_RTD2_CS_RESERVED};
     const size_t n = sizeof bits / sizeof bits[0];
     for (size_t i = 0; i < n; i++) {
         assert(bits[i] >= 0 && bits[i] <= 15);
@@ -90,6 +90,8 @@ static void test_expander_bits_unique(void)
     assert(ctrl_pin_by_net("sup_run_ok_rb") == NULL);
     assert(CTRL_EXP_RTD_DRDY == 7);       /* P07 */
     assert(CTRL_EXP_SUP_RUN_OK_RB == 12); /* P14 */
+    assert(CTRL_EXP_FAN_OFF == 13);       /* P15 */
+    assert(CTRL_EXP_BLW_PG == 8 * 1 + 6); /* P16 (C33): port 1, bit 6 */
 }
 
 static void test_l2_moves(void)
@@ -325,6 +327,90 @@ static void test_expander_plan_and_decode(void)
     assert(!ctrl_exp_fresh(NULL, 1000, CTRL_EXP_MAX_AGE_US));
 }
 
+/* BLW_PG (P16, C33) is driven by the V15_BLW divider: it must never become an expander output. */
+static void test_blw_pg_stays_input(void)
+{
+    const uint8_t bit = (uint8_t)(1u << (CTRL_EXP_BLW_PG - 8));
+    for (int fan_off_output = 0; fan_off_output < 2; fan_off_output++) {
+        ctrl_i2c_write_t w[6];
+        size_t n = ctrl_exp_init_writes(fan_off_output != 0, w);
+        bool cfg1 = false;
+        for (size_t i = 0; i < n; i++) {
+            if (w[i].reg == TCA9555_REG_CONFIG1) { cfg1 = true; assert(w[i].value & bit); }
+            if (w[i].reg == TCA9555_REG_POLARITY1) assert(!(w[i].value & bit)); /* not inverted */
+        }
+        assert(cfg1);
+    }
+    /* The only run-time port-1 write is OUTPUT1 (FAN_OFF); it leaves every other bit at 1, and the
+     * output latch of an input pin has no effect on the pin. */
+    assert(ctrl_exp_output1(false) & bit);
+    assert(ctrl_exp_output1(true) & bit);
+
+    /* Decode: P16 high = PS3 present. */
+    assert(ctrl_exp_decode(CTRL_EXP_BIT(CTRL_EXP_BLW_PG)).blw_pg);
+    assert(!ctrl_exp_decode((uint16_t)~CTRL_EXP_BIT(CTRL_EXP_BLW_PG)).blw_pg);
+}
+
+/* BLW_PG debounce: CTRL_BLW_PG_DEBOUNCE_POLLS equal reads (3 x 10 ms) before a state; a failed
+ * expander read is UNKNOWN at once, never "present". */
+static void test_blw_pg_debounce(void)
+{
+    const uint16_t hi = CTRL_EXP_BIT(CTRL_EXP_BLW_PG), lo = (uint16_t)~hi;
+    assert(CTRL_BLW_PG_DEBOUNCE_POLLS == 3u);
+    ctrl_blw_pg_debounce_t d;
+    ctrl_blw_pg_init(&d);
+    assert(d.state == CTRL_BLW_PG_UNKNOWN);
+    /* Boot with PS3 present. */
+    assert(ctrl_blw_pg_update(&d, true, hi) == CTRL_BLW_PG_UNKNOWN);
+    assert(ctrl_blw_pg_update(&d, true, hi) == CTRL_BLW_PG_UNKNOWN);
+    assert(ctrl_blw_pg_update(&d, true, hi) == CTRL_BLW_PG_PRESENT);
+    /* One or two low reads (a glitch) do not declare PS3 absent. */
+    assert(ctrl_blw_pg_update(&d, true, lo) == CTRL_BLW_PG_PRESENT);
+    assert(ctrl_blw_pg_update(&d, true, lo) == CTRL_BLW_PG_PRESENT);
+    assert(ctrl_blw_pg_update(&d, true, hi) == CTRL_BLW_PG_PRESENT);
+    assert(ctrl_blw_pg_update(&d, true, lo) == CTRL_BLW_PG_PRESENT);
+    assert(ctrl_blw_pg_update(&d, true, lo) == CTRL_BLW_PG_PRESENT);
+    /* The third consecutive low read does. */
+    assert(ctrl_blw_pg_update(&d, true, lo) == CTRL_BLW_PG_ABSENT);
+    assert(ctrl_blw_pg_update(&d, true, lo) == CTRL_BLW_PG_ABSENT);
+    /* Return needs three high reads as well. */
+    assert(ctrl_blw_pg_update(&d, true, hi) == CTRL_BLW_PG_ABSENT);
+    assert(ctrl_blw_pg_update(&d, true, hi) == CTRL_BLW_PG_ABSENT);
+    assert(ctrl_blw_pg_update(&d, true, hi) == CTRL_BLW_PG_PRESENT);
+    /* Many identical reads: the run counter saturates, the state holds. */
+    for (int i = 0; i < 1000; i++) assert(ctrl_blw_pg_update(&d, true, hi) == CTRL_BLW_PG_PRESENT);
+    /* Only P16 counts. */
+    for (int i = 0; i < 5; i++) assert(ctrl_blw_pg_update(&d, true, hi) == CTRL_BLW_PG_PRESENT);
+    assert(ctrl_blw_pg_update(&d, true, 0xFFFF) == CTRL_BLW_PG_PRESENT);
+
+    /* Expander read failure: UNKNOWN at once (whatever the last level), and three good reads again. */
+    assert(ctrl_blw_pg_update(&d, false, hi) == CTRL_BLW_PG_UNKNOWN);
+    assert(ctrl_blw_pg_update(&d, true, hi) == CTRL_BLW_PG_UNKNOWN);
+    assert(ctrl_blw_pg_update(&d, true, hi) == CTRL_BLW_PG_UNKNOWN);
+    assert(ctrl_blw_pg_update(&d, true, hi) == CTRL_BLW_PG_PRESENT);
+    /* Low, low, failed read, low: the failure restarts the count. */
+    assert(ctrl_blw_pg_update(&d, true, lo) == CTRL_BLW_PG_PRESENT);
+    assert(ctrl_blw_pg_update(&d, true, lo) == CTRL_BLW_PG_PRESENT);
+    assert(ctrl_blw_pg_update(&d, false, 0) == CTRL_BLW_PG_UNKNOWN);
+    assert(ctrl_blw_pg_update(&d, true, lo) == CTRL_BLW_PG_UNKNOWN);
+    assert(ctrl_blw_pg_update(&d, true, lo) == CTRL_BLW_PG_UNKNOWN);
+    assert(ctrl_blw_pg_update(&d, true, lo) == CTRL_BLW_PG_ABSENT);
+    assert(ctrl_blw_pg_update(NULL, true, lo) == CTRL_BLW_PG_UNKNOWN);
+
+    /* Consumers: a stale or invalid snapshot is UNKNOWN, whatever the cached state. */
+    ctrl_exp_cache_t c = {.raw = hi, .t_us = 1000, .valid = true, .blw_pg = CTRL_BLW_PG_PRESENT};
+    assert(ctrl_exp_blw_pg(&c, 1000 + CTRL_EXP_MAX_AGE_US, CTRL_EXP_MAX_AGE_US) == CTRL_BLW_PG_PRESENT);
+    assert(ctrl_exp_blw_pg(&c, 1001 + CTRL_EXP_MAX_AGE_US, CTRL_EXP_MAX_AGE_US) == CTRL_BLW_PG_UNKNOWN);
+    c.blw_pg = CTRL_BLW_PG_ABSENT;
+    assert(ctrl_exp_blw_pg(&c, 2000, CTRL_EXP_MAX_AGE_US) == CTRL_BLW_PG_ABSENT);
+    c.valid = false;
+    assert(ctrl_exp_blw_pg(&c, 2000, CTRL_EXP_MAX_AGE_US) == CTRL_BLW_PG_UNKNOWN);
+    assert(ctrl_exp_blw_pg(NULL, 2000, CTRL_EXP_MAX_AGE_US) == CTRL_BLW_PG_UNKNOWN);
+    /* A zeroed cache (before the first poll) is UNKNOWN, not "absent". */
+    ctrl_exp_cache_t z = {0};
+    assert(z.blw_pg == CTRL_BLW_PG_UNKNOWN);
+}
+
 int main(void)
 {
     TEST(test_no_duplicate_gpio_or_net);
@@ -336,6 +422,8 @@ int main(void)
     TEST(test_boot_outputs_preset_before_enable);
     TEST(test_uart0_console_disabled_when_gpio44_is_spi);
     TEST(test_expander_plan_and_decode);
+    TEST(test_blw_pg_stays_input);
+    TEST(test_blw_pg_debounce);
     printf("controller pin map: %u tests passed\n", tests);
     return 0;
 }

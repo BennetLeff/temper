@@ -58,6 +58,10 @@ extern void thermal_set_sensor_faults(bool rim_fault, bool coil_fault);
 /* L3 thermal power cap (DECISIONS C28, C32), 0..100: min(coil derate 150-160 C, blower stall
  * derate). Computed by the blower controller tick (thermal_io.c, blower_ctrl_step()). */
 extern uint8_t thermal_power_cap_pct(void);
+/* Stage 16 start interlock (DECISIONS C33, thermal_io.c): false while the blower supply PS3 is
+ * reported absent (BLW_PG low, debounced and plausible). Unknown BLW_PG does not block. */
+extern bool thermal_blower_start_permitted(void);
+#define MSG_NO_BLOWER_SUPPLY "NO BLOWER PWR"
 
 /* Pan temperature cap and glass protection (250 C, R32 / R36): every tank power request in
  * PREHEAT and HEATING passes through here. The pan RTD and the rim NTC each derate from 240 C to
@@ -188,6 +192,12 @@ void state_idle_entry(void) {
 void state_idle_update(void) {
     /* Check for start button */
     if (button_is_pressed(BUTTON_START) && sm_get_context()->target_temperature > 0) {
+        /* No cooling without PS3: refuse the start and say why (C33). */
+        if (!thermal_blower_start_permitted()) {
+            display_show_message(MSG_NO_BLOWER_SUPPLY);
+            watchdog_feed();
+            return;
+        }
         transition_to(STATE_PAN_DET);
         return;
     }
@@ -225,6 +235,15 @@ void state_pan_det_entry(void) {
     /* Wake up from low power */
     peripherals_exit_low_power();
 
+    /* Every start path (start button, profile, UI) enters here. Without PS3 there is no cooling
+     * (C33): no detection power; state_pan_det_update() returns to IDLE. */
+    if (!thermal_blower_start_permitted()) {
+        power_set_level(0);
+        display_show_message(MSG_NO_BLOWER_SUPPLY);
+        watchdog_set_timeout(WDT_TIMEOUT_MONITOR_MS);
+        return;
+    }
+
     /* Enable low-power detection mode */
     power_set_level(5);
 
@@ -246,6 +265,14 @@ void state_pan_det_entry(void) {
 }
 
 void state_pan_det_update(void) {
+    /* Start interlock (C33): PS3 absent before heating starts -> back to IDLE, no heating. */
+    if (!thermal_blower_start_permitted()) {
+        power_set_level(0);
+        show_message_then_transition(MSG_NO_BLOWER_SUPPLY, STATE_IDLE);
+        watchdog_feed();
+        return;
+    }
+
     /* Run pan detection */
     pan_status_t result = detect_pan_presence();
 

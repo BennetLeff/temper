@@ -18,6 +18,8 @@
  *  - Blower (C28): inverted PWM map (duty 0 = full speed), FG tach to rpm, stall detection (tach
  *    below threshold for > 1 s while driven derates tank power at once, and stops it if the sink
  *    or coil keeps rising), and blower_ctrl_step(), the whole per-tick decision the ESP glue runs.
+ *  - Blower supply (C33): BLW_PG (PS3 present) splits a stall into "PS3 absent" and "blower
+ *    failed", blocks a heating start while PS3 is absent, and is checked against the tach.
  *
  * Values marked PROVISIONAL have no measured basis yet and must be set on the bench.
  */
@@ -309,11 +311,59 @@ float blower_pwm_duty_from_drive(float drive);
  * CTRL_BLOWER_LEDC_RES_BITS, controller_board.h); NaN -> 0 (full speed). */
 uint32_t blower_ledc_counts(float duty, unsigned res_bits);
 
+/* ---------------------------------------------------------------- blower supply (stage 16, C33) */
+/* PS3 (IRM-60-15ST) feeds the blower buck through J13; BLW_PG (expander P16, a 20 k / 4.7 k divider
+ * from V15_BLW) reads 1 with PS3 present. The glue hands in the debounced level
+ * (controller_board.h ctrl_blw_pg_t: 3 polls at 10 ms; a failed or stale expander read = UNKNOWN). */
+typedef enum {
+    BLOWER_SUPPLY_UNKNOWN = 0, /* no trustworthy BLW_PG: behave as before C33 (stall path only) */
+    BLOWER_SUPPLY_ABSENT,
+    BLOWER_SUPPLY_PRESENT,
+} blower_supply_t;
+
+/* Diagnosis code, for the UI and the log. It never changes the derate on its own: a stalled blower
+ * takes the C28 stall derate (blower_stall_update()) whatever the code says. */
+typedef enum {
+    BLOWER_DIAG_OK = 0,
+    BLOWER_DIAG_STALL,         /* tach < BLOWER_STALL_RPM > 1 s while driven; BLW_PG unknown or
+                                * ignored (sense fault): the pre-C33 "stall" fault */
+    BLOWER_DIAG_PS3_ABSENT,    /* stalled with BLW_PG = 0; or BLW_PG = 0 with the blower not
+                                * turning (idle by the fan law): no cooling available */
+    BLOWER_DIAG_BLOWER_FAILED, /* stalled with BLW_PG = 1: supply present, blower or FG failed */
+} blower_diag_t;
+
+/* BLW_PG plausibility: BLW_PG = 0 while the tach shows the blower turning (>= BLOWER_STALL_RPM) for
+ * longer than this is a BLW_PG sense fault (divider, harness or expander input), latched until MCU
+ * reset; BLW_PG is then ignored (UNKNOWN) and the blower falls back to the stall path. It does not
+ * derate. PROVISIONAL: long enough to cover a coasting blower after a real PS3 loss (FG normally
+ * stops with the fan's supply, but a spinning rotor must not be read as a sense fault). */
+#define BLW_PG_PLAUS_TIME_MS 3000u
+
+typedef struct {
+    bool contra;            /* BLW_PG = 0 and the tach shows the blower turning */
+    uint32_t contra_since_ms;
+    bool sense_fault;       /* latched */
+} blw_pg_plaus_t;
+
+void blw_pg_plaus_init(blw_pg_plaus_t *p);
+/* Returns the supply state to act on: pg, or UNKNOWN once the sense fault has latched. */
+blower_supply_t blw_pg_plaus_update(blw_pg_plaus_t *p, blower_supply_t pg, float tach_rpm,
+                                    uint32_t now_ms);
+/* stalled: blower_stall_t.stalled. supply: after blw_pg_plaus_update(). turning: the tach reads
+ * >= BLOWER_STALL_RPM. */
+blower_diag_t blower_diagnose(bool stalled, blower_supply_t supply, bool turning);
+/* Start interlock: heating may start unless PS3 is reported absent (debounced, plausible). UNKNOWN
+ * does not block: the tach / stall path still protects. */
+bool blower_start_permitted(blower_supply_t supply);
+
 /* ---------------------------------------------------------------- blower controller */
 typedef struct {
     fan_law_t law;
     blower_tach_t tach;
     blower_stall_t stall;
+    blw_pg_plaus_t pg;
+    blower_supply_t supply; /* last effective BLW_PG (after plausibility) */
+    blower_diag_t diag;
 } blower_ctrl_t;
 
 typedef struct {
@@ -322,6 +372,10 @@ typedef struct {
     float rpm;          /* NaN until the first tach window */
     uint8_t power_cap_pct; /* min(coil derate, stall derate): applied to every tank request */
     bool blower_failed; /* stall detector stopped the tank (is_fan_running() false) */
+    /* Stage 16 (C33), filled by blower_ctrl_supply(): */
+    blower_diag_t diag;
+    bool blw_pg_sense_fault;
+    bool start_permitted; /* false: PS3 absent, refuse to start heating */
 } blower_cmd_t;
 
 void blower_ctrl_init(blower_ctrl_t *c);
@@ -338,5 +392,9 @@ blower_cmd_t blower_ctrl_step(blower_ctrl_t *c, float sink_c, float coil_c, bool
 blower_cmd_t blower_ctrl_decide(blower_ctrl_t *c, float sink_c, float coil_c, bool fault, float dt_s);
 void blower_ctrl_finish(blower_ctrl_t *c, blower_cmd_t *o, bool applied_on, float sink_c, float coil_c,
                         bool tach_ok, uint16_t tach_count, uint32_t now_ms, unsigned pulses_per_rev);
+/* Stage 16 (C33), after finish() in the same tick: BLW_PG plausibility against the tach just
+ * read, the diagnosis code and the start interlock. Only labels and the start permit; the tank
+ * cap is finish()'s (the C28 derate is the same for "PS3 absent" and "blower failed"). */
+void blower_ctrl_supply(blower_ctrl_t *c, blower_cmd_t *o, blower_supply_t blw_pg, uint32_t now_ms);
 
 #endif

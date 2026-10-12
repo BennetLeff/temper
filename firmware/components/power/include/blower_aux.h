@@ -48,6 +48,14 @@
  *   - Slow-down: the blower slows at once; the allowance is released after release_ms (the
  *     blower and buck have spun down) at fall_a_per_s.
  */
+/*
+ * BLW_PG (controller C33, expander P16: PS3 output present) deliberately does NOT enter this
+ * schedule. With BLW_PG = 0 the allowance is NOT reduced: PS3's AC side may still draw (a failed
+ * output, a tripped OCP / OVP hiccup, a blown output fuse) and BLW_PG itself can be wrong (the
+ * firmware's plausibility check against the tach catches that only while the blower turns). A
+ * "PS3 absent" stall reaches this module as known = false, i.e. the worst case. Conservative by
+ * design: the inlet estimate never relies on PS3 being off.
+ */
 #include <stdbool.h>
 #include <stdint.h>
 

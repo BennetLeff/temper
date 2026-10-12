@@ -79,7 +79,22 @@ def test_layout_l2_commit_differs_only_by_the_l3_blower_lines():
         pytest.skip("layout L2 commit not in this clone")
     errors = _run(guard.load_git_ref(ref), sources={})
     assert errors and all("fan_off" in e or "fan_pwm" in e or "FAN_PWM" in e or "FAN_OFF" in e
-                          for e in errors), errors
+                          or "BLW_PG" in e for e in errors), errors
+
+
+def test_layout_l3_commit_differs_only_by_blw_pg():
+    # Stage 16 (C33) added expander P16 = blw_pg and nothing else to the pin map.
+    ref = "4bed3716a"
+    if not _has_ref(ref):
+        pytest.skip("layout L3 commit not in this clone")
+    errors = _run(guard.load_git_ref(ref), sources={})
+    assert errors and all("BLW_PG" in e for e in errors), errors
+
+
+def test_parse_reads_blw_pg():
+    ato = guard.parse_ato(_fixture_text())
+    assert ato.expander["blw_pg"] == 14  # P16
+    assert "blw_pg" not in ato.gpio
 
 
 @pytest.mark.parametrize(
@@ -88,6 +103,7 @@ def test_layout_l2_commit_differs_only_by_the_l3_blower_lines():
         ("mcu.IO14 ~ run_en", "mcu.IO13 ~ run_en", "run_en"),            # moved GPIO
         ("mcu.IO9 ~ rim_adc", "mcu.IO10 ~ rim_adc", "rim_adc"),          # ADC channel too
         ("u_io.P07 ~ rtd_drdy", "u_io.P06 ~ rtd_drdy", "rtd_drdy"),      # expander bit
+        ("u_io.P16 ~ blw_pg", "u_io.P17 ~ blw_pg", "blw_pg"),            # BLW_PG moved (C33)
         ("    r_run_en_pd.p2 ~ selv_gnd\n", "", "run_en"),                # RUN_EN pull-down gone
         ("    r_dc_pd.p2 ~ selv_gnd\n", "", "ui_dc"),                     # GPIO45 strap pull-down gone
         ("    r_scl_pu.p1 ~ v3v3\n", "", "boot_io0"),                     # GPIO0 strap pull-up gone

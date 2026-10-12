@@ -24,6 +24,10 @@
  *   it to the native-21 binding (n21_set_aux_allowance()) BEFORE the blower write; a speed-up is
  *   held until its allowance is in force, a fault or unknown state goes at once at the worst case.
  *   The stall detector runs on the state actually applied (blower_ctrl_finish()).
+ * - Blower supply PS3 (stage 16, DECISIONS C33): BLW_PG on expander P16, debounced by the expander
+ *   poll. blower_ctrl_supply() labels a stall "PS3 absent" (BLW_PG 0) or "blower failed" (BLW_PG 1)
+ *   for thermal_blower_diag(), and thermal_blower_start_permitted() is false while PS3 is absent
+ *   (the state handlers refuse to start heating). The derate is the stall path's either way.
  */
 #include <math.h>
 #include <stdbool.h>
@@ -128,6 +132,11 @@ static bool s_blower_write_ok; /* last LEDC / FAN_OFF write took effect; false u
  * atomic. Until the first tick the cap is 0 (no tank power on an unknown thermal state). */
 static volatile uint8_t s_power_cap_pct;
 static volatile bool s_blower_failed;
+/* Stage 16 (C33): BLW_PG diagnosis and the heating start interlock. Single words, as above. Until
+ * the first tick BLW_PG is UNKNOWN, which does not block a start (the 0 % cap above holds the tank
+ * off until then anyway). */
+static volatile blower_diag_t s_blower_diag = BLOWER_DIAG_OK;
+static volatile bool s_start_permitted = true;
 /* Latched by the state handlers' plausibility check (control task). */
 static volatile bool s_rim_sensor_fault, s_coil_sensor_fault;
 
@@ -186,8 +195,34 @@ void thermal_blower_tick(void)
         ESP_LOGW(TAG, "blower drive not applied (LEDC / FAN_OFF): blower at its full-speed default");
     blower_ctrl_finish(&s_blower, &cmd, ao.on, sink_c, coil_c, tach_ok, count, now_ms,
                        BLOWER_TACH_PULSES_PER_REV);
+    /* BLW_PG (C33): debounced by the expander poll; a failed or stale read is UNKNOWN. */
+    ctrl_blw_pg_t pg = ctrl_exp_blw_pg(&c, (uint64_t)esp_timer_get_time(), CTRL_EXP_MAX_AGE_US);
+    blower_supply_t supply = pg == CTRL_BLW_PG_PRESENT ? BLOWER_SUPPLY_PRESENT
+                           : pg == CTRL_BLW_PG_ABSENT  ? BLOWER_SUPPLY_ABSENT
+                                                       : BLOWER_SUPPLY_UNKNOWN;
+    bool sense_was = s_blower.pg.sense_fault;
+    blower_ctrl_supply(&s_blower, &cmd, supply, now_ms);
+    if (cmd.blw_pg_sense_fault && !sense_was)
+        ESP_LOGE(TAG, "BLW_PG reads 0 with the blower turning: BLW_PG sense fault, ignored until reset");
+    if (cmd.diag != s_blower_diag) {
+        static const char *const names[] = {"ok", "stall (BLW_PG unknown)", "PS3 absent",
+                                            "blower failed (PS3 present)"};
+        if (cmd.diag != BLOWER_DIAG_OK) ESP_LOGW(TAG, "blower: %s", names[cmd.diag]);
+    }
     s_power_cap_pct = cmd.power_cap_pct;
     s_blower_failed = cmd.blower_failed;
+    s_blower_diag = cmd.diag;
+    s_start_permitted = cmd.start_permitted;
+}
+
+blower_diag_t thermal_blower_diag(void)
+{
+    return s_blower_diag;
+}
+
+bool thermal_blower_start_permitted(void)
+{
+    return s_start_permitted;
 }
 
 uint8_t thermal_power_cap_pct(void)

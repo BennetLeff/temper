@@ -6,8 +6,9 @@
  *
  * Source: branch controller-layout, zapote/controller/elec/src/controller.ato (U4 "GPIO map" and
  * U8 expander blocks), DECISIONS C2, C3, C20, C23 (RUN_EN), C26 (R33 UI bus), C27 (R36 rim NTC)
- * and C28 (L3 blower). Layout L2 = R33 rebase + R36 rim NTC; the L3 delta (blower PWM on GPIO46,
- * tach on GPIO3, FAN_OFF on expander P15) is included and marked L3.
+ * C28 (L3 blower) and C33 (stage 16: BLW_PG on expander P16). Layout L2 = R33 rebase + R36 rim
+ * NTC; the L3 delta (blower PWM on GPIO46, tach on GPIO3, FAN_OFF on expander P15) is included
+ * and marked L3.
  *
  * Naming rule (checked by firmware/tools/check_controller_pinmap.py against the ato):
  *   CTRL_GPIO_<NET>  = GPIO number of the ato net <net> on the module (mcu.IOn / RXD0 / TXD0)
@@ -98,7 +99,7 @@
  * CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG. Checked by test_controller_pins.c. */
 #define CTRL_CONSOLE_UART0_ALLOWED  0
 
-/* ---------------------------------------------------------------- TCA9555 bits (C23, C26-C28) */
+/* ---------------------------------------------------------------- TCA9555 bits (C23, C26-C28, C33) */
 #define CTRL_EXP_RTD_DRDY           7   /* P07, MAX31865 DRDY, active low (moved off GPIO14, C23) */
 #define CTRL_EXP_LATCHED_FAULT_RB   8   /* P10, high = latched fault (interlock QBAR) */
 #define CTRL_EXP_RTD_FAULT_RB       9   /* P11, high = RTD_HW_FAULT */
@@ -107,6 +108,10 @@
 #define CTRL_EXP_SUP_RUN_OK_RB     12   /* P14, high = TPS3823 run ok (C27; not in the trip path) */
 #define CTRL_EXP_FAN_OFF           13   /* P15, L3: high = blower buck off; 10 k gate pull-down
                                          * keeps the blower running while the pin is an input */
+#define CTRL_EXP_BLW_PG            14   /* P16, stage 16 (C33): high = blower supply PS3 present.
+                                         * 20 k / 4.7 k from V15_BLW at J13: >= 2.74 V with PS3 on,
+                                         * <= 0.30 V without it (controller_calcs.py blw_pg()).
+                                         * Input only: CONFIG1 bit 6 is never cleared. */
 #define CTRL_EXP_RTD2_CS_RESERVED   6   /* P06, reserved for a second MAX31865 CS (C14); input */
 
 #endif

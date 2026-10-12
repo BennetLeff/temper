@@ -220,6 +220,72 @@ void test_sm_pan_det_shows_place_pan_message(void) {
 }
 
 /* ============================================================================
+ * Stage 16 start interlock (DECISIONS C33): PS3 absent -> no heating start
+ * ============================================================================ */
+extern void mock_sm_set_blower_start_permitted(bool permitted);
+
+/* Start button with PS3 absent: stays in IDLE, no power, says why. */
+void test_sm_start_refused_when_ps3_absent(void) {
+    setup_test();
+    state_machine_update();  /* INIT -> IDLE */
+    state_machine_set_target_temp(100.0f);
+    mock_sm_set_blower_start_permitted(false);
+    mock_sm_press_button(BUTTON_START);
+    for (int i = 0; i < 5; i++) {
+        mock_sm_advance_time(100);
+        state_machine_update();
+    }
+    TEST_ASSERT_EQUAL(STATE_IDLE, state_machine_get_state());
+    TEST_ASSERT_EQUAL_STRING("NO BLOWER PWR", mock_sm_get_last_display_message());
+    TEST_ASSERT_EQUAL_UINT32(0, mock_sm_get_power_level());
+
+    /* PS3 back (BLW_PG present, or unknown): the same button starts as before. */
+    mock_sm_set_blower_start_permitted(true);
+    mock_sm_advance_time(100);
+    state_machine_update();
+    TEST_ASSERT_EQUAL(STATE_PAN_DET, state_machine_get_state());
+}
+
+/* A start that bypasses the button (UI / profile force PAN_DET), or PS3 lost during detection:
+ * no detection power, back to IDLE, never PREHEAT. */
+void test_sm_pan_det_refuses_heating_when_ps3_absent(void) {
+    setup_test();
+    state_machine_update();  /* INIT -> IDLE */
+    state_machine_set_target_temp(100.0f);
+    mock_sm_set_blower_start_permitted(false);
+    state_machine_force_state(STATE_PAN_DET);
+    TEST_ASSERT_EQUAL_UINT32(0, mock_sm_get_power_level());
+    mock_sm_set_pan_status(MOCK_PAN_PRESENT);
+    mock_sm_set_pan_impedance(5.0f);
+    for (int i = 0; i < 40; i++) {
+        mock_sm_advance_time(100);
+        state_machine_update();
+        TEST_ASSERT_NOT_EQUAL(STATE_PREHEAT, state_machine_get_state());
+    }
+    TEST_ASSERT_EQUAL(STATE_IDLE, state_machine_get_state());
+    TEST_ASSERT_EQUAL_UINT32(0, mock_sm_get_power_level());
+
+    /* PS3 lost while detecting (detection already running at low power). */
+    mock_sm_set_blower_start_permitted(true);
+    mock_sm_set_pan_status(MOCK_PAN_ABSENT);
+    mock_sm_press_button(BUTTON_START);
+    mock_sm_advance_time(100);
+    state_machine_update();  /* IDLE -> PAN_DET */
+    mock_sm_release_button(BUTTON_START);
+    TEST_ASSERT_EQUAL(STATE_PAN_DET, state_machine_get_state());
+    TEST_ASSERT_TRUE(mock_sm_get_power_level() > 0);
+    mock_sm_set_blower_start_permitted(false);
+    mock_sm_set_pan_status(MOCK_PAN_PRESENT);
+    for (int i = 0; i < 40; i++) {
+        mock_sm_advance_time(100);
+        state_machine_update();
+        TEST_ASSERT_NOT_EQUAL(STATE_PREHEAT, state_machine_get_state());
+    }
+    TEST_ASSERT_EQUAL(STATE_IDLE, state_machine_get_state());
+    TEST_ASSERT_EQUAL_UINT32(0, mock_sm_get_power_level());
+}
+
+/* ============================================================================
  * Test Cases: STATE_PAN_DET -> STATE_PREHEAT (pan detected)
  * ============================================================================ */
 
@@ -1827,6 +1893,8 @@ void run_state_machine_tests(void) {
     
     /* PAN_DET timeout */
     RUN_TEST(test_sm_pan_det_timeout_to_idle);
+    RUN_TEST(test_sm_start_refused_when_ps3_absent);
+    RUN_TEST(test_sm_pan_det_refuses_heating_when_ps3_absent);
     
     /* PREHEAT -> HEATING transition */
     RUN_TEST(test_sm_preheat_to_heating_near_target);

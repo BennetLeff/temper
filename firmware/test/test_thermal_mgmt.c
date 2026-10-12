@@ -595,6 +595,122 @@ static void test_blower_ctrl_split(void)
     assert(b.stall.stalled && y.power_cap_pct == BLOWER_STALL_POWER_CAP_PCT);
 }
 
+/* ---------------------------------------------------------------- blower supply (C33) */
+/* One blower tick with BLW_PG (debounced, as the expander poll hands it over); coil 10 K above the
+ * sink. */
+static blower_cmd_t pg_tick(blower_ctrl_t *c, float sink_c, uint16_t cnt, uint32_t now,
+                            blower_supply_t pg)
+{
+    blower_cmd_t o = blower_ctrl_step(c, sink_c, sink_c + 10.0f, false, true, cnt, now, 0.1f, 2);
+    blower_ctrl_supply(c, &o, pg, now);
+    return o;
+}
+
+/* Diagnosis table (C33): a stall labelled by BLW_PG; idle with PS3 absent is "no cooling". */
+static void test_blower_diagnosis_table(void)
+{
+    assert(blower_diagnose(true, BLOWER_SUPPLY_ABSENT, false) == BLOWER_DIAG_PS3_ABSENT);
+    assert(blower_diagnose(true, BLOWER_SUPPLY_PRESENT, false) == BLOWER_DIAG_BLOWER_FAILED);
+    assert(blower_diagnose(true, BLOWER_SUPPLY_UNKNOWN, false) == BLOWER_DIAG_STALL);
+    assert(blower_diagnose(false, BLOWER_SUPPLY_PRESENT, true) == BLOWER_DIAG_OK);
+    assert(blower_diagnose(false, BLOWER_SUPPLY_UNKNOWN, false) == BLOWER_DIAG_OK);
+    assert(blower_diagnose(false, BLOWER_SUPPLY_ABSENT, false) == BLOWER_DIAG_PS3_ABSENT);
+    assert(blower_diagnose(false, BLOWER_SUPPLY_ABSENT, true) == BLOWER_DIAG_OK); /* plausibility */
+    assert(!blower_start_permitted(BLOWER_SUPPLY_ABSENT));
+    assert(blower_start_permitted(BLOWER_SUPPLY_PRESENT));
+    assert(blower_start_permitted(BLOWER_SUPPLY_UNKNOWN));
+}
+
+/* FG at 0 Hz while driven: the existing stall path, with the same C28 derate (and the same stop on
+ * a rising sink) for every BLW_PG state; only the code differs. */
+static void test_blower_stall_labelled_by_blw_pg(void)
+{
+    const blower_supply_t pg[] = {BLOWER_SUPPLY_ABSENT, BLOWER_SUPPLY_PRESENT, BLOWER_SUPPLY_UNKNOWN};
+    const blower_diag_t want[] = {BLOWER_DIAG_PS3_ABSENT, BLOWER_DIAG_BLOWER_FAILED, BLOWER_DIAG_STALL};
+    for (unsigned i = 0; i < 3; i++) {
+        blower_ctrl_t c;
+        blower_ctrl_init(&c);
+        blower_cmd_t o = {0};
+        uint32_t now = 0;
+        for (; now <= 1000; now += 100) {
+            o = pg_tick(&c, 90.0f, 0, now, pg[i]);
+            assert(o.on && o.power_cap_pct == 100);
+            /* Driven, rotor still, not yet a stall: PS3 absent already reads "no cooling". */
+            assert(o.diag == (pg[i] == BLOWER_SUPPLY_ABSENT ? BLOWER_DIAG_PS3_ABSENT : BLOWER_DIAG_OK));
+        }
+        for (; now <= 1300; now += 100) o = pg_tick(&c, 90.0f, 0, now, pg[i]);
+        assert(c.stall.stalled && o.diag == want[i]);
+        assert(o.power_cap_pct == BLOWER_STALL_POWER_CAP_PCT && !o.blower_failed);
+        assert(!o.blw_pg_sense_fault);
+        o = pg_tick(&c, 92.5f, 0, now += 100, pg[i]);
+        assert(o.power_cap_pct == 0 && o.blower_failed && o.diag == want[i]);
+        /* decide() of the next tick carries the code too (the glue reads either). */
+        assert(blower_ctrl_decide(&c, 92.5f, 102.5f, false, 0.1f).diag == want[i]);
+    }
+}
+
+/* Start interlock: PS3 absent before heating (blower idle by the fan law, so no stall can ever
+ * show it) refuses the start, without a derate; unknown and present do not block. */
+static void test_blower_start_interlock(void)
+{
+    blower_ctrl_t c;
+    blower_ctrl_init(&c);
+    blower_cmd_t o = pg_tick(&c, 30.0f, 0, 0, BLOWER_SUPPLY_ABSENT);
+    assert(!o.on && !o.start_permitted && o.diag == BLOWER_DIAG_PS3_ABSENT && o.power_cap_pct == 100);
+    for (uint32_t now = 100; now <= 10000; now += 100) {
+        o = pg_tick(&c, 30.0f, 0, now, BLOWER_SUPPLY_ABSENT);
+        assert(!o.start_permitted && !o.blw_pg_sense_fault); /* rotor still: no contradiction */
+    }
+    o = pg_tick(&c, 30.0f, 0, 10100, BLOWER_SUPPLY_UNKNOWN); /* expander failed */
+    assert(o.start_permitted && o.diag == BLOWER_DIAG_OK);
+    o = pg_tick(&c, 30.0f, 0, 10200, BLOWER_SUPPLY_PRESENT);
+    assert(o.start_permitted && o.diag == BLOWER_DIAG_OK);
+    /* Fresh controller: BLW_PG unknown until the first tick hands it over. */
+    blower_ctrl_init(&c);
+    assert(blower_ctrl_decide(&c, 30.0f, 30.0f, false, 0.1f).start_permitted);
+}
+
+/* BLW_PG = 0 with the tach showing a turning blower: a BLW_PG sense fault after
+ * BLW_PG_PLAUS_TIME_MS, latched; BLW_PG is then ignored (stall path only) and nothing derates. */
+static void test_blw_pg_plausibility(void)
+{
+    blower_ctrl_t c;
+    blower_ctrl_init(&c);
+    blower_cmd_t o = {0};
+    uint16_t cnt = 0;
+    uint32_t now = 0;
+    /* Spinning at 2400 rpm with PS3 present. */
+    for (; now <= 1000; now += 100, cnt = (uint16_t)(cnt + 8)) o = pg_tick(&c, 90.0f, cnt, now, BLOWER_SUPPLY_PRESENT);
+    assert(o.rpm >= BLOWER_STALL_RPM && o.diag == BLOWER_DIAG_OK && o.start_permitted);
+    /* BLW_PG drops while the tach keeps turning: a contradiction, not yet a fault. A coasting rotor
+     * after a real PS3 loss stays inside the window. */
+    uint32_t t0 = now;
+    for (; now <= t0 + BLW_PG_PLAUS_TIME_MS; now += 100, cnt = (uint16_t)(cnt + 8)) {
+        o = pg_tick(&c, 90.0f, cnt, now, BLOWER_SUPPLY_ABSENT);
+        assert(!o.blw_pg_sense_fault && o.diag == BLOWER_DIAG_OK && o.power_cap_pct == 100);
+    }
+    /* A break in the contradiction restarts the window. */
+    o = pg_tick(&c, 90.0f, cnt, now, BLOWER_SUPPLY_PRESENT);
+    now += 100, cnt = (uint16_t)(cnt + 8);
+    t0 = now;
+    for (; now <= t0 + BLW_PG_PLAUS_TIME_MS; now += 100, cnt = (uint16_t)(cnt + 8))
+        assert(!pg_tick(&c, 90.0f, cnt, now, BLOWER_SUPPLY_ABSENT).blw_pg_sense_fault);
+    o = pg_tick(&c, 90.0f, cnt, now, BLOWER_SUPPLY_ABSENT);
+    assert(o.blw_pg_sense_fault && o.start_permitted && o.diag == BLOWER_DIAG_OK);
+    assert(o.power_cap_pct == 100 && !o.blower_failed); /* no derate on this alone */
+    /* Latched: BLW_PG ignored from now on; a later stall is the plain stall fault. */
+    for (now += 100; now <= t0 + BLW_PG_PLAUS_TIME_MS + 2000; now += 100)
+        o = pg_tick(&c, 90.0f, cnt, now, BLOWER_SUPPLY_ABSENT);
+    assert(c.stall.stalled && o.diag == BLOWER_DIAG_STALL && o.blw_pg_sense_fault && o.start_permitted);
+    assert(o.power_cap_pct == BLOWER_STALL_POWER_CAP_PCT);
+    /* A NaN tach (count read failed) is never a contradiction. */
+    blw_pg_plaus_t p;
+    blw_pg_plaus_init(&p);
+    for (uint32_t t = 0; t <= 10000; t += 100)
+        assert(blw_pg_plaus_update(&p, BLOWER_SUPPLY_ABSENT, NAN, t) == BLOWER_SUPPLY_ABSENT);
+    assert(!p.sense_fault);
+}
+
 /* ---------------------------------------------------------------- sensor plausibility */
 static void test_rim_plausibility(void)
 {
@@ -677,6 +793,10 @@ int main(void)
     TEST(test_tach_zero_derates);
     TEST(test_blower_ctrl_coil_cap);
     TEST(test_blower_ctrl_split);
+    TEST(test_blower_diagnosis_table);
+    TEST(test_blower_stall_labelled_by_blw_pg);
+    TEST(test_blower_start_interlock);
+    TEST(test_blw_pg_plausibility);
     TEST(test_rim_plausibility);
     TEST(test_coil_plausibility);
     printf("thermal management: %u tests passed\n", tests);
