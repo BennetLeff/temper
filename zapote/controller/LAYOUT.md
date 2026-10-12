@@ -208,7 +208,13 @@ What changed from L2, where three of four runs closed:
 4. **Block validators** (DECISIONS C30): the interlock, thermal-sense and RTD validators need a workspace build, which this task does not do. The thermal-sense 64-corner method is ported into `verify_controller.py` (check_thermal) and passes on the L3 values; the Rust validators should still be re-run in a workspace build.
 5. **RTD filter** (C29): the RTD library is byte-locked, so its differential RC is a change request to the RTD block, not a layout change here.
 6. **Sensors with the enclosure:** the coil NTC changes to a 104GT-2 class glass bead (300 °C) and the rim NTC is the same part; the enclosure owns their mounting (ENCLOSURE-HANDOFF).
-7. **J4 drawing:** the 43045-1600 sales drawing could not be fetched (molex.com refuses this network). The mated height 10.29 mm is Molex's figure for the same series (43045-2001); the plug's −X overhang (R31: to X−50) is still unread.
+7. **J4 drawing (header read 2026-10-12, owner-supplied 430451600_sd.pdf; not committed):** the 43045 dual-row right-angle header, 16 circuits.
+   - Width A is 27.65 mm; the 2 × 8 pin span B is 21.00 mm and the peg spacing C is 16.70 mm.
+   - Depth is 12.24 mm overall (mating face to tail rear), with a body of 9.91 mm.
+   - Housing height above the PCB is 7.37 mm, 8.77 mm at the latch ramp (+1.40). Tails 3.18 mm, pegs Ø3.00 ±0.05 holes, recommended PCB 1.57 mm, LCP UL94 V-0.
+   - The layout courtyard (`world.J4_BODY`, Y27.8–57.0 = 29.2 mm, X−38 to −24.3 = 13.7 mm) contains it.
+   - **The enclosure's R31 header envelope (Y29.6–54.4 = 24.8 mm) is 2.85 mm narrower than the real header** and must grow (relayed to the enclosure session).
+   - Still unread: the mated height (10.29 mm is Molex's series figure) and the plug's −X overhang (R31: to X−50). Both need the **43025-1600 plug** drawing.
 8. **CPL rotations:** KiCad's rotations are written as-is; check each package in JLC's placement preview before ordering.
 9. **Consigned / low-stock parts** (DECISIONS open item 7): AD8436BRQZ (JLC stock 0) and the near-zero-stock ported parts; `fab/fab-notes.md` lists them.
 10. **Long lines:** RUN_EN and the RTD trip inputs cross most of the board (Interlock trip path). All fail safe on a break; a bench noise check on them is worth adding.
