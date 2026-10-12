@@ -1,0 +1,413 @@
+{
+ "question": "Which >= 2 W Kelvin/4-terminal 1 mOhm shunt replaces R5 (WSK25121L000FEA) so that 0.864 W clears derating with >= 20 % margin at the B3 pad temperatures?",
+ "method": {
+  "i_trip_a": 29.4,
+  "pad_max_c": 149.157,
+  "pad_mean_c": 122.741,
+  "r5_rise_k": 99.157,
+  "margin_rule": "P_diss <= 0.80 x derated power (r5-derating pass criterion a)",
+  "rank_key": "not overloaded on the most conservative datasheet reading (margin >= 0), pad <= 160 C, trip floor -> fit effort (0 in place, 2/3 re-floorplan) -> conservative margin; the 20 % rule is reported as pass_a_authoritative and enforced at gate G6",
+  "caveat": "pad temperatures are the WSK footprint's B3 values; G6 (B3 re-run with the new land pattern) replaces them"
+ },
+ "control": {
+  "mpn": "WSK25121L000FEA",
+  "maker": "Vishay Dale",
+  "lcsc": "C4248455",
+  "stock": 0,
+  "p_diss_w": {
+   "at_trip_29p4A": 0.86436,
+   "at_28A": 0.784,
+   "worst_tol_tcr_at_pad_max": 0.9001
+  },
+  "derating": {
+   "ambient axis, 1 W @70 C to 0 at 170 C": {
+    "p_rated_w": 1.0,
+    "pad_max": {
+     "temp_c": 149.16,
+     "derated_w": 0.2084,
+     "margin_pct": -314.7,
+     "meets_20pct": false
+    },
+    "pad_mean": {
+     "temp_c": 122.74,
+     "derated_w": 0.4726,
+     "margin_pct": -82.9,
+     "meets_20pct": false
+    },
+    "margin_attainable_at_any_temp": false,
+    "t_ref_for_20pct_margin_c": 61.96,
+    "headroom_k_vs_pad_max": -87.2
+   }
+  },
+  "conservative_curve": "ambient axis, 1 W @70 C to 0 at 170 C",
+  "conservative_margin_pct": -314.7,
+  "pass_a_conservative": false,
+  "pass_a_any_curve": false,
+  "authoritative_curve": "ambient axis, 1 W @70 C to 0 at 170 C",
+  "authoritative_margin_pct": -314.7,
+  "pass_a_authoritative": false,
+  "pass_b_pad_le_160c": true,
+  "trip_band": {
+   "tcr_ppm": 250.0,
+   "tol": 0.01,
+   "r5_rise_k": 99.16,
+   "before_kelvin_a": [
+    67.77,
+    120.26
+   ],
+   "low_after_kelvin_bound_a": 65.49,
+   "floor_a": 64.17,
+   "low_edge_margin_a": 1.32,
+   "pass_c": true
+  },
+  "pass_c_trip_floor": true,
+  "control_asserted": {
+   "p_diss_w": 0.86436,
+   "derated_w_at_149p16c": 0.2084,
+   "margin_pct": -314.7,
+   "band_low_bound_a": 65.49,
+   "verdict": "FAIL (reproduces r5-derating/results.json)"
+  }
+ },
+ "ranked": [
+  {
+   "mpn": "CSS2H-2512R-1L00F",
+   "maker": "Bourns",
+   "lcsc": "C4175647",
+   "stock": 1482,
+   "p_diss_w": {
+    "at_trip_29p4A": 0.86436,
+    "at_28A": 0.784,
+    "worst_tol_tcr_at_pad_max": 0.8811
+   },
+   "derating": {
+    "current_rev (Bourns site Jan-2026 and LCSC 2023 PDF: 5 W @70 C terminal, 0 at 170 C)": {
+     "p_rated_w": 5.0,
+     "pad_max": {
+      "temp_c": 149.16,
+      "derated_w": 1.0421,
+      "margin_pct": 17.1,
+      "meets_20pct": false
+     },
+     "pad_mean": {
+      "temp_c": 122.74,
+      "derated_w": 2.3629,
+      "margin_pct": 63.4,
+      "meets_20pct": true
+     },
+     "margin_attainable_at_any_temp": true,
+     "t_ref_for_20pct_margin_c": 148.39,
+     "headroom_k_vs_pad_max": -0.8
+    },
+    "older_rev_copy (CERN-hosted copy: 3 W @130 C curve, 0 at 170 C; not on the current Bourns/LCSC PDFs)": {
+     "p_rated_w": 3.0,
+     "pad_max": {
+      "temp_c": 149.16,
+      "derated_w": 1.5632,
+      "margin_pct": 44.7,
+      "meets_20pct": true
+     },
+     "pad_mean": {
+      "temp_c": 122.74,
+      "derated_w": 3.0,
+      "margin_pct": 71.2,
+      "meets_20pct": true
+     },
+     "margin_attainable_at_any_temp": true,
+     "t_ref_for_20pct_margin_c": 155.59,
+     "headroom_k_vs_pad_max": 6.4
+    }
+   },
+   "conservative_curve": "current_rev (Bourns site Jan-2026 and LCSC 2023 PDF: 5 W @70 C terminal, 0 at 170 C)",
+   "conservative_margin_pct": 17.1,
+   "pass_a_conservative": false,
+   "pass_a_any_curve": true,
+   "authoritative_curve": "current_rev (Bourns site Jan-2026 and LCSC 2023 PDF: 5 W @70 C terminal, 0 at 170 C)",
+   "authoritative_margin_pct": 17.1,
+   "pass_a_authoritative": false,
+   "pass_b_pad_le_160c": true,
+   "trip_band": {
+    "tcr_ppm": 75.0,
+    "tol": 0.01,
+    "r5_rise_k": 99.16,
+    "before_kelvin_a": [
+     69.64,
+     116.87
+    ],
+    "low_after_kelvin_bound_a": 67.36,
+    "floor_a": 64.17,
+    "low_edge_margin_a": 3.19,
+    "pass_c": true
+   },
+   "pass_c_trip_floor": true,
+   "terminals": "2 power + 2 sense fingers on the recommended land (Kelvin-capable footprint)",
+   "package": "2512 (6.35 x 3.05 mm body), H 0.77 mm max",
+   "aec": "AEC-Q200",
+   "jlc_class": "extended",
+   "tcr_note": "+/-75 ppm/C incl. Cu terminals (p.1); LCSC page says 50",
+   "doc": "Bourns Model CSS2H-2512 Series Current Sense Resistor, bourns.com PDF (created 27-Jan-2026; 5 pp.; scratch, not committed): p.1 Electrical Characteristics (1.0 mOhm / 5 W @70 C terminal, TCR +/-75 ppm/C incl. Cu terminals, AEC-Q200); p.2 Product Dimensions (H 0.77 max for 1L00x) and Recommended Pad Layout (3.40 / 3.40 / 1.80 mm, sense terminals) / Recommended Measurements; p.3 Terminal Temperature Derating Curve. The LCSC-linked PDF (2023) agrees; a CERN-hosted copy shows an older two-curve (5 W @70 / 3 W @130 C) variant",
+   "fit": "in place",
+   "fit_effort": 0,
+   "height_mm": 0.77,
+   "stock_date": "2026-10-12",
+   "rank": 1
+  },
+  {
+   "mpn": "BVS-M-R001-1.0",
+   "maker": "Isabellenhuette",
+   "lcsc": "C466582",
+   "stock": 1607,
+   "p_diss_w": {
+    "at_trip_29p4A": 0.86436,
+    "at_28A": 0.784,
+    "worst_tol_tcr_at_pad_max": 0.8784
+   },
+   "derating": {
+    "stability<1.0% (4 W P>100C, flat to 110 C, 0 at 170 C)": {
+     "p_rated_w": 4.0,
+     "pad_max": {
+      "temp_c": 149.16,
+      "derated_w": 1.3895,
+      "margin_pct": 37.8,
+      "meets_20pct": true
+     },
+     "pad_mean": {
+      "temp_c": 122.74,
+      "derated_w": 3.1506,
+      "margin_pct": 72.6,
+      "meets_20pct": true
+     },
+     "margin_attainable_at_any_temp": true,
+     "t_ref_for_20pct_margin_c": 153.79,
+     "headroom_k_vs_pad_max": 4.6
+    },
+    "improved stability<0.5% (4 W, flat to 80 C, 0 at 140 C)": {
+     "p_rated_w": 4.0,
+     "pad_max": {
+      "temp_c": 149.16,
+      "derated_w": 0.0,
+      "margin_pct": null,
+      "meets_20pct": false
+     },
+     "pad_mean": {
+      "temp_c": 122.74,
+      "derated_w": 1.1506,
+      "margin_pct": 24.9,
+      "meets_20pct": true
+     },
+     "margin_attainable_at_any_temp": true,
+     "t_ref_for_20pct_margin_c": 123.79,
+     "headroom_k_vs_pad_max": -25.4
+    }
+   },
+   "conservative_curve": "stability<1.0% (4 W P>100C, flat to 110 C, 0 at 170 C)",
+   "conservative_margin_pct": 37.8,
+   "pass_a_conservative": true,
+   "pass_a_any_curve": true,
+   "authoritative_curve": "stability<1.0% (4 W P>100C, flat to 110 C, 0 at 170 C)",
+   "authoritative_margin_pct": 37.8,
+   "pass_a_authoritative": true,
+   "pass_b_pad_le_160c": true,
+   "element_temp_c_at_trip": 162.1,
+   "trip_band": {
+    "tcr_ppm": 50.0,
+    "tol": 0.01,
+    "r5_rise_k": 99.16,
+    "before_kelvin_a": [
+     69.91,
+     116.4
+    ],
+    "low_after_kelvin_bound_a": 67.63,
+    "floor_a": 64.17,
+    "low_edge_margin_a": 3.46,
+    "pass_c": true
+   },
+   "pass_c_trip_floor": true,
+   "terminals": "2 (Kelvin by sense stubs on the land, not a 4-terminal part)",
+   "package": "3920 (10.0 x 5.2 mm), H 0.5 mm plate",
+   "aec": "AEC-Q200",
+   "jlc_class": "extended",
+   "tcr_note": "0 +/-50 ppm/K (20-60 C) (p.1/p.3)",
+   "doc": "Isabellenhuette BVS (3920) datasheet, Issue 24-January-2025 (6 pp., scratch, not committed): p.1 technical data; p.2 solder pad dimensions (l 11, w 6.2, a 2.7, x 5.6); p.3 electrical table (BVS-M-R001: Rthi 15 K/W, TCR 0 +/-50, P70 7 W, P>100C 4 W); p.4 'Power derating curve BVS-M-R001' (x = terminal temperature)",
+   "fit": "re-floorplan (R13, R58, Q6 courtyards)",
+   "fit_effort": 2,
+   "height_mm": 0.5,
+   "stock_date": "2026-10-12",
+   "rank": 2
+  },
+  {
+   "mpn": "CSS4J-4026R-1L00F",
+   "maker": "Bourns",
+   "lcsc": "C2076400",
+   "stock": 371,
+   "p_diss_w": {
+    "at_trip_29p4A": 0.86436,
+    "at_28A": 0.784,
+    "worst_tol_tcr_at_pad_max": 0.8811
+   },
+   "derating": {
+    "current_rev_8W (Jan-2026 datasheet: 1.0 mOhm / 8 W @70 C terminal)": {
+     "p_rated_w": 8.0,
+     "pad_max": {
+      "temp_c": 149.16,
+      "derated_w": 1.6674,
+      "margin_pct": 48.2,
+      "meets_20pct": true
+     },
+     "pad_mean": {
+      "temp_c": 122.74,
+      "derated_w": 3.7807,
+      "margin_pct": 77.1,
+      "meets_20pct": true
+     },
+     "margin_attainable_at_any_temp": true,
+     "t_ref_for_20pct_margin_c": 156.49,
+     "headroom_k_vs_pad_max": 7.3
+    },
+    "lcsc_rev_4W (2020 datasheet on the LCSC page: 1.0 mOhm / 4 W)": {
+     "p_rated_w": 4.0,
+     "pad_max": {
+      "temp_c": 149.16,
+      "derated_w": 0.8337,
+      "margin_pct": -3.7,
+      "meets_20pct": false
+     },
+     "pad_mean": {
+      "temp_c": 122.74,
+      "derated_w": 1.8903,
+      "margin_pct": 54.3,
+      "meets_20pct": true
+     },
+     "margin_attainable_at_any_temp": true,
+     "t_ref_for_20pct_margin_c": 142.99,
+     "headroom_k_vs_pad_max": -6.2
+    }
+   },
+   "conservative_curve": "lcsc_rev_4W (2020 datasheet on the LCSC page: 1.0 mOhm / 4 W)",
+   "conservative_margin_pct": -3.7,
+   "pass_a_conservative": false,
+   "pass_a_any_curve": true,
+   "authoritative_curve": "current_rev_8W (Jan-2026 datasheet: 1.0 mOhm / 8 W @70 C terminal)",
+   "authoritative_margin_pct": 48.2,
+   "pass_a_authoritative": true,
+   "pass_b_pad_le_160c": true,
+   "trip_band": {
+    "tcr_ppm": 75.0,
+    "tol": 0.01,
+    "r5_rise_k": 99.16,
+    "before_kelvin_a": [
+     69.64,
+     116.87
+    ],
+    "low_after_kelvin_bound_a": 67.36,
+    "floor_a": 64.17,
+    "low_edge_margin_a": 3.19,
+    "pass_c": true
+   },
+   "pass_c_trip_floor": true,
+   "terminals": "4 (true 4-terminal: 2 solder pads + 2 sense terminals)",
+   "package": "4026 (10.06 x 6.60 mm body), H 2.70 mm max",
+   "aec": "AEC-Q200",
+   "jlc_class": "extended",
+   "tcr_note": "+/-75 ppm/C (p.1)",
+   "doc": "Bourns Model CSS4J-4026 Series: bourns.com PDF (5 pp., created 15-Jan-2026): p.1 Electrical Characteristics (1.0 mOhm / 8 W @70 C terminal; TCR +/-75), p.2 dimensions (H 2.70) and Recommended Pad Layout (10.60 x 7.30), p.3 Terminal Temperature Derating Curve. LCSC-hosted PDF (2020 revision, 5 pp.): p.1 table gives 1.0 mOhm / 4 W",
+   "fit": "re-floorplan (R13, R58, Q6 courtyards; +2.1 mm height)",
+   "fit_effort": 3,
+   "height_mm": 2.7,
+   "stock_date": "2026-10-12",
+   "rank": 3
+  }
+ ],
+ "retune_if_not_1_mohm": {
+  "target_nominal_trip_a": 92.593,
+  "rows": [
+   {
+    "r5_mohm": 0.5,
+    "nominal_trip_with_committed_R34_12k6_R35_11k7_a": 185.2,
+    "best_e96_pair_ohm": [
+     14300.0,
+     13700.0
+    ],
+    "nominal_trip_best_pair_a": 107.14,
+    "nominal_trip_error_a": 14.55,
+    "band_before_kelvin_a": [
+     63.68,
+     153.15
+    ],
+    "low_after_kelvin_bound_a": 59.13,
+    "floor_margin_a": -5.04,
+    "p_diss_at_trip_w": 0.432,
+    "kelvin_sensitivity_a_per_mv": -2.074
+   },
+   {
+    "r5_mohm": 1.0,
+    "nominal_trip_with_committed_R34_12k6_R35_11k7_a": 92.6,
+    "best_e96_pair_ohm": [
+     12600.0,
+     11700.0
+    ],
+    "nominal_trip_best_pair_a": 92.59,
+    "nominal_trip_error_a": 0.0,
+    "band_before_kelvin_a": [
+     69.64,
+     116.87
+    ],
+    "low_after_kelvin_bound_a": 67.36,
+    "floor_margin_a": 3.19,
+    "p_diss_at_trip_w": 0.864,
+    "kelvin_sensitivity_a_per_mv": -1.037
+   },
+   {
+    "r5_mohm": 1.5,
+    "nominal_trip_with_committed_R34_12k6_R35_11k7_a": 61.7,
+    "best_e96_pair_ohm": [
+     11800.0,
+     10500.0
+    ],
+    "nominal_trip_best_pair_a": 97.16,
+    "nominal_trip_error_a": 4.57,
+    "band_before_kelvin_a": [
+     80.74,
+     114.5
+    ],
+    "low_after_kelvin_bound_a": 79.22,
+    "floor_margin_a": 15.05,
+    "p_diss_at_trip_w": 1.297,
+    "kelvin_sensitivity_a_per_mv": -0.691
+   },
+   {
+    "r5_mohm": 2.0,
+    "nominal_trip_with_committed_R34_12k6_R35_11k7_a": 46.3,
+    "best_e96_pair_ohm": [
+     13700.0,
+     11800.0
+    ],
+    "nominal_trip_best_pair_a": 93.14,
+    "nominal_trip_error_a": 0.54,
+    "band_before_kelvin_a": [
+     80.18,
+     106.81
+    ],
+    "low_after_kelvin_bound_a": 79.04,
+    "floor_margin_a": 14.87,
+    "p_diss_at_trip_w": 1.729,
+    "kelvin_sensitivity_a_per_mv": -0.518
+   }
+  ],
+  "note": "R5 +/-1 %, TCR 75 ppm for all rows. 1 mOhm needs no divider change; the 0.5 mOhm row doubles the Kelvin/offset sensitivity (a_per_mv) and 1.5/2 mOhm raise dissipation 1.5x/2x."
+ },
+ "stock_snapshot": {
+  "date": "2026-10-12",
+  "source": "JLCPCB public part-detail (read-only) via stage15-28A/jlc_lookup.py; stock moves daily",
+  "rows": {
+   "C4175647": 1482,
+   "C466582": 1607,
+   "C2076400": 371,
+   "C4248455": 0
+  }
+ },
+ "not_ranked": {
+  "WSLP25121L000FEA (Vishay, C844705, stock 5321 on 2026-10-12)": "2-terminal, 3 W, TCR +/-275 ppm (JLC listing) is above the 100 ppm preference; datasheet derating axis not read",
+  "CSS2H-2512R-1L00FE / CSS4J-4026R-1L00FE (mini-reel 'E' suffix)": "same parts, 7-inch reel; stock 0 / 2 on 2026-10-12"
+ }
+}
