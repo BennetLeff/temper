@@ -4,17 +4,16 @@
    "run": "run1",
    "make_last_line": "ALL GATES PASS",
    "errors": 0,
-   "warnings": 28,
+   "warnings": 25,
    "unconnected": 0,
    "schematic_parity": 0,
    "violation_types": {
-    "connection_width": 13,
-    "copper_sliver": 1,
+    "connection_width": 11,
     "lib_footprint_mismatch": 2,
     "silk_edge_clearance": 12
    },
    "rc": 0,
-   "seconds": 1490,
+   "seconds": 3194,
    "closed": true
   },
   {
@@ -25,13 +24,12 @@
    "unconnected": 0,
    "schematic_parity": 0,
    "violation_types": {
-    "connection_width": 14,
-    "copper_sliver": 1,
+    "connection_width": 15,
     "lib_footprint_mismatch": 2,
     "silk_edge_clearance": 12
    },
    "rc": 0,
-   "seconds": 1485,
+   "seconds": 6046,
    "closed": true
   },
   {
@@ -42,13 +40,12 @@
    "unconnected": 0,
    "schematic_parity": 0,
    "violation_types": {
-    "connection_width": 14,
-    "copper_sliver": 1,
+    "connection_width": 15,
     "lib_footprint_mismatch": 2,
     "silk_edge_clearance": 12
    },
    "rc": 0,
-   "seconds": 1467,
+   "seconds": 2630,
    "closed": true
   }
  ],

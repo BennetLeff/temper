@@ -17,6 +17,12 @@ need both layers free at R = 0.3 + 0.26 mm, no via keep-out, and 0.5 mm drill-to
 the copper and cover maps before the next. Widths: 0.8 mm for v15_selv, V_BLOWER and the blower SW node, 0.4 mm for the 3.3 V SW node
 (falling back to 0.25 mm if a fine-pitch pin cannot be reached at 0.4), 0.2 mm otherwise.
 KiCad's DRC is the authority afterwards.
+
+C34: nets of the "Thermal" class keep 0.20 mm (the thermal-sense unit's floor) to all copper, in the
+raster (their cover radius) and in the exact checks. The RTD analog family stays on F.Cu / In2.Cu over
+the In1 selv_gnd plane, off In1 antipad holes (merged where closer than the plane's 0.25 mm minimum
+width), and changes layer only within RTD_VIA_MM of a selv_gnd via; every via keeps its In1 antipad
+0.125 mm off other nets' RTD analog copper, and RTD analog vias keep 1.2 mm drill-to-drill.
 """
 from __future__ import annotations
 
@@ -68,6 +74,33 @@ POWER = {"v15_selv": 0.8, "V15_BLW": 1.0, "V_BLOWER": 0.8, "sw_3v3": 0.4, "sw_12
 # 2.72 A) runs J13 -> bulk -> input caps -> U2 in F.Cu pours; its routed tracks are the EN/BLW_PG branches.
 NO_NECK = {"V_BLOWER", "sw_12"}   # V15_BLW carries its current in the BLW_FEED pours
 LAYERS = ("F", "In2", "B")    # In2 carries signals where needed; the v3v3 pour refills around them
+# C34: per-net clearance above RULE (net class "Thermal": 0.20 mm), from geom["clearance"]; a pair keeps
+# the larger of its two nets' clearances, as KiCad's DRC does
+NET_CLR: dict[str, float] = {}
+PAIR_CLR: dict[frozenset, float] = {}     # geom["pair_clearance"]: e.g. selv_gnd / v3v3 0.20 mm
+# C34: the RTD analog family (geom["rtd_analog"]): F.Cu / In2.Cu only (reference plane In1 selv_gnd),
+# layer changes only within RTD_VIA_MM of a selv_gnd plane via, and their vias (and every via next to
+# them) far enough apart that their In1 antipads stay separate holes
+RTD_ANALOG: set[str] = set()
+RTD_VIA_MM = 2.5
+RTD_HOLE_GAP = 1.2       # drill edge to drill edge around an RTD analog via (In1 antipad 0.5 + web 0.25)
+IN1_ANTIPAD = 0.20       # In1 plane clearance (build_board.py)
+
+
+def extra(net):
+    """Clearance a net needs beyond RULE."""
+    return NET_CLR.get(net, RULE) - RULE
+
+
+def configure(geom):
+    NET_CLR.clear()
+    NET_CLR.update(geom.get("clearance", {}))
+    PAIR_CLR.clear()
+    PAIR_CLR.update({frozenset((a, b)): c for a, b, c in geom.get("pair_clearance", [])})
+    RTD_ANALOG.clear()
+    RTD_ANALOG.update(geom.get("rtd_analog", []))
+    global RTD_VIA_MM
+    RTD_VIA_MM = geom.get("rtd_return_via_mm", RTD_VIA_MM)
 
 
 class Raster:
@@ -195,7 +228,18 @@ class Exact:
         if any(net in nets_ and poly.intersects(body) for nets_, poly in self.forbid):
             return False
         probe = body.buffer(RULE + 0.005, quad_segs=8)   # polygonal buffers under-reach arcs: keep a margin
-        x0, y0, x1, y1 = probe.bounds
+        probes = {}
+
+        def probe_for(n):
+            c = max(NET_CLR.get(net, RULE), NET_CLR.get(n, RULE), PAIR_CLR.get(frozenset((net, n)), RULE))
+            if c <= RULE + 1e-9:
+                return probe
+            if c not in probes:
+                probes[c] = body.buffer(c + 0.005, quad_segs=8)
+            return probes[c]
+        cmax = max([RULE] + list(NET_CLR.values()) + list(PAIR_CLR.values())) + 0.01
+        x0, y0, x1, y1 = body.bounds
+        x0, y0, x1, y1 = x0 - cmax, y0 - cmax, x1 + cmax, y1 + cmax
         seen = set()
         for i in range(int(x0 // self.B), int(x1 // self.B) + 1):
             for j in range(int(y0 // self.B), int(y1 // self.B) + 1):
@@ -204,7 +248,7 @@ class Exact:
                         continue
                     if n != net and id(g) not in seen:
                         seen.add(id(g))
-                        if g.intersects(probe):
+                        if g.intersects(probe_for(n)):
                             return False
         return True
 
@@ -273,16 +317,48 @@ class Router:
         self.keep_vias = np.asarray(im, dtype=bool).T
         self.kt_dist = {l: ndimage.distance_transform_edt(~self.keep_tracks[l]) * G for l in LAYERS}
         self.kv_dist = ndimage.distance_transform_edt(~self.keep_vias) * G
-        # drills
-        im = ras.image()
-        self.drills = list(geom["drills"])
+        # drills; an RTD analog via's drill is entered inflated, so every later via keeps the wider gap
+        rtd_at = {(round(v["at"][0], 3), round(v["at"][1], 3)) for v in geom["vias"] if v["net"] in RTD_ANALOG}
+        self.drills = [[x_, y_, self.drill_r("" if (round(x_, 3), round(y_, 3)) not in rtd_at else next(iter(RTD_ANALOG)))
+                        if abs(r_ - VIA_DRILL_R) < 1e-6 else r_] for x_, y_, r_ in geom["drills"]]
+        self.drill_nets = list(geom.get("drill_nets") or [""] * len(geom["drills"]))
+        self.via_at = {(round(v["at"][0], 3), round(v["at"][1], 3)) for v in geom["vias"]}
+        # selv_gnd plane vias (the fan-out and any routed ones): the return transitions RTD analog vias need
+        self.gnd_vias = np.array([v["at"] for v in geom["vias"] if v["net"] == "selv_gnd"] or [[1e9, 1e9]])
+
+    def rtd_keep(self, net):
+        """Full-board cells where a via of `net` would put its In1 antipad within 0.125 mm of another
+        net's RTD analog copper on F/In2 (cached; dropped whenever RTD analog copper changes)."""
+        key = net if net in RTD_ANALOG else ""
+        cache = self.__dict__.setdefault("_rtd_keep", {})
+        if key not in cache:
+            full = np.zeros((self.ras.nx, self.ras.ny), bool)
+            st = disk(VIA_R + IN1_ANTIPAD + 0.125 + 0.05)
+            for n_ in RTD_ANALOG - {net}:
+                for l in ("F", "In2"):
+                    m_ = self.masks[l].get(n_)
+                    if m_ is None or m_.a.size == 0:
+                        continue
+                    k = st.shape[0] // 2 + 1
+                    i0, j0 = m_.i0 - k, m_.j0 - k
+                    i1, j1 = m_.i0 + m_.a.shape[0] + k, m_.j0 + m_.a.shape[1] + k
+                    d = ndimage.binary_dilation(m_.window(i0, j0, i1, j1), st)
+                    a0, b0 = max(i0, 0), max(j0, 0)
+                    a1, b1 = min(i1, self.ras.nx), min(j1, self.ras.ny)
+                    full[a0:a1, b0:b1] |= d[a0 - i0:a1 - i0, b0 - j0:b1 - j0]
+            cache[key] = full
+        return cache[key]
+
+    @staticmethod
+    def drill_r(net):
+        return VIA_DRILL_R + (RTD_HOLE_GAP - HOLE_GAP if net in RTD_ANALOG else 0.0)
 
     # ---- cover maps
     def get_cover(self, r):
         if r not in self.cover:
             st = disk(r)
             self.cover[r] = {}
-            n = st.shape[0] // 2 + 1
+            n = disk(r + max([0.0] + [extra(k) for k in NET_CLR])).shape[0] // 2 + 1
             for l in LAYERS:
                 c = np.zeros((self.ras.nx, self.ras.ny), np.uint8)
                 for net, m in self.masks[l].items():
@@ -290,7 +366,7 @@ class Router:
                         continue
                     i0, j0 = m.i0 - n, m.j0 - n
                     i1, j1 = m.i0 + m.a.shape[0] + n, m.j0 + m.a.shape[1] + n
-                    d = ndimage.binary_dilation(m.window(i0, j0, i1, j1), st)
+                    d = ndimage.binary_dilation(m.window(i0, j0, i1, j1), disk(r + extra(net)) if extra(net) else st)
                     a0, b0 = max(i0, 0), max(j0, 0)
                     a1, b1 = min(i1, self.ras.nx), min(j1, self.ras.ny)
                     c[a0:a1, b0:b1] += d[a0 - i0:a1 - i0, b0 - j0:b1 - j0].astype(np.uint8)
@@ -320,6 +396,7 @@ class Router:
 
     def own(self, net, r, l, win):
         i0, j0, i1, j1 = win
+        r = r + extra(net)          # the net's own contribution to the cover maps (get_cover)
         n = int(math.ceil(r / G)) + 1
         a0, b0 = max(0, i0 - n), max(0, j0 - n)
         sub = self.masks[l].get(net)
@@ -357,6 +434,8 @@ class Router:
 
     def remove_route(self, rid):
         net, segs, vias = self.routes[rid]
+        if net in RTD_ANALOG:
+            self.__dict__.pop("_rtd_keep", None)
         xs = [p[0] for _, p, q, _ in segs] + [q[0] for _, p, q, _ in segs] + [c[0] for c in vias]
         ys = [p[1] for _, p, q, _ in segs] + [q[1] for _, p, q, _ in segs] + [c[1] for c in vias]
         rmax = max(list(self.cover) + [1.0])
@@ -373,7 +452,7 @@ class Router:
             oldw = old.window(i0, j0, i1, j1)
             neww = newf[i0:i1, j0:j1]
             for r, cov in self.cover.items():
-                st = disk(r)
+                st = disk(r + extra(net))
                 cov[l][i0:i1, j0:j1] -= (ndimage.binary_dilation(oldw, st) & ~ndimage.binary_dilation(neww, st)).astype(np.uint8)
             self.masks[l][net] = Crop(newf)
         del self.routes[rid]
@@ -381,9 +460,11 @@ class Router:
         self.ex.remove_tag(rid)
 
     def add_copper(self, net, segs, vias, rid=None):
+        if net in RTD_ANALOG:
+            self.__dict__.pop("_rtd_keep", None)
         if rid is not None:
             self.routes[rid] = (net, segs, vias)
-            self.route_drills[rid] = [[c[0], c[1], VIA_DRILL_R] for c in vias]
+            self.route_drills[rid] = [[c[0], c[1], self.drill_r(net)] for c in vias]
             for l, p, q, w_ in segs:
                 self.ex.add(l, LineString([p, q]).buffer(w_ / 2), net, rid)
             for c in vias:
@@ -414,7 +495,7 @@ class Router:
             oldw = old.window(i0, j0, i1, j1) if old else np.zeros((i1 - i0, j1 - j0), bool)
             neww = nc.window(i0, j0, i1, j1) | oldw
             for r, cov in self.cover.items():
-                st = disk(r)
+                st = disk(r + extra(net))
                 before = ndimage.binary_dilation(oldw, st)
                 after = ndimage.binary_dilation(neww, st)
                 cov[l][i0:i1, j0:j1] += (after & ~before).astype(np.uint8)
@@ -432,8 +513,9 @@ class Router:
         """soft=False: other nets' routes are obstacles. soft=True: they are a cost (negotiated
         congestion): the path may cross them, and the caller rips up the routes it crosses."""
         ras = self.ras
-        r_t = w / 2 + CLR
-        r_v = VIA_R + CLR
+        r_t = w / 2 + CLR + extra(net)
+        r_v = VIA_R + CLR + extra(net)
+        rtd = net in RTD_ANALOG
         cov_t, cov_v = self.get_cover(r_t), self.get_cover(r_v)
         pa, pb = ras.px(*a), ras.px(*b)
         m = margin / G
@@ -442,6 +524,33 @@ class Router:
         win = (i0, j0, i1, j1)
         free = {}
         soft_t = {}
+        all_drills = self.drills + [d_ for v in self.route_drills.values() for d_ in v]
+        if rtd:
+            # In1 antipads of every drilled item in the window (via: copper r 0.3; through-hole pad:
+            # drill + 0.35 annulus) + the plane clearance, closed by the plane's 0.25 mm minimum width,
+            # because holes closer than that merge into one
+            # The net's own antipads are its terminal envelopes (allowed); only their merges with other
+            # holes are blocked.
+            im = Image.new("L", (i1 - i0, j1 - j0), 0)
+            dr = ImageDraw.Draw(im)
+            im_own = Image.new("L", (i1 - i0, j1 - j0), 0)
+            dr_own = ImageDraw.Draw(im_own)
+            n_fixed = len(self.drills)
+            route_nets = [self.routes[rid][0] for rid, v in self.route_drills.items() for _ in v]
+            for k_, (cx, cy, r) in enumerate(all_drills):
+                is_via = k_ >= n_fixed or (round(cx, 3), round(cy, 3)) in self.via_at
+                d_net = self.drill_nets[k_] if k_ < n_fixed else route_nets[k_ - n_fixed]
+                if is_via and d_net == "selv_gnd":
+                    continue            # a plane via is In1 copper, not a hole
+                rc = (VIA_R if is_via else r + 0.35) + IN1_ANTIPAD + 0.05
+                px_, py_ = ras.px(cx, cy)
+                if i0 - 20 <= px_ <= i1 + 20 and j0 - 20 <= py_ <= j1 + 20:
+                    box = [px_ - i0 - rc / G, py_ - j0 - rc / G, px_ - i0 + rc / G, py_ - j0 + rc / G]
+                    dr.ellipse(box, fill=1)
+                    if d_net == net:
+                        dr_own.ellipse(box, fill=1)
+            in1_holes = ndimage.binary_closing(np.asarray(im, dtype=bool).T, disk(0.15), border_value=0)
+            in1_holes &= ~np.asarray(im_own, dtype=bool).T
         for l in LAYERS:
             if soft:
                 bct = self.get_base_cover(r_t)
@@ -462,6 +571,12 @@ class Router:
                     if a0 < a1 and b0 < b1:
                         blocked[a0:a1, b0:b1] = True
             blocked |= self.kt_dist[l][i0:i1, j0:j1] < w / 2 + 0.07
+            if rtd:
+                if l == "B":
+                    blocked[:] = True
+                else:
+                    # an F/In2 track over an In1 hole has no return plane under it
+                    blocked |= in1_holes
             free[l] = ~blocked
         vb = np.zeros((i1 - i0, j1 - j0), bool)
         for l in LAYERS:
@@ -477,10 +592,25 @@ class Router:
         dr = ImageDraw.Draw(im)
         for cx, cy, r in self.drills + [d_ for v in self.route_drills.values() for d_ in v]:
             px_, py_ = ras.px(cx, cy)
-            rr = (r + VIA_DRILL_R + HOLE_GAP) / G
+            rr = (r + self.drill_r(net) + HOLE_GAP) / G
             if i0 - rr <= px_ <= i1 + rr and j0 - rr <= py_ <= j1 + rr:
                 dr.ellipse([px_ - i0 - rr, py_ - j0 - rr, px_ - i0 + rr, py_ - j0 + rr], fill=1)
         vb |= np.asarray(im, dtype=bool).T
+        if RTD_ANALOG:
+            # a via's In1 antipad (0.3 + 0.20) stays >= 0.125 mm from every RTD analog track or pad of
+            # another net, so the plane under that track keeps its 0.25 mm minimum width
+            vb |= self.rtd_keep(net)[i0:i1, j0:j1]
+        if rtd:
+            # a layer change of an RTD analog net only beside a selv_gnd plane via
+            xs_ = ras.x0 + (np.arange(i0, i1) * G)
+            ys_ = ras.y0 + (np.arange(j0, j1) * G)
+            near = np.zeros((i1 - i0, j1 - j0), bool)
+            gv = self.gnd_vias
+            sel = gv[(gv[:, 0] > xs_[0] - RTD_VIA_MM - 1) & (gv[:, 0] < xs_[-1] + RTD_VIA_MM + 1)
+                     & (gv[:, 1] > ys_[0] - RTD_VIA_MM - 1) & (gv[:, 1] < ys_[-1] + RTD_VIA_MM + 1)]
+            for gx, gy in sel:
+                near |= ((xs_[:, None] - gx) ** 2 + (ys_[None, :] - gy) ** 2) <= (RTD_VIA_MM - 0.1) ** 2
+            vb |= ~near
         via_ok = ~vb
         si, sj = int(round(pa[0])) - i0, int(round(pa[1])) - j0
         gi, gj = int(round(pb[0])) - i0, int(round(pb[1])) - j0
@@ -605,6 +735,7 @@ class Router:
 def main():
     geom = json.load(open(sys.argv[1]))
     drc = json.load(open(sys.argv[2]))
+    configure(geom)
     R = Router(geom)
     tht = {(round(d_[0], 3), round(d_[1], 3)) for d_ in geom["drills"]}
     pairs = []
@@ -779,6 +910,7 @@ def eco():
     """
     geom = json.load(open(sys.argv[2]))
     drc = json.load(open(sys.argv[3]))
+    configure(geom)
     soft_tracks = [t for t in geom["tracks"] if not t.get("locked", True)]
     soft_vias = [v for v in geom["vias"] if not v.get("locked", True) and v["net"] != "<npth>"]
     fixed = dict(geom)

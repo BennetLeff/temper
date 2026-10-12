@@ -49,16 +49,23 @@ CLASSES = {
     "Plane": {"track_width": 0.3, "clearance": 0.15, "via_diameter": 0.6, "via_drill": 0.3},
     "Supply": {"track_width": 0.3, "clearance": 0.15, "via_diameter": 0.6, "via_drill": 0.3},
     "Analog": {"track_width": 0.15, "clearance": 0.15, "via_diameter": 0.6, "via_drill": 0.3},
+    # C34: the thermal-sense unit's spacing floor (zapote/thermal-sense, 0.20 mm, checked by its block
+    # validator's DRC.NATIVE.CLEARANCE) on every net of the thermal block; KiCad applies the larger of
+    # two classes, so these nets keep 0.20 mm to everything (pours included)
+    "Thermal": {"track_width": 0.15, "clearance": 0.20, "via_diameter": 0.6, "via_drill": 0.3},
 }
 V15B = "V15_BLW"          # stage 16 (C33): blower buck input from PS3 via J13
 POWER_NETS = [V15, V15B, "V_BLOWER", "sw_3v3", "sw_12"]
 SUPPLY_NETS = ["V5_UI", "v5_drop", "v5_mid", "RTD_AVDD"]
-ANALOG_NETS = ["HS_SENSE", "COIL_SENSE", "rtd_sense_p", "rtd_sense_n", "rtd_force_p", "rtd_force_n", "vbus_p",
+ANALOG_NETS = ["rtd_sense_p", "rtd_sense_n", "rtd_force_p", "rtd_force_n", "vbus_p",
                "vbus_n", "ct_mon", "ct_buf_out", "m12_node", "m12_filt", "p1", "refin_n", "rms_in", "rms_ibuf",
                "rms_ignd", "CT_RMS_CORE", "rms_core_in", "rms_cavg", "rms_obuf", "rms_fb", "CT_RMS_ADC",
-               "rx_a_n", "rx_a_p", "rx_a_out", "rx_bias", "rx_bias_div", "ref2v5", "HS_REF", "COIL_REF",
-               "OPEN_REF", "RUNAWAY_TH", "rtd_pan.low_window-inp", "inn", "vbias", "rtd_pan.r_high_top-inp"]
+               "rx_a_n", "rx_a_p", "rx_a_out", "rx_bias", "rx_bias_div", "ref2v5", "RUNAWAY_TH", "rtd_pan.low_window-inp", "inn", "vbias", "rtd_pan.r_high_top-inp"]
 
+# C34: the layers sum exactly to the 1.6 mm board thickness (zapote DRC.BOARD.STACKUP): JLC's
+# JLC04161H-7628 figures (0.2104 prepreg, 0.0152 inner Cu, 1.065 core, masks 0.01) total 1.6062, so
+# the core is entered as 1.0588 mm (JLC's finished thickness is 1.6 mm +/- 10 %; nothing here depends
+# on the core thickness)
 STACKUP = """		(stackup
 			(layer "F.SilkS" (type "Top Silk Screen"))
 			(layer "F.Paste" (type "Top Solder Paste"))
@@ -66,7 +73,7 @@ STACKUP = """		(stackup
 			(layer "F.Cu" (type "copper") (thickness 0.035))
 			(layer "dielectric 1" (type "prepreg") (thickness 0.2104) (material "7628") (epsilon_r 4.4) (loss_tangent 0.02))
 			(layer "In1.Cu" (type "copper") (thickness 0.0152))
-			(layer "dielectric 2" (type "core") (thickness 1.065) (material "FR4") (epsilon_r 4.6) (loss_tangent 0.02))
+			(layer "dielectric 2" (type "core") (thickness 1.0588) (material "FR4") (epsilon_r 4.6) (loss_tangent 0.02))
 			(layer "In2.Cu" (type "copper") (thickness 0.0152))
 			(layer "dielectric 3" (type "prepreg") (thickness 0.2104) (material "7628") (epsilon_r 4.4) (loss_tangent 0.02))
 			(layer "B.Cu" (type "copper") (thickness 0.035))
@@ -116,7 +123,14 @@ def lib_dir(lib):
 
 
 # ------------------------------------------------------------------ board shell
-def write_project():
+def thermal_nets(comps, nets):
+    """C34: the thermal block's nets, selected as the block validator's filter selects them (every net
+    on a pad of a `thermal.*` instance), less the two plane nets, which are shared board-wide."""
+    block = {r for r, c in comps.items() if c["path"].startswith("thermal.")}
+    return sorted(n for n, nodes in nets.items() if n not in (GND, V3) and any(r in block for r, _ in nodes))
+
+
+def write_project(thermal=()):
     """Project file: native-20's KiCad 10 project as the schema template (read only), with our rules."""
     tmpl = json.loads((UNIT.parent / "power-stage-120v/native-20/section.kicad_pro").read_text())
     tmpl["meta"]["filename"] = f"{NAME}.kicad_pro"
@@ -142,11 +156,18 @@ def write_project():
         [{"netclass": "Power", "pattern": n} for n in POWER_NETS] +
         [{"netclass": "Plane", "pattern": n} for n in (GND, V3)] +
         [{"netclass": "Supply", "pattern": n} for n in SUPPLY_NETS] +
-        [{"netclass": "Analog", "pattern": n} for n in ANALOG_NETS])
+        [{"netclass": "Analog", "pattern": n} for n in ANALOG_NETS] +
+        [{"netclass": "Thermal", "pattern": n} for n in thermal])
     tmpl["net_settings"]["netclass_assignments"] = None
     tmpl["sheets"] = [[str(uuid.uuid5(uuid.NAMESPACE_URL, "temper-controller-sch/root")), "Root"]]
     tmpl["boards"] = []
     (PCB / f"{NAME}.kicad_pro").write_text(json.dumps(tmpl, indent=2) + "\n")
+    # C34: net-pair clearances (floorplan.PAIR_CLEARANCE) as KiCad custom design rules
+    rules = ["(version 1)"]
+    for a, b, c in floorplan.PAIR_CLEARANCE:
+        rules.append(f'(rule "pair {a} {b}"\n  (condition "(A.NetName == \'{a}\' && B.NetName == \'{b}\') || '
+                     f'(A.NetName == \'{b}\' && B.NetName == \'{a}\')")\n  (constraint clearance (min {c}mm)))')
+    (PCB / f"{NAME}.kicad_dru").write_text("\n".join(rules) + "\n")
 
 
 def shell_board():
@@ -265,7 +286,11 @@ def main():
     PCB.mkdir(exist_ok=True)
     comps, nets = parse_netlist()
     pin_net = {(r, p): n for n, nodes in nets.items() for r, p in nodes}
-    write_project()
+    thermal = thermal_nets(comps, nets)
+    overlap_ = sorted(set(thermal) & set(POWER_NETS + SUPPLY_NETS + ANALOG_NETS))
+    if overlap_:
+        raise SystemExit(f"thermal nets also in another net class: {overlap_}")
+    write_project(thermal)
     board = shell_board()
     for name in sorted(nets):
         if name and not board.FindNet(name):
@@ -348,7 +373,9 @@ def main():
         z.SetMinThickness(mm(0.25))
         z.SetThermalReliefGap(mm(0.3))
         z.SetThermalReliefSpokeWidth(mm(0.4))
-        z.SetLocalClearance(mm(0.25))
+        # C34: 0.20 mm (was 0.25) so a via's antipad in the In1 return plane is the via + 0.20 mm, the
+        # RTD unit's terminal envelope (its DRC.RTD.NATIVE_GEOMETRY return-corridor check)
+        z.SetLocalClearance(mm(0.20 if layer == pcbnew.In1_Cu else 0.25))
         z.SetIslandRemovalMode(pcbnew.ISLAND_REMOVAL_MODE_ALWAYS)
         ol = z.Outline()
         ol.NewOutline()
@@ -594,7 +621,13 @@ def main():
 
     # ---- plane fan-out (a via beside every SMD pad on selv_gnd / v3v3)
     import fanout
-    n_fan, fan_missed = fanout.run(board, forbidden_rects(), (kx0, ky0, kx1, ky1))
+    # C34: selv_gnd stitching vias over the RTD analog region (floorplan.RTD_STITCH), not under the module
+    st_rects = []
+    for x0, y0, x1, y1 in floorplan.RTD_STITCH:
+        a_, b_ = world.to_k(x0, y1), world.to_k(x1, y0)
+        st_rects.append((a_[0], a_[1], b_[0], b_[1]))
+    n_fan, fan_missed = fanout.run(board, forbidden_rects(), (kx0, ky0, kx1, ky1),
+                                   stitch=(st_rects, floorplan.RTD_STITCH_PITCH, [crt_rect(fps["U4"])]))
     if fan_missed:
         raise SystemExit(f"fan-out found no via spot for {fan_missed}")
 

@@ -167,6 +167,35 @@ def finish(board, routes, last):
                            (x.GetRight() - m, x.GetBottom() - m), (x.GetLeft() + m, x.GetBottom() - m)):
                 ol.Append(px, py)
             b.Add(z)
+        # C34: the RTD unit's filtered analog supply as a local F.Cu pour: RTD_AVDD around the MAX31865's
+        # VDD pin and the RTD_AVDD pads within 6 mm of it (its bypass), above the GND_F pour
+        if not any(z_.GetZoneName() == "RTD_AVDD_F" for z_ in b.Zones()):
+            import math
+            adc = next(f for f in b.GetFootprints() if f.GetFieldText("SourceInstance") == "rtd_pan.adc")
+            vdd = [q for q in adc.Pads() if q.GetNetname() == "RTD_AVDD"]
+            c0 = (pcbnew.ToMM(vdd[0].GetPosition().x), pcbnew.ToMM(vdd[0].GetPosition().y))
+            boxes = [q.GetBoundingBox() for f in b.GetFootprints() for q in f.Pads()
+                     if q.GetNetname() == "RTD_AVDD" and math.dist(c0, (pcbnew.ToMM(q.GetPosition().x),
+                                                                         pcbnew.ToMM(q.GetPosition().y))) <= 6.0]
+            m = pcbnew.FromMM(0.8)
+            x0, y0 = min(bb.GetLeft() for bb in boxes) - m, min(bb.GetTop() for bb in boxes) - m
+            x1, y1 = max(bb.GetRight() for bb in boxes) + m, max(bb.GetBottom() for bb in boxes) + m
+            z = pcbnew.ZONE(b)
+            z.SetLayer(pcbnew.F_Cu)
+            z.SetNet(b.FindNet("RTD_AVDD"))
+            z.SetAssignedPriority(1)
+            z.SetZoneName("RTD_AVDD_F")
+            z.SetPadConnection(pcbnew.ZONE_CONNECTION_THT_THERMAL)     # SMD pads solid, PTH relieved
+            z.SetThermalReliefGap(pcbnew.FromMM(0.3))
+            z.SetThermalReliefSpokeWidth(pcbnew.FromMM(0.4))
+            z.SetMinThickness(pcbnew.FromMM(0.25))
+            z.SetLocalClearance(pcbnew.FromMM(0.25))
+            z.SetIslandRemovalMode(pcbnew.ISLAND_REMOVAL_MODE_ALWAYS)
+            ol = z.Outline()
+            ol.NewOutline()
+            for px, py in ((x0, y0), (x1, y0), (x1, y1), (x0, y1)):
+                ol.Append(px, py)
+            b.Add(z)
         import silk
         import world
         holes_k = [world.to_k(x_, y_) for x_, y_ in world.HOLES]
@@ -224,6 +253,7 @@ def main():
     if "--continue" not in sys.argv:        # --continue: resume on pcb/route/work.kicad_pcb
         shutil.copy2(BOARD, work)
     shutil.copy2(PCB / "controller.kicad_pro", WORK / "work.kicad_pro")
+    shutil.copy2(PCB / "controller.kicad_dru", WORK / "work.kicad_dru")       # C34 net-pair rules
     log = {"rounds": []}
     rnd, n_open = route_rounds(work, log, 0, 3)
     # repair and cleanup alternate: cleanup can reopen a pair (it removes copper), so the repair
@@ -266,6 +296,7 @@ def main():
             break
     shutil.copy2(work, PCB / "controller-routed.kicad_pcb")
     shutil.copy2(PCB / "controller.kicad_pro", PCB / "controller-routed.kicad_pro")
+    shutil.copy2(PCB / "controller.kicad_dru", PCB / "controller-routed.kicad_dru")
     d = drc(PCB / "controller-routed.kicad_pcb", WORK / "drc-final.json")
     log["final_open"] = len(d["unconnected_items"])
     text = json.dumps(log, indent=1) + "\n"
