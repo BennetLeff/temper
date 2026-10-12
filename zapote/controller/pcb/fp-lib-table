@@ -11,5 +11,6 @@
   (lib (name "Package_TO_SOT_SMD") (type "KiCad") (uri "${KIPRJMOD}/libs/Package_TO_SOT_SMD.pretty") (options "") (descr ""))
   (lib (name "RF_Module") (type "KiCad") (uri "${KIPRJMOD}/libs/RF_Module.pretty") (options "") (descr ""))
   (lib (name "Resistor_SMD") (type "KiCad") (uri "${KIPRJMOD}/libs/Resistor_SMD.pretty") (options "") (descr ""))
+  (lib (name "Temper_Controller") (type "KiCad") (uri "${KIPRJMOD}/libs/Temper_Controller.pretty") (options "") (descr ""))
   (lib (name "Temper_RTD") (type "KiCad") (uri "${KIPRJMOD}/libs/Temper_RTD.pretty") (options "") (descr ""))
 )

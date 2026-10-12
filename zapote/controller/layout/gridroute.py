@@ -14,7 +14,7 @@ cover minus N's own contribution is zero, it is outside every track keep-out (ru
 by the half width) and >= 0.5 mm + half width from the board edge and hole cutouts. Vias (0.6/0.3)
 need both layers free at R = 0.3 + 0.26 mm, no via keep-out, and 0.5 mm drill-to-drill. A* over
 (layer, cell) with 8 directions, a via cost, and short pairs routed first. Each route is added to
-the copper and cover maps before the next. Widths: 0.4 mm for v15_selv, v12_fan and the SW nodes
+the copper and cover maps before the next. Widths: 0.8 mm for v15_selv, V_BLOWER and the blower SW node, 0.4 mm for the 3.3 V SW node
 (falling back to 0.25 mm if a fine-pitch pin cannot be reached at 0.4), 0.2 mm otherwise.
 KiCad's DRC is the authority afterwards.
 """
@@ -63,7 +63,7 @@ class Crop:
             out[a0 - i0:a1 - i0, b0 - j0:b1 - j0] = self.a[a0 - self.i0:a1 - self.i0, b0 - self.j0:b1 - self.j0]
         return out
 SIG_W = 0.15
-POWER = {"v15_selv": 0.4, "v12_fan": 0.4, "sw_3v3": 0.4, "sw_12": 0.4, "v3v3": 0.3}
+POWER = {"v15_selv": 0.8, "V_BLOWER": 0.8, "sw_3v3": 0.4, "sw_12": 0.8, "v3v3": 0.3}   # L3: blower 1.42 A typ
 LAYERS = ("F", "In2", "B")    # In2 carries signals where needed; the v3v3 pour refills around them
 
 
@@ -626,7 +626,15 @@ def main():
     # open) go ahead of everything, so the copper ripped around their ends is theirs to use
     import os
     first = set(filter(None, os.environ.get("GRIDROUTE_FIRST", "").split(",")))
-    pairs.sort(key=lambda q: (q[0] not in first, math.dist(q[1][0][0], q[1][1][0])))
+    # L3: long cross-board pairs (>= LONG_MM, e.g. the PWM lines and read-backs between J4 and the
+    # module) go first, longest first, so they get corridors before short local links fill the
+    # bands they must cross; everything else stays shortest first
+    LONG_MM = 60.0
+
+    def order(q):
+        d = math.dist(q[1][0][0], q[1][1][0])
+        return (q[0] not in first, 0 if d >= LONG_MM else 1, -d if d >= LONG_MM else d)
+    pairs.sort(key=order)
     queue = list(range(len(pairs)))
     ripped_count = {}
     rip_events = 0

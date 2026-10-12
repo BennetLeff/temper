@@ -1,0 +1,54 @@
+{
+ "runs": [
+  {
+   "run": "run1",
+   "make_last_line": "ALL GATES PASS",
+   "errors": 0,
+   "warnings": 22,
+   "unconnected": 0,
+   "schematic_parity": 0,
+   "violation_types": {
+    "connection_width": 11,
+    "lib_footprint_mismatch": 2,
+    "silk_edge_clearance": 9
+   },
+   "rc": 0,
+   "seconds": 753,
+   "closed": true
+  },
+  {
+   "run": "run2",
+   "make_last_line": "ALL GATES PASS",
+   "errors": 0,
+   "warnings": 22,
+   "unconnected": 0,
+   "schematic_parity": 0,
+   "violation_types": {
+    "connection_width": 11,
+    "lib_footprint_mismatch": 2,
+    "silk_edge_clearance": 9
+   },
+   "rc": 0,
+   "seconds": 753,
+   "closed": true
+  },
+  {
+   "run": "run3",
+   "make_last_line": "ALL GATES PASS",
+   "errors": 0,
+   "warnings": 22,
+   "unconnected": 0,
+   "schematic_parity": 0,
+   "violation_types": {
+    "connection_width": 11,
+    "lib_footprint_mismatch": 2,
+    "silk_edge_clearance": 9
+   },
+   "rc": 0,
+   "seconds": 753,
+   "closed": true
+  }
+ ],
+ "all_closed": true,
+ "consecutive_closed": 3
+}

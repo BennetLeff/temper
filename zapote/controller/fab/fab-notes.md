@@ -7,7 +7,7 @@
   HASL lead-free, green mask, white silk. Six 4.0 mm holes (R30 snap-in supports) are milled from Edge.Cuts (no plating, no copper).
 - **Coordinates:** Gerbers/drill in KiCad's plot frame. World (appliance) mm: X = kx - 58,
   Y = 110 - ky = 110 + (Gerber Y). Board lower-left corner = world (-38, 14) = Gerber (20, -96).
-- **Assembly:** all parts on the top side. BOM lines 81, placements 231
+- **Assembly:** all parts on the top side. BOM lines 81, placements 244
   (10 THT). CPL rotations are KiCad's; check each package in JLC's
   placement preview (JLC's zero orientation differs for some footprints).
 - **LCSC numbers:** from bom/controller-parts.json; missing: none.

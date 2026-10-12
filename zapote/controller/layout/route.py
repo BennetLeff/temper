@@ -256,11 +256,21 @@ def main():
         if n_open == 0:
             break
     print(run([KPY, __file__, "finish", str(work), "-", "1"]), flush=True)
+    # a last pass of KiCad's own dangling list after the pours and designators are in
+    for k in range(3):
+        rep_json = WORK / f"drc-dangling-final{k}.json"
+        drc(work, rep_json)
+        out = run([KPY, str(HERE / "cleanup.py"), str(work), "--dangling", str(rep_json)])
+        print(next((l for l in out.splitlines() if l.startswith("cleanup")), out[-200:]), flush=True)
+        if "removed=0" in out:
+            break
     shutil.copy2(work, PCB / "controller-routed.kicad_pcb")
     shutil.copy2(PCB / "controller.kicad_pro", PCB / "controller-routed.kicad_pro")
     d = drc(PCB / "controller-routed.kicad_pcb", WORK / "drc-final.json")
     log["final_open"] = len(d["unconnected_items"])
-    (WORK / "route-log.json").write_text(json.dumps(log, indent=1) + "\n")
+    text = json.dumps(log, indent=1) + "\n"
+    (WORK / "route-log.json").write_text(text)
+    (UNIT / "evidence" / "route-log.json").write_text(text)   # committed copy of this run's log
     print(json.dumps(log))
 
 

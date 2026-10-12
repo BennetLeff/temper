@@ -20,7 +20,7 @@ Regions (R33, world X-38..168; LAYOUT.md "Floorplan" has the picture):
   left-rear    interlock block (Y57..71), trip glue to its right; the read-back buffer in front of it (X22)
   rear-mid     thermal-sense block between J2 (X-20) and J1 (X55); J7 UI bus (R33) X30..62
   front-mid    3.3 V buck (X 28..50); free routing field X 40..120 between the halves
-  rear-right   12 V fan buck at X 87..102 (moved off the RTD side); RTD front end X 120..156 between
+  rear-right   blower buck at X 81..102 (C28; moved off the RTD side); RTD front end X 120..156 between
                the module and J3 (L2 >= 10 mm from it); fan header J10 and RTD header J3 fixed
   right        ESP32-S3-WROOM-1U (R33 box), U.FL at its rear-right corner kept clear 3 mm
 """
@@ -76,12 +76,13 @@ PLACE = {
     "c_in3b": (37.8, 20.1, -90),
     "c_in3a": (35.8, 19.9, -90),
     "c_in_bulk": (28.0, 21.0, 180),
-    # ---- 12 V fan buck (same cluster), X 90..105 so L2 stays >= 10 mm from the RTD front end
-    "u_12": (92.0, 80.75, 0),
-    "l_12": (98.3, 76.4, 0),
-    "c_bst_12": (94.1, 79.7, -90),
-    "c_in12b": (89.8, 78.1, -90),
-    "c_in12a": (87.8, 77.9, -90),
+    # ---- blower buck (C28, same cluster; 12.5 mm SWRB1205S inductor), X 81..102 so L2 stays
+    #      >= 10 mm from the RTD front end
+    "u_12": (86.0, 80.75, 0),
+    "l_12": (95.75, 76.4, 0),
+    "c_bst_12": (88.1, 79.7, -90),
+    "c_in12b": (83.8, 78.1, -90),
+    "c_in12a": (81.8, 77.9, -90),
     # ---- RTD front end (rtd_pan) and the runaway comparator, between the module and J3
     "rtd_pan.adc": (149.0, 76.5, 90),
     "rtd_pan.reference": (140.0, 78.5, 0),
@@ -122,13 +123,19 @@ ANCHOR = {
     "c_rms_vcc": "u_rms", "c_rms_vcc2": "u_rms", "c_adc": "u_adc",
     "c_mcu_bulk": "U4", "c_mcu_hf": "U4", "c_io": "u_io",
     "c_v5_in": "u_v5", "c_v5_out": "u_v5",
-    "c_esd_ui1": "u_esd_ui1", "c_esd_ui2": "u_esd_ui2", "c_buf3": "u_buf3",
+    "c_esd_ui1": "u_esd_ui1", "c_esd_ui2": "u_esd_ui2", "c_buf3": "u_buf3", "c_in12c": "u_12",
+    # blower speed injection at the FB pin; tach parts at J10 (C28)
+    "r_fan_inj": "u_12", "c_fan_ctl": "r_fan_inj", "r_fan_pwm_filt": "c_fan_ctl",
+    "r_tach_pu": "J10", "d_tach": "J10", "r_tach_series": "J10", "c_tach": "r_tach_series",
+    # NTC input RCs at their buffers (C29)
+    "r_hs_filt": "u_buf1", "c_hs_filt": "u_buf1", "r_coil_filt": "u_buf2", "c_coil_filt": "u_buf2",
+    "r_rim_filt": "u_buf3",
     "d_rim": "J12", "r_rim_pu": "u_buf3", "c_rim_filt": "u_buf3", "r_rim_adc": "U4",
     # thermal-sense node parts stay in the block (the net also reaches the buffer at J4)
     "thermal.hs_fixed": "thermal.hs_comp", "thermal.hs_filter": "thermal.hs_comp",
     "thermal.coil_fixed": "thermal.coil_comp", "thermal.coil_filter": "thermal.coil_comp",
     # series / pull parts at the connector end
-    "r_ct_zc": "J4", "r_line_zc": "J4", "r_tach_pu": "J10", "r_fan_off_pd": "q_fan_off", "q_fan_off": "u_12",
+    "r_ct_zc": "J4", "r_line_zc": "J4", "r_fan_off_pd": "q_fan_off", "q_fan_off": "u_12",
     # J7 (R33): 100 ohm series at the connector end; CS pull-ups at the module
     "rs_ui_sck": "J7", "rs_ui_mosi": "J7", "rs_ui_miso": "J7", "rs_ui_cs_oled": "J7", "rs_ui_cs_exp": "J7",
     "rs_ui_dc": "J7", "r_cs_oled_pu": "U4", "r_cs_exp_pu": "U4",
@@ -153,6 +160,12 @@ ANCHOR = {
     "r_adc_cs_pu": "u_adc", "d_rms_clamp": "u_adc", "r_rms_adc": "u_adc",
 }
 
-# Routing channels kept free of auto-placed parts (world rects). R33 moved the module to the
-# right, so the R31 channels around it are gone; none are needed now.
-CHANNELS: list[tuple[float, float, float, float]] = []
+# Routing channels kept free of auto-placed parts (world rects; decoupling capacitors excepted).
+# L3: the module's front and left pin rows. Its right-column nets (pins 27-39) all head left and
+# wrap round the front edge, so a band in front of the module and a strip along its left side
+# keep room for those wraps and for the front/left pins' own escapes (LAYOUT.md "Convergence").
+CHANNELS: list[tuple[float, float, float, float]] = [
+    (137.0, 41.0, 163.0, 49.6),     # in front of the module (its pin row is at Y ~50.3)
+    (134.5, 49.6, 140.4, 68.0),     # along its left pin column (X 141)
+    (102.8, 64.0, 112.8, 85.0),     # keep-apart band: blower buck L2 >= 10 mm from the RTD parts
+]

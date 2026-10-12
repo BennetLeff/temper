@@ -43,7 +43,7 @@ GATE_PATHS = ["u_permit", "c_permit", "r_run_en_pd", "r_permit_pd"]
 HEIGHTS = {"JST XH mated (J1-J3, J7, J9, J10, J12; JST eXH.pdf 9.8 assembled)": 9.8,
            "J4 43045-1600 + 43025-1600 mated (Molex 43045 series part data 10.29)": 10.29,
            "J11 61300811121 pin tips (Wurth DS rev 003, 11.54 - 3.0)": 8.54,
-           "C1 EEE-FK1E101P": 6.2, "L1/L2 SWPA6045": 4.5,
+           "C1 EEE-FK1E101P": 6.2, "L1 SWPA6045": 4.5, "L2 SWRB1205S (Sunlord SWRB-S, 6.0 max)": 6.0,
            "U4 ESP32-S3-WROOM-1U (Espressif DS v1.8 Table 1-2)": 3.2}
 CONNECTOR_PARTS = {k for k in HEIGHTS if k.startswith(("JST", "J4", "J11"))}
 
@@ -232,7 +232,7 @@ def main():
                                  "cable bends above the mated XH housings (harness)", "a socket mated on J11"])
 
     # ---- decoupling
-    supplies = {"v3v3", "v15_selv", "RTD_AVDD", "V5_UI", "v5_drop", "v12_fan"}
+    supplies = {"v3v3", "v15_selv", "RTD_AVDD", "V5_UI", "v5_drop", "V_BLOWER"}
     caps = [f for r_, f in fps.items() if r_.startswith("C")]
     # supply pins = the "vcc" pins of the part models in tools/verify_controller.py (datasheet pin
     # tables); parts without a model: every pin on a supply net
@@ -338,7 +338,7 @@ def main():
                                          "r_rx_f", "r_rx_b", "r_bias_top", "r_bias_bot", "r_ct_mon_def", "r_rms_bias",
                                          "r_rms_gf", "r_rms_gg", "c_rms_in", "c_rms_core", "c_rms_avg", "c_rms_ignd",
                                          "c_rms_lpf")]
-    sw = {"L2/U2 (12 V fan buck)": [path_ref["l_12"], path_ref["u_12"]],
+    sw = {"L2/U2 (12 V fan buck)": [path_ref["l_12"], path_ref["u_12"]],     # now the blower buck (C28)
           "L1/U1 (3.3 V buck)": [path_ref["l_3v3"], path_ref["u_3v3"]]}
     sep = {}
     for name, parts in sw.items():

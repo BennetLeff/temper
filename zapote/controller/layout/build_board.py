@@ -50,7 +50,7 @@ CLASSES = {
     "Supply": {"track_width": 0.3, "clearance": 0.15, "via_diameter": 0.6, "via_drill": 0.3},
     "Analog": {"track_width": 0.15, "clearance": 0.15, "via_diameter": 0.6, "via_drill": 0.3},
 }
-POWER_NETS = [V15, "v12_fan", "sw_3v3", "sw_12"]
+POWER_NETS = [V15, "V_BLOWER", "sw_3v3", "sw_12"]
 SUPPLY_NETS = ["V5_UI", "v5_drop", "v5_mid", "RTD_AVDD"]
 ANALOG_NETS = ["HS_SENSE", "COIL_SENSE", "rtd_sense_p", "rtd_sense_n", "rtd_force_p", "rtd_force_n", "vbus_p",
                "vbus_n", "ct_mon", "ct_buf_out", "m12_node", "m12_filt", "p1", "refin_n", "rms_in", "rms_ibuf",
@@ -109,6 +109,8 @@ def parse_netlist():
 def lib_dir(lib):
     if lib == "Temper_RTD":
         return RTD_LIB / "Temper_RTD.pretty"
+    if lib == "Temper_Controller":                  # project footprints (layout/footprints)
+        return HERE / "footprints" / "Temper_Controller.pretty"
     return STOCK / f"{lib}.pretty"
 
 
@@ -487,7 +489,8 @@ def main():
                         fp.SetOrientationDegrees(rot)
                         fp.SetPosition(pcbnew.VECTOR2I(mm(px), mm(py)))
                         r = crt_rect(fp)
-                        blocked_by = forbid + channels
+                        # decoupling capacitors may sit in a routing channel (they belong at their pin)
+                        blocked_by = forbid if (ref.startswith("C") and ref in ANCHOR) else forbid + channels
                         if not inside_board(r) or any(overlap(r, f) for f in blocked_by):
                             continue
                         if any(overlap(r, q, gap_ref) for q in placed.values()):

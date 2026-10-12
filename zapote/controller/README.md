@@ -1,6 +1,6 @@
 # Integrated SELV controller (schematic capture)
 
-This is the induction cooktop's low-voltage controller, captured in atopile and laid out (layout L2: enclosure R33 delta on the R31 outline, plus the R36 rim NTC; see [LAYOUT.md](LAYOUT.md)). The board integrates:
+This is the induction cooktop's low-voltage controller, captured in atopile and laid out (layout L3: enclosure R33 delta on the R31 outline, the R36 rim NTC, and the L3 blower supply, NTC filters and thermal trip ladder; see [LAYOUT.md](LAYOUT.md)). The board integrates:
 - an ESP32-S3-WROOM-1U-N8 (U.FL to an off-board chip antenna, enclosure R33);
 - the interlock and thermal-sense circuits, ported unchanged;
 - the RTD front end;
