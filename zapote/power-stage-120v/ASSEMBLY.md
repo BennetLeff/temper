@@ -50,7 +50,7 @@ The coil lead termination must match the actual litz/pigtail conductor and
 crimp process; the bench-lead lug is not automatically suitable for it.
 
 J2 (COIL_FEED) and J5 (RES_A) are at 15.0 mm centres (decision 2026-10-08, review M6).
-- **Insulation basis:** their insulation is functional (IEC 60335-1:2020 29.2.4, Table 18, PD3, group IIIa). The coil-terminal working voltage is ≤ 333 V rms (an estimated bound at the 22 A tank ceiling; ≤ 667 V pk, 31–55 kHz), so creepage needs ≥ 4.2 mm, covered by the 5.0 mm tank rule (≤ 400 V rms). Clearance needs ≥ 1.3 mm (Table 16 PD3 + 0.5 mm for assembled parts), pending the IEC 60664-4 check.
+- **Insulation basis:** their insulation is functional (IEC 60335-1:2020 29.2.4, Table 18, PD3, group IIIa). The coil-terminal working voltage in normal use is ≤ 362 V rms at the 28 A ceiling (with a pan; the no-pan clamp holds 22 A), so creepage needs ≤ 4.6 mm, covered by the 5.0 mm tank rule (≤ 400 V rms). The no-pan 28 A fault point is 409 V rms / 818 V pk (DECISIONS M6, 28 A update; `owner-items/m6m10/coil-voltage-28a/`). Clearance needs ≥ 1.3 mm (Table 16 PD3 + 0.5 mm for assembled parts), pending the IEC 60664-4 check.
 - **Board gap:** the copper gap is 5.0 mm.
 - **Terminations:** coil leads end in **insulated M4 ring terminals**, insulated over the barrel and neck up to the ring.
   - The bare ring is ≤ 10.0 mm wide, with a DIN 125 M4 washer (9 mm) and a pan-head M4 screw (head ≤ 8 mm). This keeps exposed metal ≥ 5.0 mm apart at any lug rotation (29.1/29.2 "most unfavourable position").

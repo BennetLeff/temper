@@ -244,6 +244,16 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
 - **Requirement:** insulated M4 ring terminals on J2/J5 (bare ring ≤ 10 mm, ring-to-ring ≥ 5.0 mm at any rotation). ASSEMBLY.md's 30 mm target is withdrawn.
 - **Conditions:** the lug part (candidate TE 2-34853-1, 105 °C vinyl) is confirmed against the Litz cross-section and the lead temperature measured at the stud. The tank-voltage RMS convention goes to the certification lab.
 - **Reverses if** the lab rates the line-modulated HF working voltage as carrier-crest RMS (5.65 mm at 636 V pk). That changes the board-wide tank rule to ≥ 5.7 mm (a re-layout of the SW_A/RES_A lanes), not just the studs. It also reverses if IEC 60664-4 Table 2 exceeds 5.0 mm.
+- **28 A update (2026-10-12, `owner-items/m6m10/coil-voltage-28a/`, rerun reproduced):** the 333 V rms / 667 V pk bound applies at 22 A only. The coil voltage (J2–J5) at 28 A, in line-cycle RMS, depends on the load:
+  - **With a pan (normal use):** 345 V rms for the round-6 pan cases on the L70 tank, and 362 V rms on any L. Table 18 needs 4.3–4.6 mm, so **the 5.0 mm rule holds**.
+  - **No pan, at 28 A:** 409 V rms / 818 V pk (35 kHz floor, bank −10 %, 140 V line), which needs 5.16 mm. That fails by 0.16 mm on RES_A–COIL_FEED, RES_A–SW_A and the J2/J5 ring-to-ring gap.
+  - **Decision: no copper change.**
+    - Normal use never reaches the no-pan 28 A point: firmware holds a no-pan clamp at 22 A (`tank_freq.h` TANK_CEILING_DEFAULT_A; no-pan evidence on Q and R, with the `N21_FAULT_TANK_RMS` overrun latch). The working voltage in normal use is therefore ≤ 362 V rms.
+    - The no-pan 28 A point needs a failed clamp. That is a clause-19 fault on functional insulation between two HOT nets: if the gap bridged, the shunt OCP would trip.
+    - Confirmations: COMMISSIONING step 9a.6 tests the clamp, and the bench measures V(J2–J5) at 28 A with and without a pan.
+  - **Fallback if the lab ties working voltage to the no-pan case:** raise the firmware floor to ≥ 36.2 kHz, or require the bank ≥ 0.465 µF (±5 % parts). Either brings the bound to ≤ 400 V rms with no copper change.
+  - **Crest-RMS reading:** if the lab uses carrier-crest RMS, the coil lanes need about 7.4 mm and RES_A to HV_RET/N_LS/BUS_P needs 6.3 mm, a board-wide re-layout. The certifier question stands.
+  - The board-side voltages in the study table replace the 333 V figure in ASSEMBLY.md and F1-CERTIFIER item 7.
 
 **2026-10-08, native-21 outline and J4 position (review M10; amends D-36 / RELAYOUT L11, L15), owner decision** (same approval): the outline is **290 × 140 plus a 91 × 50 SELV tongue** (board x 0–91, y 140–190; R4/R25 world x 50–141, y 46–96).
 - **J4 stays on the tongue's front edge.** The J4 lead to the front controller is 74 mm, lands at both ends, and stays in front of the Nomex SELV/HOT barrier (R25 route landings 50/50, all-pairs 0 unresolved). A rear-band J4 would need a ≥ 140 mm SELV lead across the HOT core (estimate).
