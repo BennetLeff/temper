@@ -601,7 +601,17 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
       - F2's breaking capacity is under the prospective fault at 127 V + 10 %. F1 is the backup; this is a certifier item, as F1 was.
       - Blower start current (bench G-B1).
       - The F2 height envelope is a 4.0 mm estimate (no 3D model).
-      - The firmware inlet limit must count PS3: up to 2.55 A at full blower speed, scheduled with blower drive.
+      - **Inlet budget** (firmware `blower_aux`, merged 2026-10-12): PS3 is counted, scheduled from the blower drive. The allowance rises before the fan speeds up and drops to the worst case on an unknown drive, a fault or full speed.
+        - Tank hold at 108 / 120 / 132 V, out of the 13.5 A regulated total:
+
+          | Blower | Hold | Tank power |
+          |---|---|---|
+          | Off | 11.05 A | 1109 / 1233 / 1356 W |
+          | Typical (drive 0.5) | 10.43 A | 1047 / 1164 / 1280 W |
+          | Full | 9.94 A | 998 / 1109 / 1220 W |
+
+        - The 1239 W hold of item 10 is met only with the blower off. With the blower running it is 6–10 % lower.
+        - The round-6 yield figures assumed 11.1 A. The bench (COMMISSIONING step 8c) replaces the V³ model constants.
       - The controller J13 / V15_BLW change is in progress on controller-layout.
     - **Gate scripts** are now committed in `native-21/layout/gates/` (the scratchpad copies were lost).
 
