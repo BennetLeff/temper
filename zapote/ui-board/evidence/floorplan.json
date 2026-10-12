@@ -5,25 +5,48 @@
     "buttons_clear_of_holes_ge_3mm": true,
     "buttons_inside_outline": true,
     "buttons_match_source": true,
+    "buzzer_clear_of_cap_envelopes_ge_3mm": true,
+    "buzzer_clear_of_holes_ge_3mm": true,
+    "buzzer_clear_of_oled_ge_3mm": true,
+    "buzzer_inside_outline_ge_3mm": true,
+    "buzzer_is_the_lowest_v_corner_of_the_board": true,
+    "buzzer_port_fits_in_the_body": true,
+    "c16_within_5_to_9mm_of_the_hall_element": true,
+    "caps_envelope_clear_of_each_other_ge_3mm": true,
     "catalog_bbox_x_equals_board_u": true,
     "connectors_clear_of_holes_ge_3mm": true,
-    "connectors_match_source": true,
     "cutout_inside_outline": true,
+    "die_gap_is_5mm_face_to_die": true,
     "enclosure_source_present": true,
-    "encoder_cable_reaches_with_strain_relief": true,
-    "encoder_outside_board": true,
     "holes_do_not_overlap": true,
     "holes_inside_outline": true,
     "holes_match_source": true,
     "j7_clear_of_cutout": true,
-    "j7_j2_gap_ge_1mm": true,
-    "j7_j2_inside_outline": true,
-    "oled_lens_encoder_match_source": true,
+    "j7_j8_gap_ge_3mm": true,
+    "j7_j8_inside_outline": true,
+    "j7_matches_source": true,
+    "j8_edge_margin_ge_3mm": true,
+    "j9_inside_tab_ge_1mm": true,
+    "j9_outside_the_steel_keepout": true,
+    "knob_envelope_does_not_reach_the_main_board_parts": true,
+    "oled_lens_and_knob_axis_match_source": true,
     "oled_m2_clear_of_ui_holes": true,
+    "package_centre_is_0p27_0p04_from_the_axis": true,
+    "package_top_clears_the_fascia_rear": true,
     "stacker_clear_of_holes_ge_3mm": true,
     "stacker_inside_oled_shadow": true,
     "stacker_inside_outline": true,
-    "stacker_matches_source": true
+    "stacker_matches_source": true,
+    "steel_screw_at_15mm_would_exceed_1deg": true,
+    "steel_screw_at_the_keepout_radius_le_0p07deg": true,
+    "tab_centred_on_the_knob_axis": true,
+    "tab_clear_of_main_board_ge_10mm": true,
+    "tab_fasteners_outside_the_steel_keepout": true,
+    "tab_front_face_puts_the_hall_plane_at_w_minus_4": true,
+    "tab_holes_clear_of_j9_ge_1mm": true,
+    "tab_holes_wall_ge_2mm": true,
+    "tact_bodies_clear_of_holes_ge_3mm": true,
+    "tact_bodies_inside_outline_ge_3mm": true
   },
   "data": {
     "buttons": {
@@ -40,13 +63,33 @@
         "nearest_hole_gap_mm": 14.58
       }
     },
+    "buzzer": {
+      "acoustic_gap_to_fascia_rear_mm": 6.0,
+      "body_box": [
+        -99.8,
+        -90.2,
+        19.2,
+        28.8
+      ],
+      "centre_uv": [
+        -95.0,
+        24.0
+      ],
+      "edge_margin_mm": 4.2,
+      "front_face_top_w": -9.0,
+      "hole_clear_mm": 5.7,
+      "nearest_cap_envelope_gap_mm": 8.2,
+      "oled_gap_mm": 16.93,
+      "port_diameter_mm": 6.0
+    },
     "catalog_bbox_x": [
       -106.0,
       64.0
     ],
+    "component_keepout_r_mm": 12.0,
     "connector_to_hole_clear_mm": {
-      "J2": 14.3,
-      "J7": 5.16
+      "J7": 5.16,
+      "J8": 21.26
     },
     "enclosure_findings": [
       {
@@ -60,19 +103,22 @@
         "item": "the OLED stacker is modelled 3.0 mm high; a 1x20 2.54 mm female socket on LCSC is 8.5 mm (5.5 mm too tall)"
       },
       {
-        "ask": "confirm plug clearance at layout",
+        "ask": "confirm plug clearance and service access at layout",
         "id": "E3",
-        "item": "J7 and J2 envelopes are 1.42 mm apart; the mated XHP-12 and Micro-MaTch plug housings are larger than the header bodies"
+        "item": "J7 and J8 envelopes are 19.12 mm apart; J7's mated XHP-12 housing is larger than the header body (J2 is gone, so J7 service access is no longer shared)"
       },
       {
-        "ask": "a \u00d8>=2 mm hole or gap in front of BZ1 (front face, u -104..-90, v 17..29), or an acoustic path",
+        "ask": "provide 3 non-magnetic, low-conductivity standoffs 1.78 mm high at the tab holes (outside the 25 mm steel keep-out), a window for the J8-J9 harness, and no steel within 25 mm of (110, 53)",
+        "id": "E5",
+        "item": "the TMAG5170 die plane is w = -4, 9.22 mm in front of the main board; the sensor therefore sits on a separate tab at w = -4.78 (front face), 1.78 mm behind the fascia rear"
+      },
+      {
+        "ask": "a sealed acoustic membrane / port of dia 6 mm centred at (u, v) = (-95, 24) in front of BZ1; the buzzer top is at w = -9, 6 mm behind the fascia rear",
         "id": "E4",
         "item": "no sound port is modelled in the fascia for the buzzer"
       }
     ],
     "enclosure_source": "/Users/bennet/Desktop/temper/output/temper-manufacturing-r41",
-    "encoder_cable_mm": 76.2,
-    "encoder_gap_mm": 50.0,
     "hole_edge_distance_mm": {
       "boss@-104,60": 0.3,
       "boss@-75,92": 2.3,
@@ -83,22 +129,88 @@
       "stud@29,38": 19.5,
       "stud@29,82": 10.5
     },
-    "j2_box": [
-      50.0,
-      60.0,
-      53.8,
-      62.2
-    ],
     "j7_box": [
       29.8,
       62.2,
       46.62,
       52.38
     ],
-    "j7_j2_gap_mm": 1.42,
+    "j7_j8_gap_mm": 19.12,
+    "j8_box": [
+      53.88,
+      58.12,
+      71.5,
+      84.5
+    ],
+    "j9_box": [
+      79.88,
+      84.12,
+      46.5,
+      59.5
+    ],
+    "j9_distance_to_axis_mm": 25.88,
     "oled_socket_height_mm": 8.5,
+    "sensor": {
+      "face_to_die_gap_mm": 5.0,
+      "hall_centre_uvw": [
+        110.0,
+        53.0,
+        -4.0
+      ],
+      "main_board_front_w": -14.0,
+      "package_centre_uv": [
+        109.73,
+        53.04
+      ],
+      "package_orientation": "pin 1 upper left seen from the front (+u right, +v up), package top toward the fascia",
+      "package_top_to_fascia_rear_mm": 0.68,
+      "package_top_w": -3.68,
+      "step_from_main_board_mm": 9.22,
+      "tab_front_face_w": -4.78,
+      "tab_outline_u": [
+        78.0,
+        142.0
+      ],
+      "tab_outline_v": [
+        37.0,
+        69.0
+      ],
+      "tab_rear_face_w": -6.38
+    },
     "stacker_conflict_mm": 5.5,
     "stacker_gap_mm": 3.0,
-    "stacker_top_w_source": -10.5
+    "stacker_top_w_source": -10.5,
+    "steel_keepout_r_mm": 25.0,
+    "steel_screw_error_deg_by_distance_mm": {
+      "15": 1.3563,
+      "20": 0.2414,
+      "25": 0.0633,
+      "30": 0.0212
+    },
+    "tab_fastener_clearance_to_axis_mm": {
+      "(138,53)": 25.5,
+      "(83,42)": 26.65,
+      "(83,64)": 26.65
+    },
+    "tact_bodies": {
+      "back": [
+        -78.1,
+        -71.9,
+        22.9,
+        29.1
+      ],
+      "select_start": [
+        -38.1,
+        -31.9,
+        22.9,
+        29.1
+      ],
+      "stop": [
+        1.9,
+        8.1,
+        22.9,
+        29.1
+      ]
+    }
   }
 }

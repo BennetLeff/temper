@@ -39,16 +39,6 @@ component Diode1n4148ws:
     signal K ~ pin 1
     signal A ~ pin 2
 
-component Bead0603:
-    """Murata BLM18PG121SN1D ferrite bead, 120 ohm at 100 MHz, 2 A, 50 mohm max DC
-    resistance (LCSC C14709, JLC basic)."""
-    designator_prefix = "FB"
-    mpn = "BLM18PG121SN1D"
-    manufacturer = "Murata"
-    footprint = "Inductor_SMD:L_0603_1608Metric"
-    signal p1 ~ pin 1
-    signal p2 ~ pin 2
-
 component Mcp23s08:
     """Microchip MCP23S08-E/SO, 8-bit SPI I/O expander, SOIC-18 300 mil (LCSC C152205).
     DS20001919F Table 1-1 / Package Types (PDIP/SOIC): SCK 1, SI 2, SO 3, A1 4, A0 5,
@@ -92,23 +82,6 @@ component Tmp122:
     signal CS ~ pin 5
     signal SIO ~ pin 6
 
-component Tlv3202:
-    """TI TLV3202AIDR dual rail-to-rail comparator, push-pull, SOIC-8 (LCSC C129325).
-    SBOS561C Pin Functions: TLV3202 (D package): 1OUT 1, 1IN- 2, 1IN+ 3, GND 4, 2IN+ 5,
-    2IN- 6, 2OUT 7, VCC 8."""
-    designator_prefix = "U"
-    mpn = "TLV3202AIDR"
-    manufacturer = "Texas Instruments"
-    footprint = "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm"
-    signal OUT1 ~ pin 1
-    signal IN1N ~ pin 2
-    signal IN1P ~ pin 3
-    signal GND ~ pin 4
-    signal IN2P ~ pin 5
-    signal IN2N ~ pin 6
-    signal OUT2 ~ pin 7
-    signal VCC ~ pin 8
-
 component Srv05_4:
     """MSKSEMI SRV05-4 4-line ESD array, SOT-23-6 (LCSC C2836319), the part the controller
     uses at its J7. Pin Configuration and Functions: IO1 1, GND 2, IO2 3, IO3 4, Vcc 5,
@@ -136,19 +109,6 @@ component Ao3400a:
     signal S ~ pin 2
     signal D ~ pin 3
 
-component BuzzerGsd9605:
-    """Inghai GSD9605YB-3V2800 SMD electromagnetic active buzzer with built-in driver
-    (LCSC C255327): 9.6 x 9.6 x 5.0 mm, 2.7 kHz, 2-5 V operating, 3.3 V rated, 30 mA max
-    at 3.3 V, 80 dB min at 10 cm, -20..+70 C. Spec sheet p.1 (electromagnetic, active) and
-    p.2 table. Pin 1 is the + terminal (drawing p.2, to confirm against the layout
-    footprint)."""
-    designator_prefix = "BZ"
-    mpn = "GSD9605YB-3V2800"
-    manufacturer = "Inghai"
-    footprint = "Buzzer_Beeper:Buzzer_9.6x9.6mm_SMD"
-    signal P ~ pin 1
-    signal N ~ pin 2
-
 component XhHeader12:
     """JST B12B-XH-A(LF)(SN), 12-pin 2.50 mm vertical (LCSC C158027), the part on the
     controller's J7. Body 32.4 x 5.75 mm, 7.0 mm above the board, 9.8 mm mated."""
@@ -168,21 +128,6 @@ component XhHeader12:
     signal p10 ~ pin 10
     signal p11 ~ pin 11
     signal p12 ~ pin 12
-
-component MicroMatch6:
-    """TE 7-215079-6 Micro-MaTch 6-position PCB receptacle, 1.27 mm (2 x 3) (LCSC C306122).
-    Mates the 7-215083-6 on the Grayhill 62VG encoder lead (Grayhill 62AG/VG datasheet
-    Rev. 02/2024, p.1 "Connector is AMP P/N 7-215083-6"). Pin n of the lead meets pin n here."""
-    designator_prefix = "J"
-    mpn = "7-215079-6"
-    manufacturer = "TE Connectivity"
-    footprint = "Temper_UI:TE_Micro-MaTch_7-215079-6_2x03_P1.27mm"
-    signal p1 ~ pin 1
-    signal p2 ~ pin 2
-    signal p3 ~ pin 3
-    signal p4 ~ pin 4
-    signal p5 ~ pin 5
-    signal p6 ~ pin 6
 
 component OledSocket20:
     """1 x 20, 2.54 mm female socket for the NHD-3.12-25664UCW2 header (LCSC C46595982,
@@ -214,14 +159,98 @@ component OledSocket20:
     signal p19 ~ pin 19
     signal p20 ~ pin 20
 
-component PushbuttonIpr3pad2:
-    """APEM IPR3PAD2, IP67 panel pushbutton, normally open, straight PC terminals, 5.08 mm
-    pitch (APEM IP series catalogue: "also available with straight PC terminals: IP.3PAD";
-    ratings 200 mA 50 VDC, contact bounce 10 ms, silver gold-plated contacts). Hand-fitted
-    panel part: no LCSC listing (bom/ui-parts.json lcsc_exception)."""
+component Tmag5170:
+    """TI TMAG5170A1QDGKR 3-axis linear Hall sensor, 100 mT range selectable, SPI, VSSOP-8
+    (LCSC C5220642). SBASAF4 (Sept. 2021) Table 5-1 / Figure 5-1 (DGK, top view): SCK 1,
+    SDI 2, SDO 3, CS 4, VCC 5, GND 6, TEST 7 (ground in the application), ALERT 8. Hall
+    elements 1.77 mm from the pin 1-4 side and 1.54 mm from the pin 1 end of the 3.0 mm body,
+    0.32 mm below the package top (Figure 7-2, p.16). CS high: SDO high impedance (p.28)."""
+    designator_prefix = "U"
+    mpn = "TMAG5170A1QDGKR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_SO:VSSOP-8_3.0x3.0mm_P0.65mm"
+    signal SCK ~ pin 1
+    signal SDI ~ pin 2
+    signal SDO ~ pin 3
+    signal CS ~ pin 4
+    signal VCC ~ pin 5
+    signal GND ~ pin 6
+    signal TEST ~ pin 7
+    signal ALERT ~ pin 8
+
+component Nand2:
+    """TI SN74LVC1G00DBVR single 2-input NAND, SOT-23-5 (LCSC C7826). Pin Functions (DBV):
+    A 1, B 2, GND 3, Y 4, VCC 5. Y = NOT (A AND B). tpd(max) 4.7 ns at 3.3 +/- 0.3 V
+    (-40..85 C), 5.0 ns to 125 C; ICC 10 uA max."""
+    designator_prefix = "U"
+    mpn = "SN74LVC1G00DBVR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    signal A ~ pin 1
+    signal B ~ pin 2
+    signal GND ~ pin 3
+    signal Y ~ pin 4
+    signal VCC ~ pin 5
+
+component Or2x2:
+    """TI SN74LVC2G32DCUR dual 2-input OR, VSSOP-8 (DCU) (LCSC C91874). SCES201N Pin
+    Configuration (DCU, top view): 1A 1, 1B 2, 2Y 3, GND 4, 2A 5, 2B 6, 1Y 7, VCC 8.
+    Y = A OR B. tpd(max) 3.8 ns at 3.3 +/- 0.3 V (-40..85 C), 4.8 ns to 125 C."""
+    designator_prefix = "U"
+    mpn = "SN74LVC2G32DCUR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_SO:VSSOP-8_2.3x2mm_P0.5mm"
+    signal A1 ~ pin 1
+    signal B1 ~ pin 2
+    signal Y2 ~ pin 3
+    signal GND ~ pin 4
+    signal A2 ~ pin 5
+    signal B2 ~ pin 6
+    signal Y1 ~ pin 7
+    signal VCC ~ pin 8
+
+component BuzzerGsd9605Yb5v:
+    """Inghai GSD9605YB-5V2800 SMD electromagnetic active buzzer with built-in driver
+    (LCSC C530415): 9.6 x 9.6 x 5.0 mm, 2.8 kHz, 2-12 V operating (5 V rated), 30 mA, 80 dB at
+    10 cm, -30..+85 C (LCSC listing; the spec sheet could not be fetched, see DECISIONS U28).
+    Replaces the 70 C-rated GSD9605YB-3V2800. Pin 1 is the + terminal (to confirm against the
+    layout footprint)."""
+    designator_prefix = "BZ"
+    mpn = "GSD9605YB-5V2800"
+    manufacturer = "Inghai"
+    footprint = "Buzzer_Beeper:Buzzer_9.6x9.6mm_SMD"
+    signal P ~ pin 1
+    signal N ~ pin 2
+
+component ShHeader10:
+    """JST SM10B-SRSS-TB(LF)(SN), 10-pin 1.00 mm side-entry SMD header (LCSC C160409), mates
+    SHR-10V-S with SSH-003T contacts. Used on both ends of the sensor-tab harness (J8 on the
+    UI board, J9 on the sensor tab). Mount pads are not modelled."""
+    designator_prefix = "J"
+    mpn = "SM10B-SRSS-TB(LF)(SN)"
+    manufacturer = "JST"
+    footprint = "Connector_JST:JST_SH_SM10B-SRSS-TB_1x10-1MP_P1.00mm_Horizontal"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+    signal p3 ~ pin 3
+    signal p4 ~ pin 4
+    signal p5 ~ pin 5
+    signal p6 ~ pin 6
+    signal p7 ~ pin 7
+    signal p8 ~ pin 8
+    signal p9 ~ pin 9
+    signal p10 ~ pin 10
+
+component TactKsc223g:
+    """C&K (Littelfuse) KSC223G LFG, current manufacturer orderable Y31B13136FPLFG: 6.2 x 6.2 mm
+    gold-contact tactile switch, G (gullwing) terminals, actuator top 3.5 mm above the board,
+    2.25 +/- 0.55 N, electrical travel 0.35 +0.25/-0.15 mm, contact 0.1 mA minimum
+    (UI-BOARD-REQUIREMENTS, KSC2 series drawing). The KSC2 drawing could not be fetched in this
+    session (access denied); the footprint is the manufacturer's G land pattern, to be taken from
+    the drawing at layout. The netlist models the two electrical terminals of the SPST contact."""
     designator_prefix = "SW"
-    mpn = "IPR3PAD2"
-    manufacturer = "APEM"
-    footprint = "Temper_UI:APEM_IPR3PAD2_PC_P5.08mm"
+    mpn = "Y31B13136FPLFG"
+    manufacturer = "C&K (Littelfuse)"
+    footprint = "Temper_UI:CK_KSC2_G_gullwing_6.2x6.2mm"
     signal A ~ pin 1
     signal B ~ pin 2

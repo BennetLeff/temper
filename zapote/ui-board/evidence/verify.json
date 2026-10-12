@@ -1,9 +1,9 @@
 {
-  "checks_passed": 128,
-  "checks_total": 128,
+  "checks_passed": 190,
+  "checks_total": 190,
   "failed": [],
   "netlist": "frozen/default.net",
-  "netlist_sha256": "1b877841b8db065673e35e979fcef098a0d66bc7245dd14ec6d5f1b35bac7eb6",
+  "netlist_sha256": "4db686ac5f0b54dfc082f71226a0f12ac81710e97005f197fd576bb41f58f8fa",
   "schema": "temper.ui-board.verify.v1",
   "sections": {
     "bom": {
@@ -27,13 +27,15 @@
         "ext_parts_listed_basic_preferred": {
           "detail": [
             "B12B-XH-A(LF)(SN)",
-            "7-215079-6",
+            "SM10B-SRSS-TB(LF)(SN)",
             "PM254V-11-20-H85",
             "MCP23S08-E/SO",
             "TMP122AIDBVR",
-            "TLV3202AIDR",
+            "TMAG5170A1QDGKR",
+            "SN74LVC1G00DBVR",
+            "SN74LVC2G32DCUR",
             "SRV05-4",
-            "GSD9605YB-3V2800"
+            "GSD9605YB-5V2800"
           ],
           "ok": true
         },
@@ -41,9 +43,9 @@
           "detail": [],
           "ok": true
         },
-        "only_the_panel_buttons_are_off_lcsc": {
+        "only_the_tact_switches_are_off_lcsc": {
           "detail": [
-            "IPR3PAD2"
+            "Y31B13136FPLFG"
           ],
           "ok": true
         },
@@ -57,28 +59,28 @@
         },
         "summary_counts_match": {
           "detail": {
-            "basic": 14,
-            "bom_lines": 23,
-            "extended": 8,
-            "lcsc_lines": 22,
+            "basic": 11,
+            "bom_lines": 22,
+            "extended": 10,
+            "lcsc_lines": 21,
             "no_lcsc": [
-              "IPR3PAD2"
+              "Y31B13136FPLFG"
             ],
-            "placements": 56
+            "placements": 51
           },
           "ok": true
         }
       },
       "data": {
         "summary": {
-          "basic": 14,
-          "bom_lines": 23,
-          "extended": 8,
-          "lcsc_lines": 22,
+          "basic": 11,
+          "bom_lines": 22,
+          "extended": 10,
+          "lcsc_lines": 21,
           "no_lcsc": [
-            "IPR3PAD2"
+            "Y31B13136FPLFG"
           ],
-          "placements": 56
+          "placements": 51
         }
       }
     },
@@ -92,8 +94,19 @@
           ],
           "ok": true
         },
+        "buzzer_rating_covers_predicted_worst_case_temperature": {
+          "detail": {
+            "mpn": "GSD9605YB-5V2800",
+            "predicted_worst_C": 83.9,
+            "rating_C": [
+              -30.0,
+              85.0
+            ]
+          },
+          "ok": true
+        },
         "buzzer_within_90mA_allocation": {
-          "detail": 31.5,
+          "detail": 30.0,
           "ok": true
         },
         "default_off_at_reset": {
@@ -131,7 +144,13 @@
           "ok": true
         }
       },
-      "data": {}
+      "data": {
+        "predicted_body_C": {
+          "board_at_75C": 79.3,
+          "board_at_80C_design_limit": 83.9,
+          "board_at_air_65C": 69.9
+        }
+      }
     },
     "calcs": {
       "checks": {
@@ -141,6 +160,408 @@
         }
       },
       "data": {}
+    },
+    "cs": {
+      "checks": {
+        "at_most_one_miso_driver_except_double_select_of_both_gps": {
+          "detail": [],
+          "ok": true
+        },
+        "bus_busy_is_nand_of_cs_exp_and_cs_oled": {
+          "detail": [
+            "J7_CS_EXP_N",
+            "J7_CS_OLED_N"
+          ],
+          "ok": true
+        },
+        "calc_deselect_before_first_expander_clock": {
+          "detail": null,
+          "ok": true
+        },
+        "calc_double_select_current_le_10mA_abs_max": {
+          "detail": null,
+          "ok": true
+        },
+        "calc_double_select_only_when_both_gps_low": {
+          "detail": null,
+          "ok": true
+        },
+        "calc_exactly_one_selected_row_per_device": {
+          "detail": null,
+          "ok": true
+        },
+        "calc_miso_handover_margin_ge_1us": {
+          "detail": null,
+          "ok": true
+        },
+        "calc_no_miso_contention_when_firmware_obeys_the_sequence": {
+          "detail": null,
+          "ok": true
+        },
+        "calc_no_zero_clock_glitch_with_posttrans3": {
+          "detail": null,
+          "ok": true
+        },
+        "calc_select_setup_ge_t5_tmp122_with_1us_wait": {
+          "detail": null,
+          "ok": true
+        },
+        "calc_select_setup_ge_tsu_cs_with_1us_wait": {
+          "detail": null,
+          "ok": true
+        },
+        "calc_sensor_hold_th_cs_met": {
+          "detail": null,
+          "ok": true
+        },
+        "calc_tmag_miso_ok_at_1MHz": {
+          "detail": null,
+          "ok": true
+        },
+        "calc_tmag_miso_ok_at_2p5MHz": {
+          "detail": null,
+          "ok": true
+        },
+        "calc_truth_table_matches_function": {
+          "detail": null,
+          "ok": true
+        },
+        "calc_tw_cs_between_frames_ge_100ns": {
+          "detail": null,
+          "ok": true
+        },
+        "calc_zero_clock_glitch_exists_without_posttrans": {
+          "detail": null,
+          "ok": true
+        },
+        "chip_selects_not_shared": {
+          "detail": null,
+          "ok": true
+        },
+        "gate_parts_are_nand_and_dual_or": {
+          "detail": [
+            "SN74LVC1G00DBVR",
+            "SN74LVC2G32DCUR"
+          ],
+          "ok": true
+        },
+        "miso_drivers_high_z_unless_qualified_selected": {
+          "detail": [],
+          "ok": true
+        },
+        "no_miso_driver_enabled_at_reset_and_idle": {
+          "detail": null,
+          "ok": true
+        },
+        "tmag5170_pin_map_and_test_grounded": {
+          "detail": {},
+          "ok": true
+        },
+        "tmag_cs_deselected_at_reset": {
+          "detail": {
+            "gp_net": "GP3_TMAG_SEL_N",
+            "pull_level": 1
+          },
+          "ok": true
+        },
+        "tmag_cs_has_pullup_le_47k": {
+          "detail": [
+            [
+              "R24",
+              10000.0
+            ]
+          ],
+          "ok": true
+        },
+        "tmag_cs_truth_table_8_of_8": {
+          "detail": "8 of 8 rows match: low only for (0,1,1)",
+          "ok": true
+        },
+        "tmag_sdo_reaches_miso_only_through_that_resistor": {
+          "detail": [
+            "u_tmag",
+            "r_sdo"
+          ],
+          "ok": true
+        },
+        "tmag_sdo_series_resistor_limits_double_select_below_10mA": {
+          "detail": {
+            "R": 390.0,
+            "min": 346.5
+          },
+          "ok": true
+        },
+        "tmp122_sio_on_miso_local_cs_from_the_gate_sck_on_bus": {
+          "detail": [
+            "MISO_LOCAL",
+            "CS_TMP_N",
+            "GP7_TMP_SEL_N",
+            "J7_SCK"
+          ],
+          "ok": true
+        },
+        "tmp_cs_deselected_at_reset": {
+          "detail": {
+            "gp_net": "GP7_TMP_SEL_N",
+            "pull_level": 1
+          },
+          "ok": true
+        },
+        "tmp_cs_has_pullup_le_47k": {
+          "detail": [
+            [
+              "R29",
+              10000.0
+            ]
+          ],
+          "ok": true
+        },
+        "tmp_cs_truth_table_8_of_8": {
+          "detail": "8 of 8 rows match: low only for (0,1,1)",
+          "ok": true
+        }
+      },
+      "data": {
+        "miso_driver_table": [
+          {
+            "CS_EXP_N": 0,
+            "CS_OLED_N": 0,
+            "GP3": 0,
+            "GP7": 0,
+            "enabled": [
+              "MCP23S08"
+            ]
+          },
+          {
+            "CS_EXP_N": 0,
+            "CS_OLED_N": 1,
+            "GP3": 0,
+            "GP7": 0,
+            "enabled": [
+              "MCP23S08"
+            ]
+          },
+          {
+            "CS_EXP_N": 1,
+            "CS_OLED_N": 0,
+            "GP3": 0,
+            "GP7": 0,
+            "enabled": []
+          },
+          {
+            "CS_EXP_N": 1,
+            "CS_OLED_N": 1,
+            "GP3": 0,
+            "GP7": 0,
+            "enabled": [
+              "TMAG5170",
+              "TMP122"
+            ]
+          },
+          {
+            "CS_EXP_N": 0,
+            "CS_OLED_N": 0,
+            "GP3": 0,
+            "GP7": 1,
+            "enabled": [
+              "MCP23S08"
+            ]
+          },
+          {
+            "CS_EXP_N": 0,
+            "CS_OLED_N": 1,
+            "GP3": 0,
+            "GP7": 1,
+            "enabled": [
+              "MCP23S08"
+            ]
+          },
+          {
+            "CS_EXP_N": 1,
+            "CS_OLED_N": 0,
+            "GP3": 0,
+            "GP7": 1,
+            "enabled": []
+          },
+          {
+            "CS_EXP_N": 1,
+            "CS_OLED_N": 1,
+            "GP3": 0,
+            "GP7": 1,
+            "enabled": [
+              "TMAG5170"
+            ]
+          },
+          {
+            "CS_EXP_N": 0,
+            "CS_OLED_N": 0,
+            "GP3": 1,
+            "GP7": 0,
+            "enabled": [
+              "MCP23S08"
+            ]
+          },
+          {
+            "CS_EXP_N": 0,
+            "CS_OLED_N": 1,
+            "GP3": 1,
+            "GP7": 0,
+            "enabled": [
+              "MCP23S08"
+            ]
+          },
+          {
+            "CS_EXP_N": 1,
+            "CS_OLED_N": 0,
+            "GP3": 1,
+            "GP7": 0,
+            "enabled": []
+          },
+          {
+            "CS_EXP_N": 1,
+            "CS_OLED_N": 1,
+            "GP3": 1,
+            "GP7": 0,
+            "enabled": [
+              "TMP122"
+            ]
+          },
+          {
+            "CS_EXP_N": 0,
+            "CS_OLED_N": 0,
+            "GP3": 1,
+            "GP7": 1,
+            "enabled": [
+              "MCP23S08"
+            ]
+          },
+          {
+            "CS_EXP_N": 0,
+            "CS_OLED_N": 1,
+            "GP3": 1,
+            "GP7": 1,
+            "enabled": [
+              "MCP23S08"
+            ]
+          },
+          {
+            "CS_EXP_N": 1,
+            "CS_OLED_N": 0,
+            "GP3": 1,
+            "GP7": 1,
+            "enabled": []
+          },
+          {
+            "CS_EXP_N": 1,
+            "CS_OLED_N": 1,
+            "GP3": 1,
+            "GP7": 1,
+            "enabled": []
+          }
+        ],
+        "truth_table_rows_GPx_CSEXP_CSOLED_CSdev": {
+          "tmag": [
+            [
+              0,
+              0,
+              0,
+              1
+            ],
+            [
+              0,
+              0,
+              1,
+              1
+            ],
+            [
+              0,
+              1,
+              0,
+              1
+            ],
+            [
+              0,
+              1,
+              1,
+              0
+            ],
+            [
+              1,
+              0,
+              0,
+              1
+            ],
+            [
+              1,
+              0,
+              1,
+              1
+            ],
+            [
+              1,
+              1,
+              0,
+              1
+            ],
+            [
+              1,
+              1,
+              1,
+              1
+            ]
+          ],
+          "tmp": [
+            [
+              0,
+              0,
+              0,
+              1
+            ],
+            [
+              0,
+              0,
+              1,
+              1
+            ],
+            [
+              0,
+              1,
+              0,
+              1
+            ],
+            [
+              0,
+              1,
+              1,
+              0
+            ],
+            [
+              1,
+              0,
+              0,
+              1
+            ],
+            [
+              1,
+              0,
+              1,
+              1
+            ],
+            [
+              1,
+              1,
+              0,
+              1
+            ],
+            [
+              1,
+              1,
+              1,
+              1
+            ]
+          ]
+        }
+      }
     },
     "decoup": {
       "checks": {
@@ -152,9 +573,9 @@
           "detail": 2.2e-05,
           "ok": true
         },
-        "u_cmp_has_100nF_between_supply_and_ground": {
+        "u_busy_has_100nF_between_supply_and_ground": {
           "detail": [
-            "C5",
+            "C17",
             1.0000000000000001e-07,
             [
               "GND",
@@ -166,6 +587,28 @@
         "u_exp_has_100nF_between_supply_and_ground": {
           "detail": [
             "C3",
+            1.0000000000000001e-07,
+            [
+              "GND",
+              "V3V3"
+            ]
+          ],
+          "ok": true
+        },
+        "u_sel_has_100nF_between_supply_and_ground": {
+          "detail": [
+            "C18",
+            1.0000000000000001e-07,
+            [
+              "GND",
+              "V3V3"
+            ]
+          ],
+          "ok": true
+        },
+        "u_tmag_has_100nF_between_supply_and_ground": {
+          "detail": [
+            "C16",
             1.0000000000000001e-07,
             [
               "GND",
@@ -190,96 +633,10 @@
         "ics": [
           "u_tmp",
           "u_exp",
-          "u_cmp"
+          "u_busy",
+          "u_sel",
+          "u_tmag"
         ]
-      }
-    },
-    "encoder": {
-      "checks": {
-        "calc_high_margin_ge_0p3V": {
-          "detail": null,
-          "ok": true
-        },
-        "calc_hysteresis_positive_at_every_corner": {
-          "detail": null,
-          "ok": true
-        },
-        "calc_low_margin_ge_0p3V": {
-          "detail": null,
-          "ok": true
-        },
-        "calc_without_comparator_would_fail": {
-          "detail": null,
-          "ok": true
-        },
-        "chip_selects_not_shared": {
-          "detail": null,
-          "ok": true
-        },
-        "comparator_high_margin_ge_0p3V": {
-          "detail": 0.3866,
-          "ok": true
-        },
-        "comparator_hysteresis_positive": {
-          "detail": 0.0702,
-          "ok": true
-        },
-        "comparator_low_margin_ge_0p3V": {
-          "detail": 0.3815,
-          "ok": true
-        },
-        "enc_a_pullup_10k_to_encoder_rail": {
-          "detail": [
-            [
-              "R9",
-              10000.0
-            ]
-          ],
-          "ok": true
-        },
-        "enc_b_pullup_10k_to_encoder_rail": {
-          "detail": [
-            [
-              "R10",
-              10000.0
-            ]
-          ],
-          "ok": true
-        },
-        "enc_sw_pullup_10k_to_encoder_rail": {
-          "detail": [
-            [
-              "R8",
-              10000.0
-            ]
-          ],
-          "ok": true
-        },
-        "encoder_rail_from_3v3_through_bead": {
-          "detail": [
-            "FB1"
-          ],
-          "ok": true
-        },
-        "j2_pin_map_per_grayhill_vg": {
-          "detail": {},
-          "ok": true
-        },
-        "tmp122_sio_on_miso_local_cs_on_gp7_sck_on_bus": {
-          "detail": [
-            "MISO_LOCAL",
-            "GP7_TMP_CS_N",
-            "J7_SCK"
-          ],
-          "ok": true
-        }
-      },
-      "data": {
-        "comparator_margins_V": {
-          "down_margin": 0.3815,
-          "hyst": 0.0702,
-          "up_margin": 0.3866
-        }
       }
     },
     "esd": {
@@ -311,41 +668,24 @@
           ],
           "ok": true
         },
+        "calc_alert_residual_le_10mA": {
+          "detail": null,
+          "ok": true
+        },
         "calc_button_residual_le_20mA": {
           "detail": null,
-          "ok": true
-        },
-        "calc_comparator_residual_le_10mA": {
-          "detail": null,
-          "ok": true
-        },
-        "enc_a_series_ge_10k_to_comparator": {
-          "detail": [
-            "R11"
-          ],
-          "ok": true
-        },
-        "enc_b_series_ge_10k_to_comparator": {
-          "detail": [
-            "R12"
-          ],
-          "ok": true
-        },
-        "enc_sw_series_ge_1k_to_expander": {
-          "detail": [
-            [
-              "R7",
-              1000.0
-            ]
-          ],
           "ok": true
         },
         "every_external_facing_line_has_srv05_clamp": {
           "detail": {},
           "ok": true
         },
-        "grayhill_noise_cap_below_1nF": {
-          "detail": null,
+        "no_chassis_or_pe_net_in_the_netlist_discharge_path_is_mechanical": {
+          "detail": [],
+          "ok": true
+        },
+        "sensor_tab_inputs_have_srv05_clamp": {
+          "detail": [],
           "ok": true
         }
       },
@@ -373,6 +713,38 @@
           "detail": null,
           "ok": true
         },
+        "buzzer_clear_of_cap_envelopes_ge_3mm": {
+          "detail": null,
+          "ok": true
+        },
+        "buzzer_clear_of_holes_ge_3mm": {
+          "detail": null,
+          "ok": true
+        },
+        "buzzer_clear_of_oled_ge_3mm": {
+          "detail": null,
+          "ok": true
+        },
+        "buzzer_inside_outline_ge_3mm": {
+          "detail": null,
+          "ok": true
+        },
+        "buzzer_is_the_lowest_v_corner_of_the_board": {
+          "detail": null,
+          "ok": true
+        },
+        "buzzer_port_fits_in_the_body": {
+          "detail": null,
+          "ok": true
+        },
+        "c16_within_5_to_9mm_of_the_hall_element": {
+          "detail": null,
+          "ok": true
+        },
+        "caps_envelope_clear_of_each_other_ge_3mm": {
+          "detail": null,
+          "ok": true
+        },
         "catalog_bbox_x_equals_board_u": {
           "detail": null,
           "ok": true
@@ -381,24 +753,16 @@
           "detail": null,
           "ok": true
         },
-        "connectors_match_source": {
+        "cutout_inside_outline": {
           "detail": null,
           "ok": true
         },
-        "cutout_inside_outline": {
+        "die_gap_is_5mm_face_to_die": {
           "detail": null,
           "ok": true
         },
         "enclosure_source_present_or_skipped": {
           "detail": "present",
-          "ok": true
-        },
-        "encoder_cable_reaches_with_strain_relief": {
-          "detail": null,
-          "ok": true
-        },
-        "encoder_outside_board": {
-          "detail": null,
           "ok": true
         },
         "holes_do_not_overlap": {
@@ -417,19 +781,47 @@
           "detail": null,
           "ok": true
         },
-        "j7_j2_gap_ge_1mm": {
+        "j7_j8_gap_ge_3mm": {
           "detail": null,
           "ok": true
         },
-        "j7_j2_inside_outline": {
+        "j7_j8_inside_outline": {
           "detail": null,
           "ok": true
         },
-        "oled_lens_encoder_match_source": {
+        "j7_matches_source": {
+          "detail": null,
+          "ok": true
+        },
+        "j8_edge_margin_ge_3mm": {
+          "detail": null,
+          "ok": true
+        },
+        "j9_inside_tab_ge_1mm": {
+          "detail": null,
+          "ok": true
+        },
+        "j9_outside_the_steel_keepout": {
+          "detail": null,
+          "ok": true
+        },
+        "knob_envelope_does_not_reach_the_main_board_parts": {
+          "detail": null,
+          "ok": true
+        },
+        "oled_lens_and_knob_axis_match_source": {
           "detail": null,
           "ok": true
         },
         "oled_m2_clear_of_ui_holes": {
+          "detail": null,
+          "ok": true
+        },
+        "package_centre_is_0p27_0p04_from_the_axis": {
+          "detail": null,
+          "ok": true
+        },
+        "package_top_clears_the_fascia_rear": {
           "detail": null,
           "ok": true
         },
@@ -448,6 +840,46 @@
         "stacker_matches_source": {
           "detail": null,
           "ok": true
+        },
+        "steel_screw_at_15mm_would_exceed_1deg": {
+          "detail": null,
+          "ok": true
+        },
+        "steel_screw_at_the_keepout_radius_le_0p07deg": {
+          "detail": null,
+          "ok": true
+        },
+        "tab_centred_on_the_knob_axis": {
+          "detail": null,
+          "ok": true
+        },
+        "tab_clear_of_main_board_ge_10mm": {
+          "detail": null,
+          "ok": true
+        },
+        "tab_fasteners_outside_the_steel_keepout": {
+          "detail": null,
+          "ok": true
+        },
+        "tab_front_face_puts_the_hall_plane_at_w_minus_4": {
+          "detail": null,
+          "ok": true
+        },
+        "tab_holes_clear_of_j9_ge_1mm": {
+          "detail": null,
+          "ok": true
+        },
+        "tab_holes_wall_ge_2mm": {
+          "detail": null,
+          "ok": true
+        },
+        "tact_bodies_clear_of_holes_ge_3mm": {
+          "detail": null,
+          "ok": true
+        },
+        "tact_bodies_inside_outline_ge_3mm": {
+          "detail": null,
+          "ok": true
         }
       },
       "data": {
@@ -463,12 +895,17 @@
             "item": "the OLED stacker is modelled 3.0 mm high; a 1x20 2.54 mm female socket on LCSC is 8.5 mm (5.5 mm too tall)"
           },
           {
-            "ask": "confirm plug clearance at layout",
+            "ask": "confirm plug clearance and service access at layout",
             "id": "E3",
-            "item": "J7 and J2 envelopes are 1.42 mm apart; the mated XHP-12 and Micro-MaTch plug housings are larger than the header bodies"
+            "item": "J7 and J8 envelopes are 19.12 mm apart; J7's mated XHP-12 housing is larger than the header body (J2 is gone, so J7 service access is no longer shared)"
           },
           {
-            "ask": "a \u00d8>=2 mm hole or gap in front of BZ1 (front face, u -104..-90, v 17..29), or an acoustic path",
+            "ask": "provide 3 non-magnetic, low-conductivity standoffs 1.78 mm high at the tab holes (outside the 25 mm steel keep-out), a window for the J8-J9 harness, and no steel within 25 mm of (110, 53)",
+            "id": "E5",
+            "item": "the TMAG5170 die plane is w = -4, 9.22 mm in front of the main board; the sensor therefore sits on a separate tab at w = -4.78 (front face), 1.78 mm behind the fascia rear"
+          },
+          {
+            "ask": "a sealed acoustic membrane / port of dia 6 mm centred at (u, v) = (-95, 24) in front of BZ1; the buzzer top is at w = -9, 6 mm behind the fascia rear",
             "id": "E4",
             "item": "no sound port is modelled in the fascia for the buzzer"
           }
@@ -489,17 +926,35 @@
               "nearest_hole_gap_mm": 14.58
             }
           },
+          "buzzer": {
+            "acoustic_gap_to_fascia_rear_mm": 6.0,
+            "body_box": [
+              -99.8,
+              -90.2,
+              19.2,
+              28.8
+            ],
+            "centre_uv": [
+              -95.0,
+              24.0
+            ],
+            "edge_margin_mm": 4.2,
+            "front_face_top_w": -9.0,
+            "hole_clear_mm": 5.7,
+            "nearest_cap_envelope_gap_mm": 8.2,
+            "oled_gap_mm": 16.93,
+            "port_diameter_mm": 6.0
+          },
           "catalog_bbox_x": [
             -106.0,
             64.0
           ],
+          "component_keepout_r_mm": 12.0,
           "connector_to_hole_clear_mm": {
-            "J2": 14.3,
-            "J7": 5.16
+            "J7": 5.16,
+            "J8": 21.26
           },
           "enclosure_source": "/Users/bennet/Desktop/temper/output/temper-manufacturing-r41",
-          "encoder_cable_mm": 76.2,
-          "encoder_gap_mm": 50.0,
           "hole_edge_distance_mm": {
             "boss@-104,60": 0.3,
             "boss@-75,92": 2.3,
@@ -510,23 +965,89 @@
             "stud@29,38": 19.5,
             "stud@29,82": 10.5
           },
-          "j2_box": [
-            50.0,
-            60.0,
-            53.8,
-            62.2
-          ],
           "j7_box": [
             29.8,
             62.2,
             46.62,
             52.38
           ],
-          "j7_j2_gap_mm": 1.42,
+          "j7_j8_gap_mm": 19.12,
+          "j8_box": [
+            53.88,
+            58.12,
+            71.5,
+            84.5
+          ],
+          "j9_box": [
+            79.88,
+            84.12,
+            46.5,
+            59.5
+          ],
+          "j9_distance_to_axis_mm": 25.88,
           "oled_socket_height_mm": 8.5,
+          "sensor": {
+            "face_to_die_gap_mm": 5.0,
+            "hall_centre_uvw": [
+              110.0,
+              53.0,
+              -4.0
+            ],
+            "main_board_front_w": -14.0,
+            "package_centre_uv": [
+              109.73,
+              53.04
+            ],
+            "package_orientation": "pin 1 upper left seen from the front (+u right, +v up), package top toward the fascia",
+            "package_top_to_fascia_rear_mm": 0.68,
+            "package_top_w": -3.68,
+            "step_from_main_board_mm": 9.22,
+            "tab_front_face_w": -4.78,
+            "tab_outline_u": [
+              78.0,
+              142.0
+            ],
+            "tab_outline_v": [
+              37.0,
+              69.0
+            ],
+            "tab_rear_face_w": -6.38
+          },
           "stacker_conflict_mm": 5.5,
           "stacker_gap_mm": 3.0,
-          "stacker_top_w_source": -10.5
+          "stacker_top_w_source": -10.5,
+          "steel_keepout_r_mm": 25.0,
+          "steel_screw_error_deg_by_distance_mm": {
+            "15": 1.3563,
+            "20": 0.2414,
+            "25": 0.0633,
+            "30": 0.0212
+          },
+          "tab_fastener_clearance_to_axis_mm": {
+            "(138,53)": 25.5,
+            "(83,42)": 26.65,
+            "(83,64)": 26.65
+          },
+          "tact_bodies": {
+            "back": [
+              -78.1,
+              -71.9,
+              22.9,
+              29.1
+            ],
+            "select_start": [
+              -38.1,
+              -31.9,
+              22.9,
+              29.1
+            ],
+            "stop": [
+              1.9,
+              8.1,
+              22.9,
+              29.1
+            ]
+          }
         }
       }
     },
@@ -561,6 +1082,10 @@
           "detail": "780eaab89",
           "ok": true
         },
+        "fixed_gps_0_1_2_6_not_touched_by_the_gates": {
+          "detail": null,
+          "ok": true
+        },
         "fw_btn_reset_lands_on_its_gp": {
           "detail": {
             "gp": 2,
@@ -589,32 +1114,27 @@
           },
           "ok": true
         },
-        "fw_enc_a_lands_on_its_gp": {
-          "detail": {
-            "gp": 3,
-            "gp_net": "GP3_ENC_A"
-          },
-          "ok": true
-        },
-        "fw_enc_b_lands_on_its_gp": {
-          "detail": {
-            "gp": 4,
-            "gp_net": "GP4_ENC_B"
-          },
-          "ok": true
-        },
-        "fw_enc_sw_lands_on_its_gp": {
-          "detail": {
-            "gp": 5,
-            "gp_net": "GP5_ENC_SW"
-          },
-          "ok": true
-        },
         "fw_local_lands_on_its_gp": {
           "detail": {
             "gp": 7,
-            "gp_net": "GP7_TMP_CS_N"
+            "gp_net": "GP7_TMP_SEL_N"
           },
+          "ok": true
+        },
+        "gp3_is_tmag_select_to_the_qualification_gate": {
+          "detail": "GP3_TMAG_SEL_N",
+          "ok": true
+        },
+        "gp3_reaches_the_tmag_chip_select_only_through_the_gate": {
+          "detail": "GP3_TMAG_SEL_N",
+          "ok": true
+        },
+        "gp4_is_tmag_alert_input": {
+          "detail": "GP4_TMAG_ALERT",
+          "ok": true
+        },
+        "gp5_spare_has_no_load_other_than_its_pullup": {
+          "detail": "GP5_SPARE",
           "ok": true
         },
         "gppu_never_on_buzzer_bit": {
@@ -646,6 +1166,19 @@
             "u_exp"
           ],
           "ok": true
+        },
+        "tmag_select_not_on_a_fixed_gp": {
+          "detail": [
+            "GP3_TMAG_SEL_N",
+            [
+              "GP0_BTN_START",
+              "GP1_BTN_STOP",
+              "GP2_BTN_BACK",
+              "GP6_BUZZER",
+              "GP7_TMP_SEL_N"
+            ]
+          ],
+          "ok": true
         }
       },
       "data": {
@@ -664,9 +1197,9 @@
           "BTN_START": true,
           "BTN_STOP": true,
           "BUZZER": true,
-          "ENC_A": true,
-          "ENC_B": true,
-          "ENC_SW": true,
+          "ENC_A": "repurposed (U19)",
+          "ENC_B": "repurposed (U19)",
+          "ENC_SW": "repurposed (U19)",
           "LOCAL": true
         },
         "stop_path_instances": [
@@ -680,20 +1213,6 @@
     },
     "inputs": {
       "checks": {
-        "enc_a_reaches_gp_through_comparator": {
-          "detail": [
-            "GP3_ENC_A",
-            "GP3_ENC_A"
-          ],
-          "ok": true
-        },
-        "enc_b_reaches_gp_through_comparator": {
-          "detail": [
-            "GP4_ENC_B",
-            "GP4_ENC_B"
-          ],
-          "ok": true
-        },
         "expander_reset_pulled_high": {
           "detail": "EXP_RESET",
           "ok": true
@@ -728,7 +1247,7 @@
         "gp3_has_external_pullup_le_47k": {
           "detail": [
             [
-              "R9",
+              "R26",
               10000.0
             ]
           ],
@@ -737,7 +1256,7 @@
         "gp4_has_external_pullup_le_47k": {
           "detail": [
             [
-              "R10",
+              "R25",
               10000.0
             ]
           ],
@@ -746,7 +1265,7 @@
         "gp5_has_external_pullup_le_47k": {
           "detail": [
             [
-              "R8",
+              "R27",
               10000.0
             ]
           ],
@@ -784,19 +1303,19 @@
           ],
           "GP3": [
             [
-              "R9",
+              "R26",
               10000.0
             ]
           ],
           "GP4": [
             [
-              "R10",
+              "R25",
               10000.0
             ]
           ],
           "GP5": [
             [
-              "R8",
+              "R27",
               10000.0
             ]
           ],
@@ -830,6 +1349,7 @@
         "j7_cs_exp_n_has_no_resistor_or_pull": {
           "detail": [
             "j_ui",
+            "u_busy",
             "u_esd_j7b",
             "u_exp"
           ],
@@ -839,6 +1359,7 @@
           "detail": [
             "j_oled",
             "j_ui",
+            "u_busy",
             "u_esd_j7a"
           ],
           "ok": true
@@ -988,19 +1509,19 @@
     },
     "power": {
       "checks": {
+        "headroom_without_oled_ge_70mA": {
+          "detail": 74.68,
+          "ok": true
+        },
         "netlist_total_within_5pct_of_calcs": {
           "detail": [
-            413.116,
-            411.9355
+            385.32,
+            385.3105
           ],
           "ok": true
         },
         "no_unmodelled_load_on_rails": {
           "detail": [],
-          "ok": true
-        },
-        "rail_encoder_within_3p30_pm_0p125": {
-          "detail": null,
           "ok": true
         },
         "rail_ics_within_2p7_5p5": {
@@ -1011,12 +1532,16 @@
           "detail": null,
           "ok": true
         },
+        "rail_tmag_within_2p3_5p5": {
+          "detail": null,
+          "ok": true
+        },
         "v3v3_total_le_controller_allocation_460mA": {
-          "detail": 413.116,
+          "detail": 385.32,
           "ok": true
         },
         "v3v3_without_oled_le_120mA": {
-          "detail": 73.116,
+          "detail": 45.32,
           "ok": true
         },
         "v5_budget_le_30mA": {
@@ -1025,6 +1550,7 @@
         }
       },
       "data": {
+        "headroom_without_oled_mA": 74.68,
         "oled_supply": "no on-board boost is needed: the module has one and the factory jumper powers it from 3V3; the 5 V path cannot carry the panel (170 mA at 5 V vs a 30 mA budget)",
         "v3v3_rows_mA": [
           [
@@ -1068,6 +1594,10 @@
             0.346
           ],
           [
+            "r_tmp_cs_dev",
+            0.346
+          ],
+          [
             "j_oled",
             340.0
           ],
@@ -1096,59 +1626,63 @@
             0.346
           ],
           [
-            "u_cmp",
-            0.12
-          ],
-          [
-            "c_cmp",
-            0.001
-          ],
-          [
             "u_esd_ctl_a",
             0.001
           ],
           [
-            "u_esd_ctl_b",
-            0.001
-          ],
-          [
             "bz",
-            31.5
+            30.0
           ],
           [
             "c_buz",
             0.001
           ],
           [
-            "j_enc",
-            30.0
+            "u_busy",
+            0.01
           ],
           [
-            "c_enc_bulk",
+            "c_busy",
             0.001
           ],
           [
-            "c_enc_hf",
+            "u_sel",
+            0.01
+          ],
+          [
+            "c_sel",
             0.001
           ],
           [
-            "r_pu_a",
+            "r_gp3_pu",
             0.346
           ],
           [
-            "r_pu_b",
+            "r_alert_pu",
             0.346
           ],
           [
-            "r_pu_sw",
+            "r_gp5_pu",
             0.346
           ],
           [
-            "r_ref_top",
-            0.289
+            "u_tmag",
+            3.4
+          ],
+          [
+            "c_tmag",
+            0.001
+          ],
+          [
+            "r_cs_tmag_pu",
+            0.346
+          ],
+          [
+            "u_esd_tab",
+            0.001
           ]
         ],
-        "v3v3_total_mA": 413.116,
+        "v3v3_total_mA": 385.32,
         "v5_rows_mA": [
           [
             "c_v5",
@@ -1161,6 +1695,146 @@
         ],
         "v5_total_mA": 0.511
       }
+    },
+    "removed": {
+      "checks": {
+        "connectors_are_j3_j7_j8_j9_only": {
+          "detail": [
+            "J3",
+            "J7",
+            "J8",
+            "J9"
+          ],
+          "ok": true
+        },
+        "no_encoder_nets": {
+          "detail": [],
+          "ok": true
+        },
+        "no_grayhill_or_apem_in_the_bom": {
+          "detail": null,
+          "ok": true
+        },
+        "removed_instances_absent": {
+          "detail": [],
+          "ok": true
+        },
+        "removed_mpns_absent_from_the_bom": {
+          "detail": [],
+          "ok": true
+        },
+        "removed_mpns_absent_from_the_netlist": {
+          "detail": {},
+          "ok": true
+        }
+      },
+      "data": {}
+    },
+    "tab": {
+      "checks": {
+        "J8_pin_map_1to1_harness": {
+          "detail": {},
+          "ok": true
+        },
+        "J9_pin_map_1to1_harness": {
+          "detail": {},
+          "ok": true
+        },
+        "every_harness_signal_beside_a_gnd": {
+          "detail": [],
+          "ok": true
+        },
+        "harness_connectors_are_sm10b_srss": {
+          "detail": null,
+          "ok": true
+        }
+      },
+      "data": {}
+    },
+    "tact": {
+      "checks": {
+        "calc_button_high_above_vih": {
+          "detail": null,
+          "ok": true
+        },
+        "calc_contact_current_inside_ksc2_envelope": {
+          "detail": null,
+          "ok": true
+        },
+        "calc_tact_contact_current_le_10mA": {
+          "detail": null,
+          "ok": true
+        },
+        "calc_wetting_ge_0p1mA_ksc2_minimum": {
+          "detail": null,
+          "ok": true
+        },
+        "sw_back_active_low_to_gnd_with_10k_pullup": {
+          "detail": {
+            "A": "BTN_BACK_RAW",
+            "B": "GND",
+            "pullup": [
+              [
+                "R6",
+                10000.0
+              ]
+            ]
+          },
+          "ok": true
+        },
+        "sw_start_active_low_to_gnd_with_10k_pullup": {
+          "detail": {
+            "A": "BTN_START_RAW",
+            "B": "GND",
+            "pullup": [
+              [
+                "R4",
+                10000.0
+              ]
+            ]
+          },
+          "ok": true
+        },
+        "sw_stop_active_low_to_gnd_with_10k_pullup": {
+          "detail": {
+            "A": "BTN_STOP_RAW",
+            "B": "GND",
+            "pullup": [
+              [
+                "R5",
+                10000.0
+              ]
+            ]
+          },
+          "ok": true
+        },
+        "tact_footprint_is_the_ksc2_manufacturer_pattern": {
+          "detail": [
+            "Temper_UI:CK_KSC2_G_gullwing_6.2x6.2mm",
+            "Temper_UI:CK_KSC2_G_gullwing_6.2x6.2mm",
+            "Temper_UI:CK_KSC2_G_gullwing_6.2x6.2mm"
+          ],
+          "ok": true
+        },
+        "three_tact_switches_y31b13136fplfg": {
+          "detail": [
+            [
+              "SW1",
+              "Y31B13136FPLFG"
+            ],
+            [
+              "SW2",
+              "Y31B13136FPLFG"
+            ],
+            [
+              "SW3",
+              "Y31B13136FPLFG"
+            ]
+          ],
+          "ok": true
+        }
+      },
+      "data": {}
     }
   }
 }
