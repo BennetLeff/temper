@@ -47,7 +47,13 @@ def main() -> None:
     def centroid(fp):
         """Part centre for the CPL: centre of the pads' bounding box (review M9). KiCad's origin is
         pin 1 on most THT footprints, up to 25 mm from the body centre."""
-        boxes = [pd.GetBoundingBox() for pd in fp.Pads()]
+        pads = list(fp.Pads())
+        # stage 17: an SMD part's centre is that of its soldered (pasted) pads; R5's CSS2H Kelvin land adds
+        # paste-free sense fingers that run 1.5 mm past the body and would shift the bounding box 0.75 mm
+        pasted = [pd for pd in pads if pd.IsOnLayer(pcbnew.F_Paste) or pd.IsOnLayer(pcbnew.B_Paste)]
+        if pasted and len(pasted) < len(pads) and all(pd.GetAttribute() == pcbnew.PAD_ATTRIB_SMD for pd in pads):
+            pads = pasted
+        boxes = [pd.GetBoundingBox() for pd in pads]
         if not boxes:
             return mm(fp.GetPosition().x), mm(fp.GetPosition().y)
         x0 = min(b.GetX() for b in boxes); x1 = max(b.GetRight() for b in boxes)

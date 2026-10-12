@@ -24,6 +24,11 @@ SEED = 320102
 RT = (None, 0.001, 25e-6)       # Yageo RT0603BRD07, thin film
 RC = (None, 0.01, 100e-6)       # Yageo RC1206FR-07, thick film
 SHUNT = (0.001, 0.01, 250e-6)  # Vishay WSK2512R0010FEA: F = 1%, 1m TCR
+# Stage 17 (DECISIONS 17): R5 on the board is now Bourns CSS2H-2512R-1L00F, F = 1 %, +/-75 ppm/C incl. Cu terminals.
+# PARTS keeps the WSK tuple because eight committed band records import this default (stage 15 ocp_bands /
+# band_contrib, stage 15b ref, BOM simplification, D31, r5-derating, screen); stage-17 and later band
+# calculations set PARTS["R5"] = SHUNT_CSS2H explicitly (round5-native21/stage17-r5/ocp_band17.py).
+SHUNT_CSS2H = (0.001, 0.01, 75e-6)
 PARTS = {
     "R5": SHUNT, "R26": (470e3, *RC[1:]), "R27": (470e3, *RC[1:]),
     "R28": (470e3, *RC[1:]), "R29": (470e3, *RC[1:]),

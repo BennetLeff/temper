@@ -239,6 +239,27 @@ runs rise 1–10 K and remain outside the 22 A envelope.
 - **BUS_P span:** 4.129 %.
 - **B3 ceiling sweep** (h 25): 133.2 / 133.4 / 133.7 / **133.9 °C** at 22 / 24 / 26 / 28 A, all at U26.
 
+### Stage 17 re-run (2026-10-12, board `e40f1e27…`; R5 = Bourns CSS2H-2512R-1L00F)
+
+- **Change:** R5's land only (`stage17-r5/`): pads 1 / 4 1.8 × 3.4 mm, two sense fingers west; the Kelvin pair
+  is re-laid under R5 on In1; LEG_RET keeps 10 in-pad / pour vias, HV_RET has 6 (was 9: the pad's east half is
+  within 3.2 mm of SW_B's B.Cu lane, and the N finger takes the old north row).
+- **R5 heat** (`b3/make_heat_sources.py`, `thermal.py` `pad_numbers`): 0.864 W at the 29.4 A trip on the
+  current pads 1 / 4 only; the CSS2H sense fingers are land, not part terminals.
+- **Worst R5 via** (34 A coherent, hv_mixed_a pl18): 8.78 A (was 7.27) at (38.1, 15.0).
+- **BUS_P span:** 4.129 %.
+- **B3 ceiling sweep** (h 25): 130.2 / 131.1 / 132.1 / **135.9 °C** at 22 / 24 / 26 / 28 A; 22–26 A at U42,
+  28 A at R5.4 (39.5, 14.5). Nominal h 10 / h 25: 163.2 / 129.1 °C.
+- **U26 reads 7 K lower than in stage 16** (126.1 against 133.0 °C, nominal h 25) with identical copper.json near it:
+  the In1 `n_ls LS block` and `ocp_kelvin_p protection` pours have the same priority and abut at y 75.3, and this
+  build filled the 0.3 mm boundary strip to n_ls. Rebuild fill order, not a stage-17 change; until the priorities
+  differ, read U26 as up to 133 °C.
+- **G6 (R5 derating, go/no-go):** PASS. Pad-cell max 134.81 °C / mean 125.99 °C (0.25 mm, c28, h 25); CSS2H
+  5 W at 70 °C terminal → 1.759 W derated, **margin 50.9 %** against the 20 % rule. Controls: the WSK FAIL
+  (0.864 W against 0.2084 W at 149.16 °C) and the stage-16 solve (149.16 °C) reproduce. Sensitivity: heat on
+  all four pads 134.34 °C (51.5 %); the stage-16 WSK board with heat on its current pads only is 123.43 °C, so
+  most of stage 16's 149 °C was its isolated sense pad (the WSK still fails there: 0.47 W derated). `stage17-r5/g6.json`.
+
 **Verdict, task 04 on native-21:** nominal operation passes the copper width screen after the SW_B
 fix (SW_A at 18.8 K is the tightest). The board needs a tank-current ceiling (22 A RMS interim).
 Bench IR at nominal power remains the physical gate (D4).

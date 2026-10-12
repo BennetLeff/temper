@@ -1,9 +1,9 @@
 {
  "basis": "Native-21: native-19 reviewed annotations by MPN and pin set; ECO.md manufacturer pin tables for parts added in D-33; remaining parts passive (named after Atopile signals). Connectivity authority: native-21/frozen/default.net. Not datasheet or powered verification.",
  "basis_counts": {
-  "native19-reviewed": 125,
+  "native19-reviewed": 124,
   "passive-two-terminal": 203,
-  "passive-untyped": 8,
+  "passive-untyped": 9,
   "eco-pin-table": 17
  },
  "components": {
@@ -700,24 +700,24 @@
    }
   },
   "R5": {
-   "mpn": "WSK25121L000FEA",
+   "mpn": "CSS2H-2512R-1L00F",
    "source_instance": "r_shunt",
-   "basis": "native19-reviewed",
+   "basis": "passive-untyped",
    "pins": {
     "1": {
-     "function": "I1",
+     "function": "p1",
      "type": "passive"
     },
     "2": {
-     "function": "S1",
+     "function": "p2",
      "type": "passive"
     },
     "3": {
-     "function": "S2",
+     "function": "p3",
      "type": "passive"
     },
     "4": {
-     "function": "I2",
+     "function": "p4",
      "type": "passive"
     }
    }

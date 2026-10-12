@@ -1,13 +1,13 @@
 # 08 Manufacturing package: native-21 candidate
 
-A **candidate** JLCPCB package for native-21 (stage 16), reviewed independently of KiCad. It
+A **candidate** JLCPCB package for native-21 (stage 17), reviewed independently of KiCad. It
 does not release fabrication: `DECISIONS.md` controls that, and its gates are open
 ([fab/FAB-NOTE.md](fab/FAB-NOTE.md)).
 
-- Board: native-21 stage 16 (stage 15b + the F2 / J11 blower-supply mains tap, DECISIONS item 16), SHA-256
-  `e9481ed6d183594a466d657bff09de525ad84457cbd13080a55b1b589b314bcd`.
+- Board: native-21 stage 17 (stage 16 + R5 = Bourns CSS2H-2512R-1L00F on a Kelvin land, DECISIONS item 17), SHA-256
+  `e40f1e275bbaff8a5e61e224974fd401a44bcad2acefa0b92d50f85b6ce81ecd`.
 - Tools: KiCad 10.0.4 `kicad-cli`, gerbv 2.11.1 (independent renderer), Miniforge Python 3.12.
-- Scripts: native-17's `bom_cpl_jlc.py` unchanged; `review_fab.py` with one change, below.
+- Scripts: native-17's `bom_cpl_jlc.py` (stage 17: an SMD part with paste-free pads takes its centroid from the pasted pads, so R5's sense fingers do not shift it; no other placement moved); `review_fab.py` with one change, below.
 
 ## Files (`fab/`)
 
@@ -26,8 +26,8 @@ does not release fabrication: `DECISIONS.md` controls that, and its gates are op
 | Check | Result |
 | --- | --- |
 | Outline | 290 × 190 mm |
-| Holes | 882 plated (120 component incl. 4 F1 slots + 762 via) and 15 non-plated; the board's census is 120 PTH pads + 762 vias |
-| Outer copper around every plated hole, F and B (12 points at drill radius + 0.07 mm) | **878/878 round holes on both sides.** The 4 F1 slots (G85) are outside the script's parser and were checked in the drill file |
+| Holes | 879 plated (120 component incl. 4 F1 slots + 759 via) and 15 non-plated; the board's census is 120 PTH pads + 759 vias |
+| Outer copper around every plated hole, F and B (12 points at drill radius + 0.07 mm) | **875/875 round holes on both sides.** The 4 F1 slots (G85) are outside the script's parser and were checked in the drill file |
 | Mask opening over every component hole, both sides | 112/112 round (+ 4 slots) |
 | Silk over a component land | 0 |
 | JLCPCB rules (`tools/jlc_dfm_check.py`, `jlc-dfm.json`) | PASS |

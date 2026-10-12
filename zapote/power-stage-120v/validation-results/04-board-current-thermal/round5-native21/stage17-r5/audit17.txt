@@ -1,0 +1,9 @@
+# rustc --edition=2021 --test audit.rs -o AUDIT_T && AUDIT_T   (stage 17; audit.rs f46573fe79fd)
+
+running 79 tests
+
+test result: ok. 79 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 14.20s
+
+# rustc --edition=2021 audit.rs -o AUDIT && AUDIT frozen/default.net frozen/default.csv frozen/resolved-components.json
+components 353, nets 195
+PASS: power-stage-120v connectivity audit

@@ -297,7 +297,7 @@ const IDENTITY: &[(&str, &str)] = &[
     ("bias_ha.ren_bot", "0603WAF2702T5E"),
     ("bias_hb.ren_top", "0603WAF1003T5E"),
     ("bias_hb.ren_bot", "0603WAF2702T5E"),
-    ("r_shunt", "WSK25121L000FEA"),
+    ("r_shunt", "CSS2H-2512R-1L00F"),   // stage 17: replaces WSK25121L000FEA (derating, DECISIONS 17)
     // DECISIONS.md 2026-10-03: dead-time resistors (native-18 onward).
     ("leg_a.r_dt", "RT0603BRD0749K9L"),
     ("leg_b.r_dt", "RT0603BRD0749K9L"),
@@ -768,10 +768,11 @@ fn audit(m: &Model) -> Vec<String> {
         e.push(format!("hv_ret has unexpected or missing members, possibly bypassing the shunt: {hv:?}"));
     }
 
-    // The 1 mOhm body uses Vishay's longer low-resistance terminal geometry.
+    // Stage 17: the 1 mOhm CSS2H sits on Bourns' Kelvin land (sense fingers net-tied to the current
+    // pads in the footprint, pads 1-4 as for the WSK it replaces).
     if let Some(reference) = m.reff("r_shunt") {
-        if m.comps[reference].footprint != "Resistor_SMD:R_Shunt_Vishay_WSK2512_6332Metric_T2.21mm" {
-            e.push("r_shunt footprint must be the 1mOhm T2.21mm variant".into());
+        if m.comps[reference].footprint != "temper:R_Shunt_Bourns_CSS2H-2512_Kelvin" {
+            e.push("r_shunt footprint must be the Bourns CSS2H-2512 Kelvin land".into());
         }
     }
     expect(&mut e, m, "c_v15", "2", "n_ls");
@@ -1191,7 +1192,8 @@ mod tests {
     fn wrong_low_ohm_shunt_footprint_fails() {
         let mut m = built();
         let reference = m.reff("r_shunt").unwrap().to_string();
-        m.comps.get_mut(&reference).unwrap().footprint = "Resistor_SMD:R_Shunt_Vishay_WSK2512_6332Metric_T1.19mm".into();
+        // the stage-16 WSK land no longer matches the part
+        m.comps.get_mut(&reference).unwrap().footprint = "Resistor_SMD:R_Shunt_Vishay_WSK2512_6332Metric_T2.21mm".into();
         fails(&m, "r_shunt footprint");
     }
 
@@ -1498,6 +1500,14 @@ mod tests {
             nodes.retain(|(node_ref, _)| node_ref != &r);
         }
         fails(&m, "tvs_bus missing");
+    }
+
+    #[test]
+    fn stage16_wsk_shunt_identity_fails() {
+        // stage 17 (DECISIONS 17): the 1 W WSK25121L000FEA fails derating at 28 A
+        let mut m = built();
+        m.set_part("r_shunt", "WSK25121L000FEA");
+        fails(&m, "r_shunt is WSK25121L000FEA");
     }
 
     #[test]

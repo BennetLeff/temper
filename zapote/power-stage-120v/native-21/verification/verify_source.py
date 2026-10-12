@@ -20,6 +20,7 @@ def main() -> None:
         assert parts[f'{leg}.r_dis_pu']['mpn'] == '0603WAF3300T5E'
     assert parts['r_th_top']['mpn'] == 'RT0603BRD0712K6L'   # stage 15, 28 A hardware
     assert parts['f_blw']['mpn'] == '3403.0171' and parts['j_blw_ac']['mpn'] == 'B2P3-VH(LF)(SN)'   # stage 16
+    assert parts['r_shunt']['mpn'] == 'CSS2H-2512R-1L00F' and parts['r_shunt']['footprint'] == 'temper:R_Shunt_Bourns_CSS2H-2512_Kelvin'   # stage 17 (DECISIONS 17)
     assert parts['r_ct_hi_top']['mpn'] == parts['r_ct_lo_bot']['mpn'] == 'RT0603BRD072K21L'
     for leg in ('leg_a', 'leg_b'):
         assert parts[f'{leg}.c_hs']['mpn'] == 'CC0805KRX7R9BB104' and parts[f'{leg}.c_hs_bulk']['mpn'] == 'GRM21BZ71E106KE15L'

@@ -171,3 +171,28 @@ cd zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-na
 python3 screen.py      # control asserted against ../r5-derating/results.json; writes screen.json
 python3 fit_scan.py    # courtyard / copper conflicts from committed stage-16 copper; writes fit.json
 ```
+
+## 7. Result (stage 17 executed, 2026-10-12)
+
+CSS2H-2512R-1L00F is on the board (`temper:R_Shunt_Bourns_CSS2H-2512_Kelvin`, board `e40f1e27…`). Every gate passed; G6 passes
+with 50.9 % margin. DECISIONS item 17 has the numbers and commits. Files added here:
+
+| File | What |
+| --- | --- |
+| `g6_r5_derating.py` → `g6.json` | G6: B3 c28 / 0.25 mm / h 25 solve on `native21s17`, CSS2H terminal curve, 20 % rule, pad ≤ 160 °C, trip floor; controls A (WSK FAIL 0.864 W vs 0.2084 W at 149.16 °C) and B (stage-16 solve 149.16 °C); heat-semantics sensitivity |
+| `ocp_band17.py` → `ocp_band17.json` | G7: band before the Kelvin shift with R5 75 ppm/°C (69.89–116.44 A); control: stage-16 250 ppm → 68.58–118.74 A |
+| `audit17.txt` | `audit.rs` 79/79 tests and the frozen-netlist PASS (rustc single file, no workspace build) |
+| `r5-gerber-review.png` | gerbv render of the R5 box: F.Cu, F.Mask, F.Paste, In1, B.Cu, drills |
+
+Measured land (footprint creation, section 3 asked for it): the 600 dpi drawing gives 1.80 × 3.40 pads with a 3.40 gap (as
+dimensioned); sense lobes 0.40 tall centred on each pad, running in to |x| 0.30; fingers 0.40 wide at |x| 0.30–0.70, from
+y −0.20 to +3.20 (1.50 beyond the pad edge); finger gap 0.60 (the plan's scaled 0.43 / 0.54 were off).
+
+Reproduce (board build and gates: `native-21/layout/gates/README.md`, TAG `native21s17`):
+
+```sh
+python3 ocp_band17.py
+python3 g6_r5_derating.py [--control-a4 <stage-16 round5-native21/outputs>]   # about 13 min with the controls
+cd ../../../08-manufacturing-package/native-21/fab/gerbers && gerbv -x png -D 1000 -O "1.2992x-0.7480" -W "0.4331x0.5118" \
+  -b "#ffffff" -o OUT.png -f "#000000ff" section-F_Cu.gtl -f "#ff0000ff" section-PTH.drl   # one panel per layer
+```
