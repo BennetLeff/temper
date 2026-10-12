@@ -39,40 +39,47 @@ def rec(key, val, text):
     checks.append((key, text))
 
 k_hot_cold = 1 + ALPHA_CU * DT
+RAC_OLD_HOT = RAC_LIMIT_HOT           # 0.25 ohm, superseded acceptance limit (DECISIONS item 12)
+RAC_LIMIT_HOT = RAC_TARGET_HOT        # row 5 binding figure: 0.23 ohm (DECISIONS item 10)
 r25 = RAC_LIMIT_HOT / k_hot_cold
 rec("row5_limit_25C_ohm", r25, f"{r25:.3f}")
 shape = lambda f: r25 * (f / 40.0) ** F_EXP
-
-# loss at the limit
 loss = lambda i, r: i * i * r
 cap_hot = P_BASIS_W / I_CEIL**2
 cap_25 = cap_hot / k_hot_cold
-f_knee = 40.0 * (cap_25 / r25) ** (1 / F_EXP)
-r60_hot_uncapped = RAC_LIMIT_HOT * (60 / 40) ** F_EXP
-r35_hot = RAC_LIMIT_HOT * (35 / 40) ** F_EXP
-rec("old_loss_22A_40k_W", loss(I_SHIP, RAC_LIMIT_HOT), f"{loss(I_SHIP, RAC_LIMIT_HOT):.0f} W at 40 kHz")
-rec("old_loss_22A_60k_W", loss(I_SHIP, r60_hot_uncapped), f"{loss(I_SHIP, r60_hot_uncapped):.0f} W at 60 kHz")
-rec("loss_28A_40k_limit_W", loss(I_CEIL, RAC_LIMIT_HOT), f"{loss(I_CEIL, RAC_LIMIT_HOT):.0f} W")
-rec("loss_28A_35k_limit_W", loss(I_CEIL, r35_hot), f"{loss(I_CEIL, r35_hot):.0f} W at 35 kHz")
-rec("r_hot_60k_uncapped_ohm", r60_hot_uncapped, f"{r60_hot_uncapped:.4f} Ω")
-rec("loss_28A_60k_uncapped_W", loss(I_CEIL, r60_hot_uncapped), f"{loss(I_CEIL, r60_hot_uncapped):.0f} W")
+f_knee = 40.0 * (cap_hot / RAC_LIMIT_HOT) ** (1 / F_EXP)
+rhot = lambda f: RAC_LIMIT_HOT * (f / 40.0) ** F_EXP
 rec("rac_cap_hot_ohm", cap_hot, f"{cap_hot:.4f} Ω")
 rec("rac_cap_25C_ohm", cap_25, f"{cap_25:.3f}")
 rec("cap_knee_kHz", f_knee, f"{f_knee:.1f} kHz")
+rec("cap_knee_kHz_short", f_knee, f"{f_knee:.1f} kHz")
 rec("curve_25C_20k", shape(20), f"{shape(20):.3f}")
 rec("curve_25C_40k", shape(40), f"{shape(40):.3f}")
 rec("curve_25C_60k_uncapped", shape(60), f"{shape(60):.3f}")
 rec("curve_25C_60k_capped", min(shape(60), cap_25), f"{min(shape(60), cap_25):.3f}")
-r60c=cap_hot/ (60/40)**F_EXP
-rec("rac_40k_for_cap_ohm", r60c, f"{r60c:.3f} Ω hot")
+assert shape(60) > cap_25 > shape(f_knee - 1)
+# first-article hot points
+assert min(rhot(40), cap_hot) == RAC_LIMIT_HOT and min(rhot(60), cap_hot) == cap_hot
+# losses at 28 A under the new limits
+rec("loss_28A_40k_W", loss(I_CEIL, RAC_LIMIT_HOT), f"{loss(I_CEIL, RAC_LIMIT_HOT):.0f} W")
+rec("loss_28A_35k_W", loss(I_CEIL, rhot(35)), f"{loss(I_CEIL, rhot(35)):.0f} W at 35 kHz")
+rec("r_hot_60k_uncapped_ohm", rhot(60), f"{rhot(60):.4f} Ω")
+rec("loss_28A_60k_uncapped_W", loss(I_CEIL, rhot(60)), f"{loss(I_CEIL, rhot(60)):.0f} W")
 rec("loss_28A_60k_capped_W", loss(I_CEIL, cap_hot), f"{loss(I_CEIL, cap_hot):.0f} W")
-rec("loss_28A_target_W", loss(I_CEIL, RAC_TARGET_HOT), f"{loss(I_CEIL, RAC_TARGET_HOT):.0f} W")
-r60_target = RAC_TARGET_HOT * (60 / 40) ** F_EXP
-rec("loss_28A_60k_target_W", loss(I_CEIL, r60_target), f"{loss(I_CEIL, r60_target):.0f} W at 60 kHz")
+assert loss(I_CEIL, cap_hot) <= P_BASIS_W + 1e-9 and loss(I_CEIL, RAC_LIMIT_HOT) <= P_BASIS_W
+# F_R / R_dc derivation
+rec("fr_for_rdc_100mohm", r25 / 0.100, f"{r25 / 0.100:.2f}")
+rec("fr_at_target_rdc_80mohm", r25 / 0.080, f"{r25 / 0.080:.1f}")
+# superseded 0.25 ohm limit, for the record
+rec("old_loss_22A_40k_W", loss(I_SHIP, RAC_OLD_HOT), f"{loss(I_SHIP, RAC_OLD_HOT):.0f} W at 40 kHz")
+rec("old_loss_22A_60k_W", loss(I_SHIP, RAC_OLD_HOT * 1.5**F_EXP), f"{loss(I_SHIP, RAC_OLD_HOT * 1.5**F_EXP):.0f} W at 60 kHz")
+rec("old_loss_28A_40k_W", loss(I_CEIL, RAC_OLD_HOT), f"{loss(I_CEIL, RAC_OLD_HOT):.0f} W at 40 kHz")
+rec("old_loss_28A_60k_W", loss(I_CEIL, RAC_OLD_HOT * 1.5**F_EXP), f"{loss(I_CEIL, RAC_OLD_HOT * 1.5**F_EXP):.0f} W at 60 kHz")
 # R36
 lo, hi = (loss(I_CEIL, r) for r in R36_RAC)
 rec("r36_loss_28A_lo_W", lo, f"{lo:.0f}")
 rec("r36_loss_28A_hi_W", hi, f"{hi:.0f}")
+assert R36_RAC[1] < RAC_LIMIT_HOT and R36_RAC[1] * 1.5**F_EXP < cap_hot   # R36 passes both limits
 r36_60 = R36_RAC[1] * (60 / 40) ** F_EXP
 rec("r36_hot_60k_hi_ohm", r36_60, f"{r36_60:.3f} Ω")
 rec("r36_loss_28A_60k_hi_W", loss(I_CEIL, r36_60), f"{loss(I_CEIL, r36_60):.0f} W at 60 kHz")
@@ -81,7 +88,7 @@ assert out["r36_loss_within_basis"]
 # thermal equivalence with the R32 study-02 140.7 C case
 eq = loss(I_SHIP, OLD_R_MAX)
 rec("old_case_loss_W", eq, f"{eq:.0f} W")
-assert abs(eq - loss(I_CEIL, RAC_LIMIT_HOT)) < 3
+assert loss(I_CEIL, RAC_LIMIT_HOT) < eq and abs(loss(I_CEIL, cap_hot) - eq) < 3
 # peak current spec
 spec_peak = math.ceil(SHUNT_BAND[1])
 rec("peak_spec_A", spec_peak, f"{spec_peak} A peak")
