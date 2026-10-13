@@ -1,0 +1,19 @@
+{
+  "review_date": "2026-10-13",
+  "reviewer": "Sol subagent; Five Flute resource scope",
+  "landing_page": "https://www.fiveflute.com/guides/",
+  "publisher": "Five Flute Inc., engineering design-review software vendor",
+  "author": "William Burke, founder and CEO (visible page bylines)",
+  "dates": "Article publication dates not verified from visible HTML",
+  "sources": [
+    {"id":"FF1","title":"Practical Design for Manufacturability and Assembly","url":"https://www.fiveflute.com/guide/practical-design-for-manufacturability-and-assembly/","depth":"full public HTML article"},
+    {"id":"FF2","title":"Design for Assembly (DFA) Best Practices","url":"https://www.fiveflute.com/guide/design-for-assembly-dfa-best-practices/","depth":"full public HTML article"},
+    {"id":"FF3","title":"Sheet metal DFM: design guidelines for formed and punched parts","url":"https://www.fiveflute.com/guide/sheet-metal-dfm-design-guidelines-for-formed-and-punched-parts/","depth":"full public HTML article"},
+    {"id":"FF4","title":"Mastering Drawings: Top Tips for Creating Better Sheet Metal Part Drawings","url":"https://www.fiveflute.com/guide/mastering-drawings-top-tips-for-creating-better-sheet-metal-part-drawings/","depth":"full public HTML article"},
+    {"id":"FF5","title":"Introduction to Root Sum Squared (RSS) Tolerance Analysis","url":"https://www.fiveflute.com/guide/introduction-to-root-sum-squared-rss-tolerance-analysis/","depth":"full public HTML article"},
+    {"id":"FF6","title":"Fasteners and Bolted Joint Design","url":"https://www.fiveflute.com/guide/fasteners-and-bolted-joint-design/","depth":"full public HTML article"},
+    {"id":"FF7","title":"Drawings 101: The Basics of Creating High Quality Engineering Drawings","url":"https://www.fiveflute.com/guide/drawings-101-the-basics-of-creating-high-quality-engineering-drawings/","depth":"full public HTML article"},
+    {"id":"FF8","title":"Five Flute Part Drawing Review Checklist","url":"https://www.fiveflute.com/guide/five-flute-part-drawing-review-checklist/","depth":"public HTML summary only; linked PDF not read"}
+  ],
+  "limits": ["Five Ultimate Guide landing pages observed but PDFs not read", "No current Temper assembly scoring", "No numerical universal acceptance limits adopted", "Every article source-derived paraphrase kept below 150 words"]
+}

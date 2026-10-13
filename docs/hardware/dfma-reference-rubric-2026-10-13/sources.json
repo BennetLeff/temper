@@ -1,0 +1,554 @@
+{
+  "date": "2026-10-13",
+  "method": "Targeted critical narrative review; six Sol agents; not systematic or representative",
+  "criterion_count": 72,
+  "source_count": 41,
+  "source_identifier_note": "B/T book identity verified from supplied files; publisher edition/ISBN can differ from filename catalog labels. Web source IDs preserve the resource reports.",
+  "sources": [
+    {
+      "id": "B",
+      "title": "Product Design for Manufacture and Assembly, Third Edition",
+      "author": "Geoffrey Boothroyd, Peter Dewhurst, Winston A. Knight",
+      "publication_year": 2011,
+      "pdf_pages": 710,
+      "local_source_path": "/Users/bennet/Downloads/Product Design for Manufacture and Assembly, Third Edition -- Boothroyd, Geoffrey, Dewhurst, Peter, Knight, Winston A_ -- Manufacturing engineering -- isbn13 9780367424053 -- 94fa388e58890c8c335632041245db87 -- Anna\u2019s Archive.pdf",
+      "sha256": "da9f79982736875a5f73464794f5991fe7d1c5bfbb43a30ed70a6bd88a177604",
+      "read_coverage": "Targeted reading and contents/chapter survey; exact pages in linked resource report",
+      "report": "resources/boothroyd.md",
+      "source_type": "User-provided textbook",
+      "accessed_on": "2026-10-13",
+      "internal_edition": "Copyright 2011, e-book ISBN 978-1-4200-8928-8; PDF page 7. Filename ISBN 9780367424053 retained as file label, not internal PDF identity."
+    },
+    {
+      "id": "T",
+      "title": "Manufacturing Processes for Design Professionals",
+      "author": "Rob Thompson",
+      "publication_year": 2007,
+      "pdf_pages": 266,
+      "local_source_path": "/Users/bennet/Downloads/Manufacturing Processes for Design Professionals -- Rob Thompson_ -- Thames & Hudson Ltd_, London, 2007 -- Thames and Hudson Ltd -- isbn13 9780500513750 -- 83c3bfdbf1e9a60ce30a7c8f8cdca36e -- Anna\u2019s Archive.pdf",
+      "sha256": "4ac89e72152c83b0b994ae8e0a30188180309288ff486d589ce2cde787cfe64e",
+      "read_coverage": "Targeted reading and contents/chapter survey; exact pages in linked resource report",
+      "report": "resources/thompson.md",
+      "source_type": "User-provided textbook",
+      "accessed_on": "2026-10-13",
+      "internal_edition": "First published 2007; scanned copyright spread identifies 2010 reprint and ISBN 978-0-500-51375-0."
+    },
+    {
+      "id": "J01",
+      "title": "Design for Manufacturing and Assembly: A Complete DFMA for PCB Design Guide",
+      "url": "https://jlcpcb.com/blog/design-for-manufacturing-and-assembly",
+      "published": "2025-10-20",
+      "updated": "2026-09-28",
+      "access_depth": "full article; stage matrix and all six main sections",
+      "topics": [
+        "early decisions",
+        "fabrication",
+        "assembly",
+        "stencil",
+        "BOM/CPL"
+      ],
+      "direct_paraphrase_budget_words_estimate": 49,
+      "resource_group": "jlcpcb",
+      "accessed_on": "2026-10-13"
+    },
+    {
+      "id": "J02",
+      "title": "PCB Manufacturing & Assembly Capabilities",
+      "url": "https://jlcpcb.com/capabilities/pcb-capabilities",
+      "updated": null,
+      "access_depth": "rigid PCB specifications, drilling, traces and clearances; live table checked 2026-10-13",
+      "topics": [
+        "stackup",
+        "copper",
+        "drilling",
+        "dimension",
+        "surface finish"
+      ],
+      "direct_paraphrase_budget_words_estimate": 47,
+      "resource_group": "jlcpcb",
+      "accessed_on": "2026-10-13"
+    },
+    {
+      "id": "J03",
+      "title": "Minimum Spacing Requirements for SMD Components",
+      "url": "https://jlcpcb.com/help/article/minimum-spacing-for-smd-components",
+      "updated": "2026-09-09",
+      "access_depth": "full help article with package-pair matrix",
+      "topics": [
+        "spacing",
+        "placement",
+        "AOI",
+        "rework"
+      ],
+      "direct_paraphrase_budget_words_estimate": 31,
+      "resource_group": "jlcpcb",
+      "accessed_on": "2026-10-13"
+    },
+    {
+      "id": "J04",
+      "title": "Bill of Materials(BOM) File for PCB Assembly",
+      "url": "https://jlcpcb.com/help/article/bill-of-materials-for-pcb-assembly",
+      "updated": "2026-09-09",
+      "access_depth": "full help article",
+      "topics": [
+        "BOM",
+        "designator",
+        "package",
+        "component identity"
+      ],
+      "direct_paraphrase_budget_words_estimate": 40,
+      "resource_group": "jlcpcb",
+      "accessed_on": "2026-10-13"
+    },
+    {
+      "id": "J05",
+      "title": "Pick & Place File for PCB Assembly",
+      "url": "https://jlcpcb.com/help/article/pick-place-file-for-pcb-assembly",
+      "updated": "2026-09-09",
+      "access_depth": "full help article",
+      "topics": [
+        "CPL",
+        "centroid",
+        "rotation",
+        "side"
+      ],
+      "direct_paraphrase_budget_words_estimate": 34,
+      "resource_group": "jlcpcb",
+      "accessed_on": "2026-10-13"
+    },
+    {
+      "id": "J06",
+      "title": "PCB Panelization",
+      "url": "https://jlcpcb.com/help/article/pcb-panelization",
+      "updated": "2026-09-09",
+      "access_depth": "panel requirements, V-cut constraints, Economic Assembly restriction",
+      "topics": [
+        "array",
+        "depanel",
+        "panel cost"
+      ],
+      "direct_paraphrase_budget_words_estimate": 28,
+      "resource_group": "jlcpcb",
+      "accessed_on": "2026-10-13"
+    },
+    {
+      "id": "J07",
+      "title": "How to Add Edge Rails and Fiducials for PCB Assembly Orders",
+      "url": "https://jlcpcb.com/help/article/how-to-add-edge-rails-fiducials-for-pcb-assembly-order",
+      "updated": "2026-09-09",
+      "access_depth": "full help article",
+      "topics": [
+        "edge rails",
+        "fiducials",
+        "tooling"
+      ],
+      "direct_paraphrase_budget_words_estimate": 20,
+      "resource_group": "jlcpcb",
+      "accessed_on": "2026-10-13"
+    },
+    {
+      "id": "J08",
+      "title": "Instructions for Stencil order",
+      "url": "https://jlcpcb.com/help/article/instructions-for-stencil-order",
+      "updated": "2026-07-13",
+      "access_depth": "paste layer, default aperture processing, thickness, valid area",
+      "topics": [
+        "stencil",
+        "paste",
+        "aperture"
+      ],
+      "direct_paraphrase_budget_words_estimate": 36,
+      "resource_group": "jlcpcb",
+      "accessed_on": "2026-10-13"
+    },
+    {
+      "id": "J09",
+      "title": "What Inspection Capabilities Does JLCPCB's SMT Assembly Service Provide?",
+      "url": "https://jlcpcb.com/help/article/smt-inspection-and-testing-capabilities",
+      "updated": "2026-09-09",
+      "access_depth": "SPI/AOI/X-ray/flying-probe/FCT sections",
+      "topics": [
+        "inspection",
+        "test",
+        "custom service"
+      ],
+      "direct_paraphrase_budget_words_estimate": 63,
+      "resource_group": "jlcpcb",
+      "accessed_on": "2026-10-13"
+    },
+    {
+      "id": "J10",
+      "title": "X-Ray Inspection Report Interpretation Guide",
+      "url": "https://jlcpcb.com/help/article/x-ray-inspection-report-interpretation-guide",
+      "updated": "2026-09-09",
+      "access_depth": "service trigger and defect interpretation sections",
+      "topics": [
+        "hidden joints",
+        "inspection report"
+      ],
+      "direct_paraphrase_budget_words_estimate": 22,
+      "resource_group": "jlcpcb",
+      "accessed_on": "2026-10-13"
+    },
+    {
+      "id": "J11",
+      "title": "PCB Assembly Cost: What Does the Price Include?",
+      "url": "https://jlcpcb.com/help/article/pcb-assembly-price",
+      "updated": "2026-09-09",
+      "access_depth": "full Economic and Standard fee table and fee explanations",
+      "topics": [
+        "total assembly cost",
+        "mode fees",
+        "setup",
+        "inspection"
+      ],
+      "direct_paraphrase_budget_words_estimate": 66,
+      "resource_group": "jlcpcb",
+      "accessed_on": "2026-10-13"
+    },
+    {
+      "id": "FF1",
+      "title": "Practical Design for Manufacturability and Assembly",
+      "url": "https://www.fiveflute.com/guide/practical-design-for-manufacturability-and-assembly/",
+      "depth": "full public HTML article",
+      "resource_group": "fiveflute",
+      "accessed_on": "2026-10-13"
+    },
+    {
+      "id": "FF2",
+      "title": "Design for Assembly (DFA) Best Practices",
+      "url": "https://www.fiveflute.com/guide/design-for-assembly-dfa-best-practices/",
+      "depth": "full public HTML article",
+      "resource_group": "fiveflute",
+      "accessed_on": "2026-10-13"
+    },
+    {
+      "id": "FF3",
+      "title": "Sheet metal DFM: design guidelines for formed and punched parts",
+      "url": "https://www.fiveflute.com/guide/sheet-metal-dfm-design-guidelines-for-formed-and-punched-parts/",
+      "depth": "full public HTML article",
+      "resource_group": "fiveflute",
+      "accessed_on": "2026-10-13"
+    },
+    {
+      "id": "FF4",
+      "title": "Mastering Drawings: Top Tips for Creating Better Sheet Metal Part Drawings",
+      "url": "https://www.fiveflute.com/guide/mastering-drawings-top-tips-for-creating-better-sheet-metal-part-drawings/",
+      "depth": "full public HTML article",
+      "resource_group": "fiveflute",
+      "accessed_on": "2026-10-13"
+    },
+    {
+      "id": "FF5",
+      "title": "Introduction to Root Sum Squared (RSS) Tolerance Analysis",
+      "url": "https://www.fiveflute.com/guide/introduction-to-root-sum-squared-rss-tolerance-analysis/",
+      "depth": "full public HTML article",
+      "resource_group": "fiveflute",
+      "accessed_on": "2026-10-13"
+    },
+    {
+      "id": "FF6",
+      "title": "Fasteners and Bolted Joint Design",
+      "url": "https://www.fiveflute.com/guide/fasteners-and-bolted-joint-design/",
+      "depth": "full public HTML article",
+      "resource_group": "fiveflute",
+      "accessed_on": "2026-10-13"
+    },
+    {
+      "id": "FF7",
+      "title": "Drawings 101: The Basics of Creating High Quality Engineering Drawings",
+      "url": "https://www.fiveflute.com/guide/drawings-101-the-basics-of-creating-high-quality-engineering-drawings/",
+      "depth": "full public HTML article",
+      "resource_group": "fiveflute",
+      "accessed_on": "2026-10-13"
+    },
+    {
+      "id": "FF8",
+      "title": "Five Flute Part Drawing Review Checklist",
+      "url": "https://www.fiveflute.com/guide/five-flute-part-drawing-review-checklist/",
+      "depth": "public HTML summary only; linked PDF not read",
+      "resource_group": "fiveflute",
+      "accessed_on": "2026-10-13"
+    },
+    {
+      "id": "DC00",
+      "case": "collection",
+      "title": "DFMA Case Studies",
+      "author": "Boothroyd Dewhurst, Inc.",
+      "date": "not stated",
+      "url": "https://www.dfma.com/resources/studies.asp",
+      "access_depth": "full collection index; vendor-curated",
+      "resource_group": "dfma-cases",
+      "accessed_on": "2026-10-13"
+    },
+    {
+      "id": "DC01",
+      "case": "dynisco",
+      "title": "Using DFM to Understand Printed Circuit Board Assembly Costs",
+      "author": "James McDonough, JM Engineering Consulting, with Dynisco",
+      "date": "DFMA Forum 2016",
+      "url": "https://www.dfma.com/forum/2016pdf/McDonoughPaper.pdf",
+      "access_depth": "first-person paper, 6 PDF pages, targeted pp. 2\u20135 text read; Chrome-rendered PDF pp. 3\u20134 visually checked for 8%/$13K/year and 400 default versus 33 actual holes/$7.50 modeled difference; no original cost ledger",
+      "resource_group": "dfma-cases",
+      "accessed_on": "2026-10-13"
+    },
+    {
+      "id": "DC01V",
+      "case": "dynisco",
+      "title": "Using DFM to Understand PCB Assembly Costs",
+      "author": "Boothroyd Dewhurst, Inc.",
+      "date": "not stated",
+      "url": "https://www.dfma.com/resources/pcb-assembly-costs.asp",
+      "access_depth": "full vendor summary read",
+      "resource_group": "dfma-cases",
+      "accessed_on": "2026-10-13"
+    },
+    {
+      "id": "DC02",
+      "case": "cnh",
+      "title": "Cost-Effective Product Development: Boothroyd Software's DFA Approach to Tractor Cooling Design",
+      "author": "Kapil Kumar, Michael Freisleben, V. Pavan K. Reddy, Mayank Chaturvedi; CNH Industrial",
+      "date": "DFMA Forum 2024",
+      "url": "https://www.dfma.com/forum/2024pdf/freislebenpaper24.pdf",
+      "access_depth": "company-authored paper, all 4 PDF pages text read; Chrome-rendered PDF pp. 1 and 4 visually checked for 352\u2192294 parts, 18% assembly-time reduction, and estimated 1.2% total cooling-package cost reduction; concept phase",
+      "resource_group": "dfma-cases",
+      "accessed_on": "2026-10-13"
+    },
+    {
+      "id": "DC02V",
+      "case": "cnh",
+      "title": "Tractor cooling package. 58 fewer parts at concept",
+      "author": "Boothroyd Dewhurst, Inc.",
+      "date": "not stated",
+      "url": "https://www.dfma.com/resources/tractor-cooling-package.asp",
+      "access_depth": "full vendor summary read",
+      "resource_group": "dfma-cases",
+      "accessed_on": "2026-10-13"
+    },
+    {
+      "id": "DC03",
+      "case": "baic",
+      "title": "Re-design on Vehicle Front Support Structure Using DFMA",
+      "author": "Wan Ni, Beijing Automotive Technology Center Co., Ltd.",
+      "date": "publication not stated; 2017 project described",
+      "url": "https://www.dfma.com/pdf/wanpaper.pdf",
+      "access_depth": "first-person paper, PDF pp. 1\u20136 text read; Chrome-rendered PDF pp. 1 and 6 visually checked. Fig. 3: 30\u219210 parts/20 removed, 552\u2192131 seconds, RMB 42.41\u219229.62 manufacturing cost, 1.28\u21920.97 kg. Adjacent prose: 35\u219212 independent parts and '20 removed'; count boundaries unexplained",
+      "resource_group": "dfma-cases",
+      "accessed_on": "2026-10-13"
+    },
+    {
+      "id": "DC03V",
+      "case": "baic",
+      "title": "Re-design of a Vehicle Front Support Structure Using DFMA",
+      "author": "Boothroyd Dewhurst, Inc.",
+      "date": "not stated",
+      "url": "https://www.dfma.com/resources/vehicle-front-support.asp",
+      "access_depth": "full vendor summary read",
+      "resource_group": "dfma-cases",
+      "accessed_on": "2026-10-13"
+    },
+    {
+      "id": "DC04",
+      "case": "idexx",
+      "title": "IDEXX. Simplifying a veterinary device",
+      "author": "Boothroyd Dewhurst, Inc.; Justin Griffin named as IDEXX engineer",
+      "date": "not stated",
+      "url": "https://www.dfma.com/resources/idexx.asp",
+      "access_depth": "full vendor narrative read; no original technical paper or cost ledger linked",
+      "resource_group": "dfma-cases",
+      "accessed_on": "2026-10-13"
+    },
+    {
+      "id": "DC05",
+      "case": "laptop",
+      "title": "DFMA Case Study: Laptop Development Using Concurrent Costing",
+      "author": "Boothroyd Dewhurst, Inc.; client unnamed",
+      "date": "2025-08-15 retrospective article; original project date not stated",
+      "url": "https://www.dfma.com/blog/dfma-case-study-redesigned-laptop.asp",
+      "access_depth": "full vendor narrative read; no first-person report or absolute baseline",
+      "resource_group": "dfma-cases",
+      "accessed_on": "2026-10-13"
+    },
+    {
+      "id": "DC06",
+      "case": "mouse",
+      "title": "DFMA Case Study: Computer Mouse Redesign",
+      "author": "Boothroyd Dewhurst, Inc.; client unnamed",
+      "date": "2025-05-27 retrospective article; original project date not stated",
+      "url": "https://www.dfma.com/blog/dfma-case-study-redesigned-pc-mouse.asp",
+      "access_depth": "full vendor narrative read; no first-person report or raw ledger",
+      "resource_group": "dfma-cases",
+      "accessed_on": "2026-10-13"
+    },
+    {
+      "id": "DC07",
+      "case": "ncr",
+      "title": "NCR Voyix POS terminal. 85% fewer parts",
+      "author": "Boothroyd Dewhurst, Inc.",
+      "date": "not stated",
+      "url": "https://www.dfma.com/resources/ncr-voyix-pos-terminal.asp",
+      "access_depth": "full vendor case page read; product versus demo boundaries differ",
+      "resource_group": "dfma-cases",
+      "accessed_on": "2026-10-13"
+    },
+    {
+      "id": "DC07B",
+      "case": "ncr",
+      "title": "DFMA Case Study: Redesigned POS Terminal",
+      "author": "Boothroyd Dewhurst, Inc.",
+      "date": "2025-05-19 retrospective article; original project date not stated",
+      "url": "https://www.dfma.com/blog/dfma-case-study-redesigned-POS-terminal.asp",
+      "access_depth": "full vendor narrative read; no NCR technical paper or ledger linked",
+      "resource_group": "dfma-cases",
+      "accessed_on": "2026-10-13"
+    },
+    {
+      "id": "DC08",
+      "case": "truck_instrument_panel",
+      "title": "Evaluation of Truck Instrument Panel Designs for Cost and Environmental Impact",
+      "author": "Boothroyd Dewhurst, Inc., summarizing work attributed to Peter Dewhurst",
+      "date": "not stated",
+      "url": "https://www.dfma.com/resources/panel.asp",
+      "access_depth": "full vendor summary read; concept proposal only; original paper not linked",
+      "resource_group": "dfma-cases",
+      "accessed_on": "2026-10-13"
+    },
+    {
+      "id": "A1",
+      "title": "Design for Manufacturing, Assembly, and Reliability: An Integrated Framework for Product Redesign and Innovation",
+      "authors": "Anda Iviana Juniani; Moses Laksono Singgih; Putu Dana Karningsih",
+      "year": 2022,
+      "url": "https://www.mdpi.com/2411-9660/6/5/88",
+      "doi": "10.3390/designs6050088",
+      "read_depth": "indexed original full HTML sections 3\u20135 and Table 6; direct publisher open tool error",
+      "evidence_type": "modeled cost, DFA, FEA on gas stove",
+      "direct_relevance": "cooking appliance enclosure and assembly",
+      "resource_group": "alternative-cases",
+      "accessed_on": "2026-10-13"
+    },
+    {
+      "id": "A2",
+      "title": "Optimization of High-Volume PCB Assembly: A Lean Six Sigma Approach Through Pin-in-Paste Technology Integration",
+      "authors": "Cosme Juan-Vel\u00e1zquez et al.",
+      "year": 2026,
+      "url": "https://www.mdpi.com/2504-4494/10/8/276",
+      "doi": "10.3390/jmmp10080276",
+      "read_depth": "indexed original full HTML methods/results/conclusions/limitations; direct publisher open tool error",
+      "evidence_type": "reported real line process change; economics and joint checks",
+      "direct_relevance": "PCBA process routing and THT",
+      "resource_group": "alternative-cases",
+      "accessed_on": "2026-10-13"
+    },
+    {
+      "id": "A3",
+      "title": "Test Solution for Heatsinks in Power Electronics Applications",
+      "authors": "Davide Piumatti et al.",
+      "year": 2020,
+      "url": "https://iris.polito.it/retrieve/e384c432-00b7-d4b2-e053-9f05fe0a1d67/electronics-09-01020.pdf",
+      "doi": "10.3390/electronics9061020",
+      "read_depth": "full original article, 15 printed pages; PDF 16 including repository cover",
+      "evidence_type": "electrothermal simulation of thermal-contact faults on real PSU circuit",
+      "direct_relevance": "power-device sink mounting and end-of-line test",
+      "resource_group": "alternative-cases",
+      "accessed_on": "2026-10-13"
+    },
+    {
+      "id": "A4",
+      "title": "Mini Case Study \u2013 Design for Manufacturing",
+      "authors": "AMtec Industries",
+      "year": null,
+      "url": "https://amtec1.com/mini-case-study-design-for-manufacturing/",
+      "doi": null,
+      "read_depth": "full firsthand vendor page",
+      "evidence_type": "manufacturer-reported harness/busbar redesign; unaudited cost/time claims",
+      "direct_relevance": "off-board power distribution and harness assembly",
+      "resource_group": "alternative-cases",
+      "accessed_on": "2026-10-13"
+    },
+    {
+      "id": "A5",
+      "title": "Case Study: Standard Enclosures vs. Custom Enclosures",
+      "authors": "N&H Technology",
+      "year": null,
+      "url": "https://www.nh-technology.de/en/standardgehaeuse-oder-kundenspezifische-gehaeuseloesung/",
+      "doi": null,
+      "read_depth": "full firsthand vendor page",
+      "evidence_type": "forecast economics and claimed series production; no audited actuals",
+      "direct_relevance": "enclosure process and tooling volume crossover",
+      "resource_group": "alternative-cases",
+      "accessed_on": "2026-10-13"
+    },
+    {
+      "id": "A6",
+      "title": "The USD 10,000 We Lost Building an ECU Housing for JCB",
+      "authors": "Tonney Shao, Abery Mold",
+      "year": 2026,
+      "event_year": 2011,
+      "url": "https://www.a-mold.com/case-studies/jcb-ecu-housing-nylon-gf-warpage-case-study.html",
+      "doi": null,
+      "read_depth": "full firsthand retrospective vendor page",
+      "evidence_type": "self-reported negative mold production and dimensional sign-off outcome; uncorroborated customer identity",
+      "direct_relevance": "molded enclosure free-state warpage and inspection",
+      "resource_group": "alternative-cases",
+      "accessed_on": "2026-10-13"
+    },
+    {
+      "id": "A7",
+      "title": "Assessment of End-of-Life Design in Consumer Coffee Makers",
+      "authors": "Ryan Lindbom; Kara Nichols; Dennis Tanner; Seung-Jin Lee; H. E. Dillon",
+      "year": 2025,
+      "url": "https://pubs.acs.org/doi/10.1021/acssusresmgt.5c00012",
+      "doi": "10.1021/acssusresmgt.5c00012",
+      "read_depth": "publisher abstract/metadata only; main article purchase-only here",
+      "evidence_type": "physical disassembly comparison summarized in abstract",
+      "direct_relevance": "appliance service and repair access",
+      "resource_group": "alternative-cases",
+      "accessed_on": "2026-10-13"
+    }
+  ],
+  "limits": [
+    "Neither textbook read line-by-line in full",
+    "Five Flute Ultimate Guide PDFs and linked detailed checklist PDF not read",
+    "Provider rules and historical process/cost examples are not universal acceptance limits",
+    "Case-study success selection and missing denominators prevent predicted Temper savings",
+    "No current hardware, enclosure or full-system score assigned"
+  ],
+  "supporting_context": [
+    {
+      "id": "P-PCB",
+      "path": "docs/hardware/pcb-benchmark-improvement-strategy-2026-10-13.md",
+      "sha256": "38c6ddaeadb18fd103faa13581ecaf4a6d78ded78bee7e5cca2caf9603dc01f6",
+      "depth": "Existing user-directed benchmark strategy read"
+    },
+    {
+      "id": "P-BOM",
+      "path": "docs/hardware/bom-benchmark-optimization-strategy-2026-10-13.md",
+      "sha256": "be542476befdb6aa7c5a458d92de62e3ff29275f7ba484c7bfc9ec3e87fe9923",
+      "depth": "Existing BOM review strategy read"
+    },
+    {
+      "id": "P-MFG",
+      "path": "/Users/bennet/.codex/skills/temper-manufacturing-review/SKILL.md",
+      "sha256": "b71bbbda8dd4f2ed07c45889ffe5c1fea15b416054557bd35ea6f652eab71ea5",
+      "depth": "Manufacturing-review method read; original review conventions"
+    },
+    {
+      "id": "P-MFG-EVIDENCE",
+      "path": "/Users/bennet/.codex/skills/temper-manufacturing-review/references/evidence.md",
+      "sha256": "a6bf3dc75fd0a441c5be553135c30daf75e60cdb324a70463a21c20e5e3cba77",
+      "depth": "Local evidence summary read; linked MIT papers not newly reviewed in this task"
+    },
+    {
+      "id": "P-CAD",
+      "path": "/Users/bennet/.codex/skills/cad-manufacturability/references/rubric.md",
+      "sha256": "b78c15f30ef299e65e93af5c8db7274f0ab0616cabbd076debee3879858fcc05",
+      "depth": "Existing CAD rubric method read; its numerical weighting is not adopted"
+    },
+    {
+      "id": "P-BRIEF",
+      "path": "/Users/bennet/.codex/skills/cad-manufacturability/references/temper-brief.md",
+      "sha256": "8ecbfee3931c09e12d22a8e4661d27daa9a39916a6fce33fcc7a7e689b7b0b9f",
+      "depth": "Existing user mechanical preference brief read; treated as preferences, not manufacturing standard"
+    }
+  ]
+}

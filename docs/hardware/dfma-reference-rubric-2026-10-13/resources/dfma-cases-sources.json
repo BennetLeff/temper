@@ -1,0 +1,131 @@
+{
+  "accessed_on": "2026-10-13",
+  "selection_method": "Purposive selection of eight case accounts relevant to PCB architecture, enclosure, cooling, harnesses, assembly, and service; not a representative sample.",
+  "sources": [
+    {
+      "id": "DC00",
+      "case": "collection",
+      "title": "DFMA Case Studies",
+      "author": "Boothroyd Dewhurst, Inc.",
+      "date": "not stated",
+      "url": "https://www.dfma.com/resources/studies.asp",
+      "access_depth": "full collection index; vendor-curated"
+    },
+    {
+      "id": "DC01",
+      "case": "dynisco",
+      "title": "Using DFM to Understand Printed Circuit Board Assembly Costs",
+      "author": "James McDonough, JM Engineering Consulting, with Dynisco",
+      "date": "DFMA Forum 2016",
+      "url": "https://www.dfma.com/forum/2016pdf/McDonoughPaper.pdf",
+      "access_depth": "first-person paper, 6 PDF pages, targeted pp. 2–5 text read; Chrome-rendered PDF pp. 3–4 visually checked for 8%/$13K/year and 400 default versus 33 actual holes/$7.50 modeled difference; no original cost ledger"
+    },
+    {
+      "id": "DC01V",
+      "case": "dynisco",
+      "title": "Using DFM to Understand PCB Assembly Costs",
+      "author": "Boothroyd Dewhurst, Inc.",
+      "date": "not stated",
+      "url": "https://www.dfma.com/resources/pcb-assembly-costs.asp",
+      "access_depth": "full vendor summary read"
+    },
+    {
+      "id": "DC02",
+      "case": "cnh",
+      "title": "Cost-Effective Product Development: Boothroyd Software's DFA Approach to Tractor Cooling Design",
+      "author": "Kapil Kumar, Michael Freisleben, V. Pavan K. Reddy, Mayank Chaturvedi; CNH Industrial",
+      "date": "DFMA Forum 2024",
+      "url": "https://www.dfma.com/forum/2024pdf/freislebenpaper24.pdf",
+      "access_depth": "company-authored paper, all 4 PDF pages text read; Chrome-rendered PDF pp. 1 and 4 visually checked for 352→294 parts, 18% assembly-time reduction, and estimated 1.2% total cooling-package cost reduction; concept phase"
+    },
+    {
+      "id": "DC02V",
+      "case": "cnh",
+      "title": "Tractor cooling package. 58 fewer parts at concept",
+      "author": "Boothroyd Dewhurst, Inc.",
+      "date": "not stated",
+      "url": "https://www.dfma.com/resources/tractor-cooling-package.asp",
+      "access_depth": "full vendor summary read"
+    },
+    {
+      "id": "DC03",
+      "case": "baic",
+      "title": "Re-design on Vehicle Front Support Structure Using DFMA",
+      "author": "Wan Ni, Beijing Automotive Technology Center Co., Ltd.",
+      "date": "publication not stated; 2017 project described",
+      "url": "https://www.dfma.com/pdf/wanpaper.pdf",
+      "access_depth": "first-person paper, PDF pp. 1–6 text read; Chrome-rendered PDF pp. 1 and 6 visually checked. Fig. 3: 30→10 parts/20 removed, 552→131 seconds, RMB 42.41→29.62 manufacturing cost, 1.28→0.97 kg. Adjacent prose: 35→12 independent parts and '20 removed'; count boundaries unexplained"
+    },
+    {
+      "id": "DC03V",
+      "case": "baic",
+      "title": "Re-design of a Vehicle Front Support Structure Using DFMA",
+      "author": "Boothroyd Dewhurst, Inc.",
+      "date": "not stated",
+      "url": "https://www.dfma.com/resources/vehicle-front-support.asp",
+      "access_depth": "full vendor summary read"
+    },
+    {
+      "id": "DC04",
+      "case": "idexx",
+      "title": "IDEXX. Simplifying a veterinary device",
+      "author": "Boothroyd Dewhurst, Inc.; Justin Griffin named as IDEXX engineer",
+      "date": "not stated",
+      "url": "https://www.dfma.com/resources/idexx.asp",
+      "access_depth": "full vendor narrative read; no original technical paper or cost ledger linked"
+    },
+    {
+      "id": "DC05",
+      "case": "laptop",
+      "title": "DFMA Case Study: Laptop Development Using Concurrent Costing",
+      "author": "Boothroyd Dewhurst, Inc.; client unnamed",
+      "date": "2025-08-15 retrospective article; original project date not stated",
+      "url": "https://www.dfma.com/blog/dfma-case-study-redesigned-laptop.asp",
+      "access_depth": "full vendor narrative read; no first-person report or absolute baseline"
+    },
+    {
+      "id": "DC06",
+      "case": "mouse",
+      "title": "DFMA Case Study: Computer Mouse Redesign",
+      "author": "Boothroyd Dewhurst, Inc.; client unnamed",
+      "date": "2025-05-27 retrospective article; original project date not stated",
+      "url": "https://www.dfma.com/blog/dfma-case-study-redesigned-pc-mouse.asp",
+      "access_depth": "full vendor narrative read; no first-person report or raw ledger"
+    },
+    {
+      "id": "DC07",
+      "case": "ncr",
+      "title": "NCR Voyix POS terminal. 85% fewer parts",
+      "author": "Boothroyd Dewhurst, Inc.",
+      "date": "not stated",
+      "url": "https://www.dfma.com/resources/ncr-voyix-pos-terminal.asp",
+      "access_depth": "full vendor case page read; product versus demo boundaries differ"
+    },
+    {
+      "id": "DC07B",
+      "case": "ncr",
+      "title": "DFMA Case Study: Redesigned POS Terminal",
+      "author": "Boothroyd Dewhurst, Inc.",
+      "date": "2025-05-19 retrospective article; original project date not stated",
+      "url": "https://www.dfma.com/blog/dfma-case-study-redesigned-POS-terminal.asp",
+      "access_depth": "full vendor narrative read; no NCR technical paper or ledger linked"
+    },
+    {
+      "id": "DC08",
+      "case": "truck_instrument_panel",
+      "title": "Evaluation of Truck Instrument Panel Designs for Cost and Environmental Impact",
+      "author": "Boothroyd Dewhurst, Inc., summarizing work attributed to Peter Dewhurst",
+      "date": "not stated",
+      "url": "https://www.dfma.com/resources/panel.asp",
+      "access_depth": "full vendor summary read; concept proposal only; original paper not linked"
+    }
+  ],
+  "limits": [
+    "The collection is a vendor-selected success set, not a statistical sample.",
+    "Case savings are not Temper savings estimates.",
+    "No case exposes a full audited cost ledger with comparable lot size and process for Temper.",
+    "BAIC source presents 30→10 parts in Figure 3 and 35→12 independent parts in adjacent prose; '20 removed' agrees with the table but not the prose. It does not explain count boundaries.",
+    "NCR product and promotional demonstration use different counts and time boundaries.",
+    "Only Dynisco, CNH, and BAIC quantitative claims were checked against rendered primary PDF pages. All other case accounts were HTML-text reviewed only."
+  ]
+}

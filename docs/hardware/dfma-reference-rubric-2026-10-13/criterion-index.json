@@ -1,0 +1,1570 @@
+{
+  "date": "2026-10-13",
+  "status": "UNASSESSED",
+  "criterion_count": 72,
+  "scores_assigned": false,
+  "criteria": [
+    {
+      "id": "DFMA-01",
+      "category": "A. Product architecture and manufacturing assumptions",
+      "requirement": "Define the complete unit and build route being optimized.",
+      "required_evidence": "Revision manifest covering electronics, enclosure, filter, harness, cooling and bought parts; intended quantity, rate, region and stage. Compare the same boundary.",
+      "tradeoff": "A PCB saving can increase final-assembly cost.",
+      "basis": [
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-01",
+          "source_locator": "pp. 1, 6\u20137, 12\u201315; PDF 40, 45\u201346, 51\u201354"
+        },
+        {
+          "resource": "thompson",
+          "resource_question": "TH-01",
+          "source_locator": "At prototype, multiple candidate routes may remain; at pilot, select the exact route; production costs require supplier-specific assumptions."
+        },
+        {
+          "resource": "fiveflute",
+          "resource_question": "FFR01",
+          "source_locator": "FF1"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-02",
+      "category": "A. Product architecture and manufacturing assumptions",
+      "requirement": "Assign every separate physical part a necessary function.",
+      "required_evidence": "Function map; identify relative motion, distinct material/isolation, assembly or service reasons; preserve electrical and thermal functions before proposing integration.",
+      "tradeoff": "Fewer parts can remove isolation, repair access or thermal accommodation.",
+      "basis": [
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-02",
+          "source_locator": "pp. 10\u201311, 82; PDF 49\u201350, 121"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-03",
+      "category": "A. Product architecture and manufacturing assumptions",
+      "requirement": "Challenge board splits, carriers, housings and brackets as architectures.",
+      "required_evidence": "Alternative function/interface maps and installed BOMs; mounting, wiring, shielding, insulation and cooling requirements traced.",
+      "tradeoff": "Integration reduces joins but increases scrap exposure and replacement scope.",
+      "basis": [
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-02",
+          "source_locator": "pp. 10\u201311, 82; PDF 49\u201350, 121"
+        },
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-25",
+          "source_locator": "pp. 1, 6, 219\u2013220, 253\u2013255; PDF 40, 45, 258\u2013259, 292\u2013294"
+        },
+        {
+          "resource": "fiveflute",
+          "resource_question": "FFR07",
+          "source_locator": "FF1, FF2"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-04",
+      "category": "A. Product architecture and manufacturing assumptions",
+      "requirement": "Match process choice to quantity, life, material and tolerance.",
+      "required_evidence": "Compare feasible low-volume and production routes; tooling, setup, cycle, secondary operations, finish and first-article requirements.",
+      "tradeoff": "Cheapest tooling need not give cheapest accepted units.",
+      "basis": [
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-24",
+          "source_locator": "pp. 6, 12\u201317, 338\u2013340, 360\u2013364; PDF 45, 51\u201356, 377\u2013379, 399\u2013403"
+        },
+        {
+          "resource": "thompson",
+          "resource_question": "TH-02",
+          "source_locator": "Low-tooling routes can cost more per part; high-tooling routes may simplify assembly. No universal volume cutoff."
+        },
+        {
+          "resource": "fiveflute",
+          "resource_question": "FFR16",
+          "source_locator": "FF1, FF3, FF4"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-05",
+      "category": "A. Product architecture and manufacturing assumptions",
+      "requirement": "Establish make-or-buy and custom-part exceptions.",
+      "required_evidence": "Exact catalog mating drawings for bought items; function-based reason for custom parts; process and supplier assumptions for each.",
+      "tradeoff": "Catalog parts simplify supply but may impose awkward packaging.",
+      "basis": [
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-24",
+          "source_locator": "pp. 6, 12\u201317, 338\u2013340, 360\u2013364; PDF 45, 51\u201356, 377\u2013379, 399\u2013403"
+        },
+        {
+          "resource": "thompson",
+          "resource_question": "TH-01",
+          "source_locator": "At prototype, multiple candidate routes may remain; at pilot, select the exact route; production costs require supplier-specific assumptions."
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-06",
+      "category": "A. Product architecture and manufacturing assumptions",
+      "requirement": "Standardize only where all applications remain suitable.",
+      "required_evidence": "Per-use electrical/mechanical ratings, package interfaces and demand; physical instances, unique MPNs, stocked IDs and operations counted separately.",
+      "tradeoff": "Commonality can add material cost or coupled supply risk.",
+      "basis": [
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-24",
+          "source_locator": "pp. 6, 12\u201317, 338\u2013340, 360\u2013364; PDF 45, 51\u201356, 377\u2013379, 399\u2013403"
+        },
+        {
+          "resource": "jlcpcb",
+          "resource_question": "JD11",
+          "source_locator": "J04, J11"
+        },
+        {
+          "kind": "Temper extension",
+          "source": "Existing project strategies/manufacturing-review method"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-07",
+      "category": "B. BOM, materials and controlled substitutions",
+      "requirement": "Make every ordered item unambiguous.",
+      "required_evidence": "Manufacturer/order code, package, quantity, material/finish, populated/DNP state and revision; reconciliation with assembly drawings and source design.",
+      "tradeoff": "A shorter description may hide materially different parts.",
+      "basis": [
+        {
+          "resource": "jlcpcb",
+          "resource_question": "JD11",
+          "source_locator": "J04, J11"
+        },
+        {
+          "resource": "fiveflute",
+          "resource_question": "FFR15",
+          "source_locator": "FF4, FF7, FF8"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-08",
+      "category": "B. BOM, materials and controlled substitutions",
+      "requirement": "Resolve package and geometry against actual selected parts.",
+      "required_evidence": "Datasheet land pattern, pin mapping, body/lead envelope, tolerances, height and connector mating model; mark approximations.",
+      "tradeoff": "Smaller nominal bodies may have less solder/inspection margin.",
+      "basis": [
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-14",
+          "source_locator": "pp. 221\u2013223, 236\u2013238; PDF 260\u2013262, 275\u2013277"
+        },
+        {
+          "resource": "jlcpcb",
+          "resource_question": "JD02",
+          "source_locator": "J01, J02"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-09",
+      "category": "B. BOM, materials and controlled substitutions",
+      "requirement": "State material properties that control manufacture and use.",
+      "required_evidence": "Alloy/temper, polymer grade, laminate, coating and adhesive identity; relevant heat, electrical, environmental and process requirements.",
+      "tradeoff": "A nominal material family does not guarantee equivalent performance.",
+      "basis": [
+        {
+          "resource": "thompson",
+          "resource_question": "TH-01",
+          "source_locator": "At prototype, multiple candidate routes may remain; at pilot, select the exact route; production costs require supplier-specific assumptions."
+        },
+        {
+          "resource": "thompson",
+          "resource_question": "TH-18",
+          "source_locator": "A process that works on one polymer grade may not survive a material substitution."
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-10",
+      "category": "B. BOM, materials and controlled substitutions",
+      "requirement": "Qualify alternatives by their controlling functions.",
+      "required_evidence": "Exact substitute-to-reference comparison and affected-test list; electrical stress, package, soldering, material, interface and thermal differences.",
+      "tradeoff": "Purchasing flexibility can increase verification and traceability effort.",
+      "basis": [
+        {
+          "resource": "jlcpcb",
+          "resource_question": "JD11",
+          "source_locator": "J04, J11"
+        },
+        {
+          "kind": "Temper extension",
+          "source": "Existing project strategies/manufacturing-review method"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-11",
+      "category": "B. BOM, materials and controlled substitutions",
+      "requirement": "Preserve part and material condition through storage and processing.",
+      "required_evidence": "Selected-part handling, moisture/storage, shelf life, contamination and ESD requirements; batch/reel/lot controls where consequential.",
+      "tradeoff": "Inventory pooling saves setup but can increase aging and handling exposure.",
+      "basis": [
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-13",
+          "source_locator": "pp. 227\u2013238; PDF 266\u2013277"
+        },
+        {
+          "resource": "thompson",
+          "resource_question": "TH-18",
+          "source_locator": "A process that works on one polymer grade may not survive a material substitution."
+        },
+        {
+          "kind": "Temper extension",
+          "source": "Existing project strategies/manufacturing-review method"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-12",
+      "category": "B. BOM, materials and controlled substitutions",
+      "requirement": "Identify procurement constraints before claiming a cost reduction.",
+      "required_evidence": "Dated price basis, quantity tier, pack size, MOQ, excess stock, availability, lead time and qualification assumptions.",
+      "tradeoff": "A low line price may require unusable inventory or a process exception.",
+      "basis": [
+        {
+          "resource": "jlcpcb",
+          "resource_question": "JD01",
+          "source_locator": "J01, J09, J11"
+        },
+        {
+          "resource": "jlcpcb",
+          "resource_question": "JD16",
+          "source_locator": "J11"
+        },
+        {
+          "kind": "Temper extension",
+          "source": "Existing project strategies/manufacturing-review method"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-13",
+      "category": "C. Bare PCB fabrication",
+      "requirement": "Specify a reproducible board construction.",
+      "required_evidence": "Stackup, finished thickness, copper, laminate, finish, mask and necessary impedance/insulation properties; fabricator agreement for intended route.",
+      "tradeoff": "Less complex stackup may constrain returns, current paths or insulation.",
+      "basis": [
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-09",
+          "source_locator": "pp. 219\u2013227; PDF 258\u2013266"
+        },
+        {
+          "resource": "jlcpcb",
+          "resource_question": "JD03",
+          "source_locator": "J01, J02"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-14",
+      "category": "C. Bare PCB fabrication",
+      "requirement": "Match copper and drilled features to the actual process.",
+      "required_evidence": "Finished trace/space/hole/annular-ring requirements; drill/via types, plating and aspect ratio; tolerance-sensitive features reviewed at process corners.",
+      "tradeoff": "Reduced vias/layers can increase routing difficulty or thermal resistance.",
+      "basis": [
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-09",
+          "source_locator": "pp. 219\u2013227; PDF 258\u2013266"
+        },
+        {
+          "resource": "jlcpcb",
+          "resource_question": "JD04",
+          "source_locator": "J01, J02"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-15",
+      "category": "C. Bare PCB fabrication",
+      "requirement": "Verify outline, slots, cutouts and edge clearances as manufactured.",
+      "required_evidence": "Closed fabrication geometry, cutter/drill access, radii, hole-to-edge tolerance and mounted fit; tool-specific limitations.",
+      "tradeoff": "Smaller outlines may reduce panel yield or make edge features fragile.",
+      "basis": [
+        {
+          "resource": "jlcpcb",
+          "resource_question": "JD05",
+          "source_locator": "J01, J02, J06"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-16",
+      "category": "C. Bare PCB fabrication",
+      "requirement": "Preserve insulation under the chosen construction and assembly.",
+      "required_evidence": "Explicit insulation requirement and material/process authority; copper, slots, contamination, coating and fasteners considered in the finished unit.",
+      "tradeoff": "A slot or coating changes fabrication, cleaning and inspection burdens.",
+      "basis": [
+        {
+          "resource": "jlcpcb",
+          "resource_question": "JD05",
+          "source_locator": "J01, J02, J06"
+        },
+        {
+          "kind": "Temper extension",
+          "source": "Existing project strategies/manufacturing-review method"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-17",
+      "category": "C. Bare PCB fabrication",
+      "requirement": "Design the manufacturing panel and separation route deliberately.",
+      "required_evidence": "Rails, tooling/fiducials, support, separation geometry, panel utilization and component/trace setbacks; feasible depaneling fixture and access.",
+      "tradeoff": "Aggressive packing can increase handling damage and unusable panel area.",
+      "basis": [
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-10",
+          "source_locator": "pp. 224\u2013226; PDF 263\u2013265, plus original process extension"
+        },
+        {
+          "resource": "jlcpcb",
+          "resource_question": "JD10",
+          "source_locator": "J01, J06, J07"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-18",
+      "category": "C. Bare PCB fabrication",
+      "requirement": "Close the fabrication package and critical inspection points.",
+      "required_evidence": "Revision-matched outputs, drill/layer definitions and drawing notes; dimensional/material acceptance for first articles and recurring lots.",
+      "tradeoff": "Over-specified controls add cost; omitted controlling features add escape risk.",
+      "basis": [
+        {
+          "resource": "jlcpcb",
+          "resource_question": "JD03",
+          "source_locator": "J01, J02"
+        },
+        {
+          "resource": "jlcpcb",
+          "resource_question": "JD05",
+          "source_locator": "J01, J02, J06"
+        },
+        {
+          "resource": "fiveflute",
+          "resource_question": "FFR15",
+          "source_locator": "FF4, FF7, FF8"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-19",
+      "category": "D. PCB assembly and soldering",
+      "requirement": "Verify footprints as component and process interfaces.",
+      "required_evidence": "Datasheet dimensions/pin functions versus footprint; paste/mask/copper and custom lands checked; representative samples for consequential uncertainty.",
+      "tradeoff": "Dense/custom pads may improve electrical geometry but complicate assembly.",
+      "basis": [
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-14",
+          "source_locator": "pp. 221\u2013223, 236\u2013238; PDF 260\u2013262, 275\u2013277"
+        },
+        {
+          "resource": "jlcpcb",
+          "resource_question": "JD02",
+          "source_locator": "J01, J02"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-20",
+      "category": "D. PCB assembly and soldering",
+      "requirement": "Reconcile BOM, placement files and assembly preview.",
+      "required_evidence": "Exact Gerber/BOM/CPL identity; side, datum, rotation and polarity interpretation; flagged placements dispositioned in assembler preview.",
+      "tradeoff": "A convention difference requires interpretation before calling it a defect.",
+      "basis": [
+        {
+          "resource": "jlcpcb",
+          "resource_question": "JD12",
+          "source_locator": "J01, J04, J05"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-21",
+      "category": "D. PCB assembly and soldering",
+      "requirement": "Define a compatible solder/stencil/reflow route.",
+      "required_evidence": "Component process limits, paste/stencil apertures, thermal mass, profile and hidden-joint inspection plan; selected process evidence.",
+      "tradeoff": "Heavy copper and large thermal pads can challenge a common reflow window.",
+      "basis": [
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-11",
+          "source_locator": "pp. 237\u2013243; PDF 276\u2013282"
+        },
+        {
+          "resource": "jlcpcb",
+          "resource_question": "JD08",
+          "source_locator": "J01, J08, J09"
+        },
+        {
+          "resource": "jlcpcb",
+          "resource_question": "JD09",
+          "source_locator": "J01, J08, J09"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-22",
+      "category": "D. PCB assembly and soldering",
+      "requirement": "Account for every nonstandard or manual assembly operation.",
+      "required_evidence": "THT, hand solder, press fit, staking, potting, high-current leads and fixtures listed with sequence, access and inspection.",
+      "tradeoff": "Fewer PCB placements can create more final hand work.",
+      "basis": [
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-12",
+          "source_locator": "pp. 235\u2013240, 252\u2013255; PDF 274\u2013279, 291\u2013294"
+        },
+        {
+          "resource": "jlcpcb",
+          "resource_question": "JD06",
+          "source_locator": "J01, J11"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-23",
+      "category": "D. PCB assembly and soldering",
+      "requirement": "Ensure placement, soldering and inspection access.",
+      "required_evidence": "Body/lead heights, nozzle clearance, board support, polarity visibility and AOI/X-ray access as applicable; adjacent parts checked.",
+      "tradeoff": "Minimal spacing can obstruct inspection and selective repair.",
+      "basis": [
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-13",
+          "source_locator": "pp. 227\u2013238; PDF 266\u2013277"
+        },
+        {
+          "resource": "jlcpcb",
+          "resource_question": "JD07",
+          "source_locator": "J01, J03, J09"
+        },
+        {
+          "resource": "jlcpcb",
+          "resource_question": "JD13",
+          "source_locator": "J01, J09, J10"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-24",
+      "category": "D. PCB assembly and soldering",
+      "requirement": "Plan repair and depaneling without damaging retained functions.",
+      "required_evidence": "Tool/heat access, allowable rework, stress-sensitive components and cleanliness; evidence for critical joints after handling/rework.",
+      "tradeoff": "Removable modules help repair but add connectors and retention.",
+      "basis": [
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-15",
+          "source_locator": "pp. 239\u2013240, 246\u2013247; PDF 278\u2013279, 285\u2013286"
+        },
+        {
+          "resource": "jlcpcb",
+          "resource_question": "JD10",
+          "source_locator": "J01, J06, J07"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-25",
+      "category": "E. Enclosure fabrication and finish",
+      "requirement": "Design the shell for its chosen forming route.",
+      "required_evidence": "Sheet material/thickness, bend tooling, minimum feasible flanges, bend order, springback assumptions and final datums; shop-specific confirmation.",
+      "tradeoff": "A four-sided wrap can reduce seams but complicate tooling and corner closure.",
+      "basis": [
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-21",
+          "source_locator": "pp. 375\u2013392, 407\u2013413; PDF 414\u2013431, 446\u2013452"
+        },
+        {
+          "resource": "thompson",
+          "resource_question": "TH-03",
+          "source_locator": "Prototype: paper/laser mockup plus brake trial; pilot/production: approved flat pattern and controlled setup."
+        },
+        {
+          "resource": "thompson",
+          "resource_question": "TH-04",
+          "source_locator": "A cosmetic continuous shell may demand extra weld seams, split parts or special tooling."
+        },
+        {
+          "resource": "fiveflute",
+          "resource_question": "FFR10",
+          "source_locator": "FF3, FF4"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-26",
+      "category": "E. Enclosure fabrication and finish",
+      "requirement": "Resolve cutouts and edges relative to bends and tools.",
+      "required_evidence": "Hole/cut-to-bend references, reliefs, remaining webs, edge condition and distortion tolerance; actual die/punch/laser requirements.",
+      "tradeoff": "Moving openings away from bends may impair connector access or airflow.",
+      "basis": [
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-22",
+          "source_locator": "pp. 413\u2013418; PDF 452\u2013457"
+        },
+        {
+          "resource": "thompson",
+          "resource_question": "TH-05",
+          "source_locator": "Doing work on the flat is efficient; high-precision final interfaces may need a secondary operation."
+        },
+        {
+          "resource": "thompson",
+          "resource_question": "TH-06",
+          "source_locator": "Punching is fast but leaves rollover and burr; laser or waterjet have different cut-edge consequences."
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-27",
+      "category": "E. Enclosure fabrication and finish",
+      "requirement": "Reconcile flat pattern, formed geometry and joins.",
+      "required_evidence": "Bend allowance method, flat and formed revisions, corner/seam geometry, weld/adhesive/fastener route and fixture datums.",
+      "tradeoff": "A clean CAD solid can conceal an unbuildable corner or inaccessible join.",
+      "basis": [
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-21",
+          "source_locator": "pp. 375\u2013392, 407\u2013413; PDF 414\u2013431, 446\u2013452"
+        },
+        {
+          "resource": "thompson",
+          "resource_question": "TH-04",
+          "source_locator": "A cosmetic continuous shell may demand extra weld seams, split parts or special tooling."
+        },
+        {
+          "resource": "thompson",
+          "resource_question": "TH-10",
+          "source_locator": "Welded housings eliminate loose fasteners but create distortion, surface-finishing and rework costs."
+        },
+        {
+          "resource": "fiveflute",
+          "resource_question": "FFR10",
+          "source_locator": "FF3, FF4"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-28",
+      "category": "E. Enclosure fabrication and finish",
+      "requirement": "Limit machining and casting to justified features and setups.",
+      "required_evidence": "Tool reach, stock/blank, fixture grip, setups, internal radii, draft/parting as applicable and post-processing acceptance.",
+      "tradeoff": "Consolidation may demand expensive tooling or difficult finish machining.",
+      "basis": [
+        {
+          "resource": "thompson",
+          "resource_question": "TH-01",
+          "source_locator": "At prototype, multiple candidate routes may remain; at pilot, select the exact route; production costs require supplier-specific assumptions."
+        },
+        {
+          "resource": "thompson",
+          "resource_question": "TH-02",
+          "source_locator": "Low-tooling routes can cost more per part; high-tooling routes may simplify assembly. No universal volume cutoff."
+        },
+        {
+          "kind": "Temper extension",
+          "source": "Existing project strategies/manufacturing-review method"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-29",
+      "category": "E. Enclosure fabrication and finish",
+      "requirement": "Give custom polymer parts a credible intended-volume process.",
+      "required_evidence": "Material grade, molding draw/draft, walls/ribs, ejection, gates and undercuts; or explicit alternative process and limitations.",
+      "tradeoff": "Printed fit samples do not establish molded part variation or economics.",
+      "basis": [
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-18",
+          "source_locator": "pp. 338\u2013340, 349\u2013359, 365\u2013366; PDF 377\u2013379, 388\u2013398, 404\u2013405"
+        },
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-19",
+          "source_locator": "pp. 343\u2013348, 363\u2013366; PDF 382\u2013387, 402\u2013405"
+        },
+        {
+          "resource": "thompson",
+          "resource_question": "TH-12",
+          "source_locator": "Single-sided tools can be cheap for broad shallow covers; precise internal mounts may need bonded/machined second parts."
+        },
+        {
+          "resource": "thompson",
+          "resource_question": "TH-13",
+          "source_locator": "Integrating more geometry can cut assembly parts while increasing tool complexity, visible marks and change cost."
+        },
+        {
+          "resource": "thompson",
+          "resource_question": "TH-14",
+          "source_locator": "Thinner walls may save material/cycle time but increase assembly stiffness and heat exposure risk."
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-30",
+      "category": "E. Enclosure fabrication and finish",
+      "requirement": "Specify finish with its functional and dimensional consequences.",
+      "required_evidence": "Preparation, coating/plating/anodizing, mask regions, thickness buildup, corrosion and cosmetic acceptance; grounding and bond lands preserved.",
+      "tradeoff": "Cosmetic finishes may change fit, electrical contact and repair behavior.",
+      "basis": [
+        {
+          "resource": "thompson",
+          "resource_question": "TH-19",
+          "source_locator": "Powder coating can provide durability; it also adds cure heat, film thickness and coverage limits in recesses. Functional-contact concern is a Temper inference."
+        },
+        {
+          "resource": "thompson",
+          "resource_question": "TH-20",
+          "source_locator": "Anodizing is a durable finish but a color promise or exact fit requires process-specific trials. Any protective-earth contact through oxide requires separate electrical validation, a Temper inference."
+        },
+        {
+          "resource": "thompson",
+          "resource_question": "TH-21",
+          "source_locator": "Geometry that saves formed parts can make coatings and inspection harder."
+        },
+        {
+          "resource": "fiveflute",
+          "resource_question": "FFR13",
+          "source_locator": "FF3, FF4, FF7"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-31",
+      "category": "F. Location, retention and tolerance",
+      "requirement": "Trace every required part's attachment and structural load path.",
+      "required_evidence": "Part \u2192 locating interface \u2192 retainer \u2192 support \u2192 chassis; load, access and actual mating geometry including PCB, glass, coil, fan and controls.",
+      "tradeoff": "A retaining feature can increase part count while eliminating assembly uncertainty.",
+      "basis": [
+        {
+          "resource": "fiveflute",
+          "resource_question": "FFR03",
+          "source_locator": "FF2, FF6"
+        },
+        {
+          "resource": "thompson",
+          "resource_question": "TH-16",
+          "source_locator": "A molded feature can simplify BOM but cannot replace a mechanically complete joint."
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-32",
+      "category": "F. Location, retention and tolerance",
+      "requirement": "Use explicit datums and nonconflicting constraints.",
+      "required_evidence": "Primary/secondary/tertiary location and compliance; assembly variation and thermal motion; identify slots, tabs, pins and clamping roles.",
+      "tradeoff": "Tight location improves repeatability but can overconstrain a hot assembly.",
+      "basis": [
+        {
+          "resource": "fiveflute",
+          "resource_question": "FFR09",
+          "source_locator": "FF1, FF3, FF4, FF5"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-33",
+      "category": "F. Location, retention and tolerance",
+      "requirement": "Budget critical fit across parts, joins and processes.",
+      "required_evidence": "Named critical characteristic, contributors, finish and assembly effects; worst-case or justified statistical model including correlation/mean shift.",
+      "tradeoff": "Broad tolerances reduce fabrication cost but may increase fixture or adjustment work.",
+      "basis": [
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-23",
+          "source_locator": "pp. 417\u2013418; PDF 456\u2013457, plus original cross-domain application"
+        },
+        {
+          "resource": "fiveflute",
+          "resource_question": "FFR11",
+          "source_locator": "FF3, FF4, FF7"
+        },
+        {
+          "resource": "fiveflute",
+          "resource_question": "FFR12",
+          "source_locator": "FF5"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-34",
+      "category": "F. Location, retention and tolerance",
+      "requirement": "Verify fastener and thread stacks at tolerance extremes.",
+      "required_evidence": "Actual grip/engagement, bottoming, insert/parent material, preload or torque method, locking and service cycle requirements.",
+      "tradeoff": "One screw family can simplify handling yet be unsuitable for every stack.",
+      "basis": [
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-05",
+          "source_locator": "pp. 77\u201378, 110\u2013112; PDF 116\u2013117, 149\u2013151"
+        },
+        {
+          "resource": "fiveflute",
+          "resource_question": "FFR08",
+          "source_locator": "FF1, FF6"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-35",
+      "category": "F. Location, retention and tolerance",
+      "requirement": "Separate location from clamping where beneficial.",
+      "required_evidence": "Lead-ins/seats/shoulders and retained clamp force; no dependence on loose screw clearance to position consequential interfaces.",
+      "tradeoff": "Self-locating features can add tool operations or interfere with service.",
+      "basis": [
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-03",
+          "source_locator": "pp. 74\u201379, 105\u2013112; PDF 113\u2013118, 144\u2013151"
+        },
+        {
+          "resource": "fiveflute",
+          "resource_question": "FFR09",
+          "source_locator": "FF1, FF3, FF4, FF5"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-36",
+      "category": "F. Location, retention and tolerance",
+      "requirement": "Verify restraint under heat, load and repeated assembly.",
+      "required_evidence": "Thermal expansion, shock/vibration and intended service/use cycles; joint movement, wear and crack/creep criteria where relevant.",
+      "tradeoff": "Rigid integration can move stress into glass, solder joints or polymers.",
+      "basis": [
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-20",
+          "source_locator": "pp. 365\u2013368; PDF 404\u2013407"
+        },
+        {
+          "resource": "thompson",
+          "resource_question": "TH-16",
+          "source_locator": "A molded feature can simplify BOM but cannot replace a mechanically complete joint."
+        },
+        {
+          "resource": "thompson",
+          "resource_question": "TH-23",
+          "source_locator": "A nominal CAD assembly is insufficient evidence of yield. Capability criteria and sample sizes must be set for Temper's function and volume."
+        },
+        {
+          "resource": "fiveflute",
+          "resource_question": "FFR18",
+          "source_locator": "FF2, FF6"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-37",
+      "category": "G. Thermal, coil and airflow interfaces",
+      "requirement": "Define the complete heat path for consequential sources.",
+      "required_evidence": "Source \u2192 interface \u2192 spreader/sink \u2192 air or chassis; actual materials/contact areas and boundary conditions; correlate consequential models physically.",
+      "tradeoff": "Simplifying supports can interrupt heat flow or electrical separation.",
+      "basis": [
+        {
+          "resource": "thompson",
+          "resource_question": "TH-19",
+          "source_locator": "Powder coating can provide durability; it also adds cure heat, film thickness and coverage limits in recesses. Functional-contact concern is a Temper inference."
+        },
+        {
+          "kind": "Temper extension",
+          "source": "Existing project strategies/manufacturing-review method"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-38",
+      "category": "G. Thermal, coil and airflow interfaces",
+      "requirement": "Control thermal-interface preparation and application.",
+      "required_evidence": "TIM identity, bondline/compression/coverage, surfaces, cleaning and dispense/inspection method; tolerance limits and aging conditions.",
+      "tradeoff": "Thin interfaces may conduct well but be sensitive to flatness and assembly variation.",
+      "basis": [
+        {
+          "resource": "thompson",
+          "resource_question": "TH-18",
+          "source_locator": "A process that works on one polymer grade may not survive a material substitution."
+        },
+        {
+          "kind": "Temper extension",
+          "source": "Existing project strategies/manufacturing-review method"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-39",
+      "category": "G. Thermal, coil and airflow interfaces",
+      "requirement": "Verify clamping as both a mechanical and thermal operation.",
+      "required_evidence": "Device/package force limits, load distribution, retention and tolerance stack; contact repeatability before/after service.",
+      "tradeoff": "Stronger clamping can damage packages or insulating interfaces.",
+      "basis": [
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-05",
+          "source_locator": "pp. 77\u201378, 110\u2013112; PDF 116\u2013117, 149\u2013151"
+        },
+        {
+          "kind": "Temper extension",
+          "source": "Existing project strategies/manufacturing-review method"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-40",
+      "category": "G. Thermal, coil and airflow interfaces",
+      "requirement": "Mount coil, ferrite, glass and sensors without untracked functional changes.",
+      "required_evidence": "Selected part envelopes, locating/preload/clearance stack, heat movement and harness; acceptance tied to actual coupling and sensing requirements.",
+      "tradeoff": "Integrated carriers reduce parts but may couple alignment, stress and heat.",
+      "basis": [
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-02",
+          "source_locator": "pp. 10\u201311, 82; PDF 49\u201350, 121"
+        },
+        {
+          "resource": "thompson",
+          "resource_question": "TH-22",
+          "source_locator": "Combining parts can remove handling, but can trap serviceable items or make late operations inaccessible. The named Temper hardware is an inference."
+        },
+        {
+          "kind": "Temper extension",
+          "source": "Existing project strategies/manufacturing-review method"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-41",
+      "category": "G. Thermal, coil and airflow interfaces",
+      "requirement": "Preserve airflow in the fully assembled unit.",
+      "required_evidence": "Fan/duct/filter/vent and cable obstruction geometry; installed fan behavior, local inlet conditions and contamination/cleaning assumptions.",
+      "tradeoff": "Smaller housings and hidden joins can restrict cooling or trap grease.",
+      "basis": [
+        {
+          "resource": "thompson",
+          "resource_question": "TH-22",
+          "source_locator": "Combining parts can remove handling, but can trap serviceable items or make late operations inaccessible. The named Temper hardware is an inference."
+        },
+        {
+          "kind": "Temper extension",
+          "source": "Existing project strategies/manufacturing-review method"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-42",
+      "category": "G. Thermal, coil and airflow interfaces",
+      "requirement": "Verify assembly variation does not invalidate thermal limits.",
+      "required_evidence": "Representative interface, airflow and component variation; operating/fault corners and service-restored state; targeted physical correlation.",
+      "tradeoff": "A narrow nominal margin may demand tighter process controls or a less compact design.",
+      "basis": [
+        {
+          "kind": "Temper extension",
+          "source": "Existing project strategies/manufacturing-review method"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-43",
+      "category": "H. Wiring, connectors and electrical interfaces",
+      "requirement": "Treat off-board electrical modules and harnesses as manufactured parts.",
+      "required_evidence": "Complete installed filter/inlet/module/harness BOM, mounting, wiring drawing, termination and inspection requirements.",
+      "tradeoff": "Moving a function off-board does not eliminate its cost or assembly operations.",
+      "basis": [
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-07",
+          "source_locator": "pp. 133\u2013144, 163\u2013171; PDF 172\u2013183, 202\u2013210"
+        },
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-25",
+          "source_locator": "pp. 1, 6, 219\u2013220, 253\u2013255; PDF 40, 45, 258\u2013259, 292\u2013294"
+        },
+        {
+          "resource": "fiveflute",
+          "resource_question": "FFR01",
+          "source_locator": "FF1"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-44",
+      "category": "H. Wiring, connectors and electrical interfaces",
+      "requirement": "Select usable, retained connector mating interfaces.",
+      "required_evidence": "Both halves and terminals, keying, lock, cable exit, clearances and hand/tool reach; actual plug/unplug sequence.",
+      "tradeoff": "Lower connector count may make final assembly or servicing awkward.",
+      "basis": [
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-08",
+          "source_locator": "pp. 139\u2013143; PDF 178\u2013182"
+        },
+        {
+          "resource": "fiveflute",
+          "resource_question": "FFR04",
+          "source_locator": "FF1, FF2"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-45",
+      "category": "H. Wiring, connectors and electrical interfaces",
+      "requirement": "Define repeatable wire and high-current terminations.",
+      "required_evidence": "Gauge/material, cut/strip, crimp/solder/torque process, tool and terminal identity; current/temperature and joint acceptance evidence.",
+      "tradeoff": "Commodity terminals reduce custom work but impose packaging and tooling requirements.",
+      "basis": [
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-07",
+          "source_locator": "pp. 133\u2013144, 163\u2013171; PDF 172\u2013183, 202\u2013210"
+        },
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-08",
+          "source_locator": "pp. 139\u2013143; PDF 178\u2013182"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-46",
+      "category": "H. Wiring, connectors and electrical interfaces",
+      "requirement": "Control harness routing, support and strain.",
+      "required_evidence": "Length/tolerance, bend radius, strain relief, abrasion, heat and moving-part separation; installation clips and service slack.",
+      "tradeoff": "Extra slack eases assembly but can obstruct airflow or change EMI coupling.",
+      "basis": [
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-07",
+          "source_locator": "pp. 133\u2013144, 163\u2013171; PDF 172\u2013183, 202\u2013210"
+        },
+        {
+          "resource": "fiveflute",
+          "resource_question": "FFR04",
+          "source_locator": "FF1, FF2"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-47",
+      "category": "H. Wiring, connectors and electrical interfaces",
+      "requirement": "Preserve electrical reference, shielding and filter topology through assembly.",
+      "required_evidence": "Harness geometry and return/bond paths; source/load separation and defined shield termination; sensitivity and installed EMI evidence.",
+      "tradeoff": "Fewer clips or connectors can worsen coupling or return-path repeatability.",
+      "basis": [
+        {
+          "kind": "Temper extension",
+          "source": "Existing project strategies/manufacturing-review method"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-48",
+      "category": "H. Wiring, connectors and electrical interfaces",
+      "requirement": "Make protective bonds deliberate and inspectable.",
+      "required_evidence": "Selected construction's protective-earth/bond requirements, joint/finish treatment, retention and continuity verification after assembly/service.",
+      "tradeoff": "Cosmetic coating and removable panels can complicate continuity and inspection.",
+      "basis": [
+        {
+          "resource": "thompson",
+          "resource_question": "TH-20",
+          "source_locator": "Anodizing is a durable finish but a color promise or exact fit requires process-specific trials. Any protective-earth contact through oxide requires separate electrical validation, a Temper inference."
+        },
+        {
+          "kind": "Temper extension",
+          "source": "Existing project strategies/manufacturing-review method"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-49",
+      "category": "I. Assembly sequence and error prevention",
+      "requirement": "Demonstrate a feasible whole-product build sequence.",
+      "required_evidence": "Numbered operations including orientation changes, wire routing, hidden joints, cure, tests and closures; no cyclic insertion dependencies.",
+      "tradeoff": "A lower part count can still produce a slower assembly sequence.",
+      "basis": [
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-03",
+          "source_locator": "pp. 74\u201379, 105\u2013112; PDF 113\u2013118, 144\u2013151"
+        },
+        {
+          "resource": "thompson",
+          "resource_question": "TH-22",
+          "source_locator": "Combining parts can remove handling, but can trap serviceable items or make late operations inaccessible. The named Temper hardware is an inference."
+        },
+        {
+          "resource": "fiveflute",
+          "resource_question": "FFR02",
+          "source_locator": "FF1, FF2"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-50",
+      "category": "I. Assembly sequence and error prevention",
+      "requirement": "Reduce handling and orientation difficulty where worthwhile.",
+      "required_evidence": "Part presentation, grasp/reach, symmetry, lead-ins and visibility; observed handling trials for troublesome parts.",
+      "tradeoff": "Added asymmetric/keyed features may increase fabrication complexity.",
+      "basis": [
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-04",
+          "source_locator": "pp. 74\u201379, 90\u201391; PDF 113\u2013118, 129\u2013130"
+        },
+        {
+          "resource": "fiveflute",
+          "resource_question": "FFR05",
+          "source_locator": "FF1, FF2"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-51",
+      "category": "I. Assembly sequence and error prevention",
+      "requirement": "Demonstrate actual tool and hand access.",
+      "required_evidence": "Driver/nozzle/probe/hand envelopes at each operation, extraction directions and fixture clearance, including bottom-only visible screws/rear service access.",
+      "tradeoff": "Concealed screws improve appearance but can add inversions or trapped parts.",
+      "basis": [
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-05",
+          "source_locator": "pp. 77\u201378, 110\u2013112; PDF 116\u2013117, 149\u2013151"
+        },
+        {
+          "resource": "fiveflute",
+          "resource_question": "FFR06",
+          "source_locator": "FF1, FF2"
+        },
+        {
+          "kind": "Temper extension",
+          "source": "Existing project strategies/manufacturing-review method"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-52",
+      "category": "I. Assembly sequence and error prevention",
+      "requirement": "Minimize loose hardware and repeated operation families deliberately.",
+      "required_evidence": "Physical fastener count, screw/tool families, captive features, torque changes and joining sequence; retention remains adequate.",
+      "tradeoff": "Snap fits/integral tabs can restrict repair and require tighter tooling.",
+      "basis": [
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-05",
+          "source_locator": "pp. 77\u201378, 110\u2013112; PDF 116\u2013117, 149\u2013151"
+        },
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-20",
+          "source_locator": "pp. 365\u2013368; PDF 404\u2013407"
+        },
+        {
+          "resource": "fiveflute",
+          "resource_question": "FFR08",
+          "source_locator": "FF1, FF6"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-53",
+      "category": "I. Assembly sequence and error prevention",
+      "requirement": "Prevent or detect consequential assembly mistakes.",
+      "required_evidence": "Keying/polarity/labeling, mix-up prevention, sequence constraints and inspection for reversed, omitted or misrouted items; verify the mechanism.",
+      "tradeoff": "Visual labels are cheaper than keying but depend more on operators.",
+      "basis": [
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-13",
+          "source_locator": "pp. 227\u2013238; PDF 266\u2013277"
+        },
+        {
+          "resource": "jlcpcb",
+          "resource_question": "JD12",
+          "source_locator": "J01, J04, J05"
+        },
+        {
+          "resource": "fiveflute",
+          "resource_question": "FFR04",
+          "source_locator": "FF1, FF2"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-54",
+      "category": "I. Assembly sequence and error prevention",
+      "requirement": "Control adhesive, sealant and cure operations.",
+      "required_evidence": "Compound/lot, storage, surface preparation, dose/location, fixture, open/cure time and inspection; downstream solder/finish compatibility.",
+      "tradeoff": "Replacing screws with bonding can add cure delay and destructive service.",
+      "basis": [
+        {
+          "resource": "thompson",
+          "resource_question": "TH-17",
+          "source_locator": "Fewer consumables and faster assembly can impose an entire-module replacement cost."
+        },
+        {
+          "resource": "thompson",
+          "resource_question": "TH-18",
+          "source_locator": "A process that works on one polymer grade may not survive a material substitution."
+        },
+        {
+          "kind": "Temper extension",
+          "source": "Existing project strategies/manufacturing-review method"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-55",
+      "category": "J. Environmental construction and user interfaces",
+      "requirement": "Define actual liquid-entry and cleaning exposure paths.",
+      "required_evidence": "Seams, vents, controls, connectors and service openings inventoried; seal, drain or controlled path plus exposure requirement and test.",
+      "tradeoff": "Fewer seams may help ingress but make heat removal or cleaning harder.",
+      "basis": [
+        {
+          "resource": "thompson",
+          "resource_question": "TH-21",
+          "source_locator": "Geometry that saves formed parts can make coatings and inspection harder."
+        },
+        {
+          "kind": "Temper extension",
+          "source": "Existing project strategies/manufacturing-review method"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-56",
+      "category": "J. Environmental construction and user interfaces",
+      "requirement": "Specify seal compression, seating and restoration.",
+      "required_evidence": "Compound, land/gland, finish, tolerance endpoints, clamp distribution and replaceability; installed hot/aged/service-restored checks.",
+      "tradeoff": "More preload can damage parts; hidden seal contact prevents inspection.",
+      "basis": [
+        {
+          "resource": "thompson",
+          "resource_question": "TH-18",
+          "source_locator": "A process that works on one polymer grade may not survive a material substitution."
+        },
+        {
+          "kind": "Temper extension",
+          "source": "Existing project strategies/manufacturing-review method"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-57",
+      "category": "J. Environmental construction and user interfaces",
+      "requirement": "Verify knob, probe and sensor interfaces as complete mechanisms.",
+      "required_evidence": "Location/retention, actuation travel, stops, contact, signal/harness, thermal movement and assembly access; selected part geometry.",
+      "tradeoff": "A single carrier can simplify mounting but link otherwise independent tolerances.",
+      "basis": [
+        {
+          "resource": "thompson",
+          "resource_question": "TH-16",
+          "source_locator": "A molded feature can simplify BOM but cannot replace a mechanically complete joint."
+        },
+        {
+          "kind": "Temper extension",
+          "source": "Existing project strategies/manufacturing-review method"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-58",
+      "category": "J. Environmental construction and user interfaces",
+      "requirement": "Preserve required electrical/mechanical separation after final assembly.",
+      "required_evidence": "Fasteners, harness, swarf, thermal movement and service disturbances considered; final construction tested against authoritative requirements.",
+      "tradeoff": "Dense integration can demand tighter assembly controls and inspection.",
+      "basis": [
+        {
+          "resource": "jlcpcb",
+          "resource_question": "JD17",
+          "source_locator": "J01; original Temper system inference"
+        },
+        {
+          "kind": "Temper extension",
+          "source": "Existing project strategies/manufacturing-review method"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-59",
+      "category": "J. Environmental construction and user interfaces",
+      "requirement": "Specify compatible materials and exposed finishes.",
+      "required_evidence": "Dissimilar materials, cleaners, heat, grease, moisture, corrosion, wear and touch/cosmetic requirements; evidence for consequential combinations.",
+      "tradeoff": "One finish or adhesive for all parts can fail a specific environment.",
+      "basis": [
+        {
+          "resource": "thompson",
+          "resource_question": "TH-18",
+          "source_locator": "A process that works on one polymer grade may not survive a material substitution."
+        },
+        {
+          "resource": "thompson",
+          "resource_question": "TH-19",
+          "source_locator": "Powder coating can provide durability; it also adds cure heat, film thickness and coverage limits in recesses. Functional-contact concern is a Temper inference."
+        },
+        {
+          "resource": "thompson",
+          "resource_question": "TH-20",
+          "source_locator": "Anodizing is a durable finish but a color promise or exact fit requires process-specific trials. Any protective-earth contact through oxide requires separate electrical validation, a Temper inference."
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-60",
+      "category": "J. Environmental construction and user interfaces",
+      "requirement": "Maintain cleanable, durable surfaces and accessible contamination control.",
+      "required_evidence": "Edge/seam/trap geometry, intended cleaning method and replaceable filters/seals; assembly residues and retained debris inspection.",
+      "tradeoff": "Smooth bonded closures aid cleaning but can prevent economical repair.",
+      "basis": [
+        {
+          "resource": "thompson",
+          "resource_question": "TH-21",
+          "source_locator": "Geometry that saves formed parts can make coatings and inspection harder."
+        },
+        {
+          "kind": "Temper extension",
+          "source": "Existing project strategies/manufacturing-review method"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-61",
+      "category": "K. Inspection, test and manufacturing evidence",
+      "requirement": "Identify critical characteristics and their actual measurement methods.",
+      "required_evidence": "Feature/requirement list linked to incoming, in-process and final checks; instrument/fixture access, uncertainty and acceptance source.",
+      "tradeoff": "Excess inspection costs time; unmeasurable requirements cannot control escapes.",
+      "basis": [
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-16",
+          "source_locator": "pp. 223, 226\u2013227, 239\u2013240; PDF 262, 265\u2013266, 278\u2013279"
+        },
+        {
+          "resource": "fiveflute",
+          "resource_question": "FFR14",
+          "source_locator": "FF1, FF8"
+        },
+        {
+          "resource": "fiveflute",
+          "resource_question": "FFR17",
+          "source_locator": "FF4, FF7, FF8"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-62",
+      "category": "K. Inspection, test and manufacturing evidence",
+      "requirement": "Build test access into the assembled product and sequence.",
+      "required_evidence": "Probe/connect/flash/functional-test route, fixture contacts, temporary configurations and restoring closures; feasible at intended rate.",
+      "tradeoff": "Test points and fixtures add cost but may reduce fault localization and scrap.",
+      "basis": [
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-16",
+          "source_locator": "pp. 223, 226\u2013227, 239\u2013240; PDF 262, 265\u2013266, 278\u2013279"
+        },
+        {
+          "resource": "jlcpcb",
+          "resource_question": "JD14",
+          "source_locator": "J01, J09"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-63",
+      "category": "K. Inspection, test and manufacturing evidence",
+      "requirement": "Separate process screens from product qualification.",
+      "required_evidence": "Test-purpose map, coverage and known escape modes; tests appropriate to production variation distinguished from operating/fault qualification.",
+      "tradeoff": "A short screen cannot prove every lifetime or fault requirement.",
+      "basis": [
+        {
+          "resource": "jlcpcb",
+          "resource_question": "JD15",
+          "source_locator": "J09, J10"
+        },
+        {
+          "kind": "Temper extension",
+          "source": "Existing project strategies/manufacturing-review method"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-64",
+      "category": "K. Inspection, test and manufacturing evidence",
+      "requirement": "Demonstrate representative assembly and first-article fit.",
+      "required_evidence": "Real part/fixture trials, timed operations, interference/defect records and disposition; identify hand adjustments that would recur.",
+      "tradeoff": "One carefully hand-fitted unit does not demonstrate repeatable manufacture.",
+      "basis": [
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-06",
+          "source_locator": "pp. 82, 105\u2013110; PDF 121, 144\u2013149"
+        },
+        {
+          "resource": "thompson",
+          "resource_question": "TH-23",
+          "source_locator": "A nominal CAD assembly is insufficient evidence of yield. Capability criteria and sample sizes must be set for Temper's function and volume."
+        },
+        {
+          "resource": "fiveflute",
+          "resource_question": "FFR06",
+          "source_locator": "FF1, FF2"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-65",
+      "category": "K. Inspection, test and manufacturing evidence",
+      "requirement": "Establish recurring process quality from suitable data.",
+      "required_evidence": "First-pass yield, defect classification, rework/scrap and dimensional/process variation at matched conditions; stability before capability claims.",
+      "tradeoff": "Narrowing tolerances without evidence may raise cost without improving yield.",
+      "basis": [
+        {
+          "resource": "thompson",
+          "resource_question": "TH-23",
+          "source_locator": "A nominal CAD assembly is insufficient evidence of yield. Capability criteria and sample sizes must be set for Temper's function and volume."
+        },
+        {
+          "kind": "Temper extension",
+          "source": "Existing project strategies/manufacturing-review method"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-66",
+      "category": "K. Inspection, test and manufacturing evidence",
+      "requirement": "Keep released drawings, BOM, process and evidence synchronized.",
+      "required_evidence": "Hash/revision manifest, source-of-truth fields, approved changes/substitutions and affected inspection/retest; traceability for consequential lots.",
+      "tradeoff": "Additional document copies increase drift unless responsibility is clear.",
+      "basis": [
+        {
+          "resource": "jlcpcb",
+          "resource_question": "JD12",
+          "source_locator": "J01, J04, J05"
+        },
+        {
+          "resource": "fiveflute",
+          "resource_question": "FFR15",
+          "source_locator": "FF4, FF7, FF8"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-67",
+      "category": "L. Cost comparison, service and improvement acceptance",
+      "requirement": "Compare cost per accepted complete unit on a matched basis.",
+      "required_evidence": "Same quantity, process, geography and denominator; parts, fabrication, assembly, testing, scrap/rework, harness/cooling and logistics; uncertainty.",
+      "tradeoff": "Line-price or part-count reductions may lose after yield and assembly effects.",
+      "basis": [
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-17",
+          "source_locator": "pp. 243\u2013248, 250\u2013255; PDF 282\u2013287, 289\u2013294"
+        },
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-24",
+          "source_locator": "pp. 6, 12\u201317, 338\u2013340, 360\u2013364; PDF 45, 51\u201356, 377\u2013379, 399\u2013403"
+        },
+        {
+          "resource": "jlcpcb",
+          "resource_question": "JD16",
+          "source_locator": "J11"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-68",
+      "category": "L. Cost comparison, service and improvement acceptance",
+      "requirement": "Separate recurring savings, one-time costs and accounting effects.",
+      "required_evidence": "Tooling/NRE/fixture/qualification and changeover tracked separately; avoided expenditure versus capacity freed versus allocated overhead.",
+      "tradeoff": "Faster assembly does not automatically reduce cash cost at low volume.",
+      "basis": [
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-24",
+          "source_locator": "pp. 6, 12\u201317, 338\u2013340, 360\u2013364; PDF 45, 51\u201356, 377\u2013379, 399\u2013403"
+        },
+        {
+          "resource": "thompson",
+          "resource_question": "TH-02",
+          "source_locator": "Low-tooling routes can cost more per part; high-tooling routes may simplify assembly. No universal volume cutoff."
+        },
+        {
+          "kind": "Temper extension",
+          "source": "Existing project strategies/manufacturing-review method"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-69",
+      "category": "L. Cost comparison, service and improvement acceptance",
+      "requirement": "Demonstrate service through the intended opening.",
+      "required_evidence": "Extraction and replacement sequence for actual service items, retained wiring, access and sacrificial consumables; rear-door/preference conformance explicit.",
+      "tradeoff": "A smaller opening or integrated assembly may enlarge replacement cost.",
+      "basis": [
+        {
+          "resource": "boothroyd",
+          "resource_question": "BDK-05",
+          "source_locator": "pp. 77\u201378, 110\u2013112; PDF 116\u2013117, 149\u2013151"
+        },
+        {
+          "resource": "thompson",
+          "resource_question": "TH-17",
+          "source_locator": "Fewer consumables and faster assembly can impose an entire-module replacement cost."
+        },
+        {
+          "resource": "fiveflute",
+          "resource_question": "FFR18",
+          "source_locator": "FF2, FF6"
+        },
+        {
+          "kind": "Temper extension",
+          "source": "Existing project strategies/manufacturing-review method"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-70",
+      "category": "L. Cost comparison, service and improvement acceptance",
+      "requirement": "Restore function and protection after repair.",
+      "required_evidence": "Reassembly location, torque, thermal interface, seals/bonds and required retest; access and error prevention demonstrated across intended cycles.",
+      "tradeoff": "Easy opening is insufficient if sealing or thermal performance cannot be restored.",
+      "basis": [
+        {
+          "resource": "thompson",
+          "resource_question": "TH-17",
+          "source_locator": "Fewer consumables and faster assembly can impose an entire-module replacement cost."
+        },
+        {
+          "resource": "thompson",
+          "resource_question": "TH-22",
+          "source_locator": "Combining parts can remove handling, but can trap serviceable items or make late operations inaccessible. The named Temper hardware is an inference."
+        },
+        {
+          "kind": "Temper extension",
+          "source": "Existing project strategies/manufacturing-review method"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-71",
+      "category": "L. Cost comparison, service and improvement acceptance",
+      "requirement": "Require a supported combined improvement against the fixed benchmark.",
+      "required_evidence": "Exact comparator/candidate identities, matched requirement/cost/evidence basis; meaningful economic/simplicity gain and technical gain; uncertainty and regressions.",
+      "tradeoff": "Different nondominating options may remain rather than forcing one weighted winner.",
+      "basis": [
+        {
+          "kind": "Temper extension",
+          "source": "Existing project strategies/manufacturing-review method"
+        }
+      ],
+      "status": "UNASSESSED"
+    },
+    {
+      "id": "DFMA-72",
+      "category": "L. Cost comparison, service and improvement acceptance",
+      "requirement": "Close stage-critical evidence before adopting a candidate.",
+      "required_evidence": "PASS/FAIL/UNVERIFIED gate decisions with evidence and scope; consequential unknowns have owners and closure checks; no score overrides a critical floor.",
+      "tradeoff": "Digital preference can precede qualification; supplier/physical evidence may overturn it.",
+      "basis": [
+        {
+          "kind": "Temper extension",
+          "source": "Existing project strategies/manufacturing-review method"
+        }
+      ],
+      "status": "UNASSESSED"
+    }
+  ]
+}
