@@ -72,9 +72,16 @@ for r in rows:
 clip = dict.fromkeys(rows[0], "")
 clip.update({"Comment": "Fuse clip 10x38 mm (midget / Class CC), 30 A (2 per F1)", "Designator": "F1-CLIP",
              "Manufacturer Part Number": "01250003H", "LCSC Part #": "C223911", "Mount": "THT", "Assembly": "hand-solder, 2 per board (not a source component)"})
-rows = [r for r in rows if r["Designator"] != "F1-CLIP"] + [clip]
+# The F1 clips are not a board component (no CPL row): JLC rejects any BOM designator without a CPL entry,
+# so they go to a separate hand-assembly purchase list, not into the JLC BOM (2026-10-13).
+rows = [r for r in rows if r["Designator"] != "F1-CLIP"]
 with open(bom_path, "w", newline="") as f:
     w = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
     w.writeheader()
     w.writerows(rows)
+extras_path = bom_path.parent / "hand-assembly-extras.csv"
+with open(extras_path, "w", newline="") as f:
+    w = csv.DictWriter(f, fieldnames=list(clip.keys()))
+    w.writeheader()
+    w.writerow(clip)
 print(counts)

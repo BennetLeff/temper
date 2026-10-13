@@ -50,7 +50,7 @@ Assembly:
 - **LCSC numbers:** 82 of 92 source lines map to a checked LCSC part (48 exact from the survey, 33 changed or added since, most of them the 2026-10-09 Basic swaps, the stage-14 bias parts and stage 17's R5 CSS2H-2512R-1L00F (C4175647, JLC Extended), 1 accepted substitute; `../sourcing/`, `../bom-simplification/`). Ten are consigned or hand-assembled: F1 fuse, F2 (Schurter 3403.0171 UMT 250, blower-supply tap), C1/C2 (KEMET R463N410050N1K, Digi-Key), C5/C6 (TDK B32676G1905K000), U1/U2, T1, the resonant bank C21–C23/C151/C152 (TDK B32654A1104K000), J3, D3/D17 (Good-Ark 30KPA150CA, P600 axial) and U41/U42 (RECOM R24C2T25/R-R). Check stock again before ordering.
 - **Lead trim (insulation):** trim every THT lead to ≤ 2.5 mm below the board bottom after soldering (ASSEMBLY.md); trim C1/C2's 25 mm leads to 4 mm before insertion.
 - **Hand assembly:**
-  - F1-CLIP (2 × Littelfuse 01250003H, 10 × 38 / Class CC clips, 30 A), soldered into the plated slots;
+  - F1-CLIP (2 × Littelfuse 01250003H, 10 × 38 / Class CC clips, 30 A), soldered into the plated slots. Listed in `hand-assembly-extras.csv`, not in the JLC BOM: it has no CPL row, and JLC rejects a BOM designator without one;
   - the F1 cartridge, inserted after cleaning;
   - J3 (JST B2P3-VH, 7.92 mm pitch, unshrouded).
 - **First-article inspection (closure review S10-3):** the 0.3 mm driver output necks run under the 0805 VDD–VSS stacks with 0.30 mm to the pads. Inspect for solder bridges under C10/C145/C11, C8/C146, C17/C147/C18 and C15/C148. IR-check U26 (TPS7A4700) at first power-up: its In1 n_ls spreading plane has thinned over stages 8–11 (DECISIONS stage 11).
