@@ -214,6 +214,7 @@ run, and that count is 0. Their inductance effect belongs to the FEM rerun on th
   - **Board `fc386321…`:** every gate 0 / PASS.
   - **Tool fixes:** the DFM slot-ring check and the task-04 slot model.
 - **Stage 19 (2026-10-12):** converter-local caps at U41 / U42 / U26 (U26 moved), the comparator / monitor 100 nF caps beside their ICs (N1, from `365151b62`), bus_fault_hot along its Kelvin return, ct_zc / pwm_lb continuous; DRC warnings cleared (K6). Board `370fcf37…` (DECISIONS item 19).
+- **Stage 19b (2026-10-12):** four 100 nF v3v3-selv_gnd transfer caps C153-C156 beside pwm_hb's J4-side layer changes. Board `b19a4553…` (DECISIONS item 19b).
 - **Open items:**
   - **U26 spreading plane (watch):** In1 n_ls within 12 mm of U26 fell 181 → 162 mm² over stages 8–11. IR-check at first power-up.
   - **Board fixings (stage 8 positions, frozen):** H1 metal-capable, H2-H7 nylon only (H4-H6 need nylon standoffs >= 10 mm, HOT copper near the hole wall); the enclosure must match them

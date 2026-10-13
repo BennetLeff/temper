@@ -50,7 +50,7 @@ The review's own figures (54.39 / 37.45 / 21.24 mm, ct_zc 37.50 mm, all to C47) 
 On the integration stage-18 board the old cap row was still there, so the same vias give 48.51 / 28.50 / 1.02 mm and
 37.15 mm (`--expect` figures in the control).
 
-**Open (pwm_hb, J4 side):** the run from the SELV row to J4.7 crosses pwm_lb's F.Cu lane and the B.Cu fan of permit /
+**Open at stage 19 (closed in 19b, below) (pwm_hb, J4 side):** the run from the SELV row to J4.7 crosses pwm_lb's F.Cu lane and the B.Cu fan of permit /
 bias_bad / pwm_ha into J4; no v3v3-selv_gnd capacitor lies within 3 mm of its four changes there. Closing it needs either
 three 100 nF transfer capacitors at (≈55, 129), (≈56, 157), (≈56, 175) (a schematic change) or a re-route of the SELV
 J4 fan. The gate reports these as `open_reference_changes` instead of passing them.
@@ -63,3 +63,14 @@ outer 0 / 0 (969 / 584); D5 8.047 / 8.507 mm; fit 405 solids / 0 overlaps / 407 
 Gerber review PASS (862 + 4 slots); bypass 11 / 11; Kelvin R35.2 158.08 mΩ, band 67.72–116.44 A, floor met at the bound;
 B3 28 A h25 136.0 °C (R5.4); G6 PASS 50.8 % (`g6-native21s19.json`); audit.rs 79/79, frozen netlist PASS,
 verify_source PASS (`audit19.txt`).
+
+## Stage 19b: pwm_hb transfer caps (DECISIONS 19b)
+
+Board `b19a45530bb0f39d2d3c0412e3774b6d5a47c4238d3fee867790cce410756662`, copper.json `ce49f200…`, Gerber ZIP
+`c9eaf0d9…` (`chain19b.txt`, `passes19b.txt`). Four 100 nF v3v3-selv_gnd caps C153-C156 (`c_ref_xfer_1..4`), one beside each
+J4-side layer change, each pad with its own plane via (0.85-1.51 mm). `return-path19b.txt`: pwm_hb's seven changes are
+2.39 / 2.00 / 2.43 / **2.72 / 1.12 / 1.12 / 1.12 mm** (C14 / C142 / C47 / C153 / C154 / C155 / C156); the gate now asserts
+every pwm_hb change <= 3.0 mm and the transfer caps' plane vias <= 1.6 mm: PASS. `pi19b.txt` (unchanged), `bypass-check-
+native21s19b.txt` 11/11, `drc-libtables19b.json` 0 / 0, `audit19b.txt` (audit.rs 80/80, verify_source 357). bias_bad is
+reported, not asserted (ns-class edges from an LVC1G17, but a fail-safe status line that changes state only on a rail
+fault; see DECISIONS 19b).

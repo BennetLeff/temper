@@ -1,5 +1,5 @@
 {
-  "board_sha256": "370fcf373c97241966f0bb9a077b513903354a20bcd659545819e9d363b3bd1c",
+  "board_sha256": "b19a45530bb0f39d2d3c0412e3774b6d5a47c4238d3fee867790cce410756662",
   "pitch_mm": 0.125,
   "kit": "sheet_solver.py",
   "layers": {
@@ -88,7 +88,7 @@
       "grid_components_spanning_two_physical": 0
     },
     "coil_feed/B.Cu": {
-      "grid_nodes": 11492,
+      "grid_nodes": 11495,
       "grid_components": 1,
       "physical_components": 1,
       "dropped_edges": 0,
@@ -116,14 +116,14 @@
       "grid_components_spanning_two_physical": 0
     },
     "hv_ret/B.Cu": {
-      "grid_nodes": 34749,
+      "grid_nodes": 34748,
       "grid_components": 21,
       "physical_components": 17,
       "dropped_edges": 0,
       "grid_components_spanning_two_physical": 0
     },
     "hv_ret/F.Cu": {
-      "grid_nodes": 35774,
+      "grid_nodes": 35773,
       "grid_components": 12,
       "physical_components": 12,
       "dropped_edges": 1,
@@ -263,7 +263,7 @@
       "grid_components_spanning_two_physical": 0
     },
     "rect_n/F.Cu": {
-      "grid_nodes": 4227,
+      "grid_nodes": 4228,
       "grid_components": 2,
       "physical_components": 2,
       "dropped_edges": 0,
@@ -312,7 +312,7 @@
       "grid_components_spanning_two_physical": 0
     },
     "res_a/B.Cu": {
-      "grid_nodes": 76522,
+      "grid_nodes": 76517,
       "grid_components": 1,
       "physical_components": 1,
       "dropped_edges": 0,

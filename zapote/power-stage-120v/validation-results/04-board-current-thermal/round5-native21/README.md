@@ -294,6 +294,7 @@ runs rise 1–10 K and remain outside the 22 A envelope.
   83.7 → 81.7 °C (nominal h 25). Stage 18's maximum was one hot pad cell, so read the mean.
 - **G6:** re-run on this board (`stage17-r5/g6_r5_derating.py --tag native21s19`, evidence in
   `08-manufacturing-package/native-21/stage19-pi-si/g6-native21s19.json`): R5 pad max 134.86 °C, margin 50.8 %, PASS.
+- **Stage 19b** (board `b19a4553…`; four SELV caps C153–C156): B3 identical (28 A h25 136.0 °C at R5.4); no power copper changed, G6 not re-run.
 
 **Verdict, task 04 on native-21:** nominal operation passes the copper width screen after the SW_B
 fix (SW_A at 18.8 K is the tightest). The board needs a tank-current ceiling (22 A RMS interim).

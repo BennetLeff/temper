@@ -492,6 +492,32 @@ def rip(g, net, pick=lambda item: True):
     return n
 
 
+def plane_via(g, ref_pad, reach=(0.85, 1.6)):
+    """A 0.6 mm via on the pad's net next to an SMD pad, the nearest legal spot within `reach` of its centre,
+    with a 0.3 mm stub to it (the pad's net is poured on an inner layer there)."""
+    import math
+    from shapely.geometry import Point
+    from patches21_v1 import put
+    G = g["GEO"]
+    pd = G.pad(ref_pad)
+    net, x0, y0 = pd["net"], pd["x"], pd["y"]
+    steps = int(round((reach[1] - reach[0]) / 0.05))
+    for k in range(steps + 1):
+        r = reach[0] + 0.05 * k
+        for i in range(24):
+            a = 2 * math.pi * i / 24
+            x, y = round(x0 + r * math.cos(a), 3), round(y0 + r * math.sin(a), 3)
+            if G.conflicts(net, CU, Point(x, y).buffer(0.3), limit=1, via=True):
+                continue
+            try:
+                put(g, net, "F.Cu", 0.3, ref_pad, [x, y])
+            except SystemExit:
+                continue
+            drill(g, net, x, y, size=0.6)
+            return x, y
+    raise SystemExit(f"stage 19b: no plane via spot beside {ref_pad}")
+
+
 def add_stage19_si(g):
     """Stage 19 SI1 / SI2 (DECISIONS 19; stage-18 return-path review). `layout/gates/return_path19.py` checks them.
     SI1 bus_fault_hot (U8.4 -> U9.4; both grounds are ocp_kelvin_p): over the In1 Kelvin pour to its west end, then
@@ -565,6 +591,11 @@ def add_stage19_si(g):
     # last 13 mm to U9 on In2, within 0.5 mm in plan of the Kelvin chain to U9's grounds (In1 / F.Cu tracks)
     put(g, "bus_fault_hot", "In2.Cu", 0.25, [100.6, 114.0], [100.6, 114.9], [101.2, 115.5], [101.7, 115.0], [105.6, 115.0],
         [106.3, 114.2], [109.6, 114.2], [110.05, 114.65], [113.485, 114.65], [113.635, 114.5])
+    # Stage 19b: each pwm_hb transfer cap (C153-C156) reaches its two planes (In1 v3v3, In2 selv_gnd) through its
+    # own via beside each pad, so the cap closes the return loop locally instead of through long pad tracks.
+    for ref in ("C153", "C154", "C155", "C156"):
+        for pad in ("1", "2"):
+            plane_via(g, f"{ref}.{pad}", reach=(0.85, 2.2))
     # PI2 follow-up (after the SI1 lanes are laid): the LS rail and leg_ret round the moved U26
     L4 = ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu")
     from patches21_v1 import route_group

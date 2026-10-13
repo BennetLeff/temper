@@ -94,3 +94,5 @@ Files: [plane-native21.json](plane-native21.json), [budget-native21.json](budget
 **Stage 18** (SELV LINE_ZC_RAW / V15_SELV B.Cu runs moved under the bank, far from the Kelvin; board `3768a126…`; tag `native21s18`): identical, R35.2 157.80 mΩ, band 67.72–116.44 A (67.66 A at the bound).
 
 **Stage 19** (U26 moved east / down with its caps; the Kelvin return's lower 26 mm, x 100.35 → U9 / U4, moved from B.Cu to In2 directly over the re-routed bus_fault_hot, one via at the corner, same polyline; a dead-end Kelvin via + B.Cu stub keeps the In1 pour's west strip; board `370fcf37…`; tag `native21s19`): re-solved, R35.2 **158.08 mΩ** (was 157.80), shift −2.167 A (bound −2.237 A), band 67.72–116.44 A, floor 64.17 A met at the bound.
+
+**Stage 19b** (four SELV transfer caps C153–C156, far from the Kelvin; board `b19a4553…`; tag `native21s19b`): identical, R35.2 158.08 mΩ, band 67.72–116.44 A.

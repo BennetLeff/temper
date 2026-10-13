@@ -1,5 +1,5 @@
 Drill report for section.kicad_pcb
-Created on 2026-10-12T20:19:45
+Created on 2026-10-12T21:46:06
 
 Copper Layer Stackup:
     =============================================================
@@ -12,7 +12,7 @@ Copper Layer Stackup:
 Drill file 'section-PTH.drl' contains
     plated through holes:
     =============================================================
-    T1  0.300mm  0.0118"  (736 holes))
+    T1  0.300mm  0.0118"  (743 holes))
     T2  0.800mm  0.0315"  (10 holes))
     T3  0.900mm  0.0354"  (4 holes))
     T4  1.020mm  0.0402"  (16 holes))
@@ -26,7 +26,7 @@ Drill file 'section-PTH.drl' contains
     T12  1.850mm  0.0728"  (24 holes))
     T13  2.500mm  0.0984"  (4 holes))
 
-    Total plated holes count 866
+    Total plated holes count 873
 
 
 Drill file 'section-NPTH.drl' contains

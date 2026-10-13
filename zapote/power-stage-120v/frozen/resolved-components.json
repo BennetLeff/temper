@@ -1,11 +1,11 @@
 {
   "atopile_version": "0.2.69",
   "build_sha256": {
-    "build/default.csv": "559466ab140d83460717fd2093332e3116399ae444dd1d3c5de7d8f014bf5edb",
+    "build/default.csv": "18dc286916dcfa9d121502b02ec3a1cc0639e20f49e3c06f60d47d9500d92316",
     "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-    "build/default.net": "bd395b0b407ec4f1542ec3f3085e16e295a14a301c03ed90054ebe250a3905d3",
+    "build/default.net": "8a7e1c4a869445d7d11ab9ee4c69f0dc40207cf4f06463a0ac8b2238cffef92b",
     "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5",
-    "build/resolved-components.json": "8efdb95685d7eda53016af72d0cbb251b7c6d938dada7d5580e92c3d3ab8b052"
+    "build/resolved-components.json": "b08996c72994db3aeb4f8db8068dbb76aa5e671123915ff177e4695232959039"
   },
   "components": [
     {
@@ -2196,6 +2196,50 @@
       }
     },
     {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ref_xfer_1",
+      "attributes": {
+        "designator": "C153",
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ref_xfer_2",
+      "attributes": {
+        "designator": "C154",
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ref_xfer_3",
+      "attributes": {
+        "designator": "C155",
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ref_xfer_4",
+      "attributes": {
+        "designator": "C156",
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
+        "value": "100nF"
+      }
+    },
+    {
       "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ct_mon",
       "attributes": {
         "designator": "R47",
@@ -3800,7 +3844,7 @@
     "elec/src/f6_bias.ato": "ebe1ff0a3e74d40abfbb9d5f6bddfd9bae374286960e6f06cdf5f9e57fa84d8f",
     "elec/src/f6_parts.ato": "c88358b18d3ee5c72b978c449e455e755dae8547bb3998b516582f9ebfa5ede2",
     "elec/src/parts.ato": "017fae35c02f503a513e7014f770459414382a48ef2f0fafa32c8bbeb9e7af08",
-    "elec/src/power_stage_120v.ato": "ce9c636d52828a61a60296e5dd1b5db7b1062206b3d0fba733462a0a47f2d3b0",
+    "elec/src/power_stage_120v.ato": "94260996ce163721619c12160ba27da3d9641939d93baec561f04e2478819142",
     "prototype-closure/round4/supervisor/generated/supervisor.ato": "1d6674935534a46c6c82f61c4f18890de7fa7cbf81f89c1cb63efb7bfed1b7e3"
   }
 }

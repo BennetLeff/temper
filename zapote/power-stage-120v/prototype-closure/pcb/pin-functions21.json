@@ -2,7 +2,7 @@
  "basis": "Native-21: native-19 reviewed annotations by MPN and pin set; ECO.md manufacturer pin tables for parts added in D-33; remaining parts passive (named after Atopile signals). Connectivity authority: native-21/frozen/default.net. Not datasheet or powered verification.",
  "basis_counts": {
   "native19-reviewed": 124,
-  "passive-two-terminal": 203,
+  "passive-two-terminal": 207,
   "passive-untyped": 9,
   "eco-pin-table": 17
  },
@@ -1316,6 +1316,66 @@
   "C47": {
    "mpn": "CC0603KRX7R9BB104",
    "source_instance": "c_fault_or",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C153": {
+   "mpn": "CC0603KRX7R9BB104",
+   "source_instance": "c_ref_xfer_1",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C154": {
+   "mpn": "CC0603KRX7R9BB104",
+   "source_instance": "c_ref_xfer_2",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C155": {
+   "mpn": "CC0603KRX7R9BB104",
+   "source_instance": "c_ref_xfer_3",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C156": {
+   "mpn": "CC0603KRX7R9BB104",
+   "source_instance": "c_ref_xfer_4",
    "basis": "passive-two-terminal",
    "pins": {
     "1": {

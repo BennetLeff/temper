@@ -34,7 +34,8 @@ Stage 19 (DECISIONS item 19), also run by `chain.sh`:
         # PI1 / PI2: RECOM U41 / U42 VOUT+ and TPS7A47 U26 OUT / IN / NR pins to their caps, asserts <= 3 mm
     python3 gates/return_path19.py COPPER_DUMP.json [--json OUT] [--control [--expect NET=mm,...]]
         # SI1 / SI2: per fast signal, the reference under every track point and each layer change's
-        # transfer-cap distance; asserts bus_fault_hot on ocp_kelvin_p end to end, ct_zc and pwm_hb's driver side
+        # transfer-cap distance; asserts bus_fault_hot on ocp_kelvin_p end to end, every ct_zc / pwm_hb change
+        # <= 3 mm and the 19b transfer caps' plane vias (C153-C156)
 
 Clear `board_only21.json` `test_points` before `passes.sh` (stale test pads sit on the router's paths); `chain.sh`
 re-plans them from the clean pass. After the passes, `trim_tails.py DRC.json copper.json --write` drops the router's
