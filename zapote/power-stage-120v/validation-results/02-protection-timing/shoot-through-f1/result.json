@@ -1,0 +1,385 @@
+{
+  "F1": {
+    "BR1_I2t": 510.0,
+    "BR1_half": 255.0,
+    "clearing_I2t": 1710.0,
+    "melt_I2t": 226.0,
+    "melts_before_8p3ms_all_cases": true,
+    "mpn": "KLDR025.TXP"
+  },
+  "board_sha256": "b19a45530bb0f39d2d3c0412e3774b6d5a47c4238d3fee867790cce410756662",
+  "controls": {
+    "oversized_KLDR030_must_FAIL": {
+      "F1_clearing_I2t": 1990.0,
+      "PASS": false,
+      "cond_BR1": false,
+      "cond_copper": false,
+      "cond_copper_parallel_estimate": false,
+      "label": "KLDR030",
+      "limit_0p5_BR1": 255.0,
+      "margin_BR1_ratio": 7.803921568627451,
+      "margin_copper_ratio": 5.598343734372636,
+      "min_copper_I2t_conservative": 355.46227499069494,
+      "min_copper_I2t_parallel": 355.46227499069494
+    },
+    "oversized_hypothetical_1e5_must_FAIL": {
+      "F1_clearing_I2t": 100000.0,
+      "PASS": false,
+      "cond_BR1": false,
+      "cond_copper": false,
+      "cond_copper_parallel_estimate": false,
+      "label": "hypothetical 100 kA2s fuse",
+      "limit_0p5_BR1": 255.0,
+      "margin_BR1_ratio": 392.15686274509807,
+      "margin_copper_ratio": 281.3238057473686,
+      "min_copper_I2t_conservative": 355.46227499069494,
+      "min_copper_I2t_parallel": 355.46227499069494
+    },
+    "small_KLDR005_BR1_condition_must_PASS": {
+      "F1_clearing_I2t": 84.04,
+      "PASS": true,
+      "cond_BR1": true,
+      "cond_copper": true,
+      "cond_copper_parallel_estimate": true,
+      "label": "KLDR005 (5 A)",
+      "limit_0p5_BR1": 255.0,
+      "margin_BR1_ratio": 0.3295686274509804,
+      "margin_copper_ratio": 0.23642452635008862,
+      "min_copper_I2t_conservative": 355.46227499069494,
+      "min_copper_I2t_parallel": 355.46227499069494
+    }
+  },
+  "controls_ok": true,
+  "copper_segments": [
+    {
+      "area_conservative_mm2": 0.266875,
+      "area_parallel_layers_mm2": 0.30625,
+      "from": "J1.1",
+      "fuse_I2t_conservative_Ta105": 4954.354197203639,
+      "fuse_I2t_conservative_Ta25": 5937.010052351083,
+      "fuse_I2t_parallel_Ta105": 6524.142855764,
+      "neck_width_best_route_mm": 4.375,
+      "neck_width_per_layer_mm": {
+        "B.Cu": null,
+        "F.Cu": 4.375,
+        "In1.Cu": null,
+        "In2.Cu": null
+      },
+      "net": "ac_l_in",
+      "segment": "J1 line -> F1 pad 1",
+      "to": "F1.1"
+    },
+    {
+      "area_conservative_mm2": 0.2559140625,
+      "area_parallel_layers_mm2": 0.293671875,
+      "from": "F1.2",
+      "fuse_I2t_conservative_Ta105": 4555.746701190742,
+      "fuse_I2t_conservative_Ta25": 5459.3420018699935,
+      "fuse_I2t_parallel_Ta105": 5999.236451447095,
+      "neck_width_best_route_mm": 4.195,
+      "neck_width_per_layer_mm": {
+        "B.Cu": null,
+        "F.Cu": 4.195,
+        "In1.Cu": null,
+        "In2.Cu": null
+      },
+      "net": "l_f",
+      "segment": "F1 pad 2 -> L1 winding 1",
+      "to": "L1.1"
+    },
+    {
+      "area_conservative_mm2": 0.15845703125,
+      "area_parallel_layers_mm2": 0.18183593750000002,
+      "from": "L1.4",
+      "fuse_I2t_conservative_Ta105": 1746.6033839751115,
+      "fuse_I2t_conservative_Ta25": 2093.0279579089274,
+      "fuse_I2t_parallel_Ta105": 2300.015205987113,
+      "neck_width_best_route_mm": 2.598,
+      "neck_width_per_layer_mm": {
+        "B.Cu": 2.598,
+        "F.Cu": null,
+        "In1.Cu": null,
+        "In2.Cu": null
+      },
+      "net": "l_filt",
+      "segment": "L1 -> BR1 AC1",
+      "to": "BR1.2"
+    },
+    {
+      "area_conservative_mm2": 0.28045703125,
+      "area_parallel_layers_mm2": 0.32183593750000006,
+      "from": "L1.3",
+      "fuse_I2t_conservative_Ta105": 5471.468866117604,
+      "fuse_I2t_conservative_Ta25": 6556.690209513293,
+      "fuse_I2t_parallel_Ta105": 7205.105467341109,
+      "neck_width_best_route_mm": 4.598,
+      "neck_width_per_layer_mm": {
+        "B.Cu": null,
+        "F.Cu": 4.598,
+        "In1.Cu": null,
+        "In2.Cu": null
+      },
+      "net": "n_filt",
+      "segment": "L1 -> BR1 AC2",
+      "to": "BR1.3"
+    },
+    {
+      "area_conservative_mm2": 0.24042578125,
+      "area_parallel_layers_mm2": 0.27589843750000004,
+      "from": "J1.2",
+      "fuse_I2t_conservative_Ta105": 4020.993204275574,
+      "fuse_I2t_conservative_Ta25": 4818.524498650865,
+      "fuse_I2t_parallel_Ta105": 5295.046143765202,
+      "neck_width_best_route_mm": 3.941,
+      "neck_width_per_layer_mm": {
+        "B.Cu": 3.941,
+        "F.Cu": null,
+        "In1.Cu": null,
+        "In2.Cu": null
+      },
+      "net": "ac_n_in",
+      "segment": "J1 neutral -> L1",
+      "to": "L1.2"
+    },
+    {
+      "area_conservative_mm2": 0.342171875,
+      "area_parallel_layers_mm2": 0.342171875,
+      "from": "BR1.1",
+      "fuse_I2t_conservative_Ta105": 8144.414837880136,
+      "fuse_I2t_conservative_Ta25": 9759.793272411483,
+      "fuse_I2t_parallel_Ta105": 8144.414837880136,
+      "neck_width_best_route_mm": 5.609,
+      "neck_width_per_layer_mm": {
+        "B.Cu": null,
+        "F.Cu": null,
+        "In1.Cu": 5.609,
+        "In2.Cu": null
+      },
+      "net": "rect_p",
+      "segment": "BR1 + -> J7 (strap)",
+      "to": "J7.1"
+    },
+    {
+      "area_conservative_mm2": 0.36409375,
+      "area_parallel_layers_mm2": 0.36409375,
+      "from": "BR1.4",
+      "fuse_I2t_conservative_Ta105": 9221.41813613194,
+      "fuse_I2t_conservative_Ta25": 11050.411414276528,
+      "fuse_I2t_parallel_Ta105": 9221.41813613194,
+      "neck_width_best_route_mm": 5.969,
+      "neck_width_per_layer_mm": {
+        "B.Cu": null,
+        "F.Cu": null,
+        "In1.Cu": null,
+        "In2.Cu": 5.969
+      },
+      "net": "rect_n",
+      "segment": "BR1 - -> J9 (strap)",
+      "to": "J9.1"
+    },
+    {
+      "area_conservative_mm2": 0.11270703124999999,
+      "area_parallel_layers_mm2": 0.11270703124999999,
+      "from": "J8.1",
+      "fuse_I2t_conservative_Ta105": 883.6357702377018,
+      "fuse_I2t_conservative_Ta25": 1058.897737565733,
+      "fuse_I2t_parallel_Ta105": 883.6357702377018,
+      "neck_width_best_route_mm": 1.848,
+      "neck_width_per_layer_mm": {
+        "B.Cu": null,
+        "F.Cu": null,
+        "In1.Cu": null,
+        "In2.Cu": 1.848
+      },
+      "net": "bus_p",
+      "segment": "J8 -> Q2 drain (leg A)",
+      "to": "Q2.2"
+    },
+    {
+      "area_conservative_mm2": 0.11270703124999999,
+      "area_parallel_layers_mm2": 0.11270703124999999,
+      "from": "J8.1",
+      "fuse_I2t_conservative_Ta105": 883.6357702377018,
+      "fuse_I2t_conservative_Ta25": 1058.897737565733,
+      "fuse_I2t_parallel_Ta105": 883.6357702377018,
+      "neck_width_best_route_mm": 1.848,
+      "neck_width_per_layer_mm": {
+        "B.Cu": null,
+        "F.Cu": null,
+        "In1.Cu": null,
+        "In2.Cu": 1.848
+      },
+      "net": "bus_p",
+      "segment": "J8 -> Q5 drain (leg B)",
+      "to": "Q5.2"
+    },
+    {
+      "area_conservative_mm2": 0.17275390625,
+      "area_parallel_layers_mm2": 0.17275390625,
+      "from": "Q3.3",
+      "fuse_I2t_conservative_Ta105": 2075.9984254664896,
+      "fuse_I2t_conservative_Ta25": 2487.7558265043367,
+      "fuse_I2t_parallel_Ta105": 2075.9984254664896,
+      "neck_width_best_route_mm": 2.832,
+      "neck_width_per_layer_mm": {
+        "B.Cu": null,
+        "F.Cu": null,
+        "In1.Cu": null,
+        "In2.Cu": null
+      },
+      "net": "leg_ret",
+      "segment": "Q3 source -> shunt R5 (leg A)",
+      "to": "R5.1"
+    },
+    {
+      "area_conservative_mm2": 0.27068749999999997,
+      "area_parallel_layers_mm2": 0.31062500000000004,
+      "from": "Q6.3",
+      "fuse_I2t_conservative_Ta105": 5096.918266959909,
+      "fuse_I2t_conservative_Ta25": 6107.8505456942485,
+      "fuse_I2t_parallel_Ta105": 6711.878395082925,
+      "neck_width_best_route_mm": 4.438,
+      "neck_width_per_layer_mm": {
+        "B.Cu": null,
+        "F.Cu": 4.438,
+        "In1.Cu": null,
+        "In2.Cu": null
+      },
+      "net": "leg_ret",
+      "segment": "Q6 source -> shunt R5 (leg B)",
+      "to": "R5.1"
+    },
+    {
+      "area_conservative_mm2": 0.071484375,
+      "area_parallel_layers_mm2": 0.071484375,
+      "from": "R5.4",
+      "fuse_I2t_conservative_Ta105": 355.46227499069494,
+      "fuse_I2t_conservative_Ta25": 425.9653258223834,
+      "fuse_I2t_parallel_Ta105": 355.46227499069494,
+      "neck_width_best_route_mm": 1.172,
+      "neck_width_per_layer_mm": {
+        "B.Cu": null,
+        "F.Cu": null,
+        "In1.Cu": null,
+        "In2.Cu": null
+      },
+      "net": "hv_ret",
+      "segment": "shunt R5 -> J10",
+      "to": "J10.1"
+    }
+  ],
+  "energy": {
+    "E_J": {
+      "C_bom_nominal_18.4uF@OVP_280V": 0.72128,
+      "C_bom_nominal_18.4uF@corner_286V": 0.7525232000000001,
+      "C_bom_nominal_18.4uF@line_pk_197.6V": 0.35909605600000016,
+      "C_plan_+10pct_20.68uF@OVP_280V": 0.810656,
+      "C_plan_+10pct_20.68uF@corner_286V": 0.8457706400000001,
+      "C_plan_+10pct_20.68uF@line_pk_197.6V": 0.4035927412000002,
+      "C_plan_18.8uF@OVP_280V": 0.73696,
+      "C_plan_18.8uF@corner_286V": 0.7688824000000001,
+      "C_plan_18.8uF@line_pk_197.6V": 0.36690249200000014
+    },
+    "E_worst_J": 0.8457706400000001,
+    "line_peak_V": 197.56563466352142
+  },
+  "follow_on_current": {
+    "cord_limited_1.8m_4.7kA": {
+      "I_pk_prospective_A": 4759.028202552215,
+      "L_loop_uH": 19.8,
+      "R_loop_mOhm": 39.72340425531915,
+      "free_run_I2t_8.3ms_A2s": 81111.81598393498,
+      "ipk_formula_check_A": 4925.9533096869345,
+      "melt_at": {
+        "i_A": 1700.9332492401848,
+        "t_us": 211.2
+      },
+      "note": "F1-RECOMMENDATION s2: 4.7 kA at 140 V, 1.8 m 14 AWG, stiff source"
+    },
+    "low_impedance_1.0m_8.4kA": {
+      "I_pk_prospective_A": 6862.569484014705,
+      "L_loop_uH": 19.0,
+      "R_loop_mOhm": 26.63095238095238,
+      "free_run_I2t_8.3ms_A2s": 163237.36455167638,
+      "ipk_formula_check_A": 7347.67693863916,
+      "melt_at": {
+        "i_A": 1783.744809159095,
+        "t_us": 198.4
+      },
+      "note": "F1-RECOMMENDATION s2: 8.4 kA at 140 V, 1.0 m 14 AWG, stiff source (LOW-Z CORNER)"
+    },
+    "nominal_15m_14AWG_branch": {
+      "I_pk_prospective_A": 634.189790040482,
+      "L_loop_uH": 21.000000000000004,
+      "R_loop_mOhm": 308.3584814992792,
+      "free_run_I2t_8.3ms_A2s": 1629.6685374664999,
+      "ipk_formula_check_A": 634.5719232761847,
+      "melt_at": {
+        "i_A": 617.6930099287009,
+        "t_us": 673.8
+      },
+      "note": "15 m 14 AWG branch + 1.8 m cord + 20 mOhm service/panel; ~0.3 ohm -> ~0.46 kA at 140 V (DECISIONS 234)"
+    },
+    "zero_source_Z_bound": {
+      "I_pk_prospective_A": 15038.704498790685,
+      "L_loop_uH": 18.0,
+      "R_loop_mOhm": 9.999999999999998,
+      "free_run_I2t_8.3ms_A2s": 771856.3555618097,
+      "ipk_formula_check_A": 19567.563466352145,
+      "melt_at": {
+        "i_A": 1896.0095375699009,
+        "t_us": 183.39999999999998
+      },
+      "note": "ideal source: only board R/L (L1 DCR, leakage, R5, diodes)"
+    }
+  },
+  "schematic": {
+    "catch_or_fc1_hits": [],
+    "fuse_instances": [
+      "new BranchFuseT3A15",
+      "new MainsFuse25A"
+    ],
+    "no_catch_or_fc1_in_schematic": true
+  },
+  "sensitivity": {
+    "F1_melt_only_no_arc_energy": {
+      "F1_clearing_I2t": 226.0,
+      "PASS": true,
+      "cond_BR1": true,
+      "cond_copper": true,
+      "cond_copper_parallel_estimate": true,
+      "label": "KLDR025 melting I2t only (ideal zero-arc fuse)",
+      "limit_0p5_BR1": 255.0,
+      "margin_BR1_ratio": 0.8862745098039215,
+      "margin_copper_ratio": 0.6357918009890532,
+      "min_copper_I2t_conservative": 355.46227499069494,
+      "min_copper_I2t_parallel": 355.46227499069494
+    },
+    "KLDR015_row_clearing_2248": {
+      "F1_clearing_I2t": 2248.0,
+      "PASS": false,
+      "cond_BR1": false,
+      "cond_copper": false,
+      "cond_copper_parallel_estimate": false,
+      "label": "table's highest 12-30 A clearing value",
+      "limit_0p5_BR1": 255.0,
+      "margin_BR1_ratio": 8.815686274509805,
+      "margin_copper_ratio": 6.324159153200847,
+      "min_copper_I2t_conservative": 355.46227499069494,
+      "min_copper_I2t_parallel": 355.46227499069494
+    }
+  },
+  "verdict": {
+    "F1_clearing_I2t": 1710.0,
+    "PASS": false,
+    "cond_BR1": false,
+    "cond_copper": false,
+    "cond_copper_parallel_estimate": false,
+    "label": "F1 = KLDR025 (board of record)",
+    "limit_0p5_BR1": 255.0,
+    "margin_BR1_ratio": 6.705882352941177,
+    "margin_copper_ratio": 4.810637078280004,
+    "min_copper_I2t_conservative": 355.46227499069494,
+    "min_copper_I2t_parallel": 355.46227499069494
+  }
+}

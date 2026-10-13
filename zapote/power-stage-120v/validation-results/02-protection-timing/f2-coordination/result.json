@@ -1,0 +1,246 @@
+{
+ "F2_R_max_ohm": 0.09523809523809523,
+ "F2_R_typ_ohm": 0.03015873015873016,
+ "V_rms": 139.70000000000002,
+ "controls": {
+  "A_weak_source_1.2ohm": {
+   "I_rms_A": 107.6264748747927,
+   "PASS": true,
+   "crit1_letthrough_le_F2_break": true,
+   "crit2_f1_clear_lt_f2_prearc": false,
+   "f1_clearing_i2t_lower_bound": 226.0,
+   "f1_curve_peak_A": 338.97804434261997,
+   "f1_peak_letthrough_A": 155.2509568471058,
+   "f2_prearc_i2t": 11.6,
+   "t_f1_melt_us": 19510.58122423417,
+   "t_f2_prearc_us": 1001.4280628367982
+  },
+  "B_fictional_F2_prearc_3000A2s_at_C1": {
+   "I_rms_A": 1219.2698375348868,
+   "PASS": true,
+   "crit1_letthrough_le_F2_break": false,
+   "crit2_f1_clear_lt_f2_prearc": true,
+   "f1_clearing_i2t_lower_bound": 226.0,
+   "f1_curve_peak_A": 763.426397853865,
+   "f1_peak_letthrough_A": 763.426397853865,
+   "f2_prearc_i2t": 3000.0,
+   "t_f1_melt_us": 152.0228179645536,
+   "t_f2_prearc_us": 2018.0020083790307
+  }
+ },
+ "controls_ok": true,
+ "copper_connected_by_tracks_only": true,
+ "copper_loop_ohm": 0.058843559202751264,
+ "copper_paths_ohm": {
+  "blw_l F2.2->J11.1": 0.0034754200976783987,
+  "l_filt L1.4->F2.1": 0.029822941847959618,
+  "n_filt J11.2->L1.3": 0.025545197257113246
+ },
+ "corners": [
+  {
+   "I_peak_A": 2056.1864934025716,
+   "I_rms_A": 1425.4347184991632,
+   "PASS": false,
+   "R_loop_mohm": 98.00228936148142,
+   "X_mohm": 0.7539822368615503,
+   "corner": "C0 stiff source, 0 m cord (absolute low-Z)",
+   "crit1_letthrough_le_F2_break": false,
+   "crit2_f1_clear_lt_f2_prearc": false,
+   "f1_clearing_i2t_lower_bound": 226.0,
+   "f1_curve_peak_A": 804.3783450075016,
+   "f1_peak_letthrough_A": 804.3783450075016,
+   "f2_prearc_i2t": 11.6,
+   "kappa": 1.02,
+   "t_f1_melt_us": 111.22790934572127,
+   "t_f2_prearc_us": 5.709043134559145,
+   "variant": "Cu+F2typ"
+  },
+  {
+   "I_peak_A": 5145.202668902929,
+   "I_rms_A": 3566.8702919219445,
+   "PASS": false,
+   "R_loop_mohm": 39.15873015873016,
+   "X_mohm": 0.7539822368615503,
+   "corner": "C0 stiff source, 0 m cord (absolute low-Z)",
+   "crit1_letthrough_le_F2_break": false,
+   "crit2_f1_clear_lt_f2_prearc": false,
+   "f1_clearing_i2t_lower_bound": 226.0,
+   "f1_curve_peak_A": 1093.1872881709878,
+   "f1_peak_letthrough_A": 1093.1872881709878,
+   "f2_prearc_i2t": 11.6,
+   "kappa": 1.02,
+   "t_f1_melt_us": 17.763715371770186,
+   "t_f2_prearc_us": 0.9117659217368768,
+   "variant": "Cu=0,F2typ"
+  },
+  {
+   "I_peak_A": 1758.794099242963,
+   "I_rms_A": 1219.2698375348868,
+   "PASS": false,
+   "R_loop_mohm": 114.57428936148142,
+   "X_mohm": 0.7539822368615503,
+   "corner": "C1 stiff source, 1.0 m 14 AWG cord (repo inlet bound 8.4 kA)",
+   "crit1_letthrough_le_F2_break": false,
+   "crit2_f1_clear_lt_f2_prearc": false,
+   "f1_clearing_i2t_lower_bound": 226.0,
+   "f1_curve_peak_A": 763.426397853865,
+   "f1_peak_letthrough_A": 763.426397853865,
+   "f2_prearc_i2t": 11.6,
+   "kappa": 1.02,
+   "t_f1_melt_us": 152.0228179645536,
+   "t_f2_prearc_us": 7.802941099065586,
+   "variant": "Cu+F2typ"
+  },
+  {
+   "I_peak_A": 3615.5727198547193,
+   "I_rms_A": 2506.466654982707,
+   "PASS": false,
+   "R_loop_mohm": 55.73073015873016,
+   "X_mohm": 0.7539822368615503,
+   "corner": "C1 stiff source, 1.0 m 14 AWG cord (repo inlet bound 8.4 kA)",
+   "crit1_letthrough_le_F2_break": false,
+   "crit2_f1_clear_lt_f2_prearc": false,
+   "f1_clearing_i2t_lower_bound": 226.0,
+   "f1_curve_peak_A": 971.5043040040824,
+   "f1_peak_letthrough_A": 971.5043040040824,
+   "f2_prearc_i2t": 11.6,
+   "kappa": 1.02,
+   "t_f1_melt_us": 35.97365592964295,
+   "t_f2_prearc_us": 1.846435437096718,
+   "variant": "Cu=0,F2typ"
+  },
+  {
+   "I_peak_A": 1575.736484405584,
+   "I_rms_A": 1092.3666210649399,
+   "PASS": false,
+   "R_loop_mohm": 127.83188936148143,
+   "X_mohm": 3.7699111843077517,
+   "corner": "C2 stiff source, 1.8 m 14 AWG cord (repo inlet bound 4.7 kA)",
+   "crit1_letthrough_le_F2_break": false,
+   "crit2_f1_clear_lt_f2_prearc": false,
+   "f1_clearing_i2t_lower_bound": 226.0,
+   "f1_curve_peak_A": 735.8719984945757,
+   "f1_peak_letthrough_A": 735.8719984945757,
+   "f2_prearc_i2t": 11.6,
+   "kappa": 1.02,
+   "t_f1_melt_us": 189.39634639840114,
+   "t_f2_prearc_us": 9.72122839920997,
+   "variant": "Cu+F2typ"
+  },
+  {
+   "I_peak_A": 2916.677930986202,
+   "I_rms_A": 2021.9634740563652,
+   "PASS": false,
+   "R_loop_mohm": 68.98833015873015,
+   "X_mohm": 3.7699111843077517,
+   "corner": "C2 stiff source, 1.8 m 14 AWG cord (repo inlet bound 4.7 kA)",
+   "crit1_letthrough_le_F2_break": false,
+   "crit2_f1_clear_lt_f2_prearc": false,
+   "f1_clearing_i2t_lower_bound": 226.0,
+   "f1_curve_peak_A": 904.1534587350063,
+   "f1_peak_letthrough_A": 904.1534587350063,
+   "f2_prearc_i2t": 11.6,
+   "kappa": 1.02,
+   "t_f1_melt_us": 55.27920991472269,
+   "t_f2_prearc_us": 2.8373399779238193,
+   "variant": "Cu=0,F2typ"
+  },
+  {
+   "I_peak_A": 538.6594711822391,
+   "I_rms_A": 373.42133806207937,
+   "PASS": false,
+   "R_loop_mohm": 374.08924588322054,
+   "X_mohm": 3.7699111843077517,
+   "corner": "C3 15 m branch + cord (repo: ~0.46 kA at inlet)",
+   "crit1_letthrough_le_F2_break": false,
+   "crit2_f1_clear_lt_f2_prearc": false,
+   "f1_clearing_i2t_lower_bound": 226.0,
+   "f1_curve_peak_A": 513.9027757801235,
+   "f1_peak_letthrough_A": 513.9027757801235,
+   "f2_prearc_i2t": 11.6,
+   "kappa": 1.02,
+   "t_f1_melt_us": 1620.7281582619266,
+   "t_f2_prearc_us": 83.18781697273606,
+   "variant": "Cu+F2typ"
+  },
+  {
+   "I_peak_A": 639.1920588565066,
+   "I_rms_A": 443.11474440982994,
+   "PASS": false,
+   "R_loop_mohm": 315.2456866804693,
+   "X_mohm": 3.7699111843077517,
+   "corner": "C3 15 m branch + cord (repo: ~0.46 kA at inlet)",
+   "crit1_letthrough_le_F2_break": false,
+   "crit2_f1_clear_lt_f2_prearc": false,
+   "f1_clearing_i2t_lower_bound": 226.0,
+   "f1_curve_peak_A": 544.174341583286,
+   "f1_peak_letthrough_A": 544.174341583286,
+   "f2_prearc_i2t": 11.6,
+   "kappa": 1.02,
+   "t_f1_melt_us": 1151.0018900005623,
+   "t_f2_prearc_us": 59.0779731150731,
+   "variant": "Cu=0,F2typ"
+  }
+ ],
+ "design_verdict": "FAIL",
+ "governing_corner": "C0 stiff source, 0 m cord (absolute low-Z) / Cu=0,F2typ",
+ "replacement_02153.15MXP": {
+  "R_ohm": 0.02825,
+  "breaking_A": 1500.0,
+  "corners": [
+   {
+    "I_rms_A": 1453.7467551875252,
+    "corner": "C0 stiff source, 0 m cord (absolute low-Z)",
+    "variant": "Cu",
+    "within_1500A": true
+   },
+   {
+    "I_rms_A": 3749.567543653442,
+    "corner": "C0 stiff source, 0 m cord (absolute low-Z)",
+    "variant": "Cu=0",
+    "within_1500A": false
+   },
+   {
+    "I_rms_A": 1239.9252514148134,
+    "corner": "C1 stiff source, 1.0 m 14 AWG cord (repo inlet bound 8.4 kA)",
+    "variant": "Cu",
+    "within_1500A": true
+   },
+   {
+    "I_rms_A": 2595.3382293276936,
+    "corner": "C1 stiff source, 1.0 m 14 AWG cord (repo inlet bound 8.4 kA)",
+    "variant": "Cu=0",
+    "within_1500A": false
+   },
+   {
+    "I_rms_A": 1108.9098838219322,
+    "corner": "C2 stiff source, 1.8 m 14 AWG cord (repo inlet bound 4.7 kA)",
+    "variant": "Cu",
+    "within_1500A": true
+   },
+   {
+    "I_rms_A": 2079.31919407685,
+    "corner": "C2 stiff source, 1.8 m 14 AWG cord (repo inlet bound 4.7 kA)",
+    "variant": "Cu=0",
+    "within_1500A": false
+   },
+   {
+    "I_rms_A": 375.3362358153966,
+    "corner": "C3 15 m branch + cord (repo: ~0.46 kA at inlet)",
+    "variant": "Cu",
+    "within_1500A": true
+   },
+   {
+    "I_rms_A": 445.81364223769873,
+    "corner": "C3 15 m branch + cord (repo: ~0.46 kA at inlet)",
+    "variant": "Cu=0",
+    "within_1500A": true
+   }
+  ],
+  "mpn": "02153.15MXP"
+ },
+ "sources": {
+  "F1_KLDR025": "https://www.farnell.com/datasheets/4078688.pdf (Littelfuse KLDR, Revised 06/27/2022); same row in Rev 092821",
+  "F2_UMT250": "https://www.schurter.com/en/datasheet/typ_UMT_250.pdf (rev. dated 21.07.2026)"
+ }
+}
