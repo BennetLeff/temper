@@ -1,0 +1,1852 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 13,
+   "list": [
+    {
+     "componentId": 690443,
+     "componentLibraryType": "expand",
+     "stockCount": 10,
+     "componentTypeEn": "Isolators - Gate Drivers",
+     "erpComponentName": "\u9694\u79bb\u5f0f\u7cbe\u5bc6\u534a\u6865\u9a71\u52a8\u5668\uff0c4A\u8f93\u51fa",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/isolators-gate-drivers_analog-devices-adum4223crwz_C660978.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 8.0604
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 7.8728
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 7.7472
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 7.6216
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 7.6216
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 7.6216
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 7.3419
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 7.3419
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 7.4629
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 7.7646
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 7.3419
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 7.5839
+      }
+     ],
+     "firstSortAccessId": "a7ca7be1124b46818df6480f00698e25",
+     "secondSortAccessId": "0092b7a79e464f4bb751af1a85913a2f",
+     "canPresaleNumber": 10,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "AnalogDevices-ADUM4223CRWZ/C660978",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 47,
+     "shopCostPrice": 40.0,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 1,
+     "initialPrice": 8.0604,
+     "componentCode": "C660978",
+     "componentBrandEn": "Analog Devices",
+     "componentModelEn": "ADUM4223CRWZ",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2210190800_Analog-Devices-ADUM4223CRWZ_C660978.pdf",
+     "dataManualFileAccessId": "8589800562029473792",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "ADI ADUM4223CRWZ",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-16-300mil",
+     "describe": "SOIC-16-300mil Isolators - Gate Drivers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Saturation fault detection"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Isolators - Gate Drivers",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ADUM4223</span>CRWZ",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 209654,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Isolators - Gate Drivers",
+     "erpComponentName": "\u9694\u79bb\u5f0f\u7cbe\u5bc6\u534a\u6865\u9a71\u52a8\u5668\uff0c\u63d0\u4f9b4A\u8f93\u51fa",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/isolators-gate-drivers_analog-devices-adum4223arwz_C208622.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.7984
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 4.6859
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 4.6108
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 4.5358
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 4.5358
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 4.5358
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.6223
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 4.5139
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 4.4416
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 4.3694
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 4.3694
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 4.3694
+      }
+     ],
+     "firstSortAccessId": "a7ca7be1124b46818df6480f00698e25",
+     "secondSortAccessId": "0092b7a79e464f4bb751af1a85913a2f",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "AnalogDevices-ADUM4223ARWZ/C208622",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 47,
+     "shopCostPrice": 24.0,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 2,
+     "initialPrice": 4.7984,
+     "componentCode": "C208622",
+     "componentBrandEn": "Analog Devices",
+     "componentModelEn": "ADUM4223ARWZ",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583387309667962880",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Analog-Devices-ADUM4223ARWZ_C208622.pdf",
+     "dataManualFileAccessId": "8588901783041556480",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "ADI ADUM4223ARWZ",
+     "minImage": "",
+     "minImageAccessId": "8583387310532530176",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-16-300mil",
+     "describe": "-40\u2103~+125\u2103@(Tj) 2 25kV/us 3V~5.5V 4.5V~18V 5000 Half-Bridge MOSFET\u3001IGBT SOIC-16-300mil Isolators - Gate Drivers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Supply (Driver)",
+       "attribute_value_name": "4.5V~18V"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103@(Tj)"
+      },
+      {
+       "attribute_name_en": "Propagation Delay tpHL",
+       "attribute_value_name": "43ns"
+      },
+      {
+       "attribute_name_en": "Driven Configuration",
+       "attribute_value_name": "Half-Bridge"
+      },
+      {
+       "attribute_name_en": "Load Type",
+       "attribute_value_name": "MOSFET\u3001IGBT"
+      },
+      {
+       "attribute_name_en": "Quiescent Current(Iq)",
+       "attribute_value_name": "1.4mA"
+      },
+      {
+       "attribute_name_en": "Fall Time",
+       "attribute_value_name": "12ns"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "25kV/us"
+      },
+      {
+       "attribute_name_en": "Isolation voltage(Vrms)",
+       "attribute_value_name": "5000V"
+      },
+      {
+       "attribute_name_en": "Rise Time",
+       "attribute_value_name": "12ns"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Dead-time control\u3001Miller clamp protection\u3001Integrated power supply\u3001Saturation fault detection"
+      },
+      {
+       "attribute_name_en": "Propagation Delay tpLH",
+       "attribute_value_name": "43ns"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply (Input)",
+       "attribute_value_name": "3V~5.5V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Isolators - Gate Drivers",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ADUM4223</span>ARWZ",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 690442,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Isolators - Gate Drivers",
+     "erpComponentName": "\u9694\u79bb\u5f0f\u7cbe\u5bc6\u534a\u6865\u9a71\u52a8\u5668\uff0c4A\u8f93\u51fa",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/gate drive ics_analog devices_adum4223brwz_C660977.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.1201
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.6471
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.3519
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 2.0486
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.9116
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.8528
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.7849
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.9734
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.2656
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.0056
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.8414
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.55
+      }
+     ],
+     "firstSortAccessId": "6dc5d27d4f8744478cf3224b04762038",
+     "secondSortAccessId": "8710b7ceb24b4ef3a581cb3728f68edf",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "AnalogDevices-ADUM4223BRWZ/C660977",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 47,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 3,
+     "initialPrice": 3.1201,
+     "componentCode": "C660977",
+     "componentBrandEn": "Analog Devices",
+     "componentModelEn": "ADUM4223BRWZ",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://datasheet.lcsc.com/lcsc/2210190800_Analog-Devices-ADUM4223BRWZ_C660977.pdf",
+     "dataManualFileAccessId": "8589806450244681728",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "ADI ADUM4223BRWZ",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-16-300mil",
+     "describe": "SOIC-16-300mil Isolators - Gate Drivers ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "Isolators - Gate Drivers",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ADUM4223</span>BRWZ",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 690445,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Isolators - Gate Drivers",
+     "erpComponentName": "\u9694\u79bb\u5f0f\u7cbe\u5bc6\u534a\u6865\u9a71\u52a8\u5668\uff0c4A\u8f93\u51fa",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/isolators-gate-drivers_analog-devices-adum4223warwz_C660980.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 5.441
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 5.441
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 5.441
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 2.1056
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.0323
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.9947
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.9215
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 2.0284
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 5.2413
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 5.2413
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.9577
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 5.2413
+      }
+     ],
+     "firstSortAccessId": "a7ca7be1124b46818df6480f00698e25",
+     "secondSortAccessId": "0092b7a79e464f4bb751af1a85913a2f",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "AnalogDevices-ADUM4223WARWZ/C660980",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 47,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 2,
+     "initialPrice": 5.441,
+     "componentCode": "C660980",
+     "componentBrandEn": "Analog Devices",
+     "componentModelEn": "ADUM4223WARWZ",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2210190800_Analog-Devices-ADUM4223WARWZ_C660980.pdf",
+     "dataManualFileAccessId": "8589800563279106048",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "ADI ADUM4223WARWZ",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-16-300mil",
+     "describe": "SOIC-16-300mil Isolators - Gate Drivers ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "Isolators - Gate Drivers",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ADUM4223</span>WARWZ",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 690447,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Isolators - Gate Drivers",
+     "erpComponentName": "\u9694\u79bb\u5f0f\u7cbe\u5bc6\u534a\u6865\u9a71\u52a8\u5668\uff0c4A\u8f93\u51fa",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/gate drive ics_analog devices_adum4223wbrwz_C660982.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.3811
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.895
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.6064
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 2.3144
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.179
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.1187
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.0409
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 2.2295
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.5107
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.257
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.0991
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.7888
+      }
+     ],
+     "firstSortAccessId": "6dc5d27d4f8744478cf3224b04762038",
+     "secondSortAccessId": "8710b7ceb24b4ef3a581cb3728f68edf",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "AnalogDevices-ADUM4223WBRWZ/C660982",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 47,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 3,
+     "initialPrice": 3.3811,
+     "componentCode": "C660982",
+     "componentBrandEn": "Analog Devices",
+     "componentModelEn": "ADUM4223WBRWZ",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://datasheet.lcsc.com/lcsc/2210190800_Analog-Devices-ADUM4223WBRWZ_C660982.pdf",
+     "dataManualFileAccessId": "8589804562115686400",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "ADI ADUM4223WBRWZ",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SO-16-300mil",
+     "describe": "SO-16-300mil Isolators - Gate Drivers ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "Isolators - Gate Drivers",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ADUM4223</span>WBRWZ",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 690449,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Isolators - Gate Drivers",
+     "erpComponentName": "\u9694\u79bb\u5f0f\u7cbe\u5bc6\u534a\u6865\u9a71\u52a8\u5668\uff0c4A\u8f93\u51fa",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/gate drive ics_analog devices_adum4223wcrwz_C660984.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.3811
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.895
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.6064
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 2.3144
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.179
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.1187
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.0409
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 2.2295
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.5107
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.257
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.0991
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.7888
+      }
+     ],
+     "firstSortAccessId": "6dc5d27d4f8744478cf3224b04762038",
+     "secondSortAccessId": "8710b7ceb24b4ef3a581cb3728f68edf",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "AnalogDevices-ADUM4223WCRWZ/C660984",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 47,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 3,
+     "initialPrice": 3.3811,
+     "componentCode": "C660984",
+     "componentBrandEn": "Analog Devices",
+     "componentModelEn": "ADUM4223WCRWZ",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://datasheet.lcsc.com/lcsc/2210190800_Analog-Devices-ADUM4223WCRWZ_C660984.pdf",
+     "dataManualFileAccessId": "8589804562128809984",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "ADI ADUM4223WCRWZ",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SO-16-300mil",
+     "describe": "SO-16-300mil Isolators - Gate Drivers ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "Isolators - Gate Drivers",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ADUM4223</span>WCRWZ",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 208617,
+     "componentLibraryType": "expand",
+     "stockCount": 25,
+     "componentTypeEn": "Isolators - Gate Drivers",
+     "erpComponentName": "\u9694\u79bb\u5f0f\u7cbe\u5bc6\u534a\u6865\u9a71\u52a8\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/digital-isolators_analog-devices-adum4223arwz-rl_C207548.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.159
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 3.5898
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 3.0402
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 2.6977
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.5395
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.4694
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.0064
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 3.4581
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.9286
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 2.5987
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.4463
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.3787
+      }
+     ],
+     "firstSortAccessId": "3093ee1310f442ff9f461d8d2841c5a8",
+     "secondSortAccessId": "c5eda6b029a14b24b3153a4b8d77a017",
+     "canPresaleNumber": 15,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "AnalogDevices-ADUM4223ARWZRL/C207548",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1000,
+     "shopCostPrice": 13.01465,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 1,
+     "initialPrice": 4.159,
+     "componentCode": "C207548",
+     "componentBrandEn": "Analog Devices",
+     "componentModelEn": "ADUM4223ARWZ-RL",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583386907627687936",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Analog-Devices-ADUM4223ARWZ-RL_C207548.pdf",
+     "dataManualFileAccessId": "8588901716187598848",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "ADI ADUM4223ARWZ-RL",
+     "minImage": "",
+     "minImageAccessId": "8583386908461813760",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-16-300mil",
+     "describe": "-40\u2103~+125\u2103 2 25kV/us 3V~5.5V 4.5V~18V 5000 54ns Fail-safe output\u3001Multi-voltage domain interface Low Level SOIC-16-300mil Isolators - Gate Drivers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Supply (Driver)",
+       "attribute_value_name": "4.5V~18V"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Propagation Delay tpHL",
+       "attribute_value_name": "47ns"
+      },
+      {
+       "attribute_name_en": "Driven Configuration",
+       "attribute_value_name": "Half-Bridge"
+      },
+      {
+       "attribute_name_en": "Load Type",
+       "attribute_value_name": "MOSFET\u3001IGBT"
+      },
+      {
+       "attribute_name_en": "Quiescent Current(Iq)",
+       "attribute_value_name": "1.4mA"
+      },
+      {
+       "attribute_name_en": "Fall Time",
+       "attribute_value_name": "12ns"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "25kV/us"
+      },
+      {
+       "attribute_name_en": "Isolation voltage(Vrms)",
+       "attribute_value_name": "5000V"
+      },
+      {
+       "attribute_name_en": "Rise Time",
+       "attribute_value_name": "12ns"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Dead-time control\u3001Miller clamp protection\u3001Integrated power supply\u3001Saturation fault detection"
+      },
+      {
+       "attribute_name_en": "Propagation Delay tpLH",
+       "attribute_value_name": "47ns"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply (Input)",
+       "attribute_value_name": "3V~5.5V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Isolators - Gate Drivers",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ADUM4223</span>ARWZ-RL",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 607184,
+     "componentLibraryType": "expand",
+     "stockCount": 101,
+     "componentTypeEn": "Isolators - Gate Drivers",
+     "erpComponentName": "\u9694\u79bb\u5f0f\u7cbe\u5bc6\u534a\u6865\u9a71\u52a8\u5668\uff0c4A\u8f93\u51fa",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/isolators-gate-drivers_analog-devices-adum4223brwz-rl_C579407.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.3792
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 3.7758
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 3.4186
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 3.0549
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.8885
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.8135
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 3.6372
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 2.9428
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.7102
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 3.2931
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.2185
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.7825
+      }
+     ],
+     "firstSortAccessId": "a7ca7be1124b46818df6480f00698e25",
+     "secondSortAccessId": "0092b7a79e464f4bb751af1a85913a2f",
+     "canPresaleNumber": 101,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "AnalogDevices-ADUM4223BRWZRL/C579407",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1000,
+     "shopCostPrice": 13.79413,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 1,
+     "initialPrice": 4.3792,
+     "componentCode": "C579407",
+     "componentBrandEn": "Analog Devices",
+     "componentModelEn": "ADUM4223BRWZ-RL",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583792369422503936",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2210192230_Analog-Devices-ADUM4223BRWZ-RL_C579407.pdf",
+     "dataManualFileAccessId": "8590148103060811776",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "ADI ADUM4223BRWZ-RL",
+     "minImage": "",
+     "minImageAccessId": "8583792370534535168",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-16-300mil",
+     "describe": "-40\u2103~+125\u2103@(Tj) 18ns 18ns 2 25kV/us 3V~5.5V 4.5V~18V 4A 4A 5000 54ns 54ns Half-Bridge MOSFET\u3001IGBT SOIC-16-300mil Isolators - Gate Drivers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Supply (Driver)",
+       "attribute_value_name": "4.5V~18V"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103@(Tj)"
+      },
+      {
+       "attribute_name_en": "Propagation Delay tpHL",
+       "attribute_value_name": "54ns"
+      },
+      {
+       "attribute_name_en": "Driven Configuration",
+       "attribute_value_name": "Half-Bridge"
+      },
+      {
+       "attribute_name_en": "Load Type",
+       "attribute_value_name": "MOSFET\u3001IGBT"
+      },
+      {
+       "attribute_name_en": "Fall Time",
+       "attribute_value_name": "18ns"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "25kV/us"
+      },
+      {
+       "attribute_name_en": "Rise Time",
+       "attribute_value_name": "18ns"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Saturation fault detection"
+      },
+      {
+       "attribute_name_en": "Propagation Delay tpLH",
+       "attribute_value_name": "54ns"
+      },
+      {
+       "attribute_name_en": "Peak Output Current(sink)",
+       "attribute_value_name": "4A"
+      },
+      {
+       "attribute_name_en": "Peak Output Current(source)",
+       "attribute_value_name": "4A"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply (Input)",
+       "attribute_value_name": "3V~5.5V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Isolators - Gate Drivers",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ADUM4223</span>BRWZ-RL",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 690444,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Isolators - Gate Drivers",
+     "erpComponentName": "\u9694\u79bb\u5f0f\u7cbe\u5bc6\u534a\u6865\u9a71\u52a8\u5668\uff0c4A\u8f93\u51fa",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/isolators-gate-drivers_analog-devices-adum4223crwz-rl_C660979.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.7103
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 4.7103
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 4.7103
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.8235
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.7599
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.7273
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.6639
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.7566
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 4.5375
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.5375
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.6953
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 4.5375
+      }
+     ],
+     "firstSortAccessId": "a7ca7be1124b46818df6480f00698e25",
+     "secondSortAccessId": "0092b7a79e464f4bb751af1a85913a2f",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "AnalogDevices-ADUM4223CRWZRL/C660979",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1000,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 2,
+     "initialPrice": 4.7103,
+     "componentCode": "C660979",
+     "componentBrandEn": "Analog Devices",
+     "componentModelEn": "ADUM4223CRWZ-RL",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2210190800_Analog-Devices-ADUM4223CRWZ-RL_C660979.pdf",
+     "dataManualFileAccessId": "8589803138254606336",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "ADI ADUM4223CRWZ-RL",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-16-300mil",
+     "describe": "SOIC-16-300mil Isolators - Gate Drivers ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "Isolators - Gate Drivers",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ADUM4223</span>CRWZ-RL",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 690446,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Isolators - Gate Drivers",
+     "erpComponentName": "\u9694\u79bb\u5f0f\u7cbe\u5bc6\u534a\u6865\u9a71\u52a8\u5668\uff0c4A\u8f93\u51fa",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/isolators-gate-drivers_analog-devices-adum4223warwz-rl_C660981.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 5.441
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 5.441
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 5.441
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 2.1056
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.0323
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.9947
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.9215
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 2.0284
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 5.2413
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 5.2413
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.9577
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 5.2413
+      }
+     ],
+     "firstSortAccessId": "a7ca7be1124b46818df6480f00698e25",
+     "secondSortAccessId": "0092b7a79e464f4bb751af1a85913a2f",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "AnalogDevices-ADUM4223WARWZRL/C660981",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1000,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 2,
+     "initialPrice": 5.441,
+     "componentCode": "C660981",
+     "componentBrandEn": "Analog Devices",
+     "componentModelEn": "ADUM4223WARWZ-RL",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2210190800_Analog-Devices-ADUM4223WARWZ-RL_C660981.pdf",
+     "dataManualFileAccessId": "8589803138262724608",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "ADI ADUM4223WARWZ-RL",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-16-300mil",
+     "describe": "SOIC-16-300mil Isolators - Gate Drivers ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "Isolators - Gate Drivers",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ADUM4223</span>WARWZ-RL",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 690448,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Isolators - Gate Drivers",
+     "erpComponentName": "\u9694\u79bb\u5f0f\u7cbe\u5bc6\u534a\u6865\u9a71\u52a8\u5668\uff0c4A\u8f93\u51fa",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/gate drive ics_analog devices_adum4223wbrwz-rl_C660983.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.3811
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.895
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.6064
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 2.3144
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.179
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.1187
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.0409
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.7888
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 2.2295
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.257
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.0991
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.5107
+      }
+     ],
+     "firstSortAccessId": "6dc5d27d4f8744478cf3224b04762038",
+     "secondSortAccessId": "8710b7ceb24b4ef3a581cb3728f68edf",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "AnalogDevices-ADUM4223WBRWZRL/C660983",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1000,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 3,
+     "initialPrice": 3.3811,
+     "componentCode": "C660983",
+     "componentBrandEn": "Analog Devices",
+     "componentModelEn": "ADUM4223WBRWZ-RL",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://datasheet.lcsc.com/lcsc/2210190800_Analog-Devices-ADUM4223WBRWZ-RL_C660983.pdf",
+     "dataManualFileAccessId": "8589804562128134144",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "ADI ADUM4223WBRWZ-RL",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SO-16-300mil",
+     "describe": "SO-16-300mil Isolators - Gate Drivers ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "Isolators - Gate Drivers",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ADUM4223</span>WBRWZ-RL",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 690450,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Isolators - Gate Drivers",
+     "erpComponentName": "\u9694\u79bb\u5f0f\u7cbe\u5bc6\u534a\u6865\u9a71\u52a8\u5668\uff0c4A\u8f93\u51fa",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/isolators-gate-drivers_analog-devices-adum4223wcrwz-rl_C660985.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 5.441
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 5.441
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 5.441
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 2.1056
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.0323
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.9947
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.9215
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 2.0284
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 5.2413
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 5.2413
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.9577
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 5.2413
+      }
+     ],
+     "firstSortAccessId": "a7ca7be1124b46818df6480f00698e25",
+     "secondSortAccessId": "0092b7a79e464f4bb751af1a85913a2f",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "AnalogDevices-ADUM4223WCRWZRL/C660985",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1000,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 2,
+     "initialPrice": 5.441,
+     "componentCode": "C660985",
+     "componentBrandEn": "Analog Devices",
+     "componentModelEn": "ADUM4223WCRWZ-RL",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2210190800_Analog-Devices-ADUM4223WCRWZ-RL_C660985.pdf",
+     "dataManualFileAccessId": "8589804562124210176",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "ADI ADUM4223WCRWZ-RL",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SO-16-300mil",
+     "describe": "SO-16-300mil Isolators - Gate Drivers ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "Isolators - Gate Drivers",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ADUM4223</span>WCRWZ-RL",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 2,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "ADuM4223"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-13T19:25:54Z"
+}

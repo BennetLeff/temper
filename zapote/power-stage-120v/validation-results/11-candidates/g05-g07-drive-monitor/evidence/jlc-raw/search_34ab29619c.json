@@ -1,0 +1,1466 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 9,
+   "list": [
+    {
+     "componentId": 553512,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Gate Drivers",
+     "erpComponentName": "2EDF7275F",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/gate-drivers_infineon-technologies-2edf7275f_C533061.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.9957
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 4.9957
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 4.9957
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.9344
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.8659
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.8333
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.7974
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.8124
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 4.8124
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 4.8124
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.8634
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.766
+      }
+     ],
+     "firstSortAccessId": "ed01977635a7431782c6574574e570d3",
+     "secondSortAccessId": "034a9e679d364d77a078fc9ad4e4118b",
+     "canPresaleNumber": -10,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "InfineonTechnologies-2EDF7275F/C533061",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 2500,
+     "shopCostPrice": 10.20952,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 2,
+     "initialPrice": 4.9957,
+     "componentCode": "C533061",
+     "componentBrandEn": "Infineon Technologies",
+     "componentModelEn": "2EDF7275F",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "",
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Infineon 2EDF7275F",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-16",
+     "describe": "SOIC-16 Gate Drivers ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "Gate Drivers",
+     "secondSortName": "Motor Driver ICs",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>2EDF7275</span>F",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 553513,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Gate Drivers",
+     "erpComponentName": "\u53cc\u901a\u9053\u3001\u529f\u80fd\u578b\u548c\u589e\u5f3a\u578b\u9694\u79bb\u5f0fMOSFET\u6805\u6781\u9a71\u52a8\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/gate-drivers_infineon-technologies-2edf7275k_C533062.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.1222
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.0961
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.0798
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 1.0618
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 1.0618
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 1.0618
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 1.0229
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.081
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 1.0229
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.0401
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.0558
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 1.0229
+      }
+     ],
+     "firstSortAccessId": "ed01977635a7431782c6574574e570d3",
+     "secondSortAccessId": "034a9e679d364d77a078fc9ad4e4118b",
+     "canPresaleNumber": -10,
+     "componentProductType": 2,
+     "mergedComponentCode": null,
+     "urlSuffix": "InfineonTechnologies-2EDF7275K/C533062",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 4000,
+     "shopCostPrice": 5.5,
+     "preMinPurchaseNum": 9,
+     "minPurchaseNum": 9,
+     "initialPrice": 1.1222,
+     "componentCode": "C533062",
+     "componentBrandEn": "Infineon Technologies",
+     "componentModelEn": "2EDF7275K",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Infineon-Technologies-2EDF7275K_C533062.pdf",
+     "dataManualFileAccessId": "8588913138998136832",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Infineon 2EDF7275K",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "LGA-13",
+     "describe": "-40\u2103~+150\u2103 1.4mA 1.7V~2.3V 2 4.5V~20V 4.5ns 4A 6.5ns 8A Half-Bridge MOSFET Under Voltage Protection LGA-13 Gate Drivers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Propagation Delay tpHL",
+       "attribute_value_name": "37ns"
+      },
+      {
+       "attribute_name_en": "Driven Configuration",
+       "attribute_value_name": "Half-Bridge"
+      },
+      {
+       "attribute_name_en": "Current - Output High(IOH)",
+       "attribute_value_name": "4A"
+      },
+      {
+       "attribute_name_en": "Number of Drivers",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Load Type",
+       "attribute_value_name": "MOSFET"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - Low",
+       "attribute_value_name": "1.2V"
+      },
+      {
+       "attribute_name_en": "Quiescent Current(Iq)",
+       "attribute_value_name": "1.4mA"
+      },
+      {
+       "attribute_name_en": "Fall Time",
+       "attribute_value_name": "4.5ns"
+      },
+      {
+       "attribute_name_en": "Rise Time",
+       "attribute_value_name": "6.5ns"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - High",
+       "attribute_value_name": "1.7V~2.3V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "4.5V~20V"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Under Voltage Protection\u3001Enable shutdown\u3001Interleaved conduction protection\u3001Dead-time control"
+      },
+      {
+       "attribute_name_en": "Propagation Delay tpLH",
+       "attribute_value_name": "37ns"
+      },
+      {
+       "attribute_name_en": "Current - Output Low(IOL)",
+       "attribute_value_name": "8A"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Gate Drivers",
+     "secondSortName": "Motor Driver ICs",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>2EDF7275</span>K",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 2768979,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Gate Drivers",
+     "erpComponentName": "\u5177\u5907\u7cbe\u786e\u7a33\u5b9a\u65f6\u5e8f\u7684\u5feb\u901f\u3001\u8010\u7528\u3001\u53cc\u901a\u9053\u3001\u529f\u80fd\u6027\u548c\u589e\u5f3a\u578b\u9694\u79bb\u5f0f\u7845\u57fa\u53ca\u78b3\u5316\u7845MOSFET\u6805\u6781\u9a71\u52a8IC",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/gate-drivers_infineon-technologies-2edf7275kxuma1_C2677063.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.4789
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.9179
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.5672
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 2.2084
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.0453
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.9752
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.9027
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.473
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 2.1274
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.3513
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.9702
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.8108
+      }
+     ],
+     "firstSortAccessId": "ed01977635a7431782c6574574e570d3",
+     "secondSortAccessId": "034a9e679d364d77a078fc9ad4e4118b",
+     "canPresaleNumber": -3,
+     "componentProductType": 2,
+     "mergedComponentCode": null,
+     "urlSuffix": "InfineonTechnologies-2EDF7275K/C2677063",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 4000,
+     "shopCostPrice": 8.8,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 3,
+     "initialPrice": 3.4789,
+     "componentCode": "C2677063",
+     "componentBrandEn": "Infineon Technologies",
+     "componentModelEn": "2EDF7275K",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583569854188163072",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2201101700_Infineon-Technologies-2EDF7275KXUMA1_C2677063.pdf",
+     "dataManualFileAccessId": "8588939794470064128",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Infineon 2EDF7275K",
+     "minImage": "",
+     "minImageAccessId": "8583569855073566720",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "TFLGA-13",
+     "describe": "2 4.5ns 4A 4V 6.5ns 8A Half-Bridge MOSFET Under Voltage Protection\u3001- TFLGA-13 Gate Drivers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Propagation Delay tpHL",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Driven Configuration",
+       "attribute_value_name": "Half-Bridge"
+      },
+      {
+       "attribute_name_en": "Current - Output High(IOH)",
+       "attribute_value_name": "4A"
+      },
+      {
+       "attribute_name_en": "Number of Drivers",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Load Type",
+       "attribute_value_name": "MOSFET"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - Low",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Quiescent Current(Iq)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Fall Time",
+       "attribute_value_name": "4.5ns"
+      },
+      {
+       "attribute_name_en": "Rise Time",
+       "attribute_value_name": "6.5ns"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - High",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "4V"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Undervoltage Protection"
+      },
+      {
+       "attribute_name_en": "Propagation Delay tpLH",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Current - Output Low(IOL)",
+       "attribute_value_name": "8A"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Gate Drivers",
+     "secondSortName": "Motor Driver ICs",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>2EDF7275</span>K",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 3379464,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Gate Drivers",
+     "erpComponentName": "\u5feb\u901f\u3001\u8010\u7528\u3001\u53cc\u901a\u9053\u3001\u5177\u5907\u529f\u80fd\u6027\u548c\u589e\u5f3a\u578b\u9694\u79bb\u7684MOSFET\u6805\u6781\u9a71\u52a8\u5668\uff0c\u5177\u5907\u7cbe\u786e\u7a33\u5b9a\u7684\u65f6\u5e8f",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/gate-drivers_infineon-technologies-2edf7275kxuma2_C2975252.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.543
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.269
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.1189
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.9476
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.8726
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.8384
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.0778
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.4863
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.8406
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.9129
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.2224
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.8076
+      }
+     ],
+     "firstSortAccessId": "ed01977635a7431782c6574574e570d3",
+     "secondSortAccessId": "034a9e679d364d77a078fc9ad4e4118b",
+     "canPresaleNumber": 0,
+     "componentProductType": 2,
+     "mergedComponentCode": "",
+     "urlSuffix": "InfineonTechnologies-2EDF7275K/C2975252",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 4000,
+     "shopCostPrice": 4.66949,
+     "preMinPurchaseNum": 6,
+     "minPurchaseNum": 6,
+     "initialPrice": 1.543,
+     "componentCode": "C2975252",
+     "componentBrandEn": "Infineon Technologies",
+     "componentModelEn": "2EDF7275K",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8584766785317187584",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2202151130_Infineon-Technologies-2EDF7275KXUMA2_C2975252.pdf",
+     "dataManualFileAccessId": "8590225347376947200",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Infineon 2EDF7275K",
+     "minImage": "",
+     "minImageAccessId": "8584766786282012672",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "TFLGA-13",
+     "describe": "-40\u2103~+125\u2103 1.4mA 1.7V~2.3V 2 4.5V~20V 4.5ns 4A 6.5ns 8A Half-Bridge MOSFET Under Voltage Protection TFLGA-13 Gate Drivers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Propagation Delay tpHL",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Driven Configuration",
+       "attribute_value_name": "Half-Bridge"
+      },
+      {
+       "attribute_name_en": "Current - Output High(IOH)",
+       "attribute_value_name": "4A"
+      },
+      {
+       "attribute_name_en": "Number of Drivers",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Load Type",
+       "attribute_value_name": "MOSFET"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - Low",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Quiescent Current(Iq)",
+       "attribute_value_name": "1.4mA"
+      },
+      {
+       "attribute_name_en": "Fall Time",
+       "attribute_value_name": "4.5ns"
+      },
+      {
+       "attribute_name_en": "Rise Time",
+       "attribute_value_name": "6.5ns"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - High",
+       "attribute_value_name": "1.7V~2.3V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "4.5V~20V"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Under Voltage Protection\u3001Enable shutdown\u3001Interleaved conduction protection\u3001Dead-time control"
+      },
+      {
+       "attribute_name_en": "Propagation Delay tpLH",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Current - Output Low(IOL)",
+       "attribute_value_name": "8A"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Gate Drivers",
+     "secondSortName": "Motor Driver ICs",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>2EDF7275</span>K",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 54550725,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "SMT",
+     "erpComponentName": "\u3010\u90ae\u5bc4\u4e13\u7528\u30112EDF7275K",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0397
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0204
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0382
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0197
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "JLCPCBAssembly-2EDF7275K/C9900218693",
+     "leastPatchNumber": 5,
+     "lossNumber": 1,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.1,
+     "preMinPurchaseNum": 443,
+     "minPurchaseNum": 443,
+     "initialPrice": 0.0204,
+     "componentCode": "C9900218693",
+     "componentBrandEn": "JLCPCB Assembly",
+     "componentModelEn": "2EDF7275K",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "JIALICHUANG SMT 2EDF7275K",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "TFLGA-13",
+     "describe": "TFLGA-13 SMT ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "SMT",
+     "secondSortName": "Others",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>2EDF7275</span>K",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 2768981,
+     "componentLibraryType": "expand",
+     "stockCount": 2155,
+     "componentTypeEn": "Gate Drivers",
+     "erpComponentName": "\u53cc\u901a\u9053\u3001\u529f\u80fd\u548c\u52a0\u5f3a\u9694\u79bb\u5f0fMOSFET\u6805\u6781\u9a71\u52a8\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/gate-drivers_infineon-technologies-2edf7275fxuma1_C2677065.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.7909
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.5348
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.375
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.2119
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.1368
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.1059
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.4785
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.1674
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.0653
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.7251
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.0951
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.3245
+      }
+     ],
+     "firstSortAccessId": "ed01977635a7431782c6574574e570d3",
+     "secondSortAccessId": "034a9e679d364d77a078fc9ad4e4118b",
+     "canPresaleNumber": 2151,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "2768981-2EDF7275FXUMA1/C2677065",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 2500,
+     "shopCostPrice": 5.208,
+     "preMinPurchaseNum": 6,
+     "minPurchaseNum": 1,
+     "initialPrice": 1.7909,
+     "componentCode": "C2677065",
+     "componentBrandEn": "Infineon Technologies",
+     "componentModelEn": "2EDF7275FXUMA1",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583571011153772544",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_Infineon-Technologies-2EDF7275FXUMA1_C2677065.pdf",
+     "dataManualFileAccessId": "8588940609775652864",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Infineon 2EDF7275FXUMA1",
+     "minImage": "",
+     "minImageAccessId": "8583571012046213120",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "DSO-16",
+     "describe": "-40\u2103~+125\u2103 1.4mA 1.7V~2.3V 2 4.5V~20V 4.5ns 4A 6.5ns 8A Half-Bridge MOSFET Under Voltage Protection DSO-16 Gate Drivers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Propagation Delay tpHL",
+       "attribute_value_name": "37ns"
+      },
+      {
+       "attribute_name_en": "Driven Configuration",
+       "attribute_value_name": "Half-Bridge"
+      },
+      {
+       "attribute_name_en": "Current - Output High(IOH)",
+       "attribute_value_name": "4A"
+      },
+      {
+       "attribute_name_en": "Number of Drivers",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Load Type",
+       "attribute_value_name": "MOSFET"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - Low",
+       "attribute_value_name": "1.2V"
+      },
+      {
+       "attribute_name_en": "Quiescent Current(Iq)",
+       "attribute_value_name": "1.4mA"
+      },
+      {
+       "attribute_name_en": "Fall Time",
+       "attribute_value_name": "4.5ns"
+      },
+      {
+       "attribute_name_en": "Rise Time",
+       "attribute_value_name": "6.5ns"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - High",
+       "attribute_value_name": "1.7V~2.3V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "4.5V~20V"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Enable shutdown\u3001Interleaved conduction protection\u3001Dead-time control"
+      },
+      {
+       "attribute_name_en": "Propagation Delay tpLH",
+       "attribute_value_name": "37ns"
+      },
+      {
+       "attribute_name_en": "Current - Output Low(IOL)",
+       "attribute_value_name": "8A"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Gate Drivers",
+     "secondSortName": "Motor Driver ICs",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>2EDF7275</span>FXUMA1",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 6798037,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Gate Drivers",
+     "erpComponentName": "2EDF7275FXUMA2",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.9342
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.9342
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 2.9342
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.1711
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.1319
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.1124
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.1281
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.0716
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 2.8265
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.8265
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.0904
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.8265
+      }
+     ],
+     "firstSortAccessId": "3db4bff6cfd743f6af1575bf175e9774",
+     "secondSortAccessId": "cfa9bf2378174788abc09e74d45d5b30",
+     "canPresaleNumber": -10,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "6798037-2EDF7275FXUMA2/C5864712",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1000,
+     "shopCostPrice": 0.1,
+     "preMinPurchaseNum": 4,
+     "minPurchaseNum": 4,
+     "initialPrice": 2.9342,
+     "componentCode": "C5864712",
+     "componentBrandEn": "Infineon Technologies",
+     "componentModelEn": "2EDF7275FXUMA2",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Infineon 2EDF7275FXUMA2",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-16",
+     "describe": "SOIC-16 Gate Drivers ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "Gate Drivers",
+     "secondSortName": "Motor Driver ICs",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>2EDF7275</span>FXUMA2",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 60449242,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "SMT",
+     "erpComponentName": "\u3010\u90ae\u5bc4\u4e13\u7528\u30112EDF7275KXUMA2",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0397
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0204
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0382
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0197
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 2,
+     "mergedComponentCode": null,
+     "urlSuffix": "JLCPCBAssembly-2EDF7275KXUMA2/C9900321867",
+     "leastPatchNumber": 5,
+     "lossNumber": 1,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.1,
+     "preMinPurchaseNum": 443,
+     "minPurchaseNum": 443,
+     "initialPrice": 0.0204,
+     "componentCode": "C9900321867",
+     "componentBrandEn": "JLCPCB Assembly",
+     "componentModelEn": "2EDF7275KXUMA2",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "JIALICHUANG SMT 2EDF7275KXUMA2",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "TFLGA-13",
+     "describe": "TFLGA-13 SMT ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "SMT",
+     "secondSortName": "Others",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>2EDF7275</span>KXUMA2",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 18454092,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Modules",
+     "erpComponentName": "KITDRIVER2EDF7275FTOBO1",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/modules_infineon-technologies-kitdriver2edf7275ftobo1_C17324934.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 81.7904
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 81.7904
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 81.7904
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 32.636
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 32.636
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 32.636
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 31.4383
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 31.4383
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 78.7889
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 78.7889
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 31.4383
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 78.7889
+      }
+     ],
+     "firstSortAccessId": "41966beccd7f437795b30b614a4a9e1e",
+     "secondSortAccessId": "e8eb121356924cfdb9b1d80475c0d232",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "18454092-KITDRIVER2EDF7275FTOBO1/C17324934",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 81.7904,
+     "componentCode": "C17324934",
+     "componentBrandEn": "Infineon Technologies",
+     "componentModelEn": "KITDRIVER2EDF7275FTOBO1",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "",
+     "dataManualFileAccessId": "8603290528109125632",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Infineon KITDRIVER2EDF7275FTOBO1",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "-",
+     "describe": "Power Management - Modules ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Power Management"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Modules",
+     "secondSortName": "Educational Kits",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "KITDRIVER<span class='lucene_highlight_class'>2EDF7275</span>FTOBO1",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "2EDF7275"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-13T19:25:54Z"
+}

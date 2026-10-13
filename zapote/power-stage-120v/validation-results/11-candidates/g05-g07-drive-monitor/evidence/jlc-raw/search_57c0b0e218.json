@@ -1,0 +1,416 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 2,
+   "list": [
+    {
+     "componentId": 4226737,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Comparators",
+     "erpComponentName": "MAX9065EUK+",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/comparators_analog-devices-inc-maxim-integrated-max9065euk_C3658940.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.6343
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.6343
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 1.6343
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.6329
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.6117
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.6003
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.5782
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.6096
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 1.5743
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.5743
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.5892
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.5743
+      }
+     ],
+     "firstSortAccessId": "e3e42cbeca794b379734d72eb85f2f43",
+     "secondSortAccessId": "b9467b516dce4241802a779b8a474d6f",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "4226737-MAX9065EUK/C3658940",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 2500,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 6,
+     "minPurchaseNum": 6,
+     "initialPrice": 1.6343,
+     "componentCode": "C3658940",
+     "componentBrandEn": "Analog Devices Inc./Maxim Integrated",
+     "componentModelEn": "MAX9065EUK+",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2403051725_Analog-Devices-Inc--Maxim-Integrated-MAX9065EUK-_C3658940.pdf",
+     "dataManualFileAccessId": "8590437354813874176",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "MAXIM MAX9065EUK+",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-5",
+     "describe": "-40\u2103~+85\u2103 2 25us 700nA SOT-23-5 Comparators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Common Mode Rejection Ratio(CMRR)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+85\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Vos - Input Offset Voltage",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "700nA"
+      },
+      {
+       "attribute_name_en": "Input Hysteresis Voltage (Vhys)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Ib - Input Bias Current",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Propagation Delay Time",
+       "attribute_value_name": "25us"
+      },
+      {
+       "attribute_name_en": "Output Mode",
+       "attribute_value_name": "-"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Comparators",
+     "secondSortName": "Amplifiers/Comparators",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>MAX9065</span>EUK+",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4226536,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Comparators",
+     "erpComponentName": "\u8d85\u5c0f\u578b\u4f4e\u529f\u8017\u7a97\u53e3\u6bd4\u8f83\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/comparators_analog-devices-inc-maxim-integrated-max9065euk-t_C3658739.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.5588
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 3.0467
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.7434
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 2.4351
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.2932
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.2296
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.1478
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.9349
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 2.3457
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.6427
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.4282
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.2091
+      }
+     ],
+     "firstSortAccessId": "e3e42cbeca794b379734d72eb85f2f43",
+     "secondSortAccessId": "b9467b516dce4241802a779b8a474d6f",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "4226536-MAX9065EUKT/C3658739",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 2500,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 3,
+     "initialPrice": 3.5588,
+     "componentCode": "C3658739",
+     "componentBrandEn": "Analog Devices Inc./Maxim Integrated",
+     "componentModelEn": "MAX9065EUK+T",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585123937985941504",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2310091110_Analog-Devices-Inc--Maxim-Integrated-MAX9065EUK-T_C3658739.pdf",
+     "dataManualFileAccessId": "8590391579644506112",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "MAXIM MAX9065EUK+T",
+     "minImage": "",
+     "minImageAccessId": "8585123938855108608",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-5",
+     "describe": "-40\u2103~+85\u2103 1.35uA 1V~5.5V 2 25us 30ns CMOS Push-pull SOT-23-5 Comparators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Common Mode Rejection Ratio(CMRR)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+85\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Push-pull"
+      },
+      {
+       "attribute_name_en": "Vos - Input Offset Voltage",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "1.35uA"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Enable/shutdown function"
+      },
+      {
+       "attribute_name_en": "Single Supply",
+       "attribute_value_name": "1V~5.5V"
+      },
+      {
+       "attribute_name_en": "Input Hysteresis Voltage (Vhys)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Ib - Input Bias Current",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Propagation Delay Time",
+       "attribute_value_name": "25us"
+      },
+      {
+       "attribute_name_en": "Output Mode",
+       "attribute_value_name": "CMOS"
+      },
+      {
+       "attribute_name_en": "Response Time (tr)",
+       "attribute_value_name": "30ns"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Comparators",
+     "secondSortName": "Amplifiers/Comparators",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>MAX9065</span>EUK+T",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "MAX9065"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-13T19:26:11Z"
+}

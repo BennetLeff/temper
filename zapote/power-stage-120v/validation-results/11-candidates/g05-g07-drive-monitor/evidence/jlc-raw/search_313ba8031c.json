@@ -1,0 +1,678 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 4,
+   "list": [
+    {
+     "componentId": 992911,
+     "componentLibraryType": "expand",
+     "stockCount": 755,
+     "componentTypeEn": "Digital Isolators",
+     "erpComponentName": "\u9ad8\u53ef\u9760\u6027\u53cc\u901a\u9053\u6570\u5b57\u9694\u79bb\u5668 \u505c\u4ea7",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/digital-isolators_novosense-nsi8120n1_C917446.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.1956
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.9721
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.8498
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.7112
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.6492
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.6215
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.9364
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.8186
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.1517
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.6254
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.6851
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.5986
+      }
+     ],
+     "firstSortAccessId": "3093ee1310f442ff9f461d8d2841c5a8",
+     "secondSortAccessId": "c5eda6b029a14b24b3153a4b8d77a017",
+     "canPresaleNumber": 755,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "NOVOSENSE-NSI8120N1/C917446",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 2500,
+     "shopCostPrice": 3.5,
+     "preMinPurchaseNum": 8,
+     "minPurchaseNum": 1,
+     "initialPrice": 1.1956,
+     "componentCode": "C917446",
+     "componentBrandEn": "NOVOSENSE",
+     "componentModelEn": "NSI8120N1",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583485102500691968",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2104231634_NOVOSENSE-NSI8120N1_C917446.pdf",
+     "dataManualFileAccessId": "8588917533840064512",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "NOVOSENSE NSI8120N1",
+     "minImage": "",
+     "minImageAccessId": "8583485103381630976",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-8",
+     "describe": "-40\u2103~+125\u2103 0 150Mbps 150kV/us 15ns 2 2 2.5V~5.5V 2.5V~5.5V 5000 Channel direction configurable\u3001Power-on reset\u3001Output status configurable High Level SOIC-8 Digital Isolators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Default Output",
+       "attribute_value_name": "High Level"
+      },
+      {
+       "attribute_name_en": "Number of Forward Channels",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Data Rate(Max)",
+       "attribute_value_name": "150Mbps"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCA)",
+       "attribute_value_name": "2.5V~5.5V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCB)",
+       "attribute_value_name": "2.5V~5.5V"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "5000"
+      },
+      {
+       "attribute_name_en": "Propagation Delay(tpd)",
+       "attribute_value_name": "15ns"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Channel direction configurable\u3001Power-on reset\u3001Output status configurable"
+      },
+      {
+       "attribute_name_en": "Number of Reverse Channels",
+       "attribute_value_name": "0"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "150kV/us"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Digital Isolators",
+     "secondSortName": "Signal Isolation Devices",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>NSI8120</span>N1",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 382409,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Digital Isolators",
+     "erpComponentName": "\u9ad8\u53ef\u9760\u6027\u53cc\u901a\u9053\u6570\u5b57\u9694\u79bb\u5668 \u505c\u4ea7",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/digital-isolators_novosense-nsi8120n0_C399512.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.1956
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.9721
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.8498
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.7112
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.6492
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.6215
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.6254
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.1517
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.6851
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.5986
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.9364
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.8186
+      }
+     ],
+     "firstSortAccessId": "3093ee1310f442ff9f461d8d2841c5a8",
+     "secondSortAccessId": "c5eda6b029a14b24b3153a4b8d77a017",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "NOVOSENSE-NSI8120N0/C399512",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 2500,
+     "shopCostPrice": 3.5,
+     "preMinPurchaseNum": 8,
+     "minPurchaseNum": 8,
+     "initialPrice": 1.1956,
+     "componentCode": "C399512",
+     "componentBrandEn": "NOVOSENSE",
+     "componentModelEn": "NSI8120N0",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583017013215813632",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_NOVOSENSE-NSI8120N0_C399512.pdf",
+     "dataManualFileAccessId": "8588884186975916032",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "NOVOSENSE NSI8120N0",
+     "minImage": "",
+     "minImageAccessId": "8583017014058868736",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-8",
+     "describe": "-40\u2103~+125\u2103 0 150Mbps 150kV/us 2 2.5V~5.5V 2.5V~5.5V 3750 9ns Low Level SOIC-8 Digital Isolators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Default Output",
+       "attribute_value_name": "Low Level"
+      },
+      {
+       "attribute_name_en": "Number of Forward Channels",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Data Rate(Max)",
+       "attribute_value_name": "150Mbps"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCA)",
+       "attribute_value_name": "2.5V~5.5V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCB)",
+       "attribute_value_name": "2.5V~5.5V"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "3750"
+      },
+      {
+       "attribute_name_en": "Propagation Delay(tpd)",
+       "attribute_value_name": "9ns"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Channel direction configurable\u3001Power-on reset"
+      },
+      {
+       "attribute_name_en": "Number of Reverse Channels",
+       "attribute_value_name": "0"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "150kV/us"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Digital Isolators",
+     "secondSortName": "Signal Isolation Devices",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>NSI8120</span>N0",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 44451633,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "New Arrivals",
+     "erpComponentName": "NSi8120D0",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.9162
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.9162
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 2.9162
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.1646
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.1254
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.1059
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.1218
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.0653
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 2.8092
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.8092
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.0841
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.8092
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "NOVOSENSE-NSi8120D0/C42429469",
+     "leastPatchNumber": 5,
+     "lossNumber": 4,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1000,
+     "shopCostPrice": 0.1,
+     "preMinPurchaseNum": 4,
+     "minPurchaseNum": 4,
+     "initialPrice": 2.9162,
+     "componentCode": "C42429469",
+     "componentBrandEn": "NOVOSENSE",
+     "componentModelEn": "NSi8120D0",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "NOVOSENSE NSi8120D0",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "DFN-8_2x3mm",
+     "describe": "DFN-8_2x3mm New Arrivals ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "New Arrivals",
+     "secondSortName": "Others",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>NSi8120</span>D0",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 59450784,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "SMT",
+     "erpComponentName": "\u3010\u90ae\u5bc4\u4e13\u7528\u3011NSI8120D0",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0397
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0204
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0382
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0197
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "JLCPCBAssembly-NSI8120D0/C9900302729",
+     "leastPatchNumber": 5,
+     "lossNumber": 4,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 10,
+     "shopCostPrice": 0.1,
+     "preMinPurchaseNum": 10,
+     "minPurchaseNum": 10,
+     "initialPrice": 0.0397,
+     "componentCode": "C9900302729",
+     "componentBrandEn": "JLCPCB Assembly",
+     "componentModelEn": "NSI8120D0",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "JIALICHUANG SMT NSI8120D0",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "DFN-8_2x3mm",
+     "describe": "DFN-8_2x3mm SMT ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "SMT",
+     "secondSortName": "Others",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>NSI8120</span>D0",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "NSI8120"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-13T19:34:50Z"
+}

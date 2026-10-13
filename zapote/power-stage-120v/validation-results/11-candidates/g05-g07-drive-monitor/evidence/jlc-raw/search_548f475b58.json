@@ -1,0 +1,1554 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 8,
+   "list": [
+    {
+     "componentId": 3038276,
+     "componentLibraryType": "expand",
+     "stockCount": 21,
+     "componentTypeEn": "Digital Isolators",
+     "erpComponentName": "\u9ad8\u901f\u5355\u901a\u9053\u589e\u5f3a\u578b\u6570\u5b57\u9694\u79bb\u5668\uff0c\u5177\u5907\u9ad8\u7535\u78c1\u6297\u6270\u5ea6\u3001\u4f4e\u8f90\u5c04\u3001\u4f4e\u529f\u8017\u7279\u6027\uff0c\u6709\u7535\u5e73\u8f6c\u6362\u529f\u80fd\uff0c\u7535\u78c1\u517c\u5bb9\u6027\u4f18\u5f02",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.7566
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.4908
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.3244
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.1548
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.0781
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.0455
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.0071
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.1124
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.2758
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.6922
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.0386
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.4361
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 21,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-ISO7710FD/C2845107",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 75,
+     "shopCostPrice": 5.4,
+     "preMinPurchaseNum": 6,
+     "minPurchaseNum": 1,
+     "initialPrice": 1.7566,
+     "componentCode": "C2845107",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "ISO7710FD",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "8588907565258584064",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/iso7710",
+     "componentName": "TI ISO7710FD",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-8",
+     "describe": "-55\u2103~+125\u2103 0 1 100Mbps 100kV/us 2.25V~5.5V 2.25V~5.5V 3000 Fail-safe output Low Level SOIC-8 Digital Isolators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Default Output",
+       "attribute_value_name": "Low Level"
+      },
+      {
+       "attribute_name_en": "Number of Forward Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Data Rate(Max)",
+       "attribute_value_name": "100Mbps"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCA)",
+       "attribute_value_name": "2.25V~5.5V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCB)",
+       "attribute_value_name": "2.25V~5.5V"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "3000"
+      },
+      {
+       "attribute_name_en": "Propagation Delay(tpd)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Fail-safe output"
+      },
+      {
+       "attribute_name_en": "Number of Reverse Channels",
+       "attribute_value_name": "0"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "100kV/us"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Digital Isolators",
+     "secondSortName": "Signal Isolation Devices",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ISO7710F</span>D",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 3070221,
+     "componentLibraryType": "expand",
+     "stockCount": 19,
+     "componentTypeEn": "Digital Isolators",
+     "erpComponentName": "\u9ad8\u901f\u5355\u901a\u9053\u589e\u5f3a\u578b\u6570\u5b57\u9694\u79bb\u5668\uff0c\u5177\u5907\u4f18\u5f02EMC\u6027\u80fd",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/digital-isolators_texas-instruments-iso7710fdr_C2865544.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.6718
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.4239
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.2885
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.1352
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.0667
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.0357
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.0936
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.2412
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.6105
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.9977
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.0276
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.3716
+      }
+     ],
+     "firstSortAccessId": "3093ee1310f442ff9f461d8d2841c5a8",
+     "secondSortAccessId": "c5eda6b029a14b24b3153a4b8d77a017",
+     "canPresaleNumber": 12,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "TexasInstruments-ISO7710FDR/C2865544",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 2500,
+     "shopCostPrice": 4.2095,
+     "preMinPurchaseNum": 6,
+     "minPurchaseNum": 1,
+     "initialPrice": 1.6718,
+     "componentCode": "C2865544",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "ISO7710FDR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583781711469142016",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2302220730_Texas-Instruments-ISO7710FDR_C2865544.pdf",
+     "dataManualFileAccessId": "8590009058003345408",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/iso7710",
+     "componentName": "TI ISO7710FDR",
+     "minImage": "",
+     "minImageAccessId": "8583781712358199296",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-8",
+     "describe": "-55\u2103~+125\u2103 0 1 100Mbps 100kV/us 11ns 2.25V~5.5V 2.25V~5.5V 3000 High Level\u3001Low Level SOIC-8 Digital Isolators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Default Output",
+       "attribute_value_name": "High Level\u3001Low Level"
+      },
+      {
+       "attribute_name_en": "Number of Forward Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Data Rate(Max)",
+       "attribute_value_name": "100Mbps"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCA)",
+       "attribute_value_name": "2.25V~5.5V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCB)",
+       "attribute_value_name": "2.25V~5.5V"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "3000"
+      },
+      {
+       "attribute_name_en": "Propagation Delay(tpd)",
+       "attribute_value_name": "11ns"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Fail-safe output"
+      },
+      {
+       "attribute_name_en": "Number of Reverse Channels",
+       "attribute_value_name": "0"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "100kV/us"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Digital Isolators",
+     "secondSortName": "Signal Isolation Devices",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ISO7710F</span>DR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 3087165,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Digital Isolators",
+     "erpComponentName": "ISO7710FDW",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/digital-isolators_texas-instruments-iso7710fdw_C2878552.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.4465
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.4465
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 2.4465
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.9476
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.915
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.8971
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.8642
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.9129
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 2.3567
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.3567
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.8815
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.3567
+      }
+     ],
+     "firstSortAccessId": "3093ee1310f442ff9f461d8d2841c5a8",
+     "secondSortAccessId": "c5eda6b029a14b24b3153a4b8d77a017",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "TexasInstruments-ISO7710FDW/C2878552",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 40,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 4,
+     "minPurchaseNum": 4,
+     "initialPrice": 2.4465,
+     "componentCode": "C2878552",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "ISO7710FDW",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2302282300_Texas-Instruments-ISO7710FDW_C2878552.pdf",
+     "dataManualFileAccessId": "8590196282384936960",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/iso7710",
+     "componentName": "TI ISO7710FDW",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-16-300mil",
+     "describe": "-55\u2103~+125\u2103 0 1 100Mbps 100kV/us 2.25V~5.5V 2.25V~5.5V 5000 Low Level SOIC-16-300mil Digital Isolators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Default Output",
+       "attribute_value_name": "Low Level"
+      },
+      {
+       "attribute_name_en": "Number of Forward Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Data Rate(Max)",
+       "attribute_value_name": "100Mbps"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCA)",
+       "attribute_value_name": "2.25V~5.5V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCB)",
+       "attribute_value_name": "2.25V~5.5V"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "5000"
+      },
+      {
+       "attribute_name_en": "Propagation Delay(tpd)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Number of Reverse Channels",
+       "attribute_value_name": "0"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "100kV/us"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Digital Isolators",
+     "secondSortName": "Signal Isolation Devices",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ISO7710F</span>DW",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 3064508,
+     "componentLibraryType": "expand",
+     "stockCount": 29,
+     "componentTypeEn": "Digital Isolators",
+     "erpComponentName": "\u9ad8\u901f\u5355\u901a\u9053\u589e\u5f3a\u578b\u6570\u5b57\u9694\u79bb\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/digital-isolators_texas-instruments-iso7710fdwr_C2859831.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.2702
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.8787
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.6781
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 2.4106
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.3144
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.2736
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 2.3222
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.7731
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.1902
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.5798
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.1502
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.2295
+      }
+     ],
+     "firstSortAccessId": "3093ee1310f442ff9f461d8d2841c5a8",
+     "secondSortAccessId": "c5eda6b029a14b24b3153a4b8d77a017",
+     "canPresaleNumber": 27,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "TexasInstruments-ISO7710FDWR/C2859831",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 2000,
+     "shopCostPrice": 13.1496,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 1,
+     "initialPrice": 3.2702,
+     "componentCode": "C2859831",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "ISO7710FDWR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583870434018537472",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2302220830_Texas-Instruments-ISO7710FDWR_C2859831.pdf",
+     "dataManualFileAccessId": "8590183970689081344",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/iso7710",
+     "componentName": "TI ISO7710FDWR",
+     "minImage": "",
+     "minImageAccessId": "8583870434916118528",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-16-300mil",
+     "describe": "-55\u2103~+125\u2103 0 1 100Mbps 100kV/us 11ns 2.25V~5.5V 2.25V~5.5V 5000 Low Level SOIC-16-300mil Digital Isolators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Default Output",
+       "attribute_value_name": "Low Level"
+      },
+      {
+       "attribute_name_en": "Number of Forward Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Data Rate(Max)",
+       "attribute_value_name": "100Mbps"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCA)",
+       "attribute_value_name": "2.25V~5.5V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCB)",
+       "attribute_value_name": "2.25V~5.5V"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "5000"
+      },
+      {
+       "attribute_name_en": "Propagation Delay(tpd)",
+       "attribute_value_name": "11ns"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Fail-safe output"
+      },
+      {
+       "attribute_name_en": "Number of Reverse Channels",
+       "attribute_value_name": "0"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "100kV/us"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Digital Isolators",
+     "secondSortName": "Signal Isolation Devices",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ISO7710F</span>DWR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 3068469,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Digital Isolators",
+     "erpComponentName": "ISO7710FQDQ1",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/digital-isolators_texas-instruments-iso7710fqdq1_C2863792.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.3487
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.3487
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 2.3487
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.9101
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.8775
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.8612
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.8296
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.8767
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 2.2625
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.2625
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.8453
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.2625
+      }
+     ],
+     "firstSortAccessId": "3093ee1310f442ff9f461d8d2841c5a8",
+     "secondSortAccessId": "c5eda6b029a14b24b3153a4b8d77a017",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "TexasInstruments-ISO7710FQDQ1/C2863792",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 75,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 4,
+     "minPurchaseNum": 4,
+     "initialPrice": 2.3487,
+     "componentCode": "C2863792",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "ISO7710FQDQ1",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2303010730_Texas-Instruments-ISO7710FQDQ1_C2863792.pdf",
+     "dataManualFileAccessId": "8590185114312609792",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/iso7710-q1",
+     "componentName": "TI ISO7710FQDQ1",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-8",
+     "describe": "-40\u2103~+125\u2103 0 1 100Mbps 100kV/us 2.25V~5.5V 2.25V~5.5V 3000 Low Level SOIC-8 Digital Isolators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Default Output",
+       "attribute_value_name": "Low Level"
+      },
+      {
+       "attribute_name_en": "Number of Forward Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Data Rate(Max)",
+       "attribute_value_name": "100Mbps"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCA)",
+       "attribute_value_name": "2.25V~5.5V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCB)",
+       "attribute_value_name": "2.25V~5.5V"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "3000"
+      },
+      {
+       "attribute_name_en": "Propagation Delay(tpd)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Number of Reverse Channels",
+       "attribute_value_name": "0"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "100kV/us"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Digital Isolators",
+     "secondSortName": "Signal Isolation Devices",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ISO7710F</span>QDQ1",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 565184,
+     "componentLibraryType": "expand",
+     "stockCount": 47,
+     "componentTypeEn": "Digital Isolators",
+     "erpComponentName": "\u9ad8\u901f\u5355\u901a\u9053\u589e\u5f3a\u578b\u6570\u5b57\u9694\u79bb\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/digital-isolators_texas-instruments-iso7710fqdrq1_C544533.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.5297
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.122
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.8659
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.6049
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.4875
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.4353
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.0441
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.546
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.4329
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.4369
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.7974
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.3826
+      }
+     ],
+     "firstSortAccessId": "3093ee1310f442ff9f461d8d2841c5a8",
+     "secondSortAccessId": "c5eda6b029a14b24b3153a4b8d77a017",
+     "canPresaleNumber": 46,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-ISO7710FQDRQ1/C544533",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 2500,
+     "shopCostPrice": 8.3,
+     "preMinPurchaseNum": 4,
+     "minPurchaseNum": 1,
+     "initialPrice": 2.5297,
+     "componentCode": "C544533",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "ISO7710FQDRQ1",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8558613537116884992",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2303021130_Texas-Instruments-ISO7710FQDRQ1_C544533.pdf",
+     "dataManualFileAccessId": "8558613539583270912",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/iso7710-q1",
+     "componentName": "TI ISO7710FQDRQ1",
+     "minImage": "",
+     "minImageAccessId": "8558613538182373376",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-8",
+     "describe": "-40\u2103~+125\u2103 0 1 100Mbps 100kV/us 11ns 2.25V~5.5V 2.25V~5.5V 3000 Fail-safe output Low Level SOIC-8 Digital Isolators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Default Output",
+       "attribute_value_name": "Low Level"
+      },
+      {
+       "attribute_name_en": "Number of Forward Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Data Rate(Max)",
+       "attribute_value_name": "100Mbps"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCA)",
+       "attribute_value_name": "2.25V~5.5V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCB)",
+       "attribute_value_name": "2.25V~5.5V"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "3000"
+      },
+      {
+       "attribute_name_en": "Propagation Delay(tpd)",
+       "attribute_value_name": "11ns"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Fail-safe output"
+      },
+      {
+       "attribute_name_en": "Number of Reverse Channels",
+       "attribute_value_name": "0"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "100kV/us"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Digital Isolators",
+     "secondSortName": "Signal Isolation Devices",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ISO7710F</span>QDRQ1",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 3075745,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Digital Isolators",
+     "erpComponentName": "ISO7710FQDWQ1",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/digital-isolators_texas-instruments-iso7710fqdwq1_C2871068.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.2814
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 4.2814
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 4.2814
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.6571
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.5984
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.5707
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.513
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.5963
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 4.1243
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.1243
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.5398
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 4.1243
+      }
+     ],
+     "firstSortAccessId": "3093ee1310f442ff9f461d8d2841c5a8",
+     "secondSortAccessId": "c5eda6b029a14b24b3153a4b8d77a017",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "TexasInstruments-ISO7710FQDWQ1/C2871068",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 40,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 3,
+     "initialPrice": 4.2814,
+     "componentCode": "C2871068",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "ISO7710FQDWQ1",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2303010300_Texas-Instruments-ISO7710FQDWQ1_C2871068.pdf",
+     "dataManualFileAccessId": "8590184249493532672",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/iso7710-q1",
+     "componentName": "TI ISO7710FQDWQ1",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-16-300mil",
+     "describe": "-40\u2103~+125\u2103 0 1 100Mbps 100kV/us 11ns 2.25V~5.5V 2.25V~5.5V 5000 Low Level SOIC-16-300mil Digital Isolators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Default Output",
+       "attribute_value_name": "Low Level"
+      },
+      {
+       "attribute_name_en": "Number of Forward Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Data Rate(Max)",
+       "attribute_value_name": "100Mbps"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCA)",
+       "attribute_value_name": "2.25V~5.5V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCB)",
+       "attribute_value_name": "2.25V~5.5V"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "5000"
+      },
+      {
+       "attribute_name_en": "Propagation Delay(tpd)",
+       "attribute_value_name": "11ns"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Number of Reverse Channels",
+       "attribute_value_name": "0"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "100kV/us"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Digital Isolators",
+     "secondSortName": "Signal Isolation Devices",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ISO7710F</span>QDWQ1",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 5912201,
+     "componentLibraryType": "expand",
+     "stockCount": 5,
+     "componentTypeEn": "Digital Isolators",
+     "erpComponentName": "EMC \u6027\u80fd\u4f18\u5f02\u7684\u6c7d\u8f66\u7c7b\u5355\u901a\u9053\u3001\u589e\u5f3a\u578b\u6570\u5b57\u9694\u79bb\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.1658
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 3.0924
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 3.0435
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 2.9945
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 2.9945
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 2.9945
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 2.8846
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.9318
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.0496
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.9789
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 2.8846
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 2.8846
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 5,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-ISO7710FQDWRQ1/C5216461",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 2000,
+     "shopCostPrice": 15.63,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 1,
+     "initialPrice": 3.1658,
+     "componentCode": "C5216461",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "ISO7710FQDWRQ1",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8765693162519957504",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "TI ISO7710FQDWRQ1",
+     "minImage": "",
+     "minImageAccessId": "8765693163606282240",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-16",
+     "describe": "SOIC-16 Digital Isolators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Default Output",
+       "attribute_value_name": "Low Level"
+      },
+      {
+       "attribute_name_en": "Number of Forward Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Data Rate(Max)",
+       "attribute_value_name": "100Mbps"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCA)",
+       "attribute_value_name": "2.25V~5.5V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCB)",
+       "attribute_value_name": "2.25V~5.5V"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "5000"
+      },
+      {
+       "attribute_name_en": "Propagation Delay(tpd)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Fail-safe output"
+      },
+      {
+       "attribute_name_en": "Number of Reverse Channels",
+       "attribute_value_name": "0"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "100kV/us"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Digital Isolators",
+     "secondSortName": "Signal Isolation Devices",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ISO7710F</span>QDWRQ1",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 25,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "ISO7710F"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-13T19:25:44Z"
+}

@@ -1,0 +1,300 @@
+{
+ "code": 200,
+ "data": {
+  "componentCode": "C5206739",
+  "componentBrandEn": "onsemi",
+  "componentModelEn": "NCP51561BBDWR2G",
+  "componentImageUrl": "",
+  "productBigImageAccessId": "8585339755035181056",
+  "productBigImageAccessIdUrl": null,
+  "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2210271900_onsemi-NCP51561BBDWR2G_C5206739.pdf",
+  "dataManualFileAccessId": "8602986369585061888",
+  "dataManualFileAccessIdUrl": null,
+  "dataManualOfficialLink": "",
+  "componentName": "onsemi NCP51561BBDWR2G",
+  "minImage": "",
+  "minImageAccessId": "8585339756012048384",
+  "minImageAccessIdUrl": null,
+  "imageList": [
+   {
+    "productImage": null,
+    "productImageAccessId": "8585339756012048384",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8585339755035181056",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 1
+   },
+   {
+    "productImage": null,
+    "productImageAccessId": "8585339762164551680",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8585339759963353088",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 2
+   },
+   {
+    "productImage": null,
+    "productImageAccessId": "8585339766624043008",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8585339765701296128",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 3
+   }
+  ],
+  "manufacturerBlackFlag": null,
+  "componentNameEn": "onsemi NCP51561BBDWR2G",
+  "componentSpecificationEn": "SOIC-16-300mil",
+  "describe": "-40\u2103~+125\u2103 1.4V~1.8V 2 36ns 36ns 4.5A 6.5V~30V 780uA 8ns 900mV~1.3V 9A 9ns Enable shutdown\u3001Interleaved conduction protection\u3001Dead-time control Half-Bridge MOSFET SOIC-16-300mil Gate Drivers ROHS",
+  "attributes": [
+   {
+    "attribute_name_en": "Operating Temperature",
+    "component_code": "C5206739",
+    "attribute_value_name": "-40\u2103~+125\u2103"
+   },
+   {
+    "attribute_name_en": "Propagation Delay tpHL",
+    "component_code": "C5206739",
+    "attribute_value_name": "36ns"
+   },
+   {
+    "attribute_name_en": "Driven Configuration",
+    "component_code": "C5206739",
+    "attribute_value_name": "Half-Bridge"
+   },
+   {
+    "attribute_name_en": "Current - Output High(IOH)",
+    "component_code": "C5206739",
+    "attribute_value_name": "4.5A"
+   },
+   {
+    "attribute_name_en": "Number of Drivers",
+    "component_code": "C5206739",
+    "attribute_value_name": "2"
+   },
+   {
+    "attribute_name_en": "Load Type",
+    "component_code": "C5206739",
+    "attribute_value_name": "MOSFET"
+   },
+   {
+    "attribute_name_en": "Input Logic Level - Low",
+    "component_code": "C5206739",
+    "attribute_value_name": "900mV~1.3V"
+   },
+   {
+    "attribute_name_en": "Quiescent Current(Iq)",
+    "component_code": "C5206739",
+    "attribute_value_name": "780uA"
+   },
+   {
+    "attribute_name_en": "Fall Time",
+    "component_code": "C5206739",
+    "attribute_value_name": "8ns"
+   },
+   {
+    "attribute_name_en": "Rise Time",
+    "component_code": "C5206739",
+    "attribute_value_name": "9ns"
+   },
+   {
+    "attribute_name_en": "Input Logic Level - High",
+    "component_code": "C5206739",
+    "attribute_value_name": "1.4V~1.8V"
+   },
+   {
+    "attribute_name_en": "Voltage - Supply",
+    "component_code": "C5206739",
+    "attribute_value_name": "6.5V~30V"
+   },
+   {
+    "attribute_name_en": "Features",
+    "component_code": "C5206739",
+    "attribute_value_name": "Enable shutdown\u3001Interleaved conduction protection\u3001Dead-time control"
+   },
+   {
+    "attribute_name_en": "Propagation Delay tpLH",
+    "component_code": "C5206739",
+    "attribute_value_name": "36ns"
+   },
+   {
+    "attribute_name_en": "Current - Output Low(IOL)",
+    "component_code": "C5206739",
+    "attribute_value_name": "9A"
+   }
+  ],
+  "rankScore": null,
+  "firstSortName": "Motor Driver ICs",
+  "secondSortName": "Gate Drivers",
+  "componentBrandHigh": null,
+  "remarkHigh": null,
+  "componentModelHigh": null,
+  "componentCodeHigh": null,
+  "componentSpecificationHigh": null,
+  "rohsFlag": 1,
+  "assemblyComponentFlag": false,
+  "rohsFileName": null,
+  "rohsFileId": null,
+  "reachFileName": null,
+  "reachFileId": null,
+  "lcscComponentId": 5898860,
+  "componentDesignator": "U",
+  "componentSource": "shop",
+  "stockCount": 2,
+  "overseasStockCount": 2,
+  "prices": [
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C5206739",
+    "startNumber": 1,
+    "endNumber": 9,
+    "productPrice": 5.5356,
+    "erpComponentPriceKeyId": 339729864029864061,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C5206739",
+    "startNumber": 10,
+    "endNumber": 29,
+    "productPrice": 5.4133,
+    "erpComponentPriceKeyId": 339729864029864064,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C5206739",
+    "startNumber": 30,
+    "endNumber": 99,
+    "productPrice": 5.3317,
+    "erpComponentPriceKeyId": 339729864029864060,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C5206739",
+    "startNumber": 100,
+    "endNumber": 101,
+    "productPrice": 5.2502,
+    "erpComponentPriceKeyId": 339729864029864063,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C5206739",
+    "startNumber": 102,
+    "endNumber": 103,
+    "productPrice": 5.2502,
+    "erpComponentPriceKeyId": 339729864029864062,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C5206739",
+    "startNumber": 104,
+    "endNumber": -1,
+    "productPrice": 5.2502,
+    "erpComponentPriceKeyId": 339729864029864059,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   }
+  ],
+  "buyPrices": null,
+  "jlcPrices": null,
+  "encapsulationUnit": "PCS",
+  "encapsulationNumber": 1000,
+  "componentTypeEn": null,
+  "xrayFlag": false,
+  "componentLibraryType": "expand",
+  "leastNumber": 1,
+  "leastNumberPrice": 0.8325,
+  "lcscGoodsUrl": "https://www.lcsc.com/product-detail/gate-drivers_onsemi-ncp51561bbdwr2g_C5206739.html/?href=jlc-SMT/?href=jlc-SMT",
+  "erpComponentName": "NCP51561: 5 kVRMS Isolated Dual Channel 4.5/9 A Gate Driver",
+  "lossNumber": 0,
+  "secondTypeNameEn": "Gate Drivers",
+  "firstTypeNameEn": "Motor Driver ICs",
+  "secondTypeNameId": 2129,
+  "firstTypeNameId": 69,
+  "warehouseCode": "sz",
+  "warehouseName": "\u6df1\u5733",
+  "canPresaleNumber": 0,
+  "minPresaleNumber": 0,
+  "theRatio": null,
+  "componentStatus": "yes",
+  "assemblyMode": "smtWeld",
+  "assemblyModeBatch": "smtWeld",
+  "assemblyProcess": "SMT",
+  "minPurchaseNum": 2,
+  "initialPrice": 5.5356,
+  "minPresalePrice": null,
+  "componentPresaleType": null,
+  "preMinPurchaseNum": 2,
+  "providerInfos": null,
+  "componentProductType": 0,
+  "isBuyComponent": "1",
+  "noBuyReason": null,
+  "replaceUrlSuffix": null,
+  "componentAlternativesCode": null,
+  "alternativesLcscComponentId": null,
+  "leastPatchNumber": 0,
+  "fixtureFlag": false,
+  "fullReelPrice": null,
+  "recentBuyNum": null,
+  "recentBuyUnitPrice": null,
+  "buyCustomerCode": null,
+  "eccnCode": "EAR99",
+  "allowPostFlag": true,
+  "overseasComponentCatalogBizKey": 385244375326277633,
+  "overseasComponentBrandBizKey": "385285308260814850",
+  "catalogBlackFlag": null,
+  "shopShowPriceFlag": true,
+  "shopShowForeignPriceFlag": true,
+  "shopRealPriceFlag": true,
+  "needAuditFlag": false,
+  "specialComponentFee": 0.0,
+  "orderInstructionEnglish": "",
+  "moistureSensitivityLevelEn": "MSL 1",
+  "hotFlag": null,
+  "storyGoods": false,
+  "matchedPartDetail": "onsemi-40\u2103~+125\u2103 1.4V~1.8V 2 36ns 36ns 4.5A 6.5V~30V 780uA 8ns 900mV~1.3V 9A 9ns Enable shutdown\u3001Interleaved conduction protection\u3001Dead-time control Half-Bridge MOSFET SOIC-16-300mil Gate Drivers ROHS"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-13T19:31:52Z"
+}

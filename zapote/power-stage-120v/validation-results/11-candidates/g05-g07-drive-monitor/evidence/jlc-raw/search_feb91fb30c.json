@@ -1,0 +1,2310 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 12,
+   "list": [
+    {
+     "componentId": 12939,
+     "componentLibraryType": "expand",
+     "stockCount": 3,
+     "componentTypeEn": "Digital Isolators",
+     "erpComponentName": "iCoupler\u6570\u5b57\u9694\u79bb\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/digital-isolators_analog-devices-adum1100ar_C12317.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.2019
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.8692
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.6604
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.4467
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.3505
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.3097
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.8006
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.3936
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.1211
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.5995
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.3009
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.2617
+      }
+     ],
+     "firstSortAccessId": "3093ee1310f442ff9f461d8d2841c5a8",
+     "secondSortAccessId": "c5eda6b029a14b24b3153a4b8d77a017",
+     "canPresaleNumber": 3,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "AnalogDevices-ADuM1100AR/C12317",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1000,
+     "shopCostPrice": 6.78,
+     "preMinPurchaseNum": 5,
+     "minPurchaseNum": 1,
+     "initialPrice": 2.2019,
+     "componentCode": "C12317",
+     "componentBrandEn": "Analog Devices",
+     "componentModelEn": "ADuM1100AR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8582981174394834944",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_1809171811_Analog-Devices-ADuM1100AR_C12317.pdf",
+     "dataManualFileAccessId": "8588879846902939648",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "ADI ADuM1100AR",
+     "minImage": "",
+     "minImageAccessId": "8582981175334223872",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-8",
+     "describe": "-40\u2103~+105\u2103 0 1 10.5ns 2500 25Mbps 25kV/us 3V~5.5V 3V~5.5V High Level Multi-voltage domain interface SOIC-8 Digital Isolators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Default Output",
+       "attribute_value_name": "High Level"
+      },
+      {
+       "attribute_name_en": "Number of Forward Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Data Rate(Max)",
+       "attribute_value_name": "25Mbps"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCA)",
+       "attribute_value_name": "3V~5.5V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCB)",
+       "attribute_value_name": "3V~5.5V"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "2500"
+      },
+      {
+       "attribute_name_en": "Propagation Delay(tpd)",
+       "attribute_value_name": "10.5ns"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Multi-voltage domain interface"
+      },
+      {
+       "attribute_name_en": "Number of Reverse Channels",
+       "attribute_value_name": "0"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "25kV/us"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Digital Isolators",
+     "secondSortName": "Signal Isolation Devices",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ADuM1100</span>AR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 607150,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Digital Isolators",
+     "erpComponentName": "ADUM1100UR",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/digital-isolators_analog-devices-adum1100ur_C579373.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 12.862
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 12.862
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 12.862
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 4.9778
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 4.8033
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 4.7168
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 4.5437
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 4.7951
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 12.39
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 12.39
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 4.627
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 12.39
+      }
+     ],
+     "firstSortAccessId": "3093ee1310f442ff9f461d8d2841c5a8",
+     "secondSortAccessId": "c5eda6b029a14b24b3153a4b8d77a017",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "AnalogDevices-ADUM1100UR/C579373",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 98,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 12.862,
+     "componentCode": "C579373",
+     "componentBrandEn": "Analog Devices",
+     "componentModelEn": "ADUM1100UR",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "",
+     "dataManualFileAccessId": "8590148206186569728",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "ADI ADUM1100UR",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-8",
+     "describe": "-40\u2103~+125\u2103 2500 25kV/us 3V~5.5V 3V~5.5V SOIC-8 Digital Isolators",
+     "attributes": [
+      {
+       "attribute_name_en": "Default Output",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Number of Forward Channels",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Data Rate(Max)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCA)",
+       "attribute_value_name": "3V~5.5V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCB)",
+       "attribute_value_name": "3V~5.5V"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "2500"
+      },
+      {
+       "attribute_name_en": "Propagation Delay(tpd)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Number of Reverse Channels",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "25kV/us"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Digital Isolators",
+     "secondSortName": "Signal Isolation Devices",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ADUM1100</span>UR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 0,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 689704,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Digital Isolators",
+     "erpComponentName": "ADUM1100BR",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/digital-isolators_analog-devices-adum1100br_C660239.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.8704
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 3.8704
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 3.8704
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.4989
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.4467
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.4206
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.3685
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.4439
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 3.7283
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.7283
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.3936
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 3.7283
+      }
+     ],
+     "firstSortAccessId": "3093ee1310f442ff9f461d8d2841c5a8",
+     "secondSortAccessId": "c5eda6b029a14b24b3153a4b8d77a017",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "AnalogDevices-ADUM1100BR/C660239",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 98,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 3,
+     "initialPrice": 3.8704,
+     "componentCode": "C660239",
+     "componentBrandEn": "Analog Devices",
+     "componentModelEn": "ADUM1100BR",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "",
+     "dataManualFileAccessId": "8589806388718436352",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "ADI ADUM1100BR",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-8",
+     "describe": "-40\u2103~+105\u2103 2500 25kV/us 3V~5.5V 3V~5.5V SOIC-8 Digital Isolators",
+     "attributes": [
+      {
+       "attribute_name_en": "Default Output",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Number of Forward Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Data Rate(Max)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCA)",
+       "attribute_value_name": "3V~5.5V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCB)",
+       "attribute_value_name": "3V~5.5V"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "2500"
+      },
+      {
+       "attribute_name_en": "Propagation Delay(tpd)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Multi-voltage domain interface"
+      },
+      {
+       "attribute_name_en": "Number of Reverse Channels",
+       "attribute_value_name": "0"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "25kV/us"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Digital Isolators",
+     "secondSortName": "Signal Isolation Devices",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ADUM1100</span>BR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 0,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 689703,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Digital Isolators",
+     "erpComponentName": "iCoupler\u6570\u5b57\u9694\u79bb\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/digital-isolators_analog-devices-adum1100arz_C660238.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.6846
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.6846
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 2.6846
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.039
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.0031
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.9852
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.949
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.0009
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 2.5861
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.5861
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.9663
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.5861
+      }
+     ],
+     "firstSortAccessId": "3093ee1310f442ff9f461d8d2841c5a8",
+     "secondSortAccessId": "c5eda6b029a14b24b3153a4b8d77a017",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "AnalogDevices-ADUM1100ARZ/C660238",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 98,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 4,
+     "minPurchaseNum": 4,
+     "initialPrice": 2.6846,
+     "componentCode": "C660238",
+     "componentBrandEn": "Analog Devices",
+     "componentModelEn": "ADUM1100ARZ",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2210190830_Analog-Devices-ADUM1100ARZ_C660238.pdf",
+     "dataManualFileAccessId": "8589806388743872512",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "ADI ADUM1100ARZ",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-8",
+     "describe": "-40\u2103~+105\u2103 0 1 2500 25Mbps 35kV/us 3V~5.5V 3V~5.5V SOIC-8 Digital Isolators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Default Output",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Number of Forward Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Data Rate(Max)",
+       "attribute_value_name": "25Mbps"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCA)",
+       "attribute_value_name": "3V~5.5V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCB)",
+       "attribute_value_name": "3V~5.5V"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "2500"
+      },
+      {
+       "attribute_name_en": "Propagation Delay(tpd)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Number of Reverse Channels",
+       "attribute_value_name": "0"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "35kV/us"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Digital Isolators",
+     "secondSortName": "Signal Isolation Devices",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ADUM1100</span>ARZ",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 689706,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Digital Isolators",
+     "erpComponentName": "iCoupler \u6570\u5b57\u9694\u79bb\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/digital-isolators_analog-devices-adum1100brz_C660241.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.4074
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.3519
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.3144
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 2.2769
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.2769
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.2769
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.1933
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.1933
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.2295
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.319
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 2.1933
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.2656
+      }
+     ],
+     "firstSortAccessId": "3093ee1310f442ff9f461d8d2841c5a8",
+     "secondSortAccessId": "c5eda6b029a14b24b3153a4b8d77a017",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "AnalogDevices-ADUM1100BRZ/C660241",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 98,
+     "shopCostPrice": 12.0,
+     "preMinPurchaseNum": 4,
+     "minPurchaseNum": 4,
+     "initialPrice": 2.4074,
+     "componentCode": "C660241",
+     "componentBrandEn": "Analog Devices",
+     "componentModelEn": "ADUM1100BRZ",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583678295560884224",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2210190830_Analog-Devices-ADUM1100BRZ_C660241.pdf",
+     "dataManualFileAccessId": "8589806388726824960",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "ADI ADUM1100BRZ",
+     "minImage": "",
+     "minImageAccessId": "8583678296608919552",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-8",
+     "describe": "-40\u2103~+105\u2103 0 1 10.5ns 100Mbps 2500 35kV/us 3V~5.5V 3V~5.5V SOIC-8 Digital Isolators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Default Output",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Number of Forward Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Data Rate(Max)",
+       "attribute_value_name": "100Mbps"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCA)",
+       "attribute_value_name": "3V~5.5V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCB)",
+       "attribute_value_name": "3V~5.5V"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "2500"
+      },
+      {
+       "attribute_name_en": "Propagation Delay(tpd)",
+       "attribute_value_name": "10.5ns"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Number of Reverse Channels",
+       "attribute_value_name": "0"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "35kV/us"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Digital Isolators",
+     "secondSortName": "Signal Isolation Devices",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ADUM1100</span>BRZ",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 689708,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Digital Isolators",
+     "erpComponentName": "iCoupler\u6570\u5b57\u9694\u79bb\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/digital-isolators_analog-devices-adum1100urz_C660243.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.9032
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.9032
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 2.9032
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.1238
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.0847
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.0651
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.026
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.0826
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 2.7967
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.7967
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.0448
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.7967
+      }
+     ],
+     "firstSortAccessId": "3093ee1310f442ff9f461d8d2841c5a8",
+     "secondSortAccessId": "c5eda6b029a14b24b3153a4b8d77a017",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "AnalogDevices-ADUM1100URZ/C660243",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 98,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 4,
+     "minPurchaseNum": 4,
+     "initialPrice": 2.9032,
+     "componentCode": "C660243",
+     "componentBrandEn": "Analog Devices",
+     "componentModelEn": "ADUM1100URZ",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2210190830_Analog-Devices-ADUM1100URZ_C660243.pdf",
+     "dataManualFileAccessId": "8589803055752916992",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "ADI ADUM1100URZ",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-8",
+     "describe": "-40\u2103~+125\u2103 0 1 100Mbps 2500 35kV/us 3V~5.5V 3V~5.5V SOIC-8 Digital Isolators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Default Output",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Number of Forward Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Data Rate(Max)",
+       "attribute_value_name": "100Mbps"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCA)",
+       "attribute_value_name": "3V~5.5V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCB)",
+       "attribute_value_name": "3V~5.5V"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "2500"
+      },
+      {
+       "attribute_name_en": "Propagation Delay(tpd)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Multi-voltage domain interface"
+      },
+      {
+       "attribute_name_en": "Number of Reverse Channels",
+       "attribute_value_name": "0"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "35kV/us"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Digital Isolators",
+     "secondSortName": "Signal Isolation Devices",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ADUM1100</span>URZ",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 202464,
+     "componentLibraryType": "expand",
+     "stockCount": 2596,
+     "componentTypeEn": "Digital Isolators",
+     "erpComponentName": "iCoupler \u6570\u5b57\u9694\u79bb\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/digital-isolators_analog-devices-adum1100arz-rl7_C201193.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.8818
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 3.4088
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 3.1283
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 2.6569
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.5264
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.4661
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.7393
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 3.0135
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 2.5594
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 3.2837
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.3756
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.4337
+      }
+     ],
+     "firstSortAccessId": "3093ee1310f442ff9f461d8d2841c5a8",
+     "secondSortAccessId": "c5eda6b029a14b24b3153a4b8d77a017",
+     "canPresaleNumber": 2576,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "AnalogDevices-ADUM1100ARZRL7/C201193",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1000,
+     "shopCostPrice": 10.8,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 1,
+     "initialPrice": 3.8818,
+     "componentCode": "C201193",
+     "componentBrandEn": "Analog Devices",
+     "componentModelEn": "ADUM1100ARZ-RL7",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8582981141984366592",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Analog-Devices-ADUM1100ARZ-RL7_C201193.pdf",
+     "dataManualFileAccessId": "8588879873805340672",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "ADI ADUM1100ARZ-RL7",
+     "minImage": "",
+     "minImageAccessId": "8582981142873559040",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-8",
+     "describe": "-40\u2103~+105\u2103 0 1 10.5ns 2500 25Mbps 25kV/us 3V~5.5V 3V~5.5V SOIC-8 Digital Isolators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Default Output",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Number of Forward Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Data Rate(Max)",
+       "attribute_value_name": "25Mbps"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCA)",
+       "attribute_value_name": "3V~5.5V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCB)",
+       "attribute_value_name": "3V~5.5V"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "2500"
+      },
+      {
+       "attribute_name_en": "Propagation Delay(tpd)",
+       "attribute_value_name": "10.5ns"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Multi-voltage domain interface"
+      },
+      {
+       "attribute_name_en": "Number of Reverse Channels",
+       "attribute_value_name": "0"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "25kV/us"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Digital Isolators",
+     "secondSortName": "Signal Isolation Devices",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ADUM1100</span>ARZ-RL7",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 208585,
+     "componentLibraryType": "expand",
+     "stockCount": 10,
+     "componentTypeEn": "Digital Isolators",
+     "erpComponentName": "iCoupler\u6570\u5b57\u9694\u79bb\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/digital-isolators_analog-devices-adum1100urz-rl7_C207516.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 6.8061
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 6.6463
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 6.5403
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 6.4326
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 6.4326
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 6.4326
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 6.5564
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 6.1966
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 6.1966
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 6.3003
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 6.4024
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 6.1966
+      }
+     ],
+     "firstSortAccessId": "3093ee1310f442ff9f461d8d2841c5a8",
+     "secondSortAccessId": "c5eda6b029a14b24b3153a4b8d77a017",
+     "canPresaleNumber": 10,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "AnalogDevices-ADUM1100URZRL7/C207516",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1000,
+     "shopCostPrice": 34.0,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 1,
+     "initialPrice": 6.8061,
+     "componentCode": "C207516",
+     "componentBrandEn": "Analog Devices",
+     "componentModelEn": "ADUM1100URZ-RL7",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583386896994586624",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Analog-Devices-ADUM1100URZ-RL7_C207516.pdf",
+     "dataManualFileAccessId": "8588901713755983872",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "ADI ADUM1100URZ-RL7",
+     "minImage": "",
+     "minImageAccessId": "8583386897867137024",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-8",
+     "describe": "-40\u2103~+125\u2103 0 1 10.5ns 100Mbps 2500 35kV/us 3V~5.5V 3V~5.5V High Level SOIC-8 Digital Isolators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Default Output",
+       "attribute_value_name": "High Level"
+      },
+      {
+       "attribute_name_en": "Number of Forward Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Data Rate(Max)",
+       "attribute_value_name": "100Mbps"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCA)",
+       "attribute_value_name": "3V~5.5V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCB)",
+       "attribute_value_name": "3V~5.5V"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "2500"
+      },
+      {
+       "attribute_name_en": "Propagation Delay(tpd)",
+       "attribute_value_name": "10.5ns"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Multi-voltage domain interface"
+      },
+      {
+       "attribute_name_en": "Number of Reverse Channels",
+       "attribute_value_name": "0"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "35kV/us"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Digital Isolators",
+     "secondSortName": "Signal Isolation Devices",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ADUM1100</span>URZ-RL7",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 689702,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Digital Isolators",
+     "erpComponentName": "ADUM1100AR-RL7",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/digital-isolators_analog-devices-adum1100ar-rl7_C660237.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 7.496
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 7.496
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 7.496
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 2.9016
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.8004
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.7499
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.649
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 2.7951
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 7.221
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 7.221
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.6977
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 7.221
+      }
+     ],
+     "firstSortAccessId": "3093ee1310f442ff9f461d8d2841c5a8",
+     "secondSortAccessId": "c5eda6b029a14b24b3153a4b8d77a017",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "AnalogDevices-ADUM1100ARRL7/C660237",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1000,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 2,
+     "initialPrice": 7.496,
+     "componentCode": "C660237",
+     "componentBrandEn": "Analog Devices",
+     "componentModelEn": "ADUM1100AR-RL7",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "",
+     "dataManualFileAccessId": "8589800492223672320",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "ADI ADUM1100AR-RL7",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-8",
+     "describe": "-40\u2103~+105\u2103 0 1 2500 25kV/us 3V~5.5V 3V~5.5V SOIC-8 Digital Isolators",
+     "attributes": [
+      {
+       "attribute_name_en": "Default Output",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Number of Forward Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Data Rate(Max)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCA)",
+       "attribute_value_name": "3V~5.5V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCB)",
+       "attribute_value_name": "3V~5.5V"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "2500"
+      },
+      {
+       "attribute_name_en": "Propagation Delay(tpd)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Number of Reverse Channels",
+       "attribute_value_name": "0"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "25kV/us"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Digital Isolators",
+     "secondSortName": "Signal Isolation Devices",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ADUM1100</span>AR-RL7",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 0,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 689705,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Digital Isolators",
+     "erpComponentName": "ADUM1100BR-RL7",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/digital-isolators_analog-devices-adum1100br-rl7_C660240.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 8.6018
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 8.6018
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 8.6018
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 3.3289
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 3.2114
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 3.1544
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 3.0386
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 3.2067
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 8.2862
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 8.2862
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 3.0936
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 8.2862
+      }
+     ],
+     "firstSortAccessId": "3093ee1310f442ff9f461d8d2841c5a8",
+     "secondSortAccessId": "c5eda6b029a14b24b3153a4b8d77a017",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "AnalogDevices-ADUM1100BRRL7/C660240",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1000,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 2,
+     "initialPrice": 8.6018,
+     "componentCode": "C660240",
+     "componentBrandEn": "Analog Devices",
+     "componentModelEn": "ADUM1100BR-RL7",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "",
+     "dataManualFileAccessId": "8589806388743331840",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "ADI ADUM1100BR-RL7",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-8",
+     "describe": "-40\u2103~+105\u2103 2500 25kV/us 3V~5.5V 3V~5.5V SOIC-8 Digital Isolators",
+     "attributes": [
+      {
+       "attribute_name_en": "Default Output",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Number of Forward Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Data Rate(Max)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCA)",
+       "attribute_value_name": "3V~5.5V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCB)",
+       "attribute_value_name": "3V~5.5V"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "2500"
+      },
+      {
+       "attribute_name_en": "Propagation Delay(tpd)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Multi-voltage domain interface"
+      },
+      {
+       "attribute_name_en": "Number of Reverse Channels",
+       "attribute_value_name": "0"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "25kV/us"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Digital Isolators",
+     "secondSortName": "Signal Isolation Devices",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ADUM1100</span>BR-RL7",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 0,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 689707,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Digital Isolators",
+     "erpComponentName": "ADUM1100UR-RL7",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/digital-isolators_analog-devices-adum1100ur-rl7_C660242.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 12.862
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 12.862
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 12.862
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 4.9778
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 4.8033
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 4.7168
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 4.5437
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 4.7951
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 12.39
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 12.39
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 4.627
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 12.39
+      }
+     ],
+     "firstSortAccessId": "3093ee1310f442ff9f461d8d2841c5a8",
+     "secondSortAccessId": "c5eda6b029a14b24b3153a4b8d77a017",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "AnalogDevices-ADUM1100URRL7/C660242",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1000,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 12.862,
+     "componentCode": "C660242",
+     "componentBrandEn": "Analog Devices",
+     "componentModelEn": "ADUM1100UR-RL7",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "",
+     "dataManualFileAccessId": "8589800492231520256",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "ADI ADUM1100UR-RL7",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-8",
+     "describe": "-40\u2103~+125\u2103 2500 25kV/us 3V~5.5V 3V~5.5V Multi-voltage domain interface SOIC-8 Digital Isolators",
+     "attributes": [
+      {
+       "attribute_name_en": "Default Output",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Number of Forward Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Data Rate(Max)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCA)",
+       "attribute_value_name": "3V~5.5V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCB)",
+       "attribute_value_name": "3V~5.5V"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "2500"
+      },
+      {
+       "attribute_name_en": "Propagation Delay(tpd)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Multi-voltage domain interface"
+      },
+      {
+       "attribute_name_en": "Number of Reverse Channels",
+       "attribute_value_name": "0"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "25kV/us"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Digital Isolators",
+     "secondSortName": "Signal Isolation Devices",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ADUM1100</span>UR-RL7",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 0,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 392403,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Digital Isolators",
+     "erpComponentName": "iCoupler \u6570\u5b57\u9694\u79bb\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/digital-isolators_analog-devices-adum1100brz-rl7_C404333.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.8622
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 3.3387
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 3.0255
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 2.5248
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.3796
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.3144
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.7205
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.2923
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.2295
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 2.4322
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.9145
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 3.2161
+      }
+     ],
+     "firstSortAccessId": "3093ee1310f442ff9f461d8d2841c5a8",
+     "secondSortAccessId": "c5eda6b029a14b24b3153a4b8d77a017",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "AnalogDevices-ADUM1100BRZRL7/C404333",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1000,
+     "shopCostPrice": 12.0022,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 3,
+     "initialPrice": 3.8622,
+     "componentCode": "C404333",
+     "componentBrandEn": "Analog Devices",
+     "componentModelEn": "ADUM1100BRZ-RL7",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583014169528979456",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_1912111437_Analog-Devices-ADUM1100BRZ-RL7_C404333.pdf",
+     "dataManualFileAccessId": "8588883853997428736",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "ADI ADUM1100BRZ-RL7",
+     "minImage": "",
+     "minImageAccessId": "8583014170454974464",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-8",
+     "describe": "-40\u2103~+105\u2103 0 1 10.5ns 100Mbps 2500 25kV/us 3V~5.5V 3V~5.5V SOIC-8 Digital Isolators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Default Output",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Number of Forward Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Data Rate(Max)",
+       "attribute_value_name": "100Mbps"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCA)",
+       "attribute_value_name": "3V~5.5V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCB)",
+       "attribute_value_name": "3V~5.5V"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "2500"
+      },
+      {
+       "attribute_name_en": "Propagation Delay(tpd)",
+       "attribute_value_name": "10.5ns"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Multi-voltage domain interface"
+      },
+      {
+       "attribute_name_en": "Number of Reverse Channels",
+       "attribute_value_name": "0"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "25kV/us"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Digital Isolators",
+     "secondSortName": "Signal Isolation Devices",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ADUM1100</span>BRZ-RL7",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "ADUM1100"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-13T19:34:54Z"
+}

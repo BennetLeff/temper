@@ -1,0 +1,311 @@
+{
+ "code": 200,
+ "data": {
+  "componentCode": "C43368",
+  "componentBrandEn": "Texas Instruments",
+  "componentModelEn": "SN74LVC1G332DBVR",
+  "componentImageUrl": "",
+  "productBigImageAccessId": "8582999390236000256",
+  "productBigImageAccessIdUrl": null,
+  "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_1809280402_Texas-Instruments-SN74LVC1G332DBVR_C43368.pdf",
+  "dataManualFileAccessId": "8588881231118917632",
+  "dataManualFileAccessIdUrl": null,
+  "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/sn74lvc1g332",
+  "componentName": "TI SN74LVC1G332DBVR",
+  "minImage": "",
+  "minImageAccessId": "8582999391192301568",
+  "minImageAccessIdUrl": null,
+  "imageList": [
+   {
+    "productImage": null,
+    "productImageAccessId": "8582999391192301568",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8582999390236000256",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 1
+   },
+   {
+    "productImage": null,
+    "productImageAccessId": "8582999394413121536",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8582999393545170944",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 2
+   },
+   {
+    "productImage": null,
+    "productImageAccessId": "8582999397499588608",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8582999396514062336",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 3
+   },
+   {
+    "productImage": null,
+    "productImageAccessId": "8582999400868425728",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8582999399923896320",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 4
+   }
+  ],
+  "manufacturerBlackFlag": null,
+  "componentNameEn": "TI SN74LVC1G332DBVR",
+  "componentSpecificationEn": "SOT-23-6",
+  "describe": "-40\u2103~+85\u2103 1 1.2V\u30011.9V\u30012.4V\u30013.8V 1.65V~5.5V 1.7V~2V 10uA 3 300mV\u3001400mV\u3001450mV\u3001550mV 32mA 32mA 4.5ns@5V,50pF 700mV~800mV 74LVC Series Local shutdown mode OR Gate SOT-23-6 Logic Gates ROHS",
+  "attributes": [
+   {
+    "attribute_name_en": "Output Logic Level - Low",
+    "component_code": "C43368",
+    "attribute_value_name": "300mV\u3001400mV\u3001450mV\u3001550mV"
+   },
+   {
+    "attribute_name_en": "Operating Temperature",
+    "component_code": "C43368",
+    "attribute_value_name": "-40\u2103~+85\u2103"
+   },
+   {
+    "attribute_name_en": "Propagation Delay",
+    "component_code": "C43368",
+    "attribute_value_name": "4.5ns@5V,50pF"
+   },
+   {
+    "attribute_name_en": "Output Logic Level - High",
+    "component_code": "C43368",
+    "attribute_value_name": "1.2V\u30011.9V\u30012.4V\u30013.8V"
+   },
+   {
+    "attribute_name_en": "Logic Type",
+    "component_code": "C43368",
+    "attribute_value_name": "OR Gate"
+   },
+   {
+    "attribute_name_en": "Current - Output High(IOH)",
+    "component_code": "C43368",
+    "attribute_value_name": "32mA"
+   },
+   {
+    "attribute_name_en": "Input Logic Level - Low",
+    "component_code": "C43368",
+    "attribute_value_name": "700mV~800mV"
+   },
+   {
+    "attribute_name_en": "Series",
+    "component_code": "C43368",
+    "attribute_value_name": "74LVC Series"
+   },
+   {
+    "attribute_name_en": "Input Logic Level - High",
+    "component_code": "C43368",
+    "attribute_value_name": "1.7V~2V"
+   },
+   {
+    "attribute_name_en": "Voltage - Supply",
+    "component_code": "C43368",
+    "attribute_value_name": "1.65V~5.5V"
+   },
+   {
+    "attribute_name_en": "Number of Gates",
+    "component_code": "C43368",
+    "attribute_value_name": "1"
+   },
+   {
+    "attribute_name_en": "Quiescent Current",
+    "component_code": "C43368",
+    "attribute_value_name": "10uA"
+   },
+   {
+    "attribute_name_en": "Features",
+    "component_code": "C43368",
+    "attribute_value_name": "Local shutdown mode"
+   },
+   {
+    "attribute_name_en": "Inputs per Gates",
+    "component_code": "C43368",
+    "attribute_value_name": "3"
+   },
+   {
+    "attribute_name_en": "Current - Output Low(IOL)",
+    "component_code": "C43368",
+    "attribute_value_name": "32mA"
+   }
+  ],
+  "rankScore": null,
+  "firstSortName": "Logic",
+  "secondSortName": "Logic Gates",
+  "componentBrandHigh": null,
+  "remarkHigh": null,
+  "componentModelHigh": null,
+  "componentCodeHigh": null,
+  "componentSpecificationHigh": null,
+  "rohsFlag": 1,
+  "assemblyComponentFlag": false,
+  "rohsFileName": null,
+  "rohsFileId": null,
+  "reachFileName": null,
+  "reachFileId": null,
+  "lcscComponentId": 44359,
+  "componentDesignator": "U",
+  "componentSource": "shop",
+  "stockCount": 15625,
+  "overseasStockCount": 15625,
+  "prices": [
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C43368",
+    "startNumber": 1,
+    "endNumber": 49,
+    "productPrice": 0.2679,
+    "erpComponentPriceKeyId": 270749761,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C43368",
+    "startNumber": 50,
+    "endNumber": 149,
+    "productPrice": 0.2126,
+    "erpComponentPriceKeyId": 270749779,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C43368",
+    "startNumber": 150,
+    "endNumber": 499,
+    "productPrice": 0.1888,
+    "erpComponentPriceKeyId": 270749718,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C43368",
+    "startNumber": 500,
+    "endNumber": 2999,
+    "productPrice": 0.1592,
+    "erpComponentPriceKeyId": 270749745,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C43368",
+    "startNumber": 3000,
+    "endNumber": 5999,
+    "productPrice": 0.1372,
+    "erpComponentPriceKeyId": 270749702,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C43368",
+    "startNumber": 6000,
+    "endNumber": -1,
+    "productPrice": 0.1292,
+    "erpComponentPriceKeyId": 270749732,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   }
+  ],
+  "buyPrices": null,
+  "jlcPrices": null,
+  "encapsulationUnit": "PCS",
+  "encapsulationNumber": 3000,
+  "componentTypeEn": null,
+  "xrayFlag": false,
+  "componentLibraryType": "expand",
+  "leastNumber": 5,
+  "leastNumberPrice": 0.2015,
+  "lcscGoodsUrl": "https://www.lcsc.com/product-detail/logic-gates_texas-instruments-sn74lvc1g332dbvr_C43368.html/?href=jlc-SMT/?href=jlc-SMT",
+  "erpComponentName": "\u5355\u8def\u4e09\u8f93\u5165\u6b63\u6216\u95e8",
+  "lossNumber": 2,
+  "secondTypeNameEn": "Logic Gates",
+  "firstTypeNameEn": "Logic",
+  "secondTypeNameId": 2168,
+  "firstTypeNameId": 19,
+  "warehouseCode": "sz",
+  "warehouseName": "\u6df1\u5733",
+  "canPresaleNumber": 14082,
+  "minPresaleNumber": 0,
+  "theRatio": null,
+  "componentStatus": "yes",
+  "assemblyMode": "smtWeld",
+  "assemblyModeBatch": "smtWeld",
+  "assemblyProcess": "SMT",
+  "minPurchaseNum": 1,
+  "initialPrice": 0.2679,
+  "minPresalePrice": null,
+  "componentPresaleType": null,
+  "preMinPurchaseNum": 34,
+  "providerInfos": null,
+  "componentProductType": 0,
+  "isBuyComponent": "1",
+  "noBuyReason": null,
+  "replaceUrlSuffix": null,
+  "componentAlternativesCode": null,
+  "alternativesLcscComponentId": null,
+  "leastPatchNumber": 5,
+  "fixtureFlag": false,
+  "fullReelPrice": null,
+  "recentBuyNum": null,
+  "recentBuyUnitPrice": null,
+  "buyCustomerCode": null,
+  "eccnCode": "EAR99",
+  "allowPostFlag": true,
+  "overseasComponentCatalogBizKey": 385244375326277672,
+  "overseasComponentBrandBizKey": "385285308357283842",
+  "catalogBlackFlag": null,
+  "shopShowPriceFlag": true,
+  "shopShowForeignPriceFlag": true,
+  "shopRealPriceFlag": true,
+  "needAuditFlag": false,
+  "specialComponentFee": 0.0,
+  "orderInstructionEnglish": "",
+  "moistureSensitivityLevelEn": "MSL 1",
+  "hotFlag": null,
+  "storyGoods": false,
+  "matchedPartDetail": "Texas Instruments-40\u2103~+85\u2103 1 1.2V\u30011.9V\u30012.4V\u30013.8V 1.65V~5.5V 1.7V~2V 10uA 3 300mV\u3001400mV\u3001450mV\u3001550mV 32mA 32mA 4.5ns@5V,50pF 700mV~800mV 74LVC Series Local shutdown mode OR Gate SOT-23-6 Logic Gates ROHS"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-13T19:31:52Z"
+}

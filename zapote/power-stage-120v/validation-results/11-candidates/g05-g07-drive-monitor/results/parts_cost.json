@@ -1,0 +1,131 @@
+{
+ "baseline": {
+  "placements": 357,
+  "bom_lines": 92,
+  "parts_usd_at_500_scorecard": 231.94
+ },
+ "proposals": [
+  {
+   "name": "P1_notice_stage_replaced_by_one_inverter",
+   "description": "Replace the 4-part NPN 'notice' stage per rail (D, NPN, 1 k, 10 k) by one SN74LVC1G10 (NAND3 with its three inputs tied = inverter; this MPN is already on the board as U8). ISO7710 (default HIGH) stays; audit.rs default-low rule untouched. The inverter shares the rail's existing 5 V bypass capacitor (civcc1).",
+   "placements_before": 357,
+   "placements_after": 348,
+   "placements_delta": -9,
+   "bom_lines_before": 92,
+   "bom_lines_after": 90,
+   "bom_lines_delta": -2,
+   "extended_lines_before": 60,
+   "extended_lines_after": 60,
+   "extended_lines_delta": 0,
+   "lines_removed": [
+    "1N4148W",
+    "MMBT3904"
+   ],
+   "lines_added": [],
+   "parts_usd_at_500_delta_scorecard": -0.168,
+   "parts_usd_at_500_delta_real_jlc": 0.235,
+   "refs_removed": [
+    "D14",
+    "D15",
+    "D16",
+    "Q7",
+    "Q8",
+    "Q9",
+    "R89",
+    "R90",
+    "R107",
+    "R108",
+    "R122",
+    "R123"
+   ],
+   "refs_swapped": {},
+   "groups_touched": [
+    "G07"
+   ]
+  },
+  {
+   "name": "P2_HS_monitors_via_ISO6721FB_one_reinforced_crossing",
+   "description": "P1's notice deletion, plus: HS-A/HS-B monitors cross to the LS domain through a functional-class ISO6721FB (default low), a NAND3 on the LS 5 V rail combines the three 'good' lines, U32 (ISO7710, default high) is the only reinforced crossing of the monitor group; the SELV-side OR3 (U25) is deleted.",
+   "placements_before": 357,
+   "placements_after": 345,
+   "placements_delta": -12,
+   "bom_lines_before": 92,
+   "bom_lines_after": 91,
+   "bom_lines_delta": -1,
+   "extended_lines_before": 60,
+   "extended_lines_after": 61,
+   "extended_lines_delta": 1,
+   "lines_removed": [
+    "1N4148W",
+    "MMBT3904"
+   ],
+   "lines_added": [
+    "ISO6721FBDR"
+   ],
+   "parts_usd_at_500_delta_scorecard": -3.166,
+   "parts_usd_at_500_delta_real_jlc": -4.117,
+   "refs_removed": [
+    "C88",
+    "D14",
+    "D15",
+    "D16",
+    "Q7",
+    "Q8",
+    "Q9",
+    "R89",
+    "R90",
+    "R107",
+    "R108",
+    "R122",
+    "R123",
+    "U25"
+   ],
+   "refs_swapped": {
+    "U33": "ISO7710DWR -> ISO6721FBDR",
+    "U34": "ISO7710DWR -> ISO6721FBDR"
+   },
+   "groups_touched": [
+    "G07"
+   ]
+  },
+  {
+   "name": "P3_permit_DIS_stage_FET_free",
+   "description": "Per leg: PERMIT-FET + 330 ohm pull-up + OR2 -> one NAND2 (SN74LVC1G00, SOT-23-5, same pins/footprint as the SN74LVC1G32 it replaces): DIS = NAND(permit_gate, BIAS_GOOD). U40 (Schmitt buffer after the 10 us filter) becomes the inverting SN74LVC1G14 (same footprint), so the internal net BIAS_BAD becomes BIAS_GOOD (it is not on J4). Keeps the 100 ohm, the 100 k pull-down and the 10 k DIS pull-up.",
+   "placements_before": 357,
+   "placements_after": 353,
+   "placements_delta": -4,
+   "bom_lines_before": 92,
+   "bom_lines_after": 91,
+   "bom_lines_delta": -1,
+   "extended_lines_before": 60,
+   "extended_lines_after": 61,
+   "extended_lines_delta": 1,
+   "lines_removed": [
+    "0603WAF3300T5E",
+    "AO3400A",
+    "SN74LVC1G32DBVR"
+   ],
+   "lines_added": [
+    "SN74LVC1G00DBVR",
+    "SN74LVC1G14DBVR"
+   ],
+   "parts_usd_at_500_delta_scorecard": -1.807,
+   "parts_usd_at_500_delta_real_jlc": -0.109,
+   "refs_removed": [
+    "Q1",
+    "Q4",
+    "R8",
+    "R16"
+   ],
+   "refs_swapped": {
+    "U22": "SN74LVC1G32DBVR -> SN74LVC1G00DBVR",
+    "U23": "SN74LVC1G32DBVR -> SN74LVC1G00DBVR",
+    "U40": "SN74LVC1G17DBVR -> SN74LVC1G14DBVR"
+   },
+   "groups_touched": [
+    "G05",
+    "G07"
+   ]
+  }
+ ]
+}

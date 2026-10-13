@@ -1,0 +1,242 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 1,
+   "list": [
+    {
+     "componentId": 27508290,
+     "componentLibraryType": "expand",
+     "stockCount": 92,
+     "componentTypeEn": "Isolators - Gate Drivers",
+     "erpComponentName": "\u53cc\u901a\u9053\u9694\u79bb\u5f0f\u6805\u6781\u9a71\u52a8\u5668IC\uff0c\u5e26\u6b7b\u533a\u65f6\u95f4\u63a7\u5236",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.9831
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.5281
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.2573
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.985
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 1499,
+       "productPrice": 1.8577
+      },
+      {
+       "startNumber": 1500,
+       "endNumber": -1,
+       "productPrice": 1.8007
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 500,
+       "endNumber": 1499,
+       "productPrice": 1.7896
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.1745
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.8736
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.4353
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.9121
+      },
+      {
+       "startNumber": 1500,
+       "endNumber": -1,
+       "productPrice": 1.7346
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 92,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "27508290-2ED3140MC12LXUMA1/C25775124",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1500,
+     "shopCostPrice": 10.4141,
+     "preMinPurchaseNum": 4,
+     "minPurchaseNum": 1,
+     "initialPrice": 2.9831,
+     "componentCode": "C25775124",
+     "componentBrandEn": "Infineon Technologies",
+     "componentModelEn": "2ED3140MC12LXUMA1",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Infineon 2ED3140MC12LXUMA1",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "DSO-14-300mil",
+     "describe": "DSO-14-300mil Isolators - Gate Drivers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Supply (Driver)",
+       "attribute_value_name": "9.6V~32V"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+150\u2103@(Tj)"
+      },
+      {
+       "attribute_name_en": "Propagation Delay tpHL",
+       "attribute_value_name": "39ns"
+      },
+      {
+       "attribute_name_en": "Driven Configuration",
+       "attribute_value_name": "Half-Bridge"
+      },
+      {
+       "attribute_name_en": "Load Type",
+       "attribute_value_name": "MOSFET\u3001IGBT"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - Low",
+       "attribute_value_name": "0.9V~1.6V"
+      },
+      {
+       "attribute_name_en": "Quiescent Current(Iq)",
+       "attribute_value_name": "1.67mA"
+      },
+      {
+       "attribute_name_en": "Fall Time",
+       "attribute_value_name": "20ns"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "200kV/us"
+      },
+      {
+       "attribute_name_en": "Isolation voltage(Vrms)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Rise Time",
+       "attribute_value_name": "20ns"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - High",
+       "attribute_value_name": "1.73V~2.36V"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Dead-time control"
+      },
+      {
+       "attribute_name_en": "Propagation Delay tpLH",
+       "attribute_value_name": "39ns"
+      },
+      {
+       "attribute_name_en": "Peak Output Current(sink)",
+       "attribute_value_name": "6.5A"
+      },
+      {
+       "attribute_name_en": "Peak Output Current(source)",
+       "attribute_value_name": "6A"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply (Input)",
+       "attribute_value_name": "3V~16.5V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Isolators - Gate Drivers",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>2ED3140</span>MC12LXUMA1",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "2ED3140"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-13T19:25:53Z"
+}

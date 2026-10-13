@@ -1,0 +1,2102 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 22,
+   "list": [
+    {
+     "componentId": 6680752,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Digital Isolators",
+     "erpComponentName": "SI8610ED-AS",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/digital-isolators_skyworks-solutions-si8610ed-as_C5754694.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.6027
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 4.6027
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 183,
+       "productPrice": 4.6027
+      },
+      {
+       "startNumber": 184,
+       "endNumber": 505,
+       "productPrice": 1.8365
+      },
+      {
+       "startNumber": 506,
+       "endNumber": 1011,
+       "productPrice": 1.7762
+      },
+      {
+       "startNumber": 1012,
+       "endNumber": -1,
+       "productPrice": 1.7452
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 184,
+       "endNumber": 505,
+       "productPrice": 1.7691
+      },
+      {
+       "startNumber": 506,
+       "endNumber": 1011,
+       "productPrice": 1.711
+      },
+      {
+       "startNumber": 1012,
+       "endNumber": -1,
+       "productPrice": 1.6812
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 183,
+       "productPrice": 4.4338
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 4.4338
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.4338
+      }
+     ],
+     "firstSortAccessId": "3093ee1310f442ff9f461d8d2841c5a8",
+     "secondSortAccessId": "c5eda6b029a14b24b3153a4b8d77a017",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "SkyworksSolutions-SI8610EDAS/C5754694",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 46,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 2,
+     "initialPrice": 4.6027,
+     "componentCode": "C5754694",
+     "componentBrandEn": "Skyworks Solutions",
+     "componentModelEn": "SI8610ED-AS",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2404160945_Skyworks-Solutions-SI8610ED-AS_C5754694.pdf",
+     "dataManualFileAccessId": "8602686673025454080",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "SKYWORKS SI8610ED-AS",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-16",
+     "describe": "-40\u2103~+125\u2103 0 1 150Mbps 2 5000 50kV/us Fail-safe output\u3001Power-on reset High Level SOIC-16 Digital Isolators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Default Output",
+       "attribute_value_name": "High Level"
+      },
+      {
+       "attribute_name_en": "Number of Forward Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Data Rate(Max)",
+       "attribute_value_name": "150Mbps"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "5000"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Fail-safe output\u3001Power-on reset"
+      },
+      {
+       "attribute_name_en": "Number of Reverse Channels",
+       "attribute_value_name": "0"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "50kV/us"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Digital Isolators",
+     "secondSortName": "Signal Isolation Devices",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SI8610</span>ED-AS",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 6855432,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Digital Isolators",
+     "erpComponentName": "SI8610EC-AS",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/digital-isolators_skyworks-solutions-si8610ec-as_C5918384.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.3142
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 3.3142
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 191,
+       "productPrice": 3.3142
+      },
+      {
+       "startNumber": 192,
+       "endNumber": 479,
+       "productPrice": 1.3228
+      },
+      {
+       "startNumber": 480,
+       "endNumber": 959,
+       "productPrice": 1.2787
+      },
+      {
+       "startNumber": 960,
+       "endNumber": -1,
+       "productPrice": 1.2575
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 12,
+       "endNumber": 191,
+       "productPrice": 3.1926
+      },
+      {
+       "startNumber": 192,
+       "endNumber": 479,
+       "productPrice": 1.2742
+      },
+      {
+       "startNumber": 960,
+       "endNumber": -1,
+       "productPrice": 1.2114
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 3.1926
+      },
+      {
+       "startNumber": 480,
+       "endNumber": 959,
+       "productPrice": 1.2318
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.1926
+      }
+     ],
+     "firstSortAccessId": "3093ee1310f442ff9f461d8d2841c5a8",
+     "secondSortAccessId": "c5eda6b029a14b24b3153a4b8d77a017",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "SkyworksSolutions-SI8610ECAS/C5918384",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 96,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 3,
+     "initialPrice": 3.3142,
+     "componentCode": "C5918384",
+     "componentBrandEn": "Skyworks Solutions",
+     "componentModelEn": "SI8610EC-AS",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2404171046_Skyworks-Solutions-SI8610EC-AS_C5918384.pdf",
+     "dataManualFileAccessId": "8602724455341187072",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "SKYWORKS SI8610EC-AS",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-8",
+     "describe": "-40\u2103~+125\u2103 0 1 150Mbps 2 3750 50kV/us Fail-safe output\u3001Power-on reset High Level SOIC-8 Digital Isolators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Default Output",
+       "attribute_value_name": "High Level"
+      },
+      {
+       "attribute_name_en": "Number of Forward Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Data Rate(Max)",
+       "attribute_value_name": "150Mbps"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "3750"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Fail-safe output\u3001Power-on reset"
+      },
+      {
+       "attribute_name_en": "Number of Reverse Channels",
+       "attribute_value_name": "0"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "50kV/us"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Digital Isolators",
+     "secondSortName": "Signal Isolation Devices",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SI8610</span>EC-AS",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 7173792,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Digital Isolators",
+     "erpComponentName": "SI8610AB-AS",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/digital-isolators_skyworks-solutions-si8610ab-as_C6228561.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.1527
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 3.1527
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 191,
+       "productPrice": 3.1527
+      },
+      {
+       "startNumber": 192,
+       "endNumber": 479,
+       "productPrice": 1.2592
+      },
+      {
+       "startNumber": 480,
+       "endNumber": 959,
+       "productPrice": 1.2168
+      },
+      {
+       "startNumber": 960,
+       "endNumber": -1,
+       "productPrice": 1.1956
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 12,
+       "endNumber": 191,
+       "productPrice": 3.037
+      },
+      {
+       "startNumber": 192,
+       "endNumber": 479,
+       "productPrice": 1.213
+      },
+      {
+       "startNumber": 960,
+       "endNumber": -1,
+       "productPrice": 1.1517
+      },
+      {
+       "startNumber": 480,
+       "endNumber": 959,
+       "productPrice": 1.1721
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 3.037
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.037
+      }
+     ],
+     "firstSortAccessId": "3093ee1310f442ff9f461d8d2841c5a8",
+     "secondSortAccessId": "c5eda6b029a14b24b3153a4b8d77a017",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "SkyworksSolutions-SI8610ABAS/C6228561",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 96,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 3,
+     "initialPrice": 3.1527,
+     "componentCode": "C6228561",
+     "componentBrandEn": "Skyworks Solutions",
+     "componentModelEn": "SI8610AB-AS",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2404191002_Skyworks-Solutions-SI8610AB-AS_C6228561.pdf",
+     "dataManualFileAccessId": "8601147853699207168",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "SKYWORKS SI8610AB-AS",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-8",
+     "describe": "-40\u2103~+125\u2103 0 2 2500 50kV/us Fail-safe output\u3001Power-on reset Low Level SOIC-8 Digital Isolators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Default Output",
+       "attribute_value_name": "Low Level"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Data Rate(Max)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "2500"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Fail-safe output\u3001Power-on reset"
+      },
+      {
+       "attribute_name_en": "Number of Reverse Channels",
+       "attribute_value_name": "0"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "50kV/us"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Digital Isolators",
+     "secondSortName": "Signal Isolation Devices",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SI8610</span>AB-AS",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 7441215,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Digital Isolators",
+     "erpComponentName": "SI8610BB-AS",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/digital-isolators_skyworks-solutions-si8610bb-as_C6488031.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.1527
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 3.1527
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 191,
+       "productPrice": 3.1527
+      },
+      {
+       "startNumber": 192,
+       "endNumber": 479,
+       "productPrice": 1.2592
+      },
+      {
+       "startNumber": 480,
+       "endNumber": 959,
+       "productPrice": 1.2168
+      },
+      {
+       "startNumber": 960,
+       "endNumber": -1,
+       "productPrice": 1.1956
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 12,
+       "endNumber": 191,
+       "productPrice": 3.037
+      },
+      {
+       "startNumber": 192,
+       "endNumber": 479,
+       "productPrice": 1.213
+      },
+      {
+       "startNumber": 960,
+       "endNumber": -1,
+       "productPrice": 1.1517
+      },
+      {
+       "startNumber": 480,
+       "endNumber": 959,
+       "productPrice": 1.1721
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 3.037
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.037
+      }
+     ],
+     "firstSortAccessId": "3093ee1310f442ff9f461d8d2841c5a8",
+     "secondSortAccessId": "c5eda6b029a14b24b3153a4b8d77a017",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "SkyworksSolutions-SI8610BBAS/C6488031",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 96,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 3,
+     "initialPrice": 3.1527,
+     "componentCode": "C6488031",
+     "componentBrandEn": "Skyworks Solutions",
+     "componentModelEn": "SI8610BB-AS",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2404191442_Skyworks-Solutions-SI8610BB-AS_C6488031.pdf",
+     "dataManualFileAccessId": "8603228325381099520",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "SKYWORKS SI8610BB-AS",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-8",
+     "describe": "-40\u2103~+125\u2103 0 1 150Mbps 2 5000 50kV/us Fail-safe output\u3001Power-on reset SOIC-8 Digital Isolators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Number of Forward Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Data Rate(Max)",
+       "attribute_value_name": "150Mbps"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "5000"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Fail-safe output\u3001Power-on reset"
+      },
+      {
+       "attribute_name_en": "Number of Reverse Channels",
+       "attribute_value_name": "0"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "50kV/us"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Digital Isolators",
+     "secondSortName": "Signal Isolation Devices",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SI8610</span>BB-AS",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 8286283,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Digital Isolators",
+     "erpComponentName": "SI8610BD-AS",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/digital-isolators_skyworks-solutions-si8610bd-as_C7315686.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.6027
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 4.6027
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 183,
+       "productPrice": 4.6027
+      },
+      {
+       "startNumber": 184,
+       "endNumber": 505,
+       "productPrice": 1.8365
+      },
+      {
+       "startNumber": 506,
+       "endNumber": 1011,
+       "productPrice": 1.7762
+      },
+      {
+       "startNumber": 1012,
+       "endNumber": -1,
+       "productPrice": 1.7452
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 184,
+       "endNumber": 505,
+       "productPrice": 1.7691
+      },
+      {
+       "startNumber": 506,
+       "endNumber": 1011,
+       "productPrice": 1.711
+      },
+      {
+       "startNumber": 1012,
+       "endNumber": -1,
+       "productPrice": 1.6812
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 183,
+       "productPrice": 4.4338
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 4.4338
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.4338
+      }
+     ],
+     "firstSortAccessId": "3093ee1310f442ff9f461d8d2841c5a8",
+     "secondSortAccessId": "c5eda6b029a14b24b3153a4b8d77a017",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "SkyworksSolutions-SI8610BDAS/C7315686",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 46,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 2,
+     "initialPrice": 4.6027,
+     "componentCode": "C7315686",
+     "componentBrandEn": "Skyworks Solutions",
+     "componentModelEn": "SI8610BD-AS",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2404241224_Skyworks-Solutions-SI8610BD-AS_C7315686.pdf",
+     "dataManualFileAccessId": "8597539168276918272",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "SKYWORKS SI8610BD-AS",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-16",
+     "describe": "-40\u2103~+125\u2103 0 1 100kV/us 150Mbps 5000 Low Level SOIC-16 Digital Isolators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Default Output",
+       "attribute_value_name": "Low Level"
+      },
+      {
+       "attribute_name_en": "Number of Forward Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Data Rate(Max)",
+       "attribute_value_name": "150Mbps"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "5000"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Fail-safe output\u3001Power-on reset"
+      },
+      {
+       "attribute_name_en": "Number of Reverse Channels",
+       "attribute_value_name": "0"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "100kV/us"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Digital Isolators",
+     "secondSortName": "Signal Isolation Devices",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SI8610</span>BD-AS",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 8334228,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Digital Isolators",
+     "erpComponentName": "SI8610BC-AS",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/digital-isolators_skyworks-solutions-si8610bc-as_C7363449.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.3142
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 3.3142
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 191,
+       "productPrice": 3.3142
+      },
+      {
+       "startNumber": 192,
+       "endNumber": 479,
+       "productPrice": 1.3228
+      },
+      {
+       "startNumber": 480,
+       "endNumber": 959,
+       "productPrice": 1.2787
+      },
+      {
+       "startNumber": 960,
+       "endNumber": -1,
+       "productPrice": 1.2575
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 12,
+       "endNumber": 191,
+       "productPrice": 3.1926
+      },
+      {
+       "startNumber": 192,
+       "endNumber": 479,
+       "productPrice": 1.2742
+      },
+      {
+       "startNumber": 960,
+       "endNumber": -1,
+       "productPrice": 1.2114
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 3.1926
+      },
+      {
+       "startNumber": 480,
+       "endNumber": 959,
+       "productPrice": 1.2318
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.1926
+      }
+     ],
+     "firstSortAccessId": "3093ee1310f442ff9f461d8d2841c5a8",
+     "secondSortAccessId": "c5eda6b029a14b24b3153a4b8d77a017",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "SkyworksSolutions-SI8610BCAS/C7363449",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 96,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 3,
+     "initialPrice": 3.3142,
+     "componentCode": "C7363449",
+     "componentBrandEn": "Skyworks Solutions",
+     "componentModelEn": "SI8610BC-AS",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2404241332_Skyworks-Solutions-SI8610BC-AS_C7363449.pdf",
+     "dataManualFileAccessId": "8597535932207804417",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "SKYWORKS SI8610BC-AS",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-8",
+     "describe": "-40\u2103~+125\u2103 0 1 150Mbps 3750 50kV/us Low Level SOIC-8 Digital Isolators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Default Output",
+       "attribute_value_name": "Low Level"
+      },
+      {
+       "attribute_name_en": "Number of Forward Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Data Rate(Max)",
+       "attribute_value_name": "150Mbps"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "3750"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Fail-safe output\u3001Power-on reset"
+      },
+      {
+       "attribute_name_en": "Number of Reverse Channels",
+       "attribute_value_name": "0"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "50kV/us"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Digital Isolators",
+     "secondSortName": "Signal Isolation Devices",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SI8610</span>BC-AS",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 6366191,
+     "componentLibraryType": "expand",
+     "stockCount": 10,
+     "componentTypeEn": "Digital Isolators",
+     "erpComponentName": "\u8d85\u4f4e\u529f\u8017\u5355\u901a\u9053\u548c\u53cc\u901a\u9053\u6570\u5b57\u9694\u79bb\u5668\uff0cCMOS \u5668\u4ef6\uff0c\u9ad8\u901f\u8fd0\u884c\uff0c\u9ad8\u6297\u566a\u6027\uff0c\u53ef\u9009\u6545\u969c\u5b89\u5168\u6a21\u5f0f",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.9554
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.8901
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.8461
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 2.8021
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 2.8021
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 2.8021
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.7841
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 2.6992
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.7417
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.8469
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 2.6992
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 2.6992
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 10,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "SkyworksSolutions-SI8610BC_BIS/C5455552",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 2500,
+     "shopCostPrice": 13.9121,
+     "preMinPurchaseNum": 4,
+     "minPurchaseNum": 1,
+     "initialPrice": 2.9554,
+     "componentCode": "C5455552",
+     "componentBrandEn": "Skyworks Solutions",
+     "componentModelEn": "SI8610BC-B-IS",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "8590902676953911296",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "SKYWORKS SI8610BC-B-IS",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-8-150mil",
+     "describe": "-40\u2103~+125\u2103 0 1 150Mbps 3750 50kV/us Fail-safe output\u3001Power-on reset Low Level SOIC-8-150mil Digital Isolators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Default Output",
+       "attribute_value_name": "Low Level"
+      },
+      {
+       "attribute_name_en": "Number of Forward Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Data Rate(Max)",
+       "attribute_value_name": "150Mbps"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "3750"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Fail-safe output\u3001Power-on reset"
+      },
+      {
+       "attribute_name_en": "Number of Reverse Channels",
+       "attribute_value_name": "0"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "50kV/us"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Digital Isolators",
+     "secondSortName": "Signal Isolation Devices",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SI8610</span>BC-B-IS",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 7173800,
+     "componentLibraryType": "expand",
+     "stockCount": 5,
+     "componentTypeEn": "Digital Isolators",
+     "erpComponentName": "SI8610BD-B-IS",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/digital-isolators_skyworks-solutions-si8610bd-b-is_C6228569.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.7776
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 45,
+       "productPrice": 2.7058
+      },
+      {
+       "startNumber": 46,
+       "endNumber": 91,
+       "productPrice": 2.6585
+      },
+      {
+       "startNumber": 92,
+       "endNumber": 93,
+       "productPrice": 2.6112
+      },
+      {
+       "startNumber": 94,
+       "endNumber": 95,
+       "productPrice": 2.6112
+      },
+      {
+       "startNumber": 96,
+       "endNumber": -1,
+       "productPrice": 2.6112
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 10,
+       "endNumber": 45,
+       "productPrice": 2.6065
+      },
+      {
+       "startNumber": 94,
+       "endNumber": 95,
+       "productPrice": 2.5154
+      },
+      {
+       "startNumber": 96,
+       "endNumber": -1,
+       "productPrice": 2.5154
+      },
+      {
+       "startNumber": 92,
+       "endNumber": 93,
+       "productPrice": 2.5154
+      },
+      {
+       "startNumber": 46,
+       "endNumber": 91,
+       "productPrice": 2.561
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.6757
+      }
+     ],
+     "firstSortAccessId": "3093ee1310f442ff9f461d8d2841c5a8",
+     "secondSortAccessId": "c5eda6b029a14b24b3153a4b8d77a017",
+     "canPresaleNumber": 1,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "SkyworksSolutions-SI8610BD_BIS/C6228569",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 46,
+     "shopCostPrice": 15.1,
+     "preMinPurchaseNum": 4,
+     "minPurchaseNum": 1,
+     "initialPrice": 2.7776,
+     "componentCode": "C6228569",
+     "componentBrandEn": "Skyworks Solutions",
+     "componentModelEn": "SI8610BD-B-IS",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2312090521_Skyworks-Solutions-SI8610BD-B-IS_C6228569.pdf",
+     "dataManualFileAccessId": "8601147748455460864",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "SKYWORKS SI8610BD-B-IS",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-16",
+     "describe": "-40\u2103~+125\u2103 0 1 1 150Mbps 5000 50kV/us Fail-safe output\u3001Power-on reset Low Level SOIC-16 Digital Isolators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Default Output",
+       "attribute_value_name": "Low Level"
+      },
+      {
+       "attribute_name_en": "Number of Forward Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Data Rate(Max)",
+       "attribute_value_name": "150Mbps"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "5000"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Fail-safe output\u3001Power-on reset"
+      },
+      {
+       "attribute_name_en": "Number of Reverse Channels",
+       "attribute_value_name": "0"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "50kV/us"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Digital Isolators",
+     "secondSortName": "Signal Isolation Devices",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SI8610</span>BD-B-IS",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 8286275,
+     "componentLibraryType": "expand",
+     "stockCount": 9,
+     "componentTypeEn": "Digital Isolators",
+     "erpComponentName": "SI8610AB-B-IS",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/digital-isolators_skyworks-solutions-si8610ab-b-is_C7315678.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.3748
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.3144
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 95,
+       "productPrice": 2.2736
+      },
+      {
+       "startNumber": 96,
+       "endNumber": 97,
+       "productPrice": 2.2329
+      },
+      {
+       "startNumber": 98,
+       "endNumber": 99,
+       "productPrice": 2.2329
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 2.2329
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.2295
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 2.1509
+      },
+      {
+       "startNumber": 98,
+       "endNumber": 99,
+       "productPrice": 2.1509
+      },
+      {
+       "startNumber": 96,
+       "endNumber": 97,
+       "productPrice": 2.1509
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 95,
+       "productPrice": 2.1902
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.2876
+      }
+     ],
+     "firstSortAccessId": "3093ee1310f442ff9f461d8d2841c5a8",
+     "secondSortAccessId": "c5eda6b029a14b24b3153a4b8d77a017",
+     "canPresaleNumber": 9,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "SkyworksSolutions-SI8610AB_BIS/C7315678",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 96,
+     "shopCostPrice": 12.91,
+     "preMinPurchaseNum": 4,
+     "minPurchaseNum": 1,
+     "initialPrice": 2.3748,
+     "componentCode": "C7315678",
+     "componentBrandEn": "Skyworks Solutions",
+     "componentModelEn": "SI8610AB-B-IS",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8772148216928587776",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2312272146_Skyworks-Solutions-SI8610AB-B-IS_C7315678.pdf",
+     "dataManualFileAccessId": "8597541793924210688",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "SKYWORKS SI8610AB-B-IS",
+     "minImage": "",
+     "minImageAccessId": "8772148218006659072",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-8",
+     "describe": "-40\u2103~+125\u2103 0 1 1Mbps 2500 50kV/us Low Level SOIC-8 Digital Isolators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Default Output",
+       "attribute_value_name": "Low Level"
+      },
+      {
+       "attribute_name_en": "Number of Forward Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Data Rate(Max)",
+       "attribute_value_name": "1Mbps"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "2500"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Power-on reset"
+      },
+      {
+       "attribute_name_en": "Number of Reverse Channels",
+       "attribute_value_name": "0"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "50kV/us"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Digital Isolators",
+     "secondSortName": "Signal Isolation Devices",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SI8610</span>AB-B-IS",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 8286291,
+     "componentLibraryType": "expand",
+     "stockCount": 15,
+     "componentTypeEn": "Digital Isolators",
+     "erpComponentName": "\u4f4e\u529f\u8017\u5355\u901a\u9053\u548c\u53cc\u901a\u9053\u6570\u5b57\u9694\u79bb\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/digital-isolators_skyworks-solutions-si8610ec-b-is_C7315694.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.9409
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.892
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 95,
+       "productPrice": 1.8594
+      },
+      {
+       "startNumber": 96,
+       "endNumber": 97,
+       "productPrice": 1.8251
+      },
+      {
+       "startNumber": 98,
+       "endNumber": 99,
+       "productPrice": 1.8251
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 1.8251
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.8226
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 1.7581
+      },
+      {
+       "startNumber": 98,
+       "endNumber": 99,
+       "productPrice": 1.7581
+      },
+      {
+       "startNumber": 96,
+       "endNumber": 97,
+       "productPrice": 1.7581
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 95,
+       "productPrice": 1.7911
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.8697
+      }
+     ],
+     "firstSortAccessId": "3093ee1310f442ff9f461d8d2841c5a8",
+     "secondSortAccessId": "c5eda6b029a14b24b3153a4b8d77a017",
+     "canPresaleNumber": 15,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "SkyworksSolutions-SI8610EC_BIS/C7315694",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 96,
+     "shopCostPrice": 10.5551,
+     "preMinPurchaseNum": 5,
+     "minPurchaseNum": 1,
+     "initialPrice": 1.9409,
+     "componentCode": "C7315694",
+     "componentBrandEn": "Skyworks Solutions",
+     "componentModelEn": "SI8610EC-B-IS",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8776559575593816064",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2312280321_Skyworks-Solutions-SI8610EC-B-IS_C7315694.pdf",
+     "dataManualFileAccessId": "8597539168280977408",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "SKYWORKS SI8610EC-B-IS",
+     "minImage": "",
+     "minImageAccessId": "8776559576722489344",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-8",
+     "describe": "-40\u2103~+125\u2103 0 1 100kV/us 150Mbps 2.5V~5.5V 2.5V~5.5V 3750 8ns High Level SOIC-8 Digital Isolators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Default Output",
+       "attribute_value_name": "High Level"
+      },
+      {
+       "attribute_name_en": "Number of Forward Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Data Rate(Max)",
+       "attribute_value_name": "150Mbps"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCA)",
+       "attribute_value_name": "2.5V~5.5V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCB)",
+       "attribute_value_name": "2.5V~5.5V"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "3750"
+      },
+      {
+       "attribute_name_en": "Propagation Delay(tpd)",
+       "attribute_value_name": "8ns"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Fail-safe output\u3001Power-on reset"
+      },
+      {
+       "attribute_name_en": "Number of Reverse Channels",
+       "attribute_value_name": "0"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "100kV/us"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Digital Isolators",
+     "secondSortName": "Signal Isolation Devices",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SI8610</span>EC-B-IS",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 6855424,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Digital Isolators",
+     "erpComponentName": "SI8610BC-ASR",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/digital-isolators_skyworks-solutions-si8610bc-asr_C5918376.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.6665
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 3.6665
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 3.6665
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.463
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.4141
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.3896
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.3387
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.4094
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 3.5319
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 3.5319
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.5319
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.3622
+      }
+     ],
+     "firstSortAccessId": "3093ee1310f442ff9f461d8d2841c5a8",
+     "secondSortAccessId": "c5eda6b029a14b24b3153a4b8d77a017",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "SkyworksSolutions-SI8610BCASR/C5918376",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 2500,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 3,
+     "initialPrice": 3.6665,
+     "componentCode": "C5918376",
+     "componentBrandEn": "Skyworks Solutions",
+     "componentModelEn": "SI8610BC-ASR",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2404171046_Skyworks-Solutions-SI8610BC-ASR_C5918376.pdf",
+     "dataManualFileAccessId": "8602719940491427840",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "SKYWORKS SI8610BC-ASR",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-8",
+     "describe": "-40\u2103~+125\u2103 0 1 150Mbps 2 3750 50kV/us Fail-safe output\u3001Power-on reset Low Level SOIC-8 Digital Isolators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Default Output",
+       "attribute_value_name": "Low Level"
+      },
+      {
+       "attribute_name_en": "Number of Forward Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Data Rate(Max)",
+       "attribute_value_name": "150Mbps"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "3750"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Fail-safe output\u3001Power-on reset"
+      },
+      {
+       "attribute_name_en": "Number of Reverse Channels",
+       "attribute_value_name": "0"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "50kV/us"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Digital Isolators",
+     "secondSortName": "Signal Isolation Devices",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SI8610</span>BC-ASR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 6855434,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Digital Isolators",
+     "erpComponentName": "SI8610ED-ASR",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/digital-isolators_skyworks-solutions-si8610ed-asr_C5918386.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.8443
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 3.8443
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 3.8443
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.5348
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 1249,
+       "productPrice": 1.4826
+      },
+      {
+       "startNumber": 1250,
+       "endNumber": -1,
+       "productPrice": 1.4581
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1250,
+       "endNumber": -1,
+       "productPrice": 1.4046
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 1249,
+       "productPrice": 1.4282
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.4785
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 3.7032
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 3.7032
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.7032
+      }
+     ],
+     "firstSortAccessId": "3093ee1310f442ff9f461d8d2841c5a8",
+     "secondSortAccessId": "c5eda6b029a14b24b3153a4b8d77a017",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "SkyworksSolutions-SI8610EDASR/C5918386",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1250,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 3,
+     "initialPrice": 3.8443,
+     "componentCode": "C5918386",
+     "componentBrandEn": "Skyworks Solutions",
+     "componentModelEn": "SI8610ED-ASR",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2404171046_Skyworks-Solutions-SI8610ED-ASR_C5918386.pdf",
+     "dataManualFileAccessId": "8602724455353634816",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "SKYWORKS SI8610ED-ASR",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-16",
+     "describe": "-40\u2103~+125\u2103 0 1 100kV/us 150Mbps 2 5000 Fail-safe output\u3001Power-on reset High Level SOIC-16 Digital Isolators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Default Output",
+       "attribute_value_name": "High Level"
+      },
+      {
+       "attribute_name_en": "Number of Forward Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Data Rate(Max)",
+       "attribute_value_name": "150Mbps"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "5000"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Fail-safe output\u3001Power-on reset"
+      },
+      {
+       "attribute_name_en": "Number of Reverse Channels",
+       "attribute_value_name": "0"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "100kV/us"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Digital Isolators",
+     "secondSortName": "Signal Isolation Devices",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SI8610</span>ED-ASR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 2,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "SI8610"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-13T19:34:53Z"
+}

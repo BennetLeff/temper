@@ -1,0 +1,2356 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 14,
+   "list": [
+    {
+     "componentId": 63565,
+     "componentLibraryType": "expand",
+     "stockCount": 3,
+     "componentTypeEn": "Comparators",
+     "erpComponentName": "\u7eb3\u5b89\u7ea7\u529f\u8017\u3001\u5e26\u7535\u538b\u57fa\u51c6\u7684\u6bd4\u8f83\u5668\uff0c\u5177\u5907\u5f00\u6f0f\u548c\u63a8\u633d\u8f93\u51fa",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/comparators_texas-instruments-tlv3012aidbvr_C62505.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.4382
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.913
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.6015
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 2.2867
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.1415
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.0747
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.312
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.8061
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.506
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 2.2028
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.0629
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.9985
+      }
+     ],
+     "firstSortAccessId": "e3e42cbeca794b379734d72eb85f2f43",
+     "secondSortAccessId": "b9467b516dce4241802a779b8a474d6f",
+     "canPresaleNumber": -2,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-TLV3012AIDBVR/C62505",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 12.0,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 3,
+     "initialPrice": 3.4382,
+     "componentCode": "C62505",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "TLV3012AIDBVR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8582999411424813056",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Texas-Instruments-TLV3012AIDBVR_C62505.pdf",
+     "dataManualFileAccessId": "8588881232666480640",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/tlv3011",
+     "componentName": "TI TLV3012AIDBVR",
+     "minImage": "",
+     "minImageAccessId": "8582999412411285504",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-6",
+     "describe": "-40\u2103~+125\u2103 1 1.8V~5.5V 100pA 10pA 12uV/\u2103 12us 2.8uA 500uV 60dB CMOS Push-pull Rail-to-rail input SOT-23-6 Comparators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Vos - Input Offset Voltage",
+       "attribute_value_name": "500uV"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Push-pull"
+      },
+      {
+       "attribute_name_en": "Input Offset Current(Ios)",
+       "attribute_value_name": "10pA"
+      },
+      {
+       "attribute_name_en": "Input Offset Voltage Drift(Vos TC)",
+       "attribute_value_name": "12uV/\u2103"
+      },
+      {
+       "attribute_name_en": "Single Supply",
+       "attribute_value_name": "1.8V~5.5V"
+      },
+      {
+       "attribute_name_en": "Input Hysteresis Voltage (Vhys)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Common Mode Rejection Ratio(CMRR)",
+       "attribute_value_name": "60dB"
+      },
+      {
+       "attribute_name_en": "Rail to Rail",
+       "attribute_value_name": "Rail-to-rail input"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "2.8uA"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Ib - Input Bias Current",
+       "attribute_value_name": "100pA"
+      },
+      {
+       "attribute_name_en": "Propagation Delay Time",
+       "attribute_value_name": "12us"
+      },
+      {
+       "attribute_name_en": "Output Mode",
+       "attribute_value_name": "CMOS"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Comparators",
+     "secondSortName": "Amplifiers/Comparators",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TLV3012</span>AIDBVR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 3064925,
+     "componentLibraryType": "expand",
+     "stockCount": 44,
+     "componentTypeEn": "Comparators",
+     "erpComponentName": "\u5e26\u57fa\u51c6\u7535\u538b\u6e90\u7684\u5fae\u529f\u8017\u30011.8V SOT23\u5c01\u88c5\u6bd4\u8f83\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/comparators_texas-instruments-tlv3012aidckr_C2860248.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.388
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.1532
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.0243
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.8775
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.8139
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.7846
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.8453
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.1108
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.7558
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.3371
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.784
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.9867
+      }
+     ],
+     "firstSortAccessId": "e3e42cbeca794b379734d72eb85f2f43",
+     "secondSortAccessId": "b9467b516dce4241802a779b8a474d6f",
+     "canPresaleNumber": 44,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "TexasInstruments-TLV3012AIDCKR/C2860248",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 4.0,
+     "preMinPurchaseNum": 7,
+     "minPurchaseNum": 1,
+     "initialPrice": 1.388,
+     "componentCode": "C2860248",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "TLV3012AIDCKR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583671650742755328",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2303011030_Texas-Instruments-TLV3012AIDCKR_C2860248.pdf",
+     "dataManualFileAccessId": "8589785482818187264",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/tlv3011",
+     "componentName": "TI TLV3012AIDCKR",
+     "minImage": "",
+     "minImageAccessId": "8583671651691614208",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SC-70-6",
+     "describe": "-40\u2103~+85\u2103 0.1us 1 1.8V~5.5V 100uV/\u2103 10pA 12mV 1pA 2.8uA 6.5us 74dB 7V Push-pull SC-70-6 Comparators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+85\u2103"
+      },
+      {
+       "attribute_name_en": "Vos - Input Offset Voltage",
+       "attribute_value_name": "12mV"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Push-pull"
+      },
+      {
+       "attribute_name_en": "Input Offset Current(Ios)",
+       "attribute_value_name": "1pA"
+      },
+      {
+       "attribute_name_en": "Input Offset Voltage Drift(Vos TC)",
+       "attribute_value_name": "100uV/\u2103"
+      },
+      {
+       "attribute_name_en": "Single Supply",
+       "attribute_value_name": "1.8V~5.5V"
+      },
+      {
+       "attribute_name_en": "Input Hysteresis Voltage (Vhys)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Response Time (tr)",
+       "attribute_value_name": "0.1us"
+      },
+      {
+       "attribute_name_en": "Common Mode Rejection Ratio(CMRR)",
+       "attribute_value_name": "74dB"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Maximum Power Supply Range (Vdd-Vss)",
+       "attribute_value_name": "7V"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "2.8uA"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Ib - Input Bias Current",
+       "attribute_value_name": "10pA"
+      },
+      {
+       "attribute_name_en": "Propagation Delay Time",
+       "attribute_value_name": "6.5us"
+      },
+      {
+       "attribute_name_en": "Output Mode",
+       "attribute_value_name": "-"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Comparators",
+     "secondSortName": "Amplifiers/Comparators",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TLV3012</span>AIDCKR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 3073208,
+     "componentLibraryType": "expand",
+     "stockCount": 20,
+     "componentTypeEn": "Comparators",
+     "erpComponentName": "\u5e26\u57fa\u51c6\u7535\u538b\u6e90\u7684\u5fae\u529f\u8017\u30011.8V SOT23\u5c01\u88c5\u6bd4\u8f83\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/comparators_texas-instruments-tlv3012aidckt_C2868531.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.9244
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.4987
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 249,
+       "productPrice": 2.2312
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 1.9572
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.8333
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.7794
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 30,
+       "endNumber": 249,
+       "productPrice": 2.1494
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.407
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.7141
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.8171
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.766
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 1.8854
+      }
+     ],
+     "firstSortAccessId": "e3e42cbeca794b379734d72eb85f2f43",
+     "secondSortAccessId": "b9467b516dce4241802a779b8a474d6f",
+     "canPresaleNumber": 17,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "TexasInstruments-TLV3012AIDCKT/C2868531",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 250,
+     "shopCostPrice": 8.69307,
+     "preMinPurchaseNum": 4,
+     "minPurchaseNum": 1,
+     "initialPrice": 2.9244,
+     "componentCode": "C2868531",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "TLV3012AIDCKT",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583671651145408512",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2303010430_Texas-Instruments-TLV3012AIDCKT_C2868531.pdf",
+     "dataManualFileAccessId": "8589785482826846208",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/tlv3011",
+     "componentName": "TI TLV3012AIDCKT",
+     "minImage": "",
+     "minImageAccessId": "8583671652093186048",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SC-70-6",
+     "describe": "-40\u2103~+125\u2103 1 1.8V~5.5V 100uV/\u2103 1pA 1pA 2.8uA 500uV 6us 74dB CMOS Push-pull SC-70-6 Comparators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Vos - Input Offset Voltage",
+       "attribute_value_name": "500uV"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Push-pull"
+      },
+      {
+       "attribute_name_en": "Input Offset Current(Ios)",
+       "attribute_value_name": "1pA"
+      },
+      {
+       "attribute_name_en": "Input Offset Voltage Drift(Vos TC)",
+       "attribute_value_name": "100uV/\u2103"
+      },
+      {
+       "attribute_name_en": "Single Supply",
+       "attribute_value_name": "1.8V~5.5V"
+      },
+      {
+       "attribute_name_en": "Input Hysteresis Voltage (Vhys)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Common Mode Rejection Ratio(CMRR)",
+       "attribute_value_name": "74dB"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "2.8uA"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Ib - Input Bias Current",
+       "attribute_value_name": "1pA"
+      },
+      {
+       "attribute_name_en": "Propagation Delay Time",
+       "attribute_value_name": "6us"
+      },
+      {
+       "attribute_name_en": "Output Mode",
+       "attribute_value_name": "CMOS"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Comparators",
+     "secondSortName": "Amplifiers/Comparators",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TLV3012</span>AIDCKT",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 21671452,
+     "componentLibraryType": "expand",
+     "stockCount": 2386,
+     "componentTypeEn": "Comparators",
+     "erpComponentName": "\u4f4e\u529f\u8017\u5e26\u96c6\u62101.24V\u7535\u538b\u57fa\u51c6\u7684\u6bd4\u8f83\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/comparators_texas-instruments-tlv3012bidbvr_C20345924.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.8249
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.4335
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.1888
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.9393
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.8251
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.7762
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.711
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.1085
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.7212
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.7581
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.8681
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.3442
+      }
+     ],
+     "firstSortAccessId": "e3e42cbeca794b379734d72eb85f2f43",
+     "secondSortAccessId": "b9467b516dce4241802a779b8a474d6f",
+     "canPresaleNumber": 2153,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-TLV3012BIDBVR/C20345924",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 7.95907,
+     "preMinPurchaseNum": 4,
+     "minPurchaseNum": 1,
+     "initialPrice": 2.8249,
+     "componentCode": "C20345924",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "TLV3012BIDBVR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585901187060649984",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2403281333_Texas-Instruments-TLV3012BIDBVR_C20345924.pdf",
+     "dataManualFileAccessId": "8603387801165709312",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "TI TLV3012BIDBVR",
+     "minImage": "",
+     "minImageAccessId": "8585901187987726336",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-6",
+     "describe": "-40\u2103~+125\u2103 1 1.65V~5.5V 10ns 12uV/\u2103 1pA 2.4uA 300uV 4.5pA 4us 74dB 8mV CMOS Push-pull Rail-to-rail input SOT-23-6 Comparators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Vos - Input Offset Voltage",
+       "attribute_value_name": "300uV"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Push-pull"
+      },
+      {
+       "attribute_name_en": "Input Offset Current(Ios)",
+       "attribute_value_name": "1pA"
+      },
+      {
+       "attribute_name_en": "Input Offset Voltage Drift(Vos TC)",
+       "attribute_value_name": "12uV/\u2103"
+      },
+      {
+       "attribute_name_en": "Single Supply",
+       "attribute_value_name": "1.65V~5.5V"
+      },
+      {
+       "attribute_name_en": "Input Hysteresis Voltage (Vhys)",
+       "attribute_value_name": "8mV"
+      },
+      {
+       "attribute_name_en": "Response Time (tr)",
+       "attribute_value_name": "10ns"
+      },
+      {
+       "attribute_name_en": "Common Mode Rejection Ratio(CMRR)",
+       "attribute_value_name": "74dB"
+      },
+      {
+       "attribute_name_en": "Rail to Rail",
+       "attribute_value_name": "Rail-to-rail input"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "2.4uA"
+      },
+      {
+       "attribute_name_en": "Ib - Input Bias Current",
+       "attribute_value_name": "4.5pA"
+      },
+      {
+       "attribute_name_en": "Propagation Delay Time",
+       "attribute_value_name": "4us"
+      },
+      {
+       "attribute_name_en": "Output Mode",
+       "attribute_value_name": "CMOS"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Comparators",
+     "secondSortName": "Amplifiers/Comparators",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TLV3012</span>BIDBVR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 21671453,
+     "componentLibraryType": "expand",
+     "stockCount": 65,
+     "componentTypeEn": "Comparators",
+     "erpComponentName": "\u96c6\u62101.24V\u7535\u538b\u57fa\u51c6\u7684\u4f4e\u529f\u8017\u6bd4\u8f83\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/comparators_texas-instruments-tlv3012bidckr_C20345925.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.1283
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.6683
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.3796
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 2.0844
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.9523
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.8936
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 2.008
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.5704
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.8241
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.2923
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.0135
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.8807
+      }
+     ],
+     "firstSortAccessId": "e3e42cbeca794b379734d72eb85f2f43",
+     "secondSortAccessId": "b9467b516dce4241802a779b8a474d6f",
+     "canPresaleNumber": 63,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-TLV3012BIDCKR/C20345925",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 9.37497,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 1,
+     "initialPrice": 3.1283,
+     "componentCode": "C20345925",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "TLV3012BIDCKR",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2403281333_Texas-Instruments-TLV3012BIDCKR_C20345925.pdf",
+     "dataManualFileAccessId": "8604374049560940544",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "TI TLV3012BIDCKR",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SC-70-6",
+     "describe": "-40\u2103~+125\u2103 1 1.65V~5.5V 10ns 12uV/\u2103 1pA 2.4uA 300uV 4.5pA 4us 74dB 7V 8mV CMOS Fail-safe function\u3001Built-in hysteresis\u3001Built-in reference source Push-pull Rail-to-rail input SC-70-6 Comparators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Vos - Input Offset Voltage",
+       "attribute_value_name": "300uV"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Push-pull"
+      },
+      {
+       "attribute_name_en": "Input Offset Current(Ios)",
+       "attribute_value_name": "1pA"
+      },
+      {
+       "attribute_name_en": "Input Offset Voltage Drift(Vos TC)",
+       "attribute_value_name": "12uV/\u2103"
+      },
+      {
+       "attribute_name_en": "Single Supply",
+       "attribute_value_name": "1.65V~5.5V"
+      },
+      {
+       "attribute_name_en": "Input Hysteresis Voltage (Vhys)",
+       "attribute_value_name": "8mV"
+      },
+      {
+       "attribute_name_en": "Response Time (tr)",
+       "attribute_value_name": "10ns"
+      },
+      {
+       "attribute_name_en": "Common Mode Rejection Ratio(CMRR)",
+       "attribute_value_name": "74dB"
+      },
+      {
+       "attribute_name_en": "Rail to Rail",
+       "attribute_value_name": "Rail-to-rail input"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Maximum Power Supply Range (Vdd-Vss)",
+       "attribute_value_name": "7V"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "2.4uA"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Fail-safe function\u3001Built-in hysteresis\u3001Built-in reference source"
+      },
+      {
+       "attribute_name_en": "Ib - Input Bias Current",
+       "attribute_value_name": "4.5pA"
+      },
+      {
+       "attribute_name_en": "Propagation Delay Time",
+       "attribute_value_name": "4us"
+      },
+      {
+       "attribute_name_en": "Output Mode",
+       "attribute_value_name": "CMOS"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Comparators",
+     "secondSortName": "Amplifiers/Comparators",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TLV3012</span>BIDCKR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 3068312,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Comparators",
+     "erpComponentName": "\u7eb3\u529f\u7387\u6bd4\u8f83\u5668\uff0c\u5e26\u96c6\u6210\u7535\u538b\u57fa\u51c6\uff0c\u9002\u7528\u4e8e\u5c0f\u5c3a\u5bf8\u5c01\u88c5\u8bbe\u8ba1",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/comparators_texas-instruments-tlv3012aidbvt_C2863635.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.1758
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.1236
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.091
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 2.0567
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 2.0567
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 2.0567
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.0457
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 1.9812
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 1.9812
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.0142
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.0959
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 1.9812
+      }
+     ],
+     "firstSortAccessId": "e3e42cbeca794b379734d72eb85f2f43",
+     "secondSortAccessId": "b9467b516dce4241802a779b8a474d6f",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "TexasInstruments-TLV3012AIDBVT/C2863635",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 250,
+     "shopCostPrice": 10.958,
+     "preMinPurchaseNum": 5,
+     "minPurchaseNum": 5,
+     "initialPrice": 2.1758,
+     "componentCode": "C2863635",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "TLV3012AIDBVT",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583874289485959168",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2303010730_Texas-Instruments-TLV3012AIDBVT_C2863635.pdf",
+     "dataManualFileAccessId": "8590184970233802752",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/tlv3011",
+     "componentName": "TI TLV3012AIDBVT",
+     "minImage": "",
+     "minImageAccessId": "8583874290383405056",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-6",
+     "describe": "-40\u2103~+85\u2103 1.8V~5.5V 10pA 10pA 12mV 12uV/\u2103 2.8uA 6us 74dB Push-pull Rail-to-rail input SOT-23-6 Comparators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+85\u2103"
+      },
+      {
+       "attribute_name_en": "Vos - Input Offset Voltage",
+       "attribute_value_name": "12mV"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Push-pull"
+      },
+      {
+       "attribute_name_en": "Input Offset Current(Ios)",
+       "attribute_value_name": "10pA"
+      },
+      {
+       "attribute_name_en": "Input Offset Voltage Drift(Vos TC)",
+       "attribute_value_name": "12uV/\u2103"
+      },
+      {
+       "attribute_name_en": "Single Supply",
+       "attribute_value_name": "1.8V~5.5V"
+      },
+      {
+       "attribute_name_en": "Input Hysteresis Voltage (Vhys)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Common Mode Rejection Ratio(CMRR)",
+       "attribute_value_name": "74dB"
+      },
+      {
+       "attribute_name_en": "Rail to Rail",
+       "attribute_value_name": "Rail-to-rail input"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "2.8uA"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Ib - Input Bias Current",
+       "attribute_value_name": "10pA"
+      },
+      {
+       "attribute_name_en": "Propagation Delay Time",
+       "attribute_value_name": "6us"
+      },
+      {
+       "attribute_name_en": "Output Mode",
+       "attribute_value_name": "-"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Comparators",
+     "secondSortName": "Amplifiers/Comparators",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TLV3012</span>AIDBVT",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 737182,
+     "componentLibraryType": "expand",
+     "stockCount": 5,
+     "componentTypeEn": "Comparators",
+     "erpComponentName": "\u5177\u6709\u96c6\u62101.24V\u7535\u538b\u57fa\u51c6\u7684\u4f4e\u529f\u8017\u6bd4\u8f83\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/comparators_texas-instruments-tlv3012aqdckrq1_C702106.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.0437
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.8121
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.649
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.5006
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.4321
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.4043
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.3528
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.7456
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.3795
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.5885
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.9687
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.4455
+      }
+     ],
+     "firstSortAccessId": "e3e42cbeca794b379734d72eb85f2f43",
+     "secondSortAccessId": "b9467b516dce4241802a779b8a474d6f",
+     "canPresaleNumber": 5,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "TexasInstruments-TLV3012AQDCKRQ1/C702106",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 7.49,
+     "preMinPurchaseNum": 5,
+     "minPurchaseNum": 1,
+     "initialPrice": 2.0437,
+     "componentCode": "C702106",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "TLV3012AQDCKRQ1",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583732073043529728",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2302221801_Texas-Instruments-TLV3012AQDCKRQ1_C702106.pdf",
+     "dataManualFileAccessId": "8589914114102628352",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/tlv3012-q1",
+     "componentName": "TI TLV3012AQDCKRQ1",
+     "minImage": "",
+     "minImageAccessId": "8583732073840852992",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SC-70-6",
+     "describe": "-40\u2103~+125\u2103 1 1.8V~5.5V 10pA 13.5us 15mV 5uA 6mV 74dB CMOS Rail-to-Rail Input, Rail-to-Rail Output SC-70-6 Comparators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Common Mode Rejection Ratio(CMRR)",
+       "attribute_value_name": "74dB"
+      },
+      {
+       "attribute_name_en": "Rail to Rail",
+       "attribute_value_name": "Rail-to-Rail Input, Rail-to-Rail Output"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Vos - Input Offset Voltage",
+       "attribute_value_name": "15mV"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "5uA"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Single Supply",
+       "attribute_value_name": "1.8V~5.5V"
+      },
+      {
+       "attribute_name_en": "Input Hysteresis Voltage (Vhys)",
+       "attribute_value_name": "6mV"
+      },
+      {
+       "attribute_name_en": "Ib - Input Bias Current",
+       "attribute_value_name": "10pA"
+      },
+      {
+       "attribute_name_en": "Propagation Delay Time",
+       "attribute_value_name": "13.5us"
+      },
+      {
+       "attribute_name_en": "Output Mode",
+       "attribute_value_name": "CMOS"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Comparators",
+     "secondSortName": "Amplifiers/Comparators",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TLV3012</span>AQDCKRQ1",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 21671454,
+     "componentLibraryType": "expand",
+     "stockCount": 2,
+     "componentTypeEn": "Comparators",
+     "erpComponentName": "\u8d85\u4f4e\u529f\u8017\u6bd4\u8f83\u5668\u5e26\u96c6\u6210 1.24 V \u7535\u538b\u57fa\u51c6",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.2865
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 3.2033
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 3.1478
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 3.0924
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 3.0924
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 3.0924
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 3.0857
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 2.9789
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 2.9789
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 3.0323
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.1659
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 2.9789
+      }
+     ],
+     "firstSortAccessId": "3db4bff6cfd743f6af1575bf175e9774",
+     "secondSortAccessId": "cfa9bf2378174788abc09e74d45d5b30",
+     "canPresaleNumber": 2,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-TLV3012BQDBVRQ1/C20345926",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 17.716,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 1,
+     "initialPrice": 3.2865,
+     "componentCode": "C20345926",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "TLV3012BQDBVRQ1",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8779940564561956864",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "8602834786868482048",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "TI TLV3012BQDBVRQ1",
+     "minImage": "",
+     "minImageAccessId": "8779940564993970176",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-6",
+     "describe": "-40\u2103~+125\u2103 1 1.65V~5.5V 10pA 12uV/\u2103 12us 3.1uA 300uV 4.5pA 6mV 74dB Fail-safe function\u3001Built-in hysteresis\u3001Built-in reference source Push-pull Rail-to-rail input TTL SOT-23-6 Comparators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Vos - Input Offset Voltage",
+       "attribute_value_name": "300uV"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Push-pull"
+      },
+      {
+       "attribute_name_en": "Input Offset Current(Ios)",
+       "attribute_value_name": "10pA"
+      },
+      {
+       "attribute_name_en": "Input Offset Voltage Drift(Vos TC)",
+       "attribute_value_name": "12uV/\u2103"
+      },
+      {
+       "attribute_name_en": "Single Supply",
+       "attribute_value_name": "1.65V~5.5V"
+      },
+      {
+       "attribute_name_en": "Input Hysteresis Voltage (Vhys)",
+       "attribute_value_name": "6mV"
+      },
+      {
+       "attribute_name_en": "Common Mode Rejection Ratio(CMRR)",
+       "attribute_value_name": "74dB"
+      },
+      {
+       "attribute_name_en": "Rail to Rail",
+       "attribute_value_name": "Rail-to-rail input"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "3.1uA"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Fail-safe function\u3001Built-in hysteresis\u3001Built-in reference source"
+      },
+      {
+       "attribute_name_en": "Ib - Input Bias Current",
+       "attribute_value_name": "4.5pA"
+      },
+      {
+       "attribute_name_en": "Propagation Delay Time",
+       "attribute_value_name": "12us"
+      },
+      {
+       "attribute_name_en": "Output Mode",
+       "attribute_value_name": "TTL"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Comparators",
+     "secondSortName": "Amplifiers/Comparators",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TLV3012</span>BQDBVRQ1",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4226782,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Comparators",
+     "erpComponentName": "TLV3012AIDBVRG4",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/comparators_texas-instruments-tlv3012aidbvrg4_C3658985.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.7599
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 1.7599
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 1.7599
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.6818
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.6573
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.6459
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.6222
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.6568
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 1.6953
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 1.6953
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.6953
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.6332
+      }
+     ],
+     "firstSortAccessId": "e3e42cbeca794b379734d72eb85f2f43",
+     "secondSortAccessId": "b9467b516dce4241802a779b8a474d6f",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-TLV3012AIDBVRG4/C3658985",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 6,
+     "minPurchaseNum": 6,
+     "initialPrice": 1.7599,
+     "componentCode": "C3658985",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "TLV3012AIDBVRG4",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2302282101_Texas-Instruments-TLV3012AIDBVRG4_C3658985.pdf",
+     "dataManualFileAccessId": "8590375302536343552",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/tlv3011",
+     "componentName": "TI TLV3012AIDBVRG4",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-6",
+     "describe": "SOT-23-6 Comparators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "-"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Comparators",
+     "secondSortName": "Amplifiers/Comparators",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TLV3012</span>AIDBVRG4",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4226877,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Comparators",
+     "erpComponentName": "TLV3012AIDBVTG4",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/comparators_texas-instruments-tlv3012aidbvtg4_C3659080.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.365
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 2.365
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 249,
+       "productPrice": 2.365
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.915
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.884
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.8677
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 12,
+       "endNumber": 249,
+       "productPrice": 2.2782
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.8359
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 2.2782
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.8815
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.2782
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.8516
+      }
+     ],
+     "firstSortAccessId": "e3e42cbeca794b379734d72eb85f2f43",
+     "secondSortAccessId": "b9467b516dce4241802a779b8a474d6f",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-TLV3012AIDBVTG4/C3659080",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 250,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 4,
+     "minPurchaseNum": 4,
+     "initialPrice": 2.365,
+     "componentCode": "C3659080",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "TLV3012AIDBVTG4",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2302282101_Texas-Instruments-TLV3012AIDBVTG4_C3659080.pdf",
+     "dataManualFileAccessId": "8590441393177845760",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/tlv3011",
+     "componentName": "TI TLV3012AIDBVTG4",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-6",
+     "describe": "SOT-23-6 Comparators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "-"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Comparators",
+     "secondSortName": "Amplifiers/Comparators",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TLV3012</span>AIDBVTG4",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 7281434,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Comparators",
+     "erpComponentName": "TLV3012AQDBVRQ1",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/comparators_texas-instruments-tlv3012aqdbvrq1_C6333181.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.611
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 3.611
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 3.611
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.4418
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.3929
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.3684
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.3182
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.3889
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 3.4785
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 3.4785
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.4785
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.3418
+      }
+     ],
+     "firstSortAccessId": "e3e42cbeca794b379734d72eb85f2f43",
+     "secondSortAccessId": "b9467b516dce4241802a779b8a474d6f",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-TLV3012AQDBVRQ1/C6333181",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 3,
+     "initialPrice": 3.611,
+     "componentCode": "C6333181",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "TLV3012AQDBVRQ1",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2402261340_Texas-Instruments-TLV3012AQDBVRQ1_C6333181.pdf",
+     "dataManualFileAccessId": "8600510800775684096",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "TI TLV3012AQDBVRQ1",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-6",
+     "describe": "-40\u2103~+125\u2103 1 10pA 12us 2.8uA 500uV 9mV Fail-safe function\u3001Built-in hysteresis\u3001Built-in reference source Rail-to-rail input TTL\u3001CMOS SOT-23-6 Comparators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Common Mode Rejection Ratio(CMRR)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Rail to Rail",
+       "attribute_value_name": "Rail-to-rail input"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Vos - Input Offset Voltage",
+       "attribute_value_name": "500uV"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "2.8uA"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Fail-safe function\u3001Built-in hysteresis\u3001Built-in reference source"
+      },
+      {
+       "attribute_name_en": "Input Hysteresis Voltage (Vhys)",
+       "attribute_value_name": "9mV"
+      },
+      {
+       "attribute_name_en": "Ib - Input Bias Current",
+       "attribute_value_name": "10pA"
+      },
+      {
+       "attribute_name_en": "Propagation Delay Time",
+       "attribute_value_name": "12us"
+      },
+      {
+       "attribute_name_en": "Output Mode",
+       "attribute_value_name": "TTL\u3001CMOS"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Comparators",
+     "secondSortName": "Amplifiers/Comparators",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TLV3012</span>AQDBVRQ1",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 21671455,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Comparators",
+     "erpComponentName": "\u4f4e\u529f\u8017\u6bd4\u8f83\u5668\uff0c\u5e26\u96c6\u62101.24V\u7535\u538b\u57fa\u51c6",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/comparators_texas-instruments-tlv3012bqdckrq1_C20345927.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.2667
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 4.2667
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 4.2667
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.7028
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.6457
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.618
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.5586
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.6403
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 4.1101
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 4.1101
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.1101
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.5853
+      }
+     ],
+     "firstSortAccessId": "e3e42cbeca794b379734d72eb85f2f43",
+     "secondSortAccessId": "b9467b516dce4241802a779b8a474d6f",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-TLV3012BQDCKRQ1/C20345927",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 3,
+     "initialPrice": 4.2667,
+     "componentCode": "C20345927",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "TLV3012BQDCKRQ1",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2401261423_Texas-Instruments-TLV3012BQDCKRQ1_C20345927.pdf",
+     "dataManualFileAccessId": "8604374049820717056",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "TI TLV3012BQDCKRQ1",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SC-70-6",
+     "describe": "-40\u2103~+125\u2103 1 12us 3.1uA 300uV 4.5pA 6mV Fail-safe function\u3001Built-in hysteresis\u3001Built-in reference source Rail-to-rail input TTL SC-70-6 Comparators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Common Mode Rejection Ratio(CMRR)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Rail to Rail",
+       "attribute_value_name": "Rail-to-rail input"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Vos - Input Offset Voltage",
+       "attribute_value_name": "300uV"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "3.1uA"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Fail-safe function\u3001Built-in hysteresis\u3001Built-in reference source"
+      },
+      {
+       "attribute_name_en": "Ib - Input Bias Current",
+       "attribute_value_name": "4.5pA"
+      },
+      {
+       "attribute_name_en": "Input Hysteresis Voltage (Vhys)",
+       "attribute_value_name": "6mV"
+      },
+      {
+       "attribute_name_en": "Propagation Delay Time",
+       "attribute_value_name": "12us"
+      },
+      {
+       "attribute_name_en": "Output Mode",
+       "attribute_value_name": "TTL"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Comparators",
+     "secondSortName": "Amplifiers/Comparators",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TLV3012</span>BQDCKRQ1",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 2,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "TLV3012"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-13T19:26:10Z"
+}

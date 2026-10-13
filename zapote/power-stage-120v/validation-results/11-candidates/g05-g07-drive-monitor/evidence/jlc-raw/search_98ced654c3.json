@@ -1,0 +1,2057 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 57,
+   "list": [
+    {
+     "componentId": 18395271,
+     "componentLibraryType": "expand",
+     "stockCount": 51,
+     "componentTypeEn": "Gate Drivers",
+     "erpComponentName": "4\u5b89\u57f9ISO\u9a71\u52a8\u5668\uff0c\u5177\u6709\u9ad8\u77ac\u6001\u6297\u6270\u5ea6",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/gate-drivers_skyworks-solutions-si8274ab1-is1_C17266140.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 5.1621
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 47,
+       "productPrice": 4.4461
+      },
+      {
+       "startNumber": 48,
+       "endNumber": 95,
+       "productPrice": 4.0204
+      },
+      {
+       "startNumber": 96,
+       "endNumber": 479,
+       "productPrice": 3.5898
+      },
+      {
+       "startNumber": 480,
+       "endNumber": 1007,
+       "productPrice": 3.3909
+      },
+      {
+       "startNumber": 1008,
+       "endNumber": -1,
+       "productPrice": 3.3012
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 96,
+       "endNumber": 479,
+       "productPrice": 3.4581
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 47,
+       "productPrice": 4.2829
+      },
+      {
+       "startNumber": 1008,
+       "endNumber": -1,
+       "productPrice": 3.18
+      },
+      {
+       "startNumber": 48,
+       "endNumber": 95,
+       "productPrice": 3.8729
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.9727
+      },
+      {
+       "startNumber": 480,
+       "endNumber": 1007,
+       "productPrice": 3.2664
+      }
+     ],
+     "firstSortAccessId": "ed01977635a7431782c6574574e570d3",
+     "secondSortAccessId": "034a9e679d364d77a078fc9ad4e4118b",
+     "canPresaleNumber": 51,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "SkyworksSolutions-SI8274AB1IS1/C17266140",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 48,
+     "shopCostPrice": 16.39147,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 1,
+     "initialPrice": 5.1621,
+     "componentCode": "C17266140",
+     "componentBrandEn": "Skyworks Solutions",
+     "componentModelEn": "SI8274AB1-IS1",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2311031407_Skyworks-Solutions-SI8274AB1-IS1_C17266140.pdf",
+     "dataManualFileAccessId": "8602815472668581888",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "SKYWORKS SI8274AB1-IS1",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-16",
+     "describe": "-40\u2103~+125\u2103 1.8A 2 4A 4ns 5.5ns IGBT\u3001MOSFET SOIC-16 Gate Drivers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Rise Time",
+       "attribute_value_name": "4ns"
+      },
+      {
+       "attribute_name_en": "Current - Output High(IOH)",
+       "attribute_value_name": "1.8A"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Enable shutdown\u3001Interleaved conduction protection\u3001Dead-time control"
+      },
+      {
+       "attribute_name_en": "Number of Drivers",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Load Type",
+       "attribute_value_name": "IGBT\u3001MOSFET"
+      },
+      {
+       "attribute_name_en": "Fall Time",
+       "attribute_value_name": "5.5ns"
+      },
+      {
+       "attribute_name_en": "Current - Output Low(IOL)",
+       "attribute_value_name": "4A"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Gate Drivers",
+     "secondSortName": "Motor Driver ICs",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SI8274</span>AB1-IS1",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 18469593,
+     "componentLibraryType": "expand",
+     "stockCount": 2,
+     "componentTypeEn": "Gate Drivers",
+     "erpComponentName": "4\u5b89\u57f9ISO\u9a71\u52a8\u5668\uff0c\u5177\u6709\u9ad8\u77ac\u6001\u6297\u6270\u5ea6",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/gate-drivers_skyworks-solutions-si8274bb1-is1_C17340431.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 5.8569
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 47,
+       "productPrice": 5.7085
+      },
+      {
+       "startNumber": 48,
+       "endNumber": 95,
+       "productPrice": 5.609
+      },
+      {
+       "startNumber": 96,
+       "endNumber": 97,
+       "productPrice": 5.5079
+      },
+      {
+       "startNumber": 98,
+       "endNumber": 99,
+       "productPrice": 5.5079
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 5.5079
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 98,
+       "endNumber": 99,
+       "productPrice": 5.3057
+      },
+      {
+       "startNumber": 96,
+       "endNumber": 97,
+       "productPrice": 5.3057
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 5.3057
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 47,
+       "productPrice": 5.499
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 5.642
+      },
+      {
+       "startNumber": 48,
+       "endNumber": 95,
+       "productPrice": 5.4032
+      }
+     ],
+     "firstSortAccessId": "ed01977635a7431782c6574574e570d3",
+     "secondSortAccessId": "034a9e679d364d77a078fc9ad4e4118b",
+     "canPresaleNumber": 2,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "SkyworksSolutions-SI8274BB1IS1/C17340431",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 48,
+     "shopCostPrice": 31.8575,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 1,
+     "initialPrice": 5.8569,
+     "componentCode": "C17340431",
+     "componentBrandEn": "Skyworks Solutions",
+     "componentModelEn": "SI8274BB1-IS1",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8791423813906628608",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2311031410_Skyworks-Solutions-SI8274BB1-IS1_C17340431.pdf",
+     "dataManualFileAccessId": "8565302221312458752",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "SKYWORKS SI8274BB1-IS1",
+     "minImage": "",
+     "minImageAccessId": "8791423814414004224",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-16",
+     "describe": "-40\u2103~+125\u2103 1.8A 2 4.2V~30V 4A 4ns 5.5ns 7.9mA IGBT\u3001MOSFET Low Side\u3001High Side Under Voltage Protection SOIC-16 Gate Drivers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Rise Time",
+       "attribute_value_name": "4ns"
+      },
+      {
+       "attribute_name_en": "Driven Configuration",
+       "attribute_value_name": "Low Side\u3001High Side"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "4.2V~30V"
+      },
+      {
+       "attribute_name_en": "Current - Output High(IOH)",
+       "attribute_value_name": "1.8A"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Enable shutdown\u3001Interleaved conduction protection\u3001Dead-time control"
+      },
+      {
+       "attribute_name_en": "Number of Drivers",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Load Type",
+       "attribute_value_name": "IGBT\u3001MOSFET"
+      },
+      {
+       "attribute_name_en": "Quiescent Current(Iq)",
+       "attribute_value_name": "7.9mA"
+      },
+      {
+       "attribute_name_en": "Fall Time",
+       "attribute_value_name": "5.5ns"
+      },
+      {
+       "attribute_name_en": "Current - Output Low(IOL)",
+       "attribute_value_name": "4A"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Gate Drivers",
+     "secondSortName": "Motor Driver ICs",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SI8274</span>BB1-IS1",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 18688717,
+     "componentLibraryType": "expand",
+     "stockCount": 10,
+     "componentTypeEn": "Gate Drivers",
+     "erpComponentName": "4\u5b89\u57f9ISO\u9a71\u52a8\u5668\uff0c\u5177\u6709\u9ad8\u77ac\u6001\u6297\u6270\u5ea6",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/gate-drivers_skyworks-solutions-si8274db1-is1_C17559492.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 6.1374
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 47,
+       "productPrice": 5.9809
+      },
+      {
+       "startNumber": 48,
+       "endNumber": 95,
+       "productPrice": 5.8765
+      },
+      {
+       "startNumber": 96,
+       "endNumber": 97,
+       "productPrice": 5.7721
+      },
+      {
+       "startNumber": 98,
+       "endNumber": 99,
+       "productPrice": 5.7721
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 5.7721
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 98,
+       "endNumber": 99,
+       "productPrice": 5.5603
+      },
+      {
+       "startNumber": 96,
+       "endNumber": 97,
+       "productPrice": 5.5603
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 5.5603
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 47,
+       "productPrice": 5.7614
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 5.9122
+      },
+      {
+       "startNumber": 48,
+       "endNumber": 95,
+       "productPrice": 5.6608
+      }
+     ],
+     "firstSortAccessId": "ed01977635a7431782c6574574e570d3",
+     "secondSortAccessId": "034a9e679d364d77a078fc9ad4e4118b",
+     "canPresaleNumber": 10,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "SkyworksSolutions-SI8274DB1IS1/C17559492",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 48,
+     "shopCostPrice": 33.38,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 1,
+     "initialPrice": 6.1374,
+     "componentCode": "C17559492",
+     "componentBrandEn": "Skyworks Solutions",
+     "componentModelEn": "SI8274DB1-IS1",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8777950873640050688",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2311031418_Skyworks-Solutions-SI8274DB1-IS1_C17559492.pdf",
+     "dataManualFileAccessId": "8602719021447847936",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "SKYWORKS SI8274DB1-IS1",
+     "minImage": "",
+     "minImageAccessId": "8777950874080182272",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-16",
+     "describe": "-40\u2103~+125\u2103 1.8A 10.5ns 13.3ns 2 4A SOIC-16 Gate Drivers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Rise Time",
+       "attribute_value_name": "10.5ns"
+      },
+      {
+       "attribute_name_en": "Current - Output High(IOH)",
+       "attribute_value_name": "1.8A"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Enable shutdown\u3001Interleaved conduction protection\u3001Dead-time control"
+      },
+      {
+       "attribute_name_en": "Number of Drivers",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Fall Time",
+       "attribute_value_name": "13.3ns"
+      },
+      {
+       "attribute_name_en": "Current - Output Low(IOL)",
+       "attribute_value_name": "4A"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Gate Drivers",
+     "secondSortName": "Motor Driver ICs",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SI8274</span>DB1-IS1",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 18454308,
+     "componentLibraryType": "expand",
+     "stockCount": 9,
+     "componentTypeEn": "Gate Drivers",
+     "erpComponentName": "4\u5b89\u57f9ISO\u9a71\u52a8\u5668\uff0c\u5177\u6709\u9ad8\u77ac\u6001\u6297\u6270\u5ea6",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/gate-drivers_skyworks-solutions-si8274gb1-is1r_C17325150.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 8.4714
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 7.3378
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 6.6463
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 6.0673
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 6.0673
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 6.0673
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 5.8446
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 5.8446
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 7.0686
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 6.4024
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 8.1605
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 5.8446
+      }
+     ],
+     "firstSortAccessId": "ed01977635a7431782c6574574e570d3",
+     "secondSortAccessId": "034a9e679d364d77a078fc9ad4e4118b",
+     "canPresaleNumber": 9,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "SkyworksSolutions-SI8274GB1IS1R/C17325150",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 2500,
+     "shopCostPrice": 30.1284,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 1,
+     "initialPrice": 8.4714,
+     "componentCode": "C17325150",
+     "componentBrandEn": "Skyworks Solutions",
+     "componentModelEn": "SI8274GB1-IS1R",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2311031409_Skyworks-Solutions-SI8274GB1-IS1R_C17325150.pdf",
+     "dataManualFileAccessId": "8603297923220860928",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "SKYWORKS SI8274GB1-IS1R",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-16",
+     "describe": "-40\u2103~+125\u2103 1.8A 2 4A 4ns 5.5ns IGBT\u3001MOSFET SOIC-16 Gate Drivers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Rise Time",
+       "attribute_value_name": "4ns"
+      },
+      {
+       "attribute_name_en": "Current - Output High(IOH)",
+       "attribute_value_name": "1.8A"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Enable shutdown\u3001Interleaved conduction protection\u3001Dead-time control"
+      },
+      {
+       "attribute_name_en": "Number of Drivers",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Load Type",
+       "attribute_value_name": "IGBT\u3001MOSFET"
+      },
+      {
+       "attribute_name_en": "Fall Time",
+       "attribute_value_name": "5.5ns"
+      },
+      {
+       "attribute_name_en": "Current - Output Low(IOL)",
+       "attribute_value_name": "4A"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Gate Drivers",
+     "secondSortName": "Motor Driver ICs",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SI8274</span>GB1-IS1R",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 18523589,
+     "componentLibraryType": "expand",
+     "stockCount": 5,
+     "componentTypeEn": "Gate Drivers",
+     "erpComponentName": "4\u5b89\u57f9ISO\u9a71\u52a8\u5668\uff0c\u5177\u6709\u9ad8\u77ac\u6001\u6297\u6270\u5ea6",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/gate-drivers_skyworks-solutions-si8274bb1-is1r_C17394412.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 10.1986
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 8.8139
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 7.9706
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 7.2628
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 7.2628
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 7.2628
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 6.9963
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 6.9963
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 8.4904
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 7.6781
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 9.8243
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 6.9963
+      }
+     ],
+     "firstSortAccessId": "ed01977635a7431782c6574574e570d3",
+     "secondSortAccessId": "034a9e679d364d77a078fc9ad4e4118b",
+     "canPresaleNumber": 5,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "SkyworksSolutions-SI8274BB1IS1R/C17394412",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 2500,
+     "shopCostPrice": 36.7952,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 10.1986,
+     "componentCode": "C17394412",
+     "componentBrandEn": "Skyworks Solutions",
+     "componentModelEn": "SI8274BB1-IS1R",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2311031412_Skyworks-Solutions-SI8274BB1-IS1R_C17394412.pdf",
+     "dataManualFileAccessId": "8597538127066521600",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "SKYWORKS SI8274BB1-IS1R",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-16",
+     "describe": "-40\u2103~+125\u2103 1.8A 2 4A 4ns 5.5ns IGBT\u3001MOSFET SOIC-16 Gate Drivers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Propagation Delay tpHL",
+       "attribute_value_name": "30ns"
+      },
+      {
+       "attribute_name_en": "Driven Configuration",
+       "attribute_value_name": "Low Side\u3001High Side"
+      },
+      {
+       "attribute_name_en": "Current - Output High(IOH)",
+       "attribute_value_name": "1.8A"
+      },
+      {
+       "attribute_name_en": "Number of Drivers",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Load Type",
+       "attribute_value_name": "IGBT\u3001MOSFET"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - Low",
+       "attribute_value_name": "800mV"
+      },
+      {
+       "attribute_name_en": "Quiescent Current(Iq)",
+       "attribute_value_name": "7.9mA"
+      },
+      {
+       "attribute_name_en": "Fall Time",
+       "attribute_value_name": "5.5ns"
+      },
+      {
+       "attribute_name_en": "Rise Time",
+       "attribute_value_name": "4ns"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - High",
+       "attribute_value_name": "2V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "4.2V~30V"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Under Voltage Protection\u3001Enable shutdown\u3001Interleaved conduction protection\u3001Dead-time control"
+      },
+      {
+       "attribute_name_en": "Propagation Delay tpLH",
+       "attribute_value_name": "45ns"
+      },
+      {
+       "attribute_name_en": "Current - Output Low(IOL)",
+       "attribute_value_name": "4A"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Gate Drivers",
+     "secondSortName": "Motor Driver ICs",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SI8274</span>BB1-IS1R",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 18600247,
+     "componentLibraryType": "expand",
+     "stockCount": 10,
+     "componentTypeEn": "Gate Drivers",
+     "erpComponentName": "4\u5b89\u57f9ISO\u9a71\u52a8\u5668\uff0c\u5177\u6709\u9ad8\u77ac\u6001\u6297\u6270\u5ea6",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/gate-drivers_skyworks-solutions-si8274db1-is1r_C17471054.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 5.8781
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 5.7281
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 5.6286
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 5.5274
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 5.5274
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 5.5274
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 5.3246
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 5.3246
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 5.5178
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 5.422
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 5.6624
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 5.3246
+      }
+     ],
+     "firstSortAccessId": "ed01977635a7431782c6574574e570d3",
+     "secondSortAccessId": "034a9e679d364d77a078fc9ad4e4118b",
+     "canPresaleNumber": 10,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "SkyworksSolutions-SI8274DB1IS1R/C17471054",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 2500,
+     "shopCostPrice": 31.97,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 1,
+     "initialPrice": 5.8781,
+     "componentCode": "C17471054",
+     "componentBrandEn": "Skyworks Solutions",
+     "componentModelEn": "SI8274DB1-IS1R",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8772148016436527104",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2311031414_Skyworks-Solutions-SI8274DB1-IS1R_C17471054.pdf",
+     "dataManualFileAccessId": "8590932742328692736",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "SKYWORKS SI8274DB1-IS1R",
+     "minImage": "",
+     "minImageAccessId": "8772148017544093696",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-16",
+     "describe": "-40\u2103~+125\u2103 1.8A 10.5ns 13.3ns 2 4A SOIC-16 Gate Drivers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Rise Time",
+       "attribute_value_name": "10.5ns"
+      },
+      {
+       "attribute_name_en": "Current - Output High(IOH)",
+       "attribute_value_name": "1.8A"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Enable shutdown\u3001Interleaved conduction protection\u3001Dead-time control"
+      },
+      {
+       "attribute_name_en": "Number of Drivers",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Fall Time",
+       "attribute_value_name": "13.3ns"
+      },
+      {
+       "attribute_name_en": "Current - Output Low(IOL)",
+       "attribute_value_name": "4A"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Gate Drivers",
+     "secondSortName": "Motor Driver ICs",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SI8274</span>DB1-IS1R",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 18637297,
+     "componentLibraryType": "expand",
+     "stockCount": 41,
+     "componentTypeEn": "Gate Drivers",
+     "erpComponentName": "4\u5b89\u57f9ISO\u9a71\u52a8\u5668\uff0c\u5177\u6709\u9ad8\u77ac\u6001\u6297\u6270\u5ea6",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/gate-drivers_skyworks-solutions-si8274ab4d-is1_C17508093.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 8.579
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 47,
+       "productPrice": 7.4308
+      },
+      {
+       "startNumber": 48,
+       "endNumber": 95,
+       "productPrice": 6.7311
+      },
+      {
+       "startNumber": 96,
+       "endNumber": 97,
+       "productPrice": 6.144
+      },
+      {
+       "startNumber": 98,
+       "endNumber": 99,
+       "productPrice": 6.144
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 6.144
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 98,
+       "endNumber": 99,
+       "productPrice": 5.9185
+      },
+      {
+       "startNumber": 96,
+       "endNumber": 97,
+       "productPrice": 5.9185
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 5.9185
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 47,
+       "productPrice": 7.1581
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 8.2642
+      },
+      {
+       "startNumber": 48,
+       "endNumber": 95,
+       "productPrice": 6.4841
+      }
+     ],
+     "firstSortAccessId": "ed01977635a7431782c6574574e570d3",
+     "secondSortAccessId": "034a9e679d364d77a078fc9ad4e4118b",
+     "canPresaleNumber": 41,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "SkyworksSolutions-SI8274AB4DIS1/C17508093",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 48,
+     "shopCostPrice": 30.51,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 1,
+     "initialPrice": 8.579,
+     "componentCode": "C17508093",
+     "componentBrandEn": "Skyworks Solutions",
+     "componentModelEn": "SI8274AB4D-IS1",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8771124950205767680",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2311031417_Skyworks-Solutions-SI8274AB4D-IS1_C17508093.pdf",
+     "dataManualFileAccessId": "8603291096793292800",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "SKYWORKS SI8274AB4D-IS1",
+     "minImage": "",
+     "minImageAccessId": "8771124951409397760",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-16",
+     "describe": "-40\u2103~+125\u2103 1.8A 2 20ns 4.2V~30V 40ns 4A 4ns 5.5ns 7.9mA Enable shutdown\u3001Interleaved conduction protection\u3001Dead-time control Low Side\u3001High Side MOSFET SOIC-16 Gate Drivers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Rise Time",
+       "attribute_value_name": "4ns"
+      },
+      {
+       "attribute_name_en": "Propagation Delay tpHL",
+       "attribute_value_name": "20ns"
+      },
+      {
+       "attribute_name_en": "Driven Configuration",
+       "attribute_value_name": "Low Side\u3001High Side"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "4.2V~30V"
+      },
+      {
+       "attribute_name_en": "Current - Output High(IOH)",
+       "attribute_value_name": "1.8A"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Enable shutdown\u3001Interleaved conduction protection\u3001Dead-time control"
+      },
+      {
+       "attribute_name_en": "Number of Drivers",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Propagation Delay tpLH",
+       "attribute_value_name": "40ns"
+      },
+      {
+       "attribute_name_en": "Load Type",
+       "attribute_value_name": "MOSFET"
+      },
+      {
+       "attribute_name_en": "Quiescent Current(Iq)",
+       "attribute_value_name": "7.9mA"
+      },
+      {
+       "attribute_name_en": "Fall Time",
+       "attribute_value_name": "5.5ns"
+      },
+      {
+       "attribute_name_en": "Current - Output Low(IOL)",
+       "attribute_value_name": "4A"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Gate Drivers",
+     "secondSortName": "Motor Driver ICs",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SI8274</span>AB4D-IS1",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 8624241,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Abolished Device",
+     "erpComponentName": "SI8274AB1-IM1",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0397
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0204
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0382
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0197
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "SkyworksSolutions-SI8274AB1IM1/C7528019",
+     "leastPatchNumber": 5,
+     "lossNumber": 1,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.1,
+     "preMinPurchaseNum": 443,
+     "minPurchaseNum": 443,
+     "initialPrice": 0.0204,
+     "componentCode": "C7528019",
+     "componentBrandEn": "Skyworks Solutions",
+     "componentModelEn": "SI8274AB1-IM1",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "8586209239034941440",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "SKYWORKS SI8274AB1-IM1",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "DFN-14",
+     "describe": "DFN-14 Abolished Device ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "Abolished Device",
+     "secondSortName": "Others",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SI8274</span>AB1-IM1",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 18351260,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Gate Drivers",
+     "erpComponentName": "4\u5b89\u57f9ISO\u9a71\u52a8\u5668\uff0c\u5177\u6709\u9ad8\u77ac\u6001\u6297\u6270\u5ea6",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/gate-drivers_skyworks-solutions-si8274db1-as1_C17222172.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 8.336
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 8.336
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 191,
+       "productPrice": 8.336
+      },
+      {
+       "startNumber": 192,
+       "endNumber": 479,
+       "productPrice": 3.3272
+      },
+      {
+       "startNumber": 480,
+       "endNumber": 1007,
+       "productPrice": 3.2163
+      },
+      {
+       "startNumber": 1008,
+       "endNumber": -1,
+       "productPrice": 3.1609
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 12,
+       "endNumber": 191,
+       "productPrice": 8.0301
+      },
+      {
+       "startNumber": 192,
+       "endNumber": 479,
+       "productPrice": 3.2051
+      },
+      {
+       "startNumber": 1008,
+       "endNumber": -1,
+       "productPrice": 3.0449
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 8.0301
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 8.0301
+      },
+      {
+       "startNumber": 480,
+       "endNumber": 1007,
+       "productPrice": 3.0983
+      }
+     ],
+     "firstSortAccessId": "ed01977635a7431782c6574574e570d3",
+     "secondSortAccessId": "034a9e679d364d77a078fc9ad4e4118b",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "SkyworksSolutions-SI8274DB1AS1/C17222172",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 48,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 2,
+     "initialPrice": 8.336,
+     "componentCode": "C17222172",
+     "componentBrandEn": "Skyworks Solutions",
+     "componentModelEn": "SI8274DB1-AS1",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2311031405_Skyworks-Solutions-SI8274DB1-AS1_C17222172.pdf",
+     "dataManualFileAccessId": "8602823018846699520",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "SKYWORKS SI8274DB1-AS1",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-16",
+     "describe": "-40\u2103~+125\u2103 1.8A 2 4A 4ns 5.5ns MOSFET SOIC-16 Gate Drivers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Rise Time",
+       "attribute_value_name": "4ns"
+      },
+      {
+       "attribute_name_en": "Current - Output High(IOH)",
+       "attribute_value_name": "1.8A"
+      },
+      {
+       "attribute_name_en": "Number of Drivers",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Load Type",
+       "attribute_value_name": "MOSFET"
+      },
+      {
+       "attribute_name_en": "Fall Time",
+       "attribute_value_name": "5.5ns"
+      },
+      {
+       "attribute_name_en": "Current - Output Low(IOL)",
+       "attribute_value_name": "4A"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Gate Drivers",
+     "secondSortName": "Motor Driver ICs",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SI8274</span>DB1-AS1",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 18354124,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Gate Drivers",
+     "erpComponentName": "4\u5b89\u57f9ISO\u9a71\u52a8\u5668\uff0c\u5177\u6709\u9ad8\u77ac\u6001\u6297\u6270\u5ea6",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/gate-drivers_skyworks-solutions-si8274ga1-im1_C17225035.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 10.7531
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 10.7531
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 10.7531
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 489,
+       "productPrice": 4.2912
+      },
+      {
+       "startNumber": 490,
+       "endNumber": 979,
+       "productPrice": 4.1476
+      },
+      {
+       "startNumber": 980,
+       "endNumber": -1,
+       "productPrice": 4.0775
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 980,
+       "endNumber": -1,
+       "productPrice": 3.9279
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 489,
+       "productPrice": 4.1337
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 10.3585
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 10.3585
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 10.3585
+      },
+      {
+       "startNumber": 490,
+       "endNumber": 979,
+       "productPrice": 3.9954
+      }
+     ],
+     "firstSortAccessId": "ed01977635a7431782c6574574e570d3",
+     "secondSortAccessId": "034a9e679d364d77a078fc9ad4e4118b",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "SkyworksSolutions-SI8274GA1IM1/C17225035",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 490,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 10.7531,
+     "componentCode": "C17225035",
+     "componentBrandEn": "Skyworks Solutions",
+     "componentModelEn": "SI8274GA1-IM1",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2311031405_Skyworks-Solutions-SI8274GA1-IM1_C17225035.pdf",
+     "dataManualFileAccessId": "8602808087170596864",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "SKYWORKS SI8274GA1-IM1",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "DFN-14(5x5)",
+     "describe": "-40\u2103~+125\u2103 1 1.8A 10.5ns 13.3ns 4A DFN-14(5x5) Gate Drivers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Rise Time",
+       "attribute_value_name": "10.5ns"
+      },
+      {
+       "attribute_name_en": "Current - Output High(IOH)",
+       "attribute_value_name": "1.8A"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Enable shutdown\u3001Interleaved conduction protection\u3001Dead-time control"
+      },
+      {
+       "attribute_name_en": "Number of Drivers",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Fall Time",
+       "attribute_value_name": "13.3ns"
+      },
+      {
+       "attribute_name_en": "Current - Output Low(IOL)",
+       "attribute_value_name": "4A"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Gate Drivers",
+     "secondSortName": "Motor Driver ICs",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SI8274</span>GA1-IM1",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 18374332,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Gate Drivers",
+     "erpComponentName": "4\u5b89\u57f9ISO\u9a71\u52a8\u5668\uff0c\u5177\u6709\u9ad8\u77ac\u6001\u6297\u6270\u5ea6",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/gate-drivers_skyworks-solutions-si8274ab1-imr_C17245216.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 7.7847
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 7.7847
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 7.7847
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 3.1071
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 3.0027
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.9521
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.8438
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 2.993
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 7.499
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 7.499
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 7.499
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.8925
+      }
+     ],
+     "firstSortAccessId": "ed01977635a7431782c6574574e570d3",
+     "secondSortAccessId": "034a9e679d364d77a078fc9ad4e4118b",
+     "canPresaleNumber": 0,
+     "componentProductType": 2,
+     "mergedComponentCode": null,
+     "urlSuffix": "SkyworksSolutions-SI8274AB1IMR/C17245216",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 2500,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 2,
+     "initialPrice": 7.7847,
+     "componentCode": "C17245216",
+     "componentBrandEn": "Skyworks Solutions",
+     "componentModelEn": "SI8274AB1-IMR",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2311031406_Skyworks-Solutions-SI8274AB1-IMR_C17245216.pdf",
+     "dataManualFileAccessId": "8603183302366932992",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "SKYWORKS SI8274AB1-IMR",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "LGA-14(5x5)",
+     "describe": "-40\u2103~+125\u2103 1.8A 10.5ns 13.3ns 2 4A LGA-14(5x5) Gate Drivers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Rise Time",
+       "attribute_value_name": "10.5ns"
+      },
+      {
+       "attribute_name_en": "Current - Output High(IOH)",
+       "attribute_value_name": "1.8A"
+      },
+      {
+       "attribute_name_en": "Number of Drivers",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Fall Time",
+       "attribute_value_name": "13.3ns"
+      },
+      {
+       "attribute_name_en": "Current - Output Low(IOL)",
+       "attribute_value_name": "4A"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Gate Drivers",
+     "secondSortName": "Motor Driver ICs",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SI8274</span>AB1-IMR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 18423863,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Gate Drivers",
+     "erpComponentName": "4\u5b89\u57f9ISO\u9a71\u52a8\u5668\uff0c\u5177\u6709\u9ad8\u77ac\u6001\u6297\u6270\u5ea6",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/gate-drivers_skyworks-solutions-si8274gb1-as1_C17294715.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 8.336
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 8.336
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 191,
+       "productPrice": 8.336
+      },
+      {
+       "startNumber": 192,
+       "endNumber": 479,
+       "productPrice": 3.3272
+      },
+      {
+       "startNumber": 480,
+       "endNumber": 1007,
+       "productPrice": 3.2163
+      },
+      {
+       "startNumber": 1008,
+       "endNumber": -1,
+       "productPrice": 3.1609
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 12,
+       "endNumber": 191,
+       "productPrice": 8.0301
+      },
+      {
+       "startNumber": 192,
+       "endNumber": 479,
+       "productPrice": 3.2051
+      },
+      {
+       "startNumber": 1008,
+       "endNumber": -1,
+       "productPrice": 3.0449
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 8.0301
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 8.0301
+      },
+      {
+       "startNumber": 480,
+       "endNumber": 1007,
+       "productPrice": 3.0983
+      }
+     ],
+     "firstSortAccessId": "ed01977635a7431782c6574574e570d3",
+     "secondSortAccessId": "034a9e679d364d77a078fc9ad4e4118b",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "SkyworksSolutions-SI8274GB1AS1/C17294715",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 48,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 2,
+     "initialPrice": 8.336,
+     "componentCode": "C17294715",
+     "componentBrandEn": "Skyworks Solutions",
+     "componentModelEn": "SI8274GB1-AS1",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2311031408_Skyworks-Solutions-SI8274GB1-AS1_C17294715.pdf",
+     "dataManualFileAccessId": "8602781807670534144",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "SKYWORKS SI8274GB1-AS1",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-16",
+     "describe": "-40\u2103~+125\u2103 1.8A 2 4A 4ns 5.5ns IGBT\u3001MOSFET SOIC-16 Gate Drivers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Rise Time",
+       "attribute_value_name": "4ns"
+      },
+      {
+       "attribute_name_en": "Current - Output High(IOH)",
+       "attribute_value_name": "1.8A"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Enable shutdown\u3001Interleaved conduction protection\u3001Dead-time control"
+      },
+      {
+       "attribute_name_en": "Number of Drivers",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Load Type",
+       "attribute_value_name": "IGBT\u3001MOSFET"
+      },
+      {
+       "attribute_name_en": "Fall Time",
+       "attribute_value_name": "5.5ns"
+      },
+      {
+       "attribute_name_en": "Current - Output Low(IOL)",
+       "attribute_value_name": "4A"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Gate Drivers",
+     "secondSortName": "Motor Driver ICs",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SI8274</span>GB1-AS1",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 5,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "Si8274"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-13T19:25:53Z"
+}

@@ -1,0 +1,1630 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 89,
+   "list": [
+    {
+     "componentId": 85144,
+     "componentLibraryType": "expand",
+     "stockCount": 2461,
+     "componentTypeEn": "DC-DC Converters",
+     "erpComponentName": "\u5347\u538b\u578b 1.8V~5.5V",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/dc-dc-converters_sola-ic-slm2169_C83976.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1639
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.131
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.117
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.0994
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.0863
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.0816
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.0957
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1127
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1579
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.0832
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.0786
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1262
+      }
+     ],
+     "firstSortAccessId": "a7ca7be1124b46818df6480f00698e25",
+     "secondSortAccessId": "9023cccfe13e4581b60de0d6c025e808",
+     "canPresaleNumber": 2461,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "SOLAIC-SLM2169/C83976",
+     "leastPatchNumber": 5,
+     "lossNumber": 2,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.4,
+     "preMinPurchaseNum": 69,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.1639,
+     "componentCode": "C83976",
+     "componentBrandEn": "SOLA-IC",
+     "componentModelEn": "SLM2169",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8578687062479781888",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_1811021910_SOLA-IC-SLM2169_C83976.pdf",
+     "dataManualFileAccessId": "8588879335570333696",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "SOLA-IC SLM2169",
+     "minImage": "",
+     "minImageAccessId": "8578687063430266880",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-5",
+     "describe": "-40\u2103~+85\u2103@(TA) 1 1.8V~5.5V 1MHz~1.4MHz 35uA Adjustable Boost Boost External No SOT-23-5 DC-DC Converters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+85\u2103@(TA)"
+      },
+      {
+       "attribute_name_en": "Function",
+       "attribute_value_name": "Boost"
+      },
+      {
+       "attribute_name_en": "Synchronous Rectifier",
+       "attribute_value_name": "No"
+      },
+      {
+       "attribute_name_en": "Frequency - Switching",
+       "attribute_value_name": "1MHz~1.4MHz"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Adjustable"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "1.8V~5.5V"
+      },
+      {
+       "attribute_name_en": "Output Current",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "35uA"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Light load efficient mode"
+      },
+      {
+       "attribute_name_en": "Switch tube (built-in/external)",
+       "attribute_value_name": "External"
+      },
+      {
+       "attribute_name_en": "Topology",
+       "attribute_value_name": "Boost"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Number of Outputs",
+       "attribute_value_name": "1"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "DC-DC Converters",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SLM2</span>169",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 23947666,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "New Arrivals",
+     "erpComponentName": "SLM2304",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0397
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0204
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0382
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0197
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "JLCPCBAssembly-SLM2304/C9900107163",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.1,
+     "preMinPurchaseNum": 443,
+     "minPurchaseNum": 443,
+     "initialPrice": 0.0204,
+     "componentCode": "C9900107163",
+     "componentBrandEn": "JLCPCB Assembly",
+     "componentModelEn": "SLM2304",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "JIALICHUANG SMT SLM2304",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOP-8_L4.9-W3.9-P1.27-LS6.0-TL",
+     "describe": "SOP-8_L4.9-W3.9-P1.27-LS6.0-TL New Arrivals ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "New Arrivals",
+     "secondSortName": "Others",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SLM2</span>304",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 55827681,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "SMT",
+     "erpComponentName": "\u3010\u90ae\u5bc4\u4e13\u7528\u3011SLM215C",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0397
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0204
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0382
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0197
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "JLCPCBAssembly-SLM215C/C9900239046",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 500,
+     "shopCostPrice": 0.1,
+     "preMinPurchaseNum": 443,
+     "minPurchaseNum": 443,
+     "initialPrice": 0.0204,
+     "componentCode": "C9900239046",
+     "componentBrandEn": "JLCPCB Assembly",
+     "componentModelEn": "SLM215C",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "JIALICHUANG SMT SLM215C",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SMD",
+     "describe": "SMD SMT ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "SMT",
+     "secondSortName": "Others",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SLM2</span>15C",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 57153212,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "SMT",
+     "erpComponentName": "\u3010\u90ae\u5bc4\u4e13\u7528\u3011SLM225P",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0397
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0204
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0382
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0197
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 2,
+     "mergedComponentCode": null,
+     "urlSuffix": "JLCPCBAssembly-SLM225P/C9900259449",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 500,
+     "shopCostPrice": 0.1,
+     "preMinPurchaseNum": 443,
+     "minPurchaseNum": 443,
+     "initialPrice": 0.0204,
+     "componentCode": "C9900259449",
+     "componentBrandEn": "JLCPCB Assembly",
+     "componentModelEn": "SLM225P",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "JIALICHUANG SMT SLM225P",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SMD",
+     "describe": "SMD SMT ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "SMT",
+     "secondSortName": "Others",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SLM2</span>25P",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 8409807,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "New Arrivals",
+     "erpComponentName": "SLM2110S",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0397
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0204
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0382
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0197
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Sillumin-SLM2110S/C7423932",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1500,
+     "shopCostPrice": 0.1,
+     "preMinPurchaseNum": 443,
+     "minPurchaseNum": 443,
+     "initialPrice": 0.0204,
+     "componentCode": "C7423932",
+     "componentBrandEn": "Sillumin",
+     "componentModelEn": "SLM2110S",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Sillumin SLM2110S",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-16-W",
+     "describe": "SOIC-16-W New Arrivals ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "New Arrivals",
+     "secondSortName": "Others",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SLM2</span>110S",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 50975004,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "SMT",
+     "erpComponentName": "\u3010\u90ae\u5bc4\u4e13\u7528\u3011SLM27211",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0397
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0204
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0382
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0197
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "JLCPCBAssembly-SLM27211/C9900189000",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1000,
+     "shopCostPrice": 0.1,
+     "preMinPurchaseNum": 443,
+     "minPurchaseNum": 443,
+     "initialPrice": 0.0204,
+     "componentCode": "C9900189000",
+     "componentBrandEn": "JLCPCB Assembly",
+     "componentModelEn": "SLM27211",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "JIALICHUANG SMT SLM27211",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOP-8-150mil",
+     "describe": "SOP-8-150mil SMT ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "SMT",
+     "secondSortName": "Others",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SLM2</span>7211",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 57900377,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "SMT",
+     "erpComponentName": "\u3010\u90ae\u5bc4\u4e13\u7528\u3011SLM225XA",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0397
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0204
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0382
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0197
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "JLCPCBAssembly-SLM225XA/C9900268575",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 500,
+     "shopCostPrice": 0.1,
+     "preMinPurchaseNum": 443,
+     "minPurchaseNum": 443,
+     "initialPrice": 0.0204,
+     "componentCode": "C9900268575",
+     "componentBrandEn": "JLCPCB Assembly",
+     "componentModelEn": "SLM225XA",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "JIALICHUANG SMT SLM225XA",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SMD",
+     "describe": "SMD SMT ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "SMT",
+     "secondSortName": "Others",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SLM2</span>25XA",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 508335,
+     "componentLibraryType": "expand",
+     "stockCount": 538,
+     "componentTypeEn": "Gate Drivers",
+     "erpComponentName": "\u96c6\u6210\u7535\u8def",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/gate-drivers_sillumin-slm2110cg_C496629.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.765
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.61
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.5317
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.4551
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 1499,
+       "productPrice": 0.4127
+      },
+      {
+       "startNumber": 1500,
+       "endNumber": -1,
+       "productPrice": 0.3882
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.7369
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.5877
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.5122
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.4384
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 1499,
+       "productPrice": 0.3975
+      },
+      {
+       "startNumber": 1500,
+       "endNumber": -1,
+       "productPrice": 0.374
+      }
+     ],
+     "firstSortAccessId": "ed01977635a7431782c6574574e570d3",
+     "secondSortAccessId": "034a9e679d364d77a078fc9ad4e4118b",
+     "canPresaleNumber": 527,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Sillumin-SLM2110CG/C496629",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1500,
+     "shopCostPrice": 2.03175,
+     "preMinPurchaseNum": 15,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.765,
+     "componentCode": "C496629",
+     "componentBrandEn": "Sillumin",
+     "componentModelEn": "SLM2110CG",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583025722163781632",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2307281750_Sillumin-SLM2110CG_C496629.pdf",
+     "dataManualFileAccessId": "8588885214407483392",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Sillumin SLM2110CG",
+     "minImage": "",
+     "minImageAccessId": "8583025723070562304",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-16-300mil",
+     "describe": "-40\u2103~+125\u2103 1.6A 10V~20V 140ns 140ns 15ns 1A 2 300uA 9ns IGBT\u3001MOSFET Low Side\u3001High Side Under Voltage Protection SOIC-16-300mil Gate Drivers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Propagation Delay tpHL",
+       "attribute_value_name": "140ns"
+      },
+      {
+       "attribute_name_en": "Driven Configuration",
+       "attribute_value_name": "Low Side\u3001High Side"
+      },
+      {
+       "attribute_name_en": "Current - Output High(IOH)",
+       "attribute_value_name": "1A"
+      },
+      {
+       "attribute_name_en": "Number of Drivers",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Load Type",
+       "attribute_value_name": "IGBT\u3001MOSFET"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - Low",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Quiescent Current(Iq)",
+       "attribute_value_name": "300uA"
+      },
+      {
+       "attribute_name_en": "Fall Time",
+       "attribute_value_name": "9ns"
+      },
+      {
+       "attribute_name_en": "Rise Time",
+       "attribute_value_name": "15ns"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - High",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "10V~20V"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Enable shutdown\u3001Interleaved conduction protection"
+      },
+      {
+       "attribute_name_en": "Propagation Delay tpLH",
+       "attribute_value_name": "140ns"
+      },
+      {
+       "attribute_name_en": "Current - Output Low(IOL)",
+       "attribute_value_name": "1.6A"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Gate Drivers",
+     "secondSortName": "Motor Driver ICs",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SLM2</span>110CG",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4385225,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Screw Terminal Blocks",
+     "erpComponentName": "1x21P 5mm \u76f4\u63d2 \u6392\u6570:1 \u6bcf\u6392P\u6570:21",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/screw-terminal-blocks_amphenol-icc-eslm21100_C3817551.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.3827
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 3.3827
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 3.3827
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.3097
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.2641
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.2412
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.1957
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.2617
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 3.2586
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.2586
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.2177
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 3.2586
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "e955493f42604e9f87b66e88320df6f6",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "AmphenolICC-ESLM21100/C3817551",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 25,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 3,
+     "initialPrice": 3.3827,
+     "componentCode": "C3817551",
+     "componentBrandEn": "Amphenol ICC",
+     "componentModelEn": "ESLM21100",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2401161412_Amphenol-ICC-ESLM21100_C3817551.pdf",
+     "dataManualFileAccessId": "8590428160266706945",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Amphenol ESLM21100",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=5mm",
+     "describe": "-40\u2103~+110\u2103 1 13.5A 14~30 1x21P 21 21P 300V 5mm Black Through Hole \u63d2\u4ef6,P=5mm Screw Terminal Blocks ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+110\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Positions or Pins",
+       "attribute_value_name": "1x21P"
+      },
+      {
+       "attribute_name_en": "Voltage Rating (Max)",
+       "attribute_value_name": "300V"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Color",
+       "attribute_value_name": "Black"
+      },
+      {
+       "attribute_name_en": "Number of Pins",
+       "attribute_value_name": "21P"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "13.5A"
+      },
+      {
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "5mm"
+      },
+      {
+       "attribute_name_en": "Wire Gauge - AWG",
+       "attribute_value_name": "14~30"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Through Hole"
+      },
+      {
+       "attribute_name_en": "Number of PINs Per Row",
+       "attribute_value_name": "21"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Screw Terminal Blocks",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "E<span class='lucene_highlight_class'>SLM2</span>1100",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4385383,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Screw Terminal Blocks",
+     "erpComponentName": "1x23P 5mm \u76f4\u63d2 \u6392\u6570:1 \u6bcf\u6392P\u6570:23",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/screw-terminal-blocks_amphenol-icc-eslm23100_C3817709.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.6975
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 3.6975
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 3.6975
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.4321
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.3815
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.357
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.3072
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.3795
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 3.5618
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.5618
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.3308
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 3.5618
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "e955493f42604e9f87b66e88320df6f6",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "AmphenolICC-ESLM23100/C3817709",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 25,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 3,
+     "initialPrice": 3.6975,
+     "componentCode": "C3817709",
+     "componentBrandEn": "Amphenol ICC",
+     "componentModelEn": "ESLM23100",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2401161414_Amphenol-ICC-ESLM23100_C3817709.pdf",
+     "dataManualFileAccessId": "8590304788261994496",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Amphenol ESLM23100",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=5mm",
+     "describe": "-40\u2103~+110\u2103 1 13.5A 14~30 1x23P 23 23P 300V 5mm Black Through Hole \u63d2\u4ef6,P=5mm Screw Terminal Blocks ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+110\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Positions or Pins",
+       "attribute_value_name": "1x23P"
+      },
+      {
+       "attribute_name_en": "Voltage Rating (Max)",
+       "attribute_value_name": "300V"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Color",
+       "attribute_value_name": "Black"
+      },
+      {
+       "attribute_name_en": "Number of Pins",
+       "attribute_value_name": "23P"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "13.5A"
+      },
+      {
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "5mm"
+      },
+      {
+       "attribute_name_en": "Wire Gauge - AWG",
+       "attribute_value_name": "14~30"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Through Hole"
+      },
+      {
+       "attribute_name_en": "Number of PINs Per Row",
+       "attribute_value_name": "23"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Screw Terminal Blocks",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "E<span class='lucene_highlight_class'>SLM2</span>3100",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4387499,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Screw Terminal Blocks",
+     "erpComponentName": "1x20P 5mm \u76f4\u63d2 \u6392\u6570:1 \u6bcf\u6392P\u6570:20",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/screw-terminal-blocks_amphenol-icc-eslm20100_C3819825.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.2147
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 3.2147
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 3.2147
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.2445
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.2005
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.1792
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.136
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.1988
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 3.0967
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.0967
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.1564
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 3.0967
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "e955493f42604e9f87b66e88320df6f6",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "AmphenolICC-ESLM20100/C3819825",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 25,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 3,
+     "initialPrice": 3.2147,
+     "componentCode": "C3819825",
+     "componentBrandEn": "Amphenol ICC",
+     "componentModelEn": "ESLM20100",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2401161441_Amphenol-ICC-ESLM20100_C3819825.pdf",
+     "dataManualFileAccessId": "8590238422431260672",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Amphenol ESLM20100",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=5mm",
+     "describe": "-40\u2103~+110\u2103 1 13.5A 14~30 1x20P 20 20P 300V 5mm Black Through Hole \u63d2\u4ef6,P=5mm Screw Terminal Blocks ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+110\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Positions or Pins",
+       "attribute_value_name": "1x20P"
+      },
+      {
+       "attribute_name_en": "Voltage Rating (Max)",
+       "attribute_value_name": "300V"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Color",
+       "attribute_value_name": "Black"
+      },
+      {
+       "attribute_name_en": "Number of Pins",
+       "attribute_value_name": "20P"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "13.5A"
+      },
+      {
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "5mm"
+      },
+      {
+       "attribute_name_en": "Wire Gauge - AWG",
+       "attribute_value_name": "14~30"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Through Hole"
+      },
+      {
+       "attribute_name_en": "Number of PINs Per Row",
+       "attribute_value_name": "20"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Screw Terminal Blocks",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "E<span class='lucene_highlight_class'>SLM2</span>0100",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 5925964,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "New Arrivals",
+     "erpComponentName": "SLM211AAC",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0397
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0204
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0382
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0197
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "Sillumin-SLM211AAC/C5224322",
+     "leastPatchNumber": 5,
+     "lossNumber": 4,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.1,
+     "preMinPurchaseNum": 443,
+     "minPurchaseNum": 443,
+     "initialPrice": 0.0204,
+     "componentCode": "C5224322",
+     "componentBrandEn": "Sillumin",
+     "componentModelEn": "SLM211AAC",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Sillumin SLM211AAC",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-6",
+     "describe": "SOT-23-6 New Arrivals ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "New Arrivals",
+     "secondSortName": "Others",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SLM2</span>11AAC",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 8,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "SLM2"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-13T19:25:55Z"
+}

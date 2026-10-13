@@ -1,0 +1,2511 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 291,
+   "list": [
+    {
+     "componentId": 49323233,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "SMT",
+     "erpComponentName": "SN74LVC2G14-Q1",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0397
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0204
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0382
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0197
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "JLCPCBAssembly-SN74LVC2G14Q1/C9900181460",
+     "leastPatchNumber": 5,
+     "lossNumber": 4,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1000,
+     "shopCostPrice": 0.1,
+     "preMinPurchaseNum": 443,
+     "minPurchaseNum": 443,
+     "initialPrice": 0.0204,
+     "componentCode": "C9900181460",
+     "componentBrandEn": "JLCPCB Assembly",
+     "componentModelEn": "SN74LVC2G14-Q1",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "JIALICHUANG SMT SN74LVC2G14-Q1",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-6",
+     "describe": "SOT-23-6 SMT ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "SMT",
+     "secondSortName": "Others",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SN74LVC2G</span>14-Q1",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 8326,
+     "componentLibraryType": "expand",
+     "stockCount": 44137,
+     "componentTypeEn": "Buffers, Drivers, Receivers, Transceivers",
+     "erpComponentName": "\u53cc\u8def\u7f13\u51b2\u5668/\u9a71\u52a8\u5668\uff0c\u6f0f\u6781\u5f00\u8def\u8f93\u51fa",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/buffers-drivers-receivers-transceivers_texas-instruments-sn74lvc2g07dckr_C7849.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.125
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.0989
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.0858
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.0761
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.0684
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.0645
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.0659
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.0953
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.0827
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1204
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.0733
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.0621
+      }
+     ],
+     "firstSortAccessId": "4df5ced1315c4bd285a97161ea2bc238",
+     "secondSortAccessId": "aacddf4cc3394b46b12fb2a3aed92158",
+     "canPresaleNumber": 43820,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-SN74LVC2G07DCKR/C7849",
+     "leastPatchNumber": 5,
+     "lossNumber": 2,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.33235,
+     "preMinPurchaseNum": 92,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.125,
+     "componentCode": "C7849",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "SN74LVC2G07DCKR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8552847061150932992",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_1809192119_Texas-Instruments-SN74LVC2G07DCKR_C7849.pdf",
+     "dataManualFileAccessId": "8586171697082458112",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/sn74lvc2g07",
+     "componentName": "TI SN74LVC2G07DCKR",
+     "minImage": "",
+     "minImageAccessId": "8552847061805514752",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SC-70-6",
+     "describe": "-40\u2103~+125\u2103 1 1.65V~5.5V 10uA 2 3.7ns@3.3V,50pF 32mA 74LVC Open-drain Unidirectional SC-70-6 Buffers, Drivers, Receivers, Transceivers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Input type",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Propagation Delay",
+       "attribute_value_name": "3.7ns@3.3V,50pF"
+      },
+      {
+       "attribute_name_en": "Number of Bits per Element",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "1.65V~5.5V"
+      },
+      {
+       "attribute_name_en": "Channel Type",
+       "attribute_value_name": "Unidirectional"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "10uA"
+      },
+      {
+       "attribute_name_en": "Current - Output High(IOH)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Power-off isolation\u3001Level shifting"
+      },
+      {
+       "attribute_name_en": "Number of Elements",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Logic Family",
+       "attribute_value_name": "74LVC"
+      },
+      {
+       "attribute_name_en": "output type",
+       "attribute_value_name": "Open-drain"
+      },
+      {
+       "attribute_name_en": "Current - Output Low(IOL)",
+       "attribute_value_name": "32mA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Buffers, Drivers, Receivers, Transceivers",
+     "secondSortName": "Logic",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SN74LVC2G</span>07DCKR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 8328,
+     "componentLibraryType": "expand",
+     "stockCount": 191,
+     "componentTypeEn": "Flip Flops",
+     "erpComponentName": "\u5355\u6b63\u6cbf\u89e6\u53d1D\u578b\u89e6\u53d1\u5668\uff0c\u5e26\u6e05\u96f6\u548c\u9884\u7f6e\u529f\u80fd",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/flip-flops_texas-instruments-sn74lvc2g74dcur_C7851.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.9591
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.7764
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.6851
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.5937
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.5399
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.4828
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.6599
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.7479
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.4651
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.9239
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.5719
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.5201
+      }
+     ],
+     "firstSortAccessId": "4df5ced1315c4bd285a97161ea2bc238",
+     "secondSortAccessId": "15e8243d216d4c8ebd623a2a8504e14b",
+     "canPresaleNumber": 98,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-SN74LVC2G74DCUR/C7851",
+     "leastPatchNumber": 5,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 2.76242,
+     "preMinPurchaseNum": 12,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.9591,
+     "componentCode": "C7851",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "SN74LVC2G74DCUR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583415436335583232",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_1809142018_Texas-Instruments-SN74LVC2G74DCUR_C7851.pdf",
+     "dataManualFileAccessId": "8588905674872512512",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/sn74lvc2g74",
+     "componentName": "TI SN74LVC2G74DCUR",
+     "minImage": "",
+     "minImageAccessId": "8583415437195685888",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "VSSOP-8",
+     "describe": "-40\u2103~+125\u2103 1 1 1.1ns 1.65V~5.5V 10uA 200MHz 32mA 32mA 4.4ns@5V,50pF 500ps 5pF 74LVC Series Asynchronous Complementary D-Type Rising Edge Set and Reset VSSOP-8 Flip Flops ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Clock Frequency",
+       "attribute_value_name": "200MHz"
+      },
+      {
+       "attribute_name_en": "Propagation Delay",
+       "attribute_value_name": "4.4ns@5V,50pF"
+      },
+      {
+       "attribute_name_en": "Synchronous/Asynchronous",
+       "attribute_value_name": "Asynchronous"
+      },
+      {
+       "attribute_name_en": "Number of Bits per Element",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Complementary"
+      },
+      {
+       "attribute_name_en": "Trigger Type",
+       "attribute_value_name": "Rising Edge"
+      },
+      {
+       "attribute_name_en": "Current - Output High(IOH)",
+       "attribute_value_name": "32mA"
+      },
+      {
+       "attribute_name_en": "Setup Time",
+       "attribute_value_name": "1.1ns"
+      },
+      {
+       "attribute_name_en": "Series",
+       "attribute_value_name": "74LVC Series"
+      },
+      {
+       "attribute_name_en": "Function",
+       "attribute_value_name": "Set and Reset"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "D-Type"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "1.65V~5.5V"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "10uA"
+      },
+      {
+       "attribute_name_en": "Number of Elements",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Hold Time",
+       "attribute_value_name": "500ps"
+      },
+      {
+       "attribute_name_en": "Input Capacitance",
+       "attribute_value_name": "5pF"
+      },
+      {
+       "attribute_name_en": "Current - Output Low(IOL)",
+       "attribute_value_name": "32mA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Flip Flops",
+     "secondSortName": "Logic",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SN74LVC2G</span>74DCUR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 10971,
+     "componentLibraryType": "expand",
+     "stockCount": 39142,
+     "componentTypeEn": "Inverters",
+     "erpComponentName": "\u53cc\u8def\u53cd\u76f8\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/inverters_texas-instruments-sn74lvc2g04dbvr_C10428.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.4482
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.3613
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.324
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.2775
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.2568
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.2444
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.2473
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.3121
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.2673
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.4318
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.3481
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.2354
+      }
+     ],
+     "firstSortAccessId": "4df5ced1315c4bd285a97161ea2bc238",
+     "secondSortAccessId": "e0ff19b59ab74958ab0531fa1370da93",
+     "canPresaleNumber": 38450,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-SN74LVC2G04DBVR/C10428",
+     "leastPatchNumber": 5,
+     "lossNumber": 2,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.90118,
+     "preMinPurchaseNum": 21,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.4482,
+     "componentCode": "C10428",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "SN74LVC2G04DBVR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8553297813372366848",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_1811092004_Texas-Instruments-SN74LVC2G04DBVR_C10428.pdf",
+     "dataManualFileAccessId": "8586172383904743424",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/sn74lvc2g04",
+     "componentName": "TI SN74LVC2G04DBVR",
+     "minImage": "",
+     "minImageAccessId": "8553297814181867520",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-6",
+     "describe": "-40\u2103~+85\u2103 1.65V~5.5V 1.7V~2V 10uA 2 2 2.4V 3.2ns@5V,50pF 32mA 32mA 550mV 700mV~800mV 74LVC \u7535\u6e90\u5173\u65ad\u4fdd\u62a4 SOT-23-6 Inverters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Output Logic Level - Low",
+       "attribute_value_name": "550mV"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+85\u2103"
+      },
+      {
+       "attribute_name_en": "Propagation Delay",
+       "attribute_value_name": "3.2ns@5V,50pF"
+      },
+      {
+       "attribute_name_en": "Input Type",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Output Logic Level - High",
+       "attribute_value_name": "2.4V"
+      },
+      {
+       "attribute_name_en": "Current - Output High(IOH)",
+       "attribute_value_name": "32mA"
+      },
+      {
+       "attribute_name_en": "Quiescent Current(Iq)",
+       "attribute_value_name": "10uA"
+      },
+      {
+       "attribute_name_en": "Series",
+       "attribute_value_name": "74LVC"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - High",
+       "attribute_value_name": "1.7V~2V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "1.65V~5.5V"
+      },
+      {
+       "attribute_name_en": "Input Logic Level -Low",
+       "attribute_value_name": "700mV~800mV"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Power shutdown protection"
+      },
+      {
+       "attribute_name_en": "Number of Circuits",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Current - Output Low(IOL)",
+       "attribute_value_name": "32mA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Inverters",
+     "secondSortName": "Logic",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SN74LVC2G</span>04DBVR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 10972,
+     "componentLibraryType": "expand",
+     "stockCount": 35671,
+     "componentTypeEn": "Buffers, Drivers, Receivers, Transceivers",
+     "erpComponentName": "\u53cc\u65bd\u5bc6\u7279\u89e6\u53d1\u5668\u7f13\u51b2\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/buffers-drivers-receivers-transceivers_texas-instruments-sn74lvc2g17dbvr_C10429.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2282
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1743
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.148
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.1245
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.118
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.1141
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.1136
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1679
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.1099
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.1199
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2199
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1426
+      }
+     ],
+     "firstSortAccessId": "4df5ced1315c4bd285a97161ea2bc238",
+     "secondSortAccessId": "aacddf4cc3394b46b12fb2a3aed92158",
+     "canPresaleNumber": 34284,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-SN74LVC2G17DBVR/C10429",
+     "leastPatchNumber": 5,
+     "lossNumber": 4,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.65968,
+     "preMinPurchaseNum": 40,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.2282,
+     "componentCode": "C10429",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "SN74LVC2G17DBVR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8553297844594360320",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_1809200013_Texas-Instruments-SN74LVC2G17DBVR_C10429.pdf",
+     "dataManualFileAccessId": "8586172395518771200",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/sn74lvc2g17",
+     "componentName": "TI SN74LVC2G17DBVR",
+     "minImage": "",
+     "minImageAccessId": "8553297845139890176",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-6",
+     "describe": "-40\u2103~+85\u2103 1 1.65V~5.5V 10uA 2 32mA 32mA 5.4ns@3.3V,50pF 74LVC Schmitt trigger SOT-23-6 Buffers, Drivers, Receivers, Transceivers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Input type",
+       "attribute_value_name": "Schmitt trigger"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+85\u2103"
+      },
+      {
+       "attribute_name_en": "Propagation Delay",
+       "attribute_value_name": "5.4ns@3.3V,50pF"
+      },
+      {
+       "attribute_name_en": "Number of Bits per Element",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "1.65V~5.5V"
+      },
+      {
+       "attribute_name_en": "Channel Type",
+       "attribute_value_name": "Unidirectional"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "10uA"
+      },
+      {
+       "attribute_name_en": "Current - Output High(IOH)",
+       "attribute_value_name": "32mA"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Power-off isolation"
+      },
+      {
+       "attribute_name_en": "Number of Elements",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Logic Family",
+       "attribute_value_name": "74LVC"
+      },
+      {
+       "attribute_name_en": "Current - Output Low(IOL)",
+       "attribute_value_name": "32mA"
+      },
+      {
+       "attribute_name_en": "output type",
+       "attribute_value_name": "-"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Buffers, Drivers, Receivers, Transceivers",
+     "secondSortName": "Logic",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SN74LVC2G</span>17DBVR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 13032,
+     "componentLibraryType": "expand",
+     "stockCount": 14,
+     "componentTypeEn": "Inverters",
+     "erpComponentName": "\u53cc\u8def\u65bd\u5bc6\u7279\u89e6\u53d1\u53cd\u76f8\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/inverters_texas-instruments-sn74lvc2g14dbvr_C12401.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2127
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1642
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1406
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.1194
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.1137
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.1101
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.1096
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1355
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.1061
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.1151
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2049
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1582
+      }
+     ],
+     "firstSortAccessId": "4df5ced1315c4bd285a97161ea2bc238",
+     "secondSortAccessId": "e0ff19b59ab74958ab0531fa1370da93",
+     "canPresaleNumber": -784,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-SN74LVC2G14DBVR/C12401",
+     "leastPatchNumber": 5,
+     "lossNumber": 2,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.58738,
+     "preMinPurchaseNum": 43,
+     "minPurchaseNum": 43,
+     "initialPrice": 0.2127,
+     "componentCode": "C12401",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "SN74LVC2G14DBVR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8553339083805253633",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_1810171910_Texas-Instruments-SN74LVC2G14DBVR_C12401.pdf",
+     "dataManualFileAccessId": "8586172350904094720",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/sn74lvc2g14",
+     "componentName": "TI SN74LVC2G14DBVR",
+     "minImage": "",
+     "minImageAccessId": "8553339084522344448",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-6",
+     "describe": "-40\u2103~+125\u2103 1.4V~3.7V 1.65V~5.5V 10uA 2 2 300mV~1.4V 32mA 32mA 4.7ns@5V,50pF 74LVC Series Schmitt trigger SOT-23-6 Inverters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Output Logic Level - Low",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Input Type",
+       "attribute_value_name": "Schmitt trigger"
+      },
+      {
+       "attribute_name_en": "Propagation Delay",
+       "attribute_value_name": "4.7ns@5V,50pF"
+      },
+      {
+       "attribute_name_en": "Output Logic Level - High",
+       "attribute_value_name": "1.2V\u30011.9V\u30012.3V\u30012.4V\u30013.8V"
+      },
+      {
+       "attribute_name_en": "Current - Output High(IOH)",
+       "attribute_value_name": "32mA"
+      },
+      {
+       "attribute_name_en": "Quiescent Current(Iq)",
+       "attribute_value_name": "10uA"
+      },
+      {
+       "attribute_name_en": "Series",
+       "attribute_value_name": "74LVC"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - High",
+       "attribute_value_name": "1.4V~3.7V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "1.65V~5.5V"
+      },
+      {
+       "attribute_name_en": "Input Logic Level -Low",
+       "attribute_value_name": "300mV~1.4V"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Power shutdown protection\u3001Noise suppression function"
+      },
+      {
+       "attribute_name_en": "Number of Circuits",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Current - Output Low(IOL)",
+       "attribute_value_name": "32mA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Inverters",
+     "secondSortName": "Logic",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SN74LVC2G</span>14DBVR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 15123,
+     "componentLibraryType": "expand",
+     "stockCount": 22343,
+     "componentTypeEn": "Buffers, Drivers, Receivers, Transceivers",
+     "erpComponentName": "\u53cc\u7f13\u51b2\u95e8",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/buffers-drivers-receivers-transceivers_texas-instruments-sn74lvc2g34dckr_C14461.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1594
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1287
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1136
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.102
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.0929
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.0883
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.0894
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1094
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.085
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.0982
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1535
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.124
+      }
+     ],
+     "firstSortAccessId": "4df5ced1315c4bd285a97161ea2bc238",
+     "secondSortAccessId": "aacddf4cc3394b46b12fb2a3aed92158",
+     "canPresaleNumber": 22084,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-SN74LVC2G34DCKR/C14461",
+     "leastPatchNumber": 5,
+     "lossNumber": 2,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.3908,
+     "preMinPurchaseNum": 71,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.1594,
+     "componentCode": "C14461",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "SN74LVC2G34DCKR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583000968263188480",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_1809191825_Texas-Instruments-SN74LVC2G34DCKR_C14461.pdf",
+     "dataManualFileAccessId": "8586202567621677056",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/sn74lvc2g34",
+     "componentName": "TI SN74LVC2G34DCKR",
+     "minImage": "",
+     "minImageAccessId": "8583000969227878400",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SC-70-6",
+     "describe": "-40\u2103~+85\u2103 1 1.65V~5.5V 10uA 2 32mA 32mA 4.1ns@3.3V,50pF 74LVC Unidirectional SC-70-6 Buffers, Drivers, Receivers, Transceivers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Input type",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Propagation Delay",
+       "attribute_value_name": "4.1ns@3.3V,50pF"
+      },
+      {
+       "attribute_name_en": "Number of Bits per Element",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "1.65V~5.5V"
+      },
+      {
+       "attribute_name_en": "Channel Type",
+       "attribute_value_name": "Unidirectional"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "10uA"
+      },
+      {
+       "attribute_name_en": "Current - Output High(IOH)",
+       "attribute_value_name": "32mA"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Power-off isolation"
+      },
+      {
+       "attribute_name_en": "Number of Elements",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Logic Family",
+       "attribute_value_name": "74LVC"
+      },
+      {
+       "attribute_name_en": "Current - Output Low(IOL)",
+       "attribute_value_name": "32mA"
+      },
+      {
+       "attribute_name_en": "output type",
+       "attribute_value_name": "-"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Buffers, Drivers, Receivers, Transceivers",
+     "secondSortName": "Logic",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SN74LVC2G</span>34DCKR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 38340,
+     "componentLibraryType": "expand",
+     "stockCount": 43446,
+     "componentTypeEn": "Inverters",
+     "erpComponentName": "\u53cc\u8def\u65bd\u5bc6\u7279\u89e6\u53d1\u53cd\u76f8\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/inverters_texas-instruments-sn74lvc2g14dckr_C37361.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2103
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1609
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1397
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.1131
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.1013
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.0943
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.0976
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1345
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.0909
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.1089
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2026
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.155
+      }
+     ],
+     "firstSortAccessId": "4df5ced1315c4bd285a97161ea2bc238",
+     "secondSortAccessId": "e0ff19b59ab74958ab0531fa1370da93",
+     "canPresaleNumber": 43304,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-SN74LVC2G14DCKR/C37361",
+     "leastPatchNumber": 5,
+     "lossNumber": 4,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.50791,
+     "preMinPurchaseNum": 43,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.2103,
+     "componentCode": "C37361",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "SN74LVC2G14DCKR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8553668382923767808",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_1809042017_Texas-Instruments-SN74LVC2G14DCKR_C37361.pdf",
+     "dataManualFileAccessId": "8586177105252536320",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/sn74lvc2g14",
+     "componentName": "TI SN74LVC2G14DCKR",
+     "minImage": "",
+     "minImageAccessId": "8553668383531806720",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SC-70-6(SOT-363)",
+     "describe": "-40\u2103~+125\u2103 1.4V~3.7V 1.65V~5.5V 10uA 2 2 3.8V 300mV~1.4V 32mA 32mA 4.7ns@5V,50pF 550mV 74LVC Schmitt trigger \u7535\u6e90\u5173\u65ad\u4fdd\u62a4\u3001\u566a\u58f0\u6291\u5236\u529f\u80fd SC-70-6(SOT-363) Inverters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Output Logic Level - Low",
+       "attribute_value_name": "550mV"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Input Type",
+       "attribute_value_name": "Schmitt trigger"
+      },
+      {
+       "attribute_name_en": "Propagation Delay",
+       "attribute_value_name": "4.7ns@5V,50pF"
+      },
+      {
+       "attribute_name_en": "Output Logic Level - High",
+       "attribute_value_name": "3.8V"
+      },
+      {
+       "attribute_name_en": "Current - Output High(IOH)",
+       "attribute_value_name": "32mA"
+      },
+      {
+       "attribute_name_en": "Quiescent Current(Iq)",
+       "attribute_value_name": "10uA"
+      },
+      {
+       "attribute_name_en": "Series",
+       "attribute_value_name": "74LVC"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - High",
+       "attribute_value_name": "1.4V~3.7V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "1.65V~5.5V"
+      },
+      {
+       "attribute_name_en": "Input Logic Level -Low",
+       "attribute_value_name": "300mV~1.4V"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Power shutdown protection\u3001Noise suppression function"
+      },
+      {
+       "attribute_name_en": "Number of Circuits",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Current - Output Low(IOL)",
+       "attribute_value_name": "32mA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Inverters",
+     "secondSortName": "Logic",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SN74LVC2G</span>14DCKR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 38688,
+     "componentLibraryType": "expand",
+     "stockCount": 144133,
+     "componentTypeEn": "Buffers, Drivers, Receivers, Transceivers",
+     "erpComponentName": "\u53cc\u8def\u7f13\u51b2\u5668/\u9a71\u52a8\u5668\uff0c\u6f0f\u6781\u5f00\u8def\u8f93\u51fa",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/buffers-drivers-receivers-transceivers_texas-instruments-sn74lvc2g07dbvr_C37708.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.0907
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.0713
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.0615
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.0542
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.0483
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.0454
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.0466
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.0687
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.0437
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.0522
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.0874
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.0593
+      }
+     ],
+     "firstSortAccessId": "4df5ced1315c4bd285a97161ea2bc238",
+     "secondSortAccessId": "aacddf4cc3394b46b12fb2a3aed92158",
+     "canPresaleNumber": 143577,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-SN74LVC2G07DBVR/C37708",
+     "leastPatchNumber": 5,
+     "lossNumber": 2,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.24927,
+     "preMinPurchaseNum": 127,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.0907,
+     "componentCode": "C37708",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "SN74LVC2G07DBVR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8553668818192130049",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_1809051025_Texas-Instruments-SN74LVC2G07DBVR_C37708.pdf",
+     "dataManualFileAccessId": "8586177234004951040",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/sn74lvc2g07",
+     "componentName": "TI SN74LVC2G07DBVR",
+     "minImage": "",
+     "minImageAccessId": "8553668818787450880",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-6",
+     "describe": "-40\u2103~+125\u2103 1 1.65V~5.5V 10uA 2 3.7ns@3.3V,50pF 32mA 74LVC Open-drain Unidirectional SOT-23-6 Buffers, Drivers, Receivers, Transceivers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Input type",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Propagation Delay",
+       "attribute_value_name": "3.7ns@3.3V,50pF"
+      },
+      {
+       "attribute_name_en": "Number of Bits per Element",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "1.65V~5.5V"
+      },
+      {
+       "attribute_name_en": "Channel Type",
+       "attribute_value_name": "Unidirectional"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "10uA"
+      },
+      {
+       "attribute_name_en": "Current - Output High(IOH)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Power-off isolation\u3001Level shifting"
+      },
+      {
+       "attribute_name_en": "Number of Elements",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Logic Family",
+       "attribute_value_name": "74LVC"
+      },
+      {
+       "attribute_name_en": "output type",
+       "attribute_value_name": "Open-drain"
+      },
+      {
+       "attribute_name_en": "Current - Output Low(IOL)",
+       "attribute_value_name": "32mA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Buffers, Drivers, Receivers, Transceivers",
+     "secondSortName": "Logic",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SN74LVC2G</span>07DBVR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 51724,
+     "componentLibraryType": "expand",
+     "stockCount": 36646,
+     "componentTypeEn": "Buffers, Drivers, Receivers, Transceivers",
+     "erpComponentName": "\u53cc\u65bd\u5bc6\u7279\u89e6\u53d1\u5668\u7f13\u51b2\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/buffers-drivers-receivers-transceivers_texas-instruments-sn74lvc2g17dckr_C50714.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1767
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1406
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1251
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.1059
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.0973
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.092
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.0937
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1702
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1355
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.102
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1206
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.0887
+      }
+     ],
+     "firstSortAccessId": "4df5ced1315c4bd285a97161ea2bc238",
+     "secondSortAccessId": "aacddf4cc3394b46b12fb2a3aed92158",
+     "canPresaleNumber": 36385,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-SN74LVC2G17DCKR/C50714",
+     "leastPatchNumber": 5,
+     "lossNumber": 2,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.43536,
+     "preMinPurchaseNum": 65,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.1767,
+     "componentCode": "C50714",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "SN74LVC2G17DCKR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583000855532744704",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_1810131710_Texas-Instruments-SN74LVC2G17DCKR_C50714.pdf",
+     "dataManualFileAccessId": "8586202642897256448",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/sn74lvc2g17",
+     "componentName": "TI SN74LVC2G17DCKR",
+     "minImage": "",
+     "minImageAccessId": "8583000856413548544",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SC-70-6",
+     "describe": "-40\u2103~+125\u2103 1 1.65V~5.5V 10uA 2 32mA 32mA 5.4ns@3.3V,50pF 74LVC Push-pull Schmitt trigger SC-70-6 Buffers, Drivers, Receivers, Transceivers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Input type",
+       "attribute_value_name": "Schmitt trigger"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Propagation Delay",
+       "attribute_value_name": "5.4ns@3.3V,50pF"
+      },
+      {
+       "attribute_name_en": "Number of Bits per Element",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "1.65V~5.5V"
+      },
+      {
+       "attribute_name_en": "Channel Type",
+       "attribute_value_name": "Unidirectional"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "10uA"
+      },
+      {
+       "attribute_name_en": "Current - Output High(IOH)",
+       "attribute_value_name": "32mA"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Power-off isolation\u3001Level shifting"
+      },
+      {
+       "attribute_name_en": "Number of Elements",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Logic Family",
+       "attribute_value_name": "74LVC"
+      },
+      {
+       "attribute_name_en": "output type",
+       "attribute_value_name": "Push-pull"
+      },
+      {
+       "attribute_name_en": "Current - Output Low(IOL)",
+       "attribute_value_name": "32mA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Buffers, Drivers, Receivers, Transceivers",
+     "secondSortName": "Logic",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SN74LVC2G</span>17DCKR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 80477,
+     "componentLibraryType": "expand",
+     "stockCount": 473,
+     "componentTypeEn": "Flip Flops",
+     "erpComponentName": "\u5355\u6b63\u6cbf\u89e6\u53d1D\u578b\u89e6\u53d1\u5668\uff0c\u5e26\u6e05\u96f6\u548c\u7f6e\u4f4d\u529f\u80fd",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/flip-flops_texas-instruments-sn74lvc2g74dctr_C79339.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.8286
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.6622
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.579
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.4975
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.4486
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.4225
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.4792
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.407
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.5578
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.6379
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.4321
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.7982
+      }
+     ],
+     "firstSortAccessId": "4df5ced1315c4bd285a97161ea2bc238",
+     "secondSortAccessId": "15e8243d216d4c8ebd623a2a8504e14b",
+     "canPresaleNumber": 416,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-SN74LVC2G74DCTR/C79339",
+     "leastPatchNumber": 5,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 2.35134,
+     "preMinPurchaseNum": 14,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.8286,
+     "componentCode": "C79339",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "SN74LVC2G74DCTR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583016384754290688",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_1809131530_Texas-Instruments-SN74LVC2G74DCTR_C79339.pdf",
+     "dataManualFileAccessId": "8588884105269927936",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/sn74lvc2g74",
+     "componentName": "TI SN74LVC2G74DCTR",
+     "minImage": "",
+     "minImageAccessId": "8583016385659854848",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "MSOP-8",
+     "describe": "-40\u2103~+125\u2103 1 1 1.3ns 1.65V~5.5V 10uA 200MHz 32mA 32mA 4.4ns@5V,50pF 500ps 5pF 74LVC Series Asynchronous Complementary type D-Type Rising Edge Set and Reset MSOP-8 Flip Flops ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Clock Frequency",
+       "attribute_value_name": "200MHz"
+      },
+      {
+       "attribute_name_en": "Propagation Delay",
+       "attribute_value_name": "4.4ns@5V,50pF"
+      },
+      {
+       "attribute_name_en": "Synchronous/Asynchronous",
+       "attribute_value_name": "Asynchronous"
+      },
+      {
+       "attribute_name_en": "Number of Bits per Element",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Complementary"
+      },
+      {
+       "attribute_name_en": "Trigger Type",
+       "attribute_value_name": "Rising Edge"
+      },
+      {
+       "attribute_name_en": "Current - Output High(IOH)",
+       "attribute_value_name": "32mA"
+      },
+      {
+       "attribute_name_en": "Setup Time",
+       "attribute_value_name": "1.3ns"
+      },
+      {
+       "attribute_name_en": "Series",
+       "attribute_value_name": "74LVC Series"
+      },
+      {
+       "attribute_name_en": "Function",
+       "attribute_value_name": "Set and Reset"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "D-Type"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "1.65V~5.5V"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "10uA"
+      },
+      {
+       "attribute_name_en": "Number of Elements",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Hold Time",
+       "attribute_value_name": "500ps"
+      },
+      {
+       "attribute_name_en": "Input Capacitance",
+       "attribute_value_name": "5pF"
+      },
+      {
+       "attribute_name_en": "Current - Output Low(IOL)",
+       "attribute_value_name": "32mA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Flip Flops",
+     "secondSortName": "Logic",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SN74LVC2G</span>74DCTR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 93061,
+     "componentLibraryType": "expand",
+     "stockCount": 73,
+     "componentTypeEn": "Logic Gates",
+     "erpComponentName": "\u53cc\u8def2\u8f93\u5165\u6b63\u4e0e\u95e8",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/logic-gates_texas-instruments-sn74lvc2g08dcut_C91872.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.158
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.9509
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 249,
+       "productPrice": 0.8465
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.6867
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.6247
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.5937
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.1156
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.916
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 249,
+       "productPrice": 0.8155
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.6615
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.6018
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.5719
+      }
+     ],
+     "firstSortAccessId": "4df5ced1315c4bd285a97161ea2bc238",
+     "secondSortAccessId": "8a5c5fc4ea64473f9dd1615c34608d41",
+     "canPresaleNumber": 71,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-SN74LVC2G08DCUT/C91872",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 250,
+     "shopCostPrice": 2.95267,
+     "preMinPurchaseNum": 8,
+     "minPurchaseNum": 1,
+     "initialPrice": 1.158,
+     "componentCode": "C91872",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "SN74LVC2G08DCUT",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8769233440744837120",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_1806011018_Texas-Instruments-SN74LVC2G08DCUT_C91872.pdf",
+     "dataManualFileAccessId": "8588881865612660736",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/sn74lvc2g08",
+     "componentName": "TI SN74LVC2G08DCUT",
+     "minImage": "",
+     "minImageAccessId": "8769233441802072064",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "VSSOP-8-0.5mm",
+     "describe": "-40\u2103~+125\u2103 1.2V\u30011.9V\u30013.8V 1.65V~5.5V 1.7V\u30012V 10uA 2 2 3.8ns@5V,50pF 300mV\u3001450mV\u3001550mV 32mA 32mA 700mV\u3001800mV 74LVC Series AND Gate Overvoltage-tolerant input\u3001Rear drive protection\u3001Level shifting\u3001Local shutdown mode\u3001Live insertion protection VSSOP-8-0.5mm Logic Gates ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Output Logic Level - Low",
+       "attribute_value_name": "300mV\u3001450mV\u3001550mV"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Propagation Delay",
+       "attribute_value_name": "3.8ns@5V,50pF"
+      },
+      {
+       "attribute_name_en": "Output Logic Level - High",
+       "attribute_value_name": "1.2V\u30011.9V\u30013.8V"
+      },
+      {
+       "attribute_name_en": "Logic Type",
+       "attribute_value_name": "AND Gate"
+      },
+      {
+       "attribute_name_en": "Current - Output High(IOH)",
+       "attribute_value_name": "32mA"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - Low",
+       "attribute_value_name": "700mV\u3001800mV"
+      },
+      {
+       "attribute_name_en": "Series",
+       "attribute_value_name": "74LVC Series"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - High",
+       "attribute_value_name": "1.7V\u30012V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "1.65V~5.5V"
+      },
+      {
+       "attribute_name_en": "Number of Gates",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "10uA"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Overvoltage-tolerant input\u3001Rear drive protection\u3001Local shutdown mode\u3001Live insertion protection"
+      },
+      {
+       "attribute_name_en": "Inputs per Gates",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Current - Output Low(IOL)",
+       "attribute_value_name": "32mA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Logic Gates",
+     "secondSortName": "Logic",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SN74LVC2G</span>08DCUT",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 25,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "SN74LVC2G"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-13T19:26:12Z"
+}
