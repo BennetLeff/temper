@@ -1,0 +1,90 @@
+{
+  "date": "2026-10-13",
+  "agent_model": "gpt-6-sol",
+  "resource_count": 6,
+  "criterion_count": 179,
+  "resources": [
+    {
+      "id": "bogatin-practical",
+      "source": "/Users/bennet/Downloads/Bogatin's Practical Guide to Prototype Breadboard and PCB -- Eric Bogatin -- Bogatins Practical Guide to, 2021 -- Artech House Publishers -- isbn13 9781630818487 -- e23f14cafd6c0ab9c609a0aa9820742e -- Anna’s Archive.pdf",
+      "sha256": "40b8afb192846722a6c75e980fb9c7f0424d7032f6670824b6aecf763ca67997",
+      "pdf_pages": 521,
+      "rubric": "bogatin-practical.md",
+      "criterion_count": 28,
+      "word_count": 5283,
+      "rubric_sha256": "1e3e1805c24623411f09495dbfefb16b88b5bbafb48eb53b7e292a068711e951"
+    },
+    {
+      "id": "ott-emc",
+      "source": "/Users/bennet/Downloads/Electromagnetic Compatibility Engineering -- Henry W_ Ott_ -- 1st, 2009 -- Wiley & Sons, Incorporated, John -- isbn13 9780470189306 -- 2e57efea3df7614a53e219fff1cb4c10 -- Anna’s Archive.pdf",
+      "sha256": "b97ce1136c8400fbc8ae165cfbfaff6afef80b7951f93ee8d92a3fd2b79f7c72",
+      "pdf_pages": 862,
+      "rubric": "ott-emc.md",
+      "criterion_count": 35,
+      "word_count": 5963,
+      "rubric_sha256": "0c1490003858b879523f2143137e9d4b36a9aeb8e173189ae3e0ce8f25b710f1"
+    },
+    {
+      "id": "bogatin-sipi",
+      "source": "/Users/bennet/Downloads/Signal and Power Integrity - Simplified (Signal Integrity -- Bogatin, Eric -- Third edition, Boston, MA, 2018 -- Pearson Education Limited (US -- isbn13 9780134512228 -- 0d07535e052b28970c30082cd905b8bd -- Anna’s Archive.epub",
+      "sha256": "992809520484df506041c66dd0bfdf1ee3ff8a7479dbc63e5628204f9303afc1",
+      "epub_spine_items": 31,
+      "rubric": "bogatin-sipi.md",
+      "criterion_count": 29,
+      "word_count": 5272,
+      "rubric_sha256": "3b29726ce72be8061a2ca2fa82b0787aced3dafeb54131a087214b38e67e3014"
+    },
+    {
+      "id": "art-of-electronics",
+      "source": "/Users/bennet/Downloads/The Art of Electronics (3rd Ed_) -- Paul Horowitz, Winfield Hill -- 3rd Revised edition, Cambridge, 2015, 2017 -- Cambridge University Press (Virtual -- isbn13 9780521809269 -- b56092538d41992fe164749ff7a29a04 -- Anna’s Archive.pdf",
+      "sha256": "525da84315c9a14711200f8ef2e70de71ff627a940bbaf374b6f60c5992b76f9",
+      "pdf_pages": 1224,
+      "rubric": "art-of-electronics.md",
+      "criterion_count": 37,
+      "word_count": 6014,
+      "rubric_sha256": "fe1e8f575214b628d53654cd63a816257fcd911894feadf0e6072e818c21d4cb"
+    },
+    {
+      "id": "trilogy-magnetics",
+      "source": "/Users/bennet/Downloads/Trilogy of magnetics _ design guide for EMI filter design, -- Thomas Brandner; Alexander Gerfer; Bernhard Rall; Heinz -- 5th extended and revised -- isbn13 9783899291575 -- 858e90e77023d4a0abc3229803aaaf1d -- Anna’s Archive.pdf",
+      "sha256": "6c80daf3cd50a3a03f340f6258a546c24ce1b2eb3340afd9f705d608ad63bafa",
+      "pdf_pages": 827,
+      "rubric": "trilogy-magnetics.md",
+      "criterion_count": 29,
+      "word_count": 5102,
+      "rubric_sha256": "0b5b40fa3bddf5060eb5935ba92da886053928da096bb53ba00facaa935c64c9"
+    },
+    {
+      "id": "an139",
+      "source": "/Users/bennet/Downloads/AN-139_ Power Supply Layout and EMI _ Analog Devices.pdf",
+      "sha256": "f22008ca4cd502abce34bbc418d901762be632a39b49a7732c5af97356d62c2a",
+      "pdf_pages": 23,
+      "rubric": "an139.md",
+      "criterion_count": 21,
+      "word_count": 3884,
+      "rubric_sha256": "13e17bdf01ab0213a3500876b99eec394c1002fe75c3853c4b607da760ff61bc"
+    }
+  ],
+  "hardware_context": {
+    "candidate": "native-21 stage15b",
+    "topology": "full bridge",
+    "source_root": "/Users/bennet/Desktop/temper",
+    "manifest": "hardware/CURRENT.tsv",
+    "manifest_sha256": "adf2bb72f91b5f704553fb135360e1044ce37662fbf11e58105e339227e5e00d",
+    "board": "hardware/native21-stage15b/section.kicad_pcb",
+    "board_sha256": "9a9c43c63f63d383c89b9dc1d4d03a34d4390cfa1c26bbe802d71e169c6ddf94",
+    "baseline_check": "PASS; 69 pinned inputs checked",
+    "interpretation": "identity only; criteria unassessed; no manufacturing or mains release",
+    "context_files": [
+      "hardware/README.md",
+      "hardware/CURRENT.tsv",
+      "hardware/native21-stage15b/source/elec/src/power_stage_120v.ato",
+      "hardware/native21-stage15b/source/elec/src/parts.ato",
+      "hardware/native21-stage15b/provenance/resolved-components.json"
+    ],
+    "research_base_commit": "84c5e5b61000d45eec09834cb23e6bba8fa51169",
+    "note": "Current hardware context was read from the primary checkout because it was not present in the research-base commit. No primary-checkout design edits were made."
+  },
+  "scope": "original resource-derived rubric synthesis with explicit per-resource reading coverage; not a current-board assessment",
+  "publication_base_commit": "20073ab98b7fa469e4f92aad077847c60046039c"
+}
