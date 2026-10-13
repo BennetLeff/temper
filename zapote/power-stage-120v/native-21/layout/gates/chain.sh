@@ -67,6 +67,7 @@ $KC pcb export drill --output $O/gerbers/ --format excellon --excellon-units mm 
 $KC pcb export pos --output $O/positions-kicad.csv --format csv --units mm --side both $BP >/dev/null 2>&1
 $KP validation-results/08-manufacturing-package/native-21/scripts/bom_cpl_jlc.py $BP native-21/frozen/default.csv $O 2>&1 | grep -v -i "wxapp\|Debug:" | tail -1
 python3 validation-results/08-manufacturing-package/native-21/scripts/apply_lcsc.py
+python3 native-21/layout/gates/bom_cpl_check.py $O/bom-jlcpcb.csv $O/cpl-jlcpcb.csv validation-results/08-manufacturing-package/native-21/cpl-rotation-audit/cpl-jlcpcb.corrected.csv || exit 1
 $KC pcb export pdf --mode-multipage --scale 0 --output $O/assembly-drawing.pdf --layers F.Fab,F.Silkscreen,Edge.Cuts --cl Edge.Cuts --sketch-pads-on-fab-layers --black-and-white $BP >/dev/null 2>&1
 python3 validation-results/08-manufacturing-package/native-21/scripts/review_fab.py $O/gerbers validation-results/08-manufacturing-package/native-21/review.json | tail -1
 grep "Total plated\|Total unplated" $O/drill-report.txt
