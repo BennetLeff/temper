@@ -58,10 +58,14 @@ SIGNALS = {
     "bias_ha_bad": SELV_REF, "bias_hb_bad": SELV_REF, "bias_bad_raw": SELV_REF, "bias_bad": SELV_REF,
     "line_zc": SELV_REF,
 }
-ASSERT_PLANE = {"bus_fault_hot", "pwm_hb", "ct_zc"}
-# transfer-cap distance asserted at every change of ct_zc and of pwm_hb (stage 19b: C153-C156 beside its four
-# J4-side changes; stage 19 asserted only its driver side). bias_bad is reported, not asserted (DECISIONS 19b).
-ASSERT_TRANSFER = {"ct_zc": lambda at: True, "pwm_hb": lambda at: True}
+ASSERT_PLANE = {"bus_fault_hot", "pwm_hb", "ct_zc", "pwm_ha", "pwm_la", "pwm_lb"}
+# transfer-cap distance asserted at every change of ct_zc and of every PWM input (stage 19b: C153-C156 beside
+# pwm_hb's four J4-side changes; stage 19c: leg A's VCCI cap C7 under U1, as C14 under U2, for pwm_ha / pwm_la).
+# These switch at 35-60 kHz with ns edges: repeating emitters. permit, bus_fault and the bias_*_bad lines are
+# reported, not asserted: they change state only at start / stop or on a fault, and every disturbance can only
+# disable the drivers (fail-safe); their runs over the plane void at the U32 / U33 isolation gap stay recorded
+# (DECISIONS 19b, 19c; rubric review SI-08 / OTT-06 / BP-14).
+ASSERT_TRANSFER = {n: (lambda at: True) for n in ("ct_zc", "pwm_hb", "pwm_ha", "pwm_la", "pwm_lb")}
 TRANSFER_MM = 3.0
 MAX_TRANSITIONS = {"pwm_hb": 7, "ct_zc": 1}
 # stage 19b's dedicated transfer caps must reach both planes through their own vias

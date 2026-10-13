@@ -1,5 +1,15 @@
 # Resolution plan for the stage 19b rubric findings (2026-10-13)
 
+**Status, 2026-10-13 (DECISIONS items 19c and 22):**
+- **F9:** done. Stage 19c is the benchmark board (`../10-benchmark/`).
+- **F2:** FAIL; the decision is to widen the copper necks, with BR1 sacrificial.
+- **F4:** FAIL; the decision is a 1,500 A fuse or no blower tap.
+- **F5:** FAIL; the decision is total Y capacitance ≤ 5.0 nF per line.
+- **F6:** FAIL by the 1.5 × rule; the decision is to measure dv/dt on the bench and treat a driver swap as a candidate.
+- **F13:** surveyed.
+- **F2, F4 and F5:** their copper and part changes are graded as candidates against the benchmark.
+- **Still open:** F1 (laminate CTI, owner), F3, F7, F8, F10, F11 and F12.
+
 There is one section per theme in [FINDINGS.md](FINDINGS.md). Every step names its input, the command or file it touches, the **pass criterion, fixed before the work**, and the output.
 
 The work sequence is listed at the end. "Design" means me, "owner" means you, and anything sent outside the project goes through the owner.

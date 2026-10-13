@@ -26,24 +26,24 @@ differential or isolated probes (D-8 equipment table), never a grounded scope gr
 | TP12 | v15_selv | B | 133.9, 131.8 | TP30 | selv_gnd | SELV 15 V |
 | TP13 | v3v3 | B | 11.2, 128.3 | TP31 | selv_gnd | SELV 3.3 V |
 | TP14 | pwm_ha | B | 78.3, 105.9 | TP32 | selv_gnd | PWM A high |
-| TP15 | pwm_la | B | 79.8, 60.8 | TP33 | selv_gnd | PWM A low |
-| TP16 | pwm_hb | B | 34.4, 64.4 | TP34 | selv_gnd | PWM B high |
-| TP17 | permit | B | 31.6, 74.0 | TP35 | selv_gnd | PERMIT |
+| TP15 | pwm_la | B | 81.2, 104.3 | TP32 | selv_gnd | PWM A low |
+| TP16 | pwm_hb | B | 34.4, 64.4 | TP33 | selv_gnd | PWM B high |
+| TP17 | permit | B | 31.6, 74.0 | TP34 | selv_gnd | PERMIT |
 | TP18 | bias_bad | B | 13.9, 129.8 | TP31 | selv_gnd | BIAS_BAD (rail monitors) |
-| TP19 | bus_fault | B | 35.2, 133.6 | TP36 | selv_gnd | OCP fault, SELV side |
-| TP20 | ct_zc | B | 30.1, 133.2 | TP36 | selv_gnd | tank CT zero cross |
-| TP21 | ct_mon | B | 23.8, 134.6 | TP36 | selv_gnd | tank CT monitor |
+| TP19 | bus_fault | B | 35.2, 133.6 | TP35 | selv_gnd | OCP fault, SELV side |
+| TP20 | ct_zc | B | 30.1, 133.2 | TP35 | selv_gnd | tank CT zero cross |
+| TP21 | ct_mon | B | 23.8, 134.6 | TP35 | selv_gnd | tank CT monitor |
 
 ## Probed elsewhere (no legal test-pad spot)
 
 | Net | Probe at |
 | --- | --- |
-| leg_b-out_l | component pad U2.10 / R20.1 / R58.2 (no legal test-pad spot) |
-| leg_a-out_h | component pad R53.2 / R10.1 / U1.15 (no legal test-pad spot) |
-| leg_b-out_h | component pad U2.15 / R57.2 / R18.1 (no legal test-pad spot) |
+| leg_b-out_l | component pad R58.2 / R20.1 / U2.10 (no legal test-pad spot) |
+| leg_a-out_h | component pad U1.15 / R53.2 / R10.1 (no legal test-pad spot) |
+| leg_b-out_h | component pad R57.2 / R18.1 / U2.15 (no legal test-pad spot) |
 | pwm_lb | J4.8 (bottom), ground J4.2 / J4.4 / J4.15 |
 | leg_a-dis | component pad R8.1 / U22.1 / Q1.3 (no legal test-pad spot) |
-| leg_b-dis | component pad Q4.3 / U23.1 / R16.1 (no legal test-pad spot) |
+| leg_b-dis | component pad Q4.3 / R16.1 / U23.1 (no legal test-pad spot) |
 | line_zc | J4.16 (bottom), ground J4.2 / J4.4 / J4.15 |
 
 FET gate/drain/source (VGS, VDS): at the TO-247 package leads with rigid insulated adapters, per

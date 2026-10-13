@@ -432,6 +432,13 @@ STAGE19B_XFER = {
 for path, pose in STAGE19B_XFER.items():
     POSE[path] = pose
 
+# Stage 19c (DECISIONS 19c; rubric review SI-08 / OTT-06 / BP-14): leg A's VCCI bypass C7 sat 8 mm below U1's
+# VCCI / GND pins 3 / 4; it moves under them, as C14 under U2 in stage 19 (UCC21550: "as close to the VCCI pin as
+# possible"), which puts a v3v3-selv_gnd capacitor within 3 mm of pwm_ha's and pwm_la's driver-input layer changes.
+STAGE19C = {"leg_a.c_vcci": (78.075, 57.85, 0.0)}   # C7: v3v3 (77.3, 57.85), selv_gnd (78.85, 57.85)
+for path, pose in STAGE19C.items():
+    POSE[path] = pose
+
 missing = sorted(set(PARTS) - set(POSE))
 if missing:
     raise SystemExit(f"{len(missing)} unplaced: {missing}")

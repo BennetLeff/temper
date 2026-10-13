@@ -40,3 +40,13 @@ Stage 19 (DECISIONS item 19), also run by `chain.sh`:
 Clear `board_only21.json` `test_points` before `passes.sh` (stale test pads sit on the router's paths); `chain.sh`
 re-plans them from the clean pass. After the passes, `trim_tails.py DRC.json copper.json --write` drops the router's
 dangling stubs (K6); rebuild before the chain.
+
+Stage 19c (DECISIONS item 19c) and the benchmark (item 22, `validation-results/10-benchmark/`):
+
+    python3 gates/xfer_spots.py COPPER_DUMP.json COURTYARDS.json X,Y [X,Y ...] [--no-planes] [--ignore-ref REF] [--ignore-net NET]
+        # free 0603 poses for a v3v3-selv_gnd transfer cap within reach of one or more layer changes
+    python3 gates/scorecard.py TAG BUILDDIR --audit PASS --json CARD.json      # right after chain.sh
+    python3 gates/scorecard.py --card CARD.json --compare validation-results/10-benchmark/scorecard-native21s19c.json
+        # ACCEPT / REJECT against the benchmark (rule fixed 2026-10-13)
+
+`return_path19.py` asserts ct_zc and every PWM input from 19c on; on 19b it fails (pwm_ha 7.59, pwm_la 5.11 mm).

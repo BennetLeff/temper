@@ -1,0 +1,56 @@
+{
+ "tag": "native21s19b",
+ "build": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s19/s19b",
+ "board_sha256": "b19a45530bb0f39d2d3c0412e3774b6d5a47c4238d3fee867790cce410756662",
+ "gates": {
+  "drc_errors_0": true,
+  "drc_unconnected_0": true,
+  "drc_parity_0": true,
+  "barrier_8mm": true,
+  "res_a_outer_12p6mm": true,
+  "jlc_dfm": true,
+  "return_path19": true,
+  "bypass": true,
+  "pi_distances": true,
+  "res_a_creepage18": true,
+  "d5": true,
+  "enclosure_fit": true
+ },
+ "performance": {
+  "d5_hot_selv_mm": 8.047,
+  "d5_hot_pe_mm": 8.507,
+  "res_a_outer_min_mm": 13.375,
+  "return_path_open_changes": 41,
+  "return_path_worst_asserted_mm": 2.72,
+  "kelvin_band_low_A": 67.72,
+  "b3_c28_h25_peak_C": 136.0,
+  "b3_nominal_h10_peak_C": 163.2,
+  "emi_min_margin_dB": 10.5,
+  "leakage_touch_mA": 0.974,
+  "fuse_copper_fusing_ratio": 0.208,
+  "cmti_gate_ratio_min": 1.316
+ },
+ "cost": {
+  "bom_lines": 92,
+  "placements": 357,
+  "jlc_extended_lines": 60,
+  "jlc_basic_lines": 21,
+  "hand_or_consign_lines": 23,
+  "tht_lines": 18,
+  "parts_usd_at_5": 329.58,
+  "parts_usd_at_500": 231.94,
+  "unpriced_lines": [],
+  "zero_stock_lines": 10,
+  "single_source_lines": 17,
+  "vias": 753,
+  "board_bbox_mm2": 55100.0
+ },
+ "sources": {
+  "d5": "native-21/verification/d5-audit.json",
+  "kelvin": "02-protection-timing/kelvin/budget-native21s19b.json",
+  "emi": "07-conducted-emi/s19b/results.json scenarios.nominal (min margin_dB)",
+  "leakage": "07-conducted-emi/leakage/result.json DESIGN row",
+  "fuse_copper": "02-protection-timing/shoot-through-f1/result.json (min copper fusing I2t / F1 clearing I2t)",
+  "cmti": "06-controller-interface/cmti/cmti.csv (GATE rows, ratio at 95 V/ns)"
+ }
+}
