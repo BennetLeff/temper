@@ -147,3 +147,34 @@ python3 emi_s19b.py --no-plots
 ```
 
 numpy/scipy compute everything; matplotlib is used only for the PNGs. Inputs outside the directory: D-22 evidence under `../../01-switching-parasitics/round17/delegation/out-D22/` (including 891 MB of FFTs for one control case) and round 3's `../round3/outputs/`; the copper dump falls back to `inputs/copper-dump-s19b-summary.json`.
+
+## Update 2026-10-13: coil-to-PE capacitance from enclosure study 16
+
+Enclosure study 16 (`output/temper-r33-studies/16-coil-pe-capacitance/`) solved Laplace on the R43 solids: 18 M cells, grid convergence ≈ 1 %, sphere check +0.9 %. Results:
+
+| Configuration | Total | J5 end | J2 end |
+|---|---|---|---|
+| Pan floating (the compliance test setup) | **31.0 pF** (28.5–35.1) | 15.7 | 15.3 |
+| Pan earthed | 91.4 pF (88.5–102) | — | — |
+
+Board, EMI-module and controls copper were modelled as air in study 16; including them adds at most +20 pF.
+
+How `emi_s19b.py` uses this:
+- The nominal case now uses 15.7 / 15.3 pF.
+- The coil sensitivities are now the study-16 range plus the +20 pF board bound.
+- The earthed-pan and the old assumed 10–100 pF cases are reported as `INFO_*` and are not part of the verdict.
+
+| Case | Worst margin |
+|---|---|
+| Nominal | 10.5 dB (QP, 9–150 kHz, 70 kHz, 28 A) |
+| Study-16 low / high | 10.6 / 10.4 dB |
+| + board copper (51 pF) | 7.7 dB (60 kHz) |
+| X caps −20 % | 6.5 dB (the minimum of every sensitivity) |
+| 22 A sensitivity minimum | 8.4 dB |
+| INFO: pan earthed, 91 / 102 pF | 2.6 / 1.7 dB (60 kHz, CM) |
+
+**Verdict: PASS (≥ 6 dB in the nominal case and in every sensitivity). Controls unchanged: D-22 9.28 dB reproduced.**
+
+The earthed pan is not a compliance test configuration; in use, it is a user touching the pan. Its 1.7–2.6 dB margin at 60 kHz:
+- keeps the coil-side shield and the 3.2 mH CM choke in reserve;
+- adds an earthed-pan robustness run to BENCH-PRECOMPLIANCE.

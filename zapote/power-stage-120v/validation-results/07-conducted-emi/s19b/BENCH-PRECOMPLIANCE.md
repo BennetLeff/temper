@@ -69,3 +69,8 @@ For each configuration: receiver settings file, L/N peak traces (CSV), final QP/
 ## What the model can and cannot tell you
 
 It predicts the line spectrum at the crest of the line cycle with ideal CW equivalence and a lumped filter. Above ≈ 1-3 MHz it is not predictive (no harness/board parasitics, no ring, no PS emission); the bench is the only evidence there. The coil capacitance and chassis distance are assumed. Do not treat a bench pass here as certification: the lab confirms the limit set, the load, the layout and the QP/AV on the final unit.
+
+## Added 2026-10-13: earthed-pan robustness run
+The model margin with the pan earthed through a user (coil-to-PE 91–102 pF) is 1.7–2.6 dB at the 60 kHz fundamental (QP, CM). This is not a compliance configuration.
+
+Run 28 A at fs 55–60 kHz with the pan strapped to the LISN ground by 1 m of wire, and record the 9–150 kHz margin. If it is below 0 dB, evaluate the coil-side shield or the 3.2 mH CM choke (README recommendations).

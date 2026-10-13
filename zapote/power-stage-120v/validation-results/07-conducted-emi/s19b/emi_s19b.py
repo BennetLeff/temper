@@ -192,7 +192,8 @@ BASE = dict(  # round-3 / D-22 deck defaults (emi_topology.cir)
     CX=1e-6, ESLX=12.2e-9, ESRX=35e-3, CY=2.2e-9, ESLY=0.0, CMOV=1.4e-9,
     CBRJ=85e-12, CBRP=10e-12, CBRN=10e-12,
     CBULK=5.4e-6, CLOCAL=0.4e-6, LBULK=20e-9, LLOCAL=5e-9, RBULK=20e-3, RLOCAL=10e-3,
-    CTABA=42e-12, CTABB=42e-12, CTABH=42e-12, CCOILA=25e-12, CCOILB=25e-12,
+    CTABA=42e-12, CTABB=42e-12, CTABH=42e-12, CCOILA=15.7e-12, CCOILB=15.3e-12,  # enclosure study 16 (R43 Laplace solve), pan floating: 31.0 pF, J5 15.7 / J2 15.3
+   
     CPOURA=0.0, CPOURB=0.0, CBUSPE_X=0.0, CBUSN_X=0.0, COIL_SHIELD_FRAC=0.0,
     LPE=100e-9, RPE=10e-3, RLISN_SERIES=0.0,
     RPAN=2.0, LCOIL=70e-6, CRES=0.54e-6,
@@ -660,9 +661,16 @@ def scenarios(cm, nom):
     pa, pb = enc(1e9)
     s["no_enclosure_coupling"] = ({"CPOURA": pa, "CPOURB": pb}, {})
     s["coil_caps_at_sw_nodes_(D-22 convention)"] = ({"COIL_AT_TANK": False}, {})
-    s["coil_PE_10pF_total"] = ({"CCOILA": 5e-12, "CCOILB": 5e-12}, {})
-    s["coil_PE_100pF_total"] = ({"CCOILA": 50e-12, "CCOILB": 50e-12}, {})
-    s["coil_PE_100pF_asym_70_30"] = ({"CCOILA": 70e-12, "CCOILB": 30e-12}, {})
+    # study 16 range (pan floating 28.5-35.1 pF) and +20 pF upper bound for board copper modelled as air
+    s["coil_PE_study16_low_28p5pF"] = ({"CCOILA": 14.4e-12, "CCOILB": 14.1e-12}, {})
+    s["coil_PE_study16_high_35p1pF"] = ({"CCOILA": 17.8e-12, "CCOILB": 17.3e-12}, {})
+    s["coil_PE_study16_plus_board_51pF"] = ({"CCOILA": 25.7e-12, "CCOILB": 25.3e-12}, {})
+    # informational (not a compliance test configuration): pan earthed through a user, 91.4 pF (88.5-102)
+    s["INFO_pan_earthed_91pF"] = ({"CCOILA": 46.2e-12, "CCOILB": 45.2e-12}, {})
+    s["INFO_pan_earthed_102pF"] = ({"CCOILA": 51.6e-12, "CCOILB": 50.4e-12}, {})
+    s["INFO_assumed_10pF_total"] = ({"CCOILA": 5e-12, "CCOILB": 5e-12}, {})
+    s["INFO_assumed_100pF_total"] = ({"CCOILA": 50e-12, "CCOILB": 50e-12}, {})
+    s["INFO_assumed_100pF_asym_70_30"] = ({"CCOILA": 70e-12, "CCOILB": 30e-12}, {})
     s["coil_PE_100pF_one_sided_100_0"] = ({"CCOILA": 100e-12, "CCOILB": 0.0}, {})
     s["thin_pad_and_coil_100pF_asym_70_30"] = ({"CTABA": 50.4e-12, "CTABB": 33.6e-12, "CTABH": 42e-12,
                                                 "CCOILA": 70e-12, "CCOILB": 30e-12}, {})
@@ -893,7 +901,7 @@ def main():
     pan_keys = [k for k in nomrows if "pan_" in k and "nopan" not in k]
     all_keys = [k for k in nomrows if "nopan_28A" not in k]  # (the table has REP_CFG keys for sensitivities)  # failed-clamp fault excluded from the criterion
     nominal_min = min(minm("nominal", all_keys, "hi_150k_30M"), minm("nominal", all_keys, "lo_9k_150k"))
-    sens_names = [s for s in table if s != "nominal" and not s.startswith(("module_DM_18uH", "board_only", "Y_caps_board_only", "STACKED", "REC", "thin_pad_and", "insulator_swap", "edge_x4", "coil_PE_100pF_one_sided"))]  # excluded: alternative designs / stacked or beyond-spec corners (reported, informational)
+    sens_names = [s for s in table if s != "nominal" and not s.startswith(("module_DM_18uH", "board_only", "Y_caps_board_only", "STACKED", "REC", "thin_pad_and", "insulator_swap", "edge_x4", "coil_PE_100pF_one_sided", "INFO_"))]  # excluded: alternative designs / stacked or beyond-spec corners (reported, informational)
     sens_min_22 = min(min(minm(s, [k for k in all_keys if k.endswith("22A")], "hi_150k_30M"),
                           minm(s, [k for k in all_keys if k.endswith("22A")], "lo_9k_150k")) for s in sens_names)
     sens_min_all = min(min(minm(s, all_keys, "hi_150k_30M"), minm(s, all_keys, "lo_9k_150k")) for s in sens_names)
