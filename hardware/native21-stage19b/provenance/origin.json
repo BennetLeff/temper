@@ -1,0 +1,39 @@
+{
+ "worktree": "worktrees/ps-integrate (board built in worktrees/runs-native21/s19/s19b)",
+ "branch": "codex/power-stage-integration",
+ "head": "5d53896c3",
+ "stage": "19b",
+ "hardware_commit": "5d53896c3",
+ "status": "DIGITAL_CANDIDATE_NOT_MANUFACTURING_RELEASE",
+ "source_unit": "zapote/power-stage-120v",
+ "source_note": "source/ is evidence snapshot; edits belong to owning worktree source, not this snapshot.",
+ "built_on": "stage 18 (RES_A 12.6 mm outer-layer spacing, integration 811401c47) with stage 17b R5 = Bourns CSS2H-2512R-1L00F; stage 19 folds in review N1/K6 (365151b62), PI1/PI2, SI1/SI2, C153-C156; 357 parts",
+ "supersedes": [
+  {
+   "stage": "15b",
+   "board_sha256": "9a9c43c63f63d383c89b9dc1d4d03a34d4390cfa1c26bbe802d71e169c6ddf94"
+  },
+  {
+   "stage": "16",
+   "board_sha256": "e9481ed6d183594a466d657bff09de525ad84457cbd13080a55b1b589b314bcd"
+  },
+  {
+   "stage": "17b",
+   "board_sha256": "96501e7d0e9b4903a145aa3bd0e45003a4fafe37ceef5259a7502bc9b11225a9"
+  },
+  {
+   "stage": "18 (integration)",
+   "board_sha256": "3768a126 (prefix as published by the integration owner)"
+  },
+  {
+   "stage": "review-fix side build, branch claude/native21-stage17-review (pre-17)",
+   "board_sha256": "dadcaad347f4dd8b3df7af58052ff54b639d1a2f8dd0c57da519a26a607ff8ad"
+  },
+  {
+   "stage": "review-fix side build, branch claude/native21-stage18-review (on 17b)",
+   "board_sha256": "98fa8beec9baaf87258d3d65dfdd64868b9acc6db871ecea16f22d4ec82748c7"
+  }
+ ],
+ "tag": "native21s19b",
+ "gerber_zip_sha256": "c9eaf0d96091662cd25d0ef5a2d78e972f6123e1a1b4cb1c6d85804922e80ea3"
+}

@@ -1,0 +1,16 @@
+{
+  "components": 357,
+  "source_hashes_match": true,
+  "two_frozen_exports_identical": true,
+  "native20_protection_parts_retained": true,
+  "RECOM_only_hs_bias_modules": true,
+  "no_bootstrap": true,
+  "monitor_crossings_ISO7710": true,
+  "source_sha256": {
+    "elec/src/f6_bias.ato": "ebe1ff0a3e74d40abfbb9d5f6bddfd9bae374286960e6f06cdf5f9e57fa84d8f",
+    "elec/src/f6_parts.ato": "c88358b18d3ee5c72b978c449e455e755dae8547bb3998b516582f9ebfa5ede2",
+    "elec/src/parts.ato": "017fae35c02f503a513e7014f770459414382a48ef2f0fafa32c8bbeb9e7af08",
+    "elec/src/power_stage_120v.ato": "94260996ce163721619c12160ba27da3d9641939d93baec561f04e2478819142",
+    "prototype-closure/round4/supervisor/generated/supervisor.ato": "1d6674935534a46c6c82f61c4f18890de7fa7cbf81f89c1cb63efb7bfed1b7e3"
+  }
+}

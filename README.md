@@ -1,5 +1,7 @@
 # Temper — ESP32-S3 Induction Cooker
 
+> **Current hardware: native-21 stage19b.** Start at [hardware/README.md](hardware/README.md) and run `make hardware-baseline-check`. It is a digital candidate, not released for fabrication or mains operation.
+
 [![zapote](https://github.com/BennetLeff/temper/actions/workflows/zapote.yml/badge.svg)](https://github.com/BennetLeff/temper/actions/workflows/zapote.yml)
 [![Firmware Tests](https://github.com/BennetLeff/temper/actions/workflows/firmware-tests.yml/badge.svg)](https://github.com/BennetLeff/temper/actions/workflows/firmware-tests.yml)
 [![License](https://img.shields.io/badge/license-proprietary-red)](./LICENSE)

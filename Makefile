@@ -1,11 +1,12 @@
 # Temper: zapote validation workspace and ESP32 firmware.
 # Board checks live in zapote/ (make -C zapote help).
 
-.PHONY: help zapote firmware-test bridge-python
+.PHONY: help zapote firmware-test bridge-python hardware-baseline-check
 
 help:
 	@echo "Temper targets:"
 	@echo "  make -C zapote help  - Zapote ERC, DRC, DFM, layout and current checks (zapote/CHECKS.md)"
+	@echo "  make hardware-baseline-check - verify the pinned current hardware candidate (hardware/README.md)"
 	@echo "  make zapote          - zapote Rust suite (cargo test --release --locked)"
 	@echo "  make firmware-test   - firmware host tests (cmake + ctest)"
 	@echo "  make bridge-python   - build zapote_bridge (the module zapote's unit tools import) into the uv venv"
@@ -20,3 +21,6 @@ firmware-test:
 
 bridge-python:
 	uv sync  # builds zapote/packages/zapote-bridge (maturin backend, python feature)
+
+hardware-baseline-check:
+	@sh scripts/check_hardware_baseline.sh
