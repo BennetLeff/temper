@@ -1,0 +1,502 @@
+{
+ "L1_15A_dc20_c28_h25_p0p25": {
+  "peak_C": 125.2,
+  "peak_at": [
+   40.125,
+   15.125,
+   "F.Cu"
+  ],
+  "R5_pad_max": 125.2,
+  "R5_element": 136.2,
+  "FET_row_copper_max": 121.2,
+  "C38": 97.6,
+  "C40": 96.8,
+  "C21_bank": 89.2,
+  "C5": 78.5,
+  "L1": 77.2,
+  "PS1_case": 80.0,
+  "PS2_case": 96.5,
+  "U41": 102.3,
+  "R58": 109.8
+ },
+ "L1_15A_hot_c28_h25_p0p25": {
+  "peak_C": 125.2,
+  "peak_at": [
+   40.125,
+   15.125,
+   "F.Cu"
+  ],
+  "R5_pad_max": 125.2,
+  "R5_element": 136.2,
+  "FET_row_copper_max": 121.2,
+  "C38": 97.6,
+  "C40": 96.8,
+  "C21_bank": 89.3,
+  "C5": 79.0,
+  "L1": 85.5,
+  "PS1_case": 80.0,
+  "PS2_case": 96.6,
+  "U41": 102.3,
+  "R58": 109.8
+ },
+ "base+r54_pour_c28_h25_p0p25": {
+  "peak_C": 125.1,
+  "peak_at": [
+   40.125,
+   15.125,
+   "F.Cu"
+  ],
+  "R5_pad_max": 125.1,
+  "R5_element": 136.1,
+  "FET_row_copper_max": 121.2,
+  "C38": 97.6,
+  "C40": 96.8,
+  "C21_bank": 89.0,
+  "C5": 77.9,
+  "L1": 67.5,
+  "PS1_case": 80.0,
+  "PS2_case": 96.2,
+  "U41": 102.3,
+  "R58": 109.7
+ },
+ "base+r54_vias4_c28_h25_p0p25": {
+  "peak_C": 121.6,
+  "peak_at": [
+   38.375,
+   15.125,
+   "F.Cu"
+  ],
+  "R5_pad_max": 121.6,
+  "R5_element": 134.3,
+  "FET_row_copper_max": 121.2,
+  "C38": 97.6,
+  "C40": 96.9,
+  "C21_bank": 89.0,
+  "C5": 77.9,
+  "L1": 67.5,
+  "PS1_case": 80.0,
+  "PS2_case": 96.2,
+  "U41": 102.3,
+  "R58": 109.4
+ },
+ "base+r54_vias4_legacy_c28_h25_p1p0": {
+  "peak_C": 133.2,
+  "peak_at": [
+   14.5,
+   56.5,
+   "F.Cu"
+  ],
+  "R5_pad_max": 128.6,
+  "R5_element": null,
+  "FET_row_copper_max": 131.6,
+  "C38": null,
+  "C40": null,
+  "C21_bank": null,
+  "C5": null,
+  "L1": null,
+  "PS1_case": null,
+  "PS2_case": null,
+  "U41": null,
+  "R58": null
+ },
+ "base+r54_vias4_pour_c28_h25_p0p25": {
+  "peak_C": 121.5,
+  "peak_at": [
+   38.375,
+   15.125,
+   "F.Cu"
+  ],
+  "R5_pad_max": 121.5,
+  "R5_element": 134.3,
+  "FET_row_copper_max": 121.2,
+  "C38": 97.6,
+  "C40": 96.9,
+  "C21_bank": 89.0,
+  "C5": 77.9,
+  "L1": 67.5,
+  "PS1_case": 80.0,
+  "PS2_case": 96.2,
+  "U41": 102.3,
+  "R58": 109.3
+ },
+ "base_c28_h25_p0p25": {
+  "peak_C": 125.2,
+  "peak_at": [
+   40.125,
+   15.125,
+   "F.Cu"
+  ],
+  "R5_pad_max": 125.2,
+  "R5_element": 136.2,
+  "FET_row_copper_max": 121.2,
+  "C38": 97.6,
+  "C40": 96.8,
+  "C21_bank": 89.0,
+  "C5": 77.9,
+  "L1": 67.5,
+  "PS1_case": 80.0,
+  "PS2_case": 96.2,
+  "U41": 102.3,
+  "R58": 109.8
+ },
+ "base_c28_h25_p0p5": {
+  "peak_C": 122.9,
+  "peak_at": [
+   40.25,
+   15.25,
+   "F.Cu"
+  ],
+  "R5_pad_max": 122.8,
+  "R5_element": 134.8,
+  "FET_row_copper_max": 120.5,
+  "C38": 97.1,
+  "C40": 96.3,
+  "C21_bank": 88.7,
+  "C5": 77.5,
+  "L1": 67.5,
+  "PS1_case": 79.5,
+  "PS2_case": 95.3,
+  "U41": 101.5,
+  "R58": 109.4
+ },
+ "base_c28_h25_p1p0": {
+  "peak_C": 120.4,
+  "peak_at": [
+   39.5,
+   15.5,
+   "F.Cu"
+  ],
+  "R5_pad_max": 120.4,
+  "R5_element": 133.0,
+  "FET_row_copper_max": 118.7,
+  "C38": 96.2,
+  "C40": 94.6,
+  "C21_bank": 88.3,
+  "C5": 77.2,
+  "L1": 67.4,
+  "PS1_case": 79.2,
+  "PS2_case": 93.9,
+  "U41": 100.3,
+  "R58": 108.4
+ },
+ "base_c28_h30_p0p5": {
+  "peak_C": 115.4,
+  "peak_at": [
+   40.25,
+   15.25,
+   "F.Cu"
+  ],
+  "R5_pad_max": 115.3,
+  "R5_element": 127.2,
+  "FET_row_copper_max": 112.5,
+  "C38": 90.6,
+  "C40": 89.8,
+  "C21_bank": 85.9,
+  "C5": 75.9,
+  "L1": 65.5,
+  "PS1_case": 78.1,
+  "PS2_case": 92.4,
+  "U41": 98.1,
+  "R58": 102.1
+ },
+ "base_c28_h35_p0p5": {
+  "peak_C": 109.7,
+  "peak_at": [
+   40.25,
+   15.25,
+   "F.Cu"
+  ],
+  "R5_pad_max": 109.6,
+  "R5_element": 121.4,
+  "FET_row_copper_max": 106.4,
+  "C38": 85.7,
+  "C40": 85.0,
+  "C21_bank": 83.9,
+  "C5": 74.8,
+  "L1": 63.9,
+  "PS1_case": 77.1,
+  "PS2_case": 90.2,
+  "U41": 95.4,
+  "R58": 96.6
+ },
+ "base_c28_h45_p0p5": {
+  "peak_C": 101.7,
+  "peak_at": [
+   40.25,
+   15.25,
+   "F.Cu"
+  ],
+  "R5_pad_max": 101.6,
+  "R5_element": 113.2,
+  "FET_row_copper_max": 97.7,
+  "C38": 79.1,
+  "C40": 78.5,
+  "C21_bank": 81.1,
+  "C5": 73.2,
+  "L1": 61.8,
+  "PS1_case": 75.5,
+  "PS2_case": 87.0,
+  "U41": 91.5,
+  "R58": 88.9
+ },
+ "base_it22.0_ik_h25_p0p5": {
+  "peak_C": 92.5,
+  "peak_at": [
+   40.25,
+   15.25,
+   "F.Cu"
+  ],
+  "R5_pad_max": 92.5,
+  "R5_element": 99.2,
+  "FET_row_copper_max": 90.7,
+  "C38": 79.3,
+  "C40": 79.3,
+  "C21_bank": 72.2,
+  "C5": 66.4,
+  "L1": 66.8,
+  "PS1_case": 79.3,
+  "PS2_case": 92.2,
+  "U41": 100.4,
+  "R58": 86.1
+ },
+ "base_it24.0_ik_h25_p0p5": {
+  "peak_C": 99.9,
+  "peak_at": [
+   40.25,
+   15.25,
+   "F.Cu"
+  ],
+  "R5_pad_max": 99.8,
+  "R5_element": 107.8,
+  "FET_row_copper_max": 97.9,
+  "C38": 83.6,
+  "C40": 83.4,
+  "C21_bank": 76.2,
+  "C5": 69.1,
+  "L1": 67.0,
+  "PS1_case": 79.3,
+  "PS2_case": 93.0,
+  "U41": 100.7,
+  "R58": 91.8
+ },
+ "base_it26.0_ik_h25_p0p5": {
+  "peak_C": 107.9,
+  "peak_at": [
+   40.25,
+   15.25,
+   "F.Cu"
+  ],
+  "R5_pad_max": 107.8,
+  "R5_element": 117.2,
+  "FET_row_copper_max": 105.7,
+  "C38": 88.3,
+  "C40": 87.9,
+  "C21_bank": 80.5,
+  "C5": 72.0,
+  "L1": 67.1,
+  "PS1_case": 79.4,
+  "PS2_case": 93.8,
+  "U41": 101.0,
+  "R58": 97.9
+ },
+ "base_it27.0_ik_h25_p0p5": {
+  "peak_C": 112.1,
+  "peak_at": [
+   40.25,
+   15.25,
+   "F.Cu"
+  ],
+  "R5_pad_max": 112.0,
+  "R5_element": 122.1,
+  "FET_row_copper_max": 109.9,
+  "C38": 90.8,
+  "C40": 90.2,
+  "C21_bank": 82.8,
+  "C5": 73.6,
+  "L1": 67.2,
+  "PS1_case": 79.4,
+  "PS2_case": 94.2,
+  "U41": 101.1,
+  "R58": 101.1
+ },
+ "base_it28.0_ik_h25_p0p5": {
+  "peak_C": 116.5,
+  "peak_at": [
+   40.25,
+   15.25,
+   "F.Cu"
+  ],
+  "R5_pad_max": 116.4,
+  "R5_element": 127.3,
+  "FET_row_copper_max": 114.2,
+  "C38": 93.3,
+  "C40": 92.7,
+  "C21_bank": 85.2,
+  "C5": 75.2,
+  "L1": 67.3,
+  "PS1_case": 79.5,
+  "PS2_case": 94.7,
+  "U41": 101.3,
+  "R58": 104.5
+ },
+ "base_legacy_c28_h25_p1p0": {
+  "peak_C": 136.0,
+  "peak_at": [
+   39.5,
+   14.5,
+   "F.Cu"
+  ],
+  "R5_pad_max": 136.0,
+  "R5_element": null,
+  "FET_row_copper_max": 131.6,
+  "C38": null,
+  "C40": null,
+  "C21_bank": null,
+  "C5": null,
+  "L1": null,
+  "PS1_case": null,
+  "PS2_case": null,
+  "U41": null,
+  "R58": null
+ },
+ "base_legacy_c28_h30_p1p0": {
+  "peak_C": 128.1,
+  "peak_at": [
+   39.5,
+   14.5,
+   "F.Cu"
+  ],
+  "R5_pad_max": 128.1,
+  "R5_element": null,
+  "FET_row_copper_max": 122.6,
+  "C38": null,
+  "C40": null,
+  "C21_bank": null,
+  "C5": null,
+  "L1": null,
+  "PS1_case": null,
+  "PS2_case": null,
+  "U41": null,
+  "R58": null
+ },
+ "base_legacy_c28_h35_p1p0": {
+  "peak_C": 123.1,
+  "peak_at": [
+   14.5,
+   56.5,
+   "F.Cu"
+  ],
+  "R5_pad_max": 122.3,
+  "R5_element": null,
+  "FET_row_copper_max": 115.9,
+  "C38": null,
+  "C40": null,
+  "C21_bank": null,
+  "C5": null,
+  "L1": null,
+  "PS1_case": null,
+  "PS2_case": null,
+  "U41": null,
+  "R58": null
+ },
+ "base_legacy_c28_h45_p1p0": {
+  "peak_C": 116.9,
+  "peak_at": [
+   14.5,
+   56.5,
+   "F.Cu"
+  ],
+  "R5_pad_max": 114.2,
+  "R5_element": null,
+  "FET_row_copper_max": 106.3,
+  "C38": null,
+  "C40": null,
+  "C21_bank": null,
+  "C5": null,
+  "L1": null,
+  "PS1_case": null,
+  "PS2_case": null,
+  "U41": null,
+  "R58": null
+ },
+ "base_legacy_it22.0_ik_h25_p1p0": {
+  "peak_C": 129.4,
+  "peak_at": [
+   14.5,
+   56.5,
+   "F.Cu"
+  ],
+  "R5_pad_max": 100.1,
+  "R5_element": null,
+  "FET_row_copper_max": 96.7,
+  "C38": null,
+  "C40": null,
+  "C21_bank": null,
+  "C5": null,
+  "L1": null,
+  "PS1_case": null,
+  "PS2_case": null,
+  "U41": null,
+  "R58": null
+ },
+ "base_legacy_it24.0_ik_h25_p1p0": {
+  "peak_C": 130.3,
+  "peak_at": [
+   14.5,
+   56.5,
+   "F.Cu"
+  ],
+  "R5_pad_max": 108.8,
+  "R5_element": null,
+  "FET_row_copper_max": 105.2,
+  "C38": null,
+  "C40": null,
+  "C21_bank": null,
+  "C5": null,
+  "L1": null,
+  "PS1_case": null,
+  "PS2_case": null,
+  "U41": null,
+  "R58": null
+ },
+ "base_legacy_it27.0_ik_h25_p1p0": {
+  "peak_C": 131.8,
+  "peak_at": [
+   14.5,
+   56.5,
+   "F.Cu"
+  ],
+  "R5_pad_max": 123.2,
+  "R5_element": null,
+  "FET_row_copper_max": 119.2,
+  "C38": null,
+  "C40": null,
+  "C21_bank": null,
+  "C5": null,
+  "L1": null,
+  "PS1_case": null,
+  "PS2_case": null,
+  "U41": null,
+  "R58": null
+ },
+ "base_legacy_it28.0_ik_h25_p1p0": {
+  "peak_C": 132.4,
+  "peak_at": [
+   14.5,
+   56.5,
+   "F.Cu"
+  ],
+  "R5_pad_max": 128.4,
+  "R5_element": null,
+  "FET_row_copper_max": 124.2,
+  "C38": null,
+  "C40": null,
+  "C21_bank": null,
+  "C5": null,
+  "L1": null,
+  "PS1_case": null,
+  "PS2_case": null,
+  "U41": null,
+  "R58": null
+ }
+}

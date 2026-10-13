@@ -1,0 +1,103 @@
+{
+ "b3_0p25mm_c28_h25": {
+  "L1 1.229 W (11.7 A, as modelled)": {
+   "L1_winding_C": 67.5,
+   "L1_pad_max_C": 65.4,
+   "C5_C": 77.9,
+   "C6_C": 74.5,
+   "PS2_C": 96.2,
+   "PS1_C": 80.0,
+   "board_peak_C": 125.2
+  },
+  "L1 2.025 W (15 A DC, 20 C DCR)": {
+   "L1_winding_C": 77.2,
+   "L1_pad_max_C": 73.4,
+   "C5_C": 78.5,
+   "C6_C": 74.9,
+   "PS2_C": 96.5,
+   "PS1_C": 80.0,
+   "board_peak_C": 125.2
+  },
+  "L1 2.70 W (reviewer bound / hot DCR)": {
+   "L1_winding_C": 85.5,
+   "L1_pad_max_C": 80.2,
+   "C5_C": 79.0,
+   "C6_C": 75.3,
+   "PS2_C": 96.6,
+   "PS1_C": 80.0,
+   "board_peak_C": 125.2
+  }
+ },
+ "criterion": "L1 <= 125 C with >= 15 K margin; C5/C6/PS2 not pushed past their limits",
+ "verdict_L1": {
+  "worst_winding_C": 85.5,
+  "margin_to_125_K": 39.5,
+  "pass": true,
+  "neighbour_shift_K": {
+   "C5_C": 1.1,
+   "C6_C": 0.8,
+   "PS2_C": 0.4,
+   "PS1_C": 0.0
+  }
+ },
+ "tdk_curve": {
+  "points_TA_vs_Iop_over_IR": [
+   [
+    42,
+    1.15
+   ],
+   [
+    60,
+    1.0
+   ],
+   [
+    80,
+    0.8
+   ],
+   [
+    100,
+    0.52
+   ],
+   [
+    110,
+    0.33
+   ],
+   [
+    120,
+    0.12
+   ],
+   [
+    124,
+    0.0
+   ]
+  ],
+  "allowed_air_C_at_15A": 83.6,
+  "allowed_air_C_at_11p1A": 97.5
+ },
+ "lumped_calibrated_on_curve": {
+  "Rth_K_per_W": 12.78,
+  "winding_C_15A_air50": 82.2,
+  "winding_C_15A_air60": 93.3,
+  "winding_C_15A_air70": 104.5,
+  "loss_W_15A_air50": 2.52
+ },
+ "R5_4_vs_MOT": {
+  "legacy_1mm_peak_C (scorecard b3_c28_h25_peak_C)": 136.0,
+  "legacy_margin_K": -6.0,
+  "converged_R5_pad_max_cell_C (0.0625 mm, results.json / RESULTS-TABLES)": 129.4,
+  "converged_1mm_block_mean_C": 129.1,
+  "converged_margin_K": 0.6,
+  "my_0p25mm_rerun_R5_pad_max_C": 125.2,
+  "rule": "below 5 K margin -> 28 A needs a bench IR point at R5.4 (RESOLUTION-PLAN F12.2)",
+  "needs_bench_IR": true
+ },
+ "R5_pad_max_C_vs_tank_RMS_A_converged_equiv": {
+  "22": 99.2,
+  "24": 106.5,
+  "26": 114.5,
+  "27": 118.7,
+  "28": 123.1,
+  "29.4": 129.5
+ },
+ "tank_A_for_5K_MOT_margin": 28.42
+}
