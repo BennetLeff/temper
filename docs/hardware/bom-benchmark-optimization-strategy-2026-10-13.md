@@ -10,6 +10,12 @@ Preserve a corrected BOM and installed-cost benchmark, then explore changes that
 
 This is the BOM companion to the [PCB benchmark and improvement strategy](pcb-benchmark-improvement-strategy-2026-10-13.md). The current scope is to record the approach and comparison rubric. It does not select replacement parts, alter design inputs, create a corrected benchmark, contact suppliers or place orders.
 
+## Literature grounding
+
+The [literature review](bom-optimization-literature-review-2026-10-13/README.md) records 13 sources, their reading depth and applicability. Its [claim map](bom-optimization-literature-review-2026-10-13/claim-evidence-map.md) traces all 20 criteria. Function-first evaluation and broader purchasing costs have method support from [FHWA](https://www.fhwa.dot.gov/ve/veproc.cfm) and [Ellram](https://doi.org/10.1108/09600039510099928). Commonality savings are conditional, as emphasized by [Labro](https://doi.org/10.1287/msom.1040.0047).
+
+The benchmark protocol, three change classes, ordinal scoring and requirement for lower cost or complexity alongside technical improvement are our project choices. The review does not validate them as a published optimization algorithm or establish any savings on Temper.
+
 ## Three kinds of optimization
 
 Separate changes by the evidence they need. They can contribute to one improved candidate, but they should not be treated as interchangeable claims.
@@ -48,7 +54,7 @@ Use dated data and cost ranges where inputs are uncertain. Historical stock note
 | Change and qualification effort | Samples, engineering work, validation and tooling or redesign; distinguish one-time cost from recurring unit cost |
 | Cash and inventory | Lot cash required, excess parts caused by minimum orders, usable leftover inventory and obsolescence exposure |
 
-Report recurring cost per accepted unit separately from lot cash outlay and one-time change cost. Do not charge all reusable leftover inventory as recurring consumption, or assume it has no carrying or obsolescence cost. Avoid counting scrap twice through both a yield adjustment and the same lost components as a separate expense.
+Separate recurring avoidable cost, allocated overhead and capacity/time benefits; an allocation reduction is not automatically cash saved. Report recurring cost per accepted unit separately from lot cash outlay and one-time change cost. Do not charge all reusable leftover inventory as recurring consumption, or assume it has no carrying or obsolescence cost. Avoid counting scrap twice through both a yield adjustment and the same lost components as a separate expense.
 
 Show savings by functional block as well as by line. A cheaper switch may require more gate drive, damping or cooling; a cheaper connector may require more labor or a new harness. Carry those consequences into the candidate's installed cost.
 
@@ -58,12 +64,14 @@ First identify where cost and complexity actually concentrate: expensive functio
 
 Candidate angles include:
 
-- **Consolidate values and packages where requirements permit.** Fewer unique parts may reduce feeders, inventory and substitution mistakes. Check every circuit role before merging; nominal value alone does not establish equivalence.
-- **Remove the cause of compensating parts.** A layout or architectural improvement might reduce the need for a mitigation network. Prove the original function is still satisfied across faults and tolerances before removing it.
-- **Choose a more suitable assembly route.** Compare the complete supplier/process combination, including exact-parts access, setup, consignment, THT work and inspection. Basic/extended or similar catalogue classifications are dated, route-specific cost inputs rather than universal electrical quality grades.
+- **Consolidate values and packages where requirements permit.** Fewer unique parts are an opportunity hypothesis. Require a measured or credible process-cost mechanism, and account for any extra capability or higher-cost part needed to serve multiple roles. Check every circuit role before merging; nominal value alone does not establish equivalence.
+- **Remove the cause of compensating parts.** A layout or architectural improvement might reduce the need for a mitigation network. Mechanical DFA separation criteria do not by themselves justify deleting circuit components; use the electrical function and fault requirements. Prove the original function is still satisfied across faults and tolerances before removing it.
+- **Choose a more suitable assembly route.** Compare the complete supplier/process combination, including exact-parts access, setup, consignment, THT work and inspection. Basic/extended or similar catalogue classifications are dated, route-specific cost inputs rather than universal electrical quality grades. The [current JLCPCB fee explanation](https://jlcpcb.com/help/article/pcb-assembly-price), checked 2026-10-13, distinguishes Economic extended-part loading from Standard loading of both categories; neither category alone selects the cheaper route.
 - **Reconsider packages with their full burden.** A smaller or standard part can reduce area or process work, but may change heating, voltage capability, effective value, solderability, inspection or repair. A larger part can also reduce total system cost if it removes another burden.
 - **Standardize shared parts across the product.** Combine actual purchasing quantities across boards or variants where the same exact part is suitable. Do not force hot power, precision sensing and ordinary logic passives into one specification simply to lower the unique count.
 - **Reduce custom or supplier-dependent items.** Investigate standard alternatives to a custom footprint, module, magnetics or connector system when they meet the full application. Include the board area, harness and qualification consequences.
+
+Compare unit placements, unique MPNs and stocked subassemblies separately; they measure different burdens. Do not assume independent-demand inventory pooling for parts consumed together by the same board.
 
 These are investigation angles, not selected substitutions. Current exact-part choices remain the reference until a candidate earns adoption.
 
@@ -120,7 +128,7 @@ Maintain a shortlist when options have different strengths. A lower purchase cos
 
 The broader board candidate must meet the combined cost/simplicity and technical-improvement rule from the PCB strategy. Individual BOM experiments may contribute only economic savings or only technical gains; judge their combined effects in the final candidate. Preserve every critical requirement and explicitly disposition noncritical trade-offs. Gains must be meaningful relative to cost and analysis uncertainty.
 
-Use existing documentation and available technical data to develop the shortlist before broad supplier correspondence. Collect focused questions as they arise. If a missing vendor fact could invalidate a candidate's architecture or economics, keep that candidate conditional rather than pretending the fact is settled.
+Deferring broad correspondence is our scheduling choice, rather than a universal literature requirement. Use existing documentation and available technical data to develop the shortlist before broad supplier correspondence. Collect focused questions as they arise. If a missing vendor fact could invalidate a candidate's architecture or economics, keep that candidate conditional rather than pretending the fact is settled.
 
 A promising cost model and datasheet comparison support a digital preference. Adoption still requires the relevant supplier/process evidence and component, circuit or system tests. Refresh prices and supply information before commitment. Freeze approved alternates with their exact conditions; do not allow unrestricted substitutions because a part is labelled equivalent.
 

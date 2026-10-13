@@ -1,0 +1,197 @@
+{
+  "date": "2026-10-13",
+  "scope": "Targeted critical narrative review for Temper BOM strategy; not systematic or exhaustive",
+  "source_count": 13,
+  "access_summary": {
+    "targeted_full_text_or_preview": [
+      "L02",
+      "L06",
+      "L07"
+    ],
+    "abstract_or_summary_only": [
+      "L03",
+      "L04",
+      "L05",
+      "L08",
+      "L11",
+      "L13"
+    ],
+    "organizational_method_pages": [
+      "L01",
+      "L09",
+      "L10"
+    ],
+    "vendor_documentation": [
+      "L12"
+    ]
+  },
+  "sources": [
+    {
+      "id": "L01",
+      "title": "FHWA, The Value Engineering Process and Job Plan",
+      "publication_year": null,
+      "url": "https://www.fhwa.dot.gov/ve/veproc.cfm",
+      "source_type": "Government method guidance",
+      "read_coverage": "Relevant page text read",
+      "locator": "Definition and seven job-plan phases",
+      "accessed": "2026-10-13"
+    },
+    {
+      "id": "L02",
+      "title": "Boothroyd, Dewhurst and Knight, Product Design for Manufacture and Assembly, 3rd ed.",
+      "publication_year": 2011,
+      "url": "https://api.pageplace.de/preview/DT0400.9781420089288_A37928772/preview-9781420089288_A37928772.pdf",
+      "source_type": "Textbook publisher preview",
+      "read_coverage": "71-page preview; targeted body reading",
+      "locator": "Printed pp. 1, 8–17, 30–32; PDF pp. 40, 47–56, 69–71; Chapter 6 TOC only",
+      "accessed": "2026-10-13",
+      "local_reading_copy": "/private/tmp/temper-bom-literature-2026-10-13/dfma-preview.pdf",
+      "pdf_sha256": "6762e5ce54621540217b26cdd05e8c8d994d6503f98ea25957e53dcb47a10893",
+      "pdf_bytes": 1517213
+    },
+    {
+      "id": "L03",
+      "title": "Ellram, Total cost of ownership: an analysis approach for purchasing",
+      "publication_year": 1995,
+      "url": "https://doi.org/10.1108/09600039510099928",
+      "source_type": "Peer-reviewed purchasing case-study paper",
+      "read_coverage": "Publisher abstract only",
+      "locator": "International Journal of Physical Distribution & Logistics Management 25(8), 4–23; abstract",
+      "accessed": "2026-10-13"
+    },
+    {
+      "id": "L04",
+      "title": "Ferrin and Plank, Total Cost of Ownership Models: An Exploratory Study",
+      "publication_year": 2002,
+      "url": "https://doi.org/10.1111/j.1745-493X.2002.tb00132.x",
+      "source_type": "Peer-reviewed exploratory purchasing study",
+      "read_coverage": "Publisher summary only",
+      "locator": "Journal of Supply Chain Management 38(2), 18–29; SUMMARY; issue year 2002, publisher online posting displays 2006",
+      "accessed": "2026-10-13"
+    },
+    {
+      "id": "L05",
+      "title": "Labro, The Cost Effects of Component Commonality: A Literature Review Through a Management-Accounting Lens",
+      "publication_year": 2004,
+      "url": "https://doi.org/10.1287/msom.1040.0047",
+      "source_type": "Peer-reviewed literature review",
+      "read_coverage": "Publisher abstract only",
+      "locator": "Manufacturing & Service Operations Management 6(4), 358–367; abstract",
+      "accessed": "2026-10-13"
+    },
+    {
+      "id": "L06",
+      "title": "Thonemann and Brandeau, Optimal Commonality in Component Design",
+      "publication_year": 2000,
+      "url": "https://pubsonline.informs.org/doi/pdf/10.1287/opre.48.1.1.12445",
+      "source_type": "Peer-reviewed analytical model with automotive application",
+      "read_coverage": "Full text accessible through web; targeted sections read",
+      "locator": "Operations Research 48(1), 1–19; §§2–3, §5 cost estimation, §6 Tables 2–3, §8 discussion",
+      "accessed": "2026-10-13"
+    },
+    {
+      "id": "L07",
+      "title": "Lyly-Yrjänäinen, Lahikainen and Paranko, Cost effect of component commonality: manufacturing cost perspective",
+      "publication_year": 2004,
+      "url": "https://www.designsociety.org/download-publication/29213/cost_effect_of_component_commonallty_manufacturing_cost_perspective",
+      "source_type": "Conference action-research case study",
+      "read_coverage": "10-page full text; OCR and targeted image verification",
+      "locator": "NordDesign 2004, pp. 371–380; §§2–5, especially Table 3 on printed p. 378 / PDF p. 8",
+      "accessed": "2026-10-13",
+      "local_reading_copy": "/private/tmp/temper-bom-literature-2026-10-13/commonality-case.pdf",
+      "pdf_sha256": "267a4ee4b3ba60e433c648ef166e7e6d68f1d9f1ae3197e0acfa4c587f15b15a",
+      "pdf_bytes": 538918
+    },
+    {
+      "id": "L08",
+      "title": "Jackson, Sandborn, Pecht, Hemens-Davis and Audette, A risk-informed methodology for parts selection and management",
+      "publication_year": 1999,
+      "url": "https://web.calce.umd.edu/articles/abstracts/1999/Risk_inf.htm",
+      "source_type": "Peer-reviewed electronics selection methodology",
+      "read_coverage": "Author-hosted abstract and publisher metadata",
+      "locator": "Quality and Reliability Engineering International 15(4), 261–271; abstract",
+      "accessed": "2026-10-13"
+    },
+    {
+      "id": "L09",
+      "title": "CALCE, Part Selection and Management Benchmarking Services",
+      "publication_year": null,
+      "url": "https://calce.umd.edu/part-selection-and-management-benchmarking-services",
+      "source_type": "Research-group process description",
+      "read_coverage": "Relevant page text read",
+      "locator": "Risk-informed methodology bullets and benchmarking description",
+      "accessed": "2026-10-13"
+    },
+    {
+      "id": "L10",
+      "title": "CALCE, Mitigation of Obsolescence Cost Analysis",
+      "publication_year": null,
+      "url": "https://calce.umd.edu/mitigation-obsolescence-cost-analysis-moca",
+      "source_type": "Research-group model description",
+      "read_coverage": "Relevant page text and bibliography read",
+      "locator": "Lifecycle mismatch, mitigation alternatives and MOCA analysis sections",
+      "accessed": "2026-10-13"
+    },
+    {
+      "id": "L11",
+      "title": "Tomlin, On the Value of Mitigation and Contingency Strategies for Managing Supply Chain Disruption Risks",
+      "publication_year": 2006,
+      "url": "https://doi.org/10.1287/mnsc.1060.0515",
+      "source_type": "Peer-reviewed analytical sourcing model",
+      "read_coverage": "Publisher abstract only",
+      "locator": "Management Science 52(5), 639–657; abstract",
+      "accessed": "2026-10-13"
+    },
+    {
+      "id": "L12",
+      "title": "JLCPCB, PCB Assembly Cost: What Does the Price Include?",
+      "publication_year": 2026,
+      "url": "https://jlcpcb.com/help/article/pcb-assembly-price",
+      "source_type": "Official vendor fee documentation",
+      "read_coverage": "Fee table and explanations read",
+      "locator": "Page updated 2026-09-09; setup, SMT/manual assembly, feeder loading and inspection sections",
+      "accessed": "2026-10-13"
+    },
+    {
+      "id": "L13",
+      "title": "Syrus, Pecht and Humphrey, Part Assessment Guidelines and Criteria for Parts Selection and Management",
+      "publication_year": 2001,
+      "url": "https://web.calce.umd.edu/articles/abstracts/2001/part.htm",
+      "source_type": "Peer-reviewed electronics assessment methodology",
+      "read_coverage": "Author-hosted abstract only",
+      "locator": "IEEE Transactions on Electronics Packaging Manufacturing 24(4), 339–350; abstract",
+      "accessed": "2026-10-13"
+    }
+  ],
+  "search_themes": [
+    "design for manufacture and assembly / part count / assembly cost",
+    "total cost of ownership purchasing / supplier selection / cost drivers",
+    "component commonality / standardization / production and inventory trade-offs",
+    "electronics parts selection / assessment / local environment / qualification",
+    "obsolescence redesign cost / lifecycle mismatch",
+    "supply disruption mitigation / contingency",
+    "official PCB assembly fee and sourcing policies"
+  ],
+  "excluded_or_deferred": [
+    {
+      "source": "DLA SD-19 2024 via DAU",
+      "reason": "403/inaccessible; not used to substantiate claims"
+    },
+    {
+      "source": "Sandborn 2013 Design for Obsolescence Risk Management and Singh/Sandborn full refresh papers",
+      "reason": "Author PDF certificate/timeout and publisher access failures; use only the separately read CALCE MOCA page, not full-paper conclusions"
+    },
+    {
+      "source": "Labro, Ellram, Ferrin/Plank, Jackson, Tomlin, Syrus full papers",
+      "reason": "Only accessible abstract/summary claims used; detailed methods/results remain deferred"
+    },
+    {
+      "source": "DFMA textbook Chapter 6 PCB body",
+      "reason": "Only TOC present in legal preview; body not read"
+    },
+    {
+      "source": "Blogs, third-party summaries and commercial savings percentages",
+      "reason": "Excluded as evidence for expected Temper savings"
+    }
+  ]
+}
