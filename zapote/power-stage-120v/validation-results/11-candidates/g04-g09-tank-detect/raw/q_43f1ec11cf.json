@@ -1,0 +1,1082 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 5,
+   "list": [
+    {
+     "componentId": 249434,
+     "componentLibraryType": "expand",
+     "stockCount": 51310,
+     "componentTypeEn": "Comparators",
+     "erpComponentName": "\u5fae\u529f\u8017\u6bd4\u8f83\u5668RS8901XF",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/comparators_jiangsu-runic-tech-rs8901xf_C255492.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2806
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.199
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1631
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.1631
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.1631
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.1631
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.1572
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1572
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.1572
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.1572
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2703
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1917
+      }
+     ],
+     "firstSortAccessId": "e3e42cbeca794b379734d72eb85f2f43",
+     "secondSortAccessId": "b9467b516dce4241802a779b8a474d6f",
+     "canPresaleNumber": 50873,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Jiangsu_RUNICTech-RS8901XF/C255492",
+     "leastPatchNumber": 5,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.5,
+     "preMinPurchaseNum": 33,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.2806,
+     "componentCode": "C255492",
+     "componentBrandEn": "Jiangsu RUNIC Tech",
+     "componentModelEn": "RS8901XF",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583016944182439936",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2202251830_Jiangsu-RUNIC-Tech-RS8901XF_C255492.pdf",
+     "dataManualFileAccessId": "8588884180634128384",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "RUNIC RS8901XF",
+     "minImage": "",
+     "minImageAccessId": "8583016945175814144",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-5",
+     "describe": "-40\u2103~+125\u2103 1 1.4V~5.5V 13us 1mV 1pA 240ns 2uV/\u2103 400nA 70dB 7V Push-pull Rail-to-Rail Input, Rail-to-Rail Output SOT-23-5 Comparators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Vos - Input Offset Voltage",
+       "attribute_value_name": "1mV"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Push-pull"
+      },
+      {
+       "attribute_name_en": "Input Offset Voltage Drift(Vos TC)",
+       "attribute_value_name": "2uV/\u2103"
+      },
+      {
+       "attribute_name_en": "Single Supply",
+       "attribute_value_name": "1.4V~5.5V"
+      },
+      {
+       "attribute_name_en": "Input Hysteresis Voltage (Vhys)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Response Time (tr)",
+       "attribute_value_name": "240ns"
+      },
+      {
+       "attribute_name_en": "Common Mode Rejection Ratio(CMRR)",
+       "attribute_value_name": "70dB"
+      },
+      {
+       "attribute_name_en": "Rail to Rail",
+       "attribute_value_name": "Rail-to-Rail Input, Rail-to-Rail Output"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Maximum Power Supply Range (Vdd-Vss)",
+       "attribute_value_name": "7V"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "400nA"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Ib - Input Bias Current",
+       "attribute_value_name": "1pA"
+      },
+      {
+       "attribute_name_en": "Propagation Delay Time",
+       "attribute_value_name": "13us"
+      },
+      {
+       "attribute_name_en": "Output Mode",
+       "attribute_value_name": "-"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Comparators",
+     "secondSortName": "Amplifiers/Comparators",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 3107378,
+     "componentLibraryType": "expand",
+     "stockCount": 978,
+     "componentTypeEn": "Comparators",
+     "erpComponentName": "\u5fae\u529f\u8017\u3001\u5feb\u901f\u4f20\u64ad\u5ef6\u8fdf\u30011.7 V\u3001\u8f68\u5230\u8f68\u3001CMOS\u8f93\u5165\u6bd4\u8f83\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/comparators_linearin_ltc8721yt5/r6_C2888152.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2762
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.2176
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1927
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.1614
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.1397
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.1313
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.1554
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.1265
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.1345
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.266
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.2096
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1856
+      }
+     ],
+     "firstSortAccessId": "eeff1f6fdd38486c99c44d7d67e917b3",
+     "secondSortAccessId": "92617f44090440d4bbaf06037f3315fa",
+     "canPresaleNumber": 978,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Linearin-LTC8721YT5R6/C2888152",
+     "leastPatchNumber": 5,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.71181,
+     "preMinPurchaseNum": 33,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.2762,
+     "componentCode": "C2888152",
+     "componentBrandEn": "Linearin",
+     "componentModelEn": "LTC8721YT5/R6",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583600793869537280",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://datasheet.lcsc.com/lcsc/2109192030_Linearin-LTC8721YT5-R6_C2888152.pdf",
+     "dataManualFileAccessId": "8588945760104140800",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Linearin LTC8721YT5/R6",
+     "minImage": "",
+     "minImageAccessId": "8583600794826784768",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-5L",
+     "describe": "-40\u2103~+85\u2103 1 1.7V~5.5V 10V 10pA 1uV/\u2103 22uA 3mV 5pA 66ns 800uV 82dB 8ns ESD protection\u3001EMI filtering/RF suppression Push-pull Rail-to-rail input TTL\u3001CMOS SOT-23-5L Comparators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+85\u2103"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Push-pull"
+      },
+      {
+       "attribute_name_en": "Vos - Input Offset Voltage",
+       "attribute_value_name": "800uV"
+      },
+      {
+       "attribute_name_en": "Input Offset Current(Ios)",
+       "attribute_value_name": "10pA"
+      },
+      {
+       "attribute_name_en": "Input Offset Voltage Drift(Vos TC)",
+       "attribute_value_name": "1uV/\u2103"
+      },
+      {
+       "attribute_name_en": "Single Supply",
+       "attribute_value_name": "1.7V~5.5V"
+      },
+      {
+       "attribute_name_en": "Input Hysteresis Voltage (Vhys)",
+       "attribute_value_name": "3mV"
+      },
+      {
+       "attribute_name_en": "Response Time (tr)",
+       "attribute_value_name": "8ns"
+      },
+      {
+       "attribute_name_en": "Common Mode Rejection Ratio(CMRR)",
+       "attribute_value_name": "82dB"
+      },
+      {
+       "attribute_name_en": "Rail to Rail",
+       "attribute_value_name": "Rail-to-rail input"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Maximum Power Supply Range (Vdd-Vss)",
+       "attribute_value_name": "10V"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "22uA"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "ESD protection\u3001EMI filtering/RF suppression"
+      },
+      {
+       "attribute_name_en": "Ib - Input Bias Current",
+       "attribute_value_name": "5pA"
+      },
+      {
+       "attribute_name_en": "Propagation Delay Time",
+       "attribute_value_name": "66ns"
+      },
+      {
+       "attribute_name_en": "Output Mode",
+       "attribute_value_name": "TTL\u3001CMOS"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Comparators",
+     "secondSortName": "Amplifiers/Comparators",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 3584772,
+     "componentLibraryType": "expand",
+     "stockCount": 18477,
+     "componentTypeEn": "Comparators",
+     "erpComponentName": "1.6V\u81f37V\uff0c\u4f4e\u529f\u8017\u63a8\u633d\u8f93\u51fa\u6bd4\u8f83\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/comparators_cosine-cos3201tr_C3035955.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2418
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1899
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1676
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.1398
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.1274
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.1199
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.1155
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.1228
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.1347
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2329
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1829
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1614
+      }
+     ],
+     "firstSortAccessId": "e3e42cbeca794b379734d72eb85f2f43",
+     "secondSortAccessId": "b9467b516dce4241802a779b8a474d6f",
+     "canPresaleNumber": 12709,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "COSINE-COS3201TR/C3035955",
+     "leastPatchNumber": 5,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.55,
+     "preMinPurchaseNum": 38,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.2418,
+     "componentCode": "C3035955",
+     "componentBrandEn": "COSINE",
+     "componentModelEn": "COS3201TR",
+     "componentImageUrl": "https://assets.lcsc.com/images/lcsc/900x900/20230123_COSINE-COS3201TR_C3035955_front.jpg",
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2407101707_COSINE-COS3201TR_C3035955.pdf",
+     "dataManualFileAccessId": "8589839171343839232",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "COSINE COS3201TR",
+     "minImage": "https://assets.lcsc.com/images/lcsc/96x96/20230123_COSINE-COS3201TR_C3035955_front.jpg",
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": "https://assets.lcsc.com/images/lcsc/96x96/20230123_COSINE-COS3201TR_C3035955_front.jpg",
+       "productImageAccessId": null,
+       "productBigImage": "https://assets.lcsc.com/images/lcsc/900x900/20230123_COSINE-COS3201TR_C3035955_front.jpg",
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": "https://assets.lcsc.com/images/lcsc/96x96/20230123_COSINE-COS3201TR_C3035955_back.jpg",
+       "productImageAccessId": null,
+       "productBigImage": "https://assets.lcsc.com/images/lcsc/900x900/20230123_COSINE-COS3201TR_C3035955_back.jpg",
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": "https://assets.lcsc.com/images/lcsc/96x96/20230123_COSINE-COS3201TR_C3035955_blank.jpg",
+       "productImageAccessId": null,
+       "productBigImage": "https://assets.lcsc.com/images/lcsc/900x900/20230123_COSINE-COS3201TR_C3035955_blank.jpg",
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": "https://assets.lcsc.com/images/lcsc/96x96/20230123_COSINE-COS3201TR_C3035955_package.jpg",
+       "productImageAccessId": null,
+       "productBigImage": "https://assets.lcsc.com/images/lcsc/900x900/20230123_COSINE-COS3201TR_C3035955_package.jpg",
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-5",
+     "describe": "-40\u2103~+125\u2103 1 1.6V~7V 18uA 1mV 1pA 1pA 200ns 5uV/\u2103 7.5V 70dB CMOS Push-pull Rail-to-Rail Input, Rail-to-Rail Output SOT-23-5 Comparators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Vos - Input Offset Voltage",
+       "attribute_value_name": "1mV"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Push-pull"
+      },
+      {
+       "attribute_name_en": "Input Offset Current(Ios)",
+       "attribute_value_name": "1pA"
+      },
+      {
+       "attribute_name_en": "Input Offset Voltage Drift(Vos TC)",
+       "attribute_value_name": "5uV/\u2103"
+      },
+      {
+       "attribute_name_en": "Single Supply",
+       "attribute_value_name": "1.6V~7V"
+      },
+      {
+       "attribute_name_en": "Input Hysteresis Voltage (Vhys)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Common Mode Rejection Ratio(CMRR)",
+       "attribute_value_name": "70dB"
+      },
+      {
+       "attribute_name_en": "Rail to Rail",
+       "attribute_value_name": "Rail-to-Rail Input, Rail-to-Rail Output"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Maximum Power Supply Range (Vdd-Vss)",
+       "attribute_value_name": "7.5V"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "18uA"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Ib - Input Bias Current",
+       "attribute_value_name": "1pA"
+      },
+      {
+       "attribute_name_en": "Propagation Delay Time",
+       "attribute_value_name": "200ns"
+      },
+      {
+       "attribute_name_en": "Output Mode",
+       "attribute_value_name": "CMOS"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Comparators",
+     "secondSortName": "Amplifiers/Comparators",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "COS<span class='lucene_highlight_class'>3201</span>TR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 106403,
+     "componentLibraryType": "expand",
+     "stockCount": 4217,
+     "componentTypeEn": "Comparators",
+     "erpComponentName": "40\u7eb3\u79d2\u4f4e\u529f\u8017\u63a8\u633d\u8f93\u51fa\u6bd4\u8f83\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/comparators_texas-instruments-tlv3201aidbvr_C105188.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.9754
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.8579
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.747
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.6639
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.6312
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.6133
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.9396
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.8265
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.7196
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.6395
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.6081
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.5908
+      }
+     ],
+     "firstSortAccessId": "e3e42cbeca794b379734d72eb85f2f43",
+     "secondSortAccessId": "b9467b516dce4241802a779b8a474d6f",
+     "canPresaleNumber": 2648,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-TLV3201AIDBVR/C105188",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 3.13862,
+     "preMinPurchaseNum": 11,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.9754,
+     "componentCode": "C105188",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "TLV3201AIDBVR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8582999005060616192",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Texas-Instruments-TLV3201AIDBVR_C105188.pdf",
+     "dataManualFileAccessId": "8586199910253268992",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/tlv3201",
+     "componentName": "TI TLV3201AIDBVR",
+     "minImage": "",
+     "minImageAccessId": "8582999006050471936",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-5",
+     "describe": "-40\u2103~+125\u2103 1 10uV/\u2103 1mV 1mV 1pA 2.7V~5.5V 2.9ns 40ns 40uA 50pA 70dB CMOS Push-pull Rail-to-rail input SOT-23-5 Comparators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Vos - Input Offset Voltage",
+       "attribute_value_name": "1mV"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Push-pull"
+      },
+      {
+       "attribute_name_en": "Input Offset Current(Ios)",
+       "attribute_value_name": "50pA"
+      },
+      {
+       "attribute_name_en": "Input Offset Voltage Drift(Vos TC)",
+       "attribute_value_name": "10uV/\u2103"
+      },
+      {
+       "attribute_name_en": "Single Supply",
+       "attribute_value_name": "2.7V~5.5V"
+      },
+      {
+       "attribute_name_en": "Input Hysteresis Voltage (Vhys)",
+       "attribute_value_name": "1mV"
+      },
+      {
+       "attribute_name_en": "Response Time (tr)",
+       "attribute_value_name": "2.9ns"
+      },
+      {
+       "attribute_name_en": "Common Mode Rejection Ratio(CMRR)",
+       "attribute_value_name": "70dB"
+      },
+      {
+       "attribute_name_en": "Rail to Rail",
+       "attribute_value_name": "Rail-to-rail input"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "40uA"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Ib - Input Bias Current",
+       "attribute_value_name": "1pA"
+      },
+      {
+       "attribute_name_en": "Propagation Delay Time",
+       "attribute_value_name": "40ns"
+      },
+      {
+       "attribute_name_en": "Output Mode",
+       "attribute_value_name": "CMOS"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Comparators",
+     "secondSortName": "Amplifiers/Comparators",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TLV3201AIDBVR</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 59705879,
+     "componentLibraryType": "expand",
+     "stockCount": 355,
+     "componentTypeEn": "Comparators",
+     "erpComponentName": "TLV3201AIDBVR(LX)",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.4306
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.3409
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.3018
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.2545
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2316
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2202
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2122
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.2907
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.4148
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2232
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.2451
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.3284
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 355,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "lingxingic-TLV3201AIDBVR_LX/C55612955",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 1.1,
+     "preMinPurchaseNum": 27,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.4306,
+     "componentCode": "C55612955",
+     "componentBrandEn": "lingxingic",
+     "componentModelEn": "TLV3201AIDBVR(LX)",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8788466802708717568",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "lingxingic TLV3201AIDBVR(LX)",
+     "minImage": "",
+     "minImageAccessId": "8788466803597910016",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-5",
+     "describe": "SOT-23-5 Comparators ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "Comparators",
+     "secondSortName": "Amplifiers/Comparators",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TLV3201AIDBVR</span>(LX)",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 15,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "TLV3201AIDBVR"
+ },
+ "message": null,
+ "_kw": "TLV3201AIDBVR",
+ "_fetched_utc": "2026-10-13T19:35:20Z"
+}

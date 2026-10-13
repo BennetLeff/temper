@@ -1,0 +1,228 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 1,
+   "list": [
+    {
+     "componentId": 148595,
+     "componentLibraryType": "expand",
+     "stockCount": 1019,
+     "componentTypeEn": "Chip Resistor - Surface Mount",
+     "erpComponentName": "\u539a\u819c\u7535\u963b 3\u03a9 \u00b11% 250mW",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/chip-resistor-surface-mount_yageo-rc1206fr-073rl_C137279.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 499,
+       "productPrice": 0.0227
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 1499,
+       "productPrice": 0.019
+      },
+      {
+       "startNumber": 1500,
+       "endNumber": 4999,
+       "productPrice": 0.017
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": 24999,
+       "productPrice": 0.0155
+      },
+      {
+       "startNumber": 25000,
+       "endNumber": 49999,
+       "productPrice": 0.0144
+      },
+      {
+       "startNumber": 50000,
+       "endNumber": -1,
+       "productPrice": 0.0138
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1500,
+       "endNumber": 4999,
+       "productPrice": 0.0164
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 1499,
+       "productPrice": 0.0183
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": 24999,
+       "productPrice": 0.0149
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 499,
+       "productPrice": 0.0219
+      },
+      {
+       "startNumber": 50000,
+       "endNumber": -1,
+       "productPrice": 0.0133
+      },
+      {
+       "startNumber": 25000,
+       "endNumber": 49999,
+       "productPrice": 0.0139
+      }
+     ],
+     "firstSortAccessId": "b97df1fd049743c0a0330513eac35a72",
+     "secondSortAccessId": "a49341812cad4b0bafa2ddd547a82bd4",
+     "canPresaleNumber": -477,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "YAGEO-RC1206FR073RL/C137279",
+     "leastPatchNumber": 15,
+     "lossNumber": 10,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 5000,
+     "shopCostPrice": 0.0422,
+     "preMinPurchaseNum": 398,
+     "minPurchaseNum": 398,
+     "initialPrice": 0.0227,
+     "componentCode": "C137279",
+     "componentBrandEn": "YAGEO",
+     "componentModelEn": "RC1206FR-073RL",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8761688787271462912",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_YAGEO-RC1206FR-073RL_C137279.pdf",
+     "dataManualFileAccessId": "8755573473936711680",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "YAGEO RC1206FR-073RL",
+     "minImage": "",
+     "minImageAccessId": "8761688788370370560",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "1206",
+     "describe": "-55\u2103~+155\u2103 200V 250mW 3\u03a9 Thick Film Resistor \u00b11% \u00b1200ppm/\u2103 1206 Chip Resistor - Surface Mount ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Resistance",
+       "attribute_value_name": "3\u03a9"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+155\u2103"
+      },
+      {
+       "attribute_name_en": "Power(Watts)",
+       "attribute_value_name": "250mW"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Thick Film Resistor"
+      },
+      {
+       "attribute_name_en": "Voltage-Supply(Max)",
+       "attribute_value_name": "200V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b11%"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "\u00b1200ppm/\u2103"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Chip Resistor - Surface Mount",
+     "secondSortName": "Resistors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>RC1206FR-073RL</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 15,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "RC1206FR-073RL"
+ },
+ "message": null,
+ "_kw": "RC1206FR-073RL",
+ "_fetched_utc": "2026-10-13T19:31:17Z"
+}

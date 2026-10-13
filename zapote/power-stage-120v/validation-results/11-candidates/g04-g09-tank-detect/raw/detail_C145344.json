@@ -1,0 +1,305 @@
+{
+ "code": 200,
+ "data": {
+  "componentCode": "C145344",
+  "componentBrandEn": "Vishay Intertech",
+  "componentModelEn": "VOL628A-2X001T",
+  "componentImageUrl": "",
+  "productBigImageAccessId": "8582996652739473408",
+  "productBigImageAccessIdUrl": null,
+  "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_1804162250_Vishay-Intertech-VOL628A-2X001T_C145344.pdf",
+  "dataManualFileAccessId": "8586198763677356032",
+  "dataManualFileAccessIdUrl": null,
+  "dataManualOfficialLink": "",
+  "componentName": "VISHAY VOL628A-2X001T",
+  "minImage": "",
+  "minImageAccessId": "8582996653632589824",
+  "minImageAccessIdUrl": null,
+  "imageList": [
+   {
+    "productImage": null,
+    "productImageAccessId": "8582996653632589824",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8582996652739473408",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 1
+   },
+   {
+    "productImage": null,
+    "productImageAccessId": "8582996656761946112",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8582996655800639488",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 2
+   },
+   {
+    "productImage": null,
+    "productImageAccessId": "8582996659937169408",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8582996658997645312",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 3
+   }
+  ],
+  "manufacturerBlackFlag": null,
+  "componentNameEn": "VISHAY VOL628A-2X001T",
+  "componentSpecificationEn": "SOP-4-2.54mm",
+  "describe": "-55\u2103~+110\u2103 1 1.16V 125% 250mV@0.32mA,1mA 3.5us@2mA,100\u03a9 50mA 5kV 5us 63% 6V 80V 80mA DC Phototransistor SOP-4-2.54mm Transistor, Photovoltaic Output Optoisolators ROHS",
+  "attributes": [
+   {
+    "attribute_name_en": "Operating Temperature",
+    "component_code": "C145344",
+    "attribute_value_name": "-55\u2103~+110\u2103"
+   },
+   {
+    "attribute_name_en": "Load Voltage",
+    "component_code": "C145344",
+    "attribute_value_name": "80V"
+   },
+   {
+    "attribute_name_en": "Forward Current(If)",
+    "component_code": "C145344",
+    "attribute_value_name": "80mA"
+   },
+   {
+    "attribute_name_en": "Rise time",
+    "component_code": "C145344",
+    "attribute_value_name": "3.5us@2mA,100\u03a9"
+   },
+   {
+    "attribute_name_en": "Output Type",
+    "component_code": "C145344",
+    "attribute_value_name": "Phototransistor"
+   },
+   {
+    "attribute_name_en": "Output Current",
+    "component_code": "C145344",
+    "attribute_value_name": "50mA"
+   },
+   {
+    "attribute_name_en": "Isolation Voltage(Vrms)",
+    "component_code": "C145344",
+    "attribute_value_name": "5kV"
+   },
+   {
+    "attribute_name_en": "Reverse Voltage",
+    "component_code": "C145344",
+    "attribute_value_name": "6V"
+   },
+   {
+    "attribute_name_en": "Current Transfer Ratio (CTR) Maximum/Saturation Value",
+    "component_code": "C145344",
+    "attribute_value_name": "125%"
+   },
+   {
+    "attribute_name_en": "Number of Outputs",
+    "component_code": "C145344",
+    "attribute_value_name": "1"
+   },
+   {
+    "attribute_name_en": "Input type",
+    "component_code": "C145344",
+    "attribute_value_name": "DC"
+   },
+   {
+    "attribute_name_en": "Current Transfer Ratio (CTR) Minimum",
+    "component_code": "C145344",
+    "attribute_value_name": "63%"
+   },
+   {
+    "attribute_name_en": "Features",
+    "component_code": "C145344",
+    "attribute_value_name": "-"
+   },
+   {
+    "attribute_name_en": "Vce Saturation(VCE(sat))",
+    "component_code": "C145344",
+    "attribute_value_name": "250mV@0.32mA,1mA"
+   },
+   {
+    "attribute_name_en": "Fall time",
+    "component_code": "C145344",
+    "attribute_value_name": "5us"
+   },
+   {
+    "attribute_name_en": "Voltage - Forward(Vf)",
+    "component_code": "C145344",
+    "attribute_value_name": "1.16V"
+   }
+  ],
+  "rankScore": null,
+  "firstSortName": "Optoisolators",
+  "secondSortName": "Transistor, Photovoltaic Output Optoisolators",
+  "componentBrandHigh": null,
+  "remarkHigh": null,
+  "componentModelHigh": null,
+  "componentCodeHigh": null,
+  "componentSpecificationHigh": null,
+  "rohsFlag": 1,
+  "assemblyComponentFlag": false,
+  "rohsFileName": null,
+  "rohsFileId": null,
+  "reachFileName": null,
+  "reachFileId": null,
+  "lcscComponentId": 156676,
+  "componentDesignator": "U",
+  "componentSource": "shop",
+  "stockCount": 172,
+  "overseasStockCount": 172,
+  "prices": [
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C145344",
+    "startNumber": 1,
+    "endNumber": 9,
+    "productPrice": 0.6117,
+    "erpComponentPriceKeyId": 78413690,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C145344",
+    "startNumber": 10,
+    "endNumber": 29,
+    "productPrice": 0.4991,
+    "erpComponentPriceKeyId": 78413686,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C145344",
+    "startNumber": 30,
+    "endNumber": 99,
+    "productPrice": 0.442,
+    "erpComponentPriceKeyId": 78413691,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C145344",
+    "startNumber": 100,
+    "endNumber": 499,
+    "productPrice": 0.385,
+    "erpComponentPriceKeyId": 78413687,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C145344",
+    "startNumber": 500,
+    "endNumber": 999,
+    "productPrice": 0.3409,
+    "erpComponentPriceKeyId": 78413689,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C145344",
+    "startNumber": 1000,
+    "endNumber": -1,
+    "productPrice": 0.3246,
+    "erpComponentPriceKeyId": 78413688,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   }
+  ],
+  "buyPrices": null,
+  "jlcPrices": null,
+  "encapsulationUnit": "PCS",
+  "encapsulationNumber": 3000,
+  "componentTypeEn": null,
+  "xrayFlag": false,
+  "componentLibraryType": "expand",
+  "leastNumber": 1,
+  "leastNumberPrice": 0.092,
+  "lcscGoodsUrl": "https://www.lcsc.com/product-detail/transistor-photovoltaic-output-optoisolators_vishay-intertech-vol628a-2x001t_C145344.html/?href=jlc-SMT/?href=jlc-SMT",
+  "erpComponentName": "DC\u8f93\u5165 \u9694\u79bb\u7535\u538b(rms):5000V",
+  "lossNumber": 0,
+  "secondTypeNameEn": "Transistor, Photovoltaic Output Optoisolators",
+  "firstTypeNameEn": "Optoisolators",
+  "secondTypeNameId": 2938,
+  "firstTypeNameId": 64,
+  "warehouseCode": "sz",
+  "warehouseName": "\u6df1\u5733",
+  "canPresaleNumber": 171,
+  "minPresaleNumber": 0,
+  "theRatio": null,
+  "componentStatus": "yes",
+  "assemblyMode": "smtWeld",
+  "assemblyModeBatch": "smtWeld",
+  "assemblyProcess": "SMT",
+  "minPurchaseNum": 1,
+  "initialPrice": 0.6117,
+  "minPresalePrice": null,
+  "componentPresaleType": null,
+  "preMinPurchaseNum": 19,
+  "providerInfos": null,
+  "componentProductType": 0,
+  "isBuyComponent": "1",
+  "noBuyReason": null,
+  "replaceUrlSuffix": null,
+  "componentAlternativesCode": null,
+  "alternativesLcscComponentId": null,
+  "leastPatchNumber": 0,
+  "fixtureFlag": false,
+  "fullReelPrice": null,
+  "recentBuyNum": null,
+  "recentBuyUnitPrice": null,
+  "buyCustomerCode": null,
+  "eccnCode": "EAR99",
+  "allowPostFlag": true,
+  "overseasComponentCatalogBizKey": 385244381135388685,
+  "overseasComponentBrandBizKey": "385285308197900290",
+  "catalogBlackFlag": null,
+  "shopShowPriceFlag": true,
+  "shopShowForeignPriceFlag": true,
+  "shopRealPriceFlag": true,
+  "needAuditFlag": false,
+  "specialComponentFee": 0.0,
+  "orderInstructionEnglish": "",
+  "moistureSensitivityLevelEn": "MSL 1",
+  "hotFlag": null,
+  "storyGoods": false,
+  "matchedPartDetail": "Vishay Intertech-55\u2103~+110\u2103 1 1.16V 125% 250mV@0.32mA,1mA 3.5us@2mA,100\u03a9 50mA 5kV 5us 63% 6V 80V 80mA DC Phototransistor SOP-4-2.54mm Transistor, Photovoltaic Output Optoisolators ROHS"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-13T19:27:15Z"
+}
