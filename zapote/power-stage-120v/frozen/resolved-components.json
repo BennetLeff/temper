@@ -1,11 +1,11 @@
 {
   "atopile_version": "0.2.69",
   "build_sha256": {
-    "build/default.csv": "18dc286916dcfa9d121502b02ec3a1cc0639e20f49e3c06f60d47d9500d92316",
+    "build/default.csv": "db4846f0f507134354cfca32750d6166f290534a816402eb26d67f35ad5adffd",
     "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-    "build/default.net": "8a7e1c4a869445d7d11ab9ee4c69f0dc40207cf4f06463a0ac8b2238cffef92b",
+    "build/default.net": "628bdb55a607f9536a3d66b3587c069913ebc4f54c38163345e854654aa2ab36",
     "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5",
-    "build/resolved-components.json": "b08996c72994db3aeb4f8db8068dbb76aa5e671123915ff177e4695232959039"
+    "build/resolved-components.json": "5183e618463fe508442ac40e8b802541f13476bbdc3b4c03add4438b23a48b99"
   },
   "components": [
     {
@@ -1305,7 +1305,7 @@
         "designator_prefix": "T",
         "footprint": "temper:CST3015",
         "manufacturer": "Coilcraft",
-        "mpn": "CST3015-100ED"
+        "mpn": "CST3015-200ED"
       }
     },
     {
@@ -1325,7 +1325,7 @@
         "designator_prefix": "C",
         "footprint": "temper:TDK_B32654_P27.5_W14.0_L31.5_Radial",
         "manufacturer": "TDK",
-        "mpn": "B32654A1104K000"
+        "mpn": "B32654A1104J000"
       }
     },
     {
@@ -1335,7 +1335,7 @@
         "designator_prefix": "C",
         "footprint": "temper:TDK_B32654_P27.5_W14.0_L31.5_Radial",
         "manufacturer": "TDK",
-        "mpn": "B32654A1104K000"
+        "mpn": "B32654A1104J000"
       }
     },
     {
@@ -1345,7 +1345,7 @@
         "designator_prefix": "C",
         "footprint": "temper:TDK_B32654_P27.5_W14.0_L31.5_Radial",
         "manufacturer": "TDK",
-        "mpn": "B32654A1104K000"
+        "mpn": "B32654A1104J000"
       }
     },
     {
@@ -1355,7 +1355,7 @@
         "designator_prefix": "C",
         "footprint": "temper:TDK_B32654_P27.5_W14.0_L31.5_Radial",
         "manufacturer": "TDK",
-        "mpn": "B32654A1104K000"
+        "mpn": "B32654A1104J000"
       }
     },
     {
@@ -1365,7 +1365,7 @@
         "designator_prefix": "C",
         "footprint": "temper:TDK_B32654_P27.5_W14.0_L31.5_Radial",
         "manufacturer": "TDK",
-        "mpn": "B32654A1104K000"
+        "mpn": "B32654A1104J000"
       }
     },
     {
@@ -1988,8 +1988,8 @@
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_1206_3216Metric",
         "manufacturer": "Yageo",
-        "mpn": "RC1206FR-071R5L",
-        "value": "1.5ohm"
+        "mpn": "RC1206FR-073RL",
+        "value": "3.0ohm"
       }
     },
     {
@@ -3780,7 +3780,7 @@
         "designator_prefix": "U",
         "footprint": "temper:VOL628A_LSOP4_ReviewOnly",
         "manufacturer": "Vishay",
-        "mpn": "VOL628A-3X001T"
+        "mpn": "VOL628A-2X001T"
       }
     },
     {
@@ -3842,9 +3842,9 @@
   "schema": "temper.circuit-export.v1",
   "source_sha256": {
     "elec/src/f6_bias.ato": "ebe1ff0a3e74d40abfbb9d5f6bddfd9bae374286960e6f06cdf5f9e57fa84d8f",
-    "elec/src/f6_parts.ato": "c88358b18d3ee5c72b978c449e455e755dae8547bb3998b516582f9ebfa5ede2",
-    "elec/src/parts.ato": "017fae35c02f503a513e7014f770459414382a48ef2f0fafa32c8bbeb9e7af08",
-    "elec/src/power_stage_120v.ato": "94260996ce163721619c12160ba27da3d9641939d93baec561f04e2478819142",
+    "elec/src/f6_parts.ato": "5346f6a0955f13f0d37bf916885d36b4450bd243989b70c1c355e74568e01cd6",
+    "elec/src/parts.ato": "f90b8f09159ff6f8f0141dfe9d718a0bb8ba13c91e70c2e6dbb83b148ff7b07a",
+    "elec/src/power_stage_120v.ato": "045eb9de36b02636e1d8681c695eaa3fc5e6d129fa1deeb6e0b4075e5482d06b",
     "prototype-closure/round4/supervisor/generated/supervisor.ato": "1d6674935534a46c6c82f61c4f18890de7fa7cbf81f89c1cb63efb7bfed1b7e3"
   }
 }

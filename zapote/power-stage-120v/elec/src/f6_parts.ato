@@ -314,7 +314,7 @@ component DisOr:
 
 component LineOpto:
     designator_prefix = "U"
-    mpn = "VOL628A-3X001T"
+    mpn = "VOL628A-2X001T"   # stage 20: CTR bin -2 (63-125 %), stocked; same LSOP-4 / VDE option (DECISIONS 23)
     manufacturer = "Vishay"
     footprint = "temper:VOL628A_LSOP4_ReviewOnly"
     signal AC1 ~ pin 1

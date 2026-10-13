@@ -14,7 +14,7 @@ def main() -> None:
                      'default.layouts.json', 'manifest.json'):
         assert (root / 'frozen' / filename).read_bytes() == (root / 'native-21/frozen' / filename).read_bytes(), filename
     parts = {c['address'].split('::')[1]: c['attributes'] for c in resolved['components']}
-    assert all(parts[f'c_res{i}']['mpn'] == 'B32654A1104K000' for i in range(1, 6))
+    assert all(parts[f'c_res{i}']['mpn'] == 'B32654A1104J000' for i in range(1, 6))
     for leg in ('leg_a', 'leg_b'):
         assert parts[f'{leg}.r_dt']['mpn'] == 'RT0603BRD0749K9L'
         assert parts[f'{leg}.r_dis_pu']['mpn'] == '0603WAF3300T5E'

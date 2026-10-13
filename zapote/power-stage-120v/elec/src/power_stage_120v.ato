@@ -26,13 +26,13 @@ from "parts.ato" import R220k1206, Shunt1m, MosfetCfd7, Snubber1n1kV, UCC21550BD
 from "parts.ato" import PermitFet, R3R9Gate, R49k9Dt, R10k0603, R100k0603, R100R0603
 from "parts.ato" import R1k0603, R330R0603, C100n0603, C10u1210, C10u0805, ResB32654
 from "parts.ato" import C100n0805, C1u0805
-from "parts.ato" import CST3015_100E, Irm20_15, TcoLoopHeader, BranchFuseT3A15, MainsTapHeader
+from "parts.ato" import CST3015_200E, Irm20_15, TcoLoopHeader, BranchFuseT3A15, MainsTapHeader
 from "parts.ato" import Amc1311, R470k1206, R15k8Thin, C1nC0G0603, C100pC0G0603
 from "parts.ato" import Tlv3201, Ref2V5, R10kThin, R12k6Thin, R11k7Thin, R140kThin, R5k6Bias
 from "parts.ato" import Iso7710, SelvHeader16, Nand3Lvc1g10, FunctionalEarthLink
 from "parts.ato" import Hot5Supervisor, Hot5SchmittBuffer, R105kThin
 from "parts.ato" import BusTvs30kpa150
-from "parts.ato" import Burden1R5, C100nC0G1206, R1kThin, R2k21Thin, R1k1206, ClampBas116h, Or3Lvc1g332
+from "parts.ato" import Burden3R0, C100nC0G1206, R1kThin, R2k21Thin, R1k1206, ClampBas116h, Or3Lvc1g332
 
 from "f6_parts.ato" import HotSupply24, HotLdo, GateDischarge, Gate1R, DisOr, Bias4k99, Bias10u, Bias27k
 from "f6_bias.ato" import BiasReservoir, RegulatedSplit, RailMonitor, HighBias, LineZeroCross
@@ -418,7 +418,7 @@ module PowerStage120V:
     # The CT primary sits on the switch node (HF insulation basis open), not
     # the resonant node (up to ~640 V pk at 33-60 kHz): see ORACLE-ANSWER.md
     # Q4. Tank current still enters P1, so the CT sign is unchanged.
-    t_ct = new CST3015_100E
+    t_ct = new CST3015_200E
     t_ct.P1 ~ SW_A
     t_ct.P2 ~ COIL_FEED
     t_ct.S1 ~ CT_S1
@@ -739,15 +739,15 @@ module PowerStage120V:
     # T1's secondary is terminated here and never crosses the connector: an
     # open CT secondary spikes to hundreds of volts on SELV pins
     # (validation-results/06-controller-interface). Ported from
-    # zapote/current-sense/circuit/current_sense_unit.ato: floating 1.5 ohm
-    # burden around a bypassed 1.65 V midpoint (CT_S2), 1 k series input with
+    # zapote/current-sense/circuit/current_sense_unit.ato: floating burden (3.0 ohm
+    # with the 1:200 CT from stage 20; 1.5 ohm with the 1:100 part, same 0.015 V/A) around a bypassed 1.65 V midpoint (CT_S2), 1 k series input with
     # low-leakage BAS116H rail clamps, and a comparator per polarity. References 2.21k/10k
     # put the tank over-current trip at ~70 A (corner band 64.55-76.09 A, stage 15 28 A
     # hardware, DECISIONS 2026-10-10; was 3.32k, ~55 A). A third comparator gives the zero crossing; the
     # biased current waveform leaves through 1 k. The trip ORs with the
     # isolated bus fault onto the existing active-high BUS_FAULT line.
-    r_ct_burden = new Burden1R5
-    r_ct_burden.value = 1.5ohm
+    r_ct_burden = new Burden3R0
+    r_ct_burden.value = 3.0ohm
     r_ct_burden.p1 ~ CT_S1
     r_ct_burden.p2 ~ CT_S2
     c_ct_burden = new C100nC0G1206

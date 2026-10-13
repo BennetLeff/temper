@@ -23,7 +23,6 @@ HERE = Path(__file__).resolve().parent.parent
 MAP = {r["MPN"]: r for r in csv.DictReader(open(HERE / "sourcing" / "lcsc-map.csv"))}
 CHANGED = {"RT0603BRD077K68L": "C375517", "RL1206FR-070R68L": "C728510",    # verified on lcsc.com 2026-10-08
            "GRM21BZ71E106KE15L": "C237493",                                  # stage 8; lcsc.com 2026-10-08, 930 in stock
-           "CC0805KRX7R9BB104": "C49678",                                    # stage 9; lcsc.com 2026-10-08, 8.36 M in stock
            "GRM21BR71H105KA12L": "C77083"}                                   # stage 9; lcsc.com 2026-10-08, 119 k in stock
 # BOM simplification 2026-10-09 (../bom-simplification/PROPOSAL.md, safe set): JLC Basic parts of identical
 # spec, plus the stocked 0.1 % replacements for R34/R35, R77/R95/R110 and R87/R105/R120. C-numbers, class
@@ -36,7 +35,9 @@ BASIC = {"CC0603KRX7R9BB104": "C14663", "CL10C101JB8NNNC": "C14858", "CL21B105KB
          "1N4148W": "C81598", "MMBT3904": "C20526", "0603WAF4991T5E": "C23046", "0603WAF1802T5E": "C25810",
          "0603WAF3002T5E": "C22984", "1206W4F1003T5E": "C17900",
          # stage 14 (bias modules): 330 pF C0G and the 27 k enable-divider leg, JLC Basic (read 2026-10-09)
-         "CL10C331JB8NNNC": "C1664", "0603WAF2702T5E": "C22967"}
+         "CL10C331JB8NNNC": "C1664", "0603WAF2702T5E": "C22967",
+         # stage 9 part, listed Basic by JLC's part API on 2026-10-13 (11-candidates/research/bom-simplification A1)
+         "CC0805KRX7R9BB104": "C49678"}
 CHANGED.update({"UMK325AB7106KM-T": "C386167", "RT0603BRD0712K4L": "C861102", "TNPW060311K7BEEA": "C4553285",
                 "RT0603BRD076K2L": "C136960", "ARG03BTC1333": "C1509631",
                 # stage 14: module feedback divider, 0.1 % 25 ppm (JLC Extended, read 2026-10-09)
@@ -46,7 +47,11 @@ CHANGED.update({"UMK325AB7106KM-T": "C386167", "RT0603BRD0712K4L": "C861102", "T
                 "RT0603BRD0712K6L": "C861103", "RT0603BRD072K21L": "C705758",
                 # stage 17 (R5 derating, DECISIONS 17): Bourns CSS2H-2512R-1L00F replaces WSK25121L000FEA
                 # (JLC Extended, 1,482 in stock on 2026-10-12; round5-native21/stage17-r5/screen.json)
-                "CSS2H-2512R-1L00F": "C4175647"})
+                "CSS2H-2512R-1L00F": "C4175647",
+                # stage 20 (DECISIONS 23; 11-candidates/g04-g09-tank-detect, JLC part API 2026-10-13): 1:200 CT
+                # (SMT, 64 in stock), its 3.0 ohm burden, the stocked opto bin, the J-tolerance bank part
+                "CST3015-200ED": "C50132500", "RC1206FR-073RL": "C137279", "VOL628A-2X001T": "C145344",
+                "B32654A1104J000": "C3794777"})
 ACCEPT_ALT = {"GRM31A5C3A102JW01D"}
 bom_path = HERE / "fab" / "bom-jlcpcb.csv"
 rows = list(csv.DictReader(open(bom_path)))

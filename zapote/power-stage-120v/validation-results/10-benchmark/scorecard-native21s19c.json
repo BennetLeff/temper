@@ -29,7 +29,8 @@
   "emi_min_margin_dB": 10.5,
   "leakage_touch_mA": 0.974,
   "fuse_copper_fusing_ratio": 0.208,
-  "cmti_gate_ratio_min": 1.316
+  "cmti_gate_ratio_min": 1.316,
+  "bank_ratio_tdk_28A_40k": 1.105
  },
  "cost": {
   "bom_lines": 92,
@@ -52,6 +53,7 @@
   "emi": "07-conducted-emi/s19b/results.json scenarios.nominal (min margin_dB)",
   "leakage": "07-conducted-emi/leakage/result.json DESIGN row",
   "fuse_copper": "02-protection-timing/shoot-through-f1/result.json (min copper fusing I2t / F1 clearing I2t)",
-  "cmti": "06-controller-interface/cmti/cmti.csv (GATE rows, ratio at 95 V/ns)"
+  "cmti": "06-controller-interface/cmti/cmti.csv (GATE rows, ratio at 95 V/ns)",
+  "bank": "added 2026-10-13 with stage 20: bank_options.json baseline K (19c fits B32654A1104K000); same script and source as every later card"
  }
 }

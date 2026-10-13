@@ -1,10 +1,10 @@
 {
  "basis": "Native-21: native-19 reviewed annotations by MPN and pin set; ECO.md manufacturer pin tables for parts added in D-33; remaining parts passive (named after Atopile signals). Connectivity authority: native-21/frozen/default.net. Not datasheet or powered verification.",
  "basis_counts": {
-  "native19-reviewed": 124,
-  "passive-two-terminal": 207,
-  "passive-untyped": 9,
-  "eco-pin-table": 17
+  "native19-reviewed": 122,
+  "passive-two-terminal": 208,
+  "passive-untyped": 11,
+  "eco-pin-table": 16
  },
  "components": {
   "J1": {
@@ -443,9 +443,9 @@
    }
   },
   "R39": {
-   "mpn": "RC1206FR-071R5L",
+   "mpn": "RC1206FR-073RL",
    "source_instance": "r_ct_burden",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -5041,24 +5041,24 @@
    }
   },
   "T1": {
-   "mpn": "CST3015-100ED",
+   "mpn": "CST3015-200ED",
    "source_instance": "t_ct",
-   "basis": "native19-reviewed",
+   "basis": "passive-untyped",
    "pins": {
     "1": {
-     "function": "P1",
+     "function": "p1",
      "type": "passive"
     },
     "2": {
-     "function": "P2",
+     "function": "p2",
      "type": "passive"
     },
     "3": {
-     "function": "S1",
+     "function": "p3",
      "type": "passive"
     },
     "4": {
-     "function": "S2",
+     "function": "p4",
      "type": "passive"
     }
    }
@@ -5130,7 +5130,7 @@
    }
   },
   "C21": {
-   "mpn": "B32654A1104K000",
+   "mpn": "B32654A1104J000",
    "source_instance": "c_res1",
    "basis": "passive-two-terminal",
    "pins": {
@@ -5145,7 +5145,7 @@
    }
   },
   "C22": {
-   "mpn": "B32654A1104K000",
+   "mpn": "B32654A1104J000",
    "source_instance": "c_res2",
    "basis": "passive-two-terminal",
    "pins": {
@@ -5160,7 +5160,7 @@
    }
   },
   "C23": {
-   "mpn": "B32654A1104K000",
+   "mpn": "B32654A1104J000",
    "source_instance": "c_res3",
    "basis": "passive-two-terminal",
    "pins": {
@@ -5175,7 +5175,7 @@
    }
   },
   "C151": {
-   "mpn": "B32654A1104K000",
+   "mpn": "B32654A1104J000",
    "source_instance": "c_res4",
    "basis": "passive-two-terminal",
    "pins": {
@@ -5190,7 +5190,7 @@
    }
   },
   "C152": {
-   "mpn": "B32654A1104K000",
+   "mpn": "B32654A1104J000",
    "source_instance": "c_res5",
    "basis": "passive-two-terminal",
    "pins": {
@@ -6576,25 +6576,25 @@
    }
   },
   "U36": {
-   "mpn": "VOL628A-3X001T",
+   "mpn": "VOL628A-2X001T",
    "source_instance": "line_zc.opto",
-   "basis": "eco-pin-table",
+   "basis": "passive-untyped",
    "pins": {
     "1": {
-     "function": "AC1",
+     "function": "p1",
      "type": "passive"
     },
     "2": {
-     "function": "AC2",
+     "function": "p2",
      "type": "passive"
     },
     "3": {
-     "function": "E",
+     "function": "p3",
      "type": "passive"
     },
     "4": {
-     "function": "C",
-     "type": "open_collector"
+     "function": "p4",
+     "type": "passive"
     }
    }
   }

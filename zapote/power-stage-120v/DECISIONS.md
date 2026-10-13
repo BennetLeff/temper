@@ -846,3 +846,22 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
     - **F13, stock (`08-manufacturing-package/native-21/sourcing/STOCK-2026-10-13.*`):** parts cost about $330 per power board at 5 and $232 at 500 (parts only). 10 lines have zero stock and 17 are single-source. The worst are UCC21550BDWKR (0 stock, next lot 2027-06), ISO7710DWR ×4 (0 stock, 12 weeks), L1 (TDK, 0 stock, 29 weeks), J6 and R5 (0 stock). Mouser was not reachable; the controller's JLC classes are mostly unrecorded.
     - **The benchmark (owner direction 2026-10-13):** stage 19c, with its scorecard (`native-21/layout/gates/scorecard.py`) and the acceptance rule fixed before any candidate: every gate passes, no performance metric is worse beyond its tolerance, and the candidate is cheaper / simpler or better. The deficits above are scorecard metrics, so fixing them is how a candidate scores better. Supplier contact (JLC CTI, TDK, Coilcraft, Mersen) waits until a winning candidate is chosen, except the JLC CTI question, which every candidate needs.
     - **D-31 wording:** "FC1 and the catch circuit as containment" does not describe the built board. Containment is F1 plus copper that survives F1's clearing energy (above), with BR1 sacrificial.
+23. **Stage 20: first accepted candidate, BOM-only (2026-10-13; board `2d5a4b05a9a1e627132e4372cac5065d1ad72b19efd45a8b7b9e22c8de1b7acd`, copper.json `de81613d…` = 19c, schematic `61780840…`, frozen netlist `628bdb55a607f9536a3d66b3587c069913ebc4f54c38163345e854654aa2ab36`, Gerber ZIP `17feed2516c638680a3e8a392c77be7ec22fff0f87d853331f964a869644d0a8`; tag `native21s20`; proposals `validation-results/11-candidates/g04-g09-tank-detect/` P1–P3, queue `11-candidates/QUEUE.md`).**
+    - **Changes (schematic values only, no footprint or copper change):**
+      - T1 CST3015-100ED (1:100) → **CST3015-200ED** (1:200, same series outline and insulation statement), with R39 1.5 → **3.0 Ω** (RC1206FR-073RL). Volts per primary amp stay 0.015 V/A, so the CT trip (70.18 A, band 64.55–76.09 A), CT_MON and CT_ZC are unchanged in amps. Secondary volt-time at the 118.74 A shunt-band top falls from 7.2 % to 5.3 % of its limit, and burden loss halves. T1 becomes a JLC SMT part (C50132500, 64 in stock) instead of a consigned one.
+      - U36 VOL628A-3X001T → **VOL628A-2X001T**. This is the same LSOP-4 package and VDE option, and it is stocked (C145344). The CTR bin is lower, which widens the zero-cross pulse about 1.6×. The firmware's 300 µs minimum pulse width is a bench check either way.
+      - Bank C21–C23 / C151 / C152 K → **B32654A1104J000** (±5 %). The 28 A, 40 kHz ratio to TDK's current curve goes from 1.105 to 1.022, and the allowed tank current at 35 kHz from 24.8 to 26.8 A. F3's third-fault case drops from 1,702 to 1,683 V; it stays covered by the 35 kHz floor (DECISIONS 13).
+      - The C49678 line is labelled Basic, which is JLC's own listing.
+    - **Evidence:**
+      - Atopile 0.2.69 rebuild: the diff is exactly the four parts.
+      - audit.rs PASS, 80/80, with identity strings updated; verify_source PASS (357).
+      - Chain on the 19c copper: every gate identical to 19c (DRC 0/0/0, barrier and RES_A 0, Rust 0 over 5,837 items, D5 8.047/8.507, fit 0, DFM PASS, Gerber review PASS, bypass 11/11, PI PASS, return_path PASS, Kelvin 67.72–116.44 A, B3 136.0 °C).
+    - **Scorecard against the 19c benchmark: ACCEPT.**
+      - Simpler: hand/consign lines 23 → 22 and zero-stock lines 10 → 9.
+      - Better: `bank_ratio_tdk_28A_40k` 1.105 → 1.022.
+      - Cost: parts are **+$2.89 at 500** ($231.94 → $234.83), all from the J bank. That is priced conservatively at the benchmark's DigiKey K price × JLC's J/K ratio (1.41). No T1 saving is claimed, because Coilcraft has not quoted the -200ED (`STOCK-2026-10-13-addendum-s20.csv`).
+    - **Scorecard change, stated openly:** `bank_ratio_tdk_28A_40k` was added with this stage. It is one of item 21's 28 A thermal margins and was missing from the card. The 19c card received the same metric from the same script (1.105, K grade).
+    - **Bench, unchanged in kind:**
+      - CT trip injection (the D4 condition-2 step), which any T1 needs.
+      - The ZC pulse width.
+      - T1's interwinding capacitance (MAG-27), which is unpublished for both parts. The pickup it causes is independent of turns ratio for equal capacitance.

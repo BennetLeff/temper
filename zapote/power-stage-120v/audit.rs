@@ -257,12 +257,12 @@ const BARRIER_PARTS: &[(&str, &str, &[&str])] = &[
     ("leg_b.driver", "UCC21550BDWKR", &["1", "2", "3", "4", "5", "6", "7", "8"]),
     ("u_vsense", "AMC1311BDWVR", &["5", "6", "7", "8"]),
     ("u_iso", "ISO7710DWR", &["9", "13", "14", "16"]),
-    ("t_ct", "CST3015-100ED", &["3", "4"]),
+    ("t_ct", "CST3015-200ED", &["3", "4"]),
     ("ps_selv", "IRM-20-15", &["3", "4"]),
     ("monitor_ls.iso", "ISO7710DWR", &["9", "13", "14", "16"]),
     ("bias_ha.monitor.iso", "ISO7710DWR", &["9", "13", "14", "16"]),
     ("bias_hb.monitor.iso", "ISO7710DWR", &["9", "13", "14", "16"]),
-    ("line_zc.opto", "VOL628A-3X001T", &["3", "4"]),
+    ("line_zc.opto", "VOL628A-2X001T", &["3", "4"]),
 ];
 
 /// Safety-relevant part identities (path -> MPN).
@@ -338,9 +338,9 @@ const IDENTITY: &[(&str, &str)] = &[
     ("r_div_bot", "RT0603BRD0715K8L"),
     ("ps_gate", "IRM-20-24"),
     ("ps_selv", "IRM-20-15"),
-    ("t_ct", "CST3015-100ED"),
+    ("t_ct", "CST3015-200ED"),
     // Tank-CT detector (tools/ct_detector): burden, trip references, clamps.
-    ("r_ct_burden", "RC1206FR-071R5L"),
+    ("r_ct_burden", "RC1206FR-073RL"),
     ("c_ct_burden", "GRM31C5C1H104JA01L"),
     ("r_ct_bias_top", "RT0603BRD071KL"),
     ("r_ct_bias_bot", "RT0603BRD071KL"),
@@ -541,7 +541,7 @@ const IDENTITY: &[(&str, &str)] = &[
     ("bias_c_or", "CC0603KRX7R9BB104"),
     ("line_zc.r1", "RC1206FR-0716K5L"),
     ("line_zc.r2", "RC1206FR-0716K5L"),
-    ("line_zc.opto", "VOL628A-3X001T"),
+    ("line_zc.opto", "VOL628A-2X001T"),
     ("line_zc.r3", "RC1206FR-0716K5L"),
     ("line_zc.r4", "RC1206FR-0716K5L"),
     ("line_zc.pullup", "0603WAF3302T5E"),

@@ -78,3 +78,11 @@ Score a candidate right after its own `chain.sh` run, and save the card:
         --compare validation-results/10-benchmark/scorecard-native21s19c.json
 
 Controls run 2026-10-13: 19c vs 19b gives ACCEPT (better `return_path_open_changes`, 39 vs 41, at equal cost), and 19b vs 19c gives REJECT.
+
+## Candidates graded so far
+
+| Stage | Change | Verdict | Card |
+|---|---|---|---|
+| 20 | T1 1:200 + R39 3.0 Ω, U36 -2X bin, bank J tolerance (BOM only) | **ACCEPT**. Simpler: hand lines −1, zero-stock lines −1. Better: bank 28 A ratio 1.105 → 1.022. Parts +$2.89 at 500. | [`scorecard-native21s20.json`](scorecard-native21s20.json) |
+
+`bank_ratio_tdk_28A_40k` was added to the card with stage 20 and back-filled on 19c from the same script (DECISIONS 23). Prices for new MPNs come from `STOCK-2026-10-13-addendum-*.csv`, on a same-channel, conservative basis.

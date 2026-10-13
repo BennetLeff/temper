@@ -391,22 +391,24 @@ component C10u1210:
 # ----------------------------------------------------------------- resonant tank
 
 component ResB32654:
-    """TDK B32654A1104K000 0.10 uF 1600 Vdc / 500 Vac MKP, 27.5 mm radial, 7.3 A rms at 85 C / 100 kHz
+    """TDK B32654A1104J000 (stage 20: J, +-5 %, was K +-10 %; DECISIONS 23) 0.10 uF 1600 Vdc / 500 Vac MKP, 27.5 mm radial, 7.3 A rms at 85 C / 100 kHz
     (B3265*A data sheet p.22). Five in parallel form the 0.50 uF bank from stage 13: the 942C parts'
     catalogue current does not support the 22 A tank ceiling (validation-results/05 round 4 and its review)."""
     designator_prefix = "C"
-    mpn = "B32654A1104K000"
+    mpn = "B32654A1104J000"
     manufacturer = "TDK"
     footprint = "temper:TDK_B32654_P27.5_W14.0_L31.5_Radial"
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
-component CST3015_100E:
-    """Coilcraft CST3015-100ED 1:100 CT, 88 A, 5 kVrms reinforced.
-    Pads P1/P2/S1/S2 = 1/2/3/4 (repo footprint temper:CST3015)."""
+component CST3015_200E:
+    """Coilcraft CST3015-200ED 1:200 CT, 5 kVrms reinforced (series datasheet 1608-1). Stage 20 (DECISIONS 23):
+    replaces the 1:100 -100ED with R39 doubled to 3.0 ohm, so volts per primary amp (0.015 V/A) and every CT
+    threshold in amps are unchanged; secondary volt-time 1276 V-us (was 638), JLC SMT (C50132500).
+    Pads P1/P2/S1/S2 = 1/2/3/4 (repo footprint temper:CST3015, the series' common outline)."""
     designator_prefix = "T"
     footprint = "temper:CST3015"
-    mpn = "CST3015-100ED"
+    mpn = "CST3015-200ED"
     manufacturer = "Coilcraft"
     signal P1 ~ pin 1
     signal P2 ~ pin 2
@@ -705,11 +707,11 @@ component FunctionalEarthLink:
 # Ported from zapote/current-sense/circuit/current_sense_unit.ato; model and
 # retuned trip band: tools/ct_detector/ct_detector_model.rs.
 
-component Burden1R5:
-    """CT burden, 1.50 ohm 1 % 0.25 W, across T1's secondary at the CT.
-    1.5 ohm keeps the biased swing within the 3.3 V rail up to 88 A."""
+component Burden3R0:
+    """CT burden, 3.0 ohm 1 % 0.25 W, across T1's secondary at the CT (stage 20: 1:200 CT, was 1.5 ohm with
+    1:100). 3.0 / 200 = 0.015 V per primary amp, so the biased swing stays within the 3.3 V rail up to 88 A."""
     designator_prefix = "R"
-    mpn = "RC1206FR-071R5L"
+    mpn = "RC1206FR-073RL"
     manufacturer = "Yageo"
     footprint = "Resistor_SMD:R_1206_3216Metric"
     value: resistance

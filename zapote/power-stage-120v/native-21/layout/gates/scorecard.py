@@ -48,6 +48,7 @@ PERF = {
     "leakage_touch_mA": ("lower", 0.0),
     "cmti_gate_ratio_min": ("higher", 0.0),
     "fuse_copper_fusing_ratio": ("higher", 0.0),
+    "bank_ratio_tdk_28A_40k": ("lower", 0.0),     # added 2026-10-13 (stage 20): DECISIONS item 21 / 23 thermal margin
 }
 
 
@@ -164,6 +165,17 @@ def performance(b, tag):
         if rows:
             m["cmti_gate_ratio_min"] = min(float(r["ratio_hard"]) for r in rows)
             src["cmti"] = "06-controller-interface/cmti/cmti.csv (GATE rows, ratio at 95 V/ns)"
+    # resonant bank at 28 A, 40 kHz: ratio of the predicted per-cap current to TDK's curve, by the fitted part's
+    # tolerance grade (11-candidates/g04-g09-tank-detect/scripts/bank_options.py; lower is better)
+    bo = jload(VR / "11-candidates/g04-g09-tank-detect/results/bank_options.json")
+    if bo:
+        grade = None
+        for r in csv.DictReader(open(FAB / "bom-jlcpcb.csv")):
+            if r["Manufacturer Part Number"].startswith("B32654A1104"):
+                grade = r["Manufacturer Part Number"][-4]          # K or J
+        if grade in ("K", "J"):
+            m["bank_ratio_tdk_28A_40k"] = bo["baseline"][{"K": "5x100nF_K(+-10%)", "J": "5x100nF_J(+-5%)"}[grade]]["ratio_to_curve_28A_40k"]
+            src["bank"] = f"11-candidates/g04-g09-tank-detect/results/bank_options.json baseline {grade}"
     return m, src
 
 
@@ -180,11 +192,13 @@ def cost(b, bom_path, stock_path):
     extras = bom_path.parent / "hand-assembly-extras.csv"
     if extras.exists():
         c["hand_or_consign_lines"] += sum(1 for _ in csv.DictReader(open(extras)))
-    if stock_path and Path(stock_path).exists():
+    paths = [Path(x) for x in str(stock_path).split(",")] if stock_path else []
+    if paths and all(x.exists() for x in paths):
         st = {}
-        for r in csv.DictReader(open(stock_path)):
-            if r["board"].startswith("power"):
-                st[r["mpn"].strip()] = r
+        for sp in paths:                  # later files (addenda for new MPNs) override earlier rows
+            for r in csv.DictReader(open(sp)):
+                if r["board"].startswith("power"):
+                    st[r["mpn"].strip()] = r
         c5 = c500 = 0.0
         unpriced, zero, single = [], [], []
         for r in rows:
@@ -253,7 +267,8 @@ def main():
     ap.add_argument("build", nargs="?")
     ap.add_argument("--card", help="a saved scorecard to compare instead of computing one")
     ap.add_argument("--bom", default=str(FAB / "bom-jlcpcb.csv"))
-    ap.add_argument("--stock", default=str(VR / "08-manufacturing-package/native-21/sourcing/STOCK-2026-10-13.csv"))
+    ap.add_argument("--stock", default=",".join(str(p) for p in sorted((VR / "08-manufacturing-package/native-21/sourcing").glob("STOCK-2026-10-13*.csv"))),
+                    help="comma-separated stock CSVs; addenda (STOCK-2026-10-13-addendum-*.csv) add rows for new MPNs")
     ap.add_argument("--audit")
     ap.add_argument("--json")
     ap.add_argument("--compare")

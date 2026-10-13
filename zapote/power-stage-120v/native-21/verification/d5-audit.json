@@ -17,12 +17,12 @@
    "min_mm": 8.507,
    "pass": true,
    "between": [
-    "pad l_filt C3",
-    "pad pe C3"
+    "pad n_filt C4",
+    "pad pe C4"
    ],
    "at_mm": [
     225.0,
-    102.8
+    109.1
    ]
   }
  },
@@ -59,14 +59,11 @@
   },
   {
    "ref": "T1",
-   "mpn": "CST3015-100ED",
+   "mpn": "CST3015-200ED",
    "land_gap_mm": 18.5,
    "board_pass": true,
    "package": {
-    "clr": 8.0,
-    "cpg": 8.0,
-    "src": "Coilcraft CST3015 datasheet (\u22658 mm spacing, 5 kVrms test)",
-    "rating": "no CTI/PD certificate"
+    "src": "NOT IN TABLE: add the datasheet distances"
    }
   },
   {
@@ -131,14 +128,11 @@
   },
   {
    "ref": "U36",
-   "mpn": "VOL628A-3X001T",
+   "mpn": "VOL628A-2X001T",
    "land_gap_mm": 8.2,
    "board_pass": true,
    "package": {
-    "clr": 8.0,
-    "cpg": 8.0,
-    "src": "Vishay doc 82401 rev 1.9 p.4",
-    "rating": "option 1 (VDE)"
+    "src": "NOT IN TABLE: add the datasheet distances"
    }
   },
   {
@@ -167,6 +161,66 @@
   }
  ],
  "npth_to_hot": [
+  {
+   "ref": "J10",
+   "at": [
+    143.0,
+    6.5
+   ],
+   "hot_mm": 0.25,
+   "role": "own hole of a HOT terminal",
+   "pass": true
+  },
+  {
+   "ref": "H3",
+   "at": [
+    86.0,
+    180.0
+   ],
+   "hot_mm": 61.6,
+   "role": "nylon fixing (insulating hardware only, F.Fab NYLON)",
+   "pass": true
+  },
+  {
+   "ref": "J5",
+   "at": [
+    132.0,
+    70.5
+   ],
+   "hot_mm": 0.25,
+   "role": "own hole of a HOT terminal",
+   "pass": true
+  },
+  {
+   "ref": "H7",
+   "at": [
+    194.0,
+    130.0
+   ],
+   "hot_mm": 15.4,
+   "role": "nylon fixing (insulating hardware only, F.Fab NYLON)",
+   "pass": true
+  },
+  {
+   "ref": "J8",
+   "at": [
+    143.0,
+    19.5
+   ],
+   "hot_mm": 0.25,
+   "role": "own hole of a HOT terminal",
+   "pass": true
+  },
+  {
+   "ref": "J2",
+   "at": [
+    132.0,
+    85.5
+   ],
+   "hot_mm": 0.25,
+   "role": "own hole of a HOT terminal",
+   "pass": true
+  },
   {
    "ref": "J7",
    "at": [
@@ -198,22 +252,32 @@
    "pass": true
   },
   {
+   "ref": "H2",
+   "at": [
+    6.0,
+    180.0
+   ],
+   "hot_mm": 59.82,
+   "role": "nylon fixing (insulating hardware only, F.Fab NYLON)",
+   "pass": true
+  },
+  {
+   "ref": "J9",
+   "at": [
+    130.0,
+    6.5
+   ],
+   "hot_mm": 0.25,
+   "role": "own hole of a HOT terminal",
+   "pass": true
+  },
+  {
    "ref": "H6",
    "at": [
     128.0,
     54.0
    ],
    "hot_mm": 1.9,
-   "role": "nylon fixing (insulating hardware only, F.Fab NYLON)",
-   "pass": true
-  },
-  {
-   "ref": "H3",
-   "at": [
-    86.0,
-    180.0
-   ],
-   "hot_mm": 61.6,
    "role": "nylon fixing (insulating hardware only, F.Fab NYLON)",
    "pass": true
   },
@@ -228,66 +292,6 @@
    "pass": true
   },
   {
-   "ref": "H5",
-   "at": [
-    88.0,
-    100.0
-   ],
-   "hot_mm": 7.92,
-   "role": "nylon fixing (insulating hardware only, F.Fab NYLON)",
-   "pass": true
-  },
-  {
-   "ref": "J5",
-   "at": [
-    132.0,
-    70.5
-   ],
-   "hot_mm": 0.25,
-   "role": "own hole of a HOT terminal",
-   "pass": true
-  },
-  {
-   "ref": "J9",
-   "at": [
-    130.0,
-    6.5
-   ],
-   "hot_mm": 0.25,
-   "role": "own hole of a HOT terminal",
-   "pass": true
-  },
-  {
-   "ref": "J2",
-   "at": [
-    132.0,
-    85.5
-   ],
-   "hot_mm": 0.25,
-   "role": "own hole of a HOT terminal",
-   "pass": true
-  },
-  {
-   "ref": "J10",
-   "at": [
-    143.0,
-    6.5
-   ],
-   "hot_mm": 0.25,
-   "role": "own hole of a HOT terminal",
-   "pass": true
-  },
-  {
-   "ref": "H7",
-   "at": [
-    194.0,
-    130.0
-   ],
-   "hot_mm": 15.4,
-   "role": "nylon fixing (insulating hardware only, F.Fab NYLON)",
-   "pass": true
-  },
-  {
    "ref": "H4",
    "at": [
     24.0,
@@ -298,23 +302,13 @@
    "pass": true
   },
   {
-   "ref": "H2",
+   "ref": "H5",
    "at": [
-    6.0,
-    180.0
+    88.0,
+    100.0
    ],
-   "hot_mm": 59.82,
+   "hot_mm": 7.92,
    "role": "nylon fixing (insulating hardware only, F.Fab NYLON)",
-   "pass": true
-  },
-  {
-   "ref": "J8",
-   "at": [
-    143.0,
-    19.5
-   ],
-   "hot_mm": 0.25,
-   "role": "own hole of a HOT terminal",
    "pass": true
   }
  ],
