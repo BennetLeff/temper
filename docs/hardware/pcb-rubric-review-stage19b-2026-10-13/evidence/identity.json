@@ -1,0 +1,397 @@
+{
+  "date": "2026-10-13",
+  "candidate": "native-21 stage19b",
+  "board": "/private/tmp/temper-stage19b-rubric-review-2026-10-13/input/hardware/native21-stage19b/section.kicad_pcb",
+  "board_sha256": "b19a45530bb0f39d2d3c0412e3774b6d5a47c4238d3fee867790cce410756662",
+  "snapshot_root": "/private/tmp/temper-stage19b-rubric-review-2026-10-13/input",
+  "manifest": "/private/tmp/temper-stage19b-rubric-review-2026-10-13/input/hardware/CURRENT.tsv",
+  "producer_unit": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v",
+  "producer_head": "a40f855cedc42a19199d7144be2809c41242712e",
+  "stage_manifest": "/private/tmp/temper-stage19b-rubric-review-2026-10-13/input/hardware/native21-stage19b/provenance/final-manifest.json",
+  "source_check": "/private/tmp/temper-stage19b-rubric-review-2026-10-13/input/hardware/native21-stage19b/provenance/source-check.json",
+  "original_exact_build": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s19/s19b",
+  "identity_check": "PASS;61 pinned inputs;producer .ato source hashes, copper, schematic and netlist match",
+  "scope": "read-only rubric assessment; historical evidence must be source-bound; no fabrication/mains release",
+  "files": [
+    {
+      "path": "input/hardware/native21-stage19b/candidate-libs/Capacitor_SMD.pretty/CP_Elec_6.3x5.9.kicad_mod",
+      "sha256": "efe6ce7548c27034d3ee899c6d00ac17e75879f562c4f5b40d445e4770b8bdcd",
+      "bytes": 5230
+    },
+    {
+      "path": "input/hardware/native21-stage19b/candidate-libs/Capacitor_SMD.pretty/C_0402_1005Metric.kicad_mod",
+      "sha256": "0403382fc4583ed510b461b1fa4a36dfaec6f4c0d9b1a67e6b0027837a54e1b5",
+      "bytes": 1936
+    },
+    {
+      "path": "input/hardware/native21-stage19b/candidate-libs/Capacitor_SMD.pretty/C_0603_1608Metric.kicad_mod",
+      "sha256": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+      "bytes": 1928
+    },
+    {
+      "path": "input/hardware/native21-stage19b/candidate-libs/Capacitor_SMD.pretty/C_0805_2012Metric.kicad_mod",
+      "sha256": "62775a51fe74ba7f1b572de327bdbd3fc92582721b2abcaa47787865590d89cb",
+      "bytes": 2030
+    },
+    {
+      "path": "input/hardware/native21-stage19b/candidate-libs/Capacitor_SMD.pretty/C_1206_3216Metric.kicad_mod",
+      "sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "bytes": 1938
+    },
+    {
+      "path": "input/hardware/native21-stage19b/candidate-libs/Capacitor_SMD.pretty/C_1210_3225Metric.kicad_mod",
+      "sha256": "e1dae516e079b70c4736d001fb81bfb4ef5f9c2a37c8175223a44f83a04ff75f",
+      "bytes": 1936
+    },
+    {
+      "path": "input/hardware/native21-stage19b/candidate-libs/Connector_JST.pretty/JST_VH_B2P3-VH_1x02_P7.92mm_Vertical.kicad_mod",
+      "sha256": "d0ac4ed8fccdc8d2d42722c75fb6229c1194dbc429e77f874644bedc0003aa23",
+      "bytes": 3529
+    },
+    {
+      "path": "input/hardware/native21-stage19b/candidate-libs/Connector_Molex.pretty/Molex_Micro-Fit_3.0_43045-1612_2x08_P3.00mm_Vertical.kicad_mod",
+      "sha256": "ebc0a18ce161d289004c2bbb907bbaede2b3edc73e38f9c0039d9e401920e518",
+      "bytes": 7172
+    },
+    {
+      "path": "input/hardware/native21-stage19b/candidate-libs/Converter_ACDC.pretty/Converter_ACDC_MeanWell_IRM-20-xx_THT.kicad_mod",
+      "sha256": "9acdf1e7e0ed2c77ef84fda49eed6e71995e3c8edde6e22fcc0cb510ea262714",
+      "bytes": 4880
+    },
+    {
+      "path": "input/hardware/native21-stage19b/candidate-libs/Diode_SMD.pretty/D_SOD-123.kicad_mod",
+      "sha256": "fd16785935b01254e1076f490e12f0f096da73cf087adefce51225585c62557a",
+      "bytes": 4584
+    },
+    {
+      "path": "input/hardware/native21-stage19b/candidate-libs/Diode_SMD.pretty/D_SOD-123F.kicad_mod",
+      "sha256": "8be1e25f240367187beafa1e339963dfdf4aa4f3e671731970e7f2e8491b6246",
+      "bytes": 4617
+    },
+    {
+      "path": "input/hardware/native21-stage19b/candidate-libs/Diode_SMD.pretty/D_SOD-128.kicad_mod",
+      "sha256": "d2ed03b6d0dbdb117d26640001840e9fce5d818d3eae6c19ff6deb0bdc9a561a",
+      "bytes": 4707
+    },
+    {
+      "path": "input/hardware/native21-stage19b/candidate-libs/Fuse.pretty/Fuse_Schurter_UMT250.kicad_mod",
+      "sha256": "ef278fdecdddc8be32abab8c03f23b5a3e1f6f8740722d19fb801833cd930b91",
+      "bytes": 4494
+    },
+    {
+      "path": "input/hardware/native21-stage19b/candidate-libs/Package_DFN_QFN.pretty/Texas_RGW0020A_VQFN-20-1EP_5x5mm_P0.65mm_EP3.15x3.15mm.kicad_mod",
+      "sha256": "452e14f1a10a0809ecf8ce47ba83252268d70696c04ec02557c9903bec14a7e5",
+      "bytes": 8012
+    },
+    {
+      "path": "input/hardware/native21-stage19b/candidate-libs/Package_SO.pretty/SOIC-14_3.9x8.7mm_P1.27mm.kicad_mod",
+      "sha256": "a885b619b22880c9559522d2bf865b059d80453b95a98defc9e6ceef284da1fc",
+      "bytes": 5356
+    },
+    {
+      "path": "input/hardware/native21-stage19b/candidate-libs/Package_SO.pretty/SOIC-8_7.5x5.85mm_P1.27mm.kicad_mod",
+      "sha256": "7777b11b9db34603382247b6ee1e6a9ea220eb67ad4e8f6943abd40c2d096941",
+      "bytes": 3922
+    },
+    {
+      "path": "input/hardware/native21-stage19b/candidate-libs/Package_TO_SOT_SMD.pretty/SOT-23-5.kicad_mod",
+      "sha256": "455a3f7c3e5eb5b8847eaa5df23e18651e78ab9f75afd09a0883758a0d901761",
+      "bytes": 4745
+    },
+    {
+      "path": "input/hardware/native21-stage19b/candidate-libs/Package_TO_SOT_SMD.pretty/SOT-23-6.kicad_mod",
+      "sha256": "f341c73aac9dcb553456f68bf3fee3d26eb14acf6d8a1cae82b50418fe1d71ca",
+      "bytes": 4280
+    },
+    {
+      "path": "input/hardware/native21-stage19b/candidate-libs/Package_TO_SOT_SMD.pretty/SOT-23.kicad_mod",
+      "sha256": "0d88c86c1b6d8c1aae4aa8c09386264c089d4451a128b6ccd63ed253f4300b15",
+      "bytes": 4485
+    },
+    {
+      "path": "input/hardware/native21-stage19b/candidate-libs/Package_TO_SOT_THT.pretty/TO-247-3_Vertical.kicad_mod",
+      "sha256": "cac3a8e76febdf6a0b8b2110c0b15a822ad80b1d17afca625e0d0ea824e3898f",
+      "bytes": 3052
+    },
+    {
+      "path": "input/hardware/native21-stage19b/candidate-libs/Resistor_SMD.pretty/R_0603_1608Metric.kicad_mod",
+      "sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+      "bytes": 1943
+    },
+    {
+      "path": "input/hardware/native21-stage19b/candidate-libs/Resistor_SMD.pretty/R_1206_3216Metric.kicad_mod",
+      "sha256": "c7320668dc81bbb954cb4f15e4e7a766c120059343d43551468c8f7ccc8fde37",
+      "bytes": 1943
+    },
+    {
+      "path": "input/hardware/native21-stage19b/candidate-libs/Resistor_SMD.pretty/R_Shunt_Vishay_WSK2512_6332Metric_T2.21mm.kicad_mod",
+      "sha256": "7505ff54c1f0d454dd36b05cd091d8127d796d953ca41a9913794c2add0f3182",
+      "bytes": 5284
+    },
+    {
+      "path": "input/hardware/native21-stage19b/candidate-libs/TerminalBlock_Phoenix.pretty/TerminalBlock_Phoenix_MKDS-3-2-5.08_1x02_P5.08mm_Horizontal.kicad_mod",
+      "sha256": "e3b06eda34b6c80468fef8b320e1710a8d768cdb078443257022da58112e71fe",
+      "bytes": 4504
+    },
+    {
+      "path": "input/hardware/native21-stage19b/candidate-libs/TerminalBlock_Wuerth.pretty/Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR.kicad_mod",
+      "sha256": "601e74f87995c22e112206015f6ea4a4cc42fc8dd3879ef5d8d94a6791800dd8",
+      "bytes": 4958
+    },
+    {
+      "path": "input/hardware/native21-stage19b/candidate-libs/lib.pretty/SOIC16W_DW0016B_HV.kicad_mod",
+      "sha256": "0122bebb19f2a697a3ee831907d6d402e7e27cb63b13b483b7a1b176db4091b0",
+      "bytes": 5869
+    },
+    {
+      "path": "input/hardware/native21-stage19b/candidate-libs/lib.pretty/SOIC16W_Isolated.kicad_mod",
+      "sha256": "9e7dde8e635f41eb35de9cc01ab03629dcabc80b5e3edce53098ced058baa2a3",
+      "bytes": 7287
+    },
+    {
+      "path": "input/hardware/native21-stage19b/candidate-libs/temper.pretty/B82726S2_ReviewOnly.kicad_mod",
+      "sha256": "e8c7a8faa69dc90b0ade3ec0eb3930abf7295bcf4a77f93696ca69d01f592d67",
+      "bytes": 2399
+    },
+    {
+      "path": "input/hardware/native21-stage19b/candidate-libs/temper.pretty/CST3015.kicad_mod",
+      "sha256": "b82bcec47317ddacccfeee0ba470c90a673c953ae2dcfd5627dfc8aecae53312",
+      "bytes": 2812
+    },
+    {
+      "path": "input/hardware/native21-stage19b/candidate-libs/temper.pretty/Diode_Bridge_GBJ2510.kicad_mod",
+      "sha256": "a4ef38e48747d09cefd6e964686dd5b2c88c4a91127031952a20d3eb23543c5c",
+      "bytes": 3350
+    },
+    {
+      "path": "input/hardware/native21-stage19b/candidate-libs/temper.pretty/Fuseholder_Clip-10.3x38mm_Littelfuse_125_Inline_P41.76x10.80mm_Slot1.2x2.5mm_Horizontal.kicad_mod",
+      "sha256": "4cf8bf424ae62f9ac4a07fdc1aa34f4eacb1737c5d628ff9893be509d59371be",
+      "bytes": 2046
+    },
+    {
+      "path": "input/hardware/native21-stage19b/candidate-libs/temper.pretty/KEMET_R463N410000N1M_P22.50_ReviewOnly.kicad_mod",
+      "sha256": "935eb63a1326c560dccf37bd13a828e84ee029c931f4e4af7d68ed862c0343b8",
+      "bytes": 2067
+    },
+    {
+      "path": "input/hardware/native21-stage19b/candidate-libs/temper.pretty/Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly.kicad_mod",
+      "sha256": "5ccb71103b01a699a5daba33b6bb19e27df1287f552bb2c7d1f587fe993d2b32",
+      "bytes": 2262
+    },
+    {
+      "path": "input/hardware/native21-stage19b/candidate-libs/temper.pretty/P600_Axial_P12.70mm_ReviewOnly.kicad_mod",
+      "sha256": "77b547133eba9578daeca635b8e8a00139deaf9b2a0e7a01fdce20fe49808871",
+      "bytes": 1271
+    },
+    {
+      "path": "input/hardware/native21-stage19b/candidate-libs/temper.pretty/Phoenix_KDS3_1704004_1Pos_2Pin_ReviewOnly.kicad_mod",
+      "sha256": "d5211b40ad46eddff4568412234d58b79e4cb9cf4b374da8cc293f4013ab5485",
+      "bytes": 1218
+    },
+    {
+      "path": "input/hardware/native21-stage19b/candidate-libs/temper.pretty/RECOM_SSOP-36_7.5x12.83mm_P0.65mm_ReviewOnly.kicad_mod",
+      "sha256": "3472923e966760d3acbf04f4d07b7a5ba10a2b69b6ee9b5d3520bbbd5e80edfa",
+      "bytes": 5793
+    },
+    {
+      "path": "input/hardware/native21-stage19b/candidate-libs/temper.pretty/R_Shunt_Bourns_CSS2H-2512_Kelvin.kicad_mod",
+      "sha256": "1408d76fff63d493515cfdad9de8e765cf9d30554932f553986511e53f6d8e8b",
+      "bytes": 3074
+    },
+    {
+      "path": "input/hardware/native21-stage19b/candidate-libs/temper.pretty/TDK_B32652A0104K000_P15.00_ReviewOnly.kicad_mod",
+      "sha256": "45595807deb41189f9c86db29979a21033797b9d4be2f031e1bdf5805d2aa55f",
+      "bytes": 1949
+    },
+    {
+      "path": "input/hardware/native21-stage19b/candidate-libs/temper.pretty/TDK_B32654_P27.5_W14.0_L31.5_Radial.kicad_mod",
+      "sha256": "46b49987857688ba3c5b061722d9a860900e1b9d23b5b71abaa9a719b1d9e752",
+      "bytes": 1627
+    },
+    {
+      "path": "input/hardware/native21-stage19b/candidate-libs/temper.pretty/TDK_B32656G0275J000_4Pin_P37.50_P20.30_ReviewOnly.kicad_mod",
+      "sha256": "224675481fc4cc529d41ec25aba2274208f340270407963b870c2a8111c07c14",
+      "bytes": 1410
+    },
+    {
+      "path": "input/hardware/native21-stage19b/candidate-libs/temper.pretty/TMOV20RP_ReviewOnly.kicad_mod",
+      "sha256": "6d8ff131617aa7aacd71dd52a05d03b33366496b25b463a865371dc3b0a33eda",
+      "bytes": 1761
+    },
+    {
+      "path": "input/hardware/native21-stage19b/candidate-libs/temper.pretty/VOL628A_LSOP4_ReviewOnly.kicad_mod",
+      "sha256": "75b92cccff54d83a373d0ac23bf4e0cfd302ad9b83058bab31aec8f359ce8c14",
+      "bytes": 1499
+    },
+    {
+      "path": "input/hardware/native21-stage19b/fp-lib-table",
+      "sha256": "ac59eca45543a25f5dfbda5fe8da4806b45997b84b650bf3a1624fa74309585d",
+      "bytes": 2320
+    },
+    {
+      "path": "input/hardware/native21-stage19b/native21.kicad_sym",
+      "sha256": "573f3deb8247279206561b7192725fe1fd12d0becdcbec3c28309f10ba965444",
+      "bytes": 357272
+    },
+    {
+      "path": "input/hardware/native21-stage19b/provenance/copper.json",
+      "sha256": "ce49f20024545fe28f104e72f69c0d1362227a15145b3a1c3bd4b915199b6cf2",
+      "bytes": 476053
+    },
+    {
+      "path": "input/hardware/native21-stage19b/provenance/default.csv",
+      "sha256": "18dc286916dcfa9d121502b02ec3a1cc0639e20f49e3c06f60d47d9500d92316",
+      "bytes": 8080
+    },
+    {
+      "path": "input/hardware/native21-stage19b/provenance/default.net",
+      "sha256": "8a7e1c4a869445d7d11ab9ee4c69f0dc40207cf4f06463a0ac8b2238cffef92b",
+      "bytes": 247447
+    },
+    {
+      "path": "input/hardware/native21-stage19b/provenance/final-manifest.json",
+      "sha256": "6e4bfced9a784f8c7cf43ff08257dd93bd7fa77cb0f21acd05663c3d4ab7a53b",
+      "bytes": 10865
+    },
+    {
+      "path": "input/hardware/native21-stage19b/provenance/origin.json",
+      "sha256": "722de87c2689875a60f58a42121ed8dcfeac44963284c7999d6cd7f94a82075d",
+      "bytes": 1583
+    },
+    {
+      "path": "input/hardware/native21-stage19b/provenance/resolved-components.json",
+      "sha256": "6e8beda4ef459c8553598865d026eea45f8e4a31b4d2fd4f333198cc028685b2",
+      "bytes": 148124
+    },
+    {
+      "path": "input/hardware/native21-stage19b/provenance/source-check.json",
+      "sha256": "8558dcb2245d8bbb744d46585cc93fd74e30463f5a04fd93f60486a4c36963cc",
+      "bytes": 793
+    },
+    {
+      "path": "input/hardware/native21-stage19b/section.kicad_dru",
+      "sha256": "85db27525e904de8f43cbd8e918b6df76c9d7213ad2b4f3d42afb4652d5c8c8c",
+      "bytes": 67447
+    },
+    {
+      "path": "input/hardware/native21-stage19b/section.kicad_pcb",
+      "sha256": "b19a45530bb0f39d2d3c0412e3774b6d5a47c4238d3fee867790cce410756662",
+      "bytes": 4070837
+    },
+    {
+      "path": "input/hardware/native21-stage19b/section.kicad_prl",
+      "sha256": "3fb7320dff162a0d12e2b388b3347022d3b40fc7ca77afed8affcd40ff0b60fd",
+      "bytes": 2294
+    },
+    {
+      "path": "input/hardware/native21-stage19b/section.kicad_pro",
+      "sha256": "0cdd72272092ef853ee8e3620aff7baf3ce07559ac441dd6480bb231c30ea8d8",
+      "bytes": 9729
+    },
+    {
+      "path": "input/hardware/native21-stage19b/section.kicad_sch",
+      "sha256": "e6993fa4abab0a845d1cc0d07074c39ab9f536eca6f864dae993d76941ae8d35",
+      "bytes": 838428
+    },
+    {
+      "path": "input/hardware/native21-stage19b/source/elec/src/f6_bias.ato",
+      "sha256": "ebe1ff0a3e74d40abfbb9d5f6bddfd9bae374286960e6f06cdf5f9e57fa84d8f",
+      "bytes": 10457
+    },
+    {
+      "path": "input/hardware/native21-stage19b/source/elec/src/f6_parts.ato",
+      "sha256": "c88358b18d3ee5c72b978c449e455e755dae8547bb3998b516582f9ebfa5ede2",
+      "bytes": 10620
+    },
+    {
+      "path": "input/hardware/native21-stage19b/source/elec/src/parts.ato",
+      "sha256": "017fae35c02f503a513e7014f770459414382a48ef2f0fafa32c8bbeb9e7af08",
+      "bytes": 27415
+    },
+    {
+      "path": "input/hardware/native21-stage19b/source/elec/src/power_stage_120v.ato",
+      "sha256": "94260996ce163721619c12160ba27da3d9641939d93baec561f04e2478819142",
+      "bytes": 44553
+    },
+    {
+      "path": "input/hardware/native21-stage19b/source/prototype-closure/round4/supervisor/generated/supervisor.ato",
+      "sha256": "1d6674935534a46c6c82f61c4f18890de7fa7cbf81f89c1cb63efb7bfed1b7e3",
+      "bytes": 202334
+    },
+    {
+      "path": "input/hardware/native21-stage19b/sym-lib-table",
+      "sha256": "806200e637c72c962b98ff2ba218fd411c31b333f1009da019bc788a2fe805fe",
+      "bytes": 168
+    },
+    {
+      "path": "prior-build-evidence/barrier-gate-rust.json",
+      "sha256": "8ddc47f2d8dbde4f72f44c07db03fa09a918f11647ac4e7fde5559f0b117dbe8",
+      "bytes": 895
+    },
+    {
+      "path": "prior-build-evidence/bypass-check.json",
+      "sha256": "e25d589c5c0e473e043d3005006b444d9151e9fd723a6e38e2e942acf25917f2",
+      "bytes": 7252
+    },
+    {
+      "path": "prior-build-evidence/copper-dump.json",
+      "sha256": "10a11a98ab1eb8204b68f3433f635a75d5086abed362044a6ac05e60521f3ce8",
+      "bytes": 2599382
+    },
+    {
+      "path": "prior-build-evidence/copper.png",
+      "sha256": "56f2c71c38ee1f5bab5d4aed0bacfa5f6da89bdd81357dea9decac60d40f4a76",
+      "bytes": 1217105
+    },
+    {
+      "path": "prior-build-evidence/drc.json",
+      "sha256": "77fccde05bef207b433e435711e64afbfcd29252f2ff640038da48f57c7fa20e",
+      "bytes": 106059
+    },
+    {
+      "path": "prior-build-evidence/erc.json",
+      "sha256": "d00656eb844f83d1009c58a70208ed66f65c967971289011bb8c2f6ba39c393b",
+      "bytes": 273233
+    },
+    {
+      "path": "prior-build-evidence/evidence.json",
+      "sha256": "aff90748c816dc7a6a252dd48437de075f2851b0216ec0c00d2ee09c1d104350",
+      "bytes": 3784775
+    },
+    {
+      "path": "prior-build-evidence/jlc-dfm.json",
+      "sha256": "2255179012095e439909d738038b9e64fa2ad7c93f65d93b6a234db2c8e843a4",
+      "bytes": 308
+    },
+    {
+      "path": "prior-build-evidence/labels-receipt.json",
+      "sha256": "05f84c82af4ed8d3d38cdbc7345a83962f02dd432af22f5666d494aeb7a6518c",
+      "bytes": 482
+    },
+    {
+      "path": "prior-build-evidence/native21-all-copper.json.gz",
+      "sha256": "c0c94d06e7891c4a36b432f1ed9796c29805b0d6e5f2154cac37dd4c2edf3864",
+      "bytes": 484033
+    },
+    {
+      "path": "prior-build-evidence/pads-board.json",
+      "sha256": "3374d817cfd60f0caf73efdb3fd470e0cac57f5f9082caf8da72c05fd6db7c7d",
+      "bytes": 183485
+    },
+    {
+      "path": "prior-build-evidence/pi-distances.json",
+      "sha256": "7b0fdf5e31cba331f4b2a08cb86bdeac0829aadf139529666ab6eb4d1ca4ba8a",
+      "bytes": 2340
+    },
+    {
+      "path": "prior-build-evidence/res-a-creepage.json",
+      "sha256": "d755e19a7f7e8b92c8729b80ea663cfaab998535c68ddc2e37f191f65e054abc",
+      "bytes": 71275
+    },
+    {
+      "path": "prior-build-evidence/return-path.json",
+      "sha256": "a9d402a65148c28ec0990389bbd8b78b35f864db8a7cbdef37cd9e6c8e3ed5fb",
+      "bytes": 67775
+    }
+  ]
+}

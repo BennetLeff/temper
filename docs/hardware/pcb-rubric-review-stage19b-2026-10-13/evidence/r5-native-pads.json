@@ -1,0 +1,26 @@
+[
+  {
+    "pad": "1",
+    "net": "leg_ret",
+    "x_mm": 38.5,
+    "y_mm": 10.0
+  },
+  {
+    "pad": "2",
+    "net": "ocp_kelvin_p",
+    "x_mm": 37.0,
+    "y_mm": 12.1
+  },
+  {
+    "pad": "3",
+    "net": "ocp_kelvin_n",
+    "x_mm": 37.0,
+    "y_mm": 13.1
+  },
+  {
+    "pad": "4",
+    "net": "hv_ret",
+    "x_mm": 38.5,
+    "y_mm": 15.2
+  }
+]

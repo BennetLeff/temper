@@ -1,0 +1,66 @@
+{
+  "date": "2026-10-13",
+  "board_sha256": "b19a45530bb0f39d2d3c0412e3774b6d5a47c4238d3fee867790cce410756662",
+  "frozen_hashes_unchanged": 76,
+  "guard_pins": 61,
+  "tool": "kicad-cli 10.0.4",
+  "flags": [
+    "--all-track-errors",
+    "--schematic-parity",
+    "--refill-zones",
+    "--format",
+    "json"
+  ],
+  "candidate_library_table_unchanged": true,
+  "library_resolution": "Run4 registers existing pinned Package_DFN_QFN.pretty in a private KICAD_CONFIG_HOME/10.0/fp-lib-table; runs1-3 had unregistered library warning.",
+  "runs": [
+    {
+      "run": 1,
+      "kicad_version": "10.0.4",
+      "errors": 0,
+      "warnings": 1,
+      "unconnected": 0,
+      "schematic_parity": 0,
+      "types": {
+        "lib_footprint_issues": 1
+      },
+      "report": "evidence/drc-1.json"
+    },
+    {
+      "run": 2,
+      "kicad_version": "10.0.4",
+      "errors": 0,
+      "warnings": 1,
+      "unconnected": 0,
+      "schematic_parity": 0,
+      "types": {
+        "lib_footprint_issues": 1
+      },
+      "report": "evidence/drc-2.json"
+    },
+    {
+      "run": 3,
+      "kicad_version": "10.0.4",
+      "errors": 0,
+      "warnings": 1,
+      "unconnected": 0,
+      "schematic_parity": 0,
+      "types": {
+        "lib_footprint_issues": 1
+      },
+      "report": "evidence/drc-3.json"
+    },
+    {
+      "run": 4,
+      "kicad_version": "10.0.4",
+      "errors": 0,
+      "warnings": 0,
+      "unconnected": 0,
+      "schematic_parity": 0,
+      "types": {},
+      "report": "evidence/drc-4.json"
+    }
+  ],
+  "criterion_coverage": "179 unique IDs exactly match original index",
+  "physical_measurements": false
+}

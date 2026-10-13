@@ -1,0 +1,284 @@
+{
+  "date": "2026-10-13",
+  "producer_head": "a40f855cedc42a19199d7144be2809c41242712e",
+  "description": "Review-time hashes for key cited documents captured after reviewer reconciliation. Additional candidate hashes are in identity.json. Historical models were not rerun.",
+  "files": [
+    {
+      "path": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/DECISIONS.md",
+      "sha256": "4de052c0f5bb5b949e1dd6c3c62e5e81d7b9f9f6f4856974519829eb5c1580c9",
+      "bytes": 149652,
+      "evidence_class": "producer decision, calculation, model, plan or package; not a physical measurement"
+    },
+    {
+      "path": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/ASSEMBLY.md",
+      "sha256": "f1300750ea8fa230ff1718bc6ecfe77c5885e308b5927287f52d88409302a44a",
+      "bytes": 8699,
+      "evidence_class": "producer decision, calculation, model, plan or package; not a physical measurement"
+    },
+    {
+      "path": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/native-21/BRINGUP-PROBES.md",
+      "sha256": "d4fe0e208efd4b8d411b103ee1801bbe525e0baa2a98cada20b8e83fc398bc28",
+      "bytes": 5374,
+      "evidence_class": "producer decision, calculation, model, plan or package; not a physical measurement"
+    },
+    {
+      "path": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/native-21/verification/D5-AUDIT.md",
+      "sha256": "97d49d1119d775025e1cc27784f3860fc22afa4023e3c0cb7ab216f2720f2253",
+      "bytes": 5311,
+      "evidence_class": "producer decision, calculation, model, plan or package; not a physical measurement"
+    },
+    {
+      "path": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-plan/00-MASTER-PLAN.md",
+      "sha256": "5d91e859801d37b2028aaa911b7658711045076e22260b4b9ea81f573b7ed62b",
+      "bytes": 18516,
+      "evidence_class": "producer decision, calculation, model, plan or package; not a physical measurement"
+    },
+    {
+      "path": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/01-switching-parasitics/FINDINGS.md",
+      "sha256": "9b773af2890ad4dda024475ecfc9ba68a68ea948e738d333fb2aab712f58202d",
+      "bytes": 15870,
+      "evidence_class": "producer decision, calculation, model, plan or package; not a physical measurement"
+    },
+    {
+      "path": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/d2/README.md",
+      "sha256": "fa83bbda69ac1480402849db325720c6502cfb994005047b34fcbd64c31e8b91",
+      "bytes": 34375,
+      "evidence_class": "producer decision, calculation, model, plan or package; not a physical measurement"
+    },
+    {
+      "path": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D31/README.md",
+      "sha256": "68615037e0e3ea2486acd2d762c55655450661ea5e059f58f8f4c8b04a00b6cf",
+      "bytes": 4517,
+      "evidence_class": "producer decision, calculation, model, plan or package; not a physical measurement"
+    },
+    {
+      "path": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/02-protection-timing/README.md",
+      "sha256": "4c343fe98314f2e200136b80a8e7b06e2568d8408c75abccd4ff8b3d3118d5b8",
+      "bytes": 12861,
+      "evidence_class": "producer decision, calculation, model, plan or package; not a physical measurement"
+    },
+    {
+      "path": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/02-protection-timing/kelvin/budget-native21s19b.json",
+      "sha256": "b91aeceeaaf28940d2d22f008f4704dfd3cd3ad89fe28ef7527c9f804673f665",
+      "bytes": 2742,
+      "evidence_class": "producer decision, calculation, model, plan or package; not a physical measurement"
+    },
+    {
+      "path": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/02-protection-timing/kelvin/budget-native21s19b.md",
+      "sha256": "36a51d6c03cb273bacc346faeeaf9658a9c145f8c8f0a206636694189a45fc0b",
+      "bytes": 1136,
+      "evidence_class": "producer decision, calculation, model, plan or package; not a physical measurement"
+    },
+    {
+      "path": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/02-protection-timing/stage15-28A/PLAN.md",
+      "sha256": "66cadd19c17809611ba5c5dce8f1e54ec397e1679dd688fceb50390d655f62bc",
+      "bytes": 26560,
+      "evidence_class": "producer decision, calculation, model, plan or package; not a physical measurement"
+    },
+    {
+      "path": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/02-protection-timing/coil-pickup/PICKUP.md",
+      "sha256": "3a766be061df97d635afd632d100f1d983011df67144786c9bdfc4fbe7fe45f7",
+      "bytes": 14254,
+      "evidence_class": "producer decision, calculation, model, plan or package; not a physical measurement"
+    },
+    {
+      "path": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/b3-convergence/README.md",
+      "sha256": "007ddf218e080c33d165ba06a9a329af3c3fdd80f7cab8a20051768f1ec7f083",
+      "bytes": 13542,
+      "evidence_class": "producer decision, calculation, model, plan or package; not a physical measurement"
+    },
+    {
+      "path": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/b3-convergence/RESULTS-TABLES.md",
+      "sha256": "bb2ac8bb8f468f687e8084e6bd31761f8c43e25608c42056cf3afc77c77a0758",
+      "bytes": 35508,
+      "evidence_class": "producer decision, calculation, model, plan or package; not a physical measurement"
+    },
+    {
+      "path": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/b3-convergence/results.json",
+      "sha256": "0dadac438d6c07915ecf29238a50af667bdce33e6fd215b99d1f0752a1204a34",
+      "bytes": 329811,
+      "evidence_class": "producer decision, calculation, model, plan or package; not a physical measurement"
+    },
+    {
+      "path": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/05-resonant-tank-envelope/round6-full-power/README.md",
+      "sha256": "52d18ef6408f7b86ce8cfa0ffc89a27d463d4645740affd97610ce3692a6f384",
+      "bytes": 14496,
+      "evidence_class": "producer decision, calculation, model, plan or package; not a physical measurement"
+    },
+    {
+      "path": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/05-resonant-tank-envelope/round5-coil-od210/COIL-SPEC-ELECTRICAL.md",
+      "sha256": "fe339edbf9ca99fb35c450306a6ac1bbaaf679158542205d5ba497ff857e18ca",
+      "bytes": 29540,
+      "evidence_class": "producer decision, calculation, model, plan or package; not a physical measurement"
+    },
+    {
+      "path": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/06-controller-interface/README.md",
+      "sha256": "a24059f8cd02e2474ca8c875400bd748a95f0760bc9d227dd69f7584f709e82d",
+      "bytes": 36346,
+      "evidence_class": "producer decision, calculation, model, plan or package; not a physical measurement"
+    },
+    {
+      "path": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/06-controller-interface/outputs/ct_open_secondary.json",
+      "sha256": "9d8da0b890cd9f847fdcc94de8c8649ee86aebdb5fc9a423e59779ed73879604",
+      "bytes": 1864,
+      "evidence_class": "producer decision, calculation, model, plan or package; not a physical measurement"
+    },
+    {
+      "path": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/07-conducted-emi/s19b/README.md",
+      "sha256": "0c15a49afe43c17897bd91fe0af34c6e69677339190078ce5a1675baccf0b0e2",
+      "bytes": 20873,
+      "evidence_class": "producer decision, calculation, model, plan or package; not a physical measurement"
+    },
+    {
+      "path": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/07-conducted-emi/s19b/results.json",
+      "sha256": "0da80d0f047f891c167e66783913718a0053bcd57776a99f53843d29435081ac",
+      "bytes": 633817,
+      "evidence_class": "producer decision, calculation, model, plan or package; not a physical measurement"
+    },
+    {
+      "path": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/07-conducted-emi/s19b/BENCH-PRECOMPLIANCE.md",
+      "sha256": "3f39692903811ee00a77644db5fba12c5bb99f88072d8a81a9177213e6902305",
+      "bytes": 9833,
+      "evidence_class": "producer decision, calculation, model, plan or package; not a physical measurement"
+    },
+    {
+      "path": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/stage19-pi-si/README.md",
+      "sha256": "e56c2fcbda3aa1ec4fdd5ef4ebb6b0251859d2c2fdde0d52337a332554de00ae",
+      "bytes": 6472,
+      "evidence_class": "producer decision, calculation, model, plan or package; not a physical measurement"
+    },
+    {
+      "path": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/stage19-pi-si/pi19b.json",
+      "sha256": "7b0fdf5e31cba331f4b2a08cb86bdeac0829aadf139529666ab6eb4d1ca4ba8a",
+      "bytes": 2340,
+      "evidence_class": "producer decision, calculation, model, plan or package; not a physical measurement"
+    },
+    {
+      "path": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/stage19-pi-si/return-path19b.json",
+      "sha256": "a9d402a65148c28ec0990389bbd8b78b35f864db8a7cbdef37cd9e6c8e3ed5fb",
+      "bytes": 67775,
+      "evidence_class": "producer decision, calculation, model, plan or package; not a physical measurement"
+    },
+    {
+      "path": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/stage19-pi-si/return-path19b.txt",
+      "sha256": "54891f7d96ec58fecf9bab312b813f5a476d5add9b690c7208100a791940c7df",
+      "bytes": 6914,
+      "evidence_class": "producer decision, calculation, model, plan or package; not a physical measurement"
+    },
+    {
+      "path": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/stage19-pi-si/drc-libtables19b.json",
+      "sha256": "77f72459cc32784280e9f12bc3e0283cbc5ffefe14a91b50b986fbe36f6db563",
+      "bytes": 249,
+      "evidence_class": "producer decision, calculation, model, plan or package; not a physical measurement"
+    },
+    {
+      "path": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/PROTOTYPE-LOT.md",
+      "sha256": "6eca650334459ca5959c4df81013326600f3dfed613faf9a5f3fae8141a0c6ae",
+      "bytes": 3675,
+      "evidence_class": "producer decision, calculation, model, plan or package; not a physical measurement"
+    },
+    {
+      "path": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/cpl-rotation-audit/README.md",
+      "sha256": "be603f05fa3361782884c0baa06ba039400d723b511af149ce0abd345e3e989a",
+      "bytes": 8375,
+      "evidence_class": "producer decision, calculation, model, plan or package; not a physical measurement"
+    },
+    {
+      "path": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/cpl-rotation-audit/audit.csv",
+      "sha256": "89219c405a42fc91973d22d8a55db4c5cd01c26404d6164f87502dca32f57f1a",
+      "bytes": 91448,
+      "evidence_class": "producer decision, calculation, model, plan or package; not a physical measurement"
+    },
+    {
+      "path": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/fab/bom-jlcpcb.csv",
+      "sha256": "11cbf77a6f4fea50292227d2dfd784f46e90f4b1bb78f23508a338959652fead",
+      "bytes": 11275,
+      "evidence_class": "producer decision, calculation, model, plan or package; not a physical measurement"
+    },
+    {
+      "path": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/fab/cpl-jlcpcb.csv",
+      "sha256": "19a4e062bd7202a4dcf0152cb0e458f61fbe3c8802b0135b313ce9249a3cd2fe",
+      "bytes": 12173,
+      "evidence_class": "producer decision, calculation, model, plan or package; not a physical measurement"
+    },
+    {
+      "path": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/fab/native-21-gerbers.zip",
+      "sha256": "c9eaf0d96091662cd25d0ef5a2d78e972f6123e1a1b4cb1c6d85804922e80ea3",
+      "bytes": 686700,
+      "evidence_class": "producer decision, calculation, model, plan or package; not a physical measurement"
+    },
+    {
+      "path": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/sourcing/ALTERNATES-2026-10-09.md",
+      "sha256": "02a9c9f1ecfccbacc9979713d1dd012fd904f71ba3989bbfdcc1132cdae32b89",
+      "bytes": 55954,
+      "evidence_class": "producer decision, calculation, model, plan or package; not a physical measurement"
+    },
+    {
+      "path": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/prototype-closure/round5/protection/README.md",
+      "sha256": "616146fd72df22bd7dce6056e66e79d997b03b83d12fd0a92fdf0c282c27645d",
+      "bytes": 12938,
+      "evidence_class": "producer decision, calculation, model, plan or package; not a physical measurement"
+    },
+    {
+      "path": "/Users/bennet/Desktop/temper/output/temper-r33-studies/16-coil-pe-capacitance/REPORT.md",
+      "sha256": "7fd5966f4b1630e8b8c9cdbf00416ec4242e4091fa53547bc45ed025e91aeaa5",
+      "bytes": 11780,
+      "evidence_class": "producer decision, calculation, model, plan or package; not a physical measurement"
+    },
+    {
+      "path": "/Users/bennet/Desktop/temper/output/temper-r33-studies/16-coil-pe-capacitance/capacitance.json",
+      "sha256": "4ad272075a7987562079daa047afa5850c3b778d571a68e27362357d2ce81bf2",
+      "bytes": 182182,
+      "evidence_class": "producer decision, calculation, model, plan or package; not a physical measurement"
+    },
+    {
+      "path": "/Users/bennet/Desktop/temper/output/temper-r33-studies/16-coil-pe-capacitance/_tables.md",
+      "sha256": "09048dde4d7e2190d4366964531e8f7243df4adf5c4d768a15ee0f627f8f3ddb",
+      "bytes": 5179,
+      "evidence_class": "producer decision, calculation, model, plan or package; not a physical measurement"
+    },
+    {
+      "path": "/Users/bennet/.codex/worktrees/pcb-resource-rubrics-oct13/temper/docs/hardware/pcb-reference-rubrics-2026-10-13/bogatin-practical.md",
+      "sha256": "1e3e1805c24623411f09495dbfefb16b88b5bbafb48eb53b7e292a068711e951",
+      "evidence_class": "rubric",
+      "book_source": "/Users/bennet/Downloads/Bogatin's Practical Guide to Prototype Breadboard and PCB -- Eric Bogatin -- Bogatins Practical Guide to, 2021 -- Artech House Publishers -- isbn13 9781630818487 -- e23f14cafd6c0ab9c609a0aa9820742e -- Anna’s Archive.pdf",
+      "book_sha256": "40b8afb192846722a6c75e980fb9c7f0424d7032f6670824b6aecf763ca67997"
+    },
+    {
+      "path": "/Users/bennet/.codex/worktrees/pcb-resource-rubrics-oct13/temper/docs/hardware/pcb-reference-rubrics-2026-10-13/ott-emc.md",
+      "sha256": "0c1490003858b879523f2143137e9d4b36a9aeb8e173189ae3e0ce8f25b710f1",
+      "evidence_class": "rubric",
+      "book_source": "/Users/bennet/Downloads/Electromagnetic Compatibility Engineering -- Henry W_ Ott_ -- 1st, 2009 -- Wiley & Sons, Incorporated, John -- isbn13 9780470189306 -- 2e57efea3df7614a53e219fff1cb4c10 -- Anna’s Archive.pdf",
+      "book_sha256": "b97ce1136c8400fbc8ae165cfbfaff6afef80b7951f93ee8d92a3fd2b79f7c72"
+    },
+    {
+      "path": "/Users/bennet/.codex/worktrees/pcb-resource-rubrics-oct13/temper/docs/hardware/pcb-reference-rubrics-2026-10-13/bogatin-sipi.md",
+      "sha256": "3b29726ce72be8061a2ca2fa82b0787aced3dafeb54131a087214b38e67e3014",
+      "evidence_class": "rubric",
+      "book_source": "/Users/bennet/Downloads/Signal and Power Integrity - Simplified (Signal Integrity -- Bogatin, Eric -- Third edition, Boston, MA, 2018 -- Pearson Education Limited (US -- isbn13 9780134512228 -- 0d07535e052b28970c30082cd905b8bd -- Anna’s Archive.epub",
+      "book_sha256": "992809520484df506041c66dd0bfdf1ee3ff8a7479dbc63e5628204f9303afc1"
+    },
+    {
+      "path": "/Users/bennet/.codex/worktrees/pcb-resource-rubrics-oct13/temper/docs/hardware/pcb-reference-rubrics-2026-10-13/art-of-electronics.md",
+      "sha256": "fe1e8f575214b628d53654cd63a816257fcd911894feadf0e6072e818c21d4cb",
+      "evidence_class": "rubric",
+      "book_source": "/Users/bennet/Downloads/The Art of Electronics (3rd Ed_) -- Paul Horowitz, Winfield Hill -- 3rd Revised edition, Cambridge, 2015, 2017 -- Cambridge University Press (Virtual -- isbn13 9780521809269 -- b56092538d41992fe164749ff7a29a04 -- Anna’s Archive.pdf",
+      "book_sha256": "525da84315c9a14711200f8ef2e70de71ff627a940bbaf374b6f60c5992b76f9"
+    },
+    {
+      "path": "/Users/bennet/.codex/worktrees/pcb-resource-rubrics-oct13/temper/docs/hardware/pcb-reference-rubrics-2026-10-13/trilogy-magnetics.md",
+      "sha256": "0b5b40fa3bddf5060eb5935ba92da886053928da096bb53ba00facaa935c64c9",
+      "evidence_class": "rubric",
+      "book_source": "/Users/bennet/Downloads/Trilogy of magnetics _ design guide for EMI filter design, -- Thomas Brandner; Alexander Gerfer; Bernhard Rall; Heinz -- 5th extended and revised -- isbn13 9783899291575 -- 858e90e77023d4a0abc3229803aaaf1d -- Anna’s Archive.pdf",
+      "book_sha256": "6c80daf3cd50a3a03f340f6258a546c24ce1b2eb3340afd9f705d608ad63bafa"
+    },
+    {
+      "path": "/Users/bennet/.codex/worktrees/pcb-resource-rubrics-oct13/temper/docs/hardware/pcb-reference-rubrics-2026-10-13/an139.md",
+      "sha256": "13e17bdf01ab0213a3500876b99eec394c1002fe75c3853c4b607da760ff61bc",
+      "evidence_class": "rubric",
+      "book_source": "/Users/bennet/Downloads/AN-139_ Power Supply Layout and EMI _ Analog Devices.pdf",
+      "book_sha256": "f22008ca4cd502abce34bbc418d901762be632a39b49a7732c5af97356d62c2a"
+    }
+  ],
+  "requested_paths_not_found": []
+}

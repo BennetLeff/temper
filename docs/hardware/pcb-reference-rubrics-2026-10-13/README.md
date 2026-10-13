@@ -2,6 +2,8 @@
 
 These six resource reviews turn the downloaded PCB and electronics references into questions, evidence requirements, design advice, and conditional trade-offs for a later Temper review. They are preparation for evaluating a board; the criteria have not been scored against its copper, assembly, or operating measurements.
 
+The subsequent [stage19b assessment](../pcb-rubric-review-stage19b-2026-10-13/README.md) scores all 179 criteria against a separately verified successor PCB. The stage15b identity below records the original preparation context.
+
 ## Hardware identity and scope
 
 The context used for tailoring is the native-21 stage15b full-bridge candidate identified by `hardware/CURRENT.tsv`. The pinned files and guard were read from the primary checkout at `/Users/bennet/Desktop/temper`; they were not present in the research-base commit or the current publication checkout. Run the baseline commands in the checkout that contains that pinned manifest and guard, and use `sources.json` to resolve the recorded context. Publishing the rubric does not publish or update the hardware snapshot. The baseline guard passed on 2026-10-13, checking 69 pinned inputs. Selected PCB SHA-256:

@@ -1,0 +1,1923 @@
+{
+  "candidate": "native-21 stage19b",
+  "board_sha256": "b19a45530bb0f39d2d3c0412e3774b6d5a47c4238d3fee867790cce410756662",
+  "rubric_commit": "c7bb040748c2a4f87e1fb07f3c6d5a5dc4105528",
+  "criterion_count": 179,
+  "counts_by_resource": {
+    "bogatin-practical": {
+      "2": 15,
+      "1": 9,
+      "U": 4
+    },
+    "ott-emc": {
+      "2": 9,
+      "1": 8,
+      "U": 18
+    },
+    "bogatin-sipi": {
+      "1": 13,
+      "U": 11,
+      "2": 3,
+      "NA": 2
+    },
+    "art-of-electronics": {
+      "1": 26,
+      "2": 8,
+      "NA": 1,
+      "U": 2
+    },
+    "trilogy-magnetics": {
+      "2": 9,
+      "U": 16,
+      "1": 3,
+      "NA": 1
+    },
+    "an139": {
+      "1": 3,
+      "2": 14,
+      "U": 4
+    }
+  },
+  "counts_total": {
+    "2": 58,
+    "1": 62,
+    "U": 55,
+    "NA": 4
+  },
+  "criteria": [
+    {
+      "id": "BP-01",
+      "score": "2",
+      "topic": "Define the function and risk before geometry",
+      "review": "bogatin-practical.md",
+      "evidence_and_rationale": [
+        "Calculated; `P/validation-plan/00-MASTER-PLAN.md`, `P/DECISIONS.md:786–827`, `B/source/elec/src/power_stage_120v.ato`",
+        "Operating ceiling, no-pan clamp, fault and bench work are documented for the full bridge.",
+        "Execute the requirements-to-test matrix over pan, line, startup, fan and fault corners on 19b."
+      ]
+    },
+    {
+      "id": "BP-02",
+      "score": "2",
+      "topic": "Classify nets by the harm their parasitics can cause",
+      "review": "bogatin-practical.md",
+      "evidence_and_rationale": [
+        "Observed design; `B/section.kicad_dru:98–111`, `B/provenance/copper.json` zones `sw_a`, `sw_b`, `ocp_kelvin_p`, `v3v3`, `selv_gnd`",
+        "Distinct switching, Kelvin, SELV and barrier regions have explicit geometry/rules.",
+        "Capture actual edge rates and victim noise and relate each class limit to those results."
+      ]
+    },
+    {
+      "id": "BP-03",
+      "score": "1",
+      "topic": "Qualify each exact MPN for its actual duty",
+      "review": "bogatin-practical.md",
+      "evidence_and_rationale": [
+        "Calculated; `B/provenance/resolved-components.json` objects C5/C6, C38–C41, R5, U41/U42; `P/DECISIONS.md:808–827`",
+        "357 exact references are resolved, but critical cap and supply duty margin remains close or improperly compared to an ambient rating.",
+        "Exact-part thermal/loss and voltage stress validation at the 28 A/pan/ambient corners, including datasheet revision and sample checks."
+      ]
+    },
+    {
+      "id": "BP-04",
+      "score": "1",
+      "topic": "Verify value under operating bias, heat and tolerance",
+      "review": "bogatin-practical.md",
+      "evidence_and_rationale": [
+        "Calculated; `P/validation-results/04-board-current-thermal/round5-native21/b3-convergence/README.md`; `P/DECISIONS.md:808–827`",
+        "Tolerance/heat analysis exists, but film-cap hot-case margin is only 5 K and assembled effective values are unverified.",
+        "Measure relevant cap C/ESR and hot temperature, and resistor/shunt transfer over bias and temperature."
+      ]
+    },
+    {
+      "id": "BP-05",
+      "score": "1",
+      "topic": "Make alternatives genuinely interchangeable",
+      "review": "bogatin-practical.md",
+      "evidence_and_rationale": [
+        "Calculated; `P/validation-results/08-manufacturing-package/native-21/sourcing/ALTERNATES-2026-10-09.md`; `P/DECISIONS.md:402–408,440–456`",
+        "C5/C6 substitution and sourcing are analyzed, but no fully qualified assembly substitution matrix or sample trial is recorded.",
+        "Freeze exact approved alternates with pin/body, thermal, ESL and supplier evidence; trial any substitution."
+      ]
+    },
+    {
+      "id": "BP-06",
+      "score": "1",
+      "topic": "Tie symbol, footprint and physical sample to one part",
+      "review": "bogatin-practical.md",
+      "evidence_and_rationale": [
+        "Observed design; `B/provenance/resolved-components.json` C5/C6 footprint `...B32656...ReviewOnly` for B32676 MPN, R5 custom Kelvin land; `P/.../cpl-rotation-audit/README.md`",
+        "Pin/land analysis exists, yet named review-only footprints and 47 placement previews remain unresolved against physical samples. This naming alone is not a proven mismatch.",
+        "1:1 sample fit and pad-number/polarity review for custom and flagged parts; inspect first assembly."
+      ]
+    },
+    {
+      "id": "BP-07",
+      "score": "1",
+      "topic": "Match package to assembly, repair and force",
+      "review": "bogatin-practical.md",
+      "evidence_and_rationale": [
+        "Observed design; `P/ASSEMBLY.md:10–75`, J2/J5 at (132,85.5)/(132,70.5) mm in `R/bogatin-positions.csv`",
+        "THR studs and upturned insulated lugs have a modeled load path, but exact lug/torque/retention and assembly profile are open.",
+        "Trial crimp, fit, torque cycling and thermal profile with the actual Litz and enclosure."
+      ]
+    },
+    {
+      "id": "BP-08",
+      "score": "2",
+      "topic": "Size every current path from worst-case heating and loss",
+      "review": "bogatin-practical.md",
+      "evidence_and_rationale": [
+        "Simulated; `P/validation-results/04-board-current-thermal/round5-native21/b3-convergence/RESULTS-TABLES.md`; `B/section.kicad_pcb:35–75`",
+        "4-layer 0.07/0.061/0.061/0.07 mm nominal copper and path-specific model support current distribution; cap/local-air limits remain separate open decisions.",
+        "IR and voltage-drop map at 28 A, worst ambient, and fan derate, including tank necks."
+      ]
+    },
+    {
+      "id": "BP-09",
+      "score": "2",
+      "topic": "Treat via and pad transitions as path bottlenecks",
+      "review": "bogatin-practical.md",
+      "evidence_and_rationale": [
+        "Calculated; `B/provenance/final-manifest.json` `r5_current_vias`; `P/.../stage17-r5/r5_vias17.json`; `B/provenance/copper.json` R5 region",
+        "R5.4 has six HV_RET vias, model worst 8.78 A/via and 0.28 K barrel rise; stage19b says power copper unchanged.",
+        "Confirm finished plating and per-via temperature/current sharing on fabricated 19b."
+      ]
+    },
+    {
+      "id": "BP-10",
+      "score": "2",
+      "topic": "Calculate DC drop and sense error along the real return path",
+      "review": "bogatin-practical.md",
+      "evidence_and_rationale": [
+        "Calculated; `P/validation-results/02-protection-timing/kelvin/budget-native21s19b.json`; `B/provenance/copper.json` R5 and `ocp_kelvin_p/n`",
+        "Kelvin re-solve reports R35.2 158.08 mΩ and 67.72–116.44 A fault band; distinct returns are actually routed.",
+        "Measure differential Kelvin and trip current with switching/common-mode disturbance."
+      ]
+    },
+    {
+      "id": "BP-11",
+      "score": "2",
+      "topic": "Trace each fast power loop and its return",
+      "review": "bogatin-practical.md",
+      "evidence_and_rationale": [
+        "Simulated; `B/provenance/copper.json` `sw_a/sw_b/bus_p/hv_ret` zones and tracks; `P/validation-plan/01-switching-parasitics.md`; `B/provenance/final-manifest.json` `fem`",
+        "Physical loops and coarse gate/bridge parasitic models exist. The manifest itself says fine extraction is running.",
+        "Extract exact 19b loop matrix and capture VDS/VGS overshoot and ringing with package-adjacent probes."
+      ]
+    },
+    {
+      "id": "BP-12",
+      "score": "2",
+      "topic": "Keep sensitive return currents out of shared narrow segments",
+      "review": "bogatin-practical.md",
+      "evidence_and_rationale": [
+        "Calculated; `P/.../stage19-pi-si/return-path19b.json` `bus_fault_hot`, `ocp_ok_hot`; `P/.../kelvin/budget-native21s19b.json`",
+        "OCP reference is separately routed and modeled; no wrong reference samples for the checked bus-fault path.",
+        "Capture comparator input/reference shift during both-leg high-current transitions."
+      ]
+    },
+    {
+      "id": "BP-13",
+      "score": "1",
+      "topic": "Preserve a nearby uninterrupted return for fast signals",
+      "review": "bogatin-practical.md",
+      "evidence_and_rationale": [
+        "Observed design; `P/.../stage19-pi-si/return-path19b.json` `bias_bad` at (44.25–66.5,127.2), 22.25 mm no reference",
+        "Most asserted routes have reference, but the ns-edge `bias_bad` exception remains without a nearby return. Logic argues fail-safe direction, not signal-integrity margin.",
+        "Measure bias_bad/DIS pulse behavior and local reference during startup/fault and maximum switching."
+      ]
+    },
+    {
+      "id": "BP-14",
+      "score": "2",
+      "topic": "Review layer changes as two coupled transitions",
+      "review": "bogatin-practical.md",
+      "evidence_and_rationale": [
+        "Observed design; `B/provenance/copper.json` C153–C156 vias; `R/bogatin-positions.csv` C153 (41.85,128.78) through C156 (57.85,175); `P/.../return-path19b.json` `pwm_hb`",
+        "Four stage19b v3v3–SELV_GND transfer caps are adjacent to the formerly open J4-side changes; all seven pwm_hb changes are reported ≤2.72 mm.",
+        "Probe PWM at J4 and driver under switching and fault conditions; validate cap effective impedance."
+      ]
+    },
+    {
+      "id": "BP-15",
+      "score": "1",
+      "topic": "Keep unrelated fast aggressors away from quiet victims",
+      "review": "bogatin-practical.md",
+      "evidence_and_rationale": [
+        "Observed design; `B/provenance/copper.json` `sw_a/sw_b`, `ocp_kelvin_p/n`, `ct_zc`, `bias_bad`; `P/.../return-path19b.json`",
+        "Spatial/domain separation and some return overlays are reviewed, but victim thresholds vs actual coupled transients and the bias_bad exception lack a complete bound.",
+        "Worst-case CT/OCP/PWM/bias victim waveforms with calibrated bandwidth and physical aggressor operating points."
+      ]
+    },
+    {
+      "id": "BP-16",
+      "score": "1",
+      "topic": "Place local bypass by total loop, not centroid distance",
+      "review": "bogatin-practical.md",
+      "evidence_and_rationale": [
+        "Observed design; `P/.../stage19-pi-si/pi19b.json` rows U41-C104/C75, U42-C108/C82, U26-C98/C99/C64",
+        "Stage19 moved caps close (supply 1.61–2.93 mm), but large-cap and U26 return rows 5.19–6.97 mm are explicitly unasserted.",
+        "Estimate full loop L/R and effective C; measure device-pin rail step response."
+      ]
+    },
+    {
+      "id": "BP-17",
+      "score": "U",
+      "topic": "Select decoupling as an impedance network",
+      "review": "bogatin-practical.md",
+      "evidence_and_rationale": [
+        "Hypothesis; `B/provenance/resolved-components.json` cap MPNs and `P/.../pi19b.json`",
+        "Exact parts and placement are known, but no rail impedance/spectrum model covering bias, ESL, damping and antiresonance was found. The missing spectrum is essential to this criterion.",
+        "Build or measure PDN impedance and pin rail transient for each driver, RECOM output and sensitive rail."
+      ]
+    },
+    {
+      "id": "BP-18",
+      "score": "2",
+      "topic": "Separate source filtering from local transient supply",
+      "review": "bogatin-practical.md",
+      "evidence_and_rationale": [
+        "Observed design; `P/DECISIONS.md:768–774`; `P/.../pi19b.json` U41/U42 RECOM and U26 LDO rows",
+        "Stage19 specifically moved source output and LDO bypass caps and retained separate driver-local reservoirs.",
+        "Measure source ripple and device-pin load-step sag independently across rail startup and fan load."
+      ]
+    },
+    {
+      "id": "BP-19",
+      "score": "2",
+      "topic": "Evaluate copper pours by function and boundary",
+      "review": "bogatin-practical.md",
+      "evidence_and_rationale": [
+        "Observed design; `B/provenance/copper.json` 53 named zones, e.g. `bus_p trunk`, `leg_ret sources`, `ocp_kelvin_p protection`, `v3v3 SELV island`; `R/bogatin-copper.pdf` pp.1–4",
+        "Filled copper has identified electrical domains; visual layer plots show separated bridge and SELV regions. No claim that every island is physically validated.",
+        "Inspect final Gerbers for isolated copper and measure power/return impedance and temperatures."
+      ]
+    },
+    {
+      "id": "BP-20",
+      "score": "U",
+      "topic": "Match stackup to routes, returns, voltage domains and fab",
+      "review": "bogatin-practical.md",
+      "evidence_and_rationale": [
+        "Observed design; `B/section.kicad_pcb:35–75`, nominal 1.653 mm; `P/validation-results/08-manufacturing-package/native-21/PROTOTYPE-LOT.md:12–16`",
+        "Four-layer material/copper prescription is specific, but actual fabricator cross-section, tolerance, CTI and isolation construction acceptance are uncommitted. Those are essential to the stackup verdict.",
+        "Obtain signed fab stackup/copper/plating/CTI and cross-section coupon for first article."
+      ]
+    },
+    {
+      "id": "BP-21",
+      "score": "U",
+      "topic": "Protect solderability without sacrificing electrical purpose",
+      "review": "bogatin-practical.md",
+      "evidence_and_rationale": [
+        "Hypothesis; `P/ASSEMBLY.md:20–39` REDCUBE THR and `B/provenance/final-manifest.json` POFV decision",
+        "Stud/large copper and filled via process are specified, but the assembler's actual thermal profile, solder fill and electrical/thermal trade are missing.",
+        "Supplier DFM response and coupon/first-article joints at REDCUBE, R5, FETs and POFV."
+      ]
+    },
+    {
+      "id": "BP-22",
+      "score": "2",
+      "topic": "Review board-edge placement and physical service access",
+      "review": "bogatin-practical.md",
+      "evidence_and_rationale": [
+        "Simulated; `P/DECISIONS.md:258–264,658–669`; `B/provenance/final-manifest.json` 411 bodies/0 hits; `P/ASSEMBLY.md:51–64`",
+        "Outline, connector and lug constraints have enclosure model checks, including upturned J2/J5 barrels.",
+        "Full harness mockup with production tolerances, service tools, airflow duct and retention."
+      ]
+    },
+    {
+      "id": "BP-23",
+      "score": "2",
+      "topic": "Verify DRC, schematic intent and artwork independently",
+      "review": "bogatin-practical.md",
+      "evidence_and_rationale": [
+        "Observed design; `B/provenance/final-manifest.json` 0/0/parity 0 with library tables, 80/80 audit; `P/.../stage19-pi-si/drc-libtables19b.json`; exact Gerber ZIP hash `c9eaf0…`",
+        "Independent source/netlist/board and artwork gates are documented and match the 19b identity. These check encoded constraints only.",
+        "Re-open final fab files in independent viewer and obtain vendor DFM/first-article electrical inspection."
+      ]
+    },
+    {
+      "id": "BP-24",
+      "score": "2",
+      "topic": "Provide intentional probe points and references",
+      "review": "bogatin-practical.md",
+      "evidence_and_rationale": [
+        "Observed design; `P/native-21/BRINGUP-PROBES.md:1–81`, 36 TP map; `B/provenance/final-manifest.json` `board_only`",
+        "Paired domain references and isolated probe method are specified; some FET and gate nodes use insulated component-lead adapters.",
+        "Fixture dry run: access, clearance and bandwidth at each required node on assembled board."
+      ]
+    },
+    {
+      "id": "BP-25",
+      "score": "2",
+      "topic": "Make staged bring-up and fault isolation possible",
+      "review": "bogatin-practical.md",
+      "evidence_and_rationale": [
+        "Observed design; `P/ASSEMBLY.md:77–125`, removable J7/J8/J9/J10 straps; `P/validation-plan/00-MASTER-PLAN.md`",
+        "Dual open links allow floating 30–60 V bus stages with continuity stops; mains primaries remain live as documented.",
+        "Execute controlled fixture sequence and record stop criteria, interlock and discharge verification."
+      ]
+    },
+    {
+      "id": "BP-26",
+      "score": "2",
+      "topic": "Define what a pass means and retain the evidence",
+      "review": "bogatin-practical.md",
+      "evidence_and_rationale": [
+        "Observed design; `P/validation-plan/01-switching-parasitics.md` through `09-mechanical-fit.md`; `P/validation-results/07-conducted-emi/s19b/BENCH-PRECOMPLIANCE.md`",
+        "Acceptance stimuli and planned instruments are defined for major risks; analytical EMI PASS is conditional and no stage19b bench record exists.",
+        "Record calibrated waveforms, IR, LISN scans, deviations and disposition against exact board serial/hash."
+      ]
+    },
+    {
+      "id": "BP-27",
+      "score": "1",
+      "topic": "Keep release identity and fab process explicit",
+      "review": "bogatin-practical.md",
+      "evidence_and_rationale": [
+        "Observed design; `B/provenance/final-manifest.json`, `P/.../fab/{bom-jlcpcb.csv,cpl-jlcpcb.csv,native-21-gerbers.zip}`, `P/.../cpl-rotation-audit/README.md`",
+        "92 BOM lines, 357 CPL rows and ZIP hash tie to 19b, but positive-Y CPL, 47 preview decisions and stale prototype-lot counts prevent a checked assembly release.",
+        "Vendor preview/acceptance, freeze corrected package and update build instructions with hash and count."
+      ]
+    },
+    {
+      "id": "BP-28",
+      "score": "U",
+      "topic": "Review domain separation independently of return continuity",
+      "review": "bogatin-practical.md",
+      "evidence_and_rationale": [
+        "Calculated; `B/section.kicad_dru:98–111`, `P/DECISIONS.md:746–757`, `P/native-21/verification/D5-AUDIT.md`",
+        "HOT, SELV and PE are mapped; outer RES_A geometry meets the encoded 12.6 mm rule. Inner path classification, CTI, IEC 60664-4 and construction approvals remain essential and undecided.",
+        "Independent safety/fab interpretation of inner path, material evidence, assembled creepage/clearance and hipot/leakage test."
+      ]
+    },
+    {
+      "id": "OTT-01",
+      "score": "2",
+      "topic": "Draw each fast-current loop, including the return",
+      "review": "ott-emc.md",
+      "evidence_and_rationale": [
+        "B/P: `prior-build-evidence/return-path.json`; `copper-dump.json` R5, C5/C6, Q pads",
+        "Routed bridge and gate loops exist; prior return-path analysis supports intended paths. State-specific measured return current absent.",
+        "Annotate both leg states and probe Vds/Vgs, local link current."
+      ]
+    },
+    {
+      "id": "OTT-02",
+      "score": "2",
+      "topic": "Partition noisy and susceptible functions before routing",
+      "review": "ott-emc.md",
+      "evidence_and_rationale": [
+        "B: `prior-build-evidence/copper.png` four layers; J1 x281, bridge Q region x1–110, J2/J5 x129–135",
+        "Power, coil and control areas are distinguishable in the actual four-layer board. Final cable/field exposure untested.",
+        "Overlay final harness/enclosure and near-field maps."
+      ]
+    },
+    {
+      "id": "OTT-03",
+      "score": "2",
+      "topic": "Minimize differential-mode switching-loop area",
+      "review": "ott-emc.md",
+      "evidence_and_rationale": [
+        "B/P: `copper.png`; `return-path.json`; source full bridge",
+        "Local copper and route study support the intended commutation loop; no measured loop L, ringing or H-field margin.",
+        "Double pulse and H-field scan both bridge states."
+      ]
+    },
+    {
+      "id": "OTT-04",
+      "score": "1",
+      "topic": "Keep fast signal references continuous",
+      "review": "ott-emc.md",
+      "evidence_and_rationale": [
+        "P: `prior-build-evidence/return-path.json:signals`; `producer/validation-results/08-manufacturing-package/native-21/stage19-pi-si/return-path19b.txt`",
+        "The selected gate passes: `pwm_hb` and `ct_zc` have zero wrong-reference samples and ≤0.25 mm unreferenced runs. But `bias_bad` has a 22.25 mm unreferenced run, six open reference changes and plane crossings; its fault/control role makes the return gap a concrete susceptibility concern, not a measured failure. Broader route coverage is incomplete.",
+        "Inspect `bias_bad` loop/reference around (66.5,127.2)–(44.25,127.2), then inject switching/coil noise and audit remaining critical nets."
+      ]
+    },
+    {
+      "id": "OTT-05",
+      "score": "U",
+      "topic": "Treat slots, cutouts, and antipad rows as return obstructions",
+      "review": "ott-emc.md",
+      "evidence_and_rationale": [
+        "B: `copper.png`, isolation channel and large plane apertures",
+        "Required safety cuts are visible; no critical-route-versus-cut audit identifies a harmful crossing.",
+        "Map critical route current against filled-zone polygons; retain isolation."
+      ]
+    },
+    {
+      "id": "OTT-06",
+      "score": "1",
+      "topic": "Supply a return when changing signal layers",
+      "review": "ott-emc.md",
+      "evidence_and_rationale": [
+        "P: `return-path.json` transition lists; producer `stage19-pi-si/return-path19b.txt`",
+        "`pwm_hb` seven transitions and `ct_zc` one have identified local transfers within the selected 3 mm gate. `bias_bad` has six open transfers (C138 9.75–15.76 mm away), and `pwm_ha`/`pwm_la` transfer caps are 7.59/5.11 mm away; plausible return detours remain. The selected gate did not assert all signals.",
+        "Check near-via same-net stitching/transfer options, preserving isolation; measure before/after fault-signal and PWM waveforms."
+      ]
+    },
+    {
+      "id": "OTT-07",
+      "score": "U",
+      "topic": "Choose stackup by field and return goals, not layer count alone",
+      "review": "ott-emc.md",
+      "evidence_and_rationale": [
+        "B: `section.kicad_pro`, four copper layers in `copper.png`",
+        "Design layers exist; no fabrication-controlled dielectric/copper/tolerance document tied to a built article.",
+        "Fab stackup and route-to-reference review."
+      ]
+    },
+    {
+      "id": "OTT-08",
+      "score": "2",
+      "topic": "Prefer continuous ground for mixed-signal areas, with disciplined routing",
+      "review": "ott-emc.md",
+      "evidence_and_rationale": [
+        "B: `copper-dump.json` `selv_gnd` zone and tracks; R38 at (24.6–26.25,132.87)",
+        "A safe-side reference and deliberate PE link are routed; conversion noise and cross-domain return behavior are untested.",
+        "ADC/CT noise and RF injection with R38 installed/removed under safe setup."
+      ]
+    },
+    {
+      "id": "OTT-09",
+      "score": "U",
+      "topic": "Keep external connector returns intact",
+      "review": "ott-emc.md",
+      "evidence_and_rationale": [
+        "B: `copper-dump.json` J1, J2/J5, J4, J6 pads",
+        "Board pinout exists but cable return assignments/assembled boundary are incomplete.",
+        "As-built connector/cable/adjacent-plane overlay."
+      ]
+    },
+    {
+      "id": "OTT-10",
+      "score": "U",
+      "topic": "Ground copper pours deliberately",
+      "review": "ott-emc.md",
+      "evidence_and_rationale": [
+        "B: `copper-dump.json` 63 zones, including SW_A/SW_B and ground domains",
+        "Filled copper exists, but no complete island/connectivity and switching-node capacitance audit.",
+        "Island report and near-field/CM A/B if pours change."
+      ]
+    },
+    {
+      "id": "OTT-11",
+      "score": "2",
+      "topic": "Control clock routes and high-edge-rate control signals",
+      "review": "ott-emc.md",
+      "evidence_and_rationale": [
+        "M/B: `producer/.../s19b/README.md` §3 edge times 18.6–26.8 ns; PWM nets in dump",
+        "Edge source is estimated from D-19 and routed; ring/termination at device pins unmeasured.",
+        "Scope all gates and source returns at switching corners."
+      ]
+    },
+    {
+      "id": "OTT-12",
+      "score": "1",
+      "topic": "Keep sensitive inputs and feedback loops compact",
+      "review": "ott-emc.md",
+      "evidence_and_rationale": [
+        "B/D: native `section.kicad_pcb` R5 pads 2/3 at (37.0,12.1)/(37.0,13.1); `ct_s2` 202.5 mm aggregate in `copper-dump.json`; `DECISIONS.md` D4/coil-pickup",
+        "Long, multilayer low-level paths present a concrete pickup path near a high-field coil. Producer treats pickup as modeled acceptable, pending switching test.",
+        "Measure OCP/CT error and trip timing with final coil/pan."
+      ]
+    },
+    {
+      "id": "OTT-13",
+      "score": "U",
+      "topic": "Model decoupling as an installed L-C network",
+      "review": "ott-emc.md",
+      "evidence_and_rationale": [
+        "B: source U1/U2 high-side C10/C17 and bias U41/U42 C75/C82, plus local gate-bias C90–C97; native board pads",
+        "The cited capacitors are physically present, but transient currents, installed ESR/ESL, rail droop and local impedance remain absent. Presence alone does not resolve the installed L-C criterion.",
+        "Rail-current/impedance model and pin-level droop/ring capture."
+      ]
+    },
+    {
+      "id": "OTT-14",
+      "score": "U",
+      "topic": "Examine antiresonance and source interaction",
+      "review": "ott-emc.md",
+      "evidence_and_rationale": [
+        "B: C1/C2, C5/C6, local bypass banks in source/board",
+        "No frequency-dependent PDN sweep with DC bias and ESR/ESL is provided.",
+        "Impedance and rail spectrum across switching/clock harmonics."
+      ]
+    },
+    {
+      "id": "OTT-15",
+      "score": "1",
+      "topic": "Put bulk energy where recharge current enters",
+      "review": "ott-emc.md",
+      "evidence_and_rationale": [
+        "B: BR1 pads x82–107,y4.6; C5/C6 around x205–286,y65–94; `l_filt` 350 mm aggregate route",
+        "Rectifier and bulk are physically far apart, giving a plausible recharge-current loop and input-conductor coupling; local commutation caps mitigate faster current.",
+        "Capture rectifier/link ripple and H-field along recharge path; assess repositioning cost."
+      ]
+    },
+    {
+      "id": "OTT-16",
+      "score": "U",
+      "topic": "Separate common-mode from differential-mode conducted noise",
+      "review": "ott-emc.md",
+      "evidence_and_rationale": [
+        "M: `producer/.../s19b/results.json`, nominal CM at 60 kHz, DM at 150 kHz",
+        "Mode diagnosis is simulated only; rubric asks for relevant measurement.",
+        "Two-port LISN with calibrated CM/DM separation and coil/PE clamp."
+      ]
+    },
+    {
+      "id": "OTT-17",
+      "score": "1",
+      "topic": "Locate the mains filter at the entry boundary and prevent bypass",
+      "review": "ott-emc.md",
+      "evidence_and_rationale": [
+        "B/D: source lines 317–354; J1/L1/BR1 coordinates; `DECISIONS.md` D-22 module",
+        "Off-board filter and long on-board filtered route create a credible pickup/bypass geometry; assembled harness is not fixed.",
+        "Layout and insertion scan with inlet module, case bond and both harness sides."
+      ]
+    },
+    {
+      "id": "OTT-18",
+      "score": "1",
+      "topic": "Match filter topology to measured mode and terminal impedances",
+      "review": "ott-emc.md",
+      "evidence_and_rationale": [
+        "M/D: `results.json` board-only −39.3 dB and 18 µH option −5.1 dB below 150 kHz",
+        "Required extra 100 µH DM branch is a specified *model element*, with no selected/biased installed curve; wrong branch is a demonstrated model miss.",
+        "Select exact inductors, measure bias/thermal curves and assembled transfer."
+      ]
+    },
+    {
+      "id": "OTT-19",
+      "score": "2",
+      "topic": "Treat X/Y capacitor roles and safety constraints explicitly",
+      "review": "ott-emc.md",
+      "evidence_and_rationale": [
+        "B: source lines 327,343–351; C1/C2 X2 and C3/C4 Y1, PE pads",
+        "Roles are explicit; total module-plus-board leakage, certification scope and fault test remain pending.",
+        "Current part records and total leakage/touch-current measurement to chosen requirements."
+      ]
+    },
+    {
+      "id": "OTT-20",
+      "score": "1",
+      "topic": "Characterize chokes and ferrites at actual frequency and current",
+      "review": "ott-emc.md",
+      "evidence_and_rationale": [
+        "M/D: `producer/.../s19b/README.md` §3, §8; D-22 module 8 W allowance",
+        "Choke curve is fitted; discrete DM inductors and bias/heat remain unselected, and prior startup/damper-open peaks exceeded screens.",
+        "Exact part frequency/bias/temperature and startup measurements."
+      ]
+    },
+    {
+      "id": "OTT-21",
+      "score": "2",
+      "topic": "Inventory parasitic common-mode paths from switch nodes",
+      "review": "ott-emc.md",
+      "evidence_and_rationale": [
+        "M/B: `results.json:inputs.cm`, board SW_A/SW_B areas 1928/3308 mm²; `study16/REPORT.md`",
+        "Tab, pour/fringe and coil-to-PE paths are modeled for stage19b; PS1–PS3 capacitance and some enclosure metal are omitted.",
+        "Component capacitance and assembled CM current by state."
+      ]
+    },
+    {
+      "id": "OTT-22",
+      "score": "2",
+      "topic": "Distinguish protective earth, chassis, circuit return, and isolation",
+      "review": "ott-emc.md",
+      "evidence_and_rationale": [
+        "B/D: R38 PE–SELV pads; J6 PE; `DECISIONS.md` D5 and PE/chassis bond",
+        "Safety-first topology separates direct chassis bond from board PE branch and removable functional R38; RF bond impedance unverified.",
+        "As-built bonding drawing, fault-bond and RF-impedance tests."
+      ]
+    },
+    {
+      "id": "OTT-23",
+      "score": "U",
+      "topic": "Make connector and cable paths part of the EMC model",
+      "review": "ott-emc.md",
+      "evidence_and_rationale": [
+        "B: J1/J2/J5/J4/J6 board pads; `BENCH-PRECOMPLIANCE.md` harness plan",
+        "Complete production lengths, shield/return assignment and routing variants absent.",
+        "Frozen harness schedule and installed cable clamp scan."
+      ]
+    },
+    {
+      "id": "OTT-24",
+      "score": "U",
+      "topic": "Terminate shields to a meaningful enclosure boundary",
+      "review": "ott-emc.md",
+      "evidence_and_rationale": [
+        "D: `README.md` shield is only a reserve mitigation",
+        "No adopted cable/coil shield and termination drawing to assess.",
+        "Decide shield need from measurements, then bond/current and insulation drawing."
+      ]
+    },
+    {
+      "id": "OTT-25",
+      "score": "1",
+      "topic": "Give each cable signal a nearby return",
+      "review": "ott-emc.md",
+      "evidence_and_rationale": [
+        "B: J4 PWM pins x46.52–55.52,y180.08; GND x43.52,y180.08 and x52.52,y183.08",
+        "Four fast PWM lines cluster without a ground pin adjacent to each; mating wire pairing may rescue them but is unspecified.",
+        "Pin-to-wire pairing, return-current/CM measurements, timing."
+      ]
+    },
+    {
+      "id": "OTT-26",
+      "score": "2",
+      "topic": "Analyze enclosure seams, apertures, and nearby metal",
+      "review": "ott-emc.md",
+      "evidence_and_rationale": [
+        "M: `study16/REPORT.md` R43 frozen CAD and PE parts classification",
+        "R43 enclosure is used in electrostatic modeling, with seams/vents and metal classes; no assembled H-field or ESD scan.",
+        "Confirm R43 applicability to built stage19b, seams/bonds, scan."
+      ]
+    },
+    {
+      "id": "OTT-27",
+      "score": "U",
+      "topic": "Filter susceptible inputs at the appropriate boundary",
+      "review": "ott-emc.md",
+      "evidence_and_rationale": [
+        "B: source CT, LINE_ZC and control networks; `DECISIONS.md` timing gates",
+        "Input components are present; final external lead impedance and RF injection/latency evidence absent.",
+        "Map boundary filters and test injected RF versus fault latency."
+      ]
+    },
+    {
+      "id": "OTT-28",
+      "score": "U",
+      "topic": "Divert ESD current before it reaches sensitive ground",
+      "review": "ott-emc.md",
+      "evidence_and_rationale": [
+        "Ø: no selected touch-point/ESD-path and discharge results in package",
+        "Enclosure touch routes and local discharge return not validated.",
+        "As-built touch/TVS/bond map and contact/air tests."
+      ]
+    },
+    {
+      "id": "OTT-29",
+      "score": "U",
+      "topic": "Design surge/EFT protection as an energy and return-path network",
+      "review": "ott-emc.md",
+      "evidence_and_rationale": [
+        "B: source F1, RV1/TMOV and mains filter, lines 317–350",
+        "Protection topology exists; selected pulse class, source impedance, MOV aging/follow-current and coordination absent.",
+        "Current standard/test level, energy calculation and instrumented surge/EFT."
+      ]
+    },
+    {
+      "id": "OTT-30",
+      "score": "U",
+      "topic": "Suppress relay/contact and inductive-load transients locally where applicable",
+      "review": "ott-emc.md",
+      "evidence_and_rationale": [
+        "D: blower/PS3 and disconnect in `DECISIONS.md`",
+        "Inductive loads exist in assembly, but exact switch, suppression and release/turn-off waveform not established here.",
+        "As-built blower/contact schematic and turn-off spectrum/voltage."
+      ]
+    },
+    {
+      "id": "OTT-31",
+      "score": "U",
+      "topic": "Treat harmonic current and flicker as separate mains questions",
+      "review": "ott-emc.md",
+      "evidence_and_rationale": [
+        "B: BR1 and bulk C5/C6; M excludes 120 Hz cycle",
+        "Rectifier-bulk input can draw peaks, but product class/line impedance and analyzer results absent.",
+        "Selected market limits plus harmonic/inrush/flicker power-analyzer run."
+      ]
+    },
+    {
+      "id": "OTT-32",
+      "score": "U",
+      "topic": "Measure cable common-mode current, then rescan all cables",
+      "review": "ott-emc.md",
+      "evidence_and_rationale": [
+        "D: `BENCH-PRECOMPLIANCE.md` probe plan",
+        "No calibrated clamp trace from any final harness.",
+        "Probe-calibrated all-cable sweep before/after each change."
+      ]
+    },
+    {
+      "id": "OTT-33",
+      "score": "U",
+      "topic": "Use near-field scans for localization, not far-field certification",
+      "review": "ott-emc.md",
+      "evidence_and_rationale": [
+        "Ø: no fixture-controlled scan supplied",
+        "Layer image identifies candidate hot spots only.",
+        "Fixed-distance H/E probe scans and A/B with cable-current correlation."
+      ]
+    },
+    {
+      "id": "OTT-34",
+      "score": "U",
+      "topic": "Run conducted-emission tests with a valid setup and mode separation",
+      "review": "ott-emc.md",
+      "evidence_and_rationale": [
+        "M/D: `results.json` predicted levels; `BENCH-PRECOMPLIANCE.md` is procedure",
+        "No actual LISN, detector, ambient or mode-separated line/neutral data.",
+        "Execute precompliance then accredited/correlated test on final assembly."
+      ]
+    },
+    {
+      "id": "OTT-35",
+      "score": "U",
+      "topic": "Verify immunity, functional behavior, and margin together",
+      "review": "ott-emc.md",
+      "evidence_and_rationale": [
+        "Ø: no ESD/EFT/surge/RF immunity outcome on stage19b assembly",
+        "No selected functional performance criteria and representative logs/variation.",
+        "Set safe-state criteria; run repeated injection with fault logs and latency."
+      ]
+    },
+    {
+      "id": "SI-01",
+      "score": "1",
+      "topic": "Edge and disturbance inventory",
+      "review": "bogatin-sipi.md",
+      "evidence_and_rationale": [
+        "`B/source/elec/src/f6_bias.ato:174-177` names 10 V/ns ZVS and up to ~95 V/ns hard HS edges; `D:789` records U40 1.5–4.6 ns propagation, but no measured rise/fall or cutoff for `bias_bad`, `pwm_hb`, gate pins and off-board J4. The ns-class fault line is explicitly excluded from the stage19b return assertion despite its 22.25 mm no-plane stretch (`R/return-path19b.txt`). Relevant spectrum could be missed.",
+        "Captures of fastest intended and fault edges at source/load, with state/corner inventory and analysis cutoff."
+      ]
+    },
+    {
+      "id": "SI-02",
+      "score": "U",
+      "topic": "Explicit noise and timing budgets",
+      "review": "bogatin-sipi.md",
+      "evidence_and_rationale": [
+        "Provisional off-gate <1.9 V and die VDS ≤520 V screens appear at `F:19,39`; PWM input thresholds 0.8/2.3 V at `D:72`. There is no complete pin-level transient/false-disable budget for U22/U23, J4 control, sense or all rails under switching. A geometric return screen is not a noise budget.",
+        "Per-victim allowed pulse, rail droop, latency, timing and false-trip criteria across states."
+      ]
+    },
+    {
+      "id": "SI-03",
+      "score": "1",
+      "topic": "Model fidelity and domain",
+      "review": "bogatin-sipi.md",
+      "evidence_and_rationale": [
+        "`D:74,127-129,144-145` admits the UCC21550 model did not validate/converge, uses output-resistance approximation, and leaves native-21 matrix correction/fine extraction as follow-up. `F:39` calls the native-21 corrections provisional. These missing parasitic/model bounds are relevant to a 1.9 V off-gate screen and 520 V S4 limit.",
+        "Native-21 exact-port extraction, validated driver timing model or bounded bench correlation, capacitor bias/ESR/ESL and probe models."
+      ]
+    },
+    {
+      "id": "SI-04",
+      "score": "U",
+      "topic": "Prediction and measurement agreement",
+      "review": "bogatin-sipi.md",
+      "evidence_and_rationale": [
+        "Decision matrices at `F:39` and rail split qualification at `D:127-129` are simulation/bounding records. No stage19b captured gate, rail, switch or victim waveform exists in this frozen evidence.",
+        "Predeclare S4/S5 and rail predictions, then calibrated synchronized captures with probe/fixture records."
+      ]
+    },
+    {
+      "id": "SI-05",
+      "score": "1",
+      "topic": "Enumerate complete fast-current loops",
+      "review": "bogatin-sipi.md",
+      "evidence_and_rationale": [
+        "`D:144-145,185-198` models commutation and gate ports; my board checks locate FETs, local films and U1/U2 caps. But the producer itself says FEM gate-port closure is doubted (`D:198`), and `D:426-427` requests C5/C6 bulk-path extraction. A state-by-state pad/via return overlay including fault and snubber current is absent.",
+        "Full state loop drawings on this exact copper and extracted/captured gate and bulk return closures."
+      ]
+    },
+    {
+      "id": "SI-06",
+      "score": "1",
+      "topic": "Bound loop inductance and voltage overshoot",
+      "review": "bogatin-sipi.md",
+      "evidence_and_rationale": [
+        "Native-21 coarse loop 37.6 nH vs 24.9 nH previous (`D:144-145`); F6 provisional worst S4 VDS 470 V on A / 492 V on B vs 520 V (`F:39`). `D:426-427` says bulk path ~20 nH ±50%, with S4 sensitivity ~5 V/nH and failures around 28–32 nH. That uncertainty spans a model-sensitive range; no stage19b measured overshoot.",
+        "Exact-board port extraction of bulk and gate loops; double-pulse at S4/S5 corners with die-equivalent VDS/VGS."
+      ]
+    },
+    {
+      "id": "SI-07",
+      "score": "1",
+      "topic": "Shared-return contamination",
+      "review": "bogatin-sipi.md",
+      "evidence_and_rationale": [
+        "R5 Kelvin pads are physically distinct, yet `R/return-path19b.txt` routes `bus_fault_hot` beside/under `ocp_kelvin_p`; R5/U8/U9 pad/net check above confirms the shared reference. `D:790-791` gives a DC Kelvin estimate 158.08 mΩ and OCP band, not switching-frequency shared impedance. High-frequency injection into the fault reference remains credible.",
+        "Pin-to-pin U8/U9 and OCP capture during commutation plus extracted shared impedance and magnetic pickup corner."
+      ]
+    },
+    {
+      "id": "SI-08",
+      "score": "1",
+      "topic": "Reference continuity across transitions",
+      "review": "bogatin-sipi.md",
+      "evidence_and_rationale": [
+        "Stage19b fixes the old `pwm_hb` J4 changes: all seven now 1.12–2.72 mm from a transfer cap (`R/return-path19b.txt`), corroborated by my cap/via check. Yet `bias_bad` remains seven transitions at 2.81–15.76 mm and a 22.25 mm B.Cu no-plane stretch x≈44–66,y=127.2; `bias_bad_raw` also has distant changes. U40.4→U22/U23 DIS assertion is a functional path. A transient disable might truncate a switching pulse; “fail-safe direction” at `D:789` does not quantify that sequence.",
+        "Measure U40 output and both DIS pins through rail faults/startup and switching aggressors; test whether any pulse causes unsafe commutation or nuisance trip."
+      ]
+    },
+    {
+      "id": "SI-09",
+      "score": "2",
+      "topic": "Current path proximity and parallel conductors",
+      "review": "bogatin-sipi.md",
+      "evidence_and_rationale": [
+        "Local U1/U2 100 nF planar loops are 2.20 mm pad-centre and stage9 applied a +2 nH gate-port sensitivity bound with 252/252 simulations (`D:185-198`). Opposite-current gate return and film placements are intentional; my C10/C17 check agrees. This is a supported design prediction, pending port extraction/measurement.",
+        "Extract both gate-port and commutation-loop L/mutuals with exact via/plane contact, compare to capture."
+      ]
+    },
+    {
+      "id": "SI-10",
+      "score": "U",
+      "topic": "Separate capacitor jobs",
+      "review": "bogatin-sipi.md",
+      "evidence_and_rationale": [
+        "Source assigns distinct driver 100 nF/1 µF/10 µF (`B/source/elec/src/power_stage_120v.ato:112-160`), rail reservoir plus 0.68 Ω-damped 220 µF (`B/source/elec/src/f6_bias.ato:5-48`), local film C38–41 and remote C5/C6 (`B/section.kicad_pcb` objects above). `D:455-456` uses exact TDK 9 µF film; `D:155` explicitly does not credit 10 µF DC-bias capacitance. Jobs are separated, but the requested per-capacitor ripple/life stress calculation is incomplete in this evidence.",
+        "Per-exact-part voltage, ripple, thermal and life stress table at 22/28 A and fault/burst cases."
+      ]
+    },
+    {
+      "id": "SI-11",
+      "score": "1",
+      "topic": "Rail impedance versus load spectrum",
+      "review": "bogatin-sipi.md",
+      "evidence_and_rationale": [
+        "`D:103-109,127-129` requires the negative rail <−1.6 V during partner edge and ≥2.2 µF effective reservoir; a standalone model is the chosen bound while a coupled rail deck had 181/504 indeterminate cases. Local U1/U2 bypass is real, but no installed VSS/VDD pin impedance or edge droop is given. Since the F6 off-gate margin depends directly on that rail, uncertainty is concrete.",
+        "Gate-charge current spectra, impedance/load-step at each VDDA/VSSA and VDDB/VSSB pair, synchronized VSS-to-negative rail captures."
+      ]
+    },
+    {
+      "id": "SI-12",
+      "score": "U",
+      "topic": "Mounted, not catalog, bypass inductance",
+      "review": "bogatin-sipi.md",
+      "evidence_and_rationale": [
+        "My board measurements verify 2.20 mm driver 100 nF loops and ~2.8–2.9 mm RECOM/LDO 100 nF pad distances. `H/pi-distances.json` deliberately does not assert 10 µF RECOM returns (5.69–5.70 mm), U26 input/NR returns (6.97/5.19 mm); `H/bypass-check.json` checks 11 IC geometric screens. None calculates package+pad+plane ESL, so a 3 mm pad screen cannot validate the stated ~0.1 nH aggregate HF reservoir assumption in `B/source/elec/src/f6_bias.ato:9`. The absence of an L estimate makes this U rather than a proven 1-level degradation.",
+        "Extract or measure mounted impedance at U1/U2 and U26/U41/U42 pins, including actual capacitor DC bias."
+      ]
+    },
+    {
+      "id": "SI-13",
+      "score": "U",
+      "topic": "Antiresonance and damping",
+      "review": "bogatin-sipi.md",
+      "evidence_and_rationale": [
+        "`B/source/elec/src/f6_bias.ato:13-45` parallels 10 µF, 1 µF, 100 nF and 0.68 Ω/220 µF branches; stage19b adds four V3V3–SELV_GND 100 nF parts (`B/source/elec/src/power_stage_120v.ato:836-854`). There is no rail impedance sweep, ESR/ESL mounting model, load spectrum or allowable peak. Mixed values alone do not prove harmful antiresonance.",
+        "Rail-by-rail impedance sweep/model and time response with installed caps, regulator, package, plane and load."
+      ]
+    },
+    {
+      "id": "SI-14",
+      "score": "1",
+      "topic": "Bulk versus fast local energy",
+      "review": "bogatin-sipi.md",
+      "evidence_and_rationale": [
+        "C38–41's HF film pads sit by the FET row while C5/C6's 9 µF pads are remote; `D:426-427` explicitly says S4 bulk-path inductance ~20 nH ±50% and failure around 28–32 nH. Local film is the intended fast route, but bulk-path uncertainty is a credible worst-case gap.",
+        "Exact C5/C6→FET extraction or current/voltage transient at the row through start, shutdown, repetitive S4/S5 and 28 A."
+      ]
+    },
+    {
+      "id": "SI-15",
+      "score": "U",
+      "topic": "Placement sensitivity and stackup",
+      "review": "bogatin-sipi.md",
+      "evidence_and_rationale": [
+        "`R/pi19b.txt` and my checks establish short pad-centre geometry; `R/return-path19b.txt`/my via check establish transfer via proximity. No comparison of mounting/spreading L across the actual stackup or plane cavity exists for the RECOM, LDO, V3V3 and gate rails.",
+        "Stackup dielectric/copper data and calculated/extracted path-impedance comparison for the installed placements."
+      ]
+    },
+    {
+      "id": "SI-16",
+      "score": "U",
+      "topic": "Decide when a net is electrically long",
+      "review": "bogatin-sipi.md",
+      "evidence_and_rationale": [
+        "`R/return-path19b.txt` maps seven `pwm_hb` and seven `bias_bad` transitions and U40 ns-class propagation is recorded at `D:789`. Flight time, fastest rise time at J4/U22/U23, source/load impedance and receiver margin are absent; 22.25 mm no-plane length is a return concern, not proof of an electrically long line.",
+        "Actual fastest edges, routed/cable length and propagation speed, receiver threshold/noise bound."
+      ]
+    },
+    {
+      "id": "SI-17",
+      "score": "U",
+      "topic": "Termination matched to topology",
+      "review": "bogatin-sipi.md",
+      "evidence_and_rationale": [
+        "Source places 3.9 Ω resistors in MOSFET gate paths (`B/source/elec/src/power_stage_120v.ato:178-193`) and 100 Ω in PERMIT (`:90-105`); these serve gate-current/drive shaping, not demonstrated digital line matching. J4/controller source topology and PWM receiver waveforms are unavailable.",
+        "J4 harness/source/loading topology and source/receiver captures; choose termination only if reflection budget requires it."
+      ]
+    },
+    {
+      "id": "SI-18",
+      "score": "U",
+      "topic": "Discontinuity inventory",
+      "review": "bogatin-sipi.md",
+      "evidence_and_rationale": [
+        "Seven `pwm_hb` vias, seven `bias_bad` vias, J4 launch and branches are mapped (`R/return-path19b.txt`; board `pwm_hb` 34 tracks/7 vias, `bias_bad` 58/7 by pcbnew). No edge-to-flight assessment or impedance-step effect is supplied.",
+        "Feature map with cable/connector/branch dimensions, waveform or TDR only for paths found electrically long."
+      ]
+    },
+    {
+      "id": "SI-19",
+      "score": "2",
+      "topic": "Delay and matching tied to a timing budget",
+      "review": "bogatin-sipi.md",
+      "evidence_and_rationale": [
+        "`D:60,72,74,76,185-198` gives 49.9 kΩ DT, nominal ~442 ns dead time, controller gap and a modelled +2 nH gate sensitivity; producer recognizes command gap differs from gate-crossing gap. Simulations support the chosen timing at declared 180° mode, without measured gate timing.",
+        "Synchronized controller input, driver output and four MOSFET VGS crossing measurements at hot/cold, burst S5 and faults."
+      ]
+    },
+    {
+      "id": "SI-20",
+      "score": "NA",
+      "topic": "Material and trace loss where it matters",
+      "review": "bogatin-sipi.md",
+      "evidence_and_rationale": [
+        "The board's relevant J4/PWM/control routes are short low-voltage signals, with no identified high-speed serial channel or loss/eye requirement (`B/section.kicad_pcb`, J4 and U1/U2 nets). Power-copper AC loss belongs to SI-28, not a digital insertion-loss criterion. Revisit if a fast off-board channel is added.",
+        "None for current architecture; reassess after a channel requirement change."
+      ]
+    },
+    {
+      "id": "SI-21",
+      "score": "1",
+      "topic": "Rank aggressor/victim pairs",
+      "review": "bogatin-sipi.md",
+      "evidence_and_rationale": [
+        "High `dv/dt` SW_A/SW_B runs near gate/sense regions; R5 Kelvin at (37,12–13) is beside the FET row, and `D:482,503` estimates magnetic pickup from the coil. Stage19b bus-fault reference is repaired, but no combined SW/copper/coil aggressor ranking against victim thresholds exists.",
+        "3D coupling/extraction plus worst simultaneous commutation and coil-field victim pin captures."
+      ]
+    },
+    {
+      "id": "SI-22",
+      "score": "NA",
+      "topic": "Guard trace claims",
+      "review": "bogatin-sipi.md",
+      "evidence_and_rationale": [
+        "No claimed dedicated guard-trace remedy appears in the stage19b source, PCB change log or return-path record (`B/source/elec/src/power_stage_120v.ato:836-854`; `D:767-791`). The Kelvin paired return and plane transfers are functional conductors, not an A/B guard-trace claim.",
+        "Reopen only if a guard is proposed; compare against equal spacing without it."
+      ]
+    },
+    {
+      "id": "SI-23",
+      "score": "1",
+      "topic": "Differential pair return and symmetry",
+      "review": "bogatin-sipi.md",
+      "evidence_and_rationale": [
+        "R5 Kelvin pads form a dedicated pair at (37.0,12.1/13.1), but `D:692,701,791` moves part of the return from B.Cu to In2, re-solves DC Kelvin resistance at 158.08 mΩ; `R/return-path19b.txt` routes `bus_fault_hot` against the positive Kelvin reference. Differential geometry and common-mode response under switching/coil field are not quantified.",
+        "Exact pair/return asymmetry map, CT/Kelvin common-mode range, switching/coil pickup capture at comparator pins."
+      ]
+    },
+    {
+      "id": "SI-24",
+      "score": "1",
+      "topic": "Common-mode conversion and cables",
+      "review": "bogatin-sipi.md",
+      "evidence_and_rationale": [
+        "`D:792-806` has a source-bound conducted-EMI model using 31.0 pF floating-pan / 91.4 pF earthed-pan coil-to-PE estimates. It predicts ≥6.5 dB sensitivity margin floating but only 1.7–2.6 dB for earthed pan at 60 kHz; >~0.5 MHz lumped result is explicitly distrusted. J2/J5 cable current and PE route are unmeasured. Specific earthed-pan/common-mode sensitivity warrants concern, though it is informational rather than a compliance fail.",
+        "Assembled coil/chassis capacitance, J2/J5 current probe and LISN scans in pan/no-pan, 22/28 A and burst states."
+      ]
+    },
+    {
+      "id": "SI-25",
+      "score": "U",
+      "topic": "Crosstalk evidence at the victim",
+      "review": "bogatin-sipi.md",
+      "evidence_and_rationale": [
+        "`R/return-path19b.txt` maps `bias_bad` and fault paths; `D:790-791` reports Kelvin band calculations. No simultaneous switching capture at U8/U9, U22/U23, CT comparator or J4 receiver demonstrates noise or fault latency.",
+        "Simultaneous aggressor and victim-pin waveforms against explicit thresholds/latency under S4/S5 and steady 28 A."
+      ]
+    },
+    {
+      "id": "SI-26",
+      "score": "U",
+      "topic": "Instrument matches the question",
+      "review": "bogatin-sipi.md",
+      "evidence_and_rationale": [
+        "D-8 double-pulse and synchronized gate/VDS plan is named at `D:72,74`; conducted-EMI bench plan uses LISN RBW and pan/current modes at `D:806`. The choices fit the question, but no probe loop, port, de-embedding or uncertainty record is supplied for stage19b; the rubric's 2 anchor requires uncertainty bounded inside predicted margin.",
+        "Fixture/probe bandwidth/loading and uncertainty budget; calibrate and retain raw captures."
+      ]
+    },
+    {
+      "id": "SI-27",
+      "score": "1",
+      "topic": "Verify uncertainty and worst case",
+      "review": "bogatin-sipi.md",
+      "evidence_and_rationale": [
+        "The 252/252 per-leg F6 matrix at `F:39` spans 27/100/150 °C, and `D:127-129` bounds −1.6 V rail. Yet model-port corrections are provisional and the ~20 nH ±50% bulk inductance (`D:426-427`) enters a 28–32 nH failure region. One uncertain corner could overturn the predicted S4 margin.",
+        "Exact-board corrected/fine extraction, component/rail/probe sensitivity, measured worst-case S4/S5 corners."
+      ]
+    },
+    {
+      "id": "SI-28",
+      "score": "2",
+      "topic": "Copper resistance with the right current distribution",
+      "review": "bogatin-sipi.md",
+      "evidence_and_rationale": [
+        "`D:790-791` gives Kelvin resistance/band; the later converged body model at `D:808-827` supersedes the old B3 peak-cell conclusion and retains film-cap/local-air bench holds. Board's 2 oz inner/outer current paths have current/thermal design work, with exact R5 interface checked here. This supports a prediction, but there is no fabricated temperature/current distribution measurement for stage19b and AC crowding is not completely validated.",
+        "22/28 A IR/thermal map, ripple spectrum and resistance/skin/crowding sensitivity on actual copper."
+      ]
+    },
+    {
+      "id": "SI-29",
+      "score": "1",
+      "topic": "Parasitic capacitance and displacement-current route",
+      "review": "bogatin-sipi.md",
+      "evidence_and_rationale": [
+        "`D:103-105` recognizes an earlier SELV-fed transformer path would couple switch nodes to PE; stage19b retains HOT-fed RECOM architecture. `D:792-806` models coil-to-PE capacitance and a harmful bus-to-PE Y-cap resonance; the board has SW planes and PE/chassis/cable exits visible in `H/copper.png`. The model's 60 kHz earthed-pan margin is narrow and >~0.5 MHz is untrusted.",
+        "Extract node→sense/PE/heatsink/cable capacitance and return, then measure common-mode and victim current under worst `dv/dt`."
+      ]
+    },
+    {
+      "id": "AOE-01",
+      "score": "1",
+      "topic": "Define the real operating envelope before accepting a rating",
+      "review": "art-of-electronics.md",
+      "evidence_and_rationale": [
+        "D,C: `DEC:509-552,580-610,808-824`; `BODY:51-93`; `BOM:35`",
+        "28 A/50 °C and fault sweeps exist, but selected-part hot, ripple and abnormal-case margins are incomplete, especially film caps/supplies. Consolidate one stress table at matched datasheet conditions."
+      ]
+    },
+    {
+      "id": "AOE-02",
+      "score": "1",
+      "topic": "Size capacitors by effective function, not marked microfarads",
+      "review": "art-of-electronics.md",
+      "evidence_and_rationale": [
+        "D,C: `ATO:353-470,697-730`; `BOM:10,14,39,62`; `BODY:63-93`",
+        "C5/C6 bus, B32654 tank, C38–41 HF and ceramics have distinct jobs; bank winding/hot spot and HF-cap thermal paths lack measured support. Measure ripple spectra, actual bias capacitance and hot-spot temperature."
+      ]
+    },
+    {
+      "id": "AOE-03",
+      "score": "1",
+      "topic": "Treat inductors and transformers as lossy magnetic parts",
+      "review": "art-of-electronics.md",
+      "evidence_and_rationale": [
+        "C,D: `DEC:481-507,543-552,757`; `BOM:37`; `P/validation-results/02-protection-timing/README.md:16-25`",
+        "Coil Rac and CT volt-second screens are calculated, T1 and EMI choke temperature/HF insulation remain sample/bench questions. Measure wound coil, T1 phase/saturation and L1 rise."
+      ]
+    },
+    {
+      "id": "AOE-04",
+      "score": "1",
+      "topic": "Select rectifiers and clamps for transients, not DC forward drop alone",
+      "review": "art-of-electronics.md",
+      "evidence_and_rationale": [
+        "D,S: `ATO:697-730`; `BOM:60`; `P/validation-results/08-manufacturing-package/native-21/sourcing/alt-circuits-2026-10-09/ALT-D3.md:62-90`; `DEC:435`",
+        "D3/D17 series bus clamp was selected for a modeled long pulse; no selected-part worst-case repetitive/long-pulse and real overshoot capture. Check current split, pulse energy, reverse recovery and VDS at hot corners."
+      ]
+    },
+    {
+      "id": "AOE-05",
+      "score": "1",
+      "topic": "Audit connector systems as components with failure modes",
+      "review": "art-of-electronics.md",
+      "evidence_and_rationale": [
+        "D: `BOM:38,42`; `FAB:39-58`; `DEC:658-677`",
+        "J2/J5/J7–J10 REDCUBE, J3/J11 VH and J4 interface are identified, but mating halves, loaded harness hot contact rise and pull/strain relief are not qualified across all exits. Sample assembly and harness test."
+      ]
+    },
+    {
+      "id": "AOE-06",
+      "score": "2",
+      "topic": "Keep calibration adjustments from becoming the accuracy strategy",
+      "review": "art-of-electronics.md",
+      "evidence_and_rationale": [
+        "D: exact 92-line `BOM` scan; `ATO:568-615`; `P/validation-results/02-protection-timing/README.md:70-77`",
+        "No trimmer/pot MPN in frozen BOM; fixed shunt/reference ratios set protection. Document production calibration and threshold distribution; no physical verification."
+      ]
+    },
+    {
+      "id": "AOE-07",
+      "score": "1",
+      "topic": "Account for resistor behavior beyond initial tolerance",
+      "review": "art-of-electronics.md",
+      "evidence_and_rationale": [
+        "D,C,V: `ATO:568-635,997,1047-1048`; `BODY:51-73`; [Bourns CSS2H datasheet](https://bourns.com/docs/product-datasheets/css2h-2512.pdf?sfvrsn=905c9af1_35)",
+        "R5 1 mΩ/5 W terminal curve is relevant, but its temperature point/contact geometry need Bourns clarification and bench IR. Recheck divider, bleeder and gate-resistor pulse/hot voltage ratings."
+      ]
+    },
+    {
+      "id": "AOE-08",
+      "score": "2",
+      "topic": "Select the switch topology and technology against actual voltage, loss, and frequency",
+      "review": "art-of-electronics.md",
+      "evidence_and_rationale": [
+        "D,S,V: `BOM:35`; `P/validation-results/03-loss-thermal-budget/round3/README.md`; `P/validation-results/01-switching-parasitics/round17/delegation/out-D31/README.md`; `P/validation-results/01-switching-parasitics/round5/bench-plan/sources/infineon-ipw65r018cfd7.pdf:pp1-4`",
+        "Selected 650 V CFD7 at four bridge positions has modeled normal/fault loss. Manufacturer data has 18 mΩ max at 10 V/25 °C and 495 A pulse at 25 °C case; losses and hot switching need bench waveforms."
+      ]
+    },
+    {
+      "id": "AOE-09",
+      "score": "1",
+      "topic": "Verify fully enhanced gate drive at the hot and low-supply corners",
+      "review": "art-of-electronics.md",
+      "evidence_and_rationale": [
+        "D,S,V: `ATO:53-224,896-940`; `DEC:89-106`; Infineon CFD7 PDF pp.3-4",
+        "Independent +15/−2 V bias with monitor is credible, but startup/brownout, rail droop and hot VGS at package pins are unmeasured. Test minimum line, burst first edge, fan fault and TCO decay."
+      ]
+    },
+    {
+      "id": "AOE-10",
+      "score": "1",
+      "topic": "Make gate-drive current a transient calculation",
+      "review": "art-of-electronics.md",
+      "evidence_and_rationale": [
+        "D,S: `ATO:177-224`; `P/validation-results/01-switching-parasitics/round5/bench-plan/`; Infineon CFD7 PDF pp.4-5",
+        "Gate network is defined; actual 234 nC typical charge and parasitic loop make peak-driver rating insufficient. Capture VGS, VDS and current on both legs; integrate Eon/Eoff."
+      ]
+    },
+    {
+      "id": "AOE-11",
+      "score": "1",
+      "topic": "Include output capacitance and body-diode recovery in commutation",
+      "review": "art-of-electronics.md",
+      "evidence_and_rationale": [
+        "V,S: Infineon CFD7 PDF pp.1,5-6 (Eoss 31.6 µJ at 400 V; Qrr specified under test conditions); `DEC:81-90`; `P/validation-results/01-switching-parasitics/round17/`",
+        "F6 simulations include difficult S4/S5 commutation, but recovery under real pan/detune and temperature is unmeasured. Capture dead-time diode current and switching-node overshoot."
+      ]
+    },
+    {
+      "id": "AOE-12",
+      "score": "2",
+      "topic": "Prove off-state and gate-oxide protection in abnormal states",
+      "review": "art-of-electronics.md",
+      "evidence_and_rationale": [
+        "D,S: `ATO:177-224,896-940`; `DEC:86-106`; `P/native-21/BRINGUP-PROBES.md:45-51`",
+        "10 kΩ gate-source holds, −2 V bias, turn-off branch and rail monitor form a credible mechanism; F6 simulated 288 S4 and 216 S5 cases. Verify off-gate/rail-valid behavior through reset, disconnected controller and brownout at hot devices."
+      ]
+    },
+    {
+      "id": "AOE-13",
+      "score": "1",
+      "topic": "Separate repetitive switching SOA from fault and linear SOA",
+      "review": "art-of-electronics.md",
+      "evidence_and_rationale": [
+        "S,V: `P/validation-results/01-switching-parasitics/round17/delegation/out-D31/README.md:8-22`; Infineon CFD7 PDF pp.2-3",
+        "Fault turn-off 60–330 A modeled VDS ≤350 V, but transient V-I locus and hot SOA for startup, short, stuck gate and detune have no physical verification. Pulse headline is not fault qualification."
+      ]
+    },
+    {
+      "id": "AOE-14",
+      "score": "1",
+      "topic": "Close the complete junction-to-ambient thermal path",
+      "review": "art-of-electronics.md",
+      "evidence_and_rationale": [
+        "C,S: `BODY:34-102`; `DEC:808-824`",
+        "Converged body model corrects mesh artifact and gives margins for R5/U41/U42/U26, but assumes h, package coupling and many passive paths. Bench IR/thermocouples and measured sink/fan airflow required."
+      ]
+    },
+    {
+      "id": "AOE-15",
+      "score": "1",
+      "topic": "Design fault interruption as part of the power path",
+      "review": "art-of-electronics.md",
+      "evidence_and_rationale": [
+        "D,C,S: `ATO:568-696`; `DEC:78`; D-31 README:8-22; `P/prototype-closure/round5/protection/README.md:123-175`",
+        "CT/OCP/OVP and gate disable exist; DC fuse/contactors/catch and current extinction remain unqualified. Inject faults, bound whole latency and remaining energy; qualify vendor DC interrupt data."
+      ]
+    },
+    {
+      "id": "AOE-16",
+      "score": "1",
+      "topic": "Write an error budget for each protected or controlled quantity",
+      "review": "art-of-electronics.md",
+      "evidence_and_rationale": [
+        "C,D: `P/validation-results/02-protection-timing/kelvin/budget-native21s19b.md`; `DEC:527-552`; `P/validation-results/06-controller-interface/README.md:260-273`",
+        "CT and shunt threshold bands exist, but one input-referred current/bus/temperature/ADC/reference/firmware budget is missing. Include drift, lost rail, noise and sample freshness."
+      ]
+    },
+    {
+      "id": "AOE-17",
+      "score": "1",
+      "topic": "Verify precision resistor ratios and shunt temperature, not just absolute resistance",
+      "review": "art-of-electronics.md",
+      "evidence_and_rationale": [
+        "D,C,V: `ATO:568-615,997,1047-1048`; `DEC:682-716`; BODY:51-70; Bourns CSS2H PDF pp.1-3",
+        "Four-terminal R5 land and paired sense fingers are concrete; return shifts trip −2.17 A. Bourns terminal point, Kelvin contact geometry and element temperature are open; bench threshold versus current/temperature."
+      ]
+    },
+    {
+      "id": "AOE-18",
+      "score": "1",
+      "topic": "Check analog front-end common-mode range, input return path, and recovery",
+      "review": "art-of-electronics.md",
+      "evidence_and_rationale": [
+        "D,C: `ATO:568-696,737-835`; `P/validation-results/02-protection-timing/README.md:80-161`",
+        "Comparator and AMC1311 paths defined; old SPICE subset misses small-overdrive guaranteed delay and full CT cases, with no overdrive recovery capture. Check lost sensors, rail minimum and saturation recovery."
+      ]
+    },
+    {
+      "id": "AOE-19",
+      "score": "2",
+      "topic": "Preserve differential sensing in the presence of mismatch and switching fields",
+      "review": "art-of-electronics.md",
+      "evidence_and_rationale": [
+        "D,C: `DEC:682-710,502-507,775-789`; `P/validation-results/02-protection-timing/coil-pickup/PICKUP.md`; S PCB R5 Kelvin routes",
+        "R5 sense pair re-laid tightly and coil-field pickup modeled. Verify real ferrite coil, harness motion, hot leakage and loaded threshold; the 5.2 mV worst pickup case is model-only."
+      ]
+    },
+    {
+      "id": "AOE-20",
+      "score": "1",
+      "topic": "Set bandwidth from control and protection timing, then budget noise",
+      "review": "art-of-electronics.md",
+      "evidence_and_rationale": [
+        "C,S: `P/validation-results/02-protection-timing/README.md:15-42,70-161`; D-31 README:8-22",
+        "CT filter phase and detector delays have bounded/model subsets, but comparator small-overdrive delay, full alias/noise and loaded hardware step response remain open. Measure injected-current trip-to-extinction."
+      ]
+    },
+    {
+      "id": "AOE-21",
+      "score": "2",
+      "topic": "Route return currents so power drops do not become measurements",
+      "review": "art-of-electronics.md",
+      "evidence_and_rationale": [
+        "D,H: `P/validation-results/08-manufacturing-package/native-21/stage19-pi-si/README.md:17-85`; `S/provenance/copper.json`",
+        "Stage19b reports bus_fault_hot reference samples 0 over another net and pwm_hb all seven transfers within 3 mm; frozen copper confirms routing identity. Verify ground shift and Kelvin voltage at load."
+      ]
+    },
+    {
+      "id": "AOE-22",
+      "score": "1",
+      "topic": "Test radiated, capacitive, and magnetic coupling as distinct paths",
+      "review": "art-of-electronics.md",
+      "evidence_and_rationale": [
+        "C,S: `DEC:793-806`; `P/validation-results/07-conducted-emi/s19b/README.md`; `P/validation-results/02-protection-timing/coil-pickup/PICKUP.md`",
+        "Coil-to-PE capacitance and near-field pickup modeled, with updated floating-pan one-factor sensitivity margin 6.50 dB and an informational earthed-pan range 1.7–2.6 dB; no assembled capacitance or EMI measurement. Measure coil-to-PE split and sensor pickup separately."
+      ]
+    },
+    {
+      "id": "AOE-23",
+      "score": "2",
+      "topic": "Make decoupling and supply filtering stable and local",
+      "review": "art-of-electronics.md",
+      "evidence_and_rationale": [
+        "D,H: `DEC:768-789`; stage19 PI/SI README:12-85; S board C14/C46/C75/C82/C98/C99/C104/C108/C153–C156",
+        "Stage19 moved RECOM/LDO caps to within ~1.6–2.9 mm and stage19b added PWM transfer caps; exact-board prior gates pass. Check rail impedance, regulator stability and droop during turn-on/fault."
+      ]
+    },
+    {
+      "id": "AOE-24",
+      "score": "1",
+      "topic": "Follow the complete mains protection and isolation path",
+      "review": "art-of-electronics.md",
+      "evidence_and_rationale": [
+        "D,C: `FAB:17-33`; `DEC:331-345,745-758`; `S/section.kicad_dru`; S board J6/F1/RES_A",
+        "F1/Class CC, X2 discharge, PE connection and 12.6 mm RES_A outer rule are defined; CTI, clip approval, same-layer inner path, HF/PD and installed harness remain lab/vendor decisions. Obtain written approvals and tests."
+      ]
+    },
+    {
+      "id": "AOE-25",
+      "score": "1",
+      "topic": "Size fuse and input parts from actual RMS, inrush, and fault waveforms",
+      "review": "art-of-electronics.md",
+      "evidence_and_rationale": [
+        "D,C: `DEC:331-345,628-635`; `P/prototype-closure/round5/protection/README.md:123-175`; `BOM:3,43`",
+        "F1 input fuse and F2 blower tap are selected; F2 200 A interrupt against prospective fault and F1 clip compatibility remain certifier/first-article questions. Measure line RMS, inrush, I²t and staged fault coordination."
+      ]
+    },
+    {
+      "id": "AOE-26",
+      "score": "2",
+      "topic": "Account for stored energy and discharge after power removal",
+      "review": "art-of-electronics.md",
+      "evidence_and_rationale": [
+        "C,D: `DEC:345,353-365,435-458`; `ATO:353-470,697-730`; S board R1/R2/R3/R4/C1/C2/C5/C6",
+        "X2 discharge recalculated 0.854 s after R1/R2 swap; bus bleeds modeled. Measure residual voltage for unplug, open fuse/contact, one failed bleeder and maximum capacitance; use actual service-access model."
+      ]
+    },
+    {
+      "id": "AOE-27",
+      "score": "1",
+      "topic": "Check auxiliary supply behavior during startup, brownout, and power failure",
+      "review": "art-of-electronics.md",
+      "evidence_and_rationale": [
+        "D,S: `ATO:472-489,896-940`; `DEC:86-106`; `P/validation-results/06-controller-interface/README.md:147-160`; `BOM:41,44,86`",
+        "PS2 HOT rail TCO-switched, U41/U42 isolated high-side modules and monitors are concrete; lost-rail default and back-power from controller remain unresolved. Capture all rails, PERMIT, DIS, VGS during line ramps/abrupt loss."
+      ]
+    },
+    {
+      "id": "AOE-28",
+      "score": "1",
+      "topic": "Use reference designs as empirical starting points and test their parasitic omissions",
+      "review": "art-of-electronics.md",
+      "evidence_and_rationale": [
+        "D,S,V: stage19 PI/SI README:28-49; `P/validation-results/01-switching-parasitics/round17/`; [RECOM R24C2T25/R PDF](https://recom-power.com/pdf/Econoline/R24C2T25_R.pdf)",
+        "RECOM local-cap guidance is implemented, F6 simulations use candidate models, but PCB parasitics and load-dependent commutation need first-article waveforms and snubber heat."
+      ]
+    },
+    {
+      "id": "AOE-29",
+      "score": "1",
+      "topic": "Treat an isolator as a timed power-and-signal channel",
+      "review": "art-of-electronics.md",
+      "evidence_and_rationale": [
+        "D,V: `ATO:636-696,896-940`; `DEC:757`; [RECOM R24C2T25/R PDF](https://recom-power.com/pdf/Econoline/R24C2T25_R.pdf); `P/validation-results/06-controller-interface/README.md:308-312`",
+        "ISO7710 default-high and isolated UCC21550/RECOM chains provide a defined architecture; actual CMTI, skew, UVLO and output-fault timing under the board's dv/dt are unmeasured. Test each isolated channel and loss of its output rail."
+      ]
+    },
+    {
+      "id": "AOE-30",
+      "score": "NA",
+      "topic": "Prove high-side supply hold-up for every commanded pattern",
+      "review": "art-of-electronics.md",
+      "evidence_and_rationale": [
+        "D: `DEC:86-106`; `ATO:896-940`; `BOM:86`",
+        "Stage19b's high-side U41/U42 RECOM supplies are independent, not bootstrapped. Check isolated-rail hold-up under AOE-27/29."
+      ]
+    },
+    {
+      "id": "AOE-31",
+      "score": "1",
+      "topic": "Protect every off-board logic/sensor input at the physical boundary",
+      "review": "art-of-electronics.md",
+      "evidence_and_rationale": [
+        "D: `P/validation-results/06-controller-interface/README.md:50-71,147-169`; S board J4/T1/J3/J11",
+        "J4 system integration and power-off injection/ESD loads are not closed; local clamps alone do not show return path safety. Freeze mating harness and inject ESD/miswire/hot plug at actual enclosure boundary."
+      ]
+    },
+    {
+      "id": "AOE-32",
+      "score": "2",
+      "topic": "Route fast digital signals with a defined return and termination when needed",
+      "review": "art-of-electronics.md",
+      "evidence_and_rationale": [
+        "D,H: stage19 PI/SI README:51-85; S board pwm_hb, ct_zc, BUS_FAULT, J4",
+        "Seven pwm_hb layer changes now have transfer caps ≤2.72 mm; ct_zc has one 1.84 mm referenced change. Need edge/overshoot timing capture with final harness, especially PERMIT and fault."
+      ]
+    },
+    {
+      "id": "AOE-33",
+      "score": "U",
+      "topic": "Design ADC channel filtering and sampling together",
+      "review": "art-of-electronics.md",
+      "evidence_and_rationale": [
+        "D: `P/validation-results/06-controller-interface/README.md:260-273`; `DEC:75-77`; S J4",
+        "Power-stage sensing interface is defined, but final controller ADC acquisition/reference, source impedance, anti-alias and channel timing were not provided as a qualified integrated artifact here. Freeze controller revision and measure sampled switching tones/steps."
+      ]
+    },
+    {
+      "id": "AOE-34",
+      "score": "U",
+      "topic": "Select ADC/DAC architecture by the error that matters to the loop",
+      "review": "art-of-electronics.md",
+      "evidence_and_rationale": [
+        "D: `DEC:75-77`; controller-interface README:260-273",
+        "ESP32-S3/receiver plan mentions ADC1, 20 ksample/s and 150 µs freshness, but final effective bits, reference drift, simultaneity and firmware latency are not established on STAGE19B system. Review controller and capture conversion timing/error."
+      ]
+    },
+    {
+      "id": "AOE-35",
+      "score": "1",
+      "topic": "Make each BOM line a buildable, traceable choice",
+      "review": "art-of-electronics.md",
+      "evidence_and_rationale": [
+        "D,H: `FAB:10-15,39-59`; `BOM:1-92`; `P/validation-results/08-manufacturing-package/native-21/cpl-rotation-audit/audit.csv:181`",
+        "92 source lines, 357 placements and fab package exist; R5 is `NEEDS-PREVIEW`, U41/U42 fine pitch and via capping/stackup require supplier confirmation. Inspect JLC preview, solder coupons/first article and exact MPN substitutions."
+      ]
+    },
+    {
+      "id": "AOE-36",
+      "score": "1",
+      "topic": "Qualify supply and lifecycle without mistaking the book's directory for live inventory",
+      "review": "art-of-electronics.md",
+      "evidence_and_rationale": [
+        "D: `P/validation-results/08-manufacturing-package/native-21/sourcing/README.md`; `FAB:50-59`; `P/validation-results/08-manufacturing-package/native-21/sourcing/ALTERNATES-2026-10-09.md:548-553`",
+        "2026-10-08/09 survey is time-stamped and multiple exact parts are consigned or thin-stock; earlier alternate tables predate later C5/C6/D3 changes. Refresh authorized stock/PCN and qualify electrical/land alternatives before ordering."
+      ]
+    },
+    {
+      "id": "AOE-37",
+      "score": "1",
+      "topic": "Make the measurement setup part of the evidence",
+      "review": "art-of-electronics.md",
+      "evidence_and_rationale": [
+        "D: `P/native-21/BRINGUP-PROBES.md:1-52`; `BODY:95-102`; `P/validation-results/01-switching-parasitics/round5/bench-plan/`",
+        "Domain-paired probe pads and rated differential/isolated probe rule are specified, but no STAGE19B raw waveforms, probe transfer, trigger, bandwidth or first-article thermal setup exist. Record calibrated setup and raw captures for every claimed margin."
+      ]
+    },
+    {
+      "id": "MAG-01",
+      "score": "2",
+      "topic": "Identify the job of every magnetic element",
+      "review": "trilogy-magnetics.md",
+      "evidence_and_rationale": [
+        "D: N:2613–2647,2778–2811,3370–3380; S`power_stage_120v.ato`:1–25",
+        "L1 cancels useful mains current, its leakage contributes DM; external coil is tank energy transfer; T1 senses tank current. Confirm fault/start/trip currents in assembled wiring."
+      ]
+    },
+    {
+      "id": "MAG-02",
+      "score": "U",
+      "topic": "Derive an operating envelope before choosing catalog curves",
+      "review": "trilogy-magnetics.md",
+      "evidence_and_rationale": [
+        "M: TANK:1–18,37–43; DCS:509–530,785–807",
+        "28 A hardware, 29.4 A RMS trip, 35–60 kHz and pan Monte Carlo are modeled; coil/pan complex impedance and hot waveforms are unmeasured. Characterize representative pans, offset/no-pan and trip."
+      ]
+    },
+    {
+      "id": "MAG-03",
+      "score": "U",
+      "topic": "Distinguish the interference mode and frequency",
+      "review": "trilogy-magnetics.md",
+      "evidence_and_rationale": [
+        "M: EMI:1–8,30–58; EMI`results.json`; bench plan `BENCH-PRECOMPLIANCE.md`:17–44",
+        "Model separates low-band CM from 2fs DM, but no mode-separated LISN/port spectra. Measure L/N phasors or hybrid, PE and coil cable."
+      ]
+    },
+    {
+      "id": "MAG-04",
+      "score": "2",
+      "topic": "Define the useful signal band that filtering must preserve",
+      "review": "trilogy-magnetics.md",
+      "evidence_and_rationale": [
+        "D/M: S`power_stage_120v.ato`:737–780; TANK:105–136; EMI:46–58",
+        "35–60 kHz tank and CT trip/zero-cross paths are specified and modeled. Verify CT phase/trip fidelity and rail/startup behavior with filter fitted."
+      ]
+    },
+    {
+      "id": "MAG-05",
+      "score": "2",
+      "topic": "Separate thermal current rating from saturation current",
+      "review": "trilogy-magnetics.md",
+      "evidence_and_rationale": [
+        "V/D/M: TDK datasheet pp. 4–5; Coilcraft PDF p. 1; DCS:526–552; TH:73–79",
+        "TDK's 20 A is at +60 °C ambient, and its <10% bias drop is specified at +20 °C; tank 28 A is not L1 line current. Coilcraft's 88 A is a rise reference. Test hot L1/CT under actual line and trip waveforms."
+      ]
+    },
+    {
+      "id": "MAG-06",
+      "score": "U",
+      "topic": "Check bias-dependent impedance and inductance",
+      "review": "trilogy-magnetics.md",
+      "evidence_and_rationale": [
+        "V/M: TDK datasheet p. 4; EMI:40–58, limitations; DCS:477–478",
+        "The required off-board ≥100 µH DM module has no selected discrete inductor or hot/bias curve. L1 cancellation does not bound its leakage or imbalance under fault/inrush. Select part and sweep Z/L at bias and heat."
+      ]
+    },
+    {
+      "id": "MAG-07",
+      "score": "U",
+      "topic": "Treat AC copper loss as distinct from DCR",
+      "review": "trilogy-magnetics.md",
+      "evidence_and_rationale": [
+        "V/M: TDK p. 4 DCR; EMI:limitations and recommendation 5; SPEC:17–42",
+        "4.5 mΩ is +20 °C DC typical. Inlet harmonic spectrum/hot R_ac and module winding loss are not measured; coil loss is modeled separately. Measure winding rise and spectrum-weighted AC resistance."
+      ]
+    },
+    {
+      "id": "MAG-08",
+      "score": "U",
+      "topic": "Account for core loss with the real flux waveform",
+      "review": "trilogy-magnetics.md",
+      "evidence_and_rationale": [
+        "M: CT:112–115; SPEC:rows 7,12; TDK pp. 4–5",
+        "CT 46.3/638 V·µs at a modeled 160 A fault supports one flux corner; coil ferrite and inlet core loss under real nonsinusoidal flux lack material/waveform validation. Measure hot field/waveform and temperature."
+      ]
+    },
+    {
+      "id": "MAG-09",
+      "score": "U",
+      "topic": "Confirm thermal aging and neighboring heat",
+      "review": "trilogy-magnetics.md",
+      "evidence_and_rationale": [
+        "M: TH:48,73–92; DCS:808–827; SPEC:rows 5,11–12",
+        "Converged board model supersedes old 136/182 °C raster peaks, but L1's assumed 125 °C class limit and 68.6 °C estimate are not verified; coil/ferrite/enclosure hot spots lack equilibrium data. Soak final assembly at high ambient."
+      ]
+    },
+    {
+      "id": "MAG-10",
+      "score": "2",
+      "topic": "Check parasitic capacitance and self resonance",
+      "review": "trilogy-magnetics.md",
+      "evidence_and_rationale": [
+        "V/M: TDK p. 5 typical parallel-winding impedance magnitude; EMI:network/limitations",
+        "TDK plot was fitted (model resonance about 0.8–0.9 MHz); there is no tabulated phase/capacitance or mounted sweep. Measure installed CM/DM Z and phase through 30 MHz."
+      ]
+    },
+    {
+      "id": "MAG-11",
+      "score": "U",
+      "topic": "Verify insulation, voltage, impulse, and mechanical clearances independently",
+      "review": "trilogy-magnetics.md",
+      "evidence_and_rationale": [
+        "V/D/M: Coilcraft PDF p. 1; TDK pp. 2,4; DCS:484–488,745–757; SPEC:row 12b",
+        "Stage18 RES_A reroute and T1's SW_A-end position resolve a prior board gap; T1 datasheet lacks application HF/working-voltage/PD declaration. Coil winding qualification is proposed, not performed. Confirm with manufacturer/certifier and assembly dielectric/PD test."
+      ]
+    },
+    {
+      "id": "MAG-12",
+      "score": "2",
+      "topic": "Maintain a current exact-part qualification record",
+      "review": "trilogy-magnetics.md",
+      "evidence_and_rationale": [
+        "D/V: BOM:7,37,63–64; S`parts.ato`:90–102,405–415; TDK source JSON P`validation-results/07-conducted-emi/sources/tdk-b82726s2203a020.json`",
+        "Exact L1/T1/BOM and footprints are pinned, and current vendor revisions recorded. Physical incoming part, pin identity, coil build and module inductor remain to qualify."
+      ]
+    },
+    {
+      "id": "MAG-13",
+      "score": "2",
+      "topic": "Model the installed filter with actual terminations",
+      "review": "trilogy-magnetics.md",
+      "evidence_and_rationale": [
+        "M: EMI:source/receiver sections, `results.json`; DCS:792–807",
+        "Updated October 13 model predicts 10.5 dB nominal, ≥6.5 dB sensitivity using enclosure-study coil→PE capacitance; off-board module is specified as an electrical target, not populated exact parts. Measure source/load Z and unfiltered/filtered LISN spectra."
+      ]
+    },
+    {
+      "id": "MAG-14",
+      "score": "1",
+      "topic": "Examine the whole filter's resonance and damping",
+      "review": "trilogy-magnetics.md",
+      "evidence_and_rationale": [
+        "M/D: DCS:477–478,76–79; EMI:limitations and recommendations 2,5",
+        "The ~16 kHz DM/X-cap mode and damper-open/startup peaks are identified, while actual coupled module/rectifier dynamics and bias heat remain open. A peak can magnify stress or shift noise modes. Select/build module and measure impedance plus startup/damper-fault transients."
+      ]
+    },
+    {
+      "id": "MAG-15",
+      "score": "U",
+      "topic": "Keep common and differential behavior separate for L1",
+      "review": "trilogy-magnetics.md",
+      "evidence_and_rationale": [
+        "V/M: TDK p. 4 (1.6 mH per winding, 18 µH typical leakage); EMI:network and 80/18 µH sensitivity",
+        "The 18 µH leakage is not 1.6 mH DM inductance; model says an 18 µH-only module misses 9–150 kHz by 5.1 dB, hence ≥100 µH module requirement. Its real bias response is unspecified. Measure both installed modes at hot current."
+      ]
+    },
+    {
+      "id": "MAG-16",
+      "score": "U",
+      "topic": "Place the filter at the boundary it protects",
+      "review": "trilogy-magnetics.md",
+      "evidence_and_rationale": [
+        "D/M: frozen four-layer copper image; position CSV L1/J1; EMI:CM path table",
+        "Board entry/filter geometry can be inspected, but the separate module, mains harness, PE bond and chassis corridor are not a frozen assembled artifact. Obtain wiring/metal drawing and scan for bypass."
+      ]
+    },
+    {
+      "id": "MAG-17",
+      "score": "U",
+      "topic": "Keep shunt-capacitor return paths short and intentional",
+      "review": "trilogy-magnetics.md",
+      "evidence_and_rationale": [
+        "D/M: N:2620–2652 C1–C4/PE; EMI:receiver/filter and PE-bond assumptions",
+        "Y-cap returns are wired to PE in the netlist; 100 nH/10 mΩ bond in the model is assumed, with no measured inductance or assembly route. Measure PE loop and mode currents in final assembly."
+      ]
+    },
+    {
+      "id": "MAG-18",
+      "score": "2",
+      "topic": "Measure parasitic input/output coupling around filter parts",
+      "review": "trilogy-magnetics.md",
+      "evidence_and_rationale": [
+        "D/M: exact-build copper image, position CSV, EMI:network and limitations",
+        "L1 sits near the entry and away from bridge copper in the board view, supporting separation; module-to-board wiring and high-frequency coupling above ~1–3 MHz remain unmodeled. Near-field scan and A/B port test."
+      ]
+    },
+    {
+      "id": "MAG-19",
+      "score": "U",
+      "topic": "Validate X/Y capacitor and PE interaction as a system",
+      "review": "trilogy-magnetics.md",
+      "evidence_and_rationale": [
+        "D/M: N:2622–2652; EMI:recommendation 2 and limitations; bench plan B4",
+        "Board C3/C4 and module Y caps are modeled; about 0.48 mA per line at 140 V is only a calculated Y contribution, not an applicable touch-current verdict. Confirm product requirements, approvals, PE continuity, leakage and discharge on full unit."
+      ]
+    },
+    {
+      "id": "MAG-20",
+      "score": "NA",
+      "topic": "Match ferrite suppression to the actual spectrum",
+      "review": "trilogy-magnetics.md",
+      "evidence_and_rationale": [
+        "D: BOM and frozen S`*.ato` search; EMI:mitigations",
+        "No separate bead/cable ferrite selected in STAGE19B; the ferrite-core L1 is covered by MAG-05/10/15/21. Reopen if a suppression ferrite is added."
+      ]
+    },
+    {
+      "id": "MAG-21",
+      "score": "U",
+      "topic": "Do not use product-family claims as immunity evidence",
+      "review": "trilogy-magnetics.md",
+      "evidence_and_rationale": [
+        "V/M: TDK p. 5 typical curve; EMI:mode results",
+        "Exact L1 curve is modeled, but no installed measured noise band or candidate core A/B response establishes immunity or margin. Run mode spectra and hot installed impedance before core substitution."
+      ]
+    },
+    {
+      "id": "MAG-22",
+      "score": "U",
+      "topic": "Characterize the external induction coil with representative pans",
+      "review": "trilogy-magnetics.md",
+      "evidence_and_rationale": [
+        "M: TANK:1–18,37–43; SPEC:1–17 and acceptance-test section",
+        "70 µH, installed 66.5 µH, coupling and pan Monte Carlo are explicitly assumed. No received coil and representative hot/offset-pan complex-impedance sweep. This blocks tank release and full-power yield claims."
+      ]
+    },
+    {
+      "id": "MAG-23",
+      "score": "2",
+      "topic": "Derive tank resonance, circulating current, and device stress from that characterization",
+      "review": "trilogy-magnetics.md",
+      "evidence_and_rationale": [
+        "M: TANK:method, bank table and recommendations; DCS:509–530,573–578",
+        "Full-bridge/tank model includes 28 A and 29.4 A controls, 0.50 µF bank, 35–60 kHz; its predicted bank current reaches 1.12× TDK's 85 °C curve at 28 A, making local hot-spot evidence decisive. Capture bank voltage/current and switch waveforms at representative corners."
+      ]
+    },
+    {
+      "id": "MAG-24",
+      "score": "U",
+      "topic": "Optimize coil conductor for AC loss, not DCR alone",
+      "review": "trilogy-magnetics.md",
+      "evidence_and_rationale": [
+        "M: DCS:543–546; SPEC:rows 4–8, acceptance-test section",
+        "R36 litz estimate 116–136 mΩ at 40 kHz/100 °C gives 91–107 W at 28 A, while 0.25 Ω acceptance edge gives 196 W; no wound-coil R_ac or hot-soak measurement. Measure 20–60 kHz R_ac and ferrite heat on received coils."
+      ]
+    },
+    {
+      "id": "MAG-25",
+      "score": "2",
+      "topic": "Measure T1 burden, magnetizing error, and frequency response",
+      "review": "trilogy-magnetics.md",
+      "evidence_and_rationale": [
+        "D/V/M: N:3370–3380; Coilcraft PDF p. 1; CT:112–123; PICK:CT detector",
+        "R39=1.5 Ω and C42=100 nF are local, CT band modeled 64.55–76.09 A; 46.3/638 V·µs at 160 A is a model bound. Calibrate amplitude, phase/droop and trip over 35–60 kHz, hot and fault range."
+      ]
+    },
+    {
+      "id": "MAG-26",
+      "score": "1",
+      "topic": "Confirm transformer reset and fault behavior",
+      "review": "trilogy-magnetics.md",
+      "evidence_and_rationale": [
+        "D/M: S`power_stage_120v.ato`:737–756; P`validation-results/06-controller-interface/outputs/ct_open_secondary.json`; CT:112–115",
+        "Local burden is a sound mitigation, but the older open-secondary model predicts >200 V peaks and core saturation if the burden path opens; the higher STAGE19B envelope is not retested. This can stress SELV sensing and erase CT protection. Verify burden connection integrity, clamp behavior and a safely bounded open-path fault at current settings."
+      ]
+    },
+    {
+      "id": "MAG-27",
+      "score": "U",
+      "topic": "Quantify transformer leakage versus interwinding capacitance",
+      "review": "trilogy-magnetics.md",
+      "evidence_and_rationale": [
+        "V/M: Coilcraft PDF p. 1; EMI:CM path table/limitations",
+        "Reinforced construction and 3.2 mH are specified, but T1 interwinding capacitance, leakage, installed CM injection and high-frequency phase transfer are not given. Measure/parasitic-extract CT in the actual board."
+      ]
+    },
+    {
+      "id": "MAG-28",
+      "score": "U",
+      "topic": "Map stray field to sensitive functions and metalwork",
+      "review": "trilogy-magnetics.md",
+      "evidence_and_rationale": [
+        "M/D: PICK:2–40 and CT detector section; DCS:502–507,791; position CSV",
+        "The field/loop calculation used stage13b/14 copper at 22 A; stage15 scaled its CT pickup number to 28 A. DCS:791 only proves 19→19b copper changes, not equivalence to stage14. Re-extract STAGE19B sense-loop geometry, then probe CT/OCP/LINE_ZC under hot pan-position scans."
+      ]
+    },
+    {
+      "id": "MAG-29",
+      "score": "1",
+      "topic": "Preserve measurement observability in the physical design",
+      "review": "trilogy-magnetics.md",
+      "evidence_and_rationale": [
+        "D: EMI`BENCH-PRECOMPLIANCE.md`:equipment/B1–B9; DCS:807",
+        "The procedure is concrete, yet PE test point, removable R38 and current-probe windows are deferred to a later spin, and module/coil access is an assembly question. Instrumenting can alter the very CM path being measured. Prove repeatable fixtures and correlate probe-on/off before accepting an EMI or CT conclusion."
+      ]
+    },
+    {
+      "id": "AN139-01",
+      "score": "1",
+      "topic": "Map every bridge state before naming a “hot loop.”",
+      "review": "an139.md",
+      "evidence_and_rationale": [
+        "Observed design: `S:222–236,380–448,715–725`; pad map above; model: `E/01-switching-parasitics/round17/d2/README.md:394–415,506–559`.",
+        "Both driven diagonals close through R5 and C38–C41. Dead-time diode/Coss paths and burst/fault signed-current maps are not complete on the frozen revision; treating the whole tank route as the fastest loop would be wrong. No failing waveform is claimed.",
+        "Marked layer/state overlay for both current signs, including dead time, burst start, fault disable and diode/snubber current. Capture commutation current and switch-node timing."
+      ]
+    },
+    {
+      "id": "AN139-02",
+      "score": "2",
+      "topic": "Local DC-link closure at both bridge legs",
+      "review": "an139.md",
+      "evidence_and_rationale": [
+        "Observed pads: Q2/C38/C39 and Q5/C40/C41 coordinates above; `S:715–725`; model: `E/01-switching-parasitics/round17/d2/README.md:506–556`.",
+        "Film caps are deliberately 24 mm below the FET row to retain gate network room. Prior native-21 FEM estimated leg-A parallel commutation loop 32.0 nH provisionally vs 19.4 nH native-19, then F6 model cases passed its internal screens. `HV_RET` reaches `LEG_RET` through R5, so negative-cap closure cannot be judged by positive-pad distance. Mounted cap, shunt and package impedance and stage19b waveform margin remain unverified.",
+        "Extract both full cap→FET→R5→cap paths including mounting/stack; test VDS and bus ripple at Q2–Q6 pins over operating corners."
+      ]
+    },
+    {
+      "id": "AN139-03",
+      "score": "2",
+      "topic": "Minimize effective loop area, not merely trace length",
+      "review": "an139.md",
+      "evidence_and_rationale": [
+        "Modelled: `E/01-switching-parasitics/round17/d2/README.md:506–570`; observed: three geometry checks above; `B:35–75`.",
+        "The leg-A/leg-B coupled-loop matrices do compare returns and mutual coupling, and the cap-row move was accepted for F6. Effective area is not inferable from one trace length. FEM remains provisional for some fine corrections and enclosure coupling; no measured field or overshoot margin.",
+        "Re-extract both exact STAGE19B power loops with closures and compare a cap-row/gate-network alternative on equal thermal and insulation constraints; near-field correlate."
+      ]
+    },
+    {
+      "id": "AN139-04",
+      "score": "2",
+      "topic": "Control the switch-node copper deliberately",
+      "review": "an139.md",
+      "evidence_and_rationale": [
+        "Modelled area/capacitance: `E/07-conducted-emi/s19b/README.md` §3, SW_A 1.93e-3 m² / SW_B 3.31e-3 m², assumed chassis 15 mm; observed `P/copper-dump.json` zones.",
+        "The large nodes carry the tank to T1/C21 and are explicitly in the CM model, including low-side tab capacitance; no universal node-area limit applies. The actual enclosure/coil/heatsink capacitances and heating trade are not measured.",
+        "Measure node-to-PE/coil capacitance and CM currents; assess candidate area reduction against copper temperature and full tank-current path."
+      ]
+    },
+    {
+      "id": "AN139-05",
+      "score": "2",
+      "topic": "Preserve a close mirror-current path where permitted",
+      "review": "an139.md",
+      "evidence_and_rationale": [
+        "Observed filled-zone samples and `B:35–75`; modelled native-21 FEM `E/01-switching-parasitics/round17/d2/README.md:506–570`.",
+        "FET-row In1 is not continuous at sampled Q-drain locations; In2 `bus_p` sits underneath. Farther down, `hv_ret` In1 and `bus_p` In2 are paired. This is a deliberate four-layer rail geometry, but image current and local gaps are not proven by the layer name or DRC.",
+        "Plot RF current density and return voltage in In1/In2 for each transition, including the gap near `y=8`; check isolation before any plane extension."
+      ]
+    },
+    {
+      "id": "AN139-06",
+      "score": "U",
+      "topic": "Keep quiet ground attachments out of the hot-loop shield region",
+      "review": "an139.md",
+      "evidence_and_rationale": [
+        "Missing current map; observed `P/return-path.json` covers named signal references; zone samples `(68,20),(10,20),(50,11)`.",
+        "The signal gate verifies selected reference changes, not the power-loop mirror-current density or every quiet via attachment. No safe quiet attachment region has been identified for each hot loop.",
+        "Overlay controller/sense/filter vias on a solved RF current-density map; measure Kelvin/driver-reference bounce at real pins."
+      ]
+    },
+    {
+      "id": "AN139-07",
+      "score": "2",
+      "topic": "Keep high-current thermal paths compatible with RF geometry",
+      "review": "an139.md",
+      "evidence_and_rationale": [
+        "Calculated/modelled: `D:808–834`, `E/04-board-current-thermal/round5-native21/b3-convergence/README.md`; observed pad/pour geometry above.",
+        "Converged 28 A h25 model reports R5 element 140 °C and FET-row copper 126 °C; it explicitly retains h10 derating and film-cap/local-air bench holds. The elongated cap/rail geometry is an accepted RF/thermal compromise, not an empirically validated one.",
+        "IR/thermocouple map at 22→28 A, h25 and stall h10, plus switch-node/EMI waveform at same points."
+      ]
+    },
+    {
+      "id": "AN139-08",
+      "score": "2",
+      "topic": "Close each low-side gate-charge loop",
+      "review": "an139.md",
+      "evidence_and_rationale": [
+        "Observed U1/U2 at `y=46.125`, Q3/Q6 at `y=4.215`, R12/R20 at `y=14.062`; `S:125–143,204–229`; modelled F6 gate loops `E/01-switching-parasitics/round17/d2/README.md:527–585`.",
+        "Driver caps C8/C15 and reservoirs are local to driver pins, while gate/source paths span the FET–driver distance. The source is `LEG_RET`, shared with bridge current, and no Kelvin source pin exists on TO-247-3; modelled negative bias mitigates false turn-on. Gate-to-source pin waveforms are missing.",
+        "Measure VGS across Q3/Q6 gate/source *device pins* and driver VSSB during both partner edges and fault disable; preserve current/temperature corners."
+      ]
+    },
+    {
+      "id": "AN139-09",
+      "score": "2",
+      "topic": "Close each high-side floating-driver and bootstrap loop",
+      "review": "an139.md",
+      "evidence_and_rationale": [
+        "`S:145–173,204–225`, `D:101–105`; observed C10/C17 at `(76.83,43.95)/(29.83,43.95)`, U1/U2 y46, Q2/Q5 y4.215; prior F6 model above.",
+        "F6 uses monitored split, transformer-derived bias; PS2/TCO owns it, and **there is no bootstrap recharge network**, so bootstrap-specific recharge is NA. The high-side loop still travels to the remote Q source through `SW_A/B` and local bias network, with modelled but unmeasured negative-bias margin.",
+        "Scope VDDA−VSSA and VGS at Q2/Q5 pins through startup, burst, worst partner edge and PS2/TCO decay."
+      ]
+    },
+    {
+      "id": "AN139-10",
+      "score": "2",
+      "topic": "Treat driver-supply decoupling as a separate AC loop",
+      "review": "an139.md",
+      "evidence_and_rationale": [
+        "Observed `S:125–173`; U1/U2, C8/C10/C15/C17 pad positions; `P/bypass-check.json` 11/11 selected IC bypass checks; `P/pi-distances.json` U41/U42/U26 pin/cap distances.",
+        "100 nF/1 µF/10 µF driver stacks and STAGE19 relocated converter/LDO caps have an explicit layout rationale. PI `pass=true` asserts supply distances; some return distances (C104 5.70 mm, C108 5.69, C98 6.97) are recorded but **not asserted**, so the gate does not prove every complete rail loop.",
+        "Check actual pad-to-pad loop impedance and driver droop at pin pairs while switching; qualify output-cap returns as well as positive pins."
+      ]
+    },
+    {
+      "id": "AN139-11",
+      "score": "2",
+      "topic": "Route current-sense inputs as a small receiving loop",
+      "review": "an139.md",
+      "evidence_and_rationale": [
+        "`S:380–386,425–448,735–755`; observed R5 Kelvin pads `(37,12.1)/(37,13.1)`, T1 at `(135,110)`; `P/return-path.json` selected CT/protection checks; `D:778–790`.",
+        "R5 has Kelvin fingers and the SI1 fault route was moved over its intended reference; T1 terminates on-board before J4. CT_S2 and CT_MON still have long, multi-via routed copper; the checks do not establish actual pickup or comparator noise/timing margin.",
+        "Differential probe at R5 fingers and comparator pins, CT burden and zero-cross at 22/28 A; include fault timing versus filter delay."
+      ]
+    },
+    {
+      "id": "AN139-12",
+      "score": "2",
+      "topic": "Keep control and measurement references out of fast-field paths",
+      "review": "an139.md",
+      "evidence_and_rationale": [
+        "Historical exact-board gate `P/return-path.json`: `pwm_hb` seven transfer changes now C14/C142/C47/C153–C156 ≤3 mm; `D:785–790`; observed caps C153–C156 coordinates above.",
+        "STAGE19B closes the known J4-side PWM return gap. `bias_bad` still has seven 2.81–15.76 mm reference changes and an edge band run, but D records fault-only fail-safe behavior; that is a supported rationale, not RF immunity proof. No operational noise injection exists.",
+        "Pin-level PWM, DIS and sense-reference measurements with worst bridge transitions; inject reference noise to test false disable and timing."
+      ]
+    },
+    {
+      "id": "AN139-13",
+      "score": "1",
+      "topic": "Establish a quiet filter boundary and return",
+      "review": "an139.md",
+      "evidence_and_rationale": [
+        "Observed board: J1 `(281,7.5)`, L1 `(232,31)` input/(232–242,56) output, C1 upstream `(238,20)`, C2 downstream `(263,49.5)`, C3/C4 Y returns at `(215,102.8)/(215,109.1)`; `S:~300–380`; `D:70,792–807`.",
+        "The board filter is only one stage; a separate, **not yet selected/assembled** 100 µH DM + CM inlet module is mandatory. The quiet/noisy boundary depends on enclosure wiring. C3/C4 PE attachments and C2 are displaced from L1 outputs, so their HF return impedance and possible bypass around the series element require physical mapping. This is a concrete integration risk, not a measured emission violation.",
+        "Freeze module schematic/layout/harness and map L/N/PE RF return, both sides of L1, with current probes and LISN scans."
+      ]
+    },
+    {
+      "id": "AN139-14",
+      "score": "1",
+      "topic": "Make the filter path pass through its capacitor pads",
+      "review": "an139.md",
+      "evidence_and_rationale": [
+        "Same L1/C1–C4 pad geometry above; `P/copper-dump.json` and `P/copper.png`; off-board topology `E/07-conducted-emi/s19b/README.md` §3.",
+        "C2/Y-cap centre offsets of roughly 30–56 mm from L1 output pads alone do **not** prove a stub or bypass, yet they make an HF pad-through path uncertain. The mandatory inlet module's capacitor placements are not present in the board package. Exact HF series lead/trace inductance is unqualified.",
+        "Trace both conductors pad by pad on the assembled module and board; impedance or current-injection measure cap effectiveness; compare with intended filter model."
+      ]
+    },
+    {
+      "id": "AN139-15",
+      "score": "U",
+      "topic": "Check magnetic coupling around filter inductors",
+      "review": "an139.md",
+      "evidence_and_rationale": [
+        "Observed L1 `(232,31)`, board bridge FET row y4; missing final inlet module, coil/harness axes and field data (`D:70,792–807`; `E/07-conducted-emi/s19b/README.md` limitations).",
+        "Board spacing alone cannot establish coupling from the external induction coil or module choke/DM inductor; their installed orientation and fields are essential inputs.",
+        "Fix enclosure coordinates and magnetics orientation, measure L1/module inductance and conducted attenuation at 15 A/28 A tank with coil energized."
+      ]
+    },
+    {
+      "id": "AN139-16",
+      "score": "2",
+      "topic": "Evaluate conducted and common-mode routes separately",
+      "review": "an139.md",
+      "evidence_and_rationale": [
+        "Modelled `E/07-conducted-emi/s19b/README.md` §§3–9; `D:792–807`; observed `P/copper-dump.json`.",
+        "Separate DM 2fs bus-current and CM coil/low-side-tab/chassis routes are modelled. Updated R43 enclosure estimate gives 31.0 pF floating-pan coil→PE and predicted worst 6.5 dB sensitivity margin; earthed-pan informational case falls to 1.7–2.6 dB. Above ~1–3 MHz, harness and RF parasitics are unmodelled, so this is not a measured compliance margin.",
+        "Assembled capacitance and DM/CM LISN-current checks; validate module at 9 kHz–30 MHz, including earthed-pan robustness."
+      ]
+    },
+    {
+      "id": "AN139-17",
+      "score": "U",
+      "topic": "Verify filter/source impedance and stability",
+      "review": "an139.md",
+      "evidence_and_rationale": [
+        "Missing module source/DM inductor, startup/burst coupled response; `E/07-conducted-emi/s19b/README.md` §§3,8–9 and `D:70,792–807`.",
+        "The 100 µH DM inlet module and its damping are a model allocation, while 15 A bias retention, actual source impedance, inrush/stall and coupled board+module resonance have not been qualified. A frequency-domain emissions model cannot settle these modes.",
+        "Select rated parts, measure L/ESR versus bias/temperature and source impedance, run coupled transient/inrush and input-current stability tests."
+      ]
+    },
+    {
+      "id": "AN139-18",
+      "score": "2",
+      "topic": "Do not trade insulation for a close image plane",
+      "review": "an139.md",
+      "evidence_and_rationale": [
+        "Historical exact-board barrier gates `D:789–791`: 0 barrier/RES_A violations, D5 8.047/8.507 mm; `B:35–75` dielectric stack; `S:1–20,~690–714`; source-specific rule file `section.kicad_dru`.",
+        "The candidate preserves the HV/SELV barrier and the near planes are net-specific rather than an indiscriminate added shield. DRC/geometry verify only configured spacing; dielectric/partial-discharge, chassis overlap, manufacturing tolerance and leakage/current requirements remain to be confirmed. No general AN-139 buck plane spacing applies.",
+        "Validate pin-specific insulation basis, bare-board/assembly tolerances and dielectric tests; quantify barrier capacitance with final enclosure/module."
+      ]
+    },
+    {
+      "id": "AN139-19",
+      "score": "2",
+      "topic": "Use field/impedance evidence for proposed layout improvements",
+      "review": "an139.md",
+      "evidence_and_rationale": [
+        "Modelled native-21 vs native-19 loop change `E/01-switching-parasitics/round17/d2/README.md:506–559`; STAGE19/19B exact-board PI/SI checks `D:767–791`; thermal `D:808–834`.",
+        "The cap-row trade has paired FEM and switching-model evidence; STAGE19B transfer-cap additions have before/after return geometry and unchanged power-copper/thermal checks. There is no paired *measured* overshoot, temperature and EMI comparison for the same exact board/operating point, and some prior FEM screens remain provisional.",
+        "Matched A/B prototype or validated exact-board field/thermal/EMI study, with unchanged probes, load and airflow."
+      ]
+    },
+    {
+      "id": "AN139-20",
+      "score": "2",
+      "topic": "Plan repeatable EMI precompliance and probing",
+      "review": "an139.md",
+      "evidence_and_rationale": [
+        "Test plan `E/07-conducted-emi/s19b/BENCH-PRECOMPLIANCE.md` equipment/settings/C1–C6/B1–B9; updated model `E/07-conducted-emi/s19b/README.md` final section.",
+        "Detailed LISN, receiver, modes, loads and probe-removal/matched comparisons are written. However B1/B5/B6 still cite older 50 pF/7.8 dB predictions while the 2026-10-13 model uses 31 pF/10.5 dB; that discrepancy must be reconciled before executing or judging the test. No scans exist.",
+        "Revise bench sheet to final model and lab-agreed standard/fixture, then run calibrated scans and archive raw settings/traces."
+      ]
+    },
+    {
+      "id": "AN139-21",
+      "score": "U",
+      "topic": "Diagnose unexpected spectral lines before tuning copper",
+      "review": "an139.md",
+      "evidence_and_rationale": [
+        "Missing actual STAGE19B spectral and time-domain captures; model `E/07-conducted-emi/s19b/README.md` §3/limitations; test plan C5/B7.",
+        "Only ideal held/swept harmonic predictions exist. Burst, phase shift and incidental skipping can create nonharmonic lines, but no unexplained measured peak has yet been identified. Assigning NA would assume the behavior away.",
+        "On first EMI scan, link any nonharmonic lines to simultaneous low-loop gate/switch timing, then remove probes and repeat the EMI trace."
+      ]
+    }
+  ]
+}
