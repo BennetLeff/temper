@@ -10,6 +10,8 @@ Create a corrected, stable benchmark from the reviewed native-21 stage19b design
 
 **Current scope: record the intended approach only.** No fixes, benchmark snapshot, alternative layout, component substitution, supplier outreach or order is authorized by this write-up. The sequence below describes future work.
 
+The [BOM optimization companion](bom-benchmark-optimization-strategy-2026-10-13.md) defines component and installed-cost comparisons, substitution classes and a 20-criterion review rubric.
+
 ## Starting point
 
 The [six-resource stage19b assessment](pcb-rubric-review-stage19b-2026-10-13/README.md) provides 179 criterion decisions, prioritized findings, trade-offs and missing evidence. Its selected routed-board SHA-256 is `b19a45530bb0f39d2d3c0412e3774b6d5a47c4238d3fee867790cce410756662`. Stage19b is the starting candidate; the corrected benchmark has not yet been created.
