@@ -8,6 +8,890 @@
     "mpn": "KLDR025.TXP"
   },
   "board_sha256": "b19a45530bb0f39d2d3c0412e3774b6d5a47c4238d3fee867790cce410756662",
+  "boards": {
+    "19b_record": {
+      "board_sha256": "b19a45530bb0f39d2d3c0412e3774b6d5a47c4238d3fee867790cce410756662",
+      "file": "native-21/verification/native21s19b-all-copper.json.gz",
+      "segments": [
+        {
+          "I2t_conservative": 9412.49910369241,
+          "I2t_conservative_Ta25": 11279.391737455639,
+          "I2t_parallel": 12394.852353693308,
+          "barrel_I2t_single_Ta105": 28.12101296336382,
+          "barrel_area_mm2": 0.020106192982974662,
+          "classification": "terminal-limited (one side vanishes at the neck radius: only the terminal land is narrower; no conductor neck below 6.0 mm)",
+          "conductor_I2t_conservative": 9412.49910369241,
+          "conductor_I2t_parallel": 12394.852353693308,
+          "from": "J1.1",
+          "gap_at_neck_mm": null,
+          "neck_layer": "terminal",
+          "neck_location_xy_mm": null,
+          "neck_width_mm": 6.03,
+          "net": "ac_l_in",
+          "per_layer_independent_neck_mm": {
+            "B.Cu": null,
+            "F.Cu": 6.03,
+            "In1.Cu": null,
+            "In2.Cu": null
+          },
+          "route_needs_via_hop": false,
+          "segment": "J1 line -> F1 pad 1",
+          "to": "F1.1",
+          "via_field_I2t_equal_sharing": null,
+          "via_field_count_within_6mm_of_SMD_terminal": 0,
+          "via_field_xy": []
+        },
+        {
+          "I2t_conservative": 4553.626023132099,
+          "I2t_conservative_Ta25": 5456.800704568507,
+          "I2t_parallel": 5996.443835890162,
+          "barrel_I2t_single_Ta105": 28.12101296336382,
+          "barrel_area_mm2": 0.020106192982974662,
+          "classification": "real conductor neck",
+          "conductor_I2t_conservative": 4553.626023132099,
+          "conductor_I2t_parallel": 5996.443835890162,
+          "from": "F1.2",
+          "gap_at_neck_mm": 0.487,
+          "neck_layer": "F.Cu",
+          "neck_location_xy_mm": [
+            234.71,
+            25.44
+          ],
+          "neck_width_mm": 4.194,
+          "net": "l_f",
+          "per_layer_independent_neck_mm": {
+            "B.Cu": null,
+            "F.Cu": 4.194,
+            "In1.Cu": null,
+            "In2.Cu": null
+          },
+          "route_needs_via_hop": false,
+          "segment": "F1 pad 2 -> L1 winding 1",
+          "to": "L1.1",
+          "via_field_I2t_equal_sharing": null,
+          "via_field_count_within_6mm_of_SMD_terminal": 0,
+          "via_field_xy": []
+        },
+        {
+          "I2t_conservative": 1746.6033839751115,
+          "I2t_conservative_Ta25": 2093.0279579089274,
+          "I2t_parallel": 2300.015205987113,
+          "barrel_I2t_single_Ta105": 28.12101296336382,
+          "barrel_area_mm2": 0.020106192982974662,
+          "classification": "real conductor neck",
+          "conductor_I2t_conservative": 1746.6033839751115,
+          "conductor_I2t_parallel": 2300.015205987113,
+          "from": "L1.4",
+          "gap_at_neck_mm": 7.411,
+          "neck_layer": "B.Cu",
+          "neck_location_xy_mm": [
+            97.5,
+            11.1
+          ],
+          "neck_width_mm": 2.598,
+          "net": "l_filt",
+          "per_layer_independent_neck_mm": {
+            "B.Cu": 2.598,
+            "F.Cu": null,
+            "In1.Cu": null,
+            "In2.Cu": null
+          },
+          "route_needs_via_hop": false,
+          "segment": "L1 -> BR1 AC1",
+          "to": "BR1.2",
+          "via_field_I2t_equal_sharing": null,
+          "via_field_count_within_6mm_of_SMD_terminal": 0,
+          "via_field_xy": []
+        },
+        {
+          "I2t_conservative": 5470.306763669625,
+          "I2t_conservative_Ta25": 6555.29761349757,
+          "I2t_parallel": 7203.575152373334,
+          "barrel_I2t_single_Ta105": 28.12101296336382,
+          "barrel_area_mm2": 0.020106192982974662,
+          "classification": "terminal-limited (one side vanishes at the neck radius: only the terminal land is narrower; no conductor neck below 4.6 mm)",
+          "conductor_I2t_conservative": 5470.306763669625,
+          "conductor_I2t_parallel": 7203.575152373334,
+          "from": "L1.3",
+          "gap_at_neck_mm": null,
+          "neck_layer": "terminal",
+          "neck_location_xy_mm": null,
+          "neck_width_mm": 4.597,
+          "net": "n_filt",
+          "per_layer_independent_neck_mm": {
+            "B.Cu": null,
+            "F.Cu": 4.597,
+            "In1.Cu": null,
+            "In2.Cu": null
+          },
+          "route_needs_via_hop": false,
+          "segment": "L1 -> BR1 AC2",
+          "to": "BR1.3",
+          "via_field_I2t_equal_sharing": null,
+          "via_field_count_within_6mm_of_SMD_terminal": 0,
+          "via_field_xy": []
+        },
+        {
+          "I2t_conservative": 4144.4695052746465,
+          "I2t_conservative_Ta25": 4966.491319568188,
+          "I2t_parallel": 5457.64594889701,
+          "barrel_I2t_single_Ta105": 28.12101296336382,
+          "barrel_area_mm2": 0.020106192982974662,
+          "classification": "terminal-limited (neck within 2.5 mm of a terminal pad)",
+          "conductor_I2t_conservative": 4144.4695052746465,
+          "conductor_I2t_parallel": 5457.64594889701,
+          "from": "J1.2",
+          "gap_at_neck_mm": 1.366,
+          "neck_layer": "B.Cu",
+          "neck_location_xy_mm": [
+            287.39,
+            8.8
+          ],
+          "neck_width_mm": 4.001,
+          "net": "ac_n_in",
+          "per_layer_independent_neck_mm": {
+            "B.Cu": 4.001,
+            "F.Cu": null,
+            "In1.Cu": null,
+            "In2.Cu": null
+          },
+          "route_needs_via_hop": false,
+          "segment": "J1 neutral -> L1",
+          "to": "L1.2",
+          "via_field_I2t_equal_sharing": null,
+          "via_field_count_within_6mm_of_SMD_terminal": 0,
+          "via_field_xy": []
+        },
+        {
+          "I2t_conservative": 11616.605886216741,
+          "I2t_conservative_Ta25": 13920.665171577104,
+          "I2t_parallel": 11616.605886216741,
+          "barrel_I2t_single_Ta105": 28.12101296336382,
+          "barrel_area_mm2": 0.020106192982974662,
+          "classification": "terminal-limited (one side vanishes at the neck radius: only the terminal land is narrower; no conductor neck below 6.7 mm)",
+          "conductor_I2t_conservative": 11616.605886216741,
+          "conductor_I2t_parallel": 11616.605886216741,
+          "from": "BR1.1",
+          "gap_at_neck_mm": null,
+          "neck_layer": "terminal",
+          "neck_location_xy_mm": null,
+          "neck_width_mm": 6.699,
+          "net": "rect_p",
+          "per_layer_independent_neck_mm": {
+            "B.Cu": null,
+            "F.Cu": null,
+            "In1.Cu": 6.699,
+            "In2.Cu": null
+          },
+          "route_needs_via_hop": false,
+          "segment": "BR1 + -> J7 (strap)",
+          "to": "J7.1",
+          "via_field_I2t_equal_sharing": null,
+          "via_field_count_within_6mm_of_SMD_terminal": 0,
+          "via_field_xy": []
+        },
+        {
+          "I2t_conservative": 13055.649548049187,
+          "I2t_conservative_Ta25": 15645.131438218594,
+          "I2t_parallel": 13055.649548049187,
+          "barrel_I2t_single_Ta105": 28.12101296336382,
+          "barrel_area_mm2": 0.020106192982974662,
+          "classification": "terminal-limited (one side vanishes at the neck radius: only the terminal land is narrower; no conductor neck below 7.1 mm)",
+          "conductor_I2t_conservative": 13055.649548049187,
+          "conductor_I2t_parallel": 13055.649548049187,
+          "from": "BR1.4",
+          "gap_at_neck_mm": null,
+          "neck_layer": "terminal",
+          "neck_location_xy_mm": null,
+          "neck_width_mm": 7.102,
+          "net": "rect_n",
+          "per_layer_independent_neck_mm": {
+            "B.Cu": null,
+            "F.Cu": null,
+            "In1.Cu": null,
+            "In2.Cu": 7.102
+          },
+          "route_needs_via_hop": false,
+          "segment": "BR1 - -> J9 (strap)",
+          "to": "J9.1",
+          "via_field_I2t_equal_sharing": null,
+          "via_field_count_within_6mm_of_SMD_terminal": 0,
+          "via_field_xy": []
+        },
+        {
+          "I2t_conservative": 884.102869883432,
+          "I2t_conservative_Ta25": 1059.457482626697,
+          "I2t_parallel": 884.102869883432,
+          "barrel_I2t_single_Ta105": 28.12101296336382,
+          "barrel_area_mm2": 0.020106192982974662,
+          "classification": "real conductor neck",
+          "conductor_I2t_conservative": 884.102869883432,
+          "conductor_I2t_parallel": 884.102869883432,
+          "from": "J8.1",
+          "gap_at_neck_mm": 0.814,
+          "neck_layer": "In2.Cu",
+          "neck_location_xy_mm": [
+            77.86,
+            26.43
+          ],
+          "neck_width_mm": 1.848,
+          "net": "bus_p",
+          "per_layer_independent_neck_mm": {
+            "B.Cu": null,
+            "F.Cu": null,
+            "In1.Cu": null,
+            "In2.Cu": 1.848
+          },
+          "route_needs_via_hop": false,
+          "segment": "J8 -> Q2 drain (leg A)",
+          "to": "Q2.2",
+          "via_field_I2t_equal_sharing": null,
+          "via_field_count_within_6mm_of_SMD_terminal": 0,
+          "via_field_xy": []
+        },
+        {
+          "I2t_conservative": 884.102869883432,
+          "I2t_conservative_Ta25": 1059.457482626697,
+          "I2t_parallel": 884.102869883432,
+          "barrel_I2t_single_Ta105": 28.12101296336382,
+          "barrel_area_mm2": 0.020106192982974662,
+          "classification": "real conductor neck",
+          "conductor_I2t_conservative": 884.102869883432,
+          "conductor_I2t_parallel": 884.102869883432,
+          "from": "J8.1",
+          "gap_at_neck_mm": 0.814,
+          "neck_layer": "In2.Cu",
+          "neck_location_xy_mm": [
+            77.86,
+            26.43
+          ],
+          "neck_width_mm": 1.848,
+          "net": "bus_p",
+          "per_layer_independent_neck_mm": {
+            "B.Cu": null,
+            "F.Cu": null,
+            "In1.Cu": null,
+            "In2.Cu": 1.848
+          },
+          "route_needs_via_hop": false,
+          "segment": "J8 -> Q5 drain (leg B)",
+          "to": "Q5.2",
+          "via_field_I2t_equal_sharing": null,
+          "via_field_count_within_6mm_of_SMD_terminal": 0,
+          "via_field_xy": []
+        },
+        {
+          "I2t_conservative": 2079.579275901617,
+          "I2t_conservative_Ta25": 2492.0469094958025,
+          "I2t_parallel": 2079.579275901617,
+          "barrel_I2t_single_Ta105": 28.12101296336382,
+          "barrel_area_mm2": 0.020106192982974662,
+          "classification": "real conductor neck",
+          "conductor_I2t_conservative": 2079.579275901617,
+          "conductor_I2t_parallel": 2079.579275901617,
+          "from": "Q3.3",
+          "gap_at_neck_mm": 0.97,
+          "neck_layer": "In1.Cu",
+          "neck_location_xy_mm": [
+            50.05,
+            11.07
+          ],
+          "neck_width_mm": 2.834,
+          "net": "leg_ret",
+          "per_layer_independent_neck_mm": {
+            "B.Cu": null,
+            "F.Cu": null,
+            "In1.Cu": null,
+            "In2.Cu": null
+          },
+          "route_needs_via_hop": true,
+          "segment": "Q3 source -> shunt R5 (leg A)",
+          "to": "R5.1",
+          "via_field_I2t_equal_sharing": 4752.451190808486,
+          "via_field_count_within_6mm_of_SMD_terminal": 13,
+          "via_field_xy": [
+            [
+              37.05,
+              9.95
+            ],
+            [
+              37.65,
+              11.3
+            ],
+            [
+              37.8,
+              9.5
+            ],
+            [
+              37.8,
+              10.4
+            ],
+            [
+              38.25,
+              8.75
+            ],
+            [
+              38.55,
+              9.95
+            ],
+            [
+              39.0,
+              9.2
+            ],
+            [
+              39.3,
+              10.4
+            ],
+            [
+              39.3,
+              11.3
+            ],
+            [
+              39.75,
+              9.65
+            ],
+            [
+              40.9,
+              4.0
+            ],
+            [
+              40.9,
+              5.5
+            ],
+            [
+              40.9,
+              7.0
+            ]
+          ]
+        },
+        {
+          "I2t_conservative": 10728.309672308025,
+          "I2t_conservative_Ta25": 12856.182629247343,
+          "I2t_parallel": 14127.577907634866,
+          "barrel_I2t_single_Ta105": 28.12101296336382,
+          "barrel_area_mm2": 0.020106192982974662,
+          "classification": "terminal-limited (one side vanishes at the neck radius: only the terminal land is narrower; no conductor neck below 6.4 mm)",
+          "conductor_I2t_conservative": 10728.309672308025,
+          "conductor_I2t_parallel": 14127.577907634866,
+          "from": "Q6.3",
+          "gap_at_neck_mm": null,
+          "neck_layer": "terminal",
+          "neck_location_xy_mm": null,
+          "neck_width_mm": 6.438,
+          "net": "leg_ret",
+          "per_layer_independent_neck_mm": {
+            "B.Cu": null,
+            "F.Cu": 6.438,
+            "In1.Cu": null,
+            "In2.Cu": null
+          },
+          "route_needs_via_hop": false,
+          "segment": "Q6 source -> shunt R5 (leg B)",
+          "to": "R5.1",
+          "via_field_I2t_equal_sharing": null,
+          "via_field_count_within_6mm_of_SMD_terminal": 0,
+          "via_field_xy": []
+        },
+        {
+          "I2t_conservative": 355.46227499069494,
+          "I2t_conservative_Ta25": 425.9653258223834,
+          "I2t_parallel": 355.46227499069494,
+          "barrel_I2t_single_Ta105": 28.12101296336382,
+          "barrel_area_mm2": 0.020106192982974662,
+          "classification": "real conductor neck",
+          "conductor_I2t_conservative": 355.46227499069494,
+          "conductor_I2t_parallel": 355.46227499069494,
+          "from": "R5.4",
+          "gap_at_neck_mm": 0.42,
+          "neck_layer": "In1.Cu",
+          "neck_location_xy_mm": [
+            82.0,
+            38.2
+          ],
+          "neck_width_mm": 1.172,
+          "net": "hv_ret",
+          "per_layer_independent_neck_mm": {
+            "B.Cu": null,
+            "F.Cu": null,
+            "In1.Cu": null,
+            "In2.Cu": null
+          },
+          "route_needs_via_hop": true,
+          "segment": "shunt R5 -> J10",
+          "to": "J10.1",
+          "via_field_I2t_equal_sharing": 1012.3564666810976,
+          "via_field_count_within_6mm_of_SMD_terminal": 6,
+          "via_field_xy": [
+            [
+              35.8,
+              15.3
+            ],
+            [
+              36.45,
+              13.95
+            ],
+            [
+              36.9,
+              14.7
+            ],
+            [
+              37.35,
+              15.45
+            ],
+            [
+              37.65,
+              14.25
+            ],
+            [
+              38.1,
+              15.0
+            ]
+          ]
+        }
+      ]
+    },
+    "19c": {
+      "board_sha256": "3d3a2c69c07a210262f0dc66789a2631e29370f6816c45869a7dea1813460d92",
+      "file": "native-21/verification/native21s19c-all-copper.json.gz",
+      "segments": [
+        {
+          "I2t_conservative": 9412.49910369241,
+          "I2t_conservative_Ta25": 11279.391737455639,
+          "I2t_parallel": 12394.852353693308,
+          "barrel_I2t_single_Ta105": 28.12101296336382,
+          "barrel_area_mm2": 0.020106192982974662,
+          "classification": "terminal-limited (one side vanishes at the neck radius: only the terminal land is narrower; no conductor neck below 6.0 mm)",
+          "conductor_I2t_conservative": 9412.49910369241,
+          "conductor_I2t_parallel": 12394.852353693308,
+          "from": "J1.1",
+          "gap_at_neck_mm": null,
+          "neck_layer": "terminal",
+          "neck_location_xy_mm": null,
+          "neck_width_mm": 6.03,
+          "net": "ac_l_in",
+          "per_layer_independent_neck_mm": {
+            "B.Cu": null,
+            "F.Cu": 6.03,
+            "In1.Cu": null,
+            "In2.Cu": null
+          },
+          "route_needs_via_hop": false,
+          "segment": "J1 line -> F1 pad 1",
+          "to": "F1.1",
+          "via_field_I2t_equal_sharing": null,
+          "via_field_count_within_6mm_of_SMD_terminal": 0,
+          "via_field_xy": []
+        },
+        {
+          "I2t_conservative": 4553.626023132099,
+          "I2t_conservative_Ta25": 5456.800704568507,
+          "I2t_parallel": 5996.443835890162,
+          "barrel_I2t_single_Ta105": 28.12101296336382,
+          "barrel_area_mm2": 0.020106192982974662,
+          "classification": "real conductor neck",
+          "conductor_I2t_conservative": 4553.626023132099,
+          "conductor_I2t_parallel": 5996.443835890162,
+          "from": "F1.2",
+          "gap_at_neck_mm": 0.487,
+          "neck_layer": "F.Cu",
+          "neck_location_xy_mm": [
+            234.71,
+            25.44
+          ],
+          "neck_width_mm": 4.194,
+          "net": "l_f",
+          "per_layer_independent_neck_mm": {
+            "B.Cu": null,
+            "F.Cu": 4.194,
+            "In1.Cu": null,
+            "In2.Cu": null
+          },
+          "route_needs_via_hop": false,
+          "segment": "F1 pad 2 -> L1 winding 1",
+          "to": "L1.1",
+          "via_field_I2t_equal_sharing": null,
+          "via_field_count_within_6mm_of_SMD_terminal": 0,
+          "via_field_xy": []
+        },
+        {
+          "I2t_conservative": 1746.6033839751115,
+          "I2t_conservative_Ta25": 2093.0279579089274,
+          "I2t_parallel": 2300.015205987113,
+          "barrel_I2t_single_Ta105": 28.12101296336382,
+          "barrel_area_mm2": 0.020106192982974662,
+          "classification": "real conductor neck",
+          "conductor_I2t_conservative": 1746.6033839751115,
+          "conductor_I2t_parallel": 2300.015205987113,
+          "from": "L1.4",
+          "gap_at_neck_mm": 7.411,
+          "neck_layer": "B.Cu",
+          "neck_location_xy_mm": [
+            97.5,
+            11.1
+          ],
+          "neck_width_mm": 2.598,
+          "net": "l_filt",
+          "per_layer_independent_neck_mm": {
+            "B.Cu": 2.598,
+            "F.Cu": null,
+            "In1.Cu": null,
+            "In2.Cu": null
+          },
+          "route_needs_via_hop": false,
+          "segment": "L1 -> BR1 AC1",
+          "to": "BR1.2",
+          "via_field_I2t_equal_sharing": null,
+          "via_field_count_within_6mm_of_SMD_terminal": 0,
+          "via_field_xy": []
+        },
+        {
+          "I2t_conservative": 5470.306763669625,
+          "I2t_conservative_Ta25": 6555.29761349757,
+          "I2t_parallel": 7203.575152373334,
+          "barrel_I2t_single_Ta105": 28.12101296336382,
+          "barrel_area_mm2": 0.020106192982974662,
+          "classification": "terminal-limited (one side vanishes at the neck radius: only the terminal land is narrower; no conductor neck below 4.6 mm)",
+          "conductor_I2t_conservative": 5470.306763669625,
+          "conductor_I2t_parallel": 7203.575152373334,
+          "from": "L1.3",
+          "gap_at_neck_mm": null,
+          "neck_layer": "terminal",
+          "neck_location_xy_mm": null,
+          "neck_width_mm": 4.597,
+          "net": "n_filt",
+          "per_layer_independent_neck_mm": {
+            "B.Cu": null,
+            "F.Cu": 4.597,
+            "In1.Cu": null,
+            "In2.Cu": null
+          },
+          "route_needs_via_hop": false,
+          "segment": "L1 -> BR1 AC2",
+          "to": "BR1.3",
+          "via_field_I2t_equal_sharing": null,
+          "via_field_count_within_6mm_of_SMD_terminal": 0,
+          "via_field_xy": []
+        },
+        {
+          "I2t_conservative": 4144.4695052746465,
+          "I2t_conservative_Ta25": 4966.491319568188,
+          "I2t_parallel": 5457.64594889701,
+          "barrel_I2t_single_Ta105": 28.12101296336382,
+          "barrel_area_mm2": 0.020106192982974662,
+          "classification": "terminal-limited (neck within 2.5 mm of a terminal pad)",
+          "conductor_I2t_conservative": 4144.4695052746465,
+          "conductor_I2t_parallel": 5457.64594889701,
+          "from": "J1.2",
+          "gap_at_neck_mm": 1.366,
+          "neck_layer": "B.Cu",
+          "neck_location_xy_mm": [
+            287.39,
+            8.8
+          ],
+          "neck_width_mm": 4.001,
+          "net": "ac_n_in",
+          "per_layer_independent_neck_mm": {
+            "B.Cu": 4.001,
+            "F.Cu": null,
+            "In1.Cu": null,
+            "In2.Cu": null
+          },
+          "route_needs_via_hop": false,
+          "segment": "J1 neutral -> L1",
+          "to": "L1.2",
+          "via_field_I2t_equal_sharing": null,
+          "via_field_count_within_6mm_of_SMD_terminal": 0,
+          "via_field_xy": []
+        },
+        {
+          "I2t_conservative": 11616.605886216741,
+          "I2t_conservative_Ta25": 13920.665171577104,
+          "I2t_parallel": 11616.605886216741,
+          "barrel_I2t_single_Ta105": 28.12101296336382,
+          "barrel_area_mm2": 0.020106192982974662,
+          "classification": "terminal-limited (one side vanishes at the neck radius: only the terminal land is narrower; no conductor neck below 6.7 mm)",
+          "conductor_I2t_conservative": 11616.605886216741,
+          "conductor_I2t_parallel": 11616.605886216741,
+          "from": "BR1.1",
+          "gap_at_neck_mm": null,
+          "neck_layer": "terminal",
+          "neck_location_xy_mm": null,
+          "neck_width_mm": 6.699,
+          "net": "rect_p",
+          "per_layer_independent_neck_mm": {
+            "B.Cu": null,
+            "F.Cu": null,
+            "In1.Cu": 6.699,
+            "In2.Cu": null
+          },
+          "route_needs_via_hop": false,
+          "segment": "BR1 + -> J7 (strap)",
+          "to": "J7.1",
+          "via_field_I2t_equal_sharing": null,
+          "via_field_count_within_6mm_of_SMD_terminal": 0,
+          "via_field_xy": []
+        },
+        {
+          "I2t_conservative": 13055.649548049187,
+          "I2t_conservative_Ta25": 15645.131438218594,
+          "I2t_parallel": 13055.649548049187,
+          "barrel_I2t_single_Ta105": 28.12101296336382,
+          "barrel_area_mm2": 0.020106192982974662,
+          "classification": "terminal-limited (one side vanishes at the neck radius: only the terminal land is narrower; no conductor neck below 7.1 mm)",
+          "conductor_I2t_conservative": 13055.649548049187,
+          "conductor_I2t_parallel": 13055.649548049187,
+          "from": "BR1.4",
+          "gap_at_neck_mm": null,
+          "neck_layer": "terminal",
+          "neck_location_xy_mm": null,
+          "neck_width_mm": 7.102,
+          "net": "rect_n",
+          "per_layer_independent_neck_mm": {
+            "B.Cu": null,
+            "F.Cu": null,
+            "In1.Cu": null,
+            "In2.Cu": 7.102
+          },
+          "route_needs_via_hop": false,
+          "segment": "BR1 - -> J9 (strap)",
+          "to": "J9.1",
+          "via_field_I2t_equal_sharing": null,
+          "via_field_count_within_6mm_of_SMD_terminal": 0,
+          "via_field_xy": []
+        },
+        {
+          "I2t_conservative": 884.102869883432,
+          "I2t_conservative_Ta25": 1059.457482626697,
+          "I2t_parallel": 884.102869883432,
+          "barrel_I2t_single_Ta105": 28.12101296336382,
+          "barrel_area_mm2": 0.020106192982974662,
+          "classification": "real conductor neck",
+          "conductor_I2t_conservative": 884.102869883432,
+          "conductor_I2t_parallel": 884.102869883432,
+          "from": "J8.1",
+          "gap_at_neck_mm": 0.814,
+          "neck_layer": "In2.Cu",
+          "neck_location_xy_mm": [
+            77.86,
+            26.43
+          ],
+          "neck_width_mm": 1.848,
+          "net": "bus_p",
+          "per_layer_independent_neck_mm": {
+            "B.Cu": null,
+            "F.Cu": null,
+            "In1.Cu": null,
+            "In2.Cu": 1.848
+          },
+          "route_needs_via_hop": false,
+          "segment": "J8 -> Q2 drain (leg A)",
+          "to": "Q2.2",
+          "via_field_I2t_equal_sharing": null,
+          "via_field_count_within_6mm_of_SMD_terminal": 0,
+          "via_field_xy": []
+        },
+        {
+          "I2t_conservative": 884.102869883432,
+          "I2t_conservative_Ta25": 1059.457482626697,
+          "I2t_parallel": 884.102869883432,
+          "barrel_I2t_single_Ta105": 28.12101296336382,
+          "barrel_area_mm2": 0.020106192982974662,
+          "classification": "real conductor neck",
+          "conductor_I2t_conservative": 884.102869883432,
+          "conductor_I2t_parallel": 884.102869883432,
+          "from": "J8.1",
+          "gap_at_neck_mm": 0.814,
+          "neck_layer": "In2.Cu",
+          "neck_location_xy_mm": [
+            77.86,
+            26.43
+          ],
+          "neck_width_mm": 1.848,
+          "net": "bus_p",
+          "per_layer_independent_neck_mm": {
+            "B.Cu": null,
+            "F.Cu": null,
+            "In1.Cu": null,
+            "In2.Cu": 1.848
+          },
+          "route_needs_via_hop": false,
+          "segment": "J8 -> Q5 drain (leg B)",
+          "to": "Q5.2",
+          "via_field_I2t_equal_sharing": null,
+          "via_field_count_within_6mm_of_SMD_terminal": 0,
+          "via_field_xy": []
+        },
+        {
+          "I2t_conservative": 2079.579275901617,
+          "I2t_conservative_Ta25": 2492.0469094958025,
+          "I2t_parallel": 2079.579275901617,
+          "barrel_I2t_single_Ta105": 28.12101296336382,
+          "barrel_area_mm2": 0.020106192982974662,
+          "classification": "real conductor neck",
+          "conductor_I2t_conservative": 2079.579275901617,
+          "conductor_I2t_parallel": 2079.579275901617,
+          "from": "Q3.3",
+          "gap_at_neck_mm": 0.97,
+          "neck_layer": "In1.Cu",
+          "neck_location_xy_mm": [
+            50.05,
+            11.07
+          ],
+          "neck_width_mm": 2.834,
+          "net": "leg_ret",
+          "per_layer_independent_neck_mm": {
+            "B.Cu": null,
+            "F.Cu": null,
+            "In1.Cu": null,
+            "In2.Cu": null
+          },
+          "route_needs_via_hop": true,
+          "segment": "Q3 source -> shunt R5 (leg A)",
+          "to": "R5.1",
+          "via_field_I2t_equal_sharing": 4752.451190808486,
+          "via_field_count_within_6mm_of_SMD_terminal": 13,
+          "via_field_xy": [
+            [
+              37.05,
+              9.95
+            ],
+            [
+              37.65,
+              11.3
+            ],
+            [
+              37.8,
+              9.5
+            ],
+            [
+              37.8,
+              10.4
+            ],
+            [
+              38.25,
+              8.75
+            ],
+            [
+              38.55,
+              9.95
+            ],
+            [
+              39.0,
+              9.2
+            ],
+            [
+              39.3,
+              10.4
+            ],
+            [
+              39.3,
+              11.3
+            ],
+            [
+              39.75,
+              9.65
+            ],
+            [
+              40.9,
+              4.0
+            ],
+            [
+              40.9,
+              5.5
+            ],
+            [
+              40.9,
+              7.0
+            ]
+          ]
+        },
+        {
+          "I2t_conservative": 10728.309672308025,
+          "I2t_conservative_Ta25": 12856.182629247343,
+          "I2t_parallel": 14127.577907634866,
+          "barrel_I2t_single_Ta105": 28.12101296336382,
+          "barrel_area_mm2": 0.020106192982974662,
+          "classification": "terminal-limited (one side vanishes at the neck radius: only the terminal land is narrower; no conductor neck below 6.4 mm)",
+          "conductor_I2t_conservative": 10728.309672308025,
+          "conductor_I2t_parallel": 14127.577907634866,
+          "from": "Q6.3",
+          "gap_at_neck_mm": null,
+          "neck_layer": "terminal",
+          "neck_location_xy_mm": null,
+          "neck_width_mm": 6.438,
+          "net": "leg_ret",
+          "per_layer_independent_neck_mm": {
+            "B.Cu": null,
+            "F.Cu": 6.438,
+            "In1.Cu": null,
+            "In2.Cu": null
+          },
+          "route_needs_via_hop": false,
+          "segment": "Q6 source -> shunt R5 (leg B)",
+          "to": "R5.1",
+          "via_field_I2t_equal_sharing": null,
+          "via_field_count_within_6mm_of_SMD_terminal": 0,
+          "via_field_xy": []
+        },
+        {
+          "I2t_conservative": 355.46227499069494,
+          "I2t_conservative_Ta25": 425.9653258223834,
+          "I2t_parallel": 355.46227499069494,
+          "barrel_I2t_single_Ta105": 28.12101296336382,
+          "barrel_area_mm2": 0.020106192982974662,
+          "classification": "real conductor neck",
+          "conductor_I2t_conservative": 355.46227499069494,
+          "conductor_I2t_parallel": 355.46227499069494,
+          "from": "R5.4",
+          "gap_at_neck_mm": 0.42,
+          "neck_layer": "In1.Cu",
+          "neck_location_xy_mm": [
+            82.0,
+            38.2
+          ],
+          "neck_width_mm": 1.172,
+          "net": "hv_ret",
+          "per_layer_independent_neck_mm": {
+            "B.Cu": null,
+            "F.Cu": null,
+            "In1.Cu": null,
+            "In2.Cu": null
+          },
+          "route_needs_via_hop": true,
+          "segment": "shunt R5 -> J10",
+          "to": "J10.1",
+          "via_field_I2t_equal_sharing": 1012.3564666810976,
+          "via_field_count_within_6mm_of_SMD_terminal": 6,
+          "via_field_xy": [
+            [
+              35.8,
+              15.3
+            ],
+            [
+              36.45,
+              13.95
+            ],
+            [
+              36.9,
+              14.7
+            ],
+            [
+              37.35,
+              15.45
+            ],
+            [
+              37.65,
+              14.25
+            ],
+            [
+              38.1,
+              15.0
+            ]
+          ]
+        }
+      ]
+    }
+  },
   "controls": {
     "oversized_KLDR030_must_FAIL": {
       "F1_clearing_I2t": 1990.0,
@@ -50,224 +934,6 @@
     }
   },
   "controls_ok": true,
-  "copper_segments": [
-    {
-      "area_conservative_mm2": 0.266875,
-      "area_parallel_layers_mm2": 0.30625,
-      "from": "J1.1",
-      "fuse_I2t_conservative_Ta105": 4954.354197203639,
-      "fuse_I2t_conservative_Ta25": 5937.010052351083,
-      "fuse_I2t_parallel_Ta105": 6524.142855764,
-      "neck_width_best_route_mm": 4.375,
-      "neck_width_per_layer_mm": {
-        "B.Cu": null,
-        "F.Cu": 4.375,
-        "In1.Cu": null,
-        "In2.Cu": null
-      },
-      "net": "ac_l_in",
-      "segment": "J1 line -> F1 pad 1",
-      "to": "F1.1"
-    },
-    {
-      "area_conservative_mm2": 0.2559140625,
-      "area_parallel_layers_mm2": 0.293671875,
-      "from": "F1.2",
-      "fuse_I2t_conservative_Ta105": 4555.746701190742,
-      "fuse_I2t_conservative_Ta25": 5459.3420018699935,
-      "fuse_I2t_parallel_Ta105": 5999.236451447095,
-      "neck_width_best_route_mm": 4.195,
-      "neck_width_per_layer_mm": {
-        "B.Cu": null,
-        "F.Cu": 4.195,
-        "In1.Cu": null,
-        "In2.Cu": null
-      },
-      "net": "l_f",
-      "segment": "F1 pad 2 -> L1 winding 1",
-      "to": "L1.1"
-    },
-    {
-      "area_conservative_mm2": 0.15845703125,
-      "area_parallel_layers_mm2": 0.18183593750000002,
-      "from": "L1.4",
-      "fuse_I2t_conservative_Ta105": 1746.6033839751115,
-      "fuse_I2t_conservative_Ta25": 2093.0279579089274,
-      "fuse_I2t_parallel_Ta105": 2300.015205987113,
-      "neck_width_best_route_mm": 2.598,
-      "neck_width_per_layer_mm": {
-        "B.Cu": 2.598,
-        "F.Cu": null,
-        "In1.Cu": null,
-        "In2.Cu": null
-      },
-      "net": "l_filt",
-      "segment": "L1 -> BR1 AC1",
-      "to": "BR1.2"
-    },
-    {
-      "area_conservative_mm2": 0.28045703125,
-      "area_parallel_layers_mm2": 0.32183593750000006,
-      "from": "L1.3",
-      "fuse_I2t_conservative_Ta105": 5471.468866117604,
-      "fuse_I2t_conservative_Ta25": 6556.690209513293,
-      "fuse_I2t_parallel_Ta105": 7205.105467341109,
-      "neck_width_best_route_mm": 4.598,
-      "neck_width_per_layer_mm": {
-        "B.Cu": null,
-        "F.Cu": 4.598,
-        "In1.Cu": null,
-        "In2.Cu": null
-      },
-      "net": "n_filt",
-      "segment": "L1 -> BR1 AC2",
-      "to": "BR1.3"
-    },
-    {
-      "area_conservative_mm2": 0.24042578125,
-      "area_parallel_layers_mm2": 0.27589843750000004,
-      "from": "J1.2",
-      "fuse_I2t_conservative_Ta105": 4020.993204275574,
-      "fuse_I2t_conservative_Ta25": 4818.524498650865,
-      "fuse_I2t_parallel_Ta105": 5295.046143765202,
-      "neck_width_best_route_mm": 3.941,
-      "neck_width_per_layer_mm": {
-        "B.Cu": 3.941,
-        "F.Cu": null,
-        "In1.Cu": null,
-        "In2.Cu": null
-      },
-      "net": "ac_n_in",
-      "segment": "J1 neutral -> L1",
-      "to": "L1.2"
-    },
-    {
-      "area_conservative_mm2": 0.342171875,
-      "area_parallel_layers_mm2": 0.342171875,
-      "from": "BR1.1",
-      "fuse_I2t_conservative_Ta105": 8144.414837880136,
-      "fuse_I2t_conservative_Ta25": 9759.793272411483,
-      "fuse_I2t_parallel_Ta105": 8144.414837880136,
-      "neck_width_best_route_mm": 5.609,
-      "neck_width_per_layer_mm": {
-        "B.Cu": null,
-        "F.Cu": null,
-        "In1.Cu": 5.609,
-        "In2.Cu": null
-      },
-      "net": "rect_p",
-      "segment": "BR1 + -> J7 (strap)",
-      "to": "J7.1"
-    },
-    {
-      "area_conservative_mm2": 0.36409375,
-      "area_parallel_layers_mm2": 0.36409375,
-      "from": "BR1.4",
-      "fuse_I2t_conservative_Ta105": 9221.41813613194,
-      "fuse_I2t_conservative_Ta25": 11050.411414276528,
-      "fuse_I2t_parallel_Ta105": 9221.41813613194,
-      "neck_width_best_route_mm": 5.969,
-      "neck_width_per_layer_mm": {
-        "B.Cu": null,
-        "F.Cu": null,
-        "In1.Cu": null,
-        "In2.Cu": 5.969
-      },
-      "net": "rect_n",
-      "segment": "BR1 - -> J9 (strap)",
-      "to": "J9.1"
-    },
-    {
-      "area_conservative_mm2": 0.11270703124999999,
-      "area_parallel_layers_mm2": 0.11270703124999999,
-      "from": "J8.1",
-      "fuse_I2t_conservative_Ta105": 883.6357702377018,
-      "fuse_I2t_conservative_Ta25": 1058.897737565733,
-      "fuse_I2t_parallel_Ta105": 883.6357702377018,
-      "neck_width_best_route_mm": 1.848,
-      "neck_width_per_layer_mm": {
-        "B.Cu": null,
-        "F.Cu": null,
-        "In1.Cu": null,
-        "In2.Cu": 1.848
-      },
-      "net": "bus_p",
-      "segment": "J8 -> Q2 drain (leg A)",
-      "to": "Q2.2"
-    },
-    {
-      "area_conservative_mm2": 0.11270703124999999,
-      "area_parallel_layers_mm2": 0.11270703124999999,
-      "from": "J8.1",
-      "fuse_I2t_conservative_Ta105": 883.6357702377018,
-      "fuse_I2t_conservative_Ta25": 1058.897737565733,
-      "fuse_I2t_parallel_Ta105": 883.6357702377018,
-      "neck_width_best_route_mm": 1.848,
-      "neck_width_per_layer_mm": {
-        "B.Cu": null,
-        "F.Cu": null,
-        "In1.Cu": null,
-        "In2.Cu": 1.848
-      },
-      "net": "bus_p",
-      "segment": "J8 -> Q5 drain (leg B)",
-      "to": "Q5.2"
-    },
-    {
-      "area_conservative_mm2": 0.17275390625,
-      "area_parallel_layers_mm2": 0.17275390625,
-      "from": "Q3.3",
-      "fuse_I2t_conservative_Ta105": 2075.9984254664896,
-      "fuse_I2t_conservative_Ta25": 2487.7558265043367,
-      "fuse_I2t_parallel_Ta105": 2075.9984254664896,
-      "neck_width_best_route_mm": 2.832,
-      "neck_width_per_layer_mm": {
-        "B.Cu": null,
-        "F.Cu": null,
-        "In1.Cu": null,
-        "In2.Cu": null
-      },
-      "net": "leg_ret",
-      "segment": "Q3 source -> shunt R5 (leg A)",
-      "to": "R5.1"
-    },
-    {
-      "area_conservative_mm2": 0.27068749999999997,
-      "area_parallel_layers_mm2": 0.31062500000000004,
-      "from": "Q6.3",
-      "fuse_I2t_conservative_Ta105": 5096.918266959909,
-      "fuse_I2t_conservative_Ta25": 6107.8505456942485,
-      "fuse_I2t_parallel_Ta105": 6711.878395082925,
-      "neck_width_best_route_mm": 4.438,
-      "neck_width_per_layer_mm": {
-        "B.Cu": null,
-        "F.Cu": 4.438,
-        "In1.Cu": null,
-        "In2.Cu": null
-      },
-      "net": "leg_ret",
-      "segment": "Q6 source -> shunt R5 (leg B)",
-      "to": "R5.1"
-    },
-    {
-      "area_conservative_mm2": 0.071484375,
-      "area_parallel_layers_mm2": 0.071484375,
-      "from": "R5.4",
-      "fuse_I2t_conservative_Ta105": 355.46227499069494,
-      "fuse_I2t_conservative_Ta25": 425.9653258223834,
-      "fuse_I2t_parallel_Ta105": 355.46227499069494,
-      "neck_width_best_route_mm": 1.172,
-      "neck_width_per_layer_mm": {
-        "B.Cu": null,
-        "F.Cu": null,
-        "In1.Cu": null,
-        "In2.Cu": null
-      },
-      "net": "hv_ret",
-      "segment": "shunt R5 -> J10",
-      "to": "J10.1"
-    }
-  ],
   "energy": {
     "E_J": {
       "C_bom_nominal_18.4uF@OVP_280V": 0.72128,

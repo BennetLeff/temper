@@ -127,58 +127,93 @@ SEGMENTS = [  # (net, terminal A ref, terminal B ref, label)
     ("hv_ret", "R5.4", "J10.1", "shunt R5 -> J10"),
 ]
 
-def copper_necks():
-    from shapely.geometry import Point, LineString, Polygon
-    from shapely.ops import unary_union
-    raw = json.load(gzip.open(COPPER))
+BOARDS = {   # label: (file, sha prefix or None)
+    "19b_record": ("native-21/verification/native21s19b-all-copper.json.gz", "b19a4553"),
+    "19c": ("native-21/verification/native21s19c-all-copper.json.gz", None),
+}
+TERM_BUF = 1.0        # mm: terminal = pad land (hole filled) buffered outward, so the pad's own annulus is never the neck
+TERM_NEAR = 2.5       # mm: a neck whose location is within this of a terminal pad is flagged terminal-limited
+VIA_DRILL, VIA_PLATE = 0.30, 0.020   # mm; plating assumption for barrel I2t
+
+
+def barrel_i2t(ta):
+    ri = VIA_DRILL / 2
+    area = math.pi * ((ri + VIA_PLATE) ** 2 - ri ** 2)
+    return area, onderdonk_i2t(area, ta)
+
+
+def copper_necks(label, path, sha_prefix):
+    from shapely.geometry import Point, LineString, Polygon, box
+    from shapely.ops import unary_union, nearest_points
+    raw = json.load(gzip.open(PS / path))
     sha = raw["board_sha256"]
+    if sha_prefix:
+        assert sha.startswith(sha_prefix), sha
     prims = raw["primitives"]
+
+    def fix(g):
+        return g if g.is_valid else g.buffer(0)
+
     def geom(p):
         k = p["kind"]
         if k == "track":
             return LineString([p["start"], p["end"]]).buffer(p["width_mm"] / 2, cap_style="round")
-        if k == "via":
-            return Point(p["centre"]).buffer(p["diameter_mm"] / 2)
-        if k in ("zone", "pad"):
-            g = Polygon(p["shell"], p.get("holes") or [])
-            return g if g.is_valid else g.buffer(0)
-    results = []
+        if k == "via":      # ring: disk minus drill
+            return Point(p["centre"]).buffer(p["diameter_mm"] / 2).difference(Point(p["centre"]).buffer(p["drill_mm"] / 2))
+        if k == "pad":      # copper annulus / land (drill holes removed)
+            return fix(Polygon(p["shell"], p.get("holes") or []))
+        return fix(Polygon(p["shell"], p.get("holes") or []))     # zone
+
+    def comps(g):
+        return list(g.geoms) if hasattr(g, "geoms") else ([g] if not g.is_empty else [])
+
     cache = {}
-    for net, ta, tb, label in SEGMENTS:
+    out = []
+    for net, ta, tb, seg in SEGMENTS:
         ps = [p for p in prims if p["net"] == net]
         if net not in cache:
-            layers = {}
+            lay = {}
             for p in ps:
-                layers.setdefault(p["layer"], []).append(geom(p))
-            cache[net] = ({l: unary_union(g) for l, g in layers.items()},
-                          [(p["layer"], Point(p["centre"])) for p in ps if p["kind"] == "via"] +
-                          [(p["layer"], Point(p["centre"])) for p in ps if p["kind"] == "pad" and p.get("drill_mm")])
-        lay, links = cache[net]
+                lay.setdefault(p["layer"], []).append(geom(p))
+            lay = {l: unary_union(g) for l, g in lay.items()}
+            # inter-layer links: via rings and drilled pads, grouped by centre; copper on each layer
+            links = {}
+            for p in ps:
+                if p["kind"] == "via" or (p["kind"] == "pad" and p.get("drill_mm")):
+                    links.setdefault((round(p["centre"][0], 3), round(p["centre"][1], 3)), []).append((p["layer"], geom(p)))
+            cache[net] = (lay, links, {})
+        lay, links, ecache = cache[net]
+
         def term(ref):
-            return [(p["layer"], geom(p)) for p in ps if p["kind"] == "pad" and p["ref"] == ref]
-        TA, TB = term(ta), term(tb)
+            return [(p["layer"], fix(Polygon(p["shell"])).buffer(TERM_BUF)) for p in ps if p["kind"] == "pad" and p["ref"] == ref], \
+                   [fix(Polygon(p["shell"])) for p in ps if p["kind"] == "pad" and p["ref"] == ref]
+        (TA, padA), (TB, padB) = term(ta), term(tb)
         assert TA and TB, (net, ta, tb)
 
-        def comps(g):
-            return list(g.geoms) if hasattr(g, "geoms") else ([g] if not g.is_empty else [])
+        def eroded(l, r):
+            key = (l, round(r, 4))
+            if key not in ecache:
+                ecache[key] = comps(lay[l].buffer(-r)) if r > 0 else comps(lay[l])
+            return ecache[key]
 
-        def connected(r, only_layer=None):
-            ec = {}
-            for l, g in lay.items():
-                if only_layer and l != only_layer:
-                    continue
-                ec[l] = comps(g.buffer(-r)) if r > 0 else comps(g)
+        def groups(r, only=None):
+            ec = {l: eroded(l, r) for l in lay if (only is None or l == only)}
             nodes = [(l, i) for l in ec for i in range(len(ec[l]))]
             par = {n: n for n in nodes}
             def find(x):
                 while par[x] != x:
                     par[x] = par[par[x]]; x = par[x]
                 return x
-            if not only_layer:
-                for (l1, pt) in links:      # via / through-hole barrel joins same point on every layer
-                    here = [(l, i) for l in ec for i, c in enumerate(ec[l]) if c.buffer(1e-6).contains(pt)]
-                    for a in here[1:]:
-                        par[find(a)] = find(here[0])
+            if only is None:
+                for pts in links.values():
+                    hit = []
+                    for l, cu in pts:
+                        if l in ec:
+                            for i, c in enumerate(ec[l]):
+                                if c.intersects(cu):
+                                    hit.append((l, i))
+                    for a in hit[1:]:
+                        par[find(a)] = find(hit[0])
             def touched(T):
                 s = set()
                 for l, pg in T:
@@ -187,36 +222,94 @@ def copper_necks():
                             if c.intersects(pg):
                                 s.add(find((l, i)))
                 return s
-            return bool(touched(TA) & touched(TB))
+            return ec, find, touched(TA), touched(TB)
 
-        def neck(only_layer=None):
-            if not connected(0.0, only_layer):
+        def connected(r, only=None):
+            _, _, a, b = groups(r, only)
+            return bool(a & b)
+
+        def neck(only=None):
+            if not connected(0.0, only):
                 return None
-            lo, hi = 0.0, 8.0
-            for _ in range(12):
+            lo, hi = 0.0, 10.0
+            for _ in range(13):
                 mid = (lo + hi) / 2
-                if connected(mid, only_layer): lo = mid
+                if connected(mid, only): lo = mid
                 else: hi = mid
-            return 2 * lo           # neck width (mm), resolution ~ 4 um
-        w_all = neck()
+            return lo
+
+        r_c = neck()
+        w_all = 2 * r_c
         per_layer = {l: neck(l) for l in lay}
-        # conservative: best single route, thinnest copper (0.061 mm) ; parallel: independent layer routes, own thickness
+        # --- neck location: just past disconnection, where do the A-side and B-side groups come closest?
+        ec, find, sa, sb = groups(r_c + 0.01)
+        gA = {}; gB = {}
+        for l in ec:
+            for i, c in enumerate(ec[l]):
+                f = find((l, i))
+                if f in sa: gA.setdefault(l, []).append(c)
+                if f in sb: gB.setdefault(l, []).append(c)
+        best = None
+        for la, ca in gA.items():
+            for lb, cb in gB.items():
+                d = unary_union(ca).distance(unary_union(cb))
+                same = (la == lb)
+                key = (d if same else d + 1e-9, 0 if same else 1)
+                if best is None or key < best[0]:
+                    pa, pb = nearest_points(unary_union(ca), unary_union(cb))
+                    best = (key, la, lb, d, ((pa.x + pb.x) / 2, (pa.y + pb.y) / 2))
+        if best is None:      # one side vanished entirely (terminal land smaller than r): terminal-limited
+            loc, nl, hop, gapd = None, "terminal", False, None
+        else:
+            _, la, lb, gapd, loc = best
+            nl = la if la == lb else f"{la}/{lb}"
+            hop = la != lb
+        layA = {l for l, _ in TA}; layB = {l for l, _ in TB}
+        needs_hop = all(r is None for r in per_layer.values())   # no single layer joins the terminals -> current crosses a via/barrel field
+        dterm = min([Point(loc).distance(p) for p in padA + padB]) if loc else 0.0
+        if loc is None:
+            cls = "terminal-limited (one side vanishes at the neck radius: only the terminal land is narrower; no conductor neck below %.1f mm)" % w_all
+        elif dterm < TERM_NEAR:
+            cls = "terminal-limited (neck within %.1f mm of a terminal pad)" % TERM_NEAR
+        elif hop:
+            cls = "via/barrel-limited at the neck (layer hop)"
+        else:
+            cls = "real conductor neck"
+        # via field: if a hop is unavoidable, count vias within 6 mm of the single-layer (SMD) terminal
+        n_via = 0; via_xy = []
+        if needs_hop:
+            smd = padA if len(layA) < len(layB) else padB
+            ctr = unary_union(smd).buffer(6.0)
+            vias = {(round(p["centre"][0], 3), round(p["centre"][1], 3)) for p in ps if p["kind"] == "via" and ctr.contains(Point(p["centre"]))}
+            n_via = len(vias); via_xy = sorted(vias)
+        a_b, i2t_b105 = barrel_i2t(TA_HOT)
+        via_single = i2t_b105
+        via_equal = (n_via ** 2) * i2t_b105 if n_via else None
         a_cons = w_all * min(CU_T.values())
-        a_par = sum(w * CU_T[l] for l, w in per_layer.items() if w) or a_cons
-        a_par = max(a_par, a_cons)
-        results.append({"segment": label, "net": net, "from": ta, "to": tb,
-                        "neck_width_best_route_mm": round(w_all, 3),
-                        "neck_width_per_layer_mm": {l: (round(w, 3) if w else None) for l, w in per_layer.items()},
-                        "area_conservative_mm2": a_cons, "area_parallel_layers_mm2": a_par,
-                        "fuse_I2t_conservative_Ta105": onderdonk_i2t(a_cons, TA_HOT),
-                        "fuse_I2t_conservative_Ta25": onderdonk_i2t(a_cons, 25.0),
-                        "fuse_I2t_parallel_Ta105": onderdonk_i2t(a_par, TA_HOT)})
-    return sha, results
+        a_par = max(a_cons, sum(2 * r * CU_T[l] for l, r in per_layer.items() if r))
+        cons = onderdonk_i2t(a_cons, TA_HOT)
+        par = onderdonk_i2t(a_par, TA_HOT)
+        viahop_only = needs_hop
+        eff_cons = cons if via_equal is None else min(cons, via_equal)
+        eff_par = par if via_equal is None else min(par, via_equal)
+        out.append({"segment": seg, "net": net, "from": ta, "to": tb,
+                    "neck_width_mm": round(w_all, 3),
+                    "neck_location_xy_mm": [round(loc[0], 2), round(loc[1], 2)] if loc else None,
+                    "neck_layer": nl, "gap_at_neck_mm": round(gapd, 3) if gapd is not None else None,
+                    "classification": cls,
+                    "per_layer_independent_neck_mm": {l: (round(2 * r, 3) if r else None) for l, r in per_layer.items()},
+                    "conductor_I2t_conservative": cons, "conductor_I2t_parallel": par,
+                    "route_needs_via_hop": needs_hop,
+                    "via_field_count_within_6mm_of_SMD_terminal": n_via, "via_field_xy": via_xy, "barrel_area_mm2": a_b, "barrel_I2t_single_Ta105": via_single,
+                    "via_field_I2t_equal_sharing": via_equal,
+                    "I2t_conservative": eff_cons, "I2t_parallel": eff_par,
+                    "I2t_conservative_Ta25": onderdonk_i2t(a_cons, 25.0)})
+    return sha, out
 
 # ----------------------------------------------------------------------------- 5. verdict
 def verdict(f1_clear, br1, copper, label):
-    cu_min = min(c["fuse_I2t_conservative_Ta105"] for c in copper)
-    cu_min_par = min(c["fuse_I2t_parallel_Ta105"] for c in copper)
+    cu_min = min(c["I2t_conservative"] for c in copper)
+    cu_min_par = min(c["I2t_parallel"] for c in copper)
     c_br = f1_clear < 0.5 * br1
     c_cu = f1_clear < cu_min
     return {"label": label, "F1_clearing_I2t": f1_clear, "limit_0p5_BR1": 0.5 * br1,
@@ -229,10 +322,12 @@ def main():
     res = {"schematic": schematic_check(), "energy": bus_energy()}
     sims = {k: dict(simulate(rs, ls), note=n) for k, (rs, ls, n) in CASES.items()}
     res["follow_on_current"] = sims
-    sha, copper = copper_necks()
-    assert sha.startswith("b19a4553"), sha
-    res["board_sha256"] = sha
-    res["copper_segments"] = copper
+    res["boards"] = {}
+    for lab, (path, pre) in BOARDS.items():
+        sha, cu = copper_necks(lab, path, pre)
+        res["boards"][lab] = {"file": path, "board_sha256": sha, "segments": cu}
+    copper = res["boards"]["19b_record"]["segments"]
+    res["board_sha256"] = res["boards"]["19b_record"]["board_sha256"]
     f1m, f1c = KLDR["KLDR025"]
     res["F1"] = {"mpn": "KLDR025.TXP", "melt_I2t": f1m, "clearing_I2t": f1c, "BR1_I2t": BR1_I2T,
                  "BR1_half": 0.5 * BR1_I2T}
@@ -262,11 +357,14 @@ def main():
     for k, s in sims.items():
         m = s["melt_at"]
         print("  %-28s R=%6.1f mOhm  Ipk=%7.0f A  F1 melts at %6.1f us / %6.0f A" % (k, s["R_loop_mOhm"], s["I_pk_prospective_A"], m["t_us"], m["i_A"]))
-    worst = min(copper, key=lambda x: x["fuse_I2t_conservative_Ta105"])
-    print("narrowest copper: %s  neck %.2f mm  fusing I2t %.0f A2s (Ta=105C, thin-copper, best-route)" %
-          (worst["segment"], worst["neck_width_best_route_mm"], worst["fuse_I2t_conservative_Ta105"]))
+    for lab, bd in res["boards"].items():
+        print("--- copper necks, board %s (sha %s...)" % (lab, bd["board_sha256"][:8]))
+        for c in bd["segments"]:
+            print("  %-30s %5.2f mm @%-16s %-12s I2t cons %6.0f par %6.0f  %s" % (c["segment"], c["neck_width_mm"], c["neck_location_xy_mm"], c["neck_layer"], c["I2t_conservative"], c["I2t_parallel"], c["classification"].split(" (")[0]))
+        res["boards"][lab]["verdict_F1"] = verdict(f1c, BR1_I2T, bd["segments"], lab)
+        print("  F1 vs this board's copper: %s" % ("PASS" if res["boards"][lab]["verdict_F1"]["PASS"] else "FAIL"))
     v = res["verdict"]
-    print("F1 clearing I2t %.0f vs 0.5*BR1 %.0f (x%.2f) | min copper %.0f (x%.2f)" %
+    print("F1 clearing I2t %.0f vs 0.5*BR1 %.0f (x%.2f) | min copper %.0f (x%.2f) [19b record]" %
           (v["F1_clearing_I2t"], v["limit_0p5_BR1"], v["margin_BR1_ratio"], v["min_copper_I2t_conservative"], v["margin_copper_ratio"]))
     print("controls ok:", res["controls_ok"], "(oversized FAIL, small-fuse BR1 condition PASS)")
     print("RESULT: F1-ONLY CONTAINMENT %s  (BR1 condition %s, copper condition %s)" %
