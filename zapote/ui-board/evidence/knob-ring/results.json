@@ -1,0 +1,6746 @@
+{
+ "calibration": {
+  "A": {
+   "A_cold": {
+    "ideal/affine": {
+     "lin1000": {
+      "D": 5.68434e-14,
+      "R": 4.54747e-13,
+      "R_at_detent_centres": 5.68434e-14
+     },
+     "lin200": {
+      "D": 1.13687e-13,
+      "R": 3.97904e-13,
+      "R_at_detent_centres": 5.68434e-14
+     },
+     "lin2000": {
+      "D": 5.68434e-14,
+      "R": 4.54747e-13,
+      "R_at_detent_centres": 5.68434e-14
+     },
+     "lin500": {
+      "D": 5.68434e-14,
+      "R": 3.97904e-13,
+      "R_at_detent_centres": 5.68434e-14
+     },
+     "nl": {
+      "D": 5.44826e-05,
+      "R": 5.44826e-05,
+      "R_at_detent_centres": 5.68434e-14
+     },
+     "nl_h160_ccw": {
+      "D": 0.033541,
+      "R": 0.033541,
+      "R_at_detent_centres": 0.0335172
+     },
+     "nl_h160_cw": {
+      "D": 0.033541,
+      "R": 0.033541,
+      "R_at_detent_centres": 0.0335172
+     },
+     "nl_h400_ccw": {
+      "D": 0.0719322,
+      "R": 0.0719322,
+      "R_at_detent_centres": 0.0702208
+     },
+     "nl_h400_cw": {
+      "D": 0.0719322,
+      "R": 0.0719322,
+      "R_at_detent_centres": 0.0702208
+     },
+     "nl_hard": {
+      "D": 0.00018051,
+      "R": 0.00018051,
+      "R_at_detent_centres": 5.68434e-14
+     },
+     "nl_soft": {
+      "D": 2.21784e-05,
+      "R": 2.21784e-05,
+      "R_at_detent_centres": 5.68434e-14
+     },
+     "noring_R": 4.54747e-13
+    },
+    "ideal/harm4": {
+     "lin1000": {
+      "D": 1.13687e-13,
+      "R": 5.11591e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "lin200": {
+      "D": 1.13687e-13,
+      "R": 4.54747e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "lin2000": {
+      "D": 1.13687e-13,
+      "R": 5.11591e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "lin500": {
+      "D": 1.13687e-13,
+      "R": 4.54747e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "nl": {
+      "D": 5.44826e-05,
+      "R": 5.44826e-05,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "nl_h160_ccw": {
+      "D": 0.033541,
+      "R": 0.033541,
+      "R_at_detent_centres": 0.0335172
+     },
+     "nl_h160_cw": {
+      "D": 0.033541,
+      "R": 0.033541,
+      "R_at_detent_centres": 0.0335172
+     },
+     "nl_h400_ccw": {
+      "D": 0.0719322,
+      "R": 0.0719322,
+      "R_at_detent_centres": 0.0702208
+     },
+     "nl_h400_cw": {
+      "D": 0.0719322,
+      "R": 0.0719322,
+      "R_at_detent_centres": 0.0702208
+     },
+     "nl_hard": {
+      "D": 0.00018051,
+      "R": 0.00018051,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "nl_soft": {
+      "D": 2.21784e-05,
+      "R": 2.21784e-05,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "noring_R": 5.11591e-13
+    },
+    "ideal/harm4_24": {
+     "lin1000": {
+      "D": 1.13687e-13,
+      "R": 5.11591e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "lin200": {
+      "D": 1.13687e-13,
+      "R": 4.54747e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "lin2000": {
+      "D": 1.13687e-13,
+      "R": 5.11591e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "lin500": {
+      "D": 1.13687e-13,
+      "R": 4.54747e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "nl": {
+      "D": 5.44826e-05,
+      "R": 5.44826e-05,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "nl_h160_ccw": {
+      "D": 0.033541,
+      "R": 0.033541,
+      "R_at_detent_centres": 0.0335172
+     },
+     "nl_h160_cw": {
+      "D": 0.033541,
+      "R": 0.033541,
+      "R_at_detent_centres": 0.0335172
+     },
+     "nl_h400_ccw": {
+      "D": 0.0719322,
+      "R": 0.0719322,
+      "R_at_detent_centres": 0.0702208
+     },
+     "nl_h400_cw": {
+      "D": 0.0719322,
+      "R": 0.0719322,
+      "R_at_detent_centres": 0.0702208
+     },
+     "nl_hard": {
+      "D": 0.00018051,
+      "R": 0.00018051,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "nl_soft": {
+      "D": 2.21784e-05,
+      "R": 2.21784e-05,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "noring_R": 5.11591e-13
+    }
+   },
+   "A_gapm": {
+    "ideal/affine": {
+     "lin1000": {
+      "D": 5.68434e-14,
+      "R": 3.97904e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "lin200": {
+      "D": 1.13687e-13,
+      "R": 3.97904e-13,
+      "R_at_detent_centres": 5.68434e-14
+     },
+     "lin2000": {
+      "D": 5.68434e-14,
+      "R": 3.97904e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "lin500": {
+      "D": 5.68434e-14,
+      "R": 3.97904e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "nl": {
+      "D": 4.97055e-05,
+      "R": 4.97055e-05,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "noring_R": 4.54747e-13
+    },
+    "ideal/harm4": {
+     "lin1000": {
+      "D": 1.13687e-13,
+      "R": 4.54747e-13,
+      "R_at_detent_centres": 1.7053e-13
+     },
+     "lin200": {
+      "D": 1.13687e-13,
+      "R": 4.54747e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "lin2000": {
+      "D": 1.13687e-13,
+      "R": 4.54747e-13,
+      "R_at_detent_centres": 1.7053e-13
+     },
+     "lin500": {
+      "D": 1.13687e-13,
+      "R": 4.54747e-13,
+      "R_at_detent_centres": 1.7053e-13
+     },
+     "nl": {
+      "D": 4.97055e-05,
+      "R": 4.97055e-05,
+      "R_at_detent_centres": 1.7053e-13
+     },
+     "noring_R": 5.11591e-13
+    },
+    "ideal/harm4_24": {
+     "lin1000": {
+      "D": 1.13687e-13,
+      "R": 4.54747e-13,
+      "R_at_detent_centres": 1.7053e-13
+     },
+     "lin200": {
+      "D": 1.13687e-13,
+      "R": 4.54747e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "lin2000": {
+      "D": 1.13687e-13,
+      "R": 4.54747e-13,
+      "R_at_detent_centres": 1.7053e-13
+     },
+     "lin500": {
+      "D": 1.13687e-13,
+      "R": 4.54747e-13,
+      "R_at_detent_centres": 1.7053e-13
+     },
+     "nl": {
+      "D": 4.97055e-05,
+      "R": 4.97055e-05,
+      "R_at_detent_centres": 1.7053e-13
+     },
+     "noring_R": 4.54747e-13
+    }
+   },
+   "A_gapp": {
+    "ideal/affine": {
+     "lin1000": {
+      "D": 5.68434e-14,
+      "R": 3.41061e-13,
+      "R_at_detent_centres": 5.68434e-14
+     },
+     "lin200": {
+      "D": 1.13687e-13,
+      "R": 3.41061e-13,
+      "R_at_detent_centres": 5.68434e-14
+     },
+     "lin2000": {
+      "D": 1.13687e-13,
+      "R": 3.41061e-13,
+      "R_at_detent_centres": 5.68434e-14
+     },
+     "lin500": {
+      "D": 1.13687e-13,
+      "R": 3.41061e-13,
+      "R_at_detent_centres": 5.68434e-14
+     },
+     "nl": {
+      "D": 5.94153e-05,
+      "R": 5.94153e-05,
+      "R_at_detent_centres": 5.68434e-14
+     },
+     "noring_R": 3.41061e-13
+    },
+    "ideal/harm4": {
+     "lin1000": {
+      "D": 1.13687e-13,
+      "R": 4.54747e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "lin200": {
+      "D": 1.13687e-13,
+      "R": 3.97904e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "lin2000": {
+      "D": 1.13687e-13,
+      "R": 4.54747e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "lin500": {
+      "D": 1.13687e-13,
+      "R": 4.54747e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "nl": {
+      "D": 5.94153e-05,
+      "R": 5.94153e-05,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "noring_R": 4.54747e-13
+    },
+    "ideal/harm4_24": {
+     "lin1000": {
+      "D": 1.13687e-13,
+      "R": 4.54747e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "lin200": {
+      "D": 1.13687e-13,
+      "R": 4.54747e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "lin2000": {
+      "D": 1.13687e-13,
+      "R": 4.54747e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "lin500": {
+      "D": 1.13687e-13,
+      "R": 4.54747e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "nl": {
+      "D": 5.94153e-05,
+      "R": 5.94153e-05,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "noring_R": 4.54747e-13
+    }
+   },
+   "A_hot": {
+    "corrected/affine": {
+     "lin1000": {
+      "D": 5.68434e-14,
+      "R": 0.057,
+      "R_at_detent_centres": 0.057
+     },
+     "lin200": {
+      "D": 1.13687e-13,
+      "R": 0.057,
+      "R_at_detent_centres": 0.057
+     },
+     "lin2000": {
+      "D": 5.68434e-14,
+      "R": 0.057,
+      "R_at_detent_centres": 0.057
+     },
+     "lin500": {
+      "D": 5.68434e-14,
+      "R": 0.057,
+      "R_at_detent_centres": 0.057
+     },
+     "nl": {
+      "D": 2.43865e-05,
+      "R": 0.0570047,
+      "R_at_detent_centres": 0.057
+     },
+     "noring_R": 0.057
+    },
+    "corrected/harm4": {
+     "lin1000": {
+      "D": 1.13687e-13,
+      "R": 0.057,
+      "R_at_detent_centres": 0.057
+     },
+     "lin200": {
+      "D": 1.13687e-13,
+      "R": 0.057,
+      "R_at_detent_centres": 0.057
+     },
+     "lin2000": {
+      "D": 1.13687e-13,
+      "R": 0.057,
+      "R_at_detent_centres": 0.057
+     },
+     "lin500": {
+      "D": 1.13687e-13,
+      "R": 0.057,
+      "R_at_detent_centres": 0.057
+     },
+     "nl": {
+      "D": 2.43865e-05,
+      "R": 0.0570047,
+      "R_at_detent_centres": 0.057
+     },
+     "noring_R": 0.057
+    },
+    "corrected/harm4_24": {
+     "lin1000": {
+      "D": 1.13687e-13,
+      "R": 0.057,
+      "R_at_detent_centres": 0.057
+     },
+     "lin200": {
+      "D": 1.13687e-13,
+      "R": 0.057,
+      "R_at_detent_centres": 0.057
+     },
+     "lin2000": {
+      "D": 1.13687e-13,
+      "R": 0.057,
+      "R_at_detent_centres": 0.057
+     },
+     "lin500": {
+      "D": 1.13687e-13,
+      "R": 0.057,
+      "R_at_detent_centres": 0.057
+     },
+     "nl": {
+      "D": 2.43865e-05,
+      "R": 0.0570047,
+      "R_at_detent_centres": 0.057
+     },
+     "noring_R": 0.057
+    },
+    "ideal/affine": {
+     "lin1000": {
+      "D": 5.68434e-14,
+      "R": 4.54747e-13,
+      "R_at_detent_centres": 5.68434e-14
+     },
+     "lin200": {
+      "D": 1.13687e-13,
+      "R": 3.97904e-13,
+      "R_at_detent_centres": 5.68434e-14
+     },
+     "lin2000": {
+      "D": 5.68434e-14,
+      "R": 4.54747e-13,
+      "R_at_detent_centres": 5.68434e-14
+     },
+     "lin500": {
+      "D": 5.68434e-14,
+      "R": 3.97904e-13,
+      "R_at_detent_centres": 5.68434e-14
+     },
+     "nl": {
+      "D": 2.43387e-05,
+      "R": 2.43387e-05,
+      "R_at_detent_centres": 5.68434e-14
+     },
+     "noring_R": 4.54747e-13
+    },
+    "ideal/harm4": {
+     "lin1000": {
+      "D": 1.13687e-13,
+      "R": 5.11591e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "lin200": {
+      "D": 1.13687e-13,
+      "R": 4.54747e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "lin2000": {
+      "D": 1.13687e-13,
+      "R": 5.11591e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "lin500": {
+      "D": 1.13687e-13,
+      "R": 4.54747e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "nl": {
+      "D": 2.43387e-05,
+      "R": 2.43387e-05,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "noring_R": 5.11591e-13
+    },
+    "ideal/harm4_24": {
+     "lin1000": {
+      "D": 1.13687e-13,
+      "R": 5.11591e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "lin200": {
+      "D": 1.13687e-13,
+      "R": 4.54747e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "lin2000": {
+      "D": 1.13687e-13,
+      "R": 5.11591e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "lin500": {
+      "D": 1.13687e-13,
+      "R": 4.54747e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "nl": {
+      "D": 2.43387e-05,
+      "R": 2.43387e-05,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "noring_R": 5.11591e-13
+    },
+    "uncorrected/affine": {
+     "lin1000": {
+      "D": 5.68434e-14,
+      "R": 1.09098,
+      "R_at_detent_centres": 1.09078
+     },
+     "lin200": {
+      "D": 1.13687e-13,
+      "R": 1.09098,
+      "R_at_detent_centres": 1.09078
+     },
+     "lin2000": {
+      "D": 5.68434e-14,
+      "R": 1.09098,
+      "R_at_detent_centres": 1.09078
+     },
+     "lin500": {
+      "D": 5.68434e-14,
+      "R": 1.09098,
+      "R_at_detent_centres": 1.09078
+     },
+     "nl": {
+      "D": 2.52711e-05,
+      "R": 1.09099,
+      "R_at_detent_centres": 1.09078
+     },
+     "noring_R": 1.09098
+    },
+    "uncorrected/harm4": {
+     "lin1000": {
+      "D": 1.13687e-13,
+      "R": 1.09098,
+      "R_at_detent_centres": 1.09078
+     },
+     "lin200": {
+      "D": 1.13687e-13,
+      "R": 1.09098,
+      "R_at_detent_centres": 1.09078
+     },
+     "lin2000": {
+      "D": 1.13687e-13,
+      "R": 1.09098,
+      "R_at_detent_centres": 1.09078
+     },
+     "lin500": {
+      "D": 1.13687e-13,
+      "R": 1.09098,
+      "R_at_detent_centres": 1.09078
+     },
+     "nl": {
+      "D": 2.52711e-05,
+      "R": 1.09099,
+      "R_at_detent_centres": 1.09078
+     },
+     "noring_R": 1.09098
+    },
+    "uncorrected/harm4_24": {
+     "lin1000": {
+      "D": 1.13687e-13,
+      "R": 1.09098,
+      "R_at_detent_centres": 1.09078
+     },
+     "lin200": {
+      "D": 1.13687e-13,
+      "R": 1.09098,
+      "R_at_detent_centres": 1.09078
+     },
+     "lin2000": {
+      "D": 1.13687e-13,
+      "R": 1.09098,
+      "R_at_detent_centres": 1.09078
+     },
+     "lin500": {
+      "D": 1.13687e-13,
+      "R": 1.09098,
+      "R_at_detent_centres": 1.09078
+     },
+     "nl": {
+      "D": 2.52711e-05,
+      "R": 1.09099,
+      "R_at_detent_centres": 1.09078
+     },
+     "noring_R": 1.09098
+    }
+   },
+   "A_hotstrong": {
+    "corrected/affine": {
+     "lin1000": {
+      "D": 5.68434e-14,
+      "R": 0.057,
+      "R_at_detent_centres": 0.057
+     },
+     "lin200": {
+      "D": 1.13687e-13,
+      "R": 0.057,
+      "R_at_detent_centres": 0.057
+     },
+     "lin2000": {
+      "D": 5.68434e-14,
+      "R": 0.057,
+      "R_at_detent_centres": 0.057
+     },
+     "lin500": {
+      "D": 1.13687e-13,
+      "R": 0.057,
+      "R_at_detent_centres": 0.057
+     },
+     "nl": {
+      "D": 1.87192e-05,
+      "R": 0.0570042,
+      "R_at_detent_centres": 0.057
+     },
+     "noring_R": 0.057
+    },
+    "corrected/harm4": {
+     "lin1000": {
+      "D": 5.68434e-14,
+      "R": 0.057,
+      "R_at_detent_centres": 0.057
+     },
+     "lin200": {
+      "D": 1.13687e-13,
+      "R": 0.057,
+      "R_at_detent_centres": 0.057
+     },
+     "lin2000": {
+      "D": 5.68434e-14,
+      "R": 0.057,
+      "R_at_detent_centres": 0.057
+     },
+     "lin500": {
+      "D": 1.13687e-13,
+      "R": 0.057,
+      "R_at_detent_centres": 0.057
+     },
+     "nl": {
+      "D": 1.87192e-05,
+      "R": 0.0570042,
+      "R_at_detent_centres": 0.057
+     },
+     "noring_R": 0.057
+    },
+    "corrected/harm4_24": {
+     "lin1000": {
+      "D": 1.13687e-13,
+      "R": 0.057,
+      "R_at_detent_centres": 0.057
+     },
+     "lin200": {
+      "D": 1.13687e-13,
+      "R": 0.057,
+      "R_at_detent_centres": 0.057
+     },
+     "lin2000": {
+      "D": 1.13687e-13,
+      "R": 0.057,
+      "R_at_detent_centres": 0.057
+     },
+     "lin500": {
+      "D": 1.13687e-13,
+      "R": 0.057,
+      "R_at_detent_centres": 0.057
+     },
+     "nl": {
+      "D": 1.87192e-05,
+      "R": 0.0570042,
+      "R_at_detent_centres": 0.057
+     },
+     "noring_R": 0.057
+    },
+    "ideal/affine": {
+     "lin1000": {
+      "D": 5.68434e-14,
+      "R": 3.41061e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "lin200": {
+      "D": 1.13687e-13,
+      "R": 3.41061e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "lin2000": {
+      "D": 5.68434e-14,
+      "R": 3.41061e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "lin500": {
+      "D": 1.13687e-13,
+      "R": 3.41061e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "nl": {
+      "D": 1.86821e-05,
+      "R": 1.86821e-05,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "noring_R": 3.41061e-13
+    },
+    "ideal/harm4": {
+     "lin1000": {
+      "D": 1.13687e-13,
+      "R": 4.54747e-13,
+      "R_at_detent_centres": 2.27374e-13
+     },
+     "lin200": {
+      "D": 1.13687e-13,
+      "R": 3.97904e-13,
+      "R_at_detent_centres": 1.7053e-13
+     },
+     "lin2000": {
+      "D": 1.13687e-13,
+      "R": 4.54747e-13,
+      "R_at_detent_centres": 2.27374e-13
+     },
+     "lin500": {
+      "D": 1.13687e-13,
+      "R": 3.97904e-13,
+      "R_at_detent_centres": 1.7053e-13
+     },
+     "nl": {
+      "D": 1.86821e-05,
+      "R": 1.86821e-05,
+      "R_at_detent_centres": 2.27374e-13
+     },
+     "noring_R": 3.97904e-13
+    },
+    "ideal/harm4_24": {
+     "lin1000": {
+      "D": 1.13687e-13,
+      "R": 3.97904e-13,
+      "R_at_detent_centres": 2.27374e-13
+     },
+     "lin200": {
+      "D": 1.13687e-13,
+      "R": 3.41061e-13,
+      "R_at_detent_centres": 1.7053e-13
+     },
+     "lin2000": {
+      "D": 1.13687e-13,
+      "R": 3.97904e-13,
+      "R_at_detent_centres": 2.27374e-13
+     },
+     "lin500": {
+      "D": 1.13687e-13,
+      "R": 3.97904e-13,
+      "R_at_detent_centres": 1.7053e-13
+     },
+     "nl": {
+      "D": 1.86821e-05,
+      "R": 1.86821e-05,
+      "R_at_detent_centres": 2.27374e-13
+     },
+     "noring_R": 4.54747e-13
+    },
+    "uncorrected/affine": {
+     "lin1000": {
+      "D": 5.68434e-14,
+      "R": 1.09098,
+      "R_at_detent_centres": 1.09078
+     },
+     "lin200": {
+      "D": 1.13687e-13,
+      "R": 1.09098,
+      "R_at_detent_centres": 1.09078
+     },
+     "lin2000": {
+      "D": 5.68434e-14,
+      "R": 1.09098,
+      "R_at_detent_centres": 1.09078
+     },
+     "lin500": {
+      "D": 1.13687e-13,
+      "R": 1.09098,
+      "R_at_detent_centres": 1.09078
+     },
+     "nl": {
+      "D": 1.94038e-05,
+      "R": 1.09099,
+      "R_at_detent_centres": 1.09078
+     },
+     "noring_R": 1.09098
+    },
+    "uncorrected/harm4": {
+     "lin1000": {
+      "D": 1.13687e-13,
+      "R": 1.09098,
+      "R_at_detent_centres": 1.09078
+     },
+     "lin200": {
+      "D": 1.13687e-13,
+      "R": 1.09098,
+      "R_at_detent_centres": 1.09078
+     },
+     "lin2000": {
+      "D": 1.13687e-13,
+      "R": 1.09098,
+      "R_at_detent_centres": 1.09078
+     },
+     "lin500": {
+      "D": 1.13687e-13,
+      "R": 1.09098,
+      "R_at_detent_centres": 1.09078
+     },
+     "nl": {
+      "D": 1.94038e-05,
+      "R": 1.09099,
+      "R_at_detent_centres": 1.09078
+     },
+     "noring_R": 1.09098
+    },
+    "uncorrected/harm4_24": {
+     "lin1000": {
+      "D": 1.13687e-13,
+      "R": 1.09098,
+      "R_at_detent_centres": 1.09078
+     },
+     "lin200": {
+      "D": 1.13687e-13,
+      "R": 1.09098,
+      "R_at_detent_centres": 1.09078
+     },
+     "lin2000": {
+      "D": 1.13687e-13,
+      "R": 1.09098,
+      "R_at_detent_centres": 1.09078
+     },
+     "lin500": {
+      "D": 1.13687e-13,
+      "R": 1.09098,
+      "R_at_detent_centres": 1.09078
+     },
+     "nl": {
+      "D": 1.94038e-05,
+      "R": 1.09099,
+      "R_at_detent_centres": 1.09078
+     },
+     "noring_R": 1.09098
+    }
+   },
+   "A_push": {
+    "ideal/affine": {
+     "lin1000": {
+      "D": 5.68434e-14,
+      "R": 4.83169e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "lin200": {
+      "D": 1.13687e-13,
+      "R": 4.54747e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "lin2000": {
+      "D": 5.68434e-14,
+      "R": 4.83169e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "lin500": {
+      "D": 1.13687e-13,
+      "R": 4.83169e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "nl": {
+      "D": 4.28027e-05,
+      "R": 4.28027e-05,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "noring_R": 5.11591e-13
+    },
+    "ideal/harm4": {
+     "lin1000": {
+      "D": 1.13687e-13,
+      "R": 5.68434e-13,
+      "R_at_detent_centres": 2.27374e-13
+     },
+     "lin200": {
+      "D": 1.13687e-13,
+      "R": 5.68434e-13,
+      "R_at_detent_centres": 2.27374e-13
+     },
+     "lin2000": {
+      "D": 1.13687e-13,
+      "R": 5.68434e-13,
+      "R_at_detent_centres": 2.27374e-13
+     },
+     "lin500": {
+      "D": 1.13687e-13,
+      "R": 5.68434e-13,
+      "R_at_detent_centres": 2.27374e-13
+     },
+     "nl": {
+      "D": 4.28027e-05,
+      "R": 4.28027e-05,
+      "R_at_detent_centres": 2.27374e-13
+     },
+     "noring_R": 5.68434e-13
+    },
+    "ideal/harm4_24": {
+     "lin1000": {
+      "D": 1.13687e-13,
+      "R": 5.68434e-13,
+      "R_at_detent_centres": 2.27374e-13
+     },
+     "lin200": {
+      "D": 1.13687e-13,
+      "R": 5.68434e-13,
+      "R_at_detent_centres": 2.27374e-13
+     },
+     "lin2000": {
+      "D": 1.13687e-13,
+      "R": 5.68434e-13,
+      "R_at_detent_centres": 2.27374e-13
+     },
+     "lin500": {
+      "D": 1.13687e-13,
+      "R": 5.68434e-13,
+      "R_at_detent_centres": 2.27374e-13
+     },
+     "nl": {
+      "D": 4.28027e-05,
+      "R": 4.28027e-05,
+      "R_at_detent_centres": 2.27374e-13
+     },
+     "noring_R": 5.68434e-13
+    }
+   },
+   "A_strong": {
+    "ideal/affine": {
+     "lin1000": {
+      "D": 5.68434e-14,
+      "R": 3.41061e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "lin200": {
+      "D": 1.13687e-13,
+      "R": 2.84217e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "lin2000": {
+      "D": 5.68434e-14,
+      "R": 3.41061e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "lin500": {
+      "D": 5.68434e-14,
+      "R": 3.41061e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "nl": {
+      "D": 3.8323e-05,
+      "R": 3.8323e-05,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "nl_hard": {
+      "D": 0.000137616,
+      "R": 0.000137616,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "nl_soft": {
+      "D": 4.15991e-05,
+      "R": 4.15991e-05,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "noring_R": 3.41061e-13
+    },
+    "ideal/harm4": {
+     "lin1000": {
+      "D": 1.13687e-13,
+      "R": 4.54747e-13,
+      "R_at_detent_centres": 2.27374e-13
+     },
+     "lin200": {
+      "D": 1.13687e-13,
+      "R": 3.97904e-13,
+      "R_at_detent_centres": 1.7053e-13
+     },
+     "lin2000": {
+      "D": 1.13687e-13,
+      "R": 4.54747e-13,
+      "R_at_detent_centres": 2.27374e-13
+     },
+     "lin500": {
+      "D": 1.13687e-13,
+      "R": 3.97904e-13,
+      "R_at_detent_centres": 1.7053e-13
+     },
+     "nl": {
+      "D": 3.8323e-05,
+      "R": 3.8323e-05,
+      "R_at_detent_centres": 2.27374e-13
+     },
+     "nl_hard": {
+      "D": 0.000137616,
+      "R": 0.000137616,
+      "R_at_detent_centres": 2.27374e-13
+     },
+     "nl_soft": {
+      "D": 4.15991e-05,
+      "R": 4.15991e-05,
+      "R_at_detent_centres": 1.7053e-13
+     },
+     "noring_R": 3.97904e-13
+    },
+    "ideal/harm4_24": {
+     "lin1000": {
+      "D": 1.13687e-13,
+      "R": 3.97904e-13,
+      "R_at_detent_centres": 2.27374e-13
+     },
+     "lin200": {
+      "D": 1.13687e-13,
+      "R": 3.41061e-13,
+      "R_at_detent_centres": 1.7053e-13
+     },
+     "lin2000": {
+      "D": 1.13687e-13,
+      "R": 3.97904e-13,
+      "R_at_detent_centres": 2.27374e-13
+     },
+     "lin500": {
+      "D": 1.13687e-13,
+      "R": 3.97904e-13,
+      "R_at_detent_centres": 1.7053e-13
+     },
+     "nl": {
+      "D": 3.8323e-05,
+      "R": 3.8323e-05,
+      "R_at_detent_centres": 2.27374e-13
+     },
+     "nl_hard": {
+      "D": 0.000137616,
+      "R": 0.000137616,
+      "R_at_detent_centres": 2.27374e-13
+     },
+     "nl_soft": {
+      "D": 4.15991e-05,
+      "R": 4.15991e-05,
+      "R_at_detent_centres": 1.7053e-13
+     },
+     "noring_R": 4.54747e-13
+    }
+   },
+   "A_weakhot": {
+    "corrected/affine": {
+     "lin1000": {
+      "D": 5.68434e-14,
+      "R": 0.057,
+      "R_at_detent_centres": 0.057
+     },
+     "lin200": {
+      "D": 1.13687e-13,
+      "R": 0.057,
+      "R_at_detent_centres": 0.057
+     },
+     "lin2000": {
+      "D": 1.13687e-13,
+      "R": 0.057,
+      "R_at_detent_centres": 0.057
+     },
+     "lin500": {
+      "D": 5.68434e-14,
+      "R": 0.057,
+      "R_at_detent_centres": 0.057
+     },
+     "nl": {
+      "D": 2.91044e-05,
+      "R": 0.0570051,
+      "R_at_detent_centres": 0.057
+     },
+     "nl_hard": {
+      "D": 0.000150578,
+      "R": 0.0570231,
+      "R_at_detent_centres": 0.057
+     },
+     "nl_soft": {
+      "D": 1.27373e-05,
+      "R": 0.0570005,
+      "R_at_detent_centres": 0.057
+     },
+     "noring_R": 0.057
+    },
+    "corrected/harm4": {
+     "lin1000": {
+      "D": 1.13687e-13,
+      "R": 0.057,
+      "R_at_detent_centres": 0.057
+     },
+     "lin200": {
+      "D": 1.13687e-13,
+      "R": 0.057,
+      "R_at_detent_centres": 0.057
+     },
+     "lin2000": {
+      "D": 1.13687e-13,
+      "R": 0.057,
+      "R_at_detent_centres": 0.057
+     },
+     "lin500": {
+      "D": 1.13687e-13,
+      "R": 0.057,
+      "R_at_detent_centres": 0.057
+     },
+     "nl": {
+      "D": 2.91044e-05,
+      "R": 0.0570051,
+      "R_at_detent_centres": 0.057
+     },
+     "nl_hard": {
+      "D": 0.000150578,
+      "R": 0.0570231,
+      "R_at_detent_centres": 0.057
+     },
+     "nl_soft": {
+      "D": 1.27373e-05,
+      "R": 0.0570005,
+      "R_at_detent_centres": 0.057
+     },
+     "noring_R": 0.057
+    },
+    "corrected/harm4_24": {
+     "lin1000": {
+      "D": 1.13687e-13,
+      "R": 0.057,
+      "R_at_detent_centres": 0.057
+     },
+     "lin200": {
+      "D": 1.13687e-13,
+      "R": 0.057,
+      "R_at_detent_centres": 0.057
+     },
+     "lin2000": {
+      "D": 1.13687e-13,
+      "R": 0.057,
+      "R_at_detent_centres": 0.057
+     },
+     "lin500": {
+      "D": 1.13687e-13,
+      "R": 0.057,
+      "R_at_detent_centres": 0.057
+     },
+     "nl": {
+      "D": 2.91044e-05,
+      "R": 0.0570051,
+      "R_at_detent_centres": 0.057
+     },
+     "nl_hard": {
+      "D": 0.000150578,
+      "R": 0.0570231,
+      "R_at_detent_centres": 0.057
+     },
+     "nl_soft": {
+      "D": 1.27373e-05,
+      "R": 0.0570005,
+      "R_at_detent_centres": 0.057
+     },
+     "noring_R": 0.057
+    },
+    "ideal/affine": {
+     "lin1000": {
+      "D": 5.68434e-14,
+      "R": 3.41061e-13,
+      "R_at_detent_centres": 5.68434e-14
+     },
+     "lin200": {
+      "D": 1.13687e-13,
+      "R": 3.41061e-13,
+      "R_at_detent_centres": 5.68434e-14
+     },
+     "lin2000": {
+      "D": 1.13687e-13,
+      "R": 3.41061e-13,
+      "R_at_detent_centres": 5.68434e-14
+     },
+     "lin500": {
+      "D": 5.68434e-14,
+      "R": 3.41061e-13,
+      "R_at_detent_centres": 5.68434e-14
+     },
+     "nl": {
+      "D": 2.90473e-05,
+      "R": 2.90473e-05,
+      "R_at_detent_centres": 5.68434e-14
+     },
+     "nl_hard": {
+      "D": 0.000150282,
+      "R": 0.000150282,
+      "R_at_detent_centres": 5.68434e-14
+     },
+     "nl_soft": {
+      "D": 1.2712e-05,
+      "R": 1.2712e-05,
+      "R_at_detent_centres": 5.68434e-14
+     },
+     "noring_R": 3.41061e-13
+    },
+    "ideal/harm4": {
+     "lin1000": {
+      "D": 1.13687e-13,
+      "R": 4.54747e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "lin200": {
+      "D": 1.13687e-13,
+      "R": 3.97904e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "lin2000": {
+      "D": 1.13687e-13,
+      "R": 4.54747e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "lin500": {
+      "D": 1.13687e-13,
+      "R": 4.54747e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "nl": {
+      "D": 2.90473e-05,
+      "R": 2.90473e-05,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "nl_hard": {
+      "D": 0.000150282,
+      "R": 0.000150282,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "nl_soft": {
+      "D": 1.2712e-05,
+      "R": 1.2712e-05,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "noring_R": 4.54747e-13
+    },
+    "ideal/harm4_24": {
+     "lin1000": {
+      "D": 1.13687e-13,
+      "R": 4.54747e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "lin200": {
+      "D": 1.13687e-13,
+      "R": 4.54747e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "lin2000": {
+      "D": 1.13687e-13,
+      "R": 4.54747e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "lin500": {
+      "D": 1.13687e-13,
+      "R": 4.54747e-13,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "nl": {
+      "D": 2.90473e-05,
+      "R": 2.90473e-05,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "nl_hard": {
+      "D": 0.000150282,
+      "R": 0.000150282,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "nl_soft": {
+      "D": 1.2712e-05,
+      "R": 1.2712e-05,
+      "R_at_detent_centres": 1.13687e-13
+     },
+     "noring_R": 4.54747e-13
+    },
+    "uncorrected/affine": {
+     "lin1000": {
+      "D": 5.68434e-14,
+      "R": 1.09098,
+      "R_at_detent_centres": 1.09078
+     },
+     "lin200": {
+      "D": 1.13687e-13,
+      "R": 1.09098,
+      "R_at_detent_centres": 1.09078
+     },
+     "lin2000": {
+      "D": 1.13687e-13,
+      "R": 1.09098,
+      "R_at_detent_centres": 1.09078
+     },
+     "lin500": {
+      "D": 5.68434e-14,
+      "R": 1.09098,
+      "R_at_detent_centres": 1.09078
+     },
+     "nl": {
+      "D": 3.01602e-05,
+      "R": 1.09099,
+      "R_at_detent_centres": 1.09078
+     },
+     "nl_hard": {
+      "D": 0.00015604,
+      "R": 1.09101,
+      "R_at_detent_centres": 1.09078
+     },
+     "nl_soft": {
+      "D": 1.32045e-05,
+      "R": 1.09098,
+      "R_at_detent_centres": 1.09078
+     },
+     "noring_R": 1.09098
+    },
+    "uncorrected/harm4": {
+     "lin1000": {
+      "D": 1.13687e-13,
+      "R": 1.09098,
+      "R_at_detent_centres": 1.09078
+     },
+     "lin200": {
+      "D": 1.13687e-13,
+      "R": 1.09098,
+      "R_at_detent_centres": 1.09078
+     },
+     "lin2000": {
+      "D": 1.13687e-13,
+      "R": 1.09098,
+      "R_at_detent_centres": 1.09078
+     },
+     "lin500": {
+      "D": 1.13687e-13,
+      "R": 1.09098,
+      "R_at_detent_centres": 1.09078
+     },
+     "nl": {
+      "D": 3.01602e-05,
+      "R": 1.09099,
+      "R_at_detent_centres": 1.09078
+     },
+     "nl_hard": {
+      "D": 0.00015604,
+      "R": 1.09101,
+      "R_at_detent_centres": 1.09078
+     },
+     "nl_soft": {
+      "D": 1.32045e-05,
+      "R": 1.09098,
+      "R_at_detent_centres": 1.09078
+     },
+     "noring_R": 1.09098
+    },
+    "uncorrected/harm4_24": {
+     "lin1000": {
+      "D": 1.13687e-13,
+      "R": 1.09098,
+      "R_at_detent_centres": 1.09078
+     },
+     "lin200": {
+      "D": 1.13687e-13,
+      "R": 1.09098,
+      "R_at_detent_centres": 1.09078
+     },
+     "lin2000": {
+      "D": 1.13687e-13,
+      "R": 1.09098,
+      "R_at_detent_centres": 1.09078
+     },
+     "lin500": {
+      "D": 1.13687e-13,
+      "R": 1.09098,
+      "R_at_detent_centres": 1.09078
+     },
+     "nl": {
+      "D": 3.01602e-05,
+      "R": 1.09099,
+      "R_at_detent_centres": 1.09078
+     },
+     "nl_hard": {
+      "D": 0.00015604,
+      "R": 1.09101,
+      "R_at_detent_centres": 1.09078
+     },
+     "nl_soft": {
+      "D": 1.32045e-05,
+      "R": 1.09098,
+      "R_at_detent_centres": 1.09078
+     },
+     "noring_R": 1.09098
+    }
+   }
+  },
+  "B": {
+   "B_cold": {
+    "ideal/affine": {
+     "lin1000": {
+      "D": 0.000200745,
+      "R": 0.000200745,
+      "R_at_detent_centres": 0.000191411
+     },
+     "lin200": {
+      "D": 0.00598208,
+      "R": 0.00598208,
+      "R_at_detent_centres": 0.00586204
+     },
+     "lin2000": {
+      "D": 0.00156928,
+      "R": 0.00156928,
+      "R_at_detent_centres": 0.00156928
+     },
+     "lin500": {
+      "D": 0.00282095,
+      "R": 0.00282095,
+      "R_at_detent_centres": 0.00255414
+     },
+     "nl": {
+      "D": 0.0013691,
+      "R": 0.0013691,
+      "R_at_detent_centres": 0.00136564
+     },
+     "nl_hard": {
+      "D": 0.000584432,
+      "R": 0.000584432,
+      "R_at_detent_centres": 5.20035e-05
+     },
+     "nl_soft": {
+      "D": 0.00178633,
+      "R": 0.00178633,
+      "R_at_detent_centres": 0.00178633
+     },
+     "noring_R": 9.09495e-13
+    },
+    "ideal/harm4": {
+     "lin1000": {
+      "D": 0.000204923,
+      "R": 0.000204923,
+      "R_at_detent_centres": 0.000191679
+     },
+     "lin200": {
+      "D": 0.00602816,
+      "R": 0.00602816,
+      "R_at_detent_centres": 0.00590796
+     },
+     "lin2000": {
+      "D": 0.00158042,
+      "R": 0.00158042,
+      "R_at_detent_centres": 0.00158042
+     },
+     "lin500": {
+      "D": 0.00284185,
+      "R": 0.00284185,
+      "R_at_detent_centres": 0.00257492
+     },
+     "nl": {
+      "D": 0.00137809,
+      "R": 0.00137809,
+      "R_at_detent_centres": 0.00137465
+     },
+     "nl_hard": {
+      "D": 0.000590741,
+      "R": 0.00059074,
+      "R_at_detent_centres": 5.33717e-05
+     },
+     "nl_soft": {
+      "D": 0.00179896,
+      "R": 0.00179896,
+      "R_at_detent_centres": 0.00179896
+     },
+     "noring_R": 2.2942e-10
+    },
+    "ideal/harm4_24": {
+     "lin1000": {
+      "D": 0.000241884,
+      "R": 0.000241884,
+      "R_at_detent_centres": 0.000241066
+     },
+     "lin200": {
+      "D": 0.00606955,
+      "R": 0.00606955,
+      "R_at_detent_centres": 0.0059643
+     },
+     "lin2000": {
+      "D": 0.00162268,
+      "R": 0.00162268,
+      "R_at_detent_centres": 0.00162196
+     },
+     "lin500": {
+      "D": 0.00288197,
+      "R": 0.00288197,
+      "R_at_detent_centres": 0.00263122
+     },
+     "nl": {
+      "D": 0.00141748,
+      "R": 0.00141748,
+      "R_at_detent_centres": 0.00141748
+     },
+     "nl_hard": {
+      "D": 0.000621758,
+      "R": 0.000621758,
+      "R_at_detent_centres": 0.000108603
+     },
+     "nl_soft": {
+      "D": 0.00183847,
+      "R": 0.00183847,
+      "R_at_detent_centres": 0.00183847
+     },
+     "noring_R": 2.34536e-10
+    }
+   },
+   "B_gapm": {
+    "ideal/affine": {
+     "lin1000": {
+      "D": 0.000989359,
+      "R": 0.00194,
+      "R_at_detent_centres": 0.00193545
+     },
+     "lin200": {
+      "D": 0.00534692,
+      "R": 0.00581675,
+      "R_at_detent_centres": 0.00555817
+     },
+     "lin2000": {
+      "D": 0.00239199,
+      "R": 0.00329701,
+      "R_at_detent_centres": 0.00329558
+     },
+     "lin500": {
+      "D": 0.00213672,
+      "R": 0.00263884,
+      "R_at_detent_centres": 0.0023269
+     },
+     "noring_R": 0.000994809
+    },
+    "ideal/harm4": {
+     "lin1000": {
+      "D": 0.000424586,
+      "R": 0.00115913,
+      "R_at_detent_centres": 0.00115352
+     },
+     "lin200": {
+      "D": 0.00594823,
+      "R": 0.00665323,
+      "R_at_detent_centres": 0.00639028
+     },
+     "lin2000": {
+      "D": 0.00183697,
+      "R": 0.00252521,
+      "R_at_detent_centres": 0.00252327
+     },
+     "lin500": {
+      "D": 0.00271543,
+      "R": 0.00345266,
+      "R_at_detent_centres": 0.0031307
+     },
+     "noring_R": 0.000870426
+    },
+    "ideal/harm4_24": {
+     "lin1000": {
+      "D": 0.000471534,
+      "R": 0.00113941,
+      "R_at_detent_centres": 0.0010977
+     },
+     "lin200": {
+      "D": 0.00598898,
+      "R": 0.00665932,
+      "R_at_detent_centres": 0.00633049
+     },
+     "lin2000": {
+      "D": 0.00187546,
+      "R": 0.00249093,
+      "R_at_detent_centres": 0.00246747
+     },
+     "lin500": {
+      "D": 0.00275523,
+      "R": 0.00344211,
+      "R_at_detent_centres": 0.00307214
+     },
+     "noring_R": 0.000870426
+    }
+   },
+   "B_gapp": {
+    "ideal/affine": {
+     "lin1000": {
+      "D": 0.000931038,
+      "R": 0.00184438,
+      "R_at_detent_centres": 0.00154668
+     },
+     "lin200": {
+      "D": 0.0066368,
+      "R": 0.00753624,
+      "R_at_detent_centres": 0.00733956
+     },
+     "lin2000": {
+      "D": 0.000749837,
+      "R": 0.00123928,
+      "R_at_detent_centres": 0.00123477
+     },
+     "lin500": {
+      "D": 0.00351927,
+      "R": 0.00441983,
+      "R_at_detent_centres": 0.00416199
+     },
+     "noring_R": 0.00098009
+    },
+    "ideal/harm4": {
+     "lin1000": {
+      "D": 0.000347101,
+      "R": 0.00104928,
+      "R_at_detent_centres": 0.000806734
+     },
+     "lin200": {
+      "D": 0.0060991,
+      "R": 0.0067573,
+      "R_at_detent_centres": 0.00656494
+     },
+     "lin2000": {
+      "D": 0.00135587,
+      "R": 0.0020682,
+      "R_at_detent_centres": 0.00206474
+     },
+     "lin500": {
+      "D": 0.00295387,
+      "R": 0.00361275,
+      "R_at_detent_centres": 0.00336415
+     },
+     "noring_R": 0.000826938
+    },
+    "ideal/harm4_24": {
+     "lin1000": {
+      "D": 0.000382445,
+      "R": 0.00108544,
+      "R_at_detent_centres": 0.000863361
+     },
+     "lin200": {
+      "D": 0.00614093,
+      "R": 0.00679472,
+      "R_at_detent_centres": 0.0066213
+     },
+     "lin2000": {
+      "D": 0.00140189,
+      "R": 0.00212336,
+      "R_at_detent_centres": 0.00212336
+     },
+     "lin500": {
+      "D": 0.00299457,
+      "R": 0.00364954,
+      "R_at_detent_centres": 0.00342003
+     },
+     "noring_R": 0.000826938
+    }
+   },
+   "B_hot": {
+    "corrected/affine": {
+     "lin1000": {
+      "D": 0.000793515,
+      "R": 0.0575201,
+      "R_at_detent_centres": 0.0574998
+     },
+     "lin200": {
+      "D": 0.0065615,
+      "R": 0.0620044,
+      "R_at_detent_centres": 0.0618532
+     },
+     "lin2000": {
+      "D": 0.000966829,
+      "R": 0.057606,
+      "R_at_detent_centres": 0.0576008
+     },
+     "lin500": {
+      "D": 0.00340786,
+      "R": 0.0595441,
+      "R_at_detent_centres": 0.0594741
+     },
+     "noring_R": 0.0572093
+    },
+    "corrected/harm4": {
+     "lin1000": {
+      "D": 0.000224214,
+      "R": 0.0571526,
+      "R_at_detent_centres": 0.0571433
+     },
+     "lin200": {
+      "D": 0.0060364,
+      "R": 0.0613831,
+      "R_at_detent_centres": 0.061247
+     },
+     "lin2000": {
+      "D": 0.00155695,
+      "R": 0.0581275,
+      "R_at_detent_centres": 0.0581251
+     },
+     "lin500": {
+      "D": 0.00285618,
+      "R": 0.0589058,
+      "R_at_detent_centres": 0.0588476
+     },
+     "noring_R": 0.057024
+    },
+    "corrected/harm4_24": {
+     "lin1000": {
+      "D": 0.000256661,
+      "R": 0.0571653,
+      "R_at_detent_centres": 0.0571618
+     },
+     "lin200": {
+      "D": 0.00607782,
+      "R": 0.0614115,
+      "R_at_detent_centres": 0.061303
+     },
+     "lin2000": {
+      "D": 0.00159935,
+      "R": 0.0581215,
+      "R_at_detent_centres": 0.0581215
+     },
+     "lin500": {
+      "D": 0.00289647,
+      "R": 0.0589509,
+      "R_at_detent_centres": 0.0589036
+     },
+     "noring_R": 0.057024
+    },
+    "ideal/affine": {
+     "lin1000": {
+      "D": 0.000784441,
+      "R": 0.00102624,
+      "R_at_detent_centres": 0.000637121
+     },
+     "lin200": {
+      "D": 0.00656347,
+      "R": 0.00680517,
+      "R_at_detent_centres": 0.00668039
+     },
+     "lin2000": {
+      "D": 0.000979566,
+      "R": 0.000747626,
+      "R_at_detent_centres": 0.000747626
+     },
+     "lin500": {
+      "D": 0.00340374,
+      "R": 0.00364543,
+      "R_at_detent_centres": 0.00337395
+     },
+     "noring_R": 0.000248761
+    },
+    "ideal/harm4": {
+     "lin1000": {
+      "D": 0.000204923,
+      "R": 0.000204923,
+      "R_at_detent_centres": 0.000191679
+     },
+     "lin200": {
+      "D": 0.00602816,
+      "R": 0.00602816,
+      "R_at_detent_centres": 0.00590796
+     },
+     "lin2000": {
+      "D": 0.00158042,
+      "R": 0.00158042,
+      "R_at_detent_centres": 0.00158042
+     },
+     "lin500": {
+      "D": 0.00284185,
+      "R": 0.00284185,
+      "R_at_detent_centres": 0.00257492
+     },
+     "noring_R": 2.2942e-10
+    },
+    "ideal/harm4_24": {
+     "lin1000": {
+      "D": 0.000241884,
+      "R": 0.000241884,
+      "R_at_detent_centres": 0.000241066
+     },
+     "lin200": {
+      "D": 0.00606955,
+      "R": 0.00606955,
+      "R_at_detent_centres": 0.0059643
+     },
+     "lin2000": {
+      "D": 0.00162268,
+      "R": 0.00162268,
+      "R_at_detent_centres": 0.00162196
+     },
+     "lin500": {
+      "D": 0.00288197,
+      "R": 0.00288197,
+      "R_at_detent_centres": 0.00263122
+     },
+     "noring_R": 2.34593e-10
+    },
+    "uncorrected/affine": {
+     "lin1000": {
+      "D": 0.00095522,
+      "R": 1.09195,
+      "R_at_detent_centres": 1.09177
+     },
+     "lin200": {
+      "D": 0.00652629,
+      "R": 1.09615,
+      "R_at_detent_centres": 1.09602
+     },
+     "lin2000": {
+      "D": 0.000740099,
+      "R": 1.09174,
+      "R_at_detent_centres": 1.09152
+     },
+     "lin500": {
+      "D": 0.0034813,
+      "R": 1.09386,
+      "R_at_detent_centres": 1.0937
+     },
+     "noring_R": 1.09154
+    },
+    "uncorrected/harm4": {
+     "lin1000": {
+      "D": 0.000568294,
+      "R": 1.09142,
+      "R_at_detent_centres": 1.09124
+     },
+     "lin200": {
+      "D": 0.00618313,
+      "R": 1.09565,
+      "R_at_detent_centres": 1.09552
+     },
+     "lin2000": {
+      "D": 0.00113915,
+      "R": 1.09227,
+      "R_at_detent_centres": 1.09206
+     },
+     "lin500": {
+      "D": 0.00311197,
+      "R": 1.09334,
+      "R_at_detent_centres": 1.09318
+     },
+     "noring_R": 1.09144
+    },
+    "uncorrected/harm4_24": {
+     "lin1000": {
+      "D": 0.000602082,
+      "R": 1.09138,
+      "R_at_detent_centres": 1.09121
+     },
+     "lin200": {
+      "D": 0.00622501,
+      "R": 1.09561,
+      "R_at_detent_centres": 1.09549
+     },
+     "lin2000": {
+      "D": 0.00118406,
+      "R": 1.09223,
+      "R_at_detent_centres": 1.09203
+     },
+     "lin500": {
+      "D": 0.00315384,
+      "R": 1.0933,
+      "R_at_detent_centres": 1.09315
+     },
+     "noring_R": 1.09144
+    }
+   },
+   "B_hotstrong": {
+    "corrected/affine": {
+     "lin1000": {
+      "D": 0.00252612,
+      "R": 0.0577725,
+      "R_at_detent_centres": 0.0577684
+     },
+     "lin200": {
+      "D": 0.00430467,
+      "R": 0.0583342,
+      "R_at_detent_centres": 0.0579693
+     },
+     "lin2000": {
+      "D": 0.00400192,
+      "R": 0.058825,
+      "R_at_detent_centres": 0.0588126
+     },
+     "lin500": {
+      "D": 0.000949154,
+      "R": 0.0556749,
+      "R_at_detent_centres": 0.0556681
+     },
+     "nl": {
+      "D": 0.00406128,
+      "R": 0.0588934,
+      "R_at_detent_centres": 0.0588807
+     },
+     "noring_R": 0.0560291
+    },
+    "corrected/harm4": {
+     "lin1000": {
+      "D": 0.00114193,
+      "R": 0.0565619,
+      "R_at_detent_centres": 0.0565619
+     },
+     "lin200": {
+      "D": 0.00570922,
+      "R": 0.0596338,
+      "R_at_detent_centres": 0.0591915
+     },
+     "lin2000": {
+      "D": 0.00262555,
+      "R": 0.057614,
+      "R_at_detent_centres": 0.0576111
+     },
+     "lin500": {
+      "D": 0.002336,
+      "R": 0.0569567,
+      "R_at_detent_centres": 0.0566512
+     },
+     "nl": {
+      "D": 0.00268464,
+      "R": 0.0576823,
+      "R_at_detent_centres": 0.0576793
+     },
+     "noring_R": 0.0557867
+    },
+    "corrected/harm4_24": {
+     "lin1000": {
+      "D": 0.00118095,
+      "R": 0.0565094,
+      "R_at_detent_centres": 0.0565073
+     },
+     "lin200": {
+      "D": 0.00574816,
+      "R": 0.0596814,
+      "R_at_detent_centres": 0.0592408
+     },
+     "lin2000": {
+      "D": 0.00265488,
+      "R": 0.057567,
+      "R_at_detent_centres": 0.0575565
+     },
+     "lin500": {
+      "D": 0.002375,
+      "R": 0.0570029,
+      "R_at_detent_centres": 0.056651
+     },
+     "nl": {
+      "D": 0.00271383,
+      "R": 0.0576354,
+      "R_at_detent_centres": 0.0576246
+     },
+     "noring_R": 0.0557867
+    },
+    "ideal/affine": {
+     "lin1000": {
+      "D": 0.00254,
+      "R": 0.00578272,
+      "R_at_detent_centres": 0.00577505
+     },
+     "lin200": {
+      "D": 0.0043042,
+      "R": 0.0066179,
+      "R_at_detent_centres": 0.00641491
+     },
+     "lin2000": {
+      "D": 0.00401874,
+      "R": 0.00721151,
+      "R_at_detent_centres": 0.00720825
+     },
+     "lin500": {
+      "D": 0.000942234,
+      "R": 0.00351719,
+      "R_at_detent_centres": 0.00297784
+     },
+     "nl": {
+      "D": 0.00407822,
+      "R": 0.00725147,
+      "R_at_detent_centres": 0.00725147
+     },
+     "noring_R": 0.00335193
+    },
+    "ideal/harm4": {
+     "lin1000": {
+      "D": 0.00116457,
+      "R": 0.00388293,
+      "R_at_detent_centres": 0.0038724
+     },
+     "lin200": {
+      "D": 0.00570037,
+      "R": 0.00857761,
+      "R_at_detent_centres": 0.00835383
+     },
+     "lin2000": {
+      "D": 0.00265115,
+      "R": 0.00531874,
+      "R_at_detent_centres": 0.00531332
+     },
+     "lin500": {
+      "D": 0.00232067,
+      "R": 0.00537458,
+      "R_at_detent_centres": 0.00489852
+     },
+     "nl": {
+      "D": 0.00271036,
+      "R": 0.00535724,
+      "R_at_detent_centres": 0.0053562
+     },
+     "noring_R": 0.00323262
+    },
+    "ideal/harm4_24": {
+     "lin1000": {
+      "D": 0.00120345,
+      "R": 0.00385735,
+      "R_at_detent_centres": 0.00381661
+     },
+     "lin200": {
+      "D": 0.00573914,
+      "R": 0.00860634,
+      "R_at_detent_centres": 0.00829532
+     },
+     "lin2000": {
+      "D": 0.00268031,
+      "R": 0.00528162,
+      "R_at_detent_centres": 0.00525756
+     },
+     "lin500": {
+      "D": 0.00235949,
+      "R": 0.0053557,
+      "R_at_detent_centres": 0.00483997
+     },
+     "nl": {
+      "D": 0.00273938,
+      "R": 0.00531079,
+      "R_at_detent_centres": 0.00530043
+     },
+     "noring_R": 0.00323262
+    },
+    "uncorrected/affine": {
+     "lin1000": {
+      "D": 0.00227915,
+      "R": 1.09192,
+      "R_at_detent_centres": 1.09173
+     },
+     "lin200": {
+      "D": 0.00431309,
+      "R": 1.09237,
+      "R_at_detent_centres": 1.09228
+     },
+     "lin2000": {
+      "D": 0.00370249,
+      "R": 1.09295,
+      "R_at_detent_centres": 1.09277
+     },
+     "lin500": {
+      "D": 0.00107248,
+      "R": 1.08988,
+      "R_at_detent_centres": 1.08976
+     },
+     "nl": {
+      "D": 0.00375974,
+      "R": 1.09302,
+      "R_at_detent_centres": 1.09284
+     },
+     "noring_R": 1.09023
+    },
+    "uncorrected/harm4": {
+     "lin1000": {
+      "D": 0.000759343,
+      "R": 1.0907,
+      "R_at_detent_centres": 1.09049
+     },
+     "lin200": {
+      "D": 0.00586703,
+      "R": 1.09361,
+      "R_at_detent_centres": 1.09353
+     },
+     "lin2000": {
+      "D": 0.00216987,
+      "R": 1.09173,
+      "R_at_detent_centres": 1.09154
+     },
+     "lin500": {
+      "D": 0.00260925,
+      "R": 1.0911,
+      "R_at_detent_centres": 1.091
+     },
+     "nl": {
+      "D": 0.00222687,
+      "R": 1.0918,
+      "R_at_detent_centres": 1.09161
+     },
+     "noring_R": 1.09
+    },
+    "uncorrected/harm4_24": {
+     "lin1000": {
+      "D": 0.000818598,
+      "R": 1.09065,
+      "R_at_detent_centres": 1.09047
+     },
+     "lin200": {
+      "D": 0.0059077,
+      "R": 1.09358,
+      "R_at_detent_centres": 1.09351
+     },
+     "lin2000": {
+      "D": 0.00220217,
+      "R": 1.09169,
+      "R_at_detent_centres": 1.09152
+     },
+     "lin500": {
+      "D": 0.00265028,
+      "R": 1.09106,
+      "R_at_detent_centres": 1.09097
+     },
+     "nl": {
+      "D": 0.00225898,
+      "R": 1.09176,
+      "R_at_detent_centres": 1.09159
+     },
+     "noring_R": 1.09
+    }
+   },
+   "B_push": {
+    "ideal/affine": {
+     "lin1000": {
+      "D": 0.00219859,
+      "R": 0.00461952,
+      "R_at_detent_centres": 0.00461346
+     },
+     "lin200": {
+      "D": 0.00442567,
+      "R": 0.00582842,
+      "R_at_detent_centres": 0.00561943
+     },
+     "lin2000": {
+      "D": 0.00364438,
+      "R": 0.00601736,
+      "R_at_detent_centres": 0.00601502
+     },
+     "lin500": {
+      "D": 0.00112942,
+      "R": 0.00271899,
+      "R_at_detent_centres": 0.00227289
+     },
+     "noring_R": 0.00251798
+    },
+    "ideal/harm4": {
+     "lin1000": {
+      "D": 0.00083822,
+      "R": 0.0027394,
+      "R_at_detent_centres": 0.00273062
+     },
+     "lin200": {
+      "D": 0.00580902,
+      "R": 0.00777051,
+      "R_at_detent_centres": 0.00754044
+     },
+     "lin2000": {
+      "D": 0.00229229,
+      "R": 0.0041444,
+      "R_at_detent_centres": 0.00414034
+     },
+     "lin500": {
+      "D": 0.00249371,
+      "R": 0.004558,
+      "R_at_detent_centres": 0.00417466
+     },
+     "noring_R": 0.00225649
+    },
+    "ideal/harm4_24": {
+     "lin1000": {
+      "D": 0.000880299,
+      "R": 0.00271636,
+      "R_at_detent_centres": 0.00267482
+     },
+     "lin200": {
+      "D": 0.00584842,
+      "R": 0.00779405,
+      "R_at_detent_centres": 0.00748193
+     },
+     "lin2000": {
+      "D": 0.00232515,
+      "R": 0.00410913,
+      "R_at_detent_centres": 0.00408456
+     },
+     "lin500": {
+      "D": 0.00253295,
+      "R": 0.00454224,
+      "R_at_detent_centres": 0.00411611
+     },
+     "noring_R": 0.00225649
+    }
+   },
+   "B_strong": {
+    "ideal/affine": {
+     "lin1000": {
+      "D": 0.00302181,
+      "R": 0.00644968,
+      "R_at_detent_centres": 0.00644293
+     },
+     "lin200": {
+      "D": 0.0038289,
+      "R": 0.00595905,
+      "R_at_detent_centres": 0.00574883
+     },
+     "lin2000": {
+      "D": 0.00450099,
+      "R": 0.00787936,
+      "R_at_detent_centres": 0.00787656
+     },
+     "lin500": {
+      "D": 0.000469426,
+      "R": 0.00358893,
+      "R_at_detent_centres": 0.00355954
+     },
+     "nl": {
+      "D": 0.00432255,
+      "R": 0.00768868,
+      "R_at_detent_centres": 0.00768868
+     },
+     "noring_R": 0.00355549
+    },
+    "ideal/harm4": {
+     "lin1000": {
+      "D": 0.00116457,
+      "R": 0.00388293,
+      "R_at_detent_centres": 0.0038724
+     },
+     "lin200": {
+      "D": 0.00570037,
+      "R": 0.00857761,
+      "R_at_detent_centres": 0.00835383
+     },
+     "lin2000": {
+      "D": 0.00265115,
+      "R": 0.00531874,
+      "R_at_detent_centres": 0.00531332
+     },
+     "lin500": {
+      "D": 0.00232067,
+      "R": 0.00537458,
+      "R_at_detent_centres": 0.00489852
+     },
+     "nl": {
+      "D": 0.00247142,
+      "R": 0.00512488,
+      "R_at_detent_centres": 0.00512408
+     },
+     "noring_R": 0.00323262
+    },
+    "ideal/harm4_24": {
+     "lin1000": {
+      "D": 0.00120345,
+      "R": 0.00385735,
+      "R_at_detent_centres": 0.00381661
+     },
+     "lin200": {
+      "D": 0.00573914,
+      "R": 0.00860634,
+      "R_at_detent_centres": 0.00829532
+     },
+     "lin2000": {
+      "D": 0.00268031,
+      "R": 0.00528162,
+      "R_at_detent_centres": 0.00525756
+     },
+     "lin500": {
+      "D": 0.00235949,
+      "R": 0.0053557,
+      "R_at_detent_centres": 0.00483997
+     },
+     "nl": {
+      "D": 0.00250152,
+      "R": 0.0050782,
+      "R_at_detent_centres": 0.00506831
+     },
+     "noring_R": 0.00323262
+    }
+   },
+   "B_weakhot": {
+    "corrected/affine": {
+     "lin1000": {
+      "D": 0.0015573,
+      "R": 0.0588879,
+      "R_at_detent_centres": 0.0588446
+     },
+     "lin200": {
+      "D": 0.00724953,
+      "R": 0.0633088,
+      "R_at_detent_centres": 0.0631229
+     },
+     "lin2000": {
+      "D": 0.000269263,
+      "R": 0.0578926,
+      "R_at_detent_centres": 0.0578681
+     },
+     "lin500": {
+      "D": 0.00413931,
+      "R": 0.0608858,
+      "R_at_detent_centres": 0.0607856
+     },
+     "noring_R": 0.0579739
+    },
+    "corrected/harm4": {
+     "lin1000": {
+      "D": 0.00036612,
+      "R": 0.0576527,
+      "R_at_detent_centres": 0.0576501
+     },
+     "lin200": {
+      "D": 0.0061072,
+      "R": 0.0619861,
+      "R_at_detent_centres": 0.0618348
+     },
+     "lin2000": {
+      "D": 0.00133284,
+      "R": 0.0585947,
+      "R_at_detent_centres": 0.0585947
+     },
+     "lin500": {
+      "D": 0.002968,
+      "R": 0.0595472,
+      "R_at_detent_centres": 0.0594748
+     },
+     "noring_R": 0.0576697
+    },
+    "corrected/harm4_24": {
+     "lin1000": {
+      "D": 0.000401532,
+      "R": 0.0577059,
+      "R_at_detent_centres": 0.0577059
+     },
+     "lin200": {
+      "D": 0.00614906,
+      "R": 0.0620108,
+      "R_at_detent_centres": 0.0618909
+     },
+     "lin2000": {
+      "D": 0.001379,
+      "R": 0.0586506,
+      "R_at_detent_centres": 0.0586506
+     },
+     "lin500": {
+      "D": 0.00300876,
+      "R": 0.0595882,
+      "R_at_detent_centres": 0.0595309
+     },
+     "noring_R": 0.0576697
+    },
+    "ideal/affine": {
+     "lin1000": {
+      "D": 0.00154908,
+      "R": 0.00270271,
+      "R_at_detent_centres": 0.00241046
+     },
+     "lin200": {
+      "D": 0.00725226,
+      "R": 0.0084068,
+      "R_at_detent_centres": 0.0082053
+     },
+     "lin2000": {
+      "D": 0.000258554,
+      "R": 0.00146311,
+      "R_at_detent_centres": 0.00109582
+     },
+     "lin500": {
+      "D": 0.00413598,
+      "R": 0.005292,
+      "R_at_detent_centres": 0.00502444
+     },
+     "noring_R": 0.00124323
+    },
+    "ideal/harm4": {
+     "lin1000": {
+      "D": 0.000347101,
+      "R": 0.00104928,
+      "R_at_detent_centres": 0.000806734
+     },
+     "lin200": {
+      "D": 0.0060991,
+      "R": 0.0067573,
+      "R_at_detent_centres": 0.00656494
+     },
+     "lin2000": {
+      "D": 0.00135587,
+      "R": 0.0020682,
+      "R_at_detent_centres": 0.00206474
+     },
+     "lin500": {
+      "D": 0.00295387,
+      "R": 0.00361275,
+      "R_at_detent_centres": 0.00336415
+     },
+     "noring_R": 0.000826938
+    },
+    "ideal/harm4_24": {
+     "lin1000": {
+      "D": 0.000382445,
+      "R": 0.00108544,
+      "R_at_detent_centres": 0.000863361
+     },
+     "lin200": {
+      "D": 0.00614093,
+      "R": 0.00679472,
+      "R_at_detent_centres": 0.0066213
+     },
+     "lin2000": {
+      "D": 0.00140189,
+      "R": 0.00212336,
+      "R_at_detent_centres": 0.00212336
+     },
+     "lin500": {
+      "D": 0.00299457,
+      "R": 0.00364954,
+      "R_at_detent_centres": 0.00342003
+     },
+     "noring_R": 0.000826938
+    },
+    "uncorrected/affine": {
+     "lin1000": {
+      "D": 0.00170383,
+      "R": 1.09313,
+      "R_at_detent_centres": 1.09295
+     },
+     "lin200": {
+      "D": 0.00720123,
+      "R": 1.09726,
+      "R_at_detent_centres": 1.09712
+     },
+     "lin2000": {
+      "D": 0.000460133,
+      "R": 1.09219,
+      "R_at_detent_centres": 1.09199
+     },
+     "lin500": {
+      "D": 0.00419866,
+      "R": 1.095,
+      "R_at_detent_centres": 1.09484
+     },
+     "noring_R": 1.09212
+    },
+    "uncorrected/harm4": {
+     "lin1000": {
+      "D": 0.000705474,
+      "R": 1.09205,
+      "R_at_detent_centres": 1.09185
+     },
+     "lin200": {
+      "D": 0.00625162,
+      "R": 1.0962,
+      "R_at_detent_centres": 1.09606
+     },
+     "lin2000": {
+      "D": 0.00092898,
+      "R": 1.09242,
+      "R_at_detent_centres": 1.09219
+     },
+     "lin500": {
+      "D": 0.00321999,
+      "R": 1.09393,
+      "R_at_detent_centres": 1.09376
+     },
+     "noring_R": 1.09191
+    },
+    "uncorrected/harm4_24": {
+     "lin1000": {
+      "D": 0.000741667,
+      "R": 1.092,
+      "R_at_detent_centres": 1.09183
+     },
+     "lin200": {
+      "D": 0.00629329,
+      "R": 1.09616,
+      "R_at_detent_centres": 1.09603
+     },
+     "lin2000": {
+      "D": 0.00097383,
+      "R": 1.09238,
+      "R_at_detent_centres": 1.09217
+     },
+     "lin500": {
+      "D": 0.00326187,
+      "R": 1.09389,
+      "R_at_detent_centres": 1.09374
+     },
+     "noring_R": 1.09191
+    }
+   }
+  }
+ },
+ "calibration_fit": {
+  "A": {
+   "condition": {
+    "gap_error_mm": 0.0,
+    "knob_offset_mm": [
+     0.0,
+     0.0
+    ],
+    "magnet_T_C": 20.0,
+    "push_mm": 0.0,
+    "ring_offset_mm": [
+     0.0,
+     0.0
+    ],
+    "tilt_deg": [
+     0.0,
+     0.0
+    ]
+   },
+   "fit_angles_deg": [
+    0.5,
+    10.75,
+    "...",
+    349.0
+   ],
+   "n_fit": 35,
+   "parameters": {
+    "affine": [
+     -1.90962e-17,
+     9.86452e-19,
+     1.0,
+     4.20505e-16,
+     -2.04825e-14
+    ],
+    "harm4": [
+     -3.23754e-14,
+     9.05815e-15,
+     1.98107e-14,
+     -1.55985e-14,
+     -1.06053e-14,
+     2.73911e-14,
+     7.25616e-14,
+     3.30775e-14,
+     3.97292e-15
+    ],
+    "harm4_24": [
+     -3.23013e-14,
+     9.20716e-15,
+     1.9794e-14,
+     -1.54475e-14,
+     -1.06393e-14,
+     2.75459e-14,
+     7.25084e-14,
+     3.32381e-14,
+     3.89751e-15,
+     -1.40398e-15,
+     -1.12536e-14,
+     9.31683e-15,
+     4.07959e-15
+    ]
+   },
+   "reference_material": "lin1000"
+  },
+  "B": {
+   "condition": {
+    "gap_error_mm": 0.0,
+    "knob_offset_mm": [
+     0.1,
+     0.1
+    ],
+    "magnet_T_C": 20.0,
+    "push_mm": 0.0,
+    "ring_offset_mm": [
+     0.1,
+     0.0
+    ],
+    "tilt_deg": [
+     1.0,
+     0.0
+    ]
+   },
+   "fit_angles_deg": [
+    0.5,
+    10.75,
+    "...",
+    349.0
+   ],
+   "n_fit": 35,
+   "parameters": {
+    "affine": [
+     1.51367e-06,
+     -1.37557e-05,
+     0.999795,
+     0.000355851,
+     0.0243835
+    ],
+    "harm4": [
+     0.014188,
+     -0.0142166,
+     -0.0015633,
+     -0.0101944,
+     0.00588115,
+     -1.54341e-06,
+     1.09069e-06,
+     -1.34095e-06,
+     2.75217e-07
+    ],
+    "harm4_24": [
+     0.0141884,
+     -0.0142158,
+     -0.00156336,
+     -0.0101936,
+     0.00588103,
+     -7.23296e-07,
+     9.07108e-07,
+     -5.077e-07,
+     2.80911e-08,
+     7.99381e-06,
+     -1.93714e-06,
+     4.80785e-05,
+     -1.29975e-05
+    ]
+   },
+   "reference_material": "lin1000"
+  }
+ },
+ "cases": {
+  "A_cold": {
+   "B_mT": {
+    "lin1000": [
+     55.4321,
+     55.4321
+    ],
+    "lin200": [
+     55.6128,
+     55.6128
+    ],
+    "lin2000": [
+     55.3898,
+     55.3898
+    ],
+    "lin500": [
+     55.5143,
+     55.5143
+    ],
+    "nl": [
+     55.3981,
+     55.3981
+    ],
+    "nl_h160_ccw": [
+     55.4025,
+     55.4032
+    ],
+    "nl_h160_cw": [
+     55.4025,
+     55.4032
+    ],
+    "nl_h400_ccw": [
+     55.4253,
+     55.4313
+    ],
+    "nl_h400_cw": [
+     55.4253,
+     55.4313
+    ],
+    "nl_hard": [
+     55.4401,
+     55.4401
+    ],
+    "nl_soft": [
+     55.384,
+     55.3841
+    ],
+    "none": [
+     55.7292,
+     55.7292
+    ]
+   },
+   "Bxy_mT_range_ref": {
+    "Bx": [
+     -55.4307,
+     55.4307
+    ],
+    "By": [
+     -55.4307,
+     55.4307
+    ],
+    "Bz": [
+     -0.393465,
+     -0.392934
+    ]
+   },
+   "condition": {
+    "gap_error_mm": 0.0,
+    "knob_offset_mm": [
+     0.0,
+     0.0
+    ],
+    "magnet_T_C": 20.0,
+    "push_mm": 0.0,
+    "ring_offset_mm": [
+     0.0,
+     0.0
+    ],
+    "tilt_deg": [
+     0.0,
+     0.0
+    ]
+   },
+   "group": "A",
+   "n_angles": 1440,
+   "peak_uncal_deg": {
+    "lin1000": 3.69482e-13,
+    "lin200": 3.41061e-13,
+    "lin2000": 3.97904e-13,
+    "lin500": 3.69482e-13,
+    "nl": 5.44826e-05,
+    "nl_h160_ccw": 0.033541,
+    "nl_h160_cw": 0.033541,
+    "nl_h400_ccw": 0.0719322,
+    "nl_h400_cw": 0.0719322,
+    "nl_hard": 0.00018051,
+    "nl_soft": 2.21784e-05,
+    "none": 3.41061e-13
+   },
+   "peak_uncal_ring_attributable_deg": {
+    "lin1000": 1.13687e-13,
+    "lin200": 5.68434e-14,
+    "lin2000": 1.13687e-13,
+    "lin500": 1.13687e-13,
+    "nl": 5.44826e-05,
+    "nl_h160_ccw": 0.033541,
+    "nl_h160_cw": 0.033541,
+    "nl_h400_ccw": 0.0719322,
+    "nl_h400_cw": 0.0719322,
+    "nl_hard": 0.00018051,
+    "nl_soft": 2.21784e-05
+   },
+   "ring_induced_B_uT_at_hall": {
+    "lin1000": 297.192,
+    "lin200": 116.66,
+    "lin2000": 339.533,
+    "lin500": 215.071,
+    "nl": 331.211,
+    "nl_h160_ccw": 328.445,
+    "nl_h160_cw": 328.445,
+    "nl_h400_ccw": 311.865,
+    "nl_h400_cw": 311.865,
+    "nl_hard": 289.175,
+    "nl_soft": 345.329
+   },
+   "steel": {
+    "lin1000": {
+     "Bcell_max_T": 1.21983,
+     "Hcell_max_A_per_m": 970.712,
+     "frac_cells_above_1p5T": 0.0
+    },
+    "nl": {
+     "Bcell_max_T": 1.37446,
+     "Hcell_max_A_per_m": 991.959,
+     "frac_cells_above_1p5T": 0.0
+    },
+    "nl_h160_ccw": {
+     "Bcell_max_T": 1.36693,
+     "Hcell_max_A_per_m": 1091.27,
+     "frac_cells_above_1p5T": 0.0
+    },
+    "nl_h160_cw": {
+     "Bcell_max_T": 1.36693,
+     "Hcell_max_A_per_m": 1091.27,
+     "frac_cells_above_1p5T": 0.0
+    },
+    "nl_h400_ccw": {
+     "Bcell_max_T": 1.3269,
+     "Hcell_max_A_per_m": 1151.01,
+     "frac_cells_above_1p5T": 0.0
+    },
+    "nl_h400_cw": {
+     "Bcell_max_T": 1.3269,
+     "Hcell_max_A_per_m": 1151.01,
+     "frac_cells_above_1p5T": 0.0
+    },
+    "nl_hard": {
+     "Bcell_max_T": 1.12909,
+     "Hcell_max_A_per_m": 1050.16,
+     "frac_cells_above_1p5T": 0.0
+    },
+    "nl_soft": {
+     "Bcell_max_T": 1.55642,
+     "Hcell_max_A_per_m": 960.347,
+     "frac_cells_above_1p5T": 0.0972222
+    }
+   },
+   "step_deg": 0.25
+  },
+  "A_gapm": {
+   "B_mT": {
+    "lin1000": [
+     58.676,
+     58.676
+    ],
+    "lin200": [
+     58.8576,
+     58.8576
+    ],
+    "lin2000": [
+     58.6334,
+     58.6334
+    ],
+    "lin500": [
+     58.7586,
+     58.7586
+    ],
+    "nl": [
+     58.6415,
+     58.6415
+    ],
+    "none": [
+     58.9747,
+     58.9747
+    ]
+   },
+   "Bxy_mT_range_ref": {
+    "Bx": [
+     -58.6746,
+     58.6746
+    ],
+    "By": [
+     -58.6746,
+     58.6746
+    ],
+    "Bz": [
+     -0.400048,
+     -0.399396
+    ]
+   },
+   "condition": {
+    "gap_error_mm": -0.2,
+    "knob_offset_mm": [
+     0.0,
+     0.0
+    ],
+    "magnet_T_C": 20.0,
+    "push_mm": 0.0,
+    "ring_offset_mm": [
+     0.0,
+     0.0
+    ],
+    "tilt_deg": [
+     0.0,
+     0.0
+    ]
+   },
+   "group": "A",
+   "n_angles": 1440,
+   "peak_uncal_deg": {
+    "lin1000": 3.41061e-13,
+    "lin200": 3.41061e-13,
+    "lin2000": 3.41061e-13,
+    "lin500": 3.41061e-13,
+    "nl": 4.97055e-05,
+    "none": 3.41061e-13
+   },
+   "peak_uncal_ring_attributable_deg": {
+    "lin1000": 1.13687e-13,
+    "lin200": 5.68434e-14,
+    "lin2000": 1.13687e-13,
+    "lin500": 1.13687e-13,
+    "nl": 4.97055e-05
+   },
+   "ring_induced_B_uT_at_hall": {
+    "lin1000": 298.937,
+    "lin200": 117.414,
+    "lin2000": 341.512,
+    "lin500": 216.362,
+    "nl": 333.372
+   },
+   "steel": {
+    "lin1000": {
+     "Bcell_max_T": 1.22797,
+     "Hcell_max_A_per_m": 977.189,
+     "frac_cells_above_1p5T": 0.0
+    },
+    "nl": {
+     "Bcell_max_T": 1.37867,
+     "Hcell_max_A_per_m": 1004.22,
+     "frac_cells_above_1p5T": 0.0
+    }
+   },
+   "step_deg": 0.25
+  },
+  "A_gapp": {
+   "B_mT": {
+    "lin1000": [
+     52.3897,
+     52.3897
+    ],
+    "lin200": [
+     52.5693,
+     52.5693
+    ],
+    "lin2000": [
+     52.3475,
+     52.3476
+    ],
+    "lin500": [
+     52.4713,
+     52.4713
+    ],
+    "nl": [
+     52.3561,
+     52.3561
+    ],
+    "none": [
+     52.685,
+     52.685
+    ]
+   },
+   "Bxy_mT_range_ref": {
+    "Bx": [
+     -52.3882,
+     52.3882
+    ],
+    "By": [
+     -52.3882,
+     52.3882
+    ],
+    "Bz": [
+     -0.386828,
+     -0.386395
+    ]
+   },
+   "condition": {
+    "gap_error_mm": 0.2,
+    "knob_offset_mm": [
+     0.0,
+     0.0
+    ],
+    "magnet_T_C": 20.0,
+    "push_mm": 0.0,
+    "ring_offset_mm": [
+     0.0,
+     0.0
+    ],
+    "tilt_deg": [
+     0.0,
+     0.0
+    ]
+   },
+   "group": "A",
+   "n_angles": 1440,
+   "peak_uncal_deg": {
+    "lin1000": 3.41061e-13,
+    "lin200": 3.41061e-13,
+    "lin2000": 3.41061e-13,
+    "lin500": 3.41061e-13,
+    "nl": 5.94153e-05,
+    "none": 3.41061e-13
+   },
+   "peak_uncal_ring_attributable_deg": {
+    "lin1000": 1.13687e-13,
+    "lin200": 5.68434e-14,
+    "lin2000": 1.13687e-13,
+    "lin500": 1.13687e-13,
+    "nl": 5.94153e-05
+   },
+   "ring_induced_B_uT_at_hall": {
+    "lin1000": 295.416,
+    "lin200": 115.9,
+    "lin2000": 337.519,
+    "lin500": 213.76,
+    "nl": 329.014
+   },
+   "steel": {
+    "lin1000": {
+     "Bcell_max_T": 1.21182,
+     "Hcell_max_A_per_m": 964.338,
+     "frac_cells_above_1p5T": 0.0
+    },
+    "nl": {
+     "Bcell_max_T": 1.37046,
+     "Hcell_max_A_per_m": 980.464,
+     "frac_cells_above_1p5T": 0.0
+    }
+   },
+   "step_deg": 0.25
+  },
+  "A_hot": {
+   "B_mT": {
+    "lin1000": [
+     52.4055,
+     52.4055
+    ],
+    "lin200": [
+     52.5763,
+     52.5763
+    ],
+    "lin2000": [
+     52.3655,
+     52.3655
+    ],
+    "lin500": [
+     52.4832,
+     52.4832
+    ],
+    "nl": [
+     52.3677,
+     52.3677
+    ],
+    "none": [
+     52.6863,
+     52.6863
+    ]
+   },
+   "Bxy_mT_range_ref": {
+    "Bx": [
+     -52.4042,
+     52.4042
+    ],
+    "By": [
+     -52.4042,
+     52.4042
+    ],
+    "Bz": [
+     -0.371982,
+     -0.37148
+    ]
+   },
+   "condition": {
+    "gap_error_mm": 0.0,
+    "knob_offset_mm": [
+     0.0,
+     0.0
+    ],
+    "magnet_T_C": 176.0,
+    "push_mm": 0.0,
+    "ring_offset_mm": [
+     0.0,
+     0.0
+    ],
+    "tilt_deg": [
+     0.0,
+     0.0
+    ]
+   },
+   "group": "A",
+   "n_angles": 1440,
+   "peak_uncal_deg": {
+    "lin1000": 3.69482e-13,
+    "lin200": 3.41061e-13,
+    "lin2000": 3.97904e-13,
+    "lin500": 3.69482e-13,
+    "nl": 2.43387e-05,
+    "none": 3.41061e-13
+   },
+   "peak_uncal_ring_attributable_deg": {
+    "lin1000": 1.13687e-13,
+    "lin200": 5.68434e-14,
+    "lin2000": 1.13687e-13,
+    "lin500": 1.13687e-13,
+    "nl": 2.43387e-05
+   },
+   "ring_induced_B_uT_at_hall": {
+    "lin1000": 280.965,
+    "lin200": 110.291,
+    "lin2000": 320.995,
+    "lin500": 203.328,
+    "nl": 318.798
+   },
+   "steel": {
+    "lin1000": {
+     "Bcell_max_T": 1.15323,
+     "Hcell_max_A_per_m": 917.711,
+     "frac_cells_above_1p5T": 0.0
+    },
+    "nl": {
+     "Bcell_max_T": 1.38885,
+     "Hcell_max_A_per_m": 907.272,
+     "frac_cells_above_1p5T": 0.0
+    }
+   },
+   "step_deg": 0.25
+  },
+  "A_hotstrong": {
+   "B_mT": {
+    "lin1000": [
+     64.0481,
+     64.0482
+    ],
+    "lin200": [
+     64.2222,
+     64.2222
+    ],
+    "lin2000": [
+     64.0073,
+     64.0074
+    ],
+    "lin500": [
+     64.1273,
+     64.1273
+    ],
+    "nl": [
+     64.0088,
+     64.0088
+    ],
+    "none": [
+     64.3346,
+     64.3346
+    ]
+   },
+   "Bxy_mT_range_ref": {
+    "Bx": [
+     -64.0469,
+     64.0469
+    ],
+    "By": [
+     -64.0469,
+     64.0469
+    ],
+    "Bz": [
+     -0.393568,
+     -0.392531
+    ]
+   },
+   "condition": {
+    "gap_error_mm": -0.2,
+    "knob_offset_mm": [
+     0.0,
+     0.0
+    ],
+    "magnet_T_C": 176.0,
+    "push_mm": 0.5,
+    "ring_offset_mm": [
+     0.0,
+     0.0
+    ],
+    "tilt_deg": [
+     0.0,
+     0.0
+    ]
+   },
+   "group": "A",
+   "n_angles": 1440,
+   "peak_uncal_deg": {
+    "lin1000": 2.84217e-13,
+    "lin200": 2.27374e-13,
+    "lin2000": 2.84217e-13,
+    "lin500": 2.55795e-13,
+    "nl": 1.86821e-05,
+    "none": 2.84217e-13
+   },
+   "peak_uncal_ring_attributable_deg": {
+    "lin1000": 1.13687e-13,
+    "lin200": 5.68434e-14,
+    "lin2000": 1.13687e-13,
+    "lin500": 1.13687e-13,
+    "nl": 1.86821e-05
+   },
+   "ring_induced_B_uT_at_hall": {
+    "lin1000": 286.614,
+    "lin200": 112.762,
+    "lin2000": 327.395,
+    "lin500": 207.516,
+    "nl": 325.975
+   },
+   "steel": {
+    "lin1000": {
+     "Bcell_max_T": 1.18174,
+     "Hcell_max_A_per_m": 940.401,
+     "frac_cells_above_1p5T": 0.0
+    },
+    "nl": {
+     "Bcell_max_T": 1.40386,
+     "Hcell_max_A_per_m": 953.35,
+     "frac_cells_above_1p5T": 0.0
+    }
+   },
+   "step_deg": 0.25
+  },
+  "A_push": {
+   "B_mT": {
+    "lin1000": [
+     63.9461,
+     63.9461
+    ],
+    "lin200": [
+     64.1292,
+     64.1293
+    ],
+    "lin2000": [
+     63.9032,
+     63.9032
+    ],
+    "lin500": [
+     64.0294,
+     64.0294
+    ],
+    "nl": [
+     63.911,
+     63.911
+    ],
+    "none": [
+     64.2474,
+     64.2474
+    ]
+   },
+   "Bxy_mT_range_ref": {
+    "Bx": [
+     -63.9448,
+     63.9448
+    ],
+    "By": [
+     -63.9448,
+     63.9448
+    ],
+    "Bz": [
+     -0.409829,
+     -0.408939
+    ]
+   },
+   "condition": {
+    "gap_error_mm": 0.0,
+    "knob_offset_mm": [
+     0.0,
+     0.0
+    ],
+    "magnet_T_C": 20.0,
+    "push_mm": 0.5,
+    "ring_offset_mm": [
+     0.0,
+     0.0
+    ],
+    "tilt_deg": [
+     0.0,
+     0.0
+    ]
+   },
+   "group": "A",
+   "n_angles": 1440,
+   "peak_uncal_deg": {
+    "lin1000": 4.54747e-13,
+    "lin200": 4.54747e-13,
+    "lin2000": 4.54747e-13,
+    "lin500": 4.54747e-13,
+    "nl": 4.28027e-05,
+    "none": 4.54747e-13
+   },
+   "peak_uncal_ring_attributable_deg": {
+    "lin1000": 1.13687e-13,
+    "lin200": 5.68434e-14,
+    "lin2000": 1.13687e-13,
+    "lin500": 1.13687e-13,
+    "nl": 4.28027e-05
+   },
+   "ring_induced_B_uT_at_hall": {
+    "lin1000": 301.498,
+    "lin200": 118.533,
+    "lin2000": 344.414,
+    "lin500": 218.26,
+    "nl": 336.546
+   },
+   "steel": {
+    "lin1000": {
+     "Bcell_max_T": 1.24085,
+     "Hcell_max_A_per_m": 987.44,
+     "frac_cells_above_1p5T": 0.0
+    },
+    "nl": {
+     "Bcell_max_T": 1.38551,
+     "Hcell_max_A_per_m": 1024.52,
+     "frac_cells_above_1p5T": 0.0
+    }
+   },
+   "step_deg": 0.25
+  },
+  "A_strong": {
+   "B_mT": {
+    "lin1000": [
+     67.7471,
+     67.7471
+    ],
+    "lin200": [
+     67.9313,
+     67.9313
+    ],
+    "lin2000": [
+     67.704,
+     67.704
+    ],
+    "lin500": [
+     67.8309,
+     67.8309
+    ],
+    "nl": [
+     67.7117,
+     67.7117
+    ],
+    "nl_hard": [
+     67.7549,
+     67.7549
+    ],
+    "nl_soft": [
+     67.6969,
+     67.6969
+    ],
+    "none": [
+     68.0501,
+     68.0501
+    ]
+   },
+   "Bxy_mT_range_ref": {
+    "Bx": [
+     -67.7459,
+     67.7459
+    ],
+    "By": [
+     -67.7459,
+     67.7459
+    ],
+    "Bz": [
+     -0.416297,
+     -0.415201
+    ]
+   },
+   "condition": {
+    "gap_error_mm": -0.2,
+    "knob_offset_mm": [
+     0.0,
+     0.0
+    ],
+    "magnet_T_C": 20.0,
+    "push_mm": 0.5,
+    "ring_offset_mm": [
+     0.0,
+     0.0
+    ],
+    "tilt_deg": [
+     0.0,
+     0.0
+    ]
+   },
+   "group": "A",
+   "n_angles": 1440,
+   "peak_uncal_deg": {
+    "lin1000": 2.84217e-13,
+    "lin200": 2.55795e-13,
+    "lin2000": 2.84217e-13,
+    "lin500": 2.55795e-13,
+    "nl": 3.8323e-05,
+    "nl_hard": 0.000137616,
+    "nl_soft": 4.15991e-05,
+    "none": 2.84217e-13
+   },
+   "peak_uncal_ring_attributable_deg": {
+    "lin1000": 1.13687e-13,
+    "lin200": 5.68434e-14,
+    "lin2000": 1.13687e-13,
+    "lin500": 1.13687e-13,
+    "nl": 3.8323e-05,
+    "nl_hard": 0.000137616,
+    "nl_soft": 4.15991e-05
+   },
+   "ring_induced_B_uT_at_hall": {
+    "lin1000": 303.167,
+    "lin200": 119.275,
+    "lin2000": 346.303,
+    "lin500": 219.5,
+    "nl": 338.616,
+    "nl_hard": 295.443,
+    "nl_soft": 353.399
+   },
+   "steel": {
+    "lin1000": {
+     "Bcell_max_T": 1.24999,
+     "Hcell_max_A_per_m": 994.712,
+     "frac_cells_above_1p5T": 0.0
+    },
+    "nl": {
+     "Bcell_max_T": 1.39053,
+     "Hcell_max_A_per_m": 1039.8,
+     "frac_cells_above_1p5T": 0.0
+    },
+    "nl_hard": {
+     "Bcell_max_T": 1.14749,
+     "Hcell_max_A_per_m": 1093.36,
+     "frac_cells_above_1p5T": 0.0
+    },
+    "nl_soft": {
+     "Bcell_max_T": 1.56945,
+     "Hcell_max_A_per_m": 1017.81,
+     "frac_cells_above_1p5T": 0.0980903
+    }
+   },
+   "step_deg": 0.25
+  },
+  "A_weakhot": {
+   "B_mT": {
+    "lin1000": [
+     49.5292,
+     49.5292
+    ],
+    "lin200": [
+     49.699,
+     49.699
+    ],
+    "lin2000": [
+     49.4894,
+     49.4894
+    ],
+    "lin500": [
+     49.6064,
+     49.6064
+    ],
+    "nl": [
+     49.4918,
+     49.4918
+    ],
+    "nl_hard": [
+     49.5205,
+     49.5206
+    ],
+    "nl_soft": [
+     49.4862,
+     49.4863
+    ],
+    "none": [
+     49.8084,
+     49.8084
+    ]
+   },
+   "Bxy_mT_range_ref": {
+    "Bx": [
+     -49.5278,
+     49.5278
+    ],
+    "By": [
+     -49.5278,
+     49.5278
+    ],
+    "Bz": [
+     -0.365707,
+     -0.365298
+    ]
+   },
+   "condition": {
+    "gap_error_mm": 0.2,
+    "knob_offset_mm": [
+     0.0,
+     0.0
+    ],
+    "magnet_T_C": 176.0,
+    "push_mm": 0.0,
+    "ring_offset_mm": [
+     0.0,
+     0.0
+    ],
+    "tilt_deg": [
+     0.0,
+     0.0
+    ]
+   },
+   "group": "A",
+   "n_angles": 1440,
+   "peak_uncal_deg": {
+    "lin1000": 3.41061e-13,
+    "lin200": 3.41061e-13,
+    "lin2000": 3.41061e-13,
+    "lin500": 3.41061e-13,
+    "nl": 2.90473e-05,
+    "nl_hard": 0.000150282,
+    "nl_soft": 1.2712e-05,
+    "none": 3.41061e-13
+   },
+   "peak_uncal_ring_attributable_deg": {
+    "lin1000": 1.13687e-13,
+    "lin200": 5.68434e-14,
+    "lin2000": 1.13687e-13,
+    "lin500": 1.13687e-13,
+    "nl": 2.90473e-05,
+    "nl_hard": 0.000150282,
+    "nl_soft": 1.2712e-05
+   },
+   "ring_induced_B_uT_at_hall": {
+    "lin1000": 279.286,
+    "lin200": 109.572,
+    "lin2000": 319.09,
+    "lin500": 202.088,
+    "nl": 316.682,
+    "nl_hard": 287.916,
+    "nl_soft": 322.25
+   },
+   "steel": {
+    "lin1000": {
+     "Bcell_max_T": 1.14566,
+     "Hcell_max_A_per_m": 911.686,
+     "frac_cells_above_1p5T": 0.0
+    },
+    "nl": {
+     "Bcell_max_T": 1.38508,
+     "Hcell_max_A_per_m": 896.328,
+     "frac_cells_above_1p5T": 0.0
+    },
+    "nl_hard": {
+     "Bcell_max_T": 1.16554,
+     "Hcell_max_A_per_m": 951.884,
+     "frac_cells_above_1p5T": 0.0
+    },
+    "nl_soft": {
+     "Bcell_max_T": 1.54399,
+     "Hcell_max_A_per_m": 868.763,
+     "frac_cells_above_1p5T": 0.0746528
+    }
+   },
+   "step_deg": 0.25
+  },
+  "B_cold": {
+   "B_mT": {
+    "lin1000": [
+     55.4339,
+     55.5157
+    ],
+    "lin200": [
+     55.6186,
+     55.6909
+    ],
+    "lin2000": [
+     55.3906,
+     55.4746
+    ],
+    "lin500": [
+     55.5179,
+     55.5954
+    ],
+    "nl": [
+     55.3982,
+     55.4837
+    ],
+    "nl_hard": [
+     55.4416,
+     55.5241
+    ],
+    "nl_soft": [
+     55.3832,
+     55.4706
+    ],
+    "none": [
+     55.7379,
+     55.8032
+    ]
+   },
+   "Bxy_mT_range_ref": {
+    "Bx": [
+     -55.4307,
+     55.4276
+    ],
+    "By": [
+     -55.4266,
+     55.4545
+    ],
+    "Bz": [
+     -2.91411,
+     2.12788
+    ]
+   },
+   "condition": {
+    "gap_error_mm": 0.0,
+    "knob_offset_mm": [
+     0.1,
+     0.1
+    ],
+    "magnet_T_C": 20.0,
+    "push_mm": 0.0,
+    "ring_offset_mm": [
+     0.1,
+     0.0
+    ],
+    "tilt_deg": [
+     1.0,
+     0.0
+    ]
+   },
+   "group": "B",
+   "n_angles": 1440,
+   "peak_uncal_deg": {
+    "lin1000": 0.0329713,
+    "lin200": 0.0302169,
+    "lin2000": 0.0336597,
+    "lin500": 0.0316769,
+    "nl": 0.0335308,
+    "nl_hard": 0.0328347,
+    "nl_soft": 0.0337639,
+    "none": 0.028456
+   },
+   "peak_uncal_ring_attributable_deg": {
+    "lin1000": 0.0104223,
+    "lin200": 0.00432124,
+    "lin2000": 0.0118114,
+    "lin500": 0.00765505,
+    "nl": 0.0116077,
+    "nl_hard": 0.0102853,
+    "nl_soft": 0.0120299
+   },
+   "ring_induced_B_uT_at_hall": {
+    "lin1000": 307.171,
+    "lin200": 120.807,
+    "lin2000": 350.834,
+    "lin500": 222.41,
+    "nl": 343.515,
+    "nl_hard": 299.57,
+    "nl_soft": 358.83
+   },
+   "steel": {
+    "lin1000": {
+     "Bcell_max_T": 1.2592,
+     "Hcell_max_A_per_m": 1002.04,
+     "frac_cells_above_1p5T": 0.0
+    },
+    "nl": {
+     "Bcell_max_T": 1.39014,
+     "Hcell_max_A_per_m": 1038.59,
+     "frac_cells_above_1p5T": 0.0
+    },
+    "nl_hard": {
+     "Bcell_max_T": 1.14814,
+     "Hcell_max_A_per_m": 1094.91,
+     "frac_cells_above_1p5T": 0.0
+    },
+    "nl_soft": {
+     "Bcell_max_T": 1.56716,
+     "Hcell_max_A_per_m": 1007.36,
+     "frac_cells_above_1p5T": 0.100694
+    }
+   },
+   "step_deg": 0.25
+  },
+  "B_gapm": {
+   "B_mT": {
+    "lin1000": [
+     58.6785,
+     58.7644
+    ],
+    "lin200": [
+     58.8645,
+     58.9402
+    ],
+    "lin2000": [
+     58.6349,
+     58.7231
+    ],
+    "lin500": [
+     58.7631,
+     58.8443
+    ],
+    "none": [
+     58.9848,
+     59.0529
+    ]
+   },
+   "Bxy_mT_range_ref": {
+    "Bx": [
+     -58.675,
+     58.672
+    ],
+    "By": [
+     -58.6716,
+     58.7016
+    ],
+    "Bz": [
+     -3.04744,
+     2.24816
+    ]
+   },
+   "condition": {
+    "gap_error_mm": -0.2,
+    "knob_offset_mm": [
+     0.1,
+     0.1
+    ],
+    "magnet_T_C": 20.0,
+    "push_mm": 0.0,
+    "ring_offset_mm": [
+     0.1,
+     0.0
+    ],
+    "tilt_deg": [
+     1.0,
+     0.0
+    ]
+   },
+   "group": "B",
+   "n_angles": 1440,
+   "peak_uncal_deg": {
+    "lin1000": 0.0332347,
+    "lin200": 0.0303715,
+    "lin2000": 0.0339483,
+    "lin500": 0.0318877,
+    "none": 0.02838
+   },
+   "peak_uncal_ring_attributable_deg": {
+    "lin1000": 0.0106553,
+    "lin200": 0.00443354,
+    "lin2000": 0.012068,
+    "lin500": 0.00783443
+   },
+   "ring_induced_B_uT_at_hall": {
+    "lin1000": 309.741,
+    "lin200": 121.919,
+    "lin2000": 353.74,
+    "lin500": 224.315
+   },
+   "steel": {
+    "lin1000": {
+     "Bcell_max_T": 1.27056,
+     "Hcell_max_A_per_m": 1011.08,
+     "frac_cells_above_1p5T": 0.0
+    }
+   },
+   "step_deg": 0.25
+  },
+  "B_gapp": {
+   "B_mT": {
+    "lin1000": [
+     52.3908,
+     52.4687
+    ],
+    "lin200": [
+     52.5742,
+     52.6433
+    ],
+    "lin2000": [
+     52.3478,
+     52.4278
+    ],
+    "lin500": [
+     52.4742,
+     52.5481
+    ],
+    "none": [
+     52.6925,
+     52.7552
+    ]
+   },
+   "Bxy_mT_range_ref": {
+    "Bx": [
+     -52.3879,
+     52.3848
+    ],
+    "By": [
+     -52.3832,
+     52.4092
+    ],
+    "Bz": [
+     -2.78545,
+     2.01235
+    ]
+   },
+   "condition": {
+    "gap_error_mm": 0.2,
+    "knob_offset_mm": [
+     0.1,
+     0.1
+    ],
+    "magnet_T_C": 20.0,
+    "push_mm": 0.0,
+    "ring_offset_mm": [
+     0.1,
+     0.0
+    ],
+    "tilt_deg": [
+     1.0,
+     0.0
+    ]
+   },
+   "group": "B",
+   "n_angles": 1440,
+   "peak_uncal_deg": {
+    "lin1000": 0.0327029,
+    "lin200": 0.0300539,
+    "lin2000": 0.0333666,
+    "lin500": 0.0314598,
+    "none": 0.0285239
+   },
+   "peak_uncal_ring_attributable_deg": {
+    "lin1000": 0.0102184,
+    "lin200": 0.00422306,
+    "lin2000": 0.0115868,
+    "lin500": 0.00749812
+   },
+   "ring_induced_B_uT_at_hall": {
+    "lin1000": 304.659,
+    "lin200": 119.729,
+    "lin2000": 347.991,
+    "lin500": 220.551
+   },
+   "steel": {
+    "lin1000": {
+     "Bcell_max_T": 1.24832,
+     "Hcell_max_A_per_m": 993.38,
+     "frac_cells_above_1p5T": 0.0
+    }
+   },
+   "step_deg": 0.25
+  },
+  "B_hot": {
+   "B_mT": {
+    "lin1000": [
+     52.4072,
+     52.4845
+    ],
+    "lin200": [
+     52.5818,
+     52.6502
+    ],
+    "lin2000": [
+     52.3663,
+     52.4457
+    ],
+    "lin500": [
+     52.4866,
+     52.5599
+    ],
+    "none": [
+     52.6946,
+     52.7564
+    ]
+   },
+   "Bxy_mT_range_ref": {
+    "Bx": [
+     -52.4041,
+     52.4013
+    ],
+    "By": [
+     -52.4003,
+     52.4267
+    ],
+    "Bz": [
+     -2.755,
+     2.0117
+    ]
+   },
+   "condition": {
+    "gap_error_mm": 0.0,
+    "knob_offset_mm": [
+     0.1,
+     0.1
+    ],
+    "magnet_T_C": 176.0,
+    "push_mm": 0.0,
+    "ring_offset_mm": [
+     0.1,
+     0.0
+    ],
+    "tilt_deg": [
+     1.0,
+     0.0
+    ]
+   },
+   "group": "B",
+   "n_angles": 1440,
+   "peak_uncal_deg": {
+    "lin1000": 0.0329713,
+    "lin200": 0.0302169,
+    "lin2000": 0.0336597,
+    "lin500": 0.0316769,
+    "none": 0.028456
+   },
+   "peak_uncal_ring_attributable_deg": {
+    "lin1000": 0.0104223,
+    "lin200": 0.00432124,
+    "lin2000": 0.0118114,
+    "lin500": 0.00765505
+   },
+   "ring_induced_B_uT_at_hall": {
+    "lin1000": 290.399,
+    "lin200": 114.211,
+    "lin2000": 331.678,
+    "lin500": 210.266
+   },
+   "steel": {
+    "lin1000": {
+     "Bcell_max_T": 1.19045,
+     "Hcell_max_A_per_m": 947.331,
+     "frac_cells_above_1p5T": 0.0
+    }
+   },
+   "step_deg": 0.25
+  },
+  "B_hotstrong": {
+   "B_mT": {
+    "lin1000": [
+     64.0526,
+     64.1447
+    ],
+    "lin200": [
+     64.2316,
+     64.3121
+    ],
+    "lin2000": [
+     64.0107,
+     64.1054
+    ],
+    "lin500": [
+     64.134,
+     64.2208
+    ],
+    "nl": [
+     64.0108,
+     64.1081
+    ],
+    "none": [
+     64.3478,
+     64.4193
+    ]
+   },
+   "Bxy_mT_range_ref": {
+    "Bx": [
+     -64.049,
+     64.0463
+    ],
+    "By": [
+     -64.0477,
+     64.0818
+    ],
+    "Bz": [
+     -3.2134,
+     2.42696
+    ]
+   },
+   "condition": {
+    "gap_error_mm": -0.2,
+    "knob_offset_mm": [
+     0.1,
+     0.1
+    ],
+    "magnet_T_C": 176.0,
+    "push_mm": 0.5,
+    "ring_offset_mm": [
+     0.1,
+     0.0
+    ],
+    "tilt_deg": [
+     1.0,
+     0.0
+    ]
+   },
+   "group": "B",
+   "n_angles": 1440,
+   "peak_uncal_deg": {
+    "lin1000": 0.0340666,
+    "lin200": 0.0306803,
+    "lin2000": 0.0350523,
+    "lin500": 0.0323471,
+    "nl": 0.0350278,
+    "none": 0.0281678
+   },
+   "peak_uncal_ring_attributable_deg": {
+    "lin1000": 0.0113954,
+    "lin200": 0.00479185,
+    "lin2000": 0.0128823,
+    "lin500": 0.00840505,
+    "nl": 0.0129416
+   },
+   "ring_induced_B_uT_at_hall": {
+    "lin1000": 299.24,
+    "lin200": 118.08,
+    "lin2000": 341.66,
+    "lin500": 216.838,
+    "nl": 342.085
+   },
+   "steel": {
+    "lin1000": {
+     "Bcell_max_T": 1.23089,
+     "Hcell_max_A_per_m": 979.508,
+     "frac_cells_above_1p5T": 0.0
+    },
+    "nl": {
+     "Bcell_max_T": 1.42256,
+     "Hcell_max_A_per_m": 1017.33,
+     "frac_cells_above_1p5T": 0.0
+    }
+   },
+   "step_deg": 0.25
+  },
+  "B_push": {
+   "B_mT": {
+    "lin1000": [
+     63.9499,
+     64.0424
+    ],
+    "lin200": [
+     64.1379,
+     64.2191
+    ],
+    "lin2000": [
+     63.9058,
+     64.001
+    ],
+    "lin500": [
+     64.0354,
+     64.1228
+    ],
+    "none": [
+     64.2597,
+     64.3323
+    ]
+   },
+   "Bxy_mT_range_ref": {
+    "Bx": [
+     -63.9461,
+     63.9432
+    ],
+    "By": [
+     -63.9439,
+     63.9773
+    ],
+    "Bz": [
+     -3.25554,
+     2.43673
+    ]
+   },
+   "condition": {
+    "gap_error_mm": 0.0,
+    "knob_offset_mm": [
+     0.1,
+     0.1
+    ],
+    "magnet_T_C": 20.0,
+    "push_mm": 0.5,
+    "ring_offset_mm": [
+     0.1,
+     0.0
+    ],
+    "tilt_deg": [
+     1.0,
+     0.0
+    ]
+   },
+   "group": "B",
+   "n_angles": 1440,
+   "peak_uncal_deg": {
+    "lin1000": 0.0336118,
+    "lin200": 0.0305743,
+    "lin2000": 0.0344113,
+    "lin500": 0.0321781,
+    "none": 0.0282549
+   },
+   "peak_uncal_ring_attributable_deg": {
+    "lin1000": 0.011069,
+    "lin200": 0.0046335,
+    "lin2000": 0.0125234,
+    "lin500": 0.00815323
+   },
+   "ring_induced_B_uT_at_hall": {
+    "lin1000": 313.738,
+    "lin200": 123.666,
+    "lin2000": 358.253,
+    "lin500": 227.285
+   },
+   "steel": {
+    "lin1000": {
+     "Bcell_max_T": 1.28882,
+     "Hcell_max_A_per_m": 1025.61,
+     "frac_cells_above_1p5T": 0.0
+    }
+   },
+   "step_deg": 0.25
+  },
+  "B_strong": {
+   "B_mT": {
+    "lin1000": [
+     67.7519,
+     67.8492
+    ],
+    "lin200": [
+     67.9412,
+     68.0264
+    ],
+    "lin2000": [
+     67.7075,
+     67.8077
+    ],
+    "lin500": [
+     67.838,
+     67.9298
+    ],
+    "nl": [
+     67.7143,
+     67.8165
+    ],
+    "none": [
+     68.0641,
+     68.1397
+    ]
+   },
+   "Bxy_mT_range_ref": {
+    "Bx": [
+     -67.748,
+     67.7452
+    ],
+    "By": [
+     -67.7466,
+     67.7828
+    ],
+    "Bz": [
+     -3.39898,
+     2.56712
+    ]
+   },
+   "condition": {
+    "gap_error_mm": -0.2,
+    "knob_offset_mm": [
+     0.1,
+     0.1
+    ],
+    "magnet_T_C": 20.0,
+    "push_mm": 0.5,
+    "ring_offset_mm": [
+     0.1,
+     0.0
+    ],
+    "tilt_deg": [
+     1.0,
+     0.0
+    ]
+   },
+   "group": "B",
+   "n_angles": 1440,
+   "peak_uncal_deg": {
+    "lin1000": 0.0340666,
+    "lin200": 0.0306803,
+    "lin2000": 0.0350523,
+    "lin500": 0.0323471,
+    "nl": 0.0348625,
+    "none": 0.0281678
+   },
+   "peak_uncal_ring_attributable_deg": {
+    "lin1000": 0.0113954,
+    "lin200": 0.00479185,
+    "lin2000": 0.0128823,
+    "lin500": 0.00840505,
+    "nl": 0.0127019
+   },
+   "ring_induced_B_uT_at_hall": {
+    "lin1000": 316.522,
+    "lin200": 124.9,
+    "lin2000": 361.391,
+    "lin500": 229.361,
+    "nl": 354.948
+   },
+   "steel": {
+    "lin1000": {
+     "Bcell_max_T": 1.30197,
+     "Hcell_max_A_per_m": 1036.08,
+     "frac_cells_above_1p5T": 0.0
+    },
+    "nl": {
+     "Bcell_max_T": 1.41085,
+     "Hcell_max_A_per_m": 1104.78,
+     "frac_cells_above_1p5T": 0.0
+    }
+   },
+   "step_deg": 0.25
+  },
+  "B_weakhot": {
+   "B_mT": {
+    "lin1000": [
+     49.5302,
+     49.6039
+    ],
+    "lin200": [
+     49.7036,
+     49.769
+    ],
+    "lin2000": [
+     49.4896,
+     49.5652
+    ],
+    "lin500": [
+     49.6091,
+     49.679
+    ],
+    "none": [
+     49.8155,
+     49.8747
+    ]
+   },
+   "Bxy_mT_range_ref": {
+    "Bx": [
+     -49.5275,
+     49.5246
+    ],
+    "By": [
+     -49.5231,
+     49.5476
+    ],
+    "Bz": [
+     -2.63336,
+     1.90247
+    ]
+   },
+   "condition": {
+    "gap_error_mm": 0.2,
+    "knob_offset_mm": [
+     0.1,
+     0.1
+    ],
+    "magnet_T_C": 176.0,
+    "push_mm": 0.0,
+    "ring_offset_mm": [
+     0.1,
+     0.0
+    ],
+    "tilt_deg": [
+     1.0,
+     0.0
+    ]
+   },
+   "group": "B",
+   "n_angles": 1440,
+   "peak_uncal_deg": {
+    "lin1000": 0.0327029,
+    "lin200": 0.0300539,
+    "lin2000": 0.0333666,
+    "lin500": 0.0314598,
+    "none": 0.0285239
+   },
+   "peak_uncal_ring_attributable_deg": {
+    "lin1000": 0.0102184,
+    "lin200": 0.00422306,
+    "lin2000": 0.0115868,
+    "lin500": 0.00749812
+   },
+   "ring_induced_B_uT_at_hall": {
+    "lin1000": 288.025,
+    "lin200": 113.192,
+    "lin2000": 328.991,
+    "lin500": 208.509
+   },
+   "steel": {
+    "lin1000": {
+     "Bcell_max_T": 1.18016,
+     "Hcell_max_A_per_m": 939.142,
+     "frac_cells_above_1p5T": 0.0
+    }
+   },
+   "step_deg": 0.25
+  },
+  "C_offmx": {
+   "B_mT": {
+    "lin1000": [
+     55.4234,
+     55.4451
+    ],
+    "lin200": [
+     55.604,
+     55.6259
+    ],
+    "lin2000": [
+     55.3811,
+     55.4027
+    ],
+    "lin500": [
+     55.5055,
+     55.5273
+    ],
+    "none": [
+     55.7206,
+     55.7418
+    ]
+   },
+   "Bxy_mT_range_ref": {
+    "Bx": [
+     -55.4103,
+     55.4134
+    ],
+    "By": [
+     -55.4244,
+     55.4244
+    ],
+    "Bz": [
+     -1.96475,
+     1.17782
+    ]
+   },
+   "condition": {
+    "gap_error_mm": 0.0,
+    "knob_offset_mm": [
+     -0.1,
+     0.0
+    ],
+    "magnet_T_C": 20.0,
+    "push_mm": 0.0,
+    "ring_offset_mm": [
+     0.0,
+     0.0
+    ],
+    "tilt_deg": [
+     0.0,
+     0.0
+    ]
+   },
+   "group": "C",
+   "n_angles": 1440,
+   "peak_uncal_deg": {
+    "lin1000": 0.00764631,
+    "lin200": 0.00743166,
+    "lin2000": 0.00771068,
+    "lin500": 0.0075448,
+    "none": 0.00759547
+   },
+   "peak_uncal_ring_attributable_deg": {
+    "lin1000": 9.10526e-05,
+    "lin200": 0.000284939,
+    "lin2000": 0.000167753,
+    "lin500": 0.000128313
+   },
+   "ring_induced_B_uT_at_hall": {
+    "lin1000": 297.237,
+    "lin200": 116.906,
+    "lin2000": 339.654,
+    "lin500": 215.172
+   },
+   "steel": {
+    "lin1000": {
+     "Bcell_max_T": 1.22632,
+     "Hcell_max_A_per_m": 975.874,
+     "frac_cells_above_1p5T": 0.0
+    }
+   },
+   "step_deg": 0.25
+  },
+  "C_offmy": {
+   "B_mT": {
+    "lin1000": [
+     55.4234,
+     55.4451
+    ],
+    "lin200": [
+     55.604,
+     55.6259
+    ],
+    "lin2000": [
+     55.3811,
+     55.4027
+    ],
+    "lin500": [
+     55.5055,
+     55.5273
+    ],
+    "none": [
+     55.7206,
+     55.7418
+    ]
+   },
+   "Bxy_mT_range_ref": {
+    "Bx": [
+     -55.4244,
+     55.4244
+    ],
+    "By": [
+     -55.4103,
+     55.4134
+    ],
+    "Bz": [
+     -1.96475,
+     1.17782
+    ]
+   },
+   "condition": {
+    "gap_error_mm": 0.0,
+    "knob_offset_mm": [
+     0.0,
+     -0.1
+    ],
+    "magnet_T_C": 20.0,
+    "push_mm": 0.0,
+    "ring_offset_mm": [
+     0.0,
+     0.0
+    ],
+    "tilt_deg": [
+     0.0,
+     0.0
+    ]
+   },
+   "group": "C",
+   "n_angles": 1440,
+   "peak_uncal_deg": {
+    "lin1000": 0.00764631,
+    "lin200": 0.00743166,
+    "lin2000": 0.00771068,
+    "lin500": 0.0075448,
+    "none": 0.00759547
+   },
+   "peak_uncal_ring_attributable_deg": {
+    "lin1000": 9.10526e-05,
+    "lin200": 0.000284939,
+    "lin2000": 0.000167753,
+    "lin500": 0.000128313
+   },
+   "ring_induced_B_uT_at_hall": {
+    "lin1000": 297.237,
+    "lin200": 116.906,
+    "lin2000": 339.654,
+    "lin500": 215.172
+   },
+   "steel": {
+    "lin1000": {
+     "Bcell_max_T": 1.22632,
+     "Hcell_max_A_per_m": 975.874,
+     "frac_cells_above_1p5T": 0.0
+    }
+   },
+   "step_deg": 0.25
+  },
+  "C_offpx": {
+   "B_mT": {
+    "lin1000": [
+     55.4234,
+     55.4451
+    ],
+    "lin200": [
+     55.604,
+     55.6259
+    ],
+    "lin2000": [
+     55.3811,
+     55.4027
+    ],
+    "lin500": [
+     55.5055,
+     55.5273
+    ],
+    "none": [
+     55.7206,
+     55.7418
+    ]
+   },
+   "Bxy_mT_range_ref": {
+    "Bx": [
+     -55.4134,
+     55.4103
+    ],
+    "By": [
+     -55.4244,
+     55.4244
+    ],
+    "Bz": [
+     -1.96475,
+     1.17782
+    ]
+   },
+   "condition": {
+    "gap_error_mm": 0.0,
+    "knob_offset_mm": [
+     0.1,
+     0.0
+    ],
+    "magnet_T_C": 20.0,
+    "push_mm": 0.0,
+    "ring_offset_mm": [
+     0.0,
+     0.0
+    ],
+    "tilt_deg": [
+     0.0,
+     0.0
+    ]
+   },
+   "group": "C",
+   "n_angles": 1440,
+   "peak_uncal_deg": {
+    "lin1000": 0.00764631,
+    "lin200": 0.00743166,
+    "lin2000": 0.00771068,
+    "lin500": 0.0075448,
+    "none": 0.00759547
+   },
+   "peak_uncal_ring_attributable_deg": {
+    "lin1000": 9.10526e-05,
+    "lin200": 0.000284939,
+    "lin2000": 0.000167753,
+    "lin500": 0.000128313
+   },
+   "ring_induced_B_uT_at_hall": {
+    "lin1000": 297.237,
+    "lin200": 116.906,
+    "lin2000": 339.654,
+    "lin500": 215.172
+   },
+   "steel": {
+    "lin1000": {
+     "Bcell_max_T": 1.22632,
+     "Hcell_max_A_per_m": 975.874,
+     "frac_cells_above_1p5T": 0.0
+    }
+   },
+   "step_deg": 0.25
+  },
+  "C_offpy": {
+   "B_mT": {
+    "lin1000": [
+     55.4234,
+     55.4451
+    ],
+    "lin200": [
+     55.604,
+     55.6259
+    ],
+    "lin2000": [
+     55.3811,
+     55.4027
+    ],
+    "lin500": [
+     55.5055,
+     55.5273
+    ],
+    "none": [
+     55.7206,
+     55.7418
+    ]
+   },
+   "Bxy_mT_range_ref": {
+    "Bx": [
+     -55.4244,
+     55.4244
+    ],
+    "By": [
+     -55.4134,
+     55.4103
+    ],
+    "Bz": [
+     -1.96475,
+     1.17782
+    ]
+   },
+   "condition": {
+    "gap_error_mm": 0.0,
+    "knob_offset_mm": [
+     0.0,
+     0.1
+    ],
+    "magnet_T_C": 20.0,
+    "push_mm": 0.0,
+    "ring_offset_mm": [
+     0.0,
+     0.0
+    ],
+    "tilt_deg": [
+     0.0,
+     0.0
+    ]
+   },
+   "group": "C",
+   "n_angles": 1440,
+   "peak_uncal_deg": {
+    "lin1000": 0.00764631,
+    "lin200": 0.00743166,
+    "lin2000": 0.00771068,
+    "lin500": 0.0075448,
+    "none": 0.00759547
+   },
+   "peak_uncal_ring_attributable_deg": {
+    "lin1000": 9.10526e-05,
+    "lin200": 0.000284939,
+    "lin2000": 0.000167753,
+    "lin500": 0.000128313
+   },
+   "ring_induced_B_uT_at_hall": {
+    "lin1000": 297.237,
+    "lin200": 116.906,
+    "lin2000": 339.654,
+    "lin500": 215.172
+   },
+   "steel": {
+    "lin1000": {
+     "Bcell_max_T": 1.22632,
+     "Hcell_max_A_per_m": 975.874,
+     "frac_cells_above_1p5T": 0.0
+    }
+   },
+   "step_deg": 0.25
+  },
+  "C_ringpx": {
+   "B_mT": {
+    "lin1000": [
+     55.432,
+     55.4321
+    ],
+    "lin200": [
+     55.6125,
+     55.613
+    ],
+    "lin2000": [
+     55.3896,
+     55.3899
+    ],
+    "lin500": [
+     55.5141,
+     55.5143
+    ],
+    "none": [
+     55.7292,
+     55.7292
+    ]
+   },
+   "Bxy_mT_range_ref": {
+    "Bx": [
+     -55.4306,
+     55.4307
+    ],
+    "By": [
+     -55.4307,
+     55.4307
+    ],
+    "Bz": [
+     -0.393556,
+     -0.392839
+    ]
+   },
+   "condition": {
+    "gap_error_mm": 0.0,
+    "knob_offset_mm": [
+     0.0,
+     0.0
+    ],
+    "magnet_T_C": 20.0,
+    "push_mm": 0.0,
+    "ring_offset_mm": [
+     0.1,
+     0.0
+    ],
+    "tilt_deg": [
+     0.0,
+     0.0
+    ]
+   },
+   "group": "C",
+   "n_angles": 1440,
+   "peak_uncal_deg": {
+    "lin1000": 5.68513e-05,
+    "lin200": 0.00027989,
+    "lin2000": 0.000133429,
+    "lin500": 0.000114971,
+    "none": 5.68434e-13
+   },
+   "peak_uncal_ring_attributable_deg": {
+    "lin1000": 5.68513e-05,
+    "lin200": 0.00027989,
+    "lin2000": 0.000133429,
+    "lin500": 0.000114971
+   },
+   "ring_induced_B_uT_at_hall": {
+    "lin1000": 297.266,
+    "lin200": 116.911,
+    "lin2000": 339.687,
+    "lin500": 215.184
+   },
+   "steel": {
+    "lin1000": {
+     "Bcell_max_T": 1.22632,
+     "Hcell_max_A_per_m": 975.874,
+     "frac_cells_above_1p5T": 0.0
+    }
+   },
+   "step_deg": 0.25
+  },
+  "C_ringpy": {
+   "B_mT": {
+    "lin1000": [
+     55.432,
+     55.4321
+    ],
+    "lin200": [
+     55.6125,
+     55.613
+    ],
+    "lin2000": [
+     55.3896,
+     55.3899
+    ],
+    "lin500": [
+     55.5141,
+     55.5143
+    ],
+    "none": [
+     55.7292,
+     55.7292
+    ]
+   },
+   "Bxy_mT_range_ref": {
+    "Bx": [
+     -55.4307,
+     55.4307
+    ],
+    "By": [
+     -55.4306,
+     55.4307
+    ],
+    "Bz": [
+     -0.393556,
+     -0.392839
+    ]
+   },
+   "condition": {
+    "gap_error_mm": 0.0,
+    "knob_offset_mm": [
+     0.0,
+     0.0
+    ],
+    "magnet_T_C": 20.0,
+    "push_mm": 0.0,
+    "ring_offset_mm": [
+     0.0,
+     0.1
+    ],
+    "tilt_deg": [
+     0.0,
+     0.0
+    ]
+   },
+   "group": "C",
+   "n_angles": 1440,
+   "peak_uncal_deg": {
+    "lin1000": 5.68513e-05,
+    "lin200": 0.00027989,
+    "lin2000": 0.000133429,
+    "lin500": 0.000114971,
+    "none": 5.68434e-13
+   },
+   "peak_uncal_ring_attributable_deg": {
+    "lin1000": 5.68513e-05,
+    "lin200": 0.00027989,
+    "lin2000": 0.000133429,
+    "lin500": 0.000114971
+   },
+   "ring_induced_B_uT_at_hall": {
+    "lin1000": 297.266,
+    "lin200": 116.911,
+    "lin2000": 339.687,
+    "lin500": 215.184
+   },
+   "steel": {
+    "lin1000": {
+     "Bcell_max_T": 1.22632,
+     "Hcell_max_A_per_m": 975.874,
+     "frac_cells_above_1p5T": 0.0
+    }
+   },
+   "step_deg": 0.25
+  },
+  "C_tiltx": {
+   "B_mT": {
+    "lin1000": [
+     55.4283,
+     55.4649
+    ],
+    "lin200": [
+     55.6148,
+     55.6394
+    ],
+    "lin2000": [
+     55.3845,
+     55.424
+    ],
+    "lin500": [
+     55.5132,
+     55.5443
+    ],
+    "nl": [
+     55.3918,
+     55.4334
+    ],
+    "none": [
+     55.734,
+     55.7518
+    ]
+   },
+   "Bxy_mT_range_ref": {
+    "Bx": [
+     -55.4379,
+     55.4379
+    ],
+    "By": [
+     -55.4283,
+     55.4593
+    ],
+    "Bz": [
+     -0.792328,
+     0.00523677
+    ]
+   },
+   "condition": {
+    "gap_error_mm": 0.0,
+    "knob_offset_mm": [
+     0.0,
+     0.0
+    ],
+    "magnet_T_C": 20.0,
+    "push_mm": 0.0,
+    "ring_offset_mm": [
+     0.0,
+     0.0
+    ],
+    "tilt_deg": [
+     1.0,
+     0.0
+    ]
+   },
+   "group": "C",
+   "n_angles": 1440,
+   "peak_uncal_deg": {
+    "lin1000": 0.0170105,
+    "lin200": 0.0109865,
+    "lin2000": 0.0184263,
+    "lin500": 0.0142424,
+    "nl": 0.018183,
+    "none": 0.0074375
+   },
+   "peak_uncal_ring_attributable_deg": {
+    "lin1000": 0.0104388,
+    "lin200": 0.00407272,
+    "lin2000": 0.0119105,
+    "lin500": 0.0075452,
+    "nl": 0.0116736
+   },
+   "ring_induced_B_uT_at_hall": {
+    "lin1000": 307.225,
+    "lin200": 120.584,
+    "lin2000": 350.973,
+    "lin500": 222.333,
+    "nl": 343.709
+   },
+   "steel": {
+    "lin1000": {
+     "Bcell_max_T": 1.26187,
+     "Hcell_max_A_per_m": 1004.17,
+     "frac_cells_above_1p5T": 0.0
+    },
+    "nl": {
+     "Bcell_max_T": 1.39131,
+     "Hcell_max_A_per_m": 1042.19,
+     "frac_cells_above_1p5T": 0.0
+    }
+   },
+   "step_deg": 0.25
+  },
+  "C_tilty": {
+   "B_mT": {
+    "lin1000": [
+     55.4283,
+     55.4649
+    ],
+    "lin200": [
+     55.6148,
+     55.6394
+    ],
+    "lin2000": [
+     55.3845,
+     55.424
+    ],
+    "lin500": [
+     55.5132,
+     55.5443
+    ],
+    "none": [
+     55.734,
+     55.7518
+    ]
+   },
+   "Bxy_mT_range_ref": {
+    "Bx": [
+     -55.4593,
+     55.4283
+    ],
+    "By": [
+     -55.4379,
+     55.4379
+    ],
+    "Bz": [
+     -0.792328,
+     0.00523677
+    ]
+   },
+   "condition": {
+    "gap_error_mm": 0.0,
+    "knob_offset_mm": [
+     0.0,
+     0.0
+    ],
+    "magnet_T_C": 20.0,
+    "push_mm": 0.0,
+    "ring_offset_mm": [
+     0.0,
+     0.0
+    ],
+    "tilt_deg": [
+     0.0,
+     1.0
+    ]
+   },
+   "group": "C",
+   "n_angles": 1440,
+   "peak_uncal_deg": {
+    "lin1000": 0.0170105,
+    "lin200": 0.0109865,
+    "lin2000": 0.0184263,
+    "lin500": 0.0142424,
+    "none": 0.0074375
+   },
+   "peak_uncal_ring_attributable_deg": {
+    "lin1000": 0.0104388,
+    "lin200": 0.00407272,
+    "lin2000": 0.0119105,
+    "lin500": 0.0075452
+   },
+   "ring_induced_B_uT_at_hall": {
+    "lin1000": 307.225,
+    "lin200": 120.584,
+    "lin2000": 350.973,
+    "lin500": 222.333
+   },
+   "steel": {
+    "lin1000": {
+     "Bcell_max_T": 1.26187,
+     "Hcell_max_A_per_m": 1004.17,
+     "frac_cells_above_1p5T": 0.0
+    }
+   },
+   "step_deg": 0.25
+  }
+ },
+ "controls": {
+  "bh_curve": {
+   "B_at_H": {
+    "100": 0.15,
+    "1000": 1.37723,
+    "12000": 1.9,
+    "3000": 1.65,
+    "400": 1.0
+   },
+   "mu_r_initial": 318.31,
+   "mu_r_max": 2205.87
+  },
+  "ctl1_sensing_magnet_at_die": {
+   "model_total_mT_with_rim_magnets_ring_absent": 55.7292,
+   "model_transverse_mT_176C": 52.6851,
+   "model_transverse_mT_20C": 55.7278,
+   "rel_err": 0.0,
+   "rel_err_176C": 1.57241e-06,
+   "tolerance": 0.02,
+   "ui_calcs_mT_176C": 52.685,
+   "ui_calcs_mT_20C": 55.7278
+  },
+  "ctl2a_cuboid_kernel_vs_magpylib": {
+   "max_rel_err": 1.32033e-10,
+   "tolerance": 1e-06
+  },
+  "ctl2b_diametral_cylinder_on_axis_vs_closed_form": {
+   "rows": [
+    {
+     "closed_form_mT": 55.7278,
+     "gap_mm": 5.0,
+     "magpylib_mT": 55.7278,
+     "rel_err": 0.0
+    },
+    {
+     "closed_form_mT": 20.1064,
+     "gap_mm": 9.0,
+     "magpylib_mT": 20.1064,
+     "rel_err": -1.55431e-15
+    },
+    {
+     "closed_form_mT": 6.38411,
+     "gap_mm": 15.0,
+     "magpylib_mT": 6.38411,
+     "rel_err": 0.0
+    }
+   ],
+   "tolerance": 0.01
+  },
+  "ctl2c_mom_solver_sphere_in_uniform_field": {
+   "note": "mu_r=3 is the asserted case; a voxelised sphere's demagnetising factor differs from 1/3 by about 1.5 %, which is amplified at large mu_r (mu_r=10 shown for information)",
+   "rows": [
+    {
+     "Hx_on_axis_3R_ratio": 1.00052,
+     "Hz_equator_3R_ratio": 1.00803,
+     "cells": 4139,
+     "mean_M_ratio": 1.00558,
+     "moment_ratio": 1.00558,
+     "mu_r": 3.0
+    },
+    {
+     "Hx_on_axis_3R_ratio": 1.01253,
+     "Hz_equator_3R_ratio": 1.02405,
+     "cells": 4139,
+     "mean_M_ratio": 1.02009,
+     "moment_ratio": 1.02009,
+     "mu_r": 10.0
+    }
+   ],
+   "tolerance": 0.01
+  },
+  "ctl4_torque_force_cross_check": {
+   "axial_force_direct_mN": -5.23927,
+   "axial_force_energy_method_mN": -5.24392,
+   "axial_ratio": 0.999113,
+   "material": "linear mu_r=1000",
+   "theta_deg": 3.75,
+   "tolerance": "ratio within 0.9..1.1 (direct route: rim blocks as 27 point dipoles, sensing magnet as 9x9x5 grid)",
+   "torque_direct_force_on_magnets_uNm": -3.85538,
+   "torque_energy_method_uNm": -3.93877,
+   "torque_ratio": 0.978828
+  },
+  "floorplan_constants": {
+   "die_w": -4.0,
+   "knob_axis": [
+    110.0,
+    53.0
+   ],
+   "ok": true,
+   "steel_keepout_r": 25.0
+  }
+ },
+ "convergence": {
+  "angles_deg_step": 6.0,
+  "case": "B_cold",
+  "criterion": "control 3: halving prod -> fine changes the peak total angle error (linear mu_r=1000) by < 10%. The ring-attributable part of that error is reported separately and is converged more slowly (thin high-permeability plate, piecewise-uniform magnetisation)",
+  "levels": {
+   "coarse": {
+    "cells": 144,
+    "element_mm": 1.0,
+    "lin1000": {
+     "peak_ring_attributable_deg": 0.0107804,
+     "peak_total_uncal_deg": 0.0331204,
+     "ring_B_peak_uT": 322.551
+    },
+    "lin200": {
+     "peak_ring_attributable_deg": 0.00411772,
+     "peak_total_uncal_deg": 0.0301359,
+     "ring_B_peak_uT": 117.093
+    },
+    "lin2000": {
+     "peak_ring_attributable_deg": 0.0141382,
+     "peak_total_uncal_deg": 0.0348493,
+     "ring_B_peak_uT": 424.948
+    },
+    "nl": {
+     "peak_ring_attributable_deg": 0.0140463,
+     "peak_total_uncal_deg": 0.0348898,
+     "ring_B_peak_uT": 416.287
+    }
+   },
+   "fine": {
+    "cells": 9216,
+    "element_mm": 0.25,
+    "lin1000": {
+     "peak_ring_attributable_deg": 0.0122292,
+     "peak_total_uncal_deg": 0.0338602,
+     "ring_B_peak_uT": 355.236
+    }
+   },
+   "prod": {
+    "cells": 1152,
+    "element_mm": 0.5,
+    "lin1000": {
+     "peak_ring_attributable_deg": 0.0104223,
+     "peak_total_uncal_deg": 0.0329336,
+     "ring_B_peak_uT": 307.171
+    },
+    "lin200": {
+     "peak_ring_attributable_deg": 0.00432124,
+     "peak_total_uncal_deg": 0.0301501,
+     "ring_B_peak_uT": 120.807
+    },
+    "lin2000": {
+     "peak_ring_attributable_deg": 0.0118114,
+     "peak_total_uncal_deg": 0.0336498,
+     "ring_B_peak_uT": 350.834
+    },
+    "nl": {
+     "peak_ring_attributable_deg": 0.0116055,
+     "peak_total_uncal_deg": 0.0335305,
+     "ring_B_peak_uT": 343.515
+    }
+   }
+  },
+  "mesh_uncertainty_factor_on_ring_part": 1.17337,
+  "pass": true,
+  "relative_change_on_halving": {
+   "lin1000": {
+    "coarse->prod:peak_ring_attributable_deg": 0.0332231,
+    "coarse->prod:peak_total_uncal_deg": 0.00564032,
+    "prod->fine:peak_ring_attributable_deg": 0.173369,
+    "prod->fine:peak_total_uncal_deg": 0.028134
+   },
+   "lin200": {
+    "coarse->prod:peak_ring_attributable_deg": 0.0494234,
+    "coarse->prod:peak_total_uncal_deg": 0.000473048
+   },
+   "lin2000": {
+    "coarse->prod:peak_ring_attributable_deg": 0.164576,
+    "coarse->prod:peak_total_uncal_deg": 0.0344188
+   },
+   "nl": {
+    "coarse->prod:peak_ring_attributable_deg": 0.173763,
+    "coarse->prod:peak_total_uncal_deg": 0.0389612
+   }
+  },
+  "ring_attributable_change_on_halving": 0.173369,
+  "ring_induced_B_peak_uT_by_level": {
+   "coarse": 322.551,
+   "fine": 355.236,
+   "prod": 307.171
+  },
+  "saturating_fine_mesh": "not run (cost); saturating coarse -> production change is in `relative_change_on_halving.nl`"
+ },
+ "criteria_stated_before_results": {
+  "P1": "ring-attributable calibrated residual D <= 0.10 deg (cold calibration harm4, validated on non-fit angles and all other conditions, every material variant incl. soft/hard curves and Hc=400 A/m hysteresis, sensor drift corrected as in ui_calcs)",
+  "P2": "absolute calibrated residual R of the worst as-built unit with the ring <= 0.60 deg (the whole pool)",
+  "P3": "|B| at the die stays inside 80 % of the +/-100 mT range with the ui_calcs tolerances (<= 80 mT) and the ring changes |B| by < 1 %",
+  "P4": "all controls pass (ui_calcs 55.7 mT within 2 %, analytic cases within 1 %, convergence < 10 % on halving)",
+  "derivation": "ui_calcs/U24: 1.0 deg absolute budget minus the 0.40 deg non-repeatable error (3.5 sigma noise + stray field + quantisation + 0.057 deg gain residual) leaves 0.60 deg for calibration residual, magnet and mechanism. ui_calcs allocates nothing of it. Equal thirds give 0.20 deg to the mechanism; the ring is one mechanism part, so it may use half of that third: 0.10 deg.",
+  "inconclusive_if": "D is within a factor 2 of the share (the B-H curve and the coil/standoff/mount details are not measured)",
+  "pool_deg": 0.6,
+  "ring_share_deg": 0.1
+ },
+ "environment": {
+  "magpylib": "5.2.3",
+  "matplotlib": "3.11.2",
+  "numba": "0.68.0",
+  "numpy": "2.5.4",
+  "python": "3.12.12",
+  "scipy": "1.18.1",
+  "threadpoolctl": "3.7.0"
+ },
+ "generated_by": "evidence/knob-ring/ring_study.py",
+ "geometry_conflict": {
+  "J9_if_front_face": {
+   "centre_u_max": 78.875,
+   "needed_box_nearest_axis_mm": 29.0,
+   "tab_edge_u_max_with_1mm_margin": 75.75
+  },
+  "axial": {
+   "fascia_rear_w": -3.0,
+   "front_face_headroom_to_fascia_mm": 1.78,
+   "front_face_headroom_under_ring_mm": 0.78,
+   "rear_face_parts_clear_of_ring_underside_mm": 2.38,
+   "ring_w": [
+    -4.0,
+    -3.0
+   ],
+   "standoff_body_w_span": [
+    -4.78,
+    -3.0
+   ],
+   "standoff_overlaps_ring_axially_mm": 1.0,
+   "tab_front_face_w": -4.78,
+   "tab_rear_face_w": -6.38
+  },
+  "clearance_requirement": {
+   "basis": "ring outer 27.5 + 1.5 mm for ring position tolerance, adhesive fillet and assembly",
+   "envelope_nearest_axis_mm": 29.0
+  },
+  "current_J9": {
+   "box_nearest_axis_mm": 25.875,
+   "centre_uv": [
+    82.0,
+    53.0
+   ],
+   "face_assumed": "tab rear face (see README: a SM10B-SRSS-TB cannot fit in the 1.78 mm front-face gap; datasheet height not fetched)",
+   "plan_clearance_to_ring_outer_mm": -1.625
+  },
+  "current_standoffs": [
+   {
+    "angle_deg": 202.2,
+    "centre_to_axis_mm": 29.155,
+    "centre_uv": [
+     83.0,
+     42.0
+    ],
+    "head_nearest_axis_mm": 26.655,
+    "plan_clearance_to_ring_outer_mm": -0.845
+   },
+   {
+    "angle_deg": 157.8,
+    "centre_to_axis_mm": 29.155,
+    "centre_uv": [
+     83.0,
+     64.0
+    ],
+    "head_nearest_axis_mm": 26.655,
+    "plan_clearance_to_ring_outer_mm": -0.845
+   },
+   {
+    "angle_deg": 0.0,
+    "centre_to_axis_mm": 28.0,
+    "centre_uv": [
+     138.0,
+     53.0
+    ],
+    "head_nearest_axis_mm": 25.5,
+    "plan_clearance_to_ring_outer_mm": -2.0
+   }
+  ],
+  "proposal": {
+   "J9": {
+    "centre_uv": [
+     82.0,
+     53.0
+    ],
+    "clearance_to_tab_edge_mm": 2.375,
+    "hole_clearance_mm": [
+     4.8,
+     4.8,
+     56.175
+    ],
+    "nearest_axis_mm": 25.875,
+    "note": "stays; rear face"
+   },
+   "all_standoff_heads_ge_29": true,
+   "all_walls_ge_2mm": true,
+   "enclosed_by_tab_growth_mm": {
+    "minus_u": 0.5,
+    "plus_u": 3.0
+   },
+   "standoffs": [
+    {
+     "centre_to_axis_mm": 31.776,
+     "centre_uv": [
+      80.85,
+      40.35
+     ],
+     "head_nearest_axis_mm": 29.276,
+     "plan_clearance_to_ring_outer_mm": 1.776,
+     "wall_to_tab_edge_mm": 2.0
+    },
+    {
+     "centre_to_axis_mm": 31.776,
+     "centre_uv": [
+      80.85,
+      65.65
+     ],
+     "head_nearest_axis_mm": 29.276,
+     "plan_clearance_to_ring_outer_mm": 1.776,
+     "wall_to_tab_edge_mm": 2.0
+    },
+    {
+     "centre_to_axis_mm": 31.65,
+     "centre_uv": [
+      141.65,
+      53.0
+     ],
+     "head_nearest_axis_mm": 29.15,
+     "plan_clearance_to_ring_outer_mm": 1.65,
+     "wall_to_tab_edge_mm": 2.0
+    }
+   ],
+   "support_triangle_contains_hall": true,
+   "tab_size_mm": [
+    67.5,
+    32.0
+   ],
+   "tab_u": [
+    77.5,
+    145.0
+   ],
+   "tab_v": [
+    37.0,
+    69.0
+   ]
+  },
+  "ring": {
+   "outer_r": 27.5,
+   "tip_r": 25.5,
+   "w": [
+    -4.0,
+    -3.0
+   ]
+  }
+ },
+ "group_descriptions": {
+  "A": "ideal coaxial unit (C24-symmetric; sweep one 15 deg pitch, tile to the full turn)",
+  "B": "worst-tolerance as-built unit: knob offset (0.1, 0.1) mm, tilt 1 deg about u, ring offset (0.1, 0) mm, then the conditions of group A on top",
+  "C": "single tolerances, one at a time, released and cold (uncalibrated drift only)"
+ },
+ "headline": {
+  "B_mT": {
+   "ring_changes_B_by_at_most_fraction": 0.00577982,
+   "strongest_with_ring": 67.8492,
+   "weakest_with_ring": 49.5292,
+   "with_ui_calcs_tolerances": {
+    "basis": "Br +/-5 %, -40 C (+2.1 %) as in ui_calcs magnet_field; the study cases are 20 and 176 C only",
+    "limit_80pct_of_100mT": 80.0,
+    "max_mT": 72.738,
+    "min_mT": 47.053,
+    "ui_calcs_b_max_mT": 72.95,
+    "ui_calcs_b_min_mT": 47.32
+   }
+  },
+  "calibrated_residual_deg": {
+   "D_max_all_variants_mesh_adjusted": 0.084403,
+   "D_max_without_hysteresis_mesh_adjusted": 0.007166,
+   "R_total_max_mesh_adjusted": 0.084403,
+   "mesh_uncertainty_factor": 1.17337,
+   "share_deg": 0.1
+  },
+  "geometry": {
+   "proposed_tab_mm": [
+    67.5,
+    32.0
+   ],
+   "standoffs_current_clearance_mm": [
+    -0.845,
+    -0.845,
+    -2.0
+   ],
+   "standoffs_proposed_clearance_mm": [
+    1.776,
+    1.776,
+    1.65
+   ]
+  },
+  "hysteresis_D_deg": {
+   "h160": {
+    "cw_minus_ccw_peak_deg": 0.0670343,
+    "peak_ccw_deg": 0.033541,
+    "peak_cw_deg": 0.033541,
+    "periodic_regime_check_T": [
+     2.09233e-06,
+     2.09233e-06
+    ],
+    "ring_B_uT_cw_vs_ccw_max_diff": 64.8184,
+    "ring_B_uT_vs_anhysteretic_max_diff": 32.748,
+    "vs_anhysteretic_peak_deg": 0.0335841
+   },
+   "h400": {
+    "cw_minus_ccw_peak_deg": 0.142336,
+    "peak_ccw_deg": 0.0719322,
+    "peak_cw_deg": 0.0719322,
+    "periodic_regime_check_T": [
+     9.56717e-06,
+     9.56717e-06
+    ],
+    "ring_B_uT_cw_vs_ccw_max_diff": 137.705,
+    "ring_B_uT_vs_anhysteretic_max_diff": 75.2851,
+    "vs_anhysteretic_peak_deg": 0.0719143
+   }
+  },
+  "peak_uncalibrated_error_deg": {
+   "ring_absent_max": 0.0285239,
+   "ring_attributable_max_no_hysteresis": [
+    0.0129416,
+    "B_hotstrong",
+    "nl"
+   ],
+   "ring_attributable_max_with_hysteresis": [
+    0.0719322,
+    "A_cold",
+    "nl_h400_ccw"
+   ],
+   "ring_present_max": [
+    0.0719322,
+    "A_cold",
+    "nl_h400_ccw"
+   ]
+  },
+  "steel": {
+   "cases_with_saturating_solve": [
+    "A_cold",
+    "A_push",
+    "A_gapm",
+    "A_gapp",
+    "A_strong",
+    "A_hot",
+    "A_weakhot",
+    "A_hotstrong",
+    "B_cold",
+    "B_strong",
+    "B_hotstrong",
+    "C_tiltx"
+   ],
+   "knee_note": "B of the representative curve at H=400 A/m is 1.0 T, 1.5 T at 1500 A/m, 1.9 T at 12 kA/m",
+   "max_cell_B_lin2000_T": 1.9249,
+   "max_cell_B_nl_T": 1.4226,
+   "max_cell_B_nl_soft_T": 1.5695,
+   "max_fraction_cells_above_1p5T_nl": 0.0
+  },
+  "torque_and_pull": {
+   "axial_force_N": {
+    "axial_force_N_positive_is_away_from_ring": -0.0058
+   },
+   "detent_torque_peak_mNm": 0.0041
+  },
+  "verdict_angle_error_budget": "INCONCLUSIVE",
+  "verdict_detent_function": "FAIL"
+ },
+ "inputs": {
+  "coil_allowance_deg": {
+   "assembled_nopan_base_roof": 0.02722,
+   "pan_31kHz_bare": 0.05107,
+   "worst_bare_nopan_60kHz": 0.17262
+  },
+  "geometry_A0": {
+   "hall_uvw": [
+    110.0,
+    53.0,
+    -4.0
+   ],
+   "rim_magnets": {
+    "Br_20C_T": 1.19,
+    "count": 24,
+    "magnetisation": "+w",
+    "r": 26.5,
+    "size_r_t_ax_mm": [
+     1.0,
+     2.0,
+     2.0
+    ],
+    "w": [
+     1.0,
+     3.0
+    ]
+   },
+   "ring": {
+    "outer_r": 27.5,
+    "root_r": 26.5,
+    "teeth": 24,
+    "tip_r": 25.5,
+    "tooth_deg": 7.5,
+    "w": [
+     -4.0,
+     -3.0
+    ]
+   },
+   "sensing_magnet": {
+    "Br_20C_T": 1.19,
+    "d_h_mm": [
+     10.0,
+     5.0
+    ],
+    "magnetisation": "+u at 0 deg, diametral",
+    "w": [
+     1.0,
+     6.0
+    ]
+   },
+   "temp_coefficient_per_K": 0.00035
+  },
+  "grid": {
+   "hysteresis_pitches": 4,
+   "step_asym_deg": 0.25,
+   "step_sym_deg": 0.25
+  },
+  "sensor_model": {
+   "die_C_hot_case": 120.2,
+   "eps_residual_after_temp_correction": 0.00198968,
+   "eps_uncorrected_slope_per_K": 0.0004,
+   "offset_drift": "not modelled (no sourced number); the cold calibration fits a static offset"
+  },
+  "steel_curve_B_T": [
+   0.0,
+   0.0044,
+   0.0125,
+   0.04,
+   0.15,
+   0.55,
+   1.0,
+   1.3,
+   1.5,
+   1.65,
+   1.78,
+   1.9,
+   2.02,
+   2.1,
+   2.2,
+   2.5,
+   3.4,
+   13.9
+  ],
+  "steel_curve_H_A_per_m": [
+   0.0,
+   10.0,
+   25.0,
+   50.0,
+   100.0,
+   200.0,
+   400.0,
+   800.0,
+   1500.0,
+   3000.0,
+   6000.0,
+   12000.0,
+   25000.0,
+   50000.0,
+   100000.0,
+   300000.0,
+   1000000.0,
+   10000000.0
+  ],
+  "steel_curve_status": "representative handbook-typical 1010 anhysteretic curve, NOT a measured curve; soft/hard family = H axis x2 / x0.5; hot: H axis x1.3, J_s x0.97 [ASSUMED]"
+ },
+ "mesh": {
+  "analytic_volume_mm3": 251.327,
+  "production": {
+   "cells": 1152,
+   "element_mm": 0.5,
+   "phi_cells_per_pitch": 8,
+   "z_layers": 2
+  },
+  "volume_mm3": 251.327
+ },
+ "quick_mode": false,
+ "refinement_at_extrema": {
+  "case": "B_strong",
+  "lin1000": [
+   {
+    "grid_peak": 0.0113954,
+    "refined_peak_step_0.03125": 0.0113955,
+    "refined_peak_step_0.0625": 0.0113954,
+    "rel_change_halving_step": 9.9398e-07,
+    "rel_change_refined_vs_grid": 2.44955e-06,
+    "theta0": 180.0
+   },
+   {
+    "grid_peak": 0.0113216,
+    "refined_peak_step_0.03125": 0.0113216,
+    "refined_peak_step_0.0625": 0.0113216,
+    "rel_change_halving_step": 1.31664e-06,
+    "rel_change_refined_vs_grid": 1.84077e-06,
+    "theta0": 0.0
+   },
+   {
+    "grid_peak": 0.0111496,
+    "refined_peak_step_0.03125": 0.0111835,
+    "refined_peak_step_0.0625": 0.0111835,
+    "rel_change_halving_step": 0.0,
+    "rel_change_refined_vs_grid": 0.00304191,
+    "theta0": 183.25
+   }
+  ],
+  "nl": [
+   {
+    "grid_peak": 0.0127019,
+    "refined_peak_step_0.03125": 0.0127025,
+    "refined_peak_step_0.0625": 0.0127025,
+    "rel_change_halving_step": 2.90874e-11,
+    "rel_change_refined_vs_grid": 4.5236e-05,
+    "theta0": 179.75
+   },
+   {
+    "grid_peak": 0.0126201,
+    "refined_peak_step_0.03125": 0.0126207,
+    "refined_peak_step_0.0625": 0.0126207,
+    "rel_change_halving_step": 1.91419e-10,
+    "rel_change_refined_vs_grid": 4.44189e-05,
+    "theta0": 0.0
+   },
+   {
+    "grid_peak": 0.0124344,
+    "refined_peak_step_0.03125": 0.0124668,
+    "refined_peak_step_0.0625": 0.0124668,
+    "rel_change_halving_step": 0.0,
+    "rel_change_refined_vs_grid": 0.00260948,
+    "theta0": 183.0
+   }
+  ],
+  "note": "re-solved around the three largest |ring-attributable error| extrema; peaks at 0.25, 0.0625, 0.03125 deg spacing"
+ },
+ "schema": "temper.ui-board.knob-ring.v1",
+ "summary": {
+  "A_cold_linear_ring_attributable_peak_deg": {
+   "lin1000": 1.13687e-13,
+   "lin200": 5.68434e-14,
+   "lin2000": 1.13687e-13,
+   "lin500": 1.13687e-13
+  },
+  "A_cold_nl_ring_attributable": {
+   "harmonics_deg": {
+    "1": 1.52915e-15,
+    "2": 1.1143e-15,
+    "24": 4.44038e-05,
+    "3": 9.76669e-16,
+    "4": 1.08907e-15
+   },
+   "note": "ideal coaxial unit; any 24th harmonic is the saturation-induced sin(24 theta) term; linear materials give exactly zero",
+   "peak_deg": 5.44826e-05
+  },
+  "axial_pull": {
+   "note": "central finite difference of the angle-averaged W over gap error -0.2..+0.2 mm; negative = pulls the knob toward the ring; includes the sensing magnet's own pull; a stationary-fixture measurement is still needed for the feel target",
+   "per_material": {
+    "lin1000": {
+     "axial_force_N_positive_is_away_from_ring": -0.0052
+    },
+    "lin200": {
+     "axial_force_N_positive_is_away_from_ring": -0.0035
+    },
+    "lin2000": {
+     "axial_force_N_positive_is_away_from_ring": -0.0056
+    },
+    "nl": {
+     "axial_force_N_positive_is_away_from_ring": -0.0058
+    }
+   }
+  },
+  "calibrated_headline": {
+   "affine": {
+    "max_D_all_variants_deg": [
+     0.0719322,
+     "A_cold",
+     "nl_h400_ccw"
+    ],
+    "max_D_hysteresis_runs_deg": [
+     0.0719322,
+     "A_cold",
+     "nl_h400_ccw"
+    ],
+    "max_D_linear_materials_deg": [
+     0.00724953,
+     "B_weakhot",
+     "lin200"
+    ],
+    "max_D_saturating_anhysteretic_deg": [
+     0.00432255,
+     "B_strong",
+     "nl"
+    ],
+    "max_D_without_hysteresis_deg": [
+     0.00724953,
+     "B_weakhot",
+     "lin200"
+    ],
+    "max_R_total_all_variants_deg": [
+     0.0719322,
+     "A_cold",
+     "nl_h400_ccw"
+    ]
+   },
+   "harm4": {
+    "max_D_all_variants_deg": [
+     0.0719322,
+     "A_cold",
+     "nl_h400_ccw"
+    ],
+    "max_D_hysteresis_runs_deg": [
+     0.0719322,
+     "A_cold",
+     "nl_h400_ccw"
+    ],
+    "max_D_linear_materials_deg": [
+     0.0061072,
+     "B_weakhot",
+     "lin200"
+    ],
+    "max_D_saturating_anhysteretic_deg": [
+     0.00268464,
+     "B_hotstrong",
+     "nl"
+    ],
+    "max_D_without_hysteresis_deg": [
+     0.0061072,
+     "B_weakhot",
+     "lin200"
+    ],
+    "max_R_total_all_variants_deg": [
+     0.0719322,
+     "A_cold",
+     "nl_h400_ccw"
+    ]
+   },
+   "harm4_24": {
+    "max_D_all_variants_deg": [
+     0.0719322,
+     "A_cold",
+     "nl_h400_ccw"
+    ],
+    "max_D_hysteresis_runs_deg": [
+     0.0719322,
+     "A_cold",
+     "nl_h400_ccw"
+    ],
+    "max_D_linear_materials_deg": [
+     0.00614906,
+     "B_weakhot",
+     "lin200"
+    ],
+    "max_D_saturating_anhysteretic_deg": [
+     0.00271383,
+     "B_hotstrong",
+     "nl"
+    ],
+    "max_D_without_hysteresis_deg": [
+     0.00614906,
+     "B_weakhot",
+     "lin200"
+    ],
+    "max_R_total_all_variants_deg": [
+     0.0719322,
+     "A_cold",
+     "nl_h400_ccw"
+    ]
+   }
+  },
+  "detent_centre_vs_all_angles_B_harm4": {
+   "B_cold": {
+    "R_all_angles": 0.000204923,
+    "R_detent_centres_only": 0.000191679
+   },
+   "B_gapm": {
+    "R_all_angles": 0.00115913,
+    "R_detent_centres_only": 0.00115352
+   },
+   "B_gapp": {
+    "R_all_angles": 0.00104928,
+    "R_detent_centres_only": 0.000806734
+   },
+   "B_hot": {
+    "R_all_angles": 0.000204923,
+    "R_detent_centres_only": 0.000191679
+   },
+   "B_hotstrong": {
+    "R_all_angles": 0.00388293,
+    "R_detent_centres_only": 0.0038724
+   },
+   "B_push": {
+    "R_all_angles": 0.0027394,
+    "R_detent_centres_only": 0.00273062
+   },
+   "B_strong": {
+    "R_all_angles": 0.00388293,
+    "R_detent_centres_only": 0.0038724
+   },
+   "B_weakhot": {
+    "R_all_angles": 0.00104928,
+    "R_detent_centres_only": 0.000806734
+   }
+  },
+  "detent_torque": {
+   "note": "torque = -dW/dtheta of the induced-steel interaction energy -mu0/2 sum V M.H_ext (exact for linear steel; for the saturating curve it is an estimate, no hysteresis loss included)",
+   "per_material": {
+    "lin1000": {
+     "W_ripple_peak_to_peak_uJ": 0.3273,
+     "detent_torque_peak_mNm": 0.0041
+    },
+    "lin200": {
+     "W_ripple_peak_to_peak_uJ": 0.3259,
+     "detent_torque_peak_mNm": 0.0041
+    },
+    "lin2000": {
+     "W_ripple_peak_to_peak_uJ": 0.3275,
+     "detent_torque_peak_mNm": 0.0041
+    },
+    "nl": {
+     "W_ripple_peak_to_peak_uJ": 0.3266,
+     "detent_torque_peak_mNm": 0.0041
+    }
+   },
+   "positions": 24,
+   "tooth_pitch_deg": 15.0
+  },
+  "field_range": {
+   "lin1000": {
+    "max_case": "B_strong",
+    "max_mT": 67.8492,
+    "min_case": "A_weakhot",
+    "min_mT": 49.5292
+   },
+   "none": {
+    "max_case": "B_strong",
+    "max_mT": 68.1397,
+    "min_case": "A_weakhot",
+    "min_mT": 49.8084
+   },
+   "ring_changes_abs_B_by_max_fraction": 0.00577982,
+   "tolerance_extended": {
+    "basis": "Br +/-5 %, -40 C (+2.1 %) as in ui_calcs magnet_field; the study cases are 20 and 176 C only",
+    "limit_80pct_of_100mT": 80.0,
+    "max_mT": 72.738,
+    "min_mT": 47.053,
+    "ui_calcs_b_max_mT": 72.95,
+    "ui_calcs_b_min_mT": 47.32
+   }
+  },
+  "harmonics_ring_attributable_B_cold_nl_deg": {
+   "1": 0.0113405,
+   "2": 7.73193e-05,
+   "24": 3.88187e-05,
+   "3": 2.39128e-06,
+   "4": 1.9084e-07
+  },
+  "hysteresis": {
+   "A_cold": {
+    "h160": {
+     "cw_minus_ccw_peak_deg": 0.0670343,
+     "peak_ccw_deg": 0.033541,
+     "peak_cw_deg": 0.033541,
+     "periodic_regime_check_T": [
+      2.09233e-06,
+      2.09233e-06
+     ],
+     "ring_B_uT_cw_vs_ccw_max_diff": 64.8184,
+     "ring_B_uT_vs_anhysteretic_max_diff": 32.748,
+     "vs_anhysteretic_peak_deg": 0.0335841
+    },
+    "h400": {
+     "cw_minus_ccw_peak_deg": 0.142336,
+     "peak_ccw_deg": 0.0719322,
+     "peak_cw_deg": 0.0719322,
+     "periodic_regime_check_T": [
+      9.56717e-06,
+      9.56717e-06
+     ],
+     "ring_B_uT_cw_vs_ccw_max_diff": 137.705,
+     "ring_B_uT_vs_anhysteretic_max_diff": 75.2851,
+     "vs_anhysteretic_peak_deg": 0.0719143
+    }
+   }
+  },
+  "notched_ring_probe": {
+   "angle_span_deg": 75.0,
+   "meaning": "ring with the pitches that contain the three present standoff directions (0, 158, 202 deg) removed, released, cold, ideal coaxial unit",
+   "notched_pitches": [
+    0,
+    10,
+    11,
+    13,
+    14
+   ],
+   "results": {
+    "lin1000": {
+     "Bcell_max_T": 1.08888,
+     "harmonics_deg": {
+      "1": 0.000282428,
+      "2": 0.0784471,
+      "24": 3.51783e-16,
+      "3": 3.86689e-07,
+      "4": 5.37034e-05
+     },
+     "peak_after_removing_harmonics_1_to_4_deg": 0.000164628,
+     "peak_uncal_deg": 0.0787631,
+     "ring_B_uT_max": 225.582,
+     "step_deg": 0.25
+    },
+    "nl": {
+     "Bcell_max_T": 1.31406,
+     "harmonics_deg": {
+      "1": 0.000278082,
+      "2": 0.0878263,
+      "24": 6.44825e-07,
+      "3": 7.73363e-06,
+      "4": 0.000340251
+     },
+     "peak_after_removing_harmonics_1_to_4_deg": 0.000278192,
+     "peak_uncal_deg": 0.0880983,
+     "ring_B_uT_max": 245.965,
+     "step_deg": 2.0
+    }
+   }
+  },
+  "peak_uncalibrated_deg": {
+   "max_ring_absent": [
+    "B_gapp",
+    0.0285239
+   ],
+   "max_ring_attributable": [
+    "B_strong",
+    0.0113954
+   ],
+   "max_ring_present": [
+    "B_strong",
+    0.0340666
+   ],
+   "ring_absent": {
+    "A_cold": 0.0,
+    "A_gapm": 0.0,
+    "A_gapp": 0.0,
+    "A_hot": 0.0,
+    "A_hotstrong": 0.0,
+    "A_push": 0.0,
+    "A_strong": 0.0,
+    "A_weakhot": 0.0,
+    "B_cold": 0.028456,
+    "B_gapm": 0.02838,
+    "B_gapp": 0.028524,
+    "B_hot": 0.028456,
+    "B_hotstrong": 0.028168,
+    "B_push": 0.028255,
+    "B_strong": 0.028168,
+    "B_weakhot": 0.028524,
+    "C_offmx": 0.007595,
+    "C_offmy": 0.007595,
+    "C_offpx": 0.007595,
+    "C_offpy": 0.007595,
+    "C_ringpx": 0.0,
+    "C_ringpy": 0.0,
+    "C_tiltx": 0.007438,
+    "C_tilty": 0.007438
+   },
+   "ring_attributable_ref": {
+    "A_cold": 0.0,
+    "A_gapm": 0.0,
+    "A_gapp": 0.0,
+    "A_hot": 0.0,
+    "A_hotstrong": 0.0,
+    "A_push": 0.0,
+    "A_strong": 0.0,
+    "A_weakhot": 0.0,
+    "B_cold": 0.010422,
+    "B_gapm": 0.010655,
+    "B_gapp": 0.010218,
+    "B_hot": 0.010422,
+    "B_hotstrong": 0.011395,
+    "B_push": 0.011069,
+    "B_strong": 0.011395,
+    "B_weakhot": 0.010218,
+    "C_offmx": 9.1e-05,
+    "C_offmy": 9.1e-05,
+    "C_offpx": 9.1e-05,
+    "C_offpy": 9.1e-05,
+    "C_ringpx": 5.7e-05,
+    "C_ringpy": 5.7e-05,
+    "C_tiltx": 0.010439,
+    "C_tilty": 0.010439
+   },
+   "ring_present_ref": {
+    "A_cold": 0.0,
+    "A_gapm": 0.0,
+    "A_gapp": 0.0,
+    "A_hot": 0.0,
+    "A_hotstrong": 0.0,
+    "A_push": 0.0,
+    "A_strong": 0.0,
+    "A_weakhot": 0.0,
+    "B_cold": 0.032971,
+    "B_gapm": 0.033235,
+    "B_gapp": 0.032703,
+    "B_hot": 0.032971,
+    "B_hotstrong": 0.034067,
+    "B_push": 0.033612,
+    "B_strong": 0.034067,
+    "B_weakhot": 0.032703,
+    "C_offmx": 0.007646,
+    "C_offmy": 0.007646,
+    "C_offpx": 0.007646,
+    "C_offpy": 0.007646,
+    "C_ringpx": 5.7e-05,
+    "C_ringpy": 5.7e-05,
+    "C_tiltx": 0.01701,
+    "C_tilty": 0.01701
+   }
+  },
+  "periodicity_control": {
+   "max_abs_dB_T_full_turn_vs_tiled": 6.52256e-16,
+   "relative_to_Bpeak": 1.17671e-14
+  },
+  "ring_attributable_uncal_by_material_deg": {
+   "A_cold": {
+    "lin1000": 0.0,
+    "lin200": 0.0,
+    "lin2000": 0.0,
+    "lin500": 0.0,
+    "nl": 5.4e-05,
+    "nl_h160_ccw": 0.033541,
+    "nl_h160_cw": 0.033541,
+    "nl_h400_ccw": 0.071932,
+    "nl_h400_cw": 0.071932,
+    "nl_hard": 0.000181,
+    "nl_soft": 2.2e-05
+   },
+   "A_gapm": {
+    "lin1000": 0.0,
+    "lin200": 0.0,
+    "lin2000": 0.0,
+    "lin500": 0.0,
+    "nl": 5e-05
+   },
+   "A_gapp": {
+    "lin1000": 0.0,
+    "lin200": 0.0,
+    "lin2000": 0.0,
+    "lin500": 0.0,
+    "nl": 5.9e-05
+   },
+   "A_hot": {
+    "lin1000": 0.0,
+    "lin200": 0.0,
+    "lin2000": 0.0,
+    "lin500": 0.0,
+    "nl": 2.4e-05
+   },
+   "A_hotstrong": {
+    "lin1000": 0.0,
+    "lin200": 0.0,
+    "lin2000": 0.0,
+    "lin500": 0.0,
+    "nl": 1.9e-05
+   },
+   "A_push": {
+    "lin1000": 0.0,
+    "lin200": 0.0,
+    "lin2000": 0.0,
+    "lin500": 0.0,
+    "nl": 4.3e-05
+   },
+   "A_strong": {
+    "lin1000": 0.0,
+    "lin200": 0.0,
+    "lin2000": 0.0,
+    "lin500": 0.0,
+    "nl": 3.8e-05,
+    "nl_hard": 0.000138,
+    "nl_soft": 4.2e-05
+   },
+   "A_weakhot": {
+    "lin1000": 0.0,
+    "lin200": 0.0,
+    "lin2000": 0.0,
+    "lin500": 0.0,
+    "nl": 2.9e-05,
+    "nl_hard": 0.00015,
+    "nl_soft": 1.3e-05
+   },
+   "B_cold": {
+    "lin1000": 0.010422,
+    "lin200": 0.004321,
+    "lin2000": 0.011811,
+    "lin500": 0.007655,
+    "nl": 0.011608,
+    "nl_hard": 0.010285,
+    "nl_soft": 0.01203
+   },
+   "B_gapm": {
+    "lin1000": 0.010655,
+    "lin200": 0.004434,
+    "lin2000": 0.012068,
+    "lin500": 0.007834
+   },
+   "B_gapp": {
+    "lin1000": 0.010218,
+    "lin200": 0.004223,
+    "lin2000": 0.011587,
+    "lin500": 0.007498
+   },
+   "B_hot": {
+    "lin1000": 0.010422,
+    "lin200": 0.004321,
+    "lin2000": 0.011811,
+    "lin500": 0.007655
+   },
+   "B_hotstrong": {
+    "lin1000": 0.011395,
+    "lin200": 0.004792,
+    "lin2000": 0.012882,
+    "lin500": 0.008405,
+    "nl": 0.012942
+   },
+   "B_push": {
+    "lin1000": 0.011069,
+    "lin200": 0.004633,
+    "lin2000": 0.012523,
+    "lin500": 0.008153
+   },
+   "B_strong": {
+    "lin1000": 0.011395,
+    "lin200": 0.004792,
+    "lin2000": 0.012882,
+    "lin500": 0.008405,
+    "nl": 0.012702
+   },
+   "B_weakhot": {
+    "lin1000": 0.010218,
+    "lin200": 0.004223,
+    "lin2000": 0.011587,
+    "lin500": 0.007498
+   },
+   "C_offmx": {
+    "lin1000": 9.1e-05,
+    "lin200": 0.000285,
+    "lin2000": 0.000168,
+    "lin500": 0.000128
+   },
+   "C_offmy": {
+    "lin1000": 9.1e-05,
+    "lin200": 0.000285,
+    "lin2000": 0.000168,
+    "lin500": 0.000128
+   },
+   "C_offpx": {
+    "lin1000": 9.1e-05,
+    "lin200": 0.000285,
+    "lin2000": 0.000168,
+    "lin500": 0.000128
+   },
+   "C_offpy": {
+    "lin1000": 9.1e-05,
+    "lin200": 0.000285,
+    "lin2000": 0.000168,
+    "lin500": 0.000128
+   },
+   "C_ringpx": {
+    "lin1000": 5.7e-05,
+    "lin200": 0.00028,
+    "lin2000": 0.000133,
+    "lin500": 0.000115
+   },
+   "C_ringpy": {
+    "lin1000": 5.7e-05,
+    "lin200": 0.00028,
+    "lin2000": 0.000133,
+    "lin500": 0.000115
+   },
+   "C_tiltx": {
+    "lin1000": 0.010439,
+    "lin200": 0.004073,
+    "lin2000": 0.01191,
+    "lin500": 0.007545,
+    "nl": 0.011674
+   },
+   "C_tilty": {
+    "lin1000": 0.010439,
+    "lin200": 0.004073,
+    "lin2000": 0.01191,
+    "lin500": 0.007545
+   }
+  },
+  "ring_attributable_uncal_max_over_all_materials_deg": {
+   "case": "A_cold",
+   "material": "nl_h400_cw",
+   "value": 0.071932
+  },
+  "saturation": {
+   "A_cold": {
+    "lin1000": {
+     "Bcell_max_T": 1.2198,
+     "Hcell_max_A_per_m": 970.7,
+     "frac_above_1p5T": 0.0
+    },
+    "lin200": {
+     "Bcell_max_T": 0.3408,
+     "Hcell_max_A_per_m": 1355.9,
+     "frac_above_1p5T": 0.0
+    },
+    "lin2000": {
+     "Bcell_max_T": 1.8062,
+     "Hcell_max_A_per_m": 718.7,
+     "frac_above_1p5T": 0.125
+    },
+    "nl": {
+     "Bcell_max_T": 1.3745,
+     "Hcell_max_A_per_m": 992.0,
+     "frac_above_1p5T": 0.0
+    },
+    "nl_hard": {
+     "Bcell_max_T": 1.1291,
+     "Hcell_max_A_per_m": 1050.2,
+     "frac_above_1p5T": 0.0
+    },
+    "nl_soft": {
+     "Bcell_max_T": 1.5564,
+     "Hcell_max_A_per_m": 960.3,
+     "frac_above_1p5T": 0.0972222
+    }
+   },
+   "A_gapm": {
+    "lin1000": {
+     "Bcell_max_T": 1.228,
+     "Hcell_max_A_per_m": 977.2,
+     "frac_above_1p5T": 0.0
+    },
+    "lin200": {
+     "Bcell_max_T": 0.3442,
+     "Hcell_max_A_per_m": 1369.6,
+     "frac_above_1p5T": 0.0
+    },
+    "lin2000": {
+     "Bcell_max_T": 1.8176,
+     "Hcell_max_A_per_m": 723.2,
+     "frac_above_1p5T": 0.125
+    },
+    "nl": {
+     "Bcell_max_T": 1.3787,
+     "Hcell_max_A_per_m": 1004.2,
+     "frac_above_1p5T": 0.0
+    }
+   },
+   "A_gapp": {
+    "lin1000": {
+     "Bcell_max_T": 1.2118,
+     "Hcell_max_A_per_m": 964.3,
+     "frac_above_1p5T": 0.0
+    },
+    "lin200": {
+     "Bcell_max_T": 0.3376,
+     "Hcell_max_A_per_m": 1343.5,
+     "frac_above_1p5T": 0.0
+    },
+    "lin2000": {
+     "Bcell_max_T": 1.7949,
+     "Hcell_max_A_per_m": 714.2,
+     "frac_above_1p5T": 0.123264
+    },
+    "nl": {
+     "Bcell_max_T": 1.3705,
+     "Hcell_max_A_per_m": 980.5,
+     "frac_above_1p5T": 0.0
+    }
+   },
+   "A_hot": {
+    "lin1000": {
+     "Bcell_max_T": 1.1532,
+     "Hcell_max_A_per_m": 917.7,
+     "frac_above_1p5T": 0.0
+    },
+    "lin200": {
+     "Bcell_max_T": 0.3222,
+     "Hcell_max_A_per_m": 1281.9,
+     "frac_above_1p5T": 0.0
+    },
+    "lin2000": {
+     "Bcell_max_T": 1.7076,
+     "Hcell_max_A_per_m": 679.4,
+     "frac_above_1p5T": 0.102431
+    },
+    "nl": {
+     "Bcell_max_T": 1.3888,
+     "Hcell_max_A_per_m": 907.3,
+     "frac_above_1p5T": 0.0
+    }
+   },
+   "A_hotstrong": {
+    "lin1000": {
+     "Bcell_max_T": 1.1817,
+     "Hcell_max_A_per_m": 940.4,
+     "frac_above_1p5T": 0.0
+    },
+    "lin200": {
+     "Bcell_max_T": 0.335,
+     "Hcell_max_A_per_m": 1333.0,
+     "frac_above_1p5T": 0.0
+    },
+    "lin2000": {
+     "Bcell_max_T": 1.7461,
+     "Hcell_max_A_per_m": 694.8,
+     "frac_above_1p5T": 0.111979
+    },
+    "nl": {
+     "Bcell_max_T": 1.4039,
+     "Hcell_max_A_per_m": 953.4,
+     "frac_above_1p5T": 0.0
+    }
+   },
+   "A_push": {
+    "lin1000": {
+     "Bcell_max_T": 1.2409,
+     "Hcell_max_A_per_m": 987.4,
+     "frac_above_1p5T": 0.0
+    },
+    "lin200": {
+     "Bcell_max_T": 0.35,
+     "Hcell_max_A_per_m": 1392.5,
+     "frac_above_1p5T": 0.0
+    },
+    "lin2000": {
+     "Bcell_max_T": 1.835,
+     "Hcell_max_A_per_m": 730.1,
+     "frac_above_1p5T": 0.127604
+    },
+    "nl": {
+     "Bcell_max_T": 1.3855,
+     "Hcell_max_A_per_m": 1024.5,
+     "frac_above_1p5T": 0.0
+    }
+   },
+   "A_strong": {
+    "lin1000": {
+     "Bcell_max_T": 1.25,
+     "Hcell_max_A_per_m": 994.7,
+     "frac_above_1p5T": 0.0
+    },
+    "lin200": {
+     "Bcell_max_T": 0.3544,
+     "Hcell_max_A_per_m": 1410.0,
+     "frac_above_1p5T": 0.0
+    },
+    "lin2000": {
+     "Bcell_max_T": 1.847,
+     "Hcell_max_A_per_m": 734.9,
+     "frac_above_1p5T": 0.128472
+    },
+    "nl": {
+     "Bcell_max_T": 1.3905,
+     "Hcell_max_A_per_m": 1039.8,
+     "frac_above_1p5T": 0.0
+    },
+    "nl_hard": {
+     "Bcell_max_T": 1.1475,
+     "Hcell_max_A_per_m": 1093.4,
+     "frac_above_1p5T": 0.0
+    },
+    "nl_soft": {
+     "Bcell_max_T": 1.5695,
+     "Hcell_max_A_per_m": 1017.8,
+     "frac_above_1p5T": 0.0980903
+    }
+   },
+   "A_weakhot": {
+    "lin1000": {
+     "Bcell_max_T": 1.1457,
+     "Hcell_max_A_per_m": 911.7,
+     "frac_above_1p5T": 0.0
+    },
+    "lin200": {
+     "Bcell_max_T": 0.3192,
+     "Hcell_max_A_per_m": 1270.1,
+     "frac_above_1p5T": 0.0
+    },
+    "lin2000": {
+     "Bcell_max_T": 1.6969,
+     "Hcell_max_A_per_m": 675.2,
+     "frac_above_1p5T": 0.0998264
+    },
+    "nl": {
+     "Bcell_max_T": 1.3851,
+     "Hcell_max_A_per_m": 896.3,
+     "frac_above_1p5T": 0.0
+    },
+    "nl_hard": {
+     "Bcell_max_T": 1.1655,
+     "Hcell_max_A_per_m": 951.9,
+     "frac_above_1p5T": 0.0
+    },
+    "nl_soft": {
+     "Bcell_max_T": 1.544,
+     "Hcell_max_A_per_m": 868.8,
+     "frac_above_1p5T": 0.0746528
+    }
+   },
+   "B_cold": {
+    "lin1000": {
+     "Bcell_max_T": 1.2592,
+     "Hcell_max_A_per_m": 1002.0,
+     "frac_above_1p5T": 0.0
+    },
+    "lin200": {
+     "Bcell_max_T": 0.3518,
+     "Hcell_max_A_per_m": 1399.9,
+     "frac_above_1p5T": 0.0
+    },
+    "lin2000": {
+     "Bcell_max_T": 1.8647,
+     "Hcell_max_A_per_m": 741.9,
+     "frac_above_1p5T": 0.133681
+    },
+    "nl": {
+     "Bcell_max_T": 1.3901,
+     "Hcell_max_A_per_m": 1038.6,
+     "frac_above_1p5T": 0.0
+    },
+    "nl_hard": {
+     "Bcell_max_T": 1.1481,
+     "Hcell_max_A_per_m": 1094.9,
+     "frac_above_1p5T": 0.0
+    },
+    "nl_soft": {
+     "Bcell_max_T": 1.5672,
+     "Hcell_max_A_per_m": 1007.4,
+     "frac_above_1p5T": 0.100694
+    }
+   },
+   "B_gapm": {
+    "lin1000": {
+     "Bcell_max_T": 1.2706,
+     "Hcell_max_A_per_m": 1011.1,
+     "frac_above_1p5T": 0.0
+    },
+    "lin200": {
+     "Bcell_max_T": 0.3564,
+     "Hcell_max_A_per_m": 1417.9,
+     "frac_above_1p5T": 0.0
+    },
+    "lin2000": {
+     "Bcell_max_T": 1.8808,
+     "Hcell_max_A_per_m": 748.4,
+     "frac_above_1p5T": 0.135417
+    }
+   },
+   "B_gapp": {
+    "lin1000": {
+     "Bcell_max_T": 1.2483,
+     "Hcell_max_A_per_m": 993.4,
+     "frac_above_1p5T": 0.0
+    },
+    "lin200": {
+     "Bcell_max_T": 0.3478,
+     "Hcell_max_A_per_m": 1384.0,
+     "frac_above_1p5T": 0.0
+    },
+    "lin2000": {
+     "Bcell_max_T": 1.8491,
+     "Hcell_max_A_per_m": 735.7,
+     "frac_above_1p5T": 0.130208
+    }
+   },
+   "B_hot": {
+    "lin1000": {
+     "Bcell_max_T": 1.1905,
+     "Hcell_max_A_per_m": 947.3,
+     "frac_above_1p5T": 0.0
+    },
+    "lin200": {
+     "Bcell_max_T": 0.3326,
+     "Hcell_max_A_per_m": 1323.5,
+     "frac_above_1p5T": 0.0
+    },
+    "lin2000": {
+     "Bcell_max_T": 1.7629,
+     "Hcell_max_A_per_m": 701.4,
+     "frac_above_1p5T": 0.116319
+    }
+   },
+   "B_hotstrong": {
+    "lin1000": {
+     "Bcell_max_T": 1.2309,
+     "Hcell_max_A_per_m": 979.5,
+     "frac_above_1p5T": 0.0
+    },
+    "lin200": {
+     "Bcell_max_T": 0.3499,
+     "Hcell_max_A_per_m": 1392.3,
+     "frac_above_1p5T": 0.0
+    },
+    "lin2000": {
+     "Bcell_max_T": 1.8198,
+     "Hcell_max_A_per_m": 724.1,
+     "frac_above_1p5T": 0.125
+    },
+    "nl": {
+     "Bcell_max_T": 1.4226,
+     "Hcell_max_A_per_m": 1017.3,
+     "frac_above_1p5T": 0.0
+    }
+   },
+   "B_push": {
+    "lin1000": {
+     "Bcell_max_T": 1.2888,
+     "Hcell_max_A_per_m": 1025.6,
+     "frac_above_1p5T": 0.0
+    },
+    "lin200": {
+     "Bcell_max_T": 0.3641,
+     "Hcell_max_A_per_m": 1448.5,
+     "frac_above_1p5T": 0.0
+    },
+    "lin2000": {
+     "Bcell_max_T": 1.9065,
+     "Hcell_max_A_per_m": 758.6,
+     "frac_above_1p5T": 0.140625
+    }
+   },
+   "B_strong": {
+    "lin1000": {
+     "Bcell_max_T": 1.302,
+     "Hcell_max_A_per_m": 1036.1,
+     "frac_above_1p5T": 0.0
+    },
+    "lin200": {
+     "Bcell_max_T": 0.3701,
+     "Hcell_max_A_per_m": 1472.8,
+     "frac_above_1p5T": 0.0
+    },
+    "lin2000": {
+     "Bcell_max_T": 1.9249,
+     "Hcell_max_A_per_m": 765.9,
+     "frac_above_1p5T": 0.143229
+    },
+    "nl": {
+     "Bcell_max_T": 1.4108,
+     "Hcell_max_A_per_m": 1104.8,
+     "frac_above_1p5T": 0.0
+    }
+   },
+   "B_weakhot": {
+    "lin1000": {
+     "Bcell_max_T": 1.1802,
+     "Hcell_max_A_per_m": 939.1,
+     "frac_above_1p5T": 0.0
+    },
+    "lin200": {
+     "Bcell_max_T": 0.3288,
+     "Hcell_max_A_per_m": 1308.4,
+     "frac_above_1p5T": 0.0
+    },
+    "lin2000": {
+     "Bcell_max_T": 1.7482,
+     "Hcell_max_A_per_m": 695.6,
+     "frac_above_1p5T": 0.113715
+    }
+   },
+   "C_offmx": {
+    "lin1000": {
+     "Bcell_max_T": 1.2263,
+     "Hcell_max_A_per_m": 975.9,
+     "frac_above_1p5T": 0.0
+    },
+    "lin200": {
+     "Bcell_max_T": 0.3435,
+     "Hcell_max_A_per_m": 1366.9,
+     "frac_above_1p5T": 0.0
+    },
+    "lin2000": {
+     "Bcell_max_T": 1.8148,
+     "Hcell_max_A_per_m": 722.1,
+     "frac_above_1p5T": 0.125
+    }
+   },
+   "C_offmy": {
+    "lin1000": {
+     "Bcell_max_T": 1.2263,
+     "Hcell_max_A_per_m": 975.9,
+     "frac_above_1p5T": 0.0
+    },
+    "lin200": {
+     "Bcell_max_T": 0.3435,
+     "Hcell_max_A_per_m": 1366.9,
+     "frac_above_1p5T": 0.0
+    },
+    "lin2000": {
+     "Bcell_max_T": 1.8148,
+     "Hcell_max_A_per_m": 722.1,
+     "frac_above_1p5T": 0.125
+    }
+   },
+   "C_offpx": {
+    "lin1000": {
+     "Bcell_max_T": 1.2263,
+     "Hcell_max_A_per_m": 975.9,
+     "frac_above_1p5T": 0.0
+    },
+    "lin200": {
+     "Bcell_max_T": 0.3435,
+     "Hcell_max_A_per_m": 1366.9,
+     "frac_above_1p5T": 0.0
+    },
+    "lin2000": {
+     "Bcell_max_T": 1.8148,
+     "Hcell_max_A_per_m": 722.1,
+     "frac_above_1p5T": 0.125
+    }
+   },
+   "C_offpy": {
+    "lin1000": {
+     "Bcell_max_T": 1.2263,
+     "Hcell_max_A_per_m": 975.9,
+     "frac_above_1p5T": 0.0
+    },
+    "lin200": {
+     "Bcell_max_T": 0.3435,
+     "Hcell_max_A_per_m": 1366.9,
+     "frac_above_1p5T": 0.0
+    },
+    "lin2000": {
+     "Bcell_max_T": 1.8148,
+     "Hcell_max_A_per_m": 722.1,
+     "frac_above_1p5T": 0.125
+    }
+   },
+   "C_ringpx": {
+    "lin1000": {
+     "Bcell_max_T": 1.2263,
+     "Hcell_max_A_per_m": 975.9,
+     "frac_above_1p5T": 0.0
+    },
+    "lin200": {
+     "Bcell_max_T": 0.3435,
+     "Hcell_max_A_per_m": 1366.9,
+     "frac_above_1p5T": 0.0
+    },
+    "lin2000": {
+     "Bcell_max_T": 1.8148,
+     "Hcell_max_A_per_m": 722.1,
+     "frac_above_1p5T": 0.125
+    }
+   },
+   "C_ringpy": {
+    "lin1000": {
+     "Bcell_max_T": 1.2263,
+     "Hcell_max_A_per_m": 975.9,
+     "frac_above_1p5T": 0.0
+    },
+    "lin200": {
+     "Bcell_max_T": 0.3435,
+     "Hcell_max_A_per_m": 1366.9,
+     "frac_above_1p5T": 0.0
+    },
+    "lin2000": {
+     "Bcell_max_T": 1.8148,
+     "Hcell_max_A_per_m": 722.1,
+     "frac_above_1p5T": 0.125
+    }
+   },
+   "C_tiltx": {
+    "lin1000": {
+     "Bcell_max_T": 1.2619,
+     "Hcell_max_A_per_m": 1004.2,
+     "frac_above_1p5T": 0.0
+    },
+    "lin200": {
+     "Bcell_max_T": 0.3534,
+     "Hcell_max_A_per_m": 1406.2,
+     "frac_above_1p5T": 0.0
+    },
+    "lin2000": {
+     "Bcell_max_T": 1.8687,
+     "Hcell_max_A_per_m": 743.5,
+     "frac_above_1p5T": 0.134549
+    },
+    "nl": {
+     "Bcell_max_T": 1.3913,
+     "Hcell_max_A_per_m": 1042.2,
+     "frac_above_1p5T": 0.0
+    }
+   },
+   "C_tilty": {
+    "lin1000": {
+     "Bcell_max_T": 1.2619,
+     "Hcell_max_A_per_m": 1004.2,
+     "frac_above_1p5T": 0.0
+    },
+    "lin200": {
+     "Bcell_max_T": 0.3534,
+     "Hcell_max_A_per_m": 1406.2,
+     "frac_above_1p5T": 0.0
+    },
+    "lin2000": {
+     "Bcell_max_T": 1.8687,
+     "Hcell_max_A_per_m": 743.5,
+     "frac_above_1p5T": 0.134549
+    }
+   }
+  },
+  "saturation_summary": {
+   "cases_with_saturating_solve": [
+    "A_cold",
+    "A_push",
+    "A_gapm",
+    "A_gapp",
+    "A_strong",
+    "A_hot",
+    "A_weakhot",
+    "A_hotstrong",
+    "B_cold",
+    "B_strong",
+    "B_hotstrong",
+    "C_tiltx"
+   ],
+   "knee_note": "B of the representative curve at H=400 A/m is 1.0 T, 1.5 T at 1500 A/m, 1.9 T at 12 kA/m",
+   "max_cell_B_lin2000_T": 1.9249,
+   "max_cell_B_nl_T": 1.4226,
+   "max_cell_B_nl_soft_T": 1.5695,
+   "max_fraction_cells_above_1p5T_nl": 0.0
+  },
+  "sensor_drift_uncorrected_harm4": {
+   "die_C": 120.2,
+   "eps": 0.03808,
+   "max_D_deg": 0.000759343,
+   "max_R_total_deg": 1.09205,
+   "note": "X/Y sensitivity mismatch drift left uncorrected: a sensor term that is present with or without the ring; D is unaffected"
+  }
+ },
+ "tiny_mode": false,
+ "verdict": {
+  "D_max_deg": 0.084403,
+  "D_max_deg_as_computed": 0.0719322,
+  "D_max_without_hysteresis_deg": 0.007166,
+  "D_uncal_max_deg": 0.0844028,
+  "R_total_max_deg": 0.084403,
+  "criteria": {
+   "P1_D_le_share": true,
+   "P2_R_le_pool": true,
+   "P3_field": true,
+   "P4_controls_and_convergence": true
+  },
+  "detent_function": {
+   "peak_detent_torque_mNm": 0.0041,
+   "ratio_to_spec_average_low": 0.000227778,
+   "spec_average_torque_mNm": [
+    18,
+    30
+   ],
+   "spec_peak_torque_mNm": [
+    25,
+    45
+   ],
+   "verdict": "FAIL"
+  },
+  "margin_factor_on_share": 1.18479,
+  "margin_factor_without_hysteresis": 13.9548,
+  "mesh_uncertainty_factor": 1.17337,
+  "share_deg": 0.1,
+  "totals_with_coil_allowance": {
+   "absolute_budget_deg": 1.0,
+   "basis": "ring D (mesh-adjusted, all variants) and ring D without hysteresis, added to the existing worst-case stray-field allowance (ui_calcs stray_field, no ring in that calculation)",
+   "coil_allowance_deg": {
+    "nopan_60000_bare": 0.17262,
+    "nopan_60000_base_roof": 0.02722,
+    "pan_31000_bare": 0.05107,
+    "pan_31000_base_roof": 0.00148
+   },
+   "nonrepeatable_plus_ring_deg": 0.487003,
+   "pool_left_for_calibration_magnet_and_rest_of_mechanism_deg": 0.515597,
+   "with_hysteresis": {
+    "nopan_60000_bare": {
+     "linear_sum_deg": 0.257023,
+     "rss_deg": 0.19215
+    },
+    "nopan_60000_base_roof": {
+     "linear_sum_deg": 0.111623,
+     "rss_deg": 0.0886837
+    },
+    "pan_31000_bare": {
+     "linear_sum_deg": 0.135473,
+     "rss_deg": 0.098651
+    },
+    "pan_31000_base_roof": {
+     "linear_sum_deg": 0.085883,
+     "rss_deg": 0.084416
+    }
+   },
+   "without_hysteresis": {
+    "nopan_60000_bare": {
+     "linear_sum_deg": 0.179786,
+     "rss_deg": 0.172769
+    },
+    "nopan_60000_base_roof": {
+     "linear_sum_deg": 0.034386,
+     "rss_deg": 0.0281475
+    },
+    "pan_31000_bare": {
+     "linear_sum_deg": 0.058236,
+     "rss_deg": 0.0515703
+    },
+    "pan_31000_base_roof": {
+     "linear_sum_deg": 0.008646,
+     "rss_deg": 0.00731724
+    }
+   }
+  },
+  "verdict_angle_error_budget": "INCONCLUSIVE"
+ }
+}
