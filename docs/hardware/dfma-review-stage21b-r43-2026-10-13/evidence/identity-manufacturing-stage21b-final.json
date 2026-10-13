@@ -1,0 +1,203 @@
+{
+  "status": "Final sampled producer stage21b package; manifest board hash matches frozen target; each remaining requirement assessed independently",
+  "board_sha256": "c015804959add81e948055279cb78946e3a762ac9077c0b21bfbde3c89d0cb56",
+  "gerber_zip_sha256": "bb7a54787dc08d06562da1c790109ab763707eede3a3a95bb03e862ccbfd3a39",
+  "frozen_root": "/private/tmp/temper-dfma-review-stage21b-2026-10-13/input/manufacturing-stage21b-final",
+  "records": [
+    {
+      "path": "fab/FAB-NOTE.md",
+      "source": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/fab/FAB-NOTE.md",
+      "sha256": "2258fed1aaf61db3981aa2cb812e778c8a9349fb8b236acc27e96c5c3fc8a2cc"
+    },
+    {
+      "path": "fab/assembly-drawing.pdf",
+      "source": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/fab/assembly-drawing.pdf",
+      "sha256": "ca603109ac4bc3e541a2621a8a359ffea24c6af65110cc6243ea924852d980a4"
+    },
+    {
+      "path": "fab/bom-jlcpcb.csv",
+      "source": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/fab/bom-jlcpcb.csv",
+      "sha256": "293d0a66eaca9d9186b5fe74cec5e370fdeb73c59a25abe59d85f54382696b8c"
+    },
+    {
+      "path": "fab/cpl-jlcpcb.csv",
+      "source": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/fab/cpl-jlcpcb.csv",
+      "sha256": "c3c3a74ef1581566ddbc31c2e75c0769c180a78257deb2cddcd1cf83ec1e3be8"
+    },
+    {
+      "path": "fab/drill-report.txt",
+      "source": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/fab/drill-report.txt",
+      "sha256": "21fb5aa866681ff2fc76add60100409f36d45687d6d8a0eb5b6728ee491a9077"
+    },
+    {
+      "path": "fab/gerbers/section-NPTH-drl_map.gbr",
+      "source": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/fab/gerbers/section-NPTH-drl_map.gbr",
+      "sha256": "13fa59d5c482977de9e5e8e49d744edecdd531b9b3c6200722637984317c8895"
+    },
+    {
+      "path": "fab/gerbers/section-NPTH.drl",
+      "source": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/fab/gerbers/section-NPTH.drl",
+      "sha256": "d42fe4ca56841acf30d57da3648dfb776d6641a7e17c4dfae117917aa3a5df8a"
+    },
+    {
+      "path": "fab/gerbers/section-PTH-drl_map.gbr",
+      "source": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/fab/gerbers/section-PTH-drl_map.gbr",
+      "sha256": "8aa601764f61fbd43402b8d9041a4cf65ae91dc5a6e940703af59fa9c66783d9"
+    },
+    {
+      "path": "fab/gerbers/section-PTH.drl",
+      "source": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/fab/gerbers/section-PTH.drl",
+      "sha256": "2ebede22b83d27d1186c4dae81079cd6e080cc0b3f48af2122fd2a1871c9bf29"
+    },
+    {
+      "path": "fab/hand-assembly-extras.csv",
+      "source": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/fab/hand-assembly-extras.csv",
+      "sha256": "15d23db5b49fee4f750819a5b44edc4bb79c3931f526210c55d3c5945451df29"
+    },
+    {
+      "path": "fab/native-21-gerbers.zip",
+      "source": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/fab/native-21-gerbers.zip",
+      "sha256": "bb7a54787dc08d06562da1c790109ab763707eede3a3a95bb03e862ccbfd3a39"
+    },
+    {
+      "path": "fab/positions-kicad.csv",
+      "source": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/fab/positions-kicad.csv",
+      "sha256": "4481189a692682807fb51e1a4607e4a47048bbac8888e5b8807c2af455717bbe"
+    },
+    {
+      "path": "cpl-rotation-audit/README.md",
+      "source": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/cpl-rotation-audit/README.md",
+      "sha256": "be603f05fa3361782884c0baa06ba039400d723b511af149ce0abd345e3e989a"
+    },
+    {
+      "path": "cpl-rotation-audit/audit.csv",
+      "source": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/cpl-rotation-audit/audit.csv",
+      "sha256": "b8964521253da946ff5fcc2ac3ee2b0ec727717bb6bfc584b46daa4223ba441b"
+    },
+    {
+      "path": "cpl-rotation-audit/audit.json",
+      "source": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/cpl-rotation-audit/audit.json",
+      "sha256": "413ba0b29b6c7f50c4b6983213a2a6c0543a0bdb78699b8ddb9272dcb2917a8d"
+    },
+    {
+      "path": "cpl-rotation-audit/cpl-jlcpcb.corrected-ynegated.csv",
+      "source": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/cpl-rotation-audit/cpl-jlcpcb.corrected-ynegated.csv",
+      "sha256": "d83f87b40a3745d5ab9ba42319bb5b36aa4658cd2028c9c1a31f7e24ff6b0c72"
+    },
+    {
+      "path": "cpl-rotation-audit/cpl-jlcpcb.corrected.csv",
+      "source": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/cpl-rotation-audit/cpl-jlcpcb.corrected.csv",
+      "sha256": "a7e3f9191ec5c73d9becc3ffc1e669974616beb728c0aa4e4761bc3c907598f8"
+    },
+    {
+      "path": "cpl-rotation-audit/sources/cpl_rotations_db.csv",
+      "source": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/cpl-rotation-audit/sources/cpl_rotations_db.csv",
+      "sha256": "fce26b890863fa56c6fc8d91a44241d9f3b420c78da28a10bc13204903542698"
+    },
+    {
+      "path": "cpl-rotation-audit/sources/easyeda-footprints.json",
+      "source": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/cpl-rotation-audit/sources/easyeda-footprints.json",
+      "sha256": "7eac2c628a81fc1ef5f111802ca8eabfd068a32c3b3f2d276df11fdf8324dc17"
+    },
+    {
+      "path": "cpl-rotation-audit/sources/kicad-footprints.json",
+      "source": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/cpl-rotation-audit/sources/kicad-footprints.json",
+      "sha256": "777e674575fd61a384d08d7ca702c883e18c39066d4b2ee427c3160c0d649ac2"
+    },
+    {
+      "path": "sourcing/ALTERNATES-2026-10-09.md",
+      "source": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/sourcing/ALTERNATES-2026-10-09.md",
+      "sha256": "02a9c9f1ecfccbacc9979713d1dd012fd904f71ba3989bbfdcc1132cdae32b89"
+    },
+    {
+      "path": "sourcing/F1-J3-PARTS.md",
+      "source": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/sourcing/F1-J3-PARTS.md",
+      "sha256": "334232705829945933ec483ad60e0191dfdb91a28ae7b226274d8759f5b0f44c"
+    },
+    {
+      "path": "sourcing/README.md",
+      "source": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/sourcing/README.md",
+      "sha256": "fe77d8594177890c82cf17771b344af70404b02dc03387c4d5835e1b36068ccb"
+    },
+    {
+      "path": "sourcing/STOCK-2026-10-13-addendum-s20.csv",
+      "source": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/sourcing/STOCK-2026-10-13-addendum-s20.csv",
+      "sha256": "b08e1c82fdda02cb8f349c00d67b1acf349f8aec1723547d8ff2601ff8ec5d67"
+    },
+    {
+      "path": "sourcing/STOCK-2026-10-13.csv",
+      "source": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/sourcing/STOCK-2026-10-13.csv",
+      "sha256": "a9fa49127db3b6dcd7b78b10b6613f3d701d394d767200d512f91fa90c59ee9a"
+    },
+    {
+      "path": "sourcing/STOCK-2026-10-13.md",
+      "source": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/sourcing/STOCK-2026-10-13.md",
+      "sha256": "1ed1c875a1f8f65f602297d664b5dd761eece32723b6fe49388412ece5404560"
+    },
+    {
+      "path": "sourcing/alt-circuits-2026-10-09/ALT-BIAS.md",
+      "source": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/sourcing/alt-circuits-2026-10-09/ALT-BIAS.md",
+      "sha256": "f6aea061f6a62ba4c7ad33f938dc5fda5e142eb2d5a0b230296aa7a0e6e65bb1"
+    },
+    {
+      "path": "sourcing/alt-circuits-2026-10-09/ALT-C5C6.md",
+      "source": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/sourcing/alt-circuits-2026-10-09/ALT-C5C6.md",
+      "sha256": "7788813c729dae102813cd9db64f1f029a1596896d73099dd31b7e3a68677dbf"
+    },
+    {
+      "path": "sourcing/alt-circuits-2026-10-09/ALT-D3.md",
+      "source": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/sourcing/alt-circuits-2026-10-09/ALT-D3.md",
+      "sha256": "6ae1bda6c53db1ca93fe7c5d228a6f7fccc7685816cd82d82c264d3cf700ffeb"
+    },
+    {
+      "path": "sourcing/inquiries/CTI-JLC.md",
+      "source": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/sourcing/inquiries/CTI-JLC.md",
+      "sha256": "f8b257fb2c278b79cc1317193f62d6864fa6b0311159cee71daac0cf34a50ea7"
+    },
+    {
+      "path": "sourcing/inquiries/F1-CERTIFIER.md",
+      "source": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/sourcing/inquiries/F1-CERTIFIER.md",
+      "sha256": "c62336477d696c549faa93b84a3ce640ac6304932045e6bb5c959be353b702de"
+    },
+    {
+      "path": "sourcing/inquiries/SAMPLES-BLOCKED-PARTS.md",
+      "source": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/sourcing/inquiries/SAMPLES-BLOCKED-PARTS.md",
+      "sha256": "4e104803c1b979b7e941e1391cdaf3713bcabfe28552c4e65a20abee8664c6d6"
+    },
+    {
+      "path": "sourcing/lcsc-map.csv",
+      "source": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/sourcing/lcsc-map.csv",
+      "sha256": "92089c9177e22f2673f986b48eb560821af98345378364878900d704c50b6bfe"
+    },
+    {
+      "path": "README.md",
+      "source": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/README.md",
+      "sha256": "425e74e802e08291b6e72ef01a6411937e48a636592ee863f9ecea292c5a1336"
+    },
+    {
+      "path": "review.json",
+      "source": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/review.json",
+      "sha256": "08ef1a71ababf9b9a6039fac1e5966a9eaaf683edd998e6ef0fcdd8e7a5a3aab"
+    },
+    {
+      "path": "jlc-dfm.json",
+      "source": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/jlc-dfm.json",
+      "sha256": "926bf64d3605634f8f72f21f5e2db5145734a3c1b26b19edb3cd0085b2134fd9"
+    },
+    {
+      "path": "producer-final-manifest.json",
+      "source": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/native-21/verification/final-manifest.json",
+      "sha256": "7654bbcf879b583575251bf97d5952ff819bf2e8f0505e81c142158d01fa1106"
+    },
+    {
+      "path": "DECISIONS.md",
+      "source": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/DECISIONS.md",
+      "sha256": "69281f048e261855d9b7244cd2940695a07d32c01a27f11e2da4b28abe610d9c"
+    },
+    {
+      "path": "scorecard-native21s21b.json",
+      "source": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/10-benchmark/scorecard-native21s21b.json",
+      "sha256": "00cee558d2069d2313f4a7b54404f7a280b24f54a1407cbd479b74fe21993ed0"
+    }
+  ]
+}

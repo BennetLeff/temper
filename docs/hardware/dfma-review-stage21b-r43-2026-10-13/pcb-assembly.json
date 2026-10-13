@@ -1,0 +1,329 @@
+{
+  "scope": "Completed routed native21 stage21b digital PCB candidate; DFMA-13 through DFMA-24; engineering-prototype planning, no manufacturing or mains release",
+  "board_sha256": "c015804959add81e948055279cb78946e3a762ac9077c0b21bfbde3c89d0cb56",
+  "manufacturing_context": "input/manufacturing-stage21b-final (manifest matches board c0158049; digital candidate, not manufacturing release)",
+  "score_distribution": {
+    "0": 0,
+    "1": 8,
+    "2": 4,
+    "3": 0,
+    "U": 0,
+    "NA": 0
+  },
+  "criteria": [
+    {
+      "id": "DFMA-13",
+      "score": "1",
+      "confidence": "high for thickness mismatch risk; medium for supplier outcome",
+      "evidence": [
+        "input/pcb-stage21b/producer-context/stackup.json",
+        "input/manufacturing-stage21b-final/fab/FAB-NOTE.md:30-33",
+        "https://www.we-online.com/components/products/datasheet/74650074.pdf"
+      ],
+      "finding_ids": [
+        "PCB-01"
+      ]
+    },
+    {
+      "id": "DFMA-14",
+      "score": "2",
+      "confidence": "high for native geometry; medium for fabricator process",
+      "evidence": [
+        "input/manufacturing-stage21b-final/jlc-dfm.json",
+        "input/manufacturing-stage21b-final/review.json",
+        "fresh/fab-reference/drill-report.txt"
+      ],
+      "finding_ids": [
+        "PCB-02"
+      ]
+    },
+    {
+      "id": "DFMA-15",
+      "score": "2",
+      "confidence": "high for outline/drill geometry; medium for installed fit",
+      "evidence": [
+        "fresh/fab-reference/gerbers/section-Edge_Cuts.gm1",
+        "fresh/fab-reference/drill-report.txt",
+        "input/pcb-stage21b/section.kicad_pcb"
+      ],
+      "finding_ids": [
+        "PCB-03"
+      ]
+    },
+    {
+      "id": "DFMA-16",
+      "score": "1",
+      "confidence": "high for modeled geometry; medium for untested finished insulation",
+      "evidence": [
+        "input/pcb-stage21b/barrier-gate-rust.json",
+        "input/manufacturing-stage21b-final/fab/FAB-NOTE.md:17-22,30-40"
+      ],
+      "finding_ids": [
+        "PCB-04"
+      ]
+    },
+    {
+      "id": "DFMA-17",
+      "score": "1",
+      "confidence": "high for no panel package",
+      "evidence": [
+        "input/pcb-stage21b/section.kicad_pcb",
+        "fresh/fab-reference/gerbers/section-Edge_Cuts.gm1",
+        "input/manufacturing-stage21b-final/fab"
+      ],
+      "finding_ids": [
+        "PCB-03"
+      ]
+    },
+    {
+      "id": "DFMA-18",
+      "score": "1",
+      "confidence": "high for frozen artifact inconsistencies; medium for order interpretation",
+      "evidence": [
+        "input/manufacturing-stage21b-final/README.md",
+        "input/manufacturing-stage21b-final/fab/FAB-NOTE.md:3-8,38-40",
+        "input/manufacturing-stage21b-final/producer-final-manifest.json",
+        "input/pcb-stage21b/section.kicad_pcb:98-99"
+      ],
+      "finding_ids": [
+        "PCB-05",
+        "PCB-02"
+      ]
+    },
+    {
+      "id": "DFMA-19",
+      "score": "1",
+      "confidence": "high for native pad/paste features; medium for exact MPN overlay",
+      "evidence": [
+        "input/pcb-stage21b/section.kicad_pcb",
+        "input/pcb-stage21b/frozen/default.csv",
+        "fresh/fab-reference/gerbers/section-F_Paste.gtp",
+        "https://www.ti.com/lit/ds/symlink/tps7a47.pdf",
+        "https://www.bourns.com/docs/product-datasheets/css2h-2512.pdf"
+      ],
+      "finding_ids": [
+        "PCB-06",
+        "PCB-02"
+      ]
+    },
+    {
+      "id": "DFMA-20",
+      "score": "2",
+      "confidence": "high for row parity and resolved C30/C31; medium for vendor preview",
+      "evidence": [
+        "input/manufacturing-stage21b-final/fab/bom-jlcpcb.csv",
+        "input/manufacturing-stage21b-final/fab/positions-kicad.csv",
+        "input/manufacturing-stage21b-final/fab/cpl-jlcpcb.csv",
+        "input/manufacturing-stage21b-final/cpl-rotation-audit/cpl-jlcpcb.corrected.csv",
+        "input/manufacturing-stage21b-final/cpl-rotation-audit/cpl-jlcpcb.corrected-ynegated.csv",
+        "input/manufacturing-stage21b-final/cpl-rotation-audit/audit.csv",
+        "input/manufacturing-stage21b-final/cpl-rotation-audit/audit.json"
+      ],
+      "finding_ids": [
+        "PCB-08"
+      ]
+    },
+    {
+      "id": "DFMA-21",
+      "score": "1",
+      "confidence": "high for defined paste/part topology; medium for untested process window",
+      "evidence": [
+        "fresh/fab-reference/gerbers/section-F_Paste.gtp",
+        "input/pcb-stage21b/producer-context/ASSEMBLY.md:1-36",
+        "input/manufacturing-stage21b-final/fab/FAB-NOTE.md:49-59",
+        "https://www.we-online.com/components/products/datasheet/74650074.pdf"
+      ],
+      "finding_ids": [
+        "PCB-09"
+      ]
+    },
+    {
+      "id": "DFMA-22",
+      "score": "2",
+      "confidence": "high for operation inventory; medium for labor/sequence evidence",
+      "evidence": [
+        "input/pcb-stage21b/section.kicad_pcb",
+        "input/pcb-stage21b/producer-context/ASSEMBLY.md:1-90",
+        "input/manufacturing-stage21b-final/fab/hand-assembly-extras.csv"
+      ],
+      "finding_ids": [
+        "PCB-10"
+      ]
+    },
+    {
+      "id": "DFMA-23",
+      "score": "1",
+      "confidence": "high for measured local geometry; medium for actual tool access",
+      "evidence": [
+        "input/pcb-stage21b/section.kicad_pcb",
+        "fresh/drc.json",
+        "pcb/c30-c31-crop.png"
+      ],
+      "finding_ids": [
+        "PCB-11"
+      ]
+    },
+    {
+      "id": "DFMA-24",
+      "score": "1",
+      "confidence": "high for absent qualified repair/depanel route",
+      "evidence": [
+        "input/pcb-stage21b/producer-context/ASSEMBLY.md",
+        "input/pcb-stage21b/section.kicad_pcb",
+        "input/manufacturing-stage21b-final/fab"
+      ],
+      "finding_ids": [
+        "PCB-12",
+        "PCB-03"
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "id": "PCB-01",
+      "type": "process_acceptance_gap",
+      "priority": "high",
+      "summary": "J2/J5 74650074 require 1.6–2.0 mm board; final note now specifies 1.6–1.76 mm finished thickness to avoid ordinary nominal 1.6 mm ±10% reaching 1.44 mm, but supplier acceptance is open.",
+      "consequence": "Undersize finished board can invalidate the THR terminal interface.",
+      "closure_check": "Written finished-thickness lower bound and CTI/stack acceptance from selected fabricator; first-article coupon measurement."
+    },
+    {
+      "id": "PCB-02",
+      "type": "process_definition_gap",
+      "priority": "high",
+      "summary": "737 0.3 mm vias, including in-pad fields, need a controlled via covering/plating/inspection route; KiCad capping/filling flags and POFV order note differ.",
+      "consequence": "Uncontrolled interpretation can alter solder land planarity, plugging, inspection and cost.",
+      "closure_check": "Authoritative stage21b fab order instructions, selected process and acceptance of via treatment, drill plating and critical slots."
+    },
+    {
+      "id": "PCB-03",
+      "type": "evidence_gap",
+      "priority": "medium",
+      "summary": "L-shaped outline and slots are geometrically defined, but panel rails, support and depanel/fit trials are absent.",
+      "consequence": "Assembly handling and separation may damage loaded board or enclosure mating features.",
+      "closure_check": "Dimensioned supplier-compatible panel and outline/slot tolerance drawing; populated depanel and enclosure first-article trial."
+    },
+    {
+      "id": "PCB-04",
+      "type": "qualification_gap",
+      "priority": "high",
+      "summary": "Modeled barriers pass, but finished-unit material CTI, edge/slot condition, contamination and certification basis remain unqualified.",
+      "consequence": "Digital copper distances alone do not prove product insulation after manufacture.",
+      "closure_check": "Agree insulation authority and material/process controls, then inspect and physically qualify representative assemblies."
+    },
+    {
+      "id": "PCB-05",
+      "type": "confirmed_artifact_mismatch",
+      "priority": "high",
+      "summary": "Final Gerber/BOM/CPL and manifest match stage21b, but README still describes stage19b and old drill counts; FAB-NOTE still says 749 small vias, 36 test pads and 15 NPTH versus current 737/35/11.",
+      "consequence": "Revision-ambiguous written order/inspection packet can confuse quoting, fabrication instructions or incoming acceptance despite matching machine files.",
+      "closure_check": "Reconcile README and FAB-NOTE counts with current board/fab and explicit POFV order instruction; maintain the now-current stage21b manifest identity."
+    },
+    {
+      "id": "PCB-06",
+      "type": "interface_verification_gap",
+      "priority": "medium",
+      "summary": "Consequential R5, U26, U41/U42, C5/C6 and THR custom lands/paste choices lack exact drawing overlay and first-article joint evidence.",
+      "consequence": "Electrical layout intent may conflict with the actual part or paste/reflow yield.",
+      "closure_check": "Overlay current exact MPN drawings against native pad/mask/paste and inspect representative solder joints."
+    },
+    {
+      "id": "PCB-08",
+      "type": "evidence_gap",
+      "priority": "high",
+      "summary": "Final rotation audit aligns C30/C31 and all 353 corrected coordinates, but still flags 50 NEEDS-PREVIEW and 10 CORRECTED placements; supplier Y-axis/rotation/polarity interpretation remains unverified.",
+      "consequence": "Coordinate/rotation/polarity interpretation cannot be inferred from native DRC or raw file parity.",
+      "closure_check": "Inspect the selected assembler's board preview and capture signed-off disposition for flagged placements and side/axis convention."
+    },
+    {
+      "id": "PCB-09",
+      "type": "process_window_gap",
+      "priority": "high",
+      "summary": "THR studs, 2 oz copper, large THT/SMT thermal mass and hidden U26 pad share an unvalidated paste/stencil/reflow route.",
+      "consequence": "Barrel fill, voiding and temperature margin could vary on real boards.",
+      "closure_check": "Approve stencil aperture and paste-in-hole volume, profile a loaded board and inspect representative THR/U26 joints."
+    },
+    {
+      "id": "PCB-10",
+      "type": "operation_evidence_gap",
+      "priority": "medium",
+      "summary": "Manual parts and lead/clip/fuse steps are inventoried but no timed station traveler or first-article operation inspection exists.",
+      "consequence": "Actual labor, ergonomic access and operation defect cost remain unknown.",
+      "closure_check": "Time and inspect a full SMT→THR→manual→clean→trim→test pilot build, including F1 clips and terminal torque."
+    },
+    {
+      "id": "PCB-11",
+      "type": "placement_access_risk",
+      "priority": "medium",
+      "summary": "C31/C24 F.CrtYd axis-aligned gap is 0.175 mm and local CAD silk warnings reach 199-report caps; exported Gerber review finds no ink-on-land, but nozzle/AOI/rework envelope and label visibility remain unknown.",
+      "consequence": "Dense region may constrain placement inspection or service despite zero electrical DRC errors.",
+      "closure_check": "Assembler nozzle/AOI/rework envelope review and first-article visibility trial for C24/C30/C31/U6; treat 199 as cap not count."
+    },
+    {
+      "id": "PCB-12",
+      "type": "repair_evidence_gap",
+      "priority": "medium",
+      "summary": "Power-pin preheat is mentioned, but critical removal/replacement limits and post-rework/depanel inspection are undefined.",
+      "consequence": "Heat or mechanical repair can damage via caps, dense small parts, joints or retained insulation.",
+      "closure_check": "Trial bounded critical-part rework and loaded depanel, then inspect solder, cleanliness, insulation and function."
+    }
+  ],
+  "improvement_angles": [
+    {
+      "id": "ANGLE-01",
+      "saving_mechanism": "Avoid over- or under-specifying finished laminate and terminal attachment",
+      "technical_benefit": "Controlled stud interface and reproducible assembly",
+      "tradeoff": "A thicker stack or alternate termination changes plating, copper, thermal path, fit and cost",
+      "smallest_test": "Fabricator thickness capability/quote plus terminal-fit and enclosure sample"
+    },
+    {
+      "id": "ANGLE-02",
+      "saving_mechanism": "Selective via treatment instead of blanket POFV, only if supplier-supported",
+      "technical_benefit": "Retain flat in-pad solder lands and critical thermal/current paths",
+      "tradeoff": "Uncovered or tent-only vias can degrade solder quality/insulation and complicate process control",
+      "smallest_test": "Two quoted process variants plus cross-section and paste/void inspection"
+    },
+    {
+      "id": "ANGLE-03",
+      "saving_mechanism": "Spend small local area to reduce placement/rework fragility",
+      "technical_benefit": "Improved C24/C30/C31 nozzle, AOI and service access",
+      "tradeoff": "May change comparator return geometry, barrier clearance or routing",
+      "smallest_test": "One controlled placement variant checked against native envelope, electrical barriers and assembler tool model"
+    },
+    {
+      "id": "ANGLE-04",
+      "saving_mechanism": "Improve material utilization with a supplier-compatible L-board array",
+      "technical_benefit": "Support and repeatable separation of loaded boards",
+      "tradeoff": "Rails/tabs/fixtures consume material and can damage enclosure mating edges",
+      "smallest_test": "Compare panel drawings and quotes, then depanel one representative loaded panel"
+    },
+    {
+      "id": "ANGLE-05",
+      "saving_mechanism": "Target measured manual-operation bottlenecks",
+      "technical_benefit": "Less labor and inspection burden without losing service/current/thermal requirements",
+      "tradeoff": "Part substitutions can shift cost or make repair worse",
+      "smallest_test": "Time F1 clips, radial parts, THR studs, lead trim and connectors on a pilot traveler"
+    },
+    {
+      "id": "ANGLE-06",
+      "saving_mechanism": "Automated board-hash/BOM/CPL parity gate reduces wrong-build preparation and inspection work",
+      "technical_benefit": "Preserve exact 353-population/coordinate identity and known rotation deltas through each new revision",
+      "tradeoff": "Requires stable source identity and correct vendor-axis interpretation",
+      "smallest_test": "Re-run on final board c0158049, verify C30/C31 witnesses, then review selected assembler preview"
+    }
+  ],
+  "limits": "Digital and document review only; no supplier preview/order, physical sample, process capability, thermal/EMI/SPICE operating qualification, insulation certification or manufacturing release. DRC 199 warning counts are display caps; Gerber review reports no ink-on-land after mask subtraction. No board or producer package was modified by reviewer.",
+  "resolved_during_review": [
+    {
+      "id": "PCB-07",
+      "status": "resolved_by_concurrent_producer_regeneration_before_final_capture",
+      "prior_snapshot": "input/manufacturing-stage21b-chain/cpl-rotation-audit/cpl-jlcpcb.corrected.csv",
+      "final_snapshot": "input/manufacturing-stage21b-final/cpl-rotation-audit/cpl-jlcpcb.corrected.csv",
+      "prior_c30": "114.975,65.745,0 degrees",
+      "prior_c31": "110.825,68.395,0 degrees",
+      "final_c30": "99.760,63.090,-90 degrees",
+      "final_c31": "102.930,64.780,180 degrees",
+      "note": "Earlier unreleased corrected CPL contradicted board/raw CPL; owner concurrently regenerated it. Reviewer made no hardware or producer-package edits."
+    }
+  ]
+}

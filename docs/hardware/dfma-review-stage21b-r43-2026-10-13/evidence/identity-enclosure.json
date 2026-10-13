@@ -1,0 +1,4717 @@
+{
+  "review_date": "2026-10-13",
+  "enclosure_revision": "R43",
+  "source_root": "/Users/bennet/Desktop/temper/output/temper-manufacturing-r43",
+  "frozen_root": "/private/tmp/temper-dfma-review-stage21b-2026-10-13/input/enclosure-r43",
+  "file_count": 941,
+  "records": [
+    {
+      "path": ".DS_Store",
+      "sha256": "9dd2f9512ac92e56c99e2ac081479afbc3956dade252b6920f522b328efc2c59",
+      "bytes": 6148
+    },
+    {
+      "path": "BOM.csv",
+      "sha256": "67953a2a0a40b5a2770699a1b9f71334d1c3b3b07bb1b47ae63f3199c827efee",
+      "bytes": 141921
+    },
+    {
+      "path": "CURRENT.json",
+      "sha256": "4f6f496cc91918033a5751e4bf867cffca0a0d707166a166f6ae0302c64193d8",
+      "bytes": 211
+    },
+    {
+      "path": "README.md",
+      "sha256": "ca67017886bbf43d94b92ad3991f7d41ec61a32cf2480112681cd056f62b7cd3",
+      "bytes": 11967
+    },
+    {
+      "path": "STEP/assembly.step",
+      "sha256": "0a6fcd0fe8dfa03477ffc170df59d2ab32faee8e67ea38e94059fa7066be86ce",
+      "bytes": 82896855
+    },
+    {
+      "path": "STEP/controls.step",
+      "sha256": "5ec070f20ae35eb78403d433ed15431686daa6452c9065f91b666245923efd5e",
+      "bytes": 1004347
+    },
+    {
+      "path": "STEP/electronics.step",
+      "sha256": "5b4c8403f934a7a9911aaabe55e234c457bc1e44b01a9834950888504049d4d1",
+      "bytes": 61662692
+    },
+    {
+      "path": "STEP/enclosure.step",
+      "sha256": "ddb30418bc9718cffb1fd7dc1f8cb42798f0e7423440e00b877a2174744fbe20",
+      "bytes": 3837189
+    },
+    {
+      "path": "STEP/harness.step",
+      "sha256": "c6492dda8c2e66ef24cb900867c15f3439c152554923ea901aab157cdc7cb31c",
+      "bytes": 4975660
+    },
+    {
+      "path": "STEP/parts/controls_APEM_back_button.step",
+      "sha256": "a496223f0fe888c844a8fe11587f1ef3275b2f8b32c33ffc5c94c86e95f0bdab",
+      "bytes": 18407
+    },
+    {
+      "path": "STEP/parts/controls_APEM_back_rear_U166_nut.step",
+      "sha256": "3804eccaf04b4b21e88788626e2d8f4fdb8504512a34a2b50f519144ba87b4f6",
+      "bytes": 9877
+    },
+    {
+      "path": "STEP/parts/controls_APEM_select_start_button.step",
+      "sha256": "cf04d1d7cf43b81251e259aaca3151659f5c5f21490e9e84eec6cd8335f1db45",
+      "bytes": 18407
+    },
+    {
+      "path": "STEP/parts/controls_APEM_select_start_rear_U166_nut.step",
+      "sha256": "2275262dce236378a9d4c05f889de4336da3955e57829d757ee3d9d2d2a3d85d",
+      "bytes": 9877
+    },
+    {
+      "path": "STEP/parts/controls_APEM_stop_button.step",
+      "sha256": "2c0573e71559b98f21782f50e26ea238c3dd16e31ab5c6eea24d06715f32db85",
+      "bytes": 18355
+    },
+    {
+      "path": "STEP/parts/controls_APEM_stop_rear_U166_nut.step",
+      "sha256": "41f8dd5f7891e469caa2d9d965076839bcd6a6a53e05991c3cbf33e954df342b",
+      "bytes": 9858
+    },
+    {
+      "path": "STEP/parts/controls_Grayhill_rear_hex_nut.step",
+      "sha256": "44c439ab458e424de11105c7cd65cc5bade932cbe1d5990898b11a5a93143cf0",
+      "bytes": 9795
+    },
+    {
+      "path": "STEP/parts/controls_Grayhill_rear_lockwasher.step",
+      "sha256": "950514ac498a403132c1d606fd4bd0f1b4cb3089a280223b335e215d0bc159c8",
+      "bytes": 9824
+    },
+    {
+      "path": "STEP/parts/controls_Grayhill_sealed_encoder.step",
+      "sha256": "a07e1171748e5bd2d5b3529e6ae8cec321e577c717d091f6015d6f6cc5a0e43b",
+      "bytes": 19127
+    },
+    {
+      "path": "STEP/parts/controls_IFHA_M3_10_stud_1.step",
+      "sha256": "717b6660d5206a4e1c7b254048c90d52808fa712c8f80ba79a903938abee8ae1",
+      "bytes": 10053
+    },
+    {
+      "path": "STEP/parts/controls_IFHA_M3_10_stud_2.step",
+      "sha256": "b881a621c71df73b7d341ebc4bf010b2d21707bb0a4e158b99998535e3c0ca9b",
+      "bytes": 10045
+    },
+    {
+      "path": "STEP/parts/controls_IFHA_M3_10_stud_3.step",
+      "sha256": "fac7a86dc1050e8d079b0f0780926049529c8611d1ede9c504675079cc0c5d21",
+      "bytes": 10038
+    },
+    {
+      "path": "STEP/parts/controls_IFHA_M3_10_stud_4.step",
+      "sha256": "ff0343f68f16879057d90d90bad2bd5cd8b3f1693a36273b2dc14fe53ca26b73",
+      "bytes": 10030
+    },
+    {
+      "path": "STEP/parts/controls_Newhaven_OLED_bezel_envelope.step",
+      "sha256": "47f456a50e75742d360b17ba509eeb29765cf8be73341e65ed7fbc3a3e110f71",
+      "bytes": 16430
+    },
+    {
+      "path": "STEP/parts/controls_Newhaven_OLED_module.step",
+      "sha256": "91e50de0a9a35e853d19bc93845c5389b67033668db57fa328a002a5164ca73f",
+      "bytes": 31946
+    },
+    {
+      "path": "STEP/parts/controls_OLED_M2x5_1.step",
+      "sha256": "ad67fa1faba9027504f2157e0e2cb1aee120cd2ccc190e02a3600f167342c2a6",
+      "bytes": 10069
+    },
+    {
+      "path": "STEP/parts/controls_OLED_M2x5_2.step",
+      "sha256": "a81ae0876da4b3cdb0faadbaa47d3a5c15063ddc69317c7fc6b85981cad19086",
+      "bytes": 10069
+    },
+    {
+      "path": "STEP/parts/controls_OLED_M2x5_3.step",
+      "sha256": "17563789e2edf2654398b84fdb0ad54bdc16175086daca8ae0df430964dd8fd0",
+      "bytes": 10039
+    },
+    {
+      "path": "STEP/parts/controls_OLED_M2x5_4.step",
+      "sha256": "b93f0e3fd0c993593e6e8614098180bb297847e792b1eb94ba47be94f9f0c953",
+      "bytes": 10039
+    },
+    {
+      "path": "STEP/parts/controls_carrier_M3_nut_1.step",
+      "sha256": "30627acff68e93bec64eedf6fc9e8d62788d63bd989feccfcb8fe550162ae265",
+      "bytes": 9772
+    },
+    {
+      "path": "STEP/parts/controls_carrier_M3_nut_2.step",
+      "sha256": "9048642a19c3a0f7acbcbd506e419810c3f0064eeccfb45d9acf070084238c37",
+      "bytes": 9784
+    },
+    {
+      "path": "STEP/parts/controls_carrier_M3_nut_3.step",
+      "sha256": "f17592387a6a33cea973bcc9111f029dd20de6abc8d2163ea9deae675aa42a7c",
+      "bytes": 9758
+    },
+    {
+      "path": "STEP/parts/controls_carrier_M3_nut_4.step",
+      "sha256": "2ec6831665eadd8fc5018737851d46c5274a200b110295580dfda264d3915a24",
+      "bytes": 9770
+    },
+    {
+      "path": "STEP/parts/controls_encoder_3in_cable_route.step",
+      "sha256": "c0993f4ff540ca9695d4856eb8827c90a838cd3f6ccfe83696a3520138352137",
+      "bytes": 16438
+    },
+    {
+      "path": "STEP/parts/controls_flush_front_lens.step",
+      "sha256": "9005fad718ac2ccb9719457673a1429762ef5f9e6901e51850f19a262bb12456",
+      "bytes": 31728
+    },
+    {
+      "path": "STEP/parts/controls_knob_retention_O_ring.step",
+      "sha256": "7d18d8a0d7a2757c68577760d8df32d882255bdcfe6e1ea5b08512128f83a518",
+      "bytes": 9810
+    },
+    {
+      "path": "STEP/parts/controls_lens_perimeter_seal.step",
+      "sha256": "e00c5c42b4616c97ec5899bd36955feec0f0040fb59ab3de6e20c919401ba7e2",
+      "bytes": 68157
+    },
+    {
+      "path": "STEP/parts/controls_lens_rear_bond_bed.step",
+      "sha256": "7d4cc3453f0462ffeb742ffe6224c6e069ab6063d042874fce31ef8a788fd9bb",
+      "bytes": 68152
+    },
+    {
+      "path": "STEP/parts/controls_open_OLED_carrier.step",
+      "sha256": "c9b36c844b22d3b0364e1767b3555f7259b2ca67d65b30a24af62ab1971ad7c4",
+      "bytes": 219955
+    },
+    {
+      "path": "STEP/parts/controls_turned_push_on_D_bore_knob.step",
+      "sha256": "29aee3bc54a47b3fd2a145fa09885a8af50dc1a56e8be96b40808a8b9392601f",
+      "bytes": 51661
+    },
+    {
+      "path": "STEP/parts/controls_ui_board.step",
+      "sha256": "51d78f44ecff35b0e142c7debcf4a661a2518ff11507c8cb026939d62f72e3e3",
+      "bytes": 63627
+    },
+    {
+      "path": "STEP/parts/controls_ui_board_M3_screws.step",
+      "sha256": "8a7d4a6355029c5e5f9a858e5a61ce2e061bf99b74fd42ff924a76ac0f0f9922",
+      "bytes": 35939
+    },
+    {
+      "path": "STEP/parts/controls_ui_board_connectors.step",
+      "sha256": "da225c3a46be6cc49cd7014f4be5b596c35e7e04cdd9d6fca3e7569320046456",
+      "bytes": 46413
+    },
+    {
+      "path": "STEP/parts/electronics_Binder_M12_probe_envelope.step",
+      "sha256": "1b04154be5549205f093a05ca83ffc273f3e8482c07d96fa9d3e5e507e4278f7",
+      "bytes": 17115
+    },
+    {
+      "path": "STEP/parts/electronics_EMI_case_PE_braid.step",
+      "sha256": "03b595c901e8032bfe03deca15a81a3bc071a6345f867e0a192e85ec40aa77b9",
+      "bytes": 22200
+    },
+    {
+      "path": "STEP/parts/electronics_EMI_module_stand.step",
+      "sha256": "77a38a142adffce4342646306c069a1c0d5ee3b56e2d542cbc9f4eb653c0b07e",
+      "bytes": 122420
+    },
+    {
+      "path": "STEP/parts/electronics_EMI_stand_M3_screw.step",
+      "sha256": "2733ef0ce26c50e214f803a815be417a6f3adfb0e302d53543ff943644c37aca",
+      "bytes": 9432
+    },
+    {
+      "path": "STEP/parts/electronics_EMI_stand_module_nut_1.step",
+      "sha256": "3b8921f5ed81407481df829764f7c2ca61b1b6316059efa2cca79458c72b3f75",
+      "bytes": 16502
+    },
+    {
+      "path": "STEP/parts/electronics_EMI_stand_module_nut_2.step",
+      "sha256": "5880258b1601f4523b111fe770d1e04e00c5bd5c227d602705a86f09af5feb32",
+      "bytes": 16502
+    },
+    {
+      "path": "STEP/parts/electronics_EMI_stand_module_nut_3.step",
+      "sha256": "ab1fab9edb252af0f825d784211220a468872e5bc0ecbd9a70405409ea098716",
+      "bytes": 16481
+    },
+    {
+      "path": "STEP/parts/electronics_EMI_stand_module_nut_4.step",
+      "sha256": "aa09221e0b319535bd48ef00975d95299ecd6a4ae3bc026c7f94927f641159a1",
+      "bytes": 16481
+    },
+    {
+      "path": "STEP/parts/electronics_J13_barrier.step",
+      "sha256": "1d1d3e84e745b2e9e4aa7363919defcc7e50407788b03128873436128e2fe6a0",
+      "bytes": 130574
+    },
+    {
+      "path": "STEP/parts/electronics_M12_panel_O_ring.step",
+      "sha256": "7458e1fe7f003fec1cae9d9f7a082c35408e66cdf3c58817913ed36d78fa9d22",
+      "bytes": 11770
+    },
+    {
+      "path": "STEP/parts/electronics_M12_rear_M16_nut.step",
+      "sha256": "ef76cb4ec1414e68ad4cb62474f48ac9cf91ba81791640d0551e20e058e09e60",
+      "bytes": 11798
+    },
+    {
+      "path": "STEP/parts/electronics_PE_M4_chassis_set.step",
+      "sha256": "caaf47442774fa23545b853fa397dad6049b8765b1ebe02d799c8f76d440e6a9",
+      "bytes": 21826
+    },
+    {
+      "path": "STEP/parts/electronics_PE_M4_ring_lug.step",
+      "sha256": "f868486dba50a89801e083f740e50bac2304a68a627edb9d1325cf9586211219",
+      "bytes": 36991
+    },
+    {
+      "path": "STEP/parts/electronics_PE_S1_stud_set.step",
+      "sha256": "90d70cbf4b821181ecd60ebfacbbd6c47e77da1623ca880d35d66135702c199e",
+      "bytes": 24856
+    },
+    {
+      "path": "STEP/parts/electronics_PE_cover_base_ring_lug.step",
+      "sha256": "cb149b7a887b8ad3a4dfb106bf1386ea136068379beb1329fcd89822459c2dd1",
+      "bytes": 40372
+    },
+    {
+      "path": "STEP/parts/electronics_PE_cover_stud_ring_lug.step",
+      "sha256": "15e23f218520ba349c094913b9a264f8fbc638bfc5f930a5ec0cde4d7fede4a9",
+      "bytes": 28474
+    },
+    {
+      "path": "STEP/parts/electronics_PE_cover_stud_washer_nut_set.step",
+      "sha256": "1b12993e2c39bbc6114447710995cd156b682cbf510857c597da6a4916e1e62a",
+      "bytes": 22145
+    },
+    {
+      "path": "STEP/parts/electronics_PE_serrated_washer.step",
+      "sha256": "3e86323565525623edbd4440af46c64ab8cc1faf2436eebfc7f6b4d4fd3a6ae9",
+      "bytes": 11514
+    },
+    {
+      "path": "STEP/parts/electronics_PS3_IRM_60_15ST.step",
+      "sha256": "ec3d3ee58481e02014b2472b8ca2f0f52448314aba271c7f94860559bca75427",
+      "bytes": 74300
+    },
+    {
+      "path": "STEP/parts/electronics_PS3_J11_anchor.step",
+      "sha256": "dd23a0327baa2e206ba0dc19d3d3d6e1af53928b3e68d670a98a876087d778f1",
+      "bytes": 75070
+    },
+    {
+      "path": "STEP/parts/electronics_PS3_J11_anchor_M3_screws.step",
+      "sha256": "e545e0a0642d2e20032635495e8021a1d8b43b76bc57cb723072f13a1bd332e4",
+      "bytes": 17539
+    },
+    {
+      "path": "STEP/parts/electronics_PS3_M3_screws.step",
+      "sha256": "aa2658e73a627461d8598c55a48b8fa2b51762ed047b1928e5164721e3239e10",
+      "bytes": 33573
+    },
+    {
+      "path": "STEP/parts/electronics_PS3_bracket.step",
+      "sha256": "c96e1cbbfb01d945ae049d2387775f98d1e098013a0a5f302e00eb7ad5783a1d",
+      "bytes": 189682
+    },
+    {
+      "path": "STEP/parts/electronics_PS3_bracket_CLS_M3_nuts.step",
+      "sha256": "594591ea1921d0b5841d954b2dc6ce5871ee4a1cbe955b8d29ad2194e1aaf168",
+      "bytes": 48507
+    },
+    {
+      "path": "STEP/parts/electronics_PS3_floor_M3_screws.step",
+      "sha256": "f3f4ad4884fb7f61c1910e69bf9ccd97c7946094cc46cbcfd77975524a0fdcf8",
+      "bytes": 25571
+    },
+    {
+      "path": "STEP/parts/electronics_SELV_controller_board.step",
+      "sha256": "72b168a6f0faa1f1f560c2242452c7d8d48286a33469c5c6fe6d2f0b2c916fa8",
+      "bytes": 44041
+    },
+    {
+      "path": "STEP/parts/electronics_SELV_controller_components_ENVELOPE.step",
+      "sha256": "610cccb65595fbcba1bb33618e16ef0e6e2bf6953ce02a70c65bb04f65dece9d",
+      "bytes": 339219
+    },
+    {
+      "path": "STEP/parts/electronics_SELV_crossing_posts.step",
+      "sha256": "fd90d4e2c11ab3525c51a2d4d2cf84ab1bfd73cb1329c6edd5902a315fc80b1e",
+      "bytes": 52551
+    },
+    {
+      "path": "STEP/parts/electronics_SELV_tray.step",
+      "sha256": "ee25aaa33d4719d6f1b3f81bc73d0d7369e05264ec54d4f117f19a05aa98e658",
+      "bytes": 59093
+    },
+    {
+      "path": "STEP/parts/electronics_SELV_tray_spacers.step",
+      "sha256": "4042a0285aa3c17d4f50b8ac9ab1f28303cbca803ede658d2ea67069067357fc",
+      "bytes": 98968
+    },
+    {
+      "path": "STEP/parts/electronics_Schurter_C20_inlet_envelope.step",
+      "sha256": "083f95ee5aa3e835cedad04f12767acb16018f3242aa8c0b436c332c5ed7a3b5",
+      "bytes": 29276
+    },
+    {
+      "path": "STEP/parts/electronics_TCO_sink.step",
+      "sha256": "11710beffe30cbab70c98ff0cf4770d69cbbeb6f65aafc52f3096cd8d0e3bdee",
+      "bytes": 15569
+    },
+    {
+      "path": "STEP/parts/electronics_TCO_under_glass.step",
+      "sha256": "7d7056a2a11251c9e99e0f35537dab9f4a32b85f6bb4ff24867fdaf7f7307a01",
+      "bytes": 15573
+    },
+    {
+      "path": "STEP/parts/electronics_WiFi_antenna_board.step",
+      "sha256": "2a2e53409071e733b2503a298f1c3dce05ba3e9325df852e2646cde620e24a35",
+      "bytes": 29286
+    },
+    {
+      "path": "STEP/parts/electronics_blower_Delta_BFB1012VH.step",
+      "sha256": "9357bd8859db36deb379fb378eef608be2330a3f56cfed23c2cc63a73b1f34db",
+      "bytes": 19375
+    },
+    {
+      "path": "STEP/parts/electronics_blower_mount_set.step",
+      "sha256": "540a6ab54d10068baa07bd5dec045972aaf60e5da1b0bbb265530f6d764f33de",
+      "bytes": 32929
+    },
+    {
+      "path": "STEP/parts/electronics_coil_bleed_duct_F2.step",
+      "sha256": "57fbd0ed1aa76333360b03841fae47a96b8c947fdd8aefb9f59648fb76f1e29f",
+      "bytes": 55174
+    },
+    {
+      "path": "STEP/parts/electronics_coil_lug_J2.step",
+      "sha256": "be4d03eca6e61dd007f831f2b2c7b280c836bf7d77ea1bb6ba98fcba1a428c27",
+      "bytes": 30783
+    },
+    {
+      "path": "STEP/parts/electronics_coil_lug_J5.step",
+      "sha256": "4c5ee1b70fbcd8b1255411951c14135fef318a3cadd5edf41b455f4c6c55e1d4",
+      "bytes": 30775
+    },
+    {
+      "path": "STEP/parts/electronics_coil_plenum_floors.step",
+      "sha256": "157dd4f4dbe699e2132550d34f66db4bb7e2f0f3654e16712245af04ff84a91f",
+      "bytes": 96187
+    },
+    {
+      "path": "STEP/parts/electronics_coil_plenum_sink_nomex.step",
+      "sha256": "93a233ef228165fd48d2a7da473d3f16dd5a7685acf0405dae82ecaf2e9ed15b",
+      "bytes": 137844
+    },
+    {
+      "path": "STEP/parts/electronics_controller_ESP32_S3_WROOM_1.step",
+      "sha256": "f65521a18ae5e5689530a7780be2928423d60cd202c3d3ab7011b126e14b93e5",
+      "bytes": 15470
+    },
+    {
+      "path": "STEP/parts/electronics_controller_J1.step",
+      "sha256": "037c5826f0d64e1e7b9167987045db554fdc9728fc7af9b5725040dae4f35c33",
+      "bytes": 15637
+    },
+    {
+      "path": "STEP/parts/electronics_controller_J10.step",
+      "sha256": "8b03d66a538c51b70d797bf81fada100950ddc83b3bcacc26ed31e6c1b6dc237",
+      "bytes": 15689
+    },
+    {
+      "path": "STEP/parts/electronics_controller_J12.step",
+      "sha256": "40ca98af4a1abb7b7e6d3b1fc5396e7573e66dd190901b01671e5f72cabad422",
+      "bytes": 15587
+    },
+    {
+      "path": "STEP/parts/electronics_controller_J13.step",
+      "sha256": "6cebf1213b12f6e947647cb6df57452c44f4ead3a1f8f1e935f749269531e4ab",
+      "bytes": 15508
+    },
+    {
+      "path": "STEP/parts/electronics_controller_J2.step",
+      "sha256": "c67fe0f6b87d00b754cf00c838ece2adcae73d79d8a3af54f063d7ea076092ea",
+      "bytes": 15663
+    },
+    {
+      "path": "STEP/parts/electronics_controller_J3.step",
+      "sha256": "51d75ba433c311a8460f2ae1edcd1cecf7a2787cfe53582d8c315fa8866410b4",
+      "bytes": 15667
+    },
+    {
+      "path": "STEP/parts/electronics_controller_J4_right_angle.step",
+      "sha256": "d8c16821a7c232983daf7bdd6a9f8a6bb2be97e6717669b5d1c6ac4053431e1f",
+      "bytes": 29075
+    },
+    {
+      "path": "STEP/parts/electronics_controller_J7.step",
+      "sha256": "ddb4f7cebc57ad927ecc84c894652733bcdb5a389954016ed76970557a9a365d",
+      "bytes": 15547
+    },
+    {
+      "path": "STEP/parts/electronics_controller_J9.step",
+      "sha256": "1faeaa7ee6c619dc8d0fd29b6282439467f4753aa2687ed0d53fcb006f0ff82d",
+      "bytes": 15689
+    },
+    {
+      "path": "STEP/parts/electronics_controller_snap_support_-164_18.step",
+      "sha256": "362a04c8a1bdff43703bbe11d7adf84d0e1fc1d4f701abc1f9f39d1cf4416f0c",
+      "bytes": 26671
+    },
+    {
+      "path": "STEP/parts/electronics_controller_snap_support_-164_80.step",
+      "sha256": "de8a15dbd275bbdc0121d19a8cf8e95a3c94384999fa14cad5dc061ab8da52f1",
+      "bytes": 26671
+    },
+    {
+      "path": "STEP/parts/electronics_controller_snap_support_-65_18.step",
+      "sha256": "bbe41eaeb25f4b80c66103740d615c718e6404bac590c2ee2cd40dba373ac48e",
+      "bytes": 26635
+    },
+    {
+      "path": "STEP/parts/electronics_controller_snap_support_-75_86.step",
+      "sha256": "2bbef11126d5f395f8a8b73a9d5d8ebe198b3d01009911063f2509e3a1d334c9",
+      "bytes": 26635
+    },
+    {
+      "path": "STEP/parts/electronics_controller_snap_support_26_74.step",
+      "sha256": "fe8af656677035b30fbccba1782b8290f484a235c690c6cf914e329694bd0b15",
+      "bytes": 26671
+    },
+    {
+      "path": "STEP/parts/electronics_controller_snap_support_34_18.step",
+      "sha256": "99983665537105b7340e5d50e2b06b0bdb4994de8e441b78b6292de0904af792",
+      "bytes": 26671
+    },
+    {
+      "path": "STEP/parts/electronics_exhaust_plenum.step",
+      "sha256": "fdc1fc0de50c0f9e3d3a2f7b9ed8623d130bc972860303ef6217e5eb60ebd41c",
+      "bytes": 74621
+    },
+    {
+      "path": "STEP/parts/electronics_exhaust_plenum_M3_screws.step",
+      "sha256": "90edc77ddee96ecbf1d5d11c564f9f6d097b5c27df3da3851b01846fed04f03d",
+      "bytes": 17479
+    },
+    {
+      "path": "STEP/parts/electronics_harness_lane_bracket_165.step",
+      "sha256": "2c011a1877e1fafece44c72a9312dcdaec18aac1b06d9ec410bc9f2e3a08c5ff",
+      "bytes": 124702
+    },
+    {
+      "path": "STEP/parts/electronics_harness_lane_bracket_235.step",
+      "sha256": "8f3d0f389bb5982387394ffd531998028bdac9893d81673bf02a8b67175315b5",
+      "bytes": 124702
+    },
+    {
+      "path": "STEP/parts/electronics_harness_lane_bracket_250.step",
+      "sha256": "0cb518469f1a4aa05d6286a2ebf76c0ab174934b3f1ea0272b66770ab0fba789",
+      "bytes": 140857
+    },
+    {
+      "path": "STEP/parts/electronics_harness_mains_anchor.step",
+      "sha256": "b2e70e6863beb70e666c9853bc7f2deb75ffc53f7bc1ede1b397f0aa1686b8c2",
+      "bytes": 71023
+    },
+    {
+      "path": "STEP/parts/electronics_harness_mains_anchor_290.step",
+      "sha256": "613cff14f21527e2bf6087fa45b766f52f178393604ed4846bc012c73a4f4f14",
+      "bytes": 80618
+    },
+    {
+      "path": "STEP/parts/electronics_inlet_EMI_module_ENVELOPE.step",
+      "sha256": "6bea841a7ae17bc5d81e5671689dbd9ee956f37f9a9bb2e2fcb4eba85d0ee142",
+      "bytes": 15546
+    },
+    {
+      "path": "STEP/parts/electronics_inlet_bulkhead.step",
+      "sha256": "f91fde59c50e03a6b092d471d6f40313edac5b5eb5411bbea849d4eac208607e",
+      "bytes": 95823
+    },
+    {
+      "path": "STEP/parts/electronics_inlet_bulkhead_M4_set.step",
+      "sha256": "bc997c3459592d89bc587daac731a5de67bebf2f9463e0faaac62b4e51d13cd1",
+      "bytes": 32841
+    },
+    {
+      "path": "STEP/parts/electronics_inlet_window_gasket.step",
+      "sha256": "e3b5219b56fcb9cd8105d6c15eba125764b2ea4d46f79a6dea7fdcf82860f8af",
+      "bytes": 29139
+    },
+    {
+      "path": "STEP/parts/electronics_native21_J11_mate.step",
+      "sha256": "6b0d2947ab0567a68adfbe8f35050894fb11dd4e45858f69a43ea8444a50686a",
+      "bytes": 15590
+    },
+    {
+      "path": "STEP/parts/electronics_native21_J3_mate.step",
+      "sha256": "0b58b02ecc110ad3f1723823fc5285ddaf4ea3bec8db4043fdb08c241d2dbb1a",
+      "bytes": 15620
+    },
+    {
+      "path": "STEP/parts/electronics_native21_J4_mate.step",
+      "sha256": "c370e55bebd363ed00cae91115e8faccdf50b9cf83c632da8b26a73f259fffd6",
+      "bytes": 15569
+    },
+    {
+      "path": "STEP/parts/electronics_native21_board.step",
+      "sha256": "513d3ba4b6e91c9bd4936448e46c9c0f277abd73f6a45fbd0195ceac678d4db1",
+      "bytes": 733248
+    },
+    {
+      "path": "STEP/parts/electronics_native21_components_ENVELOPE.step",
+      "sha256": "22201302cf7761696d935b7ba9669b47a7f7e2ef371fa352cfc140c79f53d035",
+      "bytes": 55540856
+    },
+    {
+      "path": "STEP/parts/electronics_native21_sink_ENVELOPE.step",
+      "sha256": "6794c09b229a777f7e9b18a759e2a23c43a1966ddb97200a160deff10a33e26c",
+      "bytes": 31435
+    },
+    {
+      "path": "STEP/parts/electronics_native21_standoff_H1.step",
+      "sha256": "bc904a83273f2cf902d57509df3a7e6a13691f03f172b9a005ebdbc6eb07da66",
+      "bytes": 16765
+    },
+    {
+      "path": "STEP/parts/electronics_native21_standoff_H2.step",
+      "sha256": "e570c88568b4f0e3b9d76a51dbcbf1bae3159546884694516404816158603ee2",
+      "bytes": 16765
+    },
+    {
+      "path": "STEP/parts/electronics_native21_standoff_H3.step",
+      "sha256": "0af34622fd2112562ac0f47557975c7c0bb21755f858b0fc1cdbe7de245f2dea",
+      "bytes": 16743
+    },
+    {
+      "path": "STEP/parts/electronics_native21_standoff_H4.step",
+      "sha256": "e9b3554b6ab6beb8aab963b7e6ed41545a52284e1e4af8e124980382ae9600e4",
+      "bytes": 16787
+    },
+    {
+      "path": "STEP/parts/electronics_native21_standoff_H5.step",
+      "sha256": "d56c5e2c68bfef09ea012bffa0189d7c269f16888577116469cd90eda01d289c",
+      "bytes": 16765
+    },
+    {
+      "path": "STEP/parts/electronics_native21_standoff_H6.step",
+      "sha256": "286fc76e16dbc3580fe4b5e287ec3b978e183afd94a324eb2505947106ea8c23",
+      "bytes": 16765
+    },
+    {
+      "path": "STEP/parts/electronics_native21_standoff_H7.step",
+      "sha256": "236ee0f82450602fffedb19474c3643a856b382fa802434dd4b499a14743beb3",
+      "bytes": 16743
+    },
+    {
+      "path": "STEP/parts/electronics_native21_top_screw_H1.step",
+      "sha256": "c5f23ce7d28db9d53960c82bcdf58b88d13404eabf229768ffc5360b62575bfc",
+      "bytes": 11765
+    },
+    {
+      "path": "STEP/parts/electronics_native21_top_screw_H2.step",
+      "sha256": "05e3a8b2f9afa7fab1c8220d996405ad9938113f8178073d81405f6da4a2dda7",
+      "bytes": 11765
+    },
+    {
+      "path": "STEP/parts/electronics_native21_top_screw_H3.step",
+      "sha256": "152206b16d3596879eb4997936589f18fd1a7bfcfe9f87e930ef0bfdf380df19",
+      "bytes": 11750
+    },
+    {
+      "path": "STEP/parts/electronics_native21_top_screw_H4.step",
+      "sha256": "92e112e3cc1ffb1e923bb2f791802241901a23d0cbd035b8d20c52dd4b38a09a",
+      "bytes": 11780
+    },
+    {
+      "path": "STEP/parts/electronics_native21_top_screw_H5.step",
+      "sha256": "59969c8e9dd5e39c4b056ded550c510ae35549dd0634a7097ad5dee0a4b6873b",
+      "bytes": 11765
+    },
+    {
+      "path": "STEP/parts/electronics_native21_top_screw_H6.step",
+      "sha256": "4b62934e0b858cd35532f2c9cf642932f326706ffd03f8ae093029755b8447da",
+      "bytes": 11765
+    },
+    {
+      "path": "STEP/parts/electronics_native21_top_screw_H7.step",
+      "sha256": "a0e4effce59448f61cd84f06767dd0830101a4cc50c29587862c8b696c382539",
+      "bytes": 11750
+    },
+    {
+      "path": "STEP/parts/electronics_probe_P_clips.step",
+      "sha256": "2fc6a8d27784de2772d706d4063e05cd79bc600f49c875c0e77141f398d5f5b5",
+      "bytes": 44808
+    },
+    {
+      "path": "STEP/parts/electronics_push_hood.step",
+      "sha256": "42fa59853c1a3ff1936768eff6f4235bf62a29fedf98cc4242553c8b9ca2d0d4",
+      "bytes": 111805
+    },
+    {
+      "path": "STEP/parts/electronics_push_hood_M3_screws.step",
+      "sha256": "8df43c42cd1560035ff02e3cef0b1c43aa35131919c46933c842a17c809dee0c",
+      "bytes": 17520
+    },
+    {
+      "path": "STEP/parts/electronics_sink_AlN_tile_A.step",
+      "sha256": "453496ec6c9fbea4125349792c596ff6376d4c1bb5249d523caa1dec251eb84f",
+      "bytes": 15723
+    },
+    {
+      "path": "STEP/parts/electronics_sink_AlN_tile_B.step",
+      "sha256": "29c47c79d66f1d9f409a83250946ae756a3f6e937b7bd069a0337ebad1dbfa48",
+      "bytes": 15690
+    },
+    {
+      "path": "STEP/parts/electronics_sink_BR1_gap_pad.step",
+      "sha256": "2911ddb5d9600f3934fa025d4495680d2604bce45b61cce3da439eb646109e13",
+      "bytes": 15663
+    },
+    {
+      "path": "STEP/parts/electronics_sink_FR4_pressure_strip.step",
+      "sha256": "99b542abb67c04f3ecf7332094782d66e235808f0ee4cc168605c01e8db9b504",
+      "bytes": 29175
+    },
+    {
+      "path": "STEP/parts/electronics_sink_PE_base_stud_set.step",
+      "sha256": "ca033dfd540028c33812043fc45e24662110afb30c21c13b6a26d89f869a2180",
+      "bytes": 31840
+    },
+    {
+      "path": "STEP/parts/electronics_sink_PE_bolt_set.step",
+      "sha256": "af84c2f2dc48777f54650ac9a601b2ff984129eb35f7e10be401b2eb6f155bfc",
+      "bytes": 37426
+    },
+    {
+      "path": "STEP/parts/electronics_sink_PE_ear_lug.step",
+      "sha256": "8e9c846fd9cbcee10a40ae65801f4f85815e7596c6693b8703853508d5dd005b",
+      "bytes": 21670
+    },
+    {
+      "path": "STEP/parts/electronics_sink_bar_bond_screws_M4.step",
+      "sha256": "22ee270270692985cb702332fdb819bfa78009d79798c738147a648b052d020f",
+      "bytes": 50356
+    },
+    {
+      "path": "STEP/parts/electronics_sink_clamp_comb.step",
+      "sha256": "3fb95868179c041f124199dbf7d9e3bd3849d098b66e83c3995c8faba5783f5b",
+      "bytes": 29216
+    },
+    {
+      "path": "STEP/parts/electronics_sink_cradle.step",
+      "sha256": "91f5d33a7a8c27b79739968f30155bfe93b001de0653446173758e827ea1c439",
+      "bytes": 57675
+    },
+    {
+      "path": "STEP/parts/electronics_sink_cradle_M3_screw.step",
+      "sha256": "29da7c4f3dc84c440e9a79d3b7e91a1885cf9cb091c5b2e2ead215876d5d8ab1",
+      "bytes": 9465
+    },
+    {
+      "path": "STEP/parts/electronics_sink_cradle_pad.step",
+      "sha256": "df89c741cd8ec39a3016a5fe14e4f0828f71928d2489488aab30b290811cf39d",
+      "bytes": 15483
+    },
+    {
+      "path": "STEP/parts/electronics_sink_spreader_bar.step",
+      "sha256": "affb32975c6514442b92b4177e038ec50e65a198e8278972b93dbb499fb56547",
+      "bytes": 118092
+    },
+    {
+      "path": "STEP/parts/enclosure_P1_seat_ring.step",
+      "sha256": "74a3a65d1fa8a3d3ce5719971040ff802225f9d9bb4a3dd9791edf979f6a1354",
+      "bytes": 109017
+    },
+    {
+      "path": "STEP/parts/enclosure_P2_fence_ring.step",
+      "sha256": "cff5d4a9b05217d3226e39ad4f8564d3cfb851b7f23bb5a6d5bb444ceef505b5",
+      "bytes": 111656
+    },
+    {
+      "path": "STEP/parts/enclosure_P3_fascia.step",
+      "sha256": "f1fc9ae63d6da06784cda76b531f9cdc3339e6b632f099677b54f74889d2694e",
+      "bytes": 181721
+    },
+    {
+      "path": "STEP/parts/enclosure_P4_U_wrapper.step",
+      "sha256": "1cb85c81a42f751ff2966922924b8edcae22124cfafcc03c74a1c2bc82e15f75",
+      "bytes": 281558
+    },
+    {
+      "path": "STEP/parts/enclosure_PS3_J11_anchor_CLS_M3_nuts.step",
+      "sha256": "11ffea9f51dd455b9f2a2ba4f3b59d590a91d22a32568989b9611d07c854d344",
+      "bytes": 24822
+    },
+    {
+      "path": "STEP/parts/enclosure_PS3_floor_CLS_M3_nuts.step",
+      "sha256": "cf754075e077932da94f59189a7a600a3d48614ea94a8e11e405b24f78f3c0b6",
+      "bytes": 36481
+    },
+    {
+      "path": "STEP/parts/enclosure_bottom_chassis_with_locator_tangs.step",
+      "sha256": "8567654d044dfb64e4e680f2e3401bd9945faedd6699664f68490ec62af32612",
+      "bytes": 947492
+    },
+    {
+      "path": "STEP/parts/enclosure_coil_standoff_-157_190.step",
+      "sha256": "9785a3b8d7ed6b625a06c7f03860fd994548832960e85f1822bd4fc640074c4d",
+      "bytes": 11503
+    },
+    {
+      "path": "STEP/parts/enclosure_coil_standoff_0_396.step",
+      "sha256": "1f314816c51bb2bf921065af5a9b2dfa38870c568157b5c77e9d3f7fa45c2949",
+      "bytes": 11481
+    },
+    {
+      "path": "STEP/parts/enclosure_coil_standoff_157_190.step",
+      "sha256": "0993d5aa64a8e8063f07bd541d147dd56b09da2f8df0f3620905a59b714f42aa",
+      "bytes": 11517
+    },
+    {
+      "path": "STEP/parts/enclosure_coil_standoff_bottom_screw_-157_190.step",
+      "sha256": "fc00f921e165464d1289b60b7f4c88ddb12dec19b78c1e480d6827f55e96ba60",
+      "bytes": 11757
+    },
+    {
+      "path": "STEP/parts/enclosure_coil_standoff_bottom_screw_0_396.step",
+      "sha256": "88619719c356c8f80f637844dad097c4391f809a8decd5d26fdd8595315e594d",
+      "bytes": 11733
+    },
+    {
+      "path": "STEP/parts/enclosure_coil_standoff_bottom_screw_157_190.step",
+      "sha256": "54b3e26bd875bdccad649d62033f09dc0f348c0df2677d03570bf687a0bdbfe2",
+      "bytes": 11772
+    },
+    {
+      "path": "STEP/parts/enclosure_door_bottom_screw_-145.step",
+      "sha256": "96a626946125c77ac8e2e10d40c480f164778b61c5e3334b23fd04d1f73246f0",
+      "bytes": 11757
+    },
+    {
+      "path": "STEP/parts/enclosure_door_bottom_screw_145.step",
+      "sha256": "7e3d46cf5a06e3061b17f7b94f1111c259e536ed1dbda2a14ca33db26fc8dde9",
+      "bytes": 11772
+    },
+    {
+      "path": "STEP/parts/enclosure_door_exhaust_rib.step",
+      "sha256": "0426165c153a85aaa9e66366e707dbb3d95218a6b9e24c9f9922103a772c6a6b",
+      "bytes": 22336
+    },
+    {
+      "path": "STEP/parts/enclosure_door_hook_bracket_-150.step",
+      "sha256": "dc7786d5481f945d1499507b07a8b09ac87e05f5f85ebf2a47bf057987a0d539",
+      "bytes": 44724
+    },
+    {
+      "path": "STEP/parts/enclosure_door_hook_bracket_150.step",
+      "sha256": "5075d082d0e3fcaf9ab0a69436efc2b8aca7eaa59e60c5210b5f8528dcec5df6",
+      "bytes": 44819
+    },
+    {
+      "path": "STEP/parts/enclosure_door_hook_nut_-150_68.step",
+      "sha256": "a58d0744d1c46eb5317eadb783b72c542f68af1d789cd87304a85b4b0030855f",
+      "bytes": 11654
+    },
+    {
+      "path": "STEP/parts/enclosure_door_hook_nut_-150_78.step",
+      "sha256": "f590c272a9a8f45cbfb3918fd3b1219b02786ca4a4f75df6ccd92322910485c4",
+      "bytes": 11654
+    },
+    {
+      "path": "STEP/parts/enclosure_door_hook_nut_150_68.step",
+      "sha256": "861d7c649b71ff3dd761d4230ab5ab850210f00450c303e3df902d81311ee88f",
+      "bytes": 11668
+    },
+    {
+      "path": "STEP/parts/enclosure_door_hook_nut_150_78.step",
+      "sha256": "836d0c3f2e01d7a3454b4e0e4a3e0e00f0b40c44ff2d1929df7e0dfa70b7b193",
+      "bytes": 11668
+    },
+    {
+      "path": "STEP/parts/enclosure_door_hook_studs.step",
+      "sha256": "a33e719f9c6514e620f7631d356859abdcbec76c182b1bf3570b2811f558cc60",
+      "bytes": 18408
+    },
+    {
+      "path": "STEP/parts/enclosure_door_nut_-145.step",
+      "sha256": "0118acdbad2f62eaf79760a13a1f0c2c7f85c75bfa647ebd39f9f786309d0a7c",
+      "bytes": 16508
+    },
+    {
+      "path": "STEP/parts/enclosure_door_nut_145.step",
+      "sha256": "ca0a7d164f3b5d4a6e06f65578bd5199a2c2c74a10a1667bc9a95efd66e45f6f",
+      "bytes": 16529
+    },
+    {
+      "path": "STEP/parts/enclosure_fence_M3_screws.step",
+      "sha256": "49d7f7be41173f642b1c6daeca0d2d0de471ebef0f52033d6f160cf73364c5aa",
+      "bytes": 100860
+    },
+    {
+      "path": "STEP/parts/enclosure_foot_-150_40.step",
+      "sha256": "2b967814e8f1385298bebbc281c712bff92a2b1c3cd602adf97e9fa95d15a48b",
+      "bytes": 16865
+    },
+    {
+      "path": "STEP/parts/enclosure_foot_-150_402.step",
+      "sha256": "a923c8ca220f6fda08d75ddb11a536e5b84595a0b9156a066e3ecece63595d30",
+      "bytes": 16887
+    },
+    {
+      "path": "STEP/parts/enclosure_foot_-8_380.step",
+      "sha256": "cb239bd454c4b6383e25cb8f9ab89eef2dc2b31d7e5978378a1afe7726c12e9f",
+      "bytes": 16874
+    },
+    {
+      "path": "STEP/parts/enclosure_foot_150_40.step",
+      "sha256": "2054e35a9ee37836d71d6c186152b58b5622ecb89d0eb058c550d2ba04b9b80e",
+      "bytes": 16887
+    },
+    {
+      "path": "STEP/parts/enclosure_foot_150_402.step",
+      "sha256": "e4fe7ca8153f2bd4baa89935d0a2f1c5302390bc9f3bf782f3fe3d78a526e294",
+      "bytes": 16909
+    },
+    {
+      "path": "STEP/parts/enclosure_glass_350x340x4_sensor_bore.step",
+      "sha256": "3ca5dc9681bcdee3c2fd7957196ba622474295fb32673b943d3c474690ab02d2",
+      "bytes": 36786
+    },
+    {
+      "path": "STEP/parts/enclosure_glass_S96_bed_and_edge_seal.step",
+      "sha256": "78a96e8ab38cc30e5deed8e9d25ad32b7b213be84604481645cd13f3858752ba",
+      "bytes": 124451
+    },
+    {
+      "path": "STEP/parts/enclosure_one_rear_service_door.step",
+      "sha256": "94c8ec775372b4590d0e04fd1c3fe336fc284c3da82ff86897ed03ba9f014b61",
+      "bytes": 886703
+    },
+    {
+      "path": "STEP/parts/enclosure_rear_door_gasket_allocation.step",
+      "sha256": "59cba0a35d80f2fa0c878ab9b58afb5d0fad56499b9fd3ed867f794259642c28",
+      "bytes": 29166
+    },
+    {
+      "path": "STEP/parts/enclosure_rear_underbase_dam.step",
+      "sha256": "5dd4932245376387a35030b905bcaaaf4c182bce03caf5a984910bbb1b21e07f",
+      "bytes": 62124
+    },
+    {
+      "path": "STEP/parts/enclosure_shell_bottom_screw_-170_150.step",
+      "sha256": "44b9ae94fdd0362f6b418b4b6e59b7c08b846a9fd3ce8009d6a422702d36cb11",
+      "bytes": 11742
+    },
+    {
+      "path": "STEP/parts/enclosure_shell_bottom_screw_-170_360.step",
+      "sha256": "11539f40a6357a890b5dd441d31e998f7d425a12c1732ff7e5b93b5a5584c743",
+      "bytes": 11757
+    },
+    {
+      "path": "STEP/parts/enclosure_shell_bottom_screw_170_150.step",
+      "sha256": "bf1490dbd250d2941993427dfe1a36769a971bd5618a7362528d1992066ef121",
+      "bytes": 11757
+    },
+    {
+      "path": "STEP/parts/enclosure_shell_bottom_screw_170_360.step",
+      "sha256": "bb575aacc0ace53ef2f203becafdce7c2cda0d24650f5e1cf88122cf7589a4f8",
+      "bytes": 11772
+    },
+    {
+      "path": "STEP/parts/enclosure_shell_nut_-170_150.step",
+      "sha256": "0de2de4f151afdbcda5311ef3a6f1874de9609233cd45f13fcd0b32f8823fc2a",
+      "bytes": 16501
+    },
+    {
+      "path": "STEP/parts/enclosure_shell_nut_-170_360.step",
+      "sha256": "9b50aa92b8686e81f54086f92133dd1034d8dbd1d81ce54bde57d3156b7f1d1b",
+      "bytes": 16522
+    },
+    {
+      "path": "STEP/parts/enclosure_shell_nut_170_150.step",
+      "sha256": "bda3d9ff6c19a54cdd2f29df89788f790c1fe4e4e70b95b1f02b39434cc17ed0",
+      "bytes": 16522
+    },
+    {
+      "path": "STEP/parts/enclosure_shell_nut_170_360.step",
+      "sha256": "4fdd6bf3ef8687dc8369e4ef5e0239e145c66721ac5bf3e4c84efc68c7822224",
+      "bytes": 16543
+    },
+    {
+      "path": "STEP/parts/harness_NTC_coil_to_thermal_sense.step",
+      "sha256": "8282a55fa707d67ab4bf8fa077ccddaef0735937b14757ceb928a264364da78f",
+      "bytes": 150740
+    },
+    {
+      "path": "STEP/parts/harness_NTC_sink_to_thermal_sense.step",
+      "sha256": "72b258e5f6b50d33b839f7d85da8ef4358c3b0d62104127071f9a8224d1df1fe",
+      "bytes": 204820
+    },
+    {
+      "path": "STEP/parts/harness_PE_C20_to_chassis_star.step",
+      "sha256": "186bf5a463c0e72cf9ea9849273235d1876713f8c847e3aea76f0d12afa247a4",
+      "bytes": 61524
+    },
+    {
+      "path": "STEP/parts/harness_PE_cover_bond.step",
+      "sha256": "c24cb1dcb61ae0bc76d77474f509f40562dcb6c5d1ec1888fdc1cbddf2c8068c",
+      "bytes": 108967
+    },
+    {
+      "path": "STEP/parts/harness_PE_native21_J6_to_star.step",
+      "sha256": "5781409b4b58b2738e92908d3c5cff863751fab03d9e89e886d427ec69ec5bb0",
+      "bytes": 202142
+    },
+    {
+      "path": "STEP/parts/harness_PE_sink_bond.step",
+      "sha256": "3b4b169b1d2c692b2d1e612b837bd0f83eb04c273537b4a0f73d2da8bec46dce",
+      "bytes": 107150
+    },
+    {
+      "path": "STEP/parts/harness_PS3_DC_to_controller_J13.step",
+      "sha256": "cdb80bfcded0df12c3f07c1a6dbfe35dc8508f18964eaedcbb0c6212ca34083a",
+      "bytes": 222932
+    },
+    {
+      "path": "STEP/parts/harness_SELV_J4_to_controller.step",
+      "sha256": "eeeaed1679d455832ad2d83041ba846c1269c770140cc77dc840b085055b4780",
+      "bytes": 141117
+    },
+    {
+      "path": "STEP/parts/harness_TCO_J3p1_to_sink_TCO.step",
+      "sha256": "8802dcb42caa76641a27da9ad33fdaf2ef0273cf3d2b6830dbe1ce3050acadd8",
+      "bytes": 224706
+    },
+    {
+      "path": "STEP/parts/harness_TCO_glass_TCO_to_J3p2.step",
+      "sha256": "55badd0ba58701889a4553c356bcb1c153f376eb9afe50c0b2634595e353939f",
+      "bytes": 266216
+    },
+    {
+      "path": "STEP/parts/harness_TCO_sink_to_glass_TCO.step",
+      "sha256": "11691c7025b0493cf70c188e8e9cffb5cacd21f5d77e4cba246c29f4d16d687b",
+      "bytes": 210479
+    },
+    {
+      "path": "STEP/parts/harness_UI_fascia_to_controller.step",
+      "sha256": "4e7fe18d3ddfdb924474cc387fcc2e6b959e4d8b77f228acc171cb92cbbb9234",
+      "bytes": 32108
+    },
+    {
+      "path": "STEP/parts/harness_WiFi_coax.step",
+      "sha256": "5c68b2d2d03713892d226474a59f82bd90fee4ed297457b3b47abd50cdaadb56",
+      "bytes": 179629
+    },
+    {
+      "path": "STEP/parts/harness_coil_lead_to_J2.step",
+      "sha256": "eda6c466a14087f2b9df1ba411a48baa40786f1a50ab5923f326e3f101547656",
+      "bytes": 55425
+    },
+    {
+      "path": "STEP/parts/harness_coil_lead_to_J5.step",
+      "sha256": "d20a9d833d234113e75f1fa034b9db1e469729b3cc751aadc334279435fb4fd7",
+      "bytes": 169398
+    },
+    {
+      "path": "STEP/parts/harness_encoder_pigtail_to_UI_board.step",
+      "sha256": "5ebf2294f75d8a778d839dffae7dfcc68cbe7cafdffa0094d0466c2cd4e7644d",
+      "bytes": 29429
+    },
+    {
+      "path": "STEP/parts/harness_fan_to_controller.step",
+      "sha256": "9f20bc9a04a5f38b0b024852dfc6b91e31ab0c294ed9c7944e088b10d6f6cd4c",
+      "bytes": 229511
+    },
+    {
+      "path": "STEP/parts/harness_mains_J11_to_PS3_AC.step",
+      "sha256": "aa56960a8e8ba01310bb89630efd6ed373d5fbc9c645d72fd0e99ccaf458f960",
+      "bytes": 219936
+    },
+    {
+      "path": "STEP/parts/harness_mains_L_C20_to_EMI.step",
+      "sha256": "1b8816dbd65450de67604b21103bac67e07132f7db2666531a05069f9a4b1063",
+      "bytes": 54668
+    },
+    {
+      "path": "STEP/parts/harness_mains_L_EMI_to_J1.step",
+      "sha256": "058f360a6b121c481edf7319afde50d6ee659b757e34859776e2f21af032fb28",
+      "bytes": 95429
+    },
+    {
+      "path": "STEP/parts/harness_mains_N_C20_to_EMI.step",
+      "sha256": "19698579b7e9227b99f437e33df81a37a85cb0dabf79b697d3f503dcfefdd024",
+      "bytes": 34068
+    },
+    {
+      "path": "STEP/parts/harness_mains_N_EMI_to_J1.step",
+      "sha256": "35139d4af147c539e0d8e418e832924b8a25eafb8f7bb3e456f89b26e416a5cc",
+      "bytes": 95364
+    },
+    {
+      "path": "STEP/parts/harness_pan_RTD_to_controller.step",
+      "sha256": "c3a7a8514268839de07d1f6ef6dd77459fff78223011c6001652a67a0c268226",
+      "bytes": 285152
+    },
+    {
+      "path": "STEP/parts/harness_probe_M12_to_controller.step",
+      "sha256": "11a8d569fc8d2518a1ba7890287826a5d8292729c3e37caddd33aa7d63df2e8c",
+      "bytes": 160750
+    },
+    {
+      "path": "STEP/parts/harness_rim_NTC_breakout_to_J12.step",
+      "sha256": "aca761202de99cfd886d53ab0f9602ce9c9c453d8759149a087282f0cc4fef52",
+      "bytes": 52152
+    },
+    {
+      "path": "STEP/parts/sensor_coil_carrier_M4x12_top_screw_-157_190.step",
+      "sha256": "33fa32959d004ac09102cbddd717465b91709d94c2a143334cea57821fa1cb55",
+      "bytes": 11706
+    },
+    {
+      "path": "STEP/parts/sensor_coil_carrier_M4x12_top_screw_0_396.step",
+      "sha256": "e6252c9529ee4cb1d30ff80e0295b446ed8fc504bebce27ba629a0628a035f37",
+      "bytes": 11682
+    },
+    {
+      "path": "STEP/parts/sensor_coil_carrier_M4x12_top_screw_157_190.step",
+      "sha256": "890e7dc86aa69f3cfedc44868fabded2da398ee641a120d538ec5832f2a9b308",
+      "bytes": 11721
+    },
+    {
+      "path": "STEP/parts/sensor_coil_coil_ear_M3_screws.step",
+      "sha256": "51b2c09655e3e0b7873f20fcbb61aca798df6eeb94911aaea17077ceb58bc866",
+      "bytes": 34709
+    },
+    {
+      "path": "STEP/parts/sensor_coil_ferrite_bars.step",
+      "sha256": "abdcf6181925f8e448b49e401b37a85e98c3859a1075a711c87344b8a0e02efd",
+      "bytes": 155741
+    },
+    {
+      "path": "STEP/parts/sensor_coil_former.step",
+      "sha256": "4ce9c33faf0ab82c0dc6eed19d8c20543638542774d79650baabb96ba7ea7411",
+      "bytes": 4541582
+    },
+    {
+      "path": "STEP/parts/sensor_coil_litz_winding.step",
+      "sha256": "2c66fff29caebd194ef8c73d35045c8204f034e77c128cce7a6786a81eb94767",
+      "bytes": 3942525
+    },
+    {
+      "path": "STEP/parts/sensor_coil_routed_insulating_carrier.step",
+      "sha256": "37b22a313b29709cdcfafd9229d9a52713e551fb237089b8dd944b6c62321ac0",
+      "bytes": 610902
+    },
+    {
+      "path": "STEP/parts/sensor_coil_sensor_PEEK_bayonet_body.step",
+      "sha256": "25d5dead1abb4cbd437306e26709e913ff2c1457df66f8be03d3699ca4ed0a57",
+      "bytes": 164469
+    },
+    {
+      "path": "STEP/parts/sensor_coil_sensor_PEEK_plunger.step",
+      "sha256": "16dd813744d5d08c0c4157e138f641e41ae269770745db6df9c824cd07a71ed6",
+      "bytes": 26519
+    },
+    {
+      "path": "STEP/parts/sensor_coil_sensor_PEEK_spring_washer.step",
+      "sha256": "f54b3cb1b3721bdc57abddd45f00bc372a2012ebbc53449c58c0ecbaba654b77",
+      "bytes": 11509
+    },
+    {
+      "path": "STEP/parts/sensor_coil_sensor_PT100_element.step",
+      "sha256": "a01acf8d0fdd6d53cccce42e4af6113b46365b648b887fe0ad5fa31341fcae44",
+      "bytes": 15582
+    },
+    {
+      "path": "STEP/parts/sensor_coil_sensor_alumina_contact_cap.step",
+      "sha256": "2c31974500856d5b9cb356312bbfed33f09f3827b39b3d8962ecd66ffc79e903",
+      "bytes": 11727
+    },
+    {
+      "path": "STEP/parts/sensor_coil_sensor_cap_bond.step",
+      "sha256": "f7b8e26ff237a0780388033aee48764e3ee4f3ea70be73d27d688c44dfd8fe45",
+      "bytes": 6752
+    },
+    {
+      "path": "STEP/parts/sensor_coil_sensor_cartridge_wave_spring.step",
+      "sha256": "75f3a4a3af29cae17ed14ebe9c12da58d39c630111aa8f6cf42060d59389ef0b",
+      "bytes": 11523
+    },
+    {
+      "path": "STEP/parts/sensor_coil_sensor_four_wire_cable_ALLOCATION.step",
+      "sha256": "b3c6adb53404dd78c6536fa3b1ff9f232624834387def0ddf07e37272b1e3f4b",
+      "bytes": 6751
+    },
+    {
+      "path": "STEP/parts/sensor_coil_sensor_rim_NTC.step",
+      "sha256": "daead0728c62ef6ac2d0ab70be0ddb3eb3bd6f782b0879e2c3a2ad400ccf8d99",
+      "bytes": 5603
+    },
+    {
+      "path": "STEP/parts/sensor_coil_sensor_silicone_boot.step",
+      "sha256": "4f48c4a98daded18d9c1c3ac42765535e4011ca9fba2260c4bc602fc357e3daf",
+      "bytes": 26435
+    },
+    {
+      "path": "STEP/parts/sensor_coil_sensor_spring_S23CS.step",
+      "sha256": "0f6ae327ecf6d8cb4ae0849d4a701ff2720245eaa2f501d4b8cc44d96f24e568",
+      "bytes": 11539
+    },
+    {
+      "path": "STEP/parts/sensor_coil_sensor_spring_gap_key.step",
+      "sha256": "60b727276f71ab9322fac2cde55790dfdd9ecc2569db8570e64f2c87c580e010",
+      "bytes": 15475
+    },
+    {
+      "path": "STEP/parts/sensor_coil_winding_NTC.step",
+      "sha256": "974a4864c9a97ffc6c3d4ca6c23650f1b445764e936e1aef9d89e47827c2fd95",
+      "bytes": 6078
+    },
+    {
+      "path": "STEP/parts/spill_hidden_rear_louver_duct.step",
+      "sha256": "eac5638ef1a1b5c07a1413eb8fd9276010aeaf2f4a4c5d0577157e3e0498064f",
+      "bytes": 74297
+    },
+    {
+      "path": "STEP/sensor_coil.step",
+      "sha256": "bb9321d024e7d12d900633c0f0b4107f253c6189843661cc772e13c8aee95260",
+      "bytes": 9866411
+    },
+    {
+      "path": "STEP/spill_barrier.step",
+      "sha256": "a936665dd9a935f7bd1540cb18e66c2639f79193e889b67983e923cf88aa0bbd",
+      "bytes": 77277
+    },
+    {
+      "path": "assembly.json.gz",
+      "sha256": "abfccd5411d4df2241b89ad6903035e1ac1a2bd12ea346bbae1ac886264c754e",
+      "bytes": 39761715
+    },
+    {
+      "path": "catalog.json",
+      "sha256": "aca70907b7c8f45467a8abb1de5fad460410ad626cdc3493231c13981e9ddf6e",
+      "bytes": 257281
+    },
+    {
+      "path": "design/electrical/interface-r11.md",
+      "sha256": "25b2234e86d733c86a41abd3be6dee8e4e39e99629f855bbe4aa88fe8d4cd751",
+      "bytes": 8180
+    },
+    {
+      "path": "design/electrical-support/rail-and-interface-review.md",
+      "sha256": "8f58b4315574001724ddbe703aa098b4b9d9f73ed1f315e7a6d2cc725cfc2b11",
+      "bytes": 11494
+    },
+    {
+      "path": "design/enclosure-flat-pattern-candidate.json",
+      "sha256": "5a1f5850de722b636a76bc26d308ceb333850cf3417e0708411bb92d57303794",
+      "bytes": 3690
+    },
+    {
+      "path": "design/fabrication/R33-P1-seat-ring-0.125in-5052.dxf",
+      "sha256": "54dc27d2effc3983931936c6d093960fdfb13156b2332772b9c2f7e071f25416",
+      "bytes": 42352
+    },
+    {
+      "path": "design/fabrication/R33-P2-fence-ring-0.160in-5052.dxf",
+      "sha256": "2825b28f4500a5d0963c70010dfed1a7b8964d24529cca731b358e9e1b406369",
+      "bytes": 42367
+    },
+    {
+      "path": "design/fabrication/R33-chassis-plate-0.080in-5052-FLAT.dxf",
+      "sha256": "c848fdd07127e8dbe1486e4db5f7c22dbcfd51c23852bc59fb412ae0ad48d7e1",
+      "bytes": 143764
+    },
+    {
+      "path": "design/fabrication/R33-louver-cassette-1.5mm-5052-FLATS.dxf",
+      "sha256": "dae1cc8f7ab2a7930be762cec93b9d8697611eb60f3e1f6cfe9fbdf8554442b4",
+      "bytes": 37274
+    },
+    {
+      "path": "design/fabrication/R39-P1-seat-ring-0.125in-5052.dxf",
+      "sha256": "0854370404801ce28e648391c24e82841e98818f6c5de48d0e66f9041175cea1",
+      "bytes": 42352
+    },
+    {
+      "path": "design/fabrication/R39-P2-fence-ring-0.160in-5052.dxf",
+      "sha256": "5ec57ccdd6c9e1ea220ac6f664626223cf04b23effa8a4c8ab71ad806fb8c669",
+      "bytes": 42367
+    },
+    {
+      "path": "design/fabrication/R39-chassis-plate-0.080in-5052-FLAT.dxf",
+      "sha256": "99709ca60a2b8d7f93ca180e8289ab29818e279d0a05dc42a4fcee266487c910",
+      "bytes": 144872
+    },
+    {
+      "path": "design/fabrication/R39-louver-cassette-1.5mm-5052-FLATS.dxf",
+      "sha256": "dea6299af965a86dee4203aa1703bc32b3ebf72488be8bea7bfd660fa829f456",
+      "bytes": 37278
+    },
+    {
+      "path": "design/fabrication/R40-P1-seat-ring-0.125in-5052.dxf",
+      "sha256": "dbd8c7a4b31aa254772aab7ffa6cc985f4676d40e4ad8702d221360c376d6bcb",
+      "bytes": 42352
+    },
+    {
+      "path": "design/fabrication/R40-P2-fence-ring-0.160in-5052.dxf",
+      "sha256": "206eb065757a7704561d3b1274a062a075c18fc7767728ec7d5422c261316f97",
+      "bytes": 42367
+    },
+    {
+      "path": "design/fabrication/R40-chassis-plate-0.080in-5052-FLAT.dxf",
+      "sha256": "70a232729d699163caebf8889c66be7f96e9bc3404f1714c1905187120235192",
+      "bytes": 144872
+    },
+    {
+      "path": "design/fabrication/R40-louver-cassette-1.5mm-5052-FLATS.dxf",
+      "sha256": "b1103f1ee9f3251a534503fbdd344a8bd878470e8ff3414d610b785208a448df",
+      "bytes": 37278
+    },
+    {
+      "path": "design/fabrication/R41-P1-seat-ring-0.125in-5052.dxf",
+      "sha256": "55c536390c6a0b51b626fc4e9c1236f13c20bc25e67fb49c36bba0b3ee2e2c4f",
+      "bytes": 42354
+    },
+    {
+      "path": "design/fabrication/R41-P2-fence-ring-0.160in-5052.dxf",
+      "sha256": "b343ffbe2ebc123224f127d0112f753e22902a034004b5869632063d6834cd35",
+      "bytes": 42369
+    },
+    {
+      "path": "design/fabrication/R41-chassis-plate-0.080in-5052-FLAT.dxf",
+      "sha256": "b821ae615cbf4628e1c4f047ca900990fbdabfe67c90f8e263fbedef9d52a8eb",
+      "bytes": 146514
+    },
+    {
+      "path": "design/fabrication/R41-louver-cassette-1.5mm-5052-FLATS.dxf",
+      "sha256": "b9766f98ea675346dfa266659e340dff4b42140e8f449a733b6fa03f2019713b",
+      "bytes": 37280
+    },
+    {
+      "path": "design/fabrication/R42-P1-seat-ring-0.125in-5052.dxf",
+      "sha256": "b1fa5238c0aa39688029a7191b56be86298c9e8badb3bd28b2accc3324cd8181",
+      "bytes": 42354
+    },
+    {
+      "path": "design/fabrication/R42-P2-fence-ring-0.160in-5052.dxf",
+      "sha256": "526c7738308935eb359bd30004012102c40e335678eed69ce3077235d9e771bc",
+      "bytes": 42369
+    },
+    {
+      "path": "design/fabrication/R42-chassis-plate-0.080in-5052-FLAT.dxf",
+      "sha256": "ce61ffa93204758cd25c330277931d037b15785c08d78fe825dad562a8f5eb2a",
+      "bytes": 147586
+    },
+    {
+      "path": "design/fabrication/R42-louver-cassette-1.5mm-5052-FLATS.dxf",
+      "sha256": "cefc50e8066214de7c6b77db8b999e21fc83fae3b47da5a9eba0ca0c3b3e148e",
+      "bytes": 37280
+    },
+    {
+      "path": "design/fabrication/R43-P1-seat-ring-0.125in-5052.dxf",
+      "sha256": "d57cc5e9ba1e4807486c939e4a1320a00f247135ec40ad969f8556106234a2de",
+      "bytes": 42354
+    },
+    {
+      "path": "design/fabrication/R43-P2-fence-ring-0.160in-5052.dxf",
+      "sha256": "0cd2de0b5b3ddc80202ccf577791dd03162d8ffba269cddb1a47205a0b333f48",
+      "bytes": 42369
+    },
+    {
+      "path": "design/fabrication/R43-chassis-plate-0.080in-5052-FLAT.dxf",
+      "sha256": "72e7748288abd8f54884992b6474c946f6febf6e7915b2df59d890f7add27056",
+      "bytes": 150742
+    },
+    {
+      "path": "design/fabrication/R43-louver-cassette-1.5mm-5052-FLATS.dxf",
+      "sha256": "33fa69d64dfc2b16d110e28a09bd2dd0fe4e7ef7ef1d21c5f0b400a0dc6e2628",
+      "bytes": 37280
+    },
+    {
+      "path": "design/fabrication/formed-parts-review.md",
+      "sha256": "487899cacf8f988754c1e118685520bc55ec2825d9b1c2e121ec5fe3dfd7af65",
+      "bytes": 8544
+    },
+    {
+      "path": "design/harness/R33-HARNESS-LIST.csv",
+      "sha256": "2b94397899bc0e2f95010333bf248798a1ff182e96de75f7219b7d855db896ac",
+      "bytes": 4353
+    },
+    {
+      "path": "design/harness/R33-HARNESS-LIST.md",
+      "sha256": "5585ba1a2684f2b8beb69f337f377a692719a3cfd4db835797f1492dbefdf0ac",
+      "bytes": 4979
+    },
+    {
+      "path": "design/harness/R39-HARNESS-LIST.csv",
+      "sha256": "1a2799ce3658e2cd297a98a40be403b90d509fc0d5e5571ae6a5a229caa54e91",
+      "bytes": 4511
+    },
+    {
+      "path": "design/harness/R39-HARNESS-LIST.md",
+      "sha256": "50e7cdd6087da411f29108f447da34442a1fb779fb2834bb41f62554e59ff88f",
+      "bytes": 5125
+    },
+    {
+      "path": "design/harness/R40-HARNESS-LIST.csv",
+      "sha256": "1a2799ce3658e2cd297a98a40be403b90d509fc0d5e5571ae6a5a229caa54e91",
+      "bytes": 4511
+    },
+    {
+      "path": "design/harness/R40-HARNESS-LIST.md",
+      "sha256": "50e7cdd6087da411f29108f447da34442a1fb779fb2834bb41f62554e59ff88f",
+      "bytes": 5125
+    },
+    {
+      "path": "design/harness/R41-HARNESS-LIST.csv",
+      "sha256": "1a2799ce3658e2cd297a98a40be403b90d509fc0d5e5571ae6a5a229caa54e91",
+      "bytes": 4511
+    },
+    {
+      "path": "design/harness/R41-HARNESS-LIST.md",
+      "sha256": "50e7cdd6087da411f29108f447da34442a1fb779fb2834bb41f62554e59ff88f",
+      "bytes": 5125
+    },
+    {
+      "path": "design/harness/R42-HARNESS-LIST.csv",
+      "sha256": "7df9cf17de31ff35038ebb3d297c596feaeeea64b44b2a346443ba62be86d2f1",
+      "bytes": 5047
+    },
+    {
+      "path": "design/harness/R42-HARNESS-LIST.md",
+      "sha256": "bef2651e27ab5f8f643b1ca8305f7d0a64c6325d1bb7e27d2c6f4622076637a5",
+      "bytes": 5602
+    },
+    {
+      "path": "design/harness/R43-HARNESS-LIST.csv",
+      "sha256": "a07fbbe682f985c7ccd4f29ff58bda2e158ca97ad8b02a2b6ead011dc69b7b3a",
+      "bytes": 5071
+    },
+    {
+      "path": "design/harness/R43-HARNESS-LIST.md",
+      "sha256": "5acf6753f36dc7cb9ce28273bba064ccf0a94ae6061a11c7b91477f148a28b10",
+      "bytes": 5627
+    },
+    {
+      "path": "design/harness/r11-harness.md",
+      "sha256": "7b47ec0e1378eb1427bb456b42d47a4698b39c01e0e99df093dbe10ac4206392",
+      "bytes": 8292
+    },
+    {
+      "path": "design/inherited-r14-sensor/diaphragm-free-state.svg",
+      "sha256": "d6176317dd076e5fd37f2bfa68012cd8a18a187b71d407d652b08e76e886efd1",
+      "bytes": 2379
+    },
+    {
+      "path": "design/inherited-r14-sensor/sensor-manufacturing-candidate.md",
+      "sha256": "7a816f6d28d75a61eeb84c03342ca485c7be359474d02d40a6b80fecbf4b2a99",
+      "bytes": 9024
+    },
+    {
+      "path": "design/internal-rtd/channel-handoff.md",
+      "sha256": "6ee9517ab19a9ded676c7262432ac1ca782dca2e4e18ecb82a4c896c640cbb3b",
+      "bytes": 4974
+    },
+    {
+      "path": "design/metalwork/F10-01_main_6mm_profile.dxf",
+      "sha256": "cd44e1a0b5d2068054b3decea6f43ee91f448b59d3ae9352aaf12a03e9607345",
+      "bytes": 15669
+    },
+    {
+      "path": "design/metalwork/F10-01_main_6mm_profile.step",
+      "sha256": "896ee4e8ba22827f451e21a53248724fc6e1fb106a2c2d7ddde629cfb96ea34b",
+      "bytes": 35645
+    },
+    {
+      "path": "design/metalwork/F10-02_rear_arm_3mm.dxf",
+      "sha256": "bcd76d26ba38374a4db9337133da92de3e8e16aea9875af34094c6aa8f7f3592",
+      "bytes": 15556
+    },
+    {
+      "path": "design/metalwork/F10-02_rear_arm_3mm.step",
+      "sha256": "83b837cd41f5c0b7c4d893f07934f875c4c033ac2772b8712a977d554197ca29",
+      "bytes": 16934
+    },
+    {
+      "path": "design/metalwork/F10-03_release_tab_3mm.dxf",
+      "sha256": "f1c7bf71041c001e02934c404173bac8d26957dac6b0bc738ccf0c00fb0957e3",
+      "bytes": 15645
+    },
+    {
+      "path": "design/metalwork/F10-03_release_tab_3mm.step",
+      "sha256": "f13d7dfd5a7f2f7857e9b2b29ed99f081d11e1d03158439e1f2e44ec625a9891",
+      "bytes": 20184
+    },
+    {
+      "path": "design/metalwork/F10-04_foot_3mm.dxf",
+      "sha256": "04cdce76ae44785bfdd30611cf44c234bca28b3d3f86fb224cc17b58646d5f02",
+      "bytes": 15656
+    },
+    {
+      "path": "design/metalwork/F10-04_foot_3mm.step",
+      "sha256": "f50f4ddbf7619e63c947cc0fbe374102ed72d4bcc096701c3be02659bd270d4b",
+      "bytes": 19094
+    },
+    {
+      "path": "design/metalwork/F12-01_fan_plate_3mm.dxf",
+      "sha256": "cb4a2ecd73cfc890e6656b709fe982e69478652a401b9a4c1f1ccdd1e0fca3bf",
+      "bytes": 16042
+    },
+    {
+      "path": "design/metalwork/F12-01_fan_plate_3mm.step",
+      "sha256": "35a49e7cc09bb4f6ce28889f68dbd8d24bdd1c089f94659e97ba24f3ddc8271b",
+      "bytes": 35484
+    },
+    {
+      "path": "design/metalwork/F12-02_foot_3mm.dxf",
+      "sha256": "0123049038b30ac87d97cd4172dd89414f881a64f890ac9725b4d07b759e2778",
+      "bytes": 15755
+    },
+    {
+      "path": "design/metalwork/F12-02_foot_3mm.step",
+      "sha256": "90f431a4881506fcf4caaa042c105ec22aaad4a91ab7d0fd8307c5bf05423e6c",
+      "bytes": 22714
+    },
+    {
+      "path": "design/metalwork/process-and-inspection.md",
+      "sha256": "c54bfb9feadee052282dd81a7fcb83f85f75087eee669c20cdaccb60e0557eea",
+      "bytes": 6098
+    },
+    {
+      "path": "design/procurement/sourcing-review.md",
+      "sha256": "13743bf152b37828606002893b43d5b51d156e366cd5ac58f58c44be8e2cea56",
+      "bytes": 8538
+    },
+    {
+      "path": "design/r12/DECISIONS.md",
+      "sha256": "3407dacca5b943f99736c4e8e65e802a5c7643e4f9c8a3256a1503f528f88ad8",
+      "bytes": 6169
+    },
+    {
+      "path": "design/r13/DECISIONS.md",
+      "sha256": "c3e3485f30b56ca2f5401d42ad93626cf9ebe0298fd82a8724026a5c48516657",
+      "bytes": 5774
+    },
+    {
+      "path": "design/r13/parts-research.md",
+      "sha256": "33b4064d1afe3facfb1175f274bb39746a0b749a67893dd7b571dc3a0fd37f61",
+      "bytes": 14295
+    },
+    {
+      "path": "design/r14/ASSEMBLY.md",
+      "sha256": "5dab2578e22975b2677c2df9aff9d0fd8fceda72729d0c135b747b50c5a0c17d",
+      "bytes": 3123
+    },
+    {
+      "path": "design/r14/DECISIONS.md",
+      "sha256": "b65f802e5bf86a9a8f364dd58b43d3509a62d33c037851eed56865bf5788a605",
+      "bytes": 3852
+    },
+    {
+      "path": "design/r14/parts-research.md",
+      "sha256": "dbae7a0d43059a43ae75a375bd87fb9cef1acc3e8eac4550a52738a4ddf8b186",
+      "bytes": 17110
+    },
+    {
+      "path": "design/r15/DECISIONS.md",
+      "sha256": "1c56583e5049a448e1b0ace0b7607c3876e282a3945b2b557d62835a19d8411f",
+      "bytes": 4544
+    },
+    {
+      "path": "design/r16/BENCH-TEST-PLAN.md",
+      "sha256": "6825cfe0cef9f36eb6461db99d6447fb5dbca0b84d871b3cf966574c4cddc499",
+      "bytes": 4287
+    },
+    {
+      "path": "design/r16/DECISIONS.md",
+      "sha256": "789ddc4c2e6dd805b9484db4d5af26fb5828b13d54320ef3379fd5c3417e6dbc",
+      "bytes": 4483
+    },
+    {
+      "path": "design/r16/parts-research.md",
+      "sha256": "d58078b91ebefb7cc1d3699b19bcce8af3b90acf298a436ec7bff75ca93c827d",
+      "bytes": 13315
+    },
+    {
+      "path": "design/r17/DECISIONS.md",
+      "sha256": "c3ba143cf3af7bb39103cc2f96e62c0003594c6c5d61b3243b7cc2ebc995aeed",
+      "bytes": 4472
+    },
+    {
+      "path": "design/r18/DECISIONS.md",
+      "sha256": "c0ace0a7bd97c4018c1fdb432efd5b6d1e0a27149d536051de7e86916da82100",
+      "bytes": 5039
+    },
+    {
+      "path": "design/r19/CONTROLLER-SPEC.md",
+      "sha256": "3dfe46bfa2f62d4e27e0ee6a543921dfcf14c713c03d3afaf6754ea3bae162cf",
+      "bytes": 2671
+    },
+    {
+      "path": "design/r19/DECISIONS.md",
+      "sha256": "8819cfb1f30e516222bdc6abdcef6c1604043d0764d7fa63ec28e82e2d0c054a",
+      "bytes": 5582
+    },
+    {
+      "path": "design/r19/HANDOFF.md",
+      "sha256": "38b91eb3ddb3136befa50ec085013ddcd8aafd6d993603bec25698cec204d457",
+      "bytes": 6374
+    },
+    {
+      "path": "design/r19/parts-research.md",
+      "sha256": "dabe8d85602d2c29b8148c754cdb0226fb203ff642d5db14c1cd1ecdadcfe961",
+      "bytes": 14136
+    },
+    {
+      "path": "design/r20/CONTROLLER-SPEC.md",
+      "sha256": "c8689a7b02b7bb27bd8fd9685ec06ee959924593cc4aafad62b11c12d3d866d9",
+      "bytes": 4641
+    },
+    {
+      "path": "design/r20/DECISIONS.md",
+      "sha256": "1cd1c2aa3aec0d74cef7f9c319628acadc6c7ab7bbb8d6ea731c90f58a2e0a9a",
+      "bytes": 8147
+    },
+    {
+      "path": "design/r20/HANDOFF.md",
+      "sha256": "526b338290f5be7fdcbdf246f85b658e972395e5b220017dfef6a638361504ca",
+      "bytes": 7280
+    },
+    {
+      "path": "design/r21/CONTROLLER-SPEC.md",
+      "sha256": "a8209e46748d277b89cea0173a7741f63a23147621a2e35272fc85ddf59446a1",
+      "bytes": 5015
+    },
+    {
+      "path": "design/r21/DECISIONS.md",
+      "sha256": "886ad8e7b28087655d41e2450a54715ac1fdb491fdd6a1eab7db495a4c3518ac",
+      "bytes": 6681
+    },
+    {
+      "path": "design/r21/HANDOFF.md",
+      "sha256": "95dd1e9d876afec7c85a0de0d3e7959f8dedcbe9a40120f3455618e884d305f2",
+      "bytes": 7963
+    },
+    {
+      "path": "design/r22/CONTROLLER-SPEC.md",
+      "sha256": "26cb9082a41dad73cae9c9d24536c1e2a7d3b065fdf7e4ce65de344816e41af5",
+      "bytes": 6002
+    },
+    {
+      "path": "design/r22/DECISIONS.md",
+      "sha256": "43915a67d28f616d72fdc8ff1950c0e04f6d37ac5aa7e10e01ebf48144a5e057",
+      "bytes": 7678
+    },
+    {
+      "path": "design/r22/HANDOFF.md",
+      "sha256": "a747c1759a9c24ce24974270792a45a186aa1e64ffd0e359b36ff3bee6a01aaa",
+      "bytes": 8286
+    },
+    {
+      "path": "design/r23/DECISIONS.md",
+      "sha256": "930f504bc08028a2a35275326277e818ef97d934be9f81515171c864c3affa83",
+      "bytes": 3164
+    },
+    {
+      "path": "design/r23/HANDOFF.md",
+      "sha256": "cbb573f5924e21a2a2921c338adc62b6f3cbed60935fd56d7b2c05128acc6f37",
+      "bytes": 8477
+    },
+    {
+      "path": "design/r24/BENCH-PLAN.md",
+      "sha256": "b93bf604e7a0c280a0a8a5bb311cd1107a4712bc96397e2394c629203cc59986",
+      "bytes": 5154
+    },
+    {
+      "path": "design/r24/CERTIFICATION-QUESTIONS.md",
+      "sha256": "40f120085ba4cd59c23fe9ef00d9af2fe11812d79c47676fe7f0401d55bc9557",
+      "bytes": 5482
+    },
+    {
+      "path": "design/r24/CONTROLLER-ARCHITECTURE.md",
+      "sha256": "c526bdb3aee342794b49c14e1851867afa1295c2596c5832cd1a4c39a88e3696",
+      "bytes": 7914
+    },
+    {
+      "path": "design/r24/CONTROLLER-SPEC.md",
+      "sha256": "47c7a7bee6a2a285c45c1efebd6597f96035e6d1f031a5521c5b206f7f1a8885",
+      "bytes": 6627
+    },
+    {
+      "path": "design/r24/DECISIONS.md",
+      "sha256": "42b8ef53efdd1f58e59bc8a4fde32c71b0ccb94b9829adc54d749fb4cc08b46a",
+      "bytes": 4634
+    },
+    {
+      "path": "design/r24/HANDOFF.md",
+      "sha256": "ec908dd2318851c5cb2499c043f9ecc9b95ba4e5d5c70dd60f440dff757daf03",
+      "bytes": 9534
+    },
+    {
+      "path": "design/r24/QUOTE-COVER-NOTE.md",
+      "sha256": "a201dba668a16fe031e31bab9d2418b05499d488557799989e7ec7f4020bb932",
+      "bytes": 1530
+    },
+    {
+      "path": "design/r25/BENCH-PLAN.md",
+      "sha256": "b93bf604e7a0c280a0a8a5bb311cd1107a4712bc96397e2394c629203cc59986",
+      "bytes": 5154
+    },
+    {
+      "path": "design/r25/CERTIFICATION-QUESTIONS.md",
+      "sha256": "40f120085ba4cd59c23fe9ef00d9af2fe11812d79c47676fe7f0401d55bc9557",
+      "bytes": 5482
+    },
+    {
+      "path": "design/r25/CONTROLLER-ARCHITECTURE.md",
+      "sha256": "2e12d4474dcd13996055cea8b90a70aa8ef669a745235e9b587382dfc1f625ba",
+      "bytes": 7914
+    },
+    {
+      "path": "design/r25/CONTROLLER-SPEC.md",
+      "sha256": "4cb45886cf0dbe6b1319e44f5394db2a3d52a81e4b222c764af006d0271ffc42",
+      "bytes": 6787
+    },
+    {
+      "path": "design/r25/DECISIONS.md",
+      "sha256": "ff6a535312b134c49bb2d10aa26c5a7375b2574780930978307ca2c2ef16ed5e",
+      "bytes": 3302
+    },
+    {
+      "path": "design/r25/HANDOFF.md",
+      "sha256": "fac2b63308e771d0c9ab909d422113ddfaae21f23a1e573917af120d347468e4",
+      "bytes": 10446
+    },
+    {
+      "path": "design/r25/QUOTE-COVER-NOTE.md",
+      "sha256": "a201dba668a16fe031e31bab9d2418b05499d488557799989e7ec7f4020bb932",
+      "bytes": 1530
+    },
+    {
+      "path": "design/r26/BENCH-PLAN.md",
+      "sha256": "311b5fb50a944ba4c3a2e542fea4ed802320ea4c2a3810747a66ebf26ace46e6",
+      "bytes": 5474
+    },
+    {
+      "path": "design/r26/CERTIFICATION-QUESTIONS.md",
+      "sha256": "40f120085ba4cd59c23fe9ef00d9af2fe11812d79c47676fe7f0401d55bc9557",
+      "bytes": 5482
+    },
+    {
+      "path": "design/r26/CONTROLLER-ARCHITECTURE.md",
+      "sha256": "2e12d4474dcd13996055cea8b90a70aa8ef669a745235e9b587382dfc1f625ba",
+      "bytes": 7914
+    },
+    {
+      "path": "design/r26/CONTROLLER-SPEC.md",
+      "sha256": "4cb45886cf0dbe6b1319e44f5394db2a3d52a81e4b222c764af006d0271ffc42",
+      "bytes": 6787
+    },
+    {
+      "path": "design/r26/DECISIONS.md",
+      "sha256": "e8631e6a44f4c4650b9719d4e29eb5d6d790cb4a6ae61048dc6457dd3313550b",
+      "bytes": 3377
+    },
+    {
+      "path": "design/r26/HANDOFF.md",
+      "sha256": "196766bba00223112691f9392eeabe9af518d4adf440bbd67b05ea049b62f4fa",
+      "bytes": 10359
+    },
+    {
+      "path": "design/r26/QUOTE-COVER-NOTE.md",
+      "sha256": "a201dba668a16fe031e31bab9d2418b05499d488557799989e7ec7f4020bb932",
+      "bytes": 1530
+    },
+    {
+      "path": "design/r27/BENCH-PLAN.md",
+      "sha256": "26150232db8869700a70d687cba098b66d7ba270da977a22262eca559f9e83bc",
+      "bytes": 5728
+    },
+    {
+      "path": "design/r27/CERTIFICATION-QUESTIONS.md",
+      "sha256": "40f120085ba4cd59c23fe9ef00d9af2fe11812d79c47676fe7f0401d55bc9557",
+      "bytes": 5482
+    },
+    {
+      "path": "design/r27/CONTROLLER-ARCHITECTURE.md",
+      "sha256": "2e12d4474dcd13996055cea8b90a70aa8ef669a745235e9b587382dfc1f625ba",
+      "bytes": 7914
+    },
+    {
+      "path": "design/r27/CONTROLLER-SPEC.md",
+      "sha256": "a6954daf0c92840972c0270dfe4c18937aff1f80ca4a4a151469991b17d082ae",
+      "bytes": 8406
+    },
+    {
+      "path": "design/r27/DECISIONS.md",
+      "sha256": "e5a2a3665ccd544855703ac621a9634bb851915fd12e6d59860100413d370299",
+      "bytes": 2855
+    },
+    {
+      "path": "design/r27/HANDOFF.md",
+      "sha256": "d281fc3a7552f67fef8d7a6df4effd0c8a8d5d8b3752d3afa2f635ae6ebc0cb7",
+      "bytes": 10635
+    },
+    {
+      "path": "design/r27/QUOTE-COVER-NOTE.md",
+      "sha256": "a201dba668a16fe031e31bab9d2418b05499d488557799989e7ec7f4020bb932",
+      "bytes": 1530
+    },
+    {
+      "path": "design/r28/BENCH-PLAN.md",
+      "sha256": "26150232db8869700a70d687cba098b66d7ba270da977a22262eca559f9e83bc",
+      "bytes": 5728
+    },
+    {
+      "path": "design/r28/CERTIFICATION-QUESTIONS.md",
+      "sha256": "7a2d43ed138ed93cdb6ded9ffd2e806755ce59960413c858ed0b3018077d6a7f",
+      "bytes": 6710
+    },
+    {
+      "path": "design/r28/CONTROLLER-ARCHITECTURE.md",
+      "sha256": "2e12d4474dcd13996055cea8b90a70aa8ef669a745235e9b587382dfc1f625ba",
+      "bytes": 7914
+    },
+    {
+      "path": "design/r28/CONTROLLER-SPEC.md",
+      "sha256": "5bfba41ef0794bd59be3006f42fe85c9a05e63f1a4b0c10ab537c65cfd538ce2",
+      "bytes": 9384
+    },
+    {
+      "path": "design/r28/DECISIONS.md",
+      "sha256": "5a895e4328dad0fd710194297ccc50dddcf72ab8e6a0d1a1afbb8f7dd861b45d",
+      "bytes": 4525
+    },
+    {
+      "path": "design/r28/HANDOFF.md",
+      "sha256": "7fb112fc753782598f3a1e874cec59ea680024c6fe6d33f7d784128211505262",
+      "bytes": 10587
+    },
+    {
+      "path": "design/r28/QUOTE-COVER-NOTE.md",
+      "sha256": "a201dba668a16fe031e31bab9d2418b05499d488557799989e7ec7f4020bb932",
+      "bytes": 1530
+    },
+    {
+      "path": "design/r29/BENCH-PLAN.md",
+      "sha256": "26150232db8869700a70d687cba098b66d7ba270da977a22262eca559f9e83bc",
+      "bytes": 5728
+    },
+    {
+      "path": "design/r29/CERTIFICATION-QUESTIONS.md",
+      "sha256": "7a2d43ed138ed93cdb6ded9ffd2e806755ce59960413c858ed0b3018077d6a7f",
+      "bytes": 6710
+    },
+    {
+      "path": "design/r29/CONTROLLER-ARCHITECTURE.md",
+      "sha256": "2e12d4474dcd13996055cea8b90a70aa8ef669a745235e9b587382dfc1f625ba",
+      "bytes": 7914
+    },
+    {
+      "path": "design/r29/CONTROLLER-SPEC.md",
+      "sha256": "5bfba41ef0794bd59be3006f42fe85c9a05e63f1a4b0c10ab537c65cfd538ce2",
+      "bytes": 9384
+    },
+    {
+      "path": "design/r29/DECISIONS.md",
+      "sha256": "bfe1f75f1f49086df3eee2d4305a3f98d9091a2f4a174a6c1ed22d2065db6e0e",
+      "bytes": 1127
+    },
+    {
+      "path": "design/r29/HANDOFF.md",
+      "sha256": "411344233b3472ee16ed3d465f4642c4a30736449b3e27c63c9714eb57530c2b",
+      "bytes": 10596
+    },
+    {
+      "path": "design/r29/QUOTE-COVER-NOTE.md",
+      "sha256": "a201dba668a16fe031e31bab9d2418b05499d488557799989e7ec7f4020bb932",
+      "bytes": 1530
+    },
+    {
+      "path": "design/r30/BENCH-PLAN.md",
+      "sha256": "961ec0d49604ec94ebab298eeed7c71ffefe5e547e5fda5f5259d2502532269d",
+      "bytes": 5922
+    },
+    {
+      "path": "design/r30/CERTIFICATION-QUESTIONS.md",
+      "sha256": "7a2d43ed138ed93cdb6ded9ffd2e806755ce59960413c858ed0b3018077d6a7f",
+      "bytes": 6710
+    },
+    {
+      "path": "design/r30/CONTROLLER-ARCHITECTURE.md",
+      "sha256": "2e12d4474dcd13996055cea8b90a70aa8ef669a745235e9b587382dfc1f625ba",
+      "bytes": 7914
+    },
+    {
+      "path": "design/r30/CONTROLLER-SPEC.md",
+      "sha256": "2d191a493aa4b97cbf1c7f71ce290f53d3abf99b144a22c68778708322a07887",
+      "bytes": 10086
+    },
+    {
+      "path": "design/r30/DECISIONS.md",
+      "sha256": "e0bb348f151a43fe201e2ce677680827d487cd09458acb8357e83f675946ee21",
+      "bytes": 6778
+    },
+    {
+      "path": "design/r30/HANDOFF.md",
+      "sha256": "503380855db40d04fa82b5d38eab56513130f0f369600b74b343d1fad1f521f8",
+      "bytes": 11324
+    },
+    {
+      "path": "design/r30/QUOTE-COVER-NOTE.md",
+      "sha256": "a201dba668a16fe031e31bab9d2418b05499d488557799989e7ec7f4020bb932",
+      "bytes": 1530
+    },
+    {
+      "path": "design/r31/BENCH-PLAN.md",
+      "sha256": "7f5320696a7d220466ba8bc5feb42716c89932ce36e9464d67620028cc46d935",
+      "bytes": 5938
+    },
+    {
+      "path": "design/r31/CERTIFICATION-QUESTIONS.md",
+      "sha256": "6ec7a70d266ca640b762d603505c4b1840fa39669549e0f1671532257280141e",
+      "bytes": 6721
+    },
+    {
+      "path": "design/r31/CONTROLLER-ARCHITECTURE.md",
+      "sha256": "2e12d4474dcd13996055cea8b90a70aa8ef669a745235e9b587382dfc1f625ba",
+      "bytes": 7914
+    },
+    {
+      "path": "design/r31/CONTROLLER-SPEC.md",
+      "sha256": "0b467fd4c7ac09b9b249a4fa97aeeea62e5509a1ed31a2d2365efcdfbabab9ca",
+      "bytes": 12436
+    },
+    {
+      "path": "design/r31/DECISIONS.md",
+      "sha256": "0a60dde6be55610c2e283c073e7235e25b43401cf33bdfb5f64f817e63794014",
+      "bytes": 9229
+    },
+    {
+      "path": "design/r31/HANDOFF.md",
+      "sha256": "dceef1a99717089db8455fb793507e5b96bfb3c4700eb53ae8a6efc47dd5c77c",
+      "bytes": 13279
+    },
+    {
+      "path": "design/r31/QUOTE-COVER-NOTE.md",
+      "sha256": "b56d7eddce2aa7dd7adb2cc1d0009d03d15e45fc89b065d5cc7d7c405025ea1b",
+      "bytes": 1530
+    },
+    {
+      "path": "design/r32/BENCH-PLAN.md",
+      "sha256": "7b8030f399108f3301260fa0add472db849f4eb15ecf4c157727b40b605cd2c7",
+      "bytes": 10523
+    },
+    {
+      "path": "design/r32/CERTIFICATION-QUESTIONS.md",
+      "sha256": "3a931bcd3d4dc3c84cb2ba5f4d5d97a871c55e9cbb34899d658553209ef241ce",
+      "bytes": 8785
+    },
+    {
+      "path": "design/r32/CONTROLLER-ARCHITECTURE.md",
+      "sha256": "e68cbe783a2ac9bdf28b5b7528d9d4487df2c3452566c0d6fa78f8f6f509a368",
+      "bytes": 7996
+    },
+    {
+      "path": "design/r32/CONTROLLER-SPEC.md",
+      "sha256": "7e6aa1e1629a77b6d64bc7bbba3d3e140b112ea37634eb962ec0a86c810062fb",
+      "bytes": 14034
+    },
+    {
+      "path": "design/r32/DECISIONS.md",
+      "sha256": "b6ae946e4f12a5ec075091bf0ba3ec226d1a14b8e85df37f8a4af251607ec339",
+      "bytes": 8186
+    },
+    {
+      "path": "design/r32/HANDOFF.md",
+      "sha256": "ecfc9bd6a8aa93cdfa31e9b851e6ba62c3ecd5ca70956bc955376fd63a92bfbc",
+      "bytes": 14387
+    },
+    {
+      "path": "design/r32/QUOTE-COVER-NOTE.md",
+      "sha256": "dbcf8d7d070fc88ee121142f8c6dd6731b2ff6738c6766acdf30d59ea934c3c4",
+      "bytes": 1530
+    },
+    {
+      "path": "design/r33/DECISIONS.md",
+      "sha256": "1f1382753d1ccb4d5e7aa08a2135b9394617b524fe1b033e79466c50d3ea003c",
+      "bytes": 6961
+    },
+    {
+      "path": "design/r33/HANDOFF.md",
+      "sha256": "53540fd8efc4c629656bd52a6f9db4ad4568a038481c8e609ce0ace1c060ac4e",
+      "bytes": 17273
+    },
+    {
+      "path": "design/r34/DECISIONS.md",
+      "sha256": "eac57d513aeb155452cc561d786ccb6d7d79fe13c8004f230743ed7a71aac4dd",
+      "bytes": 5105
+    },
+    {
+      "path": "design/r34/HANDOFF.md",
+      "sha256": "46001534363859187890639f210f1e802de89affc486729571673ae4bfba5b8d",
+      "bytes": 18677
+    },
+    {
+      "path": "design/r35/DECISIONS.md",
+      "sha256": "8a259da8ef3f2dfb1a8b51f25e27fa901c4c74a94616011280483dda6e8e62ae",
+      "bytes": 3813
+    },
+    {
+      "path": "design/r35/HANDOFF.md",
+      "sha256": "fdef6c41e3e95764d3fb077270894830a948494fc6380256c5973882ebdff462",
+      "bytes": 19803
+    },
+    {
+      "path": "design/r36/COIL-PROTOTYPE-BUILD.md",
+      "sha256": "736c3200119b9003dc1b1ee8e32b30856578d6efaf461dbff6305631bd1e5291",
+      "bytes": 4810
+    },
+    {
+      "path": "design/r36/DECISIONS.md",
+      "sha256": "c71d74b1e06593c98abce09d427cfdfdc4b4e317cbb86c2461370a0ad94ab87e",
+      "bytes": 2935
+    },
+    {
+      "path": "design/r36/HANDOFF.md",
+      "sha256": "e3d3ec1f09875a59330ade0cc914c397f3b30ba588bd6c30abda0a1684553175",
+      "bytes": 20875
+    },
+    {
+      "path": "design/r37/COIL-PROTOTYPE-BUILD.md",
+      "sha256": "4158510a318637d0d12b13f7071c03afa069affbae7e07179a0b86bf6c6087f7",
+      "bytes": 5124
+    },
+    {
+      "path": "design/r37/DECISIONS.md",
+      "sha256": "59432ac58c26aa0793afbdc1abeb39f3180417ea24bee3f0b728f82c9e14759d",
+      "bytes": 2305
+    },
+    {
+      "path": "design/r37/HANDOFF.md",
+      "sha256": "44c5f74d77ffb820c69009a5c9c93f706b3c5e76c80cecf0c095bbc9e1a0453e",
+      "bytes": 21277
+    },
+    {
+      "path": "design/r38/COIL-PROTOTYPE-BUILD.md",
+      "sha256": "4158510a318637d0d12b13f7071c03afa069affbae7e07179a0b86bf6c6087f7",
+      "bytes": 5124
+    },
+    {
+      "path": "design/r38/DECISIONS.md",
+      "sha256": "ba79d34a11e0181b8b5cbb3430e34a9b34e56eddb91654ff4a7787f05bc6e0fa",
+      "bytes": 1671
+    },
+    {
+      "path": "design/r38/HANDOFF.md",
+      "sha256": "e91e22b3dea40a866c4cd0361a1237df6d093357c501652bc124ded7f395e41b",
+      "bytes": 21875
+    },
+    {
+      "path": "design/r39/COIL-PROTOTYPE-BUILD.md",
+      "sha256": "4158510a318637d0d12b13f7071c03afa069affbae7e07179a0b86bf6c6087f7",
+      "bytes": 5124
+    },
+    {
+      "path": "design/r39/DECISIONS.md",
+      "sha256": "d24318a53351a394c7a711ac2be7ffd3a4faeb6a3162cbc0684c2d5d55fba727",
+      "bytes": 2006
+    },
+    {
+      "path": "design/r39/HANDOFF.md",
+      "sha256": "172c4fde98838e386d89d74e9ed41f9747d8b77b63f1fe37964e09cf89b95995",
+      "bytes": 22334
+    },
+    {
+      "path": "design/r40/COIL-PROTOTYPE-BUILD.md",
+      "sha256": "6a1a6cd30ff63824114c68970e120505fb87943da01a1673bc5071fe9096944d",
+      "bytes": 6254
+    },
+    {
+      "path": "design/r40/DECISIONS.md",
+      "sha256": "ff46e9aa39e1d4052b99244c65713b18e6b7521834f939ebbb073f6ff0182d61",
+      "bytes": 5404
+    },
+    {
+      "path": "design/r40/HANDOFF.md",
+      "sha256": "0d54ca96c15aaaa5c94558da80ea7823a17cf990440fe450a947b1cd125d1ba5",
+      "bytes": 23447
+    },
+    {
+      "path": "design/r41/COIL-PROTOTYPE-BUILD.md",
+      "sha256": "6a1a6cd30ff63824114c68970e120505fb87943da01a1673bc5071fe9096944d",
+      "bytes": 6254
+    },
+    {
+      "path": "design/r41/DECISIONS.md",
+      "sha256": "b73179c33af4d51d524794ae7aa18554c70413f630e4e1a51975d5d44e667151",
+      "bytes": 7282
+    },
+    {
+      "path": "design/r41/HANDOFF.md",
+      "sha256": "a3964f225927b443b0282d253fff15a748ba2e8b62f14660cd3da656b7ac692f",
+      "bytes": 24613
+    },
+    {
+      "path": "design/r42/COIL-PROTOTYPE-BUILD.md",
+      "sha256": "6a1a6cd30ff63824114c68970e120505fb87943da01a1673bc5071fe9096944d",
+      "bytes": 6254
+    },
+    {
+      "path": "design/r42/DECISIONS.md",
+      "sha256": "3477e9aa4290a2999f2b88962d1e3111d32a364bcf9fcebb6c57d465ee57f7ee",
+      "bytes": 14103
+    },
+    {
+      "path": "design/r42/HANDOFF.md",
+      "sha256": "c817532ccffded383ff8d65c672f0c3a66747218ef699a2aae3c1315cee827b7",
+      "bytes": 26938
+    },
+    {
+      "path": "design/r43/COIL-PROTOTYPE-BUILD.md",
+      "sha256": "6a1a6cd30ff63824114c68970e120505fb87943da01a1673bc5071fe9096944d",
+      "bytes": 6254
+    },
+    {
+      "path": "design/r43/DECISIONS.md",
+      "sha256": "a524c0992d736ccf6cb1a5d447d780d26f2e571eb5778e57e3e747f69df76488",
+      "bytes": 14675
+    },
+    {
+      "path": "design/r43/HANDOFF.md",
+      "sha256": "95d2cc9eb9b1ca44e9a91e367f327168dfa606cab3527009121852add23af59c",
+      "bytes": 29445
+    },
+    {
+      "path": "design/spill/R32-lower-VU-shell-neutral-net-REVIEW-ONLY.dxf",
+      "sha256": "cb56bc2e88a5419e5013a758fcd75b028046c64ecbd5c5dc7512e6d4cad93b36",
+      "bytes": 17492
+    },
+    {
+      "path": "design/spill/hidden-outlet-cassette-prototype.md",
+      "sha256": "db7a77721d330f6a40e5b06f947f2ec3e9acb03075b8aadd0426c5b448cae849",
+      "bytes": 11267
+    },
+    {
+      "path": "design/work-scope.md",
+      "sha256": "333b8753ff7bf4c24f939e249113dbcfa007aebbcf0807bfe54da04c88376ebd",
+      "bytes": 1147
+    },
+    {
+      "path": "electrical-candidate/apply_mcu_routes.py",
+      "sha256": "7545cf6df85199acaae07fbd08bca40ca2c3406702a417b7f2d12045be967dcc",
+      "bytes": 3053
+    },
+    {
+      "path": "electrical-candidate/apply_sensor_local.py",
+      "sha256": "bc231af7076ed39150822d19a5cfaadef3e222b7a122d985c84ad57e5528d7ff",
+      "bytes": 2248
+    },
+    {
+      "path": "electrical-candidate/apply_sensor_tieins.py",
+      "sha256": "0814aa6a66b93e14611c05e1879eae7535ff32151b5fd59cc115996e8efc26fd",
+      "bytes": 2252
+    },
+    {
+      "path": "electrical-candidate/baseline-copy.kicad_pcb",
+      "sha256": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9",
+      "bytes": 1512990
+    },
+    {
+      "path": "electrical-candidate/board-build-report.json",
+      "sha256": "3c8bcf5fb3a691e79d41925c2608da9b93bbefcaf75c7cd1357464a57d7c7560",
+      "bytes": 11822
+    },
+    {
+      "path": "electrical-candidate/build_candidate.py",
+      "sha256": "d757df21e1446b72baf9bd535a661a7e63dcefa6420cc08a1591bc61c8e04f99",
+      "bytes": 8717
+    },
+    {
+      "path": "electrical-candidate/check_copper_clearance.py",
+      "sha256": "4387996fa7b54e21ae32a9d4a83fd7790a307bd3a48d8fc593dfdfee2b2738ef",
+      "bytes": 3196
+    },
+    {
+      "path": "electrical-candidate/check_domain_spacing.py",
+      "sha256": "e7e65cae4c41d98693c773777501d8d321f8b2ce69b6938e13531c160567cd8b",
+      "bytes": 3663
+    },
+    {
+      "path": "electrical-candidate/check_ui_connectivity.py",
+      "sha256": "b9ece7f93929fc0fb72555d24f30fd924f1f35ab2eb65c30e40b9f9e2f105581",
+      "bytes": 5754
+    },
+    {
+      "path": "electrical-candidate/copper-audit-input.json",
+      "sha256": "db3f3a41f3abd06ec08e95dbe9f10da1d59648e5aa26005e680793d59daead36",
+      "bytes": 1115963
+    },
+    {
+      "path": "electrical-candidate/cs-pullup-receipt.json",
+      "sha256": "d875c8dde63731150d7948ebc2e2fa5e26e83cc071dbc273583e0ba44f1dc12f",
+      "bytes": 260
+    },
+    {
+      "path": "electrical-candidate/export_copper_audit.py",
+      "sha256": "7311bb89006a70966d831a1ac4e8197bbb4fb03927de8d192deabacea1009c8c",
+      "bytes": 3292
+    },
+    {
+      "path": "electrical-candidate/find_locations.py",
+      "sha256": "0427fd74f74263fee072c634501ae587319395ce96f7dea449a219025e588b2f",
+      "bytes": 1757
+    },
+    {
+      "path": "electrical-candidate/fp-lib-table",
+      "sha256": "5f5e6647da1741c8cab72a3825890cdfb1ae726f5ca9b9ec65d2c43d18925859",
+      "bytes": 3613
+    },
+    {
+      "path": "electrical-candidate/inspect_board.py",
+      "sha256": "7401eeaaa3529b7264afb755f5ccda4e2905b651a3bdf3b3c1a8e77b684b048b",
+      "bytes": 828
+    },
+    {
+      "path": "electrical-candidate/j4-retirement-receipt.json",
+      "sha256": "ea1c1faf68a6ac16f6d65c95ec515f75008f2c4be1cd23f0b2d6f417ad3e9609",
+      "bytes": 424
+    },
+    {
+      "path": "electrical-candidate/jst-ze-bm14b-body-proxy.step",
+      "sha256": "4df65184b1f31a021473b11c60c50cbea2d8f8bb31a2a3ee3db8041b4071061e",
+      "bytes": 16933
+    },
+    {
+      "path": "electrical-candidate/libs/Connector_JST.pretty/JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical.kicad_mod",
+      "sha256": "aa0df7dde7a78aa2ea851aa9998f6806b92eb8a117d0dd73f6862ee444c784b8",
+      "bytes": 3352
+    },
+    {
+      "path": "electrical-candidate/libs/Connector_JST.pretty/JST_ZE_BM14B-ZESS-TBT_1x14-1MP_P1.50mm_Vertical.kicad_mod",
+      "sha256": "3695a9d9439d974c8c7f5444c8c7cf3868cb60b7ee96ba268d3dbc9154da14db",
+      "bytes": 8243
+    },
+    {
+      "path": "electrical-candidate/libs/lib.pretty/ESP32-S3-WROOM-1.kicad_mod",
+      "sha256": "9c5a41379d7255f50ce1b7efb060994b700847c8aafe400b160dca7ccc5fd7dd",
+      "bytes": 4534
+    },
+    {
+      "path": "electrical-candidate/libs/lib.pretty/LitzPad_15A.kicad_mod",
+      "sha256": "b433c013381f55c26320e0c6f900d104df3573b0906d462a052d155fe17e9535",
+      "bytes": 8456
+    },
+    {
+      "path": "electrical-candidate/libs/lib.pretty/SOIC16W_Isolated.kicad_mod",
+      "sha256": "9e7dde8e635f41eb35de9cc01ab03629dcabc80b5e3edce53098ced058baa2a3",
+      "bytes": 7287
+    },
+    {
+      "path": "electrical-candidate/libs/temper.pretty/CMC_B82726S.kicad_mod",
+      "sha256": "1e73157f283ca92babedcd6e66ecda054a3638458cd21b38adf6315b3bc61f1d",
+      "bytes": 3949
+    },
+    {
+      "path": "electrical-candidate/libs/temper.pretty/CST-1005.kicad_mod",
+      "sha256": "344ba6ce13221e59376b685bfb4f640e2832ea2206c85a251621d61095dcddcc",
+      "bytes": 3284
+    },
+    {
+      "path": "electrical-candidate/libs/temper.pretty/CST2010.kicad_mod",
+      "sha256": "f5b5f7d94dfc0ff232f314afc5c79ac44104407014491f3c364e9c5dd4f0ed02",
+      "bytes": 5027
+    },
+    {
+      "path": "electrical-candidate/libs/temper.pretty/CST3015.kicad_mod",
+      "sha256": "68b00fedd73f91d5d63604576b8d1398a1a3fc49fbb4d4972d23a41c53327b9d",
+      "bytes": 4261
+    },
+    {
+      "path": "electrical-candidate/libs/temper.pretty/C_Axial_L34.0mm_D22.5mm_P40.00mm_Horizontal.kicad_mod",
+      "sha256": "360bbf80f12df24b9a8c587b7cb06e1cd2dc44687bec3fd12cbf1a4091032f51",
+      "bytes": 4071
+    },
+    {
+      "path": "electrical-candidate/libs/temper.pretty/Converter_DCDC_RECOM_RP-S.kicad_mod",
+      "sha256": "152a00fb3523a7bdd0b0fa8c67033dde8bb6f2741b67775407fa88e427719baf",
+      "bytes": 3514
+    },
+    {
+      "path": "electrical-candidate/libs/temper.pretty/Relay_DPDT_Finder-40.52.kicad_mod",
+      "sha256": "eab3d3f9763a516dbdf0e61ca5b377d31fe25cfe4d11d7d4dc19fe11cbc642a3",
+      "bytes": 10606
+    },
+    {
+      "path": "electrical-candidate/libs/temper.pretty/Relay_SPDT_Schrack-RT314012.kicad_mod",
+      "sha256": "98fb8df7f52fce7bac336ff3b39174aadf1abc36d915e41b16bf2e14c5894b41",
+      "bytes": 10266
+    },
+    {
+      "path": "electrical-candidate/libs/temper.pretty/Relay_SPST_Omron-G4A-E.kicad_mod",
+      "sha256": "e4071f67526bb794a255b7098ea203caddb6496bd366eea74e250eab3097987f",
+      "bytes": 7385
+    },
+    {
+      "path": "electrical-candidate/libs/temper.pretty/Relay_SPST_Schrack-RT33K012.kicad_mod",
+      "sha256": "4b26c8764164f2e7d96eb3206003091692c265838a43071a2f8c08856adb26c9",
+      "bytes": 10678
+    },
+    {
+      "path": "electrical-candidate/make_connector_proxies.py",
+      "sha256": "ba0586cd723430ad16cf703f85a4538b17e390aab6ffb6b86cce3f3f387517fd",
+      "bytes": 797
+    },
+    {
+      "path": "electrical-candidate/mcu-route-plan.json",
+      "sha256": "fa935d52e4dad672cc43047f69cbb63cd4c55ad7df8312ab06deaa10c47c92c2",
+      "bytes": 7515
+    },
+    {
+      "path": "electrical-candidate/mcu-route-receipt.json",
+      "sha256": "6696f4fe332adee701161c77daf0663233d59e3dad374360438ba0e779c32b9c",
+      "bytes": 34738
+    },
+    {
+      "path": "electrical-candidate/placement_scan.py",
+      "sha256": "fd9ab9a5a64e783d1acfed57b487088ee9cd549357907372a5d5dc2bb3cabff6",
+      "bytes": 433
+    },
+    {
+      "path": "electrical-candidate/plan_mcu_routes.py",
+      "sha256": "0f86417b8d97b98e9e62c70430ff20ee7ff59b74f4400d7db2bc9203267de613",
+      "bytes": 7591
+    },
+    {
+      "path": "electrical-candidate/plan_sensor_local.py",
+      "sha256": "094e161d34ac1d7e0d4f750d5cc0dc8d4001c4af6f760d6eac96d2d133892588",
+      "bytes": 639
+    },
+    {
+      "path": "electrical-candidate/plan_sensor_tieins.py",
+      "sha256": "661d1116368eb408957ea2f95e0df82c64bbbb01e1d34059842914b76a930243",
+      "bytes": 635
+    },
+    {
+      "path": "electrical-candidate/probe_mcu_vias.py",
+      "sha256": "d5cd603ff5c238c94539399d76b8dfe8f9754dce99215caebc59d094980f905b",
+      "bytes": 1690
+    },
+    {
+      "path": "electrical-candidate/r17/scan_sink_footprints.py",
+      "sha256": "e54f4c845212d90564ea1f0c2e3436a36e0629b045b25f37c4fc2851c62ef8b8",
+      "bytes": 2403
+    },
+    {
+      "path": "electrical-candidate/retire_unsafe_j4.py",
+      "sha256": "5216e737c2cda9dcb18a45861654fa311c336ce9e1434d230b78120579bc6717",
+      "bytes": 1239
+    },
+    {
+      "path": "electrical-candidate/route_cs_pullup.py",
+      "sha256": "1972f45bff4579bbc754d7fda9b6207dd80ea3eb56a151add3d4645b1823c4d3",
+      "bytes": 1305
+    },
+    {
+      "path": "electrical-candidate/route_service_rails.py",
+      "sha256": "9f6c39db8180c45e5749459a0727aada2505b18e46c59a0c122cc0de744951bc",
+      "bytes": 3550
+    },
+    {
+      "path": "electrical-candidate/route_ui_candidate.py",
+      "sha256": "adc5647f7446888753c7fffd93862a789ed1586361aad6c2c97d841de7d726d3",
+      "bytes": 8726
+    },
+    {
+      "path": "electrical-candidate/sensor-build.log",
+      "sha256": "d344cb5b14e502a6f2b832d5d52c4d94e17ac7aa1c81741064da3ecf93ae869d",
+      "bytes": 2456
+    },
+    {
+      "path": "electrical-candidate/sensor-local-plan.json",
+      "sha256": "8b0b76c94c79fa78d4682c0af4b7b7eb587eba73445a87a4ae8c215949ebd4c3",
+      "bytes": 2420
+    },
+    {
+      "path": "electrical-candidate/sensor-local-receipt.json",
+      "sha256": "1cf42edd6b1f3959f3829157a7b249f75936b21e244bad2e35c8998615deae23",
+      "bytes": 9415
+    },
+    {
+      "path": "electrical-candidate/sensor-route-plan.json",
+      "sha256": "6db5e982cc64c64432b86dd0ee98dbf72f97d20b77de5668a297f6d7998fb4ab",
+      "bytes": 3579
+    },
+    {
+      "path": "electrical-candidate/sensor-route-receipt.json",
+      "sha256": "7964662b89e6ec45abf16afd0284433d3f7223fe718fed9285e456e9c329df07",
+      "bytes": 15206
+    },
+    {
+      "path": "electrical-candidate/service-rail-receipt.json",
+      "sha256": "0b92dd9833ca1db7269b37bcd7f2fbd74cc44966260ecaec4507e6f9c9af94ef",
+      "bytes": 7231
+    },
+    {
+      "path": "electrical-candidate/temper-r10-electrical-candidate.kicad_pcb",
+      "sha256": "8c5b7d19f74793edc45a8e238d5b238732557ebb60bd48019b8118a6027521ed",
+      "bytes": 2166624
+    },
+    {
+      "path": "electrical-candidate/temper-r10-electrical-candidate.kicad_prl",
+      "sha256": "3dedf56dbbc7faf247aac3b982b65241a20a0dda4799eb24c36c88acc2e9f823",
+      "bytes": 2318
+    },
+    {
+      "path": "electrical-candidate/temper-r10-electrical-candidate.kicad_pro",
+      "sha256": "f518e624b76ae272c827c65bb336f7b5640216800d944452f5e95d5f2acdf56d",
+      "bytes": 9607
+    },
+    {
+      "path": "electrical-candidate/temper-r10-electrical-candidate.step",
+      "sha256": "96ff64fef4b4127c3000faa3cd80e9d2ced56e8f12a90c20eb6ed48c9a129809",
+      "bytes": 4350429
+    },
+    {
+      "path": "electrical-candidate/ui-route-receipt.json",
+      "sha256": "046e9ad681f7092155893e6d4f8f6f2711a21c37dab9283075324620142e683b",
+      "bytes": 30847
+    },
+    {
+      "path": "electrical-candidate/validate_candidate.py",
+      "sha256": "724ce6d5bc3efc2d7d7bd347adae8d82328f6d5895c7bd2afd22ef34b2d7036b",
+      "bytes": 6500
+    },
+    {
+      "path": "electrical-sensor-candidate/build_internal_rtd.py",
+      "sha256": "696afa975d50842b5acd68a29d0c9242a42b4867c3cce7dc5caa913fe5be46a6",
+      "bytes": 7399
+    },
+    {
+      "path": "electrical-sensor-candidate/check_local_copper.py",
+      "sha256": "bfee31d8715d54f0c50683de37df31250d8a4adc147f912c2735a87f22ad7d9e",
+      "bytes": 2208
+    },
+    {
+      "path": "electrical-sensor-candidate/internal-rtd-addendum.kicad_pcb",
+      "sha256": "4108103abc1d8d4734618cf6798cda378464f2aa8eb86b75d37c6e27638e02dc",
+      "bytes": 2156151
+    },
+    {
+      "path": "electrical-sensor-candidate/internal-rtd.ato",
+      "sha256": "69d156ea63b4805a0d120895bb7a710134ef1f7bbd48bcd90200fc56659c9b3f",
+      "bytes": 3741
+    },
+    {
+      "path": "electrical-sensor-candidate/local-copper-input.json",
+      "sha256": "f13a48a4593cc49a5e5817ad3ff082c3cdace32f4524bfb15472ca08a060984b",
+      "bytes": 1088233
+    },
+    {
+      "path": "electrical-sensor-candidate/native-addendum-receipt.json",
+      "sha256": "b81c920d6c0cae95e61075482a5272b9e0ee211a071ae0f963e36a52b6ff40dc",
+      "bytes": 8054
+    },
+    {
+      "path": "electrical-sensor-candidate/screen_local_copper.py",
+      "sha256": "dd3df6813ab414a6f86759c2f74b1871304a77f1c23a2535803119e0ce955be1",
+      "bytes": 2431
+    },
+    {
+      "path": "evidence/__pycache__/check_evidence_freshness.cpython-312.pyc",
+      "sha256": "3630e00320869a31baed8fa9c2014366b98adc3879fcb796a3185b469ee366f2",
+      "bytes": 5411
+    },
+    {
+      "path": "evidence/adjudicate_proxy_contacts.py",
+      "sha256": "65dc6efbed85c25b7ec7c79be32c73879552447c6aa1ce7e819a6038c19d7598",
+      "bytes": 2730
+    },
+    {
+      "path": "evidence/airflow/__pycache__/system_curve.cpython-312.pyc",
+      "sha256": "24c54678173382b96811b82c5119df0350837a180c30bf5e14a4e71f199573a8",
+      "bytes": 9911
+    },
+    {
+      "path": "evidence/airflow/system-curve.json",
+      "sha256": "b970a3609c81aeb1261aac984be141931cb0a64262f4c1b22083e38d53af16a3",
+      "bytes": 9750
+    },
+    {
+      "path": "evidence/airflow/system_curve.py",
+      "sha256": "05b7aecf8a618e1b6b3d1c2c8413f6cbd1f4f50a18c23d1a84265b9798e71ccd",
+      "bytes": 6029
+    },
+    {
+      "path": "evidence/airflow-r32/README.md",
+      "sha256": "7503a33f09bbed84fe723110b4d18e292d98ef3c2c01aa82ec02b1846daca674",
+      "bytes": 967
+    },
+    {
+      "path": "evidence/airflow-r32/REPORT.md",
+      "sha256": "0017bf606eedcfb6760cb3d9065997f4030820fc4e1e9497d607b7afa2c75901",
+      "bytes": 16662
+    },
+    {
+      "path": "evidence/airflow-r32/__pycache__/system_curve_r32.cpython-312.pyc",
+      "sha256": "ac655017485536502097265812341a58eaade06f6099817496d0d71e9dd24eef",
+      "bytes": 23622
+    },
+    {
+      "path": "evidence/airflow-r32/coil-thermal.json",
+      "sha256": "53e46ad4a8b099e1414cb52414bc6380af274fd176d5aa8f67d0b1b69068bb19",
+      "bytes": 30298
+    },
+    {
+      "path": "evidence/airflow-r32/coil_thermal.py",
+      "sha256": "f29f1f3415b1524432c604e94780d83137eef13a037f07d957ca670990ceb262",
+      "bytes": 12670
+    },
+    {
+      "path": "evidence/airflow-r32/datasheets/AFB0912VH-F00_pq.png",
+      "sha256": "9493c5cc583680349335addff09d2786068ece21ba1eeafb653f6ea75ef0141f",
+      "bytes": 75872
+    },
+    {
+      "path": "evidence/airflow-r32/datasheets/BFB1012VH-F00_drawing.png",
+      "sha256": "e5d34d4362d41741f5fd68ca8788a4ba7ba4d07992ace4f2cfbc9a21ac9c1822",
+      "bytes": 101879
+    },
+    {
+      "path": "evidence/airflow-r32/datasheets/BFB1012VH-F00_pq.png",
+      "sha256": "e4c6a9190eaa3a0b3ea2734774005a0184ba51508ef3e879d130850f5f2bf6c0",
+      "bytes": 64585
+    },
+    {
+      "path": "evidence/airflow-r32/datasheets/PFB0612EHE-F00_pq.png",
+      "sha256": "2422dc90e2930e1b5bd85dd8d217db25daf9dcfb1bd0b49a2b22260c23be5469",
+      "bytes": 21210
+    },
+    {
+      "path": "evidence/airflow-r32/datasheets/PFB0812DHE-F00_pq.png",
+      "sha256": "5099dd3e49106c0f294634702f85dfd6ef0ffcd1a4bfc405fe6de0677ee361eb",
+      "bytes": 74718
+    },
+    {
+      "path": "evidence/airflow-r32/datasheets/PFB0812EHE-F00_pq.png",
+      "sha256": "9decc5261acbbd37eb02484c625e917011949c36ff39a409816556e4f3392620",
+      "bytes": 72113
+    },
+    {
+      "path": "evidence/airflow-r32/datasheets/PFB0912DHE-F00_pq.png",
+      "sha256": "298fe9924203972c67ae468f484fe52833e4882ae31833b44ffd0510d81f91c2",
+      "bytes": 63286
+    },
+    {
+      "path": "evidence/airflow-r32/datasheets/SameSky_CBM-979433B-130-507_pq_300dpi.png",
+      "sha256": "347e0d9d903f743cd1ce7ca9faf092b50d97a9eb10d80b4ec29ca42029ada5a0",
+      "bytes": 66784
+    },
+    {
+      "path": "evidence/airflow-r32/datasheets/SameSky_CBM-979433B-135-540_pq_300dpi.png",
+      "sha256": "d16579a75fba9f0ebcdabc6ce72a7fc5fb433560634ffc51e4f32ee47d03f82a",
+      "bytes": 64273
+    },
+    {
+      "path": "evidence/airflow-r32/datasheets/SameSky_CBM-97B-2_p3_curves.png",
+      "sha256": "bddf5950c6be3bd6926caa614bb5c2d8f8819eacab3f2c65966ed6a82b2edf3a",
+      "bytes": 214251
+    },
+    {
+      "path": "evidence/airflow-r32/derating.json",
+      "sha256": "da4c6fd55321bb52787e853943351491c9b1239a304d05f0a2e12f22835e1b80",
+      "bytes": 5921
+    },
+    {
+      "path": "evidence/airflow-r32/derating.py",
+      "sha256": "34d47357fb01fa5e17bc59a45abc6eeff3e2d2b8a1e5f6bb86badf56a8e1c98f",
+      "bytes": 3027
+    },
+    {
+      "path": "evidence/airflow-r32/fan-curves.json",
+      "sha256": "03b8c0b36a8f0ff9d6b6b3b5456300a76dd376d335887c5967025d5198d66ba3",
+      "bytes": 24616
+    },
+    {
+      "path": "evidence/airflow-r32/fan_curves.py",
+      "sha256": "819e928384ad5e9192da6ad399e985b447d1d9773fa0a435d51474d8411183ce",
+      "bytes": 9605
+    },
+    {
+      "path": "evidence/airflow-r32/fit-check.json",
+      "sha256": "e532d01019a2b13f5f43249e4557159a6c42cce09673abb8d7cae4d82336cb4b",
+      "bytes": 3912
+    },
+    {
+      "path": "evidence/airflow-r32/fit_check.py",
+      "sha256": "74222cf6992c78a59605153ce858542339b16c2194be2a56c2bafa2e103e44be",
+      "bytes": 5018
+    },
+    {
+      "path": "evidence/airflow-r32/requirement.json",
+      "sha256": "b235e0f62d8fb9b7b443147b0050edde7ddd31607359f7a150bec48f62e33490",
+      "bytes": 6588
+    },
+    {
+      "path": "evidence/airflow-r32/requirement.py",
+      "sha256": "410d19b6b12998d4f691d5c2ea1a69b5584d946e04e03b516596bb63b4857dc5",
+      "bytes": 7173
+    },
+    {
+      "path": "evidence/airflow-r32/sink-variants.json",
+      "sha256": "f0a563f7a9a132726d341e0544c1b3359290e686cfe9f5d5d6a280a203c1bc77",
+      "bytes": 1055
+    },
+    {
+      "path": "evidence/airflow-r32/sink_variants.py",
+      "sha256": "5164f4c02bd6c43c959e7e1538765b9a8c38839598ea94216d5453d4bfda85dd",
+      "bytes": 2369
+    },
+    {
+      "path": "evidence/airflow-r32/sources/IS302-2-6_2009_excerpt_8.1.2_15.2.txt",
+      "sha256": "55f100b7cbcc4fbfa9efd6588c67196ec172b7c99b86868a482c0cc18e3b2f7e",
+      "bytes": 6792
+    },
+    {
+      "path": "evidence/airflow-r32/system-curve-r32.json",
+      "sha256": "b2330faf8f5d12a0c1cc96e52dfaaeee8ffcd557783e6c272b3648beaa93fdac",
+      "bytes": 99524
+    },
+    {
+      "path": "evidence/airflow-r32/system_curve_r31_copy.py",
+      "sha256": "05b7aecf8a618e1b6b3d1c2c8413f6cbd1f4f50a18c23d1a84265b9798e71ccd",
+      "bytes": 6029
+    },
+    {
+      "path": "evidence/airflow-r32/system_curve_r32.py",
+      "sha256": "f60f0aa1198d680ca85ddcc240fe9a0a0293d9c3c6e3827c7379165201cd9654",
+      "bytes": 18010
+    },
+    {
+      "path": "evidence/airflow-r32/vents.json",
+      "sha256": "3058f2623b7eb72805e79331091a859851a16273f26825d85cb05526d2376a1a",
+      "bytes": 1438
+    },
+    {
+      "path": "evidence/airflow-r32/vents.py",
+      "sha256": "644d83d09f0b050ac423e0f43009b9b46c30173729358538c1ef03a435a03388",
+      "bytes": 5039
+    },
+    {
+      "path": "evidence/airflow-r33/check_louver.py",
+      "sha256": "4714bc5bd9072693e7a2d96c9f3c8f4e246ede813650746c9dc95b5654694d5e",
+      "bytes": 3867
+    },
+    {
+      "path": "evidence/airflow-r33/louver-check.json",
+      "sha256": "d93a06e44b17ea2683b6c645ecffbfdb93043affe4bc24a3d0e7f7c722bebaed",
+      "bytes": 374
+    },
+    {
+      "path": "evidence/assembly-sequence.json",
+      "sha256": "7410e50160539c3239aaee562931f35fb29013c8ca9b82375198657766539a84",
+      "bytes": 11069
+    },
+    {
+      "path": "evidence/assembly-sequence.log",
+      "sha256": "241c13e6aee344559e50a3b8cc46f9eae640df739fbce2376266455046fb4db9",
+      "bytes": 3961
+    },
+    {
+      "path": "evidence/baseline-identity.json",
+      "sha256": "b842fb216aacedc9a2f42b1eafdd0ba1588e85ef68f59f7da5191ad9a9abaac9",
+      "bytes": 147
+    },
+    {
+      "path": "evidence/build-attempt-invalid-door-wire.log",
+      "sha256": "3f0de569e0416d16ef04480714d9485331af900a1eee510c0adfa6ff352d23cd",
+      "bytes": 657
+    },
+    {
+      "path": "evidence/build.json",
+      "sha256": "69d0b1b795132aaeda4f568e32b87691788a4e9434a317fc77d0747b1ff0b78f",
+      "bytes": 81707
+    },
+    {
+      "path": "evidence/build.log",
+      "sha256": "2d3007c0b96cc8967cc5f49f2d6d2c799dc29c594c0a4546fc236dc5fc41bea4",
+      "bytes": 12419
+    },
+    {
+      "path": "evidence/check_evidence_freshness.py",
+      "sha256": "ce81066064bd32358e2424c9b0ae7e4f2c000e2a449ca4a684c8e391ae1e8fe2",
+      "bytes": 2639
+    },
+    {
+      "path": "evidence/check_single_body.py",
+      "sha256": "aa76d42d0c08428ad8384e43253a7f78ebb8662f0aa36e6e03531f473890b939",
+      "bytes": 2928
+    },
+    {
+      "path": "evidence/coil-od/coupling-screen.json",
+      "sha256": "05c0a78c15b66167e7be2a225231de03084059cdeae97631896306080c696616",
+      "bytes": 10241
+    },
+    {
+      "path": "evidence/coil-od/coupling_screen.py",
+      "sha256": "df633e0776f6d1ccd7541fce94acc86dc2f6636cd5cc553c5372d15b4b86ea52",
+      "bytes": 6698
+    },
+    {
+      "path": "evidence/coil-od-fullbridge/README.md",
+      "sha256": "161315fca03b2b2abb4306e330c1b955cd0a50448fd13486a8cf86f41e39e1f9",
+      "bytes": 3200
+    },
+    {
+      "path": "evidence/coil-od-fullbridge/SOURCE.sha256",
+      "sha256": "15ac076eaf75df987baf326e568b67edd5a8109715bfc68da65145d3db6f5acc",
+      "bytes": 153
+    },
+    {
+      "path": "evidence/coil-od-fullbridge/coil_mc_baseline.rs",
+      "sha256": "20c2d910ac188707af87765e6bf6e82ce59e30c877dd3821c4293ea16c6b5e46",
+      "bytes": 26353
+    },
+    {
+      "path": "evidence/coil-od-fullbridge/coil_mc_d240.rs",
+      "sha256": "796cd980f1e61c1a8a273b4fc970b784807237f18b0b471f2ca3ebcc91d66ae7",
+      "bytes": 26380
+    },
+    {
+      "path": "evidence/coil-od-fullbridge/mc_240",
+      "sha256": "efab17dc88b1216b691a434390e36eb9d30f155efc6f6ce291e379ad40e7074d",
+      "bytes": 521224
+    },
+    {
+      "path": "evidence/coil-od-fullbridge/mc_base",
+      "sha256": "d6646cb604b034cc0a1f5fdba30fc298b59557965ba30b8bf59374a05a95bca9",
+      "bytes": 521272
+    },
+    {
+      "path": "evidence/coil-od-fullbridge/out_baseline.txt",
+      "sha256": "76b1ee733d5f4030d17f7c8f0fbb3d518f39e64d39423a6bfc6b2f533eda3ad8",
+      "bytes": 13564
+    },
+    {
+      "path": "evidence/coil-od-fullbridge/out_d240.txt",
+      "sha256": "98cde246f09fc64dbf824976bd36b0fb7015420edc1d41b6e98cf9ee274e90dc",
+      "bytes": 13536
+    },
+    {
+      "path": "evidence/coil-od-fullbridge/sens/make.py",
+      "sha256": "9e963ec9373482af99438f4fbab6fb6d36de71724a4902dea73a294a282ad3fa",
+      "bytes": 587
+    },
+    {
+      "path": "evidence/coil-od-fullbridge/sens/mc_f90",
+      "sha256": "e299bde7c2d69cd6a86144572e2190704876098af696e7010f942700855b9856",
+      "bytes": 521176
+    },
+    {
+      "path": "evidence/coil-od-fullbridge/sens/mc_f90.rs",
+      "sha256": "6b45305a0cf518b4bed784ab7b22be985203f38e05184b67afc29fb02f8c06ff",
+      "bytes": 26373
+    },
+    {
+      "path": "evidence/coil-od-fullbridge/sens/mc_f95",
+      "sha256": "2e26039b50fe60f4d7032a1658c845e5ef29669a592649e04a408fb65cd0391c",
+      "bytes": 521176
+    },
+    {
+      "path": "evidence/coil-od-fullbridge/sens/mc_f95.rs",
+      "sha256": "beade9bc116c67751961719c77460138161f0eef120f0bbe47a9ac996ac6f2ee",
+      "bytes": 26373
+    },
+    {
+      "path": "evidence/coil-od-fullbridge/sens/out_f90.txt",
+      "sha256": "1b8d22a36e6ed401c7649af28c538876816878f007da3173e79db6aef24484d1",
+      "bytes": 13624
+    },
+    {
+      "path": "evidence/coil-od-fullbridge/sens/out_f95.txt",
+      "sha256": "4c544c437d6cb07175541f2e8f72a9b71be43617917dcf7927c712981c5bddc2",
+      "bytes": 13696
+    },
+    {
+      "path": "evidence/coil-od-fullbridge/stale-85A/SOURCE.sha256",
+      "sha256": "3e3d6c10224d801fc246ff7ca14fdeb7483254ef11b1e3c0e67ea6da400e2918",
+      "bytes": 86
+    },
+    {
+      "path": "evidence/coil-od-fullbridge/stale-85A/coil_mc_baseline.rs",
+      "sha256": "919a32f5fb2d09ed324677c487e33e6ee853cc5f03b6e365d5d6f2c22bb3111d",
+      "bytes": 18370
+    },
+    {
+      "path": "evidence/coil-od-fullbridge/stale-85A/coil_mc_d240.rs",
+      "sha256": "609e9f76212c8c3787d7b34f4c4136712e5e5c7f7a93509686e3769ec529d526",
+      "bytes": 18714
+    },
+    {
+      "path": "evidence/coil-od-fullbridge/stale-85A/mc_240",
+      "sha256": "f58fc94e496370695f85acd5eff2819bce2b1b8b60995a4398c5e10517a09d5c",
+      "bytes": 521160
+    },
+    {
+      "path": "evidence/coil-od-fullbridge/stale-85A/mc_base",
+      "sha256": "2d8bcf564255035319688f4ba4f8c2dcc6ba45e845afbeb82b1a6438c45cf161",
+      "bytes": 521192
+    },
+    {
+      "path": "evidence/coil-od-fullbridge/stale-85A/out_baseline.txt",
+      "sha256": "3bb645d2c302a0b9795272cf0686197f2089f89951e418f0311dfd13a686fa96",
+      "bytes": 10211
+    },
+    {
+      "path": "evidence/coil-od-fullbridge/stale-85A/out_d240.txt",
+      "sha256": "d9d302ab26f2a312089488cfdf198a9e47185c7b70bfbc04e34a10c2235cfcc1",
+      "bytes": 9866
+    },
+    {
+      "path": "evidence/cover-lift-checks.json",
+      "sha256": "ce54aceea740fec37ea8971305f7b3ea5e35367de8a1be482ebf54ef99c15ca7",
+      "bytes": 3195
+    },
+    {
+      "path": "evidence/cover-lift.log",
+      "sha256": "10233b2c447010b016c150dbcc6f71cfaafbceb63084fbf989c21fe22f87f50f",
+      "bytes": 202
+    },
+    {
+      "path": "evidence/electrical/build.log",
+      "sha256": "e75b4e9bea2a0735b0a4d20246687f69725b091a908dbc1e926e9d302b15fbf4",
+      "bytes": 2094
+    },
+    {
+      "path": "evidence/electrical/copper-clearance.json",
+      "sha256": "1ca8c25cbc149d2632cad64044a8be2aed1083d32a752702c60aefebc7ad7362",
+      "bytes": 558
+    },
+    {
+      "path": "evidence/electrical/copper-connectivity.json",
+      "sha256": "0e6d702be4216e774b7aad0e6296620f51dfe27adbd94cd40d51e5855f6bdb32",
+      "bytes": 16787
+    },
+    {
+      "path": "evidence/electrical/copper-export.log",
+      "sha256": "f52bff48074480a9312df3f8250a1465fb3216d56d2f51526782a649739f3090",
+      "bytes": 1136
+    },
+    {
+      "path": "evidence/electrical/domain-spacing.json",
+      "sha256": "7f3c9d39938d351c72c340bdce8d0c7f126b19ce43b107ee623e90d5eb19d958",
+      "bytes": 865
+    },
+    {
+      "path": "evidence/electrical/drc-app-cli.log",
+      "sha256": "0901d66b248976e315ff02418a62eabc1e32ef286ddac1541da50bb42a670fd2",
+      "bytes": 14
+    },
+    {
+      "path": "evidence/electrical/drc-clean-config.log",
+      "sha256": "130a0b4ea480b125a03a31365a85c1800bafd6f984977efee40df40efef56bca",
+      "bytes": 87
+    },
+    {
+      "path": "evidence/electrical/drc-empty-board.log",
+      "sha256": "130a0b4ea480b125a03a31365a85c1800bafd6f984977efee40df40efef56bca",
+      "bytes": 87
+    },
+    {
+      "path": "evidence/electrical/j4-retirement.log",
+      "sha256": "38d91abbfaee4750628fc6b3928dd8a126ed69648b161ba8a3784ad9e83bd545",
+      "bytes": 1381
+    },
+    {
+      "path": "evidence/electrical/mcu-apply.log",
+      "sha256": "238f89ca2ee097f05274364ca59b0b934e7f102b601be96585f63a531dfcff53",
+      "bytes": 1096
+    },
+    {
+      "path": "evidence/electrical/mcu-plan.log",
+      "sha256": "3ce9941f8e6a43bf3999bd478e83eb2dd5be773e3322286f370ccfbc623839fe",
+      "bytes": 572
+    },
+    {
+      "path": "evidence/electrical/route-build.log",
+      "sha256": "b3937b1bd64e8718671be17f37df1bd26fb0d359c414348d7bd463ea1ea507bc",
+      "bytes": 1323
+    },
+    {
+      "path": "evidence/electrical/sensor-local.log",
+      "sha256": "44850f9b675e52b293f02e74506f762dfe721e727de34dd4a9c1ccabaaba1491",
+      "bytes": 1250
+    },
+    {
+      "path": "evidence/electrical/sensor-routes.log",
+      "sha256": "0e97ef6c0ae4b6657c8c89cc51c8f739bbdf401b125440e247066988c0dae3ad",
+      "bytes": 1244
+    },
+    {
+      "path": "evidence/electrical/service-rails.log",
+      "sha256": "0f2fc8f840b02992c6db8557af37255f05174370238f4d3c77af2ce73d314425",
+      "bytes": 1306
+    },
+    {
+      "path": "evidence/electrical/step-export.log",
+      "sha256": "32eafaeb031e6d9fccdc7c69a9a6e78e6f5ced116eaf2580f607ad4641a8f9c0",
+      "bytes": 910
+    },
+    {
+      "path": "evidence/electrical/validation-run.log",
+      "sha256": "067a7584213c62ab448a0197540da6618352abf014a6aeae678a3f991a2277fd",
+      "bytes": 3182
+    },
+    {
+      "path": "evidence/electrical/validation.json",
+      "sha256": "6d07ad9838591186292b3ab00e51b81e4c636a7f033211b03edd44fa47284a79",
+      "bytes": 2225
+    },
+    {
+      "path": "evidence/electrical/validation.log",
+      "sha256": "de7a2ef40eae2b51ced92cfbc4e111fdeb02778d11e5d0fa0307e7f90c4b33df",
+      "bytes": 2058
+    },
+    {
+      "path": "evidence/electrical-gui/R11-4c31-default-rules.rpt",
+      "sha256": "027e63d17e16606c88df338c4ec91cec3f165cd5fd5a7d880c33a61f81812eb6",
+      "bytes": 159593
+    },
+    {
+      "path": "evidence/electrical-gui/R11-final-8c5b-default-rules.rpt",
+      "sha256": "20925048fe743c5cdc95ee354e6fa34a3a6ad8d3f02ba36890b28df4a406cc37",
+      "bytes": 138462
+    },
+    {
+      "path": "evidence/electrical-gui/checkpoint-drc-summary.json",
+      "sha256": "ff76f3c83f98f9db1e3e6197085eefbe7bf965284debdd321abdeff447c06ed1",
+      "bytes": 29250
+    },
+    {
+      "path": "evidence/electrical-gui/final-drc-summary.json",
+      "sha256": "abcd8471b49b61cd86f9db96a2e306d583edb495a1c7fb2f3548795c7eb31b27",
+      "bytes": 1260
+    },
+    {
+      "path": "evidence/electrical-support/review-evidence.json",
+      "sha256": "6048d4938a68e46752fd2f67c08bb83039840fbc7af4e2e09de3cec298d4070e",
+      "bytes": 3141
+    },
+    {
+      "path": "evidence/enclosure/enclosure-r12.step",
+      "sha256": "8fb69012ee67e1b26f29ae6fdbe77452f49d9ca5b92583cc203cc888b33a8bcc",
+      "bytes": 2194734
+    },
+    {
+      "path": "evidence/enclosure/fit-checks.json",
+      "sha256": "550d12eecf4d85decf026bbc0c3f77f75b4717a9ddbe435f428de3369785d3ae",
+      "bytes": 270
+    },
+    {
+      "path": "evidence/enclosure/nominal-process-checks.json",
+      "sha256": "40101f5c8efda2b3711b6d88a50ab9814527e84fdea44c9af35aedd6fe49bbf0",
+      "bytes": 1343
+    },
+    {
+      "path": "evidence/enclosure/solid-checks.json",
+      "sha256": "0ea3e7f54e9e7f6ccdb7f9a5bc6c3ab11645899b4d5d58f0bffacd82412d8c7a",
+      "bytes": 16045
+    },
+    {
+      "path": "evidence/enclosure-check.log",
+      "sha256": "4318143775d6e052cd754a154431b16586870364a5b7025efdca58764280a5b5",
+      "bytes": 128
+    },
+    {
+      "path": "evidence/evidence-freshness.json",
+      "sha256": "cab76ea86387ccf7daff8d0e1bb248f3d0bd679d36ab7d6b353e195b5de919f2",
+      "bytes": 197
+    },
+    {
+      "path": "evidence/fabrication/__pycache__/_mirror_r31.cpython-312.pyc",
+      "sha256": "87e71ae4429fc0703c9f94389537abf1d70b4389145b01aed234477d8e21d7c2",
+      "bytes": 3149
+    },
+    {
+      "path": "evidence/fabrication/_mirror_r31.py",
+      "sha256": "0232f5645b636829ccb1b8cc56fb435cc54c6e4d9cafcfc3fc0684f96440dfe8",
+      "bytes": 1573
+    },
+    {
+      "path": "evidence/fabrication/cover-unfold-audit.json",
+      "sha256": "a5cac111dc1e0a564caa9c16b2075a9c766e3b7f191a77f50061f70089ace16c",
+      "bytes": 3645
+    },
+    {
+      "path": "evidence/fabrication/cover.log",
+      "sha256": "bd9e370ce46adb6a27a56e2ae533769ac2fea8f60a07c025ae8d38387c2dc244",
+      "bytes": 3595
+    },
+    {
+      "path": "evidence/fabrication/duct-flats.json",
+      "sha256": "294be7b6d062ed2ec93bc33149614a0fc486b1f9d80548cb8dd3337857c446f7",
+      "bytes": 2239
+    },
+    {
+      "path": "evidence/fabrication/flats.log",
+      "sha256": "c0fd0b8b8b067f991b465de489af943d9dde3dc6135837574b474b8928e05c72",
+      "bytes": 2866
+    },
+    {
+      "path": "evidence/fabrication/generate_cover_unfold.py",
+      "sha256": "675a95a2bfaa4396ae53adec0eb61cac3728cb6a909698c65ce0cf42f395a948",
+      "bytes": 15013
+    },
+    {
+      "path": "evidence/fabrication/generate_duct_flats.py",
+      "sha256": "a907c2715710eb98cc19f18d148a8c3aa565d566085cf5d626579d968fd30670",
+      "bytes": 8625
+    },
+    {
+      "path": "evidence/fabrication/generate_nominal_flats.py",
+      "sha256": "b9ce1135bac14b3bbb6d6fb5d7fcb610e9196660833fd72dbd713480413be85e",
+      "bytes": 11617
+    },
+    {
+      "path": "evidence/fabrication/generate_r32_flats.py",
+      "sha256": "e0c7bd3f34bb77ea2c47881d7e2e1737c44d037a16b71ea1b742bef9aaa15b4b",
+      "bytes": 6127
+    },
+    {
+      "path": "evidence/fabrication/nominal-flats-audit.json",
+      "sha256": "4c4b859a252761985037bd4a41554ea775212d2ead7023e2d55dbd0864b2ade9",
+      "bytes": 3267
+    },
+    {
+      "path": "evidence/fabrication/r32-flats.json",
+      "sha256": "dcb6806f2d885a3acf4c17acae96efcf5ceff42582a9cae4ff88b42cca17e4ed",
+      "bytes": 1099
+    },
+    {
+      "path": "evidence/final-validation.json",
+      "sha256": "68da9b100d0b965602cffcb71789db5973ba4486531e659dca2a123e99a5a98c",
+      "bytes": 2007
+    },
+    {
+      "path": "evidence/final-validation.log",
+      "sha256": "68da9b100d0b965602cffcb71789db5973ba4486531e659dca2a123e99a5a98c",
+      "bytes": 2007
+    },
+    {
+      "path": "evidence/full-assembly-interferences.json",
+      "sha256": "9d57d9692689fd049cb522b4e72e84f8f62ff968db982c0c291149ea3c58404c",
+      "bytes": 57540
+    },
+    {
+      "path": "evidence/fuse/fault-current-bound.json",
+      "sha256": "46b22f921309329338cb51c7b639c0f26ae10b8dc0c718e725410ea41741fc91",
+      "bytes": 3190
+    },
+    {
+      "path": "evidence/fuse/fault_current_bound.py",
+      "sha256": "86f7c1e2c53836661e6432a947804ad50a6e6067c0861721c63c0bd833765cc1",
+      "bytes": 3044
+    },
+    {
+      "path": "evidence/fuse/fuse-sizing.json",
+      "sha256": "8c0dc52db5416f68330b6c19a8a0b45c866a6ef6168c7eed6d0f3f29a672f256",
+      "bytes": 4150
+    },
+    {
+      "path": "evidence/fuse/fuse_sizing.py",
+      "sha256": "16e0f143f5c41b1dfebc93ce8867b2a73f684c96ba6c55e1b2c2ce7f75c5db6d",
+      "bytes": 5002
+    },
+    {
+      "path": "evidence/harness/build_harness_list.py",
+      "sha256": "4dddadfb101c98a948ce3d4ef337286ce463ab136a402986b6248af6ded374c2",
+      "bytes": 9446
+    },
+    {
+      "path": "evidence/harness/harness-list.json",
+      "sha256": "8971fd212e4adf61cf77bde1ac8192041c7737b95c382925668fe7cbb7fd52dd",
+      "bytes": 20569
+    },
+    {
+      "path": "evidence/harness/route-metrics.json",
+      "sha256": "a6afeb2094bbc00c88be8db8d83759804d5789824ccdd96d85f67260b40b29ec",
+      "bytes": 13409
+    },
+    {
+      "path": "evidence/harness/supplemental-proxy-dispositions.json",
+      "sha256": "d9e7ab385c2d75a693d235bf6a1b54e61e408a6e44a6a433aa8ae5c0ae46daa7",
+      "bytes": 5503
+    },
+    {
+      "path": "evidence/inherited-r10-fabrication/cover-unfold-audit.json",
+      "sha256": "25b981ee83f1524eea49bd1ef2cc3ac18eebac833fe36ebab460832ce5d0b889",
+      "bytes": 3595
+    },
+    {
+      "path": "evidence/inherited-r10-fabrication/cover.log",
+      "sha256": "25b981ee83f1524eea49bd1ef2cc3ac18eebac833fe36ebab460832ce5d0b889",
+      "bytes": 3595
+    },
+    {
+      "path": "evidence/inherited-r10-fabrication/design-snapshots/R10-chassis-plate-NOMINAL-REVIEW-ONLY.dxf",
+      "sha256": "0b01ad62e19ee9db75555195e312bfe8b40c87bb50c89a0d73144ec24ef63a48",
+      "bytes": 42240
+    },
+    {
+      "path": "evidence/inherited-r10-fabrication/design-snapshots/R10-full-cover-RELIEVED-PROTOTYPE-NOMINAL.dxf",
+      "sha256": "7a5c641afdea1566aaae3039bddae5dc615f67ad368c26ad000a07533d330ccc",
+      "bytes": 239309
+    },
+    {
+      "path": "evidence/inherited-r10-fabrication/design-snapshots/R10-rear-door-skin-top-return-NOMINAL-REVIEW-ONLY.dxf",
+      "sha256": "6d1eed7263b9d9b7afe8808766e2085ce450329c93eff0dbaee610dac03c1c52",
+      "bytes": 37700
+    },
+    {
+      "path": "evidence/inherited-r10-fabrication/flats.log",
+      "sha256": "3c805fb388561eaa3f3408a4a2ecff39d4f8d36cf5174d1e56bb002fc17dd9be",
+      "bytes": 2781
+    },
+    {
+      "path": "evidence/inherited-r10-fabrication/generate_cover_unfold.py",
+      "sha256": "47426ba17da1b844c80bcecabdcbc58ad1369e2fd4355710b1e5713111f0649f",
+      "bytes": 13686
+    },
+    {
+      "path": "evidence/inherited-r10-fabrication/generate_nominal_flats.py",
+      "sha256": "81dbce78c5ff3c947567cb98c8cf0a5f6a7a3735ad658ec02c007f3fd2aea8a5",
+      "bytes": 7707
+    },
+    {
+      "path": "evidence/inherited-r10-fabrication/nominal-flats-audit.json",
+      "sha256": "7d03ff7bce9ef0557a3f093b2e8e575c3834e4ad223ca2f68d5f7697426743b7",
+      "bytes": 2759
+    },
+    {
+      "path": "evidence/inherited-r10-metalwork/check_and_export.py",
+      "sha256": "520308aa1862ada302d1bf687763ee6336f1f82e2038d5193f503159f88ca91c",
+      "bytes": 3794
+    },
+    {
+      "path": "evidence/inherited-r10-metalwork/checks.json",
+      "sha256": "d16fafbfae6122ede89e6a61bd25e42db58000d593c88094d8f8c1341d3272aa",
+      "bytes": 2951
+    },
+    {
+      "path": "evidence/inherited-r10-metalwork/checks.log",
+      "sha256": "2c9e72dbb7cc367bc0c09e4d24a777bf27e84079343064a730ff4132f37d6fcf",
+      "bytes": 55
+    },
+    {
+      "path": "evidence/inherited-r10-procurement/build_register.py",
+      "sha256": "e6b8700f4bae519495d65ff41fd6698ba857a1b0993610404fbc63348040a249",
+      "bytes": 4798
+    },
+    {
+      "path": "evidence/inherited-r10-procurement/verified-facts.json",
+      "sha256": "65335e6a56deb61a6fa8a1ad3ea771a4fee8b0badc7eb5cfc1d012f21574de2a",
+      "bytes": 52508
+    },
+    {
+      "path": "evidence/inherited-r10-sensor/check_sensor.py",
+      "sha256": "f46db10194ed9ddd2480ed62de7a7e2237006d9f7354b8c0207b81d978a1f01b",
+      "bytes": 7223
+    },
+    {
+      "path": "evidence/inherited-r10-sensor/design-checks.json",
+      "sha256": "54dd4a036dca7bc3d71ea9795db68789352e70d0a9d2dd160c8ca416ef8705b6",
+      "bytes": 3364
+    },
+    {
+      "path": "evidence/inherited-r10-sensor/diaphragm-free-state-candidate.step",
+      "sha256": "253b2823722aa0f94e8a71e92513cccbad24000310bc73153acf3e8eab13f40c",
+      "bytes": 27702
+    },
+    {
+      "path": "evidence/inherited-r11-review.md",
+      "sha256": "57e891f3d94c5f8d94058e4d1836c041f5bc29e004e22919c9f7f5c37ca6e7c0",
+      "bytes": 6530
+    },
+    {
+      "path": "evidence/inherited-r11-scorecard.json",
+      "sha256": "a70f39697d76f8fa1e69b45797924ae9c8fe41c09ec47fd18875ab86144be31e",
+      "bytes": 10224
+    },
+    {
+      "path": "evidence/inherited-r14-sensor/check.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "evidence/inherited-r14-sensor/check_sensor.py",
+      "sha256": "198a4bee58f1de753a5718a47ffc32af1d181fa8d608f015b8315e290e72fb6f",
+      "bytes": 7707
+    },
+    {
+      "path": "evidence/inherited-r14-sensor/design-checks.json",
+      "sha256": "6d697cd057d5688ce05186983043a721071faaf18c713f470b19de95e9e95a06",
+      "bytes": 3519
+    },
+    {
+      "path": "evidence/inherited-r14-sensor/diaphragm-free-state-candidate.step",
+      "sha256": "1a21a7a72eda9865c147bb37eacd9f1d2365e38f99cda666c95b71df4de26c59",
+      "bytes": 27702
+    },
+    {
+      "path": "evidence/integration/fan-relocation.json",
+      "sha256": "bf6803e77de8126ea82676b25bf03bd74356147939e2e5f0ab74dcd28ace0f10",
+      "bytes": 514
+    },
+    {
+      "path": "evidence/integration/raw-saved-pair-screen.json",
+      "sha256": "66e66bfad20c2a2ca7006f69aa16ef668bee5e26ee65c60cd3bc22e83d7b7450",
+      "bytes": 35211
+    },
+    {
+      "path": "evidence/integration/strict-roundtrip-diagnostic-build.json",
+      "sha256": "6ef64dfe4959911a1edabede32d07082addb71dad608665aa404de6d63a1f499",
+      "bytes": 54536
+    },
+    {
+      "path": "evidence/integration/strict-roundtrip-diagnostic-build.log",
+      "sha256": "1269d995b3a3a8094d2498965b7d3b81126be647c67deec540a865400622206d",
+      "bytes": 12966
+    },
+    {
+      "path": "evidence/internal-rtd/local-copper-clearance.json",
+      "sha256": "429fc8e6f0f1160d9fb7e5249204b959e82c3fd131d1776c726b4bc65f7d68c8",
+      "bytes": 350
+    },
+    {
+      "path": "evidence/metalwork/check_and_export.py",
+      "sha256": "45eddf5d866996c3e9da3a5ffc135d01401a3afe9951b8d997b0c6cd699ce1f6",
+      "bytes": 3794
+    },
+    {
+      "path": "evidence/metalwork/checks.json",
+      "sha256": "9b0c6dae5d3958e6fe4ab9c393f3e4540a5e2c51ee1ba00fec90c6c65a00c801",
+      "bytes": 2951
+    },
+    {
+      "path": "evidence/metalwork/checks.log",
+      "sha256": "2c9e72dbb7cc367bc0c09e4d24a777bf27e84079343064a730ff4132f37d6fcf",
+      "bytes": 55
+    },
+    {
+      "path": "evidence/native21-pose-check.json",
+      "sha256": "4a806eb3a638e5c604c492b4c9c61f48e5ee09c118aa000c3e2129b65b7c9029",
+      "bytes": 711
+    },
+    {
+      "path": "evidence/pairs.log",
+      "sha256": "7123f8cd2ce815d860f1a547891710b375ce4c1589b9b0eb270233fadda145b6",
+      "bytes": 8886
+    },
+    {
+      "path": "evidence/procurement/__pycache__/build_quote_package.cpython-312.pyc",
+      "sha256": "ff39a38978f089187b30a33713b600671c05879452b8dbfd8ffc2d386601badc",
+      "bytes": 25987
+    },
+    {
+      "path": "evidence/procurement/build_quote_package.py",
+      "sha256": "4d144702041b5831565f038fef8be7f8f38f516f3ea14689607fdeebdb7d371d",
+      "bytes": 23512
+    },
+    {
+      "path": "evidence/procurement/build_register.py",
+      "sha256": "37d9155043ec84422dbb10e12a0f705323f632f08c59a4d86b9b9f78aecb7888",
+      "bytes": 3066
+    },
+    {
+      "path": "evidence/ps3/__pycache__/check_ps3_clearances.cpython-312.pyc",
+      "sha256": "c53a5ddf88903d1e1b1a2855d3a00ea1c5f4589bb06f120fa6e618ae62f2c105",
+      "bytes": 9778
+    },
+    {
+      "path": "evidence/ps3/__pycache__/check_ps3_retention.cpython-312.pyc",
+      "sha256": "a033ef4cb95441cb52fd4cb4e5d6f8158ff925cef0a4204eeee6f7158752994e",
+      "bytes": 36119
+    },
+    {
+      "path": "evidence/ps3/__pycache__/geodesic.cpython-312.pyc",
+      "sha256": "3771a5ebac6092714c6ca9290bbd4007156fbfdd8dd41d33a2e2f1af9a791be9",
+      "bytes": 18236
+    },
+    {
+      "path": "evidence/ps3/check_ps3_clearances.py",
+      "sha256": "1ce2b7b47c659ad6600785237b139059c5eb47408c0874614a731f5ff7def733",
+      "bytes": 6635
+    },
+    {
+      "path": "evidence/ps3/check_ps3_retention.py",
+      "sha256": "d9cd258c03542e8c2a7094ff52162f9c730a072c05bbbbc2cf67be77ba579095",
+      "bytes": 22425
+    },
+    {
+      "path": "evidence/ps3/geodesic.py",
+      "sha256": "8d6ab63fe5d1b90a7639f2240912e98ec58cad8646d3f453506fe48a4b7028da",
+      "bytes": 8474
+    },
+    {
+      "path": "evidence/ps3/ps3-anchor-survey.json",
+      "sha256": "6ae3bb855f514f498d2b3b74ae3592127eaf1207c48c03658496ee80825d61e1",
+      "bytes": 43309
+    },
+    {
+      "path": "evidence/ps3/ps3-clearances.json",
+      "sha256": "d6d0bc57ada43e162717428152f1a9121b59d4a2366e867d89e9cebb3ae5e7fe",
+      "bytes": 3744
+    },
+    {
+      "path": "evidence/ps3/ps3-mains-span.json",
+      "sha256": "64e0f8a772ca3be0052fcedd56e8293839473c997d2817e7c8131c5b7b47866c",
+      "bytes": 72255
+    },
+    {
+      "path": "evidence/ps3/ps3-retention.json",
+      "sha256": "dd62eb8f677d0493e2a92ac86ee3585890a69a802ef2321afda1f08f55e3ba2c",
+      "bytes": 11883
+    },
+    {
+      "path": "evidence/ps3/survey_mains_span.py",
+      "sha256": "5830fc9342316a92fc1bff5a281a52135ea5fb234221acfd6b4f026ac2c81c94",
+      "bytes": 5953
+    },
+    {
+      "path": "evidence/ps3/survey_ps3_anchors.py",
+      "sha256": "1a760ff23f96e813ae75adeab7baa43956b1fa0c87ca7d0d9aa16fe146988965",
+      "bytes": 6317
+    },
+    {
+      "path": "evidence/rear-inlet-checks.json",
+      "sha256": "73e6b621216515c11dad4e14f98b7b967ee937c3921f2693aaba7d54cf2e944d",
+      "bytes": 4626
+    },
+    {
+      "path": "evidence/rear-inlet.log",
+      "sha256": "f4029eb5668830130261d7bc89e7f47e7ffc8ad2420b39d94505b2a8773f9b0c",
+      "bytes": 445
+    },
+    {
+      "path": "evidence/render.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "evidence/review-r11-cross-review-checkpoint.md",
+      "sha256": "cfaf87e8f4a04d65b950e4a162c86e5d14fcbbff1d9f4d330b17321011c9f8ae",
+      "bytes": 10913
+    },
+    {
+      "path": "evidence/review-r11.md",
+      "sha256": "a9e8d0a65f8091ecd0f1d7bb4f825d7a50c41de74d17f5a5362a3ccbbe1c5f86",
+      "bytes": 1902
+    },
+    {
+      "path": "evidence/route-landings.json",
+      "sha256": "e0498c5bef99ecc2c4f2e43f83d5010f3a37c205cc708b51b2c007c1d235b77f",
+      "bytes": 587
+    },
+    {
+      "path": "evidence/run_gates.sh",
+      "sha256": "d15376c83ffa549795d5b7ebb7dad454df60cf1e06bc15bf88f76026d3d26089",
+      "bytes": 2705
+    },
+    {
+      "path": "evidence/sensor-r16/cartridge-checks.json",
+      "sha256": "4f34252e146618a3af455d46f6f7c055527e458e19ae5bc0ba529bb4f32bfbb2",
+      "bytes": 606
+    },
+    {
+      "path": "evidence/sensor-r16/check_cartridge.py",
+      "sha256": "bdddde7009edc68938541126f8386fdd7bd4a34eeee45b425940dec97c283c3e",
+      "bytes": 2684
+    },
+    {
+      "path": "evidence/sensor-r16/render_section.py",
+      "sha256": "0e73616a9a497594d412a701fb36bf01629932b6cbaef00413ec316b17add05d",
+      "bytes": 1690
+    },
+    {
+      "path": "evidence/sensor-r16/thermal-screen.json",
+      "sha256": "8a67be06c93f58430f1f081598025e9bce458e3460a677b724e26736032f39a6",
+      "bytes": 19807
+    },
+    {
+      "path": "evidence/sensor-r16/thermal_screen.py",
+      "sha256": "a7e75b3aea56b4454408252939e94315a334c2ba878b18bf2c921282816c9852",
+      "bytes": 8108
+    },
+    {
+      "path": "evidence/service-loop-checks.json",
+      "sha256": "a043c1dfcb40999b225a70c2c30a5fb646a76f0f47503de641583b60105b0f72",
+      "bytes": 503
+    },
+    {
+      "path": "evidence/single-body.json",
+      "sha256": "178fa1b0abec66720b021efc76e2a292e17ad316d9c32c694969839188062585",
+      "bytes": 1591
+    },
+    {
+      "path": "evidence/spill/check_spill.py",
+      "sha256": "64beed3d260a22dfdaf591bacd4955886bb3401de34767ceaada88ee06eb334b",
+      "bytes": 7888
+    },
+    {
+      "path": "evidence/spill/generate_lower_shell_net.py",
+      "sha256": "3c047412bc533cf091bf5099c2f725d1e22b4259cd53c20dd50d6e5284203de6",
+      "bytes": 6082
+    },
+    {
+      "path": "evidence/spill/geometry-screen.json",
+      "sha256": "e2e41b94fb7ea31e5c87548fd4efcc92b93f5a2771e46b62a77945dcb6b937db",
+      "bytes": 2353
+    },
+    {
+      "path": "evidence/spill/geometry-screen.log",
+      "sha256": "cc9c85be307121d42f1f5d7f8cc3b5d1824f73f3a3b2d809ea1e44da90931437",
+      "bytes": 645
+    },
+    {
+      "path": "evidence/spill/lower-shell-net.json",
+      "sha256": "831fd7ee1c2564c032abc9e4c5a1aee7105a88e38cc538e6df2f74e4446136da",
+      "bytes": 2325
+    },
+    {
+      "path": "evidence/spill/roundtrip-diagnostic.json",
+      "sha256": "f5532586b8174cf37f82d72b3cda31e8506041688e6c51574af46bd6845e0e35",
+      "bytes": 519
+    },
+    {
+      "path": "evidence/subsystem-metadata.json",
+      "sha256": "5cb477d310208750027f13f771c0730b5be8094600adba800c5ae830acd48727",
+      "bytes": 99846
+    },
+    {
+      "path": "evidence/verify_package_inputs.py",
+      "sha256": "3c7bb2bf60af4b88c2a1ab953d724464078d6918f5fa772fef3a4cf8a1cd2d7a",
+      "bytes": 4847
+    },
+    {
+      "path": "feedback-disposition.csv",
+      "sha256": "e44413f1505106ada30e3bef36e273bb9b9032188fcf84ff52bcf5339840f819",
+      "bytes": 3937
+    },
+    {
+      "path": "index.html",
+      "sha256": "d64b9e0823796acd9a8e1639a09f2b0d27eede5d5bbddf1a67392584a63d429e",
+      "bytes": 6062
+    },
+    {
+      "path": "inputs/current-pcb.step",
+      "sha256": "7b5206e0b4f035f4042f4a9857e9b5a96dfb11977f8de97572c3598688e799a2",
+      "bytes": 3674326
+    },
+    {
+      "path": "inputs/design-context/2026-09-25-front-end-architecture-brief.md",
+      "sha256": "232cda75bf17aeb96a22ec43c0193c5851f7a796919cfcc0f785ddf8cd63ec13",
+      "bytes": 9543
+    },
+    {
+      "path": "inputs/design-context/PART_STRESS_AUDIT.md",
+      "sha256": "4087f367567369c0aeadea31c7184f74b2120ef0b44c25dab188cd4c8ab34401",
+      "bytes": 26102
+    },
+    {
+      "path": "inputs/design-context/POWER-SECTION.md",
+      "sha256": "c0ae50a0ae71f638d64ee758b2cce6db3e0c874ac030172c2af6dbad77885e5b",
+      "bytes": 13526
+    },
+    {
+      "path": "inputs/design-context/SYSTEM_THERMAL_BUDGET.md",
+      "sha256": "2d3cef13f027e009e5c5b35d2a9baad6b0397be2f2e70394c5eded51e94303d5",
+      "bytes": 13085
+    },
+    {
+      "path": "inputs/design-context/TANK_COIL_SPECIFICATION.md",
+      "sha256": "2018512d9a7f34aa7ebb114176974f4bbbb94a05ff87923a368591bcd657f579",
+      "bytes": 20871
+    },
+    {
+      "path": "inputs/electrical-reference/docs/FUNCTIONAL_TEST_CRITERIA.md",
+      "sha256": "75e09de039647a1653dcd7a2fa94f92c2af02ba52f3d023dee27ae90f1fbb4c8",
+      "bytes": 5223
+    },
+    {
+      "path": "inputs/electrical-reference/docs/handoffs/2026-07-31-ci-enforcement-and-board-defects.md",
+      "sha256": "7fa5562e91b23700d4b48b3a40ec901fb1baa7e9c2f7bb6a6215850e13d3bf7a",
+      "bytes": 11243
+    },
+    {
+      "path": "inputs/electrical-reference/docs/hardware/BOM.md",
+      "sha256": "7bdf2cf163ada5351b462bfb6090921c3a4d4881a28362d73dbdd93ccaa9f66c",
+      "bytes": 81110
+    },
+    {
+      "path": "inputs/electrical-reference/docs/hardware/TANK_COIL_SPECIFICATION.md",
+      "sha256": "2018512d9a7f34aa7ebb114176974f4bbbb94a05ff87923a368591bcd657f579",
+      "bytes": 20871
+    },
+    {
+      "path": "inputs/electrical-reference/docs/hardware/power-section-120v/POWER-SECTION.md",
+      "sha256": "c0ae50a0ae71f638d64ee758b2cce6db3e0c874ac030172c2af6dbad77885e5b",
+      "bytes": 13526
+    },
+    {
+      "path": "inputs/electrical-reference/elec/src/components.ato",
+      "sha256": "5b00766a2c002291fcd24bb12587766d0e217b1776b87a69676ae7641ea4b764",
+      "bytes": 26905
+    },
+    {
+      "path": "inputs/electrical-reference/elec/src/constraints.ato",
+      "sha256": "f031aedc6655d61335c6b7ebf3d51eac83a5e66b1302a982299cbf4a6c92e21e",
+      "bytes": 5022
+    },
+    {
+      "path": "inputs/electrical-reference/elec/src/main.ato",
+      "sha256": "8913d3867b3d694eed1a4db4674c6f3340a95c82d2f610c0828bd8b035294e28",
+      "bytes": 51677
+    },
+    {
+      "path": "inputs/electrical-reference/elec/src/modules.ato",
+      "sha256": "b86344e7c0bd772f9de13d251066a8c9335cfbfaf8014b3d03e1cc78a102edf5",
+      "bytes": 166294
+    },
+    {
+      "path": "inputs/electrical-reference/firmware/components/control/pll_control.h",
+      "sha256": "eb5a2dbcfd7b1cbfd519f48df21faf24d299705e7b5ae5d40bf97be574b9dd8c",
+      "bytes": 10907
+    },
+    {
+      "path": "inputs/electrical-reference/firmware/config.yaml",
+      "sha256": "27b948327244b7dcab23264d37e5484e8b892954cc2718dfc39560237abc4055",
+      "bytes": 10470
+    },
+    {
+      "path": "inputs/electrical-reference/pcb/temper.kicad_pcb",
+      "sha256": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9",
+      "bytes": 1512990
+    },
+    {
+      "path": "inputs/electrical-reference/zapote/power-stage-120v/build-receipt.json",
+      "sha256": "b774f610d648a4b14c3df6e87d8e036aa90c7d63f1e3ebaf3f3af4ae72c7efcf",
+      "bytes": 1138
+    },
+    {
+      "path": "inputs/electrical-reference/zapote/power-stage-120v/elec/src/power_stage_120v.ato",
+      "sha256": "ecfbf62dcdd027110e5e8d15af29f0f6014f5e153d55268a283a2413caa1c5fb",
+      "bytes": 12710
+    },
+    {
+      "path": "inputs/native-21/BRINGUP-PROBES.md",
+      "sha256": "7589bcb02ba386af2ac6928d343751d3d6216076febaebf24a7050876e88c752",
+      "bytes": 5355
+    },
+    {
+      "path": "inputs/native-21/FLOORPLAN.md",
+      "sha256": "405dd750e5cc0fbcb79b621cc9ca4d9adfb00e70ab70e10dfa46de8db5868587",
+      "bytes": 20864
+    },
+    {
+      "path": "inputs/native-21/SNAPSHOT.json",
+      "sha256": "e5f67b2a02d77ff4fc2f59cc74b4a07a6ebb1ce25d94c00de570c0af56f4ebaa",
+      "bytes": 1650
+    },
+    {
+      "path": "inputs/native-21/native21-boxes.json",
+      "sha256": "37d303c826286daf3cab2ccea2d1a0f4755bf5207798f9884b070135c1c34a6f",
+      "bytes": 19937
+    },
+    {
+      "path": "inputs/native-21/native21-courtyards.json",
+      "sha256": "e699b256e6930685d8920b4a5f8837078e20c34e8f15eec08ca075e08cd98b87",
+      "bytes": 16323
+    },
+    {
+      "path": "inputs/native-21/native21-envelopes.json",
+      "sha256": "fd03c567f039dbb0fad90a7bf94ce2e9d54b3377fdd32b5a4fef0f88ca618b7a",
+      "bytes": 107
+    },
+    {
+      "path": "inputs/native-21/native21-plan.json",
+      "sha256": "95e516e869db0546cff93216ab72e390c53d7d4e0fcddcac606d5ddb239e61cc",
+      "bytes": 1103
+    },
+    {
+      "path": "inputs/native-21/section.kicad_pcb",
+      "sha256": "7430159671582725070640393982e4fcc1b24bdb721b83224b4419ad9329fa66",
+      "bytes": 1548308
+    },
+    {
+      "path": "inputs/native-21-r28-snapshot/BRINGUP-PROBES.md",
+      "sha256": "9d9aad41ebf6cff8a5c63c0fd4273e9e28d63521c3e3496c206488cbaf1e7313",
+      "bytes": 5355
+    },
+    {
+      "path": "inputs/native-21-r28-snapshot/FLOORPLAN.md",
+      "sha256": "340ee592db6d2d68a629f797627e5e10d73755785748c35a0b0f79b7af38d684",
+      "bytes": 20315
+    },
+    {
+      "path": "inputs/native-21-r28-snapshot/SNAPSHOT.json",
+      "sha256": "bf4f33c7b98374ff771f10e25443cb1561797eae6e01252c695c8f630bb7445c",
+      "bytes": 1444
+    },
+    {
+      "path": "inputs/native-21-r28-snapshot/native21-boxes.json",
+      "sha256": "60205ab1491b1e6497ab55f1922896dcc01ce84259c0ccfe88f732186294cb58",
+      "bytes": 19937
+    },
+    {
+      "path": "inputs/native-21-r28-snapshot/native21-courtyards.json",
+      "sha256": "f7942e5e8037cac2282e5c8093db21942cba90c77ad7ad32de17319a48d7b9c7",
+      "bytes": 16319
+    },
+    {
+      "path": "inputs/native-21-r28-snapshot/native21-envelopes.json",
+      "sha256": "1779b9808a1252f55e10bdf72ff89c5403ef573e58dd87967b3f2b0d0a3c65f7",
+      "bytes": 107
+    },
+    {
+      "path": "inputs/native-21-r28-snapshot/native21-plan.json",
+      "sha256": "95e516e869db0546cff93216ab72e390c53d7d4e0fcddcac606d5ddb239e61cc",
+      "bytes": 1103
+    },
+    {
+      "path": "inputs/native-21-r28-snapshot/section.kicad_pcb",
+      "sha256": "4ad7b5475c904ef618ceaf447ea589e11ad41f77ef1e148414970c52246a55d1",
+      "bytes": 1552456
+    },
+    {
+      "path": "inputs/r32/study05/r32_EC11_envelope_moved.step",
+      "sha256": "b6174fb8e0fd9ec1c7143675d81dcc5ed64a2a76969727ed3f04bbe10c3d4de1",
+      "bytes": 29270
+    },
+    {
+      "path": "inputs/r32/study05/r32_electronics_inlet_bulkhead.step",
+      "sha256": "63bb1f740f2ec5ff20efa4a21db7c2707ddacda245a3cc4483313e4ecca923e7",
+      "bytes": 96963
+    },
+    {
+      "path": "inputs/r32/study05/r32_enclosure_inlet_window_gasket.step",
+      "sha256": "e83113496719dcd2817248b95ba9971def061075f48e35784d0067ddbf240e11",
+      "bytes": 30293
+    },
+    {
+      "path": "inputs/r4-sensor.step",
+      "sha256": "6c15d90f3fca2f2bed0a8bde66f78f65b30a8aa92bd688935e942db9832559ab",
+      "bytes": 798071
+    },
+    {
+      "path": "licenses/three-MIT.txt",
+      "sha256": "bfe119ea4fd413f5f7ca3fcd63adb0c4a073ed39daa2fe7d3e6b769e21272601",
+      "bytes": 1081
+    },
+    {
+      "path": "procurement-register.json",
+      "sha256": "936584c02d04db475e7fcec59b6efc33f69ee4689044ffa90756f6b2cf8c0cdf",
+      "bytes": 270626
+    },
+    {
+      "path": "quote-package/INTERNAL-NOT-FOR-SHOP.md",
+      "sha256": "01b0cbae745572fe0f22f850400caff7950819b52dae0ebc933e7e3bb966d87d",
+      "bytes": 195
+    },
+    {
+      "path": "quote-package/QUOTE-REQUEST.md",
+      "sha256": "59f3847f9a54778608c9f3f5c83e8a0829b2e2a2a173052e2d74e7b4ac672c4d",
+      "bytes": 17859
+    },
+    {
+      "path": "quote-package/ceramic/sensor_coil_sensor_alumina_contact_cap.step",
+      "sha256": "2c31974500856d5b9cb356312bbfed33f09f3827b39b3d8962ecd66ffc79e903",
+      "bytes": 11727
+    },
+    {
+      "path": "quote-package/cnc/controls_open_OLED_carrier.step",
+      "sha256": "c9b36c844b22d3b0364e1767b3555f7259b2ca67d65b30a24af62ab1971ad7c4",
+      "bytes": 219955
+    },
+    {
+      "path": "quote-package/cnc/controls_turned_push_on_D_bore_knob.step",
+      "sha256": "29aee3bc54a47b3fd2a145fa09885a8af50dc1a56e8be96b40808a8b9392601f",
+      "bytes": 51661
+    },
+    {
+      "path": "quote-package/cnc/electronics_SELV_tray.step",
+      "sha256": "ee25aaa33d4719d6f1b3f81bc73d0d7369e05264ec54d4f117f19a05aa98e658",
+      "bytes": 59093
+    },
+    {
+      "path": "quote-package/cnc/electronics_coil_plenum_floors.step",
+      "sha256": "157dd4f4dbe699e2132550d34f66db4bb7e2f0f3654e16712245af04ff84a91f",
+      "bytes": 96187
+    },
+    {
+      "path": "quote-package/cnc/electronics_sink_FR4_pressure_strip.step",
+      "sha256": "99b542abb67c04f3ecf7332094782d66e235808f0ee4cc168605c01e8db9b504",
+      "bytes": 29175
+    },
+    {
+      "path": "quote-package/cnc/electronics_sink_spreader_bar.step",
+      "sha256": "affb32975c6514442b92b4177e038ec50e65a198e8278972b93dbb499fb56547",
+      "bytes": 118092
+    },
+    {
+      "path": "quote-package/cnc/sensor_coil_former.step",
+      "sha256": "4ce9c33faf0ab82c0dc6eed19d8c20543638542774d79650baabb96ba7ea7411",
+      "bytes": 4541582
+    },
+    {
+      "path": "quote-package/cnc/sensor_coil_routed_insulating_carrier.step",
+      "sha256": "37b22a313b29709cdcfafd9229d9a52713e551fb237089b8dd944b6c62321ac0",
+      "bytes": 610902
+    },
+    {
+      "path": "quote-package/cnc/sensor_coil_sensor_PEEK_bayonet_body.step",
+      "sha256": "25d5dead1abb4cbd437306e26709e913ff2c1457df66f8be03d3699ca4ed0a57",
+      "bytes": 164469
+    },
+    {
+      "path": "quote-package/cnc/sensor_coil_sensor_PEEK_plunger.step",
+      "sha256": "16dd813744d5d08c0c4157e138f641e41ae269770745db6df9c824cd07a71ed6",
+      "bytes": 26519
+    },
+    {
+      "path": "quote-package/cnc/sensor_coil_sensor_PEEK_spring_washer.step",
+      "sha256": "f54b3cb1b3721bdc57abddd45f00bc372a2012ebbc53449c58c0ecbaba654b77",
+      "bytes": 11509
+    },
+    {
+      "path": "quote-package/cnc/sensor_coil_sensor_spring_gap_key.step",
+      "sha256": "60b727276f71ab9322fac2cde55790dfdd9ecc2569db8570e64f2c87c580e010",
+      "bytes": 15475
+    },
+    {
+      "path": "quote-package/die-cut/electronics_J13_barrier.step",
+      "sha256": "1d1d3e84e745b2e9e4aa7363919defcc7e50407788b03128873436128e2fe6a0",
+      "bytes": 130574
+    },
+    {
+      "path": "quote-package/die-cut/electronics_coil_plenum_sink_nomex.step",
+      "sha256": "93a233ef228165fd48d2a7da473d3f16dd5a7685acf0405dae82ecaf2e9ed15b",
+      "bytes": 137844
+    },
+    {
+      "path": "quote-package/glass/controls_flush_front_lens.step",
+      "sha256": "9005fad718ac2ccb9719457673a1429762ef5f9e6901e51850f19a262bb12456",
+      "bytes": 31728
+    },
+    {
+      "path": "quote-package/glass/enclosure_glass_350x340x4_sensor_bore.step",
+      "sha256": "3ca5dc9681bcdee3c2fd7957196ba622474295fb32673b943d3c474690ab02d2",
+      "bytes": 36786
+    },
+    {
+      "path": "quote-package/molded/sensor_coil_sensor_silicone_boot.step",
+      "sha256": "4f48c4a98daded18d9c1c3ac42765535e4011ca9fba2260c4bc602fc357e3daf",
+      "bytes": 26435
+    },
+    {
+      "path": "quote-package/sheet-metal/R43-P1-seat-ring-0.125in-5052.dxf",
+      "sha256": "d57cc5e9ba1e4807486c939e4a1320a00f247135ec40ad969f8556106234a2de",
+      "bytes": 42354
+    },
+    {
+      "path": "quote-package/sheet-metal/R43-P2-fence-ring-0.160in-5052.dxf",
+      "sha256": "0cd2de0b5b3ddc80202ccf577791dd03162d8ffba269cddb1a47205a0b333f48",
+      "bytes": 42369
+    },
+    {
+      "path": "quote-package/sheet-metal/R43-chassis-plate-0.080in-5052-FLAT.dxf",
+      "sha256": "72e7748288abd8f54884992b6474c946f6febf6e7915b2df59d890f7add27056",
+      "bytes": 150742
+    },
+    {
+      "path": "quote-package/sheet-metal/R43-louver-cassette-1.5mm-5052-FLATS.dxf",
+      "sha256": "33fa69d64dfc2b16d110e28a09bd2dd0fe4e7ef7ef1d21c5f0b400a0dc6e2628",
+      "bytes": 37280
+    },
+    {
+      "path": "quote-package/sheet-metal/electronics_EMI_module_stand.step",
+      "sha256": "77a38a142adffce4342646306c069a1c0d5ee3b56e2d542cbc9f4eb653c0b07e",
+      "bytes": 122420
+    },
+    {
+      "path": "quote-package/sheet-metal/electronics_PS3_J11_anchor.step",
+      "sha256": "dd23a0327baa2e206ba0dc19d3d3d6e1af53928b3e68d670a98a876087d778f1",
+      "bytes": 75070
+    },
+    {
+      "path": "quote-package/sheet-metal/electronics_PS3_bracket.step",
+      "sha256": "c96e1cbbfb01d945ae049d2387775f98d1e098013a0a5f302e00eb7ad5783a1d",
+      "bytes": 189682
+    },
+    {
+      "path": "quote-package/sheet-metal/electronics_coil_bleed_duct_F2.step",
+      "sha256": "57fbd0ed1aa76333360b03841fae47a96b8c947fdd8aefb9f59648fb76f1e29f",
+      "bytes": 55174
+    },
+    {
+      "path": "quote-package/sheet-metal/electronics_exhaust_plenum.step",
+      "sha256": "fdc1fc0de50c0f9e3d3a2f7b9ed8623d130bc972860303ef6217e5eb60ebd41c",
+      "bytes": 74621
+    },
+    {
+      "path": "quote-package/sheet-metal/electronics_harness_lane_bracket_165.step",
+      "sha256": "2c011a1877e1fafece44c72a9312dcdaec18aac1b06d9ec410bc9f2e3a08c5ff",
+      "bytes": 124702
+    },
+    {
+      "path": "quote-package/sheet-metal/electronics_harness_mains_anchor.step",
+      "sha256": "b2e70e6863beb70e666c9853bc7f2deb75ffc53f7bc1ede1b397f0aa1686b8c2",
+      "bytes": 71023
+    },
+    {
+      "path": "quote-package/sheet-metal/electronics_harness_mains_anchor_290.step",
+      "sha256": "613cff14f21527e2bf6087fa45b766f52f178393604ed4846bc012c73a4f4f14",
+      "bytes": 80618
+    },
+    {
+      "path": "quote-package/sheet-metal/electronics_inlet_bulkhead.step",
+      "sha256": "f91fde59c50e03a6b092d471d6f40313edac5b5eb5411bbea849d4eac208607e",
+      "bytes": 95823
+    },
+    {
+      "path": "quote-package/sheet-metal/electronics_push_hood.step",
+      "sha256": "42fa59853c1a3ff1936768eff6f4235bf62a29fedf98cc4242553c8b9ca2d0d4",
+      "bytes": 111805
+    },
+    {
+      "path": "quote-package/sheet-metal/electronics_sink_clamp_comb.step",
+      "sha256": "3fb95868179c041f124199dbf7d9e3bd3849d098b66e83c3995c8faba5783f5b",
+      "bytes": 29216
+    },
+    {
+      "path": "quote-package/sheet-metal/electronics_sink_cradle.step",
+      "sha256": "91f5d33a7a8c27b79739968f30155bfe93b001de0653446173758e827ea1c439",
+      "bytes": 57675
+    },
+    {
+      "path": "quote-package/sheet-metal/enclosure_P1_seat_ring.step",
+      "sha256": "74a3a65d1fa8a3d3ce5719971040ff802225f9d9bb4a3dd9791edf979f6a1354",
+      "bytes": 109017
+    },
+    {
+      "path": "quote-package/sheet-metal/enclosure_P2_fence_ring.step",
+      "sha256": "cff5d4a9b05217d3226e39ad4f8564d3cfb851b7f23bb5a6d5bb444ceef505b5",
+      "bytes": 111656
+    },
+    {
+      "path": "quote-package/sheet-metal/enclosure_P3_fascia.step",
+      "sha256": "f1fc9ae63d6da06784cda76b531f9cdc3339e6b632f099677b54f74889d2694e",
+      "bytes": 181721
+    },
+    {
+      "path": "quote-package/sheet-metal/enclosure_P4_U_wrapper.step",
+      "sha256": "1cb85c81a42f751ff2966922924b8edcae22124cfafcc03c74a1c2bc82e15f75",
+      "bytes": 281558
+    },
+    {
+      "path": "quote-package/sheet-metal/enclosure_bottom_chassis_with_locator_tangs.step",
+      "sha256": "8567654d044dfb64e4e680f2e3401bd9945faedd6699664f68490ec62af32612",
+      "bytes": 947492
+    },
+    {
+      "path": "quote-package/sheet-metal/enclosure_door_exhaust_rib.step",
+      "sha256": "0426165c153a85aaa9e66366e707dbb3d95218a6b9e24c9f9922103a772c6a6b",
+      "bytes": 22336
+    },
+    {
+      "path": "quote-package/sheet-metal/enclosure_door_hook_bracket_-150.step",
+      "sha256": "dc7786d5481f945d1499507b07a8b09ac87e05f5f85ebf2a47bf057987a0d539",
+      "bytes": 44724
+    },
+    {
+      "path": "quote-package/sheet-metal/enclosure_door_hook_bracket_150.step",
+      "sha256": "5075d082d0e3fcaf9ab0a69436efc2b8aca7eaa59e60c5210b5f8528dcec5df6",
+      "bytes": 44819
+    },
+    {
+      "path": "quote-package/sheet-metal/enclosure_one_rear_service_door.step",
+      "sha256": "94c8ec775372b4590d0e04fd1c3fe336fc284c3da82ff86897ed03ba9f014b61",
+      "bytes": 886703
+    },
+    {
+      "path": "quote-package/sheet-metal/spill_hidden_rear_louver_duct.step",
+      "sha256": "eac5638ef1a1b5c07a1413eb8fd9276010aeaf2f4a4c5d0577157e3e0498064f",
+      "bytes": 74297
+    },
+    {
+      "path": "quote-package/spring/sensor_coil_sensor_cartridge_wave_spring.step",
+      "sha256": "75f3a4a3af29cae17ed14ebe9c12da58d39c630111aa8f6cf42060d59389ef0b",
+      "bytes": 11523
+    },
+    {
+      "path": "renders/R31-front.png",
+      "sha256": "d3b3e494989ddcfcb34f5b6a52c7c58c653035e5ad9b4e0659eccc01daa9c935",
+      "bytes": 238427
+    },
+    {
+      "path": "renders/R31-interior.png",
+      "sha256": "bc402923184fc0c8d582597142d12930432b3a2a9610d887b086e495dc1e0c6a",
+      "bytes": 415788
+    },
+    {
+      "path": "renders/R31-rear.png",
+      "sha256": "53cf873ec5e5c3c93e0a02b622e7bfba5ea28e7636ac4fb93bf8073660fcb6e8",
+      "bytes": 200566
+    },
+    {
+      "path": "renders/R31-sensor-section.png",
+      "sha256": "383bf5d3aa0c8db68b2ca80603b7886147b85adc405d6dba1c7a82e36d1acfb1",
+      "bytes": 52247
+    },
+    {
+      "path": "renders/R31-underside.png",
+      "sha256": "a0c88777de639fd9632b469f2774f9e5e5c93dbde7e388c9f40bc75bd2f7c9fe",
+      "bytes": 201015
+    },
+    {
+      "path": "renders/R32-front.png",
+      "sha256": "e5a4f723200d35bfba07c2fcf2f5b263e5e4093fdbe836556b18f34be8f7962d",
+      "bytes": 199791
+    },
+    {
+      "path": "renders/R32-interior.png",
+      "sha256": "df10f01e125d3aaf0fe4ac6815634ab072496463c8fe9e1e42ca8469f3b18687",
+      "bytes": 485853
+    },
+    {
+      "path": "renders/R32-rear.png",
+      "sha256": "df0f5297eb1ec57c73e888790b2836017df83906595c3fa35fe894ef290b0e23",
+      "bytes": 233244
+    },
+    {
+      "path": "renders/R32-underside.png",
+      "sha256": "83cc2cc9f1b5a6b87e1f7e85a48d5fb1ce889eb2c45f79a8f7e299f8d6c50736",
+      "bytes": 262425
+    },
+    {
+      "path": "renders/R33-front.png",
+      "sha256": "46ec670eda29a9c6a5c6a81959daec47aab7dfcc94e8001e0e3d04e2943ecc99",
+      "bytes": 199306
+    },
+    {
+      "path": "renders/R33-interior.png",
+      "sha256": "76c2631521bde1fe0d37ddd2d3f48d17ecff307ff2bfc0ec11cbf654d8a3406a",
+      "bytes": 478232
+    },
+    {
+      "path": "renders/R33-rear.png",
+      "sha256": "94aa3776f3e265050b3e4eabea8cbda5bb72fa2bde7ff26b1a5825969a803cb0",
+      "bytes": 225861
+    },
+    {
+      "path": "renders/R33-underside.png",
+      "sha256": "a5582e71d44c4d2b0a9f84db0e4106d4d3201815b963018c6c872dd5e6ff2b87",
+      "bytes": 261205
+    },
+    {
+      "path": "renders/R34-front.png",
+      "sha256": "ede5582b1d5c62168ecc3256f84cf8187b6e713726e077827f7632b4857d1abf",
+      "bytes": 199293
+    },
+    {
+      "path": "renders/R34-interior.png",
+      "sha256": "0203f9f93e3c0967e088d25940d7cc2408e170f3b9bac9fa9b151ba44fd6f74e",
+      "bytes": 816131
+    },
+    {
+      "path": "renders/R34-rear.png",
+      "sha256": "ca3dab645d732ac9da1573fe4f621ae08482ae8a7ff7154013175de8e571acde",
+      "bytes": 225859
+    },
+    {
+      "path": "renders/R34-underside.png",
+      "sha256": "73cd74eb163704e3649f91ed8fbd4b20293270140dc8e671ac61514e195e281c",
+      "bytes": 261132
+    },
+    {
+      "path": "renders/R35-front.png",
+      "sha256": "aaceace1cc4d7a060ff58ded6fe1ed688c182e6f177d9f4c499f538a79a769a6",
+      "bytes": 199483
+    },
+    {
+      "path": "renders/R35-interior.png",
+      "sha256": "b27876cb2471cd51cd4427e5047efe88774a9fca48e2c0c3f50a11aaf718da0c",
+      "bytes": 840955
+    },
+    {
+      "path": "renders/R35-rear.png",
+      "sha256": "5d28a2c4f3c99e8a6741e46b6e80fe7c66f4244cebcc6be9ed8971d2a818cc18",
+      "bytes": 216778
+    },
+    {
+      "path": "renders/R35-underside.png",
+      "sha256": "e7024fd9833ade384a1038b260761b2d1cb78a1c8173657c12b6df3cf303769a",
+      "bytes": 261367
+    },
+    {
+      "path": "renders/R36-front.png",
+      "sha256": "c1287e3ee125382a2d94a5cb5149110edd486ac201fd622be6b65facefacd5bb",
+      "bytes": 199479
+    },
+    {
+      "path": "renders/R36-interior.png",
+      "sha256": "fbd56f32f47df51b0b346817de2ea9351bab1a121cb91fcca29b9e8e086a4869",
+      "bytes": 841285
+    },
+    {
+      "path": "renders/R36-rear.png",
+      "sha256": "d1cbf10c303ba696f1535566add5762bdfcecdafc6c3246d2e6b597f6bbe047d",
+      "bytes": 216739
+    },
+    {
+      "path": "renders/R36-underside.png",
+      "sha256": "f9c3b23c2c067cd2bb503a375fbcd28d593dd12f6eee765593c549180530014d",
+      "bytes": 261410
+    },
+    {
+      "path": "renders/R37-front.png",
+      "sha256": "4fd479837a854b7f5a773287e6da80b5df0ff885f751a9b5e932c245aad6fbbe",
+      "bytes": 199194
+    },
+    {
+      "path": "renders/R37-interior.png",
+      "sha256": "acac661c5b655c85b6e9132036f1b31b448a1690bf98a6d1e166939e18ffc624",
+      "bytes": 842076
+    },
+    {
+      "path": "renders/R37-rear.png",
+      "sha256": "07d36249dc8ce97a36ea3456198607442027a883a775e125af41855ce24f131e",
+      "bytes": 216445
+    },
+    {
+      "path": "renders/R37-underside.png",
+      "sha256": "6063f14f761b2a3bd190432c75dacb46336c42cda470cc5f26a0ad064c5dcda9",
+      "bytes": 261139
+    },
+    {
+      "path": "renders/R38-front.png",
+      "sha256": "a02a05b057103b0b065fc933baac0b86e3065cae3e7b23fa3042f7e223977400",
+      "bytes": 199592
+    },
+    {
+      "path": "renders/R38-interior.png",
+      "sha256": "d936117bdc1154aa153bf05ecf258d24e48c01c6a0bee05731e950edc73fbd49",
+      "bytes": 843397
+    },
+    {
+      "path": "renders/R38-rear.png",
+      "sha256": "48dd18d9da5940132a38f54fbcf2eafe03c7c5c74af44567caa18c6fb4ff46cb",
+      "bytes": 216840
+    },
+    {
+      "path": "renders/R38-underside.png",
+      "sha256": "745ffef0c06b1ab5e7001bbedfdf3bef01d41836cc9d1e0f2fff40049ea4d261",
+      "bytes": 261499
+    },
+    {
+      "path": "renders/R39-front.png",
+      "sha256": "a4672f34fa88dde4fca1db4253cd2a9dccdc42c518b04ccb2ed09defd26abb5e",
+      "bytes": 199511
+    },
+    {
+      "path": "renders/R39-interior.png",
+      "sha256": "7e0d00aceb8e621377dc02a59ad5a728ca65e19ee69e802f59fc34fd003cfece",
+      "bytes": 843348
+    },
+    {
+      "path": "renders/R39-rear.png",
+      "sha256": "9c51f74d5667855c259f5deaf919e9f58de46919ed6198379afcd59bbfb98fa4",
+      "bytes": 216771
+    },
+    {
+      "path": "renders/R39-underside.png",
+      "sha256": "6f1b19e92748f79fbee0e31ad9129e200c67ee6c6183d5670c7b83aa2f8963e1",
+      "bytes": 261455
+    },
+    {
+      "path": "renders/R40-front.png",
+      "sha256": "8ecc252fa308f3f7ef923c92edcb56120b543f73b0343cb2a1f2574f808f2149",
+      "bytes": 199190
+    },
+    {
+      "path": "renders/R40-interior.png",
+      "sha256": "9f425b0e7002011c6d46562786fcbf5d8445d5b6adf44024251a5b4ae672aba1",
+      "bytes": 843213
+    },
+    {
+      "path": "renders/R40-rear.png",
+      "sha256": "a885424b74e71c7ba0569521fa382a53e3f6a36bf014ada29ccc8a57524eb9f9",
+      "bytes": 216427
+    },
+    {
+      "path": "renders/R40-underside.png",
+      "sha256": "a49efdc0c25c2526937546187bdfde9415c8e46cbc2a3d3879b45e85a40a27de",
+      "bytes": 261107
+    },
+    {
+      "path": "renders/R41-front.png",
+      "sha256": "18133f45921ef5f132f6dab0a105dd769661e73e7a5fbdcfee4d1ed7dabeacc6",
+      "bytes": 198617
+    },
+    {
+      "path": "renders/R41-interior.png",
+      "sha256": "a73a8be0948734ccd5dbf0a09d5c5eefb4469b6c666788aade3580c3b0fe0e46",
+      "bytes": 882305
+    },
+    {
+      "path": "renders/R41-rear.png",
+      "sha256": "e6306fee6f0e86cdff234fbe5b4c3ee41a685d4ee6e99e6e75e9b30e824bb24b",
+      "bytes": 215885
+    },
+    {
+      "path": "renders/R41-underside.png",
+      "sha256": "db3dad16d06b54fde16e850cc96ca69c639dde727febc06edb13defe7b9394ce",
+      "bytes": 261980
+    },
+    {
+      "path": "renders/R42-front.png",
+      "sha256": "24754551814cb3f72aa5a7efbc8fe0c3489de2307b4e6e56f56e78a5c25ff853",
+      "bytes": 199200
+    },
+    {
+      "path": "renders/R42-interior.png",
+      "sha256": "a48dd92895c403c7e06ba7e8251dd74803aa6c8a724d4387d2424c6ebc97ef56",
+      "bytes": 883856
+    },
+    {
+      "path": "renders/R42-rear.png",
+      "sha256": "d48958448dd53e9814a7676ff1b532cfdaf4d3bd6829d02d617aa5a538fbe280",
+      "bytes": 216433
+    },
+    {
+      "path": "renders/R42-underside.png",
+      "sha256": "5cce20846de8d8a93c8a4fed89fd4516eee7f4cc2f33fa9a344e26504ca12758",
+      "bytes": 263899
+    },
+    {
+      "path": "renders/R43-front.png",
+      "sha256": "f8a157e7d4545bbbfc8359e19cae8356f7724f1b39663612876442409e20dece",
+      "bytes": 199288
+    },
+    {
+      "path": "renders/R43-interior.png",
+      "sha256": "eef6305feb8b11505d8bfc8256f8523acfff0396ae8c3170f95f7c362606ec3a",
+      "bytes": 883560
+    },
+    {
+      "path": "renders/R43-rear.png",
+      "sha256": "e113a4fc4bcbbd5f1c0ce9310ade99e39a32667a09af3dc36ad7fcae798145e8",
+      "bytes": 216509
+    },
+    {
+      "path": "renders/R43-underside.png",
+      "sha256": "361a083f64f987f38c658e88bee947d8d29e4564df590e82100e7b0fa4830922",
+      "bytes": 266315
+    },
+    {
+      "path": "requirements.txt",
+      "sha256": "907f3a2c0966e4082b7610cbc214fc29ad95ecc59faabb7ff06bee1f7880cd63",
+      "bytes": 40
+    },
+    {
+      "path": "review-reference/rubric.md",
+      "sha256": "b78c15f30ef299e65e93af5c8db7274f0ab0616cabbd076debee3879858fcc05",
+      "bytes": 8493
+    },
+    {
+      "path": "review-reference/temper-brief.md",
+      "sha256": "8ecbfee3931c09e12d22a8e4661d27daa9a39916a6fce33fcc7a7e689b7b0b9f",
+      "bytes": 5716
+    },
+    {
+      "path": "sha256-manifest.json",
+      "sha256": "69a5bc200061a823ef451498265b2ffc10ae6fc513d326f47c85da07ed73f6ec",
+      "bytes": 101920
+    },
+    {
+      "path": "skill/cad-manufacturability/SKILL.md",
+      "sha256": "d475b57f79a3e0365ef8328b5224acc2263a7f62499237e87b993c85966494d9",
+      "bytes": 7865
+    },
+    {
+      "path": "skill/cad-manufacturability/agents/openai.yaml",
+      "sha256": "17dcd66e5fcc862304a1a7cb35406de04e2aa580990b2564b3c756722b06fcb3",
+      "bytes": 303
+    },
+    {
+      "path": "skill/cad-manufacturability/references/rubric.md",
+      "sha256": "b78c15f30ef299e65e93af5c8db7274f0ab0616cabbd076debee3879858fcc05",
+      "bytes": 8493
+    },
+    {
+      "path": "skill/cad-manufacturability/references/temper-brief.md",
+      "sha256": "8ecbfee3931c09e12d22a8e4661d27daa9a39916a6fce33fcc7a7e689b7b0b9f",
+      "bytes": 5716
+    },
+    {
+      "path": "src/__pycache__/assembly.cpython-312.pyc",
+      "sha256": "fbc15ef9ec2f7379242f4ea8c3df6ab34d0aa4cee99b2c58e99029afb5cada77",
+      "bytes": 18605
+    },
+    {
+      "path": "src/__pycache__/controls_r5.cpython-312.pyc",
+      "sha256": "7951c0afee820b22458f08272a46c16fe270a4a022f6ee6ee5403c9faae51336",
+      "bytes": 28068
+    },
+    {
+      "path": "src/__pycache__/electronics_r17.cpython-312.pyc",
+      "sha256": "854c4f4b268524531cb626a66c3d5d02759df75273c802b16ac4dccbb59dcfb8",
+      "bytes": 14411
+    },
+    {
+      "path": "src/__pycache__/electronics_r18.cpython-312.pyc",
+      "sha256": "1949612619884eed57dcbde1eb23038ab8f5dfaa8cb8ee5051690b64b4f68a57",
+      "bytes": 5261
+    },
+    {
+      "path": "src/__pycache__/electronics_r19.cpython-312.pyc",
+      "sha256": "4544f12d5961f143550a694ba0f669bea947b13880fe16c6187a6b0cfded863a",
+      "bytes": 12414
+    },
+    {
+      "path": "src/__pycache__/electronics_r20.cpython-312.pyc",
+      "sha256": "9e16483250fd191264c9ac25a2f7f2bb1dd971031aad30f4681c62b22a4af983",
+      "bytes": 12967
+    },
+    {
+      "path": "src/__pycache__/electronics_r21.cpython-312.pyc",
+      "sha256": "259ba8e609a4c7567e013479575200bc3f9c7e5f2f3424bd025fa8829b0c90c9",
+      "bytes": 12336
+    },
+    {
+      "path": "src/__pycache__/electronics_r22.cpython-312.pyc",
+      "sha256": "a567f9b79ee8d6d617e32ee7621520ad01a20d14091186b4d2b0be6abcf622e5",
+      "bytes": 6939
+    },
+    {
+      "path": "src/__pycache__/electronics_r23.cpython-312.pyc",
+      "sha256": "3589f68f1cacb257e22d4d064955327f303ccb18cbe2eefdf2bbc71be3830d71",
+      "bytes": 7684
+    },
+    {
+      "path": "src/__pycache__/electronics_r26.cpython-312.pyc",
+      "sha256": "2756fa3101b861498f928a8994d9d2bd15f2bca82a08209be12359a3e6898cf0",
+      "bytes": 4097
+    },
+    {
+      "path": "src/__pycache__/electronics_r27.cpython-312.pyc",
+      "sha256": "c219670872aeef163b202bfb6ad3336d6f2c84b333f96e9ca23f3c6be742c25d",
+      "bytes": 5796
+    },
+    {
+      "path": "src/__pycache__/electronics_r28.cpython-312.pyc",
+      "sha256": "e5655e66d40e9b8f79106d463046cc9f28227966c5ab39aaa5e1ec688bcf9b9d",
+      "bytes": 8344
+    },
+    {
+      "path": "src/__pycache__/electronics_r30.cpython-312.pyc",
+      "sha256": "896690622e447b6a24786384db5e09de295df0589a9f73dcf0971c4af8087b53",
+      "bytes": 25905
+    },
+    {
+      "path": "src/__pycache__/electronics_r31.cpython-312.pyc",
+      "sha256": "2ebb5b22030fa6f7498a8b86c559fbaeb5d6b3e5c67c4709080c4c4312cf59f5",
+      "bytes": 13495
+    },
+    {
+      "path": "src/__pycache__/electronics_r32.cpython-312.pyc",
+      "sha256": "13fcee6ada9b443737f4486674b07788094286947da7371013ddb401fd4ed4af",
+      "bytes": 1211
+    },
+    {
+      "path": "src/__pycache__/electronics_r5.cpython-312.pyc",
+      "sha256": "b8be833638d1ca767324eb02379fecb8dba5e7db2e41045ac52aec16a0915504",
+      "bytes": 57605
+    },
+    {
+      "path": "src/__pycache__/enclosure_r5.cpython-312.pyc",
+      "sha256": "5ef949769026e977689522dfa20cd0da296901e706a0853f20488fdc4d4ed260",
+      "bytes": 63307
+    },
+    {
+      "path": "src/__pycache__/fasteners_r13.cpython-312.pyc",
+      "sha256": "e06384197c1f4f18d06a937682dd555c9b56d7882d9d46852a2efff44be7c98d",
+      "bytes": 2143
+    },
+    {
+      "path": "src/__pycache__/harness_r11.cpython-312.pyc",
+      "sha256": "194ac13cf9273ef103cec6cce34f09efd24f7fe3b4e1a5c7532f6db23f9d5d26",
+      "bytes": 33792
+    },
+    {
+      "path": "src/__pycache__/harness_r18.cpython-312.pyc",
+      "sha256": "2a86c41719597c0f41378279ad81fdc9890a5c07af970760936244c2679ec41d",
+      "bytes": 13645
+    },
+    {
+      "path": "src/__pycache__/harness_r19.cpython-312.pyc",
+      "sha256": "869dad301a3ee60d04a7c2c8b32e65cc64884b3d83134de3ef74e13e03339c58",
+      "bytes": 18332
+    },
+    {
+      "path": "src/__pycache__/harness_r20.cpython-312.pyc",
+      "sha256": "f0fb9d43f284ac28d76b13b4cfa905acedccae46bee599466645e741b530d62e",
+      "bytes": 6378
+    },
+    {
+      "path": "src/__pycache__/harness_r21.cpython-312.pyc",
+      "sha256": "69cfd86383a2f7cf67475f53f0518239c0e7440a21cf94dc33b05e16ed554afd",
+      "bytes": 2100
+    },
+    {
+      "path": "src/__pycache__/harness_r22.cpython-312.pyc",
+      "sha256": "96bdae16979498f6a1f18804c105b6cb7abc310326e2a64002729d8150791a91",
+      "bytes": 3528
+    },
+    {
+      "path": "src/__pycache__/harness_r23.cpython-312.pyc",
+      "sha256": "1e4d5b9a5fb43337e56c2bc8f024edfbe981e3fbad67a52cc983d33589a83ddf",
+      "bytes": 2784
+    },
+    {
+      "path": "src/__pycache__/harness_r25.cpython-312.pyc",
+      "sha256": "46ff36234e790341d022957b9a4958bb2ddd3077e5e284d47af97489e4ea5148",
+      "bytes": 5997
+    },
+    {
+      "path": "src/__pycache__/harness_r26.cpython-312.pyc",
+      "sha256": "ff3775a3872c6e2ed04f422cecd8a5101016da84b17b6fecaa5bb8ed0f8facc7",
+      "bytes": 3255
+    },
+    {
+      "path": "src/__pycache__/harness_r27.cpython-312.pyc",
+      "sha256": "fb634223490aab17d90e9dc8a13aa348898caaab7d0522c6038e6145e937c54a",
+      "bytes": 2868
+    },
+    {
+      "path": "src/__pycache__/harness_r28.cpython-312.pyc",
+      "sha256": "3b38194dd3f267f422292f1cc06bb511de77294f6a78f52fddce5ba404d65ede",
+      "bytes": 5792
+    },
+    {
+      "path": "src/__pycache__/harness_r30.cpython-312.pyc",
+      "sha256": "ceab5a943a4ed8802c971f488567be822a858fd17de6c025e2bb03273f3e4990",
+      "bytes": 5276
+    },
+    {
+      "path": "src/__pycache__/harness_r31.cpython-312.pyc",
+      "sha256": "8bbf440ef3185814e63335ca25fe4dd04a7e104601a5444ffae389c768ba8622",
+      "bytes": 6358
+    },
+    {
+      "path": "src/__pycache__/mirror_r31.cpython-312.pyc",
+      "sha256": "f39c95c1a59c3c5c3b253d75f3adc3cf53e88587537d82fb66fabf51262116bf",
+      "bytes": 7807
+    },
+    {
+      "path": "src/__pycache__/native21_holes.cpython-312.pyc",
+      "sha256": "4325eefbc120ad6e35c19580d3fbf82600d170f4192b9b6ae78e40fd14e3adca",
+      "bytes": 2830
+    },
+    {
+      "path": "src/__pycache__/r32_cooling.cpython-312.pyc",
+      "sha256": "3fe8bf425cda1380f918a2f6be1407f15ea8ae05848d13c1c41743f257c8b1bd",
+      "bytes": 27326
+    },
+    {
+      "path": "src/__pycache__/r32_shell.cpython-312.pyc",
+      "sha256": "16b06073d8bae7eeefd1088dd746721eaf19ed0a36d7885adeb82dc36a0ed823",
+      "bytes": 30535
+    },
+    {
+      "path": "src/__pycache__/r32_world.cpython-312.pyc",
+      "sha256": "bcc253b85a07bdf0a670e72773e4af9e27299a88b1e4afa0e6862b1a7d31864f",
+      "bytes": 31693
+    },
+    {
+      "path": "src/__pycache__/r33_world.cpython-312.pyc",
+      "sha256": "3a9fda7397574ee59d05584f5c34f13ca556c0360915a550831aa8dcf534c4fc",
+      "bytes": 29772
+    },
+    {
+      "path": "src/__pycache__/r34_world.cpython-312.pyc",
+      "sha256": "19a61e9d735f8738fe12a9a44ad9ab150420511095c8614a7458897d7a6e4a96",
+      "bytes": 20253
+    },
+    {
+      "path": "src/__pycache__/r35_world.cpython-312.pyc",
+      "sha256": "222ac456ad8d024208b959dc1630f4013742a7e5aa2a40012fe7c0ad78213293",
+      "bytes": 4078
+    },
+    {
+      "path": "src/__pycache__/r36_world.cpython-312.pyc",
+      "sha256": "fffc564fbd0b43eb127895f1583770f91ee91080b750e0d6448b4e66deaa88ce",
+      "bytes": 7568
+    },
+    {
+      "path": "src/__pycache__/r38_world.cpython-312.pyc",
+      "sha256": "63c79cb4f42da08a8784a883f3623f8334ea6f3ed7727473b91e18987b25ad79",
+      "bytes": 6167
+    },
+    {
+      "path": "src/__pycache__/r39_world.cpython-312.pyc",
+      "sha256": "5e98f68373824f932b7a1bd4fa574caae18cf7b1d2de0a15bc06ed71ef2df9f0",
+      "bytes": 2933
+    },
+    {
+      "path": "src/__pycache__/r40_world.cpython-312.pyc",
+      "sha256": "bd6225f4c2f018f94f7922aab35970580acacb1557a55eefac9fffa6b66fc539",
+      "bytes": 15053
+    },
+    {
+      "path": "src/__pycache__/r41_world.cpython-312.pyc",
+      "sha256": "11ebfac5177ec6bb08ed1e4f7a2896042c4487f2f632cb06832ba6636ebf0e4a",
+      "bytes": 21203
+    },
+    {
+      "path": "src/__pycache__/r42_world.cpython-312.pyc",
+      "sha256": "754874cc4a26845d568f190cb915ba7b7ba1420b3d717b92111e1ffa97cde616",
+      "bytes": 21562
+    },
+    {
+      "path": "src/__pycache__/r43_world.cpython-312.pyc",
+      "sha256": "f2ad3092ad5acda4d6abb446b8c68eeccec52ef840628fe1d9c46f885885b01d",
+      "bytes": 11588
+    },
+    {
+      "path": "src/__pycache__/sensor_coil_r5.cpython-312.pyc",
+      "sha256": "fea1fed9dd27e7d6ccd59ab653266d06e1817eee2854e9cceb81971918d2dbee",
+      "bytes": 59136
+    },
+    {
+      "path": "src/__pycache__/spill_barrier_r11.cpython-312.pyc",
+      "sha256": "306cdeaaac9d09513f8a0c3fde4c131dcd65d42a082077e05e5905097f18ebf7",
+      "bytes": 12091
+    },
+    {
+      "path": "src/assembly.py",
+      "sha256": "05a965f54547382ba5fd289b431e4f9a0843b9fd82e2100560083fad38ede9cd",
+      "bytes": 12099
+    },
+    {
+      "path": "src/check_assembly_sequence.py",
+      "sha256": "87ef7158035a9c27db0e9a6b1f62b943a163245f26c9f6f52182dcbe7d935a54",
+      "bytes": 15728
+    },
+    {
+      "path": "src/check_cover_lift.py",
+      "sha256": "1281d4867afd59c3080c561a6f8bd8035dda54da17f86720d2310fd4caeb3ebc",
+      "bytes": 4357
+    },
+    {
+      "path": "src/check_integration.py",
+      "sha256": "0a1ffe94842c0383cf2804486ddaf4a34e41b4b4f0c59733a282d780ade2efdf",
+      "bytes": 5195
+    },
+    {
+      "path": "src/check_native21_pose.py",
+      "sha256": "b0000dd5f15b95d3abf71470d0fd3b99fe5f7ab978818826b669ce68ab138456",
+      "bytes": 2571
+    },
+    {
+      "path": "src/check_rear_inlet.py",
+      "sha256": "49d573438719fac176f9be523238f40c9f006739f00b28fcda04ec38fc4549a5",
+      "bytes": 4196
+    },
+    {
+      "path": "src/check_route_landings.py",
+      "sha256": "cecef84f7f2cba943853ea227fb828fd99e379a4c589d7732bff39da081cd5fe",
+      "bytes": 4219
+    },
+    {
+      "path": "src/check_service_loops.py",
+      "sha256": "89a40c9650f1ca08b1d5dbd0a516bbef9e7105a2d9348e660f6b357d3ff11f13",
+      "bytes": 1932
+    },
+    {
+      "path": "src/controls_r5.py",
+      "sha256": "92a5a6fc2a3f3dafa1bb1b9e0e0ed229968735059e005e48a8726b7add70fac1",
+      "bytes": 28426
+    },
+    {
+      "path": "src/electronics_r17.py",
+      "sha256": "68bff961fe6448b506fac2f2299a43122d927dfc9220d11a0526c70eec25e9e6",
+      "bytes": 12569
+    },
+    {
+      "path": "src/electronics_r18.py",
+      "sha256": "33b62818df45b1052dfebd8ebac7c9c54815bd129eb1d80daa500006a0acfc70",
+      "bytes": 5411
+    },
+    {
+      "path": "src/electronics_r19.py",
+      "sha256": "b6cbc5dfa4a66e595e41c50fbbe039fa5b96f6e06a27f34481a9430453dffdff",
+      "bytes": 9859
+    },
+    {
+      "path": "src/electronics_r20.py",
+      "sha256": "e04fc345c895608c14a061e50d85c7ab7139666de4ca2b103bfbdfd63b5ced6b",
+      "bytes": 11531
+    },
+    {
+      "path": "src/electronics_r21.py",
+      "sha256": "2ab4672b015bf2ea56ab4e145978b43453a6a573c15195c068b1ab78b4471cb6",
+      "bytes": 8901
+    },
+    {
+      "path": "src/electronics_r22.py",
+      "sha256": "a4055cf1c864b6fad2ad6f793e247a8559c4ea5016df1865d94576da9b160c62",
+      "bytes": 6582
+    },
+    {
+      "path": "src/electronics_r23.py",
+      "sha256": "e2b7f47a114c72bc9a153f1c83d8e8e236c8ee4ed03624624a6d1b856bbed046",
+      "bytes": 5892
+    },
+    {
+      "path": "src/electronics_r26.py",
+      "sha256": "bf23ebfc574ea5b573df6b964883a28b03ba6e47a1fe6d4066f93e26774e4eeb",
+      "bytes": 2854
+    },
+    {
+      "path": "src/electronics_r27.py",
+      "sha256": "2138c20a16ce3eb913fb1ef6a99c53ea439212ac65a35262f31c0f7e66a427b7",
+      "bytes": 5366
+    },
+    {
+      "path": "src/electronics_r28.py",
+      "sha256": "d53040ccffb4e735f4cbca1eae7d3afc919f7737cd8b4626887279c0aa1e96a4",
+      "bytes": 7609
+    },
+    {
+      "path": "src/electronics_r30.py",
+      "sha256": "d4fa6587aab774e5922169f91a3129122a44a813a920df04e90e98bb0544761a",
+      "bytes": 21906
+    },
+    {
+      "path": "src/electronics_r31.py",
+      "sha256": "ae3453d410c7e79f6c5fbae27ebbcc7c38f837dc0b6ab944b81d6e96434df3a9",
+      "bytes": 12809
+    },
+    {
+      "path": "src/electronics_r32.py",
+      "sha256": "ecbfd9fc352e6057365676d504776e16576a8118e3bd38c4233f40a8f13c4e45",
+      "bytes": 753
+    },
+    {
+      "path": "src/electronics_r5.py",
+      "sha256": "2179a66f1369a46772dc8101c40deeadd591d3b81a71e94b0154f7682605b0c2",
+      "bytes": 46930
+    },
+    {
+      "path": "src/enclosure_r5.py",
+      "sha256": "f5d48e094c2a9ddd6b83af58abfdbf1323edcc21b729ff7af4760c5ca527d6b5",
+      "bytes": 55149
+    },
+    {
+      "path": "src/fasteners_r13.py",
+      "sha256": "ddc289f784b8d6866a5189de47dadda916993962ff4659e313bd0893de423ca1",
+      "bytes": 1804
+    },
+    {
+      "path": "src/harness_r11.py",
+      "sha256": "25dfaa986fe8d0f36af0d57a7f05485bc546e43e49130e157a6a770885346c69",
+      "bytes": 25883
+    },
+    {
+      "path": "src/harness_r18.py",
+      "sha256": "9ffdae0c07328756341796c5d4b4f1aff9d9e167666097ec19067cbad0df932d",
+      "bytes": 13914
+    },
+    {
+      "path": "src/harness_r19.py",
+      "sha256": "00055a71d70d1780aa54d3f30f50009e12b3ac93a6bb633b8ae2ffa6c9ab57dd",
+      "bytes": 16516
+    },
+    {
+      "path": "src/harness_r20.py",
+      "sha256": "07d21e704f262827433a8e89f6e19138ff22e350a8fd46d0dc93d84916fb487f",
+      "bytes": 4682
+    },
+    {
+      "path": "src/harness_r21.py",
+      "sha256": "970d4f4bf0fc72429781949687b95bd18ed2733e0d2a3310fae1ef7c2283bdb3",
+      "bytes": 1275
+    },
+    {
+      "path": "src/harness_r22.py",
+      "sha256": "129f5e682df34a42688c36f5e252e211903fc4182f96d0ce10e310655257be9e",
+      "bytes": 2732
+    },
+    {
+      "path": "src/harness_r23.py",
+      "sha256": "e59cfa1e0bdaf69d8b4cb05a1ecada48f501ede4ab20ee5e73c9ec6ac94c84ea",
+      "bytes": 1896
+    },
+    {
+      "path": "src/harness_r25.py",
+      "sha256": "b296aa9108926db7690f236f037a7159958d9b36cca3b649ac8a97b94f550797",
+      "bytes": 4423
+    },
+    {
+      "path": "src/harness_r26.py",
+      "sha256": "a35714e24469687e1265001d1a133d6183b3ac1d555f519f6349a4a0f4d35bcc",
+      "bytes": 1884
+    },
+    {
+      "path": "src/harness_r27.py",
+      "sha256": "86061c473f4046cd1b4848cc851fae25ec74a3219426216f5e63e0f94d5142e4",
+      "bytes": 1297
+    },
+    {
+      "path": "src/harness_r28.py",
+      "sha256": "0b4e3aaaeea4d244654ee89b3f7c0efece025cc3471a4abf0e5eb12eed98db40",
+      "bytes": 2695
+    },
+    {
+      "path": "src/harness_r30.py",
+      "sha256": "b3eb00ddb3f6fd543b4093be9b22db8785d929f48a52cc9e4eca993dcbff793c",
+      "bytes": 3120
+    },
+    {
+      "path": "src/harness_r31.py",
+      "sha256": "1fb548ec27a68575b479b8288f3a1d6c8fdf3f25a799d32670882334e6d54411",
+      "bytes": 4861
+    },
+    {
+      "path": "src/mirror_r31.py",
+      "sha256": "0426528f6dfe7167b1c8ec846340d48b43e8a3b7ff370bc3f76a595a38e9171a",
+      "bytes": 7010
+    },
+    {
+      "path": "src/native21_holes.py",
+      "sha256": "c28fb9f2c2f8638f3b9890918b428218063f6e0b74959077f9a30296da7196ba",
+      "bytes": 1322
+    },
+    {
+      "path": "src/package.py",
+      "sha256": "0525324ba66fea3168c0d7fb0f81ea271478c70178878b95112cd6a377503929",
+      "bytes": 1119
+    },
+    {
+      "path": "src/r32_cooling.py",
+      "sha256": "566d8cd14b486b5ed345ba84d2a6ba2cc097222a3fcf00fd8815b885b0f9d94a",
+      "bytes": 20574
+    },
+    {
+      "path": "src/r32_shell.py",
+      "sha256": "fc05624dea560251acd46e701c4f99081cdc130c52a10cbbf703961620bbd06d",
+      "bytes": 23441
+    },
+    {
+      "path": "src/r32_world.py",
+      "sha256": "2291f0678cf4097526bf0792f277caf9328604b5a3280d1e823d32ed4fc858b4",
+      "bytes": 25750
+    },
+    {
+      "path": "src/r33_world.py",
+      "sha256": "d49e6f3cbc3b86f7c1afec56bcf0b20856ec75b14ee43d999d384a4598e1d84b",
+      "bytes": 22509
+    },
+    {
+      "path": "src/r34_world.py",
+      "sha256": "31fe9c58e8c976c3b4883de256786f0e422a5c1c2f0b6ad580819024975d83a9",
+      "bytes": 13580
+    },
+    {
+      "path": "src/r35_world.py",
+      "sha256": "ff3e2915222f30503131fc0f344d744201ac90bfd8006c1d08a4552ce9cb1646",
+      "bytes": 3400
+    },
+    {
+      "path": "src/r36_world.py",
+      "sha256": "87b0763d005d1a0db210eb23470de3cdd56e0580dfc9b944af9d17680d4bc3a2",
+      "bytes": 6793
+    },
+    {
+      "path": "src/r38_world.py",
+      "sha256": "4d5edd3d6a38937d74698023bf2b615fcaa407cf08be3cb78b2ae66ff6af5700",
+      "bytes": 4259
+    },
+    {
+      "path": "src/r39_world.py",
+      "sha256": "dcb6417d4cc771170accf10abef2eeee46ba0cbf3f53acba5de934ee467a86ec",
+      "bytes": 2370
+    },
+    {
+      "path": "src/r40_world.py",
+      "sha256": "27589d8020142bdf2273c6d3102a8fe24a67f2b688061c5e331e00bace9d890b",
+      "bytes": 10779
+    },
+    {
+      "path": "src/r41_world.py",
+      "sha256": "659906bcfe819e2890ec28c52f840c890c2bb26a0e3ec07849ca7208c903f7a5",
+      "bytes": 18422
+    },
+    {
+      "path": "src/r42_world.py",
+      "sha256": "92042bcb2b179f9dc846d3e028cbfb397ea8824f2318c47a907d8f80fee4e7ed",
+      "bytes": 15176
+    },
+    {
+      "path": "src/r43_world.py",
+      "sha256": "23f0a05710d6d1d3eac345c03ed310ca962bed7f14aa94d9ad6a48b5a063f801",
+      "bytes": 7869
+    },
+    {
+      "path": "src/render.py",
+      "sha256": "d83b462a9a2b02a2c56f5313479f0de7832be0a2a5690963ed43a919b46ec528",
+      "bytes": 2787
+    },
+    {
+      "path": "src/sensor_coil_r5.py",
+      "sha256": "4fab10acb89f320298f5c8d5f1086f8c3391797a1306083325a814594f70b914",
+      "bytes": 52863
+    },
+    {
+      "path": "src/spill_barrier_r11.py",
+      "sha256": "a4b78ba036db4935ad7fd23b9021086e74b3b91bdd202588805784c23180b460",
+      "bytes": 10431
+    },
+    {
+      "path": "temper-manufacturing-r30.zip",
+      "sha256": "c9d52af3c816c557e70aa7ca9259b561a83461e32d4596d0e05eeebdc00cb510",
+      "bytes": 106759919
+    },
+    {
+      "path": "viewer.js",
+      "sha256": "4ec2b1c9ce9fbb286044c36ce2fd2f5e942dea3cf3c928a15ef100f8b89da444",
+      "bytes": 4875
+    },
+    {
+      "path": "viewer.min.js",
+      "sha256": "2db43682b376d71d36ad2dedef24714f45b3afd6fca9f0aba916ce20f7c10644",
+      "bytes": 512450
+    }
+  ],
+  "published_manifest_mismatches": [],
+  "board_status": "stage21b identity unresolved; do not score a substituted board",
+  "review_stage": "engineering prototype planning; digital evidence only"
+}

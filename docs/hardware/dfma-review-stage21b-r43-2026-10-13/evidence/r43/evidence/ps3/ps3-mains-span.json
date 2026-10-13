@@ -1,0 +1,3845 @@
+{
+ "scope": "Voltage class along the PS3 mains lead's unsupported span (R43).\n\nThe span is the 315 mm of the J11 -> PS3 AC lead between its two tie points (T_J11 and T_AC, check_ps3_retention.py). Every STEP_MM along its centre\nline (r43_world.centerline, the line that was built) the exact distance from the cable surface (centre-line distance less half the OD) to the nearest part of\neach voltage class is taken, with the classes of the PS3 clearance check (evidence/ps3/check_ps3_clearances.cls: HOT = mains side, SELV, interface = native-21\nJ3/J4 mates, and 'other' = every unclassified part: enclosure, fasteners, PE conductors, structure) plus the WiFi coax as SELV (as check_ps3_retention).\nThe lead itself is skipped; nothing else is.\n\nDroop rule (the brief): the span can sag by up to the headroom the retention check reports (the cable-surface clearance to the nearest solid along the\nspan, ps3-retention.json 'spacing'), in any direction (conservative: sag is really downward). A SELV part is \"within 8 mm of where the span could sag\"\nwhen  (SELV clearance - headroom) < 8 mm, that is, SELV clearance < headroom + 8 mm. If that happens anywhere, R43 would add a mid-span support.\nThe cable's own stiffness is not modelled; the headroom is a clearance, not a sag prediction.\n\nRun after src/assembly.py and check_ps3_retention.py: python evidence/ps3/survey_mains_span.py   (writes evidence/ps3/ps3-mains-span.json)",
+ "span": {
+  "from": "T_J11",
+  "to": "T_AC",
+  "cable_mm": 315.4,
+  "step_mm": 2.0,
+  "samples": 158
+ },
+ "cable_od_mm": 5.8,
+ "droop_headroom_assumed_mm": 4.99,
+ "limit_mm": 8.0,
+ "per_class": {
+  "hot": {
+   "samples_within_40mm": 158,
+   "min_clearance_mm": 4.12,
+   "at_s_mm": 0.0,
+   "at_point": [
+    128.8,
+    110.6,
+    51.0
+   ],
+   "part": "electronics_native21_J11_mate"
+  },
+  "selv": {
+   "samples_within_40mm": 158,
+   "min_clearance_mm": 16.09,
+   "at_s_mm": 0.0,
+   "at_point": [
+    128.8,
+    110.6,
+    51.0
+   ],
+   "part": "harness_fan_to_controller"
+  },
+  "interface": {
+   "samples_within_40mm": 0
+  },
+  "other": {
+   "samples_within_40mm": 158,
+   "min_clearance_mm": 0.92,
+   "at_s_mm": 314.0,
+   "at_point": [
+    -138.8,
+    163.9,
+    48.5
+   ],
+   "part": "electronics_PS3_bracket"
+  }
+ },
+ "nearest_class_runs": [
+  {
+   "class": "other",
+   "from_s_mm": 0.0,
+   "to_s_mm": 8.0,
+   "min_mm": 2.82
+  },
+  {
+   "class": "hot",
+   "from_s_mm": 10.0,
+   "to_s_mm": 172.0,
+   "min_mm": 4.99
+  },
+  {
+   "class": "other",
+   "from_s_mm": 174.0,
+   "to_s_mm": 270.0,
+   "min_mm": 14.42
+  },
+  {
+   "class": "hot",
+   "from_s_mm": 272.0,
+   "to_s_mm": 286.0,
+   "min_mm": 15.81
+  },
+  {
+   "class": "other",
+   "from_s_mm": 288.0,
+   "to_s_mm": 314.0,
+   "min_mm": 0.92
+  }
+ ],
+ "selv_within_limit_after_droop": [],
+ "min_selv_clearance_mm": 16.09,
+ "min_selv_clearance_s20_to_s295_mm": 22.35,
+ "per_50mm_window": [
+  {
+   "from_s_mm": 0,
+   "to_s_mm": 50,
+   "hot": {
+    "mm": 4.12,
+    "part": "electronics_native21_J11_mate"
+   },
+   "selv": {
+    "mm": 16.09,
+    "part": "harness_fan_to_controller"
+   },
+   "interface": null,
+   "other": {
+    "mm": 2.82,
+    "part": "electronics_PS3_J11_anchor"
+   }
+  },
+  {
+   "from_s_mm": 50,
+   "to_s_mm": 100,
+   "hot": {
+    "mm": 4.99,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 22.35,
+    "part": "electronics_SELV_tray"
+   },
+   "interface": null,
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   }
+  },
+  {
+   "from_s_mm": 100,
+   "to_s_mm": 150,
+   "hot": {
+    "mm": 4.99,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 22.35,
+    "part": "electronics_SELV_tray"
+   },
+   "interface": null,
+   "other": {
+    "mm": 21.48,
+    "part": "harness_PE_native21_J6_to_star"
+   }
+  },
+  {
+   "from_s_mm": 150,
+   "to_s_mm": 200,
+   "hot": {
+    "mm": 8.9,
+    "part": "electronics_coil_lug_J2"
+   },
+   "selv": {
+    "mm": 22.35,
+    "part": "electronics_SELV_tray"
+   },
+   "interface": null,
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   }
+  },
+  {
+   "from_s_mm": 200,
+   "to_s_mm": 250,
+   "hot": {
+    "mm": 22.76,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 31.66,
+    "part": "electronics_SELV_tray"
+   },
+   "interface": null,
+   "other": {
+    "mm": 15.03,
+    "part": "electronics_PS3_IRM_60_15ST"
+   }
+  },
+  {
+   "from_s_mm": 250,
+   "to_s_mm": 300,
+   "hot": {
+    "mm": 15.81,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 52.92,
+    "part": "harness_fan_to_controller"
+   },
+   "interface": null,
+   "other": {
+    "mm": 11.97,
+    "part": "electronics_PS3_bracket"
+   }
+  },
+  {
+   "from_s_mm": 300,
+   "to_s_mm": 315.4,
+   "hot": {
+    "mm": 16.24,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 48.28,
+    "part": "harness_fan_to_controller"
+   },
+   "interface": null,
+   "other": {
+    "mm": 0.92,
+    "part": "electronics_PS3_bracket"
+   }
+  }
+ ],
+ "selv_clearance_after_worst_droop_mm": 11.1,
+ "decision": "NO_SUPPORT_NEEDED_BENCH_SAG_AND_ABRASION_ITEM",
+ "samples": [
+  {
+   "s_mm": 0.0,
+   "point": [
+    128.8,
+    110.6,
+    51.0
+   ],
+   "other": {
+    "mm": 2.82,
+    "part": "electronics_PS3_J11_anchor"
+   },
+   "hot": {
+    "mm": 4.12,
+    "part": "electronics_native21_J11_mate"
+   },
+   "selv": {
+    "mm": 16.09,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 2.82,
+   "nearest_part": "electronics_PS3_J11_anchor"
+  },
+  {
+   "s_mm": 2.0,
+   "point": [
+    128.2,
+    111.0,
+    52.9
+   ],
+   "other": {
+    "mm": 3.22,
+    "part": "electronics_PS3_J11_anchor"
+   },
+   "hot": {
+    "mm": 5.95,
+    "part": "electronics_native21_J11_mate"
+   },
+   "selv": {
+    "mm": 16.69,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 3.22,
+   "nearest_part": "electronics_PS3_J11_anchor"
+  },
+  {
+   "s_mm": 4.0,
+   "point": [
+    127.3,
+    111.5,
+    54.6
+   ],
+   "other": {
+    "mm": 3.75,
+    "part": "electronics_PS3_J11_anchor"
+   },
+   "hot": {
+    "mm": 6.77,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 17.53,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 3.75,
+   "nearest_part": "electronics_PS3_J11_anchor"
+  },
+  {
+   "s_mm": 6.0,
+   "point": [
+    126.2,
+    112.2,
+    56.1
+   ],
+   "other": {
+    "mm": 4.41,
+    "part": "electronics_PS3_J11_anchor"
+   },
+   "hot": {
+    "mm": 6.43,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 18.61,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 4.41,
+   "nearest_part": "electronics_PS3_J11_anchor"
+  },
+  {
+   "s_mm": 8.0,
+   "point": [
+    124.9,
+    113.0,
+    57.4
+   ],
+   "other": {
+    "mm": 5.21,
+    "part": "electronics_PS3_J11_anchor"
+   },
+   "hot": {
+    "mm": 6.09,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 19.96,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 5.21,
+   "nearest_part": "electronics_PS3_J11_anchor"
+  },
+  {
+   "s_mm": 10.0,
+   "point": [
+    123.5,
+    113.8,
+    58.4
+   ],
+   "other": {
+    "mm": 6.19,
+    "part": "electronics_PS3_J11_anchor"
+   },
+   "hot": {
+    "mm": 5.83,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 21.48,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 5.83,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 12.0,
+   "point": [
+    121.9,
+    114.8,
+    59.2
+   ],
+   "other": {
+    "mm": 7.27,
+    "part": "electronics_PS3_J11_anchor"
+   },
+   "hot": {
+    "mm": 5.65,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 23.16,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 5.65,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 14.0,
+   "point": [
+    120.2,
+    115.8,
+    59.8
+   ],
+   "other": {
+    "mm": 8.4,
+    "part": "electronics_PS3_J11_anchor"
+   },
+   "hot": {
+    "mm": 5.53,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 24.95,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 5.53,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 16.0,
+   "point": [
+    118.5,
+    116.8,
+    60.0
+   ],
+   "other": {
+    "mm": 9.69,
+    "part": "electronics_PS3_J11_anchor"
+   },
+   "hot": {
+    "mm": 5.39,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 26.83,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 5.39,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 18.0,
+   "point": [
+    116.8,
+    117.8,
+    60.0
+   ],
+   "hot": {
+    "mm": 5.39,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "other": {
+    "mm": 11.12,
+    "part": "electronics_PS3_J11_anchor"
+   },
+   "selv": {
+    "mm": 28.74,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 5.39,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 20.0,
+   "point": [
+    115.1,
+    118.9,
+    60.0
+   ],
+   "hot": {
+    "mm": 5.39,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "other": {
+    "mm": 12.67,
+    "part": "electronics_PS3_J11_anchor"
+   },
+   "selv": {
+    "mm": 30.66,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 5.39,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 22.0,
+   "point": [
+    113.4,
+    119.9,
+    60.0
+   ],
+   "hot": {
+    "mm": 5.39,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "other": {
+    "mm": 14.31,
+    "part": "electronics_PS3_J11_anchor"
+   },
+   "selv": {
+    "mm": 32.59,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 5.39,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 24.0,
+   "point": [
+    111.7,
+    120.9,
+    60.0
+   ],
+   "hot": {
+    "mm": 5.39,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "other": {
+    "mm": 16.02,
+    "part": "electronics_PS3_J11_anchor"
+   },
+   "selv": {
+    "mm": 34.53,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 5.39,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 26.0,
+   "point": [
+    110.0,
+    122.0,
+    60.0
+   ],
+   "other": {
+    "mm": 17.79,
+    "part": "electronics_PS3_J11_anchor"
+   },
+   "hot": {
+    "mm": 5.39,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 35.9,
+    "part": "electronics_WiFi_antenna_board"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 5.39,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 28.0,
+   "point": [
+    108.3,
+    123.0,
+    60.0
+   ],
+   "other": {
+    "mm": 19.59,
+    "part": "electronics_PS3_J11_anchor"
+   },
+   "hot": {
+    "mm": 5.39,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 36.62,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 5.39,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 30.0,
+   "point": [
+    106.6,
+    124.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.42,
+    "part": "electronics_PS3_J11_anchor"
+   },
+   "hot": {
+    "mm": 5.44,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 37.2,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 5.44,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 32.0,
+   "point": [
+    104.9,
+    125.1,
+    60.0
+   ],
+   "other": {
+    "mm": 23.28,
+    "part": "electronics_PS3_J11_anchor"
+   },
+   "hot": {
+    "mm": 5.6,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 37.8,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 5.6,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 34.0,
+   "point": [
+    103.1,
+    126.0,
+    60.0
+   ],
+   "other": {
+    "mm": 22.92,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 5.85,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 38.34,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 5.85,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 36.0,
+   "point": [
+    101.3,
+    126.8,
+    60.0
+   ],
+   "other": {
+    "mm": 22.43,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 6.15,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 38.86,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 6.15,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 38.0,
+   "point": [
+    99.3,
+    127.4,
+    60.0
+   ],
+   "other": {
+    "mm": 22.14,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 6.37,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 39.19,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 6.37,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 40.0,
+   "point": [
+    97.4,
+    127.8,
+    60.0
+   ],
+   "other": {
+    "mm": 21.92,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 6.55,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 39.43,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 6.55,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 42.0,
+   "point": [
+    95.4,
+    127.9,
+    60.0
+   ],
+   "other": {
+    "mm": 21.83,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 6.64,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 39.55,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 6.64,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 44.0,
+   "point": [
+    93.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 6.66,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 39.58,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 6.66,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 46.0,
+   "point": [
+    91.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 6.66,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 39.58,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 6.66,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 48.0,
+   "point": [
+    89.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 6.66,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 39.58,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 6.66,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 50.0,
+   "point": [
+    87.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 6.66,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 39.58,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 6.66,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 52.0,
+   "point": [
+    85.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 6.66,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 35.85,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 6.66,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 54.0,
+   "point": [
+    83.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 6.66,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 34.36,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 6.66,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 56.0,
+   "point": [
+    81.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 6.66,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 32.91,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 6.66,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 58.0,
+   "point": [
+    79.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 6.66,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 31.52,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 6.66,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 60.0,
+   "point": [
+    77.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 6.66,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 30.2,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 6.66,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 62.0,
+   "point": [
+    75.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 6.66,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 28.94,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 6.66,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 64.0,
+   "point": [
+    73.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 6.66,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 27.76,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 6.66,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 66.0,
+   "point": [
+    71.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 6.66,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 26.68,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 6.66,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 68.0,
+   "point": [
+    69.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 6.66,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 25.68,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 6.66,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 70.0,
+   "point": [
+    67.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 6.66,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 24.8,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 6.66,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 72.0,
+   "point": [
+    65.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 6.75,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 24.04,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 6.75,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 74.0,
+   "point": [
+    63.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 7.17,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 23.41,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 7.17,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 76.0,
+   "point": [
+    61.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 7.92,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 22.92,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 7.92,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 78.0,
+   "point": [
+    59.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 8.26,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 22.58,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 8.26,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 80.0,
+   "point": [
+    57.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 6.95,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 22.39,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 6.95,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 82.0,
+   "point": [
+    55.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 5.9,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 22.35,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 5.9,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 84.0,
+   "point": [
+    53.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 5.21,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 22.35,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 5.21,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 86.0,
+   "point": [
+    51.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 4.99,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 22.35,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 4.99,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 88.0,
+   "point": [
+    49.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 4.99,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 22.35,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 4.99,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 90.0,
+   "point": [
+    47.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 4.99,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 22.35,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 4.99,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 92.0,
+   "point": [
+    45.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 4.99,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 22.35,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 4.99,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 94.0,
+   "point": [
+    43.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 4.99,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 22.35,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 4.99,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 96.0,
+   "point": [
+    41.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 4.99,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 22.35,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 4.99,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 98.0,
+   "point": [
+    39.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 4.99,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 22.35,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 4.99,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 100.0,
+   "point": [
+    37.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 4.99,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 22.35,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 4.99,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 102.0,
+   "point": [
+    35.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 4.99,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 22.4,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 4.99,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 104.0,
+   "point": [
+    33.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 4.99,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 22.61,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 4.99,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 106.0,
+   "point": [
+    31.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 4.99,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 22.96,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 4.99,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 108.0,
+   "point": [
+    29.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 4.99,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 23.47,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 4.99,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 110.0,
+   "point": [
+    27.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 4.99,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 24.11,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 4.99,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 112.0,
+   "point": [
+    25.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 4.99,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 24.89,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 4.99,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 114.0,
+   "point": [
+    23.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 4.99,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 25.78,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 4.99,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 116.0,
+   "point": [
+    21.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 4.99,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 26.78,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 4.99,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 118.0,
+   "point": [
+    19.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 5.01,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 27.88,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 5.01,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 120.0,
+   "point": [
+    17.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 5.4,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 29.07,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 5.4,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 122.0,
+   "point": [
+    15.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 6.23,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 30.33,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 6.23,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 124.0,
+   "point": [
+    13.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.75,
+    "part": "harness_PE_native21_J6_to_star"
+   },
+   "hot": {
+    "mm": 7.38,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 31.66,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 7.38,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 126.0,
+   "point": [
+    11.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.54,
+    "part": "harness_PE_native21_J6_to_star"
+   },
+   "hot": {
+    "mm": 8.77,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 33.06,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 8.77,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 128.0,
+   "point": [
+    9.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.48,
+    "part": "harness_PE_native21_J6_to_star"
+   },
+   "hot": {
+    "mm": 10.31,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 34.51,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 10.31,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 130.0,
+   "point": [
+    7.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.57,
+    "part": "harness_PE_native21_J6_to_star"
+   },
+   "hot": {
+    "mm": 11.97,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 34.36,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 11.97,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 132.0,
+   "point": [
+    5.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 13.7,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 32.91,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 13.7,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 134.0,
+   "point": [
+    3.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 12.95,
+    "part": "electronics_coil_lug_J2"
+   },
+   "selv": {
+    "mm": 31.52,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 12.95,
+   "nearest_part": "electronics_coil_lug_J2"
+  },
+  {
+   "s_mm": 136.0,
+   "point": [
+    1.4,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 11.74,
+    "part": "electronics_coil_lug_J2"
+   },
+   "selv": {
+    "mm": 30.2,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 11.74,
+   "nearest_part": "electronics_coil_lug_J2"
+  },
+  {
+   "s_mm": 138.0,
+   "point": [
+    -0.6,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 10.67,
+    "part": "electronics_coil_lug_J2"
+   },
+   "selv": {
+    "mm": 28.94,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 10.67,
+   "nearest_part": "electronics_coil_lug_J2"
+  },
+  {
+   "s_mm": 140.0,
+   "point": [
+    -2.6,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 9.79,
+    "part": "electronics_coil_lug_J2"
+   },
+   "selv": {
+    "mm": 27.76,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 9.79,
+   "nearest_part": "electronics_coil_lug_J2"
+  },
+  {
+   "s_mm": 142.0,
+   "point": [
+    -4.6,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 9.11,
+    "part": "electronics_coil_lug_J2"
+   },
+   "selv": {
+    "mm": 26.68,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 9.11,
+   "nearest_part": "electronics_coil_lug_J2"
+  },
+  {
+   "s_mm": 144.0,
+   "point": [
+    -6.6,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.87,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 8.67,
+    "part": "electronics_coil_lug_J2"
+   },
+   "selv": {
+    "mm": 25.68,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 8.67,
+   "nearest_part": "electronics_coil_lug_J2"
+  },
+  {
+   "s_mm": 146.0,
+   "point": [
+    -8.6,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 22.1,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 8.48,
+    "part": "electronics_coil_lug_J2"
+   },
+   "selv": {
+    "mm": 24.8,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 8.48,
+   "nearest_part": "electronics_coil_lug_J2"
+  },
+  {
+   "s_mm": 148.0,
+   "point": [
+    -10.6,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.94,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 8.56,
+    "part": "electronics_coil_lug_J2"
+   },
+   "selv": {
+    "mm": 24.04,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 8.56,
+   "nearest_part": "electronics_coil_lug_J2"
+  },
+  {
+   "s_mm": 150.0,
+   "point": [
+    -12.6,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.81,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 8.9,
+    "part": "electronics_coil_lug_J2"
+   },
+   "selv": {
+    "mm": 23.41,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 8.9,
+   "nearest_part": "electronics_coil_lug_J2"
+  },
+  {
+   "s_mm": 152.0,
+   "point": [
+    -14.6,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 9.49,
+    "part": "electronics_coil_lug_J2"
+   },
+   "selv": {
+    "mm": 22.92,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 9.49,
+   "nearest_part": "electronics_coil_lug_J2"
+  },
+  {
+   "s_mm": 154.0,
+   "point": [
+    -16.6,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 10.3,
+    "part": "electronics_coil_lug_J2"
+   },
+   "selv": {
+    "mm": 22.58,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 10.3,
+   "nearest_part": "electronics_coil_lug_J2"
+  },
+  {
+   "s_mm": 156.0,
+   "point": [
+    -18.6,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 11.29,
+    "part": "electronics_coil_lug_J2"
+   },
+   "selv": {
+    "mm": 22.39,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 11.29,
+   "nearest_part": "electronics_coil_lug_J2"
+  },
+  {
+   "s_mm": 158.0,
+   "point": [
+    -20.6,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 12.45,
+    "part": "electronics_coil_lug_J2"
+   },
+   "selv": {
+    "mm": 22.35,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 12.45,
+   "nearest_part": "electronics_coil_lug_J2"
+  },
+  {
+   "s_mm": 160.0,
+   "point": [
+    -22.6,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 13.74,
+    "part": "electronics_coil_lug_J2"
+   },
+   "selv": {
+    "mm": 22.35,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 13.74,
+   "nearest_part": "electronics_coil_lug_J2"
+  },
+  {
+   "s_mm": 162.0,
+   "point": [
+    -24.6,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 15.14,
+    "part": "electronics_coil_lug_J2"
+   },
+   "selv": {
+    "mm": 22.35,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 15.14,
+   "nearest_part": "electronics_coil_lug_J2"
+  },
+  {
+   "s_mm": 164.0,
+   "point": [
+    -26.6,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 16.62,
+    "part": "electronics_coil_lug_J2"
+   },
+   "selv": {
+    "mm": 22.35,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 16.62,
+   "nearest_part": "electronics_coil_lug_J2"
+  },
+  {
+   "s_mm": 166.0,
+   "point": [
+    -28.6,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 17.84,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 22.35,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 17.84,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 168.0,
+   "point": [
+    -30.6,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 19.02,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 22.35,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 19.02,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 170.0,
+   "point": [
+    -32.6,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 20.31,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 22.35,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 20.31,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 172.0,
+   "point": [
+    -34.6,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 21.7,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 22.35,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 21.7,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 174.0,
+   "point": [
+    -36.6,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 23.17,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 22.35,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 21.8,
+   "nearest_part": "electronics_coil_plenum_floors"
+  },
+  {
+   "s_mm": 176.0,
+   "point": [
+    -38.6,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 24.7,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 22.35,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 21.8,
+   "nearest_part": "electronics_coil_plenum_floors"
+  },
+  {
+   "s_mm": 178.0,
+   "point": [
+    -40.6,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 26.3,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 22.4,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 21.8,
+   "nearest_part": "electronics_coil_plenum_floors"
+  },
+  {
+   "s_mm": 180.0,
+   "point": [
+    -42.6,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 27.94,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 22.61,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 21.8,
+   "nearest_part": "electronics_coil_plenum_floors"
+  },
+  {
+   "s_mm": 182.0,
+   "point": [
+    -44.6,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 28.23,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 22.96,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 21.8,
+   "nearest_part": "electronics_coil_plenum_floors"
+  },
+  {
+   "s_mm": 184.0,
+   "point": [
+    -46.6,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 28.23,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 23.47,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 21.8,
+   "nearest_part": "electronics_coil_plenum_floors"
+  },
+  {
+   "s_mm": 186.0,
+   "point": [
+    -48.6,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 28.23,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 24.11,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 21.8,
+   "nearest_part": "electronics_coil_plenum_floors"
+  },
+  {
+   "s_mm": 188.0,
+   "point": [
+    -50.6,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 28.23,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 24.89,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 21.8,
+   "nearest_part": "electronics_coil_plenum_floors"
+  },
+  {
+   "s_mm": 190.0,
+   "point": [
+    -52.6,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 28.28,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 25.78,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 21.8,
+   "nearest_part": "electronics_coil_plenum_floors"
+  },
+  {
+   "s_mm": 192.0,
+   "point": [
+    -54.6,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 28.45,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 26.78,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 21.8,
+   "nearest_part": "electronics_coil_plenum_floors"
+  },
+  {
+   "s_mm": 194.0,
+   "point": [
+    -56.6,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 28.48,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 27.88,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 21.8,
+   "nearest_part": "electronics_coil_plenum_floors"
+  },
+  {
+   "s_mm": 196.0,
+   "point": [
+    -58.6,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 27.88,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 29.07,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 21.8,
+   "nearest_part": "electronics_coil_plenum_floors"
+  },
+  {
+   "s_mm": 198.0,
+   "point": [
+    -60.6,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 27.4,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 30.33,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 21.8,
+   "nearest_part": "electronics_coil_plenum_floors"
+  },
+  {
+   "s_mm": 200.0,
+   "point": [
+    -62.6,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 27.05,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 31.66,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 21.8,
+   "nearest_part": "electronics_coil_plenum_floors"
+  },
+  {
+   "s_mm": 202.0,
+   "point": [
+    -64.6,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 26.83,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 33.06,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 21.8,
+   "nearest_part": "electronics_coil_plenum_floors"
+  },
+  {
+   "s_mm": 204.0,
+   "point": [
+    -66.6,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 26.74,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 34.51,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 21.8,
+   "nearest_part": "electronics_coil_plenum_floors"
+  },
+  {
+   "s_mm": 206.0,
+   "point": [
+    -68.6,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 26.74,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 36.01,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 21.8,
+   "nearest_part": "electronics_coil_plenum_floors"
+  },
+  {
+   "s_mm": 208.0,
+   "point": [
+    -70.6,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 26.74,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 37.55,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 21.8,
+   "nearest_part": "electronics_coil_plenum_floors"
+  },
+  {
+   "s_mm": 210.0,
+   "point": [
+    -72.6,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 26.74,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 39.13,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 21.8,
+   "nearest_part": "electronics_coil_plenum_floors"
+  },
+  {
+   "s_mm": 212.0,
+   "point": [
+    -74.6,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.8,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 26.75,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 39.58,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 21.8,
+   "nearest_part": "electronics_coil_plenum_floors"
+  },
+  {
+   "s_mm": 214.0,
+   "point": [
+    -76.6,
+    128.0,
+    60.0
+   ],
+   "other": {
+    "mm": 21.79,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 26.85,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 39.6,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 21.79,
+   "nearest_part": "electronics_coil_plenum_floors"
+  },
+  {
+   "s_mm": 216.0,
+   "point": [
+    -78.6,
+    128.2,
+    60.0
+   ],
+   "other": {
+    "mm": 21.74,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 27.06,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 39.74,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 21.74,
+   "nearest_part": "electronics_coil_plenum_floors"
+  },
+  {
+   "s_mm": 218.0,
+   "point": [
+    -80.6,
+    128.5,
+    59.9
+   ],
+   "other": {
+    "mm": 21.63,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 27.35,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 40.02,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 21.63,
+   "nearest_part": "electronics_coil_plenum_floors"
+  },
+  {
+   "s_mm": 220.0,
+   "point": [
+    -82.5,
+    129.1,
+    59.7
+   ],
+   "other": {
+    "mm": 21.48,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 27.71,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 40.45,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 21.48,
+   "nearest_part": "electronics_coil_plenum_floors"
+  },
+  {
+   "s_mm": 222.0,
+   "point": [
+    -84.3,
+    129.8,
+    59.6
+   ],
+   "other": {
+    "mm": 21.28,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 27.51,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 41.1,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 21.28,
+   "nearest_part": "electronics_coil_plenum_floors"
+  },
+  {
+   "s_mm": 224.0,
+   "point": [
+    -86.1,
+    130.7,
+    59.3
+   ],
+   "other": {
+    "mm": 21.08,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 26.87,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 41.83,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 21.08,
+   "nearest_part": "electronics_coil_plenum_floors"
+  },
+  {
+   "s_mm": 226.0,
+   "point": [
+    -87.7,
+    131.9,
+    59.1
+   ],
+   "other": {
+    "mm": 20.87,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 26.27,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 42.81,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 20.87,
+   "nearest_part": "electronics_coil_plenum_floors"
+  },
+  {
+   "s_mm": 228.0,
+   "point": [
+    -89.2,
+    133.1,
+    58.7
+   ],
+   "other": {
+    "mm": 20.71,
+    "part": "electronics_coil_plenum_floors"
+   },
+   "hot": {
+    "mm": 25.78,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 43.89,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 20.71,
+   "nearest_part": "electronics_coil_plenum_floors"
+  },
+  {
+   "s_mm": 230.0,
+   "point": [
+    -90.6,
+    134.5,
+    58.4
+   ],
+   "other": {
+    "mm": 19.52,
+    "part": "electronics_PS3_IRM_60_15ST"
+   },
+   "hot": {
+    "mm": 25.39,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 45.11,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 19.52,
+   "nearest_part": "electronics_PS3_IRM_60_15ST"
+  },
+  {
+   "s_mm": 232.0,
+   "point": [
+    -91.7,
+    136.1,
+    58.0
+   ],
+   "other": {
+    "mm": 18.36,
+    "part": "electronics_PS3_IRM_60_15ST"
+   },
+   "hot": {
+    "mm": 25.01,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 46.48,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 18.36,
+   "nearest_part": "electronics_PS3_IRM_60_15ST"
+  },
+  {
+   "s_mm": 234.0,
+   "point": [
+    -92.8,
+    137.8,
+    57.6
+   ],
+   "other": {
+    "mm": 17.29,
+    "part": "electronics_PS3_IRM_60_15ST"
+   },
+   "hot": {
+    "mm": 24.61,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 47.93,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 17.29,
+   "nearest_part": "electronics_PS3_IRM_60_15ST"
+  },
+  {
+   "s_mm": 236.0,
+   "point": [
+    -93.6,
+    139.6,
+    57.2
+   ],
+   "other": {
+    "mm": 16.53,
+    "part": "electronics_PS3_IRM_60_15ST"
+   },
+   "hot": {
+    "mm": 24.16,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 49.53,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 16.53,
+   "nearest_part": "electronics_PS3_IRM_60_15ST"
+  },
+  {
+   "s_mm": 238.0,
+   "point": [
+    -94.3,
+    141.4,
+    56.7
+   ],
+   "other": {
+    "mm": 15.83,
+    "part": "electronics_PS3_IRM_60_15ST"
+   },
+   "hot": {
+    "mm": 23.73,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 51.17,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 15.83,
+   "nearest_part": "electronics_PS3_IRM_60_15ST"
+  },
+  {
+   "s_mm": 240.0,
+   "point": [
+    -94.9,
+    143.2,
+    56.3
+   ],
+   "other": {
+    "mm": 15.36,
+    "part": "electronics_PS3_IRM_60_15ST"
+   },
+   "hot": {
+    "mm": 23.42,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 52.85,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 15.36,
+   "nearest_part": "electronics_PS3_IRM_60_15ST"
+  },
+  {
+   "s_mm": 242.0,
+   "point": [
+    -95.5,
+    145.1,
+    55.8
+   ],
+   "other": {
+    "mm": 15.09,
+    "part": "electronics_PS3_IRM_60_15ST"
+   },
+   "hot": {
+    "mm": 23.26,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 54.55,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 15.09,
+   "nearest_part": "electronics_PS3_IRM_60_15ST"
+  },
+  {
+   "s_mm": 244.0,
+   "point": [
+    -96.0,
+    146.9,
+    55.4
+   ],
+   "other": {
+    "mm": 15.03,
+    "part": "electronics_PS3_IRM_60_15ST"
+   },
+   "hot": {
+    "mm": 23.26,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 56.26,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 15.03,
+   "nearest_part": "electronics_PS3_IRM_60_15ST"
+  },
+  {
+   "s_mm": 246.0,
+   "point": [
+    -96.6,
+    148.8,
+    54.9
+   ],
+   "other": {
+    "mm": 15.18,
+    "part": "electronics_PS3_IRM_60_15ST"
+   },
+   "hot": {
+    "mm": 23.37,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 57.98,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 15.18,
+   "nearest_part": "electronics_PS3_IRM_60_15ST"
+  },
+  {
+   "s_mm": 248.0,
+   "point": [
+    -97.2,
+    150.7,
+    54.5
+   ],
+   "other": {
+    "mm": 15.53,
+    "part": "electronics_PS3_IRM_60_15ST"
+   },
+   "hot": {
+    "mm": 22.76,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 59.71,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 15.53,
+   "nearest_part": "electronics_PS3_IRM_60_15ST"
+  },
+  {
+   "s_mm": 250.0,
+   "point": [
+    -97.8,
+    152.5,
+    54.0
+   ],
+   "other": {
+    "mm": 15.73,
+    "part": "electronics_PS3_IRM_60_15ST"
+   },
+   "hot": {
+    "mm": 22.3,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 61.46,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 15.73,
+   "nearest_part": "electronics_PS3_IRM_60_15ST"
+  },
+  {
+   "s_mm": 252.0,
+   "point": [
+    -98.4,
+    154.4,
+    53.5
+   ],
+   "other": {
+    "mm": 15.08,
+    "part": "electronics_PS3_IRM_60_15ST"
+   },
+   "hot": {
+    "mm": 21.97,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 63.21,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 15.08,
+   "nearest_part": "electronics_PS3_IRM_60_15ST"
+  },
+  {
+   "s_mm": 254.0,
+   "point": [
+    -99.0,
+    156.2,
+    53.1
+   ],
+   "other": {
+    "mm": 14.64,
+    "part": "electronics_PS3_IRM_60_15ST"
+   },
+   "hot": {
+    "mm": 21.68,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 64.97,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 14.64,
+   "nearest_part": "electronics_PS3_IRM_60_15ST"
+  },
+  {
+   "s_mm": 256.0,
+   "point": [
+    -99.6,
+    158.1,
+    52.6
+   ],
+   "other": {
+    "mm": 14.42,
+    "part": "electronics_PS3_IRM_60_15ST"
+   },
+   "hot": {
+    "mm": 21.4,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 65.91,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 14.42,
+   "nearest_part": "electronics_PS3_IRM_60_15ST"
+  },
+  {
+   "s_mm": 258.0,
+   "point": [
+    -100.2,
+    159.9,
+    52.2
+   ],
+   "other": {
+    "mm": 14.42,
+    "part": "electronics_PS3_IRM_60_15ST"
+   },
+   "hot": {
+    "mm": 21.15,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 66.65,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 14.42,
+   "nearest_part": "electronics_PS3_IRM_60_15ST"
+  },
+  {
+   "s_mm": 260.0,
+   "point": [
+    -100.8,
+    161.8,
+    51.7
+   ],
+   "other": {
+    "mm": 14.66,
+    "part": "electronics_PS3_IRM_60_15ST"
+   },
+   "hot": {
+    "mm": 20.92,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 66.02,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 14.66,
+   "nearest_part": "electronics_PS3_IRM_60_15ST"
+  },
+  {
+   "s_mm": 262.0,
+   "point": [
+    -101.4,
+    163.6,
+    51.3
+   ],
+   "other": {
+    "mm": 15.11,
+    "part": "electronics_PS3_IRM_60_15ST"
+   },
+   "hot": {
+    "mm": 20.79,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 64.88,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 15.11,
+   "nearest_part": "electronics_PS3_IRM_60_15ST"
+  },
+  {
+   "s_mm": 264.0,
+   "point": [
+    -102.0,
+    165.5,
+    50.8
+   ],
+   "other": {
+    "mm": 15.78,
+    "part": "electronics_PS3_IRM_60_15ST"
+   },
+   "hot": {
+    "mm": 20.43,
+    "part": "electronics_native21_board"
+   },
+   "selv": {
+    "mm": 63.78,
+    "part": "electronics_SELV_tray"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 15.78,
+   "nearest_part": "electronics_PS3_IRM_60_15ST"
+  },
+  {
+   "s_mm": 266.0,
+   "point": [
+    -102.7,
+    167.3,
+    50.4
+   ],
+   "other": {
+    "mm": 16.52,
+    "part": "electronics_PS3_IRM_60_15ST"
+   },
+   "hot": {
+    "mm": 19.84,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 69.14,
+    "part": "harness_NTC_sink_to_thermal_sense"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 16.52,
+   "nearest_part": "electronics_PS3_IRM_60_15ST"
+  },
+  {
+   "s_mm": 268.0,
+   "point": [
+    -103.5,
+    169.1,
+    50.0
+   ],
+   "other": {
+    "mm": 17.34,
+    "part": "electronics_PS3_IRM_60_15ST"
+   },
+   "hot": {
+    "mm": 18.91,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 68.01,
+    "part": "harness_NTC_sink_to_thermal_sense"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 17.34,
+   "nearest_part": "electronics_PS3_IRM_60_15ST"
+  },
+  {
+   "s_mm": 270.0,
+   "point": [
+    -104.6,
+    170.7,
+    49.6
+   ],
+   "other": {
+    "mm": 18.15,
+    "part": "electronics_PS3_IRM_60_15ST"
+   },
+   "hot": {
+    "mm": 18.16,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 67.0,
+    "part": "harness_NTC_sink_to_thermal_sense"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 18.15,
+   "nearest_part": "electronics_PS3_IRM_60_15ST"
+  },
+  {
+   "s_mm": 272.0,
+   "point": [
+    -105.9,
+    172.2,
+    49.3
+   ],
+   "other": {
+    "mm": 18.91,
+    "part": "electronics_PS3_IRM_60_15ST"
+   },
+   "hot": {
+    "mm": 17.65,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 66.14,
+    "part": "harness_NTC_sink_to_thermal_sense"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 17.65,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 274.0,
+   "point": [
+    -107.3,
+    173.6,
+    49.0
+   ],
+   "other": {
+    "mm": 19.68,
+    "part": "electronics_PS3_IRM_60_15ST"
+   },
+   "hot": {
+    "mm": 17.17,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 65.4,
+    "part": "harness_NTC_sink_to_thermal_sense"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 17.17,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 276.0,
+   "point": [
+    -108.9,
+    174.8,
+    48.8
+   ],
+   "other": {
+    "mm": 20.19,
+    "part": "electronics_native21_top_screw_H4"
+   },
+   "hot": {
+    "mm": 16.73,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 64.84,
+    "part": "harness_NTC_sink_to_thermal_sense"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 16.73,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 278.0,
+   "point": [
+    -110.6,
+    175.7,
+    48.7
+   ],
+   "other": {
+    "mm": 20.07,
+    "part": "electronics_native21_top_screw_H4"
+   },
+   "hot": {
+    "mm": 16.28,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 64.52,
+    "part": "harness_NTC_sink_to_thermal_sense"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 16.28,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 280.0,
+   "point": [
+    -112.5,
+    176.6,
+    48.6
+   ],
+   "other": {
+    "mm": 20.04,
+    "part": "electronics_native21_top_screw_H4"
+   },
+   "hot": {
+    "mm": 15.95,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 64.35,
+    "part": "harness_NTC_sink_to_thermal_sense"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 15.95,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 282.0,
+   "point": [
+    -114.4,
+    177.2,
+    48.5
+   ],
+   "other": {
+    "mm": 20.09,
+    "part": "electronics_native21_top_screw_H4"
+   },
+   "hot": {
+    "mm": 15.81,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 63.14,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 15.81,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 284.0,
+   "point": [
+    -116.3,
+    177.7,
+    48.5
+   ],
+   "other": {
+    "mm": 19.12,
+    "part": "electronics_PS3_bracket"
+   },
+   "hot": {
+    "mm": 15.96,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 61.75,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 15.96,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 286.0,
+   "point": [
+    -118.3,
+    178.1,
+    48.5
+   ],
+   "other": {
+    "mm": 17.97,
+    "part": "electronics_PS3_bracket"
+   },
+   "hot": {
+    "mm": 16.33,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 60.38,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "hot",
+   "nearest_mm": 16.33,
+   "nearest_part": "electronics_native21_components_ENVELOPE"
+  },
+  {
+   "s_mm": 288.0,
+   "point": [
+    -120.2,
+    178.4,
+    48.5
+   ],
+   "other": {
+    "mm": 16.87,
+    "part": "electronics_PS3_bracket"
+   },
+   "hot": {
+    "mm": 16.92,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 59.03,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 16.87,
+   "nearest_part": "electronics_PS3_bracket"
+  },
+  {
+   "s_mm": 290.0,
+   "point": [
+    -122.2,
+    178.4,
+    48.5
+   ],
+   "other": {
+    "mm": 15.79,
+    "part": "electronics_PS3_bracket"
+   },
+   "hot": {
+    "mm": 17.73,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 57.7,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 15.79,
+   "nearest_part": "electronics_PS3_bracket"
+  },
+  {
+   "s_mm": 292.0,
+   "point": [
+    -124.2,
+    178.3,
+    48.5
+   ],
+   "other": {
+    "mm": 14.76,
+    "part": "electronics_PS3_bracket"
+   },
+   "hot": {
+    "mm": 18.11,
+    "part": "electronics_native21_board"
+   },
+   "selv": {
+    "mm": 56.4,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 14.76,
+   "nearest_part": "electronics_PS3_bracket"
+  },
+  {
+   "s_mm": 294.0,
+   "point": [
+    -126.2,
+    177.9,
+    48.5
+   ],
+   "other": {
+    "mm": 13.73,
+    "part": "electronics_PS3_bracket"
+   },
+   "hot": {
+    "mm": 18.11,
+    "part": "electronics_native21_board"
+   },
+   "selv": {
+    "mm": 55.17,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 13.73,
+   "nearest_part": "electronics_PS3_bracket"
+  },
+  {
+   "s_mm": 296.0,
+   "point": [
+    -128.1,
+    177.3,
+    48.5
+   ],
+   "other": {
+    "mm": 12.79,
+    "part": "electronics_PS3_bracket"
+   },
+   "hot": {
+    "mm": 18.11,
+    "part": "electronics_native21_board"
+   },
+   "selv": {
+    "mm": 54.01,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 12.79,
+   "nearest_part": "electronics_PS3_bracket"
+  },
+  {
+   "s_mm": 298.0,
+   "point": [
+    -129.9,
+    176.5,
+    48.5
+   ],
+   "other": {
+    "mm": 11.97,
+    "part": "electronics_PS3_bracket"
+   },
+   "hot": {
+    "mm": 18.11,
+    "part": "electronics_native21_board"
+   },
+   "selv": {
+    "mm": 52.92,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 11.97,
+   "nearest_part": "electronics_PS3_bracket"
+  },
+  {
+   "s_mm": 300.0,
+   "point": [
+    -131.6,
+    175.4,
+    48.5
+   ],
+   "other": {
+    "mm": 10.97,
+    "part": "electronics_PS3_bracket"
+   },
+   "hot": {
+    "mm": 18.11,
+    "part": "electronics_native21_board"
+   },
+   "selv": {
+    "mm": 51.97,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 10.97,
+   "nearest_part": "electronics_PS3_bracket"
+  },
+  {
+   "s_mm": 302.0,
+   "point": [
+    -133.2,
+    174.2,
+    48.5
+   ],
+   "other": {
+    "mm": 8.98,
+    "part": "electronics_PS3_bracket"
+   },
+   "hot": {
+    "mm": 17.74,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 51.1,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 8.98,
+   "nearest_part": "electronics_PS3_bracket"
+  },
+  {
+   "s_mm": 304.0,
+   "point": [
+    -134.6,
+    172.8,
+    48.5
+   ],
+   "other": {
+    "mm": 6.99,
+    "part": "electronics_PS3_bracket"
+   },
+   "hot": {
+    "mm": 17.22,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 50.33,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 6.99,
+   "nearest_part": "electronics_PS3_bracket"
+  },
+  {
+   "s_mm": 306.0,
+   "point": [
+    -135.8,
+    171.2,
+    48.5
+   ],
+   "other": {
+    "mm": 5.1,
+    "part": "electronics_PS3_bracket"
+   },
+   "hot": {
+    "mm": 16.78,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 49.71,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 5.1,
+   "nearest_part": "electronics_PS3_bracket"
+  },
+  {
+   "s_mm": 308.0,
+   "point": [
+    -136.9,
+    169.6,
+    48.5
+   ],
+   "other": {
+    "mm": 3.36,
+    "part": "electronics_PS3_bracket"
+   },
+   "hot": {
+    "mm": 16.46,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 49.18,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 3.36,
+   "nearest_part": "electronics_PS3_bracket"
+  },
+  {
+   "s_mm": 310.0,
+   "point": [
+    -137.8,
+    167.8,
+    48.5
+   ],
+   "other": {
+    "mm": 2.01,
+    "part": "electronics_PS3_bracket"
+   },
+   "hot": {
+    "mm": 16.27,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 48.76,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 2.01,
+   "nearest_part": "electronics_PS3_bracket"
+  },
+  {
+   "s_mm": 312.0,
+   "point": [
+    -138.3,
+    165.9,
+    48.5
+   ],
+   "other": {
+    "mm": 1.36,
+    "part": "electronics_PS3_bracket"
+   },
+   "hot": {
+    "mm": 16.24,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 48.48,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 1.36,
+   "nearest_part": "electronics_PS3_bracket"
+  },
+  {
+   "s_mm": 314.0,
+   "point": [
+    -138.8,
+    163.9,
+    48.5
+   ],
+   "other": {
+    "mm": 0.92,
+    "part": "electronics_PS3_bracket"
+   },
+   "hot": {
+    "mm": 16.25,
+    "part": "electronics_native21_components_ENVELOPE"
+   },
+   "selv": {
+    "mm": 48.28,
+    "part": "harness_fan_to_controller"
+   },
+   "nearest_class": "other",
+   "nearest_mm": 0.92,
+   "nearest_part": "electronics_PS3_bracket"
+  }
+ ]
+}

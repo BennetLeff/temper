@@ -1,0 +1,114 @@
+{
+  "scope": "PS3 (blower supply) terminal and wiring clearances against the power stage's rules (R41, rerun for R42 and R43).\n\nRules (power stage, R40/R41 exchange): DC terminals >= 8 mm from HOT/mains parts and from PS3's own AC wiring;\nAC terminals >= 3.2 mm from other HOT parts and >= 8 mm from SELV parts. Terminal blocks are measured as their whole\nhousing envelope (the metal is inside it), so each distance is a lower bound on the metal's. Also reported: the J13 pair\nto HOT, the J11 mains lead to SELV, and the earthed bracket and (R42) the J11 tie anchor to native-21 (basic clearance to earthed metal >= 2.0 mm).\nR43: the J13 barrier (insulating, unclassified) against native-21's parts and against the controller (>= 2.0 mm, the brief's rule for parts other than its own seating in the base).\nClasses by part name; native-21's J3/J4 mates (controller interface) are reported apart, not counted as HOT.\nRun after src/assembly.py: python evidence/ps3/check_ps3_clearances.py",
+  "rows": {
+    "DC_block_to_HOT": {
+      "mm": 9.01,
+      "part": "electronics_native21_board",
+      "limit_mm": 8.0,
+      "pass": true
+    },
+    "DC_block_to_PS3_AC_wiring": {
+      "mm": 83.51,
+      "part": "harness_mains_J11_to_PS3_AC",
+      "limit_mm": 8.0,
+      "pass": true
+    },
+    "AC_block_to_other_HOT": {
+      "mm": 6.39,
+      "part": "electronics_native21_components_ENVELOPE",
+      "limit_mm": 3.2,
+      "pass": true
+    },
+    "AC_block_to_SELV": {
+      "mm": 39.96,
+      "part": "harness_fan_to_controller",
+      "limit_mm": 8.0,
+      "pass": true
+    },
+    "J13_pair_to_HOT": {
+      "mm": 8.65,
+      "part": "electronics_native21_components_ENVELOPE",
+      "limit_mm": 8.0,
+      "pass": true
+    },
+    "J11_lead_to_SELV": {
+      "mm": 15.79,
+      "part": "harness_fan_to_controller",
+      "limit_mm": 8.0,
+      "pass": true
+    },
+    "bracket_to_native21_parts": {
+      "mm": 2.93,
+      "part": "electronics_native21_components_ENVELOPE",
+      "limit_mm": 2.0,
+      "pass": true
+    },
+    "J11_anchor_to_native21_parts": {
+      "mm": 3.01,
+      "part": "electronics_native21_components_ENVELOPE",
+      "limit_mm": 2.0,
+      "pass": true
+    },
+    "plate_nuts_to_native21_parts": {
+      "mm": 2.99,
+      "part": "electronics_native21_components_ENVELOPE",
+      "limit_mm": 2.0,
+      "pass": true
+    },
+    "J13_barrier_to_native21_parts": {
+      "mm": 2.22,
+      "part": "electronics_native21_board",
+      "limit_mm": 2.0,
+      "pass": true
+    },
+    "J13_barrier_to_controller_parts": {
+      "mm": 2.2,
+      "part": "electronics_SELV_controller_board",
+      "limit_mm": 2.0,
+      "pass": true
+    },
+    "DC_block_to_interface_J3_J4": {
+      "mm": 18.5,
+      "part": "electronics_native21_J4_mate",
+      "limit_mm": null,
+      "pass": null
+    },
+    "info_bracket_to_P3_fascia": {
+      "mm": 6.74,
+      "part": "enclosure_P3_fascia",
+      "limit_mm": null,
+      "pass": null
+    },
+    "info_bracket_to_P4_U_wrapper": {
+      "mm": 2.97,
+      "part": "enclosure_P4_U_wrapper",
+      "limit_mm": null,
+      "pass": null
+    },
+    "info_J11_anchor_to_J6_PE_lead": {
+      "mm": 3.68,
+      "part": "harness_PE_native21_J6_to_star",
+      "limit_mm": null,
+      "pass": null
+    },
+    "info_J13_barrier_to_J11_mate": {
+      "mm": 12.07,
+      "part": "electronics_native21_J11_mate",
+      "limit_mm": null,
+      "pass": null
+    },
+    "info_J13_barrier_to_J13_housing": {
+      "mm": 2.2,
+      "part": "electronics_controller_J13",
+      "limit_mm": null,
+      "pass": null
+    },
+    "info_J11_anchor_to_J11_housing": {
+      "mm": 3.16,
+      "part": "electronics_native21_J11_mate",
+      "limit_mm": null,
+      "pass": null
+    }
+  },
+  "status": "PASS"
+}

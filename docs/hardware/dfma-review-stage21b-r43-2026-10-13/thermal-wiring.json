@@ -1,0 +1,33 @@
+{
+  "review": "R43 thermal, coil, airflow, wiring and PE versus stage21b integration",
+  "scope": "DFMA-37 through DFMA-48, digital engineering-prototype candidate",
+  "enclosure_assembly_sha256": "0a6fcd0fe8dfa03477ffc170df59d2ab32faee8e67ea38e94059fa7066be86ce",
+  "enclosure_source": "input/enclosure-r43",
+  "board_dependency": "R43 native-21 pose check binds a stage-13 STEP; stage21b compatibility unverified in this enclosure review",
+  "tests_run": "none; inspected frozen source, saved digital evidence, and renders",
+  "score_scale": "DFMA 0/1/2/3/U/NA; no aggregate readiness score",
+  "criteria": [
+    {"id":"DFMA-37","score":"U","confidence":"high identity gap; medium thermal allocation","evidence":["input/enclosure-r43/evidence/native21-pose-check.json","input/enclosure-r43/design/r31/DECISIONS.md:62-88","input/enclosure-r43/design/r32/DECISIONS.md:70-90"],"finding_ids":["TWI-01","TWI-04"]},
+    {"id":"DFMA-38","score":"1","confidence":"medium","evidence":["input/enclosure-r43/procurement-register.json:electronics_sink_AlN_tile_A/B","input/enclosure-r43/design/r31/DECISIONS.md:66-70"],"finding_ids":["TWI-04"]},
+    {"id":"DFMA-39","score":"U","confidence":"high identity gap","evidence":["input/enclosure-r43/design/r32/DECISIONS.md:15-20","input/enclosure-r43/design/r31/DECISIONS.md:62-68","input/enclosure-r43/design/r33/DECISIONS.md:7-18"],"finding_ids":["TWI-01","TWI-04"]},
+    {"id":"DFMA-40","score":"2","confidence":"medium","evidence":["input/enclosure-r43/design/r40/COIL-PROTOTYPE-BUILD.md:1-63","input/enclosure-r43/renders/R43-interior.png"],"finding_ids":["TWI-07"]},
+    {"id":"DFMA-41","score":"2","confidence":"medium","evidence":["input/enclosure-r43/renders/R43-underside.png","input/enclosure-r43/renders/R43-interior.png","input/enclosure-r43/evidence/airflow-r32/REPORT.md"],"finding_ids":["TWI-04"]},
+    {"id":"DFMA-42","score":"1","confidence":"medium for inherited sensitivity; low for stage21b applicability","evidence":["input/enclosure-r43/evidence/airflow-r32/coil-thermal.json:max_sustained_I_full_speed_maxR_hx0.6","input/enclosure-r43/evidence/airflow-r32/coil-thermal.json:governing_points"],"finding_ids":["TWI-04","TWI-07"]},
+    {"id":"DFMA-43","score":"2","confidence":"medium","evidence":["input/enclosure-r43/design/r41/DECISIONS.md:1-45","input/enclosure-r43/design/r43/DECISIONS.md:1-30","input/enclosure-r43/design/harness/R43-HARNESS-LIST.md:1-3"],"finding_ids":["TWI-05"]},
+    {"id":"DFMA-44","score":"U","confidence":"high identity gap","evidence":["input/enclosure-r43/design/r41/DECISIONS.md:25-35","input/enclosure-r43/design/r43/DECISIONS.md:80-89"],"finding_ids":["TWI-01","TWI-02"]},
+    {"id":"DFMA-45","score":"1","confidence":"medium","evidence":["input/enclosure-r43/design/r41/DECISIONS.md:37-45","input/enclosure-r43/design/r40/COIL-PROTOTYPE-BUILD.md:14-35","input/enclosure-r43/design/harness/R43-HARNESS-LIST.md:1-3"],"finding_ids":["TWI-05"]},
+    {"id":"DFMA-46","score":"1","confidence":"high for stated open checks; medium geometry","evidence":["input/enclosure-r43/design/r43/DECISIONS.md:35-72","input/enclosure-r43/evidence/ps3/ps3-retention.json","input/enclosure-r43/evidence/ps3/ps3-mains-span.json"],"finding_ids":["TWI-02","TWI-03"]},
+    {"id":"DFMA-47","score":"U","confidence":"high identity gap","evidence":["input/enclosure-r43/design/r32/DECISIONS.md:31-38","input/enclosure-r43/design/r41/DECISIONS.md:25-30"],"finding_ids":["TWI-01","TWI-08"]},
+    {"id":"DFMA-48","score":"2","confidence":"medium","evidence":["input/enclosure-r43/design/r32/DECISIONS.md:31-38","input/enclosure-r43/design/harness/R43-HARNESS-LIST.md:10-13","input/enclosure-r43/design/harness/R43-HARNESS-LIST.md:25"],"finding_ids":["TWI-06"]}
+  ],
+  "findings": [
+    {"id":"TWI-01","classification":"review_gap","priority":"high","summary":"R43 native-21 and J11/J13/clamp integration are bound to older board inputs; stage21b compatibility unknown."},
+    {"id":"TWI-02","classification":"review_gap_with_conditional_model_failure","priority":"high","summary":"J13 loose-wire containment depends on fourth tie on an unprototyped snap-in polymer barrier; R43's no-tie model fails."},
+    {"id":"TWI-03","classification":"review_gap","priority":"high","summary":"J11–PS3 mains span has no measured sag/abrasion result; modeled headroom is 4.99 mm to old HOT envelope."},
+    {"id":"TWI-04","classification":"review_gap","priority":"high","summary":"Thermal contact, clamp forces, installed airflow, worst corners and service-restored behavior lack physical correlation."},
+    {"id":"TWI-05","classification":"review_gap","priority":"medium","summary":"Harness list is unreleased and several terminal, crimp and coil lug identities/processes remain open."},
+    {"id":"TWI-06","classification":"review_gap","priority":"high","summary":"PE joint topology is modeled but finish/contact treatment and post-assembly/service continuity unmeasured."},
+    {"id":"TWI-07","classification":"review_gap","priority":"medium","summary":"Coil physical variation and later coil definition are not correlated to inherited airflow sensitivity."},
+    {"id":"TWI-08","classification":"review_gap","priority":"medium","summary":"Installed EMI impact of PS3/filter/PE and harness route variants is unmeasured."}
+  ]
+}

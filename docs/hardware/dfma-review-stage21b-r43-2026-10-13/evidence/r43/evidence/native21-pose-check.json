@@ -1,0 +1,9 @@
+{
+  "scope": "Gate: native-21 must sit in a pose a real board can take (R31).\n\nR4-R30 placed the board with x_w = 141 - x_k on KiCad coordinates, a mirror image (determinant -1)\nnobody noticed for 14 revisions. This check places the stage-13 STEP by a proper transform only - the\ntranslation x_w = X - 141, y_w = 236 + Y, z_w = 26 + Z (STEP Y = -y_k) - and requires the saved\nnative-21 board and component solids to match it: same solid count (after the 2.5 mm lead trim)\nand every saved solid's bounding box within 0.05 mm of a properly placed one.",
+  "saved_solids": 408,
+  "expected_solids": 408,
+  "unmatched": [],
+  "unmatched_count": 0,
+  "r30_mirror_pose_would_match": false,
+  "status": "PASS"
+}

@@ -1,0 +1,750 @@
+{
+  "scope": "R31+ harness wire list (R33 routes included) and cut list, generated from the modelled routes.\n\nFor every route: both ends (world point after the R31 mirror and the part each end lands on, by exact\ndistance to the saved STEP parts), wire spec, OD, developed centreline length (filleted at the modelled\nbends), the tightest bend, the tie points it passes (lane brackets / mains anchor within 1 mm), and a\ncut length = developed length + strip/crimp allowance per end, rounded up to 5 mm. Door routes carry\ntheir service-loop slack from check_service_loops.\n\nThis is the harness maker's starting list, not a released drawing: terminal families, pin maps and crimp\ntooling per connector are listed where the model knows them and flagged OPEN where it does not.\nR42: the two PS3 leads (r42_world) are listed too (R41 omitted them), with the tie points that hold them and the 2 x OD hook-up\nwire bend rule they were designed to (r41_world.BEND_MIN).\nR43: the DC pair's fourth tie point (on the J13 barrier) is listed with it.\nOutputs: design/harness/R43-HARNESS-LIST.md and .csv, evidence/harness/harness-list.json.",
+  "routes": [
+    {
+      "route": "harness_mains_L_C20_to_EMI",
+      "kind": "allocation",
+      "wire": "14 AWG tinned copper/silicone with glass braid",
+      "part_number": "Belden 32414 candidate",
+      "od_mm": 4.24,
+      "end_a": "electronics_Schurter_C20_inlet_envelope",
+      "end_a_point": [
+        32,
+        396.5,
+        60
+      ],
+      "end_a_gap_mm": 1.5,
+      "end_b": "electronics_inlet_EMI_module_ENVELOPE",
+      "end_b_point": [
+        37.8,
+        352,
+        46
+      ],
+      "end_b_gap_mm": 2.2,
+      "developed_mm": 48.5,
+      "allowance_per_end_mm": 20.0,
+      "cut_length_mm": 90,
+      "tightest_bend_mm": 13.6,
+      "min_bend_required_mm": 12.7,
+      "tie_points": [],
+      "door_slack_ratio": null,
+      "moving_end": true
+    },
+    {
+      "route": "harness_mains_N_C20_to_EMI",
+      "kind": "allocation",
+      "wire": "14 AWG tinned copper/silicone with glass braid",
+      "part_number": "Belden 32414 candidate",
+      "od_mm": 4.24,
+      "end_a": "electronics_Schurter_C20_inlet_envelope",
+      "end_a_point": [
+        48,
+        396.5,
+        60
+      ],
+      "end_a_gap_mm": 1.5,
+      "end_b": "electronics_inlet_EMI_module_ENVELOPE",
+      "end_b_point": [
+        37.8,
+        366,
+        62
+      ],
+      "end_b_gap_mm": 2.2,
+      "developed_mm": 34.2,
+      "allowance_per_end_mm": 20.0,
+      "cut_length_mm": 75,
+      "tightest_bend_mm": 13.6,
+      "min_bend_required_mm": 12.7,
+      "tie_points": [],
+      "door_slack_ratio": null,
+      "moving_end": true
+    },
+    {
+      "route": "harness_mains_L_EMI_to_J1",
+      "kind": "allocation",
+      "wire": "14 AWG tinned copper/silicone with glass braid",
+      "part_number": "Belden 32414 candidate",
+      "od_mm": 4.24,
+      "end_a": "electronics_inlet_EMI_module_ENVELOPE",
+      "end_a_point": [
+        152.2,
+        330,
+        52
+      ],
+      "end_a_gap_mm": 2.2,
+      "end_b": "electronics_native21_components_ENVELOPE",
+      "end_b_point": [
+        139.9,
+        236.6,
+        33
+      ],
+      "end_b_gap_mm": 2.18,
+      "developed_mm": 100.3,
+      "allowance_per_end_mm": 20.0,
+      "cut_length_mm": 145,
+      "tightest_bend_mm": 13.6,
+      "min_bend_required_mm": 12.7,
+      "tie_points": [
+        "mains_anchor",
+        "mains_anchor_290"
+      ],
+      "door_slack_ratio": null,
+      "moving_end": false
+    },
+    {
+      "route": "harness_mains_N_EMI_to_J1",
+      "kind": "allocation",
+      "wire": "14 AWG tinned copper/silicone with glass braid",
+      "part_number": "Belden 32414 candidate",
+      "od_mm": 4.24,
+      "end_a": "electronics_inlet_EMI_module_ENVELOPE",
+      "end_a_point": [
+        152.2,
+        345,
+        52
+      ],
+      "end_a_gap_mm": 2.2,
+      "end_b": "electronics_native21_components_ENVELOPE",
+      "end_b_point": [
+        145.0,
+        236.6,
+        33
+      ],
+      "end_b_gap_mm": 2.18,
+      "developed_mm": 115.3,
+      "allowance_per_end_mm": 20.0,
+      "cut_length_mm": 160,
+      "tightest_bend_mm": 13.6,
+      "min_bend_required_mm": 12.7,
+      "tie_points": [
+        "mains_anchor",
+        "mains_anchor_290"
+      ],
+      "door_slack_ratio": null,
+      "moving_end": false
+    },
+    {
+      "route": "harness_PE_C20_to_chassis_star",
+      "kind": "allocation",
+      "wire": "14 AWG tinned copper/silicone with glass braid",
+      "part_number": "Belden 32414 candidate; green/yellow",
+      "od_mm": 4.24,
+      "end_a": "electronics_Schurter_C20_inlet_envelope",
+      "end_a_point": [
+        40,
+        396.5,
+        48
+      ],
+      "end_a_gap_mm": 1.5,
+      "end_b": "electronics_PE_S1_stud_set",
+      "end_b_point": [
+        94,
+        395,
+        14
+      ],
+      "end_b_gap_mm": 1.97,
+      "developed_mm": 75.3,
+      "allowance_per_end_mm": 20.0,
+      "cut_length_mm": 120,
+      "tightest_bend_mm": 13.6,
+      "min_bend_required_mm": 12.7,
+      "tie_points": [],
+      "door_slack_ratio": null,
+      "moving_end": true
+    },
+    {
+      "route": "harness_PE_cover_bond",
+      "kind": "allocation",
+      "wire": "14 AWG insulated copper with glass braid",
+      "part_number": "Belden 32414 candidate; green/yellow",
+      "od_mm": 4.24,
+      "end_a": "electronics_PE_cover_base_ring_lug",
+      "end_a_point": [
+        177.5,
+        288,
+        15
+      ],
+      "end_a_gap_mm": 2.0,
+      "end_b": "electronics_PE_cover_stud_ring_lug",
+      "end_b_point": [
+        179.7,
+        376.8,
+        40
+      ],
+      "end_b_gap_mm": 2.99,
+      "developed_mm": 99.0,
+      "allowance_per_end_mm": 20.0,
+      "cut_length_mm": 140,
+      "tightest_bend_mm": 13.6,
+      "min_bend_required_mm": 12.7,
+      "tie_points": [],
+      "door_slack_ratio": null,
+      "moving_end": false
+    },
+    {
+      "route": "harness_PE_native21_J6_to_star",
+      "kind": "allocation",
+      "wire": "14 AWG insulated copper",
+      "part_number": "green/yellow",
+      "od_mm": 4.24,
+      "end_a": "electronics_native21_components_ENVELOPE",
+      "end_a_point": [
+        9.6,
+        101.5,
+        55
+      ],
+      "end_a_gap_mm": 2.39,
+      "end_b": "electronics_PE_M4_chassis_set",
+      "end_b_point": [
+        164,
+        296,
+        18.5
+      ],
+      "end_b_gap_mm": 1.72,
+      "developed_mm": 401.6,
+      "allowance_per_end_mm": 20.0,
+      "cut_length_mm": 445,
+      "tightest_bend_mm": 13.5,
+      "min_bend_required_mm": 12.7,
+      "tie_points": [
+        "lane_bracket_165",
+        "lane_bracket_235",
+        "lane_bracket_250"
+      ],
+      "door_slack_ratio": null,
+      "moving_end": false
+    },
+    {
+      "route": "harness_coil_lead_to_J2",
+      "kind": "allocation",
+      "wire": "Litz in braided fibreglass sleeve (coil assembly)",
+      "part_number": "OPEN",
+      "od_mm": 2.4,
+      "end_a": "sensor_coil_litz_winding",
+      "end_a_point": [
+        -26.5,
+        149.3,
+        100.2
+      ],
+      "end_a_gap_mm": 0.0,
+      "end_b": "electronics_coil_lug_J2",
+      "end_b_point": [
+        -9.0,
+        142.5,
+        57.1
+      ],
+      "end_b_gap_mm": 0.0,
+      "developed_mm": 58.6,
+      "allowance_per_end_mm": 25.0,
+      "cut_length_mm": 110,
+      "tightest_bend_mm": 7.7,
+      "min_bend_required_mm": 7.2,
+      "tie_points": [],
+      "door_slack_ratio": null,
+      "moving_end": false
+    },
+    {
+      "route": "harness_coil_lead_to_J5",
+      "kind": "allocation",
+      "wire": "Litz in braided fibreglass sleeve (coil assembly)",
+      "part_number": "OPEN",
+      "od_mm": 2.4,
+      "end_a": "sensor_coil_litz_winding",
+      "end_a_point": [
+        -2.4,
+        233.7,
+        100.2
+      ],
+      "end_a_gap_mm": 0.0,
+      "end_b": "electronics_coil_lug_J5",
+      "end_b_point": [
+        -9.0,
+        173.5,
+        57.1
+      ],
+      "end_b_gap_mm": 0.0,
+      "developed_mm": 151.4,
+      "allowance_per_end_mm": 25.0,
+      "cut_length_mm": 205,
+      "tightest_bend_mm": 7.7,
+      "min_bend_required_mm": 7.2,
+      "tie_points": [],
+      "door_slack_ratio": null,
+      "moving_end": false
+    },
+    {
+      "route": "harness_TCO_J3p1_to_sink_TCO",
+      "kind": "allocation",
+      "wire": "18 AWG 200 \u00b0C, mains-rated (gate-supply input L_FILT)",
+      "part_number": "OPEN",
+      "od_mm": 3.0,
+      "end_a": "electronics_native21_J3_mate",
+      "end_a_point": [
+        76.7,
+        224.2,
+        51.5
+      ],
+      "end_a_gap_mm": 2.1,
+      "end_b": "electronics_TCO_sink",
+      "end_b_point": [
+        -59.8,
+        279.5,
+        86
+      ],
+      "end_b_gap_mm": 0.2,
+      "developed_mm": 174.1,
+      "allowance_per_end_mm": 12.0,
+      "cut_length_mm": 200,
+      "tightest_bend_mm": 9.6,
+      "min_bend_required_mm": 9.0,
+      "tie_points": [],
+      "door_slack_ratio": null,
+      "moving_end": false
+    },
+    {
+      "route": "harness_TCO_sink_to_glass_TCO",
+      "kind": "allocation",
+      "wire": "18 AWG 250 \u00b0C, mains-rated",
+      "part_number": "OPEN",
+      "od_mm": 3.0,
+      "end_a": "electronics_TCO_sink",
+      "end_a_point": [
+        -59.8,
+        282.5,
+        86
+      ],
+      "end_a_gap_mm": 0.2,
+      "end_b": "electronics_TCO_under_glass",
+      "end_b_point": [
+        136.7,
+        262,
+        103.5
+      ],
+      "end_b_gap_mm": 1.7,
+      "developed_mm": 255.5,
+      "allowance_per_end_mm": 12.0,
+      "cut_length_mm": 280,
+      "tightest_bend_mm": 9.6,
+      "min_bend_required_mm": 9.0,
+      "tie_points": [],
+      "door_slack_ratio": null,
+      "moving_end": false
+    },
+    {
+      "route": "harness_TCO_glass_TCO_to_J3p2",
+      "kind": "allocation",
+      "wire": "18 AWG 250 \u00b0C, mains-rated",
+      "part_number": "OPEN",
+      "od_mm": 3.0,
+      "end_a": "electronics_TCO_under_glass",
+      "end_a_point": [
+        136.7,
+        258,
+        103.5
+      ],
+      "end_a_gap_mm": 1.7,
+      "end_b": "electronics_native21_J3_mate",
+      "end_b_point": [
+        76.7,
+        232.1,
+        51.5
+      ],
+      "end_b_gap_mm": 2.1,
+      "developed_mm": 131.2,
+      "allowance_per_end_mm": 12.0,
+      "cut_length_mm": 160,
+      "tightest_bend_mm": 9.6,
+      "min_bend_required_mm": 9.0,
+      "tie_points": [],
+      "door_slack_ratio": null,
+      "moving_end": false
+    },
+    {
+      "route": "harness_SELV_J4_to_controller",
+      "kind": "allocation",
+      "wire": "multi-core SELV ribbon/pigtail",
+      "part_number": "OPEN",
+      "od_mm": 3.5,
+      "end_a": "electronics_native21_J4_mate",
+      "end_a_point": [
+        -96.0,
+        54.7,
+        49.5
+      ],
+      "end_a_gap_mm": 2.1,
+      "end_b": "electronics_controller_J4_right_angle",
+      "end_b_point": [
+        -52.2,
+        42.0,
+        30.0
+      ],
+      "end_b_gap_mm": 2.25,
+      "developed_mm": 68.1,
+      "allowance_per_end_mm": 12.0,
+      "cut_length_mm": 95,
+      "tightest_bend_mm": 11.1,
+      "min_bend_required_mm": 10.5,
+      "tie_points": [],
+      "door_slack_ratio": null,
+      "moving_end": false
+    },
+    {
+      "route": "harness_probe_M12_to_controller",
+      "kind": "allocation",
+      "wire": "Binder factory pigtail, PUR sheath",
+      "part_number": "OPEN",
+      "od_mm": 2.3,
+      "end_a": "electronics_controller_J9",
+      "end_a_point": [
+        -33,
+        86,
+        36.8
+      ],
+      "end_a_gap_mm": 1.7,
+      "end_b": "electronics_Binder_M12_probe_envelope",
+      "end_b_point": [
+        -169.8,
+        72,
+        55
+      ],
+      "end_b_gap_mm": 0.2,
+      "developed_mm": 212.1,
+      "allowance_per_end_mm": 12.0,
+      "cut_length_mm": 240,
+      "tightest_bend_mm": 7.4,
+      "min_bend_required_mm": 6.9,
+      "tie_points": [],
+      "door_slack_ratio": null,
+      "moving_end": false
+    },
+    {
+      "route": "harness_pan_RTD_to_controller",
+      "kind": "allocation",
+      "wire": "SAB TD 801 F jacketed RTD cable",
+      "part_number": "SAB TD 801 F L38010428 candidate",
+      "od_mm": 2.3,
+      "end_a": "sensor_coil_sensor_four_wire_cable_ALLOCATION",
+      "end_a_point": [
+        0,
+        261,
+        62.3
+      ],
+      "end_a_gap_mm": 0.0,
+      "end_b": "electronics_controller_J3",
+      "end_b_point": [
+        152,
+        86,
+        36.8
+      ],
+      "end_b_gap_mm": 1.7,
+      "developed_mm": 421.4,
+      "allowance_per_end_mm": 12.0,
+      "cut_length_mm": 450,
+      "tightest_bend_mm": 7.4,
+      "min_bend_required_mm": 6.9,
+      "tie_points": [
+        "lane_bracket_165",
+        "lane_bracket_235",
+        "lane_bracket_250"
+      ],
+      "door_slack_ratio": null,
+      "moving_end": false
+    },
+    {
+      "route": "harness_fan_to_controller",
+      "kind": "allocation",
+      "wire": "blower lead + jacketed 3-core 105 C extension",
+      "part_number": "OPEN",
+      "od_mm": 2.5,
+      "end_a": "electronics_controller_J10",
+      "end_a_point": [
+        139.0,
+        86.0,
+        36.9
+      ],
+      "end_a_gap_mm": 1.8,
+      "end_b": "electronics_blower_Delta_BFB1012VH",
+      "end_b_point": [
+        -178.0,
+        397.0,
+        32.0
+      ],
+      "end_b_gap_mm": 2.6,
+      "developed_mm": 701.5,
+      "allowance_per_end_mm": 12.0,
+      "cut_length_mm": 730,
+      "tightest_bend_mm": 8.0,
+      "min_bend_required_mm": 7.5,
+      "tie_points": [],
+      "door_slack_ratio": null,
+      "moving_end": false
+    },
+    {
+      "route": "harness_NTC_coil_to_thermal_sense",
+      "kind": "allocation",
+      "wire": "coil NTC lead in silicone-glass sleeving >= 4 kV, positively retained (IEC 60335-1 sec. 23.6)",
+      "part_number": "OPEN",
+      "od_mm": 2.3,
+      "end_a": "sensor_coil_routed_insulating_carrier",
+      "end_a_point": [
+        60,
+        200,
+        88
+      ],
+      "end_a_gap_mm": 2.0,
+      "end_b": "electronics_controller_J1",
+      "end_b_point": [
+        55,
+        84,
+        36.8
+      ],
+      "end_b_gap_mm": 1.7,
+      "developed_mm": 167.6,
+      "allowance_per_end_mm": 25.0,
+      "cut_length_mm": 220,
+      "tightest_bend_mm": 7.4,
+      "min_bend_required_mm": 6.9,
+      "tie_points": [],
+      "door_slack_ratio": null,
+      "moving_end": false
+    },
+    {
+      "route": "harness_NTC_sink_to_thermal_sense",
+      "kind": "allocation",
+      "wire": "sink NTC lead in silicone-glass sleeving >= 4 kV, positively retained (IEC 60335-1 sec. 23.6)",
+      "part_number": "OPEN",
+      "od_mm": 2.3,
+      "end_a": "electronics_native21_sink_ENVELOPE",
+      "end_a_point": [
+        -100,
+        270,
+        84.3
+      ],
+      "end_a_gap_mm": 1.3,
+      "end_b": "electronics_controller_J2",
+      "end_b_point": [
+        -20,
+        84,
+        36.8
+      ],
+      "end_b_gap_mm": 1.7,
+      "developed_mm": 289.2,
+      "allowance_per_end_mm": 12.0,
+      "cut_length_mm": 315,
+      "tightest_bend_mm": 7.4,
+      "min_bend_required_mm": 6.9,
+      "tie_points": [],
+      "door_slack_ratio": null,
+      "moving_end": false
+    },
+    {
+      "route": "harness_PE_sink_bond",
+      "kind": "allocation",
+      "wire": "14 AWG green/yellow, 105 \u00b0C (PVC/XLPE)",
+      "part_number": "green/yellow 14 AWG",
+      "od_mm": 4.24,
+      "end_a": "electronics_sink_PE_ear_lug",
+      "end_a_point": [
+        -143.0,
+        246.4,
+        98.0
+      ],
+      "end_a_gap_mm": 0.74,
+      "end_b": "electronics_sink_PE_base_stud_set",
+      "end_b_point": [
+        -172.0,
+        399.5,
+        15.0
+      ],
+      "end_b_gap_mm": 0.9,
+      "developed_mm": 205.0,
+      "allowance_per_end_mm": 20.0,
+      "cut_length_mm": 250,
+      "tightest_bend_mm": 13.6,
+      "min_bend_required_mm": 12.7,
+      "tie_points": [],
+      "door_slack_ratio": null,
+      "moving_end": false
+    },
+    {
+      "route": "harness_UI_fascia_to_controller",
+      "kind": "allocation",
+      "wire": "12-way JST XH jumper, AWG28 (XHP-12 both ends), 120 mm cut",
+      "part_number": "JST XHP-12 x2 + SXH-001T-P0.6 x24",
+      "od_mm": 4.0,
+      "end_a": "controls_ui_board_connectors",
+      "end_a_point": [
+        46.0,
+        55.5,
+        54.6
+      ],
+      "end_a_gap_mm": 0.0,
+      "end_b": "electronics_controller_J7",
+      "end_b_point": [
+        46.0,
+        60.0,
+        35.6
+      ],
+      "end_b_gap_mm": 0.5,
+      "developed_mm": 20.1,
+      "allowance_per_end_mm": 12.0,
+      "cut_length_mm": 120,
+      "tightest_bend_mm": 12.8,
+      "min_bend_required_mm": 12.0,
+      "tie_points": [],
+      "door_slack_ratio": null,
+      "moving_end": false
+    },
+    {
+      "route": "harness_encoder_pigtail_to_UI_board",
+      "kind": "allocation",
+      "wire": "Grayhill factory 3-in cable",
+      "part_number": "part of Grayhill 62VG15-H9S-030C",
+      "od_mm": 3.5,
+      "end_a": "controls_encoder_3in_cable_route",
+      "end_a_point": [
+        110.0,
+        60.0,
+        64.0
+      ],
+      "end_a_gap_mm": 1.0,
+      "end_b": "controls_ui_board_connectors",
+      "end_b_point": [
+        60.5,
+        61.3,
+        61.2
+      ],
+      "end_b_gap_mm": 0.5,
+      "developed_mm": 49.7,
+      "allowance_per_end_mm": 12.0,
+      "cut_length_mm": 75,
+      "tightest_bend_mm": 11.2,
+      "min_bend_required_mm": 10.5,
+      "tie_points": [],
+      "door_slack_ratio": null,
+      "moving_end": false
+    },
+    {
+      "route": "harness_WiFi_coax",
+      "kind": "allocation",
+      "wire": "1.13 mm coax, U.FL both ends, 150 mm",
+      "part_number": "U.FL-to-U.FL 1.13 mm coax 150 mm (catalog no. to select)",
+      "od_mm": 1.5,
+      "end_a": "electronics_controller_ESP32_S3_WROOM_1",
+      "end_a_point": [
+        156.0,
+        67.0,
+        28.6
+      ],
+      "end_a_gap_mm": 0.8,
+      "end_b": "electronics_WiFi_antenna_board",
+      "end_b_point": [
+        148.0,
+        113.0,
+        94.6
+      ],
+      "end_b_gap_mm": 0.8,
+      "developed_mm": 102.8,
+      "allowance_per_end_mm": 12.0,
+      "cut_length_mm": 150,
+      "tightest_bend_mm": 4.8,
+      "min_bend_required_mm": 4.5,
+      "tie_points": [],
+      "door_slack_ratio": null,
+      "moving_end": false
+    },
+    {
+      "route": "harness_rim_NTC_breakout_to_J12",
+      "kind": "allocation",
+      "wire": "2 cores of the 6-core cartridge cable, PTFE",
+      "part_number": "JST XHP-2 + 2x SXH-001T-P0.6",
+      "od_mm": 2.0,
+      "end_a": "electronics_controller_J3",
+      "end_a_point": [
+        149.5,
+        86.0,
+        42.0
+      ],
+      "end_a_gap_mm": 6.9,
+      "end_b": "electronics_controller_J12",
+      "end_b_point": [
+        126.0,
+        86.0,
+        34.6
+      ],
+      "end_b_gap_mm": 3.0,
+      "developed_mm": 28.2,
+      "allowance_per_end_mm": 12.0,
+      "cut_length_mm": 55,
+      "tightest_bend_mm": 6.3,
+      "min_bend_required_mm": 6.0,
+      "tie_points": [],
+      "door_slack_ratio": null,
+      "moving_end": false
+    },
+    {
+      "route": "harness_mains_J11_to_PS3_AC",
+      "kind": "allocation",
+      "wire": "2 x UL1015 18 AWG 600 V 105 C (brown L, blue N), twisted",
+      "part_number": "JST VHR-3N + 2x SVH-21T-P1.1 at J11; 2x insulated fork lugs M3 at PS3",
+      "od_mm": 5.8,
+      "end_a": "electronics_native21_J11_mate",
+      "end_a_point": [
+        129.5,
+        110.2,
+        44.6
+      ],
+      "end_a_gap_mm": 0.6,
+      "end_b": "electronics_PS3_IRM_60_15ST",
+      "end_b_point": [
+        -139.0,
+        152.5,
+        48.5
+      ],
+      "end_b_gap_mm": 0.0,
+      "developed_mm": 331.9,
+      "allowance_per_end_mm": 20.0,
+      "cut_length_mm": 375,
+      "tightest_bend_mm": 13.1,
+      "min_bend_required_mm": 11.6,
+      "tie_points": [
+        "electronics_PS3_bracket",
+        "electronics_PS3_J11_anchor"
+      ],
+      "door_slack_ratio": null,
+      "moving_end": false
+    },
+    {
+      "route": "harness_PS3_DC_to_controller_J13",
+      "kind": "allocation",
+      "wire": "2 x UL1007 18 AWG (red +V, black -V), twisted",
+      "part_number": "JST VHR-2N + 2x SVH-21T-P1.1 at J13; 2x fork lugs M3 at PS3",
+      "od_mm": 4.2,
+      "end_a": "electronics_PS3_IRM_60_15ST",
+      "end_a_point": [
+        -139.0,
+        43.5,
+        48.5
+      ],
+      "end_a_gap_mm": 0.0,
+      "end_b": "electronics_controller_J13",
+      "end_b_point": [
+        88.0,
+        85.7,
+        41.6
+      ],
+      "end_b_gap_mm": 0.5,
+      "developed_mm": 299.4,
+      "allowance_per_end_mm": 12.0,
+      "cut_length_mm": 325,
+      "tightest_bend_mm": 8.4,
+      "min_bend_required_mm": 8.4,
+      "tie_points": [
+        "electronics_PS3_bracket",
+        "electronics_J13_barrier"
+      ],
+      "door_slack_ratio": null,
+      "moving_end": false
+    }
+  ]
+}

@@ -1,0 +1,261 @@
+{
+  "date": "2026-10-13",
+  "purpose": "Hash inventory of review documents/evidence; source archive members preserve original frozen inputs",
+  "records": [
+    {
+      "path": "README.md",
+      "sha256": "e0f66d737d954a787b778b82411b8f67aa7ff71482f939365fa392ed00b94377",
+      "bytes": 24567
+    },
+    {
+      "path": "architecture-economics.json",
+      "sha256": "9e954dbe4afa1767fe336b256735a8a0aaa684ff2726fac0a0b9918d223c5118",
+      "bytes": 5882
+    },
+    {
+      "path": "architecture-economics.md",
+      "sha256": "c075f7148fd5e8ebd4eb9591a6e6d3e6e5d9dc7ab18036e2b07ac3295a66c443",
+      "bytes": 17138
+    },
+    {
+      "path": "assembly-service.json",
+      "sha256": "77ca5205f08be460ccb60c35020239558e95b53e187614b116f54f34b8dc92b1",
+      "bytes": 4801
+    },
+    {
+      "path": "assembly-service.md",
+      "sha256": "8e3547acc92a3388d8e2f8e3b341a0cbbbb4bc5651b59c51e88b36ad86441d08",
+      "bytes": 14193
+    },
+    {
+      "path": "criterion-index.json",
+      "sha256": "7a27a3a1870f717ea02c5a38a4938a446690382f080f109e47f6e3d78f191f7e",
+      "bytes": 35697
+    },
+    {
+      "path": "enclosure-fabrication.json",
+      "sha256": "8766d12e3db904596db3bd37e89223095584b6b6d3ce815ddacfaf6f950eebe6",
+      "bytes": 3716
+    },
+    {
+      "path": "enclosure-fabrication.md",
+      "sha256": "0f392e8ffa90c412ba5ec24da430349127f1a84e835f29d990ff88372fd0b4cf",
+      "bytes": 22096
+    },
+    {
+      "path": "evidence/identity-board-status.json",
+      "sha256": "595e0afd6cd20eaa8220c2676c9044d791612d9f3beb80eee9ad37f2b4a77465",
+      "bytes": 1438
+    },
+    {
+      "path": "evidence/identity-board.json",
+      "sha256": "a43d34b095ff581767e21fa41295b0c48298c3f074bd5545c4ad2014e16d3c50",
+      "bytes": 47662
+    },
+    {
+      "path": "evidence/identity-enclosure.json",
+      "sha256": "03b8563c922e4b3857826ddc9cf8161122f74248b69092b9a00d14301886e26d",
+      "bytes": 165736
+    },
+    {
+      "path": "evidence/identity-manufacturing-stage21b-chain.json",
+      "sha256": "fd8804b135004c071f842c7b1e2b94dd6740457a16958908f43b8cdad6de5517",
+      "bytes": 13054
+    },
+    {
+      "path": "evidence/identity-manufacturing-stage21b-final.json",
+      "sha256": "ac8b9373c16914c34cf7da5a7e68e60d2d1d8ff94643d624797536098d3b4035",
+      "bytes": 12937
+    },
+    {
+      "path": "evidence/manufacturing-stage21b-final.zip",
+      "sha256": "c4b5dda972e26ee0b396d917c17d1a36e680c2ce775ee56f15f8d93b9ae7e576",
+      "bytes": 1370559
+    },
+    {
+      "path": "evidence/pcb/REVIEW-ONLY-PINS.tsv",
+      "sha256": "1614df2f062ed26f93aec5dd3a7a55817a3c3d19a0725aea72846888ba169ebd",
+      "bytes": 16992
+    },
+    {
+      "path": "evidence/pcb/barrier-gate-rust.json",
+      "sha256": "e790e4f7232a31d723596b187ff9988aea434a99ddee06134a4f3a7c53b6a1ba",
+      "bytes": 895
+    },
+    {
+      "path": "evidence/pcb/copper.png",
+      "sha256": "3727ce267dcd8d53d6bb54cf8d10c9904261c5c175b921af57f476313b9eab7f",
+      "bytes": 1158247
+    },
+    {
+      "path": "evidence/pcb/drc-2.json",
+      "sha256": "94449d69f38d082bb47214502fd5ab351eb2ae005e9528edfc16a969dba95128",
+      "bytes": 1045
+    },
+    {
+      "path": "evidence/pcb/drc-3.json",
+      "sha256": "2774fabd44898a3a5b69924c0e238a1dbc51408714d74a59f9b6d8e63b7e87df",
+      "bytes": 1045
+    },
+    {
+      "path": "evidence/pcb/drc.json",
+      "sha256": "2ec8880b09fabf77b214612c39212858bb4c07977f9f00bc2f79c6686a763669",
+      "bytes": 289002
+    },
+    {
+      "path": "evidence/pcb/jlc-dfm.json",
+      "sha256": "926bf64d3605634f8f72f21f5e2db5145734a3c1b26b19edb3cd0085b2134fd9",
+      "bytes": 308
+    },
+    {
+      "path": "evidence/pcb/reference-drill-report.txt",
+      "sha256": "c91186e812993b945a60300d062767ba165607879119f089ee6c3723937a58ec",
+      "bytes": 1309
+    },
+    {
+      "path": "evidence/pcb/reference-positions-kicad.csv",
+      "sha256": "4481189a692682807fb51e1a4607e4a47048bbac8888e5b8807c2af455717bbe",
+      "bytes": 28254
+    },
+    {
+      "path": "evidence/pcb/selected-stage21b-source.zip",
+      "sha256": "93f4882ae931161391751c70320b74409d51ffa4c3ceec825a888bf946a0e192",
+      "bytes": 4743265
+    },
+    {
+      "path": "evidence/pcb/source-bom.csv",
+      "sha256": "60bf6b501c320d37708d07029fc9a16d5c5c45b52f6286b3d64e1c78ab0a6bd6",
+      "bytes": 8065
+    },
+    {
+      "path": "evidence/r43/BOM.csv",
+      "sha256": "67953a2a0a40b5a2770699a1b9f71334d1c3b3b07bb1b47ae63f3199c827efee",
+      "bytes": 141921
+    },
+    {
+      "path": "evidence/r43/CURRENT.json",
+      "sha256": "4f6f496cc91918033a5751e4bf867cffca0a0d707166a166f6ae0302c64193d8",
+      "bytes": 211
+    },
+    {
+      "path": "evidence/r43/evidence/assembly-sequence.json",
+      "sha256": "7410e50160539c3239aaee562931f35fb29013c8ca9b82375198657766539a84",
+      "bytes": 11069
+    },
+    {
+      "path": "evidence/r43/evidence/cover-lift-checks.json",
+      "sha256": "ce54aceea740fec37ea8971305f7b3ea5e35367de8a1be482ebf54ef99c15ca7",
+      "bytes": 3195
+    },
+    {
+      "path": "evidence/r43/evidence/final-validation.json",
+      "sha256": "68da9b100d0b965602cffcb71789db5973ba4486531e659dca2a123e99a5a98c",
+      "bytes": 2007
+    },
+    {
+      "path": "evidence/r43/evidence/harness/harness-list.json",
+      "sha256": "8971fd212e4adf61cf77bde1ac8192041c7737b95c382925668fe7cbb7fd52dd",
+      "bytes": 20569
+    },
+    {
+      "path": "evidence/r43/evidence/native21-pose-check.json",
+      "sha256": "4a806eb3a638e5c604c492b4c9c61f48e5ee09c118aa000c3e2129b65b7c9029",
+      "bytes": 711
+    },
+    {
+      "path": "evidence/r43/evidence/ps3/ps3-clearances.json",
+      "sha256": "d6d0bc57ada43e162717428152f1a9121b59d4a2366e867d89e9cebb3ae5e7fe",
+      "bytes": 3744
+    },
+    {
+      "path": "evidence/r43/evidence/ps3/ps3-mains-span.json",
+      "sha256": "64e0f8a772ca3be0052fcedd56e8293839473c997d2817e7c8131c5b7b47866c",
+      "bytes": 72255
+    },
+    {
+      "path": "evidence/r43/evidence/ps3/ps3-retention.json",
+      "sha256": "dd62eb8f677d0493e2a92ac86ee3585890a69a802ef2321afda1f08f55e3ba2c",
+      "bytes": 11883
+    },
+    {
+      "path": "evidence/r43/evidence/rear-inlet-checks.json",
+      "sha256": "73e6b621216515c11dad4e14f98b7b967ee937c3921f2693aaba7d54cf2e944d",
+      "bytes": 4626
+    },
+    {
+      "path": "evidence/r43/inputs/native-21/SNAPSHOT.json",
+      "sha256": "e5f67b2a02d77ff4fc2f59cc74b4a07a6ebb1ce25d94c00de570c0af56f4ebaa",
+      "bytes": 1650
+    },
+    {
+      "path": "evidence/r43/procurement-register.json",
+      "sha256": "936584c02d04db475e7fcec59b6efc33f69ee4689044ffa90756f6b2cf8c0cdf",
+      "bytes": 270626
+    },
+    {
+      "path": "evidence/transition-before/audit.csv",
+      "sha256": "e1d84a7b629c0f439b7c95e6ef80956bb59e9f212ad0dbdb1d73665aad34e2e5",
+      "bytes": 91596
+    },
+    {
+      "path": "evidence/transition-before/cpl-jlcpcb.corrected-ynegated.csv",
+      "sha256": "5e08d8d9f30e4ce3832a7c386086efa44a8250dcd9d8362236499f7bd12dd24a",
+      "bytes": 12409
+    },
+    {
+      "path": "evidence/transition-before/cpl-jlcpcb.corrected.csv",
+      "sha256": "b7d59ef1f5bc03ebb6e75c2f525f199180f6be9b93f205e22d8c1aea5eb8df76",
+      "bytes": 12056
+    },
+    {
+      "path": "evidence/views/R43-front.png",
+      "sha256": "f8a157e7d4545bbbfc8359e19cae8356f7724f1b39663612876442409e20dece",
+      "bytes": 199288
+    },
+    {
+      "path": "evidence/views/R43-interior.png",
+      "sha256": "eef6305feb8b11505d8bfc8256f8523acfff0396ae8c3170f95f7c362606ec3a",
+      "bytes": 883560
+    },
+    {
+      "path": "evidence/views/R43-rear.png",
+      "sha256": "e113a4fc4bcbbd5f1c0ce9310ade99e39a32667a09af3dc36ad7fcae798145e8",
+      "bytes": 216509
+    },
+    {
+      "path": "evidence/views/R43-underside.png",
+      "sha256": "361a083f64f987f38c658e88bee947d8d29e4564df590e82100e7b0fa4830922",
+      "bytes": 266315
+    },
+    {
+      "path": "pcb-assembly.json",
+      "sha256": "ceb8de9e923d3d217fbe316e8f12cedf3965799a235a2a9d4559184b3f2b04e6",
+      "bytes": 15502
+    },
+    {
+      "path": "pcb-assembly.md",
+      "sha256": "2a3a3f55ff7a6424c55f611f2ad2d97a1ac4d315e1d87ac42088543e580748d6",
+      "bytes": 18171
+    },
+    {
+      "path": "scorecard.md",
+      "sha256": "9b252bcfa2cd5e3784a3d7480da550c1aa7dc24d7e9b20fdc2aa53ece68e2a17",
+      "bytes": 4710
+    },
+    {
+      "path": "thermal-wiring.json",
+      "sha256": "a3acc04824c4b7bd37c8df2af94914ca0563642e66ff438c5c68ff99d885c46c",
+      "bytes": 5280
+    },
+    {
+      "path": "thermal-wiring.md",
+      "sha256": "b8252567ee2d16f1cf624664409f84fdbcf91fdc10e1718e5055b93333c14213",
+      "bytes": 14108
+    },
+    {
+      "path": "verification.md",
+      "sha256": "4447e65db07c4ebeecc1ac021e75efef01dc9b4331280ad3eecf32a9e3f10c41",
+      "bytes": 7203
+    }
+  ]
+}

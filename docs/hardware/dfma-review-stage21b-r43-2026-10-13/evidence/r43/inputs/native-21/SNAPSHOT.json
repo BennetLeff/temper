@@ -1,0 +1,29 @@
+{
+  "source_worktree": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v",
+  "branch": "codex/power-stage-integration",
+  "head": "8496f67c6eb24137fbbea1a4615819111631d9e4",
+  "dirty_paths_at_snapshot": [
+    " M validation-plan/enclosure-fit/plan-result.json",
+    "?? native-21/candidate-libs/",
+    "?? native-21/fp-lib-table",
+    "?? native-21/models3d/",
+    "?? native-21/routed/",
+    "?? native-21/section.kicad_pcb",
+    "?? native-21/section.kicad_pro",
+    "?? native-21/stackup.json",
+    "?? validation-results/08-manufacturing-package/native-21/owner-items/order/codex-procurement-2026-10-09-summary.md",
+    "?? validation-results/08-manufacturing-package/native-21/owner-items/order/codex-procurement-2026-10-09.csv"
+  ],
+  "taken": "2026-10-09",
+  "files": {
+    "BRINGUP-PROBES.md": "7589bcb02ba386af2ac6928d343751d3d6216076febaebf24a7050876e88c752",
+    "FLOORPLAN.md": "405dd750e5cc0fbcb79b621cc9ca4d9adfb00e70ab70e10dfa46de8db5868587",
+    "native21-boxes.json": "37d303c826286daf3cab2ccea2d1a0f4755bf5207798f9884b070135c1c34a6f",
+    "native21-courtyards.json": "e699b256e6930685d8920b4a5f8837078e20c34e8f15eec08ca075e08cd98b87",
+    "native21-envelopes.json": "fd03c567f039dbb0fad90a7bf94ce2e9d54b3377fdd32b5a4fef0f88ca618b7a",
+    "native21-plan.json": "95e516e869db0546cff93216ab72e390c53d7d4e0fcddcac606d5ddb239e61cc",
+    "section.kicad_pcb": "7430159671582725070640393982e4fcc1b24bdb721b83224b4419ad9329fa66"
+  },
+  "previous_snapshot": "inputs/native-21-r28-snapshot",
+  "note": "Read-only snapshot (stage 12: F1 -> UL Class CC KLDR025 in 10x38 clips). Holes parsed from BRINGUP-PROBES.md."
+}

@@ -1,0 +1,26 @@
+{
+  "review": "R43 enclosure fabrication, fit and mechanisms against the DFMA rubric",
+  "stage": "engineering prototype planning (digital evidence only)",
+  "assembly_sha256": "0a6fcd0fe8dfa03477ffc170df59d2ab32faee8e67ea38e94059fa7066be86ce",
+  "board_interface_note": "R43 native-21 pose evidence uses stage-13; stage21b integration is unverified",
+  "criteria": [
+    {"id":"DFMA-25","score":"2","confidence":"high","evidence":["design/r32/DECISIONS.md:41-55","quote-package/QUOTE-REQUEST.md:39-48"],"finding_ids":["ENC-01","ENC-02"]},
+    {"id":"DFMA-26","score":"2","confidence":"medium","evidence":["quote-package/QUOTE-REQUEST.md:41-47","design/r43/DECISIONS.md:25","quote-package/QUOTE-REQUEST.md:53-57"],"finding_ids":["ENC-02"]},
+    {"id":"DFMA-27","score":"1","confidence":"high","evidence":["evidence/fabrication/r32-flats.json","design/r32/HANDOFF.md:43,71","quote-package/QUOTE-REQUEST.md:39-48"],"finding_ids":["ENC-01","ENC-02"]},
+    {"id":"DFMA-28","score":"2","confidence":"medium","evidence":["quote-package/QUOTE-REQUEST.md:10-20"],"finding_ids":["ENC-03"]},
+    {"id":"DFMA-29","score":"2","confidence":"medium","evidence":["quote-package/QUOTE-REQUEST.md:16,22,26","design/r43/DECISIONS.md:21-30"],"finding_ids":["ENC-03","ENC-04"]},
+    {"id":"DFMA-30","score":"1","confidence":"high","evidence":["design/r32/DECISIONS.md:10-13,50","quote-package/QUOTE-REQUEST.md:5,40,53-57"],"finding_ids":["ENC-01","ENC-05"]},
+    {"id":"DFMA-31","score":"2","confidence":"medium","evidence":["src/r32_shell.py:221-315","design/r43/DECISIONS.md:21-30","evidence/assembly-sequence.json"],"finding_ids":["ENC-04","ENC-06"]},
+    {"id":"DFMA-32","score":"2","confidence":"medium","evidence":["quote-package/QUOTE-REQUEST.md:39-40","evidence/sensor-r16/cartridge-checks.json"],"finding_ids":["ENC-07"]},
+    {"id":"DFMA-33","score":"1","confidence":"high","evidence":["design/r32/DECISIONS.md:53","design/r43/DECISIONS.md:27","quote-package/QUOTE-REQUEST.md:5"],"finding_ids":["ENC-07","ENC-08"]},
+    {"id":"DFMA-34","score":"1","confidence":"high","evidence":["design/r39/DECISIONS.md:5-24","quote-package/QUOTE-REQUEST.md:27,42-47","design/r43/DECISIONS.md:30"],"finding_ids":["ENC-01","ENC-08"]},
+    {"id":"DFMA-35","score":"2","confidence":"medium","evidence":["src/r32_shell.py:221-255","design/r32/DECISIONS.md:58-61"],"finding_ids":["ENC-04","ENC-07"]},
+    {"id":"DFMA-36","score":"1","confidence":"high","evidence":["design/r32/BENCH-PLAN.md:9-31,53-74","design/r43/DECISIONS.md:30,80"],"finding_ids":["ENC-04","ENC-09"]},
+    {"id":"DFMA-55","score":"2","confidence":"medium","evidence":["design/r32/DECISIONS.md:64,72-76","evidence/spill/geometry-screen.json","design/r32/BENCH-PLAN.md:33-47"],"finding_ids":["ENC-10"]},
+    {"id":"DFMA-56","score":"1","confidence":"high","evidence":["src/r32_shell.py:193-238,299-316","design/spill/hidden-outlet-cassette-prototype.md","src/r33_world.py:282"],"finding_ids":["ENC-10","ENC-11"]},
+    {"id":"DFMA-57","score":"2","confidence":"medium","evidence":["design/r32/DECISIONS.md:32","evidence/sensor-r16/cartridge-checks.json","design/r16/BENCH-TEST-PLAN.md","design/r43/DECISIONS.md:98"],"finding_ids":["ENC-09","ENC-12"]},
+    {"id":"DFMA-58","score":"U","confidence":"high","evidence":["design/r43/DECISIONS.md:14-76","evidence/native21-pose-check.json"],"finding_ids":["ENC-13"]},
+    {"id":"DFMA-59","score":"2","confidence":"medium","evidence":["quote-package/QUOTE-REQUEST.md:5-49","design/r43/DECISIONS.md:21-22"],"finding_ids":["ENC-05","ENC-11"]},
+    {"id":"DFMA-60","score":"1","confidence":"medium","evidence":["renders/R43-front.png","renders/R43-rear.png","quote-package/QUOTE-REQUEST.md:47-48"],"finding_ids":["ENC-10","ENC-11"]}
+  ]
+}

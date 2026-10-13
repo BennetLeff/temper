@@ -1,0 +1,24 @@
+{
+  "requested": "native-21 stage21b",
+  "status": "IDENTITY_UNRESOLVED",
+  "published_primary_baseline": "stage15b",
+  "other_published_snapshot": "stage19b",
+  "accepted_producer_stage": "21 (accepted candidate; validation-results/10-benchmark/scorecard-native21s21.json): BR1 feeds BUS_P / HV_RET directly, J7-J10 rail links removed (bench build: BR1 unfitted, leads in its holes), R5.4 via field 5 x 0.8/0.5 mm; DECISIONS item 25",
+  "accepted_board_hash": "fac94215369b6c285472a98e4cc255def9739f19fe2cf43e3439f6884e2bcae3",
+  "accepted_copper_hash": "b164d518f8f4a51c8a44849366fac7332a9f74674bb4c6d9d7332134a17b634e",
+  "live_copper_hash": "c608c724953cbdab4fb304ae1b30c08c48196aab91fe8eac4b87b052d6dd5835",
+  "intermediate_boards": [
+    {
+      "path": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s21b/p1/i1/section.kicad_pcb",
+      "sha256": "eea4bc42cbd24d337e9c03d0c3bf5e873267b004dd1d57317b4053a7ba673cdc",
+      "status": "intermediate routing output; NOT selected for review"
+    },
+    {
+      "path": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s21b/p1/i2/section.kicad_pcb",
+      "sha256": "73f415c6b0ddded90235d5da88c36aa9f9686c7cb248e95b0659ba00c9089846",
+      "status": "intermediate routing output; NOT selected for review"
+    }
+  ],
+  "decision": "STOP PCB assessment until completed stage21b board and matching manifest are identified; no silent baseline repin",
+  "question_pending": true
+}

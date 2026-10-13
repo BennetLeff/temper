@@ -1,0 +1,8 @@
+{
+  "revision": "R43",
+  "status": "DESIGN_CANDIDATE_PENDING_INTEGRATION_REVIEW",
+  "units": "mm",
+  "assembly": "STEP/assembly.step",
+  "build": "src/assembly.py",
+  "baseline": "../temper-manufacturing-r42"
+}

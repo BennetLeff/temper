@@ -1,0 +1,360 @@
+{
+  "revision": "R32",
+  "assembly_sha256": "0a6fcd0fe8dfa03477ffc170df59d2ab32faee8e67ea38e94059fa7066be86ce",
+  "steps": [
+    {
+      "step": 1,
+      "title": "Base on fixture: chassis with pressed-in door nuts, rear under-base dam",
+      "parts": 6,
+      "path": "placed",
+      "swept_parts": 6,
+      "pair_checks": 0,
+      "blocked": []
+    },
+    {
+      "step": 2,
+      "title": "Push in feet (fixture holds base over clearance holes)",
+      "parts": 5,
+      "path": "along (0, 0, -1) from 30 mm",
+      "swept_parts": 5,
+      "pair_checks": 0,
+      "blocked": []
+    },
+    {
+      "step": 3,
+      "title": "Set coil standoffs",
+      "parts": 3,
+      "path": "along (0, 0, 1) from 100 mm",
+      "swept_parts": 3,
+      "pair_checks": 34,
+      "blocked": []
+    },
+    {
+      "step": 4,
+      "title": "Standoff screws from below",
+      "parts": 3,
+      "path": "along (0, 0, -1) from 25 mm",
+      "swept_parts": 3,
+      "pair_checks": 85,
+      "blocked": []
+    },
+    {
+      "step": 5,
+      "title": "native-21 male-female standoffs threaded into the base",
+      "parts": 7,
+      "path": "along (0, 0, 1) from 40 mm",
+      "swept_parts": 7,
+      "pair_checks": 0,
+      "blocked": []
+    },
+    {
+      "step": 6,
+      "title": "PE chassis hardware",
+      "parts": 5,
+      "path": "along (0, 0, 1) from 30 mm",
+      "swept_parts": 3,
+      "pair_checks": 27,
+      "blocked": []
+    },
+    {
+      "step": 7,
+      "title": "Controller snap-in supports pushed into the base",
+      "parts": 6,
+      "path": "along (0, 0, 1) from 40 mm",
+      "swept_parts": 6,
+      "pair_checks": 0,
+      "blocked": []
+    },
+    {
+      "step": 8,
+      "title": "SELV controller board (under the fascia)",
+      "parts": 12,
+      "path": "along (0, 0, 1) from 60 mm",
+      "swept_parts": 12,
+      "pair_checks": 12,
+      "blocked": []
+    },
+    {
+      "step": 9,
+      "title": "EMI module stand: tabs through base slots, twisted (top PEM nuts pre-clinched)",
+      "parts": 5,
+      "path": "along (0, 0, 1) from 60 mm",
+      "swept_parts": 5,
+      "pair_checks": 19,
+      "blocked": []
+    },
+    {
+      "step": 10,
+      "title": "EMI stand M3 screw from above into the tapped base (R32)",
+      "parts": 1,
+      "path": "along (0, 0, 1) from 25 mm",
+      "swept_parts": 1,
+      "pair_checks": 20,
+      "blocked": []
+    },
+    {
+      "step": 11,
+      "title": "D-22 inlet EMI module onto its stand",
+      "parts": 1,
+      "path": "along (0, 0, 1) from 60 mm",
+      "swept_parts": 1,
+      "pair_checks": 0,
+      "blocked": []
+    },
+    {
+      "step": 12,
+      "title": "EMI case PE braid: module rear stud to S1 (hand, R32)",
+      "parts": 1,
+      "path": "placed",
+      "swept_parts": 1,
+      "pair_checks": 2,
+      "blocked": []
+    },
+    {
+      "step": 13,
+      "title": "Inlet bulkhead with the EC11 and window gasket (fixed, R32 study 05)",
+      "parts": 3,
+      "path": "along (0, 0, 1) from 60 mm",
+      "swept_parts": 3,
+      "pair_checks": 10,
+      "blocked": []
+    },
+    {
+      "step": 14,
+      "title": "Bulkhead M4 screws from below",
+      "parts": 1,
+      "path": "along (0, 0, -1) from 25 mm",
+      "swept_parts": 0,
+      "pair_checks": 0,
+      "blocked": []
+    },
+    {
+      "step": 15,
+      "title": "Blower on its two isolating spacers, inlet down over the base field (R32 study 02)",
+      "parts": 2,
+      "path": "along (0, 0, 1) from 60 mm",
+      "swept_parts": 1,
+      "pair_checks": 0,
+      "blocked": []
+    },
+    {
+      "step": 16,
+      "title": "native-21 subassembly (board, components; insulator layer, spreader bar, FR-4 strip and comb clamp the sink to the FET/BR1 row)",
+      "parts": 10,
+      "path": "along (0, 0, 1) from 120 mm",
+      "swept_parts": 10,
+      "pair_checks": 289,
+      "blocked": []
+    },
+    {
+      "step": 17,
+      "title": "native-21 top screws",
+      "parts": 7,
+      "path": "along (0, 0, 1) from 25 mm",
+      "swept_parts": 7,
+      "pair_checks": 210,
+      "blocked": []
+    },
+    {
+      "step": 18,
+      "title": "PS3 blower-supply subassembly (bench: IRM-60 screwed to its bracket, both blocks wired), lowered beside native-21 before the push hood's F2 duct closes over its rear end (R41)",
+      "parts": 5,
+      "path": "along (0, 0, 1) from 60 mm",
+      "swept_parts": 5,
+      "pair_checks": 225,
+      "blocked": []
+    },
+    {
+      "step": 19,
+      "title": "Sink cradle with its pad slid in under the sink from behind, lip into the fin channel (R33 study 07); floats in its Y slot",
+      "parts": 2,
+      "path": "along (0, 1, 0) from 40 mm",
+      "swept_parts": 2,
+      "pair_checks": 90,
+      "blocked": []
+    },
+    {
+      "step": 20,
+      "title": "Cradle M3 screw from above through the slot, after the comb is torqued (R33 study 04)",
+      "parts": 1,
+      "path": "along (0, 0, 1) from 25 mm",
+      "swept_parts": 1,
+      "pair_checks": 12,
+      "blocked": []
+    },
+    {
+      "step": 21,
+      "title": "Sink thermal cutoff",
+      "parts": 1,
+      "path": "along (0, 0, 1) from 30 mm",
+      "swept_parts": 1,
+      "pair_checks": 0,
+      "blocked": []
+    },
+    {
+      "step": 22,
+      "title": "Push hood with its F2 bleed duct, and the exhaust plenum (R32 study 02)",
+      "parts": 3,
+      "path": "along (0, 0, 1) from 100 mm",
+      "swept_parts": 3,
+      "pair_checks": 280,
+      "blocked": []
+    },
+    {
+      "step": 23,
+      "title": "Push-hood and plenum-wall M3 screws from above into the tapped base",
+      "parts": 2,
+      "path": "along (0, 0, 1) from 25 mm",
+      "swept_parts": 2,
+      "pair_checks": 44,
+      "blocked": []
+    },
+    {
+      "step": 24,
+      "title": "Nomex over the sink top (coil plenum)",
+      "parts": 1,
+      "path": "along (0, 0, 1) from 30 mm",
+      "swept_parts": 1,
+      "pair_checks": 11,
+      "blocked": []
+    },
+    {
+      "step": 25,
+      "title": "Plug native-21 J3 and J4 mates",
+      "parts": 3,
+      "path": "along (0, 0, 1) from 30 mm",
+      "swept_parts": 3,
+      "pair_checks": 48,
+      "blocked": []
+    },
+    {
+      "step": 26,
+      "title": "PS3 J11 tie anchor (R42): lowered from above outboard of native-21, its fin over the plugged J11 housing (3 mm clear), two M3 screws into the base nuts; the mains lead is routed beside its fin afterwards and tied to it",
+      "parts": 2,
+      "path": "along (0, 0, 1) from 60 mm",
+      "swept_parts": 2,
+      "pair_checks": 132,
+      "blocked": []
+    },
+    {
+      "step": 27,
+      "title": "J13 barrier (R43): lowered from above into the 6.4 mm strip between the controller's edge and native-21's board edge, after the controller, native-21 and its J11 mate; the two snap tabs push through the base floor slots and the barbs catch under the floor; the DC pair is routed and tied to it afterwards",
+      "parts": 1,
+      "path": "along (0, 0, 1) from 60 mm",
+      "swept_parts": 1,
+      "pair_checks": 52,
+      "blocked": []
+    },
+    {
+      "step": 28,
+      "title": "Harness lane brackets and mains anchor: tabs through base slots, twisted",
+      "parts": 6,
+      "path": "along (0, 0, 1) from 60 mm",
+      "swept_parts": 6,
+      "pair_checks": 105,
+      "blocked": []
+    },
+    {
+      "step": 29,
+      "title": "Route harness (hand, flexible; under the carrier channel, before the coil goes in)",
+      "parts": 25,
+      "path": "placed",
+      "swept_parts": 0,
+      "pair_checks": 0,
+      "blocked": []
+    },
+    {
+      "step": 30,
+      "title": "Coil and sensor subassembly (SELV tray hung under the carrier, R32; coil leads with their crimped ring lugs). Hold ~50 mm above the seat, torque the J2/J5 M4 nuts through the open gap, then lower (lead slack loop)",
+      "parts": 11,
+      "path": "along (0, 0, 1) from 150 mm",
+      "swept_parts": 11,
+      "pair_checks": 69,
+      "blocked": []
+    },
+    {
+      "step": 31,
+      "title": "Coil carrier top screws",
+      "parts": 3,
+      "path": "along (0, 0, 1) from 25 mm",
+      "swept_parts": 3,
+      "pair_checks": 49,
+      "blocked": []
+    },
+    {
+      "step": 32,
+      "title": "Coil-ear M3 screws from above into the tapped carrier (R33: replaces the PEEK rim clips)",
+      "parts": 1,
+      "path": "along (0, 0, 1) from 25 mm",
+      "swept_parts": 1,
+      "pair_checks": 58,
+      "blocked": []
+    },
+    {
+      "step": 33,
+      "title": "Sink PE bond ends (hand, after the coil drop: the bolt head sits 7.5 mm over the Nomex barrier corner and would block the barrier lowering; carrier is open at X>130 for access): ear lug on the M4 through-bolt stack, toothed washers on masked faces, nyloc 1.2 N m; base-stud lug + toothed washers + M4 nut (PEM FHA-M4-12 pressed in with the base)",
+      "parts": 3,
+      "path": "placed",
+      "swept_parts": 1,
+      "pair_checks": 2,
+      "blocked": []
+    },
+    {
+      "step": 34,
+      "title": "Sensor cartridge: drop through the bayonet notches, turn 60\u00b0",
+      "parts": 12,
+      "path": "bayonet: drop 60 mm with lugs in notches, then turn 60\u00b0",
+      "swept_parts": 12,
+      "pair_checks": 632,
+      "blocked": []
+    },
+    {
+      "step": 35,
+      "title": "Cover subassembly (R32 six-part cover: seat ring + fence + fascia + U-wrapper, bonded glass, controls, M12, cover PE)",
+      "parts": 47,
+      "path": "along (0, 0, 1) from 150 mm",
+      "swept_parts": 46,
+      "pair_checks": 4062,
+      "blocked": []
+    },
+    {
+      "step": 36,
+      "title": "Cover screws from below",
+      "parts": 4,
+      "path": "along (0, 0, -1) from 25 mm",
+      "swept_parts": 4,
+      "pair_checks": 235,
+      "blocked": []
+    },
+    {
+      "step": 37,
+      "title": "Door subassembly (door, cassette, hook studs and brackets, gasket)",
+      "parts": 11,
+      "path": "door: aft/low, forward, up 4 mm",
+      "swept_parts": 11,
+      "pair_checks": 239,
+      "blocked": []
+    },
+    {
+      "step": 38,
+      "title": "Door screws from below",
+      "parts": 2,
+      "path": "along (0, 0, -1) from 25 mm",
+      "swept_parts": 2,
+      "pair_checks": 108,
+      "blocked": []
+    },
+    {
+      "step": 39,
+      "title": "Push on knob",
+      "parts": 2,
+      "path": "along (0, -0.574, 0.819) from 40 mm",
+      "swept_parts": 2,
+      "pair_checks": 201,
+      "blocked": []
+    }
+  ],
+  "unassigned_parts": [],
+  "status": "PASS_SCOPED_SEQUENCE_SCREEN",
+  "scope": "Replay the R14 assembly sequence and sweep each step's insertion path.\n\nThe product is built top-down on the base: every step moves a part or a bench\nsubassembly along a stated path into its installed position. Each sampled pose\nis checked against everything installed in earlier steps. This is a rigid,\nsampled screen (5 mm steps far out, 1 mm within 20 mm of seat, plus 0.5 mm).\n\nNot modelled: hand-routed flexible harness (installed without a sweep), the\ndeformation of snap-in and compressible parts (listed as compliant pairs),\nand two-piece screw-and-nut sets, which are placed (their screw and nut arrive\nfrom opposite sides). Tool reach is outside this check."
+}

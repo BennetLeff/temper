@@ -1,0 +1,367 @@
+{
+  "scope": "PS3 cable retention (R43; R42 rule): what a tie point buys if a conductor comes loose at a terminal.\n\nFailure mode: a conductor pulls out of (or its crimp breaks at) a terminal. Everything between the last tie and that terminal is then free,\nso its loose end can be anywhere within `reach` of the tie point, where reach = cable length from the nearest tie to that end. The rule tested\nis the one the clearances already use (evidence/ps3/check_ps3_clearances.py, power stage): that loose end must stay >= 8 mm from\n    - SELV parts, for the PS3 mains lead (J11 lead), and\n    - HOT (mains-side) parts, for the DC pair.\nTest (a sphere, so it ignores obstacles and is conservative): distance(tie point, nearest part of the forbidden class) - reach >= 8 mm.\nThe HOT / SELV classes are check_ps3_clearances.cls(); the retention check adds the WiFi coax to SELV (the clearance classes omit it).\nWhere a terminal has no tie within reach, the row says so and gives the largest reach that could pass (terminal-to-class distance - 8 mm).\n\nAlso reported, as information and not as pass/fail: tie spacing along each cable, the unanchored span, the cable-surface clearance along that span\n(the droop it could take before touching a solid; there is no cable-stiffness model here), the cable-to-anchor gaps, and a geometry\ntest that each tie's two slots are open and the web between them is solid (a strap through both slots, round the cable, links the web).\n\nR43 adds, for the DC pair's J13 end only, a path-around-obstacles test (the sphere ignores the J13 barrier, so it cannot show what the barrier does):\n    - the loose-end region is every free point within `reach` of the tie T_J13 (the tie on the barrier, 1 mm of cable above the plug's end);\n    - its distance to the HOT parts is measured round the solid parts and the barrier, two ways: (1) a 0.5 mm voxel Dijkstra (evidence/ps3/geodesic.py,\n      with its measured over-estimate turned into a lower bound) and (2) an analytic lower bound that ignores every obstacle but the barrier panel\n      (a path from the front of the panel to anything behind it must cross the panel's plane outside the panel, so the shortest such path is found\n      by scanning the crossing points; the strap fills the tie slots);\n    - both must give >= 8 mm; the larger reach the barrier would protect is reported.\n    Also reported, as the no-J13-tie case: the same tether test from T_DC (reach 289 mm, loose end anywhere a cable of that length can lie, round the solid parts),\n    which fails because the free path from the PS3 end to the HOT block is far shorter than reach + 8 mm; no local barrier changes that, hence T_J13.\nNo standard clause is cited: the practice (a tie within a short distance of each terminal so a loosened conductor cannot swing to a hazardous part)\nis the one R23 used for the mains anchor.\n\nRun after src/assembly.py: python evidence/ps3/check_ps3_retention.py   (writes evidence/ps3/ps3-retention.json)",
+  "limit_mm": 8.0,
+  "cables": {
+    "harness_mains_J11_to_PS3_AC": {
+      "length_mm": 331.9,
+      "tightest_bend_mm": 13.09,
+      "od_mm": 5.8,
+      "bend_rule_mm": 11.6,
+      "bbox_vs_build_mm": 0.03
+    },
+    "harness_PS3_DC_to_controller_J13": {
+      "length_mm": 299.4,
+      "tightest_bend_mm": 8.42,
+      "od_mm": 4.2,
+      "bend_rule_mm": 8.4,
+      "bbox_vs_build_mm": 0.01
+    }
+  },
+  "ties": {
+    "T_J11": {
+      "cable": "harness_mains_J11_to_PS3_AC",
+      "end": "J11",
+      "arc_from_cable_start_mm": 6.5,
+      "point": [
+        128.841,
+        110.574,
+        51.018
+      ],
+      "anchor": "electronics_PS3_J11_anchor",
+      "cable_to_anchor_gap_mm": 2.45,
+      "gap_ok": true,
+      "slot_centres": [
+        [
+          124.04,
+          103.84,
+          51.02
+        ],
+        [
+          133.64,
+          103.84,
+          51.02
+        ]
+      ],
+      "slots_open": true,
+      "web_between_slots_solid": true,
+      "web_mm": 8.0,
+      "strap_loop_estimate_mm": 24.0
+    },
+    "T_AC": {
+      "cable": "harness_mains_J11_to_PS3_AC",
+      "end": "PS3 AC",
+      "arc_from_cable_start_mm": 321.9,
+      "point": [
+        -138.903,
+        162.496,
+        48.5
+      ],
+      "anchor": "electronics_PS3_bracket",
+      "cable_to_anchor_gap_mm": 0.7,
+      "gap_ok": true,
+      "slot_centres": [
+        [
+          -143.62,
+          162.5,
+          43.7
+        ],
+        [
+          -143.62,
+          162.5,
+          53.3
+        ]
+      ],
+      "slots_open": true,
+      "web_between_slots_solid": true,
+      "web_mm": 8.0,
+      "strap_loop_estimate_mm": 20.5
+    },
+    "T_DC": {
+      "cable": "harness_PS3_DC_to_controller_J13",
+      "end": "PS3 DC",
+      "arc_from_cable_start_mm": 10.0,
+      "point": [
+        -138.276,
+        33.591,
+        48.181
+      ],
+      "anchor": "electronics_PS3_bracket",
+      "cable_to_anchor_gap_mm": 0.7,
+      "gap_ok": true,
+      "slot_centres": [
+        [
+          -142.81,
+          33.59,
+          44.18
+        ],
+        [
+          -142.81,
+          33.59,
+          52.18
+        ]
+      ],
+      "slots_open": true,
+      "web_between_slots_solid": true,
+      "web_mm": 6.4,
+      "strap_loop_estimate_mm": 16.4
+    },
+    "T_J13": {
+      "cable": "harness_PS3_DC_to_controller_J13",
+      "end": "J13",
+      "arc_from_cable_start_mm": 298.4,
+      "point": [
+        88.0,
+        85.65,
+        42.6
+      ],
+      "anchor": "electronics_J13_barrier",
+      "cable_to_anchor_gap_mm": 4.45,
+      "gap_ok": true,
+      "slot_centres": [
+        [
+          84.0,
+          92.99,
+          42.6
+        ],
+        [
+          92.0,
+          92.99,
+          42.6
+        ]
+      ],
+      "slots_open": true,
+      "web_between_slots_solid": true,
+      "web_mm": 6.4,
+      "strap_loop_estimate_mm": 23.9
+    }
+  },
+  "status": "PASS",
+  "blocked": [],
+  "anchor_parts": [
+    "electronics_J13_barrier",
+    "electronics_PS3_J11_anchor",
+    "electronics_PS3_bracket"
+  ],
+  "anchor_to_native21_mm": {
+    "electronics_J13_barrier": 2.22,
+    "electronics_PS3_J11_anchor": 3.01,
+    "electronics_PS3_bracket": 2.93
+  },
+  "mains_lead_to_wifi_coax_mm": 36.8,
+  "terminals": [
+    {
+      "cable": "harness_mains_J11_to_PS3_AC",
+      "terminal": "J11 (native-21)",
+      "forbidden_class": "SELV",
+      "terminal_to_class_mm": 19.33,
+      "terminal_nearest": "harness_fan_to_controller",
+      "max_reach_that_could_pass_mm": 11.33,
+      "nearest_tie": "T_J11",
+      "reach_mm": 6.5,
+      "tie_to_class_mm": 18.99,
+      "tie_nearest": "harness_fan_to_controller",
+      "margin_mm": 4.49,
+      "passes": true,
+      "no_ties_margin_mm": -288.84
+    },
+    {
+      "cable": "harness_mains_J11_to_PS3_AC",
+      "terminal": "PS3 AC block",
+      "forbidden_class": "SELV",
+      "terminal_to_class_mm": 51.08,
+      "terminal_nearest": "harness_fan_to_controller",
+      "max_reach_that_could_pass_mm": 43.08,
+      "nearest_tie": "T_AC",
+      "reach_mm": 10.0,
+      "tie_to_class_mm": 51.12,
+      "tie_nearest": "harness_fan_to_controller",
+      "margin_mm": 33.12,
+      "passes": true,
+      "no_ties_margin_mm": -320.58
+    },
+    {
+      "cable": "harness_PS3_DC_to_controller_J13",
+      "terminal": "PS3 DC block",
+      "forbidden_class": "HOT",
+      "terminal_to_class_mm": 21.16,
+      "terminal_nearest": "electronics_native21_board",
+      "max_reach_that_could_pass_mm": 13.16,
+      "nearest_tie": "T_DC",
+      "reach_mm": 10.0,
+      "tie_to_class_mm": 24.12,
+      "tie_nearest": "electronics_native21_board",
+      "margin_mm": 6.12,
+      "passes": true,
+      "no_ties_margin_mm": -296.64
+    },
+    {
+      "cable": "harness_PS3_DC_to_controller_J13",
+      "terminal": "controller J13",
+      "forbidden_class": "HOT",
+      "terminal_to_class_mm": 10.75,
+      "terminal_nearest": "electronics_native21_components_ENVELOPE",
+      "max_reach_that_could_pass_mm": 2.75,
+      "nearest_tie": "T_J13",
+      "reach_mm": 1.0,
+      "tie_to_class_mm": 10.75,
+      "tie_nearest": "electronics_native21_components_ENVELOPE",
+      "margin_mm": 1.75,
+      "passes": true,
+      "no_ties_margin_mm": -286.24,
+      "geodesic_round_barrier": {
+        "limit_mm": 8.0,
+        "local_voxel": {
+          "cell_mm": 0.5,
+          "domain": [
+            [
+              38.0,
+              76.0,
+              10.0
+            ],
+            [
+              146.0,
+              116.0,
+              76.0
+            ]
+          ],
+          "sources": 31,
+          "grid_distance_mm": 21.48,
+          "nearest_hot_voxel_at": [
+            88.0,
+            96.0,
+            52.0
+          ],
+          "over_estimate_ratio_measured": 1.1281,
+          "lower_bound_mm": 18.54,
+          "same_without_barrier_mm": 9.75,
+          "limit_mm": 8.0,
+          "passes": true
+        },
+        "analytic_lower_bound": {
+          "hot_points": 56021,
+          "hot_cell_mm": 2.0,
+          "centre_to_face_allowance_mm": 1.73,
+          "front_of_panel_straight_line_mm": 137.26,
+          "round_the_panel_mm": 21.71,
+          "crossing_point": [
+            88.0,
+            92.2,
+            56.5
+          ],
+          "lower_bound_mm": 21.71,
+          "limit_mm": 8.0,
+          "passes": true,
+          "loose_end_region_lower_bound_mm": 20.71
+        },
+        "protected_reach_mm": {
+          "analytic": 13.7,
+          "voxel": 11.5,
+          "actual_reach_mm": 1.0
+        },
+        "no_J13_tie_tether": {
+          "native21_HOT_block": {
+            "free_path_from_T_DC_mm": 228.7,
+            "lower_bound_mm": 200.7,
+            "at": [
+              64.0,
+              95.0,
+              48.0
+            ],
+            "needed_mm": 297.4,
+            "passes": false
+          },
+          "all_HOT_parts": {
+            "free_path_from_T_DC_mm": 28.5,
+            "lower_bound_mm": 23.3,
+            "at": [
+              -142.0,
+              45.0,
+              28.0
+            ],
+            "needed_mm": 297.4,
+            "passes": false
+          },
+          "free_path_T_DC_to_J13_exit_mm": 249.4,
+          "reach_mm": 289.4,
+          "cell_mm": 2.0,
+          "over_estimate_ratio_measured": 1.1281
+        },
+        "status": "PASS"
+      }
+    }
+  ],
+  "spacing": {
+    "harness_mains_J11_to_PS3_AC": {
+      "gaps": [
+        {
+          "from": "start",
+          "to": "T_J11",
+          "cable_mm": 6.5,
+          "chord_mm": 6.5
+        },
+        {
+          "from": "T_J11",
+          "to": "T_AC",
+          "cable_mm": 315.4,
+          "chord_mm": 272.7
+        },
+        {
+          "from": "T_AC",
+          "to": "end",
+          "cable_mm": 10.0,
+          "chord_mm": 10.0
+        }
+      ],
+      "longest_span_mm": 315.4,
+      "longest_span_between": [
+        "T_J11",
+        "T_AC"
+      ],
+      "span_surface_clearance_mm": 4.99,
+      "span_nearest": "electronics_native21_components_ENVELOPE",
+      "span_nearest_at": [
+        22.4,
+        128.0,
+        60.0
+      ],
+      "max_tie_spacing_mm": 315.4,
+      "droop_headroom_flag": false
+    },
+    "harness_PS3_DC_to_controller_J13": {
+      "gaps": [
+        {
+          "from": "start",
+          "to": "T_DC",
+          "cable_mm": 10.0,
+          "chord_mm": 9.9
+        },
+        {
+          "from": "T_DC",
+          "to": "T_J13",
+          "cable_mm": 288.4,
+          "chord_mm": 232.3
+        },
+        {
+          "from": "T_J13",
+          "to": "end",
+          "cable_mm": 1.0,
+          "chord_mm": 1.0
+        }
+      ],
+      "longest_span_mm": 288.4,
+      "longest_span_between": [
+        "T_DC",
+        "T_J13"
+      ],
+      "span_surface_clearance_mm": 3.9,
+      "span_nearest": "electronics_controller_J4_right_angle",
+      "span_nearest_at": [
+        -48.8,
+        30.0,
+        41.0
+      ],
+      "max_tie_spacing_mm": 288.4,
+      "droop_headroom_flag": false
+    }
+  }
+}

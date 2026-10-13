@@ -1,0 +1,35 @@
+{
+  "review": "architecture-economics",
+  "stage": "routed stage21b PCB and digital R43 enclosure candidate; cross-domain fit and complete-unit cost not verified",
+  "rubric_version": "dfma-reference-rubric-2026-10-13",
+  "source_root": "/private/tmp/temper-dfma-review-stage21b-2026-10-13/input",
+  "selected_board_identity": "/private/tmp/temper-dfma-review-stage21b-2026-10-13/identity-board.json",
+  "selected_board_sha256": "c015804959add81e948055279cb78946e3a762ac9077c0b21bfbde3c89d0cb56",
+  "source_boundary": "Stage21b PCB is exactly selected and has 353 resolved designators in 92 grouped CSV rows, all with zero-price placeholders; R43 mechanical/procurement inventory excludes board components and embeds stage12/stage13 board geometry, so whole-unit fit and cost remain unverified",
+  "criteria": [
+    {"id":"DFMA-01","score":"1","confidence":"high","evidence":["../identity-board.json","pcb-stage21b/frozen/resolved-components.json","enclosure-r43/CURRENT.json","enclosure-r43/quote-package/QUOTE-REQUEST.md:1-5","enclosure-r43/inputs/native-21/SNAPSHOT.json:17-28","enclosure-r43/BOM.csv:42"],"finding_ids":["ECO-01"]},
+    {"id":"DFMA-02","score":"2","confidence":"medium","evidence":["enclosure-r43/procurement-register.json:8-17","enclosure-r43/design/r43/DECISIONS.md:13-32","enclosure-r43/design/r39/DECISIONS.md:5-19"],"finding_ids":["ECO-02"]},
+    {"id":"DFMA-03","score":"2","confidence":"medium","evidence":["enclosure-r43/README.md:113-130","enclosure-r43/design/r43/HANDOFF.md:20-49","enclosure-r43/design/r43/DECISIONS.md:97-100"],"finding_ids":["ECO-01","ECO-06"]},
+    {"id":"DFMA-04","score":"2","confidence":"high","evidence":["enclosure-r43/quote-package/QUOTE-REQUEST.md:1-49","enclosure-r43/design/r36/COIL-PROTOTYPE-BUILD.md"],"finding_ids":["ECO-06"]},
+    {"id":"DFMA-05","score":"1","confidence":"high","evidence":["enclosure-r43/procurement-register.json:8-17","enclosure-r43/BOM.csv:42","enclosure-r43/BOM.csv:198"],"finding_ids":["ECO-03"]},
+    {"id":"DFMA-06","score":"2","confidence":"high","evidence":["pcb-stage21b/frozen/resolved-components.json","pcb-stage21b/frozen/default.csv","enclosure-r43/design/r39/DECISIONS.md:5-19","enclosure-r43/procurement-register.json:8-17","enclosure-r43/BOM.csv"],"finding_ids":["ECO-02","ECO-03"]},
+    {"id":"DFMA-07","score":"1","confidence":"high","evidence":["pcb-stage21b/frozen/resolved-components.json","pcb-stage21b/frozen/default.csv","enclosure-r43/procurement-register.json:8-17","enclosure-r43/BOM.csv:42","enclosure-r43/quote-package/QUOTE-REQUEST.md:42","enclosure-r43/quote-package/QUOTE-REQUEST.md:47","enclosure-r43/design/r39/DECISIONS.md:10-12"],"finding_ids":["ECO-04"]},
+    {"id":"DFMA-08","score":"1","confidence":"high","evidence":["../identity-board.json","pcb-stage21b/board.step","pcb-stage21b/section.kicad_pcb","enclosure-r43/inputs/native-21/SNAPSHOT.json:17-28","enclosure-r43/BOM.csv:42","enclosure-r43/BOM.csv:58","enclosure-r43/BOM.csv:68","enclosure-r43/design/r43/DECISIONS.md:94-95"],"finding_ids":["ECO-01","ECO-03"]},
+    {"id":"DFMA-09","score":"1","confidence":"high","evidence":["enclosure-r43/design/r43/DECISIONS.md:21-23","enclosure-r43/design/r43/DECISIONS.md:88-93","enclosure-r43/quote-package/QUOTE-REQUEST.md:22"],"finding_ids":["ECO-05"]},
+    {"id":"DFMA-10","score":"U","confidence":"medium","evidence":["enclosure-r43/quote-package/QUOTE-REQUEST.md:9-24","enclosure-r43/quote-package/QUOTE-REQUEST.md:49"],"finding_ids":["ECO-03"]},
+    {"id":"DFMA-11","score":"U","confidence":"medium","evidence":["enclosure-r43/quote-package/QUOTE-REQUEST.md","enclosure-r43/BOM.csv"],"finding_ids":["ECO-03"]},
+    {"id":"DFMA-12","score":"U","confidence":"high","evidence":["pcb-stage21b/frozen/default.csv","enclosure-r43/quote-package/QUOTE-REQUEST.md:3","enclosure-r43/quote-package/QUOTE-REQUEST.md:59","enclosure-r43/design/r43/HANDOFF.md:102"],"finding_ids":["ECO-06"]},
+    {"id":"DFMA-67","score":"U","confidence":"high","evidence":["pcb-stage21b/frozen/default.csv","enclosure-r43/quote-package/QUOTE-REQUEST.md:3","enclosure-r43/quote-package/QUOTE-REQUEST.md:51","enclosure-r43/design/r43/HANDOFF.md:102"],"finding_ids":["ECO-06"]},
+    {"id":"DFMA-68","score":"U","confidence":"high","evidence":["pcb-stage21b/frozen/default.csv","enclosure-r43/quote-package/QUOTE-REQUEST.md:1-5","enclosure-r43/design/r43/HANDOFF.md:102"],"finding_ids":["ECO-06"]},
+    {"id":"DFMA-71","score":"U","confidence":"high","evidence":["../identity-board.json","pcb-stage21b/frozen/default.csv","enclosure-r43/CURRENT.json","enclosure-r43/inputs/native-21/SNAPSHOT.json:17-28","enclosure-r43/quote-package/QUOTE-REQUEST.md:51"],"finding_ids":["ECO-01","ECO-06"]},
+    {"id":"DFMA-72","score":"1","confidence":"high","evidence":["../identity-board.json","pcb-stage21b/producer-context/verification/final-manifest.json","enclosure-r43/CURRENT.json","enclosure-r43/design/r43/DECISIONS.md:88-95","enclosure-r43/inputs/native-21/SNAPSHOT.json:17-28"],"finding_ids":["ECO-01","ECO-05","ECO-06"]}
+  ],
+  "findings": [
+    {"id":"ECO-01","class":"evidence_gap","title":"Selected stage21b routed PCB has not been integrated into R43 enclosure","severity":"high"},
+    {"id":"ECO-02","class":"measurement_definition","title":"R43 top-level quantity is not an exploded physical-part count","severity":"medium"},
+    {"id":"ECO-03","class":"evidence_gap","title":"Exact selected parts and make/buy exceptions remain open","severity":"medium"},
+    {"id":"ECO-04","class":"documentation_mismatch","title":"R43 internal quote text retains pre-R39 insert callouts","severity":"medium"},
+    {"id":"ECO-05","class":"evidence_gap","title":"J13 barrier and tie require material and representative fit evidence","severity":"high"},
+    {"id":"ECO-06","class":"economics_evidence_gap","title":"No comparable accepted complete-unit cost for stage21b plus R43","severity":"high"}
+  ]
+}

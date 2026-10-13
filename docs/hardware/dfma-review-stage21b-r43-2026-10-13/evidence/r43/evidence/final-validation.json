@@ -1,0 +1,45 @@
+{
+  "revision": "R11",
+  "status": "REVIEW_PACKAGE_VERIFIED_NOT_RELEASED",
+  "assembly_sha256": "ebbcebb95aa7441fac7bc82d72a28651fff8aecc69e7ef14a350927b98442081",
+  "checks": {
+    "source_input_and_export_identity": "PASS",
+    "saved_part_roundtrips": "PASS",
+    "strict_viewer_json": "PASS",
+    "nominal_saved_pair_screen": "PASS_SCOPED_SCREEN_WITH_UNVERIFIED_PROXY_INTERFACES",
+    "unresolved_pair_hits": 0,
+    "rigid_door_poses": "PASS_SCOPED_NOMINAL_CHECK",
+    "harness_shapes": "PASS_VALID_POSITIVE_VOLUME",
+    "spill_screen": "PASS_NOMINAL_GEOMETRY_ONLY",
+    "native_default_rule_DRC": "FAIL_NATIVE_DEFAULT_RULES",
+    "production_rule_DRC_and_ERC": "UNVERIFIED",
+    "R10_manifest_files_unchanged": 332
+  },
+  "inventory": {
+    "geometry_entries": 218,
+    "BOM_rows": 201,
+    "normalized_instances_including_allocations_and_consumables": 226,
+    "unresolved_allocation_instances": 20,
+    "unresolved_allocation_geometry_entries": 24,
+    "reference_entries": 8,
+    "explicit_multi_blank_weldments": [
+      {
+        "name": "electronics_U5_chassis_sink_support",
+        "fabrication_piece_count": 4
+      },
+      {
+        "name": "electronics_rear_fan_bracket",
+        "fabrication_piece_count": 2
+      },
+      {
+        "name": "spill_hidden_rear_louver_duct",
+        "fabrication_piece_count": 6
+      }
+    ],
+    "count_limit": "Finished mechanical service assemblies and allocations; not a census of weldment blanks or components inside the PCB. PCB footprint count is recorded in electrical evidence; explicit_multi_blank_weldments reports cut blanks separately from service assemblies."
+  },
+  "integrated_prototype_gate": "FAIL",
+  "powered_hot_wet_gate": "FAIL",
+  "production_gate": "FAIL",
+  "scope": "Digital identity and explicitly scoped CAD checks only. Full electrical DRC fails; mains landing, fan supply, firmware, terminations and physical qualification remain open. Capsule joint sums are conservative intersection-screen volumes, not material volumes."
+}
