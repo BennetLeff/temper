@@ -356,6 +356,68 @@ for path, tx, ty in STAGE14_TARGETS:
 put("f_blw", 266.5, 118.4, 0)
 put("j_blw_ac", 266.5, 125.8, 0)
 
+# Stage 19 (DECISIONS 19, engineering review N1): each IC's dedicated 100 nF bypass cap was parked 11-70 mm away
+# (the v3v3 row at x 41-75 / the monitor and HOT5 rows) after the ICs moved. The caps move; none is added.
+# Courtyard centres, KiCad angle (pad 1 = supply net). SELV logic row: y 127.1 puts each cap's courtyard
+# 0.125 mm above its IC's (top y 128.0), supply pad over pin 5 (angle 180, pad 1 right).
+# native-21/layout/gates/bypass_check.py reports the distances; bypass_spots.py found the free spots.
+STAGE19_MOVES = {
+    "bias_c_or": (4.457, 127.1, 180.0),            # U25 (bias_or) pin 5 at x 5.2325
+    "line_zc.cbuffer": (9.248, 127.1, 180.0),      # U24 pin 5 at x 10.0225
+    "c_bias_flt_vcc": (14.038, 127.1, 180.0),      # U40 pin 5 at x 14.8125
+    "c_ct_neg": (18.828, 127.1, 180.0),            # U11 pin 5 at x 19.6025
+    "c_ct_pos": (23.618, 127.1, 180.0),            # U10 pin 5 at x 24.3925
+    "c_ct_zc": (28.408, 127.1, 180.0),             # U12 pin 5 at x 29.1825
+    "c_fault_or": (33.198, 127.1, 180.0),          # U13 pin 5 at x 33.9725
+    # HOT5 Schmitt U15 (pin 5 hot5 at 104.2325, 52.195; pin 3 ocp_kelvin_p at 101.9575, 54.095), left of it:
+    # above it (y 50.4) the pads sit 2.4-2.6 mm from the sw_a F.Cu pour, inside the 3.2 mm HOT-group spacing
+    "c_hot5_schmitt": (100.03, 54.2, 270.0),
+    # LM339 rail monitors: supply pin 3 (left column), return pin 12 (right column) cannot both be reached;
+    # the cap sits at pin 3 and its return goes by via to the In1 n_* plane
+    "monitor_ls.cmonitor": (100.07, 78.2, 90.0),           # U29 pin 3 at (102.27, 78.955)
+    "bias_ha.monitor.cmonitor": (45.47, 76.48, 90.0),      # U30 pin 3 at (47.67, 77.255)
+    "bias_hb.monitor.cmonitor": (2.07, 67.25, 90.0),       # U31 pin 3 at (2.07, 72.255): board edge, no room beside it; 2 legal poses
+}
+for path, pose in STAGE19_MOVES.items():
+    POSE[path] = pose
+
+# Stage 19 PI1 (DECISIONS 19, review PI1; RECOM R24C2T25/R Rev.1-2024 p.13: "place the capacitors between pin 28, 29
+# (VOUT+) and pins 19-25, 30-31, 35-36 (VOUT-) ... close to the IC"). Each module's own output pair (HsSplit cout1
+# 10 uF + chf 100 nF) moves from the split/monitor area (25.6 / 26.5 mm) to the VOUT+ pins: the 1210 vertical with
+# its p pad under pin 28, the 0603 horizontal under pins 29-31, courtyards 0.05 mm below the module's (y 72.995 /
+# 67.995). The driver-local reservoirs (C10 / C11 / C145, C17 / C18 / C147 and the bias_h clusters) are separate
+# parts at the drivers and stay. The FB network (rfbt / cfb) steps aside; U42's FBVOUT pins drop to a via (RECOM:
+# "use a via near the FBVout- pin to route the feedback connection through a different layer") because U31 holds
+# the 1210 0.35 mm further east than at U41. 08-manufacturing-package/native-21/stage19-pi-si/pi_distances19.py
+# measures them.
+STAGE19_PI = {
+    "bias_ha.split.cout1": (55.93, 75.39, 270.0),     # C104: pad 1 (p_ha) at (55.93, 73.915), 2.88 mm from U41.28
+    "bias_ha.split.chf": (59.15, 73.82, 0.0),         # C75: p_ha 58.375 (2.79 mm to U41.29), n_ha 59.925 (2.88 to U41.31)
+    "bias_ha.rfbt": (59.15, 75.42, 0.0),              # R92: p_ha under C75.1, fbm east to the pin-34 stub
+    "bias_ha.cfb": (61.6, 74.57, 270.0),              # C71: fbm on top, under FBVOUT+ / FBCOM
+    "bias_hb.split.cout1": (9.985, 70.39, 270.0),     # C108: pad 1 (p_hb) at (9.985, 68.915), 2.79 mm from U42.28; U31 at x 8.29
+    "bias_hb.split.chf": (13.205, 68.82, 0.0),        # C82: p_hb 12.43 (2.93 to U42.29), n_hb 13.98 (2.86 to U42.35)
+    "bias_hb.cfb": (14.0, 70.42, 0.0),                # C72: fbm west, n_hb east
+    "bias_hb.rfbt": (14.0, 72.02, 0.0),               # R94: p_hb west, fbm east
+}
+# Stage 19 PI2 (review PI2; TI TPS7A47 SBVS204 9.1: components "as near as practical to the respective LDO pin
+# connections", in/out cap and GND returns "connected by a wide, component-side, copper surface"). U26 had U29 0.55 mm
+# to its west and R31 / R35 1.1 mm above, so no cap fitted at its pins: it moves 3.185 mm east / 2.275 mm down into
+# free board (C98 then fits above it, 5 mm clear of the RES_A F.Cu strip), C99 (OUT) takes its old west side,
+# C98 (IN 15 / 16) the north-east corner, C64 (NR 14) the east side; an F.Cu n_ls pour joins the GND pins and the cap returns (patches21.add_stage19_pi).
+STAGE19_PI.update({
+    "bias_ls.ldo": (115.4, 81.05, 0.0),               # U26 (was 112.215, 78.775)
+    "bias_ls.cout1": (110.23, 81.05, 270.0),          # C99: v15_ls (110.23, 79.575) 2.81 mm to OUT 1; n_ls 2.81 to GND 5
+    "bias_ls.cin": (118.9, 76.165, 0.0),             # C98: v24_raw (117.425, 76.165) 2.62 mm to IN 16; pad 2 6.4 mm from RES_A (5.0)
+    "bias_ls.cnr": (120.15, 80.4, 0.0),               # C64: ldo_nr (119.375, 80.4) 1.61 mm to NR 14 (EN 13 / IN 15 either side)
+})
+# Stage 19 SI2 (review SI2): U2's (leg-B driver) VCCI bypass C14 sat 8 mm below its VCCI / GND pins 3 / 4; it moves
+# under them (UCC21550: "bypass ... as close to the VCCI pin as possible"), which also puts a v3v3-selv_gnd capacitor
+# 2.4 mm from the pwm_hb F.Cu -> B.Cu via at U2.1 (the reference change at the driver input).
+STAGE19_PI["leg_b.c_vcci"] = (31.075, 57.85, 0.0)   # C14: v3v3 (30.3, 57.85), selv_gnd (31.85, 57.85)
+for path, pose in STAGE19_PI.items():
+    POSE[path] = pose
+
 missing = sorted(set(PARTS) - set(POSE))
 if missing:
     raise SystemExit(f"{len(missing)} unplaced: {missing}")

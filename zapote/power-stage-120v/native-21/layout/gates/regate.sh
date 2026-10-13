@@ -10,6 +10,8 @@ R=validation-results/04-board-current-thermal/round5-native21
 $KP tools/copper_dump.py $B $1/evidence.json >/dev/null 2>&1
 ZAPOTE_POWER_BARRIER_BIN=${ZAPOTE_POWER_BARRIER_BIN:-/Users/bennet/Desktop/temper/target-shared/debug/zapote-power-barrier} python3 native-21/layout/barrier_gate21.py $1/evidence.json > $1/barrier-gate-rust.json
 $KP tools/jlc_dfm_check.py $B > $1/jlc-dfm.json 2>/dev/null
+# local bypass: every comparator / Schmitt buffer / rail monitor has its 100 nF within the stage-19 limits (fails the gate)
+$KP native-21/layout/gates/bypass_check.py $B $1/bypass-check.json > $1/bypass-check.txt 2>&1 || { grep -v -i "wxapp\|Debug\|assert" $1/bypass-check.txt >&2; echo "BYPASS GATE FAILED" >&2; exit 1; }
 $KP validation-results/04-board-current-thermal/round4/reextract-b3/extract_geometry.py $B $1/native21-all-copper.json.gz >/dev/null 2>&1
 $KP tools/export_power_copper.py $B $R/inputs/power_copper.json.gz >/dev/null 2>&1
 cd $R && rm -f outputs/*-pl*.json outputs/*.npz outputs/summary.json

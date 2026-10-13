@@ -283,6 +283,18 @@ runs rise 1–10 K and remain outside the 22 A envelope.
 - **B3:** every case within 0.01 K of 17b (h 25: 130.2 / 131.1 / 132.1 / 136.0 °C at 22 / 24 / 26 / 28 A; nominal h 10 / h 25
   163.2 / 129.1 °C). BUS_P span 4.129 %. G6 not re-run (R5 copper unchanged; R5.4 peak 135.96 vs 135.97 °C).
 
+### Stage 19 re-run (2026-10-12, board `370fcf37…`; PI / SI / N1, DECISIONS item 19)
+
+- **Change:** U26 (0.87 W) moved 3.2 mm east / 2.3 mm down with C98 / C99 / C64 at its pins and an F.Cu n_ls pour under
+  its GND side; the module output caps beside U41 / U42; SELV bypass caps beside their ICs; a few signal re-routes.
+  No power-path copper moved.
+- **B3 (h 25):** 22 / 24 / 26 / 28 A → 130.2 / 131.1 / 132.1 / 136.0 °C (22–26 A at U42, 28 A at R5.4), unchanged.
+  Nominal h 10 / h 25 163.2 / 129.1 °C; c28 h 10 197.4 °C. BUS_P span 4.129 %.
+- **U26:** pad-cell max 85.7 / 86.0 / 86.3 / 86.6 / 86.9 °C (nominal, 22–28 A, h 25), was 126.1–127.4 °C; the mean moved
+  83.7 → 81.7 °C (nominal h 25). Stage 18's maximum was one hot pad cell, so read the mean.
+- **G6:** re-run on this board (`stage17-r5/g6_r5_derating.py --tag native21s19`, evidence in
+  `08-manufacturing-package/native-21/stage19-pi-si/g6-native21s19.json`): R5 pad max 134.86 °C, margin 50.8 %, PASS.
+
 **Verdict, task 04 on native-21:** nominal operation passes the copper width screen after the SW_B
 fix (SW_A at 18.8 K is the tightest). The board needs a tank-current ceiling (22 A RMS interim).
 Bench IR at nominal power remains the physical gate (D4).

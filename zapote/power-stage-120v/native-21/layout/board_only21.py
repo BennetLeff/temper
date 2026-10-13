@@ -31,6 +31,13 @@ if sys.argv[1] == "--fix-labels":
         e = lab["references"].get(x["ref"])
         if e is not None:
             e.update(at=[round(x["at"][0], 3), round(x["at"][1], 3)], layer="F.Fab")
+    # stage 19 (review K6): two silk designators overlap board-only silk marks the label tool does not see
+    # (KiCad DRC silk_overlap): Q2 against the BR1 outline rectangle (x 78.1) and C152 against the board ID text.
+    # They go to the assembly drawing like the hole and test-point designators. Re-derive from DRC, not by estimate.
+    for ref in ("Q2", "C152"):
+        e = lab["references"].get(ref)
+        if e is not None:
+            e["layer"] = "F.Fab"
     labels_path.write_text(json.dumps(lab, indent=1) + "\n")
     sys.exit(0)
 if sys.argv[1] == "--unmirror":

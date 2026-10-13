@@ -36,6 +36,12 @@ python3 -c "import json;g=json.load(open('$B/barrier-gate-rust.json'));print('RU
 # stage 18: RES_A to SELV / PE per outer layer (12.6 mm), from the copper dump (evidence folder script)
 python3 validation-results/08-manufacturing-package/native-21/stage18-res-a-creepage/res_a_creepage18.py "$B/copper-dump.json" --json "$B/res-a-creepage.json" | tail -1
 cp "$B/native21-all-copper.json.gz" native-21/verification/$TAG-all-copper.json.gz
+cp "$B/bypass-check.json" native-21/verification/bypass-check-$TAG.json
+# stage 19: converter-local caps (PI1 / PI2, <= 3 mm) and fast-signal return paths (SI1 / SI2), evidence folder
+S19=validation-results/08-manufacturing-package/native-21/stage19-pi-si
+$KP $S19/pi_distances19.py "$B/section.kicad_pcb" --json "$B/pi-distances.json" 2>/dev/null | grep -v -i "wxapp\|Debug" | tail -1
+python3 $G/return_path19.py "$B/copper-dump.json" --json "$B/return-path.json" | tail -1
+python3 -c "import json;d=json.load(open('$B/bypass-check.json'));print('BYPASS',d['all_pass'],{k:(v['nearest_cap']['ref'],v['nearest_cap']['supply_pad_to_pad_mm']) for k,v in d['checks'].items()})"
 python3 - "$H" "$TAG" <<'PY'
 import re, sys
 h, tag = sys.argv[1], sys.argv[2]

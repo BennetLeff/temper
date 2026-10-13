@@ -31,6 +31,24 @@ REMOVE += [{"net": "leg_ret", "box": [55.5, 39.9, 95.5, 40.1], "kind": "track", 
 # by add_stage18; these boxes hold exactly those two base polylines (their other B.Cu pieces lie at x < 80).
 REMOVE += [{"net": "line_zc_raw", "box": [89.0, 100.0, 210.0, 130.0], "kind": "track", "layer": "B.Cu"},
            {"net": "v15_selv", "box": [76.0, 120.0, 211.0, 140.0], "kind": "track", "layer": "B.Cu"}]
+# Stage 19 (DECISIONS 19): the SELV bypass row at y 127.1 (place.py STAGE19_MOVES) sits 7.84-7.88 mm from two
+# base n_hb via-and-stub pairs at y 118.35 (C82.2 and R111.2 to the In1 n_hb pour, laid before the row moved up).
+# Drop them: the router re-attaches both pads with the barrier check against the new pads.
+REMOVE += [{"net": "n_hb", "box": [4.0, 118.0, 4.6, 118.7], "kind": "via"},
+           {"net": "n_hb", "box": [4.0, 118.0, 4.6, 118.7], "kind": "track", "layer": "F.Cu", "touch": True},
+           {"net": "n_hb", "box": [12.1, 118.0, 12.7, 118.7], "kind": "via"},
+           {"net": "n_hb", "box": [12.1, 118.0, 12.7, 118.7], "kind": "track", "layer": "F.Cu", "touch": True}]
+# Stage 19 (PI2): U26 moved east; the PS2 v24_raw In1 feed's last leg to the old IN 16 via is a dangling stub.
+REMOVE += [{"net": "v24_raw", "box": [115.9, 76.7, 117.7, 77.1], "kind": "track", "layer": "In1.Cu"}]
+# ... and its new thermal-pad field (add_ep) would cut the leg_ret B.Cu run (U16 side up to the protection block) and
+# the hot5 In1 rail; both are taken out whole here and re-laid round the field by add_stage19_pi.
+# Stage 19 (SI1): bus_fault_hot's last run to U9 follows the Kelvin chain on In2; the U29 monitor isolator input's
+# In2 run crossed that lane (y 112.7-114.9) and is re-laid by the routing passes.
+REMOVE += [{"net": "monitor_ls-isoin", "box": [104.0, 112.6, 104.5, 112.9], "kind": "track", "layer": "In2.Cu", "touch": True}]
+REMOVE += [{"net": "n_ls", "box": [113.0, 82.2, 114.4, 82.9], "kind": "via"},
+           {"net": "n_ls", "box": [113.0, 82.2, 114.4, 82.9], "kind": "track", "layer": "F.Cu", "touch": True}]
+REMOVE += [{"net": "leg_ret", "box": [114.6, 82.0, 114.8, 82.2], "kind": "track", "layer": "B.Cu", "touch": True},
+           {"net": "hot5", "box": [120.0, 86.0, 120.2, 86.2], "kind": "track", "layer": "In1.Cu", "touch": True}]
 REMOVE_ESCAPES = [("J3", "1"), ("J3", "2")]   # the 3.96 mm J3 pin escapes; the 7.92 mm B2P3-VH needs none (M7)
 HANDLED = ()
 
@@ -217,12 +235,15 @@ def add(g):
     add_stage17(g)          # before add_r5: the Kelvin pair's In1 run under R5 is laid first
     add_r5(g)
     add_ep(g)
+    add_stage19_pi(g)    # stage 19: before the stage-14 module re-links, which route round these pins
     add_stack(g)
     add_stage8(g)
     add_stage13(g)
     add_stage14(g)
     add_stage16(g)
     add_stage18(g)
+    add_stage19(g)
+    add_stage19_si(g)
     resolve_zone_priorities(g["ZONES"])
 
 
@@ -359,6 +380,204 @@ def add_stage16(g):
                     ("n_filt", CU, box, 1.0, ["PS1.2", "J11.2"])])
 
 
+
+def add_stage19(g):
+    """Stage 19 (DECISIONS 19): copper the router could not lay for the moved bypass caps.
+    C87 (U31's cmonitor, vertical beside the board edge): p_hb pad down a via to the In2 p_hb run at x 2.4.
+    C49 (U15's bypass, left of it): pads linked to U15.5 / U15.3 by the router (it could not
+    do so in the open-pair passes). bias_hb_bad (U25.6 to U34.13) lost its y 127.56 lane to the cap row."""
+    from patches21_v1 import put, route_group
+    drill(g, "p_hb", 2.4, 68.8, size=0.6)
+    put(g, "p_hb", "F.Cu", 0.25, "C87.1", [2.4, 68.8])
+    put(g, "p_hb", "In2.Cu", 0.25, [2.4, 68.8], [2.4, 71.925])
+    # C44 (U10's bypass): its selv_gnd pad to the U10.2 return via at x 25.22 (the open-pair passes left it open)
+    put(g, "selv_gnd", "F.Cu", 0.25, "C44.2", [23.843, 128.1], [25.243, 128.1], [25.643, 128.5], [25.643, 129.745])
+    box49 = (97.0, 49.0, 108.0, 58.0)
+    route_group(g, [("hot5", CU, box49, 0.3, ["C49.1", "U15.5"]),
+                    ("ocp_kelvin_p", CU, box49, 0.25, ["C49.2", "U15.3"]),
+                    ("bias_hb_bad", CU, (1.0, 104.0, 36.0, 133.0), 0.3, ["U25.6", "U34.13"])])
+
+def add_stage19_pi(g):
+    """Stage 19 PI1 / PI2 (DECISIONS 19; place.py STAGE19_PI): the converter-local capacitor links, laid by hand so
+    each is a short F.Cu run from the pin to the cap pad (no via in the VOUT+ / OUT / IN / NR paths).
+    U41 / U42 (RECOM R24C2T25/R p.13): VOUT+ pins 28 / 29 straight down into the 1210's p pad and on to the 0603's;
+    the 0603's VOUT- pad back up to pin 31 (U41) / pin 35 (U42); the 1210's VOUT- pad to the In1 n_h* plane by a
+    via beside it (the F.Cu n_h* pour around the secondary pins joins it too). FBVOUT+ / FBVOUT- (33 / 34) are tied
+    between their pads; U41's leaves by a stub east of the 0603, U42's by a via (U31 holds its 1210 further east).
+    U26 (TI SBVS204 9.1): OUT 1 / 20 / SENSE 3 meet at C99's v15_ls pad; IN 15 / 16 straight into C98 (north-east
+    corner); NR 14 straight to C64 (east); EN 13 by a via; an F.Cu n_ls pour joins GND 4-10, the pad and the cap
+    returns."""
+    from patches21_v1 import put, route_group
+    F1 = ("F.Cu",)
+    L4 = ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu")
+    # --- U41 (leg A high side)
+    put(g, "p_ha", "F.Cu", 0.3, "U41.29", [57.475, 73.82], "C75.1")
+    put(g, "p_ha", "F.Cu", 0.3, "U41.28", [56.825, 72.6], [57.475, 72.6])
+    put(g, "p_ha", "F.Cu", 0.3, [57.475, 73.915], "C104.1")
+    put(g, "p_ha", "F.Cu", 0.3, "C75.1", "R92.1")
+    put(g, "n_ha", "F.Cu", 0.3, "C75.2", [59.925, 72.75], [58.775, 72.75], "U41.31")
+    put(g, "bias_ha-fbm", "F.Cu", 0.25, "U41.33", "U41.34")
+    put(g, "bias_ha-fbm", "F.Cu", 0.2, "U41.34", [60.725, 73.795], "C71.1")
+    put(g, "bias_ha-fbm", "F.Cu", 0.2, [60.725, 73.795], [60.725, 75.42], "R92.2")
+    drill(g, "n_ha", 55.93, 78.3, size=0.6)
+    put(g, "n_ha", "F.Cu", 0.5, "C104.2", [55.93, 78.3])
+    # --- U42 (leg B high side)
+    put(g, "p_hb", "F.Cu", 0.3, "U42.29", [11.175, 68.82], "C82.1")
+    put(g, "p_hb", "F.Cu", 0.3, "U42.28", [10.525, 68.915], "C108.1")
+    put(g, "n_hb", "F.Cu", 0.3, "C82.2", [15.075, 68.82], "U42.35")
+    put(g, "bias_hb-fbm", "F.Cu", 0.25, "U42.33", "U42.34")
+    drill(g, "bias_hb-fbm", 14.1, 67.72, size=0.6)
+    put(g, "bias_hb-fbm", "F.Cu", 0.25, "U42.33", [13.775, 67.72], [14.1, 67.72])
+    drill(g, "n_hb", 11.0, 73.5, size=0.6)
+    put(g, "n_hb", "F.Cu", 0.5, "C108.2", [11.0, 73.5])
+    # --- U26 (low-side bias LDO; pins: OUT 1 / 20, SENSE 3, GND 4-10, EN 13, NR 14, IN 15 / 16)
+    put(g, "v15_ls", "F.Cu", 0.4, "U26.1", [112.1, 79.7], "C99.1")
+    put(g, "v15_ls", "F.Cu", 0.3, "U26.20", [114.1125, 77.85], [112.1, 77.85], [112.1, 79.7])
+    put(g, "v15_ls", "F.Cu", 0.3, "U26.3", [112.1, 81.05], [112.1, 79.7])
+    put(g, "n_ls", "F.Cu", 0.5, "C99.2", "U26.5")
+    put(g, "ldo_nr", "F.Cu", 0.25, "U26.14", "C64.1")
+    # IN 16 straight up into C98's v24_raw pad, IN 15 up its east side; the PS2 v24_raw In1 feed ends at
+    # (117.6, 77.0) under that pad: an In1 stub to a via between C98's pads joins it.
+    put(g, "v24_raw", "F.Cu", 0.3, "U26.16", "C98.1")
+    put(g, "v24_raw", "In1.Cu", 0.4, [117.6, 77.0], [118.6, 77.0], escape="n_ls")   # the In1 n_ls pour refills round it
+    drill(g, "v24_raw", 118.6, 77.0, size=0.6)
+    put(g, "v24_raw", "F.Cu", 0.3, "U26.15", [118.45, 79.75], [118.45, 77.6], [118.6, 77.0], "C98.1")
+    # EN 13 (tied to IN; no current) leaves under C64 and reaches the same via on B.Cu
+    drill(g, "v24_raw", 118.9, 81.85, size=0.6)
+    put(g, "v24_raw", "F.Cu", 0.2, "U26.13", [118.6, 81.05], [118.9, 81.85])
+    put(g, "v24_raw", "B.Cu", 0.25, [118.9, 81.85], [118.6, 77.0])
+    # C98 / C64 returns: C98's down C64's east side, both into the local F.Cu pour and by a via to In1 n_ls
+    put(g, "n_ls", "F.Cu", 0.4, "C98.2", [121.3, 77.1], [121.3, 79.9], "C64.2")
+    drill(g, "n_ls", 121.6, 81.5, size=0.6)
+    put(g, "n_ls", "F.Cu", 0.4, "C64.2", [121.6, 81.5], [121.6, 82.5])
+    g["zone"]("n_ls", "F.Cu", (108.7, 82.0, 122.0, 85.2), name="n_ls U26 local return (stage 19)")
+    # leg_ret (B.Cu) and hot5 (In1) re-laid west / south of U26's thermal-pad field
+    put(g, "leg_ret", "B.Cu", 0.2, [113.6, 55.4], [113.6, 65.2], [114.1, 65.7], [114.1, 70.4], [114.7, 71.0], [114.7, 76.4],
+        [112.85, 78.25], [112.85, 85.15], [113.0, 85.3])
+    if not g["link"]("hot5", ("In1.Cu", "In2.Cu", "B.Cu"), (100.0, 72.0, 124.0, 117.0), 0.4,
+                     ["@110.0,73.695,In1.Cu", "@107.105,115.675,In1.Cu"]):
+        raise SystemExit("stage 19: hot5 rail round U26")
+    # The rails that served U26's old pins lose their base copper with them (incr21 prunes what hangs off it): the PS2
+    # v24_raw In1 feed is re-laid on its base polyline (else the router takes it diagonally across the In1 hv_ret
+    # trunk and splits it); the LS rail (v15_ls) and leg_ret runs round U26 are re-joined at the end of add_stage19_si.
+    put(g, "v24_raw", "In1.Cu", 0.4, "PS2.4", [212.2, 17.6], [212.2, 76.0], [150.0, 76.0], [144.3, 60.55], [121.8, 60.55],
+        [121.8, 77.0], [117.6, 77.0], escape=("hv_ret", "bus_p", "n_ls", "ocp_kelvin_p"))
+    # (the stage-14 re-links that follow join R93.1 to this fbm, and U30.3 / U1.16 / R94.1 to these p_h* pads)
+    route_group(g, [("bias_hb-fbm", L4, (8.0, 64.0, 19.0, 75.0), 0.25, ["@14.1,67.72,*", "C72.1", "R94.2", "R61.1"])])
+
+
+def rip(g, net, pick=lambda item: True):
+    """Take a net's tracks / vias (those `pick` selects) back out of the route state and the clearance index."""
+    from shapely.geometry import LineString as _LS, Point as _Pt
+    G = g["GEO"]
+
+    def drop(layers, geom):
+        for lay in tuple(layers) + ("PLAN",):
+            items = G.items[lay]
+            for k in range(len(items) - 1, -1, -1):
+                gg, nn = items[k]
+                if nn == net and abs(gg.area - geom.area) < 1e-6 and gg.centroid.distance(geom.centroid) < 1e-6:
+                    del items[k]
+                    break
+    n = 0
+    for t in [t for t in g["TRACKS"] if t["net"] == net and pick(t)]:
+        g["TRACKS"].remove(t)
+        drop((t["layer"],), _LS([g["_xy"](q) for q in t["points"]]).buffer(t["width"] / 2, cap_style=1))
+        n += 1
+    for v in [v for v in g["VIAS"] if v["net"] == net and pick(v)]:
+        g["VIAS"].remove(v)
+        drop(CU, _Pt(*v["at"]).buffer(v["size"] / 2))
+        n += 1
+    G._trees.clear()
+    return n
+
+
+def add_stage19_si(g):
+    """Stage 19 SI1 / SI2 (DECISIONS 19; stage-18 return-path review). `layout/gates/return_path19.py` checks them.
+    SI1 bus_fault_hot (U8.4 -> U9.4; both grounds are ocp_kelvin_p): over the In1 Kelvin pour to its west end, then
+    beside / under the Kelvin return that already joins U9's ground to that pour (the B.Cu run at x 100-103), so the
+    signal never crosses the In1 ocp_kelvin_p / n_ls boundary without its own return beside it. The Kelvin run's
+    lower 26 mm moves from B.Cu to In2 directly above the signal (same polyline, one via at the corner); no new
+    Kelvin path is added, so no Kelvin loop forms (the R5 sense fingers and pours are untouched).
+    SI2 ct_zc: B.Cu from U12.1's via-in-pad (C46 1.8 mm) straight to the J4.13 pin (THT), dropping the F.Cu hop.
+    SI2 pwm_hb / pwm_lb: C14 (U2's VCCI cap) moved under U2 broke pwm_lb's F.Cu lane; pwm_lb is re-laid on F.Cu
+    (no via). pwm_hb: F.Cu -> B.Cu beside C14 (2.4 mm), B.Cu down the spur, F.Cu hop over the permit / bias_bad
+    B.Cu crossing between vias beside C142 (2.0 mm) and C47 (2.4 mm); from there to J4.7 the stage-18 route (four
+    more changes, no transfer capacitor within 3 mm: open, DECISIONS 19)."""
+    from patches21_v1 import put
+    link = g["link"]
+    # --- SI2 ct_zc
+    rip(g, "ct_zc", lambda it: "layer" in it or abs(it["at"][1] - 164.595) < 0.5)
+    if not link("ct_zc", ("B.Cu",), (20.0, 125.0, 62.0, 189.0), 0.25, ["@26.907,128.795,B.Cu", "J4.13"]):
+        raise SystemExit("stage 19: ct_zc B.Cu run to J4.13")
+    # --- SI2 pwm_lb / pwm_hb
+    rip(g, "pwm_hb")
+    rip(g, "pwm_lb")
+    if not link("pwm_lb", ("F.Cu",), (20.0, 54.0, 70.0, 189.0), 0.3, ["U2.2", "J4.8"]):
+        raise SystemExit("stage 19: pwm_lb F.Cu lane")
+    put(g, "pwm_hb", "F.Cu", 0.3, "U2.1", [28.955, 55.875])
+    drill(g, "pwm_hb", 28.955, 55.875, size=0.6)
+    drill(g, "pwm_hb", 34.4, 110.6, size=0.6)
+    drill(g, "pwm_hb", 35.2, 125.0, size=0.6)
+    for ok, what in ((link("pwm_hb", ("B.Cu",), (20.0, 54.0, 62.0, 189.0), 0.3, ["@28.955,55.875,B.Cu", "@34.4,110.6,B.Cu"]), "B.Cu spur"),
+                     (link("pwm_hb", ("F.Cu",), (20.0, 100.0, 62.0, 130.0), 0.3, ["@34.4,110.6,F.Cu", "@35.2,125.0,F.Cu"]), "F.Cu hop"),
+                     ):
+        if not ok:
+            raise SystemExit(f"stage 19: pwm_hb {what}")
+    # J4 side: stage 18's geometry (no v3v3-selv_gnd capacitor lies within 3 mm of these four changes; DECISIONS 19 open)
+    put(g, "pwm_hb", "B.Cu", 0.3, [35.2, 125.0], [36.9, 125.0], [38.955, 127.055], [38.955, 127.075])
+    drill(g, "pwm_hb", 38.955, 127.075, size=0.6)
+    put(g, "pwm_hb", "F.Cu", 0.3, [38.955, 127.075], [42.955, 127.075], [43.155, 127.275], [54.155, 127.275],
+        [55.155, 128.275], [55.155, 128.675])
+    drill(g, "pwm_hb", 55.155, 128.675, size=0.6)
+    put(g, "pwm_hb", "B.Cu", 0.3, [55.155, 128.675], [56.155, 129.675], [56.155, 157.275])
+    drill(g, "pwm_hb", 56.155, 157.275, size=0.6)
+    put(g, "pwm_hb", "F.Cu", 0.3, [56.155, 157.275], [55.955, 157.475], [55.955, 175.0])
+    drill(g, "pwm_hb", 55.955, 175.0, size=0.6)
+    if not link("pwm_hb", ("B.Cu",), (48.0, 170.0, 60.0, 182.0), 0.3, ["@55.955,175.0,B.Cu", "J4.7"]):
+        raise SystemExit("stage 19: pwm_hb B.Cu into J4.7")
+    # --- SI1 bus_fault_hot and the Kelvin return under it
+    rip(g, "bus_fault_hot")
+    n = rip(g, "ocp_kelvin_p", lambda it: it.get("layer") == "B.Cu" and any(
+        not isinstance(q, str) and abs(q[0] - 100.35) < 0.01 and abs(q[1] - 88.695) < 0.01 for q in it["points"]))
+    if n != 1:
+        raise SystemExit(f"stage 19: Kelvin B.Cu return not found ({n})")
+    put(g, "ocp_kelvin_p", "B.Cu", 0.25, [103.75, 74.095], [102.95, 74.895], [102.95, 83.695], [99.55, 87.095],
+        [99.55, 87.895], [100.35, 88.695])
+    drill(g, "ocp_kelvin_p", 100.35, 88.695, size=0.6)
+    put(g, "ocp_kelvin_p", "In2.Cu", 0.25, [100.35, 88.695], [100.35, 109.095], [101.55, 110.295], [101.55, 112.895],
+        [101.75, 113.095], [101.75, 114.095])
+    # The In1 Kelvin pour's outline reaches x 100.5 here, but the v24_raw In1 feed at x 101.9 cuts its west strip off
+    # and KiCad drops it as an island. A Kelvin via in the strip, tied by B.Cu to the Kelvin via (103.75, 74.095),
+    # keeps the strip, so the signal changes layer over Kelvin copper. A dead end: it carries no Kelvin current.
+    drill(g, "ocp_kelvin_p", 100.6, 73.6, size=0.6)
+    put(g, "ocp_kelvin_p", "B.Cu", 0.25, [100.6, 73.6], [103.25, 73.6], [103.75, 74.095])
+    drill(g, "bus_fault_hot", 101.1, 74.9, size=0.6)
+    put(g, "bus_fault_hot", "B.Cu", 0.25, [101.1, 74.9], [102.45, 74.9], [102.45, 83.488], [99.05, 86.888],
+        [99.05, 89.2], [100.35, 90.5], [100.35, 109.095], [101.55, 110.295], [101.55, 112.6], [100.6, 113.55], [100.6, 114.0])
+    drill(g, "bus_fault_hot", 100.6, 114.0, size=0.6)
+    drill(g, "bus_fault_hot", 113.635, 114.5, size=0.6)
+    put(g, "bus_fault_hot", "F.Cu", 0.25, "U9.4", [113.635, 114.5])
+    for ok, what in ((link("bus_fault_hot", ("F.Cu", "In2.Cu", "B.Cu"), (100.6, 51.0, 120.6, 74.95), 0.25, ["U8.4", "@101.1,74.9,In2.Cu"]), "over the Kelvin pour"),
+                     ):
+        if not ok:
+            raise SystemExit(f"stage 19: bus_fault_hot {what}")
+    # last 13 mm to U9 on In2, within 0.5 mm in plan of the Kelvin chain to U9's grounds (In1 / F.Cu tracks)
+    put(g, "bus_fault_hot", "In2.Cu", 0.25, [100.6, 114.0], [100.6, 114.9], [101.2, 115.5], [101.7, 115.0], [105.6, 115.0],
+        [106.3, 114.2], [109.6, 114.2], [110.05, 114.65], [113.485, 114.65], [113.635, 114.5])
+    # PI2 follow-up (after the SI1 lanes are laid): the LS rail and leg_ret round the moved U26
+    L4 = ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu")
+    from patches21_v1 import route_group
+    route_group(g, [("v15_ls", L4, (98.0, 50.0, 124.0, 114.0), 0.4,
+                     ["C99.1", "U29.3", "C70.1", "U37.1", "C65.1", "R59.1", "C100.1", "C131.1", "R85.1", "R87.1", "C25.1", "U3.1"]),
+                    ("leg_ret", L4, (98.0, 70.0, 124.0, 114.0), 0.25, ["@113.0,85.3,B.Cu", "U16.2", "R77.1", "R83.1", "R81.1"])])
+    # v24_raw: the module trunk (In1, x 101.9, ending at the via (101.9, 87.5)) met the PS2 feed at U26's old IN pins;
+    # B.Cu now joins it to U26's EN / IN via, below the In1 n_ls pour (an In1 run here would cut that pour).
+    if not g["link"]("v24_raw", ("F.Cu", "B.Cu"), (99.0, 74.0, 123.0, 92.0), 0.4, ["@101.9,87.5,B.Cu", "@118.9,81.85,B.Cu"]):
+        raise SystemExit("stage 19: v24_raw trunk to U26")
+
+
+
 def add_stage13(g):
     """Stage 13: the resonant-bank bleed tap R22.1 -> RES_A. The base polyline served C21's old axial pad
     and is dropped with it. Re-laid on F.Cu down the base's own x 156.54 lane to the new C21 pin 1. The
@@ -439,7 +658,7 @@ def add_stage14(g):
     # In2 crosses the bus_p trunk pour's edge (a pour: KiCad refills round it)
     put(g, "p_hb", "In2.Cu", 0.3, [27.6, 37.6], [25.9, 37.6], [19.3, 44.2], [19.3, 72.6], [12.2, 72.6], escape="bus_p")
     drill(g, "p_hb", 12.2, 72.6)
-    put(g, "p_hb", "F.Cu", 0.3, [12.2, 72.6], [11.4, 71.8], "R94.1")
+    put(g, "p_hb", "F.Cu", 0.3, [12.2, 72.6], "R94.1")   # stage 19: R94 moved beside C108 (place.py STAGE19_PI)
     put(g, "n_hb", "B.Cu", 0.5, [18.6, 61.6], [16.6, 64.0])
     put(g, "n_ha", "B.Cu", 0.6, [64.8, 47.5], [64.8, 50.0])
     drill(g, "n_ha", 64.8, 50.0)

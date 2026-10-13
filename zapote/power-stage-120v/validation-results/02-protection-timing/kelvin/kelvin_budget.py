@@ -44,10 +44,11 @@ CENSUS21 = [row if row[0] != "U3.2" else
 BAND_BEFORE = {"native21s13": (49.53, 97.77), "native21s13b": (49.53, 97.77), "native21s14": (49.53, 97.77),
                "native21s15": (68.58, 118.74), "native21s15b": (68.58, 118.74), "native21s16": (68.58, 118.74),
                "native21s17": (69.89, 116.44), "native21s17b": (69.89, 116.44),
-               "native21s18": (69.89, 116.44)}   # 12.6 k / 11.7 k (stage 15; scratchpad stage15/ocp_bands.py -> task 02); s17: R5 CSS2H 75 ppm (round5-native21/stage17-r5/ocp_band17.py)
+               "native21s18": (69.89, 116.44),
+               "native21s19": (69.89, 116.44)}   # 12.6 k / 11.7 k (stage 15; scratchpad stage15/ocp_bands.py -> task 02); s17: R5 CSS2H 75 ppm (round5-native21/stage17-r5/ocp_band17.py)
 # Low-corner floor after the shift. 44 A until stage 14; stage 15 (28 A ceiling): 59.17 A envelope peak + 3.0 A
 # coil-pickup stack (DECISIONS item 9) + 2 A margin = 64.17 A (round 6 rule; basis A of the stage-15 plan).
-FLOOR = {"native21s15": 64.17, "native21s15b": 64.17, "native21s16": 64.17, "native21s17": 64.17, "native21s17b": 64.17, "native21s18": 64.17}
+FLOOR = {"native21s15": 64.17, "native21s15b": 64.17, "native21s16": 64.17, "native21s17": 64.17, "native21s17b": 64.17, "native21s18": 64.17, "native21s19": 64.17}
 
 
 def main():

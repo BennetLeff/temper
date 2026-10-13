@@ -92,3 +92,5 @@ Files: [plane-native21.json](plane-native21.json), [budget-native21.json](budget
 **Stage 17b** (declared pour priorities, In1 `n_ls LS block` above `ocp_kelvin_p protection`; board `96501e7d…`; tag `native21s17b`): identical, R35.2 157.80 mΩ, band 67.72–116.44 A (67.66 A at the bound). The pour's top 0.3 mm strip at y 75.3 now always goes to n_ls; stage 17's own build had already filled it that way.
 
 **Stage 18** (SELV LINE_ZC_RAW / V15_SELV B.Cu runs moved under the bank, far from the Kelvin; board `3768a126…`; tag `native21s18`): identical, R35.2 157.80 mΩ, band 67.72–116.44 A (67.66 A at the bound).
+
+**Stage 19** (U26 moved east / down with its caps; the Kelvin return's lower 26 mm, x 100.35 → U9 / U4, moved from B.Cu to In2 directly over the re-routed bus_fault_hot, one via at the corner, same polyline; a dead-end Kelvin via + B.Cu stub keeps the In1 pour's west strip; board `370fcf37…`; tag `native21s19`): re-solved, R35.2 **158.08 mΩ** (was 157.80), shift −2.167 A (bound −2.237 A), band 67.72–116.44 A, floor 64.17 A met at the bound.

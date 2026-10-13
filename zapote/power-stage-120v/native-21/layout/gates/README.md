@@ -20,3 +20,22 @@ copper. `patches21.ZONE_WINNERS` declares each such pair's winner; `resolve_zone
 Stage 18 (DECISIONS item 18): RES_A to SELV / PE is 12.6 mm on F.Cu / B.Cu (`rules21.RES_A_CREEPAGE`). `barrier21.py`'s
 first line reports it per outer layer, `barrier_gate21.py` adds a per-outer-layer Rust run (`res_a_outer`), and
 `chain.sh` runs `validation-results/08-manufacturing-package/native-21/stage18-res-a-creepage/res_a_creepage18.py`.
+
+    $KP gates/bypass_check.py BOARD OUT.json    # stage 19 (N1, from 365151b62): local 100 nF within limits at U10-U13, U15, U24, U25, U29-U31, U40 (regate.sh runs it)
+    $KP gates/bypass_spots.py BOARD REF SUP RET # free spots for a 0603 bypass beside an IC's supply pin (scanner behind place.py STAGE19_MOVES)
+    python3 gates/trim_tails.py DRC.json copper.json [--write]   # drop the dangling router tails DRC reports (K6); rebuild and re-run DRC after
+
+After a clean `passes.sh`, `native-21/layout/copper.json` is the pass output: copy it aside before any `git checkout`
+(it is overwritten in place, and a checkout restores the previous stage's copper).
+
+Stage 19 (DECISIONS item 19), also run by `chain.sh`:
+
+    $KP ../../validation-results/.../stage19-pi-si/pi_distances19.py BOARD [--json OUT] [--control]
+        # PI1 / PI2: RECOM U41 / U42 VOUT+ and TPS7A47 U26 OUT / IN / NR pins to their caps, asserts <= 3 mm
+    python3 gates/return_path19.py COPPER_DUMP.json [--json OUT] [--control [--expect NET=mm,...]]
+        # SI1 / SI2: per fast signal, the reference under every track point and each layer change's
+        # transfer-cap distance; asserts bus_fault_hot on ocp_kelvin_p end to end, ct_zc and pwm_hb's driver side
+
+Clear `board_only21.json` `test_points` before `passes.sh` (stale test pads sit on the router's paths); `chain.sh`
+re-plans them from the clean pass. After the passes, `trim_tails.py DRC.json copper.json --write` drops the router's
+dangling stubs (K6); rebuild before the chain.
