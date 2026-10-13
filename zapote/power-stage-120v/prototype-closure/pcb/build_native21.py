@@ -29,7 +29,9 @@ HERE = Path(__file__).resolve().parent
 UNIT = HERE.parents[1]
 N20, OUT = UNIT / "native-20", UNIT / "native-21"
 STOCK = Path("/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints")
-LOCAL = {"temper": UNIT / "libraries/temper.pretty", "lib": UNIT / "libraries/lib.pretty"}
+LOCAL = {"temper": UNIT / "libraries/temper.pretty", "lib": UNIT / "libraries/lib.pretty",
+         # stage 19 (review K6): the IRM-20 pin-1 tick moved from y -3.65 (past the board edge on PS1 / PS2) to -2.65
+         "Converter_ACDC": OUT / "footprint-overrides/Converter_ACDC.pretty"}
 # KiCad frame, mm. Main 290 x 140 plus the 91 x 50 tongue under the power core (D-36, FLOORPLAN.md).
 OUTLINE = [(0, 0), (290, 0), (290, 140), (91, 140), (91, 190), (0, 190)]
 N20_BOARD_SHA = "27657a0ebce66140b6ea6a0b84940dba420b3a187199798bce3c3d122abf9dae"

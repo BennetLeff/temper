@@ -1,0 +1,128 @@
+{
+ "board": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s18/s18/section.kicad_pcb",
+ "mode": "control",
+ "limit_mm": 3.0,
+ "rows": [
+  {
+   "check": "PI1 U41 10 uF",
+   "ic": "U41",
+   "cap": "C104",
+   "supply_net": "p_ha",
+   "return_net": "n_ha",
+   "supply_mm": 25.57,
+   "supply_pin": "29",
+   "return_mm": 25.56,
+   "return_pin": "35",
+   "cap_at": [
+    59.525,
+    96.735
+   ],
+   "supply_asserted": true,
+   "return_asserted": false
+  },
+  {
+   "check": "PI1 U41 100 nF",
+   "ic": "U41",
+   "cap": "C75",
+   "supply_net": "p_ha",
+   "return_net": "n_ha",
+   "supply_mm": 46.48,
+   "supply_pin": "28",
+   "return_mm": 45.52,
+   "return_pin": "19",
+   "cap_at": [
+    47.925,
+    116.635
+   ],
+   "supply_asserted": true,
+   "return_asserted": true
+  },
+  {
+   "check": "PI1 U42 10 uF",
+   "ic": "U42",
+   "cap": "C108",
+   "supply_net": "p_hb",
+   "return_net": "n_hb",
+   "supply_mm": 26.53,
+   "supply_pin": "29",
+   "return_mm": 26.46,
+   "return_pin": "36",
+   "cap_at": [
+    14.525,
+    92.635
+   ],
+   "supply_asserted": true,
+   "return_asserted": false
+  },
+  {
+   "check": "PI1 U42 100 nF",
+   "ic": "U42",
+   "cap": "C82",
+   "supply_net": "p_hb",
+   "return_net": "n_hb",
+   "supply_mm": 51.79,
+   "supply_pin": "28",
+   "return_mm": 51.03,
+   "return_pin": "19",
+   "cap_at": [
+    2.325,
+    117.185
+   ],
+   "supply_asserted": true,
+   "return_asserted": true
+  },
+  {
+   "check": "PI2 U26 OUT",
+   "ic": "U26",
+   "cap": "C99",
+   "supply_net": "v15_ls",
+   "return_net": "n_ls",
+   "supply_mm": 15.39,
+   "supply_pin": "1",
+   "return_mm": 11.85,
+   "return_pin": "10",
+   "cap_at": [
+    118.325,
+    91.185
+   ],
+   "supply_asserted": true,
+   "return_asserted": false
+  },
+  {
+   "check": "PI2 U26 IN",
+   "ic": "U26",
+   "cap": "C98",
+   "supply_net": "v24_raw",
+   "return_net": "n_ls",
+   "supply_mm": 14.03,
+   "supply_pin": "15",
+   "return_mm": 10.1,
+   "return_pin": "10",
+   "cap_at": [
+    113.085,
+    91.185
+   ],
+   "supply_asserted": true,
+   "return_asserted": false
+  },
+  {
+   "check": "PI2 U26 NR",
+   "ic": "U26",
+   "cap": "C64",
+   "supply_net": "ldo_nr",
+   "return_net": "n_ls",
+   "supply_mm": 23.06,
+   "supply_pin": "14",
+   "return_mm": 20.43,
+   "return_pin": "10",
+   "cap_at": [
+    116.925,
+    101.135
+   ],
+   "supply_asserted": true,
+   "return_asserted": false
+  }
+ ],
+ "failures": [],
+ "pass": true
+}

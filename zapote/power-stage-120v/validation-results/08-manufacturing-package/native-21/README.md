@@ -1,11 +1,11 @@
 # 08 Manufacturing package: native-21 candidate
 
-A **candidate** JLCPCB package for native-21 (stage 18), reviewed independently of KiCad. It
+A **candidate** JLCPCB package for native-21 (stage 19), reviewed independently of KiCad. It
 does not release fabrication: `DECISIONS.md` controls that, and its gates are open
 ([fab/FAB-NOTE.md](fab/FAB-NOTE.md)).
 
-- Board: native-21 stage 18 (stage 17b + the SELV LINE_ZC_RAW / V15_SELV B.Cu runs re-laid ≥ 12.6 mm from RES_A, DECISIONS item 18, `stage18-res-a-creepage/`; 17b was stage 16 + R5 = Bourns CSS2H-2512R-1L00F on a Kelvin land + declared pour priorities, item 17 / 17b), SHA-256
-  `3768a12675f8d61f91fc4a96dd267522e68f454f8f300634aca2ae16afc6dd1a`; Gerber ZIP `021bf8fdebcd1840a418b5dad74cf142118ca06bbe15b94aa2c0d996fb4561bc`.
+- Board: native-21 stage 19 (stage 18 + converter-local caps at U41 / U42 / U26, bus_fault_hot along its Kelvin return, ct_zc / pwm_hb re-laid, comparator / monitor bypass caps beside their ICs; DECISIONS item 19, `stage19-pi-si/`; stage 18 was stage 17b + the SELV LINE_ZC_RAW / V15_SELV B.Cu runs re-laid ≥ 12.6 mm from RES_A, DECISIONS item 18, `stage18-res-a-creepage/`; 17b was stage 16 + R5 = Bourns CSS2H-2512R-1L00F on a Kelvin land + declared pour priorities, item 17 / 17b), SHA-256
+  `370fcf373c97241966f0bb9a077b513903354a20bcd659545819e9d363b3bd1c`; Gerber ZIP `67e1e07f594039504e6b633eb277a9ab8be2ea745711846e5892eb014cabff6b`.
 - Tools: KiCad 10.0.4 `kicad-cli`, gerbv 2.11.1 (independent renderer), Miniforge Python 3.12.
 - Scripts: native-17's `bom_cpl_jlc.py` (stage 17: an SMD part with paste-free pads takes its centroid from the pasted pads, so R5's sense fingers do not shift it; no other placement moved); `review_fab.py` with one change, below.
 
@@ -26,8 +26,8 @@ does not release fabrication: `DECISIONS.md` controls that, and its gates are op
 | Check | Result |
 | --- | --- |
 | Outline | 290 × 190 mm |
-| Holes | 879 plated (120 component incl. 4 F1 slots + 759 via) and 15 non-plated; the board's census is 120 PTH pads + 759 vias |
-| Outer copper around every plated hole, F and B (12 points at drill radius + 0.07 mm) | **875/875 round holes on both sides.** The 4 F1 slots (G85) are outside the script's parser and were checked in the drill file |
+| Holes | 866 plated (120 component incl. 4 F1 slots + 746 via) and 15 non-plated; the board's census is 120 PTH pads + 746 vias |
+| Outer copper around every plated hole, F and B (12 points at drill radius + 0.07 mm) | **862/862 round holes on both sides.** The 4 F1 slots (G85) are outside the script's parser and were checked in the drill file |
 | Mask opening over every component hole, both sides | 112/112 round (+ 4 slots) |
 | Silk over a component land | 0 |
 | JLCPCB rules (`tools/jlc_dfm_check.py`, `jlc-dfm.json`) | PASS |
