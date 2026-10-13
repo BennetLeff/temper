@@ -53,6 +53,7 @@ def main():
     ap.add_argument("--keepout", action="append", default=[])
     ap.add_argument("--return-weight", type=float, default=0.5)
     ap.add_argument("--ignore-net", action="append", default=[], help="nets whose F.Cu tracks will be re-routed")
+    ap.add_argument("--rules", action="store_true", help="use rules21.clearance per net pair (isolation groups) instead of a flat --clear")
     a = ap.parse_args()
     b = pcbnew.LoadBoard(a.board)
     fps = {f.GetReference(): f for f in b.GetFootprints()}
@@ -85,7 +86,14 @@ def main():
             s, e = t.GetStart(), t.GetEnd()
             tracks.append((t.GetNetname(), (mm(s.x), mm(s.y)), (mm(e.x), mm(e.y)), mm(t.GetWidth())))
     keep = [tuple(map(float, k.split(","))) for k in a.keepout]
-    lim = a.radius + 4.0
+    if a.rules:
+        import os, sys as _s
+        _s.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        import rules21
+        need = lambda n1, n2: max(a.clear, rules21.clearance(n1, n2)) if n1 and n2 else a.clear
+    else:
+        need = lambda n1, n2: a.clear
+    lim = a.radius + 4.0 + (5.0 if a.rules else 0.0)
     win = (sxy[0] - lim, sxy[1] - lim, sxy[0] + lim, sxy[1] + lim)
     hit = lambda x0, y0, x1, y1: x0 < win[2] and win[0] < x1 and y0 < win[3] and win[1] < y1
     copper = [c for c in copper if hit(*c[2])]
@@ -119,19 +127,19 @@ def main():
                         bad = True
                         break
                     for kind, pn, r, _ in copper:
-                        if pn != net and rect_gap(box, r) < a.clear:
+                        if pn != net and rect_gap(box, r) < need(net, pn):
                             bad = True
                             break
                     if bad:
                         break
                     for tn, s, e, w in tracks:
-                        if tn != net and tn not in a.ignore_net and seg_rect_gap(s, e, box, w) < a.clear:
+                        if tn != net and tn not in a.ignore_net and seg_rect_gap(s, e, box, w) < need(net, tn):
                             bad = True
                             break
                     if bad:
                         break
                     for vn, c, r in vias:
-                        if vn != net and rect_gap(box, (c[0], c[1], c[0], c[1])) - r < a.clear:
+                        if vn != net and rect_gap(box, (c[0], c[1], c[0], c[1])) - r < need(net, vn):
                             bad = True
                             break
                     if bad:

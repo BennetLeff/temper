@@ -433,6 +433,14 @@ STAGE19C = {"leg_a.c_vcci": (78.075, 57.85, 0.0)}   # C7: v3v3 (77.3, 57.85), se
 for path, pose in STAGE19C.items():
     POSE[path] = pose
 
+# Stage 21b (DECISIONS 26; rubric F8, 11-candidates/g06-g08-g10 P4): the OCP comparator's filter caps move from 11-15 mm
+# away to the nearest legal spots beside U6 (gates/bypass_spots.py --rules on the stage-21 board: the isolation-group
+# clearances, 3.2 mm to the bus_p divider R26, rule out the closer F.Cu spots), shrinking the node / threshold pickup
+# loops. C30 (ocp_node 100 pF) 4.2 / 6.5 mm from U6.3 / U6.2 (was 12.3); C31 (ocp_thresh 1 nF) 6.1 / 7.1 mm (was 11.3).
+STAGE21B = {"c_ocp_node": (99.76, 63.09, 270.0), "c_th": (102.93, 64.78, 180.0)}
+for path, pose in STAGE21B.items():
+    POSE[path] = pose
+
 missing = sorted(set(PARTS) - set(POSE))
 if missing:
     raise SystemExit(f"{len(missing)} unplaced: {missing}")

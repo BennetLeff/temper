@@ -260,6 +260,7 @@ def add(g):
     add_stage18(g)
     add_stage19(g)
     add_stage19_si(g)
+    add_stage21b_kn(g)   # last: routes round every fixed patch
     resolve_zone_priorities(g["ZONES"])
 
 
@@ -768,12 +769,63 @@ def add_stage17(g):
     put(g, "ocp_kelvin_n", "In2.Cu", 0.3, list(KN_MID), [41.3, 35.5], [39.4, 37.4], list(KN_VIA), escape="bus_p")
     drill(g, "ocp_kelvin_n", *KN_VIA)
     put(g, "ocp_kelvin_n", "In1.Cu", 0.3, list(KN_VIA), [41.3, 40.6], [41.3, 43.4], escape="hv_ret")
-    # the stage-16 N run crosses the In1 ocp_kelvin_p protection pour (a pour; the base copper did the same,
-    # DRC-clean in stage 16, and the pour split is in the Kelvin budget)
-    put(g, "ocp_kelvin_n", "In1.Cu", 0.3, [41.3, 43.4], [106.6, 43.4], [106.6, 72.4], [119.95, 72.4],
-        escape=("hv_ret", "ocp_kelvin_p"))
+    # Stage 21b (DECISIONS 26; rubric F8): the pair runs together on In1 to the pour-entry height (106.6, 53.5); from
+    # there KELVIN_N drops to In2 and runs under the In1 ocp_kelvin_p protection pour to R33's via, so the sense loop
+    # closes under its own return instead of crossing the pour on In1 (stage 16-21: In1 x 106.6 down to y 72.4).
+    put(g, "ocp_kelvin_n", "In1.Cu", 0.3, [41.3, 43.4], [106.6, 43.4], escape=("hv_ret", "ocp_kelvin_p"))
+    # nearest legal drop point to (106.6, 53.5): F.Cu there carries the Kelvin_P / HOT5-monitor tracks
+    import math as _m
+    from shapely.geometry import Point as _P
+    spot = None
+    for x, y in sorted(((round(104.0 + 0.1 * i, 2), round(48.0 + 0.1 * j, 2)) for i in range(51) for j in range(81)),
+                       key=lambda q: _m.dist(q, (106.6, 53.5))):
+        if g["GEO"].conflicts("ocp_kelvin_n", CU, _P(x, y).buffer(0.3), limit=1, via=True):
+            continue
+        try:
+            put(g, "ocp_kelvin_n", "In1.Cu", 0.3, [106.6, 43.4], [106.6, y], [x, y], escape=("hv_ret", "ocp_kelvin_p"))
+        except SystemExit:
+            continue
+        spot = (x, y)
+        break
+    if spot is None:
+        raise SystemExit("stage 21b: no legal KELVIN_N drop via near (106.6, 53.5)")
+    drill(g, "ocp_kelvin_n", *spot, size=0.6)
+    print("stage 21b: KELVIN_N drops to In2 at", spot)
     drill(g, "ocp_kelvin_n", 119.95, 72.4, size=0.85)
     put(g, "ocp_kelvin_n", "F.Cu", 0.3, [119.95, 72.4], "R33.2")
+    g["S21B_KN_SPOT"] = spot          # the run under the pour is linked last (add_stage21b_kn), round every fixed patch
+
+
+def add_stage21b_kn(g):
+    """Stage 21b: KELVIN_N from its drop via to R33's via, under the In1 ocp_kelvin_p pour. In2 first (0.5 mm under
+    the pour); In2 is a dense HOT-protection signal layer here, so In2 + B.Cu (still under the pour footprint, about
+    1 mm further) is the next try; failing both, In2 + B.Cu with its via kept out of bus_fault_hot's corridor.
+    Linked after every fixed patch."""
+    spot = g["S21B_KN_SPOT"]
+    ends = [f"@{spot[0]},{spot[1]},In2.Cu", "@119.95,72.4,In2.Cu"]
+    # single-layer runs first: a layer change adds a via whose antipad cuts the In1 Kelvin pour under bus_fault_hot
+    # (return_path19 SI1 failed on a mixed In2 / B.Cu route); B.Cu sits 0.94 mm under the pour, In2 0.5 mm
+    ends_b = [f"@{spot[0]},{spot[1]},B.Cu", "@119.95,72.4,B.Cu"]
+    ok = g["link"]("ocp_kelvin_n", ("In2.Cu",), (103.0, 47.0, 123.0, 75.0), 0.3, ends) or \
+        g["link"]("ocp_kelvin_n", ("B.Cu",), (103.0, 47.0, 123.0, 75.0), 0.3, ends_b)
+    if not ok:
+        # neither layer alone has a lane: allow In2 + B.Cu, but keep any layer-change via out of a 1.2 mm corridor
+        # under bus_fault_hot's F.Cu run (its reference is this In1 pour: SI1), via a temporary In1 keep-out
+        from shapely.geometry import LineString as _LS
+        from shapely.ops import unary_union as _uu
+        G = g["GEO"]
+        lanes = [_LS([g["_xy"](q) for q in t["points"]]) for t in g["TRACKS"]
+                 if t["net"] == "bus_fault_hot" and t["layer"] == "F.Cu"]
+        keep = _uu([ln.buffer(1.2) for ln in lanes])
+        G._add(("In1.Cu",), keep, "bus_fault_hot")
+        G._trees.clear()
+        try:
+            ok = g["link"]("ocp_kelvin_n", ("In2.Cu", "B.Cu"), (103.0, 47.0, 123.0, 75.0), 0.3, ends)
+        finally:
+            G.items["In1.Cu"] = [it for it in G.items["In1.Cu"] if it[0] is not keep]
+            G._trees.clear()
+    if not ok:
+        raise SystemExit("stage 21b: ocp_kelvin_n run under the Kelvin pour")
 
 
 def add_r5(g):

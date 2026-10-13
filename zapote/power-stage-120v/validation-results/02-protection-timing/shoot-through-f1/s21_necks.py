@@ -2,11 +2,13 @@
 """Stage 21 copper necks (DECISIONS 25): the f1_containment neck method, unchanged, on the stage-21 copper, whose
 rectifier feeds BUS_P / HV_RET directly (no J7-J10). Segments that ran to the studs now run to BR1's DC pins.
 
-    python3 -I s21_necks.py   ->  s21_necks.json
+    python3 -I s21_necks.py [TAG]   ->  <TAG>_necks.json   (TAG s21 by default; s21b ... for later stages on the same topology)
 """
 import importlib.util
 import json
+import sys
 from pathlib import Path
+TAG = sys.argv[1] if len(sys.argv) > 1 else "s21"
 
 HERE = Path(__file__).resolve().parent
 spec = importlib.util.spec_from_file_location("fc", HERE / "f1_containment.py")
@@ -20,7 +22,7 @@ fc.SEGMENTS = [s for s in fc.SEGMENTS if s[0] not in ("rect_p", "rect_n", "bus_p
 # via fields with the ACTUAL drills (f1_containment assumes 0.3 mm for every via): barrel I2t ~ area^2, and with current
 # shared in proportion to barrel area the field fuses at k * (sum of areas)^2, k = single-via I2t / area^2
 import gzip, math
-_raw = json.load(gzip.open(fc.PS / "native-21/verification/native21s21-all-copper.json.gz"))
+_raw = json.load(gzip.open(fc.PS / f"native-21/verification/native21{TAG}-all-copper.json.gz"))
 def field_i2t(net, xy, reach=6.0):
     seen, areas = set(), []
     for p in _raw["primitives"]:
@@ -30,7 +32,7 @@ def field_i2t(net, xy, reach=6.0):
             areas.append(math.pi * ((ri + fc.VIA_PLATE) ** 2 - ri ** 2))
     a0, i0 = fc.barrel_i2t(fc.TA_HOT)
     return len(areas), i0 / a0 ** 2 * sum(areas) ** 2
-sha, segs = fc.copper_necks("21", "native-21/verification/native21s21-all-copper.json.gz", None)
+sha, segs = fc.copper_necks("21", f"native-21/verification/native21{TAG}-all-copper.json.gz", None)
 f1c = fc.KLDR["KLDR025"][1]
 out = {"board_sha256": sha, "F1_clearing_I2t": f1c, "segments": segs}
 for sg in segs:
@@ -57,4 +59,4 @@ out["min_ratio_all"] = round(lim(worst) / f1c, 3)
 out["min_ratio_conductor"] = round(lim(worst_real) / f1c, 3) if worst_real else None
 print("min ratio (all rows):", out["min_ratio_all"], worst["segment"], "| conductor rows only:", out["min_ratio_conductor"],
       worst_real["segment"] if worst_real else "")
-json.dump(out, open(HERE / "s21_necks.json", "w"), indent=1)
+json.dump(out, open(HERE / f"{TAG}_necks.json", "w"), indent=1)

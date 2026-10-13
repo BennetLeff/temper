@@ -49,6 +49,7 @@ PERF = {
     "cmti_gate_ratio_min": ("higher", 0.0),
     "fuse_copper_fusing_ratio": ("higher", 0.0),
     "bank_ratio_tdk_28A_40k": ("lower", 0.0),     # added 2026-10-13 (stage 20): DECISIONS item 21 / 23 thermal margin
+    "ocp_pickup_stack_pan60_A": ("lower", 0.1),   # added 2026-10-13 (stage 21b): F8, any-phase +50 % stack, gate 6.5 A
 }
 
 
@@ -180,6 +181,12 @@ def performance(b, tag):
         if grade in ("K", "J"):
             m["bank_ratio_tdk_28A_40k"] = bo["baseline"][{"K": "5x100nF_K(+-10%)", "J": "5x100nF_J(+-5%)"}[grade]]["ratio_to_curve_28A_40k"]
             src["bank"] = f"11-candidates/g04-g09-tank-detect/results/bank_options.json baseline {grade}"
+    # F8 coil-field pickup into the OCP Kelvin / comparator loops: 60 kHz, 59.2 A pk, pan, conservative closure (base_A),
+    # one script (02-protection-timing/coil-pickup/s21b/run_ocp.py) run on each stage's copper
+    pk = jload(VR / f"02-protection-timing/coil-pickup/s21b/result-{tag.replace('native21', '')}.json")
+    if pk:
+        m["ocp_pickup_stack_pan60_A"] = round(pk["rows"]["f60|pan_bars_31kHz_45Apk|base_A|cluster_drawn"]["stack_any_phase_x1p5_A"], 2)
+        src["ocp_pickup"] = f"02-protection-timing/coil-pickup/s21b/result-{tag.replace('native21', '')}.json"
     return m, src
 
 

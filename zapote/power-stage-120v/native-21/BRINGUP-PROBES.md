@@ -16,9 +16,9 @@ differential or isolated probes (D-8 equipment table), never a grounded scope gr
 | TP2 | n_ls | F | 105.8, 86.7 | TP23 | leg_ret | LS -2 V rail vs low-side sources (F6 rail at the edge) |
 | TP3 | v15_ls | F | 107.5, 90.6 | TP23 | leg_ret | LS +15 V rail |
 | TP4 | v24_raw | B | 118.2, 79.6 | TP24 | n_ls | 24 V HOT supply |
-| TP5 | ocp_node | B | 116.8, 71.0 | TP25 | ocp_kelvin_p | OCP comparator input (D4 condition 2) |
-| TP6 | hot5 | F | 112.8, 61.2 | TP26 | ocp_kelvin_p | HOT5 protection rail |
-| TP7 | bus_fault_hot | B | 100.3, 91.0 | TP27 | ocp_kelvin_p | OCP fault, HOT side |
+| TP5 | ocp_node | B | 112.2, 61.0 | TP25 | ocp_kelvin_p | OCP comparator input (D4 condition 2) |
+| TP6 | hot5 | F | 116.0, 64.7 | TP26 | ocp_kelvin_p | HOT5 protection rail |
+| TP7 | bus_fault_hot | B | 101.6, 74.9 | TP27 | ocp_kelvin_p | OCP fault, HOT side |
 | TP8 | n_ha | F | 64.8, 50.0 | TP28 | sw_a | HS-A -2 V rail vs switch node (F6 rail at the edge) |
 | TP9 | p_ha | F | 71.6, 47.0 | TP28 | sw_a | HS-A +15 V rail |
 | TP10 | n_hb | B | 4.3, 115.8 | TP29 | sw_b | HS-B -2 V rail vs switch node |
@@ -38,12 +38,12 @@ differential or isolated probes (D-8 equipment table), never a grounded scope gr
 
 | Net | Probe at |
 | --- | --- |
-| leg_b-out_l | component pad U2.10 / R58.2 / R20.1 (no legal test-pad spot) |
-| leg_a-out_h | component pad U1.15 / R53.2 / R10.1 (no legal test-pad spot) |
-| leg_b-out_h | component pad R57.2 / U2.15 / R18.1 (no legal test-pad spot) |
+| leg_b-out_l | component pad R20.1 / R58.2 / U2.10 (no legal test-pad spot) |
+| leg_a-out_h | component pad U1.15 / R10.1 / R53.2 (no legal test-pad spot) |
+| leg_b-out_h | component pad R57.2 / R18.1 / U2.15 (no legal test-pad spot) |
 | pwm_lb | J4.8 (bottom), ground J4.2 / J4.4 / J4.15 |
-| leg_a-dis | component pad U22.1 / R8.1 / Q1.3 (no legal test-pad spot) |
-| leg_b-dis | component pad Q4.3 / U23.1 / R16.1 (no legal test-pad spot) |
+| leg_a-dis | component pad U22.1 / Q1.3 / R8.1 (no legal test-pad spot) |
+| leg_b-dis | component pad U23.1 / R16.1 / Q4.3 (no legal test-pad spot) |
 | line_zc | J4.16 (bottom), ground J4.2 / J4.4 / J4.15 |
 
 FET gate/drain/source (VGS, VDS): at the TO-247 package leads with rigid insulated adapters, per

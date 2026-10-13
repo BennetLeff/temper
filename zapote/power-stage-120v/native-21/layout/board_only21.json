@@ -63,14 +63,14 @@
   {
    "net": "ocp_node",
    "at": [
-    116.75,
-    71.045
+    112.16,
+    61.015
    ],
    "side": "B",
    "ref_net": "ocp_kelvin_p",
    "ref_at": [
-    117.225,
-    73.695
+    109.748,
+    55.1
    ],
    "purpose": "OCP comparator input (D4 condition 2)",
    "ref": "TP5"
@@ -78,8 +78,8 @@
   {
    "net": "hot5",
    "at": [
-    112.822,
-    61.2
+    116.05,
+    64.745
    ],
    "side": "F",
    "ref_net": "ocp_kelvin_p",
@@ -93,14 +93,14 @@
   {
    "net": "bus_fault_hot",
    "at": [
-    100.35,
-    91.0
+    101.6,
+    74.9
    ],
    "side": "B",
    "ref_net": "ocp_kelvin_p",
    "ref_at": [
-    100.35,
-    88.695
+    103.75,
+    74.095
    ],
    "purpose": "OCP fault, HOT side",
    "ref": "TP7"
@@ -348,8 +348,8 @@
   {
    "net": "ocp_kelvin_p",
    "at": [
-    117.225,
-    73.695
+    109.748,
+    55.1
    ],
    "side": "B",
    "ref": "TP25",
@@ -368,8 +368,8 @@
   {
    "net": "ocp_kelvin_p",
    "at": [
-    100.35,
-    88.695
+    103.75,
+    74.095
    ],
    "side": "B",
    "ref": "TP27",
@@ -461,19 +461,19 @@
    "net": "leg_b-out_l",
    "ref": "n_ls",
    "why": "no legal via pair within 10 mm",
-   "probe": "component pad U2.10 / R58.2 / R20.1 (no legal test-pad spot)"
+   "probe": "component pad R20.1 / R58.2 / U2.10 (no legal test-pad spot)"
   },
   {
    "net": "leg_a-out_h",
    "ref": "n_ha",
    "why": "no legal via pair within 10 mm",
-   "probe": "component pad U1.15 / R53.2 / R10.1 (no legal test-pad spot)"
+   "probe": "component pad U1.15 / R10.1 / R53.2 (no legal test-pad spot)"
   },
   {
    "net": "leg_b-out_h",
    "ref": "n_hb",
    "why": "no legal via pair within 10 mm",
-   "probe": "component pad R57.2 / U2.15 / R18.1 (no legal test-pad spot)"
+   "probe": "component pad R57.2 / R18.1 / U2.15 (no legal test-pad spot)"
   },
   {
    "net": "pwm_lb",
@@ -485,13 +485,13 @@
    "net": "leg_a-dis",
    "ref": "selv_gnd",
    "why": "no legal via pair within 10 mm",
-   "probe": "component pad U22.1 / R8.1 / Q1.3 (no legal test-pad spot)"
+   "probe": "component pad U22.1 / Q1.3 / R8.1 (no legal test-pad spot)"
   },
   {
    "net": "leg_b-dis",
    "ref": "selv_gnd",
    "why": "no legal via pair within 10 mm",
-   "probe": "component pad Q4.3 / U23.1 / R16.1 (no legal test-pad spot)"
+   "probe": "component pad U23.1 / R16.1 / Q4.3 (no legal test-pad spot)"
   },
   {
    "net": "line_zc",

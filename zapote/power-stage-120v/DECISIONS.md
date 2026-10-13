@@ -917,3 +917,24 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
       - R5.4's 0.5 mm in-pad vias sit at JLC's fill limit, so confirm at order.
       - The F7 bulk-path benefit (about −4 nH in the g02-g03 plane screen) needs the loop re-extraction.
       - The removed studs' enclosure envelopes (J7–J10) can be released to temper-f7.
+26. **Stage 21b: OCP Kelvin pickup fix, F8 (2026-10-13; board `c015804959add81e948055279cb78946e3a762ac9077c0b21bfbde3c89d0cb56`, copper.json `c608c724…`, schematic and netlist as stage 21, Gerber ZIP `bb7a54787dc08d06562da1c790109ab763707eede3a3a95bb03e862ccbfd3a39`; tag `native21s21b`; proposal `11-candidates/g06-g08-g10-supplies-sense-io/` P4; evidence `02-protection-timing/coil-pickup/s21b/`).**
+    - **Why:** the F8 rerun found the as-built OCP Kelvin / comparator loops failing the pickup gate on the coil's field: any-phase +50 % stack ≤ 6.5 A at 59.2 A peak. The 19c copper gave 8.71 A at 60 kHz and 7.04 A at 45 kHz with a pan. KELVIN_N crossed the In1 ocp_kelvin_p pour on In1 (x 106.6, y 43.4–72.4) instead of running under it, and C30 / C31 sat 11–15 mm from U6.
+    - **Change:**
+      - KELVIN_N runs with KELVIN_P on In1 to (106.6, 55.9), drops through a via at (104.8, 55.9), the nearest legal spot (F.Cu there carries Kelvin_P / HOT5-monitor tracks), and runs to R33's via under the pour's footprint on In2 / B.Cu (`patches21.add_stage21b_kn`, linked last).
+      - Single-layer In2 and B.Cu runs do not fit. A first mixed route put a via under bus_fault_hot and failed return_path19 SI1, so the layer-change via is kept out of a 1.2 mm corridor under bus_fault_hot's F.Cu run.
+      - C30 (ocp_node) → (99.76, 63.09), 4.2 mm from U6.3 (was 12.3). C31 (ocp_thresh) → (102.93, 64.78), 6.1 mm from U6.4 (was 11.3). These are the nearest spots legal under the isolation-group clearances. `gates/bypass_spots.py` gained `--rules`; its flat 0.35 mm check had offered spots 3.2 mm-illegal to the bus_p divider R26.
+      - The D5 via nudge (g05-g07 P5, +0.026 mm) is not taken: it is a tie-breaker on a router-owned via.
+    - **Pickup (`coil-pickup/s21b/run_ocp.py`, same method, run on each stage's copper):**
+      - **Control:** the copy reproduces the 19c result exactly (8.71 A).
+
+      | Case | 19c | 21b |
+      |---|---|---|
+      | Pan, 60 kHz | 8.71 A | **4.78 A** (PASS) |
+      | Pan, 45 kHz | 7.04 A | **3.87 A** |
+      | Nominal peak shift, 60 kHz | 0.60 A | **0.19 A** (×1.5) |
+      | No pan, conservative straight closure | 24.6 A | **13.9 A** |
+      | No pan, closure following the return path | 16.3 A | **1.5 A** |
+
+      - The no-pan conservative figure stays over 6.5 A. Normal firmware does not run the tank without a pan, and the 13b report shows the no-pan field in quadrature, so its any-phase stacking is non-physical. Recorded, not claimed as a pass.
+    - **Gates (board `c0158049…`):** DRC 0 / 0 / 0, barrier and RES_A 0, Rust 0 (5,848), D5 8.047 / 8.507, fit 0, DFM PASS (752 vias), Gerber review PASS, bypass, PI and return_path PASS. Kelvin band 67.77–116.44 A (+0.05 A). B3 unchanged (135.1 °C). Fault copper unchanged (`s21b_necks.json`: 0.993 overall, 1.02 for conductors). CPL audit 279 / 10 / 50.
+    - **Scorecard:** `ocp_pickup_stack_pan60_A` is added (lower is better, 0.1 A tolerance). It is back-filled from the same script on the 19c copper (8.71; stage 20 shares that copper) and on the stage-21 copper (8.71). **ACCEPT against 19c and 21:** better on pickup (8.71 → 4.78) and the Kelvin band low corner, at equal cost.

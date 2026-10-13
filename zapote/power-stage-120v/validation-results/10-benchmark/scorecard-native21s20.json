@@ -30,7 +30,8 @@
   "leakage_touch_mA": 0.974,
   "fuse_copper_fusing_ratio": 0.208,
   "cmti_gate_ratio_min": 1.316,
-  "bank_ratio_tdk_28A_40k": 1.022
+  "bank_ratio_tdk_28A_40k": 1.022,
+  "ocp_pickup_stack_pan60_A": 8.71
  },
  "cost": {
   "bom_lines": 92,
@@ -54,6 +55,7 @@
   "leakage": "07-conducted-emi/leakage/result.json DESIGN row",
   "fuse_copper": "02-protection-timing/shoot-through-f1/result.json (min copper fusing I2t / F1 clearing I2t)",
   "cmti": "06-controller-interface/cmti/cmti.csv (GATE rows, ratio at 95 V/ns)",
-  "bank": "11-candidates/g04-g09-tank-detect/results/bank_options.json baseline J"
+  "bank": "11-candidates/g04-g09-tank-detect/results/bank_options.json baseline J",
+  "ocp_pickup": "added with stage 21b: coil-pickup/s21b/run_ocp.py on the 19c copper (stage 20 shares it), result-s19c.json"
  }
 }
