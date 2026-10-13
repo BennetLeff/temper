@@ -6,7 +6,7 @@
       "pitch_mm": 0.125,
       "description": "15 A west replenishment",
       "sources": [
-        "J8.1:15"
+        "BR1.1:15"
       ],
       "explicit_draws": [],
       "reference_sinks": [
@@ -23,7 +23,7 @@
       "pitch_mm": 0.125,
       "description": "15 A west replenishment",
       "sources": [
-        "J8.1:15"
+        "BR1.1:15"
       ],
       "explicit_draws": [],
       "reference_sinks": [
@@ -40,7 +40,7 @@
       "pitch_mm": 0.125,
       "description": "15 A west replenishment, opposite leg",
       "sources": [
-        "J8.1:15"
+        "BR1.1:15"
       ],
       "explicit_draws": [],
       "reference_sinks": [
@@ -93,7 +93,7 @@
       "pitch_mm": 0.125,
       "description": "15+19 A coherent DC/HF experiment",
       "sources": [
-        "J8.1:15",
+        "BR1.1:15",
         "C38.1:9.5",
         "C39.1:9.5"
       ],
@@ -112,7 +112,7 @@
       "pitch_mm": 0.125,
       "description": "15+19 A coherent DC/HF experiment",
       "sources": [
-        "J8.1:15",
+        "BR1.1:15",
         "C38.1:9.5",
         "C39.1:9.5"
       ],
@@ -131,7 +131,7 @@
       "pitch_mm": 0.125,
       "description": "15+19 A coherent DC/HF experiment, opposite leg",
       "sources": [
-        "J8.1:15",
+        "BR1.1:15",
         "C40.1:9.5",
         "C41.1:9.5"
       ],
@@ -150,7 +150,7 @@
       "pitch_mm": 0.125,
       "description": "15+19 A coherent DC/HF experiment, opposite leg",
       "sources": [
-        "J8.1:15",
+        "BR1.1:15",
         "C40.1:9.5",
         "C41.1:9.5"
       ],
@@ -173,7 +173,7 @@
       ],
       "explicit_draws": [],
       "reference_sinks": [
-        "J10.1"
+        "BR1.4"
       ],
       "plating_um": 18,
       "exit_code": 0,
@@ -190,7 +190,7 @@
       ],
       "explicit_draws": [],
       "reference_sinks": [
-        "J10.1"
+        "BR1.4"
       ],
       "plating_um": 12,
       "exit_code": 0,
@@ -246,7 +246,7 @@
         "C39.2:9.5"
       ],
       "reference_sinks": [
-        "J10.1"
+        "BR1.4"
       ],
       "plating_um": 18,
       "exit_code": 0,
@@ -266,7 +266,7 @@
         "C39.2:9.5"
       ],
       "reference_sinks": [
-        "J10.1"
+        "BR1.4"
       ],
       "plating_um": 12,
       "exit_code": 0,
@@ -286,7 +286,7 @@
         "C41.2:9.5"
       ],
       "reference_sinks": [
-        "J10.1"
+        "BR1.4"
       ],
       "plating_um": 18,
       "exit_code": 0,
@@ -306,7 +306,7 @@
         "C41.2:9.5"
       ],
       "reference_sinks": [
-        "J10.1"
+        "BR1.4"
       ],
       "plating_um": 12,
       "exit_code": 0,

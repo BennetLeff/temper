@@ -180,14 +180,8 @@ pack(group("u_ldo", "c_ldo_in", "c_ldo_out", "c_v15", "u_ref", "r_ref_bias", "u_
 put("u_vsense", 104.0, 121.0, 270)               # AMC1311
 put("u_iso", 113.0, 121.0, 270)                 # OCP ISO7710
 # ---------------- rear band (connectors exit the enclosure rear) -------------
-# Bring-up links: 2 x 2 block right of BR1 at the 13.0 mm strap pitch (ASSEMBLY.md), straps
-# horizontal: J9 (RECT_N) - J10 (HV_RET) on the edge row, J7 (RECT_P) - J8 (BUS_P) below.
-# RECT_N reaches J9 on In2 straight from BR1.4, RECT_P reaches J7 on In1 from BR1.1 (under BR1);
-# BUS_P (In2) meets J8 from the trunk below; HV_RET (In1) reaches J10 round J8's right side.
-put("link_neg.terminal_rect", 130.0, 6.5)
-put("link_neg.terminal_bus", 143.0, 6.5)
-put("link_pos.terminal_rect", 130.0, 19.5)
-put("link_pos.terminal_bus", 143.0, 19.5)
+# Stage 21 (DECISIONS 25): the J7-J10 bring-up link studs are gone; BR1.1 / BR1.4 sit on the BUS_P (In2) and
+# HV_RET (In1) trunk planes directly. Floating bring-up leaves BR1 unfitted and lands the bench leads in its holes.
 put("ps_gate", 186.5, 14.0)                     # rear band; N_FILT pin on the mains lane, LS rails down
 put("j_tco", 218.2, 7.6, 90)    # B2P3-VH (7.92 mm pitch, review M7) stands vertical between PS2 and F1 / R1
 put("j_pe", 160.0, 134.5, 90)

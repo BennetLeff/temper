@@ -83,6 +83,7 @@ Controls run 2026-10-13: 19c vs 19b gives ACCEPT (better `return_path_open_chang
 
 | Stage | Change | Verdict | Card |
 |---|---|---|---|
+| 21 | BR1 feeds the bus directly; J7–J10 removed; R5.4 via field 0.8/0.5 mm | **ACCEPT** against 19c and 20. Cheaper: parts $234.83 → $223.91, placements −4. Better: fuse-copper ratio 0.208 → 0.993; B3 136.0 → 135.1 °C; BUS_P span passes 3 %. | [`scorecard-native21s21.json`](scorecard-native21s21.json) |
 | 20 | T1 1:200 + R39 3.0 Ω, U36 -2X bin, bank J tolerance (BOM only) | **ACCEPT**. Simpler: hand lines −1, zero-stock lines −1. Better: bank 28 A ratio 1.105 → 1.022. Parts +$2.89 at 500. | [`scorecard-native21s20.json`](scorecard-native21s20.json) |
 
 `bank_ratio_tdk_28A_40k` was added to the card with stage 20 and back-filled on 19c from the same script (DECISIONS 23). Prices for new MPNs come from `STOCK-2026-10-13-addendum-*.csv`, on a same-channel, conservative basis.

@@ -17,7 +17,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 OUT = HERE / "outputs"
 UNIT = HERE.parents[3]
-GEOM = UNIT / "native-21/verification/native21s20-all-copper.json.gz"
+GEOM = UNIT / "native-21/verification/native21s21-all-copper.json.gz"
 HEAT = HERE / "inputs/native21-board-heat-sources.json"
 HEAT_C28 = HERE / "inputs/native21-board-heat-sources-c28.json"   # make_heat_sources.py, stage 15
 # Operating points (task 05 round 3 / task 03 round 3): tank RMS I_t through the bridge, R5 and
@@ -38,7 +38,7 @@ def cases(op):
     it, il = OPS[op]["I_t"], OPS[op]["I_line"]
     tank = (it / 18.7) ** 2
     leg = (it / 2 ** 0.5 / 18.7) ** 2          # each leg's low side conducts half the time
-    ret = (it / 34.0) ** 2                     # R5 RMS = I_t; A4 mixed cases drive 34 A from R5 / into J8
+    ret = (it / 34.0) ** 2                     # R5 RMS = I_t; A4 mixed cases drive 34 A from R5 / into BR1.1 (J8 until stage 21)
     line = (il / 15.0) ** 2
     # SW_A's two states (stage 15): high side Q2 -> T1 and low side Q3 -> leg-A link -> T1, half the time each
     rows = [("sw_a-p00625-pl18", 0.5 * tank), ("sw_a_low-p00625-pl18", 0.5 * tank), ("sw_b_high-p00625-pl18", 0.5 * tank), ("sw_b_low-p00625-pl18", 0.5 * tank),

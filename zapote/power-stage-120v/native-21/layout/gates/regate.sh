@@ -18,8 +18,8 @@ cd $R && rm -f outputs/*-pl*.json outputs/*.npz outputs/summary.json
 $MP ../round3/scripts/kit_topology_native13.py inputs/power_copper.json.gz outputs/kit_topology_p0125.json 0.125 >/dev/null &
 $MP ../round3/scripts/kit_topology_native13.py inputs/power_copper.json.gz outputs/kit_topology_p00625.json 0.0625 >/dev/null &
 WORKERS=6 $MP run_cases.py > outputs/run_cases.log 2>&1
-$MP run_board.py --net bus_p --source J8.1:15 --sink Q2.2 --pitch 0.25 --plating 18 --name bus-dc-q2-p025-pl18 >/dev/null
-$MP run_board.py --net bus_p --source J8.1:15 --sink Q2.2 --pitch 0.0625 --plating 18 --name bus-dc-q2-p00625-pl18 >/dev/null
+$MP run_board.py --net bus_p --source BR1.1:15 --sink Q2.2 --pitch 0.25 --plating 18 --name bus-dc-q2-p025-pl18 >/dev/null
+$MP run_board.py --net bus_p --source BR1.1:15 --sink Q2.2 --pitch 0.0625 --plating 18 --name bus-dc-q2-p00625-pl18 >/dev/null
 wait
 $MP summarize.py | tail -1
 python3 compare_native17.py > outputs/compare_native17.txt

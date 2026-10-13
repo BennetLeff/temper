@@ -1,7 +1,7 @@
 {
  "basis": "Native-21: native-19 reviewed annotations by MPN and pin set; ECO.md manufacturer pin tables for parts added in D-33; remaining parts passive (named after Atopile signals). Connectivity authority: native-21/frozen/default.net. Not datasheet or powered verification.",
  "basis_counts": {
-  "native19-reviewed": 122,
+  "native19-reviewed": 118,
   "passive-two-terminal": 208,
   "passive-untyped": 11,
   "eco-pin-table": 16
@@ -5077,50 +5077,6 @@
   "J5": {
    "mpn": "74650074",
    "source_instance": "j_coil_return",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    }
-   }
-  },
-  "J7": {
-   "mpn": "74650074",
-   "source_instance": "link_pos.terminal_rect",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    }
-   }
-  },
-  "J8": {
-   "mpn": "74650074",
-   "source_instance": "link_pos.terminal_bus",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    }
-   }
-  },
-  "J9": {
-   "mpn": "74650074",
-   "source_instance": "link_neg.terminal_rect",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    }
-   }
-  },
-  "J10": {
-   "mpn": "74650074",
-   "source_instance": "link_neg.terminal_bus",
    "basis": "native19-reviewed",
    "pins": {
     "1": {

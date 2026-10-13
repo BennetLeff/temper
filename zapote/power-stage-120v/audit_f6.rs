@@ -387,6 +387,10 @@ mod tests {
             {
                 continue;
             }
+            // stage 21 (DECISIONS 25): the J7-J10 rail-link studs are deleted, BR1 feeds the bus
+            if part.path.starts_with("link_pos.") || part.path.starts_with("link_neg.") {
+                continue;
+            }
             assert_eq!(
                 current.reff(&part.path),
                 Some(reference.as_str()),

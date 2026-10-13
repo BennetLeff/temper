@@ -1,11 +1,11 @@
 {
   "atopile_version": "0.2.69",
   "build_sha256": {
-    "build/default.csv": "db4846f0f507134354cfca32750d6166f290534a816402eb26d67f35ad5adffd",
+    "build/default.csv": "60bf6b501c320d37708d07029fc9a16d5c5c45b52f6286b3d64e1c78ab0a6bd6",
     "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-    "build/default.net": "628bdb55a607f9536a3d66b3587c069913ebc4f54c38163345e854654aa2ab36",
+    "build/default.net": "5be3b9f5042793951e01cd47778f2586a65b5b3987ae2116d6938c8d58ead208",
     "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5",
-    "build/resolved-components.json": "5183e618463fe508442ac40e8b802541f13476bbdc3b4c03add4438b23a48b99"
+    "build/resolved-components.json": "d0e989f62a4fd69a08c48b0032a1d67fd4e09aafb8af14ddb41f969f31eea891"
   },
   "components": [
     {
@@ -1942,46 +1942,6 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::link_pos.terminal_rect",
-      "attributes": {
-        "designator": "J7",
-        "designator_prefix": "J",
-        "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
-        "manufacturer": "Wuerth Elektronik",
-        "mpn": "74650074"
-      }
-    },
-    {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::link_pos.terminal_bus",
-      "attributes": {
-        "designator": "J8",
-        "designator_prefix": "J",
-        "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
-        "manufacturer": "Wuerth Elektronik",
-        "mpn": "74650074"
-      }
-    },
-    {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::link_neg.terminal_rect",
-      "attributes": {
-        "designator": "J9",
-        "designator_prefix": "J",
-        "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
-        "manufacturer": "Wuerth Elektronik",
-        "mpn": "74650074"
-      }
-    },
-    {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::link_neg.terminal_bus",
-      "attributes": {
-        "designator": "J10",
-        "designator_prefix": "J",
-        "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
-        "manufacturer": "Wuerth Elektronik",
-        "mpn": "74650074"
-      }
-    },
-    {
       "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ct_burden",
       "attributes": {
         "designator": "R39",
@@ -3844,7 +3804,7 @@
     "elec/src/f6_bias.ato": "ebe1ff0a3e74d40abfbb9d5f6bddfd9bae374286960e6f06cdf5f9e57fa84d8f",
     "elec/src/f6_parts.ato": "5346f6a0955f13f0d37bf916885d36b4450bd243989b70c1c355e74568e01cd6",
     "elec/src/parts.ato": "f90b8f09159ff6f8f0141dfe9d718a0bb8ba13c91e70c2e6dbb83b148ff7b07a",
-    "elec/src/power_stage_120v.ato": "045eb9de36b02636e1d8681c695eaa3fc5e6d129fa1deeb6e0b4075e5482d06b",
+    "elec/src/power_stage_120v.ato": "d9ca26ad7f847e91a89b484862d7e2a7aa7dc298fcc90c8ce3de19f4dcaf823d",
     "prototype-closure/round4/supervisor/generated/supervisor.ato": "1d6674935534a46c6c82f61c4f18890de7fa7cbf81f89c1cb63efb7bfed1b7e3"
   }
 }

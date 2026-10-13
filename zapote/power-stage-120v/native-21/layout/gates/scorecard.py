@@ -154,8 +154,12 @@ def performance(b, tag):
         if d:
             m["leakage_touch_mA"] = round(d[0]["governing_touch_mA"], 3)
             src["leakage"] = "07-conducted-emi/leakage/result.json DESIGN row"
+    tagged = jload(VR / f"02-protection-timing/shoot-through-f1/{tag.replace('native21s', 's')}_necks.json")
     f1 = jload(VR / "02-protection-timing/shoot-through-f1/result.json")
-    if f1 and isinstance(f1.get("verdict"), dict):
+    if tagged:          # stage-specific neck run (s21_necks.py onward): min over every series row, actual via drills
+        m["fuse_copper_fusing_ratio"] = tagged["min_ratio_all"]
+        src["fuse_copper"] = f"02-protection-timing/shoot-through-f1/{tag.replace('native21s', 's')}_necks.json (min_ratio_all)"
+    elif f1 and isinstance(f1.get("verdict"), dict):
         v = f1["verdict"]
         m["fuse_copper_fusing_ratio"] = round(v["min_copper_I2t_conservative"] / v["F1_clearing_I2t"], 3)
         src["fuse_copper"] = "02-protection-timing/shoot-through-f1/result.json (min copper fusing I2t / F1 clearing I2t)"

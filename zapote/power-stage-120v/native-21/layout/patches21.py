@@ -82,9 +82,25 @@ SWB_STRIP = (188.0, 46.8, 200.6, 112.9)
 SWB_BAND_TRIM = (150.0, 46.8, 188.0, 50.1)
 
 
+STAGE21_DROP = {"J8 stud land", "J10 stud land"}   # with every rect_p / rect_n pour: the link studs are gone
+STAGE21_FEED = ((74.0, 0.6), (136.0, 0.6), (136.0, 29.0), (74.0, 29.0))   # BR1 window, overlaps both trunks
+
+
 def edit_zones(zones):
     from shapely.geometry import Polygon, box
     out = []
+    # Stage 21 (DECISIONS 25): BR1 feeds the bus directly. The rect_p (In1) / rect_n (In2) pours and the four stud
+    # lands go; the bus_p (In2) and hv_ret (In1) trunk pours, whose outlines already cover the BR1 zone, fill it.
+    zones = [z for z in zones if z["net"] not in ("rect_p", "rect_n") and z.get("name") not in STAGE21_DROP]
+    # The trunk outlines are notched where the rect pours were (x 76-135, y 0-27): the BR1 window is merged into
+    # each trunk's own outline (one zone; KiCad refuses intersecting zones of equal priority), joining BR1.1
+    # (In2 bus_p) and BR1.4 (In1 hv_ret) to the trunks.
+    for i, z in enumerate(zones):
+        if (z["net"], z["layer"], z.get("name")) in (("hv_ret", "In1.Cu", "hv_ret trunk"), ("bus_p", "In2.Cu", "bus_p trunk")):
+            u = Polygon(z["outline"], z["holes"]).union(Polygon(STAGE21_FEED)).buffer(0)
+            u = max(getattr(u, "geoms", [u]), key=lambda q: q.area)
+            zones[i] = {**z, "outline": [[round(x, 3), round(y, 3)] for x, y in list(u.exterior.coords)[:-1]],
+                        "holes": [[[round(x, 3), round(y, 3)] for x, y in list(h.coords)[:-1]] for h in u.interiors]}
     zones = [{**z, "outline": MAINS_POURS[(z["net"], z["layer"])], "holes": []}
              if (z["net"], z["layer"]) in MAINS_POURS else z for z in zones]
     for z in zones:
@@ -274,7 +290,6 @@ def add_stage18(g):
 # winner; strict orders already in copper.json are kept, and gates/zone_priority_gate.py fails any unresolved pair.
 # Winners: In1 n_ls (stage-17b review call); the rest keep stage 15b's fill (the board DECISIONS 14 accepted for 28 A).
 ZONE_WINNERS = [("In1.Cu", "n_ls LS block", "ocp_kelvin_p protection"),
-                ("In1.Cu", "rect_p BR1.1-J7", "hv_ret trunk"),
                 ("B.Cu", "l_filt BR1.2-L1", "sw_b leg B-C21..C23"),
                 ("B.Cu", "sw_a leg-A link", "sw_b leg B-C21..C23"),
                 ("B.Cu", "sw_b leg B-C21..C23", "res_a J5-C21..C23"),
@@ -765,7 +780,9 @@ def add_r5(g):
     """Up to R5_MAX legal 0.6 / 0.3 vias per R5 current pad, 0.85 mm apart (so merge_close_vias
     keeps them), on a 0.15 mm grid in the pad and in the same-net F.Cu copper within R5_REACH of it,
     nearest the pad centre first. Every spot is checked against all copper on every layer (the
-    Kelvin pair runs under R5.1 on In1). Vias inside the pad are filled and capped."""
+    Kelvin pair runs under R5.1 on In1). Vias inside the pad are filled and capped.
+    Stage 21 (DECISIONS 25): R5.4 (hv_ret) takes 0.8 / 0.5 mm vias, 1.05 mm apart, so the field's fusing I2t
+    (20 um barrels, equal sharing) is no longer the series limiter under F1's clearing energy."""
     from shapely.geometry import Point, Polygon, box as _box
     import rules21
     G = g["GEO"]
@@ -785,18 +802,20 @@ def add_r5(g):
                     if pad.distance(c) <= R5_REACH:
                         cand.append(c)
         placed = []
+        vsize, vdrill, pitch = (0.8, 0.5, 1.05) if net == "hv_ret" else (0.6, 0.3, 0.85)
         for c in sorted(cand, key=lambda c: (round(c.distance(Point(cx, cy)), 3), c.x, c.y)):
             if len(placed) >= R5_MAX:
                 break
-            if any(c.distance(q) < 0.85 for q in placed + own):
+            if any(c.distance(q) < pitch for q in placed + own):
                 continue
-            bad = G.conflicts(net, CU, c.buffer(0.3), limit=8, via=True)
+            bad = G.conflicts(net, CU, c.buffer(vsize / 2), limit=8, via=True)
             # a conflict with an R5 sense pad's bounding box only: judge it on the true outline
             if bad and all(lay == "F.Cu" and o in sense for lay, o in bad) and \
-                    all(sense[o].distance(c) >= 0.3 + rules21.clearance(net, o) + 0.03 for _, o in bad):
+                    all(sense[o].distance(c) >= vsize / 2 + rules21.clearance(net, o) + 0.03 for _, o in bad):
                 bad = []
             if bad:
                 continue
-            g["via"](net, c.x, c.y, size=0.6)
+            g["via"](net, c.x, c.y, size=vsize)
+            g["VIAS"][-1]["drill"] = vdrill
             placed.append(c)
         print(f"R5 {ref_pad}: {len(placed)} vias ({sum(pad.contains(q) for q in placed)} in the pad)")

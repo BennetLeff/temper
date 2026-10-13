@@ -20,20 +20,21 @@ HERE = Path(__file__).resolve().parent
 FIFTH = '3.74'
 BANK = ('C21', 'C22', 'C23', 'C151', 'C152')
 
+# Stage 21 (DECISIONS 25): the DC replenishment enters at BR1.1 / leaves at BR1.4 (the J8 / J10 link studs are gone).
 # Currents are assumed, conditional resistive experiments. Their signed
 # operating waveforms and capacitor sharing have not been measured.
 CASES = [
-    ('bus_dc_q2', 'bus_p', ['J8.1:15'], [], ['Q2.2'], '15 A west replenishment'),
-    ('bus_dc_q5', 'bus_p', ['J8.1:15'], [], ['Q5.2'], '15 A west replenishment, opposite leg'),
+    ('bus_dc_q2', 'bus_p', ['BR1.1:15'], [], ['Q2.2'], '15 A west replenishment'),
+    ('bus_dc_q5', 'bus_p', ['BR1.1:15'], [], ['Q5.2'], '15 A west replenishment, opposite leg'),
     ('bus_hf_q2', 'bus_p', ['C38.1:9.5', 'C39.1:9.5'], [], ['Q2.2'], '19 A local HF share, equally split capacitors'),
     ('bus_hf_q5', 'bus_p', ['C40.1:9.5', 'C41.1:9.5'], [], ['Q5.2'], '19 A local HF share, equally split capacitors'),
-    ('bus_mixed_q2', 'bus_p', ['J8.1:15', 'C38.1:9.5', 'C39.1:9.5'], [], ['Q2.2'], '15+19 A coherent DC/HF experiment'),
-    ('bus_mixed_q5', 'bus_p', ['J8.1:15', 'C40.1:9.5', 'C41.1:9.5'], [], ['Q5.2'], '15+19 A coherent DC/HF experiment, opposite leg'),
-    ('hv_dc', 'hv_ret', ['R5.4:15'], [], ['J10.1'], '15 A shunt-to-west return'),
+    ('bus_mixed_q2', 'bus_p', ['BR1.1:15', 'C38.1:9.5', 'C39.1:9.5'], [], ['Q2.2'], '15+19 A coherent DC/HF experiment'),
+    ('bus_mixed_q5', 'bus_p', ['BR1.1:15', 'C40.1:9.5', 'C41.1:9.5'], [], ['Q5.2'], '15+19 A coherent DC/HF experiment, opposite leg'),
+    ('hv_dc', 'hv_ret', ['R5.4:15'], [], ['BR1.4'], '15 A shunt-to-west return'),
     ('hv_hf_a', 'hv_ret', ['R5.4:19'], [], ['C38.2', 'C39.2'], '19 A return to A local capacitor pair, equipotential sinks'),
     ('hv_hf_b', 'hv_ret', ['R5.4:19'], [], ['C40.2', 'C41.2'], '19 A return to B local capacitor pair, equipotential sinks'),
-    ('hv_mixed_a', 'hv_ret', ['R5.4:34'], ['C38.2:9.5', 'C39.2:9.5'], ['J10.1'], '15 A west and 19 A local A return, coherent'),
-    ('hv_mixed_b', 'hv_ret', ['R5.4:34'], ['C40.2:9.5', 'C41.2:9.5'], ['J10.1'], '15 A west and 19 A local B return, coherent'),
+    ('hv_mixed_a', 'hv_ret', ['R5.4:34'], ['C38.2:9.5', 'C39.2:9.5'], ['BR1.4'], '15 A west and 19 A local A return, coherent'),
+    ('hv_mixed_b', 'hv_ret', ['R5.4:34'], ['C40.2:9.5', 'C41.2:9.5'], ['BR1.4'], '15 A west and 19 A local B return, coherent'),
     ('leg_a_18p7', 'leg_ret', ['Q3.3:18.7'], [], ['R5.1'], '18.7 A low-side A path'),
     ('leg_b_18p7', 'leg_ret', ['Q6.3:18.7'], [], ['R5.1'], '18.7 A low-side B path'),
     ('leg_a_15', 'leg_ret', ['Q3.3:15'], [], ['R5.1'], '15 A leg A DC component experiment'),

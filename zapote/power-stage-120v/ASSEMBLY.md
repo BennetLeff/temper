@@ -12,10 +12,9 @@ spacing, insulation, heat, torque retention and powered tests have not run.
 | Coil feed | J2 / `j_coil` | Würth 74650074 M4 REDCUBE THR |
 | Coil return | J5 / `j_coil_return` | Würth 74650074 M4 REDCUBE THR |
 | PE branch | J6 / `j_pe` | Phoenix KDS 3 / 1704004, one potential, two solder pins |
-| Positive removable link | J7 / `link_pos.terminal_rect` to J8 / `link_pos.terminal_bus` | Two Würth 74650074 |
-| Negative removable link | J9 / `link_neg.terminal_rect` to J10 / `link_neg.terminal_bus` | Two Würth 74650074 |
 
-The board BOM contains **six** REDCUBE terminals. Each has four same-number
+Stage 21 (DECISIONS 25) removed the J7–J10 removable rail links: BR1 feeds BUS_P / HV_RET directly.
+The board BOM contains **two** REDCUBE terminals (J2, J5). Each has four same-number
 copper pads on one metal terminal; all must land on the intended net. The
 central non-plated hole is for the screw, not an electrical pin. Würth rates
 the terminal 50 A maximum at 20 °C and specifies a 1.6–2.0 mm PCB and
@@ -29,20 +28,8 @@ is nominally 1.6 mm, so confirm the fabricated thickness and tolerance stay
 within the terminal's range before ordering. Also review copper weight,
 plated-hole process and the terminal's thermal profile with the assembler.
 
-Each removable link is a rigid **strap** fitted over the two studs of one row
-(J8–J7, J10–J9; 13.0 mm stud pitch): tinned copper flat bar 10.0 × 1.5 ×
-23.0 mm with two 4.3 mm holes at 13.0 mm centres, 5.0 mm from each end, held
-by M4 × 8 pan-head screws with spring and plain washers. This is a custom part
-(PROVISIONAL): confirm the drawing, plating and at least 20 A continuous
-capability at the actual enclosure temperature, including both contacts,
-before powered service. A cable jumper with two ring lugs does not fit this
-pitch: two 10 × 21 mm lugs facing each other at 13 mm overlap by 19 × 10 mm
-(`terminal_envelopes.json`, checked by `tools/placement_metrics.py`).
-Bench-supply leads in bring-up use **Würth 5580406** M4 ring lugs on J8/J10,
-leaving the left board edge.
-[Würth lug](https://www.we-online.com/components/products/datasheet/5580406.pdf).
 
-M4 screws and locking washers must suit the actual strap or lug stack and thread
+M4 screws and locking washers must suit the actual coil-lug stack and thread
 engagement, without bottoming or contacting other metal below the PCB.
 Record screw length, locking method and torque during the enclosure review;
 do not call a screw connection vibration-proof before retention testing.
@@ -73,36 +60,31 @@ torque, continuity and strain relief belong to the enclosure assembly.
 
 ## Normal and bring-up configurations
 
-| Mode | Positive strap | Negative strap | External DC input |
-| --- | --- | --- | --- |
-| Normal mains run | J7 RECT_P to J8 BUS_P fitted | J9 RECT_N to J10 HV_RET fitted | None |
-| Floating 30–60 V bench bus | Removed | Removed | Positive J8 BUS_P; negative J10 HV_RET |
+| Mode | BR1 | External DC input |
+| --- | --- | --- |
+| Normal mains run | Fitted (on the heatsink) | None |
+| Floating 30–60 V bench bus | **Not fitted** | Positive into BR1's `+` hole (BR1.1, BUS_P); negative into BR1's `−` hole (BR1.4, HV_RET) |
 
-The source deliberately keeps each link's endpoints on separate nets and
-represents the physical landings. **The external straps, not PCB copper,
-complete the normal circuit.** The audit requires each RECT net to contain
-only its BR1 output and rectifier-side terminal. All bulk and local bus
-capacitors, the TVS, bus bleed, divider and shunt stay downstream.
+Stage 21 (DECISIONS 25) replaced the J7–J10 removable rail links. BR1's DC pins sit
+on the BUS_P / HV_RET planes, so the bench build simply leaves BR1 out: with no
+bridge fitted there is no galvanic path from the mains filter to the bus, on
+either rail, and the empty BR1 holes are the bench landings. All bulk and local
+bus capacitors, the TVS, bus bleed, divider and shunt stay downstream of them.
 
-Both straps must be removed while all supplies are disconnected and the
-bus and resonant capacitors are verified discharged. Secure the removed
-straps so they cannot fall onto the board. Connect the floating supply only
-to J8/J10; connecting its negative to LEG_RET bypasses the OCP shunt.
-Independent verification of both open paths is required before mains or
-bench power is applied. A single open positive link is insufficient.
-
-With mains present, the filter, BR1, J7/J9 and both IRM primaries remain live.
-The PS2 IRM-20-24 output still powers V15_LS, HOT5 and the gate drivers when the
-thermal loop is closed. The PS1 IRM-20-15 still powers the controller domain. Their isolation
-barriers and the two open link gaps remove intended galvanic mains paths
-to the bridge rails; leakage and capacitive coupling remain. This does not
-make the entire PCB touch-safe. Guard the live section and use appropriately
-isolated differential measurement equipment; ordinary grounded probe clips
-are not a substitute for the intended isolation.
-
-Before a powered procedure is released, verify on the assembled unpowered
-board that neither RECT terminal has continuity to either bus terminal with
-both straps removed, and verify the absence of unintended PCB or hardware
-bridges. The source and unrouted-native checks do not perform this physical
-test. Interlock startup, current limit, fault shutdown and supply sequencing
-remain bench-validation items.
+- Connect the floating supply **only** to BR1.1 (+) and BR1.4 (−). Connecting
+  its negative to LEG_RET bypasses the OCP shunt (the audit pins BR1.4 to HV_RET,
+  never LEG_RET).
+- Solder the bench leads into the holes (or use a pin adapter); do not fit BR1 and
+  bench leads at the same time.
+- Verify on the unpowered board, before bench power, that BR1 is absent and that
+  neither BR1 AC hole (BR1.2 L_FILT, BR1.3 N_FILT) has continuity to BR1.1 or BR1.4.
+- With mains present on a bench build, the filter, the BR1 AC holes and both IRM
+  primaries remain live. The PS2 IRM-20-24 output still powers V15_LS, HOT5 and the
+  gate drivers when the thermal loop is closed; the PS1 IRM-20-15 still powers the
+  controller domain. This does not make the entire PCB touch-safe. Guard the live
+  section and use isolated differential measurement equipment; ordinary grounded
+  probe clips are not a substitute for the intended isolation.
+- Fitting BR1 for mains operation is a heatsink assembly step (thermal interface,
+  clamp torque) followed by the same continuity checks in reverse. Interlock
+  startup, current limit, fault shutdown and supply sequencing remain
+  bench-validation items.

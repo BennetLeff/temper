@@ -2820,46 +2820,6 @@
 "group": "power_misc"
 },
 {
-"ref": "J7",
-"path": "link_pos.terminal_rect",
-"fp": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
-"w": 10.17,
-"h": 10.17,
-"ox": 0.0,
-"oy": 0.0,
-"group": "power_misc"
-},
-{
-"ref": "J8",
-"path": "link_pos.terminal_bus",
-"fp": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
-"w": 10.17,
-"h": 10.17,
-"ox": 0.0,
-"oy": 0.0,
-"group": "power_misc"
-},
-{
-"ref": "J9",
-"path": "link_neg.terminal_rect",
-"fp": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
-"w": 10.17,
-"h": 10.17,
-"ox": 0.0,
-"oy": 0.0,
-"group": "power_misc"
-},
-{
-"ref": "J10",
-"path": "link_neg.terminal_bus",
-"fp": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
-"w": 10.17,
-"h": 10.17,
-"ox": 0.0,
-"oy": 0.0,
-"group": "power_misc"
-},
-{
 "ref": "C21",
 "path": "c_res1",
 "fp": "temper:TDK_B32654_P27.5_W14.0_L31.5_Radial",

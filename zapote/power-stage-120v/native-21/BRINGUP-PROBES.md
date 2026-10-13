@@ -17,7 +17,7 @@ differential or isolated probes (D-8 equipment table), never a grounded scope gr
 | TP3 | v15_ls | F | 107.5, 90.6 | TP23 | leg_ret | LS +15 V rail |
 | TP4 | v24_raw | B | 118.2, 79.6 | TP24 | n_ls | 24 V HOT supply |
 | TP5 | ocp_node | B | 116.8, 71.0 | TP25 | ocp_kelvin_p | OCP comparator input (D4 condition 2) |
-| TP6 | hot5 | F | 112.7, 61.0 | TP26 | ocp_kelvin_p | HOT5 protection rail |
+| TP6 | hot5 | F | 112.8, 61.2 | TP26 | ocp_kelvin_p | HOT5 protection rail |
 | TP7 | bus_fault_hot | B | 100.3, 91.0 | TP27 | ocp_kelvin_p | OCP fault, HOT side |
 | TP8 | n_ha | F | 64.8, 50.0 | TP28 | sw_a | HS-A -2 V rail vs switch node (F6 rail at the edge) |
 | TP9 | p_ha | F | 71.6, 47.0 | TP28 | sw_a | HS-A +15 V rail |
@@ -38,12 +38,12 @@ differential or isolated probes (D-8 equipment table), never a grounded scope gr
 
 | Net | Probe at |
 | --- | --- |
-| leg_b-out_l | component pad R58.2 / U2.10 / R20.1 (no legal test-pad spot) |
-| leg_a-out_h | component pad R53.2 / U1.15 / R10.1 (no legal test-pad spot) |
-| leg_b-out_h | component pad R18.1 / R57.2 / U2.15 (no legal test-pad spot) |
+| leg_b-out_l | component pad U2.10 / R58.2 / R20.1 (no legal test-pad spot) |
+| leg_a-out_h | component pad U1.15 / R53.2 / R10.1 (no legal test-pad spot) |
+| leg_b-out_h | component pad R57.2 / U2.15 / R18.1 (no legal test-pad spot) |
 | pwm_lb | J4.8 (bottom), ground J4.2 / J4.4 / J4.15 |
-| leg_a-dis | component pad R8.1 / U22.1 / Q1.3 (no legal test-pad spot) |
-| leg_b-dis | component pad U23.1 / R16.1 / Q4.3 (no legal test-pad spot) |
+| leg_a-dis | component pad U22.1 / R8.1 / Q1.3 (no legal test-pad spot) |
+| leg_b-dis | component pad Q4.3 / U23.1 / R16.1 (no legal test-pad spot) |
 | line_zc | J4.16 (bottom), ground J4.2 / J4.4 / J4.15 |
 
 FET gate/drain/source (VGS, VDS): at the TO-247 package leads with rigid insulated adapters, per

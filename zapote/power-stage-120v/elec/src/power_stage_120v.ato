@@ -37,18 +37,6 @@ from "parts.ato" import Burden3R0, C100nC0G1206, R1kThin, R2k21Thin, R1k1206, Cl
 from "f6_parts.ato" import HotSupply24, HotLdo, GateDischarge, Gate1R, DisOr, Bias4k99, Bias10u, Bias27k
 from "f6_bias.ato" import BiasReservoir, RegulatedSplit, RailMonitor, HighBias, LineZeroCross
 
-module BusBringupLink:
-    """Two M4 landings for one removable insulated jumper (ASSEMBLY.md).
-    Separate source nets deliberately describe the OPEN link. Fit the
-    external jumper in normal operation; remove BOTH rail jumpers for
-    floating low-voltage DC bring-up. No PCB copper bridges these nets."""
-    signal rectifier
-    signal bus
-    terminal_rect = new PowerTerminalM4
-    terminal_bus = new PowerTerminalM4
-    terminal_rect.p1 ~ rectifier
-    terminal_bus.p1 ~ bus
-
 module BridgeLeg:
     """One half-bridge leg: UCC21550 (A = high side, B = low side), fail-safe
     DIS receiver, dead time, monitored F6 bias, gate networks, two MOSFETs, snubbers.
@@ -245,8 +233,6 @@ module PowerStage120V:
     signal XBLEED_MID
     signal L_FILT
     signal N_FILT
-    signal RECT_P
-    signal RECT_N
     signal BUS_P
     signal HV_RET
     signal BUSBLEED_MID
@@ -354,8 +340,10 @@ module PowerStage120V:
     br1 = new BridgeGbj2510
     br1.AC1 ~ L_FILT
     br1.AC2 ~ N_FILT
-    br1.PLUS ~ RECT_P
-    br1.MINUS ~ RECT_N
+    # Stage 21 (DECISIONS 25): BR1 feeds the bus directly; the J7-J10 rail links are gone. Floating
+    # low-voltage bring-up leaves BR1 unfitted and lands the bench supply in BR1's + / - holes (ASSEMBLY.md).
+    br1.PLUS ~ BUS_P
+    br1.MINUS ~ HV_RET
     c_bus1 = new BusFilm2u7
     c_bus1.p1 ~ BUS_P
     c_bus1.p2 ~ BUS_P
@@ -725,14 +713,6 @@ module PowerStage120V:
     c_hf_b2.p1 ~ BUS_P
     c_hf_b2.p2 ~ HV_RET
 
-    # RECT_* studs stay mains-live with links removed. Bench supply connects
-    # only to the bus-side studs (BUS_P/HV_RET), never to LEG_RET.
-    link_pos = new BusBringupLink
-    link_pos.rectifier ~ RECT_P
-    link_pos.bus ~ BUS_P
-    link_neg = new BusBringupLink
-    link_neg.rectifier ~ RECT_N
-    link_neg.bus ~ HV_RET
 
     # ---------------- tank-CT detector (SELV), at T1
     # Kept last in the module so existing designators do not renumber.
@@ -1084,10 +1064,6 @@ module PowerStage120V:
     t_ct.designator = "T1"
     j_coil.designator = "J2"
     j_coil_return.designator = "J5"
-    link_pos.terminal_rect.designator = "J7"
-    link_pos.terminal_bus.designator = "J8"
-    link_neg.terminal_rect.designator = "J9"
-    link_neg.terminal_bus.designator = "J10"
     c_res1.designator = "C21"
     c_res2.designator = "C22"
     c_res3.designator = "C23"

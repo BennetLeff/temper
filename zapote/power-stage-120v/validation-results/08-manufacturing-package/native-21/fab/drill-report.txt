@@ -1,5 +1,5 @@
 Drill report for section.kicad_pcb
-Created on 2026-10-13T14:21:42
+Created on 2026-10-13T15:40:10
 
 Copper Layer Stackup:
     =============================================================
@@ -12,21 +12,22 @@ Copper Layer Stackup:
 Drill file 'section-PTH.drl' contains
     plated through holes:
     =============================================================
-    T1  0.300mm  0.0118"  (741 holes))
-    T2  0.800mm  0.0315"  (10 holes))
-    T3  0.900mm  0.0354"  (4 holes))
-    T4  1.020mm  0.0402"  (16 holes))
-    T5  1.200mm  0.0472"  (28 holes)  (with 4 slots)
-    T6  1.300mm  0.0512"  (2 holes))
-    T7  1.400mm  0.0551"  (2 holes))
-    T8  1.500mm  0.0591"  (20 holes))
-    T9  1.600mm  0.0630"  (8 holes))
-    T10  1.700mm  0.0669"  (4 holes))
-    T11  1.800mm  0.0709"  (8 holes))
-    T12  1.850mm  0.0728"  (24 holes))
-    T13  2.500mm  0.0984"  (4 holes))
+    T1  0.300mm  0.0118"  (736 holes))
+    T2  0.500mm  0.0197"  (5 holes))
+    T3  0.800mm  0.0315"  (10 holes))
+    T4  0.900mm  0.0354"  (4 holes))
+    T5  1.020mm  0.0402"  (16 holes))
+    T6  1.200mm  0.0472"  (28 holes)  (with 4 slots)
+    T7  1.300mm  0.0512"  (2 holes))
+    T8  1.400mm  0.0551"  (2 holes))
+    T9  1.500mm  0.0591"  (20 holes))
+    T10  1.600mm  0.0630"  (8 holes))
+    T11  1.700mm  0.0669"  (4 holes))
+    T12  1.800mm  0.0709"  (8 holes))
+    T13  1.850mm  0.0728"  (8 holes))
+    T14  2.500mm  0.0984"  (4 holes))
 
-    Total plated holes count 871
+    Total plated holes count 855
 
 
 Drill file 'section-NPTH.drl' contains
@@ -34,6 +35,6 @@ Drill file 'section-NPTH.drl' contains
     =============================================================
     T1  1.020mm  0.0402"  (2 holes))
     T2  3.200mm  0.1260"  (7 holes))
-    T3  4.300mm  0.1693"  (6 holes))
+    T3  4.300mm  0.1693"  (2 holes))
 
-    Total unplated holes count 15
+    Total unplated holes count 11

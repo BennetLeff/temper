@@ -271,10 +271,6 @@ const IDENTITY: &[(&str, &str)] = &[
     ("j_pe", "1704004"),
     ("j_coil", "74650074"),
     ("j_coil_return", "74650074"),
-    ("link_pos.terminal_rect", "74650074"),
-    ("link_pos.terminal_bus", "74650074"),
-    ("link_neg.terminal_rect", "74650074"),
-    ("link_neg.terminal_bus", "74650074"),
     ("c_bus1", "B32676G1905K000"),
     ("c_bus2", "B32676G1905K000"),
     ("c_hf_a1", "B32652A0104K000"),
@@ -715,25 +711,17 @@ fn audit(m: &Model) -> Vec<String> {
     expect(&mut e, m, "l1", "2", "ac_n_in");
     expect(&mut e, m, "l1", "3", "n_filt");
 
-    // 4. The two removable external rail links split rectifier from bridge
-    //    during floating low-voltage bring-up. With either link open there
-    //    must be no PCB-copper shortcut across it. The bridge-side bypass
-    //    capacitors return to HV_RET, never LEG_RET across the current shunt.
-    expect(&mut e, m, "br1", "1", "rect_p");
-    expect(&mut e, m, "br1", "4", "rect_n");
-    for (net, bridge_pin, link) in [
-        ("rect_p", "1", "link_pos.terminal_rect"),
-        ("rect_n", "4", "link_neg.terminal_rect"),
-    ] {
-        let got = members(m, net);
-        let want: BTreeSet<(String, String)> = [("br1", bridge_pin), (link, "1")]
-            .iter().map(|(a, b)| (a.to_string(), b.to_string())).collect();
-        if got != want {
-            e.push(format!("{net} must join only BR1 and its removable-link landing, found {got:?}"));
+    // 4. Stage 21 (DECISIONS 25): BR1 feeds BUS_P / HV_RET directly; the removable rail links
+    //    are gone and floating bring-up leaves BR1 unfitted (its holes are the bench landings).
+    //    BR1's minus must land on HV_RET, the capacitor side of the shunt, never LEG_RET: the
+    //    hv_ret membership check below catches a rectifier return that bypasses the shunt.
+    expect(&mut e, m, "br1", "1", "bus_p");
+    expect(&mut e, m, "br1", "4", "hv_ret");
+    for gone in ["rect_p", "rect_n"] {
+        if m.nets.contains_key(gone) {
+            e.push(format!("{gone} exists: the rectifier must feed the bus directly (stage 21)"));
         }
     }
-    expect(&mut e, m, "link_pos.terminal_bus", "1", "bus_p");
-    expect(&mut e, m, "link_neg.terminal_bus", "1", "hv_ret");
     // Shoot-through shunt: every low-side source returns via LEG_RET.
     expect(&mut e, m, "r_shunt", "1", "leg_ret");
     expect(&mut e, m, "r_shunt", "2", "ocp_kelvin_p");
@@ -767,7 +755,7 @@ fn audit(m: &Model) -> Vec<String> {
         ("r_bus2", "2"), ("r_shunt", "4"), ("tvs_bus_b", "2"),
         ("c_hf_a1", "2"), ("c_hf_a2", "2"),
         ("c_hf_b1", "2"), ("c_hf_b2", "2"),
-        ("link_neg.terminal_bus", "1"),
+        ("br1", "4"),
     ].iter().map(|(a, b)| (a.to_string(), b.to_string())).collect();
     if hv != want {
         e.push(format!("hv_ret has unexpected or missing members, possibly bypassing the shunt: {hv:?}"));
@@ -1624,32 +1612,14 @@ mod tests {
     }
 
     #[test]
-    fn removable_rail_link_landing_cannot_be_lost_or_swapped() {
-        for (path, needle) in [
-            ("link_pos.terminal_rect", "rect_p must join only"),
-            ("link_neg.terminal_rect", "rect_n must join only"),
-            ("link_pos.terminal_bus", "link_pos.terminal_bus.1"),
-            ("link_neg.terminal_bus", "link_neg.terminal_bus.1"),
-        ] {
-            let mut m = built();
-            m.rewire(path, "1", "floating_link");
-            fails(&m, needle);
-        }
-    }
-
-    #[test]
-    fn rectifier_rail_cannot_short_around_open_link() {
-        for (rect, bus) in [("rect_p", "bus_p"), ("rect_n", "hv_ret")] {
-            let mut m = built();
-            let path = "jumper_bypass";
-            let mpn = "RC1206FR-070RL";
-            m.comps.insert("R999".into(), Comp { path: path.into(), part: mpn.into(), footprint: String::new() });
-            m.resolved.insert(path.into(), mpn.into());
-            m.bom.insert("R999".into(), mpn.into());
-            m.nets.get_mut(rect).unwrap().insert(("R999".into(), "1".into()));
-            m.nets.get_mut(bus).unwrap().insert(("R999".into(), "2".into()));
-            fails(&m, &format!("{rect} must join only"));
-        }
+    fn rectifier_feeds_bus_and_returns_on_the_capacitor_side_of_the_shunt() {
+        // stage 21: BR1 minus on LEG_RET would bypass the OCP shunt for the rectifier current
+        let mut m = built();
+        m.rewire("br1", "4", "leg_ret");
+        fails(&m, "br1.4");
+        let mut m = built();
+        m.rewire("br1", "1", "floating_test");
+        fails(&m, "br1.1");
     }
 
     #[test]

@@ -1,12 +1,12 @@
 {
  "schema": "temper.native21.engineering-candidate.v1",
  "status": "DIGITAL_CANDIDATE_NOT_MANUFACTURING_RELEASE",
- "routed_board_sha256": "2d5a4b05a9a1e627132e4372cac5065d1ad72b19efd45a8b7b9e22c8de1b7acd",
- "copper_json_sha256": "de81613da1d940b06b3ca1fb7ca6f129ea64fdfa785b5401d2b45d3e7895406d",
- "schematic_sha256": "617808408ccf3aa1ffab76222833000d7b66a2bd05d1adfbf9eb2fcb6bd17a1b",
- "frozen_netlist_sha256": "628bdb55a607f9536a3d66b3587c069913ebc4f54c38163345e854654aa2ab36",
+ "routed_board_sha256": "fac94215369b6c285472a98e4cc255def9739f19fe2cf43e3439f6884e2bcae3",
+ "copper_json_sha256": "b164d518f8f4a51c8a44849366fac7332a9f74674bb4c6d9d7332134a17b634e",
+ "schematic_sha256": "e25b32a9585e2e42a2cc1b3f5378e03aa9aaea97d1d8e118444357172a3be0ad",
+ "frozen_netlist_sha256": "5be3b9f5042793951e01cd47778f2586a65b5b3987ae2116d6938c8d58ead208",
  "rebuild": "sh native-21/layout/incr_iter.sh native-21/layout/copper.json - [OUTDIR]",
- "components": 357,
+ "components": 353,
  "drc": {
   "errors": 0,
   "unconnected": 0,
@@ -14,7 +14,7 @@
   "warnings": {
    "lib_footprint_issues": "199 without library tables (environmental); 0 with native-21/fp-lib-table + candidate-libs"
   },
-  "with_library_tables": "0 violations, 0 warnings, 0 unconnected, parity 0 on 19c (stage19-pi-si/drc-libtables19c.json); stage 20 changes no footprint"
+  "with_library_tables": "0 violations, 0 warnings, 0 unconnected, parity 0 on 19c (stage19-pi-si/drc-libtables19c.json); stage 21 removes footprints only"
  },
  "erc": {
   "errors": 0,
@@ -28,16 +28,16 @@
  "barrier_plan_view_8mm": {
   "barrier21": 0,
   "rust_gate_violations": 0,
-  "rust_gate_items": 5837
+  "rust_gate_items": 5813
  },
  "body_collisions": {
-  "solids": 409,
+  "solids": 405,
   "unattributed": 0,
   "part_overlaps": 0,
   "envelopes": "J3 25 mm, F1 20 mm, U41/U42 3.6 mm, D3/D17 9.1 mm (no stock 3D model); resonant bank TDK B32654 has a dimensioned STEP; J11 25 mm, F2 4.0 mm (estimate, no 3D model); R5 CSS2H 0.78 mm (stage 17, datasheet H max, no 3D model)"
  },
  "board_in_R4": {
-  "bodies": 411,
+  "bodies": 407,
   "hits": 0
  },
  "kelvin_ocp_band_A": [
@@ -50,9 +50,9 @@
   "fab_only": 87
  },
  "via_in_pad_remaining": {
-  "drill_fully_inside_smd_pad": 71,
-  "drill_overlapping_pad_edge": 72,
-  "note": "every 0.3 mm via is POFV. Counted by native-21/verification/via_in_pad.py on the stage-19c board"
+  "drill_fully_inside_smd_pad": 69,
+  "drill_overlapping_pad_edge": 70,
+  "note": "every 0.3 mm via is POFV; R5.4's five 0.8/0.5 mm vias are in or at the pad (0.5 mm is JLC's fill limit). via_in_pad.py on the stage-21 board"
  },
  "fem": "both legs' coarse native-21 matrices extracted on the stage-5 copper (native21-all-copper.json.gz); provisional decision matrices pass F6 at the -1.6 V bound 252/252 per leg (FINDINGS M11). Stage 6 adds vias only at R5's current pads (return path parallel copper; not expected to raise loop L). Corrections and fine extraction running.",
  "physical": "NOT_RUN",
@@ -61,13 +61,14 @@
   "evidence": "validation-results/08-manufacturing-package/native-21/jlc-dfm.json",
   "rules": "tools/jlc_dfm_check.py: PTH ring >= 0.254 (per axis for slots), via ring >= 0.15, track >= 0.2",
   "vias": {
-   "0.6/0.3": 603,
+   "0.6/0.3": 598,
    "0.85/0.3": 138,
+   "0.8/0.5": 5,
    "1.6/0.8": 10
   }
  },
  "via_in_pad_decision": "order every 0.3 mm via epoxy-filled and capped (POFV); DECISIONS.md 2026-10-08",
- "stage": "20 (accepted candidate over the 19c benchmark, validation-results/10-benchmark/scorecard-native21s20.json): 19c copper unchanged; T1 CST3015-200ED with R39 3.0 ohm, U36 VOL628A-2X001T, bank B32654A1104J000; DECISIONS item 23",
+ "stage": "21 (accepted candidate; validation-results/10-benchmark/scorecard-native21s21.json): BR1 feeds BUS_P / HV_RET directly, J7-J10 rail links removed (bench build: BR1 unfitted, leads in its holes), R5.4 via field 5 x 0.8/0.5 mm; DECISIONS item 25",
  "board_hash_note": "rebuilds are not byte-identical (KiCad UUIDs / timestamps); copper_json_sha256 is the reproducible identity",
  "r5_current_vias": {
   "R5.1_leg_ret": 10,
@@ -81,9 +82,9 @@
   "worst_via_wall_estimate_c": 133.31,
   "criterion": "validation-plan/04-board-current-thermal.md:114 (report current and rise; >3 A is a flag, no rated limit)"
  },
- "kelvin_evidence": "validation-results/02-protection-timing/kelvin/budget-native21s20.json (identical: R35.2 158.08 mOhm; band 67.72-116.44 A; floor 64.17 A met at the bound)",
+ "kelvin_evidence": "validation-results/02-protection-timing/kelvin/budget-native21s21.json (identical: R35.2 158.08 mOhm; band 67.72-116.44 A)",
  "board_current_screen": "task 04 round 5 on stage 19: BUS_P span 4.129 %; B3 h25 ceiling sweep 22/24/26/28 A -> 130.2/131.1/132.1/136.0 C (22-26 A at U42, 28 A at R5.4); U26 85.7-86.9 C pad max (stage 18 126.1-127.4, a single hot cell; mean 83.7 -> 81.7 C at nominal h25); nominal h10/h25 163.2/129.1 C; c28 h10 197.4 C",
- "fab_package": "validation-results/08-manufacturing-package/native-21 (candidate; review PASS 867 round holes + 4 slots; DFM PASS 751 vias; Gerber ZIP 17feed2516c638680a3e8a392c77be7ec22fff0f87d853331f964a869644d0a8; BOM 92 lines, 8 consigned)",
+ "fab_package": "validation-results/08-manufacturing-package/native-21 (candidate; review PASS 851 round holes + 4 slots; DFM PASS 751 vias; Gerber ZIP 553ac1468bb720774f31298651db3e133bd554ba3febe330035dfddae3c799bb; BOM 92 lines, 353 placements)",
  "tank_path_width_screen": {
   "SW_B_long_section_mm": "8.1-9.3 (was 4.4-5.6 over x 58-74)",
   "SW_A_long_section_mm": 7.0,

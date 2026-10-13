@@ -888,3 +888,32 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
       - the test voltage and meter network, and how the 35–60 kHz coil-to-PE current is treated;
       - Class CC and open-clip acceptance for CSA and NOM;
       - the first-article touch current.
+25. **Stage 21: BR1 feeds the bus directly; the J7–J10 rail links are removed (2026-10-13; board `fac94215369b6c285472a98e4cc255def9739f19fe2cf43e3439f6884e2bcae3`, copper.json `b164d518…`, schematic `e25b32a9…`, frozen netlist `5be3b9f5042793951e01cd47778f2586a65b5b3987ae2116d6938c8d58ead208`, Gerber ZIP `553ac1468bb720774f31298651db3e133bd554ba3febe330035dfddae3c799bb`; tag `native21s21`; proposal `11-candidates/g02-g03-power-path/` A and C; scorecard `10-benchmark/scorecard-native21s21.json`).**
+    - **Why:** every DC amp between BR1 and the bridge ran out to the strap studs at x 127–146 and back through one congested corridor at x 77–84. That corridor's In1 isthmus (1.17 mm, 355 A²s) fused at 0.21 × F1's clearing energy (item 22), cost about 2 W of DC loss, and put the bus and its return on non-overlapping layers through the corridor (F7).
+    - **Change:**
+      - Schematic: BR1.PLUS → BUS_P and BR1.MINUS → HV_RET. The RECT_P / RECT_N nets and the BusBringupLink module (J7–J10, 4 × Würth 74650074) are deleted (353 components).
+      - Layout: `patches21.edit_zones` drops the rect pours and the J7–J10 stud lands, and merges the BR1 window (x 74–136, y 0.6–29) into the hv_ret (In1) and bus_p (In2) trunk outlines. Two same-priority intersecting zones are a KiCad DRC error; a first attempt hit it.
+      - R5.4's via field becomes 5 × 0.8 / 0.5 mm, plus one existing 0.85 / 0.3 (`add_r5`).
+      - Task 04's DC cases now source at BR1.1 and sink at BR1.4 (`run_cases.py`, `regate.sh`).
+    - **Bring-up:** the bench build leaves BR1 unfitted and lands the floating supply in BR1's + / − holes. With no bridge fitted there is no galvanic mains path to the bus on either rail; ASSEMBLY.md is rewritten. The audit now pins BR1.1 to bus_p and BR1.4 to hv_ret, and a new mutation test fails BR1.4 moved to LEG_RET (shunt bypass). The two link tests are retired. audit.rs PASS, 79/79; audit_f6's designator-retention test exempts the deleted link paths. verify_source PASS (353).
+    - **Gates (board `fac94215…`):**
+      - DRC 0 / 0 / parity 0. Barrier21 and RES_A outer 0. Rust gate 0 over 5,813 items. D5 8.047 / 8.507.
+      - Fit: 405 solids, 0 overlaps, 407 bodies, 0 hits. DFM PASS (751 vias). Gerber review PASS (851 holes + 4 slots).
+      - Bypass 11/11. PI PASS. return_path PASS. CPL audit 279 / 10 / 50; the BOM / CPL designator check passes after the audit rerun.
+      - **Task 04's BUS_P mesh span: 4.129 % → 2.921 %, passing its 3 % criterion for the first time since stage 6.**
+      - Kelvin identical (67.72–116.44 A).
+      - B3: 28 A h25 136.0 → **135.1 °C**; h10 197.4 → 192.4 °C; nominal h10 163.2 → 162.0 °C.
+    - **Fault-copper (F2's copper half, `02-protection-timing/shoot-through-f1/s21_necks.py`, the same neck method; via fields with their actual drills):**
+      - Every conductor neck now clears F1's 1,710 A²s. The lowest is L1 → BR1 AC1 at 1,747 A²s (1.02 ×).
+      - The R5.4 via field is 2,342 A²s (1.37 ×). The corridor isthmus is gone.
+      - The overall minimum, 1,698 A²s (0.993 ×), is the TO-247 drain land itself, which is terminal-limited. Its real path is the plated barrel in parallel with the soldered lead, which the method does not credit.
+      - **Restated target:** item 22's "≥ 2 × F1 at every series neck" cannot be met at a TO-247 drain land on this footprint (g02-g03 section 0). The target becomes **every conductor neck ≥ 1 × F1's clearing I²t, with device-terminal lands reported**. `fuse_copper_fusing_ratio` stays the minimum over every row (0.993), so it remains conservative.
+      - BR1 stays sacrificial in a shoot-through (item 22).
+    - **Scorecard:**
+      - **ACCEPT against 19c and against stage 20.** It is cheaper on parts at 500 (234.83 → **223.91**, −$10.92) and on placements (357 → 353). It is better on `fuse_copper_fusing_ratio` (0.208 → 0.993) and both B3 peaks.
+      - Unchanged: every other metric, including the return path (39) and EMI (10.5 dB, not re-modelled; the input filter is unchanged).
+    - **Stage-20 slip, caught here:** stage 20 changed parts but not copper, so the CPL rotation audit was not rerun. T1, U36 and the bank caps then moved from consign to JLC placement. The stage-21 rerun classifies them (NEEDS-PREVIEW 47 → 50). Rule: rerun `cpl-rotation-audit/audit.py` whenever the BOM's assembly class changes, not only when copper changes.
+    - **Open:**
+      - R5.4's 0.5 mm in-pad vias sit at JLC's fill limit, so confirm at order.
+      - The F7 bulk-path benefit (about −4 nH in the g02-g03 plane screen) needs the loop re-extraction.
+      - The removed studs' enclosure envelopes (J7–J10) can be released to temper-f7.
