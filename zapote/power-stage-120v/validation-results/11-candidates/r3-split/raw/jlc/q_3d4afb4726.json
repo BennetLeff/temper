@@ -1,0 +1,3476 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 57,
+   "list": [
+    {
+     "componentId": 4208346,
+     "componentLibraryType": "expand",
+     "stockCount": 5,
+     "componentTypeEn": "Board-to-Board and Backplane Connector",
+     "erpComponentName": "PIN:40P \u95f4\u8ddd:0.8mm \u5367\u8d34",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/board-to-board-and-backplane-connector_samtec-erf8-020-01-s-d-ra-tr_C3641601.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 11.7529
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 11.7529
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 11.7529
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 11.7529
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 11.7529
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 11.7529
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 11.3216
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 11.3216
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 11.3216
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 11.3216
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 11.3216
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 11.3216
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "bbf3203a83be4d03a90109c54e79c897",
+     "canPresaleNumber": 5,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Samtec-ERF8_020_01_S_D_RATR/C3641601",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 200,
+     "shopCostPrice": 62.2,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 11.7529,
+     "componentCode": "C3641601",
+     "componentBrandEn": "Samtec",
+     "componentModelEn": "ERF8-020-01-S-D-RA-TR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8759300827318505472",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "",
+     "dataManualFileAccessId": "8756157362056892416",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Samtec ERF8-020-01-S-D-RA-TR",
+     "minImage": "",
+     "minImageAccessId": "8759300828363022336",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SMD,P=0.8mm,Surface Mount\uff0cRight Angle",
+     "describe": "-55\u2103~+125\u2103 0.8mm 1.4A 2 225V 40P Gold Phosphor bronze Surface Mount, Right Angle SMD,P=0.8mm,\u5367\u8d34 Board-to-Board and Backplane Connector ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "System Fit Height",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Voltage Rating",
+       "attribute_value_name": "225V"
+      },
+      {
+       "attribute_name_en": "Connection Type",
+       "attribute_value_name": "Slot Type Butting"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "1.4A"
+      },
+      {
+       "attribute_name_en": "Number of Pins",
+       "attribute_value_name": "40P"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Phosphor bronze"
+      },
+      {
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "0.8mm"
+      },
+      {
+       "attribute_name_en": "Supplementary Features",
+       "attribute_value_name": "With column"
+      },
+      {
+       "attribute_name_en": "Gender",
+       "attribute_value_name": "Female"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Surface Mount, Right Angle"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Board-to-Board and Backplane Connector",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ERF8-020</span>-01-S-D-RA-TR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4212386,
+     "componentLibraryType": "expand",
+     "stockCount": 32,
+     "componentTypeEn": "Board-to-Board and Backplane Connector",
+     "erpComponentName": "PIN:40P \u95f4\u8ddd:0.8mm \u5367\u8d34",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/board-to-board-and-backplane-connector_samtec-erf8-020-01-l-d-ra-tr_C3645640.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 10.9162
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 9.3733
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 8.4338
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 7.6461
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 7.6461
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 7.6461
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 7.3655
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 7.3655
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 8.1243
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 10.5156
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 7.3655
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 9.0293
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "bbf3203a83be4d03a90109c54e79c897",
+     "canPresaleNumber": 29,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Samtec-ERF8_020_01_L_D_RATR/C3645640",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 200,
+     "shopCostPrice": 41.0,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 10.9162,
+     "componentCode": "C3645640",
+     "componentBrandEn": "Samtec",
+     "componentModelEn": "ERF8-020-01-L-D-RA-TR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8790033594313908224",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "",
+     "dataManualFileAccessId": "8590352576379191296",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Samtec ERF8-020-01-L-D-RA-TR",
+     "minImage": "",
+     "minImageAccessId": "8790033594998120448",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SMD,P=0.8mm,Surface Mount\uff0cRight Angle",
+     "describe": "0.8mm 2 40P Gold Phosphor bronze Surface Mount, Right Angle SMD,P=0.8mm,\u5367\u8d34 Board-to-Board and Backplane Connector ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "System Fit Height",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Number of Pins",
+       "attribute_value_name": "40P"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Phosphor bronze"
+      },
+      {
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "0.8mm"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Surface Mount, Right Angle"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Board-to-Board and Backplane Connector",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ERF8-020</span>-01-L-D-RA-TR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4220533,
+     "componentLibraryType": "expand",
+     "stockCount": 3,
+     "componentTypeEn": "Board-to-Board and Backplane Connector",
+     "erpComponentName": "PIN:40P \u95f4\u8ddd:0.8mm \u7acb\u8d34",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/board-to-board-and-backplane-connector_samtec-erf8-020-05-0-l-dv-tr_C3652736.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 6.1015
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 5.1996
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 4.6483
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 4.1868
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 4.1868
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 4.1868
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 4.0331
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 4.0331
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 5.0088
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 4.4778
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 4.0331
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 5.8776
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "bbf3203a83be4d03a90109c54e79c897",
+     "canPresaleNumber": 3,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Samtec-ERF8_020_05_0_L_DVTR/C3652736",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 375,
+     "shopCostPrice": 24.0,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 1,
+     "initialPrice": 6.1015,
+     "componentCode": "C3652736",
+     "componentBrandEn": "Samtec",
+     "componentModelEn": "ERF8-020-05.0-L-DV-TR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8692856821070962688",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2404071804_Samtec-ERF8-020-05-0-L-DV-TR_C3652736.pdf",
+     "dataManualFileAccessId": "8590373173113233408",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Samtec ERF8-020-05.0-L-DV-TR",
+     "minImage": "",
+     "minImageAccessId": "8692856825630306304",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SMD,P=0.8mm",
+     "describe": "0.8mm 2 40P Gold Surface Mount,Vertical SMD,P=0.8mm Board-to-Board and Backplane Connector ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "System Fit Height",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Number of Pins",
+       "attribute_value_name": "40P"
+      },
+      {
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "0.8mm"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Surface Mount,Vertical"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Board-to-Board and Backplane Connector",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ERF8-020</span>-05.0-L-DV-TR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4222437,
+     "componentLibraryType": "expand",
+     "stockCount": 25,
+     "componentTypeEn": "Board-to-Board and Backplane Connector",
+     "erpComponentName": "PIN:40P \u95f4\u8ddd:0.8mm \u7acb\u8d34",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/board-to-board-and-backplane-connector_samtec-erf8-020-05-0-s-dv-tr_C3654640.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.9974
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 4.8799
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 4.8017
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 4.7234
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 4.7234
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 4.7234
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 4.55
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 4.55
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 4.7009
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 4.6254
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 4.55
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.814
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "bbf3203a83be4d03a90109c54e79c897",
+     "canPresaleNumber": 25,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Samtec-ERF8_020_05_0_S_DVTR/C3654640",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 375,
+     "shopCostPrice": 25.0,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 1,
+     "initialPrice": 4.9974,
+     "componentCode": "C3654640",
+     "componentBrandEn": "Samtec",
+     "componentModelEn": "ERF8-020-05.0-S-DV-TR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8758894518387662848",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2412111051_Samtec-ERF8-020-05-0-S-DV-TR_C3654640.pdf",
+     "dataManualFileAccessId": "8555016429111242752",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Samtec ERF8-020-05.0-S-DV-TR",
+     "minImage": "",
+     "minImageAccessId": "8758894519494823936",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SMD,P=0.8mm",
+     "describe": "-55\u2103~+125\u2103 0.8mm 1.4A 2 225V 40P Gold Phosphor bronze Surface Mount,Vertical SMD,P=0.8mm Board-to-Board and Backplane Connector ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "System Fit Height",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Voltage Rating",
+       "attribute_value_name": "225V"
+      },
+      {
+       "attribute_name_en": "Connection Type",
+       "attribute_value_name": "Slot Type Butting"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "1.4A"
+      },
+      {
+       "attribute_name_en": "Number of Pins",
+       "attribute_value_name": "40P"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Phosphor bronze"
+      },
+      {
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "0.8mm"
+      },
+      {
+       "attribute_name_en": "Supplementary Features",
+       "attribute_value_name": "With column"
+      },
+      {
+       "attribute_name_en": "Gender",
+       "attribute_value_name": "Female"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Surface Mount,Vertical"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Board-to-Board and Backplane Connector",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ERF8-020</span>-05.0-S-DV-TR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 8242945,
+     "componentLibraryType": "expand",
+     "stockCount": 20,
+     "componentTypeEn": "Board-to-Board and Backplane Connector",
+     "erpComponentName": "PIN:40P \u95f4\u8ddd:0.8mm \u7acb\u8d34",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/board-to-board-and-backplane-connector_samtec-erf8-020-07-0-l-dv-tr_C7274005.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 5.8259
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 5.6775
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 5.5796
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 5.4801
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 5.4801
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 5.4801
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 5.279
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 5.279
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 5.4691
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 5.6121
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 5.3749
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 5.279
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "bbf3203a83be4d03a90109c54e79c897",
+     "canPresaleNumber": 20,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Samtec-ERF8_020_07_0_L_DVTR/C7274005",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 300,
+     "shopCostPrice": 31.5,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 1,
+     "initialPrice": 5.8259,
+     "componentCode": "C7274005",
+     "componentBrandEn": "Samtec",
+     "componentModelEn": "ERF8-020-07.0-L-DV-TR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8617764149896232960",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "",
+     "dataManualFileAccessId": "8600648191679614976",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Samtec ERF8-020-07.0-L-DV-TR",
+     "minImage": "",
+     "minImageAccessId": "8617764150932226048",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SMD,P=0.8mm",
+     "describe": "-55\u2103~+125\u2103 0.8mm 1.4A 2 225V 40P Gold Surface Mount,Vertical SMD,P=0.8mm Board-to-Board and Backplane Connector ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "System Fit Height",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Voltage Rating",
+       "attribute_value_name": "225V"
+      },
+      {
+       "attribute_name_en": "Connection Type",
+       "attribute_value_name": "Slot Type Butting"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "1.4A"
+      },
+      {
+       "attribute_name_en": "Number of Pins",
+       "attribute_value_name": "40P"
+      },
+      {
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "0.8mm"
+      },
+      {
+       "attribute_name_en": "Gender",
+       "attribute_value_name": "Female"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Surface Mount,Vertical"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Board-to-Board and Backplane Connector",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ERF8-020</span>-07.0-L-DV-TR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4212680,
+     "componentLibraryType": "expand",
+     "stockCount": 2,
+     "componentTypeEn": "Board-to-Board and Backplane Connector",
+     "erpComponentName": "PIN:40P \u95f4\u8ddd:0.8mm \u7acb\u8d34",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/board-to-board-and-backplane-connector_samtec-erf8-020-01-l-d-em2-tr_C3645934.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 5.3823
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 5.2502
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 5.1621
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 5.074
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 5.074
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 5.074
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 4.8878
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 4.8878
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 4.9727
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 5.1848
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 4.8878
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 5.0575
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "bbf3203a83be4d03a90109c54e79c897",
+     "canPresaleNumber": 2,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Samtec-ERF8_020_01_L_D_EM2TR/C3645934",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 150,
+     "shopCostPrice": 28.26471,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 1,
+     "initialPrice": 5.3823,
+     "componentCode": "C3645934",
+     "componentBrandEn": "Samtec",
+     "componentModelEn": "ERF8-020-01-L-D-EM2-TR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8584860289318076416",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2404071728_Samtec-ERF8-020-01-L-D-EM2-TR_C3645934.pdf",
+     "dataManualFileAccessId": "8590267969134485504",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Samtec ERF8-020-01-L-D-EM2-TR",
+     "minImage": "",
+     "minImageAccessId": "8584860290274242560",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "P=0.8mm",
+     "describe": "-55\u2103~+125\u2103 0.8mm 1.4A 2 225V 40P Gold Surface Mount,Vertical P=0.8mm Board-to-Board and Backplane Connector ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Voltage Rating",
+       "attribute_value_name": "225V"
+      },
+      {
+       "attribute_name_en": "Connection Type",
+       "attribute_value_name": "Slot Type Butting"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "1.4A"
+      },
+      {
+       "attribute_name_en": "Number of Pins",
+       "attribute_value_name": "40P"
+      },
+      {
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "0.8mm"
+      },
+      {
+       "attribute_name_en": "Gender",
+       "attribute_value_name": "Female"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Surface Mount,Vertical"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Board-to-Board and Backplane Connector",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ERF8-020</span>-01-L-D-EM2-TR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4218023,
+     "componentLibraryType": "expand",
+     "stockCount": 4,
+     "componentTypeEn": "Board-to-Board and Backplane Connector",
+     "erpComponentName": "PIN:40P \u95f4\u8ddd:0.8mm \u7acb\u8d34",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/board-to-board-and-backplane-connector_samtec-erf8-020-05-0-l-dv-l-tr_C3650226.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 5.5976
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 5.4671
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 5.379
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 5.2909
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 5.2909
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 5.2909
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 5.0968
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 5.0968
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 5.2665
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 5.1816
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 5.0968
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 5.3922
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "bbf3203a83be4d03a90109c54e79c897",
+     "canPresaleNumber": 4,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Samtec-ERF8_020_05_0_L_DV_LTR/C3650226",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 375,
+     "shopCostPrice": 28.0,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 1,
+     "initialPrice": 5.5976,
+     "componentCode": "C3650226",
+     "componentBrandEn": "Samtec",
+     "componentModelEn": "ERF8-020-05.0-L-DV-L-TR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8618696550209888256",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2404071750_Samtec-ERF8-020-05-0-L-DV-L-TR_C3650226.pdf",
+     "dataManualFileAccessId": "8590389297712173056",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Samtec ERF8-020-05.0-L-DV-L-TR",
+     "minImage": "",
+     "minImageAccessId": "8618696551166324736",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SMD,P=0.8mm",
+     "describe": "-55\u2103~+125\u2103 0.8mm 1.4A 2 225V 40P Gold Surface Mount,Vertical SMD,P=0.8mm Board-to-Board and Backplane Connector ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "System Fit Height",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Voltage Rating",
+       "attribute_value_name": "225V"
+      },
+      {
+       "attribute_name_en": "Connection Type",
+       "attribute_value_name": "Slot Type Butting"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "1.4A"
+      },
+      {
+       "attribute_name_en": "Number of Pins",
+       "attribute_value_name": "40P"
+      },
+      {
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "0.8mm"
+      },
+      {
+       "attribute_name_en": "Gender",
+       "attribute_value_name": "Female"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Surface Mount,Vertical"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Board-to-Board and Backplane Connector",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ERF8-020</span>-05.0-L-DV-L-TR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4218748,
+     "componentLibraryType": "expand",
+     "stockCount": 50,
+     "componentTypeEn": "Board-to-Board and Backplane Connector",
+     "erpComponentName": "PIN:40P \u95f4\u8ddd:0.8mm \u7acb\u8d34",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/board-to-board-and-backplane-connector_samtec-erf8-020-05-0-l-dv-k-tr_C3650951.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 5.4638
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 4.6744
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 4.1917
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 3.7888
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 3.7888
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 3.7888
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 4.5029
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 3.6498
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 3.6498
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 4.0378
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 3.6498
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 5.2633
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "bbf3203a83be4d03a90109c54e79c897",
+     "canPresaleNumber": 50,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Samtec-ERF8_020_05_0_L_DV_KTR/C3650951",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 375,
+     "shopCostPrice": 21.0,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 1,
+     "initialPrice": 5.4638,
+     "componentCode": "C3650951",
+     "componentBrandEn": "Samtec",
+     "componentModelEn": "ERF8-020-05.0-L-DV-K-TR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585165307178586112",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2404071754_Samtec-ERF8-020-05-0-L-DV-K-TR_C3650951.pdf",
+     "dataManualFileAccessId": "8590885343111827456",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Samtec ERF8-020-05.0-L-DV-K-TR",
+     "minImage": "",
+     "minImageAccessId": "8585165308088344576",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SMD,P=0.8mm",
+     "describe": "0.8mm 2 40P Gold Surface Mount,Vertical SMD,P=0.8mm Board-to-Board and Backplane Connector ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "System Fit Height",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Number of Pins",
+       "attribute_value_name": "40P"
+      },
+      {
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "0.8mm"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Surface Mount,Vertical"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Board-to-Board and Backplane Connector",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ERF8-020</span>-05.0-L-DV-K-TR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 7136730,
+     "componentLibraryType": "expand",
+     "stockCount": 4,
+     "componentTypeEn": "Board-to-Board and Backplane Connector",
+     "erpComponentName": "PIN:40P \u95f4\u8ddd:0.8mm \u7acb\u8d34",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/board-to-board-and-backplane-connector_samtec-erf8-020-07-0-l-dv-k-tr_C6191685.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 5.5046
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 5.3758
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 5.2893
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 5.2029
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 5.2029
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 5.2029
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 5.1785
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 5.0119
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 5.0119
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 5.3026
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 5.0952
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 5.0119
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "bbf3203a83be4d03a90109c54e79c897",
+     "canPresaleNumber": 4,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Samtec-ERF8_020_07_0_L_DV_KTR/C6191685",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 300,
+     "shopCostPrice": 27.5,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 1,
+     "initialPrice": 5.5046,
+     "componentCode": "C6191685",
+     "componentBrandEn": "Samtec",
+     "componentModelEn": "ERF8-020-07.0-L-DV-K-TR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585303560581468160",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2404190920_Samtec-ERF8-020-07-0-L-DV-K-TR_C6191685.pdf",
+     "dataManualFileAccessId": "8601138351080005632",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Samtec ERF8-020-07.0-L-DV-K-TR",
+     "minImage": "",
+     "minImageAccessId": "8585303561463083008",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SMD,P=0.8mm",
+     "describe": "0.8mm 2 40P Gold Surface Mount,Vertical SMD,P=0.8mm Board-to-Board and Backplane Connector ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "System Fit Height",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Number of Pins",
+       "attribute_value_name": "40P"
+      },
+      {
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "0.8mm"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Surface Mount,Vertical"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Board-to-Board and Backplane Connector",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ERF8-020</span>-07.0-L-DV-K-TR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 21683138,
+     "componentLibraryType": "expand",
+     "stockCount": 20,
+     "componentTypeEn": "Board-to-Board and Backplane Connector",
+     "erpComponentName": "PIN:40P \u95f4\u8ddd:0.8mm \u7acb\u8d34",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/board-to-board-and-backplane-connector_samtec-erf8-020-07-0-l-dv-l-tr_C20357596.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 7.4667
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 7.3019
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 7.1927
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 7.0834
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 7.0834
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 7.0834
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 6.8235
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 6.8235
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 7.034
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 7.1927
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 6.9287
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 6.8235
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "bbf3203a83be4d03a90109c54e79c897",
+     "canPresaleNumber": 20,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Samtec-ERF8_020_07_0_L_DV_LTR/C20357596",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 300,
+     "shopCostPrice": 35.0,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 1,
+     "initialPrice": 7.4667,
+     "componentCode": "C20357596",
+     "componentBrandEn": "Samtec",
+     "componentModelEn": "ERF8-020-07.0-L-DV-L-TR",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2401261553_Samtec-ERF8-020-07-0-L-DV-L-TR_C20357596.pdf",
+     "dataManualFileAccessId": "8604418284062597120",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Samtec ERF8-020-07.0-L-DV-L-TR",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "-",
+     "describe": "0.8mm 2 40P Female Phosphor bronze Slot Type Butting Surface Mount,Vertical With column - Board-to-Board and Backplane Connector ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Connection Type",
+       "attribute_value_name": "Slot Type Butting"
+      },
+      {
+       "attribute_name_en": "Number of Pins",
+       "attribute_value_name": "40P"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Phosphor bronze"
+      },
+      {
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "0.8mm"
+      },
+      {
+       "attribute_name_en": "Supplementary Features",
+       "attribute_value_name": "With column"
+      },
+      {
+       "attribute_name_en": "Gender",
+       "attribute_value_name": "Female"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Surface Mount,Vertical"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Board-to-Board and Backplane Connector",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ERF8-020</span>-07.0-L-DV-L-TR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 6610757,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Board-to-Board and Backplane Connector",
+     "erpComponentName": "\u95f4\u8ddd:0.8mm PIN:40P \u6bcd \u5367\u8d34",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/board-to-board-and-backplane-connector_samtec-erf8-020-03-s-d-ra-tr_C5688932.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 17.0503
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 17.0503
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 17.0503
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 6.8029
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 999,
+       "productPrice": 6.5762
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 6.4636
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 6.2264
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 999,
+       "productPrice": 6.3348
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 6.5532
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 16.4246
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 16.4246
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 16.4246
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "bbf3203a83be4d03a90109c54e79c897",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Samtec-ERF8_020_03_S_D_RATR/C5688932",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 200,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 17.0503,
+     "componentCode": "C5688932",
+     "componentBrandEn": "Samtec",
+     "componentModelEn": "ERF8-020-03-S-D-RA-TR",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2312020333_Samtec-ERF8-020-03-S-D-RA-TR_C5688932.pdf",
+     "dataManualFileAccessId": "8602762463775502336",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Samtec ERF8-020-03-S-D-RA-TR",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SMD,P=0.8mm,Surface Mount\uff0cRight Angle",
+     "describe": "0.8mm 2 40P Gold Surface Mount, Right Angle SMD,P=0.8mm,Surface Mount\uff0cRight Angle Board-to-Board and Backplane Connector ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Number of Pins",
+       "attribute_value_name": "40P"
+      },
+      {
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "0.8mm"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Surface Mount, Right Angle"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Board-to-Board and Backplane Connector",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ERF8-020</span>-03-S-D-RA-TR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 7136731,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Board-to-Board and Backplane Connector",
+     "erpComponentName": "\u95f4\u8ddd:0.8mm PIN:40P \u6bcd \u7acb\u8d34",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/board-to-board-and-backplane-connector_samtec-erf8-020-07-0-s-dv-tr_C6191686.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 12.5292
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 12.5292
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 299,
+       "productPrice": 12.5292
+      },
+      {
+       "startNumber": 300,
+       "endNumber": 599,
+       "productPrice": 5.0006
+      },
+      {
+       "startNumber": 600,
+       "endNumber": 899,
+       "productPrice": 4.8326
+      },
+      {
+       "startNumber": 900,
+       "endNumber": -1,
+       "productPrice": 4.7495
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 900,
+       "endNumber": -1,
+       "productPrice": 4.5752
+      },
+      {
+       "startNumber": 600,
+       "endNumber": 899,
+       "productPrice": 4.6553
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 12.0694
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 12.0694
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 299,
+       "productPrice": 12.0694
+      },
+      {
+       "startNumber": 300,
+       "endNumber": 599,
+       "productPrice": 4.8171
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "bbf3203a83be4d03a90109c54e79c897",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Samtec-ERF8_020_07_0_S_DVTR/C6191686",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 300,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 12.5292,
+     "componentCode": "C6191686",
+     "componentBrandEn": "Samtec",
+     "componentModelEn": "ERF8-020-07.0-S-DV-TR",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "",
+     "dataManualFileAccessId": "8556950754101141504",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Samtec ERF8-020-07.0-S-DV-TR",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SMD,P=0.8mm",
+     "describe": "0.8mm 2 40P Gold Surface Mount,Vertical SMD,P=0.8mm Board-to-Board and Backplane Connector ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Number of Pins",
+       "attribute_value_name": "40P"
+      },
+      {
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "0.8mm"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Surface Mount,Vertical"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Board-to-Board and Backplane Connector",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ERF8-020</span>-07.0-S-DV-TR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 7185320,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Board-to-Board and Backplane Connector",
+     "erpComponentName": "\u95f4\u8ddd:0.8mm PIN:40P \u6bcd \u5367\u8d34",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/board-to-board-and-backplane-connector_samtec-erf8-020-03-l-d-ra-tr_C6240010.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 16.0375
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 16.0375
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 16.0375
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 6.4
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 999,
+       "productPrice": 6.1864
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 6.0803
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 5.8572
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 999,
+       "productPrice": 5.9593
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 6.1652
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 15.4489
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 15.4489
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 15.4489
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "bbf3203a83be4d03a90109c54e79c897",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Samtec-ERF8_020_03_L_D_RATR/C6240010",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 200,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 16.0375,
+     "componentCode": "C6240010",
+     "componentBrandEn": "Samtec",
+     "componentModelEn": "ERF8-020-03-L-D-RA-TR",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "",
+     "dataManualFileAccessId": "8565258761683705856",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Samtec ERF8-020-03-L-D-RA-TR",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SMD,P=0.8mm,Surface Mount\uff0cRight Angle",
+     "describe": "0.8mm 2 40P Gold Surface Mount, Right Angle SMD,P=0.8mm,Surface Mount\uff0cRight Angle Board-to-Board and Backplane Connector ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Number of Pins",
+       "attribute_value_name": "40P"
+      },
+      {
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "0.8mm"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Surface Mount, Right Angle"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Board-to-Board and Backplane Connector",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ERF8-020</span>-03-L-D-RA-TR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 21683144,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Board-to-Board and Backplane Connector",
+     "erpComponentName": "PIN:40P \u95f4\u8ddd:0.8mm \u7acb\u8d34",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/board-to-board-and-backplane-connector_samtec-erf8-020-09-0-l-dv-tr_C20357602.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 12.1215
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 12.1215
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 249,
+       "productPrice": 12.1215
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 4.8375
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 4.6761
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 4.5962
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 12,
+       "endNumber": 249,
+       "productPrice": 11.6767
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 4.4275
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 11.6767
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 4.66
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 11.6767
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 4.5045
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "bbf3203a83be4d03a90109c54e79c897",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Samtec-ERF8_020_09_0_L_DVTR/C20357602",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 250,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 12.1215,
+     "componentCode": "C20357602",
+     "componentBrandEn": "Samtec",
+     "componentModelEn": "ERF8-020-09.0-L-DV-TR",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2401261553_Samtec-ERF8-020-09-0-L-DV-TR_C20357602.pdf",
+     "dataManualFileAccessId": "8604404896359587840",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Samtec ERF8-020-09.0-L-DV-TR",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "-",
+     "describe": "- Board-to-Board and Backplane Connector ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Connection Type",
+       "attribute_value_name": "Slot Type Butting"
+      },
+      {
+       "attribute_name_en": "Number of Pins",
+       "attribute_value_name": "40P"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Phosphor bronze"
+      },
+      {
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "0.8mm"
+      },
+      {
+       "attribute_name_en": "Supplementary Features",
+       "attribute_value_name": "With column"
+      },
+      {
+       "attribute_name_en": "Gender",
+       "attribute_value_name": "Female"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Surface Mount,Vertical"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Board-to-Board and Backplane Connector",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ERF8-020</span>-09.0-L-DV-TR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 21683148,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Board-to-Board and Backplane Connector",
+     "erpComponentName": "ERF8-020-09.0-S-DV-TR",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/board-to-board-and-backplane-connector_samtec-erf8-020-09-0-s-dv-tr_C20357606.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 11.898
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 11.898
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 249,
+       "productPrice": 11.898
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 4.7478
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 4.5896
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 4.5113
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 12,
+       "endNumber": 249,
+       "productPrice": 11.4614
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 4.3458
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 11.4614
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 4.5736
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 11.4614
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 4.4212
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "bbf3203a83be4d03a90109c54e79c897",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Samtec-ERF8_020_09_0_S_DVTR/C20357606",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 250,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 11.898,
+     "componentCode": "C20357606",
+     "componentBrandEn": "Samtec",
+     "componentModelEn": "ERF8-020-09.0-S-DV-TR",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2401261553_Samtec-ERF8-020-09-0-S-DV-TR_C20357606.pdf",
+     "dataManualFileAccessId": "8604404896385429504",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Samtec ERF8-020-09.0-S-DV-TR",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "-",
+     "describe": "- Board-to-Board and Backplane Connector ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "Board-to-Board and Backplane Connector",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ERF8-020</span>-09.0-S-DV-TR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 7502719,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Board-to-Board and Backplane Connector",
+     "erpComponentName": "\u95f4\u8ddd:0.8mm PIN:40P \u6bcd",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/board-to-board-and-backplane-connector_samtec-erf8-020-01-s-d-em2-tr_C6549007.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 12.8701
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 12.8701
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 149,
+       "productPrice": 12.8701
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 449,
+       "productPrice": 5.136
+      },
+      {
+       "startNumber": 450,
+       "endNumber": 1049,
+       "productPrice": 4.9648
+      },
+      {
+       "startNumber": 1050,
+       "endNumber": -1,
+       "productPrice": 4.8799
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 12,
+       "endNumber": 149,
+       "productPrice": 12.3978
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 449,
+       "productPrice": 4.9475
+      },
+      {
+       "startNumber": 1050,
+       "endNumber": -1,
+       "productPrice": 4.7009
+      },
+      {
+       "startNumber": 450,
+       "endNumber": 1049,
+       "productPrice": 4.7826
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 12.3978
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 12.3978
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "bbf3203a83be4d03a90109c54e79c897",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Samtec-ERF8_020_01_S_D_EM2TR/C6549007",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 150,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 12.8701,
+     "componentCode": "C6549007",
+     "componentBrandEn": "Samtec",
+     "componentModelEn": "ERF8-020-01-S-D-EM2-TR",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "",
+     "dataManualFileAccessId": "8555056790806360065",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Samtec ERF8-020-01-S-D-EM2-TR",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "P=0.8mm",
+     "describe": "0.8mm 2 40P Gold P=0.8mm Board-to-Board and Backplane Connector ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Number of Pins",
+       "attribute_value_name": "40P"
+      },
+      {
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "0.8mm"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Board-to-Board and Backplane Connector",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ERF8-020</span>-01-S-D-EM2-TR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 8242943,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Board-to-Board and Backplane Connector",
+     "erpComponentName": "\u95f4\u8ddd:0.8mm PIN:40P \u6bcd",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/board-to-board-and-backplane-connector_samtec-erf8-020-01-l-d-em4-tr_C7274003.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 11.6012
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 11.6012
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 149,
+       "productPrice": 11.6012
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 449,
+       "productPrice": 4.6288
+      },
+      {
+       "startNumber": 450,
+       "endNumber": 1049,
+       "productPrice": 4.4738
+      },
+      {
+       "startNumber": 1050,
+       "endNumber": -1,
+       "productPrice": 4.3988
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 12,
+       "endNumber": 149,
+       "productPrice": 11.1755
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 449,
+       "productPrice": 4.4589
+      },
+      {
+       "startNumber": 450,
+       "endNumber": 1049,
+       "productPrice": 4.3097
+      },
+      {
+       "startNumber": 1050,
+       "endNumber": -1,
+       "productPrice": 4.2374
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 11.1755
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 11.1755
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "bbf3203a83be4d03a90109c54e79c897",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Samtec-ERF8_020_01_L_D_EM4TR/C7274003",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 150,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 11.6012,
+     "componentCode": "C7274003",
+     "componentBrandEn": "Samtec",
+     "componentModelEn": "ERF8-020-01-L-D-EM4-TR",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "",
+     "dataManualFileAccessId": "8556950635363913728",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Samtec ERF8-020-01-L-D-EM4-TR",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "P=0.8mm",
+     "describe": "0.8mm 2 40P Gold P=0.8mm Board-to-Board and Backplane Connector ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Number of Pins",
+       "attribute_value_name": "40P"
+      },
+      {
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "0.8mm"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Board-to-Board and Backplane Connector",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ERF8-020</span>-01-L-D-EM4-TR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4222476,
+     "componentLibraryType": "expand",
+     "stockCount": 55,
+     "componentTypeEn": "Board-to-Board and Backplane Connector",
+     "erpComponentName": "PIN:40P \u95f4\u8ddd:0.8mm \u7acb\u8d34",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/board-to-board-and-backplane-connector_samtec-erf8-020-05-0-s-dv-l-k-tr_C3654679.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 6.9872
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 6.0086
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 5.4133
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 4.9126
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 4.9126
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 4.9126
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 4.7323
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 4.7323
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 5.7881
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 5.2146
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 4.7323
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 6.7308
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "bbf3203a83be4d03a90109c54e79c897",
+     "canPresaleNumber": 55,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Samtec-ERF8_020_05_0_S_DV_L_KTR/C3654679",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 375,
+     "shopCostPrice": 26.0,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 1,
+     "initialPrice": 6.9872,
+     "componentCode": "C3654679",
+     "componentBrandEn": "Samtec",
+     "componentModelEn": "ERF8-020-05.0-S-DV-L-K-TR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8617988126409715712",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2404071815_Samtec-ERF8-020-05-0-S-DV-L-K-TR_C3654679.pdf",
+     "dataManualFileAccessId": "8590334023131435009",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Samtec ERF8-020-05.0-S-DV-L-K-TR",
+     "minImage": "",
+     "minImageAccessId": "8617988127319474176",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SMD,P=0.8mm",
+     "describe": "0.8mm 2 40P Gold Surface Mount,Vertical SMD,P=0.8mm Board-to-Board and Backplane Connector ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "System Fit Height",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Number of Pins",
+       "attribute_value_name": "40P"
+      },
+      {
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "0.8mm"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Surface Mount,Vertical"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Board-to-Board and Backplane Connector",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ERF8-020</span>-05.0-S-DV-L-K-TR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4207540,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Board-to-Board and Backplane Connector",
+     "erpComponentName": "\u95f4\u8ddd:0.8mm \u6bcd \u5367\u8d34",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/board-to-board-and-backplane-connector_samtec-erf8-020-03-l-d-ra-l-tr_C3640797.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 7.7896
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 7.7896
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 7.7896
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 3.0157
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.9097
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.8559
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.7511
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 2.9051
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 7.5038
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 7.5038
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.8029
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 7.5038
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "bbf3203a83be4d03a90109c54e79c897",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Samtec-ERF8_020_03_L_D_RA_LTR/C3640797",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 200,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 2,
+     "initialPrice": 7.7896,
+     "componentCode": "C3640797",
+     "componentBrandEn": "Samtec",
+     "componentModelEn": "ERF8-020-03-L-D-RA-L-TR",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "",
+     "dataManualFileAccessId": "8590322851695005696",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Samtec ERF8-020-03-L-D-RA-L-TR",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SMD,P=0.8mm,Surface Mount\uff0cRight Angle",
+     "describe": "0.8mm 2 Gold Surface Mount, Right Angle SMD,P=0.8mm,\u5367\u8d34 Board-to-Board and Backplane Connector ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Number of Pins",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "0.8mm"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Surface Mount, Right Angle"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Board-to-Board and Backplane Connector",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ERF8-020</span>-03-L-D-RA-L-TR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4222218,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Board-to-Board and Backplane Connector",
+     "erpComponentName": "PIN:40P \u95f4\u8ddd:0.8mm \u5367\u8d34",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/board-to-board-and-backplane-connector_samtec-erf8-020-01-l-d-ra-l-tr_C3654421.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 9.9425
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 8.5513
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 7.7032
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 6.9921
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 6.9921
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 6.9921
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 6.7355
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 6.7355
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 7.4205
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 9.5776
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 6.7355
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 8.2375
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "bbf3203a83be4d03a90109c54e79c897",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Samtec-ERF8_020_01_L_D_RA_LTR/C3654421",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 200,
+     "shopCostPrice": 37.0,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 9.9425,
+     "componentCode": "C3654421",
+     "componentBrandEn": "Samtec",
+     "componentModelEn": "ERF8-020-01-L-D-RA-L-TR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585107456879955968",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2404071814_Samtec-ERF8-020-01-L-D-RA-L-TR_C3654421.pdf",
+     "dataManualFileAccessId": "8590316174425817088",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Samtec ERF8-020-01-L-D-RA-L-TR",
+     "minImage": "",
+     "minImageAccessId": "8585107457718276096",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SMD,P=0.8mm",
+     "describe": "0.8mm 2 40P Gold Surface Mount, Right Angle SMD,P=0.8mm Board-to-Board and Backplane Connector ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "System Fit Height",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Number of Pins",
+       "attribute_value_name": "40P"
+      },
+      {
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "0.8mm"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Surface Mount, Right Angle"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Board-to-Board and Backplane Connector",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ERF8-020</span>-01-L-D-RA-L-TR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 20,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 3,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "ERF8-020"
+ },
+ "message": null,
+ "_kw": "ERF8-020",
+ "_fetched_utc": "2026-10-13T21:13:02Z"
+}

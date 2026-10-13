@@ -1,0 +1,4323 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 22,
+   "list": [
+    {
+     "componentId": 19915660,
+     "componentLibraryType": "expand",
+     "stockCount": 307,
+     "componentTypeEn": "Female Headers",
+     "erpComponentName": "2x5P \u95f4\u8ddd:2.54mm \u76f4\u63d2",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/female-headers_hanelectricity-2541fv-2x5p_C18723056.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.118
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.0932
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.0808
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.069
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.0615
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.0578
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.0665
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.0557
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1136
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.0593
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.0898
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.0778
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "b74d2d6944f14ecc9036735f5231a3ac",
+     "canPresaleNumber": 175,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "HanElectricity-2541FV2x5P/C18723056",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 500,
+     "shopCostPrice": 0.31592,
+     "preMinPurchaseNum": 97,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.118,
+     "componentCode": "C18723056",
+     "componentBrandEn": "HanElectricity",
+     "componentModelEn": "2541FV-2x5P",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585829902411313152",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2310181153_HanElectricity-2541FV-2x5P_C18723056.pdf",
+     "dataManualFileAccessId": "8603115481721290752",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "HanElectricity 2541FV-2x5P",
+     "minImage": "",
+     "minImageAccessId": "8585829903254097920",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=2.54mm",
+     "describe": "-40\u2103~+105\u2103 10P 2 2.54mm 2.54mm 2x5P 3A 3mm 8.5mm Brass Gold Square Hole Through Hole Top Plugin,P=2.54mm Female Headers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Circular Hole / Square Hole",
+       "attribute_value_name": "Square Hole"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Voltage Rating (Max)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Insulation Height",
+       "attribute_value_name": "8.5mm"
+      },
+      {
+       "attribute_name_en": "Number of Positions",
+       "attribute_value_name": "10P"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Row Spacing",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Holes Direction",
+       "attribute_value_name": "Top"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Through Hole"
+      },
+      {
+       "attribute_name_en": "Holes Structure",
+       "attribute_value_name": "2x5P"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Supplementary Features",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "PIN Length",
+       "attribute_value_name": "3mm"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Female Headers",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+105\u2103 10P 2 <span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>2.54mm</span> 2x5P 3A 3mm 8.5mm Brass Gold Square Hole Through Hole Top Plugin,P=<span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>Female</span> Headers ROHS",
+     "componentModelHigh": "2541FV-<span class='lucene_highlight_class'>2x5P</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 56231320,
+     "componentLibraryType": "expand",
+     "stockCount": 38,
+     "componentTypeEn": "Female Headers",
+     "erpComponentName": "2x5P \u95f4\u8ddd:2.54mm \u76f4\u63d2",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.0699
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 199,
+       "productPrice": 0.0684
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 0.0674
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 409,
+       "productPrice": 0.0663
+      },
+      {
+       "startNumber": 410,
+       "endNumber": 419,
+       "productPrice": 0.0663
+      },
+      {
+       "startNumber": 420,
+       "endNumber": -1,
+       "productPrice": 0.0663
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 410,
+       "endNumber": 419,
+       "productPrice": 0.0638
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 199,
+       "productPrice": 0.0659
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 0.0649
+      },
+      {
+       "startNumber": 420,
+       "endNumber": -1,
+       "productPrice": 0.0638
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.0673
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 409,
+       "productPrice": 0.0638
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 38,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "LXWCONN-254PM_2x5PV/C53202172",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 200,
+     "shopCostPrice": 0.33,
+     "preMinPurchaseNum": 132,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.0699,
+     "componentCode": "C53202172",
+     "componentBrandEn": "LXWCONN",
+     "componentModelEn": "254PM-2x5P-V",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "LXWCONN 254PM-2x5P-V",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=2.54mm",
+     "describe": "2.54mm 2x5P Square Hole Through Hole \u63d2\u4ef6,P=2.54mm Female Headers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Circular Hole / Square Hole",
+       "attribute_value_name": "Square Hole"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Insulation Height",
+       "attribute_value_name": "8.5mm"
+      },
+      {
+       "attribute_name_en": "Number of Positions",
+       "attribute_value_name": "10P"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Row Spacing",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Holes Direction",
+       "attribute_value_name": "Top"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Through Hole"
+      },
+      {
+       "attribute_name_en": "Holes Structure",
+       "attribute_value_name": "2x5P"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "PIN Length",
+       "attribute_value_name": "3.2mm"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Female Headers",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": "<span class='lucene_highlight_class'>2.54mm</span> 2x5P Square Hole Through Hole \u63d2\u4ef6,P=<span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>Female</span> Headers ROHS",
+     "componentModelHigh": "254PM-<span class='lucene_highlight_class'>2x5P</span>-V",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 238449,
+     "componentLibraryType": "expand",
+     "stockCount": 1806,
+     "componentTypeEn": "Female Headers",
+     "erpComponentName": "\u3010\u63d2\u4ef6\u30112x5P \u95f4\u8ddd:2.54mm \u76f4\u63d2",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/female-headers_cjt-changjiang-connectors-a2541hwv-2x5p_C239345.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2377
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1896
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 599,
+       "productPrice": 0.1689
+      },
+      {
+       "startNumber": 600,
+       "endNumber": 2399,
+       "productPrice": 0.1346
+      },
+      {
+       "startNumber": 2400,
+       "endNumber": 4799,
+       "productPrice": 0.1232
+      },
+      {
+       "startNumber": 4800,
+       "endNumber": -1,
+       "productPrice": 0.1162
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.229
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 599,
+       "productPrice": 0.1627
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1826
+      },
+      {
+       "startNumber": 2400,
+       "endNumber": 4799,
+       "productPrice": 0.1187
+      },
+      {
+       "startNumber": 4800,
+       "endNumber": -1,
+       "productPrice": 0.1119
+      },
+      {
+       "startNumber": 600,
+       "endNumber": 2399,
+       "productPrice": 0.1297
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "b74d2d6944f14ecc9036735f5231a3ac",
+     "canPresaleNumber": 1610,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "238449-A2541HWV2x5P/C239345",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 600,
+     "shopCostPrice": 0.58603,
+     "preMinPurchaseNum": 38,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.2377,
+     "componentCode": "C239345",
+     "componentBrandEn": "CJT(Changjiang Connectors)",
+     "componentModelEn": "A2541HWV-2x5P",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583080528249962496",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_CJT-Changjiang-Connectors-A2541HWV-2x5P_C239345.pdf",
+     "dataManualFileAccessId": "8588889991594315776",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "CJT(Changjiang Connectors) A2541HWV-2x5P",
+     "minImage": "",
+     "minImageAccessId": "8583080529201934336",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=2.54mm",
+     "describe": "-40\u2103~+105\u2103 10P 2 2.54mm 2.54mm 250V 2x5P 3.2mm 3A 8.5mm Brass Gold Square Hole Through Hole Top \u63d2\u4ef6,P=2.54mm Female Headers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Circular Hole / Square Hole",
+       "attribute_value_name": "Square Hole"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Voltage Rating (Max)",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_name_en": "Insulation Height",
+       "attribute_value_name": "8.5mm"
+      },
+      {
+       "attribute_name_en": "Number of Positions",
+       "attribute_value_name": "10P"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Row Spacing",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Holes Direction",
+       "attribute_value_name": "Top"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Through Hole"
+      },
+      {
+       "attribute_name_en": "Holes Structure",
+       "attribute_value_name": "2x5P"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "PIN Length",
+       "attribute_value_name": "3.2mm"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Female Headers",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+105\u2103 10P 2 <span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>2.54mm</span> 250V 2x5P 3.2mm 3A 8.5mm Brass Gold Square Hole Through Hole Top \u63d2\u4ef6,P=<span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>Female</span> Headers ROHS",
+     "componentModelHigh": "A2541HWV-<span class='lucene_highlight_class'>2x5P</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 6187987,
+     "componentLibraryType": "expand",
+     "stockCount": 3071,
+     "componentTypeEn": "Female Headers",
+     "erpComponentName": "2x5P \u95f4\u8ddd:2.54mm \u5f2f\u63d2",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/female-headers_cjt-changjiang-connectors-a2541hwr-2x5p_C5362476.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2962
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 319,
+       "productPrice": 0.2326
+      },
+      {
+       "startNumber": 320,
+       "endNumber": 639,
+       "productPrice": 0.2054
+      },
+      {
+       "startNumber": 640,
+       "endNumber": 2559,
+       "productPrice": 0.1713
+      },
+      {
+       "startNumber": 2560,
+       "endNumber": 5119,
+       "productPrice": 0.1561
+      },
+      {
+       "startNumber": 5120,
+       "endNumber": -1,
+       "productPrice": 0.147
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 320,
+       "endNumber": 639,
+       "productPrice": 0.1979
+      },
+      {
+       "startNumber": 2560,
+       "endNumber": 5119,
+       "productPrice": 0.1504
+      },
+      {
+       "startNumber": 640,
+       "endNumber": 2559,
+       "productPrice": 0.165
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 319,
+       "productPrice": 0.2241
+      },
+      {
+       "startNumber": 5120,
+       "endNumber": -1,
+       "productPrice": 0.1416
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2854
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "b74d2d6944f14ecc9036735f5231a3ac",
+     "canPresaleNumber": 3057,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "6187987-A2541HWR2x5P/C5362476",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 320,
+     "shopCostPrice": 0.7737,
+     "preMinPurchaseNum": 31,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.2962,
+     "componentCode": "C5362476",
+     "componentBrandEn": "CJT(Changjiang Connectors)",
+     "componentModelEn": "A2541HWR-2x5P",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585511717199884288",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2302211801_CJT-Changjiang-Connectors-A2541HWR-2x5P_C5362476.pdf",
+     "dataManualFileAccessId": "8603010732703567872",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "CJT(Changjiang Connectors) A2541HWR-2x5P",
+     "minImage": "",
+     "minImageAccessId": "8585511718159704064",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Push-Pull,P=2.54mm",
+     "describe": "-40\u2103~+105\u2103 10P 2 2.54mm 2.54mm 250V 2x5P 3.2mm 3A 5mm Brass Gold Right Angle Side Square Hole Push-Pull,P=2.54mm Female Headers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Circular Hole / Square Hole",
+       "attribute_value_name": "Square Hole"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Voltage Rating (Max)",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_name_en": "Insulation Height",
+       "attribute_value_name": "5mm"
+      },
+      {
+       "attribute_name_en": "Number of Positions",
+       "attribute_value_name": "10P"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Row Spacing",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Holes Direction",
+       "attribute_value_name": "Side"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Right Angle"
+      },
+      {
+       "attribute_name_en": "Holes Structure",
+       "attribute_value_name": "2x5P"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "PIN Length",
+       "attribute_value_name": "3.2mm"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Female Headers",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+105\u2103 10P 2 <span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>2.54mm</span> 250V 2x5P 3.2mm 3A 5mm Brass Gold Right Angle Side Square Hole Push-Pull,P=<span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>Female</span> Headers ROHS",
+     "componentModelHigh": "A2541HWR-<span class='lucene_highlight_class'>2x5P</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 238460,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Female Headers",
+     "erpComponentName": "2x5P \u95f4\u8ddd:2.54mm \u5f2f\u63d2 \u3010\u6392\u9488\u3011",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/female-headers_cjt-changjiang-connectors-a2541hwr-2x5p_C239356.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2962
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.2326
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.2054
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.1713
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.1561
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.147
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2854
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1979
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.1504
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.2241
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.1416
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.165
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "b74d2d6944f14ecc9036735f5231a3ac",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "238460-A2541HWR2x5P/C239356",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1000,
+     "shopCostPrice": 0.7737,
+     "preMinPurchaseNum": 31,
+     "minPurchaseNum": 31,
+     "initialPrice": 0.2962,
+     "componentCode": "C239356",
+     "componentBrandEn": "CJT(Changjiang Connectors)",
+     "componentModelEn": "A2541HWR-2x5P",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583080514873921536",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_CJT-Changjiang-Connectors-A2541HWR-2x5P_C239356.pdf",
+     "dataManualFileAccessId": "8588889992684294144",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "CJT(Changjiang Connectors) A2541HWR-2x5P",
+     "minImage": "",
+     "minImageAccessId": "8583080515812904960",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Push-Pull,P=2.54mm",
+     "describe": "-40\u2103~+105\u2103 10P 2 2.54mm 2.54mm 250V 2x5P 3.2mm 3A 5mm Brass Gold Right Angle Side Square Hole \u5f2f\u63d2,P=2.54mm Female Headers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Circular Hole / Square Hole",
+       "attribute_value_name": "Square Hole"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Voltage Rating (Max)",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_name_en": "Insulation Height",
+       "attribute_value_name": "5mm"
+      },
+      {
+       "attribute_name_en": "Number of Positions",
+       "attribute_value_name": "10P"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Row Spacing",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Holes Direction",
+       "attribute_value_name": "Side"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Right Angle"
+      },
+      {
+       "attribute_name_en": "Holes Structure",
+       "attribute_value_name": "2x5P"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "PIN Length",
+       "attribute_value_name": "3.2mm"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Female Headers",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+105\u2103 10P 2 <span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>2.54mm</span> 250V 2x5P 3.2mm 3A 5mm Brass Gold Right Angle Side Square Hole \u5f2f\u63d2,P=<span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>Female</span> Headers ROHS",
+     "componentModelHigh": "A2541HWR-<span class='lucene_highlight_class'>2x5P</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 5126872,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Female Headers",
+     "erpComponentName": "2x5P \u95f4\u8ddd:2.54mm \u5f2f\u63d2",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2891
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.2287
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.2028
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.1705
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.1418
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.1331
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.1642
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.1283
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2785
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.1366
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.2203
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1953
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "5126872-A2541HWR2x5P/C4555380",
+     "leastPatchNumber": 5,
+     "lossNumber": 5,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 500,
+     "shopCostPrice": 0.735,
+     "preMinPurchaseNum": 32,
+     "minPurchaseNum": 32,
+     "initialPrice": 0.2891,
+     "componentCode": "C4555380",
+     "componentBrandEn": "CJT(Changjiang Connectors)",
+     "componentModelEn": "A2541HWR-2x5P",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585533302703075328",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "8603044150229155840",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "CJT(Changjiang Connectors) A2541HWR-2x5P",
+     "minImage": "",
+     "minImageAccessId": "8585533303596732416",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Push-Pull,P=2.54mm",
+     "describe": "-40\u2103~+105\u2103 10P 2 2.54mm 2.54mm 250V 2x5P 3.2mm 3A 5mm Brass Gold Right Angle Side Square Hole Push-Pull,P=2.54mm Female Headers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Circular Hole / Square Hole",
+       "attribute_value_name": "Square Hole"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Voltage Rating (Max)",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_name_en": "Insulation Height",
+       "attribute_value_name": "5mm"
+      },
+      {
+       "attribute_name_en": "Number of Positions",
+       "attribute_value_name": "10P"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Row Spacing",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Holes Direction",
+       "attribute_value_name": "Side"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Right Angle"
+      },
+      {
+       "attribute_name_en": "Holes Structure",
+       "attribute_value_name": "2x5P"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "PIN Length",
+       "attribute_value_name": "3.2mm"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Female Headers",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+105\u2103 10P 2 <span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>2.54mm</span> 250V 2x5P 3.2mm 3A 5mm Brass Gold Right Angle Side Square Hole Push-Pull,P=<span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>Female</span> Headers ROHS",
+     "componentModelHigh": "A2541HWR-<span class='lucene_highlight_class'>2x5P</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 8428554,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Female Headers",
+     "erpComponentName": "\u3010\u63d2\u4ef6\u30112x5P \u95f4\u8ddd:2.54mm \u76f4\u63d2",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/female-headers_cjt-changjiang-connectors-a2541hwv-2x5p_C7429891.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2134
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 319,
+       "productPrice": 0.1676
+      },
+      {
+       "startNumber": 320,
+       "endNumber": 639,
+       "productPrice": 0.148
+      },
+      {
+       "startNumber": 640,
+       "endNumber": 2559,
+       "productPrice": 0.1235
+      },
+      {
+       "startNumber": 2560,
+       "endNumber": 5119,
+       "productPrice": 0.1126
+      },
+      {
+       "startNumber": 5120,
+       "endNumber": -1,
+       "productPrice": 0.1061
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 320,
+       "endNumber": 639,
+       "productPrice": 0.1426
+      },
+      {
+       "startNumber": 2560,
+       "endNumber": 5119,
+       "productPrice": 0.1085
+      },
+      {
+       "startNumber": 640,
+       "endNumber": 2559,
+       "productPrice": 0.119
+      },
+      {
+       "startNumber": 5120,
+       "endNumber": -1,
+       "productPrice": 0.1022
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 319,
+       "productPrice": 0.1615
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2056
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "b74d2d6944f14ecc9036735f5231a3ac",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "8428554-A2541HWV2x5P/C7429891",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 320,
+     "shopCostPrice": 0.5575,
+     "preMinPurchaseNum": 43,
+     "minPurchaseNum": 43,
+     "initialPrice": 0.2134,
+     "componentCode": "C7429891",
+     "componentBrandEn": "CJT(Changjiang Connectors)",
+     "componentModelEn": "A2541HWV-2x5P",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585209305071030272",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2306151637_CJT-Changjiang-Connectors-A2541HWV-2x5P_C7429891.pdf",
+     "dataManualFileAccessId": "8590905266818920448",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "CJT(Changjiang Connectors) A2541HWV-2x5P",
+     "minImage": "",
+     "minImageAccessId": "8585209306010148864",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=2.54mm",
+     "describe": "-40\u2103~+105\u2103 10P 2 2.54mm 2.54mm 250V 2x5P 3.2mm 3A 8.5mm Brass Gold Square Hole Through Hole Top \u63d2\u4ef6,P=2.54mm Female Headers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Circular Hole / Square Hole",
+       "attribute_value_name": "Square Hole"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Voltage Rating (Max)",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_name_en": "Insulation Height",
+       "attribute_value_name": "8.5mm"
+      },
+      {
+       "attribute_name_en": "Number of Positions",
+       "attribute_value_name": "10P"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Row Spacing",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Holes Direction",
+       "attribute_value_name": "Top"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Through Hole"
+      },
+      {
+       "attribute_name_en": "Holes Structure",
+       "attribute_value_name": "2x5P"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "PIN Length",
+       "attribute_value_name": "3.2mm"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Female Headers",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+105\u2103 10P 2 <span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>2.54mm</span> 250V 2x5P 3.2mm 3A 8.5mm Brass Gold Square Hole Through Hole Top \u63d2\u4ef6,P=<span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>Female</span> Headers ROHS",
+     "componentModelHigh": "A2541HWV-<span class='lucene_highlight_class'>2x5P</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 44458979,
+     "componentLibraryType": "expand",
+     "stockCount": 623,
+     "componentTypeEn": "Female Headers",
+     "erpComponentName": "\u3010\u63d2\u4ef6\u3011 \u63d2\u5b54\u7ed3\u6784\uff1a2x5P \u95f4\u8ddd\uff1a2.54mm \u5b89\u88c5\u65b9\u5f0f\uff1a\u76f4\u63d2 \u6392\u6570\uff1a\u53cc\u6392 \u65b9\u5b54",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1338
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 199,
+       "productPrice": 0.1057
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 0.0919
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 2399,
+       "productPrice": 0.0813
+      },
+      {
+       "startNumber": 2400,
+       "endNumber": 4999,
+       "productPrice": 0.073
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.0687
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 2400,
+       "endNumber": 4999,
+       "productPrice": 0.0703
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1289
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 0.0885
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.0662
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 199,
+       "productPrice": 0.1019
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 2399,
+       "productPrice": 0.0783
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 614,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "JXTCONN-PM2_54_2X5PH85/C42431849",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 200,
+     "shopCostPrice": 0.358,
+     "preMinPurchaseNum": 86,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.1338,
+     "componentCode": "C42431849",
+     "componentBrandEn": "JXTCONN",
+     "componentModelEn": "PM2.54-2X5P-H85",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "JXTCONN PM2.54-2X5P-H85",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=2.54mm",
+     "describe": "-40\u2103~+105\u2103 10P 2 2.54mm 2.54mm 2x5P 3.2mm 3A 8.5mm Brass Gold Square Hole Through Hole Top \u63d2\u4ef6,P=2.54mm Female Headers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Circular Hole / Square Hole",
+       "attribute_value_name": "Square Hole"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Voltage Rating (Max)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Insulation Height",
+       "attribute_value_name": "8.5mm"
+      },
+      {
+       "attribute_name_en": "Number of Positions",
+       "attribute_value_name": "10P"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Row Spacing",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Holes Direction",
+       "attribute_value_name": "Top"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Through Hole"
+      },
+      {
+       "attribute_name_en": "Holes Structure",
+       "attribute_value_name": "2x5P"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "PIN Length",
+       "attribute_value_name": "3.2mm"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Female Headers",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+105\u2103 10P 2 <span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>2.54mm</span> 2x5P 3.2mm 3A 8.5mm Brass Gold Square Hole Through Hole Top \u63d2\u4ef6,P=<span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>Female</span> Headers ROHS",
+     "componentModelHigh": "PM<span class='lucene_highlight_class'>2.54</span>-<span class='lucene_highlight_class'>2X5P</span>-H85",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 34444586,
+     "componentLibraryType": "expand",
+     "stockCount": 7059,
+     "componentTypeEn": "Female Headers",
+     "erpComponentName": "2x5P \u95f4\u8ddd:2.54mm \u76f4\u63d2",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/female-headers_hanxia-hx-pm2-54-2x5p-zc_C32713306.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1935
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1521
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1341
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.1119
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.102
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.0961
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.1078
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.0926
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1864
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1465
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1292
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.0982
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "b74d2d6944f14ecc9036735f5231a3ac",
+     "canPresaleNumber": 6663,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "hanxia-HX_PM2_54_2x5PZC/C32713306",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 200,
+     "shopCostPrice": 0.50551,
+     "preMinPurchaseNum": 47,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.1935,
+     "componentCode": "C32713306",
+     "componentBrandEn": "hanxia",
+     "componentModelEn": "HX PM2.54-2x5P ZC",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585901851951190016",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2407231541_hanxia-HX-PM2-54-2x5P-ZC_C32713306.pdf",
+     "dataManualFileAccessId": "8603388846067228672",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "hanxia HX PM2.54-2x5P ZC",
+     "minImage": "",
+     "minImageAccessId": "8585901852898156544",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=2.54mm",
+     "describe": "-40\u2103~+105\u2103 10P 2 2.54mm 2.54mm 2x5P 3.2mm 3A 8.5mm Gold Square Hole Through Hole Top Plugin,P=2.54mm Female Headers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Circular Hole / Square Hole",
+       "attribute_value_name": "Square Hole"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Voltage Rating (Max)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Insulation Height",
+       "attribute_value_name": "8.5mm"
+      },
+      {
+       "attribute_name_en": "Number of Positions",
+       "attribute_value_name": "10P"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Row Spacing",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Holes Direction",
+       "attribute_value_name": "Top"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Through Hole"
+      },
+      {
+       "attribute_name_en": "Holes Structure",
+       "attribute_value_name": "2x5P"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "PIN Length",
+       "attribute_value_name": "3.2mm"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Female Headers",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+105\u2103 10P 2 <span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>2.54mm</span> 2x5P 3.2mm 3A 8.5mm Gold Square Hole Through Hole Top Plugin,P=<span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>Female</span> Headers ROHS",
+     "componentModelHigh": "HX PM<span class='lucene_highlight_class'>2.54</span>-<span class='lucene_highlight_class'>2x5P</span> ZC",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 58389806,
+     "componentLibraryType": "expand",
+     "stockCount": 564,
+     "componentTypeEn": "Female Headers",
+     "erpComponentName": "2x5P \u95f4\u8ddd:2.54mm \u76f4\u63d2",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1732
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1371
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 999,
+       "productPrice": 0.1216
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 1999,
+       "productPrice": 0.1021
+      },
+      {
+       "startNumber": 2000,
+       "endNumber": 4999,
+       "productPrice": 0.0935
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.0884
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.132
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 999,
+       "productPrice": 0.1171
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1668
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.0852
+      },
+      {
+       "startNumber": 2000,
+       "endNumber": 4999,
+       "productPrice": 0.0901
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 1999,
+       "productPrice": 0.0984
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 550,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "SHOUHAN-PM2_54_2x5PZZ_H85/C54876741",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1000,
+     "shopCostPrice": 0.44,
+     "preMinPurchaseNum": 66,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.1732,
+     "componentCode": "C54876741",
+     "componentBrandEn": "SHOU HAN",
+     "componentModelEn": "PM2.54-2x5PZZ-H8.5",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8768363089383575552",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "SHOU HAN PM2.54-2x5PZZ-H8.5",
+     "minImage": "",
+     "minImageAccessId": "8768363090431610880",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=2.54mm",
+     "describe": "-40\u2103~+105\u2103 10P 2 2.54mm 2.54mm 250V 2x5P 3A 3mm 8.5mm Brass Gold Square Hole Through Hole Top \u63d2\u4ef6,P=2.54mm Female Headers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Circular Hole / Square Hole",
+       "attribute_value_name": "Square Hole"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Voltage Rating (Max)",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_name_en": "Insulation Height",
+       "attribute_value_name": "8.5mm"
+      },
+      {
+       "attribute_name_en": "Number of Positions",
+       "attribute_value_name": "10P"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Row Spacing",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Holes Direction",
+       "attribute_value_name": "Top"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Through Hole"
+      },
+      {
+       "attribute_name_en": "Holes Structure",
+       "attribute_value_name": "2x5P"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Supplementary Features",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "PIN Length",
+       "attribute_value_name": "3.2mm"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Female Headers",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+105\u2103 10P 2 <span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>2.54mm</span> 250V 2x5P 3A 3mm 8.5mm Brass Gold Square Hole Through Hole Top \u63d2\u4ef6,P=<span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>Female</span> Headers ROHS",
+     "componentModelHigh": "PM<span class='lucene_highlight_class'>2.54</span>-<span class='lucene_highlight_class'>2x5P</span>ZZ-H8.5",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 58478873,
+     "componentLibraryType": "expand",
+     "stockCount": 255,
+     "componentTypeEn": "Female Headers",
+     "erpComponentName": "2x5P \u95f4\u8ddd:2.54mm \u5f2f\u63d2",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1144
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 319,
+       "productPrice": 0.1118
+      },
+      {
+       "startNumber": 320,
+       "endNumber": 639,
+       "productPrice": 0.1101
+      },
+      {
+       "startNumber": 640,
+       "endNumber": 649,
+       "productPrice": 0.1085
+      },
+      {
+       "startNumber": 650,
+       "endNumber": 659,
+       "productPrice": 0.1085
+      },
+      {
+       "startNumber": 660,
+       "endNumber": -1,
+       "productPrice": 0.1085
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 640,
+       "endNumber": 649,
+       "productPrice": 0.1045
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1102
+      },
+      {
+       "startNumber": 660,
+       "endNumber": -1,
+       "productPrice": 0.1045
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 319,
+       "productPrice": 0.1077
+      },
+      {
+       "startNumber": 650,
+       "endNumber": 659,
+       "productPrice": 0.1045
+      },
+      {
+       "startNumber": 320,
+       "endNumber": 639,
+       "productPrice": 0.1061
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 255,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "LXWCONN-254PM_2x5P_RA_H85/C54930091",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 320,
+     "shopCostPrice": 0.54,
+     "preMinPurchaseNum": 81,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.1144,
+     "componentCode": "C54930091",
+     "componentBrandEn": "LXWCONN",
+     "componentModelEn": "254PM-2x5P-RA-H8.5",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8769282624362041344",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "LXWCONN 254PM-2x5P-RA-H8.5",
+     "minImage": "",
+     "minImageAccessId": "8769282625473396736",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Push-Pull,P=2.54mm",
+     "describe": "\u5f2f\u63d2,P=2.54mm Female Headers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Circular Hole / Square Hole",
+       "attribute_value_name": "Square Hole"
+      },
+      {
+       "attribute_name_en": "Holes Structure",
+       "attribute_value_name": "2x5P"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Insulation Height",
+       "attribute_value_name": "5mm"
+      },
+      {
+       "attribute_name_en": "Number of Positions",
+       "attribute_value_name": "10P"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Row Spacing",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Holes Direction",
+       "attribute_value_name": "Side"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Right Angle"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Female Headers",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": "\u5f2f\u63d2,P=<span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>Female</span> Headers ROHS",
+     "componentModelHigh": "254PM-<span class='lucene_highlight_class'>2x5P</span>-RA-H8.5",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 23870246,
+     "componentLibraryType": "expand",
+     "stockCount": 1312,
+     "componentTypeEn": "Female Headers",
+     "erpComponentName": "\u95f4\u8ddd2.54mm 2x5Pin \u76f4\u63d2 PC3.0 H8.5",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/female-headers_hong-cheng-hc-pm254-8-5h-2x5pz_C22373910.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 229,
+       "productPrice": 0.1206
+      },
+      {
+       "startNumber": 230,
+       "endNumber": 689,
+       "productPrice": 0.0953
+      },
+      {
+       "startNumber": 690,
+       "endNumber": 2299,
+       "productPrice": 0.0826
+      },
+      {
+       "startNumber": 2300,
+       "endNumber": 11499,
+       "productPrice": 0.0731
+      },
+      {
+       "startNumber": 11500,
+       "endNumber": 22999,
+       "productPrice": 0.0655
+      },
+      {
+       "startNumber": 23000,
+       "endNumber": -1,
+       "productPrice": 0.0617
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 690,
+       "endNumber": 2299,
+       "productPrice": 0.0795
+      },
+      {
+       "startNumber": 230,
+       "endNumber": 689,
+       "productPrice": 0.0918
+      },
+      {
+       "startNumber": 11500,
+       "endNumber": 22999,
+       "productPrice": 0.0631
+      },
+      {
+       "startNumber": 23000,
+       "endNumber": -1,
+       "productPrice": 0.0594
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 229,
+       "productPrice": 0.1162
+      },
+      {
+       "startNumber": 2300,
+       "endNumber": 11499,
+       "productPrice": 0.0704
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "b74d2d6944f14ecc9036735f5231a3ac",
+     "canPresaleNumber": 1311,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "HongCheng-HC_PM254_8_5H2x5PZ/C22373910",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 46,
+     "shopCostPrice": 0.324,
+     "preMinPurchaseNum": 46,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.1206,
+     "componentCode": "C22373910",
+     "componentBrandEn": "Hong Cheng",
+     "componentModelEn": "HC-PM254-8.5H-2x5PZ",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585265171387830272",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2405210913_Hong-Cheng-HC-PM254-8-5H-2x5PZ_C22373910.pdf",
+     "dataManualFileAccessId": "8564880165437673472",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Hong Cheng HC-PM254-8.5H-2x5PZ",
+     "minImage": "",
+     "minImageAccessId": "8585265172327354368",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=2.54mm",
+     "describe": "-40\u2103~+105\u2103 10P 2 2.54mm 2.54mm 2x5P 3A 3mm 8.5mm Brass Gold Square Hole Through Hole Top \u63d2\u4ef6,P=2.54mm Female Headers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Circular Hole / Square Hole",
+       "attribute_value_name": "Square Hole"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Voltage Rating (Max)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Insulation Height",
+       "attribute_value_name": "8.5mm"
+      },
+      {
+       "attribute_name_en": "Number of Positions",
+       "attribute_value_name": "10P"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Row Spacing",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Holes Direction",
+       "attribute_value_name": "Top"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Through Hole"
+      },
+      {
+       "attribute_name_en": "Holes Structure",
+       "attribute_value_name": "2x5P"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Supplementary Features",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "PIN Length",
+       "attribute_value_name": "3mm"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Female Headers",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+105\u2103 10P 2 <span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>2.54mm</span> 2x5P 3A 3mm 8.5mm Brass Gold Square Hole Through Hole Top \u63d2\u4ef6,P=<span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>Female</span> Headers ROHS",
+     "componentModelHigh": "HC-PM254-8.5H-<span class='lucene_highlight_class'>2x5P</span>Z",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 23870268,
+     "componentLibraryType": "expand",
+     "stockCount": 4988,
+     "componentTypeEn": "Female Headers",
+     "erpComponentName": "\u95f4\u8ddd2.54mm 2x5Pin \u5f2f\u63d2 PC3.2 PB12.7 H8.5",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/female-headers_hong-cheng-hc-pm254-8-5h-2x5pw_C22373931.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1819
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1428
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1261
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.1052
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.096
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.0902
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.1014
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.0869
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1752
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1375
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1215
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.0924
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "b74d2d6944f14ecc9036735f5231a3ac",
+     "canPresaleNumber": 4965,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "HongCheng-HC_PM254_8_5H2x5PW/C22373931",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 45,
+     "shopCostPrice": 0.475,
+     "preMinPurchaseNum": 45,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.1819,
+     "componentCode": "C22373931",
+     "componentBrandEn": "Hong Cheng",
+     "componentModelEn": "HC-PM254-8.5H-2x5PW",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585264582210564096",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2405210913_Hong-Cheng-HC-PM254-8-5H-2x5PW_C22373931.pdf",
+     "dataManualFileAccessId": "8564880181489410048",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Hong Cheng HC-PM254-8.5H-2x5PW",
+     "minImage": "",
+     "minImageAccessId": "8585264583120457728",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Push-Pull,P=2.54mm",
+     "describe": "-40\u2103~+105\u2103 10P 2 2.54mm 2.54mm 2x5P 3A 3mm 5mm Brass Gold Right Angle Side Square Hole \u5f2f\u63d2,P=2.54mm Female Headers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Circular Hole / Square Hole",
+       "attribute_value_name": "Square Hole"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Voltage Rating (Max)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Insulation Height",
+       "attribute_value_name": "5mm"
+      },
+      {
+       "attribute_name_en": "Number of Positions",
+       "attribute_value_name": "10P"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Row Spacing",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Holes Direction",
+       "attribute_value_name": "Side"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Right Angle"
+      },
+      {
+       "attribute_name_en": "Holes Structure",
+       "attribute_value_name": "2x5P"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Supplementary Features",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "PIN Length",
+       "attribute_value_name": "3mm"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Female Headers",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+105\u2103 10P 2 <span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>2.54mm</span> 2x5P 3A 3mm 5mm Brass Gold Right Angle Side Square Hole \u5f2f\u63d2,P=<span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>Female</span> Headers ROHS",
+     "componentModelHigh": "HC-PM254-8.5H-<span class='lucene_highlight_class'>2x5P</span>W",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 23870283,
+     "componentLibraryType": "expand",
+     "stockCount": 528,
+     "componentTypeEn": "Female Headers",
+     "erpComponentName": "\u95f4\u8ddd2.54mm 2x5Pin \u7acb\u8d34 PW7.1 H8.5",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/female-headers_hong-cheng-hc-pm254-8-5h-2x5ps_C22373946.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 229,
+       "productPrice": 0.1998
+      },
+      {
+       "startNumber": 230,
+       "endNumber": 689,
+       "productPrice": 0.157
+      },
+      {
+       "startNumber": 690,
+       "endNumber": 2299,
+       "productPrice": 0.1385
+      },
+      {
+       "startNumber": 2300,
+       "endNumber": 11499,
+       "productPrice": 0.1155
+      },
+      {
+       "startNumber": 11500,
+       "endNumber": 22999,
+       "productPrice": 0.1054
+      },
+      {
+       "startNumber": 23000,
+       "endNumber": -1,
+       "productPrice": 0.0992
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 23000,
+       "endNumber": -1,
+       "productPrice": 0.0956
+      },
+      {
+       "startNumber": 230,
+       "endNumber": 689,
+       "productPrice": 0.1512
+      },
+      {
+       "startNumber": 11500,
+       "endNumber": 22999,
+       "productPrice": 0.1015
+      },
+      {
+       "startNumber": 690,
+       "endNumber": 2299,
+       "productPrice": 0.1334
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 229,
+       "productPrice": 0.1925
+      },
+      {
+       "startNumber": 2300,
+       "endNumber": 11499,
+       "productPrice": 0.1113
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "b74d2d6944f14ecc9036735f5231a3ac",
+     "canPresaleNumber": 524,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "HongCheng-HC_PM254_8_5H2x5PS/C22373946",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 46,
+     "shopCostPrice": 0.522,
+     "preMinPurchaseNum": 46,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.1998,
+     "componentCode": "C22373946",
+     "componentBrandEn": "Hong Cheng",
+     "componentModelEn": "HC-PM254-8.5H-2x5PS",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585273444850683904",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2405210913_Hong-Cheng-HC-PM254-8-5H-2x5PS_C22373946.pdf",
+     "dataManualFileAccessId": "8564880193220743168",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Hong Cheng HC-PM254-8.5H-2x5PS",
+     "minImage": "",
+     "minImageAccessId": "8585273445819027456",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SMD,P=2.54mm",
+     "describe": "-40\u2103~+105\u2103 10P 2 2.54mm 2.54mm 2x5P 3A 8.5mm Brass Gold Square Hole Surface Mount,Vertical Top SMD,P=2.54mm Female Headers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Circular Hole / Square Hole",
+       "attribute_value_name": "Square Hole"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Voltage Rating (Max)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Insulation Height",
+       "attribute_value_name": "8.5mm"
+      },
+      {
+       "attribute_name_en": "Number of Positions",
+       "attribute_value_name": "10P"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Row Spacing",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Holes Direction",
+       "attribute_value_name": "Top"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Surface Mount,Vertical"
+      },
+      {
+       "attribute_name_en": "Holes Structure",
+       "attribute_value_name": "2x5P"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Supplementary Features",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "PIN Length",
+       "attribute_value_name": "-"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Female Headers",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+105\u2103 10P 2 <span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>2.54mm</span> 2x5P 3A 8.5mm Brass Gold Square Hole Surface Mount,Vertical Top SMD,P=<span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>Female</span> Headers ROHS",
+     "componentModelHigh": "HC-PM254-8.5H-<span class='lucene_highlight_class'>2x5P</span>S",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 24088859,
+     "componentLibraryType": "expand",
+     "stockCount": 50,
+     "componentTypeEn": "Female Headers",
+     "erpComponentName": "2x5P \u95f4\u8ddd:2.54mm \u76f4\u63d2",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/female-headers_shenzhen-kinghelm-elec-kh-2-54fh-2x5p-h8-5_C22440827.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.157
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1234
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1088
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 1999,
+       "productPrice": 0.0907
+      },
+      {
+       "startNumber": 2000,
+       "endNumber": 3999,
+       "productPrice": 0.0827
+      },
+      {
+       "startNumber": 4000,
+       "endNumber": -1,
+       "productPrice": 0.078
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 500,
+       "endNumber": 1999,
+       "productPrice": 0.0874
+      },
+      {
+       "startNumber": 2000,
+       "endNumber": 3999,
+       "productPrice": 0.0797
+      },
+      {
+       "startNumber": 4000,
+       "endNumber": -1,
+       "productPrice": 0.0751
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1512
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1188
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1048
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "b74d2d6944f14ecc9036735f5231a3ac",
+     "canPresaleNumber": 50,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "24088859-KH_2_54FH_2X5P_H85/C22440827",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 50,
+     "shopCostPrice": 0.41,
+     "preMinPurchaseNum": 50,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.157,
+     "componentCode": "C22440827",
+     "componentBrandEn": "Shenzhen Kinghelm Elec",
+     "componentModelEn": "KH-2.54FH-2X5P-H8.5",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585875065006641152",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2405281632_Shenzhen-Kinghelm-Elec-KH-2-54FH-2X5P-H8-5_C22440827.pdf",
+     "dataManualFileAccessId": "8603346374285148160",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "kinghelm KH-2.54FH-2X5P-H8.5",
+     "minImage": "",
+     "minImageAccessId": "8585875065913692160",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=2.54mm",
+     "describe": "-40\u2103~+105\u2103 10P 2 2.54mm 2.54mm 2x5P 3.2mm 3A 8.5mm Brass Gold Square Hole Through Hole Top Plugin,P=2.54mm Female Headers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Circular Hole / Square Hole",
+       "attribute_value_name": "Square Hole"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Insulation Height",
+       "attribute_value_name": "8.5mm"
+      },
+      {
+       "attribute_name_en": "Number of Positions",
+       "attribute_value_name": "10P"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Row Spacing",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Holes Direction",
+       "attribute_value_name": "Top"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Through Hole"
+      },
+      {
+       "attribute_name_en": "Holes Structure",
+       "attribute_value_name": "2x5P"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "PIN Length",
+       "attribute_value_name": "3.2mm"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Female Headers",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+105\u2103 10P 2 <span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>2.54mm</span> 2x5P 3.2mm 3A 8.5mm Brass Gold Square Hole Through Hole Top Plugin,P=<span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>Female</span> Headers ROHS",
+     "componentModelHigh": "KH-<span class='lucene_highlight_class'>2.54</span>FH-<span class='lucene_highlight_class'>2X5P</span>-H8.5",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 29721193,
+     "componentLibraryType": "expand",
+     "stockCount": 4532,
+     "componentTypeEn": "Female Headers",
+     "erpComponentName": "\u95f4\u8ddd2.54mm 2x5Pin \u76f4\u63d2 PC3.0 H5.0",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/female-headers_hong-cheng-hc-pm254-5-0h-2x5pz_C27985235.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.184
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 134,
+       "productPrice": 0.1421
+      },
+      {
+       "startNumber": 135,
+       "endNumber": 494,
+       "productPrice": 0.1266
+      },
+      {
+       "startNumber": 495,
+       "endNumber": 2519,
+       "productPrice": 0.1074
+      },
+      {
+       "startNumber": 2520,
+       "endNumber": 4994,
+       "productPrice": 0.0987
+      },
+      {
+       "startNumber": 4995,
+       "endNumber": -1,
+       "productPrice": 0.0937
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 50,
+       "endNumber": 134,
+       "productPrice": 0.1369
+      },
+      {
+       "startNumber": 135,
+       "endNumber": 494,
+       "productPrice": 0.122
+      },
+      {
+       "startNumber": 495,
+       "endNumber": 2519,
+       "productPrice": 0.1034
+      },
+      {
+       "startNumber": 4995,
+       "endNumber": -1,
+       "productPrice": 0.0902
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1773
+      },
+      {
+       "startNumber": 2520,
+       "endNumber": 4994,
+       "productPrice": 0.0951
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "b74d2d6944f14ecc9036735f5231a3ac",
+     "canPresaleNumber": 4524,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "HongCheng-HC_PM254_5_0H2x5PZ/C27985235",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 45,
+     "shopCostPrice": 0.439,
+     "preMinPurchaseNum": 45,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.184,
+     "componentCode": "C27985235",
+     "componentBrandEn": "Hong Cheng",
+     "componentModelEn": "HC-PM254-5.0H-2x5PZ",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585906435641520128",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2407101107_Hong-Cheng-HC-PM254-5-0H-2x5PZ_C27985235.pdf",
+     "dataManualFileAccessId": "8564880222362091520",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Hong Cheng HC-PM254-5.0H-2x5PZ",
+     "minImage": "",
+     "minImageAccessId": "8585906436564267008",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=2.54mm",
+     "describe": "-40\u2103~+105\u2103 10P 2 2.54mm 2.54mm 2x5P 3A 3mm 5mm Brass Gold Square Hole Through Hole Top Plugin,P=2.54mm Female Headers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Circular Hole / Square Hole",
+       "attribute_value_name": "Square Hole"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Voltage Rating (Max)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Insulation Height",
+       "attribute_value_name": "5mm"
+      },
+      {
+       "attribute_name_en": "Number of Positions",
+       "attribute_value_name": "10P"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Row Spacing",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Holes Direction",
+       "attribute_value_name": "Top"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Through Hole"
+      },
+      {
+       "attribute_name_en": "Holes Structure",
+       "attribute_value_name": "2x5P"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Supplementary Features",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "PIN Length",
+       "attribute_value_name": "3mm"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Female Headers",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+105\u2103 10P 2 <span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>2.54mm</span> 2x5P 3A 3mm 5mm Brass Gold Square Hole Through Hole Top Plugin,P=<span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>Female</span> Headers ROHS",
+     "componentModelHigh": "HC-PM254-5.0H-<span class='lucene_highlight_class'>2x5P</span>Z",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 58478861,
+     "componentLibraryType": "expand",
+     "stockCount": 395,
+     "componentTypeEn": "Female Headers",
+     "erpComponentName": "2x5P \u95f4\u8ddd:2.54mm \u7acb\u8d34",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.3345
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.2646
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 399,
+       "productPrice": 0.2346
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 2399,
+       "productPrice": 0.1972
+      },
+      {
+       "startNumber": 2400,
+       "endNumber": 4799,
+       "productPrice": 0.1806
+      },
+      {
+       "startNumber": 4800,
+       "endNumber": -1,
+       "productPrice": 0.1707
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 4800,
+       "endNumber": -1,
+       "productPrice": 0.1644
+      },
+      {
+       "startNumber": 2400,
+       "endNumber": 4799,
+       "productPrice": 0.174
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 399,
+       "productPrice": 0.226
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.2549
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.3222
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 2399,
+       "productPrice": 0.19
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 395,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "LXWCONN-254PM_2x5P_SMT_H85/C54930079",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 400,
+     "shopCostPrice": 0.85,
+     "preMinPurchaseNum": 27,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.3345,
+     "componentCode": "C54930079",
+     "componentBrandEn": "LXWCONN",
+     "componentModelEn": "254PM-2x5P-SMT-H8.5",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8769678020955389952",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "LXWCONN 254PM-2x5P-SMT-H8.5",
+     "minImage": "",
+     "minImageAccessId": "8769678022037655552",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SMD,P=2.54mm",
+     "describe": "SMD,P=2.54mm Female Headers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Circular Hole / Square Hole",
+       "attribute_value_name": "Square Hole"
+      },
+      {
+       "attribute_name_en": "Holes Structure",
+       "attribute_value_name": "2x5P"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Insulation Height",
+       "attribute_value_name": "8.5mm"
+      },
+      {
+       "attribute_name_en": "Number of Positions",
+       "attribute_value_name": "10P"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Row Spacing",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Holes Direction",
+       "attribute_value_name": "Top"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Surface Mount,Vertical"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Female Headers",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": "SMD,P=<span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>Female</span> Headers ROHS",
+     "componentModelHigh": "254PM-<span class='lucene_highlight_class'>2x5P</span>-SMT-H8.5",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 58922016,
+     "componentLibraryType": "expand",
+     "stockCount": 20,
+     "componentTypeEn": "Female Headers",
+     "erpComponentName": "2x5P \u95f4\u8ddd:2.54mm \u76f4\u63d2",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.185
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 199,
+       "productPrice": 0.1463
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 0.1297
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 2399,
+       "productPrice": 0.1092
+      },
+      {
+       "startNumber": 2400,
+       "endNumber": 4999,
+       "productPrice": 0.0999
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.0943
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 400,
+       "endNumber": 2399,
+       "productPrice": 0.1052
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.0909
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1782
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 0.125
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 199,
+       "productPrice": 0.141
+      },
+      {
+       "startNumber": 2400,
+       "endNumber": 4999,
+       "productPrice": 0.0962
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 20,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "58922016-KH_2_54FH_2X5P_H50/C55160384",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 200,
+     "shopCostPrice": 0.47,
+     "preMinPurchaseNum": 49,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.185,
+     "componentCode": "C55160384",
+     "componentBrandEn": "Shenzhen Kinghelm Elec",
+     "componentModelEn": "KH-2.54FH-2X5P-H5.0",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8770491049850343424",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "kinghelm KH-2.54FH-2X5P-H5.0",
+     "minImage": "",
+     "minImageAccessId": "8770491050995523584",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=2.54mm",
+     "describe": "\u63d2\u4ef6,P=2.54mm Female Headers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Circular Hole / Square Hole",
+       "attribute_value_name": "Square Hole"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Insulation Height",
+       "attribute_value_name": "5mm"
+      },
+      {
+       "attribute_name_en": "Number of Positions",
+       "attribute_value_name": "10P"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Row Spacing",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Holes Direction",
+       "attribute_value_name": "Top"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Through Hole"
+      },
+      {
+       "attribute_name_en": "Holes Structure",
+       "attribute_value_name": "2x5P"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "PIN Length",
+       "attribute_value_name": "3mm"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Female Headers",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": "\u63d2\u4ef6,P=<span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>Female</span> Headers ROHS",
+     "componentModelHigh": "KH-<span class='lucene_highlight_class'>2.54</span>FH-<span class='lucene_highlight_class'>2X5P</span>-H5.0",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 252832,
+     "componentLibraryType": "expand",
+     "stockCount": 2337,
+     "componentTypeEn": "Female Headers",
+     "erpComponentName": "2x5P \u95f4\u8ddd:2.54mm \u7acb\u8d34",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/female-headers_boomele-boom-precision-elec-2-54-2-5p_C261072.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2036
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 319,
+       "productPrice": 0.1625
+      },
+      {
+       "startNumber": 320,
+       "endNumber": 639,
+       "productPrice": 0.1348
+      },
+      {
+       "startNumber": 640,
+       "endNumber": 2559,
+       "productPrice": 0.1128
+      },
+      {
+       "startNumber": 2560,
+       "endNumber": 5119,
+       "productPrice": 0.103
+      },
+      {
+       "startNumber": 5120,
+       "endNumber": -1,
+       "productPrice": 0.0971
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 5120,
+       "endNumber": -1,
+       "productPrice": 0.0935
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 319,
+       "productPrice": 0.1565
+      },
+      {
+       "startNumber": 2560,
+       "endNumber": 5119,
+       "productPrice": 0.0992
+      },
+      {
+       "startNumber": 640,
+       "endNumber": 2559,
+       "productPrice": 0.1086
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1961
+      },
+      {
+       "startNumber": 320,
+       "endNumber": 639,
+       "productPrice": 0.1298
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "b74d2d6944f14ecc9036735f5231a3ac",
+     "canPresaleNumber": 2268,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "252832-2_54_2_5PFemaleHeaders/C261072",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 320,
+     "shopCostPrice": 0.5,
+     "preMinPurchaseNum": 45,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.2036,
+     "componentCode": "C261072",
+     "componentBrandEn": "BOOMELE(Boom Precision Elec)",
+     "componentModelEn": "2.54-2*5PFemale Headers",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583393333888618496",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2407161119_BOOMELE-Boom-Precision-Elec-2-54-2-5P_C261072.pdf",
+     "dataManualFileAccessId": "8588902614004482048",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "BOOMELE(Boom Precision Elec) 2.54-2*5P\u7acb\u8d34\u6bcd",
+     "minImage": "",
+     "minImageAccessId": "8583393334794993664",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SMD,P=2.54mm",
+     "describe": "-55\u2103~+105\u2103 10P 2 2.54mm 2.54mm 2.5A 2x5P 8.5mm Brass Gold Square Hole Surface Mount,Vertical Top SMD,P=2.54mm Female Headers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Circular Hole / Square Hole",
+       "attribute_value_name": "Square Hole"
+      },
+      {
+       "attribute_name_en": "Holes Structure",
+       "attribute_value_name": "2x5P"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Insulation Height",
+       "attribute_value_name": "8.5mm"
+      },
+      {
+       "attribute_name_en": "Number of Positions",
+       "attribute_value_name": "10P"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "2.5A"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Row Spacing",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Holes Direction",
+       "attribute_value_name": "Top"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Surface Mount,Vertical"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Female Headers",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-55\u2103~+105\u2103 10P 2 <span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>2.54mm</span> 2.5A 2x5P 8.5mm Brass Gold Square Hole Surface Mount,Vertical Top SMD,P=<span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>Female</span> Headers ROHS",
+     "componentModelHigh": "<span class='lucene_highlight_class'>2.54</span>-<span class='lucene_highlight_class'>2*5P</span><span class='lucene_highlight_class'>Female</span> Headers",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 902207,
+     "componentLibraryType": "expand",
+     "stockCount": 5653,
+     "componentTypeEn": "Female Headers",
+     "erpComponentName": "\u95f4\u8ddd:2.54mm 2x5P \u7acb\u8d34",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/female-headers_boomele-boom-precision-elec-2-54-2-5p_C843271.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1835
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1424
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 339,
+       "productPrice": 0.1248
+      },
+      {
+       "startNumber": 340,
+       "endNumber": 2379,
+       "productPrice": 0.1062
+      },
+      {
+       "startNumber": 2380,
+       "endNumber": 5099,
+       "productPrice": 0.0964
+      },
+      {
+       "startNumber": 5100,
+       "endNumber": -1,
+       "productPrice": 0.0906
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1372
+      },
+      {
+       "startNumber": 2380,
+       "endNumber": 5099,
+       "productPrice": 0.0929
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 339,
+       "productPrice": 0.1202
+      },
+      {
+       "startNumber": 340,
+       "endNumber": 2379,
+       "productPrice": 0.1023
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1768
+      },
+      {
+       "startNumber": 5100,
+       "endNumber": -1,
+       "productPrice": 0.0872
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "b74d2d6944f14ecc9036735f5231a3ac",
+     "canPresaleNumber": 5414,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "902207-2_54_2_5PFemaleHeaders/C843271",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 340,
+     "shopCostPrice": 0.49976,
+     "preMinPurchaseNum": 64,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.1835,
+     "componentCode": "C843271",
+     "componentBrandEn": "BOOMELE(Boom Precision Elec)",
+     "componentModelEn": "2.54-2*5PFemale Headers",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583487318459600896",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2009241805_BOOMELE-Boom-Precision-Elec-2-54-2-5P_C843271.pdf",
+     "dataManualFileAccessId": "8588917935209385985",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "BOOMELE(Boom Precision Elec) 2.54-2*5P\u7acb\u8d34\u6bcd",
+     "minImage": "",
+     "minImageAccessId": "8583487319369764864",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SMD,P=2.54mm",
+     "describe": "-55\u2103~+105\u2103 10P 2 2.54mm 2.54mm 2.5A 2x5P 8.5mm Brass Gold Square Hole Surface Mount,Vertical Top SMD,P=2.54mm Female Headers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Circular Hole / Square Hole",
+       "attribute_value_name": "Square Hole"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Voltage Rating (Max)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Insulation Height",
+       "attribute_value_name": "8.5mm"
+      },
+      {
+       "attribute_name_en": "Number of Positions",
+       "attribute_value_name": "10P"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "2.5A"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Row Spacing",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Holes Direction",
+       "attribute_value_name": "Top"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Surface Mount,Vertical"
+      },
+      {
+       "attribute_name_en": "Holes Structure",
+       "attribute_value_name": "2x5P"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "2.54mm"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Female Headers",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-55\u2103~+105\u2103 10P 2 <span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>2.54mm</span> 2.5A 2x5P 8.5mm Brass Gold Square Hole Surface Mount,Vertical Top SMD,P=<span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>Female</span> Headers ROHS",
+     "componentModelHigh": "<span class='lucene_highlight_class'>2.54</span>-<span class='lucene_highlight_class'>2*5P</span><span class='lucene_highlight_class'>Female</span> Headers",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 20,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 2,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "2x5P 2.54mm female header"
+ },
+ "message": null,
+ "_kw": "2x5P 2.54mm female header",
+ "_fetched_utc": "2026-10-13T21:14:39Z"
+}

@@ -1,0 +1,4332 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 20,
+   "list": [
+    {
+     "componentId": 6258453,
+     "componentLibraryType": "expand",
+     "stockCount": 1977,
+     "componentTypeEn": "Pin Headers",
+     "erpComponentName": "2x10P \u95f4\u8ddd:2.54mm \u65b9\u9488 \u5f2f\u63d2",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/pin-headers_hanelectricity-2541wr-2x10p_C5383093.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.0821
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 249,
+       "productPrice": 0.0656
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.0575
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.0513
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.0464
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.0439
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.0554
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.0494
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.0423
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.0791
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.0447
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 249,
+       "productPrice": 0.0632
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "b27176c0811c411e855e7b15d6cb39e8",
+     "canPresaleNumber": 1916,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "HanElectricity-2541WR2x10P/C5383093",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 250,
+     "shopCostPrice": 0.21,
+     "preMinPurchaseNum": 138,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.0821,
+     "componentCode": "C5383093",
+     "componentBrandEn": "HanElectricity",
+     "componentModelEn": "2541WR-2x10P",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585312373842722816",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2303301000_HanElectricity-2541WR-2x10P_C5383093.pdf",
+     "dataManualFileAccessId": "8602849019571806208",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "HanElectricity 2541WR-2x10P",
+     "minImage": "",
+     "minImageAccessId": "8585312374693761024",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Push-Pull,P=2.54mm",
+     "describe": "-40\u2103~+105\u2103 2 2.54mm 2.54mm 2.5mm 20P 2x10P 3A 6mm Black Brass Gold Right Angle Square pin Push-Pull,P=2.54mm Pin Headers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Insulation Height",
+       "attribute_value_name": "2.5mm"
+      },
+      {
+       "attribute_name_en": "Color",
+       "attribute_value_name": "Black"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Row Spacing",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Right Angle"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Number of Pins",
+       "attribute_value_name": "20P"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_name_en": "Pin Structure",
+       "attribute_value_name": "2x10P"
+      },
+      {
+       "attribute_name_en": "Length of Mating Pin",
+       "attribute_value_name": "6mm"
+      },
+      {
+       "attribute_name_en": "Circluar Pins/Square Pins",
+       "attribute_value_name": "Square pin"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Pin Headers",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+105\u2103 2 <span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>2.54mm</span> 2.5mm 20P 2x10P 3A 6mm Black Brass Gold Right Angle Square <span class='lucene_highlight_class'>pin</span> Push-Pull,P=<span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>Pin</span> Headers ROHS",
+     "componentModelHigh": "2541WR-<span class='lucene_highlight_class'>2x10P</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 6258469,
+     "componentLibraryType": "expand",
+     "stockCount": 3194,
+     "componentTypeEn": "Pin Headers",
+     "erpComponentName": "\u3010\u63d2\u4ef6\u30112x10P \u95f4\u8ddd:2.54mm \u65b9\u9488 \u76f4\u63d2",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/pin-headers_hanelectricity-2541wv-2x10p_C5383109.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0697
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.056
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.046
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 4999,
+       "productPrice": 0.041
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": 9999,
+       "productPrice": 0.0367
+      },
+      {
+       "startNumber": 10000,
+       "endNumber": -1,
+       "productPrice": 0.0348
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 5000,
+       "endNumber": 9999,
+       "productPrice": 0.0354
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0671
+      },
+      {
+       "startNumber": 10000,
+       "endNumber": -1,
+       "productPrice": 0.0335
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 4999,
+       "productPrice": 0.0395
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.0539
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.0444
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "b27176c0811c411e855e7b15d6cb39e8",
+     "canPresaleNumber": 2916,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "HanElectricity-2541WV2x10P/C5383109",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 500,
+     "shopCostPrice": 0.175,
+     "preMinPurchaseNum": 162,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.0697,
+     "componentCode": "C5383109",
+     "componentBrandEn": "HanElectricity",
+     "componentModelEn": "2541WV-2x10P",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585198842753536000",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2303301000_HanElectricity-2541WV-2x10P_C5383109.pdf",
+     "dataManualFileAccessId": "8590903429692661760",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "HanElectricity 2541WV-2x10P",
+     "minImage": "",
+     "minImageAccessId": "8585198843684536320",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=2.54mm",
+     "describe": "-55\u2103~+105\u2103 2 2.54mm 2.54mm 2.54mm 20P 2x10P 3A 3mm 6mm Brass Gold Pin Header Through Hole \u63d2\u4ef6,P=2.54mm Pin Headers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Insulation Height",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Length of End Connection Pin",
+       "attribute_value_name": "3mm"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Row Spacing",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Through Hole"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Number of Pins",
+       "attribute_value_name": "20P"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_name_en": "Pin Structure",
+       "attribute_value_name": "2x10P"
+      },
+      {
+       "attribute_name_en": "Length of Mating Pin",
+       "attribute_value_name": "6mm"
+      },
+      {
+       "attribute_name_en": "Circluar Pins/Square Pins",
+       "attribute_value_name": "Square pin"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Pin Headers",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-55\u2103~+105\u2103 2 <span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>2.54mm</span> 20P 2x10P 3A 3mm 6mm Brass Gold <span class='lucene_highlight_class'>Pin</span> Header Through Hole \u63d2\u4ef6,P=<span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>Pin</span> Headers ROHS",
+     "componentModelHigh": "2541WV-<span class='lucene_highlight_class'>2x10P</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 6362263,
+     "componentLibraryType": "expand",
+     "stockCount": 1042,
+     "componentTypeEn": "Pin Headers",
+     "erpComponentName": "2x10P \u95f4\u8ddd:2.54mm \u65b9\u9488 \u5f2f\u63d2",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/pin-headers_cjt-changjiang-connectors-a2541wr-2x10p_C5454488.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.4779
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.3784
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.3344
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 399,
+       "productPrice": 0.2822
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 799,
+       "productPrice": 0.2577
+      },
+      {
+       "startNumber": 800,
+       "endNumber": -1,
+       "productPrice": 0.2431
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 800,
+       "endNumber": -1,
+       "productPrice": 0.2341
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 799,
+       "productPrice": 0.2483
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.3221
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.4604
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.3646
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 399,
+       "productPrice": 0.2719
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "b27176c0811c411e855e7b15d6cb39e8",
+     "canPresaleNumber": 1031,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "6362263-A2541WR2x10P/C5454488",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 400,
+     "shopCostPrice": 1.2158,
+     "preMinPurchaseNum": 24,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.4779,
+     "componentCode": "C5454488",
+     "componentBrandEn": "CJT(Changjiang Connectors)",
+     "componentModelEn": "A2541WR-2x10P",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585848223609065472",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2403291733_CJT-Changjiang-Connectors-A2541WR-2x10P_C5454488.pdf",
+     "dataManualFileAccessId": "8603152531997028352",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "CJT(Changjiang Connectors) A2541WR-2x10P",
+     "minImage": "",
+     "minImageAccessId": "8585848224501911552",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Push-Pull,P=2.54mm",
+     "describe": "-40\u2103~+105\u2103 2 2.54mm 2.54mm 2.54mm 20P 250V 2x10P 3A 6mm Black Brass Gold Right Angle Square pin Push-Pull,P=2.54mm Pin Headers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Voltage Rating (Max)",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Insulation Height",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Length of End Connection Pin",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Color",
+       "attribute_value_name": "Black"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Row Spacing",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Right Angle"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Number of Pins",
+       "attribute_value_name": "20P"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_name_en": "Pin Structure",
+       "attribute_value_name": "2x10P"
+      },
+      {
+       "attribute_name_en": "Length of Mating Pin",
+       "attribute_value_name": "6mm"
+      },
+      {
+       "attribute_name_en": "Circluar Pins/Square Pins",
+       "attribute_value_name": "Square pin"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Pin Headers",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+105\u2103 2 <span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>2.54mm</span> 20P 250V 2x10P 3A 6mm Black Brass Gold Right Angle Square <span class='lucene_highlight_class'>pin</span> Push-Pull,P=<span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>Pin</span> Headers ROHS",
+     "componentModelHigh": "A2541WR-<span class='lucene_highlight_class'>2x10P</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 55999877,
+     "componentLibraryType": "expand",
+     "stockCount": 1162,
+     "componentTypeEn": "Pin Headers",
+     "erpComponentName": "2x10P \u95f4\u8ddd:2.54mm \u65b9\u9488 \u76f4\u63d2",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1092
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.0868
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.0757
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 1999,
+       "productPrice": 0.0672
+      },
+      {
+       "startNumber": 2000,
+       "endNumber": 3999,
+       "productPrice": 0.0606
+      },
+      {
+       "startNumber": 4000,
+       "endNumber": -1,
+       "productPrice": 0.0573
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.073
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.0836
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1052
+      },
+      {
+       "startNumber": 4000,
+       "endNumber": -1,
+       "productPrice": 0.0552
+      },
+      {
+       "startNumber": 2000,
+       "endNumber": 3999,
+       "productPrice": 0.0583
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 1999,
+       "productPrice": 0.0648
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 1159,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "LXWCONN-254PZ_2x10PV/C53055677",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 500,
+     "shopCostPrice": 0.285,
+     "preMinPurchaseNum": 104,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.1092,
+     "componentCode": "C53055677",
+     "componentBrandEn": "LXWCONN",
+     "componentModelEn": "254PZ-2x10P-V",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8764819410849026048",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "8757198051683917824",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "LXWCONN 254PZ-2x10P-V",
+     "minImage": "",
+     "minImageAccessId": "8764819411930750976",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=2.54mm",
+     "describe": "1 2.54mm 2x10P Pin Header Through Hole \u63d2\u4ef6,P=2.54mm Pin Headers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Insulation Height",
+       "attribute_value_name": "2.5mm"
+      },
+      {
+       "attribute_name_en": "Length of End Connection Pin",
+       "attribute_value_name": "3mm"
+      },
+      {
+       "attribute_name_en": "Color",
+       "attribute_value_name": "Black"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Row Spacing",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Through Hole"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Number of Pins",
+       "attribute_value_name": "20P"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Copper alloy"
+      },
+      {
+       "attribute_name_en": "Pin Structure",
+       "attribute_value_name": "2x10P"
+      },
+      {
+       "attribute_name_en": "Length of Mating Pin",
+       "attribute_value_name": "6mm"
+      },
+      {
+       "attribute_name_en": "Circluar Pins/Square Pins",
+       "attribute_value_name": "Square pin"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Pin Headers",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": "1 <span class='lucene_highlight_class'>2.54mm</span> 2x10P <span class='lucene_highlight_class'>Pin</span> Header Through Hole \u63d2\u4ef6,P=<span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>Pin</span> Headers ROHS",
+     "componentModelHigh": "254PZ-<span class='lucene_highlight_class'>2x10P</span>-V",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 238445,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Pin Headers",
+     "erpComponentName": "2x10P \u95f4\u8ddd:2.54mm \u65b9\u9488 \u5f2f\u63d2 \u3010\u6392\u9488\u3011",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/pin-headers_cjt-changjiang-connectors-a2541wr-2x10p_C239341.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.429
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.3344
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.2936
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.2431
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2202
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2072
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.4133
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.3221
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.2829
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.2341
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2122
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.1996
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "b27176c0811c411e855e7b15d6cb39e8",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "238445-A2541WR2x10P/C239341",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1000,
+     "shopCostPrice": 1.155,
+     "preMinPurchaseNum": 27,
+     "minPurchaseNum": 27,
+     "initialPrice": 0.3344,
+     "componentCode": "C239341",
+     "componentBrandEn": "CJT(Changjiang Connectors)",
+     "componentModelEn": "A2541WR-2x10P",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583080528400011264",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_CJT-Changjiang-Connectors-A2541WR-2x10P_C239341.pdf",
+     "dataManualFileAccessId": "8588889990684692480",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "CJT(Changjiang Connectors) A2541WR-2x10P",
+     "minImage": "",
+     "minImageAccessId": "8583080529281626112",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Push-Pull,P=2.54mm",
+     "describe": "-40\u2103~+105\u2103 2 2.54mm 2.54mm 2.54mm 20P 250V 2x10P 3A 6mm Black Brass Gold Pin Header Right Angle \u5f2f\u63d2,P=2.54mm Pin Headers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Voltage Rating (Max)",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Insulation Height",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Length of End Connection Pin",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Color",
+       "attribute_value_name": "Black"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Row Spacing",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Right Angle"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Number of Pins",
+       "attribute_value_name": "20P"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_name_en": "Pin Structure",
+       "attribute_value_name": "2x10P"
+      },
+      {
+       "attribute_name_en": "Length of Mating Pin",
+       "attribute_value_name": "6mm"
+      },
+      {
+       "attribute_name_en": "Circluar Pins/Square Pins",
+       "attribute_value_name": "Square pin"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Pin Headers",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+105\u2103 2 <span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>2.54mm</span> 20P 250V 2x10P 3A 6mm Black Brass Gold <span class='lucene_highlight_class'>Pin</span> Header Right Angle \u5f2f\u63d2,P=<span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>Pin</span> Headers ROHS",
+     "componentModelHigh": "A2541WR-<span class='lucene_highlight_class'>2x10P</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 3764219,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Pin Headers",
+     "erpComponentName": "2x10P \u95f4\u8ddd:2.54mm \u65b9\u9488 \u5f2f\u63d2",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/pin-headers_cjt-changjiang-connectors-a2541wr-2x10p_C3202442.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.4551
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.3605
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.3197
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.2692
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2235
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2104
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2027
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.308
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.4384
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2153
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.2593
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.3473
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "b27176c0811c411e855e7b15d6cb39e8",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "3764219-A2541WR2x10P/C3202442",
+     "leastPatchNumber": 5,
+     "lossNumber": 5,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 500,
+     "shopCostPrice": 1.155,
+     "preMinPurchaseNum": 26,
+     "minPurchaseNum": 26,
+     "initialPrice": 0.3605,
+     "componentCode": "C3202442",
+     "componentBrandEn": "CJT(Changjiang Connectors)",
+     "componentModelEn": "A2541WR-2x10P",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585532565298565120",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2206271801_CJT-Changjiang-Connectors-A2541WR-2x10P_C3202442.pdf",
+     "dataManualFileAccessId": "8603043606009688064",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "CJT(Changjiang Connectors) A2541WR-2x10P",
+     "minImage": "",
+     "minImageAccessId": "8585532566242283520",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Push-Pull,P=2.54mm",
+     "describe": "-40\u2103~+105\u2103 2 2.54mm 2.54mm 2.54mm 20P 250V 2x10P 3A 6mm Black Brass Gold Pin Header Right Angle Push-Pull,P=2.54mm Pin Headers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Voltage Rating (Max)",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Insulation Height",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Length of End Connection Pin",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Color",
+       "attribute_value_name": "Black"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Row Spacing",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Right Angle"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Number of Pins",
+       "attribute_value_name": "20P"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_name_en": "Pin Structure",
+       "attribute_value_name": "2x10P"
+      },
+      {
+       "attribute_name_en": "Length of Mating Pin",
+       "attribute_value_name": "6mm"
+      },
+      {
+       "attribute_name_en": "Circluar Pins/Square Pins",
+       "attribute_value_name": "Pin Header"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Pin Headers",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+105\u2103 2 <span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>2.54mm</span> 20P 250V 2x10P 3A 6mm Black Brass Gold <span class='lucene_highlight_class'>Pin</span> Header Right Angle Push-Pull,P=<span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>Pin</span> Headers ROHS",
+     "componentModelHigh": "A2541WR-<span class='lucene_highlight_class'>2x10P</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 6094517,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Pin Headers",
+     "erpComponentName": "2x10P \u95f4\u8ddd:2.54mm \u65b9\u9488 \u5f2f\u63d2",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.4551
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.3605
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.3197
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 399,
+       "productPrice": 0.2692
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 799,
+       "productPrice": 0.2349
+      },
+      {
+       "startNumber": 800,
+       "endNumber": -1,
+       "productPrice": 0.2219
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 800,
+       "endNumber": -1,
+       "productPrice": 0.2137
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 799,
+       "productPrice": 0.2263
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.308
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.4384
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.3473
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 399,
+       "productPrice": 0.2593
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "6094517-A2541WR2x10P/C5333417",
+     "leastPatchNumber": 5,
+     "lossNumber": 5,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 400,
+     "shopCostPrice": 1.155,
+     "preMinPurchaseNum": 26,
+     "minPurchaseNum": 26,
+     "initialPrice": 0.3605,
+     "componentCode": "C5333417",
+     "componentBrandEn": "CJT(Changjiang Connectors)",
+     "componentModelEn": "A2541WR-2x10P",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585541492471975936",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "8603062044086591488",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "CJT(Changjiang Connectors) A2541WR-2x10P",
+     "minImage": "",
+     "minImageAccessId": "8585541493460750336",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Push-Pull,P=2.54mm",
+     "describe": "-40\u2103~+105\u2103 2 2.54mm 2.54mm 2.54mm 20P 250V 2x10P 3A 6mm Black Brass Gold Pin Header Right Angle Push-Pull,P=2.54mm Pin Headers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Voltage Rating (Max)",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Insulation Height",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Length of End Connection Pin",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Color",
+       "attribute_value_name": "Black"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Row Spacing",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Right Angle"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Number of Pins",
+       "attribute_value_name": "20P"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_name_en": "Pin Structure",
+       "attribute_value_name": "2x10P"
+      },
+      {
+       "attribute_name_en": "Length of Mating Pin",
+       "attribute_value_name": "6mm"
+      },
+      {
+       "attribute_name_en": "Circluar Pins/Square Pins",
+       "attribute_value_name": "Pin Header"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Pin Headers",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+105\u2103 2 <span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>2.54mm</span> 20P 250V 2x10P 3A 6mm Black Brass Gold <span class='lucene_highlight_class'>Pin</span> Header Right Angle Push-Pull,P=<span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>Pin</span> Headers ROHS",
+     "componentModelHigh": "A2541WR-<span class='lucene_highlight_class'>2x10P</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 44255759,
+     "componentLibraryType": "expand",
+     "stockCount": 10080,
+     "componentTypeEn": "Pin Headers",
+     "erpComponentName": "2x10P \u95f4\u8ddd:2.54mm \u65b9\u9488 \u76f4\u63d2",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1675
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1325
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1175
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.0989
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.0906
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.0855
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1276
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1132
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.0872
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1614
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.0824
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.0953
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 9685,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "hanxia-HX_PZ2_54_2x10PZZ/C42372518",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 500,
+     "shopCostPrice": 0.42564,
+     "preMinPurchaseNum": 69,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.1675,
+     "componentCode": "C42372518",
+     "componentBrandEn": "hanxia",
+     "componentModelEn": "HX PZ2.54-2x10P ZZ",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "hanxia HX PZ2.54-2x10P ZZ",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=2.54mm",
+     "describe": "-40\u2103~+105\u2103 1kV 2 2.54mm 2.54mm 2.5mm 20P 2x10P 3A 3mm 6mm Black Copper alloy Gold Pin Header Through Hole \u63d2\u4ef6,P=2.54mm Pin Headers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Voltage Rating (Max)",
+       "attribute_value_name": "1kV"
+      },
+      {
+       "attribute_name_en": "Insulation Height",
+       "attribute_value_name": "2.5mm"
+      },
+      {
+       "attribute_name_en": "Length of End Connection Pin",
+       "attribute_value_name": "3mm"
+      },
+      {
+       "attribute_name_en": "Color",
+       "attribute_value_name": "Black"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Row Spacing",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Through Hole"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Number of Pins",
+       "attribute_value_name": "20P"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Copper alloy"
+      },
+      {
+       "attribute_name_en": "Supplementary Features",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Pin Structure",
+       "attribute_value_name": "2x10P"
+      },
+      {
+       "attribute_name_en": "Length of Mating Pin",
+       "attribute_value_name": "6mm"
+      },
+      {
+       "attribute_name_en": "Circluar Pins/Square Pins",
+       "attribute_value_name": "Square pin"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Pin Headers",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+105\u2103 1kV 2 <span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>2.54mm</span> 2.5mm 20P 2x10P 3A 3mm 6mm Black Copper alloy Gold <span class='lucene_highlight_class'>Pin</span> Header Through Hole \u63d2\u4ef6,P=<span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>Pin</span> Headers ROHS",
+     "componentModelHigh": "HX PZ<span class='lucene_highlight_class'>2.54</span>-<span class='lucene_highlight_class'>2x10P</span> ZZ",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 58256483,
+     "componentLibraryType": "expand",
+     "stockCount": 223,
+     "componentTypeEn": "Pin Headers",
+     "erpComponentName": "\u63d2\u9488\u7ed3\u6784\uff1a2x10P \u95f4\u8ddd\uff1a2.54mm \u5b89\u88c5\u65b9\u5f0f\uff1a\u76f4\u63d2 \u6392\u6570\uff1a\u53cc\u6392 \u65b9\u9488",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1459
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.116
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1012
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.0899
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.0809
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.0765
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.0975
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1118
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1405
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.0866
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.0737
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.078
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 192,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "JXTCONN-JXT_PZ2_54_2X10PA1/C54803349",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 500,
+     "shopCostPrice": 0.381,
+     "preMinPurchaseNum": 78,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.1459,
+     "componentCode": "C54803349",
+     "componentBrandEn": "JXTCONN",
+     "componentModelEn": "JXT-PZ2.54-2X10P-A1",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8768595544832913408",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "JXTCONN JXT-PZ2.54-2X10P-A1",
+     "minImage": "",
+     "minImageAccessId": "8768595545898672128",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=2.54mm",
+     "describe": "-40\u2103~+105\u2103 1kV 2 2.54mm 2.54mm 2.5mm 20P 2x10P 3A 3mm 6mm Black Brass Gold Pin Header Through Hole \u63d2\u4ef6,P=2.54mm Pin Headers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating (Max)",
+       "attribute_value_name": "1kV"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Insulation Height",
+       "attribute_value_name": "2.5mm"
+      },
+      {
+       "attribute_name_en": "Length of End Connection Pin",
+       "attribute_value_name": "3mm"
+      },
+      {
+       "attribute_name_en": "Color",
+       "attribute_value_name": "Black"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Row Spacing",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Through Hole"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Number of Pins",
+       "attribute_value_name": "20P"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_name_en": "Pin Structure",
+       "attribute_value_name": "2x10P"
+      },
+      {
+       "attribute_name_en": "Length of Mating Pin",
+       "attribute_value_name": "6mm"
+      },
+      {
+       "attribute_name_en": "Circluar Pins/Square Pins",
+       "attribute_value_name": "Square pin"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Pin Headers",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+105\u2103 1kV 2 <span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>2.54mm</span> 2.5mm 20P 2x10P 3A 3mm 6mm Black Brass Gold <span class='lucene_highlight_class'>Pin</span> Header Through Hole \u63d2\u4ef6,P=<span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>Pin</span> Headers ROHS",
+     "componentModelHigh": "JXT-PZ<span class='lucene_highlight_class'>2.54</span>-<span class='lucene_highlight_class'>2X10P</span>-A1",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 58613889,
+     "componentLibraryType": "expand",
+     "stockCount": 375,
+     "componentTypeEn": "Pin Headers",
+     "erpComponentName": "2x10P \u95f4\u8ddd:2.54mm \u65b9\u9488 \u76f4\u63d2",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1459
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.116
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1012
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.0899
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.0809
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.0765
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.0975
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1118
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1405
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.0866
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.0737
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.078
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 368,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "BXCONN-AZ_PZ2_54_V11_210P/C55020599",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 500,
+     "shopCostPrice": 0.381,
+     "preMinPurchaseNum": 78,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.1459,
+     "componentCode": "C55020599",
+     "componentBrandEn": "BXCONN",
+     "componentModelEn": "AZ-PZ2.54-V11-2*10P",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8769238931088908288",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "BXCONN AZ-PZ2.54-V11-2*10P",
+     "minImage": "",
+     "minImageAccessId": "8769238932167385088",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=2.54mm",
+     "describe": "-40\u2103~+105\u2103 2 2.54mm 2.54mm 2.5mm 20P 2x10P 3A 3mm 6mm Black Brass Gold Pin Header Through Hole \u63d2\u4ef6,P=2.54mm Pin Headers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Insulation Height",
+       "attribute_value_name": "2.5mm"
+      },
+      {
+       "attribute_name_en": "Length of End Connection Pin",
+       "attribute_value_name": "3mm"
+      },
+      {
+       "attribute_name_en": "Color",
+       "attribute_value_name": "Black"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Row Spacing",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Through Hole"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Number of Pins",
+       "attribute_value_name": "20P"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_name_en": "Pin Structure",
+       "attribute_value_name": "2x10P"
+      },
+      {
+       "attribute_name_en": "Length of Mating Pin",
+       "attribute_value_name": "6mm"
+      },
+      {
+       "attribute_name_en": "Circluar Pins/Square Pins",
+       "attribute_value_name": "Square pin"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Pin Headers",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+105\u2103 2 <span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>2.54mm</span> 2.5mm 20P 2x10P 3A 3mm 6mm Black Brass Gold <span class='lucene_highlight_class'>Pin</span> Header Through Hole \u63d2\u4ef6,P=<span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>Pin</span> Headers ROHS",
+     "componentModelHigh": "AZ-PZ<span class='lucene_highlight_class'>2.54</span>-V11-<span class='lucene_highlight_class'>2*10P</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 43243362,
+     "componentLibraryType": "expand",
+     "stockCount": 4008,
+     "componentTypeEn": "Pin Headers",
+     "erpComponentName": "2x10P \u95f4\u8ddd:2.54mm \u65b9\u9488 \u5f2f\u63d2",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/pin-headers_hanxia-hx-pz2-54-2x10p-wc-a_C41417358.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1676
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 299,
+       "productPrice": 0.1326
+      },
+      {
+       "startNumber": 300,
+       "endNumber": 599,
+       "productPrice": 0.1176
+      },
+      {
+       "startNumber": 600,
+       "endNumber": 2399,
+       "productPrice": 0.0989
+      },
+      {
+       "startNumber": 2400,
+       "endNumber": 5099,
+       "productPrice": 0.0906
+      },
+      {
+       "startNumber": 5100,
+       "endNumber": -1,
+       "productPrice": 0.0855
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 50,
+       "endNumber": 299,
+       "productPrice": 0.1278
+      },
+      {
+       "startNumber": 300,
+       "endNumber": 599,
+       "productPrice": 0.1133
+      },
+      {
+       "startNumber": 600,
+       "endNumber": 2399,
+       "productPrice": 0.0953
+      },
+      {
+       "startNumber": 2400,
+       "endNumber": 5099,
+       "productPrice": 0.0872
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1615
+      },
+      {
+       "startNumber": 5100,
+       "endNumber": -1,
+       "productPrice": 0.0824
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "b27176c0811c411e855e7b15d6cb39e8",
+     "canPresaleNumber": 3938,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "hanxia-HX_PZ2_54_2x10P_WCA/C41417358",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 300,
+     "shopCostPrice": 0.42594,
+     "preMinPurchaseNum": 69,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.1676,
+     "componentCode": "C41417358",
+     "componentBrandEn": "hanxia",
+     "componentModelEn": "HX PZ2.54-2x10P WC-A",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585919772219887616",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "",
+     "dataManualFileAccessId": "8756270868047634432",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "hanxia HX PZ2.54-2x10P WC-A",
+     "minImage": "",
+     "minImageAccessId": "8585919773121392640",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Push-Pull,P=2.54mm",
+     "describe": "-40\u2103~+105\u2103 1kV 2 2.54mm 2.54mm 2.5mm 20P 2x10P 3A 3mm 6mm Black Brass Gold Right Angle Square pin Push-Pull,P=2.54mm Pin Headers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Voltage Rating (Max)",
+       "attribute_value_name": "1kV"
+      },
+      {
+       "attribute_name_en": "Insulation Height",
+       "attribute_value_name": "2.5mm"
+      },
+      {
+       "attribute_name_en": "Length of End Connection Pin",
+       "attribute_value_name": "3mm"
+      },
+      {
+       "attribute_name_en": "Color",
+       "attribute_value_name": "Black"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Row Spacing",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Right Angle"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Number of Pins",
+       "attribute_value_name": "20P"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_name_en": "Supplementary Features",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Pin Structure",
+       "attribute_value_name": "2x10P"
+      },
+      {
+       "attribute_name_en": "Length of Mating Pin",
+       "attribute_value_name": "6mm"
+      },
+      {
+       "attribute_name_en": "Circluar Pins/Square Pins",
+       "attribute_value_name": "Square pin"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Pin Headers",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+105\u2103 1kV 2 <span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>2.54mm</span> 2.5mm 20P 2x10P 3A 3mm 6mm Black Brass Gold Right Angle Square <span class='lucene_highlight_class'>pin</span> Push-Pull,P=<span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>Pin</span> Headers ROHS",
+     "componentModelHigh": "HX PZ<span class='lucene_highlight_class'>2.54</span>-<span class='lucene_highlight_class'>2x10P</span> WC-A",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 57951720,
+     "componentLibraryType": "expand",
+     "stockCount": 80,
+     "componentTypeEn": "Pin Headers",
+     "erpComponentName": "2x10P \u95f4\u8ddd:2.54mm \u65b9\u9488 \u5f2f\u63d2",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1747
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 299,
+       "productPrice": 0.1382
+      },
+      {
+       "startNumber": 300,
+       "endNumber": 599,
+       "productPrice": 0.1225
+      },
+      {
+       "startNumber": 600,
+       "endNumber": 2399,
+       "productPrice": 0.1031
+      },
+      {
+       "startNumber": 2400,
+       "endNumber": 5099,
+       "productPrice": 0.0943
+      },
+      {
+       "startNumber": 5100,
+       "endNumber": -1,
+       "productPrice": 0.0891
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 600,
+       "endNumber": 2399,
+       "productPrice": 0.0993
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1683
+      },
+      {
+       "startNumber": 2400,
+       "endNumber": 5099,
+       "productPrice": 0.0909
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 299,
+       "productPrice": 0.1331
+      },
+      {
+       "startNumber": 300,
+       "endNumber": 599,
+       "productPrice": 0.118
+      },
+      {
+       "startNumber": 5100,
+       "endNumber": -1,
+       "productPrice": 0.0858
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 80,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "HMTCONN-HMT_PZ254R_2X10PC30/C54570420",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 300,
+     "shopCostPrice": 0.444,
+     "preMinPurchaseNum": 66,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.1747,
+     "componentCode": "C54570420",
+     "componentBrandEn": "HMTCONN",
+     "componentModelEn": "HMT-PZ254R-2X10P-C30",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8767748657149808640",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "HMTCONN HMT-PZ254R-2X10P-C30",
+     "minImage": "",
+     "minImageAccessId": "8767748658299183104",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Push-Pull,P=2.54mm",
+     "describe": "\u5f2f\u63d2,P=2.54mm Pin Headers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Insulation Height",
+       "attribute_value_name": "5mm"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Number of Pins",
+       "attribute_value_name": "20P"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_name_en": "Pin Structure",
+       "attribute_value_name": "2x10P"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Row Spacing",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Right Angle"
+      },
+      {
+       "attribute_name_en": "Length of Mating Pin",
+       "attribute_value_name": "6mm"
+      },
+      {
+       "attribute_name_en": "Circluar Pins/Square Pins",
+       "attribute_value_name": "Square pin"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Pin Headers",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": "\u5f2f\u63d2,P=<span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>Pin</span> Headers ROHS",
+     "componentModelHigh": "HMT-PZ254R-<span class='lucene_highlight_class'>2X10P</span>-C30",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 43143800,
+     "componentLibraryType": "expand",
+     "stockCount": 647,
+     "componentTypeEn": "Pin Headers",
+     "erpComponentName": "2x10P \u95f4\u8ddd:2.54mm \u65b9\u9488 \u76f4\u63d2",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/pin-headers_hong-cheng-hc-pz254-11-5l-2x10pz_C41375951.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1036
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.0816
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.0707
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.0625
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.0558
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.0526
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.0602
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.0506
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.0998
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.0786
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.0681
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.0538
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "b27176c0811c411e855e7b15d6cb39e8",
+     "canPresaleNumber": 647,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "HongCheng-HC_PZ254_11_5L2x10PZ/C41375951",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 500,
+     "shopCostPrice": 0.28,
+     "preMinPurchaseNum": 111,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.1036,
+     "componentCode": "C41375951",
+     "componentBrandEn": "Hong Cheng",
+     "componentModelEn": "HC-PZ254-11.5L-2x10PZ",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585918016994992128",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2408301436_Hong-Cheng-HC-PZ254-11-5L-2x10PZ_C41375951.pdf",
+     "dataManualFileAccessId": "8564880271800623104",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Hong Cheng HC-PZ254-11.5L-2x10PZ",
+     "minImage": "",
+     "minImageAccessId": "8585918018068733952",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=2.54mm",
+     "describe": "-40\u2103~+105\u2103 2 2.54mm 2.54mm 2.5mm 20P 2x10P 3A 3mm 6mm Black Copper alloy Gold Square pin Through Hole Plugin,P=2.54mm Pin Headers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Voltage Rating (Max)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Insulation Height",
+       "attribute_value_name": "2.5mm"
+      },
+      {
+       "attribute_name_en": "Length of End Connection Pin",
+       "attribute_value_name": "3mm"
+      },
+      {
+       "attribute_name_en": "Color",
+       "attribute_value_name": "Black"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Row Spacing",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Through Hole"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Number of Pins",
+       "attribute_value_name": "20P"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Copper alloy"
+      },
+      {
+       "attribute_name_en": "Pin Structure",
+       "attribute_value_name": "2x10P"
+      },
+      {
+       "attribute_name_en": "Length of Mating Pin",
+       "attribute_value_name": "6mm"
+      },
+      {
+       "attribute_name_en": "Circluar Pins/Square Pins",
+       "attribute_value_name": "Square pin"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Pin Headers",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+105\u2103 2 <span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>2.54mm</span> 2.5mm 20P 2x10P 3A 3mm 6mm Black Copper alloy Gold Square <span class='lucene_highlight_class'>pin</span> Through Hole Plugin,P=<span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>Pin</span> Headers ROHS",
+     "componentModelHigh": "HC-PZ254-11.5L-<span class='lucene_highlight_class'>2x10P</span>Z",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 20923489,
+     "componentLibraryType": "expand",
+     "stockCount": 3,
+     "componentTypeEn": "Pin Headers",
+     "erpComponentName": "2x10P \u95f4\u8ddd:2.54mm \u65b9\u9488 \u76f4\u63d2",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/pin-headers_shenzhen-kinghelm-elec-kh-2-54ph180-2x10p-l11-5_C19630938.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2113
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1661
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 999,
+       "productPrice": 0.1467
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 1999,
+       "productPrice": 0.1225
+      },
+      {
+       "startNumber": 2000,
+       "endNumber": 4999,
+       "productPrice": 0.1118
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.1054
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 150,
+       "endNumber": 999,
+       "productPrice": 0.1413
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.1015
+      },
+      {
+       "startNumber": 2000,
+       "endNumber": 4999,
+       "productPrice": 0.1077
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2035
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.16
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 1999,
+       "productPrice": 0.118
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "b27176c0811c411e855e7b15d6cb39e8",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "20923489-KH_2_54PH180_2X10P_L115/C19630938",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1000,
+     "shopCostPrice": 0.54941,
+     "preMinPurchaseNum": 43,
+     "minPurchaseNum": 43,
+     "initialPrice": 0.2113,
+     "componentCode": "C19630938",
+     "componentBrandEn": "Shenzhen Kinghelm Elec",
+     "componentModelEn": "KH-2.54PH180-2X10P-L11.5",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585308876980174848",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2312071716_Shenzhen-Kinghelm-Elec-KH-2-54PH180-2X10P-L11-5_C19630938.pdf",
+     "dataManualFileAccessId": "8602755974197358592",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "kinghelm KH-2.54PH180-2X10P-L11.5",
+     "minImage": "",
+     "minImageAccessId": "8585308877886279680",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=2.54mm",
+     "describe": "-40\u2103~+105\u2103 2 2.54mm 2.54mm 2.5mm 20P 2x10P 3A 3mm 6mm Black Copper alloy Gold Square pin Through Hole Plugin,P=2.54mm Pin Headers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Insulation Height",
+       "attribute_value_name": "2.5mm"
+      },
+      {
+       "attribute_name_en": "Length of End Connection Pin",
+       "attribute_value_name": "3mm"
+      },
+      {
+       "attribute_name_en": "Color",
+       "attribute_value_name": "Black"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Row Spacing",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Through Hole"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Number of Pins",
+       "attribute_value_name": "20P"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Copper alloy"
+      },
+      {
+       "attribute_name_en": "Pin Structure",
+       "attribute_value_name": "2x10P"
+      },
+      {
+       "attribute_name_en": "Length of Mating Pin",
+       "attribute_value_name": "6mm"
+      },
+      {
+       "attribute_name_en": "Circluar Pins/Square Pins",
+       "attribute_value_name": "Square pin"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Pin Headers",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+105\u2103 2 <span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>2.54mm</span> 2.5mm 20P 2x10P 3A 3mm 6mm Black Copper alloy Gold Square <span class='lucene_highlight_class'>pin</span> Through Hole Plugin,P=<span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>Pin</span> Headers ROHS",
+     "componentModelHigh": "KH-<span class='lucene_highlight_class'>2.54</span>PH180-<span class='lucene_highlight_class'>2X10P</span>-L11.5",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 20923527,
+     "componentLibraryType": "expand",
+     "stockCount": 38,
+     "componentTypeEn": "Pin Headers",
+     "erpComponentName": "2x10P \u95f4\u8ddd:2.54mm \u65b9\u9488 \u7acb\u8d34",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/pin-headers_shenzhen-kinghelm-elec-kh-2-54ph-2x10p-l11-0-smt_C19630976.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1395
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1103
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.0956
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.0847
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.0759
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.0715
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.0731
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.0689
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.0816
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1344
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1063
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.0921
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "b27176c0811c411e855e7b15d6cb39e8",
+     "canPresaleNumber": 38,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "20923527-KH_2_54PH_2X10P_L11_0SMT/C19630976",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 500,
+     "shopCostPrice": 0.373,
+     "preMinPurchaseNum": 82,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.1395,
+     "componentCode": "C19630976",
+     "componentBrandEn": "Shenzhen Kinghelm Elec",
+     "componentModelEn": "KH-2.54PH-2X10P-L11.0-SMT",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585335216269635584",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2312071716_Shenzhen-Kinghelm-Elec-KH-2-54PH-2X10P-L11-0-SMT_C19630976.pdf",
+     "dataManualFileAccessId": "8602958878720483328",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "kinghelm KH-2.54PH-2X10P-L11.0-SMT",
+     "minImage": "",
+     "minImageAccessId": "8585335217242849280",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SMD,P=2.54mm",
+     "describe": "2 2.54mm 2.5mm 20P 2x10P SMD,P=2.54mm Pin Headers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Insulation Height",
+       "attribute_value_name": "2.5mm"
+      },
+      {
+       "attribute_name_en": "Number of Pins",
+       "attribute_value_name": "20P"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Pin Structure",
+       "attribute_value_name": "2x10P"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Pin Headers",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": "2 <span class='lucene_highlight_class'>2.54mm</span> 2.5mm 20P 2x10P SMD,P=<span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>Pin</span> Headers ROHS",
+     "componentModelHigh": "KH-<span class='lucene_highlight_class'>2.54</span>PH-<span class='lucene_highlight_class'>2X10P</span>-L11.0-SMT",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 58478924,
+     "componentLibraryType": "expand",
+     "stockCount": 252,
+     "componentTypeEn": "Pin Headers",
+     "erpComponentName": "2x10P \u95f4\u8ddd:2.54mm \u65b9\u9488 \u7acb\u8d34",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.0995
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 299,
+       "productPrice": 0.0974
+      },
+      {
+       "startNumber": 300,
+       "endNumber": 599,
+       "productPrice": 0.096
+      },
+      {
+       "startNumber": 600,
+       "endNumber": 609,
+       "productPrice": 0.0943
+      },
+      {
+       "startNumber": 610,
+       "endNumber": 619,
+       "productPrice": 0.0943
+      },
+      {
+       "startNumber": 620,
+       "endNumber": -1,
+       "productPrice": 0.0943
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 620,
+       "endNumber": -1,
+       "productPrice": 0.0909
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.0959
+      },
+      {
+       "startNumber": 610,
+       "endNumber": 619,
+       "productPrice": 0.0909
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 299,
+       "productPrice": 0.0938
+      },
+      {
+       "startNumber": 300,
+       "endNumber": 599,
+       "productPrice": 0.0924
+      },
+      {
+       "startNumber": 600,
+       "endNumber": 609,
+       "productPrice": 0.0909
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 245,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "LXWCONN-254PZ_2x10P_SMT_H2_5_PA60/C54930267",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 300,
+     "shopCostPrice": 0.47,
+     "preMinPurchaseNum": 93,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.0995,
+     "componentCode": "C54930267",
+     "componentBrandEn": "LXWCONN",
+     "componentModelEn": "254PZ-2x10P-SMT-H2.5-PA6.0",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8769676326540595200",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "LXWCONN 254PZ-2x10P-SMT-H2.5-PA6.0",
+     "minImage": "",
+     "minImageAccessId": "8769676327676710912",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SMD,P=2.54mm",
+     "describe": "SMD,P=2.54mm Pin Headers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Insulation Height",
+       "attribute_value_name": "2.5mm"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Number of Pins",
+       "attribute_value_name": "20P"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_name_en": "Pin Structure",
+       "attribute_value_name": "2x10P"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Row Spacing",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Surface Mount,Vertical"
+      },
+      {
+       "attribute_name_en": "Length of Mating Pin",
+       "attribute_value_name": "6mm"
+      },
+      {
+       "attribute_name_en": "Circluar Pins/Square Pins",
+       "attribute_value_name": "Square pin"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Pin Headers",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": "SMD,P=<span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>Pin</span> Headers ROHS",
+     "componentModelHigh": "254PZ-<span class='lucene_highlight_class'>2x10P</span>-SMT-H<span class='lucene_highlight_class'>2.5</span>-PA6.0",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 20923451,
+     "componentLibraryType": "expand",
+     "stockCount": 50,
+     "componentTypeEn": "Pin Headers",
+     "erpComponentName": "\u3010\u63d2\u4ef6\u30112x10P \u95f4\u8ddd:2.54mm \u65b9\u9488 \u5f2f\u63d2",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/pin-headers_shenzhen-kinghelm-elec-kh-2-54ph90-2x10p-l13-8-18-8_C19630900.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1723
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1353
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1194
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.0997
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.0909
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.0855
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.166
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.0824
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.096
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1303
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.0876
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1151
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "b27176c0811c411e855e7b15d6cb39e8",
+     "canPresaleNumber": 50,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "C19630900",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 500,
+     "shopCostPrice": 0.45,
+     "preMinPurchaseNum": 67,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.1723,
+     "componentCode": "C19630900",
+     "componentBrandEn": "Shenzhen Kinghelm Elec",
+     "componentModelEn": "KH-2.54PH90-2X10P-L13.8.18.8",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585223626073247744",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2312071716_Shenzhen-Kinghelm-Elec-KH-2-54PH90-2X10P-L13-8-18-8_C19630900.pdf",
+     "dataManualFileAccessId": "8590907975878471680",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "kinghelm KH-2.54PH90-2X10P-L13.8.18.8",
+     "minImage": "",
+     "minImageAccessId": "8585223627859480576",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Push-Pull,P=2.54mm",
+     "describe": "-40\u2103~+105\u2103 2 2.54mm 2.54mm 2.5mm 20P 2x10P 3A 6mm Black Brass Gold Pin Header Right Angle \u5f2f\u63d2,P=2.54mm Pin Headers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Insulation Height",
+       "attribute_value_name": "2.5mm"
+      },
+      {
+       "attribute_name_en": "Color",
+       "attribute_value_name": "Black"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Row Spacing",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Right Angle"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Number of Pins",
+       "attribute_value_name": "20P"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_name_en": "Pin Structure",
+       "attribute_value_name": "2x10P"
+      },
+      {
+       "attribute_name_en": "Length of Mating Pin",
+       "attribute_value_name": "6mm"
+      },
+      {
+       "attribute_name_en": "Circluar Pins/Square Pins",
+       "attribute_value_name": "Square pin"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Pin Headers",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+105\u2103 2 <span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>2.54mm</span> 2.5mm 20P 2x10P 3A 6mm Black Brass Gold <span class='lucene_highlight_class'>Pin</span> Header Right Angle \u5f2f\u63d2,P=<span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>Pin</span> Headers ROHS",
+     "componentModelHigh": "KH-<span class='lucene_highlight_class'>2.54</span>PH90-<span class='lucene_highlight_class'>2X10P</span>-L13.8.18.8",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 59981471,
+     "componentLibraryType": "expand",
+     "stockCount": 988,
+     "componentTypeEn": "Pin Headers",
+     "erpComponentName": "2x10P \u95f4\u8ddd:2.54mm \u65b9\u9488 \u76f4\u63d2",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.4013
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.3181
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.2822
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.2365
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.217
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2056
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.198
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.2719
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.3865
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.2279
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.209
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.3064
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 988,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "C55829670",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 500,
+     "shopCostPrice": 1.017,
+     "preMinPurchaseNum": 29,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.4013,
+     "componentCode": "C55829670",
+     "componentBrandEn": "JMEconn",
+     "componentModelEn": "2.54x2.5 2x10P PA6.0 PC3.0 L11.6",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8787229994873569280",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "JMEconn 2.54x2.5 2x10P PA6.0 PC3.0 L11.6",
+     "minImage": "",
+     "minImageAccessId": "8787229995275952128",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=2.54mm",
+     "describe": "Plugin,P=2.54mm Pin Headers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Voltage Rating (Max)",
+       "attribute_value_name": "500V"
+      },
+      {
+       "attribute_name_en": "Color",
+       "attribute_value_name": "Black"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Number of Pins",
+       "attribute_value_name": "20P"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_name_en": "Pin Structure",
+       "attribute_value_name": "2x10P"
+      },
+      {
+       "attribute_name_en": "Mounting Type",
+       "attribute_value_name": "Through Hole"
+      },
+      {
+       "attribute_name_en": "Circluar Pins/Square Pins",
+       "attribute_value_name": "Square pin"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Pin Headers",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": "Plugin,P=<span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>Pin</span> Headers ROHS",
+     "componentModelHigh": "<span class='lucene_highlight_class'>2.54</span>x<span class='lucene_highlight_class'>2.5</span> <span class='lucene_highlight_class'>2x10P</span> PA6.0 PC3.0 L11.6",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 21057,
+     "componentLibraryType": "expand",
+     "stockCount": 12246,
+     "componentTypeEn": "IDC Connectors",
+     "erpComponentName": "\u4e09\u4ef6\u5957 2.54mm 2x10P \u6392\u6570:2 \u6bcf\u6392P\u6570:10\u3010ID\u3011",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/idc-connectors_boomele-boom-precision-elec-2-54-2-10p_C20346.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 59,
+       "productPrice": 0.148
+      },
+      {
+       "startNumber": 60,
+       "endNumber": 179,
+       "productPrice": 0.1183
+      },
+      {
+       "startNumber": 180,
+       "endNumber": 599,
+       "productPrice": 0.0997
+      },
+      {
+       "startNumber": 600,
+       "endNumber": 2999,
+       "productPrice": 0.0884
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.0796
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.0751
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 60,
+       "endNumber": 179,
+       "productPrice": 0.114
+      },
+      {
+       "startNumber": 600,
+       "endNumber": 2999,
+       "productPrice": 0.0852
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.0723
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.0767
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 59,
+       "productPrice": 0.1426
+      },
+      {
+       "startNumber": 180,
+       "endNumber": 599,
+       "productPrice": 0.096
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "a2c8016ae7594fee92e487eeebdf8c62",
+     "canPresaleNumber": 12220,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "C20346",
+     "leastPatchNumber": 5,
+     "lossNumber": 2,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 108,
+     "shopCostPrice": 0.37996,
+     "preMinPurchaseNum": 77,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.148,
+     "componentCode": "C20346",
+     "componentBrandEn": "BOOMELE(Boom Precision Elec)",
+     "componentModelEn": "2.54-2*10PWire Crimping Terminal",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583296554959065088",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_1810221914_BOOMELE-Boom-Precision-Elec-2-54-2-10P_C20346.pdf",
+     "dataManualFileAccessId": "8588895100037943296",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "BOOMELE(Boom Precision Elec) 2.54-2*10P\u538b\u7ebf\u5934",
+     "minImage": "",
+     "minImageAccessId": "8583296555868282880",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "P=2.54mm",
+     "describe": "10 2 2.54mm 2.54mm 2x10P Brass Free Hanging Gold Pressure fitting head (with reverse flap cover) P=2.54mm IDC Connectors ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Positions or Pins",
+       "attribute_value_name": "2x10P"
+      },
+      {
+       "attribute_name_en": "Voltage Rating (Max)",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Connector Type",
+       "attribute_value_name": "Pressure fitting head (with reverse flap cover)"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "1A"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Holder Type",
+       "attribute_value_name": "Free Hanging"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Row Spacing",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Number of PINs Per Row",
+       "attribute_value_name": "10"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "IDC Connectors",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": "10 2 <span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>2.54mm</span> 2x10P Brass Free Hanging Gold Pressure fitting head (with reverse flap cover) P=<span class='lucene_highlight_class'>2.54mm</span> IDC Connectors ROHS",
+     "componentModelHigh": "<span class='lucene_highlight_class'>2.54</span>-<span class='lucene_highlight_class'>2*10P</span>Wire Crim<span class='lucene_highlight_class'>pin</span>g Terminal",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 3806,
+     "componentLibraryType": "expand",
+     "stockCount": 64410,
+     "componentTypeEn": "IDC Connectors",
+     "erpComponentName": "2.54mm 2x10P \u6392\u6570:2 \u6bcf\u6392P\u6570:10 \u3010ID\u3011",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/idc-connectors_boomele-boom-precision-elec-2-54-2-10p_C3405.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1457
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1217
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1095
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.0782
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.0746
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.0721
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1404
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.0719
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.0695
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1173
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1055
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.0753
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "a2c8016ae7594fee92e487eeebdf8c62",
+     "canPresaleNumber": 62855,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "C3405",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 160,
+     "shopCostPrice": 0.34996,
+     "preMinPurchaseNum": 75,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.1457,
+     "componentCode": "C3405",
+     "componentBrandEn": "BOOMELE(Boom Precision Elec)",
+     "componentModelEn": "2.54-2*10P2.54 mm pitch 2\u00d75 pin IDC box header",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583056078771007488",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304111200_BOOMELE-Boom-Precision-Elec-2-54-2-10P_C3405.pdf",
+     "dataManualFileAccessId": "8588887091699073024",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "BOOMELE(Boom Precision Elec) 2.54-2*10P\u7b80\u725b",
+     "minImage": "",
+     "minImageAccessId": "8583056079618256896",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=2.54mm",
+     "describe": "-55\u2103~+105\u2103 10 2 2.54mm 2.54mm 2x10P 3A Black Brass Gold IDC Header Through Hole \u63d2\u4ef6,P=2.54mm IDC Connectors ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Positions or Pins",
+       "attribute_value_name": "2x10P"
+      },
+      {
+       "attribute_name_en": "Number of Rows",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Color",
+       "attribute_value_name": "Black"
+      },
+      {
+       "attribute_name_en": "Contact Plating",
+       "attribute_value_name": "Gold"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_name_en": "Connector Type",
+       "attribute_value_name": "IDC Header"
+      },
+      {
+       "attribute_name_en": "Contact Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Pitch",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Holder Type",
+       "attribute_value_name": "Through Hole"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.54mm</span>",
+       "attribute_name_en": "Row Spacing",
+       "attribute_value_name": "2.54mm"
+      },
+      {
+       "attribute_name_en": "Number of PINs Per Row",
+       "attribute_value_name": "10"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "IDC Connectors",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-55\u2103~+105\u2103 10 2 <span class='lucene_highlight_class'>2.54mm</span> <span class='lucene_highlight_class'>2.54mm</span> 2x10P 3A Black Brass Gold IDC Header Through Hole \u63d2\u4ef6,P=<span class='lucene_highlight_class'>2.54mm</span> IDC Connectors ROHS",
+     "componentModelHigh": "<span class='lucene_highlight_class'>2.54</span>-<span class='lucene_highlight_class'>2*10P</span><span class='lucene_highlight_class'>2.54</span> mm pitch 2\u00d75 <span class='lucene_highlight_class'>pin</span> IDC box header",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 20,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "2x10P 2.54mm pin header straight"
+ },
+ "message": null,
+ "_kw": "2x10P 2.54mm pin header straight",
+ "_fetched_utc": "2026-10-13T21:14:38Z"
+}

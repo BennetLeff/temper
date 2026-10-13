@@ -1,0 +1,1053 @@
+{
+ "assumptions": {},
+ "joint_calibration": {
+  "KS": 1.1537,
+  "KT": 1.2
+ },
+ "baseline_assembly_check": {
+  "mine": {
+   "5": {
+    "lines": 84,
+    "total": 203.23,
+    "per_board": 40.65,
+    "smd": 960.9999999999973,
+    "tht": 96.00000000000001
+   },
+   "500": {
+    "lines": 84,
+    "total": 1891.43,
+    "per_board": 3.78,
+    "smd": 960.9999999999973,
+    "tht": 96.00000000000001
+   }
+  },
+  "r2_dfm": {
+   "5": 203.23,
+   "500": 1891.43
+  }
+ },
+ "current_courtyard_mm2": 19039,
+ "current_density_vs_bbox": 0.346,
+ "d22_courtyard_mm2": 3304,
+ "S1_module": {
+  "courtyard_mm2": 6821,
+  "area_mm2": 18189,
+  "approx_side_mm": 135
+ },
+ "S1_freed_area_mm2_if_fully_reclaimed": 10165,
+ "S2A_dims": {
+  "drive_courtyard_mm2": 929,
+  "drive_area_mm2": 2722,
+  "approx_side_mm": 52,
+  "power_freed_mm2_if_reclaimed": 2685
+ },
+ "S2B_dims": {
+  "drive_courtyard_mm2": 3888,
+  "drive_area_mm2": 10620,
+  "approx_side_mm": 103,
+  "power_freed_mm2_if_reclaimed": 11237
+ },
+ "S2L_dims": {
+  "drive_courtyard_mm2": 465,
+  "drive_area_mm2": 1412,
+  "approx_side_mm": 38,
+  "power_freed_mm2_if_reclaimed": 1344
+ },
+ "fab_cases": {
+  "current": {
+   "main": {
+    "area_mm2": 55100,
+    "layers": 4,
+    "copper_oz": 2,
+    "fin_mult": [
+     1.0,
+     1.25,
+     1.5
+    ],
+    "usd_per_board": {
+     "low": {
+      "5": 4.47,
+      "500": 4.47
+     },
+     "mid": {
+      "5": 13.1,
+      "500": 6.03
+     },
+     "high": {
+      "5": 14.73,
+      "500": 7.66
+     }
+    }
+   }
+  },
+  "S1": {
+   "main_reclaim0": {
+    "area_mm2": 55100,
+    "layers": 4,
+    "copper_oz": 2,
+    "fin_mult": [
+     1.0,
+     1.25,
+     1.5
+    ],
+    "usd_per_board": {
+     "low": {
+      "5": 4.47,
+      "500": 4.47
+     },
+     "mid": {
+      "5": 13.1,
+      "500": 6.03
+     },
+     "high": {
+      "5": 14.73,
+      "500": 7.66
+     }
+    }
+   },
+   "main_reclaim100": {
+    "area_mm2": 44935,
+    "layers": 4,
+    "copper_oz": 2,
+    "fin_mult": [
+     1.0,
+     1.25,
+     1.5
+    ],
+    "usd_per_board": {
+     "low": {
+      "5": 3.65,
+      "500": 3.65
+     },
+     "mid": {
+      "5": 12.0,
+      "500": 4.93
+     },
+     "high": {
+      "5": 13.33,
+      "500": 6.26
+     }
+    }
+   },
+   "module": {
+    "area_mm2": 18189,
+    "layers": 2,
+    "copper_oz": 2,
+    "fin_mult": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "usd_per_board": {
+     "low": {
+      "5": 0.89,
+      "500": 0.89
+     },
+     "mid": {
+      "5": 8.08,
+      "500": 1.02
+     },
+     "high": {
+      "5": 8.14,
+      "500": 1.07
+     }
+    }
+   }
+  },
+  "S2A": {
+   "power_reclaim0": {
+    "area_mm2": 55100,
+    "layers": 4,
+    "copper_oz": 2,
+    "fin_mult": [
+     1.0,
+     1.25,
+     1.5
+    ],
+    "usd_per_board": {
+     "low": {
+      "5": 4.47,
+      "500": 4.47
+     },
+     "mid": {
+      "5": 13.1,
+      "500": 6.03
+     },
+     "high": {
+      "5": 14.73,
+      "500": 7.66
+     }
+    }
+   },
+   "power_reclaim100": {
+    "area_mm2": 52415,
+    "layers": 4,
+    "copper_oz": 2,
+    "fin_mult": [
+     1.0,
+     1.25,
+     1.5
+    ],
+    "usd_per_board": {
+     "low": {
+      "5": 4.26,
+      "500": 4.26
+     },
+     "mid": {
+      "5": 12.81,
+      "500": 5.74
+     },
+     "high": {
+      "5": 14.36,
+      "500": 7.29
+     }
+    }
+   },
+   "drive": {
+    "area_mm2": 2722,
+    "layers": 4,
+    "copper_oz": 1,
+    "fin_mult": [
+     1.0,
+     1.1,
+     1.25
+    ],
+    "usd_per_board": {
+     "low": {
+      "5": 0.19,
+      "500": 0.19
+     },
+     "mid": {
+      "5": 7.35,
+      "500": 0.28
+     },
+     "high": {
+      "5": 7.38,
+      "500": 0.31
+     }
+    }
+   }
+  },
+  "S2B": {
+   "power_reclaim0": {
+    "area_mm2": 55100,
+    "layers": 4,
+    "copper_oz": 2,
+    "fin_mult": [
+     1.0,
+     1.25,
+     1.5
+    ],
+    "usd_per_board": {
+     "low": {
+      "5": 4.47,
+      "500": 4.47
+     },
+     "mid": {
+      "5": 13.1,
+      "500": 6.03
+     },
+     "high": {
+      "5": 14.73,
+      "500": 7.66
+     }
+    }
+   },
+   "power_reclaim100": {
+    "area_mm2": 43863,
+    "layers": 4,
+    "copper_oz": 2,
+    "fin_mult": [
+     1.0,
+     1.25,
+     1.5
+    ],
+    "usd_per_board": {
+     "low": {
+      "5": 3.56,
+      "500": 3.56
+     },
+     "mid": {
+      "5": 11.88,
+      "500": 4.81
+     },
+     "high": {
+      "5": 13.18,
+      "500": 6.11
+     }
+    }
+   },
+   "drive": {
+    "area_mm2": 10620,
+    "layers": 4,
+    "copper_oz": 1,
+    "fin_mult": [
+     1.0,
+     1.1,
+     1.25
+    ],
+    "usd_per_board": {
+     "low": {
+      "5": 0.75,
+      "500": 0.75
+     },
+     "mid": {
+      "5": 7.96,
+      "500": 0.9
+     },
+     "high": {
+      "5": 8.08,
+      "500": 1.01
+     }
+    }
+   }
+  },
+  "S2L": {
+   "power_reclaim0": {
+    "area_mm2": 55100,
+    "layers": 4,
+    "copper_oz": 2,
+    "fin_mult": [
+     1.0,
+     1.25,
+     1.5
+    ],
+    "usd_per_board": {
+     "low": {
+      "5": 4.47,
+      "500": 4.47
+     },
+     "mid": {
+      "5": 13.1,
+      "500": 6.03
+     },
+     "high": {
+      "5": 14.73,
+      "500": 7.66
+     }
+    }
+   },
+   "power_reclaim100": {
+    "area_mm2": 53756,
+    "layers": 4,
+    "copper_oz": 2,
+    "fin_mult": [
+     1.0,
+     1.25,
+     1.5
+    ],
+    "usd_per_board": {
+     "low": {
+      "5": 4.36,
+      "500": 4.36
+     },
+     "mid": {
+      "5": 12.95,
+      "500": 5.88
+     },
+     "high": {
+      "5": 14.54,
+      "500": 7.47
+     }
+    }
+   },
+   "drive": {
+    "area_mm2": 1412,
+    "layers": 4,
+    "copper_oz": 1,
+    "fin_mult": [
+     1.0,
+     1.1,
+     1.25
+    ],
+    "usd_per_board": {
+     "low": {
+      "5": 0.1,
+      "500": 0.1
+     },
+     "mid": {
+      "5": 7.25,
+      "500": 0.18
+     },
+     "high": {
+      "5": 7.26,
+      "500": 0.2
+     }
+    }
+   }
+  }
+ },
+ "summary_per_board": {
+  "current": {
+   "5": {
+    "fab_low": 4.47,
+    "fab_mid": 13.1,
+    "fab_high": 14.73,
+    "asm_jlc": 40.65,
+    "parts_added": 0.0,
+    "labour_added": 0.0
+   },
+   "500": {
+    "fab_low": 4.47,
+    "fab_mid": 6.03,
+    "fab_high": 7.66,
+    "asm_jlc": 3.78,
+    "parts_added": 0.0,
+    "labour_added": 0.0
+   }
+  },
+  "S1": {
+   "5": {
+    "fab_reclaim0": {
+     "low": 5.359999999999999,
+     "mid": 21.18,
+     "high": 22.87
+    },
+    "fab_reclaim100": {
+     "low": 4.54,
+     "mid": 20.08,
+     "high": 21.47
+    },
+    "asm_jlc": 38.87,
+    "asm_jlc_second_order": 0.0,
+    "parts_added": 5.9,
+    "labour_added": 6.0,
+    "parts_rows": [
+     {
+      "name": "Phoenix 1711725 5.08 mm 2-pos terminal, 24 A / 400 V (J_in on inlet module; J1 stays as harness input)",
+      "code": "C89120",
+      "qty": 1,
+      "note": "JLC ext, 1986 pcs",
+      "price_override": null,
+      "src": null,
+      "unit": 1.0961,
+      "ext": 1.096
+     },
+     {
+      "name": "harness 2x 12 AWG UL1015 + PE 14 AWG, 300 mm, 5 ferrules, strain relief",
+      "code": null,
+      "qty": 1,
+      "note": "UNVERIFIED engineering allowance (no price source)",
+      "price_override": 3.0,
+      "src": null,
+      "unit": 3.0,
+      "ext": 3.0
+     },
+     {
+      "name": "PE ring lug + M4 screw/washer at module",
+      "code": null,
+      "qty": 1,
+      "note": "UNVERIFIED engineering allowance (no price source)",
+      "price_override": 0.6,
+      "src": null,
+      "unit": 0.6,
+      "ext": 0.6
+     },
+     {
+      "name": "4x M3 stand-offs + screws + cover fixings for module",
+      "code": null,
+      "qty": 1,
+      "note": "UNVERIFIED engineering allowance (no price source)",
+      "price_override": 1.2,
+      "src": null,
+      "unit": 1.2,
+      "ext": 1.2
+     }
+    ]
+   },
+   "500": {
+    "fab_reclaim0": {
+     "low": 5.359999999999999,
+     "mid": 7.050000000000001,
+     "high": 8.73
+    },
+    "fab_reclaim100": {
+     "low": 4.54,
+     "mid": 5.949999999999999,
+     "high": 7.33
+    },
+    "asm_jlc": 3.52,
+    "asm_jlc_second_order": 0.0,
+    "parts_added": 5.51,
+    "labour_added": 6.0,
+    "parts_rows": [
+     {
+      "name": "Phoenix 1711725 5.08 mm 2-pos terminal, 24 A / 400 V (J_in on inlet module; J1 stays as harness input)",
+      "code": "C89120",
+      "qty": 1,
+      "note": "JLC ext, 1986 pcs",
+      "price_override": null,
+      "src": null,
+      "unit": 0.7063,
+      "ext": 0.706
+     },
+     {
+      "name": "harness 2x 12 AWG UL1015 + PE 14 AWG, 300 mm, 5 ferrules, strain relief",
+      "code": null,
+      "qty": 1,
+      "note": "UNVERIFIED engineering allowance (no price source)",
+      "price_override": 3.0,
+      "src": null,
+      "unit": 3.0,
+      "ext": 3.0
+     },
+     {
+      "name": "PE ring lug + M4 screw/washer at module",
+      "code": null,
+      "qty": 1,
+      "note": "UNVERIFIED engineering allowance (no price source)",
+      "price_override": 0.6,
+      "src": null,
+      "unit": 0.6,
+      "ext": 0.6
+     },
+     {
+      "name": "4x M3 stand-offs + screws + cover fixings for module",
+      "code": null,
+      "qty": 1,
+      "note": "UNVERIFIED engineering allowance (no price source)",
+      "price_override": 1.2,
+      "src": null,
+      "unit": 1.2,
+      "ext": 1.2
+     }
+    ]
+   }
+  },
+  "S2A": {
+   "5": {
+    "fab_reclaim0": {
+     "low": 4.66,
+     "mid": 20.45,
+     "high": 22.11
+    },
+    "fab_reclaim100": {
+     "low": 4.45,
+     "mid": 20.16,
+     "high": 21.74
+    },
+    "asm_jlc": 55.53,
+    "asm_jlc_second_order": 21.33,
+    "parts_added": 1.87,
+    "labour_added": 3.0,
+    "parts_rows": [
+     {
+      "name": "2.54 mm 2x10 pin header HanElectricity 2541WV-2x10P (D board) - SELV signals",
+      "code": "C5383109",
+      "qty": 1,
+      "note": "JLC ext",
+      "price_override": null,
+      "src": null,
+      "unit": 0.0697,
+      "ext": 0.07
+     },
+     {
+      "name": "2.54 mm 2x10 female header HanElectricity 2541FV-2x10P (P board)",
+      "code": "C18722936",
+      "qty": 1,
+      "note": "JLC ext",
+      "price_override": null,
+      "src": null,
+      "unit": 0.1845,
+      "ext": 0.184
+     },
+     {
+      "name": "2.54 mm 2x5 pin header CJT A2541WV-2x5P (D) - HOT sense, >= 8 mm from J_SELV",
+      "code": "C225520",
+      "qty": 1,
+      "note": "JLC ext",
+      "price_override": null,
+      "src": null,
+      "unit": 0.1821,
+      "ext": 0.182
+     },
+     {
+      "name": "2.54 mm 2x5 female header CJT A2541HWV-2x5P (P)",
+      "code": "C239345",
+      "qty": 1,
+      "note": "JLC ext",
+      "price_override": null,
+      "src": null,
+      "unit": 0.2377,
+      "ext": 0.238
+     },
+     {
+      "name": "4x M3 stand-offs 11 mm + screws (stack, 8 mm HOT/SELV air gap)",
+      "code": null,
+      "qty": 1,
+      "note": "UNVERIFIED engineering allowance (no price source)",
+      "price_override": 1.2,
+      "src": null,
+      "unit": 1.2,
+      "ext": 1.2
+     }
+    ]
+   },
+   "500": {
+    "fab_reclaim0": {
+     "low": 4.66,
+     "mid": 6.3100000000000005,
+     "high": 7.97
+    },
+    "fab_reclaim100": {
+     "low": 4.45,
+     "mid": 6.0200000000000005,
+     "high": 7.6
+    },
+    "asm_jlc": 4.23,
+    "asm_jlc_second_order": 1.13,
+    "parts_added": 1.67,
+    "labour_added": 3.0,
+    "parts_rows": [
+     {
+      "name": "2.54 mm 2x10 pin header HanElectricity 2541WV-2x10P (D board) - SELV signals",
+      "code": "C5383109",
+      "qty": 1,
+      "note": "JLC ext",
+      "price_override": null,
+      "src": null,
+      "unit": 0.046,
+      "ext": 0.046
+     },
+     {
+      "name": "2.54 mm 2x10 female header HanElectricity 2541FV-2x10P (P board)",
+      "code": "C18722936",
+      "qty": 1,
+      "note": "JLC ext",
+      "price_override": null,
+      "src": null,
+      "unit": 0.1304,
+      "ext": 0.13
+     },
+     {
+      "name": "2.54 mm 2x5 pin header CJT A2541WV-2x5P (D) - HOT sense, >= 8 mm from J_SELV",
+      "code": "C225520",
+      "qty": 1,
+      "note": "JLC ext",
+      "price_override": null,
+      "src": null,
+      "unit": 0.1247,
+      "ext": 0.125
+     },
+     {
+      "name": "2.54 mm 2x5 female header CJT A2541HWV-2x5P (P)",
+      "code": "C239345",
+      "qty": 1,
+      "note": "JLC ext",
+      "price_override": null,
+      "src": null,
+      "unit": 0.1689,
+      "ext": 0.169
+     },
+     {
+      "name": "4x M3 stand-offs 11 mm + screws (stack, 8 mm HOT/SELV air gap)",
+      "code": null,
+      "qty": 1,
+      "note": "UNVERIFIED engineering allowance (no price source)",
+      "price_override": 1.2,
+      "src": null,
+      "unit": 1.2,
+      "ext": 1.2
+     }
+    ]
+   }
+  },
+  "S2B": {
+   "5": {
+    "fab_reclaim0": {
+     "low": 5.22,
+     "mid": 21.06,
+     "high": 22.810000000000002
+    },
+    "fab_reclaim100": {
+     "low": 4.3100000000000005,
+     "mid": 19.84,
+     "high": 21.259999999999998
+    },
+    "asm_jlc": 53.7,
+    "asm_jlc_second_order": 31.84,
+    "parts_added": 3.02,
+    "labour_added": 3.75,
+    "parts_rows": [
+     {
+      "name": "2.54 mm 2x20 pin header HanElectricity 2541WV-2x20P x2 (D)",
+      "code": "C25503140",
+      "qty": 2,
+      "note": "JLC ext",
+      "price_override": null,
+      "src": null,
+      "unit": 0.1375,
+      "ext": 0.275
+     },
+     {
+      "name": "2.54 mm 2x20 female header HanElectricity 2541FV-2x20P-B x2 (P)",
+      "code": "C25503128",
+      "qty": 2,
+      "note": "JLC ext",
+      "price_override": null,
+      "src": null,
+      "unit": 0.1374,
+      "ext": 0.275
+     },
+     {
+      "name": "2.54 mm 2x10 pin header 2541WV-2x10P (D) - SELV",
+      "code": "C5383109",
+      "qty": 1,
+      "note": "JLC ext",
+      "price_override": null,
+      "src": null,
+      "unit": 0.0697,
+      "ext": 0.07
+     },
+     {
+      "name": "2.54 mm 2x10 female header 2541FV-2x10P (P)",
+      "code": "C18722936",
+      "qty": 1,
+      "note": "JLC ext",
+      "price_override": null,
+      "src": null,
+      "unit": 0.1845,
+      "ext": 0.184
+     },
+     {
+      "name": "2.54 mm 2x5 pin header A2541WV-2x5P (D) - HOT sense",
+      "code": "C225520",
+      "qty": 1,
+      "note": "JLC ext",
+      "price_override": null,
+      "src": null,
+      "unit": 0.1821,
+      "ext": 0.182
+     },
+     {
+      "name": "2.54 mm 2x5 female header A2541HWV-2x5P (P)",
+      "code": "C239345",
+      "qty": 1,
+      "note": "JLC ext",
+      "price_override": null,
+      "src": null,
+      "unit": 0.2377,
+      "ext": 0.238
+     },
+     {
+      "name": "6x M3 stand-offs 11 mm + screws",
+      "code": null,
+      "qty": 1,
+      "note": "UNVERIFIED engineering allowance (no price source)",
+      "price_override": 1.8,
+      "src": null,
+      "unit": 1.8,
+      "ext": 1.8
+     }
+    ]
+   },
+   "500": {
+    "fab_reclaim0": {
+     "low": 5.22,
+     "mid": 6.930000000000001,
+     "high": 8.67
+    },
+    "fab_reclaim100": {
+     "low": 4.3100000000000005,
+     "mid": 5.71,
+     "high": 7.12
+    },
+    "asm_jlc": 4.21,
+    "asm_jlc_second_order": 2.25,
+    "parts_added": 2.6,
+    "labour_added": 3.75,
+    "parts_rows": [
+     {
+      "name": "2.54 mm 2x20 pin header HanElectricity 2541WV-2x20P x2 (D)",
+      "code": "C25503140",
+      "qty": 2,
+      "note": "JLC ext",
+      "price_override": null,
+      "src": null,
+      "unit": 0.0832,
+      "ext": 0.166
+     },
+     {
+      "name": "2.54 mm 2x20 female header HanElectricity 2541FV-2x20P-B x2 (P)",
+      "code": "C25503128",
+      "qty": 2,
+      "note": "JLC ext",
+      "price_override": null,
+      "src": null,
+      "unit": 0.0832,
+      "ext": 0.166
+     },
+     {
+      "name": "2.54 mm 2x10 pin header 2541WV-2x10P (D) - SELV",
+      "code": "C5383109",
+      "qty": 1,
+      "note": "JLC ext",
+      "price_override": null,
+      "src": null,
+      "unit": 0.046,
+      "ext": 0.046
+     },
+     {
+      "name": "2.54 mm 2x10 female header 2541FV-2x10P (P)",
+      "code": "C18722936",
+      "qty": 1,
+      "note": "JLC ext",
+      "price_override": null,
+      "src": null,
+      "unit": 0.1304,
+      "ext": 0.13
+     },
+     {
+      "name": "2.54 mm 2x5 pin header A2541WV-2x5P (D) - HOT sense",
+      "code": "C225520",
+      "qty": 1,
+      "note": "JLC ext",
+      "price_override": null,
+      "src": null,
+      "unit": 0.1247,
+      "ext": 0.125
+     },
+     {
+      "name": "2.54 mm 2x5 female header A2541HWV-2x5P (P)",
+      "code": "C239345",
+      "qty": 1,
+      "note": "JLC ext",
+      "price_override": null,
+      "src": null,
+      "unit": 0.1689,
+      "ext": 0.169
+     },
+     {
+      "name": "6x M3 stand-offs 11 mm + screws",
+      "code": null,
+      "qty": 1,
+      "note": "UNVERIFIED engineering allowance (no price source)",
+      "price_override": 1.8,
+      "src": null,
+      "unit": 1.8,
+      "ext": 1.8
+     }
+    ]
+   }
+  },
+  "S2L": {
+   "5": {
+    "fab_reclaim0": {
+     "low": 4.569999999999999,
+     "mid": 20.35,
+     "high": 21.990000000000002
+    },
+    "fab_reclaim100": {
+     "low": 4.46,
+     "mid": 20.2,
+     "high": 21.799999999999997
+    },
+    "asm_jlc": 54.01,
+    "asm_jlc_second_order": 15.92,
+    "parts_added": 1.45,
+    "labour_added": 2.25,
+    "parts_rows": [
+     {
+      "name": "2.54 mm 2x10 pin header 2541WV-2x10P (D)",
+      "code": "C5383109",
+      "qty": 1,
+      "note": "JLC ext",
+      "price_override": null,
+      "src": null,
+      "unit": 0.0697,
+      "ext": 0.07
+     },
+     {
+      "name": "2.54 mm 2x10 female header 2541FV-2x10P (P)",
+      "code": "C18722936",
+      "qty": 1,
+      "note": "JLC ext",
+      "price_override": null,
+      "src": null,
+      "unit": 0.1845,
+      "ext": 0.184
+     },
+     {
+      "name": "4x M3 stand-offs + screws",
+      "code": null,
+      "qty": 1,
+      "note": "UNVERIFIED engineering allowance (no price source)",
+      "price_override": 1.2,
+      "src": null,
+      "unit": 1.2,
+      "ext": 1.2
+     }
+    ]
+   },
+   "500": {
+    "fab_reclaim0": {
+     "low": 4.569999999999999,
+     "mid": 6.21,
+     "high": 7.86
+    },
+    "fab_reclaim100": {
+     "low": 4.46,
+     "mid": 6.06,
+     "high": 7.67
+    },
+    "asm_jlc": 4.22,
+    "asm_jlc_second_order": 0.87,
+    "parts_added": 1.38,
+    "labour_added": 2.25,
+    "parts_rows": [
+     {
+      "name": "2.54 mm 2x10 pin header 2541WV-2x10P (D)",
+      "code": "C5383109",
+      "qty": 1,
+      "note": "JLC ext",
+      "price_override": null,
+      "src": null,
+      "unit": 0.046,
+      "ext": 0.046
+     },
+     {
+      "name": "2.54 mm 2x10 female header 2541FV-2x10P (P)",
+      "code": "C18722936",
+      "qty": 1,
+      "note": "JLC ext",
+      "price_override": null,
+      "src": null,
+      "unit": 0.1304,
+      "ext": 0.13
+     },
+     {
+      "name": "4x M3 stand-offs + screws",
+      "code": null,
+      "qty": 1,
+      "note": "UNVERIFIED engineering allowance (no price source)",
+      "price_override": 1.2,
+      "src": null,
+      "unit": 1.2,
+      "ext": 1.2
+     }
+    ]
+   }
+  }
+ },
+ "delta_vs_current_per_board_usd": {
+  "S1": {
+   "5": {
+    "fab_reclaim0_low": 0.89,
+    "fab_reclaim0_mid": 8.08,
+    "fab_reclaim0_high": 8.14,
+    "fab_reclaim100_low": 0.07,
+    "fab_reclaim100_mid": 6.98,
+    "fab_reclaim100_high": 6.74,
+    "asm_jlc": -1.78,
+    "parts": 5.9,
+    "labour": 6.0,
+    "total_excl_fab": 10.12
+   },
+   "500": {
+    "fab_reclaim0_low": 0.89,
+    "fab_reclaim0_mid": 1.02,
+    "fab_reclaim0_high": 1.07,
+    "fab_reclaim100_low": 0.07,
+    "fab_reclaim100_mid": -0.08,
+    "fab_reclaim100_high": -0.33,
+    "asm_jlc": -0.26,
+    "parts": 5.51,
+    "labour": 6.0,
+    "total_excl_fab": 11.25
+   }
+  },
+  "S2A": {
+   "5": {
+    "fab_reclaim0_low": 0.19,
+    "fab_reclaim0_mid": 7.35,
+    "fab_reclaim0_high": 7.38,
+    "fab_reclaim100_low": -0.02,
+    "fab_reclaim100_mid": 7.06,
+    "fab_reclaim100_high": 7.01,
+    "asm_jlc": 14.88,
+    "parts": 1.87,
+    "labour": 3.0,
+    "total_excl_fab": 19.75
+   },
+   "500": {
+    "fab_reclaim0_low": 0.19,
+    "fab_reclaim0_mid": 0.28,
+    "fab_reclaim0_high": 0.31,
+    "fab_reclaim100_low": -0.02,
+    "fab_reclaim100_mid": -0.01,
+    "fab_reclaim100_high": -0.06,
+    "asm_jlc": 0.45,
+    "parts": 1.67,
+    "labour": 3.0,
+    "total_excl_fab": 5.12
+   }
+  },
+  "S2B": {
+   "5": {
+    "fab_reclaim0_low": 0.75,
+    "fab_reclaim0_mid": 7.96,
+    "fab_reclaim0_high": 8.08,
+    "fab_reclaim100_low": -0.16,
+    "fab_reclaim100_mid": 6.74,
+    "fab_reclaim100_high": 6.53,
+    "asm_jlc": 13.05,
+    "parts": 3.02,
+    "labour": 3.75,
+    "total_excl_fab": 19.82
+   },
+   "500": {
+    "fab_reclaim0_low": 0.75,
+    "fab_reclaim0_mid": 0.9,
+    "fab_reclaim0_high": 1.01,
+    "fab_reclaim100_low": -0.16,
+    "fab_reclaim100_mid": -0.32,
+    "fab_reclaim100_high": -0.54,
+    "asm_jlc": 0.43,
+    "parts": 2.6,
+    "labour": 3.75,
+    "total_excl_fab": 6.78
+   }
+  },
+  "S2L": {
+   "5": {
+    "fab_reclaim0_low": 0.1,
+    "fab_reclaim0_mid": 7.25,
+    "fab_reclaim0_high": 7.26,
+    "fab_reclaim100_low": -0.01,
+    "fab_reclaim100_mid": 7.1,
+    "fab_reclaim100_high": 7.07,
+    "asm_jlc": 13.36,
+    "parts": 1.45,
+    "labour": 2.25,
+    "total_excl_fab": 17.06
+   },
+   "500": {
+    "fab_reclaim0_low": 0.1,
+    "fab_reclaim0_mid": 0.18,
+    "fab_reclaim0_high": 0.2,
+    "fab_reclaim100_low": -0.01,
+    "fab_reclaim100_mid": 0.03,
+    "fab_reclaim100_high": 0.01,
+    "asm_jlc": 0.44,
+    "parts": 1.38,
+    "labour": 2.25,
+    "total_excl_fab": 4.07
+   }
+  }
+ },
+ "S1_vs_plan_usd_per_board": {
+  "formula": "module PCB fab + added parts - 15.00 carrier allowance (labour: plan also needs a harness, so not counted)",
+  "values": {
+   "5": {
+    "low": -8.21,
+    "mid": -1.02,
+    "high": -0.96
+   },
+   "500": {
+    "low": -8.6,
+    "mid": -8.47,
+    "high": -8.42
+   }
+  }
+ }
+}

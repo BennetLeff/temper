@@ -1,0 +1,29 @@
+{
+ "NOM_ESLY_nH": 14.999999999999998,
+ "NOM_LPE_nH": 0.0,
+ "baseline_nominal": {
+  "margin_dB": 10.479333840404962,
+  "band": "lo",
+  "cfg": "198V/pan_28A"
+ },
+ "ESLY_15nH": {
+  "margin_dB": 10.479333840404962,
+  "band": "lo",
+  "cfg": "198V/pan_28A"
+ },
+ "ESLY_45nH": {
+  "margin_dB": 10.479224607935038,
+  "band": "lo",
+  "cfg": "198V/pan_28A"
+ },
+ "ESLY_125nH_F11": {
+  "margin_dB": 10.47893334995355,
+  "band": "lo",
+  "cfg": "198V/pan_28A"
+ },
+ "ESLY_125nH_and_module_Y_ESL_x3": {
+  "margin_dB": 10.478845284598535,
+  "band": "lo",
+  "cfg": "198V/pan_28A"
+ }
+}

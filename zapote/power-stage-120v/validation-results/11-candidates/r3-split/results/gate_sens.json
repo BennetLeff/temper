@@ -1,0 +1,1370 @@
+[
+ {
+  "leg": "A",
+  "dL": 0.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 280,
+   "il": -20,
+   "dir": 0,
+   "dt_ns": 443,
+   "esl_nH": 10
+  },
+  "base_vds": 467.6117,
+  "base_off": -0.887212,
+  "status": "complete",
+  "vds_pk": 467.6117,
+  "off_V": -0.887212,
+  "vgs_abs": 14.99731
+ },
+ {
+  "leg": "A",
+  "dL": 3.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 280,
+   "il": -20,
+   "dir": 0,
+   "dt_ns": 443,
+   "esl_nH": 10
+  },
+  "base_vds": 467.6117,
+  "base_off": -0.887212,
+  "status": "complete",
+  "vds_pk": 464.8762,
+  "off_V": -0.897217,
+  "vgs_abs": 14.99723
+ },
+ {
+  "leg": "A",
+  "dL": 6.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 280,
+   "il": -20,
+   "dir": 0,
+   "dt_ns": 443,
+   "esl_nH": 10
+  },
+  "base_vds": 467.6117,
+  "base_off": -0.887212,
+  "status": "complete",
+  "vds_pk": 462.619,
+  "off_V": -0.9088335,
+  "vgs_abs": 14.99715
+ },
+ {
+  "leg": "A",
+  "dL": 10.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 280,
+   "il": -20,
+   "dir": 0,
+   "dt_ns": 443,
+   "esl_nH": 10
+  },
+  "base_vds": 467.6117,
+  "base_off": -0.887212,
+  "status": "complete",
+  "vds_pk": 460.2915,
+  "off_V": -0.9270003,
+  "vgs_abs": 14.99704
+ },
+ {
+  "leg": "A",
+  "dL": 20.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 280,
+   "il": -20,
+   "dir": 0,
+   "dt_ns": 443,
+   "esl_nH": 10
+  },
+  "base_vds": 467.6117,
+  "base_off": -0.887212,
+  "status": "complete",
+  "vds_pk": 456.9032,
+  "off_V": -0.983201,
+  "vgs_abs": 14.99676
+ },
+ {
+  "leg": "A",
+  "dL": 40.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 280,
+   "il": -20,
+   "dir": 0,
+   "dt_ns": 443,
+   "esl_nH": 10
+  },
+  "base_vds": 467.6117,
+  "base_off": -0.887212,
+  "status": "complete",
+  "vds_pk": 457.7076,
+  "off_V": -0.8319658,
+  "vgs_abs": 14.9962
+ },
+ {
+  "leg": "A",
+  "dL": 0.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 280,
+   "il": -20,
+   "dir": 0,
+   "dt_ns": 498,
+   "esl_nH": 10
+  },
+  "base_vds": 467.1433,
+  "base_off": -0.8495704,
+  "status": "complete",
+  "vds_pk": 467.1433,
+  "off_V": -0.8495704,
+  "vgs_abs": 14.99731
+ },
+ {
+  "leg": "A",
+  "dL": 3.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 280,
+   "il": -20,
+   "dir": 0,
+   "dt_ns": 498,
+   "esl_nH": 10
+  },
+  "base_vds": 467.1433,
+  "base_off": -0.8495704,
+  "status": "complete",
+  "vds_pk": 464.5653,
+  "off_V": -0.8590786,
+  "vgs_abs": 14.99723
+ },
+ {
+  "leg": "A",
+  "dL": 6.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 280,
+   "il": -20,
+   "dir": 0,
+   "dt_ns": 498,
+   "esl_nH": 10
+  },
+  "base_vds": 467.1433,
+  "base_off": -0.8495704,
+  "status": "complete",
+  "vds_pk": 462.3429,
+  "off_V": -0.8702939,
+  "vgs_abs": 14.99715
+ },
+ {
+  "leg": "A",
+  "dL": 10.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 280,
+   "il": -20,
+   "dir": 0,
+   "dt_ns": 498,
+   "esl_nH": 10
+  },
+  "base_vds": 467.1433,
+  "base_off": -0.8495704,
+  "status": "complete",
+  "vds_pk": 459.9087,
+  "off_V": -0.8877876,
+  "vgs_abs": 14.99704
+ },
+ {
+  "leg": "A",
+  "dL": 20.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 280,
+   "il": -20,
+   "dir": 0,
+   "dt_ns": 498,
+   "esl_nH": 10
+  },
+  "base_vds": 467.1433,
+  "base_off": -0.8495704,
+  "status": "complete",
+  "vds_pk": 456.7755,
+  "off_V": -0.9425614,
+  "vgs_abs": 14.99676
+ },
+ {
+  "leg": "A",
+  "dL": 40.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 280,
+   "il": -20,
+   "dir": 0,
+   "dt_ns": 498,
+   "esl_nH": 10
+  },
+  "base_vds": 467.1433,
+  "base_off": -0.8495704,
+  "status": "complete",
+  "vds_pk": 458.778,
+  "off_V": -0.7917159,
+  "vgs_abs": 14.9962
+ },
+ {
+  "leg": "A",
+  "dL": 0.0,
+  "case": {
+   "temp_C": 100,
+   "case": "S4",
+   "vbus": 280,
+   "il": -20,
+   "dir": 0,
+   "dt_ns": 391,
+   "esl_nH": 10
+  },
+  "base_vds": 466.8593,
+  "base_off": -0.9991115,
+  "status": "complete",
+  "vds_pk": 466.8593,
+  "off_V": -0.9991115,
+  "vgs_abs": 14.99753
+ },
+ {
+  "leg": "A",
+  "dL": 3.0,
+  "case": {
+   "temp_C": 100,
+   "case": "S4",
+   "vbus": 280,
+   "il": -20,
+   "dir": 0,
+   "dt_ns": 391,
+   "esl_nH": 10
+  },
+  "base_vds": 466.8593,
+  "base_off": -0.9991115,
+  "status": "complete",
+  "vds_pk": 464.6665,
+  "off_V": -1.008771,
+  "vgs_abs": 14.99745
+ },
+ {
+  "leg": "A",
+  "dL": 6.0,
+  "case": {
+   "temp_C": 100,
+   "case": "S4",
+   "vbus": 280,
+   "il": -20,
+   "dir": 0,
+   "dt_ns": 391,
+   "esl_nH": 10
+  },
+  "base_vds": 466.8593,
+  "base_off": -0.9991115,
+  "status": "complete",
+  "vds_pk": 462.7538,
+  "off_V": -1.020312,
+  "vgs_abs": 14.99736
+ },
+ {
+  "leg": "A",
+  "dL": 10.0,
+  "case": {
+   "temp_C": 100,
+   "case": "S4",
+   "vbus": 280,
+   "il": -20,
+   "dir": 0,
+   "dt_ns": 391,
+   "esl_nH": 10
+  },
+  "base_vds": 466.8593,
+  "base_off": -0.9991115,
+  "status": "complete",
+  "vds_pk": 460.702,
+  "off_V": -1.038357,
+  "vgs_abs": 14.99725
+ },
+ {
+  "leg": "A",
+  "dL": 20.0,
+  "case": {
+   "temp_C": 100,
+   "case": "S4",
+   "vbus": 280,
+   "il": -20,
+   "dir": 0,
+   "dt_ns": 391,
+   "esl_nH": 10
+  },
+  "base_vds": 466.8593,
+  "base_off": -0.9991115,
+  "status": "complete",
+  "vds_pk": 457.8236,
+  "off_V": -1.085556,
+  "vgs_abs": 14.99696
+ },
+ {
+  "leg": "A",
+  "dL": 40.0,
+  "case": {
+   "temp_C": 100,
+   "case": "S4",
+   "vbus": 280,
+   "il": -20,
+   "dir": 0,
+   "dt_ns": 391,
+   "esl_nH": 10
+  },
+  "base_vds": 466.8593,
+  "base_off": -0.9991115,
+  "status": "complete",
+  "vds_pk": 459.1394,
+  "off_V": -0.934435,
+  "vgs_abs": 14.99638
+ },
+ {
+  "leg": "A",
+  "dL": 0.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 1,
+   "dt_ns": 443,
+   "esl_nH": 1.06
+  },
+  "base_vds": 441.7575,
+  "base_off": 0.693896,
+  "status": "complete",
+  "vds_pk": 441.7575,
+  "off_V": 0.693896,
+  "vgs_abs": 14.99432
+ },
+ {
+  "leg": "A",
+  "dL": 3.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 1,
+   "dt_ns": 443,
+   "esl_nH": 1.06
+  },
+  "base_vds": 441.7575,
+  "base_off": 0.693896,
+  "status": "complete",
+  "vds_pk": 429.0154,
+  "off_V": 0.4899271,
+  "vgs_abs": 14.99432
+ },
+ {
+  "leg": "A",
+  "dL": 6.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 1,
+   "dt_ns": 443,
+   "esl_nH": 1.06
+  },
+  "base_vds": 441.7575,
+  "base_off": 0.693896,
+  "status": "complete",
+  "vds_pk": 419.6252,
+  "off_V": 0.2894532,
+  "vgs_abs": 14.99431
+ },
+ {
+  "leg": "A",
+  "dL": 10.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 1,
+   "dt_ns": 443,
+   "esl_nH": 1.06
+  },
+  "base_vds": 441.7575,
+  "base_off": 0.693896,
+  "status": "complete",
+  "vds_pk": 410.3505,
+  "off_V": 0.03523043,
+  "vgs_abs": 14.99431
+ },
+ {
+  "leg": "A",
+  "dL": 20.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 1,
+   "dt_ns": 443,
+   "esl_nH": 1.06
+  },
+  "base_vds": 441.7575,
+  "base_off": 0.693896,
+  "status": "complete",
+  "vds_pk": 390.7672,
+  "off_V": -0.5034809,
+  "vgs_abs": 14.9943
+ },
+ {
+  "leg": "A",
+  "dL": 40.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 1,
+   "dt_ns": 443,
+   "esl_nH": 1.06
+  },
+  "base_vds": 441.7575,
+  "base_off": 0.693896,
+  "status": "complete",
+  "vds_pk": 382.4011,
+  "off_V": -0.8205254,
+  "vgs_abs": 14.99427
+ },
+ {
+  "leg": "A",
+  "dL": 0.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 1,
+   "dt_ns": 391,
+   "esl_nH": 1.06
+  },
+  "base_vds": 439.7961,
+  "base_off": 0.6804101,
+  "status": "complete",
+  "vds_pk": 439.7961,
+  "off_V": 0.6804101,
+  "vgs_abs": 14.99432
+ },
+ {
+  "leg": "A",
+  "dL": 3.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 1,
+   "dt_ns": 391,
+   "esl_nH": 1.06
+  },
+  "base_vds": 439.7961,
+  "base_off": 0.6804101,
+  "status": "complete",
+  "vds_pk": 427.0097,
+  "off_V": 0.4769907,
+  "vgs_abs": 14.99432
+ },
+ {
+  "leg": "A",
+  "dL": 6.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 1,
+   "dt_ns": 391,
+   "esl_nH": 1.06
+  },
+  "base_vds": 439.7961,
+  "base_off": 0.6804101,
+  "status": "complete",
+  "vds_pk": 418.5774,
+  "off_V": 0.2776859,
+  "vgs_abs": 14.99431
+ },
+ {
+  "leg": "A",
+  "dL": 10.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 1,
+   "dt_ns": 391,
+   "esl_nH": 1.06
+  },
+  "base_vds": 439.7961,
+  "base_off": 0.6804101,
+  "status": "complete",
+  "vds_pk": 409.2329,
+  "off_V": 0.0253659,
+  "vgs_abs": 14.99431
+ },
+ {
+  "leg": "A",
+  "dL": 20.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 1,
+   "dt_ns": 391,
+   "esl_nH": 1.06
+  },
+  "base_vds": 439.7961,
+  "base_off": 0.6804101,
+  "status": "complete",
+  "vds_pk": 389.9735,
+  "off_V": -0.5102945,
+  "vgs_abs": 14.9943
+ },
+ {
+  "leg": "A",
+  "dL": 40.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 1,
+   "dt_ns": 391,
+   "esl_nH": 1.06
+  },
+  "base_vds": 439.7961,
+  "base_off": 0.6804101,
+  "status": "complete",
+  "vds_pk": 382.4824,
+  "off_V": -0.8253778,
+  "vgs_abs": 14.99427
+ },
+ {
+  "leg": "A",
+  "dL": 0.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 1,
+   "dt_ns": 498,
+   "esl_nH": 1.06
+  },
+  "base_vds": 440.2419,
+  "base_off": 0.6758605,
+  "status": "complete",
+  "vds_pk": 440.2419,
+  "off_V": 0.6758605,
+  "vgs_abs": 14.99432
+ },
+ {
+  "leg": "A",
+  "dL": 3.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 1,
+   "dt_ns": 498,
+   "esl_nH": 1.06
+  },
+  "base_vds": 440.2419,
+  "base_off": 0.6758605,
+  "status": "complete",
+  "vds_pk": 427.1648,
+  "off_V": 0.4701884,
+  "vgs_abs": 14.99432
+ },
+ {
+  "leg": "A",
+  "dL": 6.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 1,
+   "dt_ns": 498,
+   "esl_nH": 1.06
+  },
+  "base_vds": 440.2419,
+  "base_off": 0.6758605,
+  "status": "complete",
+  "vds_pk": 418.8417,
+  "off_V": 0.2703944,
+  "vgs_abs": 14.99431
+ },
+ {
+  "leg": "A",
+  "dL": 10.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 1,
+   "dt_ns": 498,
+   "esl_nH": 1.06
+  },
+  "base_vds": 440.2419,
+  "base_off": 0.6758605,
+  "status": "complete",
+  "vds_pk": 409.3753,
+  "off_V": 0.01604149,
+  "vgs_abs": 14.99431
+ },
+ {
+  "leg": "A",
+  "dL": 20.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 1,
+   "dt_ns": 498,
+   "esl_nH": 1.06
+  },
+  "base_vds": 440.2419,
+  "base_off": 0.6758605,
+  "status": "complete",
+  "vds_pk": 389.8212,
+  "off_V": -0.5203339,
+  "vgs_abs": 14.9943
+ },
+ {
+  "leg": "A",
+  "dL": 40.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 1,
+   "dt_ns": 498,
+   "esl_nH": 1.06
+  },
+  "base_vds": 440.2419,
+  "base_off": 0.6758605,
+  "status": "complete",
+  "vds_pk": 382.1206,
+  "off_V": -0.8257857,
+  "vgs_abs": 14.99427
+ },
+ {
+  "leg": "B",
+  "dL": 0.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 1,
+   "dt_ns": 443,
+   "esl_nH": 10
+  },
+  "base_vds": 490.2464,
+  "base_off": 0.9527311,
+  "status": "complete",
+  "vds_pk": 490.2464,
+  "off_V": 0.9527311,
+  "vgs_abs": 14.99433
+ },
+ {
+  "leg": "B",
+  "dL": 3.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 1,
+   "dt_ns": 443,
+   "esl_nH": 10
+  },
+  "base_vds": 490.2464,
+  "base_off": 0.9527311,
+  "status": "complete",
+  "vds_pk": 484.7835,
+  "off_V": 0.8498927,
+  "vgs_abs": 14.99433
+ },
+ {
+  "leg": "B",
+  "dL": 6.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 1,
+   "dt_ns": 443,
+   "esl_nH": 10
+  },
+  "base_vds": 490.2464,
+  "base_off": 0.9527311,
+  "status": "complete",
+  "vds_pk": 478.3512,
+  "off_V": 0.7198621,
+  "vgs_abs": 14.99432
+ },
+ {
+  "leg": "B",
+  "dL": 10.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 1,
+   "dt_ns": 443,
+   "esl_nH": 10
+  },
+  "base_vds": 490.2464,
+  "base_off": 0.9527311,
+  "status": "complete",
+  "vds_pk": 468.0103,
+  "off_V": 0.5163579,
+  "vgs_abs": 14.99432
+ },
+ {
+  "leg": "B",
+  "dL": 20.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 1,
+   "dt_ns": 443,
+   "esl_nH": 10
+  },
+  "base_vds": 490.2464,
+  "base_off": 0.9527311,
+  "status": "complete",
+  "vds_pk": 440.175,
+  "off_V": -0.04850898,
+  "vgs_abs": 14.99431
+ },
+ {
+  "leg": "B",
+  "dL": 40.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 1,
+   "dt_ns": 443,
+   "esl_nH": 10
+  },
+  "base_vds": 490.2464,
+  "base_off": 0.9527311,
+  "status": "complete",
+  "vds_pk": 405.9519,
+  "off_V": -0.6507172,
+  "vgs_abs": 14.9943
+ },
+ {
+  "leg": "B",
+  "dL": 0.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 1,
+   "dt_ns": 391,
+   "esl_nH": 10
+  },
+  "base_vds": 489.2714,
+  "base_off": 0.940303,
+  "status": "complete",
+  "vds_pk": 489.2714,
+  "off_V": 0.940303,
+  "vgs_abs": 14.99433
+ },
+ {
+  "leg": "B",
+  "dL": 3.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 1,
+   "dt_ns": 391,
+   "esl_nH": 10
+  },
+  "base_vds": 489.2714,
+  "base_off": 0.940303,
+  "status": "complete",
+  "vds_pk": 484.7906,
+  "off_V": 0.8427718,
+  "vgs_abs": 14.99433
+ },
+ {
+  "leg": "B",
+  "dL": 6.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 1,
+   "dt_ns": 391,
+   "esl_nH": 10
+  },
+  "base_vds": 489.2714,
+  "base_off": 0.940303,
+  "status": "complete",
+  "vds_pk": 478.6502,
+  "off_V": 0.7162394,
+  "vgs_abs": 14.99432
+ },
+ {
+  "leg": "B",
+  "dL": 10.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 1,
+   "dt_ns": 391,
+   "esl_nH": 10
+  },
+  "base_vds": 489.2714,
+  "base_off": 0.940303,
+  "status": "complete",
+  "vds_pk": 468.7745,
+  "off_V": 0.5180481,
+  "vgs_abs": 14.99432
+ },
+ {
+  "leg": "B",
+  "dL": 20.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 1,
+   "dt_ns": 391,
+   "esl_nH": 10
+  },
+  "base_vds": 489.2714,
+  "base_off": 0.940303,
+  "status": "complete",
+  "vds_pk": 441.5789,
+  "off_V": -0.0382136,
+  "vgs_abs": 14.99431
+ },
+ {
+  "leg": "B",
+  "dL": 40.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 1,
+   "dt_ns": 391,
+   "esl_nH": 10
+  },
+  "base_vds": 489.2714,
+  "base_off": 0.940303,
+  "status": "complete",
+  "vds_pk": 407.1699,
+  "off_V": -0.6462954,
+  "vgs_abs": 14.9943
+ },
+ {
+  "leg": "B",
+  "dL": 0.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 1,
+   "dt_ns": 498,
+   "esl_nH": 10
+  },
+  "base_vds": 489.0117,
+  "base_off": 0.9465042,
+  "status": "complete",
+  "vds_pk": 489.0117,
+  "off_V": 0.9465042,
+  "vgs_abs": 14.99433
+ },
+ {
+  "leg": "B",
+  "dL": 3.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 1,
+   "dt_ns": 498,
+   "esl_nH": 10
+  },
+  "base_vds": 489.0117,
+  "base_off": 0.9465042,
+  "status": "complete",
+  "vds_pk": 483.6615,
+  "off_V": 0.8403648,
+  "vgs_abs": 14.99433
+ },
+ {
+  "leg": "B",
+  "dL": 6.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 1,
+   "dt_ns": 498,
+   "esl_nH": 10
+  },
+  "base_vds": 489.0117,
+  "base_off": 0.9465042,
+  "status": "complete",
+  "vds_pk": 477.2806,
+  "off_V": 0.7099932,
+  "vgs_abs": 14.99432
+ },
+ {
+  "leg": "B",
+  "dL": 10.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 1,
+   "dt_ns": 498,
+   "esl_nH": 10
+  },
+  "base_vds": 489.0117,
+  "base_off": 0.9465042,
+  "status": "complete",
+  "vds_pk": 466.6922,
+  "off_V": 0.5049798,
+  "vgs_abs": 14.99432
+ },
+ {
+  "leg": "B",
+  "dL": 20.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 1,
+   "dt_ns": 498,
+   "esl_nH": 10
+  },
+  "base_vds": 489.0117,
+  "base_off": 0.9465042,
+  "status": "complete",
+  "vds_pk": 439.2098,
+  "off_V": -0.05755569,
+  "vgs_abs": 14.99431
+ },
+ {
+  "leg": "B",
+  "dL": 40.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 1,
+   "dt_ns": 498,
+   "esl_nH": 10
+  },
+  "base_vds": 489.0117,
+  "base_off": 0.9465042,
+  "status": "complete",
+  "vds_pk": 406.2548,
+  "off_V": -0.6501136,
+  "vgs_abs": 14.9943
+ },
+ {
+  "leg": "B",
+  "dL": 0.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 0,
+   "dt_ns": 391,
+   "esl_nH": 1.06
+  },
+  "base_vds": 460.3005,
+  "base_off": 1.145469,
+  "status": "complete",
+  "vds_pk": 460.3005,
+  "off_V": 1.145469,
+  "vgs_abs": 15.00063
+ },
+ {
+  "leg": "B",
+  "dL": 3.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 0,
+   "dt_ns": 391,
+   "esl_nH": 1.06
+  },
+  "base_vds": 460.3005,
+  "base_off": 1.145469,
+  "status": "complete",
+  "vds_pk": 455.8022,
+  "off_V": 0.9896534,
+  "vgs_abs": 15.00068
+ },
+ {
+  "leg": "B",
+  "dL": 6.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 0,
+   "dt_ns": 391,
+   "esl_nH": 1.06
+  },
+  "base_vds": 460.3005,
+  "base_off": 1.145469,
+  "status": "complete",
+  "vds_pk": 450.1701,
+  "off_V": 0.815708,
+  "vgs_abs": 15.00074
+ },
+ {
+  "leg": "B",
+  "dL": 10.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 0,
+   "dt_ns": 391,
+   "esl_nH": 1.06
+  },
+  "base_vds": 460.3005,
+  "base_off": 1.145469,
+  "status": "complete",
+  "vds_pk": 442.5108,
+  "off_V": 0.5703923,
+  "vgs_abs": 15.00081
+ },
+ {
+  "leg": "B",
+  "dL": 20.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 0,
+   "dt_ns": 391,
+   "esl_nH": 1.06
+  },
+  "base_vds": 460.3005,
+  "base_off": 1.145469,
+  "status": "complete",
+  "vds_pk": 425.8396,
+  "off_V": -0.03172854,
+  "vgs_abs": 15.001
+ },
+ {
+  "leg": "B",
+  "dL": 40.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 0,
+   "dt_ns": 391,
+   "esl_nH": 1.06
+  },
+  "base_vds": 460.3005,
+  "base_off": 1.145469,
+  "status": "complete",
+  "vds_pk": 409.6837,
+  "off_V": -0.7490834,
+  "vgs_abs": 15.00138
+ },
+ {
+  "leg": "B",
+  "dL": 0.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 0,
+   "dt_ns": 391,
+   "esl_nH": 10
+  },
+  "base_vds": 452.0471,
+  "base_off": 1.118241,
+  "status": "complete",
+  "vds_pk": 452.0471,
+  "off_V": 1.118241,
+  "vgs_abs": 15.01745
+ },
+ {
+  "leg": "B",
+  "dL": 3.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 0,
+   "dt_ns": 391,
+   "esl_nH": 10
+  },
+  "base_vds": 452.0471,
+  "base_off": 1.118241,
+  "status": "complete",
+  "vds_pk": 445.0442,
+  "off_V": 0.9213782,
+  "vgs_abs": 15.0175
+ },
+ {
+  "leg": "B",
+  "dL": 6.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 0,
+   "dt_ns": 391,
+   "esl_nH": 10
+  },
+  "base_vds": 452.0471,
+  "base_off": 1.118241,
+  "status": "complete",
+  "vds_pk": 438.5447,
+  "off_V": 0.7231913,
+  "vgs_abs": 15.01755
+ },
+ {
+  "leg": "B",
+  "dL": 10.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 0,
+   "dt_ns": 391,
+   "esl_nH": 10
+  },
+  "base_vds": 452.0471,
+  "base_off": 1.118241,
+  "status": "complete",
+  "vds_pk": 431.351,
+  "off_V": 0.4672901,
+  "vgs_abs": 15.01761
+ },
+ {
+  "leg": "B",
+  "dL": 20.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 0,
+   "dt_ns": 391,
+   "esl_nH": 10
+  },
+  "base_vds": 452.0471,
+  "base_off": 1.118241,
+  "status": "complete",
+  "vds_pk": 419.1653,
+  "off_V": -0.09693569,
+  "vgs_abs": 15.01777
+ },
+ {
+  "leg": "B",
+  "dL": 40.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 0,
+   "dt_ns": 391,
+   "esl_nH": 10
+  },
+  "base_vds": 452.0471,
+  "base_off": 1.118241,
+  "status": "complete",
+  "vds_pk": 416.1381,
+  "off_V": -0.7689901,
+  "vgs_abs": 15.01807
+ },
+ {
+  "leg": "B",
+  "dL": 0.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 0,
+   "dt_ns": 443,
+   "esl_nH": 1.06
+  },
+  "base_vds": 459.8228,
+  "base_off": 1.10506,
+  "status": "complete",
+  "vds_pk": 459.8228,
+  "off_V": 1.10506,
+  "vgs_abs": 15.00063
+ },
+ {
+  "leg": "B",
+  "dL": 3.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 0,
+   "dt_ns": 443,
+   "esl_nH": 1.06
+  },
+  "base_vds": 459.8228,
+  "base_off": 1.10506,
+  "status": "complete",
+  "vds_pk": 455.2202,
+  "off_V": 0.9533498,
+  "vgs_abs": 15.00068
+ },
+ {
+  "leg": "B",
+  "dL": 6.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 0,
+   "dt_ns": 443,
+   "esl_nH": 1.06
+  },
+  "base_vds": 459.8228,
+  "base_off": 1.10506,
+  "status": "complete",
+  "vds_pk": 450.2616,
+  "off_V": 0.7846484,
+  "vgs_abs": 15.00074
+ },
+ {
+  "leg": "B",
+  "dL": 10.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 0,
+   "dt_ns": 443,
+   "esl_nH": 1.06
+  },
+  "base_vds": 459.8228,
+  "base_off": 1.10506,
+  "status": "complete",
+  "vds_pk": 442.8255,
+  "off_V": 0.5458107,
+  "vgs_abs": 15.00081
+ },
+ {
+  "leg": "B",
+  "dL": 20.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 0,
+   "dt_ns": 443,
+   "esl_nH": 1.06
+  },
+  "base_vds": 459.8228,
+  "base_off": 1.10506,
+  "status": "complete",
+  "vds_pk": 426.2497,
+  "off_V": -0.04685418,
+  "vgs_abs": 15.001
+ },
+ {
+  "leg": "B",
+  "dL": 40.0,
+  "case": {
+   "temp_C": 27,
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 0,
+   "dt_ns": 443,
+   "esl_nH": 1.06
+  },
+  "base_vds": 459.8228,
+  "base_off": 1.10506,
+  "status": "complete",
+  "vds_pk": 410.1365,
+  "off_V": -0.7564148,
+  "vgs_abs": 15.00138
+ }
+]

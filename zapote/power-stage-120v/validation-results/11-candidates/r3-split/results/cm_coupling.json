@@ -1,0 +1,41 @@
+{
+ "dvdt_V_per_ns": 95,
+ "assumptions": "island area per leg 10 cm2 (HS bias module + driver HS side + monitor HS side), stack gap 11 mm, adjacent-pin C 0.3 pF (UNVERIFIED)",
+ "A5cm2_gap8mm": {
+  "C_pF": 0.55,
+  "I_mA": 52.6
+ },
+ "A5cm2_gap11mm": {
+  "C_pF": 0.4,
+  "I_mA": 38.2
+ },
+ "A5cm2_gap15mm": {
+  "C_pF": 0.3,
+  "I_mA": 28.0
+ },
+ "A10cm2_gap8mm": {
+  "C_pF": 1.11,
+  "I_mA": 105.1
+ },
+ "A10cm2_gap11mm": {
+  "C_pF": 0.8,
+  "I_mA": 76.5
+ },
+ "A10cm2_gap15mm": {
+  "C_pF": 0.59,
+  "I_mA": 56.1
+ },
+ "A20cm2_gap8mm": {
+  "C_pF": 2.21,
+  "I_mA": 210.3
+ },
+ "A20cm2_gap11mm": {
+  "C_pF": 1.61,
+  "I_mA": 152.9
+ },
+ "A20cm2_gap15mm": {
+  "C_pF": 1.18,
+  "I_mA": 112.2
+ },
+ "adjacent_pin_0p3pF_I_mA": 28.5
+}
