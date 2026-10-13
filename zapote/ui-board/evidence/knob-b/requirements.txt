@@ -1,0 +1,7 @@
+# Python 3.12; versions as run for results.json (pip install -r requirements.txt into a venv outside the repo)
+numpy==2.5.4
+scipy==1.18.1
+matplotlib==3.11.2
+magpylib==5.2.3
+numba==0.68.0
+threadpoolctl==3.7.0
