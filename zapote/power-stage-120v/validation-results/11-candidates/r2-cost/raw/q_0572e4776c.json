@@ -1,0 +1,907 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 5,
+   "list": [
+    {
+     "componentId": 470496,
+     "componentLibraryType": "expand",
+     "stockCount": 60,
+     "componentTypeEn": "AC-DC Power Modules",
+     "erpComponentName": "20W\u8d85\u5c0f\u578bAC-DC\u6a21\u5757\u7535\u6e90 \u3010\u7535\u6e90\u3011",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/ac-dc-power-modules_hi-link-hlk-20m24_C465409.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 5.4606
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 39,
+       "productPrice": 4.7805
+      },
+      {
+       "startNumber": 40,
+       "endNumber": 79,
+       "productPrice": 3.9421
+      },
+      {
+       "startNumber": 80,
+       "endNumber": 479,
+       "productPrice": 3.5328
+      },
+      {
+       "startNumber": 480,
+       "endNumber": 999,
+       "productPrice": 3.3436
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 3.2587
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 5.2602
+      },
+      {
+       "startNumber": 480,
+       "endNumber": 999,
+       "productPrice": 3.2209
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 39,
+       "productPrice": 4.605
+      },
+      {
+       "startNumber": 40,
+       "endNumber": 79,
+       "productPrice": 3.7975
+      },
+      {
+       "startNumber": 80,
+       "endNumber": 479,
+       "productPrice": 3.4031
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 3.1392
+      }
+     ],
+     "firstSortAccessId": "9c3f0a7f2ff44e8eb678c5bd10002819",
+     "secondSortAccessId": "487a56db6e9f459f92762fcd583b450a",
+     "canPresaleNumber": 36,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "HILINK-HLK20M24/C465409",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 40,
+     "shopCostPrice": 15.55197,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 1,
+     "initialPrice": 5.4606,
+     "componentCode": "C465409",
+     "componentBrandEn": "HI-LINK",
+     "componentModelEn": "HLK-20M24",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583065381455585280",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2409141606_HI-LINK-HLK-20M24_C465409.pdf",
+     "dataManualFileAccessId": "8588888228824813568",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "HI-LINK HLK-20M24",
+     "minImage": "",
+     "minImageAccessId": "8583065382454640640",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "DIP,56x32mm",
+     "describe": "0.1W 2.5kV 20W 22.5mm 220mVp-p 24V 32mm 56mm 70V~350V 830mA 85% 85VAC~264VAC Short Circuit Protection\u3001Over Current Protection \u00b10.2% DIP,56x32mm AC-DC Power Modules ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Output Current(Max)",
+       "attribute_value_name": "830mA"
+      },
+      {
+       "attribute_name_en": "Output Voltage Accuracy",
+       "attribute_value_name": "\u00b10.2%"
+      },
+      {
+       "attribute_name_en": "Output Power",
+       "attribute_value_name": "20W"
+      },
+      {
+       "attribute_name_en": "Operating Temperature range",
+       "attribute_value_name": "-25\u2103~+60\u2103"
+      },
+      {
+       "attribute_name_en": "Conversion Type",
+       "attribute_value_name": "AC/DC-DC"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "2.5kV"
+      },
+      {
+       "attribute_name_en": "Number of Outputs",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Conversion Efficiency",
+       "attribute_value_name": "85%"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Plastic encapsulated type"
+      },
+      {
+       "attribute_name_en": "Length",
+       "attribute_value_name": "56mm"
+      },
+      {
+       "attribute_name_en": "Voltage - Input(DC)",
+       "attribute_value_name": "70V~350V"
+      },
+      {
+       "attribute_name_en": "Capacitive Load(Max)",
+       "attribute_value_name": "220uF"
+      },
+      {
+       "attribute_name_en": "Voltage - Input(AC)",
+       "attribute_value_name": "85VAC~264VAC"
+      },
+      {
+       "attribute_name_en": "Quiescent Dissipation",
+       "attribute_value_name": "0.1W"
+      },
+      {
+       "attribute_name_en": "Height",
+       "attribute_value_name": "22.5mm"
+      },
+      {
+       "attribute_name_en": "Switching Frequency",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Short Circuit Protection\u3001Over Current Protection\u3001Fault self-recovery"
+      },
+      {
+       "attribute_name_en": "Width",
+       "attribute_value_name": "32mm"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "24V"
+      },
+      {
+       "attribute_name_en": "Ripple Noise",
+       "attribute_value_name": "220mVp-p"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "AC-DC Power Modules",
+     "secondSortName": "Power Modules",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>HLK-20M24</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 23826176,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "New Arrivals",
+     "erpComponentName": "HLK-20M24",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0397
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0204
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0382
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0197
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "JLCPCBAssembly-HLK20M24/C9900094634",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 500,
+     "shopCostPrice": 0.1,
+     "preMinPurchaseNum": 443,
+     "minPurchaseNum": 443,
+     "initialPrice": 0.0204,
+     "componentCode": "C9900094634",
+     "componentBrandEn": "JLCPCB Assembly",
+     "componentModelEn": "HLK-20M24",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "JIALICHUANG SMT HLK-20M24",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "PW",
+     "describe": "PW New Arrivals ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "New Arrivals",
+     "secondSortName": "Others",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>HLK-20M24</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 20930069,
+     "componentLibraryType": "expand",
+     "stockCount": 6,
+     "componentTypeEn": "AC-DC Power Modules",
+     "erpComponentName": "20W\u8d85\u5c0f\u578b\u7cfb\u5217\u6a21\u5757\u7535\u6e90",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/ac-dc-power-modules_hi-link-hlk-20m24l_C19632446.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.4869
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 39,
+       "productPrice": 3.8524
+      },
+      {
+       "startNumber": 40,
+       "endNumber": 79,
+       "productPrice": 3.4757
+      },
+      {
+       "startNumber": 80,
+       "endNumber": 479,
+       "productPrice": 3.0956
+      },
+      {
+       "startNumber": 480,
+       "endNumber": 999,
+       "productPrice": 2.9195
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.8396
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 80,
+       "endNumber": 479,
+       "productPrice": 2.982
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.7354
+      },
+      {
+       "startNumber": 40,
+       "endNumber": 79,
+       "productPrice": 3.3481
+      },
+      {
+       "startNumber": 480,
+       "endNumber": 999,
+       "productPrice": 2.8124
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.3222
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 39,
+       "productPrice": 3.7111
+      }
+     ],
+     "firstSortAccessId": "9c3f0a7f2ff44e8eb678c5bd10002819",
+     "secondSortAccessId": "487a56db6e9f459f92762fcd583b450a",
+     "canPresaleNumber": 6,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "HILINK-HLK20M24L/C19632446",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 40,
+     "shopCostPrice": 14.5,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 1,
+     "initialPrice": 4.4869,
+     "componentCode": "C19632446",
+     "componentBrandEn": "HI-LINK",
+     "componentModelEn": "HLK-20M24L",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585331411880718336",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2403280005_HI-LINK-HLK-20M24L_C19632446.pdf",
+     "dataManualFileAccessId": "8602927687551754240",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "HI-LINK HLK-20M24L",
+     "minImage": "",
+     "minImageAccessId": "8585331412920229888",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "DIP,54x30mm",
+     "describe": "-25\u2103~+60\u2103 0.1W 1 120V~350V 20W 220mVp-p 24V 28mm 30mm 3kV 54mm 830mA 85% 85VAC~265VAC AC-DC Short Circuit Protection\u3001Over Current Protection \u00b10.2% DIP,54x30mm AC-DC Power Modules ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Output Current(Max)",
+       "attribute_value_name": "830mA"
+      },
+      {
+       "attribute_name_en": "Output Voltage Accuracy",
+       "attribute_value_name": "\u00b10.2%"
+      },
+      {
+       "attribute_name_en": "Output Power",
+       "attribute_value_name": "20W"
+      },
+      {
+       "attribute_name_en": "Operating Temperature range",
+       "attribute_value_name": "-25\u2103~+60\u2103"
+      },
+      {
+       "attribute_name_en": "Conversion Type",
+       "attribute_value_name": "AC-DC"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "3kV"
+      },
+      {
+       "attribute_name_en": "Number of Outputs",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Conversion Efficiency",
+       "attribute_value_name": "85%"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Length",
+       "attribute_value_name": "54mm"
+      },
+      {
+       "attribute_name_en": "Voltage - Input(DC)",
+       "attribute_value_name": "120V~350V"
+      },
+      {
+       "attribute_name_en": "Voltage - Input(AC)",
+       "attribute_value_name": "85VAC~265VAC"
+      },
+      {
+       "attribute_name_en": "Capacitive Load(Max)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Quiescent Dissipation",
+       "attribute_value_name": "0.1W"
+      },
+      {
+       "attribute_name_en": "Height",
+       "attribute_value_name": "28mm"
+      },
+      {
+       "attribute_name_en": "Switching Frequency",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Short Circuit Protection\u3001Over Current Protection\u3001Fault self-recovery"
+      },
+      {
+       "attribute_name_en": "Width",
+       "attribute_value_name": "30mm"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "24V"
+      },
+      {
+       "attribute_name_en": "Ripple Noise",
+       "attribute_value_name": "220mVp-p"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "AC-DC Power Modules",
+     "secondSortName": "Power Modules",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>HLK-20M24</span>L",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 55636905,
+     "componentLibraryType": "expand",
+     "stockCount": 79,
+     "componentTypeEn": "AC-DC Power Modules",
+     "erpComponentName": "\u8d85\u5c0f\u578b\u6a21\u5757\u7535\u6e90\uff0c\u5177\u5907\u5168\u7403\u901a\u7528\u8f93\u5165\u3001\u4f4e\u529f\u8017\u3001\u9ad8\u6548\u7387\u3001\u9ad8\u53ef\u9760\u6027\u53ca\u5b89\u5168\u9694\u79bb\u7b49\u7279\u6027",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 5.9743
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 39,
+       "productPrice": 5.1262
+      },
+      {
+       "startNumber": 40,
+       "endNumber": 79,
+       "productPrice": 4.6222
+      },
+      {
+       "startNumber": 80,
+       "endNumber": 479,
+       "productPrice": 4.1117
+      },
+      {
+       "startNumber": 480,
+       "endNumber": 999,
+       "productPrice": 3.8769
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 3.7709
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 80,
+       "endNumber": 479,
+       "productPrice": 3.9609
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 3.6325
+      },
+      {
+       "startNumber": 40,
+       "endNumber": 79,
+       "productPrice": 4.4526
+      },
+      {
+       "startNumber": 480,
+       "endNumber": 999,
+       "productPrice": 3.7346
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 5.7551
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 39,
+       "productPrice": 4.9381
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 78,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "HILINK-HLK20M24C/C52746108",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 40,
+     "shopCostPrice": 19.4,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 1,
+     "initialPrice": 5.9743,
+     "componentCode": "C52746108",
+     "componentBrandEn": "HI-LINK",
+     "componentModelEn": "HLK-20M24C",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8767231694430846976",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "8757935177341919232",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "HI-LINK HLK-20M24C",
+     "minImage": "",
+     "minImageAccessId": "8767231695915225088",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "\u63d2\u4ef6,57.5x33.5mm",
+     "describe": "-25\u2103~+60\u2103 0.1W 1 100mVp-p 120V~350V 20W 23.8mm 24V 33.5mm 3kV 57.5mm 830mA 85% 85VAC~265VAC AC/DC-DC Short Circuit Protection\u3001Over Current Protection\u3001Fault self-recovery \u63d2\u4ef6,57.5x33.5mm AC-DC Power Modules ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Output Current(Max)",
+       "attribute_value_name": "830mA"
+      },
+      {
+       "attribute_name_en": "Output Power",
+       "attribute_value_name": "20W"
+      },
+      {
+       "attribute_name_en": "Operating Temperature range",
+       "attribute_value_name": "-25\u2103~+60\u2103"
+      },
+      {
+       "attribute_name_en": "Conversion Type",
+       "attribute_value_name": "AC/DC-DC"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "3kV"
+      },
+      {
+       "attribute_name_en": "Number of Outputs",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Conversion Efficiency",
+       "attribute_value_name": "85%"
+      },
+      {
+       "attribute_name_en": "Length",
+       "attribute_value_name": "57.5mm"
+      },
+      {
+       "attribute_name_en": "Voltage - Input(DC)",
+       "attribute_value_name": "120V~350V"
+      },
+      {
+       "attribute_name_en": "Voltage - Input(AC)",
+       "attribute_value_name": "85VAC~265VAC"
+      },
+      {
+       "attribute_name_en": "Quiescent Dissipation",
+       "attribute_value_name": "0.1W"
+      },
+      {
+       "attribute_name_en": "Height",
+       "attribute_value_name": "23.8mm"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Short Circuit Protection\u3001Over Current Protection\u3001Fault self-recovery"
+      },
+      {
+       "attribute_name_en": "Width",
+       "attribute_value_name": "33.5mm"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "24V"
+      },
+      {
+       "attribute_name_en": "Ripple Noise",
+       "attribute_value_name": "100mVp-p"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "AC-DC Power Modules",
+     "secondSortName": "Power Modules",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>HLK-20M24</span>C",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 22732518,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "New Arrivals",
+     "erpComponentName": "HLK-20M24-20W",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0397
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0204
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0382
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0197
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "JLCPCBAssembly-HLK_20M2420W/C9900090347",
+     "leastPatchNumber": 2,
+     "lossNumber": 1,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 300,
+     "shopCostPrice": 0.1,
+     "preMinPurchaseNum": 300,
+     "minPurchaseNum": 300,
+     "initialPrice": 0.0204,
+     "componentCode": "C9900090347",
+     "componentBrandEn": "JLCPCB Assembly",
+     "componentModelEn": "HLK-20M24-20W",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "JIALICHUANG SMT HLK-20M24-20W",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "In-line",
+     "describe": "\u76f4\u63d2\u5f0f New Arrivals ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "New Arrivals",
+     "secondSortName": "Others",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>HLK-20M24</span><span class='lucene_highlight_class'>-20</span>W",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 20,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "HLK-20M24"
+ },
+ "message": null,
+ "_kw": "HLK-20M24",
+ "_fetched_utc": "2026-10-13T20:40:02Z"
+}

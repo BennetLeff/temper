@@ -1,0 +1,154 @@
+{
+ "rows": [
+  {
+   "C": "18.4 uF nominal",
+   "V0": 198.0,
+   "line": "no line L",
+   "vpk": 301.4
+  },
+  {
+   "C": "18.4 uF nominal",
+   "V0": 198.0,
+   "line": "250 uH/21 A",
+   "vpk": 327.2
+  },
+  {
+   "C": "18.4 uF nominal",
+   "V0": 198.0,
+   "line": "500 uH/30 A",
+   "vpk": 385.5
+  },
+  {
+   "C": "18.4 uF nominal",
+   "V0": 286.0,
+   "line": "no line L",
+   "vpk": 365.3
+  },
+  {
+   "C": "18.4 uF nominal",
+   "V0": 286.0,
+   "line": "250 uH/21 A",
+   "vpk": 382.3
+  },
+  {
+   "C": "18.4 uF nominal",
+   "V0": 286.0,
+   "line": "500 uH/30 A",
+   "vpk": 427.0
+  },
+  {
+   "C": "-10 % (K tol.)",
+   "V0": 198.0,
+   "line": "no line L",
+   "vpk": 310.8
+  },
+  {
+   "C": "-10 % (K tol.)",
+   "V0": 198.0,
+   "line": "250 uH/21 A",
+   "vpk": 337.2
+  },
+  {
+   "C": "-10 % (K tol.)",
+   "V0": 198.0,
+   "line": "500 uH/30 A",
+   "vpk": 397.7
+  },
+  {
+   "C": "-10 % (K tol.)",
+   "V0": 286.0,
+   "line": "no line L",
+   "vpk": 373.0
+  },
+  {
+   "C": "-10 % (K tol.)",
+   "V0": 286.0,
+   "line": "250 uH/21 A",
+   "vpk": 391.1
+  },
+  {
+   "C": "-10 % (K tol.)",
+   "V0": 286.0,
+   "line": "500 uH/30 A",
+   "vpk": 438.4
+  },
+  {
+   "C": "-19 % (tol. + 10 % ageing)",
+   "V0": 198.0,
+   "line": "no line L",
+   "vpk": 320.9
+  },
+  {
+   "C": "-19 % (tol. + 10 % ageing)",
+   "V0": 198.0,
+   "line": "250 uH/21 A",
+   "vpk": 348.0
+  },
+  {
+   "C": "-19 % (tol. + 10 % ageing)",
+   "V0": 198.0,
+   "line": "500 uH/30 A",
+   "vpk": 410.8
+  },
+  {
+   "C": "-19 % (tol. + 10 % ageing)",
+   "V0": 286.0,
+   "line": "no line L",
+   "vpk": 381.5
+  },
+  {
+   "C": "-19 % (tol. + 10 % ageing)",
+   "V0": 286.0,
+   "line": "250 uH/21 A",
+   "vpk": 400.7
+  },
+  {
+   "C": "-19 % (tol. + 10 % ageing)",
+   "V0": 286.0,
+   "line": "500 uH/30 A",
+   "vpk": 450.7
+  },
+  {
+   "C": "5.8 uF (pre-stage-14 basis)",
+   "V0": 198.0,
+   "line": "no line L",
+   "vpk": 450.6
+  },
+  {
+   "C": "5.8 uF (pre-stage-14 basis)",
+   "V0": 198.0,
+   "line": "250 uH/21 A",
+   "vpk": 485.7
+  },
+  {
+   "C": "5.8 uF (pre-stage-14 basis)",
+   "V0": 198.0,
+   "line": "500 uH/30 A",
+   "vpk": 574.0
+  },
+  {
+   "C": "5.8 uF (pre-stage-14 basis)",
+   "V0": 286.0,
+   "line": "no line L",
+   "vpk": 495.6
+  },
+  {
+   "C": "5.8 uF (pre-stage-14 basis)",
+   "V0": 286.0,
+   "line": "250 uH/21 A",
+   "vpk": 526.0
+  },
+  {
+   "C": "5.8 uF (pre-stage-14 basis)",
+   "V0": 286.0,
+   "line": "500 uH/30 A",
+   "vpk": 605.6
+  }
+ ],
+ "worst_stage14_no_clamp": 450.7,
+ "alt_d3_selfcheck": {
+  "18.4 uF nominal|198.0|500 uH/30 A": 387,
+  "18.4 uF nominal|286.0|no line L": 359,
+  "5.8 uF (pre-stage-14 basis)|198.0|500 uH/30 A": 578
+ }
+}

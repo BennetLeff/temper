@@ -1,0 +1,11 @@
+{"_comment": "Prices read by hand on 2026-10-13 from DigiKey search pages (WebFetch); only referenced in PROPOSALS.md, cost_model.py hard-codes the few it needs with the same numbers.",
+ "IPW65R018CFD7XKSA1": {"url": "https://www.digikey.com/en/products/result?keywords=IPW65R018CFD7XKSA1", "stock": 459, "breaks": {"1": 19.72, "30": 12.30267, "60": 11.4205, "120": 10.67925, "510": 10.17612}},
+ "IPW60R018CFD7XKSA1": {"url": "https://www.digikey.com/en/products/result?keywords=IPW60R018CFD7", "stock": 1200, "breaks": {"1": 20.64, "30": 12.86133, "60": 11.93667, "120": 11.15942, "510": 10.6122}},
+ "R24C2T25/R-R": {"url": "https://www.digikey.com/en/products/result?keywords=R24C2T25%2FR-R", "stock": 1185, "lead_wk": 6, "breaks": {"1": 8.4, "250": 7.37148, "750TR": 7.18188, "1500TR": 6.24003}},
+ "B32676G1905K000": {"url": "https://www.digikey.com/en/products/result?keywords=B32676G1905K000", "lead_wk": 27, "breaks": {"1": 10.53, "10": 8.015, "100": 6.698, "500": 6.17074, "1000": 6.00734}},
+ "74650074R": {"url": "https://www.digikey.com/en/products/result?keywords=74650074R", "stock": 32606, "lead_wk": 26, "breaks": {"1": 4.09, "10": 3.411, "100": 2.73, "750TR": 2.3294}},
+ "GBJ2510-F": {"url": "https://www.digikey.com/en/products/result?keywords=GBJ2510-F", "stock": 574, "breaks": {"1": 4.02, "15": 2.452, "30": 2.19133, "60": 1.97133, "105": 1.81933}},
+ "30KPA150CA": {"url": "https://www.digikey.com/en/products/result?keywords=30KPA150CA", "listings": {"Good-Ark": 9.82, "MDE": 18.5, "Littelfuse": 16.58303}},
+ "AK3-380C-Y": {"url": "https://www.digikey.com/en/products/result?keywords=AK3-380C-Y", "single_price": 48.88},
+ "SC-20-201": {"url": "https://www.digikey.com/en/products/result?keywords=SC-20-201", "single_price_qty_unspecified": 10.38}
+}

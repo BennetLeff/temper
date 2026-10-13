@@ -1,0 +1,585 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 3,
+   "list": [
+    {
+     "componentId": 4311697,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Voltage Regulators - Linear, Low Drop Out (LDO) Regulators",
+     "erpComponentName": "1.8V~30V 1A 36V",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/voltage-regulators-linear-low-drop-out-ldo-regulators_ablic-s-19214b00a-v5t2u7_C3744171.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.9623
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.9623
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.9623
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.3735
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.3605
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.354
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.341
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.3598
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.927
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.927
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.927
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.3473
+      }
+     ],
+     "firstSortAccessId": "a7ca7be1124b46818df6480f00698e25",
+     "secondSortAccessId": "0bc894ef3cfe4df6b5376bcb5a199f74",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "ABLIC-S_19214B00AV5T2U7/C3744171",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 4000,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 10,
+     "minPurchaseNum": 10,
+     "initialPrice": 0.9623,
+     "componentCode": "C3744171",
+     "componentBrandEn": "ABLIC",
+     "componentModelEn": "S-19214B00A-V5T2U7",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2401161342_ABLIC-S-19214B00A-V5T2U7_C3744171.pdf",
+     "dataManualFileAccessId": "8590419167045455872",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "ABLIC S-19214B00A-V5T2U7",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "TO-252-5S(A)",
+     "describe": "-40\u2103~+125\u2103@(Ta) 1 1.8V~30V 1A 320mV@(200mA) 36V 5uA 60dB@(100Hz) Adjustable Over Current Protection\u3001Thermal Shutdown Positive TO-252-5S(A) Voltage Regulators - Linear, Low Drop Out (LDO) Regulators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Power Supply Rejection Ratio (PSRR)",
+       "attribute_value_name": "60dB@(100Hz)"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103@(Ta)"
+      },
+      {
+       "attribute_name_en": "standby current",
+       "attribute_value_name": "5uA"
+      },
+      {
+       "attribute_name_en": "Noise",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>36V</span>",
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "36V"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Adjustable"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>1A</span>",
+       "attribute_name_en": "Output Current",
+       "attribute_value_name": "1A"
+      },
+      {
+       "attribute_name_en": "Output Configuration",
+       "attribute_value_name": "Positive"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Over Current Protection\u3001Thermal shutdown\u3001Enable control\u3001Output discharge"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "1.8V~30V"
+      },
+      {
+       "attribute_name_en": "Voltage Dropout",
+       "attribute_value_name": "320mV@(200mA)"
+      },
+      {
+       "attribute_name_en": "Number of Outputs",
+       "attribute_value_name": "1"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Voltage Regulators - Linear, Low Drop Out (LDO) Regulators",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+125\u2103@(Ta) 1 1.8V~30V <span class='lucene_highlight_class'>1A</span> 320mV@(200mA) <span class='lucene_highlight_class'>36V</span> 5uA 60dB@(100Hz) <span class='lucene_highlight_class'>Adjustable</span> Over Current Protection\u3001Thermal Shutdown Positive TO-252-5S(A) Voltage Regulators - Linear, Low Drop Out (LDO) Regulators ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4311837,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Voltage Regulators - Linear, Low Drop Out (LDO) Regulators",
+     "erpComponentName": "1.8V~30V 1A 36V",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/voltage-regulators-linear-low-drop-out-ldo-regulators_ablic-s-1214b00h-v5t2u7_C3744311.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.6166
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.6166
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.6166
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.2398
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2316
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2268
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2184
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.231
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.5939
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.5939
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.5939
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2232
+      }
+     ],
+     "firstSortAccessId": "a7ca7be1124b46818df6480f00698e25",
+     "secondSortAccessId": "0bc894ef3cfe4df6b5376bcb5a199f74",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "ABLIC-S_1214B00HV5T2U7/C3744311",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 4000,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 15,
+     "minPurchaseNum": 15,
+     "initialPrice": 0.6166,
+     "componentCode": "C3744311",
+     "componentBrandEn": "ABLIC",
+     "componentModelEn": "S-1214B00H-V5T2U7",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2410301801_ABLIC-S-1214B00H-V5T2U7_C3744311.pdf",
+     "dataManualFileAccessId": "8582662671002963968",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "ABLIC S-1214B00H-V5T2U7",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "TO-252-5S(A)",
+     "describe": "-40\u2103~+105\u2103@(Ta) 1 1.8V~30V 1A 1V@(200mA) 36V 5uA 60dB@(100Hz) Adjustable Over Current Protection\u3001Thermal Shutdown Positive TO-252-5S(A) Voltage Regulators - Linear, Low Drop Out (LDO) Regulators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Power Supply Rejection Ratio (PSRR)",
+       "attribute_value_name": "60dB@(100Hz)"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103@(Ta)"
+      },
+      {
+       "attribute_name_en": "standby current",
+       "attribute_value_name": "5uA"
+      },
+      {
+       "attribute_name_en": "Noise",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>36V</span>",
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "36V"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Adjustable"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>1A</span>",
+       "attribute_name_en": "Output Current",
+       "attribute_value_name": "1A"
+      },
+      {
+       "attribute_name_en": "Output Configuration",
+       "attribute_value_name": "Positive"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Over Current Protection\u3001Thermal shutdown\u3001Enable control\u3001Output discharge"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "1.8V~30V"
+      },
+      {
+       "attribute_name_en": "Voltage Dropout",
+       "attribute_value_name": "1V@(200mA)"
+      },
+      {
+       "attribute_name_en": "Number of Outputs",
+       "attribute_value_name": "1"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Voltage Regulators - Linear, Low Drop Out (LDO) Regulators",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+105\u2103@(Ta) 1 1.8V~30V <span class='lucene_highlight_class'>1A</span> 1V@(200mA) <span class='lucene_highlight_class'>36V</span> 5uA 60dB@(100Hz) <span class='lucene_highlight_class'>Adjustable</span> Over Current Protection\u3001Thermal Shutdown Positive TO-252-5S(A) Voltage Regulators - Linear, Low Drop Out (LDO) Regulators ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4318411,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Voltage Regulators - Linear, Low Drop Out (LDO) Regulators",
+     "erpComponentName": "2.5V~20V 1A 36V",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/voltage-regulators-linear-low-drop-out-ldo-regulators_nisshinbo-micro-devices-inc-r1518j001c-t1-ke_C3750884.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.6979
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 1.6979
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 1.6979
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.6573
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.6345
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.6231
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.6002
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.6332
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 1.6356
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 1.6356
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.6356
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.6112
+      }
+     ],
+     "firstSortAccessId": "a7ca7be1124b46818df6480f00698e25",
+     "secondSortAccessId": "0bc894ef3cfe4df6b5376bcb5a199f74",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "4318411-R1518J001C_T1KE/C3750884",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 6,
+     "minPurchaseNum": 6,
+     "initialPrice": 1.6979,
+     "componentCode": "C3750884",
+     "componentBrandEn": "Nisshinbo Micro Devices Inc.",
+     "componentModelEn": "R1518J001C-T1-KE",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2401161453_Nisshinbo-Micro-Devices-Inc--R1518J001C-T1-KE_C3750884.pdf",
+     "dataManualFileAccessId": "8590344671903195136",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Nisshinbo Micro Devices Inc. R1518J001C-T1-KE",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "TO-252-5-P2",
+     "describe": "-40\u2103~+125\u2103@(Ta) 1 1.8V@(1A) 18uA 1A 2.5V~20V 36V Adjustable Over Current Protection\u3001Over Temperature Protection\u3001Soft Start\u3001Short Circuit Protection Positive TO-252-5-P2 Voltage Regulators - Linear, Low Drop Out (LDO) Regulators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Power Supply Rejection Ratio (PSRR)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "standby current",
+       "attribute_value_name": "18uA"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103@(Ta)"
+      },
+      {
+       "attribute_name_en": "Noise",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>36V</span>",
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "36V"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Adjustable"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>1A</span>",
+       "attribute_name_en": "Output Current",
+       "attribute_value_name": "1A"
+      },
+      {
+       "attribute_name_en": "Output Configuration",
+       "attribute_value_name": "Positive"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Over Current Protection\u3001Short Circuit Protection\u3001Thermal shutdown\u3001Enable control\u3001Built-in soft-start"
+      },
+      {
+       "attribute_name_en": "Voltage Dropout",
+       "attribute_value_name": "1.8V@(1A)"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "2.5V~20V"
+      },
+      {
+       "attribute_name_en": "Number of Outputs",
+       "attribute_value_name": "1"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Voltage Regulators - Linear, Low Drop Out (LDO) Regulators",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+125\u2103@(Ta) 1 1.8V@(<span class='lucene_highlight_class'>1A</span>) 18uA <span class='lucene_highlight_class'>1A</span> 2.5V~20V <span class='lucene_highlight_class'>36V</span> <span class='lucene_highlight_class'>Adjustable</span> Over Current Protection\u3001Over Temperature Protection\u3001Soft Start\u3001Short Circuit Protection Positive TO-252-5-P2 Voltage Regulators - Linear, Low Drop Out (LDO) Regulators ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 20,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "adjustable LDO 1A 36V"
+ },
+ "message": null,
+ "_kw": "adjustable LDO 1A 36V",
+ "_fetched_utc": "2026-10-13T20:40:08Z"
+}

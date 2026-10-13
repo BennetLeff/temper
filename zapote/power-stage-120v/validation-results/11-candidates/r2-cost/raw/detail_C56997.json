@@ -1,0 +1,305 @@
+{
+ "code": 200,
+ "data": {
+  "componentCode": "C56997",
+  "componentBrandEn": "Microchip Tech",
+  "componentModelEn": "MCP3202-CI/SN",
+  "componentImageUrl": "",
+  "productBigImageAccessId": "8583051338632597504",
+  "productBigImageAccessIdUrl": null,
+  "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Microchip-Tech-MCP3202-CI-SN_C56997.pdf",
+  "dataManualFileAccessId": "8588886103868231680",
+  "dataManualFileAccessIdUrl": null,
+  "dataManualOfficialLink": "",
+  "componentName": "MICROCHIP MCP3202-CI/SN",
+  "minImage": "",
+  "minImageAccessId": "8583051339517190144",
+  "minImageAccessIdUrl": null,
+  "imageList": [
+   {
+    "productImage": null,
+    "productImageAccessId": "8583051339517190144",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8583051338632597504",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 1
+   },
+   {
+    "productImage": null,
+    "productImageAccessId": "8583051343095607296",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8583051342198296576",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 2
+   },
+   {
+    "productImage": null,
+    "productImageAccessId": "8583051346140942336",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8583051345326977024",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 3
+   }
+  ],
+  "manufacturerBlackFlag": null,
+  "componentNameEn": "MICROCHIP MCP3202-CI/SN",
+  "componentSpecificationEn": "SOP-8",
+  "describe": "-40\u2103~+85\u2103 100kHz 12 1LSB 2 2.7V~5.5V 500nA 72dB 900kHz~1.8MHz\u30011.8MHz SAR SPI Yes SOP-8 Analog to Digital Converters (ADC) ROHS",
+  "attributes": [
+   {
+    "attribute_name_en": "Clock Frequency",
+    "component_code": "C56997",
+    "attribute_value_name": "900kHz~1.8MHz\u30011.8MHz"
+   },
+   {
+    "attribute_name_en": "Operating Temperature",
+    "component_code": "C56997",
+    "attribute_value_name": "-40\u2103~+85\u2103"
+   },
+   {
+    "attribute_name_en": "Clock/Oscillator",
+    "component_code": "C56997",
+    "attribute_value_name": "External"
+   },
+   {
+    "attribute_name_en": "Programmable Gain",
+    "component_code": "C56997",
+    "attribute_value_name": "Not supported"
+   },
+   {
+    "attribute_name_en": "differential input",
+    "component_code": "C56997",
+    "attribute_value_name": "Yes"
+   },
+   {
+    "attribute_name_en": "Signal-to-Noise Ratio",
+    "component_code": "C56997",
+    "attribute_value_name": "72dB"
+   },
+   {
+    "attribute_name_en": "Integral non - linearity",
+    "component_code": "C56997",
+    "attribute_value_name": "1LSB"
+   },
+   {
+    "attribute_name_en": "Voltage - Supply",
+    "component_code": "C56997",
+    "attribute_value_name": "2.7V~5.5V"
+   },
+   {
+    "attribute_name_en": "Quiescent Current (Iq)",
+    "component_code": "C56997",
+    "attribute_value_name": "500nA"
+   },
+   {
+    "attribute_name_en": "ADC architecture",
+    "component_code": "C56997",
+    "attribute_value_name": "SAR"
+   },
+   {
+    "attribute_name_en": "Sampling Rate",
+    "component_code": "C56997",
+    "attribute_value_name": "100kHz"
+   },
+   {
+    "attribute_name_en": "Features",
+    "component_code": "C56997",
+    "attribute_value_name": "Multiplexers\u3001Bipolar input"
+   },
+   {
+    "attribute_name_en": "number of channels",
+    "component_code": "C56997",
+    "attribute_value_name": "2"
+   },
+   {
+    "attribute_name_en": "Voltage Reference",
+    "component_code": "C56997",
+    "attribute_value_name": "External"
+   },
+   {
+    "attribute_name_en": "Resolution (Bits)",
+    "component_code": "C56997",
+    "attribute_value_name": "12"
+   },
+   {
+    "attribute_name_en": "Interface",
+    "component_code": "C56997",
+    "attribute_value_name": "SPI"
+   }
+  ],
+  "rankScore": null,
+  "firstSortName": "Data Acquisition",
+  "secondSortName": "Analog to Digital Converters (ADC)",
+  "componentBrandHigh": null,
+  "remarkHigh": null,
+  "componentModelHigh": null,
+  "componentCodeHigh": null,
+  "componentSpecificationHigh": null,
+  "rohsFlag": 1,
+  "assemblyComponentFlag": false,
+  "rohsFileName": null,
+  "rohsFileId": null,
+  "reachFileName": null,
+  "reachFileId": null,
+  "lcscComponentId": 58027,
+  "componentDesignator": "U",
+  "componentSource": "shop",
+  "stockCount": 1085,
+  "overseasStockCount": 1085,
+  "prices": [
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C56997",
+    "startNumber": 1,
+    "endNumber": 9,
+    "productPrice": 2.0665,
+    "erpComponentPriceKeyId": 320105272,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C56997",
+    "startNumber": 10,
+    "endNumber": 29,
+    "productPrice": 1.7338,
+    "erpComponentPriceKeyId": 320105293,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C56997",
+    "startNumber": 30,
+    "endNumber": 99,
+    "productPrice": 1.525,
+    "erpComponentPriceKeyId": 320105294,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C56997",
+    "startNumber": 100,
+    "endNumber": 499,
+    "productPrice": 1.3114,
+    "erpComponentPriceKeyId": 320105295,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C56997",
+    "startNumber": 500,
+    "endNumber": 999,
+    "productPrice": 1.2151,
+    "erpComponentPriceKeyId": 320105317,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C56997",
+    "startNumber": 1000,
+    "endNumber": -1,
+    "productPrice": 1.1727,
+    "erpComponentPriceKeyId": 320105378,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   }
+  ],
+  "buyPrices": null,
+  "jlcPrices": null,
+  "encapsulationUnit": "PCS",
+  "encapsulationNumber": 100,
+  "componentTypeEn": null,
+  "xrayFlag": false,
+  "componentLibraryType": "expand",
+  "leastNumber": 1,
+  "leastNumberPrice": 0.3108,
+  "lcscGoodsUrl": "https://www.lcsc.com/product-detail/analog-to-digital-converters-adc_microchip-tech-mcp3202-ci-sn_C56997.html/?href=jlc-SMT/?href=jlc-SMT",
+  "erpComponentName": "2.7V\u53cc\u901a\u905312bit A/D\u8f6c\u6362\u5668\uff0c\u5e26SPI\u4e32\u884c\u63a5\u53e3",
+  "lossNumber": 0,
+  "secondTypeNameEn": "Analog to Digital Converters (ADC)",
+  "firstTypeNameEn": "Data Acquisition",
+  "secondTypeNameId": 3100,
+  "firstTypeNameId": 29,
+  "warehouseCode": "sz",
+  "warehouseName": "\u6df1\u5733",
+  "canPresaleNumber": 1023,
+  "minPresaleNumber": 0,
+  "theRatio": null,
+  "componentStatus": "yes",
+  "assemblyMode": "smtWeld",
+  "assemblyModeBatch": "smtWeld",
+  "assemblyProcess": "SMT",
+  "minPurchaseNum": 1,
+  "initialPrice": 2.0665,
+  "minPresalePrice": null,
+  "componentPresaleType": null,
+  "preMinPurchaseNum": 5,
+  "providerInfos": null,
+  "componentProductType": 0,
+  "isBuyComponent": "1",
+  "noBuyReason": null,
+  "replaceUrlSuffix": null,
+  "componentAlternativesCode": null,
+  "alternativesLcscComponentId": null,
+  "leastPatchNumber": 0,
+  "fixtureFlag": false,
+  "fullReelPrice": null,
+  "recentBuyNum": null,
+  "recentBuyUnitPrice": null,
+  "buyCustomerCode": null,
+  "eccnCode": "EAR99",
+  "allowPostFlag": true,
+  "overseasComponentCatalogBizKey": 385244381135388847,
+  "overseasComponentBrandBizKey": "385285309758181378",
+  "catalogBlackFlag": null,
+  "shopShowPriceFlag": true,
+  "shopShowForeignPriceFlag": true,
+  "shopRealPriceFlag": true,
+  "needAuditFlag": false,
+  "specialComponentFee": 0.0,
+  "orderInstructionEnglish": "",
+  "moistureSensitivityLevelEn": "MSL 1",
+  "hotFlag": null,
+  "storyGoods": false,
+  "matchedPartDetail": "Microchip Tech-40\u2103~+85\u2103 100kHz 12 1LSB 2 2.7V~5.5V 500nA 72dB 900kHz~1.8MHz\u30011.8MHz SAR SPI Yes SOP-8 Analog to Digital Converters (ADC) ROHS"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-13T20:35:44Z"
+}

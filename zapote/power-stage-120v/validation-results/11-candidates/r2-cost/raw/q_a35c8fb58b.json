@@ -1,0 +1,3186 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 19,
+   "list": [
+    {
+     "componentId": 3466,
+     "componentLibraryType": "expand",
+     "stockCount": 2922,
+     "componentTypeEn": "Bridge Rectifiers",
+     "erpComponentName": "KBPC5010",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/bridge-rectifiers_mdd-microdiode-semiconductor-kbpc5010_C3083.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 1.4157
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 299,
+       "productPrice": 1.008
+      },
+      {
+       "startNumber": 300,
+       "endNumber": 999,
+       "productPrice": 0.9542
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 4999,
+       "productPrice": 0.8938
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": 9999,
+       "productPrice": 0.8677
+      },
+      {
+       "startNumber": 10000,
+       "endNumber": -1,
+       "productPrice": 0.8547
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 300,
+       "endNumber": 999,
+       "productPrice": 0.9192
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": 9999,
+       "productPrice": 0.8359
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 4999,
+       "productPrice": 0.861
+      },
+      {
+       "startNumber": 10000,
+       "endNumber": -1,
+       "productPrice": 0.8233
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 1.3638
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 299,
+       "productPrice": 0.971
+      }
+     ],
+     "firstSortAccessId": "2dc9a747be3d4be78948b03a3063559a",
+     "secondSortAccessId": "a879a2687f1a4a6bb630092272b7d6bc",
+     "canPresaleNumber": 2919,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "MDD_Microdiode_Semiconductor-KBPC5010/C3083",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 50,
+     "shopCostPrice": 3.99754,
+     "preMinPurchaseNum": 7,
+     "minPurchaseNum": 1,
+     "initialPrice": 1.4157,
+     "componentCode": "C3083",
+     "componentBrandEn": "MDD(Microdiode Semiconductor)",
+     "componentModelEn": "KBPC5010",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583335276051091456",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2407101108_MDD-Microdiode-Semiconductor-KBPC5010_C3083.pdf",
+     "dataManualFileAccessId": "8588896971881267200",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "MDD(Microdiode Semiconductor) KBPC5010",
+     "minImage": "",
+     "minImageAccessId": "8583335276999544832",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "KBPC-25",
+     "describe": "-65\u2103~+150\u2103 1.1V@25A 10uA@1kV 1kV 400A 50A Single-Phase Rectifier KBPC-25 Bridge Rectifiers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "1.1V@25A"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Single-Phase Rectifier"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "400A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "1kV"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-65\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "50A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "10uA@1kV"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Bridge Rectifiers",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>KBPC5010</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 375015,
+     "componentLibraryType": "expand",
+     "stockCount": 16,
+     "componentTypeEn": "Bridge Rectifiers",
+     "erpComponentName": "KBPC5010",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/bridge-rectifiers_yangzhou-yangjie-elec-tech-kbpc5010_C394894.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.3782
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.158
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.0374
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.8237
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.7617
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.734
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.3277
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.1156
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.9993
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.7935
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.7338
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.7071
+      }
+     ],
+     "firstSortAccessId": "2dc9a747be3d4be78948b03a3063559a",
+     "secondSortAccessId": "a879a2687f1a4a6bb630092272b7d6bc",
+     "canPresaleNumber": 8,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Yangzhou_Yangjie_ElecTech-KBPC5010/C394894",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 50,
+     "shopCostPrice": 3.75,
+     "preMinPurchaseNum": 7,
+     "minPurchaseNum": 1,
+     "initialPrice": 1.3782,
+     "componentCode": "C394894",
+     "componentBrandEn": "Yangzhou Yangjie Elec Tech",
+     "componentModelEn": "KBPC5010",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583296626232872960",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2008051533_Yangzhou-Yangjie-Elec-Tech-KBPC5010_C394894.pdf",
+     "dataManualFileAccessId": "8588895133819408384",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "YANGJIE KBPC5010",
+     "minImage": "",
+     "minImageAccessId": "8583296627159273472",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "KBPC",
+     "describe": "-55\u2103~+150\u2103 1.1V@25A 10uA@1kV 1kV 500A 50A Single-Phase Rectifier KBPC Bridge Rectifiers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "1.1V@25A"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Single-Phase Rectifier"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "500A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "1kV"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-55\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "50A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "10uA@1kV"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Bridge Rectifiers",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>KBPC5010</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 543896,
+     "componentLibraryType": "expand",
+     "stockCount": 240,
+     "componentTypeEn": "Bridge Rectifiers",
+     "erpComponentName": "KBPC5010",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/bridge-rectifiers_goodwork-kbpc5010_C525769.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.1336
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 49,
+       "productPrice": 0.9297
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 99,
+       "productPrice": 0.7846
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.6834
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.6231
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.5921
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 10,
+       "endNumber": 49,
+       "productPrice": 0.8956
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.092
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.6002
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.6584
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 99,
+       "productPrice": 0.7558
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.5704
+      }
+     ],
+     "firstSortAccessId": "2dc9a747be3d4be78948b03a3063559a",
+     "secondSortAccessId": "a879a2687f1a4a6bb630092272b7d6bc",
+     "canPresaleNumber": 240,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "GOODWORK-KBPC5010/C525769",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 50,
+     "shopCostPrice": 2.9,
+     "preMinPurchaseNum": 8,
+     "minPurchaseNum": 1,
+     "initialPrice": 1.1336,
+     "componentCode": "C525769",
+     "componentBrandEn": "GOODWORK",
+     "componentModelEn": "KBPC5010",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583850012110934016",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2111161530_GOODWORK-KBPC5010_C525769.pdf",
+     "dataManualFileAccessId": "8590170101212348416",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "GOODWORK KBPC5010",
+     "minImage": "",
+     "minImageAccessId": "8583850013075759104",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "KBPC",
+     "describe": "-65\u2103~+150\u2103 1.2V@25A 10A@1kV 1kV 450A 50A Single-Phase Rectifier KBPC Bridge Rectifiers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "1.2V@25A"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Single-Phase Rectifier"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "450A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "1kV"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-65\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "50A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "10A@1kV"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Bridge Rectifiers",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>KBPC5010</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 3303765,
+     "componentLibraryType": "expand",
+     "stockCount": 168,
+     "componentTypeEn": "Bridge Rectifiers",
+     "erpComponentName": "KBPC5010",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/bridge-rectifiers_lge-kbpc5010_C2940149.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.269
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 49,
+       "productPrice": 1.0634
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 99,
+       "productPrice": 0.8694
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.7421
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.6851
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.6606
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.6599
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 49,
+       "productPrice": 1.0244
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.2224
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.6364
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.7149
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 99,
+       "productPrice": 0.8375
+      }
+     ],
+     "firstSortAccessId": "2dc9a747be3d4be78948b03a3063559a",
+     "secondSortAccessId": "a879a2687f1a4a6bb630092272b7d6bc",
+     "canPresaleNumber": 168,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "LGE-KBPC5010/C2940149",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 50,
+     "shopCostPrice": 3.5,
+     "preMinPurchaseNum": 8,
+     "minPurchaseNum": 1,
+     "initialPrice": 1.269,
+     "componentCode": "C2940149",
+     "componentBrandEn": "LGE",
+     "componentModelEn": "KBPC5010",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8584751427494793216",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2201121830_LGE-KBPC5010_C2940149.pdf",
+     "dataManualFileAccessId": "8590215490850492416",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "LGE KBPC5010",
+     "minImage": "",
+     "minImageAccessId": "8584751428385067008",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "KBPC",
+     "describe": "-55\u2103~+150\u2103 1.1V@25A 10uA 1kV 500A 50A Single-Phase Rectifier KBPC Bridge Rectifiers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "1.1V@25A"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Single-Phase Rectifier"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "500A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "1kV"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-55\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "50A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "10uA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Bridge Rectifiers",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>KBPC5010</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 6794897,
+     "componentLibraryType": "expand",
+     "stockCount": 118,
+     "componentTypeEn": "Bridge Rectifiers",
+     "erpComponentName": "KBPC5010",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.1434
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 49,
+       "productPrice": 0.9509
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 99,
+       "productPrice": 0.8449
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.7242
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.6704
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.6475
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.6458
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 99,
+       "productPrice": 0.8139
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.1014
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 49,
+       "productPrice": 0.916
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.6976
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.6238
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 110,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "JUXING-KBPC5010/C5861812",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 50,
+     "shopCostPrice": 3.289,
+     "preMinPurchaseNum": 8,
+     "minPurchaseNum": 1,
+     "initialPrice": 1.1434,
+     "componentCode": "C5861812",
+     "componentBrandEn": "JUXING",
+     "componentModelEn": "KBPC5010",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "JUXING KBPC5010",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "KBPC",
+     "describe": "-55\u2103~+150\u2103 1.1V@50A 1kV 500A 50A 5uA Single-Phase Rectifier KBPC Bridge Rectifiers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "1.1V@50A"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Single-Phase Rectifier"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "500A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "1kV"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-55\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "50A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "5uA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Bridge Rectifiers",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>KBPC5010</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 23974880,
+     "componentLibraryType": "expand",
+     "stockCount": 50,
+     "componentTypeEn": "Bridge Rectifiers",
+     "erpComponentName": "KBPC5010",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/bridge-rectifiers_yfw-kbpc5010_C22391942.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.1401
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 49,
+       "productPrice": 0.9411
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 99,
+       "productPrice": 0.8465
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.7226
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.6671
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.6427
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.6191
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 49,
+       "productPrice": 0.9066
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.0983
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.6426
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.6961
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 99,
+       "productPrice": 0.8155
+      }
+     ],
+     "firstSortAccessId": "2dc9a747be3d4be78948b03a3063559a",
+     "secondSortAccessId": "a879a2687f1a4a6bb630092272b7d6bc",
+     "canPresaleNumber": 50,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "YFW-KBPC5010/C22391942",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 50,
+     "shopCostPrice": 3.41,
+     "preMinPurchaseNum": 8,
+     "minPurchaseNum": 1,
+     "initialPrice": 1.1401,
+     "componentCode": "C22391942",
+     "componentBrandEn": "YFW",
+     "componentModelEn": "KBPC5010",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585898420238766080",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2405231445_YFW-KBPC5010_C22391942.pdf",
+     "dataManualFileAccessId": "8603385068547698688",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "YFW KBPC5010",
+     "minImage": "",
+     "minImageAccessId": "8585898421114834944",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "KBPC",
+     "describe": "-55\u2103~+150\u2103 1.1V@25A 10uA 1kV 500A 50A Single-Phase Rectifier KBPC Bridge Rectifiers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "1.1V@25A"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Single-Phase Rectifier"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "500A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "1kV"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-55\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "50A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "10uA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Bridge Rectifiers",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>KBPC5010</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 733289,
+     "componentLibraryType": "expand",
+     "stockCount": 49,
+     "componentTypeEn": "Bridge Rectifiers",
+     "erpComponentName": "SKBPC5010",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/bridge-rectifiers_yangzhou-yangjie-elec-tech-skbpc5010_C698597.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.3389
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.9931
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.7778
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.4598
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.3603
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.3163
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.253
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.92
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.7126
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.4062
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.3104
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.2679
+      }
+     ],
+     "firstSortAccessId": "2dc9a747be3d4be78948b03a3063559a",
+     "secondSortAccessId": "a879a2687f1a4a6bb630092272b7d6bc",
+     "canPresaleNumber": 49,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Yangzhou_Yangjie_ElecTech-SKBPC5010/C698597",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 50,
+     "shopCostPrice": 7.01158,
+     "preMinPurchaseNum": 4,
+     "minPurchaseNum": 1,
+     "initialPrice": 2.3389,
+     "componentCode": "C698597",
+     "componentBrandEn": "Yangzhou Yangjie Elec Tech",
+     "componentModelEn": "SKBPC5010",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583296706163589120",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Yangzhou-Yangjie-Elec-Tech-SKBPC5010_C698597.pdf",
+     "dataManualFileAccessId": "8588895144921190401",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "YANGJIE SKBPC5010",
+     "minImage": "",
+     "minImageAccessId": "8583296707036004352",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SKBPC",
+     "describe": "-55\u2103~+150\u2103@(Tj) 1.2V@25A 10uA@1kV 1kV 500A 50A Three-Phase Rectifier SKBPC Bridge Rectifiers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "1.2V@25A"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Three-Phase Rectifier"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "500A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "1kV"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-55\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "50A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "10uA@1kV"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Bridge Rectifiers",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "S<span class='lucene_highlight_class'>KBPC5010</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 833554,
+     "componentLibraryType": "expand",
+     "stockCount": 214,
+     "componentTypeEn": "Bridge Rectifiers",
+     "erpComponentName": "KBPC5010W",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/bridge-rectifiers_yangzhou-yangjie-elec-tech-kbpc5010w_C781389.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.5723
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.3326
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.2021
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.8612
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.796
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.7666
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.5146
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.2837
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.158
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.8296
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.7668
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.7385
+      }
+     ],
+     "firstSortAccessId": "2dc9a747be3d4be78948b03a3063559a",
+     "secondSortAccessId": "a879a2687f1a4a6bb630092272b7d6bc",
+     "canPresaleNumber": 203,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Yangzhou_Yangjie_ElecTech-KBPC5010W/C781389",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 50,
+     "shopCostPrice": 4.06601,
+     "preMinPurchaseNum": 6,
+     "minPurchaseNum": 1,
+     "initialPrice": 1.5723,
+     "componentCode": "C781389",
+     "componentBrandEn": "Yangzhou Yangjie Elec Tech",
+     "componentModelEn": "KBPC5010W",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583077350196596736",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Yangzhou-Yangjie-Elec-Tech-KBPC5010W_C781389.pdf",
+     "dataManualFileAccessId": "8588889659921338368",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "YANGJIE KBPC5010W",
+     "minImage": "",
+     "minImageAccessId": "8583077351135174656",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "KBPC-W",
+     "describe": "-55\u2103~+150\u2103@(Tj) 1.1V@25A 10uA@1kV 1kV 500A 50A Single-Phase Rectifier KBPC-W Bridge Rectifiers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "1.1V@25A"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Single-Phase Rectifier"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "500A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "1kV"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-55\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "50A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "10uA@1kV"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Bridge Rectifiers",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>KBPC5010</span>W",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 48762506,
+     "componentLibraryType": "expand",
+     "stockCount": 477,
+     "componentTypeEn": "Bridge Rectifiers",
+     "erpComponentName": "KBPC5010W",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.9982
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 49,
+       "productPrice": 0.8221
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 99,
+       "productPrice": 0.734
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.553
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.5008
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.473
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.4557
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 99,
+       "productPrice": 0.7071
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.9616
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 49,
+       "productPrice": 0.7919
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.5327
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.4824
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 477,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "SEP-KBPC5010W/C46614284",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 50,
+     "shopCostPrice": 2.5,
+     "preMinPurchaseNum": 11,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.9982,
+     "componentCode": "C46614284",
+     "componentBrandEn": "SEP",
+     "componentModelEn": "KBPC5010W",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8763206503664754688",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "SEP KBPC5010W",
+     "minImage": "",
+     "minImageAccessId": "8763206504814129152",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "KBPC-W",
+     "describe": "KBPC-W Bridge Rectifiers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "1.1V@25A"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Single-Phase Rectifier"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "500A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "1kV"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-55\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "50A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "5uA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Bridge Rectifiers",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>KBPC5010</span>W",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 56609242,
+     "componentLibraryType": "expand",
+     "stockCount": 50,
+     "componentTypeEn": "Bridge Rectifiers",
+     "erpComponentName": "KBPC5010G",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.1336
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 49,
+       "productPrice": 0.946
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 99,
+       "productPrice": 0.8416
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.7258
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.6736
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.6508
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.6269
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 99,
+       "productPrice": 0.8108
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.092
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 49,
+       "productPrice": 0.9113
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.6992
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.6489
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 50,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "HYElec-KBPC5010G/C53452732",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 50,
+     "shopCostPrice": 3.2,
+     "preMinPurchaseNum": 8,
+     "minPurchaseNum": 1,
+     "initialPrice": 1.1336,
+     "componentCode": "C53452732",
+     "componentBrandEn": "HY Elec",
+     "componentModelEn": "KBPC5010G",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8774369780285214720",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "HY Elec KBPC5010G",
+     "minImage": "",
+     "minImageAccessId": "8774369781484920832",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "KBPCG",
+     "describe": "-55\u2103~+150\u2103 1.1V@50A 1kV 450A 50A 5uA@1000V KBPCG Bridge Rectifiers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "1.1V@50A"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "450A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "1kV"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-55\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "50A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "5uA@1000V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Bridge Rectifiers",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>KBPC5010</span>G",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 165838,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Bridge Rectifiers",
+     "erpComponentName": "KBPC5010W",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/bridge rectifiers_guerte(zhejiang guchi elec)_kbpc5010w_C154496.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.5024
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.4926
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.4861
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.4796
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.4796
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.4796
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.462
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.4745
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.462
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.462
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.484
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.4682
+      }
+     ],
+     "firstSortAccessId": "2dc9a747be3d4be78948b03a3063559a",
+     "secondSortAccessId": "a879a2687f1a4a6bb630092272b7d6bc",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "165838-KBPC5010W/C154496",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 50,
+     "shopCostPrice": 2.2,
+     "preMinPurchaseNum": 19,
+     "minPurchaseNum": 19,
+     "initialPrice": 0.4926,
+     "componentCode": "C154496",
+     "componentBrandEn": "GUERTE(Zhejiang Guchi Elec)",
+     "componentModelEn": "KBPC5010W",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583282395726823424",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://datasheet.lcsc.com/lcsc/1810272107_GUERTE-Zhejiang-Guchi-Elec-KBPC5010W_C154496.pdf",
+     "dataManualFileAccessId": "8588892682953904128",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "GUERTE(Zhejiang Guchi Elec) KBPC5010W",
+     "minImage": "",
+     "minImageAccessId": "8583282396589903872",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "-",
+     "describe": "1kV 500A 50A 5uA@1kV Single-Phase Rectifier - Bridge Rectifiers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Single-Phase Rectifier"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "500A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "1kV"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "50A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "5uA@1kV"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Bridge Rectifiers",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>KBPC5010</span>W",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 543897,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Bridge Rectifiers",
+     "erpComponentName": "KBPC5010W",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/bridge-rectifiers_goodwork-kbpc5010w_C525770.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.419
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 49,
+       "productPrice": 1.1956
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 99,
+       "productPrice": 1.0031
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.8645
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.8025
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.7748
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 50,
+       "endNumber": 99,
+       "productPrice": 0.9663
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.773
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.3669
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 49,
+       "productPrice": 1.1517
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.7463
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.8327
+      }
+     ],
+     "firstSortAccessId": "2dc9a747be3d4be78948b03a3063559a",
+     "secondSortAccessId": "a879a2687f1a4a6bb630092272b7d6bc",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "GOODWORK-KBPC5010W/C525770",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 50,
+     "shopCostPrice": 3.8,
+     "preMinPurchaseNum": 7,
+     "minPurchaseNum": 7,
+     "initialPrice": 1.419,
+     "componentCode": "C525770",
+     "componentBrandEn": "GOODWORK",
+     "componentModelEn": "KBPC5010W",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583335169260998656",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2111161530_GOODWORK-KBPC5010W_C525770.pdf",
+     "dataManualFileAccessId": "8588896957192003584",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "GOODWORK KBPC5010W",
+     "minImage": "",
+     "minImageAccessId": "8583335170119749632",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "KBPC-W",
+     "describe": "-65\u2103~+150\u2103@(Tj) 1.2V@25A 10A@1kV 1kV 450A 50A Single-Phase Rectifier KBPC-W Bridge Rectifiers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "1.2V@25A"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Single-Phase Rectifier"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "450A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "1kV"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-65\u2103~+150\u2103@(Tj)"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "50A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "10A@1kV"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Bridge Rectifiers",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>KBPC5010</span>W",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 18538227,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Bridge Rectifiers",
+     "erpComponentName": "KBPC5010T",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/bridge-rectifiers_genesic-semiconductor-kbpc5010t_C17409043.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 6.0754
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 6.0754
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 6.0754
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 2.4253
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.3438
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.3046
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.2201
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 2.3363
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 5.8525
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 5.8525
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 5.8525
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.2578
+      }
+     ],
+     "firstSortAccessId": "2dc9a747be3d4be78948b03a3063559a",
+     "secondSortAccessId": "a879a2687f1a4a6bb630092272b7d6bc",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "GeneSiCSemiconductor-KBPC5010T/C17409043",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 50,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 2,
+     "initialPrice": 6.0754,
+     "componentCode": "C17409043",
+     "componentBrandEn": "GeneSiC Semiconductor",
+     "componentModelEn": "KBPC5010T",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2311150210_GeneSiC-Semiconductor-KBPC5010T_C17409043.pdf",
+     "dataManualFileAccessId": "8600621723343327232",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "GeneSiC Semiconductor KBPC5010T",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "-",
+     "describe": "-55\u2103~+150\u2103@(Tj) 1.1V@25A 1kV 400A 50A 5uA@1000V Single-Phase Rectifier - Bridge Rectifiers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "1.1V@25A"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Single-Phase Rectifier"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "400A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "1kV"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-55\u2103~+150\u2103@(Tj)"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "50A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "5uA@1000V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Bridge Rectifiers",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>KBPC5010</span>T",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 50231795,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "SMT",
+     "erpComponentName": "KBPC5010W",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0397
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0204
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0382
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0197
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "JLCPCBAssembly-KBPC5010W/C9900185066",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 500,
+     "shopCostPrice": 0.1,
+     "preMinPurchaseNum": 443,
+     "minPurchaseNum": 443,
+     "initialPrice": 0.0204,
+     "componentCode": "C9900185066",
+     "componentBrandEn": "JLCPCB Assembly",
+     "componentModelEn": "KBPC5010W",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "JIALICHUANG SMT KBPC5010W",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "TH",
+     "describe": "TH SMT ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "SMT",
+     "secondSortName": "Others",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>KBPC5010</span>W",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4156489,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Bridge Rectifiers",
+     "erpComponentName": "KBPC5010WP",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/bridge rectifiers_(diotec)_kbpc5010wp_C3589773.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.6751
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.3929
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.238
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.0618
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.9852
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.9493
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.9144
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.0229
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.1925
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.6136
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.949
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.3418
+      }
+     ],
+     "firstSortAccessId": "2dc9a747be3d4be78948b03a3063559a",
+     "secondSortAccessId": "a879a2687f1a4a6bb630092272b7d6bc",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "DIOTEC-KBPC5010WP/C3589773",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 160,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 6,
+     "minPurchaseNum": 6,
+     "initialPrice": 1.6751,
+     "componentCode": "C3589773",
+     "componentBrandEn": "(DIOTEC)",
+     "componentModelEn": "KBPC5010WP",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "",
+     "dataManualFileAccessId": "8590409668243070976",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "DIOTEC KBPC5010WP",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "-",
+     "describe": "-50\u2103~+150\u2103@(Tj) 1.1V@25A 10uA@1kV 1kV 450A 50A Single-Phase Rectifier - Bridge Rectifiers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "1.1V@25A"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Single-Phase Rectifier"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "450A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "1kV"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-50\u2103~+150\u2103@(Tj)"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "50A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "10uA@1kV"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Bridge Rectifiers",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>KBPC5010</span>WP",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4157511,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Bridge Rectifiers",
+     "erpComponentName": "KBPC5010FP",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/bridge-rectifiers_diotec-kbpc5010fp_C3590794.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.7811
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.5152
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.3472
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.1776
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.0993
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.0667
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.0276
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.1344
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.2978
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.7157
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.059
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.4596
+      }
+     ],
+     "firstSortAccessId": "2dc9a747be3d4be78948b03a3063559a",
+     "secondSortAccessId": "a879a2687f1a4a6bb630092272b7d6bc",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "DIOTEC-KBPC5010FP/C3590794",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 240,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 6,
+     "minPurchaseNum": 6,
+     "initialPrice": 1.7811,
+     "componentCode": "C3590794",
+     "componentBrandEn": "(DIOTEC)",
+     "componentModelEn": "KBPC5010FP",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2404071517_-DIOTEC-KBPC5010FP_C3590794.pdf",
+     "dataManualFileAccessId": "8590406032523354113",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "DIOTEC KBPC5010FP",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "KBPC-35",
+     "describe": "-50\u2103~+150\u2103 1.1V@25A 10uA@1kV 1kV 450A 50A Single-Phase Rectifier KBPC-35 Bridge Rectifiers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "1.1V@25A"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Single-Phase Rectifier"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "450A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "1kV"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-50\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "50A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "10uA@1kV"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Bridge Rectifiers",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>KBPC5010</span>FP",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 18376460,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Bridge Rectifiers",
+     "erpComponentName": "KBPC5010-G",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/bridge-rectifiers_comchip-kbpc5010-g_C17247344.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 7.0981
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 7.0981
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 7.0981
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 2.8331
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.7385
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.6912
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.5924
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 2.7291
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 6.8376
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 6.8376
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 6.8376
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.638
+      }
+     ],
+     "firstSortAccessId": "2dc9a747be3d4be78948b03a3063559a",
+     "secondSortAccessId": "a879a2687f1a4a6bb630092272b7d6bc",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Comchip-KBPC5010G/C17247344",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 50,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 2,
+     "initialPrice": 7.0981,
+     "componentCode": "C17247344",
+     "componentBrandEn": "Comchip",
+     "componentModelEn": "KBPC5010-G",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2311140404_Comchip-KBPC5010-G_C17247344.pdf",
+     "dataManualFileAccessId": "8603176333149155328",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Comchip KBPC5010-G",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "KBPC",
+     "describe": "-55\u2103~+150\u2103 1.1V@25A 1kV 500A 50A 5uA@1000V Single-Phase Rectifier KBPC Bridge Rectifiers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "1.1V@25A"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Single-Phase Rectifier"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "500A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "1kV"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-55\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "50A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "5uA@1000V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Bridge Rectifiers",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>KBPC5010</span>-G",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 60304168,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "SMT",
+     "erpComponentName": "\u3010\u90ae\u5bc4\u4e13\u7528\u3011KBPC501050",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0397
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0204
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0382
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0197
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "JLCPCBAssembly-KBPC501050/C9900316661",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 500,
+     "shopCostPrice": 0.1,
+     "preMinPurchaseNum": 443,
+     "minPurchaseNum": 443,
+     "initialPrice": 0.0204,
+     "componentCode": "C9900316661",
+     "componentBrandEn": "JLCPCB Assembly",
+     "componentModelEn": "KBPC501050",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "JIALICHUANG SMT KBPC501050",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "KBPC",
+     "describe": "KBPC SMT ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "SMT",
+     "secondSortName": "Others",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>KBPC5010</span>50",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 18820967,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Bridge Rectifiers",
+     "erpComponentName": "KBPC5010W-G",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/bridge-rectifiers_comchip-kbpc5010w-g_C17691693.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 7.0981
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 7.0981
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 7.0981
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 2.8331
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.7385
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.6912
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.5924
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 2.7291
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 6.8376
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 6.8376
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 6.8376
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.638
+      }
+     ],
+     "firstSortAccessId": "2dc9a747be3d4be78948b03a3063559a",
+     "secondSortAccessId": "a879a2687f1a4a6bb630092272b7d6bc",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Comchip-KBPC5010WG/C17691693",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 100,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 2,
+     "initialPrice": 7.0981,
+     "componentCode": "C17691693",
+     "componentBrandEn": "Comchip",
+     "componentModelEn": "KBPC5010W-G",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2311161808_Comchip-KBPC5010W-G_C17691693.pdf",
+     "dataManualFileAccessId": "8603196549732589568",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Comchip KBPC5010W-G",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "-",
+     "describe": "-55\u2103~+150\u2103 1.1V@25A 10uA@1000V 1kV 500A 50A Single-Phase Rectifier - Bridge Rectifiers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "1.1V@25A"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Single-Phase Rectifier"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "500A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "1kV"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-55\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "50A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "10uA@1000V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Bridge Rectifiers",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>KBPC5010</span>W-G",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 20,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "KBPC5010"
+ },
+ "message": null,
+ "_kw": "KBPC5010",
+ "_fetched_utc": "2026-10-13T20:34:50Z"
+}

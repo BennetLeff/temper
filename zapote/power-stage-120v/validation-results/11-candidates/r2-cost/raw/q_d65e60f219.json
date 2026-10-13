@@ -1,0 +1,1425 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 7,
+   "list": [
+    {
+     "componentId": 84726,
+     "componentLibraryType": "expand",
+     "stockCount": 46,
+     "componentTypeEn": "Comparators",
+     "erpComponentName": "40\u7eb3\u79d2\u4f4e\u529f\u8017\u63a8\u633d\u8f93\u51fa\u6bd4\u8f83\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/comparators_texas-instruments-tlv3201aidbvt_C83561.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.8221
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.6671
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 249,
+       "productPrice": 0.5905
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.5122
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.4665
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.4437
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.4494
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.7919
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.4934
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.6426
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 249,
+       "productPrice": 0.5688
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.4274
+      }
+     ],
+     "firstSortAccessId": "e3e42cbeca794b379734d72eb85f2f43",
+     "secondSortAccessId": "b9467b516dce4241802a779b8a474d6f",
+     "canPresaleNumber": 42,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-TLV3201AIDBVT/C83561",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 250,
+     "shopCostPrice": 2.20369,
+     "preMinPurchaseNum": 14,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.8221,
+     "componentCode": "C83561",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "TLV3201AIDBVT",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8582998335280328704",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Texas-Instruments-TLV3201AIDBVT_C83561.pdf",
+     "dataManualFileAccessId": "8586199543041548288",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/tlv3201",
+     "componentName": "TI TLV3201AIDBVT",
+     "minImage": "",
+     "minImageAccessId": "8582998336081440768",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-5",
+     "describe": "-40\u2103~+125\u2103 1 10uV/\u2103 1mV 1mV 1pA 2.7V~5.5V 2.9ns 40ns 40uA 50pA 70dB CMOS ESD protection\u3001Built-in hysteresis Push-pull Rail-to-rail input SOT-23-5 Comparators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Vos - Input Offset Voltage",
+       "attribute_value_name": "1mV"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Push-pull"
+      },
+      {
+       "attribute_name_en": "Input Offset Current(Ios)",
+       "attribute_value_name": "50pA"
+      },
+      {
+       "attribute_name_en": "Input Offset Voltage Drift(Vos TC)",
+       "attribute_value_name": "10uV/\u2103"
+      },
+      {
+       "attribute_name_en": "Single Supply",
+       "attribute_value_name": "2.7V~5.5V"
+      },
+      {
+       "attribute_name_en": "Input Hysteresis Voltage (Vhys)",
+       "attribute_value_name": "1mV"
+      },
+      {
+       "attribute_name_en": "Response Time (tr)",
+       "attribute_value_name": "2.9ns"
+      },
+      {
+       "attribute_name_en": "Common Mode Rejection Ratio(CMRR)",
+       "attribute_value_name": "70dB"
+      },
+      {
+       "attribute_name_en": "Rail to Rail",
+       "attribute_value_name": "Rail-to-rail input"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "40uA"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "ESD protection\u3001Built-in hysteresis"
+      },
+      {
+       "attribute_name_en": "Ib - Input Bias Current",
+       "attribute_value_name": "1pA"
+      },
+      {
+       "attribute_name_en": "Propagation Delay Time",
+       "attribute_value_name": "40ns"
+      },
+      {
+       "attribute_name_en": "Output Mode",
+       "attribute_value_name": "CMOS"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Comparators",
+     "secondSortName": "Amplifiers/Comparators",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TLV3201</span>AIDBVT",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 106403,
+     "componentLibraryType": "expand",
+     "stockCount": 4217,
+     "componentTypeEn": "Comparators",
+     "erpComponentName": "40\u7eb3\u79d2\u4f4e\u529f\u8017\u63a8\u633d\u8f93\u51fa\u6bd4\u8f83\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/comparators_texas-instruments-tlv3201aidbvr_C105188.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.9754
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.8579
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.747
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.6639
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.6312
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.6133
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.9396
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.8265
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.7196
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.6395
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.6081
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.5908
+      }
+     ],
+     "firstSortAccessId": "e3e42cbeca794b379734d72eb85f2f43",
+     "secondSortAccessId": "b9467b516dce4241802a779b8a474d6f",
+     "canPresaleNumber": 2648,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-TLV3201AIDBVR/C105188",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 3.13862,
+     "preMinPurchaseNum": 11,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.9754,
+     "componentCode": "C105188",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "TLV3201AIDBVR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8582999005060616192",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Texas-Instruments-TLV3201AIDBVR_C105188.pdf",
+     "dataManualFileAccessId": "8586199910253268992",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/tlv3201",
+     "componentName": "TI TLV3201AIDBVR",
+     "minImage": "",
+     "minImageAccessId": "8582999006050471936",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-5",
+     "describe": "-40\u2103~+125\u2103 1 10uV/\u2103 1mV 1mV 1pA 2.7V~5.5V 2.9ns 40ns 40uA 50pA 70dB CMOS Push-pull Rail-to-rail input SOT-23-5 Comparators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Vos - Input Offset Voltage",
+       "attribute_value_name": "1mV"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Push-pull"
+      },
+      {
+       "attribute_name_en": "Input Offset Current(Ios)",
+       "attribute_value_name": "50pA"
+      },
+      {
+       "attribute_name_en": "Input Offset Voltage Drift(Vos TC)",
+       "attribute_value_name": "10uV/\u2103"
+      },
+      {
+       "attribute_name_en": "Single Supply",
+       "attribute_value_name": "2.7V~5.5V"
+      },
+      {
+       "attribute_name_en": "Input Hysteresis Voltage (Vhys)",
+       "attribute_value_name": "1mV"
+      },
+      {
+       "attribute_name_en": "Response Time (tr)",
+       "attribute_value_name": "2.9ns"
+      },
+      {
+       "attribute_name_en": "Common Mode Rejection Ratio(CMRR)",
+       "attribute_value_name": "70dB"
+      },
+      {
+       "attribute_name_en": "Rail to Rail",
+       "attribute_value_name": "Rail-to-rail input"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "40uA"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Ib - Input Bias Current",
+       "attribute_value_name": "1pA"
+      },
+      {
+       "attribute_name_en": "Propagation Delay Time",
+       "attribute_value_name": "40ns"
+      },
+      {
+       "attribute_name_en": "Output Mode",
+       "attribute_value_name": "CMOS"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Comparators",
+     "secondSortName": "Amplifiers/Comparators",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TLV3201</span>AIDBVR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 141324,
+     "componentLibraryType": "expand",
+     "stockCount": 1,
+     "componentTypeEn": "Comparators",
+     "erpComponentName": "40\u7eb3\u79d2\u4f4e\u529f\u8017\u63a8\u633d\u8f93\u51fa\u6bd4\u8f83\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/comparators_texas-instruments-tlv3201aidckr_C130037.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.1089
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.7224
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.5103
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.1222
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.0145
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.9672
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.0315
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.6592
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.4549
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.081
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.9773
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.9317
+      }
+     ],
+     "firstSortAccessId": "e3e42cbeca794b379734d72eb85f2f43",
+     "secondSortAccessId": "b9467b516dce4241802a779b8a474d6f",
+     "canPresaleNumber": -40,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-TLV3201AIDCKR/C130037",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 3.15219,
+     "preMinPurchaseNum": 5,
+     "minPurchaseNum": 5,
+     "initialPrice": 2.1089,
+     "componentCode": "C130037",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "TLV3201AIDCKR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8582993872519225344",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_1809051810_Texas-Instruments-TLV3201AIDCKR_C130037.pdf",
+     "dataManualFileAccessId": "8586196312211795968",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/tlv3201",
+     "componentName": "TI TLV3201AIDCKR",
+     "minImage": "",
+     "minImageAccessId": "8582993873425870848",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SC-70-5",
+     "describe": "-40\u2103~+125\u2103 1 10uV/\u2103 1mV 1mV 1pA 2.7V~5.5V 2.9ns 40ns 40uA 50pA 70dB 7V CMOS ESD protection\u3001Built-in hysteresis Push-pull Rail-to-rail input SC-70-5 Comparators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Vos - Input Offset Voltage",
+       "attribute_value_name": "1mV"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Push-pull"
+      },
+      {
+       "attribute_name_en": "Input Offset Current(Ios)",
+       "attribute_value_name": "50pA"
+      },
+      {
+       "attribute_name_en": "Input Offset Voltage Drift(Vos TC)",
+       "attribute_value_name": "10uV/\u2103"
+      },
+      {
+       "attribute_name_en": "Single Supply",
+       "attribute_value_name": "2.7V~5.5V"
+      },
+      {
+       "attribute_name_en": "Input Hysteresis Voltage (Vhys)",
+       "attribute_value_name": "1mV"
+      },
+      {
+       "attribute_name_en": "Response Time (tr)",
+       "attribute_value_name": "2.9ns"
+      },
+      {
+       "attribute_name_en": "Common Mode Rejection Ratio(CMRR)",
+       "attribute_value_name": "70dB"
+      },
+      {
+       "attribute_name_en": "Rail to Rail",
+       "attribute_value_name": "Rail-to-rail input"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Maximum Power Supply Range (Vdd-Vss)",
+       "attribute_value_name": "7V"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "40uA"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "ESD protection\u3001Built-in hysteresis"
+      },
+      {
+       "attribute_name_en": "Ib - Input Bias Current",
+       "attribute_value_name": "1pA"
+      },
+      {
+       "attribute_name_en": "Propagation Delay Time",
+       "attribute_value_name": "40ns"
+      },
+      {
+       "attribute_name_en": "Output Mode",
+       "attribute_value_name": "CMOS"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Comparators",
+     "secondSortName": "Amplifiers/Comparators",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TLV3201</span>AIDCKR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 144896,
+     "componentLibraryType": "expand",
+     "stockCount": 9,
+     "componentTypeEn": "Comparators",
+     "erpComponentName": "40\u7eb3\u79d2\u54cd\u5e94\u65f6\u95f4\uff0c\u4f4e\u529f\u8017\uff0c\u63a8\u633d\u8f93\u51fa\u6bd4\u8f83\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/comparators_texas-instruments-tlv3201aidckt_C133590.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.1303
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.933
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 249,
+       "productPrice": 0.8237
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.7014
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.6459
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.6215
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.0888
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.8987
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 249,
+       "productPrice": 0.7935
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.6756
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.6222
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.5986
+      }
+     ],
+     "firstSortAccessId": "e3e42cbeca794b379734d72eb85f2f43",
+     "secondSortAccessId": "b9467b516dce4241802a779b8a474d6f",
+     "canPresaleNumber": 7,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-TLV3201AIDCKT/C133590",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 250,
+     "shopCostPrice": 3.36919,
+     "preMinPurchaseNum": 8,
+     "minPurchaseNum": 1,
+     "initialPrice": 1.1303,
+     "componentCode": "C133590",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "TLV3201AIDCKT",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583000697395036160",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_1806121744_Texas-Instruments-TLV3201AIDCKT_C133590.pdf",
+     "dataManualFileAccessId": "8586203377206235136",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/tlv3201",
+     "componentName": "TI TLV3201AIDCKT",
+     "minImage": "",
+     "minImageAccessId": "8583000698304794624",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-353",
+     "describe": "-2.75V~-1.35V\u30011.35V~2.75V -40\u2103~+125\u2103 1 1.2mV 10uV/\u2103 1mV 2.7V~5.5V 40ns 40uA 5.5V 50pA 50pA 70dB CMOS Enable/shutdown function\u3001Overvoltage protection Push-pull Rail-to-rail input SOT-353 Comparators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Vos - Input Offset Voltage",
+       "attribute_value_name": "1mV"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Push-pull"
+      },
+      {
+       "attribute_name_en": "Input Offset Current(Ios)",
+       "attribute_value_name": "50pA"
+      },
+      {
+       "attribute_name_en": "Input Offset Voltage Drift(Vos TC)",
+       "attribute_value_name": "10uV/\u2103"
+      },
+      {
+       "attribute_name_en": "Single Supply",
+       "attribute_value_name": "2.7V~5.5V"
+      },
+      {
+       "attribute_name_en": "Input Hysteresis Voltage (Vhys)",
+       "attribute_value_name": "1.2mV"
+      },
+      {
+       "attribute_name_en": "Common Mode Rejection Ratio(CMRR)",
+       "attribute_value_name": "70dB"
+      },
+      {
+       "attribute_name_en": "Rail to Rail",
+       "attribute_value_name": "Rail-to-rail input"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Maximum Power Supply Range (Vdd-Vss)",
+       "attribute_value_name": "5.5V"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "40uA"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Enable/shutdown function\u3001Overvoltage protection"
+      },
+      {
+       "attribute_name_en": "Ib - Input Bias Current",
+       "attribute_value_name": "50pA"
+      },
+      {
+       "attribute_name_en": "Propagation Delay Time",
+       "attribute_value_name": "40ns"
+      },
+      {
+       "attribute_name_en": "Output Mode",
+       "attribute_value_name": "CMOS"
+      },
+      {
+       "attribute_name_en": "Dual Supply",
+       "attribute_value_name": "-2.75V~-1.35V\u30011.35V~2.75V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Comparators",
+     "secondSortName": "Amplifiers/Comparators",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TLV3201</span>AIDCKT",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4226339,
+     "componentLibraryType": "expand",
+     "stockCount": 1319,
+     "componentTypeEn": "Comparators",
+     "erpComponentName": "\u5fae\u529f\u8017\u3001\u63a8\u633d\u5f0f\u8f93\u51fa\u6c7d\u8f66\u6bd4\u8f83\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/comparators_texas-instruments-tlv3201aqdckrq1_C3658542.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.1122
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.7631
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.543
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.3195
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.2168
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.1744
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.4863
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.0347
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.1721
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.2711
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.1313
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.6984
+      }
+     ],
+     "firstSortAccessId": "e3e42cbeca794b379734d72eb85f2f43",
+     "secondSortAccessId": "b9467b516dce4241802a779b8a474d6f",
+     "canPresaleNumber": 1308,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-TLV3201AQDCKRQ1/C3658542",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 6.7201,
+     "preMinPurchaseNum": 5,
+     "minPurchaseNum": 1,
+     "initialPrice": 2.1122,
+     "componentCode": "C3658542",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "TLV3201AQDCKRQ1",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8584852974723584000",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.ti.com/cn/lit/gpn/tlv3201-q1",
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/tlv3201-q1",
+     "componentName": "TI TLV3201AQDCKRQ1",
+     "minImage": "",
+     "minImageAccessId": "8584852975781359616",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SC-70-5",
+     "describe": "-2.75V~-1.35V\u30011.35V~2.75V -40\u2103~+125\u2103 1 1.2mV 10uV/\u2103 1mV 2.7V~5.5V 40uA 5.5V 50ns 50pA 5nA 70dB Overvoltage protection Push-pull Rail-to-rail input SC-70-5 Comparators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Vos - Input Offset Voltage",
+       "attribute_value_name": "1mV"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Push-pull"
+      },
+      {
+       "attribute_name_en": "Input Offset Current(Ios)",
+       "attribute_value_name": "50pA"
+      },
+      {
+       "attribute_name_en": "Input Offset Voltage Drift(Vos TC)",
+       "attribute_value_name": "10uV/\u2103"
+      },
+      {
+       "attribute_name_en": "Single Supply",
+       "attribute_value_name": "2.7V~5.5V"
+      },
+      {
+       "attribute_name_en": "Input Hysteresis Voltage (Vhys)",
+       "attribute_value_name": "1.2mV"
+      },
+      {
+       "attribute_name_en": "Common Mode Rejection Ratio(CMRR)",
+       "attribute_value_name": "70dB"
+      },
+      {
+       "attribute_name_en": "Rail to Rail",
+       "attribute_value_name": "Rail-to-rail input"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Maximum Power Supply Range (Vdd-Vss)",
+       "attribute_value_name": "5.5V"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "40uA"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Overvoltage protection"
+      },
+      {
+       "attribute_name_en": "Ib - Input Bias Current",
+       "attribute_value_name": "5nA"
+      },
+      {
+       "attribute_name_en": "Propagation Delay Time",
+       "attribute_value_name": "50ns"
+      },
+      {
+       "attribute_name_en": "Output Mode",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Dual Supply",
+       "attribute_value_name": "-2.75V~-1.35V\u30011.35V~2.75V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Comparators",
+     "secondSortName": "Amplifiers/Comparators",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TLV3201</span>AQDCKRQ1",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 59705878,
+     "componentLibraryType": "expand",
+     "stockCount": 2627,
+     "componentTypeEn": "Comparators",
+     "erpComponentName": "TLV3201AIDCKR(LX)",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.4698
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.3719
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.3295
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.2773
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2529
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2398
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.231
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.3174
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.4525
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.2671
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2436
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.3583
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 2621,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "lingxingic-TLV3201AIDCKR_LX/C55612954",
+     "leastPatchNumber": 5,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 1.2,
+     "preMinPurchaseNum": 25,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.4698,
+     "componentCode": "C55612954",
+     "componentBrandEn": "lingxingic",
+     "componentModelEn": "TLV3201AIDCKR(LX)",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "lingxingic TLV3201AIDCKR(LX)",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-353",
+     "describe": "SOT-353 Comparators ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "Comparators",
+     "secondSortName": "Amplifiers/Comparators",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TLV3201</span>AIDCKR(LX)",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 59705879,
+     "componentLibraryType": "expand",
+     "stockCount": 355,
+     "componentTypeEn": "Comparators",
+     "erpComponentName": "TLV3201AIDBVR(LX)",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.4306
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.3409
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.3018
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.2545
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2316
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2202
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2122
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.2907
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.4148
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2232
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.2451
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.3284
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 355,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "lingxingic-TLV3201AIDBVR_LX/C55612955",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 1.1,
+     "preMinPurchaseNum": 27,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.4306,
+     "componentCode": "C55612955",
+     "componentBrandEn": "lingxingic",
+     "componentModelEn": "TLV3201AIDBVR(LX)",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8788466802708717568",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "lingxingic TLV3201AIDBVR(LX)",
+     "minImage": "",
+     "minImageAccessId": "8788466803597910016",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-5",
+     "describe": "SOT-23-5 Comparators ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "Comparators",
+     "secondSortName": "Amplifiers/Comparators",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TLV3201</span>AIDBVR(LX)",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 20,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "TLV3201"
+ },
+ "message": null,
+ "_kw": "TLV3201",
+ "_fetched_utc": "2026-10-13T20:34:53Z"
+}

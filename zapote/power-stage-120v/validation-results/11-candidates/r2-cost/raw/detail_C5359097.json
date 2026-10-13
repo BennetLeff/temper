@@ -1,0 +1,326 @@
+{
+ "code": 200,
+ "data": {
+  "componentCode": "C5359097",
+  "componentBrandEn": "Infineon Technologies",
+  "componentModelEn": "IKW40N65ET7",
+  "componentImageUrl": "",
+  "productBigImageAccessId": "8585549211219726336",
+  "productBigImageAccessIdUrl": null,
+  "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2307211759_Infineon-Technologies-IKW40N65ET7_C5359097.pdf",
+  "dataManualFileAccessId": "8603065403278958592",
+  "dataManualFileAccessIdUrl": null,
+  "dataManualOfficialLink": "",
+  "componentName": "Infineon IKW40N65ET7",
+  "minImage": "",
+  "minImageAccessId": "8585549212239482880",
+  "minImageAccessIdUrl": null,
+  "imageList": [
+   {
+    "productImage": null,
+    "productImageAccessId": "8585549212239482880",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8585549211219726336",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 1
+   },
+   {
+    "productImage": null,
+    "productImageAccessId": "8585549215577067520",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8585549214621712384",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 2
+   },
+   {
+    "productImage": null,
+    "productImageAccessId": "8585549219831037952",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8585549218899091456",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 3
+   },
+   {
+    "productImage": null,
+    "productImageAccessId": "8585549228810637312",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8585549223869747200",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 4
+   }
+  ],
+  "manufacturerBlackFlag": null,
+  "componentNameEn": "Infineon IKW40N65ET7",
+  "componentSpecificationEn": "TO-247-3",
+  "describe": "-40\u2103~+175\u2103 1.05mJ 1.35V 115.4W\u3001230.8W 120A 2.475nF 20ns 235nC@15V 25pF 310ns 49.5A\u300176A 590uJ 5V 650V 77pF 85ns 900uA FS (Field Stop) TO-247-3 IGBT Transistors / Modules ROHS",
+  "attributes": [
+   {
+    "attribute_name_en": "Gate-Emitter Threshold Voltage (Vge(th)@Ic)",
+    "component_code": "C5359097",
+    "attribute_value_name": "5V"
+   },
+   {
+    "attribute_name_en": "Operating Temperature",
+    "component_code": "C5359097",
+    "attribute_value_name": "-40\u2103~+175\u2103"
+   },
+   {
+    "attribute_name_en": "Input Capacitance(Cies)",
+    "component_code": "C5359097",
+    "attribute_value_name": "2.475nF"
+   },
+   {
+    "attribute_name_en": "Td(off)",
+    "component_code": "C5359097",
+    "attribute_value_name": "310ns"
+   },
+   {
+    "attribute_name_en": "Gate Charge(Qg)",
+    "component_code": "C5359097",
+    "attribute_value_name": "235nC@15V"
+   },
+   {
+    "attribute_name_en": "Switching Energy(Eoff)",
+    "component_code": "C5359097",
+    "attribute_value_name": "590uJ"
+   },
+   {
+    "attribute_name_en": "Reverse Transfer Capacitance (Cres)",
+    "component_code": "C5359097",
+    "attribute_value_name": "25pF"
+   },
+   {
+    "attribute_name_en": "Turn-On Energy (Eon)",
+    "component_code": "C5359097",
+    "attribute_value_name": "1.05mJ"
+   },
+   {
+    "attribute_name_en": "Current - Collector Pulsed (Icm)",
+    "component_code": "C5359097",
+    "attribute_value_name": "120A"
+   },
+   {
+    "attribute_name_en": "Collector-Emitter Breakdown Voltage (Vces)",
+    "component_code": "C5359097",
+    "attribute_value_name": "650V"
+   },
+   {
+    "attribute_name_en": "Reverse Recovery Time(trr)",
+    "component_code": "C5359097",
+    "attribute_value_name": "85ns"
+   },
+   {
+    "attribute_name_en": "Current - Collector(Ic)",
+    "component_code": "C5359097",
+    "attribute_value_name": "49.5A\u300176A"
+   },
+   {
+    "attribute_name_en": "Vce Saturation(VCE(sat))",
+    "component_code": "C5359097",
+    "attribute_value_name": "1.35V"
+   },
+   {
+    "attribute_name_en": "Collector Cut-Off Current (Ices)",
+    "component_code": "C5359097",
+    "attribute_value_name": "900uA"
+   },
+   {
+    "attribute_name_en": "Pd - Power Dissipation",
+    "component_code": "C5359097",
+    "attribute_value_name": "115.4W\u3001230.8W"
+   },
+   {
+    "attribute_name_en": "Output Capacitance(Coes)",
+    "component_code": "C5359097",
+    "attribute_value_name": "77pF"
+   },
+   {
+    "attribute_name_en": "IGBT Type",
+    "component_code": "C5359097",
+    "attribute_value_name": "FS (Field Stop)"
+   },
+   {
+    "attribute_name_en": "Td(on)",
+    "component_code": "C5359097",
+    "attribute_value_name": "20ns"
+   }
+  ],
+  "rankScore": null,
+  "firstSortName": "Transistors/Thyristors",
+  "secondSortName": "IGBT Transistors / Modules",
+  "componentBrandHigh": null,
+  "remarkHigh": null,
+  "componentModelHigh": null,
+  "componentCodeHigh": null,
+  "componentSpecificationHigh": null,
+  "rohsFlag": 1,
+  "assemblyComponentFlag": false,
+  "rohsFileName": null,
+  "rohsFileId": null,
+  "reachFileName": null,
+  "reachFileId": null,
+  "lcscComponentId": 6171027,
+  "componentDesignator": "U",
+  "componentSource": "shop",
+  "stockCount": 240,
+  "overseasStockCount": 240,
+  "prices": [
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C5359097",
+    "startNumber": 1,
+    "endNumber": 9,
+    "productPrice": 3.0696,
+    "erpComponentPriceKeyId": 346489387121377306,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C5359097",
+    "startNumber": 10,
+    "endNumber": 29,
+    "productPrice": 2.7727,
+    "erpComponentPriceKeyId": 346489387121377308,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C5359097",
+    "startNumber": 30,
+    "endNumber": 89,
+    "productPrice": 2.5884,
+    "erpComponentPriceKeyId": 346489387121377304,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C5359097",
+    "startNumber": 90,
+    "endNumber": 509,
+    "productPrice": 2.3976,
+    "erpComponentPriceKeyId": 346489387121377307,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C5359097",
+    "startNumber": 510,
+    "endNumber": 989,
+    "productPrice": 2.3111,
+    "erpComponentPriceKeyId": 346489387121377305,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C5359097",
+    "startNumber": 990,
+    "endNumber": -1,
+    "productPrice": 2.2736,
+    "erpComponentPriceKeyId": 346489387121377303,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   }
+  ],
+  "buyPrices": null,
+  "jlcPrices": null,
+  "encapsulationUnit": "PCS",
+  "encapsulationNumber": 30,
+  "componentTypeEn": null,
+  "xrayFlag": false,
+  "componentLibraryType": "expand",
+  "leastNumber": 1,
+  "leastNumberPrice": 0.4616,
+  "lcscGoodsUrl": "https://www.lcsc.com/product-detail/igbt-transistors-modules_infineon-technologies-ikw40n65et7_C5359097.html/?href=jlc-SMT/?href=jlc-SMT",
+  "erpComponentName": "IKW40N65ET7",
+  "lossNumber": 0,
+  "secondTypeNameEn": "IGBT Transistors / Modules",
+  "firstTypeNameEn": "Transistors/Thyristors",
+  "secondTypeNameId": 3193,
+  "firstTypeNameId": 5,
+  "warehouseCode": "sz",
+  "warehouseName": "\u6df1\u5733",
+  "canPresaleNumber": 240,
+  "minPresaleNumber": 0,
+  "theRatio": null,
+  "componentStatus": "yes",
+  "assemblyMode": "manualWeld",
+  "assemblyModeBatch": "manualWeld",
+  "assemblyProcess": "THT",
+  "minPurchaseNum": 1,
+  "initialPrice": 3.0696,
+  "minPresalePrice": null,
+  "componentPresaleType": null,
+  "preMinPurchaseNum": 3,
+  "providerInfos": null,
+  "componentProductType": 0,
+  "isBuyComponent": "1",
+  "noBuyReason": null,
+  "replaceUrlSuffix": null,
+  "componentAlternativesCode": null,
+  "alternativesLcscComponentId": null,
+  "leastPatchNumber": 0,
+  "fixtureFlag": false,
+  "fullReelPrice": null,
+  "recentBuyNum": null,
+  "recentBuyUnitPrice": null,
+  "buyCustomerCode": null,
+  "eccnCode": "EAR99",
+  "allowPostFlag": true,
+  "overseasComponentCatalogBizKey": 385244509325901899,
+  "overseasComponentBrandBizKey": "385285308600553477",
+  "catalogBlackFlag": null,
+  "shopShowPriceFlag": true,
+  "shopShowForeignPriceFlag": true,
+  "shopRealPriceFlag": true,
+  "needAuditFlag": false,
+  "specialComponentFee": 0.0,
+  "orderInstructionEnglish": "",
+  "moistureSensitivityLevelEn": "MSL 1",
+  "hotFlag": null,
+  "storyGoods": false,
+  "matchedPartDetail": "Infineon Technologies-40\u2103~+175\u2103 1.05mJ 1.35V 115.4W\u3001230.8W 120A 2.475nF 20ns 235nC@15V 25pF 310ns 49.5A\u300176A 590uJ 5V 650V 77pF 85ns 900uA FS (Field Stop) TO-247-3 IGBT Transistors / Modules ROHS"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-13T20:35:03Z"
+}

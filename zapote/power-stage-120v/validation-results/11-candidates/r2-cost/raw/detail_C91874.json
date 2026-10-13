@@ -1,0 +1,300 @@
+{
+ "code": 200,
+ "data": {
+  "componentCode": "C91874",
+  "componentBrandEn": "Texas Instruments",
+  "componentModelEn": "SN74LVC2G32DCUR",
+  "componentImageUrl": "",
+  "productBigImageAccessId": "8583004360490299392",
+  "productBigImageAccessIdUrl": null,
+  "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_1811082050_Texas-Instruments-SN74LVC2G32DCUR_C91874.pdf",
+  "dataManualFileAccessId": "8588881555490017280",
+  "dataManualFileAccessIdUrl": null,
+  "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/sn74lvc2g32",
+  "componentName": "TI SN74LVC2G32DCUR",
+  "minImage": "",
+  "minImageAccessId": "8583004361450930176",
+  "minImageAccessIdUrl": null,
+  "imageList": [
+   {
+    "productImage": null,
+    "productImageAccessId": "8583004361450930176",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8583004360490299392",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 1
+   },
+   {
+    "productImage": null,
+    "productImageAccessId": "8583004364428480512",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8583004363560529920",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 2
+   },
+   {
+    "productImage": null,
+    "productImageAccessId": "8583004367674331136",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8583004366853058560",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 3
+   }
+  ],
+  "manufacturerBlackFlag": null,
+  "componentNameEn": "TI SN74LVC2G32DCUR",
+  "componentSpecificationEn": "VSSOP-8",
+  "describe": "-40\u2103~+125\u2103 1.2V\u30011.9V\u30012.4V\u30013.8V 1.65V~5.5V 1.7V\u30012V 10uA 2 2 24mA 3.8ns@3.3V 300mV\u3001400mV\u3001450mV\u3001550mV 32mA 700mV\u3001800mV 74LVC Series OR Gate Overvoltage-tolerant input\u3001Rear drive protection\u3001Level shifting\u3001Local shutdown mode\u3001Live insertion protection VSSOP-8 Logic Gates ROHS",
+  "attributes": [
+   {
+    "attribute_name_en": "Output Logic Level - Low",
+    "component_code": "C91874",
+    "attribute_value_name": "300mV\u3001400mV\u3001450mV\u3001550mV"
+   },
+   {
+    "attribute_name_en": "Operating Temperature",
+    "component_code": "C91874",
+    "attribute_value_name": "-40\u2103~+125\u2103"
+   },
+   {
+    "attribute_name_en": "Propagation Delay",
+    "component_code": "C91874",
+    "attribute_value_name": "3.8ns@3.3V"
+   },
+   {
+    "attribute_name_en": "Output Logic Level - High",
+    "component_code": "C91874",
+    "attribute_value_name": "1.2V\u30011.9V\u30012.4V\u30013.8V"
+   },
+   {
+    "attribute_name_en": "Logic Type",
+    "component_code": "C91874",
+    "attribute_value_name": "OR Gate"
+   },
+   {
+    "attribute_name_en": "Current - Output High(IOH)",
+    "component_code": "C91874",
+    "attribute_value_name": "24mA"
+   },
+   {
+    "attribute_name_en": "Input Logic Level - Low",
+    "component_code": "C91874",
+    "attribute_value_name": "700mV\u3001800mV"
+   },
+   {
+    "attribute_name_en": "Series",
+    "component_code": "C91874",
+    "attribute_value_name": "74LVC Series"
+   },
+   {
+    "attribute_name_en": "Input Logic Level - High",
+    "component_code": "C91874",
+    "attribute_value_name": "1.7V\u30012V"
+   },
+   {
+    "attribute_name_en": "Voltage - Supply",
+    "component_code": "C91874",
+    "attribute_value_name": "1.65V~5.5V"
+   },
+   {
+    "attribute_name_en": "Number of Gates",
+    "component_code": "C91874",
+    "attribute_value_name": "2"
+   },
+   {
+    "attribute_name_en": "Quiescent Current",
+    "component_code": "C91874",
+    "attribute_value_name": "10uA"
+   },
+   {
+    "attribute_name_en": "Features",
+    "component_code": "C91874",
+    "attribute_value_name": "Overvoltage-tolerant input\u3001Rear drive protection\u3001Local shutdown mode\u3001Live insertion protection"
+   },
+   {
+    "attribute_name_en": "Inputs per Gates",
+    "component_code": "C91874",
+    "attribute_value_name": "2"
+   },
+   {
+    "attribute_name_en": "Current - Output Low(IOL)",
+    "component_code": "C91874",
+    "attribute_value_name": "32mA"
+   }
+  ],
+  "rankScore": null,
+  "firstSortName": "Logic",
+  "secondSortName": "Logic Gates",
+  "componentBrandHigh": null,
+  "remarkHigh": null,
+  "componentModelHigh": null,
+  "componentCodeHigh": null,
+  "componentSpecificationHigh": null,
+  "rohsFlag": 1,
+  "assemblyComponentFlag": false,
+  "rohsFileName": null,
+  "rohsFileId": null,
+  "reachFileName": null,
+  "reachFileId": null,
+  "lcscComponentId": 93063,
+  "componentDesignator": "U",
+  "componentSource": "shop",
+  "stockCount": 9630,
+  "overseasStockCount": 9630,
+  "prices": [
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C91874",
+    "startNumber": 1,
+    "endNumber": 9,
+    "productPrice": 0.5481,
+    "erpComponentPriceKeyId": 326002660,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C91874",
+    "startNumber": 10,
+    "endNumber": 29,
+    "productPrice": 0.4192,
+    "erpComponentPriceKeyId": 326002656,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C91874",
+    "startNumber": 30,
+    "endNumber": 99,
+    "productPrice": 0.3654,
+    "erpComponentPriceKeyId": 326002654,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C91874",
+    "startNumber": 100,
+    "endNumber": 499,
+    "productPrice": 0.2969,
+    "erpComponentPriceKeyId": 326002662,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C91874",
+    "startNumber": 500,
+    "endNumber": 999,
+    "productPrice": 0.2659,
+    "erpComponentPriceKeyId": 326002668,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C91874",
+    "startNumber": 1000,
+    "endNumber": -1,
+    "productPrice": 0.2219,
+    "erpComponentPriceKeyId": 326002658,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   }
+  ],
+  "buyPrices": null,
+  "jlcPrices": null,
+  "encapsulationUnit": "PCS",
+  "encapsulationNumber": 3000,
+  "componentTypeEn": null,
+  "xrayFlag": false,
+  "componentLibraryType": "expand",
+  "leastNumber": 5,
+  "leastNumberPrice": 0.4125,
+  "lcscGoodsUrl": "https://www.lcsc.com/product-detail/logic-gates_texas-instruments-sn74lvc2g32dcur_C91874.html/?href=jlc-SMT/?href=jlc-SMT",
+  "erpComponentName": "\u53cc2\u8f93\u5165\u6b63\u6216\u95e8",
+  "lossNumber": 0,
+  "secondTypeNameEn": "Logic Gates",
+  "firstTypeNameEn": "Logic",
+  "secondTypeNameId": 2168,
+  "firstTypeNameId": 19,
+  "warehouseCode": "sz",
+  "warehouseName": "\u6df1\u5733",
+  "canPresaleNumber": 9592,
+  "minPresaleNumber": 0,
+  "theRatio": null,
+  "componentStatus": "yes",
+  "assemblyMode": "smtWeld",
+  "assemblyModeBatch": "smtWeld",
+  "assemblyProcess": "SMT",
+  "minPurchaseNum": 1,
+  "initialPrice": 0.5481,
+  "minPresalePrice": null,
+  "componentPresaleType": null,
+  "preMinPurchaseNum": 22,
+  "providerInfos": null,
+  "componentProductType": 0,
+  "isBuyComponent": "1",
+  "noBuyReason": null,
+  "replaceUrlSuffix": null,
+  "componentAlternativesCode": null,
+  "alternativesLcscComponentId": null,
+  "leastPatchNumber": 5,
+  "fixtureFlag": false,
+  "fullReelPrice": null,
+  "recentBuyNum": null,
+  "recentBuyUnitPrice": null,
+  "buyCustomerCode": null,
+  "eccnCode": "EAR99",
+  "allowPostFlag": true,
+  "overseasComponentCatalogBizKey": 385244375326277672,
+  "overseasComponentBrandBizKey": "385285308357283842",
+  "catalogBlackFlag": null,
+  "shopShowPriceFlag": true,
+  "shopShowForeignPriceFlag": true,
+  "shopRealPriceFlag": true,
+  "needAuditFlag": false,
+  "specialComponentFee": 0.0,
+  "orderInstructionEnglish": "",
+  "moistureSensitivityLevelEn": "MSL 1",
+  "hotFlag": null,
+  "storyGoods": false,
+  "matchedPartDetail": "Texas Instruments-40\u2103~+125\u2103 1.2V\u30011.9V\u30012.4V\u30013.8V 1.65V~5.5V 1.7V\u30012V 10uA 2 2 24mA 3.8ns@3.3V 300mV\u3001400mV\u3001450mV\u3001550mV 32mA 700mV\u3001800mV 74LVC Series OR Gate Overvoltage-tolerant input\u3001Rear drive protection\u3001Level shifting\u3001Local shutdown mode\u3001Live insertion protection VSSOP-8 Logic Gates ROHS"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-13T20:36:10Z"
+}

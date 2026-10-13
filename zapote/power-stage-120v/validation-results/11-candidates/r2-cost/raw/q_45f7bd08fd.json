@@ -1,0 +1,231 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 1,
+   "list": [
+    {
+     "componentId": 52384284,
+     "componentLibraryType": "expand",
+     "stockCount": 20,
+     "componentTypeEn": "MOSFETs",
+     "erpComponentName": "HSCM0020065K",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 18.8835
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 39,
+       "productPrice": 11.6191
+      },
+      {
+       "startNumber": 40,
+       "endNumber": 99,
+       "productPrice": 11.3549
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 11.1233
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 11.1233
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 11.1233
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 10.7151
+      },
+      {
+       "startNumber": 40,
+       "endNumber": 99,
+       "productPrice": 10.9382
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 18.1906
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 10.7151
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 10.7151
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 39,
+       "productPrice": 11.1928
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 20,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "HUXN-HSCM0020065K/C49823493",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 20,
+     "shopCostPrice": 55.0,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 18.8835,
+     "componentCode": "C49823493",
+     "componentBrandEn": "HUXN",
+     "componentModelEn": "HSCM0020065K",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8768111095959695360",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "8756520347271614464",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Huixin HSCM0020065K",
+     "minImage": "",
+     "minImageAccessId": "8768111096936697856",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "TO-247-4L",
+     "describe": "-55\u2103~+175\u2103 1 N-channel 187nC 2.6V 20m\u03a9@18V 312W 650V 92A N-Channel TO-247-4L MOSFETs ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+175\u2103"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "N-Channel"
+      },
+      {
+       "attribute_name_en": "Number",
+       "attribute_value_name": "1 N-channel"
+      },
+      {
+       "attribute_name_en": "Gate Threshold Voltage (Vgs(th))",
+       "attribute_value_name": "2.6V"
+      },
+      {
+       "attribute_name_en": "Gate Charge(Qg)",
+       "attribute_value_name": "187nC"
+      },
+      {
+       "attribute_name_en": "Current - Continuous Drain(Id)",
+       "attribute_value_name": "92A"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>650V</span>",
+       "attribute_name_en": "Drain to Source Voltage",
+       "attribute_value_name": "650V"
+      },
+      {
+       "attribute_name_en": "Pd - Power Dissipation",
+       "attribute_value_name": "312W"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>20m\u03a9@18V</span>",
+       "attribute_name_en": "RDS(on)",
+       "attribute_value_name": "20m\u03a9@18V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "MOSFETs",
+     "secondSortName": "Transistors/Thyristors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-55\u2103~+175\u2103 1 N-channel 187nC 2.6V <span class='lucene_highlight_class'>20m\u03a9</span>@18V 312W <span class='lucene_highlight_class'>650V</span> 92A N-Channel TO-247-4L <span class='lucene_highlight_class'>MOSFETs</span> ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 20,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "650V 20m\u03a9 TO-247 MOSFET"
+ },
+ "message": null,
+ "_kw": "650V 20m\u03a9 TO-247 MOSFET",
+ "_fetched_utc": "2026-10-13T20:34:41Z"
+}

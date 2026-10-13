@@ -1,0 +1,315 @@
+{
+ "code": 200,
+ "data": {
+  "componentCode": "C108740",
+  "componentBrandEn": "Infineon Technologies",
+  "componentModelEn": "IKW40N65WR5",
+  "componentImageUrl": "",
+  "productBigImageAccessId": "8583295078782025728",
+  "productBigImageAccessIdUrl": null,
+  "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_1809051241_Infineon-Technologies-IKW40N65WR5_C108740.pdf",
+  "dataManualFileAccessId": "8588894839111372800",
+  "dataManualFileAccessIdUrl": null,
+  "dataManualOfficialLink": "",
+  "componentName": "Infineon IKW40N65WR5",
+  "minImage": "",
+  "minImageAccessId": "8583295079755104256",
+  "minImageAccessIdUrl": null,
+  "imageList": [
+   {
+    "productImage": null,
+    "productImageAccessId": "8583295079755104256",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8583295078782025728",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 1
+   },
+   {
+    "productImage": null,
+    "productImageAccessId": "8583295083119071232",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8583295082225143808",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 2
+   },
+   {
+    "productImage": null,
+    "productImageAccessId": "8583295086327173120",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8583295085467611136",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 3
+   }
+  ],
+  "manufacturerBlackFlag": null,
+  "componentNameEn": "Infineon IKW40N65WR5",
+  "componentSpecificationEn": "TO-247-3",
+  "describe": "-40\u2103~+175\u2103 1.4V 112ns\u3001153ns 120A 160uJ\u3001240uJ 193nC@15V 20pF 4.755nF 40uA 42ns 432ns\u3001500ns 45pF 4V 650V 770uJ\u3001820uJ 80A TO-247-3 IGBT Transistors / Modules ROHS",
+  "attributes": [
+   {
+    "attribute_name_en": "Gate-Emitter Threshold Voltage (Vge(th)@Ic)",
+    "component_code": "C108740",
+    "attribute_value_name": "4V"
+   },
+   {
+    "attribute_name_en": "Operating Temperature",
+    "component_code": "C108740",
+    "attribute_value_name": "-40\u2103~+175\u2103"
+   },
+   {
+    "attribute_name_en": "Input Capacitance(Cies)",
+    "component_code": "C108740",
+    "attribute_value_name": "4.755nF"
+   },
+   {
+    "attribute_name_en": "Td(off)",
+    "component_code": "C108740",
+    "attribute_value_name": "432ns\u3001500ns"
+   },
+   {
+    "attribute_name_en": "Gate Charge(Qg)",
+    "component_code": "C108740",
+    "attribute_value_name": "193nC@15V"
+   },
+   {
+    "attribute_name_en": "Switching Energy(Eoff)",
+    "component_code": "C108740",
+    "attribute_value_name": "160uJ\u3001240uJ"
+   },
+   {
+    "attribute_name_en": "Reverse Transfer Capacitance (Cres)",
+    "component_code": "C108740",
+    "attribute_value_name": "20pF"
+   },
+   {
+    "attribute_name_en": "Turn-On Energy (Eon)",
+    "component_code": "C108740",
+    "attribute_value_name": "770uJ\u3001820uJ"
+   },
+   {
+    "attribute_name_en": "Current - Collector Pulsed (Icm)",
+    "component_code": "C108740",
+    "attribute_value_name": "120A"
+   },
+   {
+    "attribute_name_en": "Collector-Emitter Breakdown Voltage (Vces)",
+    "component_code": "C108740",
+    "attribute_value_name": "650V"
+   },
+   {
+    "attribute_name_en": "Reverse Recovery Time(trr)",
+    "component_code": "C108740",
+    "attribute_value_name": "112ns\u3001153ns"
+   },
+   {
+    "attribute_name_en": "Current - Collector(Ic)",
+    "component_code": "C108740",
+    "attribute_value_name": "80A"
+   },
+   {
+    "attribute_name_en": "Vce Saturation(VCE(sat))",
+    "component_code": "C108740",
+    "attribute_value_name": "1.4V"
+   },
+   {
+    "attribute_name_en": "Collector Cut-Off Current (Ices)",
+    "component_code": "C108740",
+    "attribute_value_name": "40uA"
+   },
+   {
+    "attribute_name_en": "Pd - Power Dissipation",
+    "component_code": "C108740",
+    "attribute_value_name": "230W"
+   },
+   {
+    "attribute_name_en": "Output Capacitance(Coes)",
+    "component_code": "C108740",
+    "attribute_value_name": "45pF"
+   },
+   {
+    "attribute_name_en": "Td(on)",
+    "component_code": "C108740",
+    "attribute_value_name": "42ns"
+   },
+   {
+    "attribute_name_en": "IGBT Type",
+    "component_code": "C108740",
+    "attribute_value_name": "-"
+   }
+  ],
+  "rankScore": null,
+  "firstSortName": "Transistors/Thyristors",
+  "secondSortName": "IGBT Transistors / Modules",
+  "componentBrandHigh": null,
+  "remarkHigh": null,
+  "componentModelHigh": null,
+  "componentCodeHigh": null,
+  "componentSpecificationHigh": null,
+  "rohsFlag": 1,
+  "assemblyComponentFlag": false,
+  "rohsFileName": null,
+  "rohsFileId": null,
+  "reachFileName": null,
+  "reachFileId": null,
+  "lcscComponentId": 109959,
+  "componentDesignator": "Q",
+  "componentSource": "shop",
+  "stockCount": 930,
+  "overseasStockCount": 930,
+  "prices": [
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C108740",
+    "startNumber": 1,
+    "endNumber": 9,
+    "productPrice": 2.1383,
+    "erpComponentPriceKeyId": 329721179,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C108740",
+    "startNumber": 10,
+    "endNumber": 29,
+    "productPrice": 1.799,
+    "erpComponentPriceKeyId": 329721181,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C108740",
+    "startNumber": 30,
+    "endNumber": 89,
+    "productPrice": 1.587,
+    "erpComponentPriceKeyId": 329721182,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C108740",
+    "startNumber": 90,
+    "endNumber": 479,
+    "productPrice": 1.3701,
+    "erpComponentPriceKeyId": 329721200,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C108740",
+    "startNumber": 480,
+    "endNumber": 959,
+    "productPrice": 1.2722,
+    "erpComponentPriceKeyId": 329721183,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C108740",
+    "startNumber": 960,
+    "endNumber": -1,
+    "productPrice": 1.2298,
+    "erpComponentPriceKeyId": 329721199,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   }
+  ],
+  "buyPrices": null,
+  "jlcPrices": null,
+  "encapsulationUnit": "PCS",
+  "encapsulationNumber": 30,
+  "componentTypeEn": null,
+  "xrayFlag": false,
+  "componentLibraryType": "expand",
+  "leastNumber": 1,
+  "leastNumberPrice": 0.3216,
+  "lcscGoodsUrl": "https://www.lcsc.com/product-detail/igbt-transistors-modules_infineon-technologies-ikw40n65wr5_C108740.html/?href=jlc-SMT/?href=jlc-SMT",
+  "erpComponentName": "IKW40N65WR5",
+  "lossNumber": 0,
+  "secondTypeNameEn": "IGBT Transistors / Modules",
+  "firstTypeNameEn": "Transistors/Thyristors",
+  "secondTypeNameId": 3193,
+  "firstTypeNameId": 5,
+  "warehouseCode": "sz",
+  "warehouseName": "\u6df1\u5733",
+  "canPresaleNumber": 930,
+  "minPresaleNumber": 0,
+  "theRatio": null,
+  "componentStatus": "yes",
+  "assemblyMode": "manualWeld",
+  "assemblyModeBatch": "manualWeld",
+  "assemblyProcess": "THT",
+  "minPurchaseNum": 1,
+  "initialPrice": 2.1383,
+  "minPresalePrice": null,
+  "componentPresaleType": null,
+  "preMinPurchaseNum": 5,
+  "providerInfos": null,
+  "componentProductType": 0,
+  "isBuyComponent": "1",
+  "noBuyReason": null,
+  "replaceUrlSuffix": null,
+  "componentAlternativesCode": null,
+  "alternativesLcscComponentId": null,
+  "leastPatchNumber": 0,
+  "fixtureFlag": false,
+  "fullReelPrice": null,
+  "recentBuyNum": null,
+  "recentBuyUnitPrice": null,
+  "buyCustomerCode": null,
+  "eccnCode": "EAR99",
+  "allowPostFlag": true,
+  "overseasComponentCatalogBizKey": 385244509325901899,
+  "overseasComponentBrandBizKey": "385285308600553477",
+  "catalogBlackFlag": null,
+  "shopShowPriceFlag": true,
+  "shopShowForeignPriceFlag": true,
+  "shopRealPriceFlag": true,
+  "needAuditFlag": false,
+  "specialComponentFee": 0.0,
+  "orderInstructionEnglish": "",
+  "moistureSensitivityLevelEn": "MSL 1",
+  "hotFlag": null,
+  "storyGoods": false,
+  "matchedPartDetail": "Infineon Technologies-40\u2103~+175\u2103 1.4V 112ns\u3001153ns 120A 160uJ\u3001240uJ 193nC@15V 20pF 4.755nF 40uA 42ns 432ns\u3001500ns 45pF 4V 650V 770uJ\u3001820uJ 80A TO-247-3 IGBT Transistors / Modules ROHS"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-13T20:35:02Z"
+}

@@ -1,0 +1,305 @@
+{
+ "code": 200,
+ "data": {
+  "componentCode": "C1517414",
+  "componentBrandEn": "Texas Instruments",
+  "componentModelEn": "OPA2388IDR",
+  "componentImageUrl": "",
+  "productBigImageAccessId": "8583290801476132864",
+  "productBigImageAccessIdUrl": null,
+  "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2303020700_Texas-Instruments-OPA2388IDR_C1517414.pdf",
+  "dataManualFileAccessId": "8588894017845137408",
+  "dataManualFileAccessIdUrl": null,
+  "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/opa4388",
+  "componentName": "TI OPA2388IDR",
+  "minImage": "",
+  "minImageAccessId": "8583290802432299008",
+  "minImageAccessIdUrl": null,
+  "imageList": [
+   {
+    "productImage": null,
+    "productImageAccessId": "8583290802432299008",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8583290801476132864",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 1
+   },
+   {
+    "productImage": null,
+    "productImageAccessId": "8583290806475743232",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8583290805499146240",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 2
+   },
+   {
+    "productImage": null,
+    "productImageAccessId": "8583290810644746240",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8583290809743917056",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 3
+   }
+  ],
+  "manufacturerBlackFlag": null,
+  "componentNameEn": "TI OPA2388IDR",
+  "componentSpecificationEn": "SOIC-8",
+  "describe": "-2.75V~-1.25V\u30011.25V~2.75V -40\u2103~+125\u2103 1.9mA 10MHz 140dB 2 2.5V~5.5V 250nV 30pA 5V/us 5nV/\u2103 60mA 700pA 7nV/\u221aHz@1kHz EMI filtering/RF suppression\u3001Zero drift / auto-zero\u3001Reverse-phase input protection Rail-to-Rail Input, Rail-to-Rail Output SOIC-8 Precision Op Amps ROHS",
+  "attributes": [
+   {
+    "attribute_name_en": "Operating Temperature",
+    "component_code": "C1517414",
+    "attribute_value_name": "-40\u2103~+125\u2103"
+   },
+   {
+    "attribute_name_en": "Vos - Input Offset Voltage",
+    "component_code": "C1517414",
+    "attribute_value_name": "250nV"
+   },
+   {
+    "attribute_name_en": "Input Offset Current(Ios)",
+    "component_code": "C1517414",
+    "attribute_value_name": "700pA"
+   },
+   {
+    "attribute_name_en": "Output Current",
+    "component_code": "C1517414",
+    "attribute_value_name": "60mA"
+   },
+   {
+    "attribute_name_en": "Input Offset Voltage Drift(Vos TC)",
+    "component_code": "C1517414",
+    "attribute_value_name": "5nV/\u2103"
+   },
+   {
+    "attribute_name_en": "Single Supply",
+    "component_code": "C1517414",
+    "attribute_value_name": "2.5V~5.5V"
+   },
+   {
+    "attribute_name_en": "Slew Rate",
+    "component_code": "C1517414",
+    "attribute_value_name": "5V/us"
+   },
+   {
+    "attribute_name_en": "Gain Bandwidth Product",
+    "component_code": "C1517414",
+    "attribute_value_name": "10MHz"
+   },
+   {
+    "attribute_name_en": "Quiescent Current(Iq)",
+    "component_code": "C1517414",
+    "attribute_value_name": "1.9mA"
+   },
+   {
+    "attribute_name_en": "Common Mode Rejection Ratio(CMRR)",
+    "component_code": "C1517414",
+    "attribute_value_name": "140dB"
+   },
+   {
+    "attribute_name_en": "Rail to Rail",
+    "component_code": "C1517414",
+    "attribute_value_name": "Rail-to-Rail Input, Rail-to-Rail Output"
+   },
+   {
+    "attribute_name_en": "Number of Channels",
+    "component_code": "C1517414",
+    "attribute_value_name": "2"
+   },
+   {
+    "attribute_name_en": "Input Voltage Noise Density",
+    "component_code": "C1517414",
+    "attribute_value_name": "7nV/\u221aHz@1kHz"
+   },
+   {
+    "attribute_name_en": "Features",
+    "component_code": "C1517414",
+    "attribute_value_name": "EMI filtering/RF suppression\u3001Zero drift / auto-zero\u3001Reverse-phase input protection"
+   },
+   {
+    "attribute_name_en": "Ib - Input Bias Current",
+    "component_code": "C1517414",
+    "attribute_value_name": "30pA"
+   },
+   {
+    "attribute_name_en": "Dual Supply",
+    "component_code": "C1517414",
+    "attribute_value_name": "-2.75V~-1.25V\u30011.25V~2.75V"
+   }
+  ],
+  "rankScore": null,
+  "firstSortName": "Amplifiers/Comparators",
+  "secondSortName": "Precision Op Amps",
+  "componentBrandHigh": null,
+  "remarkHigh": null,
+  "componentModelHigh": null,
+  "componentCodeHigh": null,
+  "componentSpecificationHigh": null,
+  "rohsFlag": 1,
+  "assemblyComponentFlag": false,
+  "rohsFileName": null,
+  "rohsFileId": null,
+  "reachFileName": null,
+  "reachFileId": null,
+  "lcscComponentId": 1608211,
+  "componentDesignator": "U",
+  "componentSource": "shop",
+  "stockCount": 7674,
+  "overseasStockCount": 7674,
+  "prices": [
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C1517414",
+    "startNumber": 1,
+    "endNumber": 9,
+    "productPrice": 2.3144,
+    "erpComponentPriceKeyId": 120386087,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C1517414",
+    "startNumber": 10,
+    "endNumber": 29,
+    "productPrice": 1.9491,
+    "erpComponentPriceKeyId": 120386086,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C1517414",
+    "startNumber": 30,
+    "endNumber": 99,
+    "productPrice": 1.7207,
+    "erpComponentPriceKeyId": 120386089,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C1517414",
+    "startNumber": 100,
+    "endNumber": 499,
+    "productPrice": 1.4859,
+    "erpComponentPriceKeyId": 120386088,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C1517414",
+    "startNumber": 500,
+    "endNumber": 999,
+    "productPrice": 1.3799,
+    "erpComponentPriceKeyId": 120386085,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C1517414",
+    "startNumber": 1000,
+    "endNumber": -1,
+    "productPrice": 1.3342,
+    "erpComponentPriceKeyId": 120386090,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   }
+  ],
+  "buyPrices": null,
+  "jlcPrices": null,
+  "encapsulationUnit": "PCS",
+  "encapsulationNumber": 2500,
+  "componentTypeEn": null,
+  "xrayFlag": false,
+  "componentLibraryType": "expand",
+  "leastNumber": 1,
+  "leastNumberPrice": 0.3481,
+  "lcscGoodsUrl": "https://www.lcsc.com/product-detail/precision-op-amps_texas-instruments-opa2388idr_C1517414.html/?href=jlc-SMT/?href=jlc-SMT",
+  "erpComponentName": "OPAx388\u7cbe\u5bc6\u3001\u96f6\u6f02\u79fb\u3001\u96f6\u4ea4\u53c9\u3001\u771f\u6b63\u7684\u8f68\u81f3\u8f68\u8f93\u5165/\u8f93\u51fa\u8fd0\u7b97\u653e\u5927\u5668",
+  "lossNumber": 0,
+  "secondTypeNameEn": "Precision Op Amps",
+  "firstTypeNameEn": "Amplifiers/Comparators",
+  "secondTypeNameId": 3086,
+  "firstTypeNameId": 23,
+  "warehouseCode": "sz",
+  "warehouseName": "\u6df1\u5733",
+  "canPresaleNumber": 7630,
+  "minPresaleNumber": 0,
+  "theRatio": null,
+  "componentStatus": "yes",
+  "assemblyMode": "smtWeld",
+  "assemblyModeBatch": "smtWeld",
+  "assemblyProcess": "SMT",
+  "minPurchaseNum": 1,
+  "initialPrice": 2.3144,
+  "minPresalePrice": null,
+  "componentPresaleType": null,
+  "preMinPurchaseNum": 4,
+  "providerInfos": null,
+  "componentProductType": 0,
+  "isBuyComponent": "1",
+  "noBuyReason": null,
+  "replaceUrlSuffix": null,
+  "componentAlternativesCode": null,
+  "alternativesLcscComponentId": null,
+  "leastPatchNumber": 0,
+  "fixtureFlag": false,
+  "fullReelPrice": null,
+  "recentBuyNum": null,
+  "recentBuyUnitPrice": null,
+  "buyCustomerCode": null,
+  "eccnCode": "EAR99",
+  "allowPostFlag": true,
+  "overseasComponentCatalogBizKey": 385244381135388833,
+  "overseasComponentBrandBizKey": "385285308357283842",
+  "catalogBlackFlag": null,
+  "shopShowPriceFlag": true,
+  "shopShowForeignPriceFlag": true,
+  "shopRealPriceFlag": true,
+  "needAuditFlag": false,
+  "specialComponentFee": 0.0,
+  "orderInstructionEnglish": "",
+  "moistureSensitivityLevelEn": "",
+  "hotFlag": null,
+  "storyGoods": false,
+  "matchedPartDetail": "Texas Instruments-2.75V~-1.25V\u30011.25V~2.75V -40\u2103~+125\u2103 1.9mA 10MHz 140dB 2 2.5V~5.5V 250nV 30pA 5V/us 5nV/\u2103 60mA 700pA 7nV/\u221aHz@1kHz EMI filtering/RF suppression\u3001Zero drift / auto-zero\u3001Reverse-phase input protection Rail-to-Rail Input, Rail-to-Rail Output SOIC-8 Precision Op Amps ROHS"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-13T20:35:42Z"
+}

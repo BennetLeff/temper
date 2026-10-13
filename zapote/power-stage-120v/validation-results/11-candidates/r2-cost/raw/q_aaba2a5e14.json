@@ -1,0 +1,229 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 1,
+   "list": [
+    {
+     "componentId": 5698645,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "PCB Welding Terminal",
+     "erpComponentName": "THR \u5e26\u901a\u5b54\u87ba\u7eb9\u7684\u7aef\u5b50",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.2494
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.2184
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.1972
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 1.1776
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 1.1776
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 1.1776
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 1.1344
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 1.1344
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.1737
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.1533
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.2035
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 1.1344
+      }
+     ],
+     "firstSortAccessId": "3db4bff6cfd743f6af1575bf175e9774",
+     "secondSortAccessId": "cfa9bf2378174788abc09e74d45d5b30",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "WurthElektronik-74650074R/C5118857",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 750,
+     "shopCostPrice": 6.5,
+     "preMinPurchaseNum": 8,
+     "minPurchaseNum": 8,
+     "initialPrice": 1.2494,
+     "componentCode": "C5118857",
+     "componentBrandEn": "Wurth Elektronik",
+     "componentModelEn": "74650074R",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8762787761080414208",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.we-online.com/components/products/datasheet/74650074R.pdf",
+     "componentName": "Wurth 74650074R",
+     "minImage": "",
+     "minImageAccessId": "8762787762339110912",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "4 5.5mm 5.87mm 50A Brass M4 Plug-in type Tin Top \u63d2\u4ef6 PCB Welding Terminal ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Number of Leg",
+       "attribute_value_name": "4"
+      },
+      {
+       "attribute_name_en": "appearance and shape",
+       "attribute_value_name": "Plug-in type"
+      },
+      {
+       "attribute_name_en": "Body Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_name_en": "Pin Spacing(Adjacent)",
+       "attribute_value_name": "5.87mm"
+      },
+      {
+       "attribute_name_en": "Terminal Type",
+       "attribute_value_name": "Top"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "50A"
+      },
+      {
+       "attribute_name_en": "Ontology Coating",
+       "attribute_value_name": "Tin"
+      },
+      {
+       "attribute_name_en": "Height Above Board",
+       "attribute_value_name": "5.5mm"
+      },
+      {
+       "attribute_name_en": "Screw Hole Size",
+       "attribute_value_name": "M4"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "PCB Welding Terminal",
+     "secondSortName": "Terminal",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>74650074R</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 20,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "74650074R"
+ },
+ "message": null,
+ "_kw": "74650074R",
+ "_fetched_utc": "2026-10-13T20:43:39Z"
+}

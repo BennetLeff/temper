@@ -1,0 +1,310 @@
+{
+ "code": 200,
+ "data": {
+  "componentCode": "C2867613",
+  "componentBrandEn": "Texas Instruments",
+  "componentModelEn": "SN74LVC1G38DBVR",
+  "componentImageUrl": "",
+  "productBigImageAccessId": "8583572073231237120",
+  "productBigImageAccessIdUrl": null,
+  "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2303010530_Texas-Instruments-SN74LVC1G38DBVR_C2867613.pdf",
+  "dataManualFileAccessId": "8588941045089882112",
+  "dataManualFileAccessIdUrl": null,
+  "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/sn74lvc1g38",
+  "componentName": "TI SN74LVC1G38DBVR",
+  "minImage": "",
+  "minImageAccessId": "8583572074112040960",
+  "minImageAccessIdUrl": null,
+  "imageList": [
+   {
+    "productImage": null,
+    "productImageAccessId": "8583572074112040960",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8583572073231237120",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 1
+   },
+   {
+    "productImage": null,
+    "productImageAccessId": "8583572077454090240",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8583572076578291712",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 2
+   },
+   {
+    "productImage": null,
+    "productImageAccessId": "8583572080504025088",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8583572079584661504",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 3
+   }
+  ],
+  "manufacturerBlackFlag": null,
+  "componentNameEn": "TI SN74LVC1G38DBVR",
+  "componentSpecificationEn": "SOT-23-5",
+  "describe": "-40\u2103~+125\u2103 1 1.65V~5.5V 1.7V~2V 10uA 2 3.9ns@5V,50pF 32mA 550mV 700mV\u3001800mV 74LVC Series NAND Gate SOT-23-5 Logic Gates ROHS",
+  "attributes": [
+   {
+    "attribute_name_en": "Output Logic Level - Low",
+    "component_code": "C2867613",
+    "attribute_value_name": "550mV"
+   },
+   {
+    "attribute_name_en": "Operating Temperature",
+    "component_code": "C2867613",
+    "attribute_value_name": "-40\u2103~+125\u2103"
+   },
+   {
+    "attribute_name_en": "Propagation Delay",
+    "component_code": "C2867613",
+    "attribute_value_name": "3.9ns@5V,50pF"
+   },
+   {
+    "attribute_name_en": "Output Logic Level - High",
+    "component_code": "C2867613",
+    "attribute_value_name": "-"
+   },
+   {
+    "attribute_name_en": "Logic Type",
+    "component_code": "C2867613",
+    "attribute_value_name": "NAND Gate"
+   },
+   {
+    "attribute_name_en": "Current - Output High(IOH)",
+    "component_code": "C2867613",
+    "attribute_value_name": "-"
+   },
+   {
+    "attribute_name_en": "Input Logic Level - Low",
+    "component_code": "C2867613",
+    "attribute_value_name": "700mV\u3001800mV"
+   },
+   {
+    "attribute_name_en": "Input type",
+    "component_code": "C2867613",
+    "attribute_value_name": "StandardCMOS"
+   },
+   {
+    "attribute_name_en": "Series",
+    "component_code": "C2867613",
+    "attribute_value_name": "74LVC Series"
+   },
+   {
+    "attribute_name_en": "Input Logic Level - High",
+    "component_code": "C2867613",
+    "attribute_value_name": "1.7V~2V"
+   },
+   {
+    "attribute_name_en": "Voltage - Supply",
+    "component_code": "C2867613",
+    "attribute_value_name": "1.65V~5.5V"
+   },
+   {
+    "attribute_name_en": "Number of Gates",
+    "component_code": "C2867613",
+    "attribute_value_name": "1"
+   },
+   {
+    "attribute_name_en": "Quiescent Current",
+    "component_code": "C2867613",
+    "attribute_value_name": "10uA"
+   },
+   {
+    "attribute_name_en": "Features",
+    "component_code": "C2867613",
+    "attribute_value_name": "Overvoltage-tolerant input\u3001Rear drive protection\u3001Local shutdown mode"
+   },
+   {
+    "attribute_name_en": "Inputs per Gates",
+    "component_code": "C2867613",
+    "attribute_value_name": "2"
+   },
+   {
+    "attribute_name_en": "output type",
+    "component_code": "C2867613",
+    "attribute_value_name": "Open-drain"
+   },
+   {
+    "attribute_name_en": "Current - Output Low(IOL)",
+    "component_code": "C2867613",
+    "attribute_value_name": "32mA"
+   }
+  ],
+  "rankScore": null,
+  "firstSortName": "Logic",
+  "secondSortName": "Logic Gates",
+  "componentBrandHigh": null,
+  "remarkHigh": null,
+  "componentModelHigh": null,
+  "componentCodeHigh": null,
+  "componentSpecificationHigh": null,
+  "rohsFlag": 1,
+  "assemblyComponentFlag": false,
+  "rohsFileName": null,
+  "rohsFileId": null,
+  "reachFileName": null,
+  "reachFileId": null,
+  "lcscComponentId": 3072290,
+  "componentDesignator": "U",
+  "componentSource": "shop",
+  "stockCount": 7919,
+  "overseasStockCount": 7919,
+  "prices": [
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C2867613",
+    "startNumber": 1,
+    "endNumber": 49,
+    "productPrice": 0.1532,
+    "erpComponentPriceKeyId": 341265440,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C2867613",
+    "startNumber": 50,
+    "endNumber": 149,
+    "productPrice": 0.1203,
+    "erpComponentPriceKeyId": 341265442,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C2867613",
+    "startNumber": 150,
+    "endNumber": 499,
+    "productPrice": 0.1041,
+    "erpComponentPriceKeyId": 341265445,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C2867613",
+    "startNumber": 500,
+    "endNumber": 2999,
+    "productPrice": 0.0899,
+    "erpComponentPriceKeyId": 341265444,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C2867613",
+    "startNumber": 3000,
+    "endNumber": 5999,
+    "productPrice": 0.0858,
+    "erpComponentPriceKeyId": 341265441,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C2867613",
+    "startNumber": 6000,
+    "endNumber": -1,
+    "productPrice": 0.0836,
+    "erpComponentPriceKeyId": 341265443,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   }
+  ],
+  "buyPrices": null,
+  "jlcPrices": null,
+  "encapsulationUnit": "PCS",
+  "encapsulationNumber": 3000,
+  "componentTypeEn": null,
+  "xrayFlag": false,
+  "componentLibraryType": "expand",
+  "leastNumber": 5,
+  "leastNumberPrice": 0.1155,
+  "lcscGoodsUrl": "https://www.lcsc.com/product-detail/logic-gates_texas-instruments-sn74lvc1g38dbvr_C2867613.html/?href=jlc-SMT/?href=jlc-SMT",
+  "erpComponentName": "\u5e26\u6f0f\u6781\u5f00\u8def\u8f93\u51fa\u7684\u5355\u8def2\u8f93\u5165\u4e0e\u975e\u95e8",
+  "lossNumber": 0,
+  "secondTypeNameEn": "Logic Gates",
+  "firstTypeNameEn": "Logic",
+  "secondTypeNameId": 2168,
+  "firstTypeNameId": 19,
+  "warehouseCode": "sz",
+  "warehouseName": "\u6df1\u5733",
+  "canPresaleNumber": 7915,
+  "minPresaleNumber": 0,
+  "theRatio": null,
+  "componentStatus": "yes",
+  "assemblyMode": "smtWeld",
+  "assemblyModeBatch": "smtWeld",
+  "assemblyProcess": "SMT",
+  "minPurchaseNum": 1,
+  "initialPrice": 0.1532,
+  "minPresalePrice": null,
+  "componentPresaleType": null,
+  "preMinPurchaseNum": 76,
+  "providerInfos": null,
+  "componentProductType": 0,
+  "isBuyComponent": "1",
+  "noBuyReason": null,
+  "replaceUrlSuffix": null,
+  "componentAlternativesCode": null,
+  "alternativesLcscComponentId": null,
+  "leastPatchNumber": 5,
+  "fixtureFlag": false,
+  "fullReelPrice": null,
+  "recentBuyNum": null,
+  "recentBuyUnitPrice": null,
+  "buyCustomerCode": null,
+  "eccnCode": "EAR99",
+  "allowPostFlag": true,
+  "overseasComponentCatalogBizKey": 385244375326277672,
+  "overseasComponentBrandBizKey": "385285308357283842",
+  "catalogBlackFlag": null,
+  "shopShowPriceFlag": true,
+  "shopShowForeignPriceFlag": true,
+  "shopRealPriceFlag": true,
+  "needAuditFlag": false,
+  "specialComponentFee": 0.0,
+  "orderInstructionEnglish": "",
+  "moistureSensitivityLevelEn": "MSL 1",
+  "hotFlag": null,
+  "storyGoods": false,
+  "matchedPartDetail": "Texas Instruments-40\u2103~+125\u2103 1 1.65V~5.5V 1.7V~2V 10uA 2 3.9ns@5V,50pF 32mA 550mV 700mV\u3001800mV 74LVC Series NAND Gate SOT-23-5 Logic Gates ROHS"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-13T20:35:47Z"
+}
