@@ -288,6 +288,11 @@ const IDENTITY: &[(&str, &str)] = &[
     ("f1", "KLDR025.TXP"),
     // Stage 16 (DECISIONS 16): blower-supply mains tap, F2 3.15 A T then J11 to the chassis PS3.
     ("f_blw", "3403.0171"),
+    // Stage 19b (DECISIONS 19b): pwm_hb's v3v3 <-> selv_gnd reference-transfer caps.
+    ("c_ref_xfer_1", "CC0603KRX7R9BB104"),
+    ("c_ref_xfer_2", "CC0603KRX7R9BB104"),
+    ("c_ref_xfer_3", "CC0603KRX7R9BB104"),
+    ("c_ref_xfer_4", "CC0603KRX7R9BB104"),
     ("j_blw_ac", "B2P3-VH(LF)(SN)"),
     ("rv1", "TMOV20RP175E"),
     ("br1", "GBJ2510-F"),
@@ -862,6 +867,12 @@ fn audit(m: &Model) -> Vec<String> {
         e.push(format!("tco_l must join only the TCO header and PS2, found {:?}", tco));
     }
     // Blower-supply tap (stage 16): fused after F1 and the filter, a branch of its own to J11.
+    // Reference-transfer caps (stage 19b): each joins the two SELV reference planes, v3v3 (In1) and selv_gnd (In2).
+    for i in 1..=4 {
+        let p = format!("c_ref_xfer_{i}");
+        expect(&mut e, m, &p, "1", "v3v3");
+        expect(&mut e, m, &p, "2", "selv_gnd");
+    }
     expect(&mut e, m, "f_blw", "1", "l_filt");
     expect(&mut e, m, "f_blw", "2", "blw_l");
     expect(&mut e, m, "j_blw_ac", "1", "blw_l");
@@ -1459,6 +1470,20 @@ mod tests {
             m.set_part(path, "RT0603BRD073K32L");
             fails(&m, &format!("{path} is RT0603BRD073K32L"));
         }
+    }
+
+    #[test]
+    fn reference_transfer_caps_must_join_the_selv_planes() {
+        // A transfer cap moved off v3v3 / selv_gnd (or a different part) must fail.
+        let mut m = built();
+        m.rewire("c_ref_xfer_2", "1", "hot5");
+        fails(&m, "c_ref_xfer_2.1");
+        let mut m = built();
+        m.rewire("c_ref_xfer_4", "2", "n_ls");
+        fails(&m, "c_ref_xfer_4.2");
+        let mut m = built();
+        m.set_part("c_ref_xfer_1", "CL10A106KP8NNNC");
+        fails(&m, "c_ref_xfer_1 is CL10A106KP8NNNC");
     }
 
     #[test]

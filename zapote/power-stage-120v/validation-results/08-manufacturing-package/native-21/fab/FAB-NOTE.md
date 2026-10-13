@@ -1,11 +1,11 @@
 # Fabrication note: power-stage-120v native-21 (CANDIDATE, not released)
 
-Board: native-21 stage 19 (stage 18 with the converter-local capacitors at the RECOM U41 / U42 output pins and the TPS7A47 U26 pins, bus_fault_hot routed along its Kelvin return, ct_zc / pwm_hb / pwm_lb re-laid on continuous references, and the comparator / monitor bypass caps beside their ICs, DECISIONS.md 2026-10-12 item 19; stage 18 was stage 17b with the SELV LINE_ZC_RAW / V15_SELV B.Cu runs re-laid ≥ 12.6 mm from RES_A, DECISIONS.md 2026-10-12 item 18; stage 17b was stage 16 with R5 = Bourns CSS2H-2512R-1L00F on its Kelvin land and declared pour priorities so the fill no longer depends on KiCad's fill order, DECISIONS.md 2026-10-12 item 17 / 17b; stage 16 was stage 15b plus the F2 / J11 blower-supply mains tap, item 16; stage 15b was stage 14 plus the 28 A tank hardware: R34 12.6 k, R43/R46 2.21 k and SW_A / SW_B copper widening, DECISIONS.md 2026-10-10 items 13-14; stage 14 added one RECOM R24C2T25/R-R isolated bias module per high side, U41/U42, the 9 µF C5/C6 bus film and the 2 × 30KPA150CA series bus clamp D3/D17, DECISIONS.md 2026-10-09 stage 14; stage 13b added the BOM simplification, the 5 × TDK B32654 resonant bank and the C1/C2 X2 swap; stage 12 carried the independent-review fixes, `../REVIEW-TRIAGE.md`), rebuilt from
+Board: native-21 stage 19b (stage 19 plus four 100 nF v3v3-selv_gnd reference-transfer caps C153-C156 beside pwm_hb's J4-side layer changes, DECISIONS.md 2026-10-12 item 19b; stage 19 was stage 18 with the converter-local capacitors at the RECOM U41 / U42 output pins and the TPS7A47 U26 pins, bus_fault_hot routed along its Kelvin return, ct_zc / pwm_hb / pwm_lb re-laid on continuous references, and the comparator / monitor bypass caps beside their ICs, DECISIONS.md 2026-10-12 item 19; stage 18 was stage 17b with the SELV LINE_ZC_RAW / V15_SELV B.Cu runs re-laid ≥ 12.6 mm from RES_A, DECISIONS.md 2026-10-12 item 18; stage 17b was stage 16 with R5 = Bourns CSS2H-2512R-1L00F on its Kelvin land and declared pour priorities so the fill no longer depends on KiCad's fill order, DECISIONS.md 2026-10-12 item 17 / 17b; stage 16 was stage 15b plus the F2 / J11 blower-supply mains tap, item 16; stage 15b was stage 14 plus the 28 A tank hardware: R34 12.6 k, R43/R46 2.21 k and SW_A / SW_B copper widening, DECISIONS.md 2026-10-10 items 13-14; stage 14 added one RECOM R24C2T25/R-R isolated bias module per high side, U41/U42, the 9 µF C5/C6 bus film and the 2 × 30KPA150CA series bus clamp D3/D17, DECISIONS.md 2026-10-09 stage 14; stage 13b added the BOM simplification, the 5 × TDK B32654 resonant bank and the C1/C2 X2 swap; stage 12 carried the independent-review fixes, `../REVIEW-TRIAGE.md`), rebuilt from
 `native-21/layout/copper.json` by `sh native-21/layout/incr_iter.sh native-21/layout/copper.json - OUTDIR`;
 SHA-256
-`370fcf373c97241966f0bb9a077b513903354a20bcd659545819e9d363b3bd1c`.
+`b19a45530bb0f39d2d3c0412e3774b6d5a47c4238d3fee867790cce410756662`.
 Gerbers: `native-21-gerbers.zip`, SHA-256
-`67e1e07f594039504e6b633eb277a9ab8be2ea745711846e5892eb014cabff6b`.
+`c9eaf0d96091662cd25d0ef5a2d78e972f6123e1a1b4cb1c6d85804922e80ea3`.
 
 **This package isn't released for ordering.** The gates come in two tiers (decision 2026-10-08; PROTOTYPE-LOT.md agrees).
 
@@ -36,7 +36,7 @@ Ordering is a purchase and needs the owner.
 | Impedance control | None |
 | Order number | **Remove** (JLC's "remove order number" option); the silk carries the board ID instead |
 | **Via covering** | **Epoxy-filled and capped (POFV) for all 749 × 0.3 mm vias, no exceptions.** 67 sit fully inside SMD pads and 69 more overlap a pad edge (`native-21/verification/via_in_pad.py`), including the R5 shunt current-pad arrays and the exposed-pad thermal fields (U26–U28 3 × 3, U35 2 × 2). The ten 1.6/0.8 current vias stay tented (JLC fills holes ≤ 0.5 mm only). The KiCad file says `filling/capping no`; this note is the requirement. Select "Confirm production files" |
-| Drills | 866 plated (746 vias, 120 component holes, 4 of them **plated slots 1.2 × 2.5 mm** for F1's 10 × 38 clips: routed slots, G85 in the PTH drill file), 15 non-plated (8 connector holes, 7 M3 fixings) |
+| Drills | 873 plated (753 vias, 120 component holes, 4 of them **plated slots 1.2 × 2.5 mm** for F1's 10 × 38 clips: routed slots, G85 in the PTH drill file), 15 non-plated (8 connector holes, 7 M3 fixings) |
 | Board-only parts | 36 bring-up test pads (bare copper), 3 fiducials (1 mm, 3 mm mask opening), 7 M3 holes at the positions the enclosure adopted; none in BOM/CPL. **H2–H7: the whole fixing chain is insulating** (nylon screw, washer and standoff; no metal screw, nut or insert within 10 mm of the board), with outer copper clear under the 7 mm washer. H1 may take metal hardware (native-21/BRINGUP-PROBES.md). Enclosure R30: male-female standoffs threaded into the tapped base (nylon at H2–H7 with a nylon top screw and washer, ≥ 10 mm; brass at H1). H1 is a bare NPTH, so its metal hardware bonds the chassis only; the board's PE comes in at J6 |
 
 JLC rules (`tools/jlc_dfm_check.py`, capabilities page re-read verbatim 2026-10-08):
@@ -44,7 +44,7 @@ JLC rules (`tools/jlc_dfm_check.py`, capabilities page re-read verbatim 2026-10-
 - Via diameter ≥ hole + 0.1 mm; our floor is a 0.15 mm ring.
 - Track/space at 2 oz multilayer: JLC allows 0.15/0.15 mm. Our floor is 0.2/0.2 mm, and the tightest gap is the U41/U42 modules' 0.20 mm pad-to-pad (0.45 mm pads at 0.65 mm pitch).
 - Via drill ≥ 0.15 mm.
-- Result: **PASS**. 746 vias, 120 plated pads (slot rings checked per axis: 0.60 mm), minimum track 0.2 mm, 0 failures (`../jlc-dfm.json`).
+- Result: **PASS**. 753 vias, 120 plated pads (slot rings checked per axis: 0.60 mm), minimum track 0.2 mm, 0 failures (`../jlc-dfm.json`).
 
 Assembly:
 - **LCSC numbers:** 82 of 92 source lines map to a checked LCSC part (48 exact from the survey, 33 changed or added since, most of them the 2026-10-09 Basic swaps, the stage-14 bias parts and stage 17's R5 CSS2H-2512R-1L00F (C4175647, JLC Extended), 1 accepted substitute; `../sourcing/`, `../bom-simplification/`). Ten are consigned or hand-assembled: F1 fuse, F2 (Schurter 3403.0171 UMT 250, blower-supply tap), C1/C2 (KEMET R463N410050N1K, Digi-Key), C5/C6 (TDK B32676G1905K000), U1/U2, T1, the resonant bank C21–C23/C151/C152 (TDK B32654A1104K000), J3, D3/D17 (Good-Ark 30KPA150CA, P600 axial) and U41/U42 (RECOM R24C2T25/R-R). Check stock again before ordering.

@@ -24,8 +24,9 @@ Targets (asserted, exit 1 on failure; DECISIONS item 19):
        and no run longer than 1.5 mm over no copper at all (antipads and pour edges are allowed up to that).
   SI2  pwm_hb, ct_zc: the same against the SELV planes (v3v3 / selv_gnd). ct_zc: every v3v3 <-> selv_gnd change
        has a v3v3-selv_gnd capacitor within 3.0 mm of the via, at most 1 transition (stage 18: 1 at 37.15 mm).
-       pwm_hb: its driver-side changes (y < 126 mm: U2 launch, the hop over the permit / bias_bad B.Cu crossing)
-       within 3.0 mm, at most 7 transitions (stage 18: 7); the J4-side changes are listed as open.
+       pwm_hb: every v3v3 <-> selv_gnd change within 3.0 mm (stage 19b; stage 19 asserted only the driver side,
+       y < 126 mm), at most 7 transitions (stage 18: 7); the stage-19b transfer caps C153-C156 each reach both
+       planes through a via within 1.6 mm of each pad.
 The other fast signals are reported, not asserted.
 
 --control: asserts the stage-18 review's findings reproduce instead: the bus_fault_hot In1 ocp_kelvin_p / n_ls
@@ -58,12 +59,13 @@ SIGNALS = {
     "line_zc": SELV_REF,
 }
 ASSERT_PLANE = {"bus_fault_hot", "pwm_hb", "ct_zc"}
-# transfer-cap distance asserted at every change of ct_zc, and at pwm_hb's driver-side changes (U2 launch and the
-# hop over the permit / bias_bad B.Cu crossing, y < 126): its four J4-side changes have no v3v3-selv_gnd capacitor
-# within 3 mm and are reported as OPEN (DECISIONS 19), not passed.
-ASSERT_TRANSFER = {"ct_zc": lambda at: True, "pwm_hb": lambda at: at[1] < 126.0}
+# transfer-cap distance asserted at every change of ct_zc and of pwm_hb (stage 19b: C153-C156 beside its four
+# J4-side changes; stage 19 asserted only its driver side). bias_bad is reported, not asserted (DECISIONS 19b).
+ASSERT_TRANSFER = {"ct_zc": lambda at: True, "pwm_hb": lambda at: True}
 TRANSFER_MM = 3.0
 MAX_TRANSITIONS = {"pwm_hb": 7, "ct_zc": 1}
+# stage 19b's dedicated transfer caps must reach both planes through their own vias
+XFER_CAPS, XFER_VIA_MM = ("C153", "C154", "C155", "C156"), 1.6
 STEP, SKIP, COPLANAR_GAP, BROADSIDE_GAP, MAX_GAP = 0.25, 0.6, 0.3, 0.5, 1.5
 CONTROL_DIST = {"pwm_hb": [54.39, 37.45, 21.24], "ct_zc": [37.50]}
 CONTROL_CROSS = (119.0, 75.2)
@@ -220,7 +222,14 @@ def transitions(d, ztree, net):
             cs = caps_between(d, a, b)
             if cs:
                 ref, p = min(cs, key=lambda rp: rp[1].distance(c))
-                row["transfer"] = {"cap": ref, "nets": [a, b], "mm": round(p.distance(c), 2)}
+                # how the cap reaches its planes: nearest via of each pad's net (the loop is pad - via - plane)
+                pv = {}
+                for q in d["pads"]:
+                    if q["ref"] == ref:
+                        qc = Polygon(q["pts"]).centroid
+                        vv = [qc.distance(Point(v["at"])) for v in d["vias"] if v["net"] == q["net"]]
+                        pv[q["net"]] = round(min(vv), 2) if vv else None
+                row["transfer"] = {"cap": ref, "nets": [a, b], "mm": round(p.distance(c), 2), "cap_pad_to_plane_via_mm": pv}
             else:
                 row["transfer"] = {"cap": None, "nets": [a, b], "mm": None}
         elif len(nets) == 1 and None not in nets and len(rlayers) == 2:
@@ -284,6 +293,20 @@ def main():
             fails.append(f"{net}: reference change {worst} mm from a v3v3-selv_gnd cap (limit {TRANSFER_MM})")
         if net in MAX_TRANSITIONS and len(tr) > MAX_TRANSITIONS[net]:
             fails.append(f"{net}: {len(tr)} layer transitions (limit {MAX_TRANSITIONS[net]})")
+    if not a.control:
+        refs = {p["ref"] for p in d["pads"]}
+        for ref in XFER_CAPS:
+            if ref not in refs:
+                fails.append(f"transfer cap {ref} missing")
+                continue
+            for q in d["pads"]:
+                if q["ref"] == ref:
+                    qc = Polygon(q["pts"]).centroid
+                    vv = min((qc.distance(Point(v["at"])) for v in d["vias"] if v["net"] == q["net"]), default=1e9)
+                    report.setdefault("transfer_caps", {}).setdefault(ref, {})[q["net"]] = round(vv, 2)
+                    if vv > XFER_VIA_MM:
+                        fails.append(f"transfer cap {ref} {q['net']} pad {vv:.2f} mm from its plane via (limit {XFER_VIA_MM})")
+        print("transfer caps (pad to plane via, mm):", report.get("transfer_caps"))
     if a.control:
         bf = report.get("bus_fault_hot", {})
         hit = [c for c in bf.get("plane_crossings", []) if math.dist(c["at"], CONTROL_CROSS) < 1.0

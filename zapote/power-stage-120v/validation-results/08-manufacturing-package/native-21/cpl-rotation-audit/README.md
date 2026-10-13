@@ -5,12 +5,12 @@ this makes that check a confirmation rather than a discovery. Nothing here was u
 the board and `pcb/` are untouched.
 
 **Pass criterion: every line JLC places is classified OK / CORRECTED / NEEDS-PREVIEW with a reason**
-(`audit.csv`, column `reason`). 333 of the 353 CPL lines are placed by JLC (BOM `Assembly` starts with `JLC` and
+(`audit.csv`, column `reason`). 337 of the 357 CPL lines are placed by JLC (stage 19b: + C153-C156, 0603 caps, OK) (BOM `Assembly` starts with `JLC` and
 has an LCSC number); the other 20 are consigned or hand-assembled and are listed under `excluded` in `audit.json`.
 
 | Class | Lines | Meaning |
 |---|---|---|
-| OK | 276 | KiCad rotation is what JLC needs |
+| OK | 280 | KiCad rotation is what JLC needs |
 | CORRECTED | 10 | non-zero offset, two independent sources agree; applied in `cpl-jlcpcb.corrected.csv` |
 | NEEDS-PREVIEW | 47 | sources disagree, a source is missing, or polarity cannot be settled offline; not changed |
 

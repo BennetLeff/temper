@@ -833,6 +833,25 @@ module PowerStage120V:
     c_fault_or.value = 100nF
     c_fault_or.p1 ~ V3V3
     c_fault_or.p2 ~ SELV_GND
+    # Stage 19b (DECISIONS 19b): v3v3 <-> selv_gnd reference-transfer caps, one beside each layer change of
+    # pwm_hb between the SELV row and J4 (its F.Cu runs are referenced to the In1 v3v3 pour, its B.Cu runs to the
+    # In2 selv_gnd pour; the return current crosses between them here instead of 5-53 mm away).
+    c_ref_xfer_1 = new C100n0603
+    c_ref_xfer_1.value = 100nF
+    c_ref_xfer_1.p1 ~ V3V3
+    c_ref_xfer_1.p2 ~ SELV_GND
+    c_ref_xfer_2 = new C100n0603
+    c_ref_xfer_2.value = 100nF
+    c_ref_xfer_2.p1 ~ V3V3
+    c_ref_xfer_2.p2 ~ SELV_GND
+    c_ref_xfer_3 = new C100n0603
+    c_ref_xfer_3.value = 100nF
+    c_ref_xfer_3.p1 ~ V3V3
+    c_ref_xfer_3.p2 ~ SELV_GND
+    c_ref_xfer_4 = new C100n0603
+    c_ref_xfer_4.value = 100nF
+    c_ref_xfer_4.p1 ~ V3V3
+    c_ref_xfer_4.p2 ~ SELV_GND
     r_ct_mon = new R1k0603
     r_ct_mon.value = 1kohm
     r_ct_mon.p1 ~ CT_SENSE_MON
@@ -1000,6 +1019,10 @@ module PowerStage120V:
     c_ct_neg.designator = "C45"
     c_ct_zc.designator = "C46"
     c_fault_or.designator = "C47"
+    c_ref_xfer_1.designator = "C153"
+    c_ref_xfer_2.designator = "C154"
+    c_ref_xfer_3.designator = "C155"
+    c_ref_xfer_4.designator = "C156"
     c_hot5_uv.designator = "C48"
     c_hot5_schmitt.designator = "C49"
     leg_a.permit_fet.designator = "Q1"

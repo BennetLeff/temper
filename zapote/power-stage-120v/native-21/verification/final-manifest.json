@@ -1,12 +1,12 @@
 {
  "schema": "temper.native21.engineering-candidate.v1",
  "status": "DIGITAL_CANDIDATE_NOT_MANUFACTURING_RELEASE",
- "routed_board_sha256": "370fcf373c97241966f0bb9a077b513903354a20bcd659545819e9d363b3bd1c",
- "copper_json_sha256": "f287dc4afc64bdf5d759fb237ae3771f71b1489268c91399e064e84c2af0ca72",
- "schematic_sha256": "40652300cba54a02665c2f54d80956b8ceb05602d3e9562edb927a559b9ac471",
- "frozen_netlist_sha256": "bd395b0b407ec4f1542ec3f3085e16e295a14a301c03ed90054ebe250a3905d3",
+ "routed_board_sha256": "b19a45530bb0f39d2d3c0412e3774b6d5a47c4238d3fee867790cce410756662",
+ "copper_json_sha256": "ce49f20024545fe28f104e72f69c0d1362227a15145b3a1c3bd4b915199b6cf2",
+ "schematic_sha256": "e6993fa4abab0a845d1cc0d07074c39ab9f536eca6f864dae993d76941ae8d35",
+ "frozen_netlist_sha256": "8a7e1c4a869445d7d11ab9ee4c69f0dc40207cf4f06463a0ac8b2238cffef92b",
  "rebuild": "sh native-21/layout/incr_iter.sh native-21/layout/copper.json - [OUTDIR]",
- "components": 353,
+ "components": 357,
  "drc": {
   "errors": 0,
   "unconnected": 0,
@@ -14,30 +14,30 @@
   "warnings": {
    "lib_footprint_issues": "199 without library tables (environmental); 0 with native-21/fp-lib-table + candidate-libs"
   },
-  "with_library_tables": "0 violations, 0 warnings, 0 unconnected, parity 0 (stage19-pi-si/drc-libtables19.json)"
+  "with_library_tables": "0 violations, 0 warnings, 0 unconnected, parity 0 (stage19-pi-si/drc-libtables19b.json)"
  },
  "erc": {
   "errors": 0,
   "warnings": {
    "isolated_pin_label": 54,
    "ground_pin_not_ground": 9,
-   "footprint_link_issues": "352, environmental (unconfigured stock-library table)"
+   "footprint_link_issues": "356, environmental (unconfigured stock-library table)"
   }
  },
  "plane_splits": 0,
  "barrier_plan_view_8mm": {
   "barrier21": 0,
   "rust_gate_violations": 0,
-  "rust_gate_items": 5807
+  "rust_gate_items": 5829
  },
  "body_collisions": {
-  "solids": 405,
+  "solids": 409,
   "unattributed": 0,
   "part_overlaps": 0,
   "envelopes": "J3 25 mm, F1 20 mm, U41/U42 3.6 mm, D3/D17 9.1 mm (no stock 3D model); resonant bank TDK B32654 has a dimensioned STEP; J11 25 mm, F2 4.0 mm (estimate, no 3D model); R5 CSS2H 0.78 mm (stage 17, datasheet H max, no 3D model)"
  },
  "board_in_R4": {
-  "bodies": 407,
+  "bodies": 411,
   "hits": 0
  },
  "kelvin_ocp_band_A": [
@@ -46,13 +46,13 @@
  ],
  "kelvin_meets_44A": true,
  "reference_labels": {
-  "silk": 311,
+  "silk": 315,
   "fab_only": 88
  },
  "via_in_pad_remaining": {
-  "drill_fully_inside_smd_pad": 69,
-  "drill_overlapping_pad_edge": 75,
-  "note": "every 0.3 mm via is POFV. Counted by native-21/verification/via_in_pad.py on the stage-19 board"
+  "drill_fully_inside_smd_pad": 70,
+  "drill_overlapping_pad_edge": 73,
+  "note": "every 0.3 mm via is POFV. Counted by native-21/verification/via_in_pad.py on the stage-19b board"
  },
  "fem": "both legs' coarse native-21 matrices extracted on the stage-5 copper (native21-all-copper.json.gz); provisional decision matrices pass F6 at the -1.6 V bound 252/252 per leg (FINDINGS M11). Stage 6 adds vias only at R5's current pads (return path parallel copper; not expected to raise loop L). Corrections and fine extraction running.",
  "physical": "NOT_RUN",
@@ -61,13 +61,13 @@
   "evidence": "validation-results/08-manufacturing-package/native-21/jlc-dfm.json",
   "rules": "tools/jlc_dfm_check.py: PTH ring >= 0.254 (per axis for slots), via ring >= 0.15, track >= 0.2",
   "vias": {
-   "0.6/0.3": 595,
+   "0.6/0.3": 602,
    "0.85/0.3": 141,
    "1.6/0.8": 10
   }
  },
  "via_in_pad_decision": "order every 0.3 mm via epoxy-filled and capped (POFV); DECISIONS.md 2026-10-08",
- "stage": "19: stage 18 + converter-local caps at the RECOM U41 / U42 VOUT+ pins and TPS7A47 U26 OUT / IN / NR pins (U26 moved), bus_fault_hot along its Kelvin return (SI1), ct_zc / pwm_lb continuous, pwm_hb driver side with transfer caps (SI2), comparator / monitor bypass caps beside their ICs + DRC warnings cleared (N1 / K6 from 365151b62); DECISIONS item 19",
+ "stage": "19b: stage 19 + four v3v3-selv_gnd 100 nF reference-transfer caps C153-C156 (c_ref_xfer_1..4, CC0603KRX7R9BB104) beside pwm_hb's J4-side layer changes, each with its own plane vias; DECISIONS item 19b",
  "board_hash_note": "rebuilds are not byte-identical (KiCad UUIDs / timestamps); copper_json_sha256 is the reproducible identity",
  "r5_current_vias": {
   "R5.1_leg_ret": 10,
@@ -81,9 +81,9 @@
   "worst_via_wall_estimate_c": 133.31,
   "criterion": "validation-plan/04-board-current-thermal.md:114 (report current and rise; >3 A is a flag, no rated limit)"
  },
- "kelvin_evidence": "validation-results/02-protection-timing/kelvin/budget-native21s19.json (R35.2 158.08 mOhm; band after 67.72-116.44 A, bound shift -2.237 A; floor 64.17 A met; Kelvin return's lower 26 mm moved B.Cu -> In2 over bus_fault_hot)",
+ "kelvin_evidence": "validation-results/02-protection-timing/kelvin/budget-native21s19b.json (identical to native21s19: R35.2 158.08 mOhm; band 67.72-116.44 A; floor 64.17 A met at the bound)",
  "board_current_screen": "task 04 round 5 on stage 19: BUS_P span 4.129 %; B3 h25 ceiling sweep 22/24/26/28 A -> 130.2/131.1/132.1/136.0 C (22-26 A at U42, 28 A at R5.4); U26 85.7-86.9 C pad max (stage 18 126.1-127.4, a single hot cell; mean 83.7 -> 81.7 C at nominal h25); nominal h10/h25 163.2/129.1 C; c28 h10 197.4 C",
- "fab_package": "validation-results/08-manufacturing-package/native-21 (candidate; review PASS 862 round holes + 4 slots; DFM PASS 746 vias; Gerber ZIP 67e1e07f594039504e6b633eb277a9ab8be2ea745711846e5892eb014cabff6b)",
+ "fab_package": "validation-results/08-manufacturing-package/native-21 (candidate; review PASS 869 round holes + 4 slots; DFM PASS 753 vias; Gerber ZIP c9eaf0d96091662cd25d0ef5a2d78e972f6123e1a1b4cb1c6d85804922e80ea3)",
  "tank_path_width_screen": {
   "SW_B_long_section_mm": "8.1-9.3 (was 4.4-5.6 over x 58-74)",
   "SW_A_long_section_mm": 7.0,
@@ -185,6 +185,15 @@
     "B.Cu": 584
    },
    "violations": 0
+  },
+  "stage19b": {
+   "F.Cu": 20.393,
+   "B.Cu": 13.375,
+   "rust_items": {
+    "F.Cu": 992,
+    "B.Cu": 589
+   },
+   "violations": 0
   }
  },
  "stage19_pi_si": {
@@ -213,8 +222,13 @@
     "U26-C64": 23.06
    }
   },
-  "return_path": "gates/return_path19.py PASS: bus_fault_hot 0 samples over another net (stage 18: 150), longest unreferenced run 1.25 mm; ct_zc 1 change, C46 1.84 mm (stage 18 37.15); pwm_hb driver-side changes 2.39 / 2.00 / 2.43 mm (stage 18 7.99 / 10.69 / 8.17), J4-side 4.98 / 21.24 / 37.45 / 52.7 mm OPEN",
+  "return_path": "gates/return_path19.py PASS (stage 19b): bus_fault_hot 0 samples over another net; ct_zc 1 change, C46 1.84 mm; pwm_hb every change <= 3 mm: C14 2.39, C142 2.00, C47 2.43, C153 2.72, C154 1.12, C155 1.12, C156 1.12 mm (stage 18: 7.99 / 10.69 / 8.17 / 3.12 / 1.02 / 28.50 / 48.51); transfer-cap pad to plane via 0.85-1.51 mm",
   "bypass_check": "11/11 PASS (native-21/verification/bypass-check-native21s19.json)",
-  "evidence": "validation-results/08-manufacturing-package/native-21/stage19-pi-si/"
- }
+  "evidence": "validation-results/08-manufacturing-package/native-21/stage19-pi-si/",
+  "stage19_board": {
+   "board": "370fcf373c97241966f0bb9a077b513903354a20bcd659545819e9d363b3bd1c",
+   "gerber_zip": "67e1e07f594039504e6b633eb277a9ab8be2ea745711846e5892eb014cabff6b"
+  }
+ },
+ "bom_lines": "92 (C153-C156 join the CC0603KRX7R9BB104 / LCSC C14663 line); 357 placements"
 }

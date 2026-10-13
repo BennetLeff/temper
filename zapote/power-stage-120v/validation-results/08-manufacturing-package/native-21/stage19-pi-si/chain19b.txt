@@ -1,0 +1,38 @@
+21 signal TPs, 15 reference TPs, 7 missing: ['leg_b-out_l', 'leg_a-out_h', 'leg_b-out_h', 'pwm_lb', 'leg_a-dis', 'leg_b-dis', 'line_zc']
+fiducials [{'ref': 'FID1', 'at': [4, 36]}, {'ref': 'FID2', 'at': [278, 128]}, {'ref': 'FID3', 'at': [6, 186]}]
+holes [('H1', 'metal', [285.0, 135.0]), ('H2', 'nylon', [6, 180]), ('H3', 'nylon', [86, 180]), ('H4', 'nylon', [24, 74]), ('H5', 'nylon', [88, 100]), ('H6', 'nylon', [128, 54]), ('H7', 'nylon', [194, 
+{"contested_pairs": 25, "equal_priority": []}
+thermal reliefs on 33 low-current THT pads
+labels: 315 on silk, 88 on F.Fab (no clear legend spot)
+unconnected 0
+plane splits 0
+barrier (plan view, 8.0 mm): 0 violations; RES_A outer (12.6 mm): 0 violations (min F.Cu 20.393, B.Cu 13.375)
+errors 0
+violations [(('lib_footprint_issues', 'warning'), 199)]
+BOARD b19a45530bb0f39d2d3c0412e3774b6d5a47c4238d3fee867790cce410756662
+D5 True 8.047 8.507
+BRINGUP-PROBES.md: 21 signal pads, 7 holes
+ERC {('warning', 'footprint_link_issues'): 356, ('warning', 'isolated_pin_label'): 54, ('warning', 'ground_pin_not_ground'): 9}
+FIT 409 0 0 411 0
+{"scenarios": 39, "failed": ["BUS_P full pitch span 4.129% exceeds 3%"], "bus_p_span_percent": 4.128962823074351}
+RUST 0 b19a45530bb0 5829 RES_A outer 12.6 0 {'F.Cu': 992, 'B.Cu': 589}
+DFM PASS 753 0.2
+RES_A outer-layer creepage: 0 pairs under 12.6 mm -> PASS
+PASS
+PASS
+BYPASS True {'U10': ('C44', 1.7), 'U11': ('C45', 1.7), 'U12': ('C46', 1.7), 'U13': ('C47', 2.65), 'U24': ('C89', 1.7), 'U25': ('C88', 2.65), 'U40': ('C144', 1.7), 'U15': ('C49', 4.38), 'U29': ('C70', 2.2), 'U30': ('C80', 2.2), 'U31': ('C87', 4.23)}
+{"R_eff_R35_2_mohm": 158.0819, "max_transfer": {"pad": "R35.2", "mohm": 158.0819}, "trip_shift_A_per_mV_at_R35_2": -1.037, "trip_shift_A_per_10mA_returned_bound": -1.6394, "unused_island_cells": 0}
+{"total_mA": 13.648, "e_th_mV": 2.0899, "trip_shift_A": -2.167, "bound_all_at_max_transfer": {"e_th_mV": 2.1576, "trip_shift_A": -2.237}, "band_after_A": [67.72, 116.44], "meets_44A_min": true, "floor_A": 64.17, "meets_floor_at_bound": true}
+22.0 23.1 130.2 14.5 56.5 F.Cu
+24.0 25.2 131.1 14.5 56.5 F.Cu
+26.0 27.3 132.1 14.5 56.5 F.Cu
+28.0 29.4 136.0 39.5 14.5 F.Cu
+B3 [('nominal_h10_p1p0', 163.2), ('nominal_h25_p1p0', 129.1), ('extreme_h10_p1p0', 247.2), ('c28_h10_p1p0', 197.4), ('c28_h25_p1p0', 136.0)]
+92 BOM lines, 357 placements (38 THT, 319 SMD/other)
+{'exact': 48, 'changed': 33, 'substitute': 1, 'consign': 10}
+{"no_outer_copper": 0, "no_mask_opening": 0, "silk_on_land": 0} 869 15 [290.0, 190.0] PASS
+    Total plated holes count 873
+    Total unplated holes count 15
+ZIP c9eaf0d96091662cd25d0ef5a2d78e972f6123e1a1b4cb1c6d85804922e80ea3
+CHAIN_DONE
+EXIT 0

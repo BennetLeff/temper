@@ -418,6 +418,20 @@ STAGE19_PI["leg_b.c_vcci"] = (31.075, 57.85, 0.0)   # C14: v3v3 (30.3, 57.85), s
 for path, pose in STAGE19_PI.items():
     POSE[path] = pose
 
+# Stage 19b (DECISIONS 19b): one v3v3-selv_gnd 100 nF beside each of pwm_hb's four J4-side layer changes (its F.Cu
+# runs sit over In1 v3v3, its B.Cu runs over In2 selv_gnd); spots from a free-pose scan of the stage-19 board,
+# kept where both planes lie under the cap so its own plane vias land in them.
+STAGE19B_XFER = {
+    "c_ref_xfer_1": (41.85, 128.78, 0.0),    # C153: 2.72 mm from the via at (38.955, 127.075); the nearer spots lie
+                                             # off the In1 v3v3 / In2 selv_gnd pours (SELV band edge, y < 126.5) or
+                                             # leave no room for its plane vias (permit / bias_bad B.Cu, the 8 mm barrier)
+    "c_ref_xfer_2": (57.05, 128.68, 0.0),    # C154: 1.12 mm from (55.155, 128.675)
+    "c_ref_xfer_3": (58.05, 157.38, 0.0),    # C155: 1.13 mm from (56.155, 157.275)
+    "c_ref_xfer_4": (57.85, 175.0, 0.0),     # C156: 1.12 mm from (55.955, 175.0)
+}
+for path, pose in STAGE19B_XFER.items():
+    POSE[path] = pose
+
 missing = sorted(set(PARTS) - set(POSE))
 if missing:
     raise SystemExit(f"{len(missing)} unplaced: {missing}")

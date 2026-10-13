@@ -1,0 +1,8 @@
+PI1 U41 10 uF: U41.28 -> C104 p_ha 2.88 mm; U41.27 -> C104 n_ha 5.70 mm
+PI1 U41 100 nF: U41.29 -> C75 p_ha 2.79 mm; U41.31 -> C75 n_ha 2.88 mm
+PI1 U42 10 uF: U42.28 -> C108 p_hb 2.79 mm; U42.27 -> C108 n_hb 5.69 mm
+PI1 U42 100 nF: U42.29 -> C82 p_hb 2.93 mm; U42.35 -> C82 n_hb 2.86 mm
+PI2 U26 OUT: U26.1 -> C99 v15_ls 2.81 mm; U26.5 -> C99 n_ls 2.81 mm
+PI2 U26 IN: U26.16 -> C98 v24_raw 2.62 mm; U26.21 -> C98 n_ls 6.97 mm
+PI2 U26 NR: U26.14 -> C64 ldo_nr 1.61 mm; U26.10 -> C64 n_ls 5.19 mm
+PASS
