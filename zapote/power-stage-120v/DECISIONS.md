@@ -792,6 +792,7 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
 20. **Conducted EMI on stage 19b (2026-10-12; `validation-results/07-conducted-emi/s19b/`, rerun reproduced bit-for-bit). Verdict: INCONCLUSIVE, updated 2026-10-13 to PASS.**
     - **2026-10-13 update (enclosure study 16):** coil-to-PE capacitance is 31.0 pF with the pan floating (28.5–35.1; +20 pF bound for board copper) and 91.4 pF with the pan earthed.
       - With these inputs the worst margin is 10.5 dB nominal and ≥ 6.5 dB in every sensitivity, so the verdict is **PASS**.
+      - **Condition (rubric review 2026-10-13, OTT-18):** the PASS assumes the inlet module at ≥ 100 µH DM (18 µH + 2 × 41 µH). The 41 µH parts have no MPN; the D-22 module as specified (18 µH) gives −5.1 dB, board-only −39.3 dB. A one-sided 100 pF coil-to-PE split gives −0.8 dB, so the bench measures the split. Selecting the module parts is required before any EMI claim.
       - Pan earthed through a user (informational, not a compliance setup): 1.7–2.6 dB at 60 kHz. The shield / CM choke reserve stays, and the bench adds an earthed-pan run.
     - **Limits:** 47 CFR 18.307(a) induction cooking, now including the 9–150 kHz rows. Canada, Mexico and CISPR 14-1 below 150 kHz are for the lab to confirm.
     - **Worst predicted margin:**

@@ -1,7 +1,8 @@
 # 07 Conducted EMI, stage 19b: predicted margin vs limits (EMC1 follow-up)
 
 - **Design:** native-21 stage 19b (`zapote/power-stage-120v`, board SHA-256 `b19a4553…0756662`, from integration `5d53896c3`). Model-based desk study. **No measurement, no compliance claim.**
-- **Verdict: INCONCLUSIVE** (criterion below). The nominal case clears 6 dB (worst **7.8 dB**, 9-150 kHz QP, at 60 kHz, common mode), but one-at-a-time sensitivities fall to **1.8 dB** (22 A: 3.1 dB), all driven by one unmeasured number: the **tank-coil-to-PE capacitance**. No result is a regulatory margin.
+- **Verdict: PASS, conditional (updated 2026-10-13; DECISIONS item 20).** With the measured coil-to-PE capacitance from enclosure study 16 (31.0 pF, pan floating) the worst margin is 10.5 dB nominal and ≥ 6.5 dB in every sensitivity. The pass **requires the inlet filter module at ≥ 100 µH DM** (`MODULE_NOM`: 18 µH + 2 × 41 µH), whose 41 µH inductors have no MPN yet: the D-22 module as specified (18 µH) gives −5.1 dB and board-only −39.3 dB (`results.json`). A one-sided 100 pF coil-to-PE split gives −0.8 dB, so the bench must measure the split, not just the total. No result is a regulatory margin.
+- *Original 2026-10-12 verdict:* INCONCLUSIVE. Nominal cleared 6 dB (worst 7.8 dB, 9-150 kHz QP, at 60 kHz, common mode), but sensitivities fell to 1.8 dB, all driven by the then-unmeasured tank-coil-to-PE capacitance.
 
 ## 1. Pass criterion (fixed before the results were computed)
 
