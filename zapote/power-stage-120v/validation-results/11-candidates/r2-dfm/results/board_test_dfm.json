@@ -1,0 +1,130 @@
+{
+ "outline_bbox_mm": [
+  290.0,
+  190.0
+ ],
+ "outline_area_cm2": 451.5,
+ "bbox_area_cm2": 551.0,
+ "closest_smd_pads_to_edge_mm": [
+  [
+   1.09,
+   "C140.1"
+  ],
+  [
+   1.09,
+   "U31.1"
+  ],
+  [
+   1.09,
+   "U31.2"
+  ],
+  [
+   1.09,
+   "U31.3"
+  ],
+  [
+   1.09,
+   "U31.4"
+  ]
+ ],
+ "smd_pads_within_3mm_of_edge": 29,
+ "smd_pads_within_5mm_of_edge": 43,
+ "vias_over_0p5mm": [
+  {
+   "at": [
+    205.6,
+    55.2
+   ],
+   "net": "hv_ret",
+   "drill": 0.8
+  },
+  {
+   "at": [
+    205.6,
+    72.6
+   ],
+   "net": "hv_ret",
+   "drill": 0.8
+  },
+  {
+   "at": [
+    207.8,
+    55.2
+   ],
+   "net": "hv_ret",
+   "drill": 0.8
+  },
+  {
+   "at": [
+    207.8,
+    72.6
+   ],
+   "net": "hv_ret",
+   "drill": 0.8
+  },
+  {
+   "at": [
+    216.0,
+    61.0
+   ],
+   "net": "hv_ret",
+   "drill": 0.8
+  },
+  {
+   "at": [
+    216.0,
+    66.0
+   ],
+   "net": "hv_ret",
+   "drill": 0.8
+  },
+  {
+   "at": [
+    216.0,
+    71.0
+   ],
+   "net": "hv_ret",
+   "drill": 0.8
+  },
+  {
+   "at": [
+    220.5,
+    61.0
+   ],
+   "net": "hv_ret",
+   "drill": 0.8
+  },
+  {
+   "at": [
+    220.5,
+    66.0
+   ],
+   "net": "hv_ret",
+   "drill": 0.8
+  },
+  {
+   "at": [
+    220.5,
+    71.0
+   ],
+   "net": "hv_ret",
+   "drill": 0.8
+  }
+ ],
+ "vias_over_0p5mm_nets": {
+  "hv_ret": 10
+ },
+ "nets_with_2plus_pads": 141,
+ "nets_with_board_TP": 26,
+ "nets_with_TP_or_THT_lead": 49,
+ "nets_with_any_probeable_feature": 141,
+ "nets_unreachable": [],
+ "pct": {
+  "tp": 18.4,
+  "tp_or_tht": 34.8,
+  "any": 100.0
+ },
+ "tp_count": 35,
+ "tp_refs": 35,
+ "probeable_without_tp_count": 115
+}

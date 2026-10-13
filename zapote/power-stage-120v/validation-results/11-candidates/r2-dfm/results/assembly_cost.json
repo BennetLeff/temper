@@ -1,0 +1,625 @@
+{
+ "assumptions_labour": {
+  "usd_per_hour": 45.0,
+  "s_per_joint_small": 25,
+  "s_per_joint_power": 90,
+  "s_insert_per_part": 30,
+  "s_trim_per_lead": 8
+ },
+ "jlc_fees": {
+  "std_setup_1side": 25.56,
+  "std_stencil_1side": 8.21,
+  "std_stencil_storage": 4.93,
+  "std_feeder_per_line": 1.53,
+  "eco_setup": 8.18,
+  "eco_stencil": 1.53,
+  "eco_feeder_per_ext_line": 3.07,
+  "smt_per_joint": 0.0016,
+  "manual_per_joint": 0.0164,
+  "hand_labour_per_order": 3.58,
+  "confirm_placement": 0.45,
+  "fixtures_1_29": 16.42,
+  "fixtures_500_plus": 164.18,
+  "consign_per_piece": 0.142,
+  "consign_per_pin_le5": 0.017,
+  "consign_cap_gt5": 0.078,
+  "consign_parcel_oneoff": 85.0
+ },
+ "lines": [
+  {
+   "refs": [
+    "J1"
+   ],
+   "qty": 1,
+   "mpn": "1711725",
+   "lcsc": "C89120",
+   "mount": "THT",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 239",
+   "plated_joints": 2,
+   "smd_joint_if_smd": 0,
+   "jlc_stock": 2393,
+   "unit5": "1.81",
+   "unit500": "1.487",
+   "has_lcsc": true,
+   "power": true,
+   "keep_hand_reason": ""
+  },
+  {
+   "refs": [
+    "F1"
+   ],
+   "qty": 1,
+   "mpn": "KLDR025.TXP",
+   "lcsc": "",
+   "mount": "THT",
+   "bom_assembly": "consign or hand-assemble (not on LCSC / ",
+   "plated_joints": 4,
+   "smd_joint_if_smd": 0,
+   "jlc_stock": null,
+   "unit5": "38.43",
+   "unit500": "29.412",
+   "has_lcsc": false,
+   "power": true,
+   "keep_hand_reason": ""
+  },
+  {
+   "refs": [
+    "RV1"
+   ],
+   "qty": 1,
+   "mpn": "TMOV20RP175E",
+   "lcsc": "C1527834",
+   "mount": "THT",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 114",
+   "plated_joints": 2,
+   "smd_joint_if_smd": 0,
+   "jlc_stock": 114,
+   "unit5": "1.8083",
+   "unit500": "1.1946",
+   "has_lcsc": true,
+   "power": false,
+   "keep_hand_reason": ""
+  },
+  {
+   "refs": [
+    "C1",
+    "C2"
+   ],
+   "qty": 2,
+   "mpn": "R463N410050N1K",
+   "lcsc": "",
+   "mount": "THT",
+   "bom_assembly": "consign or hand-assemble (not on LCSC / ",
+   "plated_joints": 4,
+   "smd_joint_if_smd": 0,
+   "jlc_stock": null,
+   "unit5": "0.928",
+   "unit500": "0.57212",
+   "has_lcsc": false,
+   "power": false,
+   "keep_hand_reason": ""
+  },
+  {
+   "refs": [
+    "L1"
+   ],
+   "qty": 1,
+   "mpn": "B82726S2203A020",
+   "lcsc": "C1534260",
+   "mount": "THT",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 0 /",
+   "plated_joints": 4,
+   "smd_joint_if_smd": 0,
+   "jlc_stock": 0,
+   "unit5": "15.9",
+   "unit500": "9.88484",
+   "has_lcsc": true,
+   "power": true,
+   "keep_hand_reason": ""
+  },
+  {
+   "refs": [
+    "C3",
+    "C4"
+   ],
+   "qty": 2,
+   "mpn": "DE1E3RA222MA4BP01F",
+   "lcsc": "C907949",
+   "mount": "THT",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 6 /",
+   "plated_joints": 4,
+   "smd_joint_if_smd": 0,
+   "jlc_stock": 6,
+   "unit5": "0.1142",
+   "unit500": "0.0707",
+   "has_lcsc": true,
+   "power": false,
+   "keep_hand_reason": ""
+  },
+  {
+   "refs": [
+    "BR1"
+   ],
+   "qty": 1,
+   "mpn": "GBJ2510-F",
+   "lcsc": "C526644",
+   "mount": "THT",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 158",
+   "plated_joints": 4,
+   "smd_joint_if_smd": 0,
+   "jlc_stock": 1589,
+   "unit5": "4.02",
+   "unit500": "4.02",
+   "has_lcsc": true,
+   "power": true,
+   "keep_hand_reason": "same fixture, 0.665 mm step at BR1 (SINK-DRAWING-NOTES.md)"
+  },
+  {
+   "refs": [
+    "C5",
+    "C6"
+   ],
+   "qty": 2,
+   "mpn": "B32676G1905K000",
+   "lcsc": "",
+   "mount": "THT",
+   "bom_assembly": "consign or hand-assemble (not on LCSC / ",
+   "plated_joints": 8,
+   "smd_joint_if_smd": 0,
+   "jlc_stock": null,
+   "unit5": "8.015",
+   "unit500": "6.17074",
+   "has_lcsc": false,
+   "power": true,
+   "keep_hand_reason": ""
+  },
+  {
+   "refs": [
+    "U1",
+    "U2"
+   ],
+   "qty": 2,
+   "mpn": "UCC21550BDWKR",
+   "lcsc": "",
+   "mount": "SMD",
+   "bom_assembly": "consign or hand-assemble (not on LCSC / ",
+   "plated_joints": 0,
+   "smd_joint_if_smd": null,
+   "jlc_stock": null,
+   "unit5": "1.409",
+   "unit500": "1.03682",
+   "has_lcsc": false,
+   "power": false,
+   "keep_hand_reason": ""
+  },
+  {
+   "refs": [
+    "Q2",
+    "Q3",
+    "Q5",
+    "Q6"
+   ],
+   "qty": 4,
+   "mpn": "IPW65R018CFD7",
+   "lcsc": "C3289047",
+   "mount": "THT",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 6 /",
+   "plated_joints": 12,
+   "smd_joint_if_smd": 0,
+   "jlc_stock": 6,
+   "unit5": "19.72",
+   "unit500": "10.17612",
+   "has_lcsc": true,
+   "power": true,
+   "keep_hand_reason": "seat-before-solder fixture on the M11 sink (SINK-DRAWING-NOTES.md Acceptance: coplanar 0.05 mm)"
+  },
+  {
+   "refs": [
+    "J2",
+    "J5",
+    "J7",
+    "J8",
+    "J9",
+    "J10"
+   ],
+   "qty": 6,
+   "mpn": "74650074",
+   "lcsc": "C5118857",
+   "mount": "THT",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 0",
+   "plated_joints": 24,
+   "smd_joint_if_smd": 0,
+   "jlc_stock": 0,
+   "unit5": "3.411",
+   "unit500": "2.73",
+   "has_lcsc": true,
+   "power": true,
+   "keep_hand_reason": ""
+  },
+  {
+   "refs": [
+    "C21",
+    "C22",
+    "C23",
+    "C151",
+    "C152"
+   ],
+   "qty": 5,
+   "mpn": "B32654A1104J000",
+   "lcsc": "C3794777",
+   "mount": "THT",
+   "bom_assembly": "JLC (Extended)",
+   "plated_joints": 10,
+   "smd_joint_if_smd": 0,
+   "jlc_stock": null,
+   "unit5": "2.8124",
+   "unit500": "1.9947",
+   "has_lcsc": true,
+   "power": true,
+   "keep_hand_reason": ""
+  },
+  {
+   "refs": [
+    "PS1"
+   ],
+   "qty": 1,
+   "mpn": "IRM-20-15",
+   "lcsc": "C6211072",
+   "mount": "THT",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 156",
+   "plated_joints": 4,
+   "smd_joint_if_smd": 0,
+   "jlc_stock": 1568,
+   "unit5": "9.1",
+   "unit500": "8.4",
+   "has_lcsc": true,
+   "power": true,
+   "keep_hand_reason": ""
+  },
+  {
+   "refs": [
+    "J3",
+    "J11"
+   ],
+   "qty": 2,
+   "mpn": "B2P3-VH(LF)(SN)",
+   "lcsc": "",
+   "mount": "THT",
+   "bom_assembly": "consign or hand-assemble (not on LCSC / ",
+   "plated_joints": 4,
+   "smd_joint_if_smd": 0,
+   "jlc_stock": null,
+   "unit5": "0.153",
+   "unit500": "0.11626",
+   "has_lcsc": false,
+   "power": true,
+   "keep_hand_reason": ""
+  },
+  {
+   "refs": [
+    "F2"
+   ],
+   "qty": 1,
+   "mpn": "3403.0171",
+   "lcsc": "",
+   "mount": "SMD",
+   "bom_assembly": "consign or hand-assemble (not on LCSC / ",
+   "plated_joints": 0,
+   "smd_joint_if_smd": null,
+   "jlc_stock": null,
+   "unit5": "1.8",
+   "unit500": "1.8",
+   "has_lcsc": false,
+   "power": false,
+   "keep_hand_reason": ""
+  },
+  {
+   "refs": [
+    "PS2"
+   ],
+   "qty": 1,
+   "mpn": "IRM-20-24",
+   "lcsc": "C194964",
+   "mount": "THT",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 741",
+   "plated_joints": 4,
+   "smd_joint_if_smd": 0,
+   "jlc_stock": 7413,
+   "unit5": "9.1",
+   "unit500": "8.4",
+   "has_lcsc": true,
+   "power": true,
+   "keep_hand_reason": ""
+  },
+  {
+   "refs": [
+    "J4"
+   ],
+   "qty": 1,
+   "mpn": "0430451612",
+   "lcsc": "C491447",
+   "mount": "THT",
+   "bom_assembly": "JLC (Extended); stock at survey: LCSC 77",
+   "plated_joints": 16,
+   "smd_joint_if_smd": 0,
+   "jlc_stock": 7797,
+   "unit5": "2.35",
+   "unit500": "1.6944",
+   "has_lcsc": true,
+   "power": false,
+   "keep_hand_reason": ""
+  },
+  {
+   "refs": [
+    "D3",
+    "D17"
+   ],
+   "qty": 2,
+   "mpn": "30KPA150CA",
+   "lcsc": "",
+   "mount": "THT",
+   "bom_assembly": "consign or hand-assemble (not on LCSC / ",
+   "plated_joints": 4,
+   "smd_joint_if_smd": 0,
+   "jlc_stock": null,
+   "unit5": "9.82",
+   "unit500": "9.82",
+   "has_lcsc": false,
+   "power": true,
+   "keep_hand_reason": ""
+  },
+  {
+   "refs": [
+    "J6"
+   ],
+   "qty": 1,
+   "mpn": "1704004",
+   "lcsc": "C5481600",
+   "mount": "THT",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 0 /",
+   "plated_joints": 2,
+   "smd_joint_if_smd": 0,
+   "jlc_stock": 0,
+   "unit5": "2.91",
+   "unit500": "2.366",
+   "has_lcsc": true,
+   "power": false,
+   "keep_hand_reason": ""
+  },
+  {
+   "refs": [
+    "C38",
+    "C39",
+    "C40",
+    "C41"
+   ],
+   "qty": 4,
+   "mpn": "B32652A0104K000",
+   "lcsc": "C125402",
+   "mount": "THT",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 288",
+   "plated_joints": 8,
+   "smd_joint_if_smd": 0,
+   "jlc_stock": 288,
+   "unit5": "0.748",
+   "unit500": "0.44916",
+   "has_lcsc": true,
+   "power": true,
+   "keep_hand_reason": ""
+  },
+  {
+   "refs": [
+    "U41",
+    "U42"
+   ],
+   "qty": 2,
+   "mpn": "R24C2T25/R-R",
+   "lcsc": "",
+   "mount": "SMD",
+   "bom_assembly": "consign or hand-assemble (not on LCSC / ",
+   "plated_joints": 0,
+   "smd_joint_if_smd": null,
+   "jlc_stock": null,
+   "unit5": "7.954",
+   "unit500": "7.37148",
+   "has_lcsc": false,
+   "power": false,
+   "keep_hand_reason": ""
+  },
+  {
+   "refs": [
+    "F1-CLIP x2"
+   ],
+   "qty": 2,
+   "mpn": "01250003H",
+   "lcsc": "C223911",
+   "mount": "THT",
+   "bom_assembly": "hand-assembly-extras.csv",
+   "plated_joints": 4,
+   "has_lcsc": true,
+   "jlc_stock": null,
+   "power": true,
+   "unit5": null,
+   "unit500": null,
+   "keep_hand_reason": "plated-slot clips, cartridge inserted after cleaning (FAB-NOTE.md)"
+  }
+ ],
+ "n_lines": 22,
+ "keep_hand": {
+  "BR1": "same fixture, 0.665 mm step at BR1 (SINK-DRAWING-NOTES.md)",
+  "Q2,Q3,Q5,Q6": "seat-before-solder fixture on the M11 sink (SINK-DRAWING-NOTES.md Acceptance: coplanar 0.05 mm)",
+  "F1-CLIP x2": "plated-slot clips, cartridge inserted after cleaning (FAB-NOTE.md)"
+ },
+ "counts": {
+  "lines_total": 22,
+  "tht_lines_in_bom": 18,
+  "smd_consign_lines": 3,
+  "tht_parts": 38,
+  "tht_plated_joints": 124,
+  "lines_with_lcsc": 11,
+  "lines_without_lcsc": 9
+ },
+ "scenarios_per_board": {
+  "5": {
+   "S0_all_THT_in_house": {
+    "hand_usd_per_board": 144.15,
+    "hand_min_per_board": 192.2
+   },
+   "S1_LCSC_THT_to_JLC": {
+    "lines_moved": 11,
+    "joints_moved": 80,
+    "jlc_fee_per_board": 5.39,
+    "hand_usd_per_board": 64.65,
+    "hand_min_per_board": 86.2,
+    "net_saving_per_board": 74.11,
+    "lines_without_jlc_stock": [
+     [
+      "L1"
+     ],
+     [
+      "C3",
+      "C4"
+     ],
+     [
+      "J2",
+      "J5",
+      "J7",
+      "J8",
+      "J9",
+      "J10"
+     ],
+     [
+      "C21",
+      "C22",
+      "C23",
+      "C151",
+      "C152"
+     ],
+     [
+      "J6"
+     ]
+    ]
+   },
+   "S1s_only_lines_with_JLC_stock_today": {
+    "lines_moved": [
+     [
+      "J1"
+     ],
+     [
+      "RV1"
+     ],
+     [
+      "PS1"
+     ],
+     [
+      "PS2"
+     ],
+     [
+      "J4"
+     ],
+     [
+      "C38",
+      "C39",
+      "C40",
+      "C41"
+     ]
+    ],
+    "joints_moved": 36,
+    "jlc_fee_per_board": 3.14,
+    "hand_usd_per_board": 114.9,
+    "hand_min_per_board": 153.2,
+    "net_saving_per_board": 26.11
+   },
+   "S2_all_THT_to_JLC_with_consign": {
+    "lines_moved": 16,
+    "joints_moved": 104,
+    "jlc_fee_per_board": 26.0,
+    "hand_usd_per_board": 37.52,
+    "hand_min_per_board": 50.0,
+    "net_saving_per_board": 80.62
+   }
+  },
+  "500": {
+   "S0_all_THT_in_house": {
+    "hand_usd_per_board": 144.15,
+    "hand_min_per_board": 192.2
+   },
+   "S1_LCSC_THT_to_JLC": {
+    "lines_moved": 11,
+    "joints_moved": 80,
+    "jlc_fee_per_board": 1.35,
+    "hand_usd_per_board": 64.65,
+    "hand_min_per_board": 86.2,
+    "net_saving_per_board": 78.15,
+    "lines_without_jlc_stock": [
+     [
+      "RV1"
+     ],
+     [
+      "L1"
+     ],
+     [
+      "C3",
+      "C4"
+     ],
+     [
+      "J2",
+      "J5",
+      "J7",
+      "J8",
+      "J9",
+      "J10"
+     ],
+     [
+      "C21",
+      "C22",
+      "C23",
+      "C151",
+      "C152"
+     ],
+     [
+      "J6"
+     ],
+     [
+      "C38",
+      "C39",
+      "C40",
+      "C41"
+     ]
+    ]
+   },
+   "S1s_only_lines_with_JLC_stock_today": {
+    "lines_moved": [
+     [
+      "J1"
+     ],
+     [
+      "PS1"
+     ],
+     [
+      "PS2"
+     ],
+     [
+      "J4"
+     ]
+    ],
+    "joints_moved": 26,
+    "jlc_fee_per_board": 0.45,
+    "hand_usd_per_board": 126.4,
+    "hand_min_per_board": 168.5,
+    "net_saving_per_board": 17.3
+   },
+   "S2_all_THT_to_JLC_with_consign": {
+    "lines_moved": 16,
+    "joints_moved": 104,
+    "jlc_fee_per_board": 3.62,
+    "hand_usd_per_board": 37.52,
+    "hand_min_per_board": 50.0,
+    "net_saving_per_board": 103.01
+   }
+  }
+ },
+ "smd_joints_total": 961,
+ "smt_fee_per_board": 1.54,
+ "scorecard_note": "scorecard.cost() counts every Mount=THT line plus hand-assembly-extras as 'hand_or_consign_lines'; sending a THT line to JLC does not move that metric. Only deleting the line or making it SMD does."
+}
