@@ -802,3 +802,23 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
       4. CM fixes held in reserve: a coil-side shield returned to bus_n (11.0 dB), or a 3.2 mH CM choke in the inlet module (10.5 dB nominal, 8.7 dB at 100 pF 70/30).
       5. At the next re-spin, reserve a PE test point, a spare Y2 footprint, a removable R38 and a current-probe window at J2/J5. Nothing is needed on 19b.
     - **Bench:** `BENCH-PRECOMPLIANCE.md` (LISN, 200 Hz / 9 kHz RBW, pan/no-pan, 22/28 A, sweep and burst, pass line = limit − 6 dB).
+21. **Thermal conclusion at 28 A, restated on a converged model (2026-10-12; `validation-results/04-board-current-thermal/round5-native21/b3-convergence/`, controls rerun).** This replaces the unconditional "28 A is thermally supported" of items 14/17.
+    - **Why it changed:** the legacy B3 peak (136.0 / 182.3 / 142.8 °C at 1 / 0.5 / 0.25 mm) was an artefact of point-depositing heat into binary-raster pad cells. The new model adds a datasheet junction network, flux over the exact pad overlap, area-fraction copper, and windows refined to 0.0625 mm. It converges to ≤ 2 K for every governing part.
+    - **Margin with datasheet limits (28 A, 29.4 A tank, h25):**
+
+      | Part | Converged | Margin |
+      |---|---|---|
+      | R5 | element 140 °C, terminal max 129.5 | 18.8 K to the 20 %-power terminal bound |
+      | U41/U42 | Tj 105 °C | 45 K |
+      | U26 | Tj 89 °C | 36 K |
+      | UCC21550 | 79 °C | 70 K |
+      | TPS70950 | 79 °C | 46 K |
+      | Gate resistors | 107 °C | 43 K to a 155 °C class value (unverified) |
+      | FET-row copper | 126 °C | 21 K to laminate Tg 150 |
+
+    - **Depends on bench IR (no validated package limit or path):**
+      - film caps: HF C38–41 at 5 K margin to 105 °C, bank C21 at 15 K, C5/C6 at 27 K;
+      - L1;
+      - PS1 / PS2: model case 86 / 98 °C against an 85 °C *ambient* rating. Judge these against the measured local air, not the case.
+    - **Stall:** derated to 14 A at h10, the semiconductors keep 22–27 K. 28 A at h10 without the derate stays unsupported, as item 14 already says.
+    - **Bench IR points:** listed in the study README (R5, U41/U42, U26, PS1/PS2 plus local air, bank and HF caps, FET-row copper, R58/R12, L1). If a U41/U42 body top reads > 125 °C at h25, θJB is more than 2× the datasheet value.
