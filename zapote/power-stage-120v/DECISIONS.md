@@ -865,3 +865,26 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
       - CT trip injection (the D4 condition-2 step), which any T1 needs.
       - The ZC pulse width.
       - T1's interwinding capacitance (MAG-27), which is unpublished for both parts. The pickup it causes is independent of turns ratio for equal capacitance.
+24. **F1 fuse class and the F5 leakage basis (2026-10-13; decision records `validation-results/12-decisions/F1-FUSE-DECISION.md` and `F5-LEAKAGE-DECISION.md`, scripts rerun, controls pass; owner asked for both to be resolved).**
+    - **F1: keep the Class CC KLDR025.TXP.**
+      - **Why:**
+        - A Recognized supplemental fuse may be acceptable inside a Listed appliance (UL Code Authority note, read). The end-product short-circuit clause and its available-current level are in paywalled standards (UL 1026 / UL 858 / CSA C22.2 No. 64 / NMX-J-521) and were not read.
+        - The cheaper candidate, Littelfuse 0505025.MXP (about −$26–29 per board), has no published clearing I²t, an unconfirmed 25 A interrupting rating and conflicting melting I²t (145 vs 210 A²s). It also does not close F2: the copper ratio rises only to 0.56–1.63 against a 2× target.
+        - KLDR025's 200 kA Listed rating makes the unread test level moot (23.8× over the 8.4 kA bound). Its published let-through (about 540–634 A at 4.7–8.4 kA) is under a 1.5 kA F2, which helps F4.
+      - **Saving taken instead:** re-source KLDR025 itself (web prices $22.55–26.54 against DigiKey $29.41; quotes needed).
+      - **Reopen the 6.3×32 option only if** the lab confirms a supplemental fuse is acceptable for this product and states the short-circuit test current, and Littelfuse's own datasheet gives the clearing I²t at that current.
+    - **F5: design to the 0.5 mA UL portable limit**, plug ground open, both polarities. 0.75 mA is the stationary and IEC 60335-1 Class I value, so 0.5 mA covers both. This replaces item 22's 0.25 mA (50 %) placeholder budget with a two-test basis:
+      - **Test A:** ≤ 0.5 mA at 132 V, with Y at +20 % and the supply modules at their datasheet maximum.
+      - **Test B:** ≤ 0.40 mA with the supply modules at 5 × measured typical, confirmed by an open-PE touch-current measurement on the first article in every configuration.
+      - **Path that meets both:**
+        - the inlet-module Y cut 6.9 → 2.2 nF (g01 P1), the main lever at about −0.28 mA;
+        - deleting PS1 (g06 P1);
+        - plus, by bench measurement, that PS2's leakage does not reach PE (g06 P3).
+      - **Result:** 0.408 mA on Test A (82 %). Without P3 it is 0.551 mA on Test A (fail) and 0.364 mA on Test B (pass).
+      - The benchmark's 0.974 mA fails both tests. Candidate 23 (QUEUE.md) carries the fix.
+    - **Lab confirmations (open):**
+      - the governing standard, clause and edition;
+      - whether a countertop induction cooker is "portable";
+      - the test voltage and meter network, and how the 35–60 kHz coil-to-PE current is treated;
+      - Class CC and open-clip acceptance for CSA and NOM;
+      - the first-article touch current.

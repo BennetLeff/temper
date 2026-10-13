@@ -1,0 +1,637 @@
+{
+  "controls": {
+    "benchmark_132": 0.9741421213647918,
+    "benchmark_typ_132": 0.574961254938799,
+    "g01p1_132": 0.6934797735154483,
+    "g06p1_132": 0.8311818325561275,
+    "g06p1_p3_132": 0.6882215437474634
+  },
+  "controls_ok": true,
+  "max_to_typ_ratio_unscaled": 14.440433212996389,
+  "results": {
+    "127 V (Mexico nominal) | G01 P1 (module Y 4.7+2.2 -> 2.2) | datasheet_max": {
+      "pct_of_0.5": 133.44232005524537,
+      "pct_of_0.75": 88.96154670349692,
+      "touch_mA": 0.6672116002762268
+    },
+    "127 V (Mexico nominal) | G01 P1 (module Y 4.7+2.2 -> 2.2) | measured_typ_x_k x1": {
+      "pct_of_0.5": 56.630244242970996,
+      "pct_of_0.75": 37.753496161980664,
+      "touch_mA": 0.283151221214855
+    },
+    "127 V (Mexico nominal) | G01 P1 (module Y 4.7+2.2 -> 2.2) | measured_typ_x_k x10": {
+      "pct_of_0.5": 108.06524424297099,
+      "pct_of_0.75": 72.04349616198066,
+      "touch_mA": 0.540326221214855
+    },
+    "127 V (Mexico nominal) | G01 P1 (module Y 4.7+2.2 -> 2.2) | measured_typ_x_k x3": {
+      "pct_of_0.5": 68.060244242971,
+      "pct_of_0.75": 45.37349616198066,
+      "touch_mA": 0.34030122121485495
+    },
+    "127 V (Mexico nominal) | G01 P1 (module Y 4.7+2.2 -> 2.2) | measured_typ_x_k x5": {
+      "pct_of_0.5": 79.490244242971,
+      "pct_of_0.75": 52.993496161980666,
+      "touch_mA": 0.397451221214855
+    },
+    "127 V (Mexico nominal) | G01 P1 + G06 P1 + P3 (all three) | datasheet_max": {
+      "pct_of_0.5": 78.42426951372912,
+      "pct_of_0.75": 52.282846342486074,
+      "touch_mA": 0.3921213475686456
+    },
+    "127 V (Mexico nominal) | G01 P1 + G06 P1 + P3 (all three) | measured_typ_x_k x1": {
+      "pct_of_0.5": 52.82024424297099,
+      "pct_of_0.75": 35.213496161980665,
+      "touch_mA": 0.26410122121485496
+    },
+    "127 V (Mexico nominal) | G01 P1 + G06 P1 + P3 (all three) | measured_typ_x_k x10": {
+      "pct_of_0.5": 69.965244242971,
+      "pct_of_0.75": 46.643496161980664,
+      "touch_mA": 0.34982622121485496
+    },
+    "127 V (Mexico nominal) | G01 P1 + G06 P1 + P3 (all three) | measured_typ_x_k x3": {
+      "pct_of_0.5": 56.630244242970996,
+      "pct_of_0.75": 37.753496161980664,
+      "touch_mA": 0.283151221214855
+    },
+    "127 V (Mexico nominal) | G01 P1 + G06 P1 + P3 (all three) | measured_typ_x_k x5": {
+      "pct_of_0.5": 60.440244242970984,
+      "pct_of_0.75": 40.293496161980656,
+      "touch_mA": 0.30220122121485493
+    },
+    "127 V (Mexico nominal) | G01 P1 + G06 P1 | datasheet_max": {
+      "pct_of_0.5": 105.93329478448723,
+      "pct_of_0.75": 70.62219652299149,
+      "touch_mA": 0.5296664739224362
+    },
+    "127 V (Mexico nominal) | G01 P1 + G06 P1 | measured_typ_x_k x1": {
+      "pct_of_0.5": 54.725244242970994,
+      "pct_of_0.75": 36.48349616198066,
+      "touch_mA": 0.27362622121485497
+    },
+    "127 V (Mexico nominal) | G01 P1 + G06 P1 | measured_typ_x_k x10": {
+      "pct_of_0.5": 89.015244242971,
+      "pct_of_0.75": 59.34349616198066,
+      "touch_mA": 0.44507622121485496
+    },
+    "127 V (Mexico nominal) | G01 P1 + G06 P1 | measured_typ_x_k x3": {
+      "pct_of_0.5": 62.345244242970985,
+      "pct_of_0.75": 41.56349616198066,
+      "touch_mA": 0.31172622121485494
+    },
+    "127 V (Mexico nominal) | G01 P1 + G06 P1 | measured_typ_x_k x5": {
+      "pct_of_0.5": 69.965244242971,
+      "pct_of_0.75": 46.643496161980664,
+      "touch_mA": 0.34982622121485496
+    },
+    "127 V (Mexico nominal) | G06 P1 (delete PS1) | datasheet_max": {
+      "pct_of_0.5": 159.93953444640638,
+      "pct_of_0.75": 106.62635629760426,
+      "touch_mA": 0.7996976722320319
+    },
+    "127 V (Mexico nominal) | G06 P1 (delete PS1) | measured_typ_x_k x1": {
+      "pct_of_0.5": 108.73148390489014,
+      "pct_of_0.75": 72.48765593659343,
+      "touch_mA": 0.5436574195244507
+    },
+    "127 V (Mexico nominal) | G06 P1 (delete PS1) | measured_typ_x_k x10": {
+      "pct_of_0.5": 143.02148390489015,
+      "pct_of_0.75": 95.34765593659343,
+      "touch_mA": 0.7151074195244507
+    },
+    "127 V (Mexico nominal) | G06 P1 (delete PS1) | measured_typ_x_k x3": {
+      "pct_of_0.5": 116.35148390489015,
+      "pct_of_0.75": 77.56765593659343,
+      "touch_mA": 0.5817574195244507
+    },
+    "127 V (Mexico nominal) | G06 P1 (delete PS1) | measured_typ_x_k x5": {
+      "pct_of_0.5": 123.97148390489012,
+      "pct_of_0.75": 82.64765593659341,
+      "touch_mA": 0.6198574195244506
+    },
+    "127 V (Mexico nominal) | G06 P1 + P3 (PS2 not in PE path) | datasheet_max": {
+      "pct_of_0.5": 132.43050917564827,
+      "pct_of_0.75": 88.28700611709884,
+      "touch_mA": 0.6621525458782413
+    },
+    "127 V (Mexico nominal) | G06 P1 + P3 (PS2 not in PE path) | measured_typ_x_k x1": {
+      "pct_of_0.5": 106.82648390489014,
+      "pct_of_0.75": 71.21765593659343,
+      "touch_mA": 0.5341324195244507
+    },
+    "127 V (Mexico nominal) | G06 P1 + P3 (PS2 not in PE path) | measured_typ_x_k x10": {
+      "pct_of_0.5": 123.97148390489012,
+      "pct_of_0.75": 82.64765593659341,
+      "touch_mA": 0.6198574195244506
+    },
+    "127 V (Mexico nominal) | G06 P1 + P3 (PS2 not in PE path) | measured_typ_x_k x3": {
+      "pct_of_0.5": 110.63648390489014,
+      "pct_of_0.75": 73.75765593659342,
+      "touch_mA": 0.5531824195244507
+    },
+    "127 V (Mexico nominal) | G06 P1 + P3 (PS2 not in PE path) | measured_typ_x_k x5": {
+      "pct_of_0.5": 114.44648390489014,
+      "pct_of_0.75": 76.29765593659343,
+      "touch_mA": 0.5722324195244507
+    },
+    "127 V (Mexico nominal) | G06 P3 only | datasheet_max": {
+      "pct_of_0.5": 159.93953444640638,
+      "pct_of_0.75": 106.62635629760426,
+      "touch_mA": 0.7996976722320319
+    },
+    "127 V (Mexico nominal) | G06 P3 only | measured_typ_x_k x1": {
+      "pct_of_0.5": 108.73148390489014,
+      "pct_of_0.75": 72.48765593659343,
+      "touch_mA": 0.5436574195244507
+    },
+    "127 V (Mexico nominal) | G06 P3 only | measured_typ_x_k x10": {
+      "pct_of_0.5": 143.02148390489015,
+      "pct_of_0.75": 95.34765593659343,
+      "touch_mA": 0.7151074195244507
+    },
+    "127 V (Mexico nominal) | G06 P3 only | measured_typ_x_k x3": {
+      "pct_of_0.5": 116.35148390489015,
+      "pct_of_0.75": 77.56765593659343,
+      "touch_mA": 0.5817574195244507
+    },
+    "127 V (Mexico nominal) | G06 P3 only | measured_typ_x_k x5": {
+      "pct_of_0.5": 123.97148390489012,
+      "pct_of_0.75": 82.64765593659341,
+      "touch_mA": 0.6198574195244506
+    },
+    "127 V (Mexico nominal) | benchmark 19c (as built) | datasheet_max": {
+      "pct_of_0.5": 187.4485597171645,
+      "pct_of_0.75": 124.96570647810967,
+      "touch_mA": 0.9372427985858225
+    },
+    "127 V (Mexico nominal) | benchmark 19c (as built) | measured_typ_x_k x1": {
+      "pct_of_0.5": 110.63648390489014,
+      "pct_of_0.75": 73.75765593659342,
+      "touch_mA": 0.5531824195244507
+    },
+    "127 V (Mexico nominal) | benchmark 19c (as built) | measured_typ_x_k x10": {
+      "pct_of_0.5": 162.07148390489016,
+      "pct_of_0.75": 108.04765593659344,
+      "touch_mA": 0.8103574195244507
+    },
+    "127 V (Mexico nominal) | benchmark 19c (as built) | measured_typ_x_k x3": {
+      "pct_of_0.5": 122.06648390489012,
+      "pct_of_0.75": 81.37765593659341,
+      "touch_mA": 0.6103324195244506
+    },
+    "127 V (Mexico nominal) | benchmark 19c (as built) | measured_typ_x_k x5": {
+      "pct_of_0.5": 133.49648390489014,
+      "pct_of_0.75": 88.99765593659343,
+      "touch_mA": 0.6674824195244506
+    },
+    "132 V (120+10 %, repo) | G01 P1 (module Y 4.7+2.2 -> 2.2) | datasheet_max": {
+      "pct_of_0.5": 138.69595470308965,
+      "pct_of_0.75": 92.46396980205976,
+      "touch_mA": 0.6934797735154483
+    },
+    "132 V (120+10 %, repo) | G01 P1 (module Y 4.7+2.2 -> 2.2) | measured_typ_x_k x1": {
+      "pct_of_0.5": 58.8597814178911,
+      "pct_of_0.75": 39.239854278594066,
+      "touch_mA": 0.2942989070894555
+    },
+    "132 V (120+10 %, repo) | G01 P1 (module Y 4.7+2.2 -> 2.2) | measured_typ_x_k x10": {
+      "pct_of_0.5": 112.31978141789112,
+      "pct_of_0.75": 74.87985427859408,
+      "touch_mA": 0.5615989070894556
+    },
+    "132 V (120+10 %, repo) | G01 P1 (module Y 4.7+2.2 -> 2.2) | measured_typ_x_k x3": {
+      "pct_of_0.5": 70.7397814178911,
+      "pct_of_0.75": 47.15985427859406,
+      "touch_mA": 0.3536989070894555
+    },
+    "132 V (120+10 %, repo) | G01 P1 (module Y 4.7+2.2 -> 2.2) | measured_typ_x_k x5": {
+      "pct_of_0.5": 82.6197814178911,
+      "pct_of_0.75": 55.07985427859407,
+      "touch_mA": 0.4130989070894555
+    },
+    "132 V (120+10 %, repo) | G01 P1 + G06 P1 + P3 (all three) | datasheet_max": {
+      "pct_of_0.5": 81.51183917962395,
+      "pct_of_0.75": 54.3412261197493,
+      "touch_mA": 0.40755919589811973
+    },
+    "132 V (120+10 %, repo) | G01 P1 + G06 P1 + P3 (all three) | measured_typ_x_k x1": {
+      "pct_of_0.5": 54.899781417891106,
+      "pct_of_0.75": 36.59985427859407,
+      "touch_mA": 0.2744989070894555
+    },
+    "132 V (120+10 %, repo) | G01 P1 + G06 P1 + P3 (all three) | measured_typ_x_k x10": {
+      "pct_of_0.5": 72.7197814178911,
+      "pct_of_0.75": 48.47985427859407,
+      "touch_mA": 0.3635989070894555
+    },
+    "132 V (120+10 %, repo) | G01 P1 + G06 P1 + P3 (all three) | measured_typ_x_k x3": {
+      "pct_of_0.5": 58.8597814178911,
+      "pct_of_0.75": 39.239854278594066,
+      "touch_mA": 0.2942989070894555
+    },
+    "132 V (120+10 %, repo) | G01 P1 + G06 P1 + P3 (all three) | measured_typ_x_k x5": {
+      "pct_of_0.5": 62.81978141789109,
+      "pct_of_0.75": 41.87985427859406,
+      "touch_mA": 0.3140989070894555
+    },
+    "132 V (120+10 %, repo) | G01 P1 + G06 P1 | datasheet_max": {
+      "pct_of_0.5": 110.10389694135681,
+      "pct_of_0.75": 73.40259796090454,
+      "touch_mA": 0.550519484706784
+    },
+    "132 V (120+10 %, repo) | G01 P1 + G06 P1 | measured_typ_x_k x1": {
+      "pct_of_0.5": 56.879781417891095,
+      "pct_of_0.75": 37.919854278594066,
+      "touch_mA": 0.2843989070894555
+    },
+    "132 V (120+10 %, repo) | G01 P1 + G06 P1 | measured_typ_x_k x10": {
+      "pct_of_0.5": 92.5197814178911,
+      "pct_of_0.75": 61.679854278594064,
+      "touch_mA": 0.4625989070894555
+    },
+    "132 V (120+10 %, repo) | G01 P1 + G06 P1 | measured_typ_x_k x3": {
+      "pct_of_0.5": 64.7997814178911,
+      "pct_of_0.75": 43.19985427859407,
+      "touch_mA": 0.3239989070894555
+    },
+    "132 V (120+10 %, repo) | G01 P1 + G06 P1 | measured_typ_x_k x5": {
+      "pct_of_0.5": 72.7197814178911,
+      "pct_of_0.75": 48.47985427859407,
+      "touch_mA": 0.3635989070894555
+    },
+    "132 V (120+10 %, repo) | G06 P1 (delete PS1) | datasheet_max": {
+      "pct_of_0.5": 166.2363665112255,
+      "pct_of_0.75": 110.824244340817,
+      "touch_mA": 0.8311818325561275
+    },
+    "132 V (120+10 %, repo) | G06 P1 (delete PS1) | measured_typ_x_k x1": {
+      "pct_of_0.5": 113.01225098775983,
+      "pct_of_0.75": 75.34150065850655,
+      "touch_mA": 0.5650612549387991
+    },
+    "132 V (120+10 %, repo) | G06 P1 (delete PS1) | measured_typ_x_k x10": {
+      "pct_of_0.5": 148.65225098775983,
+      "pct_of_0.75": 99.10150065850655,
+      "touch_mA": 0.7432612549387991
+    },
+    "132 V (120+10 %, repo) | G06 P1 (delete PS1) | measured_typ_x_k x3": {
+      "pct_of_0.5": 120.93225098775982,
+      "pct_of_0.75": 80.62150065850655,
+      "touch_mA": 0.6046612549387991
+    },
+    "132 V (120+10 %, repo) | G06 P1 (delete PS1) | measured_typ_x_k x5": {
+      "pct_of_0.5": 128.85225098775982,
+      "pct_of_0.75": 85.90150065850655,
+      "touch_mA": 0.644261254938799
+    },
+    "132 V (120+10 %, repo) | G06 P1 + P3 (PS2 not in PE path) | datasheet_max": {
+      "pct_of_0.5": 137.64430874949267,
+      "pct_of_0.75": 91.76287249966178,
+      "touch_mA": 0.6882215437474634
+    },
+    "132 V (120+10 %, repo) | G06 P1 + P3 (PS2 not in PE path) | measured_typ_x_k x1": {
+      "pct_of_0.5": 111.03225098775982,
+      "pct_of_0.75": 74.02150065850655,
+      "touch_mA": 0.5551612549387991
+    },
+    "132 V (120+10 %, repo) | G06 P1 + P3 (PS2 not in PE path) | measured_typ_x_k x10": {
+      "pct_of_0.5": 128.85225098775982,
+      "pct_of_0.75": 85.90150065850655,
+      "touch_mA": 0.644261254938799
+    },
+    "132 V (120+10 %, repo) | G06 P1 + P3 (PS2 not in PE path) | measured_typ_x_k x3": {
+      "pct_of_0.5": 114.9922509877598,
+      "pct_of_0.75": 76.66150065850654,
+      "touch_mA": 0.574961254938799
+    },
+    "132 V (120+10 %, repo) | G06 P1 + P3 (PS2 not in PE path) | measured_typ_x_k x5": {
+      "pct_of_0.5": 118.95225098775981,
+      "pct_of_0.75": 79.30150065850654,
+      "touch_mA": 0.594761254938799
+    },
+    "132 V (120+10 %, repo) | G06 P3 only | datasheet_max": {
+      "pct_of_0.5": 166.2363665112255,
+      "pct_of_0.75": 110.824244340817,
+      "touch_mA": 0.8311818325561275
+    },
+    "132 V (120+10 %, repo) | G06 P3 only | measured_typ_x_k x1": {
+      "pct_of_0.5": 113.01225098775983,
+      "pct_of_0.75": 75.34150065850655,
+      "touch_mA": 0.5650612549387991
+    },
+    "132 V (120+10 %, repo) | G06 P3 only | measured_typ_x_k x10": {
+      "pct_of_0.5": 148.65225098775983,
+      "pct_of_0.75": 99.10150065850655,
+      "touch_mA": 0.7432612549387991
+    },
+    "132 V (120+10 %, repo) | G06 P3 only | measured_typ_x_k x3": {
+      "pct_of_0.5": 120.93225098775982,
+      "pct_of_0.75": 80.62150065850655,
+      "touch_mA": 0.6046612549387991
+    },
+    "132 V (120+10 %, repo) | G06 P3 only | measured_typ_x_k x5": {
+      "pct_of_0.5": 128.85225098775982,
+      "pct_of_0.75": 85.90150065850655,
+      "touch_mA": 0.644261254938799
+    },
+    "132 V (120+10 %, repo) | benchmark 19c (as built) | datasheet_max": {
+      "pct_of_0.5": 194.82842427295836,
+      "pct_of_0.75": 129.88561618197224,
+      "touch_mA": 0.9741421213647918
+    },
+    "132 V (120+10 %, repo) | benchmark 19c (as built) | measured_typ_x_k x1": {
+      "pct_of_0.5": 114.9922509877598,
+      "pct_of_0.75": 76.66150065850654,
+      "touch_mA": 0.574961254938799
+    },
+    "132 V (120+10 %, repo) | benchmark 19c (as built) | measured_typ_x_k x10": {
+      "pct_of_0.5": 168.4522509877598,
+      "pct_of_0.75": 112.30150065850654,
+      "touch_mA": 0.8422612549387991
+    },
+    "132 V (120+10 %, repo) | benchmark 19c (as built) | measured_typ_x_k x3": {
+      "pct_of_0.5": 126.8722509877598,
+      "pct_of_0.75": 84.58150065850653,
+      "touch_mA": 0.634361254938799
+    },
+    "132 V (120+10 %, repo) | benchmark 19c (as built) | measured_typ_x_k x5": {
+      "pct_of_0.5": 138.7522509877598,
+      "pct_of_0.75": 92.50150065850653,
+      "touch_mA": 0.693761254938799
+    },
+    "134.6 V (1.06 x 127, IEC-style) [UNVERIFIED test factor] | G01 P1 (module Y 4.7+2.2 -> 2.2) | datasheet_max": {
+      "pct_of_0.5": 141.44885925856008,
+      "pct_of_0.75": 94.29923950570672,
+      "touch_mA": 0.7072442962928004
+    },
+    "134.6 V (1.06 x 127, IEC-style) [UNVERIFIED test factor] | G01 P1 (module Y 4.7+2.2 -> 2.2) | measured_typ_x_k x1": {
+      "pct_of_0.5": 60.02805889754925,
+      "pct_of_0.75": 40.0187059316995,
+      "touch_mA": 0.30014029448774626
+    },
+    "134.6 V (1.06 x 127, IEC-style) [UNVERIFIED test factor] | G01 P1 (module Y 4.7+2.2 -> 2.2) | measured_typ_x_k x10": {
+      "pct_of_0.5": 114.54915889754926,
+      "pct_of_0.75": 76.36610593169951,
+      "touch_mA": 0.5727457944877463
+    },
+    "134.6 V (1.06 x 127, IEC-style) [UNVERIFIED test factor] | G01 P1 (module Y 4.7+2.2 -> 2.2) | measured_typ_x_k x3": {
+      "pct_of_0.5": 72.14385889754925,
+      "pct_of_0.75": 48.0959059316995,
+      "touch_mA": 0.36071929448774626
+    },
+    "134.6 V (1.06 x 127, IEC-style) [UNVERIFIED test factor] | G01 P1 (module Y 4.7+2.2 -> 2.2) | measured_typ_x_k x5": {
+      "pct_of_0.5": 84.25965889754924,
+      "pct_of_0.75": 56.173105931699496,
+      "touch_mA": 0.42129829448774625
+    },
+    "134.6 V (1.06 x 127, IEC-style) [UNVERIFIED test factor] | G01 P1 + G06 P1 + P3 (all three) | datasheet_max": {
+      "pct_of_0.5": 83.12972568455285,
+      "pct_of_0.75": 55.41981712303524,
+      "touch_mA": 0.4156486284227643
+    },
+    "134.6 V (1.06 x 127, IEC-style) [UNVERIFIED test factor] | G01 P1 + G06 P1 + P3 (all three) | measured_typ_x_k x1": {
+      "pct_of_0.5": 55.98945889754925,
+      "pct_of_0.75": 37.3263059316995,
+      "touch_mA": 0.27994729448774625
+    },
+    "134.6 V (1.06 x 127, IEC-style) [UNVERIFIED test factor] | G01 P1 + G06 P1 + P3 (all three) | measured_typ_x_k x10": {
+      "pct_of_0.5": 74.16315889754925,
+      "pct_of_0.75": 49.4421059316995,
+      "touch_mA": 0.37081579448774626
+    },
+    "134.6 V (1.06 x 127, IEC-style) [UNVERIFIED test factor] | G01 P1 + G06 P1 + P3 (all three) | measured_typ_x_k x3": {
+      "pct_of_0.5": 60.02805889754925,
+      "pct_of_0.75": 40.0187059316995,
+      "touch_mA": 0.30014029448774626
+    },
+    "134.6 V (1.06 x 127, IEC-style) [UNVERIFIED test factor] | G01 P1 + G06 P1 + P3 (all three) | measured_typ_x_k x5": {
+      "pct_of_0.5": 64.06665889754925,
+      "pct_of_0.75": 42.7111059316995,
+      "touch_mA": 0.3203332944877462
+    },
+    "134.6 V (1.06 x 127, IEC-style) [UNVERIFIED test factor] | G01 P1 + G06 P1 | datasheet_max": {
+      "pct_of_0.5": 112.28929247155648,
+      "pct_of_0.75": 74.85952831437099,
+      "touch_mA": 0.5614464623577824
+    },
+    "134.6 V (1.06 x 127, IEC-style) [UNVERIFIED test factor] | G01 P1 + G06 P1 | measured_typ_x_k x1": {
+      "pct_of_0.5": 58.00875889754925,
+      "pct_of_0.75": 38.6725059316995,
+      "touch_mA": 0.29004379448774625
+    },
+    "134.6 V (1.06 x 127, IEC-style) [UNVERIFIED test factor] | G01 P1 + G06 P1 | measured_typ_x_k x10": {
+      "pct_of_0.5": 94.35615889754925,
+      "pct_of_0.75": 62.9041059316995,
+      "touch_mA": 0.47178079448774624
+    },
+    "134.6 V (1.06 x 127, IEC-style) [UNVERIFIED test factor] | G01 P1 + G06 P1 | measured_typ_x_k x3": {
+      "pct_of_0.5": 66.08595889754925,
+      "pct_of_0.75": 44.057305931699496,
+      "touch_mA": 0.33042979448774623
+    },
+    "134.6 V (1.06 x 127, IEC-style) [UNVERIFIED test factor] | G01 P1 + G06 P1 | measured_typ_x_k x5": {
+      "pct_of_0.5": 74.16315889754925,
+      "pct_of_0.75": 49.4421059316995,
+      "touch_mA": 0.37081579448774626
+    },
+    "134.6 V (1.06 x 127, IEC-style) [UNVERIFIED test factor] | G06 P1 (delete PS1) | datasheet_max": {
+      "pct_of_0.5": 169.53590651319078,
+      "pct_of_0.75": 113.02393767546052,
+      "touch_mA": 0.8476795325659539
+    },
+    "134.6 V (1.06 x 127, IEC-style) [UNVERIFIED test factor] | G06 P1 (delete PS1) | measured_typ_x_k x1": {
+      "pct_of_0.5": 115.25537293918356,
+      "pct_of_0.75": 76.83691529278904,
+      "touch_mA": 0.5762768646959178
+    },
+    "134.6 V (1.06 x 127, IEC-style) [UNVERIFIED test factor] | G06 P1 (delete PS1) | measured_typ_x_k x10": {
+      "pct_of_0.5": 151.60277293918355,
+      "pct_of_0.75": 101.06851529278903,
+      "touch_mA": 0.7580138646959178
+    },
+    "134.6 V (1.06 x 127, IEC-style) [UNVERIFIED test factor] | G06 P1 (delete PS1) | measured_typ_x_k x3": {
+      "pct_of_0.5": 123.33257293918356,
+      "pct_of_0.75": 82.22171529278904,
+      "touch_mA": 0.6166628646959178
+    },
+    "134.6 V (1.06 x 127, IEC-style) [UNVERIFIED test factor] | G06 P1 (delete PS1) | measured_typ_x_k x5": {
+      "pct_of_0.5": 131.40977293918354,
+      "pct_of_0.75": 87.60651529278903,
+      "touch_mA": 0.6570488646959177
+    },
+    "134.6 V (1.06 x 127, IEC-style) [UNVERIFIED test factor] | G06 P1 + P3 (PS2 not in PE path) | datasheet_max": {
+      "pct_of_0.5": 140.37633972618715,
+      "pct_of_0.75": 93.58422648412477,
+      "touch_mA": 0.7018816986309357
+    },
+    "134.6 V (1.06 x 127, IEC-style) [UNVERIFIED test factor] | G06 P1 + P3 (PS2 not in PE path) | measured_typ_x_k x1": {
+      "pct_of_0.5": 113.23607293918354,
+      "pct_of_0.75": 75.49071529278903,
+      "touch_mA": 0.5661803646959177
+    },
+    "134.6 V (1.06 x 127, IEC-style) [UNVERIFIED test factor] | G06 P1 + P3 (PS2 not in PE path) | measured_typ_x_k x10": {
+      "pct_of_0.5": 131.40977293918354,
+      "pct_of_0.75": 87.60651529278903,
+      "touch_mA": 0.6570488646959177
+    },
+    "134.6 V (1.06 x 127, IEC-style) [UNVERIFIED test factor] | G06 P1 + P3 (PS2 not in PE path) | measured_typ_x_k x3": {
+      "pct_of_0.5": 117.27467293918355,
+      "pct_of_0.75": 78.18311529278903,
+      "touch_mA": 0.5863733646959177
+    },
+    "134.6 V (1.06 x 127, IEC-style) [UNVERIFIED test factor] | G06 P1 + P3 (PS2 not in PE path) | measured_typ_x_k x5": {
+      "pct_of_0.5": 121.31327293918355,
+      "pct_of_0.75": 80.87551529278903,
+      "touch_mA": 0.6065663646959177
+    },
+    "134.6 V (1.06 x 127, IEC-style) [UNVERIFIED test factor] | G06 P3 only | datasheet_max": {
+      "pct_of_0.5": 169.53590651319078,
+      "pct_of_0.75": 113.02393767546052,
+      "touch_mA": 0.8476795325659539
+    },
+    "134.6 V (1.06 x 127, IEC-style) [UNVERIFIED test factor] | G06 P3 only | measured_typ_x_k x1": {
+      "pct_of_0.5": 115.25537293918356,
+      "pct_of_0.75": 76.83691529278904,
+      "touch_mA": 0.5762768646959178
+    },
+    "134.6 V (1.06 x 127, IEC-style) [UNVERIFIED test factor] | G06 P3 only | measured_typ_x_k x10": {
+      "pct_of_0.5": 151.60277293918355,
+      "pct_of_0.75": 101.06851529278903,
+      "touch_mA": 0.7580138646959178
+    },
+    "134.6 V (1.06 x 127, IEC-style) [UNVERIFIED test factor] | G06 P3 only | measured_typ_x_k x3": {
+      "pct_of_0.5": 123.33257293918356,
+      "pct_of_0.75": 82.22171529278904,
+      "touch_mA": 0.6166628646959178
+    },
+    "134.6 V (1.06 x 127, IEC-style) [UNVERIFIED test factor] | G06 P3 only | measured_typ_x_k x5": {
+      "pct_of_0.5": 131.40977293918354,
+      "pct_of_0.75": 87.60651529278903,
+      "touch_mA": 0.6570488646959177
+    },
+    "134.6 V (1.06 x 127, IEC-style) [UNVERIFIED test factor] | benchmark 19c (as built) | datasheet_max": {
+      "pct_of_0.5": 198.69547330019438,
+      "pct_of_0.75": 132.46364886679626,
+      "touch_mA": 0.993477366500972
+    },
+    "134.6 V (1.06 x 127, IEC-style) [UNVERIFIED test factor] | benchmark 19c (as built) | measured_typ_x_k x1": {
+      "pct_of_0.5": 117.27467293918355,
+      "pct_of_0.75": 78.18311529278903,
+      "touch_mA": 0.5863733646959177
+    },
+    "134.6 V (1.06 x 127, IEC-style) [UNVERIFIED test factor] | benchmark 19c (as built) | measured_typ_x_k x10": {
+      "pct_of_0.5": 171.79577293918356,
+      "pct_of_0.75": 114.53051529278905,
+      "touch_mA": 0.8589788646959178
+    },
+    "134.6 V (1.06 x 127, IEC-style) [UNVERIFIED test factor] | benchmark 19c (as built) | measured_typ_x_k x3": {
+      "pct_of_0.5": 129.39047293918355,
+      "pct_of_0.75": 86.26031529278903,
+      "touch_mA": 0.6469523646959178
+    },
+    "134.6 V (1.06 x 127, IEC-style) [UNVERIFIED test factor] | benchmark 19c (as built) | measured_typ_x_k x5": {
+      "pct_of_0.5": 141.50627293918356,
+      "pct_of_0.75": 94.33751529278904,
+      "touch_mA": 0.7075313646959178
+    }
+  },
+  "supply_per_unit_mA_132V": {
+    "datasheet_max": 0.14296028880866427,
+    "typ_x1": 0.0099,
+    "typ_x10": 0.099,
+    "typ_x3": 0.0297,
+    "typ_x5": 0.0495
+  },
+  "y_allowance_nF_per_line_total": {
+    "0.5 mA x0.5 | 1 supplies | datasheet_max": 1.7614978054745325,
+    "0.5 mA x0.5 | 1 supplies | measured_typ_x_k x1": 3.989738829583763,
+    "0.5 mA x0.5 | 1 supplies | measured_typ_x_k x10": 2.4976612380972436,
+    "0.5 mA x0.5 | 1 supplies | measured_typ_x_k x3": 3.6581660314756475,
+    "0.5 mA x0.5 | 1 supplies | measured_typ_x_k x5": 3.326593233367532,
+    "0.5 mA x0.5 | 2 supplies | datasheet_max": 0.0,
+    "0.5 mA x0.5 | 2 supplies | measured_typ_x_k x1": 3.823952430529705,
+    "0.5 mA x0.5 | 2 supplies | measured_typ_x_k x10": 0.8397972475566665,
+    "0.5 mA x0.5 | 2 supplies | measured_typ_x_k x3": 3.160806834313474,
+    "0.5 mA x0.5 | 2 supplies | measured_typ_x_k x5": 2.4976612380972436,
+    "0.5 mA x0.5 | 3 supplies | datasheet_max": 0.0,
+    "0.5 mA x0.5 | 3 supplies | measured_typ_x_k x1": 3.6581660314756475,
+    "0.5 mA x0.5 | 3 supplies | measured_typ_x_k x10": 0.0,
+    "0.5 mA x0.5 | 3 supplies | measured_typ_x_k x3": 2.663447637151301,
+    "0.5 mA x0.5 | 3 supplies | measured_typ_x_k x5": 1.6687292428269547,
+    "0.5 mA x0.8 | 1 supplies | datasheet_max": 4.273412942657225,
+    "0.5 mA x0.8 | 1 supplies | measured_typ_x_k x1": 6.5016539667664555,
+    "0.5 mA x0.8 | 1 supplies | measured_typ_x_k x10": 5.009576375279936,
+    "0.5 mA x0.8 | 1 supplies | measured_typ_x_k x3": 6.17008116865834,
+    "0.5 mA x0.8 | 1 supplies | measured_typ_x_k x5": 5.838508370550225,
+    "0.5 mA x0.8 | 2 supplies | datasheet_max": 1.879385519493937,
+    "0.5 mA x0.8 | 2 supplies | measured_typ_x_k x1": 6.335867567712398,
+    "0.5 mA x0.8 | 2 supplies | measured_typ_x_k x10": 3.351712384739359,
+    "0.5 mA x0.8 | 2 supplies | measured_typ_x_k x3": 5.672721971496167,
+    "0.5 mA x0.8 | 2 supplies | measured_typ_x_k x5": 5.009576375279936,
+    "0.5 mA x0.8 | 3 supplies | datasheet_max": 0.0,
+    "0.5 mA x0.8 | 3 supplies | measured_typ_x_k x1": 6.17008116865834,
+    "0.5 mA x0.8 | 3 supplies | measured_typ_x_k x10": 1.6938483941987819,
+    "0.5 mA x0.8 | 3 supplies | measured_typ_x_k x3": 5.175362774333993,
+    "0.5 mA x0.8 | 3 supplies | measured_typ_x_k x5": 4.180644380009647,
+    "0.5 mA x1.0 | 1 supplies | datasheet_max": 5.948023034112352,
+    "0.5 mA x1.0 | 1 supplies | measured_typ_x_k x1": 8.176264058221584,
+    "0.5 mA x1.0 | 1 supplies | measured_typ_x_k x10": 6.684186466735064,
+    "0.5 mA x1.0 | 1 supplies | measured_typ_x_k x3": 7.844691260113468,
+    "0.5 mA x1.0 | 1 supplies | measured_typ_x_k x5": 7.5131184620053535,
+    "0.5 mA x1.0 | 2 supplies | datasheet_max": 3.5539956109490647,
+    "0.5 mA x1.0 | 2 supplies | measured_typ_x_k x1": 8.010477659167526,
+    "0.5 mA x1.0 | 2 supplies | measured_typ_x_k x10": 5.026322476194487,
+    "0.5 mA x1.0 | 2 supplies | measured_typ_x_k x3": 7.347332062951295,
+    "0.5 mA x1.0 | 2 supplies | measured_typ_x_k x5": 6.684186466735064,
+    "0.5 mA x1.0 | 3 supplies | datasheet_max": 1.1599681877857775,
+    "0.5 mA x1.0 | 3 supplies | measured_typ_x_k x1": 7.844691260113468,
+    "0.5 mA x1.0 | 3 supplies | measured_typ_x_k x10": 3.3684584856539095,
+    "0.5 mA x1.0 | 3 supplies | measured_typ_x_k x3": 6.8499728657891215,
+    "0.5 mA x1.0 | 3 supplies | measured_typ_x_k x5": 5.855254471464775,
+    "0.75 mA x0.5 | 1 supplies | datasheet_max": 3.854760419793443,
+    "0.75 mA x0.5 | 1 supplies | measured_typ_x_k x1": 6.083001443902672,
+    "0.75 mA x0.5 | 1 supplies | measured_typ_x_k x10": 4.590923852416154,
+    "0.75 mA x0.5 | 1 supplies | measured_typ_x_k x3": 5.751428645794557,
+    "0.75 mA x0.5 | 1 supplies | measured_typ_x_k x5": 5.419855847686442,
+    "0.75 mA x0.5 | 2 supplies | datasheet_max": 1.4607329966301545,
+    "0.75 mA x0.5 | 2 supplies | measured_typ_x_k x1": 5.917215044848615,
+    "0.75 mA x0.5 | 2 supplies | measured_typ_x_k x10": 2.9330598618755768,
+    "0.75 mA x0.5 | 2 supplies | measured_typ_x_k x3": 5.254069448632384,
+    "0.75 mA x0.5 | 2 supplies | measured_typ_x_k x5": 4.590923852416154,
+    "0.75 mA x0.5 | 3 supplies | datasheet_max": 0.0,
+    "0.75 mA x0.5 | 3 supplies | measured_typ_x_k x1": 5.751428645794557,
+    "0.75 mA x0.5 | 3 supplies | measured_typ_x_k x10": 1.2751958713349993,
+    "0.75 mA x0.5 | 3 supplies | measured_typ_x_k x3": 4.756710251470211,
+    "0.75 mA x0.5 | 3 supplies | measured_typ_x_k x5": 3.761991857145865,
+    "0.75 mA x0.8 | 1 supplies | datasheet_max": 7.622633125567481,
+    "0.75 mA x0.8 | 1 supplies | measured_typ_x_k x1": 9.850874149676711,
+    "0.75 mA x0.8 | 1 supplies | measured_typ_x_k x10": 8.358796558190194,
+    "0.75 mA x0.8 | 1 supplies | measured_typ_x_k x3": 9.519301351568597,
+    "0.75 mA x0.8 | 1 supplies | measured_typ_x_k x5": 9.187728553460481,
+    "0.75 mA x0.8 | 2 supplies | datasheet_max": 5.228605702404194,
+    "0.75 mA x0.8 | 2 supplies | measured_typ_x_k x1": 9.685087750622655,
+    "0.75 mA x0.8 | 2 supplies | measured_typ_x_k x10": 6.700932567649616,
+    "0.75 mA x0.8 | 2 supplies | measured_typ_x_k x3": 9.021942154406425,
+    "0.75 mA x0.8 | 2 supplies | measured_typ_x_k x5": 8.358796558190194,
+    "0.75 mA x0.8 | 3 supplies | datasheet_max": 2.834578279240907,
+    "0.75 mA x0.8 | 3 supplies | measured_typ_x_k x1": 9.519301351568595,
+    "0.75 mA x0.8 | 3 supplies | measured_typ_x_k x10": 5.0430685771090396,
+    "0.75 mA x0.8 | 3 supplies | measured_typ_x_k x3": 8.52458295724425,
+    "0.75 mA x0.8 | 3 supplies | measured_typ_x_k x5": 7.529864562919905,
+    "0.75 mA x1.0 | 1 supplies | datasheet_max": 10.134548262750172,
+    "0.75 mA x1.0 | 1 supplies | measured_typ_x_k x1": 12.362789286859403,
+    "0.75 mA x1.0 | 1 supplies | measured_typ_x_k x10": 10.870711695372885,
+    "0.75 mA x1.0 | 1 supplies | measured_typ_x_k x3": 12.03121648875129,
+    "0.75 mA x1.0 | 1 supplies | measured_typ_x_k x5": 11.699643690643173,
+    "0.75 mA x1.0 | 2 supplies | datasheet_max": 7.7405208395868845,
+    "0.75 mA x1.0 | 2 supplies | measured_typ_x_k x1": 12.197002887805345,
+    "0.75 mA x1.0 | 2 supplies | measured_typ_x_k x10": 9.212847704832308,
+    "0.75 mA x1.0 | 2 supplies | measured_typ_x_k x3": 11.533857291589115,
+    "0.75 mA x1.0 | 2 supplies | measured_typ_x_k x5": 10.870711695372885,
+    "0.75 mA x1.0 | 3 supplies | datasheet_max": 5.3464934164235975,
+    "0.75 mA x1.0 | 3 supplies | measured_typ_x_k x1": 12.031216488751287,
+    "0.75 mA x1.0 | 3 supplies | measured_typ_x_k x10": 7.554983714291729,
+    "0.75 mA x1.0 | 3 supplies | measured_typ_x_k x3": 11.036498094426943,
+    "0.75 mA x1.0 | 3 supplies | measured_typ_x_k x5": 10.041779700102595
+  }
+}

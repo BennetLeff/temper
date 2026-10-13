@@ -1,0 +1,215 @@
+{
+  "candidates": {
+    "0505025.MXP": {
+      "agency": "Recognized UL/CSA/NMX 248-1 & 248-14, file E10480 [datasheet mirror, row mapping unclear]",
+      "air_A": 20000,
+      "air_margin_vs_8k4": 2.380952380952381,
+      "carry_note": "derating curve not read; fuse must derate by <= 20% at 50 C (0.75 rule) or <= 40% (no margin rule 15/25)",
+      "cls": "Supplemental fast-acting 6.3x32 (UL 248-14)",
+      "price_500_usd": 3.0,
+      "scenarios": {
+        "melt145_x1.5": {
+          "br1_half_ok": true,
+          "clearing": 217.5,
+          "copper_ratio": 1.632183908045977,
+          "copper_target": 435.0,
+          "necks_failing_2x": [
+            "HV_RET isthmus",
+            "R5->J10"
+          ]
+        },
+        "melt145_x2.0": {
+          "br1_half_ok": false,
+          "clearing": 290.0,
+          "copper_ratio": 1.2241379310344827,
+          "copper_target": 580.0,
+          "necks_failing_2x": [
+            "HV_RET isthmus",
+            "R5->J10"
+          ]
+        },
+        "melt145_x3.0": {
+          "br1_half_ok": false,
+          "clearing": 435.0,
+          "copper_ratio": 0.8160919540229885,
+          "copper_target": 870.0,
+          "necks_failing_2x": [
+            "HV_RET isthmus",
+            "R5->J10"
+          ]
+        },
+        "melt210_x1.5": {
+          "br1_half_ok": false,
+          "clearing": 315.0,
+          "copper_ratio": 1.126984126984127,
+          "copper_target": 630.0,
+          "necks_failing_2x": [
+            "HV_RET isthmus",
+            "R5->J10"
+          ]
+        },
+        "melt210_x2.0": {
+          "br1_half_ok": false,
+          "clearing": 420.0,
+          "copper_ratio": 0.8452380952380952,
+          "copper_target": 840.0,
+          "necks_failing_2x": [
+            "HV_RET isthmus",
+            "R5->J10"
+          ]
+        },
+        "melt210_x3.0": {
+          "br1_half_ok": false,
+          "clearing": 630.0,
+          "copper_ratio": 0.5634920634920635,
+          "copper_target": 1260.0,
+          "necks_failing_2x": [
+            "HV_RET isthmus",
+            "R5->J10",
+            "J8->Q2/Q5 drain"
+          ]
+        }
+      },
+      "single_ac_rating_ge_140V": true,
+      "src": "Littelfuse 505 datasheet rev 10/16/23 via pdf.jiepei.com/0505010.-45698391.html (title: 500VAC/500VDC, 20,000 A); melt 145 from Littelfuse product page (search summary) vs 210 in mirror table [UNVERIFIED]; price ~ Newark MXEP $2.85@1000 (repo)",
+      "v_ac": 500
+    },
+    "KLDR025.TXP": {
+      "agency": "UL Listed E81895; CSA LR29862 (no NMX mark on datasheet)",
+      "air_A": 200000,
+      "air_margin_vs_8k4": 23.80952380952381,
+      "br1_half_ok": false,
+      "carry_50C_A_(0.75 cont margin)": 16.875,
+      "carry_50C_A_(0.80 NEC margin)": 18.0,
+      "clearing_A2s": 1710.0,
+      "cls": "Class CC time-delay (UL 248-4)",
+      "copper_ratio_355_over_clearing": 0.20760233918128654,
+      "copper_target_2x_A2s": 3420.0,
+      "necks_failing_2x_target": [
+        "HV_RET isthmus",
+        "R5->J10",
+        "J8->Q2/Q5 drain",
+        "Q3->R5",
+        "L1->BR1 AC1"
+      ],
+      "price_500_usd": 29.41,
+      "single_ac_rating_ge_140V": true,
+      "src": "Littelfuse KLDR Rev 092821 p.1,2,5,6 (read, chipdip mirror static.chipdip.ru/lib/254/DOC027254593.pdf); price DK per repo G01 P2",
+      "v_ac": 600
+    },
+    "KLKR025.T": {
+      "agency": "UL Listed E81895; CSA LR29862",
+      "air_A": 200000,
+      "air_margin_vs_8k4": 23.80952380952381,
+      "carry_note": "derating curve not read; fuse must derate by <= 20% at 50 C (0.75 rule) or <= 40% (no margin rule 15/25)",
+      "cls": "Class CC fast-acting (UL 248-4)",
+      "scenarios": {
+        "interp 20A/30A (900..1720)": {
+          "clearing": 1244.0,
+          "ratio": 0.2853697749196141
+        }
+      },
+      "single_ac_rating_ge_140V": true,
+      "src": "Littelfuse KLKR Rev 062218 (read, static.chipdip.ru/lib/545/DOC011545067.pdf): 25 A row NOT published; 20 A=900, 30 A=1720 A2s total clearing @200 kA; 20 A part cannot carry 15 A after derating (repo)",
+      "v_ac": 600
+    },
+    "MDA-25-R (old)": {
+      "agency": "cULus Recognized E19180",
+      "air_A": 1500,
+      "air_at_125V_A": 10000,
+      "air_at_132V_basis": "1500 A (250 V rating) unless lab accepts 125 V figure -> FAILS 4.7-8.4 kA",
+      "air_margin_vs_8k4": 0.17857142857142858,
+      "carry_note": "derating curve not read; fuse must derate by <= 20% at 50 C (0.75 rule) or <= 40% (no margin rule 15/25)",
+      "cls": "Supplemental time-delay 6.3x32",
+      "scenarios": {
+        "melt734.7_x1.5": {
+          "br1_half_ok": false,
+          "clearing": 1102.0500000000002,
+          "copper_ratio": 0.3221269452384193,
+          "copper_target": 2204.1000000000004,
+          "necks_failing_2x": [
+            "HV_RET isthmus",
+            "R5->J10",
+            "J8->Q2/Q5 drain",
+            "Q3->R5",
+            "L1->BR1 AC1"
+          ]
+        },
+        "melt734.7_x2.0": {
+          "br1_half_ok": false,
+          "clearing": 1469.4,
+          "copper_ratio": 0.24159520892881448,
+          "copper_target": 2938.8,
+          "necks_failing_2x": [
+            "HV_RET isthmus",
+            "R5->J10",
+            "J8->Q2/Q5 drain",
+            "Q3->R5",
+            "L1->BR1 AC1"
+          ]
+        },
+        "melt734.7_x3.0": {
+          "br1_half_ok": false,
+          "clearing": 2204.1000000000004,
+          "copper_ratio": 0.16106347261920964,
+          "copper_target": 4408.200000000001,
+          "necks_failing_2x": [
+            "HV_RET isthmus",
+            "R5->J10",
+            "J8->Q2/Q5 drain",
+            "Q3->R5",
+            "L1->BR1 AC1"
+          ]
+        }
+      },
+      "single_ac_rating_ge_140V": true,
+      "src": "Eaton TD 2002 per repo; 1.5 kA @ 250 V, 10 kA only @125 V",
+      "v_ac": 250
+    }
+  },
+  "controls_ok": true,
+  "cost_per_board_500": {
+    "clip_01250003H_pair": 6.5,
+    "clip_6p3x32_pair_unpriced": true,
+    "fuse_505_est": 3.0,
+    "fuse_delta": 26.41,
+    "kldr_dk": 29.41,
+    "note": "distributor web prices (not quotes); 505 price is an estimate from the Newark MXEP sibling",
+    "other_class_cc_quotes_usd": {
+      "North Coast KLDR025 (10-pack)": 22.55,
+      "Platt (0 stock)": 65.24,
+      "Steiner Electric KLDR025.TXP": 26.54
+    }
+  },
+  "f2_selectivity": {
+    "0505025.MXP": {
+      "f1_melt": 145.0,
+      "ratio_to_f2_prearc": 12.5
+    },
+    "KLDR025.TXP": {
+      "f1_melt": 226.0,
+      "ratio_to_f2_prearc": 19.482758620689655
+    },
+    "KLKR025.T": {
+      "f1_melt": null,
+      "ratio_to_f2_prearc": null
+    },
+    "MDA-25-R (old)": {
+      "f1_melt": 734.7,
+      "ratio_to_f2_prearc": 63.33620689655173
+    }
+  },
+  "f4_kldr_letthrough": {
+    "F2_rating_A": 1500.0,
+    "apparent_rms_25A_at_4k7": 538.5,
+    "apparent_rms_25A_at_8k4": 634.04,
+    "margin_at_8k4": 2.3657813387168005,
+    "note": "interpolated between the 20 A and 30 A columns of Littelfuse KLDR p.6; 'apparent RMS' per datasheet note 'Data Derived from Peak Let-Thru Curves'; a 25 A column is not published; below 5 kA clamped to the 5 kA row (upper bound)",
+    "repo_LP_CC_25_at_10kA": 870
+  },
+  "inputs": {
+    "i_cont": 15.0,
+    "iprosp_high": 8400.0,
+    "iprosp_low": 4700.0
+  }
+}
