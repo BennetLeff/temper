@@ -84,7 +84,7 @@ def track(net, layer, width, *points):
 
 
 def via(net, x, y, power=False, size=None):
-    spec = POWER_VIA if power else {"size": size or 0.85, "drill": 0.3}
+    spec = POWER_VIA if power else {"size": size or 0.6, "drill": 0.3}
     VIAS.append({"net": net, "at": [x, y], **spec})
     GEO.add_via(net, x, y, spec["size"])
 

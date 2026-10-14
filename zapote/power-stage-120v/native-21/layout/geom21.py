@@ -113,7 +113,7 @@ class Geometry:
             raise KeyError(f"{ref_pad}: {len(hits)} pads")
         return hits[0]
 
-    def via_spot(self, ref_pad, size=0.85, width=0.4, reach=(0.6, 3.2), within=None, avoid_dirs=()):
+    def via_spot(self, ref_pad, size=0.6, width=0.4, reach=(0.6, 3.2), within=None, avoid_dirs=()):
         """Nearest legal via beside an SMD pad, joined by a short F.Cu stub.
 
         Tries 16 directions, preferring away from the part's centre, stepping outward from the

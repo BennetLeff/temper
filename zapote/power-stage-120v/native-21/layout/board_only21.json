@@ -153,8 +153,8 @@
   {
    "net": "p_hb",
    "at": [
-    14.35,
-    114.585
+    11.65,
+    116.685
    ],
    "side": "B",
    "ref_net": "sw_b",
@@ -234,8 +234,8 @@
    "side": "F",
    "ref_net": "selv_gnd",
    "ref_at": [
-    30.123,
-    125.1
+    30.829,
+    124.399
    ],
    "purpose": "PWM B high",
    "ref": "TP16"
@@ -249,11 +249,26 @@
    "side": "F",
    "ref_net": "selv_gnd",
    "ref_at": [
-    30.123,
-    125.1
+    30.829,
+    124.399
    ],
    "purpose": "PWM B low",
    "ref": "TP17"
+  },
+  {
+   "net": "permit",
+   "at": [
+    33.15,
+    113.265
+   ],
+   "side": "F",
+   "ref_net": "selv_gnd",
+   "ref_at": [
+    30.475,
+    120.945
+   ],
+   "purpose": "PERMIT",
+   "ref": "TP18"
   },
   {
    "net": "leg_b-driver_dis",
@@ -268,7 +283,7 @@
     69.665
    ],
    "purpose": "leg B DIS",
-   "ref": "TP18"
+   "ref": "TP19"
   },
   {
    "net": "bias_good",
@@ -283,7 +298,7 @@
     69.665
    ],
    "purpose": "BIAS_GOOD (rail monitors, stage 22)",
-   "ref": "TP19"
+   "ref": "TP20"
   },
   {
    "net": "bus_fault",
@@ -298,7 +313,7 @@
     132.865
    ],
    "purpose": "OCP fault, SELV side",
-   "ref": "TP20"
+   "ref": "TP21"
   },
   {
    "net": "ct_zc",
@@ -313,7 +328,7 @@
     132.865
    ],
    "purpose": "tank CT zero cross",
-   "ref": "TP21"
+   "ref": "TP22"
   },
   {
    "net": "ct_mon",
@@ -328,7 +343,7 @@
     132.865
    ],
    "purpose": "tank CT monitor",
-   "ref": "TP22"
+   "ref": "TP23"
   },
   {
    "net": "n_ls",
@@ -337,7 +352,7 @@
     41.735
    ],
    "side": "B",
-   "ref": "TP23",
+   "ref": "TP24",
    "purpose": "n_ls reference"
   },
   {
@@ -347,7 +362,7 @@
     88.095
    ],
    "side": "B",
-   "ref": "TP24",
+   "ref": "TP25",
    "purpose": "leg_ret reference"
   },
   {
@@ -357,7 +372,7 @@
     96.295
    ],
    "side": "F",
-   "ref": "TP25",
+   "ref": "TP26",
    "purpose": "leg_ret reference"
   },
   {
@@ -367,7 +382,7 @@
     81.05
    ],
    "side": "B",
-   "ref": "TP26",
+   "ref": "TP27",
    "purpose": "n_ls reference"
   },
   {
@@ -377,7 +392,7 @@
     73.695
    ],
    "side": "B",
-   "ref": "TP27",
+   "ref": "TP28",
    "purpose": "ocp_kelvin_p reference"
   },
   {
@@ -387,7 +402,7 @@
     60.395
    ],
    "side": "F",
-   "ref": "TP28",
+   "ref": "TP29",
    "purpose": "ocp_kelvin_p reference"
   },
   {
@@ -397,7 +412,7 @@
     74.095
    ],
    "side": "B",
-   "ref": "TP29",
+   "ref": "TP30",
    "purpose": "ocp_kelvin_p reference"
   },
   {
@@ -407,7 +422,7 @@
     49.9
    ],
    "side": "F",
-   "ref": "TP30",
+   "ref": "TP31",
    "purpose": "sw_a reference"
   },
   {
@@ -417,7 +432,7 @@
     112.085
    ],
    "side": "B",
-   "ref": "TP31",
+   "ref": "TP32",
    "purpose": "sw_b reference"
   },
   {
@@ -427,7 +442,7 @@
     118.011
    ],
    "side": "B",
-   "ref": "TP32",
+   "ref": "TP33",
    "purpose": "sw_b reference"
   },
   {
@@ -437,7 +452,7 @@
     128.584
    ],
    "side": "B",
-   "ref": "TP33",
+   "ref": "TP34",
    "purpose": "selv_gnd reference"
   },
   {
@@ -447,7 +462,7 @@
     127.836
    ],
    "side": "B",
-   "ref": "TP34",
+   "ref": "TP35",
    "purpose": "selv_gnd reference"
   },
   {
@@ -457,7 +472,7 @@
     157.38
    ],
    "side": "B",
-   "ref": "TP35",
+   "ref": "TP36",
    "purpose": "selv_gnd reference"
   },
   {
@@ -467,17 +482,27 @@
     63.02
    ],
    "side": "B",
-   "ref": "TP36",
+   "ref": "TP37",
    "purpose": "selv_gnd reference"
   },
   {
    "net": "selv_gnd",
    "at": [
-    30.123,
-    125.1
+    30.829,
+    124.399
    ],
    "side": "F",
-   "ref": "TP37",
+   "ref": "TP38",
+   "purpose": "selv_gnd reference"
+  },
+  {
+   "net": "selv_gnd",
+   "at": [
+    30.475,
+    120.945
+   ],
+   "side": "F",
+   "ref": "TP39",
    "purpose": "selv_gnd reference"
   },
   {
@@ -487,7 +512,7 @@
     69.665
    ],
    "side": "B",
-   "ref": "TP38",
+   "ref": "TP40",
    "purpose": "selv_gnd reference"
   },
   {
@@ -497,7 +522,7 @@
     132.865
    ],
    "side": "B",
-   "ref": "TP39",
+   "ref": "TP41",
    "purpose": "selv_gnd reference"
   }
  ],
@@ -519,12 +544,6 @@
    "ref": "n_hb",
    "why": "no legal via pair within 10 mm",
    "probe": "component pad R18.1 / R57.2 / U2.15 (no legal test-pad spot)"
-  },
-  {
-   "net": "permit",
-   "ref": "selv_gnd",
-   "why": "no legal via pair within 10 mm",
-   "probe": "J4.9 (bottom), ground J4.2 / J4.4 / J4.15"
   },
   {
    "net": "leg_a-driver_dis",

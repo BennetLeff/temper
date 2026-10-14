@@ -1162,3 +1162,34 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
       - s19b BP-04 is still unmet at 15 / 17 / 24 V with either 1210 part (57 / 53 / 39 % of nominal).
       - UL file E511334 is quoted from the datasheet and has not been looked up in UL Product iQ (certifier item).
       - Bench: U44 open-input and HS-B power-off default (item 33 bench 2), and U9 / U32 output levels at 3.3 V.
+35. **Stage 32: via cleanup, 0.85/0.3 → 0.6/0.3, and three slow SELV hops move from B.Cu to In2 (2026-10-14; BOM unchanged; board `2fb346dc8277e4295d8ef88effabdcc71dcd363fcaa93604800ddc2872fbfa4e`, copper.json `d6f55dfedcd8b83f9260c41a7d3ed5091c9d02b8ee14db4f178d720b2a55bc63`, schematic `307eda01…` and frozen netlist `f2330254…` unchanged, Gerber ZIP `b9b25cb5ead3e32a442bd564fbf60108d4f28cd70691fa8cd134089075774043`; tag `native21s32`; layout only).**
+    - **Why:** the stage-31 board carried 124 vias at 0.85/0.3, the route21 legacy default, beside 571 at the 0.6/0.3 standard. They have the same 0.3 mm drill, so the same barrel current, and every one of them is POFV. Two sizes of the same drill is one more line in the drill / fill setup with no electrical reason. Separately, 23 return-path reference changes were open, all on slow, unasserted nets.
+    - **Change:**
+      - **Via sizes:** `incr21.std_vias()` runs last in every pass, after the via-in-pad and merge steps, and turns each 0.85/0.3 via into 0.6/0.3. Routing still sees the old 0.85 ring, so the step only removes copper.
+        - Where a same-net track or pad reached the old ring but would miss the new one, a stub joins it to the via centre, inside the old ring (18 stubs). The first pass lost C67.2 because only its rounded corner touched the old ring; the pad stub fixes that.
+        - The defaults moved too: `route21.via()` 0.85 → 0.6 and `geom21.via_spot()` 0.85 → 0.6, plus the explicit 0.85 vias of the stage-21b Kelvin drop (ocp_kelvin_n) and the stage-30 U2.8 v3v3 drop.
+        - **Kept at 0.85:** the 4 vias on the mains nets ac_n_in / l_filt / n_filt (STD_VIA_KEEP), including the stage-27 R2 via. Task 04 solves those nets on its 0.125 mm grid, which does not resolve a 0.15 mm ring. The first stage-32 chain failed task 04's topology check on exactly these three nets. The other option was to add them to task 04's fine-pitch set; it was not taken, because keeping a larger ring on mains copper costs nothing.
+        - Result: 0.6/0.3 571 → 691; 0.85/0.3 124 → 4; 0.8/0.5 (5) and 1.6/0.8 (10) unchanged; 710 vias in total, as before.
+      - **SELV hops on In2** (`patches21.add_stage32_in2`): in the SELV area F.Cu rides In1 (v3v3) and B.Cu rides In2 (selv_gnd), and B has no pour. So a line that ducks under an F run on B changes reference at both of its vias. A hop on In2 looks through the empty B to In1 on both sides, so neither via is a reference change.
+        - HSB_GOOD's B leg (44.5, 129.0) → (49.2, 133.7) moves to In2, continuing the stage-30 In2 leg. The via at (44.5, 129.0) goes.
+        - BUS_FAULT_ISO's B hop under pwm_lb, (39.025 → 36.025, 133.475), moves to In2.
+        - BIAS_GOOD's branch to U40.4 is authored. The pair router had built it B → F → B → F through (69.2, 127.0), (68.463, 128.6) and (68.463, 133.0); it is now In2 from the trunk via. The via at (68.463, 128.6) goes.
+        - There are 0 mm of asserted return-path nets on B within the hops' half-width + 0.5 mm. The nearest is pwm_ha, 0.79 mm from the BIAS_GOOD hop (centreline). return_path19 passes with 0 wrong-reference samples on every asserted net.
+        - Router variance elsewhere: the ls_v5 run near U45 re-laid; n_ls +1 via, selv_gnd +2, v3v3 −1.
+    - **Not closed (18 left):** the remaining changes need copper that is not cheap.
+      - 11 sit where no pour reaches the via on at least one side: bus_fault_hot 3, ocp_ok_hot 1, ovp_ok_hot 2, mon_good_ha 4, and bias_good at (69.2, 127.0) on the In1 / In2 pour edge.
+      - 7 are on long B runs whose F / B changes lie more than 3 mm from any v3v3–selv_gnd capacitor: permit 3, bias_good trunk 2, bus_fault 1, bus_fault_iso at (76.825, 125.875). bus_fault's via is boxed in by U13's pad column. Moving a via within 3 mm of C47 / C144 / C153 would need re-routing the PWM bundle.
+      - The list is in `stage19-pi-si/return-path32.json`.
+    - **Evidence:**
+      - Passes `runs-native21/s32/p3`: i2 has 0 unconnected and 0 errors.
+      - Chain `native21s32` CHAIN_DONE, every gate clean:
+        - D5 8.047 / 8.507 mm; Rust barrier 0; RES_A outer 13.375 mm.
+        - DFM PASS, 710 vias; bypass PASS; return path PASS.
+        - Task 04: 39 scenarios, 0 failed, bus_p span 2.84 %.
+        - B3 c28_h25 135.0 °C, nominal_h10 162.1 °C.
+        - Kelvin band 67.77–116.44 A. R35.2 transfer 152.82 → 152.90 mΩ (the ocp_kelvin_p plane vias shrank).
+      - Necks 0.993 (`s32_necks.json`); OCP pickup 4.17 A (`result-s32.json`). audit.rs PASS (BOM unchanged).
+      - Bring-up probe planning places one more signal test point: 23 instead of 22, and PERMIT is no longer missing.
+      - via_in_pad.py: 61 drills inside SMD pads, 78 at a pad edge (stage 31: 62 / 77). **Every 0.3 mm via still needs POFV**, so this stage does not remove the 4-layer POFV charge.
+    - **Scorecard: ACCEPT against 19c and 31** (`scorecard-native21s32.json`). Better: `return_path_open_changes` 23 → 18, B3 c28_h25 135.2 → 135.0 °C (inside its 1 °C tolerance). Cost is identical (BOM unchanged), and every other gate and metric is the same.
+    - **Open:** the via-in-pad census is unchanged, so the JLC 4-layer POFV premium still applies. Removing via-in-pad (R5 current fields, U26 thermal field, RECOM edges) is a separate study that needs R5 / U26 thermal re-validation.

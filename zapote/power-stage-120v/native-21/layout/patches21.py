@@ -297,6 +297,7 @@ def add(g):
     add_stage21b_kn(g)   # last: routes round every fixed patch
     add_stage28_ocp_lock(g)   # after the Kelvin pair, as on the stage-27 board it was taken from
     add_stage30(g)            # after every fixed lane: the long heartbeat-group links route round them
+    add_stage32_in2(g)        # last: re-layers three hops that add_stage30 / the bias_bad group laid on B.Cu
     resolve_zone_priorities(g["ZONES"])
 
 
@@ -857,7 +858,7 @@ def add_stage17(g):
         raise SystemExit("stage 21b: no legal KELVIN_N drop via near (106.6, 53.5)")
     drill(g, "ocp_kelvin_n", *spot, size=0.6)
     print("stage 21b: KELVIN_N drops to In2 at", spot)
-    drill(g, "ocp_kelvin_n", 119.95, 72.4, size=0.85)
+    drill(g, "ocp_kelvin_n", 119.95, 72.4)
     put(g, "ocp_kelvin_n", "F.Cu", 0.3, [119.95, 72.4], "R33.2")
     g["S21B_KN_SPOT"] = spot          # the run under the pour is linked last (add_stage21b_kn), round every fixed patch
 
@@ -967,7 +968,7 @@ def add_stage30(g):
     # passes otherwise hand to a monitor_ls-spanov via
     drill(g, "n_ls", 109.82, 78.355)
     put(g, "n_ls", "F.Cu", 0.2, "U29.12", [107.82, 78.955], [108.82, 77.955], [109.42, 77.955], [109.82, 78.355])
-    drill(g, "v3v3", 37.7, 57.9, size=0.85)
+    drill(g, "v3v3", 37.7, 57.9)
     put(g, "v3v3", "F.Cu", 0.4, "U2.8", [37.445, 57.645], [37.7, 57.9])
     HS = ("F.Cu", "In2.Cu", "B.Cu")
     L4 = ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu")
@@ -1039,3 +1040,75 @@ def add_stage30(g):
         [43.7, 128.0], [44.5, 128.8], [44.5, 129.0])
     drill(g, "hsb_good", 44.5, 129.0)
     route_group(g, [("hsb_good", "F+B", (41.5, 124.0, 100.0, 142.0), 0.25, ["@44.5,129.0,*", "U46.1"])])
+
+
+# Stage 32 (DECISIONS 35): slow SELV hops move from B.Cu to In2. In the SELV area F.Cu rides In1 (v3v3) and B.Cu rides
+# In2 (selv_gnd), and B has no pour, so a line that ducks under an F run on B changes its reference at both vias, and
+# return_path19 lists each change open when no v3v3-selv_gnd capacitor is within 3 mm. A hop on In2 rides In1 on both
+# sides (In2 looks through the empty B to In1), so neither via is a reference change. Only short hops with no asserted
+# signal on B above them move (the stage-30 HSB_GOOD In2 leg is the precedent); each In2 run is checked against the
+# board (GEO) and skipped with a note if it does not fit. A via left joining In2 to In2 only is dropped.
+S32_IN2_HOPS = [("hsb_good", [[44.5, 129.0], [49.2, 133.7]]),            # under bus_fault_iso / ct_s2 / ct_sense_mon (F)
+                ("bus_fault_iso", [[39.025, 133.475], [36.025, 133.475]])]   # under pwm_lb (F, x 38.225)
+# BIAS_GOOD's branch to U40.4 was left to the pair router, which dropped from the B.Cu trunk to F at (69.2, 127.0), back
+# to B at (68.463, 128.6) to pass under the F bundle at y 130.9-132.1 and up again at (68.463, 133.0). Authored here on
+# In2 from the trunk via: one via fewer, and the two vias at x 68.463 change no reference.
+S32_BIAS_GOOD = [("via", [69.2, 127.0]), ("In2.Cu", [[69.2, 127.0], [68.463, 127.737], [68.463, 133.0]]),
+                 ("via", [68.463, 133.0]), ("F.Cu", [[68.463, 133.0], [71.663, 133.0], [72.663, 132.0], "U40.4"])]
+
+
+def add_stage32_in2(g):
+    import math
+    from shapely.geometry import LineString, Point
+    geo = g["GEO"]
+
+    def same(a, b):
+        return all(not isinstance(q, str) and math.dist(q, p) < 0.01 for q, p in zip(a, b))
+
+    def unregister(net, layers, geom):
+        for lay in (*layers, "PLAN"):
+            geo.items[lay] = [(gg, n) for gg, n in geo.items[lay]
+                              if not (n == net and gg.symmetric_difference(geom).area < 1e-6)]
+            geo._trees.pop(lay, None)
+
+    for net, pts in S32_IN2_HOPS:
+        t = next((t for t in g["TRACKS"] if t["net"] == net and t["layer"] == "B.Cu" and len(t["points"]) == 2
+                  and (same(t["points"], pts) or same(t["points"], pts[::-1]))), None)
+        if t is None:
+            print(f"stage 32: {net} B hop {pts} not found, left as is")
+            continue
+        w = t["width"]
+        geom = LineString(pts).buffer(w / 2, cap_style=1)
+        bad = geo.conflicts(net, ("In2.Cu",), geom, limit=3)
+        if bad:
+            print(f"stage 32: {net} In2 hop {pts} blocked by {bad}, left on B")
+            continue
+        g["TRACKS"].remove(t)
+        unregister(net, ("B.Cu",), geom)
+        g["track"](net, "In2.Cu", w, *[list(p) for p in pts])
+        dropped = []
+        for p in pts:
+            v = next((v for v in g["VIAS"] if v["net"] == net and math.dist(v["at"], p) < 0.01), None)
+            if v is None:
+                continue
+            lays = {u["layer"] for u in g["TRACKS"] if u["net"] == net and any(
+                not isinstance(q, str) and math.dist(q, p) < v["size"] / 2 for q in (u["points"][0], u["points"][-1]))}
+            pad = any(q["net"] == net and q["box"][0] <= p[0] <= q["box"][2] and q["box"][1] <= p[1] <= q["box"][3]
+                      for q in geo.pads)
+            if lays == {"In2.Cu"} and not pad:
+                g["VIAS"].remove(v)
+                unregister(net, ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu"), Point(*v["at"]).buffer(v["size"] / 2))
+                dropped.append(p)
+        print(f"stage 32: {net} hop {pts} on In2" + (f", via(s) {dropped} dropped" if dropped else ""))
+    pieces = [(Point(*a).buffer(0.3), CU) if k == "via" else
+              (LineString([g["_xy"](q) for q in a]).buffer(0.125, cap_style=1), (k,)) for k, a in S32_BIAS_GOOD]
+    bad = [c for geom, lays in pieces for c in geo.conflicts("bias_good", lays, geom, limit=3, via=lays == CU)]
+    if bad:
+        print(f"stage 32: bias_good In2 branch blocked by {bad}, left to the pair router")
+        return
+    for k, a in S32_BIAS_GOOD:
+        if k == "via":
+            g["via"]("bias_good", *a, size=0.6)
+        else:
+            g["track"]("bias_good", k, 0.25, *a)
+    print("stage 32: bias_good branch to U40.4 on In2")

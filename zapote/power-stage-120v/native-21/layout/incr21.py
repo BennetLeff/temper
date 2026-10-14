@@ -382,6 +382,43 @@ def merge_close_vias(gap=0.5):
     return merged
 
 
+# mains nets keep 0.85 rings: task 04 solves them on its 0.125 mm grid, which does not resolve a 0.15 mm ring
+# (round5-native21/summarize.py topology check; the first stage-32 chain failed it on these three nets)
+STD_VIA_KEEP = ("ac_n_in", "l_filt", "n_filt")
+
+
+def std_vias(old=0.85, new=0.6):
+    """Stage 32 (DECISIONS 35): every legacy 0.85 / 0.3 signal via becomes the standard 0.6 / 0.3 (same drill, so the
+    same current). Routing still sees the old 0.85 rings (the base and the patches are unchanged), so this runs last and
+    only shrinks copper. A same-net track whose copper reached the old ring but would miss the new one gets a stub of
+    its own width from its nearest centreline point to the via centre, inside the old ring and the track; a same-net pad
+    the old ring touched (its box within 0.1 mm of the new ring or closer) gets a 0.25 mm F.Cu stub to its centre (the
+    first stage-32 pass lost C67.2 that way: its rounded corner met the 0.85 ring only)."""
+    from shapely.geometry import LineString as _LS, Point as _Pt, box as _box
+    from shapely.ops import nearest_points as _np
+    n = stubs = 0
+    for v in g["VIAS"]:
+        if v["size"] != old or v["drill"] != 0.3 or v["net"] in STD_VIA_KEEP:
+            continue
+        c = _Pt(*v["at"])
+        for p in GEO.pads:
+            if p["net"] == v["net"] and not p["npth"] and new / 2 - 0.1 < _box(*p["box"]).distance(c) < old / 2:
+                g["TRACKS"].append({"net": v["net"], "layer": "F.Cu", "width": 0.25,
+                                    "points": [list(v["at"]), f"{p['ref']}.{p['pad']}"]})
+                stubs += 1
+        for t in [t for t in g["TRACKS"] if t["net"] == v["net"]]:
+            ls = _LS([g["_xy"](q) for q in t["points"]])
+            dd, w = ls.distance(c), t["width"] / 2
+            if new / 2 + w - 0.05 < dd < old / 2 + w:
+                q = _np(ls, c)[0]
+                g["TRACKS"].append({"net": t["net"], "layer": t["layer"], "width": t["width"],
+                                    "points": [[round(q.x, 4), round(q.y, 4)], list(v["at"])]})
+                stubs += 1
+        v["size"] = new
+        n += 1
+    return n, stubs
+
+
 def incr21_point(where):
     if where.startswith("@"):
         x, y, _ = where[1:].split(",")
@@ -640,6 +677,7 @@ if __name__ == "__main__":
     n_moved, n_kept = dogbone()
     print(f"via-in-pad: {n_moved} vias moved off their pads, {n_kept} left in pad (no legal spot)")
     print(f"same-net vias merged: {merge_close_vias()}")
+    print("0.85 vias standardized to 0.6 (vias, ring stubs; mains nets kept): %d, %d" % std_vias())
     state = {"tracks": g["TRACKS"], "vias": g["VIAS"], "zones": g["ZONES"]}
     n_dead = prune_dangling(state, {t["net"] for t in g["TRACKS"]} | {v["net"] for v in g["VIAS"]})
     g["TRACKS"][:], g["VIAS"][:] = state["tracks"], state["vias"]

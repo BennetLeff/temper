@@ -46,3 +46,6 @@ than the ISO7710FDWR, `sourcing/STOCK-2026-10-13-addendum-s30.csv`).
 - The FMEA coverage note is `validation-results/11-candidates/c24-monitor-fmea/FMEA.md` §6b.
 - Stage 31 (DECISIONS 34): U44 is now a Chipanalog CA-IS3720LW (default LOW, same land pattern), and U9 / U32 are
   CA-IS3720HW (`validation-results/11-candidates/c31-bom/README.md`).
+- Stage 32 (DECISIONS 35): HSB_GOOD's B.Cu hop from (44.5, 129.0) to (49.2, 133.7) moved to In2, continuing the leg, so
+  its F ↔ B reference change is gone. `inner_leg_overlap.py` still measures the stage-30 leg (asserted 0.00 mm on the
+  s32 board); the hop has no B.Cu track of another net within 1 mm.
