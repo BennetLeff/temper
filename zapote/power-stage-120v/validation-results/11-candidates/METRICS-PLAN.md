@@ -41,3 +41,18 @@ rated limit or its approval basis is rejected.
 2. Candidate 27 (J1), then 28 (F2): both are safety deficits with board-only fixes.
 3. The C49678 label fix and the metric restatements: free.
 4. Candidates 23, 24 and 25 when their external inputs arrive (controller, FMEA, D2 grid).
+
+## Flow tooling (2026-10-13, after stage 27)
+
+- **Done:** `trim_tails.follow_on`. KiCad reports only the last segment of a dead branch, so stage 27's settle loop took 7
+  rebuilds for one leg_b-permit_gate branch, about 3 min each. The follow-on walks the whole branch in one run, using a
+  conservative, width-aware attachment test.
+  - `test_trim_tails.py` negative control: every net of the committed copper, nothing cut. The first version failed it:
+    it cut a via a track passes through, and a stub whose end cap overlaps a pad.
+  - Positive control: a synthetic 3-segment branch with a via goes in one run.
+- **Considered and not done: rebasing `copper_base.json` (frozen at stage 14) to the current copper.**
+  - `patches21` is cumulative and not idempotent. Its `add_stage*` functions would duplicate copper already in a rebased
+    base, giving co-located vias. Its box-based REMOVEs would delete router copper that is no longer re-added.
+  - A safe rebase needs every patch tagged by stage and skipped when the base already contains it. That refactor costs
+    more than the routing time it saves, about 13 min per layout candidate.
+  - Revisit if layout candidates become frequent.

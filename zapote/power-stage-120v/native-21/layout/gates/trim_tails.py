@@ -114,6 +114,7 @@ def main():
             done.append((net, "via", pos, 0.0))
         else:
             left.append((net, "via", pos, 0.0))
+    follow_on(copper, {d[0] for d in done}, done)
     for d in done:
         print("trimmed", *d)
     for d in left:
@@ -122,4 +123,76 @@ def main():
         Path(sys.argv[2]).write_text(json.dumps(copper, indent=1) + "\n")
 
 
-main()
+def in_zone(pt, net, layers, copper, pad=0.0):
+    """A same-net pour outline on one of these layers reaches the point (a track or via ending in a pour is joined)."""
+    from shapely.geometry import Point, Polygon
+    for z in copper.get("zones", []):
+        if z["net"] == net and z.get("layer") in layers and Polygon(z["outline"], z.get("holes") or []).buffer(0.02 + pad).contains(Point(pt)):
+            return True
+    return False
+
+
+def attached(e, t, copper):
+    """Conservative, width-aware: the end is joined if its end cap reaches a same-net pad (THT on any layer, SMD on F.Cu),
+    via, any same-net same-layer track segment (KiCad also joins an end landing mid-segment) or a same-net pour on its layer.
+    Overstating attachment only leaves a stub for KiCad to report again; understating it would cut a real link."""
+    from shapely.geometry import LineString, Point
+    net, layer, r = t["net"], t["layer"], t["width"] / 2
+    for q in PADS:
+        if q["net"] == net and (q["tht"] or layer == "F.Cu"):
+            b = q["box"]
+            if b[0] - r - 0.02 <= e[0] <= b[2] + r + 0.02 and b[1] - r - 0.02 <= e[1] <= b[3] + r + 0.02:
+                return True
+    for v in copper["vias"]:
+        if v["net"] == net and math.dist(v["at"], e) <= v["size"] / 2 + r + 0.02:
+            return True
+    pt = Point(e)
+    for u in copper["tracks"]:
+        if u is t or u["net"] != net or u["layer"] != layer:
+            continue
+        line = LineString([xy(q) for q in u["points"]])
+        if line.distance(pt) <= u["width"] / 2 + r + 0.02:
+            return True
+    return in_zone(e, net, (layer,), copper, pad=r)
+
+
+def follow_on(copper, nets, done):
+    """KiCad reports only the last segment of a dead branch, so one trim per rebuild walked a 7-segment leg_b-permit_gate
+    branch over 7 builds (stage 27). On the nets KiCad flagged, keep trimming: a track end touching no same-net pad, via,
+    track vertex or pour on its layer is cut back one segment (a two-point track with one such end goes whole; a track with
+    both ends attached is never cut), and a via left with tracks on one layer only, on no pad and in no same-net pour, goes."""
+    changed = True
+    while changed:
+        changed = False
+        for t in [t for t in copper["tracks"] if t["net"] in nets]:
+            P = t["points"]
+            ends = {0: xy(P[0]), len(P) - 1: xy(P[-1])}
+            free = [k for k, e in ends.items() if not isinstance(P[k], str) and not attached(e, t, copper)]
+            if not free or len(free) == 2:      # attached both ends, or an isolated stub KiCad did not report: leave it
+                continue
+            k = free[0]
+            seg = (xy(P[0]), xy(P[1])) if k == 0 else (xy(P[-2]), xy(P[-1]))
+            if len(P) == 2:
+                copper["tracks"].remove(t)
+            elif k == 0:
+                del P[0]
+            else:
+                del P[-1]
+            done.append((t["net"], t["layer"], tuple(round(c, 3) for c in ends[k]), round(math.dist(*seg), 4)))
+            changed = True
+        for w in [w for w in copper["vias"] if w["net"] in nets]:
+            from shapely.geometry import LineString, Point
+            vr, vp = w["size"] / 2, Point(w["at"])
+            # a track joins the via if any part of it (not only a vertex: KiCad joins a via on a segment's interior) reaches it
+            lays = {t["layer"] for t in copper["tracks"] if t["net"] == w["net"]
+                    and LineString([xy(q) for q in t["points"]]).distance(vp) <= vr + t["width"] / 2 + 0.02}
+            on_pad = any(q["net"] == w["net"] and q["box"][0] - vr <= w["at"][0] <= q["box"][2] + vr
+                         and q["box"][1] - vr <= w["at"][1] <= q["box"][3] + vr for q in PADS)
+            if len(lays) <= 1 and not on_pad and not in_zone(w["at"], w["net"], ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu"), copper, pad=vr):
+                copper["vias"].remove(w)
+                done.append((w["net"], "via", tuple(w["at"]), 0.0))
+                changed = True
+
+
+if __name__ == "__main__":
+    main()
