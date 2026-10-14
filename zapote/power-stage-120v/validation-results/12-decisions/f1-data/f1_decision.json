@@ -1,0 +1,145 @@
+{
+ "inputs": {
+  "prospective_A": 8400.0,
+  "v_min": 140.0,
+  "i_cont": 15.0,
+  "inrush_A2s": 1.0,
+  "surge_A2s": 12.2,
+  "neck_min_A2s": 1697.7,
+  "neck_source": "s29_necks.json governing I2t (s21_necks.py lim()), worst row 'BR1 + -> Q2 drain (leg A)' 1697.7 A2s",
+  "f2_clearing_A2s": 67.0,
+  "br1_A2s": 510.0
+ },
+ "candidates": {
+  "KLDR025.TXP (Class CC TD, today)": {
+   "gates": {
+    "G1_interrupting": "PASS",
+    "G2_carrying": "PASS",
+    "G3_nuisance": "PASS",
+    "G4_copper": "FAIL",
+    "G5_F2_selectivity": "PASS",
+    "G6_agency": "PASS"
+   },
+   "cost_usd_500": 22.63,
+   "stock": 88,
+   "copper_ratio": 0.99,
+   "br1_survives": false,
+   "unknowns": [],
+   "fails": [
+    "G4_copper"
+   ]
+  },
+  "KLKR025.T (Class CC fast)": {
+   "gates": {
+    "G1_interrupting": "PASS",
+    "G2_carrying": "UNKNOWN",
+    "G3_nuisance": "UNKNOWN",
+    "G4_copper": "UNKNOWN",
+    "G5_F2_selectivity": "UNKNOWN",
+    "G6_agency": "PASS"
+   },
+   "cost_usd_500": 20.52,
+   "stock": 15,
+   "copper_ratio": null,
+   "br1_survives": null,
+   "unknowns": [
+    "G2_carrying",
+    "G3_nuisance",
+    "G4_copper",
+    "G5_F2_selectivity"
+   ],
+   "fails": []
+  },
+  "CCMR025.TXP (Class CC TD)": {
+   "gates": {
+    "G1_interrupting": "PASS",
+    "G2_carrying": "PASS",
+    "G3_nuisance": "UNKNOWN",
+    "G4_copper": "UNKNOWN",
+    "G5_F2_selectivity": "UNKNOWN",
+    "G6_agency": "PASS"
+   },
+   "cost_usd_500": 22.94,
+   "stock": 320,
+   "copper_ratio": null,
+   "br1_survives": null,
+   "unknowns": [
+    "G3_nuisance",
+    "G4_copper",
+    "G5_F2_selectivity"
+   ],
+   "fails": []
+  },
+  "0505025.MXP (6.3x32 fast)": {
+   "gates": {
+    "G1_interrupting": "PASS",
+    "G2_carrying": "PASS",
+    "G3_nuisance": "PASS",
+    "G4_copper": "UNKNOWN",
+    "G5_F2_selectivity": "PASS",
+    "G6_agency": "UNKNOWN"
+   },
+   "cost_usd_500": 4.58,
+   "stock": 3112,
+   "copper_ratio": null,
+   "br1_survives": null,
+   "unknowns": [
+    "G4_copper",
+    "G6_agency"
+   ],
+   "fails": []
+  },
+  "Bel 0ADEC9250-BE (6.3x32 fast)": {
+   "gates": {
+    "G1_interrupting": "PASS",
+    "G2_carrying": "PASS",
+    "G3_nuisance": "PASS",
+    "G4_copper": "PASS",
+    "G5_F2_selectivity": "PASS",
+    "G6_agency": "UNKNOWN"
+   },
+   "cost_usd_500": 3.77,
+   "stock": 1313,
+   "copper_ratio": 3.61,
+   "br1_survives": false,
+   "unknowns": [
+    "G6_agency"
+   ],
+   "fails": []
+  }
+ },
+ "decision": "none passes every gate; incumbent KLDR025.TXP (Class CC TD, today) stays",
+ "value_of_information": {
+  "KLKR025.T (Class CC fast)": {
+   "saving_usd_per_board": 2.11,
+   "blocked_by": [
+    "G2_carrying",
+    "G3_nuisance",
+    "G4_copper",
+    "G5_F2_selectivity"
+   ]
+  },
+  "CCMR025.TXP (Class CC TD)": {
+   "saving_usd_per_board": -0.31,
+   "blocked_by": [
+    "G3_nuisance",
+    "G4_copper",
+    "G5_F2_selectivity"
+   ]
+  },
+  "0505025.MXP (6.3x32 fast)": {
+   "saving_usd_per_board": 18.05,
+   "blocked_by": [
+    "G4_copper",
+    "G6_agency"
+   ]
+  },
+  "Bel 0ADEC9250-BE (6.3x32 fast)": {
+   "saving_usd_per_board": 18.86,
+   "blocked_by": [
+    "G6_agency"
+   ]
+  }
+ },
+ "control_fails": []
+}

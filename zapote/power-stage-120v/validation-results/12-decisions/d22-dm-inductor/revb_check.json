@@ -1,0 +1,35 @@
+{
+ "C29-B2.2_L1tdk_S1nc3.6_LNEW41": {
+  "nominal_dB": 10.79,
+  "nominal_0p5kHz_dB": 10.79,
+  "sens_min_dB": 6.6,
+  "sens_min_case": "coil+board 51 pF",
+  "pan_earthed_INFO_dB": 1.73,
+  "verdict": "PASS"
+ },
+ "revB_WE56uH@21A_S1nc3.6_Y2.2": {
+  "nominal_dB": 10.8,
+  "nominal_0p5kHz_dB": 10.8,
+  "sens_min_dB": 6.61,
+  "sens_min_case": "coil+board 51 pF",
+  "pan_earthed_INFO_dB": 1.74,
+  "verdict": "PASS"
+ },
+ "revB_WE56uH@21A_S1nc3.6_Y2.2_L-20pct": {
+  "nominal_dB": 10.79,
+  "nominal_0p5kHz_dB": 10.79,
+  "sens_min_dB": 6.6,
+  "sens_min_case": "coil+board 51 pF",
+  "pan_earthed_INFO_dB": 1.73,
+  "verdict": "PASS"
+ },
+ "revB_WE56uH@21A_S1nc3.6_leak0.3pct_Y2.2": {
+  "nominal_dB": 10.8,
+  "nominal_0p5kHz_dB": 10.8,
+  "sens_min_dB": 6.61,
+  "sens_min_case": "coil+board 51 pF",
+  "pan_earthed_INFO_dB": 1.75,
+  "verdict": "PASS"
+ },
+ "control_fails": []
+}

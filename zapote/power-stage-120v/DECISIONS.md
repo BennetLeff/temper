@@ -1059,3 +1059,40 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
       4. Open-NAND fault with and without R73.
       5. 17 V start-up overshoot < 21 V.
       6. Driver and Rg temperature.
+32. **Desk decisions after stage 29: candidates 24 and 29, the ledger follow-ups, the D-22 DM inductors and the F1 method (2026-10-14; no board change; `11-candidates/c24-monitor-fmea/` §6a, `12-decisions/d22-dm-inductor/`, `12-decisions/emi-fs-floor/`, `12-decisions/f1-data/`).**
+    - **Candidate 24 (one monitor crossing instead of three): GO as stage 30, with the buffered heartbeat M1b.**
+      - The SPICE gate (`m1_pump_spice.py`, 96 corners) rejected the FMEA's hand-sized M1. With U32 stuck **high**, the 2 × 100 nF pump caps discharged into the hold and kept BIAS_GOOD up for milliseconds: the isolator fault M1 was meant to announce stayed dormant. U32 also sourced 13–22 mA per edge against its 2 mA recommended output current.
+      - M1b: U32 → SN74LVC1G17 buffer → 220 Ω → 2 × 1 nF C0G → BAT54S → 1 nF ∥ 49.9 k → U40 (G17). Every corner passes: start ≥ 0.148 V over VT+max, trip ≤ 90 µs (≤ 123 µs with one pump cap shorted), buffer peak 11.2 mA against a 16 mA VOH spec point.
+      - Net against today: −3 placements, +2 BOM lines, about −$1.6 to −$3.8. Two zero-stock ISO7710s go, three reinforced HOT→SELV crossings become one, and dormant 3-rail masking exposure falls 62 %. It is better and cheaper, so it goes ahead. The FMEA §7 certifier questions apply equally to today's circuit, so they don't block the stage.
+      - Stage 30 also takes the U9 BUS_FAULT RC (below), since both sit in the SELV fault interface. Bench: hold-node capture at 3.135 V / cold; DIS against a forced rail fault.
+    - **Candidate 29 (inlet filter onto the board): NO-GO for the board; its filter network becomes the D-22 module spec (rev B).**
+      - The model has no harness, so the c29 network performs the same off-board. Moving it onto the board adds +$29.7 to board parts, +9 placements and 6 hand lines, and grows the mains edge 50–95 mm. It saves only $6.74 per system.
+      - Leakage needs the module Y reduced whichever way it is mounted: at 9.1 nF/line the 0.974 mA fails even a 0.75 mA stationary limit.
+      - **D-22 rev B:** delete the module Y (all line-to-PE Y at C3/C4, 2.2 nF per line), stage-1 CM choke 3.6 mH nanocrystalline (KEMET SCF39XV class), D-22's X caps and damping kept, plus the DM inductors below.
+      - `revb_check.py`: 10.8 / 6.6 dB, PASS; unchanged with the inductor at −20 % and with 0.3 % choke leakage. The control reproduces c29's 10.79 / 6.60.
+      - Touch current then depends on the supply term: 0.562 mA with three supplies at datasheet maximum, 0.419 mA with PS1 deleted (candidate 23). The certifier's leakage basis (F5) decides which is needed.
+    - **D-22 DM inductors (OTT-18 condition of item 20): Würth WE-HCFT 74437636355602, 56 µH (49.7 µH at 21 A), one per line.**
+      - On D-22's own basis the 6 dB-in-every-sensitivity rule needs ≥ 40 µH per leg at 21 A, not g01's 32 µH, which was on a 3.2 mH-choke basis.
+      - 74437636355602 gives 11.73 / 7.71 dB. Both inductors together dissipate 1.6 W, 44 % of the module's 3.6 W allowance. It costs $18.94 at 30+ and DigiKey had 61 in stock. `dm_emi_check.py` reran bit-identical.
+      - Second choice is the 47 µH MnZn 7443763540470 (11.31 / 7.39 dB, 1,021 stock, 2.9 W), only after a warm bench check, since its hot saturation is unpublished.
+      - **Rejected: raising the fs floor instead.** `fsfloor_yield.py` reruns round 6's Monte Carlo (its control reproduces the committed yields). Full-power yield at 28 A and 120 V falls from 84.7 % (35 kHz) to 61.4 % (40 kHz) and 21.8 % (45 kHz).
+      - Open: a volume quote, no agency marks on any candidate (certifier), and a bench L at 21 A DC / 15 A rms on a warm sample.
+    - **Ledger follow-ups:**
+      - **U9 BUS_FAULT:** add 1 kΩ / 47 pF at U13.A in stage 30. It adds about 57 ns against a 0.85–1.16 µs OCP chain whose tank di/dt is about 3 A/µs (≈ 0.2 A), and removes the nuisance-trip path into the controller's async CLR. The bench probe at hard S4/S5 edges stays as evidence.
+      - **L1 at 15 A:** no change. The 80 % rule holds to 67.7 °C local air against the 50 °C inlet basis. Bench: L1 local air at 15 A in the enclosure (`DECISIONS.md:836`).
+      - **RECOM U41/U42 reinforced isolation:** confirmed (/R Rev 1-2024). Closed.
+      - **C5/C6 ripple above 22 A:** unchanged bench condition (cap ambient ≤ 75 °C or a case measurement).
+    - **F1: decided by gates, not by opinion (`f1-data/f1_decision.py`, controls reproduce the s29 0.993 ratio).**
+      - Gates: interrupting ≥ 8.4 kA at ≥ 140 V; carrying 25 A × 0.75 × derate(50 °C) ≥ 15 A; inrush and surge pulse factors; total clearing I²t ≤ the governing copper neck (1,697.7 A²s on s29); F2 selectivity (melt ≥ 2 × F2 clearing); and agency basis.
+      - **Result: no candidate passes every gate.**
+        - KLDR025 (today) fails copper by 0.7 % (1,710 vs 1,698 A²s, copper at 105 °C).
+        - **Bel 0ADEC9250-BE** (6.3 × 32 ceramic fast, 30 kA at 500 VAC, cURus E20624) passes every technical gate: total I²t 470 A²s (re-read from the PDF; measured at its 500 V test, so it bounds 140 V), a copper ratio of **3.61**. It is $18.86 per board cheaper (fuse + clips $3.77 vs $22.63).
+        - Its only open gate is G6, the certifier's acceptance of a UL-Recognized 248-14 supplemental fuse in place of a Listed Class CC.
+        - The Littelfuse 0505025 is also blocked by G4 (no published clearing I²t). KLKR025 saves $2.11 but has four unknowns.
+      - **Decision:** KLDR025 stays until the certifier answers. That one answer is worth $18.86 per board (≈ $9.4k per 500), plus copper margin 0.99 → 3.61.
+      - If the answer is yes, switch to Bel 0ADEC9250-BE in Littelfuse 01220088Z clips: footprint back to 6.3 × 32, the C1/pour revert of g01 P2, and a let-through test at 5 and 8.4 kA prospective at first article.
+      - BR1 stays sacrificial with every candidate (≤ 255 A²s needed).
+    - **Price correction (applies at the next stage's stock addendum):**
+      - KLDR025.TXP is **$18.516 at 500**, not $29.412 (that was DigiKey's 10-piece price).
+      - The two 01250003H clips ($2.057 each at 500) are not in the BOM and so never reached the card.
+      - The card moves by −$10.90 for the fuse. The clips get a BOM line when F1 is next touched. The 19c card is restated with the same correction so the comparison stays like-for-like.

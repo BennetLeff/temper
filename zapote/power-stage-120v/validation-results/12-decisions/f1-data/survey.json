@@ -1,0 +1,1007 @@
+{
+ "date": "2026-10-14",
+ "note": "Prices/stock DigiKey only (Mouser/Newark/Arrow/LCSC blocked). Tags: MIRROR = manufacturer PDF on third-party host; PLOT = read off a curve; UNVERIFIED = not from a primary document. Clearing I2t never estimated from melting I2t.",
+ "fuses": [
+  {
+   "part": "Littelfuse 0505025.MXP (.MXEP = axial-lead variant; .HXP does not exist)",
+   "group": "6.3x32 supplemental",
+   "air": {
+    "value": {
+     "A": 30000,
+     "V_ac": 500,
+     "dc": "20 kA @ 500 VDC"
+    },
+    "source": "Littelfuse 505 datasheet Rev 01/15/19 [MIRROR] https://agelectronica.lat/pdfs/textos/0/0505025_MXP.PDF p.1 Electrical Characteristic Specifications by Item (merged cell 20/25/30 A); 2023 note 1: 20 kA AC option only for TUV 30 A: Littelfuse 505 datasheet Rev GD 10/16/23, text only [MIRROR] https://pdf.jiepei.com/0505010.-45698391.html",
+    "tag": "MIRROR"
+   },
+   "melt_i2t_A2s": {
+    "value": 210,
+    "source": "Littelfuse 505 datasheet Rev 01/15/19 [MIRROR] https://agelectronica.lat/pdfs/textos/0/0505025_MXP.PDF p.1 table; 2008/2009 revs list 145: Littelfuse 505 datasheet Rev Nov 3 2008 [MIRROR] https://media.digikey.com/pdf/Data%20Sheets/Littelfuse%20PDFs/505%20Series.pdf",
+    "tag": "MIRROR",
+    "note": "product page 145 matches stale 2008 table"
+   },
+   "clearing_i2t_A2s": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "let_through_5kA": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "let_through_10kA": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "opening_135pct": {
+    "value": null,
+    "source": "not specified; 150% = 30 min max per Littelfuse 505 datasheet Rev 01/15/19 [MIRROR] https://agelectronica.lat/pdfs/textos/0/0505025_MXP.PDF p.1"
+   },
+   "opening_200pct": {
+    "value": "30 min max",
+    "source": "Littelfuse 505 datasheet Rev 01/15/19 [MIRROR] https://agelectronica.lat/pdfs/textos/0/0505025_MXP.PDF p.1 Electrical Characteristics for Series",
+    "tag": "MIRROR"
+   },
+   "derate_50C": {
+    "value": 0.98,
+    "source": "Littelfuse 505 datasheet Rev 01/15/19 [MIRROR] https://agelectronica.lat/pdfs/textos/0/0505025_MXP.PDF p.2 Temperature Re-rating Curve; note: in addition to standard 25% continuous derating",
+    "tag": "PLOT"
+   },
+   "derate_70C": {
+    "value": 0.96,
+    "source": "Littelfuse 505 datasheet Rev 01/15/19 [MIRROR] https://agelectronica.lat/pdfs/textos/0/0505025_MXP.PDF p.2",
+    "tag": "PLOT"
+   },
+   "agency": {
+    "value": "Recognized (cURus) E10480 10-30 A; TUV T5026910801 15-30 A; PSE 1620079 10-12 A; CE (2019). 2023: 'Recognized to UL/CSA/NMX 248-1 and UL/CSA/NMX 248-14', files E10480, SE-S-2300703, T5026910801, J50521465. UL category JDYX2 not verified",
+    "source": "Littelfuse 505 datasheet Rev 01/15/19 [MIRROR] https://agelectronica.lat/pdfs/textos/0/0505025_MXP.PDF p.1; Littelfuse 505 datasheet Rev GD 10/16/23, text only [MIRROR] https://pdf.jiepei.com/0505010.-45698391.html",
+    "tag": "MIRROR"
+   },
+   "price_100_usd": {
+    "value": 4.3178,
+    "source": "DigiKey https://www.digikey.com/en/products/result?keywords=0505025.MXP (F3259-ND) read 2026-10-14"
+   },
+   "price_500_usd": {
+    "value": 3.571,
+    "source": "DigiKey https://www.digikey.com/en/products/result?keywords=0505025.MXP (F3259-ND) read 2026-10-14"
+   },
+   "stock": {
+    "value": 3112,
+    "source": "DigiKey F3259-ND read 2026-10-14"
+   },
+   "variant_mxep": {
+    "value": {
+     "price_500_usd": 4.19446,
+     "price_100_usd": 5.0729,
+     "stock": 3013
+    },
+    "source": "DigiKey https://www.digikey.com/en/products/result?keywords=0505025.MXEP (F3266-ND) read 2026-10-14"
+   },
+   "size": {
+    "value": "6.35 +/-0.3 x 31.75 +/-1.12 mm",
+    "source": "Littelfuse 505 datasheet Rev 01/15/19 [MIRROR] https://agelectronica.lat/pdfs/textos/0/0505025_MXP.PDF p.3 Dimensions",
+    "tag": "MIRROR"
+   }
+  },
+  {
+   "part": "Bel Fuse 0ADEC9250-BE",
+   "group": "6.3x32 supplemental (505 equivalent)",
+   "air": {
+    "value": {
+     "A": 30000,
+     "V_ac": 500,
+     "dc": "20 kA @ 500 VDC"
+    },
+    "source": "Bel 0ADEC/0ADEP datasheet Rev Apr2023 https://belfuse.com/media/datasheets/products/circuit-protection/ds-cp-0adex-series.pdf p.1 Safety Agency Approvals"
+   },
+   "melt_i2t_A2s": {
+    "value": 200,
+    "source": "Bel 0ADEC/0ADEP datasheet Rev Apr2023 https://belfuse.com/media/datasheets/products/circuit-protection/ds-cp-0adex-series.pdf p.2 Electrical Specifications ('Typical Pre-Arcing I2t', measured at 10 In)"
+   },
+   "clearing_i2t_A2s": {
+    "value": 470,
+    "source": "Bel 0ADEC/0ADEP datasheet Rev Apr2023 https://belfuse.com/media/datasheets/products/circuit-protection/ds-cp-0adex-series.pdf p.2 ('Total I2t', measured at 500V IR test)"
+   },
+   "let_through_5kA": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "let_through_10kA": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "opening_135pct": {
+    "value": null,
+    "source": "not specified; 150% = 30 min max"
+   },
+   "opening_200pct": {
+    "value": "5 min max",
+    "source": "Bel 0ADEC/0ADEP datasheet Rev Apr2023 https://belfuse.com/media/datasheets/products/circuit-protection/ds-cp-0adex-series.pdf p.1 Electrical Characteristics"
+   },
+   "derate_50C": {
+    "value": 0.96,
+    "source": "Bel 0ADEC/0ADEP datasheet Rev Apr2023 https://belfuse.com/media/datasheets/products/circuit-protection/ds-cp-0adex-series.pdf p.3 Temperature Re-Rating Curve",
+    "tag": "PLOT"
+   },
+   "derate_70C": {
+    "value": 0.91,
+    "source": "Bel 0ADEC/0ADEP datasheet Rev Apr2023 https://belfuse.com/media/datasheets/products/circuit-protection/ds-cp-0adex-series.pdf p.3",
+    "tag": "PLOT"
+   },
+   "agency": {
+    "value": "cURus Recognized E20624; designed to UL 248-14; UKCA, CE; no CSA file or NMX printed",
+    "source": "Bel 0ADEC/0ADEP datasheet Rev Apr2023 https://belfuse.com/media/datasheets/products/circuit-protection/ds-cp-0adex-series.pdf p.1"
+   },
+   "price_100_usd": {
+    "value": 3.3392,
+    "source": "DigiKey https://www.digikey.com/en/products/result?keywords=0ADEC9250-BE (5923-0ADEC9250-BE-ND) read 2026-10-14"
+   },
+   "price_500_usd": {
+    "value": 2.76336,
+    "source": "DigiKey 5923-0ADEC9250-BE-ND read 2026-10-14"
+   },
+   "stock": {
+    "value": 1313,
+    "source": "DigiKey 5923-0ADEC9250-BE-ND read 2026-10-14"
+   },
+   "size": {
+    "value": "6.3 x 32 mm",
+    "source": "Bel 0ADEC/0ADEP datasheet Rev Apr2023 https://belfuse.com/media/datasheets/products/circuit-protection/ds-cp-0adex-series.pdf p.1"
+   }
+  },
+  {
+   "part": "Littelfuse KLDR025.TXP",
+   "group": "Class CC time-delay",
+   "air": {
+    "value": {
+     "A": 200000,
+     "V_ac": 600
+    },
+    "source": "Littelfuse KLDR Rev 092821 [MIRROR] https://static.chipdip.ru/lib/254/DOC027254593.pdf p.1 Specifications, p.5 table"
+   },
+   "melt_i2t_A2s": {
+    "value": 226.0,
+    "source": "Littelfuse KLDR Rev 092821 [MIRROR] https://static.chipdip.ru/lib/254/DOC027254593.pdf p.5 Electrical Specifications (cont.)"
+   },
+   "clearing_i2t_A2s": {
+    "value": 1710,
+    "source": "Littelfuse KLDR Rev 092821 [MIRROR] https://static.chipdip.ru/lib/254/DOC027254593.pdf p.5 ('Total clearing I2t'; no test current stated)"
+   },
+   "let_through_5kA": {
+    "value": {
+     "25A": null,
+     "apparent_rms_A": {
+      "20A": 456,
+      "30A": 621
+     },
+     "peak_A_plot": {
+      "20A": 1046,
+      "30A": 1423
+     }
+    },
+    "source": "Littelfuse KLDR Rev 092821 [MIRROR] https://static.chipdip.ru/lib/254/DOC027254593.pdf p.6 Current-Limiting Effects table; p.8 Peak Let-Thru Curves (20 A/30 A only) [PLOT]"
+   },
+   "let_through_10kA": {
+    "value": {
+     "25A": null,
+     "apparent_rms_A": {
+      "20A": 575,
+      "30A": 783
+     },
+     "peak_A_plot": {
+      "20A": 1319,
+      "30A": 1795
+     }
+    },
+    "source": "Littelfuse KLDR Rev 092821 [MIRROR] https://static.chipdip.ru/lib/254/DOC027254593.pdf p.6; p.8 [PLOT]"
+   },
+   "let_through_4p7_8p4kA_peak_plot": {
+    "value": {
+     "4.7kA": {
+      "20A": 1027,
+      "30A": 1399
+     },
+     "8.4kA": {
+      "20A": 1245,
+      "30A": 1693
+     }
+    },
+    "source": "Littelfuse KLDR Rev 092821 [MIRROR] https://static.chipdip.ru/lib/254/DOC027254593.pdf p.8",
+    "tag": "PLOT"
+   },
+   "opening_135pct": {
+    "value": "60 min max",
+    "source": "Littelfuse KLDR Rev 092821 [MIRROR] https://static.chipdip.ru/lib/254/DOC027254593.pdf p.4 Electrical Specification - Agency Requirements"
+   },
+   "opening_200pct": {
+    "value": "12 s minimum",
+    "source": "Littelfuse KLDR Rev 092821 [MIRROR] https://static.chipdip.ru/lib/254/DOC027254593.pdf p.4"
+   },
+   "derate_50C": {
+    "value": 0.9,
+    "source": "Littelfuse KLDR Rev 092821 [MIRROR] https://static.chipdip.ru/lib/254/DOC027254593.pdf p.6 Temperature Derating Curve",
+    "tag": "PLOT"
+   },
+   "derate_70C": {
+    "value": 0.81,
+    "source": "Littelfuse KLDR Rev 092821 [MIRROR] https://static.chipdip.ru/lib/254/DOC027254593.pdf p.6",
+    "tag": "PLOT"
+   },
+   "agency": {
+    "value": "UL Listed E81895 (Std 248-4 Class CC); CSA LR29862; no NMX printed",
+    "source": "Littelfuse KLDR Rev 092821 [MIRROR] https://static.chipdip.ru/lib/254/DOC027254593.pdf p.1-2"
+   },
+   "price_100_usd": {
+    "value": 22.446,
+    "source": "DigiKey https://www.digikey.com/en/products/detail/littelfuse-ibu/KLDR025-TXP/3740687 (F11252-ND) read 2026-10-14"
+   },
+   "price_500_usd": {
+    "value": 18.51612,
+    "source": "DigiKey F11252-ND read 2026-10-14",
+    "note": "repo's $29.41 is the 10-piece price"
+   },
+   "stock": {
+    "value": {
+     "in_stock": 88,
+     "factory": 4660
+    },
+    "source": "DigiKey https://www.digikey.com/en/products/result?keywords=KLDR025 read 2026-10-14"
+   },
+   "variant_hxp": {
+    "value": {
+     "price_200_usd": 22.27965,
+     "stock": 0
+    },
+    "source": "DigiKey https://www.digikey.com/en/products/result?keywords=KLDR025 read 2026-10-14"
+   },
+   "size": {
+    "value": "10.3 x 38.1 mm (Class CC)",
+    "source": "Littelfuse KLKR Rev 062218 (DigiKey-hosted) https://mm.digikey.com/Volume0/opasdata/d220001/medias/docus/1067/KLKR_Class_CC_Series_DS.pdf p.1 Dimensions (same Class CC body); KLDR p.4 Dimensions drawing"
+   }
+  },
+  {
+   "part": "Littelfuse KLKR025.T",
+   "group": "Class CC fast-acting",
+   "air": {
+    "value": {
+     "A": 200000,
+     "V_ac": 600
+    },
+    "source": "Littelfuse KLKR Rev 062218 (DigiKey-hosted) https://mm.digikey.com/Volume0/opasdata/d220001/medias/docus/1067/KLKR_Class_CC_Series_DS.pdf p.1"
+   },
+   "melt_i2t_A2s": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "clearing_i2t_A2s": {
+    "value": null,
+    "source": "Littelfuse KLKR Rev 062218 (DigiKey-hosted) https://mm.digikey.com/Volume0/opasdata/d220001/medias/docus/1067/KLKR_Class_CC_Series_DS.pdf p.2 (rows for 1/6/12/15/20/30 A only: 20 A = 900, 30 A = 1720 A2s @ 200 kA)"
+   },
+   "let_through_5kA": {
+    "value": {
+     "peak_A_25A": 1170,
+     "apparent_rms_25A_div2p3": 509
+    },
+    "source": "Littelfuse KLKR Rev 062218 (DigiKey-hosted) https://mm.digikey.com/Volume0/opasdata/d220001/medias/docus/1067/KLKR_Class_CC_Series_DS.pdf p.2 Peak Let-Thru Curve (25 A curve)",
+    "tag": "PLOT"
+   },
+   "let_through_10kA": {
+    "value": {
+     "peak_A_25A": 1384,
+     "apparent_rms_25A_div2p3": 602
+    },
+    "source": "Littelfuse KLKR Rev 062218 (DigiKey-hosted) https://mm.digikey.com/Volume0/opasdata/d220001/medias/docus/1067/KLKR_Class_CC_Series_DS.pdf p.2",
+    "tag": "PLOT"
+   },
+   "let_through_4p7_8p4kA_peak_plot": {
+    "value": {
+     "4.7kA": 1153,
+     "8.4kA": 1329
+    },
+    "source": "Littelfuse KLKR Rev 062218 (DigiKey-hosted) https://mm.digikey.com/Volume0/opasdata/d220001/medias/docus/1067/KLKR_Class_CC_Series_DS.pdf p.2",
+    "tag": "PLOT"
+   },
+   "opening_135pct": {
+    "value": null,
+    "source": "not printed"
+   },
+   "opening_200pct": {
+    "value": null,
+    "source": "not printed"
+   },
+   "derate_50C": {
+    "value": null,
+    "source": "no derating curve in DS"
+   },
+   "derate_70C": {
+    "value": null,
+    "source": "no derating curve in DS"
+   },
+   "agency": {
+    "value": "UL Listed E81895 (248-4 Class CC); CSA LR29862",
+    "source": "Littelfuse KLKR Rev 062218 (DigiKey-hosted) https://mm.digikey.com/Volume0/opasdata/d220001/medias/docus/1067/KLKR_Class_CC_Series_DS.pdf p.1"
+   },
+   "price_100_usd": {
+    "value": 19.8851,
+    "source": "DigiKey https://www.digikey.com/en/products/detail/littelfuse-inc/KLKR025-T/2517730 (5666-KLKR025.T-ND) read 2026-10-14"
+   },
+   "price_500_usd": {
+    "value": 16.40748,
+    "source": "DigiKey 5666-KLKR025.T-ND read 2026-10-14"
+   },
+   "stock": {
+    "value": 15,
+    "source": "DigiKey https://www.digikey.com/en/products/result?keywords=KLKR025 read 2026-10-14"
+   },
+   "size": {
+    "value": "0.41 x 1.50 in (10.3 x 38.1 mm)",
+    "source": "Littelfuse KLKR Rev 062218 (DigiKey-hosted) https://mm.digikey.com/Volume0/opasdata/d220001/medias/docus/1067/KLKR_Class_CC_Series_DS.pdf p.1 Dimensions"
+   }
+  },
+  {
+   "part": "Littelfuse CCMR025.TXP",
+   "group": "Class CC time-delay",
+   "air": {
+    "value": {
+     "A": 200000,
+     "V_ac": 600,
+     "dc": "20 kA, 500 VDC (12-30 A)"
+    },
+    "source": "Littelfuse CCMR Rev 10/10/2022 [MIRROR] https://www.elliottelectric.com/Media/CCMR5-L$F p.2 Specifications"
+   },
+   "melt_i2t_A2s": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "clearing_i2t_A2s": {
+    "value": null,
+    "source": "Littelfuse CCMR Rev 10/10/2022 [MIRROR] https://www.elliottelectric.com/Media/CCMR5-L$F p.4 (no 25 A row; 20 A = 918, 30 A = 1790 A2s @ 200 kA)"
+   },
+   "let_through_5kA": {
+    "value": {
+     "25A": null,
+     "apparent_rms_A": {
+      "20A": 355,
+      "30A": 621
+     }
+    },
+    "source": "Littelfuse CCMR Rev 10/10/2022 [MIRROR] https://www.elliottelectric.com/Media/CCMR5-L$F p.5 Current-Limiting Effects"
+   },
+   "let_through_10kA": {
+    "value": {
+     "25A": null,
+     "apparent_rms_A": {
+      "20A": 447,
+      "30A": 783
+     }
+    },
+    "source": "Littelfuse CCMR Rev 10/10/2022 [MIRROR] https://www.elliottelectric.com/Media/CCMR5-L$F p.5"
+   },
+   "opening_135pct": {
+    "value": null,
+    "source": "not printed"
+   },
+   "opening_200pct": {
+    "value": null,
+    "source": "not printed"
+   },
+   "derate_50C": {
+    "value": 0.9,
+    "source": "Littelfuse CCMR Rev 10/10/2022 [MIRROR] https://www.elliottelectric.com/Media/CCMR5-L$F p.5 Temperature Rerating Curve",
+    "tag": "PLOT"
+   },
+   "derate_70C": {
+    "value": 0.81,
+    "source": "Littelfuse CCMR Rev 10/10/2022 [MIRROR] https://www.elliottelectric.com/Media/CCMR5-L$F p.5",
+    "tag": "PLOT"
+   },
+   "agency": {
+    "value": "UL Listed E81895 (UL 248-4 Class CC); CSA LR29862",
+    "source": "Littelfuse CCMR Rev 10/10/2022 [MIRROR] https://www.elliottelectric.com/Media/CCMR5-L$F p.2"
+   },
+   "price_100_usd": {
+    "value": 22.8229,
+    "source": "DigiKey https://www.digikey.com/en/products/detail/littelfuse-inc/CCMR025-TXP/3740820 (F5889-ND) read 2026-10-14"
+   },
+   "price_500_usd": {
+    "value": 18.82642,
+    "source": "DigiKey F5889-ND read 2026-10-14"
+   },
+   "stock": {
+    "value": 320,
+    "source": "DigiKey F5889-ND read 2026-10-14"
+   },
+   "variant_hxp": {
+    "value": {
+     "price_200_usd": 22.6922,
+     "stock": 0
+    },
+    "source": "DigiKey https://www.digikey.com/en/products/detail/littelfuse-inc/CCMR025-HXP/3740653 read 2026-10-14"
+   },
+   "size": {
+    "value": "0.41 x 1.50 in (10.3 x 38.1 mm)",
+    "source": "Littelfuse CCMR Rev 10/10/2022 [MIRROR] https://www.elliottelectric.com/Media/CCMR5-L$F p.4 Dimensions"
+   }
+  },
+  {
+   "part": "Eaton Bussmann LP-CC-25",
+   "group": "Class CC time-delay",
+   "air": {
+    "value": {
+     "A": 200000,
+     "V_ac": 600
+    },
+    "source": "Bussmann Data Sheet 1023 (10-2-02) [MIRROR] https://www.farnell.com/datasheets/207472.pdf p.1"
+   },
+   "melt_i2t_A2s": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "clearing_i2t_A2s": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "let_through_5kA": {
+    "value": {
+     "apparent_rms_25A": 690,
+     "peak_x2p3": 1587
+    },
+    "source": "Bussmann Data Sheet 1023 (10-2-02) [MIRROR] https://www.farnell.com/datasheets/207472.pdf p.1 Current-Limiting Effects, 25A column (peak = 2.3 x per sheet note)"
+   },
+   "let_through_10kA": {
+    "value": {
+     "apparent_rms_25A": 870,
+     "peak_x2p3": 2001
+    },
+    "source": "Bussmann Data Sheet 1023 (10-2-02) [MIRROR] https://www.farnell.com/datasheets/207472.pdf p.1"
+   },
+   "opening_135pct": {
+    "value": null,
+    "source": "not printed"
+   },
+   "opening_200pct": {
+    "value": "12 s min",
+    "source": "Eaton product spec (LP-CC-3-2/10) via RS https://docs.rs-online.com/8c26/A700000012522228.pdf",
+    "tag": "UNVERIFIED"
+   },
+   "derate_50C": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "derate_70C": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "agency": {
+    "value": "UL Listed Std 248-4 Class CC, Guide JDDZ, File E4273; CSA C22.2 No. 248.4 Class 1422-02 File 53787",
+    "source": "Bussmann Data Sheet 1023 (10-2-02) [MIRROR] https://www.farnell.com/datasheets/207472.pdf p.1"
+   },
+   "price_100_usd": {
+    "value": 61.8903,
+    "source": "DigiKey https://www.digikey.com/en/products/result?keywords=LP-CC-25 (2041-1089-ND) read 2026-10-14"
+   },
+   "price_500_usd": {
+    "value": null,
+    "source": "no 500 break shown"
+   },
+   "stock": {
+    "value": 6,
+    "source": "DigiKey 2041-1089-ND read 2026-10-14"
+   },
+   "size": {
+    "value": "10.3 x 38.1 mm",
+    "source": "Bussmann Data Sheet 1023 (10-2-02) [MIRROR] https://www.farnell.com/datasheets/207472.pdf p.1 Dimensional Data"
+   }
+  },
+  {
+   "part": "Eaton Bussmann KTK-R-25",
+   "group": "Class CC fast-acting",
+   "air": {
+    "value": {
+     "A": 200000,
+     "V_ac": 600
+    },
+    "source": "Bussmann Data Sheet 1015 (0813) [MIRROR] https://static.chipdip.ru/lib/016/DOC021016690.pdf p.1"
+   },
+   "melt_i2t_A2s": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "clearing_i2t_A2s": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "let_through_5kA": {
+    "value": {
+     "25A": null,
+     "peak_A_plot": {
+      "20A": 1400,
+      "30A": 1641
+     }
+    },
+    "source": "Bussmann Data Sheet 1015 (0813) [MIRROR] https://static.chipdip.ru/lib/016/DOC021016690.pdf p.3 Current-Limitation Curves 10 to 30 Amps (labels 30/20/15/10)",
+    "tag": "PLOT"
+   },
+   "let_through_10kA": {
+    "value": {
+     "25A": null,
+     "peak_A_plot": {
+      "20A": 1821,
+      "30A": 2133
+     }
+    },
+    "source": "Bussmann Data Sheet 1015 (0813) [MIRROR] https://static.chipdip.ru/lib/016/DOC021016690.pdf p.3",
+    "tag": "PLOT"
+   },
+   "opening_135pct": {
+    "value": null,
+    "source": "not printed"
+   },
+   "opening_200pct": {
+    "value": null,
+    "source": "not printed"
+   },
+   "derate_50C": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "derate_70C": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "agency": {
+    "value": "UL Listed Std 248-4 Class CC, Guide JDDZ, File E4273; CSA 53787 Class 1422-02",
+    "source": "Bussmann Data Sheet 1015 (0813) [MIRROR] https://static.chipdip.ru/lib/016/DOC021016690.pdf p.1"
+   },
+   "price_100_usd": {
+    "value": 57.6346,
+    "source": "DigiKey https://www.digikey.com/en/products/result?keywords=KTK-R-25 (2041-KTK-R-25-ND) read 2026-10-14"
+   },
+   "price_500_usd": {
+    "value": null,
+    "source": "no 500 break shown"
+   },
+   "stock": {
+    "value": 0,
+    "source": "DigiKey 2041-KTK-R-25-ND read 2026-10-14",
+    "note": "10 estimated 18-Nov-2026"
+   },
+   "size": {
+    "value": "0.41 x 1.5 in",
+    "source": "Bussmann Data Sheet 1015 (0813) [MIRROR] https://static.chipdip.ru/lib/016/DOC021016690.pdf p.1"
+   }
+  },
+  {
+   "part": "Eaton Bussmann FNQ-R-25",
+   "group": "Class CC time-delay",
+   "air": {
+    "value": {
+     "A": 200000,
+     "V_ac": 600
+    },
+    "source": "DigiKey listing / search summary",
+    "tag": "UNVERIFIED"
+   },
+   "melt_i2t_A2s": {
+    "value": null,
+    "source": "datasheet (Eaton TD 1014) not reachable"
+   },
+   "clearing_i2t_A2s": {
+    "value": null,
+    "source": "datasheet not reachable"
+   },
+   "let_through_5kA": {
+    "value": null,
+    "source": "datasheet not reachable"
+   },
+   "let_through_10kA": {
+    "value": null,
+    "source": "datasheet not reachable"
+   },
+   "opening_135pct": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "opening_200pct": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "derate_50C": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "derate_70C": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "agency": {
+    "value": null,
+    "source": "datasheet not reachable"
+   },
+   "price_100_usd": {
+    "value": 69.0272,
+    "source": "DigiKey https://www.digikey.com/en/products/result?keywords=FNQ-R-25 (283-2481-ND) read 2026-10-14"
+   },
+   "price_500_usd": {
+    "value": null,
+    "source": "no 500 break shown"
+   },
+   "stock": {
+    "value": 0,
+    "source": "DigiKey 283-2481-ND read 2026-10-14",
+    "note": "10 estimated 13-May-2027"
+   },
+   "size": {
+    "value": "Class CC 10.3 x 38.1 mm",
+    "source": "class definition",
+    "tag": "UNVERIFIED"
+   }
+  },
+  {
+   "part": "Mersen ATDR25",
+   "group": "Class CC time-delay",
+   "air": {
+    "value": {
+     "A": 200000,
+     "V_ac": 600,
+     "dc": "100 kA DC, 300 VDC"
+    },
+    "source": "Mersen ATDR datasheet (c)2025 https://pim.mersen.com/91C3610E476E4CD196245BC3BDDFB39B-1en.pdf RATINGS block"
+   },
+   "melt_i2t_A2s": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "clearing_i2t_A2s": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "let_through_5kA": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "let_through_10kA": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "opening_135pct": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "opening_200pct": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "derate_50C": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "derate_70C": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "agency": {
+    "value": "UL Listed 248-4 File E2137; CSA C22.2 No. 248.4; DC listed UL 248",
+    "source": "Mersen ATDR datasheet (c)2025 https://pim.mersen.com/91C3610E476E4CD196245BC3BDDFB39B-1en.pdf APPROVALS/STANDARDS"
+   },
+   "price_100_usd": {
+    "value": 25.6542,
+    "source": "DigiKey https://www.digikey.com/en/products/result?keywords=2378-ATDR25-ND (2378-ATDR25-ND) read 2026-10-14"
+   },
+   "price_500_usd": {
+    "value": null,
+    "source": "no 500 break shown; 250 = $22.99892"
+   },
+   "stock": {
+    "value": 51,
+    "source": "DigiKey 2378-ATDR25-ND read 2026-10-14"
+   },
+   "size": {
+    "value": "13/32 x 1-1/2 in (Class CC)",
+    "source": "Mersen ATDR datasheet (c)2025 https://pim.mersen.com/91C3610E476E4CD196245BC3BDDFB39B-1en.pdf DIMENSIONS"
+   }
+  },
+  {
+   "part": "Mersen ATQR25",
+   "group": "Class CC time-delay",
+   "air": {
+    "value": {
+     "A": 200000,
+     "V_ac": 600,
+     "dc": "100 kA DC, 300 VDC (3.2-30 A)"
+    },
+    "source": "Mersen ATQR datasheet (c)2025 https://pim.mersen.com/78ABDA9D8C854B57A18C7508452DFD77-1en.pdf RATINGS block"
+   },
+   "melt_i2t_A2s": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "clearing_i2t_A2s": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "let_through_5kA": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "let_through_10kA": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "opening_135pct": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "opening_200pct": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "derate_50C": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "derate_70C": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "agency": {
+    "value": "UL Listed 248-4 File E2137; CSA C22.2 No. 248.4; DC listed UL 248",
+    "source": "Mersen ATQR datasheet (c)2025 https://pim.mersen.com/78ABDA9D8C854B57A18C7508452DFD77-1en.pdf APPROVALS/STANDARDS"
+   },
+   "price_100_usd": {
+    "value": 25.8695,
+    "source": "DigiKey https://www.digikey.com/en/products/detail/mersen-usa-newburyport-ma-l-l-c/ATQR25/21729071 (2378-ATQR25-ND) read 2026-10-14"
+   },
+   "price_500_usd": {
+    "value": null,
+    "source": "no 500 break shown; 250 = $23.19180"
+   },
+   "stock": {
+    "value": 96,
+    "source": "DigiKey 2378-ATQR25-ND read 2026-10-14"
+   },
+   "size": {
+    "value": "13/32 x 1-1/2 in (Class CC)",
+    "source": "Mersen ATQR datasheet (c)2025 https://pim.mersen.com/78ABDA9D8C854B57A18C7508452DFD77-1en.pdf DIMENSIONS"
+   }
+  },
+  {
+   "part": "Mersen ATMR25",
+   "group": "Class CC fast-acting",
+   "air": {
+    "value": {
+     "A": 200000,
+     "V_ac": 600,
+     "dc": "100 kA DC, 600 VDC"
+    },
+    "source": "Mersen ATMR datasheet (c)2025 https://pim.mersen.com/7F64737D5B0444DE87A1C4C79EF7BB97-1en.pdf RATINGS block"
+   },
+   "melt_i2t_A2s": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "clearing_i2t_A2s": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "let_through_5kA": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "let_through_10kA": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "opening_135pct": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "opening_200pct": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "derate_50C": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "derate_70C": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "agency": {
+    "value": "UL Listed 248-4 File E2137; CSA C22.2 No. 248.4; DC listed UL 248",
+    "source": "Mersen ATMR datasheet (c)2025 https://pim.mersen.com/7F64737D5B0444DE87A1C4C79EF7BB97-1en.pdf APPROVALS/STANDARDS"
+   },
+   "price_100_usd": {
+    "value": 23.512,
+    "source": "DigiKey https://www.digikey.com/en/products/result?keywords=ATMR25 (2378-ATMR25-ND) read 2026-10-14"
+   },
+   "price_500_usd": {
+    "value": 19.396,
+    "source": "DigiKey 2378-ATMR25-ND read 2026-10-14"
+   },
+   "stock": {
+    "value": 10,
+    "source": "DigiKey 2378-ATMR25-ND read 2026-10-14"
+   },
+   "size": {
+    "value": "13/32 x 1-1/2 in (Class CC)",
+    "source": "Mersen ATMR datasheet (c)2025 https://pim.mersen.com/7F64737D5B0444DE87A1C4C79EF7BB97-1en.pdf DIMENSIONS"
+   }
+  },
+  {
+   "part": "Eaton Edison HCTR25 / EDCC25",
+   "group": "Class CC",
+   "air": {
+    "value": "spec sheet says both '10 kAIC' and '200,000a IR'",
+    "source": "Elliott spec sheet https://static.elliottelectric.com/Media/HCTR25-EDN",
+    "tag": "UNVERIFIED"
+   },
+   "melt_i2t_A2s": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "clearing_i2t_A2s": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "let_through_5kA": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "let_through_10kA": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "opening_135pct": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "opening_200pct": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "derate_50C": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "derate_70C": {
+    "value": null,
+    "source": "not published in documents read"
+   },
+   "agency": {
+    "value": "UL Listed, CSA (no file)",
+    "source": "Elliott spec sheet",
+    "tag": "UNVERIFIED"
+   },
+   "price_100_usd": {
+    "value": null,
+    "source": "not on DigiKey"
+   },
+   "price_500_usd": {
+    "value": null,
+    "source": "not on DigiKey"
+   },
+   "stock": {
+    "value": "Status: Inactive",
+    "source": "Elliott spec sheet",
+    "tag": "UNVERIFIED"
+   },
+   "size": {
+    "value": null,
+    "source": "not published in documents read"
+   }
+  }
+ ],
+ "clips": [
+  {
+   "part": "Littelfuse 01250003H",
+   "fits": "13/32 in (10.3 mm) midget / Class CC",
+   "rating": {
+    "value": "30 A max; voltage not on DS (DigiKey: 250 V)",
+    "source": "Littelfuse 105/106/125 DS Rev 02/07/18 [MIRROR] https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/1810152114_Littelfuse-01250003H_C223911.pdf"
+   },
+   "agency": {
+    "value": "UR E14721",
+    "source": "same DS p.1 Agency Approval"
+   },
+   "price_500_usd": {
+    "value": 2.05726,
+    "source": "DigiKey https://www.digikey.com/en/products/result?keywords=01250003H (F3306-ND) read 2026-10-14",
+    "note": "repo $3.25 is the 10-piece price"
+   },
+   "stock": {
+    "value": 9223,
+    "source": "DigiKey F3306-ND read 2026-10-14"
+   }
+  },
+  {
+   "part": "Keystone 3566",
+   "fits": "5AG 13/32 in, end stops",
+   "rating": {
+    "value": "UL current rating 30 A; 0.030 in tin-plated brass; voltage not stated",
+    "source": "Keystone catalog p.52 https://www.keyelco.com/userAssets/file/K75p52.pdf"
+   },
+   "agency": {
+    "value": "UL (clips without end stops not UL recognized)",
+    "source": "same"
+   },
+   "price_500_usd": {
+    "value": 0.4467,
+    "source": "DigiKey https://www.digikey.com/en/products/detail/keystone-electronics/3566/316035 (36-3566-ND) read 2026-10-14"
+   },
+   "stock": {
+    "value": 49315,
+    "source": "DigiKey 36-3566-ND read 2026-10-14"
+   }
+  },
+  {
+   "part": "Schurter CSO 0751.0507",
+   "fits": "10.3x38 / 10.3x85 mm, THT tin",
+   "rating": {
+    "value": "1500 V, 32 A; ~30 A @50 C, ~29 A @70 C [PLOT]",
+    "source": "Schurter CSO DS https://www.schurter.com/en/datasheet/typ_CSO.pdf pp.1-3"
+   },
+   "agency": {
+    "value": "UL Recognized E39328 (UL 4248-1 / CSA C22.2 No. 4248.1)",
+    "source": "same p.1-2"
+   },
+   "price_500_usd": {
+    "value": 0.95594,
+    "source": "DigiKey https://www.digikey.com/en/products/result?keywords=0751.0507 (486-3272-ND) read 2026-10-14"
+   },
+   "stock": {
+    "value": 1145,
+    "source": "DigiKey 486-3272-ND read 2026-10-14"
+   }
+  },
+  {
+   "part": "Littelfuse 01220088Z",
+   "fits": "1/4 in / 6.3 mm (505/506/508)",
+   "rating": {
+    "value": "30 A max; voltage not on DS (DigiKey: 1000 V)",
+    "source": "Littelfuse 102/122 DS Rev 08/25/15 [MIRROR] https://mfgdatasheets.nlight.net/25-07361%20Littelfuse%2001220083Z.pdf"
+   },
+   "agency": {
+    "value": "UR E14721",
+    "source": "same"
+   },
+   "price_500_usd": {
+    "value": 0.50532,
+    "source": "DigiKey https://www.digikey.com/en/products/detail/littelfuse-inc/01220088Z/2498891 (F3783-ND) read 2026-10-14"
+   },
+   "stock": {
+    "value": 46519,
+    "source": "DigiKey F3783-ND read 2026-10-14"
+   }
+  },
+  {
+   "part": "Littelfuse 01220083Z",
+   "fits": "1/4 in / 6.3 mm, silver-plated BeCu",
+   "rating": {
+    "value": "30 A max",
+    "source": "same 102/122 DS"
+   },
+   "agency": {
+    "value": "UR E14721",
+    "source": "same"
+   },
+   "price_500_usd": {
+    "value": 0.53564,
+    "source": "DigiKey https://www.digikey.com/en/products/result?keywords=01220083Z (F3782-ND) read 2026-10-14"
+   },
+   "stock": {
+    "value": 48117,
+    "source": "DigiKey F3782-ND read 2026-10-14"
+   }
+  }
+ ],
+ "per_board_500_usd": {
+  "KLDR025.TXP+2x01250003H": 22.63,
+  "KLKR025.T+2x01250003H": 20.52,
+  "CCMR025.TXP+2x01250003H": 22.94,
+  "ATMR25+2x01250003H": 23.51,
+  "KLDR025.TXP+2xKeystone3566": 19.41,
+  "0505025.MXP+2x01220088Z": 4.58,
+  "0ADEC9250-BE+2x01220088Z": 3.77
+ }
+}

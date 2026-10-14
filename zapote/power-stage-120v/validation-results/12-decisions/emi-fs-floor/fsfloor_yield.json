@@ -1,0 +1,116 @@
+{
+ "basis": "round 6 MC, today's tank (70 uH / 0.50 uF), ASSUMED",
+ "control_fails": [],
+ "by_floor": {
+  "35kHz": {
+   "108V": {
+    "floor_limited": 0.013,
+    "f_op_p10_kHz": 37.05,
+    "yield_22A": 0.267,
+    "yield_22A_pk60": 0.267,
+    "yield_26A": 0.792,
+    "yield_26A_pk60": 0.792,
+    "yield_28A": 0.921,
+    "yield_28A_pk60": 0.899
+   },
+   "120V": {
+    "floor_limited": 0.007,
+    "f_op_p10_kHz": 37.5,
+    "yield_22A": 0.129,
+    "yield_22A_pk60": 0.129,
+    "yield_26A": 0.669,
+    "yield_26A_pk60": 0.669,
+    "yield_28A": 0.847,
+    "yield_28A_pk60": 0.831
+   }
+  },
+  "38kHz": {
+   "108V": {
+    "floor_limited": 0.17,
+    "f_op_p10_kHz": 38.0,
+    "yield_22A": 0.24,
+    "yield_22A_pk60": 0.24,
+    "yield_26A": 0.683,
+    "yield_26A_pk60": 0.683,
+    "yield_28A": 0.784,
+    "yield_28A_pk60": 0.769
+   },
+   "120V": {
+    "floor_limited": 0.132,
+    "f_op_p10_kHz": 38.0,
+    "yield_22A": 0.121,
+    "yield_22A_pk60": 0.121,
+    "yield_26A": 0.603,
+    "yield_26A_pk60": 0.603,
+    "yield_28A": 0.755,
+    "yield_28A_pk60": 0.742
+   }
+  },
+  "40kHz": {
+   "108V": {
+    "floor_limited": 0.367,
+    "f_op_p10_kHz": 40.0,
+    "yield_22A": 0.201,
+    "yield_22A_pk60": 0.201,
+    "yield_26A": 0.535,
+    "yield_26A_pk60": 0.535,
+    "yield_28A": 0.606,
+    "yield_28A_pk60": 0.597
+   },
+   "120V": {
+    "floor_limited": 0.309,
+    "f_op_p10_kHz": 40.0,
+    "yield_22A": 0.108,
+    "yield_22A_pk60": 0.108,
+    "yield_26A": 0.499,
+    "yield_26A_pk60": 0.499,
+    "yield_28A": 0.614,
+    "yield_28A_pk60": 0.605
+   }
+  },
+  "42kHz": {
+   "108V": {
+    "floor_limited": 0.572,
+    "f_op_p10_kHz": 42.0,
+    "yield_22A": 0.153,
+    "yield_22A_pk60": 0.153,
+    "yield_26A": 0.372,
+    "yield_26A_pk60": 0.372,
+    "yield_28A": 0.415,
+    "yield_28A_pk60": 0.411
+   },
+   "120V": {
+    "floor_limited": 0.511,
+    "f_op_p10_kHz": 42.0,
+    "yield_22A": 0.089,
+    "yield_22A_pk60": 0.089,
+    "yield_26A": 0.37,
+    "yield_26A_pk60": 0.37,
+    "yield_28A": 0.445,
+    "yield_28A_pk60": 0.441
+   }
+  },
+  "45kHz": {
+   "108V": {
+    "floor_limited": 0.815,
+    "f_op_p10_kHz": 45.0,
+    "yield_22A": 0.08,
+    "yield_22A_pk60": 0.08,
+    "yield_26A": 0.168,
+    "yield_26A_pk60": 0.168,
+    "yield_28A": 0.182,
+    "yield_28A_pk60": 0.181
+   },
+   "120V": {
+    "floor_limited": 0.768,
+    "f_op_p10_kHz": 45.0,
+    "yield_22A": 0.054,
+    "yield_22A_pk60": 0.054,
+    "yield_26A": 0.187,
+    "yield_26A_pk60": 0.187,
+    "yield_28A": 0.218,
+    "yield_28A_pk60": 0.217
+   }
+  }
+ }
+}

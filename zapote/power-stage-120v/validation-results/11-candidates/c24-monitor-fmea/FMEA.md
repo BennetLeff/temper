@@ -419,6 +419,56 @@ Conditions:
 
 If M1 fails its SPICE or bench margin check, fall back to **P1** (−9 placements, no new common point; `PROPOSALS.md:129-139`).
 
+## 6a. SPICE check of the pump (2026-10-14): the hand-sized M1 fails, the buffered M1b passes
+
+```
+python3 -I validation-results/11-candidates/c24-monitor-fmea/scripts/m1_pump_spice.py   # ngspice, ~3 min, exit 0 = chosen design passes every corner
+```
+
+**Method.** ngspice corner sweep, 96 corners per design:
+- VCC2 at 3.135 and 3.465 V; −40, 25 and 125 °C;
+- oscillator period 0.42 µs and 2.09 µs (the G132 threshold, LS 5 V, R and C extremes);
+- two driver output resistances;
+- G17 input leakage at ±5 µA;
+- the wave stopping either stuck low or stuck high.
+
+Each design is also rerun with one of the two series pump caps shorted (H10). BAT54 is fitted to the Diodes DS11005 VF **maxima**. G17 thresholds are interpolated between the datasheet's 3 V and 4.5 V rows. The four checks:
+
+| Check | Pass condition |
+|---|---|
+| Start | Hold ≥ VT+max + 0.1 V |
+| Missed pulse | One missed pulse leaves the hold ≥ VT−max + 0.1 V |
+| Trip | Wave stopped → hold < VT−min within 150 µs |
+| Drive | Driver peak current ≤ its limit |
+
+**The hand-sized M1 (U32 drives 2 × 100 nF straight, 100 k bleed) fails in two ways:**
+- **Stuck high masks the trip.** When U32's output stops high, the 50 nF pump capacitance discharges *into* the 1 nF hold through the series diode, and the hold stays up for milliseconds. U32 stuck high, the most likely isolator fault, would then be dormant: the very gap M1 was meant to close. Stuck low trips in 76–162 µs (slow, because the +5 µA input leakage holds the hold up).
+- **U32 is overdriven.** Each edge pulls 13–22 mA through U32's output, against the ISO7710's recommended ±2 mA at 3.3 V (SLLSER9E 5.3; absolute maximum 15 mA).
+
+Fixing either with a series resistor and small pump caps straight off U32 fails the start margin (designs A–E in the JSON). An R limiting the current to 2 mA cannot move enough charge at the fast oscillator corner, and the 5:1 period spread prevents tuning around it.
+
+**Adopted, M1b (design J):**
+- U32 OUT drives an SN74LVC1G17 buffer (the existing G17 line, plus its 100 nF).
+- The pump: buffer → 220 Ω → 2 × 1 nF C0G in series → BAT54S → C_hold 1 nF ∥ R_bleed 49.9 k → U40 (G17).
+
+| Corner set | Start margin | Missed-pulse margin | Trip (worst) | Buffer peak |
+|---|---|---|---|---|
+| J, 96 corners | ≥ 0.148 V | ≥ 0.78 V | ≤ 90.3 µs | 11.2 mA (limit 16 mA: VOH spec point; recommended 24 mA, absolute maximum 50 mA) |
+| J, one pump cap shorted | ≥ 0.245 V | ≥ 0.87 V | ≤ 122.9 µs | 11.3 mA |
+
+The worst start corner is 3.135 V, −40 °C, slowest oscillator. The thin 0.148 V is ripple at the 2.09 µs period. A bench capture of the hold node at the cold, low-rail corner confirms it.
+
+**Changes against §6:**
+- **Placements:** M1b adds the buffer, its 100 nF and the 220 Ω to M1, so M1b is +9 and the candidate nets **−3** (not −6).
+- **Bleed:** 49.9 k (existing line) replaces 100 k.
+- **Pump caps:** 2 × 1 nF C0G (existing line) replace 2 × 100 nF.
+- **Lines:** a new 220 Ω line (0603). Net BOM lines are +2 against today: P2 −1, M1 +2 (+BAT54A, +BAT54S, +G132, −G14), M1b +1 (220 Ω).
+- **Cost:** ≈ −$1.6 (DK) / −$3.8 (JLC).
+- **Detection latency:** ≤ 90 µs nominal-fault, ≤ 123 µs with a latent pump-cap short. Rail faults are ms-scale.
+- **FMEA rows:** H3–H18 are unchanged in kind. The buffer is one more element whose every static fault stops the wave, so it is announced. R_s 220 Ω open is announced; R_s shorted puts the buffer over its limit but the scheme still works (nuisance-free); latent.
+
+**Verdict on the gate:** condition 2 (SPICE) is met by M1b. Conditions 3–4 (B4 timing with ≤ 123 µs, audit.rs) follow in the stage build.
+
 ## 7. Questions for the certifier
 
 1. **Protective electronic circuit (PEC) status.** Is the F6 rail-window monitor plus the DIS path a protective

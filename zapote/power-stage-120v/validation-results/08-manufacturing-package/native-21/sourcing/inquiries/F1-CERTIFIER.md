@@ -151,3 +151,10 @@ UL 248-14 / CSA C22.2 No. 248.14 (Supplemental Fuses), current text [UNVERIFIED]
    - **Question 1:** for creepage per IEC 60335-1 Table 18 / IEC 60664-4, which RMS convention applies: envelope RMS, or carrier-crest RMS (≈ 518–583 V rms)? The answer sets the board's tank creepage rule at 5.0 mm or at 6.3–7.4 mm.
    - **Question 2:** is the working voltage the normal-use (with-pan) value, or must it include the firmware-prevented no-pan 28 A point?
    - Evidence: `owner-items/m6m10/coil-voltage-28a/`.
+
+## Added 2026-10-14: the one question that decides F1 (DECISIONS 32)
+
+8. **Recognized supplemental fuse as the internal mains fuse.** Will the lab accept a UL-Recognized (cURus, UL 248-14 supplemental) 25 A fast-acting 6.3 × 32 mm ceramic fuse, rated 30 kA at 500 VAC, as F1 in place of the Listed Class CC KLDR025? The candidate is Bel Fuse 0ADEC9250-BE, file E20624. It would sit in PCB clips downstream of the cord, with a 4.7–8.4 kA prospective bound at 127 V + 10 %. If yes, for UL, CSA and NOM:
+   - which conditions of acceptance apply;
+   - whether the end-product short-circuit test must be run with it, and at what available current.
+   - Evidence: `12-decisions/f1-data/f1_decision.py` (every technical gate passes; board-copper margin 3.61× against KLDR025's 0.99×), `12-decisions/f1-data/SURVEY.md`. Worth $18.86 per board.
