@@ -2,8 +2,8 @@
 
 component Bias10u:
     designator_prefix = "C"
-    mpn = "UMK325AB7106KM-T"
-    manufacturer = "Taiyo Yuden"
+    mpn = "CL32B106KBJNNNE"            # stage 31 (DECISIONS 34): same part as parts.ato C10u1210
+    manufacturer = "Samsung Electro-Mechanics"
     footprint = "Capacitor_SMD:C_1210_3225Metric"
     value: capacitance
     signal p1 ~ pin 1

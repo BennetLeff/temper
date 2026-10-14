@@ -1125,3 +1125,40 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
       3. Hold-node capture at 3.135 V / cold (item 32).
       4. BUS_FAULT at the U13.A pin at hard S4 / S5 edges, and the OCP trip delay with R134 / C167 fitted.
       5. S4 / S5 dv/dt (also item 31's CMTI basis).
+34. **Stage 31: U9 / U32 / U44 become Chipanalog CA-IS3720HW / LW, and the 24 × 1210 10 µF become Samsung CL32B106KBJNNNE (2026-10-14; BOM only, copper.json `b096631d…` unchanged from stage 30; board `5ef1c37a41914825db33138bbbf765390b1fa5ae9ea4391b45c92fc8c2854bad`, schematic `307eda01…`, frozen netlist `f23302546e74894f099d3a79a888c0f915c3dbee5ae6020d3362d8f5c5cc42e7`, Gerber ZIP `f24f40fdde0a0fd54f4169c859e7a4672fd6a2d76ba70a3d13b91e1f0c9a7d07`; tag `native21s31`; `11-candidates/c31-bom/`; SAFETY: HOT → SELV isolation).**
+    - **Why the layout candidates waited:**
+      - 30a, the HS-B → LS ISO6721FB, is blocked. The second legal cluster still exists on the stage-30 board, but its LS nets would face the same closed y 47–60 band, and the SELV spine bars any route east.
+      - 30b, C161, is blocked too: its column is taken on In1, In2 and B.Cu.
+      - Both wait for the next LS-cluster move. That left the BOM's stock and price risks as the lever.
+    - **Change:**
+      - **U9 / U32: ISO7710DWR → CA-IS3720HW. U44: ISO7710FDWR → CA-IS3720LW.**
+        - ISO7710DWR had zero stock at every source checked; ISO7710FDWR had 29 at JLC. JLC has 1,640 / 2,542 of the new parts.
+        - Every used pin matches the ISO7710DW pinout, and the parts sit on the same TI DW0016B HV pads.
+        - The spare second channel (pin 5 input, pin 12 output) stays on single-pin nets. A new audit.rs rule and mutation test enforce that.
+        - Default output on side-A power loss **or an open input** is HIGH / LOW by suffix (Table 9-1), so FMEA §6b holds unchanged.
+        - Reinforced (VDE 0884-17 40057278), UL 1577 E511334 at 5 kVrms, CLR / CPG 8 mm, CTI > 600.
+        - CMTI min 100 kV/µs, against 85 for the ISO7710.
+      - **24 × UMK325AB7106KM-T → CL32B106KBJNNNE.**
+        - JLC had 3,921 of the Taiyo part against 12,000 per 500 boards, and TY-COMPAS lists it "non-preferred". JLC has 44,561 of the Samsung part.
+        - It keeps more capacitance at bias, with −10 % tolerance and 100 °C: 17 V 3.16 → 5.26 µF, 24 V 2.22 → 3.87 µF. At 2–5 V it is within 3 %.
+    - **Rejected:**
+      - **Novosense NSi822xW** (CMTI min 200, which would meet the 1.5× rule): its datasheet gives no open-input output state, which FMEA §6b relies on, and the default-HIGH variant had 91 at JLC.
+      - **BR1 → MDD GBJ2510** (R2-03): no UL file number found for the MDD part, and it saves only $0.37.
+      - **D3 / D17 second sources:** every 30KPA150 variant has zero JLC stock, and DC-LINK-CLAMP.md forbids a silent change of suffix or family. That is the owner's sourcing round (`c31-bom/BUS-TVS.md`).
+    - **Evidence:**
+      - The atopile rebuild changes only the 27 MPNs: the nets section is byte-identical.
+      - audit.rs PASS, 82/82 (new `isolator_spare_output_tied_to_rail_fails`); verify_source PASS (349 parts, 24 × CL32B106KBJNNNE).
+      - Ledger gate PASS: CA-IS3720HW / LW PARTIAL (the CMTI gap is now 0.95, against 1.12), CL32B106KBJNNNE PARTIAL (was UNAUDITED).
+      - The D5 audit table gains the CA-IS3720 package distances. It had shown ISO7710FDWR as "NOT IN TABLE" at stage 30.
+      - cmti_table.py: 7 PASS, 0 FAIL, 6 OPEN.
+      - `c31-bom/mlcc_bias.py` PASS: the driver VSS pairs keep 16.3 µF effective against the ECO's 10 µF. The RECOM P–N start-up bound holds: 21.4 µF nominal, against 41.4 µF simulated passing (ALT-BIAS §3.4).
+      - Chain `native21s31` CHAIN_DONE on the stage-30 pass. Every gate is clean; task 04 and B3 hit the cache (copper unchanged); necks 0.993; OCP pickup rerun; ERC `ground_pin_not_ground` 5 → 1.
+    - **Price basis:** the stock survey had carried UMK325AB7106KM-T at a class-default estimate ($0.12 at 500). It is corrected to the JLC ladder ($0.2186; `sourcing/STOCK-2026-10-13_pricefix-umk325.csv`). The 19c and s30 cards are restated ($221.04 → $223.41, $210.57 → $212.94; each card's restatement block, reproduced by the same `scorecard.cost()` call without the fix file).
+    - **Scorecard: ACCEPT against 19c and 30** (`scorecard-native21s31.json`).
+      - Cheaper: parts at 500 $212.94 → $208.08 (−$4.86), at 5 $318.55 → $313.28; zero-stock lines 9 → 8.
+      - Every gate and performance metric is identical. The card has no metric for isolator CMTI or capacitance at bias, so those gains are recorded here and in the ledger.
+      - Single-source lines stay at 19: Chipanalog replaces TI one for one.
+    - **Open:**
+      - s19b BP-04 is still unmet at 15 / 17 / 24 V with either 1210 part (57 / 53 / 39 % of nominal).
+      - UL file E511334 is quoted from the datasheet and has not been looked up in UL Product iQ (certifier item).
+      - Bench: U44 open-input and HS-B power-off default (item 33 bench 2), and U9 / U32 output levels at 3.3 V.

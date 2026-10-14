@@ -67,7 +67,10 @@ CHANGED.update({"UMK325AB7106KM-T": "C386167", "RT0603BRD0712K4L": "C861102", "T
                 # stage 30 (DECISIONS 33): buffered heartbeat M1b and the HS rail-verdict isolators (JLC part API 2026-10-14,
                 # stage30-heartbeat/jlc-raw)
                 "ISO6721FBDR": "C5216431", "ISO7710FDWR": "C2859831", "BAT54S-7-F": "C83574",
-                "SN74LVC1G132DBVR": "C403723"})
+                "SN74LVC1G132DBVR": "C403723",
+                # stage 31 (DECISIONS 34): Chipanalog isolators and the Samsung 1210 (JLC part API 2026-10-14,
+                # 11-candidates/c31-bom/scripts/jlc-raw)
+                "CA-IS3720HW": "C428883", "CA-IS3720LW": "C2890049", "CL32B106KBJNNNE": "C138687"})
 ACCEPT_ALT = {"GRM31A5C3A102JW01D"}
 bom_path = HERE / "fab" / "bom-jlcpcb.csv"
 rows = list(csv.DictReader(open(bom_path)))

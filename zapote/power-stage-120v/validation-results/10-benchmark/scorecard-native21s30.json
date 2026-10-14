@@ -43,8 +43,8 @@
   "hand_or_consign_lines": 21,
   "tht_lines": 19,
   "consign_lines": 6,
-  "parts_usd_at_5": 318.44,
-  "parts_usd_at_500": 210.57,
+  "parts_usd_at_5": 318.55,
+  "parts_usd_at_500": 212.94,
   "unpriced_lines": [],
   "zero_stock_lines": 9,
   "single_source_lines": 19,
@@ -61,5 +61,11 @@
   "bank": "11-candidates/g04-g09-tank-detect/results/bank_options.json baseline J",
   "ocp_pickup": "02-protection-timing/coil-pickup/s21b/result-s30.json",
   "ledger": "native-21/verification/datasheet-ledger: {'PARTIAL': 31, 'UNAUDITED': 60, 'VERIFIED': 3, 'VIOLATION': 0}"
+ },
+ "restated": {
+  "date": "2026-10-14",
+  "parts_usd_at_5_before": 318.44,
+  "parts_usd_at_500_before": 210.57,
+  "reason": "UMK325AB7106KM-T at the JLC ladder ($0.2545 / $0.2186, C386167), not the class-default estimate ($0.25 / $0.12): sourcing/STOCK-2026-10-13_pricefix-umk325.csv (DECISIONS 34). Recomputed with scorecard.cost() on this tag's fab BOM; the same call without the fix file reproduces the before values."
  }
 }

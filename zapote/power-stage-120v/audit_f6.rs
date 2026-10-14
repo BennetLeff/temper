@@ -205,7 +205,7 @@ fn connections() -> Vec<(String, String, String)> {
             add(&format!("{base}.{part}"), "2", b);
         }
     }
-    // Stage 30: HS-B's verdict crosses straight to SELV on an ISO7710F (default LOW) and gates the heartbeat NAND.
+    // Stage 30: HS-B's verdict crosses straight to SELV on a default-LOW reinforced isolator (ISO7710F; CA-IS3720LW since stage 31) and gates the heartbeat NAND.
     for (pin, net) in [
         ("1", "n_hb"),
         ("7", "n_hb"),
@@ -513,14 +513,15 @@ mod tests {
     }
     #[test]
     fn rail_monitor_crossings_must_be_reinforced_high_cmti_isolators() {
-        // Stage 30: the group's SELV crossings are hb.iso (U32, ISO7710DWR) and bias_hb.verdict (U44, ISO7710FDWR);
+        // Stage 30: the group's SELV crossings are hb.iso (U32, CA-IS3720HW since stage 31) and bias_hb.verdict (U44,
+        // CA-IS3720LW);
         // a phototransistor opto fails.
         let mut changed = crate::tests::built();
         changed.set_part("hb.iso", "VO617A-3X017T");
         assert!(crate::audit(&changed).iter().any(|e| e.contains("hb.iso")));
-        // The HS verdict crossings must default LOW: the default-HIGH ISO6721B (HS-A) or ISO7710 (HS-B) would read an
+        // The HS verdict crossings must default LOW: the default-HIGH ISO6721B (HS-A) or CA-IS3720HW (HS-B) would read an
         // unpowered HS monitor as 'good' (the masking failure the F options exist to prevent).
-        for (path, wrong) in [("bias_ha.link", "ISO6721BDR"), ("bias_hb.verdict", "ISO7710DWR")] {
+        for (path, wrong) in [("bias_ha.link", "ISO6721BDR"), ("bias_hb.verdict", "CA-IS3720HW")] {
             let mut changed = crate::tests::built();
             changed.set_part(path, wrong);
             assert!(crate::audit(&changed).iter().any(|e| e.contains(path)), "{path}");

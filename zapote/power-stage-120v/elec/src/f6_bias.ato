@@ -1,5 +1,5 @@
 from "f6_parts.ato" import Bias10u, BiasComparator, BiasReference, BiasOpto, BiasNpn, BiasSilicon, GateDischarge, Bias4k42, Bias7k68, Bias120k, Bias133k, Bias2k2, Bias2k7, Gate1R, Bias6k2, Bias4k99, Bias18k, Bias30k, BiasDamping, Bias680, Line16k5, Line33k, Bias1u, Bias100n, Bias220u, Bias4u7, HotSupply24, NegativeShunt, SpanRegulator, HotLdo, DisOr, LineOpto, IsoBiasModule, BiasFb63k4, BiasFb11k, C330pC0G0603, Bias27k
-from "parts.ato" import C100n0603, C1nC0G0603, R10kThin, R1k0603, R10k0603, C100pC0G0603, Hot5SchmittBuffer, Iso7710, Iso7710F, C10u1210, R100k0603
+from "parts.ato" import C100n0603, C1nC0G0603, R10kThin, R1k0603, R10k0603, C100pC0G0603, Hot5SchmittBuffer, IsoReinfH, IsoReinfL, C10u1210, R100k0603
 from "parts.ato" import Iso6721Fb, SchottkyPairSeries, SchmittNand132, SchmittBuf17, R220R0603, R49k9Dt
 
 module BiasReservoir:
@@ -375,14 +375,14 @@ module HighBiasLink from HighBias:
     clink2.p2 ~ nls
 
 module HighBiasSelv from HighBias:
-    """HS-B. Stage 30 (DECISIONS 33): the verdict crosses HS-B -> SELV on a reinforced ISO7710F (default LOW = not
+    """HS-B. Stage 30 (DECISIONS 33): the verdict crosses HS-B -> SELV on a reinforced default-LOW isolator (CA-IS3720LW since stage 31; LOW = not
     good, SLLSER9E) at the stage-29 U34 pose, and gates the heartbeat's SELV NAND (Heartbeat.buf). On the s29 floor plan
     no legal ISO6721FB pose straddles HS-B and the LS domain (stage30-heartbeat/spot_scan.py): U42's n_ls pocket, the
     SELV 8 mm keep-out and the protected bus_p / n_hb copper close every row between them."""
     signal v3v3
     signal selv_gnd
     signal good_selv
-    verdict = new Iso7710F
+    verdict = new IsoReinfL
     verdict.VCC1 ~ monitor.v5
     verdict.GND1 ~ n
     verdict.GND1B ~ n
@@ -450,8 +450,8 @@ module LineZeroCross:
 module Heartbeat:
     """Stage 30 (DECISIONS 33; FMEA 11-candidates/c24-monitor-fmea section 6a, design J of m1_pump_spice.py).
     The LS and HS-A verdicts meet on the LS 'good' node (LS wired-AND, plus one BAT54S half from HS-A's link output).
-    While both are good, a Schmitt-NAND RC oscillator (0.42-2.09 us) runs and U32 (ISO7710) carries the square wave to
-    SELV. There a Schmitt NAND, gated by HS-B's verdict (HighBiasSelv, ISO7710F), drives a diode charge pump into
+    While both are good, a Schmitt-NAND RC oscillator (0.42-2.09 us) runs and U32 (CA-IS3720HW) carries the square wave to
+    SELV. There a Schmitt NAND, gated by HS-B's verdict (HighBiasSelv, CA-IS3720LW), drives a diode charge pump into
     C_hold || R_bleed; the hold node feeds U40 (G17) -> BIAS_GOOD. Any static state anywhere (a rail bad, oscillator,
     isolator, NAND, pump or LS 5 V dead or stuck) stops the wave and the hold node bleeds below VT- in <= 90 us (123 us
     with one pump cap shorted): announced, not dormant. A verdict isolator stuck HIGH is dormant, as in M1b."""
@@ -494,7 +494,7 @@ module Heartbeat:
     cosc_vcc.value = 100nF
     cosc_vcc.p1 ~ ls_v5
     cosc_vcc.p2 ~ nls
-    iso = new Iso7710
+    iso = new IsoReinfH
     iso.VCC1 ~ ls_v5
     iso.GND1 ~ nls
     iso.GND1B ~ nls
@@ -511,7 +511,7 @@ module Heartbeat:
     civcc2.value = 100nF
     civcc2.p1 ~ v3v3
     civcc2.p2 ~ selv_gnd
-    # SELV Schmitt NAND: the heartbeat on B (pin 2, the G17's input pad), HS-B's ISO7710F verdict on A. HS-B bad or
+    # SELV Schmitt NAND: the heartbeat on B (pin 2, the G17's input pad), HS-B's default-LOW verdict on A. HS-B bad or
     # unpowered (default LOW) holds Y high, the pump stops and the hold node bleeds: the same announced trip.
     buf = new SchmittNand132
     buf.VCC ~ v3v3

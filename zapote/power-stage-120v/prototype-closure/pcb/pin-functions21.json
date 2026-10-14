@@ -2,8 +2,8 @@
  "basis": "Native-21: native-19 reviewed annotations by MPN and pin set; ECO.md manufacturer pin tables for parts added in D-33; remaining parts passive (named after Atopile signals). Connectivity authority: native-21/frozen/default.net. Not datasheet or powered verification.",
  "basis_counts": {
   "passive-two-terminal": 208,
-  "native19-reviewed": 109,
-  "passive-untyped": 18,
+  "native19-reviewed": 107,
+  "passive-untyped": 20,
   "eco-pin-table": 14
  },
  "components": {
@@ -3549,7 +3549,7 @@
    }
   },
   "C9": {
-   "mpn": "UMK325AB7106KM-T",
+   "mpn": "CL32B106KBJNNNE",
    "source_instance": "leg_a.c_ls_bulk",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3564,7 +3564,7 @@
    }
   },
   "C90": {
-   "mpn": "UMK325AB7106KM-T",
+   "mpn": "CL32B106KBJNNNE",
    "source_instance": "leg_a.bias_h.clocal1",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3579,7 +3579,7 @@
    }
   },
   "C91": {
-   "mpn": "UMK325AB7106KM-T",
+   "mpn": "CL32B106KBJNNNE",
    "source_instance": "leg_a.bias_h.clocal2",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3594,7 +3594,7 @@
    }
   },
   "C92": {
-   "mpn": "UMK325AB7106KM-T",
+   "mpn": "CL32B106KBJNNNE",
    "source_instance": "leg_a.bias_l.clocal1",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3609,7 +3609,7 @@
    }
   },
   "C93": {
-   "mpn": "UMK325AB7106KM-T",
+   "mpn": "CL32B106KBJNNNE",
    "source_instance": "leg_a.bias_l.clocal2",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3624,7 +3624,7 @@
    }
   },
   "C16": {
-   "mpn": "UMK325AB7106KM-T",
+   "mpn": "CL32B106KBJNNNE",
    "source_instance": "leg_b.c_ls_bulk",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3639,7 +3639,7 @@
    }
   },
   "C94": {
-   "mpn": "UMK325AB7106KM-T",
+   "mpn": "CL32B106KBJNNNE",
    "source_instance": "leg_b.bias_h.clocal1",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3654,7 +3654,7 @@
    }
   },
   "C95": {
-   "mpn": "UMK325AB7106KM-T",
+   "mpn": "CL32B106KBJNNNE",
    "source_instance": "leg_b.bias_h.clocal2",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3669,7 +3669,7 @@
    }
   },
   "C96": {
-   "mpn": "UMK325AB7106KM-T",
+   "mpn": "CL32B106KBJNNNE",
    "source_instance": "leg_b.bias_l.clocal1",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3684,7 +3684,7 @@
    }
   },
   "C97": {
-   "mpn": "UMK325AB7106KM-T",
+   "mpn": "CL32B106KBJNNNE",
    "source_instance": "leg_b.bias_l.clocal2",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3699,7 +3699,7 @@
    }
   },
   "C24": {
-   "mpn": "UMK325AB7106KM-T",
+   "mpn": "CL32B106KBJNNNE",
    "source_instance": "c_v15",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3714,7 +3714,7 @@
    }
   },
   "C26": {
-   "mpn": "UMK325AB7106KM-T",
+   "mpn": "CL32B106KBJNNNE",
    "source_instance": "c_ldo_out",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3729,7 +3729,7 @@
    }
   },
   "C98": {
-   "mpn": "UMK325AB7106KM-T",
+   "mpn": "CL32B106KBJNNNE",
    "source_instance": "bias_ls.cin",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3744,7 +3744,7 @@
    }
   },
   "C99": {
-   "mpn": "UMK325AB7106KM-T",
+   "mpn": "CL32B106KBJNNNE",
    "source_instance": "bias_ls.cout1",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3759,7 +3759,7 @@
    }
   },
   "C100": {
-   "mpn": "UMK325AB7106KM-T",
+   "mpn": "CL32B106KBJNNNE",
    "source_instance": "bias_ls.cout2",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3774,7 +3774,7 @@
    }
   },
   "C132": {
-   "mpn": "UMK325AB7106KM-T",
+   "mpn": "CL32B106KBJNNNE",
    "source_instance": "monitor_ls.cldo_out",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3789,7 +3789,7 @@
    }
   },
   "C102": {
-   "mpn": "UMK325AB7106KM-T",
+   "mpn": "CL32B106KBJNNNE",
    "source_instance": "bias_ha.cin1",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3804,7 +3804,7 @@
    }
   },
   "C103": {
-   "mpn": "UMK325AB7106KM-T",
+   "mpn": "CL32B106KBJNNNE",
    "source_instance": "bias_ha.cin2",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3819,7 +3819,7 @@
    }
   },
   "C104": {
-   "mpn": "UMK325AB7106KM-T",
+   "mpn": "CL32B106KBJNNNE",
    "source_instance": "bias_ha.split.cout1",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3834,7 +3834,7 @@
    }
   },
   "C136": {
-   "mpn": "UMK325AB7106KM-T",
+   "mpn": "CL32B106KBJNNNE",
    "source_instance": "bias_ha.monitor.cldo_out",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3849,7 +3849,7 @@
    }
   },
   "C106": {
-   "mpn": "UMK325AB7106KM-T",
+   "mpn": "CL32B106KBJNNNE",
    "source_instance": "bias_hb.cin1",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3864,7 +3864,7 @@
    }
   },
   "C107": {
-   "mpn": "UMK325AB7106KM-T",
+   "mpn": "CL32B106KBJNNNE",
    "source_instance": "bias_hb.cin2",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3879,7 +3879,7 @@
    }
   },
   "C108": {
-   "mpn": "UMK325AB7106KM-T",
+   "mpn": "CL32B106KBJNNNE",
    "source_instance": "bias_hb.split.cout1",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3894,7 +3894,7 @@
    }
   },
   "C140": {
-   "mpn": "UMK325AB7106KM-T",
+   "mpn": "CL32B106KBJNNNE",
    "source_instance": "bias_hb.monitor.cldo_out",
    "basis": "passive-two-terminal",
    "pins": {
@@ -5396,78 +5396,78 @@
    }
   },
   "U9": {
-   "mpn": "ISO7710DWR",
+   "mpn": "CA-IS3720HW",
    "source_instance": "u_iso",
-   "basis": "native19-reviewed",
+   "basis": "passive-untyped",
    "pins": {
     "1": {
-     "function": "GND1",
-     "type": "power_in"
+     "function": "p1",
+     "type": "passive"
     },
     "2": {
-     "function": "NC2",
+     "function": "p2",
      "type": "passive"
     },
     "3": {
-     "function": "VCC1",
-     "type": "power_in"
+     "function": "p3",
+     "type": "passive"
     },
     "4": {
-     "function": "IN",
-     "type": "input"
+     "function": "p4",
+     "type": "passive"
     },
     "5": {
-     "function": "NC5",
+     "function": "p5",
      "type": "passive"
     },
     "6": {
-     "function": "NC6",
+     "function": "p6",
      "type": "passive"
     },
     "7": {
-     "function": "GND1B",
-     "type": "power_in"
+     "function": "p7",
+     "type": "passive"
     },
     "8": {
-     "function": "NC8",
+     "function": "p8",
      "type": "passive"
     },
     "9": {
-     "function": "GND2",
-     "type": "power_in"
+     "function": "p9",
+     "type": "passive"
     },
     "10": {
-     "function": "NC10",
+     "function": "p10",
      "type": "passive"
     },
     "11": {
-     "function": "NC11",
+     "function": "p11",
      "type": "passive"
     },
     "12": {
-     "function": "NC12",
+     "function": "p12",
      "type": "passive"
     },
     "13": {
-     "function": "OUT",
-     "type": "output"
+     "function": "p13",
+     "type": "passive"
     },
     "14": {
-     "function": "VCC2",
-     "type": "power_in"
+     "function": "p14",
+     "type": "passive"
     },
     "15": {
-     "function": "NC15",
+     "function": "p15",
      "type": "passive"
     },
     "16": {
-     "function": "GND2B",
-     "type": "power_in"
+     "function": "p16",
+     "type": "passive"
     }
    }
   },
   "U44": {
-   "mpn": "ISO7710FDWR",
+   "mpn": "CA-IS3720LW",
    "source_instance": "bias_hb.verdict",
    "basis": "passive-untyped",
    "pins": {
@@ -5538,73 +5538,73 @@
    }
   },
   "U32": {
-   "mpn": "ISO7710DWR",
+   "mpn": "CA-IS3720HW",
    "source_instance": "hb.iso",
-   "basis": "native19-reviewed",
+   "basis": "passive-untyped",
    "pins": {
     "1": {
-     "function": "GND1",
-     "type": "power_in"
+     "function": "p1",
+     "type": "passive"
     },
     "2": {
-     "function": "NC2",
+     "function": "p2",
      "type": "passive"
     },
     "3": {
-     "function": "VCC1",
-     "type": "power_in"
+     "function": "p3",
+     "type": "passive"
     },
     "4": {
-     "function": "IN",
-     "type": "input"
+     "function": "p4",
+     "type": "passive"
     },
     "5": {
-     "function": "NC5",
+     "function": "p5",
      "type": "passive"
     },
     "6": {
-     "function": "NC6",
+     "function": "p6",
      "type": "passive"
     },
     "7": {
-     "function": "GND1B",
-     "type": "power_in"
+     "function": "p7",
+     "type": "passive"
     },
     "8": {
-     "function": "NC8",
+     "function": "p8",
      "type": "passive"
     },
     "9": {
-     "function": "GND2",
-     "type": "power_in"
+     "function": "p9",
+     "type": "passive"
     },
     "10": {
-     "function": "NC10",
+     "function": "p10",
      "type": "passive"
     },
     "11": {
-     "function": "NC11",
+     "function": "p11",
      "type": "passive"
     },
     "12": {
-     "function": "NC12",
+     "function": "p12",
      "type": "passive"
     },
     "13": {
-     "function": "OUT",
-     "type": "output"
+     "function": "p13",
+     "type": "passive"
     },
     "14": {
-     "function": "VCC2",
-     "type": "power_in"
+     "function": "p14",
+     "type": "passive"
     },
     "15": {
-     "function": "NC15",
+     "function": "p15",
      "type": "passive"
     },
     "16": {
-     "function": "GND2B",
-     "type": "power_in"
+     "function": "p16",
+     "type": "passive"
     }
    }
   },

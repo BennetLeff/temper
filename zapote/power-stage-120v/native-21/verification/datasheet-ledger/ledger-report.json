@@ -14,8 +14,8 @@
    "VIOLATION": 0
   },
   "SIGNAL": {
-   "PARTIAL": 1,
-   "UNAUDITED": 60,
+   "PARTIAL": 2,
+   "UNAUDITED": 59,
    "VERIFIED": 1,
    "VIOLATION": 0
   }
@@ -1013,6 +1013,77 @@
    "status": "UNAUDITED",
    "unchecked_layout": []
   },
+  "CA-IS3720HW": {
+   "checks": [
+    {
+     "id": "barrier",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "VIORM",
+     "ratio": 0.2023,
+     "severity": "violation",
+     "stress": "Barrier peak"
+    },
+    {
+     "id": "CMTI",
+     "max_ratio": 0.6666666666666666,
+     "ok": false,
+     "rating": "CMTI min",
+     "ratio": 0.95,
+     "severity": "gap",
+     "stress": "CMTI edge"
+    }
+   ],
+   "class": "SAFETY",
+   "designators": [
+    "U32",
+    "U9"
+   ],
+   "finding": null,
+   "function": "Reinforced digital isolators U9 (bus_fault) and U32 (the bias-monitor heartbeat), default output HIGH on input-side power loss or an open input",
+   "gaps": [
+    "CMTI min 100 V/ns < 1.5 x 95 V/ns. U9: R134/C167 (1 k / 100 pF, tau 100 ns) before U13.A filter a 5.5 ns upset; bench-probe BUS_FAULT_FLT at hard S4/S5 edges. U32: a heartbeat carrier, an upset drops or adds an edge but cannot sustain a wave (FMEA 6a).",
+    "Single source (Chipanalog). JLC 1,640 at 2026-10-14 (C428883), two per board. The UL 1577 file E511334 is quoted from the datasheet; not looked up in UL Product iQ.",
+    "Mixed-supply (5 V / 3.3 V) timing is not tabulated; the 3.3 V table is used for the SELV side (as for the ISO7710). VOH at 3.3 V is specified at -2 mA (ISO7710: -4 mA at 5 V); the loads are CMOS gate inputs and the 1 k R134."
+   ],
+   "status": "PARTIAL",
+   "unchecked_layout": []
+  },
+  "CA-IS3720LW": {
+   "checks": [
+    {
+     "id": "barrier",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "VIORM",
+     "ratio": 0.2023,
+     "severity": "violation",
+     "stress": "Barrier peak"
+    },
+    {
+     "id": "CMTI",
+     "max_ratio": 0.6666666666666666,
+     "ok": false,
+     "rating": "CMTI min",
+     "ratio": 0.95,
+     "severity": "gap",
+     "stress": "CMTI edge"
+    }
+   ],
+   "class": "SAFETY",
+   "designators": [
+    "U44"
+   ],
+   "finding": null,
+   "function": "U44: HS-B rail verdict, HS-B -> SELV (reinforced), default output LOW = not good on side-A power loss or an open input; gates the heartbeat NAND U46 (stage 30, DECISIONS 33; part stage 31, DECISIONS 34)",
+   "gaps": [
+    "CMTI min 100 V/ns < 1.5 x 95 V/ns. An upset lasts ~5.5 ns: LOW while good removes at most one pump edge (missed-pulse margin >= 0.78 V, validation-results/11-candidates/c24-monitor-fmea/results/m1_pump_spice.json); HIGH while HS-B is bad passes at most one edge.",
+    "Single source (Chipanalog). JLC 2,542 at 2026-10-14 (C2890049). Table 9-1 note 2: a strongly driven input can back-power a floating VDDA and leave the output undetermined; U44's input is pulled up from the HS-B monitor's own 5 V, which dies with the rail it reports, so the case does not arise from HS-B power loss (same note in TI SLLSER9E).",
+    "Bench: unpower HS-B and open U44.4 in turn; BIAS_GOOD must fall (DECISIONS 33 bench item 2)."
+   ],
+   "status": "PARTIAL",
+   "unchecked_layout": []
+  },
   "CC0603KRX7R9BB104": {
    "checks": [],
    "class": "SIGNAL",
@@ -1165,6 +1236,63 @@
     "Not audited (outside SAFETY/POWER)."
    ],
    "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "CL32B106KBJNNNE": {
+   "checks": [
+    {
+     "id": "voltage",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "Rated voltage",
+     "ratio": 0.48,
+     "severity": "violation",
+     "stress": "Max rail"
+    },
+    {
+     "id": "vss_reservoir",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Effective C, driver VSS pair at 2 V, 100 C, -10 %",
+     "ratio": 0.612,
+     "severity": "violation",
+     "stress": "Required effective C, driver VSS pair"
+    }
+   ],
+   "class": "SIGNAL",
+   "designators": [
+    "C100",
+    "C102",
+    "C103",
+    "C104",
+    "C106",
+    "C107",
+    "C108",
+    "C132",
+    "C136",
+    "C140",
+    "C16",
+    "C24",
+    "C26",
+    "C9",
+    "C90",
+    "C91",
+    "C92",
+    "C93",
+    "C94",
+    "C95",
+    "C96",
+    "C97",
+    "C98",
+    "C99"
+   ],
+   "finding": null,
+   "function": "10 uF 50 V X7R 1210 reservoirs (driver VSS pairs, LS 15 V, module span, V24_RAW, 5 V rails)",
+   "gaps": [
+    "s19b BP-04 (>= 70 % of design C per rail) is met at 2 V and 5 V but not at 15 / 17 / 24 V (57 / 53 / 39 % of nominal at 100 C with tolerance; the stage-30 Taiyo part gave 37 / 32 / 22 %). No rail has a stated minimum there; the P-N start-up bound holds (mlcc_bias.py).",
+    "X7R ageing and the AC test level of the bias curve are not included."
+   ],
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "CSS2H-2512R-1L00F": {
@@ -1587,76 +1715,6 @@
    "gaps": [
     "CMTI min 100 V/ns is 1.05x the 95 V/ns modelled edge (rule 1.5x). An upset on OUTB lasts ~5.5 ns: LOW pauses the LS oscillator for under one period, HIGH while a rail is bad can add at most one or two edges; neither sustains the heartbeat (missed-pulse margin >= 0.78 V, validation-results/11-candidates/c24-monitor-fmea/results/m1_pump_spice.json). Bench: S4/S5 dv/dt <= 100 V/ns.",
     "Basic insulation used as functional HS-LS; the certifier is asked whether its barrier short may be excluded (FMEA section 7 Q4)."
-   ],
-   "status": "PARTIAL",
-   "unchecked_layout": []
-  },
-  "ISO7710DWR": {
-   "checks": [
-    {
-     "id": "barrier",
-     "max_ratio": 0.5,
-     "ok": true,
-     "rating": "VIORM",
-     "ratio": 0.1348,
-     "severity": "violation",
-     "stress": "Barrier peak"
-    },
-    {
-     "id": "CMTI",
-     "max_ratio": 0.6666666666666666,
-     "ok": false,
-     "rating": "CMTI min",
-     "ratio": 1.1176,
-     "severity": "gap",
-     "stress": "CMTI edge"
-    }
-   ],
-   "class": "SAFETY",
-   "designators": [
-    "U32",
-    "U9"
-   ],
-   "finding": null,
-   "function": "Reinforced digital isolators U9 (bus_fault) and U32 (the bias-monitor heartbeat: LS and HS-A verdicts; HS-B crosses on U44 ISO7710FDWR)",
-   "gaps": [
-    "CMTI min 85 V/ns < 95 V/ns bound. U9: stage 30 adds R134/C167 (1 k / 100 pF, tau 100 ns) before U13.A, so a 5.5 ns upset no longer reaches the controller latch; bench-probe BUS_FAULT_FLT at hard S4/S5 edges. U32: a heartbeat carrier, an upset drops or adds an edge but cannot sustain a wave (FMEA 6a).",
-    "Zero distributor stock, 12 weeks (DECISIONS.md:846); two units on the board after stage 30 (was four). U44 is the F option, which JLC stocks."
-   ],
-   "status": "PARTIAL",
-   "unchecked_layout": []
-  },
-  "ISO7710FDWR": {
-   "checks": [
-    {
-     "id": "barrier",
-     "max_ratio": 0.5,
-     "ok": true,
-     "rating": "VIORM",
-     "ratio": 0.1348,
-     "severity": "violation",
-     "stress": "Barrier peak"
-    },
-    {
-     "id": "CMTI",
-     "max_ratio": 0.6666666666666666,
-     "ok": false,
-     "rating": "CMTI min",
-     "ratio": 1.1176,
-     "severity": "gap",
-     "stress": "CMTI edge"
-    }
-   ],
-   "class": "SAFETY",
-   "designators": [
-    "U44"
-   ],
-   "finding": null,
-   "function": "U44: HS-B rail verdict, HS-B -> SELV (reinforced), default output LOW = not good; gates the heartbeat NAND U46 (stage 30, DECISIONS 33)",
-   "gaps": [
-    "CMTI min 85 V/ns < 95 V/ns bound. An upset lasts ~5.5 ns: LOW while good removes at most one pump edge (missed-pulse margin >= 0.78 V, validation-results/11-candidates/c24-monitor-fmea/results/m1_pump_spice.json); HIGH while HS-B is bad passes at most one edge and cannot hold the wave. Bench: S4/S5 dv/dt <= 100 V/ns.",
-    "Output stuck HIGH is dormant (as the M1b ISO6721FB link it replaces); FMEA section 6a residual.",
-    "JLC stock 29 (C2859831, 2026-10-14) - enough for prototype lots; distributor stock to be confirmed by the owner."
    ],
    "status": "PARTIAL",
    "unchecked_layout": []
@@ -2466,43 +2524,6 @@
    "status": "UNAUDITED",
    "unchecked_layout": []
   },
-  "UMK325AB7106KM-T": {
-   "checks": [],
-   "class": "SIGNAL",
-   "designators": [
-    "C100",
-    "C102",
-    "C103",
-    "C104",
-    "C106",
-    "C107",
-    "C108",
-    "C132",
-    "C136",
-    "C140",
-    "C16",
-    "C24",
-    "C26",
-    "C9",
-    "C90",
-    "C91",
-    "C92",
-    "C93",
-    "C94",
-    "C95",
-    "C96",
-    "C97",
-    "C98",
-    "C99"
-   ],
-   "finding": null,
-   "function": "10 uF 1210 reservoirs",
-   "gaps": [
-    "Not audited (outside SAFETY/POWER)."
-   ],
-   "status": "UNAUDITED",
-   "unchecked_layout": []
-  },
   "VOL628A-2X001T": {
    "checks": [
     {
@@ -2548,6 +2569,9 @@
   "B32654A1104J000",
   "B32676G1905K000",
   "B82726S2203A020",
+  "CA-IS3720HW",
+  "CA-IS3720LW",
+  "CL32B106KBJNNNE",
   "CSS2H-2512R-1L00F",
   "CST3015-200ED",
   "DE1E3RA222MA4BP01F",
@@ -2557,8 +2581,6 @@
   "IRM-20-15",
   "IRM-20-24",
   "ISO6721FBDR",
-  "ISO7710DWR",
-  "ISO7710FDWR",
   "KLDR025.TXP",
   "R24C2T25/R-R",
   "R463N410050N1K",
@@ -2571,8 +2593,8 @@
  "result": "PASS",
  "strict": false,
  "totals": {
-  "PARTIAL": 31,
-  "UNAUDITED": 60,
+  "PARTIAL": 32,
+  "UNAUDITED": 59,
   "VERIFIED": 3,
   "VIOLATION": 0
  },
@@ -2635,13 +2657,12 @@
   "TNPW060311K7BEEA",
   "TPS3700DDCR",
   "TPS70950DBVR",
-  "TPS7A4700RGWR",
-  "UMK325AB7106KM-T"
+  "TPS7A4700RGWR"
  ],
  "unaudited_safety_power": [],
  "unchecked_layout_items": 9,
  "violations": [],
  "warnings": [
-  "60 SIGNAL-class lines are UNAUDITED (allowed; listed in the report)"
+  "59 SIGNAL-class lines are UNAUDITED (allowed; listed in the report)"
  ]
 }

@@ -48,7 +48,7 @@ DIVIDER = {"native21s13": (12.4e3, 11.7e3), "native21s13b": (12.4e3, 11.7e3), "n
            "native21s15": (12.6e3, 11.7e3), "native21s15b": (12.6e3, 11.7e3),
            "native21s16": (12.6e3, 11.7e3), "native21s17": (12.6e3, 11.7e3),
            "native21s17b": (12.6e3, 11.7e3), "native21s18": (12.6e3, 11.7e3),
-           "native21s19": (12.6e3, 11.7e3), "native21s19b": (12.6e3, 11.7e3), "native21s19c": (12.6e3, 11.7e3), "native21s20": (12.6e3, 11.7e3), "native21s21": (12.6e3, 11.7e3), "native21s21b": (12.6e3, 11.7e3), "native21s22": (12.6e3, 11.7e3), "native21s26": (12.6e3, 11.7e3), "native21s27": (12.6e3, 11.7e3), "native21s28": (12.6e3, 11.7e3), "native21s29": (12.6e3, 11.7e3), "native21s30": (12.6e3, 11.7e3)}   # stage 15, 28 A hardware (DECISIONS 2026-10-10)
+           "native21s19": (12.6e3, 11.7e3), "native21s19b": (12.6e3, 11.7e3), "native21s19c": (12.6e3, 11.7e3), "native21s20": (12.6e3, 11.7e3), "native21s21": (12.6e3, 11.7e3), "native21s21b": (12.6e3, 11.7e3), "native21s22": (12.6e3, 11.7e3), "native21s26": (12.6e3, 11.7e3), "native21s27": (12.6e3, 11.7e3), "native21s28": (12.6e3, 11.7e3), "native21s29": (12.6e3, 11.7e3), "native21s30": (12.6e3, 11.7e3), "native21s31": (12.6e3, 11.7e3)}   # stage 15, 28 A hardware (DECISIONS 2026-10-10)
 PLATING_UM, PITCH, TEMP = 18.0, 0.1, 125.0
 
 
@@ -84,7 +84,8 @@ def main() -> None:
               "native21s27": "44644390f1ee41760407400ac4a620d97512e388c9902c625c50d84a37dfd124",
               "native21s28": "e3fe94099405ebcf2cccdd49695c969cad9473455cca3cc4df234a4a8ab323c6",
               "native21s29": "3ae1ddb47c8c4c4e7c26c663ce54248c8797651e0066dc3bf516225403cba128",
-              "native21s30": "4fcae4bf8971718d38fc2fc9cb257e2ec044de2914e6f31d2df0204b1736ddfd"}
+              "native21s30": "4fcae4bf8971718d38fc2fc9cb257e2ec044de2914e6f31d2df0204b1736ddfd",
+              "native21s31": "5ef1c37a41914825db33138bbbf765390b1fa5ae9ea4391b45c92fc8c2854bad"}
     assert data["board_sha256"] == PINNED[tag], f"{export} is not the pinned {tag} board"
     net = kit.Net(pitch_mm=PITCH, temp_c=TEMP)
     shapes, vias, pads = defaultdict(list), {}, {}

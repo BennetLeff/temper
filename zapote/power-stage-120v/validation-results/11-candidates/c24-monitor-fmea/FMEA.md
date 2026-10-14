@@ -502,6 +502,12 @@ The single-fault coverage is therefore unchanged. The changes are these:
 
 The FIT figures in `scripts/fmea_metric.py` were not re-run for this variant.
 
+**Stage 31 (DECISIONS 34):** U9 / U32 become Chipanalog CA-IS3720HW and U44 a CA-IS3720LW. Every row above still holds:
+Table 9-1 of the Chipanalog datasheet (v1.05) gives the default output for both an unpowered input side and an open
+input (H or L by suffix), as SLLSER9E Table 7-2 did for the ISO7710 / ISO7710F. The spare channel (pin 5 input, pin 12
+output) stays unconnected, which audit.rs checks. CMTI min rises from 85 to 100 kV/µs, so the "upset moves at most one
+pump edge" rows keep their argument with a larger margin.
+
 ## 7. Questions for the certifier
 
 1. **Protective electronic circuit (PEC) status.** Is the F6 rail-window monitor plus the DIS path a protective

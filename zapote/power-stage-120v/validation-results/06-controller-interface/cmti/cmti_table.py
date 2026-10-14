@@ -50,7 +50,10 @@ DRIVER_DATA = {
                           dyn="|CMH|=|CML|=125 V/ns min, VCM=1500 V (single figure; no separate static/dynamic)",
                           cite="UCC21550 SLUSE89C (Aug 2024) p.10 Table 5.9 Switching Characteristics rows |CMH| and |CML| (min 125 V/ns, VCM = 1500 V); p.1 Features/Description; CIO ~1.2 pF p.7 Table 5.6"),
 }
-URL_ISO = "https://www.ti.com/lit/ds/symlink/iso7710.pdf"
+# stage 31 (DECISIONS 34): U9 / U32 CA-IS3720HW, U44 CA-IS3720LW (Chipanalog) replace ISO7710DWR / ISO7710FDWR
+URL_ISO = "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2404091718_Chipanalog-CA-IS3720LW_C2890049.pdf"
+CITE_ISO = ("Chipanalog CA-IS372x datasheet v1.05 (2023-09-01) s.7.8 electrical tables (5 V, 3.3 V, 2.5 V): CMTI min 100 / "
+            "typ 150 kV/us, VI = VDDI or 0 V, VCM = 1200 V")
 URL_AMC = "https://www.ti.com/lit/ds/symlink/amc1311.pdf"
 URL_VOL = "https://www.vishay.com/docs/82401/vol628a.pdf"
 URL_REC = "https://recom-power.com/pdf/Econoline/R24C2T25_R.pdf"
@@ -89,14 +92,14 @@ def schematic_facts():
         "drivers_in_leg": len(re.findall(r"driver\s*=\s*new\s+(?:UCC21550BDWK|Driver2EDR8259X)\b", top)),
         "iso7710_rail_monitors": n("RailMonitor") + n_highbias * 0,   # RailMonitor sites (see below)
         "highbias": n_highbias,
-        "iso7710_bus_fault": len(re.findall(r"u_iso\s*=\s*new\s+Iso7710", top)),
+        "iso7710_bus_fault": len(re.findall(r"u_iso\s*=\s*new\s+IsoReinfH\b", top)),
         # stage 30 (DECISIONS 33): the rail monitors keep no isolator of their own; the LS and HS-A verdicts cross to SELV
         # as the heartbeat (ISO7710 U32), HS-A reaching the LS domain through an ISO6721FB (U43); HS-B's verdict crosses
         # on its own default-LOW ISO7710F (U44) and gates the heartbeat in SELV
-        "iso7710_heartbeat": len(re.findall(r"=\s*new\s+Iso7710\b", bias)),
+        "iso7710_heartbeat": len(re.findall(r"=\s*new\s+IsoReinfH\b", bias)),
         "heartbeats": n("Heartbeat"),
         "iso6721_links": n("HighBiasLink") * len(re.findall(r"=\s*new\s+Iso6721Fb\b", bias)),
-        "iso7710f_verdicts": n("HighBiasSelv") * len(re.findall(r"=\s*new\s+Iso7710F\b", bias)),
+        "iso7710f_verdicts": n("HighBiasSelv") * len(re.findall(r"=\s*new\s+IsoReinfL\b", bias)),
         "amc1311": n("Amc1311"),
         "line_opto": len(re.findall(r"=\s*new\s+LineOpto\b", bias)),
         "ct": n("CST3015_200E") + n("CST3015_100E"),   # stage 20: the 1:200 CT
@@ -121,15 +124,15 @@ def schematic_facts():
     # the driver actually instantiated in the leg (stage 29: Driver2EDR8259X), and its MPN
     drv_comp = re.search(r"driver\s*=\s*new\s+(\w+)", top).group(1)
     facts["ucc_mpn"] = re.search(rf'component {drv_comp}:.*?mpn = "([^"]+)"', parts, re.S).group(1)
-    facts["iso_mpn"] = re.search(r'component Iso7710:.*?mpn = "([^"]+)"', parts, re.S).group(1)
-    facts["iso_f_mpn"] = re.search(r'component Iso7710F:.*?mpn = "([^"]+)"', parts, re.S).group(1)
+    facts["iso_mpn"] = re.search(r'component IsoReinfH:.*?mpn = "([^"]+)"', parts, re.S).group(1)
+    facts["iso_f_mpn"] = re.search(r'component IsoReinfL:.*?mpn = "([^"]+)"', parts, re.S).group(1)
     facts["link_mpn"] = re.search(r'component Iso6721Fb:.*?mpn = "([^"]+)"', parts, re.S).group(1)
     facts["mod_mpn"] = re.search(r'component IsoBiasModule:.*?mpn = "([^"]+)"', parts, re.S).group(1)
     facts["opto_mpn"] = re.search(r'component LineOpto:.*?mpn = "([^"]+)"', parts, re.S).group(1)
     facts["ct_mpn"] = re.search(r'component CST3015_[0-9]+E:.*?mpn = "([^"]+)"', parts, re.S).group(1)
     # Completeness scan: any MPN in the source that looks like an isolator / isolated supply
     # must be one of the rows below (guards against a crossing being added without a row).
-    watch = re.compile(r"ISO\d|UCC2|AMC\d|VOL?6|CST\d|IRM-|R24C|ADuM|Si8\d|TLP|PC817|HCPL|ACPL|SN6507|MGJ|UCC14", re.I)
+    watch = re.compile(r"ISO\d|CA-IS\d|NSi\d|UCC2|AMC\d|VOL?6|CST\d|IRM-|R24C|ADuM|Si8\d|TLP|PC817|HCPL|ACPL|SN6507|MGJ|UCC14", re.I)
     facts["watch_mpns"] = sorted({m for m in re.findall(r'mpn = "([^"]+)"', parts) if watch.search(m)})
     return facts
 
@@ -187,26 +190,25 @@ def build_rows(f):
                    "under one period; a glitch HIGH while the rail is bad adds at most one or two edges. Neither holds the wave, "
                    "so neither moves BIAS_GOOD (FMEA s6a).")
     row(ref="U44", mpn=f["iso_f_mpn"], role="Digital isolator, HS-B rail verdict (monitor GOOD -> HSB_GOOD, the SELV NAND's gate)",
-        cls="FILTERED", node="SW_B", cmti_static=85.0,
-        cmti_dyn="85 kV/us min, 100 typ, VCM=1200 V (single figure); default output LOW = not good (ISO7710F)", cio_pf=0.4,
-        cite="ISO7710 SLLSER9E (Dec 2024) p.11 / p.12 CMTI min 85 / typ 100 kV/us, VCM = 1200 V; s.7.3 Table 7-1 / 7-2 "
-             "default LOW for the F option; CIO ~0.4 pF p.8",
+        cls="FILTERED", node="SW_B", cmti_static=100.0,
+        cmti_dyn="100 kV/us min, 150 typ, VCM=1200 V (single figure); default output LOW = not good (L suffix)", cio_pf=0.5,
+        cite=CITE_ISO + "; s.9.3 Table 9-1 default LOW on VDDA loss or an open input (L suffix); CIO ~0.5 pF s.7.6",
         url=URL_ISO, filter=filt_txt, tau=tau, tg_max=tg_max,
         effect="HSB_GOOD -> U46 (G132 NAND) A input, the heartbeat on B. A glitch LOW while HS-B is good blocks at most one pump "
                "edge; a glitch HIGH while HS-B is bad passes at most one edge. Neither holds the wave, so neither moves "
                "BIAS_GOOD (FMEA s6a).")
     row(ref="U32", mpn=f["iso_mpn"], role="Digital isolator, bias-monitor heartbeat (LS oscillator -> SELV charge pump)",
-        cls="FILTERED", node="N_LS/LEG_RET (not a switch node; 95 V/ns applied as a conservative bound)", cmti_static=85.0,
-        cmti_dyn="85 kV/us min, 100 typ, VCM=1200 V (single figure)", cio_pf=0.4,
-        cite="ISO7710 SLLSER9E (Dec 2024) p.11 Table 5.9 (5-V supply), p.12 Table 5.11 (3.3-V supply): CMTI min 85 / typ 100 kV/us, VCM = 1200 V; CIO ~0.4 pF p.8",
+        cls="FILTERED", node="N_LS/LEG_RET (not a switch node; 95 V/ns applied as a conservative bound)", cmti_static=100.0,
+        cmti_dyn="100 kV/us min, 150 typ, VCM=1200 V (single figure)", cio_pf=0.5,
+        cite=CITE_ISO + "; CIO ~0.5 pF s.7.6",
         url=URL_ISO, filter=filt_txt, tau=tau, tg_max=tg_max,
         effect="HB_RX -> G132 NAND (U46, gated by U44) -> diode pump -> hold node -> U40 (G17) -> BIAS_GOOD -> DIS NAND of both legs. An upset drops or "
                "adds one edge; only a sustained wave holds BIAS_GOOD, and every static failure (either output state) trips.")
     # ------------------------------------------------------------------ bus fault isolator
     row(ref="U9", mpn=f["iso_mpn"], role="Digital isolator, BUS_FAULT (OCP/OVP/HOT5-OK NAND -> J4 pin 10)", cls="OPEN",
-        node="OCP_KELVIN_P/LEG_RET (not a switch node; 95 V/ns applied as a conservative bound)", cmti_static=85.0,
-        cmti_dyn="85 kV/us min, 100 typ, VCM=1200 V", cio_pf=0.4,
-        cite="ISO7710 SLLSER9E p.11/12 (as above)", url=URL_ISO,
+        node="OCP_KELVIN_P/LEG_RET (not a switch node; 95 V/ns applied as a conservative bound)", cmti_static=100.0,
+        cmti_dyn="100 kV/us min, 150 typ, VCM=1200 V", cio_pf=0.5,
+        cite=CITE_ISO + "; CIO ~0.5 pF s.7.6", url=URL_ISO,
         filter=f"R134 {f['bf_R']:g} ohm / C167 {f['bf_C']*1e12:g} pF (tau {f['bf_R']*f['bf_C']*1e9:.0f} ns, >> the {V_SW_PEAK/DVDT_HARD:.1f} ns "
                f"edge, < 10 us) into U13 (LVC1G332) -> BUS_FAULT on J4",
         effect="Fault line to the controller. High = fault: a false HIGH is a nuisance trip (safe direction); a false LOW "
@@ -312,7 +314,7 @@ def main():
         print(f"  {k:20s} found {f[k]}  expected {v}  {'ok' if ok else 'MISMATCH'}")
     n_drv = f["drivers_in_leg"] * f["bridge_legs"]
     n_iso = f["iso7710_heartbeat"] + f["iso7710_bus_fault"]
-    print(f"  => {f['ucc_mpn']} x{n_drv}, ISO7710 x{n_iso} (heartbeat + bus fault), {f['link_mpn']} x{f['iso6721_links']} (HS-A verdict), "
+    print(f"  => {f['ucc_mpn']} x{n_drv}, CA-IS3720HW x{n_iso} (heartbeat + bus fault), {f['link_mpn']} x{f['iso6721_links']} (HS-A verdict), "
           f"{f['iso_f_mpn']} x{f['iso7710f_verdicts']} (HS-B verdict), "
           f"AMC1311 x1, VOL628A x1, "
           f"R24C2T25 x{f['bias_modules']}, CST3015 x1, IRM x2; BiasOpto (VO617A) defined but instantiated {f['bias_opto_unused']}x")

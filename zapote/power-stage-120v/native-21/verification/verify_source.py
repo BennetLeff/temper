@@ -45,12 +45,13 @@ def main() -> None:
     assert not any('.d_boot' in path or '.c_boot' in path for path in parts)
     # stage 30 (DECISIONS 33): the heartbeat (U32) carries the LS and HS-A verdicts (HS-A via a default-LOW ISO6721FB
     # link); HS-B's verdict crosses on its own default-LOW ISO7710F and gates the SELV NAND; no opto in the monitor group
-    assert parts['hb.iso']['mpn'] == 'ISO7710DWR'
+    assert parts['hb.iso']['mpn'] == 'CA-IS3720HW' and parts['u_iso']['mpn'] == 'CA-IS3720HW'   # stage 31 (DECISIONS 34)
     assert parts['bias_ha.link']['mpn'] == 'ISO6721FBDR' and 'bias_hb.link' not in parts
-    assert parts['bias_hb.verdict']['mpn'] == 'ISO7710FDWR' and parts['hb.buf']['mpn'] == 'SN74LVC1G132DBVR'
+    assert parts['bias_hb.verdict']['mpn'] == 'CA-IS3720LW' and parts['hb.buf']['mpn'] == 'SN74LVC1G132DBVR'
     assert parts['hb.cp1']['mpn'] == parts['hb.cp2']['mpn'] == 'C0603C102J5GACTU' and parts['hb.rbleed']['mpn'] == 'RT0603BRD0749K9L'
     assert not any(path.endswith(('.rnotice', '.dnotice', '.qnotice', '.rbase')) for path in parts)
     assert 'bias_or' not in parts and 'r_bias_flt' not in parts and 'c_bias_flt' not in parts
+    assert sum(part.get('mpn') == 'CL32B106KBJNNNE' for part in parts.values()) == 24 and not any(part.get('mpn') == 'UMK325AB7106KM-T' for part in parts.values())
     assert parts['r_bf']['mpn'] == '0603WAF1001T5E' and parts['c_bf']['mpn'] == 'CL10C101JB8NNNC'
     for base in ('monitor_ls', 'bias_ha', 'bias_hb', 'hb'):
         assert not any(path.startswith(base + '.') and part.get('mpn') == 'VO617A-3X017T' for path, part in parts.items())

@@ -44,3 +44,5 @@ than the ISO7710FDWR, `sourcing/STOCK-2026-10-13-addendum-s30.csv`).
 - That leg was chosen over In1 because B.Cu carries only bias_good and permit above it: 0 mm of asserted
   return-path signals, against 13.7 mm of pwm_lb / pwm_hb on F.Cu over an In1 leg (`python3 -I inner_leg_overlap.py <copper-dump.json>`; asserted nets as in `return_path19.py`).
 - The FMEA coverage note is `validation-results/11-candidates/c24-monitor-fmea/FMEA.md` §6b.
+- Stage 31 (DECISIONS 34): U44 is now a Chipanalog CA-IS3720LW (default LOW, same land pattern), and U9 / U32 are
+  CA-IS3720HW (`validation-results/11-candidates/c31-bom/README.md`).

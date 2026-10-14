@@ -92,14 +92,14 @@
   },
   {
    "ref": "U32",
-   "mpn": "ISO7710DWR",
+   "mpn": "CA-IS3720HW",
    "land_gap_mm": 8.1,
    "board_pass": true,
    "package": {
     "clr": 8.0,
     "cpg": 8.0,
-    "src": "TI SLLSER9E p.8 (DW-16)",
-    "rating": "reinforced (VDE 0884-17)"
+    "src": "Chipanalog CA-IS372x datasheet v1.05 s.7.6 (SOIC16-WB CLR / CPG 8 mm)",
+    "rating": "reinforced (VDE 0884-17 cert 40057278; UL 1577 E511334)"
    }
   },
   {
@@ -125,23 +125,26 @@
   },
   {
    "ref": "U44",
-   "mpn": "ISO7710FDWR",
-   "land_gap_mm": 8.1,
-   "board_pass": true,
-   "package": {
-    "src": "NOT IN TABLE: add the datasheet distances"
-   }
-  },
-  {
-   "ref": "U9",
-   "mpn": "ISO7710DWR",
+   "mpn": "CA-IS3720LW",
    "land_gap_mm": 8.1,
    "board_pass": true,
    "package": {
     "clr": 8.0,
     "cpg": 8.0,
-    "src": "TI SLLSER9E p.8 (DW-16)",
-    "rating": "reinforced (VDE 0884-17)"
+    "src": "Chipanalog CA-IS372x datasheet v1.05 s.7.6 (SOIC16-WB CLR / CPG 8 mm)",
+    "rating": "reinforced (VDE 0884-17 cert 40057278; UL 1577 E511334)"
+   }
+  },
+  {
+   "ref": "U9",
+   "mpn": "CA-IS3720HW",
+   "land_gap_mm": 8.1,
+   "board_pass": true,
+   "package": {
+    "clr": 8.0,
+    "cpg": 8.0,
+    "src": "Chipanalog CA-IS372x datasheet v1.05 s.7.6 (SOIC16-WB CLR / CPG 8 mm)",
+    "rating": "reinforced (VDE 0884-17 cert 40057278; UL 1577 E511334)"
    }
   }
  ],

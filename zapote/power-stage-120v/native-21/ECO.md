@@ -106,8 +106,9 @@ separately. Do not silently reuse a native-20 timing certificate.
 | --- | --- | --- | --- | --- |
 | Gate drivers (stage 29) | 2EDR8259XXUMA1 | reinforced (IEC 60747-17) | FOOTPRINTS.md F8 pads (DWK outline) | Infineon datasheet Rev 1.7 Table 24 |
 | Bus sense (existing) | AMC1311BDWVR | reinforced | existing D5 evidence | — |
-| OCP fault (existing) | ISO7710DWR (U9) | reinforced (VDE) | 8 mm CLR/CPG (DW, SLLSER9E p.8); TI HV land pattern 8.1 mm across the barrier | 85 kV/µs min (p.11) |
-| **Rail monitors LS/HS-A/HS-B (new)** | **ISO7710DWR (U32–U34)** | reinforced (VDE) | 8 mm CLR/CPG (DW, SLLSER9E p.8) with the same `SOIC16W_DW0016B_HV` 8.1 mm pattern | 85 kV/µs min, plus 10 µs SELV filter |
+| OCP fault (stage 31) | CA-IS3720HW (U9), default HIGH | reinforced (VDE 0884-17 40057278; UL 1577 E511334) | 8 mm CLR/CPG (SOIC16-WB, Chipanalog v1.05 s.7.6) on TI's HV land pattern, 8.1 mm across the barrier | 100 kV/µs min (s.7.8), plus R134 / C167 |
+| Bias-monitor heartbeat (stages 30–31) | CA-IS3720HW (U32) | as U9 | as U9 | 100 kV/µs min, plus the pump hold node |
+| HS-B rail verdict (stages 30–31) | CA-IS3720LW (U44), default LOW | as U9 | as U9 | 100 kV/µs min; an upset moves at most one pump edge |
 | Line zero cross (new) | VOL628A-3X001T | VDE option | LSOP4 ≥ 8 mm (Vishay rev 1.9) | slow signal, Schmitt-buffered |
 | Tank CT / SELV supply (existing) | CST3015, IRM-20-15 | per existing D5 evidence | — | — |
 

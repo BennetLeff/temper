@@ -14,7 +14,7 @@
 #                 control circuits to the separate R5 sense terminal. This is
 #                 a loaded Kelvin reference, not a zero-current sense lead.
 #   SELV:         everything on the 16-pin controller header, isolated by
-#                 UCC21550, AMC1311, ISO7710, CST3015 and the IRM-20-15.
+#                 UCC21550, AMC1311, CA-IS3720 (was ISO7710), CST3015 and the IRM-20-15.
 #
 # Coil-dependent values (resonant capacitance, CT burden on the
 # current-sense board) are provisional for the 70 uH / 32 kHz nominal coil
@@ -29,7 +29,7 @@ from "parts.ato" import C100n0805, C1u0805
 from "parts.ato" import CST3015_200E, Irm20_15, TcoLoopHeader, BranchFuseT3A15, BranchLimiter0R15, MainsTapHeader
 from "parts.ato" import Amc1311, R470k1206, R15k8Thin, C1nC0G0603, C100pC0G0603
 from "parts.ato" import Tlv3201, Ref2V5, R10kThin, R12k6Thin, R11k7Thin, R140kThin, R5k6Bias
-from "parts.ato" import Iso7710, SelvHeader16, Nand3Lvc1g10, FunctionalEarthLink, SchmittBuf17
+from "parts.ato" import IsoReinfH, SelvHeader16, Nand3Lvc1g10, FunctionalEarthLink, SchmittBuf17
 from "parts.ato" import Hot5Supervisor, Hot5SchmittBuffer, R105kThin
 from "parts.ato" import BusTvs30kpa150
 from "parts.ato" import Burden3R0, C100nC0G1206, R1kThin, R2k21Thin, R1k1206, ClampBas116h, Or3Lvc1g332
@@ -614,7 +614,7 @@ module PowerStage120V:
     c_ovp_vcc.p1 ~ HOT5
     c_ovp_vcc.p2 ~ OCP_KELVIN_P
     # BUS_FAULT_HOT = NOT(OCP_OK_HOT AND OVP_OK_HOT AND HOT5_OK_HOT).
-    # Healthy = low; either trip = high. ISO7710 (non-F) defaults high
+    # Healthy = low; either trip = high. CA-IS3720HW (H suffix; ISO7710 before stage 31) defaults high
     # on input-side power loss while the SELV output supply remains valid.
     u_nand = new Nand3Lvc1g10
     u_nand.A ~ OCP_OK_HOT
@@ -627,7 +627,7 @@ module PowerStage120V:
     c_nand_vcc.value = 100nF
     c_nand_vcc.p1 ~ HOT5
     c_nand_vcc.p2 ~ OCP_KELVIN_P
-    u_iso = new Iso7710
+    u_iso = new IsoReinfH
     u_iso.VCC1 ~ HOT5
     u_iso.GND1 ~ OCP_KELVIN_P
     u_iso.GND1B ~ OCP_KELVIN_P
@@ -797,7 +797,7 @@ module PowerStage120V:
     c_ct_zc.p2 ~ SELV_GND
     u_fault_or = new Or3Lvc1g332
     u_fault_or.A ~ BUS_FAULT_FLT
-    # Stage 30 (DECISIONS 32/33): 1 k / 100 pF between U9 and U13.A. U9's ISO7710 CMTI upset (ns-wide) can no longer
+    # Stage 30 (DECISIONS 32/33): 1 k / 100 pF between U9 and U13.A. U9's CMTI upset (ns-wide) can no longer
     # reach the controller's asynchronous permit-latch CLR as a nuisance trip; it adds ~0.1 us to a ~1 us OCP chain.
     r_bf = new R1k0603
     r_bf.value = 1kohm

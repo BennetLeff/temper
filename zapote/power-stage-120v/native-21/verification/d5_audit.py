@@ -30,6 +30,9 @@ FLOOR = rules21.BARRIER
 # datasheet package insulation distances (mm) for the barrier-crossing parts
 PKG = {
     "ISO7710DWR": {"clr": 8.0, "cpg": 8.0, "src": "TI SLLSER9E p.8 (DW-16)", "rating": "reinforced (VDE 0884-17)"},
+    # stage 31 (DECISIONS 34): Chipanalog CA-IS3720HW (U9 / U32) and CA-IS3720LW (U44), SOIC16-WB, CTI > 600, material group I
+    "CA-IS3720HW": {"clr": 8.0, "cpg": 8.0, "src": "Chipanalog CA-IS372x datasheet v1.05 s.7.6 (SOIC16-WB CLR / CPG 8 mm)", "rating": "reinforced (VDE 0884-17 cert 40057278; UL 1577 E511334)"},
+    "CA-IS3720LW": {"clr": 8.0, "cpg": 8.0, "src": "Chipanalog CA-IS372x datasheet v1.05 s.7.6 (SOIC16-WB CLR / CPG 8 mm)", "rating": "reinforced (VDE 0884-17 cert 40057278; UL 1577 E511334)"},
     "UCC21550BDWKR": {"clr": 8.0, "cpg": 8.0, "src": "TI UCC21550 datasheet, DWK insulation table", "rating": "reinforced"},
     # stage 29 (DECISIONS 31): 8.0 mm is the package value itself (= the 8.0 mm floor, not > 8); material group II (CTI > 400)
     "2EDR8259XXUMA1": {"clr": 8.0, "cpg": 8.0, "src": "Infineon 2EDR8259H/X datasheet Rev 1.7 Table 24 (PG-DSO-14, CPG/CLR 8 mm, CTI > 400, MG II)", "rating": "reinforced (IEC 60747-17 cert 40055138)"},

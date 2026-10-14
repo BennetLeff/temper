@@ -40,8 +40,8 @@
   "jlc_basic_lines": 21,
   "hand_or_consign_lines": 23,
   "tht_lines": 18,
-  "parts_usd_at_5": 329.58,
-  "parts_usd_at_500": 221.04,
+  "parts_usd_at_5": 329.69,
+  "parts_usd_at_500": 223.41,
   "unpriced_lines": [],
   "zero_stock_lines": 10,
   "single_source_lines": 17,
@@ -66,5 +66,11 @@
   "date": "2026-10-14",
   "parts_usd_at_500_as_scored": 231.94,
   "reason": "KLDR025.TXP at $18.516 (DK 500 break), not $29.412 (the 10-piece break): DECISIONS 32 price correction, sourcing/STOCK-2026-10-13_pricefix-kldr.csv. Recomputed with scorecard.cost() on this tag's fab BOM and today's stock glob; the same call without the fix file reproduces the as-scored value."
+ },
+ "restated_2": {
+  "date": "2026-10-14",
+  "parts_usd_at_5_before": 329.58,
+  "parts_usd_at_500_before": 221.04,
+  "reason": "UMK325AB7106KM-T at the JLC ladder ($0.2545 / $0.2186, C386167), not the class-default estimate ($0.25 / $0.12): sourcing/STOCK-2026-10-13_pricefix-umk325.csv (DECISIONS 34). Recomputed with scorecard.cost() on this tag's fab BOM; the same call without the fix file reproduces the before values."
  }
 }

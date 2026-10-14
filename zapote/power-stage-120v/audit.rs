@@ -253,19 +253,24 @@ const SELV_NETS: &[&str] = &[
     "leg_b-permit_gate", "leg_b.driver-dt",
 ];
 
+/// Stage 31 (DECISIONS 34): the CA-IS3720 is a 2-channel isolator on the ISO7710DW pinout. Its spare channel is
+/// pin 5 (A-side input) and pin 12 (B-side driven output); both must stay on single-pin nets.
+const SPARE_CHANNEL_PARTS: &[&str] = &["u_iso", "hb.iso", "bias_hb.verdict"];
+
 /// Parts allowed to have pins in both domains, and which pins are SELV.
 const BARRIER_PARTS: &[(&str, &str, &[&str])] = &[
     // stage 29 (DECISIONS 31): Infineon 2EDR8259X, same DWK pads; SELV side pins 1-8 as before
     ("leg_a.driver", "2EDR8259XXUMA1", &["1", "2", "3", "4", "5", "6", "7", "8"]),
     ("leg_b.driver", "2EDR8259XXUMA1", &["1", "2", "3", "4", "5", "6", "7", "8"]),
     ("u_vsense", "AMC1311BDWVR", &["5", "6", "7", "8"]),
-    ("u_iso", "ISO7710DWR", &["9", "13", "14", "16"]),
+    // stage 31 (DECISIONS 34): Chipanalog CA-IS3720HW/LW in place of ISO7710DWR/FDWR, same pins and land pattern
+    ("u_iso", "CA-IS3720HW", &["9", "13", "14", "16"]),
     ("t_ct", "CST3015-200ED", &["3", "4"]),
     ("ps_selv", "IRM-20-15", &["3", "4"]),
     // stage 30: the monitor group crosses once, as the heartbeat (U32); the HS links (ISO6721FB) are HOT-HOT
-    ("hb.iso", "ISO7710DWR", &["9", "13", "14", "16"]),
-    // stage 30: HS-B verdict, HS-B -> SELV, default LOW (ISO7710F)
-    ("bias_hb.verdict", "ISO7710FDWR", &["9", "13", "14", "16"]),
+    ("hb.iso", "CA-IS3720HW", &["9", "13", "14", "16"]),
+    // stage 30: HS-B verdict, HS-B -> SELV, default LOW (L suffix)
+    ("bias_hb.verdict", "CA-IS3720LW", &["9", "13", "14", "16"]),
     ("line_zc.opto", "VOL628A-2X001T", &["3", "4"]),
 ];
 
@@ -316,7 +321,7 @@ const IDENTITY: &[(&str, &str)] = &[
     ("leg_a.q_low", "IPW65R018CFD7"),
     ("leg_b.q_high", "IPW65R018CFD7"),
     ("leg_b.q_low", "IPW65R018CFD7"),
-    ("u_iso", "ISO7710DWR"),
+    ("u_iso", "CA-IS3720HW"),
     ("u_ocp", "TLV3201AIDBVR"),
     ("u_ovp", "TLV3201AIDBVR"),
     ("u_nand", "SN74LVC1G10DBVR"),
@@ -366,8 +371,8 @@ const IDENTITY: &[(&str, &str)] = &[
     ("leg_a.r_permit", "0603WAF1000T5E"),
     ("leg_b.r_permit", "0603WAF1000T5E"),
     // Native-21 F6 and isolated mains detector: every added part.
-    ("leg_a.bias_h.clocal1", "UMK325AB7106KM-T"),
-    ("leg_a.bias_h.clocal2", "UMK325AB7106KM-T"),
+    ("leg_a.bias_h.clocal1", "CL32B106KBJNNNE"),
+    ("leg_a.bias_h.clocal2", "CL32B106KBJNNNE"),
     ("leg_a.bias_h.cmid1", "GRM188R71E105KA12D"),
     ("leg_a.bias_h.cmid2", "GRM188R71E105KA12D"),
     ("leg_a.bias_h.chf1", "CL05B104KB54PNC"),
@@ -377,8 +382,8 @@ const IDENTITY: &[(&str, &str)] = &[
     ("leg_a.bias_h.rdamp", "RL1206FR-070R68L"),
     ("leg_a.bias_h.cbulk", "6SVPC220MV"),
     ("leg_a.bias_h.rbleed", "0603WAF4991T5E"),
-    ("leg_a.bias_l.clocal1", "UMK325AB7106KM-T"),
-    ("leg_a.bias_l.clocal2", "UMK325AB7106KM-T"),
+    ("leg_a.bias_l.clocal1", "CL32B106KBJNNNE"),
+    ("leg_a.bias_l.clocal2", "CL32B106KBJNNNE"),
     ("leg_a.bias_l.cmid1", "GRM188R71E105KA12D"),
     ("leg_a.bias_l.cmid2", "GRM188R71E105KA12D"),
     ("leg_a.bias_l.chf1", "CL05B104KB54PNC"),
@@ -397,8 +402,8 @@ const IDENTITY: &[(&str, &str)] = &[
     ("leg_a.cgs_l", "C0603C102J5GACTU"),
     ("leg_a.doff_l", "PMEG6030EP,115"),
     ("leg_a.roff_l", "1206W4F100KT5E"),
-    ("leg_b.bias_h.clocal1", "UMK325AB7106KM-T"),
-    ("leg_b.bias_h.clocal2", "UMK325AB7106KM-T"),
+    ("leg_b.bias_h.clocal1", "CL32B106KBJNNNE"),
+    ("leg_b.bias_h.clocal2", "CL32B106KBJNNNE"),
     ("leg_b.bias_h.cmid1", "GRM188R71E105KA12D"),
     ("leg_b.bias_h.cmid2", "GRM188R71E105KA12D"),
     ("leg_b.bias_h.chf1", "CL05B104KB54PNC"),
@@ -408,8 +413,8 @@ const IDENTITY: &[(&str, &str)] = &[
     ("leg_b.bias_h.rdamp", "RL1206FR-070R68L"),
     ("leg_b.bias_h.cbulk", "6SVPC220MV"),
     ("leg_b.bias_h.rbleed", "0603WAF4991T5E"),
-    ("leg_b.bias_l.clocal1", "UMK325AB7106KM-T"),
-    ("leg_b.bias_l.clocal2", "UMK325AB7106KM-T"),
+    ("leg_b.bias_l.clocal1", "CL32B106KBJNNNE"),
+    ("leg_b.bias_l.clocal2", "CL32B106KBJNNNE"),
     ("leg_b.bias_l.cmid1", "GRM188R71E105KA12D"),
     ("leg_b.bias_l.cmid2", "GRM188R71E105KA12D"),
     ("leg_b.bias_l.chf1", "CL05B104KB54PNC"),
@@ -430,9 +435,9 @@ const IDENTITY: &[(&str, &str)] = &[
     ("leg_b.roff_l", "1206W4F100KT5E"),
     ("bias_ls.ldo", "TPS7A4700RGWR"),
     ("bias_ls.cnr", "GRM188R71E105KA12D"),
-    ("bias_ls.cin", "UMK325AB7106KM-T"),
-    ("bias_ls.cout1", "UMK325AB7106KM-T"),
-    ("bias_ls.cout2", "UMK325AB7106KM-T"),
+    ("bias_ls.cin", "CL32B106KBJNNNE"),
+    ("bias_ls.cout1", "CL32B106KBJNNNE"),
+    ("bias_ls.cout2", "CL32B106KBJNNNE"),
     ("bias_ls.chf", "CC0603KRX7R9BB104"),
     ("bias_ls.shunt", "TLVH431BQDBZR"),
     ("bias_ls.rtop", "RT0603BRD076K2L"),
@@ -454,12 +459,12 @@ const IDENTITY: &[(&str, &str)] = &[
     ("u_bias_flt", "SN74LVC1G17DBVR"),
     // stage 30 (DECISIONS 33): HS links and the heartbeat
     ("bias_ha.link", "ISO6721FBDR"),
-    ("bias_hb.verdict", "ISO7710FDWR"),
+    ("bias_hb.verdict", "CA-IS3720LW"),
     ("hb.vote", "BAT54S-7-F"),
     ("hb.osc", "SN74LVC1G132DBVR"),
     ("hb.rosc", "0603WAF4991T5E"),
     ("hb.cosc", "CL10C331JB8NNNC"),
-    ("hb.iso", "ISO7710DWR"),
+    ("hb.iso", "CA-IS3720HW"),
     ("hb.buf", "SN74LVC1G132DBVR"),
     ("hb.rs", "0603WAF2200T5E"),
     ("hb.cp1", "C0603C102J5GACTU"),
@@ -476,9 +481,9 @@ const IDENTITY: &[(&str, &str)] = &[
     ("monitor_ls.cspanov", "C0603C102J5GACTU"),
     ("monitor_ls.cmonitor", "CC0603KRX7R9BB104"),
     ("bias_ha.iso", "R24C2T25/R-R"),
-    ("bias_ha.split.cout1", "UMK325AB7106KM-T"),
-    ("bias_ha.cin1", "UMK325AB7106KM-T"),
-    ("bias_ha.cin2", "UMK325AB7106KM-T"),
+    ("bias_ha.split.cout1", "CL32B106KBJNNNE"),
+    ("bias_ha.cin1", "CL32B106KBJNNNE"),
+    ("bias_ha.cin2", "CL32B106KBJNNNE"),
     ("bias_ha.cinhf", "CC0603KRX7R9BB104"),
     ("bias_ha.cavin", "CL10C331JB8NNNC"),
     ("bias_ha.rfbt", "RT0603BRD0763K4L"),
@@ -509,9 +514,9 @@ const IDENTITY: &[(&str, &str)] = &[
     ("bias_ha.monitor.cspanov", "C0603C102J5GACTU"),
     ("bias_ha.monitor.cmonitor", "CC0603KRX7R9BB104"),
     ("bias_hb.iso", "R24C2T25/R-R"),
-    ("bias_hb.split.cout1", "UMK325AB7106KM-T"),
-    ("bias_hb.cin1", "UMK325AB7106KM-T"),
-    ("bias_hb.cin2", "UMK325AB7106KM-T"),
+    ("bias_hb.split.cout1", "CL32B106KBJNNNE"),
+    ("bias_hb.cin1", "CL32B106KBJNNNE"),
+    ("bias_hb.cin2", "CL32B106KBJNNNE"),
     ("bias_hb.cinhf", "CC0603KRX7R9BB104"),
     ("bias_hb.cavin", "CL10C331JB8NNNC"),
     ("bias_hb.rfbt", "RT0603BRD0763K4L"),
@@ -705,6 +710,16 @@ fn audit(m: &Model) -> Vec<String> {
                 let want_selv = selv_pins.contains(&pin.as_str());
                 if want_selv != selv.contains(net.as_str()) {
                     e.push(format!("{path}.{pin} on {net} crosses to the wrong side of the barrier"));
+                }
+            }
+        }
+    }
+
+    for path in SPARE_CHANNEL_PARTS {
+        for pin in ["5", "12"] {
+            if let Some(n) = m.net_of(path, pin) {
+                if members(m, &n).len() > 1 {
+                    e.push(format!("{path}.{pin} is the isolator's spare channel and must stay unconnected, found on {n}"));
                 }
             }
         }
@@ -1362,8 +1377,20 @@ mod tests {
     #[test]
     fn default_low_isolator_fails() {
         let mut m = built();
-        m.set_part("u_iso", "ISO7710FDWR");
-        fails(&m, "u_iso is ISO7710FDWR");
+        m.set_part("u_iso", "CA-IS3720LW");
+        fails(&m, "u_iso is CA-IS3720LW");
+    }
+
+    #[test]
+    fn isolator_spare_output_tied_to_rail_fails() {
+        for path in ["u_iso", "hb.iso", "bias_hb.verdict"] {
+            let mut m = built();
+            m.rewire(path, "12", "v3v3");
+            fails(&m, "spare channel");
+        }
+        let mut m = built();
+        m.rewire("hb.iso", "5", "n_ls");
+        fails(&m, "spare channel");
     }
 
     #[test]
