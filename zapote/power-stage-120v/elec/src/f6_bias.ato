@@ -1,5 +1,6 @@
 from "f6_parts.ato" import Bias10u, BiasComparator, BiasReference, BiasOpto, BiasNpn, BiasSilicon, GateDischarge, Bias4k42, Bias7k68, Bias120k, Bias133k, Bias2k2, Bias2k7, Gate1R, Bias6k2, Bias4k99, Bias18k, Bias30k, BiasDamping, Bias680, Line16k5, Line33k, Bias1u, Bias100n, Bias220u, Bias4u7, HotSupply24, NegativeShunt, SpanRegulator, HotLdo, DisOr, LineOpto, IsoBiasModule, BiasFb63k4, BiasFb11k, C330pC0G0603, Bias27k
-from "parts.ato" import C100n0603, C1nC0G0603, R10kThin, R1k0603, R10k0603, C100pC0G0603, Hot5SchmittBuffer, Iso7710, C10u1210, R100k0603
+from "parts.ato" import C100n0603, C1nC0G0603, R10kThin, R1k0603, R10k0603, C100pC0G0603, Hot5SchmittBuffer, Iso7710, Iso7710F, C10u1210, R100k0603
+from "parts.ato" import Iso6721Fb, SchottkyPairSeries, SchmittNand132, SchmittBuf17, R220R0603, R49k9Dt
 
 module BiasReservoir:
     signal src
@@ -109,17 +110,15 @@ module RegulatedSplit:
     rbot.p2 ~ n
 
 module RailMonitor:
+    """Window monitor of one bias rail. Stage 30 (DECISIONS 33, candidate 24): the notice stage and the per-rail
+    reinforced crossing are gone. The LM339B wired-AND 'good' node is pulled to the local 5 V by rpull and is the
+    module's output (high = every window in range); the crossing is done by the caller (HighBias link, Heartbeat)."""
     signal src
     signal p
     signal n
-    signal selv_v
-    signal selv_gnd
-    signal bad
     signal ref
     signal halfref
     signal good
-    signal base
-    signal isoin
     signal v5
     signal uv
     signal ov
@@ -188,25 +187,6 @@ module RailMonitor:
     monitor.p12 ~ n
     monitor.p13 ~ good
     monitor.p14 ~ good
-    rnotice = new R1k0603
-    rnotice.value = 1kohm
-    rnotice.p1 ~ ref
-    rnotice.p2 ~ good
-    dnotice = new BiasSilicon
-    dnotice.A ~ good
-    dnotice.K ~ base
-    qnotice = new BiasNpn
-    qnotice.B ~ base
-    qnotice.E ~ n
-    qnotice.C ~ isoin
-    rbase = new R10k0603
-    rbase.value = 10kohm
-    rbase.p1 ~ base
-    rbase.p2 ~ n
-    # HOT -> SELV crossing: reinforced ISO7710 (CMTI ~100 kV/us class), not a
-    # phototransistor opto, because the HS domains ride the switch node
-    # (10 V/ns ZVS, up to ~95 V/ns hard edges). Rails good: NPN on, IN low,
-    # OUT (bad) low. Any rail bad, or side 1 unpowered: OUT defaults HIGH (bad).
     ldo5 = new HotLdo
     ldo5.IN ~ p
     ldo5.EN ~ p
@@ -223,24 +203,7 @@ module RailMonitor:
     rpull = new R10k0603
     rpull.value = 10kohm
     rpull.p1 ~ v5
-    rpull.p2 ~ isoin
-    iso = new Iso7710
-    iso.VCC1 ~ v5
-    iso.GND1 ~ n
-    iso.GND1B ~ n
-    iso.IN ~ isoin
-    iso.VCC2 ~ selv_v
-    iso.GND2 ~ selv_gnd
-    iso.GND2B ~ selv_gnd
-    iso.OUT ~ bad
-    civcc1 = new C100n0603
-    civcc1.value = 100nF
-    civcc1.p1 ~ v5
-    civcc1.p2 ~ n
-    civcc2 = new C100n0603
-    civcc2.value = 100nF
-    civcc2.p1 ~ selv_v
-    civcc2.p2 ~ selv_gnd
+    rpull.p2 ~ good
 
     cuv = new C1nC0G0603
     cuv.value = 1nF
@@ -302,9 +265,6 @@ module HighBias:
     signal src
     signal p
     signal n
-    signal selv_v
-    signal selv_gnd
-    signal bad
     signal fbm
     iso = new IsoBiasModule
     iso.p1 ~ nls
@@ -388,9 +348,57 @@ module HighBias:
     monitor.src ~ src
     monitor.p ~ p
     monitor.n ~ n
-    monitor.selv_v ~ selv_v
-    monitor.selv_gnd ~ selv_gnd
-    monitor.bad ~ bad
+
+module HighBiasLink from HighBias:
+    """HS-A. Stage 30: functional HS -> LS crossing (ISO6721FB, default LOW = not good) into the heartbeat's LS
+    vote. Side 2 is the LS monitor's 5 V (U37) on N_LS; the unused reverse channel's input is tied to GND2 and its
+    output left open (FMEA condition 1)."""
+    signal ls_v5
+    signal good_ls
+    signal outa_nc
+    link = new Iso6721Fb
+    link.VCC1 ~ monitor.v5
+    link.GND1 ~ n
+    link.INB ~ monitor.good
+    link.OUTA ~ outa_nc
+    link.GND2 ~ nls
+    link.INA ~ nls
+    link.OUTB ~ good_ls
+    link.VCC2 ~ ls_v5
+    clink1 = new C100n0603
+    clink1.value = 100nF
+    clink1.p1 ~ monitor.v5
+    clink1.p2 ~ n
+    clink2 = new C100n0603
+    clink2.value = 100nF
+    clink2.p1 ~ ls_v5
+    clink2.p2 ~ nls
+
+module HighBiasSelv from HighBias:
+    """HS-B. Stage 30 (DECISIONS 33): the verdict crosses HS-B -> SELV on a reinforced ISO7710F (default LOW = not
+    good, SLLSER9E) at the stage-29 U34 pose, and gates the heartbeat's SELV NAND (Heartbeat.buf). On the s29 floor plan
+    no legal ISO6721FB pose straddles HS-B and the LS domain (stage30-heartbeat/spot_scan.py): U42's n_ls pocket, the
+    SELV 8 mm keep-out and the protected bus_p / n_hb copper close every row between them."""
+    signal v3v3
+    signal selv_gnd
+    signal good_selv
+    verdict = new Iso7710F
+    verdict.VCC1 ~ monitor.v5
+    verdict.GND1 ~ n
+    verdict.GND1B ~ n
+    verdict.IN ~ monitor.good
+    verdict.VCC2 ~ v3v3
+    verdict.GND2 ~ selv_gnd
+    verdict.GND2B ~ selv_gnd
+    verdict.OUT ~ good_selv
+    cver1 = new C100n0603
+    cver1.value = 100nF
+    cver1.p1 ~ monitor.v5
+    cver1.p2 ~ n
+    cver2 = new C100n0603
+    cver2.value = 100nF
+    cver2.p1 ~ v3v3
+    cver2.p2 ~ selv_gnd
 
 module LineZeroCross:
     signal line
@@ -437,3 +445,105 @@ module LineZeroCross:
     cbuffer.value = 100nF
     cbuffer.p1 ~ selv_v
     cbuffer.p2 ~ selv_gnd
+
+
+module Heartbeat:
+    """Stage 30 (DECISIONS 33; FMEA 11-candidates/c24-monitor-fmea section 6a, design J of m1_pump_spice.py).
+    The LS and HS-A verdicts meet on the LS 'good' node (LS wired-AND, plus one BAT54S half from HS-A's link output).
+    While both are good, a Schmitt-NAND RC oscillator (0.42-2.09 us) runs and U32 (ISO7710) carries the square wave to
+    SELV. There a Schmitt NAND, gated by HS-B's verdict (HighBiasSelv, ISO7710F), drives a diode charge pump into
+    C_hold || R_bleed; the hold node feeds U40 (G17) -> BIAS_GOOD. Any static state anywhere (a rail bad, oscillator,
+    isolator, NAND, pump or LS 5 V dead or stuck) stops the wave and the hold node bleeds below VT- in <= 90 us (123 us
+    with one pump cap shorted): announced, not dormant. A verdict isolator stuck HIGH is dormant, as in M1b."""
+    signal ls_v5
+    signal nls
+    signal good
+    signal ha
+    signal gate
+    signal v3v3
+    signal selv_gnd
+    signal hb_hold
+    signal hb_tx
+    signal hb_rc
+    signal hb_rx
+    signal hb_bufo
+    signal hb_s
+    signal hb_m
+    signal hb_x
+    signal vote_nc
+    # HS-A's link output pulls the LS 'good' node low through one half of a BAT54S (the other half's cathode is open).
+    vote = new SchottkyPairSeries
+    vote.A1 ~ good
+    vote.MID ~ ha
+    vote.K2 ~ vote_nc
+    osc = new SchmittNand132
+    osc.VCC ~ ls_v5
+    osc.GND ~ nls
+    osc.A ~ good
+    osc.B ~ hb_rc
+    osc.Y ~ hb_tx
+    rosc = new Bias4k99
+    rosc.value = 4.99kohm
+    rosc.p1 ~ hb_tx
+    rosc.p2 ~ hb_rc
+    cosc = new C330pC0G0603
+    cosc.value = 330pF
+    cosc.p1 ~ hb_rc
+    cosc.p2 ~ nls
+    cosc_vcc = new C100n0603
+    cosc_vcc.value = 100nF
+    cosc_vcc.p1 ~ ls_v5
+    cosc_vcc.p2 ~ nls
+    iso = new Iso7710
+    iso.VCC1 ~ ls_v5
+    iso.GND1 ~ nls
+    iso.GND1B ~ nls
+    iso.IN ~ hb_tx
+    iso.VCC2 ~ v3v3
+    iso.GND2 ~ selv_gnd
+    iso.GND2B ~ selv_gnd
+    iso.OUT ~ hb_rx
+    civcc1 = new C100n0603
+    civcc1.value = 100nF
+    civcc1.p1 ~ ls_v5
+    civcc1.p2 ~ nls
+    civcc2 = new C100n0603
+    civcc2.value = 100nF
+    civcc2.p1 ~ v3v3
+    civcc2.p2 ~ selv_gnd
+    # SELV Schmitt NAND: the heartbeat on B (pin 2, the G17's input pad), HS-B's ISO7710F verdict on A. HS-B bad or
+    # unpowered (default LOW) holds Y high, the pump stops and the hold node bleeds: the same announced trip.
+    buf = new SchmittNand132
+    buf.VCC ~ v3v3
+    buf.GND ~ selv_gnd
+    buf.B ~ hb_rx
+    buf.A ~ gate
+    buf.Y ~ hb_bufo
+    cbuf = new C100n0603
+    cbuf.value = 100nF
+    cbuf.p1 ~ v3v3
+    cbuf.p2 ~ selv_gnd
+    rs = new R220R0603
+    rs.value = 220ohm
+    rs.p1 ~ hb_bufo
+    rs.p2 ~ hb_s
+    cp1 = new C1nC0G0603
+    cp1.value = 1nF
+    cp1.p1 ~ hb_s
+    cp1.p2 ~ hb_m
+    cp2 = new C1nC0G0603
+    cp2.value = 1nF
+    cp2.p1 ~ hb_m
+    cp2.p2 ~ hb_x
+    pump = new SchottkyPairSeries
+    pump.A1 ~ selv_gnd
+    pump.MID ~ hb_x
+    pump.K2 ~ hb_hold
+    chold = new C1nC0G0603
+    chold.value = 1nF
+    chold.p1 ~ hb_hold
+    chold.p2 ~ selv_gnd
+    rbleed = new R49k9Dt
+    rbleed.value = 49.9kohm
+    rbleed.p1 ~ hb_hold
+    rbleed.p2 ~ selv_gnd

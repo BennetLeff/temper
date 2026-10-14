@@ -1070,7 +1070,7 @@
    {
     "ang": 0.0,
     "h": 2.7,
-    "net": "monitor_ls-v5",
+    "net": "ls_v5",
     "num": "1",
     "type": "smd",
     "w": 1.15,
@@ -1099,7 +1099,7 @@
    {
     "ang": 0.0,
     "h": 0.95,
-    "net": "monitor_ls-v5",
+    "net": "ls_v5",
     "num": "1",
     "type": "smd",
     "w": 0.9,
@@ -1208,64 +1208,6 @@
   "x": 48.745,
   "y": 96.735
  },
- "C137": {
-  "layer": "F.Cu",
-  "lib": "Capacitor_SMD:C_0603_1608Metric",
-  "pads": [
-   {
-    "ang": 0.0,
-    "h": 0.95,
-    "net": "bias_ha.monitor-v5",
-    "num": "1",
-    "type": "smd",
-    "w": 0.9,
-    "x": -0.775,
-    "y": 0.0
-   },
-   {
-    "ang": 0.0,
-    "h": 0.95,
-    "net": "n_ha",
-    "num": "2",
-    "type": "smd",
-    "w": 0.9,
-    "x": 0.775,
-    "y": 0.0
-   }
-  ],
-  "rot": 90.0,
-  "x": 65.05,
-  "y": 102.5
- },
- "C138": {
-  "layer": "F.Cu",
-  "lib": "Capacitor_SMD:C_0603_1608Metric",
-  "pads": [
-   {
-    "ang": 0.0,
-    "h": 0.95,
-    "net": "v3v3",
-    "num": "1",
-    "type": "smd",
-    "w": 0.9,
-    "x": -0.775,
-    "y": 0.0
-   },
-   {
-    "ang": 0.0,
-    "h": 0.95,
-    "net": "selv_gnd",
-    "num": "2",
-    "type": "smd",
-    "w": 0.9,
-    "x": 0.775,
-    "y": 0.0
-   }
-  ],
-  "rot": 90.0,
-  "x": 77.9,
-  "y": 108.5
- },
  "C139": {
   "layer": "F.Cu",
   "lib": "Capacitor_SMD:C_0603_1608Metric",
@@ -1353,93 +1295,6 @@
   "x": 3.145,
   "y": 92.635
  },
- "C141": {
-  "layer": "F.Cu",
-  "lib": "Capacitor_SMD:C_0603_1608Metric",
-  "pads": [
-   {
-    "ang": 0.0,
-    "h": 0.95,
-    "net": "bias_hb.monitor-v5",
-    "num": "1",
-    "type": "smd",
-    "w": 0.9,
-    "x": -0.775,
-    "y": 0.0
-   },
-   {
-    "ang": 0.0,
-    "h": 0.95,
-    "net": "n_hb",
-    "num": "2",
-    "type": "smd",
-    "w": 0.9,
-    "x": 0.775,
-    "y": 0.0
-   }
-  ],
-  "rot": 90.0,
-  "x": 18.3,
-  "y": 108.5
- },
- "C142": {
-  "layer": "F.Cu",
-  "lib": "Capacitor_SMD:C_0603_1608Metric",
-  "pads": [
-   {
-    "ang": 0.0,
-    "h": 0.95,
-    "net": "v3v3",
-    "num": "1",
-    "type": "smd",
-    "w": 0.9,
-    "x": -0.775,
-    "y": 0.0
-   },
-   {
-    "ang": 0.0,
-    "h": 0.95,
-    "net": "selv_gnd",
-    "num": "2",
-    "type": "smd",
-    "w": 0.9,
-    "x": 0.775,
-    "y": 0.0
-   }
-  ],
-  "rot": 90.0,
-  "x": 32.9,
-  "y": 108.5
- },
- "C143": {
-  "layer": "F.Cu",
-  "lib": "Capacitor_SMD:C_0603_1608Metric",
-  "pads": [
-   {
-    "ang": 0.0,
-    "h": 0.95,
-    "net": "bias_bad_flt",
-    "num": "1",
-    "type": "smd",
-    "w": 0.9,
-    "x": -0.775,
-    "y": 0.0
-   },
-   {
-    "ang": 0.0,
-    "h": 0.95,
-    "net": "selv_gnd",
-    "num": "2",
-    "type": "smd",
-    "w": 0.9,
-    "x": 0.775,
-    "y": 0.0
-   }
-  ],
-  "rot": 0.0,
-  "x": 45.995,
-  "y": 128.775
- },
  "C144": {
   "layer": "F.Cu",
   "lib": "Capacitor_SMD:C_0603_1608Metric",
@@ -1465,9 +1320,9 @@
     "y": 0.0
    }
   ],
-  "rot": 180.0,
-  "x": 14.038,
-  "y": 127.1
+  "rot": 0.0,
+  "x": 74.6,
+  "y": 135.6
  },
  "C145": {
   "layer": "F.Cu",
@@ -1846,6 +1701,93 @@
   "x": 57.85,
   "y": 175.0
  },
+ "C157": {
+  "layer": "F.Cu",
+  "lib": "Capacitor_SMD:C_0603_1608Metric",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "net": "bias_ha.monitor-v5",
+    "num": "1",
+    "type": "smd",
+    "w": 0.9,
+    "x": -0.775,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "net": "n_ha",
+    "num": "2",
+    "type": "smd",
+    "w": 0.9,
+    "x": 0.775,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 47.0,
+  "y": 71.0
+ },
+ "C158": {
+  "layer": "F.Cu",
+  "lib": "Capacitor_SMD:C_0603_1608Metric",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "net": "ls_v5",
+    "num": "1",
+    "type": "smd",
+    "w": 0.9,
+    "x": -0.775,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "net": "n_ls",
+    "num": "2",
+    "type": "smd",
+    "w": 0.9,
+    "x": 0.775,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 47.85,
+  "y": 61.5
+ },
+ "C159": {
+  "layer": "F.Cu",
+  "lib": "Capacitor_SMD:C_0603_1608Metric",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "net": "bias_hb.monitor-v5",
+    "num": "1",
+    "type": "smd",
+    "w": 0.9,
+    "x": -0.775,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "net": "n_hb",
+    "num": "2",
+    "type": "smd",
+    "w": 0.9,
+    "x": 0.775,
+    "y": 0.0
+   }
+  ],
+  "rot": 90.0,
+  "x": 18.3,
+  "y": 108.5
+ },
  "C16": {
   "layer": "F.Cu",
   "lib": "Capacitor_SMD:C_1210_3225Metric",
@@ -1874,6 +1816,238 @@
   "rot": 0.0,
   "x": 49.345,
   "y": 52.645
+ },
+ "C160": {
+  "layer": "F.Cu",
+  "lib": "Capacitor_SMD:C_0603_1608Metric",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "net": "v3v3",
+    "num": "1",
+    "type": "smd",
+    "w": 0.9,
+    "x": -0.775,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "net": "selv_gnd",
+    "num": "2",
+    "type": "smd",
+    "w": 0.9,
+    "x": 0.775,
+    "y": 0.0
+   }
+  ],
+  "rot": 90.0,
+  "x": 32.9,
+  "y": 108.5
+ },
+ "C161": {
+  "layer": "F.Cu",
+  "lib": "Capacitor_SMD:C_0603_1608Metric",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "net": "ls_v5",
+    "num": "1",
+    "type": "smd",
+    "w": 0.9,
+    "x": -0.775,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "net": "n_ls",
+    "num": "2",
+    "type": "smd",
+    "w": 0.9,
+    "x": 0.775,
+    "y": 0.0
+   }
+  ],
+  "rot": 90.0,
+  "x": 99.8,
+  "y": 96.11
+ },
+ "C162": {
+  "layer": "F.Cu",
+  "lib": "Capacitor_SMD:C_0603_1608Metric",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "net": "hb_rc",
+    "num": "1",
+    "type": "smd",
+    "w": 0.9,
+    "x": -0.775,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "net": "n_ls",
+    "num": "2",
+    "type": "smd",
+    "w": 0.9,
+    "x": 0.775,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 109.25,
+  "y": 99.89
+ },
+ "C163": {
+  "layer": "F.Cu",
+  "lib": "Capacitor_SMD:C_0603_1608Metric",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "net": "v3v3",
+    "num": "1",
+    "type": "smd",
+    "w": 0.9,
+    "x": -0.775,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "net": "selv_gnd",
+    "num": "2",
+    "type": "smd",
+    "w": 0.9,
+    "x": 0.775,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 94.5,
+  "y": 134.9
+ },
+ "C164": {
+  "layer": "F.Cu",
+  "lib": "Capacitor_SMD:C_0603_1608Metric",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "net": "hb_s",
+    "num": "1",
+    "type": "smd",
+    "w": 0.9,
+    "x": -0.775,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "net": "hb_m",
+    "num": "2",
+    "type": "smd",
+    "w": 0.9,
+    "x": 0.775,
+    "y": 0.0
+   }
+  ],
+  "rot": 180.0,
+  "x": 86.6,
+  "y": 132.0
+ },
+ "C165": {
+  "layer": "F.Cu",
+  "lib": "Capacitor_SMD:C_0603_1608Metric",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "net": "hb_m",
+    "num": "1",
+    "type": "smd",
+    "w": 0.9,
+    "x": -0.775,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "net": "hb_x",
+    "num": "2",
+    "type": "smd",
+    "w": 0.9,
+    "x": 0.775,
+    "y": 0.0
+   }
+  ],
+  "rot": 180.0,
+  "x": 82.95,
+  "y": 132.0
+ },
+ "C166": {
+  "layer": "F.Cu",
+  "lib": "Capacitor_SMD:C_0603_1608Metric",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "net": "hb_hold",
+    "num": "1",
+    "type": "smd",
+    "w": 0.9,
+    "x": -0.775,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "net": "selv_gnd",
+    "num": "2",
+    "type": "smd",
+    "w": 0.9,
+    "x": 0.775,
+    "y": 0.0
+   }
+  ],
+  "rot": 180.0,
+  "x": 78.4,
+  "y": 135.6
+ },
+ "C167": {
+  "layer": "F.Cu",
+  "lib": "Capacitor_SMD:C_0603_1608Metric",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "net": "bus_fault_flt",
+    "num": "1",
+    "type": "smd",
+    "w": 0.9,
+    "x": -0.775,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "net": "selv_gnd",
+    "num": "2",
+    "type": "smd",
+    "w": 0.9,
+    "x": 0.775,
+    "y": 0.0
+   }
+  ],
+  "rot": 180.0,
+  "x": 31.4,
+  "y": 133.5
  },
  "C17": {
   "layer": "F.Cu",
@@ -4148,35 +4322,6 @@
   "x": 2.069999,
   "y": 67.25
  },
- "C88": {
-  "layer": "F.Cu",
-  "lib": "Capacitor_SMD:C_0603_1608Metric",
-  "pads": [
-   {
-    "ang": 0.0,
-    "h": 0.95,
-    "net": "v3v3",
-    "num": "1",
-    "type": "smd",
-    "w": 0.9,
-    "x": -0.775,
-    "y": 0.0
-   },
-   {
-    "ang": 0.0,
-    "h": 0.95,
-    "net": "selv_gnd",
-    "num": "2",
-    "type": "smd",
-    "w": 0.9,
-    "x": 0.775,
-    "y": 0.0
-   }
-  ],
-  "rot": 180.0,
-  "x": 4.457,
-  "y": 127.1
- },
  "C89": {
   "layer": "F.Cu",
   "lib": "Capacitor_SMD:C_0603_1608Metric",
@@ -4525,93 +4670,6 @@
   "x": 110.23,
   "y": 81.05
  },
- "D14": {
-  "layer": "F.Cu",
-  "lib": "Diode_SMD:D_SOD-123",
-  "pads": [
-   {
-    "ang": 0.0,
-    "h": 1.2,
-    "net": "monitor_ls-base",
-    "num": "1",
-    "type": "smd",
-    "w": 0.9,
-    "x": -1.65,
-    "y": 0.0
-   },
-   {
-    "ang": 0.0,
-    "h": 1.2,
-    "net": "monitor_ls-good",
-    "num": "2",
-    "type": "smd",
-    "w": 0.9,
-    "x": 1.65,
-    "y": 0.0
-   }
-  ],
-  "rot": 0.0,
-  "x": 113.875,
-  "y": 94.775
- },
- "D15": {
-  "layer": "F.Cu",
-  "lib": "Diode_SMD:D_SOD-123",
-  "pads": [
-   {
-    "ang": 0.0,
-    "h": 1.2,
-    "net": "bias_ha.monitor-base",
-    "num": "1",
-    "type": "smd",
-    "w": 0.9,
-    "x": -1.65,
-    "y": 0.0
-   },
-   {
-    "ang": 0.0,
-    "h": 1.2,
-    "net": "bias_ha.monitor-good",
-    "num": "2",
-    "type": "smd",
-    "w": 0.9,
-    "x": 1.65,
-    "y": 0.0
-   }
-  ],
-  "rot": 0.0,
-  "x": 55.885,
-  "y": 104.265
- },
- "D16": {
-  "layer": "F.Cu",
-  "lib": "Diode_SMD:D_SOD-123",
-  "pads": [
-   {
-    "ang": 0.0,
-    "h": 1.2,
-    "net": "bias_hb.monitor-base",
-    "num": "1",
-    "type": "smd",
-    "w": 0.9,
-    "x": -1.65,
-    "y": 0.0
-   },
-   {
-    "ang": 0.0,
-    "h": 1.2,
-    "net": "bias_hb.monitor-good",
-    "num": "2",
-    "type": "smd",
-    "w": 0.9,
-    "x": 1.65,
-    "y": 0.0
-   }
-  ],
-  "rot": 0.0,
-  "x": 10.585,
-  "y": 100.765
- },
  "D17": {
   "layer": "F.Cu",
   "lib": "temper:P600_Axial_P12.70mm_ReviewOnly",
@@ -4640,6 +4698,84 @@
   "rot": 0.0,
   "x": 270.54,
   "y": 106.0
+ },
+ "D18": {
+  "layer": "F.Cu",
+  "lib": "Package_TO_SOT_SMD:SOT-23",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 0.6,
+    "net": "monitor_ls-good",
+    "num": "1",
+    "type": "smd",
+    "w": 1.475,
+    "x": -0.9375,
+    "y": -0.95
+   },
+   {
+    "ang": 0.0,
+    "h": 0.6,
+    "net": "vote_nc",
+    "num": "2",
+    "type": "smd",
+    "w": 1.475,
+    "x": -0.9375,
+    "y": 0.95
+   },
+   {
+    "ang": 0.0,
+    "h": 0.6,
+    "net": "mon_good_ha",
+    "num": "3",
+    "type": "smd",
+    "w": 1.475,
+    "x": 0.9375,
+    "y": 0.0
+   }
+  ],
+  "rot": 180.0,
+  "x": 104.5,
+  "y": 87.5
+ },
+ "D19": {
+  "layer": "F.Cu",
+  "lib": "Package_TO_SOT_SMD:SOT-23",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 0.6,
+    "net": "selv_gnd",
+    "num": "1",
+    "type": "smd",
+    "w": 1.475,
+    "x": -0.9375,
+    "y": -0.95
+   },
+   {
+    "ang": 0.0,
+    "h": 0.6,
+    "net": "hb_hold",
+    "num": "2",
+    "type": "smd",
+    "w": 1.475,
+    "x": -0.9375,
+    "y": 0.95
+   },
+   {
+    "ang": 0.0,
+    "h": 0.6,
+    "net": "hb_x",
+    "num": "3",
+    "type": "smd",
+    "w": 1.475,
+    "x": 0.9375,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 79.0,
+  "y": 132.0
  },
  "D3": {
   "layer": "F.Cu",
@@ -5918,123 +6054,6 @@
   "x": 22.5,
   "y": 4.215
  },
- "Q7": {
-  "layer": "F.Cu",
-  "lib": "Package_TO_SOT_SMD:SOT-23",
-  "pads": [
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "monitor_ls-base",
-    "num": "1",
-    "type": "smd",
-    "w": 1.475,
-    "x": -0.9375,
-    "y": -0.95
-   },
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "n_ls",
-    "num": "2",
-    "type": "smd",
-    "w": 1.475,
-    "x": -0.9375,
-    "y": 0.95
-   },
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "monitor_ls-isoin",
-    "num": "3",
-    "type": "smd",
-    "w": 1.475,
-    "x": 0.9375,
-    "y": 0.0
-   }
-  ],
-  "rot": 0.0,
-  "x": 119.115,
-  "y": 87.145
- },
- "Q8": {
-  "layer": "F.Cu",
-  "lib": "Package_TO_SOT_SMD:SOT-23",
-  "pads": [
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "bias_ha.monitor-base",
-    "num": "1",
-    "type": "smd",
-    "w": 1.475,
-    "x": -0.9375,
-    "y": -0.95
-   },
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "n_ha",
-    "num": "2",
-    "type": "smd",
-    "w": 1.475,
-    "x": -0.9375,
-    "y": 0.95
-   },
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "bias_ha.monitor-isoin",
-    "num": "3",
-    "type": "smd",
-    "w": 1.475,
-    "x": 0.9375,
-    "y": 0.0
-   }
-  ],
-  "rot": 0.0,
-  "x": 60.315,
-  "y": 85.595
- },
- "Q9": {
-  "layer": "F.Cu",
-  "lib": "Package_TO_SOT_SMD:SOT-23",
-  "pads": [
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "bias_hb.monitor-base",
-    "num": "1",
-    "type": "smd",
-    "w": 1.475,
-    "x": -0.9375,
-    "y": -0.95
-   },
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "n_hb",
-    "num": "2",
-    "type": "smd",
-    "w": 1.475,
-    "x": -0.9375,
-    "y": 0.95
-   },
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "bias_hb.monitor-isoin",
-    "num": "3",
-    "type": "smd",
-    "w": 1.475,
-    "x": 0.9375,
-    "y": 0.0
-   }
-  ],
-  "rot": 0.0,
-  "x": 15.315,
-  "y": 80.895
- },
  "R1": {
   "layer": "F.Cu",
   "lib": "Resistor_SMD:R_1206_3216Metric",
@@ -6296,64 +6315,6 @@
   "x": 62.925,
   "y": 112.135
  },
- "R107": {
-  "layer": "F.Cu",
-  "lib": "Resistor_SMD:R_0603_1608Metric",
-  "pads": [
-   {
-    "ang": 0.0,
-    "h": 0.95,
-    "net": "bias_ha.monitor-ref",
-    "num": "1",
-    "type": "smd",
-    "w": 0.8,
-    "x": -0.825,
-    "y": 0.0
-   },
-   {
-    "ang": 0.0,
-    "h": 0.95,
-    "net": "bias_ha.monitor-good",
-    "num": "2",
-    "type": "smd",
-    "w": 0.8,
-    "x": 0.825,
-    "y": 0.0
-   }
-  ],
-  "rot": 0.0,
-  "x": 47.925,
-  "y": 112.135
- },
- "R108": {
-  "layer": "F.Cu",
-  "lib": "Resistor_SMD:R_0603_1608Metric",
-  "pads": [
-   {
-    "ang": 0.0,
-    "h": 0.95,
-    "net": "bias_ha.monitor-base",
-    "num": "1",
-    "type": "smd",
-    "w": 0.8,
-    "x": -0.825,
-    "y": 0.0
-   },
-   {
-    "ang": 0.0,
-    "h": 0.95,
-    "net": "n_ha",
-    "num": "2",
-    "type": "smd",
-    "w": 0.8,
-    "x": 0.825,
-    "y": 0.0
-   }
-  ],
-  "rot": 0.0,
-  "x": 55.425,
-  "y": 109.885
- },
  "R109": {
   "layer": "F.Cu",
   "lib": "Resistor_SMD:R_0603_1608Metric",
@@ -6371,7 +6332,7 @@
    {
     "ang": 0.0,
     "h": 0.95,
-    "net": "bias_ha.monitor-isoin",
+    "net": "bias_ha.monitor-good",
     "num": "2",
     "type": "smd",
     "w": 0.8,
@@ -6789,64 +6750,6 @@
   "x": 10.425,
   "y": 112.085
  },
- "R122": {
-  "layer": "F.Cu",
-  "lib": "Resistor_SMD:R_0603_1608Metric",
-  "pads": [
-   {
-    "ang": 0.0,
-    "h": 0.95,
-    "net": "bias_hb.monitor-ref",
-    "num": "1",
-    "type": "smd",
-    "w": 0.8,
-    "x": -0.825,
-    "y": 0.0
-   },
-   {
-    "ang": 0.0,
-    "h": 0.95,
-    "net": "bias_hb.monitor-good",
-    "num": "2",
-    "type": "smd",
-    "w": 0.8,
-    "x": 0.825,
-    "y": 0.0
-   }
-  ],
-  "rot": 0.0,
-  "x": 10.425,
-  "y": 109.535
- },
- "R123": {
-  "layer": "F.Cu",
-  "lib": "Resistor_SMD:R_0603_1608Metric",
-  "pads": [
-   {
-    "ang": 0.0,
-    "h": 0.95,
-    "net": "bias_hb.monitor-base",
-    "num": "1",
-    "type": "smd",
-    "w": 0.8,
-    "x": -0.825,
-    "y": 0.0
-   },
-   {
-    "ang": 0.0,
-    "h": 0.95,
-    "net": "n_hb",
-    "num": "2",
-    "type": "smd",
-    "w": 0.8,
-    "x": 0.825,
-    "y": 0.0
-   }
-  ],
-  "rot": 0.0,
-  "x": 14.475,
-  "y": 106.985
- },
  "R124": {
   "layer": "F.Cu",
   "lib": "Resistor_SMD:R_0603_1608Metric",
@@ -6864,7 +6767,7 @@
    {
     "ang": 0.0,
     "h": 0.95,
-    "net": "bias_hb.monitor-isoin",
+    "net": "bias_hb.monitor-good",
     "num": "2",
     "type": "smd",
     "w": 0.8,
@@ -6903,35 +6806,6 @@
   ],
   "rot": 0.0,
   "x": 78.845,
-  "y": 128.775
- },
- "R126": {
-  "layer": "F.Cu",
-  "lib": "Resistor_SMD:R_0603_1608Metric",
-  "pads": [
-   {
-    "ang": 0.0,
-    "h": 0.95,
-    "net": "bias_bad_raw",
-    "num": "1",
-    "type": "smd",
-    "w": 0.8,
-    "x": -0.825,
-    "y": 0.0
-   },
-   {
-    "ang": 0.0,
-    "h": 0.95,
-    "net": "bias_bad_flt",
-    "num": "2",
-    "type": "smd",
-    "w": 0.8,
-    "x": 0.825,
-    "y": 0.0
-   }
-  ],
-  "rot": 0.0,
-  "x": 82.495,
   "y": 128.775
  },
  "R127": {
@@ -7078,6 +6952,122 @@
   "rot": 0.0,
   "x": 282.9,
   "y": 116.5
+ },
+ "R131": {
+  "layer": "F.Cu",
+  "lib": "Resistor_SMD:R_0603_1608Metric",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "net": "hb_tx",
+    "num": "1",
+    "type": "smd",
+    "w": 0.8,
+    "x": -0.825,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "net": "hb_rc",
+    "num": "2",
+    "type": "smd",
+    "w": 0.8,
+    "x": 0.825,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 107.75,
+  "y": 98.25
+ },
+ "R132": {
+  "layer": "F.Cu",
+  "lib": "Resistor_SMD:R_0603_1608Metric",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "net": "hb_bufo",
+    "num": "1",
+    "type": "smd",
+    "w": 0.8,
+    "x": -0.825,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "net": "hb_s",
+    "num": "2",
+    "type": "smd",
+    "w": 0.8,
+    "x": 0.825,
+    "y": 0.0
+   }
+  ],
+  "rot": 180.0,
+  "x": 90.25,
+  "y": 132.0
+ },
+ "R133": {
+  "layer": "F.Cu",
+  "lib": "Resistor_SMD:R_0603_1608Metric",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "net": "hb_hold",
+    "num": "1",
+    "type": "smd",
+    "w": 0.8,
+    "x": -0.825,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "net": "selv_gnd",
+    "num": "2",
+    "type": "smd",
+    "w": 0.8,
+    "x": 0.825,
+    "y": 0.0
+   }
+  ],
+  "rot": 180.0,
+  "x": 78.4,
+  "y": 137.7
+ },
+ "R134": {
+  "layer": "F.Cu",
+  "lib": "Resistor_SMD:R_0603_1608Metric",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "net": "bus_fault_iso",
+    "num": "1",
+    "type": "smd",
+    "w": 0.8,
+    "x": -0.825,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "net": "bus_fault_flt",
+    "num": "2",
+    "type": "smd",
+    "w": 0.8,
+    "x": 0.825,
+    "y": 0.0
+   }
+  ],
+  "rot": 180.0,
+  "x": 35.0,
+  "y": 133.5
  },
  "R14": {
   "layer": "F.Cu",
@@ -9332,35 +9322,6 @@
   "x": 116.925,
   "y": 109.535
  },
- "R89": {
-  "layer": "F.Cu",
-  "lib": "Resistor_SMD:R_0603_1608Metric",
-  "pads": [
-   {
-    "ang": 0.0,
-    "h": 0.95,
-    "net": "monitor_ls-ref",
-    "num": "1",
-    "type": "smd",
-    "w": 0.8,
-    "x": -0.825,
-    "y": 0.0
-   },
-   {
-    "ang": 0.0,
-    "h": 0.95,
-    "net": "monitor_ls-good",
-    "num": "2",
-    "type": "smd",
-    "w": 0.8,
-    "x": 0.825,
-    "y": 0.0
-   }
-  ],
-  "rot": 0.0,
-  "x": 102.525,
-  "y": 109.535
- },
  "R9": {
   "layer": "F.Cu",
   "lib": "Resistor_SMD:R_0603_1608Metric",
@@ -9390,35 +9351,6 @@
   "x": 76.525,
   "y": 68.165
  },
- "R90": {
-  "layer": "F.Cu",
-  "lib": "Resistor_SMD:R_0603_1608Metric",
-  "pads": [
-   {
-    "ang": 0.0,
-    "h": 0.95,
-    "net": "monitor_ls-base",
-    "num": "1",
-    "type": "smd",
-    "w": 0.8,
-    "x": -0.825,
-    "y": 0.0
-   },
-   {
-    "ang": 0.0,
-    "h": 0.95,
-    "net": "n_ls",
-    "num": "2",
-    "type": "smd",
-    "w": 0.8,
-    "x": 0.825,
-    "y": 0.0
-   }
-  ],
-  "rot": 0.0,
-  "x": 109.725,
-  "y": 107.435
- },
  "R91": {
   "layer": "F.Cu",
   "lib": "Resistor_SMD:R_0603_1608Metric",
@@ -9426,7 +9358,7 @@
    {
     "ang": 0.0,
     "h": 0.95,
-    "net": "monitor_ls-v5",
+    "net": "ls_v5",
     "num": "1",
     "type": "smd",
     "w": 0.8,
@@ -9436,7 +9368,7 @@
    {
     "ang": 0.0,
     "h": 0.95,
-    "net": "monitor_ls-isoin",
+    "net": "monitor_ls-good",
     "num": "2",
     "type": "smd",
     "w": 0.8,
@@ -9812,8 +9744,8 @@
    }
   ],
   "rot": 0.0,
-  "x": 4.461,
-  "y": 113.496
+  "x": 14.35,
+  "y": 114.585
  },
  "TP12": {
   "layer": "B.Cu",
@@ -9835,7 +9767,7 @@
   "y": 131.782
  },
  "TP13": {
-  "layer": "F.Cu",
+  "layer": "B.Cu",
   "lib": "TestPoint_Pad_D1.0mm",
   "pads": [
    {
@@ -9850,8 +9782,8 @@
    }
   ],
   "rot": 0.0,
-  "x": 78.3,
-  "y": 122.175
+  "x": 11.248,
+  "y": 128.287
  },
  "TP14": {
   "layer": "B.Cu",
@@ -9869,8 +9801,8 @@
    }
   ],
   "rot": 0.0,
-  "x": 78.3,
-  "y": 105.875
+  "x": 57.793,
+  "y": 155.382
  },
  "TP15": {
   "layer": "B.Cu",
@@ -9892,7 +9824,7 @@
   "y": 60.768
  },
  "TP16": {
-  "layer": "B.Cu",
+  "layer": "F.Cu",
   "lib": "TestPoint_Pad_D1.0mm",
   "pads": [
    {
@@ -9907,8 +9839,8 @@
    }
   ],
   "rot": 0.0,
-  "x": 55.674,
-  "y": 175.413
+  "x": 34.354,
+  "y": 124.154
  },
  "TP17": {
   "layer": "F.Cu",
@@ -9917,7 +9849,7 @@
    {
     "ang": 0.0,
     "h": 1.0,
-    "net": "permit",
+    "net": "pwm_lb",
     "num": "1",
     "type": "smd",
     "w": 1.0,
@@ -9926,8 +9858,8 @@
    }
   ],
   "rot": 0.0,
-  "x": 79.4,
-  "y": 120.1
+  "x": 36.225,
+  "y": 125.7
  },
  "TP18": {
   "layer": "B.Cu",
@@ -9964,11 +9896,11 @@
    }
   ],
   "rot": 0.0,
-  "x": 25.477,
-  "y": 127.136
+  "x": 33.2,
+  "y": 70.4
  },
  "TP2": {
-  "layer": "F.Cu",
+  "layer": "B.Cu",
   "lib": "TestPoint_Pad_D1.0mm",
   "pads": [
    {
@@ -9983,8 +9915,8 @@
    }
   ],
   "rot": 0.0,
-  "x": 105.825,
-  "y": 86.695
+  "x": 113.625,
+  "y": 89.295
  },
  "TP20": {
   "layer": "B.Cu",
@@ -10002,8 +9934,8 @@
    }
   ],
   "rot": 0.0,
-  "x": 35.172,
-  "y": 133.595
+  "x": 34.818,
+  "y": 132.341
  },
  "TP21": {
   "layer": "B.Cu",
@@ -10021,8 +9953,8 @@
    }
   ],
   "rot": 0.0,
-  "x": 27.968,
-  "y": 131.061
+  "x": 30.089,
+  "y": 133.181999
  },
  "TP22": {
   "layer": "B.Cu",
@@ -10063,6 +9995,25 @@
   "y": 41.735
  },
  "TP24": {
+  "layer": "B.Cu",
+  "lib": "TestPoint_Pad_D1.0mm",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 1.0,
+    "net": "leg_ret",
+    "num": "1",
+    "type": "smd",
+    "w": 1.0,
+    "x": 0.0,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 115.515,
+  "y": 88.095
+ },
+ "TP25": {
   "layer": "F.Cu",
   "lib": "TestPoint_Pad_D1.0mm",
   "pads": [
@@ -10078,10 +10029,10 @@
    }
   ],
   "rot": 0.0,
-  "x": 111.732,
-  "y": 90.063
+  "x": 112.9,
+  "y": 96.295
  },
- "TP25": {
+ "TP26": {
   "layer": "B.Cu",
   "lib": "TestPoint_Pad_D1.0mm",
   "pads": [
@@ -10100,7 +10051,7 @@
   "x": 116.4,
   "y": 81.05
  },
- "TP26": {
+ "TP27": {
   "layer": "B.Cu",
   "lib": "TestPoint_Pad_D1.0mm",
   "pads": [
@@ -10119,7 +10070,7 @@
   "x": 117.225,
   "y": 73.695
  },
- "TP27": {
+ "TP28": {
   "layer": "F.Cu",
   "lib": "TestPoint_Pad_D1.0mm",
   "pads": [
@@ -10138,7 +10089,7 @@
   "x": 119.274,
   "y": 60.395
  },
- "TP28": {
+ "TP29": {
   "layer": "B.Cu",
   "lib": "TestPoint_Pad_D1.0mm",
   "pads": [
@@ -10157,7 +10108,26 @@
   "x": 103.75,
   "y": 74.095
  },
- "TP29": {
+ "TP3": {
+  "layer": "F.Cu",
+  "lib": "TestPoint_Pad_D1.0mm",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 1.0,
+    "net": "v15_ls",
+    "num": "1",
+    "type": "smd",
+    "w": 1.0,
+    "x": 0.0,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 113.05,
+  "y": 98.595
+ },
+ "TP30": {
   "layer": "F.Cu",
   "lib": "TestPoint_Pad_D1.0mm",
   "pads": [
@@ -10176,26 +10146,7 @@
   "x": 62.487,
   "y": 49.9
  },
- "TP3": {
-  "layer": "F.Cu",
-  "lib": "TestPoint_Pad_D1.0mm",
-  "pads": [
-   {
-    "ang": 0.0,
-    "h": 1.0,
-    "net": "v15_ls",
-    "num": "1",
-    "type": "smd",
-    "w": 1.0,
-    "x": 0.0,
-    "y": 0.0
-   }
-  ],
-  "rot": 0.0,
-  "x": 107.47,
-  "y": 90.595
- },
- "TP30": {
+ "TP31": {
   "layer": "B.Cu",
   "lib": "TestPoint_Pad_D1.0mm",
   "pads": [
@@ -10214,7 +10165,26 @@
   "x": 2.0,
   "y": 112.085
  },
- "TP31": {
+ "TP32": {
+  "layer": "B.Cu",
+  "lib": "TestPoint_Pad_D1.0mm",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 1.0,
+    "net": "sw_b",
+    "num": "1",
+    "type": "smd",
+    "w": 1.0,
+    "x": 0.0,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 14.476,
+  "y": 118.011
+ },
+ "TP33": {
   "layer": "B.Cu",
   "lib": "TestPoint_Pad_D1.0mm",
   "pads": [
@@ -10233,26 +10203,7 @@
   "x": 130.692,
   "y": 128.584
  },
- "TP32": {
-  "layer": "F.Cu",
-  "lib": "TestPoint_Pad_D1.0mm",
-  "pads": [
-   {
-    "ang": 0.0,
-    "h": 1.0,
-    "net": "selv_gnd",
-    "num": "1",
-    "type": "smd",
-    "w": 1.0,
-    "x": 0.0,
-    "y": 0.0
-   }
-  ],
-  "rot": 0.0,
-  "x": 86.954,
-  "y": 125.124
- },
- "TP33": {
+ "TP34": {
   "layer": "B.Cu",
   "lib": "TestPoint_Pad_D1.0mm",
   "pads": [
@@ -10268,10 +10219,29 @@
    }
   ],
   "rot": 0.0,
-  "x": 76.762,
-  "y": 104.268
+  "x": 8.898,
+  "y": 127.836
  },
- "TP34": {
+ "TP35": {
+  "layer": "B.Cu",
+  "lib": "TestPoint_Pad_D1.0mm",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 1.0,
+    "net": "selv_gnd",
+    "num": "1",
+    "type": "smd",
+    "w": 1.0,
+    "x": 0.0,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 59.675,
+  "y": 157.38
+ },
+ "TP36": {
   "layer": "B.Cu",
   "lib": "TestPoint_Pad_D1.0mm",
   "pads": [
@@ -10290,8 +10260,8 @@
   "x": 80.328,
   "y": 63.02
  },
- "TP35": {
-  "layer": "B.Cu",
+ "TP37": {
+  "layer": "F.Cu",
   "lib": "TestPoint_Pad_D1.0mm",
   "pads": [
    {
@@ -10306,10 +10276,10 @@
    }
   ],
   "rot": 0.0,
-  "x": 59.475,
-  "y": 175.0
+  "x": 30.123,
+  "y": 125.1
  },
- "TP36": {
+ "TP38": {
   "layer": "B.Cu",
   "lib": "TestPoint_Pad_D1.0mm",
   "pads": [
@@ -10328,7 +10298,7 @@
   "x": 30.35,
   "y": 69.665
  },
- "TP37": {
+ "TP39": {
   "layer": "B.Cu",
   "lib": "TestPoint_Pad_D1.0mm",
   "pads": [
@@ -10344,8 +10314,8 @@
    }
   ],
   "rot": 0.0,
-  "x": 27.633,
-  "y": 127.6
+  "x": 27.675,
+  "y": 132.865
  },
  "TP4": {
   "layer": "B.Cu",
@@ -10794,7 +10764,7 @@
    {
     "ang": 0.0,
     "h": 0.6,
-    "net": "bus_fault_iso",
+    "net": "bus_fault_flt",
     "num": "1",
     "type": "smd",
     "w": 1.325,
@@ -11542,75 +11512,6 @@
   ],
   "rot": 0.0,
   "x": 8.885,
-  "y": 129.745
- },
- "U25": {
-  "layer": "F.Cu",
-  "lib": "Package_TO_SOT_SMD:SOT-23-6",
-  "pads": [
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "bias_ls_bad",
-    "num": "1",
-    "type": "smd",
-    "w": 1.325,
-    "x": -1.1375,
-    "y": -0.95
-   },
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "selv_gnd",
-    "num": "2",
-    "type": "smd",
-    "w": 1.325,
-    "x": -1.1375,
-    "y": 0.0
-   },
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "bias_ha_bad",
-    "num": "3",
-    "type": "smd",
-    "w": 1.325,
-    "x": -1.1375,
-    "y": 0.95
-   },
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "bias_bad_raw",
-    "num": "4",
-    "type": "smd",
-    "w": 1.325,
-    "x": 1.1375,
-    "y": 0.95
-   },
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "v3v3",
-    "num": "5",
-    "type": "smd",
-    "w": 1.325,
-    "x": 1.1375,
-    "y": 0.0
-   },
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "bias_hb_bad",
-    "num": "6",
-    "type": "smd",
-    "w": 1.325,
-    "x": 1.1375,
-    "y": -0.95
-   }
-  ],
-  "rot": 0.0,
-  "x": 4.094999,
   "y": 129.745
  },
  "U26": {
@@ -12395,7 +12296,7 @@
    {
     "ang": 0.0,
     "h": 0.6,
-    "net": "monitor_ls.iso-nc2",
+    "net": "hb.iso-nc2",
     "num": "2",
     "type": "smd",
     "w": 1.65,
@@ -12405,7 +12306,7 @@
    {
     "ang": 0.0,
     "h": 0.6,
-    "net": "monitor_ls-v5",
+    "net": "ls_v5",
     "num": "3",
     "type": "smd",
     "w": 1.65,
@@ -12415,7 +12316,7 @@
    {
     "ang": 0.0,
     "h": 0.6,
-    "net": "monitor_ls-isoin",
+    "net": "hb_tx",
     "num": "4",
     "type": "smd",
     "w": 1.65,
@@ -12425,7 +12326,7 @@
    {
     "ang": 0.0,
     "h": 0.6,
-    "net": "monitor_ls.iso-nc5",
+    "net": "hb.iso-nc5",
     "num": "5",
     "type": "smd",
     "w": 1.65,
@@ -12435,7 +12336,7 @@
    {
     "ang": 0.0,
     "h": 0.6,
-    "net": "monitor_ls.iso-nc6",
+    "net": "hb.iso-nc6",
     "num": "6",
     "type": "smd",
     "w": 1.65,
@@ -12455,7 +12356,7 @@
    {
     "ang": 0.0,
     "h": 0.6,
-    "net": "monitor_ls.iso-nc8",
+    "net": "hb.iso-nc8",
     "num": "8",
     "type": "smd",
     "w": 1.65,
@@ -12475,7 +12376,7 @@
    {
     "ang": 0.0,
     "h": 0.6,
-    "net": "monitor_ls.iso-nc10",
+    "net": "hb.iso-nc10",
     "num": "10",
     "type": "smd",
     "w": 1.65,
@@ -12485,7 +12386,7 @@
    {
     "ang": 0.0,
     "h": 0.6,
-    "net": "monitor_ls.iso-nc11",
+    "net": "hb.iso-nc11",
     "num": "11",
     "type": "smd",
     "w": 1.65,
@@ -12495,7 +12396,7 @@
    {
     "ang": 0.0,
     "h": 0.6,
-    "net": "monitor_ls.iso-nc12",
+    "net": "hb.iso-nc12",
     "num": "12",
     "type": "smd",
     "w": 1.65,
@@ -12505,7 +12406,7 @@
    {
     "ang": 0.0,
     "h": 0.6,
-    "net": "bias_ls_bad",
+    "net": "hb_rx",
     "num": "13",
     "type": "smd",
     "w": 1.65,
@@ -12525,7 +12426,7 @@
    {
     "ang": 0.0,
     "h": 0.6,
-    "net": "monitor_ls.iso-nc15",
+    "net": "hb.iso-nc15",
     "num": "15",
     "type": "smd",
     "w": 1.65,
@@ -12546,344 +12447,6 @@
   "rot": -90.0,
   "x": 95.0,
   "y": 121.0
- },
- "U33": {
-  "layer": "F.Cu",
-  "lib": "lib:SOIC16W_DW0016B_HV",
-  "pads": [
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "n_ha",
-    "num": "1",
-    "type": "smd",
-    "w": 1.65,
-    "x": -4.875,
-    "y": -4.445
-   },
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "bias_ha.monitor.iso-nc2",
-    "num": "2",
-    "type": "smd",
-    "w": 1.65,
-    "x": -4.875,
-    "y": -3.175
-   },
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "bias_ha.monitor-v5",
-    "num": "3",
-    "type": "smd",
-    "w": 1.65,
-    "x": -4.875,
-    "y": -1.905
-   },
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "bias_ha.monitor-isoin",
-    "num": "4",
-    "type": "smd",
-    "w": 1.65,
-    "x": -4.875,
-    "y": -0.635
-   },
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "bias_ha.monitor.iso-nc5",
-    "num": "5",
-    "type": "smd",
-    "w": 1.65,
-    "x": -4.875,
-    "y": 0.635
-   },
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "bias_ha.monitor.iso-nc6",
-    "num": "6",
-    "type": "smd",
-    "w": 1.65,
-    "x": -4.875,
-    "y": 1.905
-   },
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "n_ha",
-    "num": "7",
-    "type": "smd",
-    "w": 1.65,
-    "x": -4.875,
-    "y": 3.175
-   },
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "bias_ha.monitor.iso-nc8",
-    "num": "8",
-    "type": "smd",
-    "w": 1.65,
-    "x": -4.875,
-    "y": 4.445
-   },
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "selv_gnd",
-    "num": "9",
-    "type": "smd",
-    "w": 1.65,
-    "x": 4.875,
-    "y": 4.445
-   },
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "bias_ha.monitor.iso-nc10",
-    "num": "10",
-    "type": "smd",
-    "w": 1.65,
-    "x": 4.875,
-    "y": 3.175
-   },
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "bias_ha.monitor.iso-nc11",
-    "num": "11",
-    "type": "smd",
-    "w": 1.65,
-    "x": 4.875,
-    "y": 1.905
-   },
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "bias_ha.monitor.iso-nc12",
-    "num": "12",
-    "type": "smd",
-    "w": 1.65,
-    "x": 4.875,
-    "y": 0.635
-   },
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "bias_ha_bad",
-    "num": "13",
-    "type": "smd",
-    "w": 1.65,
-    "x": 4.875,
-    "y": -0.635
-   },
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "v3v3",
-    "num": "14",
-    "type": "smd",
-    "w": 1.65,
-    "x": 4.875,
-    "y": -1.905
-   },
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "bias_ha.monitor.iso-nc15",
-    "num": "15",
-    "type": "smd",
-    "w": 1.65,
-    "x": 4.875,
-    "y": -3.175
-   },
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "selv_gnd",
-    "num": "16",
-    "type": "smd",
-    "w": 1.65,
-    "x": 4.875,
-    "y": -4.445
-   }
-  ],
-  "rot": 0.0,
-  "x": 70.6,
-  "y": 110.0
- },
- "U34": {
-  "layer": "F.Cu",
-  "lib": "lib:SOIC16W_DW0016B_HV",
-  "pads": [
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "n_hb",
-    "num": "1",
-    "type": "smd",
-    "w": 1.65,
-    "x": -4.875,
-    "y": -4.445
-   },
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "bias_hb.monitor.iso-nc2",
-    "num": "2",
-    "type": "smd",
-    "w": 1.65,
-    "x": -4.875,
-    "y": -3.175
-   },
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "bias_hb.monitor-v5",
-    "num": "3",
-    "type": "smd",
-    "w": 1.65,
-    "x": -4.875,
-    "y": -1.905
-   },
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "bias_hb.monitor-isoin",
-    "num": "4",
-    "type": "smd",
-    "w": 1.65,
-    "x": -4.875,
-    "y": -0.635
-   },
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "bias_hb.monitor.iso-nc5",
-    "num": "5",
-    "type": "smd",
-    "w": 1.65,
-    "x": -4.875,
-    "y": 0.635
-   },
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "bias_hb.monitor.iso-nc6",
-    "num": "6",
-    "type": "smd",
-    "w": 1.65,
-    "x": -4.875,
-    "y": 1.905
-   },
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "n_hb",
-    "num": "7",
-    "type": "smd",
-    "w": 1.65,
-    "x": -4.875,
-    "y": 3.175
-   },
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "bias_hb.monitor.iso-nc8",
-    "num": "8",
-    "type": "smd",
-    "w": 1.65,
-    "x": -4.875,
-    "y": 4.445
-   },
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "selv_gnd",
-    "num": "9",
-    "type": "smd",
-    "w": 1.65,
-    "x": 4.875,
-    "y": 4.445
-   },
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "bias_hb.monitor.iso-nc10",
-    "num": "10",
-    "type": "smd",
-    "w": 1.65,
-    "x": 4.875,
-    "y": 3.175
-   },
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "bias_hb.monitor.iso-nc11",
-    "num": "11",
-    "type": "smd",
-    "w": 1.65,
-    "x": 4.875,
-    "y": 1.905
-   },
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "bias_hb.monitor.iso-nc12",
-    "num": "12",
-    "type": "smd",
-    "w": 1.65,
-    "x": 4.875,
-    "y": 0.635
-   },
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "bias_hb_bad",
-    "num": "13",
-    "type": "smd",
-    "w": 1.65,
-    "x": 4.875,
-    "y": -0.635
-   },
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "v3v3",
-    "num": "14",
-    "type": "smd",
-    "w": 1.65,
-    "x": 4.875,
-    "y": -1.905
-   },
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "bias_hb.monitor.iso-nc15",
-    "num": "15",
-    "type": "smd",
-    "w": 1.65,
-    "x": 4.875,
-    "y": -3.175
-   },
-   {
-    "ang": 0.0,
-    "h": 0.6,
-    "net": "selv_gnd",
-    "num": "16",
-    "type": "smd",
-    "w": 1.65,
-    "x": 4.875,
-    "y": -4.445
-   }
-  ],
-  "rot": 0.0,
-  "x": 25.6,
-  "y": 110.0
  },
  "U36": {
   "layer": "F.Cu",
@@ -12981,7 +12544,7 @@
    {
     "ang": 0.0,
     "h": 0.6,
-    "net": "monitor_ls-v5",
+    "net": "ls_v5",
     "num": "5",
     "type": "smd",
     "w": 1.325,
@@ -13217,7 +12780,7 @@
    {
     "ang": 0.0,
     "h": 0.6,
-    "net": "bias_bad_flt",
+    "net": "hb_hold",
     "num": "2",
     "type": "smd",
     "w": 1.325,
@@ -13255,9 +12818,9 @@
     "y": -0.95
    }
   ],
-  "rot": 0.0,
-  "x": 13.675,
-  "y": 129.745
+  "rot": 180.0,
+  "x": 74.6,
+  "y": 132.949999
  },
  "U41": {
   "layer": "F.Cu",
@@ -13996,6 +13559,382 @@
   "rot": -90.0,
   "x": 10.2,
   "y": 61.2
+ },
+ "U43": {
+  "layer": "F.Cu",
+  "lib": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 0.6,
+    "net": "bias_ha.monitor-v5",
+    "num": "1",
+    "type": "smd",
+    "w": 1.95,
+    "x": -2.475,
+    "y": -1.905
+   },
+   {
+    "ang": 0.0,
+    "h": 0.6,
+    "net": "outa_nc",
+    "num": "2",
+    "type": "smd",
+    "w": 1.95,
+    "x": -2.475,
+    "y": -0.635
+   },
+   {
+    "ang": 0.0,
+    "h": 0.6,
+    "net": "bias_ha.monitor-good",
+    "num": "3",
+    "type": "smd",
+    "w": 1.95,
+    "x": -2.475,
+    "y": 0.635
+   },
+   {
+    "ang": 0.0,
+    "h": 0.6,
+    "net": "n_ha",
+    "num": "4",
+    "type": "smd",
+    "w": 1.95,
+    "x": -2.475,
+    "y": 1.905
+   },
+   {
+    "ang": 0.0,
+    "h": 0.6,
+    "net": "n_ls",
+    "num": "5",
+    "type": "smd",
+    "w": 1.95,
+    "x": 2.475,
+    "y": 1.905
+   },
+   {
+    "ang": 0.0,
+    "h": 0.6,
+    "net": "mon_good_ha",
+    "num": "6",
+    "type": "smd",
+    "w": 1.95,
+    "x": 2.475,
+    "y": 0.635
+   },
+   {
+    "ang": 0.0,
+    "h": 0.6,
+    "net": "n_ls",
+    "num": "7",
+    "type": "smd",
+    "w": 1.95,
+    "x": 2.475,
+    "y": -0.635
+   },
+   {
+    "ang": 0.0,
+    "h": 0.6,
+    "net": "ls_v5",
+    "num": "8",
+    "type": "smd",
+    "w": 1.95,
+    "x": 2.475,
+    "y": -1.905
+   }
+  ],
+  "rot": 90.0,
+  "x": 47.0,
+  "y": 66.25
+ },
+ "U44": {
+  "layer": "F.Cu",
+  "lib": "lib:SOIC16W_DW0016B_HV",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 0.6,
+    "net": "n_hb",
+    "num": "1",
+    "type": "smd",
+    "w": 1.65,
+    "x": -4.875,
+    "y": -4.445
+   },
+   {
+    "ang": 0.0,
+    "h": 0.6,
+    "net": "bias_hb.verdict-nc2",
+    "num": "2",
+    "type": "smd",
+    "w": 1.65,
+    "x": -4.875,
+    "y": -3.175
+   },
+   {
+    "ang": 0.0,
+    "h": 0.6,
+    "net": "bias_hb.monitor-v5",
+    "num": "3",
+    "type": "smd",
+    "w": 1.65,
+    "x": -4.875,
+    "y": -1.905
+   },
+   {
+    "ang": 0.0,
+    "h": 0.6,
+    "net": "bias_hb.monitor-good",
+    "num": "4",
+    "type": "smd",
+    "w": 1.65,
+    "x": -4.875,
+    "y": -0.635
+   },
+   {
+    "ang": 0.0,
+    "h": 0.6,
+    "net": "bias_hb.verdict-nc5",
+    "num": "5",
+    "type": "smd",
+    "w": 1.65,
+    "x": -4.875,
+    "y": 0.635
+   },
+   {
+    "ang": 0.0,
+    "h": 0.6,
+    "net": "bias_hb.verdict-nc6",
+    "num": "6",
+    "type": "smd",
+    "w": 1.65,
+    "x": -4.875,
+    "y": 1.905
+   },
+   {
+    "ang": 0.0,
+    "h": 0.6,
+    "net": "n_hb",
+    "num": "7",
+    "type": "smd",
+    "w": 1.65,
+    "x": -4.875,
+    "y": 3.175
+   },
+   {
+    "ang": 0.0,
+    "h": 0.6,
+    "net": "bias_hb.verdict-nc8",
+    "num": "8",
+    "type": "smd",
+    "w": 1.65,
+    "x": -4.875,
+    "y": 4.445
+   },
+   {
+    "ang": 0.0,
+    "h": 0.6,
+    "net": "selv_gnd",
+    "num": "9",
+    "type": "smd",
+    "w": 1.65,
+    "x": 4.875,
+    "y": 4.445
+   },
+   {
+    "ang": 0.0,
+    "h": 0.6,
+    "net": "bias_hb.verdict-nc10",
+    "num": "10",
+    "type": "smd",
+    "w": 1.65,
+    "x": 4.875,
+    "y": 3.175
+   },
+   {
+    "ang": 0.0,
+    "h": 0.6,
+    "net": "bias_hb.verdict-nc11",
+    "num": "11",
+    "type": "smd",
+    "w": 1.65,
+    "x": 4.875,
+    "y": 1.905
+   },
+   {
+    "ang": 0.0,
+    "h": 0.6,
+    "net": "bias_hb.verdict-nc12",
+    "num": "12",
+    "type": "smd",
+    "w": 1.65,
+    "x": 4.875,
+    "y": 0.635
+   },
+   {
+    "ang": 0.0,
+    "h": 0.6,
+    "net": "hsb_good",
+    "num": "13",
+    "type": "smd",
+    "w": 1.65,
+    "x": 4.875,
+    "y": -0.635
+   },
+   {
+    "ang": 0.0,
+    "h": 0.6,
+    "net": "v3v3",
+    "num": "14",
+    "type": "smd",
+    "w": 1.65,
+    "x": 4.875,
+    "y": -1.905
+   },
+   {
+    "ang": 0.0,
+    "h": 0.6,
+    "net": "bias_hb.verdict-nc15",
+    "num": "15",
+    "type": "smd",
+    "w": 1.65,
+    "x": 4.875,
+    "y": -3.175
+   },
+   {
+    "ang": 0.0,
+    "h": 0.6,
+    "net": "selv_gnd",
+    "num": "16",
+    "type": "smd",
+    "w": 1.65,
+    "x": 4.875,
+    "y": -4.445
+   }
+  ],
+  "rot": 0.0,
+  "x": 25.6,
+  "y": 110.0
+ },
+ "U45": {
+  "layer": "F.Cu",
+  "lib": "Package_TO_SOT_SMD:SOT-23-5",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 0.6,
+    "net": "monitor_ls-good",
+    "num": "1",
+    "type": "smd",
+    "w": 1.325,
+    "x": -1.1375,
+    "y": -0.95
+   },
+   {
+    "ang": 0.0,
+    "h": 0.6,
+    "net": "hb_rc",
+    "num": "2",
+    "type": "smd",
+    "w": 1.325,
+    "x": -1.1375,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 0.6,
+    "net": "n_ls",
+    "num": "3",
+    "type": "smd",
+    "w": 1.325,
+    "x": -1.1375,
+    "y": 0.95
+   },
+   {
+    "ang": 0.0,
+    "h": 0.6,
+    "net": "hb_tx",
+    "num": "4",
+    "type": "smd",
+    "w": 1.325,
+    "x": 1.1375,
+    "y": 0.95
+   },
+   {
+    "ang": 0.0,
+    "h": 0.6,
+    "net": "ls_v5",
+    "num": "5",
+    "type": "smd",
+    "w": 1.325,
+    "x": 1.1375,
+    "y": -0.95
+   }
+  ],
+  "rot": 90.0,
+  "x": 102.5,
+  "y": 100.25
+ },
+ "U46": {
+  "layer": "F.Cu",
+  "lib": "Package_TO_SOT_SMD:SOT-23-5",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 0.6,
+    "net": "hsb_good",
+    "num": "1",
+    "type": "smd",
+    "w": 1.325,
+    "x": -1.1375,
+    "y": -0.95
+   },
+   {
+    "ang": 0.0,
+    "h": 0.6,
+    "net": "hb_rx",
+    "num": "2",
+    "type": "smd",
+    "w": 1.325,
+    "x": -1.1375,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 0.6,
+    "net": "selv_gnd",
+    "num": "3",
+    "type": "smd",
+    "w": 1.325,
+    "x": -1.1375,
+    "y": 0.95
+   },
+   {
+    "ang": 0.0,
+    "h": 0.6,
+    "net": "hb_bufo",
+    "num": "4",
+    "type": "smd",
+    "w": 1.325,
+    "x": 1.1375,
+    "y": 0.95
+   },
+   {
+    "ang": 0.0,
+    "h": 0.6,
+    "net": "v3v3",
+    "num": "5",
+    "type": "smd",
+    "w": 1.325,
+    "x": 1.1375,
+    "y": -0.95
+   }
+  ],
+  "rot": 180.0,
+  "x": 94.5,
+  "y": 132.0
  },
  "U5": {
   "layer": "F.Cu",

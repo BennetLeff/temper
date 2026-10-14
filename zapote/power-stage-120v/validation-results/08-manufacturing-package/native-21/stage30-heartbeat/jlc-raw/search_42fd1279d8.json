@@ -1,0 +1,371 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 2,
+   "list": [
+    {
+     "componentId": 5912171,
+     "componentLibraryType": "expand",
+     "stockCount": 5306,
+     "componentTypeEn": "Digital Isolators",
+     "erpComponentName": "\u901a\u7528\u53cc\u901a\u9053\u30011/1 \u6570\u5b57\u9694\u79bb\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/digital-isolators_texas-instruments-iso6721fbdr_C5216431.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.7407
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.5971
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.5253
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.4536
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.4111
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.3883
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.3741
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.5061
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.7135
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.3961
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.4369
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.5752
+      }
+     ],
+     "firstSortAccessId": "3093ee1310f442ff9f461d8d2841c5a8",
+     "secondSortAccessId": "c5eda6b029a14b24b3153a4b8d77a017",
+     "canPresaleNumber": 5304,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-ISO6721FBDR/C5216431",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 2.04475,
+     "preMinPurchaseNum": 16,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.7407,
+     "componentCode": "C5216431",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "ISO6721FBDR",
+     "componentImageUrl": "https://assets.lcsc.com/images/lcsc/900x900/20240218_Texas-Instruments-ISO6721FBDR_C5216431_front.jpg",
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2410121729_Texas-Instruments-ISO6721FBDR_C5216431.pdf",
+     "dataManualFileAccessId": "8590920605325869056",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/iso6721r",
+     "componentName": "TI ISO6721FBDR",
+     "minImage": "https://assets.lcsc.com/images/lcsc/96x96/20240218_Texas-Instruments-ISO6721FBDR_C5216431_front.jpg",
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": "https://assets.lcsc.com/images/lcsc/96x96/20240218_Texas-Instruments-ISO6721FBDR_C5216431_front.jpg",
+       "productImageAccessId": null,
+       "productBigImage": "https://assets.lcsc.com/images/lcsc/900x900/20240218_Texas-Instruments-ISO6721FBDR_C5216431_front.jpg",
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": "https://assets.lcsc.com/images/lcsc/96x96/20240218_Texas-Instruments-ISO6721FBDR_C5216431_back.jpg",
+       "productImageAccessId": null,
+       "productBigImage": "https://assets.lcsc.com/images/lcsc/900x900/20240218_Texas-Instruments-ISO6721FBDR_C5216431_back.jpg",
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": "https://assets.lcsc.com/images/lcsc/96x96/20240218_Texas-Instruments-ISO6721FBDR_C5216431_blank.jpg",
+       "productImageAccessId": null,
+       "productBigImage": "https://assets.lcsc.com/images/lcsc/900x900/20240218_Texas-Instruments-ISO6721FBDR_C5216431_blank.jpg",
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-8",
+     "describe": "-40\u2103~+125\u2103 1 1 11ns 150kV/us 2.25V~5.5V 2.25V~5.5V 3000 50Mbps Low Level SOIC-8 Digital Isolators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Default Output",
+       "attribute_value_name": "Low Level"
+      },
+      {
+       "attribute_name_en": "Number of Forward Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Data Rate(Max)",
+       "attribute_value_name": "50Mbps"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCA)",
+       "attribute_value_name": "2.25V~5.5V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply(VCCB)",
+       "attribute_value_name": "2.25V~5.5V"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "3000"
+      },
+      {
+       "attribute_name_en": "Propagation Delay(tpd)",
+       "attribute_value_name": "11ns"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Fail-safe output"
+      },
+      {
+       "attribute_name_en": "Number of Reverse Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "150kV/us"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Digital Isolators",
+     "secondSortName": "Signal Isolation Devices",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ISO6721FBDR</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 60327055,
+     "componentLibraryType": "expand",
+     "stockCount": 2500,
+     "componentTypeEn": "Digital Isolators",
+     "erpComponentName": "ISO6721FBDR-HX",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.4324
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.3426
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.3035
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.2545
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2333
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2203
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2122
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.2923
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.4165
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.2452
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2248
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.3301
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 2500,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "ZHHXDZ-ISO6721FBDRHX/C56130071",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 2500,
+     "shopCostPrice": 1.1,
+     "preMinPurchaseNum": 27,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.4324,
+     "componentCode": "C56130071",
+     "componentBrandEn": "ZHHXDZ",
+     "componentModelEn": "ISO6721FBDR-HX",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "ZHHXDZ ISO6721FBDR-HX",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOP-8",
+     "describe": "SOP-8 Digital Isolators ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "Digital Isolators",
+     "secondSortName": "Signal Isolation Devices",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>ISO6721FBDR</span>-HX",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "ISO6721FBDR"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-14T16:24:07Z"
+}

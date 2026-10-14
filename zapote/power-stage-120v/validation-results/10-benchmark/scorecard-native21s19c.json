@@ -41,7 +41,7 @@
   "hand_or_consign_lines": 23,
   "tht_lines": 18,
   "parts_usd_at_5": 329.58,
-  "parts_usd_at_500": 231.94,
+  "parts_usd_at_500": 221.04,
   "unpriced_lines": [],
   "zero_stock_lines": 10,
   "single_source_lines": 17,
@@ -61,5 +61,10 @@
  },
  "backfilled": {
   "consign_lines": "2026-10-13, from the tag's fab/bom-jlcpcb.csv (r2-dfm P4)"
+ },
+ "restated": {
+  "date": "2026-10-14",
+  "parts_usd_at_500_as_scored": 231.94,
+  "reason": "KLDR025.TXP at $18.516 (DK 500 break), not $29.412 (the 10-piece break): DECISIONS 32 price correction, sourcing/STOCK-2026-10-13_pricefix-kldr.csv. Recomputed with scorecard.cost() on this tag's fab BOM and today's stock glob; the same call without the fix file reproduces the as-scored value."
  }
 }

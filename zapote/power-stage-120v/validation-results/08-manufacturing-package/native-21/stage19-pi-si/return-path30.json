@@ -1,0 +1,3092 @@
+{
+ "dump": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s30/b3/copper-dump.json",
+ "mode": "gate",
+ "transfer_limit_mm": 3.0,
+ "asserted": {
+  "plane": [
+   "bus_fault_hot",
+   "ct_zc",
+   "pwm_ha",
+   "pwm_hb",
+   "pwm_la",
+   "pwm_lb"
+  ],
+  "transfer": [
+   "ct_zc",
+   "pwm_ha",
+   "pwm_hb",
+   "pwm_la",
+   "pwm_lb"
+  ],
+  "max_transitions": {
+   "pwm_hb": 7,
+   "ct_zc": 1
+  }
+ },
+ "signals": {
+  "bus_fault_hot": {
+   "expected_return": [
+    "ocp_kelvin_p"
+   ],
+   "samples": 359,
+   "wrong_reference_samples": 0,
+   "wrong_first": [],
+   "no_reference_runs_over_limit": [],
+   "longest_no_reference_run_mm": 1.25,
+   "plane_crossings": [
+    {
+     "at": [
+      110.091,
+      62.6
+     ],
+     "layer": "F.Cu",
+     "from": "ocp_kelvin_p",
+     "to": null,
+     "coupled": null
+    },
+    {
+     "at": [
+      109.327,
+      62.6
+     ],
+     "layer": "F.Cu",
+     "from": null,
+     "to": "ocp_kelvin_p",
+     "coupled": null
+    },
+    {
+     "at": [
+      108.564,
+      62.6
+     ],
+     "layer": "F.Cu",
+     "from": "ocp_kelvin_p",
+     "to": null,
+     "coupled": null
+    },
+    {
+     "at": [
+      107.8,
+      62.6
+     ],
+     "layer": "F.Cu",
+     "from": null,
+     "to": "ocp_kelvin_p",
+     "coupled": null
+    },
+    {
+     "at": [
+      102.45,
+      75.153
+     ],
+     "layer": "B.Cu",
+     "from": "ocp_kelvin_p",
+     "to": null,
+     "coupled": "ocp_kelvin_p"
+    },
+    {
+     "at": [
+      102.45,
+      75.405
+     ],
+     "layer": "B.Cu",
+     "from": null,
+     "to": "n_ls",
+     "coupled": "ocp_kelvin_p"
+    },
+    {
+     "at": [
+      102.271,
+      83.667
+     ],
+     "layer": "B.Cu",
+     "from": "n_ls",
+     "to": null,
+     "coupled": "ocp_kelvin_p"
+    },
+    {
+     "at": [
+      102.2,
+      72.4
+     ],
+     "layer": "In2.Cu",
+     "from": "ocp_kelvin_p",
+     "to": null,
+     "coupled": null
+    }
+   ],
+   "transitions": [
+    {
+     "kind": "via",
+     "at": [
+      105.8,
+      64.6
+     ],
+     "layers": [
+      "F.Cu",
+      "In2.Cu"
+     ],
+     "refs": {
+      "F.Cu": {
+       "ref_layer": "In1.Cu",
+       "ref": "ocp_kelvin_p"
+      },
+      "In2.Cu": {
+       "ref_layer": "In1.Cu",
+       "ref": "ocp_kelvin_p"
+      }
+     }
+    },
+    {
+     "kind": "via",
+     "at": [
+      113.635,
+      114.5
+     ],
+     "layers": [
+      "F.Cu",
+      "In2.Cu"
+     ],
+     "refs": {
+      "F.Cu": {
+       "ref_layer": null,
+       "ref": null
+      },
+      "In2.Cu": {
+       "ref_layer": null,
+       "ref": null
+      }
+     },
+     "transfer": {
+      "cap": null,
+      "nets": [
+       "none"
+      ],
+      "mm": null
+     }
+    },
+    {
+     "kind": "via",
+     "at": [
+      101.1,
+      74.9
+     ],
+     "layers": [
+      "In2.Cu",
+      "B.Cu"
+     ],
+     "refs": {
+      "In2.Cu": {
+       "ref_layer": null,
+       "ref": null
+      },
+      "B.Cu": {
+       "ref_layer": null,
+       "ref": null
+      }
+     },
+     "transfer": {
+      "cap": null,
+      "nets": [
+       "none"
+      ],
+      "mm": null
+     }
+    },
+    {
+     "kind": "via",
+     "at": [
+      100.6,
+      114.0
+     ],
+     "layers": [
+      "In2.Cu",
+      "B.Cu"
+     ],
+     "refs": {
+      "In2.Cu": {
+       "ref_layer": null,
+       "ref": null
+      },
+      "B.Cu": {
+       "ref_layer": null,
+       "ref": null
+      }
+     },
+     "transfer": {
+      "cap": null,
+      "nets": [
+       "none"
+      ],
+      "mm": null
+     }
+    }
+   ],
+   "layer_transitions": 4,
+   "reference_changes": [
+    {
+     "at": [
+      113.635,
+      114.5
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null
+    },
+    {
+     "at": [
+      101.1,
+      74.9
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null
+    },
+    {
+     "at": [
+      100.6,
+      114.0
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null
+    }
+   ],
+   "open_reference_changes": [
+    {
+     "at": [
+      113.635,
+      114.5
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null
+    },
+    {
+     "at": [
+      101.1,
+      74.9
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null
+    },
+    {
+     "at": [
+      100.6,
+      114.0
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null
+    }
+   ]
+  },
+  "ocp_ok_hot": {
+   "expected_return": [
+    "ocp_kelvin_p"
+   ],
+   "samples": 69,
+   "wrong_reference_samples": 0,
+   "wrong_first": [],
+   "no_reference_runs_over_limit": [],
+   "longest_no_reference_run_mm": 0.5,
+   "plane_crossings": [
+    {
+     "at": [
+      109.48,
+      53.595
+     ],
+     "layer": "B.Cu",
+     "from": null,
+     "to": "ocp_kelvin_p",
+     "coupled": null
+    }
+   ],
+   "transitions": [
+    {
+     "kind": "via",
+     "at": [
+      117.0,
+      54.995
+     ],
+     "layers": [
+      "F.Cu",
+      "B.Cu"
+     ],
+     "refs": {
+      "F.Cu": {
+       "ref_layer": null,
+       "ref": null
+      },
+      "B.Cu": {
+       "ref_layer": null,
+       "ref": null
+      }
+     },
+     "transfer": {
+      "cap": null,
+      "nets": [
+       "none"
+      ],
+      "mm": null
+     }
+    },
+    {
+     "kind": "via",
+     "at": [
+      103.8,
+      55.895
+     ],
+     "layers": [
+      "F.Cu",
+      "B.Cu"
+     ],
+     "refs": {
+      "F.Cu": {
+       "ref_layer": "In1.Cu",
+       "ref": "ocp_kelvin_p"
+      },
+      "B.Cu": {
+       "ref_layer": "In1.Cu",
+       "ref": "ocp_kelvin_p"
+      }
+     }
+    }
+   ],
+   "layer_transitions": 2,
+   "reference_changes": [
+    {
+     "at": [
+      117.0,
+      54.995
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null
+    }
+   ],
+   "open_reference_changes": [
+    {
+     "at": [
+      117.0,
+      54.995
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null
+    }
+   ]
+  },
+  "hot5_ok_hot": {
+   "expected_return": [
+    "ocp_kelvin_p"
+   ],
+   "samples": 86,
+   "wrong_reference_samples": 0,
+   "wrong_first": [],
+   "no_reference_runs_over_limit": [],
+   "longest_no_reference_run_mm": 0.75,
+   "plane_crossings": [
+    {
+     "at": [
+      120.552,
+      53.995
+     ],
+     "layer": "In2.Cu",
+     "from": null,
+     "to": "ocp_kelvin_p",
+     "coupled": null
+    },
+    {
+     "at": [
+      113.093,
+      54.535
+     ],
+     "layer": "In2.Cu",
+     "from": "ocp_kelvin_p",
+     "to": null,
+     "coupled": "ocp_kelvin_p"
+    },
+    {
+     "at": [
+      111.292,
+      56.335
+     ],
+     "layer": "In2.Cu",
+     "from": null,
+     "to": "ocp_kelvin_p",
+     "coupled": null
+    },
+    {
+     "at": [
+      106.9,
+      55.462
+     ],
+     "layer": "In2.Cu",
+     "from": "ocp_kelvin_p",
+     "to": null,
+     "coupled": "ocp_kelvin_p"
+    }
+   ],
+   "transitions": [
+    {
+     "kind": "via",
+     "at": [
+      121.833,
+      53.995
+     ],
+     "layers": [
+      "F.Cu",
+      "In2.Cu"
+     ],
+     "refs": {
+      "F.Cu": {
+       "ref_layer": "In1.Cu",
+       "ref": "ocp_kelvin_p"
+      },
+      "In2.Cu": {
+       "ref_layer": "In1.Cu",
+       "ref": "ocp_kelvin_p"
+      }
+     }
+    },
+    {
+     "kind": "via",
+     "at": [
+      104.233,
+      54.095
+     ],
+     "layers": [
+      "F.Cu",
+      "In2.Cu"
+     ],
+     "refs": {
+      "F.Cu": {
+       "ref_layer": "In1.Cu",
+       "ref": "ocp_kelvin_p"
+      },
+      "In2.Cu": {
+       "ref_layer": "In1.Cu",
+       "ref": "ocp_kelvin_p"
+      }
+     }
+    }
+   ],
+   "layer_transitions": 2,
+   "reference_changes": [],
+   "open_reference_changes": []
+  },
+  "ovp_ok_hot": {
+   "expected_return": [
+    "ocp_kelvin_p"
+   ],
+   "samples": 36,
+   "wrong_reference_samples": 0,
+   "wrong_first": [],
+   "no_reference_runs_over_limit": [
+    {
+     "at": [
+      117.248,
+      55.695
+     ],
+     "layer": "In1.Cu",
+     "ref": null,
+     "mm": 2.25
+    }
+   ],
+   "longest_no_reference_run_mm": 2.25,
+   "plane_crossings": [
+    {
+     "at": [
+      113.53,
+      56.095
+     ],
+     "layer": "F.Cu",
+     "from": "ocp_kelvin_p",
+     "to": null,
+     "coupled": null
+    },
+    {
+     "at": [
+      112.497,
+      56.095
+     ],
+     "layer": "F.Cu",
+     "from": null,
+     "to": "ocp_kelvin_p",
+     "coupled": null
+    },
+    {
+     "at": [
+      111.98,
+      56.095
+     ],
+     "layer": "F.Cu",
+     "from": "ocp_kelvin_p",
+     "to": null,
+     "coupled": null
+    },
+    {
+     "at": [
+      111.205,
+      56.095
+     ],
+     "layer": "F.Cu",
+     "from": null,
+     "to": "ocp_kelvin_p",
+     "coupled": null
+    },
+    {
+     "at": [
+      109.397,
+      56.095
+     ],
+     "layer": "F.Cu",
+     "from": "ocp_kelvin_p",
+     "to": null,
+     "coupled": "ocp_kelvin_p"
+    },
+    {
+     "at": [
+      108.364,
+      56.095
+     ],
+     "layer": "F.Cu",
+     "from": null,
+     "to": "ocp_kelvin_p",
+     "coupled": "ocp_kelvin_p"
+    }
+   ],
+   "transitions": [
+    {
+     "kind": "via",
+     "at": [
+      114.448,
+      55.695
+     ],
+     "layers": [
+      "F.Cu",
+      "In1.Cu"
+     ],
+     "refs": {
+      "F.Cu": {
+       "ref_layer": "In1.Cu",
+       "ref": "ocp_kelvin_p"
+      },
+      "In1.Cu": {
+       "ref_layer": null,
+       "ref": null
+      }
+     },
+     "transfer": {
+      "cap": null,
+      "nets": [
+       "none",
+       "ocp_kelvin_p"
+      ],
+      "mm": null
+     }
+    },
+    {
+     "kind": "via",
+     "at": [
+      117.847,
+      55.095
+     ],
+     "layers": [
+      "F.Cu",
+      "In1.Cu"
+     ],
+     "refs": {
+      "F.Cu": {
+       "ref_layer": "In1.Cu",
+       "ref": "ocp_kelvin_p"
+      },
+      "In1.Cu": {
+       "ref_layer": null,
+       "ref": null
+      }
+     },
+     "transfer": {
+      "cap": null,
+      "nets": [
+       "none",
+       "ocp_kelvin_p"
+      ],
+      "mm": null
+     }
+    }
+   ],
+   "layer_transitions": 2,
+   "reference_changes": [
+    {
+     "at": [
+      114.448,
+      55.695
+     ],
+     "cap": null,
+     "nets": [
+      "none",
+      "ocp_kelvin_p"
+     ],
+     "mm": null
+    },
+    {
+     "at": [
+      117.847,
+      55.095
+     ],
+     "cap": null,
+     "nets": [
+      "none",
+      "ocp_kelvin_p"
+     ],
+     "mm": null
+    }
+   ],
+   "open_reference_changes": [
+    {
+     "at": [
+      114.448,
+      55.695
+     ],
+     "cap": null,
+     "nets": [
+      "none",
+      "ocp_kelvin_p"
+     ],
+     "mm": null
+    },
+    {
+     "at": [
+      117.847,
+      55.095
+     ],
+     "cap": null,
+     "nets": [
+      "none",
+      "ocp_kelvin_p"
+     ],
+     "mm": null
+    }
+   ]
+  },
+  "pwm_hb": {
+   "expected_return": [
+    "selv_gnd",
+    "v3v3"
+   ],
+   "samples": 568,
+   "wrong_reference_samples": 0,
+   "wrong_first": [],
+   "no_reference_runs_over_limit": [],
+   "longest_no_reference_run_mm": 0.25,
+   "plane_crossings": [
+    {
+     "at": [
+      52.932,
+      179.445
+     ],
+     "layer": "B.Cu",
+     "from": "selv_gnd",
+     "to": null,
+     "coupled": null
+    }
+   ],
+   "transitions": [
+    {
+     "kind": "via",
+     "at": [
+      28.955,
+      55.875
+     ],
+     "layers": [
+      "F.Cu",
+      "B.Cu"
+     ],
+     "refs": {
+      "F.Cu": {
+       "ref_layer": "In1.Cu",
+       "ref": "v3v3"
+      },
+      "B.Cu": {
+       "ref_layer": "In2.Cu",
+       "ref": "selv_gnd"
+      }
+     },
+     "transfer": {
+      "cap": "C14",
+      "nets": [
+       "selv_gnd",
+       "v3v3"
+      ],
+      "mm": 2.39,
+      "cap_pad_to_plane_via_mm": {
+       "v3v3": 0.57,
+       "selv_gnd": 1.26
+      }
+     }
+    },
+    {
+     "kind": "via",
+     "at": [
+      34.4,
+      110.6
+     ],
+     "layers": [
+      "F.Cu",
+      "B.Cu"
+     ],
+     "refs": {
+      "F.Cu": {
+       "ref_layer": "In1.Cu",
+       "ref": "v3v3"
+      },
+      "B.Cu": {
+       "ref_layer": "In2.Cu",
+       "ref": "selv_gnd"
+      }
+     },
+     "transfer": {
+      "cap": "C160",
+      "nets": [
+       "selv_gnd",
+       "v3v3"
+      ],
+      "mm": 2.0,
+      "cap_pad_to_plane_via_mm": {
+       "v3v3": 0.57,
+       "selv_gnd": 0.53
+      }
+     }
+    },
+    {
+     "kind": "via",
+     "at": [
+      55.155,
+      128.675
+     ],
+     "layers": [
+      "F.Cu",
+      "B.Cu"
+     ],
+     "refs": {
+      "F.Cu": {
+       "ref_layer": "In1.Cu",
+       "ref": "v3v3"
+      },
+      "B.Cu": {
+       "ref_layer": "In2.Cu",
+       "ref": "selv_gnd"
+      }
+     },
+     "transfer": {
+      "cap": "C154",
+      "nets": [
+       "selv_gnd",
+       "v3v3"
+      ],
+      "mm": 1.12,
+      "cap_pad_to_plane_via_mm": {
+       "v3v3": 1.15,
+       "selv_gnd": 0.85
+      }
+     }
+    },
+    {
+     "kind": "via",
+     "at": [
+      35.2,
+      125.0
+     ],
+     "layers": [
+      "F.Cu",
+      "B.Cu"
+     ],
+     "refs": {
+      "F.Cu": {
+       "ref_layer": "In1.Cu",
+       "ref": "v3v3"
+      },
+      "B.Cu": {
+       "ref_layer": "In2.Cu",
+       "ref": "selv_gnd"
+      }
+     },
+     "transfer": {
+      "cap": "C47",
+      "nets": [
+       "selv_gnd",
+       "v3v3"
+      ],
+      "mm": 2.43,
+      "cap_pad_to_plane_via_mm": {
+       "v3v3": 2.93,
+       "selv_gnd": 3.58
+      }
+     }
+    },
+    {
+     "kind": "via",
+     "at": [
+      55.955,
+      175.0
+     ],
+     "layers": [
+      "F.Cu",
+      "B.Cu"
+     ],
+     "refs": {
+      "F.Cu": {
+       "ref_layer": "In1.Cu",
+       "ref": "v3v3"
+      },
+      "B.Cu": {
+       "ref_layer": "In2.Cu",
+       "ref": "selv_gnd"
+      }
+     },
+     "transfer": {
+      "cap": "C156",
+      "nets": [
+       "selv_gnd",
+       "v3v3"
+      ],
+      "mm": 1.12,
+      "cap_pad_to_plane_via_mm": {
+       "v3v3": 0.85,
+       "selv_gnd": 0.85
+      }
+     }
+    },
+    {
+     "kind": "via",
+     "at": [
+      38.955,
+      127.075
+     ],
+     "layers": [
+      "F.Cu",
+      "B.Cu"
+     ],
+     "refs": {
+      "F.Cu": {
+       "ref_layer": "In1.Cu",
+       "ref": "v3v3"
+      },
+      "B.Cu": {
+       "ref_layer": "In2.Cu",
+       "ref": "selv_gnd"
+      }
+     },
+     "transfer": {
+      "cap": "C153",
+      "nets": [
+       "selv_gnd",
+       "v3v3"
+      ],
+      "mm": 2.72,
+      "cap_pad_to_plane_via_mm": {
+       "v3v3": 1.51,
+       "selv_gnd": 0.85
+      }
+     }
+    },
+    {
+     "kind": "via",
+     "at": [
+      56.155,
+      157.275
+     ],
+     "layers": [
+      "F.Cu",
+      "B.Cu"
+     ],
+     "refs": {
+      "F.Cu": {
+       "ref_layer": "In1.Cu",
+       "ref": "v3v3"
+      },
+      "B.Cu": {
+       "ref_layer": "In2.Cu",
+       "ref": "selv_gnd"
+      }
+     },
+     "transfer": {
+      "cap": "C155",
+      "nets": [
+       "selv_gnd",
+       "v3v3"
+      ],
+      "mm": 1.12,
+      "cap_pad_to_plane_via_mm": {
+       "v3v3": 0.85,
+       "selv_gnd": 0.85
+      }
+     }
+    }
+   ],
+   "layer_transitions": 7,
+   "reference_changes": [
+    {
+     "at": [
+      28.955,
+      55.875
+     ],
+     "cap": "C14",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 2.39,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 0.57,
+      "selv_gnd": 1.26
+     }
+    },
+    {
+     "at": [
+      34.4,
+      110.6
+     ],
+     "cap": "C160",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 2.0,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 0.57,
+      "selv_gnd": 0.53
+     }
+    },
+    {
+     "at": [
+      55.155,
+      128.675
+     ],
+     "cap": "C154",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 1.12,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 1.15,
+      "selv_gnd": 0.85
+     }
+    },
+    {
+     "at": [
+      35.2,
+      125.0
+     ],
+     "cap": "C47",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 2.43,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 2.93,
+      "selv_gnd": 3.58
+     }
+    },
+    {
+     "at": [
+      55.955,
+      175.0
+     ],
+     "cap": "C156",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 1.12,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 0.85,
+      "selv_gnd": 0.85
+     }
+    },
+    {
+     "at": [
+      38.955,
+      127.075
+     ],
+     "cap": "C153",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 2.72,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 1.51,
+      "selv_gnd": 0.85
+     }
+    },
+    {
+     "at": [
+      56.155,
+      157.275
+     ],
+     "cap": "C155",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 1.12,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 0.85,
+      "selv_gnd": 0.85
+     }
+    }
+   ],
+   "open_reference_changes": []
+  },
+  "ct_zc": {
+   "expected_return": [
+    "selv_gnd",
+    "v3v3"
+   ],
+   "samples": 278,
+   "wrong_reference_samples": 0,
+   "wrong_first": [],
+   "no_reference_runs_over_limit": [],
+   "longest_no_reference_run_mm": 0.25,
+   "plane_crossings": [],
+   "transitions": [
+    {
+     "kind": "via",
+     "at": [
+      26.907,
+      128.795
+     ],
+     "layers": [
+      "F.Cu",
+      "B.Cu"
+     ],
+     "refs": {
+      "F.Cu": {
+       "ref_layer": "In1.Cu",
+       "ref": "v3v3"
+      },
+      "B.Cu": {
+       "ref_layer": "In2.Cu",
+       "ref": "selv_gnd"
+      }
+     },
+     "transfer": {
+      "cap": "C46",
+      "nets": [
+       "selv_gnd",
+       "v3v3"
+      ],
+      "mm": 1.84,
+      "cap_pad_to_plane_via_mm": {
+       "v3v3": 1.3,
+       "selv_gnd": 3.56
+      }
+     }
+    }
+   ],
+   "layer_transitions": 1,
+   "reference_changes": [
+    {
+     "at": [
+      26.907,
+      128.795
+     ],
+     "cap": "C46",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 1.84,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 1.3,
+      "selv_gnd": 3.56
+     }
+    }
+   ],
+   "open_reference_changes": []
+  },
+  "pwm_ha": {
+   "expected_return": [
+    "selv_gnd",
+    "v3v3"
+   ],
+   "samples": 554,
+   "wrong_reference_samples": 0,
+   "wrong_first": [],
+   "no_reference_runs_over_limit": [],
+   "longest_no_reference_run_mm": 0.25,
+   "plane_crossings": [
+    {
+     "at": [
+      76.9,
+      59.555
+     ],
+     "layer": "B.Cu",
+     "from": "selv_gnd",
+     "to": "v3v3",
+     "coupled": null
+    },
+    {
+     "at": [
+      76.9,
+      60.315
+     ],
+     "layer": "B.Cu",
+     "from": "v3v3",
+     "to": "selv_gnd",
+     "coupled": null
+    },
+    {
+     "at": [
+      76.9,
+      66.142
+     ],
+     "layer": "B.Cu",
+     "from": "selv_gnd",
+     "to": "v3v3",
+     "coupled": "v3v3"
+    },
+    {
+     "at": [
+      76.9,
+      68.422
+     ],
+     "layer": "B.Cu",
+     "from": "v3v3",
+     "to": "selv_gnd",
+     "coupled": "v3v3"
+    }
+   ],
+   "transitions": [
+    {
+     "kind": "via",
+     "at": [
+      75.9,
+      56.275
+     ],
+     "layers": [
+      "F.Cu",
+      "B.Cu"
+     ],
+     "refs": {
+      "F.Cu": {
+       "ref_layer": "In1.Cu",
+       "ref": "v3v3"
+      },
+      "B.Cu": {
+       "ref_layer": "In2.Cu",
+       "ref": "selv_gnd"
+      }
+     },
+     "transfer": {
+      "cap": "C7",
+      "nets": [
+       "selv_gnd",
+       "v3v3"
+      ],
+      "mm": 2.11,
+      "cap_pad_to_plane_via_mm": {
+       "v3v3": 6.97,
+       "selv_gnd": 1.26
+      }
+     }
+    }
+   ],
+   "layer_transitions": 1,
+   "reference_changes": [
+    {
+     "at": [
+      75.9,
+      56.275
+     ],
+     "cap": "C7",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 2.11,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 6.97,
+      "selv_gnd": 1.26
+     }
+    }
+   ],
+   "open_reference_changes": []
+  },
+  "pwm_la": {
+   "expected_return": [
+    "selv_gnd",
+    "v3v3"
+   ],
+   "samples": 562,
+   "wrong_reference_samples": 0,
+   "wrong_first": [],
+   "no_reference_runs_over_limit": [],
+   "longest_no_reference_run_mm": 0.75,
+   "plane_crossings": [
+    {
+     "at": [
+      78.543,
+      59.543
+     ],
+     "layer": "B.Cu",
+     "from": "selv_gnd",
+     "to": "v3v3",
+     "coupled": null
+    },
+    {
+     "at": [
+      79.267,
+      60.267
+     ],
+     "layer": "B.Cu",
+     "from": "v3v3",
+     "to": "selv_gnd",
+     "coupled": null
+    },
+    {
+     "at": [
+      80.714,
+      61.714
+     ],
+     "layer": "B.Cu",
+     "from": "selv_gnd",
+     "to": "v3v3",
+     "coupled": null
+    },
+    {
+     "at": [
+      81.076,
+      62.076
+     ],
+     "layer": "B.Cu",
+     "from": "v3v3",
+     "to": "selv_gnd",
+     "coupled": null
+    },
+    {
+     "at": [
+      81.2,
+      109.899
+     ],
+     "layer": "B.Cu",
+     "from": "selv_gnd",
+     "to": null,
+     "coupled": null
+    }
+   ],
+   "transitions": [
+    {
+     "kind": "via",
+     "at": [
+      76.825,
+      56.075
+     ],
+     "layers": [
+      "F.Cu",
+      "B.Cu"
+     ],
+     "refs": {
+      "F.Cu": {
+       "ref_layer": "In1.Cu",
+       "ref": "v3v3"
+      },
+      "B.Cu": {
+       "ref_layer": "In2.Cu",
+       "ref": "selv_gnd"
+      }
+     },
+     "transfer": {
+      "cap": "C7",
+      "nets": [
+       "selv_gnd",
+       "v3v3"
+      ],
+      "mm": 1.84,
+      "cap_pad_to_plane_via_mm": {
+       "v3v3": 6.97,
+       "selv_gnd": 1.26
+      }
+     }
+    }
+   ],
+   "layer_transitions": 1,
+   "reference_changes": [
+    {
+     "at": [
+      76.825,
+      56.075
+     ],
+     "cap": "C7",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 1.84,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 6.97,
+      "selv_gnd": 1.26
+     }
+    }
+   ],
+   "open_reference_changes": []
+  },
+  "pwm_lb": {
+   "expected_return": [
+    "selv_gnd",
+    "v3v3"
+   ],
+   "samples": 552,
+   "wrong_reference_samples": 0,
+   "wrong_first": [],
+   "no_reference_runs_over_limit": [],
+   "longest_no_reference_run_mm": 0.25,
+   "plane_crossings": [
+    {
+     "at": [
+      32.736,
+      59.711
+     ],
+     "layer": "F.Cu",
+     "from": "v3v3",
+     "to": "selv_gnd",
+     "coupled": null
+    },
+    {
+     "at": [
+      33.269,
+      60.244
+     ],
+     "layer": "F.Cu",
+     "from": "selv_gnd",
+     "to": "v3v3",
+     "coupled": null
+    }
+   ],
+   "transitions": [],
+   "layer_transitions": 0,
+   "reference_changes": [],
+   "open_reference_changes": []
+  },
+  "permit": {
+   "expected_return": [
+    "selv_gnd",
+    "v3v3"
+   ],
+   "samples": 862,
+   "wrong_reference_samples": 0,
+   "wrong_first": [],
+   "no_reference_runs_over_limit": [
+    {
+     "at": [
+      79.4,
+      119.087
+     ],
+     "layer": "F.Cu",
+     "ref": null,
+     "mm": 6.0
+    }
+   ],
+   "longest_no_reference_run_mm": 6.0,
+   "plane_crossings": [
+    {
+     "at": [
+      79.4,
+      119.087
+     ],
+     "layer": "F.Cu",
+     "from": "v3v3",
+     "to": null,
+     "coupled": null
+    },
+    {
+     "at": [
+      79.4,
+      113.065
+     ],
+     "layer": "F.Cu",
+     "from": null,
+     "to": "v3v3",
+     "coupled": null
+    },
+    {
+     "at": [
+      79.4,
+      68.902
+     ],
+     "layer": "F.Cu",
+     "from": "v3v3",
+     "to": "selv_gnd",
+     "coupled": null
+    },
+    {
+     "at": [
+      41.303,
+      127.8
+     ],
+     "layer": "B.Cu",
+     "from": "selv_gnd",
+     "to": "v3v3",
+     "coupled": null
+    },
+    {
+     "at": [
+      44.072,
+      127.8
+     ],
+     "layer": "B.Cu",
+     "from": "v3v3",
+     "to": "selv_gnd",
+     "coupled": null
+    }
+   ],
+   "transitions": [
+    {
+     "kind": "via",
+     "at": [
+      33.2,
+      120.2
+     ],
+     "layers": [
+      "F.Cu",
+      "B.Cu"
+     ],
+     "refs": {
+      "F.Cu": {
+       "ref_layer": "In1.Cu",
+       "ref": "v3v3"
+      },
+      "B.Cu": {
+       "ref_layer": "In2.Cu",
+       "ref": "selv_gnd"
+      }
+     },
+     "transfer": {
+      "cap": "C47",
+      "nets": [
+       "selv_gnd",
+       "v3v3"
+      ],
+      "mm": 6.94,
+      "cap_pad_to_plane_via_mm": {
+       "v3v3": 2.93,
+       "selv_gnd": 3.58
+      }
+     }
+    },
+    {
+     "kind": "via",
+     "at": [
+      36.5,
+      178.6
+     ],
+     "layers": [
+      "F.Cu",
+      "B.Cu"
+     ],
+     "refs": {
+      "F.Cu": {
+       "ref_layer": "In1.Cu",
+       "ref": "v3v3"
+      },
+      "B.Cu": {
+       "ref_layer": "In2.Cu",
+       "ref": "selv_gnd"
+      }
+     },
+     "transfer": {
+      "cap": "C156",
+      "nets": [
+       "selv_gnd",
+       "v3v3"
+      ],
+      "mm": 20.89,
+      "cap_pad_to_plane_via_mm": {
+       "v3v3": 0.85,
+       "selv_gnd": 0.85
+      }
+     }
+    },
+    {
+     "kind": "via",
+     "at": [
+      70.0,
+      127.8
+     ],
+     "layers": [
+      "F.Cu",
+      "B.Cu"
+     ],
+     "refs": {
+      "F.Cu": {
+       "ref_layer": "In1.Cu",
+       "ref": "v3v3"
+      },
+      "B.Cu": {
+       "ref_layer": "In2.Cu",
+       "ref": "selv_gnd"
+      }
+     },
+     "transfer": {
+      "cap": "C144",
+      "nets": [
+       "selv_gnd",
+       "v3v3"
+      ],
+      "mm": 8.69,
+      "cap_pad_to_plane_via_mm": {
+       "v3v3": 1.16,
+       "selv_gnd": 0.31
+      }
+     }
+    }
+   ],
+   "layer_transitions": 3,
+   "reference_changes": [
+    {
+     "at": [
+      33.2,
+      120.2
+     ],
+     "cap": "C47",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 6.94,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 2.93,
+      "selv_gnd": 3.58
+     }
+    },
+    {
+     "at": [
+      36.5,
+      178.6
+     ],
+     "cap": "C156",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 20.89,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 0.85,
+      "selv_gnd": 0.85
+     }
+    },
+    {
+     "at": [
+      70.0,
+      127.8
+     ],
+     "cap": "C144",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 8.69,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 1.16,
+      "selv_gnd": 0.31
+     }
+    }
+   ],
+   "open_reference_changes": [
+    {
+     "at": [
+      33.2,
+      120.2
+     ],
+     "cap": "C47",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 6.94,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 2.93,
+      "selv_gnd": 3.58
+     }
+    },
+    {
+     "at": [
+      36.5,
+      178.6
+     ],
+     "cap": "C156",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 20.89,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 0.85,
+      "selv_gnd": 0.85
+     }
+    },
+    {
+     "at": [
+      70.0,
+      127.8
+     ],
+     "cap": "C144",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 8.69,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 1.16,
+      "selv_gnd": 0.31
+     }
+    }
+   ]
+  },
+  "bus_fault_iso": {
+   "expected_return": [
+    "selv_gnd",
+    "v3v3"
+   ],
+   "samples": 304,
+   "wrong_reference_samples": 0,
+   "wrong_first": [],
+   "no_reference_runs_over_limit": [],
+   "longest_no_reference_run_mm": 0.0,
+   "plane_crossings": [],
+   "transitions": [
+    {
+     "kind": "via",
+     "at": [
+      113.298,
+      125.875
+     ],
+     "layers": [
+      "F.Cu",
+      "B.Cu"
+     ],
+     "refs": {
+      "F.Cu": {
+       "ref_layer": "In1.Cu",
+       "ref": "v3v3"
+      },
+      "B.Cu": {
+       "ref_layer": "In2.Cu",
+       "ref": "selv_gnd"
+      }
+     },
+     "transfer": {
+      "cap": "C37",
+      "nets": [
+       "selv_gnd",
+       "v3v3"
+      ],
+      "mm": 2.89,
+      "cap_pad_to_plane_via_mm": {
+       "v3v3": 6.85,
+       "selv_gnd": 4.16
+      }
+     }
+    },
+    {
+     "kind": "via",
+     "at": [
+      39.025,
+      133.475
+     ],
+     "layers": [
+      "F.Cu",
+      "B.Cu"
+     ],
+     "refs": {
+      "F.Cu": {
+       "ref_layer": "In1.Cu",
+       "ref": "v3v3"
+      },
+      "B.Cu": {
+       "ref_layer": "In2.Cu",
+       "ref": "selv_gnd"
+      }
+     },
+     "transfer": {
+      "cap": "C153",
+      "nets": [
+       "selv_gnd",
+       "v3v3"
+      ],
+      "mm": 5.12,
+      "cap_pad_to_plane_via_mm": {
+       "v3v3": 1.51,
+       "selv_gnd": 0.85
+      }
+     }
+    },
+    {
+     "kind": "via",
+     "at": [
+      76.825,
+      125.875
+     ],
+     "layers": [
+      "F.Cu",
+      "B.Cu"
+     ],
+     "refs": {
+      "F.Cu": {
+       "ref_layer": "In1.Cu",
+       "ref": "v3v3"
+      },
+      "B.Cu": {
+       "ref_layer": "In2.Cu",
+       "ref": "selv_gnd"
+      }
+     },
+     "transfer": {
+      "cap": "C144",
+      "nets": [
+       "selv_gnd",
+       "v3v3"
+      ],
+      "mm": 9.83,
+      "cap_pad_to_plane_via_mm": {
+       "v3v3": 1.16,
+       "selv_gnd": 0.31
+      }
+     }
+    },
+    {
+     "kind": "via",
+     "at": [
+      36.775,
+      133.5
+     ],
+     "layers": [
+      "F.Cu",
+      "B.Cu"
+     ],
+     "refs": {
+      "F.Cu": {
+       "ref_layer": "In1.Cu",
+       "ref": "v3v3"
+      },
+      "B.Cu": {
+       "ref_layer": "In2.Cu",
+       "ref": "selv_gnd"
+      }
+     },
+     "transfer": {
+      "cap": "C153",
+      "nets": [
+       "selv_gnd",
+       "v3v3"
+      ],
+      "mm": 6.39,
+      "cap_pad_to_plane_via_mm": {
+       "v3v3": 1.51,
+       "selv_gnd": 0.85
+      }
+     }
+    }
+   ],
+   "layer_transitions": 4,
+   "reference_changes": [
+    {
+     "at": [
+      113.298,
+      125.875
+     ],
+     "cap": "C37",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 2.89,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 6.85,
+      "selv_gnd": 4.16
+     }
+    },
+    {
+     "at": [
+      39.025,
+      133.475
+     ],
+     "cap": "C153",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 5.12,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 1.51,
+      "selv_gnd": 0.85
+     }
+    },
+    {
+     "at": [
+      76.825,
+      125.875
+     ],
+     "cap": "C144",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 9.83,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 1.16,
+      "selv_gnd": 0.31
+     }
+    },
+    {
+     "at": [
+      36.775,
+      133.5
+     ],
+     "cap": "C153",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 6.39,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 1.51,
+      "selv_gnd": 0.85
+     }
+    }
+   ],
+   "open_reference_changes": [
+    {
+     "at": [
+      39.025,
+      133.475
+     ],
+     "cap": "C153",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 5.12,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 1.51,
+      "selv_gnd": 0.85
+     }
+    },
+    {
+     "at": [
+      76.825,
+      125.875
+     ],
+     "cap": "C144",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 9.83,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 1.16,
+      "selv_gnd": 0.31
+     }
+    },
+    {
+     "at": [
+      36.775,
+      133.5
+     ],
+     "cap": "C153",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 6.39,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 1.51,
+      "selv_gnd": 0.85
+     }
+    }
+   ]
+  },
+  "bus_fault": {
+   "expected_return": [
+    "selv_gnd",
+    "v3v3"
+   ],
+   "samples": 207,
+   "wrong_reference_samples": 0,
+   "wrong_first": [],
+   "no_reference_runs_over_limit": [],
+   "longest_no_reference_run_mm": 0.5,
+   "plane_crossings": [
+    {
+     "at": [
+      37.212,
+      181.935
+     ],
+     "layer": "B.Cu",
+     "from": null,
+     "to": "selv_gnd",
+     "coupled": null
+    }
+   ],
+   "transitions": [
+    {
+     "kind": "via",
+     "at": [
+      34.843,
+      131.565
+     ],
+     "layers": [
+      "F.Cu",
+      "B.Cu"
+     ],
+     "refs": {
+      "F.Cu": {
+       "ref_layer": "In1.Cu",
+       "ref": "v3v3"
+      },
+      "B.Cu": {
+       "ref_layer": "In2.Cu",
+       "ref": "selv_gnd"
+      }
+     },
+     "transfer": {
+      "cap": "C47",
+      "nets": [
+       "selv_gnd",
+       "v3v3"
+      ],
+      "mm": 4.55,
+      "cap_pad_to_plane_via_mm": {
+       "v3v3": 2.93,
+       "selv_gnd": 3.58
+      }
+     }
+    }
+   ],
+   "layer_transitions": 1,
+   "reference_changes": [
+    {
+     "at": [
+      34.843,
+      131.565
+     ],
+     "cap": "C47",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 4.55,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 2.93,
+      "selv_gnd": 3.58
+     }
+    }
+   ],
+   "open_reference_changes": [
+    {
+     "at": [
+      34.843,
+      131.565
+     ],
+     "cap": "C47",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 4.55,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 2.93,
+      "selv_gnd": 3.58
+     }
+    }
+   ]
+  },
+  "bias_good": {
+   "expected_return": [
+    "selv_gnd",
+    "v3v3"
+   ],
+   "samples": 730,
+   "wrong_reference_samples": 0,
+   "wrong_first": [],
+   "no_reference_runs_over_limit": [
+    {
+     "at": [
+      66.5,
+      127.2
+     ],
+     "layer": "B.Cu",
+     "ref": null,
+     "mm": 22.25
+    }
+   ],
+   "longest_no_reference_run_mm": 22.25,
+   "plane_crossings": [
+    {
+     "at": [
+      78.4,
+      69.165
+     ],
+     "layer": "F.Cu",
+     "from": "v3v3",
+     "to": "selv_gnd",
+     "coupled": null
+    },
+    {
+     "at": [
+      78.4,
+      69.916
+     ],
+     "layer": "F.Cu",
+     "from": "selv_gnd",
+     "to": "v3v3",
+     "coupled": null
+    },
+    {
+     "at": [
+      33.743,
+      119.543
+     ],
+     "layer": "B.Cu",
+     "from": "v3v3",
+     "to": "selv_gnd",
+     "coupled": null
+    },
+    {
+     "at": [
+      33.2,
+      112.487
+     ],
+     "layer": "B.Cu",
+     "from": "selv_gnd",
+     "to": "v3v3",
+     "coupled": null
+    },
+    {
+     "at": [
+      33.2,
+      111.485
+     ],
+     "layer": "B.Cu",
+     "from": "v3v3",
+     "to": "selv_gnd",
+     "coupled": null
+    },
+    {
+     "at": [
+      66.5,
+      127.2
+     ],
+     "layer": "B.Cu",
+     "from": "selv_gnd",
+     "to": null,
+     "coupled": null
+    },
+    {
+     "at": [
+      44.25,
+      127.2
+     ],
+     "layer": "B.Cu",
+     "from": null,
+     "to": "selv_gnd",
+     "coupled": null
+    },
+    {
+     "at": [
+      41.5,
+      127.2
+     ],
+     "layer": "B.Cu",
+     "from": "selv_gnd",
+     "to": "v3v3",
+     "coupled": null
+    }
+   ],
+   "transitions": [
+    {
+     "kind": "via",
+     "at": [
+      68.463,
+      128.6
+     ],
+     "layers": [
+      "F.Cu",
+      "B.Cu"
+     ],
+     "refs": {
+      "F.Cu": {
+       "ref_layer": "In1.Cu",
+       "ref": "v3v3"
+      },
+      "B.Cu": {
+       "ref_layer": "In2.Cu",
+       "ref": "selv_gnd"
+      }
+     },
+     "transfer": {
+      "cap": "C144",
+      "nets": [
+       "selv_gnd",
+       "v3v3"
+      ],
+      "mm": 8.82,
+      "cap_pad_to_plane_via_mm": {
+       "v3v3": 1.16,
+       "selv_gnd": 0.31
+      }
+     }
+    },
+    {
+     "kind": "via",
+     "at": [
+      74.0,
+      123.4
+     ],
+     "layers": [
+      "F.Cu",
+      "B.Cu"
+     ],
+     "refs": {
+      "F.Cu": {
+       "ref_layer": "In1.Cu",
+       "ref": "v3v3"
+      },
+      "B.Cu": {
+       "ref_layer": "In2.Cu",
+       "ref": "selv_gnd"
+      }
+     },
+     "transfer": {
+      "cap": "C144",
+      "nets": [
+       "selv_gnd",
+       "v3v3"
+      ],
+      "mm": 12.2,
+      "cap_pad_to_plane_via_mm": {
+       "v3v3": 1.16,
+       "selv_gnd": 0.31
+      }
+     }
+    },
+    {
+     "kind": "via",
+     "at": [
+      69.2,
+      127.0
+     ],
+     "layers": [
+      "F.Cu",
+      "B.Cu"
+     ],
+     "refs": {
+      "F.Cu": {
+       "ref_layer": null,
+       "ref": null
+      },
+      "B.Cu": {
+       "ref_layer": null,
+       "ref": null
+      }
+     },
+     "transfer": {
+      "cap": null,
+      "nets": [
+       "none"
+      ],
+      "mm": null
+     }
+    },
+    {
+     "kind": "via",
+     "at": [
+      68.463,
+      133.0
+     ],
+     "layers": [
+      "F.Cu",
+      "B.Cu"
+     ],
+     "refs": {
+      "F.Cu": {
+       "ref_layer": "In1.Cu",
+       "ref": "v3v3"
+      },
+      "B.Cu": {
+       "ref_layer": "In2.Cu",
+       "ref": "selv_gnd"
+      }
+     },
+     "transfer": {
+      "cap": "C144",
+      "nets": [
+       "selv_gnd",
+       "v3v3"
+      ],
+      "mm": 5.96,
+      "cap_pad_to_plane_via_mm": {
+       "v3v3": 1.16,
+       "selv_gnd": 0.31
+      }
+     }
+    },
+    {
+     "kind": "via",
+     "at": [
+      33.2,
+      70.4
+     ],
+     "layers": [
+      "F.Cu",
+      "B.Cu"
+     ],
+     "refs": {
+      "F.Cu": {
+       "ref_layer": "In1.Cu",
+       "ref": "v3v3"
+      },
+      "B.Cu": {
+       "ref_layer": "In2.Cu",
+       "ref": "selv_gnd"
+      }
+     },
+     "transfer": {
+      "cap": "C61",
+      "nets": [
+       "selv_gnd",
+       "v3v3"
+      ],
+      "mm": 7.15,
+      "cap_pad_to_plane_via_mm": {
+       "v3v3": 1.68,
+       "selv_gnd": 0.56
+      }
+     }
+    }
+   ],
+   "layer_transitions": 5,
+   "reference_changes": [
+    {
+     "at": [
+      68.463,
+      128.6
+     ],
+     "cap": "C144",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 8.82,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 1.16,
+      "selv_gnd": 0.31
+     }
+    },
+    {
+     "at": [
+      74.0,
+      123.4
+     ],
+     "cap": "C144",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 12.2,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 1.16,
+      "selv_gnd": 0.31
+     }
+    },
+    {
+     "at": [
+      69.2,
+      127.0
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null
+    },
+    {
+     "at": [
+      68.463,
+      133.0
+     ],
+     "cap": "C144",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 5.96,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 1.16,
+      "selv_gnd": 0.31
+     }
+    },
+    {
+     "at": [
+      33.2,
+      70.4
+     ],
+     "cap": "C61",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 7.15,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 1.68,
+      "selv_gnd": 0.56
+     }
+    }
+   ],
+   "open_reference_changes": [
+    {
+     "at": [
+      68.463,
+      128.6
+     ],
+     "cap": "C144",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 8.82,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 1.16,
+      "selv_gnd": 0.31
+     }
+    },
+    {
+     "at": [
+      74.0,
+      123.4
+     ],
+     "cap": "C144",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 12.2,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 1.16,
+      "selv_gnd": 0.31
+     }
+    },
+    {
+     "at": [
+      69.2,
+      127.0
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null
+    },
+    {
+     "at": [
+      68.463,
+      133.0
+     ],
+     "cap": "C144",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 5.96,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 1.16,
+      "selv_gnd": 0.31
+     }
+    },
+    {
+     "at": [
+      33.2,
+      70.4
+     ],
+     "cap": "C61",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 7.15,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 1.68,
+      "selv_gnd": 0.56
+     }
+    }
+   ]
+  },
+  "line_zc": {
+   "expected_return": [
+    "selv_gnd",
+    "v3v3"
+   ],
+   "samples": 576,
+   "wrong_reference_samples": 0,
+   "wrong_first": [],
+   "no_reference_runs_over_limit": [],
+   "longest_no_reference_run_mm": 0.25,
+   "plane_crossings": [],
+   "transitions": [],
+   "layer_transitions": 0,
+   "reference_changes": [],
+   "open_reference_changes": []
+  },
+  "hb_rx": {
+   "expected_return": [
+    "selv_gnd",
+    "v3v3"
+   ],
+   "samples": 26,
+   "wrong_reference_samples": 0,
+   "wrong_first": [],
+   "no_reference_runs_over_limit": [],
+   "longest_no_reference_run_mm": 0.0,
+   "plane_crossings": [],
+   "transitions": [],
+   "layer_transitions": 0,
+   "reference_changes": [],
+   "open_reference_changes": []
+  },
+  "bus_fault_flt": {
+   "expected_return": [
+    "selv_gnd",
+    "v3v3"
+   ],
+   "samples": 25,
+   "wrong_reference_samples": 0,
+   "wrong_first": [],
+   "no_reference_runs_over_limit": [],
+   "longest_no_reference_run_mm": 0.0,
+   "plane_crossings": [
+    {
+     "at": [
+      32.8,
+      129.195
+     ],
+     "layer": "F.Cu",
+     "from": "v3v3",
+     "to": null,
+     "coupled": "v3v3"
+    }
+   ],
+   "transitions": [],
+   "layer_transitions": 0,
+   "reference_changes": [],
+   "open_reference_changes": []
+  },
+  "hsb_good": {
+   "expected_return": [
+    "selv_gnd",
+    "v3v3"
+   ],
+   "samples": 310,
+   "wrong_reference_samples": 0,
+   "wrong_first": [],
+   "no_reference_runs_over_limit": [],
+   "longest_no_reference_run_mm": 0.0,
+   "plane_crossings": [],
+   "transitions": [
+    {
+     "kind": "via",
+     "at": [
+      30.875,
+      109.765
+     ],
+     "layers": [
+      "F.Cu",
+      "In2.Cu"
+     ],
+     "refs": {
+      "F.Cu": {
+       "ref_layer": "In1.Cu",
+       "ref": "v3v3"
+      },
+      "In2.Cu": {
+       "ref_layer": "In1.Cu",
+       "ref": "v3v3"
+      }
+     }
+    },
+    {
+     "kind": "via",
+     "at": [
+      49.2,
+      133.7
+     ],
+     "layers": [
+      "F.Cu",
+      "B.Cu"
+     ],
+     "refs": {
+      "F.Cu": {
+       "ref_layer": "In1.Cu",
+       "ref": "v3v3"
+      },
+      "B.Cu": {
+       "ref_layer": "In2.Cu",
+       "ref": "selv_gnd"
+      }
+     },
+     "transfer": {
+      "cap": "C153",
+      "nets": [
+       "selv_gnd",
+       "v3v3"
+      ],
+      "mm": 8.21,
+      "cap_pad_to_plane_via_mm": {
+       "v3v3": 1.51,
+       "selv_gnd": 0.85
+      }
+     }
+    },
+    {
+     "kind": "via",
+     "at": [
+      44.5,
+      129.0
+     ],
+     "layers": [
+      "In2.Cu",
+      "B.Cu"
+     ],
+     "refs": {
+      "In2.Cu": {
+       "ref_layer": "In1.Cu",
+       "ref": "v3v3"
+      },
+      "B.Cu": {
+       "ref_layer": "In2.Cu",
+       "ref": "selv_gnd"
+      }
+     },
+     "transfer": {
+      "cap": "C153",
+      "nets": [
+       "selv_gnd",
+       "v3v3"
+      ],
+      "mm": 1.89,
+      "cap_pad_to_plane_via_mm": {
+       "v3v3": 1.51,
+       "selv_gnd": 0.85
+      }
+     }
+    }
+   ],
+   "layer_transitions": 3,
+   "reference_changes": [
+    {
+     "at": [
+      49.2,
+      133.7
+     ],
+     "cap": "C153",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 8.21,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 1.51,
+      "selv_gnd": 0.85
+     }
+    },
+    {
+     "at": [
+      44.5,
+      129.0
+     ],
+     "cap": "C153",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 1.89,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 1.51,
+      "selv_gnd": 0.85
+     }
+    }
+   ],
+   "open_reference_changes": [
+    {
+     "at": [
+      49.2,
+      133.7
+     ],
+     "cap": "C153",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 8.21,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 1.51,
+      "selv_gnd": 0.85
+     }
+    }
+   ]
+  },
+  "mon_good_ha": {
+   "expected_return": [
+    "hv_ret",
+    "leg_ret",
+    "n_ls"
+   ],
+   "samples": 394,
+   "wrong_reference_samples": 100,
+   "wrong_first": [
+    {
+     "at": [
+      81.8,
+      46.8
+     ],
+     "layer": "In1.Cu",
+     "ref_layer": "In2.Cu",
+     "ref": "bus_p",
+     "coupled": null,
+     "coupled_layer": null,
+     "ok": false,
+     "track": 4346963008
+    },
+    {
+     "at": [
+      82.058,
+      46.8
+     ],
+     "layer": "In1.Cu",
+     "ref_layer": "In2.Cu",
+     "ref": "bus_p",
+     "coupled": null,
+     "coupled_layer": null,
+     "ok": false,
+     "track": 4346963008
+    },
+    {
+     "at": [
+      82.317,
+      46.8
+     ],
+     "layer": "In1.Cu",
+     "ref_layer": "In2.Cu",
+     "ref": "bus_p",
+     "coupled": null,
+     "coupled_layer": null,
+     "ok": false,
+     "track": 4346963008
+    },
+    {
+     "at": [
+      82.575,
+      46.8
+     ],
+     "layer": "In1.Cu",
+     "ref_layer": "In2.Cu",
+     "ref": "bus_p",
+     "coupled": null,
+     "coupled_layer": null,
+     "ok": false,
+     "track": 4346963008
+    },
+    {
+     "at": [
+      82.833,
+      46.8
+     ],
+     "layer": "In1.Cu",
+     "ref_layer": "In2.Cu",
+     "ref": "bus_p",
+     "coupled": null,
+     "coupled_layer": null,
+     "ok": false,
+     "track": 4346963008
+    },
+    {
+     "at": [
+      83.092,
+      46.8
+     ],
+     "layer": "In1.Cu",
+     "ref_layer": "In2.Cu",
+     "ref": "bus_p",
+     "coupled": null,
+     "coupled_layer": null,
+     "ok": false,
+     "track": 4346963008
+    }
+   ],
+   "no_reference_runs_over_limit": [
+    {
+     "at": [
+      49.535,
+      55.865
+     ],
+     "layer": "B.Cu",
+     "ref": null,
+     "mm": 3.25
+    },
+    {
+     "at": [
+      52.924,
+      52.476
+     ],
+     "layer": "B.Cu",
+     "ref": null,
+     "mm": 3.25
+    },
+    {
+     "at": [
+      86.45,
+      46.8
+     ],
+     "layer": "In1.Cu",
+     "ref": null,
+     "mm": 1.75
+    },
+    {
+     "at": [
+      88.0,
+      46.8
+     ],
+     "layer": "In1.Cu",
+     "ref": null,
+     "mm": 3.0
+    },
+    {
+     "at": [
+      98.6,
+      76.2
+     ],
+     "layer": "In1.Cu",
+     "ref": null,
+     "mm": 9.25
+    },
+    {
+     "at": [
+      58.564,
+      46.6
+     ],
+     "layer": "In1.Cu",
+     "ref": null,
+     "mm": 2.75
+    },
+    {
+     "at": [
+      90.2,
+      48.8
+     ],
+     "layer": "In1.Cu",
+     "ref": null,
+     "mm": 12.5
+    },
+    {
+     "at": [
+      99.0,
+      57.6
+     ],
+     "layer": "In1.Cu",
+     "ref": null,
+     "mm": 15.5
+    },
+    {
+     "at": [
+      99.0,
+      74.283
+     ],
+     "layer": "In1.Cu",
+     "ref": null,
+     "mm": 1.75
+    }
+   ],
+   "longest_no_reference_run_mm": 15.5,
+   "plane_crossings": [
+    {
+     "at": [
+      49.535,
+      55.865
+     ],
+     "layer": "B.Cu",
+     "from": "n_ls",
+     "to": null,
+     "coupled": null
+    },
+    {
+     "at": [
+      86.45,
+      46.8
+     ],
+     "layer": "In1.Cu",
+     "from": "bus_p",
+     "to": null,
+     "coupled": null
+    },
+    {
+     "at": [
+      61.364,
+      46.6
+     ],
+     "layer": "In1.Cu",
+     "from": null,
+     "to": "bus_p",
+     "coupled": null
+    }
+   ],
+   "transitions": [
+    {
+     "kind": "via",
+     "at": [
+      55.6,
+      49.8
+     ],
+     "layers": [
+      "F.Cu",
+      "B.Cu"
+     ],
+     "refs": {
+      "F.Cu": {
+       "ref_layer": null,
+       "ref": null
+      },
+      "B.Cu": {
+       "ref_layer": null,
+       "ref": null
+      }
+     },
+     "transfer": {
+      "cap": null,
+      "nets": [
+       "none"
+      ],
+      "mm": null
+     }
+    },
+    {
+     "kind": "via",
+     "at": [
+      57.8,
+      46.6
+     ],
+     "layers": [
+      "F.Cu",
+      "In1.Cu"
+     ],
+     "refs": {
+      "F.Cu": {
+       "ref_layer": null,
+       "ref": null
+      },
+      "In1.Cu": {
+       "ref_layer": null,
+       "ref": null
+      }
+     },
+     "transfer": {
+      "cap": null,
+      "nets": [
+       "none"
+      ],
+      "mm": null
+     }
+    },
+    {
+     "kind": "via",
+     "at": [
+      48.0,
+      63.4
+     ],
+     "layers": [
+      "F.Cu",
+      "B.Cu"
+     ],
+     "refs": {
+      "F.Cu": {
+       "ref_layer": null,
+       "ref": null
+      },
+      "B.Cu": {
+       "ref_layer": null,
+       "ref": null
+      }
+     },
+     "transfer": {
+      "cap": null,
+      "nets": [
+       "none"
+      ],
+      "mm": null
+     }
+    },
+    {
+     "kind": "via",
+     "at": [
+      101.0,
+      87.6
+     ],
+     "layers": [
+      "F.Cu",
+      "In1.Cu"
+     ],
+     "refs": {
+      "F.Cu": {
+       "ref_layer": null,
+       "ref": null
+      },
+      "In1.Cu": {
+       "ref_layer": null,
+       "ref": null
+      }
+     },
+     "transfer": {
+      "cap": null,
+      "nets": [
+       "none"
+      ],
+      "mm": null
+     }
+    }
+   ],
+   "layer_transitions": 4,
+   "reference_changes": [
+    {
+     "at": [
+      55.6,
+      49.8
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null
+    },
+    {
+     "at": [
+      57.8,
+      46.6
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null
+    },
+    {
+     "at": [
+      48.0,
+      63.4
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null
+    },
+    {
+     "at": [
+      101.0,
+      87.6
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null
+    }
+   ],
+   "open_reference_changes": [
+    {
+     "at": [
+      55.6,
+      49.8
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null
+    },
+    {
+     "at": [
+      57.8,
+      46.6
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null
+    },
+    {
+     "at": [
+      48.0,
+      63.4
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null
+    },
+    {
+     "at": [
+      101.0,
+      87.6
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null
+    }
+   ]
+  },
+  "transfer_caps": {
+   "C153": {
+    "v3v3": 1.51,
+    "selv_gnd": 0.85
+   },
+   "C154": {
+    "v3v3": 1.15,
+    "selv_gnd": 0.85
+   },
+   "C155": {
+    "v3v3": 0.85,
+    "selv_gnd": 0.85
+   },
+   "C156": {
+    "v3v3": 0.85,
+    "selv_gnd": 0.85
+   }
+  }
+ },
+ "failures": [],
+ "pass": true
+}

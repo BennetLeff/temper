@@ -43,7 +43,7 @@ nets = wr.board_nets(BOARD.read_text())
 
 
 def side1_nc(n):
-    return re.search(r"\.iso-nc(2|5|6|8)$", n) or n.endswith(("ldo5-nc", "-p2", "-p6", "-p11", "-p12", "-p17", "-p18", "-p19"))
+    return re.search(r"\.(iso|verdict)-nc(2|5|6|8)$", n) or n.endswith(("ldo5-nc", "-p2", "-p6", "-p11", "-p12", "-p17", "-p18", "-p19"))
 
 
 groups = {k: set(v) for k, v in wr.HOT_GROUPS.items()}
@@ -54,9 +54,13 @@ groups["LOW"] |= {"ocp_kelvin_p", "n_ls", "v24_raw", "bias_sw1", "bias_sw2", "bi
                   # stage 14: module enable, the LS TPS7A47's NR node and unused ANY-OUT pins (unique names
                   # now that only the LS split has an LDO), and each bias module's primary-side PG pin
                   "bias_ha-en", "bias_hb-en", "ldo_nr", "p2", "p6", "p11", "p12", "p17", "p18", "p19",
-                  "bias_ha.iso-p3", "bias_hb.iso-p3"}
+                  "bias_ha.iso-p3", "bias_hb.iso-p3",
+                  # stage 30 (DECISIONS 33): LS monitor 5 V (feeds the HS-A link and the heartbeat), the HS-A verdict
+                  # after its ISO6721FB link, the vote diode's open half, and the heartbeat's LS side
+                  "ls_v5", "mon_good_ha", "vote_nc", "hb_tx", "hb_rc", "hb.iso-nc2", "hb.iso-nc5", "hb.iso-nc6",
+                  "hb.iso-nc8"}
 for n in nets:
-    if n in SELV or n in wr.SELV_NC or re.search(r"\.iso-nc(10|11|12|15)$", n):
+    if n in SELV or n in wr.SELV_NC or re.search(r"\.(iso|verdict)-nc(10|11|12|15)$", n):
         continue
     if n.startswith(("bias_ls", "monitor_ls")) or re.match(r"leg_[ab]-(gate_l|out_l|off_l)$", n) \
             or re.match(r"leg_[ab]\.bias_l-damp$", n) or n in ("clk", "ss", "sr", "dc", "en"):
@@ -65,6 +69,7 @@ for n in nets:
         if n in (f"p_h{leg}", f"n_h{leg}", f"leg_{leg}-off_h", f"leg_{leg}.bias_h-damp") or \
                 (n.startswith(f"bias_h{leg}") and not n.endswith(("_bad", ".iso-p3", "-en"))):
             groups[f"SW_{leg.upper()}"].add(n)
+groups["SW_A"] |= {"outa_nc"} & nets   # stage 30: U43's open reverse-channel output (HS-A side 1)
 for n in sorted(nets):   # sorted: group order (hence the DRU text) must not follow the hash seed
     if n.startswith("line_zc-") and n not in SELV or n in ("r1mid", "r2mid"):
         groups[f"ZC_{n}"] = {n}
@@ -78,7 +83,7 @@ for g in list(groups):
         del groups[g]
 wr.HOT_GROUPS = groups
 wr.TANK = {"res_a", "crbleed_1", "crbleed_2", "crbleed_3"} & nets
-wr.SELV_NC = wr.SELV_NC | {n for n in nets if re.search(r"\.iso-nc(10|11|12|15)$", n)} | \
+wr.SELV_NC = wr.SELV_NC | {n for n in nets if re.search(r"\.(iso|verdict)-nc(10|11|12|15)$", n)} | \
     {"line_zc.buffer-nc", "leg_a.driver-nc_7", "leg_b.driver-nc_7"}
 groups["LOW"] |= {n for n in nets if n in ("outb", "u_hot5_schmitt-nc", "u_ldo-nc", "u_ref-nc")
                   or re.fullmatch(r"u_iso-nc(2|5|6|8)", n)}

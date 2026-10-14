@@ -7,7 +7,7 @@ import json
 def main() -> None:
     root = Path(__file__).resolve().parents[2]
     resolved = json.loads((root / 'frozen/resolved-components.json').read_text())
-    assert len(resolved['components']) == 350   # stage 28: + r_blw (F2 fault-current limiter); stage 22: - Q1 / Q4 PERMIT FETs and R8 / R16 330 ohm (DIS NAND); stage 21: - link_pos / link_neg studs J7-J10 (BR1 feeds the bus); stage 19b: + c_ref_xfer_1..4 (pwm_hb reference-transfer caps C153-C156); stage 16: + f_blw / j_blw_ac (blower-supply tap); stage 14: -8 (bias modules replace SN6507/T2/T3 path; +1 bus TVS); + c_hs / c_hs_bulk per leg (review B1), + c_hs_1u / c_ls_1u per leg (stage 9), + c_vs1_1u / c_vs2_1u (stage 10), + c_res4 / c_res5 (stage 13)
+    assert len(resolved['components']) == 349   # stage 30: -22 / +21 (candidate 24 heartbeat, HS-A link ISO6721FB, HS-B verdict ISO7710F, U9 RC); stage 28: + r_blw (F2 fault-current limiter); stage 22: - Q1 / Q4 PERMIT FETs and R8 / R16 330 ohm (DIS NAND); stage 21: - link_pos / link_neg studs J7-J10 (BR1 feeds the bus); stage 19b: + c_ref_xfer_1..4 (pwm_hb reference-transfer caps C153-C156); stage 16: + f_blw / j_blw_ac (blower-supply tap); stage 14: -8 (bias modules replace SN6507/T2/T3 path; +1 bus TVS); + c_hs / c_hs_bulk per leg (review B1), + c_hs_1u / c_ls_1u per leg (stage 9), + c_vs1_1u / c_vs2_1u (stage 10), + c_res4 / c_res5 (stage 13)
     for filename, expected in resolved['source_sha256'].items():
         assert hashlib.sha256((root / filename).read_bytes()).hexdigest() == expected, filename
     for filename in ('default.csv', 'default.net', 'resolved-components.json',
@@ -19,7 +19,7 @@ def main() -> None:
         assert parts[f'{leg}.r_dt']['mpn'] == 'RT0603BRD0749K9L'
         # stage 22 (DECISIONS 27): DIS = NAND(permit_gate, bias_good); the PERMIT FET and 330 ohm pull-up are gone
         assert parts[f'{leg}.dis_or']['mpn'] == 'SN74LVC1G00DBVR' and f'{leg}.permit_fet' not in parts and f'{leg}.r_dis_pu' not in parts
-    assert parts['u_bias_flt']['mpn'] == 'SN74LVC1G14DBVR'   # inverting Schmitt: BIAS_GOOD
+    assert parts['u_bias_flt']['mpn'] == 'SN74LVC1G17DBVR'   # stage 30: non-inverting Schmitt on the heartbeat hold node
     # stage 27 (DECISIONS 29): J1 carries UL/CSA group B 30 A (the MKDS 3 1711725 was 15 A cULus / 10 A CSA)
     assert parts['j_mains']['mpn'] == '1714971' and parts['j_mains']['footprint'] == 'temper:Phoenix_MKDS-5-2-9.52_1714971'
     for leg in ('leg_a', 'leg_b'):   # stage 26 (DECISIONS 28): low-ESR SVPC variant, same can
@@ -43,12 +43,20 @@ def main() -> None:
     assert parts['c_bus1']['mpn'] == parts['c_bus2']['mpn'] == 'B32676G1905K000'
     assert parts['tvs_bus']['mpn'] == parts['tvs_bus_b']['mpn'] == '30KPA150CA'
     assert not any('.d_boot' in path or '.c_boot' in path for path in parts)
-    for base in ('monitor_ls', 'bias_ha.monitor', 'bias_hb.monitor'):
-        assert parts[f'{base}.iso']['mpn'] == 'ISO7710DWR'
+    # stage 30 (DECISIONS 33): the heartbeat (U32) carries the LS and HS-A verdicts (HS-A via a default-LOW ISO6721FB
+    # link); HS-B's verdict crosses on its own default-LOW ISO7710F and gates the SELV NAND; no opto in the monitor group
+    assert parts['hb.iso']['mpn'] == 'ISO7710DWR'
+    assert parts['bias_ha.link']['mpn'] == 'ISO6721FBDR' and 'bias_hb.link' not in parts
+    assert parts['bias_hb.verdict']['mpn'] == 'ISO7710FDWR' and parts['hb.buf']['mpn'] == 'SN74LVC1G132DBVR'
+    assert parts['hb.cp1']['mpn'] == parts['hb.cp2']['mpn'] == 'C0603C102J5GACTU' and parts['hb.rbleed']['mpn'] == 'RT0603BRD0749K9L'
+    assert not any(path.endswith(('.rnotice', '.dnotice', '.qnotice', '.rbase')) for path in parts)
+    assert 'bias_or' not in parts and 'r_bias_flt' not in parts and 'c_bias_flt' not in parts
+    assert parts['r_bf']['mpn'] == '0603WAF1001T5E' and parts['c_bf']['mpn'] == 'CL10C101JB8NNNC'
+    for base in ('monitor_ls', 'bias_ha', 'bias_hb', 'hb'):
         assert not any(path.startswith(base + '.') and part.get('mpn') == 'VO617A-3X017T' for path, part in parts.items())
     result = {'components': len(parts), 'source_hashes_match': True,
               'two_frozen_exports_identical': True, 'native20_protection_parts_retained': True,
-              'RECOM_only_hs_bias_modules': True, 'no_bootstrap': True, 'monitor_crossings_ISO7710': True, 'source_sha256': resolved['source_sha256']}
+              'RECOM_only_hs_bias_modules': True, 'no_bootstrap': True, 'monitor_crossing_single_ISO7710_heartbeat': True, 'source_sha256': resolved['source_sha256']}
     (Path(__file__).parent / 'source-check.json').write_text(json.dumps(result, indent=2) + '\n')
     print(json.dumps(result, indent=2))
 

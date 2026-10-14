@@ -5,24 +5,24 @@
    "min_mm": 8.047,
    "pass": true,
    "between": [
-    "zone n_hb",
-    "via leg_b-permit_gate"
+    "zone n_ha",
+    "via leg_a-permit_gate"
    ],
    "at_mm": [
-    20.96,
-    41.75
+    67.69,
+    40.84
    ]
   },
   "HOT-PE": {
    "min_mm": 8.507,
    "pass": true,
    "between": [
-    "pad n_filt C4",
-    "pad pe C4"
+    "pad l_filt C3",
+    "pad pe C3"
    ],
    "at_mm": [
     225.0,
-    109.1
+    102.8
    ]
   }
  },
@@ -103,30 +103,6 @@
    }
   },
   {
-   "ref": "U33",
-   "mpn": "ISO7710DWR",
-   "land_gap_mm": 8.1,
-   "board_pass": true,
-   "package": {
-    "clr": 8.0,
-    "cpg": 8.0,
-    "src": "TI SLLSER9E p.8 (DW-16)",
-    "rating": "reinforced (VDE 0884-17)"
-   }
-  },
-  {
-   "ref": "U34",
-   "mpn": "ISO7710DWR",
-   "land_gap_mm": 8.1,
-   "board_pass": true,
-   "package": {
-    "clr": 8.0,
-    "cpg": 8.0,
-    "src": "TI SLLSER9E p.8 (DW-16)",
-    "rating": "reinforced (VDE 0884-17)"
-   }
-  },
-  {
    "ref": "U36",
    "mpn": "VOL628A-2X001T",
    "land_gap_mm": 8.2,
@@ -145,6 +121,15 @@
     "cpg": 8.5,
     "src": "TI AMC1311 datasheet, DWV insulation table",
     "rating": "reinforced"
+   }
+  },
+  {
+   "ref": "U44",
+   "mpn": "ISO7710FDWR",
+   "land_gap_mm": 8.1,
+   "board_pass": true,
+   "package": {
+    "src": "NOT IN TABLE: add the datasheet distances"
    }
   },
   {
@@ -177,7 +162,7 @@
     6.0,
     180.0
    ],
-   "hot_mm": 59.82,
+   "hot_mm": 59.41,
    "role": "nylon fixing (insulating hardware only, F.Fab NYLON)",
    "pass": true
   },

@@ -1,5 +1,5 @@
 {
- "bom_lines": 92,
+ "bom_lines": 94,
  "counts_by_class": {
   "POWER": {
    "PARTIAL": 9,
@@ -8,19 +8,19 @@
    "VIOLATION": 0
   },
   "SAFETY": {
-   "PARTIAL": 19,
+   "PARTIAL": 21,
    "UNAUDITED": 0,
    "VERIFIED": 2,
    "VIOLATION": 0
   },
   "SIGNAL": {
-   "PARTIAL": 0,
-   "UNAUDITED": 62,
-   "VERIFIED": 0,
+   "PARTIAL": 1,
+   "UNAUDITED": 60,
+   "VERIFIED": 1,
    "VIOLATION": 0
   }
  },
- "entries": 92,
+ "entries": 94,
  "entries_detail": {
   "0430451612": {
    "checks": [],
@@ -69,10 +69,8 @@
    "checks": [],
    "class": "SIGNAL",
    "designators": [
-    "R107",
-    "R122",
-    "R47",
-    "R89"
+    "R134",
+    "R47"
    ],
    "finding": null,
    "function": "1 k 0603",
@@ -86,18 +84,14 @@
    "checks": [],
    "class": "SIGNAL",
    "designators": [
-    "R108",
     "R109",
     "R11",
-    "R123",
     "R124",
-    "R126",
     "R13",
     "R19",
     "R21",
     "R73",
     "R76",
-    "R90",
     "R91"
    ],
    "finding": null,
@@ -119,6 +113,20 @@
    ],
    "finding": null,
    "function": "100 k 0603 pull",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "0603WAF2200T5E": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "R132"
+   ],
+   "finding": null,
+   "function": "R132: heartbeat pump series resistor 220 ohm (buffer peak <= 11.2 mA)",
    "gaps": [
     "Not audited (outside SAFETY/POWER)."
    ],
@@ -158,6 +166,7 @@
    "checks": [],
    "class": "SIGNAL",
    "designators": [
+    "R131",
     "R71",
     "R72",
     "R74",
@@ -364,22 +373,6 @@
     "No 3D model in temper.pretty: the enclosure fit uses a 22 mm courtyard envelope (native21-envelopes.json)."
    ],
    "status": "PARTIAL",
-   "unchecked_layout": []
-  },
-  "1N4148W": {
-   "checks": [],
-   "class": "SIGNAL",
-   "designators": [
-    "D14",
-    "D15",
-    "D16"
-   ],
-   "finding": null,
-   "function": "signal diode",
-   "gaps": [
-    "Not audited (outside SAFETY/POWER)."
-   ],
-   "status": "UNAUDITED",
    "unchecked_layout": []
   },
   "2EDR8259XXUMA1": {
@@ -944,11 +937,54 @@
    "status": "UNAUDITED",
    "unchecked_layout": []
   },
+  "BAT54S-7-F": {
+   "checks": [
+    {
+     "id": "VR",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "VRWM",
+     "ratio": 0.1155,
+     "severity": "violation",
+     "stress": "Reverse"
+    },
+    {
+     "id": "IF",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "IFRM",
+     "ratio": 0.0377,
+     "severity": "violation",
+     "stress": "Peak forward"
+    },
+    {
+     "id": "VR-D18",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "VRWM",
+     "ratio": 0.175,
+     "severity": "violation",
+     "stress": "Reverse (D18)"
+    }
+   ],
+   "class": "SIGNAL",
+   "designators": [
+    "D18",
+    "D19"
+   ],
+   "finding": null,
+   "function": "D19: heartbeat charge-pump clamp and series diode (SELV). D18: one half (pin 1 A -> pin 3) ANDs HS-A's link output into the LS good node; the other half's cathode (pin 2) is open",
+   "gaps": [],
+   "status": "VERIFIED",
+   "unchecked_layout": []
+  },
   "C0603C102J5GACTU": {
    "checks": [],
    "class": "SIGNAL",
    "designators": [
-    "C143",
+    "C164",
+    "C165",
+    "C166",
     "C27",
     "C31",
     "C33",
@@ -985,17 +1021,19 @@
     "C133",
     "C134",
     "C135",
-    "C137",
-    "C138",
     "C139",
     "C14",
-    "C141",
-    "C142",
     "C144",
     "C153",
     "C154",
     "C155",
     "C156",
+    "C157",
+    "C158",
+    "C159",
+    "C160",
+    "C161",
+    "C163",
     "C25",
     "C28",
     "C29",
@@ -1021,7 +1059,6 @@
     "C81",
     "C82",
     "C87",
-    "C88",
     "C89"
    ],
    "finding": null,
@@ -1082,6 +1119,7 @@
    "checks": [],
    "class": "SIGNAL",
    "designators": [
+    "C167",
     "C30"
    ],
    "finding": null,
@@ -1098,6 +1136,7 @@
    "designators": [
     "C105",
     "C109",
+    "C162",
     "C71",
     "C72"
    ],
@@ -1509,6 +1548,49 @@
    "status": "PARTIAL",
    "unchecked_layout": []
   },
+  "ISO6721FBDR": {
+   "checks": [
+    {
+     "id": "barrier",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "VIORM",
+     "ratio": 0.449,
+     "severity": "violation",
+     "stress": "Barrier peak"
+    },
+    {
+     "id": "CMTI",
+     "max_ratio": 0.6666666666666666,
+     "ok": false,
+     "rating": "CMTI min",
+     "ratio": 0.95,
+     "severity": "gap",
+     "stress": "CMTI edge"
+    },
+    {
+     "id": "gap",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "CLR/CPG",
+     "ratio": 0.8,
+     "severity": "violation",
+     "stress": "Functional gap needed"
+    }
+   ],
+   "class": "SAFETY",
+   "designators": [
+    "U43"
+   ],
+   "finding": null,
+   "function": "U43: HS-A rail verdict into the LS domain (functional HS-LS crossing in the bias-monitor PEC); default output LOW = not good. HS-B crosses to SELV on U44 (ISO7710FDWR) instead: no legal ISO6721FB pose straddles HS-B and LS on the s29 floor plan",
+   "gaps": [
+    "CMTI min 100 V/ns is 1.05x the 95 V/ns modelled edge (rule 1.5x). An upset on OUTB lasts ~5.5 ns: LOW pauses the LS oscillator for under one period, HIGH while a rail is bad can add at most one or two edges; neither sustains the heartbeat (missed-pulse margin >= 0.78 V, validation-results/11-candidates/c24-monitor-fmea/results/m1_pump_spice.json). Bench: S4/S5 dv/dt <= 100 V/ns.",
+    "Basic insulation used as functional HS-LS; the certifier is asked whether its barrier short may be excluded (FMEA section 7 Q4)."
+   ],
+   "status": "PARTIAL",
+   "unchecked_layout": []
+  },
   "ISO7710DWR": {
    "checks": [
     {
@@ -1528,30 +1610,53 @@
      "ratio": 1.1176,
      "severity": "gap",
      "stress": "CMTI edge"
-    },
-    {
-     "id": "U32-U34 filter",
-     "max_ratio": 0.1,
-     "ok": true,
-     "rating": "U32-U34 longest rejected glitch",
-     "ratio": 0.0009,
-     "severity": "violation",
-     "stress": "CMTI event duration"
     }
    ],
    "class": "SAFETY",
    "designators": [
     "U32",
-    "U33",
-    "U34",
     "U9"
    ],
-   "finding": "U9 CMTI (new, availability not safety): U9.OUT -> U13 OR (elec/src/power_stage_120v.ato:801) -> J4.10 BUS_FAULT -> controller InterlockUnit: SN74LVC14 -> CD74HC30 -> SN74LVC14 -> SN74LVC1G74 CLR_N (zapote/controller interlock_block.ato), no RC anywhere. A HIGH upset of more than a few ns clears the permit latch: PERMIT low, DIS high, all four drivers off, latched until firmware gives a fresh reset edge = nuisance trip, safe direction. A LOW upset during a real fault only shortens the fault level by the upset width (OCP/OVP/HOT5 faults are levels held while the condition lasts, and the latch acts on the first part of the pulse that reaches CLR_N), so detection is delayed by at most that width (event 5.47 ns) against the 0.85-1.16 us shunt-OCP chain; no fault is masked unless the whole fault pulse is shorter than the upset. Exposure is likely below 95 V/ns because OCP_KELVIN_P is not a switch node, but no model of its dv/dt to PE exists. Options: a 1 k / 47 pF RC at U13.A (tau 47 ns, adds about 57 ns to the OCP chain) at the re-spin, or a controller-side 2-sample/RC debounce (CMTI README OPEN item); bench probe BUS_FAULT at hard S4/S5 edges first.",
-   "function": "Reinforced digital isolators U9 (bus_fault) and U32/U33/U34 (rail monitors)",
+   "finding": null,
+   "function": "Reinforced digital isolators U9 (bus_fault) and U32 (the bias-monitor heartbeat: LS and HS-A verdicts; HS-B crosses on U44 ISO7710FDWR)",
    "gaps": [
-    "U9 (bus_fault isolator, OCP_KELVIN_P to SELV) CMTI min 85 V/ns < 95 V/ns bound with no time filter between U9 and the controller latch: availability gap, fail-safe in both directions (see finding).",
-    "TI publishes no upset duration; the U32-U34 filter pass assumes an upset shorter than 5.95 us (bench: probe BIAS_BAD_RAW and BUS_FAULT at hard S4/S5 edges, CMTI README remedy 4).",
-    "Zero distributor stock, 12 weeks (DECISIONS.md:846)."
+    "CMTI min 85 V/ns < 95 V/ns bound. U9: stage 30 adds R134/C167 (1 k / 100 pF, tau 100 ns) before U13.A, so a 5.5 ns upset no longer reaches the controller latch; bench-probe BUS_FAULT_FLT at hard S4/S5 edges. U32: a heartbeat carrier, an upset drops or adds an edge but cannot sustain a wave (FMEA 6a).",
+    "Zero distributor stock, 12 weeks (DECISIONS.md:846); two units on the board after stage 30 (was four). U44 is the F option, which JLC stocks."
+   ],
+   "status": "PARTIAL",
+   "unchecked_layout": []
+  },
+  "ISO7710FDWR": {
+   "checks": [
+    {
+     "id": "barrier",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "VIORM",
+     "ratio": 0.1348,
+     "severity": "violation",
+     "stress": "Barrier peak"
+    },
+    {
+     "id": "CMTI",
+     "max_ratio": 0.6666666666666666,
+     "ok": false,
+     "rating": "CMTI min",
+     "ratio": 1.1176,
+     "severity": "gap",
+     "stress": "CMTI edge"
+    }
+   ],
+   "class": "SAFETY",
+   "designators": [
+    "U44"
+   ],
+   "finding": null,
+   "function": "U44: HS-B rail verdict, HS-B -> SELV (reinforced), default output LOW = not good; gates the heartbeat NAND U46 (stage 30, DECISIONS 33)",
+   "gaps": [
+    "CMTI min 85 V/ns < 95 V/ns bound. An upset lasts ~5.5 ns: LOW while good removes at most one pump edge (missed-pulse margin >= 0.78 V, validation-results/11-candidates/c24-monitor-fmea/results/m1_pump_spice.json); HIGH while HS-B is bad passes at most one edge and cannot hold the wave. Bench: S4/S5 dv/dt <= 100 V/ns.",
+    "Output stuck HIGH is dormant (as the M1b ISO6721FB link it replaces); FMEA section 6a residual.",
+    "JLC stock 29 (C2859831, 2026-10-14) - enough for prototype lots; distributor stock to be confirmed by the owner."
    ],
    "status": "PARTIAL",
    "unchecked_layout": []
@@ -1624,22 +1729,6 @@
    ],
    "finding": null,
    "function": "2.5 V reference",
-   "gaps": [
-    "Not audited (outside SAFETY/POWER)."
-   ],
-   "status": "UNAUDITED",
-   "unchecked_layout": []
-  },
-  "MMBT3904": {
-   "checks": [],
-   "class": "SIGNAL",
-   "designators": [
-    "Q7",
-    "Q8",
-    "Q9"
-   ],
-   "finding": null,
-   "function": "NPN",
    "gaps": [
     "Not audited (outside SAFETY/POWER)."
    ],
@@ -2053,6 +2142,7 @@
    "checks": [],
    "class": "SIGNAL",
    "designators": [
+    "R133",
     "R17",
     "R9"
    ],
@@ -2156,18 +2246,29 @@
    "status": "UNAUDITED",
    "unchecked_layout": []
   },
-  "SN74LVC1G14DBVR": {
-   "checks": [],
+  "SN74LVC1G132DBVR": {
+   "checks": [
+    {
+     "id": "VCC",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "VCC recommended max",
+     "ratio": 0.9545,
+     "severity": "violation",
+     "stress": "VCC"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
-    "U40"
+    "U45",
+    "U46"
    ],
    "finding": null,
-   "function": "Schmitt inverter",
+   "function": "U45: gated Schmitt-NAND RC oscillator (heartbeat source, LS domain); U46: SELV Schmitt NAND, heartbeat gated by HS-B's ISO7710F verdict, driving the pump (3.3 V, inside the 5 V corner checked here)",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "The LS 5 V tolerance (TPS70950, UNAUDITED signal part) is taken as +/-5 %; the oscillator period range 0.42-2.09 us follows from the G132 threshold table at those corners."
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "SN74LVC1G17DBVR": {
@@ -2175,7 +2276,8 @@
    "class": "SIGNAL",
    "designators": [
     "U15",
-    "U24"
+    "U24",
+    "U40"
    ],
    "finding": null,
    "function": "Schmitt buffer",
@@ -2189,8 +2291,7 @@
    "checks": [],
    "class": "SIGNAL",
    "designators": [
-    "U13",
-    "U25"
+    "U13"
    ],
    "finding": null,
    "function": "OR gate",
@@ -2455,21 +2556,24 @@
   "IPW65R018CFD7",
   "IRM-20-15",
   "IRM-20-24",
+  "ISO6721FBDR",
   "ISO7710DWR",
+  "ISO7710FDWR",
   "KLDR025.TXP",
   "R24C2T25/R-R",
   "R463N410050N1K",
   "RC1206FR-07220KL",
   "RC1206FR-07470KL",
+  "SN74LVC1G132DBVR",
   "TMOV20RP175E",
   "VOL628A-2X001T"
  ],
  "result": "PASS",
  "strict": false,
  "totals": {
-  "PARTIAL": 28,
-  "UNAUDITED": 62,
-  "VERIFIED": 2,
+  "PARTIAL": 31,
+  "UNAUDITED": 60,
+  "VERIFIED": 3,
   "VIOLATION": 0
  },
  "unaudited_other": [
@@ -2479,13 +2583,13 @@
   "0603WAF1001T5E",
   "0603WAF1002T5E",
   "0603WAF1003T5E",
+  "0603WAF2200T5E",
   "0603WAF2702T5E",
   "0603WAF3302T5E",
   "0603WAF4991T5E",
   "0603WAF5601T5E",
   "1206W4F1001T5E",
   "1206W4F100KT5E",
-  "1N4148W",
   "6SVPC220MV",
   "ARG03BTC1333",
   "BAS116H,115",
@@ -2501,7 +2605,6 @@
   "GRM31C5C1H104JA01L",
   "LM339BIDR",
   "LM4040A25IDBZR",
-  "MMBT3904",
   "PMEG6030EP,115",
   "RC1206FR-0716K5L",
   "RC1206FR-072K2L",
@@ -2524,7 +2627,6 @@
   "RT0603BRD077K68L",
   "SN74LVC1G00DBVR",
   "SN74LVC1G10DBVR",
-  "SN74LVC1G14DBVR",
   "SN74LVC1G17DBVR",
   "SN74LVC1G332DBVR",
   "TL431AIDBZR",
@@ -2540,6 +2642,6 @@
  "unchecked_layout_items": 9,
  "violations": [],
  "warnings": [
-  "62 SIGNAL-class lines are UNAUDITED (allowed; listed in the report)"
+  "60 SIGNAL-class lines are UNAUDITED (allowed; listed in the report)"
  ]
 }

@@ -44,7 +44,7 @@
   "tht_lines": 19,
   "consign_lines": 6,
   "parts_usd_at_5": 320.66,
-  "parts_usd_at_500": 222.68,
+  "parts_usd_at_500": 211.78,
   "unpriced_lines": [],
   "zero_stock_lines": 9,
   "single_source_lines": 16,
@@ -61,5 +61,10 @@
   "bank": "11-candidates/g04-g09-tank-detect/results/bank_options.json baseline J",
   "ocp_pickup": "02-protection-timing/coil-pickup/s21b/result-s29.json",
   "ledger": "native-21/verification/datasheet-ledger: {'PARTIAL': 28, 'UNAUDITED': 62, 'VERIFIED': 2, 'VIOLATION': 0}"
+ },
+ "restated": {
+  "date": "2026-10-14",
+  "parts_usd_at_500_as_scored": 222.68,
+  "reason": "KLDR025.TXP at $18.516 (DK 500 break), not $29.412 (the 10-piece break): DECISIONS 32 price correction, sourcing/STOCK-2026-10-13_pricefix-kldr.csv. Recomputed with scorecard.cost() on this tag's fab BOM and today's stock glob; the same call without the fix file reproduces the as-scored value."
  }
 }

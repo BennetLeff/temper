@@ -469,6 +469,39 @@ The worst start corner is 3.135 V, −40 °C, slowest oscillator. The thin 0.148
 
 **Verdict on the gate:** condition 2 (SPICE) is met by M1b. Conditions 3–4 (B4 timing with ≤ 123 µs, audit.rs) follow in the stage build.
 
+## 6b. As built (stage 30, 2026-10-14): HS-B crosses to SELV on its own default-LOW isolator
+
+The board could not take M1b exactly as drawn. HS-A's ISO6721FB link (U43) routes. HS-B's does not: on the stage-29 floor
+plan, every row between the HS-B bank and the LS domain is closed on all four layers. U42's n_ls pocket, the SELV 8 mm
+keep-out, the protected In2 `bus_p` trunk and the B.Cu `n_hb` strip block it, and only grandfathered power copper crosses
+the band. `08-manufacturing-package/native-21/stage30-heartbeat/spot_scan.py` finds no legal U44 pose that straddles
+HS-B and LS. As built:
+
+```
+ HS-A: as M1b (U43 ISO6721FB -> MON_GOOD_HA -> one half of D18 BAT54S into the LS good node)
+ HS-B: LM339B U31 'good' --rpull--> U44 ISO7710F IN (reinforced, DW-16, default LOW; at U34's stage-29 pose)
+ SELV: U32 OUT (heartbeat) -> U46 SN74LVC1G132 B;  U44 OUT (HSB_GOOD) -> U46 A
+       U46 Y -> 220 ohm -> pump -> hold -> U40 -> BIAS_GOOD   (the pump is AC-coupled: the NAND's inversion is irrelevant)
+```
+
+How each HS-B failure is detected, compared with M1b:
+- **HS-B rail bad, U31 or U39 dead, U44 side 1 unpowered, or U44 IN open.** U44 outputs LOW (SLLSER9E 7.3,
+  Tables 7-1 and 7-2), so U46's output sits static HIGH, the pump stops and the trip is **announced**. This is the same
+  outcome as the ISO6721FB's default LOW stopping the LS oscillator.
+- **U44 output stuck LOW, or U46 stuck at any static level.** The wave stops and the trip is **announced**.
+- **U44 output stuck HIGH.** This is **dormant** for HS-B only, exactly like the M1b ISO6721FB stuck-high row. The LS and
+  HS-A verdicts still stop the oscillator.
+- **CMTI upset on U44 (85 kV/us minimum against the 95 V/ns model; it lasts about 5.5 ns).** It adds or blocks at most
+  one pump edge. That is the same argument and the same missed-pulse margin as for U32 (`results/m1_pump_spice.json`,
+  design J).
+
+The single-fault coverage is therefore unchanged. The changes are these:
+- The group has two reinforced HOT-to-SELV crossings (U32 and U44) instead of one. The stage-29 board had three.
+- U46 changes from G17 to G132. The G132 is already in the BOM for the oscillator, so this adds no line.
+- D18 changes from BAT54A to BAT54S. The BAT54S is already in the BOM for the pump, so this removes the BAT54A line.
+
+The FIT figures in `scripts/fmea_metric.py` were not re-run for this variant.
+
 ## 7. Questions for the certifier
 
 1. **Protective electronic circuit (PEC) status.** Is the F6 rail-window monitor plus the DIS path a protective
@@ -491,7 +524,7 @@ The worst start corner is 3.135 V, −40 °C, slowest oscillator. The thin 0.148
 6. **Response time.** Is a PEC response time of ≤ ~90 µs (M1) acceptable against today's ~10 µs, given that rail faults
    are ms-scale? Is there a normative limit?
 7. **Crossing count.** Is reducing the monitor group's reinforced HOT→SELV crossings from three to one acceptable without
-   any per-signal requirement? This is a positive change for D5.
+   any per-signal requirement? This is a positive change for D5. (As built, two: see section 6b.)
 
 ## Evidence and limits
 

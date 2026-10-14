@@ -17,6 +17,7 @@ Verdict rules (RESOLUTION-PLAN F6):
            rule cannot be closed from this repository
 """
 import csv
+import json
 import math
 import re
 import sys
@@ -55,6 +56,8 @@ URL_VOL = "https://www.vishay.com/docs/82401/vol628a.pdf"
 URL_REC = "https://recom-power.com/pdf/Econoline/R24C2T25_R.pdf"
 URL_CST = "https://www.coilcraft.com/getmedia/df31d5fe-b3af-4586-82a7-7b773ac9f838/cst3015.pdf"
 URL_LVC = "https://www.ti.com/lit/ds/symlink/sn74lvc1g17.pdf"
+URL_6721 = "https://www.ti.com/lit/ds/symlink/iso6721.pdf"
+HB_SPICE = PS / "validation-results/11-candidates/c24-monitor-fmea/results/m1_pump_spice.json"
 
 # SN74LVC1G17 (SCES351Y, Oct 2025) p.6 Table 5.5 'DC Limit Changes': VT+ at VCC = 3 V,
 # -40..125 C: min 1.48 V, max 1.92 V.  Used at 3.3 V (V3V3) -> the 3 V row is the conservative
@@ -80,14 +83,20 @@ def schematic_facts():
     parts = read("parts.ato") + read("f6_parts.ato")
     allsrc = top + bias
     n = lambda cls: len(re.findall(rf"=\s*new\s+{cls}\b", allsrc))
-    n_highbias = n("HighBias")
+    n_highbias = n("HighBias(?:Link|Selv)")   # stage 30: HS-A HighBiasLink, HS-B HighBiasSelv
     facts = {
         "bridge_legs": n("BridgeLeg"),
         "drivers_in_leg": len(re.findall(r"driver\s*=\s*new\s+(?:UCC21550BDWK|Driver2EDR8259X)\b", top)),
         "iso7710_rail_monitors": n("RailMonitor") + n_highbias * 0,   # RailMonitor sites (see below)
         "highbias": n_highbias,
         "iso7710_bus_fault": len(re.findall(r"u_iso\s*=\s*new\s+Iso7710", top)),
-        "iso7710_in_railmonitor": len(re.findall(r"=\s*new\s+Iso7710", bias)),
+        # stage 30 (DECISIONS 33): the rail monitors keep no isolator of their own; the LS and HS-A verdicts cross to SELV
+        # as the heartbeat (ISO7710 U32), HS-A reaching the LS domain through an ISO6721FB (U43); HS-B's verdict crosses
+        # on its own default-LOW ISO7710F (U44) and gates the heartbeat in SELV
+        "iso7710_heartbeat": len(re.findall(r"=\s*new\s+Iso7710\b", bias)),
+        "heartbeats": n("Heartbeat"),
+        "iso6721_links": n("HighBiasLink") * len(re.findall(r"=\s*new\s+Iso6721Fb\b", bias)),
+        "iso7710f_verdicts": n("HighBiasSelv") * len(re.findall(r"=\s*new\s+Iso7710F\b", bias)),
         "amc1311": n("Amc1311"),
         "line_opto": len(re.findall(r"=\s*new\s+LineOpto\b", bias)),
         "ct": n("CST3015_200E") + n("CST3015_100E"),   # stage 20: the 1:200 CT
@@ -100,8 +109,11 @@ def schematic_facts():
         n_highbias * len(re.findall(r"=\s*new\s+RailMonitor\b", bias))
     facts["bias_modules"] = n_highbias * len(re.findall(r"=\s*new\s+IsoBiasModule\b", bias))
     um = {"ohm": 1.0, "kohm": 1e3, "nF": 1e-9, "uF": 1e-6, "pF": 1e-12, "nf": 1e-9}
-    facts["filt_R"] = parse_value(top, "r_bias_flt", um)
-    facts["filt_C"] = parse_value(top, "c_bias_flt", um)
+    hb_mod = re.search(r"^module Heartbeat:.*?(?=^(?:module|component) |\Z)", bias, re.M | re.S).group(0)
+    facts["filt_R"] = parse_value(hb_mod, "rbleed", um)    # heartbeat hold node R_bleed || C_hold (stage 30)
+    facts["filt_C"] = parse_value(hb_mod, "chold", um)
+    facts["bf_R"] = parse_value(top, "r_bf", um)           # stage 30: U9 BUS_FAULT RC (R134 / C167)
+    facts["bf_C"] = parse_value(top, "c_bf", um)
     facts["ct_R"] = parse_value(top, "r_ct_burden", um)
     facts["ct_C"] = parse_value(top, "c_ct_burden", um)
     facts["filt_buf_mpn"] = re.search(r'component Hot5SchmittBuffer:.*?mpn = "([^"]+)"', parts, re.S).group(1)
@@ -110,6 +122,8 @@ def schematic_facts():
     drv_comp = re.search(r"driver\s*=\s*new\s+(\w+)", top).group(1)
     facts["ucc_mpn"] = re.search(rf'component {drv_comp}:.*?mpn = "([^"]+)"', parts, re.S).group(1)
     facts["iso_mpn"] = re.search(r'component Iso7710:.*?mpn = "([^"]+)"', parts, re.S).group(1)
+    facts["iso_f_mpn"] = re.search(r'component Iso7710F:.*?mpn = "([^"]+)"', parts, re.S).group(1)
+    facts["link_mpn"] = re.search(r'component Iso6721Fb:.*?mpn = "([^"]+)"', parts, re.S).group(1)
     facts["mod_mpn"] = re.search(r'component IsoBiasModule:.*?mpn = "([^"]+)"', parts, re.S).group(1)
     facts["opto_mpn"] = re.search(r'component LineOpto:.*?mpn = "([^"]+)"', parts, re.S).group(1)
     facts["ct_mpn"] = re.search(r'component CST3015_[0-9]+E:.*?mpn = "([^"]+)"', parts, re.S).group(1)
@@ -130,10 +144,17 @@ def rc_rejection(R, C, vt, v):
 
 def build_rows(f):
     R, C = f["filt_R"], f["filt_C"]
-    tau, tg_max, v_at = rc_rejection(R, C, VT_PLUS_MIN_3V, V3V3)
-    filt_txt = (f"R_BIAS_FLT {R/1e3:g}k x C_BIAS_FLT {C*1e9:g}nF, tau={tau*1e6:.1f}us; rejects any glitch "
-                f"<{tg_max*1e6:.2f}us at SN74LVC1G17 VT+min {VT_PLUS_MIN_3V} V (SCES351Y p.6); "
-                f"1us glitch reaches {v_at(1e-6):.2f} V, 5us {v_at(5e-6):.2f} V")
+    _, _, v_at = rc_rejection(R, C, VT_PLUS_MIN_3V, V3V3)
+    # Stage 30: the time filter is the heartbeat itself. An upset can drop or add an edge of the 0.42-2.09 us wave; the
+    # hold node (R_bleed || C_hold) rides through one dropped period at every corner (SPICE design J, 96 corners).
+    hb = json.loads(HB_SPICE.read_text())["summary"]
+    hj = hb["designs"]["J"]
+    tau = R * C
+    tg_max = min(hb["osc_period_us"]) * 1e-6
+    filt_txt = (f"heartbeat hold R_bleed {R/1e3:g}k || C_hold {C*1e9:g}nF, tau={tau*1e6:.1f}us; one dropped period "
+                f"(>= {tg_max*1e6:.2f}us, the fastest-oscillator corner) leaves >= {hj['worst_missed_margin']['margin_missed_V']:.3f} V "
+                f"above U40's VT- (SPICE design J, {hj['corners']} corners, 0 fails); a dead wave trips in <= "
+                f"{hj['worst_trip']['t_trip_us']:g} us (11-candidates/c24-monitor-fmea/results/m1_pump_spice.json)")
     rows = []
 
     def row(**k):
@@ -153,23 +174,41 @@ def build_rows(f):
             effect="FALSE GATE COMMAND: a barrier upset on INA/INB is downstream of the dead-time logic, so it can turn on a "
                    "FET (the DT interlock sits on the input side; this reasoning is mine, not a datasheet claim). DIS upset: "
                    "outputs forced low (off), the safe direction.")
-    # ------------------------------------------------------------------ rail monitors (filtered)
-    for ref, nm, node in (("U32", "LS rail monitor", "N_LS/LEG_RET (not a switch node; 95 V/ns applied as a conservative bound)"),
-                          ("U33", "HS-A rail monitor", "SW_A"), ("U34", "HS-B rail monitor", "SW_B")):
-        row(ref=ref, mpn=f["iso_mpn"], role=f"Digital isolator, {nm} (HOT5 side 1 -> V3V3 side 2)", cls="FILTERED",
-            node=node, cmti_static=85.0,
-            cmti_dyn="85 kV/us min, 100 typ, VCM=1200 V (single figure); ISO7710 default output HIGH = 'bad'",
-            cio_pf=0.4,
-            cite="ISO7710 SLLSER9E (Dec 2024) p.11 Table 5.9 (5-V supply), p.12 Table 5.11 (3.3-V supply): CMTI min 85 / typ 100 kV/us, VCM = 1200 V; CIO ~0.4 pF p.8",
-            url=URL_ISO, filter=filt_txt, tau=tau, tg_max=tg_max,
-            effect="Rail-monitor OUT -> OR3 (SN74LVC1G332) BIAS_BAD_RAW -> R_BIAS_FLT/C_BIAS_FLT -> Schmitt U-buffer -> BIAS_BAD -> "
-                   "DisOr (SN74LVC1G32) -> UCC21550 DIS of both legs. A glitch HIGH disables the drivers (off = safe nuisance "
-                   "trip); a glitch LOW only delays a real rail-fault flag (rail faults are ms-scale, reservoirs).")
+    # ------------------------------------------------------------------ rail-monitor group (filtered by the heartbeat)
+    for ref, hs, node in (("U43", "HS-A", "SW_A"),):
+        row(ref=ref, mpn=f["link_mpn"], role=f"Digital isolator, {hs} rail verdict (monitor GOOD -> MON_GOOD into the LS vote)",
+            cls="FILTERED", node=node, cmti_static=100.0,
+            cmti_dyn="100 kV/us min, 150 typ, VCM = 1200 V, VI = VCC or 0 V (both input states); default output LOW = not good",
+            cio_pf=0.5,
+            cite="ISO6721 SLLSFJ0F (Feb 2023) s.6.9 / 6.10 Electrical Characteristics (5 V) CMTI min 100 / typ 150 kV/us, "
+                 "VCM = 1200 V; s.6.6 p.7 CIO ~0.5 pF",
+            url=URL_6721, filter=filt_txt, tau=tau, tg_max=tg_max,
+            effect="OUTB -> BAT54S half (D18) -> LS GOOD node = the LVC1G132 oscillator's enable. A glitch LOW pauses the oscillator for "
+                   "under one period; a glitch HIGH while the rail is bad adds at most one or two edges. Neither holds the wave, "
+                   "so neither moves BIAS_GOOD (FMEA s6a).")
+    row(ref="U44", mpn=f["iso_f_mpn"], role="Digital isolator, HS-B rail verdict (monitor GOOD -> HSB_GOOD, the SELV NAND's gate)",
+        cls="FILTERED", node="SW_B", cmti_static=85.0,
+        cmti_dyn="85 kV/us min, 100 typ, VCM=1200 V (single figure); default output LOW = not good (ISO7710F)", cio_pf=0.4,
+        cite="ISO7710 SLLSER9E (Dec 2024) p.11 / p.12 CMTI min 85 / typ 100 kV/us, VCM = 1200 V; s.7.3 Table 7-1 / 7-2 "
+             "default LOW for the F option; CIO ~0.4 pF p.8",
+        url=URL_ISO, filter=filt_txt, tau=tau, tg_max=tg_max,
+        effect="HSB_GOOD -> U46 (G132 NAND) A input, the heartbeat on B. A glitch LOW while HS-B is good blocks at most one pump "
+               "edge; a glitch HIGH while HS-B is bad passes at most one edge. Neither holds the wave, so neither moves "
+               "BIAS_GOOD (FMEA s6a).")
+    row(ref="U32", mpn=f["iso_mpn"], role="Digital isolator, bias-monitor heartbeat (LS oscillator -> SELV charge pump)",
+        cls="FILTERED", node="N_LS/LEG_RET (not a switch node; 95 V/ns applied as a conservative bound)", cmti_static=85.0,
+        cmti_dyn="85 kV/us min, 100 typ, VCM=1200 V (single figure)", cio_pf=0.4,
+        cite="ISO7710 SLLSER9E (Dec 2024) p.11 Table 5.9 (5-V supply), p.12 Table 5.11 (3.3-V supply): CMTI min 85 / typ 100 kV/us, VCM = 1200 V; CIO ~0.4 pF p.8",
+        url=URL_ISO, filter=filt_txt, tau=tau, tg_max=tg_max,
+        effect="HB_RX -> G132 NAND (U46, gated by U44) -> diode pump -> hold node -> U40 (G17) -> BIAS_GOOD -> DIS NAND of both legs. An upset drops or "
+               "adds one edge; only a sustained wave holds BIAS_GOOD, and every static failure (either output state) trips.")
     # ------------------------------------------------------------------ bus fault isolator
     row(ref="U9", mpn=f["iso_mpn"], role="Digital isolator, BUS_FAULT (OCP/OVP/HOT5-OK NAND -> J4 pin 10)", cls="OPEN",
         node="OCP_KELVIN_P/LEG_RET (not a switch node; 95 V/ns applied as a conservative bound)", cmti_static=85.0,
         cmti_dyn="85 kV/us min, 100 typ, VCM=1200 V", cio_pf=0.4,
-        cite="ISO7710 SLLSER9E p.11/12 (as above)", url=URL_ISO, filter="none on the power board (BUS_FAULT_ISO goes straight to J4)",
+        cite="ISO7710 SLLSER9E p.11/12 (as above)", url=URL_ISO,
+        filter=f"R134 {f['bf_R']:g} ohm / C167 {f['bf_C']*1e12:g} pF (tau {f['bf_R']*f['bf_C']*1e9:.0f} ns, >> the {V_SW_PEAK/DVDT_HARD:.1f} ns "
+               f"edge, < 10 us) into U13 (LVC1G332) -> BUS_FAULT on J4",
         effect="Fault line to the controller. High = fault: a false HIGH is a nuisance trip (safe direction); a false LOW "
                "during a real fault lasts only the glitch (fault persists). No gate command on the power board, but whether the "
                "controller debounces BUS_FAULT is not in this repo (06 README: no controller counterpart) -> OPEN.",
@@ -263,7 +302,8 @@ def judge(r):
 def main():
     f = schematic_facts()
     print("== schematic enumeration (read from elec/src/*.ato) ==")
-    expect = {"drivers_in_leg": 1, "bridge_legs": 2, "rail_monitors": 3, "iso7710_bus_fault": 1,
+    expect = {"drivers_in_leg": 1, "bridge_legs": 2, "rail_monitors": 3, "iso7710_bus_fault": 1, "heartbeats": 1,
+              "iso7710_heartbeat": 1, "iso6721_links": 1, "iso7710f_verdicts": 1,
               "amc1311": 1, "line_opto": 1, "bias_modules": 2, "ct": 1, "ps1": 1, "ps2": 1}
     bad = False
     for k, v in expect.items():
@@ -271,13 +311,17 @@ def main():
         bad |= not ok
         print(f"  {k:20s} found {f[k]}  expected {v}  {'ok' if ok else 'MISMATCH'}")
     n_drv = f["drivers_in_leg"] * f["bridge_legs"]
-    n_iso = f["rail_monitors"] + f["iso7710_bus_fault"]
-    print(f"  => UCC21550 x{n_drv}, ISO7710 x{n_iso} (3 rail monitors + 1 bus fault), AMC1311 x1, VOL628A x1, "
+    n_iso = f["iso7710_heartbeat"] + f["iso7710_bus_fault"]
+    print(f"  => {f['ucc_mpn']} x{n_drv}, ISO7710 x{n_iso} (heartbeat + bus fault), {f['link_mpn']} x{f['iso6721_links']} (HS-A verdict), "
+          f"{f['iso_f_mpn']} x{f['iso7710f_verdicts']} (HS-B verdict), "
+          f"AMC1311 x1, VOL628A x1, "
           f"R24C2T25 x{f['bias_modules']}, CST3015 x1, IRM x2; BiasOpto (VO617A) defined but instantiated {f['bias_opto_unused']}x")
     print("  watch-listed MPNs defined in parts: " + ", ".join(f["watch_mpns"]))
     rows, (tau, tg_max, v_at) = build_rows(f)
     listed = {r["mpn"] for r in rows}
-    unlisted = [m for m in f["watch_mpns"] if m not in listed and m not in ("IRM-05-15", "VO617A-3X017T")]
+    # defined in parts.ato but not instantiated: IRM-05-15, VO617A, and the UCC21550 the 2EDR8259X replaced in stage 29
+    unused = ("IRM-05-15", "VO617A-3X017T") + (("UCC21550BDWKR",) if f["ucc_mpn"] != "UCC21550BDWKR" else ())
+    unlisted = [m for m in f["watch_mpns"] if m not in listed and m not in unused]
     # defined-but-unused parts are allowed; anything else unlisted is a missing row
     for m in unlisted:
         print(f"  UNLISTED isolator-like MPN: {m}")
@@ -306,9 +350,8 @@ def main():
     print(f"UCC21550 at ZVS: {ucc/DVDT_ZVS:.1f}x (PASS); hard: {ucc/DVDT_HARD:.2f}x (FAIL, bare datasheet ratio > 1 so no upset is "
           f"*predicted* - the rating is simply not demonstrated with margin)")
     print(f"hard-edge duration for a {V_SW_PEAK:g} V swing at {DVDT_HARD:g} V/ns = {V_SW_PEAK/DVDT_HARD:.2f} ns; at {DVDT_ZVS:g} V/ns = {V_SW_PEAK/DVDT_ZVS:.0f} ns")
-    print(f"monitor filter: tau = {tau*1e6:.2f} us; longest rejected glitch = {tg_max*1e6:.2f} us "
-          f"(VT+min {VT_PLUS_MIN_3V} V of {V3V3} V); glitch 0.1/1/5/10 us -> "
-          + " / ".join(f"{v_at(t*1e-6):.2f} V" for t in (0.1, 1, 5, 10)))
+    print(f"monitor-group filter (heartbeat hold): tau = {tau*1e6:.2f} us; one dropped period >= {tg_max*1e6:.2f} us rides "
+          f"through (SPICE design J); a {V_SW_PEAK/DVDT_HARD:.2f} ns upset is {tg_max/(V_SW_PEAK/DVDT_HARD*1e-9):.0f}x shorter")
     print("injected current/charge across each barrier (Cio x 95 V/ns; Cio x 520 V), simple C*dv/dt:")
     for r in rows:
         if r["i_inj_hard_mA"] is not None and r["ref"] != "CTRL":

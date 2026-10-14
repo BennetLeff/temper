@@ -722,6 +722,30 @@ component Iso7710:
     signal NC15 ~ pin 15
     signal GND2B ~ pin 16
 
+component Iso7710F:
+    """TI ISO7710FDWR, reinforced 5 kVrms, default-LOW output on input-side power loss (SLLSER9E: 'F' suffix,
+    Table 7-1). Same DW0016B pinout and land pattern as Iso7710."""
+    designator_prefix = "U"
+    mpn = "ISO7710FDWR"
+    manufacturer = "Texas Instruments"
+    footprint = "lib:SOIC16W_DW0016B_HV"
+    signal GND1 ~ pin 1
+    signal NC2 ~ pin 2
+    signal VCC1 ~ pin 3
+    signal IN ~ pin 4
+    signal NC5 ~ pin 5
+    signal NC6 ~ pin 6
+    signal GND1B ~ pin 7
+    signal NC8 ~ pin 8
+    signal GND2 ~ pin 9
+    signal NC10 ~ pin 10
+    signal NC11 ~ pin 11
+    signal NC12 ~ pin 12
+    signal OUT ~ pin 13
+    signal VCC2 ~ pin 14
+    signal NC15 ~ pin 15
+    signal GND2B ~ pin 16
+
 # ------------------------------------------------------------------ SELV port
 
 component SelvHeader16:
@@ -838,3 +862,66 @@ component Or3Lvc1g332:
     signal Y ~ pin 4
     signal VCC ~ pin 5
     signal C ~ pin 6
+
+# ------------------------------------------------------------------ stage 30 (candidate 24, DECISIONS 33)
+
+component Iso6721Fb:
+    """TI ISO6721FBDR: 1 forward + 1 reverse channel, basic (3 kVrms, VIORM 637 Vpk), default output LOW (F option)
+    when side 1 is unpowered or the input is open. D (SOIC-8): 1 VCC1, 2 OUTA, 3 INB, 4 GND1, 5 GND2, 6 OUTB, 7 INA,
+    8 VCC2 (SLLSFJ0F Table 5-1). Used HS island -> LS domain only (functional crossing, 3.2 mm group rule)."""
+    designator_prefix = "U"
+    mpn = "ISO6721FBDR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm"
+    signal VCC1 ~ pin 1
+    signal OUTA ~ pin 2
+    signal INB ~ pin 3
+    signal GND1 ~ pin 4
+    signal GND2 ~ pin 5
+    signal OUTB ~ pin 6
+    signal INA ~ pin 7
+    signal VCC2 ~ pin 8
+
+component SchottkyPairSeries:
+    """Diodes BAT54S-7-F, series pair, SOT-23: 1 A1, 2 K2, 3 K1/A2 (DS11005 p.1 diagram)."""
+    designator_prefix = "D"
+    mpn = "BAT54S-7-F"
+    manufacturer = "Diodes Incorporated"
+    footprint = "Package_TO_SOT_SMD:SOT-23"
+    signal A1 ~ pin 1
+    signal K2 ~ pin 2
+    signal MID ~ pin 3
+
+component SchmittNand132:
+    """TI SN74LVC1G132DBVR Schmitt NAND, DBV: 1 A, 2 B, 3 GND, 4 Y, 5 VCC (SCES546E Pin Functions)."""
+    designator_prefix = "U"
+    mpn = "SN74LVC1G132DBVR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    signal A ~ pin 1
+    signal B ~ pin 2
+    signal GND ~ pin 3
+    signal Y ~ pin 4
+    signal VCC ~ pin 5
+
+component SchmittBuf17:
+    """TI SN74LVC1G17DBVR non-inverting Schmitt buffer (the U15/U24 line); DBV pins NC1, A2, GND3, Y4, VCC5."""
+    designator_prefix = "U"
+    mpn = "SN74LVC1G17DBVR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    signal NC ~ pin 1
+    signal A ~ pin 2
+    signal GND ~ pin 3
+    signal Y ~ pin 4
+    signal VCC ~ pin 5
+
+component R220R0603:
+    """220 ohm 1 % 0603: heartbeat pump series resistor (buffer peak <= 11.2 mA, m1_pump_spice.py design J)."""
+    designator_prefix = "R"
+    mpn = "0603WAF2200T5E"
+    manufacturer = "UNI-ROYAL(Uniroyal Elec)"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2

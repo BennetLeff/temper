@@ -1096,3 +1096,32 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
       - KLDR025.TXP is **$18.516 at 500**, not $29.412 (that was DigiKey's 10-piece price).
       - The two 01250003H clips ($2.057 each at 500) are not in the BOM and so never reached the card.
       - The card moves by −$10.90 for the fuse. The clips get a BOM line when F1 is next touched. The 19c card is restated with the same correction so the comparison stays like-for-like.
+33. **Stage 30: the three bias-monitor crossings become one heartbeat (candidate 24, M1b as built) and U9 BUS_FAULT gets an RC (2026-10-14; board `4fcae4bf8971718d38fc2fc9cb257e2ec044de2914e6f31d2df0204b1736ddfd`, copper.json `b096631d8d87260002076b7f8fe22138c683606c9a4030d4a5cda9b4fc7a0725`, schematic `f0a179bd…`, frozen netlist `89950de34e5771fc1b78ee2f07d63c68f715deb35b43b4ccea8c65f18d30144e`, Gerber ZIP `ba738003a82a2c25c5040a0d10ddb8edab3d5442713dc923f79588ca97e88288`; tag `native21s30`; candidate 24, `11-candidates/c24-monitor-fmea/` §6b, `08-manufacturing-package/native-21/stage30-heartbeat/`; SAFETY: bias supervision, OCP interface).**
+    - **Why:** item 32. One reinforced monitor crossing in place of three, two zero-stock ISO7710s gone, dormant masking exposure down, and the BUS_FAULT nuisance path into the permit latch's async CLR closed.
+    - **Change:**
+      - **Heartbeat:** the LS and HS-A verdicts gate an LS Schmitt-NAND oscillator (U45, SN74LVC1G132). Its wave crosses on U32 (ISO7710) to the SELV NAND U46 (SN74LVC1G132), then 220 Ω → pump (D19 BAT54S) → hold → U40 → BIAS_GOOD. HS-A's verdict reaches LS on U43 ISO6721FB (default LOW) and one half of D18 (now a BAT54S). The per-rail notice stages U33 / U34, Q7–Q9 and the bias OR U25 are deleted, and with them the BAT54A line.
+      - **Deviation from M1b: HS-B crosses to SELV, not to LS.** HS-B's verdict goes on its own U44 ISO7710FDWR (reinforced, default LOW) at U34's stage-29 pose, and its output HSB_GOOD is U46's second input. The ISO6721FB HS-B → LS link would not route: `spot_scan.py` finds no legal pose straddling HS-B and LS, and the one cluster tried (3.5, 47) left HS-B and LS nets open on every pass. The rows y 47–60 are closed on all four layers (U42's n_ls pocket, the SELV 8 mm floor, the protected In2 `bus_p` trunk and the B.Cu `n_hb` strip; README). That is a router outcome, not a rerunnable proof.
+      - Single-fault coverage is unchanged (FMEA §6b): every HS-B failure that M1b announced is announced here too, because U44 defaults LOW and a static U46 stops the pump. U44 stuck HIGH is dormant for HS-B only, as the M1b ISO6721FB stuck-high row was. The cost is two reinforced HOT → SELV crossings (U32, U44) instead of one; stage 29 had three. The FIT figures were not re-run for this variant.
+      - **HSB_GOOD routing:** U44's SELV pocket is closed by the permit / PWM / bias_good bundle and the 8 mm floor, so HSB_GOOD leaves on one authored 25.9 mm In2 leg (selv_gnd plane). In2 rather than In1, because the outer layer over an In2 leg (B.Cu) carries 0 mm of return-path-asserted nets, against 13.7 mm of pwm_lb / pwm_hb on F.Cu over the In1 leg (`inner_leg_overlap.py`).
+      - **U9 BUS_FAULT:** R134 1 kΩ / C167 100 pF between U9 and U13.A (item 32 said 47 pF). 100 pF reuses C30's Basic line (CL10C101JB8NNNC), so no line is added. τ = 100 ns adds about 0.1 µs to a 0.85–1.16 µs OCP chain (≈ 0.3 A at the tank's ~3 A/µs). A ns-wide CMTI upset on U9 no longer reaches the async CLR.
+    - **Evidence:**
+      - audit.rs PASS 81/81 (new rows and mutation tests in `audit_f6.rs`); verify_source PASS; 349 components, 94 BOM lines.
+      - Ledger gate PASS, 0 violations (ISO7710FDWR entry added, BAT54A removed). cmti_table.py: 7 PASS, 0 FAIL, 6 OPEN.
+      - Passes 0 unconnected / 0 errors. Chain `native21s30` CHAIN_DONE with every gate clean: D5 8.047 / 8.507 mm, DFM PASS (710 vias), RES_A outer 13.375 mm, bypass PASS, return path PASS, B3 c28_h25 135.2 °C / nominal_h10 162.1 °C, Kelvin band 67.77–116.44 A, OCP pickup 4.17 A, necks 0.993 (unchanged).
+      - Stock: ISO7710FDWR C2859831, 29 in JLC stock at the 2026-10-13 survey, $3.27 at 5 / $2.31 at 500 (`STOCK-2026-10-13-addendum-s30.csv`).
+    - **Scorecard: ACCEPT against 19c and 29** (`scorecard-native21s30.json`).
+      - Better: `return_path_open_changes` 37 → 23.
+      - Cheaper: placements 350 → 349; parts at 500 $211.78 → $210.57 (−$1.21), at 5 $320.66 → $318.44.
+      - The KLDR price correction of item 32 (−$10.90) is in both sides: the 19c and s29 cards are restated ($231.94 → $221.04, $222.68 → $211.78; each card's `restated` block, and the same `scorecard.cost()` call without the fix file reproduces the as-scored values). Against the unrestated s29 card, stage 30 would have looked $12.11 cheaper.
+      - Costs: BOM lines 92 → 94, Extended 65 → 68, single-source 16 → 19, B3 +0.1 °C on both cases; zero-stock unchanged at 9. Vias 745 → 710.
+    - **Known weaknesses and open candidates:**
+      - **C161 (U45 decoupling):** its n_ls pad returns over 11.6 mm of F.Cu track. No legal C161 pose and no legal via exist on this floor plan, so bypass_check's U45 n_ls limit is 6.0 mm (was 3.0) with the reason in the code. Candidate: re-pose U45 / C161 when the LS cluster next moves.
+      - **U44 → ISO6721FB:** the second legal cluster (x 17–18.5, y 76.5–77) was never route-tested. If it routes, the ISO6721FB is about $1.93 per board cheaper at 500 and drops a reinforced crossing.
+      - **U44 stock:** 29 at JLC. Check it before ordering.
+      - The pump SPICE (`m1_pump_spice.py`) sized the drive on an SN74LVC1G17 buffer; U46 is a G132 of the same family and was not simulated separately.
+    - **Bench:**
+      1. Heartbeat trip time ≤ 90 µs from each rail fault (LS, HS-A, HS-B), with U46's output current per edge.
+      2. U44 default LOW: unpower HS-B and open U44 IN; BIAS_GOOD must drop.
+      3. Hold-node capture at 3.135 V / cold (item 32).
+      4. BUS_FAULT at the U13.A pin at hard S4 / S5 edges, and the OCP trip delay with R134 / C167 fitted.
+      5. S4 / S5 dv/dt (also item 31's CMTI basis).

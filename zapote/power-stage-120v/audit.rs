@@ -245,7 +245,9 @@ const SELV_NETS: &[&str] = &[
     "v15_selv", "selv_gnd", "v3v3", "pwm_ha", "pwm_la", "pwm_hb", "pwm_lb", "permit",
     "bus_fault", "vbus_p", "vbus_n", "ct_s1", "ct_s2",
     "ct_sense_mon", "ct_ref_hi", "ct_ref_lo", "ct_oc_pos", "ct_oc_neg", "ct_zc", "ct_mon",
-    "bus_fault_iso", "bias_good", "bias_bad_raw", "bias_bad_flt", "bias_ls_bad", "bias_ha_bad", "bias_hb_bad",
+    "bus_fault_iso", "bus_fault_flt", "bias_good",
+    // stage 30 (DECISIONS 33): heartbeat SELV side
+    "hb_rx", "hb_bufo", "hb_s", "hb_m", "hb_x", "hb_hold", "hsb_good",
     "line_zc", "line_zc_raw", "leg_a-driver_dis", "leg_b-driver_dis",
     "leg_a-permit_gate", "leg_a.driver-dt",
     "leg_b-permit_gate", "leg_b.driver-dt",
@@ -260,9 +262,10 @@ const BARRIER_PARTS: &[(&str, &str, &[&str])] = &[
     ("u_iso", "ISO7710DWR", &["9", "13", "14", "16"]),
     ("t_ct", "CST3015-200ED", &["3", "4"]),
     ("ps_selv", "IRM-20-15", &["3", "4"]),
-    ("monitor_ls.iso", "ISO7710DWR", &["9", "13", "14", "16"]),
-    ("bias_ha.monitor.iso", "ISO7710DWR", &["9", "13", "14", "16"]),
-    ("bias_hb.monitor.iso", "ISO7710DWR", &["9", "13", "14", "16"]),
+    // stage 30: the monitor group crosses once, as the heartbeat (U32); the HS links (ISO6721FB) are HOT-HOT
+    ("hb.iso", "ISO7710DWR", &["9", "13", "14", "16"]),
+    // stage 30: HS-B verdict, HS-B -> SELV, default LOW (ISO7710F)
+    ("bias_hb.verdict", "ISO7710FDWR", &["9", "13", "14", "16"]),
     ("line_zc.opto", "VOL628A-2X001T", &["3", "4"]),
 ];
 
@@ -447,15 +450,25 @@ const IDENTITY: &[(&str, &str)] = &[
     ("monitor_ls.rspanov_top", "ARG03BTC1333"),
     ("monitor_ls.rspanov_bot", "RT0603BRD0710KL"),
     ("monitor_ls.monitor", "LM339BIDR"),
-    ("monitor_ls.rnotice", "0603WAF1001T5E"),
-    ("monitor_ls.dnotice", "1N4148W"),
-    ("monitor_ls.qnotice", "MMBT3904"),
-    ("monitor_ls.rbase", "0603WAF1002T5E"),
     ("monitor_ls.rpull", "0603WAF1002T5E"),
-    ("monitor_ls.iso", "ISO7710DWR"),
-    ("u_bias_flt", "SN74LVC1G14DBVR"),
-    ("r_bias_flt", "0603WAF1002T5E"),
-    ("c_bias_flt", "C0603C102J5GACTU"),
+    ("u_bias_flt", "SN74LVC1G17DBVR"),
+    // stage 30 (DECISIONS 33): HS links and the heartbeat
+    ("bias_ha.link", "ISO6721FBDR"),
+    ("bias_hb.verdict", "ISO7710FDWR"),
+    ("hb.vote", "BAT54S-7-F"),
+    ("hb.osc", "SN74LVC1G132DBVR"),
+    ("hb.rosc", "0603WAF4991T5E"),
+    ("hb.cosc", "CL10C331JB8NNNC"),
+    ("hb.iso", "ISO7710DWR"),
+    ("hb.buf", "SN74LVC1G132DBVR"),
+    ("hb.rs", "0603WAF2200T5E"),
+    ("hb.cp1", "C0603C102J5GACTU"),
+    ("hb.cp2", "C0603C102J5GACTU"),
+    ("hb.pump", "BAT54S-7-F"),
+    ("hb.chold", "C0603C102J5GACTU"),
+    ("hb.rbleed", "RT0603BRD0749K9L"),
+    ("r_bf", "0603WAF1001T5E"),
+    ("c_bf", "CL10C101JB8NNNC"),
     ("monitor_ls.ldo5", "TPS70950DBVR"),
     ("monitor_ls.cuv", "C0603C102J5GACTU"),
     ("monitor_ls.cov", "C0603C102J5GACTU"),
@@ -488,12 +501,7 @@ const IDENTITY: &[(&str, &str)] = &[
     ("bias_ha.monitor.rspanov_top", "ARG03BTC1333"),
     ("bias_ha.monitor.rspanov_bot", "RT0603BRD0710KL"),
     ("bias_ha.monitor.monitor", "LM339BIDR"),
-    ("bias_ha.monitor.rnotice", "0603WAF1001T5E"),
-    ("bias_ha.monitor.dnotice", "1N4148W"),
-    ("bias_ha.monitor.qnotice", "MMBT3904"),
-    ("bias_ha.monitor.rbase", "0603WAF1002T5E"),
     ("bias_ha.monitor.rpull", "0603WAF1002T5E"),
-    ("bias_ha.monitor.iso", "ISO7710DWR"),
     ("bias_ha.monitor.ldo5", "TPS70950DBVR"),
     ("bias_ha.monitor.cuv", "C0603C102J5GACTU"),
     ("bias_ha.monitor.cov", "C0603C102J5GACTU"),
@@ -526,20 +534,13 @@ const IDENTITY: &[(&str, &str)] = &[
     ("bias_hb.monitor.rspanov_top", "ARG03BTC1333"),
     ("bias_hb.monitor.rspanov_bot", "RT0603BRD0710KL"),
     ("bias_hb.monitor.monitor", "LM339BIDR"),
-    ("bias_hb.monitor.rnotice", "0603WAF1001T5E"),
-    ("bias_hb.monitor.dnotice", "1N4148W"),
-    ("bias_hb.monitor.qnotice", "MMBT3904"),
-    ("bias_hb.monitor.rbase", "0603WAF1002T5E"),
     ("bias_hb.monitor.rpull", "0603WAF1002T5E"),
-    ("bias_hb.monitor.iso", "ISO7710DWR"),
     ("bias_hb.monitor.ldo5", "TPS70950DBVR"),
     ("bias_hb.monitor.cuv", "C0603C102J5GACTU"),
     ("bias_hb.monitor.cov", "C0603C102J5GACTU"),
     ("bias_hb.monitor.cspanuv", "C0603C102J5GACTU"),
     ("bias_hb.monitor.cspanov", "C0603C102J5GACTU"),
     ("bias_hb.monitor.cmonitor", "CC0603KRX7R9BB104"),
-    ("bias_or", "SN74LVC1G332DBVR"),
-    ("bias_c_or", "CC0603KRX7R9BB104"),
     ("line_zc.r1", "RC1206FR-0716K5L"),
     ("line_zc.r2", "RC1206FR-0716K5L"),
     ("line_zc.opto", "VOL628A-2X001T"),
@@ -1000,10 +1001,20 @@ fn audit(m: &Model) -> Vec<String> {
     }
     expect(&mut e, m, "u_iso", "13", "bus_fault_iso");
     let iso_out = members(m, "bus_fault_iso");
-    let want: BTreeSet<(String, String)> = [("u_iso", "13"), ("u_fault_or", "1")]
+    // stage 30: 1 k / 100 pF (r_bf / c_bf) between the isolator and the fault OR filters CMTI upsets
+    let want: BTreeSet<(String, String)> = [("u_iso", "13"), ("r_bf", "1")]
         .iter().map(|(a, b)| (a.to_string(), b.to_string())).collect();
     if iso_out != want {
-        e.push(format!("bus_fault_iso must join only the isolator output and the fault OR, found {:?}", iso_out));
+        e.push(format!("bus_fault_iso must join only the isolator output and the filter resistor, found {:?}", iso_out));
+    }
+    expect(&mut e, m, "r_bf", "2", "bus_fault_flt");
+    expect(&mut e, m, "c_bf", "1", "bus_fault_flt");
+    expect(&mut e, m, "c_bf", "2", "selv_gnd");
+    let flt = members(m, "bus_fault_flt");
+    let want: BTreeSet<(String, String)> = [("r_bf", "2"), ("c_bf", "1"), ("u_fault_or", "1")]
+        .iter().map(|(a, b)| (a.to_string(), b.to_string())).collect();
+    if flt != want {
+        e.push(format!("bus_fault_flt must join only r_bf, c_bf and the fault OR input, found {:?}", flt));
     }
     // BUS_FAULT = OR(isolated bus fault, CT over-current either polarity).
     // The receiving pullup is off-board. Added local loads or another driver
@@ -1123,7 +1134,7 @@ fn audit(m: &Model) -> Vec<String> {
         expect(&mut e, m, u, "2", "selv_gnd");
     }
     // LVC1G332 DBV: 1 A, 2 GND, 3 B, 4 Y, 5 VCC, 6 C.
-    expect(&mut e, m, "u_fault_or", "1", "bus_fault_iso");
+    expect(&mut e, m, "u_fault_or", "1", "bus_fault_flt");
     expect(&mut e, m, "u_fault_or", "3", "ct_oc_pos");
     expect(&mut e, m, "u_fault_or", "6", "ct_oc_neg");
     expect(&mut e, m, "u_fault_or", "5", "v3v3");
@@ -1271,7 +1282,7 @@ mod tests {
         m.rewire("leg_b.dis_or", "2", "v3v3");
         fails(&m, "leg_b.dis_or.2");
         let mut m = built();
-        m.rewire("u_bias_flt", "4", "bias_bad_flt");
+        m.rewire("u_bias_flt", "4", "hb_hold");
         fails(&m, "u_bias_flt.4");
     }
 

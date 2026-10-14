@@ -493,7 +493,8 @@ def load(base_path, patches=True):
         return False
     # ... and base copper that served a moved part's old pads (a numeric point on an old pad of its
     # net) goes too, with the vias left orphaned by it
-    old_pads = [(_box(*q["box"]).buffer(0.05), q["net"]) for q in json.loads(prev_path.read_text())
+    # (old pad nets under RENAME_NETS, as the base copper above: stage 30's monitor_ls-v5 -> ls_v5 stubs at C133's old spot)
+    old_pads = [(_box(*q["box"]).buffer(0.05), ren.get(q["net"], q["net"])) for q in json.loads(prev_path.read_text())
                 if q["ref"] in moved and q["net"]] if pad_geo else []
 
     def served_old(t):
@@ -573,6 +574,9 @@ if __name__ == "__main__":
     for v in unconnected:
         a, b = v["items"]
         net = re.search(r"\[([^\]]*)\]", a["description"]).group(1)
+        net = getattr(patches21, "RENAME_NETS", {}).get(net, net)   # a renamed net keeps its pairs under the new name
+        if not any(p["net"] == net for p in GEO.pads):
+            continue                        # the net is gone (stage 30: the deleted monitor / OR nets)
 
         def name(item):
             m = re.search(r"Pad (\S+) \[[^\]]*\] of (\S+)", item["description"])
@@ -585,6 +589,9 @@ if __name__ == "__main__":
             p = min(c, key=lambda p: math.hypot(p["x"] - item["pos"]["x"], p["y"] - item["pos"]["y"]))
             return f"{p['ref']}.{p['pad']}"
         pa, pb = name(a), name(b)
+        # history DRCs predate later stages: a pair naming a deleted part's pad is stale (stage 30: U33 / U34 / U25 ...)
+        if any(not q.startswith("@") and q not in GEO.pad_at for q in (pa, pb)):
+            continue
         key = (net, *sorted((pa, pb)))
         if pa != pb and key not in seen and net not in PATCHED:
             seen.add(key)

@@ -1,0 +1,409 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 3,
+   "list": [
+    {
+     "componentId": 23689,
+     "componentLibraryType": "base",
+     "stockCount": 2067244,
+     "componentTypeEn": "Chip Resistor - Surface Mount",
+     "erpComponentName": "\u539a\u819c\u7535\u963b 220\u03a9 \u00b11% 100mW",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/chip-resistor-surface-mount_uni-royal-uniroyal-elec-0603waf2200t5e_C22962.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 999,
+       "productPrice": 0.0035
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 4999,
+       "productPrice": 0.0027
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": 9999,
+       "productPrice": 0.0023
+      },
+      {
+       "startNumber": 10000,
+       "endNumber": 49999,
+       "productPrice": 0.0021
+      },
+      {
+       "startNumber": 50000,
+       "endNumber": 50199,
+       "productPrice": 0.0018
+      },
+      {
+       "startNumber": 50200,
+       "endNumber": -1,
+       "productPrice": 0.0018
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 5000,
+       "endNumber": 9999,
+       "productPrice": 0.0023
+      },
+      {
+       "startNumber": 50000,
+       "endNumber": 50199,
+       "productPrice": 0.0018
+      },
+      {
+       "startNumber": 50200,
+       "endNumber": -1,
+       "productPrice": 0.0018
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 999,
+       "productPrice": 0.0034
+      },
+      {
+       "startNumber": 10000,
+       "endNumber": 49999,
+       "productPrice": 0.002
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 4999,
+       "productPrice": 0.0026
+      }
+     ],
+     "firstSortAccessId": "b97df1fd049743c0a0330513eac35a72",
+     "secondSortAccessId": "a49341812cad4b0bafa2ddd547a82bd4",
+     "canPresaleNumber": 1669385,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "23689-0603WAF2200T5E/C22962",
+     "leastPatchNumber": 20,
+     "lossNumber": 10,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 5000,
+     "shopCostPrice": 0.0072,
+     "preMinPurchaseNum": 3342,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.0035,
+     "componentCode": "C22962",
+     "componentBrandEn": "UNI-ROYAL(Uniroyal Elec)",
+     "componentModelEn": "0603WAF2200T5E",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8552464739797528576",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2206010130_UNI-ROYAL-Uniroyal-Elec-0603WAF2200T5E_C22962.pdf",
+     "dataManualFileAccessId": "8579706178210742272",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "UNI-ROYAL 0603WAF2200T5E",
+     "minImage": "",
+     "minImageAccessId": "8552464740401508352",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "0603",
+     "describe": "-55\u2103~+155\u2103 100mW 220\u03a9 75V Thick Film Resistor \u00b11% \u00b1100ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Resistance",
+       "attribute_value_name": "220\u03a9"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+155\u2103"
+      },
+      {
+       "attribute_name_en": "Power(Watts)",
+       "attribute_value_name": "100mW"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Thick Film Resistor"
+      },
+      {
+       "attribute_name_en": "Voltage-Supply(Max)",
+       "attribute_value_name": "75V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b11%"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "\u00b1100ppm/\u2103"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Chip Resistor - Surface Mount",
+     "secondSortName": "Resistors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>0603WAF2200T5E</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 23866709,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "New Arrivals",
+     "erpComponentName": "0603WAF2200T5E",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0397
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0204
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0382
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0197
+      }
+     ],
+     "firstSortAccessId": "3db4bff6cfd743f6af1575bf175e9774",
+     "secondSortAccessId": "cfa9bf2378174788abc09e74d45d5b30",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "JLCPCBAssembly-0603WAF2200T5E/C9900098372",
+     "leastPatchNumber": 5,
+     "lossNumber": 4,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.1,
+     "preMinPurchaseNum": 443,
+     "minPurchaseNum": 443,
+     "initialPrice": 0.0204,
+     "componentCode": "C9900098372",
+     "componentBrandEn": "JLCPCB Assembly",
+     "componentModelEn": "0603WAF2200T5E",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "JIALICHUANG SMT 0603WAF2200T5E",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "0603",
+     "describe": "0603 New Arrivals ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "New Arrivals",
+     "secondSortName": "Others",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>0603WAF2200T5E</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 6356797,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "New Arrivals",
+     "erpComponentName": "0603WAF2200T5E-YJLTY",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0397
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0204
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0382
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0197
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "6356797-0603WAF2200T5EYJLTY/C9900045624",
+     "leastPatchNumber": 5,
+     "lossNumber": 4,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 5000,
+     "shopCostPrice": 0.1,
+     "preMinPurchaseNum": 443,
+     "minPurchaseNum": 443,
+     "initialPrice": 0.0204,
+     "componentCode": "C9900045624",
+     "componentBrandEn": "JLCPCB Assembly",
+     "componentModelEn": "0603WAF2200T5E-YJLTY",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "JIALICHUANG SMT 0603WAF2200T5E-YJLTY",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "0603",
+     "describe": "0603 New Arrivals ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "New Arrivals",
+     "secondSortName": "Others",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>0603WAF2200T5E</span>-YJLTY",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "0603WAF2200T5E"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-14T16:24:07Z"
+}

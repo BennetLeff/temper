@@ -94,6 +94,7 @@ Controls run 2026-10-13: 19c vs 19b gives ACCEPT (better `return_path_open_chang
 
 | Stage | Change | Verdict | Card |
 |---|---|---|---|
+| 30 | Candidate 24: one bias-monitor heartbeat (U45 → U32 → U46 → pump → U40); HS-B verdict on its own default-LOW ISO7710F (U44); U9 BUS_FAULT 1 k / 100 pF | **ACCEPT** against 19c and 29 (both restated for the KLDR price fix, DECISIONS 32/33). Better: return-path open changes 37 → 23. Cheaper: −1 placement, parts $211.78 → $210.57. Costs: +2 lines, +3 Extended, +3 single-source, B3 +0.1 °C. | [`scorecard-native21s30.json`](scorecard-native21s30.json) |
 | 29 | U1/U2 → Infineon 2EDR8259X (CMTI ≥ 150 V/ns) + 8.2 Ω gates; copper unchanged | **ACCEPT** against 19c and 28. Better: CMTI ratio 1.316 → 1.579 (F6 closed). Simpler: zero-stock −1, hand/consign −1, no-LCSC −1. Costs: +$0.52, +1 Extended. | [`scorecard-native21s29.json`](scorecard-native21s29.json) |
 | 28 | F2 → Schurter UMT-H 1.5 kA + R130 0.15 Ω limiter (J11 fault ≤ 980 A); OCP nets locked to stage 27 | **ACCEPT** against 19c and 27. Better: ledger violations 1 → 0 (F4 closed; the ledger gate passes). Costs: parts +$0.34, +1 line, +1 placement, +2 Extended, +1 zero-stock (UMT-H at Digi-Key only). | [`scorecard-native21s28.json`](scorecard-native21s28.json) |
 | 27 | J1 → Phoenix 1714971 MKDS 5/2-9,5 (UL / CSA group B 30 A); F1 5.65 mm left; mains pours redrawn | **ACCEPT** against 19c and 26. Cheaper: parts $222.28 → $221.82. Better: ledger violations 2 → 1, unaudited SAFETY/POWER 2 → 0. Every other metric identical. | [`scorecard-native21s27.json`](scorecard-native21s27.json) |
@@ -106,3 +107,5 @@ Controls run 2026-10-13: 19c vs 19b gives ACCEPT (better `return_path_open_chang
 `consign_lines` (BOM lines with no LCSC code, r2-dfm P4) was added on 2026-10-13 and back-filled on every card from its tag's BOM: 10 on 19c, 8 from stage 20 on. `hand_or_consign_lines` counts every THT line, so it moves only when a line is deleted.
 
 `bank_ratio_tdk_28A_40k` was added to the card with stage 20 and back-filled on 19c from the same script (DECISIONS 23). Prices for new MPNs come from `STOCK-2026-10-13-addendum-*.csv`, on a same-channel, conservative basis.
+
+The 19c and s29 cards were restated on 2026-10-14 for the KLDR025 price correction (DECISIONS 32): `parts_usd_at_500` 231.94 → 221.04 and 222.68 → 211.78, with the as-scored value and method in each card's `restated` block. Rows above stage 30 quote the prices as scored at the time.

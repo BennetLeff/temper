@@ -37,7 +37,9 @@ BASIC = {"CC0603KRX7R9BB104": "C14663", "CL10C101JB8NNNC": "C14858", "CL21B105KB
          # stage 14 (bias modules): 330 pF C0G and the 27 k enable-divider leg, JLC Basic (read 2026-10-09)
          "CL10C331JB8NNNC": "C1664", "0603WAF2702T5E": "C22967",
          # stage 9 part, listed Basic by JLC's part API on 2026-10-13 (11-candidates/research/bom-simplification A1)
-         "CC0805KRX7R9BB104": "C49678"}
+         "CC0805KRX7R9BB104": "C49678",
+         # stage 30 heartbeat series resistor 220 ohm, JLC Basic (JLC part API 2026-10-14)
+         "0603WAF2200T5E": "C22962"}
 CHANGED.update({"UMK325AB7106KM-T": "C386167", "RT0603BRD0712K4L": "C861102", "TNPW060311K7BEEA": "C4553285",
                 "RT0603BRD076K2L": "C136960", "ARG03BTC1333": "C1509631",
                 # stage 14: module feedback divider, 0.1 % 25 ppm (JLC Extended, read 2026-10-09)
@@ -61,7 +63,11 @@ CHANGED.update({"UMK325AB7106KM-T": "C386167", "RT0603BRD0712K4L": "C861102", "T
                 # stage 28 (DECISIONS 30): F2 UMT-H 1.5 kA (zero LCSC/JLC stock: consign from DigiKey) and the 0.15 ohm limiter R130
                 "3403.0279.23": "C3163739", "AC05000001507JAC00": "C1382388",
                 # stage 29 (DECISIONS 31): Infineon 2EDR8259X drivers and the 8.2 ohm gate resistors (c25-driver, 2026-10-13/14)
-                "2EDR8259XXUMA1": "C17455725", "RS-06L8R20FT": "C323355"})
+                "2EDR8259XXUMA1": "C17455725", "RS-06L8R20FT": "C323355",
+                # stage 30 (DECISIONS 33): buffered heartbeat M1b and the HS rail-verdict isolators (JLC part API 2026-10-14,
+                # stage30-heartbeat/jlc-raw)
+                "ISO6721FBDR": "C5216431", "ISO7710FDWR": "C2859831", "BAT54S-7-F": "C83574",
+                "SN74LVC1G132DBVR": "C403723"})
 ACCEPT_ALT = {"GRM31A5C3A102JW01D"}
 bom_path = HERE / "fab" / "bom-jlcpcb.csv"
 rows = list(csv.DictReader(open(bom_path)))

@@ -157,13 +157,9 @@ HS_PRIMARY = ("cin1", "cin2", "cinhf", "cavin")
 put("bias_hb.iso", 10.2, 61.2, 270)
 pack(group("bias_hb", exclude=("bias_hb.monitor.iso", "bias_hb.monitor.civcc2", "bias_hb.iso")
            + tuple(f"bias_hb.{c}" for c in HS_PRIMARY)), 0.8, 68.9, 19.4, 118.0, gap=1.0)
-put("bias_hb.monitor.iso", 25.6, 110.0, 0)
-put("bias_hb.monitor.civcc2", 35.0, 112.0, 90)       # straddles the leg-B tongue's left edge
 put("bias_ha.iso", 56.5, 66.2, 270)
 pack(group("bias_ha", exclude=("bias_ha.monitor.iso", "bias_ha.monitor.civcc2", "bias_ha.iso")
            + tuple(f"bias_ha.{c}" for c in HS_PRIMARY)), 46.4, 73.9, 64.6, 118.0, gap=0.7)
-put("bias_ha.monitor.iso", 70.6, 110.0, 0)
-put("bias_ha.monitor.civcc2", 76.0, 121.0, 0)       # straddles the leg-A tongue's left edge
 # Leg-A -2 V bleed resistor beside U1.16's column, clear of the decoupling cluster: P_HA reaches it
 # straight up from U1.16 and its SW_A end meets the feed from above, so neither cages the cluster.
 POSE["leg_a.bias_h.rbleed"] = (75.6, 34.6, 90.0)    # just below C39's courtyard (y 33.0)
@@ -246,8 +242,8 @@ pack(group("bias_ls", "monitor_ls", "r_en_top", "r_en_bot",
            exclude=("monitor_ls.iso", "monitor_ls.civcc2")), 101.0, 75.6, 121.5, 112.5, gap=0.55)
 # 3 mm right of the first cut: its HOT pins set the right side of the SELV neck below the leg-A
 # pocket (island A's barrier sets the left); at x 92 that neck was 1.3 mm, now ~4.3 mm.
-put("monitor_ls.iso", 95.0, 121.0, 270)
-put("monitor_ls.civcc2", 95.0, 131.0, 0)
+put("hb.iso", 95.0, 121.0, 270)        # stage 30: U32 carries the heartbeat (was the LS monitor's isolator)
+put("hb.civcc2", 95.0, 131.0, 0)
 put("r_bus1", 249.5, 106.0, 180)
 put("r_bus2", 288.0, 103.5, 270)   # busbleed_mid pad up (y 102.0), hv_ret pad down (y 105.0) beside D17.2
 # bus divider for AMC1311: 4 x 470 k chain, taps 9 mm apart (vertical), in the corridor between
@@ -305,12 +301,8 @@ DECOUPLE += [("c_vs1", 106.6, 113.4),                   # AMC1311 U4 VDD1 (pin 1
              ("c_vs2_1u", 106.6, 131.0, (98.0, 126.2, 122.0, 142.0)),  # VDD2's 1 uF, SELV side, after its 100 nF
              ("c_iso1", 115.5, 113.6),                  # ISO7710 U9 VCC1 (pin 3, 114.9 / 116.1)
              ("c_iso2", 115.5, 128.4),                  # U9 VCC2 (pin 14, 114.9 / 125.9)
-             ("monitor_ls.civcc1", 97.5, 113.6),        # U32 VCC1 (pin 3, 96.9 / 116.1)
-             ("monitor_ls.civcc2", 97.5, 128.4),        # U32 VCC2 (pin 14, 96.9 / 125.9)
-             ("bias_ha.monitor.civcc1", 63.3, 108.5, (50.0, 95.0, 66.4, 116.0)),   # U33 VCC1 (pin 3); >= 8.3 mm from its SELV pins (x 75.5)
-             ("bias_ha.monitor.civcc2", 77.9, 108.5),   # U33 VCC2 (pin 14, 75.5 / 108.1)
-             ("bias_hb.monitor.civcc1", 18.3, 108.5),   # U34 VCC1 (pin 3, 20.7 / 108.1)
-             ("bias_hb.monitor.civcc2", 32.9, 108.5)]   # U34 VCC2 (pin 14, 30.5 / 108.1)
+             ("hb.civcc1", 97.5, 113.6),                # U32 VCC1 (pin 3, 96.9 / 116.1)
+             ("hb.civcc2", 97.5, 128.4)]                # U32 VCC2 (pin 14, 96.9 / 125.9)
 # Stage 14 bias modules (rot 270, measured from the build: primary row at y - 4.97 with PVIN / AVIN
 # (7 / 6) at x + 1.6 / + 2.3 and PGND either side; secondary row at y + 4.97 with VOUT+ (28 / 29) at
 # x + 0.3 / + 1.0 and FBVOUT (33 / 34) at x + 3.6 / + 4.2).
@@ -367,7 +359,6 @@ put("j_blw_ac", 266.5, 125.8, 0)
 # 0.125 mm above its IC's (top y 128.0), supply pad over pin 5 (angle 180, pad 1 right).
 # native-21/layout/gates/bypass_check.py reports the distances; bypass_spots.py found the free spots.
 STAGE19_MOVES = {
-    "bias_c_or": (4.457, 127.1, 180.0),            # U25 (bias_or) pin 5 at x 5.2325
     "line_zc.cbuffer": (9.248, 127.1, 180.0),      # U24 pin 5 at x 10.0225
     "c_bias_flt_vcc": (14.038, 127.1, 180.0),      # U40 pin 5 at x 14.8125
     "c_ct_neg": (18.828, 127.1, 180.0),            # U11 pin 5 at x 19.6025
@@ -462,6 +453,49 @@ for path, (x, y, ang) in STAGE27_ORIGINS.items():
     a = math.radians(ang)
     POSE[path] = (round(x + q["ox"] * math.cos(a) + q["oy"] * math.sin(a), 3),
                   round(y - q["ox"] * math.sin(a) + q["oy"] * math.cos(a), 3), ang)
+
+# Stage 30 (DECISIONS 33; c24 M1b): the three rail-monitor notice stages, the LS / HS-A / HS-B ISO7710s U33 / U34,
+# the bias OR U25 and its filter R126 / C143 are deleted. Every surviving part keeps its stage-29 pose exactly
+# (placement-stage29.json, footprint origins; the packs above would otherwise reflow round the removed parts); U32
+# and its VCC caps keep theirs under their new paths. The new parts take the authored poses in STAGE30.
+S29 = json.loads((HERE / "placement-stage29.json").read_text())
+S29_RENAME = {"monitor_ls.iso": "hb.iso", "monitor_ls.civcc1": "hb.civcc1", "monitor_ls.civcc2": "hb.civcc2",
+              # HS-B's verdict isolator (ISO7710F) and its caps take U34 / C141 / C142's stage-29 poses
+              "bias_hb.monitor.iso": "bias_hb.verdict", "bias_hb.monitor.civcc1": "bias_hb.cver1",
+              "bias_hb.monitor.civcc2": "bias_hb.cver2"}
+for old, (x, y, ang) in S29.items():
+    path = S29_RENAME.get(old, old)
+    if path in PARTS:
+        q = PARTS[path]
+        a = math.radians(ang)
+        POSE[path] = (round(x + q["ox"] * math.cos(a) + q["oy"] * math.sin(a), 3),
+                      round(y - q["ox"] * math.sin(a) + q["oy"] * math.cos(a), 3), ang)
+for path in [p for p in POSE if p not in PARTS]:
+    del POSE[path]
+# U43 (ISO6721FB HS-A verdict link) straddles the HS-A / LS boundary where the scan finds legal copper
+# (validation-results/08-manufacturing-package/native-21/stage30-heartbeat/spot_scan.py on the s29 board): beside U41
+# (courtyards 0.04 mm apart), HS pins (1-4) down into the HS-A island and LS pins up on U41's n_ls pocket; U2.8's v3v3
+# drop via moves 0.4 mm (patches21.add_stage30) so its LS pins clear the 8 mm barrier (8.2 mm). No HS-B pose routes:
+# between the HS-B bank and the LS domain, U42's n_ls pocket, the SELV 8 mm keep-out and the protected bus_p / n_hb
+# copper close every row on all four layers, so HS-B crosses to SELV instead (U44 ISO7710F, S29_RENAME above).
+STAGE30 = {"bias_ha.link": (47.0, 66.25, 90.0),
+           # link VCC caps, pad 1 on the supply (scan: nearest legal 0603 to pins 1 / 8)
+           "bias_ha.clink1": (47.0, 71.0, 0.0), "bias_ha.clink2": (47.85, 61.5, 0.0),
+           # LS heartbeat: the vote below U29 (its GOOD pins; BAT54S turned 180 so pin 3 / MON_GOOD_HA faces U43 as before), the LVC1G132 oscillator between U29 and U32
+           "hb.vote": (104.5, 87.5, 180.0), "hb.osc": (102.5, 100.25, 90.0), "hb.rosc": (107.75, 98.25, 0.0),
+           "hb.cosc": (109.25, 99.89, 0.0), "hb.cosc_vcc": (99.8, 96.11, 90.0),
+           # SELV pump, one row left of U32's SELV pins in signal order. The heartbeat runs at 0.52-2.2 MHz (FMEA s6a), so
+           # its SELV leg (U32.13 -> U46.2) and the high-impedance hold node stay a few mm long; U40 moves here from the
+           # logic row (x 13.7) and the static, push-pull BIAS_GOOD takes the long run to the driver NANDs instead.
+           # U46 NAND (heartbeat gated by HS-B's verdict) -> R132 220 ohm -> C164 / C165 series 1 nF -> D19 BAT54S -> hold (C166 / R133) -> U40.2
+           "hb.buf": (94.5, 132.0, 180.0), "hb.cbuf": (94.5, 134.9, 0.0), "hb.rs": (90.25, 132.0, 180.0),
+           "hb.cp1": (86.6, 132.0, 180.0), "hb.cp2": (82.95, 132.0, 180.0), "hb.pump": (79.0, 132.0, 0.0),
+           "hb.chold": (78.4, 135.6, 180.0), "hb.rbleed": (78.4, 137.7, 180.0),
+           "u_bias_flt": (74.6, 132.95, 180.0), "c_bias_flt_vcc": (74.6, 135.6, 0.0),
+           # U9 BUS_FAULT RC (1 k / 100 pF) under U13: R134 takes bus_fault_iso from the right, C167 sits at the filtered node
+           "r_bf": (35.0, 133.5, 180.0), "c_bf": (31.4, 133.5, 180.0)}
+for path, pose in STAGE30.items():
+    POSE[path] = pose
 
 missing = sorted(set(PARTS) - set(POSE))
 if missing:

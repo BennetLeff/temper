@@ -18,14 +18,14 @@
   {
    "net": "n_ls",
    "at": [
-    105.825,
-    86.695
+    113.625,
+    89.295
    ],
-   "side": "F",
+   "side": "B",
    "ref_net": "leg_ret",
    "ref_at": [
-    111.732,
-    90.063
+    115.515,
+    88.095
    ],
    "purpose": "LS -2 V rail vs low-side sources (F6 rail at the edge)",
    "ref": "TP2"
@@ -33,14 +33,14 @@
   {
    "net": "v15_ls",
    "at": [
-    107.47,
-    90.595
+    113.05,
+    98.595
    ],
    "side": "F",
    "ref_net": "leg_ret",
    "ref_at": [
-    111.732,
-    90.063
+    112.9,
+    96.295
    ],
    "purpose": "LS +15 V rail",
    "ref": "TP3"
@@ -153,14 +153,14 @@
   {
    "net": "p_hb",
    "at": [
-    4.461,
-    113.496
+    14.35,
+    114.585
    ],
    "side": "B",
    "ref_net": "sw_b",
    "ref_at": [
-    2.0,
-    112.085
+    14.476,
+    118.011
    ],
    "purpose": "HS-B +15 V rail",
    "ref": "TP11"
@@ -183,14 +183,14 @@
   {
    "net": "v3v3",
    "at": [
-    78.3,
-    122.175
+    11.248,
+    128.287
    ],
-   "side": "F",
+   "side": "B",
    "ref_net": "selv_gnd",
    "ref_at": [
-    86.954,
-    125.124
+    8.898,
+    127.836
    ],
    "purpose": "SELV 3.3 V",
    "ref": "TP13"
@@ -198,14 +198,14 @@
   {
    "net": "pwm_ha",
    "at": [
-    78.3,
-    105.875
+    57.793,
+    155.382
    ],
    "side": "B",
    "ref_net": "selv_gnd",
    "ref_at": [
-    76.762,
-    104.268
+    59.675,
+    157.38
    ],
    "purpose": "PWM A high",
    "ref": "TP14"
@@ -228,31 +228,31 @@
   {
    "net": "pwm_hb",
    "at": [
-    55.674,
-    175.413
+    34.354,
+    124.154
    ],
-   "side": "B",
+   "side": "F",
    "ref_net": "selv_gnd",
    "ref_at": [
-    59.475,
-    175.0
+    30.123,
+    125.1
    ],
    "purpose": "PWM B high",
    "ref": "TP16"
   },
   {
-   "net": "permit",
+   "net": "pwm_lb",
    "at": [
-    79.4,
-    120.1
+    36.225,
+    125.7
    ],
    "side": "F",
    "ref_net": "selv_gnd",
    "ref_at": [
-    86.954,
-    125.124
+    30.123,
+    125.1
    ],
-   "purpose": "PERMIT",
+   "purpose": "PWM B low",
    "ref": "TP17"
   },
   {
@@ -273,14 +273,14 @@
   {
    "net": "bias_good",
    "at": [
-    25.477,
-    127.136
+    33.2,
+    70.4
    ],
    "side": "B",
    "ref_net": "selv_gnd",
    "ref_at": [
-    27.633,
-    127.6
+    30.35,
+    69.665
    ],
    "purpose": "BIAS_GOOD (rail monitors, stage 22)",
    "ref": "TP19"
@@ -288,14 +288,14 @@
   {
    "net": "bus_fault",
    "at": [
-    35.172,
-    133.595
+    34.818,
+    132.341
    ],
    "side": "B",
    "ref_net": "selv_gnd",
    "ref_at": [
-    27.633,
-    127.6
+    27.675,
+    132.865
    ],
    "purpose": "OCP fault, SELV side",
    "ref": "TP20"
@@ -303,14 +303,14 @@
   {
    "net": "ct_zc",
    "at": [
-    27.968,
-    131.061
+    30.089,
+    133.182
    ],
    "side": "B",
    "ref_net": "selv_gnd",
    "ref_at": [
-    27.633,
-    127.6
+    27.675,
+    132.865
    ],
    "purpose": "tank CT zero cross",
    "ref": "TP21"
@@ -324,8 +324,8 @@
    "side": "B",
    "ref_net": "selv_gnd",
    "ref_at": [
-    27.633,
-    127.6
+    27.675,
+    132.865
    ],
    "purpose": "tank CT monitor",
    "ref": "TP22"
@@ -343,11 +343,21 @@
   {
    "net": "leg_ret",
    "at": [
-    111.732,
-    90.063
+    115.515,
+    88.095
+   ],
+   "side": "B",
+   "ref": "TP24",
+   "purpose": "leg_ret reference"
+  },
+  {
+   "net": "leg_ret",
+   "at": [
+    112.9,
+    96.295
    ],
    "side": "F",
-   "ref": "TP24",
+   "ref": "TP25",
    "purpose": "leg_ret reference"
   },
   {
@@ -357,7 +367,7 @@
     81.05
    ],
    "side": "B",
-   "ref": "TP25",
+   "ref": "TP26",
    "purpose": "n_ls reference"
   },
   {
@@ -367,7 +377,7 @@
     73.695
    ],
    "side": "B",
-   "ref": "TP26",
+   "ref": "TP27",
    "purpose": "ocp_kelvin_p reference"
   },
   {
@@ -377,7 +387,7 @@
     60.395
    ],
    "side": "F",
-   "ref": "TP27",
+   "ref": "TP28",
    "purpose": "ocp_kelvin_p reference"
   },
   {
@@ -387,7 +397,7 @@
     74.095
    ],
    "side": "B",
-   "ref": "TP28",
+   "ref": "TP29",
    "purpose": "ocp_kelvin_p reference"
   },
   {
@@ -397,7 +407,7 @@
     49.9
    ],
    "side": "F",
-   "ref": "TP29",
+   "ref": "TP30",
    "purpose": "sw_a reference"
   },
   {
@@ -407,7 +417,17 @@
     112.085
    ],
    "side": "B",
-   "ref": "TP30",
+   "ref": "TP31",
+   "purpose": "sw_b reference"
+  },
+  {
+   "net": "sw_b",
+   "at": [
+    14.476,
+    118.011
+   ],
+   "side": "B",
+   "ref": "TP32",
    "purpose": "sw_b reference"
   },
   {
@@ -417,27 +437,27 @@
     128.584
    ],
    "side": "B",
-   "ref": "TP31",
+   "ref": "TP33",
    "purpose": "selv_gnd reference"
   },
   {
    "net": "selv_gnd",
    "at": [
-    86.954,
-    125.124
-   ],
-   "side": "F",
-   "ref": "TP32",
-   "purpose": "selv_gnd reference"
-  },
-  {
-   "net": "selv_gnd",
-   "at": [
-    76.762,
-    104.268
+    8.898,
+    127.836
    ],
    "side": "B",
-   "ref": "TP33",
+   "ref": "TP34",
+   "purpose": "selv_gnd reference"
+  },
+  {
+   "net": "selv_gnd",
+   "at": [
+    59.675,
+    157.38
+   ],
+   "side": "B",
+   "ref": "TP35",
    "purpose": "selv_gnd reference"
   },
   {
@@ -447,17 +467,17 @@
     63.02
    ],
    "side": "B",
-   "ref": "TP34",
+   "ref": "TP36",
    "purpose": "selv_gnd reference"
   },
   {
    "net": "selv_gnd",
    "at": [
-    59.475,
-    175.0
+    30.123,
+    125.1
    ],
-   "side": "B",
-   "ref": "TP35",
+   "side": "F",
+   "ref": "TP37",
    "purpose": "selv_gnd reference"
   },
   {
@@ -467,17 +487,17 @@
     69.665
    ],
    "side": "B",
-   "ref": "TP36",
+   "ref": "TP38",
    "purpose": "selv_gnd reference"
   },
   {
    "net": "selv_gnd",
    "at": [
-    27.633,
-    127.6
+    27.675,
+    132.865
    ],
    "side": "B",
-   "ref": "TP37",
+   "ref": "TP39",
    "purpose": "selv_gnd reference"
   }
  ],
@@ -501,10 +521,10 @@
    "probe": "component pad R18.1 / R57.2 / U2.15 (no legal test-pad spot)"
   },
   {
-   "net": "pwm_lb",
+   "net": "permit",
    "ref": "selv_gnd",
    "why": "no legal via pair within 10 mm",
-   "probe": "J4.8 (bottom), ground J4.2 / J4.4 / J4.15"
+   "probe": "J4.9 (bottom), ground J4.2 / J4.4 / J4.15"
   },
   {
    "net": "leg_a-driver_dis",

@@ -94,6 +94,21 @@ SWB_BAND_TRIM = (150.0, 46.8, 188.0, 50.1)
 REMOVE += [{"net": "leg_a-dis"}, {"net": "leg_b-dis"}]
 RENAME_NETS = {"bias_bad": "bias_good"}
 
+# Stage 30 (DECISIONS 33; c24 M1b): the notice stages (Q7-Q9, D14-D16, R89 / R90 / R107 / R108 / R122 / R123), the HS
+# monitor isolators U33 / U34 with C137 / C138 / C141 / C142, the bias OR U25 / C88 and its filter R126 / C143 are deleted.
+# Their nets go whole, as does U32.13's 80 mm run to U25 (bias_ls_bad): the heartbeat pump now sits beside U32, so hb_rx is
+# a fresh few-mm route. U32 stays where it was as the heartbeat isolator: the LS monitor's 5 V keeps its copper as ls_v5,
+# U32's no-connect pins rename.
+REMOVE += [{"net": n} for n in ("bias_bad_flt", "bias_bad_raw", "bias_ha_bad", "bias_hb_bad", "bias_ls_bad", "monitor_ls-isoin",
+                                "monitor_ls-base", "bias_ha.monitor-base", "bias_ha.monitor-isoin",
+                                "bias_hb.monitor-base", "bias_hb.monitor-isoin")]
+REMOVE += [{"net": f"{m}.iso-nc{k}"} for m in ("bias_ha.monitor", "bias_hb.monitor") for k in (2, 5, 6, 8, 10, 11, 12, 15)]
+RENAME_NETS.update({"monitor_ls-v5": "ls_v5"})
+# U2.8's v3v3 drop via moves from (38.173, 57.632) to (37.7, 57.9) (add_stage30): 8.2 mm from U43's LS pins beside U41
+REMOVE += [{"net": "v3v3", "box": [37.9, 57.4, 38.45, 57.9], "kind": "via"},
+           {"net": "v3v3", "box": [37.9, 57.4, 38.45, 57.9], "kind": "track", "layer": "F.Cu", "touch": True}]
+RENAME_NETS.update({f"monitor_ls.iso-nc{k}": f"hb.iso-nc{k}" for k in (2, 5, 6, 8, 10, 11, 12, 15)})
+
 # Stage 27 (DECISIONS 29): R1 / R2 (the X-cap bleed pair) move 0.9 mm down with F1's clip courtyard; their bounded pad
 # escapes follow (the R1.1 l_f escape also reaches the moved pad's track end).
 MOVE_ESCAPES = {("R1", "2"): [223.637, 15.0, 228.363, 24.8], ("R2", "1"): [223.637, 15.0, 228.363, 24.8],
@@ -265,6 +280,7 @@ def add(g):
     from patches21_v1 import put
     drill(g, "sw_a", *TIE)
     put(g, "sw_a", "B.Cu", 0.4, list(TIE), [TIE[0], 12.0])
+    add_stage30_r91(g)      # first: R91.2's pocket escape, before the leg_ret relinks route through the pocket
     add_stage17(g)          # before add_r5: the Kelvin pair's In1 run under R5 is laid first
     add_r5(g)
     add_ep(g)
@@ -280,6 +296,7 @@ def add(g):
     add_stage27(g)
     add_stage21b_kn(g)   # last: routes round every fixed patch
     add_stage28_ocp_lock(g)   # after the Kelvin pair, as on the stage-27 board it was taken from
+    add_stage30(g)            # after every fixed lane: the long heartbeat-group links route round them
     resolve_zone_priorities(g["ZONES"])
 
 
@@ -399,8 +416,8 @@ def add_stage8(g):
     run; U27's exposed-pad via field cleared spanuv's In2 run under it, and U28's cleared leg B's ov
     run (the router reports it linked, but the join never closes). All three are re-linked here."""
     from patches21_v1 import route_group
-    route_group(g, [("bias_ha.monitor-v5", ("F.Cu", "B.Cu"), (56.0, 96.0, 68.0, 114.0), 0.25, ["C137.1", "U33.3"]),
-                    ("bias_ha.monitor-spanuv", CU, (44.0, 78.0, 58.0, 116.0), 0.2, ["U30.9", "C78.1"]),
+    # (stage 30: C137 / U33 are deleted; bias_ha.monitor-v5 now feeds U43 / C157 through the pair passes)
+    route_group(g, [("bias_ha.monitor-spanuv", CU, (44.0, 78.0, 58.0, 116.0), 0.2, ["U30.9", "C78.1"]),
                     ("bias_hb.monitor-ov", CU, (0.6, 70.0, 20.0, 114.0), 0.2, ["U31.4", "C84.1"])])
 
 
@@ -459,8 +476,7 @@ def add_stage19(g):
     put(g, "selv_gnd", "F.Cu", 0.25, "C44.2", [23.843, 128.1], [25.243, 128.1], [25.643, 128.5], [25.643, 129.745])
     box49 = (97.0, 49.0, 108.0, 58.0)
     route_group(g, [("hot5", CU, box49, 0.3, ["C49.1", "U15.5"]),
-                    ("ocp_kelvin_p", CU, box49, 0.25, ["C49.2", "U15.3"]),
-                    ("bias_hb_bad", CU, (1.0, 104.0, 36.0, 133.0), 0.3, ["U25.6", "U34.13"])])
+                    ("ocp_kelvin_p", CU, box49, 0.25, ["C49.2", "U15.3"])])   # (bias_hb_bad: deleted in stage 30)
 
 def add_stage19_pi(g):
     """Stage 19 PI1 / PI2 (DECISIONS 19; place.py STAGE19_PI): the converter-local capacitor links, laid by hand so
@@ -921,3 +937,105 @@ def add_r5(g):
             g["VIAS"][-1]["drill"] = vdrill
             placed.append(c)
         print(f"R5 {ref_pad}: {len(placed)} vias ({sum(pad.contains(q) for q in placed)} in the pad)")
+
+
+def add_stage30_r91(g):
+    """Stage 30: R91 (the LS monitor's pull-up) now ends on the GOOD node instead of the deleted notice transistor's
+    collector. Its stage-29 escape (F stub, via, B.Cu column at x 118.35, all removed with monitor_ls-isoin) is
+    re-laid on monitor_ls-good before anything else, as stage 8 laid ISOIN before the leg_ret / halfref hops round it;
+    add_stage30 joins the column's top via to the GOOD node."""
+    from patches21_v1 import put
+    drill(g, "monitor_ls-good", 114.435, 110.535)
+    put(g, "monitor_ls-good", "F.Cu", 0.25, "R91.2", [114.235, 109.735], [114.235, 110.335], [114.435, 110.535])
+    put(g, "monitor_ls-good", "B.Cu", 0.25, [114.435, 110.535], [114.35, 110.345], [114.35, 109.345], [118.35, 105.345],
+        [118.35, 92.745])
+    drill(g, "monitor_ls-good", 118.35, 92.745)
+
+
+def add_stage30(g):
+    """Stage 30 (DECISIONS 33): the links the open-pair passes cannot close, because attach() searches 40 mm round a
+    pad and these run 6-150 mm through set corridors. Each job is (net, layers, box, width, pads).
+    HS-A: U43's HS pins (5 V, GOOD) back to the island's monitor LDO and comparator output, on F / In2 / B (In1 holds the
+    n_ha plane), 3.2 mm clear of the LS pocket. LS: MON_GOOD_HA to the vote (D18, BAT54S pin 3) below U29 along the In1
+    LS corridor (y 39-47), and ls_v5 to U43's side 2. U2.8's v3v3 drop via moves 0.4 mm (see REMOVE).
+    HS-B: U44 (ISO7710F) is back on U34's stage-29 pose, so its supply / return copper is the stage-29 copper; only IN
+    (pin 4, the monitor GOOD node) is new on the HS side. SELV: HSB_GOOD from U44.13 to U46.1 (static, push-pull: it takes
+    the long run, the heartbeat legs stay short), U32.13 into U46 from the right (U46.3 sits above U46.2), BUS_FAULT_ISO
+    from U9.13 to R134 (its base run ended on U13.1, now BUS_FAULT_FLT), and R40's ct_s2 stub to its B.Cu run."""
+    from patches21_v1 import route_group, put, drill
+    # U29.12 (LM339B GND) to the n_ls plane first: the GOOD node's new runs below U29 leave it one F escape, which the
+    # passes otherwise hand to a monitor_ls-spanov via
+    drill(g, "n_ls", 109.82, 78.355)
+    put(g, "n_ls", "F.Cu", 0.2, "U29.12", [107.82, 78.955], [108.82, 77.955], [109.42, 77.955], [109.82, 78.355])
+    drill(g, "v3v3", 37.7, 57.9, size=0.85)
+    put(g, "v3v3", "F.Cu", 0.4, "U2.8", [37.445, 57.645], [37.7, 57.9])
+    HS = ("F.Cu", "In2.Cu", "B.Cu")
+    L4 = ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu")
+    route_group(g, [("hb_rx", ("F.Cu",), (92.5, 124.5, 99.0, 133.5), 0.25, ["U32.13", "U46.2"]),
+                    ("bus_fault_iso", "F+B", (28.0, 118.0, 122.0, 140.0), 0.25, ["U9.13", "R134.1"]),
+                    ("ct_s2", "F+B", (0.6, 126.0, 32.0, 146.0), 0.25, ["R40.2", "@18.183,139.695,B.Cu"])])
+    route_group(g, [("bias_ha.monitor-v5", HS, (44.0, 64.0, 70.0, 104.0), 0.25, ["U43.1", "C157.1", "U38.5"]),
+                    ("bias_ha.monitor-good", HS, (44.0, 64.0, 66.0, 90.0), 0.25, ["U43.3", "U30.1"]),
+                    ("bias_hb.monitor-good", HS, (0.6, 36.0, 36.0, 118.0), 0.25, ["U44.4", "U31.1", "R124.2"])])
+    route_group(g, [("ls_v5", L4, (24.0, 36.0, 60.0, 60.0), 0.25, ["U43.8", "C158.1"]),
+                    ("mon_good_ha", L4, (40.0, 36.0, 112.0, 92.0), 0.25, ["U43.6", "D18.3"]),
+                    ("monitor_ls-good", HS, (98.0, 74.0, 122.0, 114.0), 0.25, ["U29.14", "D18.1", "U45.1", "@118.35,92.745,*"])])
+    # HB_TX (U45.4 -> R131.1 and U32.4): drops through U45.4's pad onto In1 to (106.45, 101.112), then B / In2 east
+    # round the R91 column (add_stage30_r91) and back on In2 to U32. Laid before U45's VCC so pin 5 keeps the F
+    # corridor to C132 (the passes otherwise take it for one of the two and strand the other).
+    for v in [[96.45, 114.713], [98.85, 114.713], [101.25, 116.312], [103.45, 99.112], [106.45, 101.112], [106.925, 98.85], [112.45, 102.713], [115.65, 102.912], [119.05, 104.312]]:
+        drill(g, "hb_tx", *v)
+    for lay, w, a, b in [
+            ("F.Cu", 0.25, [106.925, 98.25], [106.925, 98.85]),
+            ("In1.Cu", 0.25, [104.85, 101.112], [106.45, 101.112]),
+            ("In1.Cu", 0.25, [106.725, 100.85], [106.45, 101.112]),
+            ("In1.Cu", 0.25, [103.45, 99.112], [103.45, 99.713]),
+            ("In1.Cu", 0.25, [106.925, 100.65], [106.725, 100.85]),
+            ("In1.Cu", 0.25, [106.925, 98.85], [106.925, 100.65]),
+            ("In1.Cu", 0.25, [103.45, 99.713], [104.85, 101.112]),
+            ("F.Cu", 0.2, [118.45, 103.713], [119.05, 104.312]),
+            ("F.Cu", 0.2, [116.45, 103.713], [118.45, 103.713]),
+            ("F.Cu", 0.2, [101.05, 116.112], [101.05, 115.912]),
+            ("F.Cu", 0.2, [115.65, 102.912], [116.45, 103.713]),
+            ("F.Cu", 0.2, [95.85, 115.312], [95.85, 115.912]),
+            ("F.Cu", 0.2, [101.25, 116.312], [101.05, 116.112]),
+            ("F.Cu", 0.2, [95.85, 115.912], [95.635, 116.125]),
+            ("F.Cu", 0.2, [96.45, 114.713], [95.85, 115.312]),
+            ("F.Cu", 0.2, [101.05, 115.912], [99.85, 114.713]),
+            ("F.Cu", 0.2, [99.85, 114.713], [98.85, 114.713]),
+            ("B.Cu", 0.2, [106.45, 101.112], [108.05, 102.713]),
+            ("B.Cu", 0.2, [108.05, 102.713], [112.45, 102.713]),
+            ("In2.Cu", 0.2, [112.85, 116.312], [101.25, 116.312]),
+            ("In2.Cu", 0.2, [115.65, 104.112], [115.65, 102.912]),
+            ("In2.Cu", 0.2, [117.65, 111.513], [112.85, 116.312]),
+            ("In2.Cu", 0.2, [115.05, 104.713], [115.65, 104.112]),
+            ("In2.Cu", 0.2, [117.65, 105.713], [117.65, 111.513]),
+            ("In2.Cu", 0.2, [98.85, 114.713], [96.45, 114.713]),
+            ("In2.Cu", 0.2, [114.45, 104.713], [115.05, 104.713]),
+            ("In2.Cu", 0.2, [112.45, 102.713], [114.45, 104.713]),
+            ("In2.Cu", 0.2, [119.05, 104.312], [117.65, 105.713]),
+    ]:
+        put(g, "hb_tx", lay, w, a, b)
+    # U45's VCC (pin 5) to the LS 5 V at C132, F / B round the oscillator's RC (the passes do not close it)
+    route_group(g, [("ls_v5", "F+B", (96.0, 92.0, 110.0, 104.0), 0.25, ["U45.5", "C132.1"])])
+    # the oscillator's RC node: R131.2 straight down to C162.1 (1.6 mm F)
+    route_group(g, [("hb_rc", ("F.Cu",), (106.0, 96.0, 111.0, 101.0), 0.25, ["R131.2", "C162.1"])])
+    # bypass_check plane-backed return: C89 (U24's cap) lost the selv_gnd via the stage-29 passes had laid beside it.
+    # (C161, U45's cap, has no n_ls pour on any layer under its pads, and vsense_in's In1 run and monitor_ls-ref's F run
+    # wall it from the In1 n_ls fill; see bypass_check.py U45.)
+    print("stage 30 plane via:", plane_via(g, "C89.2", reach=(0.85, 2.0)))
+    # HSB_GOOD. U44's SELV pins sit in a pocket closed by the permit / PWM / bias_good bundle, which runs on both F and
+    # B from leg B's driver (y 60) down x 32-36 and east along y 126-128, and by the 8 mm floor to HS-A (no via fits
+    # between the bundles). The U12 / U13 links it would otherwise take are laid first; then one In2 leg (the
+    # selv_gnd plane) passes under the bundle, where B.Cu carries only bias_good and permit (static, not asserted by
+    # return_path19; the PWM lines on F keep In1), and F / B take it east to U46.
+    route_group(g, [("bus_fault_flt", "F+B", (28.0, 124.0, 40.0, 138.0), 0.25, ["C167.1", "U13.1"]),
+                    ("ct_s2", "F+B", (0.6, 124.0, 32.0, 146.0), 0.25, ["R40.2", "U12.4"]),
+                    ("ct_sense_mon", "F+B", (18.0, 124.0, 142.0, 140.0), 0.25,
+                     ["@26.907,130.695,F.Cu", "@124.935,130.195,F.Cu"])])
+    drill(g, "hsb_good", 30.875, 109.765)
+    put(g, "hsb_good", "F.Cu", 0.25, "U44.13", [30.875, 109.765])
+    put(g, "hsb_good", "In2.Cu", 0.25, [30.875, 109.765], [31.1, 110.0], [34.1, 113.0], [34.1, 120.2], [41.9, 128.0],
+        [43.7, 128.0], [44.5, 128.8], [44.5, 129.0])
+    drill(g, "hsb_good", 44.5, 129.0)
+    route_group(g, [("hsb_good", "F+B", (41.5, 124.0, 100.0, 142.0), 0.25, ["@44.5,129.0,*", "U46.1"])])

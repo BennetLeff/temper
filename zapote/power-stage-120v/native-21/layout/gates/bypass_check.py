@@ -32,8 +32,22 @@ CHECKS = [
     ("U12", "5", "2", 2.0, 4.0, SELV, "TLV3201 (CT zero-cross)"),
     ("U13", "5", "2", 3.0, 4.0, SELV, "SN74LVC1G332 (fault OR): mid-column supply pin"),
     ("U24", "5", "3", 2.0, 4.0, SELV, "SN74LVC1G17 s.8.3: 0.1 uF 'as close to the power pin as possible'"),
-    ("U25", "5", "2", 3.0, 4.0, SELV, "SN74LVC1G332 (bias OR): mid-column supply pin"),
-    ("U40", "5", "3", 2.0, 4.0, SELV, "SN74LVC1G17 s.8.3 (bias fault buffer)"),
+    ("U40", "5", "3", 2.0, 4.0, SELV, "SN74LVC1G17 s.8.3 (heartbeat hold-node Schmitt, stage 30)"),
+    # stage 30 (DECISIONS 33): the heartbeat NAND and oscillator, both sides of the HS-A link and of HS-B's ISO7710F.
+    # Limits are the stage-30 placement (validation-results/08-manufacturing-package/native-21/stage30-heartbeat/
+    # spot_scan.py: nearest legal 0603 to each supply pin; U44 / C159 / C160 keep U34 / C141 / C142's stage-29 poses),
+    # not manufacturer numbers; the datasheets say "as close as possible".
+    ("U46", "5", "3", 2.0, 4.0, SELV, "SN74LVC1G132 (heartbeat NAND gated by HS-B's verdict)"),
+    # U45: C161's n_ls pad has no pour under it on any layer; monitor_ls-ref (F) and vsense_in (In1) wall it from the In1
+    # n_ls fill under U45, so its return runs 11.6 mm of F track to the plane via at (104.5, 89.8) (6.0 mm straight
+    # line). spot_scan.py finds no legal C161 pose in [100.8, 92.5, 108, 103] on the stage-30 board: a known layout
+    # weakness (DECISIONS 33), limited to its measured value so it cannot get worse unnoticed.
+    ("U45", "5", "3", 3.0, None, (("n_ls", 6.0),), "SN74LVC1G132 (heartbeat oscillator); boxed in by the LS monitor block, "
+     "its return reaches the In1 n_ls plane by via"),
+    ("U43", "1", "4", 3.0, 3.0, (), "ISO6721FB VCC1 / GND1 (HS-A monitor 5 V)"),
+    ("U43", "8", "5", 3.5, 3.0, (), "ISO6721FB VCC2 / GND2 (ls_v5)"),
+    ("U44", "3", "1", 3.0, 3.5, (), "ISO7710F VCC1 / GND1 (HS-B monitor 5 V)"),
+    ("U44", "14", "16", 3.0, 3.5, (), "ISO7710F VCC2 / GND2 (v3v3 / selv_gnd)"),
     ("U15", "5", "3", 4.5, 6.0, (("ocp_kelvin_p", 6.5),), "SN74LVC1G17 s.8.3 (hot5 / ocp_kelvin_p, HOT domain; dense block, 4.4 mm is the closest legal spot)"),
     ("U29", "3", "12", 2.5, None, (("n_ls", 6.5),), "LM339B s.8.4.1: bypass between supply and ground (v15_ls / n_ls)"),
     ("U30", "3", "12", 2.5, None, (("n_ha", 6.0),), "LM339B (p_ha / n_ha)"),
@@ -92,7 +106,7 @@ def main():
                 all(via[n] is not None and via[n]["mm"] <= lim for n, lim in planes)
         row["pass"] = good
         ok &= good
-        out[ref] = row
+        out[ref if sum(c[0] == ref for c in CHECKS) == 1 else f"{ref}.{sp}"] = row   # two-supply parts: one row per side
         c = row["nearest_cap"]
         print(f"{ref}: {sn}/{rn} nearest cap "
               + ("none" if c is None else f"{c['ref']} supply {c['supply_pad_to_pad_mm']:.2f} return "

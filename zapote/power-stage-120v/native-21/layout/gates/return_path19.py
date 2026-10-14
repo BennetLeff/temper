@@ -50,20 +50,25 @@ ADJ = {"F.Cu": ["In1.Cu", "In2.Cu", "B.Cu"], "In1.Cu": ["F.Cu", "In2.Cu", "B.Cu"
        "In2.Cu": ["B.Cu", "In1.Cu", "F.Cu"], "B.Cu": ["In2.Cu", "In1.Cu", "F.Cu"]}
 SELV_REF = {"v3v3", "selv_gnd"}
 KELVIN = {"ocp_kelvin_p"}
+LS_REF = {"n_ls", "hv_ret", "leg_ret"}   # the LS domain's return (ISO6721FB GND2 = n_ls) and the LOW planes it rides over
 # net -> acceptable return nets (the driver / receiver supply and ground)
 SIGNALS = {
     "bus_fault_hot": KELVIN, "ocp_ok_hot": KELVIN, "hot5_ok_hot": KELVIN, "ovp_ok_hot": KELVIN,
     "pwm_hb": SELV_REF, "ct_zc": SELV_REF, "pwm_ha": SELV_REF, "pwm_la": SELV_REF, "pwm_lb": SELV_REF,
-    "permit": SELV_REF, "bus_fault_iso": SELV_REF, "bus_fault": SELV_REF, "bias_ls_bad": SELV_REF,
-    "bias_ha_bad": SELV_REF, "bias_hb_bad": SELV_REF, "bias_bad_raw": SELV_REF, "bias_good": SELV_REF,
+    "permit": SELV_REF, "bus_fault_iso": SELV_REF, "bus_fault": SELV_REF, "bias_good": SELV_REF,
     "line_zc": SELV_REF,
+    # stage 30 (DECISIONS 33): the three monitor lines and the OR output become the heartbeat line (U32 -> U46), HS-B's
+    # SELV verdict (U44 -> U46) and the RC-filtered BUS_FAULT; HS-A's verdict crosses to the LS domain (ISO6721FB) and
+    # runs the LS corridor to the vote
+    "hb_rx": SELV_REF, "bus_fault_flt": SELV_REF, "hsb_good": SELV_REF,
+    "mon_good_ha": LS_REF,
 }
 ASSERT_PLANE = {"bus_fault_hot", "pwm_hb", "ct_zc", "pwm_ha", "pwm_la", "pwm_lb"}
 # transfer-cap distance asserted at every change of ct_zc and of every PWM input (stage 19b: C153-C156 beside
 # pwm_hb's four J4-side changes; stage 19c: leg A's VCCI cap C7 under U1, as C14 under U2, for pwm_ha / pwm_la).
 # These switch at 35-60 kHz with ns edges: repeating emitters. permit, bus_fault and the bias_*_bad lines are
 # reported, not asserted: they change state only at start / stop or on a fault, and every disturbance can only
-# disable the drivers (fail-safe); their runs over the plane void at the U32 / U33 isolation gap stay recorded
+# disable the drivers (fail-safe); their runs over the plane void at the U32 isolation gap stay recorded
 # (DECISIONS 19b, 19c; rubric review SI-08 / OTT-06 / BP-14).
 ASSERT_TRANSFER = {n: (lambda at: True) for n in ("ct_zc", "pwm_hb", "pwm_ha", "pwm_la", "pwm_lb")}
 TRANSFER_MM = 3.0

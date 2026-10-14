@@ -113,15 +113,19 @@ fn connections() -> Vec<(String, String, String)> {
             add(&format!("{base}.{part}"), "2", &b);
         }
     }
-    for (base, src, p, n, bad) in [
-        ("monitor_ls", "leg_ret", "v15_ls", "n_ls", "bias_ls_bad"),
-        ("bias_ha.monitor", "sw_a", "p_ha", "n_ha", "bias_ha_bad"),
-        ("bias_hb.monitor", "sw_b", "p_hb", "n_hb", "bias_hb_bad"),
+    // Stage 30 (DECISIONS 33): the window monitors end at the wired-AND 'good' node (rpull to the local 5 V);
+    // the notice stage and the per-rail SELV crossing are gone.
+    for (base, src, p, n) in [
+        ("monitor_ls", "leg_ret", "v15_ls", "n_ls"),
+        ("bias_ha.monitor", "sw_a", "p_ha", "n_ha"),
+        ("bias_hb.monitor", "sw_b", "p_hb", "n_hb"),
     ] {
         let local = |key: &str| match key {
             "src" => src.into(),
             "p" => p.into(),
             "n" => n.into(),
+            // stage 30: the LS monitor's 5 V also feeds the HS links and the heartbeat, so it is named ls_v5
+            "v5" if base == "monitor_ls" => "ls_v5".into(),
             _ => format!("{base}-{key}"),
         };
         for (part, a, b) in [
@@ -136,12 +140,9 @@ fn connections() -> Vec<(String, String, String)> {
             ("rspanuv_bot", "spanuv", "n"),
             ("rspanov_top", "p", "spanov"),
             ("rspanov_bot", "spanov", "n"),
-            ("rnotice", "ref", "good"),
-            ("rbase", "base", "n"),
-            ("rpull", "v5", "isoin"),
+            ("rpull", "v5", "good"),
             ("cldo_in", "p", "n"),
             ("cldo_out", "v5", "n"),
-            ("civcc1", "v5", "n"),
             ("cuv", "uv", "n"),
             ("cov", "ov", "n"),
             ("cspanuv", "spanuv", "n"),
@@ -174,31 +175,97 @@ fn connections() -> Vec<(String, String, String)> {
             ("reference", "1", "ref"),
             ("reference", "2", "ref"),
             ("reference", "3", "n"),
-            ("dnotice", "2", "good"),
-            ("dnotice", "1", "base"),
-            ("qnotice", "1", "base"),
-            ("qnotice", "2", "n"),
-            ("qnotice", "3", "isoin"),
             // TPS70950 SOT-23-5: 1 IN, 2 GND, 3 EN, 5 OUT.
             ("ldo5", "1", "p"),
             ("ldo5", "2", "n"),
             ("ldo5", "3", "p"),
             ("ldo5", "5", "v5"),
-            // ISO7710 DW: 1/7 GND1, 3 VCC1, 4 IN (side 1 on the monitored domain).
-            ("iso", "1", "n"),
-            ("iso", "7", "n"),
-            ("iso", "3", "v5"),
-            ("iso", "4", "isoin"),
         ] {
             add(&format!("{base}.{part}"), pin, &local(key));
         }
-        // Side 2: 9/16 GND2, 14 VCC2, 13 OUT drives the bad line directly.
-        add(&format!("{base}.iso"), "9", "selv_gnd");
-        add(&format!("{base}.iso"), "16", "selv_gnd");
-        add(&format!("{base}.iso"), "14", "v3v3");
-        add(&format!("{base}.iso"), "13", bad);
-        add(&format!("{base}.civcc2"), "1", "v3v3");
-        add(&format!("{base}.civcc2"), "2", "selv_gnd");
+    }
+    // Stage 30: HS-A's verdict crosses to the LS domain through an ISO6721FB (default LOW = not good).
+    // D: 1 VCC1, 2 OUTA, 3 INB, 4 GND1, 5 GND2, 6 OUTB, 7 INA, 8 VCC2. Reverse input tied to GND2, OUTA open.
+    for (base, n, good) in [("bias_ha", "n_ha", "mon_good_ha")] {
+        let v5 = format!("{base}.monitor-v5");
+        for (pin, net) in [
+            ("1", v5.as_str()),
+            ("2", "outa_nc"),
+            ("3", &format!("{base}.monitor-good")),
+            ("4", n),
+            ("5", "n_ls"),
+            ("6", good),
+            ("7", "n_ls"),
+            ("8", "ls_v5"),
+        ] {
+            add(&format!("{base}.link"), pin, net);
+        }
+        for (part, a, b) in [("clink1", v5.as_str(), n), ("clink2", "ls_v5", "n_ls")] {
+            add(&format!("{base}.{part}"), "1", a);
+            add(&format!("{base}.{part}"), "2", b);
+        }
+    }
+    // Stage 30: HS-B's verdict crosses straight to SELV on an ISO7710F (default LOW) and gates the heartbeat NAND.
+    for (pin, net) in [
+        ("1", "n_hb"),
+        ("7", "n_hb"),
+        ("3", "bias_hb.monitor-v5"),
+        ("4", "bias_hb.monitor-good"),
+        ("9", "selv_gnd"),
+        ("16", "selv_gnd"),
+        ("14", "v3v3"),
+        ("13", "hsb_good"),
+    ] {
+        add("bias_hb.verdict", pin, net);
+    }
+    for (part, a, b) in [("cver1", "bias_hb.monitor-v5", "n_hb"), ("cver2", "v3v3", "selv_gnd")] {
+        add(&format!("bias_hb.{part}"), "1", a);
+        add(&format!("bias_hb.{part}"), "2", b);
+    }
+    // Stage 30 heartbeat (f6_bias.ato Heartbeat; FMEA 6a design J). LS: diode-AND vote, gated G132 oscillator,
+    // U32 the heartbeat's reinforced crossing; SELV: G132 NAND gated by HS-B's verdict, 220 ohm, 2 x 1 nF series, BAT54S pump, hold.
+    for (part, pin, net) in [
+        ("vote", "1", "monitor_ls-good"),
+        ("vote", "3", "mon_good_ha"),
+        ("osc", "1", "monitor_ls-good"),
+        ("osc", "2", "hb_rc"),
+        ("osc", "3", "n_ls"),
+        ("osc", "4", "hb_tx"),
+        ("osc", "5", "ls_v5"),
+        ("iso", "1", "n_ls"),
+        ("iso", "7", "n_ls"),
+        ("iso", "3", "ls_v5"),
+        ("iso", "4", "hb_tx"),
+        ("iso", "9", "selv_gnd"),
+        ("iso", "16", "selv_gnd"),
+        ("iso", "14", "v3v3"),
+        ("iso", "13", "hb_rx"),
+        ("buf", "2", "hb_rx"),
+        ("buf", "1", "hsb_good"),
+        ("buf", "3", "selv_gnd"),
+        ("buf", "4", "hb_bufo"),
+        ("buf", "5", "v3v3"),
+        ("pump", "1", "selv_gnd"),
+        ("pump", "3", "hb_x"),
+        ("pump", "2", "hb_hold"),
+    ] {
+        add(&format!("hb.{part}"), pin, net);
+    }
+    for (part, a, b) in [
+        ("rosc", "hb_tx", "hb_rc"),
+        ("cosc", "hb_rc", "n_ls"),
+        ("cosc_vcc", "ls_v5", "n_ls"),
+        ("civcc1", "ls_v5", "n_ls"),
+        ("civcc2", "v3v3", "selv_gnd"),
+        ("cbuf", "v3v3", "selv_gnd"),
+        ("rs", "hb_bufo", "hb_s"),
+        ("cp1", "hb_s", "hb_m"),
+        ("cp2", "hb_m", "hb_x"),
+        ("chold", "hb_hold", "selv_gnd"),
+        ("rbleed", "hb_hold", "selv_gnd"),
+    ] {
+        add(&format!("hb.{part}"), "1", a);
+        add(&format!("hb.{part}"), "2", b);
     }
     // Stage 14: one RECOM R24C2T25/R-R per high side (R24C2T25/R Rev.1-2024 p.12 pin map). Primary on
     // V24_RAW / N_LS; secondary P-N single 17 V output (FBVOUT- tied to FBVOUT+, COM and PG open).
@@ -231,16 +298,6 @@ fn connections() -> Vec<(String, String, String)> {
             add(&format!("{base}.{part}"), "2", b);
         }
     }
-    for (pin, net) in [
-        ("1", "bias_ls_bad"),
-        ("2", "selv_gnd"),
-        ("3", "bias_ha_bad"),
-        ("4", "bias_bad_raw"),
-        ("5", "v3v3"),
-        ("6", "bias_hb_bad"),
-    ] {
-        add("bias_or", pin, net);
-    }
     for (part, a, b) in [
         ("r1", "l_filt", "r1mid"),
         ("r2", "r1mid", "led1"),
@@ -269,16 +326,10 @@ fn connections() -> Vec<(String, String, String)> {
         add("line_zc.buffer", pin, net);
     }
     add("j_selv", "16", "line_zc");
-    // CMT glitch filter between the monitor OR and both DIS ORs.
-    for (part, a, b) in [
-        ("r_bias_flt", "bias_bad_raw", "bias_bad_flt"),
-        ("c_bias_flt", "bias_bad_flt", "selv_gnd"),
-        ("c_bias_flt_vcc", "v3v3", "selv_gnd"),
-    ] {
-        add(part, "1", a);
-        add(part, "2", b);
-    }
-    for (pin, net) in [("2", "bias_bad_flt"), ("3", "selv_gnd"), ("4", "bias_good"), ("5", "v3v3")] {
+    // Stage 30: U40 is a non-inverting G17 on the heartbeat hold node; it alone drives BIAS_GOOD.
+    add("c_bias_flt_vcc", "1", "v3v3");
+    add("c_bias_flt_vcc", "2", "selv_gnd");
+    for (pin, net) in [("2", "hb_hold"), ("3", "selv_gnd"), ("4", "bias_good"), ("5", "v3v3")] {
         add("u_bias_flt", pin, net);
     }
     rows
@@ -395,6 +446,15 @@ mod tests {
             if part.path.ends_with(".permit_fet") || part.path.ends_with(".r_dis_pu") {
                 continue;
             }
+            // stage 30 (DECISIONS 33): notice stages, per-rail crossings, the OR3 and the RC filter are deleted;
+            // U32 / C133 / C134 keep their designators under the heartbeat (hb.iso / hb.civcc1 / hb.civcc2)
+            if [".rnotice", ".rbase", ".dnotice", ".qnotice", ".iso", ".civcc1", ".civcc2"]
+                .iter()
+                .any(|suffix| part.path.ends_with(suffix) && part.path.contains("monitor"))
+                || ["bias_or", "bias_c_or", "r_bias_flt", "c_bias_flt"].contains(&part.path.as_str())
+            {
+                continue;
+            }
             assert_eq!(
                 current.reff(&part.path),
                 Some(reference.as_str()),
@@ -453,20 +513,42 @@ mod tests {
     }
     #[test]
     fn rail_monitor_crossings_must_be_reinforced_high_cmti_isolators() {
-        // A phototransistor opto (e.g. VO617A, ~10 kV/us class) on a switch-node
-        // domain is rejected: the crossing must be the pinned ISO7710.
-        for base in ["monitor_ls", "bias_ha.monitor", "bias_hb.monitor"] {
-            let mut changed = crate::tests::built();
-            changed.set_part(&format!("{base}.iso"), "VO617A-3X017T");
-            assert!(
-                crate::audit(&changed).iter().any(|e| e.contains(&format!("{base}.iso"))),
-                "{base}"
-            );
-        }
-        // The bad line driven from the HOT side instead of the isolator output fails.
+        // Stage 30: the group's SELV crossings are hb.iso (U32, ISO7710DWR) and bias_hb.verdict (U44, ISO7710FDWR);
+        // a phototransistor opto fails.
         let mut changed = crate::tests::built();
-        changed.rewire("bias_ha.monitor.iso", "13", "bias_ha.monitor-isoin");
-        assert!(crate::audit(&changed).iter().any(|e| e.contains("bias_ha.monitor.iso")));
+        changed.set_part("hb.iso", "VO617A-3X017T");
+        assert!(crate::audit(&changed).iter().any(|e| e.contains("hb.iso")));
+        // The HS verdict crossings must default LOW: the default-HIGH ISO6721B (HS-A) or ISO7710 (HS-B) would read an
+        // unpowered HS monitor as 'good' (the masking failure the F options exist to prevent).
+        for (path, wrong) in [("bias_ha.link", "ISO6721BDR"), ("bias_hb.verdict", "ISO7710DWR")] {
+            let mut changed = crate::tests::built();
+            changed.set_part(path, wrong);
+            assert!(crate::audit(&changed).iter().any(|e| e.contains(path)), "{path}");
+        }
+        // HS-B's verdict must gate the SELV NAND: the gate input tied to V3V3 (the verdict bypassed) fails.
+        let mut changed = crate::tests::built();
+        changed.rewire("hb.buf", "1", "v3v3");
+        assert!(crate::audit(&changed).iter().any(|e| e.contains("hb.buf.1")));
+        // The SELV wave taken from the HOT side instead of the isolator output fails.
+        let mut changed = crate::tests::built();
+        changed.rewire("hb.iso", "13", "hb_tx");
+        assert!(crate::audit(&changed).iter().any(|e| e.contains("hb.iso")));
+    }
+    #[test]
+    fn heartbeat_pump_must_stay_ac_coupled() {
+        // A static level must never reach the hold node: a pump series cap replaced by a link (0 ohm), or the
+        // series pair bridged, fails; so does the hold driven straight from the buffer.
+        for cap in ["hb.cp1", "hb.cp2"] {
+            let mut changed = crate::tests::built();
+            changed.set_part(cap, "0603WAF0000T5E");
+            assert!(crate::audit(&changed).iter().any(|e| e.contains(cap)), "{cap}");
+        }
+        let mut changed = crate::tests::built();
+        changed.rewire("hb.cp2", "1", "hb_s");
+        assert!(crate::audit(&changed).iter().any(|e| e.contains("hb.cp2")));
+        let mut changed = crate::tests::built();
+        changed.rewire("u_bias_flt", "2", "hb_bufo");
+        assert!(crate::audit(&changed).iter().any(|e| e.contains("u_bias_flt.2")));
     }
     #[test]
     fn rail_bad_cannot_bypass_disable() {
