@@ -23,4 +23,8 @@ Proposals from the group folders, grouped into candidate boards. The lead integr
   modelled event (<= 0.46 J returned, bus <= 379 V and <= 451 V with 500 uH line inductance), but the bus alone takes the
   requested 2 J only at 547-592 V, over the 520 V screen (`r2-cost/scripts/clamp_2j_check.py`). Keep the clamp unless the
   owner restates the absorption target as the modelled return energy plus margin; a bench no-clamp surge test then decides.
+- **C5/C6 ripple at the commissioned ceiling** (datasheet ledger, B32676G1905K000). ALT-C5C6 put self-heating at 80 % of TDK's
+  permitted ΔT at 22 A and an 85 °C cap ambient. Since ΔT ∝ I², that is about 112 % at 26 A and 130 % at 28 A, against 54 % at
+  26 A with a 70 °C ambient. Bench condition before running above 22 A: either the B3 / enclosure cap ambient is ≤ 75 °C, or
+  a C5 case-temperature measurement at the ceiling.
 - **Ordering, not design:** UCC21550 and ISO7710 are stocked at TI.com, and UCC21550ADWR/BDWR at JLC. R5, PS1 and PS2 are stocked at LCSC.

@@ -50,6 +50,10 @@ PERF = {
     "fuse_copper_fusing_ratio": ("higher", 0.0),
     "bank_ratio_tdk_28A_40k": ("lower", 0.0),     # added 2026-10-13 (stage 20): DECISIONS item 21 / 23 thermal margin
     "ocp_pickup_stack_pan60_A": ("lower", 0.1),   # added 2026-10-13 (stage 21b): F8, any-phase +50 % stack, gate 6.5 A
+    # added 2026-10-13 (after stage 26): datasheet-ratings ledger (native-21/verification/datasheet-ledger) as a ratchet - a
+    # candidate may not add a rating violation, a BOM line missing from the ledger, or an unaudited SAFETY/POWER line
+    "ledger_violations": ("lower", 0),
+    "ledger_unaudited_safety_power": ("lower", 0),
 }
 
 
@@ -187,6 +191,18 @@ def performance(b, tag):
     if pk:
         m["ocp_pickup_stack_pan60_A"] = round(pk["rows"]["f60|pan_bars_31kHz_45Apk|base_A|cluster_drawn"]["stack_any_phase_x1p5_A"], 2)
         src["ocp_pickup"] = f"02-protection-timing/coil-pickup/s21b/result-{tag.replace('native21', '')}.json"
+    # datasheet-ratings ledger against the frozen BOM (the gate exits 1 while J1 / F2 are open: the counts are the metric)
+    led = UNIT / "native-21/verification/datasheet-ledger"
+    if (led / "gate.py").exists():
+        import subprocess, tempfile
+        with tempfile.TemporaryDirectory() as td:
+            subprocess.run(["python3", "-I", str(led / "gate.py"), "--report", f"{td}/r.json"], capture_output=True)
+            r = json.loads(Path(f"{td}/r.json").read_text())
+        if r.get("errors"):
+            raise SystemExit(f"datasheet ledger errors: {r['errors'][:3]}")
+        m["ledger_violations"] = len(r["violations"])
+        m["ledger_unaudited_safety_power"] = len(r["unaudited_safety_power"]) + len(r["missing_from_ledger"])
+        src["ledger"] = f"native-21/verification/datasheet-ledger: {r['totals']}"
     return m, src
 
 

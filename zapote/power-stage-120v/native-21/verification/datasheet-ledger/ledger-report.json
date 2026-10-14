@@ -1,0 +1,2320 @@
+{
+ "bom_lines": 91,
+ "counts_by_class": {
+  "POWER": {
+   "PARTIAL": 8,
+   "UNAUDITED": 1,
+   "VERIFIED": 0,
+   "VIOLATION": 0
+  },
+  "SAFETY": {
+   "PARTIAL": 16,
+   "UNAUDITED": 1,
+   "VERIFIED": 1,
+   "VIOLATION": 2
+  },
+  "SIGNAL": {
+   "PARTIAL": 0,
+   "UNAUDITED": 62,
+   "VERIFIED": 0,
+   "VIOLATION": 0
+  }
+ },
+ "entries": 91,
+ "entries_detail": {
+  "0430451612": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "J4"
+   ],
+   "finding": null,
+   "function": "Molex Micro-Fit controller connector J4 (low-voltage SELV signals)",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "0603WAF0000T5E": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "R38"
+   ],
+   "finding": null,
+   "function": "0 R link R38 (PE to SELV GND, functional)",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "0603WAF1000T5E": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "R14",
+    "R6"
+   ],
+   "finding": null,
+   "function": "100 R 0603 permit/gate series",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "0603WAF1001T5E": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "R107",
+    "R122",
+    "R47",
+    "R89"
+   ],
+   "finding": null,
+   "function": "1 k 0603",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "0603WAF1002T5E": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "R108",
+    "R109",
+    "R11",
+    "R123",
+    "R124",
+    "R126",
+    "R13",
+    "R19",
+    "R21",
+    "R73",
+    "R76",
+    "R90",
+    "R91"
+   ],
+   "finding": null,
+   "function": "10 k 0603",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "0603WAF1003T5E": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "R128",
+    "R15",
+    "R62",
+    "R7"
+   ],
+   "finding": null,
+   "function": "100 k 0603 pull",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "0603WAF2702T5E": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "R127",
+    "R129"
+   ],
+   "finding": null,
+   "function": "27 k",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "0603WAF3302T5E": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "R125"
+   ],
+   "finding": null,
+   "function": "33 k",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "0603WAF4991T5E": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "R71",
+    "R72",
+    "R74",
+    "R75"
+   ],
+   "finding": null,
+   "function": "4.99 k 0603",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "0603WAF5601T5E": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "R31"
+   ],
+   "finding": null,
+   "function": "passive/IC, role per schematic",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "1206W4F1001T5E": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "R42"
+   ],
+   "finding": null,
+   "function": "1 k 1206",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "1206W4F1003T5E": {
+   "checks": [],
+   "class": "SAFETY",
+   "designators": [
+    "R1",
+    "R2"
+   ],
+   "finding": null,
+   "function": "X-capacitor bleed R1/R2 (two 100 k in series across the mains)",
+   "gaps": [
+    "Not audited: UNI-ROYAL 1206 working voltage and pulse rating vs 140 Vrms line and 1-2 kV surge; bleed time claim (FINDINGS #10) uses it."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "1206W4F100KT5E": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "R53",
+    "R54",
+    "R57",
+    "R58"
+   ],
+   "finding": null,
+   "function": "100 k 1206",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "1704004": {
+   "checks": [
+    {
+     "id": "leakage vs CSA",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "I CSA",
+     "ratio": 0.0001,
+     "severity": "violation",
+     "stress": "I PE branch (leakage)"
+    }
+   ],
+   "class": "SAFETY",
+   "designators": [
+    "J6"
+   ],
+   "finding": null,
+   "function": "PE branch terminal J6 (chassis PE stud branch to board), Phoenix KDS 3",
+   "gaps": [],
+   "status": "VERIFIED",
+   "unchecked_layout": []
+  },
+  "1711725": {
+   "checks": [
+    {
+     "id": "cULus-B at regulated",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "I_cont cULus group B",
+     "ratio": 0.9,
+     "severity": "violation",
+     "stress": "I inlet regulated"
+    },
+    {
+     "id": "cULus-B at trip",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "I_cont cULus group B",
+     "ratio": 1.0,
+     "severity": "violation",
+     "stress": "I inlet trip"
+    },
+    {
+     "id": "CSA-B at regulated",
+     "max_ratio": 1.0,
+     "ok": false,
+     "rating": "I_cont CSA group B",
+     "ratio": 1.35,
+     "severity": "violation",
+     "stress": "I inlet regulated"
+    },
+    {
+     "id": "cULus-B at 16.5 A envelope",
+     "max_ratio": 1.0,
+     "ok": false,
+     "rating": "I_cont cULus group B",
+     "ratio": 1.1,
+     "severity": "gap",
+     "stress": "I inlet envelope"
+    }
+   ],
+   "class": "SAFETY",
+   "designators": [
+    "J1"
+   ],
+   "finding": "J1 is rated 24 A only on the IEC basis. On the North-American approval basis it is 15 A cULus use group B (10 A group D) and 10 A CSA. The design carries 13.5 A regulated (1.35x the CSA 10 A, 90% of cULus), 15 A at the trip (100%, no margin) and a 16.5 A recorded envelope (110%). parts.ato and the F1 note still cite the IEC 24 A (FINDINGS #4). Fix: record 15 A, then a >= 20 A UL group-B terminal at the next re-spin or an end-product temperature-rise test at 13.5-15 A and maximum ambient.",
+   "function": "Mains inlet terminal (L/N), Phoenix MKDS 3/2-5,08",
+   "gaps": [
+    "Lab has not ruled whether cULus covers Canada (CSA 13631 10 A is then the binding figure).",
+    "No line-current hardware sensing: the 15 A limit is a firmware estimate with unqualified error (FINDINGS #11)."
+   ],
+   "status": "VIOLATION",
+   "unchecked_layout": []
+  },
+  "1N4148W": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "D14",
+    "D15",
+    "D16"
+   ],
+   "finding": null,
+   "function": "signal diode",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "30KPA150CA": {
+   "checks": [
+    {
+     "id": "standoff",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Standoff string",
+     "ratio": 0.9533,
+     "severity": "violation",
+     "stress": "Bus static OVP"
+    },
+    {
+     "id": "plug-in vs VBR",
+     "max_ratio": 1.0,
+     "ok": false,
+     "rating": "VBR min string",
+     "ratio": 1.1463,
+     "severity": "gap",
+     "stress": "Plug-in overshoot"
+    }
+   ],
+   "class": "SAFETY",
+   "designators": [
+    "D17",
+    "D3"
+   ],
+   "finding": null,
+   "function": "Bus clamp D3/D17, two Good-Ark 30KPA150CA bidirectional TVS in series",
+   "gaps": [
+    "No Good-Ark datasheet copy; figures from ALT-D3 citing p.3; Good-Ark/Littelfuse publish no tempco (hot clamp open, ALT-D3:134).",
+    "Bench pulse qualification (ALT-D3 5) open; until then the bench bus stays <= 150 V DC (DECISIONS.md:461).",
+    "Standoff margin 4.7 % to the 286 V OVP corner; 384 V plug-in overshoot exceeds the string VBR min so the TVS conducts at every plug-in at the crest.",
+    "Lead-bend stress on the P600 body unverified (FINDINGS #8)."
+   ],
+   "status": "PARTIAL",
+   "unchecked_layout": [
+    "P600 lead bend: hole centre 1.8 mm from the body end (needs ~3.4-4.6 mm straight)"
+   ]
+  },
+  "3403.0171": {
+   "checks": [
+    {
+     "id": "break vs worst fault",
+     "max_ratio": 1.0,
+     "ok": false,
+     "rating": "Breaking capacity IEC 250 VAC",
+     "ratio": 17.835,
+     "severity": "violation",
+     "stress": "Prospective fault at J11"
+    },
+    {
+     "id": "break vs weakest fault",
+     "max_ratio": 1.0,
+     "ok": false,
+     "rating": "Breaking capacity IEC 250 VAC",
+     "ratio": 1.865,
+     "severity": "violation",
+     "stress": "Prospective fault, weakest corner"
+    }
+   ],
+   "class": "SAFETY",
+   "designators": [
+    "F2"
+   ],
+   "finding": "F2 (UMT 250, 200 A @ 250 VAC IEC) has a prospective fault of 373-3,567 A at J11 and melts 19.5x sooner than F1, so it must interrupt alone: exceeded 1.9x-18x (DECISIONS.md:843, F4 FAIL). Open decision: >= 1,500 A 5x20 ceramic fuse (candidate 02153.15MXP, datasheet figure unverified) or drop the PS3 mains tap.",
+   "function": "Blower-supply branch fuse F2 (3.15 A T) after the EMI filter, feeds J11 -> PS3",
+   "gaps": [
+    "UL 248-14 breaking capacity at 125/250 VAC not read; IEC 200 A used."
+   ],
+   "status": "VIOLATION",
+   "unchecked_layout": []
+  },
+  "6SVPC220MV": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "C126",
+    "C127",
+    "C128",
+    "C129"
+   ],
+   "finding": null,
+   "function": "220 uF polymer reservoir",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "74650074": {
+   "checks": [
+    {
+     "id": "I",
+     "max_ratio": 0.6,
+     "ok": true,
+     "rating": "I max @ 20C",
+     "ratio": 0.588,
+     "severity": "violation",
+     "stress": "I tank trip"
+    }
+   ],
+   "class": "POWER",
+   "designators": [
+    "J2",
+    "J5"
+   ],
+   "finding": null,
+   "function": "Resonant-tank coil terminals J2/J5, Wuerth REDCUBE THR M4",
+   "gaps": [
+    "Datasheet not fetched: temperature derating of the 50 A rating at the operating ambient is unknown; no voltage rating (PCB/lug spacing governs).",
+    "Terminal contact temperature at 28 A not evidenced; bench IR list covers J2/J5 window only."
+   ],
+   "status": "PARTIAL",
+   "unchecked_layout": []
+  },
+  "AMC1311BDWVR": {
+   "checks": [
+    {
+     "id": "CMTI",
+     "max_ratio": 0.6666666666666666,
+     "ok": false,
+     "rating": "CMTI min",
+     "ratio": 0.95,
+     "severity": "gap",
+     "stress": "CMTI edge"
+    },
+    {
+     "id": "barrier",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "VIORM",
+     "ratio": 0.1348,
+     "severity": "violation",
+     "stress": "Barrier peak"
+    }
+   ],
+   "class": "SAFETY",
+   "designators": [
+    "U4"
+   ],
+   "finding": null,
+   "function": "Isolated bus-voltage amplifier U4 (reinforced)",
+   "gaps": [
+    "Datasheet not fetched this session; limits are the repo's recorded values.",
+    "CMTI margin 1.05x vs 1.5x rule: a spurious VBUS sample, no gate command (CMTI README:21 OPEN)."
+   ],
+   "status": "PARTIAL",
+   "unchecked_layout": []
+  },
+  "ARG03BTC1333": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "R105",
+    "R120",
+    "R87"
+   ],
+   "finding": null,
+   "function": "133 k",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "B2P3-VH(LF)(SN)": {
+   "checks": [
+    {
+     "id": "I J11",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "I rated",
+     "ratio": 0.315,
+     "severity": "violation",
+     "stress": "I J11 bounded by F2"
+    },
+    {
+     "id": "I J3",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "I rated",
+     "ratio": 0.06,
+     "severity": "violation",
+     "stress": "I J3 (PS2 input)"
+    },
+    {
+     "id": "V",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "V rated",
+     "ratio": 0.5588,
+     "severity": "violation",
+     "stress": "V line high"
+    }
+   ],
+   "class": "SAFETY",
+   "designators": [
+    "J11",
+    "J3"
+   ],
+   "finding": null,
+   "function": "Mains tap headers J3 (PS2 TCO loop) and J11 (blower tap), JST VH",
+   "gaps": [
+    "The retrieved JST catalogue defers UL/CSA ratings to a website list; the NA approval basis (UL E60389-class file, 10 A/250 V) was not read, so 'applicable approval basis' is unverified.",
+    "J11 bounded by F2 which itself fails its breaking capacity (see 3403.0171)."
+   ],
+   "status": "PARTIAL",
+   "unchecked_layout": []
+  },
+  "B32652A0104K000": {
+   "checks": [
+    {
+     "id": "V",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "VR DC",
+     "ratio": 0.451,
+     "severity": "violation",
+     "stress": "Vbus worst no-clamp"
+    }
+   ],
+   "class": "POWER",
+   "designators": [
+    "C38",
+    "C39",
+    "C40",
+    "C41"
+   ],
+   "finding": null,
+   "function": "Local bus decoupling film C38-C41, 100 nF 1000 VDC",
+   "gaps": [
+    "Per-part RMS current share is unknown ('local current sharing needs measurement', parts.ato).",
+    "Current rating taken from the parts.ato docstring, not re-read."
+   ],
+   "status": "PARTIAL",
+   "unchecked_layout": []
+  },
+  "B32654A1104J000": {
+   "checks": [
+    {
+     "id": "V normal",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "VR DC",
+     "ratio": 0.4,
+     "severity": "violation",
+     "stress": "V peak normal"
+    },
+    {
+     "id": "I commissioned",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "I tank allowed @35kHz",
+     "ratio": 0.9701,
+     "severity": "violation",
+     "stress": "I tank commissioned"
+    },
+    {
+     "id": "I design",
+     "max_ratio": 1.0,
+     "ok": false,
+     "rating": "I tank allowed @35kHz",
+     "ratio": 1.0448,
+     "severity": "gap",
+     "stress": "I tank design"
+    },
+    {
+     "id": "V third fault",
+     "max_ratio": 1.0,
+     "ok": false,
+     "rating": "VR DC",
+     "ratio": 1.0519,
+     "severity": "gap",
+     "stress": "V third fault"
+    }
+   ],
+   "class": "POWER",
+   "designators": [
+    "C151",
+    "C152",
+    "C21",
+    "C22",
+    "C23"
+   ],
+   "finding": null,
+   "function": "Resonant tank bank C21-C23/C151/C152, 5 x 100 nF +/-5 %, 1600 VDC MKP",
+   "gaps": [
+    "The 28 A design ceiling is 4.5 % above the repo's digitised TDK current curve (ratio 1.022 at 40 kHz); only the 26 A commissioned ceiling is inside.",
+    "TDK p.57 curve is digitised by the repo ('digitise TDK p.57 properly' is still an open item, DECISIONS.md:373).",
+    "Third-fault voltage 1,683 V exceeds the 1,600 VDC rating (covered only by the 35 kHz floor and a third independent fault)."
+   ],
+   "status": "PARTIAL",
+   "unchecked_layout": [
+    "hot-spot rise <= 20 K before running at 22 A (bodies 0.55-0.8 mm apart)"
+   ]
+  },
+  "B32676G1905K000": {
+   "checks": [
+    {
+     "id": "Vbus static",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "VR 85C DC",
+     "ratio": 0.3813,
+     "severity": "violation",
+     "stress": "Vbus static OVP"
+    },
+    {
+     "id": "Vbus worst",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "VR 85C DC",
+     "ratio": 0.6013,
+     "severity": "violation",
+     "stress": "Vbus worst no-clamp"
+    },
+    {
+     "id": "ripple 22 A",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "ripple dT allowance",
+     "ratio": 0.8,
+     "severity": "violation",
+     "stress": "ripple dT use at 22 A"
+    },
+    {
+     "id": "ripple 26 A",
+     "max_ratio": 1.0,
+     "ok": false,
+     "rating": "ripple dT allowance",
+     "ratio": 1.12,
+     "severity": "gap",
+     "stress": "ripple dT use at 26 A (scaled)"
+    },
+    {
+     "id": "ripple 28 A",
+     "max_ratio": 1.0,
+     "ok": false,
+     "rating": "ripple dT allowance",
+     "ratio": 1.3,
+     "severity": "gap",
+     "stress": "ripple dT use at 28 A (scaled)"
+    }
+   ],
+   "class": "POWER",
+   "designators": [
+    "C5",
+    "C6"
+   ],
+   "finding": null,
+   "function": "DC-link bulk film C5/C6, 9 uF 750 VDC, 4-pin radial MKP",
+   "gaps": [
+    "Ripple self-heating was only evaluated at I_tank <= 22 A (80% of the allowance). The commissioned ceiling is 26 A and the design ceiling 28 A: a pure I^2 scale puts both above the allowance. Rerun ripple.py at 26/28 A and measure case temperature at first power.",
+    "Footprint is named TDK_B32656G0275J000 (stale name, geometry correct)."
+   ],
+   "status": "PARTIAL",
+   "unchecked_layout": []
+  },
+  "B82726S2203A020": {
+   "checks": [
+    {
+     "id": "I",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "I_rated",
+     "ratio": 0.75,
+     "severity": "violation",
+     "stress": "I inlet trip"
+    }
+   ],
+   "class": "SAFETY",
+   "designators": [
+    "L1"
+   ],
+   "finding": null,
+   "function": "Mains common-mode choke L1, 20 A 1.6 mH",
+   "gaps": [
+    "Datasheet not retrieved: temperature derating, rated voltage (a distributor listing of sibling TDK B827x chokes shows 48 VAC / 80 VDC; confirm B82726S2203A020 is rated >= 140 Vrms) and saturation are unchecked.",
+    "Core stock zero, 29 weeks (DECISIONS.md:846)."
+   ],
+   "status": "PARTIAL",
+   "unchecked_layout": []
+  },
+  "BAS116H,115": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "D4",
+    "D5"
+   ],
+   "finding": null,
+   "function": "low-leakage diode",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "C0603C102J5GACTU": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "C143",
+    "C27",
+    "C31",
+    "C33",
+    "C55",
+    "C56",
+    "C62",
+    "C63",
+    "C66",
+    "C67",
+    "C68",
+    "C69",
+    "C76",
+    "C77",
+    "C78",
+    "C79",
+    "C83",
+    "C84",
+    "C85",
+    "C86"
+   ],
+   "finding": null,
+   "function": "1 nF C0G 0603",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "CC0603KRX7R9BB104": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "C131",
+    "C133",
+    "C134",
+    "C135",
+    "C137",
+    "C138",
+    "C139",
+    "C14",
+    "C141",
+    "C142",
+    "C144",
+    "C153",
+    "C154",
+    "C155",
+    "C156",
+    "C25",
+    "C28",
+    "C29",
+    "C32",
+    "C34",
+    "C35",
+    "C36",
+    "C37",
+    "C44",
+    "C45",
+    "C46",
+    "C47",
+    "C48",
+    "C49",
+    "C54",
+    "C61",
+    "C65",
+    "C7",
+    "C70",
+    "C74",
+    "C75",
+    "C80",
+    "C81",
+    "C82",
+    "C87",
+    "C88",
+    "C89"
+   ],
+   "finding": null,
+   "function": "100 nF X7R 0603 decoupling/filter",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "CC0805KRX7R9BB104": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "C10",
+    "C15",
+    "C17",
+    "C8"
+   ],
+   "finding": null,
+   "function": "100 nF 0805 driver VDD decoupling",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "CL05B104KB54PNC": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "C110",
+    "C111",
+    "C112",
+    "C113",
+    "C114",
+    "C115",
+    "C116",
+    "C117",
+    "C118",
+    "C119",
+    "C120",
+    "C121",
+    "C122",
+    "C123",
+    "C124",
+    "C125"
+   ],
+   "finding": null,
+   "function": "100 nF 0402 bypass",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "CL10C101JB8NNNC": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "C30"
+   ],
+   "finding": null,
+   "function": "100 pF 0603",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "CL10C331JB8NNNC": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "C105",
+    "C109",
+    "C71",
+    "C72"
+   ],
+   "finding": null,
+   "function": "330 pF",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "CL21B105KBFNNNE": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "C145",
+    "C146",
+    "C147",
+    "C148",
+    "C149",
+    "C150"
+   ],
+   "finding": null,
+   "function": "1 uF 0805 driver straddle cap",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "CSS2H-2512R-1L00F": {
+   "checks": [
+    {
+     "id": "P at terminal 130C",
+     "max_ratio": 0.3,
+     "ok": true,
+     "rating": "P rated @ terminal 130C",
+     "ratio": 0.2613,
+     "severity": "violation",
+     "stress": "P shunt"
+    },
+    {
+     "id": "T element",
+     "max_ratio": 0.85,
+     "ok": true,
+     "rating": "T operating max",
+     "ratio": 0.8235,
+     "severity": "gap",
+     "stress": "T element converged"
+    }
+   ],
+   "class": "POWER",
+   "designators": [
+    "R5"
+   ],
+   "finding": null,
+   "function": "Bus/OCP shunt R5, 1 mOhm Bourns CSS2H-2512 Kelvin",
+   "gaps": [
+    "Peak/pulse rating (Maximum Pulse Power/Energy charts) vs the 71 A OCP trip transient is not compared.",
+    "Stress P uses the tank current as the shunt current; actual bus-return RMS is not separately evidenced.",
+    "Zero stock (DECISIONS.md:846 F13)."
+   ],
+   "status": "PARTIAL",
+   "unchecked_layout": []
+  },
+  "CST3015-200ED": {
+   "checks": [
+    {
+     "id": "I",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "I primary sensed",
+     "ratio": 0.3379,
+     "severity": "violation",
+     "stress": "I primary tank trip"
+    },
+    {
+     "id": "volt-time",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "Volt-time secondary",
+     "ratio": 0.053,
+     "severity": "violation",
+     "stress": "Volt-time at 118.74 A"
+    }
+   ],
+   "class": "SAFETY",
+   "designators": [
+    "T1"
+   ],
+   "finding": null,
+   "function": "Tank current transformer T1, 1:200, reinforced barrier SW_A end",
+   "gaps": [
+    "Coilcraft states reinforced / 5 kV rms but gives no working voltage, CTI or HF / partial-discharge rating at 198 Vpk, 31+ kHz: a Coilcraft question (DECISIONS.md:757).",
+    "Temperature-rise curve vs actual coil-side ambient not evaluated.",
+    "Cww unspecified (CMTI README:70)."
+   ],
+   "status": "PARTIAL",
+   "unchecked_layout": []
+  },
+  "DE1E3RA222MA4BP01F": {
+   "checks": [
+    {
+     "id": "V",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "Y1 rating (sibling BN01F)",
+     "ratio": 0.5588,
+     "severity": "violation",
+     "stress": "Line high corner to PE"
+    }
+   ],
+   "class": "SAFETY",
+   "designators": [
+    "C3",
+    "C4"
+   ],
+   "finding": null,
+   "function": "Y1 line-to-PE capacitors C3/C4, 2.2 nF",
+   "gaps": [
+    "Exact-MPN datasheet not retrieved: Y1 voltage rating and approvals unverified.",
+    "Product leakage FAIL (F5): 0.974 mA touch current vs UL 1026 0.5 mA (clause unconfirmed, DECISIONS.md:844). If confirmed this is a VIOLATION of the approval basis; fix is total Y <= 5.0 nF per line.",
+    "Murata BP01F ratings may be 300 Vac, not 250 Vac (search listing); verify."
+   ],
+   "status": "PARTIAL",
+   "unchecked_layout": []
+  },
+  "GBJ2510-F": {
+   "checks": [
+    {
+     "id": "I at trip",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "IF(AV)",
+     "ratio": 0.6,
+     "severity": "violation",
+     "stress": "I line trip"
+    },
+    {
+     "id": "V reverse",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "VRRM",
+     "ratio": 0.451,
+     "severity": "violation",
+     "stress": "V reverse worst"
+    },
+    {
+     "id": "inrush I2t",
+     "max_ratio": 0.1,
+     "ok": true,
+     "rating": "I2t",
+     "ratio": 0.0078,
+     "severity": "violation",
+     "stress": "I2t inrush"
+    },
+    {
+     "id": "shoot-through I2t",
+     "max_ratio": 0.5,
+     "ok": false,
+     "rating": "I2t",
+     "ratio": 3.3529,
+     "severity": "gap",
+     "stress": "I2t shoot-through"
+    }
+   ],
+   "class": "POWER",
+   "designators": [
+    "BR1"
+   ],
+   "finding": null,
+   "function": "Mains bridge rectifier BR1 (25 A, 1000 V) on the main heatsink (AlN tile B)",
+   "gaps": [
+    "BR1 I2t 510 A2s < F1 clearing 1,710 A2s: BR1 is sacrificial in a shoot-through, a repair item accepted at DECISIONS.md:840 (departs from D-31).",
+    "Junction temperature not computed; case 82.5 C is a model (RthJC 1.0 C/W per element); bench thermocouple pending.",
+    "Datasheet not re-fetched this session (repo copy)."
+   ],
+   "status": "PARTIAL",
+   "unchecked_layout": [
+    "thermal interface (1.0 mm gap pad, ~0.37 K/W) to the AlN tile"
+   ]
+  },
+  "GRM188R71E105KA12D": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "C50",
+    "C51",
+    "C52",
+    "C53",
+    "C57",
+    "C58",
+    "C59",
+    "C60",
+    "C64"
+   ],
+   "finding": null,
+   "function": "1 uF 0603 bypass",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "GRM21BZ71E106KE15L": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "C11",
+    "C18"
+   ],
+   "finding": null,
+   "function": "10 uF 0805 bias reservoir",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "GRM31A5C3A102JW01D": {
+   "checks": [],
+   "class": "POWER",
+   "designators": [
+    "C12",
+    "C13",
+    "C19",
+    "C20"
+   ],
+   "finding": null,
+   "function": "Drain-source snubber capacitors C12/C13/C19/C20, 1 nF 1 kV C0G 1206",
+   "gaps": [
+    "Not audited: 1 kV rating, DC-bias and dV/dt pulse current vs the 95 V/ns edge, no datasheet cited."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "GRM31C5C1H104JA01L": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "C42",
+    "C43"
+   ],
+   "finding": null,
+   "function": "100 nF C0G 1206",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "IPW65R018CFD7": {
+   "checks": [
+    {
+     "id": "VDS",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "V(BR)DSS",
+     "ratio": 0.7538,
+     "severity": "violation",
+     "stress": "VDS die worst"
+    },
+    {
+     "id": "ID",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "ID cont Tc=100C",
+     "ratio": 0.4388,
+     "severity": "violation",
+     "stress": "I tank RMS"
+    },
+    {
+     "id": "Tj design",
+     "max_ratio": 1.0,
+     "ok": false,
+     "rating": "Tj design",
+     "ratio": 1.0296,
+     "severity": "gap",
+     "stress": "Tj worst K1 basis A"
+    },
+    {
+     "id": "dv/dt",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "dv/dt MOSFET",
+     "ratio": 0.7917,
+     "severity": "violation",
+     "stress": "dv/dt hard edge"
+    }
+   ],
+   "class": "POWER",
+   "designators": [
+    "Q2",
+    "Q3",
+    "Q5",
+    "Q6"
+   ],
+   "finding": null,
+   "function": "Full-bridge switches Q2/Q3/Q5/Q6, 650 V CoolMOS CFD7, TO-247",
+   "gaps": [
+    "Switching loss, S4/S5 dv/dt and VDS are not measured (bench).",
+    "Tj at 28 A / 50 kHz exceeds the 125 C design value on the K1 contingency sink (128.7 C); S8 baseline Tj not recorded.",
+    "F7 loop re-extraction open (FINDINGS #1)."
+   ],
+   "status": "PARTIAL",
+   "unchecked_layout": [
+    "clamp-stack force and tab coplanarity"
+   ]
+  },
+  "IRM-20-15": {
+   "checks": [
+    {
+     "id": "Pout",
+     "max_ratio": 0.9,
+     "ok": true,
+     "rating": "Pout allowed @ 78C bay air",
+     "ratio": 0.8944,
+     "severity": "violation",
+     "stress": "Pout controller"
+    },
+    {
+     "id": "Vin",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "Vin max",
+     "ratio": 0.458,
+     "severity": "violation",
+     "stress": "Vin high corner"
+    }
+   ],
+   "class": "SAFETY",
+   "designators": [
+    "PS1"
+   ],
+   "finding": null,
+   "function": "Controller supply PS1, Mean Well IRM-20-15, Class II, mains-fed",
+   "gaps": [
+    "Bay air of 78 C is modelled; only 11 % margin to the derating curve. Bench soak at 40 C / 28 A required (DECISIONS.md:675).",
+    "Model case 86 C vs the 85 C ambient rating: must be judged against measured local air (DECISIONS.md:834).",
+    "Input current 0.6 A typ at 115 Vac per the datasheet is counted in I_aux = 1.3 A (DECISIONS.md:171)."
+   ],
+   "status": "PARTIAL",
+   "unchecked_layout": []
+  },
+  "IRM-20-24": {
+   "checks": [
+    {
+     "id": "P",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "P rated",
+     "ratio": 0.444,
+     "severity": "violation",
+     "stress": "P bias allocation"
+    },
+    {
+     "id": "Vin",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "Vin max",
+     "ratio": 0.458,
+     "severity": "violation",
+     "stress": "Vin high corner"
+    }
+   ],
+   "class": "SAFETY",
+   "designators": [
+    "PS2"
+   ],
+   "finding": null,
+   "function": "Bias/gate supply PS2 (TCO-switched), Mean Well IRM-20-24, Class II",
+   "gaps": [
+    "Derating at the real local air not read: model case 98 C vs the 85 C ambient rating (DECISIONS.md:834); judge against measured air.",
+    "Leakage current of the IRM modules (0.43 mA total for three at datasheet maximum) is inside the F5 leakage FAIL (DECISIONS.md:844)."
+   ],
+   "status": "PARTIAL",
+   "unchecked_layout": []
+  },
+  "ISO7710DWR": {
+   "checks": [
+    {
+     "id": "barrier",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "VIORM",
+     "ratio": 0.1348,
+     "severity": "violation",
+     "stress": "Barrier peak"
+    },
+    {
+     "id": "CMTI",
+     "max_ratio": 0.6666666666666666,
+     "ok": false,
+     "rating": "CMTI min",
+     "ratio": 1.1176,
+     "severity": "gap",
+     "stress": "CMTI edge"
+    }
+   ],
+   "class": "SAFETY",
+   "designators": [
+    "U32",
+    "U33",
+    "U34",
+    "U9"
+   ],
+   "finding": null,
+   "function": "Reinforced digital isolators U9 (bus_fault) and U32/U33/U34 (rail monitors)",
+   "gaps": [
+    "CMTI min 85 V/ns is below the modelled 95 V/ns hard edge. U32/U33/U34 are protected by the 10 us BIAS_BAD filter; U9 (OCP_KELVIN_P) is unfiltered and OPEN: a false HIGH is a nuisance bus_fault (CMTI README:20).",
+    "Zero distributor stock, 12 weeks (DECISIONS.md:846)."
+   ],
+   "status": "PARTIAL",
+   "unchecked_layout": []
+  },
+  "KLDR025.TXP": {
+   "checks": [
+    {
+     "id": "continuous at trip",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "I_cont derated",
+     "ratio": 0.8876,
+     "severity": "violation",
+     "stress": "I inlet trip"
+    },
+    {
+     "id": "inrush I2t",
+     "max_ratio": 0.1,
+     "ok": true,
+     "rating": "I2t melting",
+     "ratio": 0.0177,
+     "severity": "violation",
+     "stress": "I2t plug-in inrush"
+    },
+    {
+     "id": "fault vs AIR",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "AIR AC",
+     "ratio": 0.0383,
+     "severity": "violation",
+     "stress": "Prospective fault"
+    }
+   ],
+   "class": "SAFETY",
+   "designators": [
+    "F1"
+   ],
+   "finding": null,
+   "function": "Mains inlet fuse F1, Class CC 25 A time-delay, held in 2 x Littelfuse 01250003H clips",
+   "gaps": [
+    "Clip (Littelfuse 01250003H, 30 A) datasheet not fetched or committed; clip and Recognized-component acceptance is a certifier item.",
+    "F1 never interrupts 15-25 A through J1 (a 25 A UL 248 fuse carries its rating indefinitely): overload coordination with J1 rests on firmware plus the branch breaker (FINDINGS #11).",
+    "Derating curve value (~90% at 50 C) is the repo's reading of a plot, not a tabulated figure."
+   ],
+   "status": "PARTIAL",
+   "unchecked_layout": []
+  },
+  "LM339BIDR": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "U29",
+    "U30",
+    "U31"
+   ],
+   "finding": null,
+   "function": "quad comparator",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "LM4040A25IDBZR": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "U5"
+   ],
+   "finding": null,
+   "function": "2.5 V reference",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "MMBT3904": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "Q7",
+    "Q8",
+    "Q9"
+   ],
+   "finding": null,
+   "function": "NPN",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "PMEG6030EP,115": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "D6",
+    "D7",
+    "D8",
+    "D9"
+   ],
+   "finding": null,
+   "function": "Schottky D6-D9 (negative gate bias)",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "R24C2T25/R-R": {
+   "checks": [
+    {
+     "id": "barrier",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "VIORM functional",
+     "ratio": 0.4333,
+     "severity": "violation",
+     "stress": "Barrier peak functional"
+    },
+    {
+     "id": "CMTI",
+     "max_ratio": 0.6666666666666666,
+     "ok": true,
+     "rating": "CMTI",
+     "ratio": 0.6333,
+     "severity": "violation",
+     "stress": "CMTI edge"
+    },
+    {
+     "id": "Pout",
+     "max_ratio": 0.9,
+     "ok": true,
+     "rating": "Pout avg 82C",
+     "ratio": 0.855,
+     "severity": "violation",
+     "stress": "Pout at 80 kHz"
+    }
+   ],
+   "class": "POWER",
+   "designators": [
+    "U41",
+    "U42"
+   ],
+   "finding": null,
+   "function": "High-side isolated gate-bias modules U41/U42 (RECOM), HOT-to-HOT functional barrier",
+   "gaps": [
+    "The retrieved datasheet is PRELIMINARY and says 850 Vrms / 1.2 kVp functional only; the repo relies on a reinforced 5 kVAC / 1.4 kVDC claim from a revision not committed. Use is functional, so the 0.52 kVpk stress passes either way, but the claim must be reconciled.",
+    "Power is the 80 kHz allocation (1.71 W vs 2 W knee); 2 W knee is at 82 C ambient on an EVM; local enclosure air not evidenced (DECISIONS.md:836 bench IR).",
+    "Start-up (6-13 ms vs 16 ms timeout) and 10-16 MHz spread-spectrum emissions are bench items (DECISIONS.md:442-448)."
+   ],
+   "status": "PARTIAL",
+   "unchecked_layout": []
+  },
+  "R463N410050N1K": {
+   "checks": [
+    {
+     "id": "V",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "V rated AC",
+     "ratio": 0.4506,
+     "severity": "violation",
+     "stress": "Line high corner"
+    }
+   ],
+   "class": "SAFETY",
+   "designators": [
+    "C1",
+    "C2"
+   ],
+   "finding": null,
+   "function": "X2 across-the-line capacitors C1/C2, 1 uF 310 VAC",
+   "gaps": [
+    "Body temperature next to L1/BR1 and the 1-2 kV surge pulse (X2 pulse/dV/dt limits) not compared to the datasheet.",
+    "Bleed (R1/R2) is itself UNAUDITED; plug-pin discharge < 34 V in 1 s asserted by FINDINGS #10 only."
+   ],
+   "status": "PARTIAL",
+   "unchecked_layout": []
+  },
+  "RC1206FR-0716K5L": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "R67",
+    "R68",
+    "R69",
+    "R70"
+   ],
+   "finding": null,
+   "function": "16.5 k 1206",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "RC1206FR-07220KL": {
+   "checks": [
+    {
+     "id": "V",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "V working",
+     "ratio": 0.715,
+     "severity": "violation",
+     "stress": "V per resistor static"
+    },
+    {
+     "id": "P",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "P rated",
+     "ratio": 0.372,
+     "severity": "violation",
+     "stress": "P per resistor static"
+    }
+   ],
+   "class": "SAFETY",
+   "designators": [
+    "R3",
+    "R4"
+   ],
+   "finding": null,
+   "function": "Bus bleed R3/R4 (two 220 k in series, midpoint to D3/D17)",
+   "gaps": [
+    "Series spec from 2004 used; confirm the RC1206FR-07 maximum working voltage (200 V) and overload (400 V) against the current Yageo RC_L sheet.",
+    "Transient 451 V no-clamp corner would be 225 V per resistor, above the 200 V working figure but below the 400 V overload."
+   ],
+   "status": "PARTIAL",
+   "unchecked_layout": []
+  },
+  "RC1206FR-072K2L": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "R59",
+    "R63",
+    "R65"
+   ],
+   "finding": null,
+   "function": "2.2 k 1206",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "RC1206FR-073R9L": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "R10",
+    "R12",
+    "R18",
+    "R20"
+   ],
+   "finding": null,
+   "function": "3.9 R gate resistors R10/R12/R18/R20 (gate loop, Tj 107 C vs 155 C class, unverified)",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "RC1206FR-073RL": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "R39"
+   ],
+   "finding": null,
+   "function": "3.0 R CT burden",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "RC1206FR-07470KL": {
+   "checks": [
+    {
+     "id": "bank",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "V working",
+     "ratio": 0.8,
+     "severity": "violation",
+     "stress": "V peak per resistor (bank bleed)"
+    },
+    {
+     "id": "divider",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "V working",
+     "ratio": 0.25,
+     "severity": "violation",
+     "stress": "V per resistor (bus divider)"
+    }
+   ],
+   "class": "SAFETY",
+   "designators": [
+    "R22",
+    "R23",
+    "R24",
+    "R25",
+    "R26",
+    "R27",
+    "R28",
+    "R29"
+   ],
+   "finding": null,
+   "function": "Bus divider and resonant-bank bleed string R22-R29 (470 k, 4 in series)",
+   "gaps": [
+    "Series spec from 2004; confirm against the current Yageo RC_L sheet.",
+    "Pulse behaviour in the double-fault bank over-voltage case not compared to the pulse-voltage curves."
+   ],
+   "status": "PARTIAL",
+   "unchecked_layout": []
+  },
+  "RL1206FR-070R68L": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "R51",
+    "R52",
+    "R55",
+    "R56"
+   ],
+   "finding": null,
+   "function": "0.68 R 1206 rail reservoir resistors",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "RT0603BRD07105KL": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "R48"
+   ],
+   "finding": null,
+   "function": "105 k 0.1 %",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "RT0603BRD0710KL": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "R100",
+    "R102",
+    "R104",
+    "R106",
+    "R111",
+    "R112",
+    "R113",
+    "R115",
+    "R117",
+    "R119",
+    "R121",
+    "R32",
+    "R33",
+    "R36",
+    "R44",
+    "R45",
+    "R49",
+    "R50",
+    "R78",
+    "R79",
+    "R80",
+    "R82",
+    "R84",
+    "R86",
+    "R88",
+    "R96",
+    "R97",
+    "R98"
+   ],
+   "finding": null,
+   "function": "10 k 0.1 %",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "RT0603BRD0711KL": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "R61",
+    "R93"
+   ],
+   "finding": null,
+   "function": "11 k",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "RT0603BRD07120KL": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "R103",
+    "R118",
+    "R85"
+   ],
+   "finding": null,
+   "function": "120 k",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "RT0603BRD0712K6L": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "R34"
+   ],
+   "finding": null,
+   "function": "12.6 k 0.1 % OCP threshold",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "RT0603BRD07140KL": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "R37"
+   ],
+   "finding": null,
+   "function": "140 k 0.1 % OVP",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "RT0603BRD0715K8L": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "R30"
+   ],
+   "finding": null,
+   "function": "15.8 k 0.1 % bus divider bottom",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "RT0603BRD071KL": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "R40",
+    "R41"
+   ],
+   "finding": null,
+   "function": "1 k 0.1 %",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "RT0603BRD072K21L": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "R43",
+    "R46"
+   ],
+   "finding": null,
+   "function": "2.21 k",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "RT0603BRD0749K9L": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "R17",
+    "R9"
+   ],
+   "finding": null,
+   "function": "49.9 k dead-time resistor R9/R17",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "RT0603BRD074K42L": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "R114",
+    "R81",
+    "R99"
+   ],
+   "finding": null,
+   "function": "4.42 k",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "RT0603BRD0763K4L": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "R92",
+    "R94"
+   ],
+   "finding": null,
+   "function": "63.4 k",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "RT0603BRD076K2L": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "R110",
+    "R77",
+    "R95"
+   ],
+   "finding": null,
+   "function": "6.2 k",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "RT0603BRD077K68L": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "R101",
+    "R116",
+    "R83"
+   ],
+   "finding": null,
+   "function": "7.68 k",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "SN74LVC1G00DBVR": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "U22",
+    "U23"
+   ],
+   "finding": null,
+   "function": "NAND, DIS = NAND(PERMIT, BIAS_GOOD)",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "SN74LVC1G10DBVR": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "U8"
+   ],
+   "finding": null,
+   "function": "3-input NAND",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "SN74LVC1G14DBVR": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "U40"
+   ],
+   "finding": null,
+   "function": "Schmitt inverter",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "SN74LVC1G17DBVR": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "U15",
+    "U24"
+   ],
+   "finding": null,
+   "function": "Schmitt buffer",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "SN74LVC1G332DBVR": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "U13",
+    "U25"
+   ],
+   "finding": null,
+   "function": "OR gate",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "TL431AIDBZR": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "U17",
+    "U19",
+    "U21"
+   ],
+   "finding": null,
+   "function": "adjustable shunt",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "TLV3201AIDBVR": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "U10",
+    "U11",
+    "U12",
+    "U6",
+    "U7"
+   ],
+   "finding": null,
+   "function": "40 ns comparators",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "TLVH431BQDBZR": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "U16",
+    "U18",
+    "U20"
+   ],
+   "finding": null,
+   "function": "adjustable shunt",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "TMOV20RP175E": {
+   "checks": [
+    {
+     "id": "MCOV",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "Vac max continuous",
+     "ratio": 0.7983,
+     "severity": "violation",
+     "stress": "Line high corner"
+    },
+    {
+     "id": "surge",
+     "max_ratio": 0.1,
+     "ok": true,
+     "rating": "Surge",
+     "ratio": 0.075,
+     "severity": "violation",
+     "stress": "MOV surge current"
+    }
+   ],
+   "class": "SAFETY",
+   "designators": [
+    "RV1"
+   ],
+   "finding": null,
+   "function": "Mains surge varistor RV1 (thermally protected MOV, 175 Vrms)",
+   "gaps": [
+    "Manufacturer datasheet not obtained; limits are distributor-listed.",
+    "MCOV margin is 0.2 Vrms (140 vs 139.7): 80 % rule met only just; the 140 V line corner was never run against the TMOV datasheet leakage/aging curves.",
+    "UL 1449 type and thermal-disconnect rating not read."
+   ],
+   "status": "PARTIAL",
+   "unchecked_layout": [
+    "thermal element adjacency to the body, lead forming (offset lead)"
+   ]
+  },
+  "TNPW060311K7BEEA": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "R35"
+   ],
+   "finding": null,
+   "function": "11.7 k 0.1 % OCP threshold",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "TPS3700DDCR": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "U14"
+   ],
+   "finding": null,
+   "function": "HOT5 window supervisor",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "TPS70950DBVR": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "U3",
+    "U37",
+    "U38",
+    "U39"
+   ],
+   "finding": null,
+   "function": "5 V LDO (HOT5)",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "TPS7A4700RGWR": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "U26"
+   ],
+   "finding": null,
+   "function": "low-noise LDO U26 (V15_LS), Tj 89 C, 36 K margin (DECISIONS.md:825)",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "UCC21550BDWKR": {
+   "checks": [
+    {
+     "id": "VDD",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "VDD abs max",
+     "ratio": 0.5637,
+     "severity": "violation",
+     "stress": "VDD"
+    },
+    {
+     "id": "barrier",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "VIORM",
+     "ratio": 0.2126,
+     "severity": "violation",
+     "stress": "Barrier peak"
+    },
+    {
+     "id": "CMTI",
+     "max_ratio": 0.6666666666666666,
+     "ok": false,
+     "rating": "CMTI min",
+     "ratio": 0.76,
+     "severity": "gap",
+     "stress": "CMTI edge"
+    },
+    {
+     "id": "Tj",
+     "max_ratio": 0.83,
+     "ok": true,
+     "rating": "Tj max",
+     "ratio": 0.5267,
+     "severity": "violation",
+     "stress": "Tj converged"
+    }
+   ],
+   "class": "SAFETY",
+   "designators": [
+    "U1",
+    "U2"
+   ],
+   "finding": null,
+   "function": "Isolated dual gate drivers U1/U2 (HS/LS per leg), reinforced barrier",
+   "gaps": [
+    "CMTI 125 V/ns min vs modelled 95 V/ns hard edge is 1.32x, short of the 1.5x rule (DECISIONS.md:845 F6 FAIL); bench measures S4/S5 dv/dt, above 83 V/ns raise turn-on R.",
+    "Zero distributor stock until 2027-06 (DECISIONS.md:846 F13)."
+   ],
+   "status": "PARTIAL",
+   "unchecked_layout": [
+    "100 nF + >= 1 uF within 2 mm of VDD/VSS (straddle stack)"
+   ]
+  },
+  "UMK325AB7106KM-T": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "C100",
+    "C102",
+    "C103",
+    "C104",
+    "C106",
+    "C107",
+    "C108",
+    "C132",
+    "C136",
+    "C140",
+    "C16",
+    "C24",
+    "C26",
+    "C9",
+    "C90",
+    "C91",
+    "C92",
+    "C93",
+    "C94",
+    "C95",
+    "C96",
+    "C97",
+    "C98",
+    "C99"
+   ],
+   "finding": null,
+   "function": "10 uF 1210 reservoirs",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "VOL628A-2X001T": {
+   "checks": [
+    {
+     "id": "barrier",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "VIORM",
+     "ratio": 0.1882,
+     "severity": "violation",
+     "stress": "Line crest"
+    }
+   ],
+   "class": "SAFETY",
+   "designators": [
+    "U36"
+   ],
+   "finding": null,
+   "function": "Line zero-cross optocoupler U36 (mains L/N to SELV), LSOP-4 long creepage",
+   "gaps": [
+    "Input LED current at the mains peak is not evidenced against IF +/-60 mA / Pdiss 100 mW.",
+    "CTI 275 (group IIIa) vs the material-group assumed in the D5 basis not compared.",
+    "No CMTI published for the part (CMTI README:22): false zero-cross edge handled in firmware."
+   ],
+   "status": "PARTIAL",
+   "unchecked_layout": [
+    "zero-cross pulse width / 50-60 Hz window validated in firmware"
+   ]
+  }
+ },
+ "errors": [],
+ "failures": [
+  "VIOLATION: 1711725 (J1): J1 is rated 24 A only on the IEC basis. On the North-American approval basis it is 15 A cULus use group B (10 A group D) and 10 A CSA. The design carries 13.5 A regulated (1.35x the CSA 10 A, 90% of cULus), 15 A at the trip (100%, no margin) and a 16.5 A recorded envelope (110%). parts.ato and the F1 note still cite the IEC 24 A (FINDINGS #4). Fix: record 15 A, then a >= 20 A UL group-B terminal at the next re-spin or an end-product temperature-rise test at 13.5-15 A and maximum ambient.",
+  "VIOLATION: 3403.0171 (F2): F2 (UMT 250, 200 A @ 250 VAC IEC) has a prospective fault of 373-3,567 A at J11 and melts 19.5x sooner than F1, so it must interrupt alone: exceeded 1.9x-18x (DECISIONS.md:843, F4 FAIL). Open decision: >= 1,500 A 5x20 ceramic fuse (candidate 02153.15MXP, datasheet figure unverified) or drop the PS3 mains tap.",
+  "SAFETY/POWER line UNAUDITED: 1206W4F1003T5E (R1,R2)",
+  "SAFETY/POWER line UNAUDITED: GRM31A5C3A102JW01D (C12,C13,C19,C20)"
+ ],
+ "missing_from_ledger": [],
+ "partial": [
+  "30KPA150CA",
+  "74650074",
+  "AMC1311BDWVR",
+  "B2P3-VH(LF)(SN)",
+  "B32652A0104K000",
+  "B32654A1104J000",
+  "B32676G1905K000",
+  "B82726S2203A020",
+  "CSS2H-2512R-1L00F",
+  "CST3015-200ED",
+  "DE1E3RA222MA4BP01F",
+  "GBJ2510-F",
+  "IPW65R018CFD7",
+  "IRM-20-15",
+  "IRM-20-24",
+  "ISO7710DWR",
+  "KLDR025.TXP",
+  "R24C2T25/R-R",
+  "R463N410050N1K",
+  "RC1206FR-07220KL",
+  "RC1206FR-07470KL",
+  "TMOV20RP175E",
+  "UCC21550BDWKR",
+  "VOL628A-2X001T"
+ ],
+ "result": "FAIL",
+ "strict": false,
+ "totals": {
+  "PARTIAL": 24,
+  "UNAUDITED": 64,
+  "VERIFIED": 1,
+  "VIOLATION": 2
+ },
+ "unaudited_other": [
+  "0430451612",
+  "0603WAF0000T5E",
+  "0603WAF1000T5E",
+  "0603WAF1001T5E",
+  "0603WAF1002T5E",
+  "0603WAF1003T5E",
+  "0603WAF2702T5E",
+  "0603WAF3302T5E",
+  "0603WAF4991T5E",
+  "0603WAF5601T5E",
+  "1206W4F1001T5E",
+  "1206W4F100KT5E",
+  "1N4148W",
+  "6SVPC220MV",
+  "ARG03BTC1333",
+  "BAS116H,115",
+  "C0603C102J5GACTU",
+  "CC0603KRX7R9BB104",
+  "CC0805KRX7R9BB104",
+  "CL05B104KB54PNC",
+  "CL10C101JB8NNNC",
+  "CL10C331JB8NNNC",
+  "CL21B105KBFNNNE",
+  "GRM188R71E105KA12D",
+  "GRM21BZ71E106KE15L",
+  "GRM31C5C1H104JA01L",
+  "LM339BIDR",
+  "LM4040A25IDBZR",
+  "MMBT3904",
+  "PMEG6030EP,115",
+  "RC1206FR-0716K5L",
+  "RC1206FR-072K2L",
+  "RC1206FR-073R9L",
+  "RC1206FR-073RL",
+  "RL1206FR-070R68L",
+  "RT0603BRD07105KL",
+  "RT0603BRD0710KL",
+  "RT0603BRD0711KL",
+  "RT0603BRD07120KL",
+  "RT0603BRD0712K6L",
+  "RT0603BRD07140KL",
+  "RT0603BRD0715K8L",
+  "RT0603BRD071KL",
+  "RT0603BRD072K21L",
+  "RT0603BRD0749K9L",
+  "RT0603BRD074K42L",
+  "RT0603BRD0763K4L",
+  "RT0603BRD076K2L",
+  "RT0603BRD077K68L",
+  "SN74LVC1G00DBVR",
+  "SN74LVC1G10DBVR",
+  "SN74LVC1G14DBVR",
+  "SN74LVC1G17DBVR",
+  "SN74LVC1G332DBVR",
+  "TL431AIDBZR",
+  "TLV3201AIDBVR",
+  "TLVH431BQDBZR",
+  "TNPW060311K7BEEA",
+  "TPS3700DDCR",
+  "TPS70950DBVR",
+  "TPS7A4700RGWR",
+  "UMK325AB7106KM-T"
+ ],
+ "unaudited_safety_power": [
+  "1206W4F1003T5E",
+  "GRM31A5C3A102JW01D"
+ ],
+ "unchecked_layout_items": 7,
+ "violations": [
+  "1711725",
+  "3403.0171"
+ ],
+ "warnings": [
+  "62 SIGNAL-class lines are UNAUDITED (allowed; listed in the report)"
+ ]
+}

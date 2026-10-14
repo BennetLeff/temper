@@ -69,6 +69,17 @@ A candidate is ACCEPTED over the benchmark only if all three hold:
    - Cheaper or simpler means lower on at least one of parts cost at 500, BOM lines, placements, JLC extended lines, hand/consigned lines or zero-stock lines.
    - Better means strictly better on at least one performance metric, and not costlier on parts cost, lines, extended lines or hand lines without that.
 
+**Datasheet ratings (added 2026-10-13, after stage 26).** `ledger_violations` and `ledger_unaudited_safety_power` come from
+`native-21/verification/datasheet-ledger/gate.py`. It holds every BOM line against its datasheet limits, approval basis and
+worst-case stress from the repo. Both are ratchets with zero tolerance, so a candidate may not add:
+- a rating violation;
+- a BOM MPN the ledger does not know;
+- an unaudited SAFETY/POWER line.
+
+A new part therefore needs a ledger entry before its card can be accepted. The stage-26 card is the first with them: 2 / 2
+(J1's 15 A cULus rating and F2's 200 A breaking capacity; the R1/R2 X-cap bleed and the C12–C20 snubber caps are not yet
+audited).
+
 The owner's goal is a board that is both cheaper/simpler **and** better. The rule above is the floor. Candidates that manage both rank first.
 
 Score a candidate right after its own `chain.sh` run, and save the card:
