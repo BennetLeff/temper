@@ -82,6 +82,11 @@ SWB_STRIP = (188.0, 46.8, 200.6, 112.9)
 SWB_BAND_TRIM = (150.0, 46.8, 188.0, 50.1)
 
 
+# Stage 22 (DECISIONS 27): DIS = NAND(permit_gate, BIAS_GOOD). The leg_x-dis nets (Q1/Q4 drain, R8/R16, U22/U23.1) are gone;
+# U22/U23.1 now join permit_gate (re-joined by the pair passes). BIAS_BAD becomes BIAS_GOOD on the same three pins.
+REMOVE += [{"net": "leg_a-dis"}, {"net": "leg_b-dis"}]
+RENAME_NETS = {"bias_bad": "bias_good"}
+
 STAGE21_DROP = {"J8 stud land", "J10 stud land"}   # with every rect_p / rect_n pour: the link studs are gone
 STAGE21_FEED = ((74.0, 0.6), (136.0, 0.6), (136.0, 29.0), (74.0, 29.0))   # BR1 window, overlaps both trunks
 
@@ -555,12 +560,13 @@ def add_stage19_si(g):
     # --- SI2 pwm_lb / pwm_hb
     rip(g, "pwm_hb")
     rip(g, "pwm_lb")
-    if not link("pwm_lb", ("F.Cu",), (20.0, 54.0, 70.0, 189.0), 0.3, ["U2.2", "J4.8"]):
-        raise SystemExit("stage 19: pwm_lb F.Cu lane")
+    # pwm_hb's fixed vias first (stage 22: with Q4 / R16 gone, pwm_lb's F.Cu lane otherwise runs through (35.2, 125.0))
     put(g, "pwm_hb", "F.Cu", 0.3, "U2.1", [28.955, 55.875])
     drill(g, "pwm_hb", 28.955, 55.875, size=0.6)
     drill(g, "pwm_hb", 34.4, 110.6, size=0.6)
     drill(g, "pwm_hb", 35.2, 125.0, size=0.6)
+    if not link("pwm_lb", ("F.Cu",), (20.0, 54.0, 70.0, 189.0), 0.3, ["U2.2", "J4.8"]):
+        raise SystemExit("stage 19: pwm_lb F.Cu lane")
     for ok, what in ((link("pwm_hb", ("B.Cu",), (20.0, 54.0, 62.0, 189.0), 0.3, ["@28.955,55.875,B.Cu", "@34.4,110.6,B.Cu"]), "B.Cu spur"),
                      (link("pwm_hb", ("F.Cu",), (20.0, 100.0, 62.0, 130.0), 0.3, ["@34.4,110.6,F.Cu", "@35.2,125.0,F.Cu"]), "F.Cu hop"),
                      ):

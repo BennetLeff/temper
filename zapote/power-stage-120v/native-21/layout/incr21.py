@@ -433,6 +433,19 @@ def attach(net, ref_pad, layers, width, target=None):
 def load(base_path, patches=True):
     """route21 state with the base copper registered (and the patches applied)."""
     base = json.loads(Path(base_path).read_text())
+    # nets renamed in the source since the base was frozen keep their base copper (patches21.RENAME_NETS)
+    ren = getattr(patches21, "RENAME_NETS", {}) if patches else {}
+    for kind in ("zones", "tracks", "vias"):
+        for it in base.get(kind, []):
+            if it.get("net") in ren:
+                it["net"] = ren[it["net"]]
+    # base tracks that name a pad of a part deleted from the source since the base was frozen (stage 22: Q1 / Q4,
+    # R8 / R16) go; the pair passes re-join whatever they served
+    if patches:
+        gone = [t for t in base["tracks"] if any(isinstance(q, str) and q not in GEO.pad_at for q in t["points"])]
+        if gone:
+            print(f"{len(gone)} base tracks named pads of deleted parts:", sorted({q for t in gone for q in t["points"] if isinstance(q, str) and q not in GEO.pad_at}))
+        base["tracks"] = [t for t in base["tracks"] if t not in gone]
     if patches and hasattr(patches21, "edit_zones"):
         base["zones"] = patches21.edit_zones(base["zones"])
     if patches:

@@ -8,6 +8,7 @@ as `track_dangling`. For every such warning this finds the end segment of an aut
 net and layer whose length matches the report and whose far end touches nothing (no same-net pad, via,
 other track end), and drops it. Nothing is dropped unless exactly one end is free, so a track that is
 the only link between two items is never cut; every ambiguous report is printed and left alone.
+Also drops KiCad-reported dangling vias (via_dangling) whose tracks all sit on one layer (stage 22).
 Run after the routing passes are clean, then rebuild (incr_iter.sh COPPER.json -) and re-run DRC: the unconnected
 count must stay 0. Without --write it only reports.
 """
@@ -92,6 +93,27 @@ def main():
         else:
             del P[-1]
         done.append((net, layer, pos, length))
+    # dangling vias (KiCad: a via joined on one layer only): drop it when every same-net track ending on it lies on a single
+    # layer and no same-net pad sits there; the tracks stay joined end to end (stage 22)
+    for v in drc["violations"]:
+        if v["type"] != "via_dangling":
+            continue
+        it = v["items"][0]
+        net = it["description"].split("[")[1].split("]")[0]
+        pos = (it["pos"]["x"], it["pos"]["y"])
+        vias = [w for w in copper["vias"] if w["net"] == net and math.dist(w["at"], pos) <= 0.05]
+        if len(vias) != 1:
+            left.append((net, "via", pos, 0.0))
+            continue
+        w = vias[0]
+        lays = {t["layer"] for t in copper["tracks"] if t["net"] == net
+                and any(not isinstance(q, str) and math.dist(q, w["at"]) <= w["size"] / 2 + 0.02 for q in t["points"])}
+        on_pad = any(q["net"] == net and q["box"][0] <= w["at"][0] <= q["box"][2] and q["box"][1] <= w["at"][1] <= q["box"][3] for q in PADS)
+        if len(lays) <= 1 and not on_pad:
+            copper["vias"].remove(w)
+            done.append((net, "via", pos, 0.0))
+        else:
+            left.append((net, "via", pos, 0.0))
     for d in done:
         print("trimmed", *d)
     for d in left:

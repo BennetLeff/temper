@@ -58,8 +58,8 @@ fn connections() -> Vec<(String, String, String)> {
             );
         }
         for (pin, net) in [
-            ("1", format!("{leg}-dis")),
-            ("2", "bias_bad".into()),
+            ("1", format!("{leg}-permit_gate")),
+            ("2", "bias_good".into()),
             ("3", "selv_gnd".into()),
             ("4", format!("{leg}-driver_dis")),
             ("5", "v3v3".into()),
@@ -278,7 +278,7 @@ fn connections() -> Vec<(String, String, String)> {
         add(part, "1", a);
         add(part, "2", b);
     }
-    for (pin, net) in [("2", "bias_bad_flt"), ("3", "selv_gnd"), ("4", "bias_bad"), ("5", "v3v3")] {
+    for (pin, net) in [("2", "bias_bad_flt"), ("3", "selv_gnd"), ("4", "bias_good"), ("5", "v3v3")] {
         add("u_bias_flt", pin, net);
     }
     rows
@@ -389,6 +389,10 @@ mod tests {
             }
             // stage 21 (DECISIONS 25): the J7-J10 rail-link studs are deleted, BR1 feeds the bus
             if part.path.starts_with("link_pos.") || part.path.starts_with("link_neg.") {
+                continue;
+            }
+            // stage 22 (DECISIONS 27): the PERMIT inverter FET and its 330 ohm pull-up are deleted (DIS NAND)
+            if part.path.ends_with(".permit_fet") || part.path.ends_with(".r_dis_pu") {
                 continue;
             }
             assert_eq!(

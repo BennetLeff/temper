@@ -245,10 +245,10 @@ const SELV_NETS: &[&str] = &[
     "v15_selv", "selv_gnd", "v3v3", "pwm_ha", "pwm_la", "pwm_hb", "pwm_lb", "permit",
     "bus_fault", "vbus_p", "vbus_n", "ct_s1", "ct_s2",
     "ct_sense_mon", "ct_ref_hi", "ct_ref_lo", "ct_oc_pos", "ct_oc_neg", "ct_zc", "ct_mon",
-    "bus_fault_iso", "bias_bad", "bias_bad_raw", "bias_bad_flt", "bias_ls_bad", "bias_ha_bad", "bias_hb_bad",
+    "bus_fault_iso", "bias_good", "bias_bad_raw", "bias_bad_flt", "bias_ls_bad", "bias_ha_bad", "bias_hb_bad",
     "line_zc", "line_zc_raw", "leg_a-driver_dis", "leg_b-driver_dis",
-    "leg_a-dis", "leg_a-permit_gate", "leg_a.driver-dt",
-    "leg_b-dis", "leg_b-permit_gate", "leg_b.driver-dt",
+    "leg_a-permit_gate", "leg_a.driver-dt",
+    "leg_b-permit_gate", "leg_b.driver-dt",
 ];
 
 /// Parts allowed to have pins in both domains, and which pins are SELV.
@@ -355,8 +355,6 @@ const IDENTITY: &[(&str, &str)] = &[
     // Fast PERMIT -> DIS path (validation-results/02-protection-timing).
     ("leg_a.r_permit", "0603WAF1000T5E"),
     ("leg_b.r_permit", "0603WAF1000T5E"),
-    ("leg_a.r_dis_pu", "0603WAF3300T5E"),
-    ("leg_b.r_dis_pu", "0603WAF3300T5E"),
     // Native-21 F6 and isolated mains detector: every added part.
     ("leg_a.bias_h.clocal1", "UMK325AB7106KM-T"),
     ("leg_a.bias_h.clocal2", "UMK325AB7106KM-T"),
@@ -380,7 +378,7 @@ const IDENTITY: &[(&str, &str)] = &[
     ("leg_a.bias_l.rdamp", "RL1206FR-070R68L"),
     ("leg_a.bias_l.cbulk", "6SVPC220M"),
     ("leg_a.bias_l.rbleed", "0603WAF4991T5E"),
-    ("leg_a.dis_or", "SN74LVC1G32DBVR"),
+    ("leg_a.dis_or", "SN74LVC1G00DBVR"),
     ("leg_a.c_dis_or", "CC0603KRX7R9BB104"),
     ("leg_a.r_driver_dis", "0603WAF1002T5E"),
     ("leg_a.cgs_h", "C0603C102J5GACTU"),
@@ -411,7 +409,7 @@ const IDENTITY: &[(&str, &str)] = &[
     ("leg_b.bias_l.rdamp", "RL1206FR-070R68L"),
     ("leg_b.bias_l.cbulk", "6SVPC220M"),
     ("leg_b.bias_l.rbleed", "0603WAF4991T5E"),
-    ("leg_b.dis_or", "SN74LVC1G32DBVR"),
+    ("leg_b.dis_or", "SN74LVC1G00DBVR"),
     ("leg_b.c_dis_or", "CC0603KRX7R9BB104"),
     ("leg_b.r_driver_dis", "0603WAF1002T5E"),
     ("leg_b.cgs_h", "C0603C102J5GACTU"),
@@ -448,7 +446,7 @@ const IDENTITY: &[(&str, &str)] = &[
     ("monitor_ls.rbase", "0603WAF1002T5E"),
     ("monitor_ls.rpull", "0603WAF1002T5E"),
     ("monitor_ls.iso", "ISO7710DWR"),
-    ("u_bias_flt", "SN74LVC1G17DBVR"),
+    ("u_bias_flt", "SN74LVC1G14DBVR"),
     ("r_bias_flt", "0603WAF1002T5E"),
     ("c_bias_flt", "C0603C102J5GACTU"),
     ("monitor_ls.ldo5", "TPS70950DBVR"),
@@ -816,14 +814,10 @@ fn audit(m: &Model) -> Vec<String> {
 
     // 5. Legs: fail-safe DIS, dead time, F6 bias and gate hold-offs.
     for (leg, sw) in [("leg_a", "sw_a"), ("leg_b", "sw_b")] {
-        let dis = format!("{leg}-dis");
+        // stage 22: DIS = NAND(permit_gate, bias_good); pins checked in audit_f6 (dis_or A/B/Y)
         let pg = format!("{leg}-permit_gate");
         expect(&mut e, m, &format!("{leg}.driver"), "5", &format!("{leg}-driver_dis"));
-        expect(&mut e, m, &format!("{leg}.r_dis_pu"), "1", &dis);
-        expect(&mut e, m, &format!("{leg}.r_dis_pu"), "2", "v3v3");
-        expect(&mut e, m, &format!("{leg}.permit_fet"), "3", &dis);
-        expect(&mut e, m, &format!("{leg}.permit_fet"), "2", "selv_gnd");
-        expect(&mut e, m, &format!("{leg}.permit_fet"), "1", &pg);
+        expect(&mut e, m, &format!("{leg}.dis_or"), "1", &pg);
         expect(&mut e, m, &format!("{leg}.r_permit_pd"), "1", &pg);
         expect(&mut e, m, &format!("{leg}.r_permit_pd"), "2", "selv_gnd");
         expect(&mut e, m, &format!("{leg}.r_permit"), "1", "permit");
@@ -1229,10 +1223,17 @@ mod tests {
     }
 
     #[test]
-    fn missing_dis_pullup_fails() {
+    fn dis_nand_inputs_cannot_be_swapped_or_bypassed() {
+        // stage 22: a DIS NAND input off permit_gate / bias_good, or its output off the driver's DIS, must fail
         let mut m = built();
-        m.rewire("leg_a.r_dis_pu", "2", "floating");
-        fails(&m, "leg_a.r_dis_pu.2");
+        m.rewire("leg_a.dis_or", "1", "v3v3");
+        fails(&m, "leg_a.dis_or.1");
+        let mut m = built();
+        m.rewire("leg_b.dis_or", "2", "v3v3");
+        fails(&m, "leg_b.dis_or.2");
+        let mut m = built();
+        m.rewire("u_bias_flt", "4", "bias_bad_flt");
+        fails(&m, "u_bias_flt.4");
     }
 
     #[test]
@@ -1260,7 +1261,7 @@ mod tests {
     #[test]
     fn selv_ground_tied_to_hot_fails() {
         let mut m = built();
-        m.rewire("leg_a.permit_fet", "2", "leg_ret");
+        m.rewire("leg_a.r_permit_pd", "2", "leg_ret");
         fails(&m, "bridges SELV and HOT");
     }
 

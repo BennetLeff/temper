@@ -5,12 +5,12 @@
    "min_mm": 8.047,
    "pass": true,
    "between": [
-    "zone n_ha",
-    "via leg_a-dis"
+    "zone n_hb",
+    "via leg_b-permit_gate"
    ],
    "at_mm": [
-    67.41,
-    41.02
+    20.96,
+    41.75
    ]
   },
   "HOT-PE": {
@@ -162,16 +162,6 @@
  ],
  "npth_to_hot": [
   {
-   "ref": "H3",
-   "at": [
-    86.0,
-    180.0
-   ],
-   "hot_mm": 61.6,
-   "role": "nylon fixing (insulating hardware only, F.Fab NYLON)",
-   "pass": true
-  },
-  {
    "ref": "H4",
    "at": [
     24.0,
@@ -179,6 +169,26 @@
    ],
    "hot_mm": 1.2,
    "role": "nylon fixing (insulating hardware only, F.Fab NYLON)",
+   "pass": true
+  },
+  {
+   "ref": "H7",
+   "at": [
+    194.0,
+    130.0
+   ],
+   "hot_mm": 15.4,
+   "role": "nylon fixing (insulating hardware only, F.Fab NYLON)",
+   "pass": true
+  },
+  {
+   "ref": "H1",
+   "at": [
+    285.0,
+    135.0
+   ],
+   "hot_mm": 14.56,
+   "role": "metal-capable fixing / connector hardware",
    "pass": true
   },
   {
@@ -212,32 +222,12 @@
    "pass": true
   },
   {
-   "ref": "H7",
+   "ref": "H2",
    "at": [
-    194.0,
-    130.0
+    6.0,
+    180.0
    ],
-   "hot_mm": 15.4,
-   "role": "nylon fixing (insulating hardware only, F.Fab NYLON)",
-   "pass": true
-  },
-  {
-   "ref": "H1",
-   "at": [
-    285.0,
-    135.0
-   ],
-   "hot_mm": 14.56,
-   "role": "metal-capable fixing / connector hardware",
-   "pass": true
-  },
-  {
-   "ref": "H5",
-   "at": [
-    88.0,
-    100.0
-   ],
-   "hot_mm": 7.92,
+   "hot_mm": 59.82,
    "role": "nylon fixing (insulating hardware only, F.Fab NYLON)",
    "pass": true
   },
@@ -252,12 +242,22 @@
    "pass": true
   },
   {
-   "ref": "H2",
+   "ref": "H5",
    "at": [
-    6.0,
+    88.0,
+    100.0
+   ],
+   "hot_mm": 7.92,
+   "role": "nylon fixing (insulating hardware only, F.Fab NYLON)",
+   "pass": true
+  },
+  {
+   "ref": "H3",
+   "at": [
+    86.0,
     180.0
    ],
-   "hot_mm": 59.82,
+   "hot_mm": 61.6,
    "role": "nylon fixing (insulating hardware only, F.Fab NYLON)",
    "pass": true
   },

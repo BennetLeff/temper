@@ -55,7 +55,7 @@ SIGNALS = {
     "bus_fault_hot": KELVIN, "ocp_ok_hot": KELVIN, "hot5_ok_hot": KELVIN, "ovp_ok_hot": KELVIN,
     "pwm_hb": SELV_REF, "ct_zc": SELV_REF, "pwm_ha": SELV_REF, "pwm_la": SELV_REF, "pwm_lb": SELV_REF,
     "permit": SELV_REF, "bus_fault_iso": SELV_REF, "bus_fault": SELV_REF, "bias_ls_bad": SELV_REF,
-    "bias_ha_bad": SELV_REF, "bias_hb_bad": SELV_REF, "bias_bad_raw": SELV_REF, "bias_bad": SELV_REF,
+    "bias_ha_bad": SELV_REF, "bias_hb_bad": SELV_REF, "bias_bad_raw": SELV_REF, "bias_good": SELV_REF,
     "line_zc": SELV_REF,
 }
 ASSERT_PLANE = {"bus_fault_hot", "pwm_hb", "ct_zc", "pwm_ha", "pwm_la", "pwm_lb"}

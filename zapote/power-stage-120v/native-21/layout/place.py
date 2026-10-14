@@ -135,9 +135,19 @@ for leg, x in DRV.items():
 
 # ---------------- SELV side of each driver (tongue) ---------------------------
 for leg, x in DRV.items():
-    pack(group(f"{leg}.c_vcci", f"{leg}.permit_fet", f"{leg}.r_permit", f"{leg}.r_permit_pd",
-               f"{leg}.r_dis_pu", f"{leg}.r_dt", f"{leg}.dis_or", f"{leg}.c_dis_or", f"{leg}.r_driver_dis"),
+    pack(group(f"{leg}.c_vcci", f"{leg}.r_permit", f"{leg}.r_permit_pd",
+               f"{leg}.r_dt", f"{leg}.dis_or", f"{leg}.c_dis_or", f"{leg}.r_driver_dis"),
          x - 5.0, 59.0, x + 5.0, 82.0)
+# Stage 22 (DECISIONS 27): Q1 / Q4 and R8 / R16 are deleted (DIS NAND); the surviving parts keep their stage-21b poses
+# (the pack above would otherwise reflow them).
+STAGE22_KEEP = {
+    "leg_a.r_permit": (80.175, 68.165, 0.0), "leg_a.r_permit_pd": (76.525, 70.315, 0.0), "leg_a.r_dt": (76.525, 68.165, 0.0),
+    "leg_a.dis_or": (77.095, 60.745, 0.0), "leg_a.c_dis_or": (76.525, 63.865, 0.0), "leg_a.r_driver_dis": (80.175, 66.015, 0.0),
+    "leg_b.r_permit": (33.175, 68.165, 0.0), "leg_b.r_permit_pd": (29.525, 70.315, 0.0), "leg_b.r_dt": (29.525, 68.165, 0.0),
+    "leg_b.dis_or": (30.095, 60.745, 0.0), "leg_b.c_dis_or": (29.525, 63.865, 0.0), "leg_b.r_driver_dis": (33.175, 66.015, 0.0),
+}
+for path, pose in STAGE22_KEEP.items():
+    POSE[path] = pose
 
 # ---------------- HS bias islands (left of each driver tongue) ----------------
 # Stage 14: the isolated bias module takes the transformer's spot, rotated 270 so its primary row

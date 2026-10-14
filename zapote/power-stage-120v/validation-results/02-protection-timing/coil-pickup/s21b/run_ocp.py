@@ -21,8 +21,8 @@ from field import ComplexProfile, CASES
 F, I1, I2, B = 'F.Cu', 'In1.Cu', 'In2.Cu', 'B.Cu'
 
 def P_(net, a, la, b, lb):
-    for l0 in (la, B, I1, I2):
-        for l1 in (lb, B, I1, I2):
+    for l0 in (la, F, B, I1, I2):         # F added (stage 22: ocp_thresh re-routed all on F.Cu from U6.4 to C31.1)
+        for l1 in (lb, F, B, I1, I2):
             try:
                 p, L = path(net, a, l0, b, l1)
             except ValueError:

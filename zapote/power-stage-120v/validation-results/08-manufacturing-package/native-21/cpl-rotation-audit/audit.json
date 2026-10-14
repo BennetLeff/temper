@@ -1,11 +1,11 @@
 {
  "meta": {
-  "lines_in_cpl": 353,
-  "lines_placed_by_jlc": 339,
-  "lines_excluded_not_placed": 14,
+  "lines_in_cpl": 349,
+  "lines_placed_by_jlc": 332,
+  "lines_excluded_not_placed": 17,
   "counts": {
-   "OK": 279,
-   "NEEDS-PREVIEW": 50,
+   "OK": 277,
+   "NEEDS-PREVIEW": 45,
    "CORRECTED": 10
   },
   "controls": {
@@ -3229,25 +3229,6 @@
    "reason": "no DB rule and pad layouts do not match well enough (best rms 22.56 mm at 270 deg, next 33.71 mm)"
   },
   {
-   "designator": "Q1",
-   "footprint": "SOT-23",
-   "lcsc": "C20917",
-   "mount": "SMD",
-   "kicad_rot": 0,
-   "proposed_jlc_rot": 180,
-   "class": "NEEDS-PREVIEW",
-   "db_rule": "^SOT-23",
-   "db_offset": -90,
-   "easyeda_package": "SOT-23-3_L2.9-W1.3-P1.90-LS2.4-BR",
-   "easyeda_offset": "180",
-   "easyeda_rot": "180",
-   "db_rot": 270,
-   "fit_method": "pad number",
-   "fit_rms_mm": 0.059,
-   "pin1_evidence": "KiCad pad 1 at (-0.62,-0.95) mm = up-left of centre at board rotation 0; EasyEDA pad 1 down-right of centre at JLC rot 0",
-   "reason": "CONFLICT: EasyEDA fit needs offset [180] deg (-> rot 180), DB rule '^SOT-23' says -90 (-> rot 270); proposed value is the EasyEDA one, check both in the preview"
-  },
-  {
    "designator": "Q2",
    "footprint": "TO-247-3_Vertical",
    "lcsc": "C3289047",
@@ -3284,25 +3265,6 @@
    "fit_rms_mm": 0.008,
    "pin1_evidence": "KiCad pad 1 at (-5.45,+0.00) mm = left of centre at board rotation 0; EasyEDA pad 1 left of centre at JLC rot 0",
    "reason": "EasyEDA footprint fits the KiCad footprint unrotated"
-  },
-  {
-   "designator": "Q4",
-   "footprint": "SOT-23",
-   "lcsc": "C20917",
-   "mount": "SMD",
-   "kicad_rot": 0,
-   "proposed_jlc_rot": 180,
-   "class": "NEEDS-PREVIEW",
-   "db_rule": "^SOT-23",
-   "db_offset": -90,
-   "easyeda_package": "SOT-23-3_L2.9-W1.3-P1.90-LS2.4-BR",
-   "easyeda_offset": "180",
-   "easyeda_rot": "180",
-   "db_rot": 270,
-   "fit_method": "pad number",
-   "fit_rms_mm": 0.059,
-   "pin1_evidence": "KiCad pad 1 at (-0.62,-0.95) mm = up-left of centre at board rotation 0; EasyEDA pad 1 down-right of centre at JLC rot 0",
-   "reason": "CONFLICT: EasyEDA fit needs offset [180] deg (-> rot 180), DB rule '^SOT-23' says -90 (-> rot 270); proposed value is the EasyEDA one, check both in the preview"
   },
   {
    "designator": "Q5",
@@ -3533,25 +3495,6 @@
    "reason": "EasyEDA footprint fits the KiCad footprint unrotated"
   },
   {
-   "designator": "R8",
-   "footprint": "R_0603_1608Metric",
-   "lcsc": "C23138",
-   "mount": "SMD",
-   "kicad_rot": 0,
-   "proposed_jlc_rot": 0,
-   "class": "OK",
-   "db_rule": "",
-   "db_offset": "",
-   "easyeda_package": "R0603",
-   "easyeda_offset": "0/180",
-   "easyeda_rot": "0/180",
-   "db_rot": "",
-   "fit_method": "axis (non-polar)",
-   "fit_rms_mm": 0.143,
-   "pin1_evidence": "KiCad pad 1 at (-0.82,+0.00) mm = left of centre at board rotation 0; EasyEDA pad 1 left of centre at JLC rot 0",
-   "reason": "EasyEDA footprint fits the KiCad footprint unrotated"
-  },
-  {
    "designator": "R9",
    "footprint": "R_0603_1608Metric",
    "lcsc": "C705780",
@@ -3669,25 +3612,6 @@
    "designator": "R15",
    "footprint": "R_0603_1608Metric",
    "lcsc": "C25803",
-   "mount": "SMD",
-   "kicad_rot": 0,
-   "proposed_jlc_rot": 0,
-   "class": "OK",
-   "db_rule": "",
-   "db_offset": "",
-   "easyeda_package": "R0603",
-   "easyeda_offset": "0/180",
-   "easyeda_rot": "0/180",
-   "db_rot": "",
-   "fit_method": "axis (non-polar)",
-   "fit_rms_mm": 0.143,
-   "pin1_evidence": "KiCad pad 1 at (-0.82,+0.00) mm = left of centre at board rotation 0; EasyEDA pad 1 left of centre at JLC rot 0",
-   "reason": "EasyEDA footprint fits the KiCad footprint unrotated"
-  },
-  {
-   "designator": "R16",
-   "footprint": "R_0603_1608Metric",
-   "lcsc": "C23138",
    "mount": "SMD",
    "kicad_rot": 0,
    "proposed_jlc_rot": 0,
@@ -6193,44 +6117,6 @@
    "reason": "CONFLICT: EasyEDA fit needs offset [180] deg (-> rot 180), DB rule '^SOT-23' says -90 (-> rot 270); proposed value is the EasyEDA one, check both in the preview"
   },
   {
-   "designator": "U22",
-   "footprint": "SOT-23-5",
-   "lcsc": "C10096",
-   "mount": "SMD",
-   "kicad_rot": 0,
-   "proposed_jlc_rot": 180,
-   "class": "NEEDS-PREVIEW",
-   "db_rule": "^SOT-23",
-   "db_offset": -90,
-   "easyeda_package": "SOT-23-5_L3.0-W1.7-P0.95-LS2.8-BR",
-   "easyeda_offset": "180",
-   "easyeda_rot": "180",
-   "db_rot": 270,
-   "fit_method": "pad number",
-   "fit_rms_mm": 0.159,
-   "pin1_evidence": "KiCad pad 1 at (-0.91,-0.95) mm = up-left of centre at board rotation 0; EasyEDA pad 1 down-right of centre at JLC rot 0",
-   "reason": "CONFLICT: EasyEDA fit needs offset [180] deg (-> rot 180), DB rule '^SOT-23' says -90 (-> rot 270); proposed value is the EasyEDA one, check both in the preview"
-  },
-  {
-   "designator": "U23",
-   "footprint": "SOT-23-5",
-   "lcsc": "C10096",
-   "mount": "SMD",
-   "kicad_rot": 0,
-   "proposed_jlc_rot": 180,
-   "class": "NEEDS-PREVIEW",
-   "db_rule": "^SOT-23",
-   "db_offset": -90,
-   "easyeda_package": "SOT-23-5_L3.0-W1.7-P0.95-LS2.8-BR",
-   "easyeda_offset": "180",
-   "easyeda_rot": "180",
-   "db_rot": 270,
-   "fit_method": "pad number",
-   "fit_rms_mm": 0.159,
-   "pin1_evidence": "KiCad pad 1 at (-0.91,-0.95) mm = up-left of centre at board rotation 0; EasyEDA pad 1 down-right of centre at JLC rot 0",
-   "reason": "CONFLICT: EasyEDA fit needs offset [180] deg (-> rot 180), DB rule '^SOT-23' says -90 (-> rot 270); proposed value is the EasyEDA one, check both in the preview"
-  },
-  {
    "designator": "U24",
    "footprint": "SOT-23-5",
    "lcsc": "C7836",
@@ -6476,25 +6362,6 @@
    "fit_rms_mm": 0.159,
    "pin1_evidence": "KiCad pad 1 at (-0.91,-0.95) mm = up-left of centre at board rotation 0; EasyEDA pad 1 down-right of centre at JLC rot 0",
    "reason": "CONFLICT: EasyEDA fit needs offset [180] deg (-> rot 180), DB rule '^SOT-23' says -90 (-> rot 270); proposed value is the EasyEDA one, check both in the preview"
-  },
-  {
-   "designator": "U40",
-   "footprint": "SOT-23-5",
-   "lcsc": "C7836",
-   "mount": "SMD",
-   "kicad_rot": 0,
-   "proposed_jlc_rot": 180,
-   "class": "NEEDS-PREVIEW",
-   "db_rule": "^SOT-23",
-   "db_offset": -90,
-   "easyeda_package": "SOT-23-5_L3.0-W1.7-P0.95-LS2.8-BR",
-   "easyeda_offset": "180",
-   "easyeda_rot": "180",
-   "db_rot": 270,
-   "fit_method": "pad number",
-   "fit_rms_mm": 0.159,
-   "pin1_evidence": "KiCad pad 1 at (-0.91,-0.95) mm = up-left of centre at board rotation 0; EasyEDA pad 1 down-right of centre at JLC rot 0",
-   "reason": "CONFLICT: EasyEDA fit needs offset [180] deg (-> rot 180), DB rule '^SOT-23' says -90 (-> rot 270); proposed value is the EasyEDA one, check both in the preview"
   }
  ],
  "excluded": [
@@ -6592,6 +6459,30 @@
    "mount": "SMD",
    "lcsc": "",
    "kicad_rot": 90,
+   "reason": "consign or hand-assemble (not on LCSC / no stock / no exact match)"
+  },
+  {
+   "designator": "U22",
+   "footprint": "SOT-23-5",
+   "mount": "SMD",
+   "lcsc": "",
+   "kicad_rot": 0,
+   "reason": "consign or hand-assemble (not on LCSC / no stock / no exact match)"
+  },
+  {
+   "designator": "U23",
+   "footprint": "SOT-23-5",
+   "mount": "SMD",
+   "lcsc": "",
+   "kicad_rot": 0,
+   "reason": "consign or hand-assemble (not on LCSC / no stock / no exact match)"
+  },
+  {
+   "designator": "U40",
+   "footprint": "SOT-23-5",
+   "mount": "SMD",
+   "lcsc": "",
+   "kicad_rot": 0,
    "reason": "consign or hand-assemble (not on LCSC / no stock / no exact match)"
   },
   {

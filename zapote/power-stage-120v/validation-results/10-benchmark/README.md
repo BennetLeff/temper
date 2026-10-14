@@ -83,6 +83,7 @@ Controls run 2026-10-13: 19c vs 19b gives ACCEPT (better `return_path_open_chang
 
 | Stage | Change | Verdict | Card |
 |---|---|---|---|
+| 22 | DIS = NAND(PERMIT, BIAS_GOOD); Q1 / Q4, R8 / R16 deleted | **ACCEPT** against 19c and 21b. Cheaper: −4 placements, −1 line (+1 Extended). Better: return-path open changes 39 → 37, OCP pickup 4.78 → 4.17 A. | [`scorecard-native21s22.json`](scorecard-native21s22.json) |
 | 21b | Stage 21 plus KELVIN_N under its pour, C30 / C31 beside U6 (F8) | **ACCEPT** against 19c and 21. Better: OCP pickup 8.71 → 4.78 A (gate 6.5 A), Kelvin band +0.05 A, at equal cost. | [`scorecard-native21s21b.json`](scorecard-native21s21b.json) |
 | 21 | BR1 feeds the bus directly; J7–J10 removed; R5.4 via field 0.8/0.5 mm | **ACCEPT** against 19c and 20. Cheaper: parts $234.83 → $223.91, placements −4. Better: fuse-copper ratio 0.208 → 0.993; B3 136.0 → 135.1 °C; BUS_P span passes 3 %. | [`scorecard-native21s21.json`](scorecard-native21s21.json) |
 | 20 | T1 1:200 + R39 3.0 Ω, U36 -2X bin, bank J tolerance (BOM only) | **ACCEPT**. Simpler: hand lines −1, zero-stock lines −1. Better: bank 28 A ratio 1.105 → 1.022. Parts +$2.89 at 500. | [`scorecard-native21s20.json`](scorecard-native21s20.json) |

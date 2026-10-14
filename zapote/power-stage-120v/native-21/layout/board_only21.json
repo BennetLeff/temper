@@ -63,14 +63,14 @@
   {
    "net": "ocp_node",
    "at": [
-    112.16,
-    61.015
+    116.16,
+    71.615
    ],
    "side": "B",
    "ref_net": "ocp_kelvin_p",
    "ref_at": [
-    109.748,
-    55.1
+    117.225,
+    73.695
    ],
    "purpose": "OCP comparator input (D4 condition 2)",
    "ref": "TP5"
@@ -183,14 +183,14 @@
   {
    "net": "v3v3",
    "at": [
-    11.248,
-    128.287
+    78.3,
+    122.175
    ],
-   "side": "B",
+   "side": "F",
    "ref_net": "selv_gnd",
    "ref_at": [
-    13.663,
-    127.5
+    86.954,
+    125.124
    ],
    "purpose": "SELV 3.3 V",
    "ref": "TP13"
@@ -213,14 +213,14 @@
   {
    "net": "pwm_la",
    "at": [
-    81.2,
-    104.3
+    79.768,
+    60.768
    ],
    "side": "B",
    "ref_net": "selv_gnd",
    "ref_at": [
-    76.762,
-    104.268
+    80.328,
+    63.02
    ],
    "purpose": "PWM A low",
    "ref": "TP15"
@@ -228,14 +228,14 @@
   {
    "net": "pwm_hb",
    "at": [
-    34.4,
-    64.4
+    55.674,
+    175.413
    ],
    "side": "B",
    "ref_net": "selv_gnd",
    "ref_at": [
-    35.51,
-    62.392
+    59.475,
+    175.0
    ],
    "purpose": "PWM B high",
    "ref": "TP16"
@@ -243,20 +243,35 @@
   {
    "net": "permit",
    "at": [
-    31.55,
-    73.965
+    79.4,
+    120.1
    ],
-   "side": "B",
+   "side": "F",
    "ref_net": "selv_gnd",
    "ref_at": [
-    30.35,
-    71.815
+    86.954,
+    125.124
    ],
    "purpose": "PERMIT",
    "ref": "TP17"
   },
   {
-   "net": "bias_bad",
+   "net": "leg_b-driver_dis",
+   "at": [
+    34.0,
+    64.989999
+   ],
+   "side": "B",
+   "ref_net": "selv_gnd",
+   "ref_at": [
+    30.35,
+    69.665
+   ],
+   "purpose": "leg B DIS",
+   "ref": "TP18"
+  },
+  {
+   "net": "bias_good",
    "at": [
     13.942,
     129.824999
@@ -267,8 +282,8 @@
     13.663,
     127.5
    ],
-   "purpose": "BIAS_BAD (rail monitors)",
-   "ref": "TP18"
+   "purpose": "BIAS_GOOD (rail monitors, stage 22)",
+   "ref": "TP19"
   },
   {
    "net": "bus_fault",
@@ -283,7 +298,7 @@
     132.865
    ],
    "purpose": "OCP fault, SELV side",
-   "ref": "TP19"
+   "ref": "TP20"
   },
   {
    "net": "ct_zc",
@@ -298,7 +313,7 @@
     132.865
    ],
    "purpose": "tank CT zero cross",
-   "ref": "TP20"
+   "ref": "TP21"
   },
   {
    "net": "ct_mon",
@@ -313,7 +328,7 @@
     132.865
    ],
    "purpose": "tank CT monitor",
-   "ref": "TP21"
+   "ref": "TP22"
   },
   {
    "net": "n_ls",
@@ -322,7 +337,7 @@
     41.735
    ],
    "side": "B",
-   "ref": "TP22",
+   "ref": "TP23",
    "purpose": "n_ls reference"
   },
   {
@@ -332,7 +347,7 @@
     90.063
    ],
    "side": "F",
-   "ref": "TP23",
+   "ref": "TP24",
    "purpose": "leg_ret reference"
   },
   {
@@ -342,17 +357,17 @@
     81.05
    ],
    "side": "B",
-   "ref": "TP24",
+   "ref": "TP25",
    "purpose": "n_ls reference"
   },
   {
    "net": "ocp_kelvin_p",
    "at": [
-    109.748,
-    55.1
+    117.225,
+    73.695
    ],
    "side": "B",
-   "ref": "TP25",
+   "ref": "TP26",
    "purpose": "ocp_kelvin_p reference"
   },
   {
@@ -362,7 +377,7 @@
     60.395
    ],
    "side": "F",
-   "ref": "TP26",
+   "ref": "TP27",
    "purpose": "ocp_kelvin_p reference"
   },
   {
@@ -372,7 +387,7 @@
     74.095
    ],
    "side": "B",
-   "ref": "TP27",
+   "ref": "TP28",
    "purpose": "ocp_kelvin_p reference"
   },
   {
@@ -382,7 +397,7 @@
     49.9
    ],
    "side": "F",
-   "ref": "TP28",
+   "ref": "TP29",
    "purpose": "sw_a reference"
   },
   {
@@ -392,7 +407,7 @@
     112.085
    ],
    "side": "B",
-   "ref": "TP29",
+   "ref": "TP30",
    "purpose": "sw_b reference"
   },
   {
@@ -402,17 +417,17 @@
     128.584
    ],
    "side": "B",
-   "ref": "TP30",
+   "ref": "TP31",
    "purpose": "selv_gnd reference"
   },
   {
    "net": "selv_gnd",
    "at": [
-    13.663,
-    127.5
+    86.954,
+    125.124
    ],
-   "side": "B",
-   "ref": "TP31",
+   "side": "F",
+   "ref": "TP32",
    "purpose": "selv_gnd reference"
   },
   {
@@ -422,27 +437,47 @@
     104.268
    ],
    "side": "B",
-   "ref": "TP32",
-   "purpose": "selv_gnd reference"
-  },
-  {
-   "net": "selv_gnd",
-   "at": [
-    35.51,
-    62.392
-   ],
-   "side": "B",
    "ref": "TP33",
    "purpose": "selv_gnd reference"
   },
   {
    "net": "selv_gnd",
    "at": [
-    30.35,
-    71.815
+    80.328,
+    63.02
    ],
    "side": "B",
    "ref": "TP34",
+   "purpose": "selv_gnd reference"
+  },
+  {
+   "net": "selv_gnd",
+   "at": [
+    59.475,
+    175.0
+   ],
+   "side": "B",
+   "ref": "TP35",
+   "purpose": "selv_gnd reference"
+  },
+  {
+   "net": "selv_gnd",
+   "at": [
+    30.35,
+    69.665
+   ],
+   "side": "B",
+   "ref": "TP36",
+   "purpose": "selv_gnd reference"
+  },
+  {
+   "net": "selv_gnd",
+   "at": [
+    13.663,
+    127.5
+   ],
+   "side": "B",
+   "ref": "TP37",
    "purpose": "selv_gnd reference"
   },
   {
@@ -452,7 +487,7 @@
     132.865
    ],
    "side": "B",
-   "ref": "TP35",
+   "ref": "TP38",
    "purpose": "selv_gnd reference"
   }
  ],
@@ -467,13 +502,13 @@
    "net": "leg_a-out_h",
    "ref": "n_ha",
    "why": "no legal via pair within 10 mm",
-   "probe": "component pad U1.15 / R10.1 / R53.2 (no legal test-pad spot)"
+   "probe": "component pad R10.1 / R53.2 / U1.15 (no legal test-pad spot)"
   },
   {
    "net": "leg_b-out_h",
    "ref": "n_hb",
    "why": "no legal via pair within 10 mm",
-   "probe": "component pad R57.2 / R18.1 / U2.15 (no legal test-pad spot)"
+   "probe": "component pad R18.1 / R57.2 / U2.15 (no legal test-pad spot)"
   },
   {
    "net": "pwm_lb",
@@ -482,16 +517,10 @@
    "probe": "J4.8 (bottom), ground J4.2 / J4.4 / J4.15"
   },
   {
-   "net": "leg_a-dis",
+   "net": "leg_a-driver_dis",
    "ref": "selv_gnd",
    "why": "no legal via pair within 10 mm",
-   "probe": "component pad U22.1 / Q1.3 / R8.1 (no legal test-pad spot)"
-  },
-  {
-   "net": "leg_b-dis",
-   "ref": "selv_gnd",
-   "why": "no legal via pair within 10 mm",
-   "probe": "component pad U23.1 / R16.1 / Q4.3 (no legal test-pad spot)"
+   "probe": "component pad R73.2 / U1.5 / U22.4 (no legal test-pad spot)"
   },
   {
    "net": "line_zc",

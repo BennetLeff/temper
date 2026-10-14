@@ -52,8 +52,8 @@ SIGNALS = [  # (net, reference net, purpose)
     ("v15_selv", "selv_gnd", "SELV 15 V"), ("v3v3", "selv_gnd", "SELV 3.3 V"),
     ("pwm_ha", "selv_gnd", "PWM A high"), ("pwm_la", "selv_gnd", "PWM A low"),
     ("pwm_hb", "selv_gnd", "PWM B high"), ("pwm_lb", "selv_gnd", "PWM B low"),
-    ("permit", "selv_gnd", "PERMIT"), ("leg_a-dis", "selv_gnd", "leg A DIS"), ("leg_b-dis", "selv_gnd", "leg B DIS"),
-    ("bias_bad", "selv_gnd", "BIAS_BAD (rail monitors)"), ("bus_fault", "selv_gnd", "OCP fault, SELV side"),
+    ("permit", "selv_gnd", "PERMIT"), ("leg_a-driver_dis", "selv_gnd", "leg A DIS"), ("leg_b-driver_dis", "selv_gnd", "leg B DIS"),
+    ("bias_good", "selv_gnd", "BIAS_GOOD (rail monitors, stage 22)"), ("bus_fault", "selv_gnd", "OCP fault, SELV side"),
     ("line_zc", "selv_gnd", "LINE_ZC"), ("ct_zc", "selv_gnd", "tank CT zero cross"), ("ct_mon", "selv_gnd", "tank CT monitor"),
 ]
 TP_R, REF_REACH, REF_SHARE = 0.5, 10.0, 6.0
@@ -260,7 +260,7 @@ for m in missing:
     if m["net"] in j4:
         m["probe"] = f"J4.{j4[m['net']]} (bottom), ground J4.2 / J4.4 / J4.15"
     else:
-        on = [f"{pd['ref']}.{pd['pad']}" for pd in pads if pd["net"] == m["net"]]
+        on = sorted(f"{pd['ref']}.{pd['pad']}" for pd in pads if pd["net"] == m["net"])   # sorted: dump order varies by build
         m["probe"] = "component pad " + " / ".join(on[:4]) + " (no legal test-pad spot)"
 # silk marks (review M12): board ID, HV warning, nylon legend, PE at J6, BR1 outline and pin marks.
 # Text blocks go where no courtyard, pad or other mark lies within the text box + 0.5 mm.
@@ -270,21 +270,26 @@ taken = [b for _, b in court] + [Point(h["at"]).buffer(4.0) for h in holes] + \
 
 
 def text_spot(lines, h, target, region=(2, 2, 288, 188)):
+    """Nearest legal spot to `target` on the 1 mm grid. Stage 22 speed-up (same predicate, same winner): the inset outline is
+    built once, candidates are scanned nearest-first in (distance, i, j) order - the order in which the old full scan's
+    strict '<' kept its first minimum - and stop at the first legal one; each candidate's 0.5 mm-buffered box is tested only
+    against the obstacles an STRtree returns. Was ~470 s per chain (28.9 M buffer calls)."""
     w = max(len(t) for t in lines) * h * 1.0 + 1.0     # KiCad stroke font: ~1 x size per glyph incl. spacing
     hh = len(lines) * h * 1.5 + 1.0
-    best = None
-    for i in range(int(region[0]), int(region[2]), 1):
-        for j in range(int(region[1]), int(region[3]), 1):
-            bx = box(i - w / 2, j - hh / 2, i + w / 2, j + hh / 2)
-            if not outline.buffer(-1.5).contains(bx) or any(bx.buffer(0.5).intersects(q) for q in taken):
-                continue
-            dd = math.dist((i, j), target)
-            if best is None or dd < best[0]:
-                best = (dd, i, j)
-    if best is None:
-        return None
-    taken.append(box(best[1] - w / 2, best[2] - hh / 2, best[1] + w / 2, best[2] + hh / 2))
-    return [best[1], best[2]]
+    inner = outline.buffer(-1.5)
+    tree = STRtree(taken)
+    cand = sorted((math.dist((i, j), target), i, j) for i in range(int(region[0]), int(region[2]), 1)
+                  for j in range(int(region[1]), int(region[3]), 1))
+    for dd, i, j in cand:
+        bx = box(i - w / 2, j - hh / 2, i + w / 2, j + hh / 2)
+        if not inner.contains(bx):
+            continue
+        bb = bx.buffer(0.5)
+        if any(taken[k].intersects(bb) for k in tree.query(bb)):
+            continue
+        taken.append(bx)
+        return [i, j]
+    return None
 
 
 silk = []

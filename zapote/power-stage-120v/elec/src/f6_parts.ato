@@ -312,6 +312,32 @@ component DisOr:
     signal Y ~ pin 4
     signal VCC ~ pin 5
 
+component DisNand:
+    """Stage 22 (DECISIONS 27): DIS = NAND(permit_gate, BIAS_GOOD), replacing the AO3400A inverter + 330 ohm pull-up and the
+    LVC1G32 OR. Same SOT-23-5 pinout as the G32 it replaces (A1 B2 GND3 Y4 VCC5)."""
+    designator_prefix = "U"
+    mpn = "SN74LVC1G00DBVR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    signal A ~ pin 1
+    signal B ~ pin 2
+    signal GND ~ pin 3
+    signal Y ~ pin 4
+    signal VCC ~ pin 5
+
+component BiasGoodSchmitt:
+    """Stage 22: inverting Schmitt (SN74LVC1G14DBVR) after the 10 us BIAS_BAD filter; output BIAS_GOOD feeds the DIS NANDs.
+    DBV pins NC1, A2, GND3, Y4, VCC5, as the LVC1G17 it replaces."""
+    designator_prefix = "U"
+    mpn = "SN74LVC1G14DBVR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    signal NC ~ pin 1
+    signal A ~ pin 2
+    signal GND ~ pin 3
+    signal Y ~ pin 4
+    signal VCC ~ pin 5
+
 component LineOpto:
     designator_prefix = "U"
     mpn = "VOL628A-2X001T"   # stage 20: CTR bin -2 (63-125 %), stocked; same LSOP-4 / VDE option (DECISIONS 23)

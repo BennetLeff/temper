@@ -1,10 +1,10 @@
 {
  "basis": "Native-21: native-19 reviewed annotations by MPN and pin set; ECO.md manufacturer pin tables for parts added in D-33; remaining parts passive (named after Atopile signals). Connectivity authority: native-21/frozen/default.net. Not datasheet or powered verification.",
  "basis_counts": {
-  "native19-reviewed": 118,
-  "passive-two-terminal": 208,
-  "passive-untyped": 11,
-  "eco-pin-table": 16
+  "native19-reviewed": 115,
+  "passive-two-terminal": 206,
+  "passive-untyped": 14,
+  "eco-pin-table": 14
  },
  "components": {
   "J1": {
@@ -1988,234 +1988,6 @@
     }
    }
   },
-  "Q1": {
-   "mpn": "AO3400A",
-   "source_instance": "leg_a.permit_fet",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "G",
-     "type": "passive"
-    },
-    "2": {
-     "function": "S",
-     "type": "passive"
-    },
-    "3": {
-     "function": "D",
-     "type": "passive"
-    }
-   }
-  },
-  "Q4": {
-   "mpn": "AO3400A",
-   "source_instance": "leg_b.permit_fet",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "G",
-     "type": "passive"
-    },
-    "2": {
-     "function": "S",
-     "type": "passive"
-    },
-    "3": {
-     "function": "D",
-     "type": "passive"
-    }
-   }
-  },
-  "U5": {
-   "mpn": "LM4040A25IDBZR",
-   "source_instance": "u_ref",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "K",
-     "type": "passive"
-    },
-    "2": {
-     "function": "A",
-     "type": "passive"
-    },
-    "3": {
-     "function": "NC",
-     "type": "passive"
-    }
-   }
-  },
-  "U16": {
-   "mpn": "TLVH431BQDBZR",
-   "source_instance": "bias_ls.shunt",
-   "basis": "eco-pin-table",
-   "pins": {
-    "1": {
-     "function": "REF",
-     "type": "passive"
-    },
-    "2": {
-     "function": "K",
-     "type": "passive"
-    },
-    "3": {
-     "function": "A",
-     "type": "passive"
-    }
-   }
-  },
-  "U17": {
-   "mpn": "TL431AIDBZR",
-   "source_instance": "monitor_ls.reference",
-   "basis": "eco-pin-table",
-   "pins": {
-    "1": {
-     "function": "K",
-     "type": "passive"
-    },
-    "2": {
-     "function": "REF",
-     "type": "passive"
-    },
-    "3": {
-     "function": "A",
-     "type": "passive"
-    }
-   }
-  },
-  "Q7": {
-   "mpn": "MMBT3904",
-   "source_instance": "monitor_ls.qnotice",
-   "basis": "passive-untyped",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    },
-    "2": {
-     "function": "p2",
-     "type": "passive"
-    },
-    "3": {
-     "function": "p3",
-     "type": "passive"
-    }
-   }
-  },
-  "U18": {
-   "mpn": "TLVH431BQDBZR",
-   "source_instance": "bias_ha.split.shunt",
-   "basis": "eco-pin-table",
-   "pins": {
-    "1": {
-     "function": "REF",
-     "type": "passive"
-    },
-    "2": {
-     "function": "K",
-     "type": "passive"
-    },
-    "3": {
-     "function": "A",
-     "type": "passive"
-    }
-   }
-  },
-  "U19": {
-   "mpn": "TL431AIDBZR",
-   "source_instance": "bias_ha.monitor.reference",
-   "basis": "eco-pin-table",
-   "pins": {
-    "1": {
-     "function": "K",
-     "type": "passive"
-    },
-    "2": {
-     "function": "REF",
-     "type": "passive"
-    },
-    "3": {
-     "function": "A",
-     "type": "passive"
-    }
-   }
-  },
-  "Q8": {
-   "mpn": "MMBT3904",
-   "source_instance": "bias_ha.monitor.qnotice",
-   "basis": "passive-untyped",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    },
-    "2": {
-     "function": "p2",
-     "type": "passive"
-    },
-    "3": {
-     "function": "p3",
-     "type": "passive"
-    }
-   }
-  },
-  "U20": {
-   "mpn": "TLVH431BQDBZR",
-   "source_instance": "bias_hb.split.shunt",
-   "basis": "eco-pin-table",
-   "pins": {
-    "1": {
-     "function": "REF",
-     "type": "passive"
-    },
-    "2": {
-     "function": "K",
-     "type": "passive"
-    },
-    "3": {
-     "function": "A",
-     "type": "passive"
-    }
-   }
-  },
-  "U21": {
-   "mpn": "TL431AIDBZR",
-   "source_instance": "bias_hb.monitor.reference",
-   "basis": "eco-pin-table",
-   "pins": {
-    "1": {
-     "function": "K",
-     "type": "passive"
-    },
-    "2": {
-     "function": "REF",
-     "type": "passive"
-    },
-    "3": {
-     "function": "A",
-     "type": "passive"
-    }
-   }
-  },
-  "Q9": {
-   "mpn": "MMBT3904",
-   "source_instance": "bias_hb.monitor.qnotice",
-   "basis": "passive-untyped",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    },
-    "2": {
-     "function": "p2",
-     "type": "passive"
-    },
-    "3": {
-     "function": "p3",
-     "type": "passive"
-    }
-   }
-  },
   "R6": {
    "mpn": "0603WAF1000T5E",
    "source_instance": "leg_a.r_permit",
@@ -2234,21 +2006,6 @@
   "R7": {
    "mpn": "0603WAF1003T5E",
    "source_instance": "leg_a.r_permit_pd",
-   "basis": "passive-two-terminal",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    },
-    "2": {
-     "function": "p2",
-     "type": "passive"
-    }
-   }
-  },
-  "R8": {
-   "mpn": "0603WAF3300T5E",
-   "source_instance": "leg_a.r_dis_pu",
    "basis": "passive-two-terminal",
    "pins": {
     "1": {
@@ -2369,21 +2126,6 @@
   "R15": {
    "mpn": "0603WAF1003T5E",
    "source_instance": "leg_b.r_permit_pd",
-   "basis": "passive-two-terminal",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    },
-    "2": {
-     "function": "p2",
-     "type": "passive"
-    }
-   }
-  },
-  "R16": {
-   "mpn": "0603WAF3300T5E",
-   "source_instance": "leg_b.r_dis_pu",
    "basis": "passive-two-terminal",
    "pins": {
     "1": {
@@ -4437,56 +4179,56 @@
    }
   },
   "U22": {
-   "mpn": "SN74LVC1G32DBVR",
+   "mpn": "SN74LVC1G00DBVR",
    "source_instance": "leg_a.dis_or",
-   "basis": "eco-pin-table",
+   "basis": "passive-untyped",
    "pins": {
     "1": {
-     "function": "A",
-     "type": "input"
+     "function": "p1",
+     "type": "passive"
     },
     "2": {
-     "function": "B",
-     "type": "input"
+     "function": "p2",
+     "type": "passive"
     },
     "3": {
-     "function": "GND",
-     "type": "power_in"
+     "function": "p3",
+     "type": "passive"
     },
     "4": {
-     "function": "Y",
-     "type": "output"
+     "function": "p4",
+     "type": "passive"
     },
     "5": {
-     "function": "VCC",
-     "type": "power_in"
+     "function": "p5",
+     "type": "passive"
     }
    }
   },
   "U23": {
-   "mpn": "SN74LVC1G32DBVR",
+   "mpn": "SN74LVC1G00DBVR",
    "source_instance": "leg_b.dis_or",
-   "basis": "eco-pin-table",
+   "basis": "passive-untyped",
    "pins": {
     "1": {
-     "function": "A",
-     "type": "input"
+     "function": "p1",
+     "type": "passive"
     },
     "2": {
-     "function": "B",
-     "type": "input"
+     "function": "p2",
+     "type": "passive"
     },
     "3": {
-     "function": "GND",
-     "type": "power_in"
+     "function": "p3",
+     "type": "passive"
     },
     "4": {
-     "function": "Y",
-     "type": "output"
+     "function": "p4",
+     "type": "passive"
     },
     "5": {
-     "function": "VCC",
-     "type": "power_in"
+     "function": "p5",
+     "type": "passive"
     }
    }
   },
@@ -4761,29 +4503,29 @@
    }
   },
   "U40": {
-   "mpn": "SN74LVC1G17DBVR",
+   "mpn": "SN74LVC1G14DBVR",
    "source_instance": "u_bias_flt",
-   "basis": "native19-reviewed",
+   "basis": "passive-untyped",
    "pins": {
     "1": {
-     "function": "NC",
+     "function": "p1",
      "type": "passive"
     },
     "2": {
-     "function": "A",
-     "type": "input"
+     "function": "p2",
+     "type": "passive"
     },
     "3": {
-     "function": "GND",
-     "type": "power_in"
+     "function": "p3",
+     "type": "passive"
     },
     "4": {
-     "function": "Y",
-     "type": "output"
+     "function": "p4",
+     "type": "passive"
     },
     "5": {
-     "function": "VCC",
-     "type": "power_in"
+     "function": "p5",
+     "type": "passive"
     }
    }
   },
@@ -5287,6 +5029,196 @@
     "8": {
      "function": "VDD2",
      "type": "power_in"
+    }
+   }
+  },
+  "U5": {
+   "mpn": "LM4040A25IDBZR",
+   "source_instance": "u_ref",
+   "basis": "native19-reviewed",
+   "pins": {
+    "1": {
+     "function": "K",
+     "type": "passive"
+    },
+    "2": {
+     "function": "A",
+     "type": "passive"
+    },
+    "3": {
+     "function": "NC",
+     "type": "passive"
+    }
+   }
+  },
+  "U16": {
+   "mpn": "TLVH431BQDBZR",
+   "source_instance": "bias_ls.shunt",
+   "basis": "eco-pin-table",
+   "pins": {
+    "1": {
+     "function": "REF",
+     "type": "passive"
+    },
+    "2": {
+     "function": "K",
+     "type": "passive"
+    },
+    "3": {
+     "function": "A",
+     "type": "passive"
+    }
+   }
+  },
+  "U17": {
+   "mpn": "TL431AIDBZR",
+   "source_instance": "monitor_ls.reference",
+   "basis": "eco-pin-table",
+   "pins": {
+    "1": {
+     "function": "K",
+     "type": "passive"
+    },
+    "2": {
+     "function": "REF",
+     "type": "passive"
+    },
+    "3": {
+     "function": "A",
+     "type": "passive"
+    }
+   }
+  },
+  "Q7": {
+   "mpn": "MMBT3904",
+   "source_instance": "monitor_ls.qnotice",
+   "basis": "passive-untyped",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    },
+    "3": {
+     "function": "p3",
+     "type": "passive"
+    }
+   }
+  },
+  "U18": {
+   "mpn": "TLVH431BQDBZR",
+   "source_instance": "bias_ha.split.shunt",
+   "basis": "eco-pin-table",
+   "pins": {
+    "1": {
+     "function": "REF",
+     "type": "passive"
+    },
+    "2": {
+     "function": "K",
+     "type": "passive"
+    },
+    "3": {
+     "function": "A",
+     "type": "passive"
+    }
+   }
+  },
+  "U19": {
+   "mpn": "TL431AIDBZR",
+   "source_instance": "bias_ha.monitor.reference",
+   "basis": "eco-pin-table",
+   "pins": {
+    "1": {
+     "function": "K",
+     "type": "passive"
+    },
+    "2": {
+     "function": "REF",
+     "type": "passive"
+    },
+    "3": {
+     "function": "A",
+     "type": "passive"
+    }
+   }
+  },
+  "Q8": {
+   "mpn": "MMBT3904",
+   "source_instance": "bias_ha.monitor.qnotice",
+   "basis": "passive-untyped",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    },
+    "3": {
+     "function": "p3",
+     "type": "passive"
+    }
+   }
+  },
+  "U20": {
+   "mpn": "TLVH431BQDBZR",
+   "source_instance": "bias_hb.split.shunt",
+   "basis": "eco-pin-table",
+   "pins": {
+    "1": {
+     "function": "REF",
+     "type": "passive"
+    },
+    "2": {
+     "function": "K",
+     "type": "passive"
+    },
+    "3": {
+     "function": "A",
+     "type": "passive"
+    }
+   }
+  },
+  "U21": {
+   "mpn": "TL431AIDBZR",
+   "source_instance": "bias_hb.monitor.reference",
+   "basis": "eco-pin-table",
+   "pins": {
+    "1": {
+     "function": "K",
+     "type": "passive"
+    },
+    "2": {
+     "function": "REF",
+     "type": "passive"
+    },
+    "3": {
+     "function": "A",
+     "type": "passive"
+    }
+   }
+  },
+  "Q9": {
+   "mpn": "MMBT3904",
+   "source_instance": "bias_hb.monitor.qnotice",
+   "basis": "passive-untyped",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    },
+    "3": {
+     "function": "p3",
+     "type": "passive"
     }
    }
   },

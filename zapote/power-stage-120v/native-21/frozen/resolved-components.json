@@ -1,11 +1,11 @@
 {
   "atopile_version": "0.2.69",
   "build_sha256": {
-    "build/default.csv": "60bf6b501c320d37708d07029fc9a16d5c5c45b52f6286b3d64e1c78ab0a6bd6",
+    "build/default.csv": "e898c3a2e0e13704a51e03839550566d5cdf4f5f74efbb3fb25360e52dbba89f",
     "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-    "build/default.net": "5be3b9f5042793951e01cd47778f2586a65b5b3987ae2116d6938c8d58ead208",
+    "build/default.net": "f3c8b15822edf41f4d4469bcc92d98d2b3b578ef0e4ac815d800f9039b05bd4c",
     "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5",
-    "build/resolved-components.json": "d0e989f62a4fd69a08c48b0032a1d67fd4e09aafb8af14ddb41f969f31eea891"
+    "build/resolved-components.json": "a4fd25c5125853cf2a803f1a056d690e52ea1a301e260253702ac549e931603e"
   },
   "components": [
     {
@@ -194,16 +194,6 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.permit_fet",
-      "attributes": {
-        "designator": "Q1",
-        "designator_prefix": "Q",
-        "footprint": "Package_TO_SOT_SMD:SOT-23",
-        "manufacturer": "Alpha & Omega Semiconductor",
-        "mpn": "AO3400A"
-      }
-    },
-    {
       "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_permit",
       "attributes": {
         "designator": "R6",
@@ -223,17 +213,6 @@
         "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
         "mpn": "0603WAF1003T5E",
         "value": "100kohm"
-      }
-    },
-    {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_dis_pu",
-      "attributes": {
-        "designator": "R8",
-        "designator_prefix": "R",
-        "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
-        "mpn": "0603WAF3300T5E",
-        "value": "330ohm"
       }
     },
     {
@@ -562,7 +541,7 @@
         "designator_prefix": "U",
         "footprint": "Package_TO_SOT_SMD:SOT-23-5",
         "manufacturer": "Texas Instruments",
-        "mpn": "SN74LVC1G32DBVR"
+        "mpn": "SN74LVC1G00DBVR"
       }
     },
     {
@@ -757,16 +736,6 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.permit_fet",
-      "attributes": {
-        "designator": "Q4",
-        "designator_prefix": "Q",
-        "footprint": "Package_TO_SOT_SMD:SOT-23",
-        "manufacturer": "Alpha & Omega Semiconductor",
-        "mpn": "AO3400A"
-      }
-    },
-    {
       "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_permit",
       "attributes": {
         "designator": "R14",
@@ -786,17 +755,6 @@
         "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
         "mpn": "0603WAF1003T5E",
         "value": "100kohm"
-      }
-    },
-    {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_dis_pu",
-      "attributes": {
-        "designator": "R16",
-        "designator_prefix": "R",
-        "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
-        "mpn": "0603WAF3300T5E",
-        "value": "330ohm"
       }
     },
     {
@@ -1125,7 +1083,7 @@
         "designator_prefix": "U",
         "footprint": "Package_TO_SOT_SMD:SOT-23-5",
         "manufacturer": "Texas Instruments",
-        "mpn": "SN74LVC1G32DBVR"
+        "mpn": "SN74LVC1G00DBVR"
       }
     },
     {
@@ -3686,7 +3644,7 @@
         "designator_prefix": "U",
         "footprint": "Package_TO_SOT_SMD:SOT-23-5",
         "manufacturer": "Texas Instruments",
-        "mpn": "SN74LVC1G17DBVR"
+        "mpn": "SN74LVC1G14DBVR"
       }
     },
     {
@@ -3802,9 +3760,9 @@
   "schema": "temper.circuit-export.v1",
   "source_sha256": {
     "elec/src/f6_bias.ato": "ebe1ff0a3e74d40abfbb9d5f6bddfd9bae374286960e6f06cdf5f9e57fa84d8f",
-    "elec/src/f6_parts.ato": "5346f6a0955f13f0d37bf916885d36b4450bd243989b70c1c355e74568e01cd6",
+    "elec/src/f6_parts.ato": "d4520d56f4b31a3b469689fa7f6a9bc3005c9a76018a40c3e88168a269a6fa62",
     "elec/src/parts.ato": "f90b8f09159ff6f8f0141dfe9d718a0bb8ba13c91e70c2e6dbb83b148ff7b07a",
-    "elec/src/power_stage_120v.ato": "d9ca26ad7f847e91a89b484862d7e2a7aa7dc298fcc90c8ce3de19f4dcaf823d",
+    "elec/src/power_stage_120v.ato": "61df2274d68ef4d3325129edc125f5a0220a9583d62ff97aaad5a58aa0f155bb",
     "prototype-closure/round4/supervisor/generated/supervisor.ato": "1d6674935534a46c6c82f61c4f18890de7fa7cbf81f89c1cb63efb7bfed1b7e3"
   }
 }

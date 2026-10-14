@@ -1150,26 +1150,6 @@
 "group": "line_zc"
 },
 {
-"ref": "Q1",
-"path": "leg_a.permit_fet",
-"fp": "Package_TO_SOT_SMD:SOT-23",
-"w": 3.95,
-"h": 3.49,
-"ox": 0.0,
-"oy": 0.0,
-"group": "leg_a"
-},
-{
-"ref": "Q4",
-"path": "leg_b.permit_fet",
-"fp": "Package_TO_SOT_SMD:SOT-23",
-"w": 3.95,
-"h": 3.49,
-"ox": 0.0,
-"oy": 0.0,
-"group": "leg_b"
-},
-{
 "ref": "U5",
 "path": "u_ref",
 "fp": "Package_TO_SOT_SMD:SOT-23",
@@ -1290,16 +1270,6 @@
 "group": "leg_a"
 },
 {
-"ref": "R8",
-"path": "leg_a.r_dis_pu",
-"fp": "Resistor_SMD:R_0603_1608Metric",
-"w": 3.05,
-"h": 1.55,
-"ox": 0.0,
-"oy": 0.0,
-"group": "leg_a"
-},
-{
 "ref": "R9",
 "path": "leg_a.r_dt",
 "fp": "Resistor_SMD:R_0603_1608Metric",
@@ -1372,16 +1342,6 @@
 {
 "ref": "R15",
 "path": "leg_b.r_permit_pd",
-"fp": "Resistor_SMD:R_0603_1608Metric",
-"w": 3.05,
-"h": 1.55,
-"ox": 0.0,
-"oy": 0.0,
-"group": "leg_b"
-},
-{
-"ref": "R16",
-"path": "leg_b.r_dis_pu",
 "fp": "Resistor_SMD:R_0603_1608Metric",
 "w": 3.05,
 "h": 1.55,
