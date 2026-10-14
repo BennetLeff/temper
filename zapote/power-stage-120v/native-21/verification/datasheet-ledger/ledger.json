@@ -2415,6 +2415,20 @@
      "unit": "C",
      "basis": "-30..+85 C with derating curve",
      "source": "p.2"
+    },
+    {
+     "parameter": "Withstand I/P-O/P",
+     "datasheet_limit": 4200,
+     "unit": "Vac",
+     "basis": "type-test withstand, Isolation Class II (no FG pin); approvals UL 62368-1, IEC 62368-1, IEC 61558-1/-2-16 (OVC II under 62368-1, OVC III under 61558)",
+     "source": "IRM-20-SPEC 2025-11-21 p.2, SAFETY & EMC table"
+    },
+    {
+     "parameter": "Leakage current",
+     "datasheet_limit": 0.25,
+     "unit": "mA",
+     "basis": "datasheet maximum at 277 Vac (F5 model scales it to 0.143 mA at 132 V / 60 Hz)",
+     "source": "IRM-20-SPEC 2025-11-21 p.2, SAFETY & EMC table"
     }
    ],
    "stresses": [
@@ -2474,7 +2488,8 @@
    "gaps": [
     "Bay air of 78 C is modelled; only 11 % margin to the derating curve. Bench soak at 40 C / 28 A required (DECISIONS.md:675).",
     "Model case 86 C vs the 85 C ambient rating: must be judged against measured local air (DECISIONS.md:834).",
-    "Input current 0.6 A typ at 115 Vac per the datasheet is counted in I_aux = 1.3 A (DECISIONS.md:171)."
+    "Input current 0.6 A typ at 115 Vac per the datasheet is counted in I_aux = 1.3 A (DECISIONS.md:171).",
+    "Approval basis is UL 62368-1 / IEC 61558 (OVC II under 62368-1), not an appliance standard: the certifier must accept it as a component in a UL 1026 product (owner-items/CERTIFIER-PACKET.md A3 #14)."
    ],
    "finding": null,
    "notes": null
@@ -2608,6 +2623,20 @@
      "unit": "Vac",
      "basis": "85-305 Vac",
      "source": "p.1/p.2"
+    },
+    {
+     "parameter": "Withstand I/P-O/P",
+     "datasheet_limit": 4200,
+     "unit": "Vac",
+     "basis": "type-test withstand, Isolation Class II (no FG pin); approvals UL 62368-1, IEC 62368-1, IEC 61558-1/-2-16 (OVC II under 62368-1, OVC III under 61558)",
+     "source": "IRM-20-SPEC 2025-11-21 p.2, SAFETY & EMC table"
+    },
+    {
+     "parameter": "Leakage current",
+     "datasheet_limit": 0.25,
+     "unit": "mA",
+     "basis": "datasheet maximum at 277 Vac (F5 model scales it to 0.143 mA at 132 V / 60 Hz)",
+     "source": "IRM-20-SPEC 2025-11-21 p.2, SAFETY & EMC table"
     }
    ],
    "stresses": [
@@ -2655,7 +2684,8 @@
    ],
    "gaps": [
     "Derating at the real local air not read: model case 98 C vs the 85 C ambient rating (DECISIONS.md:834); judge against measured air.",
-    "Leakage current of the IRM modules (0.43 mA total for three at datasheet maximum) is inside the F5 leakage FAIL (DECISIONS.md:844)."
+    "Leakage current of the IRM modules (0.43 mA total for three at datasheet maximum) is inside the F5 leakage FAIL (DECISIONS.md:844).",
+    "Approval basis is UL 62368-1 / IEC 61558 (OVC II under 62368-1), not an appliance standard: the certifier must accept it as a component in a UL 1026 product (owner-items/CERTIFIER-PACKET.md A3 #14)."
    ],
    "finding": null,
    "notes": null
