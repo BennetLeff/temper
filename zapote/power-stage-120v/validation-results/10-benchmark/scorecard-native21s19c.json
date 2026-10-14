@@ -46,7 +46,8 @@
   "zero_stock_lines": 10,
   "single_source_lines": 17,
   "vias": 751,
-  "board_bbox_mm2": 55100.0
+  "board_bbox_mm2": 55100.0,
+  "consign_lines": 10
  },
  "sources": {
   "d5": "native-21/verification/d5-audit.json",
@@ -57,5 +58,8 @@
   "cmti": "06-controller-interface/cmti/cmti.csv (GATE rows, ratio at 95 V/ns)",
   "bank": "added 2026-10-13 with stage 20: bank_options.json baseline K (19c fits B32654A1104K000); same script and source as every later card",
   "ocp_pickup": "added with stage 21b: coil-pickup/s21b/run_ocp.py on the 19c copper (stage 20 shares it), result-s19c.json"
+ },
+ "backfilled": {
+  "consign_lines": "2026-10-13, from the tag's fab/bom-jlcpcb.csv (r2-dfm P4)"
  }
 }

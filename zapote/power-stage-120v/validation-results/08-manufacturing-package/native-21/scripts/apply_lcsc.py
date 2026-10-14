@@ -53,7 +53,9 @@ CHANGED.update({"UMK325AB7106KM-T": "C386167", "RT0603BRD0712K4L": "C861102", "T
                 "CST3015-200ED": "C50132500", "RC1206FR-073RL": "C137279", "VOL628A-2X001T": "C145344",
                 "B32654A1104J000": "C3794777",
                 # stage 22 (DECISIONS 27): DIS NAND and the inverting BIAS_GOOD Schmitt (JLC part API 2026-10-13, g05-g07 evidence)
-                "SN74LVC1G00DBVR": "C7826", "SN74LVC1G14DBVR": "C7835"})
+                "SN74LVC1G00DBVR": "C7826", "SN74LVC1G14DBVR": "C7835",
+                # stage 26 (DECISIONS 28; r2-cost R2-05): the low-ESR SVPC variant, same 6.3 x 5.9 can (lcsc.com 2026-10-13, 845 in stock)
+                "6SVPC220MV": "C128504"})
 ACCEPT_ALT = {"GRM31A5C3A102JW01D"}
 bom_path = HERE / "fab" / "bom-jlcpcb.csv"
 rows = list(csv.DictReader(open(bom_path)))

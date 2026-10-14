@@ -13,7 +13,11 @@
 #  3. task 04 and B3 are cached on content keys that exclude the board hash (regate.sh task04; B3 below); every reuse is
 #     recorded in the study's outputs/cache.json.
 set -e
+# a failing step must stop the chain even when its output is piped through grep / tail (a wrong PASSDIR once
+# ran a whole chain on the previous test-point plan because `planner | grep` hid the traceback)
+set -o pipefail
 TAG=$1; PASS=$2; B=$3
+[ -f "$PASS/copper-dump.json" ] || { echo "chain: no $PASS/copper-dump.json (PASSDIR is a pass's iN dir)" >&2; exit 1; }
 U=$(cd "$(dirname "$0")/../../.." && pwd)
 G=$U/native-21/layout/gates
 KP=/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python3
@@ -72,6 +76,9 @@ P_FIT=$!
   $KC pcb export pos --output $O/positions-kicad.csv --format csv --units mm --side both $BP >/dev/null 2>&1
   $KP validation-results/08-manufacturing-package/native-21/scripts/bom_cpl_jlc.py $BP native-21/frozen/default.csv $O 2>&1 | grep -v -i "wxapp\|Debug:" | tail -1
   python3 validation-results/08-manufacturing-package/native-21/scripts/apply_lcsc.py
+  # CPL rotation audit on this board (stage 22 committed a stale audit that never saw U22 / U23 / U40)
+  ( cd validation-results/08-manufacturing-package/native-21/cpl-rotation-audit && python3 -I extract_kicad.py $BP >/dev/null && python3 -I audit.py | tail -1 ) || exit 1
+  python3 -c "import csv;import json;A='validation-results/08-manufacturing-package/native-21/cpl-rotation-audit/';lc={d.strip():r['LCSC Part #'].strip() for r in csv.DictReader(open('$O/bom-jlcpcb.csv')) for d in r['Designator'].split(',')};a={r['designator'] for r in csv.DictReader(open(A+'audit.csv'))}|{x['designator'] for x in json.load(open(A+'audit.json'))['excluded'] if not lc.get(x['designator'])};c={r['Designator'] for r in csv.DictReader(open('$O/cpl-jlcpcb.csv'))};m=sorted(c-a);print('CPL audit covers',len(c&a),'of',len(c));assert not m,('CPL lines not audited (or excluded although they now have an LCSC code)',m)" || exit 1
   python3 native-21/layout/gates/bom_cpl_check.py $O/bom-jlcpcb.csv $O/cpl-jlcpcb.csv validation-results/08-manufacturing-package/native-21/cpl-rotation-audit/cpl-jlcpcb.corrected.csv || exit 1
   $KC pcb export pdf --mode-multipage --scale 0 --output $O/assembly-drawing.pdf --layers F.Fab,F.Silkscreen,Edge.Cuts --cl Edge.Cuts --sketch-pads-on-fab-layers --black-and-white $BP >/dev/null 2>&1
   python3 validation-results/08-manufacturing-package/native-21/scripts/review_fab.py $O/gerbers validation-results/08-manufacturing-package/native-21/review.json | tail -1
@@ -84,17 +91,20 @@ sh $G/regate.sh "$B" core > "$B/blk-core.log" 2>&1 || { cat "$B/blk-core.log"; e
 cp "$B/native21-all-copper.json.gz" native-21/verification/$TAG-all-copper.json.gz
 cp "$B/bypass-check.json" native-21/verification/bypass-check-$TAG.json
 cp "$B/jlc-dfm.json" validation-results/08-manufacturing-package/native-21/jlc-dfm.json
+CK=$($KP $G/copper_key.py "$B/section.kicad_pcb" 2>/dev/null | tail -1)
+case "$CK" in [0-9a-f]*) ;; *) echo "copper_key failed" >&2; exit 1;; esac
 ( sh $G/regate.sh "$B" task04 > "$B/task04.log" 2>&1 || { tail -5 "$B/task04.log"; exit 1; }
   tail -2 "$B/task04.log"
   cd validation-results/04-board-current-thermal/round5-native21/b3
   python3 make_heat_sources.py >/dev/null
-  KEY=$(python3 - <<'PY'
-import glob, gzip, hashlib, json, re
-geo = re.search(r'(native21[0-9a-z]+-all-copper\.json\.gz)', open("run_study.py").read()).group(1)
-d = json.load(gzip.open("../../../../native-21/verification/" + geo)); d.pop("board_sha256", None)
-h = hashlib.sha256(json.dumps(d, sort_keys=True).encode())
+  # key: the board's copper inputs (copper_key.py; the refilled copper is not bit-reproducible), the heat sources, the
+  # scripts (run_study.py with this TAG's geometry file name masked) and the task-04 results it reads
+  KEY=$(python3 - "$CK" <<'PY'
+import glob, hashlib, json, re, sys
+h = hashlib.sha256(sys.argv[1].encode())
 for f in sorted(glob.glob("inputs/*.json")) + ["make_heat_sources.py", "run_study.py", "ceiling_sweep.py", "thermal.py"]:
-    h.update(open(f, "rb").read())
+    t = open(f, "rb").read()
+    h.update(re.sub(rb'native21[0-9a-z]+-all-copper\.json\.gz', b'TAG-all-copper.json.gz', t) if f == "run_study.py" else t)
 for f in sorted(glob.glob("../outputs/*-pl*.json")):
     r = json.load(open(f)); r.pop("board_sha256", None); h.update(json.dumps(r, sort_keys=True).encode())
 print(h.hexdigest())

@@ -1,11 +1,11 @@
 {
  "meta": {
   "lines_in_cpl": 349,
-  "lines_placed_by_jlc": 332,
-  "lines_excluded_not_placed": 17,
+  "lines_placed_by_jlc": 335,
+  "lines_excluded_not_placed": 14,
   "counts": {
    "OK": 277,
-   "NEEDS-PREVIEW": 45,
+   "NEEDS-PREVIEW": 48,
    "CORRECTED": 10
   },
   "controls": {
@@ -2338,7 +2338,7 @@
   {
    "designator": "C126",
    "footprint": "CP_Elec_6.3x5.9",
-   "lcsc": "C2162098",
+   "lcsc": "C128504",
    "mount": "SMD",
    "kicad_rot": 0,
    "proposed_jlc_rot": 0,
@@ -2357,7 +2357,7 @@
   {
    "designator": "C127",
    "footprint": "CP_Elec_6.3x5.9",
-   "lcsc": "C2162098",
+   "lcsc": "C128504",
    "mount": "SMD",
    "kicad_rot": 0,
    "proposed_jlc_rot": 0,
@@ -2376,7 +2376,7 @@
   {
    "designator": "C128",
    "footprint": "CP_Elec_6.3x5.9",
-   "lcsc": "C2162098",
+   "lcsc": "C128504",
    "mount": "SMD",
    "kicad_rot": 0,
    "proposed_jlc_rot": 0,
@@ -2395,7 +2395,7 @@
   {
    "designator": "C129",
    "footprint": "CP_Elec_6.3x5.9",
-   "lcsc": "C2162098",
+   "lcsc": "C128504",
    "mount": "SMD",
    "kicad_rot": 0,
    "proposed_jlc_rot": 0,
@@ -6117,6 +6117,44 @@
    "reason": "CONFLICT: EasyEDA fit needs offset [180] deg (-> rot 180), DB rule '^SOT-23' says -90 (-> rot 270); proposed value is the EasyEDA one, check both in the preview"
   },
   {
+   "designator": "U22",
+   "footprint": "SOT-23-5",
+   "lcsc": "C7826",
+   "mount": "SMD",
+   "kicad_rot": 0,
+   "proposed_jlc_rot": 270,
+   "class": "NEEDS-PREVIEW",
+   "db_rule": "^SOT-23",
+   "db_offset": -90,
+   "easyeda_package": "",
+   "easyeda_offset": "",
+   "easyeda_rot": "",
+   "db_rot": 270,
+   "fit_method": "",
+   "fit_rms_mm": "",
+   "pin1_evidence": "KiCad pad 1 at (-0.91,-0.95) mm = up-left of centre at board rotation 0",
+   "reason": "only the JLC rotation DB speaks (rule '^SOT-23' offset -90); no EasyEDA footprint for this LCSC number"
+  },
+  {
+   "designator": "U23",
+   "footprint": "SOT-23-5",
+   "lcsc": "C7826",
+   "mount": "SMD",
+   "kicad_rot": 0,
+   "proposed_jlc_rot": 270,
+   "class": "NEEDS-PREVIEW",
+   "db_rule": "^SOT-23",
+   "db_offset": -90,
+   "easyeda_package": "",
+   "easyeda_offset": "",
+   "easyeda_rot": "",
+   "db_rot": 270,
+   "fit_method": "",
+   "fit_rms_mm": "",
+   "pin1_evidence": "KiCad pad 1 at (-0.91,-0.95) mm = up-left of centre at board rotation 0",
+   "reason": "only the JLC rotation DB speaks (rule '^SOT-23' offset -90); no EasyEDA footprint for this LCSC number"
+  },
+  {
    "designator": "U24",
    "footprint": "SOT-23-5",
    "lcsc": "C7836",
@@ -6362,6 +6400,25 @@
    "fit_rms_mm": 0.159,
    "pin1_evidence": "KiCad pad 1 at (-0.91,-0.95) mm = up-left of centre at board rotation 0; EasyEDA pad 1 down-right of centre at JLC rot 0",
    "reason": "CONFLICT: EasyEDA fit needs offset [180] deg (-> rot 180), DB rule '^SOT-23' says -90 (-> rot 270); proposed value is the EasyEDA one, check both in the preview"
+  },
+  {
+   "designator": "U40",
+   "footprint": "SOT-23-5",
+   "lcsc": "C7835",
+   "mount": "SMD",
+   "kicad_rot": 0,
+   "proposed_jlc_rot": 270,
+   "class": "NEEDS-PREVIEW",
+   "db_rule": "^SOT-23",
+   "db_offset": -90,
+   "easyeda_package": "",
+   "easyeda_offset": "",
+   "easyeda_rot": "",
+   "db_rot": 270,
+   "fit_method": "",
+   "fit_rms_mm": "",
+   "pin1_evidence": "KiCad pad 1 at (-0.91,-0.95) mm = up-left of centre at board rotation 0",
+   "reason": "only the JLC rotation DB speaks (rule '^SOT-23' offset -90); no EasyEDA footprint for this LCSC number"
   }
  ],
  "excluded": [
@@ -6459,30 +6516,6 @@
    "mount": "SMD",
    "lcsc": "",
    "kicad_rot": 90,
-   "reason": "consign or hand-assemble (not on LCSC / no stock / no exact match)"
-  },
-  {
-   "designator": "U22",
-   "footprint": "SOT-23-5",
-   "mount": "SMD",
-   "lcsc": "",
-   "kicad_rot": 0,
-   "reason": "consign or hand-assemble (not on LCSC / no stock / no exact match)"
-  },
-  {
-   "designator": "U23",
-   "footprint": "SOT-23-5",
-   "mount": "SMD",
-   "lcsc": "",
-   "kicad_rot": 0,
-   "reason": "consign or hand-assemble (not on LCSC / no stock / no exact match)"
-  },
-  {
-   "designator": "U40",
-   "footprint": "SOT-23-5",
-   "mount": "SMD",
-   "lcsc": "",
-   "kicad_rot": 0,
    "reason": "consign or hand-assemble (not on LCSC / no stock / no exact match)"
   },
   {

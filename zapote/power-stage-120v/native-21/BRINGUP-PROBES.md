@@ -40,10 +40,10 @@ differential or isolated probes (D-8 equipment table), never a grounded scope gr
 | Net | Probe at |
 | --- | --- |
 | leg_b-out_l | component pad R20.1 / R58.2 / U2.10 (no legal test-pad spot) |
-| leg_a-out_h | component pad U1.15 / R10.1 / R53.2 (no legal test-pad spot) |
-| leg_b-out_h | component pad R18.1 / U2.15 / R57.2 (no legal test-pad spot) |
+| leg_a-out_h | component pad R10.1 / R53.2 / U1.15 (no legal test-pad spot) |
+| leg_b-out_h | component pad R18.1 / R57.2 / U2.15 (no legal test-pad spot) |
 | pwm_lb | J4.8 (bottom), ground J4.2 / J4.4 / J4.15 |
-| leg_a-driver_dis | component pad U22.4 / U1.5 / R73.2 (no legal test-pad spot) |
+| leg_a-driver_dis | component pad R73.2 / U1.5 / U22.4 (no legal test-pad spot) |
 | line_zc | J4.16 (bottom), ground J4.2 / J4.4 / J4.15 |
 
 FET gate/drain/source (VGS, VDS): at the TO-247 package leads with rigid insulated adapters, per

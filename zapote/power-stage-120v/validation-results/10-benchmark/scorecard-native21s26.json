@@ -1,0 +1,62 @@
+{
+ "tag": "native21s26",
+ "build": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s26/s26c",
+ "board_sha256": "d9eb6e9eef70577ef40b5c7ba54be91a5c217a1639b185f96ff6f56b190bbf24",
+ "gates": {
+  "drc_errors_0": true,
+  "drc_unconnected_0": true,
+  "drc_parity_0": true,
+  "barrier_8mm": true,
+  "res_a_outer_12p6mm": true,
+  "jlc_dfm": true,
+  "return_path19": true,
+  "bypass": true,
+  "pi_distances": true,
+  "res_a_creepage18": true,
+  "d5": true,
+  "enclosure_fit": true,
+  "audit_rs": true
+ },
+ "performance": {
+  "d5_hot_selv_mm": 8.047,
+  "d5_hot_pe_mm": 8.507,
+  "res_a_outer_min_mm": 13.375,
+  "return_path_open_changes": 37,
+  "return_path_worst_asserted_mm": 2.72,
+  "kelvin_band_low_A": 67.77,
+  "b3_c28_h25_peak_C": 135.1,
+  "b3_nominal_h10_peak_C": 162.0,
+  "emi_min_margin_dB": 10.5,
+  "leakage_touch_mA": 0.974,
+  "fuse_copper_fusing_ratio": 0.993,
+  "cmti_gate_ratio_min": 1.316,
+  "bank_ratio_tdk_28A_40k": 1.022,
+  "ocp_pickup_stack_pan60_A": 4.17
+ },
+ "cost": {
+  "bom_lines": 91,
+  "placements": 349,
+  "jlc_extended_lines": 62,
+  "jlc_basic_lines": 20,
+  "hand_or_consign_lines": 22,
+  "tht_lines": 18,
+  "consign_lines": 8,
+  "parts_usd_at_5": 318.22,
+  "parts_usd_at_500": 222.28,
+  "unpriced_lines": [],
+  "zero_stock_lines": 9,
+  "single_source_lines": 16,
+  "vias": 744,
+  "board_bbox_mm2": 55100.0
+ },
+ "sources": {
+  "d5": "native-21/verification/d5-audit.json",
+  "kelvin": "02-protection-timing/kelvin/budget-native21s26.json",
+  "emi": "07-conducted-emi/s19b/results.json scenarios.nominal (min margin_dB)",
+  "leakage": "07-conducted-emi/leakage/result.json DESIGN row",
+  "fuse_copper": "02-protection-timing/shoot-through-f1/s26_necks.json (min_ratio_all)",
+  "cmti": "06-controller-interface/cmti/cmti.csv (GATE rows, ratio at 95 V/ns)",
+  "bank": "11-candidates/g04-g09-tank-detect/results/bank_options.json baseline J",
+  "ocp_pickup": "02-protection-timing/coil-pickup/s21b/result-s26.json"
+ }
+}

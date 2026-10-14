@@ -20,6 +20,8 @@ def main() -> None:
         # stage 22 (DECISIONS 27): DIS = NAND(permit_gate, bias_good); the PERMIT FET and 330 ohm pull-up are gone
         assert parts[f'{leg}.dis_or']['mpn'] == 'SN74LVC1G00DBVR' and f'{leg}.permit_fet' not in parts and f'{leg}.r_dis_pu' not in parts
     assert parts['u_bias_flt']['mpn'] == 'SN74LVC1G14DBVR'   # inverting Schmitt: BIAS_GOOD
+    for leg in ('leg_a', 'leg_b'):   # stage 26 (DECISIONS 28): low-ESR SVPC variant, same can
+        assert parts[f'{leg}.bias_h.cbulk']['mpn'] == parts[f'{leg}.bias_l.cbulk']['mpn'] == '6SVPC220MV'
     assert parts['r_th_top']['mpn'] == 'RT0603BRD0712K6L'   # stage 15, 28 A hardware
     assert parts['f_blw']['mpn'] == '3403.0171' and parts['j_blw_ac']['mpn'] == 'B2P3-VH(LF)(SN)'   # stage 16
     assert parts['r_shunt']['mpn'] == 'CSS2H-2512R-1L00F' and parts['r_shunt']['footprint'] == 'temper:R_Shunt_Bourns_CSS2H-2512_Kelvin'   # stage 17 (DECISIONS 17)

@@ -200,6 +200,9 @@ def cost(b, bom_path, stock_path):
     c["hand_or_consign_lines"] = sum(("consign" in r.get("Assembly", "").lower() or "hand" in r.get("Assembly", "").lower()
                                       or r.get("Mount") == "THT") for r in rows)
     c["tht_lines"] = sum(r.get("Mount") == "THT" for r in rows)
+    # r2-dfm P4: hand_or_consign_lines counts every THT line, so a THT line moved to JLC assembly never shows; this one
+    # counts only lines with no LCSC code (consigned or hand-sourced whatever the mount)
+    c["consign_lines"] = sum(not r.get("LCSC Part #", "").strip() for r in rows)
     extras = bom_path.parent / "hand-assembly-extras.csv"
     if extras.exists():
         c["hand_or_consign_lines"] += sum(1 for _ in csv.DictReader(open(extras)))
@@ -262,8 +265,8 @@ def compare(cur, bench):
             better.append(k)
     ca, cb = cur["cost"], bench["cost"]
     cheaper = [k for k in ("parts_usd_at_500", "bom_lines", "placements", "jlc_extended_lines", "hand_or_consign_lines",
-                           "zero_stock_lines") if k in ca and k in cb and ca[k] < cb[k]]
-    dearer = [k for k in ("parts_usd_at_500", "bom_lines", "jlc_extended_lines", "hand_or_consign_lines")
+                           "consign_lines", "zero_stock_lines") if k in ca and k in cb and ca[k] < cb[k]]
+    dearer = [k for k in ("parts_usd_at_500", "bom_lines", "jlc_extended_lines", "hand_or_consign_lines", "consign_lines")
               if k in ca and k in cb and ca[k] > cb[k]]
     if dearer and not better:
         reasons.append(f"costlier on {dearer} with no performance gain")

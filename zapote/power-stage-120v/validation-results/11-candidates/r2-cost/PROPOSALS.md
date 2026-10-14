@@ -98,6 +98,13 @@ Stacking (non-overlapping): R2-01 + R1-g02A + R1-g06P1 + R2-03/04/05 + R1-g05P2 
 
 **Risk** med-high; **effort** schematic + audit.rs + doc edits, then chain to confirm nothing moves; **rank** #1, -$19.64, -1 consign line.
 
+**Lead cross-check (2026-10-13): R2-01 is not taken as a candidate.** DC-LINK-CLAMP.md sets a *requested minimum* of
+2 J absorption at <= 520 V. With no clamp the bus alone must take it: `scripts/clamp_2j_check.py` gives 547 V from the
+286 V static-OVP corner at nominal 18.4 uF and 592 V at -19 % C (bus-only absorption 286 -> 520 V is 1.74 J nominal,
+1.41 J at -19 %). Every modelled event (<= 0.46 J, ALT-D3 s1.1) stays at or under 379 V. So the saving is real only if
+the owner relaxes the 2 J target to the modelled return energy; that is an owner decision (QUEUE.md, owner items), not
+a scorecard candidate. R2-02's prices are zero-stock LCSC references, so it is a quote lead, not a saving.
+
 ### R2-02. If R2-01 is rejected: source the clamp pair cheaper
 
 Same ratings, other brand/polarity. All LCSC listings have stock 0, so the prices are references, not quotes: Brightking **30KPA150CA/B C522439** $5.88 at 100+ (Good-Ark's DK listing is $9.82; Littelfuse $16.58; MDE $18.50: https://www.digikey.com/en/products/result?keywords=30KPA150CA), Littelfuse **30KPA150A C1976335** (unidirectional) $1.86 at 500, Brightking 30KPA150A/B C522438 $7.01.

@@ -228,7 +228,7 @@ component Bias100n:
 
 component Bias220u:
     designator_prefix = "C"
-    mpn = "6SVPC220M"
+    mpn = "6SVPC220MV"
     manufacturer = "Panasonic"
     footprint = "Capacitor_SMD:CP_Elec_6.3x5.9"
     value: capacitance
