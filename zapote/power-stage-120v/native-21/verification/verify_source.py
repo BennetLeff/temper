@@ -7,7 +7,7 @@ import json
 def main() -> None:
     root = Path(__file__).resolve().parents[2]
     resolved = json.loads((root / 'frozen/resolved-components.json').read_text())
-    assert len(resolved['components']) == 349   # stage 22: - Q1 / Q4 PERMIT FETs and R8 / R16 330 ohm (DIS NAND); stage 21: - link_pos / link_neg studs J7-J10 (BR1 feeds the bus); stage 19b: + c_ref_xfer_1..4 (pwm_hb reference-transfer caps C153-C156); stage 16: + f_blw / j_blw_ac (blower-supply tap); stage 14: -8 (bias modules replace SN6507/T2/T3 path; +1 bus TVS); + c_hs / c_hs_bulk per leg (review B1), + c_hs_1u / c_ls_1u per leg (stage 9), + c_vs1_1u / c_vs2_1u (stage 10), + c_res4 / c_res5 (stage 13)
+    assert len(resolved['components']) == 350   # stage 28: + r_blw (F2 fault-current limiter); stage 22: - Q1 / Q4 PERMIT FETs and R8 / R16 330 ohm (DIS NAND); stage 21: - link_pos / link_neg studs J7-J10 (BR1 feeds the bus); stage 19b: + c_ref_xfer_1..4 (pwm_hb reference-transfer caps C153-C156); stage 16: + f_blw / j_blw_ac (blower-supply tap); stage 14: -8 (bias modules replace SN6507/T2/T3 path; +1 bus TVS); + c_hs / c_hs_bulk per leg (review B1), + c_hs_1u / c_ls_1u per leg (stage 9), + c_vs1_1u / c_vs2_1u (stage 10), + c_res4 / c_res5 (stage 13)
     for filename, expected in resolved['source_sha256'].items():
         assert hashlib.sha256((root / filename).read_bytes()).hexdigest() == expected, filename
     for filename in ('default.csv', 'default.net', 'resolved-components.json',
@@ -25,7 +25,8 @@ def main() -> None:
     for leg in ('leg_a', 'leg_b'):   # stage 26 (DECISIONS 28): low-ESR SVPC variant, same can
         assert parts[f'{leg}.bias_h.cbulk']['mpn'] == parts[f'{leg}.bias_l.cbulk']['mpn'] == '6SVPC220MV'
     assert parts['r_th_top']['mpn'] == 'RT0603BRD0712K6L'   # stage 15, 28 A hardware
-    assert parts['f_blw']['mpn'] == '3403.0171' and parts['j_blw_ac']['mpn'] == 'B2P3-VH(LF)(SN)'   # stage 16
+    assert parts['f_blw']['mpn'] == '3403.0279.23' and parts['j_blw_ac']['mpn'] == 'B2P3-VH(LF)(SN)'   # stage 16; stage 28 UMT-H 1.5 kA
+    assert parts['r_blw']['mpn'] == 'AC05000001507JAC00'   # stage 28: J11 fault-current limiter
     assert parts['r_shunt']['mpn'] == 'CSS2H-2512R-1L00F' and parts['r_shunt']['footprint'] == 'temper:R_Shunt_Bourns_CSS2H-2512_Kelvin'   # stage 17 (DECISIONS 17)
     assert parts['r_ct_hi_top']['mpn'] == parts['r_ct_lo_bot']['mpn'] == 'RT0603BRD072K21L'
     assert all(parts[f'c_ref_xfer_{i}']['mpn'] == parts['c_fault_or']['mpn'] == 'CC0603KRX7R9BB104' for i in range(1, 5))   # stage 19b

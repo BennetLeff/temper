@@ -44,13 +44,15 @@ def main():
     base = json.loads(LEDGER.read_text())
     ent = base["entries"]
 
-    # 1. the real ledger: fails, with the known findings
+    # 1. the real ledger: passes since stage 28 (no VIOLATION, no unaudited SAFETY/POWER line)
     rc, out, rep = run(LEDGER)
-    expect("real ledger exits 1", rc == 1, out[-300:])
+    expect("real ledger exits 0", rc == 0, out[-300:])
     expect("real ledger: no malformed entries", rep and not rep["errors"], str(rep and rep["errors"][:3]))
     # stage 27: J1 is the MKDS 5/2-9,5 (UL group B 30 A); its ratings source keeps it PARTIAL
     expect("real ledger: J1 1714971 is PARTIAL, not VIOLATION", rep and "1714971" in rep["partial"] and "1714971" not in rep["violations"])
-    expect("real ledger: F2 3403.0171 is VIOLATION", rep and "3403.0171" in rep["violations"])
+    # stage 28: F2 is the 1.5 kA UMT-H, bounded by the R130 limiter; the limiter stays PARTIAL until the bench short
+    expect("real ledger: no VIOLATION; F2 3403.0279.23 not PARTIAL, R130 AC05 PARTIAL",
+           rep and rep["violations"] == [] and "3403.0279.23" not in rep["partial"] and "AC05000001507JAC00" in rep["partial"])
     expect("real ledger: no BOM MPN missing", rep and rep["missing_from_ledger"] == [])
     expect("real ledger: UCC21550 and IPW65R018CFD7 are PARTIAL",
            rep and {"UCC21550BDWKR", "IPW65R018CFD7"} <= set(rep["partial"]))
@@ -83,9 +85,11 @@ def main():
     # 5. a lie: VERIFIED with a failing check, and with a tampered ratio
     with tempfile.TemporaryDirectory() as td:
         d = copy.deepcopy(base)
-        d["entries"]["3403.0171"]["status"] = "VERIFIED"
+        f2 = d["entries"]["3403.0279.23"]
+        f2["stresses"][0]["worst_case_value"] = 3567          # the unbounded F4 fault: 2.378x the 1.5 kA
+        f2["checks"][0]["ratio"] = 2.378                      # ratio kept consistent, so only the status is a lie
         rc, out, rep = run(write(td, d))
-        expect("F2 relabelled VERIFIED is rejected as inconsistent",
+        expect("F2 VERIFIED over its breaking capacity is rejected as inconsistent",
                rc == 1 and any("violation-severity" in e or "VERIFIED" in e for e in rep["errors"]))
     with tempfile.TemporaryDirectory() as td:
         d = copy.deepcopy(base)

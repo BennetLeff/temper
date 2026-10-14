@@ -1011,3 +1011,25 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
     - **Open:**
       - Overload coordination (FINDINGS #11) is now a margin question, not a failed rating. The certifier's abnormal-operation test, with the firmware current limit defeated, still applies.
       - The enclosure harness lands L / N 6.4 / 1.9 mm further left at the same rear edge (for the enclosure session's next harness revision).
+30. **Stage 28: F2 becomes a 1.5 kA fuse with a 0.15 Ω fault-current limiter (2026-10-14; board `e3fe94099405ebcf2cccdd49695c969cad9473455cca3cc4df234a4a8ab323c6`, copper.json `88e296e68024f341a873fa8ac27e0d4d9e01257eb213ac8c3a23558544c44acd`, schematic `8da56e57…`, frozen netlist `fc960f956bd45183bedabad862355e0b29110ea54e802cfba0403ea83f557df1`, Gerber ZIP `b8c4cf3c45597b0bf2aa84d4d08a132c9520346dedca000ab18af0e589ac5801`; tag `native21s28`; F4, `11-candidates/c28-f2/`, `g06-g08-g10-supplies-sense-io/f2/`; SAFETY: branch fusing).**
+    - **Why:** F2, the blower-tap fuse, was a UMT 250 3403.0171 rated to break 200 A (IEC), against a 373–3,567 A prospective fault at J11, and F1 cannot back it up. It was the last datasheet-ledger VIOLATION.
+    - **Change:**
+      - **F2 → Schurter UMT-H 3403.0279.23:** 3.15 A T, 15.4 × 5.35 mm SMD. Breaking capacity 1500 A at 277 VAC (UL 248-14, cURus E41599) and 1500 A at 250 VAC (IEC 60127-7). Melting I²t 39 A²s. The lead read the Schurter data sheet's 3.15 A row, note 2, and its land pattern.
+      - **R130 → Vishay AC05 0.15 Ω 5 W, mounted upright, in series after F2:** blw_l → R130 → blw_lr → J11.1. With R130 at its −5 % limit and no other impedance, the J11 fault is at most 980 A, 65 % of 1.5 kA (`c28-f2/bounds.py`). It dissipates 0.30 W.
+        - Pulse load: 0.54 of the AC05's ~125 A²s on the current-limiting clearing estimate, 0.94 at 3× melting.
+        - The clearing I²t is unpublished, so a bench short at J11 settles it. The ledger keeps R130 PARTIAL until then.
+        - R130 is a new designator. R8 / R16, freed at stage 22, stay vacant.
+        - `incr21` now also drops base tracks that name a pad whose current net differs: the frozen base's v3v3 track to 'R8.2' would have landed on a reused R8.
+      - **Footprints:** new `temper:Fuse_Schurter_UMT-H_15.4x5.35mm` and `temper:R_Axial_Vishay_AC05_D7.5mm_P5.08mm_Vertical`. blw_lr shares blw_l's potential group. The stage-16 routing group reaches the limiter. J11 does not move.
+      - **Why not the 646 holder:** the Littelfuse 0215 in a 646 holder with cover (26.6 × 9.5 mm, 14.5 mm tall) and a lying AC05 could not be placed between PS1, D17 and H1 without breaking the 3.2 mm (HOT groups) or 8 mm (H1 / PE) rules. The 0215's leaded variant is NRND at LCSC.
+      - **OCP routing lock:** the first stage-28 chain re-routed ocp_node / ocp_thresh, and the OCP pickup went back from 4.17 to 4.78 A. The scorecard rejected it. Both nets are now laid from stage 27's copper (`stage28_ocp_lock.json`, `add_stage28_ocp_lock`, base copper removed, nets HANDLED). Stage 22's gain is now deterministic rather than a router outcome.
+    - **Evidence:**
+      - audit.rs PASS, 79/79, with new checks: blw_l joins only F2 and R130, blw_lr only R130 and J11. New mutations: J11 on F2's output (limiter bypassed) and the old 200 A UMT 250 both fail.
+      - verify_source 350.
+      - Chain on board `e3fe9409…`: DRC 0 / 0 / 0, settled in 2 builds. Barrier and RES_A 0. Rust 0 (5,815). D5 8.047 / 8.507. Fit 0, with envelopes F2 5.4 mm and R130 24 mm. DFM PASS. CPL audit 350 of 350. Kelvin 67.77–116.44 A. Task 04 39/39. B3 135.1 °C. Fault copper 0.993. OCP pickup 4.17 A.
+      - Datasheet ledger: F2 VERIFIED, R130 PARTIAL. **The gate passes: 0 violations, 0 unaudited SAFETY / POWER lines.**
+    - **Scorecard: ACCEPT against 19c and 27.**
+      - Better: `ledger_violations` 1 → 0.
+      - Costs: parts +$0.34 at 500 ($221.82 → $222.16). One more line and placement (R130). JLC Extended lines +2. Zero-stock +1: the UMT-H is stocked at Digi-Key (7,183), not at LCSC/JLC.
+      - Lines without an LCSC code −1.
+    - **Bench:** a short at J11 with R130 fitted (record i(t), integrate I²t; R130 intact or open, never shorted). F2 / R130 temperature at the PS3 load.

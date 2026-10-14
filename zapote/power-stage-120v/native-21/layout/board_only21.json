@@ -273,14 +273,14 @@
   {
    "net": "bias_good",
    "at": [
-    13.942,
-    129.824999
+    25.477,
+    127.136
    ],
    "side": "B",
    "ref_net": "selv_gnd",
    "ref_at": [
-    13.663,
-    127.5
+    27.633,
+    127.6
    ],
    "purpose": "BIAS_GOOD (rail monitors, stage 22)",
    "ref": "TP19"
@@ -294,8 +294,8 @@
    "side": "B",
    "ref_net": "selv_gnd",
    "ref_at": [
-    27.675,
-    132.865
+    27.633,
+    127.6
    ],
    "purpose": "OCP fault, SELV side",
    "ref": "TP20"
@@ -303,14 +303,14 @@
   {
    "net": "ct_zc",
    "at": [
-    30.089,
-    133.182
+    27.968,
+    131.061
    ],
    "side": "B",
    "ref_net": "selv_gnd",
    "ref_at": [
-    27.675,
-    132.865
+    27.633,
+    127.6
    ],
    "purpose": "tank CT zero cross",
    "ref": "TP21"
@@ -324,8 +324,8 @@
    "side": "B",
    "ref_net": "selv_gnd",
    "ref_at": [
-    27.675,
-    132.865
+    27.633,
+    127.6
    ],
    "purpose": "tank CT monitor",
    "ref": "TP22"
@@ -473,21 +473,11 @@
   {
    "net": "selv_gnd",
    "at": [
-    13.663,
-    127.5
+    27.633,
+    127.6
    ],
    "side": "B",
    "ref": "TP37",
-   "purpose": "selv_gnd reference"
-  },
-  {
-   "net": "selv_gnd",
-   "at": [
-    27.675,
-    132.865
-   ],
-   "side": "B",
-   "ref": "TP38",
    "purpose": "selv_gnd reference"
   }
  ],

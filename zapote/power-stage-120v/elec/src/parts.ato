@@ -58,15 +58,28 @@ component MainsFuse25A:
     signal p2 ~ pin 2
 
 component BranchFuseT3A15:
-    """Schurter UMT 250 3403.0171: SMD 3.15 A time-lag (T), 250 VAC / 125 VDC, ceramic, 10.1 x 3.1 mm;
-    breaking capacity 200 A at 250 VAC (IEC; UMT 250 data sheet). Fuses the blower-supply mains tap
-    (stage 16, DECISIONS 15-16): the branch to PS3 (IRM-60-15ST) after F1 and the EMI filter. Its 200 A
-    is below the cord-limited prospective fault current at 127 V + 10 %; F1 (Class CC, 200 kA) is the
-    backup, a certifier item as F1 was."""
+    """Schurter UMT-H 3403.0279.23: SMD 3.15 A time-lag (T), 15.4 x 5.35 mm, breaking capacity 1500 A at
+    277 VAC (UL 248-14, cURus E41599) / 1500 A at 250 VAC (IEC 60127-7); melting I2t 39 A2s at 10 In
+    (Schurter UMT-H data sheet, fetched 2026-10-13). Fuses the blower-supply mains tap (stage 16, DECISIONS
+    15-16) to PS3. Stage 28 (DECISIONS 30, F4): replaces the UMT 250 3403.0171, whose 200 A was below the
+    1.09-1.45 kA prospective fault at J11; with the series limiter R_blw the fault is bounded at 784 A."""
     designator_prefix = "F"
-    mpn = "3403.0171"
+    mpn = "3403.0279.23"
     manufacturer = "Schurter"
-    footprint = "Fuse:Fuse_Schurter_UMT250"
+    footprint = "temper:Fuse_Schurter_UMT-H_15.4x5.35mm"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component BranchLimiter0R15:
+    """Vishay AC05 0.15 ohm 5 W cemented wirewound (AC05000001507JAC00), D 7.5 x L 18 mm max, mounted
+    upright. Stage 28 (DECISIONS 30, F4): in series after F2, bounding the J11 fault current to
+    139.7 V / (0.0283 + 0.15) ohm = 784 A (1.91x inside F2's 1.5 kA); 0.30 W at 1.42 A. Pulse capacity
+    about 125 A2s at 0.15 ohm (Vishay AC chart) against F2's 39 A2s melting and the 56-67 A2s current-limiting
+    clearing estimate (11-candidates/c28-f2); a bench short at J11 confirms it."""
+    designator_prefix = "R"
+    mpn = "AC05000001507JAC00"
+    manufacturer = "Vishay"
+    footprint = "temper:R_Axial_Vishay_AC05_D7.5mm_P5.08mm_Vertical"
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 

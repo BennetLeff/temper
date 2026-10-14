@@ -283,7 +283,8 @@ const IDENTITY: &[(&str, &str)] = &[
     ("cx2", "R463N410050N1K"),
     ("f1", "KLDR025.TXP"),
     // Stage 16 (DECISIONS 16): blower-supply mains tap, F2 3.15 A T then J11 to the chassis PS3.
-    ("f_blw", "3403.0171"),
+    ("f_blw", "3403.0279.23"),   // stage 28: UMT-H, 1.5 kA (DECISIONS 30)
+    ("r_blw", "AC05000001507JAC00"),   // stage 28: 0.15 ohm fault-current limiter
     // Stage 19b (DECISIONS 19b): pwm_hb's v3v3 <-> selv_gnd reference-transfer caps.
     ("c_ref_xfer_1", "CC0603KRX7R9BB104"),
     ("c_ref_xfer_2", "CC0603KRX7R9BB104"),
@@ -857,11 +858,17 @@ fn audit(m: &Model) -> Vec<String> {
     }
     expect(&mut e, m, "f_blw", "1", "l_filt");
     expect(&mut e, m, "f_blw", "2", "blw_l");
-    expect(&mut e, m, "j_blw_ac", "1", "blw_l");
+    expect(&mut e, m, "r_blw", "1", "blw_l");
+    expect(&mut e, m, "r_blw", "2", "blw_lr");
+    expect(&mut e, m, "j_blw_ac", "1", "blw_lr");
     expect(&mut e, m, "j_blw_ac", "2", "n_filt");
     let blw: BTreeSet<String> = members(m, "blw_l").into_iter().map(|(p, _)| p).collect();
-    if blw != ["f_blw", "j_blw_ac"].iter().map(|s| s.to_string()).collect() {
-        e.push(format!("blw_l must join only F2 and J11, found {:?}", blw));
+    if blw != ["f_blw", "r_blw"].iter().map(|s| s.to_string()).collect() {
+        e.push(format!("blw_l must join only F2 and the limiter R_blw, found {:?}", blw));
+    }
+    let blwr: BTreeSet<String> = members(m, "blw_lr").into_iter().map(|(p, _)| p).collect();
+    if blwr != ["r_blw", "j_blw_ac"].iter().map(|s| s.to_string()).collect() {
+        e.push(format!("blw_lr must join only the limiter R_blw and J11, found {:?}", blwr));
     }
     expect(&mut e, m, "ps_selv", "1", "l_filt"); // IRM-20 pin 1 = AC/L
     expect(&mut e, m, "ps_selv", "2", "n_filt");
@@ -1487,6 +1494,13 @@ mod tests {
         let mut m = built();
         m.set_part("f_blw", "3403.0201");
         fails(&m, "f_blw is 3403.0201");
+        // stage 28: the limiter bypassed (J11 straight on F2's output) or the old 200 A UMT 250 must fail
+        let mut m = built();
+        m.rewire("j_blw_ac", "1", "blw_l");
+        fails(&m, "j_blw_ac.1");
+        let mut m = built();
+        m.set_part("f_blw", "3403.0171");
+        fails(&m, "f_blw is 3403.0171");
     }
 
     #[test]

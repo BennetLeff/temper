@@ -441,10 +441,16 @@ def load(base_path, patches=True):
                 it["net"] = ren[it["net"]]
     # base tracks that name a pad of a part deleted from the source since the base was frozen (stage 22: Q1 / Q4,
     # R8 / R16) go; the pair passes re-join whatever they served
+    # Stage 28: also a base track naming a pad whose current net is another one. A freed designator can be reused by a
+    # new part (the stage-28 limiter took R8, the stage-22 v3v3 pull-up's), and the base's v3v3 track to 'R8.2' would
+    # otherwise land on the new part's mains pad.
+    def stale(q, net):
+        return isinstance(q, str) and (q not in GEO.pad_at or all(p["net"] != net for p in GEO.pad_at[q]))
     if patches:
-        gone = [t for t in base["tracks"] if any(isinstance(q, str) and q not in GEO.pad_at for q in t["points"])]
+        gone = [t for t in base["tracks"] if any(stale(q, t["net"]) for q in t["points"])]
         if gone:
-            print(f"{len(gone)} base tracks named pads of deleted parts:", sorted({q for t in gone for q in t["points"] if isinstance(q, str) and q not in GEO.pad_at}))
+            print(f"{len(gone)} base tracks named pads of deleted parts or now on another net:",
+                  sorted({q for t in gone for q in t["points"] if stale(q, t["net"])}))
         base["tracks"] = [t for t in base["tracks"] if t not in gone]
     if patches and hasattr(patches21, "edit_zones"):
         base["zones"] = patches21.edit_zones(base["zones"])

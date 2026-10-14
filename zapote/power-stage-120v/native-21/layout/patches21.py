@@ -50,7 +50,9 @@ REMOVE += [{"net": "n_ls", "box": [113.0, 82.2, 114.4, 82.9], "kind": "via"},
 REMOVE += [{"net": "leg_ret", "box": [114.6, 82.0, 114.8, 82.2], "kind": "track", "layer": "B.Cu", "touch": True},
            {"net": "hot5", "box": [120.0, 86.0, 120.2, 86.2], "kind": "track", "layer": "In1.Cu", "touch": True}]
 REMOVE_ESCAPES = [("J3", "1"), ("J3", "2")]   # the 3.96 mm J3 pin escapes; the 7.92 mm B2P3-VH needs none (M7)
-HANDLED = ()
+# stage 28: the OCP node / threshold nets come whole from stage28_ocp_lock.json; their base copper goes first
+REMOVE += [{"net": "ocp_node"}, {"net": "ocp_thresh"}]
+HANDLED = ("ocp_node", "ocp_thresh")   # stage 28: laid whole by add_stage28_ocp_lock (their router pairs are stale)
 
 # R5 shunt current pads (task 04 round 5): native-21 fed R5.4 (HV_RET) through two 0.3 mm vias on
 # a small F.Cu island and R5.1 (LEG_RET) through three at x 40.9. Up to 18 A in one via in the
@@ -277,6 +279,7 @@ def add(g):
     add_stage19_si(g)
     add_stage27(g)
     add_stage21b_kn(g)   # last: routes round every fixed patch
+    add_stage28_ocp_lock(g)   # after the Kelvin pair, as on the stage-27 board it was taken from
     resolve_zone_priorities(g["ZONES"])
 
 
@@ -406,9 +409,12 @@ def add_stage16(g):
     J11.1, N_FILT from PS1.2 to J11.2; 1.0 mm, since F2 (3.15 A T) rather than F1 protects this branch.
     The three groups (L_F, BLW_L, MAINS_N) keep 3.2 mm from each other; the router chooses layers."""
     from patches21_v1 import route_group
-    box = (248.0, 108.0, 282.0, 140.0)
+    # stage 28 (DECISIONS 30): F2 is the 1.5 kA UMT-H and the 0.15 ohm limiter R130 follows it (blw_l -> R130 -> blw_lr -> J11.1;
+    # blw_lr shares blw_l's potential group); the box reaches the limiter at x 289
+    box = (248.0, 108.0, 290.0, 140.0)
     route_group(g, [("l_filt", CU, box, 1.0, ["PS1.1", "F2.1"]),
-                    ("blw_l", CU, box, 1.0, ["F2.2", "J11.1"]),
+                    ("blw_l", CU, box, 1.0, ["F2.2", "R130.1"]),
+                    ("blw_lr", CU, box, 1.0, ["R130.2", "J11.1"]),
                     ("n_filt", CU, box, 1.0, ["PS1.2", "J11.2"])])
 
 
@@ -423,6 +429,21 @@ def add_stage27(g):
     drill(g, "ac_n_in", 229.0, 25.0, size=0.85)
     put(g, "ac_n_in", "F.Cu", 0.4, "R2.2", [229.0, 25.0], escape="xbleed_mid")
     put(g, "ac_n_in", "B.Cu", 0.6, [229.0, 25.0], [238.5, 25.0], [240.5, 26.8])
+
+
+def add_stage28_ocp_lock(g):
+    """Stage 28 (DECISIONS 30): the OCP comparator's node and threshold nets are laid from stage 27's copper
+    (stage28_ocp_lock.json) instead of by the pair router. Stage 22's OCP pickup gain (4.78 -> 4.17 A) came from the router
+    happening to lay ocp_thresh on F.Cu; the stage-28 passes routed both nets elsewhere and the pickup went back to 4.78 A,
+    which the scorecard rejected. put() / drill() still check every item against the current copper."""
+    import json
+    from pathlib import Path
+    from patches21_v1 import put, drill
+    lock = json.loads((Path(__file__).with_name("stage28_ocp_lock.json")).read_text())
+    for v in lock["vias"]:
+        drill(g, v["net"], *v["at"], size=v["size"])
+    for t in lock["tracks"]:
+        put(g, t["net"], t["layer"], t["width"], *t["points"])
 
 
 def add_stage19(g):

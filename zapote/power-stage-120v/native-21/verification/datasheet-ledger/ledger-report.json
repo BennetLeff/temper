@@ -1,5 +1,5 @@
 {
- "bom_lines": 91,
+ "bom_lines": 92,
  "counts_by_class": {
   "POWER": {
    "PARTIAL": 9,
@@ -8,10 +8,10 @@
    "VIOLATION": 0
   },
   "SAFETY": {
-   "PARTIAL": 18,
+   "PARTIAL": 19,
    "UNAUDITED": 0,
-   "VERIFIED": 1,
-   "VIOLATION": 1
+   "VERIFIED": 2,
+   "VIOLATION": 0
   },
   "SIGNAL": {
    "PARTIAL": 0,
@@ -20,7 +20,7 @@
    "VIOLATION": 0
   }
  },
- "entries": 91,
+ "entries": 92,
  "entries_detail": {
   "0430451612": {
    "checks": [],
@@ -360,7 +360,7 @@
    "finding": "Stage 27 replacement for 1711725 (15 A cULus / 10 A CSA). UL/cUL and CSA group B 30 A at 300 V: 45-55 % across the 13.5 A hold, 15 A trip and 16.5 A envelope, 83 % at F1's 25 A non-interrupting ceiling (FINDINGS #4 / #11 closed on rating).",
    "function": "Mains inlet terminal (L/N), Phoenix MKDS 5/2-9,5 (stage 27, DECISIONS 29)",
    "gaps": [
-    "Ratings from a 2017 Phoenix catalog extract (distributor copy); confirm 1714971 on UL Product iQ (E60425, XCFR2) and CSA 13631 before the certification submission.",
+    "Ratings from Phoenix catalog extracts (2017 LCSC copy; 2010 copy agrees on 30 A UL/cUL/CSA but prints 600 V for UL/cUL); UL Product iQ (E60425, XCFR2), database.ul.com and Phoenix all returned 403 on 2026-10-13: confirm 1714971 on the UL and CSA 13631 files before the certification submission.",
     "No 3D model in temper.pretty: the enclosure fit uses a 22 mm courtyard envelope (native21-envelopes.json)."
    ],
    "status": "PARTIAL",
@@ -421,37 +421,44 @@
     "P600 lead bend: hole centre 1.8 mm from the body end (needs ~3.4-4.6 mm straight)"
    ]
   },
-  "3403.0171": {
+  "3403.0279.23": {
    "checks": [
     {
-     "id": "break vs worst fault",
+     "id": "break vs bounded fault",
      "max_ratio": 1.0,
-     "ok": false,
-     "rating": "Breaking capacity IEC 250 VAC",
-     "ratio": 17.835,
+     "ok": true,
+     "rating": "Breaking capacity UL 277 VAC",
+     "ratio": 0.6533,
      "severity": "violation",
-     "stress": "Prospective fault at J11"
+     "stress": "Prospective fault at J11, bounded"
     },
     {
-     "id": "break vs weakest fault",
-     "max_ratio": 1.0,
-     "ok": false,
-     "rating": "Breaking capacity IEC 250 VAC",
-     "ratio": 1.865,
+     "id": "load vs rating",
+     "max_ratio": 0.75,
+     "ok": true,
+     "rating": "Rated current",
+     "ratio": 0.4508,
      "severity": "violation",
-     "stress": "Prospective fault, weakest corner"
+     "stress": "Load current"
+    },
+    {
+     "id": "line vs rating",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Rated voltage AC",
+     "ratio": 0.5043,
+     "severity": "violation",
+     "stress": "Line voltage"
     }
    ],
    "class": "SAFETY",
    "designators": [
     "F2"
    ],
-   "finding": "F2 (UMT 250, 200 A @ 250 VAC IEC) has a prospective fault of 373-3,567 A at J11 and melts 19.5x sooner than F1, so it must interrupt alone: exceeded 1.9x-18x (DECISIONS.md:843, F4 FAIL). Open decision: >= 1,500 A 5x20 ceramic fuse (candidate 02153.15MXP, datasheet figure unverified) or drop the PS3 mains tap.",
-   "function": "Blower-supply branch fuse F2 (3.15 A T) after the EMI filter, feeds J11 -> PS3",
-   "gaps": [
-    "UL 248-14 breaking capacity at 125/250 VAC not read; IEC 200 A used."
-   ],
-   "status": "VIOLATION",
+   "finding": null,
+   "function": "Blower-supply mains tap fuse (J11 -> PS3), Schurter UMT-H 3.15 A T (stage 28, DECISIONS 30)",
+   "gaps": [],
+   "status": "VERIFIED",
    "unchecked_layout": []
   },
   "6SVPC220MV": {
@@ -497,6 +504,50 @@
    "status": "PARTIAL",
    "unchecked_layout": []
   },
+  "AC05000001507JAC00": {
+   "checks": [
+    {
+     "id": "power",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "Power 70 C",
+     "ratio": 0.0604,
+     "severity": "violation",
+     "stress": "Continuous dissipation"
+    },
+    {
+     "id": "pulse vs current-limiting clearing",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Single-pulse capacity at 0.15 ohm",
+     "ratio": 0.536,
+     "severity": "gap",
+     "stress": "Fault pulse, current-limiting clearing estimate"
+    },
+    {
+     "id": "pulse vs 3x melting",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Single-pulse capacity at 0.15 ohm",
+     "ratio": 0.936,
+     "severity": "gap",
+     "stress": "Fault pulse, 3x melting"
+    }
+   ],
+   "class": "SAFETY",
+   "designators": [
+    "R130"
+   ],
+   "finding": null,
+   "function": "J11 fault-current limiter in series after F2 (stage 28, DECISIONS 30)",
+   "gaps": [
+    "F2's clearing I2t is unpublished: the pulse stress is an estimate; a bench short at J11 with R130 fitted (record i(t), integrate) settles it.",
+    "Fail-open behaviour on overload is not stated by Vishay (certifier item); an open only lowers the fault current.",
+    "The pulse chart was read by eye (+-25 %)."
+   ],
+   "status": "PARTIAL",
+   "unchecked_layout": []
+  },
   "AMC1311BDWVR": {
    "checks": [
     {
@@ -513,9 +564,36 @@
      "max_ratio": 0.5,
      "ok": true,
      "rating": "VIORM",
-     "ratio": 0.1348,
+     "ratio": 0.1349,
      "severity": "violation",
      "stress": "Barrier peak"
+    },
+    {
+     "id": "working",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "VIOWM",
+     "ratio": 0.0931,
+     "severity": "violation",
+     "stress": "Line high corner"
+    },
+    {
+     "id": "input linear",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "VFSR max",
+     "ratio": 0.8251,
+     "severity": "gap",
+     "stress": "VSENSE at 198 V crest"
+    },
+    {
+     "id": "input clip",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "VClipping",
+     "ratio": 0.9474,
+     "severity": "gap",
+     "stress": "VSENSE at 286 V OVP corner"
     }
    ],
    "class": "SAFETY",
@@ -525,8 +603,8 @@
    "finding": null,
    "function": "Isolated bus-voltage amplifier U4 (reinforced)",
    "gaps": [
-    "Datasheet not fetched this session; limits are the repo's recorded values.",
-    "CMTI margin 1.05x vs 1.5x rule: a spurious VBUS sample, no gate command (CMTI README:21 OPEN)."
+    "CMTI margin 1.05x vs 1.5x rule (min 100 vs 95 V/ns applied as a bound): an upset is a spurious VBUS sample, no gate command (CMTI README:21 OPEN).",
+    "Bus readings above 240.0 V are outside the 2 V linear range (clipping at 301.9 V). Firmware flags VBUS over-range at 230.9 V (N21_VBUS_OVERRANGE_MV) and the hardware OVP is the TLV3201 on VSENSE_IN (elec/src/power_stage_120v.ato:612), so no protection relies on the nonlinear band; nothing gates that dependency."
    ],
    "status": "PARTIAL",
    "unchecked_layout": []
@@ -743,13 +821,49 @@
   "B82726S2203A020": {
    "checks": [
     {
-     "id": "I",
+     "id": "I at TR",
      "max_ratio": 0.8,
      "ok": true,
      "rating": "I_rated",
      "ratio": 0.75,
      "severity": "violation",
      "stress": "I inlet trip"
+    },
+    {
+     "id": "I at 50 C inlet",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "I_op at 50 C design inlet air",
+     "ratio": 0.75,
+     "severity": "violation",
+     "stress": "I inlet trip"
+    },
+    {
+     "id": "I at 67.7 C",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "I_op at 67.7 C",
+     "ratio": 0.8,
+     "severity": "gap",
+     "stress": "I inlet trip"
+    },
+    {
+     "id": "envelope at TR",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "I_rated",
+     "ratio": 0.825,
+     "severity": "gap",
+     "stress": "I inlet envelope"
+    },
+    {
+     "id": "V",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "Rated voltage",
+     "ratio": 0.5588,
+     "severity": "violation",
+     "stress": "Line high corner"
     }
    ],
    "class": "SAFETY",
@@ -759,7 +873,9 @@
    "finding": null,
    "function": "Mains common-mode choke L1, 20 A 1.6 mH",
    "gaps": [
-    "Datasheet not retrieved: temperature derating, rated voltage (a distributor listing of sibling TDK B827x chokes shows 48 VAC / 80 VDC; confirm B82726S2203A020 is rated >= 140 Vrms) and saturation are unchecked.",
+    "L1 local air is not evidenced. It sits on the exhaust (mains) side of the 50 C-inlet duct (DECISIONS.md:66). 15 A meets the 80 % rule only up to 67.7 C, and IR itself only up to 85.3 C (13.5 A: 77.0 / 91.0 C). Bench IR item (DECISIONS.md:836).",
+    "Derating curve digitised from the p.5 figure (+/-3 % of full scale); the 67.7 C boundary moves about +/-2 C with it.",
+    "The data sheet cites EN 60938-2 design compliance only; no UL/CSA component recognition is listed, so the end-product evaluation must cover L1.",
     "Core stock zero, 29 weeks (DECISIONS.md:846)."
    ],
    "status": "PARTIAL",
@@ -1040,8 +1156,8 @@
      "id": "V",
      "max_ratio": 0.8,
      "ok": true,
-     "rating": "Y1 rating (sibling BN01F)",
-     "ratio": 0.5588,
+     "rating": "Y1 rated voltage",
+     "ratio": 0.4657,
      "severity": "violation",
      "stress": "Line high corner to PE"
     }
@@ -1054,9 +1170,8 @@
    "finding": null,
    "function": "Y1 line-to-PE capacitors C3/C4, 2.2 nF",
    "gaps": [
-    "Exact-MPN datasheet not retrieved: Y1 voltage rating and approvals unverified.",
-    "Product leakage FAIL (F5): 0.974 mA touch current vs UL 1026 0.5 mA (clause unconfirmed, DECISIONS.md:844). If confirmed this is a VIOLATION of the approval basis; fix is total Y <= 5.0 nF per line.",
-    "Murata BP01F ratings may be 300 Vac, not 250 Vac (search listing); verify."
+    "Product leakage FAIL (F5): 0.974 mA touch current vs UL 1026 0.5 mA (clause unconfirmed, DECISIONS.md:844). If confirmed this is a VIOLATION of the approval basis; fix is total Y <= 5.0 nF per line. C3/C4 contribute at most 2 x 2.64 nF (+20 %) x 2 pi 60 Hz x 132 V = 0.26 mA of it.",
+    "Datasheet is a 2023 reference specification from a distributor; Murata says to consult the approval sheet before ordering."
    ],
    "status": "PARTIAL",
    "unchecked_layout": []
@@ -1365,6 +1480,15 @@
      "ratio": 1.1176,
      "severity": "gap",
      "stress": "CMTI edge"
+    },
+    {
+     "id": "U32-U34 filter",
+     "max_ratio": 0.1,
+     "ok": true,
+     "rating": "U32-U34 longest rejected glitch",
+     "ratio": 0.0009,
+     "severity": "violation",
+     "stress": "CMTI event duration"
     }
    ],
    "class": "SAFETY",
@@ -1374,10 +1498,11 @@
     "U34",
     "U9"
    ],
-   "finding": null,
+   "finding": "U9 CMTI (new, availability not safety): U9.OUT -> U13 OR (elec/src/power_stage_120v.ato:801) -> J4.10 BUS_FAULT -> controller InterlockUnit: SN74LVC14 -> CD74HC30 -> SN74LVC14 -> SN74LVC1G74 CLR_N (zapote/controller interlock_block.ato), no RC anywhere. A HIGH upset of more than a few ns clears the permit latch: PERMIT low, DIS high, all four drivers off, latched until firmware gives a fresh reset edge = nuisance trip, safe direction. A LOW upset during a real fault only shortens the fault level by the upset width (OCP/OVP/HOT5 faults are levels held while the condition lasts, and the latch acts on the first part of the pulse that reaches CLR_N), so detection is delayed by at most that width (event 5.47 ns) against the 0.85-1.16 us shunt-OCP chain; no fault is masked unless the whole fault pulse is shorter than the upset. Exposure is likely below 95 V/ns because OCP_KELVIN_P is not a switch node, but no model of its dv/dt to PE exists. Options: a 1 k / 47 pF RC at U13.A (tau 47 ns, adds about 57 ns to the OCP chain) at the re-spin, or a controller-side 2-sample/RC debounce (CMTI README OPEN item); bench probe BUS_FAULT at hard S4/S5 edges first.",
    "function": "Reinforced digital isolators U9 (bus_fault) and U32/U33/U34 (rail monitors)",
    "gaps": [
-    "CMTI min 85 V/ns is below the modelled 95 V/ns hard edge. U32/U33/U34 are protected by the 10 us BIAS_BAD filter; U9 (OCP_KELVIN_P) is unfiltered and OPEN: a false HIGH is a nuisance bus_fault (CMTI README:20).",
+    "U9 (bus_fault isolator, OCP_KELVIN_P to SELV) CMTI min 85 V/ns < 95 V/ns bound with no time filter between U9 and the controller latch: availability gap, fail-safe in both directions (see finding).",
+    "TI publishes no upset duration; the U32-U34 filter pass assumes an upset shorter than 5.95 us (bench: probe BIAS_BAD_RAW and BUS_FAULT at hard S4/S5 edges, CMTI README remedy 4).",
     "Zero distributor stock, 12 weeks (DECISIONS.md:846)."
    ],
    "status": "PARTIAL",
@@ -1496,8 +1621,8 @@
      "id": "barrier",
      "max_ratio": 0.5,
      "ok": true,
-     "rating": "VIORM functional",
-     "ratio": 0.4333,
+     "rating": "VIORM",
+     "ratio": 0.3714,
      "severity": "violation",
      "stress": "Barrier peak functional"
     },
@@ -1525,12 +1650,12 @@
     "U41",
     "U42"
    ],
-   "finding": null,
+   "finding": "Isolation claim resolved: elec/src/f6_parts.ato:354 ('reinforced 5 kVAC / 1.4 kVDC working') matches the current R24C2T25/R Rev. 1-2024 sheet (p.1; p.8: 1.4 kVp repetitive, 1000 Vrms TDDB, 1.4 kVDC). The 'preliminary 850 Vrms / 1.2 kVp functional' copy was the different non-/R R24C2T25 series. Barrier check now 520/1400 = 37 % (was 43 % against the wrong part).",
    "function": "High-side isolated gate-bias modules U41/U42 (RECOM), HOT-to-HOT functional barrier",
    "gaps": [
-    "The retrieved datasheet is PRELIMINARY and says 850 Vrms / 1.2 kVp functional only; the repo relies on a reinforced 5 kVAC / 1.4 kVDC claim from a revision not committed. Use is functional, so the 0.52 kVpk stress passes either way, but the claim must be reconciled.",
-    "Power is the 80 kHz allocation (1.71 W vs 2 W knee); 2 W knee is at 82 C ambient on an EVM; local enclosure air not evidenced (DECISIONS.md:836 bench IR).",
-    "Start-up (6-13 ms vs 16 ms timeout) and 10-16 MHz spread-spectrum emissions are bench items (DECISIONS.md:442-448)."
+    "Local enclosure air at U41/U42 not evidenced (DECISIONS.md:836 bench IR). 1.71 W stays within 90 % of the derated power only up to 85.6 C (100 % to 92.4 C) on a straight line through RECOM's labelled points, and the curve is for RECOM's 50x50 mm EVM, not this board.",
+    "'Reinforced' is a p.1 feature claim; the isolation table names no standard and UL file E542996 (p.1 logo) could not be read (UL Product iQ 403). Not needed for this HOT-to-HOT functional use; do not rely on it as safety insulation.",
+    "Start-up (6-13 ms vs 16 ms timeout) and 11-16 MHz switching emissions are bench items (DECISIONS.md:442-448)."
    ],
    "status": "PARTIAL",
    "unchecked_layout": []
@@ -2089,13 +2214,31 @@
      "stress": "Line high corner"
     },
     {
-     "id": "surge",
+     "id": "surge 1x",
      "max_ratio": 0.1,
      "ok": true,
-     "rating": "Surge",
+     "rating": "Surge 8/20 1 pulse",
      "ratio": 0.075,
      "severity": "violation",
      "stress": "MOV surge current"
+    },
+    {
+     "id": "surge 100x",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "Surge 20 us, 100 pulses",
+     "ratio": 0.5725,
+     "severity": "gap",
+     "stress": "MOV surge current"
+    },
+    {
+     "id": "TCO isolation",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "Thermal protection isolation when operated",
+     "ratio": 0.3293,
+     "severity": "violation",
+     "stress": "Line high corner peak"
     }
    ],
    "class": "SAFETY",
@@ -2105,13 +2248,14 @@
    "finding": null,
    "function": "Mains surge varistor RV1 (thermally protected MOV, 175 Vrms)",
    "gaps": [
-    "Manufacturer datasheet not obtained; limits are distributor-listed.",
-    "MCOV margin is 0.2 Vrms (140 vs 139.7): 80 % rule met only just; the 140 V line corner was never run against the TMOV datasheet leakage/aging curves.",
-    "UL 1449 type and thermal-disconnect rating not read."
+    "Datasheet is the 2017 revision from a distributor (Littelfuse 403); confirm no later change to the TMOV20RP175E row.",
+    "RV1 local ambient is not evidenced; ratings hold to 85 C and derate to 0 at 125 C (Figure 2).",
+    "100-pulse surge limit is digitised from Figure 6 (about +/-10 %); the lab's surge count is not fixed (DC-LINK-CLAMP.md).",
+    "UL 1449 recognition (E320116, component) not confirmed on UL Product iQ (403); the thermal-disconnect time under limited-current overvoltage is typical only (Figure 1)."
    ],
    "status": "PARTIAL",
    "unchecked_layout": [
-    "thermal element adjacency to the body, lead forming (offset lead)"
+    "thermal element adjacency to the body, lead forming (offset lead); enclosure to contain venting in a UL 1449 abnormal-overvoltage test (datasheet p.3 note)"
    ]
   },
   "TNPW060311K7BEEA": {
@@ -2295,15 +2439,14 @@
   }
  },
  "errors": [],
- "failures": [
-  "VIOLATION: 3403.0171 (F2): F2 (UMT 250, 200 A @ 250 VAC IEC) has a prospective fault of 373-3,567 A at J11 and melts 19.5x sooner than F1, so it must interrupt alone: exceeded 1.9x-18x (DECISIONS.md:843, F4 FAIL). Open decision: >= 1,500 A 5x20 ceramic fuse (candidate 02153.15MXP, datasheet figure unverified) or drop the PS3 mains tap."
- ],
+ "failures": [],
  "missing_from_ledger": [],
  "partial": [
   "1206W4F1003T5E",
   "1714971",
   "30KPA150CA",
   "74650074",
+  "AC05000001507JAC00",
   "AMC1311BDWVR",
   "B2P3-VH(LF)(SN)",
   "B32652A0104K000",
@@ -2328,13 +2471,13 @@
   "UCC21550BDWKR",
   "VOL628A-2X001T"
  ],
- "result": "FAIL",
+ "result": "PASS",
  "strict": false,
  "totals": {
-  "PARTIAL": 27,
+  "PARTIAL": 28,
   "UNAUDITED": 62,
-  "VERIFIED": 1,
-  "VIOLATION": 1
+  "VERIFIED": 2,
+  "VIOLATION": 0
  },
  "unaudited_other": [
   "0430451612",
@@ -2402,9 +2545,7 @@
  ],
  "unaudited_safety_power": [],
  "unchecked_layout_items": 9,
- "violations": [
-  "3403.0171"
- ],
+ "violations": [],
  "warnings": [
   "62 SIGNAL-class lines are UNAUDITED (allowed; listed in the report)"
  ]

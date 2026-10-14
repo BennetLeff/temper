@@ -30,10 +30,10 @@ differential or isolated probes (D-8 equipment table), never a grounded scope gr
 | TP16 | pwm_hb | B | 55.7, 175.4 | TP35 | selv_gnd | PWM B high |
 | TP17 | permit | F | 79.4, 120.1 | TP32 | selv_gnd | PERMIT |
 | TP18 | leg_b-driver_dis | B | 34.0, 65.0 | TP36 | selv_gnd | leg B DIS |
-| TP19 | bias_good | B | 13.9, 129.8 | TP37 | selv_gnd | BIAS_GOOD (rail monitors, stage 22) |
-| TP20 | bus_fault | B | 35.2, 133.6 | TP38 | selv_gnd | OCP fault, SELV side |
-| TP21 | ct_zc | B | 30.1, 133.2 | TP38 | selv_gnd | tank CT zero cross |
-| TP22 | ct_mon | B | 23.8, 134.6 | TP38 | selv_gnd | tank CT monitor |
+| TP19 | bias_good | B | 25.5, 127.1 | TP37 | selv_gnd | BIAS_GOOD (rail monitors, stage 22) |
+| TP20 | bus_fault | B | 35.2, 133.6 | TP37 | selv_gnd | OCP fault, SELV side |
+| TP21 | ct_zc | B | 28.0, 131.1 | TP37 | selv_gnd | tank CT zero cross |
+| TP22 | ct_mon | B | 23.8, 134.6 | TP37 | selv_gnd | tank CT monitor |
 
 ## Probed elsewhere (no legal test-pad spot)
 
@@ -55,7 +55,7 @@ Fiducials: FID1 (4, 36), FID2 (278, 128), FID3 (6, 186) (1 mm copper, 3 mm mask 
 
 | Hole | At (mm) | HOT copper from the hole wall | Hardware |
 | --- | --- | --- | --- |
-| H1 | 285.0, 135.0 | 14.56 mm | M3 metal allowed: chassis/PE, ≥ 8 mm from HOT (D5) |
+| H1 | 285.0, 135.0 | 13.0 mm | M3 metal allowed: chassis/PE, ≥ 8 mm from HOT (D5) |
 | H2 | 6, 180 | 59.82 mm | **M3 nylon only** (UL94 V-0): screw, washer and standoff. Washer face copper-free on both outer layers (review M4) |
 | H3 | 86, 180 | 61.6 mm | **M3 nylon only** (UL94 V-0): screw, washer and standoff. Washer face copper-free on both outer layers (review M4) |
 | H4 | 24, 74 | 1.2 mm | **M3 nylon only** (UL94 V-0): screw, washer and standoff. Washer face copper-free on both outer layers (review M4); **nylon standoff ≥ 10 mm**, which carries the HOT→chassis 8.0 mm surface path |

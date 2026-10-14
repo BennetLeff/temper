@@ -1,11 +1,11 @@
 {
  "meta": {
-  "lines_in_cpl": 349,
-  "lines_placed_by_jlc": 335,
-  "lines_excluded_not_placed": 14,
+  "lines_in_cpl": 350,
+  "lines_placed_by_jlc": 337,
+  "lines_excluded_not_placed": 13,
   "counts": {
    "OK": 276,
-   "NEEDS-PREVIEW": 49,
+   "NEEDS-PREVIEW": 51,
    "CORRECTED": 10
   },
   "controls": {
@@ -3077,6 +3077,25 @@
    "reason": "EasyEDA footprint fits the KiCad footprint unrotated"
   },
   {
+   "designator": "F2",
+   "footprint": "Fuse_Schurter_UMT-H_15.4x5.35mm",
+   "lcsc": "C3163739",
+   "mount": "SMD",
+   "kicad_rot": 0,
+   "proposed_jlc_rot": 0,
+   "class": "NEEDS-PREVIEW",
+   "db_rule": "",
+   "db_offset": "",
+   "easyeda_package": "",
+   "easyeda_offset": "",
+   "easyeda_rot": "",
+   "db_rot": "",
+   "fit_method": "",
+   "fit_rms_mm": "",
+   "pin1_evidence": "KiCad pad 1 at (-6.88,+0.00) mm = left of centre at board rotation 0",
+   "reason": "no DB rule and no EasyEDA footprint for this LCSC number"
+  },
+  {
    "designator": "J1",
    "footprint": "Phoenix_MKDS-5-2-9.52_1714971",
    "lcsc": "C92145",
@@ -5718,6 +5737,25 @@
    "reason": "EasyEDA footprint fits the KiCad footprint unrotated"
   },
   {
+   "designator": "R130",
+   "footprint": "R_Axial_Vishay_AC05_D7.5mm_P5.08mm_Vertical",
+   "lcsc": "C1382388",
+   "mount": "THT",
+   "kicad_rot": 0,
+   "proposed_jlc_rot": 0,
+   "class": "NEEDS-PREVIEW",
+   "db_rule": "",
+   "db_offset": "",
+   "easyeda_package": "",
+   "easyeda_offset": "",
+   "easyeda_rot": "",
+   "db_rot": "",
+   "fit_method": "",
+   "fit_rms_mm": "",
+   "pin1_evidence": "KiCad pad 1 at (-2.54,+0.00) mm = left of centre at board rotation 0",
+   "reason": "no DB rule and no EasyEDA footprint for this LCSC number"
+  },
+  {
    "designator": "RV1",
    "footprint": "TMOV20RP_ReviewOnly",
    "lcsc": "C1527834",
@@ -6474,14 +6512,6 @@
    "designator": "F1",
    "footprint": "Fuseholder_Clip-10.3x38mm_Littelfuse_125_Inline_P41.76x10.80mm_Slot1.2x2.5mm_Horizontal",
    "mount": "THT",
-   "lcsc": "",
-   "kicad_rot": 0,
-   "reason": "consign or hand-assemble (not on LCSC / no stock / no exact match)"
-  },
-  {
-   "designator": "F2",
-   "footprint": "Fuse_Schurter_UMT250",
-   "mount": "SMD",
    "lcsc": "",
    "kicad_rot": 0,
    "reason": "consign or hand-assemble (not on LCSC / no stock / no exact match)"

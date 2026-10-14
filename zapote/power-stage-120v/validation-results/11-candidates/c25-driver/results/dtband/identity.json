@@ -1,0 +1,62 @@
+{
+ "files": {
+  "validation-results/01-switching-parasitics/round17/d2/legA21-h0-s9b2-n21.matrix.txt": "8805fd7f295b6e8a2aa66e8bc08dbc3df351194ce9fa1f08fa55caa222343a85",
+  "validation-results/01-switching-parasitics/round17/d2/legB21-h0-s9b2-n21.matrix.txt": "e12cf9c3547833d32ba3e164a39a88ca221bddcd2c5f62d40ea8f08d01e9d964",
+  "validation-results/11-candidates/c25-driver/results/dtband/F6.cir": "55a2058f05c366b046ea1d1b2e8b8d0101f81ffeb5a0ed23cde5c8348e3fc342",
+  "validation-results/11-candidates/c25-driver/results/dtband/F6probe.cir": "e398ba84cd30ea42a36d3edc4d159cfd6c28aa4b0a69e31b7b3dcdfb0796bca1",
+  "validation-results/11-candidates/c25-driver/scripts/d2_c25.py": "9de8c9cf74b22b999af1ff333e942a55a25889a2dc90a11703b3780ed6ccc947",
+  "validation-results/01-switching-parasitics/round17/d2/run_d2.py": "bec75e3212b120853eb4a58286fb3c222094e46b6e88ba6e41edcde73cd24c7a",
+  "validation-plan/sim-kit/models/vendor/PMEG6030EP.txt": "0c2892521c7933b99f405d803cef84240050b71c9e1f412088bd7a6c6352b983",
+  "validation-plan/sim-kit/models/vendor/IFX_CFD7_650V.lib": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b"
+ },
+ "variants": {
+  "ucc_asbuilt": [
+   5.0,
+   0.55,
+   3.9
+  ],
+  "ucc_boost": [
+   1.136012,
+   0.55,
+   3.9
+  ],
+  "edr_rg3p9": [
+   0.95,
+   0.39,
+   3.9
+  ],
+  "edr_rg8p2": [
+   0.95,
+   0.39,
+   8.2
+  ],
+  "edr_rg8p2_strong": [
+   0.6,
+   0.24,
+   8.2
+  ],
+  "edr_rg8p2_weak": [
+   1.5,
+   0.62,
+   8.2
+  ]
+ },
+ "model_screen_V": {
+  "25": 3.5624339999999997,
+  "27": 3.545527,
+  "100": 2.924901,
+  "150": 2.48794
+ },
+ "mode": "dtband",
+ "dts": [
+  340,
+  364,
+  391,
+  408,
+  443,
+  500,
+  530,
+  562,
+  600
+ ]
+}

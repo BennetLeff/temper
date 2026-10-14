@@ -1,0 +1,252 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 1,
+   "list": [
+    {
+     "componentId": 18660750,
+     "componentLibraryType": "expand",
+     "stockCount": 43,
+     "componentTypeEn": "Gate Drivers",
+     "erpComponentName": "\u53cc\u901a\u9053\u9694\u79bb\u6805\u6781\u9a71\u52a8IC",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/gate-drivers_infineon-technologies-2edr8259hxuma1_C17531538.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.0213
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.5775
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.3002
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 2.0164
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 1499,
+       "productPrice": 1.8875
+      },
+      {
+       "startNumber": 1500,
+       "endNumber": -1,
+       "productPrice": 1.832
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.9424
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.483
+      },
+      {
+       "startNumber": 1500,
+       "endNumber": -1,
+       "productPrice": 1.7648
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.2158
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.9104
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 1499,
+       "productPrice": 1.8182
+      }
+     ],
+     "firstSortAccessId": "ed01977635a7431782c6574574e570d3",
+     "secondSortAccessId": "034a9e679d364d77a078fc9ad4e4118b",
+     "canPresaleNumber": 43,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "18660750-2EDR8259HXUMA1/C17531538",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1500,
+     "shopCostPrice": 9.0147,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 1,
+     "initialPrice": 3.0213,
+     "componentCode": "C17531538",
+     "componentBrandEn": "Infineon Technologies",
+     "componentModelEn": "2EDR8259HXUMA1",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8758880795040210944",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2403111639_Infineon-Technologies-2EDR8259HXUMA1_C17531538.pdf",
+     "dataManualFileAccessId": "8600566850565005312",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Infineon 2EDR8259HXUMA1",
+     "minImage": "",
+     "minImageAccessId": "8758880796130189312",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-16",
+     "describe": "-40\u2103~+125\u2103 1.2V 1.67mA 2 2V 36ns 38ns 3V~17V 5A 6ns 7.5ns 9A Half-Bridge MOSFET Under Voltage Protection SOIC-16 Gate Drivers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Propagation Delay tpHL",
+       "attribute_value_name": "36ns"
+      },
+      {
+       "attribute_name_en": "Driven Configuration",
+       "attribute_value_name": "Half-Bridge"
+      },
+      {
+       "attribute_name_en": "Current - Output High(IOH)",
+       "attribute_value_name": "5A"
+      },
+      {
+       "attribute_name_en": "Number of Drivers",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Load Type",
+       "attribute_value_name": "MOSFET"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - Low",
+       "attribute_value_name": "1.2V"
+      },
+      {
+       "attribute_name_en": "Quiescent Current(Iq)",
+       "attribute_value_name": "1.67mA"
+      },
+      {
+       "attribute_name_en": "Fall Time",
+       "attribute_value_name": "6ns"
+      },
+      {
+       "attribute_name_en": "Rise Time",
+       "attribute_value_name": "7.5ns"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - High",
+       "attribute_value_name": "2V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "3V~17V"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Enable shutdown\u3001Interleaved conduction protection\u3001Dead-time control"
+      },
+      {
+       "attribute_name_en": "Propagation Delay tpLH",
+       "attribute_value_name": "38ns"
+      },
+      {
+       "attribute_name_en": "Current - Output Low(IOL)",
+       "attribute_value_name": "9A"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Gate Drivers",
+     "secondSortName": "Motor Driver ICs",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>2EDR8259HXUMA1</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 20,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "2EDR8259HXUMA1"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-14T05:27:52Z"
+}

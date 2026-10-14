@@ -142,34 +142,76 @@
    "function": "Mains surge varistor RV1 (thermally protected MOV, 175 Vrms)",
    "status": "PARTIAL",
    "datasheet": {
-    "url": null,
-    "revision": "Littelfuse TMOV series; datasheet not retrieved (littelfuse.com 403, alldatasheet Cloudflare)",
-    "fetched": null,
+    "url": "https://www.enika.cz/data/files/Littelfuse_Varistor_TMOV_ITMOV_Datasheet.pdf.pdf",
+    "revision": "Littelfuse 'Radial Lead Varistors > TMOV and iTMOV Varistor Series', revised 09/14/17 (8 pp.); distributor copy (Enika, CZ)",
+    "fetched": "2026-10-13",
     "repo_copy": null,
-    "note": "Ratings below come from the DigiKey product listing (175 Vac max, 225 Vdc, 10 kA, 135 J) and parts.ato (Vc 455 V). Not a datasheet.",
-    "sha256_prefix16": null
+    "note": "littelfuse.com (three datasheet URLs incl. the 2024 assetdocs link) and DigiKey returned 403; Mouser returned an HTML stub. The 2017 copy is the newest obtained; a newer Littelfuse revision may exist. Ratings row TMOV20RP175E on p.2; curves p.3-4.",
+    "sha256_prefix16": "cd88e084f6479121"
    },
    "ratings": [
     {
      "parameter": "Vac max continuous",
      "datasheet_limit": 175,
      "unit": "Vrms",
-     "basis": "distributor listing (DigiKey), not datasheet",
-     "source": "DigiKey TMOV20RP175E listing, 2026-10-13 search"
+     "basis": "VM(AC)RMS, maximum rating at 85 C",
+     "source": "p.2 Ratings & Specifications, row TMOV20RP175E"
     },
     {
-     "parameter": "Energy",
-     "datasheet_limit": 135,
-     "unit": "J",
-     "basis": "distributor listing",
-     "source": "DigiKey listing"
+     "parameter": "Vdc max continuous",
+     "datasheet_limit": 225,
+     "unit": "V",
+     "basis": "VM(DC), 85 C",
+     "source": "p.2 row TMOV20RP175E"
     },
     {
-     "parameter": "Surge",
+     "parameter": "Surge 8/20 1 pulse",
      "datasheet_limit": 10000,
      "unit": "A",
-     "basis": "distributor listing",
-     "source": "DigiKey listing"
+     "basis": "ITM 1x pulse, 8/20 us, 85 C (6,500 A for 2 pulses)",
+     "source": "p.2 row TMOV20RP175E"
+    },
+    {
+     "parameter": "Surge 20 us, 100 pulses",
+     "datasheet_limit": 1310,
+     "unit": "A",
+     "basis": "repetitive-surge curve for 20 mm parts at 20 us impulse duration, 10^2 pulses, digitised (+/-10 %); 15 pulses about 4,870 A",
+     "source": "p.4 Figure 6; digitised values in native-21/verification/datasheet-ledger/scripts/datasheet_gap_calcs.py:56"
+    },
+    {
+     "parameter": "Energy 2 ms",
+     "datasheet_limit": 135,
+     "unit": "J",
+     "basis": "WTM, single 2 ms pulse, 85 C; for 8/20 us events the pulse-rating curve governs",
+     "source": "p.2 row TMOV20RP175E"
+    },
+    {
+     "parameter": "V1mA",
+     "datasheet_limit": 243,
+     "unit": "V",
+     "basis": "VN(DC) min 243 V / max 297 V at 1 mA, 25 C",
+     "source": "p.2 row TMOV20RP175E"
+    },
+    {
+     "parameter": "Vc at 100 A",
+     "datasheet_limit": 455,
+     "unit": "V",
+     "basis": "maximum clamping voltage 8/20 us at IPK 100 A, 25 C (matches the ALT-D3 surge model)",
+     "source": "p.2 row TMOV20RP175E; validation-results/08-manufacturing-package/native-21/sourcing/alt-circuits-2026-10-09/ALT-D3.md:100"
+    },
+    {
+     "parameter": "Thermal protection isolation when operated",
+     "datasheet_limit": 600,
+     "unit": "V",
+     "basis": "absolute maximum, voltage across the opened thermal element (units as printed, 'V')",
+     "source": "p.2 Absolute Maximum Ratings"
+    },
+    {
+     "parameter": "Operating ambient max",
+     "datasheet_limit": 85,
+     "unit": "C",
+     "basis": "-55..+85 C; surge current and energy derate linearly from 85 C to 0 at 125 C (Figure 2)",
+     "source": "p.2 Absolute Maximum Ratings; p.3 Figure 2"
     }
    ],
    "stresses": [
@@ -181,14 +223,21 @@
      "evidence": "DECISIONS.md:306"
     },
     {
+     "parameter": "Line high corner peak",
+     "worst_case_value": 197.6,
+     "unit": "V",
+     "condition": "139.7 Vrms x sqrt 2 across an opened thermal element",
+     "evidence": "native-21/verification/datasheet-ledger/scripts/datasheet_gap_calcs.py:16"
+    },
+    {
      "parameter": "MOV surge current",
      "worst_case_value": 750,
      "unit": "A",
-     "condition": "mains surge (1-2 kV combination wave) through RV1",
+     "condition": "mains surge (1-2 kV combination wave, 4 kV stress run) through RV1, any clamp fitted",
      "evidence": "validation-results/08-manufacturing-package/native-21/sourcing/alt-circuits-2026-10-09/ALT-D3.md:119"
     }
    ],
-   "derating_rule": "Continuous AC <= 80% of the MCOV; surge current <= 10% of the rated 8/20 us surge.",
+   "derating_rule": "Continuous AC <= 80 % of VM(AC) (project rule; Littelfuse rates VM(AC) at 85 C); single surge <= 10 % of ITM 1x; the surge campaign (assumed <= 100 pulses) <= 80 % of the 100-pulse curve at 20 us; opened-element isolation >= line peak.",
    "checks": [
     {
      "id": "MCOV",
@@ -196,32 +245,51 @@
      "stress": "Line high corner",
      "max_ratio": 0.8,
      "severity": "violation",
-     "rule": "139.7 <= 140 Vrms",
+     "rule": "139.7 <= 140 Vrms (80 % of 175)",
      "ratio": 0.7983
     },
     {
-     "id": "surge",
-     "rating": "Surge",
+     "id": "surge 1x",
+     "rating": "Surge 8/20 1 pulse",
      "stress": "MOV surge current",
      "max_ratio": 0.1,
      "severity": "violation",
-     "rule": "<= 1 kA",
+     "rule": "750 A <= 1,000 A (10 % of ITM)",
      "ratio": 0.075
+    },
+    {
+     "id": "surge 100x",
+     "rating": "Surge 20 us, 100 pulses",
+     "stress": "MOV surge current",
+     "max_ratio": 0.8,
+     "severity": "gap",
+     "rule": "750 A <= 80 % of the digitised 1,310 A (Figure 6)",
+     "ratio": 0.5725
+    },
+    {
+     "id": "TCO isolation",
+     "rating": "Thermal protection isolation when operated",
+     "stress": "Line high corner peak",
+     "max_ratio": 0.8,
+     "severity": "violation",
+     "rule": "197.6 V <= 480 V",
+     "ratio": 0.3293
     }
    ],
    "layout_guidance": [
     {
-     "item": "thermal element adjacency to the body, lead forming (offset lead)",
+     "item": "thermal element adjacency to the body, lead forming (offset lead); enclosure to contain venting in a UL 1449 abnormal-overvoltage test (datasheet p.3 note)",
      "enforced_by": "UNCHECKED (footprint provisional, FINDINGS table row RV1; FOOTPRINTS F4)"
     }
    ],
    "gaps": [
-    "Manufacturer datasheet not obtained; limits are distributor-listed.",
-    "MCOV margin is 0.2 Vrms (140 vs 139.7): 80 % rule met only just; the 140 V line corner was never run against the TMOV datasheet leakage/aging curves.",
-    "UL 1449 type and thermal-disconnect rating not read."
+    "Datasheet is the 2017 revision from a distributor (Littelfuse 403); confirm no later change to the TMOV20RP175E row.",
+    "RV1 local ambient is not evidenced; ratings hold to 85 C and derate to 0 at 125 C (Figure 2).",
+    "100-pulse surge limit is digitised from Figure 6 (about +/-10 %); the lab's surge count is not fixed (DC-LINK-CLAMP.md).",
+    "UL 1449 recognition (E320116, component) not confirmed on UL Product iQ (403); the thermal-disconnect time under limited-current overvoltage is typical only (Figure 1)."
    ],
    "finding": null,
-   "notes": null
+   "notes": "Datasheet confirms the ALT-D3 model parameters (V1mA 243-297 V, 455 V at 100 A). MCOV 139.7/175 = 79.8 %: inside Littelfuse's own 85 C rating, at the project's 80 % rule."
   },
   "R463N410050N1K": {
    "mpn": "R463N410050N1K",
@@ -451,20 +519,62 @@
    "function": "Mains common-mode choke L1, 20 A 1.6 mH",
    "status": "PARTIAL",
    "datasheet": {
-    "url": null,
-    "revision": "TDK B82726S2*3A020 data sheet (5/26) as cited in parts.ato; no retrievable copy found 2026-10-13",
-    "fetched": null,
+    "url": "https://www.tdk-electronics.tdk.com/inf/30/db/ind_2008/b82726s22x3.pdf",
+    "revision": "TDK B82726S22*3A020 data sheet, May 2026 (9 pp.); same URL as FOOTPRINTS.md F5",
+    "fetched": "2026-10-13",
     "repo_copy": null,
-    "note": null,
-    "sha256_prefix16": null
+    "note": "Direct TDK download worked; PDF created 2026-05-21.",
+    "sha256_prefix16": "e8002bfe4af13edf"
    },
    "ratings": [
     {
      "parameter": "I_rated",
      "datasheet_limit": 20,
      "unit": "A",
-     "basis": "per parts.ato docstring (TDK data sheet 5/26), temperature basis not recorded",
-     "source": "elec/src/parts.ato:90-98"
+     "basis": "IR referred to 50 Hz at the rated temperature TR = 60 C",
+     "source": "p.4 Technical data; Characteristics and ordering codes"
+    },
+    {
+     "parameter": "I_op at 50 C design inlet air",
+     "datasheet_limit": 20,
+     "unit": "A",
+     "basis": "Iop/IR = 1.0 taken at TA <= 60 C (curve lies above 1.0 below TR)",
+     "source": "p.5 Current derating Iop/IR vs TA (IND0372-K-E)"
+    },
+    {
+     "parameter": "I_op at 67.7 C",
+     "datasheet_limit": 18.75,
+     "unit": "A",
+     "basis": "digitised derating (Iop/IR 0.9375): the hottest local air at which 15 A stays at 80 %",
+     "source": "p.5 IND0372-K-E, digitised in native-21/verification/datasheet-ledger/scripts/datasheet_gap_calcs.py:32"
+    },
+    {
+     "parameter": "Rated voltage",
+     "datasheet_limit": 250,
+     "unit": "Vrms",
+     "basis": "VR 250 V AC 50/60 Hz",
+     "source": "p.2, p.4 Technical data"
+    },
+    {
+     "parameter": "Test voltage",
+     "datasheet_limit": 1500,
+     "unit": "Vrms",
+     "basis": "1500 V AC / 2100 V DC, 2 s, line/line",
+     "source": "p.4 Technical data"
+    },
+    {
+     "parameter": "Stray inductance",
+     "datasheet_limit": 18,
+     "unit": "uH",
+     "basis": "Lstray typ, 5 mA, 10 kHz (model uses 18 uH)",
+     "source": "p.4 ordering-code table"
+    },
+    {
+     "parameter": "Climatic upper temperature",
+     "datasheet_limit": 125,
+     "unit": "C",
+     "basis": "climatic category 40/125/56",
+     "source": "p.4"
     }
    ],
    "stresses": [
@@ -472,8 +582,22 @@
      "parameter": "I inlet trip",
      "worst_case_value": 15,
      "unit": "A",
-     "condition": "owner cap",
+     "condition": "owner cap: total RMS mains current <= 15 A",
      "evidence": "DECISIONS.md:168-182"
+    },
+    {
+     "parameter": "I inlet envelope",
+     "worst_case_value": 16.5,
+     "unit": "A",
+     "condition": "earlier RMS input envelope (superseded by the 15 A cap)",
+     "evidence": "validation-results/08-manufacturing-package/native-21/sourcing/F1-J3-PARTS.md:56"
+    },
+    {
+     "parameter": "Line high corner",
+     "worst_case_value": 139.7,
+     "unit": "Vrms",
+     "condition": "127 V +10 %",
+     "evidence": "DECISIONS.md:306"
     },
     {
      "parameter": "Copper neck L1 -> BR1 AC1 I2t",
@@ -483,16 +607,52 @@
      "evidence": "DECISIONS.md:907"
     }
    ],
-   "derating_rule": "Continuous current <= 80% of the rated current at the worst ambient; rated voltage >= line high corner.",
+   "derating_rule": "Continuous RMS current <= 80 % of Iop at the local ambient (TDK derating above TR = 60 C); rated voltage >= line high corner / 0.8.",
    "checks": [
     {
-     "id": "I",
+     "id": "I at TR",
      "rating": "I_rated",
      "stress": "I inlet trip",
      "max_ratio": 0.8,
      "severity": "violation",
-     "rule": "15 A <= 16 A",
+     "rule": "15 A <= 16 A (80 % of IR at 60 C)",
      "ratio": 0.75
+    },
+    {
+     "id": "I at 50 C inlet",
+     "rating": "I_op at 50 C design inlet air",
+     "stress": "I inlet trip",
+     "max_ratio": 0.8,
+     "severity": "violation",
+     "rule": "DECISIONS.md:66 design inlet 50 C",
+     "ratio": 0.75
+    },
+    {
+     "id": "I at 67.7 C",
+     "rating": "I_op at 67.7 C",
+     "stress": "I inlet trip",
+     "max_ratio": 0.8,
+     "severity": "gap",
+     "rule": "boundary case: 15 A is 80 % of Iop only up to 67.7 C local air",
+     "ratio": 0.8
+    },
+    {
+     "id": "envelope at TR",
+     "rating": "I_rated",
+     "stress": "I inlet envelope",
+     "max_ratio": 1.0,
+     "severity": "gap",
+     "rule": "16.5 A <= IR at 60 C; above 78.7 C it exceeds Iop",
+     "ratio": 0.825
+    },
+    {
+     "id": "V",
+     "rating": "Rated voltage",
+     "stress": "Line high corner",
+     "max_ratio": 0.8,
+     "severity": "violation",
+     "rule": "139.7 <= 200 Vrms",
+     "ratio": 0.5588
     }
    ],
    "layout_guidance": [
@@ -502,11 +662,13 @@
     }
    ],
    "gaps": [
-    "Datasheet not retrieved: temperature derating, rated voltage (a distributor listing of sibling TDK B827x chokes shows 48 VAC / 80 VDC; confirm B82726S2203A020 is rated >= 140 Vrms) and saturation are unchecked.",
+    "L1 local air is not evidenced. It sits on the exhaust (mains) side of the 50 C-inlet duct (DECISIONS.md:66). 15 A meets the 80 % rule only up to 67.7 C, and IR itself only up to 85.3 C (13.5 A: 77.0 / 91.0 C). Bench IR item (DECISIONS.md:836).",
+    "Derating curve digitised from the p.5 figure (+/-3 % of full scale); the 67.7 C boundary moves about +/-2 C with it.",
+    "The data sheet cites EN 60938-2 design compliance only; no UL/CSA component recognition is listed, so the end-product evaluation must cover L1.",
     "Core stock zero, 29 weeks (DECISIONS.md:846)."
    ],
    "finding": null,
-   "notes": null
+   "notes": "Rated 250 V AC, test 1500 V AC line/line, Lstray 18 uH typ (= the ALT-D3 surge model, ALT-D3.md:101), R 4.5 mOhm per winding, inductance drop < 10 % at IR DC bias. The old 'rated 48 VAC' worry came from sibling parts and does not apply."
   },
   "DE1E3RA222MA4BP01F": {
    "mpn": "DE1E3RA222MA4BP01F",
@@ -518,20 +680,41 @@
    "function": "Y1 line-to-PE capacitors C3/C4, 2.2 nF",
    "status": "PARTIAL",
    "datasheet": {
-    "url": null,
-    "revision": "Murata DE1 series; datasheet for this exact suffix not retrieved (murata.com returned 500)",
-    "fetched": null,
+    "url": "https://datasheet.lcsc.com/datasheet/pdf/f890fd62e2f832e0bca1deac34b68fec.pdf?productCode=C907949",
+    "revision": "Murata Reference Specification 'Safety Standard Certified Lead Type Disc Ceramic Capacitors for General Purpose, Type RA', EGD08G, as of Jun. 2023 (18 pp.); LCSC copy",
+    "fetched": "2026-10-13",
     "repo_copy": null,
-    "note": "Sibling DE1E3RA222MA4BN01F is listed by Farnell as X1 440 V / Y1 250 V; a BP01F-suffix part may carry a different Y rating.",
-    "sha256_prefix16": null
+    "note": "murata.com spec URLs returned 404 / an HTML stub; DigiKey 403. The exact MPN DE1E3RA222MA4BP01F is listed on p.8 (2200 pF +/-20 %, char. E, A4 leads, 10 mm pitch).",
+    "sha256_prefix16": "299987fc56df39ef"
    },
    "ratings": [
     {
-     "parameter": "Y1 rating (sibling BN01F)",
-     "datasheet_limit": 250,
+     "parameter": "Y1 rated voltage",
+     "datasheet_limit": 300,
      "unit": "Vrms",
-     "basis": "distributor listing of a different suffix, not this MPN",
-     "source": "Farnell listing 2858797"
+     "basis": "Class Y1 AC300 V(r.m.s.); UL/cUL UL60384-14 / CSA E60384-14 file E37921; ENEC (VDE) EN60384-14 40043033; CQC IEC60384-14",
+     "source": "p.6 Approval standard and certified number, 2-2 Rated voltage"
+    },
+    {
+     "parameter": "X1 rated voltage",
+     "datasheet_limit": 440,
+     "unit": "Vrms",
+     "basis": "Class X1 AC440 V(r.m.s.)",
+     "source": "p.6 2-2"
+    },
+    {
+     "parameter": "DC rated voltage",
+     "datasheet_limit": 1000,
+     "unit": "V",
+     "basis": "DC1,000 V",
+     "source": "p.6 2-2"
+    },
+    {
+     "parameter": "Operating temperature max",
+     "datasheet_limit": 125,
+     "unit": "C",
+     "basis": "-40..125 C surface temperature incl. self-heating",
+     "source": "p.6 2-1"
     }
    ],
    "stresses": [
@@ -550,16 +733,16 @@
      "evidence": "validation-results/07-conducted-emi/leakage/README.md:7"
     }
    ],
-   "derating_rule": "Y capacitance sized so touch current with PE open <= the applicable limit (UL 1026 0.5 mA for portable appliances, clause unconfirmed).",
+   "derating_rule": "Line-to-PE voltage <= 80 % of the Y1 rating (Murata: supply incl. fluctuation <= rating +10 %); Y capacitance sized so touch current with PE open <= the applicable limit (UL 1026 0.5 mA for portable appliances, clause unconfirmed).",
    "checks": [
     {
      "id": "V",
-     "rating": "Y1 rating (sibling BN01F)",
+     "rating": "Y1 rated voltage",
      "stress": "Line high corner to PE",
      "max_ratio": 0.8,
      "severity": "violation",
-     "rule": "<= 200 V",
-     "ratio": 0.5588
+     "rule": "<= 240 V",
+     "ratio": 0.4657
     }
    ],
    "layout_guidance": [
@@ -569,12 +752,11 @@
     }
    ],
    "gaps": [
-    "Exact-MPN datasheet not retrieved: Y1 voltage rating and approvals unverified.",
-    "Product leakage FAIL (F5): 0.974 mA touch current vs UL 1026 0.5 mA (clause unconfirmed, DECISIONS.md:844). If confirmed this is a VIOLATION of the approval basis; fix is total Y <= 5.0 nF per line.",
-    "Murata BP01F ratings may be 300 Vac, not 250 Vac (search listing); verify."
+    "Product leakage FAIL (F5): 0.974 mA touch current vs UL 1026 0.5 mA (clause unconfirmed, DECISIONS.md:844). If confirmed this is a VIOLATION of the approval basis; fix is total Y <= 5.0 nF per line. C3/C4 contribute at most 2 x 2.64 nF (+20 %) x 2 pi 60 Hz x 132 V = 0.26 mA of it.",
+    "Datasheet is a 2023 reference specification from a distributor; Murata says to consult the approval sheet before ordering."
    ],
    "finding": null,
-   "notes": null
+   "notes": "Resolved: the exact MPN is X1 440 V / Y1 300 V (UL E37921), not the 250 V of the BN01F sibling."
   },
   "GBJ2510-F": {
    "mpn": "GBJ2510-F",
@@ -2601,94 +2783,6 @@
    "finding": null,
    "notes": null
   },
-  "3403.0171": {
-   "mpn": "3403.0171",
-   "designators": [
-    "F2"
-   ],
-   "class": "SAFETY",
-   "function": "Blower-supply branch fuse F2 (3.15 A T) after the EMI filter, feeds J11 -> PS3",
-   "status": "VIOLATION",
-   "datasheet": {
-    "url": "https://www.schurter.com/en/datasheet/typ_UMT_250.pdf",
-    "revision": "Schurter UMT 250 data sheet dated 21.07.2026 (5 pp)",
-    "fetched": "2026-10-13",
-    "repo_copy": null,
-    "note": null,
-    "sha256_prefix16": "0d3996fc6f13305f"
-   },
-   "ratings": [
-    {
-     "parameter": "Breaking capacity IEC 250 VAC",
-     "datasheet_limit": 200,
-     "unit": "A",
-     "basis": "IEC 60127-4, 250 VAC (footnote 2 of the UMT 250 table)",
-     "source": "Description + table footnote 2"
-    },
-    {
-     "parameter": "I2t melting",
-     "datasheet_limit": 11.6,
-     "unit": "A2s",
-     "basis": "10 x In typ, 3.15 A row",
-     "source": "Ratings table, 3403.0171 row"
-    },
-    {
-     "parameter": "I_rated",
-     "datasheet_limit": 3.15,
-     "unit": "A",
-     "basis": "time-lag T, 250 VAC / 125 VDC, UL 248-14",
-     "source": "Ratings table"
-    }
-   ],
-   "stresses": [
-    {
-     "parameter": "Prospective fault at J11",
-     "worst_case_value": 3567,
-     "unit": "A",
-     "condition": "bolted fault at J11, stiff source, cord 0 m, copper set to 0 (upper corner); F1 cannot back F2 (F2 melts 19.5x sooner)",
-     "evidence": "validation-results/02-protection-timing/f2-coordination/README.md"
-    },
-    {
-     "parameter": "Prospective fault, weakest corner",
-     "worst_case_value": 373,
-     "unit": "A",
-     "condition": "15 m branch, copper counted",
-     "evidence": "validation-results/02-protection-timing/f2-coordination/README.md"
-    }
-   ],
-   "derating_rule": "Breaking capacity >= prospective fault current at the fuse location (IEC 60127 rating; UL 248-14 ratings not read).",
-   "checks": [
-    {
-     "id": "break vs worst fault",
-     "rating": "Breaking capacity IEC 250 VAC",
-     "stress": "Prospective fault at J11",
-     "max_ratio": 1.0,
-     "severity": "violation",
-     "rule": "fault <= breaking capacity",
-     "ratio": 17.835
-    },
-    {
-     "id": "break vs weakest fault",
-     "rating": "Breaking capacity IEC 250 VAC",
-     "stress": "Prospective fault, weakest corner",
-     "max_ratio": 1.0,
-     "severity": "violation",
-     "rule": "fault <= breaking capacity",
-     "ratio": 1.865
-    }
-   ],
-   "layout_guidance": [
-    {
-     "item": "F2 sits upstream of J11; fault path copper l_filt/blw_l/n_filt",
-     "enforced_by": "validation-results/02-protection-timing/f2-coordination/README.md"
-    }
-   ],
-   "gaps": [
-    "UL 248-14 breaking capacity at 125/250 VAC not read; IEC 200 A used."
-   ],
-   "finding": "F2 (UMT 250, 200 A @ 250 VAC IEC) has a prospective fault of 373-3,567 A at J11 and melts 19.5x sooner than F1, so it must interrupt alone: exceeded 1.9x-18x (DECISIONS.md:843, F4 FAIL). Open decision: >= 1,500 A 5x20 ceramic fuse (candidate 02153.15MXP, datasheet figure unverified) or drop the PS3 mains tap.",
-   "notes": null
-  },
   "IRM-20-24": {
    "mpn": "IRM-20-24",
    "designators": [
@@ -2824,26 +2918,54 @@
    "status": "PARTIAL",
    "datasheet": {
     "url": "https://www.ti.com/lit/ds/symlink/amc1311.pdf",
-    "revision": "TI SBAS786C (cited by the repo)",
-    "fetched": null,
+    "revision": "TI SBAS786C, December 2017, revised June 2022 (38 pp.)",
+    "fetched": "2026-10-13",
     "repo_copy": null,
-    "note": "URL cited by the repo (CMTI README); not fetched in this task.",
-    "sha256_prefix16": null
+    "note": "Revision history p.2: CMTI raised from 75/140 to 100 min / 150 typ kV/us (B grade); fail-safe output section replaced by the analog-output section.",
+    "sha256_prefix16": "4a80cec704b1f432"
    },
    "ratings": [
     {
      "parameter": "CMTI min",
      "datasheet_limit": 100,
      "unit": "V/ns",
-     "basis": "B grade, SBAS786C 7.9 (as recorded in the repo)",
-     "source": "validation-results/06-controller-interface/cmti/README.md:21"
+     "basis": "AMC1311B, 100 kV/us min, 150 typ",
+     "source": "p.10 Electrical characteristics CMTI; p.4 device comparison"
     },
     {
      "parameter": "VIORM",
-     "datasheet_limit": 2121,
+     "datasheet_limit": 2120,
      "unit": "V",
-     "basis": "reinforced, as recorded in DECISIONS.md:757",
-     "source": "DECISIONS.md:757"
+     "basis": "DIN EN IEC 60747-17 (VDE 0884-17), AC, peak",
+     "source": "p.8 Insulation specifications"
+    },
+    {
+     "parameter": "VIOWM",
+     "datasheet_limit": 1500,
+     "unit": "Vrms",
+     "basis": "sine wave; 2120 VDC",
+     "source": "p.8 Insulation specifications"
+    },
+    {
+     "parameter": "VFSR max",
+     "datasheet_limit": 2.0,
+     "unit": "V",
+     "basis": "specified linear full-scale input, IN to GND1 (-0.1..2 V)",
+     "source": "p.6 Recommended operating conditions"
+    },
+    {
+     "parameter": "VClipping",
+     "datasheet_limit": 2.516,
+     "unit": "V",
+     "basis": "typ input before the output clips (VCLIPout 2.49 V)",
+     "source": "p.6; p.10"
+    },
+    {
+     "parameter": "CLR/CPG",
+     "datasheet_limit": 8.5,
+     "unit": "mm",
+     "basis": "DWV package, >= 8.5 mm; UL1577 VISO 5000 Vrms",
+     "source": "p.8 Insulation specifications"
     }
    ],
    "stresses": [
@@ -2851,18 +2973,39 @@
      "parameter": "CMTI edge",
      "worst_case_value": 95,
      "unit": "V/ns",
-     "condition": "OCP_KELVIN_P crossing",
-     "evidence": "validation-results/06-controller-interface/cmti/README.md:21"
+     "condition": "95 V/ns switch-node figure applied to the OCP_KELVIN_P crossing as a conservative bound (not on a switch node)",
+     "evidence": "validation-results/06-controller-interface/cmti/README.md:12"
     },
     {
      "parameter": "Barrier peak",
      "worst_case_value": 286,
      "unit": "V",
-     "condition": "bus static OVP corner",
+     "condition": "bus static OVP corner (conservative: the HOT side rides HV_RET, which is within the line peak of PE)",
      "evidence": "validation-results/08-manufacturing-package/native-21/sourcing/alt-circuits-2026-10-09/ALT-D3.md:60"
+    },
+    {
+     "parameter": "Line high corner",
+     "worst_case_value": 139.7,
+     "unit": "Vrms",
+     "condition": "working voltage bound: HV_RET to PE/SELV is at most the line rms",
+     "evidence": "DECISIONS.md:306"
+    },
+    {
+     "parameter": "VSENSE at 198 V crest",
+     "worst_case_value": 1.6502,
+     "unit": "V",
+     "condition": "divider 1/119.99 (elec/src/power_stage_120v.ato:491-511) at the 127 V +10 % crest",
+     "evidence": "native-21/verification/datasheet-ledger/scripts/datasheet_gap_calcs.py:22"
+    },
+    {
+     "parameter": "VSENSE at 286 V OVP corner",
+     "worst_case_value": 2.3836,
+     "unit": "V",
+     "condition": "same divider at the static OVP corner",
+     "evidence": "native-21/verification/datasheet-ledger/scripts/datasheet_gap_calcs.py:23"
     }
    ],
-   "derating_rule": "CMTI >= 1.5x modelled edge; barrier peak <= 50% VIORM.",
+   "derating_rule": "CMTI >= 1.5x modelled edge; barrier peak <= 50 % VIORM; working rms <= 50 % VIOWM; normal-operation input <= VFSR; OVP-corner input <= VClipping.",
    "checks": [
     {
      "id": "CMTI",
@@ -2870,7 +3013,7 @@
      "stress": "CMTI edge",
      "max_ratio": 0.6666666666666666,
      "severity": "gap",
-     "rule": "1.05x",
+     "rule": "1.05x vs 1.5x rule",
      "ratio": 0.95
     },
     {
@@ -2880,7 +3023,34 @@
      "max_ratio": 0.5,
      "severity": "violation",
      "rule": "13 %",
-     "ratio": 0.1348
+     "ratio": 0.1349
+    },
+    {
+     "id": "working",
+     "rating": "VIOWM",
+     "stress": "Line high corner",
+     "max_ratio": 0.5,
+     "severity": "violation",
+     "rule": "9 %",
+     "ratio": 0.0931
+    },
+    {
+     "id": "input linear",
+     "rating": "VFSR max",
+     "stress": "VSENSE at 198 V crest",
+     "max_ratio": 1.0,
+     "severity": "gap",
+     "rule": "82.5 % of FSR at the 198 V crest",
+     "ratio": 0.8251
+    },
+    {
+     "id": "input clip",
+     "rating": "VClipping",
+     "stress": "VSENSE at 286 V OVP corner",
+     "max_ratio": 1.0,
+     "severity": "gap",
+     "rule": "94.7 % of clipping at 286 V; above 240 V the input is outside the linear range",
+     "ratio": 0.9474
     }
    ],
    "layout_guidance": [
@@ -2890,8 +3060,8 @@
     }
    ],
    "gaps": [
-    "Datasheet not fetched this session; limits are the repo's recorded values.",
-    "CMTI margin 1.05x vs 1.5x rule: a spurious VBUS sample, no gate command (CMTI README:21 OPEN)."
+    "CMTI margin 1.05x vs 1.5x rule (min 100 vs 95 V/ns applied as a bound): an upset is a spurious VBUS sample, no gate command (CMTI README:21 OPEN).",
+    "Bus readings above 240.0 V are outside the 2 V linear range (clipping at 301.9 V). Firmware flags VBUS over-range at 230.9 V (N21_VBUS_OVERRANGE_MV) and the hardware OVP is the TLV3201 on VSENSE_IN (elec/src/power_stage_120v.ato:612), so no protection relies on the nonlinear band; nothing gates that dependency."
    ],
    "finding": null,
    "notes": null
@@ -3123,7 +3293,7 @@
     "revision": "TI SLLSER9E, November 2016, revised December 2024",
     "fetched": "2026-10-13",
     "repo_copy": null,
-    "note": null,
+    "note": "Re-fetched 2026-10-13, same SLLSER9E (hash unchanged). CMTI 85 kV/us min / 100 typ at VI = VCC1 or 0 V, VCM = 1200 V, in all three supply tables (p.11 5 V, p.12 3.3 V, p.13 2.5 V); both input states are tested, so an upset may be either polarity.",
     "sha256_prefix16": "42fc3c704c9ca0c4"
    },
    "ratings": [
@@ -3132,28 +3302,35 @@
      "datasheet_limit": 2121,
      "unit": "V",
      "basis": "VDE 0884-17, DW-16",
-     "source": "Insulation specifications table"
+     "source": "p.8 Insulation specifications"
     },
     {
      "parameter": "VIOWM",
      "datasheet_limit": 1500,
      "unit": "Vrms",
      "basis": "TDDB, DW-16",
-     "source": "Insulation specifications table"
+     "source": "p.8 Insulation specifications"
     },
     {
      "parameter": "CMTI min",
      "datasheet_limit": 85,
      "unit": "V/ns",
-     "basis": "85 kV/us min, 100 kV/us typ",
-     "source": "Electrical characteristics (5-V / 3.3-V supply)"
+     "basis": "85 kV/us min, 100 kV/us typ, VCM 1200 V",
+     "source": "p.11 (5 V) and p.12 (3.3 V) Electrical characteristics"
     },
     {
      "parameter": "CLR/CPG",
      "datasheet_limit": 8,
      "unit": "mm",
      "basis": "DW-16 external clearance/creepage",
-     "source": "Insulation specifications table"
+     "source": "p.8 Insulation specifications"
+    },
+    {
+     "parameter": "U32-U34 longest rejected glitch",
+     "datasheet_limit": 5950,
+     "unit": "ns",
+     "basis": "circuit, not datasheet: 10 k x 1 nF into the SN74LVC1G17 Schmitt (VT+ min 1.48 V at 3 V) rejects a HIGH glitch up to 5.95 us",
+     "source": "validation-results/06-controller-interface/cmti/README.md lines 35-38"
     }
    ],
    "stresses": [
@@ -3168,11 +3345,18 @@
      "parameter": "CMTI edge",
      "worst_case_value": 95,
      "unit": "V/ns",
-     "condition": "modelled hard edge",
-     "evidence": "validation-results/06-controller-interface/cmti/README.md:19"
+     "condition": "modelled hard edge (U32-U34 on N_LS/SW_A/SW_B; applied to U9 on OCP_KELVIN_P as a conservative bound)",
+     "evidence": "validation-results/06-controller-interface/cmti/README.md:19-20"
+    },
+    {
+     "parameter": "CMTI event duration",
+     "worst_case_value": 5.47,
+     "unit": "ns",
+     "condition": "520 V swing at 95 V/ns",
+     "evidence": "native-21/verification/datasheet-ledger/scripts/datasheet_gap_calcs.py:81"
     }
    ],
-   "derating_rule": "Barrier peak <= 50% VIORM; CMTI >= 1.5x modelled edge unless filtered.",
+   "derating_rule": "Barrier peak <= 50% VIORM; CMTI >= 1.5x modelled edge unless a time filter rejects the upset (filter >= 10x the event).",
    "checks": [
     {
      "id": "barrier",
@@ -3189,8 +3373,17 @@
      "stress": "CMTI edge",
      "max_ratio": 0.6666666666666666,
      "severity": "gap",
-     "rule": "min 85 < 95 V/ns modelled: ratio 1.12; U32-34 pass through the 10 us filter, U9 unfiltered",
+     "rule": "min 85 < 95 V/ns modelled: ratio 1.12; governs U9 (unfiltered)",
      "ratio": 1.1176
+    },
+    {
+     "id": "U32-U34 filter",
+     "rating": "U32-U34 longest rejected glitch",
+     "stress": "CMTI event duration",
+     "max_ratio": 0.1,
+     "severity": "violation",
+     "rule": "5.47 ns event vs 5.95 us rejection (assumes the upset lasts < 5.95 us; TI gives no upset duration)",
+     "ratio": 0.0009
     }
    ],
    "layout_guidance": [
@@ -3204,10 +3397,11 @@
     }
    ],
    "gaps": [
-    "CMTI min 85 V/ns is below the modelled 95 V/ns hard edge. U32/U33/U34 are protected by the 10 us BIAS_BAD filter; U9 (OCP_KELVIN_P) is unfiltered and OPEN: a false HIGH is a nuisance bus_fault (CMTI README:20).",
+    "U9 (bus_fault isolator, OCP_KELVIN_P to SELV) CMTI min 85 V/ns < 95 V/ns bound with no time filter between U9 and the controller latch: availability gap, fail-safe in both directions (see finding).",
+    "TI publishes no upset duration; the U32-U34 filter pass assumes an upset shorter than 5.95 us (bench: probe BIAS_BAD_RAW and BUS_FAULT at hard S4/S5 edges, CMTI README remedy 4).",
     "Zero distributor stock, 12 weeks (DECISIONS.md:846)."
    ],
-   "finding": null,
+   "finding": "U9 CMTI (new, availability not safety): U9.OUT -> U13 OR (elec/src/power_stage_120v.ato:801) -> J4.10 BUS_FAULT -> controller InterlockUnit: SN74LVC14 -> CD74HC30 -> SN74LVC14 -> SN74LVC1G74 CLR_N (zapote/controller interlock_block.ato), no RC anywhere. A HIGH upset of more than a few ns clears the permit latch: PERMIT low, DIS high, all four drivers off, latched until firmware gives a fresh reset edge = nuisance trip, safe direction. A LOW upset during a real fault only shortens the fault level by the upset width (OCP/OVP/HOT5 faults are levels held while the condition lasts, and the latch acts on the first part of the pulse that reaches CLR_N), so detection is delayed by at most that width (event 5.47 ns) against the 0.85-1.16 us shunt-OCP chain; no fault is masked unless the whole fault pulse is shorter than the upset. Exposure is likely below 95 V/ns because OCP_KELVIN_P is not a switch node, but no model of its dv/dt to PE exists. Options: a 1 k / 47 pF RC at U13.A (tau 47 ns, adds about 57 ns to the OCP chain) at the re-spin, or a controller-side 2-sample/RC debounce (CMTI README OPEN item); bench probe BUS_FAULT at hard S4/S5 edges first.",
    "notes": null
   },
   "0430451612": {
@@ -3993,34 +4187,41 @@
    "function": "High-side isolated gate-bias modules U41/U42 (RECOM), HOT-to-HOT functional barrier",
    "status": "PARTIAL",
    "datasheet": {
-    "url": "https://www.simpex.ch/wp-content/uploads/2023/12/RxxC2Txx.pdf",
-    "revision": "RECOM RxxC2Txx 'Rev. PRELIMINARY' (Swiss distributor mirror, 2023-12); the repo read 'Rev.1-2024'",
+    "url": "https://recom-power.com/pdf/Econoline/R24C2T25_R.pdf",
+    "revision": "RECOM R24C2T25/R Series technical data sheet, Rev. 1-2024 (16 pp., PDF created 2024-10-29); current at recom-power.com on the fetch date",
     "fetched": "2026-10-13",
     "repo_copy": null,
-    "note": "recom-power.com datasheet URL returned 404. Mirror says functional isolation only (850 Vrms working / 1.2 kVp); the repo cites reinforced 5 kVAC / 1.4 kVDC from the 2024 revision, not committed.",
-    "sha256_prefix16": "e9259f103f1b0eca"
+    "note": "The earlier 'PRELIMINARY' mirror (simpex.ch RxxC2Txx.pdf) is the non-/R R24C2T25 series, now Rev. 3-2024 at recom-power.com/pdf/Econoline/RxxC2Txx.pdf (2 W, 3 kVAC, 850 Vrms, 1.2 kVp, 1.5 W average). The /R part fitted here is a different product.",
+    "sha256_prefix16": "2e8133d235cbb962"
    },
    "ratings": [
     {
-     "parameter": "VIORM functional",
-     "datasheet_limit": 1200,
+     "parameter": "VIORM",
+     "datasheet_limit": 1400,
      "unit": "V",
-     "basis": "repetitive peak isolation voltage, bipolar (preliminary mirror)",
-     "source": "p.7 Isolation capabilities"
+     "basis": "repetitive peak isolation voltage, AC bipolar; working 1000 Vrms (TDDB) / 1.4 kVDC; 5 kVAC/1 min qualification, 6 kVAC/1 s production; p.1 calls it 'reinforced'; table cites no insulation standard",
+     "source": "p.8 Isolation capabilities; p.1 features"
     },
     {
      "parameter": "CMTI",
      "datasheet_limit": 150,
      "unit": "V/ns",
-     "basis": "+/-150 V/ns",
-     "source": "p.6 CMTI"
+     "basis": "+/-150 V/ns, single value printed in the Max column; p.1 '150 kV/us CMTI'",
+     "source": "p.7 CMTI; p.1"
     },
     {
      "parameter": "Pout avg 82C",
      "datasheet_limit": 2.0,
      "unit": "W",
-     "basis": "2 W average to 82 C on RECOM 50x50 mm 70 um EVM; 2.5 W for 5 s",
-     "source": "p.3 derating graph, notes 4-6"
+     "basis": "2 W average (2.5 W for 5 s) to the labelled 82 C knee, RECOM 50x50 mm 70 um 2-layer EVM; derates to 1.5 W at 100 C",
+     "source": "p.3 derating graph, notes 6-7"
+    },
+    {
+     "parameter": "CLR/CPG",
+     "datasheet_limit": 8,
+     "unit": "mm",
+     "basis": "external clearance and creepage; CTI 600",
+     "source": "p.8 Isolation capabilities"
     }
    ],
    "stresses": [
@@ -4057,12 +4258,12 @@
    "checks": [
     {
      "id": "barrier",
-     "rating": "VIORM functional",
+     "rating": "VIORM",
      "stress": "Barrier peak functional",
      "max_ratio": 0.5,
      "severity": "violation",
-     "rule": "43 %",
-     "ratio": 0.4333
+     "rule": "37 % of 1.4 kVp",
+     "ratio": 0.3714
     },
     {
      "id": "CMTI",
@@ -4070,7 +4271,7 @@
      "stress": "CMTI edge",
      "max_ratio": 0.6666666666666666,
      "severity": "violation",
-     "rule": "63 %",
+     "rule": "1.58x",
      "ratio": 0.6333
     },
     {
@@ -4079,7 +4280,7 @@
      "stress": "Pout at 80 kHz",
      "max_ratio": 0.9,
      "severity": "violation",
-     "rule": "85.5 % of the 2 W knee",
+     "rule": "85.5 % of the 2 W knee; holds to 85.6 C local air on the conservative line",
      "ratio": 0.855
     }
    ],
@@ -4094,11 +4295,11 @@
     }
    ],
    "gaps": [
-    "The retrieved datasheet is PRELIMINARY and says 850 Vrms / 1.2 kVp functional only; the repo relies on a reinforced 5 kVAC / 1.4 kVDC claim from a revision not committed. Use is functional, so the 0.52 kVpk stress passes either way, but the claim must be reconciled.",
-    "Power is the 80 kHz allocation (1.71 W vs 2 W knee); 2 W knee is at 82 C ambient on an EVM; local enclosure air not evidenced (DECISIONS.md:836 bench IR).",
-    "Start-up (6-13 ms vs 16 ms timeout) and 10-16 MHz spread-spectrum emissions are bench items (DECISIONS.md:442-448)."
+    "Local enclosure air at U41/U42 not evidenced (DECISIONS.md:836 bench IR). 1.71 W stays within 90 % of the derated power only up to 85.6 C (100 % to 92.4 C) on a straight line through RECOM's labelled points, and the curve is for RECOM's 50x50 mm EVM, not this board.",
+    "'Reinforced' is a p.1 feature claim; the isolation table names no standard and UL file E542996 (p.1 logo) could not be read (UL Product iQ 403). Not needed for this HOT-to-HOT functional use; do not rely on it as safety insulation.",
+    "Start-up (6-13 ms vs 16 ms timeout) and 11-16 MHz switching emissions are bench items (DECISIONS.md:442-448)."
    ],
-   "finding": null,
+   "finding": "Isolation claim resolved: elec/src/f6_parts.ato:354 ('reinforced 5 kVAC / 1.4 kVDC working') matches the current R24C2T25/R Rev. 1-2024 sheet (p.1; p.8: 1.4 kVp repetitive, 1000 Vrms TDDB, 1.4 kVDC). The 'preliminary 850 Vrms / 1.2 kVp functional' copy was the different non-/R R24C2T25 series. Barrier check now 520/1400 = 37 % (was 43 % against the wrong part).",
    "notes": null
   },
   "0603WAF2702T5E": {
@@ -4355,7 +4556,7 @@
     "revision": "Phoenix Contact catalog extract 01/04/2017 (Chinese), LCSC copy; dimensions also from the 2010-02-23 extract (DigiKey copy). phoenixcontact.com returned 403.",
     "fetched": "2026-10-13",
     "repo_copy": null,
-    "note": "Ratings read by the lead from the extract text (CSA 300 V 30 A, CUL 30 A, UL 30 A; certification list CCA, CSA, CUL, UL) and the dimensioned drawing p.4. Local copy validation-results/11-candidates/c27-j1-terminal/raw/ds/ (not committed).",
+    "note": "Ratings read by the lead from the extract text (CSA 300 V 30 A, CUL 30 A, UL 30 A; certification list CCA, CSA, CUL, UL) and the dimensioned drawing p.4. Local copy validation-results/11-candidates/c27-j1-terminal/raw/ds/ (not committed). 2026-10-13 retry: phoenixcontact.com product page and PDF API 403; UL Product iQ and database.ul.com (XCFR2.E60425) 403; the browser extension was not connected. Corroboration only: Phoenix extract 2010-02-23 (components.ru copy, cdn.components.ru/media/PDF/5763618.pdf) lists certification CCA, CSA, CUL, GL, GOST, RS, SEV, UL with CSA 300 V / 30 A (28-10 AWG), cUL 600 V / 30 A, UL 600 V / 30 A (30-10 AWG), no use group printed.",
     "sha256_prefix16": "22408e340fdc42d9"
    },
    "ratings": [
@@ -4477,11 +4678,212 @@
     }
    ],
    "gaps": [
-    "Ratings from a 2017 Phoenix catalog extract (distributor copy); confirm 1714971 on UL Product iQ (E60425, XCFR2) and CSA 13631 before the certification submission.",
+    "Ratings from Phoenix catalog extracts (2017 LCSC copy; 2010 copy agrees on 30 A UL/cUL/CSA but prints 600 V for UL/cUL); UL Product iQ (E60425, XCFR2), database.ul.com and Phoenix all returned 403 on 2026-10-13: confirm 1714971 on the UL and CSA 13631 files before the certification submission.",
     "No 3D model in temper.pretty: the enclosure fit uses a 22 mm courtyard envelope (native21-envelopes.json)."
    ],
    "finding": "Stage 27 replacement for 1711725 (15 A cULus / 10 A CSA). UL/cUL and CSA group B 30 A at 300 V: 45-55 % across the 13.5 A hold, 15 A trip and 16.5 A envelope, 83 % at F1's 25 A non-interrupting ceiling (FINDINGS #4 / #11 closed on rating).",
    "notes": "Wire range UL 30-10 AWG; the cord and inlet leads are 14 AWG (F1-RECOMMENDATION.md). Pitch 9.52 mm: L-N copper gap 6.52 mm with 3.0 mm pads."
+  },
+  "3403.0279.23": {
+   "mpn": "3403.0279.23",
+   "designators": [
+    "F2"
+   ],
+   "class": "SAFETY",
+   "function": "Blower-supply mains tap fuse (J11 -> PS3), Schurter UMT-H 3.15 A T (stage 28, DECISIONS 30)",
+   "status": "VERIFIED",
+   "datasheet": {
+    "url": "https://www.schurter.com/en/datasheet/typ_UMT-H.pdf",
+    "revision": "Schurter UMT-H data sheet (5 pp)",
+    "fetched": "2026-10-13",
+    "repo_copy": null,
+    "note": "Read by the lead: 3.15 A row 3403.0279.11/.23, note 2) UL 1500 A @ 277 VAC / IEC 1500 A @ 250 VAC; melting I2t 39 A2s at 10 In; cURus E41599; land pattern 2 x 3.75 x 5.6 mm, 10 mm gap."
+   },
+   "ratings": [
+    {
+     "parameter": "Breaking capacity UL 277 VAC",
+     "datasheet_limit": 1500,
+     "unit": "A",
+     "basis": "UL 248-14, cURus E41599, 277 VAC resistive (note 2)",
+     "source": "p.3 variants table, 3.15 A row, note 2"
+    },
+    {
+     "parameter": "Rated current",
+     "datasheet_limit": 3.15,
+     "unit": "A",
+     "basis": "IEC 60127-7 / UL 248-14 rated current",
+     "source": "p.3 variants table"
+    },
+    {
+     "parameter": "Rated voltage AC",
+     "datasheet_limit": 277,
+     "unit": "V",
+     "basis": "VAC",
+     "source": "p.3 variants table"
+    }
+   ],
+   "stresses": [
+    {
+     "parameter": "Prospective fault at J11, bounded",
+     "worst_case_value": 980,
+     "unit": "A",
+     "condition": "bolted fault at J11 at 139.7 V with R130 at its -5 % limit and no source, fuse or copper impedance (an upper bound)",
+     "evidence": "validation-results/11-candidates/c28-f2/bounds.py:13"
+    },
+    {
+     "parameter": "Load current",
+     "worst_case_value": 1.42,
+     "unit": "A",
+     "condition": "PS3 input at 108 V, 60 W",
+     "evidence": "validation-results/11-candidates/c28-f2/bounds.py:8"
+    },
+    {
+     "parameter": "Line voltage",
+     "worst_case_value": 139.7,
+     "unit": "V",
+     "condition": "127 V + 10 %",
+     "evidence": "validation-results/11-candidates/c28-f2/bounds.py:3"
+    }
+   ],
+   "derating_rule": "Fault current <= breaking capacity on the applicable (UL) basis; load <= 75 % of rated current; voltage <= rated.",
+   "checks": [
+    {
+     "id": "break vs bounded fault",
+     "rating": "Breaking capacity UL 277 VAC",
+     "stress": "Prospective fault at J11, bounded",
+     "max_ratio": 1.0,
+     "severity": "violation",
+     "rule": "fault <= breaking capacity",
+     "ratio": 0.6533
+    },
+    {
+     "id": "load vs rating",
+     "rating": "Rated current",
+     "stress": "Load current",
+     "max_ratio": 0.75,
+     "severity": "violation",
+     "rule": "<= 75 % of rated current",
+     "ratio": 0.4508
+    },
+    {
+     "id": "line vs rating",
+     "rating": "Rated voltage AC",
+     "stress": "Line voltage",
+     "max_ratio": 1.0,
+     "severity": "violation",
+     "rule": "<= rated voltage",
+     "ratio": 0.5043
+    }
+   ],
+   "layout_guidance": [
+    {
+     "item": "land pattern per the data sheet (2 x 3.75 x 5.6 mm pads, 10 mm gap)",
+     "enforced_by": "libraries/temper.pretty/Fuse_Schurter_UMT-H_15.4x5.35mm.kicad_mod"
+    },
+    {
+     "item": "3.2 mm between l_filt and blw_l copper (HOT potential groups)",
+     "enforced_by": "native-21/layout/write_rules21.py"
+    }
+   ],
+   "gaps": [],
+   "notes": "Stage 28 replacement for 3403.0171 (UMT 250, 200 A IEC), the former VIOLATION (F4). The bound relies on R130 (AC05000001507JAC00) in series."
+  },
+  "AC05000001507JAC00": {
+   "mpn": "AC05000001507JAC00",
+   "designators": [
+    "R130"
+   ],
+   "class": "SAFETY",
+   "function": "J11 fault-current limiter in series after F2 (stage 28, DECISIONS 30)",
+   "status": "PARTIAL",
+   "datasheet": {
+    "url": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_Vishay-Intertech-AC05000001507JAC00_C1382388.pdf",
+    "revision": "Vishay AC series, document 28730 (Rev 07-Dec-2020)",
+    "fetched": "2026-10-13",
+    "repo_copy": null,
+    "note": "Pulse chart read at 0.15 ohm: about 125 A2s (+-25 %), 11-candidates/g06-g08-g10-supplies-sense-io/f2/PARTS-2026-10-13.md s3. LCSC-hosted copy of Vishay doc 28730; vishay.com direct URL not used. Same curves in Rev 13-Jan-14 (https://www.farnell.com/datasheets/2099789.pdf)."
+   },
+   "ratings": [
+    {
+     "parameter": "Power 70 C",
+     "datasheet_limit": 5,
+     "unit": "W",
+     "basis": "AC05 rated dissipation",
+     "source": "p.1 technical data"
+    },
+    {
+     "parameter": "Single-pulse capacity at 0.15 ohm",
+     "datasheet_limit": 125,
+     "unit": "A2s",
+     "basis": "Ws/ohm pulse chart (adiabatic), read by eye +-25 %",
+     "source": "p.6 pulse capability"
+    }
+   ],
+   "stresses": [
+    {
+     "parameter": "Continuous dissipation",
+     "worst_case_value": 0.302,
+     "unit": "W",
+     "condition": "1.42 A PS3 input",
+     "evidence": "validation-results/11-candidates/c28-f2/bounds.py:8"
+    },
+    {
+     "parameter": "Fault pulse, current-limiting clearing estimate",
+     "worst_case_value": 67,
+     "unit": "A2s",
+     "condition": "F2 clearing I2t, current-limiting regime (no published clearing I2t)",
+     "evidence": "validation-results/11-candidates/c28-f2/bounds.py:11"
+    },
+    {
+     "parameter": "Fault pulse, 3x melting",
+     "worst_case_value": 117,
+     "unit": "A2s",
+     "condition": "3 x F2's 39 A2s melting I2t, design point",
+     "evidence": "validation-results/11-candidates/c28-f2/bounds.py:12"
+    }
+   ],
+   "derating_rule": "Continuous <= 50 % of rated power; the fault pulse <= the single-pulse capacity.",
+   "checks": [
+    {
+     "id": "power",
+     "rating": "Power 70 C",
+     "stress": "Continuous dissipation",
+     "max_ratio": 0.5,
+     "severity": "violation",
+     "rule": "<= 50 % rated",
+     "ratio": 0.0604
+    },
+    {
+     "id": "pulse vs current-limiting clearing",
+     "rating": "Single-pulse capacity at 0.15 ohm",
+     "stress": "Fault pulse, current-limiting clearing estimate",
+     "max_ratio": 1.0,
+     "severity": "gap",
+     "rule": "pulse <= capacity",
+     "ratio": 0.536
+    },
+    {
+     "id": "pulse vs 3x melting",
+     "rating": "Single-pulse capacity at 0.15 ohm",
+     "stress": "Fault pulse, 3x melting",
+     "max_ratio": 1.0,
+     "severity": "gap",
+     "rule": "pulse <= capacity",
+     "ratio": 0.936
+    }
+   ],
+   "layout_guidance": [
+    {
+     "item": "upright mounting, 5.08 mm pitch, 24 mm envelope",
+     "enforced_by": "validation-plan/enclosure-fit/native21-envelopes.json"
+    }
+   ],
+   "gaps": [
+    "F2's clearing I2t is unpublished: the pulse stress is an estimate; a bench short at J11 with R130 fitted (record i(t), integrate) settles it.",
+    "Fail-open behaviour on overload is not stated by Vishay (certifier item); an open only lowers the fault current.",
+    "The pulse chart was read by eye (+-25 %)."
+   ],
+   "notes": "Stocked: LCSC C1382388 (245 at 2026-10-13)."
   }
  }
 }

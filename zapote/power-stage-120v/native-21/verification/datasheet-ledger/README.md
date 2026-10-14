@@ -26,19 +26,21 @@ referenced by `parameter`, same unit, numeric), `layout_guidance [{item, enforce
 or starts with `UNCHECKED`), `gaps`, and `finding` (required for VIOLATION). When a BOM line is added or an MPN changes, add
 the entry in the same commit or the gate fails.
 
-## Current findings (after stage 27, 2026-10-13: 91 BOM lines, 1 VERIFIED / 28 PARTIAL / 62 UNAUDITED / 1 VIOLATION)
+## Current findings (after stage 28, 2026-10-14: 92 BOM lines, 2 VERIFIED / 28 PARTIAL / 62 UNAUDITED / 0 VIOLATION; the gate PASSES)
 History: seed 1 / 24 / 64 / 2. Stage 27 replaced J1 (VIOLATION -> PARTIAL); R1/R2 and the snubber caps were audited
-(UNAUDITED -> PARTIAL). `ledger.json` is the record from here on; `seed_ledger.py` reproduces only the first seed.
-**VIOLATION**
-- **F2 3403.0171**: 200 A IEC breaking capacity vs 373-3,567 A prospective fault at J11; F1 cannot back it (DECISIONS.md:843).
+(UNAUDITED -> PARTIAL). Stage 28 replaced F2 (VIOLATION -> VERIFIED) and added its limiter R130 (PARTIAL). `ledger.json` is the record from here on; `seed_ledger.py` reproduces only the first seed.
+**VIOLATION**: none.
 
 **UNAUDITED SAFETY/POWER**: none.
 
-**Resolved:** J1 1711725 (24 A IEC only; 15 A cULus / 10 A CSA) was replaced at stage 27 by 1714971, MKDS 5/2-9,5 (UL/cUL
+**Resolved:** F2 3403.0171 (UMT 250, 200 A IEC vs 373-3,567 A at J11) was replaced at stage 28 by the UMT-H 3403.0279.23
+(1500 A UL @ 277 VAC) with R130, a 0.15 ohm AC05 limiter: the J11 fault is bounded at 980 A (65 %; c28-f2/bounds.py).
+J1 1711725 (24 A IEC only; 15 A cULus / 10 A CSA) was replaced at stage 27 by 1714971, MKDS 5/2-9,5 (UL/cUL
 and CSA group B 30 A, 300 V): 45-55 % across 13.5-16.5 A, 83 % at F1's 25 A.
 
 **PARTIAL** (gap in one line)
-- J1 1714971: ratings from a 2017 Phoenix catalog extract (distributor copy); confirm on UL Product iQ (E60425) and CSA 13631.
+- R130 AC05000001507JAC00: pulse 0.54 of capacity on the current-limiting clearing estimate, 0.94 on 3x melting; F2's clearing I2t is unpublished, so a bench short at J11 settles it.
+- J1 1714971: ratings from Phoenix catalog extracts (2017; a 2010 copy agrees on 30 A, prints 600 V UL/cUL); UL Product iQ, database.ul.com and Phoenix all 403 on 2026-10-13, so E60425 / CSA 13631 still unconfirmed.
 - R1/R2 1206W4F1003T5E: 44 % of continuous working voltage, 58 % of the 5 s overload in a surge (RV1 455 V clamp); no maker pulse rating.
 - C12/C13/C19/C20 GRM31A5C3A102JW01D: 490 V die VDS at 49 % of 1 kV (50 % rule, modelled); exact-MPN sheet and ripple/pulse rating not obtained.
 - F1 KLDR025: overload through J1 not interrupted (25 A fuse vs 15 A terminal); clip datasheet not read.
@@ -48,18 +50,23 @@ and CSA group B 30 A, 300 V): 45-55 % across 13.5-16.5 A, 83 % at F1's 25 A.
 - C5/C6 B32676G1905: ripple heating checked only at 22 A (80 %); extrapolation to 26/28 A exceeds the allowance.
 - C21-C23/C151/C152 B32654A1104J: 28 A is 4.5 % over the digitised TDK curve (26 A commissioned is inside); third-fault 1,683 V > 1,600 VDC.
 - C38-C41 B32652A0104: RMS share unknown (needs measurement).
-- RV1 TMOV20RP175E: datasheet not obtained (distributor figures); MCOV margin 0.2 V at 80 %.
-- C1/C2 X2: temperature and surge pulse not compared. C3/C4 Y1: exact-MPN datasheet missing; product leakage 0.974 mA vs 0.5 mA (F5).
-- L1 B82726S2203A020: no datasheet found; rated voltage and temperature derating unchecked.
+- RV1 TMOV20RP175E: Littelfuse 2017 sheet (distributor copy; littelfuse.com 403). MCOV 79.8 % (80 % rule), 750 A = 7.5 % of 10 kA single and 57 % of the digitised 100-pulse 1.31 kA; Vc 455 V @ 100 A confirms the ALT-D3 model. Gaps: local ambient (85 C rating), newer revision, UL 1449 file unread.
+- C1/C2 X2: temperature and surge pulse not compared. C3/C4 Y1: exact-MPN Murata spec found (Y1 300 V / X1 440 V, UL E37921, VDE 40043033): 47 % at 139.7 V; only gap is product leakage 0.974 mA vs 0.5 mA (F5).
+- L1 B82726S2203A020: TDK sheet 5/26 read: 250 V AC (56 %), IR 20 A at TR 60 C, Lstray 18 uH. 15 A meets 80 % only up to 67.7 C local air (IR itself to 85.3 C); L1 air is unmeasured, exhaust side of the 50 C duct. No UL/CSA recognition listed.
 - R5 CSS2H: pulse rating vs 71 A trip not compared; shunt current approximated by tank current; zero stock.
 - T1 CST3015-200ED: no maker working-voltage/CTI/HF rating at 198 Vpk.
 - PS1 IRM-20-15: 11 % margin at a modelled 78 C bay air. PS2 IRM-20-24: derating at real local air unread (model case 98 C vs 85 C ambient rating).
-- U41/U42 R24C2T25: datasheet copy is PRELIMINARY (850 Vrms/1.2 kVp functional) vs repo's reinforced claim; thermal and start-up on the bench.
+- U41/U42 R24C2T25/R: claim resolved. The current /R sheet (Rev. 1-2024) gives 5 kVAC reinforced, 1.4 kVp, 1000 Vrms, 1.4 kVDC, matching f6_parts.ato; the 'preliminary 850 Vrms' copy was the non-/R series. Barrier 37 %. 1.71 W holds to 85.6 C local air (90 % rule); air, start-up and EMI are bench items.
 - J3/J11 JST VH: NA UL/CSA file rating not read; J11 sits behind the failing F2.
 - J2/J5 Wuerth 74650074: only the 50 A at 20 C docstring; no derating.
 - D3/D17 30KPA150CA: no Good-Ark copy; 95 % standoff use at 286 V; plug-in overshoot 384 V exceeds VBR min; lead-bend unchecked.
-- ISO7710 (U9, U32-34): CMTI min 85 < 95 V/ns; U9 unfiltered. AMC1311 U4: CMTI 1.05x, datasheet not fetched.
+- ISO7710 (U9, U32-34): CMTI min 85 kV/us confirmed (SLLSER9E). U32-34 pass on the 10 us filter (5.47 ns event vs 5.95 us). U9 is unfiltered all the way to the controller latch: **new finding, availability only** (below).
+- AMC1311 U4 (SBAS786C read): CMTI 100 min = 1.05x; VIORM 2120 V (13 %); VSENSE 1.65 V at 198 V (82.5 % of the 2 V FSR); 2.38 V at 286 V is above the linear range (240 V) but below clipping (302 V). Firmware flags over-range at 231 V, and OVP is the TLV3201.
 - U36 VOL628A: LED current vs IF max and CTI 275 vs D5 basis unchecked; no CMTI.
 - R3/R4, R22-R29 RC1206FR-07: only the 2004 series spec; the current RC_L sheet not read.
+
+**Datasheet-gap pass 2026-10-13 (RV1, L1, C3/C4, U4, U41/U42, ISO7710, J1; derived numbers: `scripts/datasheet_gap_calcs.py`)**
+- **NEW, U9 ISO7710 CMTI (availability, not safety).** U9.OUT -> U13 OR -> J4.10 BUS_FAULT -> controller interlock (LVC14 -> HC30 -> LVC14 -> LVC1G74 CLR_N) has no RC anywhere. A HIGH upset trips the permit latch, which turns all drivers off until firmware sends a reset edge: a nuisance trip in the safe direction. A LOW upset during a real fault can only delay detection by the upset width (event 5.47 ns, against a 0.85-1.16 us OCP chain), because OCP, OVP and HOT5 faults are held levels. Fix options: a 1 k / 47 pF RC at U13.A (+57 ns) at the re-spin, or a controller debounce. First, bench-probe BUS_FAULT at hard S4/S5 edges.
+- **Resolved, RECOM isolation claim:** see U41/U42 above. The ledger had read the wrong product (non-/R RxxC2Txx).
 
 VERIFIED: J6 1704004 only (leakage-only PE branch; limits CSA 10 A / cULus 15 A).

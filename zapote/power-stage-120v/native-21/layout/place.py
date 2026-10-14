@@ -357,7 +357,8 @@ for path, tx, ty in STAGE14_TARGETS:
 # Stage 16 (DECISIONS 16): the blower-supply mains tap beside PS1's AC pins, the only legal spot
 # (stage16-blower-supply/tap_spot.py: 9.3 mm to SELV / PE / H1's screw head, 3.4 mm to HOT, 8.8 mm to
 # other mains groups). No part moves.
-put("f_blw", 266.5, 118.4, 0)
+put("f_blw", 269.35, 117.6, 0)   # stage 28 (DECISIONS 30): UMT-H 1.5 kA between PS1, D17 and J11 (0.3 mm); F2.1 (l_filt) 3.3 mm from PS1.2 (n_filt)
+put("r_blw", 284.115, 116.5, 0)  # stage 28: AC05 0.15 ohm limiter upright, pad 1 at (282.9, 116.5); 19 mm from H1
 put("j_blw_ac", 266.5, 125.8, 0)
 
 # Stage 19 (DECISIONS 19, engineering review N1): each IC's dedicated 100 nF bypass cap was parked 11-70 mm away

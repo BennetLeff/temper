@@ -57,7 +57,9 @@ CHANGED.update({"UMK325AB7106KM-T": "C386167", "RT0603BRD0712K4L": "C861102", "T
                 # stage 26 (DECISIONS 28; r2-cost R2-05): the low-ESR SVPC variant, same 6.3 x 5.9 can (lcsc.com 2026-10-13, 845 in stock)
                 "6SVPC220MV": "C128504",
                 # stage 27 (DECISIONS 29): J1 Phoenix MKDS 5/2-9,5, UL group B 30 A (c27-j1-terminal; LCSC 75 / JLC 164 on 2026-10-13)
-                "1714971": "C92145"})
+                "1714971": "C92145",
+                # stage 28 (DECISIONS 30): F2 UMT-H 1.5 kA (zero LCSC/JLC stock: consign from DigiKey) and the 0.15 ohm limiter R130
+                "3403.0279.23": "C3163739", "AC05000001507JAC00": "C1382388"})
 ACCEPT_ALT = {"GRM31A5C3A102JW01D"}
 bom_path = HERE / "fab" / "bom-jlcpcb.csv"
 rows = list(csv.DictReader(open(bom_path)))

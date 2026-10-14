@@ -26,7 +26,7 @@ from "parts.ato" import R220k1206, Shunt1m, MosfetCfd7, Snubber1n1kV, UCC21550BD
 from "parts.ato" import R3R9Gate, R49k9Dt, R10k0603, R100k0603, R100R0603
 from "parts.ato" import R1k0603, R330R0603, C100n0603, C10u1210, C10u0805, ResB32654
 from "parts.ato" import C100n0805, C1u0805
-from "parts.ato" import CST3015_200E, Irm20_15, TcoLoopHeader, BranchFuseT3A15, MainsTapHeader
+from "parts.ato" import CST3015_200E, Irm20_15, TcoLoopHeader, BranchFuseT3A15, BranchLimiter0R15, MainsTapHeader
 from "parts.ato" import Amc1311, R470k1206, R15k8Thin, C1nC0G0603, C100pC0G0603
 from "parts.ato" import Tlv3201, Ref2V5, R10kThin, R12k6Thin, R11k7Thin, R140kThin, R5k6Bias
 from "parts.ato" import Iso7710, SelvHeader16, Nand3Lvc1g10, FunctionalEarthLink
@@ -237,6 +237,7 @@ module PowerStage120V:
     signal CRBLEED_3
     signal TCO_L
     signal BLW_L
+    signal BLW_LR   # stage 28: F2 -> R_blw (limiter) -> J11
     signal V15_LS
     signal N_LS
     signal V24_RAW
@@ -457,8 +458,12 @@ module PowerStage120V:
     f_blw = new BranchFuseT3A15
     f_blw.p1 ~ L_FILT
     f_blw.p2 ~ BLW_L
+    # Stage 28 (DECISIONS 30, F4): a 0.15 ohm limiter after F2 bounds the J11 fault current to 784 A
+    r_blw = new BranchLimiter0R15
+    r_blw.p1 ~ BLW_L
+    r_blw.p2 ~ BLW_LR
     j_blw_ac = new MainsTapHeader
-    j_blw_ac.p1 ~ BLW_L
+    j_blw_ac.p1 ~ BLW_LR
     j_blw_ac.p2 ~ N_FILT
     ps_gate = new HotSupply24
     ps_gate.ACL ~ TCO_L
@@ -1059,6 +1064,7 @@ module PowerStage120V:
     j_tco.designator = "J3"
     f_blw.designator = "F2"
     j_blw_ac.designator = "J11"
+    r_blw.designator = "R130"   # stage 28: a new number (R8 / R16, freed in stage 22, stay vacant)
     ps_gate.designator = "PS2"
     u_ldo.designator = "U3"
     u_vsense.designator = "U4"

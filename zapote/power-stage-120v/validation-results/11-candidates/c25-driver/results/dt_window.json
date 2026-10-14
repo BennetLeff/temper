@@ -1,0 +1,176 @@
+{
+ "source": "Infineon 2EDR8259H datasheet Rev 1.7 Table 19 p.15; audit.rs:591-605",
+ "audit_window_ns": [
+  391.0,
+  498.0
+ ],
+ "audit_window_half_width_rel": 0.1204,
+ "ucc21550_49k9_ref": [
+  396.6,
+  488.0
+ ],
+ "edr": [
+  {
+   "R_k": 40.2,
+   "tol": 0.001,
+   "tcr_ppm": 25.0,
+   "typ_lin": 394.7,
+   "typ_formula": 402.0,
+   "min_lin": 333.1,
+   "min_ratio": 337.4,
+   "max_lin": 456.8,
+   "max_ratio": 461.2,
+   "window": [
+    333.1,
+    461.2
+   ],
+   "fits_audit_window": false
+  },
+  {
+   "R_k": 42.2,
+   "tol": 0.001,
+   "tcr_ppm": 25.0,
+   "typ_lin": 413.3,
+   "typ_formula": 422.0,
+   "min_lin": 348.6,
+   "min_ratio": 353.6,
+   "max_lin": 478.5,
+   "max_ratio": 483.6,
+   "window": [
+    348.6,
+    483.6
+   ],
+   "fits_audit_window": false
+  },
+  {
+   "R_k": 43.2,
+   "tol": 0.001,
+   "tcr_ppm": 25.0,
+   "typ_lin": 422.6,
+   "typ_formula": 432.0,
+   "min_lin": 356.4,
+   "min_ratio": 361.7,
+   "max_lin": 489.3,
+   "max_ratio": 494.7,
+   "window": [
+    356.4,
+    494.7
+   ],
+   "fits_audit_window": false
+  },
+  {
+   "R_k": 44.2,
+   "tol": 0.001,
+   "tcr_ppm": 25.0,
+   "typ_lin": 431.9,
+   "typ_formula": 442.0,
+   "min_lin": 364.1,
+   "min_ratio": 369.7,
+   "max_lin": 500.1,
+   "max_ratio": 505.8,
+   "window": [
+    364.1,
+    505.8
+   ],
+   "fits_audit_window": false
+  },
+  {
+   "R_k": 45.3,
+   "tol": 0.001,
+   "tcr_ppm": 25.0,
+   "typ_lin": 442.1,
+   "typ_formula": 453.0,
+   "min_lin": 372.7,
+   "min_ratio": 378.6,
+   "max_lin": 512.0,
+   "max_ratio": 518.1,
+   "window": [
+    372.7,
+    518.1
+   ],
+   "fits_audit_window": false
+  },
+  {
+   "R_k": 46.4,
+   "tol": 0.001,
+   "tcr_ppm": 25.0,
+   "typ_lin": 452.3,
+   "typ_formula": 464.0,
+   "min_lin": 381.2,
+   "min_ratio": 387.4,
+   "max_lin": 524.0,
+   "max_ratio": 530.3,
+   "window": [
+    381.2,
+    530.3
+   ],
+   "fits_audit_window": false
+  },
+  {
+   "R_k": 47.5,
+   "tol": 0.001,
+   "tcr_ppm": 25.0,
+   "typ_lin": 462.5,
+   "typ_formula": 475.0,
+   "min_lin": 389.7,
+   "min_ratio": 396.2,
+   "max_lin": 535.9,
+   "max_ratio": 542.5,
+   "window": [
+    389.7,
+    542.5
+   ],
+   "fits_audit_window": false
+  },
+  {
+   "R_k": 48.7,
+   "tol": 0.001,
+   "tcr_ppm": 25.0,
+   "typ_lin": 473.6,
+   "typ_formula": 487.0,
+   "min_lin": 399.0,
+   "min_ratio": 405.8,
+   "max_lin": 548.9,
+   "max_ratio": 555.8,
+   "window": [
+    399.0,
+    555.8
+   ],
+   "fits_audit_window": false
+  },
+  {
+   "R_k": 49.9,
+   "tol": 0.001,
+   "tcr_ppm": 25.0,
+   "typ_lin": 484.8,
+   "typ_formula": 499.0,
+   "min_lin": 408.3,
+   "min_ratio": 415.4,
+   "max_lin": 561.9,
+   "max_ratio": 569.0,
+   "window": [
+    408.3,
+    569.0
+   ],
+   "fits_audit_window": false
+  },
+  {
+   "R_k": 51.1,
+   "tol": 0.001,
+   "tcr_ppm": 25.0,
+   "typ_lin": 495.9,
+   "typ_formula": 511.0,
+   "min_lin": 417.6,
+   "min_ratio": 425.0,
+   "max_lin": 574.9,
+   "max_ratio": 582.3,
+   "window": [
+    417.6,
+    582.3
+   ],
+   "fits_audit_window": false
+  }
+ ],
+ "min_R_for_lower_edge": 48.7,
+ "max_R_for_upper_edge": 43.2
+}

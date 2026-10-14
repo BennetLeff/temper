@@ -48,7 +48,7 @@ def side1_nc(n):
 
 groups = {k: set(v) for k, v in wr.HOT_GROUPS.items()}
 # stage 16: the blower-supply tap after F2 is its own group (F2 can open, like AC_L_IN against l_f)
-groups["BLW_L"] = {"blw_l"}
+groups["BLW_L"] = {"blw_l", "blw_lr"}   # stage 28: the limiter R130 between them drops < 0.3 V
 groups["LOW"] |= {"ocp_kelvin_p", "n_ls", "v24_raw", "bias_sw1", "bias_sw2", "bias_sn1", "bias_sn2",
                   "hot5_ok_hot", "hot5_uv_raw", "hot5_uv_sense", "ocp_kelvin_n",
                   # stage 14: module enable, the LS TPS7A47's NR node and unused ANY-OUT pins (unique names

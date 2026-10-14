@@ -3432,12 +3432,12 @@
 {
 "ref": "F2",
 "path": "f_blw",
-"fp": "Fuse:Fuse_Schurter_UMT250",
-"w": 11.49,
-"h": 4.35,
+"fp": "temper:Fuse_Schurter_UMT-H_15.4x5.35mm",
+"w": 18.09,
+"h": 6.19,
 "ox": 0.0,
 "oy": 0.0,
-"group": "mains"
+"group": "other:f_blw"
 },
 {
 "ref": "J11",
@@ -3488,5 +3488,15 @@
 "ox": 0.0,
 "oy": 0.0,
 "group": "other:c_ref_xfer_4"
+},
+{
+"ref": "R8",
+"path": "r_blw",
+"fp": "temper:R_Axial_Vishay_AC05_D7.5mm_P5.08mm_Vertical",
+"w": 10.52,
+"h": 8.09,
+"ox": 1.215,
+"oy": 0.0,
+"group": "other:r_blw"
 }
 ]
